@@ -10,9 +10,18 @@
 //   • a METRICS block — objective numbers so an engine change can be measured
 //     before vs after on the SAME 50 cases.
 //
-// RUN (deterministic, free):  node scripts/scenario-lab.js
-// RUN (with AI distinctions + distress):
-//   NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem node -r dotenv/config scripts/scenario-lab.js
+// RUN (deterministic layers only — distinctions and distress measure as ZERO, so
+//      this run UNDERSTATES the engine and is never the answer on its own):
+//   node scripts/scenario-lab.js
+// RUN (COMPLETE — the live AI layers included. This is the one to trust; cost is
+//      never a reason to prefer the run above — Mike, 2026-08-02):
+//   NODE_EXTRA_CA_CERTS=<bundle covering whatever re-signs HTTPS on this box> \
+//     node -r dotenv/config scripts/scenario-lab.js
+//   ⚠ certs/digicert-bundle.pem does NOT cover an antivirus TLS scanner.
+//     Verified 2026-08-02: Avast Web/Mail Shield re-signs api.openai.com, and every
+//     call dies UNABLE_TO_VERIFY_LEAF_SIGNATURE in ~20ms — which reads like a network
+//     fault, not a cert problem, and cost half an hour to spot. Recipe (export the AV
+//     root from the OS trust store): design/HANDOFF.md → Local Setup / Run.
 // FILTER:  node scripts/scenario-lab.js profit
 // ─────────────────────────────────────────────────────────────────────────────
 

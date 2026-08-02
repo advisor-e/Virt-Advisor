@@ -27,8 +27,12 @@
  * reported rather than left to be inferred. A distinction's `triggers` are not
  * matched literally at all: they are passed to gpt-4o-mini as example phrases
  * and the model decides semantically (advisorEngine `_classifyMatchingRows`).
- * Measuring it therefore costs an API call per sentence and is not repeatable
- * for free, so it belongs in a sampled tool of its own, not in this one.
+ * Measuring it therefore takes a live AI call per sentence and is not
+ * deterministic, so it belongs in a sampled tool of its own — one that repeats
+ * a run enough times to tell a real move from a flaky one. COST IS NOT THE
+ * REASON it sits outside this probe (ruling, Mike, 2026-08-02): where live AI is
+ * what proves the thing, it runs, and token spend is never weighed against the
+ * correctness of a measurement. See design/ACTIONS.md, trigger-vocabulary-sweep.
  * Every result carries `notMeasured` saying so — a probe that silently omitted
  * a whole layer would read as "nothing else affects this", which is false.
  *
@@ -40,14 +44,23 @@ const logicTrees = require('./logicTrees')
 const { extractProblemSignals, SIGNAL_DESCRIPTIONS } = require('./problemSignals')
 
 /**
- * The layers this probe cannot see, stated in the payload so a screen can print
- * it. Wording lives here so the API and any future surface say the same thing.
+ * The layers a run cannot see, stated in the payload so a screen can print it.
+ * Wording lives here so the API and any future surface say the same thing.
+ *
+ * ONE SENTENCE (probeText) MEASURES DISTINCTIONS FOR REAL — one live AI call, the
+ * engine's own classifier. It is not in this list any more. Ruled by Mike on
+ * 2026-08-02: *"I have NEVER said to save a few bucks on tokens and avoid live AI
+ * — if live AI testing is required for best practice, do it without asking."*
+ *
+ * The 470-sentence PREVIEW still cannot, and this is a time argument, not a cost
+ * one: it would be ~940 model calls per click, minutes of waiting for one answer.
  */
-const NOT_MEASURED = [
+const NOT_MEASURED_IN_PREVIEW = [
   {
     layer: 'advisory-distinctions',
-    reason: 'Distinction trigger phrases are examples read by the AI, not literal matches — ' +
-      'measuring them needs a live AI call, so they are not included here.'
+    reason: 'Distinctions are judged by the AI for each conversation. Comparing them across all ' +
+      '470 test sentences would mean around 940 AI calls for one answer, so this comparison ' +
+      'covers the phrase matching only. Use "Try a sentence" above to see distinctions for real.'
   }
 ]
 
@@ -105,17 +118,18 @@ function scoreDomains (text) {
  * @param {Object|null} [firmTrees] - the firm's logic-tree override map
  * @returns {Object} the three layers, plus what was not measured
  */
-function probeText (rawText, firmTrees) {
+async function probeText (rawText, firmTrees, distinctionRows) {
   const full = typeof rawText === 'string' ? rawText : ''
   const text = full.slice(0, MAX_TEXT)
 
   const tables = logicTrees.explainDetection(text, firmTrees)
   const signalCounts = extractProblemSignals(text)
+  const domains = scoreDomains(text)
 
   return {
     text,
     truncated: full.length > MAX_TEXT,
-    domains: scoreDomains(text),
+    domains,
     // The winner is what production acts on; the rest still get walked when they
     // score, which is why every scoring table is listed rather than just the top.
     tables,
@@ -125,7 +139,64 @@ function probeText (rawText, firmTrees) {
       description: SIGNAL_DESCRIPTIONS[name] || name,
       count: signalCounts[name]
     })).sort((a, b) => b.count - a.count),
-    notMeasured: NOT_MEASURED
+    distinctions: await matchDistinctions(text, domains, distinctionRows),
+    // Every layer IS measured for one sentence, so nothing is withheld here. The
+    // key stays in the payload rather than disappearing, so a screen that prints
+    // limits keeps working and simply has none to print.
+    notMeasured: []
+  }
+}
+
+/**
+ * Which of the firm's Advisory Distinctions this sentence matches — for real, via
+ * one live gpt-4o-mini call through the ENGINE'S OWN classifier. A second
+ * implementation here would be free to disagree with production, which is worse
+ * than showing nothing.
+ *
+ * Distinctions are scored within the detected domain, exactly as a live session
+ * does, so the probe cannot report a match the engine would never have made.
+ *
+ * @param {string} text - the advisor's words
+ * @param {Array<{id:string}>} domains - scored domains, highest first
+ * @param {Array<Object>} [rows] - the firm's resolved effective distinctions
+ * @returns {Promise<Object>} { measured, domain, matched[], reason? }
+ */
+async function matchDistinctions (text, domains, rows) {
+  const domain = domains && domains.length > 0 ? domains[0].id : null
+  if (!domain) {
+    return {
+      measured: false,
+      domain: null,
+      matched: [],
+      // Not a failure — distinctions are scored inside a domain, so with no
+      // domain there is nothing to score. Said out loud rather than shown as
+      // "no matches", which would read as "your distinctions did not apply".
+      reason: 'Distinctions are read within a domain, and no domain was recognised from these words.'
+    }
+  }
+
+  const inDomain = (Array.isArray(rows) ? rows : []).filter(r => r && r.domain === domain)
+  if (inDomain.length === 0) {
+    return {
+      measured: true,
+      domain,
+      matched: [],
+      reason: 'This domain has no distinctions yet, so there was nothing for the AI to match.'
+    }
+  }
+
+  const matched = await require('../advisorEngine').classifyMatchingRows(inDomain, text, 'logic-lab-probe')
+  return {
+    measured: true,
+    domain,
+    considered: inDomain.length,
+    matched: (matched || []).map(r => ({
+      id: r.id,
+      description: r.description,
+      boost: r.boost || 5,
+      templates: Array.isArray(r.templates) ? r.templates : [],
+      source: r.source || 'platform'
+    }))
   }
 }
 
@@ -276,16 +347,17 @@ function previewTriggerChange (opts) {
     lost,
     otherMoves,
     unchanged,
-    notMeasured: NOT_MEASURED
+    notMeasured: NOT_MEASURED_IN_PREVIEW
   }
 }
 
 module.exports = {
   probeText,
+  matchDistinctions,
   scoreDomains,
   buildCorpus,
   previewTriggerChange,
-  NOT_MEASURED,
+  NOT_MEASURED_IN_PREVIEW,
   MAX_TEXT,
   MAX_PHRASES,
   MAX_PHRASE_LEN

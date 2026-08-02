@@ -1238,8 +1238,8 @@
     "historyDate": "Date",
     "historyEmpty": "No firm changes saved yet — these are the tables as provided. Once you edit and save, every version is kept here."
   },
-  "firmTriggerWorkbench": {
-    "heading": "Trigger Workbench",
+  "firmLogicLab": {
+    "heading": "Logic-Lab",
     "lede": "See what the AI does with an advisor's words, and what would change before you change it. Nothing here is saved.",
 
     "probeHeading": "Try a sentence",
@@ -1251,6 +1251,11 @@
     "labelDomain": "Domain",
     "labelTables": "Tables opened",
     "labelProblems": "Problems found",
+    "labelDistinctions": "Distinctions matched",
+    "distNone": "No distinction matched these words.",
+    "distYours": "Your firm's",
+    "distBoost": "lifts {count} template(s) by {boost}",
+    "distConsidered": "The AI read all {count} distinction(s) in this domain.",
     "none": "none",
     "noDomain": "No domain recognised from these words.",
     "noTables": "No table opens for this sentence.",
@@ -1262,8 +1267,8 @@
     "previewHint": "Add or remove trigger phrases for the open table, and see what moves before you save anything.",
     "previewNeedsTable": "Open a logic table on the left to try a change to its trigger phrases.",
     "previewFor": "Changing trigger phrases for",
-    "addLabel": "Phrases to add",
-    "removeLabel": "Phrases to remove",
+    "addLabel": "Phrases this table opens on",
+    "removeLabel": "Phrases you're taking away",
     "phrasePlaceholder": "One phrase per line",
     "previewButton": "Show me what moves",
     "previewRunning": "Working it out…",
@@ -1284,6 +1289,17 @@
 
     "limitsHeading": "What this does not tell you",
     "corpusLabel": "About the sentences tested:",
+    "pickTable": "Logic table",
+    "currentHeading": "Phrases this table already opens on",
+    "currentNone": "This table has no trigger phrases, so nothing opens it.",
+    "currentHint": "Click a phrase to move it across. Green is what this table opens on; red is what you are taking away.",
+    "addButton": "Add",
+    "removeNone": "Nothing marked for removal.",
+    "clickToRemove": "Click to mark this phrase for removal",
+    "clickToKeep": "Marked for removal — click to keep it",
+    "currentFailed": "This table's phrases could not be loaded. Please try again, and tell us if it keeps happening.",
+    "pickTableNone": "Choose a logic table",
+    "listFailed": "The logic tables could not be loaded. Please try again, and tell us if it keeps happening.",
     "checkFailed": "That check could not be run. Please try again, and tell us if it keeps happening."
   },
   "firmStaircase": {

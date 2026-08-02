@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logic-Lab — "Try a wording change" mockup</title>
+<style>
+  :root {
+    --navy: #002b64;
+    --grey: #7a869a;
+    --line: #dbdbdb;
+    --green: #1f7a45;
+    --green-bg: #eefaf2;
+    --green-line: #63c48d;
+    --green-head: #f4fbf7;
+    --red: #cc0f35;
+    --red-bg: #feecf0;
+    --red-line: #f0879e;
+    --red-head: #fff5f7;
+    --amber: #b35309;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 2rem 1.25rem 4rem;
+    background: #f5f5f5;
+    font: 15px/1.55 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #363636;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+
+  .banner {
+    background: #fff8e6; border: 1px solid #f0d9a0; border-left: 4px solid #e0b24e;
+    border-radius: 5px; padding: 0.85rem 1rem; margin-bottom: 1.5rem; font-size: 0.85rem;
+  }
+  .banner strong { color: var(--amber); }
+
+  h1 { font-size: 1.35rem; margin: 0 0 0.2rem; color: var(--navy); }
+  .lede { color: var(--grey); font-size: 0.85rem; margin: 0 0 1.5rem; }
+
+  .box { background: #fff; border: 1px solid #ececec; border-radius: 6px; padding: 1.25rem; }
+  h2 { font-size: 1rem; margin: 0 0 0.15rem; }
+  .hint { font-size: 0.78rem; color: var(--grey); margin: 0 0 0.9rem; }
+
+  label.fld { display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+              letter-spacing: 0.06em; color: var(--navy); margin-bottom: 0.35rem; }
+  select, input[type=text] {
+    font: inherit; color: inherit; border: 1px solid var(--line);
+    border-radius: 5px; padding: 0.5rem 0.6rem; background: #fff;
+  }
+  select { width: 100%; max-width: 24rem; }
+
+  .instruction {
+    background: #f2f6fb; border-left: 3px solid var(--navy); border-radius: 4px;
+    padding: 0.55rem 0.8rem; font-size: 0.8rem; margin: 1.2rem 0 0.9rem;
+  }
+
+  /* ── The two panels ─────────────────────────────────────────────── */
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 760px) { .panels { grid-template-columns: 1fr; } }
+
+  .panel { border: 1px solid var(--line); border-radius: 6px; overflow: hidden; display: flex;
+           flex-direction: column; }
+  .panel.keep { border-color: var(--green-line); }
+  .panel.drop { border-color: var(--red-line); }
+  .panel.over { outline: 2px dashed var(--navy); outline-offset: -3px; }
+
+  .phead { padding: 0.55rem 0.75rem; font-size: 0.78rem; font-weight: 700;
+           border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; }
+  .panel.keep .phead { background: var(--green-head); color: var(--green); border-bottom-color: var(--green-line); }
+  .panel.drop .phead { background: var(--red-head);  color: var(--red);  border-bottom-color: var(--red-line); }
+  .phead .n { font-weight: 800; }
+
+  .plist { padding: 0.6rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-content: flex-start;
+           min-height: 17rem; max-height: 24rem; overflow-y: auto; }
+
+  .chip {
+    font: inherit; font-size: 0.78rem; border-radius: 999px; padding: 0.2rem 0.7rem;
+    border: 1px solid; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;
+  }
+  .chip .arrow { opacity: 0; font-weight: 700; }
+  .chip:hover .arrow { opacity: 1; }
+  .keep .chip { color: var(--green); background: var(--green-bg); border-color: var(--green-line); }
+  .keep .chip:hover { background: #dcf3e6; }
+  .drop .chip { color: var(--red); background: var(--red-bg); border-color: var(--red-line);
+                text-decoration: line-through; }
+  .drop .chip:hover { background: #fcdde4; }
+  .chip.isnew { border-style: dashed; font-weight: 700; }
+  .chip.dragging { opacity: 0.45; }
+
+  .pempty { font-size: 0.78rem; color: var(--grey); font-style: italic; padding: 0.4rem; }
+
+  /* ── Add a new phrase ───────────────────────────────────────────── */
+  .addrow { display: flex; gap: 0.5rem; margin-top: 0.9rem; align-items: center; flex-wrap: wrap; }
+  .addrow input[type=text] { flex: 1; min-width: 14rem; }
+  button.add {
+    background: var(--green); color: #fff; border: 0; border-radius: 5px;
+    padding: 0.5rem 0.9rem; font: inherit; font-size: 0.84rem; cursor: pointer;
+  }
+  button.add:disabled { background: #c7d6cc; cursor: default; }
+
+  .counts { font-size: 0.8rem; color: var(--grey); margin: 1rem 0 0; }
+  .counts b { color: var(--navy); }
+
+  .btnrow { margin-top: 1rem; display: flex; align-items: center; gap: 0.8rem; }
+  button.go {
+    background: var(--navy); color: #fff; border: 0; border-radius: 5px;
+    padding: 0.5rem 1.1rem; font: inherit; font-size: 0.86rem; cursor: pointer;
+  }
+  button.go:disabled { background: #c7ceda; cursor: default; }
+  button.reset { background: none; border: 0; color: var(--grey); font: inherit;
+                 font-size: 0.8rem; cursor: pointer; text-decoration: underline; }
+
+  /* ── Result ─────────────────────────────────────────────────────── */
+  .result { margin-top: 1.25rem; border-top: 1px solid #eee; padding-top: 1rem; }
+  .result h3 { font-size: 0.8rem; font-weight: 700; margin: 0.9rem 0 0.35rem; }
+  .moves { list-style: none; margin: 0; padding: 0; }
+  .moves li { border-left: 3px solid var(--line); padding: 0.4rem 0 0.4rem 0.6rem; margin-bottom: 0.4rem; }
+  .moves li.taken { border-left-color: #ff9f43; background: #fffaf3; }
+  .sentence { font-size: 0.8rem; margin: 0; }
+  .detail { font-size: 0.72rem; color: var(--grey); margin: 0.1rem 0 0; }
+  .warn { font-size: 0.72rem; color: var(--amber); font-weight: 600; margin: 0.15rem 0 0; }
+  .limits { margin-top: 1rem; padding: 0.6rem 0.75rem; background: #f7f7f9; border-radius: 5px;
+            font-size: 0.72rem; color: #5a5a5a; }
+  .limits b { display: block; margin-bottom: 0.2rem; color: #363636; }
+
+  .note { font-size: 0.78rem; color: var(--grey); margin-top: 2rem; border-top: 1px solid #e4e4e4;
+          padding-top: 1rem; }
+  .note b { color: #363636; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <strong>MOCKUP — not the live screen.</strong> Saved as a file so it can be put beside the build
+    later (CLAUDE.md → “Save the Artefact”). The phrases are the <b>real</b> 39 triggers from
+    Governance &amp; Leadership Logic. <b>Click any phrase to move it across. Drag works too.</b>
+  </div>
+
+  <h1>Logic-Lab</h1>
+  <p class="lede">See what the AI does with an advisor’s words, and what would change before you
+    change it. Nothing here is saved.</p>
+
+  <div class="box">
+    <h2>Try a wording change</h2>
+    <p class="hint">These are the words that decide whether this table opens for a conversation.</p>
+
+    <label class="fld" for="table">Logic table</label>
+    <select id="table">
+      <option>Governance &amp; Leadership Logic</option>
+      <option>Client Planning Logic</option>
+      <option>Cashflow Logic</option>
+      <option>Staff Performance Logic</option>
+    </select>
+
+    <div class="addrow">
+      <label class="fld" for="newPhrase" style="margin:0;">Add a new phrase</label>
+      <input type="text" id="newPhrase" placeholder="e.g. nobody will own the decision">
+      <button class="add" id="addBtn" disabled>Add</button>
+    </div>
+
+    <p class="instruction">
+      <b>Click a phrase to move it to the other side.</b> Click it again to bring it back.
+      Green = the table opens on it. Red = you are taking it away.
+    </p>
+
+    <div class="panels">
+      <div class="panel keep" id="keepPanel">
+        <div class="phead"><span>Opens on these</span><span class="n" id="keepN">39</span></div>
+        <div class="plist" id="keepList"></div>
+      </div>
+      <div class="panel drop" id="dropPanel">
+        <div class="phead"><span>Marked for removal</span><span class="n" id="dropN">0</span></div>
+        <div class="plist" id="dropList"></div>
+      </div>
+    </div>
+
+    <p class="counts">
+      This table opens on <b id="before">39</b> phrases, and would open on <b id="after">39</b>.
+    </p>
+
+    <div class="btnrow">
+      <button class="go" id="go" disabled>Show me what moves</button>
+      <button class="reset" id="reset">Undo my changes</button>
+    </div>
+
+    <div class="result" id="result" style="display:none;">
+      <p class="counts">Comparing against 470 test sentences.</p>
+
+      <h3>Would now reach this table (2)</h3>
+      <ul class="moves">
+        <li>
+          <p class="sentence">“the leadership team keep second-guessing each other”</p>
+          <p class="detail">was reaching: <b>no table</b></p>
+        </li>
+        <li class="taken">
+          <p class="sentence">“nobody will own the call once it’s made”</p>
+          <p class="detail">was reaching: <b>Staff Performance Logic</b></p>
+          <p class="warn">Taken from another table — check this is what you want.</p>
+        </li>
+      </ul>
+
+      <h3>Would stop reaching this table (1)</h3>
+      <ul class="moves">
+        <li class="taken">
+          <p class="sentence">“the board meeting runs over every month”</p>
+          <p class="detail">would go to instead: <b>no table</b></p>
+        </li>
+      </ul>
+
+      <p class="counts" style="margin-top:0.8rem;">467 sentences were unaffected.</p>
+
+      <div class="limits">
+        <b>What this does not tell you</b>
+        About the sentences tested: these are branch conditions and Scenario Lab cases — not
+        recordings of real advisor speech. They show what a change would take from other tables;
+        they do not prove a table opens for the way people actually talk.
+      </div>
+    </div>
+  </div>
+
+  <p class="note">
+    <b>What is being decided here:</b> two lists you move phrases between, rather than empty boxes you
+    type into. Green is what the table opens on; red is what you are taking away; a phrase you add
+    yourself appears green with a dashed edge so it is distinguishable from what was already there.
+    <b>“Try a sentence”</b> — the other half of Logic-Lab — is unchanged and not shown here.
+  </p>
+</div>
+
+<script>
+// The real 39 entry_triggers for the `governance` logic table, read from the running backend
+// on 2026-08-02. Real data on purpose: a mockup filled with invented content hides exactly the
+// problems a mockup exists to find — 39 phrases is a lot to scan, and that matters here.
+var ORIGINAL = [
+  'governance', 'governance issues', 'need to improve governance', 'board issues',
+  "board isn't working", 'board meeting', 'board structure', 'board conduct', 'boardroom',
+  'leadership style', 'leadership culture', 'leadership fit', 'team culture',
+  'team not functioning', 'team dysfunction', 'decision making', 'decision quality',
+  'quality of decisions', 'accountability issues', 'management structure problems',
+  'creative abrasion', 'confirmation bias', 'psyche errors', 'manipulation tactics',
+  'code of conduct', 'facade of governance', 'decision making problems', 'waterline',
+  'team waterline', 'power broker', 'fence mender', 'leadership', 'management',
+  'oversight', 'directors', 'officers', 'decision process', 'management structure',
+  'management oversight'
+];
+
+// One row per phrase. `where` is the only thing a click changes.
+var rows = [];
+
+function reset () {
+  rows = ORIGINAL.map(function (p) { return { text: p, where: 'keep', isNew: false }; });
+  document.getElementById('result').style.display = 'none';
+  render();
+}
+
+function move (row) {
+  if (row.where === 'keep') {
+    row.where = 'drop';
+  } else if (row.isNew) {
+    // A phrase you typed has nowhere to go back TO — moving it right means
+    // discarding it, so it leaves the screen rather than sitting in a red list
+    // pretending it was ever one of the table's phrases.
+    rows.splice(rows.indexOf(row), 1);
+  } else {
+    row.where = 'keep';
+  }
+  render();
+}
+
+function chipFor (row) {
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'chip' + (row.isNew ? ' isnew' : '');
+  b.draggable = true;
+  b.title = row.where === 'keep'
+    ? 'Click to mark this phrase for removal'
+    : (row.isNew ? 'Click to discard this new phrase' : 'Click to keep this phrase');
+
+  if (row.where === 'drop') {
+    var back = document.createElement('span');
+    back.className = 'arrow';
+    back.textContent = '←';
+    b.appendChild(back);
+  }
+  b.appendChild(document.createTextNode((row.isNew ? '+ ' : '') + row.text));
+  if (row.where === 'keep') {
+    var fwd = document.createElement('span');
+    fwd.className = 'arrow';
+    fwd.textContent = '→';
+    b.appendChild(fwd);
+  }
+
+  b.addEventListener('click', function () { move(row); });
+  b.addEventListener('dragstart', function (e) {
+    dragged = row;
+    b.classList.add('dragging');
+    if (e.dataTransfer) { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', row.text); }
+  });
+  b.addEventListener('dragend', function () { b.classList.remove('dragging'); });
+  return b;
+}
+
+var dragged = null;
+
+function render () {
+  var keepList = document.getElementById('keepList');
+  var dropList = document.getElementById('dropList');
+  keepList.innerHTML = '';
+  dropList.innerHTML = '';
+
+  var kept = rows.filter(function (r) { return r.where === 'keep'; });
+  var dropped = rows.filter(function (r) { return r.where === 'drop'; });
+
+  kept.forEach(function (r) { keepList.appendChild(chipFor(r)); });
+  dropped.forEach(function (r) { dropList.appendChild(chipFor(r)); });
+
+  if (!kept.length) {
+    var e1 = document.createElement('p');
+    e1.className = 'pempty';
+    // A table nothing opens is a real state, and a silent blank would hide it.
+    e1.textContent = 'Nothing left — this table would never open.';
+    keepList.appendChild(e1);
+  }
+  if (!dropped.length) {
+    var e2 = document.createElement('p');
+    e2.className = 'pempty';
+    e2.textContent = 'Nothing marked for removal.';
+    dropList.appendChild(e2);
+  }
+
+  document.getElementById('keepN').textContent = String(kept.length);
+  document.getElementById('dropN').textContent = String(dropped.length);
+  document.getElementById('after').textContent = String(kept.length);
+
+  var added = rows.filter(function (r) { return r.isNew && r.where === 'keep'; }).length;
+  var changed = added + dropped.length;
+  document.getElementById('go').disabled = !changed;
+  if (!changed) { document.getElementById('result').style.display = 'none'; }
+}
+
+// Drag targets.
+['keep', 'drop'].forEach(function (side) {
+  var panel = document.getElementById(side + 'Panel');
+  panel.addEventListener('dragover', function (e) { e.preventDefault(); panel.classList.add('over'); });
+  panel.addEventListener('dragleave', function () { panel.classList.remove('over'); });
+  panel.addEventListener('drop', function (e) {
+    e.preventDefault();
+    panel.classList.remove('over');
+    if (dragged && dragged.where !== side) { move(dragged); }
+    dragged = null;
+  });
+});
+
+// Adding a phrase of your own.
+var input = document.getElementById('newPhrase');
+var addBtn = document.getElementById('addBtn');
+
+function canAdd () {
+  var v = input.value.trim().toLowerCase();
+  if (!v) { return false; }
+  // Already there? Adding it again would be reported back as "ignored", which reads
+  // to a firm like a fault rather than a no-op.
+  return !rows.some(function (r) { return r.text.toLowerCase() === v; });
+}
+function refreshAdd () { addBtn.disabled = !canAdd(); }
+
+function addPhrase () {
+  if (!canAdd()) { return; }
+  rows.push({ text: input.value.trim(), where: 'keep', isNew: true });
+  input.value = '';
+  refreshAdd();
+  render();
+}
+
+input.addEventListener('input', refreshAdd);
+input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addPhrase(); } });
+addBtn.addEventListener('click', addPhrase);
+
+document.getElementById('reset').addEventListener('click', reset);
+document.getElementById('go').addEventListener('click', function () {
+  document.getElementById('result').style.display = 'block';
+});
+
+reset();
+</script>
+</body>
+</html>
