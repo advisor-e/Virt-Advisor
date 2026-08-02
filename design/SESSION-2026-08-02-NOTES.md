@@ -119,3 +119,73 @@ report claims to cover — and that report is the page's raw material.
 - Two memory files were written outside the repo (the live-AI ruling and the Avast TLS recipe), and
   `MEMORY.md` was compacted after a hook flagged it over its size limit. Every entry was kept; only
   over-long hooks were shortened.
+
+---
+
+# Part 2 — same day, evening (the session that built the wrong thing twice, then the right one)
+
+> **Nothing is unsaved.** Branch `feat/firm-quiz-builder-ui` = `origin`, **8 ahead / 0 behind
+> `master`**, working tree clean. Suite **3,965 green / 237 suites** after merging the 75 commits
+> that landed with PR #30 (the Business Performance Report programme) — clean merge, no conflicts.
+>
+> **🔴 TOMORROW'S FIRST TASK is written up in full:**
+> [`ACTIONS.md#logic-lab-decision-logic-build`](ACTIONS.md#logic-lab-decision-logic-build).
+> **The spec is a file, not a paragraph:** `design/mockups/decision-logic-map-mockup.html`.
+> Open it before writing any code.
+
+## What to do tomorrow, in order
+
+1. **Open the mockup.** It is interactive — its diagnostic calls the live probe route. Serve it with
+   `npm run serve`, then `http://localhost:3000/decision-logic-map-mockup.html` (a copy lives in
+   `static/`; `design/mockups/` is the master).
+2. **Build the one missing route:** a template's `matchReasons`. The engine already computes them on
+   every session — `advisorEngine.js` L2867, stored in `_decisionTrace.templateScores` with
+   `_scoreGap` alongside — and nothing exposes them. Everything else the page needs is reachable.
+3. **Build the page into Firm Manager Hub as the tab named "Logic-Lab".** The old tab of that name is
+   already gone (this session); the name is being reused.
+4. **When it is done, put the mockup beside the build and name every difference.** That is now a
+   binding rule, not a nicety — see below.
+
+## The three things this session actually established
+
+**1. Mike's original request was never built, and the record shows why.** He asked for a map of what
+makes the biggest difference across the editable blocks — which lever to edit for a better outcome.
+What got built over two days was a phrase-testing workbench. The request had been compressed into a
+one-line paraphrase and the build delivered against the paraphrase. Logged already as
+`#request-compressed-to-one-line`; this session is the correction.
+
+**2. A rule now exists so an approved design cannot evaporate.** `CLAUDE.md` → **"Save the Artefact —
+approval is never given from chat alone."** Anything shown for approval is a committed file first;
+`ACTIONS` and commits **link** it and never summarise it. It exists because the 2026-08-01 mockup was
+approved in chat, never saved, and the build drifted from it with every gate passing — the gates
+compare code to the note, and the note was already a paraphrase.
+
+**3. The phrase-testing tool was measured and found to give a FALSE answer.** Mike deleted six real
+trigger phrases (39 → 33) and it reported *0 gained, 0 lost, 470 unchanged*. Its corpus is 419 branch
+conditions and 51 lab cases — instructions to the AI and test fixtures, not advisor speech. Removed
+from the hub, **kept in the repo**, fully documented at
+[`ACTIONS.md#logic-lab-phrase-testing-parked`](ACTIONS.md#logic-lab-phrase-testing-parked).
+
+## What was built and kept
+
+- **The sentence probe now measures Advisory Distinctions for real** — one gpt-4o-mini call through
+  the engine's own classifier, verified live (`status=ok latency=2044ms`, matching "Poor decision
+  quality"). It had been excused as too expensive; for one sentence it is one call. This is the half
+  Mike found useful and it becomes section 4 of the new page.
+- **`npm run serve`** — clears both ports, builds, runs both halves. **The default for any testing
+  session.** The Nuxt *dev* server died five times today (twice OOM at a 12 GB heap, once a native
+  crash, twice wedged while still reporting "listening"). Production build: same app, 80 MB, stays up.
+  `npm run go` is the dev-mode equivalent for when code is actually changing.
+
+## Traps found today, worth not rediscovering
+
+- **A wedged Nuxt dev server reads exactly like broken code.** It keeps its port, reports "listening",
+  and answers nothing — API calls *and* page loads. A Logic-Lab test was misdiagnosed as hung until
+  the process was found at 8.64 GB. **Check the frontend's memory, and whether the request reached the
+  backend at all, before debugging any "it's hung" report.**
+- **`NoDefaultCurrentDirectoryInExePath=1`** is set on this machine: npm scripts cannot call a `.bat`
+  by bare name. `dev:clean` still carries this fault — untouched, because it was not asked for.
+- **The backend DOES load `.env`** (dotenv, since `a91122f`). `HANDOFF.md` still says otherwise and
+  that stale line cost time today. `NODE_EXTRA_CA_CERTS` is the exception — Node reads it before any
+  JS runs, so putting it in `.env` does nothing. Avast injects a working value itself.
+- **Mike's IDE does not open relative markdown links** — they go to a web search. Give him a URL.
