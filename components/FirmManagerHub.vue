@@ -26,6 +26,22 @@ section.firm-manager-hub.section
       b-tab-item(label="Logic Tables")
         firm-logic-tables(:api-token="apiToken")
 
+      //- ── Logic-Lab — REMOVED FROM THE HUB 2026-08-02 (owner instruction) ──
+      //- The phrase-testing screen (FirmLogicLab.vue) was tried here and rejected:
+      //- its wording-change half compares against 470 branch conditions and lab
+      //- cases, so it answered "nothing would change" to a real six-phrase edit —
+      //- reassurance it had no basis for. Mike: "I want that logic lab page to be
+      //- deleted. I don't wanna see it anymore."
+      //-
+      //- NOT DELETED FROM THE REPO, deliberately (no-silent-parking): the
+      //- component, its 22 tests, both read-only routes and the approved green/red
+      //- mockup are all still here and may be revived. See ACTIONS.md
+      //- #logic-lab-phrase-testing-parked for what works, what does not, and what
+      //- fixing it would take.
+      //-
+      //- The name "Logic-Lab" is being reused for the Decision Logic page
+      //- (design/mockups/decision-logic-map-mockup.html) — built next.
+
       //- ── Tab: Advisory Staircase ────────────────────────────────────
       //- Body lives in its own component. It was the whole-config editor here
       //- until 2026-07-31; every step is now a decision (switch off / edit /

@@ -23,6 +23,204 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
+- <a id="pr-firm-quiz-builder-to-master"></a>☐ **P1 · PROCESS — raise a pull request from
+  `feat/firm-quiz-builder-ui` to `master`. The branch is green and ready; nothing is blocking it but
+  the asking.** Logged 2026-08-02 by Mike's question — it had been said in conversation and written
+  nowhere, which is the exact failure the Save-the-Artefact rule was written about the same evening.
+  - **State at the time of logging (`237ef00`):** 9 ahead, **0 behind** `origin/master`, working tree
+    clean, pushed. Full suite **3,965 green / 237 suites** *after* merging the 75 commits that came in
+    with PR #30 (the Business Performance Report programme) — a clean merge, no conflicts. The
+    pre-push and audit gates passed on every commit.
+  - **What is sitting on it:** the Logic-Lab correction (distinctions measured live through the
+    engine's own classifier; the phrase screen removed from the hub but kept in the repo), the
+    `npm run serve` / `npm run go` start commands, **both approved mockups**, and the **CLAUDE.md
+    "Save the Artefact" rule**.
+  - **Why it should not wait.** That rule binds *both* machines and the laptop cannot follow a rule it
+    does not have — every day it stays on this branch is a day the other division can approve a design
+    in chat and lose it, which is the thing that cost this session a day. Same shape as the
+    [`startup-blind-to-other-machine`](#startup-blind-to-other-machine) P1: work that is pushed but not
+    PR'd is invisible to the other division, and every check reports green throughout.
+  - **`master` means releasable** (WORKING-AGREEMENT), and this branch is: green, merged up to date,
+    and carrying no half-finished screen — the Decision Logic page has not been started, so nothing is
+    mid-build. Reached by pull request only; `.husky/pre-push` refuses a direct push.
+  - **Not a blocker for tomorrow's build.** It can be raised before starting, or after the page lands
+    — Mike's call. Raising it first is the safer order: it gets the rule to the laptop today and keeps
+    the PR small enough to actually review.
+
+- <a id="logic-lab-decision-logic-build"></a>☐ **P1 · BUILD — TOMORROW'S FIRST TASK. The DECISION LOGIC page,
+  approved by Mike 2026-08-02 from a working mockup, goes into Firm Manager Hub as the tab named
+  "Logic-Lab". THE MOCKUP IS THE SPEC — do not design from this entry.**
+  - **THE ARTEFACT:** [`design/mockups/decision-logic-map-mockup.html`](mockups/decision-logic-map-mockup.html).
+    Open it in a browser (or serve it: copy to `static/` and hit `/decision-logic-map-mockup.html`).
+    It is interactive — the diagnostic calls the real probe route. **Per CLAUDE.md → "Save the
+    Artefact", this entry LINKS the file and does not replace it. When the build is done, put the two
+    side by side and name every difference.**
+  - **Mike's ruling, verbatim (2026-08-02):** *"I want the logic lab page as it is currently sitting in
+    firm manager hub … to be deleted. I don't wanna see it anymore. It's shit. I want the decision
+    logic mock up that you've got in future inserted into fair manager hub and renamed logic lab."*
+    And on the old work: *"all of the work that's been done around that phrase testing needs to be
+    saved somewhere. I just don't wanna see it in this manager hub. We may find down the road we
+    choose to use it, so don't delete it entirely."*
+  - **What the page contains, in the order it was approved (section 1 and 2 signed off explicitly —
+    *"I'm really happy with section one and two … let's save them"*):**
+    1. **"Here are the three things that affect client recommendation"** — three columns, order fixed
+       by Mike: **domain support · logic tables · Advisory Distinctions**. Each carries what it holds,
+       what it does, and what to edit it for. **Descriptions are code-verified, not paraphrased** —
+       Mike rejected the first version as invented: domain support is the how-to content
+       (`name` / `summary` / `who_when` / `steps`, [`domainSupport.js`](../server/utils/domainSupport.js)
+       L102-113) read by **Learn mode** ([`advisorEngine.js`](../server/advisorEngine.js) L3192) and
+       **Course Builder** ([`courseEngine.js`](../server/courseEngine.js) L170, L364), and template
+       selection never reads it ([`contentRouting.js`](../server/utils/contentRouting.js) L107-112);
+       logic tables contribute `TREE_HINT_BOOST = 3`
+       ([`templateResolver.js`](../server/utils/templateResolver.js) L184); distinctions contribute
+       `+5` and are judged **only inside the detected domain**. Quiz banks sit in a footnote —
+       named, and stated to affect nothing.
+    2. **"What do you want to change?"** — a symptom→lever router, five rows. This replaced two
+       sections of statistics that Mike ruled useless for deciding anything (*"they just confuse the
+       shit out of me"*): the aggregate 59%/80% block was **cut**, and the margin insight was folded
+       into the distinctions column where it means something.
+    3. **The near-miss answer** — opens in place behind router row 5, not a section of its own. Each
+       line is a decision with **Move / Copy / Leave**, not an observation. Source:
+       `findNearMissDistinctions`, already computed every session and never surfaced.
+    4. **The diagnostic** — sentence + "what went wrong" dropdown + **the template you expected**.
+       The expected template is what turns "here is what happened" into "here is how far short you
+       were". Shows the live probe result, then the score sheet with the gap.
+    5. **"Give me ideas of what to change"** — a separate opt-in button below the diagnosis. Numbered
+       strongest-first with what each is worth, and it adapts to the dropdown. **It never drafts the
+       firm's content**: the suggested distinction is the advisor's own sentence quoted back.
+  - **🔴 THE ONE BLOCKER, and it is small.** The score sheet and the gap arithmetic need a template's
+    real `matchReasons`. The engine computes them on **every** session
+    ([`advisorEngine.js`](../server/advisorEngine.js) L2867, stored in `_decisionTrace.templateScores`
+    with `_scoreGap` alongside) and **no route exposes them**. That route is the first thing to build.
+    Everything else on the page reads data that is already reachable.
+  - **Already live and reused as-is:** the sentence probe (`POST /api/firm-manager/logic-trees/probe`),
+    which now measures Advisory Distinctions for real via one gpt-4o-mini call — verified live
+    (`[openai] logic-lab-probe … status=ok latency=2044ms`).
+  - **Not yet decided:** where the page is reached from beyond the hub tab, and whether the
+    Move/Copy/Leave buttons write immediately or stage a change. Both are Mike's calls.
+
+- <a id="logic-lab-phrase-testing-parked"></a>🔒 **PARKED (not deleted) — the phrase-testing screen and its
+  470-sentence comparison. Removed from Firm Manager Hub 2026-08-02 by owner instruction; every file
+  kept.** Logged under the no-silent-parking rule so it is revived deliberately, never rediscovered.
+  - **What is still in the repo and works:**
+    [`components/firm/FirmLogicLab.vue`](../components/firm/FirmLogicLab.vue) (22 passing tests in
+    [`firmLogicLab.component.test.js`](../tests/unit/firmLogicLab.component.test.js)), the two
+    read-only routes, and the **approved** green/red mockup
+    [`design/mockups/logic-lab-wording-mockup.html`](mockups/logic-lab-wording-mockup.html).
+    The hub no longer imports or renders the component — see the comment block in
+    [`FirmManagerHub.vue`](../components/FirmManagerHub.vue).
+  - **Why it was rejected, in one line:** its comparison runs against a corpus of **419 branch
+    conditions + 51 Scenario Lab cases**, which are instructions to the AI and test fixtures, not
+    advisor speech. Mike deleted six real trigger phrases (39 → 33) and it reported **0 gained, 0
+    lost, 470 unchanged** — *"nothing would change"* is not an answer, it is the tool being unable to
+    tell, and it reads as reassurance. Reproduced independently: adding `org chart`, `turnover` or
+    `nobody knows who reports to whom` to `staff_performance` each moved **0 of 470**; `org chart`
+    appears in **0** of the corpus sentences.
+  - **What would make it worth reviving:** a corpus of sentences that sound like advisors talking —
+    real session text or transcribed openings — instead of branch conditions. Until then the
+    comparison must not report "nothing moves" as a finding; it should say it cannot tell.
+  - **What was genuinely good in it, and has already moved on:** the sentence probe. It is section 4
+    of the Decision Logic page above, and it is the half Mike found useful — it showed that only
+    `"decision making"` landed out of a three-part sentence, while *"no clear direction"* and *"not on
+    the same page"* reached nothing.
+
+- <a id="decision-logic-page"></a>☑ **SUPERSEDED by the two entries above (2026-08-02). Kept for the
+  design reasoning and the IP-boundary ruling, which still bind.**
+  ☐ **P1 · BUILD — the DECISION LOGIC page: a read-only screen where a firm
+  manager sees the parts they can edit, what each one actually changes, and what difference a change
+  makes. RULED 2026-08-02 (Mike). Not started — no code written, no spec document yet.**
+  - **What Mike asked for, in his words (2026-08-02):** *"a separate page that showed all the mechanics /
+    pathways that help determine a template in a read only page so firm managers could understand what
+    influences the template selection"*, multi-column — and later: *"the purpose … is to allow users to
+    learn what makes the best difference across all variable inputs. We want them to be able to actively
+    influence the [decisions] made on their content by AI for their advisors."*
+  - **🔴 THE IP BOUNDARY IS THE FIRST CONSTRAINT, NOT A DETAIL (Mike, 2026-08-02).** *"The algorithm 'as a
+    whole' stays hidden — this is our IP."* Specifically protected: **that the engine relies on the growth
+    stages, the 3 engagement types and the Advisory Staircase**, and **the feeder/tested question order and
+    how it works**. The page shows **only the parts made editable on purpose**, how each influences, and
+    the logic behind decisions. Consistent with the 2026-06-11 ruling in memory
+    `design-growth-locked-protected-ip` (framework CONTENT platform-locked; the staircase
+    complexity-*grading* per level stays firm-tunable, and is not a contradiction).
+  - **Plan B chosen over Plan A.** Plan A (show every lever, all ~13 reason families) was rejected: it
+    would expose engagement types, growth stages, the staircase ceiling and the question order as named
+    levers. It is also the worse product — a page listing levers a manager may not touch teaches them what
+    they are not allowed to do. **Every row in Plan B ends in an action.**
+  - **Page shape — grouped by WHAT EACH LEVER CHANGES, not one section per building block.** Measured, the
+    five editable blocks do three different jobs, and a flat list would teach something false about two of
+    them: **Distinctions (67) + logic tables (37 of 42) SELECT templates** · **domain support (29) shapes
+    the AI's wording and selects nothing** · **quiz banks (62) never touch a client recommendation**. Then
+    a fourth section: **test a change** (the trigger workbench moves here — see `workbench-placement`).
+  - **✅ ACCURACY RULED (Mike): "of course it needs to be accurate for them — always."** The page reads the
+    **firm's own live configuration**, edits included — never the platform base with the firm's work
+    missing. **Consequence to budget for:** [`contentRouting.js`](../server/utils/contentRouting.js)
+    hard-requires the four platform data files at load (L28-31) and its five classify functions take **no
+    arguments**. They must take their content as input. The classification RULES must not change — that
+    module is deliberately the single source the report and the build guard both read.
+  - **Two safeguards, both required.** (1) **The hidden remainder always carries its number** — *"other
+    engine factors: +11"*, never omitted, so the arithmetic never has a gap (a score that does not add up
+    loses the reader's trust, and the no-silent-omission rule already binds here). (2) **The allowlist of
+    publishable reason codes FAILS CLOSED, with a test that proves it** — a code is hidden unless
+    explicitly cleared, so the next developer who adds a scoring rule cannot leak the IP by forgetting.
+  - **✅ IT IS WORTH BUILDING — measured live, 51 Scenario Lab cases, the real resolver.** Removing the
+    firm-editable levers **changes the top recommendation in 30/51 cases (59%)** and the displayed set in
+    **41/51 (80%)**; they supply **37.5%** of the winning template's score. Of the 41 changed sets, 29
+    turned on **distinctions alone**, 3 on logic tables alone, 4 on both, and 5 changed because a rival
+    template was boosted past another. The changes are substantive, not cosmetic: all four `strategy`
+    cases go from *Lite Strategy + 1 pg Bizz Case* to *Orientation Part 1 + Planning Outcomes Review*.
+  - **⚠ DO NOT present leverage as share-of-score.** The same data reads as worthless or powerful depending
+    on the number chosen, and Mike raised exactly this risk (*"else it could make the page seem
+    worthless"*). Leverage is not a proportion — it is whether a nudge crosses the gap between the top two
+    candidates, and the **average margin between #1 and #2 is 3.0 points**. A +3 flipped the winner at a
+    score of 47 *and* at a score of 6. **Show the margin** — "this came top by 2 points, and 3 of those
+    came from your logic table" — never "your edit was worth 5%".
+  - **The raw material mostly exists and has never been surfaced.**
+    [`templateResolver.js`](../server/utils/templateResolver.js) L567 already returns `matchReasons` per
+    template with the real numbers (`distinction:+5`, `tree_hint:+3`, `penalty:*`) — computed on every
+    session and thrown away. [`CONTENT-ROUTING.md`](CONTENT-ROUTING.md) already classifies 491 assets with
+    the deciding code path and evidence, generated with a freshness guard.
+  - **Honest limits the page must state.** `matchReasons` explains the **deterministic scoring only** — not
+    the domain detection ahead of it (use the existing probe) nor the AI's narrative after it. And whether
+    a **distinction matches** is an AI judgement that carries no number; only its boost does. So the page
+    has two evidence sources and must say which is which rather than blending them into one confident view.
+  - **OPEN, and Mike's to decide:** every user-facing label, the page's own name (*"Decision Logic"* is his
+    phrase from the session, not yet confirmed as the title), and where it is reached from. Wording is never
+    invented (CLAUDE.md). **NEXT STEP: write the spec document; before that, (a) read `6b9d4d2`, which
+    changed what the routing report covers, and (b) Mike looks at the trigger workbench, which is now in
+    `master` and still has never been seen by anyone.**
+
+- <a id="request-compressed-to-one-line"></a>☐ **P1 · PROCESS — a request was compressed into a one-line
+  paraphrase, and the build then delivered against the paraphrase. That is how a trigger workbench came to
+  be built instead of the page Mike asked for.** Found 2026-08-02 by Mike: *"AI gave me a 'workbench' and
+  forgot about the rest."*
+  - **The evidence.** The ONLY written record of the request is a single line in this file: *"Raised by
+    Mike: a read-only view of what affects what, aligned with the tests, that warns of effects before a
+    change."* The commit that followed (`754d204`) already calls it *"the workbench Mike asked for"* — so
+    the narrowing had happened **before any code was written**, and nothing in the record showed it.
+  - **What the compression lost:** "a separate page", "all the mechanics / pathways", "multi-column", and
+    "so firm managers could understand what influences template selection". None of it reached the notes.
+  - **Why this is a process defect, not a misunderstanding.** Two days of work were designed, tested,
+    committed and merged, and **every gate passed** — because the gates check the code against the note,
+    and the note itself was already wrong. No test can catch this class of failure.
+  - **Proposed rule, cheap and mechanical:** when a request becomes a task entry, **the entry quotes the
+    ask verbatim before it paraphrases it.** The paraphrase is the AI's reading and is allowed to be wrong;
+    the quote is not. Read it back before designing against it.
+  - Same accretion-without-sign-off family as the two already on record in memory:
+    `design_growth_locked_protected_ip` ("surface all three frameworks so a firm can edit them" — never
+    Mike's call) and `design_conversational_intake`.
+
+- <a id="cert-bundle-residual"></a>☐ **P3 · DOC — three FUNCTIONAL references still point at
+  `certs/digicert-bundle.pem`, deliberately left there.** Logged 2026-08-02 under the no-silent-parking
+  rule, so the decision is visible rather than living only inside a commit message.
+  - **Corrected that day (`152c1bb`):** the live-AI recipes in the four lab scripts and
+    [`HANDOFF.md`](HANDOFF.md). The committed bundle does **not** cover `api.openai.com` on a machine
+    running antivirus HTTPS scanning — verified, Avast Web/Mail Shield re-signs it.
+  - **NOT changed, on purpose:** `package.json` (`dev`/`start`), `.husky/pre-commit` L20 and
+    [`audit-gate.js`](../scripts/audit-gate.js) L33-34. Those serve the **npm registry** chain, which
+    demonstrably works — the audit gate passed with that bundle on both of today's commits. Changing them
+    is a behaviour change nobody asked for and could break the dev workflow for no gain.
+  - **Open if ever revisited:** whether a machine-specific AV root belongs in the repo at all. It probably
+    does not — a per-machine env var is the cleaner answer, and that is what `HANDOFF.md` now instructs.
+
 - <a id="stranded-report-programme"></a>◐ **P1 · RESCUE — THREE FINISHED FEATURES AND THE MODEL
   VISUAL STANDARD WERE STRANDED ON `feat/business-performance-report`, ABSENT FROM `master`.
   ✅ CLOSED 2026-08-02 — [PR #30](https://github.com/advisor-e/Virt-Advisor/pull/30) IS MERGED
@@ -284,9 +482,15 @@
     those tables' trigger phrases), so this is not a matter of correcting an oversight. But a feature the
     owner cannot locate on the screen it lives on fails the standard in memory
     `feedback-avoid-map-shock`: functional, logical *and* findable.
-  - **For Mike:** whether it moves above the version history, gets its own tab despite §0.6, or is
-    reached some other way. Placement and any new label are the firm's decision, not the AI's
-    (CLAUDE.md — confirm wording before writing it).
+  - **◐ SUPERSEDED 2026-08-02, not answered — and that is the right outcome.** Mike's response to the
+    placement question was that moving the workbench does not address what he actually asked for: the
+    workbench was built in place of a read-only page showing all the pathways that decide a template. So
+    the workbench becomes the **"test a change" section of the [Decision Logic page](#decision-logic-page)**
+    and the placement question dissolves rather than needing a ruling. **Still true and still outstanding:
+    nobody has ever looked at it** — it is now in `master`, at the bottom of the Logic Tables tab, and what
+    Mike makes of it shapes how that section of the new page should behave.
+  - *(Original question, kept for the record: whether it moves above the version history, gets its own tab
+    despite §0.6, or is reached some other way. Any label is the firm's decision, never the AI's.)*
 
 - <a id="course-session-domain-briefing"></a>✅ **P1 · FIX — Course Builder's session briefing reached the WRONG domain materials.
   FOUND *and* FIXED 2026-07-30 (approved by Mike, this branch, commit `dd0b031`). Full suite 2,016
@@ -408,9 +612,11 @@
     the guard's own failure message: `findIndex` returns −1 when one file is a truncation of the other,
     which would have reported "line 0" and "(end of file)" for both sides; it now names the length
     difference instead.
-  - **⚠ STILL OPEN, for Mike:** whether this also becomes a visible screen in Firm Manager or stays a
-    developer report. The recommendation in the original entry — build the generated report first and
-    decide on a screen once the real table is visible — is now actionable: the table exists to look at.
+  - **✅ ANSWERED 2026-08-02 (Mike): it becomes a visible screen** — this report is the raw material for
+    the [Decision Logic page](#decision-logic-page), not a developer-only artefact. It does **not** ship as
+    it stands: the screen shows only the deliberately-editable blocks (the IP boundary), and it must read
+    the **firm's own** resolved configuration rather than the platform files this report reads off disk.
+    The generated report stays as the governance record that keeps the classification honest.
 
   <!-- Original entry, kept for the reasoning: -->
   - Raised by Mike 2026-07-31, after the
@@ -623,10 +829,23 @@
       runs before and **3 of 3** after — a flaky match made stable.
     - **Not counted:** the `data-systems` and `forecasting` differences did not survive repetition.
     - **Honest limit:** 51 committed test cases are not a measurement of live advisor speech, and a
-      distinction match costs an API call per sentence, so this is a **sampled** result — it will never
-      be the free, repeatable before/after the logic-table preview gives.
-  - **The measurement scripts were deliberately NOT committed** — they are one-off scratchpad runs, and a
-    committed tool that spends money per run needs its own design (see the sampled-workbench note below).
+      distinction match is an AI judgement that varies between runs, so a single run is a **sample**, not
+      the deterministic before/after the logic-table preview gives. The answer to that is repetition —
+      run it enough times to tell a real move from a flaky one — never skipping the live run.
+  - **🔴 COST IS NOT A REASON TO SKIP A LIVE AI RUN (ruling, Mike, 2026-08-02).** Where live AI is what
+    proves the thing, it runs. Token spend is never weighed against the correctness of a measurement, an
+    AI-off run is never quietly substituted for a real one, and "shall I spend the tokens?" is not a
+    question to put to Mike. An earlier version of this entry treated per-run API spend as a design
+    constraint; **Mike never set that constraint**, and it had by then undermined three pieces of work by
+    presenting a deterministic run as if it were the answer.
+    - **Measured the same day, which is why this is stated so bluntly.** With the AI layer OFF, the
+      firm-editable levers appeared to change the top recommendation in **16%** of the 51 Scenario Lab
+      cases and to supply **4.9%** of the winning template's score. With the AI layer ON — the real engine —
+      it is **59%** and **37.5%**. The cheap run was wrong by nearly a factor of four, and wrong in the
+      direction that makes the firm's own editing work look worthless. A design decision was about to be
+      taken on that number.
+    - The measurement scripts stay uncommitted because they are one-off scratchpad runs, never because a
+      run costs anything.
 
   - **── The diagnosis that led to the ruling, kept as written on the day ──**
   - Found by Mike's question *"how does this compare with the advisory distinctions page — or will they be

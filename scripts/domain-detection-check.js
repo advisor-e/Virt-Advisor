@@ -11,7 +11,10 @@
 // as the engine does. Reports keyword-only vs keyword+backstop accuracy so the
 // backstop's value and safety are measured, not assumed.
 //
-// RUN: NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem node -r dotenv/config scripts/domain-detection-check.js
+// RUN: NODE_EXTRA_CA_CERTS=<bundle covering whatever re-signs HTTPS here> \
+//       node -r dotenv/config scripts/domain-detection-check.js
+//      (certs/digicert-bundle.pem does NOT cover an AV TLS scanner — see
+//       design/HANDOFF.md → Local Setup / Run.)
 // ─────────────────────────────────────────────────────────────────────────────
 
 const dom = require('../data/domains.json')

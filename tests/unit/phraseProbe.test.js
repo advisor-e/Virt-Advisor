@@ -137,16 +137,16 @@ describe('DRIFT GUARD — the explainer never disagrees with the real detector',
 describe('probeText — all three deterministic layers, and honesty about the fourth', () => {
   const SENTENCE = 'my staff are driving me nuts and nobody knows who reports to whom'
 
-  test('it reports the table that opens and the phrases that opened it', () => {
-    const out = phraseProbe.probeText(SENTENCE)
+  test('it reports the table that opens and the phrases that opened it', async () => {
+    const out = await phraseProbe.probeText(SENTENCE)
     expect(out.topTable).toBe('staff_performance')
     const staff = out.tables.find(t => t.id === 'staff_performance')
     expect(staff.matched.length).toBeGreaterThan(0)
     expect(staff.shape).toBe('nodes')
   })
 
-  test('it reports the domain layer using the engine\'s own patterns', () => {
-    const out = phraseProbe.probeText(SENTENCE)
+  test('it reports the domain layer using the engine\'s own patterns', async () => {
+    const out = await phraseProbe.probeText(SENTENCE)
     expect(Array.isArray(out.domains)).toBe(true)
     expect(out.domains.map(d => d.id)).toContain('staff')
   })
@@ -160,8 +160,8 @@ describe('probeText — all three deterministic layers, and honesty about the fo
     expect(phraseProbe.scoreDomains(SENTENCE)).toEqual(first)
   })
 
-  test('it reports the signal layer with plain-English descriptions', () => {
-    const out = phraseProbe.probeText('they have no idea what their numbers are and the reports are a mess')
+  test('it reports the signal layer with plain-English descriptions', async () => {
+    const out = await phraseProbe.probeText('they have no idea what their numbers are and the reports are a mess')
     expect(Array.isArray(out.signals)).toBe(true)
     for (const s of out.signals) {
       expect(typeof s.description).toBe('string')
@@ -169,23 +169,42 @@ describe('probeText — all three deterministic layers, and honesty about the fo
     }
   })
 
-  test('it names the layer it cannot measure instead of staying silent', () => {
-    const out = phraseProbe.probeText(SENTENCE)
-    expect(out.notMeasured.map(n => n.layer)).toContain('advisory-distinctions')
-    expect(out.notMeasured[0].reason).toMatch(/AI/)
+  test('it withholds NOTHING for one sentence — distinctions included', async () => {
+    // The inversion of the assertion it replaced. Distinctions were reported as
+    // "not measured" because measuring them costs an AI call; that is not a reason
+    // (owner ruling, 2026-08-02). For one sentence it is one call.
+    const out = await phraseProbe.probeText(SENTENCE)
+    expect(out.notMeasured).toEqual([])
+    expect(out.distinctions).toBeDefined()
+    expect(Array.isArray(out.distinctions.matched)).toBe(true)
   })
 
-  test('over-long text is cut AND says it was cut', () => {
+  test('with no domain recognised it says why, rather than showing "no matches"', async () => {
+    // "No matches" would read as "your distinctions did not apply" — a different
+    // and false claim, because nothing was scored at all.
+    const out = await phraseProbe.matchDistinctions('zzz', [], [])
+    expect(out.measured).toBe(false)
+    expect(out.reason).toMatch(/domain/i)
+  })
+
+  test('a domain with no distinctions says so instead of reading as a miss', async () => {
+    const out = await phraseProbe.matchDistinctions('x', [{ id: 'staff' }], [])
+    expect(out.measured).toBe(true)
+    expect(out.matched).toEqual([])
+    expect(out.reason).toMatch(/no distinctions/i)
+  })
+
+  test('over-long text is cut AND says it was cut', async () => {
     const long = 'staff '.repeat(1000)
-    const out = phraseProbe.probeText(long)
+    const out = await phraseProbe.probeText(long)
     expect(out.text.length).toBe(phraseProbe.MAX_TEXT)
     expect(out.truncated).toBe(true)
   })
 
-  test('empty and non-string input do not throw', () => {
-    expect(phraseProbe.probeText('').tables).toEqual([])
-    expect(phraseProbe.probeText(null).tables).toEqual([])
-    expect(phraseProbe.probeText(undefined).truncated).toBe(false)
+  test('empty and non-string input do not throw', async () => {
+    expect((await phraseProbe.probeText('')).tables).toEqual([])
+    expect((await phraseProbe.probeText(null)).tables).toEqual([])
+    expect((await phraseProbe.probeText(undefined)).truncated).toBe(false)
   })
 })
 
@@ -299,7 +318,8 @@ describe('the routes — read-only, and guarded like the rest of Firm Manager', 
     await probeLogicTreePhrase(req, res)
     expect(res._status).toBe(200)
     expect(res._body.topTable).toBe('staff_performance')
-    expect(res._body.notMeasured.length).toBeGreaterThan(0)
+    expect(res._body.notMeasured).toEqual([])
+    expect(res._body.distinctions).toBeDefined()
   })
 
   test('probe refuses empty text with a clean 400', async () => {

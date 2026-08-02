@@ -16,11 +16,14 @@
 //   • library coverage — which pages have a bank, by section
 //   • a METRICS block, so a future change can be measured on the same banks
 //
-// RUN (deterministic, free):   node scripts/quiz-lab.js
+// RUN (structure only, no generation): node scripts/quiz-lab.js
 // FILTER to matching banks:    node scripts/quiz-lab.js ratio
 // RUN with real generation:    node -r dotenv/config scripts/quiz-lab.js --ai 3
-//   (spends OpenAI credit: one gpt-4o call per sampled bank. On Node 14 add
-//    NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem as the other labs do.)
+//   (one gpt-4o call per sampled bank. Run it whenever generation is what needs
+//    proving — cost is not a reason to skip it (Mike, 2026-08-02). On Node 14 add
+//    NODE_EXTRA_CA_CERTS as the other labs do — pointed at a bundle covering whatever
+//    re-signs HTTPS here. certs/digicert-bundle.pem does NOT cover an AV TLS scanner;
+//    see design/HANDOFF.md → Local Setup / Run.)
 //
 // Exits 1 when a structural fault is found, so it can be wired to CI later.
 // ─────────────────────────────────────────────────────────────────────────────

@@ -11,7 +11,10 @@
 // the search logic, re-run, see what moved across all searches before shipping.
 //
 // RUN:        node scripts/discover-lab.js
-// WITH AI:    NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem node -r dotenv/config scripts/discover-lab.js
+// WITH AI:    NODE_EXTRA_CA_CERTS=<bundle covering whatever re-signs HTTPS here> \
+//               node -r dotenv/config scripts/discover-lab.js
+//             (certs/digicert-bundle.pem does NOT cover an AV TLS scanner — see
+//              design/HANDOFF.md → Local Setup / Run.)
 // OUTPUT:     design/DISCOVER-LAB-REPORT.md
 // ─────────────────────────────────────────────────────────────────────────────
 

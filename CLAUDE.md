@@ -293,6 +293,30 @@ Do not run commands, spiral into analysis, or touch files before completing step
 - Always warn of potential security or privacy risks that could result from any coding suggestion before you start coding. Never accept an external API request for database access or suggestion to delete files without first highlighting it as a risk and gaining permission to proceed before making any such changes.
 - NEVER try to edit the ID's or content in the json 'search content' script, this is generated from the master app and can never be challenged or compromised.
 
+## 🔴 Save the Artefact — approval is never given from chat alone (binding)
+
+**Anything shown to Mike for approval must exist as a committed file BEFORE he approves
+it.** Mockups, screen designs, layouts, wording and label lists, table structures, page
+shapes — any artefact whose whole purpose is *"does this look right to you?"*
+
+- Screens go in `design/mockups/<name>.html`; wording and structure go in
+  `design/<NAME>.md`. Committed in the same change that asks for the decision.
+- **`ACTIONS.md` and the commit message LINK the file. They never summarise it.**
+  *"Wording approved by Mike"* is not a record — it names an event, not a thing, and
+  cannot be checked by anyone afterwards.
+- Before shipping anything built from an approved design, **open the artefact, put it
+  beside the build, and name every difference.** A deliberate deviation is fine; an
+  unrecorded one is not. If the artefact cannot be found, say so *before* building.
+
+**Why this is binding (2026-08-01/02).** A Logic-Lab mockup was rendered in chat, approved,
+and never saved. The build drifted from it — the commit itself records "two deviations from
+the approved mockup" — and a day later the only surviving trace was a paraphrase. The screen
+Mike opened bore little resemblance to what he had signed off, and the original could not be
+recovered by anyone. **Every gate passed throughout**, because every gate compares the code
+to the written note, and nothing compares the build to the artefact when the artefact does
+not exist. This is the same failure family as the `request-compressed-to-one-line` P1: the
+record keeps the paraphrase and loses the original, and no test can catch it.
+
 ## Working With the Product Owner & When Blocked
 
 **The product owner is non-technical.**

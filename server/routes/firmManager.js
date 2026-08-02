@@ -3160,6 +3160,10 @@ async function getLogicTreeDetail (req, res) {
       origin: (firmMap && firmMap[treeId]) ? 'firm' : 'platform',
       reorderable: !Array.isArray(merged.nodes) ||
         !!(merged.entry_node && merged.nodes.some(n => n.id === merged.entry_node)),
+      // The words that decide whether this table opens at all. Added 2026-08-02:
+      // Logic-Lab asked a firm to add or remove trigger phrases while showing
+      // them none of the ones already there, so every edit was made blind.
+      entryTriggers: (merged.entry_triggers || []).map(String),
       branches: _treeBranchRows(merged)
     })
   } catch (err) {
@@ -3368,8 +3372,11 @@ async function getLogicTreeHistory (req, res) {
  * in a URL, a server log or a browser history. Nothing is written: this is a
  * read of the engine's behaviour, not a change to it.
  *
- * The advisory-distinctions layer is absent by design and says so in
- * `notMeasured` — its phrases are AI-judged, not literal (see phraseProbe).
+ * ADVISORY DISTINCTIONS ARE INCLUDED, via one live gpt-4o-mini call through the
+ * engine's own classifier (2026-08-02). They were previously reported as "not
+ * measured" on the grounds that measuring them costs an API call — which is not a
+ * reason (owner ruling, same day: live AI runs where it is what proves the thing).
+ * For ONE sentence it is one call, so the layer is measured rather than excused.
  */
 async function probeLogicTreePhrase (req, res) {
   const text = req.body && typeof req.body.text === 'string' ? req.body.text : null
@@ -3379,7 +3386,21 @@ async function probeLogicTreePhrase (req, res) {
   try {
     const phraseProbe = require('../utils/phraseProbe')
     const firmMap = await _loadFirmLogicTreeMap(req.firmId)
-    res.send(200, phraseProbe.probeText(text, firmMap))
+
+    // The firm's OWN effective distinctions — the same resolution a live session
+    // uses, so the probe cannot report a match production would not make. A read
+    // fault here must not lose the deterministic answer the rest of the probe
+    // already has, so it degrades to an empty list and the probe says why.
+    let distinctionRows = []
+    try {
+      const state = await loadFirmDistinctionState(req.firmId, overlay.loadFirmConfig)
+      const platformRows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+      distinctionRows = resolveEffectiveDistinctions(platformRows, state)
+    } catch (err) {
+      console.error('[logic-lab] distinction read failed — probe continues without them:', err.message)
+    }
+
+    res.send(200, await phraseProbe.probeText(text, firmMap, distinctionRows))
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }

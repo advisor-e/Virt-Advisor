@@ -3376,6 +3376,12 @@ module.exports.parseMeetingCountDetailed = parseMeetingCountDetailed
 module.exports.MEETING_MAX = MEETING_MAX
 module.exports.buildIntakeMessages = buildIntakeMessages
 module.exports.classifyDistinctions = classifyDistinctions
+// Exported for Logic-Lab's sentence probe (server/utils/phraseProbe), which needs
+// the MATCHED ROWS rather than the boost map classifyDistinctions returns — a firm
+// manager needs to see which distinction fired, not a number. No existing line
+// changed and no behaviour moved: the probe drives the engine's own classifier, so
+// the screen can never explain a match the engine would not have made.
+module.exports.classifyMatchingRows = _classifyMatchingRows
 module.exports.findNearMissDistinctions = findNearMissDistinctions
 // Exported so a screen or test reads THE number rather than hard-coding a second copy
 // that drifts from the engine — the failure this week's routing defects were made of.
