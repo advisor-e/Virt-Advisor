@@ -1123,7 +1123,26 @@
     auth/storage surfaces that slices 2–3 rewrite anyway. **Do not merge them ad hoc**; fold
     into slice 2 (identity/scope) and slice 3 (storage) where each pair is being rewritten with
     tests around it. Plan §6 risk 2.
-- <a id="cpd-pdf-export"></a>☐ **NEW (Mike, 2026-07-30) — the CPD record must be exportable as a
+- <a id="cpd-pdf-export"></a>✅ **DONE 2026-08-02 (laptop, `773809e`) — the CPD record exports as a
+  PDF, as a full statement rather than a screen print.** Mike chose the fuller of two options:
+  not "print what is on screen" but a document a professional body can accept.
+  - **The screen was missing both things such a body needs, and both were already in the system.**
+    `GET /api/activity/cpd` never returned the advisor's name (`req.advisorName` has existed on
+    the verified pass all along, and two other routes in that same file already returned it), and
+    the screen never displayed the claim dates it was already being sent. One line of backend.
+  - **Standing claims only, dated, oldest first.** A withdrawn claim stays on screen as history
+    but is off the statement — the printed total counts standing claims only, so listing it would
+    contradict the figure above it.
+  - **The name is never invented.** Null name → the advisor id is printed, per the house rule in
+    `firmAuth.js`. ⚠ **An id where a name should be is poor on a submitted document — whether the
+    real Advisor-e token carries a name claim is a question for the master team**, not fixable here.
+  - **The Download button is withheld until something stands.** A statement listing nothing still
+    carries a heading, a name and a total of zero, which reads as a claim of no CPD rather than
+    the blank page it is.
+  - The date is stamped **at the press**, not at load — a record left open overnight must not
+    print yesterday's date on a document submitted today.
+  - 18 tests (3 route, 15 component). ⚠ **Layout unverified by eye** — see the print item below.
+  - *Original entry follows for the record:* **the CPD record must be exportable as a
   PDF**, because the adviser sends it to their accounting society. **Its own task, NOT part of
   the Collaborate merge.** Groundwork already checked: this app needs **no PDF dependency** —
   six screens (Business Performance, Debtor Drag, Margin Breakeven, EBITDA-DCF, Quick Position,
@@ -1134,6 +1153,35 @@
   don't invent a new look. ⚠ **Honest limit:** the browser makes the PDF and the adviser saves it, so
   there is no server-side copy of what was sent and layout depends on their browser. If the
   society ever needs a document the firm can vouch for independently, that is a much bigger job.
+
+- <a id="scoped-print-rules-inert"></a>✅ **FOUND AND FIXED 2026-08-02 (laptop, `e30ac33`) — the course
+  certificate's print rule had NEVER run, and printing one produced the entire Course Builder
+  screen.** Found while looking for a pattern to copy for the CPD statement above — the precedent
+  turned out to be broken, which is the only reason it was caught.
+  - **The mechanism.** The rules sat in `<style scoped>`, so Vue rewrote `body > *` to
+    `body > *[data-v-hash]`. Nuxt's own page wrapper carries no such attribute, so the rule matched
+    nothing and hid nothing. **Verified by compiling it** with `@vue/component-compiler-utils`, not
+    by reading it — the output selector is the proof.
+  - **Why nothing failed.** The damage is in what the CSS *compiles to*, not in what the component
+    renders, and jsdom has no print pipeline. **No mount test could have caught it** — the same
+    class as the report-header geometry bug that `reportHeaderFullWidth` exists for.
+  - **The fix is a second, deliberately unscoped block** gated behind a body class added for the
+    duration of the press only, so an ordinary Ctrl+P elsewhere is untouched. `visibility` rather
+    than `display`, because display:none on an ancestor cannot be undone further down and the
+    certificate is nested several levels deep.
+  - 🔴 **The control, not the note: [`tests/unit/scopedStylesCannotReachOutside.test.js`](../tests/unit/scopedStylesCannotReachOutside.test.js)
+    fails the build if any component puts a `body`/`html`-reaching rule in a scoped block again.**
+    It is fed the exact rule that shipped broken and required to catch it — a guard that cannot
+    fail is decoration — and pinned against false alarms, which a naive version raises 19 times on
+    names like `.cert-body`. Repo swept: **CourseBuilder was the only instance.**
+  - **The same weakness was then found in the CPD statement committed an hour earlier** and fixed in
+    both: a `visibility: hidden` element still occupies its space, so the screen above would have
+    pushed out pages of blank paper behind the printed page.
+  - ⚠ **NEITHER PRINTED PAGE HAS BEEN SEEN BY A HUMAN.** The tests prove what is on the page and
+    that the isolation is applied and released; they cannot see a layout or count sheets of paper.
+    **Two print previews are outstanding** — My Progress → Download PDF, and Course Builder →
+    Download certificate → Print. Per the Working Agreement, verification only a human can perform
+    is named as such and the work is not described as verified until someone has looked.
 
 - <a id="firm-editable-logic-tables"></a>☐ **NEXT SESSION (Mike, 2026-07-22) — bring the Document Library page into line with
   Quizzes and Advisory Distinctions, and make the LOGIC TABLES and DOMAIN SUPPORT
@@ -3974,7 +4022,7 @@ Two honest answers on different axes — the file used to conflate them:
 - ✅ **P3 · TEST — dev-fallback tests no longer depend on local `data/dev-*.json` files. FIXED 2026-06-29.** `platformDistinctions.test.js` uses a surgical `fs` mock (seed-fallback assertions never read a developer's local `dev-platform-distinctions.json`); `caseStore.js` dev path is now `CASE_DEV_FILE`-overridable and `caseStore.devfallback.test.js` points at an isolated per-PID temp file (no shared real file, immune to a concurrent live backend). A clean `npm test` is now deterministic regardless of local dev state. *Source:* Stage D/E session 2026-06-29.
 - ☐ **P3 · TEST — `jest.config.js` `collectCoverageFrom` excludes the decision engine + routes** (`advisorEngine.js`, `courseEngine.js`, `server/routes/**`, `mixins/**`), so the Constitution's ≥90% route / ≥80% mixin targets are **not enforced**. The audit's highest-leverage / lowest-risk item — but removing the exclusions may surface coverage below threshold and fail CI, so it needs a measured pass (raise coverage, or stage thresholds), not a blind flip. *Source:* handover audit #3, 2026-06-21. **Measured 2026-07-14** (client-knowledge-base branch): new `routes/clients.js` at **100% stmts/funcs/lines** (route standard met where built); the pre-existing frontend fetch wrappers (`utils/cases.js` 15%, `utils/clients.js` network half) drag the utils numbers — untestable without fetch mocks, predates the branch. **Measured 2026-07-15** (course-builder Phase 5): a full `jest --coverage` run FAILS the config's own thresholds today — global lines **51.3% vs the configured 80** (`signals.js` ~1%, `templateRegistry.js` 12%, `videoInjector.js` 10%, `tierLookup.js` 33%, `summaries.js` 59%) and `sanitiseInput.js` branches 83.82 vs 85 — confirming thresholds are unenforced (pre-commit runs plain `npm test`, no coverage). Partial progress: `server/courseEngine.js` is now IN `collectCoverageFrom` at **92% lines with a per-file `lines: 90` lock** (`5153419`) — one of the two named engine exclusions closed; `advisorEngine.js`, `server/routes/**`, `mixins/**` remain excluded.
 
-- ☐ **P3 · TEST — No component-test infrastructure and no Playwright, anywhere in the repo.** The Constitution names `@vue/test-utils` v1 (mixins/components ≥80%) and **Playwright for critical journeys**; neither has ever been set up — `tests/` is unit-only. Consequence (honest, measured 2026-07-14): all Vue-layer glue is untested repo-wide (today's client-knowledge-base work followed house practice — logic extracted into tested pure functions, thin Vue handlers untested like every other component). The new intake journey (client step → session → save → catch-up card) is exactly the critical path Playwright exists for. Needs: (a) decide + set up the harness(es), (b) first journeys: advisor intake end-to-end, case save/review. *Source:* testing-standards audit vs CLAUDE.md, 2026-07-14 (client-knowledge-base branch).
+- ☐ **P3 · TEST — ~~No component-test infrastructure and no Playwright, anywhere in the repo.~~ HALF OF THIS IS NO LONGER TRUE — corrected 2026-08-02.** ⚠ **FOURTH stale flag in three days**, after the three found on 2026-08-02 (`hook-tests-worktree-not-commit`, the `leaseVsBuyModel` silent default, the tutorial-video sentence). Same shape every time: **a record describing finished work as outstanding.** Measured, not assumed: **`@vue/test-utils` 1.3.6 is installed**, `tests/helpers/mountComponent.js` is a shared mount helper wiring real Buefy plus a key-returning `$t` stand-in, and **39 `*.component.test.js` files** exist. The component half is not only built, it is in routine use — today's CPD statement work added 15 component tests to it. **What REMAINS open is the Playwright half only:** no browser-journey harness exists, so the critical paths (advisor intake end-to-end, case save/review) are still unexercised, and no test in this repo can see a rendered layout — which is exactly the gap the CPD and certificate print work has just had to declare by hand. **Rescope accordingly: this is a Playwright task, not a component-testing task.** *Original wording follows for the record:* The Constitution names `@vue/test-utils` v1 (mixins/components ≥80%) and **Playwright for critical journeys**; neither has ever been set up — `tests/` is unit-only. Consequence (honest, measured 2026-07-14): all Vue-layer glue is untested repo-wide (today's client-knowledge-base work followed house practice — logic extracted into tested pure functions, thin Vue handlers untested like every other component). The new intake journey (client step → session → save → catch-up card) is exactly the critical path Playwright exists for. Needs: (a) decide + set up the harness(es), (b) first journeys: advisor intake end-to-end, case save/review. *Source:* testing-standards audit vs CLAUDE.md, 2026-07-14 (client-knowledge-base branch).
 
 - ☐ **P3 · STRUCT — Monolithic components, no base/shared split.** `VirtualAdvisor.vue` 2708, `CourseBuilder.vue` 2152, `FirmManagerHub.vue` 1295, `FirmDashboard.vue` 665 — over the "decompose when complex and >200 lines" rule; no `components/base/` or `components/shared/`. *Source:* code-gov audit 2026-06-15.
 
