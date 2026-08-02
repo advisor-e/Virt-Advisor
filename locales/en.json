@@ -655,7 +655,360 @@
         "coachSoon": "AI coach panel — coming later."
       }
     },
-    "sampleFigures": "These are sample numbers, not your client's"
+    "loanEstimator": {
+      "title": "The Loan Estimator",
+      "eyebrowClass": "Decision tool",
+      "step1": "Security position",
+      "step2": "Business loan",
+      "step3": "Serviceability",
+      "step4": "Loan Estimator report",
+      "business": {
+        "cardTitle": "Business loan details",
+        "ebit": "EBIT",
+        "ebitHelp": "Earnings before interest & tax",
+        "businessType": "Business Type",
+        "commercialBusiness": "Commercial Business",
+        "farm": "Farm",
+        "fullTimeStaff": "Number of Full Time Staff",
+        "partTimeStaff": "Number of Part Time Staff",
+        "currentTaxDue": "Current Tax Due (incl Penalties)",
+        "heroEbit": "EBIT",
+        "heroStaff": "Total staff",
+        "heroTax": "Current tax due",
+        "continue": "Continue →"
+      },
+      "security": {
+        "personalTitle": "Personal",
+        "commercialTitle": "Commercial",
+        "col": {
+          "value": "Market value",
+          "adjustment": "% value adjustment",
+          "prospects": "Prospects",
+          "debt": "Current debt",
+          "payments": "Current monthly payments"
+        },
+        "prospects": {
+          "static": "Static",
+          "growth": "Growth",
+          "decline": "Decline"
+        },
+        "subTitle": "Side calculations",
+        "rentalIncome": "Net rental income (annual)",
+        "capRate": "Cap rate (%)",
+        "fonterraShares": "Fonterra shares",
+        "fonterraTradingValue": "Trading value",
+        "computedFromSide": "Calculated from the side calculations",
+        "totalValue": "Total market value",
+        "heroValue": "Total market value",
+        "heroDebt": "Total current debt",
+        "heroEquity": "Net equity",
+        "overdraftTitle": "Overdraft",
+        "fundsDrawn": "Funds drawn",
+        "securedLabel": "Security",
+        "secured": "Secured",
+        "unsecured": "Unsecured",
+        "continue": "Continue →"
+      },
+      "serviceability": {
+        "householdTitle": "Household",
+        "loansTitle": "Loans",
+        "incomeTitle": "Household Income",
+        "expensesTitle": "Household Expenses",
+        "yes": "Yes",
+        "no": "No",
+        "jointApplication": "Is this a Joint Application?",
+        "dependantsUnder18": "Number of Dependants under 18 yrs",
+        "dependantsOver18": "Dependants over 18yrs",
+        "numberOfVehicles": "Number of Vehicles",
+        "loanCol": {
+          "balance": "Balance",
+          "actualRate": "Interest Rate (%)",
+          "assessmentTerm": "Assessment Term (Yrs)",
+          "actualTerm": "Actual Term if less than 30 yrs"
+        },
+        "loanRow": {
+          "revolvingCredit": "Current Revolving Credit Limits",
+          "currentPropertyLoans": "Current Property Loans",
+          "newPropertyLoans": "New Property Loans",
+          "personalTermLoans": "Personal Term Loans"
+        },
+        "stressMargin": "Stress test margin (%)",
+        "stressMarginHelp": "Added to each loan's rate for the bank's serviceability assessment — the client only ever sees their own rate.",
+        "customer1Gross": "Customer 1 — Annual Gross Income",
+        "customer2Gross": "Customer 2 — Annual Gross Income",
+        "otherMonthly": "Combined 'Other' Mthly (Tax Paid) Income",
+        "otherMonthlyHelp": "eg. Benefits, Dividends.",
+        "currentRental": "Current Residential Investment Property Income — Weekly Gross Rental",
+        "newRental": "New Residential Investment Property Income — Weekly Gross Rental",
+        "boardersTitle": "Boarder/Homestay Income",
+        "boardersNumber": "Number of Boarders",
+        "boardersCharge": "Weekly Charge",
+        "boardersTerm": "Boarder Term (Weeks)",
+        "studentLoan1": "Customer 1 Student Loan",
+        "studentLoan2": "Customer 2 Student Loan",
+        "monthly": "Mthly",
+        "overdraftLimits": "Overdraft/s Limits",
+        "creditCardLimits": "Credit Card/s Limits",
+        "rentPaid": "Rent Paid (Weekly)",
+        "rentPaidHelp": "Leave the rent figure as \"0\" if you've entered a mortgage figure in property loans section",
+        "generalLiving": "General Living Expenses (weekly)",
+        "generalLivingHelp": "Includes Food, Power, Gas, Phone, Education, Vehicle running costs, Rates, Home/Contents Insurance",
+        "additionalLiving": "Additional Living Expenses (weekly)",
+        "additionalLivingHelp": "Includes Child Support, Medical Costs, Superannuation, Gym/Club membership fees, Private school fees, other",
+        "totalBalances": "Total loan balances",
+        "totalGross": "Combined annual gross income",
+        "totalWeeklyLiving": "Weekly living costs total",
+        "continue": "Continue →"
+      },
+      "result": {
+        "verdictPass": "Meets the affordability test",
+        "verdictFail": "Falls short of the affordability test",
+        "verdictQualifier": "An indication of affordability only — not a lending decision.",
+        "hero": {
+          "surplus": "Monthly surplus",
+          "surplusSub": "The number the affordability test is judged on",
+          "availableSecurity": "Available security",
+          "availableSecuritySub": "Across all assets, after existing debt",
+          "repayment": "Monthly repayment",
+          "repaymentSub": "On the proposed loan from the quick calculator",
+          "maxBorrowing": "Estimated maximum borrowing",
+          "maxBorrowingSub": "With everything else as entered — an indication only",
+          "businessLoan": "Maximum business loan",
+          "businessLoanSub": "Against the business, on its EBIT — an indication only"
+        },
+        "security": {
+          "title": "Security position",
+          "rows": {
+            "personal": "Personal",
+            "commercial": "Commercial",
+            "combined": "Combined"
+          },
+          "cols": {
+            "value": "Asset value",
+            "adjustedValue": "Adjusted value",
+            "currentDebt": "Current debt",
+            "equity": "Equity",
+            "loanLimit": "Loan limit",
+            "availableSecurity": "Available security"
+          }
+        },
+        "svc": {
+          "title": "Household serviceability",
+          "income": "Total net monthly income",
+          "loanMinimums": "Minimum monthly loan payments",
+          "expensesUsed": "Monthly expenses used",
+          "expensesUsedNote": "The greater of actual expenses and the bank's minimum allowances",
+          "surplus": "Monthly surplus",
+          "taxNote": "Calculated using New Zealand tax bands — {label}"
+        },
+        "business": {
+          "title": "Business loan",
+          "ratio": "EBIT to Interest Ratio",
+          "security": "Bank Adjusted Maximum Security",
+          "maxLoan": "Maximum Bank Adjusted Loan (against Business)",
+          "rate": "Interest Rate",
+          "term": "Term (Yrs)",
+          "monthly": "Mthly Pmt Required",
+          "note": "The largest loan the business's EBIT services, at the business rate over its term — an indication only."
+        },
+        "calc": {
+          "title": "Repayment quick calculator",
+          "purchasePrice": "Purchase price",
+          "deposit": "Deposit",
+          "rate": "Interest rate (%)",
+          "term": "Term",
+          "termUnitLabel": "Term unit",
+          "years": "Years",
+          "months": "Months",
+          "basisLabel": "Basis",
+          "basisTable": "Table",
+          "basisReducing": "Reducing",
+          "basisInterestOnly": "Interest Only",
+          "monthlyRepayment": "Monthly repayment",
+          "schedule": {
+            "year": "Year",
+            "interest": "Interest",
+            "principal": "Principal",
+            "closingBalance": "Closing balance",
+            "total": "Total"
+          }
+        }
+      }
+    },
+    "sampleFigures": "These are sample numbers, not your client's",
+    "leaseVsBuy": {
+      "title": "Lease vs Buy",
+      "verdict": {
+        "lease": "Lease!",
+        "buy": "Buy!",
+        "savingSub": "That's the cheaper option — {amount} less over the term."
+      },
+      "hero": {
+        "costToBuy": "Total cost to buy",
+        "costToBuySub": "over the whole term, after resale",
+        "costToLease": "Total cost to lease",
+        "costToLeaseSub": "over the whole term, after residual",
+        "youSave": "You save",
+        "youSaveSub": "by choosing the cheaper option"
+      },
+      "compare": {
+        "title": "How the two compare",
+        "buyGross": "Cost of buying",
+        "resale": "Less resale value",
+        "buyTotal": "Total cost to buy",
+        "leaseGross": "Cost of leasing",
+        "residual": "Less lease residual",
+        "leaseTotal": "Total cost to lease",
+        "leaseEndNote": "Cost of leasing includes {amount} of lease-end costs (panel refurbishment and excess-kilometre charges), counted once."
+      },
+      "loan": {
+        "title": "Buying — the loan",
+        "loanType": "Loan type",
+        "typeTable": "Table",
+        "typeReducing": "Reducing",
+        "purchasePrice": "Purchase price (GST exclusive)",
+        "deposit": "Deposit",
+        "interestRate": "Interest rate (%)",
+        "term": "Term (months)"
+      },
+      "dep": {
+        "title": "Depreciation",
+        "method": "Method",
+        "straightLine": "Straight Line",
+        "diminishing": "Diminishing Value",
+        "rate": "Depreciation rate (%)"
+      },
+      "costs": {
+        "title": "Running costs & tax",
+        "companyTax": "Company tax rate (%)",
+        "gst": "GST (%)",
+        "kmPerMonth": "Average km per month",
+        "inflation": "Inflation rate (%)",
+        "servicePeriodKm": "Servicing interval (km)",
+        "serviceCost": "Cost per service",
+        "insurance": "Insurance (per year)",
+        "tyres": "Cost of a set of tyres",
+        "tyreLifeKm": "Tyre life (km)"
+      },
+      "lease": {
+        "title": "Leasing",
+        "term": "Lease term (months)",
+        "monthly": "Monthly lease payment",
+        "annualKm": "Annual km allowance",
+        "costPerKmOver": "Cost per km over allowance",
+        "costPerPanel": "Cost per panel re-spray",
+        "numPanels": "Number of panels",
+        "includesServicing": "Includes servicing?",
+        "includesInsurance": "Includes insurance?",
+        "includesTyres": "Includes tyres?"
+      },
+      "end": {
+        "title": "At the end of the term",
+        "resale": "Estimated resale value",
+        "resaleHelp": "What you expect the bought asset to be worth when the lease term ends.",
+        "residual": "Lease residual (if any)"
+      },
+      "yes": "Yes",
+      "no": "No"
+    },
+    "costOfCapital": {
+      "title": "Cost of Capital (WACC)",
+      "hero": {
+        "wacc": "Weighted average cost of capital",
+        "waccSub": "The hurdle an investment must clear",
+        "costOfEquity": "Cost of equity",
+        "costOfEquitySub": "What the owners' money expects to earn",
+        "costOfDebt": "Cost of debt (after tax)",
+        "costOfDebtSub": "{rate} borrowing rate, less the tax saved",
+        "fundedByEquity": "Funded by equity",
+        "fundedByEquitySub": "Funded by debt {rate}"
+      },
+      "market": {
+        "title": "Market rates",
+        "riskFree": "5-year government bond rate (%)",
+        "marketReturn": "Average share index return (%)",
+        "beta": "Beta",
+        "betaHelp": "How much this company's returns swing against the market.",
+        "betaSourceRoi": "Using the Beta from growth",
+        "betaSourceVolatility": "Using the Beta from volatility"
+      },
+      "company": {
+        "title": "Your company",
+        "tax": "Company tax rate (%)"
+      },
+      "funding": {
+        "title": "Funding mix",
+        "equity": "Equity invested",
+        "debt": "Debt (funds borrowed)",
+        "borrowRate": "Borrowing rate (%)"
+      },
+      "build": {
+        "title": "How the answer is reached",
+        "costOfEquity": "Cost of equity",
+        "timesEquityShare": "× funded by equity {rate}",
+        "equityShare": "Equity's share of the cost",
+        "borrowRate": "Borrowing rate",
+        "timesDebtShare": "× funded by debt {rate}",
+        "lessTax": "less tax saved at {rate}",
+        "debtShare": "Debt's share of the cost",
+        "wacc": "Weighted average cost of capital",
+        "note": "Every figure comes back from the calculation service — nothing on this screen is worked out in the browser."
+      },
+      "helper": {
+        "title": "Beta helper",
+        "lede": "Twelve periods of market and company figures. These suggest a Beta — they never set it. The Beta used in the calculation is the one typed on the left.",
+        "period": "Period",
+        "indexValue": "Share index value",
+        "shareholdersEquity": "Total shareholders' equity",
+        "sharesIssued": "Shares issued",
+        "blankNote": "Leave a period blank if you have no figures for it. A blank period is left out of the workings, rather than counted as a company briefly worth nothing.",
+        "betaFromGrowth": "Beta from growth",
+        "betaFromGrowthSub": "Your growth against the market's",
+        "betaFromVolatility": "Beta from volatility",
+        "betaFromVolatilitySub": "Your swing against the market's",
+        "betaInUse": "Beta in use",
+        "betaInUseSub": "The figure typed on the left",
+        "useThisBeta": "Use this Beta"
+      },
+      "sensitivity": {
+        "title": "What moves the answer most",
+        "ifRises": "If this rises",
+        "newWacc": "New cost of capital",
+        "change": "Change",
+        "note": "Each line changes one figure on its own, leaving the others as they are.",
+        "item": {
+          "marketRate": "Share index return +1 point",
+          "beta": "Beta +0.1",
+          "riskFreeRate": "Government bond rate +1 point",
+          "borrowRate": "Borrowing rate +1 point",
+          "taxRate": "Company tax rate +1 point",
+          "debtShare": "Share funded by debt +1 point"
+        }
+      },
+      "hurdle": {
+        "title": "Test an investment",
+        "investmentCost": "What the investment costs",
+        "annualReturn": "What it's expected to earn each year",
+        "returnRate": "Return on the investment",
+        "costOfCapital": "Your cost of capital",
+        "needsToEarn": "It needs to earn",
+        "perYear": "{amount} a year",
+        "aheadBy": "Ahead by",
+        "shortBy": "Short by",
+        "CLEARS": "Clears your cost of capital by {margin} percentage points",
+        "MEETS": "Exactly meets your cost of capital",
+        "SHORT": "Falls short of your cost of capital by {margin} percentage points",
+        "note": "The bar is your cost of capital exactly as calculated above, with no safety margin added."
+      },
+      "warn": {
+        "FEW_PERIODS_MARKET": "Fewer than three periods of share index values — too few to measure a spread.",
+        "FEW_PERIODS_COMPANY": "Fewer than three periods of company figures — too few to measure a spread.",
+        "ROI_BETA_ATYPICAL": "Beta from growth falls outside the usual range of 0.3 to 2.5. Check the figures before relying on it.",
+        "VOLATILITY_BETA_ATYPICAL": "Beta from volatility falls outside the usual range of 0.3 to 2.5. Check the figures before relying on it.",
+        "MARKET_RETURN_ZERO": "The average share index return is zero, so Beta from growth cannot be worked out.",
+        "MARKET_VOLATILITY_ZERO": "The share index does not move across these periods, so Beta from volatility cannot be worked out."
+      }
+    }
   },
   "modelLibrary": {
     "eyebrow": "Advisor-e · Business Performance",

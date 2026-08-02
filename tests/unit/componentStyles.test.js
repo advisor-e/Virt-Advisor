@@ -55,12 +55,20 @@ function findVueFiles () {
  * is legitimate for that language. No screen uses one today; this keeps the guard honest
  * if one ever does, instead of failing for the wrong reason.
  *
+ * The tags are anchored to the START OF A LINE (`^…^`, `m` flag), and that anchor is
+ * load-bearing. `ReportShell.vue` QUOTES `<style scoped>` inside its documentation — it
+ * is the component whose whole purpose is to stop each screen hand-writing one — and an
+ * unanchored search matched that sentence, then ran on to the real `</style>` 98 lines
+ * below. postcss was handed a paragraph of English (`Unknown word \` at 1:1`) while the
+ * genuine stylesheet went UNCHECKED: a false failure hiding a real blind spot. A Vue
+ * block always opens at column 0; a mention inside a comment never does.
+ *
  * @param {string} source - the file's contents
  * @returns {string[]} the CSS inside each block
  */
 function cssBlocks (source) {
   const blocks = []
-  const re = /<style([^>]*)>([\s\S]*?)<\/style>/g
+  const re = /^<style([^>]*)>([\s\S]*?)^<\/style>/gm
   let match
   while ((match = re.exec(source)) !== null) {
     const lang = /lang\s*=\s*["']([^"']+)["']/.exec(match[1])
@@ -119,5 +127,35 @@ describe('the check itself works', () => {
   test('the corrected form of that same rule passes', () => {
     expect(() => postcss.parse('.distinction-off { opacity: 0.5; }', { from: 'fixed.css' }))
       .not.toThrow()
+  })
+
+  // The 2026-08-02 defect, kept where it can never be forgotten. This is the ReportShell
+  // shape exactly: a `<style>` named in prose above the real block. Before the line
+  // anchor, the extractor returned the COMMENT TEXT and the stylesheet below it was never
+  // parsed at all — so the guard failed loudly on a healthy file while a broken one three
+  // lines down would have sailed through.
+  test('a <style> mentioned inside a comment is not mistaken for a block', () => {
+    const source = [
+      '<script>',
+      '/**',
+      ' * Screens used to hand-write `<style scoped>` frames of their own.',
+      ' */',
+      '</script>',
+      '',
+      '<style scoped>',
+      '.real { color: red; }',
+      '</style>'
+    ].join('\n')
+
+    const blocks = cssBlocks(source)
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0]).toContain('.real { color: red; }')
+    expect(blocks[0]).not.toContain('hand-write')
+    expect(() => postcss.parse(blocks[0], { from: 'quoted-tag.vue' })).not.toThrow()
+  })
+
+  test('a real block is still found when it is the only thing in the file', () => {
+    // The other half of the anchor: proving it did not simply stop matching.
+    expect(cssBlocks('<style>\n.a { top: 0; }\n</style>')).toHaveLength(1)
   })
 })

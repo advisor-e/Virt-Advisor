@@ -8,6 +8,35 @@
     :badge="$t('report.illustrative')"
   )
 
+  //- Full-width headline band (owner ruling 2026-07-27): the HeroStrip spans the page
+  //- above the two-column layout on every model, never tucked inside the results column.
+  //- A failure AFTER the first load must never sit silently behind stale figures (R9).
+  stale-banner(
+    v-if="error"
+    :title="$t('report.staleTitle')"
+    :message="$t('report.calcUnreachable')"
+    :retry-label="$t('report.retry')"
+    @retry="recompute"
+  )
+  hero-strip(:columns="3" :stale="!!error")
+    hero-figure(
+      :label="$t('report.debtorDrag.hero.planLow')"
+      :value="plan ? money(plan.deepestLow.value) : '—'"
+      :sub="planLowSub"
+      :tone="plan && plan.deepestLow.value < 0 ? 'crit' : 'good'"
+    )
+    hero-figure(
+      :label="$t('report.debtorDrag.hero.beforeLow')"
+      :value="before ? money(before.deepestLow.value) : '—'"
+      :sub="beforeLowSub"
+    )
+    hero-figure(
+      :label="$t('report.debtorDrag.hero.effect')"
+      :value="deltaText"
+      :sub="deltaSub"
+      :tone="deltaClass"
+    )
+
   .ddg-layout
     aside.ddg-card
       .ddg-instruct
@@ -33,33 +62,6 @@
         button.ddg-setbtn(@click="freeze") {{ $t('report.debtorDrag.freezeBtn') }}
 
     section.ddg-results
-      //- A failure AFTER the first load must never sit silently behind stale figures:
-      //- the numbers describe the PREVIOUS inputs while looking live (R9).
-      stale-banner(
-        v-if="error"
-        :title="$t('report.staleTitle')"
-        :message="$t('report.calcUnreachable')"
-        :retry-label="$t('report.retry')"
-        @retry="recompute"
-      )
-      hero-strip(:columns="3" :stale="!!error")
-        hero-figure(
-          :label="$t('report.debtorDrag.hero.planLow')"
-          :value="plan ? money(plan.deepestLow.value) : '—'"
-          :sub="planLowSub"
-          :tone="plan && plan.deepestLow.value < 0 ? 'crit' : 'good'"
-        )
-        hero-figure(
-          :label="$t('report.debtorDrag.hero.beforeLow')"
-          :value="before ? money(before.deepestLow.value) : '—'"
-          :sub="beforeLowSub"
-        )
-        hero-figure(
-          :label="$t('report.debtorDrag.hero.effect')"
-          :value="deltaText"
-          :sub="deltaSub"
-          :tone="deltaClass"
-        )
       .ddg-card.ddg-chartcard
         .ddg-chead
           h2.ddg-h2 {{ $t('report.debtorDrag.chart.title') }}
@@ -322,26 +324,29 @@ lowY: y(plan[lowIdx])
 
 <style scoped>
 .ddg-root {
-  --ddg-bg:#eef3f8; --ddg-panel:#ffffff; --ddg-panel-2:#f1f6fb; --ddg-ink:#002b64; --ddg-muted:#5b6f8a; --ddg-line:#d5e1ee;
-  --ddg-accent:#0070c0; --ddg-accent-bright:#00b1e0; --ddg-accent-soft:#0070c018; --ddg-accent-contrast:#ffffff;
-  --ddg-good:#4ca52d; --ddg-good-soft:#4ca52d1a; --ddg-crit:#ff0000; --ddg-crit-soft:#ff00000f; --ddg-warn:#ff9900; --ddg-warn-soft:#ff99001a;
-  --ddg-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426; --ddg-r:14px;
-  background:var(--ddg-bg); color:var(--ddg-ink);
-  font-family:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-weight:300; -webkit-font-smoothing:antialiased; padding:28px 22px 64px; min-height:100vh;
+  /* Colours flow from the shared ReportShell tokens (single source): --ddg-* is a thin
+     alias layer, no colour declared here. Frame + dark-mode block removed (ReportShell
+     owns the frame; all-light ruling 2026-07-27). Width now matches Lease vs Buy. */
+  --ddg-bg:var(--rs-bg); --ddg-panel:var(--rs-panel); --ddg-panel-2:var(--rs-panel-2); --ddg-ink:var(--rs-ink); --ddg-muted:var(--rs-muted); --ddg-line:var(--rs-line);
+  --ddg-accent:var(--rs-accent); --ddg-accent-bright:var(--rs-accent-bright); --ddg-accent-soft:var(--rs-accent-soft); --ddg-accent-contrast:var(--rs-accent-contrast);
+  --ddg-good:var(--rs-good); --ddg-good-soft:var(--rs-good-soft); --ddg-crit:var(--rs-crit); --ddg-crit-soft:var(--rs-crit-soft); --ddg-warn:var(--rs-warn); --ddg-warn-soft:var(--rs-warn-soft);
+  --ddg-shadow:var(--rs-shadow); --ddg-r:var(--rs-radius);
+  color:var(--ddg-ink);
+  /* Flex column with ONE gap value (16px) so every vertical gap — header→band,
+     band→layout and inside the results column — is identical (owner ruling 2026-07-27). */
+  display:flex; flex-direction:column; gap:16px;
 }
-@media (prefers-color-scheme: dark) {
-  .ddg-root {
-    --ddg-bg:#05132a; --ddg-panel:#0a1f3d; --ddg-panel-2:#07182f; --ddg-ink:#e6f0fa; --ddg-muted:#9fb4d0; --ddg-line:#1a3559;
-    --ddg-accent:#00b1e0; --ddg-accent-bright:#7fd3f1; --ddg-accent-soft:#00b1e022; --ddg-accent-contrast:#002b64;
-    --ddg-good-soft:#4ca52d26; --ddg-crit-soft:#ff00001f; --ddg-warn-soft:#ff990022;
-    --ddg-shadow:0 1px 2px #0007, 0 10px 30px -14px #000a;
-  }
-}
+/* Reset the shared ReportHeader's `margin: 0 auto 22px`: inside a flex column that auto
+   margin shrinks the header below full width and its 22px stacks on the flex gap. Zeroing
+   it here (not touching the shared component) leaves the single 16px flex gap as the only
+   spacing between the header and the band. */
+.ddg-root ::v-deep .rs-top { margin: 0; }
 .ddg-root strong, .ddg-root b { font-weight:600; }
-.ddg-blue { color:#0070c0; }
+.ddg-blue { color:var(--rs-accent); }
 .num { font-variant-numeric: tabular-nums; }
-.ddg-layout { display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start; max-width:1120px; margin:0 auto; }
+/* Width + centring now come from the ReportShell wrap; column width (340px) left for the
+   Step 3 standardisation to 360px. */
+.ddg-layout { display:grid; grid-template-columns:var(--rs-col-input) 1fr; gap:var(--rs-col-gap); align-items:start; }
 @media (max-width:860px) { .ddg-layout { grid-template-columns:1fr; } }
 .ddg-card { background:var(--ddg-panel); border:1px solid var(--ddg-line); border-radius:var(--ddg-r); box-shadow:var(--ddg-shadow); }
 .ddg-h2 { margin:0; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--ddg-muted); font-weight:600; }
@@ -355,15 +360,15 @@ lowY: y(plan[lowIdx])
 .ddg-total { font-size:10.5px; font-weight:600; padding:2px 7px; border-radius:999px; }
 .ddg-total.ok { color:var(--ddg-good); background:var(--ddg-good-soft); }
 .ddg-total.bad { color:var(--ddg-crit); background:var(--ddg-crit-soft); }
-/* Sliders now live in components/base/SliderField. It reads these generic tokens, so
-   this screen keeps its own palette — including the dark-mode overrides above. */
+/* Sliders live in components/base/SliderField, reading these generic --sl-* tokens.
+   They point at the --ddg-* aliases, which now resolve to the shared ReportShell tokens. */
 .ddg-root {
   --sl-accent:var(--ddg-accent); --sl-line:var(--ddg-line); --sl-panel:var(--ddg-panel);
   --sl-ink:var(--ddg-ink); --sl-accent-soft:var(--ddg-accent-soft);
 }
 .ddg-setbtn { width:100%; font:inherit; font-weight:600; font-size:12.5px; color:var(--ddg-ink); background:var(--ddg-panel-2); border:1px solid var(--ddg-line); border-radius:9px; padding:10px; cursor:pointer; }
 .ddg-setbtn:hover { border-color:var(--ddg-accent); }
-.ddg-results { display:flex; flex-direction:column; gap:20px; min-height:200px; }
+.ddg-results { display:flex; flex-direction:column; gap:16px; min-height:200px; }
 .ddg-chartcard { padding:18px; }
 .ddg-chead { display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:2px; }
 .ddg-csub { font-size:12.5px; color:var(--ddg-muted); }
@@ -399,8 +404,8 @@ lowY: y(plan[lowIdx])
 .ddg-v.crit{color:var(--ddg-crit)} .ddg-v.good{color:var(--ddg-good)} .ddg-v.muted{color:var(--ddg-muted)}
 .ddg-h2{color:var(--ddg-ink)}
 /* pop2 */
-.ddg-v{color:#0070c0}
-.ddg-v.crit{color:#ff0000} .ddg-v.good{color:#4ca52d} .ddg-v.muted{color:#5b6f8a}
-.ddg-tile{border-top:3px solid #00b1e0}
+.ddg-v{color:var(--rs-accent)}
+.ddg-v.crit{color:var(--rs-crit)} .ddg-v.good{color:var(--rs-good)} .ddg-v.muted{color:var(--rs-muted)}
+.ddg-tile{border-top:3px solid var(--rs-accent-bright)}
 /* The headline banner now lives in components/base/HeroStrip + HeroFigure. */
 </style>

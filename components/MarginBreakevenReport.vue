@@ -8,6 +8,31 @@
     :badge="$t('report.illustrative')"
   )
 
+  //- Full-width headline band (owner ruling 2026-07-27): the HeroStrip spans the page
+  //- above the two-column layout on every model, never tucked inside the results column.
+  template(v-if="data")
+    //- A failure AFTER the first load must never sit silently behind stale figures (R9).
+    stale-banner(
+      v-if="error"
+      :title="$t('report.staleTitle')"
+      :message="$t('report.calcUnreachable')"
+      :retry-label="$t('report.retry')"
+      @retry="recompute"
+    )
+    hero-strip(:stale="!!error")
+      hero-figure(:label="$t('report.marginBreakeven.hero.margin')" :value="pct(data.marginPct)" :sub="$t('report.marginBreakeven.hero.marginSub')")
+      hero-figure(
+        :label="$t('report.marginBreakeven.hero.markup')"
+        :value="round1(data.markup) + '× · ' + pct(data.markup)"
+        :sub="$t('report.marginBreakeven.hero.markupSub')"
+      )
+      hero-figure(:label="$t('report.marginBreakeven.hero.cos')" :value="pct(data.costOfSalesPct)" :sub="$t('report.marginBreakeven.hero.cosSub')")
+      hero-figure(
+        :label="$t('report.marginBreakeven.hero.breakEven')"
+        :value="money(data.requiredSales)"
+        :sub="round0(data.requiredUnits) + ' ' + $t('report.marginBreakeven.hero.breakEvenSub')"
+      )
+
   .mbk-layout
     aside.mbk-card
       .mbk-group(v-for="g in groups" :key="g.k")
@@ -28,29 +53,6 @@
         )
 
     section.mbk-results(v-if="data")
-      //- A failure AFTER the first load must never sit silently behind stale figures:
-      //- the numbers describe the PREVIOUS inputs while looking live (R9).
-      stale-banner(
-        v-if="error"
-        :title="$t('report.staleTitle')"
-        :message="$t('report.calcUnreachable')"
-        :retry-label="$t('report.retry')"
-        @retry="recompute"
-      )
-      hero-strip(:stale="!!error")
-        hero-figure(:label="$t('report.marginBreakeven.hero.margin')" :value="pct(data.marginPct)" :sub="$t('report.marginBreakeven.hero.marginSub')")
-        hero-figure(
-          :label="$t('report.marginBreakeven.hero.markup')"
-          :value="round1(data.markup) + '× · ' + pct(data.markup)"
-          :sub="$t('report.marginBreakeven.hero.markupSub')"
-        )
-        hero-figure(:label="$t('report.marginBreakeven.hero.cos')" :value="pct(data.costOfSalesPct)" :sub="$t('report.marginBreakeven.hero.cosSub')")
-        hero-figure(
-          :label="$t('report.marginBreakeven.hero.breakEven')"
-          :value="money(data.requiredSales)"
-          :sub="round0(data.requiredUnits) + ' ' + $t('report.marginBreakeven.hero.breakEvenSub')"
-        )
-
       .mbk-card.mbk-chartcard
         .mbk-chead
           h2.mbk-h2 {{ $t('report.marginBreakeven.chart.title') }}
@@ -237,24 +239,30 @@ path,
 
 <style scoped>
 .mbk-root {
-  --mbk-bg:#eef3f8; --mbk-panel:#ffffff; --mbk-panel-2:#f1f6fb; --mbk-ink:#002b64; --mbk-muted:#5b6f8a; --mbk-line:#d5e1ee;
-  --mbk-accent:#0070c0; --mbk-accent-bright:#00b1e0; --mbk-accent-soft:#0070c018; --mbk-accent-contrast:#ffffff;
-  --mbk-good:#4ca52d; --mbk-warn:#ff9900; --mbk-crit:#ff0000;
-  --mbk-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426; --mbk-r:14px;
-  background:var(--mbk-bg); color:var(--mbk-ink);
-  font-family:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-weight:300; -webkit-font-smoothing:antialiased; padding:28px 22px 64px; min-height:100vh;
+  /* Colours now flow from the shared ReportShell tokens (single source of truth):
+     the --mbk-* names are kept as thin aliases only, so the many var(--mbk-*) uses
+     below are untouched — no colour value is declared here. The frame (bg, padding,
+     min-height, font) comes from ReportShell; the dark-mode block is removed per the
+     all-light ruling (2026-07-27). Width now matches Lease vs Buy via the shell wrap. */
+  --mbk-bg:var(--rs-bg); --mbk-panel:var(--rs-panel); --mbk-panel-2:var(--rs-panel-2); --mbk-ink:var(--rs-ink); --mbk-muted:var(--rs-muted); --mbk-line:var(--rs-line);
+  --mbk-accent:var(--rs-accent); --mbk-accent-bright:var(--rs-accent-bright); --mbk-accent-soft:var(--rs-accent-soft); --mbk-accent-contrast:var(--rs-accent-contrast);
+  --mbk-good:var(--rs-good); --mbk-warn:var(--rs-warn); --mbk-crit:var(--rs-crit);
+  --mbk-shadow:var(--rs-shadow); --mbk-r:var(--rs-radius);
+  color:var(--mbk-ink);
+  /* Flex column with ONE gap value (16px) so every vertical gap — header→band,
+     band→layout and inside the results column — is identical (owner ruling 2026-07-27). */
+  display:flex; flex-direction:column; gap:16px;
 }
-@media (prefers-color-scheme: dark) {
-  .mbk-root {
-    --mbk-bg:#05132a; --mbk-panel:#0a1f3d; --mbk-panel-2:#07182f; --mbk-ink:#e6f0fa; --mbk-muted:#9fb4d0; --mbk-line:#1a3559;
-    --mbk-accent:#00b1e0; --mbk-accent-bright:#7fd3f1; --mbk-accent-soft:#00b1e022; --mbk-accent-contrast:#002b64;
-    --mbk-shadow:0 1px 2px #0007, 0 10px 30px -14px #000a;
-  }
-}
+/* Reset the shared ReportHeader's `margin: 0 auto 22px`: inside a flex column that auto
+   margin shrinks the header below full width and its 22px stacks on the flex gap. Zeroing
+   it here (not touching the shared component) leaves the single 16px flex gap as the only
+   spacing between the header and the band. */
+.mbk-root ::v-deep .rs-top { margin: 0; }
 .mbk-root strong, .mbk-root b { font-weight:600; }
 .num { font-variant-numeric: tabular-nums; }
-.mbk-layout { display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start; max-width:1120px; margin:0 auto; }
+/* Width + centring now come from the ReportShell wrap; column width (340px) is left for
+   the Step 3 standardisation to 360px. */
+.mbk-layout { display:grid; grid-template-columns:var(--rs-col-input) 1fr; gap:var(--rs-col-gap); align-items:start; }
 @media (max-width:860px) { .mbk-layout { grid-template-columns:1fr; } }
 .mbk-card { background:var(--mbk-panel); border:1px solid var(--mbk-line); border-radius:var(--mbk-r); box-shadow:var(--mbk-shadow); }
 .mbk-h2 { margin:0; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--mbk-ink); font-weight:600; }
@@ -262,13 +270,13 @@ path,
 .mbk-group:last-child { border-bottom:0; }
 .mbk-glabel { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
 .mbk-dot { width:7px; height:7px; border-radius:50%; background:var(--mbk-accent-bright); }
-/* Sliders now live in components/base/SliderField. It reads these generic tokens, so
-   this screen keeps its own palette — including the dark-mode overrides above. */
+/* Sliders live in components/base/SliderField, which reads these generic --sl-* tokens.
+   They point at the --mbk-* aliases, which now resolve to the shared ReportShell tokens. */
 .mbk-root {
   --sl-accent:var(--mbk-accent); --sl-line:var(--mbk-line); --sl-panel:var(--mbk-panel);
   --sl-ink:var(--mbk-ink); --sl-warn:var(--mbk-warn); --sl-accent-soft:var(--mbk-accent-soft);
 }
-.mbk-results { display:flex; flex-direction:column; gap:20px; min-height:200px; }
+.mbk-results { display:flex; flex-direction:column; gap:16px; min-height:200px; }
 .mbk-tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
 @media (max-width:640px) { .mbk-tiles { grid-template-columns:1fr; } }
 .mbk-tile { background:var(--mbk-panel); border:1px solid var(--mbk-line); border-radius:var(--mbk-r); padding:15px 16px; box-shadow:var(--mbk-shadow); }
@@ -284,7 +292,7 @@ path,
 .mbk-call { margin-top:12px; background:var(--mbk-panel-2); border:1px solid var(--mbk-line); border-radius:10px; padding:12px 14px; transition:background .2s, border-color .2s; }
 .mbk-callhead { font-size:11px; letter-spacing:.09em; text-transform:uppercase; font-weight:600; color:var(--mbk-muted); margin-bottom:9px; }
 .mbk-callrow { display:flex; gap:14px; flex-wrap:wrap; }
-.mbk-call.is-active { border-color:var(--mbk-warn); background:#ff99001a; }
+.mbk-call.is-active { border-color:var(--mbk-warn); background:var(--rs-warn-soft); }
 .mbk-call.is-active .mbk-callhead { color:var(--mbk-warn); }
 .mbk-call div { font-size:12px; color:var(--mbk-muted); }
 .mbk-call b { display:block; font-size:16px; color:var(--mbk-ink); font-weight:600; margin-top:2px; }
@@ -305,7 +313,7 @@ path,
   .mbk-tile, .mbk-card, .mbk-edu { break-inside:avoid; box-shadow:none; }
 }
 /* pop2 */
-.mbk-v{color:#0070c0}
-.mbk-tile{border-top:3px solid #00b1e0}
+.mbk-v{color:var(--rs-accent)}
+.mbk-tile{border-top:3px solid var(--rs-accent-bright)}
 /* The headline banner now lives in components/base/HeroStrip + HeroFigure. */
 </style>
