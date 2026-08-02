@@ -187,57 +187,77 @@ describe('requestedSessionCount (CB-26)', () => {
 // as a number, so the length an advisor asked for was never checked against
 // what they got. Same conservative contract as the count: when in doubt, null.
 
-const { requestedSessionMinutes } = require('../../server/utils/designInterview')
+const { requestedSessionLength } = require('../../server/utils/designInterview')
 
-describe('requestedSessionMinutes', () => {
-  test('the ordinary forms', () => {
-    expect(requestedSessionMinutes('30 minutes, 4 sessions')).toBe(30)
-    expect(requestedSessionMinutes('4 sessions of 45 mins')).toBe(45)
-    expect(requestedSessionMinutes('90 minute sessions')).toBe(90)
-    expect(requestedSessionMinutes('thirty minutes each')).toBe(30)
-    expect(requestedSessionMinutes('forty-five minutes per session')).toBe(45)
+describe('requestedSessionLength', () => {
+  test('a single figure is the range n–n', () => {
+    expect(requestedSessionLength('30 minutes, 4 sessions')).toEqual({ min: 30, max: 30 })
+    expect(requestedSessionLength('4 sessions of 45 mins')).toEqual({ min: 45, max: 45 })
+    expect(requestedSessionLength('90 minute sessions')).toEqual({ min: 90, max: 90 })
+    expect(requestedSessionLength('thirty minutes each')).toEqual({ min: 30, max: 30 })
+    expect(requestedSessionLength('forty-five minutes per session')).toEqual({ min: 45, max: 45 })
   })
 
   test('hours are converted, because an advisor states a long session in hours', () => {
-    expect(requestedSessionMinutes('1 hour sessions')).toBe(60)
-    expect(requestedSessionMinutes('2 hrs each')).toBe(120)
-    expect(requestedSessionMinutes('1.5 hours per session')).toBe(90)
+    expect(requestedSessionLength('1 hour sessions')).toEqual({ min: 60, max: 60 })
+    expect(requestedSessionLength('2 hrs each')).toEqual({ min: 120, max: 120 })
+    expect(requestedSessionLength('1.5 hours per session')).toEqual({ min: 90, max: 90 })
   })
 
   test("a compound duration reads as one figure — Mike's own phrasing", () => {
-    expect(requestedSessionMinutes('1 hour 17 minutes')).toBe(77)
-    expect(requestedSessionMinutes('1 hour and 30 minutes per session')).toBe(90)
-    expect(requestedSessionMinutes('2 hours 15 mins')).toBe(135)
+    expect(requestedSessionLength('1 hour 17 minutes')).toEqual({ min: 77, max: 77 })
+    expect(requestedSessionLength('1 hour and 30 minutes per session')).toEqual({ min: 90, max: 90 })
+    expect(requestedSessionLength('2 hours 15 mins')).toEqual({ min: 135, max: 135 })
   })
 
-  test('a range is not a specific request → null, and the check stands down', () => {
-    expect(requestedSessionMinutes('20 to 30 minutes per session')).toBeNull()
-    expect(requestedSessionMinutes('30-45 minutes')).toBeNull()
-    expect(requestedSessionMinutes('30 or 45 mins')).toBeNull()
-    expect(requestedSessionMinutes('thirty to sixty minutes')).toBeNull()
+  // 🔴 THE LIVE DEFECT, 2026-08-03. This phrasing used to return null, which
+  // switched the whole warning off; Mike's course then drew a 70-minute session
+  // against it and said nothing. A range is a budget, not an absence of one.
+  test('MIKE\'S LIVE CASE — "15 to 20 minutes" is a budget, not a shrug', () => {
+    expect(requestedSessionLength('15 to 20 minutes per session and say four sessions please'))
+      .toEqual({ min: 15, max: 20 })
+  })
+
+  test('every way of writing a range is read as one', () => {
+    expect(requestedSessionLength('20 to 30 minutes per session')).toEqual({ min: 20, max: 30 })
+    expect(requestedSessionLength('30-45 minutes')).toEqual({ min: 30, max: 45 })
+    expect(requestedSessionLength('30 or 45 mins')).toEqual({ min: 30, max: 45 })
+    expect(requestedSessionLength('thirty to sixty minutes')).toEqual({ min: 30, max: 60 })
+    expect(requestedSessionLength('1 to 2 hours')).toEqual({ min: 60, max: 120 })
+  })
+
+  test('a range given back-to-front is still read as a budget', () => {
+    expect(requestedSessionLength('30 to 15 minutes')).toEqual({ min: 15, max: 30 })
+  })
+
+  test('a range still parses when it sits amid other numbers', () => {
+    expect(requestedSessionLength('say 20 to 30 minutes per session and six sessions in total please'))
+      .toEqual({ min: 20, max: 30 })
   })
 
   test('conflicting lengths → null; a repeated identical length still parses', () => {
-    expect(requestedSessionMinutes('30 minutes... actually 45 minutes')).toBeNull()
-    expect(requestedSessionMinutes('30 minutes — yes, 30 minutes')).toBe(30)
+    expect(requestedSessionLength('30 minutes... actually 45 minutes')).toBeNull()
+    expect(requestedSessionLength('30 minutes — yes, 30 minutes')).toEqual({ min: 30, max: 30 })
+  })
+
+  test('two different ranges name no single budget → null', () => {
+    expect(requestedSessionLength('15 to 20 minutes, or maybe 40 to 50 minutes')).toBeNull()
   })
 
   test('the session COUNT is never mistaken for a length', () => {
-    expect(requestedSessionMinutes('4 sessions')).toBeNull()
-    expect(requestedSessionMinutes('6 modules')).toBeNull()
+    expect(requestedSessionLength('4 sessions')).toBeNull()
+    expect(requestedSessionLength('6 modules')).toBeNull()
+    expect(requestedSessionLength('6-8 sessions')).toBeNull()
   })
 
   test('implausible, absent and junk values → null', () => {
-    expect(requestedSessionMinutes('2 minutes')).toBeNull() // not a session
-    expect(requestedSessionMinutes('12 hours')).toBeNull() // not one sitting
-    expect(requestedSessionMinutes('as long as it takes')).toBeNull()
-    expect(requestedSessionMinutes('')).toBeNull()
-    expect(requestedSessionMinutes(null)).toBeNull()
-    expect(requestedSessionMinutes(undefined)).toBeNull()
-  })
-
-  test('the live CB-26 answer parses as no length at all — it named a range', () => {
-    expect(requestedSessionMinutes('say 20 to 30 minutes per session and six sessions in total please')).toBeNull()
+    expect(requestedSessionLength('2 minutes')).toBeNull() // not a session
+    expect(requestedSessionLength('12 hours')).toBeNull() // not one sitting
+    expect(requestedSessionLength('2 to 4 minutes')).toBeNull() // range below the floor
+    expect(requestedSessionLength('as long as it takes')).toBeNull()
+    expect(requestedSessionLength('')).toBeNull()
+    expect(requestedSessionLength(null)).toBeNull()
+    expect(requestedSessionLength(undefined)).toBeNull()
   })
 })
 

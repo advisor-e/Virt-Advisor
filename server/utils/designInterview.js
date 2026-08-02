@@ -185,12 +185,20 @@ const HOUR_RE = new RegExp('\\b' + NUM + '\\s*' + HOUR_NOUN, 'gi')
 const MINUTE_DIGIT_RE = new RegExp('\\b' + NUM + '\\s*' + MINUTE_NOUN, 'gi')
 const MINUTE_WORD_RE = new RegExp('\\b(' + MINUTE_WORD_TOKEN + ')\\s*' + MINUTE_NOUN, 'gi')
 
-// "30-45 minutes", "30 to 45 mins", "an hour or two" — a range is not a
-// request for a specific length; the check stands down exactly as it does for
-// a range of session counts.
+// "15 to 20 minutes", "30-45 mins", "1 to 2 hours", "30 minutes to 1 hour".
+//
+// A RANGE IS A BUDGET, NOT A SHRUG. This originally stood the check down, copied
+// from the session-count rule where it is right — "6-8 sessions" really does mean
+// the advisor does not mind. Duration is the opposite: "15 to 20 minutes" is a
+// limit, and it emphatically means NOT 70 minutes. Mike's live test on 2026-08-03
+// used exactly that phrasing, drew sessions of 1h 10m, 1h 3m and 30m, and was told
+// nothing — the warning had switched itself off on what is probably the commonest
+// way to answer the question. The unit may sit on either side or only the right.
+const RANGE_UNIT = '(' + MINUTE_NOUN + '|' + HOUR_NOUN + ')'
+const RANGE_VALUE = '(\\d{1,3}(?:\\.\\d+)?|' + MINUTE_WORD_TOKEN + ')'
 const MINUTE_RANGE_RE = new RegExp(
-  '(?:\\d{1,3}|' + MINUTE_WORD_TOKEN + ')\\s*(?:-|–|—|\\bto\\b|\\bor\\b)\\s*' +
-  '(?:\\d{1,3}|' + MINUTE_WORD_TOKEN + ')\\s*(?:' + MINUTE_NOUN + '|' + HOUR_NOUN + ')', 'i'
+  '\\b' + RANGE_VALUE + '\\s*' + RANGE_UNIT + '?\\s*(?:-|–|—|\\bto\\b|\\bor\\b)\\s*' +
+  RANGE_VALUE + '\\s*' + RANGE_UNIT, 'gi'
 )
 
 /** Below this a "session" is not a session; above it, not one sitting. */
@@ -214,21 +222,51 @@ function normaliseCompoundWords (text) {
   ))
 }
 
+/** One side of a range → whole minutes, using whichever unit applies to it. */
+function sideToMinutes (value, unit) {
+  const raw = /^[\d.]+$/.test(value) ? Number(value) : MINUTE_WORDS[value.toLowerCase()]
+  if (raw === undefined || !Number.isFinite(raw)) { return null }
+  return Math.round(/^h/i.test(unit) ? raw * 60 : raw)
+}
+
 /**
- * Extract the per-session length the advisor asked for, in whole minutes.
+ * Extract the per-session length the advisor asked for, as a BUDGET.
  *
- * Hours are converted ("1 hour" → 60, "1 hour 30" → 90) because advisors state
- * a long session in hours and the comparison downstream is in minutes. As with
- * the session count, anything ambiguous returns null and simply disables the
- * check — a wrong figure here would raise a false warning on a correct course,
- * which is worse than no warning at all.
+ * Always a range, because that is what an advisor means either way: "30 minutes"
+ * is the degenerate range 30–30, and "15 to 20 minutes" is 15–20. Both are
+ * limits, and the caller applies its own latitude on top.
+ *
+ * Hours are converted ("1 hour" → 60, "1 hour 30" → 90) because advisors state a
+ * long session in hours and the comparison downstream is in minutes. Genuinely
+ * ambiguous input (two unrelated figures, nothing at all) returns null and
+ * disables the check — a wrong figure would raise a false warning on a correct
+ * course, which is worse than no warning. A RANGE IS NOT AMBIGUOUS; see the note
+ * on MINUTE_RANGE_RE for the live case that proved it.
  *
  * @param {string} text - the advisor's session-format answer (raw typing)
- * @returns {number|null} 5–480 whole minutes, or null to disable the check
+ * @returns {{min: number, max: number}|null} whole minutes within 5–480, or null
+ *   to disable the check
  */
-function requestedSessionMinutes (text) {
+function requestedSessionLength (text) {
   let t = normaliseCompoundWords(String(text || ''))
-  if (MINUTE_RANGE_RE.test(t)) { return null }
+
+  // An explicit range wins outright: it is the most specific thing said, and
+  // reading its two ends as two conflicting figures is what used to kill the check.
+  const ranges = []
+  MINUTE_RANGE_RE.lastIndex = 0
+  let r
+  while ((r = MINUTE_RANGE_RE.exec(t)) !== null) {
+    // Unit may be stated once, on the right: "15 to 20 minutes" → both minutes.
+    const low = sideToMinutes(r[1], r[2] || r[4])
+    const high = sideToMinutes(r[3], r[4])
+    if (low !== null && high !== null) { ranges.push([Math.min(low, high), Math.max(low, high)]) }
+  }
+  if (ranges.length === 1) {
+    const [min, max] = ranges[0]
+    return (min >= MIN_SESSION_MINUTES && max <= MAX_SESSION_MINUTES) ? { min, max } : null
+  }
+  // Two different ranges named — no single budget. Stand down rather than pick.
+  if (ranges.length > 1) { return null }
 
   const found = new Set()
   const blank = m => ' '.repeat(m.length)
@@ -261,14 +299,15 @@ function requestedSessionMinutes (text) {
 
   if (found.size !== 1) { return null }
   const n = found.values().next().value
-  return (n >= MIN_SESSION_MINUTES && n <= MAX_SESSION_MINUTES) ? n : null
+  // A single figure is the range n–n; the caller treats both the same way.
+  return (n >= MIN_SESSION_MINUTES && n <= MAX_SESSION_MINUTES) ? { min: n, max: n } : null
 }
 
 module.exports = {
   isClarificationRequest,
   prefillDesignState,
   requestedSessionCount,
-  requestedSessionMinutes,
+  requestedSessionLength,
   MIN_SESSION_MINUTES,
   MAX_SESSION_MINUTES
 }

@@ -154,7 +154,9 @@ describe('an unknown length is never shown as zero', () => {
 })
 
 describe('the length-mismatch notice', () => {
-  const notice = sessions => ({ sessionLengthNotice: { requested: 30, sessions } })
+  const notice = (sessions, requested) => ({
+    sessionLengthNotice: { requested: requested || { min: 30, max: 30 }, sessions }
+  })
 
   test('an over-long session is named, with the direction of the miss', async () => {
     const wrapper = await mountOutline(
@@ -165,6 +167,27 @@ describe('the length-mismatch notice', () => {
     expect(text).toContain('You asked for 30-minute sessions')
     expect(text).toContain('session 1 works out at 1h 39m')
     expect(text).toContain('if you want it shorter')
+  })
+
+  // Mike's live phrasing. The warning must quote the band he actually gave,
+  // never a single figure he never said.
+  test('a requested RANGE is read back with both ends', async () => {
+    const wrapper = await mountOutline(
+      [session(1, { minutes: 70, video: 5, reading: 20, rehearsal: 45 })],
+      notice([{ id: 1, title: 'Session 1', minutes: 70 }], { min: 15, max: 20 })
+    )
+    const text = wrapper.text()
+    expect(text).toContain('You asked for 15–20 minute sessions')
+    expect(text).toContain('session 1 works out at 1h 10m')
+    expect(text).toContain('if you want it shorter')
+  })
+
+  test('a session under the bottom of a range is told to go longer', async () => {
+    const wrapper = await mountOutline(
+      [session(1, { minutes: 5, video: 5 })],
+      notice([{ id: 1, title: 'Session 1', minutes: 5 }], { min: 15, max: 20 })
+    )
+    expect(wrapper.text()).toContain('if you want it longer')
   })
 
   test('an under-length session is told to go longer, not shorter', async () => {

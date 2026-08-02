@@ -22,7 +22,7 @@ const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('.
 const { groundOutlineResources } = require('../server/utils/outlineResources')
 const { findQuizOverride, findQuizBank } = require('../server/utils/quizOverrides')
 const { loadBlendedQuizBanks, isFirmAuthored } = require('../server/utils/quizConfig')
-const { isClarificationRequest, prefillDesignState, requestedSessionCount, requestedSessionMinutes } = require('../server/utils/designInterview')
+const { isClarificationRequest, prefillDesignState, requestedSessionCount, requestedSessionLength } = require('../server/utils/designInterview')
 const { applyOutlineEffort, lengthNotice } = require('../server/utils/courseEffort')
 const { sendError } = require('../server/utils/sendError')
 const { validateQuizGenerate, validateQuizGrade, validateCourseOutline } = require('../server/utils/validateAIResponse')
@@ -278,9 +278,12 @@ function handleDesign (req, body, res) {
           // whose real length misses what the advisor asked for. Flagged, not
           // corrected — the advisor already has 'Request changes', and a
           // silent re-plan would hide the mismatch rather than surface it.
-          const notice = lengthNotice(timed.outline, requestedSessionMinutes(countText))
+          const notice = lengthNotice(timed.outline, requestedSessionLength(countText))
           if (notice) {
-            console.warn(`[course:design] Session-length mismatch: requested ${notice.requested} min — ` +
+            const asked = notice.requested.min === notice.requested.max
+              ? `${notice.requested.min} min`
+              : `${notice.requested.min}–${notice.requested.max} min`
+            console.warn(`[course:design] Session-length mismatch: requested ${asked} — ` +
               notice.sessions.map(s => `session ${s.id} is ${s.minutes} min`).join(', '))
             finalState.sessionLengthNotice = notice
           }

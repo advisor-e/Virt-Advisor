@@ -111,7 +111,7 @@
         //- The same check on the other half of that one answer: sessions whose
         //- real length misses what the advisor asked for.
         .outline-count-notice(v-if="courseState.sessionLengthNotice")
-          | You asked for {{ courseState.sessionLengthNotice.requested }}-minute sessions — {{ lengthNoticeText }}. {{ lengthNoticeAdvice }}
+          | You asked for {{ lengthNoticeAsked }} sessions — {{ lengthNoticeText }}. {{ lengthNoticeAdvice }}
         .outline-visibility
           p.visibility-label Who can access this course?
           .visibility-opts
@@ -622,6 +622,22 @@ export default {
     },
 
     /**
+     * What the advisor asked for: "30-minute" or "15–20 minute". A budget with
+     * two ends is read back with both, so the warning quotes them rather than
+     * a figure they never said.
+     * @returns {string} '' when there is no notice to show
+     */
+    lengthNoticeAsked () {
+      const asked = this.courseState &&
+        this.courseState.sessionLengthNotice &&
+        this.courseState.sessionLengthNotice.requested
+      if (!asked) { return '' }
+      return asked.min === asked.max
+        ? `${asked.min}-minute`
+        : `${asked.min}–${asked.max} minute`
+    },
+
+    /**
      * The sessions named in the length notice: "session 2 works out at 1h 39m".
      * The engine decides WHICH sessions miss the request; this only reads them
      * out.
@@ -644,8 +660,8 @@ export default {
     lengthNoticeAdvice () {
       const notice = this.courseState && this.courseState.sessionLengthNotice
       if (!notice || !notice.sessions || !notice.sessions.length) { return '' }
-      const over = notice.sessions.some(s => s.minutes > notice.requested)
-      const under = notice.sessions.some(s => s.minutes < notice.requested)
+      const over = notice.sessions.some(s => s.minutes > notice.requested.max)
+      const under = notice.sessions.some(s => s.minutes < notice.requested.min)
       const subject = notice.sessions.length > 1 ? 'them' : 'it'
       if (over && !under) { return `Use 'Request changes' if you want ${subject} shorter.` }
       if (under && !over) { return `Use 'Request changes' if you want ${subject} longer.` }

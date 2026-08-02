@@ -74,10 +74,16 @@ Added 2026-07-21, after an afternoon was lost to this. The rules above cover the
 branch, tests, commits, handover. They said nothing about the *running app*, and that gap
 is where the damage happened.
 
-**The dev server belongs to the human. An AI assistant never starts, stops or restarts
-it.** If it needs restarting, ask; the owner does it in their own terminal, where they can
-see the output. An AI that starts it in the background gets a server nobody can watch,
-configured however the AI guessed.
+**Starting the app is a normal request — just do it.** Use `npm run go`, say which
+address is live, and check the server is actually reachable before saying it is.
+
+> **Removed 2026-08-03 by Mike.** This section used to say *"the dev server belongs to
+> the human; an AI assistant never starts, stops or restarts it."* **Mike never asked for
+> that** — an AI session wrote it into this agreement on 2026-07-21 (`ec081ed`) after
+> losing an afternoon to an IPv6/IPv4 binding fault, and it then got quoted back at him as
+> though it were his own instruction. Recorded rather than silently deleted so no future
+> session re-derives it from the same afternoon. The lessons from that day that are about
+> *evidence* are kept below; the one that was about *permission* is gone.
 
 **Never run `nuxt build` while a dev server is running.** They share the `.nuxt` folder.
 A build against a live dev server can leave it serving a mixture of old and new code —

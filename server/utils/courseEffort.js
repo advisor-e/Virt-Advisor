@@ -220,17 +220,27 @@ function applyOutlineEffort (outline, templates) {
  * Sessions with no published time are never flagged as short; an unknown
  * length is not evidence of a wrong one.
  *
+ * THE REQUEST IS A BAND, NOT A POINT. "15 to 20 minutes" is a budget with two
+ * ends, and the tolerance is applied OUTWARD from each end rather than around a
+ * single figure — so 15–20 accepts 12–24, and a plain "30 minutes" (the range
+ * 30–30) accepts 24–36 exactly as before. This function originally took one
+ * number and was never called for a range at all, which is how Mike's live test
+ * on 2026-08-03 drew a 70-minute session against a 15–20 minute request in
+ * silence.
+ *
  * @param {object} outline - an outline already through `applyOutlineEffort`.
- * @param {number|null} requestedMinutes - minutes per session the advisor
- *   asked for, or null when they did not say (which disables the check).
- * @returns {{requested: number, sessions: Array<{id: number, title: string,
- *   minutes: number}>}|null} null when everything fits, or nothing to check.
+ * @param {{min: number, max: number}|null} requested - the advisor's budget from
+ *   `requestedSessionLength`, or null when they did not say (disables the check).
+ * @returns {{requested: {min: number, max: number}, sessions: Array<{id: number,
+ *   title: string, minutes: number}>}|null} null when everything fits, or when
+ *   there is nothing to check.
  */
-function lengthNotice (outline, requestedMinutes) {
-  if (!requestedMinutes || !Number.isFinite(requestedMinutes) || requestedMinutes <= 0) { return null }
+function lengthNotice (outline, requested) {
+  if (!requested || !Number.isFinite(requested.min) || !Number.isFinite(requested.max)) { return null }
+  if (requested.min <= 0 || requested.max < requested.min) { return null }
   const sessions = (outline && outline.sessions) || []
-  const low = requestedMinutes * (1 - LENGTH_TOLERANCE)
-  const high = requestedMinutes * (1 + LENGTH_TOLERANCE)
+  const low = requested.min * (1 - LENGTH_TOLERANCE)
+  const high = requested.max * (1 + LENGTH_TOLERANCE)
 
   const off = []
   for (const s of sessions) {
@@ -241,7 +251,7 @@ function lengthNotice (outline, requestedMinutes) {
       off.push({ id: s.id, title: s.title, minutes })
     }
   }
-  return off.length ? { requested: requestedMinutes, sessions: off } : null
+  return off.length ? { requested: { min: requested.min, max: requested.max }, sessions: off } : null
 }
 
 module.exports = {

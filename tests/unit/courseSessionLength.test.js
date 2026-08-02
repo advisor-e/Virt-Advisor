@@ -210,9 +210,33 @@ describe('the length mismatch is flagged by code', () => {
       outlineReply([{ resources: ['E.O.Y Meeting'], claimed: 30 }])
     )
     expect(state.sessionLengthNotice).toEqual({
-      requested: 30,
+      requested: { min: 30, max: 30 },
       sessions: [{ id: 1, title: 'S1', minutes: 99 }]
     })
+  })
+
+  // 🔴 THE LIVE FAILURE, 2026-08-03. Mike answered "15 to 20 minutes per session
+  // and say four sessions please", drew sessions of 70/63/30 minutes, and was
+  // told nothing: a range disabled the check outright. This drives his exact
+  // words through the real handler.
+  test("MIKE'S LIVE ANSWER — a range is a budget, and an over-long session is flagged", async () => {
+    const state = await design(
+      '15 to 20 minutes per session and say four sessions please',
+      outlineReply([
+        { resources: ['E.O.Y Meeting'], claimed: 20 }, // 99 min
+        { resources: ['Sales Psychology'], claimed: 20 } // 30 min
+      ])
+    )
+    expect(state.sessionLengthNotice.requested).toEqual({ min: 15, max: 20 })
+    expect(state.sessionLengthNotice.sessions.map(s => s.minutes)).toEqual([99, 30])
+  })
+
+  test('a session inside the requested band raises nothing', async () => {
+    const state = await design(
+      '25 to 40 minutes per session, 1 session',
+      outlineReply([{ resources: ['Sales Psychology'], claimed: 30 }]) // 30 min
+    )
+    expect(state.sessionLengthNotice).toBeUndefined()
   })
 
   test('a session that genuinely fits raises nothing', async () => {
@@ -236,7 +260,7 @@ describe('the length mismatch is flagged by code', () => {
 
   test('an unparseable length disables the check rather than guessing', async () => {
     const state = await design(
-      'say 20 to 30 minutes per session and 1 session please',
+      'as long as it takes, 1 session',
       outlineReply([{ resources: ['E.O.Y Meeting'], claimed: 30 }])
     )
     // The length still gets computed and shown — only the comparison stands down.

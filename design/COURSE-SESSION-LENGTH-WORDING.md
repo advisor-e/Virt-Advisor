@@ -60,7 +60,13 @@ screen in the i18n sweep.
 | Session line | `{total} — {n}m video · {n}m reading · {n}m rehearsal` | `sessionTimeLabel()`, class `.session-time` |
 | Course total | `5h 8m` (a tag beside "4 sessions") | `outlineTotalLabel()`, class `.outline-tag` |
 | Untimed resources | `1 resource has no published time` / `2 resources have no published time` | `sessionUnknownLabel()`, class `.session-time-unknown` |
-| Mismatch notice | `You asked for {n}-minute sessions — {sessions}. {advice}` | `lengthNoticeText`, `lengthNoticeAdvice`, class `.outline-count-notice` |
+| Mismatch notice | `You asked for {asked} sessions — {sessions}. {advice}` | `lengthNoticeAsked`, `lengthNoticeText`, `lengthNoticeAdvice`, class `.outline-count-notice` |
+
+**`{asked}` reads back what the advisor actually said** — `30-minute` for a single figure,
+`15–20 minute` for a range (en dash). ⚠ **Added 2026-08-03 after Mike's live test and NOT
+yet confirmed by him** — the approved artefact only ever showed the single-figure form,
+because at that point a range switched the warning off entirely (see the defect note below).
+The sentence around it is unchanged; only the number slot differs.
 
 ### Rules the wording encodes
 
@@ -95,6 +101,24 @@ sentences on screen.**
 Nothing else differs.
 
 ---
+
+## The defect Mike's live test found (2026-08-03)
+
+He answered the session-format question with **"15 to 20 minutes per session and say four
+sessions please"** and drew sessions of **1h 10m, 1h 3m and 30m**. The screen showed all of
+it correctly — and **said nothing at all about the overrun**.
+
+The cause was not the display. `requestedSessionMinutes` returned `null` for a range,
+switching the whole comparison off. That rule had been copied from the session-count check,
+where it is right: *"6-8 sessions"* really does mean the advisor does not mind. **For a
+duration it is backwards** — "15 to 20 minutes" is a limit, and it emphatically means *not
+70 minutes*. The warning had disabled itself on what is probably the commonest way to answer
+the question.
+
+Fixed the same day: the parser now returns a **budget** (`{min, max}`) — a single figure is
+the degenerate range `n–n` — and the ±20% latitude runs outward from each end, so 15–20
+accepts 12–24. His exact sentence is pinned as a test in three places (parser, engine,
+screen), replaying the real numbers.
 
 ## Not verified by eye
 

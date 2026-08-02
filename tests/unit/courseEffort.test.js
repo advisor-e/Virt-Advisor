@@ -253,41 +253,69 @@ describe('lengthNotice — code notices, the AI is not asked to confess', () => 
     sessions: mins.map((m, i) => ({ id: i + 1, title: `S${i + 1}`, sessionEffort: { minutes: m, unknown: [] } }))
   })
 
+  /** A single figure reaches this function as the degenerate range n–n. */
+  const exactly = n => ({ min: n, max: n })
+
   test('the 99-minutes-billed-as-30 case that started this work is flagged', () => {
-    const n = effort.lengthNotice(outline([99]), 30)
-    expect(n).toEqual({ requested: 30, sessions: [{ id: 1, title: 'S1', minutes: 99 }] })
+    const n = effort.lengthNotice(outline([99]), exactly(30))
+    expect(n).toEqual({ requested: { min: 30, max: 30 }, sessions: [{ id: 1, title: 'S1', minutes: 99 }] })
   })
 
   test('an exact match raises nothing', () => {
-    expect(effort.lengthNotice(outline([30, 30]), 30)).toBeNull()
+    expect(effort.lengthNotice(outline([30, 30]), exactly(30))).toBeNull()
   })
 
   test('±20% is tolerated — 24 and 36 against a 30-minute request pass', () => {
-    expect(effort.lengthNotice(outline([24, 36]), 30)).toBeNull()
+    expect(effort.lengthNotice(outline([24, 36]), exactly(30))).toBeNull()
   })
 
   test('just outside the tolerance is flagged — 23 and 37 do not pass', () => {
-    const n = effort.lengthNotice(outline([23, 37]), 30)
+    const n = effort.lengthNotice(outline([23, 37]), exactly(30))
     expect(n.sessions.map(s => s.minutes)).toEqual([23, 37])
   })
 
   test('only the offending sessions are named, not the whole course', () => {
-    const n = effort.lengthNotice(outline([30, 99, 30]), 30)
+    const n = effort.lengthNotice(outline([30, 99, 30]), exactly(30))
     expect(n.sessions).toEqual([{ id: 2, title: 'S2', minutes: 99 }])
   })
 
   test('a session with no published time is never flagged as short', () => {
-    expect(effort.lengthNotice(outline([0]), 30)).toBeNull()
+    expect(effort.lengthNotice(outline([0]), exactly(30))).toBeNull()
   })
 
   test('no requested length means no check — an unparsed answer never raises a false alarm', () => {
     expect(effort.lengthNotice(outline([99]), null)).toBeNull()
-    expect(effort.lengthNotice(outline([99]), 0)).toBeNull()
-    expect(effort.lengthNotice(outline([99]), NaN)).toBeNull()
+    expect(effort.lengthNotice(outline([99]), { min: 0, max: 0 })).toBeNull()
+    expect(effort.lengthNotice(outline([99]), { min: NaN, max: NaN })).toBeNull()
+    expect(effort.lengthNotice(outline([99]), { min: 40, max: 20 })).toBeNull() // incoherent
   })
 
   test('an empty outline raises nothing', () => {
-    expect(effort.lengthNotice({ sessions: [] }, 30)).toBeNull()
-    expect(effort.lengthNotice({}, 30)).toBeNull()
+    expect(effort.lengthNotice({ sessions: [] }, exactly(30))).toBeNull()
+    expect(effort.lengthNotice({}, exactly(30))).toBeNull()
+  })
+
+  // ── A range is a budget with two ends ──────────────────────────────────────
+  // 🔴 Mike's live test, 2026-08-03: he asked for 15–20 minutes and drew sessions
+  // of 70, 63 and 30. Nothing was said, because a range disabled the check
+  // outright. The tolerance now runs OUTWARD from each end.
+
+  test("MIKE'S LIVE COURSE — 15–20 minutes requested, 70/63/30 delivered, all three flagged", () => {
+    const n = effort.lengthNotice(outline([70, 63, 30]), { min: 15, max: 20 })
+    expect(n.requested).toEqual({ min: 15, max: 20 })
+    expect(n.sessions.map(s => s.minutes)).toEqual([70, 63, 30])
+  })
+
+  test('a session inside the band raises nothing', () => {
+    expect(effort.lengthNotice(outline([15, 17, 20]), { min: 15, max: 20 })).toBeNull()
+  })
+
+  test('the tolerance runs outward from each end — 12 and 24 pass a 15–20 request', () => {
+    expect(effort.lengthNotice(outline([12, 24]), { min: 15, max: 20 })).toBeNull()
+  })
+
+  test('just outside the widened band is flagged — 11 and 25 do not pass', () => {
+    const n = effort.lengthNotice(outline([11, 25]), { min: 15, max: 20 })
+    expect(n.sessions.map(s => s.minutes)).toEqual([11, 25])
   })
 })
