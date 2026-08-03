@@ -46,10 +46,10 @@ stands behind.
 ### The real list, code-verified 2026-08-03
 
 1. **No icon font** — nothing declares `@mdi/font`; 4 files still use `b-icon`. ([#no-icon-font](#no-icon-font))
-2. **`sessionIndex` is unvalidated** — MySQL would refuse the row and the fire-and-forget write swallows the refusal.
-3. **Non-atomic delete** — [`mentor.js` L181](../server/routes/mentor.js): confirmed still two sequential writes.
+2. ~~**`sessionIndex` is unvalidated** — MySQL would refuse the row and the fire-and-forget write swallows the refusal.~~ **DONE 2026-08-03, `8cdfa3a`** — [`server/utils/sessionIndex.js`](../server/utils/sessionIndex.js), 42 tests.
+3. ~~**Non-atomic delete** — [`mentor.js` L181](../server/routes/mentor.js): confirmed still two sequential writes.~~ **REPORT FIXED 2026-08-03, `8cdfa3a`.** The entry had it backwards: nothing is ever lost. The defect was the message, and `PARTIAL_DELETE` now names how many firms changed and says a repeat is safe. **Full atomicity was considered and REJECTED, not deferred** — see the entry below.
 4. **Session-state race** — [`advisorEngine.js` L343](../server/advisorEngine.js): confirmed still an in-memory `Map`. **Parked by Mike**, deliberately.
-5. **Three case fields always saved null** — confirmed: `submitStaircaseStep` clears the selection before `createCase` reads it. Not data loss (the trace carries it), but the columns are wrong.
+5. ~~**Three case fields always saved null** — confirmed: `submitStaircaseStep` clears the selection before `createCase` reads it. Not data loss (the trace carries it), but the columns are wrong.~~ **DONE 2026-08-03, `8cdfa3a`** — session-scoped copies in [`VirtualAdvisor.vue`](../components/VirtualAdvisor.vue), 9 **mounted** tests: the bug lived only in the ORDER, so only running the methods in sequence catches it.
 6. **20 template page ids are shared by DIFFERENT titles** — measured, not the 21 logged. Master-export data; investigate only.
 7. **"Accept and push"** — grep confirms no code exists.
 8. **Tax-band feeder** — grep confirms no code exists.
