@@ -1841,15 +1841,12 @@ export default {
             advisorProfile: this.hasAdvisorProfile ? this.advisorProfile : null,
             // The session's client-register link — lets the engine read this
             // client's history back (firm-validated server-side; null = skipped).
-            clientId: this.sessionClient ? this.sessionClient.id : null,
-            caseSummaries: this.relevantCases.map(c => ({
-              title: c.title,
-              mode: c.mode,
-              visibility: c.visibility,
-              summary: c.summary,
-              date: c.createdAt,
-              review: c.review || null
-            }))
+            clientId: this.sessionClient ? this.sessionClient.id : null
+            // Past case studies are NOT sent. The engine reads them itself from
+            // the database on the verified identity (advisorEngine.loadPromptCases,
+            // 2026-08-03): a browser-supplied list let any authenticated caller
+            // write the prompt's "real sessions saved by advisors in your firm"
+            // block. Do not re-add this field.
           })
         })
 

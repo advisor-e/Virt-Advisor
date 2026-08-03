@@ -50,7 +50,7 @@ stands behind.
 3. ~~**Non-atomic delete** — [`mentor.js` L181](../server/routes/mentor.js): confirmed still two sequential writes.~~ **REPORT FIXED 2026-08-03, `8cdfa3a`.** The entry had it backwards: nothing is ever lost. The defect was the message, and `PARTIAL_DELETE` now names how many firms changed and says a repeat is safe. **Full atomicity was considered and REJECTED, not deferred** — see the entry below.
 4. **Session-state race** — [`advisorEngine.js` L343](../server/advisorEngine.js): confirmed still an in-memory `Map`. **Parked by Mike**, deliberately.
 5. ~~**Three case fields always saved null** — confirmed: `submitStaircaseStep` clears the selection before `createCase` reads it. Not data loss (the trace carries it), but the columns are wrong.~~ **DONE 2026-08-03, `8cdfa3a`** — session-scoped copies in [`VirtualAdvisor.vue`](../components/VirtualAdvisor.vue), 9 **mounted** tests: the bug lived only in the ORDER, so only running the methods in sequence catches it.
-6. **20 template page ids are shared by DIFFERENT titles** — measured, not the 21 logged. Master-export data; investigate only.
+6. ~~**20 template page ids are shared by DIFFERENT titles** — measured, not the 21 logged. Master-export data; investigate only.~~ **NOT A DEFECT — RULED BY MIKE 2026-08-03, CLOSED.** A page can hold more than one template; the adviser is given the right page id and scrolls to the template. See [#shared-page-ids](#shared-page-ids).
 7. **"Accept and push"** — grep confirms no code exists.
 8. **Tax-band feeder** — grep confirms no code exists.
 9. ~~**Coaching-reference Phases 2 + 3** — the prompt still takes browser-supplied case text, and injects every entry.~~ **BOTH DONE 2026-08-03** — Phase 3 `f10b87b`, Phase 2 the commit after it. See the two ✅ entries below.
@@ -3054,8 +3054,20 @@ Two honest answers on different axes — the file used to conflate them:
     - Also confirmed while there: `.env` **is** now read (`OPENAI_API_KEY present=true`, no JWT
       placeholder warning), closing out the 2026-07-29 fix. The MySQL placeholder warning and the
       `[activityStore] … using the dev file` lines are the fallback working as designed.
-  - ☐ **NEW FINDING 2026-07-30 — 21 page ids in the template library are shared by more than one
-    record, and some of the pairs are plainly DIFFERENT templates.** Noticed while proving the
+  - <a id="shared-page-ids"></a>✅ **NOT A DEFECT — RULED BY MIKE 2026-08-03. CLOSED, do not
+    re-investigate.** *"Some pages have more than one template on it. So long as the adviser gets
+    given the correct page ID, they will scroll down and see the template. There's nothing broken."*
+    The shared ids are the master app working as designed, not an export error.
+    - Measured 2026-08-03 while closing this: **22** page ids held by more than one record (not 21
+      or 20) — 2 the same title twice, 2 spelling slips of one title, **18 genuinely different
+      templates**. `page` and `link` carry the SAME values (267 distinct each, identical
+      collisions), which is consistent with the ruling: one page address, several templates on it.
+    - Also verified: **nothing in the codebase looks a template up by `page` or `link`.** Every
+      lookup is by title — `cpdCatalogue`, `videoInjector`, `resolveTemplateName`, the quiz binding.
+      Recorded so the next reader does not re-derive it.
+  - ~~☐ **NEW FINDING 2026-07-30 — 21 page ids in the template library are shared by more than one
+    record, and some of the pairs are plainly DIFFERENT templates.**~~ *(Original below, kept for its
+    reasoning.)* Noticed while proving the
     video fix; **not investigated, and nothing was changed** — `data/templates.json` derives from
     the master export, which is never edited here. Examples: `id-4277160310` → *Client pre Meeting*
     **and** *Coping With Adversity*; `bizz360` → *Working Capital Cycle* **and** *Activity Ratios*;

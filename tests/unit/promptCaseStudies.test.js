@@ -175,12 +175,17 @@ describe('wiring — the body-supplied list must not come back', () => {
     expect(engineSource).not.toMatch(/^\s*caseContext,\s*$/m)
   })
 
-  test('the body field is still ACCEPTED, so an older frontend is not broken', () => {
+  test('a body that still sends the old field is dropped, not obeyed and not rejected', () => {
+    // The field and the frontend that sent it were removed 2026-08-03. A caller
+    // that still sends it must neither have it used nor get an error — an older
+    // page keeps working, and the text goes nowhere.
     const { sanitiseInput } = require('../../server/utils/sanitiseInput')
 
     const out = sanitiseInput({ query: 'hi', caseSummaries: [{ title: 'anything', summary: 'at all' }] })
 
     expect(out).not.toBeNull()
     expect(out.query).toBe('hi')
+    expect(out.caseContext).toBeUndefined()
+    expect(JSON.stringify(out)).not.toContain('anything')
   })
 })

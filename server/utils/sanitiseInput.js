@@ -9,8 +9,6 @@
 const MAX_QUERY = 4000
 const MAX_HISTORY_MESSAGES = 20
 const MAX_FIELD = 2000
-const MAX_CASE_SUMMARY = 800
-const MAX_CASES = 6
 
 /**
  * @typedef {Object} SanitisedInput
@@ -20,12 +18,11 @@ const MAX_CASES = 6
  * @property {string}   languageName        - Human-readable language name (e.g. 'English')
  * @property {Array}    conversationHistory - Last MAX_HISTORY_MESSAGES messages, each capped to MAX_FIELD
  * @property {Object|null} advisorProfile   - Advisor profile fields, each capped to MAX_FIELD, or null
- * @property {Array}    caseContext         - Up to MAX_CASES case summaries, each capped to MAX_CASE_SUMMARY.
- *   ACCEPTED BUT IGNORED — the advisor engine reads past cases from the database
- *   using the verified JWT identity (advisorEngine.loadPromptCases), because a
- *   body-supplied list let any authenticated caller write the prompt's "real
- *   sessions saved by advisors in your firm" block. Kept so an older frontend
- *   still gets a 200; removed in a later release.
+ *   (There is deliberately no case-summaries field. Past cases are read from the
+ *   database on the verified JWT identity — advisorEngine.loadPromptCases —
+ *   because a body-supplied list let any authenticated caller write the prompt's
+ *   "real sessions saved by advisors in your firm" block. A `caseSummaries` key
+ *   in the body is now simply an unknown key: dropped here, never read.)
  * @property {Object}   conversationState   - Raw conversation state object
  * @property {Array|undefined} orgTemplateIds - Organisation template ID filter list
  */
@@ -51,7 +48,6 @@ function sanitiseInput (raw) {
     advisorProfile: rawProfile,
     language = 'en',
     languageName = 'English',
-    caseSummaries: rawCases = [],
     sessionId: rawSessionId,
     advisorId: rawAdvisorId,
     firmId: rawFirmId,
@@ -79,23 +75,6 @@ function sanitiseInput (raw) {
     }
     : null
 
-  const caseContext = Array.isArray(rawCases)
-    ? rawCases.slice(0, MAX_CASES).map(c => ({
-      title: String(c.title || '').slice(0, 200),
-      mode: String(c.mode || '').slice(0, 20),
-      visibility: String(c.visibility || '').slice(0, 20),
-      summary: String(c.summary || '').slice(0, MAX_CASE_SUMMARY),
-      date: String(c.date || c.createdAt || '').slice(0, 30),
-      review: c.review && typeof c.review === 'object'
-        ? {
-          wentWell: String(c.review.wentWell || '').slice(0, 500),
-          wentLess: String(c.review.wentLess || '').slice(0, 500),
-          changesRecommended: String(c.review.changesRecommended || '').slice(0, 500)
-        }
-        : null
-    }))
-    : []
-
   return {
     query,
     mode: String(mode).slice(0, 50),
@@ -103,7 +82,6 @@ function sanitiseInput (raw) {
     languageName: String(languageName).slice(0, 100),
     conversationHistory,
     advisorProfile,
-    caseContext,
     sessionId: rawSessionId ? String(rawSessionId).slice(0, 64) : null,
     // Client-register id from the session's client step (design 2026-07-14).
     // An id only — the engine must still firm-validate it (clientStore.getById)
@@ -119,7 +97,5 @@ module.exports = {
   sanitiseInput,
   MAX_QUERY,
   MAX_HISTORY_MESSAGES,
-  MAX_FIELD,
-  MAX_CASE_SUMMARY,
-  MAX_CASES
+  MAX_FIELD
 }

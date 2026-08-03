@@ -1540,9 +1540,10 @@ async function handleQuery (rawBody, res, identity) {
     clientId,
     sessionId: incomingSessionId
   } = sanitised
-  // NOTE: `sanitised.caseContext` (body field `caseSummaries`) is deliberately
-  // NOT read — see loadPromptCases. The field is still accepted so an older
-  // frontend keeps working; it is removed in a later release.
+  // NOTE: there is no case-summaries field to read — it and the frontend that
+  // sent it were removed 2026-08-03. Past cases come from loadPromptCases, on the
+  // verified identity. A `caseSummaries` key in the body is now an unknown key:
+  // sanitiseInput drops it. Do not re-introduce it.
 
   // SEC (sweep 2026-07-10): the display name is resolved server-side from the
   // language CODE against the canonical list — the body's free-text
