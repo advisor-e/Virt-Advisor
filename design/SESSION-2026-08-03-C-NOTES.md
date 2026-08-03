@@ -1,10 +1,13 @@
 # Session Notes — 2026-08-03 (C) · Laptop, Session 30 (a fault that read as a finding)
 
-> **Nothing is unsaved.** `feat/advisor-progress` = `origin`, **3 ahead / 0 behind
+> **Nothing is unsaved.** `feat/advisor-progress` = `origin`, **7 ahead / 0 behind
 > `master`**, working tree clean. Suite **4,373 green / 254 suites**, lint 0 errors.
 >
-> ⚠ **NOT RAISED AS A PULL REQUEST.** Everything below is invisible to the desktop and
-> to the master team until one goes up.
+> ✅ **PR #35 IS OPEN and MERGEABLE** — <https://github.com/advisor-e/Virt-Advisor/pull/35>,
+> raised on Mike's instruction at the close of the session. 18 files, +1,260 / −55.
+>
+> **⚠ Whoever merges it must RESTART THE BACKEND** — a running Restify process holds the
+> old engine code, and the change will look as though it did nothing.
 
 ---
 
@@ -97,12 +100,24 @@ and only the flag separates them.
    went through `$t()`. Pre-existing. The two NEW sentences do, so no new violation was
    added; moving the rest is its own sweep. ⚠ A test greps one of those literals and will
    fail loudly if the wording moves — re-point it, do not delete it.
-2. [`no-escalation-route`](ACTIONS.md) — the app cannot tell anyone who to contact when a
-   fault persists, because no support route exists anywhere. *"Try again in a moment"* is
-   the whole truth we can offer. Needs a Mike ruling; wider than this fix.
+2. ~~[`no-escalation-route`](ACTIONS.md)~~ — **RULED the same evening.** Mike: *"contact
+   your advisor-e coach - that's what they're here for!"* It now ends the two fault
+   sentences that instruct the reader. **The route now exists as a written answer, so the
+   next fault message anywhere in the app should reuse it rather than re-open the
+   question.**
 
-**Still unruled from the previous session:** the twelve strings in
-[`WORDING-DECISIONS-2026-08-03.md`](WORDING-DECISIONS-2026-08-03.md).
+**Ruled after this note was first written** — all twelve strings in
+[`WORDING-DECISIONS-2026-08-03.md`](WORDING-DECISIONS-2026-08-03.md) are settled: the
+Logic-Lab lede corrected to *"Nothing on this page changes anything until you choose it."*
+(it promised the opposite directly above two buttons that write to live configuration), the
+other eleven kept as written.
+
+⚠ **That list was MIS-FRAMED, and it is the process lesson of the session.** It offered
+twelve equal-looking decisions when it was **one defect and eleven rubber stamps** — seven
+of the eight gap sentences only appear in states a normal test of the page never reaches.
+Mike tested the live page and asked why he was being consulted at all. Re-reading the code
+proved nothing was stale; the *framing* was the fault. **Next wording list: separate the
+defects from the approvals.**
 
 **Least-tested path:** the failure has never been seen in the running app — only rendered in
 jsdom. The sentences are provably on the page; how they read beside a real recommendation is
