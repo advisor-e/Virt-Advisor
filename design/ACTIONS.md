@@ -107,7 +107,20 @@ that the warning is not being followed by default.
   `3fdbf9f`.** The entry below is the original task, kept verbatim for its reasoning. The stale "OPEN"
   flag was caught by `/startup` on 2026-08-03 — a reminder that this list's own flags are claims to
   check, exactly as the warning at the top of the file says.
-  - ☐ **P1 · PROCESS — PR #36 IS OPEN and needs a reviewer and a merge**, raised 2026-08-03 on Mike's
+  - ☐ **P1 · PROCESS — PR #37 IS OPEN and needs a reviewer and a merge**, raised 2026-08-04 on Mike's
+    instruction: <https://github.com/advisor-e/Virt-Advisor/pull/37>. Four commits — the decision-trace
+    panel's text moved into `locales/en.json` so it translates (`f0de590`), the wording artefact and
+    Mike's five rulings (`373ef20`, `f25d9c0`), and the "Why" column built from one shared table
+    (`fab6c3a`). **State at raising:** 4 ahead, **0 behind** `origin/master`, tree clean, level with
+    `origin`; suite **4,536 green / 262 suites**, lint 0 errors; GitHub reports **MERGEABLE** — 9
+    files, +877 / −61.
+    - **No backend restart needed** — every change is front-end text. (Unlike #36, which did need one.)
+    - Until it merges, none of it is visible to the desktop or the master team.
+  - ✅ **P1 · PROCESS — PR #36 MERGED to `master` as `52935f1`** (2026-08-04, reviewed and merged on
+    Mike's instruction; suite proved green locally first — the repo has no CI, so the local run *is*
+    the gate). Entry kept verbatim below for its reasoning. **⚠ Its backend restart is still
+    outstanding** wherever the app runs: those were engine changes and a running Restify process holds
+    the old code. Raised 2026-08-03 on Mike's
     instruction: <https://github.com/advisor-e/Virt-Advisor/pull/36>. Six commits — the two
     coaching-reference prompt fixes (Phase 3 `f10b87b`, Phase 2 `32d631d`) plus the verified sweep and
     its follow-through. **State at raising (`ddb910c`):** 6 ahead, **0 behind** `origin/master`, tree
@@ -1499,6 +1512,68 @@ that the warning is not being followed by default.
     Feasibility Model that is *not* `includedInClient` — a derivation for Mike, not a lookup. Until
     ruled, this table gives the advisor the reasoning with no page attached. *(Companion to the
     six-branch ruling on Strategic Planning above.)*
+    - **2026-08-04 — measured, and BOTH rulings above stay OPEN.** A sweep of every tree found **47**
+      recommendation branches with an empty `templates[]` (not the 51 first reported — the first count
+      included question nodes, which never carry templates). **26 of the 47 are pure coaching** and are
+      correctly empty: the Honey & Mumford processing styles, the objection-handling rows, the Cautious
+      Reveal steps. Their text still reaches the AI, so nothing is lost by the empty list. **That does
+      NOT close either ruling above** — those ask whether specific pages (**6 Hats**, **Growth Curve**,
+      **Sales Teams**) should be attached to named branches, which is a judgement about Mike's own
+      content and cannot be settled by counting.
+
+- <a id="tree-recommendation-field-dropped"></a>☐ **🔴 P1 · FIX — 55 branches keep their instruction in
+  a field the prompt builder never reads, so it never reaches the AI.** Found 2026-08-04 while checking
+  the empty-`templates[]` branches above.
+  - **Proof.** [`formatNodeForPrompt`](../server/utils/logicTrees.js#L299) emits `condition`,
+    `gate_question`, `action`, `question`, `sales_process`, `templates`, `templates_if_unsure`,
+    `support_templates`, `notes` and `branches`. It does **not** emit `recommendation`. Nothing else in
+    the backend reads `node.recommendation` either — grepped.
+  - **Scale.** 55 nodes carry a `recommendation`; **all 55 have no `action`**, so there is no fallback
+    and the instruction is simply gone. By tree: FM Coaching & Firm Culture 9 · Stock Purchasing 8 ·
+    Get Seminar 7 · Firm Board Pack 7 · Leadership & Partner Development 7 · Raising Capital 6 ·
+    CA Firm Strategy 6 · Financial Systems Review 5.
+  - **Why it looks fine.** Every one of them still has `notes`, which does reach the prompt — so the AI
+    gets the background and loses the instruction. Nothing errors, nothing is blank.
+  - Example (`gs_audience_negativity`): the AI receives the condition and "Call out the ghosts early…",
+    but never *"Use Get Seminar template. Address known objections at the opening of the session."*
+  - **⚠ Do NOT fix this in isolation** — see the ruling below. Today the drop is the only thing keeping
+    12 non-existent template names out of the prompt.
+
+- <a id="tree-prose-names-ghost-templates"></a>☐ **🔴 P1 · CONTENT+FIX — 12 template names in tree prose
+  do not exist, and the ghost check cannot see them.** Found 2026-08-04.
+  - **The ghost-reference validator only inspects `node.templates`** ([`logicTrees.js`
+    L65–81](../server/utils/logicTrees.js#L65)) — a name written into a *sentence* is never checked.
+    The file's own comment (L39) says the risk it guards against is "the AI fabricates a recommendation
+    for a template the advisor cannot find", which is exactly what prose names would produce.
+  - **21 branches name a tool in prose while their `templates[]` is empty**: Get Seminar 7 ·
+    Leadership & Partner Development 6 · CA Firm Strategy 4 · Firm Board Pack 4.
+  - **Checked against the search JSON — titles first, then every field of all 280 records:**
+    - ✅ correct as written: **Directorship Pathway**.
+    - ⚠ real but MISNAMED (4): "Board Resolution" → **FM Resolutions** · "Board White Paper" →
+      **FM Board White Paper** · "Boardpack Table Tracker" → **FM Board Pack Tables** · "De Bono's
+      6 Hats" → **6 Hats**.
+    - ❌ absent in any form (12): Get Seminar · Get Team Problem · Risk Mgt Cover · Global Actions
+      Report · Client Service Standards · Offshoring Review · Enneagram Employment Questions ·
+      Boardroom Manipulation Tactics · Ethics Conduct & Effect · Bonus Points System · Software
+      Assessment Criteria · Team AI (Familiarity) Tasks. "Seminar" appears in no title at all.
+  - **✅ RULED 2026-08-04 (Mike), in his words:** *"If it's trying to recommend a template, then if it's
+    not in the search JSON or not in the search file, then don't recommend it. Hold it back. If it's
+    information or content that sits within a template so it's coaching advice, then, of course,
+    that's different."* — So: a template recommendation whose name is not in the search JSON is held
+    back; coaching content is kept.
+  - **The search JSON is the authority** on what exists (Mike, 2026-08-04): the app has get-the-job,
+    get-organised and do-the-job sections, and a section is only paired to a template if the search
+    JSON says so.
+  - **Not urgent — nothing reaches an adviser today**, because the field-drop defect above swallows
+    every one of these sentences first. The two must be fixed together: repairing the field alone would
+    start feeding 12 non-existent tool names to the AI.
+  - ☐ **Still to verify, deliberately unfinished** (investigation stopped on Mike's instruction to hold
+    scope): six names in the *proper* `templates[]` lists are also absent from the search JSON —
+    **Lite Sales, Lite Data, Lite Planning, Lite People, Lite Process, Growth Curve**. "Growth Curve"
+    *is* in `templates.json`, so the two data files appear to disagree (291 templates vs 280 search
+    records). **Verify before acting.** Also unverified: whether `validateLogicTreeReferences` only
+    logs — its result is discarded at [L108](../server/utils/logicTrees.js#L108) — which would mean a
+    ghost name in a proper list reaches the prompt today.
   - ☐ **P3 · SCORING — a repeated word in an `answer_pattern` silently doubles that branch's score.**
     `scorePattern` ([`logicTrees.js`](../server/utils/logicTrees.js) L1205–1213) counts every
     occurrence of a matched word, so a pattern naming *wants* twice scores 2 on that word alone.

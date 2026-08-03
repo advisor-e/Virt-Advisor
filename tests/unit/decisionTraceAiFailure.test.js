@@ -33,18 +33,25 @@ const SCREENS = [
   { name: 'FirmManagerHub (a saved case)', file: 'components/FirmManagerHub.vue' }
 ]
 
-// The claim that must never be made about an unread layer. Both files carry it
-// verbatim; if it is ever reworded, this test fails and points here rather than
-// silently going quiet — the failure mode of a grep-based guard.
+// The claim that must never be made about an unread layer.
+//
+// 2026-08-04 — RE-POINTED, exactly as the note below this line told the next
+// reader to do. The sentence moved out of both templates and into the locale
+// file with the rest of the panel (a Spanish-speaking adviser was reading the
+// whole trace in English). The rule is unchanged and so is the wording; only its
+// address moved, so the guard now follows the KEY through the source and checks
+// the words themselves in en.json.
+const NO_DISTINCTION_KEY = 'decisionTrace.noDistinction'
 const NO_DISTINCTION_LINE = 'No distinction changed the scoring in this area.'
 
 describe.each(SCREENS)('$name — a failed classifier is never reported as a result', ({ file }) => {
   const src = read(file)
 
   it('still carries the sentence this rule is about', () => {
-    // If this fails, the wording moved (very likely into a locale file, which the
-    // i18n rule wants). Re-point the guard at its new home — do not delete it.
-    expect(src).toContain(NO_DISTINCTION_LINE)
+    // If this fails, the wording moved again. Re-point the guard at its new home
+    // — do not delete it.
+    expect(src).toContain(NO_DISTINCTION_KEY)
+    expect(JSON.parse(read('locales/en.json')).decisionTrace.noDistinction).toBe(NO_DISTINCTION_LINE)
   })
 
   it('branches on aiFailed BEFORE claiming no distinction changed the scoring', () => {
@@ -55,7 +62,7 @@ describe.each(SCREENS)('$name — a failed classifier is never reported as a res
       .map(needle => src.indexOf(needle))
       .filter(at => at > -1)
     const failureAt = Math.min.apply(null, candidates)
-    const claimAt = src.indexOf(NO_DISTINCTION_LINE)
+    const claimAt = src.indexOf(NO_DISTINCTION_KEY)
 
     expect(failureAt).toBeGreaterThan(-1)
     // Order is the whole rule: a v-else-if placed after the claim would render the
