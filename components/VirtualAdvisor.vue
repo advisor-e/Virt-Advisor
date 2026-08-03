@@ -394,16 +394,16 @@
       //- Why this recommendation — decision trace (shown after a recommendation)
       .trace-panel(v-if="lastTrace && recommendationDelivered")
         button.trace-toggle(@click="showTracePanel = !showTracePanel")
-          | {{ showTracePanel ? '▾' : '▸' }} Why this recommendation
+          | {{ showTracePanel ? '▾' : '▸' }} {{ $t('decisionTrace.whyThis') }}
         .trace-body(v-if="showTracePanel")
           .trace-row
-            span.trace-label Area I focused on
+            span.trace-label {{ $t('decisionTrace.areaFocused') }}
             span.trace-value {{ lastTrace.domain.label || lastTrace.domain.id || '—' }}
           .trace-row
-            span.trace-label What shaped the advice
+            span.trace-label {{ $t('decisionTrace.whatShaped') }}
             span.trace-value {{ traceLensSummary }}
           .trace-section
-            .trace-section-title Distinctions
+            .trace-section-title {{ $t('decisionTrace.distinctions') }}
             p.trace-note {{ lastTrace.distinctions.note }}
             //- 🔴 The failure case comes FIRST, and it is not the same claim as an
             //- empty boost list. Before 2026-08-03 a classifier call that never
@@ -414,28 +414,28 @@
             //- design/WORDING-DISTINCTION-AI-FAILURE.md (S1).
             p.trace-note.trace-fault(v-if="lastTrace.distinctions.aiFailed") {{ $t('decisionTrace.distAiFailed') }}
             p.trace-value(v-else-if="traceBoostList.length")
-              span Boosted here:
+              span {{ $t('decisionTrace.boostedHere') }}
               span.trace-boost(v-for="b in traceBoostList" :key="b.title")  {{ b.title }} (+{{ b.boost }})
-            p.trace-note(v-else) No distinction changed the scoring in this area.
+            p.trace-note(v-else) {{ $t('decisionTrace.noDistinction') }}
           //- The bridge is a SECOND, independent AI call: it can fail while the one
           //- above succeeds. On failure this whole section used to vanish, so the
           //- quietest of the eight surfaces said nothing at all (S2).
           .trace-section(v-if="lastTrace.distinctions.nearMissAiFailed")
-            .trace-section-title Filed elsewhere — may belong here
+            .trace-section-title {{ $t('decisionTrace.filedElsewhere') }}
             p.trace-note.trace-fault {{ $t('decisionTrace.nearMissAiFailed') }}
           .trace-section(v-else-if="lastTrace.distinctions.nearMisses && lastTrace.distinctions.nearMisses.length")
-            .trace-section-title Filed elsewhere — may belong here
-            p.trace-note These distinctions of yours live in another area but matched this situation. Moving one into “{{ lastTrace.domain.label || lastTrace.domain.id }}” (Firm Manager → Advisory Distinctions) would let it apply to sessions like this:
+            .trace-section-title {{ $t('decisionTrace.filedElsewhere') }}
+            p.trace-note {{ $t('decisionTrace.nearMissIntro', { area: lastTrace.domain.label || lastTrace.domain.id }) }}
             p.trace-nearmiss(v-for="nm in lastTrace.distinctions.nearMisses" :key="nm.id")
               span.trace-value {{ nm.description }}
-              span.trace-note  — currently in {{ nm.domain }}
+              span.trace-note  {{ $t('decisionTrace.currentlyIn', { area: nm.domain }) }}
           .trace-section
-            .trace-section-title How the templates scored
+            .trace-section-title {{ $t('decisionTrace.templatesScored') }}
             table.trace-scores
               tr
-                th Template
-                th Score
-                th Why
+                th {{ $t('decisionTrace.colTemplate') }}
+                th {{ $t('decisionTrace.colScore') }}
+                th {{ $t('decisionTrace.colWhy') }}
               tr(v-for="t in lastTrace.templateScores.slice(0, 6)" :key="t.rank")
                 td {{ t.title }}
                 td {{ t.score }}
@@ -843,6 +843,7 @@ import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
 import caseMixin from '~/mixins/caseMixin'
 import staircaseMixin from '~/mixins/staircaseMixin'
+import traceReasonMixin from '~/mixins/traceReasonMixin'
 import growthFundamentals from '~/data/growth-fundamentals.json'
 import finMgtTable from '~/data/fin-mgt-table.json'
 
@@ -883,7 +884,7 @@ const PRIMARY_ISSUES = {
 
 export default {
   name: 'VirtualAdvisor',
-  mixins: [speechMixin, localeMixin, caseMixin, staircaseMixin],
+  mixins: [speechMixin, localeMixin, caseMixin, staircaseMixin, traceReasonMixin],
 
   props: {
     orgTemplateIds: {
@@ -1016,9 +1017,9 @@ export default {
       if (!this.lastTrace) { return '' }
       const l = this.lastTrace.lenses || {}
       const parts = []
-      if (l.engagementType) { parts.push(`${l.engagementType} engagement`) }
-      if (l.complexityCeiling) { parts.push(`${l.complexityCeiling} ceiling`) }
-      if (l.templateBudget !== null && l.templateBudget !== undefined) { parts.push(`budget ${l.templateBudget}`) }
+      if (l.engagementType) { parts.push(this.$t('decisionTrace.lensEngagement', { type: l.engagementType })) }
+      if (l.complexityCeiling) { parts.push(this.$t('decisionTrace.lensCeiling', { level: l.complexityCeiling })) }
+      if (l.templateBudget !== null && l.templateBudget !== undefined) { parts.push(this.$t('decisionTrace.lensBudget', { budget: l.templateBudget })) }
       return parts.join(' · ')
     },
     traceBoostList () {
@@ -1207,20 +1208,10 @@ export default {
   },
 
   methods: {
-    // Translate the engine's terse score reasons into plain language for the
-    // "Why this recommendation" panel. Unknown reasons pass through as-is.
-    humanizeReasons (reasons) {
-      return (reasons || []).map((r) => {
-        const m = /^distinction:\+(\d+)$/.exec(r)
-        if (m) { return `firm distinction +${m[1]}` }
-        if (r.startsWith('tag:')) { return 'matches the area' }
-        if (r === 'domain:primary_subsection') { return 'core to this area' }
-        if (r.startsWith('engagement:')) { return 'fits the engagement type' }
-        if (r === 'history:already_delivered') { return 'already delivered to this client — held back' }
-        if (r === 'history:went_less_well') { return 'delivered before and went less well — held back' }
-        return r
-      }).join(', ')
-    },
+    // humanizeReasons() — the "Why" column's plain English — now comes from
+    // traceReasonMixin, shared with FirmManagerHub. It used to live here and knew
+    // 7 of the engine's 26 codes; the saved-case view knew none of them, which is
+    // what a mapping kept in a component turns into. See utils/traceReasonCodes.js.
 
     autoResizeTextarea (el) {
       if (!el) { return }
