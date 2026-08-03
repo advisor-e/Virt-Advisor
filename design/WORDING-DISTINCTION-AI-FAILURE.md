@@ -193,8 +193,11 @@ Applied to the two sentences whose job is to tell the reader what to do:
 **Two deliberate deviations from his exact words, named rather than folded in** (CLAUDE.md →
 Save the Artefact): the exclamation mark is dropped, because the sentence sits inside a
 fault box where it would read as cheerful about a failure; and *"If it keeps happening"* is
-prefixed, so a reader whose fault clears on a retry is not sent to a person for nothing. Say
-the word and either goes back.
+prefixed, so a reader whose fault clears on a retry is not sent to a person for nothing.
+
+✅ **Both deviations put to Mike and CONFIRMED, 2026-08-03** — *"they are fine"* — asked
+before PR #35 merged, so the approval is recorded against the artefact rather than living
+only in a conversation.
 
 **Not added to S3, S4 or S5** — the two Logic-Lab diagnostic states and the table chip.
 Those state a fact inside a diagnostic screen rather than instructing the reader, and S4

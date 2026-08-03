@@ -117,6 +117,10 @@
     calls fail independently), and `phraseProbe` reports it to the Logic-Lab screens.
   - **An UNREADABLE reply is now a failure too**, not just a thrown error: an empty or prose reply used
     to fall through a `|| '{}'` default and read as a confident "none of your distinctions applied".
+    ✅ **Put to Mike as a judgement call and CONFIRMED 2026-08-03** (*"they are fine"*), together with
+    withholding the "→ Write a distinction in X" instruction while the layer is unread. The trade-off
+    stated at the time: if the model ever answers in prose, a firm sees an honest fault warning where
+    it previously saw a confident wrong answer.
   - **Eight surfaces, not the four first found** — the two quietest showed *nothing at all* rather than
     something wrong (the live-session near-miss section, and a saved case in the Hub). Wording ruled by
     Mike 2026-08-03: [`WORDING-DISTINCTION-AI-FAILURE.md`](WORDING-DISTINCTION-AI-FAILURE.md), all six
