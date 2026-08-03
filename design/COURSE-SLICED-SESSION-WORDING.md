@@ -262,9 +262,32 @@ building, because it is not true**: a template that never became a session has n
 be opened from. Saying it would have been a small, confident falsehood on a screen whose whole
 purpose is that its figures can be trusted.
 
-⚠ **Open for Mike, not blocking:** if he wants such material timetabled anyway, the only
-honest way is a default allowance he sets, exactly as the 30 minutes for revenue models was
-set. Nothing is assumed in the meantime.
+### D8b — the standard allowance *(Mike's ruling, 2026-08-03)*
+
+> **"default time allowance - video 15 mins - read template 30 - rehearse 30"**
+
+Leaving untimed material out looked honest and was not. On his live "Simple Dashboard
+Discussions" course the AI picked five templates, four carried no published time, and the
+course collapsed to **1h 4m of a single template**. On "Positioning Financial Management" two
+more dropped out the same way.
+
+A template the export never timed is now **15 minutes of video, 30 of reading and 30 of
+rehearsal** — taught like anything else, and cut into sessions like anything else.
+
+Four rules keep the allowance apart from a measurement:
+
+1. **An authored time always wins.** The allowance never displaces a published figure.
+2. **A revenue model keeps its own 30-minute ruling** — it has no authored split, so it stays
+   one indivisible block rather than three activities.
+3. **Every session built on the allowance says so**, quietly, under its length:
+   *"Estimated — the library publishes no time for this template."*
+4. **`cpdCatalogue` is untouched.** A CPD record is a **regulated claim** about authored
+   hours; an allowance invented for course planning must never be counted into one. The two
+   figures can now legitimately differ, and that is correct.
+
+**"Unknown" now means one thing only:** a resource name that matches no template in the
+library at all. That still cannot be costed, is still named on the card, and is still never
+invented into work.
 
 ### D9 — Not blocking: does the conversation with the AI carry time?
 

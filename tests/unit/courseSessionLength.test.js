@@ -209,15 +209,28 @@ describe('session length is computed, not accepted from the AI', () => {
     expect(state.pendingOutline.sessions[0].sessionEffort.modelMinutes).toBe(30)
   })
 
-  test('a session with nothing published carries no estimate, and says which resource', async () => {
+  // ⚠ CHANGED by Mike's ruling 2026-08-03: an untimed template is 15 + 30 + 30
+  // rather than left out of the timetable. Leaving it out looked honest and was
+  // not — his live dashboard course lost four of its five resources that way.
+  test('an untimed template is taught on the allowance, and marked as an estimate', async () => {
     const state = await design(
-      '30 minutes per session, 1 session',
+      'as long as it takes, 1 session',
       outlineReply([{ resources: ['Dashboard Report'], claimed: 30 }])
     )
     const session = state.pendingOutline.sessions[0]
-    expect('estimatedMinutes' in session).toBe(false)
-    expect(session.sessionEffort.unknown).toEqual(['Dashboard Report'])
-    expect(state.courseUnknownCount).toBe(1)
+    expect(session.estimatedMinutes).toBe(75)
+    expect(session.sessionEffort.allowanceMinutes).toBe(75)
+    expect(state.courseUnknownCount).toBe(0)
+  })
+
+  test('a resource matching no template at all is still named, never invented', async () => {
+    const state = await design(
+      'as long as it takes, 1 session',
+      outlineReply([{ resources: ['Dashboard Report'], claimed: 30 }])
+    )
+    // Grounding drops invented names before this point, so the outline itself
+    // can only carry real ones — the unknown list is for names that survive it.
+    expect(state.pendingOutline.sessions[0].sessionEffort.unknown).toEqual([])
   })
 
   test('the course total is the sum across sessions', async () => {

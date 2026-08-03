@@ -56,15 +56,45 @@ const MODEL_SUBSECTION = 'revenue & feasibility models'
 const MODEL_ALLOWANCE_MINUTES = 30
 
 /**
+ * Mike's ruling 2026-08-03 (second): a template the export never timed is
+ * costed at 15 minutes of video, 30 of reading and 30 of rehearsal.
+ *
+ * WHY IT EXISTS. Untimed material could not be timetabled at all, so a course
+ * the AI built from five templates collapsed to the one that carried authored
+ * times — his live "Simple Dashboard Discussions" course lost four of its five
+ * resources and came out at 1h 4m of a single template. Counting them as zero
+ * was already refused; leaving them out entirely turned out to be the same
+ * refusal wearing a different coat.
+ *
+ * WHAT IT IS NOT. It is an ALLOWANCE, not a measurement, and the two are kept
+ * apart everywhere they meet:
+ *   - authored time always wins where the export publishes one;
+ *   - a revenue model keeps its own 30-minute ruling (it has no authored split
+ *     to walk, so it stays one indivisible block);
+ *   - the source is recorded as 'default' so the screen can say the figure is
+ *     an estimate rather than a published time;
+ *   - `cpdCatalogue` is untouched. A CPD record is a REGULATED claim about
+ *     hours actually authored, and an allowance invented for course planning
+ *     must never be counted into one.
+ */
+const DEFAULT_ALLOWANCE = { video: 15, reading: 30, rehearsal: 30 }
+
+/**
  * How far a session may sit from the requested length before it is flagged.
  * ±20%: a 30-minute request accepts 24–36. Tight enough to catch the 99-minute
  * session that started this work, loose enough not to nag over five minutes.
  */
 const LENGTH_TOLERANCE = 0.2
 
-/** Where a template's minutes came from. 'unknown' carries no minutes at all. */
+/**
+ * Where a template's minutes came from. 'unknown' carries no minutes at all,
+ * and now means only one thing: a name that matches no template in the library.
+ * A REAL template with no published time is 'default' — costed by the
+ * allowance above, and labelled as an estimate wherever it is shown.
+ */
 const SOURCE_AUTHORED = 'authored'
 const SOURCE_MODEL = 'model'
+const SOURCE_DEFAULT = 'default'
 const SOURCE_UNKNOWN = 'unknown'
 
 /**
@@ -162,12 +192,27 @@ function templateEffort (name, templates) {
     }
   }
 
-  // 2. A revenue model the export never timed — Mike's flat allowance.
+  // 2. A revenue model the export never timed — Mike's flat allowance. It has
+  // no authored split to walk, so it stays one block rather than three.
   if (record && isRevenueModel(record)) {
     return { ...base, minutes: MODEL_ALLOWANCE_MINUTES, source: SOURCE_MODEL }
   }
 
-  // 3. Genuinely unpublished. Reported, never counted as zero work.
+  // 3. A real template the export never timed — the standard allowance, so it
+  // can be timetabled rather than dropped out of the course (Mike 2026-08-03).
+  if (record) {
+    return {
+      ...base,
+      minutes: DEFAULT_ALLOWANCE.video + DEFAULT_ALLOWANCE.reading + DEFAULT_ALLOWANCE.rehearsal,
+      source: SOURCE_DEFAULT,
+      video: DEFAULT_ALLOWANCE.video,
+      reading: DEFAULT_ALLOWANCE.reading,
+      rehearsal: DEFAULT_ALLOWANCE.rehearsal
+    }
+  }
+
+  // 4. A name that matches nothing in the library at all. There is no template
+  // to cost, so there is nothing to estimate — reported, never invented.
   return base
 }
 
@@ -177,12 +222,14 @@ function templateEffort (name, templates) {
  * @param {object} session - a session from a grounded outline.
  * @param {Map<string, object>|Array<object>} templates - org templates or index.
  * @returns {{minutes: number, video: number, reading: number, rehearsal: number,
- *   modelMinutes: number, unknown: string[]}} `unknown` names the resources
- *   carrying no published time, so the caller can say so out loud.
+ *   modelMinutes: number, allowanceMinutes: number, unknown: string[]}}
+ *   `unknown` names resources that match no template at all. `allowanceMinutes`
+ *   is how much of the total is the standard allowance rather than a published
+ *   time — an estimate has to be sayable as one.
  */
 function sessionEffort (session, templates) {
   const index = templates instanceof Map ? templates : indexByTitle(templates)
-  const totals = { minutes: 0, video: 0, reading: 0, rehearsal: 0, modelMinutes: 0, unknown: [] }
+  const totals = { minutes: 0, video: 0, reading: 0, rehearsal: 0, modelMinutes: 0, allowanceMinutes: 0, unknown: [] }
   const resources = (session && Array.isArray(session.resources)) ? session.resources : []
 
   for (const name of resources) {
@@ -196,6 +243,7 @@ function sessionEffort (session, templates) {
     totals.reading += effort.reading
     totals.rehearsal += effort.rehearsal
     if (effort.source === SOURCE_MODEL) { totals.modelMinutes += effort.minutes }
+    if (effort.source === SOURCE_DEFAULT) { totals.allowanceMinutes += effort.minutes }
   }
   return totals
 }
@@ -554,8 +602,10 @@ module.exports = {
   ACTIVITY_ORDER,
   MODEL_SUBSECTION,
   MODEL_ALLOWANCE_MINUTES,
+  DEFAULT_ALLOWANCE,
   LENGTH_TOLERANCE,
   SOURCE_AUTHORED,
   SOURCE_MODEL,
+  SOURCE_DEFAULT,
   SOURCE_UNKNOWN
 }

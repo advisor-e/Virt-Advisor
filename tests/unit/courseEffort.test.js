@@ -109,9 +109,11 @@ describe('revenue models — the 30-minute allowance', () => {
     expect(e.source).toBe(effort.SOURCE_AUTHORED)
   })
 
-  test('the subsection is matched exactly — a lookalike is not given the allowance', () => {
+  test('the subsection is matched exactly — a lookalike is not given the MODEL allowance', () => {
     const lib = library([model({ title: 'Scenario Thing', subSection: 'Scenario models' })])
-    expect(effort.templateEffort('Scenario Thing', lib).source).toBe(effort.SOURCE_UNKNOWN)
+    const e = effort.templateEffort('Scenario Thing', lib)
+    expect(e.source).toBe(effort.SOURCE_DEFAULT) // the standard allowance, not the model's flat 30
+    expect(e.minutes).toBe(75)
   })
 
   test('isRevenueModel ignores case and surrounding whitespace, and survives a missing field', () => {
@@ -123,19 +125,36 @@ describe('revenue models — the 30-minute allowance', () => {
 })
 
 // ── Unknown is never zero ────────────────────────────────────────────────────
+//
+// ⚠ CHANGED 2026-08-03 by Mike's ruling: 15 minutes of video, 30 of reading and
+// 30 of rehearsal for a template the export never timed. Untimed material used
+// to be reported and left out of the timetable, which on his live "Simple
+// Dashboard Discussions" course dropped four of five resources and left a
+// one-template course. It is now costed and taught — as an ESTIMATE, labelled
+// as one, and never counted into a CPD claim.
+//
+// 'unknown' now means one thing only: a name that matches no template at all.
 
 describe('templates with no published time', () => {
-  test('an untimed, non-model template is UNKNOWN — it is never counted as no work', () => {
+  test('an untimed, non-model template gets the standard allowance — 15 + 30 + 30', () => {
     const lib = library([record({
       title: 'Dashboard Report',
       cpd: { isHidden: false, watchedVideo: 0, reviewTemplate: 0, reheasedTemplate: 0 }
     })])
     const e = effort.templateEffort('Dashboard Report', lib)
-    expect(e.source).toBe(effort.SOURCE_UNKNOWN)
-    expect(e.minutes).toBe(0)
+    expect(e.source).toBe(effort.SOURCE_DEFAULT)
+    expect(e.minutes).toBe(75)
+    expect({ video: e.video, reading: e.reading, rehearsal: e.rehearsal })
+      .toEqual({ video: 15, reading: 30, rehearsal: 30 })
   })
 
-  test('an unknown resource is NAMED, so the screen can say so rather than imply zero', () => {
+  test('an authored time still wins — an allowance never displaces a real figure', () => {
+    const lib = library([record()]) // 9 + 60 + 30
+    expect(effort.templateEffort('E.O.Y Meeting', lib).source).toBe(effort.SOURCE_AUTHORED)
+    expect(effort.templateEffort('E.O.Y Meeting', lib).minutes).toBe(99)
+  })
+
+  test('the estimate is counted, and countable AS an estimate', () => {
     const lib = library([
       record({ title: 'Timed One' }),
       record({
@@ -145,8 +164,9 @@ describe('templates with no published time', () => {
       })
     ])
     const e = effort.sessionEffort({ resources: ['Timed One', 'Untimed One'] }, lib)
-    expect(e.minutes).toBe(99) // the timed one only
-    expect(e.unknown).toEqual(['Untimed One'])
+    expect(e.minutes).toBe(174) // 99 published + 75 allowed
+    expect(e.allowanceMinutes).toBe(75) // ...of which this much is an estimate
+    expect(e.unknown).toEqual([]) // it is a real template, so it is not "unknown"
   })
 
   test('a resource name absent from the library is unknown, not an error', () => {
@@ -169,7 +189,11 @@ describe('templates with no published time', () => {
 describe('inherited cpdCatalogue rules', () => {
   test('a hidden non-model template carries no authored time (the catalogue skips it)', () => {
     const lib = library([record({ cpd: { isHidden: true, watchedVideo: 9, reviewTemplate: 60, reheasedTemplate: 30 } })])
-    expect(effort.templateEffort('E.O.Y Meeting', lib).source).toBe(effort.SOURCE_UNKNOWN)
+    // Not authored as far as this app is concerned, so it falls to the
+    // allowance — the hidden times are never read.
+    const e = effort.templateEffort('E.O.Y Meeting', lib)
+    expect(e.source).toBe(effort.SOURCE_DEFAULT)
+    expect(e.minutes).toBe(75)
   })
 
   test('fractional allowances are rounded the same way the CPD record rounds them', () => {
@@ -207,13 +231,13 @@ describe('applyOutlineEffort — the AI figure is replaced, never trusted', () =
     expect(out.totalMinutes).toBe(99)
   })
 
-  test('a session with nothing published carries NO estimate rather than a false one', () => {
+  test('an untimed template is costed by the allowance, and marked as an estimate', () => {
     const out = effort.applyOutlineEffort({
       sessions: [{ id: 1, title: 'S1', resources: ['Untimed One'], estimatedMinutes: 30 }]
     }, lib())
-    expect('estimatedMinutes' in out.outline.sessions[0]).toBe(false)
-    expect(out.unknownCount).toBe(1)
-    expect(out.outline.sessions[0].sessionEffort.unknown).toEqual(['Untimed One'])
+    expect(out.outline.sessions[0].estimatedMinutes).toBe(75)
+    expect(out.outline.sessions[0].sessionEffort.allowanceMinutes).toBe(75)
+    expect(out.unknownCount).toBe(0)
   })
 
   test('the course total is the sum of its sessions, and the breakdown survives', () => {
@@ -420,11 +444,21 @@ describe('planSessions — Mike\'s live EOY material', () => {
     expect(plan.sessions.length).toBe(2)
   })
 
-  test('an untimed resource cannot be timetabled — it is named, not dropped silently', () => {
+  test('an untimed template is timetabled on the allowance, not dropped from the course', () => {
     const lib = library([record({ title: 'Dashboard Report', cpd: { isHidden: false, watchedVideo: 0, reviewTemplate: 0, reheasedTemplate: 0 } })])
     const plan = effort.planSessions({ sessions: [{ resources: ['Dashboard Report'] }] }, { min: 15, max: 20 }, lib)
+    // 15 video + 30 reading + 30 rehearsal, cut to a 20-minute session.
+    expect(plan.sessions.map(s => `${s.activity} ${s.minutes}`))
+      .toEqual(['video 15', 'reading 15', 'reading 15', 'rehearsal 15', 'rehearsal 15'])
+    expect(plan.totalMinutes).toBe(75)
+    expect(plan.unknown).toEqual([])
+  })
+
+  test('a name matching no template at all is still named, never invented into work', () => {
+    const lib = library([record()])
+    const plan = effort.planSessions({ sessions: [{ resources: ['Nothing Like This'] }] }, { min: 15, max: 20 }, lib)
     expect(plan.sessions).toEqual([])
-    expect(plan.unknown).toEqual(['Dashboard Report'])
+    expect(plan.unknown).toEqual(['Nothing Like This'])
   })
 
   test('a revenue model is one indivisible block, not three activities', () => {
@@ -469,11 +503,18 @@ describe('planForCount — the plan is FOUND by slicing, never by dividing', () 
     expect(plan.sessions.map(s => s.minutes)).toEqual([9, 30, 30, 30, 24, 20, 30])
   })
 
-  test('material with no published time can be planned to nothing at all', () => {
-    const lib = library([record({ title: 'Dashboard Report', cpd: { isHidden: false, watchedVideo: 0, reviewTemplate: 0, reheasedTemplate: 0 } })])
-    const found = effort.planForCount({ sessions: [{ resources: ['Dashboard Report'] }] }, 4, lib)
+  test('material that resolves to no template at all can be planned to nothing', () => {
+    const lib = library([record()])
+    const found = effort.planForCount({ sessions: [{ resources: ['Nothing Like This'] }] }, 4, lib)
     expect(found.sessions).toEqual([])
     expect(found.max).toBe(0)
+  })
+
+  test('an untimed template is planned on its allowance like anything else', () => {
+    const lib = library([record({ title: 'Dashboard Report', cpd: { isHidden: false, watchedVideo: 0, reviewTemplate: 0, reheasedTemplate: 0 } })])
+    const found = effort.planForCount({ sessions: [{ resources: ['Dashboard Report'] }] }, 3, lib)
+    expect(found.sessions.length).toBe(3) // one session per activity
+    expect(found.totalMinutes).toBe(75)
   })
 })
 

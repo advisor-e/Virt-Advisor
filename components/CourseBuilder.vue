@@ -121,6 +121,10 @@
                   span.resource-tag(v-else :key="r") {{ r }}
               //- CB-27: an empty slot says so plainly — never a silent blank.
               p.session-resources-empty(v-else) No library resource matched this session — it runs from the session focus instead.
+              //- A length that is the standard allowance rather than a
+              //- published time says so — an estimate shown as a measurement is
+              //- the same defect as the AI's echoed 30 minutes.
+              p.session-time-unknown(v-if="s.estimatedTime") Estimated — the library publishes no time for this template.
               //- A resource the export never timed is named, not counted as
               //- zero: an unknown length must not read as "no work".
               p.session-time-unknown(v-if="sessionUnknownLabel(s)") {{ sessionUnknownLabel(s) }}

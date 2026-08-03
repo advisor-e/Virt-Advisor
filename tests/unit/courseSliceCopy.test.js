@@ -194,19 +194,47 @@ describe('buildSlicedOutline — the course the screen, the store and the tutor 
     expect(long.sessionBudget).toEqual({ min: 50, max: 60 })
   })
 
-  test('material with no published time is named on the outline, not dropped', () => {
-    const templates = library([
-      record({ page: 'p1' }),
-      record({ page: 'p3', title: 'Dashboard Report', cpd: { isHidden: false, watchedVideo: 0, reviewTemplate: 0, reheasedTemplate: 0 } })
-    ])
+  test('a name matching no template is named on the outline, not dropped in silence', () => {
+    const templates = library([record({ page: 'p1' })])
     const outline = {
       ...OUTLINE,
-      sessions: [{ id: 1, title: 't', focus: 'f', resources: ['E.O.Y Meeting', 'Dashboard Report'], objectives: [] }]
+      sessions: [{ id: 1, title: 't', focus: 'f', resources: ['E.O.Y Meeting', 'Nothing Like This'], objectives: [] }]
     }
     const plan = effort.planSessions(outline, { min: 15, max: 20 }, templates)
     const built = copy.buildSlicedOutline(outline, plan, templates, { min: 15, max: 20 })
-    expect(built.unknownResources).toEqual(['Dashboard Report'])
+    expect(built.unknownResources).toEqual(['Nothing Like This'])
     expect(built.sessions.every(s => s.slice.resource === 'E.O.Y Meeting')).toBe(true)
+  })
+
+  // Mike's ruling 2026-08-03: an untimed template is 15 + 30 + 30 rather than
+  // dropped out of the course. It is taught, and it says it is an estimate.
+  test('an untimed template is taught, and every session of it is marked estimated', () => {
+    const templates = library([
+      record({ page: 'p3', title: 'Dashboard Report', cpd: { isHidden: false, objective: 'o', watchedVideo: 0, reviewTemplate: 0, reheasedTemplate: 0 } })
+    ])
+    const outline = {
+      ...OUTLINE,
+      sessions: [{ id: 1, title: 't', focus: 'f', resources: ['Dashboard Report'], objectives: [] }]
+    }
+    const plan = effort.planSessions(outline, { min: 15, max: 20 }, templates)
+    const built = copy.buildSlicedOutline(outline, plan, templates, { min: 15, max: 20 })
+
+    expect(built.unknownResources).toBeUndefined()
+    expect(built.sessions.map(s => s.title)).toEqual([
+      'Watch: Dashboard Report',
+      'Read: Dashboard Report (part 1 of 2)',
+      'Read: Dashboard Report (part 2 of 2)',
+      'Rehearse: Dashboard Report (part 1 of 2)',
+      'Rehearse: Dashboard Report (part 2 of 2)'
+    ])
+    expect(built.sessions.every(s => s.estimatedTime === true)).toBe(true)
+  })
+
+  test('a template with a published time is never marked as an estimate', () => {
+    const templates = eoyLibrary()
+    const plan = effort.planSessions(OUTLINE, { min: 15, max: 20 }, templates)
+    const built = copy.buildSlicedOutline(OUTLINE, plan, templates, { min: 15, max: 20 })
+    expect(built.sessions.some(s => s.estimatedTime)).toBe(false)
   })
 
   test('an id is written for every session, in order — the screen numbers from it', () => {

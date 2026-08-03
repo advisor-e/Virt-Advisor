@@ -27,7 +27,7 @@
  * approved — change them together with this one, never one alone.
  */
 
-const { templateEffort, indexByTitle } = require('./courseEffort')
+const { templateEffort, indexByTitle, SOURCE_DEFAULT } = require('./courseEffort')
 
 /**
  * What each activity is called at the front of a session title (D1).
@@ -166,9 +166,16 @@ function buildSlicedOutline (base, plan, templates, budget) {
   const links = resourceLinkMap(base)
   const objectiveOf = new Map()
 
+  const estimatedOf = new Map()
+
   const sessions = plan.sessions.map((slice, i) => {
     if (!objectiveOf.has(slice.resource)) {
-      objectiveOf.set(slice.resource, templateEffort(slice.resource, index).objective || '')
+      const effort = templateEffort(slice.resource, index)
+      objectiveOf.set(slice.resource, effort.objective || '')
+      // Costed by the standard allowance rather than a published time, so the
+      // screen can say the length is an estimate. An allowance shown as though
+      // it were authored is the same defect as the AI's echoed 30 minutes.
+      estimatedOf.set(slice.resource, effort.source === SOURCE_DEFAULT)
     }
     const objective = objectiveOf.get(slice.resource)
     const session = {
@@ -198,6 +205,7 @@ function buildSlicedOutline (base, plan, templates, budget) {
       }
     }
     if (links[slice.resource]) { session.resourceLinks = { [slice.resource]: links[slice.resource] } }
+    if (estimatedOf.get(slice.resource)) { session.estimatedTime = true }
     return session
   })
 
