@@ -86,6 +86,10 @@ data/dev-firm-logic-trees.json
 data/dev-firm-logic-tree-sections.json
 data/dev-firm-domain-support-sections.json
 
+# Dev-only Logic-Lab accepted-idea log (the mentor-rollup feed, written locally
+# when MySQL is unavailable)
+data/dev-firm-logic-lab-accepted.json
+
 # Dev-only case studies (created locally when MySQL is unavailable)
 data/dev-cases.json
 

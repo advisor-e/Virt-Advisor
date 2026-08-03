@@ -86,6 +86,24 @@ section.dx
               span.dim  +{{ d.boost }}
           span.dim(v-else) {{ $t('firmDecisionLogic.dxDistNone', { count: probeDistinctions.considered || 0 }) }}
 
+        //- ── Yours, filed somewhere it is never read ──────────────────────
+        //- The commonest answer to "I wrote one and it didn't fire", and the
+        //- page could not say it until now: distinctions are only ever scored
+        //- inside the detected area, so a row filed elsewhere is invisible no
+        //- matter how well it describes the situation. Mike hit exactly this on
+        //- 2026-08-03 and was shown a PLATFORM row instead.
+        template(v-if="elsewhereRows.length")
+          dt {{ $t('firmDecisionLogic.dxLabelElsewhere') }}
+          dd
+            .dline.elsewhere(v-for="d in elsewhereRows" :key="'e' + d.id")
+              strong “{{ d.description }}”
+              |
+              span {{ $t('firmDecisionLogic.dxElsewhereA') }}
+              strong {{ domainLabelFor(d.filedDomain) }}
+              span {{ $t('firmDecisionLogic.dxElsewhereB') }}
+              strong {{ detectedDomainLabel }}
+              span {{ $t('firmDecisionLogic.dxElsewhereC') }}
+
       //- ── The gap. ─────────────────────────────────────────────────────────
       p.no-scoring(v-if="!result.scored") {{ $t('firmDecisionLogic.dxNoScoring') }}
 
@@ -160,7 +178,7 @@ section.dx
                 | {{ $t('firmDecisionLogic.dxGapAttachA') }}
                 strong {{ expected.title }}
                 | {{ $t('firmDecisionLogic.dxGapAttachB') }}
-                strong “{{ matchedDistinctions[0].description }}”
+                strong “{{ chosenDistinction.description }}”
                 | {{ $t('firmDecisionLogic.dxGapAttachC') }}
               template(v-else)
                 | {{ $t('firmDecisionLogic.dxGapDoA') }}
@@ -225,6 +243,27 @@ section.dx
                 :key="'h' + j"
                 :class="{ quote: part.quote }"
               ) {{ part.quote ? '“' + part.text + '”' : part.text }}
+
+            //- ── The button that DELIVERS ────────────────────────────────────
+            //- Mike, 2026-08-03: "All I want is that if my adviser uses that
+            //- phrase, I want them to get their template." So it appears the
+            //- moment a template has been named — it does not depend on which
+            //- of his distinctions happened to match, because the fix never
+            //- did. The area and the strength are worked out server-side and
+            //- the result is PROVED by re-running the phrase before it reports
+            //- success. See server/utils/logicLabAccept.js.
+            template(v-if="idea.key === 'distinction'")
+              .i-act(v-if="canDeliver")
+                b-button(
+                  type="is-primary"
+                  size="is-small"
+                  :loading="delivering"
+                  :disabled="delivering"
+                  @click="confirmDeliver"
+                ) {{ $t('firmDecisionLogic.llDeliverButton', { template: attachTemplateTitle }) }}
+                p.i-note {{ $t('firmDecisionLogic.llDeliverNote') }}
+              p.i-done(v-if="deliveredLabel") {{ deliveredLabel }}
+              p.i-failed(v-if="deliverFailedLabel") {{ deliverFailedLabel }}
         p.ideas-foot
           | {{ $t('firmDecisionLogic.ideasFootA') }}
           strong {{ $t('firmDecisionLogic.ideasFootB', { distinction: distinctionBoost }) }}
@@ -252,7 +291,13 @@ section.dx
  * the levers, this diagnoses one case. It also keeps both files inside the
  * decompose rule (Engineering Standards: one component, one responsibility).
  *
- * NOTHING HERE WRITES. The routes it calls are read-only.
+ * IT WRITES IN EXACTLY ONE PLACE, and it is deliberate: the distinction idea card
+ * carries an attach button when — and only when — the change is fully determined
+ * (a distinction of theirs matched, they named a template, it is not already on
+ * it). Nothing is authored on the firm's behalf. The other two ideas describe and
+ * stop there: writing a new distinction is the firm's IP, and domain support's own
+ * card says editing it changes no recommendation.
+ * See design/LOGIC-LAB-ACCEPT-AND-PUSH.md; ACTIONS #logic-lab-accept-and-push.
  */
 export default {
   name: 'DecisionLogicDiagnostic',
@@ -287,7 +332,14 @@ export default {
       running: false,
       error: '',
       result: null,
-      showIdeas: false
+      showIdeas: false,
+      /** Which matched distinction the card names; null = the first. */
+      attachTargetId: null,
+      delivering: false,
+      /** The past-tense line shown once the template really does come first. */
+      deliveredLabel: '',
+      /** Shown when the engine could NOT be made to deliver it. */
+      deliverFailedLabel: ''
     }
   },
 
@@ -307,11 +359,59 @@ export default {
       return this.titles.filter(t => String(t).toLowerCase().includes(q))
     },
 
+    /**
+     * The distinction an attach would change. Defaults to the first match, which
+     * is what the card already named — but once the manager has picked, that
+     * choice drives BOTH the wording and the write, so the sentence can never
+     * describe one row while the button changes another.
+     * @returns {Object} the chosen matched distinction, or an empty row
+     */
+    chosenDistinction () {
+      const rows = this.matchedDistinctions
+      if (rows.length === 0) { return {} }
+      if (this.attachTargetId === null) { return rows[0] }
+      return rows.find(r => String(r.id) === String(this.attachTargetId)) || rows[0]
+    },
+
+    /**
+     * The template the DIAGNOSIS ran against — not whatever is in the picker now.
+     * The two drift apart the moment a manager edits the box without re-running,
+     * and attaching a template the score sheet above was never about would be a
+     * change made on evidence that is not on the screen.
+     * @returns {string|null}
+     */
+    attachTemplateTitle () {
+      return (this.expected && this.expected.title) || null
+    },
+
+    /**
+     * Can this phrase be delivered? Only two things are needed: a phrase, and a
+     * template named. It deliberately does NOT depend on which distinction
+     * matched — that dependency is what made the first build useless, since the
+     * fix never involved the matched row at all.
+     * @returns {boolean}
+     */
+    canDeliver () {
+      if (this.deliveredLabel) { return false }
+      if (!this.text.trim()) { return false }
+      return !!this.attachTemplateTitle
+    },
+
     probe () { return (this.result && this.result.probe) || {} },
     probeDomains () { return this.probe.domains || [] },
     probeTables () { return this.probe.tables || [] },
     probeDistinctions () { return this.probe.distinctions || {} },
     matchedDistinctions () { return this.probeDistinctions.matched || [] },
+
+    /**
+     * The firm's OWN distinctions, filed in another area, that these words would
+     * have matched. Empty is the normal case; when it is not empty it is usually
+     * the actual answer to "why didn't mine fire?".
+     * @returns {Array<Object>}
+     */
+    elsewhereRows () {
+      return (this.probeDistinctions.elsewhere && this.probeDistinctions.elsewhere.rows) || []
+    },
 
     /** Every area the words scored in, highest first — the engine acts on the first. */
     domainLine () {
@@ -452,6 +552,10 @@ export default {
       }
 
       const items = [{
+        // Marks the ONE card that carries the attach button. Matched on a key
+        // rather than on position, so re-ordering the ideas can never move the
+        // button onto an idea that is not fully determined.
+        key: 'distinction',
         lever: t('ideaDistinction'),
         worth: this.$t('firmDecisionLogic.worthPoints', { points: this.distinctionBoost }),
         body: distCount === 0
@@ -461,7 +565,7 @@ export default {
               { text: t('ideaDistBodyNoneB') }
             ]
           : [
-              { text: this.matchedDistinctions[0].description, bold: true },
+              { text: this.chosenDistinction.description, bold: true },
               { text: t('ideaDistBodyMatchedA') },
               { text: expectedName, bold: true },
               { text: t('ideaDistBodyMatchedB') }
@@ -544,8 +648,12 @@ export default {
       this.running = true
       this.error = ''
       // A fresh diagnosis retires the previous ideas rather than leaving stale
-      // advice attached to a new answer.
+      // advice attached to a new answer — including anything already accepted,
+      // whose past-tense line would otherwise sit under a different question.
       this.showIdeas = false
+      this.attachTargetId = null
+      this.deliveredLabel = ''
+      this.deliverFailedLabel = ''
       try {
         this.result = await this.api('POST', '/api/firm-manager/logic-lab/diagnose', {
           text,
@@ -560,6 +668,108 @@ export default {
     },
 
     toggleIdeas () { this.showIdeas = !this.showIdeas },
+
+    /**
+     * Human label for a domain id — never show a manager a database key. Falls
+     * back to the id rather than a blank, which would read as "filed nowhere".
+     * @param {string} id
+     * @returns {string}
+     */
+    domainLabelFor (id) { return this.domainLabels[id] || id || '—' },
+
+    /**
+     * Escape the firm's own text before it goes into a Buefy dialog.
+     *
+     * `$buefy.dialog.confirm` renders `message` AS HTML. A distinction's wording
+     * and a template's title are firm-authored free text, so interpolating them
+     * raw would put stored content into the DOM unescaped — the same class of
+     * hole the app closes with isomorphic-dompurify wherever it uses v-html.
+     * Escaping is the fix here because the dialog offers no plain-text mode.
+     * @param {string} s
+     * @returns {string}
+     */
+    escapeHtml (s) {
+      return String(s === null || s === undefined ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+    },
+
+    /**
+     * Ask before writing, naming what will happen — the same pattern the
+     * near-miss Move/Copy rows use, and required for every push
+     * (design/LOGIC-LAB-ACCEPT-AND-PUSH.md).
+     */
+    confirmDeliver () {
+      const template = this.attachTemplateTitle
+      if (!template) { return }
+      this.$buefy.dialog.confirm({
+        title: this.$t('firmDecisionLogic.llDeliverConfirmTitle'),
+        message: this.$t('firmDecisionLogic.llDeliverConfirm', {
+          template: this.escapeHtml(template),
+          domain: this.escapeHtml(this.detectedDomainLabel)
+        }),
+        confirmText: this.$t('firmDecisionLogic.llDeliverConfirmOk'),
+        type: 'is-warning',
+        onConfirm: () => this.deliver(template)
+      })
+    },
+
+    /**
+     * File a distinction of the firm's own that makes this phrase return this
+     * template, and report only what the server PROVED by re-running it.
+     *
+     * `delivered: false` is a real answer, not an error: the engine was changed,
+     * checked, found not to deliver, and put back. Reporting that as success is
+     * the failure this whole page exists to prevent.
+     *
+     * @param {string} template the template title to deliver
+     */
+    async deliver (template) {
+      this.delivering = true
+      this.deliverFailedLabel = ''
+      try {
+        const res = await this.api('POST', '/api/firm-manager/logic-lab/accept', {
+          text: this.text.trim(),
+          templateTitle: template,
+          // Descriptive only — the server re-resolves everything that decides
+          // the write. This is what turns a stored change into a record of what
+          // the manager was TRYING to do, for the mentor rollup.
+          context: {
+            sentence: this.text.trim(),
+            problem: this.problem,
+            domain: this.result && this.result.domain,
+            gap: this.result && this.result.gap,
+            tablesOpened: this.probeTables.map(t => t.name || t.id),
+            phrasesMatched: this.probeTables.reduce((all, t) => all.concat(t.matched || []), []),
+            distinctionsMatched: this.matchedDistinctions.map(d => d.description)
+          }
+        })
+        if (res.delivered) {
+          this.deliveredLabel = this.$t('firmDecisionLogic.llDeliverDone', {
+            template,
+            domain: this.detectedDomainLabel
+          })
+          // The Advisory Distinctions tab loads once when the hub mounts, so it
+          // would otherwise show this firm's list without the row just written.
+          this.$emit('distinctions-changed')
+        } else {
+          this.deliverFailedLabel = this.$t('firmDecisionLogic.llDeliverImpossible', {
+            template,
+            top: res.topTemplate || '—'
+          })
+        }
+      } catch (err) {
+        this.$buefy.toast.open({
+          message: this.$t('firmDecisionLogic.llDeliverFailed'),
+          type: 'is-danger'
+        })
+      } finally {
+        this.delivering = false
+      }
+    },
 
     /**
      * Record a template picked from the list.
@@ -698,6 +908,13 @@ export default {
 .dline { display: block; }
 .dim { color: #7a869a; }
 
+/* Amber, like every other "this is the thing to act on" block on the page: a row
+   of the firm's own that never got read is a finding, not a footnote. */
+.elsewhere {
+  border-left: 3px solid #ffb870; background: #fffaf3;
+  padding: 0.45rem 0.65rem; border-radius: 4px; margin-bottom: 0.35rem;
+}
+
 .tag-il {
   font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 700;
   color: #b35309; background: #fffaf3; border: 1px solid #ffb870;
@@ -774,4 +991,18 @@ li.idea.is-shape .i-worth { background: #f3f6fa; color: #5a6b82; }
   border-left: 3px solid #63c48d; border-radius: 4px; font-style: italic;
 }
 .ideas-foot { font-size: 0.8rem; color: #7a869a; margin: 1rem 0 0; }
+
+/* The attach control. Set apart from the card's prose by a rule, because it is
+   the one thing on this page that changes the firm's live configuration. */
+.i-pick { margin: 0.85rem 0 0; max-width: 32rem; }
+.i-act { margin: 0.85rem 0 0; padding-top: 0.85rem; border-top: 1px solid #eef1f5; }
+.i-done {
+  margin: 0.85rem 0 0; padding-top: 0.85rem; border-top: 1px solid #eef1f5;
+  font-size: 0.8rem; color: #1f7a45; font-weight: 700;
+}
+.i-note { font-size: 0.75rem; color: #7a869a; margin: 0.45rem 0 0; }
+.i-failed {
+  margin: 0.85rem 0 0; padding-top: 0.85rem; border-top: 1px solid #eef1f5;
+  font-size: 0.8rem; color: #b35309; font-weight: 700;
+}
 </style>

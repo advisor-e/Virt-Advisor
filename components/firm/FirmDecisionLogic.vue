@@ -192,6 +192,11 @@ section.decision-logic
                 | {{ $t('firmDecisionLogic.nmStale', { count: nearMisses.staleDropped }) }}
 
     //- ═══ 4 + 5. THE DIAGNOSTIC AND THE IDEAS ════════════════════════════
+    //- The diagnostic writes (the attach button), and the Advisory Distinctions
+    //- tab is a sibling that only loads on mount — so the event is carried up to
+    //- the hub, which re-reads. Nothing is passed with it: the hub asks the
+    //- server rather than being told, so no screen can hold a version the store
+    //- does not have.
     decision-logic-diagnostic(
       :api-token="apiToken"
       :domain-labels="domainLabels"
@@ -199,6 +204,7 @@ section.decision-logic
       :margin-label="marginLabel"
       :distinction-boost="distinctionBoost"
       :tree-boost="treeBoost"
+      @distinctions-changed="$emit('distinctions-changed')"
     )
 </template>
 
@@ -418,6 +424,11 @@ export default {
         // The distinction count in the card above has changed; re-read rather
         // than adjusting it here, so the page can never disagree with the store.
         this.load()
+        // ...and so does the Advisory Distinctions tab, which this page cannot
+        // reload itself. Move and Copy shipped without this on 2026-08-03 and had
+        // the same defect the attach button was found to have: the write lands,
+        // the sibling tab keeps showing what it fetched when the hub mounted.
+        this.$emit('distinctions-changed')
       } catch (err) {
         this.$buefy.toast.open({
           message: this.$t('firmDecisionLogic.nmActionFailed'),

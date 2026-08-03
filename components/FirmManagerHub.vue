@@ -49,7 +49,15 @@ section.firm-manager-hub.section
       //- Its one write path is the near-miss Move/Copy, which reuses the
       //- existing distinction endpoints and confirms first.
       b-tab-item(label="Logic-Lab" icon="map-search")
-        firm-decision-logic(:api-token="apiToken" @go-to="goToTab")
+        //- `distinctions-changed`: the Logic-Lab page wrote to this firm's
+        //- distinctions (the attach button, or a near-miss Move/Copy). No
+        //- payload — re-read from the server, so this tab can never hold a
+        //- version the store does not have.
+        firm-decision-logic(
+          :api-token="apiToken"
+          @go-to="goToTab"
+          @distinctions-changed="loadFirmDistinctions"
+        )
 
       //- ── Tab: Advisory Staircase ────────────────────────────────────
       //- Body lives in its own component. It was the whole-config editor here

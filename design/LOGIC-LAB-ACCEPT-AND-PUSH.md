@@ -117,9 +117,129 @@ conversation, not in any file:
 > tables, domain supoport docs and advisor distinctions defaults. Plan for this -
 > when building the logic lab page please
 
+### The correction — Mike, 2026-08-03, after testing the first build
+
+**This section supersedes the build shape in §2 below.** It is recorded verbatim,
+before the analysis, because the first build was made from a *paraphrase* of §1 and
+got the feature backwards twice in one afternoon.
+
+He ran a diagnosis, named **Governance Introduction** as the template he expected,
+and pressed the attach button. It bolted his template onto **Poor decision
+quality** — a PLATFORM distinction whose triggers are *"decisions never stick",
+"analysis paralysis", "going in circles"* and whose template is **6 Hats**:
+
+> as a firm manager, I fucking told you that I wanted to see governance
+> introduction under that scenario as a distinction. Instead of adding an
+> additional distinction or adding particular material that could help render
+> toward the template that I told you I wanted, it fucks off in some unknown
+> idea, now add sentences and steers me with a wrong fucking template.
+
+The next build direction — "then just create a new distinction from his sentence"
+— was **also wrong**, and he stopped it:
+
+> We need to stop and think. This is turning into a giant fucker. we've gone from
+> doing an analysis of why something failed. We then said, give me some ideas.
+> Your ideas said, hey. This is why your search original distinction didn't work.
+> The assumption being, of course, that the adviser distinction is the only lever.
+> Well, it isn't because you've got the logic table triggers and perhaps domain
+> support depending on the circumstance. I then said when you come up with a
+> suggestion where you can make it clear then that should be added. So it has to
+> be an extension of the ideas are telling me why what I had didn't work, and then
+> I can accept that idea, and then that idea gets posted in. Otherwise, I might as
+> well just go and rewrite my own advisory distinctions. The reason I'm using the
+> search function is because I've already written my version, and it didn't work.
+> And I wanna know why it didn't work.
+
+**The three sentences that decide the whole feature:**
+
+1. *"it has to be an extension of the ideas ... and then I can accept that idea"* —
+   the button APPLIES the reasoning the page just gave. It never invents
+   configuration of its own.
+2. *"Otherwise I might as well just go and rewrite my own advisory distinctions"* —
+   a button that writes a fresh distinction from scratch has no value. He can
+   already do that.
+3. *"the adviser distinction is the only lever. Well, it isn't"* — the ideas span
+   distinctions, logic-table triggers and domain support, so accept spans the ideas
+   as given, not distinctions alone.
+
+**Everything downstream follows from those, and §2 below is kept only as the
+record of the superseded shape.**
+
+---
+
+## 1a. THE PLAN (2026-08-03, approved by Mike) — this is what to build
+
+### The failure that produced this plan, in one paragraph
+
+The page told Mike a distinction called *Poor decision quality* had matched, and
+offered to attach his template to it. That row is the **platform's**, not his.
+Meanwhile **his own** distinction — *"Clients not on same page or haven't defined
+what each wants from the business"* — reads almost word-for-word like the sentence
+he typed, and **never entered the running at all**: it is filed under `conflict`,
+his sentence was detected as `governance`, and
+[`phraseProbe.js`](../server/utils/phraseProbe.js) scores distinctions only inside
+the detected domain (`rows.filter(r => r.domain === domain)`).
+
+**"Yours is filed under Conflict, so it was never read" is the answer to his
+question, and the page cannot currently say it.** Every button built on top of a
+diagnosis that cannot see that is going to point at the wrong thing — which is
+exactly what happened.
+
+### Step 1 — FIX THE DIAGNOSIS. Nothing else until this is right.
+
+"Why didn't mine work?" must resolve to a NAMED cause. The honest list, and the
+idea each one produces:
+
+| What actually happened | The idea that follows | Button? |
+|---|---|---|
+| **Yours exists, filed in another area** — never considered | Move or copy it into the area this reads as | Yes |
+| **Yours is in the right area, but the AI did not match it** — the wording does not cover how the advisor spoke | Add the advisor's phrasing to YOUR distinction | Yes |
+| **Yours matched, but does not name the template you wanted** | Add that template to YOUR distinction | Yes |
+| **No logic table opened on those words** | Add the phrases to the table that should have opened | Yes |
+| **You have nothing for this situation** | Write one | **No** — the wording is the firm's IP |
+
+### The rule that stops 2026-08-03 repeating
+
+**An accept only ever changes the firm's OWN material.** When a platform
+distinction matched and the firm's did not, the fact worth reporting is that
+*theirs* did not — and the fix belongs to theirs. Attaching a firm's template to a
+platform row is not a determined change: it silently re-points a row the firm did
+not write, in every future conversation that row matches. That is precisely the
+6 Hats / Governance Introduction damage.
+
+### Step 2 — each idea carries its own accept
+
+Applying that named change and nothing else, naming the consequence before it
+writes. The idea and its button are one thing; there is no general-purpose "accept"
+that exists apart from a specific reasoned idea.
+
+### Step 3 — the accepted-idea log stays as built
+
+It is the mentor-rollup feed and it captures the REASONING, not just the result.
+See §2's "Log every accepted idea" — that part is unchanged and already built.
+
+### Status of the 2026-08-03 build
+
+- **The accept route and button exist** (`server/utils/logicLabAccept.js`,
+  `POST /api/firm-manager/logic-lab/accept`, the button in
+  `DecisionLogicDiagnostic.vue`). They implement **row 3 only**, and wrongly allow it
+  on **platform** rows — the defect above. Not committed.
+- **Separately: a Logic-Lab write now refreshes the Advisory Distinctions tab.**
+  The tab loads once on hub mount, so a write from the Logic-Lab page left it showing
+  stale data — Mike hit this first. That fix is independent of everything above and
+  is worth keeping regardless. It also closes the same hole in the near-miss
+  Move/Copy buttons, which shipped with it on 2026-08-03.
+- **Mike's configuration was reverted** — `pd-40` is back to `6 Hats` only.
+
 ---
 
 ## 2. What this means in build terms
+
+> ⚠ **SUPERSEDED by §1a above (2026-08-03).** Kept because it is the record of what
+> was reasoned first and built from, and because its guardrails and the
+> accepted-idea log survive unchanged. Its three-tier table is what produced the
+> wrong build: it treats "a distinction matched" as grounds to attach, without asking
+> WHOSE distinction matched or why the firm's own one did not.
 
 ### The three tiers, and why they are not the same button
 

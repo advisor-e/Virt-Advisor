@@ -533,3 +533,126 @@ describe('DecisionLogicDiagnostic — finding the expected template', () => {
     expect(parts[2].bold).toBe(true)
   })
 })
+
+/**
+ * THE BUTTON THAT DELIVERS.
+ *
+ * Mike, 2026-08-03: "All I want is that if my adviser uses that phrase, I want
+ * them to get their template."
+ *
+ * So the button appears as soon as a template has been named. It deliberately does
+ * NOT depend on which distinction matched — the first build made it depend on that,
+ * and on Mike's own case the matched distinction was mathematically incapable of
+ * delivering the template, because it already named the winner.
+ *
+ * The screen never claims success on its own: `delivered: false` comes back from
+ * the server after it has re-run the phrase and put the configuration back.
+ */
+describe('DecisionLogicDiagnostic — the deliver button', () => {
+  it('offers it as soon as a template has been named', async () => {
+    const wrapper = await runWith(mountDx(), RESULT)
+    expect(wrapper.vm.canDeliver).toBe(true)
+    expect(wrapper.vm.attachTemplateTitle).toBe('Board Member Conduct')
+  })
+
+  it('offers it even when NOTHING of theirs matched', async () => {
+    // The old button vanished here, which is the case a manager most needs help
+    // with: they have nothing for this situation at all.
+    const none = JSON.parse(JSON.stringify(RESULT))
+    none.probe.distinctions.matched = []
+    const wrapper = await runWith(mountDx(), none)
+    expect(wrapper.vm.canDeliver).toBe(true)
+  })
+
+  it('offers it when the distinction that matched is the PLATFORM’S', async () => {
+    // The commonest case by far — most rows a firm has are the platform's — and
+    // the one an earlier guard wrongly emptied.
+    const platform = JSON.parse(JSON.stringify(RESULT))
+    platform.probe.distinctions.matched[0].source = 'platform'
+    const wrapper = await runWith(mountDx(), platform)
+    expect(wrapper.vm.canDeliver).toBe(true)
+  })
+
+  it('does NOT offer it when no template was named', async () => {
+    const noExpectation = JSON.parse(JSON.stringify(RESULT))
+    noExpectation.expected = null
+    const wrapper = await runWith(mountDx(), noExpectation)
+    expect(wrapper.vm.canDeliver).toBe(false)
+  })
+
+  it('sends the phrase, the template and the intent', async () => {
+    const wrapper = await runWith(mountDx(), JSON.parse(JSON.stringify(RESULT)))
+    const api = jest.fn().mockResolvedValue({
+      delivered: true, mode: 'create', domain: 'governance', boost: 10, templateTitle: 'Board Member Conduct', score: 11
+    })
+    wrapper.setMethods({ api })
+
+    await wrapper.vm.deliver('Board Member Conduct')
+    await wrapper.vm.$nextTick()
+
+    const [method, path, body] = api.mock.calls[0]
+    expect(method).toBe('POST')
+    expect(path).toBe('/api/firm-manager/logic-lab/accept')
+    expect(body.text).toBe('poor decision making and no clear direction')
+    expect(body.templateTitle).toBe('Board Member Conduct')
+    // The intent, for the mentor rollup.
+    expect(body.context.distinctionsMatched).toEqual(['Poor decision quality'])
+  })
+
+  it('reports success only when the SERVER proved it, and tells the hub to refresh', async () => {
+    const wrapper = await runWith(mountDx(), JSON.parse(JSON.stringify(RESULT)))
+    wrapper.setMethods({ api: jest.fn().mockResolvedValue({ delivered: true, domain: 'governance', boost: 10 }) })
+
+    await wrapper.vm.deliver('Board Member Conduct')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.deliveredLabel).toBeTruthy()
+    expect(wrapper.vm.deliverFailedLabel).toBe('')
+    expect(wrapper.vm.canDeliver).toBe(false)
+    // The Advisory Distinctions tab loads once on hub mount and would otherwise
+    // show the firm's list without the row just written.
+    expect(wrapper.emitted('distinctions-changed')).toBeTruthy()
+  })
+
+  it('says it could NOT be delivered rather than implying it worked', async () => {
+    const wrapper = await runWith(mountDx(), JSON.parse(JSON.stringify(RESULT)))
+    wrapper.setMethods({
+      api: jest.fn().mockResolvedValue({ delivered: false, topTemplate: '1 pg Bizz Case', reverted: true })
+    })
+
+    await wrapper.vm.deliver('Board Member Conduct')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.deliveredLabel).toBe('')
+    expect(wrapper.vm.deliverFailedLabel).toContain('llDeliverImpossible')
+    // Nothing changed, so the tab has nothing to re-read.
+    expect(wrapper.emitted('distinctions-changed')).toBeFalsy()
+  })
+
+  it('leaves the button in place when the save fails outright', async () => {
+    const wrapper = await runWith(mountDx(), JSON.parse(JSON.stringify(RESULT)))
+    wrapper.setMethods({ api: jest.fn().mockRejectedValue(new Error('nope')) })
+
+    await wrapper.vm.deliver('Board Member Conduct')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.deliveredLabel).toBe('')
+    expect(wrapper.vm.canDeliver).toBe(true)
+    expect(wrapper.vm.delivering).toBe(false)
+  })
+
+  it('escapes firm text before it reaches the confirm dialog', async () => {
+    // $buefy.dialog.confirm renders `message` AS HTML.
+    const wrapper = await runWith(mountDx(), RESULT)
+    expect(wrapper.vm.escapeHtml('<img src=x onerror="alert(1)">'))
+      .toBe('&lt;img src=x onerror=&quot;alert(1)&quot;&gt;')
+  })
+
+  it('clears a delivered result when a NEW phrase is diagnosed', async () => {
+    const wrapper = await runWith(mountDx(), RESULT)
+    wrapper.setData({ deliveredLabel: 'done', deliverFailedLabel: 'nope' })
+    await runWith(wrapper, RESULT)
+    expect(wrapper.vm.deliveredLabel).toBe('')
+    expect(wrapper.vm.deliverFailedLabel).toBe('')
+  })
+})
