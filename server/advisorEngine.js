@@ -480,7 +480,10 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     excludeSections = [],
     firmTemplates = null,
     preFilteredNames = null,
-    firmCoaching = null
+    firmCoaching = null,
+    // The session's detected domain, so the firm's promoted entries can be
+    // narrowed to the topic in hand. null = no topic known → no filter.
+    firmCoachingDomain = null
   } = options || {}
 
   const orgTemplates = getOrgTemplates(orgTemplateIds || null, firmTemplates)
@@ -494,8 +497,9 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   const templatesText = formatTemplatesForPrompt(templatesToUse)
   const coachingText = includeCoaching ? formatCoachingForPrompt() : null
   // The firm's own promoted case observations — advisor free text, so the
-  // formatter returns it FENCED (data to weigh, never instructions).
-  const firmCoachingText = includeCoaching ? formatFirmCoachingForPrompt(firmCoaching) : null
+  // formatter returns it FENCED (data to weigh, never instructions), narrowed to
+  // this session's topic and capped (see coaching.selectFirmCoaching).
+  const firmCoachingText = includeCoaching ? formatFirmCoachingForPrompt(firmCoaching, firmCoachingDomain) : null
   const sectionDescText = includeSectionDesc ? formatSectionDescriptionsForPrompt() : null
   const growthText = includeGrowthStage
     ? formatGrowthFundamentalsForPrompt([{ role: 'user', content: includeGrowthStage }])
@@ -2391,7 +2395,7 @@ async function handleQuery (rawBody, res, identity) {
       const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain, firmDomainSupport) : null
       const allUserText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).join(' ')
       const postRecContextQuery = [allUserText, query, state.detectedDomain, state.industry].filter(Boolean).join(' ')
-      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching }) +
+      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching, firmCoachingDomain: state.detectedDomain }) +
         (domainSupportPost ? '\n---\n\n' + domainSupportPost : '')
 
       const messagesPost = [
@@ -2963,7 +2967,8 @@ async function handleQuery (rawBody, res, identity) {
       excludeSections: ['get-organised', 'get-the-job'],
       firmTemplates,
       preFilteredNames,
-      firmCoaching
+      firmCoaching,
+      firmCoachingDomain: state.detectedDomain
     }) + _preSelectedSummariesText + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
     // Phase C/D — merge strategy + resolver decisions into observability snapshot
@@ -3274,8 +3279,11 @@ async function handleQuery (rawBody, res, identity) {
   // Other modes: defer until conversation is deep enough (4+ exchanges).
   const includeCoaching = mode === 'discover' || trimmedHistory.length >= 4
   const coachingText = includeCoaching ? formatCoachingForPrompt() : null
-  // Firm-promoted entries ride the same gate; fenced by the formatter.
-  const firmCoachingText = includeCoaching ? formatFirmCoachingForPrompt(firmCoaching) : null
+  // Firm-promoted entries ride the same gate; fenced and capped by the formatter.
+  // No domain is passed because none exists here: discover/plan/learn return above
+  // the client sequencer, which is the only path that detects one. Passing a guess
+  // would silently drop every tagged entry in these modes.
+  const firmCoachingText = includeCoaching ? formatFirmCoachingForPrompt(firmCoaching, null) : null
 
   // Use gpt-4o-mini throughout — fast and more than capable for conversational Q&A.
   const model = 'gpt-4o-mini'
