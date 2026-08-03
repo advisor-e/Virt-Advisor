@@ -520,7 +520,7 @@ section.firm-manager-hub.section
                           td {{ t.rank }}
                           td {{ t.title }}
                           td {{ t.score }}
-                          td.has-text-grey {{ humanizeTraceReasons(t.matchReasons) }}
+                          td.has-text-grey {{ humanizeReasons(t.matchReasons) }}
                 template(v-else)
                   p.is-size-7.has-text-grey {{ $t('decisionTrace.caseNoTrace') }}
 
@@ -597,6 +597,7 @@ import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
 import FirmDecisionLogic from '~/components/firm/FirmDecisionLogic.vue'
+import traceReasonMixin from '~/mixins/traceReasonMixin'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 
@@ -648,6 +649,8 @@ export default {
   name: 'FirmManagerHub',
 
   components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic },
+
+  mixins: [traceReasonMixin],
 
   props: {
     firmId: { type: String, required: true },
@@ -1422,9 +1425,10 @@ export default {
       return (c.decisionTrace && c.decisionTrace.distinctions && c.decisionTrace.distinctions.nearMisses) || []
     },
 
-    humanizeTraceReasons (reasons) {
-      return Array.isArray(reasons) ? reasons.join(', ') : ''
-    },
+    // humanizeTraceReasons() lived here and joined the engine's raw codes with
+    // commas, so a firm manager read `tag:profit, domain:primary_subsection` on a
+    // saved case while the adviser read English. Replaced 2026-08-04 by
+    // traceReasonMixin's humanizeReasons(), shared with VirtualAdvisor.
 
     nearMissKey (c, nm) {
       return `${c.id}::${nm.id}`

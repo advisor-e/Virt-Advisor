@@ -1,7 +1,16 @@
 # Wording — the "Why" column in the decision-trace panel
 
-**Status: FIVE RULINGS TAKEN by Mike, 2026-08-04. The final list below is awaiting his
-sign-off as a whole. Nothing is built yet.**
+**Status: RULED and BUILT, 2026-08-04.** All 26 phrases are live in
+[`locales/en.json`](../locales/en.json), reached by both screens through
+[`mixins/traceReasonMixin.js`](../mixins/traceReasonMixin.js) and the code table in
+[`utils/traceReasonCodes.js`](../utils/traceReasonCodes.js).
+
+> **The build was compared against this file phrase by phrase. ONE deviation, named
+> here as the rule requires:** the tables below write straight quotes and apostrophes
+> (`matches "Cash Flow"`, `client's industry`) because they are markdown; the shipped
+> strings use typographic ones (`matches “Cash Flow”`, `client’s industry`) to match
+> the rest of `en.json` and the sentence already on this panel. Wording identical,
+> punctuation shape different. Nothing else differs.
 
 Written 2026-08-04 (laptop). This file exists because the wording has to be *read*
 before it is approved, not described in a chat message — the Save-the-Artefact rule in

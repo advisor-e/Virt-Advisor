@@ -843,6 +843,7 @@ import speechMixin, { BCP47_MAP } from '~/mixins/speechMixin'
 import localeMixin from '~/mixins/localeMixin'
 import caseMixin from '~/mixins/caseMixin'
 import staircaseMixin from '~/mixins/staircaseMixin'
+import traceReasonMixin from '~/mixins/traceReasonMixin'
 import growthFundamentals from '~/data/growth-fundamentals.json'
 import finMgtTable from '~/data/fin-mgt-table.json'
 
@@ -883,7 +884,7 @@ const PRIMARY_ISSUES = {
 
 export default {
   name: 'VirtualAdvisor',
-  mixins: [speechMixin, localeMixin, caseMixin, staircaseMixin],
+  mixins: [speechMixin, localeMixin, caseMixin, staircaseMixin, traceReasonMixin],
 
   props: {
     orgTemplateIds: {
@@ -1207,23 +1208,10 @@ export default {
   },
 
   methods: {
-    // Translate the engine's terse score reasons into plain language for the
-    // "Why this recommendation" panel. Unknown reasons pass through as-is.
-    // The wording lives in locales/en.json (decisionTrace.reason*) — it is
-    // display text, and it read as English on every non-English screen until
-    // 2026-08-04 precisely because it sits in code rather than in a template.
-    humanizeReasons (reasons) {
-      return (reasons || []).map((r) => {
-        const m = /^distinction:\+(\d+)$/.exec(r)
-        if (m) { return this.$t('decisionTrace.reasonDistinction', { points: m[1] }) }
-        if (r.startsWith('tag:')) { return this.$t('decisionTrace.reasonTag') }
-        if (r === 'domain:primary_subsection') { return this.$t('decisionTrace.reasonPrimary') }
-        if (r.startsWith('engagement:')) { return this.$t('decisionTrace.reasonEngagement') }
-        if (r === 'history:already_delivered') { return this.$t('decisionTrace.reasonDelivered') }
-        if (r === 'history:went_less_well') { return this.$t('decisionTrace.reasonWentLess') }
-        return r
-      }).join(', ')
-    },
+    // humanizeReasons() — the "Why" column's plain English — now comes from
+    // traceReasonMixin, shared with FirmManagerHub. It used to live here and knew
+    // 7 of the engine's 26 codes; the saved-case view knew none of them, which is
+    // what a mapping kept in a component turns into. See utils/traceReasonCodes.js.
 
     autoResizeTextarea (el) {
       if (!el) { return }

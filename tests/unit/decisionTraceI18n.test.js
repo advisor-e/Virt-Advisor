@@ -90,7 +90,9 @@ describe('the locale file carries the whole panel', () => {
     'noDistinction', 'filedElsewhere', 'nearMissIntro', 'currentlyIn',
     'templatesScored', 'colTemplate', 'colScore', 'colWhy',
     'lensEngagement', 'lensCeiling', 'lensBudget', 'lensTemplates',
-    'reasonDistinction', 'reasonTag', 'reasonPrimary', 'reasonEngagement',
+    // The full reason table is covered by traceReasonCodes.test.js, which reads the
+    // engine for the list. These are the six that were live before 2026-08-04.
+    'reasonDistinction', 'reasonTag', 'reasonPrimary', 'reasonEngagementPrimary',
     'reasonDelivered', 'reasonWentLess',
     'caseAreaFocused', 'caseWhatShaped', 'caseNearMissIntro', 'caseMoved',
     'caseMoveHere', 'caseNoTrace'
