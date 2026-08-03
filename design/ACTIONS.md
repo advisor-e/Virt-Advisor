@@ -17,7 +17,68 @@
 >
 > **⚠ Trust the CODE, not these flags.** Three separate items (Intervention Urgency, cause-first confirmation, grade-validation) were found *already built* while still flagged open. **Verify a candidate against the actual code/git before building it.**
 >
-> **Last swept:** 2026-06-29 (Stage E built; see ★ block).
+> **Last swept:** 2026-08-03 — see the verified sweep immediately below.
+
+---
+
+## ★ VERIFIED SWEEP — 2026-08-03 (the list said 70; the real number is about 10)
+
+**Why this sweep happened.** Asked for "the complete list of to-dos in technical priority", the
+AI read this file and reported **~70 open items**, headed by the trigger-vocabulary sweep as the
+largest live defect. Mike's response: *"There's no way we should have seventy tasks sitting around
+… That looks like a complete fucker."* He was right, and so was his second instruction — **go and
+read the code, don't guess.**
+
+**What was checked.** 35 of the ~70 entries were verified against the actual code and git history
+on `29b1b97`. The remainder are marked below as unverified — they are not claims this sweep
+stands behind.
+
+**The count, honestly broken down:**
+
+| Group | Count | What it actually is |
+| --- | --- | --- |
+| Already done, never ticked | ~13 | closed below, each with the commit that proves it |
+| Gated / parked **by Mike's own rulings** | ~9 | not tasks — decisions already taken |
+| Questions awaiting Mike | ~15 | no code involved |
+| P3 tidying (JSDoc, line counts, stale docs) | ~20 | real, low value, no user impact |
+| **Genuinely actionable defects and builds** | **~10** | the real list |
+
+### The real list, code-verified 2026-08-03
+
+1. **No icon font** — nothing declares `@mdi/font`; 4 files still use `b-icon`. ([#no-icon-font](#no-icon-font))
+2. **`sessionIndex` is unvalidated** — MySQL would refuse the row and the fire-and-forget write swallows the refusal.
+3. **Non-atomic delete** — [`mentor.js` L181](../server/routes/mentor.js): confirmed still two sequential writes.
+4. **Session-state race** — [`advisorEngine.js` L343](../server/advisorEngine.js): confirmed still an in-memory `Map`. **Parked by Mike**, deliberately.
+5. **Three case fields always saved null** — confirmed: `submitStaircaseStep` clears the selection before `createCase` reads it. Not data loss (the trace carries it), but the columns are wrong.
+6. **20 template page ids are shared by DIFFERENT titles** — measured, not the 21 logged. Master-export data; investigate only.
+7. **"Accept and push"** — grep confirms no code exists.
+8. **Tax-band feeder** — grep confirms no code exists.
+9. **Coaching-reference Phases 2 + 3** — the prompt still takes browser-supplied case text, and injects every entry.
+10. **`engine-strict` still `false`** — the last open Stack-Constitution drift. Reinstall-gated.
+
+### Two items are WORSE than this file recorded
+
+*(Written as prose, not list lines: these are measurements, not tasks — a top-level `-` with no
+status glyph is what the `statusTable` guard exists to catch, and it caught this edit.)*
+
+**Monoliths grew.** `VirtualAdvisor.vue` **3,505** lines (recorded 2,708), `CourseBuilder.vue`
+**2,963** (2,152), `FirmManagerHub.vue` **1,596** (1,295). `FirmDashboard.vue` no longer exists.
+
+**Empty `templates[]` is wider than the two entries claim** — measured **51 empty of 241**
+branches, not the 6+13 logged.
+
+### The process gap this exposes — and it is the same one, a fourth time
+
+`/shutdown` proves the tests pass and the work is committed. **Nothing anywhere re-checks whether
+an item already written down is still true.** Entries are only ever added. That is how four stale
+flags were found in three days last week, how PR #33 sat here marked OPEN after it had merged, and
+how the AI reported a content defect as the top priority this morning that had been **fixed on
+2026-07-31** (`a557096`).
+
+⚠ **A backlog that is only ever appended to stops being a backlog and becomes a fog.** The fix is
+not another document. Until a control exists, treat every ☐ in this file as a *claim to verify
+against the code*, exactly as the warning at the top already says — and this sweep is the evidence
+that the warning is not being followed by default.
 
 ---
 
@@ -279,6 +340,10 @@
     a missing space from vue-i18n trimming plural forms).
   - *(Original entry follows, kept for the reasoning and the ruling — it is what the build was made
     from.)*
+  ✅ **BUILT AND MERGED — closed 2026-08-03 by the verified sweep.** The page exists as
+  [`FirmDecisionLogic.vue`](../components/firm/FirmDecisionLogic.vue) +
+  [`DecisionLogicDiagnostic.vue`](../components/firm/DecisionLogicDiagnostic.vue), mounted in the hub and merged
+  as **PR #34**. This entry still read "TOMORROW'S FIRST TASK" three days after it shipped. Original follows.
   ☐ **P1 · BUILD — TOMORROW'S FIRST TASK. The DECISION LOGIC page,
   approved by Mike 2026-08-02 from a working mockup, goes into Firm Manager Hub as the tab named
   "Logic-Lab". THE MOCKUP IS THE SPEC — do not design from this entry.**
@@ -358,6 +423,8 @@
 
 - <a id="decision-logic-page"></a>☑ **SUPERSEDED by the two entries above (2026-08-02). Kept for the
   design reasoning and the IP-boundary ruling, which still bind.**
+  ✅ **BUILT AND MERGED as PR #34 — closed 2026-08-03 by the verified sweep** (second copy of the same task;
+  see the entry above). Original follows for the record.
   ☐ **P1 · BUILD — the DECISION LOGIC page: a read-only screen where a firm
   manager sees the parts they can edit, what each one actually changes, and what difference a change
   makes. RULED 2026-08-02 (Mike). Not started — no code written, no spec document yet.**
@@ -701,7 +768,11 @@
     hit exactly this again, and the convention lives only in the data and this note. Any future rule of
     the form "every row of X needs a Y" carries the same trap while both machines edit X.
 
-- <a id="workbench-placement"></a>☐ **P2 · DECISION (Mike) — the trigger workbench is on the screen but
+- <a id="workbench-placement"></a>✅ **MOOT — CLOSED 2026-08-03 by the verified sweep. The component this
+  asks about no longer exists.** [`FirmTriggerWorkbench.vue`](../components/firm/) (494 lines) and its 278
+  lines of tests were **deleted in `683e8e9`** (2026-08-02), the same commit that took the phrase screen off
+  the hub. There is nothing left to place. The original question follows for the record.
+  - ☐ **P2 · DECISION (Mike) — the trigger workbench is on the screen but
   could not be found.** Found 2026-08-01 by Mike, who went looking for the phrase work after the merge
   and reported seeing only the laptop's changes.
   - **Not a defect — a placement question.** The component is present and unconditionally rendered:
@@ -928,7 +999,22 @@
   - **Subsumed by the vocabulary sweep below** if that is done first; listed separately because these
     two are named, evidenced and cheap.
 
-- <a id="trigger-vocabulary-sweep"></a>☐ **P1 · WIRE — the trigger lists match *phrasings*, not *subjects*.
+- <a id="trigger-vocabulary-sweep"></a>☐ **P3 (DOWNGRADED from P1 on 2026-08-03 — measured against the code, not
+  the note). The measurement below is CORRECT; the SEVERITY was not.**
+  - **What a missed trigger actually costs.** In a live client session a matched logic table awards
+    **`TREE_HINT_BOOST = 3`** ([`templateResolver.js` L184](../server/utils/templateResolver.js)), and the comment
+    above it is explicit: *"A weak tie-breaker (guide, not replace): it lifts the tree's judgment past a tie but
+    cannot overrule a strong signal/industry match."* For scale, in the same function a firm distinction is **+5**
+    and an industry mismatch is **−15**.
+  - Its only other live uses are the **zero-candidate fallback** (fires only when the resolver found nothing at
+    all) and **Learn mode — where an AI picker chooses the tree first** and the keyword matcher is the safety net
+    ([`advisorEngine.js` L552-563](../server/advisorEngine.js)).
+  - **So "11 of 13 staff openers reach nothing" costs a +3 nudge, not the recommendation.** It was reported on
+    2026-08-03 as the app's largest live-quality defect. It is not. Same correction applies to
+    [`people-power-openers-dead`](#people-power-openers-dead) and [`over-generic-triggers`](#over-generic-triggers).
+  - ⚠ **The screen this work was done FOR is gone** — the trigger workbench was deleted (`683e8e9`) and the phrase
+    screen left the hub the same day. Original entry follows for the record.
+  - ☐ **P1 · WIRE — the trigger lists match *phrasings*, not *subjects*.
   This is the general form of the two items above, and it affects all 42 tables.** Diagnosed 2026-07-31.
   - **The evidence.** The word `staff` is **not** a trigger. What exist are seven phrases *containing*
     it: *my staff, the staff, staff are, staff problems, staff performance, staff not performing, staff
@@ -1023,7 +1109,10 @@
       a screen, and nobody has looked at this. To check: **Firm Manager → Logic Tables**, both with no
       table selected and with one open.
 
-- <a id="workbench-winner-wording"></a>☐ **P3 · DECISION (Mike) — the workbench lists every table a
+- <a id="workbench-winner-wording"></a>✅ **MOOT — CLOSED 2026-08-03 by the verified sweep.** Same cause as
+  [`workbench-placement`](#workbench-placement): the screen this wording was for was deleted in `683e8e9`.
+  There is no surface left to word. The original question follows for the record.
+  - ☐ **P3 · DECISION (Mike) — the workbench lists every table a
   sentence opens, but does not say which one the engine acts on.** Raised and deliberately left unbuilt
   2026-08-01 while building the screen above.
   - **The fact it needs to convey.** Production walks **every** table scoring ≥1
@@ -1343,7 +1432,14 @@
     `scorePattern` count distinct words; the second changes scoring for all 42 trees at once and would
     need a full before/after.
 
-- <a id="collaborate-merge"></a>☐ **NEW WORKSTREAM RULED 2026-07-30 (Mike) — merge the Advisor
+- <a id="collaborate-merge"></a>◐ **THE BACK-END MERGE IS DONE — verified 2026-08-03.** `server/collaborate/`
+  (`data/`, `routes/`, `utils/`) is present in this repo, and [`jest.config.js`](../jest.config.js) records the
+  reason its second bootstrap exclusion was removed: *"Collaborate's own server was folded into this one when the
+  two back-ends merged (2026-08-01)."* Coverage thresholds for `server/collaborate/**`, `mixins/collaborate/` and
+  `server-middleware/collaborate/` are all live and enforced.
+  - **Still open:** whatever remains of the workstream beyond the back-end fold — NOT re-verified by this sweep,
+    so read the detail below as a claim to check, not as settled scope. Original entry follows.
+  - ☐ **NEW WORKSTREAM RULED 2026-07-30 (Mike) — merge the Advisor
   Collaborate app into this repo and surface its manager console as a Firm Manager Hub tab.**
   Full plan: [`COLLABORATE-MERGE-PLAN.md`](COLLABORATE-MERGE-PLAN.md). Collaborate is a
   **separate repository** (`advisor-e/Colab`, laptop path `C:\Users\mb\Projects\Advisor
@@ -2367,7 +2463,11 @@ Two honest answers on different axes — the file used to conflate them:
   - ✅ **Model + golden test (steps 1–2), commit `8ce44c0`.** `server/report/leaseVsBuyModel.js`: Table/Reducing loan amortisation, SL/DV depreciation, the 10-year Buy and 6-year Lease cost build-ups. 18 golden checks tie every figure to its source cell (Buy gross 52,764.59, Lease 28,725.45, verdict Lease!); mutation-verified outside the repo. **One owner-approved CORRECTION (Mike, 2026-07-27):** the workbook double-counts the lease-end costs (`Lease!K3` already includes `D37`; `Input!D33` adds `D37` again) → inflated Lease total 38,425.62 and a WRONG "Buy!" verdict on the sample. Counted once → Lease 28,725.45 < Buy 33,264.59 → honest "Lease!" (saves NZ$4,539). **✅ Source `.xlsx` corrected 2026-07-27 (commit `402c595`, Mike-approved):** Input sheet 3 cells (D33 `=Lease!K3+Lease!D37`→`=Lease!K3`; I33 value; K31 verdict "Buy!"→"Lease!"), rebuilt from a pristine backup with only `sheet1.xml` swapped, every other zip entry byte-identical, re-parsed clean by the repo's `xlsxReader` — code and spreadsheet now agree.
   - ✅ **Route + registration (steps 3–4), commit `0a94854`.** `POST /api/report/lease-vs-buy` — anonymous calc route (no firmAuth), standard envelope, safe error shape; +4 route tests.
   - ✅ **Catalogue + page + screen + guards (steps 5–8), this commit.** `components/LeaseVsBuy.vue` (single live-recompute screen, verdict band keeps the workbook's "Lease!"/"Buy!" per Mike's ruling, house HeroStrip/card style, NO Illustrative badge — Decision class), `pages/lease-vs-buy.vue`, catalogue row → `STATUS_READY` + `/lease-vs-buy`, all wording in `en.json` (workbook's own labels), both consistency guards + the catalogue census updated (8th live model, 2nd Decision-class), `leaseVsBuy.component.test.js` pins the rate conversion + verdict render. Suite **1,753 green / 125**, lint 0 errors.
-  - ☐ **Remaining: (1) correct the source `.xlsx` double-count (Mike to view the exact change first); (2) Mike views the screen in his running app** (backend restart needed to pick up the new route). *(Note 2026-07-28: item (1) contradicts the ✅ two bullets above, which records the `.xlsx` correction DONE at `402c595`. One of the two lines is stale — flagged, not edited, pending Mike's confirmation of which.)*
+  - ✅ **CONTRADICTION RESOLVED 2026-08-03 by the verified sweep — item (1) IS DONE.** `git log` on
+    `design/report-source-models/CM.Lease vs. Buy.xlsx` returns **`402c595` — "fix(report): correct Lease vs Buy
+    source workbook double-count"**. The ✅ bullets above were right; the "remaining" line below was the stale one.
+    **Only (2) is left, and it is not a build task — it is Mike opening the screen.** Original line follows.
+    - ☐ **Remaining: (1) correct the source `.xlsx` double-count (Mike to view the exact change first); (2) Mike views the screen in his running app** (backend restart needed to pick up the new route). *(Note 2026-07-28: item (1) contradicts the ✅ two bullets above, which records the `.xlsx` correction DONE at `402c595`. One of the two lines is stale — flagged, not edited, pending Mike's confirmation of which.)*
 - **◐ ACTIVE WORKSTREAM (started 2026-07-28) — Cost of Capital (WACC).** Port of `design/report-source-models/Cost of Capital.xlsx` (2 sheets — the smallest workbook in the unbuilt set). Mike picked it from the 11 remaining "coming soon" models. **Scope ruled 2026-07-28: FULL — both sheets, the beta helper wired to the calculator, plus an interactive advisory layer** ("don't be lazy — make it really useful for a client"). Class **Decision** (real figures typed in; no Illustrative badge, nothing to an LLM). This is no longer the quick win it was picked as — it is Loan-Estimator-shaped, phased, each phase its own approval.
   - ✅ **THREE SOURCE DEFECTS FOUND, PROVEN FROM THE FORMULAS, AND OWNER-RULED "CORRECT" (2026-07-28).** Values were read with the repo's own `xlsxReader`; formulas came from the raw sheet XML (the reader drops `<f>` nodes). **A first reading wrongly suspected a circular reference at `X40`; the raw XML disproved it — `X40` is simply empty and `AE40` holds the formula.** The real faults:
     1. **The equity half of the WACC is annihilated.** `AE40 = X40 - M40` reaches for the last SLOT of the equity row, not the last FILLED period. `X40` is blank, so growth = `AE42 = AE40/M40` = **-1** (-100%). That flows to `WACC Calcs!E10`, and `M19 = L20*(1+E10)` multiplies the cost of equity by zero → `I23` (the equity contribution) = 0 → **the published "Weighted Average Cost of Capital" of 1.62% is the DEBT cost alone**, with 62.5% of the capital contributing nothing. **Decisive proof it is a defect, not merely missing data:** the sheet's own note says "If you don't have data for one period leave it blank", and its sibling average honours that (`Y50 = Y43/M37`, `M37` = a live count of FILLED periods). Only this formula doesn't. Corrected: growth = (last filled - first filled)/first = **+4.2457%**.
@@ -3439,7 +3539,11 @@ Two honest answers on different axes — the file used to conflate them:
     to AI generation, rather than being handed an empty bank it is told to build every question
     from. (2) The old whole-bank shape is **read as decisions**, including the honest reading that
     a question the stored copy does not contain was **removed on purpose**, so it stays off.
-  - ☐ **PHASE 3 — the editing screen.** The Quizzes tab is **browse-only today**: search, see
+  - ✅ **BUILT — verified in code 2026-08-03. The Quizzes tab is NO LONGER browse-only.**
+    [`FirmQuizzes.vue`](../components/firm/FirmQuizzes.vue) mounts
+    [`FirmQuizQuestionForm`](../components/firm/FirmQuizQuestionForm.vue) and wires `@save="saveQuestion"` at
+    two call sites, with an `editQuestion` label. Original entry follows for the record.
+    - ☐ **PHASE 3 — the editing screen.** The Quizzes tab is **browse-only today**: search, see
     where quiz material is missing, view version history. No edit, add or switch-off. Needs the
     per-question routes and Mike's wording decisions. **Ordering rule: the screen must not gain a
     Save button before the engine reads what it saves** — which Phase 2 has now settled.
@@ -4325,7 +4429,7 @@ Two honest answers on different axes — the file used to conflate them:
 | CB-14 | P2/P3 | SEC | **`sessionContext` interpolated unfenced into the system prompt** (client-controlled). | `courseEngine.js` L286 | ✅ FIXED 2026-07-15 (`e64f812`) — course half of the sweep line; the advisorEngine `languageName` half stays open there |
 | CB-15 | P3 | FIX | **Global `unhandledRejection` swallow** hides every other crash in the process. | `courseEngine.js` L29 | ✅ FIXED 2026-07-15 (`56dc793` — removed; both stated reasons stale) |
 | CB-16 | P2 | BUILD | **Course progress persistence** — the `progress` handler is a labelled stub (`CourseReminderService.markComplete`); wire to MySQL + firm-level reporting. | `courseEngine.js` / `CourseReminderService.js` | ◐ BUILT 2026-07-15 (Stages A–D; identity hardened `5fb077e`; the reporting half pre-existed via `/api/activity/log-course`). ✅ Stage E live click-through PASSED 2026-07-16 (two real quiz completions logged end-to-end). Remaining: master-team MySQL provisioning only |
-| CB-17 | P2 | BUILD | **Courses themselves live only in localStorage** — clearing the browser loses every course, and the completion certificate is fabricated client-side with no server record. Same migration family as CB-16 and Profile→DB. | `CourseBuilder.vue` `va_courses` store | ◐ BUILT 2026-07-15 (`9591c47` schema+store · `8d369cb` routes · `1c5a585` screen switch-over + hardened per-advisor migration, legacy never deleted). Runs on the dev-file fallback. ✅ Stage E live click-through PASSED 2026-07-16 (save → refresh → picker persists; a June-16 legacy localStorage course migrated intact with id + design history; Start-fresh mid-stream clean). Remaining: MySQL provisioning only |
+| CB-17 | P2 | BUILD | ⚠ **HEADLINE CORRECTED 2026-08-03 — courses NO LONGER live only in localStorage; verified in code.** [`CourseBuilder.vue`](../components/CourseBuilder.vue) calls `listCourses(this.apiToken)` against `/api/courses` and migrates legacy browser copies on load; `courseStore` + the `va_courses` table back it. Only MySQL *provisioning* is outstanding. Original headline follows, kept because the status cell's detail was always right and only this cell read as open: **Courses themselves live only in localStorage** — clearing the browser loses every course, and the completion certificate is fabricated client-side with no server record. Same migration family as CB-16 and Profile→DB. | `CourseBuilder.vue` `va_courses` store | ◐ BUILT 2026-07-15 (`9591c47` schema+store · `8d369cb` routes · `1c5a585` screen switch-over + hardened per-advisor migration, legacy never deleted). Runs on the dev-file fallback. ✅ Stage E live click-through PASSED 2026-07-16 (save → refresh → picker persists; a June-16 legacy localStorage course migrated intact with id + design history; Start-fresh mid-stream clean). Remaining: MySQL provisioning only |
 | CB-18 | P3 | FIX | **Course SSE streams never aborted** — a stale stream can land in a fresh conversation. | `CourseBuilder.vue` fetch readers | ✅ FIXED 2026-07-15 (`b8ef0ed` — AbortController on every context switch) — course half of the sweep line; the VirtualAdvisor `initClientSession` half stays open there |
 | CB-19 | P2 | VERIFY | **Course-completion logging dead in prod** — original cause (hardcoded localhost) was fixed by the apiProxy work (`6040abf`); current code calls relative `/api/activity/log-course`. Click through one completion against a running backend, then close both lines. | `CourseBuilder.vue` `_logActivity` | ✅ VERIFIED 2026-07-16 — live click-through (Mike): TWO quiz completions round-tripped `/api/activity/log-course` through the Nuxt proxy (200) and the backend attempted the real MySQL INSERT (blocked only by the unprovisioned DB — master-team item). Sweep mirror closed with it |
 | CB-20 | P3 | FIX | **Proxy missing client-disconnect cleanup** that `advisor.js` has → abandoned SSE sockets wedge the dev server. | `server-middleware/course.js` | ✅ FIXED 2026-07-15 (`1887fbc` — advisor.js pattern copied) |
@@ -4408,7 +4512,16 @@ Two honest answers on different axes — the file used to conflate them:
     Recommendation: (a), because the only thing worse than a stale view is one that needs a human to
     remember it exists.
 
-- <a id="fabricated-detail-in-summaries"></a>☐ **P1 · CONTENT/VERIFY — a FABRICATED detail was found living in the domain-support
+- <a id="fabricated-detail-in-summaries"></a>◐ **THE CONFIRMED INSTANCE IS FIXED — corrected 2026-07-31 in
+  `a557096`, verified in the data 2026-08-03.** [`sales-marketing-domain-support.json`](../data/sales-marketing-domain-support.json)
+  now reads *"Attention, Interest, Desire, **Credibility, Risk Removal**, Action"* — the correct A.I.D.C.R.A
+  expansion. The invented *"Conviction, Response"* is gone.
+  - ⚠ **What is genuinely still open is SMALLER and DIFFERENT: the blast radius was never measured.** No sweep
+    has ever checked the other domain-support rows for the same class of invention. That is the remaining task,
+    and it is a verification pass, not a fix.
+  - ⚠ **This entry was reported as the app's TOP open defect on 2026-08-03**, three days after it was fixed —
+    the clearest single instance of why the sweep at the top of this file was needed.
+  - Original entry follows for the record: ☐ **P1 · CONTENT/VERIFY — a FABRICATED detail was found living in the domain-support
   data, presented as the firm's own material. One confirmed instance; the blast radius is unknown.**
   **Deferred by Mike on 2026-07-31 — logged deliberately, NOT to be picked up next**, so the
   three-document transcription is finished first. Not started.
@@ -4445,7 +4558,14 @@ Two honest answers on different axes — the file used to conflate them:
 
 - <a id="deployed-versions-backfill"></a>✅ **P2 · DOC — Backfill the unknown commits in the deployed-versions ledger. RESOLVED 2026-07-21.** The Version-Pull Recording Rule shipped 2026-07-20 (`design/DEPLOYED-VERSIONS.md` + README notice + CLAUDE.md rule): every pull into UAT/production/the master app must record its commit hash in the ledger. The ledger opened with two honest gaps. The master team replied to Mike 2026-07-21 and both are now closed: **UAT runs `709bac5`** — the merge of PR #2 (`feat/client-knowledge-base`), the only pull request in the repo's 527-commit history, so the identification is unambiguous. **The production gap does not exist:** Mike confirmed 2026-07-21 that *nothing has been deployed to production yet* — the app is UAT-only, and the earlier "2026-07-13 production go-live" note was simply wrong. Ledger row written and the incorrect production claim withdrawn in both `DEPLOYED-VERSIONS.md` and `CLAUDE.md`. **Material finding:** UAT was **97 commits behind `origin/master`** at confirmation — it predates the entire Business Performance Report programme and all of Course Builder v2 (CB-01…CB-33), which is why course-builder design issues could not be tested in UAT. *Source:* sessions 2026-07-20, 2026-07-21.
 
-- <a id="release-tagging-workflow"></a>☐ **P2 · PROCESS — Adopt release tags as the integration hand-off to the master team.** Successor to the resolved ledger task above, and the structural fix for the 97-commit drift it uncovered. **Root cause:** the repo has 527 commits and exactly **one** pull request — every other branch was merged locally, so there has never been a moment that says *"this version is ready, take it."* The master team pulled `master` once and it has moved ever since with no signal attached. **Agreed direction (Mike, 2026-07-21):** (1) `master` means *releasable* — work in progress never lands there; (2) each integration is cut as a **version tag** (`v0.6.0`, `v0.6.1`, …) and the team pulls the **tag**, never the moving branch — the tag is immutable, and the team already thinks in version/PR numbers, which is how they replied; (3) both machines reach `master` via **pull requests**, never machine-to-machine merges, and branches are short-lived; (4) the ledger stays maintained **on our side** — the master team has no write access to this repo, so a rule depending on them writing rows would fail silently. **Remaining:** land both branches into `master`, cut the first tag, and send the team the version number. Tag-naming scheme (`v0.6.0` vs `uat-<date>`) still to be confirmed by Mike. *Source:* session 2026-07-21.
+- <a id="release-tagging-workflow"></a>◐ **PARTLY DONE — corrected 2026-08-03 by the verified sweep. The first tag
+  EXISTS and is pushed: `v0.6.0` → `9a29aee` (2026-07-21, PR #15), confirmed on `origin`.** The "cut the first
+  tag" half of the Remaining line below is therefore complete.
+  - **What is actually open:** `v0.6.0` points at 2026-07-21 and `master` has moved a long way since (PR #30,
+    #31, #32, #33, #34, #35 have all landed). So the live gap is **cut a CURRENT tag and send the team the
+    number** — not "adopt tagging".
+  - Tag-naming scheme (`v0.6.x` vs `uat-<date>`) still unconfirmed by Mike. Original entry follows for the record.
+  - ☐ **P2 · PROCESS — Adopt release tags as the integration hand-off to the master team.** Successor to the resolved ledger task above, and the structural fix for the 97-commit drift it uncovered. **Root cause:** the repo has 527 commits and exactly **one** pull request — every other branch was merged locally, so there has never been a moment that says *"this version is ready, take it."* The master team pulled `master` once and it has moved ever since with no signal attached. **Agreed direction (Mike, 2026-07-21):** (1) `master` means *releasable* — work in progress never lands there; (2) each integration is cut as a **version tag** (`v0.6.0`, `v0.6.1`, …) and the team pulls the **tag**, never the moving branch — the tag is immutable, and the team already thinks in version/PR numbers, which is how they replied; (3) both machines reach `master` via **pull requests**, never machine-to-machine merges, and branches are short-lived; (4) the ledger stays maintained **on our side** — the master team has no write access to this repo, so a rule depending on them writing rows would fail silently. **Remaining:** land both branches into `master`, cut the first tag, and send the team the version number. Tag-naming scheme (`v0.6.0` vs `uat-<date>`) still to be confirmed by Mike. *Source:* session 2026-07-21.
 
 - <a id="dormant-trees"></a>◐ **P2 · DECISION+BUILD — 28 dormant trees → harvest JUDGMENT into signals.** Direction LOCKED 2026-06-23 (memory `design-logic-trees-guide-not-replace`): trees GUIDE the engine, don't replace it. **Done:** the soft-hint mechanism (whole tie-breaker bucket, one wiring), valuation wired, `governance_too_early` signal (Option A), name-rot disproven (93/93 real) — all in archive. **Remaining:**
   - The **needs-signal bucket** — `client_sales`, `systems`, `succession`, `quickfire` — where a name boost isn't enough and the judgment must become a real authored signal (the governance pattern). Work one at a time, Mike confirming the correct answer per domain. NB triage domain→tree mapping is inferred (trees carry no domain field) — confirm per tree before building.
@@ -4468,7 +4588,10 @@ Two honest answers on different axes — the file used to conflate them:
 
 - ◐ **P2 · BUILD/DECISION — Get-the-Job Stage 2: `due_diligence`.** LIKELY ALREADY DONE (source-grounded 2026-06-23). Full assessment: [`design/STAGE-2-DUE-DILIGENCE-HARVEST-DRAFT.md`](STAGE-2-DUE-DILIGENCE-HARVEST-DRAFT.md). Every DD "THEN" is advisor **methodology** (run QoE, mandate legal review, structure an Earn-out…), **NOT a template recommendation** — so DD is a **coaching/methodology** domain and its full judgment already injects via `due-diligence-domain-support.json`. The earlier "checks→signals→templates harvest" premise is **RETRACTED** (unsourced). **✅ RULED 2026-07-16 (Mike): ADD the risk→tool mapping.** Next step = a working session where Mike authors which DD risk → which library template (Customer Reliance, Key Interviews… — his IP, the app never invents it), then a small wiring build to surface those tools alongside the coaching. *Source:* full DD source read 2026-06-23; ruling 2026-07-16.
 
-- ◐ **P2 · BUILD — Course persistence (courses + progress) — BUILT 2026-07-15, Stages A–D (Course Builder table CB-16/CB-17).** `va_courses` schema + `courseStore` (`9591c47`), owner-scoped `/api/courses` CRUD (`8d369cb`), progress identity from the verified JWT (`5fb077e`), screen switch-over + hardened per-advisor localStorage migration — legacy copy never deleted (`1c5a585`). The reporting half already existed (`/api/activity/log-course` → `advisor_course_completions`). Runs on the dev-file fallback until the master team provisions MySQL (same family as the Firm-Manager-MySQL item). **✅ Stage E live click-through PASSED 2026-07-16** (Mike drove it: save → refresh → picker persists; June-16 legacy course migrated intact; two quiz completions fired the activity log end-to-end; Start-fresh mid-stream clean; server-side CRUD/auth/isolation/duplicate-refusal all verified by Claude the same day). **Remaining: MySQL provisioning only.** `CourseReminderService` hooks remain platform-team stubs. Three new observations from the live test logged as CB-25/26/27. *Source:* registry Part 1A → Course; build 2026-07-15.
+- 🔒 **OPS-GATED, NOT A BUILD TASK — re-marked 2026-08-03 by the verified sweep** (was ◐, which reads as work in
+  progress). The code is complete and verified: `courseStore`, `/api/courses`, the `va_courses` schema, and a
+  frontend that fetches from the server. **The only thing left is the master team provisioning MySQL** — nothing
+  this repo can do. Original entry follows: **P2 · BUILD — Course persistence (courses + progress) — BUILT 2026-07-15, Stages A–D (Course Builder table CB-16/CB-17).** `va_courses` schema + `courseStore` (`9591c47`), owner-scoped `/api/courses` CRUD (`8d369cb`), progress identity from the verified JWT (`5fb077e`), screen switch-over + hardened per-advisor localStorage migration — legacy copy never deleted (`1c5a585`). The reporting half already existed (`/api/activity/log-course` → `advisor_course_completions`). Runs on the dev-file fallback until the master team provisions MySQL (same family as the Firm-Manager-MySQL item). **✅ Stage E live click-through PASSED 2026-07-16** (Mike drove it: save → refresh → picker persists; June-16 legacy course migrated intact; two quiz completions fired the activity log end-to-end; Start-fresh mid-stream clean; server-side CRUD/auth/isolation/duplicate-refusal all verified by Claude the same day). **Remaining: MySQL provisioning only.** `CourseReminderService` hooks remain platform-team stubs. Three new observations from the live test logged as CB-25/26/27. *Source:* registry Part 1A → Course; build 2026-07-15.
 
 - ✅ **P1 · FIX — Learn topic-router never re-routed on a mid-conversation pivot. FIXED + LIVE-PROVEN 2026-07-16.** Root cause (two layers): the AI picker's input was ALL user messages joined OLDEST-first then sliced to 1,000 chars — a long thread's newest messages (the pivot) were truncated out entirely. Fix: `newestFirstUserText` (current message always first inside the cap), picker prompt told newest-first outweighs older context, keyword fallback tries a recent-2 window before full text. 4 tests incl. the live defect shape (suite 1,100). **Live re-test proof:** on the same sales→EOY pivot the prompt jumped 19.8k→24.5k (EOY pack loading) and the answers carried the real EOY structure (Growth Curve, Volatility, temperaments, Start/Stop/Keep). *Learn-logic audit + live threads 2026-07-16.*
 
@@ -4493,11 +4616,22 @@ Two honest answers on different axes — the file used to conflate them:
   - ⚠ Risk (live now): a mentor edit is cross-firm + on-by-default — blast radius across all firms; banner warns of this. *Source:* design session 2026-06-27; memory `design-distinctions-cascade`.
 
 - ✅ **P3 · TEST — dev-fallback tests no longer depend on local `data/dev-*.json` files. FIXED 2026-06-29.** `platformDistinctions.test.js` uses a surgical `fs` mock (seed-fallback assertions never read a developer's local `dev-platform-distinctions.json`); `caseStore.js` dev path is now `CASE_DEV_FILE`-overridable and `caseStore.devfallback.test.js` points at an isolated per-PID temp file (no shared real file, immune to a concurrent live backend). A clean `npm test` is now deterministic regardless of local dev state. *Source:* Stage D/E session 2026-06-29.
-- ☐ **P3 · TEST — `jest.config.js` `collectCoverageFrom` excludes the decision engine + routes** (`advisorEngine.js`, `courseEngine.js`, `server/routes/**`, `mixins/**`), so the Constitution's ≥90% route / ≥80% mixin targets are **not enforced**. The audit's highest-leverage / lowest-risk item — but removing the exclusions may surface coverage below threshold and fail CI, so it needs a measured pass (raise coverage, or stage thresholds), not a blind flip. *Source:* handover audit #3, 2026-06-21. **Measured 2026-07-14** (client-knowledge-base branch): new `routes/clients.js` at **100% stmts/funcs/lines** (route standard met where built); the pre-existing frontend fetch wrappers (`utils/cases.js` 15%, `utils/clients.js` network half) drag the utils numbers — untestable without fetch mocks, predates the branch. **Measured 2026-07-15** (course-builder Phase 5): a full `jest --coverage` run FAILS the config's own thresholds today — global lines **51.3% vs the configured 80** (`signals.js` ~1%, `templateRegistry.js` 12%, `videoInjector.js` 10%, `tierLookup.js` 33%, `summaries.js` 59%) and `sanitiseInput.js` branches 83.82 vs 85 — confirming thresholds are unenforced (pre-commit runs plain `npm test`, no coverage). Partial progress: `server/courseEngine.js` is now IN `collectCoverageFrom` at **92% lines with a per-file `lines: 90` lock** (`5153419`) — one of the two named engine exclusions closed; `advisorEngine.js`, `server/routes/**`, `mixins/**` remain excluded.
+- ✅ **CLOSED 2026-08-03 by the verified sweep — the exclusions are GONE.** [`jest.config.js`](../jest.config.js)
+  now sets `collectCoverageFrom: ['server/**/*.js', 'server-middleware/**/*.js', 'mixins/**/*.js', …]` with
+  `collectCoverage: true` — the decision engine, every route and every mixin are measured and enforced on each
+  run. The one remaining exclusion is `server/restify-server.js` (a process bootstrap no test imports), which is
+  documented in the config itself. Original entry follows for the record.
+  - ☐ **P3 · TEST — `jest.config.js` `collectCoverageFrom` excludes the decision engine + routes** (`advisorEngine.js`, `courseEngine.js`, `server/routes/**`, `mixins/**`), so the Constitution's ≥90% route / ≥80% mixin targets are **not enforced**. The audit's highest-leverage / lowest-risk item — but removing the exclusions may surface coverage below threshold and fail CI, so it needs a measured pass (raise coverage, or stage thresholds), not a blind flip. *Source:* handover audit #3, 2026-06-21. **Measured 2026-07-14** (client-knowledge-base branch): new `routes/clients.js` at **100% stmts/funcs/lines** (route standard met where built); the pre-existing frontend fetch wrappers (`utils/cases.js` 15%, `utils/clients.js` network half) drag the utils numbers — untestable without fetch mocks, predates the branch. **Measured 2026-07-15** (course-builder Phase 5): a full `jest --coverage` run FAILS the config's own thresholds today — global lines **51.3% vs the configured 80** (`signals.js` ~1%, `templateRegistry.js` 12%, `videoInjector.js` 10%, `tierLookup.js` 33%, `summaries.js` 59%) and `sanitiseInput.js` branches 83.82 vs 85 — confirming thresholds are unenforced (pre-commit runs plain `npm test`, no coverage). Partial progress: `server/courseEngine.js` is now IN `collectCoverageFrom` at **92% lines with a per-file `lines: 90` lock** (`5153419`) — one of the two named engine exclusions closed; `advisorEngine.js`, `server/routes/**`, `mixins/**` remain excluded.
 
 - ☐ **P3 · TEST — ~~No component-test infrastructure and no Playwright, anywhere in the repo.~~ HALF OF THIS IS NO LONGER TRUE — corrected 2026-08-02.** ⚠ **FOURTH stale flag in three days**, after the three found on 2026-08-02 (`hook-tests-worktree-not-commit`, the `leaseVsBuyModel` silent default, the tutorial-video sentence). Same shape every time: **a record describing finished work as outstanding.** Measured, not assumed: **`@vue/test-utils` 1.3.6 is installed**, `tests/helpers/mountComponent.js` is a shared mount helper wiring real Buefy plus a key-returning `$t` stand-in, and **39 `*.component.test.js` files** exist. The component half is not only built, it is in routine use — today's CPD statement work added 15 component tests to it. **What REMAINS open is the Playwright half only:** no browser-journey harness exists, so the critical paths (advisor intake end-to-end, case save/review) are still unexercised, and no test in this repo can see a rendered layout — which is exactly the gap the CPD and certificate print work has just had to declare by hand. **Rescope accordingly: this is a Playwright task, not a component-testing task.** *Original wording follows for the record:* The Constitution names `@vue/test-utils` v1 (mixins/components ≥80%) and **Playwright for critical journeys**; neither has ever been set up — `tests/` is unit-only. Consequence (honest, measured 2026-07-14): all Vue-layer glue is untested repo-wide (today's client-knowledge-base work followed house practice — logic extracted into tested pure functions, thin Vue handlers untested like every other component). The new intake journey (client step → session → save → catch-up card) is exactly the critical path Playwright exists for. Needs: (a) decide + set up the harness(es), (b) first journeys: advisor intake end-to-end, case save/review. *Source:* testing-standards audit vs CLAUDE.md, 2026-07-14 (client-knowledge-base branch).
 
-- ☐ **P3 · STRUCT — Monolithic components, no base/shared split.** `VirtualAdvisor.vue` 2708, `CourseBuilder.vue` 2152, `FirmManagerHub.vue` 1295, `FirmDashboard.vue` 665 — over the "decompose when complex and >200 lines" rule; no `components/base/` or `components/shared/`. *Source:* code-gov audit 2026-06-15.
+- ☐ **P3 · STRUCT — Monolithic components, no base/shared split. ⚠ RE-MEASURED 2026-08-03 — every one has GROWN
+  since this was logged, and one no longer exists.** Current: `VirtualAdvisor.vue` **3,505** (was 2,708),
+  `CourseBuilder.vue` **2,963** (was 2,152), `FirmManagerHub.vue` **1,596** (was 1,295). `FirmDashboard.vue` is
+  **gone from the repo** — the 665-line figure below refers to a file that no longer exists. `components/base/`
+  and `components/course/` now exist (CB-23's presentational extraction), so the "no split" half is also stale.
+  **The item is real and getting worse, which a static backlog line could never show.** Original entry follows
+  for the record: `VirtualAdvisor.vue` 2708, `CourseBuilder.vue` 2152, `FirmManagerHub.vue` 1295, `FirmDashboard.vue` 665 — over the "decompose when complex and >200 lines" rule; no `components/base/` or `components/shared/`. *Source:* code-gov audit 2026-06-15.
 
 - ☐ **P3 · DOC — Sparse JSDoc.** Mixins lack `@param`/`@returns`; `course.js` has none; `advisor.js` ~4 tags across 2061 lines. **Scheduled into the planned cleanup pass — see [`design/CLEANUP-PASS-PLAN.md`](CLEANUP-PASS-PLAN.md)** (gated: runs AFTER the master team's DB + mentor-login wiring lands, on their email + Mike's go-ahead; branch `chore/i18n-jsdoc-cleanup`). *Source:* code-gov audit 2026-06-15.
 
