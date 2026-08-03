@@ -55,7 +55,14 @@ export default {
   },
 
   css: [
-    'buefy/dist/buefy.css'
+    'buefy/dist/buefy.css',
+    // Material Design Icons — the icon pack Buefy is built around (its default
+    // `iconPack` is 'mdi'), so this completes the locked Bulma+Buefy stack rather
+    // than adding a second UI library. Without it every `icon`, `icon-left` and
+    // `<b-icon>` in the app renders as blank space: 29 of them across 10 files,
+    // including the only cue that a case-study row expands. Added 2026-08-03 on
+    // Mike's ruling; see design/ACTIONS.md → #no-icon-font.
+    '@mdi/font/css/materialdesignicons.min.css'
   ],
 
   plugins: [

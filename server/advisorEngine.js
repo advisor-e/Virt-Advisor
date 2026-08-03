@@ -36,7 +36,7 @@ const { loadPlatformDistinctions, SEED_PLATFORM_ROWS } = require('../server/util
 // Client knowledge base (design 2026-07-14) — the engine reads a named client's
 // case history back at recommendation time.
 const clientStore = require('../server/utils/clientStore')
-const { listForClient } = require('../server/utils/caseStore')
+const { listForClient, listForAdvisor } = require('../server/utils/caseStore')
 const { buildPriorEngagementSummary, formatPriorEngagementText, deriveHistoryScoringInputs } = require('../server/utils/priorEngagement')
 
 const { loadBlendedStaircase, resolveStaircaseStep } = require('../server/utils/staircaseConfig')
@@ -480,7 +480,10 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     excludeSections = [],
     firmTemplates = null,
     preFilteredNames = null,
-    firmCoaching = null
+    firmCoaching = null,
+    // The session's detected domain, so the firm's promoted entries can be
+    // narrowed to the topic in hand. null = no topic known → no filter.
+    firmCoachingDomain = null
   } = options || {}
 
   const orgTemplates = getOrgTemplates(orgTemplateIds || null, firmTemplates)
@@ -494,8 +497,9 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   const templatesText = formatTemplatesForPrompt(templatesToUse)
   const coachingText = includeCoaching ? formatCoachingForPrompt() : null
   // The firm's own promoted case observations — advisor free text, so the
-  // formatter returns it FENCED (data to weigh, never instructions).
-  const firmCoachingText = includeCoaching ? formatFirmCoachingForPrompt(firmCoaching) : null
+  // formatter returns it FENCED (data to weigh, never instructions), narrowed to
+  // this session's topic and capped (see coaching.selectFirmCoaching).
+  const firmCoachingText = includeCoaching ? formatFirmCoachingForPrompt(firmCoaching, firmCoachingDomain) : null
   const sectionDescText = includeSectionDesc ? formatSectionDescriptionsForPrompt() : null
   const growthText = includeGrowthStage
     ? formatGrowthFundamentalsForPrompt([{ role: 'user', content: includeGrowthStage }])
@@ -1143,12 +1147,74 @@ module.exports = function advisorMiddleware (req, res, next) {
   })
 }
 
+// ── Past case studies ───────────────────────────────────────────────────────
+// Read from the DATABASE using the firmAuth-verified identity, never from the
+// request body. The body's `caseSummaries` field is still accepted (an older
+// frontend keeps working) and deliberately IGNORED: it let any authenticated
+// caller place arbitrary text into the prompt beneath the heading "real sessions
+// saved by advisors in your firm", with nothing checking the cases existed or
+// belonged to the caller. Same rule already applied to firmId/advisorId (IDOR)
+// and to languageName (instruction injection).
+//
+// Caps mirror what the sanitiser applied to the body field. They are a
+// prompt-SIZE control, not a trust control — the text is fenced regardless.
+const MAX_PROMPT_CASES = 4
+const MAX_PROMPT_CASE_SUMMARY = 800
+const MAX_PROMPT_REVIEW_FIELD = 500
+
+/**
+ * The advisor's past cases for the prompt: their own plus their firm's shared
+ * ones (listForAdvisor's boundary — a colleague's private case never reaches
+ * this). Mirrors what the screen already shows — this mode only, newest first,
+ * four at most (`relevantCases` in mixins/caseMixin.js) — so an advisor sees no
+ * change from the former body-supplied list.
+ *
+ * @param {string} advisorId - from the firmAuth-verified JWT, never the body
+ * @param {string} firmId - from the firmAuth-verified JWT, never the body
+ * @param {string} mode - the session mode; cases are saved per mode
+ * @returns {Promise<object[]>} [] when there are none — and on ANY load failure,
+ *   because case history must never block a session (the coaching rule).
+ */
+async function loadPromptCases (advisorId, firmId, mode) {
+  if (!advisorId || !firmId) { return [] }
+  let rows
+  try {
+    rows = await listForAdvisor(advisorId, firmId)
+  } catch (err) {
+    console.error('[advisor] case-study load failed:', err.message)
+    return []
+  }
+  return rows
+    .filter(c => c.mode === mode)
+    .slice(0, MAX_PROMPT_CASES)
+    .map(c => ({
+      title: String(c.title || '').slice(0, 200),
+      visibility: c.visibility,
+      summary: String(c.summary || '').slice(0, MAX_PROMPT_CASE_SUMMARY),
+      date: c.createdAt || null,
+      review: c.review
+        ? {
+            wentWell: String(c.review.wentWell || '').slice(0, MAX_PROMPT_REVIEW_FIELD),
+            wentLess: String(c.review.wentLess || '').slice(0, MAX_PROMPT_REVIEW_FIELD),
+            changesRecommended: String(c.review.changesRecommended || '').slice(0, MAX_PROMPT_REVIEW_FIELD)
+          }
+        : null
+    }))
+}
+
+/**
+ * Render the case block. The heading and the how-to-use line are OURS and stay
+ * outside the fence; every word that came from an advisor — titles, summaries,
+ * review notes — goes inside it, exactly as the firm coaching entries do
+ * (utils/coaching.formatFirmCoachingForPrompt). Free-text a person typed about a
+ * real client is data to weigh, never instructions to follow.
+ *
+ * @param {object[]} cases - from loadPromptCases
+ * @returns {string|null} the prompt section, or null when there are no cases
+ */
 function formatCaseSummaries (cases) {
   if (!cases || cases.length === 0) { return null }
-  const lines = ['## Past Case Studies']
-  lines.push('')
-  lines.push('These are real sessions saved by advisors in your firm. Reference them where relevant to show pattern recognition and build on prior experience — but only if genuinely applicable. Do not force references.')
-  lines.push('')
+  const lines = []
   cases.forEach((c) => {
     const date = c.date ? new Date(c.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
     const scope = c.visibility === 'shared' ? 'Shared with firm' : 'Advisor\'s own'
@@ -1163,7 +1229,13 @@ function formatCaseSummaries (cases) {
     }
     lines.push('')
   })
-  return lines.join('\n')
+  return [
+    '## Past Case Studies',
+    '',
+    'These are real sessions saved by advisors in your firm. Reference them where relevant to show pattern recognition and build on prior experience — but only if genuinely applicable. Do not force references.',
+    '',
+    fenceUntrusted(lines.join('\n'))
+  ].join('\n')
 }
 
 // ── Saved-client intake context (Phase A) ───────────────────────────────────
@@ -1465,10 +1537,13 @@ async function handleQuery (rawBody, res, identity) {
     conversationHistory,
     advisorProfile,
     language,
-    caseContext,
     clientId,
     sessionId: incomingSessionId
   } = sanitised
+  // NOTE: there is no case-summaries field to read — it and the frontend that
+  // sent it were removed 2026-08-03. Past cases come from loadPromptCases, on the
+  // verified identity. A `caseSummaries` key in the body is now an unknown key:
+  // sanitiseInput drops it. Do not re-introduce it.
 
   // SEC (sweep 2026-07-10): the display name is resolved server-side from the
   // language CODE against the canonical list — the body's free-text
@@ -1505,6 +1580,12 @@ async function handleQuery (rawBody, res, identity) {
   const firmCoaching = firmId
     ? await loadFirmCoaching(firmId).catch(() => null)
     : null
+
+  // Past case studies, read server-side from the verified identity. Only client
+  // and discover modes use them, so the other modes skip the read entirely.
+  const promptCases = (mode === 'client' || mode === 'discover')
+    ? await loadPromptCases(advisorId, firmId, mode)
+    : []
 
   // The firm's Advisory Staircase — platform base with the firm's override blended
   // over it. A firm that has not customised it falls through to the base unchanged.
@@ -2315,7 +2396,7 @@ async function handleQuery (rawBody, res, identity) {
       const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain, firmDomainSupport) : null
       const allUserText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).join(' ')
       const postRecContextQuery = [allUserText, query, state.detectedDomain, state.industry].filter(Boolean).join(' ')
-      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching }) +
+      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching, firmCoachingDomain: state.detectedDomain }) +
         (domainSupportPost ? '\n---\n\n' + domainSupportPost : '')
 
       const messagesPost = [
@@ -2887,7 +2968,8 @@ async function handleQuery (rawBody, res, identity) {
       excludeSections: ['get-organised', 'get-the-job'],
       firmTemplates,
       preFilteredNames,
-      firmCoaching
+      firmCoaching,
+      firmCoachingDomain: state.detectedDomain
     }) + _preSelectedSummariesText + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
     // Phase C/D — merge strategy + resolver decisions into observability snapshot
@@ -3198,8 +3280,11 @@ async function handleQuery (rawBody, res, identity) {
   // Other modes: defer until conversation is deep enough (4+ exchanges).
   const includeCoaching = mode === 'discover' || trimmedHistory.length >= 4
   const coachingText = includeCoaching ? formatCoachingForPrompt() : null
-  // Firm-promoted entries ride the same gate; fenced by the formatter.
-  const firmCoachingText = includeCoaching ? formatFirmCoachingForPrompt(firmCoaching) : null
+  // Firm-promoted entries ride the same gate; fenced and capped by the formatter.
+  // No domain is passed because none exists here: discover/plan/learn return above
+  // the client sequencer, which is the only path that detects one. Passing a guess
+  // would silently drop every tagged entry in these modes.
+  const firmCoachingText = includeCoaching ? formatFirmCoachingForPrompt(firmCoaching, null) : null
 
   // Use gpt-4o-mini throughout — fast and more than capable for conversational Q&A.
   const model = 'gpt-4o-mini'
@@ -3222,8 +3307,9 @@ async function handleQuery (rawBody, res, identity) {
   const basePrompt = loadPrompt(mode) || loadPrompt('client')
   const systemPrompt = basePrompt + profileSystemInstruction + languageInstruction
 
-  // Case studies are only relevant in client and discover modes
-  const caseSummariesText = (mode === 'client' || mode === 'discover') ? formatCaseSummaries(caseContext) : null
+  // Case studies are only relevant in client and discover modes — promptCases is
+  // already empty in the others (loaded once, above, from the verified identity).
+  const caseSummariesText = formatCaseSummaries(promptCases)
 
   // Learn mode logic trees — detect from conversation for sales_process and public_speaking trees
   let learnSalesTreeText = null
@@ -3457,3 +3543,6 @@ module.exports.continuityClaimAllowed = continuityClaimAllowed
 module.exports.buildContinuityDirective = buildContinuityDirective
 module.exports.buildSavedClientTraceAudit = buildSavedClientTraceAudit
 module.exports.buildContinuityTraceAudit = buildContinuityTraceAudit
+module.exports.loadPromptCases = loadPromptCases
+module.exports.formatCaseSummaries = formatCaseSummaries
+module.exports.MAX_PROMPT_CASES = MAX_PROMPT_CASES

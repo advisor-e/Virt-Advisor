@@ -26,6 +26,19 @@ jest.mock('../../server/utils/openaiClient', () => ({
   createOpenAIClient: () => ({ chat: { completions: { create: jest.fn().mockResolvedValue({ choices: [{ message: { content: '{}' } }], usage: {} }) } } })
 }))
 
+// Nor the DATABASE. handleQuery reads the advisor's past cases (loadPromptCases,
+// added 2026-08-03 when the case list moved server-side), and unmocked that is a
+// real MySQL connection attempt — measured at 96 ms on a machine with no database,
+// because it waits for the connect to fail before falling back. That is an eternity
+// beside the tick-based settle below, and it left the FIRST request's firm reads
+// still arriving while the SECOND test was being asserted: the security assertion
+// then failed on calls the other test had made. A unit test must not reach for a
+// database at all.
+jest.mock('../../server/utils/caseStore', () => ({
+  listForAdvisor: jest.fn().mockResolvedValue([]),
+  listForClient: jest.fn().mockResolvedValue([])
+}))
+
 const { loadFirmConfig } = require('../../server/utils/firmOverlay')
 const advisorMiddleware = require('../../server/advisorEngine')
 
@@ -62,8 +75,27 @@ function makeRes () {
 // Let the middleware's async chain (body collect -> handleQuery -> awaited
 // loadFirmConfig) settle. Errors further down the sequencer are caught by the
 // engine's own .catch and do not affect the early loadFirmConfig assertion.
-function flush () {
-  return new Promise(resolve => setImmediate(() => setImmediate(() => setImmediate(resolve))))
+//
+// This WAITS FOR QUIET rather than counting ticks. A fixed number of ticks is a
+// guess about how long the chain takes, and the guess silently expires the day
+// someone adds a slower step — at which point one test's firm reads land during
+// the next test and a security assertion fails for a reason that has nothing to
+// do with security. Quiescence keeps that from happening again.
+function flush (mock = loadFirmConfig) {
+  return new Promise((resolve) => {
+    let lastSeen = -1
+    const tick = () => {
+      const now = mock.mock.calls.length
+      // Two consecutive idle passes: one to notice nothing new, one to be sure a
+      // resolved promise has not queued more work behind it.
+      if (now === lastSeen && idleRuns++ >= 2) { return resolve() }
+      if (now !== lastSeen) { idleRuns = 0 }
+      lastSeen = now
+      setImmediate(tick)
+    }
+    let idleRuns = 0
+    setImmediate(tick)
+  })
 }
 
 beforeEach(() => jest.clearAllMocks())

@@ -18,6 +18,7 @@
  */
 
 const activityStore = require('./activityStore')
+const { isStorableSessionIndex } = require('./sessionIndex')
 const { getHighestTier } = require('./tierLookup')
 
 /**
@@ -75,6 +76,14 @@ async function logCourseSession (params) {
 } = params || {}
 
   if (!advisorId || !firmId || !courseId) { return }
+  // The route refuses this too. Repeated here because the function is exported and a
+  // future caller could otherwise write a fabricated index (`Number(null)` === 0) or a
+  // NaN the column discards. Named on the console rather than dropped in silence — the
+  // silence is what made the original defect invisible.
+  if (!isStorableSessionIndex(sessionIndex)) {
+    console.error('[activityLogger] logCourseSession refused — sessionIndex is not a whole number the column can store:', sessionIndex)
+    return
+  }
   try {
     const resources = Array.isArray(sessionResources) ? sessionResources : []
     await activityStore.recordCourseSession({
