@@ -185,11 +185,16 @@ async function matchDistinctions (text, domains, rows) {
     }
   }
 
-  const matched = await require('../advisorEngine').classifyMatchingRows(inDomain, text, 'logic-lab-probe')
+  const { ok, rows: matched } = await require('../advisorEngine').classifyMatchingRows(inDomain, text, 'logic-lab-probe')
   return {
     measured: true,
     domain,
     considered: inDomain.length,
+    // 🔴 The call FAILED — an empty `matched` below is not a reading. This screen used to
+    // print "None matched. The AI read all N in this area." on a call that never
+    // completed, which is the one thing a page built to explain the engine must not do.
+    // `considered` stays truthful either way: it counts the rows that WERE sent.
+    aiFailed: !ok,
     matched: (matched || []).map(r => ({
       id: r.id,
       description: r.description,

@@ -54,6 +54,15 @@ section.dx
     b-message.mt-4(v-if="error" type="is-danger" has-icon :closable="false") {{ error }}
 
     div(v-if="result")
+      //- 🔴 THE BANNER, and it is not decoration. When the distinction classifier
+      //- fails, everything below was ranked WITHOUT the firm's biggest lever — so
+      //- the sheet is not the ranking a working engine produces. The sheet is still
+      //- shown (Mike's ruling, 2026-08-03, Decision 0 option A: the deterministic
+      //- half is true and worth reading), but never without this line above it.
+      //- Wording S4 — design/WORDING-DISTINCTION-AI-FAILURE.md
+      b-message.mt-4(v-if="distinctionsAiFailed" type="is-warning" has-icon :closable="false")
+        | {{ $t('firmDecisionLogic.dxDistAiFailed') }}
+
       //- ── What actually happened. Real: the engine's own probe. ────────────
       h3.dh
         | {{ $t('firmDecisionLogic.dxDidHeading') }}
@@ -78,7 +87,11 @@ section.dx
 
         dt {{ $t('firmDecisionLogic.dxLabelDistinctions') }}
         dd
+          //- Two different faults, two different sentences: dxDistUnavailable is the
+          //- firm's saved distinctions failing to LOAD; dxDistAiFailed is the AI that
+          //- reads them failing to ANSWER. Whoever has to fix one needs to know which.
           span.dim(v-if="!result.distinctionsAvailable") {{ $t('firmDecisionLogic.dxDistUnavailable') }}
+          span.dfault(v-else-if="distinctionsAiFailed") {{ $t('firmDecisionLogic.dxDistAiFailed') }}
           span.dim(v-else-if="probeDistinctions.reason") {{ probeDistinctions.reason }}
           template(v-else-if="matchedDistinctions.length")
             .dline(v-for="d in matchedDistinctions" :key="d.id")
@@ -110,7 +123,12 @@ section.dx
                 td
                   span.reason.r-dist(v-for="(r, i) in distinctionReasons(row)" :key="'d' + i")
                     | {{ distinctionChip(row, r) }}
-                  span.reason.r-none(v-if="isExpectedRow(row) && !distinctionReasons(row).length")
+                  //- "+0" is a measured contribution of nothing. With the classifier
+                  //- down nothing was measured, so the chip states the absence
+                  //- instead of a number it cannot stand behind (S5).
+                  span.reason.r-none(v-if="isExpectedRow(row) && distinctionsAiFailed")
+                    | {{ $t('firmDecisionLogic.dxChipDistNotChecked') }}
+                  span.reason.r-none(v-else-if="isExpectedRow(row) && !distinctionReasons(row).length")
                     | {{ $t('firmDecisionLogic.dxChipNoDistinction') }}
                   span.reason.r-tree(v-for="(r, i) in treeReasons(row)" :key="'t' + i")
                     | {{ $t('firmDecisionLogic.dxChipTree', { points: r.points }) }}
@@ -133,7 +151,16 @@ section.dx
           p.gap-head(v-if="result.gap > 0") {{ $t('firmDecisionLogic.dxGapHead', { points: result.gap }) }}
           p.gap-head(v-else) {{ $t('firmDecisionLogic.dxGapWon') }}
 
-          template(v-if="result.gap > 0")
+          //- With the classifier down, none of the three gap sentences below can be
+          //- said: each asserts what did or did not reach the expected template, and
+          //- the biggest lever was never read. The instruction is suppressed with
+          //- them — "write a distinction" would send a manager to solve a problem
+          //- that may not exist, which was the most harmful of the eight (S6).
+          //- Only when there IS a gap: with the expected template already top there
+          //- is no shortfall to explain, and the banner above has said the rest.
+          p.gap-body.gap-fault(v-if="distinctionsAiFailed && result.gap > 0") {{ $t('firmDecisionLogic.dxGapAiFailed') }}
+
+          template(v-else-if="result.gap > 0")
             //- Which sentence applies is decided by what actually reached the
             //- expected template, not by a guess about the usual case.
             p.gap-body(v-if="gapCase === 'noDistinction'")
@@ -312,6 +339,18 @@ export default {
     probeTables () { return this.probe.tables || [] },
     probeDistinctions () { return this.probe.distinctions || {} },
     matchedDistinctions () { return this.probeDistinctions.matched || [] },
+
+    /**
+     * Did the AI that reads the firm's distinctions fail to answer? Distinct from
+     * `result.distinctionsAvailable`, which reports the firm's saved distinctions
+     * failing to LOAD — a different fault with a different fix.
+     *
+     * Everything on this page that speaks about distinctions branches on this,
+     * because an empty `matched` list means either "read, and none applied" or
+     * "never read", and the page exists to tell a firm which is which.
+     * @returns {boolean}
+     */
+    distinctionsAiFailed () { return !!this.probeDistinctions.aiFailed },
 
     /** Every area the words scored in, highest first — the engine acts on the first. */
     domainLine () {
@@ -509,7 +548,13 @@ export default {
       }]
 
       return {
-        lede: distCount === 0 ? t('ideasLedeNoDist') : t('ideasLedeDist'),
+        // The lede used to read the same empty list two ways round: with the
+        // classifier down, distCount is 0 and it told a manager "no distinction of
+        // yours matched — that is the biggest thing you can change", sending them
+        // to write one to fix a problem nobody had measured (S6).
+        lede: this.distinctionsAiFailed
+          ? t('dxGapAiFailed')
+          : (distCount === 0 ? t('ideasLedeNoDist') : t('ideasLedeDist')),
         items
       }
     }
@@ -697,6 +742,9 @@ export default {
 .dfacts dd { margin: 0; }
 .dline { display: block; }
 .dim { color: #7a869a; }
+/* A fault is not a dim note. `.dim` is what this page uses for ordinary "nothing
+   here" results, and the whole defect was a fault wearing that costume. */
+.dfault { color: #9a3412; font-weight: 600; }
 
 .tag-il {
   font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 700;
@@ -735,6 +783,7 @@ tr.expected td { background: #fffaf3; }
 }
 .gap-head { margin: 0; font-size: 1.05rem; color: #b35309; font-weight: 700; }
 .gap-body { margin: 0.5rem 0 0; font-size: 0.86rem; }
+.gap-fault { color: #9a3412; font-weight: 600; }
 .gap-do { margin: 0.8rem 0 0; font-size: 0.86rem; font-weight: 600; color: #002b64; }
 
 .no-scoring, .not-ranked { font-size: 0.86rem; margin-top: 1rem; color: #b35309; }

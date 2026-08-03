@@ -72,7 +72,13 @@ section.firm-logic-lab
           dt {{ $t('firmLogicLab.labelDistinctions') }}
           dd
             template(v-if="probeResult.distinctions")
-              span.has-text-grey(v-if="probeResult.distinctions.reason") {{ probeResult.distinctions.reason }}
+              //- 🔴 FIRST, before every other case. This block used to print "None
+              //- matched. The AI read all N in this area." on a call that died in
+              //- ~100ms — the sentence Mike watched it produce with a broken
+              //- certificate on 2026-08-03. Wording approved the same day (S3):
+              //- design/WORDING-DISTINCTION-AI-FAILURE.md
+              span.tw-dist-fault(v-if="probeResult.distinctions.aiFailed") {{ $t('firmLogicLab.distAiFailed') }}
+              span.has-text-grey(v-else-if="probeResult.distinctions.reason") {{ probeResult.distinctions.reason }}
               template(v-else-if="probeResult.distinctions.matched.length")
                 ul.tw-distinctions
                   li(v-for="d in probeResult.distinctions.matched" :key="d.id")
@@ -585,6 +591,16 @@ export default {
   color: #8a94a3;
   font-size: 0.7rem;
   margin: 0.2rem 0 0;
+}
+/* "Could not be checked" is a fault, and must not read like the grey result
+   notes above it — the whole defect was a fault dressed as a result. */
+.tw-dist-fault {
+  display: block;
+  color: #9a3412;
+  background: #fff7ed;
+  border-left: 3px solid #ea580c;
+  padding: 0.35rem 0.5rem;
+  border-radius: 3px;
 }
 
 .tw-tablelist,

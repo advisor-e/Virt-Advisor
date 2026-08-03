@@ -476,10 +476,19 @@ section.firm-manager-hub.section
                   .mt-3
                     p.is-size-7.has-text-weight-semibold Distinctions
                     p.is-size-7.has-text-grey(v-if="traceNote(c.decisionTrace)") {{ traceNote(c.decisionTrace) }}
-                    p.is-size-7(v-if="traceBoosts(c.decisionTrace).length")
+                    //- The SAVED copy of the same trace, and the reason this one
+                    //- matters most: a case is a permanent record. Without this line
+                    //- a session whose classifier never answered is filed for ever as
+                    //- "no distinction applied" (S1, approved 2026-08-03 —
+                    //- design/WORDING-DISTINCTION-AI-FAILURE.md).
+                    p.is-size-7.trace-fault(v-if="traceAiFailed(c.decisionTrace)") {{ $t('decisionTrace.distAiFailed') }}
+                    p.is-size-7(v-else-if="traceBoosts(c.decisionTrace).length")
                       span.has-text-success.has-text-weight-semibold(v-for="b in traceBoosts(c.decisionTrace)" :key="b.title") {{ b.title }} (+{{ b.boost }})&nbsp;&nbsp;
                     p.is-size-7.has-text-grey(v-else) No distinction changed the scoring in this area.
-                  .mt-3(v-if="caseNearMisses(c).length")
+                  .mt-3(v-if="traceNearMissAiFailed(c.decisionTrace)")
+                    p.is-size-7.has-text-weight-semibold Filed elsewhere — may belong here
+                    p.is-size-7.trace-fault {{ $t('decisionTrace.nearMissAiFailed') }}
+                  .mt-3(v-else-if="caseNearMisses(c).length")
                     p.is-size-7.has-text-weight-semibold Filed elsewhere — may belong here
                     p.is-size-7.has-text-grey These distinctions live in another area but matched this situation.
                     .nearmiss-row(v-for="nm in caseNearMisses(c)" :key="nm.id")
@@ -1384,6 +1393,22 @@ export default {
       return (trace && trace.distinctions && trace.distinctions.note) || ''
     },
 
+    /**
+     * Did the distinction classifier FAIL for this saved case? An empty
+     * `boostsApplied` alone cannot answer that — it is equally what a successful
+     * call that matched nothing produces (the 2026-08-03 P1).
+     * @param {Object} trace the case's saved decisionTrace
+     * @returns {boolean} true only when the AI call did not complete
+     */
+    traceAiFailed (trace) {
+      return !!(trace && trace.distinctions && trace.distinctions.aiFailed)
+    },
+
+    /** As above, for the cross-domain bridge — a separate call that fails separately. */
+    traceNearMissAiFailed (trace) {
+      return !!(trace && trace.distinctions && trace.distinctions.nearMissAiFailed)
+    },
+
     /** The distinction boosts applied, as a [{title, boost}] list for display. */
     traceBoosts (trace) {
       const b = (trace && trace.distinctions && trace.distinctions.boostsApplied) || {}
@@ -1494,6 +1519,16 @@ export default {
 .firm-manager-hub {
   background: #f5f5f5;
   min-height: 100vh;
+}
+/* A distinction layer that was never checked — read as a fault, not as a quiet
+   grey note among the other trace lines. Matches VirtualAdvisor's .trace-fault so
+   the same failure looks the same on both screens. */
+.trace-fault {
+  color: #9a3412;
+  background: #fff7ed;
+  border-left: 3px solid #ea580c;
+  padding: 4px 8px;
+  border-radius: 3px;
 }
 /* Case-review near-miss — a distinction filed elsewhere that matched this case
    (the Phase 3 "move it here" candidate); subtle amber highlight, no map-shock. */

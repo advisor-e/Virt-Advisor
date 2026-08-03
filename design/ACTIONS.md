@@ -23,7 +23,20 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
-- <a id="pr-advisor-progress-to-master"></a>☐ **P1 · PROCESS — PR #33 is OPEN and needs a reviewer and a
+- <a id="pr-advisor-progress-to-master"></a>✅ **P1 · PROCESS — DONE. PR #33 MERGED to `master` as
+  `3fdbf9f`.** The entry below is the original task, kept verbatim for its reasoning. The stale "OPEN"
+  flag was caught by `/startup` on 2026-08-03 — a reminder that this list's own flags are claims to
+  check, exactly as the warning at the top of the file says.
+  - ☐ **P1 · PROCESS — PR #35 IS NOW OPEN and needs a reviewer and a merge**, raised 2026-08-03 on
+    Mike's instruction: <https://github.com/advisor-e/Virt-Advisor/pull/35>. The distinction
+    AI-failure P1, its six approved sentences, the coach escalation route, the Logic-Lab lede
+    correction and 27 tests. **State at raising (`9317cb7`):** 5 ahead, **0 behind** `origin/master`,
+    tree clean, level with `origin`; suite **4,373 green / 254 suites**, lint 0 errors; GitHub reports
+    **MERGEABLE** — 18 files, +1,260 / −55.
+    - **⚠ For the reviewer/merger:** the backend must be **restarted** for the engine changes to take
+      effect — a running Restify process holds the old code.
+    - Until it merges, none of it is visible to the desktop or the master team.
+  - Original task follows: **PR #33 is OPEN and needs a reviewer and a
   merge: `feat/advisor-progress` → `master`, the Course Builder slicer programme.** Raised 2026-08-03
   from the laptop on Mike's instruction. <https://github.com/advisor-e/Virt-Advisor/pull/33>
   - **State at raising (`b56f0c5`):** 13 ahead, **0 behind** `origin/master`, working tree clean,
@@ -70,8 +83,17 @@
     — Mike's call. Raising it first is the safer order: it gets the rule to the laptop today and keeps
     the PR small enough to actually review.
 
-- <a id="logic-lab-wording-signoff"></a>☐ **P2 · DECISION (needs Mike) — two wording rulings the
-  Logic-Lab page is shipping without. Logged 2026-08-03 so they are not carried silently.**
+- <a id="logic-lab-wording-signoff"></a>✅ **P2 · DECISION — RULED by Mike 2026-08-03. All twelve
+  strings settled: the lede corrected to *"Nothing on this page changes anything until you choose
+  it."*, the other eleven kept as written.** Record, with how the ruling was reached:
+  [`WORDING-DECISIONS-2026-08-03.md`](WORDING-DECISIONS-2026-08-03.md).
+  - ⚠ **The list was mis-framed, and that is the lesson.** It presented twelve equal-looking
+    decisions when it was **one defect and eleven rubber stamps** — seven of the eight gap
+    sentences only appear in states a normal test of the page never reaches. Mike tested the live
+    page and challenged why the questions were being asked at all; re-reading the code proved the
+    strings were all still there, so nothing was stale — the *framing* was the fault. **Next wording
+    list: separate the defects from the approvals.**
+  - The original entry follows, kept verbatim for its reasoning.
   - **(1) The lede is factually wrong, and it is Mike's own approved sentence.** *"Nothing on this
     page changes anything"* — while the near-miss rows carry **Move it to X** and **Copy it there**,
     which write to the firm's live distinction configuration. Both are in the approved artefact.
@@ -86,10 +108,70 @@
     artefact did not draw, and shipping blanks would have been worse. They stay flagged until Mike
     rules.
 
-- <a id="ai-failure-reads-as-no-match"></a>☐ **🔴 P1 · CORRECTNESS — a FAILED AI call is reported to
-  advisors and firm managers as "no distinction matched". It is indistinguishable from a genuine
-  no-match, and it affects LIVE ADVISOR SESSIONS, not just the Logic-Lab page. Found 2026-08-03 by
-  watching it happen; NOT FIXED.**
+- <a id="ai-failure-reads-as-no-match"></a>✅ **🔴 P1 · CORRECTNESS — FIXED 2026-08-03 (laptop). A FAILED
+  AI call was reported to advisors and firm managers as "no distinction matched". The entry below is
+  the original finding, kept verbatim for its reasoning.**
+  - **What changed.** `_classifyMatchingRows` returns `{ok, rows}` instead of a bare array, so a failed
+    call can no longer be read as a result; `classifyDistinctions` and `findNearMissDistinctions` carry
+    it up, the saved decision trace records `aiFailed` / `nearMissAiFailed` (two flags — the two AI
+    calls fail independently), and `phraseProbe` reports it to the Logic-Lab screens.
+  - **An UNREADABLE reply is now a failure too**, not just a thrown error: an empty or prose reply used
+    to fall through a `|| '{}'` default and read as a confident "none of your distinctions applied".
+    ✅ **Put to Mike as a judgement call and CONFIRMED 2026-08-03** (*"they are fine"*), together with
+    withholding the "→ Write a distinction in X" instruction while the layer is unread. The trade-off
+    stated at the time: if the model ever answers in prose, a firm sees an honest fault warning where
+    it previously saw a confident wrong answer.
+  - **Eight surfaces, not the four first found** — the two quietest showed *nothing at all* rather than
+    something wrong (the live-session near-miss section, and a saved case in the Hub). Wording ruled by
+    Mike 2026-08-03: [`WORDING-DISTINCTION-AI-FAILURE.md`](WORDING-DISTINCTION-AI-FAILURE.md), all six
+    strings approved as recommended, plus Decision 0 option A — the Logic-Lab score sheet still shows,
+    under a banner, because the deterministic half stays true.
+  - **`scenario-lab.js` counts failed classifications and states them**, so a 50-case measurement can
+    never quietly average in sessions that ran with the lever missing.
+  - **Tests:** 19 added; each pairs a failure with a genuine no-match producing the same empty result,
+    so the two can never become indistinguishable again. Suite 4,365 green / 253 suites, lint 0 errors.
+  - ✅ **The two live-session panels are now RENDERED in test, not read as source**
+    ([`decisionTraceAiFailure.render.test.js`](../tests/unit/decisionTraceAiFailure.render.test.js)):
+    both components mount with the failure switched on and are asserted to put the approved
+    **English** on the page. That file deliberately breaks the house key-based-assertion rule —
+    the defect was a screen making a false *statement*, and a key assertion passed happily
+    throughout the original bug. Added because reproducing this by hand needs a deliberately
+    broken `OPENAI_API_KEY`, which is not something the owner can be asked to arrange.
+
+- <a id="trace-panels-hardcoded-english"></a>☐ **P2 · WIRE — the decision-trace panels on BOTH live
+  screens are hardcoded English, breaking the i18n rule in `CLAUDE.md`. Pre-existing; found
+  2026-08-03 while fixing the AI-failure P1, and logged here rather than left in a design file
+  (no-silent-parking rule).**
+  - Roughly 15 strings across [`VirtualAdvisor.vue`](../components/VirtualAdvisor.vue) (the "Why this
+    recommendation" panel: *Area I focused on*, *What shaped the advice*, *Distinctions*, *Boosted
+    here:*, *No distinction changed the scoring in this area.*, *Filed elsewhere — may belong here*,
+    *How the templates scored*) and the same block copied into
+    [`FirmManagerHub.vue`](../components/FirmManagerHub.vue) for a saved case.
+  - **Why it was not done in the same change.** The two new failure sentences DO go through
+    `$t()` (`decisionTrace.*`), so no new violation was added; moving the surrounding fifteen is a
+    separate sweep and would have buried a correctness fix inside a translation change.
+  - ⚠ **`tests/unit/decisionTraceAiFailure.test.js` greps for one of those literals.** Its first
+    assertion fails loudly and points at itself if the wording moves — re-point the guard, never
+    delete it.
+
+- <a id="no-escalation-route"></a>✅ **P2 · DECISION — RULED by Mike 2026-08-03, hours after it was
+  logged: *"contact your advisor-e coach - that's what they're here for!"*** Applied to the two
+  fault sentences that end in an action (S1 and S6); two deviations from his exact words are named
+  in [`WORDING-DISTINCTION-AI-FAILURE.md`](WORDING-DISTINCTION-AI-FAILURE.md) rather than folded in.
+  - **The route now exists as a written answer**, so the next fault message anywhere in the app has
+    one to reuse instead of re-opening the question. That was the point of logging it.
+  - Original entry follows, kept verbatim.
+  - The approved sentence ends *"Try again in a moment."* — which is the whole truth we can offer. A
+    transient fault clears; a persistent one (a rotated certificate, a dead key, a firm's network)
+    needs a person, and the app has no one to name.
+  - **Not invented on purpose.** Wording is never authored without a ruling, and an escalation route
+    is a business fact, not a phrasing choice — a fabricated "contact support" address would be the
+    same defect family as [`fabricated-detail-in-summaries`](#fabricated-detail-in-summaries).
+  - **What is needed from Mike:** an address, an in-app route, or a decision that "try again" is all
+    a firm ever gets. It then goes into the two sentences that end in an action
+    ([`WORDING-DISTINCTION-AI-FAILURE.md`](WORDING-DISTINCTION-AI-FAILURE.md) S1 and S6).
+  - ⚠ **Wider than this fix.** Every fault message in the app has the same hole; this is the first
+    one to say so out loud.
   - **The proof, not a guess.** `_classifyMatchingRows` ([`advisorEngine.js`](../server/advisorEngine.js)
     L125-129) catches every error and `return []`. An empty array is exactly what "the AI read them
     and matched none" returns. The two are the same value.

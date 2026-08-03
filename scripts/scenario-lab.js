@@ -111,12 +111,21 @@ async function main () {
   for (const sc of scenarios) {
     let boosts = {}
     let distress = null
+    // A failed classifier returns no boosts, which is also what "nothing matched" returns.
+    // Measuring the distinction lever across 50 cases while some calls silently failed
+    // would understate it and read as an engine result — so failures are counted and
+    // stated in the report rather than averaged in.
+    let aiFailed = false
     if (HAS_AI) {
       const fullText = [sc.opening, sc.situationDiagnostic, sc.clientAlreadyTried, sc.domainConfirmed].filter(Boolean).join(' ')
-      try { boosts = await classifyDistinctions(sc.domain, fullText, platformDistinctions) || {} } catch (_e) { boosts = {} }
+      try {
+        const classified = await classifyDistinctions(sc.domain, fullText, platformDistinctions)
+        boosts = (classified && classified.boosts) || {}
+        aiFailed = !!(classified && classified.ok === false)
+      } catch (_e) { boosts = {}; aiFailed = true }
       try { distress = await readDistressAI(fullText) } catch (_e) { distress = null }
     }
-    results.push({ sc, distress, boosts, run: runScenario(sc, boosts) })
+    results.push({ sc, distress, boosts, aiFailed, run: runScenario(sc, boosts) })
   }
 
   // ── Metrics ────────────────────────────────────────────────────────────────
@@ -140,6 +149,10 @@ async function main () {
       ? `- **Distress read:** fired TRUE in ${distressTrue.length}/${n}; of those, ${truePos} were genuine crises → **precision ${precision}%**, **recall ${recall}%** (there are ${crisisCases.length} genuine crises in the set).`
       : `- **Distress read:** AI layer off — run with the OpenAI key to measure.`
   ]
+  const distinctionFailures = results.filter(r => r.aiFailed).length
+  if (distinctionFailures > 0) {
+    metrics.push(`- 🔴 **Distinction classifier FAILED on ${distinctionFailures}/${n} cases** — those sessions ran with no distinction lever at all, so every figure above understates it. This is a fault in the run, not a result: fix it and re-run before comparing anything.`)
+  }
 
   // ── Report ─────────────────────────────────────────────────────────────────
   const lines = []

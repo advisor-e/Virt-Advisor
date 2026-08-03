@@ -405,11 +405,25 @@
           .trace-section
             .trace-section-title Distinctions
             p.trace-note {{ lastTrace.distinctions.note }}
-            p.trace-value(v-if="traceBoostList.length")
+            //- 🔴 The failure case comes FIRST, and it is not the same claim as an
+            //- empty boost list. Before 2026-08-03 a classifier call that never
+            //- completed reached this line as "No distinction changed the scoring",
+            //- which is what a working AI that matched nothing produces — so an
+            //- adviser acted on advice built without the firm's biggest lever and
+            //- was told the opposite. Wording approved by Mike 2026-08-03:
+            //- design/WORDING-DISTINCTION-AI-FAILURE.md (S1).
+            p.trace-note.trace-fault(v-if="lastTrace.distinctions.aiFailed") {{ $t('decisionTrace.distAiFailed') }}
+            p.trace-value(v-else-if="traceBoostList.length")
               span Boosted here:
               span.trace-boost(v-for="b in traceBoostList" :key="b.title")  {{ b.title }} (+{{ b.boost }})
             p.trace-note(v-else) No distinction changed the scoring in this area.
-          .trace-section(v-if="lastTrace.distinctions.nearMisses && lastTrace.distinctions.nearMisses.length")
+          //- The bridge is a SECOND, independent AI call: it can fail while the one
+          //- above succeeds. On failure this whole section used to vanish, so the
+          //- quietest of the eight surfaces said nothing at all (S2).
+          .trace-section(v-if="lastTrace.distinctions.nearMissAiFailed")
+            .trace-section-title Filed elsewhere — may belong here
+            p.trace-note.trace-fault {{ $t('decisionTrace.nearMissAiFailed') }}
+          .trace-section(v-else-if="lastTrace.distinctions.nearMisses && lastTrace.distinctions.nearMisses.length")
             .trace-section-title Filed elsewhere — may belong here
             p.trace-note These distinctions of yours live in another area but matched this situation. Moving one into “{{ lastTrace.domain.label || lastTrace.domain.id }}” (Firm Manager → Advisory Distinctions) would let it apply to sessions like this:
             p.trace-nearmiss(v-for="nm in lastTrace.distinctions.nearMisses" :key="nm.id")
@@ -2910,6 +2924,9 @@ export default {
 .trace-section { margin-top: 10px; }
 .trace-section-title { font-weight: 600; color: #374151; margin-bottom: 4px; }
 .trace-note { color: #6b7280; font-size: 12px; line-height: 1.4; margin: 2px 0; }
+/* A fault must not be styled like the grey notes it sits among — it is the one
+   line here that says the advice above is missing a layer. */
+.trace-fault { color: #9a3412; background: #fff7ed; border-left: 3px solid #ea580c; padding: 4px 8px; border-radius: 3px; }
 .trace-boost { color: #047857; font-weight: 600; }
 .trace-nearmiss { margin: 3px 0; padding: 4px 8px; background: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 3px; }
 .trace-scores { width: 100%; border-collapse: collapse; margin-top: 4px; }

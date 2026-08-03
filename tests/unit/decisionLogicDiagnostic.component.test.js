@@ -368,6 +368,75 @@ describe('DecisionLogicDiagnostic — the honest limits', () => {
   })
 })
 
+// ── The 2026-08-03 P1 on this screen ─────────────────────────────────────────
+// A classifier call that never completed reached this page as "None matched. The
+// AI read all 6 in this area." — the sentence Mike watched it print with a broken
+// certificate. Every claim this page makes about distinctions is now branched on
+// the failure flag; these tests pin each one, because a green suite is exactly
+// what was reported the day the false sentence was on screen.
+describe('DecisionLogicDiagnostic — a FAILED distinction classifier', () => {
+  /** RESULT, but the AI never answered: nothing matched BECAUSE nothing was read. */
+  const aiFailedResult = () => {
+    const r = JSON.parse(JSON.stringify(RESULT))
+    r.probe.distinctions.matched = []
+    r.probe.distinctions.aiFailed = true
+    return r
+  }
+
+  it('banners the whole diagnosis — the ranking below was built without the lever', async () => {
+    const wrapper = await runWith(mountDx(), aiFailedResult())
+    expect(wrapper.text()).toContain('firmDecisionLogic.dxDistAiFailed')
+    // Mike's ruling (Decision 0, option A): the sheet STAYS. The deterministic half
+    // is still true, and refusing it gives a manager nothing for a transient fault.
+    expect(wrapper.find('table.score').exists()).toBe(true)
+  })
+
+  it('never says "none matched" — the two faults keep their separate sentences', async () => {
+    const wrapper = await runWith(mountDx(), aiFailedResult())
+    expect(wrapper.text()).not.toContain('firmDecisionLogic.dxDistNone')
+    // The OTHER distinction fault (saved rows failed to load) is a different fix.
+    expect(wrapper.text()).not.toContain('firmDecisionLogic.dxDistUnavailable')
+  })
+
+  it('the score chip states the absence instead of a measured +0', async () => {
+    const wrapper = await runWith(mountDx(), aiFailedResult())
+    expect(wrapper.text()).toContain('firmDecisionLogic.dxChipDistNotChecked')
+    expect(wrapper.text()).not.toContain('firmDecisionLogic.dxChipNoDistinction')
+  })
+
+  it('refuses to explain the gap, and withholds the "write a distinction" instruction', async () => {
+    const wrapper = await runWith(mountDx(), aiFailedResult())
+    expect(wrapper.text()).toContain('firmDecisionLogic.dxGapAiFailed')
+    // Each of these asserts what did or did not reach the expected template.
+    expect(wrapper.text()).not.toContain('firmDecisionLogic.dxGapNoneC')
+    expect(wrapper.text()).not.toContain('firmDecisionLogic.dxGapNoLeverA')
+    // The most harmful of the eight: sending a manager to write a distinction to
+    // solve a problem that was never measured.
+    expect(wrapper.text()).not.toContain('firmDecisionLogic.dxGapDoA')
+  })
+
+  it('the Ideas lede stops calling an unread layer "the biggest thing you can change"', async () => {
+    const wrapper = await runWith(mountDx(), aiFailedResult())
+    wrapper.setData({ showIdeas: true })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).not.toContain('firmDecisionLogic.ideasLedeNoDist')
+    expect(wrapper.text()).toContain('firmDecisionLogic.dxGapAiFailed')
+  })
+
+  it('a GENUINE no-match still reads as a result — the flag is what separates them', async () => {
+    // Same empty `matched` list, no failure. If this ever prints the fault wording,
+    // the page has started crying fault at an ordinary finding.
+    const none = JSON.parse(JSON.stringify(RESULT))
+    none.probe.distinctions.matched = []
+    const wrapper = await runWith(mountDx(), none)
+
+    expect(wrapper.text()).toContain('firmDecisionLogic.dxDistNone')
+    expect(wrapper.text()).not.toContain('firmDecisionLogic.dxDistAiFailed')
+    expect(wrapper.text()).not.toContain('firmDecisionLogic.dxChipDistNotChecked')
+  })
+})
+
 describe('DecisionLogicDiagnostic — the ideas', () => {
   it('quotes the advisor’s own sentence back and never drafts wording', async () => {
     const wrapper = await runWith(mountDx(), RESULT)
