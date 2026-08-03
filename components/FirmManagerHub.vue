@@ -468,13 +468,13 @@ section.firm-manager-hub.section
                 //- Decision trace — how the recommendation was reached
                 template(v-if="c.decisionTrace")
                   p.is-size-7
-                    strong Area focused on:
+                    strong {{ $t('decisionTrace.caseAreaFocused') }}
                     | {{ traceDomainLabel(c.decisionTrace) }}
                   p.is-size-7
-                    strong What shaped the advice:
+                    strong {{ $t('decisionTrace.caseWhatShaped') }}
                     | {{ lensSummary(c.decisionTrace) }}
                   .mt-3
-                    p.is-size-7.has-text-weight-semibold Distinctions
+                    p.is-size-7.has-text-weight-semibold {{ $t('decisionTrace.distinctions') }}
                     p.is-size-7.has-text-grey(v-if="traceNote(c.decisionTrace)") {{ traceNote(c.decisionTrace) }}
                     //- The SAVED copy of the same trace, and the reason this one
                     //- matters most: a case is a permanent record. Without this line
@@ -484,37 +484,37 @@ section.firm-manager-hub.section
                     p.is-size-7.trace-fault(v-if="traceAiFailed(c.decisionTrace)") {{ $t('decisionTrace.distAiFailed') }}
                     p.is-size-7(v-else-if="traceBoosts(c.decisionTrace).length")
                       span.has-text-success.has-text-weight-semibold(v-for="b in traceBoosts(c.decisionTrace)" :key="b.title") {{ b.title }} (+{{ b.boost }})&nbsp;&nbsp;
-                    p.is-size-7.has-text-grey(v-else) No distinction changed the scoring in this area.
+                    p.is-size-7.has-text-grey(v-else) {{ $t('decisionTrace.noDistinction') }}
                   .mt-3(v-if="traceNearMissAiFailed(c.decisionTrace)")
-                    p.is-size-7.has-text-weight-semibold Filed elsewhere — may belong here
+                    p.is-size-7.has-text-weight-semibold {{ $t('decisionTrace.filedElsewhere') }}
                     p.is-size-7.trace-fault {{ $t('decisionTrace.nearMissAiFailed') }}
                   .mt-3(v-else-if="caseNearMisses(c).length")
-                    p.is-size-7.has-text-weight-semibold Filed elsewhere — may belong here
-                    p.is-size-7.has-text-grey These distinctions live in another area but matched this situation.
+                    p.is-size-7.has-text-weight-semibold {{ $t('decisionTrace.filedElsewhere') }}
+                    p.is-size-7.has-text-grey {{ $t('decisionTrace.caseNearMissIntro') }}
                     .nearmiss-row(v-for="nm in caseNearMisses(c)" :key="nm.id")
                       .level.is-mobile.mb-0
                         .level-left
                           p.is-size-7
                             span {{ nm.description }}
-                            span.has-text-grey  — currently in {{ domainLabel(nm.domain) }}
+                            span.has-text-grey  {{ $t('decisionTrace.currentlyIn', { area: domainLabel(nm.domain) }) }}
                         .level-right
-                          span.has-text-success.has-text-weight-semibold.is-size-7(v-if="isNearMissMoved(c, nm)") Moved ✓
+                          span.has-text-success.has-text-weight-semibold.is-size-7(v-if="isNearMissMoved(c, nm)") {{ $t('decisionTrace.caseMoved') }}
                           b-button(
                             v-else
                             size="is-small"
                             type="is-warning is-light"
                             :loading="movingNearMissKey === nearMissKey(c, nm)"
                             @click="moveNearMiss(c, nm)"
-                          ) Move it here
+                          ) {{ $t('decisionTrace.caseMoveHere') }}
                   .mt-3(v-if="c.decisionTrace.templateScores && c.decisionTrace.templateScores.length")
-                    p.is-size-7.has-text-weight-semibold How the templates scored
+                    p.is-size-7.has-text-weight-semibold {{ $t('decisionTrace.templatesScored') }}
                     table.table.is-narrow.is-fullwidth.is-size-7
                       thead
                         tr
                           th #
-                          th Template
-                          th Score
-                          th Why
+                          th {{ $t('decisionTrace.colTemplate') }}
+                          th {{ $t('decisionTrace.colScore') }}
+                          th {{ $t('decisionTrace.colWhy') }}
                       tbody
                         tr(v-for="t in c.decisionTrace.templateScores.slice(0, 6)" :key="t.rank")
                           td {{ t.rank }}
@@ -522,7 +522,7 @@ section.firm-manager-hub.section
                           td {{ t.score }}
                           td.has-text-grey {{ humanizeTraceReasons(t.matchReasons) }}
                 template(v-else)
-                  p.is-size-7.has-text-grey No decision trace was recorded for this case.
+                  p.is-size-7.has-text-grey {{ $t('decisionTrace.caseNoTrace') }}
 
                 //- Post-delivery review — the advisor's own reflection
                 .mt-4(v-if="c.review")
@@ -1382,9 +1382,11 @@ export default {
       const l = (trace && trace.lenses) || {}
       const parts = []
       if (l.engagementType) { parts.push(l.engagementType) }
-      if (l.complexityCeiling) { parts.push(l.complexityCeiling + ' ceiling') }
+      if (l.complexityCeiling) { parts.push(this.$t('decisionTrace.lensCeiling', { level: l.complexityCeiling })) }
       if (typeof l.templateBudget === 'number') {
-        parts.push(l.templateBudget + ' template' + (l.templateBudget === 1 ? '' : 's'))
+        // $tc, not $t: "1 template" / "3 templates" — the plural rule belongs to
+        // the locale, not to a ternary in this method.
+        parts.push(this.$tc('decisionTrace.lensTemplates', l.templateBudget, { count: l.templateBudget }))
       }
       return parts.join(' · ') || '—'
     },
