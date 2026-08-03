@@ -178,12 +178,28 @@ with the layer missing the only true action left is to retry.
 
 ---
 
-## The open question I am not answering myself
+## ✅ The open question — RULED by Mike, 2026-08-03
 
-**What should we tell a firm manager to do when it keeps failing?** "Try again" covers a
-transient fault. A persistent one needs a person — and this app has no defined escalation
-route written down anywhere, so I have not invented one. If there is a support address or an
-in-app route you want named, say so and it goes into S1 and S6.
+**What should we tell someone to do when it keeps failing?** Mike:
+*"contact your advisor-e coach - that's what they're here for!"*
+
+Applied to the two sentences whose job is to tell the reader what to do:
+
+- **S1** (live adviser session, and the saved case) now ends: *"If it keeps happening,
+  contact your Advisor-e coach — that's what they're here for."*
+- **S6** (the gap explanation and the Ideas lede) now ends: *"Try again in a moment — if it
+  keeps happening, contact your Advisor-e coach; that's what they're here for."*
+
+**Two deliberate deviations from his exact words, named rather than folded in** (CLAUDE.md →
+Save the Artefact): the exclamation mark is dropped, because the sentence sits inside a
+fault box where it would read as cheerful about a failure; and *"If it keeps happening"* is
+prefixed, so a reader whose fault clears on a retry is not sent to a person for nothing. Say
+the word and either goes back.
+
+**Not added to S3, S4 or S5** — the two Logic-Lab diagnostic states and the table chip.
+Those state a fact inside a diagnostic screen rather than instructing the reader, and S4
+already sits above a sheet the manager is meant to keep reading. Tell me if a fault should
+name the coach everywhere it appears and I will put it on all six.
 
 ---
 

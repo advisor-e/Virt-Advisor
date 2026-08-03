@@ -77,8 +77,17 @@
     — Mike's call. Raising it first is the safer order: it gets the rule to the laptop today and keeps
     the PR small enough to actually review.
 
-- <a id="logic-lab-wording-signoff"></a>☐ **P2 · DECISION (needs Mike) — two wording rulings the
-  Logic-Lab page is shipping without. Logged 2026-08-03 so they are not carried silently.**
+- <a id="logic-lab-wording-signoff"></a>✅ **P2 · DECISION — RULED by Mike 2026-08-03. All twelve
+  strings settled: the lede corrected to *"Nothing on this page changes anything until you choose
+  it."*, the other eleven kept as written.** Record, with how the ruling was reached:
+  [`WORDING-DECISIONS-2026-08-03.md`](WORDING-DECISIONS-2026-08-03.md).
+  - ⚠ **The list was mis-framed, and that is the lesson.** It presented twelve equal-looking
+    decisions when it was **one defect and eleven rubber stamps** — seven of the eight gap
+    sentences only appear in states a normal test of the page never reaches. Mike tested the live
+    page and challenged why the questions were being asked at all; re-reading the code proved the
+    strings were all still there, so nothing was stale — the *framing* was the fault. **Next wording
+    list: separate the defects from the approvals.**
+  - The original entry follows, kept verbatim for its reasoning.
   - **(1) The lede is factually wrong, and it is Mike's own approved sentence.** *"Nothing on this
     page changes anything"* — while the near-miss rows carry **Move it to X** and **Copy it there**,
     which write to the firm's live distinction configuration. Both are in the approved artefact.
@@ -135,9 +144,13 @@
     assertion fails loudly and points at itself if the wording moves — re-point the guard, never
     delete it.
 
-- <a id="no-escalation-route"></a>☐ **P2 · DECISION (needs Mike) — there is NO support or escalation
-  route defined anywhere in this app, so a screen cannot tell a user who to contact when something
-  keeps failing. Surfaced 2026-08-03 by the AI-failure wording.**
+- <a id="no-escalation-route"></a>✅ **P2 · DECISION — RULED by Mike 2026-08-03, hours after it was
+  logged: *"contact your advisor-e coach - that's what they're here for!"*** Applied to the two
+  fault sentences that end in an action (S1 and S6); two deviations from his exact words are named
+  in [`WORDING-DISTINCTION-AI-FAILURE.md`](WORDING-DISTINCTION-AI-FAILURE.md) rather than folded in.
+  - **The route now exists as a written answer**, so the next fault message anywhere in the app has
+    one to reuse instead of re-opening the question. That was the point of logging it.
+  - Original entry follows, kept verbatim.
   - The approved sentence ends *"Try again in a moment."* — which is the whole truth we can offer. A
     transient fault clears; a persistent one (a rotated certificate, a dead key, a firm's network)
     needs a person, and the app has no one to name.

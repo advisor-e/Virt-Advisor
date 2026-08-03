@@ -14,6 +14,29 @@ Nothing is applied until you do.
 
 ---
 
+## ✅ RULED BY MIKE — 2026-08-03. All twelve settled.
+
+- **Decision 1 — option B applied.** `firmDecisionLogic.ledeBold` is now
+  *"Nothing on this page changes anything until you choose it."*
+- **Decisions 2, 3 and 4 — KEEP, all eleven strings as written**, including the optional
+  2.1 tweak (not taken), the "Choose one…" placeholder and "Build my course →".
+
+**How the ruling was reached, because it corrects this document.** Mike tested the live
+Logic-Lab page and challenged why the questions were being asked at all. Every "current"
+line here was re-read out of the code before answering — all twelve were still present and
+still rendering, so the list was not stale. But the framing was wrong: this was **one
+defect and eleven rubber stamps**, not twelve open questions of equal weight. Seven of the
+eight gap sentences only appear in states a normal test of the page never reaches (a
+template name absent from the library, words matching no area, a template scoring below
+the ten rows shown), which is exactly why they read as unfamiliar. Only Decision 1 named a
+sentence that was untrue on a screen he could see.
+
+**The lesson for the next wording list: separate the defects from the approvals.** Twelve
+equal-looking decisions cost more of the owner's attention than the one real problem
+deserved.
+
+---
+
 ## Decision 1 — the Logic-Lab lede claims the page changes nothing (1 string)
 
 **Where:** `locales/en.json` → `firmDecisionLogic.ledeBold`, shown in bold at the top of the
