@@ -67,6 +67,25 @@ status glyph is what the `statusTable` guard exists to catch, and it caught this
 **Empty `templates[]` is wider than the two entries claim** — measured **51 empty of 241**
 branches, not the 6+13 logged.
 
+### Findings from the fixes that followed the sweep (2026-08-03)
+
+**A storage failure cannot be reproduced in dev mode, and a test that ignores this proves nothing.**
+`firmManager` captures `IS_DEV` at module load, and in development every firm write falls back to a local
+file rather than throwing (`_saveDistinctions` → `_devWriteDistinctions`). A first attempt at the
+partial-delete tests therefore passed while exercising none of the failure — and would have written to the
+repo's own dev JSON files. Any test of a storage failure must set `NODE_ENV=production` **before** its
+requires; see the header of
+[`mentorDeletePartial.routes.test.js`](../tests/unit/mentorDeletePartial.routes.test.js).
+
+**A characterisation test written to fail on the fix did its job.** The `sessionIndex` block ended *"Pinned
+here so a fix FAILS this test and gets read, rather than passing quietly."* It failed exactly as intended and
+was read. **Write more of these** wherever a defect is logged but deliberately not fixed — it is the one
+device in this repo that has reliably survived the backlog going stale.
+
+**Wording ruled by Mike 2026-08-03:** the `PARTIAL_DELETE` sentence stands as written — *"The delete stopped
+part-way. N firm(s) have already kept their own copy, and the original was NOT removed. Try again — repeating
+this is safe."* Offered for rewording, declined; recorded so it is not re-opened.
+
 ### The process gap this exposes — and it is the same one, a fourth time
 
 `/shutdown` proves the tests pass and the work is committed. **Nothing anywhere re-checks whether
@@ -2665,7 +2684,19 @@ Two honest answers on different axes — the file used to conflate them:
       would vanish into the fire-and-forget swallow.
     - **Mutation-verified: 14 of 14 killed**, green control, every mutation proven to have
       changed the file before its verdict was believed. No production file was modified.
-  - ☐ **NEW · DECISION for Mike — `sessionIndex` is not validated (found, deliberately NOT
+  - ✅ **FIXED 2026-08-03 (laptop, Mike-approved).** [`server/utils/sessionIndex.js`](../server/utils/sessionIndex.js)
+    is now the single place that decides whether an index is storable; the route refuses a bad one with
+    `INVALID_SESSION_INDEX`, and the write path repeats the check because it is exported. **Both failure
+    directions are covered, and they are opposite** — which is why no coercion could have been the answer:
+    `Number(null)`/`Number([])`/`Number('')` are all **0**, a legitimate index, so a missing value FABRICATED a
+    session-one record; anything else non-numeric is `NaN`, which the `TINYINT UNSIGNED NOT NULL` column refuses
+    and the fire-and-forget catch hid, so the session was LOST. 42 tests across three files.
+    - ⚠ **A characterisation test already existed pinning the broken behaviour**, ending *"Pinned here so a fix
+      FAILS this test and gets read, rather than passing quietly."* It did exactly that. Rewritten to pin the
+      correct behaviour, with a note saying what it used to be. **That trap worked — write more of them.**
+    - **No live impact:** [`CourseBuilder.vue`](../components/CourseBuilder.vue) passes a real array index and
+      returns early when the session is missing, so no legitimate call is affected.
+    - Original entry follows for the record: ☐ **NEW · DECISION for Mike — `sessionIndex` is not validated (found, deliberately NOT
     fixed).** `Number(undefined)` is `NaN` and nothing rejects it: the dev file turns `NaN` into
     `null` on `JSON.stringify`, while **MySQL would refuse the row outright — and because the
     write is fire-and-forget, that refusal is swallowed and the session is lost with only a
@@ -3238,7 +3269,18 @@ Two honest answers on different axes — the file used to conflate them:
     behaviour. **When analysis shows the approved detail is the worse one, build the better one
     and report the deviation plainly — do not ship a known-worse rule because it was described
     first.**
-  - ☐ **FOUND, NOT FIXED — `staircaseStep`, `growthStage` and `finMgtTheme` are ALWAYS saved
+  - ✅ **FIXED 2026-08-03 (laptop, Mike-approved).** Three session-scoped properties
+    (`sessionStaircaseStep` / `sessionGrowthStage` / `sessionFinMgtTheme`) now hold each choice from the moment
+    it is submitted until the case is saved, sitting beside `sessionDomain`, which already worked this way. Each
+    submit handler captures BEFORE clearing its selector — the panel still empties exactly as before — and both
+    reset paths (`reset()` and `selectMode()`) clear them, so a new session can never file the previous client's
+    answers. 9 mounted tests in [`caseSelectorFields.component.test.js`](../tests/unit/caseSelectorFields.component.test.js).
+    - **The tests were PROVEN to catch it**, not assumed: the old line was put back and the suite went red
+      (1 failed / 8 passed), then the fix restored. A test that passes both ways proves nothing.
+    - **They MOUNT rather than read source, deliberately.** Every line was individually correct; the defect was
+      one method clearing what another reads *later*. Only running them in sequence can catch that — the lesson
+      from the course-slicer session (2026-08-03).
+    - Original entry follows for the record: ☐ **FOUND, NOT FIXED — `staircaseStep`, `growthStage` and `finMgtTheme` are ALWAYS saved
     null on a case record.** `submitStaircaseStep` clears `selectedStaircaseStep`
     (`VirtualAdvisor.vue` L1719) before `createCase` reads it (L1253); the same holds for the
     other two selectors. **First judged more serious than it is, then corrected by checking:
@@ -4382,7 +4424,25 @@ Two honest answers on different axes — the file used to conflate them:
   - ✔ **NOT a flaw — margin/break-even negative result** [`marginBreakevenModel.js`](../server/report/marginBreakevenModel.js) L55. Source `E27 =(E24+E25)/E26` is the standard break-even formula; a negative margin (cost > price) has no break-even, so the negative output is correct-but-out-of-domain — handle at the route/display, don't change the formula.
   - ✅ **FIXED 2026-07-10 — input robustness across all 3 report models.** Every numeric input is now coerced to a finite number (accepts JSON-string numbers like `"2"`, falls back to the sample default on junk), and the debtor collection/creditor profiles are normalised to exactly 5 finite numbers with sales entries coerced — so a string input can no longer string-concatenate (`V9`) and a short/garbage array can no longer produce `NaN` balances. Behaviour-preserving for valid input (all golden tests unchanged); +8 robustness tests. 732 tests green, lint clean.
 - ✅ **FIXED 2026-07-17 — SEC — prompt injection (both halves closed).** Client-controlled `languageName` was interpolated unfenced into the system prompt at two sites ([`server/advisorEngine.js`](../server/advisorEngine.js), the sweep's L2137 had drifted). Fixed stronger than fencing: the engine now resolves the display name **server-side from the language code** against the canonical list — `data/languages.js` converted to `data/languages.json` (single-source shared by `mixins/localeMixin.js` and new `server/utils/languageName.js`); the body's free-text `languageName` is ignored; unknown code → English default. 6 new tests lock the resolver + list integrity + that the engine never reads the client field again (suite 1,109 green, lint clean, build green). Live non-English session eyeball still to do. *(The course `sessionContext` half was ✅ FIXED 2026-07-15, `e64f812` — CB-09/CB-14.)*
-- ☐ **Non-atomic Stage-D delete** across stores — [`server/routes/mentor.js`](../server/routes/mentor.js) L181 — a mid-way failure leaves the master row live while firms lose their overrides.
+- ✅ **CORRECTED AND CLOSED 2026-08-03 — and the entry below was WRONG about which way it fails.** Read
+  against the code before doing anything: **nothing is lost.** [`promoteOverridesForDeletedRow`](../server/routes/firmManager.js)
+  writes a firm's kept copy **before** dropping that firm's override, and the master row is removed **last**,
+  so a failure at any point strands nothing — the fail-safe order is deliberate and its JSDoc says so. The
+  residual risk is **duplication** (a promoted firm sees its copy AND the still-live master row until a retry),
+  which is the opposite of the entry's claim.
+  - **The real defect was the REPORT, and that is fixed.** Every failure returned *"Could not delete
+    distinction"* — a sentence meaning nothing happened — when one firm might already hold its kept copy and
+    have lost its override. Same family as the AI-failure P1 of the same day: a message stating something about
+    the system that is not true. Now `PARTIAL_DELETE` names how many firms were already promoted, says the
+    original was NOT removed, and states that repeating is safe; the server log names the firm ids so a retry is
+    informed. 6 tests in [`mentorDeletePartial.routes.test.js`](../tests/unit/mentorDeletePartial.routes.test.js).
+  - ⚠ **That test file must run with `NODE_ENV=production`, set before its requires** — in dev every firm write
+    falls back to a local file and therefore cannot fail, so the failure under test is unreachable in dev mode.
+    A test that ignored this would prove nothing while writing to the repo's dev JSON files.
+  - **Full atomicity was considered and rejected**, not deferred: a transaction spanning per-firm configs plus
+    the dev-file fallback is a large, high-risk change to a working path that already prevents the loss it would
+    guard against. Recorded as a decision so it is not re-proposed as an oversight.
+  - Original entry follows for the record: ☐ **Non-atomic Stage-D delete** across stores — [`server/routes/mentor.js`](../server/routes/mentor.js) L181 — a mid-way failure leaves the master row live while firms lose their overrides.
 - ☐ **Session-state read-modify-write race** on concurrent same-session requests — `advisorEngine.js` (last-write-wins loses answers). **Investigated + confirmed 2026-07-21 (parked by Mike — higher-risk core-path change, not a rushed fix):** `sessionStore` is an in-memory `Map` (L275); the handler reads the saved state (`sessionGet` L1197), builds a working *copy* (`Object.assign` L1199), then does many `await`s (AI calls + SSE streaming) before saving that copy back at **four** exit points (L1373 / L1665 / L1925 / L2619). Two overlapping requests on one session both read state v0, each adds its answer, and the later `sessionSave` overwrites the earlier → one answer silently lost. Trigger is low-frequency (double-submit / mid-flight retry / two tabs), which is why it's parked, not urgent. **Recommended fix:** a per-session async lock (serialise same-session processing so B reads state only after A saves) — must release on *every* exit/error path incl. mid-stream failure, and not deadlock or break SSE. **Do as a dedicated pass with overlapping-request tests** (concurrency won't surface in normal unit tests; no component-test tooling here). Same in-memory-store family as the `advisorEngine` note that it's single-process only (replace `Map` with Redis for multi-process).
 - ✅ **FIXED 2026-07-15 — Global `unhandledRejection` swallow** hid every other crash — `courseEngine.js` L29. Removed (`56dc793`): both stated reasons were stale (Node locked at 14.15 where rejections warn, never crash; the OpenAI SDK it guarded was removed 2026-06-16). See Course Builder table CB-15.
 - ✅ **ALREADY FIXED — verified in code 2026-07-22.** Shipped in PR #7 (2026-07-21); the sweep entry was never ticked off. `buildChunks()` accumulates a running total rather than measuring each value alone. *(was: chunk-splitting defeats its own URL-length guard)* defeats its own URL-length guard → translations silently fall back to English — [`server/routes/translate.js`](../server/routes/translate.js) L64.

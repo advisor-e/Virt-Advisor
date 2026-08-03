@@ -975,6 +975,33 @@ async function promoteOverridesForDeletedRow (deletedRow, savedBy) {
   const firmIds = await _enumerateOverrideFirms(id)
   const promoted = []
 
+  try {
+    await _promoteEach(firmIds, id, deletedRow, by, promoted)
+  } catch (err) {
+    // Carry WHAT WAS ALREADY DONE out with the failure. Without this the caller can
+    // only say "could not delete" — which is untrue the moment one firm has been
+    // promoted, and leaves a retry blind. The loop itself is safe to re-run: a firm
+    // holding a kept copy is skipped by the `movedFrom` check below.
+    err.promoted = promoted.slice()
+    throw err
+  }
+
+  return { promoted }
+}
+
+/**
+ * The per-firm half of the promotion, split out so the caller can report partial
+ * progress when it throws. Mutates `promoted` as it goes — deliberately, so the
+ * ids survive an exception thrown mid-loop.
+ *
+ * @param {string[]} firmIds - firms overriding the row
+ * @param {string} id - the platform row id being deleted
+ * @param {object} deletedRow - the full master row
+ * @param {string} by - audit attribution
+ * @param {string[]} promoted - accumulator, appended in place
+ * @returns {Promise<void>}
+ */
+async function _promoteEach (firmIds, id, deletedRow, by, promoted) {
   for (const fid of firmIds) {
     const overrides = await _loadOverrides(fid)
     const ovr = overrides[id]
@@ -1012,8 +1039,6 @@ async function promoteOverridesForDeletedRow (deletedRow, savedBy) {
       await _saveOverrideBaselines(fid, nextB, by)
     }
   }
-
-  return { promoted }
 }
 
 /**

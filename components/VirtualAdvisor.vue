@@ -933,6 +933,16 @@ export default {
       recommendationDelivered: false,
       sessionDomain: null,
       sessionTemplates: [],
+      // The advisor's own selector choices, kept for the LIFE OF THE SESSION so the
+      // saved case can carry them. The `selected*` properties below cannot do this
+      // job: each submit handler clears its selection the instant it becomes a
+      // message, so by the time saveSession() runs they are always null — which is
+      // exactly how all three columns came to be permanently empty on every case
+      // ever saved. Reset in both places sessionDomain is, so a new session never
+      // inherits the last one's answers.
+      sessionStaircaseStep: null,
+      sessionGrowthStage: null,
+      sessionFinMgtTheme: null,
       // Decision trace for the "Why this recommendation" panel (set on the SSE
       // 'trace' event at recommendation time); null until a recommendation lands.
       lastTrace: null,
@@ -1260,9 +1270,12 @@ export default {
           visibility: this.saveVisibility,
           domain: this.sessionDomain,
           templates: this.sessionTemplates,
-          staircaseStep: this.selectedStaircaseStep,
-          growthStage: this.selectedGrowthStage,
-          finMgtTheme: this.selectedFinMgtTheme,
+          // The session-scoped copies, NOT the `selected*` properties: those are
+          // cleared by their own submit handlers the moment the choice is sent, so
+          // reading them here wrote null on every case ever saved.
+          staircaseStep: this.sessionStaircaseStep,
+          growthStage: this.sessionGrowthStage,
+          finMgtTheme: this.sessionFinMgtTheme,
           // The client-register link (null when the advisor skipped naming the
           // client) — this is what lets the engine read the client's history back.
           clientId: this.sessionClient ? this.sessionClient.id : null,
@@ -1336,6 +1349,11 @@ export default {
       this.selectedStaircaseStep = null
       this.showFinMgtThemeSelector = false
       this.selectedFinMgtTheme = null
+      // Session-scoped copies of the three choices — cleared with the rest of the
+      // session so a new one never saves the previous session's answers.
+      this.sessionStaircaseStep = null
+      this.sessionGrowthStage = null
+      this.sessionFinMgtTheme = null
       this.showSessionLengthSelector = false
       this.selectedSessionLength = null
       this.showDomainSelector = false
@@ -1577,6 +1595,11 @@ export default {
       this.selectedStaircaseStep = null
       this.showFinMgtThemeSelector = false
       this.selectedFinMgtTheme = null
+      // Session-scoped copies of the three choices — cleared with the rest of the
+      // session so a new one never saves the previous session's answers.
+      this.sessionStaircaseStep = null
+      this.sessionGrowthStage = null
+      this.sessionFinMgtTheme = null
       this.showSessionLengthSelector = false
       this.selectedSessionLength = null
       this.showDomainSelector = false
@@ -1632,6 +1655,8 @@ export default {
       const theme = this.finMgtThemes.find(t => t.name === this.selectedFinMgtTheme)
       this.inputText = `${theme.name} — ${theme.problem}`
       this.showFinMgtThemeSelector = false
+      // Kept for the save BEFORE the selector is cleared — see sessionFinMgtTheme.
+      this.sessionFinMgtTheme = theme.name
       this.selectedFinMgtTheme = null
       this.sendMessage()
     },
@@ -1717,6 +1742,8 @@ export default {
       const stage = this.growthStages.find(s => s.name === this.selectedGrowthStage)
       this.inputText = `${stage.name} — ${stage.description}`
       this.showGrowthCurveSelector = false
+      // Kept for the save BEFORE the selector is cleared — see sessionGrowthStage.
+      this.sessionGrowthStage = stage.name
       this.selectedGrowthStage = null
       this.sendMessage()
     },
@@ -1726,6 +1753,8 @@ export default {
       const step = this.staircaseSteps.find(s => s.name === this.selectedStaircaseStep)
       this.inputText = `${step.name} — ${step.description}`
       this.showStaircaseSelector = false
+      // Kept for the save BEFORE the selector is cleared — see sessionStaircaseStep.
+      this.sessionStaircaseStep = step.name
       this.selectedStaircaseStep = null
       this.sendMessage()
     },

@@ -168,6 +168,9 @@ async function updateMentorDistinction (req, res) {
  * @route DELETE /api/mentor/distinctions/:id
  * @param {string} id - the platform distinction id (pd-N)
  * @returns {200} { success: true, kept: string[] }  kept = firm ids whose version was preserved
+ * @returns {500} DB_ERROR (nothing was done) · {500} PARTIAL_DELETE (some firms were
+ *   already promoted before the failure — named in the message and the server log, and
+ *   the master row is still present, so a repeat is safe)
  */
 async function deleteMentorDistinction (req, res) {
   const id = String(req.params.id || '')
@@ -182,6 +185,21 @@ async function deleteMentorDistinction (req, res) {
     await savePlatformDistinctions(existing.filter(r => r.id !== id), overlay.saveFirmConfig, req.userEmail)
     res.send(200, { success: true, kept: promoted })
   } catch (err) {
+    // A failure part-way through is NOT "nothing happened". By the time promotion
+    // throws, some firms may already hold their kept copy and have had their override
+    // dropped — and the old blanket message said the opposite, which is a statement
+    // about the system that is not true. The master row is still there (it is removed
+    // last, deliberately), so repeating the delete is safe and converges.
+    const done = Array.isArray(err.promoted) ? err.promoted : []
+    if (done.length > 0) {
+      console.error(
+        '[mentor] deleteMentorDistinction failed PART-WAY — the original was NOT removed; firms already holding their own copy:',
+        done.join(', '), '—', err.message
+      )
+      sendError(res, 500, 'PARTIAL_DELETE',
+        `The delete stopped part-way. ${done.length} firm(s) have already kept their own copy, and the original was NOT removed. Try again — repeating this is safe.`)
+      return
+    }
     console.error('[mentor] deleteMentorDistinction failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not delete distinction')
   }
