@@ -150,26 +150,46 @@ const { requestedSessionCount } = require('../../server/utils/designInterview')
 
 describe('requestedSessionCount (CB-26)', () => {
   test('the live failure case parses: spelled-out count amid a minutes range', () => {
-    expect(requestedSessionCount('say 20 to 30 minutes per session and six sessions in total please')).toBe(6)
+    expect(requestedSessionCount('say 20 to 30 minutes per session and six sessions in total please'))
+      .toEqual({ min: 6, max: 6 })
   })
 
   test('digit and word forms, all session nouns', () => {
-    expect(requestedSessionCount('8 sessions')).toBe(8)
-    expect(requestedSessionCount('eight sessions in total')).toBe(8)
-    expect(requestedSessionCount('4 modules please')).toBe(4)
-    expect(requestedSessionCount('three lessons')).toBe(3)
-    expect(requestedSessionCount('twenty sessions')).toBe(20)
+    expect(requestedSessionCount('8 sessions')).toEqual({ min: 8, max: 8 })
+    expect(requestedSessionCount('eight sessions in total')).toEqual({ min: 8, max: 8 })
+    expect(requestedSessionCount('4 modules please')).toEqual({ min: 4, max: 4 })
+    expect(requestedSessionCount('three lessons')).toEqual({ min: 3, max: 3 })
+    expect(requestedSessionCount('twenty sessions')).toEqual({ min: 20, max: 20 })
   })
 
-  test('ranges and alternatives are not a specific request → null', () => {
-    expect(requestedSessionCount('6-8 sessions')).toBeNull()
-    expect(requestedSessionCount('six to eight sessions')).toBeNull()
-    expect(requestedSessionCount('6 or 8 sessions would work')).toBeNull()
+  // ⚠ CHANGED 2026-08-03, and deliberately. These three used to return null on
+  // the premise that a range means the advisor does not mind. It is the same
+  // premise the DURATION parser had to drop the same day, and it is wrong here
+  // for the same reason: "between four and six sessions" has two ends and means
+  // NOT twelve. Mike said exactly that, twice; the second time his course came
+  // out at four — inside his own range — and the app asked him to choose
+  // anyway, because "and" was not a separator and the sentence read as a flat
+  // request for six. A range is now a budget, and a plan inside it is a fit.
+  test('a range is read as a budget with two ends', () => {
+    expect(requestedSessionCount('6-8 sessions')).toEqual({ min: 6, max: 8 })
+    expect(requestedSessionCount('six to eight sessions')).toEqual({ min: 6, max: 8 })
+    expect(requestedSessionCount('6 or 8 sessions would work')).toEqual({ min: 6, max: 8 })
+  })
+
+  test("MIKE'S LIVE PHRASING — 'between four and six sessions'", () => {
+    expect(requestedSessionCount('15 to 20 minutes sessions and maybe between four and six sessions'))
+      .toEqual({ min: 4, max: 6 })
+    expect(requestedSessionCount('15 to 20 minutes per session and four or between four and six sessions please'))
+      .toEqual({ min: 4, max: 6 })
+  })
+
+  test('the ends are ordered, however they were typed', () => {
+    expect(requestedSessionCount('six to four sessions')).toEqual({ min: 4, max: 6 })
   })
 
   test('conflicting counts → null; a repeated identical count still parses', () => {
     expect(requestedSessionCount('6 sessions... actually make it 8 sessions')).toBeNull()
-    expect(requestedSessionCount('6 sessions — yes, 6 sessions')).toBe(6)
+    expect(requestedSessionCount('6 sessions — yes, 6 sessions')).toEqual({ min: 6, max: 6 })
   })
 
   test('no count, noun-first ordinals, zero, and junk → null', () => {
@@ -178,6 +198,86 @@ describe('requestedSessionCount (CB-26)', () => {
     expect(requestedSessionCount('0 sessions')).toBeNull()
     expect(requestedSessionCount('')).toBeNull()
     expect(requestedSessionCount(null)).toBeNull()
+  })
+})
+
+// ── Requested session LENGTH — parser ────────────────────────────────────────
+//
+// The other half of the same interview answer. It was read as prose and never
+// as a number, so the length an advisor asked for was never checked against
+// what they got. Same conservative contract as the count: when in doubt, null.
+
+const { requestedSessionLength } = require('../../server/utils/designInterview')
+
+describe('requestedSessionLength', () => {
+  test('a single figure is the range n–n', () => {
+    expect(requestedSessionLength('30 minutes, 4 sessions')).toEqual({ min: 30, max: 30 })
+    expect(requestedSessionLength('4 sessions of 45 mins')).toEqual({ min: 45, max: 45 })
+    expect(requestedSessionLength('90 minute sessions')).toEqual({ min: 90, max: 90 })
+    expect(requestedSessionLength('thirty minutes each')).toEqual({ min: 30, max: 30 })
+    expect(requestedSessionLength('forty-five minutes per session')).toEqual({ min: 45, max: 45 })
+  })
+
+  test('hours are converted, because an advisor states a long session in hours', () => {
+    expect(requestedSessionLength('1 hour sessions')).toEqual({ min: 60, max: 60 })
+    expect(requestedSessionLength('2 hrs each')).toEqual({ min: 120, max: 120 })
+    expect(requestedSessionLength('1.5 hours per session')).toEqual({ min: 90, max: 90 })
+  })
+
+  test("a compound duration reads as one figure — Mike's own phrasing", () => {
+    expect(requestedSessionLength('1 hour 17 minutes')).toEqual({ min: 77, max: 77 })
+    expect(requestedSessionLength('1 hour and 30 minutes per session')).toEqual({ min: 90, max: 90 })
+    expect(requestedSessionLength('2 hours 15 mins')).toEqual({ min: 135, max: 135 })
+  })
+
+  // 🔴 THE LIVE DEFECT, 2026-08-03. This phrasing used to return null, which
+  // switched the whole warning off; Mike's course then drew a 70-minute session
+  // against it and said nothing. A range is a budget, not an absence of one.
+  test('MIKE\'S LIVE CASE — "15 to 20 minutes" is a budget, not a shrug', () => {
+    expect(requestedSessionLength('15 to 20 minutes per session and say four sessions please'))
+      .toEqual({ min: 15, max: 20 })
+  })
+
+  test('every way of writing a range is read as one', () => {
+    expect(requestedSessionLength('20 to 30 minutes per session')).toEqual({ min: 20, max: 30 })
+    expect(requestedSessionLength('30-45 minutes')).toEqual({ min: 30, max: 45 })
+    expect(requestedSessionLength('30 or 45 mins')).toEqual({ min: 30, max: 45 })
+    expect(requestedSessionLength('thirty to sixty minutes')).toEqual({ min: 30, max: 60 })
+    expect(requestedSessionLength('1 to 2 hours')).toEqual({ min: 60, max: 120 })
+  })
+
+  test('a range given back-to-front is still read as a budget', () => {
+    expect(requestedSessionLength('30 to 15 minutes')).toEqual({ min: 15, max: 30 })
+  })
+
+  test('a range still parses when it sits amid other numbers', () => {
+    expect(requestedSessionLength('say 20 to 30 minutes per session and six sessions in total please'))
+      .toEqual({ min: 20, max: 30 })
+  })
+
+  test('conflicting lengths → null; a repeated identical length still parses', () => {
+    expect(requestedSessionLength('30 minutes... actually 45 minutes')).toBeNull()
+    expect(requestedSessionLength('30 minutes — yes, 30 minutes')).toEqual({ min: 30, max: 30 })
+  })
+
+  test('two different ranges name no single budget → null', () => {
+    expect(requestedSessionLength('15 to 20 minutes, or maybe 40 to 50 minutes')).toBeNull()
+  })
+
+  test('the session COUNT is never mistaken for a length', () => {
+    expect(requestedSessionLength('4 sessions')).toBeNull()
+    expect(requestedSessionLength('6 modules')).toBeNull()
+    expect(requestedSessionLength('6-8 sessions')).toBeNull()
+  })
+
+  test('implausible, absent and junk values → null', () => {
+    expect(requestedSessionLength('2 minutes')).toBeNull() // not a session
+    expect(requestedSessionLength('12 hours')).toBeNull() // not one sitting
+    expect(requestedSessionLength('2 to 4 minutes')).toBeNull() // range below the floor
+    expect(requestedSessionLength('as long as it takes')).toBeNull()
+    expect(requestedSessionLength('')).toBeNull()
+    expect(requestedSessionLength(null)).toBeNull()
+    expect(requestedSessionLength(undefined)).toBeNull()
   })
 })
 
@@ -213,7 +313,7 @@ describe('session-count mismatch flag (CB-26)', () => {
 
     const state = stateOf(res)
     expect(state.pendingOutline.totalSessions).toBe(4)
-    expect(state.sessionCountNotice).toEqual({ requested: 6, delivered: 4 })
+    expect(state.sessionCountNotice).toEqual({ requested: { min: 6, max: 6 }, delivered: 4 })
   })
 
   test('requested four, delivered 4 → no notice', async () => {
@@ -230,7 +330,26 @@ describe('session-count mismatch flag (CB-26)', () => {
     expect(state.sessionCountNotice).toBeUndefined()
   })
 
-  test('an ambiguous request (range) disables the check', async () => {
+  // ⚠ CHANGED 2026-08-03. A range used to disable the check entirely. It is now
+  // a budget with two ends, so a course INSIDE it raises nothing and a course
+  // outside it is still flagged — the advisor is neither nagged about what they
+  // said they would accept, nor left unwarned when it was missed. Mike's live
+  // case: "between four and six sessions", delivered four, and he was asked to
+  // choose anyway.
+  test('a course inside the requested range raises nothing', async () => {
+    mockCreate = jest.fn(() => makeStream(outlineReply(5)))
+    const res = makeRes()
+    await courseEngine(makeReq({
+      type: 'design',
+      query: 'between four and six sessions of 30 minutes',
+      courseState: { ...FULL_STATE, sessionDetails: 'pending' }
+    }), res)
+
+    expect(stateOf(res).pendingOutline.totalSessions).toBe(5)
+    expect(stateOf(res).sessionCountNotice).toBeUndefined()
+  })
+
+  test('a course outside the requested range is still flagged, with both ends', async () => {
     mockCreate = jest.fn(() => makeStream(outlineReply(4)))
     const res = makeRes()
     await courseEngine(makeReq({
@@ -239,7 +358,8 @@ describe('session-count mismatch flag (CB-26)', () => {
       courseState: { ...FULL_STATE, sessionDetails: 'pending' }
     }), res)
 
-    expect(stateOf(res).sessionCountNotice).toBeUndefined()
+    expect(stateOf(res).sessionCountNotice)
+      .toEqual({ requested: { min: 6, max: 8 }, delivered: 4 })
   })
 
   test('a revision naming a count is checked against the revised outline', async () => {
@@ -255,7 +375,7 @@ describe('session-count mismatch flag (CB-26)', () => {
       }
     }), res)
 
-    expect(stateOf(res).sessionCountNotice).toEqual({ requested: 6, delivered: 4 })
+    expect(stateOf(res).sessionCountNotice).toEqual({ requested: { min: 6, max: 6 }, delivered: 4 })
   })
 
   test('a revision NOT naming a count never re-flags a previously accepted deviation', async () => {

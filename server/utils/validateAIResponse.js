@@ -102,8 +102,16 @@ function validateQuizGrade (response) {
  * to true positions (the AI's own numbering can drift), `totalSessions` is set
  * to the real count (never the AI's claim), `intensity` is snapped to its two
  * legal values (defaulting to 'consistent'), `resources`/`objectives` become
- * clean string arrays, `estimatedMinutes` becomes a positive number (defaulting
- * to 30 — the session screen's existing default), and `topic` a string.
+ * clean string arrays, and `topic` a string.
+ *
+ * `estimatedMinutes` is kept when it is a positive number and REMOVED when it
+ * is not. It used to default to 30, which was harmless while the field was
+ * only an echo of the advisor's request — and became a fabrication the day
+ * courseEffort started computing the real figure: a session whose resources
+ * carry no published time deliberately has no length, and the default put one
+ * back on the way into storage. An absent length now stays absent, which is
+ * the honest answer; the session prompt already carries its own fallback for
+ * a course saved before this existed.
  *
  * @param {*} response - The parsed AI response to validate
  * @returns {ValidationResult} `data` is the validated + normalised outline when valid
@@ -148,10 +156,12 @@ function validateCourseOutline (response) {
       ...s,
       id: i + 1,
       resources,
-      objectives: Array.isArray(s.objectives) ? s.objectives.filter(o => typeof o === 'string') : [],
-      estimatedMinutes: (typeof s.estimatedMinutes === 'number' && Number.isFinite(s.estimatedMinutes) && s.estimatedMinutes > 0)
-        ? s.estimatedMinutes
-        : 30
+      objectives: Array.isArray(s.objectives) ? s.objectives.filter(o => typeof o === 'string') : []
+    }
+    // A length that is not a positive number is removed, never replaced with a
+    // stand-in — see the note above.
+    if (!(typeof s.estimatedMinutes === 'number' && Number.isFinite(s.estimatedMinutes) && s.estimatedMinutes > 0)) {
+      delete session.estimatedMinutes
     }
     // CB-25: resourceLinks round-trips through the browser (and a shared
     // course copies it to teammates), so it is re-validated at the door:

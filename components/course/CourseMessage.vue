@@ -70,6 +70,24 @@ export default {
 .msg-va .msg-bubble { background: #f9fafb; border: 1px solid #e5e7eb; color: #111827; border-radius: 4px 12px 12px 12px; }
 .msg-user .msg-bubble { background: #1e40af; color: white; border-radius: 12px 4px 12px 12px; }
 
+/* ── Markdown inside a bubble ─────────────────────────────
+   The assistant's reply arrives as HTML through v-html, so its elements carry
+   no scoped-style attribute and ::v-deep is required to reach them. Without
+   these rules Bulma's minireset (which zeroes the margin on p, ul and li) wins,
+   and a reply with three paragraphs renders as one unbroken wall of text — what
+   Mike saw on the course-design screen on 2026-08-03. The values match the
+   advisor chat (VirtualAdvisor.vue) so the two screens read the same. */
+.prose ::v-deep p { margin: 6px 0; line-height: 1.6; }
+.prose ::v-deep p:first-child { margin-top: 0; }
+.prose ::v-deep p:last-child { margin-bottom: 0; }
+.prose ::v-deep strong { font-weight: 700; }
+.prose ::v-deep ul, .prose ::v-deep ol { margin: 6px 0; padding-left: 20px; }
+.prose ::v-deep li { margin: 3px 0; }
+.prose ::v-deep h2 { font-size: 16px; font-weight: 700; margin: 14px 0 6px; color: #1e40af; }
+.prose ::v-deep h3 { font-size: 15px; font-weight: 700; margin: 14px 0 6px; color: #1e40af; }
+.prose ::v-deep h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6b7280; margin: 14px 0 4px; }
+.prose ::v-deep h2:first-child, .prose ::v-deep h3:first-child, .prose ::v-deep h4:first-child { margin-top: 0; }
+
 /* ── Typing indicator ─────────────────────────────────── */
 .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
 .typing-indicator span { width: 7px; height: 7px; background: #9ca3af; border-radius: 50%; animation: bounce 1.2s infinite; }
