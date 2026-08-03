@@ -82,8 +82,27 @@ const DISTINCTION_TRIGGER_EXAMPLE_CAP = 25
 // Core AI matcher: given distinction rows + the advisor's text, returns the rows that
 // semantically match. Shared by in-domain boosting (classifyDistinctions) and the
 // cross-domain near-miss bridge (findNearMissDistinctions).
+//
+// 🔴 WHY THIS RETURNS `{ok, rows}` AND NOT A BARE ARRAY. It used to `return []` from the
+// catch, and `[]` is exactly what a successful call that matched nothing returns — the two
+// outcomes were the SAME VALUE, so no caller and no screen could tell them apart. A firm
+// whose key, certificate or network broke was told "the AI read all 5 and none matched",
+// a sentence stating the model had done something it never did, while the firm's single
+// biggest scoring lever silently vanished from live advice. Found 2026-08-03 by watching
+// it happen with a stale Avast root certificate; fixed here 2026-08-03.
+//
+// `ok:false` means THE CALL FAILED — never "matched nothing". Callers must carry it to
+// every surface rather than reporting an empty result as a finding. An object, not `null`,
+// deliberately: a caller that forgets to check it still gets an empty `rows` and degrades,
+// where `null` would have thrown mid-session.
+//
+// @param {Array<Object>} rows distinction rows to classify
+// @param {string} advisorText the advisor's words
+// @param {string} [label] logAI label
+// @returns {Promise<{ok: boolean, rows: Array<Object>}>}
 async function _classifyMatchingRows (rows, advisorText, label) {
-  if (!Array.isArray(rows) || rows.length === 0 || !advisorText) { return [] }
+  // Nothing to ask is not a failure — there was no call to fail.
+  if (!Array.isArray(rows) || rows.length === 0 || !advisorText) { return { ok: true, rows: [] } }
 
   let phrasesIgnored = 0
   const patternList = rows.map((row, i) => {
@@ -119,13 +138,23 @@ Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matchin
       messages: [{ role: 'user', content: prompt }]
     })
     logAI(label || 'distinction-classify', 'gpt-4o-mini', _t0, true, response.usage)
-    const raw = response.choices[0]?.message?.content || '{}'
-    const parsed = JSON.parse((raw.match(/\{[\s\S]*\}/) || ['{}'])[0])
-    const matchedIds = Array.isArray(parsed.matches) ? parsed.matches : []
-    return matchedIds.map(id => rows[Number(id) - 1]).filter(Boolean)
+    // A reply we cannot READ is not "matched nothing" either — same defect one level
+    // down. The prompt asks for {"matches":[]} when none apply, so a genuine no-match
+    // always parses; a truncated, empty or prose reply does not, and used to fall
+    // through the `|| '{}'` default as a confident "none of your distinctions applied".
+    const raw = response.choices[0]?.message?.content || ''
+    const jsonText = (raw.match(/\{[\s\S]*\}/) || [null])[0]
+    const parsed = jsonText ? JSON.parse(jsonText) : null
+    if (!parsed || !Array.isArray(parsed.matches)) {
+      console.warn(`[advisor] ${label || 'distinction-classify'}: the model's reply carried no readable {"matches":[...]} — reported as a FAILURE, not as "none matched"`)
+      return { ok: false, rows: [] }
+    }
+    return { ok: true, rows: parsed.matches.map(id => rows[Number(id) - 1]).filter(Boolean) }
   } catch (_e) {
     logAI(label || 'distinction-classify', 'gpt-4o-mini', _t0, false, null)
-    return []
+    // The rows stay empty so a live session still degrades gracefully — but `ok:false`
+    // travels with them so nothing downstream can call this a result.
+    return { ok: false, rows: [] }
   }
 }
 
@@ -133,17 +162,22 @@ Return ONLY a JSON object like {"matches":[1,3]} with the numbers of any matchin
 // effective list (platform rows with declines removed + firm overrides swapped in +
 // firm-own rows); we score only the rows for the detected domain. The resolver
 // guarantees an overridden platform row appears once, so a boost is never doubled.
+//
+// Returns `{ok, boosts}` — `ok:false` means the classifier call FAILED and the empty
+// boost map is a fault, not a finding. See _classifyMatchingRows for why.
+//
+// @returns {Promise<{ok: boolean, boosts: Object<string, number>}>}
 async function classifyDistinctions (domain, advisorText, candidateRows) {
-  if (!domain || !advisorText) { return {} }
+  if (!domain || !advisorText) { return { ok: true, boosts: {} } }
   const rows = (Array.isArray(candidateRows) ? candidateRows : []).filter(r => r.domain === domain)
-  const matched = await _classifyMatchingRows(rows, advisorText, 'distinction-classify')
+  const { ok, rows: matched } = await _classifyMatchingRows(rows, advisorText, 'distinction-classify')
   const boostMap = {}
   for (const row of matched) {
     for (const templateTitle of (row.templates || [])) {
       boostMap[templateTitle] = (boostMap[templateTitle] || 0) + (row.boost || 5)
     }
   }
-  return boostMap
+  return { ok, boosts: boostMap }
 }
 
 // Cross-domain "bridge": the firm's OWN distinctions (firm-own or firm-edited) that
@@ -151,13 +185,20 @@ async function classifyDistinctions (domain, advisorText, candidateRows) {
 // session — i.e. likely filed under the wrong domain. Surfaced in the decision trace
 // so a firm can move them where they'll actually fire. Platform rows are excluded
 // (the bridge is about the firm's own IP, not flagging every platform row everywhere).
+//
+// Returns `{ok, rows}` on the same rule as the classifier above: an empty `rows` with
+// `ok:false` means the bridge was never read, which is why the trace carries its own
+// flag. This one fails the quietest of all — the section simply does not render — so it
+// needs the flag most.
+//
+// @returns {Promise<{ok: boolean, rows: Array<{id, description, domain, source}>}>}
 async function findNearMissDistinctions (detectedDomain, advisorText, effectiveDistinctions) {
-  if (!detectedDomain || !advisorText) { return [] }
+  if (!detectedDomain || !advisorText) { return { ok: true, rows: [] } }
   const otherFirmRows = (Array.isArray(effectiveDistinctions) ? effectiveDistinctions : []).filter(r =>
     r && r.domain !== detectedDomain && (r.source === 'firm-own' || r.source === 'firm-override'))
-  if (otherFirmRows.length === 0) { return [] }
-  const matched = await _classifyMatchingRows(otherFirmRows, advisorText, 'distinction-nearmiss')
-  return matched.map(r => ({ id: r.id, description: r.description, domain: r.domain, source: r.source }))
+  if (otherFirmRows.length === 0) { return { ok: true, rows: [] } }
+  const { ok, rows: matched } = await _classifyMatchingRows(otherFirmRows, advisorText, 'distinction-nearmiss')
+  return { ok, rows: matched.map(r => ({ id: r.id, description: r.description, domain: r.domain, source: r.source })) }
 }
 
 // Build detection patterns from domain definitions — compiled once at startup
@@ -2608,10 +2649,16 @@ async function handleQuery (rawBody, res, identity) {
       _platformRows = SEED_PLATFORM_ROWS
     }
     const _effectiveDistinctions = resolveEffectiveDistinctions(_platformRows, _firmState)
-    const _distinctionBoosts = await classifyDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
+    // ⚠ `_distinctionAiOk` / `_nearMissAiOk` are carried into the trace below, NOT dropped
+    // here. An empty boost map means one of two opposite things — the AI read the firm's
+    // distinctions and matched none, or the call never completed — and the difference is
+    // the firm's biggest lever silently going missing from live advice.
+    const { ok: _distinctionAiOk, boosts: _distinctionBoosts } =
+      await classifyDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
     // Cross-domain bridge: firm distinctions filed under OTHER domains that match this
     // session (likely mis-filed) — surfaced in the decision trace, not scored here.
-    const _nearMissDistinctions = await findNearMissDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
+    const { ok: _nearMissAiOk, rows: _nearMissDistinctions } =
+      await findNearMissDistinctions(state.detectedDomain, _advisorFullText, _effectiveDistinctions)
 
     // Logic-tree soft hint (guide, not replace — memory design-logic-trees-guide-not-replace).
     // Detect the content logic tree(s) this conversation matches, and walk each to the
@@ -2938,6 +2985,15 @@ async function handleQuery (rawBody, res, identity) {
         // judging whether a firm's distinction was even in scope for this session.
         evaluatedDomain: state.detectedDomain || null,
         note: 'Distinctions are evaluated only within the detected domain; distinctions filed under other domains are not considered.',
+        // 🔴 THE EMPTY-RESULT GUARD. `boostsApplied: {}` with `aiFailed: true` means the
+        // classifier never answered — the distinction layer did NOT run for this session.
+        // Without this flag the saved case is a permanent record stating no distinction
+        // applied, which is indistinguishable from a genuine no-match and was being shown
+        // to advisors as one. Kept as two flags because the two AI calls fail
+        // independently: the in-domain scoring can succeed while the bridge fails, and
+        // only one of those makes the boosts below untrustworthy.
+        aiFailed: !_distinctionAiOk,
+        nearMissAiFailed: !_nearMissAiOk,
         boostsApplied: _distinctionBoosts || {},
         // Cross-domain bridge: the firm's own distinctions filed under a different
         // domain that nevertheless matched this session — candidates to move here.

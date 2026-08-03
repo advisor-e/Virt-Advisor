@@ -86,10 +86,27 @@
     artefact did not draw, and shipping blanks would have been worse. They stay flagged until Mike
     rules.
 
-- <a id="ai-failure-reads-as-no-match"></a>☐ **🔴 P1 · CORRECTNESS — a FAILED AI call is reported to
-  advisors and firm managers as "no distinction matched". It is indistinguishable from a genuine
-  no-match, and it affects LIVE ADVISOR SESSIONS, not just the Logic-Lab page. Found 2026-08-03 by
-  watching it happen; NOT FIXED.**
+- <a id="ai-failure-reads-as-no-match"></a>✅ **🔴 P1 · CORRECTNESS — FIXED 2026-08-03 (laptop). A FAILED
+  AI call was reported to advisors and firm managers as "no distinction matched". The entry below is
+  the original finding, kept verbatim for its reasoning.**
+  - **What changed.** `_classifyMatchingRows` returns `{ok, rows}` instead of a bare array, so a failed
+    call can no longer be read as a result; `classifyDistinctions` and `findNearMissDistinctions` carry
+    it up, the saved decision trace records `aiFailed` / `nearMissAiFailed` (two flags — the two AI
+    calls fail independently), and `phraseProbe` reports it to the Logic-Lab screens.
+  - **An UNREADABLE reply is now a failure too**, not just a thrown error: an empty or prose reply used
+    to fall through a `|| '{}'` default and read as a confident "none of your distinctions applied".
+  - **Eight surfaces, not the four first found** — the two quietest showed *nothing at all* rather than
+    something wrong (the live-session near-miss section, and a saved case in the Hub). Wording ruled by
+    Mike 2026-08-03: [`WORDING-DISTINCTION-AI-FAILURE.md`](WORDING-DISTINCTION-AI-FAILURE.md), all six
+    strings approved as recommended, plus Decision 0 option A — the Logic-Lab score sheet still shows,
+    under a banner, because the deterministic half stays true.
+  - **`scenario-lab.js` counts failed classifications and states them**, so a 50-case measurement can
+    never quietly average in sessions that ran with the lever missing.
+  - **Tests:** 19 added; each pairs a failure with a genuine no-match producing the same empty result,
+    so the two can never become indistinguishable again. Suite 4,365 green / 253 suites, lint 0 errors.
+  - ⚠ **NOT YET SEEN LIVE.** The two live-session panels are covered by source-level tests (the
+    precedent VirtualAdvisor already sets), which cannot show how a sentence reads on the page.
+    Reproducing it needs a deliberately wrong `OPENAI_API_KEY`.
   - **The proof, not a guess.** `_classifyMatchingRows` ([`advisorEngine.js`](../server/advisorEngine.js)
     L125-129) catches every error and `return []`. An empty array is exactly what "the AI read them
     and matched none" returns. The two are the same value.

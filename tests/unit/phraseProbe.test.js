@@ -194,6 +194,35 @@ describe('probeText — all three deterministic layers, and honesty about the fo
     expect(out.reason).toMatch(/no distinctions/i)
   })
 
+  // ── The 2026-08-03 P1, at this layer ────────────────────────────────────────
+  // This screen printed "None matched. The AI read all N in this area." on a call
+  // that never completed — a sentence stating the model had done something it had
+  // not. Both cases below return `matched: []`; only `aiFailed` separates them.
+  test('a FAILED classifier is flagged, not reported as "none matched"', async () => {
+    const engine = require('../../server/advisorEngine')
+    const spy = jest.spyOn(engine, 'classifyMatchingRows').mockResolvedValue({ ok: false, rows: [] })
+    const out = await phraseProbe.matchDistinctions('x', [{ id: 'staff' }], [
+      { id: 'd1', domain: 'staff', description: 'A distinction', templates: ['T'], boost: 5 }
+    ])
+    expect(out.aiFailed).toBe(true)
+    expect(out.matched).toEqual([])
+    // `considered` counts the rows that WERE sent, so it stays truthful either way —
+    // it is the number the false sentence quoted, and it is not the thing at fault.
+    expect(out.considered).toBe(1)
+    spy.mockRestore()
+  })
+
+  test('a genuine no-match is NOT flagged as a failure', async () => {
+    const engine = require('../../server/advisorEngine')
+    const spy = jest.spyOn(engine, 'classifyMatchingRows').mockResolvedValue({ ok: true, rows: [] })
+    const out = await phraseProbe.matchDistinctions('x', [{ id: 'staff' }], [
+      { id: 'd1', domain: 'staff', description: 'A distinction', templates: ['T'], boost: 5 }
+    ])
+    expect(out.aiFailed).toBe(false)
+    expect(out.matched).toEqual([])
+    spy.mockRestore()
+  })
+
   test('over-long text is cut AND says it was cut', async () => {
     const long = 'staff '.repeat(1000)
     const out = await phraseProbe.probeText(long)
