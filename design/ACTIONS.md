@@ -104,9 +104,13 @@
     never quietly average in sessions that ran with the lever missing.
   - **Tests:** 19 added; each pairs a failure with a genuine no-match producing the same empty result,
     so the two can never become indistinguishable again. Suite 4,365 green / 253 suites, lint 0 errors.
-  - ⚠ **NOT YET SEEN LIVE.** The two live-session panels are covered by source-level tests (the
-    precedent VirtualAdvisor already sets), which cannot show how a sentence reads on the page.
-    Reproducing it needs a deliberately wrong `OPENAI_API_KEY`.
+  - ✅ **The two live-session panels are now RENDERED in test, not read as source**
+    ([`decisionTraceAiFailure.render.test.js`](../tests/unit/decisionTraceAiFailure.render.test.js)):
+    both components mount with the failure switched on and are asserted to put the approved
+    **English** on the page. That file deliberately breaks the house key-based-assertion rule —
+    the defect was a screen making a false *statement*, and a key assertion passed happily
+    throughout the original bug. Added because reproducing this by hand needs a deliberately
+    broken `OPENAI_API_KEY`, which is not something the owner can be asked to arrange.
   - **The proof, not a guess.** `_classifyMatchingRows` ([`advisorEngine.js`](../server/advisorEngine.js)
     L125-129) catches every error and `return []`. An empty array is exactly what "the AI read them
     and matched none" returns. The two are the same value.
