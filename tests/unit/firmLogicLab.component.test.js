@@ -264,6 +264,41 @@ describe('Try a sentence', () => {
     expect(w.text()).toContain('firmLogicLab.none')
   })
 
+  // ── The 2026-08-03 P1 ──────────────────────────────────────────────────────
+  // With a broken certificate every classifier call died in ~100ms and this box
+  // printed "None matched. The AI read all 5 in this area." — a sentence stating
+  // the model had done something it never did. Both cases below carry an empty
+  // `matched`; only the flag separates a fault from a finding.
+  it('a FAILED classifier is a fault here, never "none matched"', async () => {
+    const w = await mountLab({
+      probe: Object.assign({}, PROBE_REPLY, {
+        distinctions: { measured: true, domain: 'staff', considered: 5, matched: [], aiFailed: true }
+      })
+    })
+    await w.setData({ probeText: 'x' })
+    await w.vm.runProbe()
+    await w.vm.$nextTick()
+
+    expect(w.text()).toContain('firmLogicLab.distAiFailed')
+    expect(w.text()).not.toContain('firmLogicLab.distNone')
+    // The false half of the old pair: it named a count and asserted the AI read them.
+    expect(w.text()).not.toContain('firmLogicLab.distConsidered')
+  })
+
+  it('a genuine no-match still reads as a result', async () => {
+    const w = await mountLab({
+      probe: Object.assign({}, PROBE_REPLY, {
+        distinctions: { measured: true, domain: 'staff', considered: 5, matched: [], aiFailed: false }
+      })
+    })
+    await w.setData({ probeText: 'x' })
+    await w.vm.runProbe()
+    await w.vm.$nextTick()
+
+    expect(w.text()).toContain('firmLogicLab.distNone')
+    expect(w.text()).not.toContain('firmLogicLab.distAiFailed')
+  })
+
   it('prints the layer it cannot measure, in the SERVER\'s words', async () => {
     const w = await mountLab()
     await w.setData({ probeText: 'x' })

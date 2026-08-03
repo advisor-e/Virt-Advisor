@@ -68,8 +68,9 @@ describe('the firm’s own distinctions filed in another area', () => {
   it('reports the row that was never considered, and says where it is filed', async () => {
     engine.classifyMatchingRows.mockImplementation((rows) => {
       // In-domain pass: the platform row matches. Elsewhere pass: his does.
-      if (rows.some(r => r.id === 'pd-40')) { return Promise.resolve([PLATFORM_ROW]) }
-      return Promise.resolve(rows.filter(r => r.id === 1))
+      // `{ ok, rows }` since PR #35 — a failed call is no longer an empty array.
+      if (rows.some(r => r.id === 'pd-40')) { return Promise.resolve({ ok: true, rows: [PLATFORM_ROW] }) }
+      return Promise.resolve({ ok: true, rows: rows.filter(r => r.id === 1) })
     })
 
     const out = await phraseProbe.probeText(MIKES_SENTENCE, null, [PLATFORM_ROW, HIS_OWN_ROW])
@@ -86,7 +87,7 @@ describe('the firm’s own distinctions filed in another area', () => {
     // The rule that stops 2026-08-03 repeating: re-filing a row the firm never
     // wrote is not a determined fix, so a platform row elsewhere is not offered.
     const platformElsewhere = { ...PLATFORM_ROW, id: 'pd-77', domain: 'profit', source: 'platform' }
-    engine.classifyMatchingRows.mockResolvedValue([])
+    engine.classifyMatchingRows.mockResolvedValue({ ok: true, rows: [] })
 
     await phraseProbe.probeText(MIKES_SENTENCE, null, [PLATFORM_ROW, platformElsewhere])
 
@@ -97,7 +98,7 @@ describe('the firm’s own distinctions filed in another area', () => {
 
   it('includes a firm-override — an edited platform row is the firm’s material', async () => {
     const edited = { ...PLATFORM_ROW, id: 'pd-9', domain: 'staff', source: 'firm-override' }
-    engine.classifyMatchingRows.mockResolvedValue([])
+    engine.classifyMatchingRows.mockResolvedValue({ ok: true, rows: [] })
 
     await phraseProbe.probeText(MIKES_SENTENCE, null, [PLATFORM_ROW, edited])
 
@@ -111,7 +112,7 @@ describe('the firm’s own distinctions filed in another area', () => {
     // It was considered and did not match; that is a wording answer, not a
     // filing one, and conflating them would send the manager to the wrong fix.
     const inGovernance = { ...HIS_OWN_ROW, domain: 'governance' }
-    engine.classifyMatchingRows.mockResolvedValue([])
+    engine.classifyMatchingRows.mockResolvedValue({ ok: true, rows: [] })
 
     await phraseProbe.probeText(MIKES_SENTENCE, null, [inGovernance])
 
@@ -122,7 +123,7 @@ describe('the firm’s own distinctions filed in another area', () => {
 
   it('still looks elsewhere when the detected area holds nothing of theirs', async () => {
     // "You have none here, but one filed under Conflict fits" beats either half.
-    engine.classifyMatchingRows.mockImplementation(rows => Promise.resolve(rows.filter(r => r.id === 1)))
+    engine.classifyMatchingRows.mockImplementation(rows => Promise.resolve({ ok: true, rows: rows.filter(r => r.id === 1) }))
 
     const out = await phraseProbe.probeText(MIKES_SENTENCE, null, [HIS_OWN_ROW])
 

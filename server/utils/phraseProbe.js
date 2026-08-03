@@ -197,12 +197,17 @@ async function matchDistinctions (text, domains, rows) {
     }
   }
 
-  const matched = await require('../advisorEngine').classifyMatchingRows(inDomain, text, 'logic-lab-probe')
+  const { ok, rows: matched } = await require('../advisorEngine').classifyMatchingRows(inDomain, text, 'logic-lab-probe')
   return {
     measured: true,
     domain,
     considered: inDomain.length,
     elsewhere,
+    // 🔴 The call FAILED — an empty `matched` below is not a reading. This screen used to
+    // print "None matched. The AI read all N in this area." on a call that never
+    // completed, which is the one thing a page built to explain the engine must not do.
+    // `considered` stays truthful either way: it counts the rows that WERE sent.
+    aiFailed: !ok,
     matched: (matched || []).map(r => ({
       id: r.id,
       description: r.description,
@@ -239,11 +244,10 @@ async function matchDistinctions (text, domains, rows) {
  * asked of a different set of rows. Re-implementing "would this have matched?" here
  * would be free to disagree with production.
  *
- * ⚠ INHERITS THE OPEN P1 (`ai-failure-reads-as-no-match`, owned by the laptop):
- * `classifyMatchingRows` returns `[]` both when the AI matched nothing and when the
- * call FAILED, so an empty `rows` here cannot yet be told apart from an outage.
- * `considered` is returned alongside so a screen can at least say what was looked
- * at, and this reads correctly the moment that P1 is fixed.
+ * ✅ The P1 this used to inherit is CLOSED (`ai-failure-reads-as-no-match`, fixed by
+ * the laptop in PR #35): `classifyMatchingRows` now returns `{ ok, rows }`, so a
+ * failed call is told apart from "read them, none fitted". `aiFailed` is carried
+ * out of here for the same reason the in-domain pass carries it.
  *
  * @param {string} text - the advisor's words
  * @param {string} domain - the detected domain
@@ -257,9 +261,13 @@ async function matchElsewhere (text, domain, allRows) {
   )
   if (candidates.length === 0) { return { considered: 0, rows: [] } }
 
-  const hits = await require('../advisorEngine').classifyMatchingRows(candidates, text, 'logic-lab-elsewhere')
+  const { ok, rows: hits } = await require('../advisorEngine').classifyMatchingRows(candidates, text, 'logic-lab-elsewhere')
   return {
     considered: candidates.length,
+    // Same distinction the in-domain pass now makes (PR #35): a failed call and
+    // "read them, none fitted" are different answers, and an empty list must not
+    // be allowed to pass for the second when it was the first.
+    aiFailed: !ok,
     rows: (hits || []).map(r => ({
       id: r.id,
       description: r.description,

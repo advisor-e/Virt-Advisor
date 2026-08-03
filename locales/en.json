@@ -1256,6 +1256,7 @@
     "distYours": "Your firm's",
     "distBoost": "lifts {count} template(s) by {boost}",
     "distConsidered": "The AI read all {count} distinction(s) in this domain.",
+    "distAiFailed": "Your distinctions could not be checked — the AI that reads them did not answer. This is a fault, not a result.",
     "none": "none",
     "noDomain": "No domain recognised from these words.",
     "noTables": "No table opens for this sentence.",
@@ -1481,10 +1482,14 @@
     "statementWho": "{name} · Produced {date}",
     "recordedOn": "Recorded {date}"
   },
+  "decisionTrace": {
+    "distAiFailed": "Your firm’s distinctions could not be checked — the AI that reads them did not answer. The advice below was built without them. If it keeps happening, contact your Advisor-e coach — that’s what they’re here for.",
+    "nearMissAiFailed": "Distinctions filed in your other areas could not be checked for this session."
+  },
   "firmDecisionLogic": {
     "title": "Decision Logic",
     "lede": "What decides which templates your advisors are recommended, which parts of it you can change, and which one to change for the outcome you want. Everything here reads your firm’s live configuration.",
-    "ledeBold": "Nothing on this page changes anything.",
+    "ledeBold": "Nothing on this page changes anything until you choose it.",
     "loadFailed": "The page could not read your firm’s configuration. Nothing here is safe to rely on until it loads.",
     "threeHeading": "Here are the three things that affect client recommendation",
     "dsName": "Domain support",
@@ -1610,6 +1615,9 @@
     "dxOpenedOn": "opened on",
     "dxDistNone": "None matched. The AI read all {count} in this area.",
     "dxDistUnavailable": "Your distinctions could not be read, so none are counted below. This is a fault, not a result.",
+    "dxDistAiFailed": "The AI that reads your distinctions did not answer, so this ranking was worked out without them. A live session would rank these differently. This is a fault, not a result.",
+    "dxChipDistNotChecked": "distinctions not checked",
+    "dxGapAiFailed": "Your distinctions were not checked, so the gap cannot be explained. They are the biggest single lever here, and it is not known whether one matched. Try again in a moment — if it keeps happening, contact your Advisor-e coach; that’s what they’re here for.",
     "dxWhyHeading": "Why you didn’t get what you expected",
     "dxColRank": "#",
     "dxColTemplate": "Template",
