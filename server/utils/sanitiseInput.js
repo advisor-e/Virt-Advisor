@@ -20,7 +20,12 @@ const MAX_CASES = 6
  * @property {string}   languageName        - Human-readable language name (e.g. 'English')
  * @property {Array}    conversationHistory - Last MAX_HISTORY_MESSAGES messages, each capped to MAX_FIELD
  * @property {Object|null} advisorProfile   - Advisor profile fields, each capped to MAX_FIELD, or null
- * @property {Array}    caseContext         - Up to MAX_CASES case summaries, each capped to MAX_CASE_SUMMARY
+ * @property {Array}    caseContext         - Up to MAX_CASES case summaries, each capped to MAX_CASE_SUMMARY.
+ *   ACCEPTED BUT IGNORED — the advisor engine reads past cases from the database
+ *   using the verified JWT identity (advisorEngine.loadPromptCases), because a
+ *   body-supplied list let any authenticated caller write the prompt's "real
+ *   sessions saved by advisors in your firm" block. Kept so an older frontend
+ *   still gets a 200; removed in a later release.
  * @property {Object}   conversationState   - Raw conversation state object
  * @property {Array|undefined} orgTemplateIds - Organisation template ID filter list
  */
