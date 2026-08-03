@@ -114,6 +114,22 @@ const COURSE_DESIGN_QUESTIONS = [
   }
 ]
 
+/**
+ * Did the course miss the number of sessions the advisor asked for?
+ *
+ * The request is a RANGE ("between four and six sessions"), and a course inside
+ * it is not a miss — flagging four sessions against a four-to-six request tells
+ * an advisor they did not get what they explicitly said they would accept.
+ *
+ * @param {{min: number, max: number}|null} asked - from `requestedSessionCount`
+ * @param {number} delivered - sessions the course actually has
+ * @returns {boolean} false whenever they said nothing, or the course fits
+ */
+function outsideCount (asked, delivered) {
+  if (!asked) { return false }
+  return delivered < asked.min || delivered > asked.max
+}
+
 function handleDesign (req, body, res) {
   const { query, advisorProfile, orgTemplateIds, courseState = {}, fitChoice } = body
   if (!query) { return sendError(res, 400, 'QUERY_REQUIRED', 'query is required') }
@@ -308,8 +324,8 @@ function handleDesign (req, body, res) {
               // flagged exactly as before. The LENGTH check is not run — the
               // slicer honours the budget by construction, and a short session
               // at a natural boundary is the approved behaviour, not a miss.
-              if (askedFor && plan.sessions.length !== askedFor) {
-                console.warn(`[course:design] Session-count mismatch: requested ${askedFor}, delivered ${plan.sessions.length}`)
+              if (outsideCount(askedFor, plan.sessions.length)) {
+                console.warn(`[course:design] Session-count mismatch: requested ${askedFor.min}-${askedFor.max}, delivered ${plan.sessions.length}`)
                 finalState.sessionCountNotice = { requested: askedFor, delivered: plan.sessions.length }
               }
 
@@ -350,8 +366,8 @@ function handleDesign (req, body, res) {
           // CB-26: the advisor asked for a specific session count — if the
           // delivered outline differs, code flags it (the outline card shows
           // the notice); the AI is never trusted to confess the deviation.
-          if (askedFor && timed.outline.totalSessions !== askedFor) {
-            console.warn(`[course:design] Session-count mismatch: requested ${askedFor}, delivered ${timed.outline.totalSessions}`)
+          if (outsideCount(askedFor, timed.outline.totalSessions)) {
+            console.warn(`[course:design] Session-count mismatch: requested ${askedFor.min}-${askedFor.max}, delivered ${timed.outline.totalSessions}`)
             finalState.sessionCountNotice = { requested: askedFor, delivered: timed.outline.totalSessions }
           }
 

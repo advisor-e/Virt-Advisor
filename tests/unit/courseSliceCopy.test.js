@@ -218,7 +218,8 @@ describe('buildSlicedOutline — the course the screen, the store and the tutor 
 // ── The question, and the two options (D6) ──────────────────────────────────
 
 describe('the session-length question', () => {
-  const optionsFor = count => effort.fitOptions(OUTLINE, { min: 15, max: 20 }, count, eoyLibrary())
+  const optionsFor = (min, max) =>
+    effort.fitOptions(OUTLINE, { min: 15, max: 20 }, { min, max: max === undefined ? min : max }, eoyLibrary())
 
   test("Mike's approved first bullet is unchanged", () => {
     const [keepLength] = copy.fitChoiceOptions(optionsFor(4))
@@ -260,6 +261,44 @@ describe('the session-length question', () => {
     const text = copy.fitQuestionText(optionsFor(7))
     expect(text).toContain("That doesn't fit 7 sessions of 15–20 minutes")
     expect(text).not.toContain('the fewest this material can be')
+  })
+
+  test('a range is quoted back with both ends', () => {
+    expect(copy.fitQuestionText(optionsFor(4, 6)))
+      .toContain("That doesn't fit 4–6 sessions of 15–20 minutes")
+  })
+
+  // 🔴 Mike's Dashboard course, 2026-08-03: the plan had FEWER sessions than he
+  // asked for, and the wording called the alternative "as short as possible"
+  // while offering MORE sessions than the other option — beside a course of
+  // four it announced that "the fewest this material can be is 7 sessions".
+  describe('when the plan has too FEW sessions, not too many', () => {
+    const shortLibrary = () => library([
+      record({ title: 'Dashboard Discussions', cpd: { isHidden: false, objective: 'o', watchedVideo: 14, reviewTemplate: 20, reheasedTemplate: 30 } })
+    ])
+    const shortOutline = { ...OUTLINE, sessions: [{ id: 1, title: 't', focus: 'f', resources: ['Dashboard Discussions'], objectives: [] }] }
+    const optionsForShort = (min, max) => effort.fitOptions(
+      shortOutline, { min: 15, max: 20 }, { min, max: max === undefined ? min : max }, shortLibrary()
+    )
+
+    test('their own number is offered when the material divides that far', () => {
+      // 14 + 20 + 30 makes exactly six sessions at a 14-minute length — a figure
+      // the old five-minute sweep stepped straight over.
+      const [, alternative] = copy.fitChoiceOptions(optionsForShort(6))
+      expect(alternative.label).toBe('Keep your 6 sessions — each one up to 14 minutes')
+    })
+
+    test('nothing is ever called "as short as possible" while adding sessions', () => {
+      const [, alternative] = copy.fitChoiceOptions(optionsForShort(20))
+      expect(alternative.label).not.toContain('as short as possible')
+      expect(alternative.label).toBe('Split it as far as it will go — 13 sessions of up to 5 minutes')
+    })
+
+    test('the question says how far the material actually divides', () => {
+      const text = copy.fitQuestionText(optionsForShort(20))
+      expect(text).toContain('the most it can be split into is 13 sessions')
+      expect(text).not.toContain('the fewest this material can be')
+    })
   })
 })
 

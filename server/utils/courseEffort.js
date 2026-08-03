@@ -401,12 +401,19 @@ function planSessions (outline, budget, templates) {
 }
 
 /**
- * The session lengths considered when looking for a plan of a given size.
- * Five-minute steps from five minutes to four hours: fine enough that the
- * search never skips a materially different plan, coarse enough that the whole
- * sweep is 48 slices of a handful of templates.
+ * The session lengths considered when looking for a plan of a given size:
+ * EVERY WHOLE MINUTE from five to four hours.
+ *
+ * It stepped in fives at first, and that skipped real plans. Mike's Dashboard
+ * Discussions course (14 video + 20 reading + 30 rehearsal) makes exactly six
+ * sessions at a 14-minute length — and 14 is not a multiple of five, so the
+ * sweep jumped from five sessions at 15 minutes to seven at 10 and offered him
+ * SEVEN when he had asked for six. The count he asked for existed and the
+ * search could not see it. 236 slices of a handful of templates is nothing;
+ * missing the answer is not.
  */
-const SEARCH_STEP_MINUTES = 5
+const SEARCH_STEP_MINUTES = 1
+const SEARCH_MIN_MINUTES = 5
 const SEARCH_MAX_MINUTES = 240
 
 /**
@@ -439,7 +446,7 @@ const SEARCH_MAX_MINUTES = 240
 function planForCount (outline, targetCount, templates) {
   const index = indexByTitle(templates)
   let best = null
-  for (let max = SEARCH_STEP_MINUTES; max <= SEARCH_MAX_MINUTES; max += SEARCH_STEP_MINUTES) {
+  for (let max = SEARCH_MIN_MINUTES; max <= SEARCH_MAX_MINUTES; max += SEARCH_STEP_MINUTES) {
     const plan = planSessions(outline, { min: max, max }, index)
     if (!plan.sessions.length) { continue }
     const distance = Math.abs(plan.sessions.length - targetCount)
@@ -471,32 +478,48 @@ function planForCount (outline, targetCount, templates) {
  * advisor was shown — the figures on screen and the course they get cannot
  * disagree.
  *
+ * THE COUNT IS A RANGE, and a plan INSIDE it is not a mismatch. An advisor who
+ * says "between four and six sessions" and is handed four has been given what
+ * they asked for; asking them to choose at that point is the app inventing a
+ * problem. Mike hit exactly that on 2026-08-03.
+ *
  * @param {object} outline - a grounded outline (the AI's curriculum).
  * @param {{min: number, max: number}} budget - the length they asked for.
- * @param {number} requestedCount - the number of sessions they asked for.
+ * @param {{min: number, max: number}} requestedCount - how many sessions they
+ *   asked for, as a range ("six sessions" is 6–6).
  * @param {Array<object>} templates - the firm's template set.
- * @returns {{totalMinutes: number, requestedCount: number, budget: object,
+ * @returns {{totalMinutes: number, requestedCount: object, target: number,
+ *   direction: string, budget: object,
  *   keepLength: {sessions: number, max: number, longestMinutes: number},
  *   keepCount: {sessions: number, max: number, longestMinutes: number,
- *   reachable: boolean}}|null} null when the plan already matches the request,
+ *   reachable: boolean}}|null} null when the plan already sits inside the range,
  *   when no alternative plan differs from it, or when a figure is missing —
- *   all three mean there is no question to ask.
+ *   all three mean there is no question to ask. `direction` is 'fewer' when the
+ *   plan has more sessions than they wanted and 'more' when it has fewer, so
+ *   the wording can follow the way the miss actually went.
  */
 function fitOptions (outline, budget, requestedCount, templates) {
-  if (!outline || !budget || !Number.isFinite(requestedCount) || requestedCount <= 0) { return null }
+  if (!outline || !budget || !requestedCount) { return null }
+  const { min, max } = requestedCount
+  if (!Number.isFinite(min) || !Number.isFinite(max) || min <= 0 || max < min) { return null }
   const index = indexByTitle(templates)
   const keep = planSessions(outline, budget, index)
   if (!keep.sessions.length) { return null }
-  if (keep.sessions.length === requestedCount) { return null }
+  // Inside the range they gave — nothing to ask.
+  if (keep.sessions.length >= min && keep.sessions.length <= max) { return null }
 
-  const alternative = planForCount(outline, requestedCount, index)
+  const direction = keep.sessions.length > max ? 'fewer' : 'more'
+  const target = direction === 'fewer' ? max : min
+  const alternative = planForCount(outline, target, index)
   // The search found nothing the advisor is not already looking at — offering
   // the same course twice is not a choice.
   if (!alternative.sessions.length || alternative.sessions.length === keep.sessions.length) { return null }
 
   return {
     totalMinutes: keep.totalMinutes,
-    requestedCount,
+    requestedCount: { min, max },
+    target,
+    direction,
     budget: { min: budget.min, max: budget.max },
     keepLength: {
       sessions: keep.sessions.length,
@@ -510,7 +533,7 @@ function fitOptions (outline, budget, requestedCount, templates) {
       // False when the material simply cannot be cut into the number they
       // asked for — the screen says so rather than quietly offering a
       // different number under their own heading.
-      reachable: alternative.sessions.length === requestedCount
+      reachable: alternative.sessions.length === target
     }
   }
 }

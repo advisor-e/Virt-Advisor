@@ -484,29 +484,33 @@ describe('fitOptions — the two choices the advisor is offered', () => {
   ])
   const outline = { sessions: [{ resources: ['E.O.Y Meeting'] }, { resources: ['Working Capital Cycle'] }] }
 
+  /** The count is a range now; a plain number is the range n–n. */
+  const asked = (min, max) => ({ min, max: max === undefined ? min : max })
+
   test("Mike's case: 4 asked, 11 at his length, and 6 is the fewest possible", () => {
-    const opts = effort.fitOptions(outline, { min: 15, max: 20 }, 4, eoyLibrary())
+    const opts = effort.fitOptions(outline, { min: 15, max: 20 }, asked(4), eoyLibrary())
     expect(opts.totalMinutes).toBe(173)
     expect(opts.keepLength).toEqual({ sessions: 11, max: 20, longestMinutes: 20 })
     expect(opts.keepCount).toEqual({ sessions: 6, max: 60, longestMinutes: 60, reachable: false })
+    expect(opts.direction).toBe('fewer')
   })
 
   test('the count they asked for is never offered when it cannot be built', () => {
-    const opts = effort.fitOptions(outline, { min: 15, max: 20 }, 4, eoyLibrary())
+    const opts = effort.fitOptions(outline, { min: 15, max: 20 }, asked(4), eoyLibrary())
     // 4 appears only as the record of what they asked — never as a plan.
-    expect(opts.requestedCount).toBe(4)
+    expect(opts.requestedCount).toEqual({ min: 4, max: 4 })
     expect(opts.keepLength.sessions).not.toBe(4)
     expect(opts.keepCount.sessions).not.toBe(4)
     expect(opts.keepCount.reachable).toBe(false)
   })
 
   test('a reachable count is offered as their own number', () => {
-    const opts = effort.fitOptions(outline, { min: 15, max: 20 }, 7, eoyLibrary())
+    const opts = effort.fitOptions(outline, { min: 15, max: 20 }, asked(7), eoyLibrary())
     expect(opts.keepCount).toEqual({ sessions: 7, max: 30, longestMinutes: 30, reachable: true })
   })
 
   test('every figure offered comes out of a plan that was actually built', () => {
-    const opts = effort.fitOptions(outline, { min: 15, max: 20 }, 4, eoyLibrary())
+    const opts = effort.fitOptions(outline, { min: 15, max: 20 }, asked(4), eoyLibrary())
     for (const option of [opts.keepLength, opts.keepCount]) {
       const built = effort.planSessions(outline, { min: option.max, max: option.max }, eoyLibrary())
       expect(built.sessions.length).toBe(option.sessions)
@@ -515,7 +519,26 @@ describe('fitOptions — the two choices the advisor is offered', () => {
   })
 
   test('no question is asked when the plan already matches the request', () => {
-    expect(effort.fitOptions(outline, { min: 15, max: 20 }, 11, eoyLibrary())).toBeNull()
+    expect(effort.fitOptions(outline, { min: 15, max: 20 }, asked(11), eoyLibrary())).toBeNull()
+  })
+
+  // 🔴 MIKE'S SECOND LIVE CASE, 2026-08-03. He asked for "between four and six
+  // sessions" and the plan came out at four — inside his own range — and he was
+  // asked to choose anyway. A range is a budget: a plan inside it is a fit.
+  test('a plan INSIDE the requested range asks nothing at all', () => {
+    expect(effort.fitOptions(outline, { min: 15, max: 20 }, asked(6, 12), eoyLibrary())).toBeNull()
+    expect(effort.fitOptions(outline, { min: 15, max: 20 }, asked(11, 11), eoyLibrary())).toBeNull()
+  })
+
+  test('a plan outside the range is measured against the end it missed', () => {
+    // Too many sessions → aim at the top of the range.
+    expect(effort.fitOptions(outline, { min: 15, max: 20 }, asked(4, 6), eoyLibrary()).target).toBe(6)
+    // Too few → aim at the bottom.
+    const lib = library([record({ title: 'Solo', cpd: { isHidden: false, watchedVideo: 10, reviewTemplate: 20, reheasedTemplate: 0 } })])
+    const single = { sessions: [{ resources: ['Solo'] }] }
+    const opts = effort.fitOptions(single, { min: 15, max: 20 }, asked(6, 8), lib)
+    expect(opts.direction).toBe('more')
+    expect(opts.target).toBe(6)
   })
 
   test('no question is asked when the alternative is the same course', () => {
@@ -523,13 +546,14 @@ describe('fitOptions — the two choices the advisor is offered', () => {
     // longer one, so there is no second course to offer.
     const lib = library([record({ title: 'Solo', cpd: { isHidden: false, watchedVideo: 0, reviewTemplate: 40, reheasedTemplate: 0 } })])
     const single = { sessions: [{ resources: ['Solo'] }] }
-    expect(effort.fitOptions(single, { min: 40, max: 40 }, 1, lib)).toBeNull()
+    expect(effort.fitOptions(single, { min: 40, max: 40 }, asked(1), lib)).toBeNull()
   })
 
   test('a missing figure asks nothing rather than inventing one', () => {
-    expect(effort.fitOptions(null, { min: 15, max: 20 }, 4, eoyLibrary())).toBeNull()
-    expect(effort.fitOptions(outline, null, 4, eoyLibrary())).toBeNull()
-    expect(effort.fitOptions(outline, { min: 15, max: 20 }, 0, eoyLibrary())).toBeNull()
+    expect(effort.fitOptions(null, { min: 15, max: 20 }, asked(4), eoyLibrary())).toBeNull()
+    expect(effort.fitOptions(outline, null, asked(4), eoyLibrary())).toBeNull()
+    expect(effort.fitOptions(outline, { min: 15, max: 20 }, null, eoyLibrary())).toBeNull()
+    expect(effort.fitOptions(outline, { min: 15, max: 20 }, asked(0), eoyLibrary())).toBeNull()
   })
 })
 

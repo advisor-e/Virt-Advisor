@@ -130,7 +130,7 @@
         //- CB-26: code-detected session-count mismatch — the engine flags it;
         //- the AI is never trusted to confess a deviation itself.
         .outline-count-notice(v-if="courseState.sessionCountNotice")
-          | You asked for {{ courseState.sessionCountNotice.requested }} sessions — this outline has {{ courseState.sessionCountNotice.delivered }}. Use 'Request changes' if you want {{ courseState.sessionCountNotice.requested }}.
+          | You asked for {{ countNoticeAsked }} — this outline has {{ courseState.sessionCountNotice.delivered }}. Use 'Request changes' if you want it changed.
         //- The same check on the other half of that one answer: sessions whose
         //- real length misses what the advisor asked for.
         .outline-count-notice(v-if="courseState.sessionLengthNotice")
@@ -660,6 +660,25 @@ export default {
     fitChoices () {
       const fit = this.courseState && this.courseState.pendingFit
       return (fit && Array.isArray(fit.options)) ? fit.options : []
+    },
+
+    /**
+     * How many sessions the advisor asked for: "6 sessions", or "4–6 sessions"
+     * when they gave a range. Read back with both ends, so the notice quotes
+     * what they said rather than one end of it.
+     *
+     * @returns {string} '' when there is no notice to show
+     */
+    countNoticeAsked () {
+      const asked = this.courseState &&
+        this.courseState.sessionCountNotice &&
+        this.courseState.sessionCountNotice.requested
+      if (!asked) { return '' }
+      // A course saved before the count became a range carries a plain number.
+      if (typeof asked === 'number') { return `${asked} sessions` }
+      return asked.min === asked.max
+        ? `${asked.min} session${asked.min > 1 ? 's' : ''}`
+        : `${asked.min}–${asked.max} sessions`
     },
 
     /**

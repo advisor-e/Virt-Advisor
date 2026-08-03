@@ -125,25 +125,64 @@ const COUNT_WORDS = {
 const SESSION_NOUN = '(?:sessions?|modules?|parts?|lessons?)'
 const COUNT_TOKEN = '(?:\\d{1,2}|' + Object.keys(COUNT_WORDS).join('|') + ')'
 
-// "6-8 sessions", "six to eight sessions", "6 or 8 sessions" — a range is not
-// a request for a specific count; the check stands down.
+// "6-8 sessions", "six to eight sessions", "between four and six sessions".
+//
+// A RANGE IS A BUDGET, NOT A SHRUG — the same correction the duration parser
+// needed on 2026-08-03, re-tested against this subject rather than copied.
+// The old rule read a range as indifference and stood the check down, which is
+// wrong for the same reason it was wrong there: "between four and six sessions"
+// has two ends and means NOT twelve. Mike phrased it that way twice in a row on
+// 2026-08-03; the second time the plan came out at 4 — inside his own range —
+// and he was asked to choose anyway, because "and" was not a separator here and
+// the sentence read as a flat request for six.
 const RANGE_BEFORE_NOUN_RE = new RegExp(
-  COUNT_TOKEN + '\\s*(?:-|–|—|\\bto\\b|\\bor\\b)\\s*' + COUNT_TOKEN + '\\s*' + SESSION_NOUN, 'i'
+  '(' + COUNT_TOKEN + ')\\s*(?:-|–|—|\\bto\\b|\\bor\\b|\\band\\b)\\s*(' + COUNT_TOKEN + ')\\s*' + SESSION_NOUN, 'i'
 )
 const DIGIT_COUNT_RE = new RegExp('\\b(\\d{1,2})\\s*' + SESSION_NOUN, 'gi')
 const WORD_COUNT_RE = new RegExp('\\b(' + Object.keys(COUNT_WORDS).join('|') + ')\\s+' + SESSION_NOUN, 'gi')
 
+/** One side of a session-count range → a number, digits or words. */
+function countToken (value) {
+  const raw = /^\d+$/.test(value) ? Number(value) : COUNT_WORDS[String(value).toLowerCase()]
+  return Number.isFinite(raw) ? raw : null
+}
+
 /**
- * Extract the specific session count the advisor asked for, or null when no
- * single unambiguous count is present ("a few sessions", "6-8 sessions",
- * conflicting numbers). Word forms ("six sessions") count — the live CB-26
- * case was spelled out and sailed past the digit-only pre-fill.
+ * Extract the session count the advisor asked for, as a BUDGET.
+ *
+ * Always a range, because that is what an advisor means either way: "six
+ * sessions" is the degenerate range 6–6, and "between four and six sessions" is
+ * 4–6. Any plan inside the range honours the request, so nothing is queried
+ * that the advisor already said they were happy with.
+ *
+ * Word forms ("six sessions") count — the live CB-26 case was spelled out and
+ * sailed past the digit-only pre-fill. Genuinely ambiguous input (two unrelated
+ * figures, "a few sessions", nothing at all) returns null and disables the
+ * check: a wrong figure raises a false question on a correct course, which is
+ * worse than no question.
+ *
  * @param {string} text - the advisor's session-format answer (raw typing)
- * @returns {number|null} 1–30, or null to disable the check
+ * @returns {{min: number, max: number}|null} whole sessions within 1–30, or
+ *   null to disable the check
  */
 function requestedSessionCount (text) {
   const t = String(text || '')
-  if (RANGE_BEFORE_NOUN_RE.test(t)) { return null }
+
+  // An explicit range wins outright: it is the most specific thing said, and
+  // reading its two ends as two conflicting figures is what used to kill the
+  // check entirely.
+  const range = RANGE_BEFORE_NOUN_RE.exec(t)
+  if (range) {
+    const a = countToken(range[1])
+    const b = countToken(range[2])
+    if (a !== null && b !== null) {
+      const min = Math.min(a, b)
+      const max = Math.max(a, b)
+      return (min >= 1 && max <= 30) ? { min, max } : null
+    }
+    return null
+  }
+
   const found = new Set()
   let m
   DIGIT_COUNT_RE.lastIndex = 0
@@ -152,7 +191,7 @@ function requestedSessionCount (text) {
   while ((m = WORD_COUNT_RE.exec(t))) { found.add(COUNT_WORDS[m[1].toLowerCase()]) }
   if (found.size !== 1) { return null }
   const n = found.values().next().value
-  return (n >= 1 && n <= 30) ? n : null
+  return (n >= 1 && n <= 30) ? { min: n, max: n } : null
 }
 
 // ── Requested session LENGTH ────────────────────────────────────────────────

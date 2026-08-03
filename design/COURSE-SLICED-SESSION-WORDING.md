@@ -104,6 +104,35 @@ preselected answer is the app choosing for the advisor.
 *"Keep your 7 sessions — each one up to 30 minutes"*, and the "fewest this material can be"
 sentence does not appear.
 
+### Corrected again, after Mike's second live test (2026-08-03)
+
+He asked for *"15 to 20 minutes sessions and maybe between four and six sessions"* on the
+Dashboard Discussions material. Three things were wrong, all now fixed and pinned:
+
+1. **The count is a RANGE, and a plan inside it is a fit.** His course came out at four
+   sessions — inside the four-to-six he asked for — and he was still made to choose. "between
+   four and six" was read as a flat request for six, because `and` was not a range separator.
+   The count parser now returns a budget `{min, max}` exactly as the duration parser does, and
+   no question is asked when the plan lands inside it. *This is the same premise-check that
+   duration needed a day earlier: a range is a budget, not a shrug.*
+2. **The search stepped in five-minute jumps and missed the answer.** That material makes
+   exactly six sessions at a 14-minute length; the sweep went 15 → 10 and offered **seven**
+   when six existed. It now tries every whole minute.
+3. **The second option's wording assumed the alternative was always a SHORTER course.** Beside
+   an option of four sessions it announced *"the fewest this material can be is 7 sessions"*
+   and labelled seven sessions *"as short as possible"*. The wording now follows the direction
+   the plan actually missed in:
+
+| The plan has… | Their count reachable | The second option reads |
+|---|---|---|
+| too many sessions | yes | Keep your 6 sessions — each one up to 1 hour |
+| too many sessions | no | Keep the course as short as possible — 6 sessions, the longest 1 hour |
+| too few sessions | yes | Keep your 6 sessions — each one up to 14 minutes |
+| too few sessions | no | Split it as far as it will go — 13 sessions of up to 5 minutes |
+
+The explanatory sentence follows the same split: *"the fewest this material can be is N
+sessions"* going down, *"the most it can be split into is N sessions"* going up.
+
 **Two labels written for this screen**, neither of them from an earlier approval: the
 placeholder **"Choose one…"** and the button **"Build my course →"**.
 

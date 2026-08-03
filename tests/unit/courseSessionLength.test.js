@@ -293,7 +293,7 @@ describe('an over-long session can no longer be built at all', () => {
       ])
     )
     expect(state.pendingFit.budget).toEqual({ min: 15, max: 20 })
-    expect(state.pendingFit.requestedCount).toBe(4)
+    expect(state.pendingFit.requestedCount).toEqual({ min: 4, max: 4 })
     expect(state.pendingFit.totalMinutes).toBe(129)
     // Both numbers he gave are quoted back; neither is silently overridden.
     expect(state.pendingFit.options[0].label).toContain('15–20 minutes each')

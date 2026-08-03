@@ -115,6 +115,15 @@ function spellBudget (budget) {
     : `${budget.min}–${budget.max} minutes`
 }
 
+/** "6 sessions", or "4–6 sessions" when they gave a range. */
+function spellCount (count) {
+  if (!count) { return '' }
+  if (count.min === count.max) {
+    return `${count.min} session${count.min > 1 ? 's' : ''}`
+  }
+  return `${count.min}–${count.max} sessions`
+}
+
 /**
  * Name → https page link, gathered from every session of the grounded outline.
  *
@@ -232,10 +241,19 @@ function fitChoiceOptions (options) {
     budget: { min: options.budget.min, max: options.budget.max }
   }
 
+  // The second option follows the direction the plan actually missed in. It
+  // used to assume the alternative was always a SHORTER course, and so told
+  // Mike that seven sessions was "as short as possible" beside an option of
+  // four — the plan had too FEW sessions for what he asked, not too many.
   const alt = options.keepCount
-  const altLabel = alt.reachable
-    ? `Keep your ${options.requestedCount} sessions — each one up to ${spellMinutes(alt.longestMinutes)}`
-    : `Keep the course as short as possible — ${alt.sessions} sessions, the longest ${spellMinutes(alt.longestMinutes)}`
+  let altLabel
+  if (alt.reachable) {
+    altLabel = `Keep your ${options.target} sessions — each one up to ${spellMinutes(alt.longestMinutes)}`
+  } else if (options.direction === 'fewer') {
+    altLabel = `Keep the course as short as possible — ${alt.sessions} sessions, the longest ${spellMinutes(alt.longestMinutes)}`
+  } else {
+    altLabel = `Split it as far as it will go — ${alt.sessions} sessions of up to ${spellMinutes(alt.longestMinutes)}`
+  }
 
   return [
     keepLength,
@@ -259,17 +277,23 @@ function fitChoiceOptions (options) {
  */
 function fitQuestionText (options) {
   const total = spellMinutes(options.totalMinutes)
-  const asked = `${options.requestedCount} session${options.requestedCount > 1 ? 's' : ''} of ${spellBudget(options.budget)}`
+  const asked = `${spellCount(options.requestedCount)} of ${spellBudget(options.budget)}`
   const lines = [
     `The material I've picked for this comes to ${total} of work in total — watching, reading and rehearsing.`,
     ''
   ]
   if (options.keepCount.reachable) {
     lines.push(`That doesn't fit ${asked}, so one of the two needs to give.`)
-  } else {
+  } else if (options.direction === 'fewer') {
     lines.push(
       `That doesn't fit ${asked}. Each piece of work has to finish before the next one starts, ` +
       `so the fewest this material can be is ${options.keepCount.sessions} sessions.`
+    )
+  } else {
+    // The other direction: they wanted MORE sessions than this material makes.
+    lines.push(
+      `That doesn't fit ${asked}. There is only so far this material divides, ` +
+      `so the most it can be split into is ${options.keepCount.sessions} sessions.`
     )
   }
   lines.push('', 'Which would you rather?')
@@ -354,6 +378,8 @@ function pendingFitState (options, outline) {
     outline,
     budget: options.budget,
     requestedCount: options.requestedCount,
+    target: options.target,
+    direction: options.direction,
     totalMinutes: options.totalMinutes,
     options: fitChoiceOptions(options)
   }
@@ -366,6 +392,7 @@ module.exports = {
   sliceFocus,
   spellMinutes,
   spellBudget,
+  spellCount,
   resourceLinkMap,
   buildSlicedOutline,
   fitChoiceOptions,
