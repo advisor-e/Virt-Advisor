@@ -45,7 +45,7 @@ stands behind.
 
 ### The real list, code-verified 2026-08-03
 
-1. **No icon font** — nothing declares `@mdi/font`; 4 files still use `b-icon`. ([#no-icon-font](#no-icon-font))
+1. ~~**No icon font** — nothing declares `@mdi/font`; 4 files still use `b-icon`.~~ **DONE 2026-08-03** — `@mdi/font` 7.4.47 installed and wired, install verified additive. The count here was wrong (**29 props across 10 files**, not 4 files) and so was the #1 ranking: 3 are in a hidden tab, ~24 were cosmetic, 2 mattered. ([#no-icon-font](#no-icon-font))
 2. ~~**`sessionIndex` is unvalidated** — MySQL would refuse the row and the fire-and-forget write swallows the refusal.~~ **DONE 2026-08-03, `8cdfa3a`** — [`server/utils/sessionIndex.js`](../server/utils/sessionIndex.js), 42 tests.
 3. ~~**Non-atomic delete** — [`mentor.js` L181](../server/routes/mentor.js): confirmed still two sequential writes.~~ **REPORT FIXED 2026-08-03, `8cdfa3a`.** The entry had it backwards: nothing is ever lost. The defect was the message, and `PARTIAL_DELETE` now names how many firms changed and says a repeat is safe. **Full atomicity was considered and REJECTED, not deferred** — see the entry below.
 4. **Session-state race** — [`advisorEngine.js` L343](../server/advisorEngine.js): confirmed still an in-memory `Map`. **Parked by Mike**, deliberately.
@@ -2449,7 +2449,40 @@ that the warning is not being followed by default.
   expands a match, but nothing asserts a sub-section can be CLOSED again. Add that case
   with the fix.
 
-- <a id="no-icon-font"></a>☐ **BUG — every `<b-icon>` in the app renders as NOTHING; no icon font is loaded.**
+- <a id="no-icon-font"></a>✅ **BUG — every `<b-icon>` in the app renders as NOTHING; no icon font is loaded. FIXED 2026-08-03 (laptop), Mike ruled "install the icon font".**
+  `@mdi/font` pinned **exact at 7.4.47** as a runtime dependency and loaded from
+  [`nuxt.config.js`](../nuxt.config.js)'s `css` array. **Not a Stack-Constitution deviation:**
+  Material Design Icons is the pack Buefy is built around (its default `iconPack` is `mdi`,
+  which is why `b-icon` already emits `<i class="mdi mdi-…">`), so this *completes* the locked
+  Bulma+Buefy stack rather than adding a second UI library. Install verified **purely additive**
+  against a pre-install lockfile copy: **1 package added, 0 removed, 0 version changes**,
+  `lockfileVersion` still 2, `engines` (`14.15.x`) and both `overrides` intact, **no `typescript`
+  in the tree** (npm 10 + `--save-exact --lockfile-version 2 --legacy-peer-deps`, the recipe the
+  laptop requires).
+  - **The scale was measured, and the entry below understated it in one direction and the
+    sweep's summary overstated it in another.** Real count: **29 icon props across 10 files**,
+    not "4 files still use `b-icon`" (that list line counted two files whose only mentions are
+    *comments explaining the absence*). Of the 29: **3 sit in the `Templates & Videos` tab,
+    which is `v-if="false"`** and therefore invisible to anyone; **~24 sit beside a text label**,
+    so their loss was cosmetic; and **2 were doing real work** — the chevrons at
+    [`FirmManagerHub.vue` L464](../components/FirmManagerHub.vue#L464) and
+    [`MentorReview.vue` L23](../components/MentorReview.vue#L23) are the only visual cue that a
+    case-study row expands (the rows do carry `cursor:pointer`, so it was discoverable by hover
+    — but not at all on a tablet).
+  - **This item was ranked #1 on the verified sweep's "real list" and that ranking was wrong.**
+    On the evidence it is a polish item with two small usability nicks, not the app's top defect.
+    Recorded so the next reader does not inherit the same mis-ranking.
+  - **Guard, not a note:** [`tests/unit/iconFont.test.js`](../tests/unit/iconFont.test.js) —
+    the dependency is declared and pinned, Nuxt actually loads the stylesheet (the dependency
+    alone renders nothing), and **every icon name used in a `.vue` file really exists in the
+    font**. That last one matters because a missing or renamed icon fails *silently*: Buefy
+    emits an empty `<i>`, nothing errors, nothing logs, and the suite stays green — which is
+    exactly how 29 blank icons survived every gate for six weeks. The scan caught a real bug in
+    its own first run (it was matching the tail of `show-detail-icon="false"`).
+  - ⚠ **Not yet seen in a browser.** Mike's dev server was running, so no `nuxt build` was run
+    (they share `.nuxt`). Nuxt restarts on a `nuxt.config.js` change, so a page reload should
+    show it — **needs Mike's eyes to confirm**, per the "browser-verified" standard the report
+    screens are held to.
   **Partial ruling 2026-07-23 (Mike, Phase 1):** the rebuilt Document Library is
   text-only — no `b-icon` props, CSS-drawn shapes where an affordance is needed — so
   this screen no longer depends on the missing font. The APP-WIDE decision (install
