@@ -20,6 +20,7 @@
 const activityStore = require('../utils/activityStore')
 const { logCourseSession } = require('../utils/activityLogger')
 const { normaliseQuizQuestions } = require('../utils/quizRecord')
+const { isStorableSessionIndex } = require('../utils/sessionIndex')
 const cpdCatalogue = require('../utils/cpdCatalogue')
 const { sendError } = require('../utils/sendError')
 
@@ -63,7 +64,8 @@ function parseQuizQuestions (value) {
  * @param {string} req.advisorId - advisor identity from the verified JWT (firmAuth)
  * @param {string} req.firmId - firm identity from the verified JWT (firmAuth)
  * @returns {200} { success: true }
- * @returns {403} NO_ADVISOR_IDENTITY · {400} MISSING_FIELDS (standard error envelope)
+ * @returns {403} NO_ADVISOR_IDENTITY · {400} MISSING_FIELDS · {400} INVALID_SESSION_INDEX
+ *   (standard error envelope)
  */
 async function logCourse (req, res) {
   // Identity comes from the verified JWT, not the request body.
@@ -81,6 +83,14 @@ async function logCourse (req, res) {
 
   if (!courseId || sessionIndex === undefined) {
     sendError(res, 400, 'MISSING_FIELDS', 'courseId and sessionIndex are required')
+    return
+  }
+
+  // Refused HERE rather than coerced downstream: `Number(null)` is 0, a real session the
+  // advisor never sat, and `Number('abc')` is NaN, which MySQL discards silently because
+  // the write path swallows its own error. See utils/sessionIndex for the full reasoning.
+  if (!isStorableSessionIndex(sessionIndex)) {
+    sendError(res, 400, 'INVALID_SESSION_INDEX', 'sessionIndex must be a whole number, 0 or greater')
     return
   }
 

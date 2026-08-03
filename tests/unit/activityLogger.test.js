@@ -346,27 +346,46 @@ describe('every stored string is capped to its column width', () => {
 
 // ── Recorded, not fixed ───────────────────────────────────────────────────────
 
-describe('CURRENT BEHAVIOUR — sessionIndex is not validated', () => {
-  test('a missing session index is stored as NaN', async () => {
-    // Recorded as current behaviour, NOT endorsed. `Number(undefined)` is NaN, and
-    // nothing rejects it: the dev file turns NaN into null on JSON.stringify, while
-    // MySQL would refuse the row outright — and because the write is fire-and-forget,
-    // that refusal is swallowed and the session is lost with only a console line.
-    //
-    // sessionIndex is also half of the de-duplication key (advisor, course, index), so
-    // a NaN cannot match an existing row and INSERT IGNORE cannot do its job.
-    //
-    // Left alone because every real caller supplies it (CourseBuilder passes the loop
-    // index) and changing a write path needs its own decision. Pinned here so a fix
-    // FAILS this test and gets read, rather than passing quietly.
-    await logCourseSession(courseParams({ sessionIndex: undefined }))
+describe('sessionIndex is validated BEFORE anything is written', () => {
+  // This block was "CURRENT BEHAVIOUR — sessionIndex is not validated": a
+  // characterisation suite that pinned the defect and said, in as many words, that a fix
+  // should FAIL it and be read rather than pass quietly. It did exactly that on
+  // 2026-08-03. The full reasoning now lives in server/utils/sessionIndex.
+  //
+  // The two failures it guards are OPPOSITE, which is why a coercion could never be the
+  // answer: `Number(null)` is 0 — a session the advisor never sat, recorded as fact —
+  // while `Number('abc')` is NaN, which MySQL discards and the fire-and-forget catch
+  // hides. One fabricates a record, the other loses one.
 
-    expect(activityStore.recordCourseSession).toHaveBeenCalledTimes(1)
-    expect(Number.isNaN(lastCourseRow().sessionIndex)).toBe(true)
+  test.each([
+    ['undefined', undefined],
+    ['null — the dangerous one: Number(null) is 0, a real session index', null],
+    ['an empty string — Number("") is also 0', ''],
+    ['an empty array — Number([]) is also 0', []],
+    ['true — Number(true) is 1, filing against session two', true],
+    ['a word', 'abc'],
+    ['an object', {}],
+    ['a negative index', -1],
+    ['a fraction', 1.5],
+    ['past the TINYINT UNSIGNED ceiling', 256]
+  ])('refuses %s, and writes nothing', async (_label, sessionIndex) => {
+    await logCourseSession(courseParams({ sessionIndex }))
+
+    expect(activityStore.recordCourseSession).not.toHaveBeenCalled()
+    // Swallowed is not silent — the refusal names itself and the value it refused.
+    expect(consoleError).toHaveBeenCalled()
+    expect(consoleError.mock.calls[0][0]).toContain('sessionIndex')
   })
 
-  test('a numeric string index is coerced to a number', async () => {
-    await logCourseSession(courseParams({ sessionIndex: '2' }))
-    expect(lastCourseRow().sessionIndex).toBe(2)
+  test.each([
+    ['zero — a legitimate first session', 0, 0],
+    ['a mid-course index', 4, 4],
+    ['a numeric string, still coerced', '2', 2],
+    ['the column ceiling', 255, 255]
+  ])('accepts %s', async (_label, sessionIndex, expected) => {
+    await logCourseSession(courseParams({ sessionIndex }))
+
+    expect(activityStore.recordCourseSession).toHaveBeenCalledTimes(1)
+    expect(lastCourseRow().sessionIndex).toBe(expected)
   })
 })

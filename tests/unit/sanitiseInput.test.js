@@ -4,9 +4,7 @@ const {
   sanitiseInput,
   MAX_QUERY,
   MAX_HISTORY_MESSAGES,
-  MAX_FIELD,
-  MAX_CASE_SUMMARY,
-  MAX_CASES
+  MAX_FIELD
 } = require('../../server/utils/sanitiseInput')
 
 describe('sanitiseInput — null / invalid top-level input', () => {
@@ -175,98 +173,13 @@ describe('sanitiseInput — advisorProfile field', () => {
   })
 })
 
-describe('sanitiseInput — caseContext field', () => {
-  test('returns empty array when caseSummaries is absent', () => {
-    const result = sanitiseInput({ query: 'hello' })
-    expect(result.caseContext).toEqual([])
-  })
-
-  test('returns empty array when caseSummaries is not an array', () => {
-    const result = sanitiseInput({ query: 'hello', caseSummaries: 'bad' })
-    expect(result.caseContext).toEqual([])
-  })
-
-  test(`caps cases to ${MAX_CASES}`, () => {
-    const manyCases = Array.from({ length: 20 }, (_, i) => ({
-      title: `Case ${i}`,
-      summary: 'Summary text'
-    }))
-    const result = sanitiseInput({ query: 'hello', caseSummaries: manyCases })
-    expect(result.caseContext.length).toBe(MAX_CASES)
-  })
-
-  test(`truncates case summary to ${MAX_CASE_SUMMARY} characters`, () => {
-    const longSummary = 'a'.repeat(MAX_CASE_SUMMARY + 300)
-    const result = sanitiseInput({
-      query: 'hello',
-      caseSummaries: [{ title: 'Case', summary: longSummary }]
-    })
-    expect(result.caseContext[0].summary.length).toBe(MAX_CASE_SUMMARY)
-  })
-
-  test('falls back to createdAt when date is absent', () => {
-    const result = sanitiseInput({
-      query: 'hello',
-      caseSummaries: [{ title: 'Case', createdAt: '2026-01-15' }]
-    })
-    expect(result.caseContext[0].date).toBe('2026-01-15')
-  })
-})
-
-describe('sanitiseInput — caseContext optional fields', () => {
-  test('absent title, mode, visibility, summary and date become empty strings', () => {
-    const result = sanitiseInput({ query: 'hello', caseSummaries: [{}] })
-    expect(result.caseContext[0]).toEqual({
-      title: '',
-      mode: '',
-      visibility: '',
-      summary: '',
-      date: '',
-      review: null
-    })
-  })
-
-  test('caps title, mode and visibility to their own limits', () => {
-    const result = sanitiseInput({
-      query: 'hello',
-      caseSummaries: [{
-        title: 'a'.repeat(300),
-        mode: 'b'.repeat(50),
-        visibility: 'c'.repeat(50)
-      }]
-    })
-    expect(result.caseContext[0].title.length).toBe(200)
-    expect(result.caseContext[0].mode.length).toBe(20)
-    expect(result.caseContext[0].visibility.length).toBe(20)
-  })
-
-  test('carries a review object through, capping each field to 500', () => {
-    const result = sanitiseInput({
-      query: 'hello',
-      caseSummaries: [{
-        title: 'Case',
-        review: { wentWell: 'w'.repeat(600), wentLess: 'less', changesRecommended: 'change' }
-      }]
-    })
-    expect(result.caseContext[0].review.wentWell.length).toBe(500)
-    expect(result.caseContext[0].review.wentLess).toBe('less')
-    expect(result.caseContext[0].review.changesRecommended).toBe('change')
-  })
-
-  test('absent review fields become empty strings, never undefined', () => {
-    const result = sanitiseInput({ query: 'hello', caseSummaries: [{ review: {} }] })
-    expect(result.caseContext[0].review).toEqual({
-      wentWell: '',
-      wentLess: '',
-      changesRecommended: ''
-    })
-  })
-
-  test('a review that is not an object is dropped to null', () => {
-    const result = sanitiseInput({ query: 'hello', caseSummaries: [{ review: 'not an object' }] })
-    expect(result.caseContext[0].review).toBeNull()
-  })
-})
+// The case-summaries field was REMOVED 2026-08-03. It used to arrive in the body
+// and go into the prompt beneath our own sentence "real sessions saved by advisors
+// in your firm", with nothing checking the cases existed or belonged to the caller.
+// The engine now reads them from the database on the verified identity
+// (advisorEngine.loadPromptCases), covered by tests/unit/promptCaseStudies.test.js.
+// A caseSummaries key in the body is now just an unknown key — dropped, never read;
+// that is pinned by the last test in this file.
 
 // These four fields carry identity into the engine — clientId and firmId are the ones
 // the engine must firm-validate before reading any history against them (see the note

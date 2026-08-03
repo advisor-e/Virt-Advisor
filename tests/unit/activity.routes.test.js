@@ -73,6 +73,45 @@ describe('logCourse', () => {
     expect(logCourseSession).not.toHaveBeenCalled()
   })
 
+  // A malformed index used to pass this route and be coerced downstream, which either
+  // fabricated a session-one record (`Number(null)` === 0) or lost the session entirely
+  // (`NaN`, refused by the column, swallowed by the fire-and-forget write). Both are
+  // refused at the boundary now. Full reasoning: server/utils/sessionIndex.
+  test.each([
+    ['null', null],
+    ['an empty string', ''],
+    ['an empty array', []],
+    ['true', true],
+    ['a word', 'abc'],
+    ['a negative index', -1],
+    ['a fraction', 1.5],
+    ['past the column ceiling', 256]
+  ])('returns 400 and writes nothing when sessionIndex is %s', async (_label, sessionIndex) => {
+    const req = makeReq({ body: { courseId: 'c1', sessionIndex, sessionTitle: 'Session' } })
+    const res = makeMockRes()
+
+    await logCourse(req, res)
+
+    expect(res._status).toBe(400)
+    expect(res._body.error.code).toBe('INVALID_SESSION_INDEX')
+    expect(res._body.success).toBe(false)
+    expect(logCourseSession).not.toHaveBeenCalled()
+  })
+
+  test.each([
+    ['zero', 0],
+    ['a numeric string', '2']
+  ])('still accepts a valid sessionIndex of %s', async (_label, sessionIndex) => {
+    logCourseSession.mockResolvedValue()
+    const req = makeReq({ body: { courseId: 'c1', sessionIndex, sessionTitle: 'Session' } })
+    const res = makeMockRes()
+
+    await logCourse(req, res)
+
+    expect(res._status).toBe(200)
+    expect(logCourseSession).toHaveBeenCalledTimes(1)
+  })
+
   test('stamps the session with the JWT identity, ignoring IDs sent in the body', async () => {
     logCourseSession.mockResolvedValue()
 

@@ -186,6 +186,11 @@ describe('deleteMentorDistinction', () => {
   })
 })
 
+// A delete that stops PART-WAY is covered in mentorDeletePartial.routes.test.js — it
+// must run with NODE_ENV=production, because in dev every firm write falls back to a
+// file and therefore cannot fail, which is exactly the behaviour this file relies on to
+// stay hermetic.
+
 describe('production persistence errors surface (no silent swallow)', () => {
   test('a save failure in production returns 500', async () => {
     const prev = process.env.NODE_ENV

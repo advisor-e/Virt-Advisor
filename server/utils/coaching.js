@@ -122,16 +122,70 @@ async function appendFirmCoachingEntry (firmId, entry, savedBy) {
   return nextId
 }
 
+// Firm entries are unbounded by design: appendFirmCoachingEntry pushes, and
+// nothing ever expires. Measured 2026-08-03 — left whole, a firm promoting one
+// case a week adds ~18,400 tokens to EVERY eligible prompt within a year, and
+// the newest lesson competes with forty-nine older ones for the model's
+// attention. So: this session's topic only, newest first, eight at most.
+//
+// The PLATFORM base is deliberately NOT filtered or capped (see
+// formatCoachingForPrompt). It is not the growth problem — only a developer adds
+// to it — and it is the menu the AI picks a template FROM, so hiding part of it
+// by topic could suppress a template that should have been weighed. That would
+// be a correctness risk taken against a cost problem that does not exist.
+const MAX_FIRM_COACHING_ENTRIES = 8
+
+/**
+ * Choose which of a firm's promoted entries reach the prompt.
+ *
+ * Topic filter: an entry tagged with a DIFFERENT domain is dropped; an entry
+ * with no domain always passes, because a missing tag is not evidence of
+ * irrelevance — entries promoted from a case that never recorded one have none.
+ * When the caller knows no domain, the filter is skipped and only the ordering
+ * and the cap apply: discover/plan/learn run past the point where any domain is
+ * detected, so there is genuinely no topic to filter on, and pretending
+ * otherwise would silently drop every tagged entry in those modes.
+ *
+ * @param {object[]} entries - from loadFirmCoaching, oldest first (append order)
+ * @param {string|null} domain - the session's detected domain id, or null
+ * @returns {{selected: object[], considered: number, onTopic: number, droppedByCap: number}}
+ */
+function selectFirmCoaching (entries, domain) {
+  const all = Array.isArray(entries) ? entries : []
+  const onTopic = domain
+    ? all.filter(e => e && (!e.domain || e.domain === domain))
+    : all.filter(Boolean)
+  // Newest first — the append order puts the newest last.
+  const selected = onTopic.slice().reverse().slice(0, MAX_FIRM_COACHING_ENTRIES)
+  return {
+    selected,
+    considered: all.length,
+    onTopic: onTopic.length,
+    droppedByCap: onTopic.length - selected.length
+  }
+}
+
 /**
  * Render the firm's promoted entries for the prompt, FENCED: the text is the
  * advisor's own review words about a real client — hostile prompt input under
  * the governance rules, same as the prior-engagement summary.
  * @param {object[]} entries - from loadFirmCoaching
- * @returns {string|null} guard line + fenced block, or null when empty
+ * @param {string|null} [domain] - the session's detected domain id; omit or pass
+ *   null where the mode never detects one
+ * @returns {string|null} guard line + fenced block, or null when nothing qualifies
  */
-function formatFirmCoachingForPrompt (entries) {
-  if (!Array.isArray(entries) || entries.length === 0) { return null }
-  return fenceUntrusted(entries.map(formatEntry).join('\n\n'))
+function formatFirmCoachingForPrompt (entries, domain = null) {
+  const { selected, considered, onTopic, droppedByCap } = selectFirmCoaching(entries, domain)
+  if (droppedByCap > 0) {
+    // Never a silent trim. This line is the only way anyone learns the cap is
+    // biting — and that a firm's older lessons are no longer reaching the AI.
+    console.warn(
+      `[coaching] firm entries capped at ${MAX_FIRM_COACHING_ENTRIES}: used ${selected.length} of ${onTopic} on-topic ` +
+      `(topic: ${domain || 'none detected'}), ${droppedByCap} left out, ${considered} promoted in total`
+    )
+  }
+  if (selected.length === 0) { return null }
+  return fenceUntrusted(selected.map(formatEntry).join('\n\n'))
 }
 
 module.exports = {
@@ -140,5 +194,7 @@ module.exports = {
   loadFirmCoaching,
   appendFirmCoachingEntry,
   formatFirmCoachingForPrompt,
+  selectFirmCoaching,
+  MAX_FIRM_COACHING_ENTRIES,
   FIRM_COACHING_KEY
 }
