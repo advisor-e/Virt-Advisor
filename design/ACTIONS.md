@@ -107,8 +107,13 @@ that the warning is not being followed by default.
   `3fdbf9f`.** The entry below is the original task, kept verbatim for its reasoning. The stale "OPEN"
   flag was caught by `/startup` on 2026-08-03 — a reminder that this list's own flags are claims to
   check, exactly as the warning at the top of the file says.
-  - ☐ **P1 · PROCESS — PR #37 IS OPEN and needs a reviewer and a merge**, raised 2026-08-04 on Mike's
-    instruction: <https://github.com/advisor-e/Virt-Advisor/pull/37>. Four commits — the decision-trace
+  - ✅ **P1 · PROCESS — PR #37 MERGED to `master` as `d1f9c84`** (2026-08-04, same session it was
+    raised, on Mike's instruction — "sort the pull request"). Branch caught up by fast-forward and
+    pushed; **0 ahead / 0 behind**. **No backend restart needed for it.** Entry kept below for its
+    reasoning. ⚠ **This line said "IS OPEN" for twenty minutes after the merge** — the third worked
+    example of a document acquiring a clock the moment it states a PR's status. Raised 2026-08-04 on
+    Mike's
+    instruction: <https://github.com/advisor-e/Virt-Advisor/pull/37>. Five commits — the decision-trace
     panel's text moved into `locales/en.json` so it translates (`f0de590`), the wording artefact and
     Mike's five rulings (`373ef20`, `f25d9c0`), and the "Why" column built from one shared table
     (`fab6c3a`). **State at raising:** 4 ahead, **0 behind** `origin/master`, tree clean, level with

@@ -3,8 +3,9 @@
 > **Nothing is unsaved.** `feat/advisor-progress` = `origin`, tree clean, suite **4,536 green /
 > 262 suites**, lint 0 errors.
 >
-> **PR #37 is open** — <https://github.com/advisor-e/Virt-Advisor/pull/37>. Four commits.
-> **No backend restart needed for it** — every change is front-end text.
+> **PR #37 is MERGED** — `d1f9c84`, same session it was raised, on Mike's instruction. Branch caught
+> up by fast-forward: **0 ahead / 0 behind `master`**. Everything below is now in the shared copy.
+> **No backend restart was needed for it** — every change is front-end text.
 >
 > ⚠ **PR #36's restart is STILL outstanding.** It merged this morning (`52935f1`) and those were
 > engine changes; a running Restify process holds the old code until someone restarts it.
@@ -116,7 +117,7 @@ two new files under `utils/` and `mixins/`, three test files, and `design/ACTION
 
 ## Open for Mike
 
-- **PR #37** — four commits, needs a reviewer and a merge.
+- ~~PR #37 — needs a reviewer and a merge.~~ **MERGED** the same session (`d1f9c84`).
 - **Restart the backend** wherever it runs, for PR #36's engine changes.
 - **Logic-Lab remains the desktop's.** Nothing here went near it, and the one question that touches
   it — whether `decisionScore.js` and the trace panel should agree on how much reasoning a firm
