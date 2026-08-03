@@ -23,7 +23,14 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
-- <a id="pr-advisor-progress-to-master"></a>☐ **P1 · PROCESS — PR #33 is OPEN and needs a reviewer and a
+- <a id="pr-advisor-progress-to-master"></a>✅ **P1 · PROCESS — DONE. PR #33 MERGED to `master` as
+  `3fdbf9f`.** The entry below is the original task, kept verbatim for its reasoning. The stale "OPEN"
+  flag was caught by `/startup` on 2026-08-03 — a reminder that this list's own flags are claims to
+  check, exactly as the warning at the top of the file says.
+  - ⚠ **`feat/advisor-progress` is 3 ahead of `master` again** (2026-08-03 close): the distinction
+    AI-failure P1 and the twelve-string wording document. Same invisibility applies — a new PR is
+    needed before the desktop or the master team can see any of it.
+  - Original task follows: **PR #33 is OPEN and needs a reviewer and a
   merge: `feat/advisor-progress` → `master`, the Course Builder slicer programme.** Raised 2026-08-03
   from the laptop on Mike's instruction. <https://github.com/advisor-e/Virt-Advisor/pull/33>
   - **State at raising (`b56f0c5`):** 13 ahead, **0 behind** `origin/master`, working tree clean,
@@ -111,6 +118,37 @@
     the defect was a screen making a false *statement*, and a key assertion passed happily
     throughout the original bug. Added because reproducing this by hand needs a deliberately
     broken `OPENAI_API_KEY`, which is not something the owner can be asked to arrange.
+
+- <a id="trace-panels-hardcoded-english"></a>☐ **P2 · WIRE — the decision-trace panels on BOTH live
+  screens are hardcoded English, breaking the i18n rule in `CLAUDE.md`. Pre-existing; found
+  2026-08-03 while fixing the AI-failure P1, and logged here rather than left in a design file
+  (no-silent-parking rule).**
+  - Roughly 15 strings across [`VirtualAdvisor.vue`](../components/VirtualAdvisor.vue) (the "Why this
+    recommendation" panel: *Area I focused on*, *What shaped the advice*, *Distinctions*, *Boosted
+    here:*, *No distinction changed the scoring in this area.*, *Filed elsewhere — may belong here*,
+    *How the templates scored*) and the same block copied into
+    [`FirmManagerHub.vue`](../components/FirmManagerHub.vue) for a saved case.
+  - **Why it was not done in the same change.** The two new failure sentences DO go through
+    `$t()` (`decisionTrace.*`), so no new violation was added; moving the surrounding fifteen is a
+    separate sweep and would have buried a correctness fix inside a translation change.
+  - ⚠ **`tests/unit/decisionTraceAiFailure.test.js` greps for one of those literals.** Its first
+    assertion fails loudly and points at itself if the wording moves — re-point the guard, never
+    delete it.
+
+- <a id="no-escalation-route"></a>☐ **P2 · DECISION (needs Mike) — there is NO support or escalation
+  route defined anywhere in this app, so a screen cannot tell a user who to contact when something
+  keeps failing. Surfaced 2026-08-03 by the AI-failure wording.**
+  - The approved sentence ends *"Try again in a moment."* — which is the whole truth we can offer. A
+    transient fault clears; a persistent one (a rotated certificate, a dead key, a firm's network)
+    needs a person, and the app has no one to name.
+  - **Not invented on purpose.** Wording is never authored without a ruling, and an escalation route
+    is a business fact, not a phrasing choice — a fabricated "contact support" address would be the
+    same defect family as [`fabricated-detail-in-summaries`](#fabricated-detail-in-summaries).
+  - **What is needed from Mike:** an address, an in-app route, or a decision that "try again" is all
+    a firm ever gets. It then goes into the two sentences that end in an action
+    ([`WORDING-DISTINCTION-AI-FAILURE.md`](WORDING-DISTINCTION-AI-FAILURE.md) S1 and S6).
+  - ⚠ **Wider than this fix.** Every fault message in the app has the same hole; this is the first
+    one to say so out loud.
   - **The proof, not a guess.** `_classifyMatchingRows` ([`advisorEngine.js`](../server/advisorEngine.js)
     L125-129) catches every error and `return []`. An empty array is exactly what "the AI read them
     and matched none" returns. The two are the same value.
