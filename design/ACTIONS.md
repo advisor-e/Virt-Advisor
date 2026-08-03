@@ -27,9 +27,15 @@
   `3fdbf9f`.** The entry below is the original task, kept verbatim for its reasoning. The stale "OPEN"
   flag was caught by `/startup` on 2026-08-03 — a reminder that this list's own flags are claims to
   check, exactly as the warning at the top of the file says.
-  - ⚠ **`feat/advisor-progress` is 3 ahead of `master` again** (2026-08-03 close): the distinction
-    AI-failure P1 and the twelve-string wording document. Same invisibility applies — a new PR is
-    needed before the desktop or the master team can see any of it.
+  - ☐ **P1 · PROCESS — PR #35 IS NOW OPEN and needs a reviewer and a merge**, raised 2026-08-03 on
+    Mike's instruction: <https://github.com/advisor-e/Virt-Advisor/pull/35>. The distinction
+    AI-failure P1, its six approved sentences, the coach escalation route, the Logic-Lab lede
+    correction and 27 tests. **State at raising (`9317cb7`):** 5 ahead, **0 behind** `origin/master`,
+    tree clean, level with `origin`; suite **4,373 green / 254 suites**, lint 0 errors; GitHub reports
+    **MERGEABLE** — 18 files, +1,260 / −55.
+    - **⚠ For the reviewer/merger:** the backend must be **restarted** for the engine changes to take
+      effect — a running Restify process holds the old code.
+    - Until it merges, none of it is visible to the desktop or the master team.
   - Original task follows: **PR #33 is OPEN and needs a reviewer and a
   merge: `feat/advisor-progress` → `master`, the Course Builder slicer programme.** Raised 2026-08-03
   from the laptop on Mike's instruction. <https://github.com/advisor-e/Virt-Advisor/pull/33>
