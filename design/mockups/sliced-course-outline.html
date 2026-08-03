@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sliced course sessions — proposed screen</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #f3f4f6;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #111827;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  /* ── Status banner ─────────────────────────────────────────────────────── */
+  .banner {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-left: 5px solid #f59e0b;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+  }
+  .banner h1 { font-size: 18px; margin: 0 0 6px; color: #92400e; }
+  .banner p { margin: 0 0 8px; font-size: 13px; color: #78350f; }
+  .banner p:last-child { margin-bottom: 0; }
+  .banner code { background: rgba(146,64,14,0.08); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+
+  h2.sec {
+    font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: #6b7280; margin: 36px 0 6px; font-weight: 700;
+  }
+  p.sec-note { font-size: 13px; color: #6b7280; margin: 0 0 14px; }
+  p.sec-note strong { color: #374151; }
+  .decision-chip {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    background: #111827; color: #fff; border-radius: 4px;
+    padding: 2px 7px; margin-right: 6px; vertical-align: 1px;
+  }
+
+  /* ── Chat, as the design screen renders it ─────────────────────────────── */
+  .chat { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 18px; }
+  .bubble { max-width: 82%; padding: 12px 16px; border-radius: 14px; font-size: 14px; margin-bottom: 12px; white-space: pre-line; }
+  .bubble-user { background: #00b1e0; color: #fff; margin-left: auto; border-bottom-right-radius: 4px; }
+  .bubble-ai { background: #f3f4f6; color: #111827; border-bottom-left-radius: 4px; }
+  .bubble ul { margin: 8px 0 0; padding-left: 18px; }
+  .bubble li { margin-bottom: 4px; }
+
+  /* ── The outline card — styles copied from CourseBuilder.vue ───────────── */
+  .outline-card {
+    background: #ffffff;
+    border: 2px solid #00b1e0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,177,224,0.12);
+  }
+  .outline-card-header { background: linear-gradient(135deg, #00b1e0, #0098c1); padding: 20px 24px 16px; }
+  .outline-title { font-size: 17px; font-weight: 700; color: #fff; margin: 0 0 10px; }
+  .outline-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+  .outline-tag {
+    font-size: 11px; font-weight: 600;
+    background: rgba(255,255,255,0.2); color: #fff;
+    border-radius: 20px; padding: 3px 10px;
+  }
+  .outline-sessions { padding: 16px 24px; display: flex; flex-direction: column; gap: 12px; }
+  .outline-session { display: flex; gap: 14px; align-items: flex-start; }
+  .session-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #e6f8fd; border: 2px solid #00b1e0; color: #00b1e0;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .session-info { flex: 1; }
+  .session-title { font-size: 14px; color: #111827; display: block; margin-bottom: 2px; font-weight: 700; }
+  .session-focus { font-size: 12px; color: #6b7280; margin: 0 0 6px; line-height: 1.4; }
+  .session-time { font-size: 11px; font-weight: 600; color: #4b5563; margin: 0 0 6px; }
+  .session-objective {
+    font-size: 12px; color: #4b5563; margin: 0 0 6px;
+    border-left: 3px solid #99dff5; padding-left: 10px; line-height: 1.45;
+  }
+  .resource-tag {
+    display: inline-block;
+    font-size: 11px; background: #e6f8fd; color: #00b1e0;
+    border: 1px solid #99dff5; border-radius: 4px; padding: 2px 8px;
+    text-decoration: none;
+  }
+  .session-time-unknown { font-size: 11px; font-style: italic; color: #9ca3af; margin: 4px 0 0; }
+  .outline-count-notice {
+    background: #fffbeb; color: #92400e;
+    border: 1px solid #fde68a; border-radius: 8px;
+    padding: 10px 14px; margin: 12px 24px 0; font-size: 13px; font-weight: 600;
+  }
+  .outline-visibility { padding: 14px 24px 0; }
+  .visibility-label { font-size: 12px; font-weight: 600; color: #6b7280; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .visibility-opts { display: flex; gap: 8px; }
+  .vis-opt {
+    flex: 1; display: flex; align-items: center; gap: 8px; justify-content: center;
+    background: #fff; border: 1.5px solid #e5e7eb; border-radius: 10px;
+    padding: 10px; font-size: 13px; font-weight: 600; color: #6b7280; cursor: default;
+  }
+  .vis-active { border-color: #00b1e0; background: #e6f8fd; color: #00b1e0; }
+  .outline-actions { display: flex; gap: 10px; padding: 16px 24px 20px; }
+  .btn-start-course {
+    flex: 1; background: #00b1e0; color: #fff; border: none; border-radius: 10px;
+    padding: 12px; font-size: 14px; font-weight: 700; cursor: default;
+  }
+  .btn-request-changes {
+    background: #fff; color: #6b7280; border: 1.5px solid #e5e7eb;
+    border-radius: 10px; padding: 12px 18px; font-size: 14px; font-weight: 600; cursor: default;
+  }
+
+  /* ── Comparison strips ─────────────────────────────────────────────────── */
+  .compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .opt {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px;
+  }
+  .opt.recommended { border: 2px solid #00b1e0; }
+  .opt h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; margin: 0 0 10px; }
+  .opt.recommended h3 { color: #00b1e0; }
+  .opt .row { font-size: 13px; color: #111827; font-weight: 600; margin-bottom: 5px; }
+  .opt .why { font-size: 12px; color: #6b7280; margin: 10px 0 0; line-height: 1.45; }
+
+  /* The drop-tab, exactly as the screen draws it */
+  .fit-card {
+    background: #ffffff;
+    border: 2px solid #00b1e0;
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 0 4px 16px rgba(0,177,224,0.12);
+  }
+  .fit-select {
+    flex: 1;
+    min-width: 240px;
+    font-size: 14px;
+    padding: 9px 12px;
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    background: #fff;
+    color: #363636;
+  }
+  .btn-build-course {
+    background: #00b1e0; color: #fff; border: none; border-radius: 10px;
+    padding: 12px 18px; font-size: 14px; font-weight: 700; cursor: default;
+  }
+
+  .callout {
+    background: #fef2f2; border: 1px solid #fecaca; border-left: 5px solid #ef4444;
+    border-radius: 10px; padding: 14px 18px; font-size: 13px; color: #7f1d1d;
+  }
+  .callout strong { color: #991b1b; }
+  .callout table { border-collapse: collapse; margin: 10px 0 4px; font-size: 12px; }
+  .callout td { padding: 3px 14px 3px 0; }
+  .callout td:first-child { font-weight: 700; }
+
+  .foot {
+    margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e7eb;
+    font-size: 12px; color: #9ca3af;
+  }
+  .foot a { color: #00b1e0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <h1>Sliced course sessions — the screen as built</h1>
+    <p><strong>Built 2026-08-03 on Mike's instruction to finish the slicer.</strong> Everything
+      below is what the app now does; this file is kept so the screen can be checked against it.
+      The two options are a <strong>drop-tab</strong> — the first version of this file showed
+      them as text the advisor had to type an answer to, which was wrong.</p>
+    <p>The model: <code>design/COURSE-SESSION-PLANNING.md</code> (approved 2026-08-03).
+      The decisions behind each row: <code>design/COURSE-SLICED-SESSION-WORDING.md</code>.</p>
+    <p>Every minute figure below is produced by the code that already exists
+      (<code>planSessions</code>), run against the real master export and Mike's own EOY
+      material. None of it is illustrative.</p>
+  </div>
+
+  <!-- ── 1. THE DEFECT ─────────────────────────────────────────────────── -->
+  <h2 class="sec">1 · A number in the approved question that the code cannot deliver</h2>
+  <p class="sec-note">This has to be settled before the rest, because it changes what the
+    advisor is asked.</p>
+
+  <div class="callout">
+    The approved wording offers <strong>“Keep your 4 sessions — and each one runs about 45
+    minutes”</strong>. Run the slicer at 45 minutes and this material comes out as
+    <strong>7 sessions</strong>, not 4.
+    <table>
+      <tr><td>15–20 min</td><td>11 sessions — 9, 20, 20, 20, 15, 15, 12, 12, 20, 15, 15</td></tr>
+      <tr><td>45 min</td><td>7 sessions — 9, 30, 30, 30, 24, 20, 30</td></tr>
+      <tr><td>50–60 min</td><td>6 sessions — 9, 60, 30, 24, 20, 30</td></tr>
+    </table>
+    <strong>Four is unreachable at any length.</strong> The material is six activities, and the
+    approved model says activities are never mixed in one session — so six is the floor. The
+    figure was arrived at by dividing 173 minutes by 4, without asking the slicer whether that
+    plan exists.
+  </div>
+
+  <!-- ── 2. THE FIT QUESTION ───────────────────────────────────────────── -->
+  <h2 class="sec">2 · The question — corrected, and picked from a drop-tab</h2>
+  <p class="sec-note"><span class="decision-chip">D6</span> The first option is
+    <strong>exactly the wording Mike approved</strong>. Only the second is changed, plus one
+    sentence saying why 4 is not offered. “Cover less material” is still not an option.
+    <strong>The advisor picks — they never type the answer</strong>, which is this app's own
+    rule for a choice between defined options, and means there is nothing to parse and nothing
+    to guess.</p>
+
+  <div class="chat">
+    <div class="bubble bubble-user">15 to 20 minutes per session and say four sessions please</div>
+    <div class="bubble bubble-ai">The material I've picked for this comes to 2 hours 53 minutes of work in total — watching, reading and rehearsing.
+
+That doesn't fit 4 sessions of 15–20 minutes. Each piece of work has to finish before the next one starts, so the fewest this material can be is 6 sessions.
+
+Which would you rather?</div>
+
+    <div class="fit-card">
+      <select class="fit-select">
+        <option>Choose one…</option>
+        <option>Keep your session length — 15–20 minutes each, and the course becomes 11 sessions</option>
+        <option>Keep the course as short as possible — 6 sessions, the longest 1 hour</option>
+      </select>
+      <button class="btn-build-course">Build my course →</button>
+    </div>
+
+    <div class="bubble bubble-user" style="margin-top:12px">Keep your session length — 15–20 minutes each, and the course becomes 11 sessions</div>
+    <div class="bubble bubble-ai">Right — 11 sessions of up to 20 minutes. Here's the course.</div>
+  </div>
+
+  <p class="sec-note" style="margin-top:14px"><span class="decision-chip">D7</span> An advisor
+    can still type instead of picking. A clear answer is honoured; an unclear one is asked
+    again once in plainer words, and if it is still unclear the app says which way it is going
+    rather than choosing in silence.</p>
+
+  <div class="chat">
+    <div class="bubble bubble-user">whatever you think is best</div>
+    <div class="bubble bubble-ai">Sorry — I couldn't tell which of those you'd prefer. Pick one from the list above and I'll build it.</div>
+    <div class="bubble bubble-user">not fussed really</div>
+    <div class="bubble bubble-ai">I'll go with keeping your sessions at 15–20 minutes — that makes it 11 sessions. Use 'Request changes' if you'd rather have fewer, longer ones.</div>
+  </div>
+
+  <!-- ── 3. THE CARD ───────────────────────────────────────────────────── -->
+  <h2 class="sec">3 · The course, sliced</h2>
+  <p class="sec-note">The card the advisor confirms. <span class="decision-chip">D1</span>
+    activity words · <span class="decision-chip">D2</span> part numbering ·
+    <span class="decision-chip">D4</span> the grey line under each title ·
+    <span class="decision-chip">D5</span> the authored objective, shown once per template.</p>
+
+  <div class="outline-card">
+    <div class="outline-card-header">
+      <h3 class="outline-title">Running a better End of Year meeting</h3>
+      <div class="outline-meta">
+        <span class="outline-tag">11 sessions</span>
+        <span class="outline-tag">Consistent depth</span>
+        <span class="outline-tag">2h 53m</span>
+      </div>
+    </div>
+
+    <div class="outline-sessions">
+
+      <div class="outline-session">
+        <div class="session-num">1</div>
+        <div class="session-info">
+          <strong class="session-title">Watch: E.O.Y Meeting</strong>
+          <p class="session-focus">Watch the tutorial video for this template.</p>
+          <p class="session-time">9m</p>
+          <p class="session-objective">How to frame the EOY meeting to act as a 'springboard' into advisory services, without giving away all the 'gold' advice for free.</p>
+          <a class="resource-tag" href="#">E.O.Y Meeting ↗</a>
+        </div>
+      </div>
+
+      <div class="outline-session">
+        <div class="session-num">2</div>
+        <div class="session-info">
+          <strong class="session-title">Read: E.O.Y Meeting (part 1 of 3)</strong>
+          <p class="session-focus">Read through the template.</p>
+          <p class="session-time">20m</p>
+          <a class="resource-tag" href="#">E.O.Y Meeting ↗</a>
+        </div>
+      </div>
+
+      <div class="outline-session">
+        <div class="session-num">3</div>
+        <div class="session-info">
+          <strong class="session-title">Read: E.O.Y Meeting (part 2 of 3)</strong>
+          <p class="session-focus">Read through the template — part 2 of 3, picking up where you left off.</p>
+          <p class="session-time">20m</p>
+          <a class="resource-tag" href="#">E.O.Y Meeting ↗</a>
+        </div>
+      </div>
+
+      <div class="outline-session">
+        <div class="session-num">4</div>
+        <div class="session-info">
+          <strong class="session-title">Read: E.O.Y Meeting (part 3 of 3)</strong>
+          <p class="session-focus">Read through the template — part 3 of 3, picking up where you left off.</p>
+          <p class="session-time">20m</p>
+          <a class="resource-tag" href="#">E.O.Y Meeting ↗</a>
+        </div>
+      </div>
+
+      <div class="outline-session">
+        <div class="session-num">5</div>
+        <div class="session-info">
+          <strong class="session-title">Rehearse: E.O.Y Meeting (part 1 of 2)</strong>
+          <p class="session-focus">Rehearse the template with a colleague.</p>
+          <p class="session-time">15m</p>
+          <a class="resource-tag" href="#">E.O.Y Meeting ↗</a>
+        </div>
+      </div>
+
+      <div class="outline-session">
+        <div class="session-num">6</div>
+        <div class="session-info">
+          <strong class="session-title">Rehearse: E.O.Y Meeting (part 2 of 2)</strong>
+          <p class="session-focus">Rehearse the template with a colleague — part 2 of 2, picking up where you left off.</p>
+          <p class="session-time">15m</p>
+          <a class="resource-tag" href="#">E.O.Y Meeting ↗</a>
+        </div>
+      </div>
+
+      <div class="outline-session">
+        <div class="session-num">7</div>
+        <div class="session-info">
+          <strong class="session-title">Watch: Working Capital Cycle (part 1 of 2)</strong>
+          <p class="session-focus">Watch the tutorial video for this template.</p>
+          <p class="session-time">12m</p>
+          <p class="session-objective">How to facilitate your client's understanding of 'money in movement' — the effects of time &amp; discounting on their business profits. (5 videos)</p>
+          <a class="resource-tag" href="#">Working Capital Cycle ↗</a>
+        </div>
+      </div>
+
+      <div class="outline-session">
+        <div class="session-num">8</div>
+        <div class="session-info">
+          <strong class="session-title">Watch: Working Capital Cycle (part 2 of 2)</strong>
+          <p class="session-focus">Watch the tutorial video — part 2 of 2, picking up where you left off.</p>
+          <p class="session-time">12m</p>
+          <a class="resource-tag" href="#">Working Capital Cycle ↗</a>
+        </div>
+      </div>
+
+      <div class="outline-session">
+        <div class="session-num">9</div>
+        <div class="session-info">
+          <strong class="session-title">Read: Working Capital Cycle</strong>
+          <p class="session-focus">Read through the template.</p>
+          <p class="session-time">20m</p>
+          <a class="resource-tag" href="#">Working Capital Cycle ↗</a>
+        </div>
+      </div>
+
+      <div class="outline-session">
+        <div class="session-num">10</div>
+        <div class="session-info">
+          <strong class="session-title">Rehearse: Working Capital Cycle (part 1 of 2)</strong>
+          <p class="session-focus">Rehearse the template with a colleague.</p>
+          <p class="session-time">15m</p>
+          <a class="resource-tag" href="#">Working Capital Cycle ↗</a>
+        </div>
+      </div>
+
+      <div class="outline-session">
+        <div class="session-num">11</div>
+        <div class="session-info">
+          <strong class="session-title">Rehearse: Working Capital Cycle (part 2 of 2)</strong>
+          <p class="session-focus">Rehearse the template with a colleague — part 2 of 2, picking up where you left off.</p>
+          <p class="session-time">15m</p>
+          <a class="resource-tag" href="#">Working Capital Cycle ↗</a>
+        </div>
+      </div>
+
+      <div class="outline-session">
+        <div class="session-num">12</div>
+        <div class="session-info">
+          <strong class="session-title">Watch: 3 Pillars of Financial Management</strong>
+          <p class="session-focus">Watch the tutorial video for this template.</p>
+          <p class="session-time">15m</p>
+          <a class="resource-tag" href="#">3 Pillars of Financial Management ↗</a>
+          <p class="session-time-unknown">Estimated — the library publishes no time for this template.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="outline-count-notice">
+      <span style="font-weight:700">D8 · </span>1 resource has no published time, so it isn't
+      timetabled: Some Invented Name.
+    </div>
+
+    <div class="outline-visibility">
+      <p class="visibility-label">Who can access this course?</p>
+      <div class="visibility-opts">
+        <div class="vis-opt vis-active"><span>🔒</span><span>Private — just me</span></div>
+        <div class="vis-opt"><span>🏢</span><span>Firm-wide — all advisors</span></div>
+      </div>
+    </div>
+
+    <div class="outline-actions">
+      <button class="btn-start-course">Start this course →</button>
+      <button class="btn-request-changes">Request changes</button>
+    </div>
+  </div>
+
+  <p class="sec-note" style="margin-top:12px">Session 12 shows the standard allowance
+    (Mike's ruling: 15 video / 30 reading / 30 rehearsal) for a template the export never
+    timed — taught like anything else, and saying plainly that its length is an estimate. The
+    amber line below it is now only for a resource name matching no template at all; it is in
+    the card so the wording can be judged, not because it always appears. Everything else on the card (the header tags, the visibility
+    choice, the two buttons) is unchanged from today's screen.</p>
+
+  <!-- ── 4. LABEL OPTIONS ──────────────────────────────────────────────── -->
+  <h2 class="sec">4 · The activity words, side by side</h2>
+  <p class="sec-note"><span class="decision-chip">D1</span> This word starts every row, so it
+    is read more than anything else on the screen.</p>
+
+  <div class="compare">
+    <div class="opt recommended">
+      <h3>A — recommended</h3>
+      <div class="row">Watch: E.O.Y Meeting</div>
+      <div class="row">Read: E.O.Y Meeting (part 1 of 3)</div>
+      <div class="row">Rehearse: E.O.Y Meeting (part 1 of 2)</div>
+      <p class="why">Mike's own words in the approved model. Instructions rather than
+        categories, and short enough that the template name stays readable.</p>
+    </div>
+    <div class="opt">
+      <h3>B — nouns</h3>
+      <div class="row">Video: E.O.Y Meeting</div>
+      <div class="row">Reading: E.O.Y Meeting (part 1 of 3)</div>
+      <div class="row">Rehearsal: E.O.Y Meeting (part 1 of 2)</div>
+      <p class="why">Matches the existing time breakdown wording (“9m video · 60m reading”),
+        but names a category instead of telling the advisor what to do.</p>
+    </div>
+    <div class="opt">
+      <h3>C — full instruction</h3>
+      <div class="row">Watch the video: E.O.Y Meeting</div>
+      <div class="row">Read the template: E.O.Y Meeting (part 1 of 3)</div>
+      <div class="row">Rehearse with a colleague: E.O.Y Meeting (part 1 of 2)</div>
+      <p class="why">Clearest on a first read; noisiest by the eleventh row, and the template
+        name gets pushed along the line.</p>
+    </div>
+  </div>
+
+  <h2 class="sec">5 · A revenue model row</h2>
+  <p class="sec-note"><span class="decision-chip">D3</span> A revenue model has no authored
+    split — it is one 30-minute block, so it needs its own word.</p>
+
+  <div class="compare">
+    <div class="opt recommended">
+      <h3>Recommended</h3>
+      <div class="row">Work through: Cafe</div>
+      <p class="why">Says what the advisor does with it. Splits like anything else when it is
+        longer than the session — “Work through: Cafe (part 1 of 2)”.</p>
+    </div>
+    <div class="opt">
+      <h3>Alternative</h3>
+      <div class="row">Model: Cafe</div>
+      <p class="why">Accurate, but tells the advisor nothing to do.</p>
+    </div>
+    <div class="opt">
+      <h3>Alternative</h3>
+      <div class="row">Complete: Cafe</div>
+      <p class="why">Implies a finish line the app has no way of checking.</p>
+    </div>
+  </div>
+
+  <h2 class="sec">6 · One more thing this build fixed</h2>
+  <p class="sec-note">Mike clicked <strong>Request changes</strong> on a course and it vanished
+    on the spot, with no way to get it back. The button now only puts the cursor in the message
+    box: the card stays until a replacement course actually arrives, and if the reply fails or
+    carries no course, the one he had is put straight back.</p>
+
+  <div class="foot">
+    Saved 2026-08-03 · laptop · branch <code>feat/advisor-progress</code> · updated the same day
+    to match what was built. Reasoning and the numbered decisions:
+    <code>design/COURSE-SLICED-SESSION-WORDING.md</code>.
+  </div>
+
+</div>
+</body>
+</html>
