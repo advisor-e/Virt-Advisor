@@ -107,7 +107,16 @@ that the warning is not being followed by default.
   `3fdbf9f`.** The entry below is the original task, kept verbatim for its reasoning. The stale "OPEN"
   flag was caught by `/startup` on 2026-08-03 — a reminder that this list's own flags are claims to
   check, exactly as the warning at the top of the file says.
-  - ☐ **P1 · PROCESS — PR #35 IS NOW OPEN and needs a reviewer and a merge**, raised 2026-08-03 on
+  - ☐ **P1 · PROCESS — PR #36 IS OPEN and needs a reviewer and a merge**, raised 2026-08-03 on Mike's
+    instruction: <https://github.com/advisor-e/Virt-Advisor/pull/36>. Six commits — the two
+    coaching-reference prompt fixes (Phase 3 `f10b87b`, Phase 2 `32d631d`) plus the verified sweep and
+    its follow-through. **State at raising (`ddb910c`):** 6 ahead, **0 behind** `origin/master`, tree
+    clean, level with `origin`; suite **4,459 green / 259 suites**, lint 0 errors.
+    - **⚠ For the reviewer/merger:** the backend must be **restarted** — these are engine changes, and
+      a running Restify process holds the old code.
+    - Until it merges, none of it is visible to the desktop or the master team.
+  - ✅ **P1 · PROCESS — PR #35 MERGED to `master` as `29b1b97`** (2026-08-03). Entry kept verbatim
+    below for its reasoning. Raised 2026-08-03 on
     Mike's instruction: <https://github.com/advisor-e/Virt-Advisor/pull/35>. The distinction
     AI-failure P1, its six approved sentences, the coach escalation route, the Logic-Lab lede
     correction and 27 tests. **State at raising (`9317cb7`):** 5 ahead, **0 behind** `origin/master`,
