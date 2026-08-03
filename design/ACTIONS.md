@@ -99,6 +99,13 @@
   advisors and firm managers as "no distinction matched". It is indistinguishable from a genuine
   no-match, and it affects LIVE ADVISOR SESSIONS, not just the Logic-Lab page. Found 2026-08-03 by
   watching it happen; NOT FIXED.**
+  - **🔷 OWNED BY THE LAPTOP from 2026-08-03 (Mike's allocation). The DESKTOP FOUND IT AND DOES NOT
+    FIX IT** — it is building [accept-and-push](#logic-lab-accept-and-push) instead. Written down
+    because ownership held only in conversation is ownership neither machine can see: on this same
+    day both divisions independently closed
+    [`pr-firm-quiz-builder-to-master`](#pr-firm-quiz-builder-to-master) hours apart and the merge
+    conflicted on those very lines. That was a wasted afternoon over a dead entry; this one is a live
+    P1 in `master`, and two people fixing it at once in the same function would be worse.
   - **The proof, not a guess.** `_classifyMatchingRows` ([`advisorEngine.js`](../server/advisorEngine.js)
     L125-129) catches every error and `return []`. An empty array is exactly what "the AI read them
     and matched none" returns. The two are the same value.
