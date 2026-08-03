@@ -7,11 +7,11 @@
   },
   "scripts": {
     "build": "nuxt build",
-    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=12288 NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem nuxt",
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=12288 nuxt",
     "dev:clean": "dev.bat",
     "go": ".\\go.bat",
     "serve": ".\\serve.bat",
-    "start": "cross-env NODE_OPTIONS=--max-old-space-size=12288 NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem nuxt start",
+    "start": "cross-env NODE_OPTIONS=--max-old-space-size=12288 nuxt start",
     "generate": "nuxt generate",
     "check:branch": "node scripts/check-branch-state.js --report",
     "status": "node scripts/generate-status-table.js",

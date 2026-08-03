@@ -156,10 +156,14 @@ async function probeText (rawText, firmTrees, distinctionRows) {
  * Distinctions are scored within the detected domain, exactly as a live session
  * does, so the probe cannot report a match the engine would never have made.
  *
+ * That domain filter is also the commonest reason a firm's own distinction never
+ * fires, so `elsewhere` reports the firm's rows filed in OTHER areas that this
+ * sentence would have matched — see `matchElsewhere` below.
+ *
  * @param {string} text - the advisor's words
  * @param {Array<{id:string}>} domains - scored domains, highest first
  * @param {Array<Object>} [rows] - the firm's resolved effective distinctions
- * @returns {Promise<Object>} { measured, domain, matched[], reason? }
+ * @returns {Promise<Object>} { measured, domain, matched[], elsewhere, reason? }
  */
 async function matchDistinctions (text, domains, rows) {
   const domain = domains && domains.length > 0 ? domains[0].id : null
@@ -175,12 +179,20 @@ async function matchDistinctions (text, domains, rows) {
     }
   }
 
-  const inDomain = (Array.isArray(rows) ? rows : []).filter(r => r && r.domain === domain)
+  const all = Array.isArray(rows) ? rows : []
+  const inDomain = all.filter(r => r && r.domain === domain)
+
+  // Always run the elsewhere check, even when this domain has no distinctions at
+  // all — "you have none here, but you have one filed under Conflict that fits"
+  // is a more useful answer than either half alone.
+  const elsewhere = await matchElsewhere(text, domain, all)
+
   if (inDomain.length === 0) {
     return {
       measured: true,
       domain,
       matched: [],
+      elsewhere,
       reason: 'This domain has no distinctions yet, so there was nothing for the AI to match.'
     }
   }
@@ -190,6 +202,7 @@ async function matchDistinctions (text, domains, rows) {
     measured: true,
     domain,
     considered: inDomain.length,
+    elsewhere,
     // 🔴 The call FAILED — an empty `matched` below is not a reading. This screen used to
     // print "None matched. The AI read all N in this area." on a call that never
     // completed, which is the one thing a page built to explain the engine must not do.
@@ -201,6 +214,70 @@ async function matchDistinctions (text, domains, rows) {
       boost: r.boost || 5,
       templates: Array.isArray(r.templates) ? r.templates : [],
       source: r.source || 'platform'
+    }))
+  }
+}
+
+/**
+ * The firm's OWN distinctions, filed in OTHER areas, that this sentence would have
+ * matched had they been in the detected one.
+ *
+ * WHY THIS EXISTS — the whole reason a firm manager opens this page is *"I wrote a
+ * distinction and it didn't fire, why not?"*, and the commonest answer is not that
+ * the wording was poor. It is that the row was never shown to the AI at all:
+ * distinctions are scored inside the detected domain (above), so a row filed
+ * anywhere else is invisible no matter how well it describes the situation.
+ *
+ * Found by Mike on 2026-08-03, testing the first build. His sentence — *"clients
+ * who are not on the same page, have poor decision making and no clear strategy"* —
+ * read as `governance`, while his own row *"Clients not on same page or haven't
+ * defined what each wants from the business"* sits in `conflict`. It matched his
+ * words almost verbatim and never entered the running. The page instead reported a
+ * PLATFORM row that did match, and offered to change that — the wrong material and
+ * the wrong answer. See design/LOGIC-LAB-ACCEPT-AND-PUSH.md §1a.
+ *
+ * THE FIRM'S OWN MATERIAL ONLY (`firm-own` + `firm-override`). "Why didn't MINE
+ * work" is the question, and an accept may only ever change the firm's own rows —
+ * re-filing a platform row the firm never wrote is not a determined fix.
+ *
+ * A second live classifier call, deliberately: the same judgement the engine makes,
+ * asked of a different set of rows. Re-implementing "would this have matched?" here
+ * would be free to disagree with production.
+ *
+ * ✅ The P1 this used to inherit is CLOSED (`ai-failure-reads-as-no-match`, fixed by
+ * the laptop in PR #35): `classifyMatchingRows` now returns `{ ok, rows }`, so a
+ * failed call is told apart from "read them, none fitted". `aiFailed` is carried
+ * out of here for the same reason the in-domain pass carries it.
+ *
+ * @param {string} text - the advisor's words
+ * @param {string} domain - the detected domain
+ * @param {Array<Object>} allRows - the firm's resolved effective distinctions
+ * @returns {Promise<{considered: number, rows: Array<Object>}>}
+ */
+async function matchElsewhere (text, domain, allRows) {
+  const candidates = allRows.filter(r =>
+    r && r.domain && r.domain !== domain &&
+    (r.source === 'firm-own' || r.source === 'firm-override')
+  )
+  if (candidates.length === 0) { return { considered: 0, rows: [] } }
+
+  const { ok, rows: hits } = await require('../advisorEngine').classifyMatchingRows(candidates, text, 'logic-lab-elsewhere')
+  return {
+    considered: candidates.length,
+    // Same distinction the in-domain pass now makes (PR #35): a failed call and
+    // "read them, none fitted" are different answers, and an empty list must not
+    // be allowed to pass for the second when it was the first.
+    aiFailed: !ok,
+    rows: (hits || []).map(r => ({
+      id: r.id,
+      description: r.description,
+      // The area it is filed in — the whole point of the finding, and the thing
+      // the manager has to change.
+      filedDomain: r.domain,
+      boost: r.boost || 5,
+      templates: Array.isArray(r.templates) ? r.templates : [],
+      triggers: Array.isArray(r.triggers) ? r.triggers : [],
+      source: r.source
     }))
   }
 }
