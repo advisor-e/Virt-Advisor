@@ -38,4 +38,40 @@ function buildMoveRequest (nearMiss, targetDomain) {
   }
 }
 
-module.exports = { buildMoveRequest }
+/**
+ * Build the API request that COPIES a near-miss distinction into a target domain,
+ * leaving the original exactly where it is.
+ *
+ * Added for the Logic-Lab page (design/mockups/decision-logic-map-mockup.html),
+ * whose near-miss rows offer Move / Copy / Leave. Copy is the answer when the
+ * situation genuinely arises in BOTH areas — moving it would fix one and break
+ * the other.
+ *
+ * There is no copy ENDPOINT and there should not be one: a copy is just a new
+ * firm-own distinction, which POST /distinctions already creates, for both
+ * cascade flavours. A firm-override's copy lands as a firm-own row carrying the
+ * firm's edited wording — the same shape the platform move endpoint produces —
+ * so the two actions stay consistent with each other.
+ *
+ * Pure (no I/O). The caller passes the result to its api() helper.
+ *
+ * @param {{description: string, triggers: string[], templates: string[], boost: number}} nearMiss
+ * @param {string} targetDomain - the domain to copy it into (the detected area)
+ * @returns {{method: string, path: string, body: object}}
+ */
+function buildCopyRequest (nearMiss, targetDomain) {
+  const row = nearMiss || {}
+  return {
+    method: 'POST',
+    path: '/api/firm-manager/distinctions',
+    body: {
+      domain: targetDomain,
+      description: String(row.description || ''),
+      triggers: Array.isArray(row.triggers) ? row.triggers : [],
+      templates: Array.isArray(row.templates) ? row.templates : [],
+      boost: Number(row.boost) || 5
+    }
+  }
+}
+
+module.exports = { buildMoveRequest, buildCopyRequest }

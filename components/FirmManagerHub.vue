@@ -11,7 +11,7 @@ section.firm-manager-hub.section
         a.button.is-light.is-small(href="/advisor") ← Back to Advisor
 
     //- Main tabs
-    b-tabs(v-model="activeTab" type="is-boxed" animated)
+    b-tabs(ref="hubTabs" v-model="activeTab" type="is-boxed" animated)
       //- ── Tab: Domain Support (FIRM-EDITABLE-TABLES-PLAN.md Phase 2, §0.6) ──
       //- The four-column material tables the advisors' AI reads. The former PDF
       //- "Decision Frameworks" (Document Library) tab was removed 2026-07-27
@@ -39,8 +39,17 @@ section.firm-manager-hub.section
       //- #logic-lab-phrase-testing-parked for what works, what does not, and what
       //- fixing it would take.
       //-
-      //- The name "Logic-Lab" is being reused for the Decision Logic page
-      //- (design/mockups/decision-logic-map-mockup.html) — built next.
+      //- The name "Logic-Lab" is now carried by the Decision Logic page below.
+
+      //- ── Tab: Logic-Lab — the DECISION LOGIC page ───────────────────
+      //- Built 2026-08-03 from design/mockups/decision-logic-map-mockup.html,
+      //- the artefact Mike approved 2026-08-02. It is the read-only map he
+      //- asked for: what decides a recommendation, which parts of it this firm
+      //- can change, and which one to change for the outcome they want.
+      //- Its one write path is the near-miss Move/Copy, which reuses the
+      //- existing distinction endpoints and confirms first.
+      b-tab-item(label="Logic-Lab" icon="map-search")
+        firm-decision-logic(:api-token="apiToken" @go-to="goToTab")
 
       //- ── Tab: Advisory Staircase ────────────────────────────────────
       //- Body lives in its own component. It was the whole-config editor here
@@ -578,6 +587,7 @@ import FirmStaircase from '~/components/firm/FirmStaircase.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
+import FirmDecisionLogic from '~/components/firm/FirmDecisionLogic.vue'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 
@@ -628,7 +638,7 @@ const DISTINCTION_DOMAINS = [
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic },
 
   props: {
     firmId: { type: String, required: true },
@@ -1450,6 +1460,31 @@ export default {
 
     formatDate (iso) {
       return iso ? new Date(iso).toLocaleDateString() : ''
+    },
+
+    /**
+     * Open another tab from the Logic-Lab router — "It recommended the wrong
+     * template → Advisory Distinctions" has to actually take the manager there,
+     * or the page teaches a route it cannot walk.
+     *
+     * Resolved by LABEL against the tabs Buefy actually rendered, never by a
+     * hard-coded index: one tab is hidden behind `v-if="false"`, so an index
+     * written today would silently point at the wrong screen the day it comes
+     * back. An unknown key does nothing rather than jumping somewhere arbitrary.
+     *
+     * @param {'distinctions'|'domain-support'|'logic-tables'} key which lever
+     */
+    goToTab (key) {
+      const labels = {
+        distinctions: 'Advisory Distinctions',
+        'domain-support': 'Domain Support',
+        'logic-tables': 'Logic Tables'
+      }
+      const wanted = labels[key]
+      const tabs = this.$refs.hubTabs
+      if (!wanted || !tabs || !Array.isArray(tabs.items)) { return }
+      const index = tabs.items.findIndex(item => item.label === wanted)
+      if (index > -1) { this.activeTab = index }
     }
   }
 }
