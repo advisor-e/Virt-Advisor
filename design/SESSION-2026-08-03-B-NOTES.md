@@ -99,11 +99,13 @@ had never been copied across.
 in: the drop-tab placeholder **"Choose one…"**, the button **"Build my course →"**, and
 **"Estimated — the library publishes no time for this template."** One-line changes.
 
-**Two open questions, neither blocking:**
+**One question ruled at the close of the session:** *"session times do not include
+conversation with ai"* — a session's minutes are the **material only**. No code changed; that
+is what it already did, so the ruling confirms the behaviour. Do not add a per-session
+conversation allowance and do not re-open it.
 
-- whether the computed minutes should include the conversation with the AI as well as the
-  material (a "15-minute session" that is a 9-minute video plus a discussion is really 20+);
-- whether a firm should be able to set the allowance itself.
+**One open question, not blocking:** whether a firm should be able to set the
+untimed-template allowance itself, rather than it being the platform's 15/30/30.
 
 **Least-tested path:** running a sliced session end to end. The tutor is told which part it is
 teaching, but nobody has watched it teach "part 2 of 3" yet.

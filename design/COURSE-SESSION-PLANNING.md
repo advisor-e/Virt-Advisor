@@ -115,13 +115,21 @@ it. Do not reintroduce it as a third choice.
 
 ---
 
-## Open, and to be decided when built
+## Settled while building — nothing here is open
 
-- **An unparseable answer to the fit question.** It must not be guessed at. Re-ask once in
-  plainer words (the existing CB-06 pattern), and if the second reply is still unclear,
-  say which way it is going rather than silently picking.
-- **Whether the conversation with the AI carries a time allowance.** The computed minutes
-  cover the MATERIAL only. A "15-minute session" that is a 9-minute video plus a discussion
-  is really 20+ minutes of the advisor's evening. Flagged to Mike 2026-08-03, not yet ruled.
-- **Session titles and objectives.** The AI writes these per template today; a sliced course
-  needs them per activity-part. The mapping is not yet designed.
+All three were built and ruled on 2026-08-03. The record of what was decided, and the
+screen it produced: [`COURSE-SLICED-SESSION-WORDING.md`](COURSE-SLICED-SESSION-WORDING.md)
+and [`mockups/sliced-course-outline.html`](mockups/sliced-course-outline.html).
+
+- ✅ **An unparseable answer to the fit question.** Settled twice over: the two options are a
+  **drop-tab**, so a typed answer is the exception rather than the rule. Where one does
+  arrive it is read narrowly, re-asked once in plainer words, and — if still unclear — the
+  shorter-sessions plan is built and **said out loud** rather than picked in silence.
+- ✅ **Whether the conversation with the AI carries a time allowance. MIKE RULED 2026-08-03:
+  IT DOES NOT.** *"session times do not include conversation with ai"*. A session's minutes
+  are the MATERIAL only — video, reading and rehearsal — which is what the code already did,
+  so the ruling confirms the behaviour rather than changing it. **Do not add a per-session
+  conversation allowance, and do not re-open this.**
+- ✅ **Session titles and objectives.** A sliced session is named by code from its activity
+  and template (`Read: E.O.Y Meeting (part 2 of 3)`), and states its purpose using the master
+  export's own authored `cpd.objective` — never a generated one.

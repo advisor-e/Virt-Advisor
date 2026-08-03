@@ -289,13 +289,19 @@ Four rules keep the allowance apart from a measurement:
 library at all. That still cannot be costed, is still named on the card, and is still never
 invented into work.
 
-### D9 — Not blocking: does the conversation with the AI carry time?
+### D9 — does the conversation with the AI carry time? *(RULED: no)*
 
-Carried unchanged from `COURSE-SESSION-PLANNING.md`, flagged to Mike 2026-08-03 and not yet
-ruled. The computed minutes cover the **material only**. A "15-minute session" that is a
-9-minute video plus a conversation with the tutor is really 20+ minutes of the advisor's
-evening. Nothing in this build depends on the answer; it changes only whether a fixed
-allowance is added per session.
+> **Mike, 2026-08-03: "session times do not include conversation with ai"**
+
+A session's minutes are the **material only** — video, reading and rehearsal. The question
+was raised because a "15-minute session" that is a 9-minute video plus a discussion with the
+tutor is more than 15 minutes of the advisor's evening; the ruling is that the figure
+measures the material, and the conversation sits outside it.
+
+**Nothing changed in the code**: this is what it already did, so the ruling confirms the
+behaviour rather than altering it. **Do not add a per-session conversation allowance, and do
+not re-open this** — it is settled, and a later session finding the question phrased as open
+somewhere is finding a stale note, not a live decision.
 
 ---
 
