@@ -23,7 +23,19 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
-- <a id="pr-firm-quiz-builder-to-master"></a>☐ **P1 · PROCESS — raise a pull request from
+- <a id="pr-firm-quiz-builder-to-master"></a>☑ **DONE — raised and MERGED as PR #31 on 2026-08-02
+  21:00 UTC.** Closed 2026-08-03 after Mike acted on this entry and found it stale: it still read as
+  open while the merge commit (`18186b6`) was sitting at the head of the branch. **The entry outlived
+  the work it described** — the same record-versus-reality failure the Save-the-Artefact rule was
+  written about, arriving from the opposite direction. Verified with `gh pr view 31` before ticking,
+  not from the backlog text.
+  - **Today's work went up separately as PR #34** (`b25fe6c` — the Logic-Lab page), because the
+    branch had already been synced back to `master` by the #31 merge.
+  - **The lesson, for whoever sweeps this file next:** a `☐` here is a claim about GitHub, and this
+    file cannot see GitHub. Check the PR before believing the line — the header of this document
+    already says *"Trust the CODE, not these flags."*
+  - *(Original entry follows, kept verbatim for the reasoning.)*
+  ☐ **P1 · PROCESS — raise a pull request from
   `feat/firm-quiz-builder-ui` to `master`. The branch is green and ready; nothing is blocking it but
   the asking.** Logged 2026-08-02 by Mike's question — it had been said in conversation and written
   nowhere, which is the exact failure the Save-the-Artefact rule was written about the same evening.
