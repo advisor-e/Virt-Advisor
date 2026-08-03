@@ -23,7 +23,30 @@
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
-- <a id="pr-firm-quiz-builder-to-master"></a>☐ **P1 · PROCESS — raise a pull request from
+- <a id="pr-advisor-progress-to-master"></a>☐ **P1 · PROCESS — PR #33 is OPEN and needs a reviewer and a
+  merge: `feat/advisor-progress` → `master`, the Course Builder slicer programme.** Raised 2026-08-03
+  from the laptop on Mike's instruction. <https://github.com/advisor-e/Virt-Advisor/pull/33>
+  - **State at raising (`b56f0c5`):** 13 ahead, **0 behind** `origin/master`, working tree clean,
+    level with `origin`. Full suite **4,226 green / 247 suites**, lint 0 errors; pre-commit and audit
+    gates passed on every commit. GitHub reports **MERGEABLE** — 23 files, +5,712 / −63.
+  - **What is sitting on it:** the session slicer (code writes the timetable), session length measured
+    rather than echoed (`courseEffort` asks `cpdCatalogue`), the fit question as its own state, the
+    drop-tab choice, `Request changes` no longer destroying the course, a session count read as a
+    range, the 15/30/30 untimed-template allowance, and the course-chat spacing fix. Design record:
+    [`COURSE-SLICED-SESSION-WORDING.md`](COURSE-SLICED-SESSION-WORDING.md) and
+    [`mockups/sliced-course-outline.html`](mockups/sliced-course-outline.html); CB-35 closed.
+  - **⚠ For the reviewer/merger:** the backend must be **restarted** for the engine changes to take
+    effect — a running Restify process holds the old code, which cost most of an hour on 2026-08-03.
+  - **Until it merges, none of it is visible to the desktop or the master team** — the same shape as
+    [`startup-blind-to-other-machine`](#startup-blind-to-other-machine): pushed-but-not-merged work is
+    invisible to the other division while every check reports green.
+  - **Still unruled by Mike, not blocking the merge:** the drop-tab placeholder "Choose one…", the
+    button "Build my course →", and "Estimated — the library publishes no time for this template."
+
+- <a id="pr-firm-quiz-builder-to-master"></a>✅ **P1 · PROCESS — DONE. Merged 2026-08-03 as PR #31
+  (`18186b6`), together with the laptop's PR #32 (`28811a1`).** The entry below is the original task,
+  kept verbatim for the reasoning; the branch reached `master` and `feat/firm-quiz-builder-ui` is
+  0 behind. **Raise a pull request from
   `feat/firm-quiz-builder-ui` to `master`. The branch is green and ready; nothing is blocking it but
   the asking.** Logged 2026-08-02 by Mike's question — it had been said in conversation and written
   nowhere, which is the exact failure the Save-the-Artefact rule was written about the same evening.
