@@ -698,4 +698,7 @@ function buildDisplaySet (resolvedResult, budget) {
   return out
 }
 
-module.exports = { resolveTemplates, resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION }
+// TREE_HINT_BOOST is exported for the Logic-Lab page, which states the number to
+// firm managers as fact. Exporting it means the screen reads the engine's own
+// value instead of carrying a copy that is free to disagree with it.
+module.exports = { resolveTemplates, resolveTemplatesWithOutlier, buildDisplaySet, SCORING_VERSION, TREE_HINT_BOOST }

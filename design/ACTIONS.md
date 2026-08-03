@@ -70,7 +70,134 @@
     — Mike's call. Raising it first is the safer order: it gets the rule to the laptop today and keeps
     the PR small enough to actually review.
 
-- <a id="logic-lab-decision-logic-build"></a>☐ **P1 · BUILD — TOMORROW'S FIRST TASK. The DECISION LOGIC page,
+- <a id="logic-lab-wording-signoff"></a>☐ **P2 · DECISION (needs Mike) — two wording rulings the
+  Logic-Lab page is shipping without. Logged 2026-08-03 so they are not carried silently.**
+  - **(1) The lede is factually wrong, and it is Mike's own approved sentence.** *"Nothing on this
+    page changes anything"* — while the near-miss rows carry **Move it to X** and **Copy it there**,
+    which write to the firm's live distinction configuration. Both are in the approved artefact.
+    Shipped as approved rather than edited unasked. **Recommended:** *"Nothing on this page changes
+    anything until you choose it."* — one clause, keeps the reassurance, and the buttons already
+    confirm. **This gets worse, not better, when [accept-and-push](#logic-lab-accept-and-push) lands.**
+  - **(2) Copy the artefact never covered, currently in the AI's words, not the firm's.** Six
+    sentences — the three below-the-sheet states, the four gap verdicts, the attach instruction, and
+    the template picker's placeholder. Every one is listed verbatim in
+    [`LOGIC-LAB-BUILD-VS-MOCKUP.md`](LOGIC-LAB-BUILD-VS-MOCKUP.md) §2 for replacement.
+  - Wording is never invented (CLAUDE.md); these were written because the page reaches states the
+    artefact did not draw, and shipping blanks would have been worse. They stay flagged until Mike
+    rules.
+
+- <a id="ai-failure-reads-as-no-match"></a>☐ **🔴 P1 · CORRECTNESS — a FAILED AI call is reported to
+  advisors and firm managers as "no distinction matched". It is indistinguishable from a genuine
+  no-match, and it affects LIVE ADVISOR SESSIONS, not just the Logic-Lab page. Found 2026-08-03 by
+  watching it happen; NOT FIXED.**
+  - **The proof, not a guess.** `_classifyMatchingRows` ([`advisorEngine.js`](../server/advisorEngine.js)
+    L125-129) catches every error and `return []`. An empty array is exactly what "the AI read them
+    and matched none" returns. The two are the same value.
+  - **Seen live.** With the machine's OpenAI certificate broken (see
+    [`avast-root-rotated`](#avast-root-rotated)), every call died in ~100 ms and the Logic-Lab probe
+    printed *"None matched. The AI read all 5 in this area."* — a sentence stating the AI did
+    something it had not done. `logAI` recorded `status=error`; nothing that reaches a person did.
+  - **Why it matters beyond the page.** In a live session the distinction layer is the firm's single
+    biggest lever (+5, and 29 of 51 Scenario Lab cases turn on it alone). A firm whose certificate,
+    key or network breaks silently loses that entire layer, gets a plausible recommendation built
+    without it, and is told nothing.
+  - **The Logic-Lab page's `distinctionsAvailable` flag does NOT cover this** — it reports a failure
+    to read the firm's *configuration*, not a failure of the *AI call*.
+  - **Shape of the fix (not started):** have the classifier distinguish *failed* from *matched
+    nothing* — e.g. return `null` on error and let each caller decide — then say so on every surface.
+    Same family as the no-silent-omission rule the score sheet already follows.
+
+- <a id="logic-tables-hint-count-26-vs-37"></a>☐ **P2 · DECISION — two honest counts of "logic tables
+  that carry template hints" disagree: 26 or 37. The Logic-Lab page shows 26; `CONTENT-ROUTING.md`
+  records 37. Found 2026-08-03; NOT reconciled.**
+  - **Both are true, of different questions.** 37 = tables the engine WILL WALK (`nodes`-shaped, the
+    classification [`contentRouting.js`](../server/utils/contentRouting.js) makes and the build guard
+    holds). 26 = tables that actually NAME at least one template on a node.
+  - **Measured:** 42 tables · 37 `nodes`-shaped · 5 `flat_if_then` · **16 nodes-shaped tables name no
+    template at all** (`sales_process`, `public_speaking`, `trial_fit`, `cautious_reveal`,
+    `eoy_meeting`, `facilitation_101`, `reveal_growth_curve`, `conflict_meeting`,
+    `capacity_capability_opportunity`, `heald_matrix`, `demings_volatility`, `working_capital_cycle`,
+    `ratio_analysis`, `dashboard_discussions`, `get_seminar`, `org_leadership`).
+  - **Why the page shows 26:** its card promises *"carry template hints"*, and a manager sent to edit
+    one of the 16 would find nothing there to edit. That is the reading the words make.
+  - **The finding worth acting on is the 16**, not the label: walkable tables that can never lift a
+    template. Whether that is deliberate (they exist to steer the AI's reasoning, not to select) or a
+    content gap is Mike's call.
+
+- <a id="avast-root-rotated"></a>☐ **P1 · ENV — the desktop's saved Avast root certificate is STALE, so
+  every OpenAI call fails. Worked around for the session only; NOT permanently fixed.**
+  - `C:\Users\Mike Barnes\avast-root-ca.pem` no longer matches what Avast presents — verified by
+    comparing it against the live chain (1394 vs 1490 bytes; `authorized: false`). Avast rotates it.
+  - **The session's backend is running on a copy exported to a TEMP folder**, which will be cleared.
+    The next session starts broken again unless the home-directory file is re-exported.
+  - **Symptom to recognise:** calls dying in ~20-100 ms with no useful message — it reads as a network
+    fault, not a certificate one, and cost half an hour on 2026-08-02 for the same reason.
+  - **Never `NODE_TLS_REJECT_UNAUTHORIZED=0`** — it disables verification on calls carrying the API
+    key. Recipe: `design/HANDOFF.md` → Local Setup / Run.
+
+- <a id="nuxt-build-ebusy-lock"></a>☐ **P2 · ENV — `nuxt build` fails with `EBUSY: resource busy or
+  locked` while clearing `.nuxt`, and `serve.bat` does not clear it first. Three consecutive failures
+  2026-08-03; worked around by hand.**
+  - Failed on a different directory each time (`dist/server`, `dist/server/pages`, `.nuxt/components`),
+    always immediately after "Builder initialized" — a file watcher or the antivirus holding handles
+    on a tree Nuxt is trying to delete.
+  - **`.nuxt/components` was EMPTY and still unremovable** — the Windows signature of a handle on the
+    directory itself. Windows will RENAME what it will not delete: moving it aside freed the tree,
+    after which `.nuxt` cleared and the build succeeded.
+  - **⚠ The trap that nearly shipped a stale bundle:** a check for "build output exists" passed on the
+    PREVIOUS build's files while the new build had aborted. Only the build's own exit code is a valid
+    signal — and the background-task notification reported the wrapper's code, not the build's, in
+    both directions on the same day.
+  - **Proposed fix:** clear `.nuxt` in `serve.bat` before building, with the rename-then-delete
+    fallback. Not written — it is a change to a shared script.
+
+- <a id="logic-lab-accept-and-push"></a>☐ **P1 · BUILD — "ACCEPT AND PUSH": let a firm manager apply an
+  idea from the Logic-Lab diagnosis straight into the section it names, instead of finding the screen
+  and retyping it. Raised by Mike 2026-08-03; the order (arithmetic fixes first, then this) is his.
+  NOT BUILT — no code exists.**
+  - **THE DESIGN NOTE, WITH THE CONVERSATION VERBATIM:**
+    [`design/LOGIC-LAB-ACCEPT-AND-PUSH.md`](LOGIC-LAB-ACCEPT-AND-PUSH.md). Written at Mike's
+    instruction ("*yes - all the conversation about it also*") so the original survives rather than a
+    paraphrase of it. **This entry LINKS that file and does not restate it** — per CLAUDE.md →
+    Save the Artefact. Read the file before building; do not design from this bullet.
+  - **The one line that decides the shape:** the three ideas are NOT the same button. Attaching a
+    template to a distinction that already matched is *fully determined* and can be one click;
+    writing a new distinction cannot, because the wording is the firm's IP and this app never drafts
+    it; domain support gets no push button at all, because its own card says editing it changes no
+    recommendation.
+  - **Log every accepted idea from the first commit** — the sentence, what the engine did, the
+    template expected, the change chosen. It is the richest possible feed for the mentor rollup below
+    and captures INTENT, which no count of configuration can. Retrofitting it loses the first months.
+  - **Open, and Mike's:** immediate write vs staged, every button label, and whether the first pass
+    ships only the fully-determined case.
+
+- <a id="logic-lab-decision-logic-build"></a>☑ **DONE 2026-08-03 — the DECISION LOGIC page is BUILT and
+  running, as the Firm Manager Hub tab named "Logic-Lab". Approved by Mike 2026-08-02 from a working
+  mockup; tested live by him across three runs the same day.**
+  - **THE BUILD BESIDE THE ARTEFACT, EVERY DIFFERENCE NAMED:**
+    [`design/LOGIC-LAB-BUILD-VS-MOCKUP.md`](LOGIC-LAB-BUILD-VS-MOCKUP.md) — the comparison this entry
+    demanded, written as required by CLAUDE.md → Save the Artefact. **Two items in it are still
+    Mike's to rule on** (the lede that says nothing changes while two buttons do, and the copy the
+    artefact never covered).
+  - **What shipped:** [`FirmDecisionLogic.vue`](../components/firm/FirmDecisionLogic.vue) (the three
+    levers, the router, the near-miss answer) + [`DecisionLogicDiagnostic.vue`](../components/firm/DecisionLogicDiagnostic.vue)
+    (the diagnosis and the ideas), three READ-ONLY routes, and two backend modules:
+    [`decisionScore.js`](../server/utils/decisionScore.js) (the score sheet — **the blocker this entry
+    named is closed**) and [`logicLabSummary.js`](../server/utils/logicLabSummary.js) (the counts,
+    written as the seam the mentor rollup will reuse). 90 tests across six suites.
+  - **Both required safeguards are in and tested:** the publishable-reason allowlist FAILS CLOSED (a
+    scoring rule added later is hidden by default, proved with a code that does not exist), and the
+    hidden remainder always carries its number, derived as `score − published` so it cannot develop a
+    gap as rules are added.
+  - **Four defects Mike found by running it, all fixed the same day** — see the differences document
+    for each: a template outside the top-20 log reported as *"the engine did not rank it at all"*
+    (it had scored 1); the artefact's closing arithmetic contradicting the table above it at a
+    3-point gap; the gap block telling him to write a distinction when the fix was to attach a
+    template to one he had; and three rendering faults (page not centred, quote in the wrong place,
+    a missing space from vue-i18n trimming plural forms).
+  - *(Original entry follows, kept for the reasoning and the ruling — it is what the build was made
+    from.)*
+  ☐ **P1 · BUILD — TOMORROW'S FIRST TASK. The DECISION LOGIC page,
   approved by Mike 2026-08-02 from a working mockup, goes into Firm Manager Hub as the tab named
   "Logic-Lab". THE MOCKUP IS THE SPEC — do not design from this entry.**
   - **THE ARTEFACT:** [`design/mockups/decision-logic-map-mockup.html`](mockups/decision-logic-map-mockup.html).
