@@ -321,6 +321,14 @@ server.post('/api/firm-manager/logic-trees/:treeId', ...fmGuard, fm.saveLogicTre
 server.del('/api/firm-manager/logic-trees/:treeId', ...fmGuard, fm.resetLogicTree)
 server.get('/api/firm-manager/logic-trees/:treeId/history', ...fmGuard, fm.getLogicTreeHistory)
 server.post('/api/firm-manager/logic-trees/:treeId/section', ...fmGuard, fm.setLogicTreeSection)
+// Logic-Lab — the Decision Logic page (ACTIONS #logic-lab-decision-logic-build;
+// the spec is design/mockups/decision-logic-map-mockup.html). All three are
+// READ-ONLY: they explain the firm's own configuration and what the engine does
+// with a sentence. The page's Move/Copy actions reuse the existing distinction
+// routes above rather than growing write paths of their own.
+server.get('/api/firm-manager/logic-lab/summary', ...fmGuard, fm.getLogicLabSummary)
+server.get('/api/firm-manager/logic-lab/templates', ...fmGuard, fm.getLogicLabTemplateTitles)
+server.post('/api/firm-manager/logic-lab/diagnose', ...fmGuard, fm.diagnoseDecision)
 // Manager case-review feed: the firm's shared case studies (with their decision
 // traces) for review. Manager-gated + firm-scoped; private cases never surface.
 server.get('/api/firm-manager/cases', ...fmGuard, casesRoute.listFirmCases)

@@ -3490,6 +3490,200 @@ async function setDomainSupportSection (req, res) {
   }
 }
 
+// ── Logic-Lab (the Decision Logic page) ───────────────────────────────────────
+// Two READ-ONLY routes behind the Firm Manager Hub tab named "Logic-Lab". The
+// screen is design/mockups/decision-logic-map-mockup.html, approved by Mike
+// 2026-08-02; ACTIONS #logic-lab-decision-logic-build.
+//
+// ACCURACY IS THE RULING ("of course it needs to be accurate for them — always"):
+// both routes read the FIRM'S OWN resolved configuration — their logic-table
+// edits, their distinctions, their imported template library — never the platform
+// files with the firm's work missing.
+//
+// The counting lives in server/utils/logicLabSummary.js, not in these handlers,
+// so the planned mentor rollup across every firm can call the same functions
+// instead of growing a second definition of "what a firm has".
+
+/**
+ * The firm's imported template library, or null for the platform default. Same
+ * two-step (overlay, then the dev-JSON fallback) as getTemplateImport, so the
+ * diagnostic scores against the library an advisor session would actually use.
+ * @param {string} firmId
+ * @returns {Promise<Array|null>}
+ */
+async function _firmTemplateLibrary (firmId) {
+  try {
+    const stored = await overlay.loadFirmConfig(firmId, 'templates')
+    return Array.isArray(stored) ? stored : null
+  } catch (err) {
+    if (IS_DEV) { return _devReadTemplates(firmId) }
+    throw err
+  }
+}
+
+/**
+ * The firm's effective Advisory Distinctions — platform rows with their declines
+ * removed and their overrides swapped in, plus the firm's own rows.
+ * @param {string} firmId
+ * @returns {Promise<Array<Object>>}
+ */
+async function _effectiveDistinctionsFor (firmId) {
+  const state = await loadFirmDistinctionState(firmId, overlay.loadFirmConfig)
+  const platformRows = await loadPlatformDistinctions(overlay.loadFirmConfig)
+  return resolveEffectiveDistinctions(platformRows, state)
+}
+
+/**
+ * @route GET /api/firm-manager/logic-lab/summary
+ *
+ * Sections 1 and 3 of the page: the three levers with the firm's real counts,
+ * and the near-miss distinctions — the firm's own rows filed under one area that
+ * keep matching conversations recognised as another, so they have never counted.
+ *
+ * Reads nothing it does not already have a screen for; writes nothing at all.
+ *
+ * @returns {200} { levers, nearMisses, quizNote }
+ */
+async function getLogicLabSummary (req, res) {
+  try {
+    const logicTreesLib = require('../utils/logicTrees')
+    const domainSupport = require('../utils/domainSupport')
+    const summary = require('../utils/logicLabSummary')
+    const caseStore = require('../utils/caseStore')
+    const domains = require('../../data/domains.json') || []
+
+    // ── Domain support: every document, with the firm's own edits marked.
+    const supportOverrides = await _loadFirmDomainSupportMapRaw(req.firmId)
+    const domainSupportDocs = []
+    for (const id of [...domains.map(d => d.id), ...DOMAIN_SUPPORT_GET_FILES]) {
+      const override = supportOverrides[id] || null
+      const resolved = domainSupport.resolveDomainSupport(id, override ? { [id]: override } : null)
+      // A domain with no base file has no document to count; counting it would
+      // inflate the number the page states as fact.
+      if (!resolved) { continue }
+      domainSupportDocs.push({ id, hasOverride: override !== null, origin: override ? 'firm' : 'platform' })
+    }
+
+    // ── Logic tables: the firm's merged tables, so an edit that adds a template
+    // hint moves the "carry template hints" count on this page.
+    const firmTreeMap = await _loadFirmLogicTreeMap(req.firmId)
+    const trees = logicTreesLib.effectiveTrees(firmTreeMap).map(tree => ({
+      ...tree,
+      origin: (firmTreeMap && firmTreeMap[tree.id]) ? 'firm' : 'platform'
+    }))
+
+    const distinctions = await _effectiveDistinctionsFor(req.firmId)
+    const quizBanks = await loadBlendedQuizBanks(req.firmId, overlay.loadFirmConfig)
+
+    // ── Near misses, from cases advisors SHARED with the firm. Private cases are
+    // advisor-only by design, so this is a count of shared cases and the payload
+    // says so rather than letting the number read as every conversation.
+    let sharedCases = []
+    try {
+      sharedCases = await caseStore.listSharedForFirm(req.firmId)
+    } catch (err) {
+      // A case-store fault must not take the whole page down — sections 1 and 2
+      // are still true without it. Reported in the payload, never as silence.
+      console.error('[logic-lab] shared case read failed:', err.message)
+      sharedCases = null
+    }
+
+    res.send(200, {
+      levers: summary.buildLeverSummary({
+        domainSupportDocs,
+        logicTrees: trees,
+        distinctions,
+        quizBanks
+      }),
+      nearMisses: sharedCases
+        ? summary.aggregateNearMisses(sharedCases, distinctions)
+        : { rows: [], basisCaseCount: 0, tracedCaseCount: 0, staleDropped: 0, unavailable: true },
+      domains: domains.map(d => ({ id: d.id, label: d.label }))
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route POST /api/firm-manager/logic-lab/diagnose
+ * Body: { text, expectedTitle? }
+ *
+ * Section 4 of the page. Runs the sentence through the real engine and returns
+ * what it did (the live probe) plus the score sheet with the gap to the template
+ * the firm expected.
+ *
+ * A POST because the body is free advisor text, which must never reach a URL, a
+ * server log or a browser history. NOTHING IS SAVED.
+ *
+ * ⚠ The sheet publishes only the firm-editable levers; every other scoring rule
+ * is folded into one "other engine factors" figure so the arithmetic still
+ * balances (server/utils/decisionScore.js — the allowlist fails closed).
+ *
+ * @returns {200} the decisionScore payload
+ * @returns {400} INVALID_BODY · {500} DB_ERROR
+ */
+async function diagnoseDecision (req, res) {
+  const text = req.body && typeof req.body.text === 'string' ? req.body.text : null
+  if (!text || !text.trim()) {
+    return sendError(res, 400, 'INVALID_BODY', 'text required')
+  }
+  const expectedTitle = req.body && typeof req.body.expectedTitle === 'string'
+    ? req.body.expectedTitle
+    : null
+
+  try {
+    const decisionScore = require('../utils/decisionScore')
+    const firmTrees = await _loadFirmLogicTreeMap(req.firmId)
+
+    // Same degradation the probe route already chose: a distinction read fault
+    // must not lose the deterministic half of the answer. It is logged, and the
+    // sheet then shows no distinction levers — which the page reads as "none
+    // matched", so the failure is stated rather than disguised.
+    let distinctionRows = []
+    let distinctionsAvailable = true
+    try {
+      distinctionRows = await _effectiveDistinctionsFor(req.firmId)
+    } catch (err) {
+      console.error('[logic-lab] distinction read failed — diagnosis continues without them:', err.message)
+      distinctionsAvailable = false
+    }
+
+    const firmTemplates = await _firmTemplateLibrary(req.firmId)
+    const result = await decisionScore.diagnose({
+      text,
+      expectedTitle,
+      firmTrees,
+      distinctionRows,
+      firmTemplates
+    })
+    res.send(200, { ...result, distinctionsAvailable })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route GET /api/firm-manager/logic-lab/templates
+ * The template titles the "which template did you expect?" picker offers — the
+ * firm's own library when they have imported one, otherwise the platform set.
+ * Titles only: the picker needs nothing else, and a page shape is not a payload.
+ * @returns {200} { titles: string[] }
+ */
+async function getLogicLabTemplateTitles (req, res) {
+  try {
+    const { getOrgTemplates } = require('../utils/templates')
+    const firmTemplates = await _firmTemplateLibrary(req.firmId)
+    const titles = getOrgTemplates(null, firmTemplates)
+      .map(t => t && t.title)
+      .filter(Boolean)
+      .sort((a, b) => String(a).localeCompare(String(b)))
+    res.send(200, { titles: [...new Set(titles)] })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
 module.exports = {
   quizzablePages,
   listDocuments,
@@ -3551,5 +3745,8 @@ module.exports = {
   setLogicTreeSection,
   probeLogicTreePhrase,
   previewLogicTreeTriggers,
-  setDomainSupportSection
+  setDomainSupportSection,
+  getLogicLabSummary,
+  diagnoseDecision,
+  getLogicLabTemplateTitles
 }
