@@ -183,19 +183,31 @@ that the warning is not being followed by default.
     strings were all still there, so nothing was stale — the *framing* was the fault. **Next wording
     list: separate the defects from the approvals.**
   - The original entry follows, kept verbatim for its reasoning.
-  - **(1) The lede is factually wrong, and it is Mike's own approved sentence.** *"Nothing on this
+  - 🔴 **LOGIC-LAB IS THE DESKTOP'S WORK. RULED BY MIKE 2026-08-03.** *"I don't want you to go
+    anywhere near the Logic Lab at all. Take it off your list. If it needs to be done at all, it can
+    be done by the desktop."* **The laptop does not touch Logic-Lab — not the page, not its wording,
+    not accept-and-push — and does not raise it as an open item.** Everything below in this entry is
+    kept for the desktop's reference only; none of it is a laptop task.
+  - ~~**(1) The lede is factually wrong, and it is Mike's own approved sentence.** *"Nothing on this
     page changes anything"* — while the near-miss rows carry **Move it to X** and **Copy it there**,
     which write to the firm's live distinction configuration. Both are in the approved artefact.
     Shipped as approved rather than edited unasked. **Recommended:** *"Nothing on this page changes
     anything until you choose it."* — one clause, keeps the reassurance, and the buttons already
-    confirm. **This gets worse, not better, when [accept-and-push](#logic-lab-accept-and-push) lands.**
-  - **(2) Copy the artefact never covered, currently in the AI's words, not the firm's.** Six
+    confirm.~~ **Off the laptop's list per the ruling above; the desktop owns it.**
+  - ~~**(2) Copy the artefact never covered, currently in the AI's words, not the firm's.** Six
     sentences — the three below-the-sheet states, the four gap verdicts, the attach instruction, and
     the template picker's placeholder. Every one is listed verbatim in
-    [`LOGIC-LAB-BUILD-VS-MOCKUP.md`](LOGIC-LAB-BUILD-VS-MOCKUP.md) §2 for replacement.
-  - Wording is never invented (CLAUDE.md); these were written because the page reaches states the
+    [`LOGIC-LAB-BUILD-VS-MOCKUP.md`](LOGIC-LAB-BUILD-VS-MOCKUP.md) §2 for replacement.~~
+    **STRUCK OUT 2026-08-03 BY MIKE — OFF THIS MACHINE'S LIST, DO NOT RAISE AGAIN.** *"I'm working
+    on them with the desktop. I told them to take them off your list. They don't matter anymore.
+    They're from the wrong design."* The Logic-Lab wording is being reworked against a different
+    design on the desktop, so these sentences are moot — not deferred, not awaiting a ruling.
+    (The table itself was actually **eight** rows, not six; the count in this entry was wrong and
+    was repeated from here without being checked.)
+  - ~~Wording is never invented (CLAUDE.md); these were written because the page reaches states the
     artefact did not draw, and shipping blanks would have been worse. They stay flagged until Mike
-    rules.
+    rules.~~ **Superseded by the strike-out above.** Item (1), the lede, is unaffected and still
+    stands.
 
 - <a id="ai-failure-reads-as-no-match"></a>✅ **🔴 P1 · CORRECTNESS — FIXED 2026-08-03 (laptop). A FAILED
   AI call was reported to advisors and firm managers as "no distinction matched". The entry below is
@@ -322,10 +334,12 @@ that the warning is not being followed by default.
   - **Proposed fix:** clear `.nuxt` in `serve.bat` before building, with the rename-then-delete
     fallback. Not written — it is a change to a shared script.
 
-- <a id="logic-lab-accept-and-push"></a>☐ **P1 · BUILD — "ACCEPT AND PUSH": let a firm manager apply an
+- <a id="logic-lab-accept-and-push"></a>🖥 **DESKTOP'S WORK — NOT A LAPTOP TASK. Mike is building this
+  on the desktop (2026-08-03), and ruled the laptop is not to go near Logic-Lab at all.** The entry
+  stays as reference for the desktop; the laptop neither builds it nor raises it.
+  **P1 · BUILD — "ACCEPT AND PUSH": let a firm manager apply an
   idea from the Logic-Lab diagnosis straight into the section it names, instead of finding the screen
-  and retyping it. Raised by Mike 2026-08-03; the order (arithmetic fixes first, then this) is his.
-  NOT BUILT — no code exists.**
+  and retyping it. Raised by Mike 2026-08-03; the order (arithmetic fixes first, then this) is his.**
   - **THE DESIGN NOTE, WITH THE CONVERSATION VERBATIM:**
     [`design/LOGIC-LAB-ACCEPT-AND-PUSH.md`](LOGIC-LAB-ACCEPT-AND-PUSH.md). Written at Mike's
     instruction ("*yes - all the conversation about it also*") so the original survives rather than a
@@ -347,9 +361,10 @@ that the warning is not being followed by default.
   mockup; tested live by him across three runs the same day.**
   - **THE BUILD BESIDE THE ARTEFACT, EVERY DIFFERENCE NAMED:**
     [`design/LOGIC-LAB-BUILD-VS-MOCKUP.md`](LOGIC-LAB-BUILD-VS-MOCKUP.md) — the comparison this entry
-    demanded, written as required by CLAUDE.md → Save the Artefact. **Two items in it are still
-    Mike's to rule on** (the lede that says nothing changes while two buttons do, and the copy the
-    artefact never covered).
+    demanded, written as required by CLAUDE.md → Save the Artefact. **🔴 Nothing in it is a laptop
+    task. Mike ruled 2026-08-03 that Logic-Lab — the page, its wording and accept-and-push — belongs
+    to the DESKTOP, and the laptop is not to go near it or raise it.** The comparison stays as
+    reference for whoever does the work.
   - **What shipped:** [`FirmDecisionLogic.vue`](../components/firm/FirmDecisionLogic.vue) (the three
     levers, the router, the near-miss answer) + [`DecisionLogicDiagnostic.vue`](../components/firm/DecisionLogicDiagnostic.vue)
     (the diagnosis and the ideas), three READ-ONLY routes, and two backend modules:
