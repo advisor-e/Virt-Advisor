@@ -25,27 +25,52 @@ Getting the repo running on a developer machine. The runtime is **locked to Node
 
 - **Node.js 14.15** as the active runtime (via nvm). If a system-wide Node install shadows nvm on `PATH`, invoke the 14.15 binary by its **exact path** for every command rather than relying on `nvm use`.
 - **npm 8** for installs — the `overrides` block in `package.json` (`shell-quote`, `@nuxt/friendly-errors-webpack-plugin`) is **silently ignored by the bundled npm 6**.
-- **`NODE_EXTRA_CA_CERTS`** on any network doing TLS interception (corporate proxy / AV that re-signs HTTPS). Without it, `npm install` fails with `UNABLE_TO_VERIFY_LEAF_SIGNATURE` and the backend's OpenAI TLS call fails. The committed bundle is `certs/digicert-bundle.pem`, and the `dev`/`start` npm scripts point at it.
+- **`NODE_EXTRA_CA_CERTS`** on any network doing TLS interception (corporate proxy / AV that re-signs HTTPS). Without it, `npm install` fails with `UNABLE_TO_VERIFY_LEAF_SIGNATURE` and the backend's OpenAI TLS call fails. **Set it PER MACHINE, in the environment — the npm scripts no longer set it** (corrected 2026-08-03; see the box below for why).
 
-  > **⚠ The committed bundle is NOT enough for the OpenAI call on a machine running antivirus HTTPS scanning.** Verified on the desktop, 2026-08-02: `certs/digicert-bundle.pem` holds DigiCert roots and satisfies the **npm registry** chain (the audit gate passes with it), but `api.openai.com` is re-signed by `CN=Avast Web/Mail Shield Root`, which is not in that bundle. Every OpenAI call then fails `UNABLE_TO_VERIFY_LEAF_SIGNATURE` **in about 20 ms** — fast enough to look like a network outage rather than a certificate problem, which is exactly how it was misdiagnosed.
+  > **🔴 THE `dev`/`start` SCRIPTS USED TO HARDCODE `certs/digicert-bundle.pem`, AND THAT WAS THE BUG.**
+  > That bundle holds DigiCert roots. It satisfies the **npm registry** chain, which is why the audit
+  > gate passes with it — but `api.openai.com` is re-signed by `CN=Avast Web/Mail Shield Root` on a
+  > machine running antivirus HTTPS scanning, and that root is not in it. Every OpenAI call then fails
+  > `UNABLE_TO_VERIFY_LEAF_SIGNATURE` **in about 20 ms** — fast enough to read as a network outage
+  > rather than a certificate problem, which is exactly how it was misdiagnosed twice.
   >
-  > **Fix — trust only what the machine already trusts.** Export the interceptor's root from the OS trust store and point `NODE_EXTRA_CA_CERTS` at that file (keep it OUTSIDE the repo — it is specific to one machine and does not belong in version control):
+  > Worse: because the scripts set the variable **explicitly**, they OVERRODE a correct machine-level
+  > setting. A developer could fix their machine properly and `npm run start` would still break. The
+  > hardcoded path is now removed from both scripts, so each machine uses its own.
   >
-  > ```powershell
-  > # Windows: find the interceptor, then write it out as PEM
-  > Get-ChildItem Cert:\LocalMachine\Root | Where-Object { $_.Subject -like "*Avast*" }
-  > # wrap [System.Convert]::ToBase64String($cert.RawData,'InsertLineBreaks')
-  > # in -----BEGIN CERTIFICATE----- / -----END CERTIFICATE-----
+  > **The fix on Windows with Avast — use Avast's OWN file, not an exported copy:**
+  >
+  > ```text
+  > NODE_EXTRA_CA_CERTS = C:\ProgramData\Avast Software\Avast\wscert.pem
   > ```
   >
-  > Confirm the chain first with `tls.connect` and `getPeerCertificate(true)` — the issuer CN names the interceptor, so you fix the right one instead of guessing.
+  > Set it as a **user environment variable** so every terminal inherits it (already done on the
+  > desktop, 2026-08-03). Avast maintains that file, so when it **rotates its root — and it does** —
+  > the file updates itself. An exported copy of the root goes stale and reproduces the original
+  > fault exactly; that cost half an hour on 2026-08-02 and again on 2026-08-03.
+  >
+  > **Diagnose before fixing** — a stale certificate and a missing one look identical:
+  >
+  > ```js
+  > const tls = require('tls')
+  > const s = tls.connect({ host: 'api.openai.com', port: 443, servername: 'api.openai.com' },
+  >   () => console.log('authorized:', s.authorized, s.authorizationError || ''))
+  > // then getPeerCertificate(true) — the issuer CN names the interceptor
+  > ```
   >
   > **Never set `NODE_TLS_REJECT_UNAUTHORIZED=0`.** It disables verification process-wide on calls that carry the OpenAI API key. That is faking a fix, not making one.
+  >
+  > ⚠ **A failed AI call is currently invisible to the user** — the classifier returns the same empty
+  > result for "the call failed" and "nothing matched", so a certificate fault silently removes the
+  > whole Advisory Distinctions layer from live sessions. `design/ACTIONS.md` → `ai-failure-reads-as-no-match`.
 
 **Install**
 
 ```
-NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem npm install   # run with an npm 8 binary so overrides apply
+npm install    # run with an npm 8 binary so the `overrides` block applies
+               # NODE_EXTRA_CA_CERTS comes from the MACHINE (see above), not from here.
+               # certs/digicert-bundle.pem satisfies the npm registry but NOT the
+               # OpenAI call — naming it here is what sent people down the wrong path.
 ```
 
 **Run**
