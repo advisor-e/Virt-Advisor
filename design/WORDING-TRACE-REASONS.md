@@ -1,10 +1,11 @@
 # Wording — the "Why" column in the decision-trace panel
 
-**Status: PROPOSED. Nothing here is built. Awaiting Mike's approval, phrase by phrase.**
+**Status: FIVE RULINGS TAKEN by Mike, 2026-08-04. The final list below is awaiting his
+sign-off as a whole. Nothing is built yet.**
 
-Written 2026-08-04 (laptop). This file exists because the wording below has to be
-*read* before it is approved, not described in a chat message — the Save-the-Artefact
-rule in `CLAUDE.md`.
+Written 2026-08-04 (laptop). This file exists because the wording has to be *read*
+before it is approved, not described in a chat message — the Save-the-Artefact rule in
+`CLAUDE.md`.
 
 ---
 
@@ -21,77 +22,71 @@ Two screens show a table called **"How the templates scored"**, with a column he
 The engine gives each template a score and records **why** as a list of short codes.
 The "Why" column is supposed to turn those codes into plain English.
 
-**It currently turns 6 of them into English. The engine writes 25.** The rest reach
-the screen exactly as the engine wrote them:
+**The engine writes 26 distinct codes** — from 24 `reasons.push` statements in
+[`templateResolver.js`](../server/utils/templateResolver.js), two of which emit two
+shapes each. *(An earlier draft of this file said 25; the group-distinction site emits
+both `@rf-industry` and `@rf-general`, which the first count merged.)*
+
+**Seven of the 26 are turned into English today, by six handlers. Nineteen are not.**
+Those reach a reader exactly as the engine wrote them:
 
 > `primary_issue:strong_match, semantic:4.2, penalty:reports_already_in_use`
 
-On the adviser's screen 6 are translated. On the firm manager's saved case, **none**
-are — that view never had the plain-English step at all
+And that is only the adviser's screen. On the firm manager's saved case, **none** of
+the 26 are translated — that view never had the plain-English step at all
 ([`FirmManagerHub.vue` L1423](../components/FirmManagerHub.vue#L1423) simply joins the
 raw codes together).
 
 ---
 
-## Two things to decide, not one
+## The five rulings (Mike, 2026-08-04)
 
-**1. The words.** The tables below propose an English phrase for every code.
+**1. Show all 26, in English.** Nothing is hidden, and the reasons that pushed a
+template *down* stay visible. *(The alternative — showing a firm manager only its own
+levers, as the Decision Logic page deliberately does — was offered and declined.)*
 
-**2. How much to show at all.** Elsewhere in the app there is a deliberate decision to
-show a firm manager only **two** kinds of reason — the firm's own distinctions and the
-logic tree — and to hide the rest behind a single "everything else" figure
-([`decisionScore.js`](../server/utils/decisionScore.js), where the omission is
-commented as intentional). The trace panel shows **all** of them, raw.
+**2. Point values only on the firm's own levers.** Numbers appear on advisory
+distinctions and the logic tree, because those are what a firm can actually change.
+Everything else is words alone. This dropped the figure from the two phrases drafted
+with one (`semantic`, `purpose_fallback`).
 
-So the app currently gives two different answers to *"how much of the engine's
-reasoning does a firm manager get to see?"*, and only one of those answers was decided
-on purpose. **That file belongs to the Decision Logic work on the desktop, so nothing
-here touches it** — but the question is worth answering before this is built, because
-the answer might be "show fewer, not translate more."
+**3. Keep the second person.** Where a reason came from the adviser's own input, the
+panel hands it back as "you" — matching the panel's own heading, "Area **I** focused
+on".
 
----
+> ⚠ **Known reading, accepted with the ruling.** On a saved case in Firm Manager,
+> "you ruled out revenue modelling" refers to the **adviser who ran the session**, not
+> to the manager reading it weeks later. Mike was shown this trade-off and chose the
+> second person anyway. Recorded so it is not mistaken later for an oversight.
 
-## A. The six that already have English (live today)
+**4. Both vague live phrases change.** `tag:` names its category instead of saying
+"matches the area" — the panel already uses "area" to mean the advisory domain, so one
+word was doing two jobs. And the two engagement codes stop sharing one sentence.
 
-These are on screen now. Listed so a change to them is a deliberate choice, not a
-side-effect.
-
-| Code | What it means | English today | Proposed |
-| --- | --- | --- | --- |
-| `distinction:+5` | One of your firm's own advisory distinctions matched, and added 5 points | firm distinction +5 | **firm distinction +5** — no change |
-| `domain:primary_subsection` | The template sits in the main area this session is about | core to this area | **core to this area** — no change |
-| `history:already_delivered` | This client has had this template before, so it was pushed down the list | already delivered to this client — held back | **no change** |
-| `history:went_less_well` | Delivered before, and the adviser's review said it went less well | delivered before and went less well — held back | **no change** |
-| `tag:Cash Flow` | The template is tagged with the *solution category* the session is about | matches the area | ⚠ **matches "Cash Flow"** — see note |
-| `engagement:primary` | The template fits the type of engagement (advice / project / retainer) | fits the engagement type | ⚠ **fits this engagement type** — see note |
-
-⚠ **Two of the six say less than they know.**
-
-`tag:` says "matches the area", but the code has the actual category to hand — "Cash
-Flow", "Pricing" — and "area" is already used on this same panel to mean the advisory
-domain, which is a different thing. Proposal: name the category.
-
-`engagement:` covers two different codes, `:primary` and `:secondary`, with one
-sentence. Proposal below splits them.
+**5. "Held back" is the standard word for a penalty**, across all seven of them. It
+reads as a deliberate act rather than a fault with the template, which is accurate: a
+held-back template is still in the list, still scored, just lower.
 
 ---
 
-## B. The nineteen that reach the screen as raw code
+## The final list — all 26
 
-Grouped by what a reader is likely to be asking. Points shown because they explain why
-a template rose or fell.
+`LIVE` = on screen today and unchanged · `CHANGED` = live today, reworded under ruling 4
+· everything else is new.
 
 ### Where the template sits
 
-| Code | What it means | Proposed English |
+| Code | What it means | English |
 | --- | --- | --- |
-| `domain:secondary_subsection` (+1) | In a related part of this advisory area, not the main one | in a related part of this area |
-| `engagement:secondary` (+1) | Fits this engagement type, but not its main focus | a secondary fit for this engagement type |
+| `domain:primary_subsection` (+2) | Sits in the main area this session is about | core to this area `LIVE` |
+| `domain:secondary_subsection` (+1) | In a related part of this area, not the main one | in a related part of this area |
+| `engagement:primary` (+2) | Fits the main focus of this engagement type | fits this engagement type `CHANGED` |
+| `engagement:secondary` (+1) | Fits the engagement type, but not its main focus | a secondary fit for this engagement type `CHANGED` |
 | `growth:exact` (+2) | Built for the growth stage the client is at | matches the client's growth stage |
 
 ### The client's industry
 
-| Code | What it means | Proposed English |
+| Code | What it means | English |
 | --- | --- | --- |
 | `industry:title_match` (+8) | The template is *named* for the client's industry | named for the client's industry |
 | `industry:tag_match` (+4) | Tagged with the client's industry, though not named for it | tagged for the client's industry |
@@ -100,64 +95,64 @@ a template rose or fell.
 
 ### What the adviser described
 
-| Code | What it means | Proposed English |
+| Code | What it means | English |
 | --- | --- | --- |
 | `primary_issue:strong_match` (+3) | Two or more words from the confirmed problem appear in this template | closely matches the stated problem |
 | `primary_issue:partial_match` (+1) | One word from the confirmed problem appears | partly matches the stated problem |
-| `semantic:4.2` | The template's subject profile matched the problem signals picked up in conversation, worth 4.2 points | matches the signals in this conversation (4.2) |
-| `purpose_fallback:3.0` | This template has no subject profile, so its description was matched on keywords instead — worth 3.0 | matched on its description (3.0) |
-| `purpose:Cash Flow` (+1) | The solution category appears in the template's description, but it is not tagged with it | "Cash Flow" appears in its description |
+| `semantic:4.2` | The template's subject profile matched the problem signals picked up in conversation | matches the signals in this conversation |
+| `purpose_fallback:3.0` | This template has no subject profile, so its description was matched on keywords instead | matched on its description |
+| `tag:Cash Flow` (+3) | Tagged with the solution category the session is about | matches "Cash Flow" `CHANGED` |
+| `purpose:Cash Flow` (+1) | The category appears in its description, but it is not tagged with it | "Cash Flow" appears in its description |
 
-### Your firm's own settings
+### Your firm's own settings — the two that carry numbers
 
-| Code | What it means | Proposed English |
+| Code | What it means | English |
 | --- | --- | --- |
-| `tree_hint:+3` | Your firm's logic tree named this template for the situation described | your logic tree named it +3 |
-| `distinction:@rf-industry+5` | A firm distinction aimed at the *industry* revenue models as a group, not one named model | firm distinction, industry models +5 |
+| `distinction:+5` | One of your firm's advisory distinctions matched | firm distinction +5 `LIVE` |
+| `distinction:@rf-industry+5` | A firm distinction aimed at the *industry* revenue models as a group | firm distinction, industry models +5 |
 | `distinction:@rf-general+5` | A firm distinction aimed at the *general* feasibility tools as a group | firm distinction, general models +5 |
+| `tree_hint:+3` | Your firm's logic tree named this template for the situation described | your logic tree named it +3 |
 
-### Deliberately pushed down
+### Held back
 
-| Code | What it means | Proposed English |
+| Code | What it means | English |
 | --- | --- | --- |
-| `penalty:modeling_declined` (−50) | The adviser said revenue modelling is not the answer here, so every revenue model was ruled out | you ruled out revenue modelling — held back |
-| `penalty:reports_already_in_use` (−4) | The client already gets regular management reports, so reporting templates add little | client already gets regular reports — held back |
-| `advisor:confidence_mismatch` (−1) | The adviser reported low confidence and this template needs experience | needs more experience than reported — held back |
+| `history:already_delivered` | This client has had this template before | already delivered to this client — held back `LIVE` |
+| `history:went_less_well` | Delivered before, and the review said it went less well | delivered before and went less well — held back `LIVE` |
+| `penalty:modeling_declined` (−50) | The adviser said revenue modelling is not the answer here | you ruled out revenue modelling — held back |
+| `penalty:reports_already_in_use` (−4) | The client already gets regular management reports | client already gets regular reports — held back |
+| `advisor:confidence_mismatch` (−1) | Low confidence reported, and this template needs experience | needs more experience than reported — held back |
 
 ### The adviser's own confidence
 
-| Code | What it means | Proposed English |
+| Code | What it means | English |
 | --- | --- | --- |
 | `advisor:confidence_match` (+1) | Suits an adviser newer to this area | suits an adviser newer to this area |
-| `advisor:confidence_boost` (+1) | The adviser reported high confidence in an area that rewards it | you reported strong confidence here |
+| `advisor:confidence_boost` (+1) | High confidence reported in an area that rewards it | you reported strong confidence here |
 
 ---
 
-## C. Three questions inside the wording
+## What is deliberately NOT decided here
 
-**1. Do the point values belong on screen?** Some proposed phrases carry a number
-("+3", "4.2"), some do not, following what the six live phrases already do. The
-argument for showing them: a firm manager asking "why did *that* one win?" can see the
-size of each lever. The argument against: it invites "why is a name match worth 8 and a
-distinction worth 5?", which is a real conversation but not one the panel can hold.
+**How much of the engine's reasoning a firm manager should see, app-wide.**
+[`decisionScore.js`](../server/utils/decisionScore.js) shows a firm manager only two
+kinds of reason and hides the rest behind one figure, with a comment saying the
+omission is intentional. This panel now shows all 26. Those are two different answers
+to the same question, and only one of them was arrived at on purpose.
 
-**2. Should "held back" stay the word for a penalty?** It is already live on the two
-history codes and reads well. The proposals above extend it to five more.
-
-**3. First person or not?** The panel's heading already says "Area **I** focused on",
-so the engine speaks as "I". Two proposals above say "**you** ruled out revenue
-modelling" and "**you** reported strong confidence" — the adviser's own input handed
-back to them. Consistent with the panel's voice, but worth a look.
+Ruling 1 settles it **for this panel**. It does not settle it for the Decision Logic
+page, which is the desktop's work — **nothing here touches that file.** If the two are
+ever meant to agree, that is a conversation across both machines.
 
 ---
 
-## D. What happens after approval
+## How it gets built
 
-Once the wording is settled, it is built **once**: one shared piece of code that both
-screens call, with the words in `locales/en.json` so all 8 languages get them. Two
-copies of this mapping would drift apart — which is exactly how the firm manager's view
-ended up with no plain English at all while the adviser's had six phrases.
+One shared piece of code that both screens call, with the words in
+[`locales/en.json`](../locales/en.json) so all 8 languages get them. Two copies of this
+mapping would drift apart — which is exactly how the firm manager's view ended up with
+no plain English at all while the adviser's had six phrases.
 
-An unrecognised code will still pass through as-is rather than disappearing, which is
-what the adviser's panel does today. A code the engine adds later shows up ugly, not
-missing — the same reasoning behind the icon-font guard.
+An unrecognised code still passes through as-is rather than disappearing, which is what
+the adviser's panel does today: a code the engine adds later shows up ugly, not
+missing. Same reasoning as the icon-font guard.
