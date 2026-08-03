@@ -746,19 +746,31 @@ export default {
      * Ask before writing, naming what will happen — the same pattern the
      * near-miss Move/Copy rows use, and required for every push
      * (design/LOGIC-LAB-ACCEPT-AND-PUSH.md).
+     *
+     * A PROMPT, NOT A CONFIRM (2026-08-03, second defect). The first build filed
+     * the raw typed sentence as the row's description, which read as chat beside
+     * the firm's hand-authored rows. The dialog now holds that sentence in an
+     * EDITABLE field: the manager approves or rewords it, and what is saved is
+     * wording they signed off. The app never authors the firm's material — this
+     * is how the description stays theirs without the AI writing a word of it.
      */
     confirmDeliver () {
       const template = this.attachTemplateTitle
       if (!template) { return }
-      this.$buefy.dialog.confirm({
+      this.$buefy.dialog.prompt({
         title: this.$t('firmDecisionLogic.llDeliverConfirmTitle'),
         message: this.$t('firmDecisionLogic.llDeliverConfirm', {
           template: this.escapeHtml(template),
           domain: this.escapeHtml(this.detectedDomainLabel)
-        }),
+        }) + '<br><br>' + this.$t('firmDecisionLogic.llDeliverDescLabel'),
+        inputAttrs: {
+          value: this.text.trim(),
+          maxlength: 500,
+          placeholder: this.$t('firmDecisionLogic.llDeliverDescPlaceholder')
+        },
         confirmText: this.$t('firmDecisionLogic.llDeliverConfirmOk'),
         type: 'is-warning',
-        onConfirm: () => this.deliver(template)
+        onConfirm: description => this.deliver(template, description)
       })
     },
 
@@ -771,14 +783,17 @@ export default {
      * the failure this whole page exists to prevent.
      *
      * @param {string} template the template title to deliver
+     * @param {string} description the row wording the manager approved or
+     *   reworded in the dialog — their words either way
      */
-    async deliver (template) {
+    async deliver (template, description) {
       this.delivering = true
       this.deliverFailedLabel = ''
       try {
         const res = await this.api('POST', '/api/firm-manager/logic-lab/accept', {
           text: this.text.trim(),
           templateTitle: template,
+          description: String(description || '').trim(),
           // Descriptive only — the server re-resolves everything that decides
           // the write. This is what turns a stored change into a record of what
           // the manager was TRYING to do, for the mentor rollup.
@@ -807,9 +822,13 @@ export default {
           })
         }
       } catch (err) {
+        // The server's refusal names its reason (e.g. the area has no screen to
+        // show the row) — showing a generic "failed" over a specific sentence
+        // would be the page hiding its own answer.
         this.$buefy.toast.open({
-          message: this.$t('firmDecisionLogic.llDeliverFailed'),
-          type: 'is-danger'
+          message: (err && err.message) || this.$t('firmDecisionLogic.llDeliverFailed'),
+          type: 'is-danger',
+          duration: 6000
         })
       } finally {
         this.delivering = false

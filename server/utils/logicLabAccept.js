@@ -178,10 +178,20 @@ function requiredBoost (topScore, templateScore) {
  * plans an UPDATE of that row rather than a second copy of it — pressing the
  * button twice must not litter their configuration.
  *
+ * THE DESCRIPTION IS THE MANAGER'S, TWICE OVER (2026-08-03, second defect). The
+ * first build filed the raw typed sentence as the row's description, and it read
+ * as chat beside the firm's hand-authored rows — fine to the engine, unusable as
+ * their IP. Now the browser shows the sentence in an editable field and the
+ * manager approves or rewords it BEFORE the write; what arrives here in
+ * `description` is wording they signed off. The raw sentence stays as the
+ * trigger, because the trigger's job is to match how advisors actually speak.
+ * The fallback to `text` keeps the planner honest when no description is sent.
+ *
  * @param {Object} input
  * @param {string} input.text - the advisor's phrase, as the manager typed it
  * @param {string} input.templateTitle - the template they want delivered
  * @param {string} input.domain - the area the phrase was read as
+ * @param {string} [input.description] - the row wording the manager approved
  * @param {string[]} input.libraryTitles - every title in the firm's library
  * @param {Array<Object>} input.existingRows - the firm's OWN rows
  * @param {number} input.boost - from requiredBoost()
@@ -192,6 +202,7 @@ function planDeliver (input) {
   const text = _str(opts.text, MAX_SENTENCE)
   const title = _str(opts.templateTitle, MAX_LABEL)
   const domain = _str(opts.domain, MAX_LABEL)
+  const description = _str(opts.description, MAX_SENTENCE) || text
 
   if (!text) {
     return { ok: false, code: 'INVALID_BODY', message: 'the advisor’s phrase is required' }
@@ -212,7 +223,7 @@ function planDeliver (input) {
   const boost = Math.min(MAX_BOOST, Math.max(MIN_BOOST, Math.ceil(Number(opts.boost) || MIN_BOOST)))
   const existing = (Array.isArray(opts.existingRows) ? opts.existingRows : [])
     .find(r => r && _str(r.domain, MAX_LABEL) === domain &&
-      _str(r.description, MAX_SENTENCE).toLowerCase() === text.toLowerCase())
+      _str(r.description, MAX_SENTENCE).toLowerCase() === description.toLowerCase())
 
   return {
     ok: true,
@@ -221,7 +232,7 @@ function planDeliver (input) {
       mode: existing ? 'update' : 'create',
       id: existing ? existing.id : null,
       domain,
-      description: text,
+      description,
       // The manager's own sentence is the trigger too. The AI judges by meaning,
       // so it does not need to be split into clever phrases.
       triggers: [text],

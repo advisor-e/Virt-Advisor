@@ -92,7 +92,8 @@ function mountDx (opts = {}) {
       distinctionBoost: 5,
       treeBoost: 3,
       ...(opts.propsData || {})
-    }
+    },
+    mocks: opts.mocks
   })
   wrapper.setMethods({ api: jest.fn().mockResolvedValue({ titles: ['Board Member Conduct'] }) })
   return wrapper
@@ -708,6 +709,51 @@ describe('DecisionLogicDiagnostic — the deliver button', () => {
     expect(wrapper.vm.deliveredLabel).toBe('')
     expect(wrapper.vm.canDeliver).toBe(true)
     expect(wrapper.vm.delivering).toBe(false)
+  })
+
+  it('asks with the manager’s sentence PREFILLED AND EDITABLE, and saves the wording they chose', async () => {
+    // 2026-08-03, second defect: the raw typed sentence went in as the row's
+    // description — fine to the engine, unusable as the firm's IP. The dialog is
+    // a PROMPT: the sentence sits in an editable field, the manager approves or
+    // rewords it, and what they chose is what is saved. Either way the words are
+    // theirs; the app authors nothing.
+    const prompt = jest.fn()
+    const wrapper = await runWith(mountDx({
+      mocks: { $buefy: { dialog: { prompt }, toast: { open: jest.fn() } } }
+    }), JSON.parse(JSON.stringify(RESULT)))
+    const api = jest.fn().mockResolvedValue({ delivered: true, domain: 'governance', boost: 10 })
+    wrapper.setMethods({ api })
+
+    wrapper.vm.confirmDeliver()
+    expect(prompt).toHaveBeenCalledTimes(1)
+    const args = prompt.mock.calls[0][0]
+    // The sentence is offered back, not written for them.
+    expect(args.inputAttrs.value).toBe('poor decision making and no clear direction')
+
+    await args.onConfirm('Owners cannot make decisions together and have no defined goals')
+    await wrapper.vm.$nextTick()
+    const body = api.mock.calls[0][2]
+    expect(body.description).toBe('Owners cannot make decisions together and have no defined goals')
+    // The trigger stays the sentence as typed — it is how advisors speak.
+    expect(body.text).toBe('poor decision making and no clear direction')
+  })
+
+  it('shows the server’s own refusal sentence, not a generic failure', async () => {
+    // The DOMAIN_NOT_VISIBLE refusal names its reason; burying it under a
+    // generic "could not be saved" would be the page hiding its own answer.
+    const toast = jest.fn()
+    const wrapper = await runWith(mountDx({
+      mocks: { $buefy: { dialog: { prompt: jest.fn() }, toast: { open: toast } } }
+    }), JSON.parse(JSON.stringify(RESULT)))
+    wrapper.setMethods({
+      api: jest.fn().mockRejectedValue(new Error('These words were read as an area your Advisory Distinctions screen doesn’t cover, so nothing was changed.'))
+    })
+
+    await wrapper.vm.deliver('Board Member Conduct', '')
+    await wrapper.vm.$nextTick()
+
+    expect(toast).toHaveBeenCalledTimes(1)
+    expect(toast.mock.calls[0][0].message).toContain('Advisory Distinctions screen')
   })
 
   it('escapes firm text before it reaches the confirm dialog', async () => {

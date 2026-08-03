@@ -162,6 +162,21 @@ describe('when it can deliver', () => {
     expect(rows[0].created_from).toBe('logic-lab')
   })
 
+  it('files the description the manager approved in the dialog, keeping their sentence as the trigger', async () => {
+    // 2026-08-03, second defect: the raw typed sentence went in as the row's
+    // description and was unusable as the firm's IP. The dialog now lets the
+    // manager reword it before the write; both versions are the manager's own.
+    const res = makeRes()
+    await acceptLogicLabIdea(makeReq({
+      description: 'Owners cannot make decisions together and have no defined goals'
+    }), res)
+
+    expect(res._body.delivered).toBe(true)
+    const rows = saved('advisory-distinctions')[0]
+    expect(rows[0].description).toBe('Owners cannot make decisions together and have no defined goals')
+    expect(rows[0].triggers).toEqual([PHRASE])
+  })
+
   it('CHECKS the outcome against the real engine before reporting success', async () => {
     const res = makeRes()
     await acceptLogicLabIdea(makeReq(), res)
@@ -234,6 +249,26 @@ describe('the refusals', () => {
 
     expect(res._status).toBe(400)
     expect(res._body.error.code).toBe('NO_DOMAIN')
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  it('400s when the area has no Advisory Distinctions screen — the org-board-pack defect', async () => {
+    // 2026-08-03, first defect found by Mike in the running app: the button wrote
+    // a live row into `org-board-pack`, active in the engine, invisible in the
+    // UI. The engine's answer is honest here — the detection really did say that
+    // area — so the route must refuse, not file where the firm cannot see.
+    decisionScore.diagnose.mockResolvedValue({
+      scored: true,
+      domain: 'org-board-pack',
+      sheet: [{ rank: 1, title: '1 pg Bizz Case', score: 10 }],
+      expected: { rank: null, title: WANT, score: 1, unscored: true, inLibrary: true },
+      gap: 9
+    })
+    const res = makeRes()
+    await acceptLogicLabIdea(makeReq(), res)
+
+    expect(res._status).toBe(400)
+    expect(res._body.error.code).toBe('DOMAIN_NOT_VISIBLE')
     expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
   })
 

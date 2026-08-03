@@ -1,6 +1,7 @@
 [
   {
     "id": "profit",
+    "distinctions": true,
     "engagementType": "education",
     "label": "profitability and feasibility",
     "keywords": "profit|profitability|margin|margins|fuel cost|fuel costs|rising cost|rising costs|cost increase|increasing cost|expenses|cost pressure|squeeze|feasib|going under|go under|shutting down|shut down|shut the business|facing business closure|close the doors|close down the business|business failure|facing liquidation|face liquidation|into liquidation|going into receivership|voluntary administration|go bust|going bust|gone bust|go broke|going broke|wind up the business|winding up the business|insolvent|insolvency|may not survive|might not survive|won't survive|on the brink",
@@ -9,6 +10,7 @@
   },
   {
     "id": "staff",
+    "distinctions": true,
     "engagementType": "facilitation",
     "label": "staff, productivity and leadership",
     "keywords": "\\b(staff|employees|team|efficiency|productivity|effectiveness|leadership|HR|morale|culture|disharmony|poor communication)\\b",
@@ -17,6 +19,7 @@
   },
   {
     "id": "data-systems",
+    "distinctions": true,
     "engagementType": "education",
     "label": "data integrity and financial systems",
     "keywords": "data integrity|\\bdata\\b|inaccurate|not accurate|can't rely|cannot rely|not reliable|accurate data|financial data|data quality|quality reports|financial reports|financial reporting|management reports|their financials|the financials|the figures|their figures|the numbers|the books|chart of accounts|financial literacy|generating reports|monthly reporting|financial systems|accounting systems|bookkeeping|unreliable|clean accounts|bad data|poor data|trust the numbers",
@@ -25,6 +28,7 @@
   },
   {
     "id": "sales-marketing",
+    "distinctions": true,
     "engagementType": "facilitation",
     "label": "sales and marketing",
     "keywords": "\\b(sales|marketing|messaging|advertising)\\b|drop in revenue|drop in sales|drop in income|low sales|media campaigns|brand awareness",
@@ -33,6 +37,7 @@
   },
   {
     "id": "forecasting",
+    "distinctions": true,
     "engagementType": "education",
     "label": "financial management",
     "keywords": "cash forecast|budgets|dashboard discussions|dashboard|ratio analysis|financial management report",
@@ -41,6 +46,7 @@
   },
   {
     "id": "governance",
+    "distinctions": true,
     "engagementType": "facilitation",
     "label": "governance and leadership",
     "keywords": "governance|board|directors|compliance|accountability|leadership structure|reporting structure|decision.making|policies|procedures|corporate governance",
@@ -62,6 +68,7 @@
   },
   {
     "id": "strategy",
+    "distinctions": true,
     "engagementType": "facilitation",
     "label": "strategy and planning",
     "keywords": "strategy|strategic planning|business plan|growth plan|long[- ]?term (plan|strategy|goal|objective|vision)|vision|mission|goals|objectives|direction|pivot|restructure|business model",
@@ -83,6 +90,7 @@
   },
   {
     "id": "systems",
+    "distinctions": true,
     "engagementType": "facilitation",
     "label": "systems",
     "keywords": "\\bsystems\\b|processes|workflows|automation|\\btechnology\\b|\\bsoftware\\b|\\bCRM\\b|\\bERP\\b|operational efficiency|infrastructure|inefficiency|bottleneck",
@@ -104,6 +112,7 @@
   },
   {
     "id": "valuation",
+    "distinctions": true,
     "engagementType": "advice",
     "label": "valuation",
     "keywords": "valuation|value the business|business worth|what is it worth|enterprise value|EBITDA|business value|how much is it worth|price the business|sale price",
@@ -125,6 +134,7 @@
   },
   {
     "id": "risk",
+    "distinctions": true,
     "engagementType": "advice",
     "label": "risk management",
     "keywords": "risk management|risk exposure|liability|business risk|contingency|disaster recovery|business continuity|mitigate risk|downside risk|key person|key man",
@@ -146,6 +156,7 @@
   },
   {
     "id": "succession",
+    "distinctions": true,
     "engagementType": "advice",
     "label": "succession planning",
     "keywords": "succession|exit plan|retire|retiring|handover|next generation|family business|ownership transfer|management buyout|sell the business|exit strategy|ownership transition",
@@ -167,6 +178,7 @@
   },
   {
     "id": "conflict",
+    "distinctions": true,
     "engagementType": "facilitation",
     "label": "conflict and conflict meetings",
     "keywords": "conflict|dispute|disagreement|tension|falling out|relationship breakdown|mediation|partnership dispute|directors fighting|ownership dispute|irreconcilable",
@@ -188,6 +200,7 @@
   },
   {
     "id": "eoy",
+    "distinctions": true,
     "engagementType": "facilitation",
     "label": "end of year meetings",
     "keywords": "end of year|year end|annual review|year.end meeting|\\bEOY\\b|financial year end|tax year|annual planning|end.of.year",
@@ -209,6 +222,7 @@
   },
   {
     "id": "due-diligence",
+    "distinctions": true,
     "engagementType": "advice",
     "label": "due diligence",
     "keywords": "due diligence|acquisition|acquire|merger|buying a business|purchase a business|buying the business|DD report|information memorandum",

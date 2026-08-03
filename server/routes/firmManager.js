@@ -670,6 +670,15 @@ const DISTINCTIONS_KEY = 'advisory-distinctions'
 // when a domain is added.
 const DISTINCTION_DOMAINS = new Set(DOMAINS.map(d => d.id))
 
+// The subset the Advisory Distinctions SCREEN shows, marked in domains.json with
+// `distinctions: true` — the same flag the screen reads, so the two cannot drift.
+// A Logic-Lab accept may only file here: on 2026-08-03 it wrote a live row into
+// `org-board-pack`, which has no screen — active in the engine, invisible to the
+// firm. A row the firm cannot see is a row the firm cannot correct.
+const VISIBLE_DISTINCTION_DOMAINS = new Set(
+  DOMAINS.filter(d => d.distinctions === true).map(d => d.id)
+)
+
 async function _loadDistinctions (firmId) {
   try {
     const stored = await overlay.loadFirmConfig(firmId, DISTINCTIONS_KEY)
@@ -3743,7 +3752,7 @@ async function _saveAcceptedLog (firmId, rows, savedBy) {
 
 /**
  * @route POST /api/firm-manager/logic-lab/accept
- * Body: { distinctionId, templateTitle, context? }
+ * Body: { text, templateTitle, description?, context? }
  *
  * Attach the template the firm expected to the distinction that already matched —
  * the one idea on the page that is fully determined, so it can be one click.
@@ -3768,6 +3777,9 @@ async function acceptLogicLabIdea (req, res) {
   const body = req.body || {}
   const templateTitle = typeof body.templateTitle === 'string' ? body.templateTitle : ''
   const text = typeof body.text === 'string' ? body.text : ''
+  // The row wording the manager approved (or reworded) in the confirm dialog.
+  // Their words either way — the app never authors the firm's material.
+  const description = typeof body.description === 'string' ? body.description : ''
 
   try {
     const { planDeliver, requiredBoost, buildLogEntry } = require('../utils/logicLabAccept')
@@ -3802,6 +3814,7 @@ async function acceptLogicLabIdea (req, res) {
     const outcome = planDeliver({
       text,
       templateTitle,
+      description,
       domain: before.domain,
       libraryTitles,
       existingRows: ownRows,
@@ -3812,8 +3825,11 @@ async function acceptLogicLabIdea (req, res) {
     }
     const plan = outcome.plan
 
-    if (!DISTINCTION_DOMAINS.has(plan.domain)) {
-      return sendError(res, 400, 'INVALID_DOMAIN', 'That area is not one distinctions can be filed under')
+    if (!VISIBLE_DISTINCTION_DOMAINS.has(plan.domain)) {
+      // Refusal, not a write. The engine read the words as an area the Advisory
+      // Distinctions screen does not show; filing there would change live
+      // behaviour with nothing on any screen to show it happened.
+      return sendError(res, 400, 'DOMAIN_NOT_VISIBLE', 'These words were read as an area your Advisory Distinctions screen doesn’t cover, so nothing was changed.')
     }
 
     // ── 3. Write it, keeping what was there so it can be put back ────────────

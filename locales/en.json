@@ -1705,6 +1705,8 @@
     "llDeliverConfirmTitle": "Make advisors get this template",
     "llDeliverConfirm": "This files a distinction of yours under {domain}, using the words you typed above, pointing at {template}. Your phrase will then return {template} first. You can change or remove it on the Advisory Distinctions screen.",
     "llDeliverConfirmOk": "Do it",
+    "llDeliverDescLabel": "How it will read on your Advisory Distinctions screen — yours to reword before it's saved:",
+    "llDeliverDescPlaceholder": "Describe the client situation in your firm's words",
     "llDeliverDone": "Done — this phrase now returns {template} first. Filed under {domain}. ✓",
     "llDeliverImpossible": "It could not be made to come first — {top} still wins even at the strongest setting. Nothing has been changed.",
     "llDeliverFailed": "That could not be saved. Nothing has changed."

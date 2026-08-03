@@ -652,6 +652,13 @@ const DISTINCTION_DOMAINS = [
   { id: 'due-diligence', label: 'Due Diligence & Acquisitions' }
 ]
 
+// Exported for the locking test (tests/unit/distinctionDomainsVisible.test.js),
+// which holds this list against the `distinctions: true` flags in
+// data/domains.json — the flag the Logic-Lab accept route files by. The
+// 2026-08-03 org-board-pack write happened in the gap between the two lists;
+// the test exists so that gap cannot silently reopen.
+export { DISTINCTION_DOMAINS }
+
 export default {
   name: 'FirmManagerHub',
 

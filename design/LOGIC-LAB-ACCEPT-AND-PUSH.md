@@ -220,10 +220,28 @@ See §2's "Log every accepted idea" — that part is unchanged and already built
 
 ### Status of the 2026-08-03 build
 
+> **UPDATED 2026-08-04.** The build moved past row 3 the same evening: the shape that
+> survived (commit `e6bff86` and its message) **creates a distinction of the firm's own
+> naming ONE template**, because attaching to any matched row — the firm's or the
+> platform's — was proved arithmetically unable to change the outcome when that row
+> already names the winner. Its two open defects were then closed on 2026-08-04:
+>
+> 1. **It can no longer file where the firm cannot see.** Domains the Advisory
+>    Distinctions screen shows carry `distinctions: true` in `data/domains.json`; the
+>    accept route refuses everything else (`DOMAIN_NOT_VISIBLE`) and a locking test
+>    holds the screen's list to the same flag. The `org-board-pack` write is impossible.
+> 2. **The description is the manager's, approved in the moment.** The confirm dialog
+>    holds the typed sentence in an editable field; what is saved is wording they signed
+>    off. The raw sentence stays as the trigger. Nothing is authored.
+>
+> The misdetection that triggered both (a client sentence read as a firm-internal area)
+> is its own P1: ACTIONS → `client-sentence-detected-as-firm-domain`.
+
 - **The accept route and button exist** (`server/utils/logicLabAccept.js`,
   `POST /api/firm-manager/logic-lab/accept`, the button in
-  `DecisionLogicDiagnostic.vue`). They implement **row 3 only**, and wrongly allow it
-  on **platform** rows — the defect above. Not committed.
+  `DecisionLogicDiagnostic.vue`). ~~They implement **row 3 only**, and wrongly allow it
+  on **platform** rows — the defect above. Not committed.~~ *(Superseded — see the
+  2026-08-04 box above.)*
 - **Separately: a Logic-Lab write now refreshes the Advisory Distinctions tab.**
   The tab loads once on hub mount, so a write from the Logic-Lab page left it showing
   stale data — Mike hit this first. That fix is independent of everything above and

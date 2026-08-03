@@ -69,6 +69,53 @@ describe('planDeliver — the distinction that delivers', () => {
     expect(out.plan.boost).toBe(10)
   })
 
+  it('files the description the manager APPROVED, keeping their sentence as the trigger', () => {
+    // 2026-08-03, second defect: the raw typed sentence went in as the row's
+    // description and read as chat beside hand-authored rows. The dialog now
+    // lets the manager reword it; the reworded text is the row, the original
+    // sentence stays the trigger because it is how advisors actually speak.
+    const out = planDeliver({
+      text: PHRASE,
+      description: 'Owners cannot make decisions together and have no defined goals',
+      templateTitle: 'Governance Introduction',
+      domain: 'strategy',
+      libraryTitles: LIBRARY,
+      existingRows: [],
+      boost: 10
+    })
+    expect(out.ok).toBe(true)
+    expect(out.plan.description).toBe('Owners cannot make decisions together and have no defined goals')
+    expect(out.plan.triggers).toEqual([PHRASE])
+  })
+
+  it('falls back to the typed sentence when no description arrives', () => {
+    const out = planDeliver({
+      text: PHRASE,
+      description: '   ',
+      templateTitle: 'Governance Introduction',
+      domain: 'strategy',
+      libraryTitles: LIBRARY,
+      existingRows: [],
+      boost: 10
+    })
+    expect(out.plan.description).toBe(PHRASE)
+  })
+
+  it('dedupes against the APPROVED wording, so a reworded second press updates its own row', () => {
+    const existing = [{ id: 9, domain: 'strategy', description: 'Owners cannot agree', templates: [], boost: 5 }]
+    const out = planDeliver({
+      text: PHRASE,
+      description: 'Owners cannot agree',
+      templateTitle: 'Governance Introduction',
+      domain: 'strategy',
+      libraryTitles: LIBRARY,
+      existingRows: existing,
+      boost: 8
+    })
+    expect(out.plan.mode).toBe('update')
+    expect(out.plan.id).toBe(9)
+  })
+
   it('names ONE template — a second would spread the boost and re-create the bug', () => {
     const out = planDeliver({
       text: PHRASE,
