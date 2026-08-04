@@ -1,7 +1,17 @@
 # Tree Recommendations — Logic-Table Names vs Published Titles
 
-**Raised 2026-08-05 (laptop). Status: AWAITING MIKE'S CONFIRMATION on the unresolved rows.
-Nothing has been changed in the trees or the code.**
+**Raised 2026-08-05 (laptop). Nothing has been changed in the trees or the code.**
+
+**Status, updated 2026-08-05 (session B): §2 is SETTLED except two rows.** Mike ruled four of
+the eight; two more dissolved on inspection — they were phrases inside instructions, never tool
+names, and neither needed a ruling. See the Ruling column in §2.
+
+**The remaining two rows are deliberately NOT being chased in chat.** Mike's call this session:
+rather than settle names one at a time, build a screen that lists every logic-table name the
+catalogue cannot serve, so he amends the tables in the Mentor Hub and the correction cascades to
+every firm. Design approved and committed:
+[`mockups/logic-table-template-check.html`](mockups/logic-table-template-check.html) (`9ba2b4c`).
+Rows 7 and 8 below will appear in that screen.
 
 Companion to the two open P1s in [`ACTIONS.md`](ACTIONS.md):
 [field-drop](ACTIONS.md#tree-recommendation-field-dropped) ·
@@ -60,16 +70,21 @@ The evidence is near-verbatim, so these need no ruling, only a sanity check.
 
 ## 2. LIKELY — a candidate exists, but needs Mike to confirm
 
-| Branch | Logic-table name | Best candidate | Why, and the doubt |
-|---|---|---|---|
-| A4 Firm Board Pack · Data Interpretation | Interpreting Data Correctly | **Rubbish In - Rubbish Out** | Its support tags are *Correlation; Coincidence; Causation* — exactly the PDF's note column. But the title gives no hint, so this is inference, not proof. |
-| A5 Financial Systems Review · Client Onboarding | Chart of Accounts | **Rubbish In - Rubbish Out** | Same record: *"focuses on the **Chart of Accounts** as a foundation for Reporting and Interpretation"*. Could equally be coaching advice rather than a tool. |
-| B20 Leadership · Conduct Warning | Agreed Response Time Guidelines / "Yellow Card" | **Partner Accountability** | Same conduct-and-consequence system as B21/B22, but neither phrase appears anywhere in the export. |
-| A2 Firm Board Pack · Governance Foundation | BoardPack Agenda | **FM Agenda & Minutes** | The only board-agenda document in the Firm Manager section. |
-| B18 Leadership · Behavioural Profiling | Enneagram based employment questions | **Hire Winners** *(weak)* | Hire Winners is about *"personality types"* in recruitment, but "enneagram" appears nowhere in the export. Weak — do not act on this without Mike. |
-| A3 Firm Board Pack · Combating Bias | Psyche Errors | *(concept inside* **Quality Decisions***)* | Reads as a topic taught within Quality Decisions, already in that branch's `templates[]`. Likely "keep as coaching". |
-| A3 Firm Board Pack · Combating Bias | Decision Workpaper | *(none found)* | The PDF says *"Have them utilize a 'Decision Workpaper'"*. No candidate in the export. |
-| A1 CA Firm Strategy · Advisor Role | My Fee Growth Model | *(none found)* | The PDF names **both** *"My Fee Growth Model"* **and** *"My Fee Growth Plan"* as separate items. The export has only **My Fee Growth Plan**. So either one is missing from the export, or they are one document. |
+**Six of the eight are settled (2026-08-05, session B).** Four ruled by Mike; two dissolved on
+inspection and never needed a ruling — the "name" was a phrase inside his own instruction, and in
+both cases the branch already carried its real template. **The rulings are recorded but NOT yet
+applied to `data/logic_trees.json`** — applying them is Phase 4 of the Template Check build.
+
+| Branch | Logic-table name | Best candidate | Ruling | Why, and the doubt |
+|---|---|---|---|---|
+| A4 Firm Board Pack · Data Interpretation | Interpreting Data Correctly | **Rubbish In - Rubbish Out** | ✅ **RULED — coaching, not a template.** Mike, 2026-08-05. The name comes out of the wording; no template is attached. | Its support tags are *Correlation; Coincidence; Causation* — exactly the PDF's note column. But the title gives no hint, so this is inference, not proof. |
+| A5 Financial Systems Review · Client Onboarding | Chart of Accounts | ~~Rubbish In - Rubbish Out~~ | ⊘ **NO RULING NEEDED — not a tool name.** Verified in the data 2026-08-05: the three FSR branches read *"Align the **Chart of Accounts** to the 3x3 cost framework"* — a concept inside the instruction — and all three already carry the real published template **Financial Systems Review** (Do the Job › Specialist Tools). This row overstated the problem. | Same record: *"focuses on the **Chart of Accounts** as a foundation for Reporting and Interpretation"*. Could equally be coaching advice rather than a tool. |
+| B20 Leadership · Conduct Warning | Agreed Response Time Guidelines / "Yellow Card" | **Partner Accountability** | ✅ **RULED — Partner Accountability, the `Do the Job › Governance Tools` record.** Mike, 2026-08-05. Two records share this title; he picked the de-merit one. ⚠ The trees store template names as plain strings, so the name alone cannot distinguish the two — flagged for the build. | Same conduct-and-consequence system as B21/B22, but neither phrase appears anywhere in the export. **Corroborated 2026-08-05:** exactly one of the 291 records mentions a de-merit system, and the branch's own notes escalate to "formal Demerit Points". This branch's `templates[]` is EMPTY today — the advisor is offered nothing. |
+| A2 Firm Board Pack · Governance Foundation | BoardPack Agenda | **FM Agenda & Minutes** | ✅ **RULED — FM Agenda & Minutes.** Mike, 2026-08-05. | ~~The only board-agenda document in the Firm Manager section.~~ **Corrected 2026-08-05 — that was true but incomplete:** a second candidate, **General Meeting Agenda** (Do the Job › General Tools › Client Meetings), was never offered in the first draft. Mike chose FM Agenda & Minutes with both in front of him. The branch's other tool, Annual Board Plan, was already correctly attached. |
+| B18 Leadership · Behavioural Profiling | Enneagram based employment questions | ~~Hire Winners~~ | ✅ **RULED — a separate, real document.** Mike, 2026-08-05. Neither Hire Winners nor Hiring Winners. → joins [§export-gap-six-tools](ACTIONS.md#export-gap-six-tools), which is now **seven** tools. | Hire Winners is about *"personality types"* in recruitment, but "enneagram" appears nowhere in the export. Weak — do not act on this without Mike. Both candidates were put to him; he rejected both. This branch's `templates[]` is EMPTY today. |
+| A3 Firm Board Pack · Combating Bias | Psyche Errors | *(concept inside* **Quality Decisions***)* | ⊘ **NO RULING NEEDED — not a tool name.** The instruction reads *"Use **Quality Decisions** frameworks to introduce **Psyche Errors** concepts"* — Quality Decisions is the tool, Psyche Errors is what it teaches, and Quality Decisions is already attached. | Reads as a topic taught within Quality Decisions, already in that branch's `templates[]`. Likely "keep as coaching". |
+| A3 Firm Board Pack · Combating Bias | Decision Workpaper | **Draft White Papers** *or* **FM Board White Paper** | ☐ **STILL OPEN.** Deliberately not chased in chat — it will surface in the Template Check screen. | ~~*(none found)*~~ **Corrected 2026-08-05 — "none found" was wrong.** Two candidates exist: **Draft White Papers** (Do the Job › Governance Tools — client-facing, exists to stop members *"dumping their problem without offering suggestions"*) and **FM Board White Paper** (Firm Manager — names Executive Summary, *"analysis of alternative solutions"*, tagged Decision Making). |
+| A1 CA Firm Strategy · Advisor Role | My Fee Growth Model | **My Fee Growth Plan** *(one document, or two?)* | ☐ **STILL OPEN.** Will surface in the Template Check screen. | The PDF names **both** *"My Fee Growth Model"* **and** *"My Fee Growth Plan"* as separate items. The export has only **My Fee Growth Plan**. So either one is missing from the export, or they are one document. **New evidence 2026-08-05:** the My Fee Growth Plan record's own `support` field reads *"Video; **Model**; Template"* — so the Model may be a component published inside the Plan. The branch treats them as two: *"Use My Fee Growth Model for the financial modelling of fee targets. Use My Fee Growth Plan for the activity targets."* |
 
 ## 3. NO MATCH ANYWHERE IN THE EXPORT
 
@@ -85,8 +100,9 @@ advisor cannot be given.
 | B10 CA Firm Strategy · Capacity Management | Client Service Stds | "service standard", "service tier" — nothing relevant |
 | B11 CA Firm Strategy · Tracking & Accountability | Global Actions Report | "global action", "task completion" — nothing relevant |
 | B19 Leadership · Boardroom Conflict | Boardroom Manipulation Tactics | "assassin", "scorched earth", "manipulat" — nothing |
+| B18 Leadership · Behavioural Profiling | Enneagram Employment Questions | "enneagram" — no hit anywhere. **Added 2026-08-05 (session B)** after Mike ruled it a separate real document, promoting it out of §2. |
 
-**Five of the six are in the CA Firm Strategy tree.** That tree's source document names six tools
+**Seven tools, not six, as of 2026-08-05.** Five of the original six are in the CA Firm Strategy tree. That tree's source document names six tools
 and only two of them (*6 Hats*, *Growth Curve Checklist*) reach the export. It looks less like six
 separate naming slips and more like one body of material that never made it into the export.
 

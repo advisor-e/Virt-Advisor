@@ -1526,9 +1526,43 @@ that the warning is not being followed by default.
       **Sales Teams**) should be attached to named branches, which is a judgement about Mike's own
       content and cannot be settled by counting.
 
+- <a id="gate-blind-to-flat-trees"></a>☐ **🔴 P1 · CORRECTNESS — the template availability gate watches
+  37 of the 42 logic tables, and its test is blind to exactly the same five.** Found 2026-08-05
+  (session B) while designing the Template Check screen. **Not a regression — nothing is being wrongly
+  withheld; the safety net simply does not cover these tables and never did.**
+  - **Proof, not inference.** Logic tables come in two shapes: 37 keep their rules in `nodes`, 5 in
+    `branches` (`get_sales_tracker`, `get_marketing`, `get_team_problem` + 2). The gate is called only
+    inside [`formatNodeForPrompt`](../server/utils/logicTrees.js#L395); flat tables are rendered by
+    `formatFlatBranch` ([L482](../server/utils/logicTrees.js#L482)), which never calls
+    `splitByAvailability`. Ran the real builder on `get_sales_tracker`: **`Get.1a.Sales Tracker` is
+    absent from the catalogue and still appears in the finished prompt.**
+  - **The test has the identical blind spot.** [`templateAvailabilityGate.test.js`
+    L91](../tests/unit/templateAvailabilityGate.test.js#L91) walks `tree.nodes` only, so its
+    "withholds NOTHING" assertion can never see the five flat tables. It is true of the 37 and was
+    never evidence about the rest. The 2026-08-05 session note's "0 withheld / changes nothing today"
+    inherits that limit.
+  - **11 names in those 5 tables match no catalogue title and reach the AI today:** `Get.1a.Sales
+    Tracker` · `Get. TCM.Quiz Link Email` · `Get. Invitation Email` · `Get. Bankers Login Email` ·
+    `Get. Paper Tower Task Sheet` · `Get. Paper Tower Model` · `Get. Spaghetti Tower Task Sheet` ·
+    `Get. Paper Tower Review Questions` · `Get. Team Problem Solving` · `90 Day Accounting Best
+    Practice Plan` · `Growth Fundamentals Framework`. They read like master-app **file** names rather
+    than template titles — a different failure family from the prose-name one.
+  - **A 12th, `Get. Seminar Feedback Form`, sits in `public_speaking.flat_branches`** — a key no code
+    reads (grepped). Dead data; it reaches nothing. Worth deleting, but harmless.
+  - **DELIBERATELY NOT FIXED BY EXTENDING THE GATE.** If those names are real assets under another
+    title, withholding them deletes real instructions — precisely the error of 2026-08-04, when 27
+    names were called ghosts and the premise turned out to be wrong. Mike sees the list first, renames,
+    and only then is withholding safe.
+  - ✅ **This is a control, not a to-do.** Its fix is **Phase 1 of the approved Template Check build**
+    (design: [`mockups/logic-table-template-check.html`](mockups/logic-table-template-check.html),
+    committed `9ba2b4c`, approved by Mike 2026-08-05): the scanner covers **both** tree shapes, and the
+    misleading test is corrected in the same phase so its green tick stops overstating its reach.
+    Phase 1 was proposed and is awaiting Mike's go-ahead — **not yet started.**
+
 - <a id="export-gap-six-tools"></a>☐ **🔴 P1 · CONTENT GAP (MASTER-TEAM) — six real tools are in neither
   template file, so the app cannot serve them.** Found 2026-08-05; **Mike confirmed the same day that all
-  six exist as real documents.**
+  six exist as real documents.** ⚠ **Now SEVEN** — Mike ruled *Enneagram Employment Questions* a real
+  document on 2026-08-05 (session B); see [the review doc](TREE-RECOMMENDATION-REVIEW.md) §3.
   - **Missing from BOTH `search_content` (280) and `data/templates.json` (291):** Offshoring Review ·
     Team AI (Familiarity) Tasks · Software Assessment Criteria · Client Service Stds · Global Actions
     Report · Boardroom Manipulation Tactics.
