@@ -49,7 +49,15 @@ section.firm-manager-hub.section
       //- Its one write path is the near-miss Move/Copy, which reuses the
       //- existing distinction endpoints and confirms first.
       b-tab-item(label="Logic-Lab" icon="map-search")
-        firm-decision-logic(:api-token="apiToken" @go-to="goToTab")
+        //- `distinctions-changed`: the Logic-Lab page wrote to this firm's
+        //- distinctions (the attach button, or a near-miss Move/Copy). No
+        //- payload — re-read from the server, so this tab can never hold a
+        //- version the store does not have.
+        firm-decision-logic(
+          :api-token="apiToken"
+          @go-to="goToTab"
+          @distinctions-changed="loadFirmDistinctions"
+        )
 
       //- ── Tab: Advisory Staircase ────────────────────────────────────
       //- Body lives in its own component. It was the whole-config editor here
@@ -644,6 +652,13 @@ const DISTINCTION_DOMAINS = [
   { id: 'eoy', label: 'End of Year' },
   { id: 'due-diligence', label: 'Due Diligence & Acquisitions' }
 ]
+
+// Exported for the locking test (tests/unit/distinctionDomainsVisible.test.js),
+// which holds this list against the `distinctions: true` flags in
+// data/domains.json — the flag the Logic-Lab accept route files by. The
+// 2026-08-03 org-board-pack write happened in the gap between the two lists;
+// the test exists so that gap cannot silently reopen.
+export { DISTINCTION_DOMAINS }
 
 export default {
   name: 'FirmManagerHub',

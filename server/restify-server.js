@@ -322,13 +322,19 @@ server.del('/api/firm-manager/logic-trees/:treeId', ...fmGuard, fm.resetLogicTre
 server.get('/api/firm-manager/logic-trees/:treeId/history', ...fmGuard, fm.getLogicTreeHistory)
 server.post('/api/firm-manager/logic-trees/:treeId/section', ...fmGuard, fm.setLogicTreeSection)
 // Logic-Lab — the Decision Logic page (ACTIONS #logic-lab-decision-logic-build;
-// the spec is design/mockups/decision-logic-map-mockup.html). All three are
+// the spec is design/mockups/decision-logic-map-mockup.html). The first three are
 // READ-ONLY: they explain the firm's own configuration and what the engine does
 // with a sentence. The page's Move/Copy actions reuse the existing distinction
 // routes above rather than growing write paths of their own.
 server.get('/api/firm-manager/logic-lab/summary', ...fmGuard, fm.getLogicLabSummary)
 server.get('/api/firm-manager/logic-lab/templates', ...fmGuard, fm.getLogicLabTemplateTitles)
 server.post('/api/firm-manager/logic-lab/diagnose', ...fmGuard, fm.diagnoseDecision)
+// The one route here that WRITES (ACTIONS #logic-lab-accept-and-push; the spec is
+// design/LOGIC-LAB-ACCEPT-AND-PUSH.md). It attaches the template the firm expected
+// to the distinction that already matched — the single fully-determined idea the
+// page offers — and records the accepted idea in the same handler, so a change to
+// live template selection can never be made without leaving a trace.
+server.post('/api/firm-manager/logic-lab/accept', ...fmGuard, fm.acceptLogicLabIdea)
 // Manager case-review feed: the firm's shared case studies (with their decision
 // traces) for review. Manager-gated + firm-scoped; private cases never surface.
 server.get('/api/firm-manager/cases', ...fmGuard, casesRoute.listFirmCases)

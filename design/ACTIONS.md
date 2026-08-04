@@ -189,6 +189,15 @@ that the warning is not being followed by default.
   - **Not a blocker for tomorrow's build.** It can be raised before starting, or after the page lands
     — Mike's call. Raising it first is the safer order: it gets the rule to the laptop today and keeps
     the PR small enough to actually review.
+  - **⚠ BOTH MACHINES CLOSED THIS ENTRY INDEPENDENTLY on 2026-08-03**, hours apart, and the merge
+    conflicted on exactly these lines. The desktop only looked because Mike acted on the entry and it
+    sent him to raise a PR that had already merged the day before. **A `☐` in this file is a claim
+    about GitHub, and this file cannot see GitHub** — check with `gh pr view <n>` before believing a
+    line, which is the header's *"Trust the CODE, not these flags"* applied to process items as well
+    as to features. That two divisions independently spent effort on the same stale line is the cost
+    of not doing so.
+  - **Also merged 2026-08-03: PR #34** (`2e9aca1`) — the desktop's Logic-Lab Decision Logic page,
+    raised after this entry's own PR had already landed.
 
 - <a id="logic-lab-wording-signoff"></a>✅ **P2 · DECISION — RULED by Mike 2026-08-03. All twelve
   strings settled: the lede corrected to *"Nothing on this page changes anything until you choose
@@ -352,12 +361,41 @@ that the warning is not being followed by default.
   - **Proposed fix:** clear `.nuxt` in `serve.bat` before building, with the rename-then-delete
     fallback. Not written — it is a change to a shared script.
 
-- <a id="logic-lab-accept-and-push"></a>🖥 **DESKTOP'S WORK — NOT A LAPTOP TASK. Mike is building this
-  on the desktop (2026-08-03), and ruled the laptop is not to go near Logic-Lab at all.** The entry
-  stays as reference for the desktop; the laptop neither builds it nor raises it.
+- <a id="client-sentence-detected-as-firm-domain"></a>☐ **P1 · ENGINE — a CLIENT sentence can be
+  detected as a FIRM-internal domain.** On 2026-08-03 *"ive got two business owners who struggle
+  to…"* — a client situation — was read as `org-board-pack`, an area about the firm's own board,
+  and everything downstream followed that one wrong turn (see the e6bff86 commit message). The
+  Logic-Lab accept now REFUSES to file there (`DOMAIN_NOT_VISIBLE`, 2026-08-04), which turns the
+  silent wrong write into an honest refusal — but the detection itself is still wrong and this
+  entry owns it. Any fix is an engine change: measure with the Scenario Lab's full case set
+  before shipping, per the standing rule.
+
+- <a id="logic-lab-accept-and-push"></a>☐ 🖥 **DESKTOP'S WORK — NOT A LAPTOP TASK (Mike's ruling,
+  2026-08-03: the laptop is not to go near Logic-Lab at all).**
   **P1 · BUILD — "ACCEPT AND PUSH": let a firm manager apply an
   idea from the Logic-Lab diagnosis straight into the section it names, instead of finding the screen
   and retyping it. Raised by Mike 2026-08-03; the order (arithmetic fixes first, then this) is his.**
+  - **STATUS 2026-08-04 — the DELIVER button is built and both 2026-08-03 defects are CLOSED**
+    (route `POST /api/firm-manager/logic-lab/accept`, planner
+    [`logicLabAccept.js`](../server/utils/logicLabAccept.js), button in
+    [`DecisionLogicDiagnostic.vue`](../components/firm/DecisionLogicDiagnostic.vue); shape per
+    [`LOGIC-LAB-ACCEPT-AND-PUSH.md`](LOGIC-LAB-ACCEPT-AND-PUSH.md) §1a and the e6bff86 commit
+    message — it files a distinction naming ONE template, proves delivery by re-running the real
+    engine, reverts if it did not deliver, and logs every accept):
+    1. **Invisible-domain writes blocked at one source.** Domains a firm may file distinctions
+       under now carry `distinctions: true` in `data/domains.json`; the accept route refuses the
+       rest (`DOMAIN_NOT_VISIBLE`, nothing written) and
+       `tests/unit/distinctionDomainsVisible.test.js` locks the Advisory Distinctions screen's
+       list to the same flag, so the gap the `org-board-pack` write fell through cannot reopen.
+    2. **The description is the manager's, approved in the moment.** The confirm dialog holds the
+       typed sentence in an EDITABLE field; what is saved is the wording they signed off. The raw
+       sentence stays as the trigger. The app authors nothing.
+  - **Still open under this entry:** the wider §1a diagnosis-first shape (rows 1, 2 and 4 of its
+    table — filed-elsewhere is reported by `matchElsewhere` but rows 2/4 have no accept yet), and
+    Mike's wording sign-off on the dialog strings (flagged, not settled).
+  - **Residual, deliberately untouched:** the ordinary distinction CRUD endpoints still validate
+    against all 22 domains; only the Logic-Lab accept is held to the flagged 14. Narrowing the rest
+    is its own decision — rows may already exist in unflagged domains.
   - **THE DESIGN NOTE, WITH THE CONVERSATION VERBATIM:**
     [`design/LOGIC-LAB-ACCEPT-AND-PUSH.md`](LOGIC-LAB-ACCEPT-AND-PUSH.md). Written at Mike's
     instruction ("*yes - all the conversation about it also*") so the original survives rather than a

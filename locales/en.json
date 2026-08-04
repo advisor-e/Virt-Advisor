@@ -1744,6 +1744,20 @@
     "ideasFootD": "+{tree}",
     "ideasFootE": ", and the average gap between the first and second template is ",
     "ideasFootF": "{margin} points",
-    "ideasFootG": ". Domain support is not in the ranking at all — it changes how a recommendation is explained, never which one comes back."
+    "ideasFootG": ". Domain support is not in the ranking at all — it changes how a recommendation is explained, never which one comes back.",
+    "dxLabelElsewhere": "Yours, filed elsewhere",
+    "dxElsewhereA": " is filed under ",
+    "dxElsewhereB": ", but these words were read as ",
+    "dxElsewhereC": " — so it was never considered.",
+    "llDeliverButton": "Make advisors get {template} for this",
+    "llDeliverNote": "Files a distinction of yours using the words above, and checks it really does come first before saying it worked.",
+    "llDeliverConfirmTitle": "Make advisors get this template",
+    "llDeliverConfirm": "This files a distinction of yours under {domain}, using the words you typed above, pointing at {template}. Your phrase will then return {template} first. You can change or remove it on the Advisory Distinctions screen.",
+    "llDeliverConfirmOk": "Do it",
+    "llDeliverDescLabel": "How it will read on your Advisory Distinctions screen — yours to reword before it's saved:",
+    "llDeliverDescPlaceholder": "Describe the client situation in your firm's words",
+    "llDeliverDone": "Done — this phrase now returns {template} first. Filed under {domain}. ✓",
+    "llDeliverImpossible": "It could not be made to come first — {top} still wins even at the strongest setting. Nothing has been changed.",
+    "llDeliverFailed": "That could not be saved. Nothing has changed."
   }
 }

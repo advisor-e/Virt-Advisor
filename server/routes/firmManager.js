@@ -23,6 +23,10 @@ const DEV_QUIZ_DECLINES_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz
 const DEV_QUIZ_OVERRIDES_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz-overrides.json')
 const DEV_QUIZ_OWN_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz-own.json')
 const DEV_QUIZ_BASELINES_FILE = path.resolve(__dirname, '../../data/dev-firm-quiz-override-baselines.json')
+// The Logic-Lab accepted-idea log (ACTIONS #logic-lab-accept-and-push). Same
+// TEST-ONLY convention as every dev file above — it exists so an accept works on a
+// machine with no MySQL, which is where this feature is actually tested.
+const DEV_LOGIC_LAB_ACCEPTED_FILE = path.resolve(__dirname, '../../data/dev-firm-logic-lab-accepted.json')
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
 function _devReadDistinctions (firmId) {
@@ -665,6 +669,15 @@ const DISTINCTIONS_KEY = 'advisory-distinctions'
 // future domain is automatically valid for distinctions — no code change needed
 // when a domain is added.
 const DISTINCTION_DOMAINS = new Set(DOMAINS.map(d => d.id))
+
+// The subset the Advisory Distinctions SCREEN shows, marked in domains.json with
+// `distinctions: true` — the same flag the screen reads, so the two cannot drift.
+// A Logic-Lab accept may only file here: on 2026-08-03 it wrote a live row into
+// `org-board-pack`, which has no screen — active in the engine, invisible to the
+// firm. A row the firm cannot see is a row the firm cannot correct.
+const VISIBLE_DISTINCTION_DOMAINS = new Set(
+  DOMAINS.filter(d => d.distinctions === true).map(d => d.id)
+)
 
 async function _loadDistinctions (firmId) {
   try {
@@ -3709,6 +3722,209 @@ async function getLogicLabTemplateTitles (req, res) {
   }
 }
 
+// ── Logic-Lab — accept an idea ────────────────────────────────────────────────
+// ACTIONS #logic-lab-accept-and-push. THE SPEC IS THE ARTEFACT:
+// design/LOGIC-LAB-ACCEPT-AND-PUSH.md, which carries Mike's request verbatim.
+//
+// This is the page's THIRD write, and the first that changes template selection.
+// Only the fully-determined idea gets a button (Mike's ruling, 2026-08-03) — see
+// server/utils/logicLabAccept.js for why the other two cannot be the same control.
+
+// The accepted-idea log. Its own firmOverlay config key, so it inherits version
+// history like every other block and needs no schema change.
+//
+// ⚠ HONEST LIMIT, worth knowing before volumes grow: this is ONE JSON value that
+// is rewritten whole on every append, and firmOverlay banks a version each time —
+// so storage grows with the square of the entry count. That is comfortably fine
+// for a manager accepting ideas by hand, and wrong for anything automated. When
+// the mentor rollup is built, this wants its own table.
+const LOGIC_LAB_ACCEPTED_KEY = 'logic-lab-accepted'
+
+function _devReadAcceptedLog (firmId) {
+  try {
+    const all = JSON.parse(fs.readFileSync(DEV_LOGIC_LAB_ACCEPTED_FILE, 'utf8'))
+    return Array.isArray(all[firmId]) ? all[firmId] : []
+  } catch { return [] }
+}
+
+function _devWriteAcceptedLog (firmId, rows) {
+  let all = {}
+  try {
+    all = JSON.parse(fs.readFileSync(DEV_LOGIC_LAB_ACCEPTED_FILE, 'utf8'))
+  } catch {}
+  all[firmId] = rows
+  fs.writeFileSync(DEV_LOGIC_LAB_ACCEPTED_FILE, JSON.stringify(all, null, 2))
+}
+
+async function _loadAcceptedLog (firmId) {
+  try {
+    const stored = await overlay.loadFirmConfig(firmId, LOGIC_LAB_ACCEPTED_KEY)
+    return Array.isArray(stored) ? stored : []
+  } catch (err) {
+    if (IS_DEV) { return _devReadAcceptedLog(firmId) }
+    throw err
+  }
+}
+
+async function _saveAcceptedLog (firmId, rows, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, LOGIC_LAB_ACCEPTED_KEY, rows, savedBy)
+  } catch (err) {
+    if (IS_DEV) { _devWriteAcceptedLog(firmId, rows); return }
+    throw err
+  }
+}
+
+/**
+ * @route POST /api/firm-manager/logic-lab/accept
+ * Body: { text, templateTitle, description?, context? }
+ *
+ * Attach the template the firm expected to the distinction that already matched —
+ * the one idea on the page that is fully determined, so it can be one click.
+ *
+ * ONE ROUTE DOES BOTH THE CHANGE AND THE RECORD, deliberately. The near-miss
+ * Move/Copy buttons reuse the ordinary distinction endpoints from the browser, and
+ * this could have too — but the accepted-idea log is required from the first
+ * commit (design/LOGIC-LAB-ACCEPT-AND-PUSH.md), and a design where the browser
+ * makes a second, separate call to record it loses an entry every time that call
+ * fails. Here an accept cannot be written without being logged.
+ *
+ * NOTHING THE BROWSER SENDS DECIDES THE WRITE. The distinction list and the
+ * template library are re-resolved server-side from the JWT-verified firm, so a
+ * client naming another firm's distinction gets a 404 from a list it was never in.
+ * `context` is descriptive only and is bounded before storage.
+ *
+ * @returns {200} { attached: true, distinctionId, templates }
+ * @returns {400} INVALID_BODY · INVALID_TEMPLATE · INVALID_ID · TEMPLATE_NOT_IN_LIBRARY
+ * @returns {404} NOT_FOUND · {409} ALREADY_ATTACHED · {500} DB_ERROR
+ */
+async function acceptLogicLabIdea (req, res) {
+  const body = req.body || {}
+  const templateTitle = typeof body.templateTitle === 'string' ? body.templateTitle : ''
+  const text = typeof body.text === 'string' ? body.text : ''
+  // The row wording the manager approved (or reworded) in the confirm dialog.
+  // Their words either way — the app never authors the firm's material.
+  const description = typeof body.description === 'string' ? body.description : ''
+
+  try {
+    const { planDeliver, requiredBoost, buildLogEntry } = require('../utils/logicLabAccept')
+    const { getOrgTemplates } = require('../utils/templates')
+    const decisionScore = require('../utils/decisionScore')
+
+    const firmTemplates = await _firmTemplateLibrary(req.firmId)
+    const firmTrees = await _loadFirmLogicTreeMap(req.firmId)
+    const libraryTitles = getOrgTemplates(null, firmTemplates)
+      .map(t => t && t.title)
+      .filter(Boolean)
+
+    /** Run the manager's phrase through the real engine. */
+    const runEngine = async () => decisionScore.diagnose({
+      text,
+      expectedTitle: templateTitle,
+      firmTrees,
+      distinctionRows: await _effectiveDistinctionsFor(req.firmId),
+      firmTemplates
+    })
+
+    // ── 1. What happens today, and how far short the wanted template falls ────
+    const before = await runEngine()
+    const topBefore = (before.sheet && before.sheet[0]) || null
+    const wantedBefore = before.expected || null
+    if (!before.scored || !topBefore || !wantedBefore) {
+      return sendError(res, 400, 'NO_DOMAIN', 'These words were not recognised as any advisory area, so there is nowhere the engine would read a distinction filed for them.')
+    }
+
+    // ── 2. The distinction that delivers it ──────────────────────────────────
+    const ownRows = await _loadDistinctions(req.firmId)
+    const outcome = planDeliver({
+      text,
+      templateTitle,
+      description,
+      domain: before.domain,
+      libraryTitles,
+      existingRows: ownRows,
+      boost: requiredBoost(topBefore.score, wantedBefore.score)
+    })
+    if (!outcome.ok) {
+      return sendError(res, outcome.code === 'NO_DOMAIN' ? 400 : 400, outcome.code, outcome.message)
+    }
+    const plan = outcome.plan
+
+    if (!VISIBLE_DISTINCTION_DOMAINS.has(plan.domain)) {
+      // Refusal, not a write. The engine read the words as an area the Advisory
+      // Distinctions screen does not show; filing there would change live
+      // behaviour with nothing on any screen to show it happened.
+      return sendError(res, 400, 'DOMAIN_NOT_VISIBLE', 'These words were read as an area your Advisory Distinctions screen doesn’t cover, so nothing was changed.')
+    }
+
+    // ── 3. Write it, keeping what was there so it can be put back ────────────
+    const nextRows = plan.mode === 'update'
+      ? ownRows.map(r => String(r.id) === String(plan.id)
+          ? { ...r, templates: plan.templates, boost: plan.boost, triggers: plan.triggers }
+          : r)
+      : [...ownRows, {
+          id: ownRows.length > 0 ? Math.max(...ownRows.map(r => r.id || 0)) + 1 : 1,
+          domain: plan.domain,
+          description: plan.description,
+          triggers: plan.triggers,
+          templates: plan.templates,
+          boost: plan.boost,
+          created_by: req.userEmail,
+          created_at: new Date().toISOString(),
+          // Provenance: this row was written by an accepted Logic-Lab idea, not
+          // typed on the distinctions screen. The mentor rollup wants to tell
+          // those apart, and so does anyone reading the row later.
+          created_from: 'logic-lab'
+        }]
+    await _saveDistinctions(req.firmId, nextRows, req.userEmail)
+
+    // ── 4. PROVE IT. The whole promise of this button is that the advisor now
+    // gets the template — so it is checked against the real engine rather than
+    // asserted from the arithmetic. The boost is computable, but whether the AI
+    // MATCHES the new distinction to these words is a judgement, and a promise
+    // resting on an unchecked judgement is the thing this page exists to stop.
+    const after = await runEngine()
+    const topAfter = (after.sheet && after.sheet[0]) || {}
+    const delivered = String(topAfter.title || '') === String(plan.templateTitle)
+
+    if (!delivered) {
+      // Put the configuration back exactly as it was. A change that did not do
+      // what it promised is worse than no change: it is a change the manager
+      // believes worked.
+      await _saveDistinctions(req.firmId, ownRows, req.userEmail)
+      return res.send(200, {
+        delivered: false,
+        topTemplate: topAfter.title || null,
+        topScore: typeof topAfter.score === 'number' ? topAfter.score : null,
+        wantedScore: (after.expected && after.expected.score) || 0,
+        reverted: true
+      })
+    }
+
+    // ── 5. The record — written in the same handler, so an accepted idea can
+    // never change live configuration and leave no trace.
+    const entry = buildLogEntry({
+      plan,
+      context: body.context,
+      by: req.userEmail,
+      at: new Date().toISOString()
+    })
+    const log = await _loadAcceptedLog(req.firmId)
+    await _saveAcceptedLog(req.firmId, [...log, entry], req.userEmail)
+
+    res.send(200, {
+      delivered: true,
+      mode: plan.mode,
+      domain: plan.domain,
+      boost: plan.boost,
+      templateTitle: plan.templateTitle,
+      score: typeof topAfter.score === 'number' ? topAfter.score : null
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
 module.exports = {
   quizzablePages,
   listDocuments,
@@ -3773,5 +3989,6 @@ module.exports = {
   setDomainSupportSection,
   getLogicLabSummary,
   diagnoseDecision,
-  getLogicLabTemplateTitles
+  getLogicLabTemplateTitles,
+  acceptLogicLabIdea
 }

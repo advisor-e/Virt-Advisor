@@ -25,7 +25,8 @@ over, so an unanswered release is visible rather than assumed.
 
 | Tag | Commit | Cut | Offered to | Status |
 |---|---|---|---|---|
-| `v0.6.0` | `9a29aee` | 2026-07-21 | Master-app team | **Awaiting pull.** First tag this repo has ever carried. 174 commits ahead of the `709bac5` UAT build, and the first release containing Course Builder. Notes: [`RELEASE-NOTES-v0.6.0.md`](RELEASE-NOTES-v0.6.0.md). Verified at tag time: 1,456 tests green, lint clean, `nuxt build` green on Node 14.15. **When they confirm the pull, add a row to the table above and mark this row deployed.** |
+| `v0.7.0` | `015eed0` | 2026-08-04 | Master-app team | **Awaiting pull.** 379 commits since v0.6.0: Logic-Lab (incl. the accept button, live-proven), the silent-AI-failure honesty fixes, the Course Builder session slicer, the browser-trust security fix, trace i18n. **New dependency `@mdi/font` — `npm install` required.** Notes: [`RELEASE-NOTES-v0.7.0.md`](RELEASE-NOTES-v0.7.0.md). Verified at tag time: 4,597 tests green / 267 suites, lint 0 errors, critical-audit gate PASS. **Supersedes the unpulled v0.6.0** — pulling v0.7.0 covers both. When the pull is confirmed, add a row to the table above and mark this row deployed. |
+| `v0.6.0` | `9a29aee` | 2026-07-21 | Master-app team | ~~Awaiting pull~~ **Superseded by v0.7.0 before it was ever pulled.** First tag this repo carried. 174 commits ahead of the `709bac5` UAT build, first release containing Course Builder. Notes: [`RELEASE-NOTES-v0.6.0.md`](RELEASE-NOTES-v0.6.0.md). Verified at tag time: 1,456 tests green, lint clean, `nuxt build` green on Node 14.15. |
 
 **Production: nothing has been deployed to production yet.** The app is in UAT testing
 only. The first production row will be added when a production deployment actually
