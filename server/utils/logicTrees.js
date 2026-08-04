@@ -32,6 +32,77 @@ function loadReferenceFile (filename) {
   }
 }
 
+// ── Template availability gate ─────────────────────────────────────────────
+// A tree may legitimately DECLARE a template the catalogue does not carry yet.
+// The source logic tables in `Logic Tables/` name tools in their THEN column
+// ("THEN deploy the Risk Mgt Cover matrix") that the master export has not
+// published under that title — see design/TREE-RECOMMENDATION-REVIEW.md.
+// Declaring the name keeps the tree faithful to its source PDF; this gate stops
+// it reaching the AI until the catalogue actually has it, so an advisor is never
+// sent looking for a page they cannot open. When the export catches up, the name
+// starts flowing with no edit to the tree or to this file.
+
+/**
+ * Is this string a template NAME, as opposed to a deliberate prose placeholder?
+ *
+ * Trees carry descriptive stand-ins where no single tool fits — e.g.
+ * "a goal-setting template [Planning — tags: goals, targets…]". Those are
+ * guidance for the AI, not references, and must pass through untouched: 18 of
+ * them are live today. Shared by the startup ghost check and the runtime gate so
+ * the two can never disagree about what counts as a reference.
+ *
+ * @param {*} name
+ * @returns {boolean} true when `name` should be checked against the catalogue
+ */
+function isTemplateName (name) {
+  return Boolean(name) && typeof name === 'string' && name.length < 80 &&
+    !name.startsWith('[') && !name.startsWith('a ')
+}
+
+let _catalogueTitles = null
+
+/**
+ * Titles the running app can actually serve, from data/templates.json — the
+ * tracked mirror the app reads (NOT the raw export, which is gitignored and
+ * absent on a fresh clone / CI).
+ * @returns {Set<string>} empty set when the catalogue cannot be read
+ */
+function catalogueTitles () {
+  if (_catalogueTitles) { return _catalogueTitles }
+  const rows = loadReferenceFile('templates.json')
+  _catalogueTitles = new Set(
+    Array.isArray(rows) ? rows.map(r => r && r.title).filter(Boolean) : []
+  )
+  return _catalogueTitles
+}
+
+/**
+ * Split declared template names into those the catalogue can serve and those it
+ * cannot yet.
+ *
+ * FAIL-SAFE: if the catalogue is missing or unreadable the set is empty, and
+ * withholding on that basis would strip EVERY template from EVERY prompt — a far
+ * worse failure than naming an unavailable one. So an empty catalogue passes
+ * everything through and says so loudly, rather than silently muting the engine.
+ *
+ * @param {Array<string>} names
+ * @returns {{available: Array<string>, withheld: Array<string>}}
+ */
+function splitByAvailability (names) {
+  const list = Array.isArray(names) ? names : []
+  const titles = catalogueTitles()
+  if (titles.size === 0) {
+    console.error('[logicTrees] WARNING: template catalogue unavailable — availability gate disabled, all declared templates will be emitted')
+    return { available: list, withheld: [] }
+  }
+  const available = []
+  const withheld = []
+  for (const name of list) {
+    if (!isTemplateName(name) || titles.has(name)) { available.push(name) } else { withheld.push(name) }
+  }
+  return { available, withheld }
+}
+
 // ── Ghost reference validation ─────────────────────────────────────────────
 // Runs once on first load. Logs all logic tree template references that do not
 // exist in the search content (source of truth). These are dead links — when a
@@ -319,16 +390,21 @@ function formatNodeForPrompt (node, allNodes, fence = false) {
     lines.push(`Sales process: ${node.sales_process}`)
   }
 
-  if (node.templates && node.templates.length > 0) {
-    lines.push(`Templates: ${node.templates.join(', ')}`)
+  // Every template list is gated: a name the catalogue cannot serve yet is held
+  // back rather than named to the advisor. See the availability gate above.
+  const templates = splitByAvailability(node.templates).available
+  if (templates.length > 0) {
+    lines.push(`Templates: ${templates.join(', ')}`)
   }
 
-  if (node.templates_if_unsure && node.templates_if_unsure.length > 0) {
-    lines.push(`Templates if client is unsure: ${node.templates_if_unsure.join(', ')}`)
+  const ifUnsure = splitByAvailability(node.templates_if_unsure).available
+  if (ifUnsure.length > 0) {
+    lines.push(`Templates if client is unsure: ${ifUnsure.join(', ')}`)
   }
 
-  if (node.support_templates && node.support_templates.length > 0) {
-    lines.push(`Support with: ${node.support_templates[0]}`)
+  const support = splitByAvailability(node.support_templates).available
+  if (support.length > 0) {
+    lines.push(`Support with: ${support[0]}`)
   }
 
   if (node.notes) {
@@ -1355,4 +1431,4 @@ function walkLogicTree (state, treeId, firmTrees) {
   return [...templates]
 }
 
-module.exports = { loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, explainDetection, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
+module.exports = { isTemplateName, splitByAvailability, loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, explainDetection, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
