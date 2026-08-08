@@ -605,6 +605,13 @@ section.firm-manager-hub.section
                 ) Approve & share
                 b-button(@click="closeMentorPreview") Cancel
 
+      //- ── Tab (mentor only): Template Check ──────────────────────────
+      //- Every tool a logic table names, checked against the catalogue. Mentor-only
+      //- because a correction made here is meant to cascade to every firm — a firm
+      //- fixing its own copy is the opposite of the point.
+      b-tab-item(v-if="scope === 'mentor'" :label="$t('templateCheck.tab')" icon="file-search-outline")
+        mentor-template-check(:api-token="apiToken")
+
       //- ── Tab (mentor only): Case Reviews ────────────────────────────
       //- Not a cascade function — it is the one read that travels UP, and it
       //- exists at no other tier. Last, so the tabs the firm also has keep the
@@ -627,6 +634,7 @@ import FirmDecisionLogic from '~/components/firm/FirmDecisionLogic.vue'
 // off) — the server role-gates every /api/mentor call regardless.
 import MentorReview from '~/components/MentorReview.vue'
 import MentorDistinctions from '~/components/MentorDistinctions.vue'
+import MentorTemplateCheck from '~/components/mentor/MentorTemplateCheck.vue'
 import traceReasonMixin from '~/mixins/traceReasonMixin'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
@@ -685,7 +693,7 @@ export { DISTINCTION_DOMAINS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck },
 
   mixins: [traceReasonMixin],
 

@@ -10,6 +10,8 @@ const {
 // Stage D delete-promotion lives in firmManager (it owns the firm-distinction stores
 // + dev fallbacks); reused here so a mentor delete preserves customising firms' rows.
 // One-way dependency (firmManager never requires mentor) — no cycle.
+const { runTemplateCheck } = require('../utils/templateCheck')
+const { loadRulings, saveRulings, normaliseRuling } = require('../utils/templateCheckRulings')
 const DOMAINS = require('../../data/domains.json')
 const firmManager = require('./firmManager')
 
@@ -223,10 +225,88 @@ async function listMentorCases (req, res) {
   }
 }
 
+// ── Template Check — every tool a logic table names, checked against the catalogue ──
+// Design: design/mockups/logic-table-template-check.html (approved by Mike 2026-08-05).
+// The scan is pure and stateless; the mentor's rulings live in the same reserved
+// global overlay scope as the platform distinctions, so they gain version history
+// and cannot collide with a firm's rows.
+
+/**
+ * The Template Check report: the three counts and every unresolved name.
+ *
+ * @route GET /api/mentor/template-check
+ * @returns {object} { success, counts, findings } — findings carry the mentor's
+ *   own rulings already applied, so the screen never has to merge two sources.
+ */
+async function getTemplateCheck (req, res) {
+  try {
+    const rulings = await loadRulings(overlay.loadFirmConfig)
+    const report = runTemplateCheck({ rulings })
+    res.send(200, { success: true, counts: report.counts, findings: report.findings })
+  } catch (err) {
+    console.error('[mentor] getTemplateCheck failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not run the template check')
+  }
+}
+
+/**
+ * Record one ruling — "this name means that template", "not a tool", or "missing,
+ * flag it". Read-modify-write against the stored map.
+ *
+ * @route PUT /api/mentor/template-check/rulings/:key
+ * @param {object} req.body - { verdict: 'ruled'|'dismissed'|'flagged', title, note }
+ * @returns {object} { success, ruling }
+ */
+async function saveTemplateCheckRuling (req, res) {
+  const key = req.params && req.params.key
+  if (!key) { return sendError(res, 400, 'BAD_REQUEST', 'A finding key is required') }
+
+  const parsed = normaliseRuling(req.body, req.userEmail || '', new Date().toISOString())
+  if (!parsed.ok) { return sendError(res, 400, 'BAD_REQUEST', parsed.message) }
+
+  try {
+    const map = await loadRulings(overlay.loadFirmConfig)
+    map[key] = parsed.value
+    await saveRulings(map, overlay.saveFirmConfig, req.userEmail || '')
+    res.send(200, { success: true, ruling: parsed.value })
+  } catch (err) {
+    console.error('[mentor] saveTemplateCheckRuling failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not save the ruling')
+  }
+}
+
+/**
+ * Undo a ruling — the mockup's "Change my mind" and "Put it back". Removing a key
+ * that is not there succeeds: the end state the caller asked for is the end state
+ * they get, and a 404 here would only ever be a race with themselves.
+ *
+ * @route DELETE /api/mentor/template-check/rulings/:key
+ * @returns {object} { success }
+ */
+async function deleteTemplateCheckRuling (req, res) {
+  const key = req.params && req.params.key
+  if (!key) { return sendError(res, 400, 'BAD_REQUEST', 'A finding key is required') }
+
+  try {
+    const map = await loadRulings(overlay.loadFirmConfig)
+    if (Object.prototype.hasOwnProperty.call(map, key)) {
+      delete map[key]
+      await saveRulings(map, overlay.saveFirmConfig, req.userEmail || '')
+    }
+    res.send(200, { success: true })
+  } catch (err) {
+    console.error('[mentor] deleteTemplateCheckRuling failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not undo the ruling')
+  }
+}
+
 module.exports = {
   listMentorCases,
   listMentorDistinctions,
   createMentorDistinction,
   updateMentorDistinction,
-  deleteMentorDistinction
+  deleteMentorDistinction,
+  getTemplateCheck,
+  saveTemplateCheckRuling,
+  deleteTemplateCheckRuling
 }

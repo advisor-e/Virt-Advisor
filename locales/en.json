@@ -1407,6 +1407,88 @@
       "systems": "Systems"
     }
   },
+  "templateCheck": {
+    "tab": "Template Check",
+    "title": "Template Check",
+    "lede": "Every place a logic table tells the advisor to use a tool, checked against the templates the app can actually open. Where the name does not match, you fix the wording here and it flows down to every firm.",
+    "counts": {
+      "heading": "What the check found",
+      "sub": "Run against all {n} logic tables."
+    },
+    "tile": {
+      "tables": "tables checked",
+      "tablesBody": "All of them, in both shapes — {nodes} keep their rules one way and {branches} the other. The guard built on 4 August only watched the first kind.",
+      "lists": "names in template lists that match nothing",
+      "listsBody": "Formal references, not loose wording, out of {checked} checked. These reach the AI today.",
+      "prose": "names written inside sentences",
+      "proseBody": "Found by reading the instruction text of every table. A capitalised phrase is not always a document, which is what \"Not a tool\" is for."
+    },
+    "list": {
+      "heading": "The list",
+      "sub": "One row per tool name that does not exactly match a template title. Fix it here and every firm gets the corrected table.",
+      "searchPlaceholder": "Search a table or a name…",
+      "empty": "Nothing to show under this filter."
+    },
+    "col": {
+      "table": "Logic table",
+      "name": "Name as written",
+      "where": "Where",
+      "verdict": "Verdict",
+      "actions": "What you can do"
+    },
+    "where": {
+      "list": "Template list",
+      "prose": "In a sentence"
+    },
+    "verdict": {
+      "none": "Nothing matches",
+      "maybe": "Probably this",
+      "ruled": "You've ruled",
+      "flagged": "Flagged — waiting on the master team",
+      "dismissed": "Not a tool"
+    },
+    "verdictWhy": {
+      "none": "No template is called this, and nothing close enough to suggest.",
+      "ruled": "Recorded — not yet applied to the table.",
+      "flagged": "You confirmed this is a real document. It is in neither template file, so the master-app team has to publish it.",
+      "dismissed": "Dismissed by you — it is part of the instruction, not a document."
+    },
+    "candidateWhy": "{why}.",
+    "action": {
+      "useThisOne": "Use this one",
+      "pickAnother": "Pick another",
+      "pointAtTemplate": "Point it at a template",
+      "notATool": "Not a tool",
+      "flagMissing": "Missing — flag it",
+      "putItBack": "Put it back",
+      "changeMyMind": "Change my mind"
+    },
+    "flagNote": "Confirmed a real document; not in the export.",
+    "picker": {
+      "heading": "Point it at a template",
+      "forName": "For the name written in the table: {name}",
+      "placeholder": "Start typing a template title…",
+      "confirm": "Use this one",
+      "cancel": "Cancel"
+    },
+    "caution": {
+      "heading": "Why \"Not a tool\" matters.",
+      "body": "Some rows are phrases inside your own sentences that were never meant to be documents. Without a way to dismiss them the screen would raise the same false alarms every time you opened it, and you would stop trusting the list. A dismissal is remembered and can always be undone."
+    },
+    "limits": {
+      "heading": "What this screen cannot do",
+      "sub": "Stated up front so it is never mistaken for a clean bill of health.",
+      "cannotKnow": "It cannot know a phrase is a tool. A name inside a sentence is found by looking for a capitalised phrase after an instruction word, so it will sometimes raise something that was never a document — which is why \"Not a tool\" exists. It will also miss a tool written in lower case.",
+      "suggestionOnly": "\"Probably this\" is a suggestion, never applied on its own. Nothing changes a logic table until you press a button. This is deliberate: on 4 August a set of these names was confidently judged missing, and that judgement was wrong.",
+      "titlesNotContents": "It checks titles, not contents. Some titles appear twice in the export. The screen will ask you which one you mean rather than choose.",
+      "cannotPublish": "It cannot publish a missing document. \"Missing — flag it\" records the gap for the master-app team; only they can add it to the export.",
+      "footnote": "Read live from the logic tables ({tables}) and the template catalogue ({refs} formal references checked)."
+    },
+    "error": {
+      "load": "The check could not be run. Nothing has changed — try again, and if it keeps failing the backend may not be running.",
+      "save": "That decision was not saved. Nothing has changed."
+    }
+  },
   "firmAdviserNetwork": {
     "tab": "Advisor Network",
     "lede": "Everyone advising under your firm: who they are, the specialty groups they have asked to join, and whether they may work with advisors outside the firm."

@@ -358,6 +358,14 @@ server.post('/api/mentor/distinctions', ...mentorGuard, mentorRoute.createMentor
 server.put('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.updateMentorDistinction)
 server.del('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.deleteMentorDistinction)
 
+// ── Template Check (mentor) ──
+// Every tool a logic table names, checked against the templates the app can open.
+// Read-only scan + the mentor's rulings; applying a ruling to a logic table is a
+// separate, later step (design/MENTOR-HUB-CONSOLIDATED-NOTES.md §6).
+server.get('/api/mentor/template-check', ...mentorGuard, mentorRoute.getTemplateCheck)
+server.put('/api/mentor/template-check/rulings/:key', ...mentorGuard, mentorRoute.saveTemplateCheckRuling)
+server.del('/api/mentor/template-check/rulings/:key', ...mentorGuard, mentorRoute.deleteTemplateCheckRuling)
+
 // ── Collaborate: template catalogue + people layer ──
 // Merged in 2026-08-01 from the standalone Collaborate app, which ran its OWN
 // Restify server on this same port — so the two could never have run together.
