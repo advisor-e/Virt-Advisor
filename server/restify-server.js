@@ -366,6 +366,13 @@ server.get('/api/mentor/template-check', ...mentorGuard, mentorRoute.getTemplate
 server.put('/api/mentor/template-check/rulings/:key', ...mentorGuard, mentorRoute.saveTemplateCheckRuling)
 server.del('/api/mentor/template-check/rulings/:key', ...mentorGuard, mentorRoute.deleteTemplateCheckRuling)
 
+// ── Logic Lab Report (mentor) ──
+// The second read that deliberately crosses the firm boundary. Configuration and
+// counts only — no client name, no advisor name, no session text — enforced at the
+// boundary by mentorLogicLabReport.assertNoPersonalFields, which throws rather
+// than filtering. Artefact: design/mockups/mentor-logic-lab-report-mockup.html.
+server.get('/api/mentor/logic-lab-report', ...mentorGuard, mentorRoute.getLogicLabReport)
+
 // ── Collaborate: template catalogue + people layer ──
 // Merged in 2026-08-01 from the standalone Collaborate app, which ran its OWN
 // Restify server on this same port — so the two could never have run together.

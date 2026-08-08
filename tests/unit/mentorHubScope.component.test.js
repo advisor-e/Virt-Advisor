@@ -76,11 +76,15 @@ describe('FirmManagerHub — firm scope is unchanged by the scope prop', () => {
     const wrapper = await mountHub()
     expect(tabLabels(wrapper)).not.toContain('Case Reviews')
     expect(tabLabels(wrapper)).not.toContain('templateCheck.tab')
+    expect(tabLabels(wrapper)).not.toContain('logicLabReport.tab')
     // Presence of the tab is the visible half; the body must not be mounted either,
     // or a firm manager's browser is running the mentor's cross-firm case reader.
     expect(wrapper.findComponent({ name: 'MentorReview' }).exists()).toBe(false)
     expect(wrapper.findComponent({ name: 'MentorDistinctions' }).exists()).toBe(false)
     expect(wrapper.findComponent({ name: 'MentorTemplateCheck' }).exists()).toBe(false)
+    // The cross-firm rollup above all: a firm manager's browser must never be
+    // running the one screen that reads every other firm's configuration.
+    expect(wrapper.findComponent({ name: 'MentorLogicLabReport' }).exists()).toBe(false)
   })
 })
 
@@ -102,6 +106,14 @@ describe('FirmManagerHub — mentor scope', () => {
   it('adds the Case Reviews tab', async () => {
     const labels = tabLabels(await mountHub({ scope: 'mentor', firmId: '' }))
     expect(labels).toContain('Case Reviews')
+  })
+
+  it('adds the Logic Lab Report tab, and mounts it', async () => {
+    // The addition that makes this the Mentor Hub rather than a re-scoped copy
+    // (design/MENTOR-AI-HUB-STUB.md, and the mockup Mike approved 2026-08-04).
+    const wrapper = await mountHub({ scope: 'mentor', firmId: '' })
+    expect(tabLabels(wrapper)).toContain('logicLabReport.tab')
+    expect(wrapper.findComponent({ name: 'MentorLogicLabReport' }).exists()).toBe(true)
   })
 
   it('adds the Template Check tab, and mounts it', async () => {
@@ -142,7 +154,7 @@ describe('the two tiers are recognisably the same screen', () => {
     const firm = tabLabels(await mountHub())
     const mentor = tabLabels(await mountHub({ scope: 'mentor', firmId: '' }))
 
-    const mentorOnly = ['Case Reviews', 'templateCheck.tab']
+    const mentorOnly = ['Case Reviews', 'templateCheck.tab', 'logicLabReport.tab']
     const sharedInMentor = mentor.filter(l => !mentorOnly.includes(l))
 
     expect(sharedInMentor).toEqual(firm)
@@ -150,7 +162,7 @@ describe('the two tiers are recognisably the same screen', () => {
 
   it('adds the mentor-only tabs at the end, so the shared run is uninterrupted', async () => {
     const mentor = tabLabels(await mountHub({ scope: 'mentor', firmId: '' }))
-    expect(mentor.slice(-2)).toEqual(['templateCheck.tab', 'Case Reviews'])
+    expect(mentor.slice(-3)).toEqual(['logicLabReport.tab', 'templateCheck.tab', 'Case Reviews'])
   })
 })
 

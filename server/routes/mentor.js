@@ -11,6 +11,7 @@ const {
 // + dev fallbacks); reused here so a mentor delete preserves customising firms' rows.
 // One-way dependency (firmManager never requires mentor) — no cycle.
 const { runTemplateCheck } = require('../utils/templateCheck')
+const { buildMentorLogicLabReport } = require('../utils/mentorLogicLabReport')
 const { loadRulings, saveRulings, normaliseRuling } = require('../utils/templateCheckRulings')
 const DOMAINS = require('../../data/domains.json')
 const firmManager = require('./firmManager')
@@ -300,6 +301,119 @@ async function deleteTemplateCheckRuling (req, res) {
   }
 }
 
+// ── Logic Lab Report — what every firm pushed back, read together ─────────────
+// Artefact: design/mockups/mentor-logic-lab-report-mockup.html (approved by Mike
+// 2026-08-04). Shape: design/MENTOR-AI-HUB-STUB.md.
+
+/**
+ * The config keys behind each editable function, so "which levers do firms
+ * actually touch" is answered by asking the store rather than by a hardcoded
+ * guess. A lever with no firms stays in the answer — the artefact's point about
+ * this table is the negative reading.
+ */
+const LEVER_KEYS = {
+  distinctions: 'advisory-distinctions',
+  logicTableTriggers: 'logic-tree-sections',
+  logicLab: 'logic-lab-accepted',
+  quizBanks: 'quiz-banks',
+  domainSupport: 'domain-support-sections'
+}
+
+/**
+ * The Logic Lab Report — the one page that reads across every firm.
+ *
+ * CROSS-FIRM BY DESIGN, and defensible only because it carries configuration and
+ * counts: the sentence a manager typed into their own Logic-Lab, the engine's
+ * reading, the template expected, the change made. The rollup re-checks that at
+ * the boundary and throws rather than publishing anything personal.
+ *
+ * @route GET /api/mentor/logic-lab-report
+ * @returns {object} { success, report } — the four sections of the artefact.
+ */
+async function getLogicLabReport (req, res) {
+  try {
+    // Which firms hold anything at all, per lever.
+    const firmsByLever = {}
+    for (const lever of Object.keys(LEVER_KEYS)) {
+      firmsByLever[lever] = await safeFirmIds(LEVER_KEYS[lever])
+    }
+
+    const allFirmIds = [...new Set(Object.values(firmsByLever).flat())].sort()
+
+    const firms = []
+    for (const firmId of allFirmIds) {
+      const entries = await safeConfig(firmId, LEVER_KEYS.logicLab, [])
+      const distinctions = await safeConfig(firmId, LEVER_KEYS.distinctions, [])
+      const tables = await safeConfig(firmId, LEVER_KEYS.logicTableTriggers, {})
+      firms.push({
+        firmId,
+        // No firm-name table is reachable from here yet; the id IS the name the
+        // mentor knows today. Named rather than faked — the artefact's rows show
+        // firm names, and inventing display names would be the one thing on this
+        // page that is not real.
+        firmName: firmId,
+        entries: Array.isArray(entries) ? entries : [],
+        levers: {
+          distinctions: { firmOwn: Array.isArray(distinctions) ? distinctions.length : 0 },
+          logicTables: { edited: tables && typeof tables === 'object' ? Object.keys(tables).length : 0 },
+          quizBanks: { edited: firmsByLever.quizBanks.includes(firmId) ? 1 : 0 },
+          domainSupport: { edited: firmsByLever.domainSupport.includes(firmId) ? 1 : 0 }
+        },
+        lastActivity: latestStamp(entries)
+      })
+    }
+
+    const report = buildMentorLogicLabReport({ firms, rolledUpAt: new Date().toISOString() })
+    res.send(200, { success: true, report })
+  } catch (err) {
+    console.error('[mentor] getLogicLabReport failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not build the Logic Lab Report')
+  }
+}
+
+/**
+ * Firm ids holding a config key, or an empty list when there is no database.
+ *
+ * An empty answer is the truthful one in an environment with no MySQL: no firm
+ * has pushed anything HERE. The screen says so in words rather than showing an
+ * encouraging zero — see templateCheck's error handling for the same principle.
+ *
+ * @param {string} configKey
+ * @returns {Promise<Array<string>>}
+ */
+async function safeFirmIds (configKey) {
+  try {
+    const ids = await overlay.listFirmIdsWithConfigKey(configKey)
+    return Array.isArray(ids) ? ids : []
+  } catch (_e) {
+    return []
+  }
+}
+
+/**
+ * @param {string} firmId
+ * @param {string} configKey
+ * @param {*} fallback
+ * @returns {Promise<*>}
+ */
+async function safeConfig (firmId, configKey, fallback) {
+  try {
+    const value = await overlay.loadFirmConfig(firmId, configKey)
+    return value === null || value === undefined ? fallback : value
+  } catch (_e) {
+    return fallback
+  }
+}
+
+/**
+ * @param {Array<object>} entries - accepted ideas.
+ * @returns {string|null} the newest `at` stamp, or null when there are none.
+ */
+function latestStamp (entries) {
+  if (!Array.isArray(entries) || entries.length === 0) { return null }
+  return entries.map(e => String(e.at || '')).sort().pop() || null
+}
+
 module.exports = {
   listMentorCases,
   listMentorDistinctions,
@@ -308,5 +422,6 @@ module.exports = {
   deleteMentorDistinction,
   getTemplateCheck,
   saveTemplateCheckRuling,
-  deleteTemplateCheckRuling
+  deleteTemplateCheckRuling,
+  getLogicLabReport
 }

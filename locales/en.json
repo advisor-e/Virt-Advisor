@@ -1407,6 +1407,102 @@
       "systems": "Systems"
     }
   },
+  "logicLabReport": {
+    "tab": "Logic Lab Report",
+    "title": "Logic Lab Report",
+    "privacy": "This page is mentor-only. It reads configuration and counts from every firm's hub: no client name, no advisor name and no session text can appear here.",
+    "lede": "The heart of this page is the pushed-edit feed: every time a firm manager ran a Logic-Lab diagnosis and accepted the fix it offered, that acceptance was logged — the sentence they probed, what the engine did with it, the template they expected, and the change they chose. Where many firms push the same fix, that is a platform gap for you to close, so the correction cascades down to everyone.",
+    "pushed": {
+      "heading": "1 · What firms pushed, and what it tells you",
+      "sub": "{edits} accepted ideas across {firms} firms, grouped where firms made the same change. One firm pushing a fix is that firm's preference. Several firms pushing it is a default of yours that needed fixing.",
+      "empty": "No firm has accepted a Logic-Lab idea yet. Silence here is absence of evidence, not approval of your defaults."
+    },
+    "groupCount": "{firms} firms · {edits} pushed edits",
+    "groupWhat": "Steered {domain} situations to",
+    "noDomain": "unfiled",
+    "showEdits": "Open the {n} pushed edits →",
+    "hideEdits": "Close",
+    "reading": {
+      "platform-gapHead": "Platform gap.",
+      "platform-gapBody": "When most firms redirect the same situation to the same template, the baseline is pointing at the wrong one.",
+      "watchHead": "Watch, don't act.",
+      "watchBody": "A few firms is a pattern worth remembering, not yet a default worth changing.",
+      "preferenceHead": "One firm's preference.",
+      "preferenceBody": "A single firm shaping its own configuration says nothing about your baseline."
+    },
+    "field": {
+      "sentence": "Sentence probed",
+      "engine": "What the engine did",
+      "expected": "Template expected",
+      "change": "Change accepted"
+    },
+    "engine": {
+      "matched": "{n} of their own distinctions matched",
+      "noMatch": "no distinction of theirs matched",
+      "topResult": "top result {title}"
+    },
+    "change": {
+      "created": "Created their own distinction naming {template} — \"{description}\"",
+      "added": "Added {template} to their own distinction \"{description}\""
+    },
+    "whyFeed": {
+      "heading": "Why this feed, and not just counts",
+      "body": "Counting configuration tells you what firms have. A pushed edit tells you what a firm was trying to achieve and what they had to do to get there — which is exactly the material for revising platform defaults."
+    },
+    "glance": {
+      "heading": "2 · The platform at a glance",
+      "sub": "Totals across every firm — the same counting each firm's own Decision Logic page runs, summed."
+    },
+    "tile": {
+      "pushed": "pushed edits, all time",
+      "pushedNote": "across {withPushes} of {firms} firms · {without} have never run a diagnosis",
+      "firms": "firms on the platform",
+      "firmsNote": "{edited} have edited at least one lever · {defaults} run entirely on your defaults",
+      "distinctions": "firm-own advisory distinctions",
+      "distinctionsNote": "Rows a firm wrote itself, on top of your baseline.",
+      "tableEdits": "logic-table edits by firms",
+      "tableEditsNote": "Trigger phrases and template hints a firm added to your tables."
+    },
+    "usage": {
+      "heading": "3 · What gets used",
+      "sub": "The templates firms steer toward, and the editable functions they actually touch.",
+      "templatesHead": "Most-preferred templates",
+      "templatesSub": "Each row is a template a firm deliberately steered the engine toward. Counted in firms, not edits.",
+      "noTemplates": "No firm has steered the engine toward a template yet.",
+      "leversHead": "Which levers firms edit",
+      "leversSub": "Where firm effort goes. A lever nobody touches is either perfect or not understood — worth knowing which.",
+      "colTemplate": "Template",
+      "colLever": "Editable function",
+      "colFirms": "Firms"
+    },
+    "lever": {
+      "distinctions": "Advisory Distinctions",
+      "logicTableTriggers": "Logic-table triggers",
+      "logicLab": "Logic-Lab diagnosis",
+      "quizBanks": "Quiz banks",
+      "domainSupport": "Domain Support documents"
+    },
+    "firms": {
+      "heading": "4 · Firm by firm",
+      "sub": "The same counts each firm sees on its own page, one row per firm. Names shown are firm names — the platform's own customers, not anyone's clients.",
+      "empty": "No firm has stored any configuration of its own yet.",
+      "colFirm": "Firm",
+      "colPushed": "Pushed edits",
+      "colDistinctions": "Distinctions",
+      "colTableEdits": "Table edits",
+      "colLastActivity": "Last activity",
+      "defaultsOnly": "defaults only",
+      "neverEdited": "never edited"
+    },
+    "limits": {
+      "heading": "Three honest limits",
+      "body": "This page counts configuration; it cannot judge quality — several firms making the same change means the default needed attention, not that their wording is right. It reads the firms' current stored state, not this second. And a firm that never used Logic-Lab contributes nothing to section 1 — silence here is absence of evidence, not approval of your defaults.",
+      "stamp": "Computed from {firms} firms · rolled up {at}"
+    },
+    "error": {
+      "load": "The report could not be built. Nothing has changed — if this keeps happening the backend may not be running."
+    }
+  },
   "templateCheck": {
     "tab": "Template Check",
     "title": "Template Check",

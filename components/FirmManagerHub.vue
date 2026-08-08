@@ -605,6 +605,13 @@ section.firm-manager-hub.section
                 ) Approve & share
                 b-button(@click="closeMentorPreview") Cancel
 
+      //- ── Tab (mentor only): Logic Lab Report ────────────────────────
+      //- The addition that makes this the Mentor Hub rather than a re-scoped
+      //- copy (design/MENTOR-AI-HUB-STUB.md). Reads across EVERY firm, so it can
+      //- exist at no tier below this one.
+      b-tab-item(v-if="scope === 'mentor'" :label="$t('logicLabReport.tab')" icon="chart-timeline-variant")
+        mentor-logic-lab-report(:api-token="apiToken")
+
       //- ── Tab (mentor only): Template Check ──────────────────────────
       //- Every tool a logic table names, checked against the catalogue. Mentor-only
       //- because a correction made here is meant to cascade to every firm — a firm
@@ -635,6 +642,7 @@ import FirmDecisionLogic from '~/components/firm/FirmDecisionLogic.vue'
 import MentorReview from '~/components/MentorReview.vue'
 import MentorDistinctions from '~/components/MentorDistinctions.vue'
 import MentorTemplateCheck from '~/components/mentor/MentorTemplateCheck.vue'
+import MentorLogicLabReport from '~/components/mentor/MentorLogicLabReport.vue'
 import traceReasonMixin from '~/mixins/traceReasonMixin'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
@@ -693,7 +701,7 @@ export { DISTINCTION_DOMAINS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport },
 
   mixins: [traceReasonMixin],
 
