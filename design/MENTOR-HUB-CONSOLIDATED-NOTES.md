@@ -262,10 +262,17 @@ Named here so the gaps are visible rather than filled in by assumption:
    still unstated is the *mechanism* at each stop: the distinctions cascade stores only a delta
    (the edited fields) and merges, whereas §4.1's "clones the level above" reads as a full copy.
    Those behave differently the moment the Mentor changes something — a delta stays current
-   automatically, a clone goes stale. **This is the one question in this list with a real cost
-   attached**, and the staircase already hit it once ([`ACTIONS.md`](ACTIONS.md), 2026-07-31: a
+   automatically, a clone goes stale. ~~**This is the one question in this list with a real cost
+   attached**~~, and the staircase already hit it once ([`ACTIONS.md`](ACTIONS.md), 2026-07-31: a
    firm override replaced the whole `steps` array, so the firm would never have seen a step the
    platform later added).
+   > **🔴 RULED 2026-08-09 (Mike): DELTA.** A firm stores only the fields it changed, laid over the
+   > mentor's, merged at read time. The mentor's later edits keep reaching every firm for everything
+   > that firm has not touched; a firm's own change still wins and sticks. This is the mechanism
+   > Advisory Distinctions already uses, so the cascade now has one model rather than two.
+   > **"Clones the level above" in §4.1 is superseded on this point** — it describes the intent
+   > (each level has its own version) and not the storage, which is a delta. Implementation is
+   > Phase 4 of [`MENTOR-SAVE-SCOPE-PLAN.md`](MENTOR-SAVE-SCOPE-PLAN.md).
 5. **Who builds the tier storage change** — this repo or the master team. §4 of the merge plan
    recommends naming the seams for them; the 2026-07-30 ruling says build it here. These are in
    tension and it is not resolved in writing.

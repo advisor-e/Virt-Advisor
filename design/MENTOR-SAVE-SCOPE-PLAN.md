@@ -241,6 +241,13 @@ override of the one above.
   wins over the mentor's; a mentor edit to a field the firm has *not* touched still reaches
   that firm.
 
+> **🔴 RULED 2026-08-09 (Mike): DELTA.** A firm stores only the fields it changed, merged over the
+> mentor's at read time — the mechanism Advisory Distinctions already uses. The mentor's later edits
+> keep reaching every firm for anything that firm has not touched; a firm's own change wins and
+> sticks. Phase 4 is unblocked. Recorded in
+> [`MENTOR-HUB-CONSOLIDATED-NOTES.md` §7.4](MENTOR-HUB-CONSOLIDATED-NOTES.md).
+>
+> **Original framing, kept because it is why the question was worth asking:**
 > **⚠ Phase 4 contains a question Mike has not yet been asked** — recorded in
 > [`MENTOR-HUB-CONSOLIDATED-NOTES.md` §7.4](MENTOR-HUB-CONSOLIDATED-NOTES.md) as the one open
 > question "with a real cost attached". Does a lower tier hold a **delta** (only the fields it
