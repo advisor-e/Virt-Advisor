@@ -33,8 +33,10 @@ const ADVISORY_DISTINCTIONS = require('../../data/advisory-distinctions.json')
 // Reserved global scope for the mentor-authored platform set. `__platform__` is
 // not a real firm id, so it can never collide with a firm's own overlay rows; the
 // dedicated config key keeps it separate from firms' `advisory-distinctions`
-// (their OWN rows) stored under the same table.
-const PLATFORM_SCOPE = '__platform__'
+// (their OWN rows) stored under the same table. The id lives in ./platformScope —
+// one home for the string, and the place that explains why the seeded `firms` row
+// exists and why "which firms…" readers must skip it.
+const { PLATFORM_SCOPE } = require('./platformScope')
 const PLATFORM_CONFIG_KEY = 'advisory-distinctions-platform'
 
 // The committed seed — the fallback returned when the store holds nothing.

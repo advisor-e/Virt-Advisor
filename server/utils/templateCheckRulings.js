@@ -27,7 +27,7 @@ const fs = require('fs')
 const path = require('path')
 
 /** Reserved global scope — not a real firm id, so it can never collide. */
-const PLATFORM_SCOPE = '__platform__'
+const { PLATFORM_SCOPE } = require('./platformScope')
 const CONFIG_KEY = 'template-check-rulings'
 
 /** Dev fallback when MySQL is unavailable. Gitignored, like its siblings. */

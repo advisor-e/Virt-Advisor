@@ -15,6 +15,7 @@
  */
 
 const { FRAMEWORK } = require('../../config/integration')
+const { PLATFORM_SCOPE } = require('./platformScope')
 const db = require('./db')
 
 // ── Merge logic ───────────────────────────────────────────────────────────────
@@ -99,18 +100,33 @@ async function saveFirmConfig (firmId, configKey, configJson, savedBy) {
 }
 
 /**
- * List every firm id that has an ACTIVE config under a given key. Used by the
+ * List every FIRM id that has an ACTIVE config under a given key. Used by the
  * mentor delete-promotion (Stage D) to find the firms that customised a row the
- * mentor is deleting, without a per-firm probe. Returns a plain array of ids.
+ * mentor is deleting, without a per-firm probe, and by the Logic Lab Report to
+ * count how many firms touched each lever. Returns a plain array of ids.
+ *
+ * ⚠ THE RESERVED PLATFORM SCOPE IS EXCLUDED, and this is the single choke point
+ * where that happens — every "which firms…" reader in the app goes through this
+ * function, and nothing anywhere queries the `firms` table directly (checked).
+ * The mentor's own content is stored in the same table under `__platform__` (see
+ * ./platformScope), so without this filter the mentor would be counted as a firm
+ * that had customised their own content. That is not a cosmetic miscount: the
+ * delete-promotion would treat the mentor's set as a firm to protect, and the
+ * Logic Lab Report's whole meaning rests on the firm count — five firms reads as
+ * a platform gap, one reads as that firm's preference.
+ *
+ * Excluded in SQL rather than in JS so a caller cannot forget, and so the row
+ * never crosses the wire.
+ *
  * @param {string} configKey - e.g. 'distinction-overrides'
- * @returns {Promise<string[]>}
+ * @returns {Promise<string[]>} real firm ids only, never the platform scope
  */
 async function listFirmIdsWithConfigKey (configKey) {
   const [rows] = await db.execute(
     `SELECT DISTINCT firm_id
      FROM firm_framework_versions
-     WHERE config_key = ? AND is_active = 1`,
-    [configKey]
+     WHERE config_key = ? AND is_active = 1 AND firm_id <> ?`,
+    [configKey, PLATFORM_SCOPE]
   )
   return rows.map(r => r.firm_id)
 }

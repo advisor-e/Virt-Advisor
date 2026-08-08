@@ -38,6 +38,31 @@ CREATE TABLE IF NOT EXISTS `firms` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
+-- The reserved PLATFORM scope — a row that is not a firm.
+--
+-- 🔴 INTEGRATION NOTE (for the Advisor-e team): RUN THIS INSERT EVEN IF YOU SKIP
+--    THE `firms` BLOCK ABOVE. If you point the foreign keys at your own firms
+--    table, this row must be inserted THERE instead. Without it every mentor-
+--    authored save is rejected by fk_firm_fw_firm with a foreign-key error.
+--
+-- Why it exists: the mentor is not a firm, but their content rides the same store
+-- as a firm's (firm_framework_versions) so version history and restore come free
+-- rather than being built twice. That table's firm_id is foreign-keyed to this
+-- one, so the scope the mentor writes under has to resolve to a real row.
+--
+-- Why it is safe: `__platform__` is not a valid Advisor-e firm id, so it cannot
+-- collide with a real firm. Nothing in the application queries this table
+-- directly; every "which firms..." answer goes through
+-- listFirmIdsWithConfigKey (server/utils/firmOverlay.js), which excludes this id.
+--
+-- The id is defined once, in server/utils/platformScope.js. Change it there and
+-- here together, or mentor content becomes unreachable.
+-- -----------------------------------------------------------------------------
+INSERT INTO `firms` (`id`, `name`, `slug`)
+VALUES ('__platform__', 'Platform (mentor)', '__platform__')
+ON DUPLICATE KEY UPDATE `id` = `id`;
+
+-- -----------------------------------------------------------------------------
 -- firm_documents
 -- Tracks every PDF uploaded by a firm, stored in Google Drive.
 -- `category` matches a value from DRIVE.categories in config/integration.js.

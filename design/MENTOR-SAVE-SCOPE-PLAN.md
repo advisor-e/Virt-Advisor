@@ -164,20 +164,51 @@ this option, and it is paid here rather than discovered later.
 - **Tests:** a platform-scope save succeeds against the schema; the row exists after a clean
   build; no firm-facing list returns it.
 
-### 3.1 Every place that reads the firms table
+### 3.1 Every place that could count the reserved row as a firm
 
-Read from the code, not assumed. Each has to skip the reserved id:
+> **⚠ CORRECTED 2026-08-09, before building.** An earlier draft of this section listed **three**
+> readers and named two of them wrongly. Checked against the code: **nothing in the backend queries
+> the `firms` table at all** — not one SQL statement selects from or joins it. So the "firm list,
+> count or picker" that draft warned about does not exist, and the Logic Lab Report is not a
+> separate reader either: it builds its firm list from the same function as everything else
+> ([`mentor.js:338`](../server/routes/mentor.js#L338) → `safeFirmIds` → `listFirmIdsWithConfigKey`).
+> The claim is corrected here rather than left to be quoted later.
 
-| Where | What it does today | What it must do |
+**There is one choke point, not three.** Every "which firms…" answer in the app goes through a
+single function, which makes the exclusion one change with one test protecting every caller:
+
+| Where | What it does | What it must do |
 |---|---|---|
-| [`firmOverlay.js:108`](../server/utils/firmOverlay.js#L108) `listFirmIdsWithConfigKey` | returns every firm id holding a config — used by the mentor delete-promotion to find firms that customised a row | exclude `__platform__`, or the mentor's own set counts as a firm that customised it |
-| Any firm list, count or picker in the Firm Manager / admin surface | reads `firms` | exclude the reserved id |
-| The Logic Lab Report's cross-firm counts | groups by firm | exclude, or "five firms" silently means four |
+| [`firmOverlay.js`](../server/utils/firmOverlay.js) `listFirmIdsWithConfigKey` | returns every firm id holding an active config under a key | exclude `__platform__` **in SQL**, so no caller can forget and the row never crosses the wire |
+
+Its two callers, and why the miscount would matter to each:
+
+- **The mentor delete-promotion** (Stage D of the distinctions cascade) uses it to find the firms
+  that customised a row the mentor is deleting. Including the platform scope makes the mentor's own
+  set look like a firm to protect from the mentor.
+- **The Logic Lab Report** uses it to count how many firms touched each lever. Its whole meaning
+  rests on that number — five firms reads as a platform gap, two as "watch, don't act", one as that
+  firm's preference. Counting the mentor shifts every row by one.
+
+> **⏱ The report is safe today only by accident, and Phase 3 ends the accident.** The mentor's
+> existing content sits under *different* config keys from firms' (`advisory-distinctions-platform`
+> vs `advisory-distinctions`), so it never matches the report's lever keys. Once Phase 3 lands, a
+> mentor's saves start arriving under the *same* keys firms use, and the collision becomes real.
+> **This is why the exclusion belongs in Phase 1** — before the rows exist, rather than when the
+> numbers start looking odd.
 
 > **One shared constant, not three string literals.** `platformDistinctions.js` and
-> `templateCheckRulings.js` each declare their own `PLATFORM_SCOPE = '__platform__'` today. Phase 1
-> gives it one home that the schema comment points at, so the day it changes it changes once. This
-> is the [single-source-wiring](../CLAUDE.md) pattern the repo already uses.
+> `templateCheckRulings.js` each declared their own `PLATFORM_SCOPE = '__platform__'`, and this
+> phase needed a third. Phase 1 gives it one home ([`platformScope.js`](../server/utils/platformScope.js))
+> that the schema comment points at, so the day it changes it changes once — the
+> [single-source-wiring](../CLAUDE.md) pattern the repo already uses. A test fails if any module
+> under `server/` declares the literal again.
+
+> **🔴 The integration hazard this uncovered.** `db-schema.sql` explicitly invites the Advisor-e team
+> to *skip* the `firms` CREATE TABLE and repoint the foreign keys at their own table. That reader is
+> exactly the one who would miss the seed row and hit the foreign-key error in production. The
+> INSERT therefore carries its own loud instruction to run it regardless, and a test asserts that
+> instruction is still present.
 
 ### Phase 2 — prove the two existing features actually work
 
