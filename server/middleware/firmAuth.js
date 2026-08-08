@@ -41,6 +41,7 @@
 const jwt = require('jsonwebtoken')
 const { AUTH } = require('../../config/integration')
 const { sendError } = require('../utils/sendError')
+const { PLATFORM_SCOPE } = require('../utils/platformScope')
 // Both helpers write the SAME envelope { success, error: { code, message }, timestamp };
 // they differ only in how they put it on the wire (writeHead/end vs res.send), and
 // each half's tests assert its own. The two sendError modules are a known duplicate
@@ -160,7 +161,7 @@ function firmAuth (req, res, next) {
   if (DEV_AUTH_ENABLED && token === DEV_MENTOR_TOKEN) {
     attachIdentity(req, {
       advisorId: null,
-      firmId: DEV_FIRM_ID, // placeholder; the mentor view is not firm-scoped
+      firmId: PLATFORM_SCOPE, // the mentor is not a firm — see mentorStorageScope below
       role: AUTH.mentorRole,
       email: 'dev-mentor@local'
     })
@@ -191,8 +192,46 @@ function firmAuth (req, res, next) {
   // Display name, when Advisor-e includes one. Null is a valid answer: screens fall
   // back to the advisor ID rather than inventing or guessing a name.
   attachIdentity(req, identity, payload[AUTH.nameClaim])
+  mentorStorageScope(req)
 
   return next()
+}
+
+/**
+ * Re-point a MENTOR's request at the reserved platform scope.
+ *
+ * design/MENTOR-SAVE-SCOPE-PLAN.md Phase 3 — the fix for a save that succeeded
+ * into the wrong place. A mentor is not refused by requireManagerRole (it allows
+ * managerRole OR adminRole, and the interim mentor role IS adminRole), so before
+ * this every Mentor Hub save ran, reported success, and landed under whatever
+ * firm the mentor's token happened to claim. The mentor's own platform content
+ * was untouched and no firm inherited the edit. Nothing errored; the screen said
+ * it worked.
+ *
+ * ⚠ ONE POINT, NOT 156. `req.firmId` is read in ~156 places across the firm
+ * routes. Resolving the scope here means no call site can forget it — the same
+ * reason listFirmIdsWithConfigKey excludes the scope in SQL. A per-call-site fix
+ * would work today and drift the first time someone adds a route.
+ *
+ * ⚠ DELIBERATELY NOT IN attachIdentity, which collaborateAuth also uses. The
+ * Collaborate people layer (/api/people — the Adviser Network tab) already
+ * resolves the caller's TIER server-side and returns a correct roll-up for the
+ * levels above a firm. Overriding its identity would break the one tab that
+ * already works one level up.
+ *
+ * ⚠ THE FIRM CLAIM IS STILL REQUIRED of a mentor's token (the check above runs
+ * first). A mentor genuinely has no firm, so that will eventually be the wrong
+ * rule — but loosening an auth check before the real 'mentor' role exists
+ * upstream would be a security change made on speculation. Failing closed is the
+ * conservative answer; revisit when AUTH.mentorRole stops being platform_admin.
+ *
+ * @param {object} req - request with an identity already attached
+ */
+function mentorStorageScope (req) {
+  if (req.userRole && req.userRole === AUTH.mentorRole) {
+    req.firmId = PLATFORM_SCOPE
+    req.identity.firmId = PLATFORM_SCOPE
+  }
 }
 
 /**
