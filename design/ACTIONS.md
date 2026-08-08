@@ -1549,7 +1549,64 @@ that the warning is not being followed by default.
       **Sales Teams**) should be attached to named branches, which is a judgement about Mike's own
       content and cannot be settled by counting.
 
-- <a id="gate-blind-to-flat-trees"></a>☐ **🔴 P1 · CORRECTNESS — the template availability gate watches
+- <a id="mentor-hub-built"></a>✅ **BUILD — THE MENTOR HUB EXISTS, 2026-08-09 (laptop).** Record:
+  [`MENTOR-HUB-CONSOLIDATED-NOTES.md`](MENTOR-HUB-CONSOLIDATED-NOTES.md) — ten weeks of scattered
+  notes in one place, written because the Mentor Hub was described in 19 files and defined in none.
+  - **`dacb7f1` — the hub, one level up.** `FirmManagerHub.vue` gains a `scope` prop; `/mentor`
+    renders that component rather than a copy. Mike's ruling of 2026-07-30 — *"all of the
+    functionality that you see at firm manager is simply repeated… there's no new functionality"* —
+    made mechanical. `firmId` turned out to be display-only (no child reads it; every backend call
+    resolves the firm from the token), which is why it was 81 lines and not a second hub.
+    [`mentorHubScope.component.test.js`](../tests/unit/mentorHubScope.component.test.js) pins BOTH
+    directions and the tab ORDER, because one component serving two tiers means a change made for the
+    firm reaches the mentor unasked.
+  - **`b5e3321` — Template Check**, to the mockup approved 2026-08-05. 93 live findings. Verb-led
+    sentence reading: a first version took every capitalised phrase and returned **745** rows against
+    the 27 found by hand, and a list nobody can finish is the same as no list.
+  - **`4f29f07` — the Logic Lab Report**, to the mockup approved 2026-08-04.
+  - ⚠ **SHELL ONLY on the shared tabs.** They READ correctly (no override stored → every tier falls
+    back to the platform default, which IS the mentor's content). What they SAVE still lands in
+    firm-shaped storage: `firm_framework_versions` is keyed `(firm_id, config_key)` with no column for
+    a tier above the firm. Advisory Distinctions and the two new mentor stores are the exceptions —
+    they write to the reserved `__platform__` scope. **The cascade wiring is the next job**, and it is
+    at its cheapest now: MySQL has never been provisioned, so there is no data to migrate.
+
+- <a id="approved-mockup-stranded-on-a-branch"></a>☐ **🔴 P1 · PROCESS — AN APPROVED DESIGN SAT
+  UNMERGED FOR FIVE DAYS AND A SCREEN WAS BUILT WITHOUT IT.** Found 2026-08-09, the hard way.
+  - **What happened.** `mentor-logic-lab-report-mockup.html` + `MENTOR-AI-HUB-STUB.md` were committed
+    2026-08-04 as `6f44872` on `feat/firm-quiz-builder-ui` and never reached `master`. On 2026-08-09
+    the laptop built the Mentor Hub from the notes it could see — and a search of a branch cannot find
+    a file that has never been on it. **Mike asked three times where the mocked-up page was** before
+    it was traced. Brought across as PR #40, then `master` merged in.
+  - **The warning WAS given and was not acted on.** That morning's `/startup` printed *"Other branches
+    hold work that is NOT in master: feat/firm-quiz-builder-ui — 1 ahead… if you are about to touch
+    the same screens, merge or ask first."* It was reported to Mike verbatim and then ignored for the
+    rest of the session. **So the detector is not the gap — the response is.** Adding another warning
+    would fix nothing.
+  - **What would actually have caught it:** opening the branch's diff, not just counting its commits.
+    One commit named *"APPROVED Logic Lab Report mockup"* in its subject line.
+  - ☐ **Proposal for Mike, not yet done:** `/startup` lists the SUBJECT LINE of every unmerged commit
+    on another branch, not just the count — and the session may not start build work on a screen
+    until any commit mentioning "mockup", "approved" or "design" has been read. Cheap, and it turns a
+    number nobody acts on into a sentence that names the thing.
+  - **Same family as [`request-compressed-to-one-line`](#request-compressed-to-one-line) and the
+    Logic-Lab artefact loss:** every gate compared the work to a written note, and nothing compared it
+    to the artefact — this time because the artefact was on a machine the builder could not see.
+
+- <a id="gate-blind-to-flat-trees"></a>✅ **🔴 P1 · CORRECTNESS — CLOSED 2026-08-09 (`b5e3321`). The
+  scan now reads all 42 tables, in both shapes.** [`templateCheck.js`](../server/utils/templateCheck.js)'s
+  `rulesOf()` asks a tree for `nodes` OR `branches` and never assumes the first, and
+  [`templateCheck.test.js`](../tests/unit/templateCheck.test.js) asserts **42 = 37 + 5** plus the
+  specific flat-table names at stake (`Get.1a.Sales Tracker`, `Get. TCM.Quiz Link Email`), so the gap
+  cannot silently reopen and a failure will say what moved.
+  - ⚠ **The runtime GATE still watches 37** — this closes the *blindness* (the names are now listed,
+    on screen, for Mike to rule on), not the withholding. That was deliberate and remains so: until a
+    name is ruled, withholding it would delete real instructions, which is the 2026-08-04 error. The
+    gate widens only after the rulings are applied.
+  - **The misleading test was NOT edited.** `templateAvailabilityGate.test.js` still walks `nodes`,
+    and its claim is true of what it walks. The correction is a second test that walks everything,
+    rather than a rewrite that would erase the evidence of how the blind spot happened.
+  - *Original entry follows for the record:* ☐ **the template availability gate watches
   37 of the 42 logic tables, and its test is blind to exactly the same five.** Found 2026-08-05
   (session B) while designing the Template Check screen. **Not a regression — nothing is being wrongly
   withheld; the safety net simply does not cover these tables and never did.**
