@@ -412,6 +412,29 @@ that the warning is not being followed by default.
   - **Open, and Mike's:** immediate write vs staged, every button label, and whether the first pass
     ships only the fully-determined case.
 
+- <a id="mentor-ai-hub"></a>☐ **P2 · PLAN/HANDOVER — the MENTOR AI HUB: a mentor-only copy of the
+  Firm Manager Hub plus the LOGIC LAB REPORT, a cross-firm rollup of what firms configure, push
+  and use. Raised by Mike 2026-08-04; STUB and APPROVED MOCKUP exist, no code.**
+  - **THE PLANNING STUB FOR THE MASTER TEAM:**
+    [`design/MENTOR-AI-HUB-STUB.md`](MENTOR-AI-HUB-STUB.md) — what it is, the two halves
+    (hub copy at mentor scope; the cross-firm report), the existing seams it plugs into
+    (`requireMentorRole`, `logicLabSummary.js`, the accepted-idea log, `firmOverlay.js`), the four
+    things only the master team can supply (firm enumeration, baseline write path, the real Mentor
+    role, rollup caching), and what is out of scope (no client/advisor data, ever).
+  - **THE APPROVED ARTEFACT:**
+    [`design/mockups/mentor-logic-lab-report-mockup.html`](mockups/mentor-logic-lab-report-mockup.html)
+    — the Logic Lab Report design, approved by Mike 2026-08-04. **This entry LINKS the artefact and
+    does not restate it** (CLAUDE.md → Save the Artefact). All numbers in it are invented; all
+    wording is placeholder pending Mike's rulings — wording sign-off is a separate step before any
+    build.
+  - **The shape that matters:** the pushed-edit feed (accepted Logic-Lab ideas, grouped where firms
+    made the same change) is section 1 and the bulk of the page — per
+    [`LOGIC-LAB-ACCEPT-AND-PUSH.md`](LOGIC-LAB-ACCEPT-AND-PUSH.md), it captures intent, which no
+    count of configuration can. This is why the accepted-idea log must keep logging from day one.
+  - **Depends on the master team** (cascade seams in
+    [`USER-LEVEL-CASCADE-HANDOVER.md`](USER-LEVEL-CASCADE-HANDOVER.md)); nothing here blocks the
+    desktop's other work.
+
 - <a id="logic-lab-decision-logic-build"></a>☑ **DONE 2026-08-03 — the DECISION LOGIC page is BUILT and
   running, as the Firm Manager Hub tab named "Logic-Lab". Approved by Mike 2026-08-02 from a working
   mockup; tested live by him across three runs the same day.**
