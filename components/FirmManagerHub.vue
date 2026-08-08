@@ -5,9 +5,10 @@ section.firm-manager-hub.section
     .level.mb-5
       .level-left
         div
-          p.title.is-4 Firm Manager Hub
-          p.subtitle.is-6.has-text-grey {{ firmId }}
-      .level-right(style="gap:12px;display:flex;align-items:center;")
+          p.title.is-4 {{ hubTitle }}
+          p.subtitle.is-6.has-text-grey(v-if="firmId") {{ firmId }}
+      //- The mentor sits above every firm, so "back to Advisor" has no meaning there.
+      .level-right(v-if="scope === 'firm'" style="gap:12px;display:flex;align-items:center;")
         a.button.is-light.is-small(href="/advisor") ← Back to Advisor
 
     //- Main tabs
@@ -167,7 +168,10 @@ section.firm-manager-hub.section
                 )
 
       //- ── Tab 5: Advisory Distinctions ───────────────────────────────
-      b-tab-item(label="Advisory Distinctions" icon="brain")
+      //- FIRM FLAVOUR — carries decline / override / reset-to-platform, which
+      //- only mean something when there is a layer above you. At mentor scope
+      //- the plain-CRUD version below replaces it (DISTINCTIONS-CASCADE-PLAN §6).
+      b-tab-item(v-if="scope === 'firm'" label="Advisory Distinctions" icon="brain")
         .columns
           //- Domain sidebar
           .column.is-3
@@ -430,6 +434,13 @@ section.firm-manager-hub.section
                 @cancel="closeDistinctionForm"
               )
 
+      //- ── Tab 5 (mentor flavour): Advisory Distinctions ──────────────
+      //- Same slot in the tab order as the firm's, so the screen reads the same
+      //- one level up. Plain CRUD only: there is no layer above the mentor to
+      //- decline or reset to.
+      b-tab-item(v-if="scope === 'mentor'" label="Advisory Distinctions" icon="brain")
+        mentor-distinctions(:api-token="apiToken")
+
       //- ── Tab: Quizzes (CB-31 Phase 3) ───────────────────────────────
       //- Body lives in its own component — the Hub is already over the
       //- decompose rule (CB-23), so a new tab adds a line here, not 200.
@@ -593,6 +604,13 @@ section.firm-manager-hub.section
                   @click="confirmShareWithMentor"
                 ) Approve & share
                 b-button(@click="closeMentorPreview") Cancel
+
+      //- ── Tab (mentor only): Case Reviews ────────────────────────────
+      //- Not a cascade function — it is the one read that travels UP, and it
+      //- exists at no other tier. Last, so the tabs the firm also has keep the
+      //- same order at both levels.
+      b-tab-item(v-if="scope === 'mentor'" label="Case Reviews" icon="clipboard-text")
+        mentor-review(:api-token="apiToken")
 </template>
 
 <script>
@@ -605,6 +623,10 @@ import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
 import FirmDecisionLogic from '~/components/firm/FirmDecisionLogic.vue'
+// Mentor-scope tab bodies. Both are inert at firm scope (their tabs are v-if'd
+// off) — the server role-gates every /api/mentor call regardless.
+import MentorReview from '~/components/MentorReview.vue'
+import MentorDistinctions from '~/components/MentorDistinctions.vue'
 import traceReasonMixin from '~/mixins/traceReasonMixin'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
@@ -663,12 +685,25 @@ export { DISTINCTION_DOMAINS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions },
 
   mixins: [traceReasonMixin],
 
   props: {
-    firmId: { type: String, required: true },
+    // Which tier is looking at this hub. Mike's ruling 2026-07-30: every tier is
+    // the same screen, re-scoped — so this component is rendered unchanged one
+    // level up rather than copied. 'mentor' swaps the Advisory Distinctions tab
+    // for its plain-CRUD twin and adds Case Reviews; nothing else differs yet.
+    // The cascade wiring (where each tab's edits are stored per tier) is a
+    // separate job — see design/MENTOR-HUB-CONSOLIDATED-NOTES.md §5.
+    scope: {
+      type: String,
+      default: 'firm',
+      validator: v => ['firm', 'mentor'].includes(v)
+    },
+    // Display only — no child reads it, and every backend call resolves the firm
+    // from the verified token. Empty at mentor scope, where there is no one firm.
+    firmId: { type: String, default: '' },
     userEmail: { type: String, default: '' },
     apiToken: { type: String, required: true },
     // The signed-in user's role (UI gating only — the server re-checks every
@@ -766,6 +801,11 @@ export default {
   },
 
   computed: {
+    // Hardcoded English to match every other heading and tab label in this
+    // component. The whole hub's copy is an open i18n item, not a new one.
+    hubTitle () {
+      return this.scope === 'mentor' ? 'Mentor Hub' : 'Firm Manager Hub'
+    },
     currentDistinctionDomainLabel () {
       const d = DISTINCTION_DOMAINS.find(d => d.id === this.selectedDistinctionDomain)
       return d ? d.label : ''
