@@ -241,6 +241,36 @@ override of the one above.
   wins over the mentor's; a mentor edit to a field the firm has *not* touched still reaches
   that firm.
 
+#### ✅ BUILT 2026-08-09 — and it covers less than this section promised
+
+The fold lives in `loadFirmConfig` ([`firmOverlay.js`](../server/utils/firmOverlay.js)), so every
+caller inherits it and no call site can forget. That part went as planned.
+
+**What did not go as planned: it applies to four config keys, not to everything.** Checking the
+stored shapes before writing the merge showed the "one function fixes all four content types"
+estimate was wrong, for a reason that is not a shortcut and cannot be engineered around with a
+bigger effort:
+
+| Shape | Keys | Cascades? |
+|---|---|---|
+| **Map** `{ id: value }` | `domain-support`, `logic-trees`, `domain-support-sections`, `logic-tree-sections` | ✅ **yes — built** |
+| **Array** | `templates`, `coaching-reference`, `advisory-distinctions`, `logic-lab-accepted` | ❌ no |
+| **Row model** (declines / overrides / own) | Staircase, Quizzes, Distinctions | ◐ by a different route |
+
+- **Arrays cannot express a delta.** The overlay rule replaces an array wholesale — correct for a
+  firm editing one config, and fatal for inheritance: a firm holding a one-item array would blank
+  the mentor's whole set *for themselves*. There is no "untouched entry" in a bare array to fall
+  through to the layer above. Giving these ids would be a data-model change, not a merge change.
+- **The row-model content already resolves inheritance**, via `resolveInheritedRows`, against a
+  base. A `deepMerge` fold underneath would apply inheritance twice. They inherit correctly by
+  having the **mentor's resolved content become their base** — `loadBlendedStaircase(PLATFORM_SCOPE)`
+  feeding the firm's blend. That is a real, tractable change and it is **Phase 5**, named here
+  rather than left implied.
+
+**So what a mentor can author today and have every firm inherit:** Domain Support and Logic Tables,
+including their section placement. **Not yet:** the Advisory Staircase, Quizzes, Templates.
+Advisory Distinctions already cascaded and still does.
+
 > **🔴 RULED 2026-08-09 (Mike): DELTA.** A firm stores only the fields it changed, merged over the
 > mentor's at read time — the mechanism Advisory Distinctions already uses. The mentor's later edits
 > keep reaching every firm for anything that firm has not touched; a firm's own change wins and

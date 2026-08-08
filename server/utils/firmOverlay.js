@@ -26,14 +26,55 @@ const { deepMerge } = require('./deepMerge')
 
 // ── DB operations ─────────────────────────────────────────────────────────────
 
-async function loadFirmConfig (firmId, configKey) {
+/**
+ * The config keys that CASCADE — where a mentor's stored content is inherited by
+ * every firm that has not overridden the same field.
+ *
+ * design/MENTOR-SAVE-SCOPE-PLAN.md Phase 4, and Mike's ruling of 2026-08-09: a
+ * firm holds only the fields it changed, laid over the mentor's, merged at read
+ * time. So the mentor's later edits keep reaching a firm for everything that firm
+ * has not touched, and a firm's own change still wins and sticks.
+ *
+ * ⚠ WHY THIS IS A LIST AND NOT "EVERY KEY". The merge rule (deepMerge) expresses a
+ * delta only for MAP-SHAPED values, where each entry has an id and an untouched
+ * entry can fall through to the layer above. Arrays REPLACE WHOLESALE — that is the
+ * documented overlay rule and it is right for a firm editing one config, but it
+ * cannot express inheritance: a firm holding a one-item array would blank the
+ * mentor's whole set for themselves rather than adding to it. So array-valued keys
+ * (`templates`, `coaching-reference`, `advisory-distinctions`, `logic-lab-accepted`)
+ * are deliberately absent.
+ *
+ * ⚠ ALSO ABSENT: the decline/override/own-rows keys behind the Staircase, Quizzes
+ * and Distinctions. Those already carry their own inheritance model
+ * (`resolveInheritedRows`), which resolves a tier's decisions against a base. Adding
+ * a deepMerge fold underneath would apply inheritance twice. They inherit by having
+ * the MENTOR's resolved content become their base — a different change, named in the
+ * plan rather than smuggled in here.
+ *
+ * Every key here is a `{ id: value }` map. Adding one that is not is a correctness
+ * bug, and tests/unit/cascadingConfig.test.js is what says so.
+ */
+const CASCADING_CONFIG_KEYS = new Set([
+  'domain-support', // firmContent: per-domain sparse overrides
+  'logic-trees', // firmContent: per-tree sparse overrides
+  'domain-support-sections', // firmManager: { itemId: section } placement
+  'logic-tree-sections' // firmManager: { itemId: section } placement
+])
+
+/**
+ * One scope's stored value for a key, or null. No cascade — the raw read.
+ * @param {string} scopeId - a firm id, or the reserved platform scope
+ * @param {string} configKey
+ * @returns {Promise<*|null>}
+ */
+async function _readActiveConfig (scopeId, configKey) {
   const [rows] = await db.execute(
     `SELECT config_json
      FROM firm_framework_versions
      WHERE firm_id = ? AND config_key = ? AND is_active = 1
      ORDER BY version DESC
      LIMIT 1`,
-    [firmId, configKey]
+    [scopeId, configKey]
   )
   if (rows.length === 0) { return null }
   try {
@@ -41,6 +82,35 @@ async function loadFirmConfig (firmId, configKey) {
   } catch {
     return null
   }
+}
+
+/**
+ * Load a scope's effective config for a key.
+ *
+ * For a cascading key (see above) this folds the chain: the MENTOR's stored
+ * content first, the firm's own on top. A firm that has stored nothing therefore
+ * inherits the mentor's content rather than seeing nothing — which is the whole
+ * point of the Mentor Hub, and was not true before Phase 4.
+ *
+ * A read AT the platform scope never folds onto itself.
+ *
+ * @param {string} firmId - the authenticated firm id, never client-supplied
+ * @param {string} configKey
+ * @returns {Promise<*|null>} the effective value, or null when no layer holds one
+ */
+async function loadFirmConfig (firmId, configKey) {
+  const own = await _readActiveConfig(firmId, configKey)
+
+  if (!CASCADING_CONFIG_KEYS.has(configKey) || firmId === PLATFORM_SCOPE) {
+    return own
+  }
+
+  const platform = await _readActiveConfig(PLATFORM_SCOPE, configKey)
+  if (platform === null) { return own }
+  if (own === null) { return platform }
+  // Firm over mentor: nested objects merge, the firm wins on a conflict, and a
+  // field the firm never touched still comes from the mentor.
+  return deepMerge(platform, own)
 }
 
 async function saveFirmConfig (firmId, configKey, configJson, savedBy) {
@@ -185,4 +255,12 @@ async function restoreVersion (firmId, configKey, versionId) {
   }
 }
 
-module.exports = { deepMerge, loadFirmConfig, saveFirmConfig, listFirmIdsWithConfigKey, getVersionHistory, restoreVersion }
+module.exports = {
+  deepMerge,
+  CASCADING_CONFIG_KEYS,
+  loadFirmConfig,
+  saveFirmConfig,
+  listFirmIdsWithConfigKey,
+  getVersionHistory,
+  restoreVersion
+}
