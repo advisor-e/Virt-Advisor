@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mentor — Adoption across firms (mockup)</title>
+<style>
+  :root {
+    --navy:#002b64; --grey:#7a869a; --line:#e2e6ec; --ink:#363636;
+    --green:#1f7a45; --green-bg:#eefaf2; --green-line:#63c48d;
+    --amber:#b35309; --amber-bg:#fffaf3; --amber-line:#ffb870;
+    --slate:#5a6b82; --slate-bg:#f3f6fa; --slate-line:#b8c6d8;
+    --dim:#8a94a3; --dim-bg:#f6f7f9; --dim-line:#d8dce3;
+    --red:#a02b2b; --red-bg:#fdf3f3; --red-line:#e2a0a0;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.5rem 6rem; background:#f5f5f5;
+    font:15px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); }
+  .wrap { max-width:1060px; margin:0 auto; }
+
+  .banner { background:#fff8e6; border:1px solid #f0d9a0; border-left:4px solid #e0b24e;
+    border-radius:5px; padding:0.9rem 1.05rem; margin-bottom:2.5rem; font-size:0.84rem; line-height:1.6; }
+  .banner strong { color:var(--amber); }
+
+  h1 { font-size:1.6rem; margin:0 0 0.4rem; color:var(--navy); letter-spacing:-0.01em; }
+  .lede { color:var(--grey); font-size:0.92rem; margin:0; max-width:56rem; }
+
+  section.band { margin-top:4rem; }
+  section.band > h2 { font-size:1.15rem; color:var(--navy); margin:0 0 0.35rem; letter-spacing:-0.01em; }
+  section.band > .sub { color:var(--grey); font-size:0.86rem; margin:0 0 1.6rem; max-width:56rem; }
+
+  /* ── Headline tiles ───────────────────────────────────────────── */
+  .tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:1.1rem; }
+  @media (max-width:880px) { .tiles { grid-template-columns:repeat(2,1fr); } }
+  .tile { background:#fff; border:1px solid var(--line); border-top:5px solid var(--slate-line);
+    border-radius:8px; padding:1.2rem 1.3rem 1.35rem; }
+  .tile.accent { border-top-color:var(--green-line); }
+  .tile.warn { border-top-color:var(--amber-line); }
+  .tnum { font-size:1.7rem; font-weight:700; color:var(--navy); line-height:1.2; }
+  .tlabel { font-size:0.78rem; color:var(--grey); margin-top:0.35rem; }
+  .tnote { font-size:0.74rem; color:var(--ink); margin-top:0.7rem; padding-top:0.7rem;
+    border-top:1px solid #f0f2f5; }
+
+  /* ── Per-firm sheet ───────────────────────────────────────────── */
+  table.firms { border-collapse:collapse; width:100%; font-size:0.83rem;
+    background:#fff; border:1px solid #ececec; border-radius:8px; overflow:hidden; }
+  table.firms th { text-align:left; font-size:0.67rem; text-transform:uppercase; letter-spacing:0.07em;
+    color:var(--navy); background:#f4f6f9; padding:0.6rem 0.7rem; border-bottom:1px solid #d5dbe4;
+    white-space:nowrap; }
+  table.firms th.n, table.firms td.n { text-align:right; }
+  table.firms td { padding:0.75rem 0.7rem; border-bottom:1px solid #eef1f5; vertical-align:middle; }
+  table.firms tr:last-child td { border-bottom:0; }
+  table.firms td.n { font-weight:600; white-space:nowrap; }
+  table.firms tr.dormant td { background:#fcfcfd; }
+  .fname { font-weight:600; color:var(--navy); }
+  .fid { font-size:0.7rem; color:var(--grey); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .quiet { color:var(--grey); font-weight:400; }
+  .flag { display:inline-block; font-size:0.7rem; border-radius:999px; padding:0.1rem 0.55rem;
+    border:1px solid var(--amber-line); background:var(--amber-bg); color:var(--amber); font-weight:700; }
+  .flag.cold { border-color:var(--red-line); background:var(--red-bg); color:var(--red); }
+  .flag.ok { border-color:var(--green-line); background:var(--green-bg); color:var(--green); }
+  .bar { height:6px; border-radius:3px; background:var(--slate-bg); margin-top:0.3rem; overflow:hidden; width:100%; }
+  .bar > i { display:block; height:100%; background:var(--slate-line); }
+
+  .caution { font-size:0.81rem; background:#f7f7f9; border-radius:6px; padding:0.9rem 1rem;
+    color:#5a5a5a; margin-top:1.2rem; }
+  .caution b { color:var(--ink); display:block; margin-bottom:0.2rem; }
+
+  .decide { background:#fff; border:1px solid var(--line); border-left:4px solid var(--navy);
+    border-radius:6px; padding:1.1rem 1.2rem; margin-top:1.2rem; font-size:0.85rem; }
+  .decide h3 { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--navy);
+    margin:0 0 0.7rem; }
+  .decide ol { margin:0; padding-left:1.2rem; }
+  .decide li { margin-bottom:0.7rem; }
+  .decide li:last-child { margin-bottom:0; }
+  .decide b { color:var(--navy); }
+
+  .word { border-bottom:1px dashed var(--amber-line); background:#fffdf7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <strong>MOCKUP — nothing here is built.</strong> Every number and firm name is invented to show
+    the shape. <strong>Every heading, label and sentence marked like <span class="word">this</span>
+    is placeholder wording awaiting Mike's ruling</strong> — none of it is decided, including the
+    page title. This page is mentor-only. It reads <strong>counts only</strong>: no adviser name, no
+    client name and no session text can appear on it, which is the same boundary rule the Logic Lab
+    Report enforces in code.
+  </div>
+
+  <h1><span class="word">Adoption across firms</span></h1>
+  <p class="lede">Which firms are actually using the product, and which have gone quiet. This replaces
+    the Team Progress tab at mentor level — that tab lists a firm's <em>advisers by name</em>, which is
+    a firm manager's view of their own people and must not cross the firm boundary. The same underlying
+    activity, counted one level up and stripped of who did it, answers a question a mentor actually has:
+    <span class="word">where is the product landing, and where is it not?</span></p>
+
+  <!-- ── 1 · The headline ─────────────────────────────────────────── -->
+  <section class="band">
+    <h2><span class="word">1 · The headline</span></h2>
+    <p class="sub">Four counts, invented. The fourth is the one worth arguing about — see the decisions
+      at the bottom of this page.</p>
+    <div class="tiles">
+      <div class="tile accent">
+        <div class="tnum">6</div>
+        <div class="tlabel"><span class="word">Firms active in the last 30 days</span></div>
+        <div class="tnote">Did at least one advisor session or course in the period.</div>
+      </div>
+      <div class="tile warn">
+        <div class="tnum">3</div>
+        <div class="tlabel"><span class="word">Firms gone quiet</span></div>
+        <div class="tnote">Used it once, then stopped. The list most worth acting on.</div>
+      </div>
+      <div class="tile">
+        <div class="tnum">47</div>
+        <div class="tlabel"><span class="word">Advisers active</span></div>
+        <div class="tnote">A count of distinct advisers. No names, here or anywhere on this page.</div>
+      </div>
+      <div class="tile">
+        <div class="tnum">1,284</div>
+        <div class="tlabel"><span class="word">Sessions and courses, all firms</span></div>
+        <div class="tnote">Advisor sessions plus completed courses, added together.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 2 · Firm by firm ─────────────────────────────────────────── -->
+  <section class="band">
+    <h2><span class="word">2 · Firm by firm</span></h2>
+    <p class="sub">One row per firm, busiest first. Invented figures. A firm's own manager still sees
+      their advisers by name on their own Team Progress tab — nothing about that changes.</p>
+
+    <table class="firms">
+      <thead>
+        <tr>
+          <th><span class="word">Firm</span></th>
+          <th class="n"><span class="word">Advisers</span></th>
+          <th class="n"><span class="word">Sessions</span></th>
+          <th class="n"><span class="word">Courses</span></th>
+          <th class="n"><span class="word">Avg quiz</span></th>
+          <th><span class="word">Last active</span></th>
+          <th><span class="word">Status</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="fname">Hartley &amp; Vine</span><br><span class="fid">firm-hv-004</span>
+            <div class="bar"><i style="width:100%"></i></div></td>
+          <td class="n">14</td><td class="n">402</td><td class="n">96</td><td class="n">71%</td>
+          <td>2 days ago</td>
+          <td><span class="flag ok"><span class="word">Active</span></span></td>
+        </tr>
+        <tr>
+          <td><span class="fname">Marchmont Advisory</span><br><span class="fid">firm-ma-011</span>
+            <div class="bar"><i style="width:63%"></i></div></td>
+          <td class="n">9</td><td class="n">248</td><td class="n">61</td><td class="n">68%</td>
+          <td>5 days ago</td>
+          <td><span class="flag ok"><span class="word">Active</span></span></td>
+        </tr>
+        <tr>
+          <td><span class="fname">Kelso Partners</span><br><span class="fid">firm-kp-002</span>
+            <div class="bar"><i style="width:41%"></i></div></td>
+          <td class="n">7</td><td class="n">160</td><td class="n">44</td><td class="n">74%</td>
+          <td>11 days ago</td>
+          <td><span class="flag ok"><span class="word">Active</span></span></td>
+        </tr>
+        <tr class="dormant">
+          <td><span class="fname">Broadleaf Accounting</span><br><span class="fid">firm-ba-007</span>
+            <div class="bar"><i style="width:12%"></i></div></td>
+          <td class="n">3</td><td class="n">41</td><td class="n">6</td><td class="n">59%</td>
+          <td>3 months ago</td>
+          <td><span class="flag"><span class="word">Gone quiet</span></span></td>
+        </tr>
+        <tr class="dormant">
+          <td><span class="fname">Ardwick &amp; Co</span><br><span class="fid">firm-ac-015</span>
+            <div class="bar"><i style="width:3%"></i></div></td>
+          <td class="n">1</td><td class="n">8</td><td class="n">0</td><td class="n quiet">—</td>
+          <td>5 months ago</td>
+          <td><span class="flag"><span class="word">Gone quiet</span></span></td>
+        </tr>
+        <tr class="dormant">
+          <td><span class="fname">Pentland Fiscal</span><br><span class="fid">firm-pf-019</span></td>
+          <td class="n quiet">0</td><td class="n quiet">0</td><td class="n quiet">0</td><td class="n quiet">—</td>
+          <td class="quiet">Never</td>
+          <td><span class="flag cold"><span class="word">Never started</span></span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="caution">
+      <b>The last row is the whole design question, and it is not cosmetic.</b>
+      Activity is recorded in the session tables, which only ever hold rows for firms that have
+      <em>done something</em>. A firm that has never opened the product leaves no trace there at all —
+      so it cannot appear on this page unless the page also reads the <b>list of firms</b> itself.
+      That is the difference between "here is who is using it" and "here is who is not", and the second
+      is the more useful of the two. Reading that list would be the <b>first time anything in our
+      backend queries the firms table</b>, and it must exclude the reserved <code>__platform__</code>
+      row seeded for mentor storage — which is not a firm. Same read gives us the firm <b>names</b>
+      above; without it every row is an opaque id like <code>firm-pf-019</code>.
+    </div>
+  </section>
+
+  <!-- ── 3 · What Mike has to rule on ─────────────────────────────── -->
+  <section class="band">
+    <h2>3 · What is not decided</h2>
+    <p class="sub">Listed here rather than guessed at, so that approving this page approves something
+      specific. Nothing below has an answer yet.</p>
+
+    <div class="decide">
+      <h3>Decisions</h3>
+      <ol>
+        <li><b>Read the firms list, or not?</b> Without it, firms that have never started are invisible
+          and every row shows an id instead of a name. With it, the page answers "who has not adopted
+          this" — but it is a new database read, and in the Advisor-e master app that table may be
+          theirs rather than ours. <i>Recommendation: read it, and fall back to showing the id when a
+          name is missing, so the page degrades to today's information rather than to an error.</i></li>
+        <li><b>Should "Avg quiz" be here at all?</b> It carries no names, but it is still a judgement
+          about a firm's people rather than about adoption. It can be dropped without affecting
+          anything else on the page. <i>No recommendation — this is a product call.</i></li>
+        <li><b>What counts as "gone quiet"?</b> The mockup uses 30 days for active and anything older
+          for quiet. Both numbers are invented.</li>
+        <li><b>Every word marked <span class="word">like this</span>.</b> Page title, column headings,
+          the three status badges, and the four tile labels. None of it is decided.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ── 4 · What else changes ────────────────────────────────────── -->
+  <section class="band">
+    <h2>4 · The other tab, for completeness</h2>
+    <p class="sub">Not part of this screen, but part of the same change, and recorded here so the
+      artefact matches what gets built.</p>
+    <div class="caution">
+      <b>Team Case Studies disappears from the Mentor Hub.</b>
+      It is the firm manager's view of their own advisers' shared cases, and shows nothing at mentor
+      level. The mentor already has the correct version beside it — the <b>Case Reviews</b> tab, which
+      shows only cases a firm manager has anonymised and explicitly approved for sharing. Rolling the
+      firm tab up instead would have walked straight past that consent gate, so it is hidden, not
+      widened.
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
