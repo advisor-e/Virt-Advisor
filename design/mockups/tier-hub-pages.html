@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Global Group Manager Hub + Group Manager Hub (design for approval)</title>
+<style>
+  :root {
+    --navy:#002b64; --grey:#7a869a; --line:#e2e6ec; --ink:#363636;
+    --green:#1f7a45; --green-bg:#eefaf2; --green-line:#63c48d;
+    --amber:#b35309; --amber-bg:#fffaf3; --amber-line:#ffb870;
+    --slate:#5a6b82; --slate-bg:#f3f6fa; --slate-line:#b8c6d8;
+    --dim:#8a94a3; --dim-bg:#f6f7f9; --dim-line:#d8dce3;
+    --red:#a02b2b; --red-bg:#fdf3f3; --red-line:#e2a0a0;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.5rem 6rem; background:#f5f5f5;
+    font:15px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); }
+  .wrap { max-width:1060px; margin:0 auto; }
+
+  .banner { background:#fffaf3; border:1px solid #f3ddc0; border-left:4px solid var(--amber-line);
+    border-radius:5px; padding:0.9rem 1.05rem; margin-bottom:2.5rem; font-size:0.84rem; line-height:1.6; }
+  .banner strong { color:var(--amber); }
+
+  h1 { font-size:1.6rem; margin:0 0 0.4rem; color:var(--navy); letter-spacing:-0.01em; }
+  .lede { color:var(--grey); font-size:0.92rem; margin:0; max-width:56rem; }
+
+  section.band { margin-top:4rem; }
+  section.band > h2 { font-size:1.15rem; color:var(--navy); margin:0 0 0.35rem; letter-spacing:-0.01em; }
+  section.band > .sub { color:var(--grey); font-size:0.86rem; margin:0 0 1.6rem; max-width:56rem; }
+
+  /* ── Hub chrome preview ───────────────────────────────────────── */
+  .hub { background:#fff; border:1px solid var(--line); border-radius:8px; overflow:hidden;
+    margin-bottom:1.6rem; }
+  .hubhead { padding:1.1rem 1.3rem 0.9rem; border-bottom:1px solid var(--line); }
+  .hubtitle { font-size:1.15rem; font-weight:700; color:var(--navy); }
+  .hubsub { font-size:0.76rem; color:var(--grey); font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    margin-top:0.15rem; }
+  .tabs { display:flex; flex-wrap:wrap; gap:0.3rem; padding:0.8rem 1.3rem 1.1rem; }
+  .tab { font-size:0.74rem; border:1px solid #d7dde6; border-bottom-color:#fff; background:#fff;
+    border-radius:5px 5px 0 0; padding:0.35rem 0.7rem; color:var(--slate); }
+  .tab.on { background:var(--navy); border-color:var(--navy); color:#fff; font-weight:600; }
+  .tab.new { border-color:var(--green-line); background:var(--green-bg); color:var(--green); font-weight:600; }
+
+  /* ── Matrix ───────────────────────────────────────────────────── */
+  table.mx { border-collapse:collapse; width:100%; font-size:0.8rem;
+    background:#fff; border:1px solid #ececec; border-radius:8px; overflow:hidden; }
+  table.mx th { text-align:left; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--navy); background:#f4f6f9; padding:0.6rem 0.6rem; border-bottom:1px solid #d5dbe4; }
+  table.mx th.c, table.mx td.c { text-align:center; width:8.5rem; }
+  table.mx td { padding:0.55rem 0.6rem; border-bottom:1px solid #eef1f5; vertical-align:middle; }
+  table.mx tr:last-child td { border-bottom:0; }
+  table.mx td.name { font-weight:600; color:var(--navy); }
+  table.mx td.why { color:var(--grey); font-size:0.75rem; }
+  table.mx tr.groupsep td { background:#f8fafc; font-size:0.66rem; text-transform:uppercase;
+    letter-spacing:0.07em; color:var(--slate); font-weight:700; }
+  .y { color:var(--green); font-weight:700; }
+  .n { color:var(--dim); }
+  .chg { display:inline-block; font-size:0.62rem; border-radius:999px; padding:0.03rem 0.4rem;
+    border:1px solid var(--amber-line); background:var(--amber-bg); color:var(--amber);
+    font-weight:700; margin-left:0.25rem; vertical-align:middle; }
+
+  .caution { font-size:0.81rem; background:#f7f7f9; border-radius:6px; padding:0.9rem 1rem;
+    color:#5a5a5a; margin-top:1.2rem; }
+  .caution b { color:var(--ink); display:block; margin-bottom:0.2rem; }
+  .caution.risk { background:var(--red-bg); border:1px solid var(--red-line); color:#5a3a3a; }
+  .caution.risk b { color:var(--red); }
+
+  .decide { background:#fff; border:1px solid var(--line); border-left:4px solid var(--amber-line);
+    border-radius:6px; padding:1.1rem 1.2rem; margin-top:1.2rem; font-size:0.85rem; }
+  .decide h3 { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--navy);
+    margin:0 0 0.7rem; }
+  .decide ol { margin:0; padding-left:1.2rem; }
+  .decide li { margin-bottom:0.9rem; }
+  .decide li:last-child { margin-bottom:0; }
+  .decide b { color:var(--navy); }
+  .rec { color:var(--green); font-weight:700; }
+  .open { color:var(--amber); font-weight:700; }
+
+  table.words { border-collapse:collapse; width:100%; font-size:0.82rem; margin-top:0.9rem;
+    background:#fff; border:1px solid #ececec; border-radius:8px; overflow:hidden; }
+  table.words th { text-align:left; font-size:0.67rem; text-transform:uppercase; letter-spacing:0.07em;
+    color:var(--navy); background:#f4f6f9; padding:0.55rem 0.7rem; border-bottom:1px solid #d5dbe4; }
+  table.words td { padding:0.5rem 0.7rem; border-bottom:1px solid #eef1f5; vertical-align:top; }
+  table.words tr:last-child td { border-bottom:0; }
+  table.words td.k { color:var(--grey); white-space:nowrap; width:15rem; }
+  table.words td.v { font-weight:600; color:var(--navy); }
+
+  ul.plain { margin:0.6rem 0 0; padding-left:1.15rem; font-size:0.85rem; }
+  ul.plain li { margin-bottom:0.5rem; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.88em;
+    background:#f2f4f7; border-radius:3px; padding:0.05rem 0.3rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <strong>DESIGN FOR APPROVAL — not yet ruled, not yet built.</strong> Written 2026-08-10, after Mike's
+    instruction: <em>"as a global group manager, once I log in via the Advisor-e mechanism, I need to see
+    a page that says Global Group Manager Hub and performs accordingly."</em> The pages themselves are
+    thin — the Hub is one screen re-scoped, per the ruling of 2026-07-30. <strong>The real decision is
+    §2: which tabs each of the two new hubs shows</strong>, and §3 is a trap in the existing code that
+    would otherwise decide it by accident. Master team connects the login; we supply the pages.
+  </div>
+
+  <h1>Global Group Manager Hub · Group Manager Hub</h1>
+  <p class="lede">Two new pages, both rendering the same Hub component at a new scope, so that a manager
+    at either middle tier lands on a screen that names their level and acts at it — authoring content
+    that cascades to the firms beneath them.</p>
+
+  <!-- ── 1 · The two pages ────────────────────────────────────────── -->
+  <section class="band">
+    <h2>1 · The two pages</h2>
+    <p class="sub">Modelled exactly on the two that exist. Each is a thin page: check the role, then
+      render the Hub at its scope. All the behaviour lives in the shared component, which is why this is
+      a small build rather than two new screens.</p>
+
+    <div class="hub">
+      <div class="hubhead">
+        <div class="hubtitle">Global Group Manager Hub</div>
+        <div class="hubsub">/global-group-manager · scope="global" · __global__:Advisor-e</div>
+      </div>
+      <div class="tabs">
+        <span class="tab on">Domain Support</span><span class="tab">Logic Tables</span>
+        <span class="tab">Logic-Lab</span><span class="tab">Advisory Staircase</span>
+        <span class="tab">Advisory Distinctions</span><span class="tab">Quizzes</span>
+        <span class="tab">Adviser Network</span>
+        <span class="tab new">How firms are using the app</span>
+      </div>
+    </div>
+
+    <div class="hub">
+      <div class="hubhead">
+        <div class="hubtitle">Group Manager Hub</div>
+        <div class="hubsub">/group-manager · scope="group" · __group__:Advisor-e:DE</div>
+      </div>
+      <div class="tabs">
+        <span class="tab on">Domain Support</span><span class="tab">Logic Tables</span>
+        <span class="tab">Logic-Lab</span><span class="tab">Advisory Staircase</span>
+        <span class="tab">Advisory Distinctions</span><span class="tab">Quizzes</span>
+        <span class="tab">Adviser Network</span>
+        <span class="tab new">How firms are using the app</span>
+      </div>
+    </div>
+
+    <div class="caution">
+      <b>The line under the title is the scope the tier's content is stored against.</b> It is shown for
+      the same reason the mentor's is: it appears in the version history, and a manager who never sees it
+      cannot check what they changed. The Firm Manager Hub already shows the firm id in that position.
+    </div>
+  </section>
+
+  <!-- ── 2 · The tab matrix ───────────────────────────────────────── -->
+  <section class="band">
+    <h2>2 · Which tabs each hub shows</h2>
+    <p class="sub">The heart of this design. Mentor and Firm columns are <b>what exists today</b> and are
+      not being changed. The two middle columns are the proposal. <span class="chg">new</span> marks a
+      tab that would need work beyond switching it on.</p>
+
+    <table class="mx">
+      <thead>
+        <tr>
+          <th>Tab</th>
+          <th class="c">Mentor</th>
+          <th class="c">Global group mgr</th>
+          <th class="c">Group mgr</th>
+          <th class="c">Firm mgr</th>
+          <th>Why</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="groupsep"><td colspan="6">Content the tier authors, and which cascades down</td></tr>
+        <tr><td class="name">Domain Support</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="why">Already cascades. The whole purpose of a middle tier</td></tr>
+        <tr><td class="name">Logic Tables</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="why">Already cascades</td></tr>
+        <tr><td class="name">Advisory Staircase</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="why">Already cascades. Own rows mint <code>xs-</code> / <code>gs-</code></td></tr>
+        <tr><td class="name">Quizzes</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="why">Already cascades. Own rows mint <code>xq-</code> / <code>gq-</code></td></tr>
+        <tr><td class="name">Advisory Distinctions</td><td class="c y">✓</td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓</td><td class="why">Two versions exist. A middle tier needs the <b>firm</b> version — inherit and lay a change over — not the mentor's blank-page authoring</td></tr>
+        <tr><td class="name">Logic-Lab</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="why">Reads how a decision was reached. Useful at every level</td></tr>
+        <tr><td class="name">Templates &amp; Videos</td><td class="c n">dormant</td><td class="c n">dormant</td><td class="c n">dormant</td><td class="c n">dormant</td><td class="why">Switched off everywhere since 2026-07-27. Unchanged</td></tr>
+
+        <tr class="groupsep"><td colspan="6">People and reporting</td></tr>
+        <tr><td class="name">Adviser Network</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="why">The one tab that <b>already</b> rolls up by tier — the server resolves the caller's level and returns their slice. Needs no change</td></tr>
+        <tr><td class="name">How firms are using the app</td><td class="c y">✓</td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓<span class="chg">new</span></td><td class="c n">—</td><td class="why">Counts only, never names. Today it reads every firm; a middle tier must see <b>only the firms beneath it</b></td></tr>
+        <tr><td class="name">Team Progress</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c y">✓</td><td class="why">Lists advisers <b>by name</b>. Stays firm-only, as ruled 2026-08-09. A manager above the firm sees people through Adviser Network instead</td></tr>
+        <tr><td class="name">Team Case Studies</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c y">✓</td><td class="why">A firm's own cases, in full text. Stays firm-only</td></tr>
+
+        <tr class="groupsep"><td colspan="6">Product accuracy — Advisor-e's own work, not a customer's</td></tr>
+        <tr><td class="name">Case Reviews</td><td class="c y">✓</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="why">Double opt-in cases shared for app-accuracy review. Mentor only</td></tr>
+        <tr><td class="name">Logic-Lab Report</td><td class="c y">✓</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="why">What every firm pushed back on. Mentor only</td></tr>
+        <tr><td class="name">Template Check</td><td class="c y">✓</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="why">The rulings queue. Mentor only</td></tr>
+      </tbody>
+    </table>
+
+    <div class="caution">
+      <b>Why the two middle columns are identical.</b> A global group manager and a country group manager
+      do the same job at a different width — author content for everyone below them, and see who below
+      them is using it. Nothing in the product distinguishes the two beyond how far their reach extends,
+      and inventing a difference would be inventing a requirement.
+    </div>
+  </section>
+
+  <!-- ── 3 · The trap ─────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>3 · The trap in the existing code — read before ruling §2</h2>
+    <p class="sub">This is the reason §2 has to be ruled explicitly rather than left to the code to work
+      out.</p>
+
+    <div class="caution risk">
+      <b>Three tabs are currently switched on by "is this NOT the mentor?" rather than by naming the
+      tier.</b> The moment a third scope value exists, <code>scope !== 'mentor'</code> becomes true for
+      it — so <b>Team Progress and Team Case Studies would appear at both new tiers automatically</b>,
+      showing other firms' advisers by name and their case text, which is precisely the boundary ruled
+      shut on 2026-08-09. In the same movement the Advisory Distinctions tab, gated on
+      <code>scope === 'firm'</code>, would <b>vanish</b> from the new hubs.
+    </div>
+
+    <ul class="plain">
+      <li><b>Nothing would error and no test would fail</b>, because no test asserts what a scope that
+        does not yet exist should show. The screen would simply be wrong in the customer's favour and
+        against the firm's.</li>
+      <li><b>The fix is to state each tab's tiers by name</b> rather than by what they are not, so adding
+        a fifth scope one day cannot silently switch anything on. That is part of this build, not a
+        follow-up.</li>
+      <li>This is the same failure family as the two already on record: a rule expressed as a negative
+        that quietly changes meaning when the world grows.</li>
+    </ul>
+  </section>
+
+  <!-- ── 4 · Open decisions ───────────────────────────────────────── -->
+  <section class="band">
+    <h2>4 · Open decisions — for Mike to rule</h2>
+    <p class="sub">Four. Each carries a recommendation, so "yes to all" is a valid answer.</p>
+
+    <div class="decide">
+      <h3>Open — 2026-08-10</h3>
+      <ol>
+        <li><b>1 · The tab matrix in §2.</b> <span class="rec">Recommendation: as drawn.</span> The two
+          middle tiers get everything that cascades, plus the two roll-ups that carry no names, and none
+          of the three product-accuracy tabs. <span class="open">The one you may want to overturn is
+          Team Progress</span> — it is kept firm-only here, on the grounds that a manager above the firm
+          already sees their people through Adviser Network.</li>
+
+        <li><b>2 · Page titles and addresses.</b> Drawn as <b>Global Group Manager Hub</b> at
+          <code>/global-group-manager</code> and <b>Group Manager Hub</b> at <code>/group-manager</code>
+          — your words for the titles. <span class="rec">Recommendation: keep.</span></li>
+
+        <li><b>3 · What happens before the master team wires the role?</b>
+          <span class="rec">Recommendation: fail closed.</span> Nobody reaches either page, and anyone
+          who tries sees a plain message saying the level is not connected yet — not a blank screen and
+          not a hidden 404. The alternative, letting an existing role in as a stand-in, is what let a
+          mentor's saves run into a firm's storage for weeks.</li>
+
+        <li><b>4 · "How firms are using the app" at a middle tier</b> must show only the firms beneath
+          that manager. Until the master team supplies which firms sit where,
+          <span class="rec">recommendation: it shows an empty list with a plain sentence saying the
+          group's firms are not connected yet</span> — never every firm, and never a silent zero that
+          reads as "nobody is using it".</li>
+      </ol>
+    </div>
+
+    <table class="words">
+      <thead><tr><th>Where</th><th>Proposed wording</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Page title (tier 2)</td><td class="v">Global Group Manager Hub</td></tr>
+        <tr><td class="k">Page title (tier 3)</td><td class="v">Group Manager Hub</td></tr>
+        <tr><td class="k">Role not yet connected</td><td class="v">This level is not connected yet.<br>Your Advisor-e administrator will enable it.</td></tr>
+        <tr><td class="k">Wrong role</td><td class="v">Access Restricted — this hub is for group managers.</td></tr>
+        <tr><td class="k">Firms not yet mapped</td><td class="v">The firms in this group are not connected yet, so there is nothing to show here.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── 5 · What the master team connects ────────────────────────── -->
+  <section class="band">
+    <h2>5 · What the master team connects — the whole of it</h2>
+    <p class="sub">Written as the handover list, so it can be sent as it stands. We build everything
+      else.</p>
+
+    <ul class="plain">
+      <li><b>Two role values in the login token</b> — one for each new hub — and, worth raising in the
+        same breath, <b>the mentor role that was never added</b> and is still borrowing
+        <code>platform_admin</code>.</li>
+      <li><b>Which group the person manages.</b> Their brand, and for a country manager their country.
+        Advisor-e already holds this shape on the user record — firm is the Advisory <em>branch</em> and
+        country is <em>country-address</em> — so this is a claim to pass through, not data to create.</li>
+      <li><b>Nothing else.</b> No new table, no schema change on their side, no screen. Each group also
+        needs one reserved row in our own firms table, which is ours to create and is covered by the
+        build.</li>
+    </ul>
+
+    <div class="caution risk">
+      <b>The one thing that must not be skipped.</b> Without the reserved row, a middle tier's saved
+      content is refused by the database <b>while the screen reports success</b> — the exact trap that
+      ran the mentor's own saves broken for weeks. The build creates the row or fails loudly; it will
+      not be allowed to half-succeed.
+    </div>
+  </section>
+
+  <!-- ── 6 · Honest limits ────────────────────────────────────────── -->
+  <section class="band">
+    <h2>6 · What will still not be proven when this ships</h2>
+    <p class="sub">Written before the build rather than discovered after it.</p>
+
+    <ul class="plain">
+      <li><b>Neither page can be opened by a real group manager</b>, because Advisor-e issues no such
+        role yet. Both will be demonstrable by tests, and openable locally in development — but not by
+        the person they are for.</li>
+      <li><b>No firm will inherit from a middle tier until the master team says which firms sit where.</b>
+        Content authored at group level will be stored correctly and reach nobody. That is the honest
+        state, and the hub should not imply otherwise.</li>
+      <li><b>The Adviser Network roll-up has never met real tier data.</b> It is written to roll up and
+        resolves the caller's tier server-side, but no manager above a firm has ever called it. A
+        statement about what is untested, not a doubt about what it does.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>
