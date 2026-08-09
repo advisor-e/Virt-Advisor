@@ -1,6 +1,11 @@
 # Mentor Hub — making a mentor's save land at mentor level
 
-**Status:** PLAN — awaiting Mike's approval. **Nothing in this document has been built.**
+**Status:** ✅ **BUILT — Phases 1, 3, 4 and 5 are in the code** (2026-08-09). Phase 2 needed no
+code change under the ruling; see the phase itself. The write path is finished. The three items
+in §5 are still open and are still deliberately outside this plan.
+*(The line this replaces read "PLAN — awaiting Mike's approval. Nothing in this document has been
+built." Left visible rather than silently swapped: a stale status line is how a document starts
+being quoted against the code.)*
 **Written:** 2026-08-09 (laptop, `feat/advisor-progress`), after Mike asked to "finish the
 Mentor Hub" and approved starting with the saving fix.
 **Scope:** the write path only. Reads, the roll-up tabs and Template Check's "Apply it" are
@@ -270,6 +275,61 @@ bigger effort:
 **So what a mentor can author today and have every firm inherit:** Domain Support and Logic Tables,
 including their section placement. **Not yet:** the Advisory Staircase, Quizzes, Templates.
 Advisory Distinctions already cascaded and still does.
+*(Superseded by Phase 5 below for the Staircase and Quizzes — built 2026-08-09.)*
+
+---
+
+### Phase 5 — the Staircase and the Quizzes inherit too
+
+#### ✅ BUILT 2026-08-09
+
+The two row-model blocks resolve through `resolveInheritedRows` against a base, and that base
+was the **shipped file**. So a mentor could add a staircase step or a quiz question, see it
+saved, see it on their own screen with version history beside it, and no firm would ever get
+it. Both now resolve against the **mentor's resolved content** instead.
+
+The change is the same function calling itself one level up —
+[`staircaseConfig.js`](../server/utils/staircaseConfig.js) and
+[`quizConfig.js`](../server/utils/quizConfig.js), one rule for two tiers rather than a second
+mechanism for the new one. The platform scope is the only level with nothing above it, which is
+what ends the recursion. A firm that has decided nothing still gets the shipped object itself,
+so the tuned behaviour every firm has today is byte-identical.
+
+Tests: [`mentorTierCascade.test.js`](../tests/unit/mentorTierCascade.test.js).
+
+#### 🔒 The security decision inside it, and why it went the safe way
+
+Quiz questions carry a `source` tag, and anything not tagged `platform` is fenced before it
+reaches the AI. **`source` describes a row's relationship to the level BELOW it** — so a
+mentor's own question is `firm-own` on the mentor's screen and `platform` the moment a firm
+inherits it. Reading `source` alone would therefore have quietly *un*fenced mentor-typed text on
+its way into the prompt.
+
+**Ruled the safe way: mentor-typed content stays fenced.** The bar is "not repo data", not "not
+Advisor-e" — repo data passes code review and git history, a screen passes neither. And the
+blast radius runs the wrong way: a firm's text reaches one firm, a mentor's reaches **every**
+firm. A sticky `browserAuthored` flag is stamped at the level that typed it and never cleared,
+so provenance outlives the tier it came from. `isFirmAuthored` was renamed `isBrowserAuthored`
+in the same change — once the mentor tier could author questions, "the firm's" stopped
+describing the set being fenced.
+
+#### ⚠ The defect Phase 5 would otherwise have created — found while building, fixed here
+
+Own-row ids are minted **per scope**, counted from the rows that scope already holds. So the
+mentor's first added step and a firm's first added step were **both `fs-1`** (and both `fq-1`
+for questions). Harmless while the two tiers never met — Phase 5 makes them meet in one resolved
+list, and *every decision in the mechanism is keyed to an id*. A firm switching off "its own"
+step would have dropped the mentor's instead.
+
+The mentor now mints under `ms-` / `mq-` ([`firmStaircase.js`](../server/utils/firmStaircase.js),
+[`firmQuizzes.js`](../server/utils/firmQuizzes.js)). This is collision-proof by construction
+rather than by timing, and each future tier takes its own prefix. **No stored data is affected**
+— no mentor own-rows exist anywhere, mentor-tier saving having started only in Phase 3.
+
+> **How it surfaced is worth keeping.** Three existing test stubs answered the store without
+> looking at *which scope* was asking, so they replayed a firm's own rows at mentor level — and
+> reproduced the collision exactly. The temptation was to read that as mock noise and scope the
+> stubs. The stubs did need scoping, but the duplicate they produced was real.
 
 > **🔴 RULED 2026-08-09 (Mike): DELTA.** A firm stores only the fields it changed, merged over the
 > mentor's at read time — the mechanism Advisory Distinctions already uses. The mentor's later edits

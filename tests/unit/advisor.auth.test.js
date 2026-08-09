@@ -40,6 +40,7 @@ jest.mock('../../server/utils/caseStore', () => ({
 }))
 
 const { loadFirmConfig } = require('../../server/utils/firmOverlay')
+const { PLATFORM_SCOPE } = require('../../server/utils/platformScope')
 const advisorMiddleware = require('../../server/advisorEngine')
 
 // A request as it looks AFTER firmAuth has run: firmId/advisorId are attached from
@@ -112,12 +113,18 @@ describe('advisor /query — firm scoping uses the verified identity (IDOR close
     await flush()
 
     expect(loadFirmConfig).toHaveBeenCalled()
+    // Two scopes are legitimate since Phase 5 (2026-08-09): the caller's own firm,
+    // and the reserved platform scope that holds what the MENTOR authored — every
+    // firm resolves against it, so reading it is not firm-crossing. Both are decided
+    // server-side from the verified token; neither can be influenced by the body.
     for (const call of loadFirmConfig.mock.calls) {
-      expect(call[0]).toBe('firm-from-jwt')
+      expect(['firm-from-jwt', PLATFORM_SCOPE]).toContain(call[0])
     }
-    // The hostile body value must never reach a firm-scoped read.
+    // The hostile body value must never reach ANY scoped read — the property this
+    // test exists for, and the one Phase 5 must not have loosened.
     const firmIdsSeen = loadFirmConfig.mock.calls.map(c => c[0])
     expect(firmIdsSeen).not.toContain('ATTACKER-spoofed-firm')
+    expect(firmIdsSeen).toContain('firm-from-jwt')
   })
 
   test('with no firm on the verified token, a body firmId cannot smuggle firm scope', async () => {

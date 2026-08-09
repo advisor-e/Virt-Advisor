@@ -10,8 +10,9 @@
 
 const {
   QUIZ_SOURCE_LABELS,
+  BROWSER_AUTHORED,
   baseBanks,
-  isFirmAuthored,
+  isBrowserAuthored,
   blendQuizBanks,
   resolveBankEntries,
   loadBlendedQuizBanks
@@ -51,16 +52,24 @@ describe('baseBanks', () => {
   })
 })
 
-describe('isFirmAuthored', () => {
+describe('isBrowserAuthored', () => {
   it('is false for a platform question and true for both firm kinds', () => {
-    expect(isFirmAuthored({ source: 'platform' })).toBe(false)
-    expect(isFirmAuthored({ source: 'firm-override' })).toBe(true)
-    expect(isFirmAuthored({ source: 'firm-own' })).toBe(true)
+    expect(isBrowserAuthored({ source: 'platform' })).toBe(false)
+    expect(isBrowserAuthored({ source: 'firm-override' })).toBe(true)
+    expect(isBrowserAuthored({ source: 'firm-own' })).toBe(true)
   })
 
-  it('FAILS CLOSED — a question with no provenance is treated as the firm\'s', () => {
+  it('FAILS CLOSED — a question with no provenance is treated as browser-typed', () => {
     // Under-fencing is the prompt-injection route; over-fencing only costs tuning.
-    expect(isFirmAuthored({ question: 'no source field' })).toBe(true)
+    expect(isBrowserAuthored({ question: 'no source field' })).toBe(true)
+  })
+
+  it('stays true for a mentor question a firm has inherited as `platform`', () => {
+    // THE PHASE 5 TRAP. `source` describes the relationship to the level below, so
+    // a mentor's own question is re-tagged `platform` the moment a firm inherits
+    // it. Reading `source` alone would untag mentor-typed text on its way to the
+    // AI — text that reaches every firm at once. The sticky flag is what survives.
+    expect(isBrowserAuthored({ source: 'platform', [BROWSER_AUTHORED]: true })).toBe(true)
   })
 })
 

@@ -21,7 +21,7 @@ const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/lo
 const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
 const { groundOutlineResources } = require('../server/utils/outlineResources')
 const { findQuizOverride, findQuizBank } = require('../server/utils/quizOverrides')
-const { loadBlendedQuizBanks, isFirmAuthored } = require('../server/utils/quizConfig')
+const { loadBlendedQuizBanks, isBrowserAuthored } = require('../server/utils/quizConfig')
 const { isClarificationRequest, prefillDesignState, requestedSessionCount, requestedSessionLength } = require('../server/utils/designInterview')
 const { applyOutlineEffort, lengthNotice, planSessions, fitOptions } = require('../server/utils/courseEffort')
 const {
@@ -704,7 +704,7 @@ async function handleQuizGenerate (req, body, res) {
   const bankEntries = bank
     ? bank.entries.map((e) => {
       const line = `Entry ${e.id}\nQuestion: ${e.question}\nKey point: ${e.keyPoint}`
-      return isFirmAuthored(e) ? fenceUntrusted(line) : line
+      return isBrowserAuthored(e) ? fenceUntrusted(line) : line
     }).join('\n')
     : ''
   const bankBlock = bank
@@ -813,7 +813,7 @@ async function handleQuizGrade (req, body, res) {
     : ''
   const markingGuide = bankEntry
     ? `Firm-authored marking guide (authoritative — this defines what counts as correct):
-${isFirmAuthored(bankEntry) ? fenceUntrusted(guideBody) : guideBody}
+${isBrowserAuthored(bankEntry) ? fenceUntrusted(guideBody) : guideBody}
 
 `
     : ''

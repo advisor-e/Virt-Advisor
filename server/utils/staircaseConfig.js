@@ -23,11 +23,21 @@
  *
  * A firm that has customised nothing gets the platform base object itself, so
  * behaviour is identical to before for those firms.
+ *
+ * WHAT CHANGED 2026-08-09 (Phase 5 of the Mentor Hub save-scope plan). A firm's
+ * staircase used to resolve against the SHIPPED FILE. The mentor's own edits are
+ * stored one level up, under the reserved platform scope — so a step the mentor
+ * wrote at /mentor saved correctly, appeared on the mentor's own screen, and
+ * reached no firm at all. The base a firm resolves against is now the MENTOR'S
+ * RESOLVED STAIRCASE, which is the shipped file resolved through the mentor's own
+ * decisions. Same mechanism, applied twice, rather than a second rule for the new
+ * tier. design/MENTOR-SAVE-SCOPE-PLAN.md §Phase 4 names this as Phase 5.
  */
 
 const BASE_STAIRCASE = require('../../data/advisory-staircase.json')
 const { resolveInheritedRows } = require('./resolveInheritedRows')
 const { loadFirmStaircaseState, CONFIG_KEYS } = require('./firmStaircase')
+const { PLATFORM_SCOPE, isPlatformScope } = require('./platformScope')
 
 // Kept for callers that reference the whole-config key by name (the Firm Manager
 // save route and its version history). It is still the home of defaultCeiling.
@@ -57,47 +67,63 @@ function renumber (steps) {
 /**
  * Load a firm's effective staircase.
  *
- * @param {string|null} firmId - the firm, taken from the verified JWT and never
- *   from a request body (a body-supplied firmId would be an IDOR — it would let
- *   one firm read another's config).
+ * @param {string|null} firmId - the scope to resolve for: a firm id, or the
+ *   reserved PLATFORM_SCOPE for the mentor's own level. Taken from the verified JWT
+ *   and never from a request body (a body-supplied firmId would be an IDOR — it
+ *   would let one firm read another's config).
  * @param {function(string, string): Promise<Object|null>} loadFirmConfig - the
  *   overlay reader, injected rather than imported so the engine reuses the client
  *   it already has and tests need no database. Mirrors loadFirmDomainSupport.
- * @returns {Promise<Object>} the resolved staircase config. Falls back to the
- *   platform base when the firm has decided nothing, has no firm id, or the store
- *   cannot be reached. Never rejects: a storage problem must not stop a session
- *   or leave the advisor with no staircase to choose from.
+ * @returns {Promise<Object>} the resolved staircase config. Falls back to the layer
+ *   above when this level has decided nothing, has no scope id, or the store cannot
+ *   be reached. Never rejects: a storage problem must not stop a session or leave
+ *   the advisor with no staircase to choose from.
  */
 async function loadBlendedStaircase (firmId, loadFirmConfig) {
   if (!firmId) { return BASE_STAIRCASE }
 
+  // The layer this level inherits from. A firm inherits the MENTOR'S resolved
+  // staircase, not the shipped file — that is the whole of Phase 5. The mentor
+  // inherits the shipped file, which is what ends the recursion: the platform
+  // scope is the only level with nothing above it.
+  //
+  // A store fault one level up is already absorbed there (this function never
+  // rejects), so the worst case is a firm resolving against the shipped file —
+  // which is exactly the behaviour that shipped before Phase 5.
+  const base = isPlatformScope(firmId)
+    ? BASE_STAIRCASE
+    : await loadBlendedStaircase(PLATFORM_SCOPE, loadFirmConfig)
+
   let state
   try {
-    state = await loadFirmStaircaseState(firmId, loadFirmConfig, BASE_STAIRCASE.steps)
+    // The base steps are what the legacy adapter reads identity from, so they must
+    // be the MENTOR'S steps: a firm's stored wording for a step the mentor added
+    // has no platform row to attach to, and would be discarded as malformed.
+    state = await loadFirmStaircaseState(firmId, loadFirmConfig, base.steps)
   } catch (err) {
     // In production an unreachable store is a real fault: log it, serve the base.
     // (In development the state loader falls back to the JSON stand-ins itself, so
     // reaching here at all means production.)
     console.error('[staircase] firm state read failed:', err.message)
-    return BASE_STAIRCASE
+    return base
   }
 
   const hasDecisions = state.declinedIds.length > 0 ||
     Object.keys(state.overrides).length > 0 ||
     state.ownRows.length > 0
-  if (!hasDecisions && !state.defaultCeiling) { return BASE_STAIRCASE }
+  if (!hasDecisions && !state.defaultCeiling) { return base }
 
   const resolved = renumber(resolveInheritedRows(
-    BASE_STAIRCASE.steps, state, { sourceLabels: STAIRCASE_SOURCE_LABELS }
+    base.steps, state, { sourceLabels: STAIRCASE_SOURCE_LABELS }
   ))
 
   return {
-    ...BASE_STAIRCASE,
-    defaultCeiling: state.defaultCeiling || BASE_STAIRCASE.defaultCeiling,
+    ...base,
+    defaultCeiling: state.defaultCeiling || base.defaultCeiling,
     // A staircase with no steps is not a customisation, it is a dead end: the advisor
     // would be asked to choose from nothing. Storage should never hold that shape;
     // this is the second lock, matching the route's own fallback.
-    steps: resolved.length > 0 ? resolved : renumber(BASE_STAIRCASE.steps)
+    steps: resolved.length > 0 ? resolved : renumber(base.steps)
   }
 }
 

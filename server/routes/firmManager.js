@@ -1483,7 +1483,7 @@ function _validateStaircase (cfg) {
 // knows the other.
 
 const {
-  loadFirmStaircaseState, CONFIG_KEYS: STAIRCASE_KEYS, EDITABLE_STEP_FIELDS, FIRM_STEP_PREFIX
+  loadFirmStaircaseState, CONFIG_KEYS: STAIRCASE_KEYS, EDITABLE_STEP_FIELDS, ownStepPrefix
 } = require('../utils/firmStaircase')
 const { loadBlendedStaircase } = require('../utils/staircaseConfig')
 
@@ -1878,10 +1878,15 @@ async function addOwnStaircaseStep (req, res) {
     const rows = Array.isArray(stored) ? stored : []
     // Highest existing number + 1, never the row count: reusing a deleted step's id
     // would hand a new step the decisions recorded against the old one.
+    // The prefix depends on WHO is adding: a mentor's steps mint under `ms-`, a
+    // firm's under `fs-`. Both scopes number from 1, and since Phase 5 a firm sees
+    // the mentor's steps in its own resolved list — one shared prefix would put two
+    // different steps under one id, and every decision here is keyed to an id.
+    const prefix = ownStepPrefix(req.firmId)
     const used = rows
-      .map(r => parseInt(String((r && r.id) || '').replace(FIRM_STEP_PREFIX, ''), 10))
+      .map(r => parseInt(String((r && r.id) || '').replace(prefix, ''), 10))
       .filter(n => Number.isInteger(n))
-    const id = `${FIRM_STEP_PREFIX}${(used.length ? Math.max(...used) : 0) + 1}`
+    const id = `${prefix}${(used.length ? Math.max(...used) : 0) + 1}`
     const next = [...rows, {
       id,
       name: sani.value.name,
@@ -1971,7 +1976,7 @@ const {
   loadFirmQuizState,
   CONFIG_KEYS: QUIZ_KEYS,
   EDITABLE_QUESTION_FIELDS,
-  FIRM_QUESTION_PREFIX,
+  ownQuestionPrefix,
   LIMITS: QUIZ_LIMITS
 } = require('../utils/firmQuizzes')
 const { loadBlendedQuizBanks } = require('../utils/quizConfig')
@@ -2617,10 +2622,14 @@ async function addOwnQuizQuestion (req, res) {
     }
     // Highest existing number + 1, never the row count: reusing a deleted question's
     // id would hand a new question the decisions recorded against the old one.
+    // Prefixed by SCOPE (`mq-` for the mentor, `fq-` for a firm) — since Phase 5 a
+    // firm resolves the mentor's questions into its own list, and one shared prefix
+    // would put two different questions under one id.
+    const prefix = ownQuestionPrefix(req.firmId)
     const used = rows
-      .map(r => parseInt(String((r && r.id) || '').replace(FIRM_QUESTION_PREFIX, ''), 10))
+      .map(r => parseInt(String((r && r.id) || '').replace(prefix, ''), 10))
       .filter(n => Number.isInteger(n))
-    const id = `${FIRM_QUESTION_PREFIX}${(used.length ? Math.max(...used) : 0) + 1}`
+    const id = `${prefix}${(used.length ? Math.max(...used) : 0) + 1}`
     // Key on the RESOLVED title, not what was typed, so the stored bank is always a
     // real page name however the caller spelled it.
     const next = [...rows, {

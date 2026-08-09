@@ -34,6 +34,7 @@
 
 const fs = require('fs')
 const path = require('path')
+const { isPlatformScope } = require('./platformScope')
 
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
@@ -69,6 +70,32 @@ const EDITABLE_STEP_FIELDS = ['name', 'selectorDescription', 'complexityCeiling'
  * @type {string}
  */
 const FIRM_STEP_PREFIX = 'fs-'
+
+/**
+ * Prefix for a step the MENTOR added, at the reserved platform scope.
+ *
+ * WHY IT IS NOT `fs-` TOO (2026-08-09, Phase 5). Own-row numbers are minted per scope,
+ * from the rows that scope already holds — so the mentor's first added step and a
+ * firm's first added step would BOTH be `fs-1`. That was harmless while the two never
+ * met. Phase 5 makes them meet: the mentor's step arrives at a firm as an inherited
+ * row and the firm's own is appended beside it, giving one resolved list two different
+ * steps under one identity. Every decision in the mechanism is keyed to an id, so the
+ * firm switching off "its" step would drop the mentor's instead. Sibling id systems
+ * that can collide is exactly what FIRM_STEP_PREFIX above exists to prevent — this is
+ * the same rule applied to the tier that did not exist when it was written.
+ * @type {string}
+ */
+const MENTOR_STEP_PREFIX = 'ms-'
+
+/**
+ * The own-row prefix a scope mints under.
+ *
+ * @param {string|null} scopeId - a firm id, or the reserved platform scope
+ * @returns {string} the prefix new own-step ids take at that scope
+ */
+function ownStepPrefix (scopeId) {
+  return isPlatformScope(scopeId) ? MENTOR_STEP_PREFIX : FIRM_STEP_PREFIX
+}
 
 function _readDevMap (file) {
   try {
@@ -127,7 +154,7 @@ async function _load (loadFirmConfig, firmId, key, devFile, fallback) {
  * @returns {{overrides: Object, ownRows: Array<Object>}} empty when there is nothing
  *   to carry across
  */
-function adaptLegacyWholeConfig (baseSteps, legacyConfig) {
+function adaptLegacyWholeConfig (baseSteps, legacyConfig, ownPrefix = FIRM_STEP_PREFIX) {
   const empty = { overrides: {}, ownRows: [] }
   const stored = legacyConfig && typeof legacyConfig === 'object' && !Array.isArray(legacyConfig)
     ? legacyConfig
@@ -161,7 +188,7 @@ function adaptLegacyWholeConfig (baseSteps, legacyConfig) {
       if (!usable) { continue }
       ownCount += 1
       ownRows.push({
-        id: `${FIRM_STEP_PREFIX}${ownCount}`,
+        id: `${ownPrefix}${ownCount}`,
         name: step.name,
         selectorDescription: typeof step.selectorDescription === 'string' ? step.selectorDescription : '',
         complexityCeiling: step.complexityCeiling
@@ -226,7 +253,7 @@ async function loadFirmStaircaseState (firmId, loadFirmConfig, baseSteps) {
     Object.keys(state.overrides).some(id => baseIds.has(id))
   if (hasNewState) { return state }
 
-  const legacy = adaptLegacyWholeConfig(baseSteps, settings)
+  const legacy = adaptLegacyWholeConfig(baseSteps, settings, ownStepPrefix(firmId))
   if (Object.keys(legacy.overrides).length === 0 && legacy.ownRows.length === 0) { return state }
 
   return { ...state, overrides: legacy.overrides, ownRows: legacy.ownRows, fromLegacy: true }
@@ -239,5 +266,7 @@ module.exports = {
   adaptLegacyWholeConfig,
   CONFIG_KEYS,
   EDITABLE_STEP_FIELDS,
-  FIRM_STEP_PREFIX
+  FIRM_STEP_PREFIX,
+  MENTOR_STEP_PREFIX,
+  ownStepPrefix
 }

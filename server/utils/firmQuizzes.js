@@ -51,6 +51,7 @@
 const fs = require('fs')
 const path = require('path')
 const { resolveTemplateName } = require('./resolveTemplateName')
+const { isPlatformScope } = require('./platformScope')
 
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
@@ -87,6 +88,29 @@ const EDITABLE_QUESTION_FIELDS = ['question', 'answer', 'keyPoint']
  * @type {string}
  */
 const FIRM_QUESTION_PREFIX = 'fq-'
+
+/**
+ * Prefix for a question the MENTOR added, at the reserved platform scope.
+ *
+ * WHY IT IS NOT `fq-` TOO (2026-08-09, Phase 5). Own-row numbers are minted per scope,
+ * so the mentor's first added question and a firm's first added question would BOTH be
+ * `fq-1`. Harmless while the tiers never met; Phase 5 makes them meet, and every
+ * decision in the mechanism is keyed to an id — the firm switching off "its" question
+ * would drop the mentor's instead. The staircase took the identical change; see
+ * MENTOR_STEP_PREFIX in ./firmStaircase.
+ * @type {string}
+ */
+const MENTOR_QUESTION_PREFIX = 'mq-'
+
+/**
+ * The own-row prefix a scope mints under.
+ *
+ * @param {string|null} scopeId - a firm id, or the reserved platform scope
+ * @returns {string} the prefix new own-question ids take at that scope
+ */
+function ownQuestionPrefix (scopeId) {
+  return isPlatformScope(scopeId) ? MENTOR_QUESTION_PREFIX : FIRM_QUESTION_PREFIX
+}
 
 // Bounds on firm-supplied content. The global 1 MB body cap stops a giant
 // payload; these stop a merely large one from becoming an unreadable screen or
@@ -289,7 +313,7 @@ async function _load (loadFirmConfig, firmId, key, devFile, fallback) {
  * @returns {{declinedIds: string[], overrides: Object, ownRows: Array}} empty when
  *   there is nothing to carry across
  */
-function adaptLegacyWholeConfig (baseBanks, legacyConfig) {
+function adaptLegacyWholeConfig (baseBanks, legacyConfig, ownPrefix = FIRM_QUESTION_PREFIX) {
   const empty = { declinedIds: [], overrides: {}, ownRows: [] }
   const stored = isPlainObject(legacyConfig) ? legacyConfig : null
   if (!stored) { return empty }
@@ -321,7 +345,7 @@ function adaptLegacyWholeConfig (baseBanks, legacyConfig) {
         if (!usable) { return }
         ownCount += 1
         ownRows.push({
-          id: `${FIRM_QUESTION_PREFIX}${ownCount}`,
+          id: `${ownPrefix}${ownCount}`,
           bank: bankKey,
           question: entry.question,
           answer: entry.answer,
@@ -393,7 +417,7 @@ async function loadFirmQuizState (firmId, loadFirmConfig, baseBanks) {
   if (hasNewState) { return state }
 
   const legacyConfig = await _load(loadFirmConfig, firmId, CONFIG_KEYS.legacy, DEV_FILES.legacy, null)
-  const legacy = adaptLegacyWholeConfig(baseBanks, legacyConfig)
+  const legacy = adaptLegacyWholeConfig(baseBanks, legacyConfig, ownQuestionPrefix(firmId))
   if (legacy.declinedIds.length === 0 && Object.keys(legacy.overrides).length === 0 && legacy.ownRows.length === 0) {
     return state
   }
@@ -409,6 +433,8 @@ module.exports = {
   LIMITS,
   EDITABLE_QUESTION_FIELDS,
   FIRM_QUESTION_PREFIX,
+  MENTOR_QUESTION_PREFIX,
+  ownQuestionPrefix,
   validateQuizOverride,
   mergeQuizBanks,
   adaptLegacyWholeConfig,

@@ -1571,8 +1571,11 @@ that the warning is not being followed by default.
     they write to the reserved `__platform__` scope. ~~**The cascade wiring is the next job**~~ —
     **STARTED AND LARGELY DONE 2026-08-09, see [§mentor-save-scope](#mentor-save-scope) below.**
 
-- <a id="mentor-save-scope"></a>◐ **🔴 P1 · FIX — a mentor's save succeeded into the WRONG PLACE.
-  Phases 1, 3 and 4 built 2026-08-09; Phase 5 open.**
+- <a id="mentor-save-scope"></a>✅ **🔴 P1 · FIX — CLOSED 2026-08-09. A mentor's save succeeded into
+  the WRONG PLACE. Phases 1, 3, 4 and 5 built; Phase 2 needed no code under the ruling.**
+  The write path is finished: a mentor's save lands at mentor level, and every content shape whose
+  data model allows it now cascades to firms. **Two Mentor Hub items remain and are NOT this row** —
+  the roll-up tabs and Template Check's "Apply it"; both were always outside this plan (§5).
   **The plan, the ruling and the findings are in
   [`MENTOR-SAVE-SCOPE-PLAN.md`](MENTOR-SAVE-SCOPE-PLAN.md) — read it rather than this row.** Linked,
   not summarised, deliberately: it is the artefact, it carries two in-file corrections, and a
@@ -1589,9 +1592,23 @@ that the warning is not being followed by default.
     **cascade = DELTA** (a firm holds only the fields it changed; the mentor's later edits keep
     reaching it). Both recorded in the plan and in
     [`MENTOR-HUB-CONSOLIDATED-NOTES.md` §7.4](MENTOR-HUB-CONSOLIDATED-NOTES.md).
-  - ☐ **Phase 5 — the Staircase and Quizzes still do not inherit from the mentor.** They carry their
-    own row model (`resolveInheritedRows`) rather than a merge, so they inherit by having the
-    mentor's resolved content become their base, not by the fold built in Phase 4. Plan §Phase 4.
+  - ✅ **Phase 5 — the Staircase and Quizzes now DO inherit from the mentor.** Built 2026-08-09.
+    They carry their own row model (`resolveInheritedRows`) rather than a merge, so they inherit by
+    having the mentor's resolved content become their base — the same function calling itself one
+    level up, not a second mechanism. Tests: `tests/unit/mentorTierCascade.test.js`.
+    - 🔒 **Mentor-typed quiz content stays FENCED from the AI.** `source` describes a row's
+      relationship to the level below, so a mentor's question is re-tagged `platform` the moment a
+      firm inherits it — reading it alone would have unfenced browser-typed text. A sticky
+      `browserAuthored` flag now carries provenance across tiers, and `isFirmAuthored` was renamed
+      `isBrowserAuthored`. The bar is "not repo data", not "not Advisor-e": a firm's text reaches
+      one firm, a mentor's reaches every firm.
+    - ⚠ **An id collision was found and closed in the same change.** Own-row ids are minted per
+      scope, so the mentor's first added step and a firm's first added step were both `fs-1`
+      (`fq-1` for questions). Harmless until Phase 5 put both in one resolved list, where every
+      decision is keyed to an id — a firm switching off "its own" step would have dropped the
+      mentor's. The mentor now mints under `ms-` / `mq-`. No stored data affected.
+      **It surfaced because three test stubs answered without checking which scope was asking** and
+      so reproduced the collision exactly; the stubs did need scoping, but the duplicate was real.
   - ⚠ **Templates and the coaching reference CANNOT inherit as stored.** They are bare arrays, and
     the overlay rule replaces an array wholesale — a firm holding one item would blank the mentor's
     whole set *for themselves*. There is no untouched entry to fall through to the layer above.
