@@ -468,6 +468,64 @@
     </div>
   </section>
 
+  <!-- ══ 5. WHAT "APPLY IT" DOES — RULED 2026-08-09 ═════════════ -->
+  <section class="band">
+    <h2>What "Apply it" does — ruled 2026-08-09</h2>
+    <p class="sub">The button above was approved on 5 August; what it leads to was not decided until
+      now. Recorded here, on the artefact it belongs to, rather than in a commit message.</p>
+
+    <div class="box">
+      <p><strong>🔴 RULED (Mike): it prepares a reviewed change. It never edits a table directly.</strong>
+        Three reasons, and a live button was the obvious alternative:</p>
+      <ul class="plain">
+        <li><strong>This exact fix is already made by reviewed commit.</strong> Twice —
+          <code>bd7dc63</code> reconnected five retitled pages, and <code>3064a71</code> swapped the
+          same five names in tree prose. This fits that practice rather than replacing it, and it is
+          what <code>templateCheckRulings.js</code> already said would happen: a ruling is recorded
+          "so it can be applied later, in one reviewed pass".</li>
+        <li><strong>A stored override would fence the table in the AI prompt.</strong> Any logic table
+          carrying an override is marked as human-edited, which makes the prompt wrap its text as
+          untrusted. Applying rulings that way would re-tune the prompt for every firm, one table at a
+          time, invisibly.</li>
+        <li><strong>A stored override would go stale.</strong> It freezes a copy of the table, so a
+          later improvement to the committed version could never reach anyone whose rulings had been
+          applied.</li>
+      </ul>
+
+      <p class="footnote"><strong>Every prepared change is classified, and nothing awkward is dropped
+        — a short list would read as a finished job.</strong> <em>Ready</em>: unambiguous.
+        <em>Needs checking</em>: the name appears twice, or in two of the three sentence fields, or
+        the branch has since changed, or the ruled template is no longer in the catalogue under that
+        title. Two decisions correctly produce no change at all and are counted rather than lost:
+        <em>Not a tool</em> (the phrase was never a document) and <em>Missing — flag it</em> (only the
+        master-app team can close it).</p>
+    </div>
+
+    <div class="box" style="margin-top:1rem">
+      <h3 style="margin-top:0">Approved wording — ruled 2026-08-09</h3>
+      <table class="wording">
+        <thead>
+          <tr><th style="width:34%">Where</th><th>Approved wording</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Row, before applying</td><td class="wprop">Not yet applied to the table.</td></tr>
+          <tr><td>Row, after "Apply it"</td><td class="wprop">Queued for the next update.</td></tr>
+          <tr><td>Button above the table</td><td class="wprop">See what's queued (3)</td></tr>
+          <tr><td>Panel heading</td><td class="wprop">Changes queued for the next update</td></tr>
+          <tr><td>Panel sub-line</td><td class="wprop">3 ready · 1 needs checking</td></tr>
+        </tbody>
+      </table>
+      <p class="footnote"><strong>The first list will be empty, and that is not a fault.</strong> No
+        row has been ruled yet. This builds the machinery; working through the rows above is what
+        fills it.</p>
+      <p class="footnote"><strong>BUILT 2026-08-09. One difference from this page, named rather than
+        left to be noticed:</strong> the "See what's queued" button appears only once something is
+        queued. A button reading "(0)" invites a click that can only disappoint, and this list is
+        empty until rows are ruled. Everything else — the "Apply it" button, its position on the row,
+        and "Change my mind" beside it — is as approved on 5 August.</p>
+    </div>
+  </section>
+
 </div>
 </body>
 </html>

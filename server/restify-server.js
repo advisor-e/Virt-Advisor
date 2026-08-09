@@ -372,6 +372,11 @@ server.del('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.deleteMen
 // Read-only scan + the mentor's rulings; applying a ruling to a logic table is a
 // separate, later step (design/MENTOR-HUB-CONSOLIDATED-NOTES.md §6).
 server.get('/api/mentor/template-check', ...mentorGuard, mentorRoute.getTemplateCheck)
+// What "Apply it" leads to: the exact edits the applied rulings add up to, each
+// classified. It RETURNS the patch and never writes it — ruled by Mike 2026-08-09,
+// because a stored override would fence the table in the AI prompt and go stale,
+// and because this same fix has twice been made as a reviewed commit already.
+server.get('/api/mentor/template-check/patch', ...mentorGuard, mentorRoute.getTemplateCheckPatch)
 server.put('/api/mentor/template-check/rulings/:key', ...mentorGuard, mentorRoute.saveTemplateCheckRuling)
 server.del('/api/mentor/template-check/rulings/:key', ...mentorGuard, mentorRoute.deleteTemplateCheckRuling)
 

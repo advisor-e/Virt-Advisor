@@ -40,6 +40,49 @@
         icon="magnify"
         :placeholder="$t('templateCheck.list.searchPlaceholder')"
       )
+      //- Only offered once something is queued. A button reading "(0)" invites a
+      //- click that can only disappoint, and this list is empty until rows are ruled.
+      b-button(
+        v-if="queuedCount > 0"
+        size="is-small"
+        type="is-link"
+        icon-left="playlist-check"
+        @click="openQueue"
+      ) {{ $t('templateCheck.queue.button', { n: queuedCount }) }}
+
+    //- ── What is queued ────────────────────────────────────────────
+    //- Design: design/mockups/logic-table-template-check.html §5 (ruled 2026-08-09).
+    //- It PREPARES a reviewed change; it never edits a table.
+    b-modal(v-model="queueOpen" has-modal-card trap-focus :width="900")
+      .modal-card(style="width:auto")
+        header.modal-card-head
+          p.modal-card-title {{ $t('templateCheck.queue.heading') }}
+        section.modal-card-body
+          .has-text-centered.py-5(v-if="queueLoading")
+            b-loading(:is-full-page="false" :active="true")
+          b-notification(v-else-if="queueError" type="is-danger is-light" :closable="false")
+            | {{ queueError }}
+          template(v-else)
+            p.is-size-7.has-text-grey.mb-4
+              | {{ $t('templateCheck.queue.sub', { ready: patch.counts.ready, needsEyes: patch.counts.needsEyes }) }}
+            p.is-size-7.mb-4 {{ $t('templateCheck.queue.explainer') }}
+            b-table(:data="patch.edits" :hoverable="true" :narrowed="true")
+              b-table-column(v-slot="{ row }" :label="$t('templateCheck.queue.colWhere')")
+                span.has-text-weight-semibold {{ row.table }}
+                br
+                span.is-size-7.has-text-grey {{ row.branchName }}
+              b-table-column(v-slot="{ row }" :label="$t('templateCheck.queue.colChange')")
+                code.tc-from {{ row.from }}
+                |  →
+                code.tc-to {{ row.to }}
+                br
+                span.is-size-7.has-text-grey {{ row.where }} · {{ row.field }}
+              b-table-column(v-slot="{ row }" :label="$t('templateCheck.queue.colStatus')" width="34%")
+                b-tag(:type="row.status === 'ready' ? 'is-success is-light' : 'is-warning is-light'")
+                  | {{ $t('templateCheck.queue.status.' + (row.status === 'ready' ? 'ready' : 'needsChecking')) }}
+                p.is-size-7.has-text-grey.mt-1(v-if="row.reason") {{ row.reason }}
+        footer.modal-card-foot
+          b-button(@click="queueOpen = false") {{ $t('templateCheck.queue.close') }}
 
     p.has-text-grey.has-text-centered.py-6(v-if="visibleRows.length === 0")
       | {{ $t('templateCheck.list.empty') }}
@@ -77,7 +120,11 @@
         p.is-size-7.mt-1(v-else-if="row.verdict === 'ruled'")
           | → #[strong {{ row.ruling.title }}]
           br
-          span.has-text-grey {{ $t('templateCheck.verdictWhy.ruled') }}
+          //- The two halves of one sentence changing state. Both approved wording:
+          //- design/mockups/logic-table-template-check.html §5 (ruled 2026-08-09).
+          span.has-text-grey(v-if="!row.ruling.applyRequested")
+            | {{ $t('templateCheck.verdictWhy.ruled') }}
+          span.has-text-success(v-else) {{ $t('templateCheck.verdictWhy.queued') }}
         p.is-size-7.mt-1.has-text-grey(v-else-if="row.verdict === 'flagged'")
           | {{ $t('templateCheck.verdictWhy.flagged') }}
         p.is-size-7.mt-1.has-text-grey(v-else-if="row.verdict === 'dismissed'")
@@ -96,6 +143,16 @@
           b-button(type="is-text" :loading="saving === row.key" @click="flagMissing(row)")
             | {{ $t('templateCheck.action.flagMissing') }}
         .buttons.are-small.mb-0(v-else)
+          //- "Apply it" — approved 2026-08-05. It QUEUES the change; it never edits a
+          //- table. Only a ruling that points at a template can be queued: a dismissal
+          //- and a flag both correctly produce no edit at all.
+          b-button(
+            v-if="row.verdict === 'ruled' && !row.ruling.applyRequested"
+            type="is-primary"
+            :loading="saving === row.key"
+            @click="applyIt(row)"
+          )
+            | {{ $t('templateCheck.action.applyIt') }}
           b-button(type="is-text" :loading="saving === row.key" @click="undo(row)")
             | {{ undoLabel(row.verdict) }}
 
@@ -180,11 +237,29 @@ export default {
       pickerRow: null,
       pickerQuery: '',
       pickerChoice: '',
-      limitKeys: ['cannotKnow', 'suggestionOnly', 'titlesNotContents', 'cannotPublish']
+      limitKeys: ['cannotKnow', 'suggestionOnly', 'titlesNotContents', 'cannotPublish'],
+      queueOpen: false,
+      queueLoading: false,
+      queueError: '',
+      /** The prepared changes, as GET /api/mentor/template-check/patch returns them. */
+      patch: { counts: { ready: 0, needsEyes: 0 }, edits: [] }
     }
   },
 
   computed: {
+    /**
+     * How many rulings are queued for the next update.
+     *
+     * Counted from the rows already on screen rather than fetched, so pressing
+     * "Apply it" moves the number immediately — a count that only caught up on
+     * reload would read as a button that did nothing.
+     *
+     * @returns {number}
+     */
+    queuedCount () {
+      return this.findings.filter(f => f.ruling && f.ruling.applyRequested).length
+    },
+
     /** The three tiles across the top, in the mockup's order. */
     tiles () {
       const c = this.counts
@@ -294,6 +369,50 @@ export default {
         this.$buefy.toast.open({ message: this.$t('templateCheck.error.save'), type: 'is-danger' })
       } finally {
         this.saving = ''
+      }
+    },
+
+    /**
+     * "Apply it" — queue this ruling for the next update.
+     *
+     * It re-sends the SAME verdict and title with `applyRequested`, rather than
+     * patching a flag: the ruling is one stored record, and a partial write would
+     * be a second way for a decision and its queue state to disagree.
+     *
+     * @param {object} row - the ruled row.
+     * @returns {Promise<void>}
+     */
+    applyIt (row) {
+      return this.saveRuling(row, {
+        verdict: 'ruled',
+        title: row.ruling.title,
+        note: row.ruling.note || '',
+        applyRequested: true
+      })
+    },
+
+    /**
+     * Fetch the prepared changes and open the panel.
+     *
+     * Fetched on open rather than held in memory: a ruling made minutes ago may
+     * already be stale against a table someone else changed, and the classification
+     * is worked out server-side against the file as it stands right now.
+     *
+     * @returns {Promise<void>}
+     */
+    async openQueue () {
+      this.queueOpen = true
+      this.queueLoading = true
+      this.queueError = ''
+      try {
+        const res = await fetch('/api/mentor/template-check/patch', { headers: this.headers() })
+        const body = await res.json()
+        if (!res.ok || !body.success) { throw new Error((body.error && body.error.message) || 'load failed') }
+        this.patch = body.patch
+      } catch (e) {
+        this.queueError = this.$t('templateCheck.queue.loadFailed')
+      } finally {
+        this.queueLoading = false
       }
     },
 

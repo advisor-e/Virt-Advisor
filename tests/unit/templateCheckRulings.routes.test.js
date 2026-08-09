@@ -23,7 +23,8 @@ const { PLATFORM_SCOPE, CONFIG_KEY, normaliseRuling, RULING } = require('../../s
 const {
   getTemplateCheck,
   saveTemplateCheckRuling,
-  deleteTemplateCheckRuling
+  deleteTemplateCheckRuling,
+  getTemplateCheckPatch
 } = require('../../server/routes/mentor')
 
 function makeMockRes () {
@@ -193,5 +194,80 @@ describe('normaliseRuling', () => {
     const r = normaliseRuling({ verdict: 'dismissed' }, 'm@x.com', '2026-08-09T00:00:00Z')
     expect(r.value.ruledBy).toBe('m@x.com')
     expect(r.value.ruledAt).toBe('2026-08-09T00:00:00Z')
+  })
+})
+
+// ── "Apply it" — queueing a ruling for the next update ────────────────────────
+//
+// RULED 2026-08-09 (Mike): "Apply it" PREPARES a reviewed change; it never edits a
+// logic table. Design: design/mockups/logic-table-template-check.html §5.
+
+describe('applyRequested — the second step on a ruled row', () => {
+  it('defaults to false, so a ruling is never queued by being made', () => {
+    // The mockup shows two separate presses on purpose: deciding what a name means
+    // and asking for the table to change are different acts.
+    const r = normaliseRuling({ verdict: RULING.POINTS_AT, title: 'X' }, 'm@x.com', 'now')
+    expect(r.value.applyRequested).toBe(false)
+    expect(r.value.applyRequestedAt).toBeNull()
+  })
+
+  it('is stamped separately from the ruling — the two are rarely the same day', () => {
+    const r = normaliseRuling(
+      { verdict: RULING.POINTS_AT, title: 'X', applyRequested: true }, 'm@x.com', '2026-08-09T00:00:00Z'
+    )
+    expect(r.value.applyRequested).toBe(true)
+    expect(r.value.applyRequestedAt).toBe('2026-08-09T00:00:00Z')
+  })
+
+  it('REFUSES to queue a dismissal or a flag, rather than ignoring the request', () => {
+    // Neither produces an edit to any table — a dismissal says the phrase was never
+    // a document, and a flag is for the master-app team. Accepting the request
+    // silently would queue a row for a change that can never appear in the patch.
+    for (const verdict of [RULING.NOT_A_TOOL, RULING.FLAGGED]) {
+      const r = normaliseRuling({ verdict, applyRequested: true }, 'm@x.com', 'now')
+      expect(r.ok).toBe(false)
+      expect(r.message).toMatch(/points at a template/)
+    }
+  })
+
+  it('a non-true value does not queue anything', () => {
+    const r = normaliseRuling(
+      { verdict: RULING.POINTS_AT, title: 'X', applyRequested: 'yes' }, 'm@x.com', 'now'
+    )
+    expect(r.value.applyRequested).toBe(false)
+  })
+})
+
+describe('GET /api/mentor/template-check/patch', () => {
+  it('returns an empty patch when nothing has been queued — the state today', async () => {
+    overlay.loadFirmConfig.mockResolvedValue({})
+    const res = makeMockRes()
+
+    await getTemplateCheckPatch(MENTOR_REQ, res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.success).toBe(true)
+    expect(res._body.patch.edits).toEqual([])
+    expect(res._body.patch.counts.requested).toBe(0)
+  })
+
+  it('fails in the standard envelope when the rulings cannot be read', async () => {
+    // Answering an unreadable store with an empty patch would read as "nothing to
+    // do", which is the one answer that must never be guessed at here.
+    overlay.loadFirmConfig.mockRejectedValue(new Error('store down'))
+    const prevEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    const errSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      const res = makeMockRes()
+      await getTemplateCheckPatch(MENTOR_REQ, res)
+
+      expect(res._status).toBe(500)
+      expect(res._body.error.code).toBe('DB_ERROR')
+      expect(JSON.stringify(res._body)).not.toContain('store down')
+    } finally {
+      process.env.NODE_ENV = prevEnv
+      errSpy.mockRestore()
+    }
   })
 })

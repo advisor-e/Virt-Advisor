@@ -1643,6 +1643,25 @@ that the warning is not being followed by default.
     the same shape as the defect found on 2026-08-09 where a dev fallback absorbed a foreign-key
     failure silently for two finished features.
 
+- <a id="template-check-apply-it"></a>✅ **BUILD — Template Check's "Apply it". DONE 2026-08-09.**
+  **The ruling and the approved wording are on the artefact —
+  [`logic-table-template-check.html`](mockups/logic-table-template-check.html) §5. Read it, not this.**
+  - 🔴 **RULED (Mike): it PREPARES a reviewed change; it never edits a logic table.** A live button
+    was the obvious alternative and was rejected for three reasons: this exact fix is already made by
+    reviewed commit (`bd7dc63`, `3064a71`); a stored override marks the table human-edited, which
+    makes the AI prompt fence its text **for every firm, one table at a time, invisibly**; and a
+    stored override freezes a copy, so a later improvement to the committed table could never reach
+    anyone whose rulings had been applied.
+  - **Every prepared change is classified and nothing awkward is dropped** — *ready*, or *needs
+    checking* (the name appears twice, or in two of the three sentence fields, or the branch has
+    changed, or the ruled template is no longer in the catalogue under that title). A patch that
+    silently omitted the hard rows would read as a finished job.
+  - **Two decisions correctly produce NO edit and are counted rather than lost:** "Not a tool" (the
+    phrase was never a document) and "Missing — flag it" (only the master-app team can close it).
+  - ⚠ **NOTHING HAS BEEN RULED YET, so the first list is empty.** This is the machinery; working
+    through the 93 rows on the Template Check screen is what fills it. **That is Mike's next move on
+    this feature, not a developer's.**
+
 - <a id="approved-mockup-stranded-on-a-branch"></a>☐ **🔴 P1 · PROCESS — AN APPROVED DESIGN SAT
   UNMERGED FOR FIVE DAYS AND A SCREEN WAS BUILT WITHOUT IT.** Found 2026-08-09, the hard way.
   - **What happened.** `mentor-logic-lab-report-mockup.html` + `MENTOR-AI-HUB-STUB.md` were committed

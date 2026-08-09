@@ -11,6 +11,7 @@ const {
 // + dev fallbacks); reused here so a mentor delete preserves customising firms' rows.
 // One-way dependency (firmManager never requires mentor) — no cycle.
 const { runTemplateCheck } = require('../utils/templateCheck')
+const { buildTemplateCheckPatch } = require('../utils/templateCheckPatch')
 const { buildMentorLogicLabReport } = require('../utils/mentorLogicLabReport')
 const activityStore = require('../utils/activityStore')
 const { listFirms } = require('../utils/firmsDirectory')
@@ -280,6 +281,34 @@ async function saveTemplateCheckRuling (req, res) {
 }
 
 /**
+ * The patch the mentor's applied rulings add up to — what "Apply it" leads to.
+ *
+ * ⚠ IT RETURNS THE EDITS. IT DOES NOT MAKE THEM. Ruled by Mike 2026-08-09; the
+ * three reasons are in server/utils/templateCheckPatch.js, and the shortest of
+ * them is that this exact fix has been made by hand twice before as a reviewed
+ * commit, which is the practice this fits into rather than replaces.
+ *
+ * Every requested edit comes back CLASSIFIED — ready, ambiguous, stale, or
+ * pointing at a template the catalogue no longer carries. Nothing is dropped for
+ * being awkward: a patch that silently omitted the hard rows would read as a
+ * finished job.
+ *
+ * @route GET /api/mentor/template-check/patch
+ * @returns {200} { success: true, patch } — { counts, edits }
+ * @returns {500} DB_ERROR (standard error envelope)
+ */
+async function getTemplateCheckPatch (req, res) {
+  try {
+    const rulings = await loadRulings(overlay.loadFirmConfig)
+    const patch = buildTemplateCheckPatch({ rulings })
+    res.send(200, { success: true, patch })
+  } catch (err) {
+    console.error('[mentor] getTemplateCheckPatch failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not work out the changes')
+  }
+}
+
+/**
  * Undo a ruling — the mockup's "Change my mind" and "Put it back". Removing a key
  * that is not there succeeds: the end state the caller asked for is the end state
  * they get, and a 404 here would only ever be a race with themselves.
@@ -482,6 +511,7 @@ module.exports = {
   updateMentorDistinction,
   deleteMentorDistinction,
   getTemplateCheck,
+  getTemplateCheckPatch,
   saveTemplateCheckRuling,
   deleteTemplateCheckRuling,
   getLogicLabReport

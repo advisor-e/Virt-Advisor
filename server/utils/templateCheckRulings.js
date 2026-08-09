@@ -121,6 +121,16 @@ function normaliseRuling (body, savedBy, at) {
   if (verdict === RULING.POINTS_AT && !title) {
     return { ok: false, message: 'a template title is required when pointing a name at a template' }
   }
+  // "Apply it" — the second step the approved mockup shows on the row, after the
+  // ruling itself. Only meaningful on a ruling that points at a template: a
+  // dismissal and a flag both correctly produce no edit to any table, so asking to
+  // apply one would be asking for nothing. Refused rather than ignored, or the
+  // screen would show a row queued for a change that can never appear in a patch.
+  const applyRequested = b.applyRequested === true
+  if (applyRequested && verdict !== RULING.POINTS_AT) {
+    return { ok: false, message: 'only a ruling that points at a template can be applied to a table' }
+  }
+
   return {
     ok: true,
     value: {
@@ -128,7 +138,11 @@ function normaliseRuling (body, savedBy, at) {
       title: title || null,
       note: typeof b.note === 'string' ? b.note.trim().slice(0, 500) : '',
       ruledBy: savedBy || '',
-      ruledAt: at
+      ruledAt: at,
+      applyRequested,
+      // Null until asked for, so "when was this queued" is answerable separately
+      // from "when was it decided" — they are often not the same day.
+      applyRequestedAt: applyRequested ? at : null
     }
   }
 }

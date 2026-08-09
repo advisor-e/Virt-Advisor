@@ -1546,8 +1546,24 @@
     "verdictWhy": {
       "none": "No template is called this, and nothing close enough to suggest.",
       "ruled": "Recorded — not yet applied to the table.",
+      "queued": "Queued for the next update.",
       "flagged": "You confirmed this is a real document. It is in neither template file, so the master-app team has to publish it.",
       "dismissed": "Dismissed by you — it is part of the instruction, not a document."
+    },
+    "queue": {
+      "button": "See what's queued ({n})",
+      "heading": "Changes queued for the next update",
+      "sub": "{ready} ready · {needsEyes} needs checking",
+      "explainer": "These are prepared, not made. Each one is an exact change to a logic table, checked against the tables as they stand right now. Nothing here has altered anything an advisor sees.",
+      "colWhere": "Table and branch",
+      "colChange": "Change",
+      "colStatus": "Status",
+      "status": {
+        "ready": "Ready",
+        "needsChecking": "Needs checking"
+      },
+      "loadFailed": "The changes could not be worked out. Nothing has been altered.",
+      "close": "Close"
     },
     "candidateWhy": "{why}.",
     "action": {
@@ -1557,7 +1573,8 @@
       "notATool": "Not a tool",
       "flagMissing": "Missing — flag it",
       "putItBack": "Put it back",
-      "changeMyMind": "Change my mind"
+      "changeMyMind": "Change my mind",
+      "applyIt": "Apply it"
     },
     "flagNote": "Confirmed a real document; not in the export.",
     "picker": {
