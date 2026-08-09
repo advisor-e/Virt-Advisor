@@ -1609,11 +1609,73 @@ that the warning is not being followed by default.
       mentor's. The mentor now mints under `ms-` / `mq-`. No stored data affected.
       **It surfaced because three test stubs answered without checking which scope was asking** and
       so reproduced the collision exactly; the stubs did need scoping, but the duplicate was real.
-  - ⚠ **Templates and the coaching reference CANNOT inherit as stored.** They are bare arrays, and
-    the overlay rule replaces an array wholesale — a firm holding one item would blank the mentor's
-    whole set *for themselves*. There is no untouched entry to fall through to the layer above.
-    **Giving those entries ids is a data-model change, not a merge change** — no amount of effort
-    makes `deepMerge` express it. Named so it is never re-scoped as "just add it to the list".
+  - ⚠ **Templates CANNOT inherit as stored.** It is a bare array, and the overlay rule replaces an
+    array wholesale — a firm holding one item would blank the mentor's whole set *for themselves*.
+    There is no untouched entry to fall through to the layer above. **Giving those entries ids is a
+    data-model change, not a merge change** — no amount of effort makes `deepMerge` express it.
+    Named so it is never re-scoped as "just add it to the list". Measured 2026-08-10: **0 of 291
+    records in `data/templates.json` carry an id.** (The tab is switched off anyway —
+    `v-if="false"` since 2026-07-27, pending Firm-Manager MySQL.)
+  - ⚠ **PREMISE CORRECTED 2026-08-10 — the coaching reference was named here too, and that was
+    WRONG.** It is not a bare array: **all 15 rows in `data/coaching-reference.json` carry stable
+    ids** (`cr-growth-fundamentals-framework`, `cr-eoy-meeting`, …), and `firmStaircase.js`'s own
+    comment cites that `cr-` prefix as the precedent its own ids follow. So "giving it ids is a
+    data-model change" was never true of this block, and the sentence must not be quoted.
+    **Its real blocker is different and smaller:** the coaching reference never joined
+    `resolveInheritedRows` at all — `server/utils/coaching.js` imports neither it nor
+    `platformScope` — and its firm side is **append-only** (`appendFirmCoachingEntry`, minting
+    numeric ids from a manager promoting a case), so there is no decline/override concept to
+    inherit through. A build job, not a data-model job. Not started, deliberately not smuggled
+    into the tier-chain work below.
+
+- <a id="tier-chain"></a>✅ **BUILD — the cascade goes all the way down: mentor → global manager →
+  group manager → firm manager. BUILT 2026-08-10** (`fbaafb5`). **The plan, the design and its one
+  deviation are on the artefact — [`MENTOR-TIER-CHAIN-PLAN.md`](MENTOR-TIER-CHAIN-PLAN.md). Read it
+  rather than this row.**
+  - **This was already ruled, not a new direction.** The Collaborate merge entry below carries
+    Mike's ruling that *"the 5-level cascade is built in PROPERLY, now; firm-as-top is not carried
+    forward"*. Mike re-asked for it 2026-08-10 against a Wednesday deadline.
+  - **What changed, and it is smaller than it sounds.** Four call sites each stated the same
+    sentence — *"the level above me is the platform scope"* — and that sentence, repeated, IS what
+    made the cascade exactly two levels deep. New `server/utils/tierChain.js` replaces it with a
+    question (`parentScopeOf` / `scopeChain`). `resolveInheritedRows` needed no change at all: it
+    was written to be widened and says so in its own header.
+  - 🔴 **THE SAFETY PROPERTY, and it is a test run rather than a claim.** With no membership data —
+    today — `parentScopeOf` returns exactly what the four sites hardcoded, so the fold stays two
+    levels deep and **the entire pre-existing suite passes UNMODIFIED**. Suite 4,828 → **4,845 /
+    282 suites**, lint 0 errors. It fails toward today's behaviour, never toward a guess: a firm
+    whose group is unknown inherits the mentor's content, which is what it does now.
+  - **ONE DEVIATION from the plan's §3.4, named rather than left to be noticed.** The overlay folds
+    **bottom-up**, not top-down. `cascadingConfig.test.js` pins the read order and it is right — the
+    query log reads as *"did it ask the reserved mentor scope, or go rummaging in another firm?"*,
+    and folding top-down gives an identical answer while quietly reversing that log. The code
+    changed; **no existing test did.**
+  - ⚠ **The id collision, one tier wider.** Own-row ids mint per scope, so two tiers sharing a
+    prefix put two different rows under one identity — the Phase 5 defect ([above](#mentor-save-scope)),
+    where a firm switching off "its own" step would have dropped the mentor's. Three new tiers means
+    three new prefixes (`xs-`/`gs-`, `xq-`/`gq-`), and a test fails if anyone reuses a letter. `x`
+    for global because `g` reads as group, and those two tiers are **adjacent**.
+  - 🔴 **☐ BLOCKED ON THE MASTER TEAM — TWO THINGS, and neither is ours to build.** The machinery is
+    finished and holds nothing until both arrive:
+    1. **The role values.** `server/collaborate/data/roles.js` `tierFromRoleClaim` maps only
+       `platform_admin` → mentor and `firm_manager` → firm_manager. **No role value produces
+       `global_manager` or `group_manager`**, the override table is an in-memory object that empties
+       on restart, and the file says outright it is *"NOT a substitute for the real Advisory JWT role
+       the master team still wires"*. Advisor-e's login issues roles; we do not. (Same gap as the
+       mentor role, still borrowing `platform_admin`.)
+    2. **Firm→group→global membership.** The `firms` table has seven columns and **no country, no
+       group, no parent**, so "which firms are in the Germany group?" has no answer in our data.
+    ⚠ **NOT the `group` table** in `db-schema.sql` — that is a Special Interest Group
+    (`group_member` / `marketplace_listing`), a social group in Collaborate. Reading it as a
+    management tier would be a correctness bug.
+    **The control is at the point of use, not in this row:** the joining instructions are written
+    into `config/db-schema.sql` beside the `__platform__` insert they already have to run —
+    including that a missing tier row is rejected by the foreign key **while the dev fallback
+    reports success anyway**, which is exactly how the mentor's own saves ran broken for weeks.
+  - ⚠ **HONEST LIMIT.** None of this can be demonstrated by logging in as a group manager, because
+    no such login exists. It is evidenced by tests against a seeded membership map — weaker than a
+    live screen, and written down as such on the artefact §5. **Same shape as the firms-table read
+    of 2026-08-09**; when MySQL and the real roles arrive, this is the second thing to check.
 
 - <a id="mentor-adoption-view"></a>✅ **BUILD — "How firms are using the app": the mentor tab that
   replaces Team Progress. DONE 2026-08-09.**
@@ -1912,10 +1974,19 @@ that the warning is not being followed by default.
     screen re-scoped. *Curator and coach do not clone documents and sit outside the chain.*
     **The half-measure of confining tiers to one tab, or logging the seams for the master team,
     was offered, rejected, and must never be re-proposed** (one-directional rule).
-  - **Why now is the cheapest it will ever be: there is NO DATA TO MIGRATE.** MySQL has never
+  - ~~**Why now is the cheapest it will ever be: there is NO DATA TO MIGRATE.** MySQL has never
     been provisioned, so no override row exists anywhere. Re-keying
     `firm_framework_versions` from `(firm_id, config_key)` to `(scope_level, scope_id,
-    config_key)` is a schema edit today and a live migration of a firm's authored content later.
+    config_key)` is a schema edit today and a live migration of a firm's authored content
+    later.~~ — 🔴 **THE RE-KEYING IS SUPERSEDED, and this row is struck through rather than
+    deleted so nobody rebuilds the table later on its say-so.** Mike RULED on **2026-08-09**, three
+    weeks after this was written, that mentor-level storage is **a reserved row in `firms`, NOT a
+    re-keyed table** (see [`mentor-save-scope`](#mentor-save-scope)). The tier chain built
+    2026-08-10 follows that later ruling: the middle tiers ride the existing
+    `(firm_id, config_key)` under composed reserved ids (`__global__:…`, `__group__:…:…`), exactly
+    as `__platform__` already does. **No schema edit, no migration, one convention instead of
+    two.** The premise above still holds — there is no data to migrate — it is the proposed
+    *method* that a later ruling replaced. See [`tier-chain`](#tier-chain).
   - **The truncation is concentrated — ~6 functions + 1 table**, read not guessed: the 5
     `firmOverlay.js` functions, `firmContent.js`'s loader, `mergeEntry` (2-arg merge → fold over
     the chain), `firmAuth`, and the table above. `deepMerge` already generalises.

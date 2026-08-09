@@ -266,6 +266,14 @@ bigger effort:
   firm editing one config, and fatal for inheritance: a firm holding a one-item array would blank
   the mentor's whole set *for themselves*. There is no "untouched entry" in a bare array to fall
   through to the layer above. Giving these ids would be a data-model change, not a merge change.
+- ⚠ **CORRECTED 2026-08-10 — that last sentence is true of `templates`, and NOT of
+  `coaching-reference`.** Measured: **0 of 291** records in `data/templates.json` carry an id, but
+  **15 of 15** rows in `data/coaching-reference.json` do (`cr-…`), and `firmStaircase.js` cites
+  that very `cr-` prefix as the precedent for its own. The coaching reference's blocker is that it
+  never joined `resolveInheritedRows` — `server/utils/coaching.js` imports neither it nor
+  `platformScope` — and its firm side is append-only, so no decline or override exists to inherit
+  through. **A build job, not a data-model change.** The row above kept verbatim rather than
+  rewritten: it is what the Phase-5 decision was taken against, and this is the correction to it.
 - **The row-model content already resolves inheritance**, via `resolveInheritedRows`, against a
   base. A `deepMerge` fold underneath would apply inheritance twice. They inherit correctly by
   having the **mentor's resolved content become their base** — `loadBlendedStaircase(PLATFORM_SCOPE)`
