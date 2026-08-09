@@ -87,33 +87,66 @@ if anyone reuses a letter.
 
 ## 3. What flows UP (reporting)
 
-| Tab | Visible at | What crosses the firm boundary |
+> 🔴 **CORRECTED 2026-08-10, the same day this file was written.** The first version of this
+> section said *"content flows down freely; people never flow up"* and listed four reports as
+> confined to a single tier. **That was wrong**, and it contradicted a ruling recorded on
+> 2026-07-30. What it got wrong is in §3.2 — the original wording is not preserved, because a
+> wrong sentence left on the page gets quoted.
+
+**The governing principle — Mike, 2026-08-10:**
+
+> *"Every quality system requires a feedback loop, a way to make sure we can improve. The
+> information and tools cascade down so we share the tools effectively, the reports cascade up
+> so we learn what is working, what isn't, who is failing so we can offer help."*
+
+**EVERY report rolls up. No exceptions.** Each level sees the level **immediately below it,
+summarised** — not everything below it.
+
+| Level | Its reports show |
+|---|---|
+| Firm manager | its advisers |
+| Group manager | its firms |
+| Global group manager | its groups |
+| Mentor | its global groups |
+
+| Report | Rolls up? | Notes |
 |---|---|---|
-| **Adviser Network** | Every tier | The only tab that **already** rolls up automatically. `GET /api/people/*` resolves the caller's tier from the verified token — a firm manager sees their firm, the levels above see a roll-up |
-| **Team Progress** | Firm only | **Nothing.** It lists advisers *by name*, so it deliberately stops at the firm |
-| **Team Case Studies** | Firm only | **Nothing** |
-| **Adoption** | Mentor | Counts only — how many advisers, how many sessions, how recently. Firms silent for **60 days** are flagged |
-| **Case Reviews** | Mentor | Only the anonymised copy of a case, and only where two separate people said yes |
-| **Logic-Lab Report** | Mentor | What every firm pushed back on — configuration only, never people |
-| **Template Check** | Mentor | The rulings queue (93 rows awaiting Mike) |
+| **Adviser Network** | ✅ **Already does** | `GET /api/people/*` resolves the caller's tier from the verified token and returns their slice. The working model for the rest |
+| **Team Progress** | ✅ Ruled 2026-08-10 | Firm→advisers, group→firms, global→groups, mentor→global groups |
+| **Team Case Studies** | ✅ Ruled 2026-08-10 | Full case text stays at the firm; each level above sees its level-below summary |
+| **How firms are using the app** | ✅ Already a roll-up | Counts — advisers, sessions, recency. Firms silent **60 days** are flagged. Needs re-scoping so a middle tier reads only what is beneath it |
+| **Case Reviews** | ✅ Ruled 2026-08-10 | Double opt-in cases shared for accuracy review |
+| **Logic-Lab Report** | ✅ Ruled 2026-08-10 | What the level below pushed back on — configuration, never people |
+| **Template Check** | ✅ Ruled 2026-08-10 | The rulings queue, scoped to the level below |
 
-### 3.1 The pattern worth naming
+### 3.1 What still holds
 
-**Content flows down freely. People never flow up.** Everything that goes upward is either a
-count, a setting, or something a human deliberately handed over. Where a roll-up would have
-been the obvious move, it was refused on purpose:
-
-- **Team Progress was NOT widened to the mentor.** Doing so would have put every firm's
-  advisers in front of Advisor-e. The Adoption tab — the same activity, counted one level up
-  and stripped of *who* did it — answers the mentor's actual question and crosses nothing.
-- **Case sharing is double opt-in** ([`caseStore.js`](../server/utils/caseStore.js)): the
-  adviser decides whether a case is visible to their firm at all, and the firm **manager**
-  separately decides whether it goes to the mentor. The mentor only ever sees the anonymised
-  copy written on the manager's approval — never the raw text.
-- **Two of the three cross-firm reads enforce the line in code, not by convention.**
+- **"The level below" is the limit, and it is what keeps the loop safe.** A group manager sees
+  their firms, not a flat roster of every adviser in the country. The drill-down to a named
+  person already exists in Adviser Network, tier-resolved server-side.
+- **Case sharing is still double opt-in** ([`caseStore.js`](../server/utils/caseStore.js)): the
+  adviser decides whether a case is visible to their firm, and the firm **manager** separately
+  decides whether it goes further. The level above sees the anonymised copy written on that
+  approval — never the raw text.
+- **The two cross-firm accuracy reads still enforce their line in code, not by convention.**
   `assertNoPersonalFields` (in both [`mentorLogicLabReport.js`](../server/utils/mentorLogicLabReport.js)
   and [`mentorAdoption.js`](../server/utils/mentorAdoption.js)) **throws** rather than
   filtering — a silent filter would hide the day the shape changed.
+- **A roll-up with no data says so.** [`COLLABORATE-MERGE-PLAN.md`](COLLABORATE-MERGE-PLAN.md)
+  §4.3: *"Where a stub is the honest answer, it says so on screen rather than showing an empty
+  roll-up that looks like real data with nothing in it."*
+
+### 3.2 Why the first version of this section was wrong
+
+It reasoned from the ruling of 2026-08-09 that kept Team Progress away from the mentor, and
+generalised it into "people never flow up". **That ruling was about an outside party** —
+Advisor-e — seeing a customer's staff. A global group is a **brand** (the seeded examples are
+Advisor-e, BDO, Lindt & Co), so a global or group manager is the **customer's own senior
+person**, looking at their **own** firms. Applying an external-party privacy boundary to
+internal managers inverts it.
+
+Recorded because the error is more useful than the correction: a rule copied from one context
+into another that resembled it, with nothing in the code able to notice.
 
 ---
 

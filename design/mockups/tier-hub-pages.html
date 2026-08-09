@@ -21,6 +21,10 @@
   .banner { background:#fffaf3; border:1px solid #f3ddc0; border-left:4px solid var(--amber-line);
     border-radius:5px; padding:0.9rem 1.05rem; margin-bottom:2.5rem; font-size:0.84rem; line-height:1.6; }
   .banner strong { color:var(--amber); }
+  .banner.approved { background:#eefaf2; border-color:#b9e3cb; border-left-color:var(--green-line); }
+  .banner.approved strong { color:var(--green); }
+  .ruled { color:var(--green); font-weight:700; }
+  .decide.ruled-box { border-left-color:var(--green-line); }
 
   h1 { font-size:1.6rem; margin:0 0 0.4rem; color:var(--navy); letter-spacing:-0.01em; }
   .lede { color:var(--grey); font-size:0.92rem; margin:0; max-width:56rem; }
@@ -95,19 +99,46 @@
 <body>
 <div class="wrap">
 
-  <div class="banner">
-    <strong>DESIGN FOR APPROVAL — not yet ruled, not yet built.</strong> Written 2026-08-10, after Mike's
-    instruction: <em>"as a global group manager, once I log in via the Advisor-e mechanism, I need to see
-    a page that says Global Group Manager Hub and performs accordingly."</em> The pages themselves are
-    thin — the Hub is one screen re-scoped, per the ruling of 2026-07-30. <strong>The real decision is
-    §2: which tabs each of the two new hubs shows</strong>, and §3 is a trap in the existing code that
-    would otherwise decide it by accident. Master team connects the login; we supply the pages.
+  <div class="banner approved">
+    <strong>APPROVED DESIGN — ruled by Mike, 2026-08-10: EVERY REPORT ROLLS UP.</strong> Written after
+    his instruction <em>"I need you to create the global group manager hub page, and then the group
+    manager hub pages"</em> — and then <strong>corrected</strong>, because the first draft of §2 left
+    Team Progress, Team Case Studies and the three accuracy reports out of both middle tiers. That
+    contradicted a ruling already on the record since 2026-07-30
+    (<a href="../COLLABORATE-MERGE-PLAN.md">COLLABORATE-MERGE-PLAN.md</a> §4.1): <em>"Reporting rolls UP
+    — each level sees a summarised view of the level below."</em> §2 below is the corrected matrix.
+    Master team connects the login; we supply the pages.
   </div>
 
   <h1>Global Group Manager Hub · Group Manager Hub</h1>
   <p class="lede">Two new pages, both rendering the same Hub component at a new scope, so that a manager
     at either middle tier lands on a screen that names their level and acts at it — authoring content
     that cascades to the firms beneath them.</p>
+
+  <!-- ── 0 · Why the two directions exist ─────────────────────────── -->
+  <section class="band">
+    <h2>0 · Why it runs in two directions — Mike, 2026-08-10</h2>
+    <p class="sub">The reason behind every ruling on this page. Recorded first, because it is what
+      settles any question §2 does not explicitly answer.</p>
+
+    <div class="caution" style="border-left:4px solid var(--green-line); background:var(--green-bg); color:var(--ink);">
+      <b>The governing principle</b>
+      <em>"Every quality system requires a feedback loop, a way to make sure we can improve. The
+      information and tools cascade down so we share the tools effectively, the reports cascade up so we
+      learn what is working, what isn't, who is failing so we can offer help."</em>
+    </div>
+
+    <ul class="plain">
+      <li><b>Down = sharing.</b> One person authors a tool well, and every level below gets it without
+        rebuilding it.</li>
+      <li><b>Up = learning.</b> Every level sees how the level below is actually getting on, so help can
+        be offered to whoever needs it.</li>
+      <li><b>Which is why there are no exceptions.</b> A report withheld from a level is a hole in the
+        loop — that level can still be held accountable for what it can no longer see. This is also why
+        the tone throughout is <em>offer help</em>, not <em>score</em>: the same reason the adoption
+        tab's wording was ruled warmer and advisory rather than a league table.</li>
+    </ul>
+  </section>
 
   <!-- ── 1 · The two pages ────────────────────────────────────────── -->
   <section class="band">
@@ -179,24 +210,43 @@
         <tr><td class="name">Logic-Lab</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="why">Reads how a decision was reached. Useful at every level</td></tr>
         <tr><td class="name">Templates &amp; Videos</td><td class="c n">dormant</td><td class="c n">dormant</td><td class="c n">dormant</td><td class="c n">dormant</td><td class="why">Switched off everywhere since 2026-07-27. Unchanged</td></tr>
 
-        <tr class="groupsep"><td colspan="6">People and reporting</td></tr>
-        <tr><td class="name">Adviser Network</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="why">The one tab that <b>already</b> rolls up by tier — the server resolves the caller's level and returns their slice. Needs no change</td></tr>
-        <tr><td class="name">How firms are using the app</td><td class="c y">✓</td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓<span class="chg">new</span></td><td class="c n">—</td><td class="why">Counts only, never names. Today it reads every firm; a middle tier must see <b>only the firms beneath it</b></td></tr>
-        <tr><td class="name">Team Progress</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c y">✓</td><td class="why">Lists advisers <b>by name</b>. Stays firm-only, as ruled 2026-08-09. A manager above the firm sees people through Adviser Network instead</td></tr>
-        <tr><td class="name">Team Case Studies</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c y">✓</td><td class="why">A firm's own cases, in full text. Stays firm-only</td></tr>
+        <tr class="groupsep"><td colspan="6">Reports — every one rolls up (ruled 2026-08-10). Each level sees the level BELOW it, summarised</td></tr>
+        <tr><td class="name">Adviser Network</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="c y">✓</td><td class="why">The one report that <b>already</b> rolls up — the server resolves the caller's level and returns their slice. Needs no change, and is the working model for the rest</td></tr>
+        <tr><td class="name">Team Progress</td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓</td><td class="why">Firm sees its advisers · group sees its firms · global sees its groups · mentor sees its global groups. <b>Not every adviser at every level</b></td></tr>
+        <tr><td class="name">Team Case Studies</td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓</td><td class="why">Same shape. Full case text stays at the firm; each level above sees its own level-below summary</td></tr>
+        <tr><td class="name">How firms are using the app</td><td class="c y">✓</td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓<span class="chg">new</span></td><td class="c n">—</td><td class="why">Already a roll-up of counts. Re-scoped so a middle tier reads only what is beneath it. No firm-level meaning</td></tr>
 
-        <tr class="groupsep"><td colspan="6">Product accuracy — Advisor-e's own work, not a customer's</td></tr>
-        <tr><td class="name">Case Reviews</td><td class="c y">✓</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="why">Double opt-in cases shared for app-accuracy review. Mentor only</td></tr>
-        <tr><td class="name">Logic-Lab Report</td><td class="c y">✓</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="why">What every firm pushed back on. Mentor only</td></tr>
-        <tr><td class="name">Template Check</td><td class="c y">✓</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="why">The rulings queue. Mentor only</td></tr>
+        <tr class="groupsep"><td colspan="6">Accuracy reports — also roll up (ruled 2026-08-10)</td></tr>
+        <tr><td class="name">Case Reviews</td><td class="c y">✓</td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓<span class="chg">new</span></td><td class="why">Double opt-in cases shared for accuracy review, summarised per level below</td></tr>
+        <tr><td class="name">Logic-Lab Report</td><td class="c y">✓</td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓<span class="chg">new</span></td><td class="why">What the level below pushed back on. Configuration, never people</td></tr>
+        <tr><td class="name">Template Check</td><td class="c y">✓</td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓<span class="chg">new</span></td><td class="c y">✓<span class="chg">new</span></td><td class="why">The rulings queue, scoped to the level below</td></tr>
       </tbody>
     </table>
 
+    <div class="caution risk">
+      <b>The first draft of this table was wrong, and this is what it got wrong.</b> It left Team
+      Progress, Team Case Studies and the three accuracy reports out of both middle tiers, reasoning from
+      the 2026-08-09 ruling that kept Team Progress away from the mentor. That ruling was about an
+      <em>outside</em> party — Advisor-e — seeing a customer's staff. A global group is a <b>brand</b>
+      (the seeded examples are Advisor-e, BDO, Lindt &amp; Co), so a group manager is the customer's own
+      senior person looking at <em>their own</em> firms. The governing rule was already recorded on
+      2026-07-30 and says the opposite of what was drawn.
+    </div>
+
     <div class="caution">
       <b>Why the two middle columns are identical.</b> A global group manager and a country group manager
-      do the same job at a different width — author content for everyone below them, and see who below
-      them is using it. Nothing in the product distinguishes the two beyond how far their reach extends,
-      and inventing a difference would be inventing a requirement.
+      do the same job at a different width — author content for everyone below them, and see the level
+      below them summarised. <em>"All of the functionality that you see at firm manager is simply
+      repeated at group manager or global manager… there's no new functionality"</em> (Mike,
+      2026-07-30).
+    </div>
+
+    <div class="caution">
+      <b>What "summarised" protects.</b> The rule is <em>the level below</em>, not everything below. A
+      group manager's Team Progress shows their <b>firms</b>, not a flat list of every adviser in the
+      country; the drill-down to a named person already exists, tier-resolved server-side, in Adviser
+      Network. So the roll-up gets richer as it rises without any level ever being handed the raw roster
+      of a level two below it.
     </div>
   </section>
 
@@ -229,33 +279,34 @@
 
   <!-- ── 4 · Open decisions ───────────────────────────────────────── -->
   <section class="band">
-    <h2>4 · Open decisions — for Mike to rule</h2>
-    <p class="sub">Four. Each carries a recommendation, so "yes to all" is a valid answer.</p>
+    <h2>4 · What was decided</h2>
+    <p class="sub">Recorded here so that "approved" names something specific and checkable, rather than
+      an event in a conversation.</p>
 
-    <div class="decide">
-      <h3>Open — 2026-08-10</h3>
+    <div class="decide ruled-box">
+      <h3>Ruled by Mike, 2026-08-10</h3>
       <ol>
-        <li><b>1 · The tab matrix in §2.</b> <span class="rec">Recommendation: as drawn.</span> The two
-          middle tiers get everything that cascades, plus the two roll-ups that carry no names, and none
-          of the three product-accuracy tabs. <span class="open">The one you may want to overturn is
-          Team Progress</span> — it is kept firm-only here, on the grounds that a manager above the firm
-          already sees their people through Adviser Network.</li>
+        <li><b>1 · EVERY REPORT ROLLS UP.</b> <span class="ruled">Asked directly — "does the rule apply
+          to every report on the Hub?" — answered "every report".</span> So no report is confined to one
+          level. Each appears at every managing tier and shows the level immediately below it,
+          summarised. §2 is redrawn accordingly, and the reasoning that produced the first draft is
+          recorded above it rather than quietly replaced.</li>
 
-        <li><b>2 · Page titles and addresses.</b> Drawn as <b>Global Group Manager Hub</b> at
-          <code>/global-group-manager</code> and <b>Group Manager Hub</b> at <code>/group-manager</code>
-          — your words for the titles. <span class="rec">Recommendation: keep.</span></li>
+        <li><b>2 · Page titles and addresses.</b> <span class="ruled">Global Group Manager Hub</span> at
+          <code>/global-group-manager</code> and <span class="ruled">Group Manager Hub</span> at
+          <code>/group-manager</code> — Mike's own words for the titles.</li>
 
-        <li><b>3 · What happens before the master team wires the role?</b>
-          <span class="rec">Recommendation: fail closed.</span> Nobody reaches either page, and anyone
-          who tries sees a plain message saying the level is not connected yet — not a blank screen and
-          not a hidden 404. The alternative, letting an existing role in as a stand-in, is what let a
-          mentor's saves run into a firm's storage for weeks.</li>
+        <li><b>3 · Before the master team wires the roles — FAIL CLOSED.</b> <span class="ruled">Nobody
+          reaches either page</span>, and anyone who tries sees a plain message saying the level is not
+          connected yet — not a blank screen, not a hidden 404. Letting an existing role stand in is
+          what let a mentor's saves run into a firm's storage for weeks.</li>
 
-        <li><b>4 · "How firms are using the app" at a middle tier</b> must show only the firms beneath
-          that manager. Until the master team supplies which firms sit where,
-          <span class="rec">recommendation: it shows an empty list with a plain sentence saying the
-          group's firms are not connected yet</span> — never every firm, and never a silent zero that
-          reads as "nobody is using it".</li>
+        <li><b>4 · A roll-up with no data SAYS SO.</b> <span class="ruled">Never every firm, and never a
+          silent zero</span> that reads as "nobody is using it". This is not a new decision — it is
+          <a href="../COLLABORATE-MERGE-PLAN.md">§4.3</a>'s standing rule: <em>"Where a stub is the
+          honest answer, it says so on screen rather than showing an empty roll-up that looks like real
+          data with nothing in it."</em> It governs most of what the two new hubs will show on day
+          one.</li>
       </ol>
     </div>
 
