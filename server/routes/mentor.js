@@ -12,6 +12,9 @@ const {
 // One-way dependency (firmManager never requires mentor) — no cycle.
 const { runTemplateCheck } = require('../utils/templateCheck')
 const { buildMentorLogicLabReport } = require('../utils/mentorLogicLabReport')
+const activityStore = require('../utils/activityStore')
+const { listFirms } = require('../utils/firmsDirectory')
+const { buildAdoptionView, mergeActivityRows } = require('../utils/mentorAdoption')
 const { loadRulings, saveRulings, normaliseRuling } = require('../utils/templateCheckRulings')
 const DOMAINS = require('../../data/domains.json')
 const firmManager = require('./firmManager')
@@ -347,10 +350,15 @@ async function getLogicLabReport (req, res) {
       const tables = await safeConfig(firmId, LEVER_KEYS.logicTableTriggers, {})
       firms.push({
         firmId,
-        // No firm-name table is reachable from here yet; the id IS the name the
-        // mentor knows today. Named rather than faked — the artefact's rows show
-        // firm names, and inventing display names would be the one thing on this
-        // page that is not real.
+        // The id IS the name the mentor sees on this page. Named rather than faked
+        // — the artefact's rows show firm names, and inventing display names would
+        // be the one thing on this page that is not real.
+        //
+        // ⚠ CORRECTED 2026-08-09: this used to say "no firm-name table is reachable
+        // from here yet", and that is no longer true — server/utils/firmsDirectory.js
+        // now reads it for the adoption page. This page has NOT been moved onto it,
+        // which is a deliberate limit of that change rather than an oversight, and
+        // is recorded as such so the comment does not quietly become a lie.
         firmName: firmId,
         entries: Array.isArray(entries) ? entries : [],
         levers: {
@@ -414,8 +422,61 @@ function latestStamp (entries) {
   return entries.map(e => String(e.at || '')).sort().pop() || null
 }
 
+/**
+ * How firms are using the app — the mentor's adoption view.
+ *
+ * CROSS-FIRM BY DESIGN, and defensible only because it carries COUNTS: how many
+ * advisers, how many sessions, how recently. It replaces Team Progress at mentor
+ * level rather than widening it — that tab lists a firm's advisers BY NAME, and
+ * widening it would have put every firm's people in front of Advisor-e.
+ * buildAdoptionView re-checks that at the boundary and throws rather than
+ * publishing anything personal.
+ *
+ * TWO READS, AND THEY FAIL DIFFERENTLY ON PURPOSE. The activity is the page; the
+ * firms directory only adds the firms that have never started. So a directory
+ * that cannot be read degrades the page to "who is using it" rather than failing
+ * it — the information the mentor had before this page existed. Activity that
+ * cannot be read is the page failing, and says so.
+ *
+ * @route GET /api/mentor/adoption
+ * @returns {200} { success: true, report } — totals plus one row per firm.
+ * @returns {500} DB_ERROR (standard error envelope)
+ */
+async function getAdoption (req, res) {
+  try {
+    const rows = await activityStore.readAdoptionByFirm()
+
+    let firms = []
+    try {
+      firms = await listFirms()
+    } catch (err) {
+      // Deliberately swallowed, and deliberately loud in the log. See above: the
+      // firms list is an enrichment, not the page. Silence here would be wrong —
+      // the mentor would see a shorter list with nothing to say it was short.
+      console.error('[mentor] adoption: firms directory unreadable, showing active firms only:', err.message)
+    }
+
+    const report = buildAdoptionView({
+      firms,
+      activity: mergeActivityRows(rows),
+      now: new Date().toISOString()
+    })
+
+    // Honest limit, carried in the payload rather than left to the screen to
+    // remember: without the directory the page cannot show a firm that never
+    // started, and the difference is invisible on screen otherwise.
+    report.directoryRead = firms.length > 0
+
+    res.send(200, { success: true, report })
+  } catch (err) {
+    console.error('[mentor] getAdoption failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not load firm adoption')
+  }
+}
+
 module.exports = {
   listMentorCases,
+  getAdoption,
   listMentorDistinctions,
   createMentorDistinction,
   updateMentorDistinction,

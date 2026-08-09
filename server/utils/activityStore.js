@@ -82,6 +82,37 @@ const SQL_TEAM_COURSE =
          WHERE firm_id = ?
          GROUP BY advisor_id, highest_tier`
 
+// ── Adoption (mentor, cross-firm) ────────────────────────────────────────────
+// COUNTS ONLY, and no advisor_id or advisor_name is selected by any of the three.
+// The distinction matters: this is the one aggregation in this file that leaves
+// the firm boundary, and the safest way for a name not to reach that payload is
+// for it never to be read. See server/utils/mentorAdoption.js.
+//
+// THREE QUERIES, NOT ONE, and the third is not redundant. The two kinds of work
+// live in different tables, and ADVISERS CANNOT BE ADDED UP — an adviser who did
+// both a session and a course is one person, so summing the per-table counts
+// would inflate every firm that uses the product properly. The UNION is what
+// makes "advisers taking part" a count of people rather than of table rows.
+const SQL_ADOPTION_VA =
+  `SELECT firm_id, COUNT(*) as sessions, MAX(completed_at) as last_active
+         FROM advisor_va_sessions
+         GROUP BY firm_id`
+
+const SQL_ADOPTION_COURSE =
+  `SELECT firm_id, COUNT(*) as courses, AVG(quiz_score) as avg_score,
+                MAX(completed_at) as last_active
+         FROM advisor_course_completions
+         GROUP BY firm_id`
+
+const SQL_ADOPTION_ADVISERS =
+  `SELECT firm_id, COUNT(DISTINCT advisor_id) as advisers
+         FROM (
+           SELECT firm_id, advisor_id FROM advisor_va_sessions
+           UNION
+           SELECT firm_id, advisor_id FROM advisor_course_completions
+         ) t
+         GROUP BY firm_id`
+
 const SQL_INSERT_VA =
   `INSERT INTO advisor_va_sessions
          (advisor_id, advisor_name, firm_id, domain, recommended_templates, highest_tier)
@@ -165,6 +196,90 @@ async function readFirmSessions (firmId) {
       vaRows: _group(all.vaSessions.filter(r => r.firm_id === firmId), false),
       courseRows: _group(all.courseSessions.filter(r => r.firm_id === firmId), true)
     }
+  }
+}
+
+/**
+ * Every firm's activity, counted — the mentor's adoption view.
+ *
+ * THE ONE READ IN THIS FILE THAT IS NOT FIRM-SCOPED, deliberately and by design:
+ * a mentor is not a firm and has no firm's sessions to show. It is defensible
+ * only because it carries counts. No advisor id or name is selected (see the SQL
+ * above), and mentorAdoption.assertNoPersonalFields throws at the boundary if one
+ * ever appears anyway.
+ *
+ * Callers must be mentor-role gated. That is enforced at the route, not here.
+ *
+ * @returns {Promise<{vaRows: object[], courseRows: object[], adviserRows: object[]}>}
+ *   grouped rows, as mentorAdoption.mergeActivityRows expects them.
+ */
+async function readAdoptionByFirm () {
+  try {
+    const [[vaRows], [courseRows], [adviserRows]] = await Promise.all([
+      db.execute(SQL_ADOPTION_VA),
+      db.execute(SQL_ADOPTION_COURSE),
+      db.execute(SQL_ADOPTION_ADVISERS)
+    ])
+    return { vaRows, courseRows, adviserRows }
+  } catch (err) {
+    if (!devFallbackEnabled()) { throw err }
+    _warnFallback('readAdoptionByFirm', err)
+    return _groupAdoption(_devReadAll())
+  }
+}
+
+/**
+ * The dev-file stand-in for the three adoption queries.
+ *
+ * Kept beside them so the two cannot drift: if the SQL learns a column, this has
+ * to as well, and a reviewer sees both in one place. The adviser count is a Set
+ * across BOTH session kinds, which is the JSON equivalent of the SQL's UNION —
+ * the one part of this that is easy to get subtly wrong.
+ *
+ * @param {object} all - the parsed dev activity file.
+ * @returns {{vaRows: object[], courseRows: object[], adviserRows: object[]}}
+ */
+function _groupAdoption (all) {
+  const va = new Map()
+  const course = new Map()
+  const advisers = new Map()
+
+  const noteAdviser = (row) => {
+    if (!row || !row.firm_id || !row.advisor_id) { return }
+    if (!advisers.has(row.firm_id)) { advisers.set(row.firm_id, new Set()) }
+    advisers.get(row.firm_id).add(row.advisor_id)
+  }
+
+  for (const row of all.vaSessions) {
+    if (!row || !row.firm_id) { continue }
+    if (!va.has(row.firm_id)) { va.set(row.firm_id, { firm_id: row.firm_id, sessions: 0, last_active: null }) }
+    const g = va.get(row.firm_id)
+    g.sessions++
+    if (!g.last_active || String(row.completed_at) > String(g.last_active)) { g.last_active = row.completed_at }
+    noteAdviser(row)
+  }
+
+  for (const row of all.courseSessions) {
+    if (!row || !row.firm_id) { continue }
+    if (!course.has(row.firm_id)) {
+      course.set(row.firm_id, { firm_id: row.firm_id, courses: 0, avg_score: null, _scores: [] })
+    }
+    const g = course.get(row.firm_id)
+    g.courses++
+    if (!g.last_active || String(row.completed_at) > String(g.last_active)) { g.last_active = row.completed_at }
+    if (row.quiz_score !== null && row.quiz_score !== undefined) { g._scores.push(Number(row.quiz_score)) }
+    noteAdviser(row)
+  }
+
+  return {
+    vaRows: Array.from(va.values()),
+    courseRows: Array.from(course.values()).map(({ _scores, ...g }) => ({
+      ...g,
+      avg_score: _scores.length ? _scores.reduce((a, b) => a + b, 0) / _scores.length : null
+    })),
+    // The KEY stays snake_case because it stands in for a database column; only the
+    // local binding is renamed, so this matches what the SQL path returns.
+    adviserRows: Array.from(advisers.entries()).map(([firmId, set]) => ({ firm_id: firmId, advisers: set.size }))
   }
 }
 
@@ -485,6 +600,7 @@ function _group (rows, withAverage) {
 module.exports = {
   readAdvisorSessions,
   readFirmSessions,
+  readAdoptionByFirm,
   readAdvisorClaims,
   recordVASession,
   recordCourseSession,

@@ -85,6 +85,18 @@ describe('FirmManagerHub — firm scope is unchanged by the scope prop', () => {
     // The cross-firm rollup above all: a firm manager's browser must never be
     // running the one screen that reads every other firm's configuration.
     expect(wrapper.findComponent({ name: 'MentorLogicLabReport' }).exists()).toBe(false)
+    // Nor the one that reads every other firm's activity.
+    expect(tabLabels(wrapper)).not.toContain('mentorAdoption.tab')
+    expect(wrapper.findComponent({ name: 'MentorAdoption' }).exists()).toBe(false)
+  })
+
+  it('KEEPS both team tabs — they are a manager\'s view of their own advisers', async () => {
+    // The other half of the 2026-08-09 change. Hiding these at mentor level must not
+    // have hidden them here, which is the failure a shared component makes easy.
+    const wrapper = await mountHub()
+    expect(tabLabels(wrapper)).toContain('firmTeamProgress.tab')
+    expect(tabLabels(wrapper)).toContain('Team Case Studies')
+    expect(wrapper.findComponent({ name: 'FirmTeamProgress' }).exists()).toBe(true)
   })
 })
 
@@ -138,6 +150,41 @@ describe('FirmManagerHub — mentor scope', () => {
     expect(wrapper.findComponent({ name: 'MentorReview' }).exists()).toBe(true)
   })
 
+  it('DROPS Team Progress — a mentor has no advisers, and names must not travel up', async () => {
+    // Before 2026-08-09 this tab rendered empty at mentor level, which read as a
+    // broken screen. Widening it was the obvious fix and the wrong one: it lists a
+    // firm's advisers BY NAME. Hidden, and replaced by the adoption tab below.
+    const wrapper = await mountHub({ scope: 'mentor', firmId: '' })
+    expect(tabLabels(wrapper)).not.toContain('firmTeamProgress.tab')
+    // The body must not be mounted either, or the mentor's browser is calling a
+    // firm-scoped route with no firm and showing whatever comes back.
+    expect(wrapper.findComponent({ name: 'FirmTeamProgress' }).exists()).toBe(false)
+  })
+
+  it('DROPS Team Case Studies — the consent-gated version is already beside it', async () => {
+    // Rolling this up would have shown a mentor every firm's shared cases without
+    // the anonymise-and-approve step that the Case Reviews tab depends on.
+    const wrapper = await mountHub({ scope: 'mentor', firmId: '' })
+    expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
+    expect(wrapper.findComponent({ name: 'MentorReview' }).exists()).toBe(true)
+  })
+
+  it('does not fetch the firm-scoped case feed at all', async () => {
+    // Presence of the tab is the visible half. The mounted hook called this route
+    // unconditionally, so at mentor level it fired a firm-scoped request with no
+    // firm — and a failure there raises a red toast over a Hub where nothing is wrong.
+    await mountHub({ scope: 'mentor', firmId: '' })
+    const called = global.fetch.mock.calls.map(c => String(c[0]))
+    expect(called.some(u => u.includes('/api/firm-manager/cases'))).toBe(false)
+  })
+
+  it('adds the adoption tab, and mounts it', async () => {
+    // Design: design/mockups/mentor-adoption-view.html, ruled by Mike 2026-08-09.
+    const wrapper = await mountHub({ scope: 'mentor', firmId: '' })
+    expect(tabLabels(wrapper)).toContain('mentorAdoption.tab')
+    expect(wrapper.findComponent({ name: 'MentorAdoption' }).exists()).toBe(true)
+  })
+
   it('rejects a scope that is neither tier', () => {
     const validator = FirmManagerHub.props.scope.validator
     expect(validator('firm')).toBe(true)
@@ -150,14 +197,34 @@ describe('the two tiers are recognisably the same screen', () => {
   // The ruling is not "the mentor gets a superset of the tabs" — it is that a person
   // who knows the firm screen recognises the mentor screen. Shared tabs arriving in a
   // different order at each tier breaks that quietly, and no other test would notice.
+  //
+  // ⚠ AMENDED 2026-08-09. Until then the mentor screen WAS a strict superset, and this
+  // test asserted it. Two tabs are now firm-only, and that is a ruling rather than a
+  // regression: both are a manager's view of THEIR OWN ADVISERS BY NAME, which is the
+  // one thing that must not travel up a tier. They are listed by name below so the
+  // exception stays small and visible — a growing list here means the "same screen"
+  // claim is being eroded a tab at a time, which is exactly what this file is for.
+  const FIRM_ONLY = ['firmTeamProgress.tab', 'Team Case Studies']
+  const MENTOR_ONLY = ['mentorAdoption.tab', 'Case Reviews', 'templateCheck.tab', 'logicLabReport.tab']
+
   it('presents every shared tab in the same order at both scopes', async () => {
     const firm = tabLabels(await mountHub())
     const mentor = tabLabels(await mountHub({ scope: 'mentor', firmId: '' }))
 
-    const mentorOnly = ['Case Reviews', 'templateCheck.tab', 'logicLabReport.tab']
-    const sharedInMentor = mentor.filter(l => !mentorOnly.includes(l))
+    const sharedInMentor = mentor.filter(l => !MENTOR_ONLY.includes(l))
+    const sharedInFirm = firm.filter(l => !FIRM_ONLY.includes(l))
 
-    expect(sharedInMentor).toEqual(firm)
+    expect(sharedInMentor).toEqual(sharedInFirm)
+  })
+
+  it('the tier-only exceptions are exactly the ones ruled on, and no others', async () => {
+    // The guard on the guard. Without this, a future tab quietly added to one tier
+    // only would be absorbed by widening the lists above and nothing would object.
+    const firm = tabLabels(await mountHub())
+    const mentor = tabLabels(await mountHub({ scope: 'mentor', firmId: '' }))
+
+    expect(firm.filter(l => !mentor.includes(l))).toEqual(FIRM_ONLY)
+    expect(mentor.filter(l => !firm.includes(l)).sort()).toEqual([...MENTOR_ONLY].sort())
   })
 
   it('adds the mentor-only tabs at the end, so the shared run is uninterrupted', async () => {

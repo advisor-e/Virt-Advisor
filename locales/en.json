@@ -1589,6 +1589,37 @@
     "tab": "Advisor Network",
     "lede": "Everyone advising under your firm: who they are, the specialty groups they have asked to join, and whether they may work with advisors outside the firm."
   },
+  "mentorAdoption": {
+    "tab": "How firms are using the app",
+    "lede": "Which firms are actually using the product, and which have gone quiet. Counts only — no adviser is named here, and no client work appears. A firm's own manager still sees their advisers by name on their own Team Progress tab.",
+    "loading": "Reading activity across every firm…",
+    "loadFailed": "The activity record could not be reached, so this page cannot say who is using the app. This is a fault, not an empty platform.",
+    "retry": "Try again",
+    "empty": "No firms to show yet.",
+    "never": "Never",
+    "noDirectory": "The list of firms could not be read, so this page is showing only the firms that have used the app. Firms that have never started are missing from it.",
+    "footnote": "A firm is shown as having slowed down after {days} days with no activity.",
+    "tileActive": "Firms active recently",
+    "tileActiveNote": "Did at least one advisor session or course in the last {days} days.",
+    "tileSlowed": "Firms that have slowed down",
+    "tileSlowedNote": "Used it, then nothing for {days} days. The list most worth acting on.",
+    "tileAdvisers": "Advisers taking part",
+    "tileAdvisersNote": "A count of distinct advisers. No names, here or anywhere on this page.",
+    "tileTotal": "Total sessions and courses",
+    "tileTotalNote": "Advisor sessions plus completed courses, added together.",
+    "colFirm": "Firm",
+    "colAdvisers": "Advisers",
+    "colSessions": "Sessions",
+    "colCourses": "Courses",
+    "colAvgQuiz": "Avg quiz",
+    "colLastSeen": "Last seen",
+    "colStatus": "Status",
+    "status": {
+      "active": "Active",
+      "slowed": "Slowed down",
+      "never": "Not started yet"
+    }
+  },
   "firmTeamProgress": {
     "tab": "Team Progress",
     "lede": "Your advisors' completed VA cases and course sessions, grouped by capability level. Advisors see only their own record.",

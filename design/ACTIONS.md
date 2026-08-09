@@ -1615,6 +1615,34 @@ that the warning is not being followed by default.
     **Giving those entries ids is a data-model change, not a merge change** — no amount of effort
     makes `deepMerge` express it. Named so it is never re-scoped as "just add it to the list".
 
+- <a id="mentor-adoption-view"></a>✅ **BUILD — "How firms are using the app": the mentor tab that
+  replaces Team Progress. DONE 2026-08-09.**
+  **The design, the four rulings and every build deviation are on the artefact —
+  [`mentor-adoption-view.html`](mockups/mentor-adoption-view.html). Read it rather than this row.**
+  - **What was wrong.** Team Progress and Team Case Studies rendered EMPTY at `/mentor` after the
+    Phase 3 scope fix. The obvious repair was to roll them up one level. That was the wrong repair
+    and would have been a privacy regression in both cases:
+    - Team Progress lists a firm's advisers **by name**. Widening it puts every firm's people in
+      front of Advisor-e — against the boundary `mentorLogicLabReport.assertNoPersonalFields`
+      already enforces in code.
+    - Team Case Studies has a correct cross-firm version **already sitting beside it** (the Case
+      Reviews tab), which shows only cases a firm manager has anonymised and explicitly approved.
+      Rolling the firm tab up would have walked straight past that consent gate.
+  - 🔴 **RULED 2026-08-09 (Mike), all four recorded on the artefact §3:** read the firms list
+    (so firms that have never started appear, with real names); **keep** Avg quiz; quiet after
+    **60 days**; **warmer, advisory** wording, full set tabled on the artefact.
+  - **Both firm tabs are now hidden at mentor level, not widened**, and a test fails if the
+    tier-only exceptions ever grow beyond those two — the Hub is one component serving two tiers,
+    so "same screen re-scoped" erodes a tab at a time if nothing counts them.
+  - ⚠ **This is the FIRST backend read of the `firms` table anywhere in the repo**
+    ([`firmsDirectory.js`](../server/utils/firmsDirectory.js)), and it is deliberately a single choke
+    point — a test walks `server/` and fails if a second query appears, because a second query is a
+    second place to forget the reserved `__platform__` exclusion.
+  - ⚠ **NOT PROVEN AGAINST REAL DATA.** There is no MySQL here, so the firms read is evidenced by
+    tests and a dev fallback — a weaker claim, and written down as one on the artefact §5. This is
+    the same shape as the defect found on 2026-08-09 where a dev fallback absorbed a foreign-key
+    failure silently for two finished features.
+
 - <a id="approved-mockup-stranded-on-a-branch"></a>☐ **🔴 P1 · PROCESS — AN APPROVED DESIGN SAT
   UNMERGED FOR FIVE DAYS AND A SCREEN WAS BUILT WITHOUT IT.** Found 2026-08-09, the hard way.
   - **What happened.** `mentor-logic-lab-report-mockup.html` + `MENTOR-AI-HUB-STUB.md` were committed

@@ -349,6 +349,15 @@ server.del('/api/firm-manager/cases/:id/share-with-mentor', ...fmGuard, casesRou
 // cases, role-gated to the mentor.
 server.get('/api/mentor/cases', firmAuth, requireMentorRole, mentorRoute.listMentorCases)
 
+// ── Adoption (mentor) ──
+// The THIRD read that deliberately crosses the firm boundary. Counts only — how
+// many advisers, how many sessions, how recently — enforced at the boundary by
+// mentorAdoption.assertNoPersonalFields, which throws rather than filtering. It
+// REPLACES Team Progress at mentor level rather than widening it: that tab lists a
+// firm's advisers BY NAME, which is a firm manager's view of their own people.
+// Design: design/mockups/mentor-adoption-view.html (ruled by Mike 2026-08-09).
+server.get('/api/mentor/adoption', firmAuth, requireMentorRole, mentorRoute.getAdoption)
+
 // Mentor Advisory Distinctions — the cascade ORIGIN (DISTINCTIONS-CASCADE-PLAN.md §6).
 // The mentor authors the platform set every firm receives as its default; plain CRUD
 // (no decline/override at this tier). Global scope — handlers never read req.firmId.

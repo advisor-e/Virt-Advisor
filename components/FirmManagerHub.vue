@@ -459,11 +459,27 @@ section.firm-manager-hub.section
       //- Reads GET /api/activity/team, which already sits behind this Hub's own
       //- guard (firmAuth + requireManagerRole) — the firm comes from the verified
       //- token, never from the browser. Body lives in its own component (CB-23).
-      b-tab-item(:label="$t('firmTeamProgress.tab')" icon="chart-line")
+      //-
+      //- FIRM SCOPE ONLY. This tab lists a firm's advisers BY NAME, which is a
+      //- manager's view of their own people. A mentor has no advisers, so before
+      //- 2026-08-09 it rendered empty one level up; widening it would have put every
+      //- firm's people in front of Advisor-e, against the boundary the Logic Lab
+      //- Report enforces in code. The mentor gets the adoption tab below instead.
+      b-tab-item(v-if="scope !== 'mentor'" :label="$t('firmTeamProgress.tab')" icon="chart-line")
         firm-team-progress(:api-token="apiToken")
 
+      //- ── Tab: How firms are using the app (mentor adoption) ─────────
+      //- The same activity counted one level up and stripped of who did it.
+      //- Design: design/mockups/mentor-adoption-view.html (ruled by Mike 2026-08-09).
+      b-tab-item(v-if="scope === 'mentor'" :label="$t('mentorAdoption.tab')" icon="chart-line")
+        mentor-adoption(:api-token="apiToken")
+
       //- ── Tab: Team Case Studies (manager review) ────────────────────
-      b-tab-item(label="Team Case Studies" icon="account-group")
+      //- FIRM SCOPE ONLY, and hidden rather than widened. The mentor already has
+      //- the correct cross-firm version in the Case Reviews tab below, which shows
+      //- only cases a firm manager has anonymised and explicitly approved for
+      //- sharing. Rolling this tab up would have walked past that consent gate.
+      b-tab-item(v-if="scope !== 'mentor'" label="Team Case Studies" icon="account-group")
         .has-text-centered.py-5(v-if="loadingFirmCases")
           b-loading(:is-full-page="false" :active="true")
         template(v-else)
@@ -640,6 +656,7 @@ import FirmDecisionLogic from '~/components/firm/FirmDecisionLogic.vue'
 // Mentor-scope tab bodies. Both are inert at firm scope (their tabs are v-if'd
 // off) — the server role-gates every /api/mentor call regardless.
 import MentorReview from '~/components/MentorReview.vue'
+import MentorAdoption from '~/components/mentor/MentorAdoption.vue'
 import MentorDistinctions from '~/components/MentorDistinctions.vue'
 import MentorTemplateCheck from '~/components/mentor/MentorTemplateCheck.vue'
 import MentorLogicLabReport from '~/components/mentor/MentorLogicLabReport.vue'
@@ -701,7 +718,7 @@ export { DISTINCTION_DOMAINS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport, MentorAdoption },
 
   mixins: [traceReasonMixin],
 
@@ -870,7 +887,10 @@ export default {
     this.loadVideos()
     this.loadDomains()
     this.loadFirmDistinctions()
-    this.loadFirmCases()
+    // Firm scope only, matching the tab. At mentor level the route is firm-scoped
+    // and there is no firm to scope it to, so the call could only ever fail — and
+    // a failed call raises a red toast over a Hub where nothing is wrong.
+    if (this.scope !== 'mentor') { this.loadFirmCases() }
   },
 
   methods: {
