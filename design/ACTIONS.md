@@ -1568,8 +1568,35 @@ that the warning is not being followed by default.
     back to the platform default, which IS the mentor's content). What they SAVE still lands in
     firm-shaped storage: `firm_framework_versions` is keyed `(firm_id, config_key)` with no column for
     a tier above the firm. Advisory Distinctions and the two new mentor stores are the exceptions —
-    they write to the reserved `__platform__` scope. **The cascade wiring is the next job**, and it is
-    at its cheapest now: MySQL has never been provisioned, so there is no data to migrate.
+    they write to the reserved `__platform__` scope. ~~**The cascade wiring is the next job**~~ —
+    **STARTED AND LARGELY DONE 2026-08-09, see [§mentor-save-scope](#mentor-save-scope) below.**
+
+- <a id="mentor-save-scope"></a>◐ **🔴 P1 · FIX — a mentor's save succeeded into the WRONG PLACE.
+  Phases 1, 3 and 4 built 2026-08-09; Phase 5 open.**
+  **The plan, the ruling and the findings are in
+  [`MENTOR-SAVE-SCOPE-PLAN.md`](MENTOR-SAVE-SCOPE-PLAN.md) — read it rather than this row.** Linked,
+  not summarised, deliberately: it is the artefact, it carries two in-file corrections, and a
+  paraphrase here would drift from it (the failure the Save-the-Artefact rule exists to stop).
+  - **What was wrong.** A mentor is not refused by `requireManagerRole` (it allows managerRole OR
+    adminRole, and the interim mentor role IS adminRole), so every Mentor Hub save ran, reported
+    success, and landed under whatever firm the token claimed. No firm inherited it. Nothing errored.
+  - **Second defect, found while proving the first — now CLOSED.** `firm_framework_versions.firm_id`
+    is foreign-keyed to `firms.id`, and no `__platform__` row existed anywhere. **Advisory
+    Distinctions authoring and Template Check rulings could never have written to a real database**
+    — both would have failed the day MySQL was provisioned. Invisible until now because there is no
+    MySQL and dev falls back to a JSON file. Commits `d360615` · `fe12167` · `4f424ce`.
+  - 🔴 **RULED 2026-08-09 (Mike): storage = a reserved `firms` row** (not a re-keyed table), and
+    **cascade = DELTA** (a firm holds only the fields it changed; the mentor's later edits keep
+    reaching it). Both recorded in the plan and in
+    [`MENTOR-HUB-CONSOLIDATED-NOTES.md` §7.4](MENTOR-HUB-CONSOLIDATED-NOTES.md).
+  - ☐ **Phase 5 — the Staircase and Quizzes still do not inherit from the mentor.** They carry their
+    own row model (`resolveInheritedRows`) rather than a merge, so they inherit by having the
+    mentor's resolved content become their base, not by the fold built in Phase 4. Plan §Phase 4.
+  - ⚠ **Templates and the coaching reference CANNOT inherit as stored.** They are bare arrays, and
+    the overlay rule replaces an array wholesale — a firm holding one item would blank the mentor's
+    whole set *for themselves*. There is no untouched entry to fall through to the layer above.
+    **Giving those entries ids is a data-model change, not a merge change** — no amount of effort
+    makes `deepMerge` express it. Named so it is never re-scoped as "just add it to the list".
 
 - <a id="approved-mockup-stranded-on-a-branch"></a>☐ **🔴 P1 · PROCESS — AN APPROVED DESIGN SAT
   UNMERGED FOR FIVE DAYS AND A SCREEN WAS BUILT WITHOUT IT.** Found 2026-08-09, the hard way.
