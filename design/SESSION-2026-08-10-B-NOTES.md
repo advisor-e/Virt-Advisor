@@ -8,6 +8,25 @@
 
 ---
 
+## 🔴 FIRST THING NEXT SESSION — ASK MIKE, BEFORE DESIGNING ANYTHING
+
+**Mike asked (2026-08-10) to be asked about the DESIGN LOGIC OF ADVISOR-E — the basic rules
+around editability and the like — at the start of the next session.**
+
+**Ask it before opening a file, and certainly before drawing a screen.** This is not a
+formality and it is not a topic for later: *who may edit what, at which level, and what a level
+may never change* is the same family of question this session got wrong twice by reasoning it
+out instead of asking. Both times the answer already existed — once in Mike's head, once written
+down since 2026-07-30 — and neither the code nor any test could have contradicted the guess.
+
+**Mike, this session, in as many words:** *"if you don't know — ask. never ever assume."*
+
+Suggested opening: *"Before I design anything today — talk me through Advisor-e's design logic
+and the basic rules around editability."* Then let him talk, and write down what he says as an
+artefact before building from it.
+
+---
+
 ## What the next session most needs to know
 
 **The answer was already written down, and I drew the opposite of it — twice.**
