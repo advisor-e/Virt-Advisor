@@ -16,6 +16,7 @@
 
 const { FRAMEWORK } = require('../../config/integration')
 const { PLATFORM_SCOPE } = require('./platformScope')
+const { scopeChain } = require('./tierChain')
 const db = require('./db')
 
 // ── Merge logic ───────────────────────────────────────────────────────────────
@@ -87,30 +88,50 @@ async function _readActiveConfig (scopeId, configKey) {
 /**
  * Load a scope's effective config for a key.
  *
- * For a cascading key (see above) this folds the chain: the MENTOR's stored
- * content first, the firm's own on top. A firm that has stored nothing therefore
- * inherits the mentor's content rather than seeing nothing — which is the whole
- * point of the Mentor Hub, and was not true before Phase 4.
+ * For a cascading key (see above) this folds the WHOLE chain, highest tier first,
+ * each level laid over the one above it: mentor -> global -> group -> firm. A level
+ * that has stored nothing therefore inherits from the level above rather than
+ * seeing nothing — which is the whole point of the Mentor Hub, and was not true
+ * before Phase 4.
  *
- * A read AT the platform scope never folds onto itself.
+ * The chain comes from tierChain rather than being assumed here
+ * (design/MENTOR-TIER-CHAIN-PLAN.md §3.4). ⚠ WITH NO MEMBERSHIP DATA — today —
+ * scopeChain returns exactly [PLATFORM_SCOPE, firmId], so this is the same two
+ * reads and the same single deepMerge it performed before, in the same order. The
+ * middle tiers cost nothing until the master team supplies membership.
  *
- * @param {string} firmId - the authenticated firm id, never client-supplied
+ * A read AT the top of the chain never folds onto itself: its chain is [itself].
+ *
+ * @param {string} firmId - the authenticated scope id, never client-supplied
  * @param {string} configKey
  * @returns {Promise<*|null>} the effective value, or null when no layer holds one
  */
 async function loadFirmConfig (firmId, configKey) {
-  const own = await _readActiveConfig(firmId, configKey)
-
-  if (!CASCADING_CONFIG_KEYS.has(configKey) || firmId === PLATFORM_SCOPE) {
-    return own
+  if (!CASCADING_CONFIG_KEYS.has(configKey)) {
+    return _readActiveConfig(firmId, configKey)
   }
 
-  const platform = await _readActiveConfig(PLATFORM_SCOPE, configKey)
-  if (platform === null) { return own }
-  if (own === null) { return platform }
-  // Firm over mentor: nested objects merge, the firm wins on a conflict, and a
-  // field the firm never touched still comes from the mentor.
-  return deepMerge(platform, own)
+  const chain = scopeChain(firmId)
+  // No scope id at all — nothing to read, and nothing to guess at.
+  if (chain.length === 0) { return null }
+
+  // WALKED BOTTOM-UP: this scope first, then each level above it. The order is
+  // deliberate and pinned by tests/unit/cascadingConfig.test.js — a reader
+  // checking "did it ask the reserved mentor scope, or did it go rummaging in
+  // another firm?" reads the query log in that order. Folding top-down would give
+  // the same answer while quietly reversing that log.
+  let effective = null
+  for (let i = chain.length - 1; i >= 0; i--) {
+    const layer = await _readActiveConfig(chain[i], configKey)
+    if (layer === null) { continue }
+    // `layer` is always HIGHER than what has accumulated, so it goes underneath:
+    // nested objects merge, the LOWER level wins on a conflict, and a field it
+    // never touched still comes from above. The first layer found becomes the base
+    // rather than being merged onto null, so a non-object value survives unchanged.
+    effective = effective === null ? layer : deepMerge(layer, effective)
+  }
+
+  return effective
 }
 
 async function saveFirmConfig (firmId, configKey, configJson, savedBy) {

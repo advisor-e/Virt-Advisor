@@ -63,6 +63,33 @@ VALUES ('__platform__', 'Platform (mentor)', '__platform__')
 ON DUPLICATE KEY UPDATE `id` = `id`;
 
 -- -----------------------------------------------------------------------------
+-- The MIDDLE management tiers — Global Manager and Group Manager.
+--
+-- 🔴 INTEGRATION NOTE (for the Advisor-e team): THESE ROWS DO NOT EXIST YET, AND
+--    THEY CANNOT BE WRITTEN HERE. Each one names a real global group or country,
+--    and this repo has no list of them: the `firms` table has no group or country
+--    column, and no membership data has been supplied (see
+--    design/MENTOR-TIER-CHAIN-PLAN.md §2).
+--
+-- WHEN YOU SUPPLY MEMBERSHIP, INSERT ONE ROW PER TIER SCOPE AT THE SAME TIME.
+-- The scope ids are composed by server/utils/tierChain.js and take these shapes:
+--
+--     __global__:<globalGroup>              e.g. '__global__:Advisor-e'
+--     __group__:<globalGroup>:<country>     e.g. '__group__:Advisor-e:DE'
+--
+-- Without the row, every save at that tier is rejected by fk_firm_fw_firm with a
+-- foreign-key error — the same failure the `__platform__` row above exists to
+-- prevent. ⚠ IT WILL NOT LOOK LIKE AN ERROR: the development fallback absorbs the
+-- rejection and reports success, which is exactly how the mentor's own saves ran
+-- for weeks in 2026 before anyone noticed they could never have reached a real
+-- database. Add the row first, then test a save, and confirm it is really there.
+--
+-- ⚠ NOT the `group` table further down this file. That is a Special Interest
+-- Group (group_member / group_tag / marketplace_listing) — a social group in
+-- Collaborate, not a management tier. They are unrelated.
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
 -- firm_documents
 -- Tracks every PDF uploaded by a firm, stored in Google Drive.
 -- `category` matches a value from DRIVE.categories in config/integration.js.

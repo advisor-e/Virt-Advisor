@@ -34,7 +34,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const { isPlatformScope } = require('./platformScope')
+const { tierOfScope } = require('./tierChain')
 
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
@@ -88,13 +88,39 @@ const FIRM_STEP_PREFIX = 'fs-'
 const MENTOR_STEP_PREFIX = 'ms-'
 
 /**
+ * Own-row prefixes for the two management tiers between the mentor and a firm
+ * (design/MENTOR-TIER-CHAIN-PLAN.md §3.3).
+ *
+ * The rule above is not "the mentor needs its own prefix" — it is that EVERY tier
+ * whose rows can end up in one resolved list needs one, because every decision in
+ * the mechanism is keyed to an id. Widening the chain from two levels to four adds
+ * two more tiers to that list, and reusing a letter would bring the Phase 5 defect
+ * back with two new ways to hit it.
+ *
+ * `xs-` for the global tier because `gs-` reads as "group" and a near-miss between
+ * two ADJACENT tiers is worse than an unmemorable letter — those are precisely the
+ * two whose rows sit next to each other in a group manager's resolved list.
+ * @type {string}
+ */
+const GLOBAL_STEP_PREFIX = 'xs-'
+const GROUP_STEP_PREFIX = 'gs-'
+
+/** Every own-row prefix, by tier. Distinctness is asserted by a test. */
+const STEP_PREFIX_BY_TIER = {
+  mentor: MENTOR_STEP_PREFIX,
+  global_manager: GLOBAL_STEP_PREFIX,
+  group_manager: GROUP_STEP_PREFIX,
+  firm_manager: FIRM_STEP_PREFIX
+}
+
+/**
  * The own-row prefix a scope mints under.
  *
- * @param {string|null} scopeId - a firm id, or the reserved platform scope
+ * @param {string|null} scopeId - a firm id, or a reserved tier scope id
  * @returns {string} the prefix new own-step ids take at that scope
  */
 function ownStepPrefix (scopeId) {
-  return isPlatformScope(scopeId) ? MENTOR_STEP_PREFIX : FIRM_STEP_PREFIX
+  return STEP_PREFIX_BY_TIER[tierOfScope(scopeId)] || FIRM_STEP_PREFIX
 }
 
 function _readDevMap (file) {

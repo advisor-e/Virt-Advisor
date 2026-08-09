@@ -51,7 +51,7 @@
 const fs = require('fs')
 const path = require('path')
 const { resolveTemplateName } = require('./resolveTemplateName')
-const { isPlatformScope } = require('./platformScope')
+const { tierOfScope } = require('./tierChain')
 
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
@@ -103,13 +103,32 @@ const FIRM_QUESTION_PREFIX = 'fq-'
 const MENTOR_QUESTION_PREFIX = 'mq-'
 
 /**
+ * Own-row prefixes for the two management tiers between the mentor and a firm
+ * (design/MENTOR-TIER-CHAIN-PLAN.md §3.3). The rule is not "the mentor needs its
+ * own" — it is that EVERY tier whose rows can land in one resolved list needs one.
+ * Widening the chain adds two more tiers to that list. `xq-` for global because
+ * `gq-` reads as "group", and those two tiers are adjacent.
+ * @type {string}
+ */
+const GLOBAL_QUESTION_PREFIX = 'xq-'
+const GROUP_QUESTION_PREFIX = 'gq-'
+
+/** Every own-row prefix, by tier. Distinctness is asserted by a test. */
+const QUESTION_PREFIX_BY_TIER = {
+  mentor: MENTOR_QUESTION_PREFIX,
+  global_manager: GLOBAL_QUESTION_PREFIX,
+  group_manager: GROUP_QUESTION_PREFIX,
+  firm_manager: FIRM_QUESTION_PREFIX
+}
+
+/**
  * The own-row prefix a scope mints under.
  *
- * @param {string|null} scopeId - a firm id, or the reserved platform scope
+ * @param {string|null} scopeId - a firm id, or a reserved tier scope id
  * @returns {string} the prefix new own-question ids take at that scope
  */
 function ownQuestionPrefix (scopeId) {
-  return isPlatformScope(scopeId) ? MENTOR_QUESTION_PREFIX : FIRM_QUESTION_PREFIX
+  return QUESTION_PREFIX_BY_TIER[tierOfScope(scopeId)] || FIRM_QUESTION_PREFIX
 }
 
 // Bounds on firm-supplied content. The global 1 MB body cap stops a giant

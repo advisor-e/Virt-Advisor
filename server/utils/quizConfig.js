@@ -39,7 +39,7 @@
 const BASE_QUIZZES = require('../../data/course-quizzes.json')
 const { resolveInheritedRows } = require('./resolveInheritedRows')
 const { loadFirmQuizState } = require('./firmQuizzes')
-const { PLATFORM_SCOPE, isPlatformScope } = require('./platformScope')
+const { parentScopeOf } = require('./tierChain')
 
 /**
  * Source tags written onto every resolved question. The engine fences on these:
@@ -215,12 +215,15 @@ function blendQuizBanks (base, state) {
 async function loadBlendedQuizBanks (firmId, loadFirmConfig) {
   if (!firmId) { return baseBanks() }
 
-  // The layer this level inherits from — the MENTOR'S resolved banks for a firm,
-  // the shipped file for the mentor. The platform scope is the only level with
-  // nothing above it, which is what ends the recursion. Phase 5.
-  const base = isPlatformScope(firmId)
+  // The layer this level inherits from — asked of tierChain rather than assumed, so
+  // one recursion serves mentor -> global -> group -> firm however many levels there
+  // are (design/MENTOR-TIER-CHAIN-PLAN.md §3.4). With no membership data the answer
+  // is the platform scope, exactly what this line hardcoded before. The mentor has
+  // nothing above it, and that null is what ends the recursion. Phase 5.
+  const parent = parentScopeOf(firmId)
+  const base = parent === null
     ? baseBanks()
-    : await loadBlendedQuizBanks(PLATFORM_SCOPE, loadFirmConfig)
+    : await loadBlendedQuizBanks(parent, loadFirmConfig)
 
   let state
   try {

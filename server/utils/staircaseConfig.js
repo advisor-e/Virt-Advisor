@@ -37,7 +37,7 @@
 const BASE_STAIRCASE = require('../../data/advisory-staircase.json')
 const { resolveInheritedRows } = require('./resolveInheritedRows')
 const { loadFirmStaircaseState, CONFIG_KEYS } = require('./firmStaircase')
-const { PLATFORM_SCOPE, isPlatformScope } = require('./platformScope')
+const { parentScopeOf } = require('./tierChain')
 
 // Kept for callers that reference the whole-config key by name (the Firm Manager
 // save route and its version history). It is still the home of defaultCeiling.
@@ -82,17 +82,20 @@ function renumber (steps) {
 async function loadBlendedStaircase (firmId, loadFirmConfig) {
   if (!firmId) { return BASE_STAIRCASE }
 
-  // The layer this level inherits from. A firm inherits the MENTOR'S resolved
-  // staircase, not the shipped file — that is the whole of Phase 5. The mentor
-  // inherits the shipped file, which is what ends the recursion: the platform
-  // scope is the only level with nothing above it.
+  // The layer this level inherits from — asked of tierChain rather than assumed,
+  // so the same recursion serves mentor -> global -> group -> firm without knowing
+  // how many levels there are (design/MENTOR-TIER-CHAIN-PLAN.md §3.4). With no
+  // membership data the answer is the platform scope, which is what this line
+  // hardcoded before, so behaviour is unchanged until the master team supplies it.
+  // The mentor has nothing above it, and that null is what ends the recursion.
   //
   // A store fault one level up is already absorbed there (this function never
   // rejects), so the worst case is a firm resolving against the shipped file —
   // which is exactly the behaviour that shipped before Phase 5.
-  const base = isPlatformScope(firmId)
+  const parent = parentScopeOf(firmId)
+  const base = parent === null
     ? BASE_STAIRCASE
-    : await loadBlendedStaircase(PLATFORM_SCOPE, loadFirmConfig)
+    : await loadBlendedStaircase(parent, loadFirmConfig)
 
   let state
   try {
