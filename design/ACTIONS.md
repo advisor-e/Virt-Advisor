@@ -1628,6 +1628,74 @@ that the warning is not being followed by default.
     inherit through. A build job, not a data-model job. Not started, deliberately not smuggled
     into the tier-chain work below.
 
+- <a id="tier-hub-pages"></a>☐ **🔴 P1 · BUILD — the GLOBAL GROUP MANAGER HUB and the GROUP MANAGER
+  HUB. DESIGN APPROVED 2026-08-10, NOT BUILT.** **The artefact is
+  [`mockups/tier-hub-pages.html`](mockups/tier-hub-pages.html) — open it and build from it, not from
+  this row.** Logged the same day it was approved, because an approved-but-unbuilt design is exactly
+  the situation [`approved-mockup-stranded-on-a-branch`](#approved-mockup-stranded-on-a-branch)
+  exists to catch.
+  - **Mike, 2026-08-10:** *"as a global group manager, once I log in via the Advisor-e mechanism, I
+    need to see a page that says Global Group Manager Hub and performs accordingly… I need you to
+    create the global group manager hub page, and then the group manager hub pages."* The master
+    team connects the login; **we supply the pages.**
+  - 🔴 **THE GOVERNING PRINCIPLE, and it settles anything the artefact does not say explicitly
+    (Mike, 2026-08-10):** *"Every quality system requires a feedback loop, a way to make sure we can
+    improve. The information and tools cascade down so we share the tools effectively, the reports
+    cascade up so we learn what is working, what isn't, who is failing so we can offer help."*
+    **Down is sharing; up is learning.** A report withheld from a level is a hole in the loop — that
+    level can still be held accountable for what it can no longer see.
+  - ✅ **RULED 2026-08-10 — EVERY REPORT ROLLS UP, no exceptions.** Each level sees the level
+    **immediately below it, summarised**: firm→advisers, group→firms, global→groups,
+    mentor→global groups. Asked directly, answered *"every report"*. This was **already** the rule —
+    [`COLLABORATE-MERGE-PLAN.md`](COLLABORATE-MERGE-PLAN.md) §4.1 (*"Reporting rolls UP — each level
+    sees a summarised view of the level below"*) and §4.3, which names **Team Progress**
+    specifically.
+  - ⚠ **THE TRAP, and it is why the tab list must be ruled explicitly rather than left to the
+    code.** Three tabs are gated on `scope !== 'mentor'` rather than on naming their tiers. The
+    moment a third scope value exists that condition is true for it, so **Team Progress and Team
+    Case Studies would appear at both new tiers on their own** — and **Advisory Distinctions, gated
+    on `scope === 'firm'`, would vanish** from them. **Nothing errors and no test fails**, because
+    no test asserts what a scope that does not yet exist should show. Stating each tab's tiers by
+    name is part of this build, not a follow-up.
+  - **The five parts.** (1) the two thin pages — `/global-group-manager`, `/group-manager`;
+    (2) the tab conditions rewritten to name their tiers; (3) tier + scope resolved at login,
+    mirroring `mentorStorageScope`; (4) fail-closed role config **and the reserved `firms` row per
+    group** — without it a save is FK-refused **while the dev fallback reports success**, the exact
+    trap that ran the mentor's own saves broken for weeks; (5) the six report routes made
+    tier-aware. **Parts 1–4 are provable now. Part 5 cannot show real data** until the master team
+    supplies which firms sit where — and per §4.3 it must **say so on screen**, never show an empty
+    roll-up that looks like real data.
+  - ⚠ **BLOCKED ON THE MASTER TEAM (theirs, not ours) — the handover list is §5 of the artefact,
+    written so it can be sent as it stands:** two role values in the login token (plus **`mentor`,
+    which was never added either** and still borrows `platform_admin`), and **which group the person
+    manages**. That last is a claim to pass through, **not data for anyone to re-type** — Advisor-e
+    already holds firm as the Advisory `branch` and country as `country-address`
+    ([`roles.js`](../server/collaborate/data/roles.js)).
+  - ❌ **SUPERSEDED — the "Global Groups" membership screen**
+    ([`mockups/global-groups-membership.html`](mockups/global-groups-membership.html), `0bf282f`).
+    Proposed and approved earlier the same day, then **withdrawn by Mike within the hour**: user and
+    firm creation already exist in the master app, so a screen for hand-entering which firms are in
+    which group would have been a second, drifting copy of an org chart Advisor-e owns. **Kept, not
+    deleted**, so nobody rebuilds it later on its say-so. ⚠ Its `APPROVED` banner was never
+    committed; the half-written edit sits in a git stash and should simply be dropped.
+  - 🔴 **TWO CORRECTIONS OF MINE, RECORDED BECAUSE THE ERROR IS MORE USEFUL THAN THE FIX.** The
+    first draft of the tab matrix — and §3 of
+    [`TIER-CASCADE-MAP.md`](TIER-CASCADE-MAP.md), which said *"people never flow up"* — left Team
+    Progress, Team Case Studies and the three accuracy reports out of both middle tiers. Both
+    reasoned from the 2026-08-09 ruling that kept Team Progress away from the mentor. **That ruling
+    was about an OUTSIDE party — Advisor-e — seeing a customer's staff.** A global group is a
+    **brand** (seeded: Advisor-e, BDO, Lindt & Co), so a global or group manager is the
+    **customer's own senior person** looking at **their own** firms. An external-party privacy
+    boundary applied to internal managers inverts it. **Mike had to ask twice, and the answer was
+    already written down.** Both files are corrected in place.
+
+- <a id="tier-cascade-map"></a>✅ **RECORD — the tier cascade map, one checkable page.** Written
+  2026-08-10 (`d54f95c`), corrected the same day (`efa5c72`).
+  [`TIER-CASCADE-MAP.md`](TIER-CASCADE-MAP.md) answers, per Hub tab: does it cascade down, and does
+  it report up? Read out of the code rather than the plans. Its §3.2 keeps the wrong first version's
+  reasoning; the wrong *sentence* was replaced rather than struck through, because a wrong sentence
+  left on the page gets quoted.
+
 - <a id="tier-chain"></a>✅ **BUILD — the cascade goes all the way down: mentor → global manager →
   group manager → firm manager. BUILT 2026-08-10** (`fbaafb5`). **The plan, the design and its one
   deviation are on the artefact — [`MENTOR-TIER-CHAIN-PLAN.md`](MENTOR-TIER-CHAIN-PLAN.md). Read it
