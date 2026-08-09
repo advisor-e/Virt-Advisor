@@ -1643,6 +1643,19 @@ that the warning is not being followed by default.
     the same shape as the defect found on 2026-08-09 where a dev fallback absorbed a foreign-key
     failure silently for two finished features.
 
+- <a id="logic-lab-report-firm-names"></a>☐ **P3 · TIDY — the Logic Lab Report shows firm CODES where
+  it could now show names.** Found 2026-08-09 while building the adoption view; deliberately not fixed
+  in the same change.
+  - Its rows read `firm-pf-019` rather than "Pentland Fiscal". That was correct when the screen was
+    built — no firm-name source was reachable from the backend, and the code says so in a comment,
+    which was the honest choice at the time.
+  - **[`firmsDirectory.js`](../server/utils/firmsDirectory.js) now exists**, so the option is real. The
+    stale comment has been corrected in place rather than left to become a lie, and it names this as a
+    deliberate limit rather than an oversight.
+  - **Not done because it was not asked for.** The adoption view was the job; widening it to a second
+    screen would have been scope Mike did not approve. Logged here so the choice is visible rather
+    than forgotten — it is a small change whenever it is wanted.
+
 - <a id="template-check-apply-it"></a>✅ **BUILD — Template Check's "Apply it". DONE 2026-08-09.**
   **The ruling and the approved wording are on the artefact —
   [`logic-table-template-check.html`](mockups/logic-table-template-check.html) §5. Read it, not this.**
