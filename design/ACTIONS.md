@@ -1683,8 +1683,12 @@ that the warning is not being followed by default.
     Proposed and approved earlier the same day, then **withdrawn by Mike within the hour**: user and
     firm creation already exist in the master app, so a screen for hand-entering which firms are in
     which group would have been a second, drifting copy of an org chart Advisor-e owns. **Kept, not
-    deleted**, so nobody rebuilds it later on its say-so. ⚠ Its `APPROVED` banner was never
-    committed; the half-written edit sits in a git stash and should simply be dropped.
+    deleted**, so nobody rebuilds it later on its say-so. ✅ **Its `APPROVED` banner was never
+    committed, and there is nothing left to clean up.** This row and
+    [`SESSION-2026-08-10-B-NOTES.md`](SESSION-2026-08-10-B-NOTES.md) both said the half-written
+    edit sat in a git stash awaiting a `git stash drop`. **Checked 2026-08-10 (session 41):
+    `git stash list` is empty on this machine.** Corrected rather than deleted, so the dead end is
+    not re-derived from the older notes.
   - 🔴 **TWO CORRECTIONS OF MINE, RECORDED BECAUSE THE ERROR IS MORE USEFUL THAN THE FIX.** The
     first draft of the tab matrix — and §3 of
     [`TIER-CASCADE-MAP.md`](TIER-CASCADE-MAP.md), which said *"people never flow up"* — left Team

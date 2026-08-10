@@ -132,8 +132,17 @@ remain the DESKTOP's**; nothing here went near them.
   [§approved-mockup-stranded-on-a-branch](ACTIONS.md#approved-mockup-stranded-on-a-branch).
   *(Carried.)*
 
-## One loose end, deliberately left
+## ~~One loose end, deliberately left~~ — ✅ THERE IS NO LOOSE END (corrected session 41)
 
-A **git stash** holds a half-written `APPROVED` banner for the superseded Global Groups mockup.
-It is rubbish and should simply be dropped (`git stash drop`) — left only because discarding
-another session's work unasked is not this repo's habit.
+> **Corrected 2026-08-10 by the next session.** This section said: *"A **git stash** holds a
+> half-written `APPROVED` banner for the superseded Global Groups mockup. It is rubbish and
+> should simply be dropped (`git stash drop`)."*
+>
+> **`git stash list` is empty on this machine.** Nothing is holding anything, and there is
+> nothing to drop. Either it never survived the session or it was cleared before the handover
+> was written.
+>
+> The sentence is corrected here rather than removed, because a future session reading these
+> notes would otherwise go looking for the stash all over again. The mockup itself
+> ([`mockups/global-groups-membership.html`](mockups/global-groups-membership.html)) is
+> untouched and deliberately kept.
