@@ -1665,6 +1665,13 @@ that the warning is not being followed by default.
     tier-aware. **Parts 1–4 are provable now. Part 5 cannot show real data** until the master team
     supplies which firms sit where — and per §4.3 it must **say so on screen**, never show an empty
     roll-up that looks like real data.
+  - 🔴 **PART 2 HAS ITS EVIDENCE NOW — every tab beside its current gate, in one table:**
+    [`ADVISOR-E-DESIGN-LOGIC.md` §5.1](ADVISOR-E-DESIGN-LOGIC.md#51-the-firm-manager-hub--one-screen-re-scoped).
+    Read out of the component 2026-08-10, and it makes the trap visible without opening the file:
+    **Advisory Distinctions is TWO exclusive tab entries** (`scope === 'firm'` at line 174 and
+    `scope === 'mentor'` at line 441), so a third scope value matches **neither** and the tab
+    disappears — while `scope !== 'mentor'` on Team Progress and Team Case Studies is **true** for
+    it, so those two switch themselves on. Not one condition to fix; a pattern of them.
   - ⚠ **BLOCKED ON THE MASTER TEAM (theirs, not ours) — the handover list is §5 of the artefact,
     written so it can be sent as it stands:** two role values in the login token (plus **`mentor`,
     which was never added either** and still borrows `platform_admin`), and **which group the person
@@ -1688,6 +1695,43 @@ that the warning is not being followed by default.
     **customer's own senior person** looking at **their own** firms. An external-party privacy
     boundary applied to internal managers inverts it. **Mike had to ask twice, and the answer was
     already written down.** Both files are corrected in place.
+
+- <a id="design-logic-framework"></a>✅ **RECORD — THE GUIDING FRAMEWORK, AND THE BOUNDARY IT
+  EXISTS TO HOLD.** Written 2026-08-10 (`75e1e2b`) at Mike's request:
+  [`ADVISOR-E-DESIGN-LOGIC.md`](ADVISOR-E-DESIGN-LOGIC.md). **Read §1 before designing anything.**
+  - 🔴 **§1 — WHAT IS NOT OURS.** Mike, 2026-08-10: *"All of the template cloning, access and
+    editing, hosting and archiving etc. are controlled by the Advisor-e app… NONE of this is
+    visible inside the Virt Advisor app since it doesn't need to be — NONE of the functionality in
+    this app requires those things."* **Advisor-e owns login, accounts, the org chart, roles, and
+    templates + videos end to end** — each template carries its own id there for cloning and
+    archiving, which we never see. **If a feature needs any of those, it is not ours: do not design
+    a screen for it, hold a copy of its data, or mint an id for it.**
+  - ⚠ **THE DOCUMENT WAS WRITTEN TWICE, AND THE FIRST DRAFT IS THE POINT.** It explained the whole
+    platform's logic — most of which Advisor-e implements — and Mike's response was that it *"may
+    now have created more confusion, not less."* He was right, with evidence rather than a worry:
+    **twice in two days work was started here that Advisor-e already owns.** The rewrite leads with
+    the boundary and covers only this app.
+  - ❌ **MISTAKE 2 OF 2, corrected here — `data/templates.json` is NOT a gap.** Its 291 records
+    carrying no `id` was written up as *"the biggest gap in the product"*, on the reasoning that
+    the thing Mike calls the heart of Advisor-e cannot cascade. **Templates are Advisor-e's**, so
+    there is nothing here to fix. The `page`/`link` values on those records are master-app **PAGE**
+    ids — which is why only 267 of 291 are distinct, and why they never could have keyed a
+    template. (Mistake 1 was the withdrawn Global Groups screen, logged under
+    [`tier-hub-pages`](#tier-hub-pages).)
+  - ✅ **A CONTRADICTION REPORTED THE SAME DAY, AND DISSOLVED BY §1.** Mike's *"the advisor has
+    final edit and final selection"* appeared to contradict
+    [`COLLABORATE-MERGE-PLAN.md`](COLLABORATE-MERGE-PLAN.md) §4's *"the adviser is a PASS-THROUGH,
+    not an authoring level… neither gets override storage."* **There was never a conflict** — the
+    advisor edits the **template**, in Advisor-e. This repo needs no advisor override storage, and
+    the 2026-07-30 rule stands unamended.
+  - **What the document covers, once the boundary is drawn:** §2 who the user actually is (*"most
+    often NOT skilled, confident and experienced advisors"* — which is why the tone is help, never
+    score), §3 the five blocks that cascade, §4 the seven reports that roll up, §5 **every feature
+    walked through** — the Hub's 14 tabs, the AI section, the nine report screens, Adviser Network,
+    CPD — §6 scope identity, §7 what is not working and whose it is, §8 ten binding design rules.
+  - **One open question (§9):** when a group adds *"their own fresh resources"*, do those travel
+    down to its firms like an edited config row, or sit alongside as a separate library? *(If
+    "resources" means templates and videos, it is Advisor-e's and there is nothing to answer.)*
 
 - <a id="tier-cascade-map"></a>✅ **RECORD — the tier cascade map, one checkable page.** Written
   2026-08-10 (`d54f95c`), corrected the same day (`efa5c72`).
