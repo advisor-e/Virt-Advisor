@@ -1733,9 +1733,17 @@ that the warning is not being followed by default.
     score), §3 the five blocks that cascade, §4 the seven reports that roll up, §5 **every feature
     walked through** — the Hub's 14 tabs, the AI section, the nine report screens, Adviser Network,
     CPD — §6 scope identity, §7 what is not working and whose it is, §8 ten binding design rules.
-  - **One open question (§9):** when a group adds *"their own fresh resources"*, do those travel
-    down to its firms like an edited config row, or sit alongside as a separate library? *(If
-    "resources" means templates and videos, it is Advisor-e's and there is nothing to answer.)*
+  - ✅ **RULED 2026-08-10 (§9) — the document's only open question, closed the day it was asked.**
+    Mike: *"Yes. Advisor-e has existing 'blank' templates that groups, firms etc. either update /
+    import across the top of, or they take our templates and edit, insert pages etc — that then
+    flow down respectively to levels below them. They ALL stay within the Advisor-e app, and
+    archiving thereafter."* **Three routes in** — fill in a blank, import your own across the top,
+    or edit ours — and all three flow down to the levels below, **entirely inside Advisor-e**.
+    🔴 **Nothing for this repo to build, store or key.** ⚠ Watch the import route: a level can
+    bring in a template we never authored, which is the case most likely to make a future session
+    think we need somewhere to put it. **We do not.** *(The pattern matches this app's own
+    delta-not-clone rule — same shape, separate implementations, do not try to unify them.)*
+    **No open questions remain in that document.**
 
 - <a id="tier-cascade-map"></a>✅ **RECORD — the tier cascade map, one checkable page.** Written
   2026-08-10 (`d54f95c`), corrected the same day (`efa5c72`).

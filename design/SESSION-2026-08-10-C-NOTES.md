@@ -136,9 +136,13 @@ prevented.
 
 ## Open for Mike
 
-- **§9 of the framework** — when a group adds *"their own fresh resources"*, do those travel down
-  to its firms like an edited config row, or sit alongside as a separate library? *(If
-  "resources" means templates and videos, it is Advisor-e's and there is nothing to answer.)*
+- ✅ **§9 of the framework — ASKED AND ANSWERED THE SAME DAY, nothing carried.** A group's own
+  resources **do** flow down to its firms. Three routes in: fill in an Advisor-e blank template,
+  **import your own across the top**, or edit ours and insert pages. **All of it stays inside
+  Advisor-e, archiving included — nothing for this repo to build, store or key.** ⚠ The import
+  route is the one to watch: a level can bring in a template we never authored, and that is the
+  case most likely to make a future session think we need somewhere to put it. **We do not.**
+  **The framework now has no open questions.**
 - **Ask the master team for the two role values + which group a manager manages** — §5 of the
   hub artefact is written so it can be sent as it stands. ⚠ **`mentor` was never added either.**
   *(Carried from sessions 39 and 40; the Wednesday deadline rests on it.)*

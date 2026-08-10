@@ -30,7 +30,7 @@
 | **User and account creation** | Every level's accounts are created there |
 | **The organisation chart** | Which firms are in which group, which groups in which global group |
 | **Roles and permissions** | Including which role value means "group manager" |
-| **Templates — the entire lifecycle** | Cloning, access, editing, hosting, archiving. **Each template carries its own id there** for cloning and archiving; we never see it |
+| **Templates — the entire lifecycle** | Cloning, access, editing, hosting, archiving. **Each template carries its own id there** for cloning and archiving; we never see it. A level's own edits and its own imported material **flow down to the levels below it — inside Advisor-e** (§9) |
 | **Tutorial videos** | Same |
 
 **The rule that follows: if a feature needs any of the above, it is not ours.** Do not design a
@@ -356,12 +356,32 @@ and recorded as one rather than glossed.
 
 ---
 
-## 9. Open question for Mike
+## 9. ✅ RULED — "their own fresh resources", and where they live
 
-**§3.1 — "include their own fresh resources."** When a group adds its own material, does it travel
-down to its firms and advisors the way an edited configuration row does, or does it sit alongside
-as a separate library? *(If "resources" means templates and videos, this is Advisor-e's and there
-is nothing for us to answer.)*
+**The question was:** when a group adds its own material (§3.1), does it travel down to its firms
+the way an edited configuration row does, or sit alongside as a separate library?
+
+**Mike, 2026-08-10:**
+
+> *"Yes. Advisor-e has existing 'blank' templates that groups, firms etc. either update / import
+> across the top of, or they take our templates and edit, insert pages etc — that then flow down
+> respectively to levels below them. They ALL stay within the Advisor-e app, and archiving
+> thereafter."*
+
+**So: they flow down, and there are three routes in.** A level can (a) fill in an Advisor-e
+**blank** template, (b) **import its own across the top**, or (c) take an Advisor-e template and
+edit it / insert pages. Whichever route, the result flows down to the levels beneath it.
+
+🔴 **All of it happens inside Advisor-e, including the archiving. There is nothing for this repo
+to build, store or key.** Route (b) is the one to watch — a level can bring in a template we never
+authored, and that is exactly the case most likely to make a future session think we need
+somewhere to put it. **We do not.** See §1.1.
+
+**Worth knowing, not worth sharing code over:** the *pattern* matches this app's own delta-not-clone
+rule (§3.3) — a level edits what it inherited, and the edit flows down. The two agree in shape and
+are implemented entirely separately. Do not try to unify them.
+
+**No open questions remain in this document.**
 
 ---
 
