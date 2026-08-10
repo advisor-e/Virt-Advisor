@@ -42,6 +42,7 @@ const jwt = require('jsonwebtoken')
 const { AUTH } = require('../../config/integration')
 const { sendError } = require('../utils/sendError')
 const { PLATFORM_SCOPE } = require('../utils/platformScope')
+const { globalScopeId, groupScopeId } = require('../utils/tierChain')
 // Both helpers write the SAME envelope { success, error: { code, message }, timestamp };
 // they differ only in how they put it on the wire (writeHead/end vs res.send), and
 // each half's tests assert its own. The two sendError modules are a known duplicate
@@ -55,6 +56,14 @@ const { sendApiError } = require('../collaborate/utils/sendError')
 const DEV_AUTH_ENABLED = process.env.NODE_ENV !== 'production' && process.env.ALLOW_DEV_AUTH === 'true'
 const DEV_TOKEN = 'dev-local-bypass'
 const DEV_MENTOR_TOKEN = 'dev-local-mentor' // dev-only: authenticate as the mentor (platform_admin)
+// dev-only: the two middle management tiers. They exist because Advisor-e issues
+// no role for either yet, so WITHOUT these the two new hubs could not be opened by
+// anyone, including us — see design/mockups/tier-hub-pages.html §6. The brand and
+// country are the mockup's own examples; nothing reads them as real membership.
+const DEV_GLOBAL_TOKEN = 'dev-local-global'
+const DEV_GROUP_TOKEN = 'dev-local-group'
+const DEV_GLOBAL_GROUP = 'Advisor-e'
+const DEV_COUNTRY = 'DE'
 const DEV_FIRM_ID = 'dev-firm-001'
 const DEV_ADVISOR_ID = 'dev-advisor-001'
 
@@ -161,9 +170,32 @@ function firmAuth (req, res, next) {
   if (DEV_AUTH_ENABLED && token === DEV_MENTOR_TOKEN) {
     attachIdentity(req, {
       advisorId: null,
-      firmId: PLATFORM_SCOPE, // the mentor is not a firm — see mentorStorageScope below
+      firmId: PLATFORM_SCOPE, // the mentor is not a firm — see tierStorageScope below
       role: AUTH.mentorRole,
       email: 'dev-mentor@local'
+    })
+    return next()
+  }
+  // Dev middle-tier bypasses — the ONLY way either new hub can be opened today,
+  // because Advisor-e issues no role for them (AUTH.globalManagerRole and
+  // AUTH.groupManagerRole are deliberately empty). The scope id is composed by the
+  // same tierChain helpers a real token will use, so what a developer exercises is
+  // the real storage path and not a special case.
+  if (DEV_AUTH_ENABLED && token === DEV_GLOBAL_TOKEN) {
+    attachIdentity(req, {
+      advisorId: null,
+      firmId: globalScopeId(DEV_GLOBAL_GROUP),
+      role: AUTH.adminRole, // dev only: passes requireManagerRole, as the mentor's does
+      email: 'dev-global@local'
+    })
+    return next()
+  }
+  if (DEV_AUTH_ENABLED && token === DEV_GROUP_TOKEN) {
+    attachIdentity(req, {
+      advisorId: null,
+      firmId: groupScopeId(DEV_GLOBAL_GROUP, DEV_COUNTRY),
+      role: AUTH.adminRole,
+      email: 'dev-group@local'
     })
     return next()
   }
@@ -192,13 +224,22 @@ function firmAuth (req, res, next) {
   // Display name, when Advisor-e includes one. Null is a valid answer: screens fall
   // back to the advisor ID rather than inventing or guessing a name.
   attachIdentity(req, identity, payload[AUTH.nameClaim])
-  mentorStorageScope(req)
+
+  const scoped = tierStorageScope(req, payload)
+  if (!scoped.ok) {
+    return sendError(res, 403, scoped.code, scoped.message)
+  }
 
   return next()
 }
 
 /**
- * Re-point a MENTOR's request at the reserved platform scope.
+ * Re-point a MANAGING TIER's request at the storage scope that tier writes under.
+ *
+ * Extended 2026-08-11 from `mentorStorageScope` to cover the two middle tiers
+ * (design/mockups/tier-hub-pages.html part 3). The mentor branch is unchanged in
+ * behaviour; the reasoning that put it here in the first place still holds for all
+ * three tiers and is kept below.
  *
  * design/MENTOR-SAVE-SCOPE-PLAN.md Phase 3 — the fix for a save that succeeded
  * into the wrong place. A mentor is not refused by requireManagerRole (it allows
@@ -219,19 +260,84 @@ function firmAuth (req, res, next) {
  * levels above a firm. Overriding its identity would break the one tab that
  * already works one level up.
  *
- * ⚠ THE FIRM CLAIM IS STILL REQUIRED of a mentor's token (the check above runs
- * first). A mentor genuinely has no firm, so that will eventually be the wrong
- * rule — but loosening an auth check before the real 'mentor' role exists
- * upstream would be a security change made on speculation. Failing closed is the
- * conservative answer; revisit when AUTH.mentorRole stops being platform_admin.
+ * ⚠ THE FIRM CLAIM IS STILL REQUIRED of every token, including a mentor's and a
+ * group manager's (the check above runs first). None of them genuinely has a firm,
+ * so that will eventually be the wrong rule — but loosening an auth check before
+ * the real roles exist upstream would be a security change made on speculation.
+ * Failing closed is the conservative answer; revisit when AUTH.mentorRole stops
+ * being platform_admin and the two middle roles arrive.
+ *
+ * 🔴 FAIL CLOSED, AND IT IS THE POINT OF THE FUNCTION. AUTH.globalManagerRole and
+ * AUTH.groupManagerRole are empty strings until Advisor-e issues real values, and
+ * an empty configured role matches nothing — so today no real token reaches either
+ * branch below. When the values arrive, a manager whose token omits the claim their
+ * tier needs is REFUSED (403) rather than defaulted to a firm or to the platform.
+ * Guessing would file one customer's content under another's, and the screen would
+ * report success while doing it.
  *
  * @param {object} req - request with an identity already attached
+ * @param {object} payload - the verified JWT payload, for the tier's own claims
+ * @returns {{ok: boolean, code?: string, message?: string}}
  */
-function mentorStorageScope (req) {
-  if (req.userRole && req.userRole === AUTH.mentorRole) {
-    req.firmId = PLATFORM_SCOPE
-    req.identity.firmId = PLATFORM_SCOPE
+function tierStorageScope (req, payload) {
+  const role = req.userRole
+
+  // The mentor first: it is checked before the middle tiers because its interim
+  // role value (platform_admin) is the same one the dev bypasses use, and the
+  // mentor's meaning must win.
+  if (role && role === AUTH.mentorRole) {
+    setScope(req, PLATFORM_SCOPE)
+    return { ok: true }
   }
+
+  if (AUTH.globalManagerRole && role === AUTH.globalManagerRole) {
+    const brand = payload[AUTH.globalGroupClaim]
+    if (!brand) {
+      return {
+        ok: false,
+        code: 'MISSING_GROUP_CLAIM',
+        message: `JWT is missing the '${AUTH.globalGroupClaim}' claim — a global group manager must name the group they manage`
+      }
+    }
+    try {
+      setScope(req, globalScopeId(String(brand)))
+    } catch (err) {
+      return { ok: false, code: 'INVALID_GROUP_CLAIM', message: err.message }
+    }
+    return { ok: true }
+  }
+
+  if (AUTH.groupManagerRole && role === AUTH.groupManagerRole) {
+    const brand = payload[AUTH.globalGroupClaim]
+    const country = payload[AUTH.countryClaim]
+    if (!brand || !country) {
+      return {
+        ok: false,
+        code: 'MISSING_GROUP_CLAIM',
+        message: `JWT is missing the '${AUTH.globalGroupClaim}' or '${AUTH.countryClaim}' claim — a group manager must name the group and country they manage`
+      }
+    }
+    try {
+      setScope(req, groupScopeId(String(brand), String(country)))
+    } catch (err) {
+      return { ok: false, code: 'INVALID_GROUP_CLAIM', message: err.message }
+    }
+    return { ok: true }
+  }
+
+  // A firm manager or an advisor — their firm id from the token is already the
+  // scope they write under, so there is nothing to re-point.
+  return { ok: true }
+}
+
+/**
+ * Write a resolved scope into BOTH places the app reads a firm id from.
+ * @param {object} req
+ * @param {string} scopeId
+ */
+function setScope (req, scopeId) {
+  req.firmId = scopeId
+  req.identity.firmId = scopeId
 }
 
 /**

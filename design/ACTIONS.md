@@ -1628,12 +1628,56 @@ that the warning is not being followed by default.
     inherit through. A build job, not a data-model job. Not started, deliberately not smuggled
     into the tier-chain work below.
 
-- <a id="tier-hub-pages"></a>☐ **🔴 P1 · BUILD — the GLOBAL GROUP MANAGER HUB and the GROUP MANAGER
-  HUB. DESIGN APPROVED 2026-08-10, NOT BUILT.** **The artefact is
-  [`mockups/tier-hub-pages.html`](mockups/tier-hub-pages.html) — open it and build from it, not from
-  this row.** Logged the same day it was approved, because an approved-but-unbuilt design is exactly
-  the situation [`approved-mockup-stranded-on-a-branch`](#approved-mockup-stranded-on-a-branch)
+- <a id="tier-hub-pages"></a>◐ **🔴 P1 · BUILD — the GLOBAL GROUP MANAGER HUB and the GROUP MANAGER
+  HUB. DESIGN APPROVED 2026-08-10 · PARTS 1–4 BUILT 2026-08-11 · PART 5 STILL OPEN.** **The artefact
+  is [`mockups/tier-hub-pages.html`](mockups/tier-hub-pages.html) — open it and build from it, not
+  from this row.** Logged the same day it was approved, because an approved-but-unbuilt design is
+  exactly the situation [`approved-mockup-stranded-on-a-branch`](#approved-mockup-stranded-on-a-branch)
   exists to catch.
+  - ✅ **PARTS 1–4 SHIPPED 2026-08-11.** Suite 4,845 → **4,894 green / 285 suites**, lint 0 errors,
+    `server/middleware/` held at its required **100%** coverage.
+    - **(2) The tab conditions — done FIRST, as ruled.** `TAB_TIERS` in
+      [`FirmManagerHub.vue`](../components/FirmManagerHub.vue) is now the whole matrix in one place,
+      every tab naming its tiers positively. Nothing in the template reads `scope` directly, so the
+      matrix cannot be contradicted from two places, and a fifth tier one day shows up as a tab
+      that is *missing* rather than one that appears uninvited.
+    - **(1) The two pages** — [`global-group-manager.vue`](../pages/global-group-manager.vue) and
+      [`group-manager.vue`](../pages/group-manager.vue), each rendering the shared hub at its own
+      scope. 13 tabs each, per §2 of the artefact.
+    - **(3) Scope resolved once at login.** `mentorStorageScope` became `tierStorageScope` in
+      [`firmAuth.js`](../server/middleware/firmAuth.js) — the same single choke point, now covering
+      four tiers. A manager whose token does not name their group is **refused (403)**, never
+      defaulted: a guessed brand files one customer's content under another's.
+    - **(4) Fail closed.** `AUTH.globalManagerRole` / `AUTH.groupManagerRole` are **empty strings**
+      in [`config/integration.js`](../config/integration.js), and an empty configured role matches
+      nothing. A `platform_admin` token — the most privileged that exists — is refused at both
+      pages, and the screen says *the level is not connected yet* rather than *access restricted*.
+  - 🔴 **THE PROOF THAT THE TWO LIVE HUBS ARE UNTOUCHED, and it is a test rather than a claim.**
+    [`tests/unit/hubTabTiers.test.js`](../tests/unit/hubTabTiers.test.js) pins the firm at **9**
+    tabs and the mentor at **11**, listed by name and read out of the component at `2d38c60` —
+    before the middle tiers existed. The entire pre-existing suite passed **unmodified**, including
+    all 31 `firmAuth` tests. Same safety pattern as the tier-chain seam of session 39: the change is
+    demonstrated behaviour-preserving, not asserted to be.
+    Also added: [`tierStorageScope.test.js`](../tests/unit/tierStorageScope.test.js) (the refusals
+    matter most) and [`tierManagerPages.test.js`](../tests/unit/tierManagerPages.test.js) — the only
+    demonstration these pages work at all, since nobody can sign in to open them.
+  - ⚠ **COVERAGE NEARLY REGRESSED, AND THE FIX IS THE PRECEDENT.** The new branches took
+    `server/middleware/` from 100% to 95.3%, which would have failed the pre-commit gate. It was
+    fixed by **testing the branches, never by lowering the threshold** — the number in
+    `jest.config.js` says *"nothing in this file may regress"* and it meant it.
+  - 🔴 **PART 5 IS STILL OPEN, AND THERE IS NOW A LIVE GAP INSIDE IT.** The six report routes are
+    not tier-aware. Open a middle-tier hub today and the report tabs **render empty** — which reads
+    as *"nobody is using it"* — instead of saying the tier is not connected. That is against §4.4 of
+    the artefact (Mike's own standing rule: *"where a stub is the honest answer, it says so on
+    screen rather than showing an empty roll-up that looks like real data"*). **This is the next
+    piece of work on this row.**
+  - ⚠ **THE RESERVED `firms` ROW STILL CANNOT BE CREATED, and it has a live edge now.** The artefact
+    says the build creates it; it cannot, because nobody has supplied the group names. Meanwhile the
+    **dev sign-ins resolve to `__global__:Advisor-e` and `__group__:Advisor-e:DE`, which have no row
+    in `firms`** — so a save at either scope is foreign-key rejected **while the dev fallback reports
+    success**. That is exactly the trap that ran the mentor's own saves broken for weeks. It bites a
+    developer locally, not a customer. Instructions for the master team are already in
+    [`config/db-schema.sql`](../config/db-schema.sql), the control at the point of use.
   - **Mike, 2026-08-10:** *"as a global group manager, once I log in via the Advisor-e mechanism, I
     need to see a page that says Global Group Manager Hub and performs accordingly… I need you to
     create the global group manager hub page, and then the group manager hub pages."* The master
@@ -1699,6 +1743,40 @@ that the warning is not being followed by default.
     **customer's own senior person** looking at **their own** firms. An external-party privacy
     boundary applied to internal managers inverts it. **Mike had to ask twice, and the answer was
     already written down.** Both files are corrected in place.
+
+- <a id="case-share-cascade-wording"></a>☐ **🟠 P2 · WORDING — AWAITING MIKE'S RULING. Nine
+  sentences tell a firm manager they are sharing "with the mentor", and one of them is the sentence
+  they read immediately before clicking approve.** The candidates, the reasoning and the
+  recommendation are in the artefact — this row **links** it and does not retell it:
+  [`WORDING-CASE-SHARE-CASCADE.md`](WORDING-CASE-SHARE-CASCADE.md) (committed `8b8926d`,
+  2026-08-11).
+  - 🔴 **TWO RULINGS FROM MIKE, 2026-08-11, and they govern the whole roll-up — not just this
+    wording.**
+    1. *"every level at once — follows the cascade up"*. One share, no second consent step. A case
+       study donated by a firm reaches every managing level above it.
+    2. *"it needs to stay in their channel — only firms data that are member of that group
+       (country) goes to that group manager. only group managers aligned with the global group
+       manager above report"*. **Strictly own-branch.** A firm's material rises through its own
+       country group to its own brand; it never crosses to another brand or another country.
+  - **Why it was raised.** Building the middle tiers meant switching Case Reviews on at two more
+    levels, and [`caseStore.listSharedWithMentor()`](../server/utils/caseStore.js) is a **flat
+    `SELECT … WHERE mentor_shared = 1` with no scope argument at all** — correct for the mentor, who
+    is meant to see everything, and a cross-brand leak at any tier below. Ruling 2 above is what
+    closes it; the scope argument is part of the part-5 work in
+    [`tier-hub-pages`](#tier-hub-pages).
+  - ⚠ **Team Case Studies and Case Reviews are NOT duplicates**, and a future session should not
+    "tidy" one away. Team Case Studies is the firm looking **down** at its own advisers — named,
+    un-anonymised, full decision trace, and it carries the *Share* action. Case Reviews is what that
+    button produces: anonymised, no adviser, no firm, read-only. **One feeds the other.** The §2
+    matrix also ticks Case Reviews at **firm** level, where as built it adds nothing — a firm
+    manager already sees those cases in full.
+  - ⚠ **The wording changes touch a screen already running in UAT.** Seven of the nine are in the
+    Firm Manager Hub; the other two are in [`MentorReview.vue`](../components/MentorReview.vue),
+    which hardcodes *"Mentor — Case Reviews"* — and that is the component a **group** manager's
+    Case Reviews tab renders. **Mike's instruction 2026-08-11: labels last.** *"as you develop the
+    wiring to serve the functionality the names will become more evident. we do the labels last
+    when we are certain what the button or section performs."* So this waits on part 5, by
+    instruction — it is not parked by neglect.
 
 - <a id="design-logic-framework"></a>✅ **RECORD — THE GUIDING FRAMEWORK, AND THE BOUNDARY IT
   EXISTS TO HOLD.** Written 2026-08-10 (`75e1e2b`) at Mike's request:

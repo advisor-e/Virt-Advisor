@@ -171,7 +171,7 @@ section.firm-manager-hub.section
       //- FIRM FLAVOUR — carries decline / override / reset-to-platform, which
       //- only mean something when there is a layer above you. At mentor scope
       //- the plain-CRUD version below replaces it (DISTINCTIONS-CASCADE-PLAN §6).
-      b-tab-item(v-if="scope === 'firm'" label="Advisory Distinctions" icon="brain")
+      b-tab-item(v-if="showsTab('distinctionsFirm')" label="Advisory Distinctions" icon="brain")
         .columns
           //- Domain sidebar
           .column.is-3
@@ -438,7 +438,7 @@ section.firm-manager-hub.section
       //- Same slot in the tab order as the firm's, so the screen reads the same
       //- one level up. Plain CRUD only: there is no layer above the mentor to
       //- decline or reset to.
-      b-tab-item(v-if="scope === 'mentor'" label="Advisory Distinctions" icon="brain")
+      b-tab-item(v-if="showsTab('distinctionsMentor')" label="Advisory Distinctions" icon="brain")
         mentor-distinctions(:api-token="apiToken")
 
       //- ── Tab: Quizzes (CB-31 Phase 3) ───────────────────────────────
@@ -465,13 +465,13 @@ section.firm-manager-hub.section
       //- 2026-08-09 it rendered empty one level up; widening it would have put every
       //- firm's people in front of Advisor-e, against the boundary the Logic Lab
       //- Report enforces in code. The mentor gets the adoption tab below instead.
-      b-tab-item(v-if="scope !== 'mentor'" :label="$t('firmTeamProgress.tab')" icon="chart-line")
+      b-tab-item(v-if="showsTab('teamProgress')" :label="$t('firmTeamProgress.tab')" icon="chart-line")
         firm-team-progress(:api-token="apiToken")
 
       //- ── Tab: How firms are using the app (mentor adoption) ─────────
       //- The same activity counted one level up and stripped of who did it.
       //- Design: design/mockups/mentor-adoption-view.html (ruled by Mike 2026-08-09).
-      b-tab-item(v-if="scope === 'mentor'" :label="$t('mentorAdoption.tab')" icon="chart-line")
+      b-tab-item(v-if="showsTab('adoption')" :label="$t('mentorAdoption.tab')" icon="chart-line")
         mentor-adoption(:api-token="apiToken")
 
       //- ── Tab: Team Case Studies (manager review) ────────────────────
@@ -479,7 +479,7 @@ section.firm-manager-hub.section
       //- the correct cross-firm version in the Case Reviews tab below, which shows
       //- only cases a firm manager has anonymised and explicitly approved for
       //- sharing. Rolling this tab up would have walked past that consent gate.
-      b-tab-item(v-if="scope !== 'mentor'" label="Team Case Studies" icon="account-group")
+      b-tab-item(v-if="showsTab('teamCaseStudies')" label="Team Case Studies" icon="account-group")
         .has-text-centered.py-5(v-if="loadingFirmCases")
           b-loading(:is-full-page="false" :active="true")
         template(v-else)
@@ -625,21 +625,21 @@ section.firm-manager-hub.section
       //- The addition that makes this the Mentor Hub rather than a re-scoped
       //- copy (design/MENTOR-AI-HUB-STUB.md). Reads across EVERY firm, so it can
       //- exist at no tier below this one.
-      b-tab-item(v-if="scope === 'mentor'" :label="$t('logicLabReport.tab')" icon="chart-timeline-variant")
+      b-tab-item(v-if="showsTab('logicLabReport')" :label="$t('logicLabReport.tab')" icon="chart-timeline-variant")
         mentor-logic-lab-report(:api-token="apiToken")
 
       //- ── Tab (mentor only): Template Check ──────────────────────────
       //- Every tool a logic table names, checked against the catalogue. Mentor-only
       //- because a correction made here is meant to cascade to every firm — a firm
       //- fixing its own copy is the opposite of the point.
-      b-tab-item(v-if="scope === 'mentor'" :label="$t('templateCheck.tab')" icon="file-search-outline")
+      b-tab-item(v-if="showsTab('templateCheck')" :label="$t('templateCheck.tab')" icon="file-search-outline")
         mentor-template-check(:api-token="apiToken")
 
       //- ── Tab (mentor only): Case Reviews ────────────────────────────
       //- Not a cascade function — it is the one read that travels UP, and it
       //- exists at no other tier. Last, so the tabs the firm also has keep the
       //- same order at both levels.
-      b-tab-item(v-if="scope === 'mentor'" label="Case Reviews" icon="clipboard-text")
+      b-tab-item(v-if="showsTab('caseReviews')" label="Case Reviews" icon="clipboard-text")
         mentor-review(:api-token="apiToken")
 </template>
 
@@ -715,6 +715,83 @@ const DISTINCTION_DOMAINS = [
 // the test exists so that gap cannot silently reopen.
 export { DISTINCTION_DOMAINS }
 
+/**
+ * WHICH TIERS EACH CONDITIONAL TAB APPEARS AT — the whole matrix, in one place.
+ *
+ * 🔴 WHY THIS EXISTS RATHER THAN `v-if` EXPRESSIONS. Three tabs used to be gated
+ * on `scope !== 'mentor'` — a rule expressed as a negative, written when 'firm'
+ * and 'mentor' were the only two scopes. The moment a third exists that condition
+ * is TRUE for it, so Team Progress and Team Case Studies would have switched
+ * themselves on at the new tiers, while Advisory Distinctions (gated on
+ * `scope === 'firm'`) would have vanished from them. Nothing would have errored
+ * and no test would have failed, because no test can assert what a scope that does
+ * not yet exist should show. Design: design/mockups/tier-hub-pages.html §3.
+ *
+ * Every entry names its tiers positively, so adding a fifth scope one day shows up
+ * as a tab that is missing — visible — rather than one that appears uninvited.
+ *
+ * The four tiers are the management chain in server/utils/tierChain.js:
+ *   mentor -> global (brand) -> group (country) -> firm
+ *
+ * Tabs with no entry here are unconditional and appear at every tier: Domain
+ * Support, Logic Tables, Logic-Lab, Advisory Staircase, Quizzes, Adviser Network.
+ * Templates & Videos is dormant everywhere (`v-if="false"`, owner decision
+ * 2026-07-27) and is deliberately not listed — it is off for a different reason.
+ *
+ * @type {Object.<string, string[]>}
+ */
+const TAB_TIERS = {
+  // The firm flavour carries decline / override / reset-to-platform, which only
+  // mean something when a layer sits above you. Every tier below the mentor has
+  // one, so the middle tiers take this version, not the mentor's plain CRUD.
+  distinctionsFirm: ['firm', 'global', 'group'],
+  distinctionsMentor: ['mentor'],
+
+  // Reports. Every one rolls up (ruled by Mike 2026-08-10) — each level sees the
+  // level below it. Team Progress and Team Case Studies have no meaning at the
+  // mentor, who has no firms of its own beneath it in the same sense; the mentor
+  // reads the adoption tab instead. That split is today's behaviour, preserved.
+  teamProgress: ['firm', 'global', 'group'],
+  teamCaseStudies: ['firm', 'global', 'group'],
+  adoption: ['mentor', 'global', 'group'],
+
+  // Accuracy reports — how the ENGINE is performing, never a person. Read at every
+  // managing tier above the firm.
+  logicLabReport: ['mentor', 'global', 'group'],
+  templateCheck: ['mentor', 'global', 'group'],
+  caseReviews: ['mentor', 'global', 'group']
+}
+
+/**
+ * Every scope this hub can be rendered at, highest authority first. Kept beside
+ * TAB_TIERS so a new tier cannot be added to one without the other being seen.
+ * @type {string[]}
+ */
+const HUB_SCOPES = ['mentor', 'global', 'group', 'firm']
+
+/**
+ * The heading each tier reads at the top of the hub. Mike's own words for the two
+ * new ones (2026-08-10): "a page that says Global Group Manager Hub and performs
+ * accordingly… and then the group manager hub pages".
+ *
+ * Hardcoded English, matching every other heading and tab label in this component.
+ * The whole hub's copy is an existing i18n item, not a new one.
+ *
+ * @type {Object.<string, string>}
+ */
+const HUB_TITLES = {
+  mentor: 'Mentor Hub',
+  global: 'Global Group Manager Hub',
+  group: 'Group Manager Hub',
+  firm: 'Firm Manager Hub'
+}
+
+// Exported for tests/unit/hubTabTiers.test.js, which pins the firm and mentor
+// columns to what they showed BEFORE the middle tiers existed. That test is the
+// proof this change is behaviour-preserving for the two live hubs, rather than a
+// claim that it is.
+export { TAB_TIERS, HUB_SCOPES, HUB_TITLES }
+
 export default {
   name: 'FirmManagerHub',
 
@@ -732,7 +809,7 @@ export default {
     scope: {
       type: String,
       default: 'firm',
-      validator: v => ['firm', 'mentor'].includes(v)
+      validator: v => HUB_SCOPES.includes(v)
     },
     // Display only — no child reads it, and every backend call resolves the firm
     // from the verified token. Empty at mentor scope, where there is no one firm.
@@ -837,7 +914,7 @@ export default {
     // Hardcoded English to match every other heading and tab label in this
     // component. The whole hub's copy is an open i18n item, not a new one.
     hubTitle () {
-      return this.scope === 'mentor' ? 'Mentor Hub' : 'Firm Manager Hub'
+      return HUB_TITLES[this.scope] || HUB_TITLES.firm
     },
     currentDistinctionDomainLabel () {
       const d = DISTINCTION_DOMAINS.find(d => d.id === this.selectedDistinctionDomain)
@@ -887,13 +964,30 @@ export default {
     this.loadVideos()
     this.loadDomains()
     this.loadFirmDistinctions()
-    // Firm scope only, matching the tab. At mentor level the route is firm-scoped
-    // and there is no firm to scope it to, so the call could only ever fail — and
-    // a failed call raises a red toast over a Hub where nothing is wrong.
-    if (this.scope !== 'mentor') { this.loadFirmCases() }
+    // Only where the tab is actually shown, and asked the same way the tab asks.
+    // At the mentor there is no firm to scope the firm-scoped route to, so the
+    // call could only ever fail — and a failed call raises a red toast over a Hub
+    // where nothing is wrong.
+    if (this.showsTab('teamCaseStudies')) { this.loadFirmCases() }
   },
 
   methods: {
+    /**
+     * Does this tier show that tab? The single reader of TAB_TIERS — every
+     * conditional `b-tab-item` in the template asks this and nothing asks the
+     * scope directly, so the matrix cannot be contradicted from the template.
+     *
+     * An unknown key returns false: a typo hides a tab, which is visible, rather
+     * than showing one at a tier that was never meant to have it.
+     *
+     * @param {string} key - a key of TAB_TIERS
+     * @returns {boolean}
+     */
+    showsTab (key) {
+      const tiers = TAB_TIERS[key]
+      return Array.isArray(tiers) && tiers.includes(this.scope)
+    },
+
     // ── Shared fetch helper ─────────────────────────────────────────────────
     async api (method, path, body, isMultipart) {
       const opts = {

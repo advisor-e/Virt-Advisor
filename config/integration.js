@@ -44,6 +44,32 @@ const AUTH = {
   // Point this at the real 'mentor' role when it lands — no route change needed.
   mentorRole: 'platform_admin',
 
+  // ── The two MIDDLE management tiers ─────────────────────────────────────────
+  // 🔴 EMPTY ON PURPOSE, AND EMPTY IS THE FAIL-CLOSED STATE. Advisor-e issues no
+  // role value for either tier yet (server/collaborate/data/roles.js maps only
+  // platform_admin -> mentor and firm_manager -> firm_manager). An empty string
+  // matches no role, so no token can resolve to these tiers and no save can land
+  // in a group's storage by accident.
+  //
+  // DO NOT point either of these at an existing role to "make it work". That is
+  // precisely how a mentor's saves ran into a firm's storage for weeks in 2026:
+  // an existing role stood in for one that did not exist yet, requireManagerRole
+  // let it through, and the screen reported success every time.
+  //
+  // INTEGRATION NOTE (for the Advisor-e team): set these to the real role values
+  // when they exist, and supply the two claims below. Nothing else changes.
+  globalManagerRole: '', // role value for a Global Group (brand) manager
+  groupManagerRole: '', // role value for a Group (country) manager
+
+  // Which group the signed-in manager manages. Advisor-e already holds this shape
+  // on the user record — the firm is the Advisory `branch` and the country is
+  // `country-address` — so this is a claim to PASS THROUGH, not data for anyone to
+  // re-type on our side. A manager whose token omits the claim their tier needs is
+  // refused, never defaulted: guessing a brand would file one customer's content
+  // under another's.
+  globalGroupClaim: 'globalGroup', // JWT claim carrying the brand, e.g. 'BDO'
+  countryClaim: 'country', // JWT claim carrying the country, e.g. 'DE'
+
   // Signing secret used to verify tokens.
   // If Advisor-e uses RS256 (asymmetric), replace this with the public key
   // string and update the jwt.verify() call in server/middleware/firmAuth.js.
