@@ -1628,12 +1628,69 @@ that the warning is not being followed by default.
     inherit through. A build job, not a data-model job. Not started, deliberately not smuggled
     into the tier-chain work below.
 
-- <a id="tier-hub-pages"></a>◐ **🔴 P1 · BUILD — the GLOBAL GROUP MANAGER HUB and the GROUP MANAGER
-  HUB. DESIGN APPROVED 2026-08-10 · PARTS 1–4 BUILT 2026-08-11 · PART 5 STILL OPEN.** **The artefact
+- <a id="tier-hub-pages"></a>✅ **🔴 P1 · BUILD — the GLOBAL GROUP MANAGER HUB and the GROUP MANAGER
+  HUB. DESIGN APPROVED 2026-08-10 · PARTS 1–4 BUILT 2026-08-11 · PART 5 BUILT 2026-08-11 (session 43)
+  — COMPLETE ON OUR SIDE, the remainder is the master team's.** **The artefact
   is [`mockups/tier-hub-pages.html`](mockups/tier-hub-pages.html) — open it and build from it, not
   from this row.** Logged the same day it was approved, because an approved-but-unbuilt design is
   exactly the situation [`approved-mockup-stranded-on-a-branch`](#approved-mockup-stranded-on-a-branch)
   exists to catch.
+  - ✅ **PART 5 SHIPPED 2026-08-11 in two steps** (`01c8fcf`, `18221c2`). Suite 4,894 → **4,946 green
+    / 289 suites**, lint 0 errors, coverage gates held.
+    - 🔴 **STEP 1 — THE GUARD READ THE ROLE, AND TWO TIERS SHARED ONE ROLE VALUE.** Case Reviews,
+      Adoption and the Logic Lab Report sat behind `requireMentorRole`, a check on the **role
+      string**. But `AUTH.mentorRole` and `AUTH.adminRole` are the **same value**
+      (`platform_admin`), because Advisor-e issues no mentor role and the mentor borrows the admin
+      one — so that guard could not tell a mentor from a middle tier holding it, and the dev
+      sign-ins for the two new hubs hold exactly it. **Opening a Group Manager Hub returned every
+      brand's cases, activity and configuration into one country manager's screen.** Nothing
+      errored and no test failed: every existing test called those handlers **as the mentor**, for
+      whom "everything" is the right answer. The fault lived entirely in the question nobody had
+      asked yet. Dev-reachable only today — and it is the path that goes live.
+      **Two controls now**, in [`firmAuth.js`](../server/middleware/firmAuth.js) and
+      [`tierChain.js`](../server/utils/tierChain.js): `requireManagingTier` decides **who may ask**
+      and reads the **resolved scope**, not the role; `isWithinScope` decides **what comes back**,
+      per row, in each handler. Expressed with `scopeChain`, so the mentor matches every firm (its
+      three reports unchanged) and a middle tier with no membership matches none. `caseStore
+      .listSharedWithMentor()` — the flat `SELECT … WHERE mentor_shared = 1` flagged in session 42
+      — **now takes a scope**.
+    - ✅ **STEP 2 — FIVE BLANK PANELS THAT EACH SAID "NOBODY IS USING IT".** Step 1 made every
+      middle-tier report correctly empty, and empty was the problem: a blank panel in front of a
+      brand's own senior manager **states that their firms are not using the app**, which is false.
+      `tierChain.isAwaitingFirms` answers on the backend and rides each payload as `awaitingFirms`;
+      [`TierNotConnected.vue`](../components/base/TierNotConnected.vue) shows the approved sentence
+      **word for word** from the artefact's §4 table. **The screen is told, it does not infer** — a
+      component asking "am I a middle tier?" would be right today and wrong the moment a mapping
+      arrives, apologising for firms that are connected. It is `is-info`, never an error (nothing
+      failed — an integration step is outstanding), and it **replaces** the misleading empty state
+      rather than sitting above it. It clears itself when one firm is mapped: no code change, no
+      deploy, nobody remembering to take a banner down.
+    - 🔴 **THE TESTS THAT MATTER ARE THE NEGATIVE ONES** — a "not connected yet" banner on a live
+      UAT screen would replace one false statement with another. Pinned in
+      [`tierAwaitingFirms.test.js`](../tests/unit/tierAwaitingFirms.test.js),
+      [`tierReportScope.test.js`](../tests/unit/tierReportScope.test.js),
+      [`tierReportFiltering.test.js`](../tests/unit/tierReportFiltering.test.js) and
+      [`tierNotConnected.component.test.js`](../tests/unit/tierNotConnected.component.test.js):
+      a firm manager still gets the real empty state and is still **refused** these reports; the
+      mentor never sees the banner; a genuine load failure still says it failed; a response with no
+      flag falls back to today's behaviour.
+    - ⚠ **THREE EXISTING TESTS WERE EDITED, and the "whole suite passes unmodified" claim of parts
+      1–4 does NOT hold for part 5.** They called the handlers with `{}` — a request no route can
+      receive, since `firmAuth` refuses a token with no firm claim — so the empty object stood in
+      for "the mentor" by accident rather than by statement. Every expectation is unchanged; only
+      the identity is now supplied, plus one tripwire that quoted the old guard by name. Recorded
+      because a weaker proof stated is worth more than a stronger one implied.
+    - ⚠ **PUG TEMPLATES ARE NOT EXERCISED BY THE SUITE.** Step 2 altered `v-if`/`v-else` chains on
+      two screens **already live in UAT**, so all six changed templates were compiled through
+      `pug` + `vue-template-compiler` by hand. Worth repeating on any future template-shape change:
+      a broken chain passes every unit test and fails at build.
+  - ⛔ **WHAT IS LEFT IS NOT OURS.** The reports already fill themselves from the membership map —
+    `firmsUnderScope` and `isWithinScope` both read it — so the day real data lands, every report
+    populates and every notice clears **with no code change**. But **nothing calls
+    `setFirmMembership`**: the only definition and the only export are in `tierChain.js` itself. It
+    cannot be closed here. Same blocker as the reserved `firms` rows below — the `firms` table has
+    no group or country column, and no JWT carries the two claims. See §5 of the artefact, written
+    so it can be sent to the master team as it stands.
   - ✅ **PARTS 1–4 SHIPPED 2026-08-11.** Suite 4,845 → **4,894 green / 285 suites**, lint 0 errors,
     `server/middleware/` held at its required **100%** coverage.
     - **(2) The tab conditions — done FIRST, as ruled.** `TAB_TIERS` in
@@ -1643,7 +1700,8 @@ that the warning is not being followed by default.
       that is *missing* rather than one that appears uninvited.
     - **(1) The two pages** — [`global-group-manager.vue`](../pages/global-group-manager.vue) and
       [`group-manager.vue`](../pages/group-manager.vue), each rendering the shared hub at its own
-      scope. 13 tabs each, per §2 of the artefact.
+      scope. 13 tabs each, per §2 of the artefact — **12 from 2026-08-11**, when Mike took Template
+      Check off both (see the ruling below).
     - **(3) Scope resolved once at login.** `mentorStorageScope` became `tierStorageScope` in
       [`firmAuth.js`](../server/middleware/firmAuth.js) — the same single choke point, now covering
       four tiers. A manager whose token does not name their group is **refused (403)**, never
@@ -1665,12 +1723,15 @@ that the warning is not being followed by default.
     `server/middleware/` from 100% to 95.3%, which would have failed the pre-commit gate. It was
     fixed by **testing the branches, never by lowering the threshold** — the number in
     `jest.config.js` says *"nothing in this file may regress"* and it meant it.
-  - 🔴 **PART 5 IS STILL OPEN, AND THERE IS NOW A LIVE GAP INSIDE IT.** The six report routes are
+  - ~~🔴 **PART 5 IS STILL OPEN, AND THERE IS NOW A LIVE GAP INSIDE IT.** The six report routes are
     not tier-aware. Open a middle-tier hub today and the report tabs **render empty** — which reads
-    as *"nobody is using it"* — instead of saying the tier is not connected. That is against §4.4 of
-    the artefact (Mike's own standing rule: *"where a stub is the honest answer, it says so on
-    screen rather than showing an empty roll-up that looks like real data"*). **This is the next
-    piece of work on this row.**
+    as *"nobody is using it"* — instead of saying the tier is not connected.~~ ✅ **CLOSED
+    2026-08-11 (session 43) — see PART 5 above.** ⚠ **And the description above was itself wrong,
+    which is worth keeping rather than deleting.** Only **two** of the six rendered empty (Team
+    Progress and Team Case Studies, which read firm-scoped routes). The other four sat behind
+    `requireMentorRole` and returned the **mentor's full cross-brand data** to a middle tier — the
+    opposite of empty, and a worse fault than the one recorded here. A handover note describing a
+    symptom is a claim to re-check against the code, not a diagnosis to build from.
   - ⚠ **THE RESERVED `firms` ROW STILL CANNOT BE CREATED, and it has a live edge now.** The artefact
     says the build creates it; it cannot, because nobody has supplied the group names. Meanwhile the
     **dev sign-ins resolve to `__global__:Advisor-e` and `__group__:Advisor-e:DE`, which have no row
@@ -1688,6 +1749,18 @@ that the warning is not being followed by default.
     cascade up so we learn what is working, what isn't, who is failing so we can offer help."*
     **Down is sharing; up is learning.** A report withheld from a level is a hole in the loop — that
     level can still be held accountable for what it can no longer see.
+  - 🔴 **NARROWED 2026-08-11 — TEMPLATE CHECK IS MENTOR ONLY. The one named exception to the rule
+    below.** Mike, when the other reports were opened to the middle tiers: *"remove the template
+    check from the group manager and global group manager page. template check should only be for
+    the mentor since we use it to improve the overall system. it does not relate to people/advisor
+    performance or group manager selection/access permission to templates."* It is also the only
+    report with **no firm dimension** — it scans the shared master catalogue, so there is nothing
+    beneath a group for it to show. Its four routes never moved off `requireMentorRole`; the tab
+    came off both middle hubs, which are now **12 tabs, not 13**. Recorded in `TAB_TIERS`, at the
+    route mount, in the artefact's §2 row — and **asserted** in
+    [`hubTabTiers.test.js`](../tests/unit/hubTabTiers.test.js), which states the exception rather
+    than dropping Template Check from the roll-up loop: *an exception deleted from a list looks
+    identical to one never considered.*
   - ✅ **RULED 2026-08-10 — EVERY REPORT ROLLS UP, no exceptions.** Each level sees the level
     **immediately below it, summarised**: firm→advisers, group→firms, global→groups,
     mentor→global groups. Asked directly, answered *"every report"*. This was **already** the rule —
