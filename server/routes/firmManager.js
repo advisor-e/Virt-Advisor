@@ -3123,6 +3123,42 @@ function _treeSection (tree) {
 }
 
 /**
+ * Which of a node's fields the THEN column is showing.
+ *
+ * THE READ AND THE WRITE MUST NEVER DISAGREE, which is why this is one function
+ * and not two matching conditions. A node keeps its instruction in one of three
+ * places and the display column is single: `action` on most, `question` on a
+ * pure-question node, and `recommendation` on 55 branches across 8 tables (Get
+ * Seminar, Firm Board Pack, Leadership & Partner Development, CA Firm Strategy,
+ * Financial Systems Review, Raising Capital, Stock Purchasing, FM Coaching &
+ * Culture). Every one of those 55 has neither `action` nor `question`, so before
+ * this the editor rendered an EMPTY THEN box and the only copy of the
+ * instruction was unreachable in the app — the reason a mentor could not correct
+ * "Use Get Seminar template" himself (Mike, 2026-08-12).
+ *
+ * 🔴 WHY THE WRITE-BACK TARGET MATTERS, beyond tidiness. `recommendation` is
+ * gated at the sentence by the tool-name check (`fdb15ca`): a sentence naming a
+ * tool the catalogue cannot serve is withheld from the prompt. `action` is not
+ * gated. Saving a reworded `recommendation` into `action` would therefore carry
+ * it PAST that gate — a silent safety regression with no error and no failing
+ * test. So an edit goes home to the field it came from, always.
+ *
+ * @param {Object} node - a tree node or flat branch.
+ * @returns {'action'|'question'|'recommendation'} the field the column reflects.
+ */
+function _thenFieldOf (node) {
+  const n = node || {}
+  if (typeof n.action === 'string' && n.action !== '') { return 'action' }
+  if (typeof n.question === 'string' && n.question !== '') { return 'question' }
+  if (typeof n.recommendation === 'string' && n.recommendation !== '') { return 'recommendation' }
+  // Nothing to show. A node that HAS the key keeps it as the write target, so an
+  // emptied field is refilled where it was; otherwise `action` is the default.
+  if (n.question !== undefined && n.action === undefined) { return 'question' }
+  if (n.recommendation !== undefined && n.action === undefined) { return 'recommendation' }
+  return 'action'
+}
+
+/**
  * Normalise a tree's branches to the four display columns, whichever shape the
  * tree uses: a branching `nodes` graph or a `flat_if_then` `branches` list. Each
  * node's `id` rides along so a later save can merge edits back by id and
@@ -3138,9 +3174,9 @@ function _treeBranchRows (tree) {
     id: n.id || `row-${i}`,
     branch_name: n.branch_name || '',
     condition: n.condition || '',
-    // A pure-question node has no `action`; show its question so the row isn't
-    // blank. Slice B decides how such a node round-trips on save.
-    action: n.action || n.question || '',
+    // The THEN column shows whichever field holds this node's instruction, and
+    // _thenFieldOf is the single answer the save path uses too.
+    action: n[_thenFieldOf(n)] || '',
     notes: n.notes || ''
   }))
 }
@@ -3313,13 +3349,12 @@ function _mergeBranchRows (baseTree, rows) {
       // Reword in place: overwrite only the four editable fields, keep the rest
       // (flow wiring, templates, type) exactly as the platform authored them.
       const next = { ...existing, branch_name: str(row.branch_name), condition: str(row.condition), notes: str(row.notes) }
-      // A pure-question node has no `action` — its display `action` was really
-      // its `question` (_treeBranchRows), so the edit round-trips back there.
-      if (existing.question !== undefined && (existing.action === undefined || existing.action === '')) {
-        next.question = str(row.action)
-      } else {
-        next.action = str(row.action)
-      }
+      // The THEN box was filled from ONE of `action` / `question` /
+      // `recommendation`, so the edit goes home to that same field. Asking
+      // _thenFieldOf rather than repeating its rules is what stops the read and
+      // the write drifting apart — and a `recommendation` written back as an
+      // `action` would slip past the tool-name gate. See _thenFieldOf.
+      next[_thenFieldOf(existing)] = str(row.action)
       return next
     }
     // Firm-added branch: a new guidance row, appended, with no flow wiring.

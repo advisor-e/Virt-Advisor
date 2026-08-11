@@ -13,8 +13,8 @@ document, which is the only reason it still asks.
 This file is that list, so it can be confirmed in one pass instead of one row at a time.
 
 **How to use it.** Read the *Answer on record* column. Where it is right, nothing to do. Where it
-is wrong, say so on that row and it is dropped from the load. **Section C is the one place a new
-decision is genuinely needed.**
+is wrong, say so on that row and it is dropped from the load. **Section C needs no ruling at all —
+see the correction at the head of it.**
 
 ---
 
@@ -80,10 +80,34 @@ words. **Five of them the screen already suggests correctly by itself** — thos
 
 ---
 
-## Section C — Get Seminar: seven rows, one decision (7 rows)
+## Section C — Get Seminar: seven rows, and they are Mike's to correct in the app (7 rows)
 
-**This is the one place a new ruling is needed, and it is worth more than any other row: seven of
-the 88 turn on it.**
+> **⚠ CORRECTED 2026-08-12, same day, after Mike read the first version.** This section originally
+> asked him for a ruling and recommended "Not a tool" on all seven. **Both were wrong.** He had
+> already placed this material — *"we discussed get seminar as being across public speaking"* — and
+> the record backs him:
+>
+> - [`SESSION-2026-06-20-IP-DEPTH-AUDIT-NOTES.md`](SESSION-2026-06-20-IP-DEPTH-AUDIT-NOTES.md):
+>   *"**get_seminar** — most flagged methods (Universals, Truisms, the park board, Master of
+>   Ceremonies) live in the **sibling `powerful-seminars.json`** (the live `public_speaking` learn
+>   tree)"*.
+> - The tree exists and is named for it: **`public_speaking` — "Get the Job - Public Speaking &
+>   Seminar Delivery"**, 8 branches. The registry carries both source PDFs separately.
+>
+> **His second point was also right, and is the real answer to this section.** Logic Tables is a tab
+> at every tier including mentor, and a mentor's edits are inherited by every firm
+> ([`MENTOR-SAVE-SCOPE-PLAN.md`](MENTOR-SAVE-SCOPE-PLAN.md): *"what a mentor can author today and
+> have every firm inherit: Domain Support and Logic Tables"*). These seven lines are his to reword,
+> not a developer's to rule on.
+>
+> **What stopped that working was a gap in the editor, now closed.** The THEN column was filled from
+> `action`, or `question` — never `recommendation`, where all seven of these sentences live. All
+> seven rendered an **empty THEN box**, so the sentence could not be seen, let alone corrected.
+> **55 branches across 8 tables** were invisible for the same reason. Fixed in `_thenFieldOf`
+> (`server/routes/firmManager.js`), with the edit going home to the field it came from — a
+> `recommendation` saved as an `action` would slip past the tool-name gate.
+
+**Nothing below needs a ruling. It is here so the seven rows can be found in the app.**
 
 Every branch of the Get Seminar table tells the advisor to *"Use Get Seminar template"*. There is
 no such document, and there never was one:
@@ -114,14 +138,19 @@ The seven branches:
 | C6 | Group Problem Solving — Premature Assessment |
 | C7 | Implementation — Maintaining Action Plan Momentum |
 
-**Recommended: "Not a tool" on all seven.** The coaching stays; only the invented name goes.
+**Where to do it:** Mentor Hub → **Logic Tables** → *Get Seminar*. Each row's **THEN** box now holds
+the sentence; rewording it there reaches every firm. The tool names that already sit in Public
+Speaking and would fit these rows:
 
-**If instead you want a real seminar document attached**, these exist and would fit — but that is a
-bigger change than this file covers and would be proposed separately:
+- **Design & Deliver** (*Get the Job › Seminar Delivery › Public Speaking*) — C1, C2
+- **My Network/Entertainment Schedule** — C3, C4, C5, which are about networking, not seminars
+- **Facilitation 101** — C6
 
-- **Design & Deliver** (*Get the Job › Seminar Delivery › Public Speaking*) — for C1, C2
-- **My Network/Entertainment Schedule** — for C3, C4, C5, which are about networking, not seminars
-- **Facilitation 101** — for C6
+⚠ **One consequence of editing in the app, worth knowing once.** A table edited through the browser
+is tagged, and the AI is then told to treat that table's wording as *data* rather than as
+*instructions* — a fence that exists because browser-typed text is not repo data. It applies to a
+mentor's edits too. Nothing breaks; the tone of how that table is used shifts. Named here so it is
+a known trade-off rather than a surprise later.
 
 ---
 
@@ -130,7 +159,7 @@ bigger change than this file covers and would be proposed separately:
 | | Rows |
 |---|---|
 | Already answered — Sections A and B | 23 |
-| One decision covering seven rows — Section C | 7 |
+| Mike's to reword in the app, not to rule on — Section C | 7 |
 | **Covered by this file** | **30** |
 | Left on the screen afterwards | 58 |
 
