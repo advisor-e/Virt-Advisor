@@ -2379,6 +2379,76 @@ that the warning is not being followed by default.
     second test asserts every entry in that list is genuinely still in the data — so the day it is
     wired up, a stale exemption fails the build instead of quietly licensing the next silent drop.
 
+- <a id="team-reports-rollup"></a>✅ **🔴 P1 · BUILD — TEAM PROGRESS AND TEAM CASE STUDIES NOW REACH
+  THE TIERS THEY WERE RULED FOR. Built 2026-08-12 (`fe2e87c`, laptop).**
+  - **The gap.** Both were ruled to roll up on 2026-08-10 ([`ADVISOR-E-DESIGN-LOGIC.md`](ADVISOR-E-DESIGN-LOGIC.md) §4.2)
+    and both **tabs** were added at the global and group tiers. **The routes were never changed** —
+    each matched `firm_id` exactly, so a country scope matched no row and a manager got an empty
+    list. The ruling was half-built, and the half that shipped was the visible half.
+  - 🔴 **WHY NO TEST CAUGHT IT, AND THIS IS THE PART TO REMEMBER.** While no firm was mapped to a
+    middle tier, `isAwaitingFirms` was true and the screens honestly said *"not connected yet"*. The
+    emptiness was **indistinguishable from correct behaviour**, and no test can assert what a tier
+    with no members should show. Seeding dev membership removed the banner and the same empty list
+    began reading *"No shared case studies yet"* to a manager whose advisers had shared three —
+    visible **on the same screen** in Case Reviews. §4.4 records this family of mistake twice before.
+  - **What each tier now gets:** firm manager — its advisers' shared cases in full, and its advisers
+    by name. Every tier above — the anonymised copies the firm manager sent onward, and one summary
+    row per level immediately below. Grouping uses `originPathOf`, so both deepen by themselves when
+    the membership tree grows a level.
+  - 🔴 **The second opt-in is what makes rolling cases up safe**, and is why the tab was once argued
+    to be firm-only. Above the firm the route reads `listSharedWithMentor`, never
+    `listSharedForFirm`: reading the raw set would carry un-anonymised client text past a gate no
+    human opened. Pinned by [`teamRollup.test.js`](../tests/unit/teamRollup.test.js).
+  - **No adviser is named above the firm** — the new store read selects no `advisor_id` or
+    `advisor_name` at all, so there is nothing to filter. Firm names ARE shown (§4.3).
+  - **The mapping moved to [`caseRollup.js`](../server/utils/caseRollup.js)** rather than being
+    copied. A conflict there is resolved by keeping the import, never by restoring a local copy.
+  - ⚠ **Adviser counts were wrong in the first version.** Rows arrive per firm+tier and per table,
+    so one adviser appears several times: summing inflates a firm, one maximum discards whole firms
+    (Germany read 2 when Berlin alone had 2). Both wrong ways are now pinned by test.
+
+- <a id="adviser-network-untestable-locally"></a>☐ **🟠 VERIFY — THE ADVISER NETWORK TAB CANNOT BE
+  TIER-TESTED ON A DEV MACHINE, AND A DESIGN DOC CALLS IT THE MODEL FOR THE REST. Found 2026-08-12.**
+  - All four tiers return an **identical** payload from `GET /api/people/firm` — the same fixed firm,
+    labelled `firm_manager`, whichever hub is opened. Cause: that tab goes through
+    `collaborateAuth`, which expects a real signed JWT, does not recognise the firmAuth dev tokens,
+    and falls through to one fixed `DEV_IDENTITY` for all of them.
+  - **This is NOT evidence of a production bug** — a real token may well re-scope correctly. It is
+    evidence that **nobody can check**, locally, whether it does.
+  - 🔴 **Why it matters beyond one tab:** [`ADVISOR-E-DESIGN-LOGIC.md`](ADVISOR-E-DESIGN-LOGIC.md)
+    §4.2 records Adviser Network as *"✅ Already rolls up… The working model for the rest"*. That
+    claim is **unverified**. The 2026-08-12 roll-up work deliberately copied nothing from it and
+    reused `originPathOf` instead. Anyone treating §4.2's tick as proven should read this first.
+  - **What would close it:** a dev path that lets `collaborateAuth` resolve the four tiers — or a
+    test asserting the scope it derives — so the tick becomes a checked fact.
+
+- <a id="domains-json-double-fault"></a>✅ **🟠 FIX — A 404 ON EVERY HUB LOAD, HIDING A SECOND FAULT
+  UNDERNEATH IT. Fixed 2026-08-12 (`fe2e87c`, laptop).**
+  - `FirmManagerHub` fetched `/data/domains.json` over HTTP. **Nuxt publishes only `static/`**, so it
+    404'd on every hub load, at every tier, since it was written. The `catch` then supplied **ten
+    invented domain names** — and because the screen looked fine, nobody questioned them. The real
+    registry has **22**.
+  - 🔴 **THE SECOND FAULT WAS ONLY VISIBLE ONCE THE FIRST WAS UNDERSTOOD.** The mapping read
+    `d.name || d.key || d`, and these entries carry **neither** — the field is `label`. So the
+    obvious "fix" (copy the file into `static/`) would have filled the list with **raw objects**.
+    Two bugs, one plausible-looking fallback, and a screen that never appeared broken.
+  - **Fixed by importing** the same file the Restify routes already `require` — one source, no
+    network call, 15.6 KB. **The lesson is the fallback**, not the path: a fallback that looks like
+    real data is how both of these survived. Same family as
+    [§request-compressed-to-one-line](#request-compressed-to-one-line) — the record looks right, so
+    nothing prompts a check.
+
+- <a id="rollup-labels-unruled"></a>☐ **🟡 DECISION (MIKE) — FIVE LABELS WERE WRITTEN WITHOUT A
+  RULING, AGAINST THE WORDING RULE. Raised 2026-08-12 by the session that wrote them.**
+  - `CLAUDE.md`: *"Always ask for clarification on wording for labels/buttons before going ahead,
+    don't make your own without asking."* These were not asked about, and are logged here rather
+    than left to become "approved by use".
+  - In [`locales/en.json`](../locales/en.json) under `firmTeamProgress`: **Level** (`colLevel`),
+    **Advisers** (`colAdvisers`), **Avg Quiz** (`colAvgQuiz`), **"{n} firms"** (`firmCount`), and the
+    legend *"Each row is one level below you, summarised. Individual advisors are shown to their own
+    firm manager."* (`rollupLegend`).
+  - They are strings in a locale file — changing them costs nothing and needs no rebuild of logic.
+
 - <a id="collaborate-merge"></a>◐ **THE BACK-END MERGE IS DONE — verified 2026-08-03.** `server/collaborate/`
   (`data/`, `routes/`, `utils/`) is present in this repo, and [`jest.config.js`](../jest.config.js) records the
   reason its second bootstrap exclusion was removed: *"Collaborate's own server was folded into this one when the
