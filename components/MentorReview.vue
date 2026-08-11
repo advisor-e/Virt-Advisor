@@ -1,9 +1,13 @@
 <template lang="pug">
 .mentor-review
   .container(style="max-width: 960px; padding: 2rem 1rem;")
-    h1.title.is-4 Mentor — Case Reviews
+    //- Opened by THREE tiers, not one — mentor, global group manager and group
+    //- manager all mount this component (TAB_TIERS.caseReviews in FirmManagerHub).
+    //- So neither string may name a single level. Wording ruled by Mike 2026-08-11:
+    //- design/WORDING-CASE-SHARE-CASCADE.md.
+    h1.title.is-4 {{ $t('caseShare.reviewTitle') }}
     b-notification.mb-4(type="is-info is-light" :closable="false")
-      | Anonymised case studies that firm managers have shared with you. Client names and identifying details are removed; the wording and tone are kept so you can see how the app performed and where it can improve.
+      | {{ $t('caseShare.reviewLede') }}
 
     .has-text-centered.py-6(v-if="loading")
       b-loading(:is-full-page="false" :active="true")

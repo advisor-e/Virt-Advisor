@@ -1,8 +1,9 @@
 # Wording — sharing a case study upward
 
-**Status: AWAITING MIKE'S RULING.** Nothing in this file has been built. It exists so that
-what is approved is a checkable artefact rather than a sentence in a chat log
-(`CLAUDE.md` → Save the Artefact).
+**Status: RULED AND BUILT — 2026-08-11. Mike chose SET B**, then reaffirmed Set B when the
+sentence-9 objection below was put to him. All nine strings are live in
+[`locales/en.json`](../locales/en.json) under `caseShare`, and pinned by
+[`tests/unit/caseShareWording.test.js`](../tests/unit/caseShareWording.test.js).
 
 Raised 2026-08-11, during the [`tier-hub-pages`](ACTIONS.md#tier-hub-pages) build.
 
@@ -104,7 +105,21 @@ have met, and it reads longer on the button.
 | 8 | Case Reviews |
 | 9 | Anonymised case studies shared by the firms in your group. Client names and identifying details are removed; the wording and tone are kept so you can see how the app performed and where it can improve. |
 
-### Recommendation — **Set A**
+### 🔴 RULED 2026-08-11 — **Set B**, against the recommendation below
+
+Mike chose Set B, and reaffirmed it when the sentence-9 objection was put to him. **The
+recommendation is kept in full below, not deleted** — a recommendation that was heard and
+overruled is a different thing from one that was never made, and only the first tells a
+later reader that the trade-off was weighed.
+
+**The objection, for the record.** Sentences 8 and 9 are on `MentorReview.vue`, which is
+opened by **three** tiers, not one — `TAB_TIERS.caseReviews` in `FirmManagerHub.vue` lists
+`mentor`, `global`, `group`. Set B's sentence 9 says *"the firms in your group"*: exact for
+a group manager, loose for the mentor, who sees every firm in every brand. Mike was shown
+this and ruled Set B regardless. It is pinned by an assertion carrying that reasoning, so
+the next reader finds a decision rather than what looks like an oversight.
+
+### Recommendation as it stood — **Set A** (heard, overruled)
 
 Three reasons, in order of weight.
 
@@ -124,7 +139,7 @@ being taken back from people who already have it.
 
 ---
 
-## 4 · One question this file does NOT settle
+## 4 · One question this file did not settle — now settled in code
 
 **Does a global group manager see the individual cases from firms two levels below, or only
 what its group managers pass up?**
@@ -141,18 +156,30 @@ with three countries sees all three countries' donated cases; it never sees anot
 **This is an assumption, stated rather than hidden.** It changes no wording above. If it is
 wrong, say so and the scoping changes — the wording does not.
 
+✅ **BUILT AS DESCRIBED, session 43 (2026-08-11).** `tierChain.isWithinScope` is
+`scopeChain(firmId).includes(scopeId)` — whole-branch, exactly as stated here. A brand with
+three countries sees all three countries' donated cases and never another brand's. Still an
+assumption in the sense that Mike has not separately ruled on it; it is now an assumption
+that is *running*, which is the thing to know before changing it.
+
 ---
 
-## 5 · What happens after the ruling
+## 5 · What happened after the ruling
 
-- The nine strings are replaced, and the same wording goes into `locales/en.json` rather
-  than being hardcoded a second time (Stack Constitution — no hardcoded English).
-- The database column `mentor_shared` and the route `/api/mentor/cases` keep their names.
-  **Renaming them is a separate change and not proposed here** — the column records that a
+- ✅ **The nine strings are replaced**, and the wording lives in
+  [`locales/en.json`](../locales/en.json) under `caseShare` rather than being hardcoded a
+  second time (Stack Constitution — no hardcoded English). Manager-facing keys are
+  English-only in this app; the seven other locale files carry none of this family, and the
+  runtime translator reads from `en.json`.
+- ✅ **The database column `mentor_shared` and the route `/api/mentor/cases` keep their
+  names.** Renaming them is a separate change and was not made — the column records that a
   firm manager approved an upward share, which is still exactly what it means.
-- `listSharedWithMentor()` gains a scope argument so it returns only the caller's own
-  branch. Today, with no membership data, that returns nothing for a middle tier and
-  everything for the mentor — which is precisely today's behaviour, unchanged.
+- ✅ **`listSharedWithMentor()` already gained its scope argument** in session 43, before
+  this ruling. With no membership data it returns nothing for a middle tier and everything
+  for the mentor — precisely today's behaviour, unchanged.
+- ⚠ **Seven of the nine were live in UAT.** A backend restart is not needed for this change
+  (it is frontend text only), but the frontend must be rebuilt wherever it runs before the
+  new wording appears.
 
 Related:
 

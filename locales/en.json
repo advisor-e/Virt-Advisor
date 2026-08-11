@@ -1640,6 +1640,17 @@
   "tierNotConnected": {
     "firmsNotMapped": "The firms in this group are not connected yet, so there is nothing to show here."
   },
+  "caseShare": {
+    "heading": "Share upward",
+    "sharedStatus": "Shared upward (anonymised)",
+    "explain": "Share an anonymised copy with your group manager, your global group manager and Advisor-e, to help improve the app. Client details are removed and you approve the copy first.",
+    "withdraw": "Stop sharing",
+    "share": "Share upward",
+    "previewTitle": "Share upward — check the anonymised copy",
+    "consent": "This is what your group manager, your global group manager and Advisor-e will see. Client names, the business and identifying details have been removed; the wording and tone are kept. Approve only if you're happy it's anonymous.",
+    "reviewTitle": "Case Reviews",
+    "reviewLede": "Anonymised case studies shared by the firms in your group. Client names and identifying details are removed; the wording and tone are kept so you can see how the app performed and where it can improve."
+  },
   "firmTeamProgress": {
     "tab": "Team Progress",
     "lede": "Your advisors' completed VA cases and course sessions, grouped by capability level. Advisors see only their own record.",

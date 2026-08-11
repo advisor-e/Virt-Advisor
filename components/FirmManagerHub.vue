@@ -571,14 +571,18 @@ section.firm-manager-hub.section
                   p.is-size-7(v-if="c.review.changesRecommended") What they'd do differently — {{ c.review.changesRecommended }}
                 p.is-size-7.has-text-grey.mt-4(v-else) The advisor hasn't recorded a post-delivery review yet.
 
-                //- Mentor review — share an anonymised copy with the mentor
+                //- Share upward — an anonymised copy travels to EVERY managing level
+                //- above this firm at once (ruled 2026-08-11), not to the mentor alone.
+                //- The `mentorShared` field and its route keep their names: the flag
+                //- still records the one thing it always recorded, that a firm manager
+                //- approved an upward share. Wording: design/WORDING-CASE-SHARE-CASCADE.md.
                 hr.my-3
                 .level.is-mobile.mb-0
                   .level-left
                     div
-                      p.is-size-7.has-text-weight-semibold Mentor review
-                      p.is-size-7.has-text-grey(v-if="c.mentorShared") Shared with the mentor (anonymised){{ c.mentorSharedAt ? ' · ' + formatDate(c.mentorSharedAt) : '' }}
-                      p.is-size-7.has-text-grey(v-else) Share an anonymised copy with the mentor to help improve the app. Client details are removed and you approve the copy first.
+                      p.is-size-7.has-text-weight-semibold {{ $t('caseShare.heading') }}
+                      p.is-size-7.has-text-grey(v-if="c.mentorShared") {{ $t('caseShare.sharedStatus') }}{{ c.mentorSharedAt ? ' · ' + formatDate(c.mentorSharedAt) : '' }}
+                      p.is-size-7.has-text-grey(v-else) {{ $t('caseShare.explain') }}
                   .level-right
                     b-button(
                       v-if="c.mentorShared"
@@ -586,23 +590,26 @@ section.firm-manager-hub.section
                       type="is-danger is-light"
                       :loading="mentorActionCaseId === c.id"
                       @click="withdrawFromMentor(c)"
-                    ) Withdraw from mentor
+                    ) {{ $t('caseShare.withdraw') }}
                     b-button(
                       v-else
                       size="is-small"
                       type="is-primary is-light"
                       :loading="mentorActionCaseId === c.id"
                       @click="openMentorPreview(c)"
-                    ) Share with mentor
+                    ) {{ $t('caseShare.share') }}
 
-          //- Mentor-share preview: the manager approves the anonymised copy before it reaches the mentor
+          //- The consent step: the manager approves the anonymised copy before it travels.
+          //- 🔴 caseShare.consent is the ONE sentence here that is not cosmetic — it is
+          //- read immediately before clicking approve, so it must name the real audience.
+          //- Pinned by tests/unit/caseShareWording.test.js.
           b-modal(v-model="showMentorPreview" has-modal-card trap-focus :can-cancel="['escape','outside']")
             .modal-card(style="max-width:680px")
               header.modal-card-head
-                p.modal-card-title Share with mentor — review the anonymised copy
+                p.modal-card-title {{ $t('caseShare.previewTitle') }}
               section.modal-card-body
                 b-notification.mb-3(type="is-info is-light" :closable="false" style="font-size:0.85rem")
-                  | This is what the mentor will see. Client names, the business and identifying details have been removed; the wording and tone are kept. Approve only if you're happy it's anonymous.
+                  | {{ $t('caseShare.consent') }}
                 .has-text-centered.py-5(v-if="mentorPreviewLoading")
                   b-loading(:is-full-page="false" :active="true")
                   p.is-size-7.has-text-grey.mt-2 Preparing the anonymised copy…
