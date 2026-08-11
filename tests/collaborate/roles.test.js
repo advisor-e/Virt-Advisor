@@ -26,8 +26,8 @@ describe('resolveTier — precedence', () => {
   test('explicit record.tier wins over everything', () => {
     const roles = fresh()
     roles.setOverride('x', 'group_manager')
-    const rec = { id: 'x', tier: 'global_manager', firmManager: true }
-    expect(roles.resolveTier(rec, { role: AUTH.managerRole })).toBe('global_manager')
+    const rec = { id: 'x', tier: 'global_group_manager', firmManager: true }
+    expect(roles.resolveTier(rec, { role: AUTH.managerRole })).toBe('global_group_manager')
   })
 
   test('override table beats the JWT claim and the seed flag', () => {
@@ -79,7 +79,7 @@ describe('tierFromRoleClaim', () => {
 describe('isManagerTier', () => {
   test('managing tiers are managers; advisor/client are not', () => {
     const roles = fresh()
-    ;['mentor', 'global_manager', 'group_manager', 'firm_manager'].forEach(t =>
+    ;['mentor', 'global_group_manager', 'group_manager', 'firm_manager'].forEach(t =>
       expect(roles.isManagerTier(t)).toBe(true))
     ;['advisor', 'client'].forEach(t =>
       expect(roles.isManagerTier(t)).toBe(false))
@@ -104,9 +104,9 @@ describe('canManage — the scope matrix', () => {
     expect(roles.canManage(gm, otherBrandSameCountry)).toBe(false) // other brand
   })
 
-  test('global_manager reaches their whole brand (all countries); mentor reaches everyone', () => {
+  test('global_group_manager reaches their whole brand (all countries); mentor reaches everyone', () => {
     const roles = fresh()
-    const glob = { id: 'g', tier: 'global_manager', globalGroup: 'BrandX', country: 'DE', firm: 'X Munich' }
+    const glob = { id: 'g', tier: 'global_group_manager', globalGroup: 'BrandX', country: 'DE', firm: 'X Munich' }
     const mentor = { id: 'm', tier: 'mentor', globalGroup: 'BrandX', country: 'DE', firm: 'X Munich' }
     const sameBrandOtherCountry = { id: 't2', globalGroup: 'BrandX', country: 'IE', firm: 'X Dublin' }
     const otherBrand = { id: 't3', globalGroup: 'BrandY', country: 'DE', firm: 'Y Munich' }

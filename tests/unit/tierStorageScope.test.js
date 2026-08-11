@@ -80,7 +80,7 @@ describe('tier storage scope — the two middle tiers FAIL CLOSED today', () => 
   test('a token claiming to be a global manager gets NO tier scope while the role is unset', () => {
     // It is admitted as an ordinary caller under its own firm claim — it does not
     // silently acquire a brand's storage scope by asserting a role name.
-    const { req, next } = run({ firmId: 'firm-1', role: 'global_manager', globalGroup: 'BDO' })
+    const { req, next } = run({ firmId: 'firm-1', role: 'global_group_manager', globalGroup: 'BDO' })
     expect(next).toHaveBeenCalledTimes(1)
     expect(req.firmId).toBe('firm-1')
     expect(req.firmId).not.toContain('__global__')
@@ -101,7 +101,7 @@ describe('tier storage scope — once the master team supplies the roles', () =>
   const savedGroup = AUTH.groupManagerRole
 
   beforeEach(() => {
-    AUTH.globalManagerRole = 'global_manager'
+    AUTH.globalManagerRole = 'global_group_manager'
     AUTH.groupManagerRole = 'group_manager'
   })
 
@@ -111,11 +111,11 @@ describe('tier storage scope — once the master team supplies the roles', () =>
   })
 
   test('a global manager writes under their brand, not under the firm they claim', () => {
-    const { req, next } = run({ firmId: 'firm-1', role: 'global_manager', globalGroup: 'BDO' })
+    const { req, next } = run({ firmId: 'firm-1', role: 'global_group_manager', globalGroup: 'BDO' })
     expect(next).toHaveBeenCalledTimes(1)
     expect(req.firmId).toBe('__global__:BDO')
     expect(req.identity.firmId).toBe('__global__:BDO')
-    expect(tierOfScope(req.firmId)).toBe('global_manager')
+    expect(tierOfScope(req.firmId)).toBe('global_group_manager')
   })
 
   test('a group manager writes under their brand AND country', () => {
@@ -133,13 +133,13 @@ describe('tier storage scope — once the master team supplies the roles', () =>
   })
 
   test('two brands never resolve to the same scope', () => {
-    const a = run({ firmId: 'firm-1', role: 'global_manager', globalGroup: 'BDO' })
-    const b = run({ firmId: 'firm-1', role: 'global_manager', globalGroup: 'Lindt' })
+    const a = run({ firmId: 'firm-1', role: 'global_group_manager', globalGroup: 'BDO' })
+    const b = run({ firmId: 'firm-1', role: 'global_group_manager', globalGroup: 'Lindt' })
     expect(a.req.firmId).not.toBe(b.req.firmId)
   })
 
   test('REFUSED: a global manager whose token does not name their group', () => {
-    const { res, next, error } = run({ firmId: 'firm-1', role: 'global_manager' })
+    const { res, next, error } = run({ firmId: 'firm-1', role: 'global_group_manager' })
     expect(next).not.toHaveBeenCalled()
     expect(res._status).toBe(403)
     expect(error.code).toBe('MISSING_GROUP_CLAIM')
@@ -157,7 +157,7 @@ describe('tier storage scope — once the master team supplies the roles', () =>
     // Scope ids are taken apart on ':' to find the level above. A name that cannot
     // be taken apart again is refused rather than mangled — the master team needs
     // to know, and a silently escaped name would break the cascade invisibly.
-    const { res, next, error } = run({ firmId: 'firm-1', role: 'global_manager', globalGroup: 'BDO:UK' })
+    const { res, next, error } = run({ firmId: 'firm-1', role: 'global_group_manager', globalGroup: 'BDO:UK' })
     expect(next).not.toHaveBeenCalled()
     expect(res._status).toBe(403)
     expect(error.code).toBe('INVALID_GROUP_CLAIM')
@@ -214,7 +214,7 @@ describe('dev bypasses — the middle tiers', () => {
   }
 
   const CASES = [
-    { token: 'dev-local-global', scope: '__global__:Advisor-e', tier: 'global_manager' },
+    { token: 'dev-local-global', scope: '__global__:Advisor-e', tier: 'global_group_manager' },
     { token: 'dev-local-group', scope: '__group__:Advisor-e:DE', tier: 'group_manager' }
   ]
 

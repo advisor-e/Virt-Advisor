@@ -17,7 +17,7 @@ const activityStore = require('../utils/activityStore')
 const { listFirms } = require('../utils/firmsDirectory')
 const { buildAdoptionView, mergeActivityRows } = require('../utils/mentorAdoption')
 const { loadRulings, saveRulings, normaliseRuling } = require('../utils/templateCheckRulings')
-const { isWithinScope, isAwaitingFirms } = require('../utils/tierChain')
+const { isWithinScope, isAwaitingFirms, originPathOf, labelOfScope } = require('../utils/tierChain')
 const DOMAINS = require('../../data/domains.json')
 const firmManager = require('./firmManager')
 
@@ -214,6 +214,33 @@ async function deleteMentorDistinction (req, res) {
 }
 
 /**
+ * Firm id -> display name, from the one place that reads the `firms` table.
+ *
+ * ⚠ IT NEVER THROWS, AND THAT IS A DELIBERATE DIFFERENCE FROM listFirms ITSELF,
+ * which rejects in production so the adoption page cannot silently under-report a
+ * platform. Here the directory is decoration on a report whose job is to show a
+ * manager who needs help: losing the names should cost the reader a nice label, not
+ * the whole feed. A firm with no name shows as its id — visibly an id, so a reader
+ * can tell "we could not read the directory" from "this firm has no name", which is
+ * the same distinction the directory's own contract insists on.
+ *
+ * @returns {Promise<Object.<string, string>>} id -> name, or {} when unreadable
+ */
+async function firmNameMap () {
+  try {
+    const rows = await listFirms()
+    const map = {}
+    ;(Array.isArray(rows) ? rows : []).forEach((f) => {
+      if (f && f.id && f.name) { map[String(f.id)] = f.name }
+    })
+    return map
+  } catch (err) {
+    console.warn('[mentor] firm names unavailable, falling back to ids:', err.message)
+    return {}
+  }
+}
+
+/**
  * GET /api/mentor/cases — the cases shared upward, anonymised and advisor-stripped,
  * most-recently-shared first. The mentor reads every firm's; a global or country
  * manager reads only their own channel's.
@@ -222,17 +249,39 @@ async function deleteMentorDistinction (req, res) {
  * verified token — never from a query parameter. A caller cannot ask for another
  * group's feed, because they cannot say which feed they want.
  *
+ * 🔴 EVERY CASE CARRIES ITS ORIGIN (ruled 2026-08-11). Until then the feed named no
+ * source at all: it carried `firmId` in the payload and no screen displayed it, so a
+ * manager read a stack of anonymous cards and could act on none of them. That is the
+ * opposite of what this app is for — ADVISOR-E-DESIGN-LOGIC.md §2, "who is failing
+ * so we can offer help". `origin` is the path from the level immediately below the
+ * caller down to the firm, so the screen can group by rule 7's level and still show
+ * the address inside it. The client stays anonymised and the ADVISER STAYS STRIPPED;
+ * naming a firm to the manager above it is not a disclosure — they are their firms.
+ *
  * @route GET /api/mentor/cases
- * @returns {200} { success: true, cases: object[], awaitingFirms: boolean } —
- *   awaitingFirms distinguishes "no firm is mapped to this tier yet" from "no case
- *   has been shared yet". The two produce an identical empty list and mean
+ * @returns {200} { success: true, cases: object[], awaitingFirms: boolean } — each
+ *   case gains `origin: [{ scopeId, tier, label }]`, nearest level below the caller
+ *   first. awaitingFirms distinguishes "no firm is mapped to this tier yet" from "no
+ *   case has been shared yet". The two produce an identical empty list and mean
  *   opposite things, so the screen is told which it is rather than left to guess.
  * @returns {500} DB_ERROR
  */
 async function listMentorCases (req, res) {
   try {
     const cases = await caseStore.listSharedWithMentor(req.firmId)
-    res.send(200, { success: true, cases, awaitingFirms: isAwaitingFirms(req.firmId) })
+    const names = await firmNameMap()
+
+    const withOrigin = cases.map(c => Object.assign({}, c, {
+      origin: originPathOf(c.firmId, req.firmId).map(step => ({
+        scopeId: step.scopeId,
+        tier: step.tier,
+        // A brand/country names itself inside its scope id; a firm's name comes
+        // from the directory, and its id is the honest last resort.
+        label: labelOfScope(step.scopeId) || names[step.scopeId] || step.scopeId
+      }))
+    }))
+
+    res.send(200, { success: true, cases: withOrigin, awaitingFirms: isAwaitingFirms(req.firmId) })
   } catch (err) {
     console.error('[mentor] listMentorCases failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load shared case studies')

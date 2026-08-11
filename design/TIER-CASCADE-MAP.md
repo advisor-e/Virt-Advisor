@@ -25,7 +25,7 @@ The tier order, highest authority first
 ([`server/utils/tierChain.js`](../server/utils/tierChain.js) `TIERS`):
 
 ```
-mentor  →  global_manager  →  group_manager  →  firm_manager  →  advisor
+mentor  →  global_group_manager  →  group_manager  →  firm_manager  →  advisor
 ```
 
 Reserved scope ids: `__platform__` (mentor), `__global__:<brand>`,
@@ -156,7 +156,7 @@ The middle two tiers are built, tested and ready. **They hold nothing today**, a
 reasons belong to the Advisor-e master team, not to us:
 
 1. **No one can log in as one.** `roles.js` maps only `platform_admin` → mentor and
-   `firm_manager` → firm_manager. No role value anywhere produces `global_manager` or
+   `firm_manager` → firm_manager. No role value anywhere produces `global_group_manager` or
    `group_manager`. (⚠ `mentor` was never added either — it is still borrowing
    `platform_admin`.)
 2. **Nothing in our data says which firms are in which group.** The `firms` table has no

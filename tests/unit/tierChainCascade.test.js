@@ -10,7 +10,7 @@
  *
  * ⚠ THE HONEST LIMIT, stated here rather than left to be discovered. None of this
  * can be demonstrated by logging in as a group manager, because no such login
- * exists: roles.js maps no JWT role value to `global_manager` or `group_manager`,
+ * exists: roles.js maps no JWT role value to `global_group_manager` or `group_manager`,
  * and Advisor-e's login is what issues roles. So this is evidence from a seeded
  * membership map, which is weaker than a live screen. Plan §5.
  */

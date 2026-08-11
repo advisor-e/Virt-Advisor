@@ -426,7 +426,7 @@ function requireMentorRole (req, res, next) {
  * middle hubs — see TAB_TIERS in components/FirmManagerHub.vue.
  */
 function requireManagingTier (req, res, next) {
-  const allowed = ['mentor', 'global_manager', 'group_manager']
+  const allowed = ['mentor', 'global_group_manager', 'group_manager']
   if (!req.firmId || !allowed.includes(tierOfScope(req.firmId))) {
     return sendError(res, 403, 'FORBIDDEN',
       'This report is for managing tiers above a firm')

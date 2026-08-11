@@ -108,7 +108,7 @@ const GROUP_STEP_PREFIX = 'gs-'
 /** Every own-row prefix, by tier. Distinctness is asserted by a test. */
 const STEP_PREFIX_BY_TIER = {
   mentor: MENTOR_STEP_PREFIX,
-  global_manager: GLOBAL_STEP_PREFIX,
+  global_group_manager: GLOBAL_STEP_PREFIX,
   group_manager: GROUP_STEP_PREFIX,
   firm_manager: FIRM_STEP_PREFIX
 }

@@ -1628,6 +1628,39 @@ that the warning is not being followed by default.
     inherit through. A build job, not a data-model job. Not started, deliberately not smuggled
     into the tier-chain work below.
 
+- <a id="case-origin"></a>✅ **🔴 P1 · BUILD — CASE REVIEWS NAMED NO SOURCE AT ALL. RULED AND BUILT
+  2026-08-11.** The feed carried `firmId` in its payload and **no screen displayed it**, so every
+  manager opened the tab to a stack of anonymous cards and could act on none of them.
+  **The artefact is [`mockups/case-origin.html`](mockups/case-origin.html) — open it rather than
+  reading this row.**
+  - 🔴 **THE PROPOSAL PUT TO MIKE WAS TO REMOVE THE FIRM, AND HE REJECTED IT:** *"if i am the group
+    manager, how do i recognise which data relates to which firm? how can i help them if i dont know
+    who they are??"* [`ADVISOR-E-DESIGN-LOGIC.md`](ADVISOR-E-DESIGN-LOGIC.md) §2 settles it — reports
+    roll up so we can see *"who is failing so we can offer help"*. **Anonymisation here protects the
+    CLIENT, not the firm.** ⚠ §4.4 records the identical confusion being made on 2026-08-10 —
+    applying an outside party's privacy boundary to the customer's own senior people. **Twice now.**
+  - **The answer is a PATH, not a label** — `tierChain.originPathOf`. Element 0 is the level
+    immediately below the viewer (what the screen groups by, rule 7); the rest is the address inside
+    that group (§2). The two rules stop competing instead of one overruling the other.
+  - ✅ **It deepens by itself.** Built on `scopeChain`, so with no membership data the path is
+    exactly `[firm]` and the mentor sees firm names **because the firm genuinely is the level below
+    it today**. The mapping arriving turns the same code into three steps grouped by global group, with no
+    second change. Both halves pinned in [`tests/unit/caseOrigin.test.js`](../tests/unit/caseOrigin.test.js).
+  - **The adviser stays stripped and the client stays anonymised.** Unchanged.
+  - ⚠ **THE ARTEFACT WAS WRITTEN AFTER THE BUILD, NOT BEFORE — a Save-the-Artefact breach, recorded
+    rather than regularised.** The screen was described in chat, approved in chat, and built; no file
+    existed at the moment of approval. That is the exact failure the rule was added for on
+    2026-08-01/02. The mockup says so on its own face, so it cannot later be mistaken for evidence of
+    what was approved.
+  - ☐ **STILL OPEN, and adjacent rather than caused here: one firm, two spellings.** Adoption
+    resolves real firm names through `firmsDirectory`; the **Logic-Lab Report still prints raw ids**
+    ([`server/routes/mentor.js`](../server/routes/mentor.js), `firmName: firmId`, and its own comment
+    admits it). Case Reviews uses the directory so it is not a third spelling — but the same firm
+    still reads two ways on two tabs of one hub.
+  - ⚠ **`LIMIT 500` is applied BEFORE scoping** (pre-existing): a tier's slice comes from the 500
+    most recent platform-wide, not its own 500. Stops mattering when the mapping makes the scope an
+    SQL `IN` clause.
+
 - <a id="tier-hub-pages"></a>✅ **🔴 P1 · BUILD — the GLOBAL GROUP MANAGER HUB and the GROUP MANAGER
   HUB. DESIGN APPROVED 2026-08-10 · PARTS 1–4 BUILT 2026-08-11 · PART 5 BUILT 2026-08-11 (session 43)
   — COMPLETE ON OUR SIDE, the remainder is the master team's.** **The artefact
@@ -1934,7 +1967,7 @@ that the warning is not being followed by default.
     finished and holds nothing until both arrive:
     1. **The role values.** `server/collaborate/data/roles.js` `tierFromRoleClaim` maps only
        `platform_admin` → mentor and `firm_manager` → firm_manager. **No role value produces
-       `global_manager` or `group_manager`**, the override table is an in-memory object that empties
+       `global_group_manager` or `group_manager`**, the override table is an in-memory object that empties
        on restart, and the file says outright it is *"NOT a substitute for the real Advisory JWT role
        the master team still wires"*. Advisor-e's login issues roles; we do not. (Same gap as the
        mentor role, still borrowing `platform_admin`.)
@@ -2244,8 +2277,8 @@ that the warning is not being followed by default.
     group routes, and it reads advisers, approvals, the activity feed and the audit log. The job
     is *merge the app, then surface its page as a tab*, not *move one component*.
   - 🔴 **RULED — the 5-level cascade is built in PROPERLY, now; firm-as-top is not carried
-    forward.** Mentor → global group manager → group manager → firm manager → adviser
-    (pass-through) → client; documents clone DOWN, reporting rolls UP, every tier is the same
+    forward.** Mentor → global group manager → group manager → firm manager → advisor
+    (pass-through) → business entity; documents clone DOWN, reporting rolls UP, every tier is the same
     screen re-scoped. *Curator and coach do not clone documents and sit outside the chain.*
     **The half-measure of confining tiers to one tab, or logging the seams for the master team,
     was offered, rejected, and must never be re-proposed** (one-directional rule).

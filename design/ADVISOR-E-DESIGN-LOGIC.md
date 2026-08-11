@@ -104,9 +104,19 @@ can be **helped**.
 
 ### 3.1 The levels, as this app sees them
 
-Advisor-e's hierarchy is `mentor → global_manager → group_manager → firm_manager → advisor →
-client`. **We do not implement it — we scope to it.** A global group is a brand (Advisor-e, BDO,
-Lindt & Co); a group is normally a country; a firm is a branch.
+Advisor-e's hierarchy is `mentor → global_group_manager → group_manager → firm_manager → advisor →
+business_entity`. **We do not implement it — we scope to it.** A global group is a brand
+(Advisor-e, BDO, Lindt & Co); a group is normally a country; a firm is a branch.
+
+🔴 **RENAMED 2026-08-11 ON THE OWNER'S ORDER, and the names do not shift again.** Two values
+were carrying loose spellings: the global-group tier had dropped the word "group", and the
+bottom of the tree was named after a single person. His reasoning, in his words —
+*"a business entity may have more than 1 person/client"*, and *"this is sloppy work and it's
+how fuck ups occur"*. He was right on the evidence: the shortened form had already produced an
+invented job title twice in one session, because it sounded authoritative and nothing marked it
+as wrong. Both spellings are now pinned by
+[`tests/unit/tierVocabulary.test.js`](../tests/unit/tierVocabulary.test.js), which fails the
+build if either reappears **anywhere** in the source or in this design record.
 
 What "authority flows down" means **here** is narrower than it means in Advisor-e. In this app a
 management level does exactly two things to the level below:
@@ -153,7 +163,9 @@ not.** A plan built on the word *fold* was put to Mike on 2026-07-30 and he caug
 
 Nothing an advisor does here cascades to anyone, and no level inherits from an advisor. Their
 final selection and final edit of a **template** happen in Advisor-e (§1.1), not here — so this
-app needs no advisor-level override storage. **The client is a recipient only.**
+app needs no advisor-level override storage. **The business entity is a recipient only** — and
+it is an entity, not a person: it may have several people, which is why the tier is not named
+after one of them.
 
 ---
 
@@ -190,8 +202,18 @@ list someone must re-derive later.
 
 ### 4.3 What limits it
 
-- **"The level below" is the limit.** A group manager sees their firms, not a flat roster of every
+- **"The level below" is the limit** — on what a list is **grouped by**, not on what a manager may
+  learn about their own people. A group manager sees their firms, not a flat roster of every
   adviser in the country.
+- 🔴 **Every cross-firm row carries its ORIGIN** (ruled 2026-08-11). A report that shows something
+  is wrong without showing **where** is an alarm with no address, and §2 is the whole reason this
+  section exists. The origin is a **path** — the level immediately below the viewer first, the firm
+  last — so element 0 is what the screen groups by (rule 7) and the remainder is the address inside
+  that group (§2). `tierChain.originPathOf`; built for Case Reviews, and the shape any later
+  cross-firm report should reuse rather than reinvent.
+  ⚠ Naming a firm to the manager **above** it is not a disclosure — see §4.4, which records this
+  exact confusion being made once already. What stays hidden is the **adviser** and the **client**.
+  Artefact: [`mockups/case-origin.html`](mockups/case-origin.html).
 - **Case sharing stays double opt-in.** The adviser decides whether a case is visible to their
   firm; the firm manager separately decides whether it goes further. The level above sees the
   anonymised copy — never the raw text.
@@ -319,7 +341,7 @@ worked. Written down three times now.
 
 | Gap | Whose |
 |---|---|
-| **No middle-tier login exists.** `roles.js` maps only `platform_admin` → mentor and `firm_manager` → firm_manager. No role value produces `global_manager` or `group_manager`. ⚠ `mentor` was never added either | **Advisor-e** |
+| **No middle-tier login exists.** `roles.js` maps only `platform_admin` → mentor and `firm_manager` → firm_manager. No role value produces `global_group_manager` or `group_manager`. ⚠ `mentor` was never added either | **Advisor-e** |
 | **No membership data.** The `firms` table has no country, group or parent column, so `parentScopeOf` returns the mentor scope for every firm and the chain runs mentor → firm, exactly as before | **Advisor-e** |
 | **The two middle-tier hub pages** are designed and approved but not built | Ours |
 | **The tab gates** (§5.1) must be rewritten to name their tiers — **first**, not last | Ours |
@@ -336,8 +358,12 @@ and recorded as one rather than glossed.
 
 1. **If a feature needs login, accounts, the org chart, roles or templates, it is Advisor-e's**
    (§1.1). Do not build it here, do not hold a copy of its data, do not mint an id for it.
-2. **This repo never invents a role-value name.** The vocabulary is fixed and shared: `mentor,
-   global_manager, group_manager, firm_manager, advisor, client`.
+2. **This repo never invents a role-value name, and never shortens one.** The vocabulary is
+   fixed and shared: `mentor, global_group_manager, group_manager, firm_manager, advisor,
+   business_entity`. Spoken: mentor · global group manager · group manager · firm manager ·
+   advisor · business entity. **Enforced, not merely stated** —
+   [`tests/unit/tierVocabulary.test.js`](../tests/unit/tierVocabulary.test.js) pins the six and
+   fails on any superseded spelling anywhere in the source or in `design/`.
 3. **No new code takes a bare `firmId` as its scope.** A route resolves a tier and a scope; a firm
    is one possible value, never the assumed one.
 4. **Resolution walks the chain** — platform → global group → group → firm — and a level with no

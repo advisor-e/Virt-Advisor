@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case Reviews — where a shared case came from (record of what was built)</title>
+<style>
+  :root {
+    --navy:#002b64; --grey:#7a869a; --line:#e2e6ec; --ink:#363636;
+    --green:#1f7a45; --green-bg:#eefaf2; --green-line:#63c48d;
+    --amber:#b35309; --amber-bg:#fffaf3; --amber-line:#ffb870;
+    --slate:#5a6b82; --slate-bg:#f3f6fa; --slate-line:#b8c6d8;
+    --red:#a02b2b; --red-bg:#fdf3f3; --red-line:#e2a0a0;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.5rem 6rem; background:#f5f5f5;
+    font:15px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); }
+  .wrap { max-width:1060px; margin:0 auto; }
+
+  .banner { background:#fffaf3; border:1px solid #f3ddc0; border-left:4px solid var(--amber-line);
+    border-radius:5px; padding:0.9rem 1.05rem; margin-bottom:2.5rem; font-size:0.84rem; line-height:1.6; }
+  .banner strong { color:var(--amber); }
+  .banner.approved { background:#eefaf2; border-color:#b9e3cb; border-left-color:var(--green-line); }
+  .banner.approved strong { color:var(--green); }
+  .banner.breach { background:#fdf3f3; border-color:#e2a0a0; border-left-color:var(--red-line); }
+  .banner.breach strong { color:var(--red); }
+
+  h1 { font-size:1.6rem; margin:0 0 0.4rem; color:var(--navy); letter-spacing:-0.01em; }
+  .lede { color:var(--grey); font-size:0.92rem; margin:0 0 2rem; max-width:56rem; }
+
+  section.band { margin-top:3.4rem; }
+  section.band > h2 { font-size:1.15rem; color:var(--navy); margin:0 0 0.35rem; letter-spacing:-0.01em; }
+  section.band > .sub { color:var(--grey); font-size:0.86rem; margin:0 0 1.6rem; max-width:56rem; }
+
+  .quote { border-left:3px solid var(--slate-line); background:var(--slate-bg); padding:0.7rem 1rem;
+    margin:0 0 1.6rem; font-size:0.86rem; color:var(--slate); border-radius:0 5px 5px 0; }
+  .quote em { color:var(--navy); font-style:normal; font-weight:600; }
+
+  /* ── Screen preview ───────────────────────────────────────────── */
+  .screen { background:#fff; border:1px solid var(--line); border-radius:8px; padding:1.3rem 1.4rem 1.5rem;
+    margin-bottom:1rem; }
+  .screen h3 { font-size:1.05rem; color:var(--navy); margin:0 0 0.7rem; font-weight:700; }
+  .note { background:#eef5ff; border:1px solid #cfe0f6; border-radius:5px; padding:0.6rem 0.8rem;
+    font-size:0.78rem; color:var(--slate); margin-bottom:1.2rem; }
+
+  .grp { display:flex; align-items:center; justify-content:space-between; padding:0.5rem 0.1rem 0.5rem;
+    margin-top:0.9rem; }
+  .grp:first-of-type { margin-top:0; }
+  .grpname { font-weight:700; color:var(--ink); font-size:0.95rem; }
+  .pill { display:inline-block; background:#f0f2f5; border-radius:999px; padding:0.05rem 0.55rem;
+    font-size:0.75rem; color:var(--slate); margin-left:0.5rem; font-weight:600; }
+  .chev { color:var(--grey); font-size:0.8rem; }
+
+  .card { border:1px solid var(--line); border-radius:6px; padding:0.7rem 0.85rem; margin-bottom:0.5rem;
+    display:flex; align-items:center; justify-content:space-between; }
+  .ctitle { font-weight:600; font-size:0.9rem; }
+  .cmeta { font-size:0.76rem; color:var(--grey); margin-top:0.1rem; }
+  .cmeta b { color:var(--navy); font-weight:600; }
+
+  .tierlabel { font-size:0.68rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--navy);
+    font-weight:700; margin:0 0 0.45rem; }
+
+  table.mx { border-collapse:collapse; width:100%; font-size:0.8rem;
+    background:#fff; border:1px solid #ececec; border-radius:8px; overflow:hidden; }
+  table.mx th { text-align:left; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--navy); background:#f4f6f9; padding:0.6rem; border-bottom:1px solid #d5dbe4; }
+  table.mx td { padding:0.55rem 0.6rem; border-bottom:1px solid #eef1f5; vertical-align:top; }
+  table.mx tr:last-child td { border-bottom:0; }
+  table.mx td.name { font-weight:600; color:var(--navy); white-space:nowrap; }
+  table.mx td.why { color:var(--grey); font-size:0.76rem; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.85em;
+    background:#f4f6f9; padding:0.05rem 0.3rem; border-radius:3px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Case Reviews — where a shared case came from</h1>
+  <p class="lede">
+    What each management level sees on a case shared upward, and why the answer is a
+    <strong>path</strong> rather than a single label. Ruled by Mike on 2026-08-11 and built the
+    same day.
+  </p>
+
+  <div class="banner breach">
+    <strong>⚠ THIS RECORD WAS WRITTEN AFTER THE BUILD, NOT BEFORE IT — and that is a breach of the
+    Save-the-Artefact rule.</strong><br>
+    The screen below was described to Mike in chat, approved in chat, and built. No artefact existed
+    at the moment of approval, which is exactly the failure that rule was written for
+    (<code>CLAUDE.md</code> → Save the Artefact, added 2026-08-01/02 after a Logic-Lab mockup was
+    approved in chat, never saved, and drifted). Recorded here rather than quietly regularised: the
+    page you are reading is a description of what was built, so it cannot be used as evidence of
+    what was approved. If the two ever disagree, <strong>the code is what shipped and this file is
+    the claim to check.</strong>
+  </div>
+
+  <div class="banner approved">
+    <strong>✅ RULED 2026-08-11.</strong> Mike, on being shown a proposal to REMOVE the firm
+    identity from the feed: <em>"if i am the group manager, how do i recognise which data relates
+    to which firm? how can i help them if i dont know who they are??"</em>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>1 · Why there was a problem at all</h2>
+    <p class="sub">
+      The feed already carried the firm id in its payload. <strong>No screen displayed it.</strong>
+      So every manager opened Case Reviews to a stack of anonymous cards and could act on none of
+      them — an alarm with no address.
+    </p>
+
+    <div class="quote">
+      <code>ADVISOR-E-DESIGN-LOGIC.md</code> §2, from Mike's own words:
+      <em>"The reports cascade up so we learn what is working, what isn't, who is failing so we can
+      offer help."</em>
+    </div>
+
+    <p class="sub">
+      Two rules had to be satisfied at once, and they pull against each other:
+    </p>
+
+    <table class="mx">
+      <tr>
+        <td class="name">§2 — the purpose</td>
+        <td class="why">A manager must be able to see <strong>who</strong> needs help. Strip the
+          origin and the report cannot do the only job it has.</td>
+      </tr>
+      <tr>
+        <td class="name">Rule 7 / §4.1</td>
+        <td class="why">Each level sees <strong>the level immediately below it, summarised</strong>
+          — never a flat roster of the bottom of the tree.</td>
+      </tr>
+    </table>
+
+    <p class="sub" style="margin-top:1.2rem">
+      A <strong>path</strong> satisfies both and stops them competing. Element 0 is the level
+      immediately below the viewer — what the list is <em>grouped by</em>. The remainder is the
+      address inside that group, which is what makes a group worth opening. Rule 7 limits what a
+      list is grouped by; it does not blindfold a manager to their own firms.
+    </p>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>2 · What each level sees</h2>
+    <p class="sub">
+      One screen, re-scoped — no per-tier code. The backend supplies
+      <code>origin</code> and the screen never works out its own tier, for the same reason it does
+      not infer <code>awaitingFirms</code>.
+    </p>
+
+    <p class="tierlabel">Group manager (Germany) — groups by firm</p>
+    <div class="screen">
+      <h3>Case Reviews</h3>
+      <div class="grp">
+        <span><span class="grpname">Müller &amp; Partner</span><span class="pill">2</span></span>
+        <span class="chev">▲</span>
+      </div>
+      <div class="card">
+        <div>
+          <div class="ctitle">A failing café</div>
+          <div class="cmeta">Profitability &amp; Feasibility · shared 26 Jun</div>
+        </div>
+        <span class="chev">▼</span>
+      </div>
+      <div class="card">
+        <div>
+          <div class="ctitle">Owner drawing too much</div>
+          <div class="cmeta">Financial Management · shared 24 Jun</div>
+        </div>
+        <span class="chev">▼</span>
+      </div>
+      <div class="grp">
+        <span><span class="grpname">Schmidt GmbH</span><span class="pill">1</span></span>
+        <span class="chev">▲</span>
+      </div>
+      <div class="card">
+        <div>
+          <div class="ctitle">Succession with no successor</div>
+          <div class="cmeta">Succession &amp; Exit Planning · shared 21 Jun</div>
+        </div>
+        <span class="chev">▼</span>
+      </div>
+    </div>
+    <div class="note">
+      No prefix on the card — the group heading already names the firm, and there is nothing
+      further down to name. This is why the address is a <strong>prefix</strong> and not a column:
+      a column would sit empty on the tier that uses this screen most.
+    </div>
+
+    <p class="tierlabel" style="margin-top:2rem">Global group manager (the brand) — groups by country</p>
+    <div class="screen">
+      <h3>Case Reviews</h3>
+      <div class="grp">
+        <span><span class="grpname">Germany</span><span class="pill">3</span></span>
+        <span class="chev">▲</span>
+      </div>
+      <div class="card">
+        <div>
+          <div class="ctitle">A failing café</div>
+          <div class="cmeta"><b>Müller &amp; Partner</b> · Profitability &amp; Feasibility · shared 26 Jun</div>
+        </div>
+        <span class="chev">▼</span>
+      </div>
+      <div class="card">
+        <div>
+          <div class="ctitle">Succession with no successor</div>
+          <div class="cmeta"><b>Schmidt GmbH</b> · Succession &amp; Exit Planning · shared 21 Jun</div>
+        </div>
+        <span class="chev">▼</span>
+      </div>
+      <div class="grp">
+        <span><span class="grpname">Ireland</span><span class="pill">1</span></span>
+        <span class="chev">▼</span>
+      </div>
+    </div>
+    <div class="note">
+      Grouped by country, because that is the level immediately below a global group manager — and
+      the level whose manager they would actually speak to. The firm still appears on the card, so
+      the conversation with the country manager can be a useful one.
+    </div>
+
+    <p class="tierlabel" style="margin-top:2rem">Mentor — groups by global group</p>
+    <div class="screen">
+      <h3>Case Reviews</h3>
+      <div class="grp">
+        <span><span class="grpname">Advisor-e</span><span class="pill">4</span></span>
+        <span class="chev">▲</span>
+      </div>
+      <div class="card">
+        <div>
+          <div class="ctitle">A failing café</div>
+          <div class="cmeta"><b>Germany · Müller &amp; Partner</b> · Profitability &amp; Feasibility · shared 26 Jun</div>
+        </div>
+        <span class="chev">▼</span>
+      </div>
+      <div class="grp">
+        <span><span class="grpname">BDO</span><span class="pill">2</span></span>
+        <span class="chev">▼</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>3 · What it looks like TODAY, before the mapping arrives</h2>
+    <p class="sub">
+      No membership data exists — the <code>firms</code> table has no group or country column and
+      no JWT carries the claims. So every firm sits directly beneath the mentor.
+    </p>
+
+    <p class="tierlabel">Mentor, today — groups by firm, because the firm IS the level below it</p>
+    <div class="screen">
+      <h3>Case Reviews</h3>
+      <div class="grp">
+        <span><span class="grpname">Müller &amp; Partner</span><span class="pill">2</span></span>
+        <span class="chev">▲</span>
+      </div>
+      <div class="card">
+        <div>
+          <div class="ctitle">A failing café</div>
+          <div class="cmeta">Profitability &amp; Feasibility · shared 26 Jun</div>
+        </div>
+        <span class="chev">▼</span>
+      </div>
+    </div>
+
+    <div class="banner approved" style="margin-top:1.2rem">
+      <strong>✅ It deepens by itself.</strong> The path is built from <code>scopeChain</code>, so
+      the mentor sees firm names now because the firm genuinely is the level below it now. The day
+      the master team supplies the mapping, the same code returns three steps and the screen groups
+      by global group — <strong>no second change, and no rule to revisit.</strong> Both halves are pinned
+      in <code>tests/unit/caseOrigin.test.js</code>; the second is the one no live screen can show
+      yet.
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>4 · What is still hidden, and what "anonymised" protects</h2>
+
+    <table class="mx">
+      <tr>
+        <th style="width:11rem">Shown</th>
+        <th>Why it is not a disclosure</th>
+      </tr>
+      <tr>
+        <td class="name">The firm</td>
+        <td class="why">Anonymisation here protects the <strong>client</strong> — the end business
+          the adviser was advising. Naming a firm to the manager above it is not a disclosure:
+          they are their firms. §4.4 records the same mistake being made four days earlier —
+          applying an outside party's privacy boundary to the customer's own senior people.</td>
+      </tr>
+      <tr>
+        <td class="name">The country / brand</td>
+        <td class="why">Carried in the reserved scope id itself. Nothing new is stored.</td>
+      </tr>
+      <tr>
+        <th style="width:11rem">Still hidden</th>
+        <th>Unchanged by this work</th>
+      </tr>
+      <tr>
+        <td class="name">The adviser</td>
+        <td class="why"><code>advisorId</code> is stripped and stays stripped. A manager sees which
+          firm to offer help to, never which individual to blame — <em>help, not score</em> (§2).</td>
+      </tr>
+      <tr>
+        <td class="name">The client</td>
+        <td class="why">Summary and transcript are the anonymised copies the firm manager approved.
+          Double opt-in is unchanged.</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>5 · Two limits, named rather than discovered later</h2>
+
+    <table class="mx">
+      <tr>
+        <td class="name">The grouped view cannot be demonstrated</td>
+        <td class="why">No middle-tier login exists and no membership data has been supplied, so
+          the deeper path is evidenced by tests against a seeded map, not a live screen. A weaker
+          claim than a working demo, and recorded as one.</td>
+      </tr>
+      <tr>
+        <td class="name"><code>LIMIT 500</code> is applied before scoping</td>
+        <td class="why">Pre-existing. A tier's slice is taken from the 500 most recently shared
+          cases platform-wide rather than from its own 500, so a very large platform would show a
+          small group less than it has. It stops mattering when the mapping lands and the scope
+          becomes an SQL <code>IN</code> clause.</td>
+      </tr>
+      <tr>
+        <td class="name">One firm, two spellings</td>
+        <td class="why">Not caused here, but adjacent and worth naming: Adoption resolves real firm
+          names through <code>firmsDirectory</code>, while the Logic-Lab Report still prints raw
+          ids. Case Reviews uses the directory, so it does not become a third spelling — but the
+          Logic-Lab Report is still the odd one out.</td>
+      </tr>
+    </table>
+  </section>
+
+</div>
+</body>
+</html>

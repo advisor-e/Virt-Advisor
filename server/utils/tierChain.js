@@ -28,7 +28,7 @@
  *
  * ⚠ WHAT IS STILL MISSING, AND WHOSE IT IS. A real group or global manager cannot
  * log in: roles.js maps only `platform_admin` -> mentor and `firm_manager` ->
- * firm_manager, so no role value produces `global_manager` or `group_manager`. That
+ * firm_manager, so no role value produces `global_group_manager` or `group_manager`. That
  * role is issued by Advisor-e's login, not by us. This module is ready for it; it
  * cannot supply it. See the plan §2.
  *
@@ -52,11 +52,20 @@ const GROUP_PREFIX = '__group__:'
 const SEP = ':'
 
 /**
- * Canonical tier names, highest authority first. Deliberately the same strings as
- * roles.js TIERS so the two models can never drift into disagreeing about what a
- * tier is called.
+ * The four MANAGING tiers, highest authority first — the same strings as roles.js
+ * TIERS, which is the canonical vocabulary (mentor · global_group_manager ·
+ * group_manager · firm_manager · advisor · business_entity).
+ *
+ * 🔴 THIS COMMENT USED TO SAY THE TWO LISTS "CAN NEVER DRIFT", AND NOTHING CHECKED
+ * IT. They are two literals in two files; only a test can hold them together.
+ * `tests/unit/tierVocabulary.test.js` now does, and also fails the build if either
+ * superseded spelling reappears anywhere in the source — the shortened global-group
+ * name, or a tier named after one person instead of the entity. The old spellings
+ * are not written out here on purpose: that file is the only place allowed to name
+ * them, or the scan would have to exempt whatever quoted them. Renaming a tier means
+ * changing the vocabulary in roles.js — never inventing a variant here.
  */
-const TIERS = ['mentor', 'global_manager', 'group_manager', 'firm_manager']
+const TIERS = ['mentor', 'global_group_manager', 'group_manager', 'firm_manager']
 
 /**
  * Firm membership: firmId -> { globalGroup, country }.
@@ -147,7 +156,7 @@ function getFirmMembership () {
  */
 function tierOfScope (scopeId) {
   if (isPlatformScope(scopeId)) { return 'mentor' }
-  if (typeof scopeId === 'string' && scopeId.indexOf(GLOBAL_PREFIX) === 0) { return 'global_manager' }
+  if (typeof scopeId === 'string' && scopeId.indexOf(GLOBAL_PREFIX) === 0) { return 'global_group_manager' }
   if (typeof scopeId === 'string' && scopeId.indexOf(GROUP_PREFIX) === 0) { return 'group_manager' }
   return 'firm_manager'
 }
@@ -215,7 +224,7 @@ function parentScopeOf (scopeId) {
  */
 function isAwaitingFirms (scopeId) {
   const tier = tierOfScope(scopeId)
-  if (tier !== 'global_manager' && tier !== 'group_manager') { return false }
+  if (tier !== 'global_group_manager' && tier !== 'group_manager') { return false }
   return firmsUnderScope(scopeId).length === 0
 }
 
@@ -273,6 +282,85 @@ function isWithinScope (firmId, scopeId) {
 }
 
 /**
+ * WHERE DID THIS ROW COME FROM, as the viewer needs to hear it — the path from the
+ * level immediately below them down to the firm itself.
+ *
+ * 🔴 WHY A PATH AND NOT A LABEL. This app exists so that managers can SEE WHO NEEDS
+ * HELP (ADVISOR-E-DESIGN-LOGIC.md §2: "who is failing so we can offer help"). A
+ * cross-firm row with no origin is an alarm with no address — the manager learns
+ * something is wrong and cannot act. But rule 7 (§4.1) is equally firm: each level
+ * sees THE LEVEL IMMEDIATELY BELOW IT, summarised, not a flat roster of the bottom.
+ *
+ * A path satisfies both, and the two rules stop competing:
+ *   - element 0 is the level immediately below the viewer — what the screen GROUPS by;
+ *   - the remainder is the address inside that group, which is what makes the group
+ *     worth opening.
+ *
+ * So a group manager gets [firm]; a global manager gets [group, firm]; the mentor
+ * gets [global, group, firm]. One function, no per-tier branch, nothing hidden from
+ * a manager about their own people.
+ *
+ * 🔴 AND IT DEEPENS BY ITSELF. Expressed with scopeChain, so today — no membership
+ * data — every firm sits directly beneath the mentor and the path is exactly [firm].
+ * The mentor sees firm names now because the firm genuinely IS the level below it
+ * now. The day the master team supplies the mapping, the same code returns three
+ * steps and the screen groups by global group. No second change, and no rule to revisit.
+ *
+ * ⚠ A VIEWER OUTSIDE THE FIRM'S CHAIN GETS [] — not a guess and not the whole path.
+ * Callers already filter with isWithinScope, so this is the second lock on the same
+ * door rather than the first: an unscoped row cannot acquire an address here.
+ *
+ * @param {string} firmId - the firm a data row belongs to
+ * @param {string} viewerScopeId - the caller's resolved scope (req.firmId)
+ * @returns {Array<{scopeId: string, tier: string}>} nearest level below the viewer
+ *   first, the firm last; [] when the firm is not beneath this viewer
+ */
+function originPathOf (firmId, viewerScopeId) {
+  if (!firmId || typeof firmId !== 'string') { return [] }
+  if (!viewerScopeId || typeof viewerScopeId !== 'string') { return [] }
+
+  const chain = scopeChain(firmId)
+  const at = chain.indexOf(viewerScopeId)
+  if (at === -1) { return [] }
+
+  return chain.slice(at + 1).map(scopeId => ({ scopeId, tier: tierOfScope(scopeId) }))
+}
+
+/**
+ * The display name carried INSIDE a reserved scope id — the brand for a global
+ * scope, the country for a group scope.
+ *
+ * 🔴 A FIRM RETURNS null, DELIBERATELY. A firm's name is not in its id and is not
+ * ours to invent; it lives in the `firms` table and is read through
+ * firmsDirectory.listFirms(). Returning the id dressed as a name here is exactly the
+ * fabrication this codebase has been bitten by before, and it would also give the
+ * same firm two spellings on two tabs of one hub — which is already true between
+ * Adoption (real names) and the Logic-Lab Report (raw ids), and is not to be
+ * repeated a third time. The caller substitutes a real name, or shows the id
+ * visibly as an id.
+ *
+ * @param {string} scopeId
+ * @returns {string|null} the brand or country name, or null for a firm/platform scope
+ */
+function labelOfScope (scopeId) {
+  if (!scopeId || typeof scopeId !== 'string') { return null }
+
+  if (scopeId.indexOf(GLOBAL_PREFIX) === 0) {
+    return scopeId.slice(GLOBAL_PREFIX.length) || null
+  }
+
+  if (scopeId.indexOf(GROUP_PREFIX) === 0) {
+    const rest = scopeId.slice(GROUP_PREFIX.length)
+    const cut = rest.indexOf(SEP)
+    // A malformed group id names no country; the honest answer is "we cannot say",
+    // matching parentScopeOf's refusal to guess a brand from the same input.
+    return cut > 0 ? (rest.slice(cut + 1) || null) : null
+  }
+
+  return null
+}
+
+/**
  * The full fold order for a scope: the top of the tree first, the scope itself last.
  *
  * Callers that fold layer-over-layer (firmOverlay.loadFirmConfig) walk this in
@@ -315,5 +403,7 @@ module.exports = {
   scopeChain,
   isWithinScope,
   firmsUnderScope,
-  isAwaitingFirms
+  isAwaitingFirms,
+  originPathOf,
+  labelOfScope
 }

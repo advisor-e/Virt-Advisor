@@ -116,7 +116,7 @@ const GROUP_QUESTION_PREFIX = 'gq-'
 /** Every own-row prefix, by tier. Distinctness is asserted by a test. */
 const QUESTION_PREFIX_BY_TIER = {
   mentor: MENTOR_QUESTION_PREFIX,
-  global_manager: GLOBAL_QUESTION_PREFIX,
+  global_group_manager: GLOBAL_QUESTION_PREFIX,
   group_manager: GROUP_QUESTION_PREFIX,
   firm_manager: FIRM_QUESTION_PREFIX
 }

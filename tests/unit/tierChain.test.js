@@ -114,7 +114,7 @@ describe('tierChain — scope ids cannot collide with a real firm', () => {
 
   test('the two prefixes are distinct, so a group is never read as a brand', () => {
     expect(GLOBAL_PREFIX).not.toBe(GROUP_PREFIX)
-    expect(tierOfScope(globalScopeId('X'))).toBe('global_manager')
+    expect(tierOfScope(globalScopeId('X'))).toBe('global_group_manager')
     expect(tierOfScope(groupScopeId('X', 'DE'))).toBe('group_manager')
   })
 

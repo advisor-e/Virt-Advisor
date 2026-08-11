@@ -48,7 +48,7 @@ Both belong to the Advisor-e master team. Recorded here so it is never mistaken 
 
 - **No role exists.** [`roles.js`](../server/collaborate/data/roles.js) `tierFromRoleClaim`
   maps exactly two things — `platform_admin` → mentor, `firm_manager` → firm_manager.
-  **No role value anywhere produces `global_manager` or `group_manager`.** The only routes in
+  **No role value anywhere produces `global_group_manager` or `group_manager`.** The only routes in
   are a hardcoded `tier` on a seed record, or `ROLE_OVERRIDES`, which is an in-memory object
   (`const ROLE_OVERRIDES = {}`) that empties on every restart. The file says it plainly:
   *"NOT a substitute for the real Advisory JWT role the master team still wires."*

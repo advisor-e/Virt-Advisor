@@ -17,7 +17,7 @@ that the tier model already existed (`server/collaborate/data/roles.js` — a fu
 built for Q-ROLES in July) and that `resolveInheritedRows` was written to be widened. So the
 build was a day, not a week.
 
-But **no role value anywhere produces `global_manager` or `group_manager`**, and the `firms`
+But **no role value anywhere produces `global_group_manager` or `group_manager`**, and the `firms`
 table has no group or country column. Both are issued/owned upstream by Advisor-e. Told to Mike
 before building, not after — he needed the lead time to ask them, and two days is already thin.
 
@@ -74,7 +74,7 @@ unmemorable letter.
 
 🔴 **BLOCKED ON THE MASTER TEAM — and this is the whole of what remains:**
 
-1. **The two role values** (`group_manager`, `global_manager`) in the Advisor-e login token.
+1. **The two role values** (`group_manager`, `global_group_manager`) in the Advisor-e login token.
    ⚠ Worth raising together: **`mentor` was never added either** — it is still borrowing
    `platform_admin`.
 2. **Firm → country → global-group membership.** The `firms` table has no column for it.

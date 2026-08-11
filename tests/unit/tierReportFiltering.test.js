@@ -122,18 +122,24 @@ describe('GET /api/mentor/cases — the shared-case feed', () => {
 
     expect(res._body.cases[0].advisorId).toBeUndefined()
 
-    // ⚠ FOUND 2026-08-11 WHILE WRITING THIS TEST, AND DELIBERATELY NOT CHANGED.
-    // caseStore.rowToMentorCase carries `firmId` into the payload, so the feed does
-    // name the firm each anonymised case came from. That contradicts what the
-    // design record says this screen is — design/mockups/tier-hub-pages.html and
-    // the Hub's own comments describe Case Reviews as "anonymised, no adviser, no
-    // firm, read-only" — and MentorReview.vue never reads the field.
+    // ✅ RULED 2026-08-11 — THE FIRM STAYS, AND IS NOW SHOWN.
     //
-    // It is PRE-EXISTING, not introduced by the scoping change, and removing it is
-    // a change to what the mentor's live screen receives — so it is the owner's
-    // call, not a tidy-up to slip in beside a security fix. Asserted as it actually
-    // behaves so the gap is visible in a test run rather than resting in a note; if
-    // it is later removed on purpose, this line fails and names the decision.
+    // Raised here on 2026-08-11 as an open question: the payload named the firm
+    // while the design record described this screen as "anonymised, no adviser, no
+    // firm", and MentorReview.vue read the field nowhere. The proposal put to the
+    // owner was to REMOVE it. He rejected that, and the reasoning is the product's:
+    // "if i am the group manager, how do i recognise which data relates to which
+    // firm? how can i help them if i dont know who they are??"
+    //
+    // ADVISOR-E-DESIGN-LOGIC.md §2 settles it — reports roll up so we can see "who
+    // is failing so we can offer help". Anonymisation here protects the CLIENT, not
+    // the firm; naming a firm to the manager above it is not a disclosure, because
+    // they are their firms. §4.4 records the same mistake being made four days
+    // earlier: applying an outside party's privacy boundary to the customer's own
+    // senior people.
+    //
+    // The firm is now shown, as part of `origin` — see caseOrigin.test.js. This
+    // line stays as the guard on the raw field the whole feature rests on.
     expect(res._body.cases[0].firmId).toBe('firm-a')
   })
 })

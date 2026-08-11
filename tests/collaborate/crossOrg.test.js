@@ -95,7 +95,7 @@ describe('three-level ceiling (most-closed-wins)', () => {
   })
 
   test('closing the BRAND level seals EVERY branch with a single write (the scale property)', async () => {
-    require('../../server/collaborate/data/roles').setOverride('me', 'global_manager') // 'me' heads the Advisor-e brand
+    require('../../server/collaborate/data/roles').setOverride('me', 'global_group_manager') // 'me' heads the Advisor-e brand
     await repo.setFirmPosture('me', 'closed') // writes the GLOBAL level only
     expect(await repo.getOrgPosture('Advisor-e Munich')).toBe('open') // no per-branch fan-out
     // One brand-level write hides every Advisor-e branch from an outside viewer —
@@ -137,7 +137,7 @@ describe('tier-scoped posture writes (a manager writes only their own level)', (
 describe('capped state (crossOrg on the console payload)', () => {
   test('a Firm Manager Open under a closed BRAND reads capped, effective closed', async () => {
     const roles = require('../../server/collaborate/data/roles')
-    roles.setOverride('me', 'global_manager')
+    roles.setOverride('me', 'global_group_manager')
     await repo.setFirmPosture('me', 'closed') // brand Advisor-e = closed
     roles.setOverride('me', 'firm_manager') // now act as the Munich firm manager
     const r = await repo.setFirmPosture('me', 'open') // opens own branch

@@ -799,7 +799,7 @@ function advisorLabel (advisorId) {
 // manager shows the level immediately below them, drilling down to advisers.
 const CONSOLE_LEVELS = {
   mentor: ['globalGroup', 'country', 'firm'],
-  global_manager: ['country', 'firm'],
+  global_group_manager: ['country', 'firm'],
   group_manager: ['firm'],
   firm_manager: [] // leaf: advisers directly (the base console)
 }
@@ -945,7 +945,7 @@ async function getFirmConsole (managerId) {
 // the Advisor-e brand (its countries), mentor = the whole network (all brands).
 const DEMO_MANAGERS = {
   group: () => ({ id: 'demo-group', name: 'Demo Group Manager', title: 'Head of Advisor-e Germany', globalGroup: 'Advisor-e', country: 'DE', firm: 'Advisor-e Germany', tier: 'group_manager' }),
-  global: () => ({ id: 'demo-global', name: 'Demo Global Manager', title: 'Head of Advisor-e', globalGroup: 'Advisor-e', country: 'DE', firm: 'Advisor-e', tier: 'global_manager' }),
+  global: () => ({ id: 'demo-global', name: 'Demo Global Group Manager', title: 'Head of Advisor-e', globalGroup: 'Advisor-e', country: 'DE', firm: 'Advisor-e', tier: 'global_group_manager' }),
   mentor: () => ({ id: 'demo-mentor', name: 'Demo Mentor', title: 'Mentor', globalGroup: 'Advisor-e', country: 'DE', firm: '—', tier: 'mentor' })
 }
 
