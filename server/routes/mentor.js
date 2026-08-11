@@ -17,7 +17,8 @@ const activityStore = require('../utils/activityStore')
 const { listFirms } = require('../utils/firmsDirectory')
 const { buildAdoptionView, mergeActivityRows } = require('../utils/mentorAdoption')
 const { loadRulings, saveRulings, normaliseRuling } = require('../utils/templateCheckRulings')
-const { isWithinScope, isAwaitingFirms, originPathOf, labelOfScope } = require('../utils/tierChain')
+const { isWithinScope, isAwaitingFirms } = require('../utils/tierChain')
+const { withOrigin } = require('../utils/caseRollup')
 const DOMAINS = require('../../data/domains.json')
 const firmManager = require('./firmManager')
 
@@ -213,32 +214,11 @@ async function deleteMentorDistinction (req, res) {
   }
 }
 
-/**
- * Firm id -> display name, from the one place that reads the `firms` table.
- *
- * ⚠ IT NEVER THROWS, AND THAT IS A DELIBERATE DIFFERENCE FROM listFirms ITSELF,
- * which rejects in production so the adoption page cannot silently under-report a
- * platform. Here the directory is decoration on a report whose job is to show a
- * manager who needs help: losing the names should cost the reader a nice label, not
- * the whole feed. A firm with no name shows as its id — visibly an id, so a reader
- * can tell "we could not read the directory" from "this firm has no name", which is
- * the same distinction the directory's own contract insists on.
- *
- * @returns {Promise<Object.<string, string>>} id -> name, or {} when unreadable
- */
-async function firmNameMap () {
-  try {
-    const rows = await listFirms()
-    const map = {}
-    ;(Array.isArray(rows) ? rows : []).forEach((f) => {
-      if (f && f.id && f.name) { map[String(f.id)] = f.name }
-    })
-    return map
-  } catch (err) {
-    console.warn('[mentor] firm names unavailable, falling back to ids:', err.message)
-    return {}
-  }
-}
+// firmNameMap and the origin-path mapping MOVED to server/utils/caseRollup.js on
+// 2026-08-12, when Team Case Studies became the second report to show a case above
+// the firm (ADVISOR-E-DESIGN-LOGIC.md §4.1, "every report rolls up"). §4.3 names this
+// shape as the one a later cross-firm report should reuse rather than reinvent — so
+// it is imported, not copied. A conflict here is resolved by keeping the import.
 
 /**
  * GET /api/mentor/cases — the cases shared upward, anonymised and advisor-stripped,
@@ -269,19 +249,9 @@ async function firmNameMap () {
 async function listMentorCases (req, res) {
   try {
     const cases = await caseStore.listSharedWithMentor(req.firmId)
-    const names = await firmNameMap()
+    const decorated = await withOrigin(cases, req.firmId)
 
-    const withOrigin = cases.map(c => Object.assign({}, c, {
-      origin: originPathOf(c.firmId, req.firmId).map(step => ({
-        scopeId: step.scopeId,
-        tier: step.tier,
-        // A brand/country names itself inside its scope id; a firm's name comes
-        // from the directory, and its id is the honest last resort.
-        label: labelOfScope(step.scopeId) || names[step.scopeId] || step.scopeId
-      }))
-    }))
-
-    res.send(200, { success: true, cases: withOrigin, awaitingFirms: isAwaitingFirms(req.firmId) })
+    res.send(200, { success: true, cases: decorated, awaitingFirms: isAwaitingFirms(req.firmId) })
   } catch (err) {
     console.error('[mentor] listMentorCases failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load shared case studies')

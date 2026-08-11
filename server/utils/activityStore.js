@@ -28,6 +28,7 @@
 const path = require('path')
 const fs = require('fs')
 const db = require('./db')
+const { firmsUnderScope } = require('./tierChain')
 
 // Default dev fallback file; overridable via ACTIVITY_DEV_FILE so tests can point at
 // an isolated temp file (hermetic `npm test`, immune to a live backend writing the
@@ -197,6 +198,121 @@ async function readFirmSessions (firmId) {
       courseRows: _group(all.courseSessions.filter(r => r.firm_id === firmId), true)
     }
   }
+}
+
+/**
+ * Team Progress for a MANAGING tier — every firm beneath `scopeId`, grouped by firm
+ * and capability tier.
+ *
+ * WHY THIS IS NOT readFirmSessions WITH A DIFFERENT ARGUMENT. That one matches
+ * `firm_id = ?` exactly, so a country scope like `__group__:Advisor-e:DE` matches no
+ * row and returns nothing — which is precisely the bug this fixes
+ * (ADVISOR-E-DESIGN-LOGIC.md §4.1, "every report rolls up, no exceptions"). The
+ * caller turns these per-firm rows into the level-immediately-below summary rule 7
+ * asks for; this function's only job is to read the right firms.
+ *
+ * 🔴 IT GROUPS BY FIRM, NEVER BY ADVISER, and that is the privacy line, not an
+ * optimisation. §4.3: naming a firm to the manager above it is not a disclosure —
+ * they are their firms — but a flat roster of every adviser in a country is exactly
+ * the "level below is the limit" rule being broken. No advisor_id or advisor_name is
+ * selected here, so a caller cannot leak one by accident.
+ *
+ * The firm list comes from tierChain's membership rather than from a LIKE on the
+ * scope id: membership is the one place that knows the shape of the tree, and a
+ * pattern match would silently include a firm whose id merely looked similar.
+ *
+ * @param {string} scopeId - the viewer's scope, from the verified token
+ * @returns {Promise<{vaRows: object[], courseRows: object[]}>} rows keyed by
+ *   firm_id + highest_tier. EMPTY when no firm is mapped beneath the scope — the
+ *   caller distinguishes that from "no activity" with isAwaitingFirms.
+ */
+async function readSessionsUnderScope (scopeId) {
+  const firmIds = firmsUnderScope(scopeId)
+  if (firmIds.length === 0) { return { vaRows: [], courseRows: [] } }
+
+  try {
+    const placeholders = firmIds.map(() => '?').join(', ')
+    const [[vaRows], [courseRows]] = await Promise.all([
+      db.execute(
+        `SELECT firm_id, highest_tier, COUNT(*) as count,
+                COUNT(DISTINCT advisor_id) as advisers,
+                MAX(completed_at) as last_active
+           FROM advisor_va_sessions
+          WHERE firm_id IN (${placeholders})
+          GROUP BY firm_id, highest_tier`, firmIds),
+      db.execute(
+        `SELECT firm_id, highest_tier, COUNT(*) as count,
+                COUNT(DISTINCT advisor_id) as advisers,
+                AVG(quiz_score) as avg_score,
+                MAX(completed_at) as last_active
+           FROM advisor_course_completions
+          WHERE firm_id IN (${placeholders})
+          GROUP BY firm_id, highest_tier`, firmIds)
+    ])
+    return { vaRows, courseRows }
+  } catch (err) {
+    if (!devFallbackEnabled()) { throw err }
+    _warnFallback('readSessionsUnderScope', err)
+    const all = _devReadAll()
+    const mine = new Set(firmIds)
+    return {
+      vaRows: _groupByFirmTier(all.vaSessions.filter(r => mine.has(r.firm_id)), false),
+      courseRows: _groupByFirmTier(all.courseSessions.filter(r => mine.has(r.firm_id)), true)
+    }
+  }
+}
+
+/**
+ * The dev-file equivalent of the two queries above: group by firm + tier, counting
+ * distinct advisers, and shape the numbers as STRINGS exactly as mysql2 hands them
+ * back — so the caller cannot accidentally depend on which source it read from.
+ *
+ * @param {object[]} rows
+ * @param {boolean} withAverage - include the quiz-score average
+ * @returns {object[]}
+ */
+function _groupByFirmTier (rows, withAverage) {
+  const groups = new Map()
+  for (const row of rows) {
+    if (!row || !row.firm_id) { continue }
+    const tier = row.highest_tier || null
+    const key = row.firm_id + ' ' + String(tier)
+    if (!groups.has(key)) {
+      groups.set(key, {
+        firm_id: row.firm_id,
+        highest_tier: tier,
+        count: 0,
+        _advisers: new Set(),
+        last_active: null,
+        _scores: []
+      })
+    }
+    const g = groups.get(key)
+    g.count++
+    if (row.advisor_id) { g._advisers.add(row.advisor_id) }
+    if (!g.last_active || String(row.completed_at) > String(g.last_active)) {
+      g.last_active = row.completed_at
+    }
+    if (withAverage && row.quiz_score !== null && row.quiz_score !== undefined) {
+      g._scores.push(Number(row.quiz_score))
+    }
+  }
+
+  return Array.from(groups.values()).map((g) => {
+    const out = {
+      firm_id: g.firm_id,
+      highest_tier: g.highest_tier,
+      count: String(g.count),
+      advisers: String(g._advisers.size),
+      last_active: g.last_active
+    }
+    if (withAverage) {
+      out.avg_score = g._scores.length
+        ? String(g._scores.reduce((a, b) => a + b, 0) / g._scores.length)
+        : null
+    }
+    return out
+  })
 }
 
 /**
@@ -600,6 +716,7 @@ function _group (rows, withAverage) {
 module.exports = {
   readAdvisorSessions,
   readFirmSessions,
+  readSessionsUnderScope,
   readAdoptionByFirm,
   readAdvisorClaims,
   recordVASession,

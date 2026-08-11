@@ -21,6 +21,45 @@ section.firm-team-progress
     //- as "no advisor activity recorded yet".
     tier-not-connected(v-if="awaitingFirms")
 
+    //- ── ABOVE THE FIRM: the level immediately below, summarised ──────────
+    //- ADVISOR-E-DESIGN-LOGIC.md §4.1 — a group manager sees their FIRMS, a global
+    //- group manager sees their GROUPS. Deliberately no adviser is named here: §4.3
+    //- draws the line at "the level below is the limit", and the backend does not
+    //- send one, so this table cannot show one even by mistake.
+    div(v-else-if="groups.length")
+      p.has-text-grey.is-size-7.mb-2 {{ $t('firmTeamProgress.rollupLegend') }}
+
+      b-table(:data="groups" :hoverable="true")
+        b-table-column(v-slot="{ row }" field="label" :label="$t('firmTeamProgress.colLevel')")
+          span.has-text-weight-semibold {{ row.label }}
+          .advisor-id.has-text-grey.is-size-7(v-if="row.firms > 1")
+            | {{ $t('firmTeamProgress.firmCount', { n: row.firms }) }}
+
+        b-table-column(v-slot="{ row }" :label="$t('firmTeamProgress.colAdvisers')" width="110" numeric)
+          | {{ row.advisers }}
+
+        b-table-column(
+          v-for="tier in tierDefs"
+          :key="tier.key"
+          v-slot="{ row }"
+          :label="$t(tier.labelKey)"
+          width="130"
+        )
+          .tier-cell
+            span.tier-count(:class="'tier-' + tier.key") {{ (row.tiers && row.tiers[tier.key]) || 0 }}
+
+        b-table-column(v-slot="{ row }" :label="$t('firmTeamProgress.colTotal')" width="110" numeric)
+          .total-cell
+            span {{ row.totalSessions }}
+            span.unlevelled.has-text-grey.is-size-7(v-if="row.unclassifiedSessions")
+              | {{ $t('firmTeamProgress.notLevelled', { n: row.unclassifiedSessions }) }}
+
+        b-table-column(v-slot="{ row }" :label="$t('firmTeamProgress.colAvgQuiz')" width="110" numeric)
+          | {{ row.avgQuizScore === null ? '—' : row.avgQuizScore + '%' }}
+
+        b-table-column(v-slot="{ row }" :label="$t('firmTeamProgress.colLastActive')" width="130")
+          | {{ row.lastActive ? formatDate(row.lastActive) : '—' }}
+
     p.has-text-grey.has-text-centered.py-6(v-else-if="!advisors.length")
       | {{ $t('firmTeamProgress.empty') }}
 
@@ -132,6 +171,14 @@ export default {
       /** One row per advisor, newest-active first, as /api/activity/team returns them. */
       advisors: [],
       /**
+       * ABOVE THE FIRM ONLY: one row per level immediately below the viewer — a
+       * group manager's firms, a global group manager's countries. Empty for a firm
+       * manager, who reads `advisors` instead. The backend decides which of the two
+       * it fills; this component never infers its own tier (the same rule as
+       * `awaitingFirms` below, and for the same reason).
+       */
+      groups: [],
+      /**
        * True when the CALLER is a managing tier with no firms mapped beneath it yet
        * — read from the response, never inferred from the screen's own tier, because
        * only the backend knows what the mapping holds. Always false for a firm
@@ -182,6 +229,7 @@ export default {
         const data = await res.json()
         if (!data || !data.success) { throw new Error('UNSUCCESSFUL') }
         this.advisors = data.advisors || []
+        this.groups = data.groups || []
         this.awaitingFirms = data.awaitingFirms === true
       } catch (err) {
         this.error = true

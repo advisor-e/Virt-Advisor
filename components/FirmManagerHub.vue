@@ -656,6 +656,9 @@ section.firm-manager-hub.section
 
 <script>
 import DOMPurify from 'isomorphic-dompurify'
+// The advisory-area registry, imported rather than fetched — see loadDomains for why
+// the HTTP version 404'd on every load. Same file the Restify routes require.
+import DOMAINS from '~/data/domains.json'
 import FirmQuizzes from '~/components/firm/FirmQuizzes.vue'
 import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
 import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
@@ -1152,17 +1155,31 @@ export default {
     },
 
     // ── Domains (for video tagging) ─────────────────────────────────────────
-    async loadDomains () {
-      try {
-        const res = await fetch('/data/domains.json')
-        const data = await res.json()
-        this.domains = Array.isArray(data)
-          ? data.map(d => d.name || d.key || d)
-          : Object.keys(data)
-      } catch {
-        this.domains = ['Profitability', 'Cash Flow', 'Sales', 'Staff', 'Strategy',
-          'Forecasting', 'Systems', 'Risk', 'Governance', 'Succession']
-      }
+    /**
+     * The advisory areas a video can be tagged with, read from the SAME registry the
+     * engine reads — imported, not fetched.
+     *
+     * 🔴 FIXED 2026-08-12, AND IT WAS WRONG TWICE OVER. This fetched
+     * `/data/domains.json` over HTTP, but Nuxt publishes only `static/` — so it 404'd
+     * on every single hub load, at every tier, and had done since it was written. The
+     * catch then supplied ten hardcoded names, which looked like a working list.
+     *
+     * The second fault was hidden underneath the first: the mapping read
+     * `d.name || d.key || d`, and these entries carry NEITHER — the field is `label`.
+     * So on the day someone "fixed" the 404 by copying the file into `static/`, the
+     * list would have filled with raw objects instead of names. A fallback that looks
+     * plausible is how both of these survived; the ten invented names were never
+     * questioned because nothing about the screen looked broken.
+     *
+     * Importing keeps ONE source (server/routes/mentor.js requires the same file) and
+     * removes the network call entirely. 15.6 KB against the 300 KB budget.
+     *
+     * @returns {void}
+     */
+    loadDomains () {
+      this.domains = DOMAINS
+        .map(d => d.label)
+        .filter(label => typeof label === 'string' && label.length > 0)
     },
 
     // ── Advisory Distinctions (firm-level CRUD) ─────────────────────────────
@@ -1586,6 +1603,14 @@ export default {
 
     /** Display name for the advisor who saved the case (id until a name lookup exists). */
     caseAdvisorLabel (c) {
+      // ABOVE THE FIRM the adviser is deliberately stripped and the case carries an
+      // origin path instead (ADVISOR-E-DESIGN-LOGIC.md §4.3: what stays hidden is the
+      // adviser and the client, never the firm). Falling through to "Unknown advisor"
+      // would report a privacy decision as a missing record — two different things
+      // that must not read the same. Nearest level below the viewer first.
+      if (c.origin && c.origin.length) {
+        return c.origin.map(s => s.label).filter(Boolean).join(' · ')
+      }
       return c.advisorId || 'Unknown advisor'
     },
 
