@@ -1850,12 +1850,63 @@ that the warning is not being followed by default.
     boundary applied to internal managers inverts it. **Mike had to ask twice, and the answer was
     already written down.** Both files are corrected in place.
 
-- <a id="case-share-cascade-wording"></a>☐ **🟠 P2 · WORDING — AWAITING MIKE'S RULING. Nine
-  sentences tell a firm manager they are sharing "with the mentor", and one of them is the sentence
-  they read immediately before clicking approve.** The candidates, the reasoning and the
-  recommendation are in the artefact — this row **links** it and does not retell it:
-  [`WORDING-CASE-SHARE-CASCADE.md`](WORDING-CASE-SHARE-CASCADE.md) (committed `8b8926d`,
-  2026-08-11).
+- <a id="case-share-cascade-wording"></a>✅ **🟠 P2 · WORDING — RULED AND BUILT 2026-08-11
+  (`3d21e89`). Mike chose SET B**, which names the levels: *"your group manager, your global group
+  manager and Advisor-e"*. Nine sentences had told a firm manager they were sharing "with the
+  mentor", and one of them is the sentence read immediately before clicking approve. The candidates,
+  the reasoning and the recommendation are in the artefact — this row **links** it and does not
+  retell it: [`WORDING-CASE-SHARE-CASCADE.md`](WORDING-CASE-SHARE-CASCADE.md) (committed `8b8926d`,
+  2026-08-11; marked ruled + built the same day).
+  - **All nine now live in [`locales/en.json`](../locales/en.json) under `caseShare`**, not
+    hardcoded. They were not merely hardcoded, they were **untranslatable**: this app translates by
+    sending the English message set out at runtime, so a string sitting in a template reached none
+    of the eight languages. These nine now reach all of them.
+  - ⚠ **RAISED AND OVERRULED, ON THE RECORD.** Sentences 8–9 sit on `MentorReview.vue`, which
+    **three** tiers open, so Set B's *"the firms in your group"* is exact for a group manager and
+    loose for the mentor, who sees every firm. Mike was shown that and reaffirmed Set B.
+    [`tests/unit/caseShareWording.test.js`](../tests/unit/caseShareWording.test.js) pins sentence 9
+    **with that reasoning attached** — an apparent inconsistency with no record looks identical to a
+    mistake and gets "fixed" by someone who was not in the conversation.
+  - **The consent sentence has its own assertion** that it still names all three levels, by content
+    and not only by key. A key-returning `$t` proves a string came from the locale file but says
+    nothing about what it says, and here what it says is the whole point.
+  - `mentor_shared` and `/api/mentor/cases` keep their names — the column records that a firm
+    manager approved an upward share, which is still exactly what it means.
+
+- <a id="tier-vocabulary"></a>✅ **🔴 P1 · CORRECTNESS — THE SIX ROLE NAMES ARE NOW EXACT, AND A
+  TEST KEEPS THEM THAT WAY. DONE 2026-08-11 (`4dfc3d2`), on Mike's order.**
+  - 🔴 **His words, and the reason this is a P1 and not tidying:** *"go back through the entire
+    cascade code and change all roles to exactly what the stated role is … and NEVER allow this to
+    shift. this is sloppy work and it's how fuck ups occur."* **He is right on the evidence of the
+    same session:** the shortened global-group value produced an invented job title **twice within
+    an hour**, because it sounded authoritative and nothing in the repo marked it as wrong.
+  - **The vocabulary, and it does not shift:** `mentor` · `global_group_manager` · `group_manager` ·
+    `firm_manager` · `advisor` · `business_entity`. Spoken: mentor · global group manager · group
+    manager · firm manager · advisor · business entity.
+  - **Two renames.** The global-group tier had **dropped the word "group"**. The bottom of the tree
+    had been named after **one person rather than the entity** — Mike: *"a business entity may have
+    more than 1 person/client"*. 38 occurrences across 15 files: the resolver, the cascade seam, the
+    auth guard, the quiz and staircase row prefixes, the Collaborate console, the locale file and
+    seven test files. Display name corrected to "Global Group Manager".
+  - ⚠ **DELIBERATELY NOT RENAMED, and this is the part a future sweep must not "finish":**
+    `loadPrompt('client')` is a **prompt filename** and `mode: 'client'` is a **conversation mode
+    stored in the database**. Neither is a tier. All 21 uses of the string were read before any was
+    touched — a blanket replace would have corrupted stored rows.
+  - 🔴 **THE CONTROL, because "never allow this to shift" is not something a comment can do:**
+    [`tests/unit/tierVocabulary.test.js`](../tests/unit/tierVocabulary.test.js). It pins the six
+    exact strings in order, asserts the two **separate** tier lists in `roles.js` and `tierChain.js`
+    genuinely agree — a claim `tierChain`'s comment had been making for months with **nothing
+    checking it** — and scans every source file for the superseded spellings, failing the build if
+    one returns.
+  - 🔴 **`design/` IS INSIDE THAT SCAN, on purpose.** It is where the vocabulary is *read* from, so
+    a stale name there comes back looking correct. **Six design documents carried the old value,
+    including the governing framework** [`ADVISOR-E-DESIGN-LOGIC.md`](ADVISOR-E-DESIGN-LOGIC.md);
+    all corrected. The code would have been fixed by the next test run — a document nobody tests
+    would have kept teaching the wrong name indefinitely.
+  - **The guard proved itself immediately:** it failed on its first run and caught two hits in
+    comments written minutes earlier **to explain the rename**. Reworded to describe the old names
+    rather than spell them, so the scan needs no exemptions — an exemption is how the name creeps
+    back.
   - 🔴 **TWO RULINGS FROM MIKE, 2026-08-11, and they govern the whole roll-up — not just this
     wording.**
     1. *"every level at once — follows the cascade up"*. One share, no second consent step. A case
