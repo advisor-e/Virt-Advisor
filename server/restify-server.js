@@ -58,6 +58,7 @@ const restify = require('restify')
 ;(function assertConfig () {
   const { AUTH, DB } = require('../config/integration')
   const { productionStartupViolations } = require('./collaborate/utils/productionGuard')
+  const { loadDevFirmMembership } = require('./utils/devFirmMembership')
   const isProd = process.env.NODE_ENV === 'production'
 
   // The three production blockers — dev-auth left on, a placeholder JWT secret, a
@@ -86,6 +87,19 @@ const restify = require('restify')
     // data") predates the dev-file fallback and would have a developer read a
     // working screen as a broken one.
     console.error('[startup] WARNING: MYSQL_PASSWORD is placeholder — no MySQL. Stores fall back to their DEV-ONLY JSON files (data/dev-*.json); this is not production persistence.')
+  }
+
+  // DEV/TEST ONLY — seed which firm sits under which brand and country, so the two
+  // middle-tier hubs have something below them to show. Inert unless ALLOW_DEV_AUTH
+  // is set AND this is not production; see server/utils/devFirmMembership.js for why
+  // it is gated on exactly the same condition as the dev tokens.
+  //
+  // It ANNOUNCES itself on purpose. A hub quietly full of invented firms reads
+  // identically to a hub full of real ones, and that is how a reviewer signs off a
+  // screen believing they have seen live data.
+  const seeded = loadDevFirmMembership()
+  if (seeded.loaded) {
+    console.error(`[startup] DEV-ONLY: firm membership seeded from data/dev-firm-membership.json — ${seeded.firms} INVENTED firms are mapped to brand/country. The Global Group and Group hubs will show test data, not real firms.`)
   }
 })()
 
