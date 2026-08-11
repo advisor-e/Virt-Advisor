@@ -14,6 +14,7 @@ const { resolve } = require('path')
 const masterExport = require('./masterExport')
 const { mergeEntry } = require('./firmContent')
 const { fenceUntrusted } = require('./promptSafety')
+const { normalise, extractProseNames } = require('./toolNameScan')
 
 let _trees = null
 const _refCache = new Map()
@@ -101,6 +102,77 @@ function splitByAvailability (names) {
     if (!isTemplateName(name) || titles.has(name)) { available.push(name) } else { withheld.push(name) }
   }
   return { available, withheld }
+}
+
+let _catalogueKeys = null
+
+/**
+ * The same titles as `catalogueTitles`, normalised for comparison against a name
+ * as it was written into a sentence. Prose is written by hand and punctuated
+ * ("De Bono's 6 Hats"), so an exact-string match is the wrong test here — it is
+ * the right one for a template LIST, where the name is a deliberate reference.
+ *
+ * The normaliser is the Template Check screen's own, shared rather than copied,
+ * so a name the screen reports as resolved is a name this gate lets through.
+ *
+ * @returns {Set<string>} empty set when the catalogue cannot be read
+ */
+function catalogueKeys () {
+  if (_catalogueKeys) { return _catalogueKeys }
+  _catalogueKeys = new Set([...catalogueTitles()].map(normalise))
+  return _catalogueKeys
+}
+
+/**
+ * An instruction, cut down to the sentences that name no tool the advisor cannot
+ * open.
+ *
+ * WHY A SENTENCE AND NOT THE WHOLE FIELD. These instructions carry more than the
+ * tool name — "Use Business Purchase Assessment 1 as the primary tool. If the
+ * business is scaling, add Stock Policies to document reorder rules" is two
+ * separate pieces of advice. Dropping the field whole to suppress one unresolved
+ * name would throw away coaching that has nothing wrong with it, which is the
+ * thing Mike ruled on 2026-08-04: hold back the template recommendation, keep the
+ * coaching.
+ *
+ * ⚠ SEGMENTS ARE COARSER THAN THE SCANNER'S OWN SENTENCE SPLIT, deliberately. The
+ * scanner also breaks at a spaced dash; this does not. That can only ever withhold
+ * MORE text than strictly necessary — never less — because a name inside a coarse
+ * segment is still found when that segment is scanned. Erring toward silence is
+ * the whole point of the gate.
+ *
+ * ⚠ A NAME THE BRANCH ALREADY LISTS FORMALLY IS NOT EXEMPT, which is where this
+ * departs from the Template Check screen. The screen skips those to avoid
+ * reporting one reference twice; this gate is protecting an advisor, and a name
+ * sitting in an unavailable `templates[]` entry is exactly the name
+ * `splitByAvailability` has already withheld from the Templates line. Letting the
+ * sentence say it anyway would put back what the sibling gate just removed.
+ *
+ * @param {string} text - the instruction as written in the tree
+ * @returns {string} the surviving sentences, or '' when none survive
+ */
+function withholdUnavailableNames (text) {
+  const s = String(text || '')
+  if (!s.trim()) { return '' }
+
+  const titles = catalogueKeys()
+  if (titles.size === 0) {
+    // FAIL-SAFE, AND IT POINTS THE OPPOSITE WAY TO `splitByAvailability` ON
+    // PURPOSE. There, an unreadable catalogue must not withhold, because doing so
+    // would strip every template from every prompt and mute the engine. Here,
+    // withholding restores exactly the behaviour of every build before this one —
+    // the field was never emitted at all — so it costs nothing that was not
+    // already being lost, and it cannot name a tool nobody can open.
+    console.error('[logicTrees] WARNING: template catalogue unavailable — instruction text withheld rather than risk naming a tool the advisor cannot open')
+    return ''
+  }
+
+  const kept = []
+  for (const segment of s.match(/[^.:;!?]+[.:;!?]*\s*/g) || []) {
+    const unresolved = extractProseNames(segment).filter(name => !titles.has(normalise(name)))
+    if (unresolved.length === 0) { kept.push(segment) }
+  }
+  return kept.join('').trim()
 }
 
 // ── Ghost reference validation ─────────────────────────────────────────────
@@ -380,6 +452,22 @@ function formatNodeForPrompt (node, allNodes, fence = false) {
 
   if (node.action) {
     lines.push(`Action: ${fx(node.action)}`)
+  }
+
+  // `recommendation` holds the instruction on 55 branches across 8 tables, none of
+  // which carry an `action` to fall back on — so for years this said nothing at
+  // all and the branch looked complete, because `notes` still reached the model
+  // with the background. See design/ACTIONS.md#tree-recommendation-field-dropped.
+  //
+  // Labelled `Action:` rather than introducing a second word for the same thing:
+  // the source tables' own column is "THEN (Action / Next Step)", the model
+  // already reads that label everywhere else, and no node carries both fields.
+  //
+  // Gated, because emitting it ungated is what made this unsafe to fix on its own
+  // — a sentence here can name a tool the catalogue cannot serve yet.
+  const recommendation = withholdUnavailableNames(node.recommendation)
+  if (recommendation) {
+    lines.push(`Action: ${fx(recommendation)}`)
   }
 
   if (node.question) {
@@ -1431,4 +1519,4 @@ function walkLogicTree (state, treeId, firmTrees) {
   return [...templates]
 }
 
-module.exports = { isTemplateName, splitByAvailability, loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, explainDetection, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
+module.exports = { isTemplateName, splitByAvailability, withholdUnavailableNames, formatNodeForPrompt, loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, explainDetection, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
