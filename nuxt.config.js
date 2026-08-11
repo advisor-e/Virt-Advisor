@@ -30,13 +30,38 @@ export default {
 
   server: {
     port: 3000,
-    // 127.0.0.1, NOT 'localhost'. On a dual-stack Windows machine 'localhost' resolves to
-    // ::1 first, so Node binds IPv6-only and http://127.0.0.1:3000 is refused — while
-    // http://localhost:3000 may or may not work depending on the browser's own resolution
-    // order. That cost an afternoon on 2026-07-21: every server-side check hit ::1 and
-    // reported healthy while the browser, on IPv4, saw nothing at all. Binding the IPv4
-    // loopback explicitly is what every browser tries first, and stays local-only.
-    host: '127.0.0.1'
+    // '::' — the DUAL-STACK wildcard, so BOTH http://localhost:3000 and
+    // http://127.0.0.1:3000 answer. Node leaves ipv6Only off, so a `::` socket accepts
+    // IPv4 connections as well; one listener therefore covers both names.
+    //
+    // 🔴 WHY NOT A SINGLE LOOPBACK — this has now bitten twice, in both directions.
+    // 2026-07-21: bound IPv6-only, every server-side check hit ::1 and reported healthy
+    // while the browser on IPv4 saw nothing. Fixed by pinning 127.0.0.1 — whose comment
+    // claimed that is "what every browser tries first". 2026-08-12: that claim was wrong
+    // on this machine. `ping localhost` here answers ::1, so the browser asked for IPv6
+    // and was refused, and none of the three tier hubs would load. Node cannot bind two
+    // specific addresses in one listen call, so pinning EITHER loopback breaks the other
+    // name; the wildcard is the only binding that serves both.
+    //
+    // ⚠ '::' (the all-interfaces wildcard) WAS TRIED ON 2026-08-12 AND REVERTED THE SAME
+    // HOUR. It did serve both names, but it also made the dev server network-facing, and
+    // the browser then hit a wall of ERR_CONNECTION_RESET / ERR_CONNECTION_REFUSED on
+    // API calls and on the HMR and loading-SSE streams — while curl, hitting the same
+    // URLs, succeeded every time including 14 in parallel. Loopback traffic is exempt
+    // from the local security software's filtering (this machine runs Avast, which the
+    // repo already documents intercepting TLS); a service on every interface is not.
+    // The server's own log named it: "[api-proxy] backend error: read ECONNRESET".
+    //
+    // So: loopback ONLY. '::1' rather than '127.0.0.1' because `ping localhost` on this
+    // machine answers ::1, so the IPv6 loopback is the address the browser actually asks
+    // for. http://127.0.0.1:3000 will NOT answer with this binding — use localhost.
+    //
+    // ⚠ AND THE LESSON THAT COST THE TIME BOTH TIMES: curl is NOT the browser. It falls
+    // back to IPv4 when IPv6 refuses, so `curl http://localhost:3000` returns 200 against
+    // an IPv4-only bind and proves nothing about what a browser will do. Check the stacks
+    // explicitly — `curl -g http://[::1]:3000` and `curl http://127.0.0.1:3000` — never
+    // the name alone.
+    host: '::1'
   },
 
   head: {
