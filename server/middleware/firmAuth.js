@@ -42,7 +42,7 @@ const jwt = require('jsonwebtoken')
 const { AUTH } = require('../../config/integration')
 const { sendError } = require('../utils/sendError')
 const { PLATFORM_SCOPE } = require('../utils/platformScope')
-const { globalScopeId, groupScopeId } = require('../utils/tierChain')
+const { globalScopeId, groupScopeId, tierOfScope } = require('../utils/tierChain')
 // Both helpers write the SAME envelope { success, error: { code, message }, timestamp };
 // they differ only in how they put it on the wire (writeHead/end vs res.send), and
 // each half's tests assert its own. The two sendError modules are a known duplicate
@@ -393,4 +393,45 @@ function requireMentorRole (req, res, next) {
   return next()
 }
 
-module.exports = { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole, DEV_IDENTITY }
+/**
+ * Gate for the CROSS-FIRM REPORTS that every managing tier reads — Case Reviews,
+ * Adoption and the Logic Lab Report. Admits the mentor and the two middle tiers;
+ * refuses a firm manager and an advisor, exactly as requireMentorRole did.
+ *
+ * 🔴 IT READS THE RESOLVED SCOPE, NOT THE ROLE STRING, AND THAT IS THE WHOLE POINT.
+ * `AUTH.mentorRole` and `AUTH.adminRole` are the same value today — 'platform_admin'
+ * — because Advisor-e has never issued a mentor role and the mentor borrows the
+ * admin one. So a role check cannot tell a mentor apart from anyone else holding
+ * that value, and the developer sign-ins for the two middle tiers hold exactly it.
+ * Under requireMentorRole those sign-ins passed as THE MENTOR and the three reports
+ * handed a single group's screen every brand's data — the opposite of empty, and
+ * against the owner's ruling of 2026-08-11 that a tier stays in its own channel.
+ * Reachable only in development today, because no real token can carry a middle
+ * tier; the code path is the one that goes live when it can.
+ *
+ * By the time this runs, tierStorageScope has already resolved req.firmId to the
+ * scope this caller writes and reads under, and it FAILS CLOSED — a manager whose
+ * token does not name their group is refused there rather than defaulted here. So
+ * the scope is the trustworthy fact about a caller and the role is not.
+ *
+ * ⚠ THIS DOES NOT MAKE THE DATA SAFE BY ITSELF. It decides who may ask; each of the
+ * three routes still filters its rows with tierChain.isWithinScope. Two controls,
+ * because this one admits three tiers and only the filter knows which firms belong
+ * to which.
+ *
+ * ⚠ NOT USED FOR TEMPLATE CHECK. Ruled by the owner 2026-08-11: it is mentor-only,
+ * "since we use it to improve the overall system. it does not relate to
+ * people/advisor performance or group manager selection/access permission to
+ * templates". Those routes keep requireMentorRole and the tab is gone from the two
+ * middle hubs — see TAB_TIERS in components/FirmManagerHub.vue.
+ */
+function requireManagingTier (req, res, next) {
+  const allowed = ['mentor', 'global_manager', 'group_manager']
+  if (!req.firmId || !allowed.includes(tierOfScope(req.firmId))) {
+    return sendError(res, 403, 'FORBIDDEN',
+      'This report is for managing tiers above a firm')
+  }
+  return next()
+}
+
+module.exports = { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier, DEV_IDENTITY }

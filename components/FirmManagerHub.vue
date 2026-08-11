@@ -758,8 +758,20 @@ const TAB_TIERS = {
   // Accuracy reports — how the ENGINE is performing, never a person. Read at every
   // managing tier above the firm.
   logicLabReport: ['mentor', 'global', 'group'],
-  templateCheck: ['mentor', 'global', 'group'],
-  caseReviews: ['mentor', 'global', 'group']
+  caseReviews: ['mentor', 'global', 'group'],
+
+  // 🔴 THE ONE NAMED EXCEPTION to "every report rolls up" (ruled 2026-08-10). The
+  // owner narrowed it himself on 2026-08-11, in the same breath as approving the
+  // roll-up of the other three: "template check should only be for the mentor since
+  // we use it to improve the overall system. it does not relate to people/advisor
+  // performance or group manager selection/access permission to templates."
+  //
+  // It is also the only report with no firm dimension — it scans the shared master
+  // catalogue against the logic tables, so there is nothing in it belonging to a
+  // group that could be shown to that group. Its routes keep requireMentorRole
+  // (server/restify-server.js) rather than the managing-tier guard the other three
+  // moved to. This makes each middle hub 12 tabs, not the 13 first drawn.
+  templateCheck: ['mentor']
 }
 
 /**

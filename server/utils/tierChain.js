@@ -188,6 +188,43 @@ function parentScopeOf (scopeId) {
 }
 
 /**
+ * Does a firm sit AT or BENEATH a managing tier's scope? The question every
+ * cross-firm report has to answer before it shows a row.
+ *
+ * 🔴 WHY THIS IS ONE FUNCTION AND NOT THREE `if`s IN THREE ROUTES. Case Reviews,
+ * Adoption and the Logic Lab Report each read across firms, and each would
+ * otherwise write its own version of "is this one mine". That is the repeated
+ * sentence this whole module exists to delete — four call sites hardcoding "the
+ * level above me is the platform scope" is what made the cascade two levels deep.
+ * A fourth report added later asks the same question here or it does not ship.
+ *
+ * 🔴 THE SAFETY PROPERTY, AND IT IS THE SAME ONE AS parentScopeOf. It is expressed
+ * with scopeChain rather than with membership directly, which means:
+ *   - the MENTOR (`__platform__`) answers TRUE for every firm, because a firm with
+ *     no known membership chains up to the platform. The mentor's three reports are
+ *     therefore byte-for-byte what they were, and the pre-existing tests prove it
+ *     rather than being edited to agree with it.
+ *   - a MIDDLE TIER with no membership answers FALSE for every firm. It sees
+ *     nothing — never everything. Guessing the other way would put one brand's
+ *     cases in another brand's screen, which is precisely what the owner's ruling
+ *     of 2026-08-11 forbids: "it needs to stay in their channel — only firms data
+ *     that are member of that group (country) goes to that group manager."
+ *
+ * Empty is the honest answer while the master team has not said which firms sit
+ * where. Saying so on screen is a separate piece of work; returning nothing is this
+ * one's job.
+ *
+ * @param {string} firmId - a real firm id, from a data row
+ * @param {string} scopeId - the caller's resolved scope (req.firmId after firmAuth)
+ * @returns {boolean}
+ */
+function isWithinScope (firmId, scopeId) {
+  if (!firmId || typeof firmId !== 'string') { return false }
+  if (!scopeId || typeof scopeId !== 'string') { return false }
+  return scopeChain(firmId).includes(scopeId)
+}
+
+/**
  * The full fold order for a scope: the top of the tree first, the scope itself last.
  *
  * Callers that fold layer-over-layer (firmOverlay.loadFirmConfig) walk this in
@@ -227,5 +264,6 @@ module.exports = {
   getFirmMembership,
   tierOfScope,
   parentScopeOf,
-  scopeChain
+  scopeChain,
+  isWithinScope
 }

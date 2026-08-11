@@ -17,6 +17,7 @@ const activityStore = require('../utils/activityStore')
 const { listFirms } = require('../utils/firmsDirectory')
 const { buildAdoptionView, mergeActivityRows } = require('../utils/mentorAdoption')
 const { loadRulings, saveRulings, normaliseRuling } = require('../utils/templateCheckRulings')
+const { isWithinScope } = require('../utils/tierChain')
 const DOMAINS = require('../../data/domains.json')
 const firmManager = require('./firmManager')
 
@@ -213,16 +214,21 @@ async function deleteMentorDistinction (req, res) {
 }
 
 /**
- * GET /api/mentor/cases — every mentor-shared case across all firms, anonymised
- * and advisor-stripped, most-recently-shared first. For the Mentor view, where
- * the mentor reviews real sessions to improve the app's accuracy.
+ * GET /api/mentor/cases — the cases shared upward, anonymised and advisor-stripped,
+ * most-recently-shared first. The mentor reads every firm's; a global or country
+ * manager reads only their own channel's.
+ *
+ * The scope comes from req.firmId, which firmAuth has already resolved from the
+ * verified token — never from a query parameter. A caller cannot ask for another
+ * group's feed, because they cannot say which feed they want.
+ *
  * @route GET /api/mentor/cases
  * @returns {200} { success: true, cases: object[] }
  * @returns {500} DB_ERROR
  */
 async function listMentorCases (req, res) {
   try {
-    const cases = await caseStore.listSharedWithMentor()
+    const cases = await caseStore.listSharedWithMentor(req.firmId)
     res.send(200, { success: true, cases })
   } catch (err) {
     console.error('[mentor] listMentorCases failed:', err.message)
@@ -370,7 +376,14 @@ async function getLogicLabReport (req, res) {
       firmsByLever[lever] = await safeFirmIds(LEVER_KEYS[lever])
     }
 
-    const allFirmIds = [...new Set(Object.values(firmsByLever).flat())].sort()
+    // Beneath THIS caller only. The mentor's scope matches every firm, so its
+    // report is unchanged; a middle tier sees its own channel and nothing else
+    // (owner's ruling 2026-08-11). The filter is applied to the firm list rather
+    // than to each lever, so a firm cannot survive in one lever's count while
+    // being absent from the rows.
+    const allFirmIds = [...new Set(Object.values(firmsByLever).flat())]
+      .filter(firmId => isWithinScope(firmId, req.firmId))
+      .sort()
 
     const firms = []
     for (const firmId of allFirmIds) {
@@ -471,13 +484,40 @@ function latestStamp (entries) {
  * @returns {200} { success: true, report } — totals plus one row per firm.
  * @returns {500} DB_ERROR (standard error envelope)
  */
+/**
+ * Keep only the activity belonging to firms beneath one managing tier.
+ *
+ * Applied to all THREE row-sets, and the count of them is the reason this is a
+ * function rather than three filters inline: the adviser counts, the session rows
+ * and the course rows are merged downstream into one row per firm, so a filter
+ * missed on any one of them would leak that firm back in through the merge with
+ * only part of its numbers — a wrong row rather than an absent one, which is the
+ * harder kind to notice.
+ *
+ * The mentor's scope matches every firm (see tierChain.isWithinScope), so this is
+ * an identity transform for the mentor and its page is unchanged.
+ *
+ * @param {{vaRows: object[], courseRows: object[], adviserRows: object[]}} rows
+ * @param {string} scopeId - the caller's resolved scope
+ * @returns {{vaRows: object[], courseRows: object[], adviserRows: object[]}}
+ */
+function scopeAdoptionRows (rows, scopeId) {
+  const src = rows && typeof rows === 'object' ? rows : {}
+  const mine = list => (Array.isArray(list) ? list : []).filter(r => r && isWithinScope(r.firm_id, scopeId))
+  return {
+    vaRows: mine(src.vaRows),
+    courseRows: mine(src.courseRows),
+    adviserRows: mine(src.adviserRows)
+  }
+}
+
 async function getAdoption (req, res) {
   try {
-    const rows = await activityStore.readAdoptionByFirm()
+    const rows = scopeAdoptionRows(await activityStore.readAdoptionByFirm(), req.firmId)
 
     let firms = []
     try {
-      firms = await listFirms()
+      firms = (await listFirms()).filter(f => isWithinScope(f.id, req.firmId))
     } catch (err) {
       // Deliberately swallowed, and deliberately loud in the log. See above: the
       // firms list is an enrichment, not the page. Silence here would be wrong —

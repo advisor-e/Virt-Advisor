@@ -78,11 +78,14 @@ describe('hub tab matrix — the two new tiers', () => {
     expect(tabsAt('global')).toEqual(tabsAt('group'))
   })
 
-  it('each middle tier shows 13 tabs — 8 unconditional plus these', () => {
+  it('each middle tier shows 12 tabs — 6 unconditional plus these', () => {
     // The 6 unconditional tabs (Domain Support, Logic Tables, Logic-Lab, Advisory
     // Staircase, Quizzes, Adviser Network) carry no TAB_TIERS entry, so the
-    // conditional count is 13 - 6 = 7.
-    expect(tabsAt('global')).toHaveLength(7)
+    // conditional count is 12 - 6 = 6.
+    //
+    // It was 13 when the two hubs were built on 2026-08-11. Template Check came
+    // off the same day, on the owner's ruling — see the exception below.
+    expect(tabsAt('global')).toHaveLength(6)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {
@@ -93,11 +96,25 @@ describe('hub tab matrix — the two new tiers', () => {
     expect(TAB_TIERS.distinctionsMentor).not.toContain('group')
   })
 
-  it('every report rolls up to both middle tiers (ruled 2026-08-10, no exceptions)', () => {
-    for (const key of ['teamProgress', 'teamCaseStudies', 'adoption', 'caseReviews', 'logicLabReport', 'templateCheck']) {
+  it('every report rolls up to both middle tiers (ruled 2026-08-10) — bar the one named exception', () => {
+    for (const key of ['teamProgress', 'teamCaseStudies', 'adoption', 'caseReviews', 'logicLabReport']) {
       expect(TAB_TIERS[key]).toContain('global')
       expect(TAB_TIERS[key]).toContain('group')
     }
+  })
+
+  it('Template Check is the exception, and it is MENTOR ONLY', () => {
+    // 🔴 ASSERTED RATHER THAN DELETED FROM THE LOOP ABOVE, and that is the point of
+    // this test existing at all. "Every report rolls up, no exceptions" was ruled on
+    // 2026-08-10; the owner narrowed it on 2026-08-11 — "template check should only
+    // be for the mentor since we use it to improve the overall system. it does not
+    // relate to people/advisor performance or group manager selection/access
+    // permission to templates."
+    //
+    // An exception quietly dropped from a list looks identical to one never
+    // considered. This line is the difference: if a later session widens Template
+    // Check back to the middle tiers, it fails here and has to read the ruling.
+    expect(TAB_TIERS.templateCheck).toEqual(['mentor'])
   })
 })
 

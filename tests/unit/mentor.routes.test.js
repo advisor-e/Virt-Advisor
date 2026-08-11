@@ -9,6 +9,7 @@ const db = require('../../server/utils/db')
 const { listMentorCases } = require('../../server/routes/mentor')
 const { requireMentorRole } = require('../../server/middleware/firmAuth')
 const { AUTH } = require('../../config/integration')
+const { PLATFORM_SCOPE } = require('../../server/utils/platformScope')
 
 function makeMockRes () {
   return {
@@ -48,6 +49,13 @@ describe('requireMentorRole', () => {
   })
 })
 
+// The caller, as firmAuth would have built it. Added 2026-08-11, when this feed was
+// opened to the two middle tiers and began reading req.firmId to decide whose cases
+// it may return. These tests used to pass `{}` — a request no route can receive,
+// since firmAuth refuses a token with no firm claim. Every EXPECTATION below is
+// unchanged; only the identity is now stated rather than assumed.
+const MENTOR = { firmId: PLATFORM_SCOPE }
+
 describe('listMentorCases', () => {
   test('returns mentor-shared cases across firms, anonymised (no advisor id, no raw text)', async () => {
     db.execute.mockResolvedValue([[
@@ -70,7 +78,7 @@ describe('listMentorCases', () => {
     ]])
 
     const res = makeMockRes()
-    await listMentorCases({}, res)
+    await listMentorCases(MENTOR, res)
 
     expect(res._status).toBe(200)
     const c = res._body.cases[0]
@@ -89,7 +97,7 @@ describe('listMentorCases', () => {
     db.execute.mockRejectedValue(new Error('connection refused'))
 
     const res = makeMockRes()
-    await listMentorCases({}, res)
+    await listMentorCases(MENTOR, res)
 
     expect(res._status).toBe(500)
     expect(res._body.error.code).toBe('DB_ERROR')

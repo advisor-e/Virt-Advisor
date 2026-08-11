@@ -17,6 +17,18 @@ jest.mock('../../server/utils/firmsDirectory', () => ({ listFirms: jest.fn() }))
 const activityStore = require('../../server/utils/activityStore')
 const { listFirms } = require('../../server/utils/firmsDirectory')
 const { getAdoption } = require('../../server/routes/mentor')
+const { PLATFORM_SCOPE } = require('../../server/utils/platformScope')
+
+// The caller, as firmAuth would have built it. Added 2026-08-11, when this report
+// was opened to the two middle tiers and began reading req.firmId to decide whose
+// firms it may count.
+//
+// ⚠ THESE TESTS USED TO PASS `{}`. That is a request no route can receive — firmAuth
+// rejects a token with no firm claim before any handler runs — so the empty object
+// was standing in for "the mentor" by accident rather than by statement. Every
+// EXPECTATION below is unchanged; only the identity is now supplied, which is what
+// makes these tests still the proof that the mentor's page did not move.
+const MENTOR = { firmId: PLATFORM_SCOPE }
 
 // Mirrors mentor.routes.test.js. writeHead/end are not optional: sendError uses
 // them for the error path, so a stub with only send() passes every happy-path test
@@ -47,15 +59,21 @@ beforeEach(() => {
 
 afterEach(() => jest.restoreAllMocks())
 
-describe('the route is mounted behind the mentor guard', () => {
+describe('the route is mounted behind the managing-tier guard', () => {
   // A source-level tripwire, matching the one on the quiz fencing. The whole
-  // defence of a cross-firm read is the role gate in front of it, and that gate
+  // defence of a cross-firm read is the gate in front of it, and that gate
   // lives in one line of restify-server.js that nothing else would notice losing.
   const server = read('server/restify-server.js')
 
-  test('GET /api/mentor/adoption requires firmAuth AND requireMentorRole', () => {
+  test('GET /api/mentor/adoption requires firmAuth AND requireManagingTier', () => {
+    // CHANGED 2026-08-11, from requireMentorRole. Not a widening — a narrowing that
+    // had to move guards to happen. AUTH.mentorRole and AUTH.adminRole are the same
+    // string while Advisor-e issues no mentor role, so the old ROLE check admitted
+    // the two middle tiers as the mentor and gave them every brand's activity.
+    // requireManagingTier reads the resolved SCOPE, which tells the three tiers
+    // apart, and getAdoption then filters to the firms beneath the caller.
     expect(server).toContain(
-      "server.get('/api/mentor/adoption', firmAuth, requireMentorRole, mentorRoute.getAdoption)"
+      "server.get('/api/mentor/adoption', firmAuth, requireManagingTier, mentorRoute.getAdoption)"
     )
   })
 
@@ -72,7 +90,7 @@ describe('getAdoption', () => {
     listFirms.mockResolvedValue([{ id: 'firm-a', name: 'Hartley & Vine' }])
     const res = makeRes()
 
-    await getAdoption({}, res)
+    await getAdoption(MENTOR, res)
 
     expect(res._status).toBe(200)
     expect(res._body.success).toBe(true)
@@ -89,7 +107,7 @@ describe('getAdoption', () => {
     ])
     const res = makeRes()
 
-    await getAdoption({}, res)
+    await getAdoption(MENTOR, res)
 
     const never = res._body.report.firms.find(f => f.firmId === 'firm-z')
     expect(never.status).toBe('never')
@@ -104,7 +122,7 @@ describe('getAdoption', () => {
     listFirms.mockRejectedValue(new Error('no firms table'))
     const res = makeRes()
 
-    await getAdoption({}, res)
+    await getAdoption(MENTOR, res)
 
     expect(res._status).toBe(200)
     expect(res._body.report.firms).toHaveLength(1)
@@ -119,7 +137,7 @@ describe('getAdoption', () => {
     listFirms.mockResolvedValue([])
     const res = makeRes()
 
-    await getAdoption({}, res)
+    await getAdoption(MENTOR, res)
 
     expect(res._body.report.directoryRead).toBe(false)
     // The firm with activity survives — the directory never filters.
@@ -130,7 +148,7 @@ describe('getAdoption', () => {
     activityStore.readAdoptionByFirm.mockRejectedValue(new Error('db down'))
     const res = makeRes()
 
-    await getAdoption({}, res)
+    await getAdoption(MENTOR, res)
 
     expect(res._status).toBe(500)
     expect(res._body.success).toBe(false)
@@ -148,7 +166,7 @@ describe('getAdoption', () => {
     listFirms.mockResolvedValue([{ id: 'firm-a', name: 'A' }])
     const res = makeRes()
 
-    await getAdoption({}, res)
+    await getAdoption(MENTOR, res)
 
     expect(res._status).toBe(200)
     expect(JSON.stringify(res._body)).not.toContain('Jo Smith')
