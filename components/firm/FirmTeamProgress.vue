@@ -15,7 +15,13 @@ section.firm-team-progress
       | {{ $t('firmTeamProgress.retry') }}
 
   template(v-else)
-    p.has-text-grey.has-text-centered.py-6(v-if="!advisors.length")
+    //- Two empties that look the same and mean opposite things. This one is a tier
+    //- with no firms mapped to it yet — an unfinished integration, not a quiet
+    //- team. It is FIRST in the chain, so an unconnected tier can never be reported
+    //- as "no advisor activity recorded yet".
+    tier-not-connected(v-if="awaitingFirms")
+
+    p.has-text-grey.has-text-centered.py-6(v-else-if="!advisors.length")
       | {{ $t('firmTeamProgress.empty') }}
 
     div(v-else)
@@ -95,6 +101,7 @@ section.firm-team-progress
 
 <script>
 import FirmAdvisorQuestions from '~/components/firm/FirmAdvisorQuestions.vue'
+import TierNotConnected from '~/components/base/TierNotConnected.vue'
 import { fetchWithTimeout } from '~/utils/fetchWithTimeout'
 
 /** The three capability levels, in the order a manager reads them. */
@@ -110,7 +117,7 @@ const EMPTY_TIER = { vaSessions: 0, courseSessions: 0, avgQuizScore: null }
 export default {
   name: 'FirmTeamProgress',
 
-  components: { FirmAdvisorQuestions },
+  components: { FirmAdvisorQuestions, TierNotConnected },
 
   props: {
     /** Bearer token for the firm-manager API (the server re-checks every call). */
@@ -124,6 +131,13 @@ export default {
       error: false,
       /** One row per advisor, newest-active first, as /api/activity/team returns them. */
       advisors: [],
+      /**
+       * True when the CALLER is a managing tier with no firms mapped beneath it yet
+       * — read from the response, never inferred from the screen's own tier, because
+       * only the backend knows what the mapping holds. Always false for a firm
+       * manager, whose team this component was built for.
+       */
+      awaitingFirms: false,
       tierDefs: TIER_DEFS
     }
   },
@@ -168,6 +182,7 @@ export default {
         const data = await res.json()
         if (!data || !data.success) { throw new Error('UNSUCCESSFUL') }
         this.advisors = data.advisors || []
+        this.awaitingFirms = data.awaitingFirms === true
       } catch (err) {
         this.error = true
       } finally {

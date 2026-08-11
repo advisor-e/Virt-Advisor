@@ -9,7 +9,12 @@
       b-loading(:is-full-page="false" :active="true")
 
     template(v-else)
-      p.has-text-grey.has-text-centered.py-6(v-if="cases.length === 0")
+      //- FIRST in the chain: a tier with no firms mapped beneath it has had nothing
+      //- shared because there is nobody to share, which is not the same statement as
+      //- "no manager has chosen to share one yet".
+      tier-not-connected(v-if="awaitingFirms")
+
+      p.has-text-grey.has-text-centered.py-6(v-else-if="cases.length === 0")
         | No cases have been shared with you yet. When a firm manager shares one, it appears here.
 
       div(v-else)
@@ -70,6 +75,7 @@
 </template>
 
 <script>
+import TierNotConnected from '~/components/base/TierNotConnected.vue'
 
 const DOMAIN_LABELS = {
   conflict: 'Conflict & Dispute',
@@ -91,6 +97,8 @@ const DOMAIN_LABELS = {
 export default {
   name: 'MentorReview',
 
+  components: { TierNotConnected },
+
   props: {
     apiToken: { type: String, default: null }
   },
@@ -99,6 +107,12 @@ export default {
     return {
       cases: [],
       loading: false,
+      /**
+       * True when this tier has no firms mapped beneath it yet. From the response,
+       * never inferred from which hub is rendering this component — the backend is
+       * the only place that knows the mapping. Always false for the mentor.
+       */
+      awaitingFirms: false,
       expandedId: null
     }
   },
@@ -126,6 +140,7 @@ export default {
       try {
         const data = await this.api('GET', '/api/mentor/cases')
         this.cases = data.cases || []
+        this.awaitingFirms = data.awaitingFirms === true
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
       } finally {

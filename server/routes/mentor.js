@@ -17,7 +17,7 @@ const activityStore = require('../utils/activityStore')
 const { listFirms } = require('../utils/firmsDirectory')
 const { buildAdoptionView, mergeActivityRows } = require('../utils/mentorAdoption')
 const { loadRulings, saveRulings, normaliseRuling } = require('../utils/templateCheckRulings')
-const { isWithinScope } = require('../utils/tierChain')
+const { isWithinScope, isAwaitingFirms } = require('../utils/tierChain')
 const DOMAINS = require('../../data/domains.json')
 const firmManager = require('./firmManager')
 
@@ -223,13 +223,16 @@ async function deleteMentorDistinction (req, res) {
  * group's feed, because they cannot say which feed they want.
  *
  * @route GET /api/mentor/cases
- * @returns {200} { success: true, cases: object[] }
+ * @returns {200} { success: true, cases: object[], awaitingFirms: boolean } —
+ *   awaitingFirms distinguishes "no firm is mapped to this tier yet" from "no case
+ *   has been shared yet". The two produce an identical empty list and mean
+ *   opposite things, so the screen is told which it is rather than left to guess.
  * @returns {500} DB_ERROR
  */
 async function listMentorCases (req, res) {
   try {
     const cases = await caseStore.listSharedWithMentor(req.firmId)
-    res.send(200, { success: true, cases })
+    res.send(200, { success: true, cases, awaitingFirms: isAwaitingFirms(req.firmId) })
   } catch (err) {
     console.error('[mentor] listMentorCases failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load shared case studies')
@@ -414,6 +417,10 @@ async function getLogicLabReport (req, res) {
     }
 
     const report = buildMentorLogicLabReport({ firms, rolledUpAt: new Date().toISOString() })
+    // Set after the builder rather than passed into it: the builder asserts that no
+    // personal field reaches the payload and knows nothing about tiers. Keeping the
+    // flag outside its shape leaves that assertion reading exactly what it did.
+    report.awaitingFirms = isAwaitingFirms(req.firmId)
     res.send(200, { success: true, report })
   } catch (err) {
     console.error('[mentor] getLogicLabReport failed:', err.message)
@@ -535,6 +542,13 @@ async function getAdoption (req, res) {
     // remember: without the directory the page cannot show a firm that never
     // started, and the difference is invisible on screen otherwise.
     report.directoryRead = firms.length > 0
+
+    // The SECOND honest limit this page carries, and it is a different one. Above:
+    // "the firms directory could not be read, so never-started firms are missing".
+    // Here: "no firm has been mapped to this tier at all, so there is nothing to
+    // read yet". Both produce a shorter page; only one of them is our own
+    // unfinished wiring, and the screen says which.
+    report.awaitingFirms = isAwaitingFirms(req.firmId)
 
     res.send(200, { success: true, report })
   } catch (err) {

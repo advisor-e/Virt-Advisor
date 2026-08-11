@@ -482,6 +482,10 @@ section.firm-manager-hub.section
       b-tab-item(v-if="showsTab('teamCaseStudies')" label="Team Case Studies" icon="account-group")
         .has-text-centered.py-5(v-if="loadingFirmCases")
           b-loading(:is-full-page="false" :active="true")
+        //- A tier with no firms mapped beneath it yet. Checked BEFORE the lede, so
+        //- an unfinished integration is never dressed as "no advisor has shared
+        //- one yet" — the two look identical and mean opposite things.
+        tier-not-connected(v-else-if="casesAwaitingFirms")
         template(v-else)
           b-notification.mb-4(type="is-info is-light" :closable="false")
             | Your advisors' shared case studies. Open one to see how the recommendation was reached, then review it. Private cases are never shown here.
@@ -660,6 +664,7 @@ import MentorAdoption from '~/components/mentor/MentorAdoption.vue'
 import MentorDistinctions from '~/components/MentorDistinctions.vue'
 import MentorTemplateCheck from '~/components/mentor/MentorTemplateCheck.vue'
 import MentorLogicLabReport from '~/components/mentor/MentorLogicLabReport.vue'
+import TierNotConnected from '~/components/base/TierNotConnected.vue'
 import traceReasonMixin from '~/mixins/traceReasonMixin'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
@@ -807,7 +812,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport, MentorAdoption },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 
@@ -855,6 +860,11 @@ export default {
       // Team Case Studies (manager review)
       firmCases: [],
       loadingFirmCases: false,
+      // True when this tier has no firms mapped beneath it yet. Read from the
+      // response — the backend is the only place that knows the mapping, and a
+      // screen inferring it from `scope` would be right today and wrong the moment
+      // the master team supplies one.
+      casesAwaitingFirms: false,
       expandedReviewCaseId: null,
       // Mentor-share: preview-and-approve an anonymised copy before it reaches the mentor.
       showMentorPreview: false,
@@ -1498,6 +1508,7 @@ export default {
       try {
         const data = await this.api('GET', '/api/firm-manager/cases')
         this.firmCases = data.cases || []
+        this.casesAwaitingFirms = data.awaitingFirms === true
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
       } finally {

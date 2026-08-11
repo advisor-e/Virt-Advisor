@@ -6,6 +6,11 @@
   b-notification(v-else-if="error" type="is-danger is-light" :closable="false")
     | {{ error }}
 
+  //- A tier with no firms mapped beneath it yet. It replaces the whole report: the
+  //- at-a-glance counts would all read zero, which states that no firm below has
+  //- changed anything — a claim about firms that have not been connected.
+  tier-not-connected(v-else-if="awaitingFirms")
+
   template(v-else)
     b-notification.mb-5(type="is-info is-light" :closable="false")
       | {{ $t('logicLabReport.privacy') }}
@@ -143,12 +148,17 @@
  */
 
 import { DISTINCTION_DOMAINS } from '~/components/FirmManagerHub.vue'
+import TierNotConnected from '~/components/base/TierNotConnected.vue'
 
 export default {
   name: 'MentorLogicLabReport',
 
+  components: { TierNotConnected },
+
   props: {
-    // The mentor's JWT. Re-gated server-side by requireMentorRole on every call.
+    // The caller's JWT. Re-gated server-side by requireManagingTier on every call —
+    // the mentor and the two middle tiers read this report, each seeing only the
+    // firms beneath them.
     apiToken: { type: String, required: true }
   },
 
@@ -157,6 +167,12 @@ export default {
       loading: true,
       error: '',
       report: { groups: [], glance: {}, usage: { templates: [], levers: [] }, firms: [] },
+      /**
+       * True when this tier has no firms mapped beneath it yet. From the response —
+       * the backend is the only place that knows the mapping. Always false for the
+       * mentor, whose empty report would genuinely mean no firm has changed anything.
+       */
+      awaitingFirms: false,
       opened: {}
     }
   },
@@ -224,6 +240,7 @@ export default {
         const body = await res.json()
         if (!res.ok || !body.success) { throw new Error('load failed') }
         this.report = body.report
+        this.awaitingFirms = body.report.awaitingFirms === true
       } catch (e) {
         // A failed load must never render as an empty, reassuring page — the
         // difference between "no firm has pushed anything" and "we could not ask"

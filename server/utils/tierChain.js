@@ -188,6 +188,54 @@ function parentScopeOf (scopeId) {
 }
 
 /**
+ * Is this tier still waiting for the master team to say which firms are its own?
+ *
+ * 🔴 IT SEPARATES TWO EMPTIES THAT LOOK IDENTICAL ON SCREEN. A middle-tier report
+ * returns no rows for two completely different reasons: nobody beneath this manager
+ * has used the app yet, or NOBODY HAS BEEN PUT BENEATH THIS MANAGER AT ALL. The
+ * first is news; the second is an unfinished integration. Shown as the same blank
+ * panel, the second reads as "nobody is using it" — a false and discouraging
+ * statement about a customer's own firms, and the exact failure the standing rule
+ * in COLLABORATE-MERGE-PLAN.md §4.3 exists to prevent: "Where a stub is the honest
+ * answer, it says so on screen rather than showing an empty roll-up that looks like
+ * real data with nothing in it."
+ *
+ * ⚠ THE MENTOR IS NEVER AWAITING ANYTHING, and that is not a special case — it is
+ * the same fact isWithinScope rests on. Every firm chains up to the platform scope
+ * whether or not its membership is known, so the mentor always has firms beneath
+ * it, and an empty mentor report genuinely means no activity. Answering true here
+ * would put a "not connected yet" banner on three screens that are connected.
+ *
+ * ⚠ SO IS A FIRM. A firm manager is the bottom of the chain and has no firms
+ * beneath them; their reports are about their own advisers, and this question does
+ * not apply.
+ *
+ * @param {string} scopeId - the caller's resolved scope (req.firmId after firmAuth)
+ * @returns {boolean} true only for a middle tier with no firm mapped beneath it
+ */
+function isAwaitingFirms (scopeId) {
+  const tier = tierOfScope(scopeId)
+  if (tier !== 'global_manager' && tier !== 'group_manager') { return false }
+  return firmsUnderScope(scopeId).length === 0
+}
+
+/**
+ * Every KNOWN firm sitting beneath a scope, from the membership map.
+ *
+ * ⚠ IT ANSWERS FROM MEMBERSHIP, NOT FROM THE FIRMS TABLE, so it lists what we have
+ * been TOLD about rather than what exists. Today that is nothing, for every scope
+ * including the platform's — which is why isAwaitingFirms above asks the tier
+ * first and never asks this about the mentor.
+ *
+ * @param {string} scopeId
+ * @returns {string[]} firm ids, or [] when none are mapped there
+ */
+function firmsUnderScope (scopeId) {
+  if (!scopeId || typeof scopeId !== 'string') { return [] }
+  return Object.keys(membership).filter(firmId => isWithinScope(firmId, scopeId))
+}
+
+/**
  * Does a firm sit AT or BENEATH a managing tier's scope? The question every
  * cross-firm report has to answer before it shows a row.
  *
@@ -265,5 +313,7 @@ module.exports = {
   tierOfScope,
   parentScopeOf,
   scopeChain,
-  isWithinScope
+  isWithinScope,
+  firmsUnderScope,
+  isAwaitingFirms
 }

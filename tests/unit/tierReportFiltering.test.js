@@ -280,3 +280,64 @@ describe('the three routes are mounted behind the managing-tier guard', () => {
     expect(server).toContain("server.del('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.deleteMentorDistinction)")
   })
 })
+
+// ── The honest-empty flag ─────────────────────────────────────────────────────
+
+describe('every scoped report tells the screen WHICH empty it is', () => {
+  // The filtering above makes a middle tier's reports empty. On its own that is a
+  // blank panel reading "nobody is using it", which is a false statement about a
+  // customer's own firms. Each payload therefore carries awaitingFirms so the
+  // screen can say the true thing instead. tierAwaitingFirms.test.js proves the
+  // flag's logic; these prove the routes actually send it.
+
+  test('Case Reviews sends it — true for an unmapped tier, false for the mentor', async () => {
+    db.execute.mockResolvedValue([[]])
+
+    const forGroup = makeMockRes()
+    await listMentorCases(GROUP_MANAGER, forGroup)
+    expect(forGroup._body.awaitingFirms).toBe(true)
+
+    const forMentor = makeMockRes()
+    await listMentorCases(MENTOR, forMentor)
+    expect(forMentor._body.awaitingFirms).toBe(false)
+  })
+
+  test('Adoption sends it, alongside the directory limit it already had', async () => {
+    activityStore.readAdoptionByFirm.mockResolvedValue({ vaRows: [], courseRows: [], adviserRows: [] })
+    listFirms.mockResolvedValue([])
+
+    const forGroup = makeMockRes()
+    await getAdoption(GROUP_MANAGER, forGroup)
+    expect(forGroup._body.report.awaitingFirms).toBe(true)
+    // The two limits are different statements and both survive. "The directory is
+    // short" is not "there is nothing to read yet".
+    expect(forGroup._body.report.directoryRead).toBe(false)
+
+    const forMentor = makeMockRes()
+    await getAdoption(MENTOR, forMentor)
+    expect(forMentor._body.report.awaitingFirms).toBe(false)
+  })
+
+  test('the Logic Lab Report sends it', async () => {
+    overlay.listFirmIdsWithConfigKey.mockResolvedValue([])
+    overlay.loadFirmConfig.mockResolvedValue([])
+
+    const forGroup = makeMockRes()
+    await getLogicLabReport(GROUP_MANAGER, forGroup)
+    expect(forGroup._body.report.awaitingFirms).toBe(true)
+
+    const forMentor = makeMockRes()
+    await getLogicLabReport(MENTOR, forMentor)
+    expect(forMentor._body.report.awaitingFirms).toBe(false)
+  })
+
+  test('🔴 a MAPPED tier stops being told it is unconnected', async () => {
+    // The banner must clear itself when the integration lands, with no code change.
+    setFirmMembership({ 'firm-a': { globalGroup: BRAND, country: 'DE' } })
+    db.execute.mockResolvedValue([[]])
+
+    const res = makeMockRes()
+    await listMentorCases(GROUP_MANAGER, res)
+    expect(res._body.awaitingFirms).toBe(false)
+  })
+})

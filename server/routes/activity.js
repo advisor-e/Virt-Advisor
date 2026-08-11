@@ -23,6 +23,7 @@ const { normaliseQuizQuestions } = require('../utils/quizRecord')
 const { isStorableSessionIndex } = require('../utils/sessionIndex')
 const cpdCatalogue = require('../utils/cpdCatalogue')
 const { sendError } = require('../utils/sendError')
+const { isAwaitingFirms } = require('../utils/tierChain')
 
 const TIERS = ['entry-level', 'intermediate', 'advanced']
 
@@ -314,7 +315,12 @@ async function getTeam (req, res) {
       ) + a.unclassifiedSessions
     })).sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive))
 
-    res.send(200, { success: true, firmId, advisors })
+    // A MANAGING TIER READS THIS TOO, and gets an empty advisor list because a
+    // group scope owns no advisers of its own. That empty list is honest for a firm
+    // (nobody has done anything yet) and misleading above one (nobody has been put
+    // beneath this manager yet), so the tier is told which of the two it is. Always
+    // false for a firm manager, whose team this route was built for.
+    res.send(200, { success: true, firmId, advisors, awaitingFirms: isAwaitingFirms(firmId) })
   } catch (err) {
     console.error('[activity] getTeam error:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load team data')

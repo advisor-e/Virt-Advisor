@@ -16,6 +16,11 @@ section.mentor-adoption
     b-button(type="is-danger" size="is-small" outlined @click="load")
       | {{ $t('mentorAdoption.retry') }}
 
+  //- A tier with no firms mapped beneath it yet. It replaces the WHOLE page rather
+  //- than sitting above it: four headline tiles reading zero are themselves a
+  //- statement that nobody is using the app, and that statement would be false.
+  tier-not-connected(v-else-if="awaitingFirms")
+
   template(v-else)
     //- ── The headline ────────────────────────────────────────────────
     .columns.is-multiline.mb-2
@@ -122,6 +127,7 @@ section.mentor-adoption
 
 <script>
 import { fetchWithTimeout } from '~/utils/fetchWithTimeout'
+import TierNotConnected from '~/components/base/TierNotConnected.vue'
 
 /**
  * Buefy tag colour per status. Kept as a lookup rather than a chain of v-ifs so
@@ -136,6 +142,8 @@ const STATUS_TYPES = {
 
 export default {
   name: 'MentorAdoption',
+
+  components: { TierNotConnected },
 
   props: {
     /** Bearer token for the mentor API (the server re-checks the role every call). */
@@ -154,7 +162,13 @@ export default {
        *  screen can never state a different number from the one it applied. */
       quietAfterDays: null,
       /** False when the firms directory could not be read — see noDirectory above. */
-      directoryRead: true
+      directoryRead: true,
+      /**
+       * True when this tier has no firms mapped beneath it yet — a DIFFERENT limit
+       * from directoryRead above. That one means "the list we can read is short";
+       * this one means "there is nothing to read yet". Always false for the mentor.
+       */
+      awaitingFirms: false
     }
   },
 
@@ -214,6 +228,7 @@ export default {
         this.totals = data.report.totals || {}
         this.quietAfterDays = data.report.quietAfterDays || null
         this.directoryRead = data.report.directoryRead !== false
+        this.awaitingFirms = data.report.awaitingFirms === true
       } catch (err) {
         this.error = true
       } finally {

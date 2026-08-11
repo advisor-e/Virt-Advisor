@@ -6,6 +6,7 @@ const caseStore = require('../utils/caseStore')
 const clientStore = require('../utils/clientStore')
 const { anonymiseCaseContent } = require('../utils/anonymiseCase')
 const { createOpenAIClient } = require('../utils/openaiClient')
+const { isAwaitingFirms } = require('../utils/tierChain')
 
 /**
  * All case routes derive identity from the verified JWT (firmAuth attaches
@@ -54,7 +55,10 @@ async function listFirmCases (req, res) {
   }
   try {
     const cases = await caseStore.listSharedForFirm(firmId)
-    res.send(200, { success: true, cases })
+    // See the note on GET /api/activity/team: a managing tier above a firm reads
+    // this and receives an empty list, which means "no firm mapped here yet" rather
+    // than "no case shared yet". Always false for a firm manager.
+    res.send(200, { success: true, cases, awaitingFirms: isAwaitingFirms(firmId) })
   } catch (err) {
     console.error('[cases] listFirmCases failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load case studies')

@@ -1637,6 +1637,9 @@
       "never": "Not started yet"
     }
   },
+  "tierNotConnected": {
+    "firmsNotMapped": "The firms in this group are not connected yet, so there is nothing to show here."
+  },
   "firmTeamProgress": {
     "tab": "Team Progress",
     "lede": "Your advisors' completed VA cases and course sessions, grouped by capability level. Advisors see only their own record.",
