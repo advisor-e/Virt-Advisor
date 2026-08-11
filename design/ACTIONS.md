@@ -1560,7 +1560,9 @@ that the warning is not being followed by default.
     [`mentorHubScope.component.test.js`](../tests/unit/mentorHubScope.component.test.js) pins BOTH
     directions and the tab ORDER, because one component serving two tiers means a change made for the
     firm reaches the mentor unasked.
-  - **`b5e3321` — Template Check**, to the mockup approved 2026-08-05. 93 live findings. Verb-led
+  - **`b5e3321` — Template Check**, to the mockup approved 2026-08-05. 93 live findings — **88 from
+    2026-08-12**, when a scanner bug that truncated numbered titles was fixed and 9 rows needing no
+    ruling fell away ([§tree-recommendation-field-dropped](#tree-recommendation-field-dropped)). Verb-led
     sentence reading: a first version took every capitalised phrase and returned **745** rows against
     the 27 found by hand, and a list nobody can finish is the same as no list.
   - **`4f29f07` — the Logic Lab Report**, to the mockup approved 2026-08-04.
@@ -2093,8 +2095,10 @@ that the warning is not being followed by default.
   - **Two decisions correctly produce NO edit and are counted rather than lost:** "Not a tool" (the
     phrase was never a document) and "Missing — flag it" (only the master-app team can close it).
   - ⚠ **NOTHING HAS BEEN RULED YET, so the first list is empty.** This is the machinery; working
-    through the 93 rows on the Template Check screen is what fills it. **That is Mike's next move on
-    this feature, not a developer's.**
+    through the **88** rows on the Template Check screen is what fills it (93 until 2026-08-12 — see
+    [§tree-recommendation-field-dropped](#tree-recommendation-field-dropped)). **That is Mike's next
+    move on this feature, not a developer's** — and since 2026-08-12 it is also what releases the 14
+    branches whose instruction the prompt still withholds.
 
 - <a id="approved-mockup-stranded-on-a-branch"></a>☐ **🔴 P1 · PROCESS — AN APPROVED DESIGN SAT
   UNMERGED FOR FIVE DAYS AND A SCREEN WAS BUILT WITHOUT IT.** Found 2026-08-09, the hard way.
@@ -2207,9 +2211,37 @@ that the warning is not being followed by default.
     ghost check reads the export, and they do not agree. Until that is settled, "does this template exist"
     has two different answers.
 
-- <a id="tree-recommendation-field-dropped"></a>☐ **🔴 P1 · FIX — 55 branches keep their instruction in
-  a field the prompt builder never reads, so it never reaches the AI.** Found 2026-08-04 while checking
-  the empty-`templates[]` branches above.
+- <a id="tree-recommendation-field-dropped"></a>✅ **🔴 P1 · FIX — FIXED 2026-08-12 (`fdb15ca`, laptop).
+  55 branches kept their instruction in a field the prompt builder never read, so it reached the AI
+  nowhere.** Found 2026-08-04 while checking the empty-`templates[]` branches above.
+  - **How it was closed, and why this was not simply "emit the field".** `formatNodeForPrompt` now
+    emits `recommendation` **sentence by sentence**, and any sentence naming a tool the catalogue
+    cannot serve is held back. That is Mike's ruling of 2026-08-04 implemented rather than restated:
+    hold back the template recommendation, keep the coaching. The sequencing problem recorded below —
+    "do NOT fix this in isolation" — is therefore **dissolved, not waited out**: the unresolved names
+    are gated at the point of use, so the fix no longer had to queue behind 88 content rulings.
+  - **Today's result: 27 of the 55 branches deliver whole, 14 in part, 14 are withheld entirely** —
+    6,707 characters of instruction that reached nobody before. The 14 are waiting on a name being
+    settled on the Template Check screen and applied to the tables; **they need no further code**.
+  - 🔴 **THE SCANNER TRUNCATED EVERY NUMBERED TITLE, and that had to be fixed first.** The catalogue
+    really publishes **Business Purchase Assessment 1**, **Purchase Assessment Model 2**, **Purchase
+    Assessment Report 3** and **Business Sale Assessment 1**, and the trees name all four correctly.
+    The pattern required every word after the first to begin with a capital LETTER, so it stopped at
+    the digit and reported a name that exists nowhere. **That put 9 rows on the Template Check screen
+    that needed no ruling, and it would have made this gate withhold 8 perfectly correct sentences.**
+    The queue drops from 93 rows to **88**.
+  - **The scanner moved to [`toolNameScan.js`](../server/utils/toolNameScan.js)** so the screen and the
+    runtime gate share one function. Two copies would eventually disagree and nothing would say so —
+    the same discipline `isTemplateName` already applies to the template lists.
+  - ⚠ **NOT DONE, AND NAMED RATHER THAN BURIED: `action` and `notes` already carried unresolved names
+    before this change (21 and 19) and still do.** They have reached the AI for a year. Extending the
+    gate to them would strip coaching that is working, and the detector is a heuristic that also raises
+    "Santa Claus" and "Dream Home" — it would delete good sentences. **A separate decision for Mike, not
+    a side effect of this one.**
+  - 🔴 **THE GUARD IS THE POINT, not this instance.**
+    [`tests/unit/recommendationGate.test.js`](../tests/unit/recommendationGate.test.js) (15 tests) fails
+    the build if the tree data grows a field the prompt builder does not read. See
+    [§advisor-note-dropped](#advisor-note-dropped) — it caught a second one the day it was written.
   - **Proof.** [`formatNodeForPrompt`](../server/utils/logicTrees.js#L299) emits `condition`,
     `gate_question`, `action`, `question`, `sales_process`, `templates`, `templates_if_unsure`,
     `support_templates`, `notes` and `branches`. It does **not** emit `recommendation`. Nothing else in
@@ -2222,8 +2254,11 @@ that the warning is not being followed by default.
     gets the background and loses the instruction. Nothing errors, nothing is blank.
   - Example (`gs_audience_negativity`): the AI receives the condition and "Call out the ghosts early…",
     but never *"Use Get Seminar template. Address known objections at the opening of the session."*
-  - **⚠ Do NOT fix this in isolation** — see the ruling below. Today the drop is the only thing keeping
-    12 non-existent template names out of the prompt.
+  - ~~**⚠ Do NOT fix this in isolation** — see the ruling below. Today the drop is the only thing keeping
+    12 non-existent template names out of the prompt.~~ **SUPERSEDED 2026-08-12** — true while the only
+    options were "emit everything" or "emit nothing". Gating at the sentence made it a false choice.
+    ⚠ Its "12 non-existent template names" is also the premise corrected on 2026-08-05 and must not be
+    quoted: they are real tools under working names, not inventions.
   - ◐ **2026-08-05 — the SAFETY NET IS BUILT; the field is still not emitted.** The availability gate
     (`isTemplateName` / `splitByAvailability` in [`logicTrees.js`](../server/utils/logicTrees.js)) now
     filters every template list before it reaches the prompt, so a declared-but-unavailable name is held
@@ -2231,8 +2266,10 @@ that the warning is not being followed by default.
     passed through, 0 withheld — pinned by
     [`templateAvailabilityGate.test.js`](../tests/unit/templateAvailabilityGate.test.js) (10 tests).
     That test is the announcement mechanism: the day a tree declares a name the catalogue cannot serve,
-    it fails and names it. Remaining, in order: the 6 names into `templates[]` · reword the ghost check
-    to "declared, not yet available" · then emit `recommendation`.
+    it fails and names it. ~~Remaining, in order: the 6 names into `templates[]` · reword the ghost check
+    to "declared, not yet available" · then emit `recommendation`.~~ **That order was overtaken on
+    2026-08-12:** `recommendation` is emitted now, gated the same way, so it no longer had to be last.
+    The ghost check's wording is still worth doing and is the only item of the three left.
   - ⚠ **The Get Seminar tree is a genuine exception and should be handled separately.**
     `Logic Tables/Get Seminar Logic.pdf` has **no template column and never says "template"**; its 7
     `recommendation` lines were written by the app layer from the PDF's own *filename*. The real
@@ -2241,10 +2278,19 @@ that the warning is not being followed by default.
     [`TREE-PDF-FIDELITY-SWEEP-2026-06-23.md`](TREE-PDF-FIDELITY-SWEEP-2026-06-23.md) as "app-layer (not
     in PDF) but benign" — benign only because nothing read the field.
 
-- <a id="tree-prose-names-ghost-templates"></a>☐ **🔴 P1 · CONTENT+FIX — template names in tree prose are
+- <a id="tree-prose-names-ghost-templates"></a>◐ **🔴 P1 · CONTENT+FIX — template names in tree prose are
   absent from the search export.** Found 2026-08-04. **⚠ PREMISE CORRECTED 2026-08-05 — the original
   wording below ("12 template names … do not exist") is WRONG and must not be quoted.** Full analysis:
   [`TREE-RECOMMENDATION-REVIEW.md`](TREE-RECOMMENDATION-REVIEW.md).
+  - ✅ **THE LIVE RISK IS CLOSED for the `recommendation` field (2026-08-12, `fdb15ca`).** A sentence
+    there naming a tool the catalogue cannot serve is withheld from the prompt, proven across all 42
+    tables by [`recommendationGate.test.js`](../tests/unit/recommendationGate.test.js), so no advisor
+    can be sent after a page that will not open **by way of that field**.
+  - ⚠ **The content half is NOT closed and is Mike's, not a developer's:** **88 rows** on the Template
+    Check screen, **0 ruled**. Until a name is settled and applied, 14 branches stay silent.
+  - ⚠ **`action` and `notes` are NOT gated** — 21 and 19 unresolved names respectively, reaching the AI
+    now as they have all along. See the field-drop row above for why widening the gate is a decision
+    rather than a follow-up.
   - **The names are Mike's own.** The source logic tables in `Logic Tables/` name the tools in their THEN
     column — *"THEN deploy the **Risk Mgt Cover** matrix"*, *"THEN apply the **Ethics Conduct & Effect**
     matrix"*, *"THEN initiate the **Directorship Pathway 1** checklist"* — and the trees copied them
@@ -2288,13 +2334,21 @@ that the warning is not being followed by default.
   - **Not urgent — nothing reaches an adviser today**, because the field-drop defect above swallows
     every one of these sentences first. The two must be fixed together: repairing the field alone would
     start feeding 12 non-existent tool names to the AI.
-  - ☐ **Still to verify, deliberately unfinished** (investigation stopped on Mike's instruction to hold
-    scope): six names in the *proper* `templates[]` lists are also absent from the search JSON —
-    **Lite Sales, Lite Data, Lite Planning, Lite People, Lite Process, Growth Curve**. "Growth Curve"
-    *is* in `templates.json`, so the two data files appear to disagree (291 templates vs 280 search
-    records). **Verify before acting.** Also unverified: whether `validateLogicTreeReferences` only
-    logs — its result is discarded at [L108](../server/utils/logicTrees.js#L108) — which would mean a
-    ghost name in a proper list reaches the prompt today.
+  - ✅ **VERIFIED 2026-08-12 — and the answer is "no missing templates".** All six —
+    **Lite Sales, Lite Data, Lite Planning, Lite People, Lite Process, Growth Curve** — **are in
+    `data/templates.json`**, which is the catalogue the running app actually reads. Measured the same
+    day: of the 110 distinct names declared in node `templates[]` lists across all 42 tables, **zero
+    are absent from that catalogue**. The startup warning naming those six comes from
+    `validateLogicTreeReferences`, which checks the **search export** instead — the two-sources
+    disagreement already recorded immediately above this row. **It is a reporting gap, not a broken
+    reference**, and it is why the availability gate was deliberately built against `templates.json`.
+  - ⚠ **Still true, and still unfixed:** `validateLogicTreeReferences` only logs — its result is
+    discarded by `loadLogicTrees`, which the function's own comment now states outright. Harmless while
+    zero declared names are unresolved; it is the announcement that would fail silently, not the engine.
+  - ⚠ **19 unmatched names DO remain in the formal lists of the 5 flat `branches` tables** (the
+    Get-the-Job tables), which the node-shaped gate never sees. Not a regression and not new —
+    [§gate-blind-to-flat-trees](#gate-blind-to-flat-trees) is the row for it — but it is the reason
+    "zero unresolved declared names" must always be said as "in the node trees".
   - ☐ **P3 · SCORING — a repeated word in an `answer_pattern` silently doubles that branch's score.**
     `scorePattern` ([`logicTrees.js`](../server/utils/logicTrees.js) L1205–1213) counts every
     occurrence of a matched word, so a pattern naming *wants* twice scores 2 on that word alone.
@@ -2308,6 +2362,22 @@ that the warning is not being followed by default.
     so this is logged rather than swept. The fix is either de-duplicating the patterns or making
     `scorePattern` count distinct words; the second changes scoring for all 42 trees at once and would
     need a full before/after.
+
+- <a id="advisor-note-dropped"></a>☐ **🟠 DECISION (MIKE) — A SECOND DROPPED INSTRUCTION, FOUND BY THE
+  GUARD THE DAY IT WAS WRITTEN. Raised 2026-08-12, deliberately not fixed.**
+  - One node — `profitability_feasibility` / `pf_awareness` — carries a field called `advisor_note`
+    that `formatNodeForPrompt` does not read, so it reaches the AI nowhere: *"This determines the
+    delivery method. **Do not use Trial Fit on an unaware client — it will cause map shock.** Do not
+    use Cautious Reveal on a motivated client — it will feel slow and condescending."*
+  - **It is the same defect as [§tree-recommendation-field-dropped](#tree-recommendation-field-dropped)**,
+    one node instead of 55, and it is a real instruction rather than a structural field.
+  - **NOT fixed unasked, on purpose.** Emitting a new field into live prompts changes what the model is
+    told; that is Mike's call. **The question for him is one line: should `advisor_note` be emitted the
+    same gated way `recommendation` now is?**
+  - 🔴 **This is a control, not a note.** It is named in the `NOT_EMITTED` list inside
+    [`recommendationGate.test.js`](../tests/unit/recommendationGate.test.js) with its reason, and a
+    second test asserts every entry in that list is genuinely still in the data — so the day it is
+    wired up, a stale exemption fails the build instead of quietly licensing the next silent drop.
 
 - <a id="collaborate-merge"></a>◐ **THE BACK-END MERGE IS DONE — verified 2026-08-03.** `server/collaborate/`
   (`data/`, `routes/`, `utils/`) is present in this repo, and [`jest.config.js`](../jest.config.js) records the
