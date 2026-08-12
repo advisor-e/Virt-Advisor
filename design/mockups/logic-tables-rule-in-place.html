@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logic Tables — ruling a name in place (mockup)</title>
+<style>
+  :root {
+    --navy:#002b64; --grey:#7a869a; --line:#e2e6ec; --ink:#363636;
+    --green:#1f7a45; --green-bg:#eefaf2; --green-line:#63c48d;
+    --amber:#b35309; --amber-bg:#fffaf3; --amber-line:#ffb870;
+    --red:#a32020;   --red-bg:#fdf4f4;   --red-line:#e8a0a0;
+    --slate:#5a6b82; --slate-bg:#f3f6fa; --slate-line:#b8c6d8;
+    --dim:#8a94a3;   --dim-bg:#f6f7f9;   --dim-line:#d8dce3;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.5rem 6rem; background:#f5f5f5;
+    font:15px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); }
+  .wrap { max-width:1180px; margin:0 auto; }
+
+  .banner { background:#fff8e6; border:1px solid #f0d9a0; border-left:4px solid #e0b24e;
+    border-radius:5px; padding:0.9rem 1.05rem; margin-bottom:2.5rem; font-size:0.84rem; line-height:1.6; }
+  .banner strong { color:var(--amber); }
+
+  h1 { font-size:1.6rem; margin:0 0 0.4rem; color:var(--navy); letter-spacing:-0.01em; }
+  .lede { color:var(--grey); font-size:0.92rem; margin:0; max-width:56rem; }
+
+  section.band { margin-top:3.2rem; }
+  section.band > h2 { font-size:1.15rem; color:var(--navy); margin:0 0 0.35rem; letter-spacing:-0.01em; }
+  section.band > .sub { color:var(--grey); font-size:0.86rem; margin:0 0 1.4rem; max-width:56rem; }
+
+  /* ── The page shell: rail + grid ─────────────────────────────── */
+  .screen { display:flex; gap:1.1rem; align-items:flex-start; }
+  .rail { flex:0 0 250px; background:#fff; border:1px solid #ececec; border-radius:8px; padding:0.7rem; }
+  .rail h3 { font-size:0.66rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--navy);
+    margin:0.55rem 0 0.4rem; font-weight:700; }
+  .rrow { display:flex; align-items:center; gap:0.4rem; padding:0.4rem 0.5rem; border-radius:4px;
+    font-size:0.83rem; }
+  .rrow.is-current { background:var(--slate-bg); font-weight:600; color:var(--navy); }
+  .rrow .nmount { margin-left:auto; font-size:0.68rem; border-radius:999px; padding:0.08rem 0.42rem;
+    background:#eef1f5; color:var(--grey); border:1px solid var(--line); }
+  .rrow .nmount.todo { background:var(--amber-bg); color:var(--amber); border-color:var(--amber-line);
+    font-weight:700; }
+
+  .grid { flex:1; background:#fff; border:1px solid #ececec; border-radius:8px; padding:1rem 1.1rem; }
+  table.lt { border-collapse:collapse; width:100%; font-size:0.82rem; table-layout:fixed; }
+  table.lt th { text-align:left; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.07em;
+    color:var(--navy); background:#f4f6f9; padding:0.5rem 0.6rem; border-bottom:1px solid #d5dbe4; }
+  table.lt td { padding:0.6rem; border-bottom:1px solid #eef1f5; vertical-align:top; }
+  .cell { border:1px solid var(--line); border-radius:4px; padding:0.45rem 0.55rem; background:#fff;
+    min-height:2.6rem; }
+  .bname { font-weight:600; color:var(--navy); }
+
+  /* ── The strip ───────────────────────────────────────────────── */
+  tr.strip > td { background:var(--slate-bg); border-bottom:2px solid var(--slate-line);
+    padding:0.75rem 0.7rem 0.85rem; }
+  tr.strip.settled > td { background:#fbfcfd; border-bottom:1px solid #eef1f5; }
+  .slab { font-size:0.66rem; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;
+    color:var(--navy); margin:0 0 0.5rem; }
+  .nameline { display:flex; gap:0.55rem; align-items:center; flex-wrap:wrap; margin-bottom:0.5rem; }
+  .nm { font-family:ui-monospace,Consolas,monospace; font-size:0.82rem; font-weight:600; color:var(--navy); }
+  .pill { font-size:0.66rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
+    border-radius:999px; padding:0.12rem 0.55rem; }
+  .p-none { background:var(--red-bg); color:var(--red); border:1px solid var(--red-line); }
+  .p-ruled { background:var(--green-bg); color:var(--green); border:1px solid var(--green-line); }
+  .p-dismissed { background:var(--dim-bg); color:var(--dim); border:1px solid var(--dim-line); }
+  .p-maybe { background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber-line); }
+  .settledtext { font-size:0.79rem; color:var(--slate); }
+  .btns { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.15rem; }
+  .btn { font-size:0.75rem; border-radius:4px; padding:0.3rem 0.7rem; border:1px solid var(--line);
+    background:#fff; color:var(--slate); }
+  .btn.primary { background:var(--navy); border-color:var(--navy); color:#fff; font-weight:600; }
+  .btn.link { border:0; background:transparent; color:var(--slate); text-decoration:underline; }
+
+  .saveline { display:flex; align-items:center; gap:0.6rem; margin-top:1rem; padding-top:0.85rem;
+    border-top:1px solid var(--line); font-size:0.8rem; color:var(--grey); }
+  .btn.save { background:var(--navy); border-color:var(--navy); color:#fff; font-weight:600;
+    font-size:0.8rem; padding:0.4rem 1rem; }
+  .instant { font-size:0.73rem; color:var(--green); font-weight:600; }
+
+  .find { background:#eef6ff; border:1px solid #bcd8f5; border-left:4px solid #4a90d9; border-radius:0 5px 5px 0;
+    padding:0.75rem 0.95rem; font-size:0.83rem; margin:1rem 0 0; }
+  .find strong { color:#1c5a94; }
+  .warn { background:var(--red-bg); border:1px solid var(--red-line); border-left:4px solid var(--red);
+    border-radius:0 5px 5px 0; padding:0.75rem 0.95rem; font-size:0.83rem; margin:1rem 0 0; }
+  .warn strong { color:var(--red); }
+  .note { font-size:0.8rem; color:var(--grey); margin:0.6rem 0 0; }
+
+  table.w { border-collapse:collapse; width:100%; font-size:0.83rem; background:#fff;
+    border:1px solid #ececec; margin-top:0.8rem; }
+  table.w th { text-align:left; font-size:0.67rem; text-transform:uppercase; letter-spacing:0.07em;
+    color:var(--navy); background:#f4f6f9; padding:0.55rem 0.7rem; border-bottom:1px solid #d5dbe4; }
+  table.w td { padding:0.6rem 0.7rem; border-bottom:1px solid #eef1f5; vertical-align:top; }
+  table.w tr:last-child td { border-bottom:0; }
+  .q { color:var(--amber); font-weight:700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <strong>MOCKUP — nothing here is built.</strong> Proposed change to the <em>Logic Tables</em> tab of
+    the Mentor Hub, after Mike said on 2026-08-12: <em>"it would make it much easier to determine a
+    rule if I had more context — currently I am trying to flick between the pages."</em>
+    <br><br>
+    <strong>Every label marked <span class="q">?</span> is proposed wording awaiting his ruling.</strong>
+    The three verdict buttons (<em>Use this one</em> · <em>Pick another</em> · <em>Not a tool</em>) are
+    unchanged from the screen he approved on 2026-08-05 and are not being re-asked.
+    <br><br>
+    All content is <strong>real</strong>: the branches, the IF and THEN text and the rulings are the
+    live <em>Firm Board Pack</em> table as the running app returns it today.
+  </div>
+
+  <h1>Ruling a name where you can see the table</h1>
+  <p class="lede">
+    Mentor only. Every name the Template Check has found is shown under the branch it was written in,
+    with the same three buttons. The list of names does not go away — this is the place to
+    <em>decide</em> one; that page stays the place to see what is left.
+  </p>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>1 · The table list says which tables still hold something</h2>
+    <p class="sub">
+      Today the list shows a branch count. The proposal adds a second number: how many names in that
+      table still need a decision. It is the thing the Logic Tables page cannot currently tell you, and
+      it is why finding the work means opening the other tab.
+    </p>
+
+    <div class="screen">
+      <div class="rail">
+        <h3>Coaching tables <span class="q">?</span></h3>
+        <div class="rrow"><span>CA Firm Strategy</span><span class="nmount">7</span><span class="nmount todo">1</span></div>
+        <div class="rrow is-current"><span>Firm Board Pack</span><span class="nmount">8</span><span class="nmount todo">1</span></div>
+        <div class="rrow"><span>Leadership &amp; Partner Dev.</span><span class="nmount">9</span><span class="nmount todo">4</span></div>
+        <div class="rrow"><span>Get Seminar</span><span class="nmount">8</span><span class="nmount todo">7</span></div>
+        <div class="rrow"><span>Systems Thinking</span><span class="nmount">11</span><span class="nmount todo">1</span></div>
+        <div class="rrow"><span>Quickfire Logic</span><span class="nmount">6</span><span class="nmount">—</span></div>
+      </div>
+      <div class="grid" style="padding:1.4rem;">
+        <p class="slab">What the two numbers mean <span class="q">?</span></p>
+        <table class="w">
+          <tr><th style="width:22%">Badge</th><th>Reads as</th></tr>
+          <tr><td><span class="nmount">8</span></td><td>Branches in the table. This is what the list shows today, unchanged.</td></tr>
+          <tr><td><span class="nmount todo">1</span></td><td><strong>Names still needing a decision</strong> <span class="q">?</span> — the wording of this is yours. It is the only new number.</td></tr>
+          <tr><td><span class="nmount">—</span></td><td>Nothing outstanding. A table with everything settled says so rather than showing a zero.</td></tr>
+        </table>
+        <div class="find">
+          <strong>Get Seminar shows 7 of 8.</strong> That single row makes the state of that table
+          visible from the list — which is the argument for the badge more than any counting is.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>2 · The strip sits under the branch it belongs to</h2>
+    <p class="sub">
+      Real rows from <em>Firm Board Pack</em>. Two branches are shown: one already settled, one still
+      needing you. The strip only appears where there is something to show.
+    </p>
+
+    <div class="grid">
+      <table class="lt">
+        <colgroup><col style="width:20%"><col style="width:26%"><col style="width:34%"><col style="width:20%"></colgroup>
+        <thead>
+          <tr><th>Branch</th><th>If the client…</th><th>Then do this</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <!-- settled branch -->
+          <tr>
+            <td><div class="cell bname">Risk Assessment — Market Volatility or Operational Threats</div></td>
+            <td><div class="cell">Client indicates exposure to market volatility or operational threats</div></td>
+            <td><div class="cell">Use Risk Mgt Cover matrix to identify, classify, and assign strategic actions to all identified risks.</div></td>
+            <td><div class="cell"></div></td>
+          </tr>
+          <tr class="strip settled">
+            <td colspan="4">
+              <p class="slab">Names in this branch — settled <span class="q">?</span></p>
+              <div class="nameline">
+                <span class="nm">Risk Mgt Cover</span>
+                <span class="pill p-ruled">You ruled</span>
+                <span class="settledtext">→ points at <strong>Formal Risk Management</strong></span>
+                <button class="btn link">Change this <span class="q">?</span></button>
+              </div>
+              <div class="nameline">
+                <span class="nm">Risk Management Cover</span>
+                <span class="pill p-ruled">You ruled</span>
+                <span class="settledtext">→ points at <strong>Formal Risk Management</strong></span>
+                <button class="btn link">Change this <span class="q">?</span></button>
+              </div>
+              <p class="note">
+                Two working names for one document, both already answered. Shown quietly rather than
+                hidden, so a branch never looks unexamined when it has been examined.
+              </p>
+            </td>
+          </tr>
+
+          <!-- branch that needs him -->
+          <tr>
+            <td><div class="cell bname">Combating Bias — Repeated Mistakes and Gut-Feel Decisions</div></td>
+            <td><div class="cell">Client repeats the same mistakes, or decides on gut feel</div></td>
+            <td><div class="cell">Introduce the Quality Decisions frameworks, specifically addressing Psyche Errors… Have them use a <strong>Decision Workpaper</strong> to outline logic, counter-arguments, and early failure indicators for every major decision.</div></td>
+            <td><div class="cell"></div></td>
+          </tr>
+          <tr class="strip">
+            <td colspan="4">
+              <p class="slab">Names in this branch — one needs you <span class="q">?</span></p>
+
+              <div class="nameline">
+                <span class="nm">Decision Workpaper</span>
+                <span class="pill p-none">Nothing matches</span>
+                <span class="settledtext">no document in the catalogue answers to this name</span>
+              </div>
+              <table class="w" style="margin-bottom:0.75rem;">
+                <tr><th style="width:32%">Closest the app can open <span class="q">?</span></th><th>What that document says about itself</th></tr>
+                <tr>
+                  <td><strong>FM Board White Paper</strong><br><span class="settledtext">named in this same table, one branch up</span></td>
+                  <td>Standardizes how new ideas or major purchases are pitched to the board. It requires an Executive Summary, Historical Context, Suggested Solution, Measurable…</td>
+                </tr>
+                <tr>
+                  <td><strong>Draft White Papers</strong></td>
+                  <td>Guides the reader through the process of writing a white paper. It seeks to solve the common problem facing many board chairmen, that of members 'dumping'…</td>
+                </tr>
+              </table>
+              <div class="btns">
+                <button class="btn primary">Use this one</button>
+                <button class="btn">Pick another</button>
+                <button class="btn">Not a tool</button>
+              </div>
+
+              <div class="nameline" style="margin-top:1.1rem;">
+                <span class="nm">Psyche Errors</span>
+                <span class="pill p-dismissed">Not a tool</span>
+                <span class="settledtext">your own coaching, explained in the sentence itself</span>
+                <button class="btn link">Change this <span class="q">?</span></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="find">
+        <strong>This is the whole point of the change.</strong> The sentence naming
+        <em>Decision Workpaper</em>, the branch it decides, the neighbouring branch that names a real
+        white-paper document, and what each candidate says about itself are all on one screen. None of
+        that is visible from the list of names.
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>3 · A ruling and an edit must not look like the same act</h2>
+    <p class="sub">
+      This is the one real risk in putting the two together, and it is a design question, not a coding
+      one. On this page a text change waits for <em>Save</em>. A ruling does not — it is recorded the
+      moment it is pressed, exactly as it is on the Template Check screen today.
+    </p>
+
+    <div class="grid">
+      <p class="slab">Proposed: the strip states its own saving, separately from the table's <span class="q">?</span></p>
+      <div class="nameline">
+        <span class="nm">Decision Workpaper</span>
+        <span class="pill p-ruled">You ruled</span>
+        <span class="settledtext">→ points at <strong>FM Board White Paper</strong></span>
+        <span class="instant">✓ Recorded <span class="q">?</span></span>
+      </div>
+      <div class="saveline">
+        <button class="btn save">Save changes</button>
+        <span>Saves the branch wording above. <strong>Rulings are already recorded</strong> <span class="q">?</span> — they are not waiting for this button.</span>
+      </div>
+
+      <div class="warn">
+        <strong>Why this is stated so plainly.</strong> On 2026-08-12 the editor's THEN column was found
+        reading one field and writing another, so a reworded recommendation could be saved as an action
+        and travel <em>past</em> the safety gate — no error, no failing test. Two write paths that look
+        alike on one row is the same shape of risk. If the two savings cannot be told apart at a glance,
+        the merge is not worth doing.
+      </div>
+
+      <div class="find">
+        <strong>A ruling never edits the table.</strong> It records your decision about a name. Changing
+        the sentence to use the published title is a separate, reviewed step — the existing
+        <em>"Accept and push"</em> queue on the Template Check screen — and it is unchanged by this.
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>What changes, precisely</h2>
+    <table class="w">
+      <tr><th style="width:30%">Thing</th><th>Before</th><th>After</th></tr>
+      <tr>
+        <td>Deciding a name</td>
+        <td>Template Check tab; the branch's own words are not on screen</td>
+        <td>Also on Logic Tables, under the branch, with the IF, the THEN and the neighbouring branches visible</td>
+      </tr>
+      <tr>
+        <td>Finding which tables hold work</td>
+        <td>Only from the Template Check list</td>
+        <td>A second badge on each table in the list</td>
+      </tr>
+      <tr>
+        <td>The Template Check tab</td>
+        <td>The list, counts, filters, and the "Accept and push" queue</td>
+        <td><strong>Unchanged.</strong> Still the overview and still the only place the queue is prepared</td>
+      </tr>
+      <tr>
+        <td>Who sees any of it</td>
+        <td>Mentor only (<code>templateCheck: ['mentor']</code>)</td>
+        <td><strong>Mentor only.</strong> A firm manager opening Logic Tables sees exactly what it sees today</td>
+      </tr>
+      <tr>
+        <td>What a ruling does</td>
+        <td>Records a decision; never edits a table</td>
+        <td><strong>Unchanged</strong></td>
+      </tr>
+    </table>
+
+    <div class="find">
+      <strong>Why this is not much code.</strong> Every finding is already filed under table + branch —
+      live example from the running server:
+      <code>quickfire::qf_branch1c_salvageable::covid agenda programme</code> — and the Logic Tables
+      editor already keeps each branch's own id when it loads a table. The two already have the key
+      they need to be joined; this is display, not new plumbing.
+    </div>
+
+    <p class="note">
+      <strong>Not proposed here, deliberately:</strong> merging the two tabs into one, or removing the
+      Template Check tab. The list is where you see what is left across all 30 tables; the table is
+      where a single name is best judged. Losing the first to gain the second would trade one kind of
+      flicking for another.
+    </p>
+  </section>
+
+</div>
+</body>
+</html>

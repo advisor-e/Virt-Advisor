@@ -529,5 +529,23 @@
     "applyRequestedAt": null,
     "verdict": "flagged",
     "title": null
+  },
+  "quickfire::qf_branch1c_salvageable::covid agenda programme": {
+    "verdict": "dismissed",
+    "title": null,
+    "note": "",
+    "ruledBy": "dev-mentor@local",
+    "ruledAt": "2026-08-12T09:39:17.895Z",
+    "applyRequested": false,
+    "applyRequestedAt": null
+  },
+  "quickfire::qf_branch2_growth::quickfire diagnosis template": {
+    "verdict": "ruled",
+    "title": "Quick Fire Diagnosis",
+    "note": "",
+    "ruledBy": "dev-mentor@local",
+    "ruledAt": "2026-08-12T09:39:58.664Z",
+    "applyRequested": false,
+    "applyRequestedAt": null
   }
 }
