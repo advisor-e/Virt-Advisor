@@ -39,7 +39,7 @@ const { isTemplateName } = require('./logicTrees')
 // The prose scanner lives in its own module because the runtime recommendation
 // gate in logicTrees.js needs the identical answer to "what tools does this
 // sentence name". See server/utils/toolNameScan.js for why that matters.
-const { normalise, extractProseNames } = require('./toolNameScan')
+const { normalise, normaliseLegacy, extractProseNames } = require('./toolNameScan')
 
 /** Below this, a suggested match is not offered at all — silence beats a bad guess. */
 const CANDIDATE_MIN_SCORE = 0.6
@@ -144,7 +144,42 @@ function findCandidate (name, catalogue) {
       }
     }
   }
-  return best
+  if (best) { return best }
+
+  // ── LAST RESORT: the same name with the spaces put differently ──────────
+  // "Quickfire Diagnosis Template" is the published **Quick Fire Diagnosis**, and
+  // every test above misses it: the strings differ by one space, so neither
+  // contains the other, and only 0.4 of its distinctive words match against a 0.6
+  // bar. Mike was shown "Nothing matches" for a document he can open.
+  //
+  // It runs only when the whole catalogue has already failed, which is what makes
+  // it safe: it cannot outrank a spaced match, cannot change an existing
+  // suggestion, and can only turn "Nothing matches" into something to look at. It
+  // is scored AT the bar, never above it — this is the weakest reading offered,
+  // and the screen still labels it "Probably this", not an answer.
+  const dn = n.replace(/\s/g, '')
+  let loose = null
+  for (const row of catalogue.list) {
+    const t = normalise(row.title)
+    const dt = t.replace(/\s/g, '')
+    if (!dt || !dn) { continue }
+    const hit = dt.startsWith(dn) || dt.includes(dn) ||
+      (dn.includes(dt) && t.split(' ').length >= 2)
+    // Longest title wins, so a specific record beats a short generic one that
+    // happens to sit inside it.
+    if (hit && (!loose || dt.length > loose.length)) {
+      loose = {
+        title: row.title,
+        score: CANDIDATE_MIN_SCORE,
+        why: 'the same words, with the spaces put differently',
+        summary: String(row.purpose || row.summary || row.description || ''),
+        length: dt.length
+      }
+    }
+  }
+  if (!loose) { return null }
+  delete loose.length
+  return loose
 }
 
 /**
@@ -188,6 +223,30 @@ function rulesOf (tree) {
  */
 function findingKey (treeId, ruleId, name) {
   return `${treeId}::${ruleId}::${normalise(name)}`
+}
+
+/**
+ * The same identity as `findingKey`, spelled the way it was before the
+ * apostrophe fix of 2026-08-12.
+ *
+ * 🔴 REMOVING THIS SILENTLY UNANSWERS QUESTIONS MIKE HAS ALREADY ANSWERED. A
+ * ruling is filed under the normalised name, so the moment `normalise` stopped
+ * splitting `Porter's` into two words, three of his 59 rulings — Porters & Pine,
+ * De Bono's 6 Hats, Deming's Theory of Volatility — no longer matched their own
+ * rows and would have reappeared on his queue as unruled. That is the same fault
+ * the fix was made to end, arriving by the back door.
+ *
+ * Read only, and only as a fallback: nothing is ever WRITTEN under this key, so
+ * every new ruling lands on the current spelling and the stored file is left
+ * exactly as Mike's own sessions wrote it.
+ *
+ * @param {string} treeId
+ * @param {string} ruleId
+ * @param {string} name
+ * @returns {string}
+ */
+function legacyFindingKey (treeId, ruleId, name) {
+  return `${treeId}::${ruleId}::${normaliseLegacy(name)}`
 }
 
 /**
@@ -263,7 +322,10 @@ function runTemplateCheck (options) {
  */
 function buildFinding (treeId, treeName, rule, name, where, field, catalogue, rulings) {
   const key = findingKey(treeId, rule.id, name)
-  const ruling = rulings[key]
+  // The fallback is what keeps a ruling attached to its row across the
+  // normaliser change — see legacyFindingKey. Current spelling always wins.
+  const legacyKey = legacyFindingKey(treeId, rule.id, name)
+  const ruling = rulings[key] || (legacyKey !== key ? rulings[legacyKey] : undefined)
   const candidate = findCandidate(name, catalogue)
 
   // Mike's decision always wins over the scan's own reading of the same row. The
@@ -326,6 +388,7 @@ function countUp (trees, findings, listRefs, proseRefs) {
 module.exports = {
   runTemplateCheck,
   findingKey,
+  legacyFindingKey,
   extractProseNames,
   findCandidate,
   buildCatalogue,

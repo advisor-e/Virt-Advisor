@@ -74,10 +74,49 @@ const MIN_PHRASE_WORDS = 2
  * punctuation stripped, runs of whitespace collapsed, so "Get. Paper Tower Model"
  * and "Get Paper Tower Model" are recognised as the same attempt at a name.
  *
+ * ⚠ AN APOSTROPHE IS DELETED, NOT SPACED, AND THAT IS THE WHOLE POINT OF THIS
+ * FUNCTION'S SECOND LINE. Every other mark becomes a space, which is right for a
+ * full stop or an ampersand but wrong for a possessive: it splits one word into
+ * two, so `Porter's & Pine` normalised to `porter s pine` and never matched the
+ * published **Porters & Pine**. Mike was told a real, published document did not
+ * exist. That was the third instance of one fault — a digit (5 Aug), this
+ * apostrophe, and a space (design/ACTIONS.md #name-matcher-punctuation-blind).
+ *
+ * Measured before the change, against all 291 catalogue titles: three keys move
+ * ("Porter's Revenue", "What's Applicable", "Food & Remedy Product'n") and **no
+ * two distinct titles collide that did not collide already**. The runtime gate's
+ * output over all 55 gated recommendations is character-for-character identical —
+ * this can only ever create a match, never withhold more.
+ *
  * @param {string} s
  * @returns {string}
  */
 function normalise (s) {
+  return String(s || '')
+    .toLowerCase()
+    .replace(/['’ʼ`]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+/**
+ * `normalise` exactly as it behaved before 2026-08-12 — every mark, apostrophe
+ * included, replaced by a space.
+ *
+ * IT EXISTS FOR ONE REASON: Mike's rulings are filed under the normalised name,
+ * so changing the normaliser silently detached three answers he had already given
+ * (`porter s pine`, `de bono s 6 hats`, `deming s theory of volatility`) and would
+ * have put them back on his queue as unanswered — the exact fault the change above
+ * was made to end. templateCheck falls back to this key when the current one
+ * misses, which leaves his stored file untouched and the change reversible.
+ *
+ * Comparison only, and only for that lookup. Never use it for a new match.
+ *
+ * @param {string} s
+ * @returns {string}
+ */
+function normaliseLegacy (s) {
   return String(s || '')
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, ' ')
@@ -172,6 +211,7 @@ module.exports = {
   TOOL_VERBS,
   MIN_PHRASE_WORDS,
   normalise,
+  normaliseLegacy,
   trimToToolName,
   extractProseNames
 }

@@ -2287,9 +2287,10 @@ that the warning is not being followed by default.
       developer's to delete.** The reason he could not was `#logic-table-editor-blind-to-recommendation`
       below — now closed.
 
-- <a id="name-matcher-punctuation-blind"></a>☐ **🔴 P1 · FIX — THE NAME MATCHER IS BLIND TO
-  PUNCTUATION AND SPACING, AND IT HAS NOW INVENTED WORK THREE TIMES.** Found 2026-08-12. **Real,
-  published documents are reported to Mike as "Nothing matches".**
+- <a id="name-matcher-punctuation-blind"></a>✅ **🔴 P1 · FIX — CLOSED 2026-08-12 (laptop). THE NAME
+  MATCHER WAS BLIND TO PUNCTUATION AND SPACING, AND IT HAD INVENTED WORK THREE TIMES.** Found
+  2026-08-12, fixed the same day. **Real, published documents were reported to Mike as "Nothing
+  matches".** The entry below is kept verbatim — the fix and what it moved follow it.
   - **The mechanism.** [`normalise`](../server/utils/toolNameScan.js) replaces every non-alphanumeric
     character with a **space**, so a possessive splits the word in two:
 
@@ -2306,11 +2307,38 @@ that the warning is not being followed by default.
     2026-08-12: today's affected names sit in `action` and `notes`, which are not gated, so **nothing
     is being wrongly withheld right now.** It is a trap, not a live fault — but a punctuated name
     landing in a `recommendation` would be silently withheld even though the tool exists.
-  - **Proposed fix:** strip apostrophes rather than space them, and score a space-insensitive
-    comparison. It can only ever create matches, never withhold more. **Not taken — needs its own
-    change and its own tests**, because it moves a function the live engine depends on.
-  - **The rule this suggests:** when a name "does not exist", check the catalogue by hand before
-    telling Mike. Three for three so far.
+  - ~~**Proposed fix:** strip apostrophes rather than space them, and score a space-insensitive
+    comparison. **Not taken — needs its own change and its own tests.**~~ **TAKEN 2026-08-12**, in
+    three parts, all measured against the real 291-record catalogue before anything was edited:
+    1. [`normalise`](../server/utils/toolNameScan.js) **deletes** an apostrophe instead of spacing
+       it. Three catalogue keys move; **no two distinct titles are merged that were not already**.
+    2. [`findCandidate`](../server/utils/templateCheck.js) gains a **last-resort** comparison that
+       ignores where the spaces fall. It runs only after the whole catalogue has failed, so it can
+       never outrank or alter an existing suggestion — it can only turn "Nothing matches" into
+       something to look at, scored **at** the bar and never above it.
+    3. **`legacyFindingKey` — the part that was nearly missed, and the reason this needed its own
+       change.** A ruling is filed under the normalised name, so the fix on its own **silently
+       detached three of Mike's 59 rulings** (`porter s pine`, `de bono s 6 hats`,
+       `deming s theory of volatility`) and would have put three questions he answered on 12 August
+       back on his queue as unanswered — **the same fault, arriving by the back door.** The lookup
+       now falls back to the old spelling. Read-only: nothing is ever written under the legacy key,
+       so his stored file is untouched and the change is reversible.
+  - **What it moved.** Queue **88 → 87** (`Porter's & Pine` is now recognised as the published
+    **Porters & Pine** and is not a row at all); "Nothing matches" **13 → 12**
+    (`Quickfire Diagnosis Template` now offers **Quick Fire Diagnosis**); rulings still attached
+    **30 → 30**.
+  - ✅ **THE SAFETY CLAIM, MEASURED BOTH BEFORE AND AFTER: the runtime gate is character-for-character
+    identical.** All 55 gated recommendations, 14 withheld whole and 14 in part, before and after —
+    **zero difference**. Pinned by a test that re-runs the gate under the OLD normaliser and asserts
+    the outputs are equal, so a future change that makes this stricter fails rather than quietly
+    mutes advice.
+  - **Tests:** `tests/unit/toolNamePunctuation.test.js`, 16 of them. **Four assert that no harm was
+    done** rather than that the feature works — no titles merged, no extra text withheld, a nonsense
+    name still returns "Nothing matches" and never a guess, and that without the fallback the three
+    rulings really would have vanished. Suite 297 suites / 5,058 green, lint 0 errors.
+  - **The rule this suggests, and it still stands:** when a name "does not exist", check the
+    catalogue by hand before telling Mike. Three for three — and all three were found by a human
+    looking, not by a gate.
 
 - <a id="logic-table-editor-blind-to-recommendation"></a>✅ **🔴 P1 · FIX — CLOSED 2026-08-12
   (`7ba8427`). The Logic Tables editor could not see the field 55 branches keep their instruction in.**
