@@ -2273,10 +2273,93 @@ that the warning is not being followed by default.
   - ⚠ **The Get Seminar tree is a genuine exception and should be handled separately.**
     `Logic Tables/Get Seminar Logic.pdf` has **no template column and never says "template"**; its 7
     `recommendation` lines were written by the app layer from the PDF's own *filename*. The real
-    instruction (the PDF's THEN column) is already in `notes` and already reaches the AI, so **deleting
-    those 7 costs nothing**. Already recorded in
-    [`TREE-PDF-FIDELITY-SWEEP-2026-06-23.md`](TREE-PDF-FIDELITY-SWEEP-2026-06-23.md) as "app-layer (not
-    in PDF) but benign" — benign only because nothing read the field.
+    instruction (the PDF's THEN column) is already in `notes` and already reaches the AI. Already
+    recorded in [`TREE-PDF-FIDELITY-SWEEP-2026-06-23.md`](TREE-PDF-FIDELITY-SWEEP-2026-06-23.md) as
+    "app-layer (not in PDF) but benign" — benign only because nothing read the field.
+    - 🔴 **CORRECTED 2026-08-12 — "deleting those 7 costs nothing" was the wrong conclusion and is
+      struck.** Mike: *"we discussed get seminar as being across public speaking… isn't this why the
+      logic tables became editable, so I can modify in the app at mentor level and correct things like
+      this?"* Both halves check out. He placed that material in **Public Speaking** in June
+      ([`SESSION-2026-06-20-IP-DEPTH-AUDIT-NOTES.md`](SESSION-2026-06-20-IP-DEPTH-AUDIT-NOTES.md): the
+      get_seminar methods *"live in the sibling `powerful-seminars.json` (the live `public_speaking`
+      learn tree)"*), and [`MENTOR-SAVE-SCOPE-PLAN.md`](MENTOR-SAVE-SCOPE-PLAN.md) says a mentor's
+      Logic Tables edits are inherited by every firm. **These 7 lines are his to reword, not a
+      developer's to delete.** The reason he could not was `#logic-table-editor-blind-to-recommendation`
+      below — now closed.
+
+- <a id="name-matcher-punctuation-blind"></a>☐ **🔴 P1 · FIX — THE NAME MATCHER IS BLIND TO
+  PUNCTUATION AND SPACING, AND IT HAS NOW INVENTED WORK THREE TIMES.** Found 2026-08-12. **Real,
+  published documents are reported to Mike as "Nothing matches".**
+  - **The mechanism.** [`normalise`](../server/utils/toolNameScan.js) replaces every non-alphanumeric
+    character with a **space**, so a possessive splits the word in two:
+
+    | Written in the table | Normalises to | Published title | Normalises to | Match |
+    |---|---|---|---|---|
+    | `Porter's & Pine` | `porter s pine` | **Porters & Pine** | `porters pine` | ❌ |
+    | `Quickfire Diagnosis Template` | `quickfire diagnosis template` | **Quick Fire Diagnosis** | `quick fire diagnosis` | ❌ (scores 0.4 against a 0.6 bar) |
+
+  - **Three instances of one fault, and each cost Mike real time.** The **digit** (5 August —
+    *"Business Purchase Assessment 1"* truncated to a title that exists nowhere, putting **9 rows** on
+    his queue that needed no ruling and nearly withholding 8 correct sentences); the **apostrophe**;
+    the **space**. Two were found only because someone went looking by hand.
+  - ⚠ **The same function decides what the RUNTIME GATE withholds from prompts.** Checked
+    2026-08-12: today's affected names sit in `action` and `notes`, which are not gated, so **nothing
+    is being wrongly withheld right now.** It is a trap, not a live fault — but a punctuated name
+    landing in a `recommendation` would be silently withheld even though the tool exists.
+  - **Proposed fix:** strip apostrophes rather than space them, and score a space-insensitive
+    comparison. It can only ever create matches, never withhold more. **Not taken — needs its own
+    change and its own tests**, because it moves a function the live engine depends on.
+  - **The rule this suggests:** when a name "does not exist", check the catalogue by hand before
+    telling Mike. Three for three so far.
+
+- <a id="logic-table-editor-blind-to-recommendation"></a>✅ **🔴 P1 · FIX — CLOSED 2026-08-12
+  (`7ba8427`). The Logic Tables editor could not see the field 55 branches keep their instruction in.**
+  The THEN column was filled from `action`, falling back to `question`, and never read
+  `recommendation`. All 55 of those branches — across Get Seminar, Firm Board Pack, Leadership &
+  Partner Development, CA Firm Strategy, Financial Systems Review, Raising Capital, Stock Purchasing,
+  FM Coaching & Culture — have **neither** of the other two, so the editor rendered an **empty THEN
+  box** on every one. The branch was visible; its only instruction was not.
+  - 🔴 **The read and the write now ask ONE function, `_thenFieldOf`, and that is the safety of it.**
+    `recommendation` is gated sentence-by-sentence against the tool catalogue (`fdb15ca`); `action` is
+    not gated at all. A reworded recommendation saved back as an `action` would have travelled **past**
+    that gate — no error, no failing test. Four tests, one asserting an **absence** (that saving Get
+    Seminar's line creates no `action` key), because the absence is the claim.
+  - **Found by Mike asking why he could not fix it himself**, not by a test. Nothing could have failed:
+    every gate compares code to code, and no test asserts that a box a human needs to see has anything
+    in it.
+
+- <a id="template-check-suggestion-was-blank"></a>✅ **🔴 P1 · FIX — CLOSED 2026-08-12 (`046933a`). The
+  Template Check screen never once said what a suggested document WAS.** `findCandidate` returned
+  `summary: row.summary || row.description`, and **not one of the 291 records** in
+  `data/templates.json` carries either field — all 291 keep their text in `purpose`. So the line
+  resolved to `''` on every row, the component's `v-if="row.candidate.summary"` never rendered, and the
+  element was **blank from the day it shipped**, in a screen whose whole job is to let Mike judge.
+  - **His words on opening it:** *"its too hard to tell whats required since it doesn't indicate
+    against the json serach content script."* He was describing a defect, not asking for a feature.
+  - Five tests pin it, including one that fails if a future export drops `purpose` — which would empty
+    the screen again the same silent way. The old field names are kept as fallbacks.
+
+- <a id="template-check-evidence-row"></a>☐ **BUILD (DESIGN APPROVED? — AWAITING MIKE) — the Template
+  Check row does not show the evidence a decision needs.** Mockup committed 2026-08-12:
+  [`mockups/template-check-evidence-row.html`](mockups/template-check-evidence-row.html). Three real
+  rows, real content. Adds: the **sentence** the name came from (never shown today), **weak matches
+  shown as weak** instead of suppressed entirely, and the **full purpose text with its section path**.
+  **Every label in it is proposed and awaits his ruling**; the verdicts and buttons are unchanged from
+  the screen he approved 2026-08-05.
+  - 🔴 **It earned its keep while being built, and this is the part to act on:** the screen's
+    suggestion for **Lite Fundamentals Data is probably WRONG.** It offers **Lite Fundamentals** — a
+    framework for *winning engagements* — to a branch about **poor cash management**, while **Lite
+    Data**, the record about *interpreting data*, is never mentioned at all. The wrong document wins
+    because its title spells better. **A suggestion shown without its text cannot be sanity-checked**,
+    which is the argument for the whole change.
+
+- <a id="rulings-file-not-gitignored"></a>☐ **P3 · TIDY — `data/dev-template-check-rulings.json` is not
+  in `.gitignore`, while every sibling dev store is, and
+  [`templateCheckRulings.js`](../server/utils/templateCheckRulings.js) states in its own comment that it
+  is.** Found 2026-08-12 when the file was first written. **Committing it was deliberate and is not the
+  thing to change** — these are Mike's content decisions and they must reach the other machine and
+  eventually the master app, not evaporate as scratch state. **The comment is what is wrong.** Left as
+  a decision rather than a silent edit because it changes what "dev fallback" means for this one store.
 
 - <a id="tree-prose-names-ghost-templates"></a>◐ **🔴 P1 · CONTENT+FIX — template names in tree prose are
   absent from the search export.** Found 2026-08-04. **⚠ PREMISE CORRECTED 2026-08-05 — the original
@@ -2286,8 +2369,29 @@ that the warning is not being followed by default.
     there naming a tool the catalogue cannot serve is withheld from the prompt, proven across all 42
     tables by [`recommendationGate.test.js`](../tests/unit/recommendationGate.test.js), so no advisor
     can be sent after a page that will not open **by way of that field**.
-  - ⚠ **The content half is NOT closed and is Mike's, not a developer's:** **88 rows** on the Template
-    Check screen, **0 ruled**. Until a name is settled and applied, 14 branches stay silent.
+  - ◐ **The content half: 59 of the 88 rows are now RULED (2026-08-12).** ⚠ **Anything quoting
+    "88 rows, 0 ruled" is stale.** Both lists were built by reading the sentence each name came from
+    and checking it against `data/templates.json` — the catalogue the app serves — and both are
+    committed artefacts rather than chat paraphrases:
+    [`TEMPLATE-CHECK-ALREADY-ANSWERED.md`](TEMPLATE-CHECK-ALREADY-ANSWERED.md) (the 30 that already
+    had an answer) · [`TEMPLATE-CHECK-REMAINING-58.md`](TEMPLATE-CHECK-REMAINING-58.md) (the rest).
+    Recorded: **31 pointed at a published title · 16 not a tool · 12 flagged** (`543bbaa`, `cb9c40c`).
+  - ☐ **29 rows remain, across 14 names, and every one is Mike's.** Thirteen are for the Template
+    Check screen, where the catalogue offers two plausible documents and guessing is the exact failure
+    this screen was built after: Get.1a.Sales Tracker (6) · Total Needs (3) · COI Development (2) ·
+    Revenue Model (2) · Lite Fundamentals Data · Lite Fundamentals Planning · Covid Agenda Programme ·
+    Volatility Analysis · Forecast & Action Plan · Management Reporting Annual Plan · Quickfire
+    Diagnosis Template · Decision Workpaper · My Fee Growth Model.
+  - 🔴 **The fourteenth is NOT a ruling. Get Seminar's 7 rows are Mike's to REWORD in Logic Tables**,
+    toward Public Speaking, which is where he placed that material in June — see
+    [`SESSION-2026-06-20-IP-DEPTH-AUDIT-NOTES.md`](SESSION-2026-06-20-IP-DEPTH-AUDIT-NOTES.md) and the
+    correction at the head of §Section C of the first list. **A session that asks him to *rule* on
+    these has misread the record.**
+  - ✅ **Group 3 was FLAGGED, not dismissed** (`Get. Invitation Email`, `Get. Bankers Login Email`,
+    `Get. TCM.Quiz Link Email`, `Get. Spaghetti Tower Task Sheet`). Nothing in the catalogue matches
+    them, but the emails read like real things an advisor sends. A dismissal settles the row by
+    deleting the question; a flag puts it on the master team's list and is reversible. **Where two
+    answers differ only in whether something real quietly disappears, take the reversible one.**
   - ⚠ **`action` and `notes` are NOT gated** — 21 and 19 unresolved names respectively, reaching the AI
     now as they have all along. See the field-drop row above for why widening the gate is a decision
     rather than a follow-up.
