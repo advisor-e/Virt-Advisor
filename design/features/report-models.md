@@ -23,7 +23,7 @@ whose numbers are on display.
 
 Three consequences run through every rule below.
 
-**Every model looks identical.** Not similar — identical. An advisor opens four models in
+**Every model layout/format looks identical.** Not similar — identical. An advisor opens four models in
 one meeting; a screen that looks different from its siblings reads as unfinished, and the
 advisor's credibility is what pays for it. A model never chooses its own look.
 
