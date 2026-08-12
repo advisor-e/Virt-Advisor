@@ -2339,6 +2339,49 @@ that the warning is not being followed by default.
   - **The rule this suggests, and it still stands:** when a name "does not exist", check the
     catalogue by hand before telling Mike. Three for three — and all three were found by a human
     looking, not by a gate.
+  - ⚠ **A FOURTH instance was found the same day and is deliberately NOT logged as a to-do here.**
+    `Covid Agenda Programme` misses the published **Covid Agendas** on a plural `s` — one word in
+    three against a bar of six in ten. It is written up in front of Mike in
+    [`TEMPLATE-CHECK-THE-LAST-12.md`](TEMPLATE-CHECK-THE-LAST-12.md) §1 instead, because **a to-do
+    is how it quietly never happens** and singular/plural matching is a change to the same live
+    function that needs its own proof and its own tests, exactly as the apostrophe did. Recorded
+    here so the count is not lost: **four instances, one fault.**
+
+- <a id="get-seminar-silent-in-the-app"></a>☐ **🔴 P1 · CONTENT — GET SEMINAR IS NEAR-SILENT IN THE
+  RUNNING APP, AND THE RECORD HAS BEEN CALLING IT A WORDING TIDY-UP.** Measured 2026-08-12 against
+  the live trees: of the 7 branches whose recommendation names *"Get Seminar template"*,
+  **1 is withheld entirely, 6 are withheld in part, and 0 reach the adviser intact.**
+  - **Why it changed without anyone changing it.** `recommendation` has been gated sentence-by-sentence
+    against the catalogue since `fdb15ca`. Before that the field never reached the prompt at all, so
+    the seven lines were invisible either way and the earlier entries — written before the gate — had
+    no reason to say so. **The gate is behaving correctly**: no record in the 291 has "Seminar",
+    "Speaking" or "Presenting" anywhere in its title, and it will not name a tool nobody can open.
+  - 🔴 **Still Mike's to reword, not a developer's to rule on** — see
+    [§Section C](TEMPLATE-CHECK-ALREADY-ANSWERED.md) and the correction above. What is new is the
+    **cost of leaving it**: this is not tidying, it is a table of coaching advisers are not receiving.
+  - **Where:** Mentor Hub → Logic Tables tab → Get Seminar, reworded toward Public Speaking.
+
+- <a id="template-check-table-context"></a>☐ **P1 · BUILD — APPROVED DESIGN, NOT YET BUILT: the table
+  brought into the Template Check row.** Design approved by Mike 2026-08-12 in
+  [`mockups/template-check-table-context.html`](mockups/template-check-table-context.html) — **open the
+  artefact, do not build from this row.** This row links it; it does not summarise it, and a summary is
+  what went wrong on 2026-08-01.
+  - **His words, and the direction matters:** *"i think it makes more sense to do it other way around.
+    keep the logic tables page clean and as-is so it's easier to work with on logic tables."* The merge
+    drawn the other way round — the ruling strip placed on the Logic Tables page — is in
+    [`mockups/logic-tables-rule-in-place.html`](mockups/logic-tables-rule-in-place.html), **rejected on
+    sight and kept as the record of an option considered.** A future session proposing that merge should
+    read it first.
+  - **Ruled, and all three are in the artefact:** the direction (above); how much table a row shows —
+    *"just neighbouring branches - 1 above and below when possible"*; and the seven labels —
+    *"good as they are."* **Anything built uses those words exactly.**
+  - **Why it earns its place, in one example:** `Decision Workpaper` has been open since 5 August and
+    no document answers to that name. The branch **directly above it** reads *"Use Board White Paper
+    framework to structure and document the strategic proposal"* and is already ruled to
+    **FM Board White Paper**. The matcher will never suggest that — the two names share no words —
+    and it is right not to guess. **Reading the table finds it; matching cannot.**
+  - **Not proposed, deliberately:** an editable mini-table. It is there to be read while deciding.
+    Editing stays on the Logic Tables page, which is the whole point of doing it this way round.
 
 - <a id="logic-table-editor-blind-to-recommendation"></a>✅ **🔴 P1 · FIX — CLOSED 2026-08-12
   (`7ba8427`). The Logic Tables editor could not see the field 55 branches keep their instruction in.**
