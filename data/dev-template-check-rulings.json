@@ -216,13 +216,13 @@
     "title": "Worst Case Scenario"
   },
   "frameworks_find::ff_branch5_financial::working capital cycle model": {
-    "note": "Approved by Mike 2026-08-12 — design/TEMPLATE-CHECK-REMAINING-58.md",
-    "ruledBy": "mike@advisor-e.com",
-    "ruledAt": "2026-08-12T00:00:00.000Z",
-    "applyRequested": false,
-    "applyRequestedAt": null,
     "verdict": "ruled",
-    "title": "Working Capital Cycle"
+    "title": "Working Capital Cycle",
+    "note": "Approved by Mike 2026-08-12 — design/TEMPLATE-CHECK-REMAINING-58.md",
+    "ruledBy": "dev-mentor@local",
+    "ruledAt": "2026-08-12T11:09:46.896Z",
+    "applyRequested": true,
+    "applyRequestedAt": "2026-08-12T11:09:46.896Z"
   },
   "eoy_meeting::eoy_stage5::general agenda": {
     "note": "Approved by Mike 2026-08-12 — design/TEMPLATE-CHECK-REMAINING-58.md",
@@ -544,8 +544,44 @@
     "title": "Quick Fire Diagnosis",
     "note": "",
     "ruledBy": "dev-mentor@local",
-    "ruledAt": "2026-08-12T09:39:58.664Z",
-    "applyRequested": false,
-    "applyRequestedAt": null
+    "ruledAt": "2026-08-12T11:05:43.300Z",
+    "applyRequested": true,
+    "applyRequestedAt": "2026-08-12T11:05:43.300Z"
+  },
+  "cashflow::cf_branch1b_management::lite fundamentals data": {
+    "verdict": "ruled",
+    "title": "Lite Fundamentals",
+    "note": "",
+    "ruledBy": "dev-mentor@local",
+    "ruledAt": "2026-08-12T11:05:45.510Z",
+    "applyRequested": true,
+    "applyRequestedAt": "2026-08-12T11:05:45.510Z"
+  },
+  "client_planning::cp_branch1b_new::lite fundamentals planning": {
+    "verdict": "ruled",
+    "title": "Lite Fundamentals",
+    "note": "",
+    "ruledBy": "dev-mentor@local",
+    "ruledAt": "2026-08-12T11:07:14.879Z",
+    "applyRequested": true,
+    "applyRequestedAt": "2026-08-12T11:07:14.879Z"
+  },
+  "sales_process::sp_rec_total_prospect_soph::total needs": {
+    "verdict": "ruled",
+    "title": "Total Needs Sales Scripts",
+    "note": "",
+    "ruledBy": "dev-mentor@local",
+    "ruledAt": "2026-08-12T11:09:28.230Z",
+    "applyRequested": true,
+    "applyRequestedAt": "2026-08-12T11:09:28.230Z"
+  },
+  "sales_process::sp_rec_total_existing::total needs": {
+    "verdict": "ruled",
+    "title": "Total Needs Sales Scripts",
+    "note": "",
+    "ruledBy": "dev-mentor@local",
+    "ruledAt": "2026-08-12T11:09:42.490Z",
+    "applyRequested": true,
+    "applyRequestedAt": "2026-08-12T11:09:42.490Z"
   }
 }

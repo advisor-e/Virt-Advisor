@@ -2440,6 +2440,22 @@ that the warning is not being followed by default.
   - Five tests pin it, including one that fails if a future export drops `purpose` — which would empty
     the screen again the same silent way. The old field names are kept as fallbacks.
 
+- <a id="no-route-to-the-mentor-hub"></a>☐ **P3 · DEV — NOTHING IN THE APP ROUTES TO `/mentor`, SO A
+  WORKING SCREEN READS AS A MISSING ONE.** Found 2026-08-12 the hard way: the evidence panel shipped,
+  was proven live against the running backend, and Mike still reported *"that version doesn't have the
+  page at all"* — because [`pages/index.vue`](../pages/index.vue) redirects `/` to `/advisor`, and no
+  screen anywhere links to `/mentor`. The address has to be typed.
+  - **It may be correct in production.** Inside Advisor-e the entry points are the master app's — firm
+    manager → "Manage AI Coach", and the two adviser head-banner links. The Mentor Hub is reached the
+    same way, from outside this repo, so a link on the adviser page would be wrong there.
+  - **The cost is entirely local, and it is real:** three messages, and an AI reporting a feature as
+    working while the owner was looking at a screen that did not have it. **The lesson is not about
+    routing** — it is that "I proved the data is correct" is not the same claim as "you can reach it".
+    A demo instruction that does not include the URL is not a demo instruction.
+  - **Not fixed on sight, deliberately:** adding navigation to a mentor-only page is a UI change nobody
+    has asked for, and it would ship into the master app. What is needed is the URL written down where
+    a session will find it — which is what this row is.
+
 - <a id="template-check-evidence-row"></a>✅ **BUILD — DONE 2026-08-12 (laptop), together with
   [§template-check-table-context](#template-check-table-context); the two designs shipped as one panel.
   The sentence, the full purpose text with its section path, and the weak matches shown as weak are all
@@ -2451,7 +2467,13 @@ that the warning is not being followed by default.
   shown as weak** instead of suppressed entirely, and the **full purpose text with its section path**.
   **Every label in it is proposed and awaits his ruling**; the verdicts and buttons are unchanged from
   the screen he approved 2026-08-05.
-  - 🔴 **It earned its keep while being built, and this is the part to act on:** the screen's
+  - ⚠ **ANSWERED BY MIKE 2026-08-12, THE OPPOSITE WAY, AND HIS RULING STANDS.** Within the hour of the
+    panel shipping he ruled **Lite Fundamentals Data → Lite Fundamentals** — with both records and their
+    full descriptions on screen, which is precisely what the panel was built to put there. **Do not
+    re-open it.** It is annotated rather than rewritten because a record holding a recommendation and
+    its opposite with nothing acknowledging the difference is worse than either alone. The original
+    argument follows, and is now a minority view, not an outstanding action.
+  - 🔴 **It earned its keep while being built:** the screen's
     suggestion for **Lite Fundamentals Data is probably WRONG.** It offers **Lite Fundamentals** — a
     framework for *winning engagements* — to a branch about **poor cash management**, while **Lite
     Data**, the record about *interpreting data*, is never mentioned at all. The wrong document wins
