@@ -1,6 +1,6 @@
 # Release Notes — v0.8.0
 
-**Tag:** `v0.8.0` · **Cut:** 2026-08-13 ·
+**Tag:** `v0.8.0` · **Commit:** `e3b7a21` · **Cut:** 2026-08-13 ·
 **Previous release:** [`v0.7.0`](RELEASE-NOTES-v0.7.0.md) (`015eed0`, 2026-08-04) — pulled
 2026-08-04 by the master-app team as `2beba9f`.
 
