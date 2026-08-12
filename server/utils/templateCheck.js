@@ -128,7 +128,20 @@ function findCandidate (name, catalogue) {
     }
 
     if (score >= CANDIDATE_MIN_SCORE && (!best || score > best.score)) {
-      best = { title: row.title, score, why, summary: String(row.summary || row.description || '') }
+      // `purpose` FIRST, and it is the only field the catalogue actually has.
+      // This read was `summary || description` until 2026-08-12: neither exists
+      // on any of the 291 records, so the suggestion's explanatory line resolved
+      // to '' every time and the screen's `v-if="row.candidate.summary"` never
+      // rendered. The element was in the approved mockup and blank from the day
+      // it shipped — which is why Mike could not tell what any suggestion WAS.
+      // The two old names are kept behind it so a future export that carries
+      // them still works. Pinned by templateCheckCandidateText.test.js.
+      best = {
+        title: row.title,
+        score,
+        why,
+        summary: String(row.purpose || row.summary || row.description || '')
+      }
     }
   }
   return best
