@@ -1566,6 +1566,24 @@
       "close": "Close"
     },
     "candidateWhy": "{why}.",
+    "evidence": {
+      "whatTableSays": "What the logic table says",
+      "whatAppCanOpen": "What the app can open",
+      "weakerMatches": "Weaker matches",
+      "weakerNote": "Nothing scored high enough to suggest. These are the closest the catalogue has — shown so the row can be judged rather than guessed at.",
+      "weakTag": "weak",
+      "namedInList": "Named in the {field} list of one branch, with no sentence around it. | Named in the {field} list of {n} branches, with no sentence around it.",
+      "whereItSits": "Where it sits in the table",
+      "colBranch": "Branch",
+      "colIf": "If the client…",
+      "colThen": "Then do this",
+      "colNames": "Names",
+      "settled": "✓ settled",
+      "settledTitle": "✓ {title}",
+      "thisRow": "this row",
+      "neighbourNote": "{shown} rows of a {total}-row table — the branch, one above and one below.",
+      "wholeTable": "The whole table — the branch, one above and one below."
+    },
     "action": {
       "useThisOne": "Use this one",
       "pickAnother": "Pick another",

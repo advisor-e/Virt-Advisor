@@ -2361,7 +2361,37 @@ that the warning is not being followed by default.
     **cost of leaving it**: this is not tidying, it is a table of coaching advisers are not receiving.
   - **Where:** Mentor Hub → Logic Tables tab → Get Seminar, reworded toward Public Speaking.
 
-- <a id="template-check-table-context"></a>☐ **P1 · BUILD — APPROVED DESIGN, NOT YET BUILT: the table
+- <a id="template-check-table-context"></a>✅ **P1 · BUILD — BUILT 2026-08-12 (laptop). Every Template
+  Check row now opens out onto the evidence it is judged from: the sentence with the name marked, the
+  branch among its neighbours, and every candidate document with what it says about itself.**
+  [`components/mentor/TemplateCheckEvidence.vue`](../components/mentor/TemplateCheckEvidence.vue),
+  opened from the existing list — the columns, filters, verdicts and buttons are untouched from
+  5 August, and the Logic Tables page was not opened at all, which was the point of doing it this way
+  round. 30 tests (20 backend, 10 component).
+  - 🔴 **The deviations from the approved artefacts, named as the rule requires.** Nothing here is a
+    wording change; all seven approved labels are used exactly, through `locales/en.json`.
+    1. **How a row opens.** The artefact draws a row already open, as a card. The build keeps the
+       approved table and opens the evidence underneath the row on the standard chevron. No new word is
+       introduced by it.
+    2. **The buttons stay in their column.** The artefact repeats the four action buttons at the foot of
+       the opened card; they remain in "What you can do", where 5 August put them, so a row can still be
+       answered without opening it.
+    3. **"Names" shows the ruled title, not just a tick.** The artefact draws both forms — "✓ FM Board
+       White Paper" above the row and "✓ settled" below it. The build shows the title wherever the
+       branch has exactly one, and "✓ settled" otherwise. It is the more useful of the two forms the
+       artefact itself contains.
+    4. **A third state the artefact does not draw: a neighbouring branch still unanswered.** Live tables
+       have them; the artefact's two states do not cover it. It reuses the verdict wording approved on
+       5 August ("Nothing matches" / "Probably this") rather than inventing a label.
+    5. **The section path is the catalogue's own.** `Section › Sub-section` as the export spells it, so
+       *Draft White Papers* reads "Do the Job › Governance Tools" where the artefact drew
+       "Do the Job › Board".
+    6. **One invented plural.** The artefact draws "…list of six branches"; a branch count of one needs
+       "…list of one branch", which no artefact shows.
+  - **Proven against the real data, not a fixture:** `Decision Workpaper` — open since 5 August, matching
+    no document and never able to — now shows the branch directly above it, already ruled to
+    **FM Board White Paper**. Two names sharing no words. A test pins that row by name.
+  - Original entry follows for the record. ☐ **P1 · BUILD — APPROVED DESIGN, NOT YET BUILT: the table
   brought into the Template Check row.** Design approved by Mike 2026-08-12 in
   [`mockups/template-check-table-context.html`](mockups/template-check-table-context.html) — **open the
   artefact, do not build from this row.** This row links it; it does not summarise it, and a summary is
@@ -2410,7 +2440,11 @@ that the warning is not being followed by default.
   - Five tests pin it, including one that fails if a future export drops `purpose` — which would empty
     the screen again the same silent way. The old field names are kept as fallbacks.
 
-- <a id="template-check-evidence-row"></a>☐ **BUILD (DESIGN APPROVED? — AWAITING MIKE) — the Template
+- <a id="template-check-evidence-row"></a>✅ **BUILD — DONE 2026-08-12 (laptop), together with
+  [§template-check-table-context](#template-check-table-context); the two designs shipped as one panel.
+  The sentence, the full purpose text with its section path, and the weak matches shown as weak are all
+  on the screen — every row now opens out.** See that entry for what was built and the deviations from
+  the artefacts. Original entry follows for the record. ☐ **BUILD (DESIGN APPROVED? — AWAITING MIKE) — the Template
   Check row does not show the evidence a decision needs.** Mockup committed 2026-08-12:
   [`mockups/template-check-evidence-row.html`](mockups/template-check-evidence-row.html). Three real
   rows, real content. Adds: the **sentence** the name came from (never shown today), **weak matches

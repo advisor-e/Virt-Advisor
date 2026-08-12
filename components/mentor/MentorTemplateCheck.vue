@@ -87,6 +87,9 @@
     p.has-text-grey.has-text-centered.py-6(v-if="visibleRows.length === 0")
       | {{ $t('templateCheck.list.empty') }}
 
+    //- `detailed` is the whole of the 2026-08-12 change to this list: the columns,
+    //- the filters and the buttons are exactly as approved on 5 August, and the
+    //- evidence opens underneath the row rather than replacing anything.
     b-table(
       v-else
       :data="visibleRows"
@@ -94,6 +97,8 @@
       :paginated="visibleRows.length > 25"
       :per-page="25"
       hoverable
+      detailed
+      detail-key="key"
     )
       b-table-column(v-slot="{ row }" :label="$t('templateCheck.col.table')" width="20%")
         span.tc-table-name {{ row.table }}
@@ -156,6 +161,11 @@
           b-button(type="is-text" :loading="saving === row.key" @click="undo(row)")
             | {{ undoLabel(row.verdict) }}
 
+      //- The row opened out. Mounted only while a row is open, so 87 rows' worth
+      //- of sentences, neighbours and candidate text is never all on screen at once.
+      template(#detail="props")
+        template-check-evidence(:finding="props.row")
+
     b-notification.mt-4(type="is-warning is-light" :closable="false")
       strong {{ $t('templateCheck.caution.heading') }}
       |  {{ $t('templateCheck.caution.body') }}
@@ -210,7 +220,16 @@
  * The screen decides nothing. Every verdict is either a fact about the catalogue
  * or a suggestion labelled as one, and nothing is written to a logic table from
  * here: a ruling is recorded, and applying it is a later, reviewed step.
+ *
+ * 2026-08-12 — every row now opens out onto the evidence it is judged from, built
+ * to design/mockups/template-check-evidence-row.html and
+ * design/mockups/template-check-table-context.html (seven labels approved that
+ * day, "good as they are"). See TemplateCheckEvidence.vue. Nothing above it
+ * changed: the columns, the filters, the verdicts and the buttons are as
+ * approved on 5 August.
  */
+
+import TemplateCheckEvidence from '~/components/mentor/TemplateCheckEvidence.vue'
 
 const ALL_TITLES = [...new Set(
   require('~/data/templates.json').map(t => t && t.title).filter(Boolean)
@@ -218,6 +237,8 @@ const ALL_TITLES = [...new Set(
 
 export default {
   name: 'MentorTemplateCheck',
+
+  components: { TemplateCheckEvidence },
 
   props: {
     // The mentor's JWT. Every call is re-gated server-side by requireMentorRole.
