@@ -21,6 +21,76 @@
 
 ---
 
+- <a id="dev-fallback-absorbed-a-refusal"></a>✅ **🔴 P1 · FIX — CLOSED 2026-08-13 (`d3d27a8`, laptop).
+  A SAVE THE DATABASE REFUSED WAS WRITTEN TO A SCRATCH FILE AND REPORTED AS SAVED.**
+  - **This entry exists because the fault had no entry.** It is named as a *hazard* in five places in
+    this file — [tier-hub-pages](#tier-hub-pages), [mentor-tier-chain](#mentor-adoption-view) and
+    others, all some version of *"the save is foreign-key refused **while the dev fallback reports
+    success**"* — and in `ADVISOR-E-DESIGN-LOGIC.md` §6, which notes it had by then been *"written
+    down three times"*. **Every one of those describes it as something to avoid by seeding a `firms`
+    row. Not one logs it as a code defect.** So the record kept warning about the symptom and nothing
+    ever owned the cause, which is exactly how it survived from before 2026-08-09 to today. **A
+    hazard repeated in prose is not a task; only a row is a task.**
+  - **The mechanism.** Every store falls back to a gitignored `data/dev-*.json` when a query fails, so
+    the app runs with no MySQL. Its only test was `NODE_ENV !== 'production'` — so **any** failure was
+    read as "there is no database", including one where MySQL was present and had deliberately refused
+    the write. Reads fell back to the same file, so it looked entirely convincing.
+  - 🔴 **WHY IT WAS URGENT THIS WEEK, not merely untidy.** UAT is not named exactly `production`. The
+    master coding team could have exercised the whole cascade, watched it work, and signed it off
+    having proved nothing — the database never written to, the file gone at the next deploy.
+    **A false pass is worse than a failure: a failure gets fixed, a false pass gets signed off.**
+  - **The fix discriminates on `sqlState`**, which only a live server's rejection carries;
+    connection failures (ECONNREFUSED, ENOTFOUND) never have one, and `code` cannot be used because
+    both kinds set it. [`dbFailure.js`](../server/utils/dbFailure.js) holds the rule and **14 files
+    now ask it** — the firm config saves, the mentor's distinctions and Template Check rulings,
+    currency, cases, clients, courses, coaching, the activity store.
+  - ⚠ **One existing test was changed, and it was weaker than it looked.** The currency
+    "production mode" tests set `NODE_ENV=production`, required the module so the old module-level
+    const captured `false`, then restored `NODE_ENV='test'` **before calling the route** — so
+    production was never in force when the assertion ran. They now hold the env across the call.
+    Stricter, not weaker.
+  - ⚠ **NOT PROVEN AGAINST A REAL MySQL** — there is none on this machine. Evidenced by tests against
+    a constructed foreign-key error (errno 1452 / sqlState '23000'), not by watching MySQL produce
+    one. **Worth five minutes the first time the master team has a database in front of them.**
+  - **Left alone deliberately:** `caseStore.listForClient` checks for dev mode *before* trying the
+    database rather than after. It is a read, it behaves exactly as before, and changing it is a
+    different job.
+
+- <a id="templates-mirror-gate-measured"></a>✅ **P2 · DATA — MEASURED 2026-08-13 AND FOUND INERT.
+  The availability gate validates against the MIRROR, not the export — and it has never mattered.**
+  Supersedes the open half of [§two-template-files-disagree](#two-template-files-disagree).
+  - **Raised as a live fault and it is not one.** The reasoning was sound and the conclusion was
+    wrong, which is why the measurement is recorded rather than the argument.
+  - **Confirmed:** the export holds **274 unique titles**, `data/templates.json` **291 records**, and
+    exactly **18 titles are in the mirror and not the export**. `catalogueTitles()`
+    ([`logicTrees.js` L71](../server/utils/logicTrees.js#L71)) builds the gate from the mirror and
+    says so — *"NOT the raw export"* — for a real reason: the export is **gitignored**, so on a fresh
+    clone or in CI the gate would have nothing to check against and would switch itself off.
+  - 🔴 **BUT NOTHING ROUTES ANYONE THERE.** Walked every node of `data/logic_trees.json` across
+    `templates`, `templates_if_unsure` and `support_templates`: **0 branches** name any of the 18. Ran
+    the app's own `extractProseNames` over every `recommendation`, `action`, `notes`, `condition` and
+    `question`: **0 extractions** match. Raw substring counts look alarming ("Growth Curve" 30×) and
+    are worthless — those sit inside longer names and ordinary prose.
+  - **So it is a latent weakness, not a defect**: it would only bite if one of those 18 names were
+    ever written into a tree. **Recorded so nobody re-derives it, and so nobody re-raises it as live.**
+  - ⚠ **Mike's rule stands and is unaffected** (2026-08-04): *"if it's not in the search JSON … don't
+    recommend it. Hold it back."* Nothing reaches an advisor that breaches it today.
+
+- <a id="tab-gap-is-two-and-two"></a>☐ **🟡 DECISION (MIKE) — the carried item reads "mentor +2 /
+  firm +3". It is +2 / +2.** Corrected 2026-08-13 by reading the artefact beside the code.
+  - [`mockups/tier-hub-pages.html`](mockups/tier-hub-pages.html) §2 marks four tabs `new`:
+    **Mentor** should gain **Team Progress** and **Team Case Studies**; **Firm** should gain
+    **Case Reviews** and **Logic-Lab Report**. `TAB_TIERS` in
+    [`FirmManagerHub.vue`](../components/FirmManagerHub.vue) excludes all four, and its comment is
+    honest about it: *"That split is today's behaviour, preserved."*
+  - **The third firm tab was Template Check**, which Mike narrowed to mentor-only on 2026-08-11 —
+    after the "+3" was written. Carried unchanged through eight session notes.
+  - ⚠ **Nothing that works is broken by this** — the tabs are absent, not faulty. It is a gap between
+    an approved artefact and the build, which is its own category of problem (see
+    [§approved-mockup-stranded-on-a-branch](#approved-mockup-stranded-on-a-branch)).
+
+---
+
 ## ★ VERIFIED SWEEP — 2026-08-03 (the list said 70; the real number is about 10)
 
 **Why this sweep happened.** Asked for "the complete list of to-dos in technical priority", the
@@ -2190,7 +2260,11 @@ that the warning is not being followed by default.
   - **Until then the names are safe to declare** — the availability gate holds them back from the AI. Once
     the export carries them, they flow with no edit to any tree.
 
-- <a id="two-template-files-disagree"></a>☐ **P2 · DATA — the two template files disagree by 18 titles.**
+- <a id="two-template-files-disagree"></a>◐ **P2 · DATA — the two template files disagree by 18 titles.**
+  ✅ **MEASURED 2026-08-13 AND FOUND INERT — read
+  [§templates-mirror-gate-measured](#templates-mirror-gate-measured) FIRST.** 0 tree branches and 0 prose
+  fields reference any of the 18, so nothing routes an advisor to one of them and this is not a live
+  fault. The data disagreement below is still real and still worth settling; the urgency is not.
   Found 2026-08-05.
   - `data/templates.json` (291 records) is described in
     [`masterExport.js`](../server/utils/masterExport.js#L12) as a **"1:1 mirror"** of the export. It is not:
@@ -5904,10 +5978,19 @@ Two honest answers on different axes — the file used to conflate them:
 - <a id="release-tagging-workflow"></a>◐ **PARTLY DONE — corrected 2026-08-03 by the verified sweep. The first tag
   EXISTS and is pushed: `v0.6.0` → `9a29aee` (2026-07-21, PR #15), confirmed on `origin`.** The "cut the first
   tag" half of the Remaining line below is therefore complete.
-  - **What is actually open:** `v0.6.0` points at 2026-07-21 and `master` has moved a long way since (PR #30,
-    #31, #32, #33, #34, #35 have all landed). So the live gap is **cut a CURRENT tag and send the team the
-    number** — not "adopt tagging".
-  - Tag-naming scheme (`v0.6.x` vs `uat-<date>`) still unconfirmed by Mike. Original entry follows for the record.
+  - ✅ **UPDATED 2026-08-13 — `v0.8.0` IS CUT AND PUSHED**, on `e3b7a21` (the merge commit of
+    [PR #41](https://github.com/advisor-e/Virt-Advisor/pull/41)), confirmed on `origin`. 74 commits since
+    v0.7.0. Notes: [`RELEASE-NOTES-v0.8.0.md`](RELEASE-NOTES-v0.8.0.md); ledger row written ahead of the tag,
+    marked "NOT YET CUT", and backfilled the moment it existed ([PR #42](https://github.com/advisor-e/Virt-Advisor/pull/42)).
+  - ☐ **THE REMAINING HALF IS MIKE'S AND IT IS ONE MESSAGE: SEND THE MASTER TEAM THE TAG NUMBER.**
+    They cannot pull what they do not know exists — v0.6.0 was never pulled at all, and v0.7.0 was only
+    pulled because Carl was told. Three lines: pull the **tag** `v0.8.0` (not the branch); **no `npm install`
+    this time** (`package.json` is byte-identical to v0.7.0 — unlike v0.7.0, which needed one and whose
+    absence rendered the Hub's tab icons blank); and **read the notes before testing** — they lead with the
+    two middle tiers having no login, the screens having no menu link, and the reserved `firms` row.
+  - **Tag-naming scheme settled by use, not by ruling:** three tags now exist as `v0.x.0` (`v0.6.0`, `v0.7.0`,
+    `v0.8.0`) and the master team replied in those terms. The `uat-<date>` alternative is dead; recorded so it
+    is not re-raised as an open question. Original entry follows for the record.
   - ☐ **P2 · PROCESS — Adopt release tags as the integration hand-off to the master team.** Successor to the resolved ledger task above, and the structural fix for the 97-commit drift it uncovered. **Root cause:** the repo has 527 commits and exactly **one** pull request — every other branch was merged locally, so there has never been a moment that says *"this version is ready, take it."* The master team pulled `master` once and it has moved ever since with no signal attached. **Agreed direction (Mike, 2026-07-21):** (1) `master` means *releasable* — work in progress never lands there; (2) each integration is cut as a **version tag** (`v0.6.0`, `v0.6.1`, …) and the team pulls the **tag**, never the moving branch — the tag is immutable, and the team already thinks in version/PR numbers, which is how they replied; (3) both machines reach `master` via **pull requests**, never machine-to-machine merges, and branches are short-lived; (4) the ledger stays maintained **on our side** — the master team has no write access to this repo, so a rule depending on them writing rows would fail silently. **Remaining:** land both branches into `master`, cut the first tag, and send the team the version number. Tag-naming scheme (`v0.6.0` vs `uat-<date>`) still to be confirmed by Mike. *Source:* session 2026-07-21.
 
 - <a id="dormant-trees"></a>◐ **P2 · DECISION+BUILD — 28 dormant trees → harvest JUDGMENT into signals.** Direction LOCKED 2026-06-23 (memory `design-logic-trees-guide-not-replace`): trees GUIDE the engine, don't replace it. **Done:** the soft-hint mechanism (whole tie-breaker bucket, one wiring), valuation wired, `governance_too_early` signal (Option A), name-rot disproven (93/93 real) — all in archive. **Remaining:**
