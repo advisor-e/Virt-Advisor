@@ -118,13 +118,86 @@ describe('set', () => {
     fs.readFileSync.mockRestore()
     fs.writeFileSync.mockRestore()
   })
+
+  // 🔴 THE UAT TRAP, AND THE REASON server/utils/dbFailure.js EXISTS.
+  //
+  // Every management tier needs its reserved row in `firms` before anything can be
+  // stored against its scope (config/db-schema.sql). Miss the insert and MySQL
+  // refuses each save with a foreign-key error — errno 1452, sqlState '23000'.
+  //
+  // The old gate was `NODE_ENV !== 'production'`, so in ANY environment not named
+  // exactly 'production' — a UAT box included — that refusal was read as "there is
+  // no database here", the content was written to a gitignored scratch file, and
+  // the screen said saved. A tester could then exercise the whole cascade, see it
+  // work, and sign it off having proved nothing: the database was never written to,
+  // and the file disappears on the next deploy. A false pass, which is worse than a
+  // failure because a failure gets fixed.
+  //
+  // This test is the control. It runs in the dev-shaped env every other test here
+  // uses, so it fails if the guard is ever removed or loosened back to NODE_ENV.
+  test('🔴 a foreign-key REFUSAL never becomes a dev-file write, even outside production', async () => {
+    const refusal = new Error('ER_NO_REFERENCED_ROW_2')
+    refusal.code = 'ER_NO_REFERENCED_ROW_2'
+    refusal.errno = 1452
+    refusal.sqlState = '23000' // only a live server that answered sets this
+    overlay.saveFirmConfig.mockRejectedValue(refusal)
+    jest.spyOn(fs, 'readFileSync').mockReturnValue('{}')
+    const write = jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
+
+    const res = makeMockRes()
+    await set(makeReq({ body: { currency: 'AUD' } }), res)
+
+    expect(write).not.toHaveBeenCalled()
+    expect(res._status).toBe(500)
+    expect(JSON.parse(res._body).error.code).toBe('DB_ERROR')
+    expect(res._body).not.toContain('ER_NO_REFERENCED_ROW_2') // no internals leak out
+
+    fs.readFileSync.mockRestore()
+    fs.writeFileSync.mockRestore()
+  })
+
+  test('a refused READ does not answer from the dev file either', async () => {
+    const refusal = new Error('ER_NO_SUCH_TABLE')
+    refusal.code = 'ER_NO_SUCH_TABLE'
+    refusal.errno = 1146
+    refusal.sqlState = '42S02'
+    overlay.loadFirmConfig.mockRejectedValue(refusal)
+    const read = jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify({ 'firm-test-123': 'EUR' }))
+
+    const res = makeMockRes()
+    await get(makeReq(), res)
+
+    // 'EUR' is what the dev file holds. Reaching it would mean a refused read had
+    // been answered from a scratch file — the read-side half of the same trap.
+    // (readFileSync itself cannot be asserted on: Jest's own reporter calls it.)
+    expect(res._body).not.toEqual({ currency: 'EUR', isDefault: false })
+    expect(res._body).toEqual({ currency: DEFAULT_CURRENCY, isDefault: true })
+    read.mockRestore()
+  })
 })
 
 // ── Production behaviour (dev fallback OFF) ────────────────────────────────────
-// IS_DEV is captured at module load, so re-load the route with NODE_ENV=production
-// in an isolated registry to exercise the real prod error paths.
+// 🔴 THE ENV MUST STAY 'production' WHILE THE ROUTE RUNS, not merely while it is
+// required. This block used to set NODE_ENV=production, require the module in an
+// isolated registry so the old module-level `IS_DEV` const captured `false`, and
+// then restore NODE_ENV='test' BEFORE calling the route. That worked only because
+// the flag was frozen at load; the assertions passed without production ever being
+// in force at the moment that mattered.
+//
+// The gate is now evaluated per failure (server/utils/dbFailure.js), which is what
+// platformDistinctions.js and templateCheckRulings.js already did on purpose — "so
+// the dev fallback honours the env in force when a write actually happens". These
+// tests therefore hold the env across the call. That is a stricter test of the same
+// intent, not a weaker one: it exercises the real production path instead of a
+// frozen boolean.
 
 describe('production mode', () => {
+  const originalEnv = process.env.NODE_ENV
+
+  afterEach(() => {
+    if (originalEnv === undefined) { delete process.env.NODE_ENV } else { process.env.NODE_ENV = originalEnv }
+  })
+
   function loadProd (overlayImpl) {
     let mod
     jest.isolateModules(() => {
@@ -132,7 +205,7 @@ describe('production mode', () => {
       jest.doMock('../../server/utils/firmOverlay', () => overlayImpl)
       mod = require('../../server/routes/currency')
     })
-    process.env.NODE_ENV = 'test'
+    // Deliberately NOT restored here — the caller runs the route under production.
     return mod
   }
 

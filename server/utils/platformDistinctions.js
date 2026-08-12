@@ -37,6 +37,7 @@ const ADVISORY_DISTINCTIONS = require('../../data/advisory-distinctions.json')
 // one home for the string, and the place that explains why the seeded `firms` row
 // exists and why "which firms…" readers must skip it.
 const { PLATFORM_SCOPE } = require('./platformScope')
+const { devFallbackAllowed } = require('./dbFailure')
 const PLATFORM_CONFIG_KEY = 'advisory-distinctions-platform'
 
 // The committed seed — the fallback returned when the store holds nothing.
@@ -52,7 +53,12 @@ const DEV_FILE = path.resolve(process.cwd(), 'data/dev-platform-distinctions.jso
 
 // Evaluated at call time (not module load) so the dev fallback honours the env in
 // force when a write actually happens — never silently swallows a production error.
-function _isDev () { return process.env.NODE_ENV !== 'production' }
+// See server/utils/dbFailure.js. Pass the caught error inside a catch block and
+// the fallback ALSO refuses to run when a live server refused the statement —
+// the mentor's own saves are stored here, and they ran silently broken for
+// weeks because a foreign-key rejection was read as "no database". Called with
+// no argument (outside a catch) it keeps the original meaning: not production.
+function _isDev (err) { return devFallbackAllowed(err) }
 
 function _readDevRows () {
   try {
@@ -95,7 +101,7 @@ async function loadPlatformDistinctions (loadFirmConfig) {
       if (Array.isArray(stored)) { return stored }
       return SEED_PLATFORM_ROWS // clean miss (null) — production: nothing stored yet
     } catch (err) {
-      if (!_isDev()) { throw err }
+      if (!_isDev(err)) { throw err }
       // No DB (dev) or read error — try the dev-JSON fallback before the seed.
       const dev = _readDevRows()
       if (dev) { return dev }
@@ -125,7 +131,7 @@ async function savePlatformDistinctions (rows, saveFirmConfig, savedBy) {
   try {
     await saveFirmConfig(PLATFORM_SCOPE, PLATFORM_CONFIG_KEY, rows, savedBy)
   } catch (err) {
-    if (_isDev()) { _writeDevRows(rows); return }
+    if (_isDev(err)) { _writeDevRows(rows); return }
     throw err
   }
 }

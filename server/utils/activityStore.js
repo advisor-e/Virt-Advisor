@@ -29,6 +29,7 @@ const path = require('path')
 const fs = require('fs')
 const db = require('./db')
 const { firmsUnderScope } = require('./tierChain')
+const { devFallbackAllowed } = require('./dbFailure')
 
 // Default dev fallback file; overridable via ACTIVITY_DEV_FILE so tests can point at
 // an isolated temp file (hermetic `npm test`, immune to a live backend writing the
@@ -42,8 +43,11 @@ const DEV_ACTIVITY_FILE = process.env.ACTIVITY_DEV_FILE
  * Read at call-time so a production DB failure always propagates.
  * @returns {boolean}
  */
-function devFallbackEnabled () {
-  return process.env.NODE_ENV !== 'production'
+// See server/utils/dbFailure.js — also refuses the fallback when a live server
+// REFUSED the statement, so a rejected write cannot report success and a
+// rejected read cannot answer with stale dev data.
+function devFallbackEnabled (err) {
+  return devFallbackAllowed(err)
 }
 
 // recommended_templates / session_resources are selected for the CPD record, which
@@ -166,7 +170,7 @@ async function readAdvisorSessions (advisorId, firmId) {
     ])
     return { vaSessions, courseSessions }
   } catch (err) {
-    if (!devFallbackEnabled()) { throw err }
+    if (!devFallbackEnabled(err)) { throw err }
     _warnFallback('readAdvisorSessions', err)
     const all = _devReadAll()
     return {
@@ -190,7 +194,7 @@ async function readFirmSessions (firmId) {
     ])
     return { vaRows, courseRows }
   } catch (err) {
-    if (!devFallbackEnabled()) { throw err }
+    if (!devFallbackEnabled(err)) { throw err }
     _warnFallback('readFirmSessions', err)
     const all = _devReadAll()
     return {
@@ -251,7 +255,7 @@ async function readSessionsUnderScope (scopeId) {
     ])
     return { vaRows, courseRows }
   } catch (err) {
-    if (!devFallbackEnabled()) { throw err }
+    if (!devFallbackEnabled(err)) { throw err }
     _warnFallback('readSessionsUnderScope', err)
     const all = _devReadAll()
     const mine = new Set(firmIds)
@@ -338,7 +342,7 @@ async function readAdoptionByFirm () {
     ])
     return { vaRows, courseRows, adviserRows }
   } catch (err) {
-    if (!devFallbackEnabled()) { throw err }
+    if (!devFallbackEnabled(err)) { throw err }
     _warnFallback('readAdoptionByFirm', err)
     return _groupAdoption(_devReadAll())
   }
@@ -412,7 +416,7 @@ async function readAdvisorClaims (advisorId, firmId) {
     const [rows] = await db.execute(SQL_ADVISOR_CPD, [advisorId, firmId])
     return rows
   } catch (err) {
-    if (!devFallbackEnabled()) { throw err }
+    if (!devFallbackEnabled(err)) { throw err }
     _warnFallback('readAdvisorClaims', err)
     const all = _devReadAll()
     return all.cpdClaims
@@ -436,7 +440,7 @@ async function recordVASession (row) {
     await db.execute(SQL_INSERT_VA,
       [row.advisorId, row.advisorName || null, row.firmId, row.domain, templates, row.tier])
   } catch (err) {
-    if (!devFallbackEnabled()) { throw err }
+    if (!devFallbackEnabled(err)) { throw err }
     _warnFallback('recordVASession', err)
     const all = _devReadAll()
     all.vaSessions.push({
@@ -473,7 +477,7 @@ async function recordCourseSession (row) {
       questions, row.tier
     ])
   } catch (err) {
-    if (!devFallbackEnabled()) { throw err }
+    if (!devFallbackEnabled(err)) { throw err }
     _warnFallback('recordCourseSession', err)
     const all = _devReadAll()
     const duplicate = all.courseSessions.some(r =>
@@ -533,7 +537,7 @@ async function recordCpdClaim (row) {
       withdrawn_at: null
     }
   } catch (err) {
-    if (!devFallbackEnabled()) { throw err }
+    if (!devFallbackEnabled(err)) { throw err }
     _warnFallback('recordCpdClaim', err)
     const all = _devReadAll()
     const stored = {
@@ -575,7 +579,7 @@ async function withdrawCpdClaim (claimId, advisorId, firmId) {
     const [result] = await db.execute(SQL_WITHDRAW_CPD, [claimId, advisorId, firmId])
     return result.affectedRows > 0
   } catch (err) {
-    if (!devFallbackEnabled()) { throw err }
+    if (!devFallbackEnabled(err)) { throw err }
     _warnFallback('withdrawCpdClaim', err)
     const all = _devReadAll()
     const claim = all.cpdClaims.find(r =>

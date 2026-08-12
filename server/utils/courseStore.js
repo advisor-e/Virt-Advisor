@@ -32,6 +32,7 @@ const path = require('path')
 const fs = require('fs')
 const crypto = require('crypto')
 const db = require('./db')
+const { devFallbackAllowed } = require('./dbFailure')
 
 // Default dev fallback file; overridable via COURSE_DEV_FILE so tests can point
 // at an isolated temp file (hermetic `npm test`, immune to a live backend
@@ -45,8 +46,10 @@ const DEV_COURSES_FILE = process.env.COURSE_DEV_FILE
  * Read at call-time so a production DB failure always propagates.
  * @returns {boolean}
  */
-function devFallbackEnabled () {
-  return process.env.NODE_ENV !== 'production'
+// See server/utils/dbFailure.js — also refuses the fallback when a live server
+// REFUSED the statement, so a rejected write cannot report success.
+function devFallbackEnabled (err) {
+  return devFallbackAllowed(err)
 }
 
 const STATUSES = ['active', 'paused', 'complete']
@@ -174,7 +177,7 @@ async function listForAdvisor (advisorId) {
     )
     return rows.map(rowToCourse)
   } catch (err) {
-    if (devFallbackEnabled()) { return _devList(advisorId) }
+    if (devFallbackEnabled(err)) { return _devList(advisorId) }
     throw err
   }
 }
@@ -200,7 +203,7 @@ async function listSharedForFirm (firmId, excludeAdvisorId) {
     )
     return rows.map(rowToCourse).map(toSharedSummary)
   } catch (err) {
-    if (devFallbackEnabled()) { return _devListShared(firmId, excludeAdvisorId) }
+    if (devFallbackEnabled(err)) { return _devListShared(firmId, excludeAdvisorId) }
     throw err
   }
 }
@@ -224,7 +227,7 @@ async function getShared (id, firmId) {
     )
     return rows.length ? rowToCourse(rows[0]) : null
   } catch (err) {
-    if (devFallbackEnabled()) { return _devGetShared(id, firmId) }
+    if (devFallbackEnabled(err)) { return _devGetShared(id, firmId) }
     throw err
   }
 }
@@ -243,7 +246,7 @@ async function getOwn (id, advisorId) {
     )
     return rows.length ? rowToCourse(rows[0]) : null
   } catch (err) {
-    if (devFallbackEnabled()) { return _devGet(id, advisorId) }
+    if (devFallbackEnabled(err)) { return _devGet(id, advisorId) }
     throw err
   }
 }
@@ -289,7 +292,7 @@ async function create (input) {
     const now = new Date().toISOString()
     return rowToCourse({ ...row, created_at: now, updated_at: now })
   } catch (err) {
-    if (devFallbackEnabled()) { return _devCreate(row) }
+    if (devFallbackEnabled(err)) { return _devCreate(row) }
     throw err
   }
 }
@@ -332,7 +335,7 @@ async function updateOwn (id, advisorId, patch) {
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) {
+    if (devFallbackEnabled(err)) {
       return _devUpdate(id, advisorId, (c) => {
         if ('status' in patch) { c.status = safeStatus(patch.status) }
         if ('visibility' in patch) { c.visibility = safeVisibility(patch.visibility) }
@@ -356,7 +359,7 @@ async function remove (id, advisorId) {
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) { return _devRemove(id, advisorId) }
+    if (devFallbackEnabled(err)) { return _devRemove(id, advisorId) }
     throw err
   }
 }

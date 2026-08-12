@@ -27,8 +27,6 @@ const DEV_QUIZ_BASELINES_FILE = path.resolve(__dirname, '../../data/dev-firm-qui
 // TEST-ONLY convention as every dev file above — it exists so an accept works on a
 // machine with no MySQL, which is where this feature is actually tested.
 const DEV_LOGIC_LAB_ACCEPTED_FILE = path.resolve(__dirname, '../../data/dev-firm-logic-lab-accepted.json')
-const IS_DEV = process.env.NODE_ENV !== 'production'
-
 function _devReadDistinctions (firmId) {
   try {
     const raw = fs.readFileSync(DEV_DISTINCTIONS_FILE, 'utf8')
@@ -195,6 +193,15 @@ const BASE_STAIRCASE = require('../../data/advisory-staircase.json')
 const { resolveEffectiveDistinctions } = require('../utils/resolveDistinctions')
 const { loadFirmDistinctionState, CONFIG_KEYS } = require('../utils/firmDistinctions')
 const { loadPlatformDistinctions } = require('../utils/platformDistinctions')
+const { devFallbackAllowed } = require('../utils/dbFailure')
+
+// Every `catch` below asks this instead of a bare NODE_ENV check. It answers NO
+// when a live MySQL REFUSED the statement, so a rejected save can no longer be
+// written to a gitignored dev file and reported to the screen as saved. The
+// case that forces it: each management tier needs its reserved row in `firms`,
+// and without it every save at that tier is foreign-key refused. See
+// server/utils/dbFailure.js.
+const devFallbackOk = devFallbackAllowed
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -232,7 +239,7 @@ async function listDocuments (req, res) {
       firm: firmFiles.map(f => ({ ...f, source: 'firm' }))
     })
   } catch (err) {
-    if (IS_DEV) { res.send(200, { base: [], firm: [] }); return }
+    if (devFallbackOk(err)) { res.send(200, { base: [], firm: [] }); return }
     return serverError(res, 500, 'DRIVE_ERROR', err)
   }
 }
@@ -398,7 +405,7 @@ async function getFramework (req, res) {
     const firmOverride = await overlay.loadFirmConfig(req.firmId, configKey)
     res.send(200, { configKey, firmOverride, hasOverride: firmOverride !== null })
   } catch (err) {
-    if (IS_DEV) { res.send(200, { configKey, firmOverride: null, hasOverride: false }); return }
+    if (devFallbackOk(err)) { res.send(200, { configKey, firmOverride: null, hasOverride: false }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
 }
@@ -426,7 +433,7 @@ async function getFrameworkHistory (req, res) {
     const history = await overlay.getVersionHistory(req.firmId, configKey)
     res.send(200, { history })
   } catch (err) {
-    if (IS_DEV) { res.send(200, { history: [] }); return }
+    if (devFallbackOk(err)) { res.send(200, { history: [] }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
 }
@@ -457,7 +464,7 @@ async function listVideos (req, res) {
     )
     res.send(200, { videos: rows })
   } catch (err) {
-    if (IS_DEV) { res.send(200, { videos: [] }); return }
+    if (devFallbackOk(err)) { res.send(200, { videos: [] }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
 }
@@ -517,7 +524,7 @@ async function getStorageUsage (req, res) {
       percentUsed: Math.round((bytesUsed / STORAGE.maxFirmStorageBytes) * 100)
     })
   } catch (err) {
-    if (IS_DEV) { res.send(200, { bytesUsed: 0, maxBytes: STORAGE.maxFirmStorageBytes, percentUsed: 0 }); return }
+    if (devFallbackOk(err)) { res.send(200, { bytesUsed: 0, maxBytes: STORAGE.maxFirmStorageBytes, percentUsed: 0 }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
 }
@@ -531,7 +538,7 @@ const TEMPLATE_IMPORT_MAX_BYTES = 10 * 1024 * 1024 // 10 MB
 // ⚠⚠ DEV/TEST-ONLY persistence fallback — NOT production storage. ⚠⚠
 // When MySQL is unavailable on a local dev machine, template imports fall back to
 // a gitignored local JSON file so the feature can be exercised end-to-end without
-// a database. This is a TESTING convenience ONLY and is gated behind IS_DEV — it
+// a database. This is a TESTING convenience ONLY and is gated behind devFallbackOk — it
 // can never run in production. Real persistence MUST go through the
 // firm_framework_versions table via firmOverlay. Wiring the live MySQL persistence
 // (and retiring these dev-file fallbacks) is a tracked task — see HANDOFF.md and
@@ -577,7 +584,7 @@ async function getTemplateImport (req, res) {
     })
   } catch (err) {
     // DEV/TEST-ONLY: fall back to the local dev file (see banner above).
-    if (IS_DEV) {
+    if (devFallbackOk(err)) {
       const devConfig = _devReadTemplates(req.firmId)
       res.send(200, {
         hasImport: !!devConfig,
@@ -635,7 +642,7 @@ async function importTemplates (req, res) {
     try {
       version = await overlay.saveFirmConfig(req.firmId, 'templates', parsed, req.userEmail)
     } catch (err) {
-      if (!IS_DEV) { throw err }
+      if (!devFallbackOk(err)) { throw err }
       _devWriteTemplates(req.firmId, parsed) // DEV/TEST-ONLY fallback (see banner above)
       version = null
     }
@@ -654,7 +661,7 @@ async function resetTemplateImport (req, res) {
     res.send(200, { reset: true })
   } catch (err) {
     // DEV/TEST-ONLY: clear the local dev file instead (see banner above).
-    if (IS_DEV) { _devClearTemplates(req.firmId); res.send(200, { reset: true }); return }
+    if (devFallbackOk(err)) { _devClearTemplates(req.firmId); res.send(200, { reset: true }); return }
     return serverError(res, 500, 'DB_ERROR', err)
   }
 }
@@ -684,7 +691,7 @@ async function _loadDistinctions (firmId) {
     const stored = await overlay.loadFirmConfig(firmId, DISTINCTIONS_KEY)
     return Array.isArray(stored) ? stored : []
   } catch (err) {
-    if (IS_DEV) { return _devReadDistinctions(firmId) }
+    if (devFallbackOk(err)) { return _devReadDistinctions(firmId) }
     throw err
   }
 }
@@ -693,7 +700,7 @@ async function _saveDistinctions (firmId, rows, savedBy) {
   try {
     await overlay.saveFirmConfig(firmId, DISTINCTIONS_KEY, rows, savedBy)
   } catch (err) {
-    if (IS_DEV) { _devWriteDistinctions(firmId, rows); return }
+    if (devFallbackOk(err)) { _devWriteDistinctions(firmId, rows); return }
     throw err
   }
 }
@@ -834,7 +841,7 @@ async function _loadDeclines (firmId) {
     const stored = await overlay.loadFirmConfig(firmId, CONFIG_KEYS.declines)
     return Array.isArray(stored) ? stored : []
   } catch (err) {
-    if (IS_DEV) { return _devReadDeclines(firmId) }
+    if (devFallbackOk(err)) { return _devReadDeclines(firmId) }
     throw err
   }
 }
@@ -843,7 +850,7 @@ async function _saveDeclines (firmId, ids, savedBy) {
   try {
     await overlay.saveFirmConfig(firmId, CONFIG_KEYS.declines, ids, savedBy)
   } catch (err) {
-    if (IS_DEV) { _devWriteDeclines(firmId, ids); return }
+    if (devFallbackOk(err)) { _devWriteDeclines(firmId, ids); return }
     throw err
   }
 }
@@ -853,7 +860,7 @@ async function _loadOverrides (firmId) {
     const stored = await overlay.loadFirmConfig(firmId, CONFIG_KEYS.overrides)
     return (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
   } catch (err) {
-    if (IS_DEV) { return _devReadOverrides(firmId) }
+    if (devFallbackOk(err)) { return _devReadOverrides(firmId) }
     throw err
   }
 }
@@ -862,7 +869,7 @@ async function _saveOverrides (firmId, obj, savedBy) {
   try {
     await overlay.saveFirmConfig(firmId, CONFIG_KEYS.overrides, obj, savedBy)
   } catch (err) {
-    if (IS_DEV) { _devWriteOverrides(firmId, obj); return }
+    if (devFallbackOk(err)) { _devWriteOverrides(firmId, obj); return }
     throw err
   }
 }
@@ -879,7 +886,7 @@ async function _loadLastSeen (firmId) {
     const stored = await overlay.loadFirmConfig(firmId, LAST_SEEN_KEY)
     return typeof stored === 'string' ? stored : null
   } catch (err) {
-    if (IS_DEV) { return _devReadLastSeen(firmId) }
+    if (devFallbackOk(err)) { return _devReadLastSeen(firmId) }
     throw err
   }
 }
@@ -888,7 +895,7 @@ async function _saveLastSeen (firmId, iso, savedBy) {
   try {
     await overlay.saveFirmConfig(firmId, LAST_SEEN_KEY, iso, savedBy)
   } catch (err) {
-    if (IS_DEV) { _devWriteLastSeen(firmId, iso); return }
+    if (devFallbackOk(err)) { _devWriteLastSeen(firmId, iso); return }
     throw err
   }
 }
@@ -923,7 +930,7 @@ async function _loadOverrideBaselines (firmId) {
     const stored = await overlay.loadFirmConfig(firmId, OVERRIDE_BASELINES_KEY)
     return (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
   } catch (err) {
-    if (IS_DEV) { return _devReadOverrideBaselines(firmId) }
+    if (devFallbackOk(err)) { return _devReadOverrideBaselines(firmId) }
     throw err
   }
 }
@@ -932,7 +939,7 @@ async function _saveOverrideBaselines (firmId, obj, savedBy) {
   try {
     await overlay.saveFirmConfig(firmId, OVERRIDE_BASELINES_KEY, obj, savedBy)
   } catch (err) {
-    if (IS_DEV) { _devWriteOverrideBaselines(firmId, obj); return }
+    if (devFallbackOk(err)) { _devWriteOverrideBaselines(firmId, obj); return }
     throw err
   }
 }
@@ -964,7 +971,7 @@ async function _enumerateOverrideFirms (id) {
     }
     return out
   } catch (err) {
-    if (IS_DEV) { return _devAllOverrideFirms(id) }
+    if (devFallbackOk(err)) { return _devAllOverrideFirms(id) }
     throw err
   }
 }
@@ -1418,7 +1425,7 @@ async function _loadStaircase (firmId) {
   try {
     return await overlay.loadFirmConfig(firmId, STAIRCASE_KEY)
   } catch (err) {
-    if (IS_DEV) { return _devReadStaircase(firmId) }
+    if (devFallbackOk(err)) { return _devReadStaircase(firmId) }
     throw err
   }
 }
@@ -1427,7 +1434,7 @@ async function _saveStaircaseOverride (firmId, cfg, savedBy) {
   try {
     return await overlay.saveFirmConfig(firmId, STAIRCASE_KEY, cfg, savedBy)
   } catch (err) {
-    if (IS_DEV) { _devWriteStaircase(firmId, cfg); return null }
+    if (devFallbackOk(err)) { _devWriteStaircase(firmId, cfg); return null }
     throw err
   }
 }
@@ -1514,7 +1521,7 @@ async function _loadStaircasePart (firmId, key, fallback) {
     const stored = await overlay.loadFirmConfig(firmId, key)
     return (stored === null || stored === undefined) ? fallback : stored
   } catch (err) {
-    if (IS_DEV) { return _devReadStaircasePart(STAIRCASE_DEV_FILES[key], firmId, fallback) }
+    if (devFallbackOk(err)) { return _devReadStaircasePart(STAIRCASE_DEV_FILES[key], firmId, fallback) }
     throw err
   }
 }
@@ -1523,7 +1530,7 @@ async function _saveStaircasePart (firmId, key, value, savedBy) {
   try {
     await overlay.saveFirmConfig(firmId, key, value, savedBy)
   } catch (err) {
-    if (IS_DEV) { _devWriteStaircasePart(STAIRCASE_DEV_FILES[key], firmId, value); return }
+    if (devFallbackOk(err)) { _devWriteStaircasePart(STAIRCASE_DEV_FILES[key], firmId, value); return }
     throw err
   }
 }
@@ -1629,7 +1636,7 @@ async function _loadStaircaseBaselines (firmId) {
     const stored = await overlay.loadFirmConfig(firmId, STAIRCASE_BASELINES_KEY)
     return (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
   } catch (err) {
-    if (IS_DEV) { return _devReadStaircaseBaselines(firmId) }
+    if (devFallbackOk(err)) { return _devReadStaircaseBaselines(firmId) }
     throw err
   }
 }
@@ -1638,7 +1645,7 @@ async function _saveStaircaseBaselines (firmId, obj, savedBy) {
   try {
     await overlay.saveFirmConfig(firmId, STAIRCASE_BASELINES_KEY, obj, savedBy)
   } catch (err) {
-    if (IS_DEV) { _devWriteStaircaseBaselines(firmId, obj); return }
+    if (devFallbackOk(err)) { _devWriteStaircaseBaselines(firmId, obj); return }
     throw err
   }
 }
@@ -2054,7 +2061,7 @@ async function _loadQuizOverride (firmId) {
   try {
     return await overlay.loadFirmConfig(firmId, QUIZ_KEY)
   } catch (err) {
-    if (IS_DEV) { return _devReadQuizzes(firmId) }
+    if (devFallbackOk(err)) { return _devReadQuizzes(firmId) }
     throw err
   }
 }
@@ -2063,7 +2070,7 @@ async function _saveQuizOverride (firmId, cfg, savedBy) {
   try {
     return await overlay.saveFirmConfig(firmId, QUIZ_KEY, cfg, savedBy)
   } catch (err) {
-    if (IS_DEV) { _devWriteQuizzes(firmId, cfg); return null }
+    if (devFallbackOk(err)) { _devWriteQuizzes(firmId, cfg); return null }
     throw err
   }
 }
@@ -2233,7 +2240,7 @@ async function _loadQuizPart (firmId, key, fallback) {
     const stored = await overlay.loadFirmConfig(firmId, key)
     return (stored === null || stored === undefined) ? fallback : stored
   } catch (err) {
-    if (IS_DEV) { return _devReadQuizPart(QUIZ_DEV_FILES[key], firmId, fallback) }
+    if (devFallbackOk(err)) { return _devReadQuizPart(QUIZ_DEV_FILES[key], firmId, fallback) }
     throw err
   }
 }
@@ -2242,7 +2249,7 @@ async function _saveQuizPart (firmId, key, value, savedBy) {
   try {
     await overlay.saveFirmConfig(firmId, key, value, savedBy)
   } catch (err) {
-    if (IS_DEV) { _devWriteQuizPart(QUIZ_DEV_FILES[key], firmId, value); return }
+    if (devFallbackOk(err)) { _devWriteQuizPart(QUIZ_DEV_FILES[key], firmId, value); return }
     throw err
   }
 }
@@ -2752,7 +2759,7 @@ async function _loadFirmDomainSupportMapRaw (firmId) {
     const v = await overlay.loadFirmConfig(firmId, CONTENT_CONFIG_KEYS.domainSupport)
     return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
   } catch (err) {
-    if (IS_DEV) {
+    if (devFallbackOk(err)) {
       try {
         const all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8'))
         return (all[firmId] && typeof all[firmId] === 'object' && !Array.isArray(all[firmId])) ? all[firmId] : {}
@@ -2775,7 +2782,7 @@ async function _saveFirmDomainSupportMap (firmId, map, savedBy) {
   try {
     return await overlay.saveFirmConfig(firmId, CONTENT_CONFIG_KEYS.domainSupport, map, savedBy)
   } catch (err) {
-    if (IS_DEV) {
+    if (devFallbackOk(err)) {
       let all = {}
       try { all = JSON.parse(fs.readFileSync(DEV_DOMAIN_SUPPORT_FILE, 'utf8')) } catch {}
       all[firmId] = map
@@ -2805,7 +2812,7 @@ async function _getDomainSupportHistory (firmId) {
     )
     return rows
   } catch (err) {
-    if (IS_DEV) { return [] }
+    if (devFallbackOk(err)) { return [] }
     throw err
   }
 }
@@ -2840,7 +2847,7 @@ async function _restoreDomainSupportVersion (firmId, domainId, version, restored
     await _saveFirmDomainSupportMap(firmId, map, restoredBy)
     return true
   } catch (err) {
-    if (IS_DEV) { return false }
+    if (devFallbackOk(err)) { return false }
     throw err
   }
 }
@@ -3060,7 +3067,7 @@ async function _loadSectionMap (firmId, configKey, devFile) {
     const v = await overlay.loadFirmConfig(firmId, configKey)
     return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
   } catch (err) {
-    if (IS_DEV) {
+    if (devFallbackOk(err)) {
       try {
         const all = JSON.parse(fs.readFileSync(devFile, 'utf8'))
         return (all[firmId] && typeof all[firmId] === 'object' && !Array.isArray(all[firmId])) ? all[firmId] : {}
@@ -3080,7 +3087,7 @@ async function _saveSectionMap (firmId, configKey, devFile, map, savedBy) {
   try {
     return await overlay.saveFirmConfig(firmId, configKey, map, savedBy)
   } catch (err) {
-    if (IS_DEV) {
+    if (devFallbackOk(err)) {
       let all = {}
       try { all = JSON.parse(fs.readFileSync(devFile, 'utf8')) } catch {}
       all[firmId] = map
@@ -3266,7 +3273,7 @@ async function _loadFirmLogicTreesMapRaw (firmId) {
     const v = await overlay.loadFirmConfig(firmId, CONTENT_CONFIG_KEYS.logicTrees)
     return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
   } catch (err) {
-    if (IS_DEV) {
+    if (devFallbackOk(err)) {
       try {
         const all = JSON.parse(fs.readFileSync(DEV_LOGIC_TREES_FILE, 'utf8'))
         return (all[firmId] && typeof all[firmId] === 'object' && !Array.isArray(all[firmId])) ? all[firmId] : {}
@@ -3289,7 +3296,7 @@ async function _saveFirmLogicTreesMap (firmId, map, savedBy) {
   try {
     return await overlay.saveFirmConfig(firmId, CONTENT_CONFIG_KEYS.logicTrees, map, savedBy)
   } catch (err) {
-    if (IS_DEV) {
+    if (devFallbackOk(err)) {
       let all = {}
       try { all = JSON.parse(fs.readFileSync(DEV_LOGIC_TREES_FILE, 'utf8')) } catch {}
       all[firmId] = map
@@ -3436,7 +3443,7 @@ async function getLogicTreeHistory (req, res) {
       )
       history = rows
     } catch (err) {
-      if (!IS_DEV) { throw err }
+      if (!devFallbackOk(err)) { throw err }
     }
     res.send(200, { history })
   } catch (err) {
@@ -3598,7 +3605,7 @@ async function _firmTemplateLibrary (firmId) {
     const stored = await overlay.loadFirmConfig(firmId, 'templates')
     return Array.isArray(stored) ? stored : null
   } catch (err) {
-    if (IS_DEV) { return _devReadTemplates(firmId) }
+    if (devFallbackOk(err)) { return _devReadTemplates(firmId) }
     throw err
   }
 }
@@ -3805,7 +3812,7 @@ async function _loadAcceptedLog (firmId) {
     const stored = await overlay.loadFirmConfig(firmId, LOGIC_LAB_ACCEPTED_KEY)
     return Array.isArray(stored) ? stored : []
   } catch (err) {
-    if (IS_DEV) { return _devReadAcceptedLog(firmId) }
+    if (devFallbackOk(err)) { return _devReadAcceptedLog(firmId) }
     throw err
   }
 }
@@ -3814,7 +3821,7 @@ async function _saveAcceptedLog (firmId, rows, savedBy) {
   try {
     await overlay.saveFirmConfig(firmId, LOGIC_LAB_ACCEPTED_KEY, rows, savedBy)
   } catch (err) {
-    if (IS_DEV) { _devWriteAcceptedLog(firmId, rows); return }
+    if (devFallbackOk(err)) { _devWriteAcceptedLog(firmId, rows); return }
     throw err
   }
 }

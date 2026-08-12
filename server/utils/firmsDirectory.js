@@ -36,6 +36,7 @@ const fs = require('fs')
 const path = require('path')
 const db = require('./db')
 const { PLATFORM_SCOPE } = require('./platformScope')
+const { devFallbackAllowed } = require('./dbFailure')
 
 // DEV/TEST-ONLY stand-in, mirroring activityStore's ACTIVITY_DEV_FILE. There is no
 // MySQL on a developer machine, and without this the adoption page would be
@@ -55,8 +56,10 @@ const SQL_LIST_FIRMS =
  * Read at call-time so a production failure always propagates.
  * @returns {boolean}
  */
-function devFallbackEnabled () {
-  return process.env.NODE_ENV !== 'production'
+// See server/utils/dbFailure.js — also refuses the fallback when a live server
+// REFUSED the statement, so a rejected read cannot answer with stale dev data.
+function devFallbackEnabled (err) {
+  return devFallbackAllowed(err)
 }
 
 /**
@@ -102,7 +105,7 @@ async function listFirms () {
       .filter(r => r && r.id)
       .map(r => ({ id: String(r.id), name: typeof r.name === 'string' ? r.name : null }))
   } catch (err) {
-    if (!devFallbackEnabled()) { throw err }
+    if (!devFallbackEnabled(err)) { throw err }
     console.warn('[firmsDirectory] listFirms fell back to the dev file:', err.message)
     return _devReadFirms()
   }

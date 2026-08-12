@@ -36,6 +36,7 @@ const fs = require('fs')
 const crypto = require('crypto')
 const db = require('./db')
 const { isWithinScope } = require('./tierChain')
+const { devFallbackAllowed } = require('./dbFailure')
 
 // Default dev fallback file; overridable via CASE_DEV_FILE so tests can point at an
 // isolated temp file (keeps a clean `npm test` independent of the shared dev file and
@@ -50,8 +51,13 @@ const DEV_CASES_FILE = process.env.CASE_DEV_FILE
  * in production a DB failure must propagate, never be masked by the fallback.
  * @returns {boolean}
  */
-function devFallbackEnabled () {
-  return process.env.NODE_ENV !== 'production'
+// See server/utils/dbFailure.js. Called with the caught error from a DB catch
+// block, it also refuses the fallback when a live server REFUSED the statement
+// — otherwise a rejected write lands in the dev file and reports success.
+// Called with no argument (the one pre-check in listForClient) it keeps the
+// original meaning: not production.
+function devFallbackEnabled (err) {
+  return devFallbackAllowed(err)
 }
 
 const VISIBILITIES = ['private', 'shared']
@@ -149,7 +155,7 @@ async function listForAdvisor (advisorId, firmId) {
     )
     return rows.map(rowToCase)
   } catch (err) {
-    if (devFallbackEnabled()) { return _devList(advisorId, firmId) }
+    if (devFallbackEnabled(err)) { return _devList(advisorId, firmId) }
     throw err
   }
 }
@@ -199,7 +205,7 @@ async function getVisibleCase (id, advisorId, firmId) {
     )
     return rows.length ? rowToCase(rows[0]) : null
   } catch (err) {
-    if (devFallbackEnabled()) { return _devGetVisible(id, advisorId, firmId) }
+    if (devFallbackEnabled(err)) { return _devGetVisible(id, advisorId, firmId) }
     throw err
   }
 }
@@ -223,7 +229,7 @@ async function listSharedForFirm (firmId) {
     )
     return rows.map(rowToCase)
   } catch (err) {
-    if (devFallbackEnabled()) { return _devListSharedForFirm(firmId) }
+    if (devFallbackEnabled(err)) { return _devListSharedForFirm(firmId) }
     throw err
   }
 }
@@ -249,7 +255,7 @@ async function getSharedForFirm (id, firmId) {
     )
     return rows.length ? rowToCase(rows[0]) : null
   } catch (err) {
-    if (devFallbackEnabled()) { return _devGetSharedForFirm(id, firmId) }
+    if (devFallbackEnabled(err)) { return _devGetSharedForFirm(id, firmId) }
     throw err
   }
 }
@@ -335,7 +341,7 @@ async function listSharedWithMentor (scopeId) {
       .filter(row => isWithinScope(row.firm_id, scopeId))
       .map(rowToMentorCase)
   } catch (err) {
-    if (devFallbackEnabled()) { return _devListSharedWithMentor(scopeId) }
+    if (devFallbackEnabled(err)) { return _devListSharedWithMentor(scopeId) }
     throw err
   }
 }
@@ -385,7 +391,7 @@ async function create (input) {
     )
     return rowToCase({ ...row, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
   } catch (err) {
-    if (devFallbackEnabled()) { return _devCreate(row) }
+    if (devFallbackEnabled(err)) { return _devCreate(row) }
     throw err
   }
 }
@@ -457,7 +463,7 @@ async function updateReview (id, advisorId, review) {
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) {
+    if (devFallbackEnabled(err)) {
       return _devUpdate(id, advisorId, (c) => {
         c.review = { wentWell: wentWell || '', wentLess: wentLess || '', changesRecommended: changes || '', reviewedAt: new Date().toISOString() }
         c.templateOutcomes = rawOutcomes ? sanitiseTemplateOutcomes(rawOutcomes, c.templates || []) : null
@@ -481,7 +487,7 @@ async function updateVisibility (id, advisorId, visibility) {
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) { return _devUpdate(id, advisorId, (c) => { c.visibility = value }) }
+    if (devFallbackEnabled(err)) { return _devUpdate(id, advisorId, (c) => { c.visibility = value }) }
     throw err
   }
 }
@@ -514,7 +520,7 @@ async function shareWithMentor (id, firmId, approverId, anonSummary, anonTranscr
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) {
+    if (devFallbackEnabled(err)) {
       return _devUpdateFirm(id, firmId, true, (c) => {
         c.mentorShared = true
         c.mentorAnonSummary = summary
@@ -546,7 +552,7 @@ async function withdrawFromMentor (id, firmId) {
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) {
+    if (devFallbackEnabled(err)) {
       return _devUpdateFirm(id, firmId, false, (c) => {
         c.mentorShared = false
         c.mentorAnonSummary = null
@@ -571,7 +577,7 @@ async function remove (id, advisorId) {
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) { return _devRemove(id, advisorId) }
+    if (devFallbackEnabled(err)) { return _devRemove(id, advisorId) }
     throw err
   }
 }

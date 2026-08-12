@@ -27,6 +27,7 @@ const { readFileSync, writeFileSync } = require('fs')
 const { resolve } = require('path')
 const overlay = require('./firmOverlay')
 const { fenceUntrusted } = require('./promptSafety')
+const { devFallbackAllowed } = require('./dbFailure')
 
 let _coaching = null
 
@@ -38,8 +39,11 @@ const DEV_FIRM_COACHING_FILE = process.env.FIRM_COACHING_DEV_FILE
   ? resolve(process.env.FIRM_COACHING_DEV_FILE)
   : resolve(__dirname, '../../data/dev-firm-coaching.json')
 
-function devFallbackEnabled () {
-  return process.env.NODE_ENV !== 'production'
+// Delegates to the shared discriminator: not production, AND no live server
+// refused the statement. A firm's promoted entries must never land in the dev
+// file because MySQL rejected the write — see server/utils/dbFailure.js.
+function devFallbackEnabled (err) {
+  return devFallbackAllowed(err)
 }
 
 function loadCoaching () {
@@ -96,7 +100,7 @@ async function loadFirmCoaching (firmId) {
     const stored = await overlay.loadFirmConfig(firmId, FIRM_COACHING_KEY)
     return Array.isArray(stored) ? stored : []
   } catch (err) {
-    if (devFallbackEnabled()) { return _devReadFirmCoaching(firmId) }
+    if (devFallbackEnabled(err)) { return _devReadFirmCoaching(firmId) }
     throw err
   }
 }
@@ -116,7 +120,7 @@ async function appendFirmCoachingEntry (firmId, entry, savedBy) {
   try {
     await overlay.saveFirmConfig(firmId, FIRM_COACHING_KEY, rows, savedBy)
   } catch (err) {
-    if (devFallbackEnabled()) { _devWriteFirmCoaching(firmId, rows); return nextId }
+    if (devFallbackEnabled(err)) { _devWriteFirmCoaching(firmId, rows); return nextId }
     throw err
   }
   return nextId
