@@ -12,7 +12,14 @@ reads), and the sentence the name came from was read in each case. Where the ans
 guess, it says so.
 
 **How to use it.** Each group has one kind of answer. Confirm the group, or mark the rows you
-disagree with. **The ⚠ rows are the ones that genuinely need you** — 9 of the 58.
+disagree with. **The ⚠ rows are the ones that genuinely need you.**
+
+> **⚠ COUNT CORRECTED 2026-08-12, same day.** The first version of this line said *"9 of the 58"*.
+> That number was never counted — it was written from impression. **The ⚠ marks below come to 11
+> names covering 20 rows**, and two more (*Decision Workpaper*, *My Fee Growth Model*) have been
+> open since 5 August without a ⚠, so **13 names need you**. Recorded rather than quietly amended:
+> a number written from impression and presented as a count is the same failure as a paraphrase
+> standing in for an artefact.
 
 ---
 
@@ -134,6 +141,29 @@ create matches, never withhold more. **Proposed separately; not done.**
 | Group 2 — coaching, not a tool | 20 |
 | Group 3 — master-app file names, need a different answer | 5 |
 | **Total** | **58** |
-| Of which genuinely need your decision (⚠) | **9** |
+| Of which genuinely need your decision (⚠) | **20 rows, 11 names** |
 
 Adding the 30 in the companion file, **all 88 rows are now accounted for.**
+
+---
+
+## What was recorded on 2026-08-12, and what is left
+
+Approved by Mike the same day this list was written. **59 of the 88 rows are now ruled**, across
+both documents:
+
+| Recorded | Rows |
+|---|---|
+| Not a tool — Group 2 coaching, plus *Interpreting Data Correctly* and *Psyche Errors* | 16 |
+| Pointed at a published title — Group 1's clean rows plus Sections A and B | 31 |
+| Flagged for the master team — the seven-tool export gap plus Group 3's file names | 12 |
+| **Total recorded** | **59** |
+
+**Group 3 was flagged rather than dismissed.** The four names read like master-app file names and
+nothing in the catalogue matches them — but the three emails in particular look like real things an
+advisor sends, and a dismissal would quietly delete the reference. Flagging puts them on the master
+team's list and is reversible; dismissing loses the question.
+
+**29 rows remain, across 14 names.** Thirteen are for the Template Check screen, where the picker
+shows the real documents. The fourteenth is **Get Seminar** (7 rows), which is not a ruling at all —
+those lines are Mike's to reword in Logic Tables, per the correction in the companion file.
