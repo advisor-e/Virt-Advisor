@@ -72,13 +72,13 @@
     "titles": {
       "firm_manager": "Firm Manager",
       "group_manager": "Group Manager",
-      "global_manager": "Global Manager",
+      "global_group_manager": "Global Group Manager",
       "mentor": "Mentor"
     },
     "subtitles": {
       "firm_manager": "Manage your firm's advisors, collaboration and approvals.",
       "group_manager": "Manage advisors, collaboration and approvals across your country.",
-      "global_manager": "Oversee advisors and approvals across every country.",
+      "global_group_manager": "Oversee advisors and approvals across every country.",
       "mentor": "The top of the tree — oversight of the entire network."
     },
     "allCountries": "All countries",

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mentor — How firms are using the app (APPROVED design)</title>
+<style>
+  :root {
+    --navy:#002b64; --grey:#7a869a; --line:#e2e6ec; --ink:#363636;
+    --green:#1f7a45; --green-bg:#eefaf2; --green-line:#63c48d;
+    --amber:#b35309; --amber-bg:#fffaf3; --amber-line:#ffb870;
+    --slate:#5a6b82; --slate-bg:#f3f6fa; --slate-line:#b8c6d8;
+    --dim:#8a94a3; --dim-bg:#f6f7f9; --dim-line:#d8dce3;
+    --red:#a02b2b; --red-bg:#fdf3f3; --red-line:#e2a0a0;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.5rem 6rem; background:#f5f5f5;
+    font:15px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); }
+  .wrap { max-width:1060px; margin:0 auto; }
+
+  .banner { background:#eefaf2; border:1px solid #b9e3cb; border-left:4px solid var(--green-line);
+    border-radius:5px; padding:0.9rem 1.05rem; margin-bottom:2.5rem; font-size:0.84rem; line-height:1.6; }
+  .banner strong { color:var(--green); }
+
+  h1 { font-size:1.6rem; margin:0 0 0.4rem; color:var(--navy); letter-spacing:-0.01em; }
+  .lede { color:var(--grey); font-size:0.92rem; margin:0; max-width:56rem; }
+
+  section.band { margin-top:4rem; }
+  section.band > h2 { font-size:1.15rem; color:var(--navy); margin:0 0 0.35rem; letter-spacing:-0.01em; }
+  section.band > .sub { color:var(--grey); font-size:0.86rem; margin:0 0 1.6rem; max-width:56rem; }
+
+  /* ── Headline tiles ───────────────────────────────────────────── */
+  .tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:1.1rem; }
+  @media (max-width:880px) { .tiles { grid-template-columns:repeat(2,1fr); } }
+  .tile { background:#fff; border:1px solid var(--line); border-top:5px solid var(--slate-line);
+    border-radius:8px; padding:1.2rem 1.3rem 1.35rem; }
+  .tile.accent { border-top-color:var(--green-line); }
+  .tile.warn { border-top-color:var(--amber-line); }
+  .tnum { font-size:1.7rem; font-weight:700; color:var(--navy); line-height:1.2; }
+  .tlabel { font-size:0.78rem; color:var(--grey); margin-top:0.35rem; }
+  .tnote { font-size:0.74rem; color:var(--ink); margin-top:0.7rem; padding-top:0.7rem;
+    border-top:1px solid #f0f2f5; }
+
+  /* ── Per-firm sheet ───────────────────────────────────────────── */
+  table.firms { border-collapse:collapse; width:100%; font-size:0.83rem;
+    background:#fff; border:1px solid #ececec; border-radius:8px; overflow:hidden; }
+  table.firms th { text-align:left; font-size:0.67rem; text-transform:uppercase; letter-spacing:0.07em;
+    color:var(--navy); background:#f4f6f9; padding:0.6rem 0.7rem; border-bottom:1px solid #d5dbe4;
+    white-space:nowrap; }
+  table.firms th.n, table.firms td.n { text-align:right; }
+  table.firms td { padding:0.75rem 0.7rem; border-bottom:1px solid #eef1f5; vertical-align:middle; }
+  table.firms tr:last-child td { border-bottom:0; }
+  table.firms td.n { font-weight:600; white-space:nowrap; }
+  table.firms tr.dormant td { background:#fcfcfd; }
+  .fname { font-weight:600; color:var(--navy); }
+  .fid { font-size:0.7rem; color:var(--grey); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .quiet { color:var(--grey); font-weight:400; }
+  .flag { display:inline-block; font-size:0.7rem; border-radius:999px; padding:0.1rem 0.55rem;
+    border:1px solid var(--amber-line); background:var(--amber-bg); color:var(--amber); font-weight:700; }
+  .flag.cold { border-color:var(--red-line); background:var(--red-bg); color:var(--red); }
+  .flag.ok { border-color:var(--green-line); background:var(--green-bg); color:var(--green); }
+  .bar { height:6px; border-radius:3px; background:var(--slate-bg); margin-top:0.3rem; overflow:hidden; width:100%; }
+  .bar > i { display:block; height:100%; background:var(--slate-line); }
+
+  .caution { font-size:0.81rem; background:#f7f7f9; border-radius:6px; padding:0.9rem 1rem;
+    color:#5a5a5a; margin-top:1.2rem; }
+  .caution b { color:var(--ink); display:block; margin-bottom:0.2rem; }
+
+  .decide { background:#fff; border:1px solid var(--line); border-left:4px solid var(--green-line);
+    border-radius:6px; padding:1.1rem 1.2rem; margin-top:1.2rem; font-size:0.85rem; }
+  .decide h3 { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--navy);
+    margin:0 0 0.7rem; }
+  .decide ol { margin:0; padding-left:1.2rem; }
+  .decide li { margin-bottom:0.7rem; }
+  .decide li:last-child { margin-bottom:0; }
+  .decide b { color:var(--navy); }
+  .ruled { color:var(--green); font-weight:700; }
+
+  table.words { border-collapse:collapse; width:100%; font-size:0.82rem; margin-top:0.9rem;
+    background:#fff; border:1px solid #ececec; border-radius:8px; overflow:hidden; }
+  table.words th { text-align:left; font-size:0.67rem; text-transform:uppercase; letter-spacing:0.07em;
+    color:var(--navy); background:#f4f6f9; padding:0.55rem 0.7rem; border-bottom:1px solid #d5dbe4; }
+  table.words td { padding:0.5rem 0.7rem; border-bottom:1px solid #eef1f5; vertical-align:top; }
+  table.words tr:last-child td { border-bottom:0; }
+  table.words td.k { color:var(--grey); white-space:nowrap; width:14rem; }
+  table.words td.v { font-weight:600; color:var(--navy); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <strong>APPROVED DESIGN — ruled by Mike, 2026-08-09.</strong> All four open decisions are answered
+    and recorded in §3; the wording below is the approved wording, not a placeholder. Every number and
+    firm name is still invented — they show the shape, not real data. This page is mentor-only and reads
+    <strong>counts only</strong>: no adviser name, no client name and no session text can appear on it,
+    enforced in code by the same boundary check the Logic Lab Report uses.
+  </div>
+
+  <h1>How firms are using the app</h1>
+  <p class="lede">Which firms are actually using the product, and which have gone quiet. This replaces
+    the Team Progress tab at mentor level — that tab lists a firm's <em>advisers by name</em>, which is
+    a firm manager's view of their own people and must not cross the firm boundary. The same underlying
+    activity, counted one level up and stripped of who did it, answers the question a mentor actually
+    has: where is the product landing, and where is it not?</p>
+
+  <!-- ── 1 · The headline ─────────────────────────────────────────── -->
+  <section class="band">
+    <h2>1 · The headline</h2>
+    <p class="sub">Four counts. Figures invented; labels approved.</p>
+    <div class="tiles">
+      <div class="tile accent">
+        <div class="tnum">6</div>
+        <div class="tlabel">Firms active recently</div>
+        <div class="tnote">Did at least one advisor session or course in the last 60 days.</div>
+      </div>
+      <div class="tile warn">
+        <div class="tnum">3</div>
+        <div class="tlabel">Firms that have slowed down</div>
+        <div class="tnote">Used it, then nothing for 60 days. The list most worth acting on.</div>
+      </div>
+      <div class="tile">
+        <div class="tnum">47</div>
+        <div class="tlabel">Advisers taking part</div>
+        <div class="tnote">A count of distinct advisers. No names, here or anywhere on this page.</div>
+      </div>
+      <div class="tile">
+        <div class="tnum">1,284</div>
+        <div class="tlabel">Total sessions and courses</div>
+        <div class="tnote">Advisor sessions plus completed courses, added together.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 2 · Firm by firm ─────────────────────────────────────────── -->
+  <section class="band">
+    <h2>2 · Firm by firm</h2>
+    <p class="sub">One row per firm, busiest first. Invented figures. A firm's own manager still sees
+      their advisers by name on their own Team Progress tab — nothing about that changes.</p>
+
+    <table class="firms">
+      <thead>
+        <tr>
+          <th>Firm</th>
+          <th class="n">Advisers</th>
+          <th class="n">Sessions</th>
+          <th class="n">Courses</th>
+          <th class="n">Avg quiz</th>
+          <th>Last seen</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="fname">Hartley &amp; Vine</span><br><span class="fid">firm-hv-004</span>
+            <div class="bar"><i style="width:100%"></i></div></td>
+          <td class="n">14</td><td class="n">402</td><td class="n">96</td><td class="n">71%</td>
+          <td>2 days ago</td>
+          <td><span class="flag ok">Active</span></td>
+        </tr>
+        <tr>
+          <td><span class="fname">Marchmont Advisory</span><br><span class="fid">firm-ma-011</span>
+            <div class="bar"><i style="width:63%"></i></div></td>
+          <td class="n">9</td><td class="n">248</td><td class="n">61</td><td class="n">68%</td>
+          <td>5 days ago</td>
+          <td><span class="flag ok">Active</span></td>
+        </tr>
+        <tr>
+          <td><span class="fname">Kelso Partners</span><br><span class="fid">firm-kp-002</span>
+            <div class="bar"><i style="width:41%"></i></div></td>
+          <td class="n">7</td><td class="n">160</td><td class="n">44</td><td class="n">74%</td>
+          <td>6 weeks ago</td>
+          <td><span class="flag ok">Active</span></td>
+        </tr>
+        <tr class="dormant">
+          <td><span class="fname">Broadleaf Accounting</span><br><span class="fid">firm-ba-007</span>
+            <div class="bar"><i style="width:12%"></i></div></td>
+          <td class="n">3</td><td class="n">41</td><td class="n">6</td><td class="n">59%</td>
+          <td>3 months ago</td>
+          <td><span class="flag">Slowed down</span></td>
+        </tr>
+        <tr class="dormant">
+          <td><span class="fname">Ardwick &amp; Co</span><br><span class="fid">firm-ac-015</span>
+            <div class="bar"><i style="width:3%"></i></div></td>
+          <td class="n">1</td><td class="n">8</td><td class="n">0</td><td class="n quiet">—</td>
+          <td>5 months ago</td>
+          <td><span class="flag">Slowed down</span></td>
+        </tr>
+        <tr class="dormant">
+          <td><span class="fname">Pentland Fiscal</span><br><span class="fid">firm-pf-019</span></td>
+          <td class="n quiet">0</td><td class="n quiet">0</td><td class="n quiet">0</td><td class="n quiet">—</td>
+          <td class="quiet">Never</td>
+          <td><span class="flag cold">Not started yet</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="caution">
+      <b>Note the third row: 6 weeks ago still reads Active.</b>
+      That is the 60-day line Mike ruled, shown deliberately rather than described. A firm gets two
+      months of quiet before it is flagged, so a badge on this page means something worth acting on
+      rather than "worth a look".
+    </div>
+
+    <div class="caution">
+      <b>The last row only exists because the firms list is read — and that has consequences.</b>
+      Activity is recorded in the session tables, which only ever hold rows for firms that have
+      <em>done something</em>. A firm that has never opened the product leaves no trace there, so it can
+      only appear because this page also reads the <b>list of firms</b> itself. That read is the
+      <b>first time anything in our backend queries the firms table</b>, and it must exclude the reserved
+      <code>__platform__</code> row seeded for mentor storage — which is not a firm. The same read gives
+      us the firm <b>names</b>; where a name is missing the row falls back to its id, so the page
+      degrades to today's information rather than to an error. Inside the Advisor-e master app that
+      table may be theirs rather than ours, which is exactly why the fallback exists.
+    </div>
+  </section>
+
+  <!-- ── 3 · The rulings ──────────────────────────────────────────── -->
+  <section class="band">
+    <h2>3 · What was decided</h2>
+    <p class="sub">Recorded here so that "approved" names something specific and checkable, rather than
+      an event in a conversation.</p>
+
+    <div class="decide">
+      <h3>Ruled by Mike, 2026-08-09</h3>
+      <ol>
+        <li><b>Read the firms list — YES.</b> <span class="ruled">Every firm appears</span>, including
+          those that have never started. Real names where the table has them, falling back to the id
+          where it does not.</li>
+        <li><b>Avg quiz — KEEP IT.</b> <span class="ruled">Stays on the page.</span> A low score with
+          high usage is a different problem from low usage, and both are worth seeing together.</li>
+        <li><b>Gone quiet after — 60 DAYS.</b> <span class="ruled">Two months of silence</span> before a
+          firm is flagged. Chosen over 30 so a badge means action, not a glance.</li>
+        <li><b>Wording — WARMER, ADVISORY TONE.</b> The full approved set is below. It reads as an
+          account-management view rather than a scoreboard.</li>
+      </ol>
+    </div>
+
+    <table class="words">
+      <thead><tr><th>Where</th><th>Approved wording</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Tab and page title</td><td class="v">How firms are using the app</td></tr>
+        <tr><td class="k">Tile 1</td><td class="v">Firms active recently</td></tr>
+        <tr><td class="k">Tile 2</td><td class="v">Firms that have slowed down</td></tr>
+        <tr><td class="k">Tile 3</td><td class="v">Advisers taking part</td></tr>
+        <tr><td class="k">Tile 4</td><td class="v">Total sessions and courses</td></tr>
+        <tr><td class="k">Columns</td><td class="v">Firm · Advisers · Sessions · Courses · Avg quiz · Last seen · Status</td></tr>
+        <tr><td class="k">Status badges</td><td class="v">Active · Slowed down · Not started yet</td></tr>
+        <tr><td class="k">Empty state</td><td class="v">Never (in the Last seen column, for a firm with no activity)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── 4 · What else changes ────────────────────────────────────── -->
+  <section class="band">
+    <h2>4 · The other tab, for completeness</h2>
+    <p class="sub">Not part of this screen, but part of the same change, and recorded here so the
+      artefact matches what gets built.</p>
+    <div class="caution">
+      <b>Team Case Studies disappears from the Mentor Hub.</b>
+      It is the firm manager's view of their own advisers' shared cases, and shows nothing at mentor
+      level. The mentor already has the correct version beside it — the <b>Case Reviews</b> tab, which
+      shows only cases a firm manager has anonymised and explicitly approved for sharing. Rolling the
+      firm tab up instead would have walked straight past that consent gate, so it is hidden, not
+      widened.
+    </div>
+  </section>
+
+  <!-- ── 5 · Honest limits ────────────────────────────────────────── -->
+  <section class="band">
+    <h2>5 · What will not have been proven when this ships</h2>
+    <p class="sub">Stated before building rather than discovered after.</p>
+    <div class="caution">
+      <b>No MySQL exists on this machine, so none of this will have been seen working against real data.</b>
+      It will be proven by tests and by the development fallback — which is a different claim, and a
+      weaker one. The repo has been caught by exactly this before: Advisory Distinctions authoring and
+      Template Check rulings were both built, tested and signed off while being incapable of writing to
+      a real database, because the dev fallback absorbed the failure silently. The firms-table read here
+      is new ground for this codebase and is the part most likely to behave differently in production.
+    </div>
+  </section>
+
+  <!-- ── 6 · Built, and where the build differs ───────────────────── -->
+  <section class="band">
+    <h2>6 · BUILT 2026-08-09 — and every difference from this page</h2>
+    <p class="sub">The rule is to open the artefact, put it beside the build, and name every
+      difference. Three, all deliberate, none of them a change to what was ruled. A deviation that is
+      named is fine; one that is not is how a screen quietly stops being the screen that was approved.</p>
+
+    <div class="decide">
+      <h3>Differences</h3>
+      <ol>
+        <li><b>No page heading in the build.</b> This page carries an <code>&lt;h1&gt;</code> reading
+          "How firms are using the app". In the Hub that wording is the <em>tab label</em>, so an
+          <code>&lt;h1&gt;</code> inside the tab body would print the same words twice, one line apart.
+          The lede beneath it is unchanged.</li>
+        <li><b>The columns are sortable.</b> This page shows a static table; the build lets the mentor
+          sort by any column. An addition, not a change — the default order is still busiest first.</li>
+        <li><b>The firm id line appears only under a real name.</b> This page shows the id beneath
+          every firm, including the never-started row. In the build, a firm the directory could not
+          name has its id AS its name, so printing it twice would suggest we know more than we do.
+          The row carries a flag saying which of the two it is.</li>
+      </ol>
+    </div>
+
+    <div class="caution">
+      <b>What was built.</b>
+      Backend: <code>GET /api/mentor/adoption</code>, mentor-role gated, plus
+      <code>server/utils/mentorAdoption.js</code> (the maths and the boundary check),
+      <code>server/utils/firmsDirectory.js</code> (the firms read), and three aggregate queries in
+      <code>activityStore</code> that select counts and never a person.
+      Frontend: <code>components/mentor/MentorAdoption.vue</code>, replacing Team Progress at mentor
+      level; Team Case Studies hidden there at the same time.
+      Tests: 43 in three new files, plus four added to the hub-scope guard — including one that fails
+      if the tier-only tab exceptions ever grow beyond the two ruled here.
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

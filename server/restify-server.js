@@ -58,6 +58,7 @@ const restify = require('restify')
 ;(function assertConfig () {
   const { AUTH, DB } = require('../config/integration')
   const { productionStartupViolations } = require('./collaborate/utils/productionGuard')
+  const { loadDevFirmMembership } = require('./utils/devFirmMembership')
   const isProd = process.env.NODE_ENV === 'production'
 
   // The three production blockers — dev-auth left on, a placeholder JWT secret, a
@@ -87,6 +88,19 @@ const restify = require('restify')
     // working screen as a broken one.
     console.error('[startup] WARNING: MYSQL_PASSWORD is placeholder — no MySQL. Stores fall back to their DEV-ONLY JSON files (data/dev-*.json); this is not production persistence.')
   }
+
+  // DEV/TEST ONLY — seed which firm sits under which brand and country, so the two
+  // middle-tier hubs have something below them to show. Inert unless ALLOW_DEV_AUTH
+  // is set AND this is not production; see server/utils/devFirmMembership.js for why
+  // it is gated on exactly the same condition as the dev tokens.
+  //
+  // It ANNOUNCES itself on purpose. A hub quietly full of invented firms reads
+  // identically to a hub full of real ones, and that is how a reviewer signs off a
+  // screen believing they have seen live data.
+  const seeded = loadDevFirmMembership()
+  if (seeded.loaded) {
+    console.error(`[startup] DEV-ONLY: firm membership seeded from data/dev-firm-membership.json — ${seeded.firms} INVENTED firms are mapped to brand/country. The Global Group and Group hubs will show test data, not real firms.`)
+  }
 })()
 
 const healthRoute = require('./routes/health')
@@ -100,7 +114,7 @@ const mentorRoute = require('./routes/mentor')
 const reportRoute = require('./routes/report')
 const currencyRoute = require('./routes/currency')
 const staircaseRoute = require('./routes/staircase')
-const { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole } = require('./middleware/firmAuth')
+const { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 // Collaborate — the people layer and its template catalogue. Merged in from what
 // was a separate application with its own Restify server on this same port; see
 // design/COLLABORATE-MERGE-PLAN.md. Its routes are registered below, under
@@ -344,10 +358,30 @@ server.post('/api/firm-manager/cases/:id/anonymise-preview', ...fmGuard, casesRo
 server.post('/api/firm-manager/cases/:id/share-with-mentor', ...fmGuard, casesRoute.shareCaseWithMentor)
 server.del('/api/firm-manager/cases/:id/share-with-mentor', ...fmGuard, casesRoute.withdrawCaseFromMentor)
 
-// ── Mentor view (cross-firm; mentor role only) ──
+// ── Cross-firm reports (every managing tier above a firm) ──
+// 🔴 THESE THREE MOVED OFF requireMentorRole ON 2026-08-11, and the reason is not a
+// widening. AUTH.mentorRole and AUTH.adminRole are the SAME value ('platform_admin')
+// while Advisor-e issues no mentor role, so a role check cannot tell the mentor from
+// a middle tier holding that value — and the dev sign-ins for the two new hubs hold
+// exactly it. Under the old guard those three reports handed a single group's screen
+// every brand's data. requireManagingTier reads the RESOLVED SCOPE instead, and each
+// handler filters its rows to the firms beneath that scope. Two controls: this one
+// decides who may ask, the filter decides what comes back.
+//
+// A firm manager and an advisor are refused here exactly as before.
+//
 // The one read that crosses the firm boundary — only mentor-approved, anonymised
-// cases, role-gated to the mentor.
-server.get('/api/mentor/cases', firmAuth, requireMentorRole, mentorRoute.listMentorCases)
+// cases, and only those from the caller's own channel.
+server.get('/api/mentor/cases', firmAuth, requireManagingTier, mentorRoute.listMentorCases)
+
+// ── Adoption (mentor) ──
+// The THIRD read that deliberately crosses the firm boundary. Counts only — how
+// many advisers, how many sessions, how recently — enforced at the boundary by
+// mentorAdoption.assertNoPersonalFields, which throws rather than filtering. It
+// REPLACES Team Progress at mentor level rather than widening it: that tab lists a
+// firm's advisers BY NAME, which is a firm manager's view of their own people.
+// Design: design/mockups/mentor-adoption-view.html (ruled by Mike 2026-08-09).
+server.get('/api/mentor/adoption', firmAuth, requireManagingTier, mentorRoute.getAdoption)
 
 // Mentor Advisory Distinctions — the cascade ORIGIN (DISTINCTIONS-CASCADE-PLAN.md §6).
 // The mentor authors the platform set every firm receives as its default; plain CRUD
@@ -357,6 +391,35 @@ server.get('/api/mentor/distinctions', ...mentorGuard, mentorRoute.listMentorDis
 server.post('/api/mentor/distinctions', ...mentorGuard, mentorRoute.createMentorDistinction)
 server.put('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.updateMentorDistinction)
 server.del('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.deleteMentorDistinction)
+
+// ── Template Check (MENTOR ONLY — and it stays that way) ──
+// Every tool a logic table names, checked against the templates the app can open.
+// Read-only scan + the mentor's rulings; applying a ruling to a logic table is a
+// separate, later step (design/MENTOR-HUB-CONSOLIDATED-NOTES.md §6).
+//
+// 🔴 RULED BY THE OWNER 2026-08-11, when the three reports above were opened to the
+// middle tiers and this one was NOT: "template check should only be for the mentor
+// since we use it to improve the overall system. it does not relate to
+// people/advisor performance or group manager selection/access permission to
+// templates." So it keeps requireMentorRole, and the tab was removed from the two
+// middle hubs — TAB_TIERS in components/FirmManagerHub.vue, pinned by
+// tests/unit/hubTabTiers.test.js. It is also the one report with no firm dimension
+// to scope: it scans the shared catalogue, not anybody's data.
+server.get('/api/mentor/template-check', ...mentorGuard, mentorRoute.getTemplateCheck)
+// What "Apply it" leads to: the exact edits the applied rulings add up to, each
+// classified. It RETURNS the patch and never writes it — ruled by Mike 2026-08-09,
+// because a stored override would fence the table in the AI prompt and go stale,
+// and because this same fix has twice been made as a reviewed commit already.
+server.get('/api/mentor/template-check/patch', ...mentorGuard, mentorRoute.getTemplateCheckPatch)
+server.put('/api/mentor/template-check/rulings/:key', ...mentorGuard, mentorRoute.saveTemplateCheckRuling)
+server.del('/api/mentor/template-check/rulings/:key', ...mentorGuard, mentorRoute.deleteTemplateCheckRuling)
+
+// ── Logic Lab Report (mentor) ──
+// The second read that deliberately crosses the firm boundary. Configuration and
+// counts only — no client name, no advisor name, no session text — enforced at the
+// boundary by mentorLogicLabReport.assertNoPersonalFields, which throws rather
+// than filtering. Artefact: design/mockups/mentor-logic-lab-report-mockup.html.
+server.get('/api/mentor/logic-lab-report', firmAuth, requireManagingTier, mentorRoute.getLogicLabReport)
 
 // ── Collaborate: template catalogue + people layer ──
 // Merged in 2026-08-01 from the standalone Collaborate app, which ran its OWN

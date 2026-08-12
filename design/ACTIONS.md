@@ -107,8 +107,13 @@ that the warning is not being followed by default.
   `3fdbf9f`.** The entry below is the original task, kept verbatim for its reasoning. The stale "OPEN"
   flag was caught by `/startup` on 2026-08-03 — a reminder that this list's own flags are claims to
   check, exactly as the warning at the top of the file says.
-  - ☐ **P1 · PROCESS — PR #37 IS OPEN and needs a reviewer and a merge**, raised 2026-08-04 on Mike's
-    instruction: <https://github.com/advisor-e/Virt-Advisor/pull/37>. Four commits — the decision-trace
+  - ✅ **P1 · PROCESS — PR #37 MERGED to `master` as `d1f9c84`** (2026-08-04, same session it was
+    raised, on Mike's instruction — "sort the pull request"). Branch caught up by fast-forward and
+    pushed; **0 ahead / 0 behind**. **No backend restart needed for it.** Entry kept below for its
+    reasoning. ⚠ **This line said "IS OPEN" for twenty minutes after the merge** — the third worked
+    example of a document acquiring a clock the moment it states a PR's status. Raised 2026-08-04 on
+    Mike's
+    instruction: <https://github.com/advisor-e/Virt-Advisor/pull/37>. Five commits — the decision-trace
     panel's text moved into `locales/en.json` so it translates (`f0de590`), the wording artefact and
     Mike's five rulings (`373ef20`, `f25d9c0`), and the "Why" column built from one shared table
     (`fab6c3a`). **State at raising:** 4 ahead, **0 behind** `origin/master`, tree clean, level with
@@ -1544,9 +1549,699 @@ that the warning is not being followed by default.
       **Sales Teams**) should be attached to named branches, which is a judgement about Mike's own
       content and cannot be settled by counting.
 
-- <a id="tree-recommendation-field-dropped"></a>☐ **🔴 P1 · FIX — 55 branches keep their instruction in
-  a field the prompt builder never reads, so it never reaches the AI.** Found 2026-08-04 while checking
-  the empty-`templates[]` branches above.
+- <a id="mentor-hub-built"></a>✅ **BUILD — THE MENTOR HUB EXISTS, 2026-08-09 (laptop).** Record:
+  [`MENTOR-HUB-CONSOLIDATED-NOTES.md`](MENTOR-HUB-CONSOLIDATED-NOTES.md) — ten weeks of scattered
+  notes in one place, written because the Mentor Hub was described in 19 files and defined in none.
+  - **`dacb7f1` — the hub, one level up.** `FirmManagerHub.vue` gains a `scope` prop; `/mentor`
+    renders that component rather than a copy. Mike's ruling of 2026-07-30 — *"all of the
+    functionality that you see at firm manager is simply repeated… there's no new functionality"* —
+    made mechanical. `firmId` turned out to be display-only (no child reads it; every backend call
+    resolves the firm from the token), which is why it was 81 lines and not a second hub.
+    [`mentorHubScope.component.test.js`](../tests/unit/mentorHubScope.component.test.js) pins BOTH
+    directions and the tab ORDER, because one component serving two tiers means a change made for the
+    firm reaches the mentor unasked.
+  - **`b5e3321` — Template Check**, to the mockup approved 2026-08-05. 93 live findings — **88 from
+    2026-08-12**, when a scanner bug that truncated numbered titles was fixed and 9 rows needing no
+    ruling fell away ([§tree-recommendation-field-dropped](#tree-recommendation-field-dropped)). Verb-led
+    sentence reading: a first version took every capitalised phrase and returned **745** rows against
+    the 27 found by hand, and a list nobody can finish is the same as no list.
+  - **`4f29f07` — the Logic Lab Report**, to the mockup approved 2026-08-04.
+  - ⚠ **SHELL ONLY on the shared tabs.** They READ correctly (no override stored → every tier falls
+    back to the platform default, which IS the mentor's content). What they SAVE still lands in
+    firm-shaped storage: `firm_framework_versions` is keyed `(firm_id, config_key)` with no column for
+    a tier above the firm. Advisory Distinctions and the two new mentor stores are the exceptions —
+    they write to the reserved `__platform__` scope. ~~**The cascade wiring is the next job**~~ —
+    **STARTED AND LARGELY DONE 2026-08-09, see [§mentor-save-scope](#mentor-save-scope) below.**
+
+- <a id="mentor-save-scope"></a>✅ **🔴 P1 · FIX — CLOSED 2026-08-09. A mentor's save succeeded into
+  the WRONG PLACE. Phases 1, 3, 4 and 5 built; Phase 2 needed no code under the ruling.**
+  The write path is finished: a mentor's save lands at mentor level, and every content shape whose
+  data model allows it now cascades to firms. **Two Mentor Hub items remain and are NOT this row** —
+  the roll-up tabs and Template Check's "Apply it"; both were always outside this plan (§5).
+  **The plan, the ruling and the findings are in
+  [`MENTOR-SAVE-SCOPE-PLAN.md`](MENTOR-SAVE-SCOPE-PLAN.md) — read it rather than this row.** Linked,
+  not summarised, deliberately: it is the artefact, it carries two in-file corrections, and a
+  paraphrase here would drift from it (the failure the Save-the-Artefact rule exists to stop).
+  - **What was wrong.** A mentor is not refused by `requireManagerRole` (it allows managerRole OR
+    adminRole, and the interim mentor role IS adminRole), so every Mentor Hub save ran, reported
+    success, and landed under whatever firm the token claimed. No firm inherited it. Nothing errored.
+  - **Second defect, found while proving the first — now CLOSED.** `firm_framework_versions.firm_id`
+    is foreign-keyed to `firms.id`, and no `__platform__` row existed anywhere. **Advisory
+    Distinctions authoring and Template Check rulings could never have written to a real database**
+    — both would have failed the day MySQL was provisioned. Invisible until now because there is no
+    MySQL and dev falls back to a JSON file. Commits `d360615` · `fe12167` · `4f424ce`.
+  - 🔴 **RULED 2026-08-09 (Mike): storage = a reserved `firms` row** (not a re-keyed table), and
+    **cascade = DELTA** (a firm holds only the fields it changed; the mentor's later edits keep
+    reaching it). Both recorded in the plan and in
+    [`MENTOR-HUB-CONSOLIDATED-NOTES.md` §7.4](MENTOR-HUB-CONSOLIDATED-NOTES.md).
+  - ✅ **Phase 5 — the Staircase and Quizzes now DO inherit from the mentor.** Built 2026-08-09.
+    They carry their own row model (`resolveInheritedRows`) rather than a merge, so they inherit by
+    having the mentor's resolved content become their base — the same function calling itself one
+    level up, not a second mechanism. Tests: `tests/unit/mentorTierCascade.test.js`.
+    - 🔒 **Mentor-typed quiz content stays FENCED from the AI.** `source` describes a row's
+      relationship to the level below, so a mentor's question is re-tagged `platform` the moment a
+      firm inherits it — reading it alone would have unfenced browser-typed text. A sticky
+      `browserAuthored` flag now carries provenance across tiers, and `isFirmAuthored` was renamed
+      `isBrowserAuthored`. The bar is "not repo data", not "not Advisor-e": a firm's text reaches
+      one firm, a mentor's reaches every firm.
+    - ⚠ **An id collision was found and closed in the same change.** Own-row ids are minted per
+      scope, so the mentor's first added step and a firm's first added step were both `fs-1`
+      (`fq-1` for questions). Harmless until Phase 5 put both in one resolved list, where every
+      decision is keyed to an id — a firm switching off "its own" step would have dropped the
+      mentor's. The mentor now mints under `ms-` / `mq-`. No stored data affected.
+      **It surfaced because three test stubs answered without checking which scope was asking** and
+      so reproduced the collision exactly; the stubs did need scoping, but the duplicate was real.
+  - ⚠ **Templates CANNOT inherit as stored.** It is a bare array, and the overlay rule replaces an
+    array wholesale — a firm holding one item would blank the mentor's whole set *for themselves*.
+    There is no untouched entry to fall through to the layer above. **Giving those entries ids is a
+    data-model change, not a merge change** — no amount of effort makes `deepMerge` express it.
+    Named so it is never re-scoped as "just add it to the list". Measured 2026-08-10: **0 of 291
+    records in `data/templates.json` carry an id.** (The tab is switched off anyway —
+    `v-if="false"` since 2026-07-27, pending Firm-Manager MySQL.)
+  - ⚠ **PREMISE CORRECTED 2026-08-10 — the coaching reference was named here too, and that was
+    WRONG.** It is not a bare array: **all 15 rows in `data/coaching-reference.json` carry stable
+    ids** (`cr-growth-fundamentals-framework`, `cr-eoy-meeting`, …), and `firmStaircase.js`'s own
+    comment cites that `cr-` prefix as the precedent its own ids follow. So "giving it ids is a
+    data-model change" was never true of this block, and the sentence must not be quoted.
+    **Its real blocker is different and smaller:** the coaching reference never joined
+    `resolveInheritedRows` at all — `server/utils/coaching.js` imports neither it nor
+    `platformScope` — and its firm side is **append-only** (`appendFirmCoachingEntry`, minting
+    numeric ids from a manager promoting a case), so there is no decline/override concept to
+    inherit through. A build job, not a data-model job. Not started, deliberately not smuggled
+    into the tier-chain work below.
+
+- <a id="case-origin"></a>✅ **🔴 P1 · BUILD — CASE REVIEWS NAMED NO SOURCE AT ALL. RULED AND BUILT
+  2026-08-11.** The feed carried `firmId` in its payload and **no screen displayed it**, so every
+  manager opened the tab to a stack of anonymous cards and could act on none of them.
+  **The artefact is [`mockups/case-origin.html`](mockups/case-origin.html) — open it rather than
+  reading this row.**
+  - 🔴 **THE PROPOSAL PUT TO MIKE WAS TO REMOVE THE FIRM, AND HE REJECTED IT:** *"if i am the group
+    manager, how do i recognise which data relates to which firm? how can i help them if i dont know
+    who they are??"* [`ADVISOR-E-DESIGN-LOGIC.md`](ADVISOR-E-DESIGN-LOGIC.md) §2 settles it — reports
+    roll up so we can see *"who is failing so we can offer help"*. **Anonymisation here protects the
+    CLIENT, not the firm.** ⚠ §4.4 records the identical confusion being made on 2026-08-10 —
+    applying an outside party's privacy boundary to the customer's own senior people. **Twice now.**
+  - **The answer is a PATH, not a label** — `tierChain.originPathOf`. Element 0 is the level
+    immediately below the viewer (what the screen groups by, rule 7); the rest is the address inside
+    that group (§2). The two rules stop competing instead of one overruling the other.
+  - ✅ **It deepens by itself.** Built on `scopeChain`, so with no membership data the path is
+    exactly `[firm]` and the mentor sees firm names **because the firm genuinely is the level below
+    it today**. The mapping arriving turns the same code into three steps grouped by global group, with no
+    second change. Both halves pinned in [`tests/unit/caseOrigin.test.js`](../tests/unit/caseOrigin.test.js).
+  - **The adviser stays stripped and the client stays anonymised.** Unchanged.
+  - ⚠ **THE ARTEFACT WAS WRITTEN AFTER THE BUILD, NOT BEFORE — a Save-the-Artefact breach, recorded
+    rather than regularised.** The screen was described in chat, approved in chat, and built; no file
+    existed at the moment of approval. That is the exact failure the rule was added for on
+    2026-08-01/02. The mockup says so on its own face, so it cannot later be mistaken for evidence of
+    what was approved.
+  - ☐ **STILL OPEN, and adjacent rather than caused here: one firm, two spellings.** Adoption
+    resolves real firm names through `firmsDirectory`; the **Logic-Lab Report still prints raw ids**
+    ([`server/routes/mentor.js`](../server/routes/mentor.js), `firmName: firmId`, and its own comment
+    admits it). Case Reviews uses the directory so it is not a third spelling — but the same firm
+    still reads two ways on two tabs of one hub.
+  - ⚠ **`LIMIT 500` is applied BEFORE scoping** (pre-existing): a tier's slice comes from the 500
+    most recent platform-wide, not its own 500. Stops mattering when the mapping makes the scope an
+    SQL `IN` clause.
+
+- <a id="tier-hub-pages"></a>✅ **🔴 P1 · BUILD — the GLOBAL GROUP MANAGER HUB and the GROUP MANAGER
+  HUB. DESIGN APPROVED 2026-08-10 · PARTS 1–4 BUILT 2026-08-11 · PART 5 BUILT 2026-08-11 (session 43)
+  — COMPLETE ON OUR SIDE, the remainder is the master team's.** **The artefact
+  is [`mockups/tier-hub-pages.html`](mockups/tier-hub-pages.html) — open it and build from it, not
+  from this row.** Logged the same day it was approved, because an approved-but-unbuilt design is
+  exactly the situation [`approved-mockup-stranded-on-a-branch`](#approved-mockup-stranded-on-a-branch)
+  exists to catch.
+  - ✅ **PART 5 SHIPPED 2026-08-11 in two steps** (`01c8fcf`, `18221c2`). Suite 4,894 → **4,946 green
+    / 289 suites**, lint 0 errors, coverage gates held.
+    - 🔴 **STEP 1 — THE GUARD READ THE ROLE, AND TWO TIERS SHARED ONE ROLE VALUE.** Case Reviews,
+      Adoption and the Logic Lab Report sat behind `requireMentorRole`, a check on the **role
+      string**. But `AUTH.mentorRole` and `AUTH.adminRole` are the **same value**
+      (`platform_admin`), because Advisor-e issues no mentor role and the mentor borrows the admin
+      one — so that guard could not tell a mentor from a middle tier holding it, and the dev
+      sign-ins for the two new hubs hold exactly it. **Opening a Group Manager Hub returned every
+      brand's cases, activity and configuration into one country manager's screen.** Nothing
+      errored and no test failed: every existing test called those handlers **as the mentor**, for
+      whom "everything" is the right answer. The fault lived entirely in the question nobody had
+      asked yet. Dev-reachable only today — and it is the path that goes live.
+      **Two controls now**, in [`firmAuth.js`](../server/middleware/firmAuth.js) and
+      [`tierChain.js`](../server/utils/tierChain.js): `requireManagingTier` decides **who may ask**
+      and reads the **resolved scope**, not the role; `isWithinScope` decides **what comes back**,
+      per row, in each handler. Expressed with `scopeChain`, so the mentor matches every firm (its
+      three reports unchanged) and a middle tier with no membership matches none. `caseStore
+      .listSharedWithMentor()` — the flat `SELECT … WHERE mentor_shared = 1` flagged in session 42
+      — **now takes a scope**.
+    - ✅ **STEP 2 — FIVE BLANK PANELS THAT EACH SAID "NOBODY IS USING IT".** Step 1 made every
+      middle-tier report correctly empty, and empty was the problem: a blank panel in front of a
+      brand's own senior manager **states that their firms are not using the app**, which is false.
+      `tierChain.isAwaitingFirms` answers on the backend and rides each payload as `awaitingFirms`;
+      [`TierNotConnected.vue`](../components/base/TierNotConnected.vue) shows the approved sentence
+      **word for word** from the artefact's §4 table. **The screen is told, it does not infer** — a
+      component asking "am I a middle tier?" would be right today and wrong the moment a mapping
+      arrives, apologising for firms that are connected. It is `is-info`, never an error (nothing
+      failed — an integration step is outstanding), and it **replaces** the misleading empty state
+      rather than sitting above it. It clears itself when one firm is mapped: no code change, no
+      deploy, nobody remembering to take a banner down.
+    - 🔴 **THE TESTS THAT MATTER ARE THE NEGATIVE ONES** — a "not connected yet" banner on a live
+      UAT screen would replace one false statement with another. Pinned in
+      [`tierAwaitingFirms.test.js`](../tests/unit/tierAwaitingFirms.test.js),
+      [`tierReportScope.test.js`](../tests/unit/tierReportScope.test.js),
+      [`tierReportFiltering.test.js`](../tests/unit/tierReportFiltering.test.js) and
+      [`tierNotConnected.component.test.js`](../tests/unit/tierNotConnected.component.test.js):
+      a firm manager still gets the real empty state and is still **refused** these reports; the
+      mentor never sees the banner; a genuine load failure still says it failed; a response with no
+      flag falls back to today's behaviour.
+    - ⚠ **THREE EXISTING TESTS WERE EDITED, and the "whole suite passes unmodified" claim of parts
+      1–4 does NOT hold for part 5.** They called the handlers with `{}` — a request no route can
+      receive, since `firmAuth` refuses a token with no firm claim — so the empty object stood in
+      for "the mentor" by accident rather than by statement. Every expectation is unchanged; only
+      the identity is now supplied, plus one tripwire that quoted the old guard by name. Recorded
+      because a weaker proof stated is worth more than a stronger one implied.
+    - ⚠ **PUG TEMPLATES ARE NOT EXERCISED BY THE SUITE.** Step 2 altered `v-if`/`v-else` chains on
+      two screens **already live in UAT**, so all six changed templates were compiled through
+      `pug` + `vue-template-compiler` by hand. Worth repeating on any future template-shape change:
+      a broken chain passes every unit test and fails at build.
+  - ⛔ **WHAT IS LEFT IS NOT OURS.** The reports already fill themselves from the membership map —
+    `firmsUnderScope` and `isWithinScope` both read it — so the day real data lands, every report
+    populates and every notice clears **with no code change**. But **nothing calls
+    `setFirmMembership`**: the only definition and the only export are in `tierChain.js` itself. It
+    cannot be closed here. Same blocker as the reserved `firms` rows below — the `firms` table has
+    no group or country column, and no JWT carries the two claims. See §5 of the artefact, written
+    so it can be sent to the master team as it stands.
+  - ✅ **PARTS 1–4 SHIPPED 2026-08-11.** Suite 4,845 → **4,894 green / 285 suites**, lint 0 errors,
+    `server/middleware/` held at its required **100%** coverage.
+    - **(2) The tab conditions — done FIRST, as ruled.** `TAB_TIERS` in
+      [`FirmManagerHub.vue`](../components/FirmManagerHub.vue) is now the whole matrix in one place,
+      every tab naming its tiers positively. Nothing in the template reads `scope` directly, so the
+      matrix cannot be contradicted from two places, and a fifth tier one day shows up as a tab
+      that is *missing* rather than one that appears uninvited.
+    - **(1) The two pages** — [`global-group-manager.vue`](../pages/global-group-manager.vue) and
+      [`group-manager.vue`](../pages/group-manager.vue), each rendering the shared hub at its own
+      scope. 13 tabs each, per §2 of the artefact — **12 from 2026-08-11**, when Mike took Template
+      Check off both (see the ruling below).
+    - **(3) Scope resolved once at login.** `mentorStorageScope` became `tierStorageScope` in
+      [`firmAuth.js`](../server/middleware/firmAuth.js) — the same single choke point, now covering
+      four tiers. A manager whose token does not name their group is **refused (403)**, never
+      defaulted: a guessed brand files one customer's content under another's.
+    - **(4) Fail closed.** `AUTH.globalManagerRole` / `AUTH.groupManagerRole` are **empty strings**
+      in [`config/integration.js`](../config/integration.js), and an empty configured role matches
+      nothing. A `platform_admin` token — the most privileged that exists — is refused at both
+      pages, and the screen says *the level is not connected yet* rather than *access restricted*.
+  - 🔴 **THE PROOF THAT THE TWO LIVE HUBS ARE UNTOUCHED, and it is a test rather than a claim.**
+    [`tests/unit/hubTabTiers.test.js`](../tests/unit/hubTabTiers.test.js) pins the firm at **9**
+    tabs and the mentor at **11**, listed by name and read out of the component at `2d38c60` —
+    before the middle tiers existed. The entire pre-existing suite passed **unmodified**, including
+    all 31 `firmAuth` tests. Same safety pattern as the tier-chain seam of session 39: the change is
+    demonstrated behaviour-preserving, not asserted to be.
+    Also added: [`tierStorageScope.test.js`](../tests/unit/tierStorageScope.test.js) (the refusals
+    matter most) and [`tierManagerPages.test.js`](../tests/unit/tierManagerPages.test.js) — the only
+    demonstration these pages work at all, since nobody can sign in to open them.
+  - ⚠ **COVERAGE NEARLY REGRESSED, AND THE FIX IS THE PRECEDENT.** The new branches took
+    `server/middleware/` from 100% to 95.3%, which would have failed the pre-commit gate. It was
+    fixed by **testing the branches, never by lowering the threshold** — the number in
+    `jest.config.js` says *"nothing in this file may regress"* and it meant it.
+  - ~~🔴 **PART 5 IS STILL OPEN, AND THERE IS NOW A LIVE GAP INSIDE IT.** The six report routes are
+    not tier-aware. Open a middle-tier hub today and the report tabs **render empty** — which reads
+    as *"nobody is using it"* — instead of saying the tier is not connected.~~ ✅ **CLOSED
+    2026-08-11 (session 43) — see PART 5 above.** ⚠ **And the description above was itself wrong,
+    which is worth keeping rather than deleting.** Only **two** of the six rendered empty (Team
+    Progress and Team Case Studies, which read firm-scoped routes). The other four sat behind
+    `requireMentorRole` and returned the **mentor's full cross-brand data** to a middle tier — the
+    opposite of empty, and a worse fault than the one recorded here. A handover note describing a
+    symptom is a claim to re-check against the code, not a diagnosis to build from.
+  - ⚠ **THE RESERVED `firms` ROW STILL CANNOT BE CREATED, and it has a live edge now.** The artefact
+    says the build creates it; it cannot, because nobody has supplied the group names. Meanwhile the
+    **dev sign-ins resolve to `__global__:Advisor-e` and `__group__:Advisor-e:DE`, which have no row
+    in `firms`** — so a save at either scope is foreign-key rejected **while the dev fallback reports
+    success**. That is exactly the trap that ran the mentor's own saves broken for weeks. It bites a
+    developer locally, not a customer. Instructions for the master team are already in
+    [`config/db-schema.sql`](../config/db-schema.sql), the control at the point of use.
+  - **Mike, 2026-08-10:** *"as a global group manager, once I log in via the Advisor-e mechanism, I
+    need to see a page that says Global Group Manager Hub and performs accordingly… I need you to
+    create the global group manager hub page, and then the group manager hub pages."* The master
+    team connects the login; **we supply the pages.**
+  - 🔴 **THE GOVERNING PRINCIPLE, and it settles anything the artefact does not say explicitly
+    (Mike, 2026-08-10):** *"Every quality system requires a feedback loop, a way to make sure we can
+    improve. The information and tools cascade down so we share the tools effectively, the reports
+    cascade up so we learn what is working, what isn't, who is failing so we can offer help."*
+    **Down is sharing; up is learning.** A report withheld from a level is a hole in the loop — that
+    level can still be held accountable for what it can no longer see.
+  - 🔴 **NARROWED 2026-08-11 — TEMPLATE CHECK IS MENTOR ONLY. The one named exception to the rule
+    below.** Mike, when the other reports were opened to the middle tiers: *"remove the template
+    check from the group manager and global group manager page. template check should only be for
+    the mentor since we use it to improve the overall system. it does not relate to people/advisor
+    performance or group manager selection/access permission to templates."* It is also the only
+    report with **no firm dimension** — it scans the shared master catalogue, so there is nothing
+    beneath a group for it to show. Its four routes never moved off `requireMentorRole`; the tab
+    came off both middle hubs, which are now **12 tabs, not 13**. Recorded in `TAB_TIERS`, at the
+    route mount, in the artefact's §2 row — and **asserted** in
+    [`hubTabTiers.test.js`](../tests/unit/hubTabTiers.test.js), which states the exception rather
+    than dropping Template Check from the roll-up loop: *an exception deleted from a list looks
+    identical to one never considered.*
+  - ✅ **RULED 2026-08-10 — EVERY REPORT ROLLS UP, no exceptions.** Each level sees the level
+    **immediately below it, summarised**: firm→advisers, group→firms, global→groups,
+    mentor→global groups. Asked directly, answered *"every report"*. This was **already** the rule —
+    [`COLLABORATE-MERGE-PLAN.md`](COLLABORATE-MERGE-PLAN.md) §4.1 (*"Reporting rolls UP — each level
+    sees a summarised view of the level below"*) and §4.3, which names **Team Progress**
+    specifically.
+  - ⚠ **THE TRAP, and it is why the tab list must be ruled explicitly rather than left to the
+    code.** Three tabs are gated on `scope !== 'mentor'` rather than on naming their tiers. The
+    moment a third scope value exists that condition is true for it, so **Team Progress and Team
+    Case Studies would appear at both new tiers on their own** — and **Advisory Distinctions, gated
+    on `scope === 'firm'`, would vanish** from them. **Nothing errors and no test fails**, because
+    no test asserts what a scope that does not yet exist should show. Stating each tab's tiers by
+    name is part of this build, not a follow-up.
+  - **The five parts.** (1) the two thin pages — `/global-group-manager`, `/group-manager`;
+    (2) the tab conditions rewritten to name their tiers; (3) tier + scope resolved at login,
+    mirroring `mentorStorageScope`; (4) fail-closed role config **and the reserved `firms` row per
+    group** — without it a save is FK-refused **while the dev fallback reports success**, the exact
+    trap that ran the mentor's own saves broken for weeks; (5) the six report routes made
+    tier-aware. **Parts 1–4 are provable now. Part 5 cannot show real data** until the master team
+    supplies which firms sit where — and per §4.3 it must **say so on screen**, never show an empty
+    roll-up that looks like real data.
+  - 🔴 **PART 2 HAS ITS EVIDENCE NOW — every tab beside its current gate, in one table:**
+    [`ADVISOR-E-DESIGN-LOGIC.md` §5.1](ADVISOR-E-DESIGN-LOGIC.md#51-the-firm-manager-hub--one-screen-re-scoped).
+    Read out of the component 2026-08-10, and it makes the trap visible without opening the file:
+    **Advisory Distinctions is TWO exclusive tab entries** (`scope === 'firm'` at line 174 and
+    `scope === 'mentor'` at line 441), so a third scope value matches **neither** and the tab
+    disappears — while `scope !== 'mentor'` on Team Progress and Team Case Studies is **true** for
+    it, so those two switch themselves on. Not one condition to fix; a pattern of them.
+  - ⚠ **BLOCKED ON THE MASTER TEAM (theirs, not ours) — the handover list is §5 of the artefact,
+    written so it can be sent as it stands:** two role values in the login token (plus **`mentor`,
+    which was never added either** and still borrows `platform_admin`), and **which group the person
+    manages**. That last is a claim to pass through, **not data for anyone to re-type** — Advisor-e
+    already holds firm as the Advisory `branch` and country as `country-address`
+    ([`roles.js`](../server/collaborate/data/roles.js)).
+  - ❌ **SUPERSEDED — the "Global Groups" membership screen**
+    ([`mockups/global-groups-membership.html`](mockups/global-groups-membership.html), `0bf282f`).
+    Proposed and approved earlier the same day, then **withdrawn by Mike within the hour**: user and
+    firm creation already exist in the master app, so a screen for hand-entering which firms are in
+    which group would have been a second, drifting copy of an org chart Advisor-e owns. **Kept, not
+    deleted**, so nobody rebuilds it later on its say-so. ✅ **Its `APPROVED` banner was never
+    committed, and there is nothing left to clean up.** This row and
+    [`SESSION-2026-08-10-B-NOTES.md`](SESSION-2026-08-10-B-NOTES.md) both said the half-written
+    edit sat in a git stash awaiting a `git stash drop`. **Checked 2026-08-10 (session 41):
+    `git stash list` is empty on this machine.** Corrected rather than deleted, so the dead end is
+    not re-derived from the older notes.
+  - 🔴 **TWO CORRECTIONS OF MINE, RECORDED BECAUSE THE ERROR IS MORE USEFUL THAN THE FIX.** The
+    first draft of the tab matrix — and §3 of
+    [`TIER-CASCADE-MAP.md`](TIER-CASCADE-MAP.md), which said *"people never flow up"* — left Team
+    Progress, Team Case Studies and the three accuracy reports out of both middle tiers. Both
+    reasoned from the 2026-08-09 ruling that kept Team Progress away from the mentor. **That ruling
+    was about an OUTSIDE party — Advisor-e — seeing a customer's staff.** A global group is a
+    **brand** (seeded: Advisor-e, BDO, Lindt & Co), so a global or group manager is the
+    **customer's own senior person** looking at **their own** firms. An external-party privacy
+    boundary applied to internal managers inverts it. **Mike had to ask twice, and the answer was
+    already written down.** Both files are corrected in place.
+
+- <a id="case-share-cascade-wording"></a>✅ **🟠 P2 · WORDING — RULED AND BUILT 2026-08-11
+  (`3d21e89`). Mike chose SET B**, which names the levels: *"your group manager, your global group
+  manager and Advisor-e"*. Nine sentences had told a firm manager they were sharing "with the
+  mentor", and one of them is the sentence read immediately before clicking approve. The candidates,
+  the reasoning and the recommendation are in the artefact — this row **links** it and does not
+  retell it: [`WORDING-CASE-SHARE-CASCADE.md`](WORDING-CASE-SHARE-CASCADE.md) (committed `8b8926d`,
+  2026-08-11; marked ruled + built the same day).
+  - **All nine now live in [`locales/en.json`](../locales/en.json) under `caseShare`**, not
+    hardcoded. They were not merely hardcoded, they were **untranslatable**: this app translates by
+    sending the English message set out at runtime, so a string sitting in a template reached none
+    of the eight languages. These nine now reach all of them.
+  - ⚠ **RAISED AND OVERRULED, ON THE RECORD.** Sentences 8–9 sit on `MentorReview.vue`, which
+    **three** tiers open, so Set B's *"the firms in your group"* is exact for a group manager and
+    loose for the mentor, who sees every firm. Mike was shown that and reaffirmed Set B.
+    [`tests/unit/caseShareWording.test.js`](../tests/unit/caseShareWording.test.js) pins sentence 9
+    **with that reasoning attached** — an apparent inconsistency with no record looks identical to a
+    mistake and gets "fixed" by someone who was not in the conversation.
+  - **The consent sentence has its own assertion** that it still names all three levels, by content
+    and not only by key. A key-returning `$t` proves a string came from the locale file but says
+    nothing about what it says, and here what it says is the whole point.
+  - `mentor_shared` and `/api/mentor/cases` keep their names — the column records that a firm
+    manager approved an upward share, which is still exactly what it means.
+
+- <a id="tier-vocabulary"></a>✅ **🔴 P1 · CORRECTNESS — THE SIX ROLE NAMES ARE NOW EXACT, AND A
+  TEST KEEPS THEM THAT WAY. DONE 2026-08-11 (`4dfc3d2`), on Mike's order.**
+  - 🔴 **His words, and the reason this is a P1 and not tidying:** *"go back through the entire
+    cascade code and change all roles to exactly what the stated role is … and NEVER allow this to
+    shift. this is sloppy work and it's how fuck ups occur."* **He is right on the evidence of the
+    same session:** the shortened global-group value produced an invented job title **twice within
+    an hour**, because it sounded authoritative and nothing in the repo marked it as wrong.
+  - **The vocabulary, and it does not shift:** `mentor` · `global_group_manager` · `group_manager` ·
+    `firm_manager` · `advisor` · `business_entity`. Spoken: mentor · global group manager · group
+    manager · firm manager · advisor · business entity.
+  - **Two renames.** The global-group tier had **dropped the word "group"**. The bottom of the tree
+    had been named after **one person rather than the entity** — Mike: *"a business entity may have
+    more than 1 person/client"*. 38 occurrences across 15 files: the resolver, the cascade seam, the
+    auth guard, the quiz and staircase row prefixes, the Collaborate console, the locale file and
+    seven test files. Display name corrected to "Global Group Manager".
+  - ⚠ **DELIBERATELY NOT RENAMED, and this is the part a future sweep must not "finish":**
+    `loadPrompt('client')` is a **prompt filename** and `mode: 'client'` is a **conversation mode
+    stored in the database**. Neither is a tier. All 21 uses of the string were read before any was
+    touched — a blanket replace would have corrupted stored rows.
+  - 🔴 **THE CONTROL, because "never allow this to shift" is not something a comment can do:**
+    [`tests/unit/tierVocabulary.test.js`](../tests/unit/tierVocabulary.test.js). It pins the six
+    exact strings in order, asserts the two **separate** tier lists in `roles.js` and `tierChain.js`
+    genuinely agree — a claim `tierChain`'s comment had been making for months with **nothing
+    checking it** — and scans every source file for the superseded spellings, failing the build if
+    one returns.
+  - 🔴 **`design/` IS INSIDE THAT SCAN, on purpose.** It is where the vocabulary is *read* from, so
+    a stale name there comes back looking correct. **Six design documents carried the old value,
+    including the governing framework** [`ADVISOR-E-DESIGN-LOGIC.md`](ADVISOR-E-DESIGN-LOGIC.md);
+    all corrected. The code would have been fixed by the next test run — a document nobody tests
+    would have kept teaching the wrong name indefinitely.
+  - **The guard proved itself immediately:** it failed on its first run and caught two hits in
+    comments written minutes earlier **to explain the rename**. Reworded to describe the old names
+    rather than spell them, so the scan needs no exemptions — an exemption is how the name creeps
+    back.
+  - 🔴 **TWO RULINGS FROM MIKE, 2026-08-11, and they govern the whole roll-up — not just this
+    wording.**
+    1. *"every level at once — follows the cascade up"*. One share, no second consent step. A case
+       study donated by a firm reaches every managing level above it.
+    2. *"it needs to stay in their channel — only firms data that are member of that group
+       (country) goes to that group manager. only group managers aligned with the global group
+       manager above report"*. **Strictly own-branch.** A firm's material rises through its own
+       country group to its own brand; it never crosses to another brand or another country.
+  - **Why it was raised.** Building the middle tiers meant switching Case Reviews on at two more
+    levels, and [`caseStore.listSharedWithMentor()`](../server/utils/caseStore.js) is a **flat
+    `SELECT … WHERE mentor_shared = 1` with no scope argument at all** — correct for the mentor, who
+    is meant to see everything, and a cross-brand leak at any tier below. Ruling 2 above is what
+    closes it; the scope argument is part of the part-5 work in
+    [`tier-hub-pages`](#tier-hub-pages).
+  - ⚠ **Team Case Studies and Case Reviews are NOT duplicates**, and a future session should not
+    "tidy" one away. Team Case Studies is the firm looking **down** at its own advisers — named,
+    un-anonymised, full decision trace, and it carries the *Share* action. Case Reviews is what that
+    button produces: anonymised, no adviser, no firm, read-only. **One feeds the other.** The §2
+    matrix also ticks Case Reviews at **firm** level, where as built it adds nothing — a firm
+    manager already sees those cases in full.
+  - ⚠ **The wording changes touch a screen already running in UAT.** Seven of the nine are in the
+    Firm Manager Hub; the other two are in [`MentorReview.vue`](../components/MentorReview.vue),
+    which hardcodes *"Mentor — Case Reviews"* — and that is the component a **group** manager's
+    Case Reviews tab renders. **Mike's instruction 2026-08-11: labels last.** *"as you develop the
+    wiring to serve the functionality the names will become more evident. we do the labels last
+    when we are certain what the button or section performs."* So this waits on part 5, by
+    instruction — it is not parked by neglect.
+
+- <a id="design-logic-framework"></a>✅ **RECORD — THE GUIDING FRAMEWORK, AND THE BOUNDARY IT
+  EXISTS TO HOLD.** Written 2026-08-10 (`75e1e2b`) at Mike's request:
+  [`ADVISOR-E-DESIGN-LOGIC.md`](ADVISOR-E-DESIGN-LOGIC.md). **Read §1 before designing anything.**
+  - 🔴 **§1 — WHAT IS NOT OURS.** Mike, 2026-08-10: *"All of the template cloning, access and
+    editing, hosting and archiving etc. are controlled by the Advisor-e app… NONE of this is
+    visible inside the Virt Advisor app since it doesn't need to be — NONE of the functionality in
+    this app requires those things."* **Advisor-e owns login, accounts, the org chart, roles, and
+    templates + videos end to end** — each template carries its own id there for cloning and
+    archiving, which we never see. **If a feature needs any of those, it is not ours: do not design
+    a screen for it, hold a copy of its data, or mint an id for it.**
+  - ⚠ **THE DOCUMENT WAS WRITTEN TWICE, AND THE FIRST DRAFT IS THE POINT.** It explained the whole
+    platform's logic — most of which Advisor-e implements — and Mike's response was that it *"may
+    now have created more confusion, not less."* He was right, with evidence rather than a worry:
+    **twice in two days work was started here that Advisor-e already owns.** The rewrite leads with
+    the boundary and covers only this app.
+  - ❌ **MISTAKE 2 OF 2, corrected here — `data/templates.json` is NOT a gap.** Its 291 records
+    carrying no `id` was written up as *"the biggest gap in the product"*, on the reasoning that
+    the thing Mike calls the heart of Advisor-e cannot cascade. **Templates are Advisor-e's**, so
+    there is nothing here to fix. The `page`/`link` values on those records are master-app **PAGE**
+    ids — which is why only 267 of 291 are distinct, and why they never could have keyed a
+    template. (Mistake 1 was the withdrawn Global Groups screen, logged under
+    [`tier-hub-pages`](#tier-hub-pages).)
+  - ✅ **A CONTRADICTION REPORTED THE SAME DAY, AND DISSOLVED BY §1.** Mike's *"the advisor has
+    final edit and final selection"* appeared to contradict
+    [`COLLABORATE-MERGE-PLAN.md`](COLLABORATE-MERGE-PLAN.md) §4's *"the adviser is a PASS-THROUGH,
+    not an authoring level… neither gets override storage."* **There was never a conflict** — the
+    advisor edits the **template**, in Advisor-e. This repo needs no advisor override storage, and
+    the 2026-07-30 rule stands unamended.
+  - **What the document covers, once the boundary is drawn:** §2 who the user actually is (*"most
+    often NOT skilled, confident and experienced advisors"* — which is why the tone is help, never
+    score), §3 the five blocks that cascade, §4 the seven reports that roll up, §5 **every feature
+    walked through** — the Hub's 14 tabs, the AI section, the nine report screens, Adviser Network,
+    CPD — §6 scope identity, §7 what is not working and whose it is, §8 ten binding design rules.
+  - ✅ **RULED 2026-08-10 (§9) — the document's only open question, closed the day it was asked.**
+    Mike: *"Yes. Advisor-e has existing 'blank' templates that groups, firms etc. either update /
+    import across the top of, or they take our templates and edit, insert pages etc — that then
+    flow down respectively to levels below them. They ALL stay within the Advisor-e app, and
+    archiving thereafter."* **Three routes in** — fill in a blank, import your own across the top,
+    or edit ours — and all three flow down to the levels below, **entirely inside Advisor-e**.
+    🔴 **Nothing for this repo to build, store or key.** ⚠ Watch the import route: a level can
+    bring in a template we never authored, which is the case most likely to make a future session
+    think we need somewhere to put it. **We do not.** *(The pattern matches this app's own
+    delta-not-clone rule — same shape, separate implementations, do not try to unify them.)*
+    **No open questions remain in that document.**
+
+- <a id="tier-cascade-map"></a>✅ **RECORD — the tier cascade map, one checkable page.** Written
+  2026-08-10 (`d54f95c`), corrected the same day (`efa5c72`).
+  [`TIER-CASCADE-MAP.md`](TIER-CASCADE-MAP.md) answers, per Hub tab: does it cascade down, and does
+  it report up? Read out of the code rather than the plans. Its §3.2 keeps the wrong first version's
+  reasoning; the wrong *sentence* was replaced rather than struck through, because a wrong sentence
+  left on the page gets quoted.
+
+- <a id="tier-chain"></a>✅ **BUILD — the cascade goes all the way down: mentor → global manager →
+  group manager → firm manager. BUILT 2026-08-10** (`fbaafb5`). **The plan, the design and its one
+  deviation are on the artefact — [`MENTOR-TIER-CHAIN-PLAN.md`](MENTOR-TIER-CHAIN-PLAN.md). Read it
+  rather than this row.**
+  - **This was already ruled, not a new direction.** The Collaborate merge entry below carries
+    Mike's ruling that *"the 5-level cascade is built in PROPERLY, now; firm-as-top is not carried
+    forward"*. Mike re-asked for it 2026-08-10 against a Wednesday deadline.
+  - **What changed, and it is smaller than it sounds.** Four call sites each stated the same
+    sentence — *"the level above me is the platform scope"* — and that sentence, repeated, IS what
+    made the cascade exactly two levels deep. New `server/utils/tierChain.js` replaces it with a
+    question (`parentScopeOf` / `scopeChain`). `resolveInheritedRows` needed no change at all: it
+    was written to be widened and says so in its own header.
+  - 🔴 **THE SAFETY PROPERTY, and it is a test run rather than a claim.** With no membership data —
+    today — `parentScopeOf` returns exactly what the four sites hardcoded, so the fold stays two
+    levels deep and **the entire pre-existing suite passes UNMODIFIED**. Suite 4,828 → **4,845 /
+    282 suites**, lint 0 errors. It fails toward today's behaviour, never toward a guess: a firm
+    whose group is unknown inherits the mentor's content, which is what it does now.
+  - **ONE DEVIATION from the plan's §3.4, named rather than left to be noticed.** The overlay folds
+    **bottom-up**, not top-down. `cascadingConfig.test.js` pins the read order and it is right — the
+    query log reads as *"did it ask the reserved mentor scope, or go rummaging in another firm?"*,
+    and folding top-down gives an identical answer while quietly reversing that log. The code
+    changed; **no existing test did.**
+  - ⚠ **The id collision, one tier wider.** Own-row ids mint per scope, so two tiers sharing a
+    prefix put two different rows under one identity — the Phase 5 defect ([above](#mentor-save-scope)),
+    where a firm switching off "its own" step would have dropped the mentor's. Three new tiers means
+    three new prefixes (`xs-`/`gs-`, `xq-`/`gq-`), and a test fails if anyone reuses a letter. `x`
+    for global because `g` reads as group, and those two tiers are **adjacent**.
+  - 🔴 **☐ BLOCKED ON THE MASTER TEAM — TWO THINGS, and neither is ours to build.** The machinery is
+    finished and holds nothing until both arrive:
+    1. **The role values.** `server/collaborate/data/roles.js` `tierFromRoleClaim` maps only
+       `platform_admin` → mentor and `firm_manager` → firm_manager. **No role value produces
+       `global_group_manager` or `group_manager`**, the override table is an in-memory object that empties
+       on restart, and the file says outright it is *"NOT a substitute for the real Advisory JWT role
+       the master team still wires"*. Advisor-e's login issues roles; we do not. (Same gap as the
+       mentor role, still borrowing `platform_admin`.)
+    2. **Firm→group→global membership.** The `firms` table has seven columns and **no country, no
+       group, no parent**, so "which firms are in the Germany group?" has no answer in our data.
+    ⚠ **NOT the `group` table** in `db-schema.sql` — that is a Special Interest Group
+    (`group_member` / `marketplace_listing`), a social group in Collaborate. Reading it as a
+    management tier would be a correctness bug.
+    **The control is at the point of use, not in this row:** the joining instructions are written
+    into `config/db-schema.sql` beside the `__platform__` insert they already have to run —
+    including that a missing tier row is rejected by the foreign key **while the dev fallback
+    reports success anyway**, which is exactly how the mentor's own saves ran broken for weeks.
+  - ⚠ **HONEST LIMIT.** None of this can be demonstrated by logging in as a group manager, because
+    no such login exists. It is evidenced by tests against a seeded membership map — weaker than a
+    live screen, and written down as such on the artefact §5. **Same shape as the firms-table read
+    of 2026-08-09**; when MySQL and the real roles arrive, this is the second thing to check.
+
+- <a id="mentor-adoption-view"></a>✅ **BUILD — "How firms are using the app": the mentor tab that
+  replaces Team Progress. DONE 2026-08-09.**
+  **The design, the four rulings and every build deviation are on the artefact —
+  [`mentor-adoption-view.html`](mockups/mentor-adoption-view.html). Read it rather than this row.**
+  - **What was wrong.** Team Progress and Team Case Studies rendered EMPTY at `/mentor` after the
+    Phase 3 scope fix. The obvious repair was to roll them up one level. That was the wrong repair
+    and would have been a privacy regression in both cases:
+    - Team Progress lists a firm's advisers **by name**. Widening it puts every firm's people in
+      front of Advisor-e — against the boundary `mentorLogicLabReport.assertNoPersonalFields`
+      already enforces in code.
+    - Team Case Studies has a correct cross-firm version **already sitting beside it** (the Case
+      Reviews tab), which shows only cases a firm manager has anonymised and explicitly approved.
+      Rolling the firm tab up would have walked straight past that consent gate.
+  - 🔴 **RULED 2026-08-09 (Mike), all four recorded on the artefact §3:** read the firms list
+    (so firms that have never started appear, with real names); **keep** Avg quiz; quiet after
+    **60 days**; **warmer, advisory** wording, full set tabled on the artefact.
+  - **Both firm tabs are now hidden at mentor level, not widened**, and a test fails if the
+    tier-only exceptions ever grow beyond those two — the Hub is one component serving two tiers,
+    so "same screen re-scoped" erodes a tab at a time if nothing counts them.
+  - ⚠ **This is the FIRST backend read of the `firms` table anywhere in the repo**
+    ([`firmsDirectory.js`](../server/utils/firmsDirectory.js)), and it is deliberately a single choke
+    point — a test walks `server/` and fails if a second query appears, because a second query is a
+    second place to forget the reserved `__platform__` exclusion.
+  - ⚠ **NOT PROVEN AGAINST REAL DATA.** There is no MySQL here, so the firms read is evidenced by
+    tests and a dev fallback — a weaker claim, and written down as one on the artefact §5. This is
+    the same shape as the defect found on 2026-08-09 where a dev fallback absorbed a foreign-key
+    failure silently for two finished features.
+
+- <a id="logic-lab-report-firm-names"></a>☐ **P3 · TIDY — the Logic Lab Report shows firm CODES where
+  it could now show names.** Found 2026-08-09 while building the adoption view; deliberately not fixed
+  in the same change.
+  - Its rows read `firm-pf-019` rather than "Pentland Fiscal". That was correct when the screen was
+    built — no firm-name source was reachable from the backend, and the code says so in a comment,
+    which was the honest choice at the time.
+  - **[`firmsDirectory.js`](../server/utils/firmsDirectory.js) now exists**, so the option is real. The
+    stale comment has been corrected in place rather than left to become a lie, and it names this as a
+    deliberate limit rather than an oversight.
+  - **Not done because it was not asked for.** The adoption view was the job; widening it to a second
+    screen would have been scope Mike did not approve. Logged here so the choice is visible rather
+    than forgotten — it is a small change whenever it is wanted.
+
+- <a id="template-check-apply-it"></a>✅ **BUILD — Template Check's "Apply it". DONE 2026-08-09.**
+  **The ruling and the approved wording are on the artefact —
+  [`logic-table-template-check.html`](mockups/logic-table-template-check.html) §5. Read it, not this.**
+  - 🔴 **RULED (Mike): it PREPARES a reviewed change; it never edits a logic table.** A live button
+    was the obvious alternative and was rejected for three reasons: this exact fix is already made by
+    reviewed commit (`bd7dc63`, `3064a71`); a stored override marks the table human-edited, which
+    makes the AI prompt fence its text **for every firm, one table at a time, invisibly**; and a
+    stored override freezes a copy, so a later improvement to the committed table could never reach
+    anyone whose rulings had been applied.
+  - **Every prepared change is classified and nothing awkward is dropped** — *ready*, or *needs
+    checking* (the name appears twice, or in two of the three sentence fields, or the branch has
+    changed, or the ruled template is no longer in the catalogue under that title). A patch that
+    silently omitted the hard rows would read as a finished job.
+  - **Two decisions correctly produce NO edit and are counted rather than lost:** "Not a tool" (the
+    phrase was never a document) and "Missing — flag it" (only the master-app team can close it).
+  - ⚠ **NOTHING HAS BEEN RULED YET, so the first list is empty.** This is the machinery; working
+    through the **88** rows on the Template Check screen is what fills it (93 until 2026-08-12 — see
+    [§tree-recommendation-field-dropped](#tree-recommendation-field-dropped)). **That is Mike's next
+    move on this feature, not a developer's** — and since 2026-08-12 it is also what releases the 14
+    branches whose instruction the prompt still withholds.
+
+- <a id="approved-mockup-stranded-on-a-branch"></a>☐ **🔴 P1 · PROCESS — AN APPROVED DESIGN SAT
+  UNMERGED FOR FIVE DAYS AND A SCREEN WAS BUILT WITHOUT IT.** Found 2026-08-09, the hard way.
+  - **What happened.** `mentor-logic-lab-report-mockup.html` + `MENTOR-AI-HUB-STUB.md` were committed
+    2026-08-04 as `6f44872` on `feat/firm-quiz-builder-ui` and never reached `master`. On 2026-08-09
+    the laptop built the Mentor Hub from the notes it could see — and a search of a branch cannot find
+    a file that has never been on it. **Mike asked three times where the mocked-up page was** before
+    it was traced. Brought across as PR #40, then `master` merged in.
+  - **The warning WAS given and was not acted on.** That morning's `/startup` printed *"Other branches
+    hold work that is NOT in master: feat/firm-quiz-builder-ui — 1 ahead… if you are about to touch
+    the same screens, merge or ask first."* It was reported to Mike verbatim and then ignored for the
+    rest of the session. **So the detector is not the gap — the response is.** Adding another warning
+    would fix nothing.
+  - **What would actually have caught it:** opening the branch's diff, not just counting its commits.
+    One commit named *"APPROVED Logic Lab Report mockup"* in its subject line.
+  - ☐ **Proposal for Mike, not yet done:** `/startup` lists the SUBJECT LINE of every unmerged commit
+    on another branch, not just the count — and the session may not start build work on a screen
+    until any commit mentioning "mockup", "approved" or "design" has been read. Cheap, and it turns a
+    number nobody acts on into a sentence that names the thing.
+  - **Same family as [`request-compressed-to-one-line`](#request-compressed-to-one-line) and the
+    Logic-Lab artefact loss:** every gate compared the work to a written note, and nothing compared it
+    to the artefact — this time because the artefact was on a machine the builder could not see.
+
+- <a id="gate-blind-to-flat-trees"></a>✅ **🔴 P1 · CORRECTNESS — CLOSED 2026-08-09 (`b5e3321`). The
+  scan now reads all 42 tables, in both shapes.** [`templateCheck.js`](../server/utils/templateCheck.js)'s
+  `rulesOf()` asks a tree for `nodes` OR `branches` and never assumes the first, and
+  [`templateCheck.test.js`](../tests/unit/templateCheck.test.js) asserts **42 = 37 + 5** plus the
+  specific flat-table names at stake (`Get.1a.Sales Tracker`, `Get. TCM.Quiz Link Email`), so the gap
+  cannot silently reopen and a failure will say what moved.
+  - ⚠ **The runtime GATE still watches 37** — this closes the *blindness* (the names are now listed,
+    on screen, for Mike to rule on), not the withholding. That was deliberate and remains so: until a
+    name is ruled, withholding it would delete real instructions, which is the 2026-08-04 error. The
+    gate widens only after the rulings are applied.
+  - **The misleading test was NOT edited.** `templateAvailabilityGate.test.js` still walks `nodes`,
+    and its claim is true of what it walks. The correction is a second test that walks everything,
+    rather than a rewrite that would erase the evidence of how the blind spot happened.
+  - *Original entry follows for the record:* ☐ **the template availability gate watches
+  37 of the 42 logic tables, and its test is blind to exactly the same five.** Found 2026-08-05
+  (session B) while designing the Template Check screen. **Not a regression — nothing is being wrongly
+  withheld; the safety net simply does not cover these tables and never did.**
+  - **Proof, not inference.** Logic tables come in two shapes: 37 keep their rules in `nodes`, 5 in
+    `branches` (`get_sales_tracker`, `get_marketing`, `get_team_problem` + 2). The gate is called only
+    inside [`formatNodeForPrompt`](../server/utils/logicTrees.js#L395); flat tables are rendered by
+    `formatFlatBranch` ([L482](../server/utils/logicTrees.js#L482)), which never calls
+    `splitByAvailability`. Ran the real builder on `get_sales_tracker`: **`Get.1a.Sales Tracker` is
+    absent from the catalogue and still appears in the finished prompt.**
+  - **The test has the identical blind spot.** [`templateAvailabilityGate.test.js`
+    L91](../tests/unit/templateAvailabilityGate.test.js#L91) walks `tree.nodes` only, so its
+    "withholds NOTHING" assertion can never see the five flat tables. It is true of the 37 and was
+    never evidence about the rest. The 2026-08-05 session note's "0 withheld / changes nothing today"
+    inherits that limit.
+  - **11 names in those 5 tables match no catalogue title and reach the AI today:** `Get.1a.Sales
+    Tracker` · `Get. TCM.Quiz Link Email` · `Get. Invitation Email` · `Get. Bankers Login Email` ·
+    `Get. Paper Tower Task Sheet` · `Get. Paper Tower Model` · `Get. Spaghetti Tower Task Sheet` ·
+    `Get. Paper Tower Review Questions` · `Get. Team Problem Solving` · `90 Day Accounting Best
+    Practice Plan` · `Growth Fundamentals Framework`. They read like master-app **file** names rather
+    than template titles — a different failure family from the prose-name one.
+  - **A 12th, `Get. Seminar Feedback Form`, sits in `public_speaking.flat_branches`** — a key no code
+    reads (grepped). Dead data; it reaches nothing. Worth deleting, but harmless.
+  - **DELIBERATELY NOT FIXED BY EXTENDING THE GATE.** If those names are real assets under another
+    title, withholding them deletes real instructions — precisely the error of 2026-08-04, when 27
+    names were called ghosts and the premise turned out to be wrong. Mike sees the list first, renames,
+    and only then is withholding safe.
+  - ✅ **This is a control, not a to-do.** Its fix is **Phase 1 of the approved Template Check build**
+    (design: [`mockups/logic-table-template-check.html`](mockups/logic-table-template-check.html),
+    committed `9ba2b4c`, approved by Mike 2026-08-05): the scanner covers **both** tree shapes, and the
+    misleading test is corrected in the same phase so its green tick stops overstating its reach.
+    Phase 1 was proposed and is awaiting Mike's go-ahead — **not yet started.**
+
+- <a id="export-gap-six-tools"></a>☐ **🔴 P1 · CONTENT GAP (MASTER-TEAM) — six real tools are in neither
+  template file, so the app cannot serve them.** Found 2026-08-05; **Mike confirmed the same day that all
+  six exist as real documents.** ⚠ **Now SEVEN** — Mike ruled *Enneagram Employment Questions* a real
+  document on 2026-08-05 (session B); see [the review doc](TREE-RECOMMENDATION-REVIEW.md) §3.
+  - **Missing from BOTH `search_content` (280) and `data/templates.json` (291):** Offshoring Review ·
+    Team AI (Familiarity) Tasks · Software Assessment Criteria · Client Service Stds · Global Actions
+    Report · Boardroom Manipulation Tactics.
+  - **Five of the six are in ONE tree.** `Org. CA Firm Strategy logic.pdf` names six tools and only two
+    (*6 Hats*, *Growth Curve Checklist*) reach the export — that looks like one body of material that was
+    never exported, not five separate naming slips.
+  - **We cannot close this from here.** The export is generated by the master app and is never edited in
+    this repo (CLAUDE.md hard rule). It needs raising with the master-app team.
+  - **What happens when a new export lands** (checked in code, 2026-08-05): `Central Frameworks/` is
+    auto-discovered by newest timestamp — [`masterExport.js`](../server/utils/masterExport.js) deliberately
+    refuses to hardcode a filename. But **two things are NOT automatic**: `data/templates.json` (the
+    tracked mirror the running app reads) must be refreshed, and
+    [`advisoryTemplates.js` L30](../server/collaborate/data/advisoryTemplates.js#L30) hardcodes
+    `search_content_20260625201604.json` for the Collaborate picker and must be re-pointed. Both are
+    cached in memory, so the backend must be restarted.
+  - **Until then the names are safe to declare** — the availability gate holds them back from the AI. Once
+    the export carries them, they flow with no edit to any tree.
+
+- <a id="two-template-files-disagree"></a>☐ **P2 · DATA — the two template files disagree by 18 titles.**
+  Found 2026-08-05.
+  - `data/templates.json` (291 records) is described in
+    [`masterExport.js`](../server/utils/masterExport.js#L12) as a **"1:1 mirror"** of the export. It is not:
+    **18 titles are in the mirror but not in `search_content`** — *Growth Curve · Lite Planning · Lite Data ·
+    Lite Sales · Lite People · Lite Process · Revealing the Growth Curve Freehand · 7 Cash Drivers · The 9
+    Growth Stages · Lite Fundamentals Components · Growth Fundamentals Framework Philosophy · Working With
+    Revenue Models · Revenue Model Support · Due Diligence Support · Systems B4 Scale · Coping With
+    Adversity · Speak Easy · Mapping the Marketing & Sales Process*.
+  - **This answers the question left open on 2026-08-04** about `templates.json` (291) and the search JSON
+    (280) disagreeing over "Growth Curve", and covers 6 of the "unverified" names logged that day
+    (*Lite Sales, Lite Data, Lite Planning, Lite People, Lite Process, Growth Curve*) — they are real in the
+    mirror, absent from the export.
+  - Also note `search_content` has **280 records but 274 unique titles** — six titles appear twice
+    (*Partner Accountability*, *Formal Risk Management*, *Capacity, Capability, Opportunity* among them),
+    which is why a resolver that wants one page ID returns "ambiguous" for them. That is master data and is
+    left exactly as-is.
+  - **Which one is authoritative for what** needs stating plainly somewhere: the app reads the mirror, the
+    ghost check reads the export, and they do not agree. Until that is settled, "does this template exist"
+    has two different answers.
+
+- <a id="tree-recommendation-field-dropped"></a>✅ **🔴 P1 · FIX — FIXED 2026-08-12 (`fdb15ca`, laptop).
+  55 branches kept their instruction in a field the prompt builder never read, so it reached the AI
+  nowhere.** Found 2026-08-04 while checking the empty-`templates[]` branches above.
+  - **How it was closed, and why this was not simply "emit the field".** `formatNodeForPrompt` now
+    emits `recommendation` **sentence by sentence**, and any sentence naming a tool the catalogue
+    cannot serve is held back. That is Mike's ruling of 2026-08-04 implemented rather than restated:
+    hold back the template recommendation, keep the coaching. The sequencing problem recorded below —
+    "do NOT fix this in isolation" — is therefore **dissolved, not waited out**: the unresolved names
+    are gated at the point of use, so the fix no longer had to queue behind 88 content rulings.
+  - **Today's result: 27 of the 55 branches deliver whole, 14 in part, 14 are withheld entirely** —
+    6,707 characters of instruction that reached nobody before. The 14 are waiting on a name being
+    settled on the Template Check screen and applied to the tables; **they need no further code**.
+  - 🔴 **THE SCANNER TRUNCATED EVERY NUMBERED TITLE, and that had to be fixed first.** The catalogue
+    really publishes **Business Purchase Assessment 1**, **Purchase Assessment Model 2**, **Purchase
+    Assessment Report 3** and **Business Sale Assessment 1**, and the trees name all four correctly.
+    The pattern required every word after the first to begin with a capital LETTER, so it stopped at
+    the digit and reported a name that exists nowhere. **That put 9 rows on the Template Check screen
+    that needed no ruling, and it would have made this gate withhold 8 perfectly correct sentences.**
+    The queue drops from 93 rows to **88**.
+  - **The scanner moved to [`toolNameScan.js`](../server/utils/toolNameScan.js)** so the screen and the
+    runtime gate share one function. Two copies would eventually disagree and nothing would say so —
+    the same discipline `isTemplateName` already applies to the template lists.
+  - ⚠ **NOT DONE, AND NAMED RATHER THAN BURIED: `action` and `notes` already carried unresolved names
+    before this change (21 and 19) and still do.** They have reached the AI for a year. Extending the
+    gate to them would strip coaching that is working, and the detector is a heuristic that also raises
+    "Santa Claus" and "Dream Home" — it would delete good sentences. **A separate decision for Mike, not
+    a side effect of this one.**
+  - 🔴 **THE GUARD IS THE POINT, not this instance.**
+    [`tests/unit/recommendationGate.test.js`](../tests/unit/recommendationGate.test.js) (15 tests) fails
+    the build if the tree data grows a field the prompt builder does not read. See
+    [§advisor-note-dropped](#advisor-note-dropped) — it caught a second one the day it was written.
   - **Proof.** [`formatNodeForPrompt`](../server/utils/logicTrees.js#L299) emits `condition`,
     `gate_question`, `action`, `question`, `sales_process`, `templates`, `templates_if_unsure`,
     `support_templates`, `notes` and `branches`. It does **not** emit `recommendation`. Nothing else in
@@ -1559,11 +2254,291 @@ that the warning is not being followed by default.
     gets the background and loses the instruction. Nothing errors, nothing is blank.
   - Example (`gs_audience_negativity`): the AI receives the condition and "Call out the ghosts early…",
     but never *"Use Get Seminar template. Address known objections at the opening of the session."*
-  - **⚠ Do NOT fix this in isolation** — see the ruling below. Today the drop is the only thing keeping
-    12 non-existent template names out of the prompt.
+  - ~~**⚠ Do NOT fix this in isolation** — see the ruling below. Today the drop is the only thing keeping
+    12 non-existent template names out of the prompt.~~ **SUPERSEDED 2026-08-12** — true while the only
+    options were "emit everything" or "emit nothing". Gating at the sentence made it a false choice.
+    ⚠ Its "12 non-existent template names" is also the premise corrected on 2026-08-05 and must not be
+    quoted: they are real tools under working names, not inventions.
+  - ◐ **2026-08-05 — the SAFETY NET IS BUILT; the field is still not emitted.** The availability gate
+    (`isTemplateName` / `splitByAvailability` in [`logicTrees.js`](../server/utils/logicTrees.js)) now
+    filters every template list before it reaches the prompt, so a declared-but-unavailable name is held
+    back instead of recommended. **Nothing is withheld today** — 291 names emitted, 18 prose placeholders
+    passed through, 0 withheld — pinned by
+    [`templateAvailabilityGate.test.js`](../tests/unit/templateAvailabilityGate.test.js) (10 tests).
+    That test is the announcement mechanism: the day a tree declares a name the catalogue cannot serve,
+    it fails and names it. ~~Remaining, in order: the 6 names into `templates[]` · reword the ghost check
+    to "declared, not yet available" · then emit `recommendation`.~~ **That order was overtaken on
+    2026-08-12:** `recommendation` is emitted now, gated the same way, so it no longer had to be last.
+    The ghost check's wording is still worth doing and is the only item of the three left.
+  - ⚠ **The Get Seminar tree is a genuine exception and should be handled separately.**
+    `Logic Tables/Get Seminar Logic.pdf` has **no template column and never says "template"**; its 7
+    `recommendation` lines were written by the app layer from the PDF's own *filename*. The real
+    instruction (the PDF's THEN column) is already in `notes` and already reaches the AI. Already
+    recorded in [`TREE-PDF-FIDELITY-SWEEP-2026-06-23.md`](TREE-PDF-FIDELITY-SWEEP-2026-06-23.md) as
+    "app-layer (not in PDF) but benign" — benign only because nothing read the field.
+    - 🔴 **CORRECTED 2026-08-12 — "deleting those 7 costs nothing" was the wrong conclusion and is
+      struck.** Mike: *"we discussed get seminar as being across public speaking… isn't this why the
+      logic tables became editable, so I can modify in the app at mentor level and correct things like
+      this?"* Both halves check out. He placed that material in **Public Speaking** in June
+      ([`SESSION-2026-06-20-IP-DEPTH-AUDIT-NOTES.md`](SESSION-2026-06-20-IP-DEPTH-AUDIT-NOTES.md): the
+      get_seminar methods *"live in the sibling `powerful-seminars.json` (the live `public_speaking`
+      learn tree)"*), and [`MENTOR-SAVE-SCOPE-PLAN.md`](MENTOR-SAVE-SCOPE-PLAN.md) says a mentor's
+      Logic Tables edits are inherited by every firm. **These 7 lines are his to reword, not a
+      developer's to delete.** The reason he could not was `#logic-table-editor-blind-to-recommendation`
+      below — now closed.
 
-- <a id="tree-prose-names-ghost-templates"></a>☐ **🔴 P1 · CONTENT+FIX — 12 template names in tree prose
-  do not exist, and the ghost check cannot see them.** Found 2026-08-04.
+- <a id="name-matcher-punctuation-blind"></a>✅ **🔴 P1 · FIX — CLOSED 2026-08-12 (laptop). THE NAME
+  MATCHER WAS BLIND TO PUNCTUATION AND SPACING, AND IT HAD INVENTED WORK THREE TIMES.** Found
+  2026-08-12, fixed the same day. **Real, published documents were reported to Mike as "Nothing
+  matches".** The entry below is kept verbatim — the fix and what it moved follow it.
+  - **The mechanism.** [`normalise`](../server/utils/toolNameScan.js) replaces every non-alphanumeric
+    character with a **space**, so a possessive splits the word in two:
+
+    | Written in the table | Normalises to | Published title | Normalises to | Match |
+    |---|---|---|---|---|
+    | `Porter's & Pine` | `porter s pine` | **Porters & Pine** | `porters pine` | ❌ |
+    | `Quickfire Diagnosis Template` | `quickfire diagnosis template` | **Quick Fire Diagnosis** | `quick fire diagnosis` | ❌ (scores 0.4 against a 0.6 bar) |
+
+  - **Three instances of one fault, and each cost Mike real time.** The **digit** (5 August —
+    *"Business Purchase Assessment 1"* truncated to a title that exists nowhere, putting **9 rows** on
+    his queue that needed no ruling and nearly withholding 8 correct sentences); the **apostrophe**;
+    the **space**. Two were found only because someone went looking by hand.
+  - ⚠ **The same function decides what the RUNTIME GATE withholds from prompts.** Checked
+    2026-08-12: today's affected names sit in `action` and `notes`, which are not gated, so **nothing
+    is being wrongly withheld right now.** It is a trap, not a live fault — but a punctuated name
+    landing in a `recommendation` would be silently withheld even though the tool exists.
+  - ~~**Proposed fix:** strip apostrophes rather than space them, and score a space-insensitive
+    comparison. **Not taken — needs its own change and its own tests.**~~ **TAKEN 2026-08-12**, in
+    three parts, all measured against the real 291-record catalogue before anything was edited:
+    1. [`normalise`](../server/utils/toolNameScan.js) **deletes** an apostrophe instead of spacing
+       it. Three catalogue keys move; **no two distinct titles are merged that were not already**.
+    2. [`findCandidate`](../server/utils/templateCheck.js) gains a **last-resort** comparison that
+       ignores where the spaces fall. It runs only after the whole catalogue has failed, so it can
+       never outrank or alter an existing suggestion — it can only turn "Nothing matches" into
+       something to look at, scored **at** the bar and never above it.
+    3. **`legacyFindingKey` — the part that was nearly missed, and the reason this needed its own
+       change.** A ruling is filed under the normalised name, so the fix on its own **silently
+       detached three of Mike's 59 rulings** (`porter s pine`, `de bono s 6 hats`,
+       `deming s theory of volatility`) and would have put three questions he answered on 12 August
+       back on his queue as unanswered — **the same fault, arriving by the back door.** The lookup
+       now falls back to the old spelling. Read-only: nothing is ever written under the legacy key,
+       so his stored file is untouched and the change is reversible.
+  - **What it moved.** Queue **88 → 87** (`Porter's & Pine` is now recognised as the published
+    **Porters & Pine** and is not a row at all); "Nothing matches" **13 → 12**
+    (`Quickfire Diagnosis Template` now offers **Quick Fire Diagnosis**); rulings still attached
+    **30 → 30**.
+  - ✅ **THE SAFETY CLAIM, MEASURED BOTH BEFORE AND AFTER: the runtime gate is character-for-character
+    identical.** All 55 gated recommendations, 14 withheld whole and 14 in part, before and after —
+    **zero difference**. Pinned by a test that re-runs the gate under the OLD normaliser and asserts
+    the outputs are equal, so a future change that makes this stricter fails rather than quietly
+    mutes advice.
+  - **Tests:** `tests/unit/toolNamePunctuation.test.js`, 16 of them. **Four assert that no harm was
+    done** rather than that the feature works — no titles merged, no extra text withheld, a nonsense
+    name still returns "Nothing matches" and never a guess, and that without the fallback the three
+    rulings really would have vanished. Suite 297 suites / 5,058 green, lint 0 errors.
+  - **The rule this suggests, and it still stands:** when a name "does not exist", check the
+    catalogue by hand before telling Mike. Three for three — and all three were found by a human
+    looking, not by a gate.
+  - ⚠ **A FOURTH instance was found the same day and is deliberately NOT logged as a to-do here.**
+    `Covid Agenda Programme` misses the published **Covid Agendas** on a plural `s` — one word in
+    three against a bar of six in ten. It is written up in front of Mike in
+    [`TEMPLATE-CHECK-THE-LAST-12.md`](TEMPLATE-CHECK-THE-LAST-12.md) §1 instead, because **a to-do
+    is how it quietly never happens** and singular/plural matching is a change to the same live
+    function that needs its own proof and its own tests, exactly as the apostrophe did. Recorded
+    here so the count is not lost: **four instances, one fault.**
+
+- <a id="get-seminar-silent-in-the-app"></a>☐ **🔴 P1 · CONTENT — GET SEMINAR IS NEAR-SILENT IN THE
+  RUNNING APP, AND THE RECORD HAS BEEN CALLING IT A WORDING TIDY-UP.** Measured 2026-08-12 against
+  the live trees: of the 7 branches whose recommendation names *"Get Seminar template"*,
+  **1 is withheld entirely, 6 are withheld in part, and 0 reach the adviser intact.**
+  - **Why it changed without anyone changing it.** `recommendation` has been gated sentence-by-sentence
+    against the catalogue since `fdb15ca`. Before that the field never reached the prompt at all, so
+    the seven lines were invisible either way and the earlier entries — written before the gate — had
+    no reason to say so. **The gate is behaving correctly**: no record in the 291 has "Seminar",
+    "Speaking" or "Presenting" anywhere in its title, and it will not name a tool nobody can open.
+  - 🔴 **Still Mike's to reword, not a developer's to rule on** — see
+    [§Section C](TEMPLATE-CHECK-ALREADY-ANSWERED.md) and the correction above. What is new is the
+    **cost of leaving it**: this is not tidying, it is a table of coaching advisers are not receiving.
+  - **Where:** Mentor Hub → Logic Tables tab → Get Seminar, reworded toward Public Speaking.
+
+- <a id="template-check-table-context"></a>✅ **P1 · BUILD — BUILT 2026-08-12 (laptop). Every Template
+  Check row now opens out onto the evidence it is judged from: the sentence with the name marked, the
+  branch among its neighbours, and every candidate document with what it says about itself.**
+  [`components/mentor/TemplateCheckEvidence.vue`](../components/mentor/TemplateCheckEvidence.vue),
+  opened from the existing list — the columns, filters, verdicts and buttons are untouched from
+  5 August, and the Logic Tables page was not opened at all, which was the point of doing it this way
+  round. 30 tests (20 backend, 10 component).
+  - 🔴 **The deviations from the approved artefacts, named as the rule requires.** Nothing here is a
+    wording change; all seven approved labels are used exactly, through `locales/en.json`.
+    1. **How a row opens.** The artefact draws a row already open, as a card. The build keeps the
+       approved table and opens the evidence underneath the row on the standard chevron. No new word is
+       introduced by it.
+    2. **The buttons stay in their column.** The artefact repeats the four action buttons at the foot of
+       the opened card; they remain in "What you can do", where 5 August put them, so a row can still be
+       answered without opening it.
+    3. **"Names" shows the ruled title, not just a tick.** The artefact draws both forms — "✓ FM Board
+       White Paper" above the row and "✓ settled" below it. The build shows the title wherever the
+       branch has exactly one, and "✓ settled" otherwise. It is the more useful of the two forms the
+       artefact itself contains.
+    4. **A third state the artefact does not draw: a neighbouring branch still unanswered.** Live tables
+       have them; the artefact's two states do not cover it. It reuses the verdict wording approved on
+       5 August ("Nothing matches" / "Probably this") rather than inventing a label.
+    5. **The section path is the catalogue's own.** `Section › Sub-section` as the export spells it, so
+       *Draft White Papers* reads "Do the Job › Governance Tools" where the artefact drew
+       "Do the Job › Board".
+    6. **One invented plural.** The artefact draws "…list of six branches"; a branch count of one needs
+       "…list of one branch", which no artefact shows.
+  - **Proven against the real data, not a fixture:** `Decision Workpaper` — open since 5 August, matching
+    no document and never able to — now shows the branch directly above it, already ruled to
+    **FM Board White Paper**. Two names sharing no words. A test pins that row by name.
+  - Original entry follows for the record. ☐ **P1 · BUILD — APPROVED DESIGN, NOT YET BUILT: the table
+  brought into the Template Check row.** Design approved by Mike 2026-08-12 in
+  [`mockups/template-check-table-context.html`](mockups/template-check-table-context.html) — **open the
+  artefact, do not build from this row.** This row links it; it does not summarise it, and a summary is
+  what went wrong on 2026-08-01.
+  - **His words, and the direction matters:** *"i think it makes more sense to do it other way around.
+    keep the logic tables page clean and as-is so it's easier to work with on logic tables."* The merge
+    drawn the other way round — the ruling strip placed on the Logic Tables page — is in
+    [`mockups/logic-tables-rule-in-place.html`](mockups/logic-tables-rule-in-place.html), **rejected on
+    sight and kept as the record of an option considered.** A future session proposing that merge should
+    read it first.
+  - **Ruled, and all three are in the artefact:** the direction (above); how much table a row shows —
+    *"just neighbouring branches - 1 above and below when possible"*; and the seven labels —
+    *"good as they are."* **Anything built uses those words exactly.**
+  - **Why it earns its place, in one example:** `Decision Workpaper` has been open since 5 August and
+    no document answers to that name. The branch **directly above it** reads *"Use Board White Paper
+    framework to structure and document the strategic proposal"* and is already ruled to
+    **FM Board White Paper**. The matcher will never suggest that — the two names share no words —
+    and it is right not to guess. **Reading the table finds it; matching cannot.**
+  - **Not proposed, deliberately:** an editable mini-table. It is there to be read while deciding.
+    Editing stays on the Logic Tables page, which is the whole point of doing it this way round.
+
+- <a id="logic-table-editor-blind-to-recommendation"></a>✅ **🔴 P1 · FIX — CLOSED 2026-08-12
+  (`7ba8427`). The Logic Tables editor could not see the field 55 branches keep their instruction in.**
+  The THEN column was filled from `action`, falling back to `question`, and never read
+  `recommendation`. All 55 of those branches — across Get Seminar, Firm Board Pack, Leadership &
+  Partner Development, CA Firm Strategy, Financial Systems Review, Raising Capital, Stock Purchasing,
+  FM Coaching & Culture — have **neither** of the other two, so the editor rendered an **empty THEN
+  box** on every one. The branch was visible; its only instruction was not.
+  - 🔴 **The read and the write now ask ONE function, `_thenFieldOf`, and that is the safety of it.**
+    `recommendation` is gated sentence-by-sentence against the tool catalogue (`fdb15ca`); `action` is
+    not gated at all. A reworded recommendation saved back as an `action` would have travelled **past**
+    that gate — no error, no failing test. Four tests, one asserting an **absence** (that saving Get
+    Seminar's line creates no `action` key), because the absence is the claim.
+  - **Found by Mike asking why he could not fix it himself**, not by a test. Nothing could have failed:
+    every gate compares code to code, and no test asserts that a box a human needs to see has anything
+    in it.
+
+- <a id="template-check-suggestion-was-blank"></a>✅ **🔴 P1 · FIX — CLOSED 2026-08-12 (`046933a`). The
+  Template Check screen never once said what a suggested document WAS.** `findCandidate` returned
+  `summary: row.summary || row.description`, and **not one of the 291 records** in
+  `data/templates.json` carries either field — all 291 keep their text in `purpose`. So the line
+  resolved to `''` on every row, the component's `v-if="row.candidate.summary"` never rendered, and the
+  element was **blank from the day it shipped**, in a screen whose whole job is to let Mike judge.
+  - **His words on opening it:** *"its too hard to tell whats required since it doesn't indicate
+    against the json serach content script."* He was describing a defect, not asking for a feature.
+  - Five tests pin it, including one that fails if a future export drops `purpose` — which would empty
+    the screen again the same silent way. The old field names are kept as fallbacks.
+
+- <a id="no-route-to-the-mentor-hub"></a>☐ **P3 · DEV — NOTHING IN THE APP ROUTES TO `/mentor`, SO A
+  WORKING SCREEN READS AS A MISSING ONE.** Found 2026-08-12 the hard way: the evidence panel shipped,
+  was proven live against the running backend, and Mike still reported *"that version doesn't have the
+  page at all"* — because [`pages/index.vue`](../pages/index.vue) redirects `/` to `/advisor`, and no
+  screen anywhere links to `/mentor`. The address has to be typed.
+  - **It may be correct in production.** Inside Advisor-e the entry points are the master app's — firm
+    manager → "Manage AI Coach", and the two adviser head-banner links. The Mentor Hub is reached the
+    same way, from outside this repo, so a link on the adviser page would be wrong there.
+  - **The cost is entirely local, and it is real:** three messages, and an AI reporting a feature as
+    working while the owner was looking at a screen that did not have it. **The lesson is not about
+    routing** — it is that "I proved the data is correct" is not the same claim as "you can reach it".
+    A demo instruction that does not include the URL is not a demo instruction.
+  - **Not fixed on sight, deliberately:** adding navigation to a mentor-only page is a UI change nobody
+    has asked for, and it would ship into the master app. What is needed is the URL written down where
+    a session will find it — which is what this row is.
+
+- <a id="template-check-evidence-row"></a>✅ **BUILD — DONE 2026-08-12 (laptop), together with
+  [§template-check-table-context](#template-check-table-context); the two designs shipped as one panel.
+  The sentence, the full purpose text with its section path, and the weak matches shown as weak are all
+  on the screen — every row now opens out.** See that entry for what was built and the deviations from
+  the artefacts. Original entry follows for the record. ☐ **BUILD (DESIGN APPROVED? — AWAITING MIKE) — the Template
+  Check row does not show the evidence a decision needs.** Mockup committed 2026-08-12:
+  [`mockups/template-check-evidence-row.html`](mockups/template-check-evidence-row.html). Three real
+  rows, real content. Adds: the **sentence** the name came from (never shown today), **weak matches
+  shown as weak** instead of suppressed entirely, and the **full purpose text with its section path**.
+  **Every label in it is proposed and awaits his ruling**; the verdicts and buttons are unchanged from
+  the screen he approved 2026-08-05.
+  - ⚠ **ANSWERED BY MIKE 2026-08-12, THE OPPOSITE WAY, AND HIS RULING STANDS.** Within the hour of the
+    panel shipping he ruled **Lite Fundamentals Data → Lite Fundamentals** — with both records and their
+    full descriptions on screen, which is precisely what the panel was built to put there. **Do not
+    re-open it.** It is annotated rather than rewritten because a record holding a recommendation and
+    its opposite with nothing acknowledging the difference is worse than either alone. The original
+    argument follows, and is now a minority view, not an outstanding action.
+  - 🔴 **It earned its keep while being built:** the screen's
+    suggestion for **Lite Fundamentals Data is probably WRONG.** It offers **Lite Fundamentals** — a
+    framework for *winning engagements* — to a branch about **poor cash management**, while **Lite
+    Data**, the record about *interpreting data*, is never mentioned at all. The wrong document wins
+    because its title spells better. **A suggestion shown without its text cannot be sanity-checked**,
+    which is the argument for the whole change.
+
+- <a id="rulings-file-not-gitignored"></a>☐ **P3 · TIDY — `data/dev-template-check-rulings.json` is not
+  in `.gitignore`, while every sibling dev store is, and
+  [`templateCheckRulings.js`](../server/utils/templateCheckRulings.js) states in its own comment that it
+  is.** Found 2026-08-12 when the file was first written. **Committing it was deliberate and is not the
+  thing to change** — these are Mike's content decisions and they must reach the other machine and
+  eventually the master app, not evaporate as scratch state. **The comment is what is wrong.** Left as
+  a decision rather than a silent edit because it changes what "dev fallback" means for this one store.
+
+- <a id="tree-prose-names-ghost-templates"></a>◐ **🔴 P1 · CONTENT+FIX — template names in tree prose are
+  absent from the search export.** Found 2026-08-04. **⚠ PREMISE CORRECTED 2026-08-05 — the original
+  wording below ("12 template names … do not exist") is WRONG and must not be quoted.** Full analysis:
+  [`TREE-RECOMMENDATION-REVIEW.md`](TREE-RECOMMENDATION-REVIEW.md).
+  - ✅ **THE LIVE RISK IS CLOSED for the `recommendation` field (2026-08-12, `fdb15ca`).** A sentence
+    there naming a tool the catalogue cannot serve is withheld from the prompt, proven across all 42
+    tables by [`recommendationGate.test.js`](../tests/unit/recommendationGate.test.js), so no advisor
+    can be sent after a page that will not open **by way of that field**.
+  - ◐ **The content half: 59 of the 88 rows are now RULED (2026-08-12).** ⚠ **Anything quoting
+    "88 rows, 0 ruled" is stale.** Both lists were built by reading the sentence each name came from
+    and checking it against `data/templates.json` — the catalogue the app serves — and both are
+    committed artefacts rather than chat paraphrases:
+    [`TEMPLATE-CHECK-ALREADY-ANSWERED.md`](TEMPLATE-CHECK-ALREADY-ANSWERED.md) (the 30 that already
+    had an answer) · [`TEMPLATE-CHECK-REMAINING-58.md`](TEMPLATE-CHECK-REMAINING-58.md) (the rest).
+    Recorded: **31 pointed at a published title · 16 not a tool · 12 flagged** (`543bbaa`, `cb9c40c`).
+  - ☐ **29 rows remain, across 14 names, and every one is Mike's.** Thirteen are for the Template
+    Check screen, where the catalogue offers two plausible documents and guessing is the exact failure
+    this screen was built after: Get.1a.Sales Tracker (6) · Total Needs (3) · COI Development (2) ·
+    Revenue Model (2) · Lite Fundamentals Data · Lite Fundamentals Planning · Covid Agenda Programme ·
+    Volatility Analysis · Forecast & Action Plan · Management Reporting Annual Plan · Quickfire
+    Diagnosis Template · Decision Workpaper · My Fee Growth Model.
+  - 🔴 **The fourteenth is NOT a ruling. Get Seminar's 7 rows are Mike's to REWORD in Logic Tables**,
+    toward Public Speaking, which is where he placed that material in June — see
+    [`SESSION-2026-06-20-IP-DEPTH-AUDIT-NOTES.md`](SESSION-2026-06-20-IP-DEPTH-AUDIT-NOTES.md) and the
+    correction at the head of §Section C of the first list. **A session that asks him to *rule* on
+    these has misread the record.**
+  - ✅ **Group 3 was FLAGGED, not dismissed** (`Get. Invitation Email`, `Get. Bankers Login Email`,
+    `Get. TCM.Quiz Link Email`, `Get. Spaghetti Tower Task Sheet`). Nothing in the catalogue matches
+    them, but the emails read like real things an advisor sends. A dismissal settles the row by
+    deleting the question; a flag puts it on the master team's list and is reversible. **Where two
+    answers differ only in whether something real quietly disappears, take the reversible one.**
+  - ⚠ **`action` and `notes` are NOT gated** — 21 and 19 unresolved names respectively, reaching the AI
+    now as they have all along. See the field-drop row above for why widening the gate is a decision
+    rather than a follow-up.
+  - **The names are Mike's own.** The source logic tables in `Logic Tables/` name the tools in their THEN
+    column — *"THEN deploy the **Risk Mgt Cover** matrix"*, *"THEN apply the **Ethics Conduct & Effect**
+    matrix"*, *"THEN initiate the **Directorship Pathway 1** checklist"* — and the trees copied them
+    faithfully. Verified by reading the source PDFs for CA Firm Strategy, Firm Board Pack and Leadership.
+  - **They were only ever checked against the search export**, which publishes the same material under
+    different titles. The logic tables use the working name (a tab, checklist or matrix *inside* a
+    document); the export lists the whole document.
+  - **9 resolve with near-verbatim evidence** — e.g. *Risk Mgt Cover* → **Formal Risk Management**
+    (the export's own text repeats the PDF's note column: "probability and consequence … Accepted,
+    Avoided, Reduced, or Transferred"); *Ethics Conduct & Effect* → **Partner Accountability** ("a highly
+    detailed 'Conduct & Effect' matrix"); *Directorship Pathway 1/2* → **Directorship Pathway**
+    ("the Directorship Pathway **templates**", plural). 8 more have a candidate needing Mike.
+  - **✅ RULED 2026-08-05 (Mike): the 6 with no match anywhere DO exist as real documents.** So this is an
+    **export gap**, not invented content — see [§export-gap-six-tools](#export-gap-six-tools).
+  - **The repo's own rule already agrees:** the ghost validator's comment states a reference is valid
+    *"if in the search JSON **OR** named in the source PDFs"* — and all six are named in the PDFs.
+  - Original entry, kept for the record and now superseded on its central claim:
   - **The ghost-reference validator only inspects `node.templates`** ([`logicTrees.js`
     L65–81](../server/utils/logicTrees.js#L65)) — a name written into a *sentence* is never checked.
     The file's own comment (L39) says the risk it guards against is "the AI fabricates a recommendation
@@ -1590,13 +2565,21 @@ that the warning is not being followed by default.
   - **Not urgent — nothing reaches an adviser today**, because the field-drop defect above swallows
     every one of these sentences first. The two must be fixed together: repairing the field alone would
     start feeding 12 non-existent tool names to the AI.
-  - ☐ **Still to verify, deliberately unfinished** (investigation stopped on Mike's instruction to hold
-    scope): six names in the *proper* `templates[]` lists are also absent from the search JSON —
-    **Lite Sales, Lite Data, Lite Planning, Lite People, Lite Process, Growth Curve**. "Growth Curve"
-    *is* in `templates.json`, so the two data files appear to disagree (291 templates vs 280 search
-    records). **Verify before acting.** Also unverified: whether `validateLogicTreeReferences` only
-    logs — its result is discarded at [L108](../server/utils/logicTrees.js#L108) — which would mean a
-    ghost name in a proper list reaches the prompt today.
+  - ✅ **VERIFIED 2026-08-12 — and the answer is "no missing templates".** All six —
+    **Lite Sales, Lite Data, Lite Planning, Lite People, Lite Process, Growth Curve** — **are in
+    `data/templates.json`**, which is the catalogue the running app actually reads. Measured the same
+    day: of the 110 distinct names declared in node `templates[]` lists across all 42 tables, **zero
+    are absent from that catalogue**. The startup warning naming those six comes from
+    `validateLogicTreeReferences`, which checks the **search export** instead — the two-sources
+    disagreement already recorded immediately above this row. **It is a reporting gap, not a broken
+    reference**, and it is why the availability gate was deliberately built against `templates.json`.
+  - ⚠ **Still true, and still unfixed:** `validateLogicTreeReferences` only logs — its result is
+    discarded by `loadLogicTrees`, which the function's own comment now states outright. Harmless while
+    zero declared names are unresolved; it is the announcement that would fail silently, not the engine.
+  - ⚠ **19 unmatched names DO remain in the formal lists of the 5 flat `branches` tables** (the
+    Get-the-Job tables), which the node-shaped gate never sees. Not a regression and not new —
+    [§gate-blind-to-flat-trees](#gate-blind-to-flat-trees) is the row for it — but it is the reason
+    "zero unresolved declared names" must always be said as "in the node trees".
   - ☐ **P3 · SCORING — a repeated word in an `answer_pattern` silently doubles that branch's score.**
     `scorePattern` ([`logicTrees.js`](../server/utils/logicTrees.js) L1205–1213) counts every
     occurrence of a matched word, so a pattern naming *wants* twice scores 2 on that word alone.
@@ -1610,6 +2593,92 @@ that the warning is not being followed by default.
     so this is logged rather than swept. The fix is either de-duplicating the patterns or making
     `scorePattern` count distinct words; the second changes scoring for all 42 trees at once and would
     need a full before/after.
+
+- <a id="advisor-note-dropped"></a>☐ **🟠 DECISION (MIKE) — A SECOND DROPPED INSTRUCTION, FOUND BY THE
+  GUARD THE DAY IT WAS WRITTEN. Raised 2026-08-12, deliberately not fixed.**
+  - One node — `profitability_feasibility` / `pf_awareness` — carries a field called `advisor_note`
+    that `formatNodeForPrompt` does not read, so it reaches the AI nowhere: *"This determines the
+    delivery method. **Do not use Trial Fit on an unaware client — it will cause map shock.** Do not
+    use Cautious Reveal on a motivated client — it will feel slow and condescending."*
+  - **It is the same defect as [§tree-recommendation-field-dropped](#tree-recommendation-field-dropped)**,
+    one node instead of 55, and it is a real instruction rather than a structural field.
+  - **NOT fixed unasked, on purpose.** Emitting a new field into live prompts changes what the model is
+    told; that is Mike's call. **The question for him is one line: should `advisor_note` be emitted the
+    same gated way `recommendation` now is?**
+  - 🔴 **This is a control, not a note.** It is named in the `NOT_EMITTED` list inside
+    [`recommendationGate.test.js`](../tests/unit/recommendationGate.test.js) with its reason, and a
+    second test asserts every entry in that list is genuinely still in the data — so the day it is
+    wired up, a stale exemption fails the build instead of quietly licensing the next silent drop.
+
+- <a id="team-reports-rollup"></a>✅ **🔴 P1 · BUILD — TEAM PROGRESS AND TEAM CASE STUDIES NOW REACH
+  THE TIERS THEY WERE RULED FOR. Built 2026-08-12 (`fe2e87c`, laptop).**
+  - **The gap.** Both were ruled to roll up on 2026-08-10 ([`ADVISOR-E-DESIGN-LOGIC.md`](ADVISOR-E-DESIGN-LOGIC.md) §4.2)
+    and both **tabs** were added at the global and group tiers. **The routes were never changed** —
+    each matched `firm_id` exactly, so a country scope matched no row and a manager got an empty
+    list. The ruling was half-built, and the half that shipped was the visible half.
+  - 🔴 **WHY NO TEST CAUGHT IT, AND THIS IS THE PART TO REMEMBER.** While no firm was mapped to a
+    middle tier, `isAwaitingFirms` was true and the screens honestly said *"not connected yet"*. The
+    emptiness was **indistinguishable from correct behaviour**, and no test can assert what a tier
+    with no members should show. Seeding dev membership removed the banner and the same empty list
+    began reading *"No shared case studies yet"* to a manager whose advisers had shared three —
+    visible **on the same screen** in Case Reviews. §4.4 records this family of mistake twice before.
+  - **What each tier now gets:** firm manager — its advisers' shared cases in full, and its advisers
+    by name. Every tier above — the anonymised copies the firm manager sent onward, and one summary
+    row per level immediately below. Grouping uses `originPathOf`, so both deepen by themselves when
+    the membership tree grows a level.
+  - 🔴 **The second opt-in is what makes rolling cases up safe**, and is why the tab was once argued
+    to be firm-only. Above the firm the route reads `listSharedWithMentor`, never
+    `listSharedForFirm`: reading the raw set would carry un-anonymised client text past a gate no
+    human opened. Pinned by [`teamRollup.test.js`](../tests/unit/teamRollup.test.js).
+  - **No adviser is named above the firm** — the new store read selects no `advisor_id` or
+    `advisor_name` at all, so there is nothing to filter. Firm names ARE shown (§4.3).
+  - **The mapping moved to [`caseRollup.js`](../server/utils/caseRollup.js)** rather than being
+    copied. A conflict there is resolved by keeping the import, never by restoring a local copy.
+  - ⚠ **Adviser counts were wrong in the first version.** Rows arrive per firm+tier and per table,
+    so one adviser appears several times: summing inflates a firm, one maximum discards whole firms
+    (Germany read 2 when Berlin alone had 2). Both wrong ways are now pinned by test.
+
+- <a id="adviser-network-untestable-locally"></a>☐ **🟠 VERIFY — THE ADVISER NETWORK TAB CANNOT BE
+  TIER-TESTED ON A DEV MACHINE, AND A DESIGN DOC CALLS IT THE MODEL FOR THE REST. Found 2026-08-12.**
+  - All four tiers return an **identical** payload from `GET /api/people/firm` — the same fixed firm,
+    labelled `firm_manager`, whichever hub is opened. Cause: that tab goes through
+    `collaborateAuth`, which expects a real signed JWT, does not recognise the firmAuth dev tokens,
+    and falls through to one fixed `DEV_IDENTITY` for all of them.
+  - **This is NOT evidence of a production bug** — a real token may well re-scope correctly. It is
+    evidence that **nobody can check**, locally, whether it does.
+  - 🔴 **Why it matters beyond one tab:** [`ADVISOR-E-DESIGN-LOGIC.md`](ADVISOR-E-DESIGN-LOGIC.md)
+    §4.2 records Adviser Network as *"✅ Already rolls up… The working model for the rest"*. That
+    claim is **unverified**. The 2026-08-12 roll-up work deliberately copied nothing from it and
+    reused `originPathOf` instead. Anyone treating §4.2's tick as proven should read this first.
+  - **What would close it:** a dev path that lets `collaborateAuth` resolve the four tiers — or a
+    test asserting the scope it derives — so the tick becomes a checked fact.
+
+- <a id="domains-json-double-fault"></a>✅ **🟠 FIX — A 404 ON EVERY HUB LOAD, HIDING A SECOND FAULT
+  UNDERNEATH IT. Fixed 2026-08-12 (`fe2e87c`, laptop).**
+  - `FirmManagerHub` fetched `/data/domains.json` over HTTP. **Nuxt publishes only `static/`**, so it
+    404'd on every hub load, at every tier, since it was written. The `catch` then supplied **ten
+    invented domain names** — and because the screen looked fine, nobody questioned them. The real
+    registry has **22**.
+  - 🔴 **THE SECOND FAULT WAS ONLY VISIBLE ONCE THE FIRST WAS UNDERSTOOD.** The mapping read
+    `d.name || d.key || d`, and these entries carry **neither** — the field is `label`. So the
+    obvious "fix" (copy the file into `static/`) would have filled the list with **raw objects**.
+    Two bugs, one plausible-looking fallback, and a screen that never appeared broken.
+  - **Fixed by importing** the same file the Restify routes already `require` — one source, no
+    network call, 15.6 KB. **The lesson is the fallback**, not the path: a fallback that looks like
+    real data is how both of these survived. Same family as
+    [§request-compressed-to-one-line](#request-compressed-to-one-line) — the record looks right, so
+    nothing prompts a check.
+
+- <a id="rollup-labels-unruled"></a>☐ **🟡 DECISION (MIKE) — FIVE LABELS WERE WRITTEN WITHOUT A
+  RULING, AGAINST THE WORDING RULE. Raised 2026-08-12 by the session that wrote them.**
+  - `CLAUDE.md`: *"Always ask for clarification on wording for labels/buttons before going ahead,
+    don't make your own without asking."* These were not asked about, and are logged here rather
+    than left to become "approved by use".
+  - In [`locales/en.json`](../locales/en.json) under `firmTeamProgress`: **Level** (`colLevel`),
+    **Advisers** (`colAdvisers`), **Avg Quiz** (`colAvgQuiz`), **"{n} firms"** (`firmCount`), and the
+    legend *"Each row is one level below you, summarised. Individual advisors are shown to their own
+    firm manager."* (`rollupLegend`).
+  - They are strings in a locale file — changing them costs nothing and needs no rebuild of logic.
 
 - <a id="collaborate-merge"></a>◐ **THE BACK-END MERGE IS DONE — verified 2026-08-03.** `server/collaborate/`
   (`data/`, `routes/`, `utils/`) is present in this repo, and [`jest.config.js`](../jest.config.js) records the
@@ -1630,15 +2699,24 @@ that the warning is not being followed by default.
     group routes, and it reads advisers, approvals, the activity feed and the audit log. The job
     is *merge the app, then surface its page as a tab*, not *move one component*.
   - 🔴 **RULED — the 5-level cascade is built in PROPERLY, now; firm-as-top is not carried
-    forward.** Mentor → global group manager → group manager → firm manager → adviser
-    (pass-through) → client; documents clone DOWN, reporting rolls UP, every tier is the same
+    forward.** Mentor → global group manager → group manager → firm manager → advisor
+    (pass-through) → business entity; documents clone DOWN, reporting rolls UP, every tier is the same
     screen re-scoped. *Curator and coach do not clone documents and sit outside the chain.*
     **The half-measure of confining tiers to one tab, or logging the seams for the master team,
     was offered, rejected, and must never be re-proposed** (one-directional rule).
-  - **Why now is the cheapest it will ever be: there is NO DATA TO MIGRATE.** MySQL has never
+  - ~~**Why now is the cheapest it will ever be: there is NO DATA TO MIGRATE.** MySQL has never
     been provisioned, so no override row exists anywhere. Re-keying
     `firm_framework_versions` from `(firm_id, config_key)` to `(scope_level, scope_id,
-    config_key)` is a schema edit today and a live migration of a firm's authored content later.
+    config_key)` is a schema edit today and a live migration of a firm's authored content
+    later.~~ — 🔴 **THE RE-KEYING IS SUPERSEDED, and this row is struck through rather than
+    deleted so nobody rebuilds the table later on its say-so.** Mike RULED on **2026-08-09**, three
+    weeks after this was written, that mentor-level storage is **a reserved row in `firms`, NOT a
+    re-keyed table** (see [`mentor-save-scope`](#mentor-save-scope)). The tier chain built
+    2026-08-10 follows that later ruling: the middle tiers ride the existing
+    `(firm_id, config_key)` under composed reserved ids (`__global__:…`, `__group__:…:…`), exactly
+    as `__platform__` already does. **No schema edit, no migration, one convention instead of
+    two.** The premise above still holds — there is no data to migrate — it is the proposed
+    *method* that a later ruling replaced. See [`tier-chain`](#tier-chain).
   - **The truncation is concentrated — ~6 functions + 1 table**, read not guessed: the 5
     `firmOverlay.js` functions, `firmContent.js`'s loader, `mergeEntry` (2-arg merge → fold over
     the chain), `firmAuth`, and the table above. `deepMerge` already generalises.

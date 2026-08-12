@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Template Check — the evidence row (mockup)</title>
+<style>
+  :root {
+    --navy:#002b64; --grey:#7a869a; --line:#e2e6ec; --ink:#363636;
+    --green:#1f7a45; --green-bg:#eefaf2; --green-line:#63c48d;
+    --amber:#b35309; --amber-bg:#fffaf3; --amber-line:#ffb870;
+    --red:#a32020;   --red-bg:#fdf4f4;   --red-line:#e8a0a0;
+    --slate:#5a6b82; --slate-bg:#f3f6fa; --slate-line:#b8c6d8;
+    --dim:#8a94a3;   --dim-bg:#f6f7f9;   --dim-line:#d8dce3;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.5rem 6rem; background:#f5f5f5;
+    font:15px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); }
+  .wrap { max-width:1060px; margin:0 auto; }
+
+  .banner { background:#fff8e6; border:1px solid #f0d9a0; border-left:4px solid #e0b24e;
+    border-radius:5px; padding:0.9rem 1.05rem; margin-bottom:2.5rem; font-size:0.84rem; line-height:1.6; }
+  .banner strong { color:var(--amber); }
+
+  h1 { font-size:1.6rem; margin:0 0 0.4rem; color:var(--navy); letter-spacing:-0.01em; }
+  .lede { color:var(--grey); font-size:0.92rem; margin:0; max-width:56rem; }
+
+  section.band { margin-top:3.2rem; }
+  section.band > h2 { font-size:1.15rem; color:var(--navy); margin:0 0 0.35rem; letter-spacing:-0.01em; }
+  section.band > .sub { color:var(--grey); font-size:0.86rem; margin:0 0 1.4rem; max-width:56rem; }
+
+  /* ── One finding, opened out ──────────────────────────────────── */
+  .row { background:#fff; border:1px solid #ececec; border-radius:8px; overflow:hidden;
+    margin-bottom:1.6rem; }
+  .row > header { display:flex; gap:0.9rem; align-items:flex-start; flex-wrap:wrap;
+    padding:1rem 1.2rem; border-bottom:1px solid #eef1f5; background:#fafbfd; }
+  .nm { font-family:ui-monospace,Consolas,monospace; font-size:0.86rem; font-weight:600; color:var(--navy); }
+  .where { font-size:0.78rem; color:var(--grey); }
+  .verdict { margin-left:auto; font-size:0.72rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.05em; border-radius:999px; padding:0.24rem 0.7rem; }
+  .v-maybe { background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber-line); }
+  .v-none  { background:var(--red-bg);   color:var(--red);   border:1px solid var(--red-line); }
+
+  .part { padding:1.05rem 1.2rem; border-bottom:1px solid #f2f4f7; }
+  .part:last-child { border-bottom:0; }
+  .plab { font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--navy);
+    font-weight:700; margin:0 0 0.55rem; }
+
+  .sentence { background:var(--slate-bg); border-left:3px solid var(--slate-line); border-radius:0 4px 4px 0;
+    padding:0.7rem 0.9rem; font-size:0.87rem; color:var(--ink); margin:0; }
+  .sentence mark { background:#ffe9b8; padding:0 0.15rem; border-radius:2px; font-weight:600; }
+  .branchlist { font-size:0.79rem; color:var(--grey); margin:0.6rem 0 0; }
+
+  .cand { border:1px solid var(--line); border-radius:6px; padding:0.8rem 0.95rem; margin-bottom:0.7rem; }
+  .cand:last-child { margin-bottom:0; }
+  .cand.best { border-color:var(--green-line); background:var(--green-bg); }
+  .cand.weak { background:var(--dim-bg); border-style:dashed; }
+  .ctitle { font-weight:700; color:var(--navy); font-size:0.9rem; }
+  .cpath { font-size:0.74rem; color:var(--grey); margin-left:0.45rem; }
+  .cwhy { font-size:0.73rem; color:var(--slate); float:right; }
+  .cpurpose { font-size:0.83rem; margin:0.5rem 0 0; color:var(--ink); }
+
+  .actions { display:flex; gap:0.5rem; flex-wrap:wrap; padding:0.9rem 1.2rem; background:#fafbfd; }
+  .btn { font-size:0.79rem; border-radius:4px; padding:0.36rem 0.85rem; border:1px solid var(--line);
+    background:#fff; color:var(--slate); }
+  .btn.primary { background:var(--navy); border-color:var(--navy); color:#fff; font-weight:600; }
+
+  .note { font-size:0.8rem; color:var(--grey); margin:0.55rem 0 0; }
+  .find { background:#eef6ff; border:1px solid #bcd8f5; border-left:4px solid #4a90d9; border-radius:0 5px 5px 0;
+    padding:0.75rem 0.95rem; font-size:0.83rem; margin:0.9rem 0 0; }
+  .find strong { color:#1c5a94; }
+
+  table.w { border-collapse:collapse; width:100%; font-size:0.83rem; background:#fff;
+    border:1px solid #ececec; margin-top:0.8rem; }
+  table.w th { text-align:left; font-size:0.67rem; text-transform:uppercase; letter-spacing:0.07em;
+    color:var(--navy); background:#f4f6f9; padding:0.55rem 0.7rem; border-bottom:1px solid #d5dbe4; }
+  table.w td { padding:0.6rem 0.7rem; border-bottom:1px solid #eef1f5; vertical-align:top; }
+  table.w tr:last-child td { border-bottom:0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <strong>MOCKUP — nothing here is built.</strong> Proposed change to one row of the Template Check
+    screen, after Mike opened it on 2026-08-12 and said: <em>"it's too hard to tell what's required
+    since it doesn't indicate against the json search content script."</em>
+    <br><br>
+    <strong>Every word below is proposed wording awaiting his ruling</strong> — the three section
+    labels (<em>What the logic table says</em> · <em>What the app can open</em> · <em>Weaker
+    matches</em>) and the note under the weak block. The four verdict names and the button labels are
+    unchanged from the screen he already approved on 2026-08-05.
+    <br><br>
+    All content is <strong>real</strong>: real sentences from <code>data/logic_trees.json</code>, real
+    records from <code>data/templates.json</code>.
+  </div>
+
+  <h1>The evidence row</h1>
+  <p class="lede">
+    Today a row gives a name, a branch title and — at best — a suggested title. It never shows the
+    sentence the name came from, and where nothing scores above the confidence bar it shows nothing at
+    all. Three rows below, as they would look with the evidence attached.
+  </p>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>1 · A suggestion you can actually judge</h2>
+    <p class="sub">
+      The catalogue publishes two Sales Trackers. Reading what each one says for itself settles it in
+      seconds; reading their titles does not.
+    </p>
+
+    <div class="row">
+      <header>
+        <span class="nm">Get.1a.Sales Tracker</span>
+        <span class="where">Get the Job - Sales Tracker · template list · 6 branches</span>
+        <span class="verdict v-maybe">Probably this</span>
+      </header>
+
+      <div class="part">
+        <p class="plab">What the logic table says</p>
+        <p class="sentence">Named in the <mark>templates</mark> list of six branches, with no sentence
+          around it.</p>
+        <p class="branchlist">Approach Methodology · Sales Pathway Selection · Complex Engagement
+          Tracking · Pipeline Stagnation · COI Relationship Progression · Resource Allocation</p>
+      </div>
+
+      <div class="part">
+        <p class="plab">What the app can open</p>
+
+        <div class="cand best">
+          <span class="cwhy">2 of 3 distinctive words match</span>
+          <span class="ctitle">Sales Tracker Opt A</span>
+          <span class="cpath">Get the Job › Sales Process Design</span>
+          <p class="cpurpose">This model records and analyzes sales approach methods, pipeline
+            activity, and referral networks. The material is of an entry level and suits new and
+            experienced advisors alike, provided they are focused on fee growth.</p>
+        </div>
+
+        <div class="cand">
+          <span class="cwhy">2 of 3 distinctive words match</span>
+          <span class="ctitle">Sales Tracker Opt B</span>
+          <span class="cpath">Get the Job › Sales Process Design</span>
+          <p class="cpurpose">This model is of a more general approach to support sales teams in
+            tracking their activities. Whilst not specific to professional services, the model may
+            provide ideas or prompt innovation in developing your own tracking model.</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary">Use this one</button>
+        <button class="btn">Pick another</button>
+        <button class="btn">Not a tool</button>
+      </div>
+    </div>
+
+    <div class="find">
+      <strong>Why this row changes anything.</strong> Opt A names three of the six branches outright —
+      approach methods, pipeline activity, referral networks. Opt B says of itself that it is
+      <em>not specific to professional services</em>. The titles alone gave no way to see that.
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>2 · "Nothing matches" was hiding a real document</h2>
+    <p class="sub">
+      Anything scoring under the confidence bar is suppressed entirely, so this row reads as a dead
+      end. It is not one.
+    </p>
+
+    <div class="row">
+      <header>
+        <span class="nm">Quickfire Diagnosis Template</span>
+        <span class="where">Quickfire Logic · Branch 2: Growth · in a sentence</span>
+        <span class="verdict v-none">Nothing matches</span>
+      </header>
+
+      <div class="part">
+        <p class="plab">What the logic table says</p>
+        <p class="sentence">"Start with the <mark>Quickfire Diagnosis Template</mark>."</p>
+      </div>
+
+      <div class="part">
+        <p class="plab">Weaker matches</p>
+        <p class="note" style="margin:0 0 0.7rem">
+          Nothing scored high enough to suggest. These are the closest the catalogue has — shown so the
+          row can be judged rather than guessed at.
+        </p>
+
+        <div class="cand weak">
+          <span class="cwhy">1 of 3 words · weak</span>
+          <span class="ctitle">Quick Fire Diagnosis</span>
+          <span class="cpath">Do the Job › General Tools</span>
+          <p class="cpurpose">This template will form the basis of learning how to quickly diagnose the
+            SOURCE of the business issue OR, the prioritised growth focus area. In short - if the
+            business is in Distress perform triage in the session; if not, move forward with the rest of
+            the template.</p>
+        </div>
+
+        <div class="cand weak">
+          <span class="cwhy">1 of 3 words · weak</span>
+          <span class="ctitle">Quickfire Advisory Directory</span>
+          <span class="cpath">Do the Job › Help</span>
+          <p class="cpurpose">Use this quick fire directory to identify the 80/20 templates to help you
+            serve your clients…</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary">Point at a template</button>
+        <button class="btn">Not a tool</button>
+        <button class="btn">Flag as missing</button>
+      </div>
+    </div>
+
+    <div class="find">
+      <strong>The finding this mockup exists to show.</strong> <em>Quickfire Diagnosis Template</em> and
+      <em>Quick Fire Diagnosis</em> are almost certainly the same document — one word, split by a space.
+      The matcher scores that at 0.4, under the 0.6 bar, so the screen said <em>"Nothing matches"</em>
+      and offered nothing. <strong>This is the third time the same shape of fault has put work on Mike's
+      queue that needed none</strong> — after the digit (<em>"Business Purchase Assessment 1"</em>,
+      5 August) and the apostrophe (<em>Porter's &amp; Pine</em>, found today).
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>3 · Where four documents share a name</h2>
+    <p class="sub">
+      The single hardest kind of row, and the one the current screen serves worst: it suggests the
+      first, and never mentions that three others exist.
+    </p>
+
+    <div class="row">
+      <header>
+        <span class="nm">Lite Fundamentals Data</span>
+        <span class="where">Cashflow Logic · Sub-Branch 1B: Poor Cash Management · in a sentence</span>
+        <span class="verdict v-maybe">Probably this</span>
+      </header>
+
+      <div class="part">
+        <p class="plab">What the logic table says</p>
+        <p class="sentence">"Brainstorm cash tactics, use Debtor Protocols and
+          <mark>Lite Fundamentals Data</mark>."</p>
+      </div>
+
+      <div class="part">
+        <p class="plab">What the app can open</p>
+
+        <div class="cand best">
+          <span class="cwhy">the name contains this title in full</span>
+          <span class="ctitle">Lite Fundamentals</span>
+          <span class="cpath">Do the Job › Lite Fundamentals</span>
+          <p class="cpurpose">How to secure on-going management/business improvement engagements using
+            the Lite Fundamentals framework. Step by step instructions show you the use of pre-approach
+            quizzes and all the visual aids and sales scripts to help you win!</p>
+        </div>
+
+        <div class="cand weak">
+          <span class="cwhy">2 of 3 words · weak</span>
+          <span class="ctitle">Lite Data</span>
+          <span class="cpath">Do the Job › Lite Fundamentals</span>
+          <p class="cpurpose">This section seeks to educate your client on the interpretation of data
+            (Causation vs. Correlation) and provides foundation knowledge of accounting terminology…
+            This template also helps you clarify the KPI's to use when working with this client going
+            forward.</p>
+        </div>
+
+        <div class="cand weak">
+          <span class="cwhy">2 of 3 words · weak</span>
+          <span class="ctitle">Lite Fundamentals Proposal</span>
+          <span class="cpath">Do the Job › Lite Fundamentals</span>
+          <p class="cpurpose">…</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary">Use this one</button>
+        <button class="btn">Pick another</button>
+        <button class="btn">Not a tool</button>
+      </div>
+    </div>
+
+    <div class="find">
+      <strong>The suggestion is probably wrong here.</strong> The screen offers <em>Lite
+      Fundamentals</em> — a framework for winning engagements. The branch is about poor cash management,
+      and <em>Lite Data</em> is the one about interpreting data. The higher-scoring title wins on
+      spelling; the right document only becomes visible once both are on screen with their text.
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>What changes, precisely</h2>
+    <table class="w">
+      <thead>
+        <tr><th style="width:26%">Element</th><th style="width:34%">Today</th><th>Proposed</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>The sentence</strong></td>
+          <td>Never shown. The row gives a branch title only.</td>
+          <td>Shown, with the name highlighted. For a template-list reference, the branches that ask
+            for it.</td>
+        </tr>
+        <tr>
+          <td><strong>What the document is</strong></td>
+          <td>Blank on every row — the code read a field the catalogue does not have.
+            <strong>Fixed 2026-08-12.</strong></td>
+          <td>Full purpose text, with its section path.</td>
+        </tr>
+        <tr>
+          <td><strong>Weak matches</strong></td>
+          <td>Suppressed entirely. 13 rows show a bare name and no evidence.</td>
+          <td>Up to three, marked weak, with the reason and the score.</td>
+        </tr>
+        <tr>
+          <td><strong>Alternatives to the suggestion</strong></td>
+          <td>Not shown. One suggestion, take it or open the picker.</td>
+          <td>Any other record scoring near it, so a wrong first place is visible.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="note">
+      No change to the four verdicts, the buttons, or what a ruling does. Nothing here writes to a
+      logic table, and every ruling stays reversible on the row.
+    </p>
+  </section>
+
+</div>
+</body>
+</html>

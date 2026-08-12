@@ -28,11 +28,18 @@
  * to AI-generated questions exactly as it does for a page that never had one.
  * Serving a bank with zero questions instead would tell the AI "build every
  * question from the bank above" and hand it nothing to build from.
+ *
+ * WHAT CHANGED 2026-08-09 (Phase 5 of the Mentor Hub save-scope plan). A firm's
+ * banks used to resolve against the SHIPPED FILE, so a question the mentor wrote at
+ * /mentor saved correctly and reached no firm. A firm now resolves against the
+ * MENTOR'S RESOLVED BANKS. Same mechanism applied twice — see staircaseConfig.js,
+ * which took the identical change.
  */
 
 const BASE_QUIZZES = require('../../data/course-quizzes.json')
 const { resolveInheritedRows } = require('./resolveInheritedRows')
 const { loadFirmQuizState } = require('./firmQuizzes')
+const { parentScopeOf } = require('./tierChain')
 
 /**
  * Source tags written onto every resolved question. The engine fences on these:
@@ -73,19 +80,40 @@ function baseBanks () {
 }
 
 /**
- * True when a question came from the firm rather than Advisor-e.
+ * Sticky flag: a human typed this question into a browser, at SOME level.
  *
- * FAILS CLOSED: anything without a `platform` tag is treated as firm-authored and
+ * WHY `source` IS NOT ENOUGH ON ITS OWN, and why this exists (2026-08-09, Phase 5).
+ * `source` describes a row's relationship to the level BELOW it — a mentor-authored
+ * question is `firm-own` on the mentor's screen and `platform` once a firm inherits
+ * it, because from the firm's side it is inherited. That is correct for badging and
+ * fatal for fencing: it would quietly untag mentor-typed text on its way to the AI.
+ * This flag is written once, never cleared, and survives every fold (the mechanism
+ * copies unknown fields through), so provenance outlives the tier it came from.
+ * @type {string}
+ */
+const BROWSER_AUTHORED = 'browserAuthored'
+
+/**
+ * True when a question was typed into a browser rather than shipped in the repo.
+ *
+ * WHY THE BAR IS "NOT REPO DATA" AND NOT "NOT ADVISOR-E". A mentor IS Advisor-e, so
+ * it is tempting to trust their questions as platform content. The distinction that
+ * actually matters for prompt injection is not who typed it but what reviewed it:
+ * repo data passes code review and git history; anything typed into a screen passes
+ * neither. And the blast radius runs the wrong way — a firm's text reaches one firm,
+ * a mentor's reaches EVERY firm. So mentor-typed questions stay fenced.
+ *
+ * FAILS CLOSED: anything without a `platform` tag is treated as browser-authored and
  * therefore fenced before it reaches the AI. Under-fencing opens the standard
  * prompt-injection route on this exact path; over-fencing only costs prompt
  * tuning. Every bank the engine can reach is tagged (see baseBanks), so the
  * closed default should never actually fire in production — it is the backstop.
  *
- * @param {Object} entry - a question carrying `source`
+ * @param {Object} entry - a question carrying `source` and possibly `browserAuthored`
  * @returns {boolean}
  */
-function isFirmAuthored (entry) {
-  return !!entry && entry.source !== QUIZ_SOURCE_LABELS.inherited
+function isBrowserAuthored (entry) {
+  return !!entry && (entry[BROWSER_AUTHORED] === true || entry.source !== QUIZ_SOURCE_LABELS.inherited)
 }
 
 /**
@@ -105,7 +133,14 @@ function resolveBankEntries (entries, state) {
 
   const resolved = resolveInheritedRows(rows, state, { sourceLabels: QUIZ_SOURCE_LABELS })
 
-  return resolved.map((row, i) => ({ ...row, qid: row.qid || row.id, id: i + 1 }))
+  return resolved.map((row, i) => {
+    const out = { ...row, qid: row.qid || row.id, id: i + 1 }
+    // Stamp at the level that typed it. The spread above carries an existing stamp
+    // down from any level higher, and nothing here clears one: a question typed once
+    // stays marked as typed, however many tiers inherit it. See BROWSER_AUTHORED.
+    if (row.source !== QUIZ_SOURCE_LABELS.inherited) { out[BROWSER_AUTHORED] = true }
+    return out
+  })
 }
 
 /**
@@ -166,18 +201,29 @@ function blendQuizBanks (base, state) {
 /**
  * Load a firm's effective quiz banks.
  *
- * @param {string|null} firmId - the firm, taken from the verified JWT and never from
- *   a request body (a body-supplied firmId would let one firm read another's quizzes)
+ * @param {string|null} firmId - the scope to resolve for: a firm id, or the reserved
+ *   PLATFORM_SCOPE for the mentor's own level. Taken from the verified JWT and never
+ *   from a request body (a body-supplied firmId would let one firm read another's
+ *   quizzes)
  * @param {function(string, string): Promise<*>} loadFirmConfig - the overlay reader,
  *   injected so the engine reuses the client it has and tests need no database
- * @returns {Promise<Object>} the effective banks. Falls back to the platform banks
- *   when the firm has decided nothing, has no firm id, or the store cannot be
+ * @returns {Promise<Object>} the effective banks. Falls back to the layer above when
+ *   this level has decided nothing, has no scope id, or the store cannot be
  *   reached. Never rejects: a storage problem must not stop a course or strip an
  *   advisor's quiz back to AI invention without a word in the log.
  */
 async function loadBlendedQuizBanks (firmId, loadFirmConfig) {
-  const base = baseBanks()
-  if (!firmId) { return base }
+  if (!firmId) { return baseBanks() }
+
+  // The layer this level inherits from — asked of tierChain rather than assumed, so
+  // one recursion serves mentor -> global -> group -> firm however many levels there
+  // are (design/MENTOR-TIER-CHAIN-PLAN.md §3.4). With no membership data the answer
+  // is the platform scope, exactly what this line hardcoded before. The mentor has
+  // nothing above it, and that null is what ends the recursion. Phase 5.
+  const parent = parentScopeOf(firmId)
+  const base = parent === null
+    ? baseBanks()
+    : await loadBlendedQuizBanks(parent, loadFirmConfig)
 
   let state
   try {
@@ -200,8 +246,9 @@ async function loadBlendedQuizBanks (firmId, loadFirmConfig) {
 
 module.exports = {
   QUIZ_SOURCE_LABELS,
+  BROWSER_AUTHORED,
   baseBanks,
-  isFirmAuthored,
+  isBrowserAuthored,
   blendQuizBanks,
   resolveBankEntries,
   loadBlendedQuizBanks

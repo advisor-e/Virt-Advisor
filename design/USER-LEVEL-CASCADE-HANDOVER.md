@@ -1,10 +1,34 @@
 # User-Level Cascade — Handover to the Master Coding Team
 
 **Status:** Design + integration-seam inventory. Authored 2026-06-26.
-**Purpose:** Define the seven user levels and the cascade rule that governs them, and
-hand the master coding team a precise, grounded list of the connection points in *this*
-app (Virt Advisor) where their Global→Group→Firm cascade plugs in.
+**Corrected 2026-08-13** — see the box below. Three things had gone out of date in the
+seven weeks since; the role model itself had not.
+**Purpose:** Define the user levels and the cascade rule that governs them, and hand the
+master coding team a precise, grounded list of the connection points in *this* app
+(Virt Advisor) where their Global→Group→Firm cascade plugs in.
 
+> 🔴 **WHAT CHANGED ON 2026-08-13, and why a reader needs to know before Part 3.**
+> This document was written before the tier work of August 2026 was designed or built.
+> Three passages had been overtaken by rulings made since, and one of them would have
+> sent the master team building the wrong thing:
+>
+> 1. **Part 3 — "the one open decision" — IS NO LONGER OPEN.** It offered two database
+>    shapes to choose between. Mike ruled a third on **2026-08-09**, and that is what is
+>    built and tested. Part 3 now records the ruling instead of asking the question.
+> 2. **"A firm cannot push anything upward"** was true of *content* and is now wrong as a
+>    general statement. Mike ruled on **2026-08-10** that **every report rolls up**. Both
+>    directions are stated together in Part 1 rather than left to be reconciled.
+> 3. **The level at rank 2 had lost the word "group" from its name.** It is **global group
+>    manager** / `global_group_manager`, and the short form is what produced an invented job
+>    title twice in one session. The superseded spelling is **not written out here** — that
+>    is not squeamishness: `tests/unit/tierVocabulary.test.js` scans `design/` too and fails
+>    the build on it, precisely so a stale name cannot survive inside the note explaining
+>    that it is stale. *(It caught this very edit on 2026-08-13.)*
+>
+> **The role model was NOT stale and has not been changed.** The coach roles below are
+> real — confirmed by Mike 2026-08-13. An earlier reading of this file treated them as an
+> error to be tidied away. They are not.
+>
 > **Scope of this document.** This app does **not** gain new per-role functionality. The
 > four new middle roles all operate this app *as if they were a Firm Manager*. The work
 > here is to make the connection points explicit so the master team can attach the
@@ -16,31 +40,73 @@ app (Virt Advisor) where their Global→Group→Firm cascade plugs in.
 
 ### The seven levels
 
-| Level | Role | Operates this app as… |
-|------|------|------------------------|
-| 1 | **Mentor** | Platform owner (Mike). Makes app changes; authors content, domain logic trees, summary documents; seeds the baseline distinctions every firm starts with. |
-| 2 | **Global Manager** | — same screens as a Firm Manager — |
-| 2 | **Global Coach** | — same screens as a Firm Manager — |
-| 3 | **Group Manager** | — same screens as a Firm Manager — |
-| 3 | **Group Coach** | — same screens as a Firm Manager — |
-| 4 | **Firm Manager** | Closest to the advisor and client. Final say on editability and visibility within the firm. |
-| 5 | **Advisor** | Uses the engine with the client; sees what the Firm Manager allows. |
+| Level | Role | Value this app understands | Operates this app as… |
+|------|------|------|------------------------|
+| 1 | **Mentor** | `mentor` | Platform owner (Mike). Makes app changes; authors content, domain logic trees, summary documents; seeds the baseline distinctions every firm starts with. |
+| 2 | **Global Group Manager** | `global_group_manager` | — same screens as a Firm Manager — |
+| 2 | **Global Coach** | *(none — see below)* | — same screens as a Firm Manager — |
+| 3 | **Group Manager** | `group_manager` | — same screens as a Firm Manager — |
+| 3 | **Group Coach** | *(none — see below)* | — same screens as a Firm Manager — |
+| 4 | **Firm Manager** | `firm_manager` | Closest to the advisor and client. Final say on editability and visibility within the firm. |
+| 5 | **Advisor** | `advisor` | Uses the engine with the client; sees what the Firm Manager allows. |
 
 The four middle roles (Global/Group × Manager/Coach) **have no distinct functionality in
 this app**. They access the same Firm-Manager-level surface. What differs *between* them —
 who introduced which content, and whose thinking cascades to whom — is resolved **upstream
 in Advisor-e + SQL** by the master coding team.
 
+🔴 **THE COACH ROLES, AND THE CURATOR ROLE, ARE REAL — AND THIS APP DELIBERATELY DOES NOT
+MODEL THEM.** Confirmed by Mike, 2026-08-13: *"real roles but do not have need for special
+pages. All document cloning and major access permissions granted by the roles you have been
+given. There is also a Curator role but again, no need to concern this app code."*
+
+- **No page, no tab and no permission in this app keys off a coach or curator role.**
+  Document cloning and the major access permissions are granted by the five values in the
+  table above. That is why the middle column is empty for the coaches, and why Curator has
+  no row at all.
+- **Their absence from the code is a decision, not an omission.** Recorded here because a
+  reader who finds them in this document and not in `roles.js` will otherwise conclude one
+  of the two is wrong and "fix" it. On 2026-08-13 exactly that happened, and the document
+  was nearly corrected toward the code.
+- **This app's own tier vocabulary is a different and narrower list** — the six values
+  pinned by `tests/unit/tierVocabulary.test.js`: `mentor`, `global_group_manager`,
+  `group_manager`, `firm_manager`, `advisor`, `business_entity`. It is *this app's scope*,
+  **not** the whole Advisor-e role model. Neither list is a subset of the other by accident:
+  Advisor-e has roles we do not model, and we name a `business_entity` level that this
+  document's Part 1 stops short of.
+- ⚠ **One consequence worth naming for the master team.** `resolveTier` in
+  [`roles.js`](../server/collaborate/data/roles.js) falls through to `advisor` for any role
+  value it does not recognise. So a token whose *only* role claim is a coach value resolves
+  to advisor here. That is the safe direction to fail, and it is the current behaviour by
+  design — but if a coach is meant to see the manager surface, their token needs to carry
+  the corresponding manager value. **That is an Advisor-e decision, not a change to make
+  here.**
+
 ### The cascade rule (the governing principle)
 
-> **Influence flows down only. Override authority sits at the firm.**
+> **Content and influence flow DOWN. Reports flow UP. Override authority sits at the firm.**
+
+🔴 **CORRECTED 2026-08-13 — this rule used to read "influence flows down only", and read
+alone it denied the upward half.** Mike's governing principle, ruled 2026-08-10:
+
+> *"Every quality system requires a feedback loop, a way to make sure we can improve. The
+> information and tools cascade down so we share the tools effectively, the reports cascade
+> up so we learn what is working, what isn't, who is failing so we can offer help."*
+
+**Every report rolls up — no exceptions — and each level sees the level immediately below
+it, summarised**, never a flat roster of everything beneath it. The full table is in
+[`TIER-CASCADE-MAP.md` §3](TIER-CASCADE-MAP.md). The two directions are not in tension:
+**configuration** only ever moves down, **reporting** only ever moves up, and neither
+carries the other's payload.
 
 - **Mentor / Global / Group** decide what content is *introduced* and seeded downward.
   Each layer **inherits** from the layer above it.
 - The **Firm Manager**, being closest to the advisor and client, has the **final say on
   editability and visibility** — what their advisors and clients actually see.
-- A firm **cannot push anything upward or sideways**: no influencing the Global, the
-  Group, or any other firm. Authority is **total within their firm, zero outside it**.
+- A firm **cannot push CONFIGURATION upward or sideways**: no influencing the Global Group,
+  the Group, or any other firm. Authority over content is **total within their firm, zero
+  outside it**. *(This clause said "cannot push anything upward" until 2026-08-13 — it is
+  about configuration, and reports are the deliberate exception above.)*
 - **Future direction:** firms will be able to override the Mentor's thinking for their own
   firm. The baseline is a *starting point*, not a lock. (Any genuinely locked platform
   defaults are a separate, explicit decision — see [[design_growth_locked_protected_ip]].)
@@ -110,13 +176,16 @@ editing.
   are the Firm-Manager read/write points. **Extension point:** route the write to the
   correct scope (global/group/firm) based on the request identity.
 
-### C. Storage — *the real structural work, and why it's the master team's job*
+### C. Storage — *settled 2026-08-09; no schema change, but one insert*
 
 - **`config/db-schema.sql`** — `firm_framework_versions` is keyed by `(firm_id,
-  config_key)`. This is the heart of the handover decision below: the database currently
-  understands **firm only**. Cases/visibility (`server/utils/caseStore.js`,
-  `server/routes/cases.js`) and Drive folders (`server/services/driveService.js`) are
-  likewise firm-scoped (base-or-firm).
+  config_key)`, and the database understands **firm only**. ✅ **That is now sufficient**:
+  Part 3's ruling puts each tier's reserved scope id **in that same `firm_id` column**, so
+  no table, column or migration is added. What the team must do instead is **insert the
+  reserved `firms` row for each tier** — see Part 3's warning box, because without it a
+  save is refused by the foreign key while the screen reports success.
+- Cases/visibility (`server/utils/caseStore.js`, `server/routes/cases.js`) and Drive
+  folders (`server/services/driveService.js`) are likewise firm-scoped (base-or-firm).
 
 ### D. Master export / per-firm content
 
@@ -137,19 +206,60 @@ editing.
 
 ---
 
-## Part 3 — The one open decision the master team must make
+## Part 3 — Storage scope: RULED 2026-08-09, and no longer a question
 
-The database scopes overrides by `firm_id` only. To carry Global and Group layers, choose:
+> 🔴 **THIS SECTION USED TO ASK THE MASTER TEAM TO CHOOSE BETWEEN TWO DATABASE SHAPES.
+> DO NOT ANSWER THAT QUESTION — IT WAS SETTLED A DIFFERENT WAY, AND THE ANSWER IS BUILT.**
+> The two options offered here until 2026-08-13 were *parallel tables*
+> (`global_framework_versions`, `group_framework_versions`) and a *polymorphic
+> `scope_type` + `scope_id` column*. **Neither was adopted.** Anyone who implements either
+> one now will be building against a shape this app no longer uses. The superseded options
+> are named rather than deleted, so a reader holding an older copy can tell it is older.
 
-1. **Parallel tables** — `global_framework_versions`, `group_framework_versions`
-   alongside `firm_framework_versions`. Simple, explicit; more tables and more code paths.
-2. **Polymorphic scope column** — one table with `scope_type ENUM('global','group','firm')`
-   + `scope_id`. Fewer tables; the loader cascades by querying each scope in order. More
-   flexible, slightly more abstract.
+**The ruling (Mike, 2026-08-09): reserved scope ids ride the EXISTING `firm_id` column.**
+No new table, no new column, no schema migration.
 
-This is a master-team / SQL decision. This app's loader (`firmOverlay.js`) will read
-whichever shape they choose — it needs only "give me the configs for these scope ids, in
-this order," then merges them with the existing `deepMerge`.
+| Tier | Scope id stored in `firm_id` | Row needed in `firms` |
+|---|---|---|
+| Mentor | `__platform__` | seeded already |
+| Global group manager | `__global__:<brand>` | one per global group |
+| Group manager | `__group__:<brand>:<country>` | one per country |
+| Firm manager | the real Advisor-e firm id | already there |
+
+Double underscores make a collision with a real Advisor-e firm id impossible. The single
+seam is [`server/utils/tierChain.js`](../server/utils/tierChain.js) — `parentScopeOf` /
+`scopeChain` — and [`firmOverlay.js`](../server/utils/firmOverlay.js) walks the chain
+bottom-up, merging with the existing `deepMerge`. Both are built and tested.
+
+### 🔴 The one thing that WILL bite whoever deploys this
+
+**Every tier scope needs its reserved row in `firms` before anything is saved at that
+tier.** Without it the save is **refused by the foreign key while the screen reports
+success** — the fault that ran the mentor's own saves silently broken for weeks. The
+insert instructions sit in [`config/db-schema.sql`](../config/db-schema.sql), beside the
+`__platform__` insert the team already has to run.
+
+⚠ **NOT the `group` table** further down that same file. That is a Collaborate **Special
+Interest Group** (`group_member` / `group_tag` / `marketplace_listing`) — a social group.
+Reading it as a management tier would be a correctness bug.
+
+### What IS still open, and it is genuinely Advisor-e's
+
+Two things, and this app cannot supply either:
+
+1. **No middle-tier login exists.** [`roles.js`](../server/collaborate/data/roles.js) maps
+   only `platform_admin` → mentor and `firm_manager` → firm manager. No role value produces
+   `global_group_manager` or `group_manager`, and `globalManagerRole` / `groupManagerRole`
+   in [`config/integration.js`](../config/integration.js) are deliberately empty strings.
+   ⚠ **`mentor` was never added either** — it still borrows `platform_admin`.
+2. **Nothing in our data says which firms sit in which group.** The `firms` table has no
+   country, group or parent column. Advisor-e already holds both facts (firm as the
+   Advisory `branch`, country as `country-address`), so this is **a claim to pass through
+   in the token, not data for anyone to re-type**.
+
+Until both arrive, `parentScopeOf` returns the mentor scope for every firm, so the chain
+runs mentor → firm — exactly as it did before the tier work existed. That is why the whole
+pre-existing test suite passed unmodified, and it is the safe direction to fail.
 
 ---
 
@@ -162,7 +272,9 @@ this order," then merges them with the existing `deepMerge`.
 5. `server/utils/resolveDistinctions.js` — distinction resolver
 6. `server/advisorEngine.js` — engine read points
 7. `server/routes/firmManager.js` — Firm-Manager read/write routing
-8. `config/db-schema.sql` — storage scope (the open decision above)
+8. `config/db-schema.sql` — storage scope. **No schema change needed** (Part 3, ruled
+   2026-08-09) — but the **reserved `firms` row per tier must be inserted**, or that
+   tier's saves are foreign-key refused while the screen reports success
 
 ---
 

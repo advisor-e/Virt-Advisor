@@ -34,8 +34,11 @@
 
 const fs = require('fs')
 const path = require('path')
+const { tierOfScope } = require('./tierChain')
 
-const IS_DEV = process.env.NODE_ENV !== 'production'
+// See server/utils/dbFailure.js — also refuses the fallback when a live server
+// REFUSED the statement, so a rejected read cannot answer with stale dev data.
+const { devFallbackAllowed: IS_DEV } = require('./dbFailure')
 
 const CONFIG_KEYS = {
   declines: 'staircase-declines',
@@ -70,6 +73,58 @@ const EDITABLE_STEP_FIELDS = ['name', 'selectorDescription', 'complexityCeiling'
  */
 const FIRM_STEP_PREFIX = 'fs-'
 
+/**
+ * Prefix for a step the MENTOR added, at the reserved platform scope.
+ *
+ * WHY IT IS NOT `fs-` TOO (2026-08-09, Phase 5). Own-row numbers are minted per scope,
+ * from the rows that scope already holds — so the mentor's first added step and a
+ * firm's first added step would BOTH be `fs-1`. That was harmless while the two never
+ * met. Phase 5 makes them meet: the mentor's step arrives at a firm as an inherited
+ * row and the firm's own is appended beside it, giving one resolved list two different
+ * steps under one identity. Every decision in the mechanism is keyed to an id, so the
+ * firm switching off "its" step would drop the mentor's instead. Sibling id systems
+ * that can collide is exactly what FIRM_STEP_PREFIX above exists to prevent — this is
+ * the same rule applied to the tier that did not exist when it was written.
+ * @type {string}
+ */
+const MENTOR_STEP_PREFIX = 'ms-'
+
+/**
+ * Own-row prefixes for the two management tiers between the mentor and a firm
+ * (design/MENTOR-TIER-CHAIN-PLAN.md §3.3).
+ *
+ * The rule above is not "the mentor needs its own prefix" — it is that EVERY tier
+ * whose rows can end up in one resolved list needs one, because every decision in
+ * the mechanism is keyed to an id. Widening the chain from two levels to four adds
+ * two more tiers to that list, and reusing a letter would bring the Phase 5 defect
+ * back with two new ways to hit it.
+ *
+ * `xs-` for the global tier because `gs-` reads as "group" and a near-miss between
+ * two ADJACENT tiers is worse than an unmemorable letter — those are precisely the
+ * two whose rows sit next to each other in a group manager's resolved list.
+ * @type {string}
+ */
+const GLOBAL_STEP_PREFIX = 'xs-'
+const GROUP_STEP_PREFIX = 'gs-'
+
+/** Every own-row prefix, by tier. Distinctness is asserted by a test. */
+const STEP_PREFIX_BY_TIER = {
+  mentor: MENTOR_STEP_PREFIX,
+  global_group_manager: GLOBAL_STEP_PREFIX,
+  group_manager: GROUP_STEP_PREFIX,
+  firm_manager: FIRM_STEP_PREFIX
+}
+
+/**
+ * The own-row prefix a scope mints under.
+ *
+ * @param {string|null} scopeId - a firm id, or a reserved tier scope id
+ * @returns {string} the prefix new own-step ids take at that scope
+ */
+function ownStepPrefix (scopeId) {
+  return STEP_PREFIX_BY_TIER[tierOfScope(scopeId)] || FIRM_STEP_PREFIX
+}
+
 function _readDevMap (file) {
   try {
     return JSON.parse(fs.readFileSync(path.resolve(process.cwd(), file), 'utf8'))
@@ -101,7 +156,7 @@ async function _load (loadFirmConfig, firmId, key, devFile, fallback) {
     const value = await loadFirmConfig(firmId, key)
     return (value === null || value === undefined) ? fallback : value
   } catch (err) {
-    if (!IS_DEV) { throw err }
+    if (!IS_DEV(err)) { throw err }
     const map = _readDevMap(devFile)
     return Object.prototype.hasOwnProperty.call(map, firmId) ? map[firmId] : fallback
   }
@@ -127,7 +182,7 @@ async function _load (loadFirmConfig, firmId, key, devFile, fallback) {
  * @returns {{overrides: Object, ownRows: Array<Object>}} empty when there is nothing
  *   to carry across
  */
-function adaptLegacyWholeConfig (baseSteps, legacyConfig) {
+function adaptLegacyWholeConfig (baseSteps, legacyConfig, ownPrefix = FIRM_STEP_PREFIX) {
   const empty = { overrides: {}, ownRows: [] }
   const stored = legacyConfig && typeof legacyConfig === 'object' && !Array.isArray(legacyConfig)
     ? legacyConfig
@@ -161,7 +216,7 @@ function adaptLegacyWholeConfig (baseSteps, legacyConfig) {
       if (!usable) { continue }
       ownCount += 1
       ownRows.push({
-        id: `${FIRM_STEP_PREFIX}${ownCount}`,
+        id: `${ownPrefix}${ownCount}`,
         name: step.name,
         selectorDescription: typeof step.selectorDescription === 'string' ? step.selectorDescription : '',
         complexityCeiling: step.complexityCeiling
@@ -226,7 +281,7 @@ async function loadFirmStaircaseState (firmId, loadFirmConfig, baseSteps) {
     Object.keys(state.overrides).some(id => baseIds.has(id))
   if (hasNewState) { return state }
 
-  const legacy = adaptLegacyWholeConfig(baseSteps, settings)
+  const legacy = adaptLegacyWholeConfig(baseSteps, settings, ownStepPrefix(firmId))
   if (Object.keys(legacy.overrides).length === 0 && legacy.ownRows.length === 0) { return state }
 
   return { ...state, overrides: legacy.overrides, ownRows: legacy.ownRows, fromLegacy: true }
@@ -239,5 +294,7 @@ module.exports = {
   adaptLegacyWholeConfig,
   CONFIG_KEYS,
   EDITABLE_STEP_FIELDS,
-  FIRM_STEP_PREFIX
+  FIRM_STEP_PREFIX,
+  MENTOR_STEP_PREFIX,
+  ownStepPrefix
 }

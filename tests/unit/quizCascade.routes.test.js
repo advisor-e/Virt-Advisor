@@ -60,9 +60,13 @@ function makeReq (over = {}) {
 }
 
 /** Answer each config key separately, as the real store does. */
+// Answers for THIS FIRM only. Since Phase 5 (2026-08-09) a firm's banks resolve
+// against the mentor's, so this loader is asked for two scopes in one call; a stub
+// that ignored the scope would replay the firm's own rows at mentor level and the
+// same question would arrive twice. See mockKeys in firmStaircase.test.js.
 function mockKeys (byKey) {
   overlay.loadFirmConfig.mockImplementation((firmId, key) =>
-    Promise.resolve(Object.prototype.hasOwnProperty.call(byKey, key) ? byKey[key] : null))
+    Promise.resolve(firmId === FIRM && Object.prototype.hasOwnProperty.call(byKey, key) ? byKey[key] : null))
 }
 
 /** What was written to one key, or undefined if that key was never written. */
@@ -467,8 +471,9 @@ describe('a firm still on the old whole-bank storage', () => {
   /** A store that answers with whatever was last written to it, as MySQL would. */
   function statefulStore (initial) {
     const store = { ...initial }
+    // Scoped to this firm — see mockKeys above for why the scope cannot be ignored.
     overlay.loadFirmConfig.mockImplementation((firmId, key) =>
-      Promise.resolve(Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null))
+      Promise.resolve(firmId === FIRM && Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null))
     overlay.saveFirmConfig.mockImplementation((firmId, key, value) => {
       store[key] = value
       return Promise.resolve(1)

@@ -29,7 +29,10 @@ const { sendError } = require('../utils/sendError')
 const { currencies, default: DEFAULT_CURRENCY } = require('../../data/currencies.json')
 
 const CONFIG_KEY = 'currency'
-const IS_DEV = process.env.NODE_ENV !== 'production'
+// See server/utils/dbFailure.js — the fallback is refused when a live server
+// REFUSED the statement, so a rejected save cannot be reported as saved.
+const { devFallbackAllowed } = require('../utils/dbFailure')
+const devFallbackOk = devFallbackAllowed
 const DEV_CURRENCY_FILE = path.resolve(__dirname, '../../data/dev-firm-currency.json')
 const SUPPORTED = new Set(currencies.map(c => c.code))
 
@@ -66,7 +69,7 @@ async function get (req, res) {
     const code = stored && isSupported(stored.code) ? stored.code : null
     res.send(200, { currency: code || DEFAULT_CURRENCY, isDefault: !code })
   } catch (err) {
-    if (IS_DEV) {
+    if (devFallbackOk(err)) {
       const code = devRead(req.firmId)
       res.send(200, { currency: code || DEFAULT_CURRENCY, isDefault: !code })
       return
@@ -93,7 +96,7 @@ async function set (req, res) {
     await overlay.saveFirmConfig(req.firmId, CONFIG_KEY, { code }, req.userEmail)
     res.send(200, { saved: true, currency: code })
   } catch (err) {
-    if (IS_DEV) {
+    if (devFallbackOk(err)) {
       devWrite(req.firmId, code)
       res.send(200, { saved: true, currency: code })
       return

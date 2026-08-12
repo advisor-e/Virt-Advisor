@@ -45,7 +45,9 @@ const DEV_FILES = {
   logicTrees: 'data/dev-firm-logic-trees.json'
 }
 
-const IS_DEV = process.env.NODE_ENV !== 'production'
+// See server/utils/dbFailure.js — also refuses the fallback when a live server
+// REFUSED the statement, so a rejected read cannot answer with stale dev data.
+const { devFallbackAllowed: IS_DEV } = require('./dbFailure')
 
 const isPlainObject = v => typeof v === 'object' && v !== null && !Array.isArray(v)
 
@@ -95,7 +97,7 @@ async function _load (loadFirmConfig, firmId, key, devFile) {
   try {
     value = await loadFirmConfig(firmId, key)
   } catch (err) {
-    if (!IS_DEV) { throw err }
+    if (!IS_DEV(err)) { throw err }
     const map = _readDevMap(devFile)
     value = Object.prototype.hasOwnProperty.call(map, firmId) ? map[firmId] : null
   }

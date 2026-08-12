@@ -1218,7 +1218,7 @@ describe('console previews (show-home, dev-gated)', () => {
     process.env.ALLOW_DEV_AUTH = 'true'
     const g = mkRes()
     await route.getConsolePreview({ params: { tier: 'global' } }, g)
-    expect(sent(g)[1].scope.tier).toBe('global_manager')
+    expect(sent(g)[1].scope.tier).toBe('global_group_manager')
     expect(sent(g)[1].stats.advisers).toBe(7) // the whole Advisor-e brand (all countries)
     expect(sent(g)[1].tree.children.length).toBe(3) // countries: DE, IT, IE
 

@@ -38,6 +38,58 @@ CREATE TABLE IF NOT EXISTS `firms` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
+-- The reserved PLATFORM scope — a row that is not a firm.
+--
+-- 🔴 INTEGRATION NOTE (for the Advisor-e team): RUN THIS INSERT EVEN IF YOU SKIP
+--    THE `firms` BLOCK ABOVE. If you point the foreign keys at your own firms
+--    table, this row must be inserted THERE instead. Without it every mentor-
+--    authored save is rejected by fk_firm_fw_firm with a foreign-key error.
+--
+-- Why it exists: the mentor is not a firm, but their content rides the same store
+-- as a firm's (firm_framework_versions) so version history and restore come free
+-- rather than being built twice. That table's firm_id is foreign-keyed to this
+-- one, so the scope the mentor writes under has to resolve to a real row.
+--
+-- Why it is safe: `__platform__` is not a valid Advisor-e firm id, so it cannot
+-- collide with a real firm. Nothing in the application queries this table
+-- directly; every "which firms..." answer goes through
+-- listFirmIdsWithConfigKey (server/utils/firmOverlay.js), which excludes this id.
+--
+-- The id is defined once, in server/utils/platformScope.js. Change it there and
+-- here together, or mentor content becomes unreachable.
+-- -----------------------------------------------------------------------------
+INSERT INTO `firms` (`id`, `name`, `slug`)
+VALUES ('__platform__', 'Platform (mentor)', '__platform__')
+ON DUPLICATE KEY UPDATE `id` = `id`;
+
+-- -----------------------------------------------------------------------------
+-- The MIDDLE management tiers — Global Manager and Group Manager.
+--
+-- 🔴 INTEGRATION NOTE (for the Advisor-e team): THESE ROWS DO NOT EXIST YET, AND
+--    THEY CANNOT BE WRITTEN HERE. Each one names a real global group or country,
+--    and this repo has no list of them: the `firms` table has no group or country
+--    column, and no membership data has been supplied (see
+--    design/MENTOR-TIER-CHAIN-PLAN.md §2).
+--
+-- WHEN YOU SUPPLY MEMBERSHIP, INSERT ONE ROW PER TIER SCOPE AT THE SAME TIME.
+-- The scope ids are composed by server/utils/tierChain.js and take these shapes:
+--
+--     __global__:<globalGroup>              e.g. '__global__:Advisor-e'
+--     __group__:<globalGroup>:<country>     e.g. '__group__:Advisor-e:DE'
+--
+-- Without the row, every save at that tier is rejected by fk_firm_fw_firm with a
+-- foreign-key error — the same failure the `__platform__` row above exists to
+-- prevent. ⚠ IT WILL NOT LOOK LIKE AN ERROR: the development fallback absorbs the
+-- rejection and reports success, which is exactly how the mentor's own saves ran
+-- for weeks in 2026 before anyone noticed they could never have reached a real
+-- database. Add the row first, then test a save, and confirm it is really there.
+--
+-- ⚠ NOT the `group` table further down this file. That is a Special Interest
+-- Group (group_member / group_tag / marketplace_listing) — a social group in
+-- Collaborate, not a management tier. They are unrelated.
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
 -- firm_documents
 -- Tracks every PDF uploaded by a firm, stored in Google Drive.
 -- `category` matches a value from DRIVE.categories in config/integration.js.

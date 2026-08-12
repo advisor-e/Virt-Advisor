@@ -51,8 +51,11 @@
 const fs = require('fs')
 const path = require('path')
 const { resolveTemplateName } = require('./resolveTemplateName')
+const { tierOfScope } = require('./tierChain')
 
-const IS_DEV = process.env.NODE_ENV !== 'production'
+// See server/utils/dbFailure.js — also refuses the fallback when a live server
+// REFUSED the statement, so a rejected read cannot answer with stale dev data.
+const { devFallbackAllowed: IS_DEV } = require('./dbFailure')
 
 const CONFIG_KEY = 'quiz-banks'
 
@@ -87,6 +90,48 @@ const EDITABLE_QUESTION_FIELDS = ['question', 'answer', 'keyPoint']
  * @type {string}
  */
 const FIRM_QUESTION_PREFIX = 'fq-'
+
+/**
+ * Prefix for a question the MENTOR added, at the reserved platform scope.
+ *
+ * WHY IT IS NOT `fq-` TOO (2026-08-09, Phase 5). Own-row numbers are minted per scope,
+ * so the mentor's first added question and a firm's first added question would BOTH be
+ * `fq-1`. Harmless while the tiers never met; Phase 5 makes them meet, and every
+ * decision in the mechanism is keyed to an id — the firm switching off "its" question
+ * would drop the mentor's instead. The staircase took the identical change; see
+ * MENTOR_STEP_PREFIX in ./firmStaircase.
+ * @type {string}
+ */
+const MENTOR_QUESTION_PREFIX = 'mq-'
+
+/**
+ * Own-row prefixes for the two management tiers between the mentor and a firm
+ * (design/MENTOR-TIER-CHAIN-PLAN.md §3.3). The rule is not "the mentor needs its
+ * own" — it is that EVERY tier whose rows can land in one resolved list needs one.
+ * Widening the chain adds two more tiers to that list. `xq-` for global because
+ * `gq-` reads as "group", and those two tiers are adjacent.
+ * @type {string}
+ */
+const GLOBAL_QUESTION_PREFIX = 'xq-'
+const GROUP_QUESTION_PREFIX = 'gq-'
+
+/** Every own-row prefix, by tier. Distinctness is asserted by a test. */
+const QUESTION_PREFIX_BY_TIER = {
+  mentor: MENTOR_QUESTION_PREFIX,
+  global_group_manager: GLOBAL_QUESTION_PREFIX,
+  group_manager: GROUP_QUESTION_PREFIX,
+  firm_manager: FIRM_QUESTION_PREFIX
+}
+
+/**
+ * The own-row prefix a scope mints under.
+ *
+ * @param {string|null} scopeId - a firm id, or a reserved tier scope id
+ * @returns {string} the prefix new own-question ids take at that scope
+ */
+function ownQuestionPrefix (scopeId) {
+  return QUESTION_PREFIX_BY_TIER[tierOfScope(scopeId)] || FIRM_QUESTION_PREFIX
+}
 
 // Bounds on firm-supplied content. The global 1 MB body cap stops a giant
 // payload; these stop a merely large one from becoming an unreadable screen or
@@ -256,7 +301,7 @@ async function _load (loadFirmConfig, firmId, key, devFile, fallback) {
     const value = await loadFirmConfig(firmId, key)
     return (value === null || value === undefined) ? fallback : value
   } catch (err) {
-    if (!IS_DEV) { throw err }
+    if (!IS_DEV(err)) { throw err }
     const map = _readDevMap(devFile)
     return Object.prototype.hasOwnProperty.call(map, firmId) ? map[firmId] : fallback
   }
@@ -289,7 +334,7 @@ async function _load (loadFirmConfig, firmId, key, devFile, fallback) {
  * @returns {{declinedIds: string[], overrides: Object, ownRows: Array}} empty when
  *   there is nothing to carry across
  */
-function adaptLegacyWholeConfig (baseBanks, legacyConfig) {
+function adaptLegacyWholeConfig (baseBanks, legacyConfig, ownPrefix = FIRM_QUESTION_PREFIX) {
   const empty = { declinedIds: [], overrides: {}, ownRows: [] }
   const stored = isPlainObject(legacyConfig) ? legacyConfig : null
   if (!stored) { return empty }
@@ -321,7 +366,7 @@ function adaptLegacyWholeConfig (baseBanks, legacyConfig) {
         if (!usable) { return }
         ownCount += 1
         ownRows.push({
-          id: `${FIRM_QUESTION_PREFIX}${ownCount}`,
+          id: `${ownPrefix}${ownCount}`,
           bank: bankKey,
           question: entry.question,
           answer: entry.answer,
@@ -393,7 +438,7 @@ async function loadFirmQuizState (firmId, loadFirmConfig, baseBanks) {
   if (hasNewState) { return state }
 
   const legacyConfig = await _load(loadFirmConfig, firmId, CONFIG_KEYS.legacy, DEV_FILES.legacy, null)
-  const legacy = adaptLegacyWholeConfig(baseBanks, legacyConfig)
+  const legacy = adaptLegacyWholeConfig(baseBanks, legacyConfig, ownQuestionPrefix(firmId))
   if (legacy.declinedIds.length === 0 && Object.keys(legacy.overrides).length === 0 && legacy.ownRows.length === 0) {
     return state
   }
@@ -409,6 +454,8 @@ module.exports = {
   LIMITS,
   EDITABLE_QUESTION_FIELDS,
   FIRM_QUESTION_PREFIX,
+  MENTOR_QUESTION_PREFIX,
+  ownQuestionPrefix,
   validateQuizOverride,
   mergeQuizBanks,
   adaptLegacyWholeConfig,

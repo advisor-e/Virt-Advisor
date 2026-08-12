@@ -6,6 +6,8 @@ const caseStore = require('../utils/caseStore')
 const clientStore = require('../utils/clientStore')
 const { anonymiseCaseContent } = require('../utils/anonymiseCase')
 const { createOpenAIClient } = require('../utils/openaiClient')
+const { isAwaitingFirms, tierOfScope } = require('../utils/tierChain')
+const { withOrigin } = require('../utils/caseRollup')
 
 /**
  * All case routes derive identity from the verified JWT (firmAuth attaches
@@ -38,13 +40,33 @@ async function listCases (req, res) {
 }
 
 /**
- * GET /api/firm-manager/cases — the firm's SHARED case studies across all its
- * advisors, for the manager review area. Manager-gated (requireManagerRole at the
- * mount) and firm-scoped from the verified JWT. Private cases are intentionally
- * excluded: the visibility model is the access boundary, so a manager only ever
- * sees cases an advisor chose to share.
+ * GET /api/firm-manager/cases — the Team Case Studies feed, at whatever tier asks.
+ *
+ * Manager-gated (requireManagerRole at the mount) and scoped from the verified JWT,
+ * never from a parameter. What it returns depends on the caller's TIER, because
+ * ADVISOR-E-DESIGN-LOGIC.md §4.1 is "every report rolls up, no exceptions" and §4.3
+ * is "full case text stays at the firm; each level above sees a summary":
+ *
+ *   firm manager     its advisers' firm-shared cases, in full
+ *   every tier above the anonymised copies that firm manager sent onward, plus the
+ *                    origin path saying which firm each came from
+ *
+ * 🔴 THE TWO OPT-INS ARE DIFFERENT DECISIONS AND THIS ROUTE HONOURS BOTH. The advisor
+ * decides a case is visible to their firm; the firm manager separately decides it may
+ * travel further. Reading `listSharedForFirm` at a managing tier would have carried
+ * raw, un-anonymised text past the second gate — which is exactly why the tab was
+ * once argued to be firm-only. Reading `listSharedWithMentor` is what makes rolling
+ * it up safe rather than a widening.
+ *
+ * ⚠ BEFORE 2026-08-12 THIS WAS FIRM-EXACT AT EVERY TIER, so a group or global manager
+ * got an empty list. That was invisible only because no firm was mapped to a middle
+ * tier yet, so the screen showed "not connected yet" instead. The moment membership
+ * existed it began saying "no shared case studies yet" to a manager whose advisers
+ * had shared several — §4.4 is the record of this exact family of mistake.
+ *
  * @route GET /api/firm-manager/cases
- * @returns {200} { success: true, cases: object[] }
+ * @returns {200} { success: true, cases: object[], awaitingFirms: boolean } — cases
+ *   above the firm carry `origin: [{scopeId, tier, label}]`, nearest level first.
  * @returns {403} NO_FIRM_IDENTITY · {500} DB_ERROR
  */
 async function listFirmCases (req, res) {
@@ -53,8 +75,16 @@ async function listFirmCases (req, res) {
     return sendError(res, 403, 'NO_FIRM_IDENTITY', 'Your session does not identify a firm')
   }
   try {
-    const cases = await caseStore.listSharedForFirm(firmId)
-    res.send(200, { success: true, cases })
+    const cases = tierOfScope(firmId) === 'firm_manager'
+      // A firm manager reads their OWN advisers' shared cases, in full. The advisor's
+      // share-with-the-firm decision is the access boundary; nothing is anonymised,
+      // because these are their own people and the raw text is the point of a review.
+      ? await caseStore.listSharedForFirm(firmId)
+      // Every level above reads the SECOND opt-in only: the anonymised copies a firm
+      // manager explicitly sent onward, decorated with where each came from.
+      : await withOrigin(await caseStore.listSharedWithMentor(firmId), firmId)
+
+    res.send(200, { success: true, cases, awaitingFirms: isAwaitingFirms(firmId) })
   } catch (err) {
     console.error('[cases] listFirmCases failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load case studies')

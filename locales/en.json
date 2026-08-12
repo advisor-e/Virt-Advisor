@@ -1407,9 +1407,267 @@
       "systems": "Systems"
     }
   },
+  "logicLabReport": {
+    "tab": "Logic Lab Report",
+    "title": "Logic Lab Report",
+    "privacy": "This page is mentor-only. It reads configuration and counts from every firm's hub: no client name, no advisor name and no session text can appear here.",
+    "lede": "The heart of this page is the pushed-edit feed: every time a firm manager ran a Logic-Lab diagnosis and accepted the fix it offered, that acceptance was logged — the sentence they probed, what the engine did with it, the template they expected, and the change they chose. Where many firms push the same fix, that is a platform gap for you to close, so the correction cascades down to everyone.",
+    "pushed": {
+      "heading": "1 · What firms pushed, and what it tells you",
+      "sub": "{edits} accepted ideas across {firms} firms, grouped where firms made the same change. One firm pushing a fix is that firm's preference. Several firms pushing it is a default of yours that needed fixing.",
+      "empty": "No firm has accepted a Logic-Lab idea yet. Silence here is absence of evidence, not approval of your defaults."
+    },
+    "groupCount": "{firms} firms · {edits} pushed edits",
+    "groupWhat": "Steered {domain} situations to",
+    "noDomain": "unfiled",
+    "showEdits": "Open the {n} pushed edits →",
+    "hideEdits": "Close",
+    "reading": {
+      "platform-gapHead": "Platform gap.",
+      "platform-gapBody": "When most firms redirect the same situation to the same template, the baseline is pointing at the wrong one.",
+      "watchHead": "Watch, don't act.",
+      "watchBody": "A few firms is a pattern worth remembering, not yet a default worth changing.",
+      "preferenceHead": "One firm's preference.",
+      "preferenceBody": "A single firm shaping its own configuration says nothing about your baseline."
+    },
+    "field": {
+      "sentence": "Sentence probed",
+      "engine": "What the engine did",
+      "expected": "Template expected",
+      "change": "Change accepted"
+    },
+    "engine": {
+      "matched": "{n} of their own distinctions matched",
+      "noMatch": "no distinction of theirs matched",
+      "topResult": "top result {title}"
+    },
+    "change": {
+      "created": "Created their own distinction naming {template} — \"{description}\"",
+      "added": "Added {template} to their own distinction \"{description}\""
+    },
+    "whyFeed": {
+      "heading": "Why this feed, and not just counts",
+      "body": "Counting configuration tells you what firms have. A pushed edit tells you what a firm was trying to achieve and what they had to do to get there — which is exactly the material for revising platform defaults."
+    },
+    "glance": {
+      "heading": "2 · The platform at a glance",
+      "sub": "Totals across every firm — the same counting each firm's own Decision Logic page runs, summed."
+    },
+    "tile": {
+      "pushed": "pushed edits, all time",
+      "pushedNote": "across {withPushes} of {firms} firms · {without} have never run a diagnosis",
+      "firms": "firms on the platform",
+      "firmsNote": "{edited} have edited at least one lever · {defaults} run entirely on your defaults",
+      "distinctions": "firm-own advisory distinctions",
+      "distinctionsNote": "Rows a firm wrote itself, on top of your baseline.",
+      "tableEdits": "logic-table edits by firms",
+      "tableEditsNote": "Trigger phrases and template hints a firm added to your tables."
+    },
+    "usage": {
+      "heading": "3 · What gets used",
+      "sub": "The templates firms steer toward, and the editable functions they actually touch.",
+      "templatesHead": "Most-preferred templates",
+      "templatesSub": "Each row is a template a firm deliberately steered the engine toward. Counted in firms, not edits.",
+      "noTemplates": "No firm has steered the engine toward a template yet.",
+      "leversHead": "Which levers firms edit",
+      "leversSub": "Where firm effort goes. A lever nobody touches is either perfect or not understood — worth knowing which.",
+      "colTemplate": "Template",
+      "colLever": "Editable function",
+      "colFirms": "Firms"
+    },
+    "lever": {
+      "distinctions": "Advisory Distinctions",
+      "logicTableTriggers": "Logic-table triggers",
+      "logicLab": "Logic-Lab diagnosis",
+      "quizBanks": "Quiz banks",
+      "domainSupport": "Domain Support documents"
+    },
+    "firms": {
+      "heading": "4 · Firm by firm",
+      "sub": "The same counts each firm sees on its own page, one row per firm. Names shown are firm names — the platform's own customers, not anyone's clients.",
+      "empty": "No firm has stored any configuration of its own yet.",
+      "colFirm": "Firm",
+      "colPushed": "Pushed edits",
+      "colDistinctions": "Distinctions",
+      "colTableEdits": "Table edits",
+      "colLastActivity": "Last activity",
+      "defaultsOnly": "defaults only",
+      "neverEdited": "never edited"
+    },
+    "limits": {
+      "heading": "Three honest limits",
+      "body": "This page counts configuration; it cannot judge quality — several firms making the same change means the default needed attention, not that their wording is right. It reads the firms' current stored state, not this second. And a firm that never used Logic-Lab contributes nothing to section 1 — silence here is absence of evidence, not approval of your defaults.",
+      "stamp": "Computed from {firms} firms · rolled up {at}"
+    },
+    "error": {
+      "load": "The report could not be built. Nothing has changed — if this keeps happening the backend may not be running."
+    }
+  },
+  "templateCheck": {
+    "tab": "Template Check",
+    "title": "Template Check",
+    "lede": "Every place a logic table tells the advisor to use a tool, checked against the templates the app can actually open. Where the name does not match, you fix the wording here and it flows down to every firm.",
+    "counts": {
+      "heading": "What the check found",
+      "sub": "Run against all {n} logic tables."
+    },
+    "tile": {
+      "tables": "tables checked",
+      "tablesBody": "All of them, in both shapes — {nodes} keep their rules one way and {branches} the other. The guard built on 4 August only watched the first kind.",
+      "lists": "names in template lists that match nothing",
+      "listsBody": "Formal references, not loose wording, out of {checked} checked. These reach the AI today.",
+      "prose": "names written inside sentences",
+      "proseBody": "Found by reading the instruction text of every table. A capitalised phrase is not always a document, which is what \"Not a tool\" is for."
+    },
+    "list": {
+      "heading": "The list",
+      "sub": "One row per tool name that does not exactly match a template title. Fix it here and every firm gets the corrected table.",
+      "searchPlaceholder": "Search a table or a name…",
+      "empty": "Nothing to show under this filter."
+    },
+    "col": {
+      "table": "Logic table",
+      "name": "Name as written",
+      "where": "Where",
+      "verdict": "Verdict",
+      "actions": "What you can do"
+    },
+    "where": {
+      "list": "Template list",
+      "prose": "In a sentence"
+    },
+    "verdict": {
+      "none": "Nothing matches",
+      "maybe": "Probably this",
+      "ruled": "You've ruled",
+      "flagged": "Flagged — waiting on the master team",
+      "dismissed": "Not a tool"
+    },
+    "verdictWhy": {
+      "none": "No template is called this, and nothing close enough to suggest.",
+      "ruled": "Recorded — not yet applied to the table.",
+      "queued": "Queued for the next update.",
+      "flagged": "You confirmed this is a real document. It is in neither template file, so the master-app team has to publish it.",
+      "dismissed": "Dismissed by you — it is part of the instruction, not a document."
+    },
+    "queue": {
+      "button": "See what's queued ({n})",
+      "heading": "Changes queued for the next update",
+      "sub": "{ready} ready · {needsEyes} needs checking",
+      "explainer": "These are prepared, not made. Each one is an exact change to a logic table, checked against the tables as they stand right now. Nothing here has altered anything an advisor sees.",
+      "colWhere": "Table and branch",
+      "colChange": "Change",
+      "colStatus": "Status",
+      "status": {
+        "ready": "Ready",
+        "needsChecking": "Needs checking"
+      },
+      "loadFailed": "The changes could not be worked out. Nothing has been altered.",
+      "close": "Close"
+    },
+    "candidateWhy": "{why}.",
+    "evidence": {
+      "whatTableSays": "What the logic table says",
+      "whatAppCanOpen": "What the app can open",
+      "weakerMatches": "Weaker matches",
+      "weakerNote": "Nothing scored high enough to suggest. These are the closest the catalogue has — shown so the row can be judged rather than guessed at.",
+      "weakTag": "weak",
+      "namedInList": "Named in the {field} list of one branch, with no sentence around it. | Named in the {field} list of {n} branches, with no sentence around it.",
+      "whereItSits": "Where it sits in the table",
+      "colBranch": "Branch",
+      "colIf": "If the client…",
+      "colThen": "Then do this",
+      "colNames": "Names",
+      "settled": "✓ settled",
+      "settledTitle": "✓ {title}",
+      "thisRow": "this row",
+      "neighbourNote": "{shown} rows of a {total}-row table — the branch, one above and one below.",
+      "wholeTable": "The whole table — the branch, one above and one below."
+    },
+    "action": {
+      "useThisOne": "Use this one",
+      "pickAnother": "Pick another",
+      "pointAtTemplate": "Point it at a template",
+      "notATool": "Not a tool",
+      "flagMissing": "Missing — flag it",
+      "putItBack": "Put it back",
+      "changeMyMind": "Change my mind",
+      "applyIt": "Apply it"
+    },
+    "flagNote": "Confirmed a real document; not in the export.",
+    "picker": {
+      "heading": "Point it at a template",
+      "forName": "For the name written in the table: {name}",
+      "placeholder": "Start typing a template title…",
+      "confirm": "Use this one",
+      "cancel": "Cancel"
+    },
+    "caution": {
+      "heading": "Why \"Not a tool\" matters.",
+      "body": "Some rows are phrases inside your own sentences that were never meant to be documents. Without a way to dismiss them the screen would raise the same false alarms every time you opened it, and you would stop trusting the list. A dismissal is remembered and can always be undone."
+    },
+    "limits": {
+      "heading": "What this screen cannot do",
+      "sub": "Stated up front so it is never mistaken for a clean bill of health.",
+      "cannotKnow": "It cannot know a phrase is a tool. A name inside a sentence is found by looking for a capitalised phrase after an instruction word, so it will sometimes raise something that was never a document — which is why \"Not a tool\" exists. It will also miss a tool written in lower case.",
+      "suggestionOnly": "\"Probably this\" is a suggestion, never applied on its own. Nothing changes a logic table until you press a button. This is deliberate: on 4 August a set of these names was confidently judged missing, and that judgement was wrong.",
+      "titlesNotContents": "It checks titles, not contents. Some titles appear twice in the export. The screen will ask you which one you mean rather than choose.",
+      "cannotPublish": "It cannot publish a missing document. \"Missing — flag it\" records the gap for the master-app team; only they can add it to the export.",
+      "footnote": "Read live from the logic tables ({tables}) and the template catalogue ({refs} formal references checked)."
+    },
+    "error": {
+      "load": "The check could not be run. Nothing has changed — try again, and if it keeps failing the backend may not be running.",
+      "save": "That decision was not saved. Nothing has changed."
+    }
+  },
   "firmAdviserNetwork": {
     "tab": "Advisor Network",
     "lede": "Everyone advising under your firm: who they are, the specialty groups they have asked to join, and whether they may work with advisors outside the firm."
+  },
+  "mentorAdoption": {
+    "tab": "How firms are using the app",
+    "lede": "Which firms are actually using the product, and which have gone quiet. Counts only — no adviser is named here, and no client work appears. A firm's own manager still sees their advisers by name on their own Team Progress tab.",
+    "loading": "Reading activity across every firm…",
+    "loadFailed": "The activity record could not be reached, so this page cannot say who is using the app. This is a fault, not an empty platform.",
+    "retry": "Try again",
+    "empty": "No firms to show yet.",
+    "never": "Never",
+    "noDirectory": "The list of firms could not be read, so this page is showing only the firms that have used the app. Firms that have never started are missing from it.",
+    "footnote": "A firm is shown as having slowed down after {days} days with no activity.",
+    "tileActive": "Firms active recently",
+    "tileActiveNote": "Did at least one advisor session or course in the last {days} days.",
+    "tileSlowed": "Firms that have slowed down",
+    "tileSlowedNote": "Used it, then nothing for {days} days. The list most worth acting on.",
+    "tileAdvisers": "Advisers taking part",
+    "tileAdvisersNote": "A count of distinct advisers. No names, here or anywhere on this page.",
+    "tileTotal": "Total sessions and courses",
+    "tileTotalNote": "Advisor sessions plus completed courses, added together.",
+    "colFirm": "Firm",
+    "colAdvisers": "Advisers",
+    "colSessions": "Sessions",
+    "colCourses": "Courses",
+    "colAvgQuiz": "Avg quiz",
+    "colLastSeen": "Last seen",
+    "colStatus": "Status",
+    "status": {
+      "active": "Active",
+      "slowed": "Slowed down",
+      "never": "Not started yet"
+    }
+  },
+  "tierNotConnected": {
+    "firmsNotMapped": "The firms in this group are not connected yet, so there is nothing to show here."
+  },
+  "caseShare": {
+    "heading": "Share upward",
+    "sharedStatus": "Shared upward (anonymised)",
+    "explain": "Share an anonymised copy with your group manager, your global group manager and Advisor-e, to help improve the app. Client details are removed and you approve the copy first.",
+    "withdraw": "Stop sharing",
+    "share": "Share upward",
+    "previewTitle": "Share upward — check the anonymised copy",
+    "consent": "This is what your group manager, your global group manager and Advisor-e will see. Client names, the business and identifying details have been removed; the wording and tone are kept. Approve only if you're happy it's anonymous.",
+    "reviewTitle": "Case Reviews",
+    "reviewLede": "Anonymised case studies shared by the firms in your group. Client names and identifying details are removed; the wording and tone are kept so you can see how the app performed and where it can improve."
   },
   "firmTeamProgress": {
     "tab": "Team Progress",
@@ -1418,6 +1676,11 @@
     "totalLegend": "Total includes sessions not yet at a capability level.",
     "notLevelled": "{n} not yet at a level",
     "colAdvisor": "Advisor",
+    "rollupLegend": "Each row is one level below you, summarised. Individual advisors are shown to their own firm manager.",
+    "colLevel": "Level",
+    "colAdvisers": "Advisers",
+    "colAvgQuiz": "Avg Quiz",
+    "firmCount": "{n} firms",
     "tierEntry": "Entry Level",
     "tierIntermediate": "Intermediate",
     "tierAdvanced": "Advanced",

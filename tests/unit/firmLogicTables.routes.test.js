@@ -446,3 +446,79 @@ describe('POST /domain-support/:domainId/section (re-file, display-only)', () =>
     expect(map).toEqual({ eoy: 'getOrganised' })
   })
 })
+
+describe('the THEN column reaches every field a node keeps its instruction in', () => {
+  /**
+   * 55 branches across 8 tables hold their instruction in `recommendation` and
+   * have neither `action` nor `question`, so the editor used to render an empty
+   * THEN box — the mentor could see the branch but not the sentence, and could
+   * not correct "Use Get Seminar template" in the app at all.
+   */
+  test('a recommendation-only branch is no longer blank on screen', async () => {
+    const res = makeMockRes()
+    await getLogicTreeDetail(makeReq({ params: { treeId: 'get_seminar' } }), res)
+    expect(res._status).toBe(200)
+    const row = res._body.branches.find(b => b.id === 'gs_audience_negativity')
+    expect(row).toBeTruthy()
+    expect(row.action).toContain('Use Get Seminar template')
+  })
+
+  test('a reworded recommendation goes home to `recommendation`, never to `action`', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'get_seminar' },
+      body: {
+        branches: [{
+          id: 'gs_audience_negativity',
+          branch_name: 'Audience Engagement — Preemptive Negativity',
+          condition: 'unchanged',
+          action: 'Use Design & Deliver. Address known objections at the opening.',
+          notes: 'unchanged'
+        }]
+      }
+    }), res)
+    expect(res._status).toBe(200)
+
+    const [, , map] = overlay.saveFirmConfig.mock.calls[0]
+    const saved = map.get_seminar.nodes.find(n => n.id === 'gs_audience_negativity')
+    expect(saved.recommendation).toBe('Use Design & Deliver. Address known objections at the opening.')
+
+    // 🔴 THE SAFETY CLAIM. `recommendation` is gated sentence-by-sentence by the
+    // tool-name check; `action` is not. Landing the edit in `action` would carry
+    // it past that gate silently, so the absence of the key IS the assertion.
+    expect(Object.prototype.hasOwnProperty.call(saved, 'action')).toBe(false)
+  })
+
+  test('a pure-question node still round-trips to `question`', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'get_seminar' },
+      body: { branches: [{ id: 'gs_entry', branch_name: 'B', condition: 'c', action: 'Which challenge?', notes: 'n' }] }
+    }), res)
+    expect(res._status).toBe(200)
+    const [, , map] = overlay.saveFirmConfig.mock.calls[0]
+    const saved = map.get_seminar.nodes.find(n => n.id === 'gs_entry')
+    expect(saved.question).toBe('Which challenge?')
+    expect(Object.prototype.hasOwnProperty.call(saved, 'action')).toBe(false)
+  })
+
+  test('an ordinary branch still writes to `action`', async () => {
+    const logicTrees = require('../../server/utils/logicTrees')
+    const base = logicTrees.loadLogicTrees().find(t => t.id === 'quickfire')
+    const acting = (base.nodes || []).find(n => typeof n.action === 'string' && n.action !== '')
+    expect(acting).toBeTruthy() // guard: the fixture still has an action node
+
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'quickfire' },
+      body: { branches: [{ id: acting.id, branch_name: 'B', condition: 'c', action: 'reworded', notes: 'n' }] }
+    }), res)
+    expect(res._status).toBe(200)
+    const [, , map] = overlay.saveFirmConfig.mock.calls[0]
+    const saved = map.quickfire.nodes.find(n => n.id === acting.id)
+    expect(saved.action).toBe('reworded')
+  })
+})

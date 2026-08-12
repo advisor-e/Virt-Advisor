@@ -10,6 +10,15 @@ const {
 // Stage D delete-promotion lives in firmManager (it owns the firm-distinction stores
 // + dev fallbacks); reused here so a mentor delete preserves customising firms' rows.
 // One-way dependency (firmManager never requires mentor) — no cycle.
+const { runTemplateCheck } = require('../utils/templateCheck')
+const { buildTemplateCheckPatch } = require('../utils/templateCheckPatch')
+const { buildMentorLogicLabReport } = require('../utils/mentorLogicLabReport')
+const activityStore = require('../utils/activityStore')
+const { listFirms } = require('../utils/firmsDirectory')
+const { buildAdoptionView, mergeActivityRows } = require('../utils/mentorAdoption')
+const { loadRulings, saveRulings, normaliseRuling } = require('../utils/templateCheckRulings')
+const { isWithinScope, isAwaitingFirms } = require('../utils/tierChain')
+const { withOrigin } = require('../utils/caseRollup')
 const DOMAINS = require('../../data/domains.json')
 const firmManager = require('./firmManager')
 
@@ -205,28 +214,378 @@ async function deleteMentorDistinction (req, res) {
   }
 }
 
+// firmNameMap and the origin-path mapping MOVED to server/utils/caseRollup.js on
+// 2026-08-12, when Team Case Studies became the second report to show a case above
+// the firm (ADVISOR-E-DESIGN-LOGIC.md §4.1, "every report rolls up"). §4.3 names this
+// shape as the one a later cross-firm report should reuse rather than reinvent — so
+// it is imported, not copied. A conflict here is resolved by keeping the import.
+
 /**
- * GET /api/mentor/cases — every mentor-shared case across all firms, anonymised
- * and advisor-stripped, most-recently-shared first. For the Mentor view, where
- * the mentor reviews real sessions to improve the app's accuracy.
+ * GET /api/mentor/cases — the cases shared upward, anonymised and advisor-stripped,
+ * most-recently-shared first. The mentor reads every firm's; a global or country
+ * manager reads only their own channel's.
+ *
+ * The scope comes from req.firmId, which firmAuth has already resolved from the
+ * verified token — never from a query parameter. A caller cannot ask for another
+ * group's feed, because they cannot say which feed they want.
+ *
+ * 🔴 EVERY CASE CARRIES ITS ORIGIN (ruled 2026-08-11). Until then the feed named no
+ * source at all: it carried `firmId` in the payload and no screen displayed it, so a
+ * manager read a stack of anonymous cards and could act on none of them. That is the
+ * opposite of what this app is for — ADVISOR-E-DESIGN-LOGIC.md §2, "who is failing
+ * so we can offer help". `origin` is the path from the level immediately below the
+ * caller down to the firm, so the screen can group by rule 7's level and still show
+ * the address inside it. The client stays anonymised and the ADVISER STAYS STRIPPED;
+ * naming a firm to the manager above it is not a disclosure — they are their firms.
+ *
  * @route GET /api/mentor/cases
- * @returns {200} { success: true, cases: object[] }
+ * @returns {200} { success: true, cases: object[], awaitingFirms: boolean } — each
+ *   case gains `origin: [{ scopeId, tier, label }]`, nearest level below the caller
+ *   first. awaitingFirms distinguishes "no firm is mapped to this tier yet" from "no
+ *   case has been shared yet". The two produce an identical empty list and mean
+ *   opposite things, so the screen is told which it is rather than left to guess.
  * @returns {500} DB_ERROR
  */
 async function listMentorCases (req, res) {
   try {
-    const cases = await caseStore.listSharedWithMentor()
-    res.send(200, { success: true, cases })
+    const cases = await caseStore.listSharedWithMentor(req.firmId)
+    const decorated = await withOrigin(cases, req.firmId)
+
+    res.send(200, { success: true, cases: decorated, awaitingFirms: isAwaitingFirms(req.firmId) })
   } catch (err) {
     console.error('[mentor] listMentorCases failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load shared case studies')
   }
 }
 
+// ── Template Check — every tool a logic table names, checked against the catalogue ──
+// Design: design/mockups/logic-table-template-check.html (approved by Mike 2026-08-05).
+// The scan is pure and stateless; the mentor's rulings live in the same reserved
+// global overlay scope as the platform distinctions, so they gain version history
+// and cannot collide with a firm's rows.
+
+/**
+ * The Template Check report: the three counts and every unresolved name.
+ *
+ * @route GET /api/mentor/template-check
+ * @returns {object} { success, counts, findings } — findings carry the mentor's
+ *   own rulings already applied, so the screen never has to merge two sources.
+ */
+async function getTemplateCheck (req, res) {
+  try {
+    const rulings = await loadRulings(overlay.loadFirmConfig)
+    const report = runTemplateCheck({ rulings })
+    res.send(200, { success: true, counts: report.counts, findings: report.findings })
+  } catch (err) {
+    console.error('[mentor] getTemplateCheck failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not run the template check')
+  }
+}
+
+/**
+ * Record one ruling — "this name means that template", "not a tool", or "missing,
+ * flag it". Read-modify-write against the stored map.
+ *
+ * @route PUT /api/mentor/template-check/rulings/:key
+ * @param {object} req.body - { verdict: 'ruled'|'dismissed'|'flagged', title, note }
+ * @returns {object} { success, ruling }
+ */
+async function saveTemplateCheckRuling (req, res) {
+  const key = req.params && req.params.key
+  if (!key) { return sendError(res, 400, 'BAD_REQUEST', 'A finding key is required') }
+
+  const parsed = normaliseRuling(req.body, req.userEmail || '', new Date().toISOString())
+  if (!parsed.ok) { return sendError(res, 400, 'BAD_REQUEST', parsed.message) }
+
+  try {
+    const map = await loadRulings(overlay.loadFirmConfig)
+    map[key] = parsed.value
+    await saveRulings(map, overlay.saveFirmConfig, req.userEmail || '')
+    res.send(200, { success: true, ruling: parsed.value })
+  } catch (err) {
+    console.error('[mentor] saveTemplateCheckRuling failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not save the ruling')
+  }
+}
+
+/**
+ * The patch the mentor's applied rulings add up to — what "Apply it" leads to.
+ *
+ * ⚠ IT RETURNS THE EDITS. IT DOES NOT MAKE THEM. Ruled by Mike 2026-08-09; the
+ * three reasons are in server/utils/templateCheckPatch.js, and the shortest of
+ * them is that this exact fix has been made by hand twice before as a reviewed
+ * commit, which is the practice this fits into rather than replaces.
+ *
+ * Every requested edit comes back CLASSIFIED — ready, ambiguous, stale, or
+ * pointing at a template the catalogue no longer carries. Nothing is dropped for
+ * being awkward: a patch that silently omitted the hard rows would read as a
+ * finished job.
+ *
+ * @route GET /api/mentor/template-check/patch
+ * @returns {200} { success: true, patch } — { counts, edits }
+ * @returns {500} DB_ERROR (standard error envelope)
+ */
+async function getTemplateCheckPatch (req, res) {
+  try {
+    const rulings = await loadRulings(overlay.loadFirmConfig)
+    const patch = buildTemplateCheckPatch({ rulings })
+    res.send(200, { success: true, patch })
+  } catch (err) {
+    console.error('[mentor] getTemplateCheckPatch failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not work out the changes')
+  }
+}
+
+/**
+ * Undo a ruling — the mockup's "Change my mind" and "Put it back". Removing a key
+ * that is not there succeeds: the end state the caller asked for is the end state
+ * they get, and a 404 here would only ever be a race with themselves.
+ *
+ * @route DELETE /api/mentor/template-check/rulings/:key
+ * @returns {object} { success }
+ */
+async function deleteTemplateCheckRuling (req, res) {
+  const key = req.params && req.params.key
+  if (!key) { return sendError(res, 400, 'BAD_REQUEST', 'A finding key is required') }
+
+  try {
+    const map = await loadRulings(overlay.loadFirmConfig)
+    if (Object.prototype.hasOwnProperty.call(map, key)) {
+      delete map[key]
+      await saveRulings(map, overlay.saveFirmConfig, req.userEmail || '')
+    }
+    res.send(200, { success: true })
+  } catch (err) {
+    console.error('[mentor] deleteTemplateCheckRuling failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not undo the ruling')
+  }
+}
+
+// ── Logic Lab Report — what every firm pushed back, read together ─────────────
+// Artefact: design/mockups/mentor-logic-lab-report-mockup.html (approved by Mike
+// 2026-08-04). Shape: design/MENTOR-AI-HUB-STUB.md.
+
+/**
+ * The config keys behind each editable function, so "which levers do firms
+ * actually touch" is answered by asking the store rather than by a hardcoded
+ * guess. A lever with no firms stays in the answer — the artefact's point about
+ * this table is the negative reading.
+ */
+const LEVER_KEYS = {
+  distinctions: 'advisory-distinctions',
+  logicTableTriggers: 'logic-tree-sections',
+  logicLab: 'logic-lab-accepted',
+  quizBanks: 'quiz-banks',
+  domainSupport: 'domain-support-sections'
+}
+
+/**
+ * The Logic Lab Report — the one page that reads across every firm.
+ *
+ * CROSS-FIRM BY DESIGN, and defensible only because it carries configuration and
+ * counts: the sentence a manager typed into their own Logic-Lab, the engine's
+ * reading, the template expected, the change made. The rollup re-checks that at
+ * the boundary and throws rather than publishing anything personal.
+ *
+ * @route GET /api/mentor/logic-lab-report
+ * @returns {object} { success, report } — the four sections of the artefact.
+ */
+async function getLogicLabReport (req, res) {
+  try {
+    // Which firms hold anything at all, per lever.
+    const firmsByLever = {}
+    for (const lever of Object.keys(LEVER_KEYS)) {
+      firmsByLever[lever] = await safeFirmIds(LEVER_KEYS[lever])
+    }
+
+    // Beneath THIS caller only. The mentor's scope matches every firm, so its
+    // report is unchanged; a middle tier sees its own channel and nothing else
+    // (owner's ruling 2026-08-11). The filter is applied to the firm list rather
+    // than to each lever, so a firm cannot survive in one lever's count while
+    // being absent from the rows.
+    const allFirmIds = [...new Set(Object.values(firmsByLever).flat())]
+      .filter(firmId => isWithinScope(firmId, req.firmId))
+      .sort()
+
+    const firms = []
+    for (const firmId of allFirmIds) {
+      const entries = await safeConfig(firmId, LEVER_KEYS.logicLab, [])
+      const distinctions = await safeConfig(firmId, LEVER_KEYS.distinctions, [])
+      const tables = await safeConfig(firmId, LEVER_KEYS.logicTableTriggers, {})
+      firms.push({
+        firmId,
+        // The id IS the name the mentor sees on this page. Named rather than faked
+        // — the artefact's rows show firm names, and inventing display names would
+        // be the one thing on this page that is not real.
+        //
+        // ⚠ CORRECTED 2026-08-09: this used to say "no firm-name table is reachable
+        // from here yet", and that is no longer true — server/utils/firmsDirectory.js
+        // now reads it for the adoption page. This page has NOT been moved onto it,
+        // which is a deliberate limit of that change rather than an oversight, and
+        // is recorded as such so the comment does not quietly become a lie.
+        firmName: firmId,
+        entries: Array.isArray(entries) ? entries : [],
+        levers: {
+          distinctions: { firmOwn: Array.isArray(distinctions) ? distinctions.length : 0 },
+          logicTables: { edited: tables && typeof tables === 'object' ? Object.keys(tables).length : 0 },
+          quizBanks: { edited: firmsByLever.quizBanks.includes(firmId) ? 1 : 0 },
+          domainSupport: { edited: firmsByLever.domainSupport.includes(firmId) ? 1 : 0 }
+        },
+        lastActivity: latestStamp(entries)
+      })
+    }
+
+    const report = buildMentorLogicLabReport({ firms, rolledUpAt: new Date().toISOString() })
+    // Set after the builder rather than passed into it: the builder asserts that no
+    // personal field reaches the payload and knows nothing about tiers. Keeping the
+    // flag outside its shape leaves that assertion reading exactly what it did.
+    report.awaitingFirms = isAwaitingFirms(req.firmId)
+    res.send(200, { success: true, report })
+  } catch (err) {
+    console.error('[mentor] getLogicLabReport failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not build the Logic Lab Report')
+  }
+}
+
+/**
+ * Firm ids holding a config key, or an empty list when there is no database.
+ *
+ * An empty answer is the truthful one in an environment with no MySQL: no firm
+ * has pushed anything HERE. The screen says so in words rather than showing an
+ * encouraging zero — see templateCheck's error handling for the same principle.
+ *
+ * @param {string} configKey
+ * @returns {Promise<Array<string>>}
+ */
+async function safeFirmIds (configKey) {
+  try {
+    const ids = await overlay.listFirmIdsWithConfigKey(configKey)
+    return Array.isArray(ids) ? ids : []
+  } catch (_e) {
+    return []
+  }
+}
+
+/**
+ * @param {string} firmId
+ * @param {string} configKey
+ * @param {*} fallback
+ * @returns {Promise<*>}
+ */
+async function safeConfig (firmId, configKey, fallback) {
+  try {
+    const value = await overlay.loadFirmConfig(firmId, configKey)
+    return value === null || value === undefined ? fallback : value
+  } catch (_e) {
+    return fallback
+  }
+}
+
+/**
+ * @param {Array<object>} entries - accepted ideas.
+ * @returns {string|null} the newest `at` stamp, or null when there are none.
+ */
+function latestStamp (entries) {
+  if (!Array.isArray(entries) || entries.length === 0) { return null }
+  return entries.map(e => String(e.at || '')).sort().pop() || null
+}
+
+/**
+ * How firms are using the app — the mentor's adoption view.
+ *
+ * CROSS-FIRM BY DESIGN, and defensible only because it carries COUNTS: how many
+ * advisers, how many sessions, how recently. It replaces Team Progress at mentor
+ * level rather than widening it — that tab lists a firm's advisers BY NAME, and
+ * widening it would have put every firm's people in front of Advisor-e.
+ * buildAdoptionView re-checks that at the boundary and throws rather than
+ * publishing anything personal.
+ *
+ * TWO READS, AND THEY FAIL DIFFERENTLY ON PURPOSE. The activity is the page; the
+ * firms directory only adds the firms that have never started. So a directory
+ * that cannot be read degrades the page to "who is using it" rather than failing
+ * it — the information the mentor had before this page existed. Activity that
+ * cannot be read is the page failing, and says so.
+ *
+ * @route GET /api/mentor/adoption
+ * @returns {200} { success: true, report } — totals plus one row per firm.
+ * @returns {500} DB_ERROR (standard error envelope)
+ */
+/**
+ * Keep only the activity belonging to firms beneath one managing tier.
+ *
+ * Applied to all THREE row-sets, and the count of them is the reason this is a
+ * function rather than three filters inline: the adviser counts, the session rows
+ * and the course rows are merged downstream into one row per firm, so a filter
+ * missed on any one of them would leak that firm back in through the merge with
+ * only part of its numbers — a wrong row rather than an absent one, which is the
+ * harder kind to notice.
+ *
+ * The mentor's scope matches every firm (see tierChain.isWithinScope), so this is
+ * an identity transform for the mentor and its page is unchanged.
+ *
+ * @param {{vaRows: object[], courseRows: object[], adviserRows: object[]}} rows
+ * @param {string} scopeId - the caller's resolved scope
+ * @returns {{vaRows: object[], courseRows: object[], adviserRows: object[]}}
+ */
+function scopeAdoptionRows (rows, scopeId) {
+  const src = rows && typeof rows === 'object' ? rows : {}
+  const mine = list => (Array.isArray(list) ? list : []).filter(r => r && isWithinScope(r.firm_id, scopeId))
+  return {
+    vaRows: mine(src.vaRows),
+    courseRows: mine(src.courseRows),
+    adviserRows: mine(src.adviserRows)
+  }
+}
+
+async function getAdoption (req, res) {
+  try {
+    const rows = scopeAdoptionRows(await activityStore.readAdoptionByFirm(), req.firmId)
+
+    let firms = []
+    try {
+      firms = (await listFirms()).filter(f => isWithinScope(f.id, req.firmId))
+    } catch (err) {
+      // Deliberately swallowed, and deliberately loud in the log. See above: the
+      // firms list is an enrichment, not the page. Silence here would be wrong —
+      // the mentor would see a shorter list with nothing to say it was short.
+      console.error('[mentor] adoption: firms directory unreadable, showing active firms only:', err.message)
+    }
+
+    const report = buildAdoptionView({
+      firms,
+      activity: mergeActivityRows(rows),
+      now: new Date().toISOString()
+    })
+
+    // Honest limit, carried in the payload rather than left to the screen to
+    // remember: without the directory the page cannot show a firm that never
+    // started, and the difference is invisible on screen otherwise.
+    report.directoryRead = firms.length > 0
+
+    // The SECOND honest limit this page carries, and it is a different one. Above:
+    // "the firms directory could not be read, so never-started firms are missing".
+    // Here: "no firm has been mapped to this tier at all, so there is nothing to
+    // read yet". Both produce a shorter page; only one of them is our own
+    // unfinished wiring, and the screen says which.
+    report.awaitingFirms = isAwaitingFirms(req.firmId)
+
+    res.send(200, { success: true, report })
+  } catch (err) {
+    console.error('[mentor] getAdoption failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not load firm adoption')
+  }
+}
+
 module.exports = {
   listMentorCases,
+  getAdoption,
   listMentorDistinctions,
   createMentorDistinction,
   updateMentorDistinction,
-  deleteMentorDistinction
+  deleteMentorDistinction,
+  getTemplateCheck,
+  getTemplateCheckPatch,
+  saveTemplateCheckRuling,
+  deleteTemplateCheckRuling,
+  getLogicLabReport
 }

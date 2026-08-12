@@ -34,13 +34,22 @@ const BASE = require('../../data/advisory-staircase.json')
 const FIRM = 'firm-test-123'
 
 /**
- * Answer each config key separately — the real store holds four independent keys, and
- * a mock that returns one value for all of them cannot tell a decline from an override.
+ * Answer each config key separately, FOR THIS FIRM ONLY — the real store holds four
+ * independent keys, and a mock that returns one value for all of them cannot tell a
+ * decline from an override.
+ *
+ * SCOPE MATTERS TOO, since Phase 5 (2026-08-09). A firm's staircase now resolves
+ * against the MENTOR'S, so this loader is asked for two scopes in one call. A stub
+ * that ignored the scope would hand the firm's own rows to the mentor level as well,
+ * and the same step would arrive twice — once inherited, once as the firm's own. That
+ * is not a mock artefact to paper over: it is exactly the id collision that
+ * MENTOR_STEP_PREFIX now prevents, and the stub reproduced it faithfully.
+ *
  * @param {Object} byKey - { 'staircase-declines': [...], ... }
  */
 function mockKeys (byKey) {
   overlay.loadFirmConfig.mockImplementation((firmId, key) =>
-    Promise.resolve(Object.prototype.hasOwnProperty.call(byKey, key) ? byKey[key] : null))
+    Promise.resolve(firmId === FIRM && Object.prototype.hasOwnProperty.call(byKey, key) ? byKey[key] : null))
 }
 
 beforeEach(() => { jest.clearAllMocks() })

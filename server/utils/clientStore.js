@@ -27,6 +27,7 @@ const path = require('path')
 const fs = require('fs')
 const db = require('./db')
 const { generateId } = require('./caseStore')
+const { devFallbackAllowed } = require('./dbFailure')
 
 // Default dev fallback file; overridable via CLIENT_DEV_FILE so tests can point
 // at an isolated temp file. Production never sets this — it uses MySQL.
@@ -35,8 +36,10 @@ const DEV_CLIENTS_FILE = process.env.CLIENT_DEV_FILE
   : path.resolve(__dirname, '../../data/dev-clients.json')
 
 /** Same rule as caseStore: the JSON fallback may never stand in for production. */
-function devFallbackEnabled () {
-  return process.env.NODE_ENV !== 'production'
+// See server/utils/dbFailure.js — also refuses the fallback when a live server
+// REFUSED the statement, so a rejected write cannot report success.
+function devFallbackEnabled (err) {
+  return devFallbackAllowed(err)
 }
 
 /**
@@ -112,7 +115,7 @@ async function listForFirm (firmId) {
     )
     return rows.map(rowToClient)
   } catch (err) {
-    if (devFallbackEnabled()) { return _devList(firmId) }
+    if (devFallbackEnabled(err)) { return _devList(firmId) }
     throw err
   }
 }
@@ -133,7 +136,7 @@ async function getById (id, firmId) {
     )
     return rows.length ? rowToClient(rows[0]) : null
   } catch (err) {
-    if (devFallbackEnabled()) { return _devGet(id, firmId) }
+    if (devFallbackEnabled(err)) { return _devGet(id, firmId) }
     throw err
   }
 }
@@ -164,7 +167,7 @@ async function create (input) {
     )
     return rowToClient({ ...row, created_at: new Date().toISOString() })
   } catch (err) {
-    if (devFallbackEnabled()) { return _devCreate(row) }
+    if (devFallbackEnabled(err)) { return _devCreate(row) }
     throw err
   }
 }
@@ -189,7 +192,7 @@ async function rename (id, firmId, name) {
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) { return _devRename(id, firmId, clean, key) }
+    if (devFallbackEnabled(err)) { return _devRename(id, firmId, clean, key) }
     throw err
   }
 }

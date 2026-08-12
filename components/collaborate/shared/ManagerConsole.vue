@@ -20,7 +20,7 @@
           span.sep ·
           nuxt-link(to="/group") {{ $t('console.titles.group_manager') }}
           span.sep ·
-          nuxt-link(to="/global") {{ $t('console.titles.global_manager') }}
+          nuxt-link(to="/global") {{ $t('console.titles.global_group_manager') }}
           span.sep ·
           nuxt-link(to="/mentor") {{ $t('console.titles.mentor') }}
 
@@ -242,7 +242,7 @@ export default {
     scopeChip () {
       if (!this.c) { return '' }
       if (this.tier === 'group_manager') { return '🌍 ' + this.countryName }
-      if (this.tier === 'global_manager') { return '🌐 ' + this.$t('console.allCountries') }
+      if (this.tier === 'global_group_manager') { return '🌐 ' + this.$t('console.allCountries') }
       if (this.tier === 'mentor') { return '⭐ ' + this.$t('console.wholeNetwork') }
       return '🏢 ' + (this.c.firm || '')
     },
@@ -267,7 +267,7 @@ export default {
       }
       const sets = {
         mentor: ['globalGroups', 'groups', 'firms', 'advisers'],
-        global_manager: ['groups', 'firms', 'advisers', 'pendingApprovals'],
+        global_group_manager: ['groups', 'firms', 'advisers', 'pendingApprovals'],
         group_manager: ['firms', 'advisers', 'pendingApprovals'],
         firm_manager: ['advisers', 'specialtyGroups', 'pendingApprovals'] // + the cross-firm tile
       }

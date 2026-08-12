@@ -1,0 +1,35 @@
+{
+  "_comment": "DEV/TEST-ONLY firm directory. Read by server/utils/firmsDirectory.js ONLY when MySQL is unavailable and NODE_ENV is not production. These firms are INVENTED for local testing so the hub screens can be seen populated; none of them is real, and the brand names are examples only. The ids here must match data/dev-firm-membership.json exactly — tests/unit/devFirmMembership.test.js fails the build if one drifts from the other.",
+  "_shape": "Three global groups (brands), three groups (countries) in each, three firms in each country = 27 firms. This is the cascade the tier hubs exist to show: a mentor sees all 27, a global group manager sees their brand's 9, a group manager sees their country's 3.",
+  "firms": [
+    { "id": "dev-firm-001", "name": "Advisor-e Berlin" },
+    { "id": "dev-firm-002", "name": "Advisor-e Munich" },
+    { "id": "dev-firm-007", "name": "Advisor-e Hamburg" },
+    { "id": "dev-firm-003", "name": "Advisor-e London" },
+    { "id": "dev-firm-004", "name": "Advisor-e Manchester" },
+    { "id": "dev-firm-008", "name": "Advisor-e Bristol" },
+    { "id": "dev-firm-005", "name": "Advisor-e Sydney" },
+    { "id": "dev-firm-006", "name": "Advisor-e Brisbane" },
+    { "id": "dev-firm-009", "name": "Advisor-e Melbourne" },
+
+    { "id": "dev-firm-010", "name": "BDO Leeds" },
+    { "id": "dev-firm-011", "name": "BDO Birmingham" },
+    { "id": "dev-firm-012", "name": "BDO Glasgow" },
+    { "id": "dev-firm-013", "name": "BDO New York" },
+    { "id": "dev-firm-014", "name": "BDO Chicago" },
+    { "id": "dev-firm-015", "name": "BDO Denver" },
+    { "id": "dev-firm-016", "name": "BDO Toronto" },
+    { "id": "dev-firm-017", "name": "BDO Vancouver" },
+    { "id": "dev-firm-018", "name": "BDO Montreal" },
+
+    { "id": "dev-firm-019", "name": "Lindt & Co Paris" },
+    { "id": "dev-firm-020", "name": "Lindt & Co Lyon" },
+    { "id": "dev-firm-021", "name": "Lindt & Co Marseille" },
+    { "id": "dev-firm-022", "name": "Lindt & Co Milan" },
+    { "id": "dev-firm-023", "name": "Lindt & Co Rome" },
+    { "id": "dev-firm-024", "name": "Lindt & Co Turin" },
+    { "id": "dev-firm-025", "name": "Lindt & Co Madrid" },
+    { "id": "dev-firm-026", "name": "Lindt & Co Barcelona" },
+    { "id": "dev-firm-027", "name": "Lindt & Co Valencia" }
+  ]
+}

@@ -23,6 +23,8 @@ const { normaliseQuizQuestions } = require('../utils/quizRecord')
 const { isStorableSessionIndex } = require('../utils/sessionIndex')
 const cpdCatalogue = require('../utils/cpdCatalogue')
 const { sendError } = require('../utils/sendError')
+const { isAwaitingFirms, tierOfScope, originPathOf, labelOfScope } = require('../utils/tierChain')
+const { firmNameMap } = require('../utils/caseRollup')
 
 const TIERS = ['entry-level', 'intermediate', 'advanced']
 
@@ -228,6 +230,11 @@ async function getTeam (req, res) {
     return
   }
 
+  // Above the firm this is a ROLL-UP, not a roster — see getTeamRollup.
+  if (tierOfScope(firmId) !== 'firm_manager') {
+    return getTeamRollup(req, res, firmId)
+  }
+
   try {
     const { vaRows, courseRows } = await activityStore.readFirmSessions(firmId)
 
@@ -314,9 +321,144 @@ async function getTeam (req, res) {
       ) + a.unclassifiedSessions
     })).sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive))
 
-    res.send(200, { success: true, firmId, advisors })
+    // A MANAGING TIER READS THIS TOO, and gets an empty advisor list because a
+    // group scope owns no advisers of its own. That empty list is honest for a firm
+    // (nobody has done anything yet) and misleading above one (nobody has been put
+    // beneath this manager yet), so the tier is told which of the two it is. Always
+    // false for a firm manager, whose team this route was built for.
+    res.send(200, { success: true, firmId, advisors, awaitingFirms: isAwaitingFirms(firmId) })
   } catch (err) {
     console.error('[activity] getTeam error:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not load team data')
+  }
+}
+
+/**
+ * Team Progress for a managing tier — the level IMMEDIATELY BELOW, summarised.
+ *
+ * ADVISOR-E-DESIGN-LOGIC.md §4.1: a group manager sees their firms, a global group
+ * manager sees their groups. Rule 7 is about what a list is GROUPED BY, so the
+ * grouping key is `originPathOf(firm, viewer)[0]` — the same helper Case Reviews
+ * uses, which means this deepens by itself the day the membership tree grows a
+ * level, with no second change and no rule to revisit.
+ *
+ * 🔴 NO ADVISER IS NAMED, AT ANY LEVEL ABOVE THE FIRM. §4.3 draws the line exactly
+ * here: naming a FIRM to the manager above it is not a disclosure — they are their
+ * firms — but a flat roster of every adviser in a country is the "level below is the
+ * limit" rule being broken. The store read this uses selects no advisor_id or
+ * advisor_name at all, so there is nothing to leak rather than something filtered.
+ *
+ * ⚠ THIS REPLACED AN EMPTY LIST, NOT A DIFFERENT SUMMARY. Until 2026-08-12 the route
+ * matched `firm_id` exactly at every tier, so a group manager got `advisors: []` and
+ * the screen said nobody had done anything. That was masked while no firm was mapped
+ * to a middle tier — the "not connected yet" banner covered it — and would have
+ * become a false statement in UAT the day real membership arrived.
+ *
+ * @param {object} req · @param {object} res
+ * @param {string} scopeId - the viewer's scope, already verified
+ * @returns {200} { success: true, firmId, advisors: [], groups, awaitingFirms }
+ *   `advisors` is always empty here and kept so the shape never changes shape
+ *   between tiers; `groups` carries the roll-up.
+ */
+async function getTeamRollup (req, res, scopeId) {
+  try {
+    const { vaRows, courseRows } = await activityStore.readSessionsUnderScope(scopeId)
+    const names = await firmNameMap()
+
+    // scopeId of the level below -> its running summary.
+    const buckets = new Map()
+
+    const bucketFor = (firmRowId) => {
+      const path = originPathOf(firmRowId, scopeId)
+      if (path.length === 0) { return null }
+      const head = path[0]
+      if (!buckets.has(head.scopeId)) {
+        buckets.set(head.scopeId, {
+          scopeId: head.scopeId,
+          tier: head.tier,
+          label: labelOfScope(head.scopeId) || names[head.scopeId] || head.scopeId,
+          firms: new Set(),
+          // firm id -> the largest adviser count seen for that firm. See the note in
+          // `fold` for why this is per-firm rather than one running total.
+          _advisersByFirm: new Map(),
+          vaSessions: 0,
+          courseSessions: 0,
+          tiers: Object.fromEntries(TIERS.map(t => [t, 0])),
+          unclassifiedSessions: 0,
+          _scores: [],
+          lastActive: null
+        })
+      }
+      return buckets.get(head.scopeId)
+    }
+
+    const fold = (rows, isCourse) => {
+      rows.forEach((row) => {
+        const b = bucketFor(row.firm_id)
+        if (!b) { return }
+        const count = Number(row.count) || 0
+        b.firms.add(row.firm_id)
+        // 🔴 ADVISERS ARE COUNTED PER FIRM AND THEN ADDED, and getting this backwards
+        // is easy. The rows arrive per firm+tier and per table, so ONE adviser appears
+        // several times — summing every row inflates a firm's team. But taking one
+        // maximum across the whole bucket is worse in the other direction: a country
+        // with three firms of one adviser each would report ONE. So: keep the largest
+        // count seen for each FIRM (de-duplicating within it), then add the firms up.
+        // Still an estimate where one person works across two firms, which the dev
+        // data cannot exercise; the adoption view solves that exactly with a UNION.
+        const seen = b._advisersByFirm.get(row.firm_id) || 0
+        b._advisersByFirm.set(row.firm_id, Math.max(seen, Number(row.advisers) || 0))
+        if (isCourse) { b.courseSessions += count } else { b.vaSessions += count }
+        if (row.highest_tier && Object.prototype.hasOwnProperty.call(b.tiers, row.highest_tier)) {
+          b.tiers[row.highest_tier] += count
+        } else {
+          b.unclassifiedSessions += count
+        }
+        if (isCourse && row.avg_score !== null && row.avg_score !== undefined) {
+          b._scores.push({ score: Number(row.avg_score), weight: count })
+        }
+        if (row.last_active && (!b.lastActive || String(row.last_active) > String(b.lastActive))) {
+          b.lastActive = row.last_active
+        }
+      })
+    }
+
+    fold(vaRows, false)
+    fold(courseRows, true)
+
+    const groups = Array.from(buckets.values())
+      .map((b) => {
+        const weight = b._scores.reduce((a, s) => a + s.weight, 0)
+        return {
+          scopeId: b.scopeId,
+          tier: b.tier,
+          label: b.label,
+          firms: b.firms.size,
+          advisers: Array.from(b._advisersByFirm.values()).reduce((a, n) => a + n, 0),
+          vaSessions: b.vaSessions,
+          courseSessions: b.courseSessions,
+          totalSessions: b.vaSessions + b.courseSessions,
+          tiers: b.tiers,
+          unclassifiedSessions: b.unclassifiedSessions,
+          avgQuizScore: weight
+            ? Math.round(b._scores.reduce((a, s) => a + (s.score * s.weight), 0) / weight)
+            : null,
+          lastActive: b.lastActive
+        }
+      })
+      // Quietest first: §2 is "who is failing so we can offer help", so the group
+      // that has done least should not have to be hunted for down a list.
+      .sort((a, b) => a.totalSessions - b.totalSessions)
+
+    res.send(200, {
+      success: true,
+      firmId: scopeId,
+      advisors: [],
+      groups,
+      awaitingFirms: isAwaitingFirms(scopeId)
+    })
+  } catch (err) {
+    console.error('[activity] getTeamRollup error:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load team data')
   }
 }

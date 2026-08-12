@@ -126,7 +126,7 @@ Our job is to understand it and not design against it.
 **The gap is in THIS app, not in Collaborate.**
 
 - **Collaborate already models the whole chain.** `server/data/roles.js` declares
-  `TIERS = ['mentor', 'global_manager', 'group_manager', 'firm_manager', 'advisor', 'client']`
+  `TIERS = ['mentor', 'global_group_manager', 'group_manager', 'firm_manager', 'advisor', 'client']`
   — Mike's list exactly, client included. Its cross-org **ceiling** is a working cascade
   already: a stricter level above caps what a level below may open.
 - **Virt Advisor implements a TRUNCATED two-level version.** Content cascades

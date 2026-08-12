@@ -1,0 +1,36 @@
+{
+  "_comment": "DEV/TEST-ONLY firm membership: which brand (globalGroup) and country each firm belongs to. Loaded at backend start-up by server/utils/devFirmMembership.js, and ONLY when ALLOW_DEV_AUTH=true and NODE_ENV is not production. Real membership comes from the firms table once the master app supplies the columns and JWT claims — see config/db-schema.sql. Nothing in a request path may write this: membership decides where a manager's saved edits are stored, so a firm able to re-parent itself would read and write another group's content.",
+  "_shape": "3 global groups × 3 countries × 3 firms = 27. Country codes, not names, because that is what a JWT claim will carry.",
+  "_devTokens": "The dev middle-tier tokens in server/middleware/firmAuth.js are globalGroup 'Advisor-e' and country 'DE'. So the Global Group Manager Hub sees the 9 Advisor-e firms, and the Group Manager Hub sees the 3 German ones. Change DEV_GLOBAL_GROUP / DEV_COUNTRY there and these must match.",
+  "membership": {
+    "dev-firm-001": { "globalGroup": "Advisor-e", "country": "DE" },
+    "dev-firm-002": { "globalGroup": "Advisor-e", "country": "DE" },
+    "dev-firm-007": { "globalGroup": "Advisor-e", "country": "DE" },
+    "dev-firm-003": { "globalGroup": "Advisor-e", "country": "UK" },
+    "dev-firm-004": { "globalGroup": "Advisor-e", "country": "UK" },
+    "dev-firm-008": { "globalGroup": "Advisor-e", "country": "UK" },
+    "dev-firm-005": { "globalGroup": "Advisor-e", "country": "AU" },
+    "dev-firm-006": { "globalGroup": "Advisor-e", "country": "AU" },
+    "dev-firm-009": { "globalGroup": "Advisor-e", "country": "AU" },
+
+    "dev-firm-010": { "globalGroup": "BDO", "country": "UK" },
+    "dev-firm-011": { "globalGroup": "BDO", "country": "UK" },
+    "dev-firm-012": { "globalGroup": "BDO", "country": "UK" },
+    "dev-firm-013": { "globalGroup": "BDO", "country": "US" },
+    "dev-firm-014": { "globalGroup": "BDO", "country": "US" },
+    "dev-firm-015": { "globalGroup": "BDO", "country": "US" },
+    "dev-firm-016": { "globalGroup": "BDO", "country": "CA" },
+    "dev-firm-017": { "globalGroup": "BDO", "country": "CA" },
+    "dev-firm-018": { "globalGroup": "BDO", "country": "CA" },
+
+    "dev-firm-019": { "globalGroup": "Lindt & Co", "country": "FR" },
+    "dev-firm-020": { "globalGroup": "Lindt & Co", "country": "FR" },
+    "dev-firm-021": { "globalGroup": "Lindt & Co", "country": "FR" },
+    "dev-firm-022": { "globalGroup": "Lindt & Co", "country": "IT" },
+    "dev-firm-023": { "globalGroup": "Lindt & Co", "country": "IT" },
+    "dev-firm-024": { "globalGroup": "Lindt & Co", "country": "IT" },
+    "dev-firm-025": { "globalGroup": "Lindt & Co", "country": "ES" },
+    "dev-firm-026": { "globalGroup": "Lindt & Co", "country": "ES" },
+    "dev-firm-027": { "globalGroup": "Lindt & Co", "country": "ES" }
+  }
+}

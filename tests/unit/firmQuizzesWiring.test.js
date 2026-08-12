@@ -58,7 +58,7 @@ describe('the quiz cascade routes are guarded too', () => {
   })
 })
 
-describe('firm-authored quiz text is fenced before it reaches the AI', () => {
+describe('browser-authored quiz text is fenced before it reaches the AI', () => {
   const engine = read('server/courseEngine.js')
 
   // 2026-07-31: fencing became PER QUESTION when quizzes joined the one mechanism.
@@ -66,12 +66,16 @@ describe('firm-authored quiz text is fenced before it reaches the AI', () => {
   // "is this bank the firm's?" is no longer a question with an answer — only
   // "who wrote THIS question?" is. The tripwire moves with it; the property it
   // guards is unchanged.
-  test('the quiz-generate prompt fences each firm-authored question', () => {
-    expect(engine).toContain('isFirmAuthored(e) ? fenceUntrusted(line) : line')
+  //
+  // 2026-08-09 (Phase 5): renamed from isFirmAuthored. Once the mentor tier could
+  // author questions, "the firm's" stopped describing the set being fenced — a
+  // mentor's question is browser-typed too, and reaches EVERY firm rather than one.
+  test('the quiz-generate prompt fences each browser-authored question', () => {
+    expect(engine).toContain('isBrowserAuthored(e) ? fenceUntrusted(line) : line')
   })
 
-  test('the grader fences a firm-authored marking guide', () => {
-    expect(engine).toContain('isFirmAuthored(bankEntry) ? fenceUntrusted(guideBody) : guideBody')
+  test('the grader fences a browser-authored marking guide', () => {
+    expect(engine).toContain('isBrowserAuthored(bankEntry) ? fenceUntrusted(guideBody) : guideBody')
   })
 
   test('the banks reaching the AI come from the mechanism, not straight off disk', () => {

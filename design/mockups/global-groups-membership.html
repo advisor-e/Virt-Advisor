@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mentor — Global Groups (design for approval)</title>
+<style>
+  :root {
+    --navy:#002b64; --grey:#7a869a; --line:#e2e6ec; --ink:#363636;
+    --green:#1f7a45; --green-bg:#eefaf2; --green-line:#63c48d;
+    --amber:#b35309; --amber-bg:#fffaf3; --amber-line:#ffb870;
+    --slate:#5a6b82; --slate-bg:#f3f6fa; --slate-line:#b8c6d8;
+    --dim:#8a94a3; --dim-bg:#f6f7f9; --dim-line:#d8dce3;
+    --red:#a02b2b; --red-bg:#fdf3f3; --red-line:#e2a0a0;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.5rem 6rem; background:#f5f5f5;
+    font:15px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); }
+  .wrap { max-width:1060px; margin:0 auto; }
+
+  .banner { background:#fffaf3; border:1px solid #f3ddc0; border-left:4px solid var(--amber-line);
+    border-radius:5px; padding:0.9rem 1.05rem; margin-bottom:2.5rem; font-size:0.84rem; line-height:1.6; }
+  .banner strong { color:var(--amber); }
+
+  h1 { font-size:1.6rem; margin:0 0 0.4rem; color:var(--navy); letter-spacing:-0.01em; }
+  .lede { color:var(--grey); font-size:0.92rem; margin:0; max-width:56rem; }
+
+  section.band { margin-top:4rem; }
+  section.band > h2 { font-size:1.15rem; color:var(--navy); margin:0 0 0.35rem; letter-spacing:-0.01em; }
+  section.band > .sub { color:var(--grey); font-size:0.86rem; margin:0 0 1.6rem; max-width:56rem; }
+
+  /* ── Group cards ──────────────────────────────────────────────── */
+  .tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:1.1rem; }
+  @media (max-width:880px) { .tiles { grid-template-columns:repeat(2,1fr); } }
+  .tile { background:#fff; border:1px solid var(--line); border-top:5px solid var(--slate-line);
+    border-radius:8px; padding:1.2rem 1.3rem 1.35rem; }
+  .tile.accent { border-top-color:var(--green-line); }
+  .tile.ghost { border-top-color:var(--dim-line); background:#fbfbfc; }
+  .tnum { font-size:1.7rem; font-weight:700; color:var(--navy); line-height:1.2; }
+  .tlabel { font-size:0.78rem; color:var(--grey); margin-top:0.35rem; }
+  .tnote { font-size:0.74rem; color:var(--ink); margin-top:0.7rem; padding-top:0.7rem;
+    border-top:1px solid #f0f2f5; }
+  .tname { font-size:0.95rem; font-weight:700; color:var(--navy); }
+  .scopeid { font-size:0.68rem; color:var(--grey); font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    margin-top:0.15rem; word-break:break-all; }
+
+  /* ── Firm table ───────────────────────────────────────────────── */
+  table.firms { border-collapse:collapse; width:100%; font-size:0.83rem;
+    background:#fff; border:1px solid #ececec; border-radius:8px; overflow:hidden; }
+  table.firms th { text-align:left; font-size:0.67rem; text-transform:uppercase; letter-spacing:0.07em;
+    color:var(--navy); background:#f4f6f9; padding:0.6rem 0.7rem; border-bottom:1px solid #d5dbe4;
+    white-space:nowrap; }
+  table.firms td { padding:0.75rem 0.7rem; border-bottom:1px solid #eef1f5; vertical-align:middle; }
+  table.firms tr:last-child td { border-bottom:0; }
+  table.firms tr.unassigned td { background:#fcfcfd; }
+  .fname { font-weight:600; color:var(--navy); }
+  .fid { font-size:0.7rem; color:var(--grey); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .flag { display:inline-block; font-size:0.7rem; border-radius:999px; padding:0.1rem 0.55rem;
+    border:1px solid var(--slate-line); background:var(--slate-bg); color:var(--slate); font-weight:700; }
+  .flag.none { border-color:var(--dim-line); background:var(--dim-bg); color:var(--dim); }
+  .sel { display:inline-block; border:1px solid #cfd6e0; border-radius:4px; background:#fff;
+    padding:0.3rem 1.7rem 0.3rem 0.6rem; font-size:0.8rem; color:var(--ink); position:relative; }
+  .sel:after { content:"▾"; position:absolute; right:0.55rem; color:var(--grey); }
+  .stamp { font-size:0.7rem; color:var(--grey); }
+
+  .btn { display:inline-block; border-radius:4px; padding:0.4rem 0.95rem; font-size:0.8rem;
+    font-weight:600; border:1px solid var(--navy); background:var(--navy); color:#fff; }
+  .btn.ghost { background:#fff; color:var(--navy); }
+
+  .caution { font-size:0.81rem; background:#f7f7f9; border-radius:6px; padding:0.9rem 1rem;
+    color:#5a5a5a; margin-top:1.2rem; }
+  .caution b { color:var(--ink); display:block; margin-bottom:0.2rem; }
+  .caution.risk { background:var(--red-bg); border:1px solid var(--red-line); color:#5a3a3a; }
+  .caution.risk b { color:var(--red); }
+
+  .decide { background:#fff; border:1px solid var(--line); border-left:4px solid var(--amber-line);
+    border-radius:6px; padding:1.1rem 1.2rem; margin-top:1.2rem; font-size:0.85rem; }
+  .decide h3 { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--navy);
+    margin:0 0 0.7rem; }
+  .decide ol { margin:0; padding-left:1.2rem; }
+  .decide li { margin-bottom:0.9rem; }
+  .decide li:last-child { margin-bottom:0; }
+  .decide b { color:var(--navy); }
+  .rec { color:var(--green); font-weight:700; }
+  .open { color:var(--amber); font-weight:700; }
+
+  table.words { border-collapse:collapse; width:100%; font-size:0.82rem; margin-top:0.9rem;
+    background:#fff; border:1px solid #ececec; border-radius:8px; overflow:hidden; }
+  table.words th { text-align:left; font-size:0.67rem; text-transform:uppercase; letter-spacing:0.07em;
+    color:var(--navy); background:#f4f6f9; padding:0.55rem 0.7rem; border-bottom:1px solid #d5dbe4; }
+  table.words td { padding:0.5rem 0.7rem; border-bottom:1px solid #eef1f5; vertical-align:top; }
+  table.words tr:last-child td { border-bottom:0; }
+  table.words td.k { color:var(--grey); white-space:nowrap; width:14rem; }
+  table.words td.v { font-weight:600; color:var(--navy); }
+
+  ul.plain { margin:0.6rem 0 0; padding-left:1.15rem; font-size:0.85rem; }
+  ul.plain li { margin-bottom:0.45rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <strong>DESIGN FOR APPROVAL — not yet ruled, not yet built.</strong> Written 2026-08-10. Every group
+    name, firm name and date below is <strong>invented</strong> — they show the shape, not real data. The
+    five open decisions are in §4 and each carries a recommendation; nothing gets built until they are
+    ruled. This screen is <strong>mentor-only</strong>. It is the screen that makes the global-group tier
+    real: without it a global manager can log in and reach no firm at all.
+  </div>
+
+  <h1>Global Groups</h1>
+  <p class="lede">Which firms belong to which global group. A firm placed in a group inherits that
+    group's content on top of yours; a firm left out inherits directly from you, exactly as every firm
+    does today.</p>
+
+  <!-- ── 1 · The groups ───────────────────────────────────────────── -->
+  <section class="band">
+    <h2>1 · The groups</h2>
+    <p class="sub">One card per global group. The reserved id underneath is what the content is stored
+      against — shown because it is what appears in the version history, and a mentor who never sees it
+      cannot check anything.</p>
+
+    <div class="tiles">
+      <div class="tile accent">
+        <div class="tname">Advisor-e UK</div>
+        <div class="scopeid">__global__:Advisor-e UK</div>
+        <div class="tnum" style="margin-top:0.7rem;">3</div>
+        <div class="tlabel">firms in this group</div>
+        <div class="tnote">Created 12 Jul 2026 · 2 content blocks edited at this level</div>
+      </div>
+      <div class="tile accent">
+        <div class="tname">Advisor-e ANZ</div>
+        <div class="scopeid">__global__:Advisor-e ANZ</div>
+        <div class="tnum" style="margin-top:0.7rem;">2</div>
+        <div class="tlabel">firms in this group</div>
+        <div class="tnote">Created 12 Jul 2026 · nothing edited at this level yet</div>
+      </div>
+      <div class="tile ghost">
+        <div class="tname" style="color:var(--dim);">Add a global group</div>
+        <div class="scopeid">&nbsp;</div>
+        <div style="margin-top:1.1rem;"><span class="btn ghost">+ New group</span></div>
+        <div class="tnote">A name only. Nothing else is asked for, because nothing else is used.</div>
+      </div>
+    </div>
+
+    <div class="caution">
+      <b>A group with no firms in it is not an error.</b> You may want to author content for a group
+      before the firms are placed in it. The card simply reads 0.
+    </div>
+  </section>
+
+  <!-- ── 2 · Firm by firm ─────────────────────────────────────────── -->
+  <section class="band">
+    <h2>2 · Firm by firm</h2>
+    <p class="sub">Every firm appears, including firms that have never started — the same rule as the
+      adoption screen, and for the same reason: the useful half of the question is who is <em>not</em>
+      placed anywhere. Invented data.</p>
+
+    <table class="firms">
+      <thead>
+        <tr>
+          <th>Firm</th>
+          <th>Global group</th>
+          <th>Inherits from</th>
+          <th>Last changed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="fname">Hartley &amp; Vine</span><br><span class="fid">firm-hv-004</span></td>
+          <td><span class="sel">Advisor-e UK</span></td>
+          <td><span class="flag">Advisor-e UK</span></td>
+          <td><span class="stamp">9 Aug 2026 · mike@advisor-e.com</span></td>
+        </tr>
+        <tr>
+          <td><span class="fname">Marchmont Advisory</span><br><span class="fid">firm-ma-011</span></td>
+          <td><span class="sel">Advisor-e UK</span></td>
+          <td><span class="flag">Advisor-e UK</span></td>
+          <td><span class="stamp">9 Aug 2026 · mike@advisor-e.com</span></td>
+        </tr>
+        <tr>
+          <td><span class="fname">Kelso Partners</span><br><span class="fid">firm-kp-002</span></td>
+          <td><span class="sel">Advisor-e UK</span></td>
+          <td><span class="flag">Advisor-e UK</span></td>
+          <td><span class="stamp">9 Aug 2026 · mike@advisor-e.com</span></td>
+        </tr>
+        <tr>
+          <td><span class="fname">Ardmore &amp; Co</span><br><span class="fid">firm-ac-007</span></td>
+          <td><span class="sel">Advisor-e ANZ</span></td>
+          <td><span class="flag">Advisor-e ANZ</span></td>
+          <td><span class="stamp">9 Aug 2026 · mike@advisor-e.com</span></td>
+        </tr>
+        <tr>
+          <td><span class="fname">Brookfield Fiscal</span><br><span class="fid">firm-bf-013</span></td>
+          <td><span class="sel">Advisor-e ANZ</span></td>
+          <td><span class="flag">Advisor-e ANZ</span></td>
+          <td><span class="stamp">10 Aug 2026 · mike@advisor-e.com</span></td>
+        </tr>
+        <tr class="unassigned">
+          <td><span class="fname">Tavistock Reid</span><br><span class="fid">firm-tr-021</span></td>
+          <td><span class="sel" style="color:var(--dim);">Not in a group</span></td>
+          <td><span class="flag none">You (mentor)</span></td>
+          <td><span class="stamp">—</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="caution">
+      <b>"Inherits from" is not decoration — it is the answer being checked.</b> It states, for that
+      firm, which level its content actually comes from once the change is saved. A firm not in a group
+      reads <em>You (mentor)</em>, which is precisely today's behaviour and is never an error state.
+    </div>
+  </section>
+
+  <!-- ── 3 · What placing a firm in a group actually grants ───────── -->
+  <section class="band">
+    <h2>3 · What this actually grants</h2>
+    <p class="sub">Read before ruling §4. This screen is not data entry; it hands a real person real
+      visibility.</p>
+
+    <div class="caution risk">
+      <b>Placing a firm in a global group gives that group's manager sight of that firm's people.</b>
+      The Adviser Network tab already rolls up by tier — the server works out the caller's level and
+      returns their slice. So the moment Hartley &amp; Vine sits under Advisor-e UK, the Advisor-e UK
+      manager sees Hartley &amp; Vine's advisers through that tab. That is the intended behaviour of a
+      management tier, and it is exactly why the act of placing a firm has to be deliberate, attributed
+      and reversible rather than a quiet dropdown.
+    </div>
+
+    <ul class="plain">
+      <li><b>Content flows down.</b> The group manager's edits reach every firm in the group that has
+        not changed the same thing itself. A firm's own change still wins and sticks.</li>
+      <li><b>Nothing new flows up.</b> This screen adds no reporting. Team Progress and Team Case
+        Studies stay firm-only, as ruled.</li>
+      <li><b>Reversible.</b> Moving a firm out returns it to inheriting from you. Its own edits are
+        untouched throughout — they were never a copy of anyone's content.</li>
+    </ul>
+  </section>
+
+  <!-- ── 4 · Open decisions ───────────────────────────────────────── -->
+  <section class="band">
+    <h2>4 · Open decisions — for Mike to rule</h2>
+    <p class="sub">Five. Each carries a recommendation, so a "yes to all" is a valid answer.</p>
+
+    <div class="decide">
+      <h3>Open — 2026-08-10</h3>
+      <ol>
+        <li><b>1 · What is this called?</b> The screen is drawn as <b>Global Groups</b>, and a firm is
+          <b>placed in</b> a group. <span class="rec">Recommendation: keep both.</span> "Group" alone
+          collides with Collaborate's Special Interest Groups, which are a different thing entirely, and
+          "assign" reads like a task rather than a structure. <span class="open">Your call on the
+          words.</span></li>
+
+        <li><b>2 · Country — now, or not yet?</b> The tier chain supports a country level
+          <em>between</em> global group and firm. This screen does not offer it.
+          <span class="rec">Recommendation: not yet.</span> You asked for the global group; adding
+          country now doubles the screen and the testing for a tier nobody can log into either. The
+          chain already handles a firm whose group is known but whose country is not — it simply
+          inherits from the global group. Adding country later changes this screen, not the
+          engine.</li>
+
+        <li><b>3 · Can a firm be in two global groups?</b>
+          <span class="rec">Recommendation: no — one group, one parent.</span> Two parents means two
+          different answers to "whose content do I inherit?", and no rule for choosing that would not be
+          arbitrary. The dropdown enforces it by shape.</li>
+
+        <li><b>4 · Does placing a firm need a confirm step?</b> Given §3,
+          <span class="rec">recommendation: yes — a short confirm naming the consequence</span> ("The
+          Advisor-e UK manager will be able to see Hartley &amp; Vine's advisers"), plus the who-and-when
+          stamp shown in the table. Every change is versioned and restorable regardless, because this
+          reuses the same storage as everything else on the Hub. <span class="open">Say if that reads as
+          friction and you would rather it just save.</span></li>
+
+        <li><b>5 · Who may open this screen?</b> <span class="rec">Recommendation: the mentor only.</span>
+          A global manager editing their own membership would let a tier enlarge its own reach — the
+          same reason the underlying function refuses to be called from a request path. If a global
+          manager should be able to <em>see</em> their group's firm list read-only, that is a small
+          addition and worth saying now rather than later.</li>
+      </ol>
+    </div>
+
+    <table class="words">
+      <thead><tr><th>Where</th><th>Proposed wording</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Tab and page title</td><td class="v">Global Groups</td></tr>
+        <tr><td class="k">Lede</td><td class="v">Which firms belong to which global group</td></tr>
+        <tr><td class="k">Group card</td><td class="v">firms in this group</td></tr>
+        <tr><td class="k">New group button</td><td class="v">+ New group</td></tr>
+        <tr><td class="k">Table columns</td><td class="v">Firm · Global group · Inherits from · Last changed</td></tr>
+        <tr><td class="k">Unassigned firm</td><td class="v">Not in a group</td></tr>
+        <tr><td class="k">Unassigned firm inherits</td><td class="v">You (mentor)</td></tr>
+        <tr><td class="k">Confirm step (decision 4)</td><td class="v">Place Hartley &amp; Vine in Advisor-e UK?<br>The Advisor-e UK manager will be able to see this firm's advisers.</td></tr>
+        <tr><td class="k">Empty state</td><td class="v">No global groups yet. Add one to start grouping firms.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── 5 · How it is stored ─────────────────────────────────────── -->
+  <section class="band">
+    <h2>5 · How it is stored — no new database table</h2>
+    <p class="sub">Recorded here because it is the reason this is a small build rather than a schema
+      change, and because a schema change would put us back behind the master team.</p>
+
+    <ul class="plain">
+      <li>The membership map is stored through the <b>same overlay mechanism every Hub tab already
+        uses</b>, under one new key, against the reserved mentor scope. Version history and restore come
+        for free — the same machinery that already versions your Advisory Distinctions.</li>
+      <li>Each global group also needs its own <b>reserved row in the firms table</b>, exactly as
+        <code>__platform__</code> already has one. Without it the database refuses the group's saved
+        content <b>while the dev fallback still reports success</b> — the precise trap that ran the
+        mentor's own saves broken for weeks. Creating a group creates its row, or creating the group
+        fails loudly. It will not be allowed to half-succeed.</li>
+      <li>If the master team later adds a group column to the firms table, <b>theirs becomes the
+        source and this becomes the override</b>. Nothing here is thrown away and nothing has to be
+        migrated.</li>
+    </ul>
+  </section>
+
+  <!-- ── 6 · Honest limits ────────────────────────────────────────── -->
+  <section class="band">
+    <h2>6 · What will still not be proven when this ships</h2>
+    <p class="sub">Written before the build rather than discovered after it.</p>
+
+    <ul class="plain">
+      <li><b>No one can still log in as a global manager.</b> Advisor-e's login issues no such role.
+        This screen makes the tier <em>reachable</em> — content authored at group level will genuinely
+        flow to the firms placed in the group — but it is you, at mentor level, who will be able to
+        demonstrate that, not a group manager at their own screen.</li>
+      <li><b>It will be evidenced by tests, not by a live login.</b> Same limitation as the tier chain
+        itself, and the second thing to re-check when the real roles arrive.</li>
+      <li><b>The Adviser Network roll-up described in §3 has never met real tier data.</b> It resolves
+        the caller's tier server-side and is written to roll up, but no global manager has ever called
+        it. That is a statement about what is untested, not a doubt about what it does.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>

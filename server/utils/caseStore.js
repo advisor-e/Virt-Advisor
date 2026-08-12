@@ -35,6 +35,8 @@ const path = require('path')
 const fs = require('fs')
 const crypto = require('crypto')
 const db = require('./db')
+const { isWithinScope } = require('./tierChain')
+const { devFallbackAllowed } = require('./dbFailure')
 
 // Default dev fallback file; overridable via CASE_DEV_FILE so tests can point at an
 // isolated temp file (keeps a clean `npm test` independent of the shared dev file and
@@ -49,8 +51,13 @@ const DEV_CASES_FILE = process.env.CASE_DEV_FILE
  * in production a DB failure must propagate, never be masked by the fallback.
  * @returns {boolean}
  */
-function devFallbackEnabled () {
-  return process.env.NODE_ENV !== 'production'
+// See server/utils/dbFailure.js. Called with the caught error from a DB catch
+// block, it also refuses the fallback when a live server REFUSED the statement
+// — otherwise a rejected write lands in the dev file and reports success.
+// Called with no argument (the one pre-check in listForClient) it keeps the
+// original meaning: not production.
+function devFallbackEnabled (err) {
+  return devFallbackAllowed(err)
 }
 
 const VISIBILITIES = ['private', 'shared']
@@ -148,7 +155,7 @@ async function listForAdvisor (advisorId, firmId) {
     )
     return rows.map(rowToCase)
   } catch (err) {
-    if (devFallbackEnabled()) { return _devList(advisorId, firmId) }
+    if (devFallbackEnabled(err)) { return _devList(advisorId, firmId) }
     throw err
   }
 }
@@ -198,7 +205,7 @@ async function getVisibleCase (id, advisorId, firmId) {
     )
     return rows.length ? rowToCase(rows[0]) : null
   } catch (err) {
-    if (devFallbackEnabled()) { return _devGetVisible(id, advisorId, firmId) }
+    if (devFallbackEnabled(err)) { return _devGetVisible(id, advisorId, firmId) }
     throw err
   }
 }
@@ -222,7 +229,7 @@ async function listSharedForFirm (firmId) {
     )
     return rows.map(rowToCase)
   } catch (err) {
-    if (devFallbackEnabled()) { return _devListSharedForFirm(firmId) }
+    if (devFallbackEnabled(err)) { return _devListSharedForFirm(firmId) }
     throw err
   }
 }
@@ -248,7 +255,7 @@ async function getSharedForFirm (id, firmId) {
     )
     return rows.length ? rowToCase(rows[0]) : null
   } catch (err) {
-    if (devFallbackEnabled()) { return _devGetSharedForFirm(id, firmId) }
+    if (devFallbackEnabled(err)) { return _devGetSharedForFirm(id, firmId) }
     throw err
   }
 }
@@ -286,12 +293,43 @@ function rowToMentorCase (row) {
 }
 
 /**
- * List every case shared with the mentor, across ALL firms (the cross-firm
- * mentor review feed). Returns the anonymised, advisor-stripped shape only.
- * Role-gated to the mentor at the route — this function trusts that gate.
+ * List the cases shared upward, as seen from ONE managing tier. Returns the
+ * anonymised, advisor-stripped shape only.
+ *
+ * 🔴 THE SCOPE ARGUMENT IS NEW (2026-08-11) AND IT CLOSES A CROSS-BRAND READ.
+ * This was a flat `WHERE mentor_shared = 1` with no scope at all — correct while
+ * the mentor was the only reader, because the mentor is meant to see everything.
+ * The moment the Case Reviews tab appeared at a global and a country tier, that
+ * same query handed one brand's screen every other brand's cases. The owner's
+ * ruling of 2026-08-11: "it needs to stay in their channel — only firms data that
+ * are member of that group (country) goes to that group manager. only group
+ * managers aligned with the global group manager above report."
+ *
+ * The filter is tierChain.isWithinScope, so the MENTOR still matches every firm
+ * and its feed is unchanged — the pre-existing tests pass unedited, which is the
+ * demonstration that this preserved the mentor rather than a claim that it did.
+ * A middle tier with no membership data matches nothing and gets an empty feed:
+ * seeing nothing is recoverable, seeing another brand's cases is not.
+ *
+ * ⚠ THE FIRM ID IS USED AND THEN DROPPED. Filtering happens on the raw row, before
+ * rowToMentorCase strips the firm — so the anonymisation guarantee is unchanged;
+ * no caller of this function can learn which firm a case came from.
+ *
+ * ⚠ A PRE-EXISTING LIMIT, NOW WORTH NAMING. The LIMIT 500 is applied by the
+ * database before this filter, so a tier's slice is taken from the 500 most
+ * recently shared cases platform-wide rather than from its own 500. The mentor's
+ * feed has always been capped at 500 the same way; this does not deepen the cap,
+ * but it does mean a very large platform would show a small group less than it
+ * has. Fixing it needs the firm-to-group mapping the master team has not supplied
+ * (with it, the scope becomes an SQL `IN` clause and the limit stops interacting).
+ *
+ * @param {string} scopeId - the caller's resolved scope (req.firmId after
+ *   firmAuth): PLATFORM_SCOPE for the mentor, a `__global__:`/`__group__:` id for
+ *   a middle tier. Required — an absent scope returns nothing rather than
+ *   everything, because the failure this guards against is over-disclosure.
  * @returns {Promise<object[]>}
  */
-async function listSharedWithMentor () {
+async function listSharedWithMentor (scopeId) {
   try {
     const [rows] = await db.execute(
       `SELECT * FROM va_case_studies
@@ -299,9 +337,11 @@ async function listSharedWithMentor () {
         ORDER BY mentor_shared_at DESC, created_at DESC
         LIMIT 500`
     )
-    return rows.map(rowToMentorCase)
+    return rows
+      .filter(row => isWithinScope(row.firm_id, scopeId))
+      .map(rowToMentorCase)
   } catch (err) {
-    if (devFallbackEnabled()) { return _devListSharedWithMentor() }
+    if (devFallbackEnabled(err)) { return _devListSharedWithMentor(scopeId) }
     throw err
   }
 }
@@ -351,7 +391,7 @@ async function create (input) {
     )
     return rowToCase({ ...row, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
   } catch (err) {
-    if (devFallbackEnabled()) { return _devCreate(row) }
+    if (devFallbackEnabled(err)) { return _devCreate(row) }
     throw err
   }
 }
@@ -423,7 +463,7 @@ async function updateReview (id, advisorId, review) {
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) {
+    if (devFallbackEnabled(err)) {
       return _devUpdate(id, advisorId, (c) => {
         c.review = { wentWell: wentWell || '', wentLess: wentLess || '', changesRecommended: changes || '', reviewedAt: new Date().toISOString() }
         c.templateOutcomes = rawOutcomes ? sanitiseTemplateOutcomes(rawOutcomes, c.templates || []) : null
@@ -447,7 +487,7 @@ async function updateVisibility (id, advisorId, visibility) {
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) { return _devUpdate(id, advisorId, (c) => { c.visibility = value }) }
+    if (devFallbackEnabled(err)) { return _devUpdate(id, advisorId, (c) => { c.visibility = value }) }
     throw err
   }
 }
@@ -480,7 +520,7 @@ async function shareWithMentor (id, firmId, approverId, anonSummary, anonTranscr
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) {
+    if (devFallbackEnabled(err)) {
       return _devUpdateFirm(id, firmId, true, (c) => {
         c.mentorShared = true
         c.mentorAnonSummary = summary
@@ -512,7 +552,7 @@ async function withdrawFromMentor (id, firmId) {
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) {
+    if (devFallbackEnabled(err)) {
       return _devUpdateFirm(id, firmId, false, (c) => {
         c.mentorShared = false
         c.mentorAnonSummary = null
@@ -537,7 +577,7 @@ async function remove (id, advisorId) {
     )
     return result.affectedRows > 0
   } catch (err) {
-    if (devFallbackEnabled()) { return _devRemove(id, advisorId) }
+    if (devFallbackEnabled(err)) { return _devRemove(id, advisorId) }
     throw err
   }
 }
@@ -582,9 +622,17 @@ function _devGetSharedForFirm (id, firmId) {
     .find(c => c.id === id && c.firmId === firmId && c.visibility === 'shared') || null
 }
 
-function _devListSharedWithMentor () {
+/**
+ * Mirrors listSharedWithMentor, INCLUDING its scope filter. The two must agree:
+ * a dev fallback that showed a middle tier every brand's cases while the database
+ * showed it none is the trap that ran the mentor's saves broken for weeks — a
+ * fallback reporting a different answer from the real path.
+ * @param {string} scopeId - the caller's resolved scope
+ */
+function _devListSharedWithMentor (scopeId) {
   return _devReadAll()
     .filter(c => c.mentorShared)
+    .filter(c => isWithinScope(c.firmId, scopeId))
     .map(c => ({
       id: c.id,
       firmId: c.firmId,
