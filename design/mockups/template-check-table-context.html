@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Template Check — the table brought into the row (mockup)</title>
+<style>
+  :root {
+    --navy:#002b64; --grey:#7a869a; --line:#e2e6ec; --ink:#363636;
+    --green:#1f7a45; --green-bg:#eefaf2; --green-line:#63c48d;
+    --amber:#b35309; --amber-bg:#fffaf3; --amber-line:#ffb870;
+    --red:#a32020;   --red-bg:#fdf4f4;   --red-line:#e8a0a0;
+    --slate:#5a6b82; --slate-bg:#f3f6fa; --slate-line:#b8c6d8;
+    --dim:#8a94a3;   --dim-bg:#f6f7f9;   --dim-line:#d8dce3;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.5rem 6rem; background:#f5f5f5;
+    font:15px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); }
+  .wrap { max-width:1060px; margin:0 auto; }
+
+  .banner { background:#fff8e6; border:1px solid #f0d9a0; border-left:4px solid #e0b24e;
+    border-radius:5px; padding:0.9rem 1.05rem; margin-bottom:2.5rem; font-size:0.84rem; line-height:1.6; }
+  .banner strong { color:var(--amber); }
+
+  h1 { font-size:1.6rem; margin:0 0 0.4rem; color:var(--navy); letter-spacing:-0.01em; }
+  .lede { color:var(--grey); font-size:0.92rem; margin:0; max-width:56rem; }
+
+  section.band { margin-top:3.2rem; }
+  section.band > h2 { font-size:1.15rem; color:var(--navy); margin:0 0 0.35rem; letter-spacing:-0.01em; }
+  section.band > .sub { color:var(--grey); font-size:0.86rem; margin:0 0 1.4rem; max-width:56rem; }
+
+  .row { background:#fff; border:1px solid #ececec; border-radius:8px; overflow:hidden; margin-bottom:1.6rem; }
+  .row > header { display:flex; gap:0.9rem; align-items:flex-start; flex-wrap:wrap;
+    padding:1rem 1.2rem; border-bottom:1px solid #eef1f5; background:#fafbfd; }
+  .nm { font-family:ui-monospace,Consolas,monospace; font-size:0.86rem; font-weight:600; color:var(--navy); }
+  .where { font-size:0.78rem; color:var(--grey); }
+  .verdict { margin-left:auto; font-size:0.72rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.05em; border-radius:999px; padding:0.24rem 0.7rem; }
+  .v-none  { background:var(--red-bg);   color:var(--red);   border:1px solid var(--red-line); }
+  .v-maybe { background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber-line); }
+
+  .part { padding:1.05rem 1.2rem; border-bottom:1px solid #f2f4f7; }
+  .part:last-child { border-bottom:0; }
+  .plab { font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--navy);
+    font-weight:700; margin:0 0 0.55rem; }
+
+  .sentence { background:var(--slate-bg); border-left:3px solid var(--slate-line); border-radius:0 4px 4px 0;
+    padding:0.7rem 0.9rem; font-size:0.87rem; color:var(--ink); margin:0; }
+  .sentence mark { background:#ffe9b8; padding:0 0.15rem; border-radius:2px; font-weight:600; }
+
+  /* ── The table strip: the branch in its own table ─────────────── */
+  table.mini { border-collapse:collapse; width:100%; font-size:0.79rem; margin-top:0.55rem;
+    border:1px solid var(--line); background:#fff; table-layout:fixed; }
+  table.mini th { text-align:left; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.07em;
+    color:var(--navy); background:#f4f6f9; padding:0.4rem 0.55rem; border-bottom:1px solid #d5dbe4; }
+  table.mini td { padding:0.5rem 0.55rem; border-bottom:1px solid #eef1f5; vertical-align:top;
+    color:var(--grey); }
+  table.mini tr.here td { background:#fffdf5; color:var(--ink); }
+  table.mini tr.here td:first-child { box-shadow:inset 3px 0 0 var(--amber-line); font-weight:600; color:var(--navy); }
+  table.mini tr:last-child td { border-bottom:0; }
+  table.mini mark { background:#ffe9b8; padding:0 0.15rem; border-radius:2px; font-weight:600; }
+  .settled { color:var(--green); font-weight:600; white-space:nowrap; }
+  .unsettled { color:var(--red); font-weight:600; white-space:nowrap; }
+
+  .cand { border:1px solid var(--line); border-radius:6px; padding:0.8rem 0.95rem; margin-bottom:0.7rem; }
+  .cand:last-child { margin-bottom:0; }
+  .cand.best { border-color:var(--green-line); background:var(--green-bg); }
+  .cand.weak { background:var(--dim-bg); border-style:dashed; }
+  .ctitle { font-weight:700; color:var(--navy); font-size:0.9rem; }
+  .cpath { font-size:0.74rem; color:var(--grey); margin-left:0.45rem; }
+  .cwhy { font-size:0.73rem; color:var(--slate); float:right; }
+  .cpurpose { font-size:0.83rem; margin:0.5rem 0 0; color:var(--ink); }
+
+  .actions { display:flex; gap:0.5rem; flex-wrap:wrap; padding:0.9rem 1.2rem; background:#fafbfd; }
+  .btn { font-size:0.79rem; border-radius:4px; padding:0.36rem 0.85rem; border:1px solid var(--line);
+    background:#fff; color:var(--slate); }
+  .btn.primary { background:var(--navy); border-color:var(--navy); color:#fff; font-weight:600; }
+
+  .note { font-size:0.8rem; color:var(--grey); margin:0.55rem 0 0; }
+  .find { background:#eef6ff; border:1px solid #bcd8f5; border-left:4px solid #4a90d9; border-radius:0 5px 5px 0;
+    padding:0.75rem 0.95rem; font-size:0.83rem; margin:0.9rem 0 0; }
+  .find strong { color:#1c5a94; }
+
+  table.w { border-collapse:collapse; width:100%; font-size:0.83rem; background:#fff;
+    border:1px solid #ececec; margin-top:0.8rem; }
+  table.w th { text-align:left; font-size:0.67rem; text-transform:uppercase; letter-spacing:0.07em;
+    color:var(--navy); background:#f4f6f9; padding:0.55rem 0.7rem; border-bottom:1px solid #d5dbe4; }
+  table.w td { padding:0.6rem 0.7rem; border-bottom:1px solid #eef1f5; vertical-align:top; }
+  table.w tr:last-child td { border-bottom:0; }
+  .q { color:var(--amber); font-weight:700; }
+  .qbox { background:#fff8e6; border:1px solid #f0d9a0; border-radius:5px; padding:0.7rem 0.9rem;
+    font-size:0.82rem; margin-top:0.7rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <strong>MOCKUP — nothing here is built.</strong> Mike, 2026-08-12, having seen the merge drawn the
+    other way round: <em>"i think it makes more sense to do it other way around. keep the logic tables
+    page clean and as-is so it's easier to work with on logic tables."</em>
+    <br><br>
+    So the table comes to the row, and the Logic Tables page is not touched at all. This extends
+    <code>template-check-evidence-row.html</code>, which already brought the sentence in; what is new
+    here is <strong>the branch shown inside its own table</strong>, because on 2026-08-12 the answer to
+    a row turned out to be sitting in the branch above it.
+    <br><br>
+    <strong>Every label marked <span class="q">?</span> is proposed wording awaiting his ruling</strong>,
+    including the three carried over unruled from the earlier mockup. The verdict buttons are unchanged
+    from the screen he approved on 2026-08-05 and are not being re-asked.
+    <br><br>
+    All content is <strong>real</strong>: live rows from <code>data/logic_trees.json</code> and real
+    records from <code>data/templates.json</code>, exactly as the running server returns them today.
+  </div>
+
+  <h1>The table, brought into the row</h1>
+  <p class="lede">
+    One open row, opened out. The Logic Tables page keeps working exactly as it does now — nothing is
+    added to it and nothing is taken away.
+  </p>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>1 · The answer was in the branch above it</h2>
+    <p class="sub">
+      <code>Decision Workpaper</code> has been open since 5 August. No document in the catalogue answers
+      to that name. What settles it is not the sentence — it is the branch one row up.
+    </p>
+
+    <div class="row">
+      <header>
+        <div>
+          <div class="nm">Decision Workpaper</div>
+          <div class="where">Firm Board Pack · Combating Bias — Repeated Mistakes and Gut-Feel Decisions · in a sentence</div>
+        </div>
+        <span class="verdict v-none">Nothing matches</span>
+      </header>
+
+      <div class="part">
+        <p class="plab">What the logic table says <span class="q">?</span></p>
+        <p class="sentence">
+          "Use Quality Decisions frameworks to introduce Psyche Errors concepts. Use
+          <mark>Decision Workpaper</mark> to structure future high-stakes decisions."
+        </p>
+      </div>
+
+      <div class="part">
+        <p class="plab">Where it sits in the table <span class="q">?</span></p>
+        <table class="mini">
+          <colgroup><col style="width:27%"><col style="width:31%"><col style="width:32%"><col style="width:10%"></colgroup>
+          <thead>
+            <tr>
+              <th>Branch</th><th>If the client…</th><th>Then do this</th>
+              <th>Names <span class="q">?</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Risk Assessment — Market Volatility or Operational Threats</td>
+              <td>indicates exposure to market volatility or operational threats</td>
+              <td>Use Risk Mgt Cover matrix to identify, classify, and assign strategic actions…</td>
+              <td class="settled">✓ settled</td>
+            </tr>
+            <tr>
+              <td>Strategic Proposals — Major Capital or Market Decision</td>
+              <td>wants to make a major capital purchase, launch a new product, or enter a new market</td>
+              <td>Use <mark>Board White Paper</mark> framework to structure and document the strategic proposal before any board vote…</td>
+              <td class="settled">✓ FM Board White Paper</td>
+            </tr>
+            <tr class="here">
+              <td>Combating Bias — Repeated Mistakes and Gut-Feel Decisions</td>
+              <td>has a history of repeating mistakes, ignoring negative data, or making gut-feel choices</td>
+              <td>Use Quality Decisions frameworks… Use <mark>Decision Workpaper</mark> to structure future high-stakes decisions.</td>
+              <td class="unsettled">this row</td>
+            </tr>
+            <tr>
+              <td>Data Interpretation — Reacting to Metric Spikes or Drops</td>
+              <td>is making assumptions based on sudden spikes or drops in business metrics</td>
+              <td>Use Interpreting Data Correctly framework. Apply Deming's Theory of Volatility…</td>
+              <td class="settled">✓ settled</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="note">
+          Four rows of an eight-row table — the branch itself and its neighbours <span class="q">?</span>.
+          Whether this should show the whole table or only the rows either side is a question for you.
+        </p>
+      </div>
+
+      <div class="part">
+        <p class="plab">What the app can open <span class="q">?</span></p>
+        <div class="cand best">
+          <span class="cwhy">named one branch up, and already ruled there</span>
+          <span class="ctitle">FM Board White Paper</span><span class="cpath">Firm Manager › Board</span>
+          <p class="cpurpose">
+            This template standardizes how new ideas or major purchases are pitched to the board. It
+            requires an Executive Summary, Historical Context, Suggested Solution, Measurable…
+          </p>
+        </div>
+        <div class="cand weak">
+          <span class="cwhy">no words in common · weak</span>
+          <span class="ctitle">Draft White Papers</span><span class="cpath">Do the Job › Board</span>
+          <p class="cpurpose">
+            This template guides the reader through the process of writing a white paper. It seeks to
+            solve the common problem facing many board chairmen, that of members 'dumping'…
+          </p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary">Use this one</button>
+        <button class="btn">Pick another</button>
+        <button class="btn">Not a tool</button>
+        <button class="btn">Flag as missing</button>
+      </div>
+    </div>
+
+    <div class="find">
+      <strong>Why this row changes anything.</strong> The name matcher will never suggest
+      <em>FM Board White Paper</em> for <em>Decision Workpaper</em> — they share no words, and it is
+      right not to guess. What makes it answerable is that the branch directly above says
+      <em>"Use Board White Paper framework to structure and document the strategic proposal"</em> and
+      was ruled to that document. <strong>No amount of matching finds that. Reading the table does.</strong>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>2 · And where the table still does not settle it</h2>
+    <p class="sub">
+      Honest counter-example. Context is not always enough, and the screen should not pretend it is.
+    </p>
+
+    <div class="row">
+      <header>
+        <div>
+          <div class="nm">Management Reporting Annual Plan</div>
+          <div class="where">End of Year Meeting · Stage 5 — Action Planning and Follow-Up · in a sentence</div>
+        </div>
+        <span class="verdict v-none">Nothing matches</span>
+      </header>
+
+      <div class="part">
+        <p class="plab">What the logic table says <span class="q">?</span></p>
+        <p class="sentence">
+          "For clients ready for structured ongoing advisory: introduce the
+          <mark>Management Reporting Annual Plan</mark> — a 12-month governance and strategic calendar.
+          Frame it as their advisory board calendar…"
+        </p>
+      </div>
+
+      <div class="part">
+        <p class="plab">What the app can open <span class="q">?</span></p>
+        <div class="cand">
+          <span class="cwhy">the name is nearly exact</span>
+          <span class="ctitle">Mgt Annual Plan</span><span class="cpath">Firm Manager › Meetings</span>
+          <p class="cpurpose">
+            This template is designed to help you introduce more structure to your regular management
+            meetings. Whilst similar to an annual board plan, this template is more focused towards
+            business improvement…
+          </p>
+        </div>
+        <div class="cand">
+          <span class="cwhy">the description is nearly exact</span>
+          <span class="ctitle">Annual Board Plan</span><span class="cpath">Do the Job › Board</span>
+          <p class="cpurpose">
+            This template records the board's intentions to deal with certain business topics/issues and
+            schedules their sequence throughout the year. Issues include both business performance and
+            board member/dir…
+          </p>
+        </div>
+        <div class="qbox">
+          <strong>Two documents, and they are not the same one.</strong> The name points at the first;
+          the sentence — <em>"their advisory board calendar"</em> — points at the second. A third
+          possibility is that both are right and the branch should name one for the management meeting
+          and one for the board. <strong>Only you can say</strong>, and the screen says so rather than
+          picking the better-spelled title.
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary">Use this one</button>
+        <button class="btn">Pick another</button>
+        <button class="btn">Not a tool</button>
+        <button class="btn">Flag as missing</button>
+      </div>
+    </div>
+
+    <div class="find">
+      <strong>This is the failure the screen exists to prevent, stated positively.</strong> On
+      2026-08-04 a suggestion was confidently wrong. On 2026-08-12 <em>Lite Fundamentals Data</em> was
+      offered a framework about winning engagements because its title spelled better. A row that shows
+      two candidates and says "your call" is worth more than one that picks.
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>The wording that needs your ruling</h2>
+    <p class="sub">
+      Seven labels. Three are carried over unruled from the earlier mockup; four are new to this one.
+      Nothing here is a verdict name or a button — those are unchanged from 5 August.
+    </p>
+    <table class="w">
+      <tr><th style="width:30%">Proposed label</th><th style="width:14%">Status</th><th>What it heads</th></tr>
+      <tr><td><strong>What the logic table says</strong></td><td>carried over</td><td>The sentence the name was written in</td></tr>
+      <tr><td><strong>What the app can open</strong></td><td>carried over</td><td>The catalogue documents that might be it</td></tr>
+      <tr><td><strong>Weaker matches</strong></td><td>carried over</td><td>Candidates below the confidence bar, shown rather than hidden</td></tr>
+      <tr><td><strong>Where it sits in the table</strong></td><td>new</td><td>The branch shown among its neighbours</td></tr>
+      <tr><td><strong>Names</strong></td><td>new</td><td>The last column — whether each neighbouring branch is settled</td></tr>
+      <tr><td><strong>✓ settled</strong> / <strong>this row</strong></td><td>new</td><td>The two states in that column</td></tr>
+      <tr><td><strong>the branch itself and its neighbours</strong></td><td>new</td><td>The note saying how much of the table is shown</td></tr>
+    </table>
+    <div class="qbox">
+      <strong>One question that is not about wording.</strong> How much of the table should a row show —
+      the branch and the rows either side, as drawn here, or the whole table? Firm Board Pack has eight
+      branches and fits. Systems Thinking has more.
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>What changes, precisely</h2>
+    <table class="w">
+      <tr><th style="width:30%">Thing</th><th>Before</th><th>After</th></tr>
+      <tr><td><strong>The Logic Tables page</strong></td><td>The rail, the four-column grid, Save</td><td><strong>Untouched.</strong> Nothing added, nothing removed, at any tier</td></tr>
+      <tr><td>A Template Check row</td><td>Name, where it was found, verdict, and a suggestion when there is one</td><td>Also the sentence, the branch among its neighbours, and what each candidate says about itself</td></tr>
+      <tr><td>"Nothing matches" rows</td><td>A dead end — nothing below the bar is shown</td><td>The closest candidates shown as weak, so the row can be judged instead of guessed at</td></tr>
+      <tr><td>Who sees it</td><td>Mentor only</td><td><strong>Mentor only.</strong> Unchanged</td></tr>
+      <tr><td>What a ruling does</td><td>Records a decision; never edits a table</td><td><strong>Unchanged.</strong> The "Accept and push" queue is still the only way a table is changed</td></tr>
+    </table>
+    <p class="note">
+      <strong>Not proposed, deliberately:</strong> making the mini-table editable. It is there to be
+      read while deciding. Editing logic tables stays on the Logic Tables page, which is the whole point
+      of doing it this way round.
+    </p>
+  </section>
+
+</div>
+</body>
+</html>
