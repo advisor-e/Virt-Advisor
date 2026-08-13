@@ -111,7 +111,16 @@ describe('the Handbook', () => {
       // Quizzes, the Hub and Adviser Network each appear twice in the index.
       const ids = html.match(/id="page-[a-z0-9-]+"/g) || []
       expect(ids.length).toBe(new Set(ids).size)
-      expect(result.pages).toHaveLength(25)
+
+      // The count is DERIVED, never typed. A literal here was correct on the day
+      // it was written and would have gone red on the first page `npm run feature`
+      // added — a failure saying nothing except that the number had moved. What
+      // is actually being asserted is the relationship: every distinct entry in
+      // the index becomes exactly one page, and no page is invented.
+      const distinct = new Set()
+      result.groups.forEach(group => group.items.forEach(item => distinct.add(item.slug)))
+      expect(result.pages).toHaveLength(distinct.size)
+      expect(distinct.size).toBeGreaterThan(20)
     })
 
     it('gives every page the id and data-page the shell looks for', () => {

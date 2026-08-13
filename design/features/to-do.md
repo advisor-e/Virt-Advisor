@@ -104,16 +104,6 @@ carried since session 39.
 
 ## 4. Ready to build — approved or unblocked
 
-**4.0 · Build `npm run feature "<name>"` — a feature starts as a Handbook page.** ✅**verified
-2026-08-13** — Mike's instruction: when a new feature is requested, the first thing that happens
-is a page in the Handbook, where its design and rules are captured *before* any code. The command
-creates the Brief and its History from a template, adds the row to
-[`README.md`](README.md), and refuses if the page exists — so writing the page is the fastest
-route into the work rather than a discipline anyone has to remember. Ships with a guard: every
-Brief must have a History and an index row, or the build fails. *(Waits on us. Parts 1 and 2 of
-that instruction — the Handbook opening at startup, and work being picked from this list — are
-done, see [done & parked](to-do-done-and-parked.md).)*
-
 **4.1 · Correct the laptop's expected branch in `/startup`.** ✅**verified** —
 [`.claude/commands/startup.md`](../../.claude/commands/startup.md) still says the laptop works the
 *business performance report* branch. It has been `feat/advisor-progress` since 2026-07-29. One

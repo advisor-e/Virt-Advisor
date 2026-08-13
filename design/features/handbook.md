@@ -14,6 +14,7 @@ begins as a page in it before any code is written.
 | **The navigation** | Read from [`README.md`](README.md) — its headings are the groups, its table rows the entries. |
 | **The design** | [`scripts/handbook-shell.html`](../../scripts/handbook-shell.html) — an approved artefact. |
 | **The generator** | [`scripts/build-handbook.js`](../../scripts/build-handbook.js), run with `npm run handbook`. |
+| **The scaffolder** | [`scripts/new-feature.js`](../../scripts/new-feature.js), run with `npm run feature`. |
 | **The published page** | One URL, recorded in [`ARTEFACTS.md`](../ARTEFACTS.md). |
 
 ## 2. The rules
@@ -31,7 +32,14 @@ begins as a page in it before any code is written.
 4. **Every Brief has a History**, and the History renders behind a gate at the foot of the Brief,
    never as a page of its own. The gate carries the line *"If this and the page above disagree,
    the page above wins."*
-5. **A new feature starts here.** Its Brief and History exist before its code does.
+5. **A new feature starts here.** Its Brief and History exist before its code does, and
+   `npm run feature "<name>" "<group>" "<one-line summary>"` creates all three — the Brief, the
+   History and the index row — from the standard skeleton. It refuses to overwrite a page, and
+   refuses a group `README.md` does not already have, so a typo cannot invent a navigation
+   category. Both pages it writes are stubs and **say so at the top**; that warning is deleted by
+   whoever fills them in. Adding a page by hand is still allowed — but
+   [`tests/unit/newFeature.test.js`](../../tests/unit/newFeature.test.js) fails if any Brief ends
+   up without a History or without a row in the index, however it got there.
 6. **Rules established in a session are written into the Brief that same session.** A rule left
    in a session note is a rule nobody will find.
 

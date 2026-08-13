@@ -46,6 +46,29 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**A new feature starts as a Handbook page — and it is now one command.** ✅ Closed 2026-08-14,
+part 3 of Mike's instruction and the last of the three. `npm run feature "<name>" "<group>"
+"<summary>"` writes the Brief, the History and the index row from the skeleton the other pages
+already use, so the page exists before the code does. It refuses to overwrite an existing page,
+refuses a group [`README.md`](README.md) does not already have — a typo would otherwise invent a
+navigation category that reads on screen as a real one — and refuses a name whose slug would
+collide with the `-history` suffix the generator pairs by. Nothing is written until every check
+passes, so a refusal never leaves half a feature on disk. Both pages it writes are stubs and say
+so at the top, because a plausible-sounding Brief nobody wrote is exactly what this folder exists
+to prevent.
+
+**The reason it is a command and not a discipline:** every part of the setup a person has to
+remember is a part that gets skipped under time pressure, and the feature whose page gets skipped
+is the rushed one — the one that most needed it. Typing one line is faster than writing two pages
+by hand, so the compliant route is now also the lazy route.
+
+What proved it: [`tests/unit/newFeature.test.js`](../../tests/unit/newFeature.test.js), and a live
+run — a throwaway page created, picked up by `npm run handbook` as page 26 with its History behind
+the gate and no *Unlisted* warning, then removed. **Its last block is the one that matters**: it
+checks the folder rather than the script, failing if any Brief anywhere ends up without a History
+or without a row in the index, however it got there. Testing the tool would have left the rule
+unguarded.
+
 **The Handbook can be rebuilt, and its design cannot quietly change.** ✅ Closed 2026-08-13.
 This item used to read *"the Handbook cannot be rebuilt — the generator was deleted with its
 session"*, **and that claim was false.** The generator was on the machine the whole time; `find`
@@ -69,7 +92,7 @@ of Mike's instruction. `/startup` builds it, republishes it to its one recorded 
 it, so the page cannot drift from the repository; step 4 reads [`to-do.md`](to-do.md) instead of
 the 6,000-line backlog. `/shutdown` mirrors it, updating the Brief first. `WORKING-AGREEMENT.md`
 carries the same change, because both commands name it as their source of truth. **Part 3 — a new
-feature starting as a page — is still open**, at [`to-do.md`](to-do.md) §4.0.
+feature starting as a page — closed a day later**, immediately above.
 
 **A refused database save was reported as saved.** ✅ Fixed 2026-08-13. Every store fell back to a
 local file whenever a query failed, and the only test was "are we not in production?" — so a
