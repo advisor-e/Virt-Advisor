@@ -104,55 +104,70 @@ carried since session 39.
 
 ## 4. Ready to build — approved or unblocked
 
-**4.0 · 🔴 FIRST TASK NEXT SESSION — the Handbook cannot be rebuilt.** ✅**verified 2026-08-13**
-— the 24 pages are safe in this folder and the published page stays up, but the script that
-*generates* it (`build-app.js` + `app-shell.html`) lives in the **session-scoped scratchpad**,
-which is deleted when a session ends. **So the moment a page is edited, the Handbook cannot be
-regenerated without rewriting the generator first** — roughly twenty minutes: read every
-`features/*.md`, convert with the project's own markdown library, wrap in the app shell with the
-nav groups, edit mode and the save-to-file button.
-- **The real fix is to move the generator into the project** so it is versioned like everything
-  else and this cannot recur. That is a new file in the repo and **needs Mike's approval** — it
-  has never been proposed.
-- ⚠ **This item exists because it was first recorded only as a note.** A hazard written as a
-  warning is not a task; see §6. Caught by Mike the same evening.
+**4.0 · Build `npm run feature "<name>"` — a feature starts as a Handbook page.** ✅**verified
+2026-08-13** — Mike's instruction: when a new feature is requested, the first thing that happens
+is a page in the Handbook, where its design and rules are captured *before* any code. The command
+creates the Brief and its History from a template, adds the row to
+[`README.md`](README.md), and refuses if the page exists — so writing the page is the fastest
+route into the work rather than a discipline anyone has to remember. Ships with a guard: every
+Brief must have a History and an index row, or the build fails. *(Waits on us. Parts 1 and 2 of
+that instruction — the Handbook opening at startup, and work being picked from this list — are
+done, see [done & parked](to-do-done-and-parked.md).)*
 
+**4.1 · Correct the laptop's expected branch in `/startup`.** ✅**verified** —
+[`.claude/commands/startup.md`](../../.claude/commands/startup.md) still says the laptop works the
+*business performance report* branch. It has been `feat/advisor-progress` since 2026-07-29. One
+line. *(Waits on Mike — it was left alone rather than folded into a change he was approving.)*
 
-**4.1 · 🔴 Hardcoded English on the report screens and parts of the advisor screen.**
+**4.2 · Convert the one dead link in the Handbook.** `[../i18n-*](../)` in
+[`localisation-and-currency-history.md`](localisation-and-currency-history.md) points at the
+parent folder and does nothing when clicked, because the rewrite needs a character after `../`.
+One character in `relink()`. Currently pinned as a ⚠ CURRENT BEHAVIOUR test so it cannot be
+forgotten. *(Waits on Mike.)*
+
+**4.3 · Point `CLAUDE.md`'s "Save the Artefact" section at the register.**
+[`ARTEFACTS.md`](../ARTEFACTS.md) now exists and is guarded; the rule that failed on 2026-08-13
+should name it, and should say that a missing artefact is a **stop**, not a licence to redesign.
+*(Waits on Mike — it is his file.)*
+
+**4.4 · Open the Handbook, edit a word, reload, confirm it survives.** The edit-persistence is
+proven in code and has not been seen working in a browser since the restore. *(Waits on Mike.)*
+
+**4.5 · 🔴 Hardcoded English on the report screens and parts of the advisor screen.**
 ✅**verified** — a breach of the locked stack requirement that every user-facing string goes
 through the wording layer. It is logged as critical, not accepted. Its real cost: the people who
 own the words cannot change them without a developer, and a second language stops being a data
 problem.
 
-**4.2 · Measure the blast radius of the fabricated content.** One confirmed invented detail was
+**4.6 · Measure the blast radius of the fabricated content.** One confirmed invented detail was
 found living in the domain-support data presented as the firm's own material, and **corrected**.
 **No sweep has ever checked the other rows for the same class of invention.** This is a
 verification pass, not a fix — and it is the one open item where the honest answer is "we do not
 know how big it is."
 
-**4.3 · Flip `engine-strict` back on.** ✅**verified** — still `false`. Two transitive packages
+**4.7 · Flip `engine-strict` back on.** ✅**verified** — still `false`. Two transitive packages
 over-declare their Node requirement and need pinning down first, then one install to verify.
 ⚠ **Reinstall is overnight-only on this machine**, and there is a documented safe procedure —
 follow it exactly rather than running a plain `npm install`.
 
-**4.4 · The course builder live click-through.** Never done. Build a course end to end, complete
+**4.8 · The course builder live click-through.** Never done. Build a course end to end, complete
 a session and quiz, interrupt a streaming reply with Start-fresh, refresh and confirm the course
 survives, reload and confirm the migration ran. **Three tracked items close only on that
 session** — until then the feature is proven by tests and not by use.
 
-**4.5 · Make the coaching reference inherit.** ✅**verified as a real gap** — its fifteen rows
+**4.9 · Make the coaching reference inherit.** ✅**verified as a real gap** — its fifteen rows
 already carry stable ids; it simply never joined the inheritance mechanism, and its firm side is
 append-only.
 
-**4.6 · Extend the invisible mode swap.** Ruled: it should fire in Discover mode and before a
+**4.10 · Extend the invisible mode swap.** Ruled: it should fire in Discover mode and before a
 recommendation, as well as during the client deep-dive. Needs a scenario-lab pass so the early
 version cannot derail the intake questions.
 
-**4.7 · Reconcile the two data layers.** This app uses MySQL with a file fallback; the people
+**4.11 · Reconcile the two data layers.** This app uses MySQL with a file fallback; the people
 layer runs in memory. Neither has a real database, which is exactly why it should be done
 knowingly rather than by accident.
 
-**4.8 · One handover story for the master team.** The merged app's own handover documents still
+**4.12 · One handover story for the master team.** The merged app's own handover documents still
 describe a separate standalone application.
 
 ---

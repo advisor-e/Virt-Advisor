@@ -111,7 +111,7 @@ describe('the Handbook', () => {
       // Quizzes, the Hub and Adviser Network each appear twice in the index.
       const ids = html.match(/id="page-[a-z0-9-]+"/g) || []
       expect(ids.length).toBe(new Set(ids).size)
-      expect(result.pages).toHaveLength(24)
+      expect(result.pages).toHaveLength(25)
     })
 
     it('gives every page the id and data-page the shell looks for', () => {

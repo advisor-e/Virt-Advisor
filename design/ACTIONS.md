@@ -21,8 +21,9 @@
 >
 > 🔴 **2026-08-13 — THIS FILE IS NO LONGER THE TRIAGE LIST. READ
 > [`features/to-do.md`](features/to-do.md) FIRST.** This file stays the full record — nothing is
-> deleted from it — but it is 6,135 lines and reads as ~70 open tasks when the real live list is
-> **nineteen, nine of which are waiting on Mike rather than on code**. Every item there names who
+> deleted from it — but it is 6,000+ lines and reads as ~70 open tasks when the real live list is
+> **thirty-two, nine of which are waiting on Mike rather than on code** (nineteen when that list
+> was written on 2026-08-13; four of the additions are one-line jobs). Every item there names who
 > it waits on and whether it was verified against the code or merely carried from here. Finished
 > and parked work lives in [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md).
 >
@@ -34,6 +35,61 @@
 > rule nobody will find.
 
 ---
+
+- <a id="artefact-with-no-footprint"></a>✅ **P1 · DOC/BUILD — an approved artefact existed with NO
+  FOOTPRINT IN THIS REPOSITORY, so nothing could notice it was missing.** Found and closed
+  2026-08-13 (`43410b7`, `0bb032d`, `af5c320`, laptop). **Full story:**
+  [`features/handbook-history.md`](features/handbook-history.md).
+  - **What happened.** The Handbook's generator and page design lived in a session-scoped
+    temporary folder, and [`SESSION-2026-08-13-B-NOTES.md`](SESSION-2026-08-13-B-NOTES.md) plus
+    `to-do.md` §4.0 both recorded that they had been deleted. **They had not.** `find` across the
+    machine located them in four seconds — *after* a replacement had been written from the prose
+    description: different palette, History promoted out of its gate, edit-persistence lost.
+  - 🔴 **THE TRANSFERABLE PART. The rule requiring an artefact to be saved before approval already
+    existed and did not fire, because the artefact had no row, link or file anywhere in the repo.
+    "I cannot find it" then became permission to design a replacement.** Same family as the
+    Logic-Lab mockup (2026-08-01/02) and the `record-keeps-the-paraphrase` P2 below: the record
+    keeps the paraphrase and loses the original, and no test can catch what nothing references.
+  - **The controls built, not documented.** `design/ARTEFACTS.md` registers every approved
+    artefact and its file; `tests/unit/designArtefacts.test.js` fails the build on a listed
+    artefact that is missing, a mockup added with no row, **any path pointing outside the
+    repository**, or a mockup referenced by a design document but never saved. Each predicate was
+    proven to reject the case it exists for — the exact temp path the Handbook's design was
+    sitting in is rejected. `tests/unit/buildHandbook.test.js` pins the approved design itself
+    (palette, 1120px width, 14px radius, the gate, edit-persistence): change the look and the
+    suite goes red naming the file.
+  - **Restored, not re-imagined.** `scripts/handbook-shell.html` is the original byte-for-byte
+    (matching MD5); the new `scripts/build-handbook.js` was proven against the original's own
+    output — identical 24 page ids, identical 24 gates, byte-identical stylesheet.
+  - **Three faults in the original generator fixed on the way:** a hand-typed 24-page list that
+    had already drifted from the index (nav is now read from `features/README.md`); a hardcoded
+    `c:/Users/mb/...` path that ran on one machine only; and `String.replace` substitution, which
+    fills the first match — it once published 412 KB with every article inside an HTML comment,
+    with no error and nothing on screen.
+  - ⚠ **Two deliberate departures from the original output, named:** the nav status dot (its own
+    legend and CSS asked for an element the generator never emitted) and the two drifted group
+    names. ⚠ **One known gap left alone:** `[../i18n-*](../)` stays a dead relative link, pinned
+    as a ⚠ CURRENT BEHAVIOUR test — `to-do.md` §4.2.
+
+- <a id="handbook-is-the-front-door"></a>✅ **P1 · DOC — the Handbook opens itself, and work is
+  picked from it.** Ruled and built 2026-08-13 (`af5c320`, laptop). Mike's instruction: the
+  Handbook opens as part of startup, all work opens from it, and **a new feature begins as a page
+  in it** where design and rules are captured before any code.
+  - **Parts 1 and 2 done.** `/startup` step 3 builds (`npm run handbook`), republishes to the one
+    address recorded in `ARTEFACTS.md`, and opens it — so the page **cannot** drift from the repo
+    and overwriting the published version is always safe. Step 4 reads
+    [`features/to-do.md`](features/to-do.md), **not this file**. `/shutdown` updates the Brief
+    first, moves finished work off the live list, then records here.
+    `WORKING-AGREEMENT.md` carries the same change — both commands name it as their source of
+    truth, so editing only the commands would have created the very drift this closes.
+  - ☐ **Part 3 is NOT built** — `npm run feature "<name>"`, creating a Brief + History + index row
+    before any code, with a guard that every Brief has both. `to-do.md` §4.0.
+  - 🔴 **A hole in this change was found while writing it:** step 3 said "republish to the existing
+    link" while that link lived nowhere in the repo — the same failure as a design in a temp
+    folder. Publishing without it silently creates a **second** Handbook and the bookmarked one
+    stops updating. The URL is now in `ARTEFACTS.md`.
+  - ⚠ **`features/to-do.md` now holds 31 items against its own §6 limit of "about twenty".** Four
+    of today's are one-line jobs. Worth a triage pass, not a rewrite.
 
 - <a id="record-keeps-the-paraphrase"></a>☐ **P2 · DOC — the correction was applied where the fault
   WAS, and nothing asked where the content had been COPIED to.** Found and fixed 2026-08-13

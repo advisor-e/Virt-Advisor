@@ -16,6 +16,7 @@ Claude for the link.
 | | |
 |---|---|
 | **[The To-Do List](to-do.md)** | The whole live list — who each item waits on, and how it was verified. [Done & parked](to-do-done-and-parked.md) |
+| **[The Handbook](handbook.md)** | How this handbook is built, published, opened and edited — and why a new feature starts as a page in it. [history](handbook-history.md) |
 
 ## The AI engine
 

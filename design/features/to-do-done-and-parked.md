@@ -46,6 +46,31 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**The Handbook can be rebuilt, and its design cannot quietly change.** ✅ Closed 2026-08-13.
+This item used to read *"the Handbook cannot be rebuilt — the generator was deleted with its
+session"*, **and that claim was false.** The generator was on the machine the whole time; `find`
+located it in four seconds — but only *after* a replacement had been written from a written
+description of the page, in a different palette, with the History pulled out of the gate the index
+says it sits behind. Every check passed, because every check compares the code to the note and
+nothing compared the build to the artefact.
+
+What proved it: the original shell restored byte-for-byte (matching MD5) into
+[`scripts/handbook-shell.html`](../../scripts/handbook-shell.html), and the rebuilt output checked
+against the original's own output — identical 24 page ids, identical 24 gates, byte-identical
+stylesheet. Three faults in the original were fixed on the way (a hand-typed page list that had
+already drifted from the index, a hardcoded path that ran on one machine, and a substitution that
+filled only the first match and once published 412 KB of nothing). The design is now pinned by
+test, and [`ARTEFACTS.md`](../ARTEFACTS.md) registers every approved artefact so one can never
+again exist with no footprint in the repository. Full story:
+[`handbook-history.md`](handbook-history.md).
+
+**The Handbook opens itself, and work is picked from it.** ✅ Closed 2026-08-13 — parts 1 and 2
+of Mike's instruction. `/startup` builds it, republishes it to its one recorded address and opens
+it, so the page cannot drift from the repository; step 4 reads [`to-do.md`](to-do.md) instead of
+the 6,000-line backlog. `/shutdown` mirrors it, updating the Brief first. `WORKING-AGREEMENT.md`
+carries the same change, because both commands name it as their source of truth. **Part 3 — a new
+feature starting as a page — is still open**, at [`to-do.md`](to-do.md) §4.0.
+
 **A refused database save was reported as saved.** ✅ Fixed 2026-08-13. Every store fell back to a
 local file whenever a query failed, and the only test was "are we not in production?" — so a
 genuine refusal by a live database looked identical to having no database at all. **UAT is not
