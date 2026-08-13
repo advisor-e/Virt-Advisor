@@ -8,6 +8,25 @@
 
 ---
 
+## 🔴 FIRST TASK NEXT SESSION — the Handbook generator is GONE
+
+**Rebuild `build-app.js` + `app-shell.html` before touching anything else, or leave the
+Handbook alone until you have.** The 24 pages are safe in `design/features/` and the published
+page stays up — but the script that *generates* the page lived in the **session-scoped
+scratchpad**, which is deleted when a session ends. **Edit any page and the Handbook cannot be
+regenerated until the generator is rewritten** (~20 min: read every `features/*.md`, convert with
+the repo's own `markdown-it`, wrap in the shell with the nav groups, edit mode, and the
+`window.claude.downloads` save button).
+
+**The real fix — move the generator into the repo so this cannot recur — is UNPROPOSED and needs
+Mike's approval.** Raise it at startup.
+
+Logged as [`features/to-do.md`](features/to-do.md) §4.0. ⚠ **It was first recorded only in a
+memory note, and Mike caught that the same evening** — a hazard written as a warning is not a
+task, which is the rule this whole session was built around.
+
+---
+
 ## 🔴 THE ONE THING TO READ — the backlog is no longer the triage list
 
 **[`design/features/to-do.md`](features/to-do.md) is now where work is triaged.**

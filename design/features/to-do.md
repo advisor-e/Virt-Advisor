@@ -104,6 +104,20 @@ carried since session 39.
 
 ## 4. Ready to build — approved or unblocked
 
+**4.0 · 🔴 FIRST TASK NEXT SESSION — the Handbook cannot be rebuilt.** ✅**verified 2026-08-13**
+— the 24 pages are safe in this folder and the published page stays up, but the script that
+*generates* it (`build-app.js` + `app-shell.html`) lives in the **session-scoped scratchpad**,
+which is deleted when a session ends. **So the moment a page is edited, the Handbook cannot be
+regenerated without rewriting the generator first** — roughly twenty minutes: read every
+`features/*.md`, convert with the project's own markdown library, wrap in the app shell with the
+nav groups, edit mode and the save-to-file button.
+- **The real fix is to move the generator into the project** so it is versioned like everything
+  else and this cannot recur. That is a new file in the repo and **needs Mike's approval** — it
+  has never been proposed.
+- ⚠ **This item exists because it was first recorded only as a note.** A hazard written as a
+  warning is not a task; see §6. Caught by Mike the same evening.
+
+
 **4.1 · 🔴 Hardcoded English on the report screens and parts of the advisor screen.**
 ✅**verified** — a breach of the locked stack requirement that every user-facing string goes
 through the wording layer. It is logged as critical, not accepted. Its real cost: the people who
