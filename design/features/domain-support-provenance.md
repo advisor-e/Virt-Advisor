@@ -93,8 +93,59 @@ in the firm's own documents. That half of the problem is measured and clean.
 | The ruling | Given 2026-08-14 — *mark them* |
 | Strategy domain | **Swept.** 9 rows against `Domain Support/Strategic Planning Support.pdf`; 9 clauses found |
 | The other 28 domains | **Not swept.** Estimated 150–200 clauses on the observed rate |
-| The marking mechanism | **Not designed.** Where a marked clause lives in the JSON, and how the prompt labels it, are both open |
+| The marking mechanism | **Built 2026-08-14** to the approved artefact [`../mockups/domain-support-authored-commentary.html`](../mockups/domain-support-authored-commentary.html) — see §4.1 below |
 | Fact-level claims | **Swept and clean** — 140 of 140 verified against the firm's documents |
+
+### 4.1 · The mechanism, as built
+
+**A mark records the words, never a step number.** The screen lets steps be reordered, so an index
+would quietly come to mean a different sentence. The cost of anchoring on the words is that an edit
+can orphan a mark — closed two ways: `tests/unit/authoredCommentary.test.js` fails the build if a
+platform mark's words are missing or ambiguous, and `livingCommentary()` checks presence at the
+point of use, so a firm's edited copy — which no test can reach — simply stops showing the note.
+
+```json
+"authored_commentary": [
+  {
+    "text": "so purchasing blockages are removed rather than competed against",
+    "checked": "2026-08-14",
+    "searched": "all 115 firm documents — zero matches"
+  }
+]
+```
+
+Additive, per material, beside `steps`. **A material with no marks is byte-for-byte what it was**,
+which is why the other 28 areas are untouched until they are swept.
+
+| Piece | Where |
+|---|---|
+| The marks | `data/*-domain-support.json`, per material |
+| Presence check + prompt block | `server/utils/domainSupport.js` — `livingCommentary`, `formatMaterialLines` |
+| Screen note and control | `components/firm/FirmDomainSupport.vue` |
+| Wording | `locales/en.json` → `firmDomainSupport.mark*` |
+| Guards | `tests/unit/authoredCommentary*.test.js` |
+
+**What the AI is told.** The steps reach it **unchanged** — the method still reads as one
+instruction — and a block after them names what was ours: *"Not the firm's own words — commentary
+added by Advisor-e. Do not present these as the firm's method."* Both prompt paths get it, the
+advisor engine and the course session, because both format through `formatMaterialLines`.
+
+**What a person sees.** Under the step, quiet and not alarming: *"Our wording, not yours — change or
+remove it freely:"* followed by the clause. Mike's wording, chosen 2026-08-14.
+
+**Who may mark.** The platform only, for now — `canMark` is `scope === 'mentor'`, named
+**positively** because Tier Cascade P5's trap is that a negative gate answers *yes* for a tier that
+does not exist yet. A firm marking commentary **it** wrote is a real case and will come; the label
+above is the platform speaking to a firm and would read wrong in a firm's own voice, so **that
+wording is asked for, never invented**. A firm that disagrees with a mark is not stuck — rewriting
+the sentence clears it, and the words genuinely become theirs at that point. What a firm cannot do
+is un-tick a mark while keeping our words: that would leave something known to be false standing at
+every other firm, and would silently cost that firm every future improvement to the whole area
+(`domain-support.md` P4 — arrays replace wholesale).
+
+⚠ **A mark made on the screen is not the same claim as a mark made in a sweep**, and the data says
+so: its `searched` reads *"marked on screen — no corpus search recorded"*. Do not read the two as
+equivalent evidence.
 
 ### The nine found in Strategy
 
@@ -125,6 +176,13 @@ a clause ours — several turned out to be genuine material that had simply move
 which is a different finding and not a fault.
 
 **Order by content weight.** After Strategy the largest are Seminar, EOY, and Sales & Marketing.
+
+**Recording what you find.** Add an `authored_commentary` entry beside that material's `steps`
+(shape in §4.1). Copy the clause **exactly** — the guard test fails on a fragment that is not in the
+material, or that appears twice. Write `searched` as what you actually did, not as a formula: it is
+the difference between a checked finding and an assertion. Then run
+`npx jest tests/unit/authoredCommentary.test.js` before moving to the next area, so a mistyped
+fragment is caught in the domain you are holding rather than a week later.
 
 ### Traps
 

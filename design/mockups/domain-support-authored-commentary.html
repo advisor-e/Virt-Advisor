@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Domain Support — Marking Our Commentary</title>
+<style>
+  :root {
+    --navy:#002b64; --grey:#7a869a; --line:#e2e6ec; --ink:#363636;
+    --green:#1f7a45; --green-bg:#eefaf2; --green-line:#63c48d;
+    --amber:#b35309; --amber-bg:#fffaf3; --amber-line:#ffb870;
+    --red:#a32020;   --red-bg:#fdf4f4;   --red-line:#e8a0a0;
+    --slate:#5a6b82; --slate-bg:#f3f6fa; --slate-line:#b8c6d8;
+    --dim:#8a94a3;   --dim-bg:#f6f7f9;   --dim-line:#d8dce3;
+    --mark:#6b3fa0;  --mark-bg:#f7f3fc;  --mark-line:#c4a8e0;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.5rem 6rem; background:#f5f5f5;
+    font:15px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); }
+  .wrap { max-width:1180px; margin:0 auto; }
+
+  .banner { background:#fff8e6; border:1px solid #f0d9a0; border-left:4px solid #e0b24e;
+    border-radius:5px; padding:0.9rem 1.05rem; margin-bottom:2.5rem; font-size:0.84rem; line-height:1.6; }
+  .banner strong { color:var(--amber); }
+
+  h1 { font-size:1.6rem; margin:0 0 0.4rem; color:var(--navy); letter-spacing:-0.01em; }
+  .lede { color:var(--grey); font-size:0.92rem; margin:0; max-width:56rem; }
+
+  section.band { margin-top:3.2rem; }
+  section.band > h2 { font-size:1.15rem; color:var(--navy); margin:0 0 0.35rem; letter-spacing:-0.01em; }
+  section.band > .sub { color:var(--grey); font-size:0.86rem; margin:0 0 1.4rem; max-width:56rem; }
+
+  .card { background:#fff; border:1px solid #ececec; border-radius:8px; padding:1.1rem 1.2rem; }
+  .card + .card { margin-top:1rem; }
+  .cardlab { font-size:0.66rem; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;
+    color:var(--navy); margin:0 0 0.7rem; }
+
+  /* ── The sentence split ──────────────────────────────────────── */
+  .sentence { font-size:0.95rem; line-height:1.85; background:#fff; border:1px solid var(--line);
+    border-radius:5px; padding:0.85rem 1rem; }
+  .theirs { background:#eef4fb; border-bottom:2px solid var(--slate-line); padding:0.1rem 0.15rem; }
+  .ours { background:var(--mark-bg); border-bottom:2px solid var(--mark-line); padding:0.1rem 0.15rem;
+    color:#3f2560; }
+  .keylegend { display:flex; gap:1.4rem; flex-wrap:wrap; margin-top:0.8rem; font-size:0.8rem;
+    color:var(--grey); }
+  .keylegend b { font-weight:600; color:var(--ink); }
+  .swatch { display:inline-block; width:0.85rem; height:0.85rem; border-radius:3px;
+    vertical-align:-1px; margin-right:0.35rem; }
+  .swatch.t { background:#eef4fb; border:1px solid var(--slate-line); }
+  .swatch.o { background:var(--mark-bg); border:1px solid var(--mark-line); }
+
+  /* ── The screen ──────────────────────────────────────────────── */
+  .screen { background:#fff; border:1px solid #ececec; border-radius:8px; padding:1rem 1.1rem; }
+  table.ds { border-collapse:collapse; width:100%; font-size:0.82rem; table-layout:fixed; }
+  table.ds th { text-align:left; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.07em;
+    color:var(--navy); background:#f4f6f9; padding:0.5rem 0.6rem; border-bottom:1px solid #d5dbe4; }
+  table.ds td { padding:0.7rem 0.6rem; border-bottom:1px solid #eef1f5; vertical-align:top; }
+  .c-name { width:18%; } .c-summary { width:26%; } .c-who { width:22%; } .c-steps { width:34%; }
+  .bname { font-weight:600; color:var(--navy); }
+  .tag { display:inline-block; font-size:0.66rem; border-radius:3px; padding:0.1rem 0.4rem;
+    background:#f0f2f5; color:var(--grey); border:1px solid var(--line); margin-top:0.45rem; }
+
+  .box { border:1px solid #dbdbdb; border-radius:4px; padding:0.45rem 0.55rem; background:#fff;
+    font-size:0.79rem; line-height:1.6; }
+  ol.steps { list-style:none; margin:0; padding:0; counter-reset:s; }
+  ol.steps > li { counter-increment:s; position:relative; padding-left:1.5rem; margin-bottom:0.7rem; }
+  ol.steps > li::before { content:counter(s) "."; position:absolute; left:0; top:0.5rem;
+    font-size:0.72rem; color:var(--grey); font-weight:600; }
+
+  .note { margin-top:0.35rem; font-size:0.72rem; line-height:1.55; color:#4a3266;
+    background:var(--mark-bg); border-left:3px solid var(--mark-line); border-radius:0 3px 3px 0;
+    padding:0.35rem 0.5rem; position:relative; }
+
+  /* ── The marking control ─────────────────────────────────────── */
+  .ctl { display:flex; gap:0.9rem; align-items:flex-start; padding:0.9rem 0; }
+  .ctl + .ctl { border-top:1px solid #f0f2f5; }
+  .ctlnum { flex:0 0 1.5rem; height:1.5rem; border-radius:50%; background:var(--slate-bg);
+    border:1px solid var(--slate-line); color:var(--navy); font-size:0.72rem; font-weight:700;
+    display:flex; align-items:center; justify-content:center; margin-top:1.35rem; }
+  .ctlbody { flex:1; min-width:0; }
+  .ctlcap { margin:0 0 0.5rem; font-size:0.78rem; color:var(--grey); }
+  .sel { background:#b9d6f7; border-radius:2px; box-shadow:0 0 0 1px #93bced; }
+  .ds-step-tools { display:flex; align-items:center; gap:0.6rem; margin-top:0.4rem; }
+  .markbtn { font:inherit; font-size:0.72rem; font-weight:600; border-radius:4px;
+    padding:0.28rem 0.65rem; cursor:pointer; }
+  .markbtn.is-off { background:#f6f7f9; border:1px solid var(--dim-line); color:#b0b6c0;
+    cursor:not-allowed; }
+  .markbtn.is-on { background:var(--mark); border:1px solid var(--mark); color:#fff; }
+  .hint { font-size:0.71rem; color:var(--grey); }
+  .unmark { position:absolute; top:0.2rem; right:0.3rem; border:none; background:transparent;
+    color:var(--mark); font-size:0.95rem; line-height:1; cursor:pointer; padding:0.1rem 0.25rem; }
+  .note q { display:inline; }
+  .note .lab { font-weight:700; color:var(--mark); }
+  .note q { font-style:italic; }
+
+  /* ── Wording options ─────────────────────────────────────────── */
+  .opts { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:0.9rem; }
+  .opt { border:1px solid var(--line); border-radius:6px; padding:0.85rem 0.95rem; background:#fff; }
+  .opt h4 { margin:0 0 0.55rem; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.07em;
+    color:var(--navy); }
+  .opt .why { margin:0.6rem 0 0; font-size:0.76rem; color:var(--grey); line-height:1.6; }
+  .opt.chosen { border-color:var(--green-line); background:var(--green-bg); }
+  .opt .pick { color:var(--green); font-weight:700; }
+
+  /* ── Prompt block ────────────────────────────────────────────── */
+  pre.prompt { background:#fbfcfd; border:1px solid var(--line); border-radius:5px;
+    padding:0.9rem 1rem; font:12.5px/1.75 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    white-space:pre-wrap; margin:0; color:#33415c; overflow-x:auto; }
+  pre.prompt .hl { background:var(--mark-bg); border-bottom:1px solid var(--mark-line); }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-items:start; }
+  @media (max-width:900px) { .two { grid-template-columns:1fr; } }
+
+  ul.plain { margin:0; padding-left:1.1rem; font-size:0.86rem; line-height:1.75; }
+  ul.plain li { margin-bottom:0.35rem; }
+
+  .decide { background:#fff; border:1px solid var(--amber-line); border-left:4px solid var(--amber);
+    border-radius:0 6px 6px 0; padding:1rem 1.15rem; }
+  .decide h3 { margin:0 0 0.6rem; font-size:0.95rem; color:var(--amber); }
+  .decide ol { margin:0; padding-left:1.2rem; font-size:0.87rem; line-height:1.8; }
+
+  .foot { margin-top:3.5rem; padding-top:1.2rem; border-top:1px solid var(--line);
+    font-size:0.78rem; color:var(--grey); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <strong>APPROVED 2026-08-14 — not yet built.</strong> This page exists so the mechanism could be
+    approved from something visible rather than from a description. It shows real rows from
+    <code>data/strategy-domain-support.json</code> and real clauses found in the sweep of
+    2026-08-14. All three decisions in section 7 have been ruled; the build is checked against
+    <em>this page</em>, and any deviation from it is named before shipping.
+  </div>
+
+  <h1>Marking our own commentary</h1>
+  <p class="lede">
+    Domain Support rows are transcriptions of the firm’s own documents. Mixed into them is a second
+    kind of sentence — a short clause explaining <em>why</em> a step matters, written by us, not by
+    the firm. Mike’s ruling of 2026-08-14 is <strong>mark them, do not delete them.</strong> This is
+    how.
+  </p>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>1 · What we are actually marking</h2>
+    <p class="sub">
+      Not whole rows, and not whole sentences. Our additions are <strong>tails welded onto the end of
+      the firm’s own sentences</strong>. That single fact drives every decision below.
+    </p>
+
+    <div class="card">
+      <p class="cardlab">Profit Levers &amp; Blue Ocean — step 4, exactly as it is stored today</p>
+      <div class="sentence">
+        <span class="theirs">Sort against the 8 Profit Levers: place the post-it notes under the corresponding lever</span><span class="ours">, which is what captures accumulative incremental growth rather than one large bet</span>.
+      </div>
+      <div class="keylegend">
+        <span><span class="swatch t"></span><b>The firm’s</b> — traced to their source document</span>
+        <span><span class="swatch o"></span><b>Ours</b> — found in none of the firm’s 115 documents</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="cardlab">Two more, so the pattern is clear</p>
+      <div class="sentence" style="margin-bottom:0.7rem">
+        <span class="theirs">Map Blue Ocean differentiation: brainstorm the key customer frustrations and frictions, tick the fronts currently focused on, and circle the fronts planned for future competition</span><span class="ours">, so purchasing blockages are removed rather than competed against</span>.
+      </div>
+      <div class="sentence">
+        <span class="theirs">Trial the prototype: define budget and timeline test parameters for product development, market research, competitor analysis, team learning, prototype solution and messaging appeal</span><span class="ours"> — set before the trial starts, not judged after it</span>.
+      </div>
+      <p class="why" style="margin:0.9rem 0 0; font-size:0.8rem; color:var(--grey)">
+        Nine of these were found across seven of the nine sourced Strategy rows. Most of them are
+        improvements — that is exactly why they read as the firm’s.
+      </p>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>2 · How it looks to a firm manager</h2>
+    <p class="sub">
+      This is the existing Domain Support screen inside Manage AI Coach. Every step is already an
+      editable box — so the mark <strong>cannot</strong> be a highlight inside the text, because you
+      cannot colour half a word inside a box someone is typing in. It sits underneath the step
+      instead.
+    </p>
+
+    <div class="screen">
+      <table class="ds">
+        <colgroup><col class="c-name"><col class="c-summary"><col class="c-who"><col class="c-steps"></colgroup>
+        <thead>
+          <tr><th>Material</th><th>Summary</th><th>Who &amp; when</th><th>Steps</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="box bname">Profit Levers &amp; Blue Ocean</div>
+              <span class="tag">Platform</span>
+            </td>
+            <td><div class="box">A workshop that moves a client off price competition and onto the eight levers that compound…</div></td>
+            <td><div class="box">Clients competing on price, or stuck in a crowded market.</div></td>
+            <td>
+              <ol class="steps">
+                <li>
+                  <div class="box">Review competition fronts: examine the standard industry competition fronts in the “Red Water Zone” — price, quality, location, consistency.</div>
+                </li>
+                <li>
+                  <div class="box">Map Blue Ocean differentiation: brainstorm the key customer frustrations and frictions, tick the fronts currently focused on, and circle the fronts planned for future competition, so purchasing blockages are removed rather than competed against.</div>
+                  <div class="note"><span class="lab">Our wording, not yours — change or remove it freely:</span>
+                    <q>so purchasing blockages are removed rather than competed against</q></div>
+                </li>
+                <li>
+                  <div class="box">Brainstorm operational activities: write potential activities — pricing, packaging, bundling, brand awareness, inventory, sales messaging — onto post-it notes.</div>
+                </li>
+                <li>
+                  <div class="box">Sort against the 8 Profit Levers: place the post-it notes under the corresponding lever, which is what captures accumulative incremental growth rather than one large bet.</div>
+                  <div class="note"><span class="lab">Our wording, not yours — change or remove it freely:</span>
+                    <q>which is what captures accumulative incremental growth rather than one large bet</q></div>
+                </li>
+              </ol>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="sub" style="margin-top:1rem">
+      The note only appears while those exact words are still in the box. The moment a firm manager
+      rewrites the sentence, the words become theirs and the note disappears on its own — no stale
+      label pointing at text nobody wrote.
+    </p>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>3 · Making and removing a mark</h2>
+    <p class="sub">
+      You highlight the words in the step and press a button. You never retype them, so a mark can
+      never come adrift from the sentence it points at — the fault the guard test exists to catch
+      simply cannot be created. Removing a mark is the <strong>×</strong> on the note.
+    </p>
+
+    <div class="card">
+      <p class="cardlab">Three states, in order</p>
+
+      <div class="ctl">
+        <div class="ctlnum">1</div>
+        <div class="ctlbody">
+          <p class="ctlcap">Nothing selected — the button is asleep and says why.</p>
+          <div class="box">Sort against the 8 Profit Levers: place the post-it notes under the corresponding lever, which is what captures accumulative incremental growth rather than one large bet.</div>
+          <div class="ds-step-tools">
+            <button class="markbtn is-off" disabled>This is our wording</button>
+            <span class="hint">Highlight the words that are ours</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ctl">
+        <div class="ctlnum">2</div>
+        <div class="ctlbody">
+          <p class="ctlcap">Words highlighted — the button wakes up.</p>
+          <div class="box">Sort against the 8 Profit Levers: place the post-it notes under the corresponding lever<span class="sel">, which is what captures accumulative incremental growth rather than one large bet</span>.</div>
+          <div class="ds-step-tools">
+            <button class="markbtn is-on">This is our wording</button>
+            <span class="hint">13 words selected</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ctl">
+        <div class="ctlnum">3</div>
+        <div class="ctlbody">
+          <p class="ctlcap">Marked. The × takes it back off.</p>
+          <div class="box">Sort against the 8 Profit Levers: place the post-it notes under the corresponding lever, which is what captures accumulative incremental growth rather than one large bet.</div>
+          <div class="note">
+            <button class="unmark" title="Remove this mark">×</button>
+            <span class="lab">Our wording, not yours — change or remove it freely:</span>
+            <q>which is what captures accumulative incremental growth rather than one large bet</q>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="cardlab">The button's words — <em>to choose</em></p>
+      <div class="opts">
+        <div class="opt">
+          <h4>Option 1</h4>
+          <div class="ds-step-tools" style="margin:0"><button class="markbtn is-on">Mark as ours</button></div>
+          <p class="why">Shortest. Reads naturally next to the note, which already says whose.</p>
+        </div>
+        <div class="opt chosen">
+          <h4>Option 2 · <span class="pick">chosen</span></h4>
+          <div class="ds-step-tools" style="margin:0"><button class="markbtn is-on">This is our wording</button></div>
+          <p class="why">Says the whole thought, so the button needs no context to be understood.</p>
+        </div>
+        <div class="opt">
+          <h4>Option 3</h4>
+          <div class="ds-step-tools" style="margin:0"><button class="markbtn is-on">Mark as Advisor-e wording</button></div>
+          <p class="why">Names us outright. Longest, and repeats what the note underneath already says.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="cardlab">Who sees this button</p>
+      <p style="margin:0; font-size:0.87rem; line-height:1.75">
+        <strong>Us, at platform level, for now.</strong> The mark says who wrote the words, so it
+        reaches only the words your own level wrote — that is the cascade rule
+        (<em>“a level holds only its changes, never a copy”</em>), not a permission.
+        A firm marking commentary <em>it</em> has written is a real case and will come, but the label
+        above is the platform speaking to a firm and would read wrong in a firm's own voice.
+        <strong>That wording is not invented here; it is asked for when a firm first has its own
+        commentary to mark.</strong> Until then the notes render read-only at firm level.
+      </p>
+      <p class="why" style="margin-top:0.7rem">
+        A firm that disagrees with a mark is not stuck: editing the sentence clears it, and the words
+        genuinely become theirs at that point. What a firm cannot do is un-tick a mark while keeping
+        our words — that would leave something we know to be false standing at every other firm, and
+        would silently cost that firm every future improvement to the whole area (arrays replace
+        wholesale — Domain Support P4).
+      </p>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>4 · The label — <em>chosen: Option B</em></h2>
+    <p class="sub">
+      Same mechanism in all three. Only the words differ, and the words decide whether a firm
+      manager reads this as an admission, an offer, or a fact.
+      <strong>Mike chose Option B on 2026-08-14</strong>, and it is the wording shown in section 2
+      above.
+    </p>
+
+    <div class="opts">
+      <div class="opt">
+        <h4>Option A — plainest</h4>
+        <div class="note"><span class="lab">Added by Advisor-e, not from your material:</span>
+          <q>set before the trial starts, not judged after it</q></div>
+        <p class="why">States the fact and stops. Neutral, and the least likely to date badly.</p>
+      </div>
+      <div class="opt chosen">
+        <h4>Option B — invites the edit · <span class="pick">chosen</span></h4>
+        <div class="note"><span class="lab">Our wording, not yours — change or remove it freely:</span>
+          <q>set before the trial starts, not judged after it</q></div>
+        <p class="why">Makes clear the firm owns the decision. Slightly apologetic in tone.</p>
+      </div>
+      <div class="opt">
+        <h4>Option C — shortest</h4>
+        <div class="note"><span class="lab">Advisor-e note:</span>
+          <q>set before the trial starts, not judged after it</q></div>
+        <p class="why">Takes the least room across 29 domains, but does not say it is <em>not</em> the
+          firm’s — which is the whole point.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>5 · What the AI is told</h2>
+    <p class="sub">
+      Principle P6 — the exercise is pointless if both arrive at the AI looking identical. The steps
+      reach it unchanged, so the method still reads as one instruction; a short list underneath names
+      what was ours.
+    </p>
+
+    <div class="two">
+      <div>
+        <p class="cardlab">Today</p>
+<pre class="prompt">### Profit Levers &amp; Blue Ocean
+A workshop that moves a client off price
+competition…
+
+**How to use it:**
+1. Review competition fronts: examine the
+   standard industry competition fronts…
+2. Map Blue Ocean differentiation: … so
+   purchasing blockages are removed rather
+   than competed against.
+3. Brainstorm operational activities: …
+4. Sort against the 8 Profit Levers: … which
+   is what captures accumulative incremental
+   growth rather than one large bet.</pre>
+      </div>
+      <div>
+        <p class="cardlab">Proposed — one block added, nothing removed</p>
+<pre class="prompt">### Profit Levers &amp; Blue Ocean
+A workshop that moves a client off price
+competition…
+
+**How to use it:**
+1. Review competition fronts: examine the
+   standard industry competition fronts…
+2. Map Blue Ocean differentiation: … so
+   purchasing blockages are removed rather
+   than competed against.
+3. Brainstorm operational activities: …
+4. Sort against the 8 Profit Levers: … which
+   is what captures accumulative incremental
+   growth rather than one large bet.
+
+<span class="hl">**Not the firm's own words — commentary added
+by Advisor-e. Do not present these as the
+firm's method:**
+- "so purchasing blockages are removed rather
+  than competed against"
+- "which is what captures accumulative
+  incremental growth rather than one large
+  bet"</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>6 · What is stored, and the check that keeps it honest</h2>
+    <p class="sub">
+      The firm’s text is not touched. A short companion list is added beside each material — that is
+      the entire data change, and it is additive, so nothing that reads these files today alters
+      its behaviour.
+    </p>
+
+    <div class="card">
+      <p class="cardlab">Added to a material in <code>data/strategy-domain-support.json</code></p>
+<pre class="prompt">"authored_commentary": [
+  {
+    "text": "so purchasing blockages are removed rather than competed against",
+    "checked": "2026-08-14",
+    "searched": "all 115 firm documents — zero matches"
+  },
+  {
+    "text": "which is what captures accumulative incremental growth rather than one large bet",
+    "checked": "2026-08-14",
+    "searched": "all 115 firm documents — zero matches"
+  }
+]</pre>
+    </div>
+
+    <div class="card">
+      <p class="cardlab">The guard test</p>
+      <ul class="plain">
+        <li><strong>Every marked fragment must still appear, word for word, in its material.</strong>
+          If someone edits the sentence and orphans the mark, the suite goes red that day rather than
+          the label quietly pointing at nothing.</li>
+        <li><strong>It must appear exactly once.</strong> Two matches means the mark is ambiguous, and
+          the screen would guess which one it meant.</li>
+        <li><strong>Every entry carries the date it was checked and what was searched.</strong> A mark
+          with no provenance is an opinion.</li>
+      </ul>
+      <p class="why" style="margin-top:0.8rem; font-size:0.8rem; color:var(--grey)">
+        There is no step number in the record. The words are the anchor, so reordering the steps —
+        which the screen already allows — cannot break it.
+      </p>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>7 · What this does not do</h2>
+    <div class="card">
+      <ul class="plain">
+        <li><strong>It does not find the clauses.</strong> Marking is the container; the reading is
+          still done by hand, one domain against its own source PDF. Three detectors were built on
+          2026-08-14 and all three were defeated by paraphrase.</li>
+        <li><strong>It does not sweep the other 28 domains.</strong> Only Strategy has been read.
+          The often-quoted 150–200 figure is an extrapolation from one domain of twenty-nine — it is
+          not a count and must not harden into one.</li>
+        <li><strong>It does not relax the never-invent rule.</strong> Inventing the firm’s
+          <em>method</em> stays forbidden. A factual claim about a named framework — an acronym, a
+          list, a count — is never ours to author, marked or not.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────── -->
+  <section class="band">
+    <h2>8 · What was decided</h2>
+    <div class="decide">
+      <h3>Ruled by Mike, 2026-08-14</h3>
+      <ol>
+        <li><strong>The mechanism — approved as drawn.</strong> Mark underneath the step, firm’s text
+          untouched, guard test as described.</li>
+        <li><strong>The label — Option B.</strong> <q>Our wording, not yours — change or remove it
+          freely:</q></li>
+        <li><strong>Strategy’s nine clauses — marked in the same change</strong>, so the mechanism
+          ships with real content in it rather than empty.</li>
+        <li><strong>The marking control — build it</strong> (§3). Mike asked where a mark is edited;
+          a note nobody can change was the wrong answer on a screen where every other cell is
+          editable.</li>
+        <li><strong>Platform level only for now</strong>, with the firm-level wording asked for when
+          a firm first has its own commentary to mark.</li>
+        <li><strong>The button reads <q>This is our wording</q></strong> — Option 2 in §3.</li>
+      </ol>
+      <p style="margin:0.8rem 0 0; font-size:0.84rem; color:var(--grey)">
+        Nothing on this page is now open. The build is checked against it, and any deviation is
+        named before shipping.</p>
+    </div>
+  </section>
+
+  <p class="foot">
+    Artefact for <a href="../features/domain-support-provenance.md">domain-support-provenance.md</a>
+    and to-do item 4.6 · drawn 2026-08-14 · laptop, <code>feat/advisor-progress</code> ·
+    registered in <a href="../ARTEFACTS.md">ARTEFACTS.md</a>
+  </p>
+
+</div>
+</body>
+</html>
