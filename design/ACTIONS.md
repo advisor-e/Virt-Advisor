@@ -36,6 +36,59 @@
 
 ---
 
+- <a id="fabrication-sweep-cannot-be-automated"></a>☐ **P1 · DOC/BUILD — the domain-support
+  fabrication sweep CANNOT BE AUTOMATED, and this is proven rather than assumed.** 2026-08-14.
+  **Record this before anyone tries again**, because the obvious approach looks like it works.
+  Three detectors were built. **(1)** "Do this claim's words appear in the firm's documents?" —
+  across 115 business documents the answer is nearly always yes, so it reported a clean sweep, and
+  scored the *known* AIDCRA fabrication at **88% sourced** and a deliberately invented control
+  framework at **67%**. **(2)** Same question, but requiring the words to co-occur in one passage —
+  the nonsense control correctly fell to 22%, but the known fabrication still scored 88%, because
+  **most of a fabrication is usually true**: it was two substituted words inside an otherwise
+  faithful claim. A score threshold therefore separated the one known fault from clean rows by two
+  percentage points. **(3)** Row-level prose traceability — flagged 157 of 223 rows, until it was
+  run against transcriptions *known* to be faithful, which scored **31–70% themselves**. It was
+  measuring how closely wording copies the source, not whether it is true; the material is
+  paraphrased into the firm's voice by design, so paraphrase and invention are indistinguishable
+  to it. **The four controls any future detector must pass before its numbers are quoted:** the
+  known fabrication must be flagged; its corrected form must pass; an invented control framework
+  must fail; a verbatim line from a real source must pass. Detector (1)'s numbers were **discarded
+  rather than reported** because it failed two of them. Full account:
+  [`features/domain-support-provenance-history.md`](features/domain-support-provenance-history.md) §2–3.
+
+- <a id="domain-support-authored-commentary"></a>◐ **P1 · BUILD — authored commentary in the
+  domain-support data must be MARKED as ours.** Mike's ruling 2026-08-14: *mark them* — not
+  deleted, not left silent. **The facts are clean:** all 140 marker-carrying claims (every acronym
+  expansion, counted list, quotation, named authority) verified present in the firm's own
+  documents; the AIDCRA row matches its source exactly. **What was found instead:** nine short
+  clauses across seven of the nine sourced Strategy rows that appear in **none** of the firm's 115
+  documents — glosses explaining why a step matters. One per row, steadily, two rows completely
+  clean: a writing habit, not accidents. **Two pieces of work, neither started — (a)** design and
+  build the marking mechanism (where a marked clause lives in the JSON, how the prompt labels it),
+  with Strategy as the worked example; **(b)** sweep the other 28 domains. ⚠ **The 150–200 estimate
+  rests on ONE domain of twenty-nine — never quote it as a count.** `domain-support.md` P2 now
+  carries the rule; the nine clauses are listed verbatim in
+  [`features/domain-support-provenance.md`](features/domain-support-provenance.md) §4. Closes the
+  open half of the old *measure the blast radius* item, which had no answer at all.
+
+- <a id="feature-starts-as-a-page"></a>✅ **P2 · BUILD — a new feature now starts as a Handbook
+  page, by command rather than by discipline.** Closed 2026-08-14, part 3 of Mike's instruction and
+  the last of the three. `npm run feature "<name>" "<group>" "<summary>"` writes the Brief, the
+  History and the index row from the standard skeleton. Refuses to overwrite a page, refuses a
+  group `features/README.md` does not already have (a typo would otherwise invent a navigation
+  category that reads on screen as a real one), refuses a name colliding with the `-history`
+  suffix, and writes nothing until every check passes. **The guard tests the FOLDER, not the
+  script** — any Brief anywhere without a History or an index row fails the suite, however it got
+  there. Proven on first real use: the two provenance pages above were created with it and the
+  guard picked them up unprompted (+2 tests, no test code written).
+  [`tests/unit/newFeature.test.js`](../tests/unit/newFeature.test.js).
+
+- <a id="handbook-page-count-was-typed"></a>✅ **P3 · BUILD — the Handbook test typed its page
+  count.** Closed 2026-08-14. `expect(result.pages).toHaveLength(25)` was correct the day it was
+  written and would have gone red on the first page `npm run feature` added — a failure saying
+  nothing except that a number had moved. Now derived: every distinct index entry becomes exactly
+  one page, and no page is invented. Holds at any count. Verified green at both 25 and 26 pages.
+
 - <a id="artefact-with-no-footprint"></a>✅ **P1 · DOC/BUILD — an approved artefact existed with NO
   FOOTPRINT IN THIS REPOSITORY, so nothing could notice it was missing.** Found and closed
   2026-08-13 (`43410b7`, `0bb032d`, `af5c320`, laptop). **Full story:**
