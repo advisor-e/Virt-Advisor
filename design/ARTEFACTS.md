@@ -64,6 +64,16 @@ approved, never saved, and gone a day later.
 |---|---|---|
 | The Advisor-e Handbook | [`scripts/handbook-shell.html`](../scripts/handbook-shell.html) | The palette, layout, gate and edit bar of the Handbook. Restored byte-for-byte 2026-08-13 after being rebuilt from a description. Its values are pinned by [`tests/unit/buildHandbook.test.js`](../tests/unit/buildHandbook.test.js). |
 
+**The Handbook's published address**, which `/startup` republishes to every session:
+
+> [The Advisor-e Handbook](https://claude.ai/code/artifact/77ed69c4-c8b9-47d3-b384-7900c63d29d6)
+
+It is written here because it has to live somewhere the repository can see. A link held only
+in a chat window is the same failure as a design held only in a temporary folder: publishing
+without it silently creates a **second** Handbook, and the one Mike has bookmarked quietly
+stops being updated. Build with `npm run handbook`, then republish to that URL — never
+publish a new one.
+
 ### Orphans
 
 Two mockups are listed above but referenced by no document:
