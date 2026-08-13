@@ -129,19 +129,30 @@ through the wording layer. It is logged as critical, not accepted. Its real cost
 own the words cannot change them without a developer, and a second language stops being a data
 problem.
 
-**4.6 · Mark the authored commentary, and sweep the remaining 28 domains.** ✅**part-measured
-2026-08-14** — the blast-radius question is no longer unanswered. **The facts are clean:** all 140
-marker-carrying claims in the data — every acronym expansion, counted list, quotation and named
-authority — were verified present in the firm's own documents. **What was found instead** is a
-layer of short authored clauses explaining *why* a step matters: nine of them across seven of the
-nine sourced Strategy rows, appearing in none of the firm's 115 documents. Mike's ruling: **mark
-them**, do not delete them. Two pieces of work follow, and neither is started —
-**(a) design and build the marking mechanism**, with Strategy as the worked example, and
-**(b) sweep the other 28 domains**, estimated 150–200 clauses on the observed rate. ⚠ **That
-estimate rests on one domain of twenty-nine — do not quote it as a count.** The sweep **cannot be
-automated**: three detectors were built and all three were defeated by paraphrase, which is proven
-rather than assumed. Everything found, the method, and the controls a future detector must pass are
-in [`domain-support-provenance.md`](domain-support-provenance.md). *(Waits on us.)*
+**4.6 · Sweep the remaining 28 domains for authored commentary.** ✅**part-measured 2026-08-14** —
+the blast-radius question is no longer unanswered. **The facts are clean:** all 140 marker-carrying
+claims in the data — every acronym expansion, counted list, quotation and named authority — were
+verified present in the firm's own documents. **What was found instead** is a layer of short
+authored clauses explaining *why* a step matters: nine of them across seven of the nine sourced
+Strategy rows, appearing in none of the firm's 115 documents. Mike's ruling: **mark them**, do not
+delete them.
+
+**(a) The marking mechanism is BUILT** — commit `90b673d`, 2026-08-14. The nine Strategy clauses are
+marked, the AI is told which words were ours, and the platform can mark more by highlighting them on
+the Domain Support screen. Approved from
+[`../mockups/domain-support-authored-commentary.html`](../mockups/domain-support-authored-commentary.html);
+the rule it now follows is [`domain-support-provenance.md`](domain-support-provenance.md) §4.1. Read
+that before marking anything, and record the marks as it says.
+
+**(b) The sweep is NOT started** — 28 domains, estimated 150–200 clauses on the observed rate.
+⚠ **That estimate rests on one domain of twenty-nine — do not quote it as a count.** The sweep
+**cannot be automated**: three detectors were built and all three were defeated by paraphrase, which
+is proven rather than assumed. Order by weight — Seminar, EOY, Sales & Marketing after Strategy —
+and run `npx jest tests/unit/authoredCommentary.test.js` after each domain, so a mistyped fragment is
+caught while you still have that domain open. *(Waits on us.)*
+
+⚠ **One thing the mechanism does not do: find them.** It is the container. Finding a clause is still
+a person reading a domain beside its own source PDF.
 
 **4.7 · Flip `engine-strict` back on.** ✅**verified** — still `false`. Two transitive packages
 over-declare their Node requirement and need pinning down first, then one install to verify.
