@@ -18,8 +18,51 @@
 > **⚠ Trust the CODE, not these flags.** Three separate items (Intervention Urgency, cause-first confirmation, grade-validation) were found *already built* while still flagged open. **Verify a candidate against the actual code/git before building it.**
 >
 > **Last swept:** 2026-08-03 — see the verified sweep immediately below.
+>
+> 🔴 **2026-08-13 — THIS FILE IS NO LONGER THE TRIAGE LIST. READ
+> [`features/to-do.md`](features/to-do.md) FIRST.** This file stays the full record — nothing is
+> deleted from it — but it is 6,135 lines and reads as ~70 open tasks when the real live list is
+> **nineteen, nine of which are waiting on Mike rather than on code**. Every item there names who
+> it waits on and whether it was verified against the code or merely carried from here. Finished
+> and parked work lives in [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md).
+>
+> 🔴 **AND THE RULES NOW LIVE IN [`features/`](features/README.md), NOT IN SESSION NOTES.** Every
+> page/feature has a **Brief** (current rules only — no dates, no arguments) and a **History**
+> (why they exist, what was tried and rejected). 24 features, incl. one page per Mentor Hub tab so
+> a single hub screen can be reviewed on its own. **When a session establishes a new rule, it is
+> written into that feature's Brief in the same session** — a rule left in a session note is a
+> rule nobody will find.
 
 ---
+
+- <a id="record-keeps-the-paraphrase"></a>☐ **P2 · DOC — the correction was applied where the fault
+  WAS, and nothing asked where the content had been COPIED to.** Found and fixed 2026-08-13
+  (`dca5ae0`, laptop).
+  - **The instance.** The fabricated `A.I.D.C.R.A` expansion was corrected in the data on
+    2026-07-31 and is clean in every `data/` file. It survived for a fortnight in
+    [`DOMAIN-SUPPORT-REVIEW-CHECKLIST.md`](DOMAIN-SUPPORT-REVIEW-CHECKLIST.md) — **the checklist
+    Mike fills the 16 missing Step-by-step cells FROM.** Writing steps from that row would have
+    put the invention straight back into the field the never-invent rule exists to protect.
+    Corrected in place with the old wording named, so the change is checkable rather than silent.
+  - **Why it is logged rather than just fixed.** Prose copies are the ones nothing tests. A
+    correction is not complete until every copy of the wrong thing is found — and the repo-wide
+    sweep that proves it took one command.
+  - ⚠ **The larger open item is unchanged and still not started:** the blast radius of that
+    fabrication has never been measured. No sweep has checked the other domain-support rows for
+    the same class of invention. It is a **verification pass, not a fix**. See
+    [§fabricated-detail-in-summaries](#fabricated-detail-in-summaries).
+
+- <a id="stale-counts-in-design-docs"></a>☐ **P3 · DOC — six design documents carry counts and
+  build-status claims that were true when written and are now wrong.** Catalogued 2026-08-13 while
+  writing the feature Briefs; **left in place deliberately** — they are accurate records of their
+  own date, and correcting them in place would destroy the record. Each is named in the relevant
+  feature History so nobody quotes it as current: `MODEL-CLASSIFICATION.md` ("all three built
+  models are Education" — nine are live, across all three classes) · `REPORT-VISUAL-STANDARD.md`
+  and `ADDING-A-REPORT.md` (three different screen counts) · `ADVISOR-PROGRESS-HANDOVER.md` (lists
+  a component deleted weeks ago) · `virt-advisor-system-design.md` (build-status table predates
+  four features) · `FIRM-QUIZ-BUILDER-PLAN.md` ("no code written against it yet" — it is built).
+  **The Briefs state no count the code already knows**, which is the fix for the class rather than
+  the instances.
 
 - <a id="dev-fallback-absorbed-a-refusal"></a>✅ **🔴 P1 · FIX — CLOSED 2026-08-13 (`d3d27a8`, laptop).
   A SAVE THE DATABASE REFUSED WAS WRITTEN TO A SCRATCH FILE AND REPORTED AS SAVED.**
