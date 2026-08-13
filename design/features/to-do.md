@@ -129,11 +129,19 @@ through the wording layer. It is logged as critical, not accepted. Its real cost
 own the words cannot change them without a developer, and a second language stops being a data
 problem.
 
-**4.6 · Measure the blast radius of the fabricated content.** One confirmed invented detail was
-found living in the domain-support data presented as the firm's own material, and **corrected**.
-**No sweep has ever checked the other rows for the same class of invention.** This is a
-verification pass, not a fix — and it is the one open item where the honest answer is "we do not
-know how big it is."
+**4.6 · Mark the authored commentary, and sweep the remaining 28 domains.** ✅**part-measured
+2026-08-14** — the blast-radius question is no longer unanswered. **The facts are clean:** all 140
+marker-carrying claims in the data — every acronym expansion, counted list, quotation and named
+authority — were verified present in the firm's own documents. **What was found instead** is a
+layer of short authored clauses explaining *why* a step matters: nine of them across seven of the
+nine sourced Strategy rows, appearing in none of the firm's 115 documents. Mike's ruling: **mark
+them**, do not delete them. Two pieces of work follow, and neither is started —
+**(a) design and build the marking mechanism**, with Strategy as the worked example, and
+**(b) sweep the other 28 domains**, estimated 150–200 clauses on the observed rate. ⚠ **That
+estimate rests on one domain of twenty-nine — do not quote it as a count.** The sweep **cannot be
+automated**: three detectors were built and all three were defeated by paraphrase, which is proven
+rather than assumed. Everything found, the method, and the controls a future detector must pass are
+in [`domain-support-provenance.md`](domain-support-provenance.md). *(Waits on us.)*
 
 **4.7 · Flip `engine-strict` back on.** ✅**verified** — still `false`. Two transitive packages
 over-declare their Node requirement and need pinning down first, then one install to verify.
