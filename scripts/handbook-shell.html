@@ -1,0 +1,579 @@
+<title>Advisor-e Handbook</title>
+<style>
+  :root {
+    --ground: #eef3f8; --ground-2: #f1f6fb; --card: #ffffff;
+    --ink: #002b64; --body: #23405f; --muted: #5b6f8a; --line: #d5e1ee;
+    --accent: #0070c0; --accent-bright: #00b1e0;
+    --good: #4ca52d; --warn: #ff9900; --crit: #e00000;
+    --band: #002b64; --band-ink: #ffffff; --band-muted: #9dc2e8;
+    --code-bg: #f1f6fb; --rail: #ffffff;
+    --shadow: 0 12px 32px rgba(0,43,100,.10);
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    --gap: 16px; --radius: 14px; --pad: 16px; --railw: 268px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #05132a; --ground-2: #07182f; --card: #0a1f3d;
+      --ink: #e6f0fa; --body: #cfe0f2; --muted: #9fb4d0; --line: #1a3559;
+      --accent: #00b1e0; --accent-bright: #7fd3f1;
+      --good: #6fc44e; --warn: #ffab33; --crit: #ff6b6b;
+      --band: #0a1f3d; --band-ink: #e6f0fa; --band-muted: #9fb4d0;
+      --code-bg: #07182f; --rail: #07182f;
+      --shadow: 0 12px 32px rgba(0,0,0,.38);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #05132a; --ground-2: #07182f; --card: #0a1f3d;
+    --ink: #e6f0fa; --body: #cfe0f2; --muted: #9fb4d0; --line: #1a3559;
+    --accent: #00b1e0; --accent-bright: #7fd3f1;
+    --good: #6fc44e; --warn: #ffab33; --crit: #ff6b6b;
+    --band: #0a1f3d; --band-ink: #e6f0fa; --band-muted: #9fb4d0;
+    --code-bg: #07182f; --rail: #07182f;
+    --shadow: 0 12px 32px rgba(0,0,0,.38);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--body);
+    font-family: var(--sans); font-size: 15.5px; line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell { display: grid; grid-template-columns: var(--railw) 1fr; min-height: 100vh; }
+
+  /* ---------- rail ---------- */
+  .rail {
+    background: var(--rail); border-right: 1px solid var(--line);
+    padding: 20px 14px 28px; position: sticky; top: 0; height: 100vh;
+    overflow-y: auto; display: flex; flex-direction: column; gap: 14px;
+  }
+  .brand { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; }
+  .brand b { color: var(--ink); font-size: 16px; letter-spacing: -.01em; }
+  .brand span { color: var(--muted); font-size: 12px; }
+
+  .filter {
+    width: 100%; font: inherit; font-size: 13.5px; padding: 8px 10px;
+    border: 1px solid var(--line); border-radius: 9px;
+    background: var(--ground-2); color: var(--ink);
+  }
+  .filter::placeholder { color: var(--muted); }
+  .filter:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 1px; }
+
+  .navwrap { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .navgroup {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); padding: 14px 8px 4px;
+  }
+  .navlink {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; border-radius: 8px; text-decoration: none;
+    color: var(--body); font-size: 14px; border-left: 3px solid transparent;
+  }
+  .navlink:hover { background: var(--ground-2); color: var(--ink); }
+  .navlink.on {
+    background: color-mix(in srgb, var(--accent-bright) 12%, transparent);
+    color: var(--ink); font-weight: 600; border-left-color: var(--accent-bright);
+  }
+  .navlink:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 1px; }
+  .navlink[hidden] { display: none; }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%; flex: none; background: transparent;
+  }
+  .navlink.unseen .dot { background: var(--accent-bright); }
+  .navlink.stale .dot { background: var(--warn); }
+  .raillegend {
+    font-size: 11.5px; color: var(--muted); padding: 10px 8px 0;
+    border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px;
+  }
+  .raillegend i { font-style: normal; }
+
+  /* ---------- content ---------- */
+  .main { padding: 28px 26px 90px; min-width: 0; }
+  .inner { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--gap); }
+
+  .pagehead { display: flex; flex-direction: column; gap: 4px; }
+  .eyebrow {
+    font-size: 11.5px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .pagehead h1 {
+    margin: 0; font-size: clamp(26px, 4vw, 38px); line-height: 1.12;
+    font-weight: 700; letter-spacing: -.015em; color: var(--ink); text-wrap: balance;
+  }
+
+  .prose { display: flex; flex-direction: column; gap: 14px; }
+  .prose > * { margin: 0; }
+  .prose h2 {
+    font-size: 21px; font-weight: 700; color: var(--ink); letter-spacing: -.01em;
+    margin-top: 12px; text-wrap: balance;
+  }
+  .prose h3 { font-size: 16px; font-weight: 700; color: var(--ink); margin-top: 6px; }
+  .prose p, .prose li { max-width: 78ch; }
+  .prose strong { color: var(--ink); font-weight: 700; }
+  .prose ul, .prose ol { padding-left: 20px; display: flex; flex-direction: column; gap: 7px; }
+  .prose hr { border: 0; border-top: 1px solid var(--line); margin: 6px 0; }
+
+  .prose blockquote {
+    background: var(--card); border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0;
+    padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;
+    box-shadow: var(--shadow);
+  }
+  .prose blockquote p { max-width: 74ch; }
+
+  .prose code {
+    font-family: var(--mono); font-size: .885em; background: var(--code-bg);
+    border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px;
+    color: var(--ink); white-space: nowrap;
+  }
+  .prose a { color: var(--accent); text-underline-offset: 2px; }
+  .prose a:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; border-radius: 3px; }
+
+  .prose table {
+    border-collapse: collapse; width: 100%; font-size: 14px; min-width: 460px;
+  }
+  .prose th, .prose td {
+    text-align: left; padding: 9px 12px 9px 0;
+    border-bottom: 1px solid var(--line); vertical-align: top;
+  }
+  .prose th {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .prose td:first-child { color: var(--ink); font-weight: 600; }
+  .tablewrap { overflow-x: auto; }
+
+  .page[hidden] { display: none; }
+
+  /* ---------- the gate ---------- */
+  .gate {
+    background: var(--card); border: 1px solid var(--line);
+    border-top: 3px solid var(--muted); border-radius: var(--radius);
+    padding: var(--pad); box-shadow: var(--shadow); margin-top: 10px;
+  }
+  .gate > summary {
+    cursor: pointer; list-style: none; display: flex; align-items: center; gap: 12px;
+    font-family: var(--serif); font-size: 19px; font-weight: 700; color: var(--ink);
+  }
+  .gate > summary::-webkit-details-marker { display: none; }
+  .gate > summary::before {
+    content: "\203A"; font-family: var(--sans); font-size: 26px; line-height: 1;
+    color: var(--muted); transition: transform .18s ease; display: inline-block;
+  }
+  .gate[open] > summary::before { transform: rotate(90deg); }
+  .gate > summary:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 3px; border-radius: 4px; }
+  .gate-hint { font-size: 13.5px; color: var(--muted); margin: 6px 0 0 30px; }
+  .history { font-family: var(--serif); font-size: 16px; line-height: 1.68; margin-top: 18px;
+    padding-top: 18px; border-top: 1px solid var(--line); }
+  .history h2, .history h3 { font-family: var(--serif); }
+  .history th, .history code { font-family: var(--sans); }
+  .history code { font-family: var(--mono); }
+  .history table { font-family: var(--sans); font-size: 13.5px; }
+
+  /* ---------- edit mode ---------- */
+  .editbar {
+    position: fixed; right: 18px; bottom: 18px; z-index: 50;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: var(--card); border: 1px solid var(--line);
+    border-top: 3px solid var(--accent-bright); border-radius: 12px;
+    padding: 10px 12px; box-shadow: 0 14px 34px rgba(0,43,100,.22);
+    font-size: 13.5px; max-width: calc(100vw - 36px);
+  }
+  .editbtn {
+    font: inherit; font-weight: 600; cursor: pointer; border-radius: 9px;
+    padding: 8px 14px; border: 1px solid var(--accent);
+    background: var(--accent); color: #fff; white-space: nowrap;
+  }
+  .editbtn.ghost { background: transparent; color: var(--accent); }
+  .editbtn.quiet { background: transparent; border-color: var(--line); color: var(--muted); font-weight: 400; }
+  .editbtn:hover { filter: brightness(1.07); }
+  .editbtn:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+  .editbtn[disabled] { opacity: .5; cursor: default; filter: none; }
+  .editcount { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+  .editcount strong { color: var(--ink); }
+
+  body[data-editing="on"] [data-eid] {
+    outline: 1px dashed transparent; outline-offset: 3px; border-radius: 3px;
+  }
+  body[data-editing="on"] [data-eid]:hover { outline-color: var(--line); }
+  body[data-editing="on"] [data-eid]:focus {
+    outline: 2px solid var(--accent-bright);
+    background: color-mix(in srgb, var(--accent-bright) 8%, transparent);
+  }
+  body[data-editing="on"] [data-eid][data-changed="yes"] {
+    background: color-mix(in srgb, var(--warn) 14%, transparent); outline-color: var(--warn);
+  }
+  .navlink .edited {
+    margin-left: auto; font-size: 11px; font-weight: 700; color: var(--warn);
+  }
+
+  .editnote {
+    position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 60;
+    background: var(--band); color: var(--band-ink); font-size: 14px;
+    padding: 11px 18px; border-radius: 10px; box-shadow: 0 12px 32px rgba(0,43,100,.3);
+    max-width: min(560px, calc(100vw - 40px)); text-align: center;
+  }
+  .editnote[hidden] { display: none; }
+  .fallback {
+    position: fixed; inset: 24px; z-index: 70; background: var(--card);
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 18px;
+    display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 60px rgba(0,43,100,.3);
+  }
+  .fallback[hidden] { display: none; }
+  .fallback textarea {
+    flex: 1; width: 100%; font-family: var(--mono); font-size: 12.5px; line-height: 1.5;
+    background: var(--code-bg); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 8px; padding: 12px; resize: none;
+  }
+
+  .railtoggle { display: none; }
+
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: 1fr; }
+    .rail {
+      position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line);
+    }
+    .rail[data-open="no"] .navwrap, .rail[data-open="no"] .raillegend, .rail[data-open="no"] .filter { display: none; }
+    .railtoggle {
+      display: inline-block; font: inherit; font-weight: 600; cursor: pointer;
+      background: transparent; border: 1px solid var(--line); color: var(--ink);
+      border-radius: 9px; padding: 7px 12px;
+    }
+    .main { padding: 20px 16px 90px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media print { .rail, .editbar, .editnote, .fallback { display: none !important; } }
+</style>
+
+<div class="shell">
+  <nav class="rail" id="rail" data-open="no">
+    <div class="brand">
+      <b>Advisor-e Handbook</b>
+      <span><!--COUNT--> features · rules first, history behind the gate</span>
+    </div>
+    <button class="railtoggle" id="railtoggle" type="button">Browse features</button>
+    <input class="filter" id="filter" type="search" placeholder="Filter features…" aria-label="Filter features">
+    <div class="navwrap" id="nav"><!--NAV--></div>
+    <div class="raillegend">
+      <div><i class="dotkey" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent-bright)"></i> never opened</div>
+      <div><i class="dotkey" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn)"></i> not opened in 3 weeks</div>
+      <div id="unreadline"></div>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="inner" id="inner"><!--PAGES--></div>
+  </main>
+</div>
+
+<div class="editbar">
+  <button class="editbtn" id="btnEdit" type="button">Edit</button>
+  <span class="editcount" id="count" hidden></span>
+  <button class="editbtn ghost" id="btnSave" type="button" hidden>Save my changes</button>
+  <button class="editbtn quiet" id="btnDiscard" type="button" hidden>Undo all</button>
+</div>
+
+<div class="editnote" id="note" hidden role="status"></div>
+
+<div class="fallback" id="fallback" hidden>
+  <strong>Copy this and send it to Claude</strong>
+  <textarea id="fallbackText" readonly></textarea>
+  <div style="display:flex;gap:10px;justify-content:flex-end">
+    <button class="editbtn quiet" type="button" onclick="document.getElementById('fallback').hidden=true">Close</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict'
+
+  var STORE = 'handbook-edits'
+  var SEEN = 'handbook-seen'
+  var LAST = 'handbook-last'
+  var FILENAME = 'handbook-changes.txt'
+  var STALE_DAYS = 21
+
+  var inner = document.getElementById('inner')
+  var navEl = document.getElementById('nav')
+  var btnEdit = document.getElementById('btnEdit')
+  var btnSave = document.getElementById('btnSave')
+  var btnDiscard = document.getElementById('btnDiscard')
+  var countEl = document.getElementById('count')
+  var noteEl = document.getElementById('note')
+  var rail = document.getElementById('rail')
+
+  var originals = {}
+  var titles = {}
+  var noteTimer = null
+
+  function norm (s) { return (s || '').replace(/\s+/g, ' ').trim() }
+  function store (k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d } catch (e) { return d } }
+  function put (k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch (e) {} }
+
+  // ---------- tables get their own scroll container ----------
+  Array.prototype.forEach.call(inner.querySelectorAll('table'), function (t) {
+    var w = document.createElement('div'); w.className = 'tablewrap'
+    t.parentNode.insertBefore(w, t); w.appendChild(t)
+  })
+
+  // ---------- tag editable elements, per page ----------
+  var SEL = 'h2,h3,p,li,td,th,summary'
+  Array.prototype.forEach.call(inner.querySelectorAll('.page'), function (page) {
+    var slug = page.getAttribute('data-page')
+    titles[slug] = norm(page.querySelector('h1').textContent)
+    var i = 0
+    Array.prototype.forEach.call(page.querySelectorAll(SEL), function (el) {
+      if (el.querySelector(SEL)) return
+      if (!norm(el.textContent)) return
+      if (el.classList.contains('gate-hint')) return
+      var eid = slug + ':' + (i++)
+      el.setAttribute('data-eid', eid)
+      originals[eid] = { html: el.innerHTML, text: norm(el.textContent), slug: slug }
+    })
+  })
+
+  function restore () {
+    var saved = store(STORE, null)
+    if (!saved) return
+    Object.keys(saved).forEach(function (eid) {
+      var el = inner.querySelector('[data-eid="' + CSS.escape(eid) + '"]')
+      if (el) el.innerHTML = saved[eid]
+    })
+  }
+
+  function labelFor (el) {
+    var n = el
+    while (n && n !== inner) {
+      var s = n.previousElementSibling
+      while (s) {
+        if (s.matches('h2,h3,summary')) return norm(s.textContent)
+        s = s.previousElementSibling
+      }
+      n = n.parentElement
+    }
+    return 'top of page'
+  }
+
+  function changes () {
+    var out = []
+    Object.keys(originals).forEach(function (eid) {
+      var el = inner.querySelector('[data-eid="' + CSS.escape(eid) + '"]')
+      if (!el) return
+      var now = norm(el.textContent)
+      if (now !== originals[eid].text) {
+        out.push({ eid: eid, el: el, slug: originals[eid].slug,
+          was: originals[eid].text, now: now, where: labelFor(el) })
+      }
+    })
+    return out
+  }
+
+  function persist () {
+    var s = {}
+    changes().forEach(function (c) { s[c.eid] = c.el.innerHTML })
+    put(STORE, s)
+  }
+
+  function paint () {
+    var list = changes()
+    Array.prototype.forEach.call(inner.querySelectorAll('[data-changed]'), function (e) {
+      e.removeAttribute('data-changed')
+    })
+    Array.prototype.forEach.call(navEl.querySelectorAll('.edited'), function (e) { e.remove() })
+
+    var perPage = {}
+    list.forEach(function (c) {
+      c.el.setAttribute('data-changed', 'yes')
+      perPage[c.slug] = (perPage[c.slug] || 0) + 1
+    })
+    Object.keys(perPage).forEach(function (slug) {
+      var link = navEl.querySelector('[data-slug="' + slug + '"]')
+      if (link) {
+        var b = document.createElement('span')
+        b.className = 'edited'; b.textContent = perPage[slug] + ' edit' + (perPage[slug] === 1 ? '' : 's')
+        link.appendChild(b)
+      }
+    })
+
+    var n = list.length
+    countEl.innerHTML = n === 0 ? 'No changes yet'
+      : '<strong>' + n + '</strong> change' + (n === 1 ? '' : 's') +
+        ' on ' + Object.keys(perPage).length + ' page' + (Object.keys(perPage).length === 1 ? '' : 's')
+    btnSave.disabled = n === 0
+    btnDiscard.disabled = n === 0
+    return n
+  }
+
+  function say (msg, ms) {
+    noteEl.textContent = msg; noteEl.hidden = false
+    if (noteTimer) clearTimeout(noteTimer)
+    noteTimer = setTimeout(function () { noteEl.hidden = true }, ms || 4200)
+  }
+
+  // ---------- navigation ----------
+  function markSeen (slug) {
+    var seen = store(SEEN, {})
+    seen[slug] = Date.now()
+    put(SEEN, seen); put(LAST, slug); paintSeen()
+  }
+
+  function paintSeen () {
+    var seen = store(SEEN, {})
+    var unread = 0
+    Array.prototype.forEach.call(navEl.querySelectorAll('.navlink'), function (a) {
+      var slug = a.getAttribute('data-slug')
+      a.classList.remove('unseen', 'stale')
+      var t = seen[slug]
+      if (!t) { a.classList.add('unseen'); unread++ }
+      else if ((Date.now() - t) / 86400000 > STALE_DAYS) { a.classList.add('stale'); unread++ }
+    })
+    var line = document.getElementById('unreadline')
+    line.textContent = unread === 0
+      ? 'All pages read recently.'
+      : unread + ' page' + (unread === 1 ? '' : 's') + ' needing a look.'
+  }
+
+  function show (slug) {
+    var target = document.getElementById('page-' + slug)
+    if (!target) { slug = 'to-do'; target = document.getElementById('page-to-do') }
+    Array.prototype.forEach.call(inner.querySelectorAll('.page'), function (p) { p.hidden = true })
+    target.hidden = false
+    Array.prototype.forEach.call(navEl.querySelectorAll('.navlink'), function (a) {
+      a.classList.toggle('on', a.getAttribute('data-slug') === slug)
+    })
+    window.scrollTo(0, 0)
+    markSeen(slug)
+    if (window.innerWidth <= 900) rail.setAttribute('data-open', 'no')
+  }
+
+  window.addEventListener('hashchange', function () {
+    show((location.hash || '').replace('#', '') || 'to-do')
+  })
+
+  // ---------- report ----------
+  function report (list) {
+    var line = new Array(65).join('=')
+    var thin = new Array(65).join('-')
+    var byPage = {}
+    list.forEach(function (c) { (byPage[c.slug] = byPage[c.slug] || []).push(c) })
+
+    var out = ['ADVISOR-E HANDBOOK — CHANGES', 'Saved: ' + new Date().toLocaleString(),
+      'Changes: ' + list.length + ' across ' + Object.keys(byPage).length + ' page(s)', '',
+      'Apply each to design/features/<page>.md', '']
+
+    Object.keys(byPage).forEach(function (slug) {
+      out.push(line)
+      out.push('PAGE: ' + (titles[slug] || slug) + '   (design/features/' + slug + '.md)')
+      out.push(line)
+      byPage[slug].forEach(function (c, i) {
+        out.push('')
+        out.push('CHANGE ' + (i + 1) + '  ·  under "' + c.where + '"')
+        out.push(thin)
+        out.push('BEFORE:'); out.push(c.was); out.push('')
+        out.push('AFTER:'); out.push(c.now)
+      })
+      out.push('')
+    })
+    out.push(line); out.push('End of changes.')
+    return out.join('\n')
+  }
+
+  function showFallback (text) {
+    document.getElementById('fallbackText').value = text
+    document.getElementById('fallback').hidden = false
+    document.getElementById('fallbackText').select()
+  }
+
+  function save () {
+    var list = changes()
+    if (!list.length) { say('Nothing has changed yet.'); return }
+    var text = report(list)
+    if (!window.claude || !window.claude.downloads) { showFallback(text); return }
+    btnSave.disabled = true
+    window.claude.downloads.save({ filename: FILENAME, data: text })
+      .then(function () { say('Saved as ' + FILENAME + ' — tell Claude it is in your Downloads folder.', 7000) })
+      .catch(function (err) {
+        var code = (err && err.code) || 'unavailable'
+        if (code === 'declined') say('Save cancelled. Your edits are still here.')
+        else if (code === 'rate_limited') say('A save is already open — finish that one, then try again.')
+        else showFallback(text)
+      })
+      .then(function () { btnSave.disabled = changes().length === 0 })
+  }
+
+  function setEditing (on) {
+    document.body.setAttribute('data-editing', on ? 'on' : 'off')
+    Array.prototype.forEach.call(inner.querySelectorAll('[data-eid]'), function (el) {
+      if (on) el.setAttribute('contenteditable', 'true'); else el.removeAttribute('contenteditable')
+    })
+    btnEdit.textContent = on ? 'Stop editing' : 'Edit'
+    btnSave.hidden = !on; btnDiscard.hidden = !on; countEl.hidden = !on
+    if (on) { paint(); say('Click any text and type. Edits are kept automatically, on every page.', 6000) }
+  }
+
+  btnEdit.addEventListener('click', function () {
+    setEditing(document.body.getAttribute('data-editing') !== 'on')
+  })
+  btnSave.addEventListener('click', save)
+  btnDiscard.addEventListener('click', function () {
+    if (!window.confirm('Undo every edit on every page and put the handbook back as it was?')) return
+    Object.keys(originals).forEach(function (eid) {
+      var el = inner.querySelector('[data-eid="' + CSS.escape(eid) + '"]')
+      if (el) el.innerHTML = originals[eid].html
+    })
+    try { localStorage.removeItem(STORE) } catch (e) {}
+    paint(); say('All edits undone.')
+  })
+
+  inner.addEventListener('paste', function (ev) {
+    if (document.body.getAttribute('data-editing') !== 'on') return
+    if (!ev.target.closest || !ev.target.closest('[data-eid]')) return
+    ev.preventDefault()
+    document.execCommand('insertText', false,
+      (ev.clipboardData || window.clipboardData).getData('text/plain'))
+  })
+
+  var t = null
+  inner.addEventListener('input', function (ev) {
+    if (!ev.target.closest || !ev.target.closest('[data-eid]')) return
+    if (t) clearTimeout(t)
+    t = setTimeout(function () { persist(); paint() }, 400)
+  })
+
+  // links to repo files are informational only
+  inner.addEventListener('click', function (ev) {
+    var a = ev.target.closest && ev.target.closest('a.filelink')
+    if (!a) return
+    ev.preventDefault()
+    say('That is a project file: ' + a.getAttribute('data-file'), 5000)
+  })
+
+  document.getElementById('filter').addEventListener('input', function (ev) {
+    var q = ev.target.value.toLowerCase().trim()
+    Array.prototype.forEach.call(navEl.querySelectorAll('.navlink'), function (a) {
+      a.hidden = q ? a.textContent.toLowerCase().indexOf(q) === -1 : false
+    })
+    Array.prototype.forEach.call(navEl.querySelectorAll('.navgroup'), function (g) {
+      var any = false, n = g.nextElementSibling
+      while (n && n.classList.contains('navlink')) { if (!n.hidden) any = true; n = n.nextElementSibling }
+      g.hidden = !any
+    })
+  })
+
+  document.getElementById('railtoggle').addEventListener('click', function () {
+    rail.setAttribute('data-open', rail.getAttribute('data-open') === 'yes' ? 'no' : 'yes')
+  })
+
+  // ---------- boot ----------
+  restore()
+  paintSeen()
+  document.body.setAttribute('data-editing', 'off')
+  show((location.hash || '').replace('#', '') || store(LAST, 'to-do'))
+  if (changes().length) {
+    countEl.hidden = false; paint()
+    say('Your earlier edits are still here. Press Edit to carry on.', 6000)
+  }
+})()
+</script>
