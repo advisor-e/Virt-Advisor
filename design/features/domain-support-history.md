@@ -23,12 +23,17 @@ Two things about it are worth more than the instance itself:
 **It was reported as the app's top open defect three days after it had been fixed.** That is the
 single clearest illustration of why a 6,000-line backlog cannot be trusted as a status report.
 
-🔴 **And one copy of the invented version is still live in a document you would work from.**
-`DOMAIN-SUPPORT-REVIEW-CHECKLIST.md` describes that same framework using the **fabricated**
-expansion. Every data file carries the correction; the checklist does not. **Anyone filling in
-that row's missing steps from the checklist would re-introduce the invention.** Found 2026-08-13
-and left in place pending a decision, because correcting it is a change to a document rather than
-something to do quietly.
+✅ **One copy of the invented version outlived the fix by a fortnight, in the document you would
+work from.** `DOMAIN-SUPPORT-REVIEW-CHECKLIST.md` still described that framework using the
+**fabricated** expansion — every data file carried the correction; the checklist did not. Anyone
+filling in that row's missing steps from the checklist would have re-introduced the invention,
+into the exact field the fabrication rule exists to protect. **Found and corrected 2026-08-13,
+with the old wording named in the row so the correction is checkable.**
+
+**Why it survived is the transferable part.** The fix was applied where the fault *was* — the
+data — and nothing asked where else that content had been copied to. A correction is not complete
+until every copy of the wrong thing is found, and prose copies are exactly the ones nothing
+tests.
 
 ---
 
@@ -96,8 +101,9 @@ twice in a live thread and both detections were correct.
 
 Read 2026-08-13:
 
-- 🔴 **`DOMAIN-SUPPORT-REVIEW-CHECKLIST.md` still carries the fabricated acronym expansion** —
-  see §1. It is otherwise the best account of exactly which rows need attention, and it was
+- ✅ **`DOMAIN-SUPPORT-REVIEW-CHECKLIST.md` carried the fabricated acronym expansion until
+  2026-08-13** — see §1; corrected in place, with the old wording named so the change is
+  checkable. It is otherwise the best account of exactly which rows need attention, and it was
   derived from the data files rather than from anyone's notes, which is why its counts can be
   trusted.
 - `virt-advisor-system-design.md` §2.4 describes these files accurately but its build-status
