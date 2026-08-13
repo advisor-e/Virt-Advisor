@@ -17,13 +17,35 @@ Claude for the link.
 |---|---|
 | **[The To-Do List](to-do.md)** | The whole live list — who each item waits on, and how it was verified. [Done & parked](to-do-done-and-parked.md) |
 
-## The AI
+## The AI engine
 
 | Brief | History |
 |---|---|
 | [Virtual Advisor](virtual-advisor.md) — the conversation screen | [history](virtual-advisor-history.md) |
 | [Advisory Engine](advisory-engine.md) — how a recommendation is decided | [history](advisory-engine-history.md) |
+| [Logic Tables](logic-tables.md) — the advisory thinking, written down | [history](logic-tables-history.md) |
+| [Domain Support](domain-support.md) — the material the AI draws on | [history](domain-support-history.md) |
 | [Advisory Distinctions](advisory-distinctions.md) — teaching the engine, without code | [history](advisory-distinctions-history.md) |
+
+## Hub pages — mentor & firm
+
+*One page per tab, so a single hub screen can be reviewed on its own.*
+
+| Brief | History |
+|---|---|
+| [The Hub itself](firm-manager-hub.md) — one screen, four tiers | [history](firm-manager-hub-history.md) |
+| [Advisory Staircase](advisory-staircase.md) | [history](advisory-staircase-history.md) |
+| [Quizzes](quizzes.md) | [history](quizzes-history.md) |
+| [Logic Lab](logic-lab.md) ⚠ the desktop's ground | [history](logic-lab-history.md) |
+| [Adviser Network](adviser-network.md) | [history](adviser-network-history.md) |
+| [Adoption](adoption.md) — mentor & middle tiers | [history](adoption-history.md) |
+| [Logic-Lab Report](logic-lab-report.md) — mentor & middle tiers | [history](logic-lab-report-history.md) |
+| [Case Reviews](case-reviews.md) — mentor & middle tiers | [history](case-reviews-history.md) |
+| [Template Check](template-check.md) — **mentor only** | [history](template-check-history.md) |
+
+*Also on the Hub but covered elsewhere: Domain Support and Logic Tables (above, under the
+engine), and Team Progress / Team Case Studies (see Advisor Progress and Case Studies).
+Templates & Videos is dormant — templates are Advisor-e's.*
 
 ## Reports & models
 
