@@ -63,13 +63,39 @@
   documents; the AIDCRA row matches its source exactly. **What was found instead:** nine short
   clauses across seven of the nine sourced Strategy rows that appear in **none** of the firm's 115
   documents — glosses explaining why a step matters. One per row, steadily, two rows completely
-  clean: a writing habit, not accidents. **Two pieces of work, neither started — (a)** design and
-  build the marking mechanism (where a marked clause lives in the JSON, how the prompt labels it),
-  with Strategy as the worked example; **(b)** sweep the other 28 domains. ⚠ **The 150–200 estimate
-  rests on ONE domain of twenty-nine — never quote it as a count.** `domain-support.md` P2 now
-  carries the rule; the nine clauses are listed verbatim in
+  clean: a writing habit, not accidents. ⚠ **The 150–200 estimate rests on ONE domain of
+  twenty-nine — never quote it as a count.** `domain-support.md` P2 carries the rule; the nine
+  clauses are listed verbatim in
   [`features/domain-support-provenance.md`](features/domain-support-provenance.md) §4. Closes the
   open half of the old *measure the blast radius* item, which had no answer at all.
+  - ✅ **(a) THE MARKING MECHANISM IS BUILT — `90b673d`, 2026-08-14 (laptop, Mike-approved at each
+    step).** Approved from a saved artefact rather than from chat:
+    [`mockups/domain-support-authored-commentary.html`](mockups/domain-support-authored-commentary.html),
+    registered in [`ARTEFACTS.md`](ARTEFACTS.md), with all six decisions recorded on the page in the
+    words they were made in. **An `authored_commentary` list beside a material's `steps`** holds the
+    words verbatim, the date checked and what was searched — additive, so a material with no marks
+    is byte-for-byte what it was and the other 28 areas are untouched until swept. **The words are
+    the anchor, never a step number**, because the screen already allows reordering and an index
+    would quietly come to mean a different sentence; the price is paid twice over by
+    `tests/unit/authoredCommentary.test.js` (fails the build on a platform mark that is missing or
+    ambiguous, across ALL 29 areas from day one) and by `livingCommentary()` re-checking presence at
+    the point of display — the only thing that protects a firm's own saved copy, which no test can
+    reach. **The AI gets the steps UNCHANGED** plus a block naming what was ours; both prompt paths
+    carry it. **The control:** highlight the words, press *"This is our wording"* — never retyped, so
+    a mark that does not match its sentence cannot be created at all. **`canMark` is
+    `scope === 'mentor'`, named POSITIVELY** (Tier Cascade P5 — a negative gate answers *yes* for a
+    tier that does not exist yet). Firm-level marking waits on its own label wording, which is asked
+    for rather than invented. +30 tests, suite **5,221 → 5,251 green / 306 suites**, lint clean.
+    ⚠ **Never run in the app** — proven by tests, not by use; no dev server was started.
+    ⚠ **A screen-made mark records `"marked on screen — no corpus search recorded"`** and is NOT the
+    same claim as one from a sweep. Rule for the sweep:
+    [`features/domain-support-provenance.md`](features/domain-support-provenance.md) §4.1.
+  - ☐ **(b) The sweep of the other 28 domains — NOT started.** ⚠ **The mechanism does not FIND
+    anything; it is the container.** Finding a clause is still a person reading a domain beside its
+    own source PDF, because three detectors were built and all three were defeated by paraphrase.
+    Order by weight — Seminar, EOY, Sales & Marketing after Strategy — and run
+    `npx jest tests/unit/authoredCommentary.test.js` after each domain, so a mistyped fragment is
+    caught while that domain is still open.
 
 - <a id="feature-starts-as-a-page"></a>✅ **P2 · BUILD — a new feature now starts as a Handbook
   page, by command rather than by discipline.** Closed 2026-08-14, part 3 of Mike's instruction and
@@ -156,9 +182,16 @@
   - **Why it is logged rather than just fixed.** Prose copies are the ones nothing tests. A
     correction is not complete until every copy of the wrong thing is found — and the repo-wide
     sweep that proves it took one command.
-  - ⚠ **The larger open item is unchanged and still not started:** the blast radius of that
-    fabrication has never been measured. No sweep has checked the other domain-support rows for
-    the same class of invention. It is a **verification pass, not a fix**. See
+  - ⚠ **CORRECTED 2026-08-14 — this bullet said the blast radius had "never been measured" and
+    that "no sweep has checked the other domain-support rows". Both stopped being true on
+    2026-08-14** and the line was found still standing a day later, which is the same fault as the
+    ~~stale-counts~~ item below: a prose claim nothing tests, left to age. **What is actually
+    true:** the fact-level sweep is DONE and CLEAN — all 140 marker-carrying claims across the
+    dataset (every acronym expansion, counted list, quotation and named authority) were verified
+    present in the firm's own documents. What it turned up instead was a different fault — authored
+    commentary — of which **one domain of twenty-nine has been read**. The open verification pass is
+    therefore the remaining 28 domains, not the blast radius question, which has its answer. See
+    [§domain-support-authored-commentary](#domain-support-authored-commentary) and
     [§fabricated-detail-in-summaries](#fabricated-detail-in-summaries).
 
 - <a id="stale-counts-in-design-docs"></a>☐ **P3 · DOC — six design documents carry counts and
