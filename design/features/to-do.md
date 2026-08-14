@@ -65,7 +65,7 @@ warning about it and nothing owned it.
 
 ## 2. Waiting on you — nothing happens until you rule
 
-*Nine items. None of them need code first; all of them block code.*
+*Ten items. None of them need code first; all of them block code.*
 
 **2.1 · Send the master team the release number.** ✅**verified** — `v0.8.0` is tagged and pushed,
 and nobody outside has been told. They cannot pull what they do not know exists; v0.6.0 was never
@@ -101,6 +101,26 @@ generated from so a reader can see it is stale. Recommendation: the first.
 **2.9 · The education-gate wording.** The behaviour is already ruled — on low client literacy the
 advisor gets a prompt asking whether to apply education-first or see what is technically needed,
 with the reasoning shown either way. **The on-screen words need confirming before it is coded.**
+
+**2.10 · 🔴 Rule on Net Promoter Score in the Client Survey, then we act on your answer.** New
+2026-08-14. ✅**verified — "detractor", "promoters" and "net promoter" return zero matches across
+all 113 firm documents.** `people-power-client-survey` step 4 teaches NPS in full: the 0-10
+recommendation question, the 9-10 / 7-8 / 0-6 banding, and the promoters-less-detractors
+calculation. Steps 5-7 are in the same position — your source gives four steps, the app gives
+eight.
+
+**This is not the marking question and must not be answered with a mark.** A rationale clause
+explains a step you own; this is a *method* you do not. It is good practice and may well be
+wanted — but as it stands it reads as your firm's own method.
+
+**Your answer becomes one of three specific actions, and one of them happens either way:**
+
+- **"Keep it as ours"** → mark steps 4-7 as authored commentary in the same batch as §4.6c.
+- **"Keep it as the firm's"** → you supply or point at the source, and we record it beside the row.
+- **"Remove it"** → steps 4-7 are cut back to the four steps the source gives.
+
+*(Waits on Mike. Recorded in full at
+[`../DOMAIN-SUPPORT-SWEEP-PROGRESS.md`](../DOMAIN-SUPPORT-SWEEP-PROGRESS.md) §6.1.)*
 
 ---
 
@@ -156,13 +176,12 @@ through the wording layer. It is logged as critical, not accepted. Its real cost
 own the words cannot change them without a developer, and a second language stops being a data
 problem.
 
-**4.6 · Sweep the domains for authored commentary — 19 of 29 read.** ✅**part-measured 2026-08-14** —
-the blast-radius question is no longer unanswered. **The facts are clean:** all 140 marker-carrying
-claims in the data — every acronym expansion, counted list, quotation and named authority — were
-verified present in the firm's own documents. **What was found instead** is a layer of short
-authored clauses explaining *why* a step matters: nine of them across seven of the nine sourced
-Strategy rows, appearing in none of the firm's 115 documents. Mike's ruling: **mark them**, do not
-delete them.
+**4.6 · Sweep the domains for authored commentary — READ COMPLETE, 29 of 29.** ✅**measured
+2026-08-14** — the blast-radius question is answered. **The facts are clean:** all 140
+marker-carrying claims in the data — every acronym expansion, counted list, quotation and named
+authority — were verified present in the firm's own documents. **What was found instead** is a
+layer of short authored clauses explaining *why* a step matters, appearing in none of the firm's
+documents. Mike's ruling: **mark them**, do not delete them.
 
 **(a) The marking mechanism is BUILT** — commit `90b673d`, 2026-08-14. The nine Strategy clauses are
 marked, the AI is told which words were ours, and the platform can mark more by highlighting them on
@@ -171,33 +190,60 @@ the Domain Support screen. Approved from
 the rule it now follows is [`domain-support-provenance.md`](domain-support-provenance.md) §4.1. Read
 that before marking anything, and record the marks as it says.
 
-**(b) The read is HALF DONE — 19 of 29 domains, 104 of 194 materials, 2026-08-14.** Full record,
-including the method and the list of what was cleared:
-[`../DOMAIN-SUPPORT-SWEEP-PROGRESS.md`](../DOMAIN-SUPPORT-SWEEP-PROGRESS.md). **Read the remaining
-ten domains** — people-power (26), fm-coach-culture (20), org-board-pack (11), get-marketing (7),
-org-firm-strategy (6), raising-capital (6), succession (4), systems (4), org-capacity-planner (3),
-org-leadership (3). *(Waits on us.)*
+**(b) The read is DONE — 29 of 29 domains, 194 of 194 materials, 2026-08-14.** ✅**complete.**
+Full record, including the exact wording of every candidate, the method, the traps and the list of
+what was cleared: [`../DOMAIN-SUPPORT-SWEEP-PROGRESS.md`](../DOMAIN-SUPPORT-SWEEP-PROGRESS.md).
+**Nothing further needs reading.** Mike ruled 2026-08-14 that the whole read completes first and the
+marks go in as one batch — that batch is now §4.6c below.
 
-**Mike ruled 2026-08-14: read all 29 first, write the marks as one batch afterwards** — this is
-beta-stage detail and must not hold up getting a release to the master coding team. So do **not**
-write marks domain by domain.
-
-**The yield so far is 1 confirmed clause and 7 candidates, not the 150–200 once estimated — that
-figure is withdrawn.** The habit tracks the shape of the *source document*: where the source gives
-terse steps someone expanded them and added the tails, and where the source is already full prose
-the transcription is near-verbatim.
+**The final yield is 1 confirmed clause and 49 candidates, not the 150–200 once estimated — that
+figure is withdrawn.** The habit tracks the shape of the *source document*, and the last ten domains
+prove it from both ends at once: raising-capital, succession, systems, org-capacity-planner,
+org-leadership and fm-coach-culture's fifteen sourced rows are near-verbatim clean because their
+sources are already full prose, while people-power (17 candidates), org-board-pack (7),
+get-marketing (5) and org-firm-strategy (5) were written from sources that give **one descriptive
+line per template**. `People Power Suppt.pdf` is the extreme case — 26 app materials built largely
+from a one-sentence-each summary table.
 
 ⚠ **One thing the mechanism does not do: find them.** It is the container. Finding a clause is still
 a person reading a domain beside its own source PDF. Three detectors were built and all three were
 defeated by paraphrase, and a fourth measurement confirms it: the nine known marks score 25–75%
 against the corpus and **61 non-marks fall in the same band**.
 
-**4.6a · Check whether a source document exists for 20 domain-support rows.** New 2026-08-14.
-Measured, not investigated: **20 rows match no document in the 115 at all** (under 6% word overlap
-with any of them), concentrated in `people-power` (8), `fm-coach-culture` (4) and `org-board-pack`
-(3) — the three biggest domains still unread. Two were already known from
+**4.6c · 🔴 Write the marks — one batch, the last piece of 4.6.** New 2026-08-14. *(Waits on us,
+except the six in the first bullet.)* The reading is finished and the candidates are written out
+verbatim in [`../DOMAIN-SUPPORT-SWEEP-PROGRESS.md`](../DOMAIN-SUPPORT-SWEEP-PROGRESS.md) §5, so
+this is a decide-and-type job with no re-derivation. Four specific actions, **in this order**:
+
+1. **Resolve the six factual claims first** (§5, the 🔴 table). These are Brief **P5** breaches — a
+   claim about a named framework or a stated cause and effect is never ours to author — and they
+   are a different, more serious failure from a rationale tail. **One or more may need correcting
+   or removing rather than labelling, which is Mike's call, not ours.**
+2. **Work the remaining 43 candidates**, marking or clearing each, adding an `authored_commentary`
+   entry beside that material's `steps` in the shape at
+   [`domain-support-provenance.md`](domain-support-provenance.md) §4.1. Copy each clause
+   **exactly** — the guard test fails on a fragment that is missing or appears twice.
+3. **Correct `"all 115 firm documents"` to 113 on the nine existing Strategy marks**, in the same
+   batch. The corpus is 45 + 50 + 10 + 8 = **113 PDFs**; the only other two in the repo are the NIST
+   attachment and a report source model, neither of them firm domain material. That phrase exists
+   so a reader can reproduce the search, so it has to say what was actually searched.
+4. **Run `npx jest tests/unit/authoredCommentary.test.js` after each domain**, not at the end, so a
+   mistyped fragment is caught while that domain is still open.
+
+⚠ **Do not fold §2.10, §4.6a or §4.6b into this batch.** Each is a different question with a
+different answer, and answering any of them with a commentary mark would file a bigger problem
+under a smaller one.
+
+**4.6a · Check whether a source document exists for 21 domain-support rows.** New 2026-08-14,
+**updated the same day: the measurement is now confirmed by reading, and it is one row bigger.**
+21 rows match no firm document at all (under 6% word overlap with any of them), concentrated in
+`people-power`, `fm-coach-culture` (5 whole materials — `advisory-pip-template`,
+`group-coaching-programme`, `applicant-screening-and-competency-based-recruitment`,
+`fee-estimate-and-job-creep-management`, `centre-of-influence-coi-engagement-framework`) and
+`org-board-pack` (3). **`advisory-pip-template` is the added one** — it was not in the measured 20
+and its content is absent from the corpus too. Two were already known from
 [`../DOMAIN-SUPPORT-REVIEW-CHECKLIST.md`](../DOMAIN-SUPPORT-REVIEW-CHECKLIST.md). **Open each of the
-20, find its source or establish there isn't one, and record which.** This is a *different question*
+21, find its source or establish there isn't one, and record which.** This is a *different question*
 from the commentary sweep and must not be answered with a commentary mark — a row with no source is
 a bigger problem than a row with an added clause. The five `sales-marketing` rows in that count are
 index rows carrying no steps at all, which is the known deliberate gap, not a defect. *(Waits on us.)*
