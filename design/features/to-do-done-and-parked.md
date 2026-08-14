@@ -46,6 +46,45 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**The advisor screen's words can be changed without a developer.** ✅ Closed 2026-08-14 (was
+§4.5), commit `bf9c7fe`. 87 interface strings moved out of `VirtualAdvisor.vue` into
+`locales/en.json` under `advisor.*` — buttons, prompts, placeholders, the 14 domain-dropdown
+labels, the section banner. **Not one word changed**, verified mechanically: every phrase removed
+from the component appears byte-identical in the wording file. **The item's title was wrong and
+believing it would have cost the session** — it named "the report screens and parts of the advisor
+screen", and the report screens never had the problem. Every apparent hit on them was inside a
+JSDoc comment. The whole item was one file. Held by two new tests, because an unresolved key does
+not throw — vue-i18n prints the key on a button while every other test passes.
+
+**The duplicate of the Workshop 1 primary-issues list is gone.** ✅ Closed 2026-08-14 (was §4.5a),
+commit `7f69a74`. The plan was to wire the component to `data/primary-issues.json`. **Checking
+first showed that would have been busywork on code that cannot run**: the selector was retired
+from intake 2026-06-10, and the marker that opens it exists nowhere that emits it — so neither
+copy was reachable. Removed the card, its state, three methods, the styles and the duplicated
+const, about 100 lines. **The marker strip was deliberately KEPT** on both reply paths: a model is
+not a compiler, and an advisor must never read `[PRIMARY_ISSUE_SELECTOR:profit]` in a reply.
+**`data/primary-issues.json` was kept** — authored content, and deleting content is not the same
+act as deleting dead code.
+
+**An advisor can correct the AI's read in plain words.** ✅ Closed 2026-08-14 (was §4.5b), commit
+`a168123`. The question was whether the capability survived the deletion above. **It never
+depended on it** — the correction is conversational. But answering the question found a real
+defect: the switch required the reply to contain the *entire* label, so *"no, it's really about
+staff"* did nothing while *"you've got it wrong"* triggered a full reset. **The engine answered
+annoyance and ignored a calm, specific correction**, and it failed silently — the advisor believes
+they were understood and the advice stays wrong. Fixed by `resolveDomainCorrection`, deliberately
+conservative because a wrong switch is worse than no switch. Eleven failing tests written first.
+The rule now lives in [`virtual-advisor.md`](virtual-advisor.md) P9.
+
+**The authored-commentary READ is complete — 29 of 29 domains, 194 of 194 materials.** ✅ Closed
+2026-08-14 (was §4.6 part b — not to be confused with §4.6b), commit `5754aae`. 1 confirmed clause and 49 candidates, each written out
+verbatim so the batch write is decide-and-type. **§4.6 itself stays open** — the batch write is
+§4.6c and nothing further needs reading. Full record:
+[`../DOMAIN-SUPPORT-SWEEP-PROGRESS.md`](../DOMAIN-SUPPORT-SWEEP-PROGRESS.md).
+
+⚠ **The lesson running through all four: a backlog title is a claim, not a fact.** Two items in a
+row were mis-titled in a way that would have produced real work with no effect. **Measure first.**
+
 **A new feature starts as a Handbook page — and it is now one command.** ✅ Closed 2026-08-14,
 part 3 of Mike's instruction and the last of the three. `npm run feature "<name>" "<group>"
 "<summary>"` writes the Brief, the History and the index row from the skeleton the other pages

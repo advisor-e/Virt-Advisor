@@ -36,6 +36,29 @@
 
 ---
 
+- <a id="session-54-closures"></a>✅ **CLOSED 2026-08-14 (session 54, laptop) — four items, all
+  pushed on `feat/advisor-progress`.** Full write-ups on
+  [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md); rules on the Briefs.
+  - **`5754aae` — the authored-commentary READ is complete**, 29 of 29 domains, 194 of 194
+    materials. 1 confirmed clause + 49 candidates, each written out verbatim. **The batch write is
+    all that remains** (`to-do.md` §4.6c). Three findings became numbered tasks rather than notes:
+    §2.10 (Net Promoter Score is taught in the Client Survey and appears in none of the 113 firm
+    documents), §4.6a (21 rows with no source, one more than measured), and the "115 documents"
+    count being wrong on the nine existing marks.
+  - **`bf9c7fe` — P1 hardcoded English CLOSED.** 87 strings out of `VirtualAdvisor.vue` into
+    `advisor.*`. ⚠ **The item's title was wrong: the report screens never had the problem.**
+  - **`7f69a74` — the retired primary-issue selector deleted**, ~100 lines, taking a duplicate of
+    the Workshop 1 list with it. `data/primary-issues.json` KEPT.
+  - **`a168123` — P1-class silent defect fixed:** the engine only accepted a correction containing
+    the *entire* area label, so *"no, it's really about staff"* did nothing while *"you've got it
+    wrong"* forced a reset. It answered annoyance and ignored a calm correction, and failed
+    silently. Rule now in [`features/virtual-advisor.md`](features/virtual-advisor.md) P9.
+  - **Still open from this work:** `to-do.md` §4.5c (the orphaned `__none_of_these__` handler in
+    `server/advisorEngine.js`, now provably unreachable — delete it or give it a caller).
+  - ⚠ **The lesson, and it applies to this file more than any other: a backlog title is a claim,
+    not a fact.** Two items in a row were mis-titled in ways that would have produced real work
+    with no effect. **Measure before believing an entry here.**
+
 - <a id="fabrication-sweep-cannot-be-automated"></a>☐ **P1 · DOC/BUILD — the domain-support
   fabrication sweep CANNOT BE AUTOMATED, and this is proven rather than assumed.** 2026-08-14.
   **Record this before anyone tries again**, because the obvious approach looks like it works.

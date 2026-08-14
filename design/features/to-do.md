@@ -5,7 +5,7 @@
 > [`to-do-done-and-parked.md`](to-do-done-and-parked.md) — kept so nothing is forgotten, moved so
 > nothing is buried.
 >
-> **Last verified against the code: 2026-08-13.** Items marked ✅**verified** were checked against
+> **Last verified against the code: 2026-08-14.** Items marked ✅**verified** were checked against
 > the actual code or git history on that date. Items marked ⚠**unverified** came from the backlog
 > and have not been re-checked — treat them as claims, not facts.
 
@@ -25,7 +25,7 @@ early production beta stage."*
   (§4.6) is the named example. Do not let that class of work hold a release.
 - **This SUPERSEDES the ruling of 2026-08-11** — *"no PR to `master` until the task list is
   clear"*. That position is withdrawn. A PR to `master` is now on the table rather than
-  deliberately held back, and there are **20 commits ahead of `master`** already waiting.
+  deliberately held back, and there are **25 commits ahead of `master`** already waiting.
 
 ⚠ **Why this block exists at all, and why nothing like it goes in a session note again.** The
 2026-08-11 ruling it replaces lived *only* in session notes, hand-copied forward into five of them
@@ -169,76 +169,6 @@ should name it, and should say that a missing artefact is a **stop**, not a lice
 
 **4.4 · Open the Handbook, edit a word, reload, confirm it survives.** The edit-persistence is
 proven in code and has not been seen working in a browser since the restore. *(Waits on Mike.)*
-
-**4.5 · Hardcoded English — the interface strings are DONE.** ✅**measured and fixed
-2026-08-14.** The breach was of the locked stack requirement that every user-facing string goes
-through the wording layer; its real cost was that the people who own the words could not change
-them without a developer.
-
-⚠ **The item's old title was wrong and cost a session's worth of assumption. The report screens
-were never the problem — they are clean.** Every apparent hit on them is inside a JSDoc comment,
-and `BusinessPerformanceReport.vue` already does the right thing: the backend returns the
-workbook's own value (`'Cashflow Negative'`, cell J3) and the screen maps it through `$t()`.
-**Measure before believing a backlog title.**
-
-**87 interface strings moved out of `components/VirtualAdvisor.vue` into `locales/en.json`
-under `advisor.*`** — buttons, prompts, placeholders, the 14 domain-dropdown labels and the
-section banner. **No wording changed**; two interpolations became the wording layer's `{count}`
-and `{name}` form. Guarded by two new tests in `tests/unit/i18nMessages.test.js`, which exist
-because an unresolved key does **not** throw — vue-i18n renders the key itself, so a button would
-read `advisor.save.confirm` and every other test would still pass.
-
-⚠ **Not yet seen in a browser.** Proven by 5,256 passing tests and a key-resolution check, not by
-use. *(Waits on Mike — worth pairing with 4.4, which is the same kind of look.)*
-
-**4.5a · The duplicate primary-issues list — DONE, by deletion rather than by wiring.**
-2026-08-14. ✅**verified.** The first plan was to wire the component to
-`data/primary-issues.json`. **Checking first showed that would have been busywork on code that
-cannot run**, and the honest fix was to remove it:
-
-- The selector was **retired from intake 2026-06-10** — the engine infers the primary issue.
-- **Nothing emits `[PRIMARY_ISSUE_SELECTOR:…]`** — the string existed in exactly two places in the
-  repository, the component reading it and a design document. The screen was unreachable.
-- So **neither copy of the list was being used by the running app.**
-
-Removed: the card, its state, three methods, the styles and the duplicated const — about 100 lines
-out of a component §5.1 already flags as too large. **The marker strip was deliberately KEPT** on
-both reply paths: nothing emits it, but a model is not a compiler, and an advisor must never read
-`[PRIMARY_ISSUE_SELECTOR:profit]` in the middle of a reply. **`data/primary-issues.json` was
-kept** — authored Workshop 1 content, and deleting content is not the same act as deleting dead
-code. Pinned by `tests/unit/retiredPrimaryIssueSelector.test.js`.
-
-⚠ **The lesson is the one from 4.5 again, one step harder: the backlog said "de-duplicate", the
-code said "this never runs".** Two items in a row have been mis-titled in a way that would have
-produced real work with no effect. **Measure before believing a title.**
-
-**4.5b · Can an advisor correct a wrong read? — ANSWERED, and a real defect fixed.**
-2026-08-14. ✅**traced in code, then measured by running the actual patterns.** **Yes, and it never
-needed the deleted button** — the correction is conversational. The engine always asks *"I'm
-reading this as a **X** situation — have I got that right, or is it really about a different
-area?"*, and the field is commented *"Conversational — NO drop-tab."*
-
-**The defect found while answering it:** the switch required the reply to contain the **entire**
-label. Real phrasings were measured against the live code:
-
-| The advisor says | Switched? | Re-checked? |
-| --- | --- | --- |
-| "No, it's really about staff" | ✗ | ✗ |
-| "No — it's a staff problem" | ✗ | ✗ |
-| "Not quite, it's more about profit" | ✗ | ✗ |
-| "You've got it wrong" | ✗ | ✓ |
-| "it's really about staff, productivity and leadership" | ✓ | ✗ |
-
-**The only reply that worked was one nobody would type**, while an emphatic rejection was caught by
-the separate contradiction check. **The engine answered annoyance and ignored a calm, specific
-correction.**
-
-**Fixed** by `resolveDomainCorrection` in `server/advisorEngine.js`, which reads the reply the way
-the disambiguation step already reads a tie — the per-domain `disambiguationKeywords` authored for
-exactly this question. **Deliberately conservative, because a wrong switch is worse than no
-switch:** it moves only when exactly one *other* area is named and the current one is not, so
-*"yes, staff costs are squeezing their margins"* stays put as agreement-with-detail. Failing tests
-were written first; `tests/unit/domainCorrection.test.js` holds all eleven cases.
 
 **4.5c · Remove the orphaned `__none_of_these__` handler, or give it a caller.** New 2026-08-14.
 ✅**verified.** `server/advisorEngine.js:2193` still answers the `__none_of_these__` query by

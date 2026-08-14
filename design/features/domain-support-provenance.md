@@ -70,8 +70,8 @@ clarifies what the 8 Profit Levers are for. The instinct to keep such a clause i
 instinct to leave it unattributed is what this page exists to correct.
 
 **The 150–200 estimate is WITHDRAWN, not merely unproven.** It was an extrapolation from the one
-domain then swept. Eighteen further domains have since been read — 104 of 194 materials — and they
-produced **one confirmed clause and seven candidates**, against roughly eighty predicted pro-rata.
+domain then swept. **All 29 domains have now been read — 194 of 194 materials (2026-08-14)** — and
+they produced **one confirmed clause and 49 candidates**, against roughly 150 predicted pro-rata.
 Do not quote the old figure.
 
 **The habit tracks the shape of the SOURCE DOCUMENT, not the transcriber.** This is why Strategy
@@ -106,8 +106,8 @@ in the firm's own documents. That half of the problem is measured and clean.
 |---|---|
 | The ruling | Given 2026-08-14 — *mark them* |
 | Strategy domain | **Swept, all 13 rows.** The original 9 (against `Strategic Planning Support.pdf`) yielded the 9 marks; its other 4 rows come from four *different* documents, were never in that sweep, and are clean |
-| 18 further domains | **Read 2026-08-14, 104 of 194 materials** — 1 confirmed clause, 7 candidates. Full record: [`../DOMAIN-SUPPORT-SWEEP-PROGRESS.md`](../DOMAIN-SUPPORT-SWEEP-PROGRESS.md) |
-| The remaining 10 domains | **Not read.** people-power · fm-coach-culture · org-board-pack · get-marketing · org-firm-strategy · raising-capital · succession · systems · org-capacity-planner · org-leadership |
+| The other 28 domains | **ALL READ — 194 of 194 materials, 2026-08-14.** 1 confirmed clause, 49 candidates, every one written out verbatim. Full record: [`../DOMAIN-SUPPORT-SWEEP-PROGRESS.md`](../DOMAIN-SUPPORT-SWEEP-PROGRESS.md) |
+| What is left of the sweep | **The batch write only** — `to-do.md` §4.6c. Nothing further needs reading |
 | The marking mechanism | **Built 2026-08-14** to the approved artefact [`../mockups/domain-support-authored-commentary.html`](../mockups/domain-support-authored-commentary.html) — see §4.1 below |
 | Fact-level claims | **Swept and clean** — 140 of 140 verified against the firm's documents |
 
@@ -217,8 +217,12 @@ beside its own source document and list what is not there. Search the whole corp
 a clause ours — several turned out to be genuine material that had simply moved between documents,
 which is a different finding and not a fault.
 
-**Order by content weight.** After Strategy the largest are Seminar, EOY, and Sales & Marketing —
-all now read. Of what remains, people-power (26) and fm-coach-culture (20) are the largest.
+**Ordering no longer applies — every domain is read.** Kept because it is the rule for any future
+sweep of the same kind: work the largest source documents first. **What that ordering taught, and
+what a future sweep should use instead: predict from the SOURCE, not the size.** people-power (26
+materials) produced 17 candidates and fm-coach-culture (20) produced none from its sourced rows —
+because the first was written from a one-line-per-template summary table and the second from full
+prose. Size predicted nothing; the shape of the source predicted everything.
 
 **Build the corpus first — it makes `searched` reproducible.** `pdftotext -layout` over all 115
 PDFs in the repo (`Domain Support/`, `Logic Tables/`, `Central Frameworks/`, `Course Builder Quiz/`)

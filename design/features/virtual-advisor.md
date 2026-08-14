@@ -56,7 +56,25 @@ proxy** to Restify and nothing more. Business logic in the proxy is a boundary v
 must never land in a fresh conversation.
 
 **P5 · No hardcoded English.** Every user-facing string goes through `$t()` and lives in the
-locale files.
+locale files. **True of this screen as of 2026-08-14** — 87 strings moved into `advisor.*`.
+⚠ **A wrong key does not throw; vue-i18n prints the key on screen.** So this principle is held by
+a test that walks every `$t()` in the component against the real locale file
+(`tests/unit/i18nMessages.test.js`), not by the suite passing. Add to that walk in the same change
+as any new screen.
+
+**P9 · 🔴 The advisor must be able to correct the AI's read in their own words, and the matching
+must be forgiving.** The engine asks *"I'm reading this as a **X** situation — have I got that
+right?"*, and that answer re-routes the entire recommendation. Until 2026-08-14 it only moved if
+the reply contained the **whole** label, so *"no, it's really about staff"* did nothing while
+*"you've got it wrong"* triggered a full reset — **the engine answered annoyance and ignored a calm,
+specific correction.** This fails silently, which is what makes it serious: the advisor believes
+they were understood and the advice stays wrong.
+
+**The counter-rule, and it is not optional: a WRONG switch is worse than no switch.** So
+`resolveDomainCorrection` moves only on an unambiguous signal — exactly one *other* area named and
+the current one not named. *"Yes, staff costs are squeezing their margins"* names both and is
+agreement with detail, not a correction. When it holds, nothing is lost: the words still reach
+`problemSignals`, and an outright rejection is still caught by `detectContradiction`.
 
 **P6 · A failed call must never produce a silently empty screen.** Loading and error states are
 both handled, always, with a message the advisor can act on.
