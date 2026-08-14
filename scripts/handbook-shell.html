@@ -797,7 +797,19 @@
     return n
   }
 
-  function today () { return new Date().toISOString().slice(0, 10) }
+  /**
+   * Today, where the reader is standing.
+   *
+   * NOT toISOString().slice(0, 10) — that is UTC. Mike is twelve hours ahead of
+   * it, so the first list he ever saved from this control, at 11:36 on the 15th,
+   * came back stamped the 14th. On this project the date on a record is what
+   * settles who decided what and when, so a day out is not cosmetic.
+   */
+  function today () {
+    function pad (n) { return (n < 10 ? '0' : '') + n }
+    var d = new Date()
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+  }
 
   function queue () {
     var mount = inner.querySelector('[data-queue]')

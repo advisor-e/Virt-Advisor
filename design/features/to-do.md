@@ -35,12 +35,15 @@ repository sees; the two never both appear, and the build stops if they would.
 | 5 | **2.3** Seminar's seven lines | 4 | — | **Mike** |
 | 6 | **2.9** The education-gate wording | 4 | — | **Mike** |
 | 7 | **4.9** Make the coaching reference inherit | 3 | — | Us |
-| 8 | **4.4** Prove a Handbook edit survives a reload | 2 | — | **Mike** (one click) |
-| 9 | **4.7** Flip `engine-strict` back on | 2 | — | Us |
-| 10 | **3.5** Reply to Carl about `npm install` | 1 | — | Us |
+| 8 | **4.7** Flip `engine-strict` back on | 2 | — | Us |
+| 9 | **3.5** Reply to Carl about `npm install` | 1 | — | Us |
 
-**Ten live items. Five need Mike**, one of them a single click. If this list passes about twenty,
-something is wrong.
+**Nine live items. Four need Mike.** If this list passes about twenty, something is wrong.
+
+✅ **4.4 came off this list on 2026-08-15 — closed by Mike, from the control itself.** He marked it
+Done on screen and pressed Save; the file reached Downloads with his call and comment on it. It is
+the first item settled through the control rather than in chat, and it found a date defect on the
+way. See [`to-do-done-and-parked.md`](to-do-done-and-parked.md) §2.
 
 ⚠ **4.14 scores 1 and sits first, and that disagreement is deliberate.** No customer will ever see
 the Handbook, so by §2's table it is internal work. Mike asked for it on 2026-08-15 and ranked it
@@ -254,14 +257,6 @@ not a deviation.
 - **Asked by:** ⚠ **ours** — from Mike's tier-cascade design, but nobody asked for this row
   specifically.
 - **Touches:** `resolveInheritedRows`, the firm overlay, the coaching reference screen.
-
-**4.4 · Prove a Handbook edit survives a reload.** **SCORE 2 · robustness**
-- **Why:** edit-persistence is proven in code and has never been seen working in a browser.
-- **Risk:** the one-link Handbook Mike asked for may not actually keep an edit, and we would not
-  know.
-- **Asked by:** **Mike** — it is his Handbook. ⚠ **This is one click and it has to be his:** the
-  machine has no browser automation, so no session can prove it for him.
-- **Touches:** the published Handbook artifact only.
 
 **4.7 · Flip `engine-strict` back on.** **SCORE 2 · robustness**
 - **Why:** still `false`. Two transitive packages (`consola`, `node-releases`) over-declare their

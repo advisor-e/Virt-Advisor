@@ -24,7 +24,7 @@
   ],
 
   "orderedByMikeOn": "2026-08-15",
-  "orderSource": "design/mockups/to-do-list-table.html",
+  "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it.",
 
   "items": [
     {
@@ -145,20 +145,6 @@
       },
       "touches": "resolveInheritedRows, the firm overlay, the coaching reference screen.",
       "note": null
-    },
-    {
-      "ref": "4.4",
-      "name": "Prove a Handbook edit survives a reload",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Edit-persistence is proven in code and has never been seen working in a browser.",
-      "risk": "The one-link Handbook Mike asked for may not actually keep an edit, and we would not know.",
-      "askedBy": { "who": "Mike", "ours": false, "detail": "It is his Handbook" },
-      "touches": "The published Handbook artifact only.",
-      "note": "One click, and it has to be his: this machine has no browser automation, so no session can prove it for him."
     },
     {
       "ref": "4.7",

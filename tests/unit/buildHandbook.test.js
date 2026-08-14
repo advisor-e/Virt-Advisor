@@ -321,6 +321,19 @@ describe('the Handbook', () => {
       expect(shell).toContain('Use the project\\\'s list')
     })
 
+    // 🔴 Found by Mike in the first minute of real use, not by any of the tests
+    // above. The saved file was stamped 2026-08-14; he saved it at 11:36 on the
+    // 15th. toISOString() is UTC and he is twelve hours ahead of it, so every
+    // save before midday recorded YESTERDAY — on a project where the date on a
+    // record is what settles who decided what. No test could have caught it: it
+    // needed a person, in a timezone, pressing a button.
+    it('stamps the saved list with the reader\'s own date, never UTC', () => {
+      expect(shell).toContain('d.getFullYear()')
+      expect(shell).toMatch(/pad\(d\.getMonth\(\) \+ 1\)/)
+      // The clock, not the comment above it that explains why this is wrong.
+      expect(shell).not.toMatch(/new Date\(\)\.toISOString/)
+    })
+
     it('gives every score a colour in both themes, from tokens', () => {
       const blocks = shell.split(':root')
       const light = blocks.find(b => b.includes('--ground: #eef3f8'))

@@ -173,6 +173,26 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.4 · A Handbook edit survives a reload — and the ranking control works.** ✅ Closed 2026-08-15
+by **Mike**, and only he could close it: this machine has no browser automation, so no session could
+ever have proved it for him. He opened the To-Do page, marked this item **Done**, left a comment on
+it and pressed **Save the list**.
+
+- **`to-do-items.json` arrived in Downloads**, 11.6 KB, at 11:36 — a real file from a real click.
+- All ten items came through, **his ordering intact**, with his call and his comment on the row.
+- **The settled item sank out of the ranking to the bottom**, which is the behaviour the whole
+  screen is built around and had never been seen happening.
+- His comment, kept because it is the only first-hand record of the test:
+  *"We should be able to get this sorted straight away. Check if this works."*
+
+⚠ **It also found a defect, in the first minute of real use.** The saved file was stamped
+`2026-08-14`. The control built its date from the browser's UTC clock and Mike is twelve hours ahead
+of UTC, so **every save before midday recorded yesterday**. On a project where the date on a record
+is what settles who decided what, that is not cosmetic. Fixed the same day — the date is now read
+from local time, and `tests/unit/buildHandbook.test.js` fails if `toISOString` is ever used for it
+again. **Nine tests over the control could not catch this and no test could have:** it needed a
+person, in a timezone, pressing the button.
+
 **The master team can now be handed a release with instructions.** ✅ Closed 2026-08-14, commit
 `206476a`. Four things that would each have cost them an afternoon, none of them ever on this list
 because nothing was looking at *loading* the app rather than building it:
