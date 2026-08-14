@@ -196,7 +196,7 @@
     folder. Publishing without it silently creates a **second** Handbook and the bookmarked one
     stops updating. The URL is now in `ARTEFACTS.md`.
   - ✅ **RESOLVED 2026-08-15 — the triage pass happened, and it was a cut rather than a tidy.**
-    31 items became **16**: one had been built seventeen days earlier, three were the same blocker
+    31 items became **15**: one had been built seventeen days earlier, three were the same blocker
     written three times, two existed to maintain a generated copy of this file, and the whole
     "tidying" section broke the list's own *a warning is not an item* rule. Mike's instruction was
     that anything he had not asked for and that fails the product test is **deleted, not parked**.

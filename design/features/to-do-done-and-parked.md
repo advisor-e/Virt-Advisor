@@ -13,7 +13,7 @@
 
 ---
 
-## 0. Deleted 2026-08-15 — the audit that cut the list from 31 items to 16
+## 0. Deleted 2026-08-15 — the audit that cut the list from 31 items to 15
 
 Mike asked for a full review: every item checked against the code, and against whether he had ever
 asked for it. His instruction: *"unless I specifically asked for it, unless it meets all my criteria
@@ -50,6 +50,44 @@ changed:**
 | 5.3 · Profile off browser storage | Duplicate of 3.1 |
 | 5.4 · Status table "paused" marker | Went with STATUS.md |
 | 5.5 · Six firm-editable blocks | A menu of possible features nobody requested. If one is wanted it is a new request |
+| 2.2 · The four missing hub tabs | Deleted later the same day — see the box below, which exists so nobody re-raises it |
+
+### 🔴 2.2 — the four hub tabs, and why this is a DELIBERATE, RECORDED deviation
+
+**Do not re-raise this.** The code shows fewer tabs than
+[`../mockups/tier-hub-pages.html`](../mockups/tier-hub-pages.html) §2 draws, and that is now a
+decision rather than an oversight. The mismatch is real and was verified cell by cell on
+2026-08-15 — the approved table gives the **Mentor** hub *Team Progress* and *Team Case Studies*,
+and the **Firm** hub *Case Reviews* and *Logic-Lab Report*; `TAB_TIERS` in
+[`../../components/FirmManagerHub.vue`](../../components/FirmManagerHub.vue) gives none of the four.
+
+**The work this belonged to is finished.** All four hubs were built on 2026-08-10/11, the reports
+were wired to roll up, `getTeamRollup` handles every level above a firm, and Template Check was
+narrowed to the mentor on Mike's own word. What remained was four cells in a tier table — not four
+features.
+
+**Mike's ruling, 2026-08-15, after asking what it was actually for:**
+
+- **The mentor's two would display invented firms.** Nothing in our data records which firms belong
+  to which group (§3.3), so the tab would show the development placeholders. A screen only
+  Advisor-e staff see, showing fabricated data, serves nobody.
+- **The firm's two are new work nobody asked for.** Both routes are guarded by
+  `requireManagingTier`, which rejects the firm outright. Widening it means re-scoping the roll-up
+  and taking a privacy decision about a firm manager reading its advisers' client case reviews —
+  for a feature that exists only because we drew it.
+- **A mismatch with a drawing is not a defect.** Nothing is broken; the tabs are absent, not
+  faulty. The product test asks whether it serves the user, improves quality or robustness, or
+  improves marketability. All three answers are no.
+
+**If the master team ever supplies the group membership data, the mentor's two are two lines on the
+day it matters** — and they will show something real. That is the right moment, not now.
+
+⚠ **The code comment in `TAB_TIERS` was left untouched.** Its stated reasoning — that Team Progress
+*"has no meaning at the mentor"* and that the accuracy reports are read *"at every managing tier
+above the firm"* — is not Mike's and runs against
+[`tier-cascade.md`](tier-cascade.md) **P4** (*"no per-report exceptions, ever"*). It is recorded
+here rather than rewritten there, because rewriting a comment on working code is exactly the
+make-work this audit exists to stop. **The deviation is the record; this box is where it lives.**
 
 **Done in the same pass rather than left on Mike's plate:** §4.1 (the laptop's branch was wrong in
 `/startup` and confused this session), §4.2 (the one dead Handbook link — `relink()` needed

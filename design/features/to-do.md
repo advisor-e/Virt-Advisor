@@ -8,7 +8,7 @@
 > [`product-principles.md`](product-principles.md): *does it serve the user, make the system better
 > quality or more robust, or improve marketability?* **If the answer to all three is no, it is not
 > parked, deprioritised or filed under tidying. It is deleted, with its code.** Ruled 2026-08-15
-> after a full audit cut the list from 31 items to 16.
+> after a full audit cut the list from 31 items to 15.
 >
 > **Numbers are stable and gaps are deliberate.** A missing number means that item was deleted;
 > [`to-do-done-and-parked.md`](to-do-done-and-parked.md) says which and why.
@@ -76,7 +76,7 @@ warning about it and nothing owned it.
 
 ## 2. Waiting on you — nothing happens until you rule
 
-*Five items. None of them need code first; all of them block code.*
+*Four items. None of them need code first; all of them block code.*
 
 **2.1 · Send the master team the release number.** ✅**verified** — `v0.8.0` is tagged and pushed,
 and nobody outside has been told. They cannot pull what they do not know exists; v0.6.0 was never
@@ -84,12 +84,6 @@ pulled at all. Three lines: pull the **tag** `v0.8.0`, **no `npm install` this t
 notes first. **As of 2026-08-14 there is now a page to point them at** —
 [`../UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md), linked from the README, covering the runtime, the
 environment, the schema rows, the screen addresses and how to prove the app really started.
-
-**2.2 · The four missing hub tabs.** ✅**verified against `TAB_TIERS`** — the approved mockup says
-the Mentor hub should gain *Team Progress* and *Team Case Studies*, and the Firm hub *Case
-Reviews* and *Logic-Lab Report*. The code deliberately excludes all four and says so in a
-comment. **It is +2 and +2, not the "+3" carried through eight sets of notes.** Nothing is
-broken — the tabs are absent, not faulty.
 
 **2.3 · Seminar's seven lines** — reword toward Public Speaking. ⚠ carried since session 48.
 
