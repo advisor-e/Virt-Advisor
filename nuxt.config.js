@@ -29,7 +29,11 @@ export default {
   telemetry: false,
 
   server: {
-    port: 3000,
+    // Env-aware for the same reason as `host` below — this file is merged OVER
+    // Nuxt's defaults, so Nuxt's own NUXT_PORT/PORT lookup never runs once the key
+    // is set here. Number() because these arrive as strings; unset leaves 3000, the
+    // port every runbook, proxy entry and note in this repo names.
+    port: Number(process.env.NUXT_PORT || process.env.PORT) || 3000,
     // '::' — the DUAL-STACK wildcard, so BOTH http://localhost:3000 and
     // http://127.0.0.1:3000 answer. Node leaves ipv6Only off, so a `::` socket accepts
     // IPv4 connections as well; one listener therefore covers both names.
@@ -61,7 +65,20 @@ export default {
     // an IPv4-only bind and proves nothing about what a browser will do. Check the stacks
     // explicitly — `curl -g http://[::1]:3000` and `curl http://127.0.0.1:3000` — never
     // the name alone.
-    host: '::1'
+    //
+    // 🔴 THE ENV LOOKUP IS NOT REDUNDANT — Nuxt's own one never runs. Nuxt reads
+    // NUXT_HOST/HOST only to build its DEFAULT server block, and then merges this file
+    // OVER those defaults (`defaultsDeep(options, nuxtConfig)` — @nuxt/config). Because
+    // `host` is set here, the default is discarded and the variables are ignored: a
+    // deployment that sets HOST=0.0.0.0 would see no change and read it as a broken
+    // build. Reading them here restores the documented behaviour without giving up the
+    // loopback default this machine needs. Same pattern as the backend's own
+    // `process.env.BACKEND_HOST || '127.0.0.1'` (server/restify-server.js).
+    //
+    // Unset (every developer machine) → '::1', exactly as before. Set deliberately by a
+    // server that must answer other machines → that interface. Network exposure is
+    // therefore always something someone asked for, never a default.
+    host: process.env.NUXT_HOST || process.env.HOST || '::1'
   },
 
   head: {
