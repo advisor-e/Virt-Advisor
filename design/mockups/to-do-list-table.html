@@ -12,6 +12,7 @@
     --s1: #7a8ba0; --s1-bg: #f1f4f7;
     --s0: #8a8f96; --s0-bg: #f2f3f4;
     --lock: #b56200; --lock-bg: #fdf1e0;
+    --go: #2f7d32; --go-bg: #e8f4e9;
     --shadow: 0 10px 28px rgba(0,43,100,.09);
     --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
@@ -30,6 +31,7 @@
       --s1: #8ea1b6; --s1-bg: #111f31;
       --s0: #7d858e; --s0-bg: #171c22;
       --lock: #ffb454; --lock-bg: #3a2810;
+      --go: #6fc44e; --go-bg: #16301a;
       --shadow: 0 10px 28px rgba(0,0,0,.4);
     }
   }
@@ -44,6 +46,7 @@
     --s1: #8ea1b6; --s1-bg: #111f31;
     --s0: #7d858e; --s0-bg: #171c22;
     --lock: #ffb454; --lock-bg: #3a2810;
+    --go: #6fc44e; --go-bg: #16301a;
     --shadow: 0 10px 28px rgba(0,0,0,.4);
   }
 
@@ -136,11 +139,38 @@
   .askedby { font-size: 13.5px; min-width: 150px; }
   .askedby.ours { color: var(--s4); font-weight: 600; }
 
+  /* ---------- status ---------- */
+  .statuscell { width: 118px; }
+  select.status {
+    font: inherit; font-size: 12.5px; font-weight: 700; letter-spacing: .04em;
+    text-transform: uppercase; border-radius: 999px; padding: 5px 10px;
+    border: 1px solid currentColor; background: var(--stbg); color: var(--stfg); cursor: pointer;
+    width: 100%;
+  }
+  select.status:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+  .st-proceed { --stfg: var(--go); --stbg: var(--go-bg); }
+  .st-done    { --stfg: var(--go); --stbg: var(--go-bg); }
+  .st-park    { --stfg: var(--s1); --stbg: var(--s1-bg); }
+  .st-delete  { --stfg: var(--s5); --stbg: var(--s5-bg); }
+
+  tr.main.settled .name, tr.main.settled .who, tr.main.settled .askedby { opacity: .55; }
+  tr.main.settled .rank { opacity: .4; }
+  tr.detail.settled .fact:not(.comment) { opacity: .5; }
+  tr.main[data-status="done"] .name { text-decoration: line-through; }
+  tr.main[data-status="delete"] .name { text-decoration: line-through; }
+
   .facts { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
   .fact { display: flex; flex-direction: column; gap: 2px; }
   .fact label { font-size: 10px; font-weight: 700; letter-spacing: .1em;
                 text-transform: uppercase; color: var(--muted); }
   .fact div { font-size: 13.5px; color: var(--body); line-height: 1.45; }
+
+  .comment { grid-column: 1 / -1; background: var(--ground-2); border: 1px solid var(--line);
+             border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0;
+             padding: 9px 12px; margin-top: 4px; }
+  .comment label { color: var(--accent); }
+  .comment div { min-height: 20px; }
+  .comment div:empty::before { content: attr(data-placeholder); color: var(--muted); font-style: italic; }
 
   [contenteditable] { border-radius: 5px; outline: 1px dashed transparent; outline-offset: 3px; }
   [contenteditable]:hover { outline-color: var(--line); }
@@ -190,6 +220,23 @@
   .gone td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
   .gone td:first-child { color: var(--ink); font-weight: 600; white-space: nowrap; }
 
+  /* ---------- hand-back panel ---------- */
+  .handback { position: fixed; inset: 4vh 4vw; z-index: 60; background: var(--card);
+              border: 1px solid var(--line); border-radius: var(--radius); padding: 16px;
+              display: flex; flex-direction: column; gap: 11px;
+              box-shadow: 0 24px 70px rgba(0,43,100,.34); }
+  .handback[hidden] { display: none; }
+  .handback h3 { margin: 0; font-size: 17px; color: var(--ink); }
+  .handback p { margin: 0; font-size: 13.5px; color: var(--muted); max-width: 80ch; }
+  .handback p b { color: var(--ink); }
+  .handback textarea {
+    flex: 1; width: 100%; font-family: var(--mono); font-size: 12px; line-height: 1.5;
+    background: var(--ground-2); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 9px; padding: 12px; resize: none;
+  }
+  .handback textarea:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 1px; }
+  .handback .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
   .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
            background: var(--ink); color: var(--card); font-size: 14px;
            padding: 10px 18px; border-radius: 9px; box-shadow: var(--shadow); z-index: 40; }
@@ -208,15 +255,18 @@
   <header>
     <div class="eyebrow">Mockup for approval &middot; 15 August 2026</div>
     <h1>Advisor-e Work Queue</h1>
-    <p class="rule"><b>Blockers first, then score.</b> An item holding up other people beats a
-    higher-scoring one that holds up nobody. Every cell on this page is editable.</p>
+    <p class="rule"><b>Blockers first, then score</b> &mdash; but <b>your call wins.</b> Mark anything
+    <em>Done</em>, <em>Park</em> or <em>Delete</em> and it drops out of the ranking to the bottom, so
+    what is left at the top is only what you have said to proceed with. Every cell is editable, and
+    every row has a comment box.</p>
   </header>
 
   <div class="bar">
-    <button id="add">+ Add an item</button>
-    <button class="ghost" id="copy">Copy as Markdown</button>
-    <button class="quiet" id="reset">Reset to saved list</button>
-    <span class="count"><b id="n">0</b> items &middot; <b id="nblock">0</b> blocking &middot; <b id="nmike">0</b> need Mike</span>
+    <button id="copy">Save</button>
+    <button class="ghost" id="add">+ Add an item</button>
+    <button class="quiet" id="reset">Start again</button>
+    <span class="count"><b id="n">0</b> to proceed &middot; <b id="nblock">0</b> blocking &middot;
+    <b id="nmike">0</b> need Mike &middot; <b id="nsettled">0</b> settled by you</span>
   </div>
 
   <div class="legend">
@@ -236,6 +286,7 @@
           <th title="Blocks other work">Blk</th>
           <th>Item</th>
           <th class="sortable" data-sort="score">Score<span class="arrow"></span></th>
+          <th>Your call</th>
           <th>Waiting on</th>
           <th class="sortable" data-sort="asked">Asked by<span class="arrow"></span></th>
           <th></th>
@@ -368,6 +419,19 @@
 
 </div>
 
+<div class="handback" id="handback" hidden>
+  <h3>Saved</h3>
+  <p>Your changes are kept in <b>this browser</b>, so they will still be here when you come back.
+  <b>I cannot read them from here</b> &mdash; so to send them to me, copy the box below and paste it
+  into the chat. Then the real list will match exactly what you decided.</p>
+  <textarea id="handbacktext" spellcheck="false" readonly></textarea>
+  <div class="row">
+    <button id="hbcopy">Copy</button>
+    <button class="quiet" id="hbclose">Close</button>
+    <span class="count" id="hbnote"></span>
+  </div>
+</div>
+
 <div class="toast" id="toast" hidden></div>
 
 <script>
@@ -469,7 +533,19 @@
       touches: 'Nothing in the app.' }
   ]
 
-  var KEY = 'advisor-e-work-queue-v1'
+  var STATUSES = [
+    ['proceed', 'Proceed'],
+    ['done', 'Done'],
+    ['park', 'Park'],
+    ['delete', 'Delete']
+  ]
+  // Anything not "proceed" is settled: it leaves the ranking and sinks to the bottom,
+  // so the top of the table only ever shows work Mike has said to get on with.
+  var LIVE = 'proceed'
+
+  SEED.forEach(function (o) { o.status = LIVE; o.comment = '' })
+
+  var KEY = 'advisor-e-work-queue-v2'
   var rows = document.getElementById('rows')
   var toastEl = document.getElementById('toast')
   var items = load()
@@ -497,15 +573,20 @@
     toast._t = setTimeout(function () { toastEl.hidden = true }, 2200)
   }
 
+  function isLive (o) { return (o.status || LIVE) === LIVE }
+
   function ordered () {
     var copy = items.slice()
+    var within
     if (sortBy === 'score') {
-      copy.sort(function (a, b) { return (b.score - a.score) || (b.blocks - a.blocks) })
+      within = function (a, b) { return (b.score - a.score) || (b.blocks - a.blocks) }
     } else if (sortBy === 'asked') {
-      copy.sort(function (a, b) { return (b.ours - a.ours) || (b.blocks - a.blocks) || (b.score - a.score) })
+      within = function (a, b) { return (b.ours - a.ours) || (b.blocks - a.blocks) || (b.score - a.score) }
     } else {
-      copy.sort(function (a, b) { return (b.blocks - a.blocks) || (b.score - a.score) })
+      within = function (a, b) { return (b.blocks - a.blocks) || (b.score - a.score) }
     }
+    // Settled items always sink, whatever the column sort is.
+    copy.sort(function (a, b) { return (isLive(b) - isLive(a)) || within(a, b) })
     return copy
   }
 
@@ -527,13 +608,15 @@
   function render () {
     rows.textContent = ''
     ordered().forEach(function (item, i) {
+      var live = isLive(item)
       var tr = document.createElement('tr')
-      tr.className = 'main'
+      tr.className = 'main' + (live ? '' : ' settled')
       tr.dataset.score = String(item.score)
+      tr.dataset.status = item.status || LIVE
 
       var tdRank = document.createElement('td')
       tdRank.className = 'rank'
-      tdRank.textContent = String(i + 1)
+      tdRank.textContent = live ? String(i + 1) : '—'
       tr.appendChild(tdRank)
 
       var tdLock = document.createElement('td')
@@ -580,6 +663,21 @@
       tdScore.appendChild(cat)
       tr.appendChild(tdScore)
 
+      var tdStatus = document.createElement('td')
+      tdStatus.className = 'statuscell'
+      var st = document.createElement('select')
+      st.className = 'status st-' + (item.status || LIVE)
+      STATUSES.forEach(function (pair) {
+        var o = document.createElement('option')
+        o.value = pair[0]
+        o.textContent = pair[1]
+        if (pair[0] === (item.status || LIVE)) { o.selected = true }
+        st.appendChild(o)
+      })
+      st.addEventListener('change', function () { item.status = st.value; save(); render() })
+      tdStatus.appendChild(st)
+      tr.appendChild(tdStatus)
+
       var tdWho = document.createElement('td')
       tdWho.appendChild(cell(item, 'who', 'who'))
       tr.appendChild(tdWho)
@@ -603,9 +701,9 @@
       rows.appendChild(tr)
 
       var dr = document.createElement('tr')
-      dr.className = 'detail'
+      dr.className = 'detail' + (live ? '' : ' settled')
       var dtd = document.createElement('td')
-      dtd.colSpan = 7
+      dtd.colSpan = 8
       var facts = document.createElement('div')
       facts.className = 'facts'
       ;[['why', 'Why it matters'], ['risk', 'What we risk if we don’t'], ['touches', 'What it touches']]
@@ -618,14 +716,27 @@
           f.appendChild(cell(item, pair[0]))
           facts.appendChild(f)
         })
+
+      var cm = document.createElement('div')
+      cm.className = 'fact comment'
+      var cl = document.createElement('label')
+      cl.textContent = 'Your comment'
+      cm.appendChild(cl)
+      var cbox = cell(item, 'comment')
+      cbox.setAttribute('data-placeholder', 'Type here — why it is wrong, what you want instead, or what you already did.')
+      cm.appendChild(cbox)
+      facts.appendChild(cm)
+
       dtd.appendChild(facts)
       dr.appendChild(dtd)
       rows.appendChild(dr)
     })
 
-    document.getElementById('n').textContent = String(items.length)
-    document.getElementById('nblock').textContent = String(items.filter(function (i) { return i.blocks }).length)
-    document.getElementById('nmike').textContent = String(items.filter(function (i) { return /mike/i.test(i.who) }).length)
+    var live = items.filter(isLive)
+    document.getElementById('n').textContent = String(live.length)
+    document.getElementById('nblock').textContent = String(live.filter(function (i) { return i.blocks }).length)
+    document.getElementById('nmike').textContent = String(live.filter(function (i) { return /mike/i.test(i.who) }).length)
+    document.getElementById('nsettled').textContent = String(items.length - live.length)
   }
 
   document.querySelectorAll('th.sortable').forEach(function (th) {
@@ -643,7 +754,8 @@
       asked: 'ours — name a requester or delete it', ours: true,
       why: 'Why does this matter?',
       risk: 'What do we lose by not doing it? If nothing, score it 0.',
-      touches: 'What else moves if this moves?'
+      touches: 'What else moves if this moves?',
+      status: LIVE, comment: ''
     })
     save(); render()
     var last = rows.querySelectorAll('tr.main')
@@ -651,22 +763,54 @@
   })
 
   document.getElementById('copy').addEventListener('click', function () {
-    var out = ['| # | Item | Score | Category | Blocks | Waiting on | Asked by | Why | Risk | Touches |',
-               '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |']
+    var out = ['| # | Item | Your call | Your comment | Score | Category | Blocks | Waiting on | Asked by | Why | Risk | Touches |',
+               '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |']
     ordered().forEach(function (it, i) {
-      out.push('| ' + (i + 1) + ' | ' + it.ref + ' · ' + it.name + ' | ' + it.score + ' | ' +
+      var label = (STATUSES.filter(function (p) { return p[0] === (it.status || LIVE) })[0] || ['', ''])[1]
+      out.push('| ' + (isLive(it) ? (i + 1) : '—') + ' | ' + it.ref + ' · ' + it.name +
+        ' | **' + label + '** | ' + (it.comment || '') + ' | ' + it.score + ' | ' +
         CATS[it.score] + ' | ' + (it.blocks ? 'yes' : '—') + ' | ' + it.who + ' | ' + it.asked +
         ' | ' + it.why + ' | ' + it.risk + ' | ' + it.touches + ' |')
     })
     var text = out.join('\n')
+
+    // The panel is the reliable path and the clipboard is the convenience. A sandboxed
+    // frame can refuse clipboard writes silently, so the text is always put on screen,
+    // selected and ready to copy, rather than trusting a permission we do not control.
+    var box = document.getElementById('handbacktext')
+    box.value = text
+    document.getElementById('handback').hidden = false
+    document.getElementById('hbnote').textContent = ''
+    box.focus()
+    box.select()
+
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(
-        function () { toast('Copied — paste it back to me.') },
-        function () { toast('Could not copy. Select the table and copy by hand.') }
+        function () { document.getElementById('hbnote').textContent = 'Already on your clipboard — just paste.' },
+        function () { document.getElementById('hbnote').textContent = 'Copy the box by hand (Ctrl+C).' }
       )
     } else {
-      toast('Clipboard unavailable here — select the table and copy by hand.')
+      document.getElementById('hbnote').textContent = 'Copy the box by hand (Ctrl+C).'
     }
+  })
+
+  document.getElementById('hbcopy').addEventListener('click', function () {
+    var box = document.getElementById('handbacktext')
+    box.focus(); box.select()
+    var done = false
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(box.value).then(function () {
+        document.getElementById('hbnote').textContent = 'Copied.'
+      }, function () {
+        document.getElementById('hbnote').textContent = 'Blocked here — press Ctrl+C.'
+      })
+      done = true
+    }
+    if (!done) { document.getElementById('hbnote').textContent = 'Press Ctrl+C.' }
+  })
+
+  document.getElementById('hbclose').addEventListener('click', function () {
+    document.getElementById('handback').hidden = true
   })
 
   document.getElementById('reset').addEventListener('click', function () {

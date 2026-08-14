@@ -10,24 +10,55 @@
 
 ## 1. The list — blockers first, then score
 
+🔴 **Ordered by Mike himself, 2026-08-15**, from
+[`../mockups/to-do-list-table.html`](../mockups/to-do-list-table.html). **This is his order, not a
+computed one** — where his call and the score disagree, his call wins and the score stays visible
+so the disagreement is on the page rather than hidden.
+
 | # | Item | Score | Blocks | Waiting on |
 | --- | --- | --- | --- | --- |
-| 1 | 🔒 **3.1** Provision MySQL | 5 | Nearly everything | Master team |
-| 2 | 🔒 **2.1** Send the master team the release number | 3 | The whole UAT round | **Mike** |
-| 3 | 🔒 **4.8** Finish the course-builder walk-through | 4 | Release confidence | Us |
-| 4 | 🔒 **3.3** Firm membership data | 3 | Two hubs showing real firms | Master team |
-| 5 | 🔒 **3.2** Middle-tier logins | 3 | Demonstrating two hubs | Master team |
-| 6 | 🔒 **4.12** One handover story for the master team | 3 | Handover | Us |
-| 7 | **4.13** Make a silent save failure loud | 5 | — | Us |
-| 8 | **2.6** `advisor_note` — one line from you | 4 | — | **Mike** |
-| 9 | **2.3** Seminar's seven lines | 4 | — | **Mike** |
-| 10 | **2.9** The education-gate wording | 4 | — | **Mike** |
-| 11 | **4.9** Make the coaching reference inherit | 3 | — | Us |
-| 12 | **4.4** Prove a Handbook edit survives a reload | 2 | — | **Mike** (one click) |
-| 13 | **4.7** Flip `engine-strict` back on | 2 | — | Us |
-| 14 | **3.5** Reply to Carl about `npm install` | 1 | — | Us |
+| 1 | 🔒 **2.1** Send the master team the release number | 3 | The whole UAT round | **Mike** |
+| 2 | 🔒 **4.12** One handover story for the master team | 3 | Handover | Us |
+| 3 | **4.13** Make a silent save failure loud | 5 | — | Us |
+| 4 | **2.6** `advisor_note` — one line from you | 4 | — | **Mike** |
+| 5 | **2.3** Seminar's seven lines | 4 | — | **Mike** |
+| 6 | **2.9** The education-gate wording | 4 | — | **Mike** |
+| 7 | **4.9** Make the coaching reference inherit | 3 | — | Us |
+| 8 | **4.4** Prove a Handbook edit survives a reload | 2 | — | **Mike** (one click) |
+| 9 | **4.7** Flip `engine-strict` back on | 2 | — | Us |
+| 10 | **3.5** Reply to Carl about `npm install` | 1 | — | Us |
 
-**Fourteen items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Ten live items. Four need Mike.** If this list passes about twenty, something is wrong.
+
+### Settled by Mike on 2026-08-15 — off the live list
+
+**The through-line in all four: the master app already provides this, and our side only had to
+offer the connection point.** Verified in the code the same day — `config/integration.js` is that
+point, and it is one file with no code change behind it.
+
+**3.1 · Provision MySQL — DONE.** Not ours and never was. `server/utils/db.js` is a singleton pool
+reading `config/integration.js` → `DB`; five values and it is live. Nothing to build.
+
+**4.8 · The course-builder walk-through — PARKED.** In Mike's words: *"So long as you have created
+the stubs or connection point — only the master coding team can complete this. If there's anything
+specific you need to know, in technical terms to enable you to make provision for this, draft me
+the email and I will provide you their response — else park it."* ✅ **Verified 2026-08-15: the
+connection points exist**, and the email is drafted at
+[`../MASTER-TEAM-INTEGRATION-EMAIL.md`](../MASTER-TEAM-INTEGRATION-EMAIL.md).
+
+**3.3 · Firm membership data — PARKED.** Mike: *"All of this will be provided by master coding
+team once they hook up to the master app. All of the IDs already exist — this ties in with the
+MySQL database task."* ⚠ **One technical detail is genuinely still open and is question 5 of the
+email:** a *manager's own* group arrives in their token and already works, but mapping *a firm* to
+its brand and country needs a source we do not have. Until it exists `parentScopeOf()` returns the
+platform scope — it falls back flat, it never guesses.
+
+**3.2 · The middle-tier logins — PARKED.** Mike: *"Already provided for by the master app — login
+and authentication and creation of accounts already exists in master app. You just need to create
+stubs or make provision for master coding team to hook up."* ✅ **The provision is already there
+and deliberately fails closed:** `globalManagerRole` and `groupManagerRole` are empty strings that
+match no role, so no token can resolve to a tier that does not exist yet. Two role values and two
+claim names, all four in the email.
 
 ---
 
@@ -128,28 +159,7 @@ early production beta stage."*
 
 ## 5. Waiting on somebody else — not ours to finish
 
-**3.1 · 🔒 Provision MySQL.** **SCORE 5 · data integrity**
-- **Why:** the credentials are still placeholders and **no row has ever been written anywhere.**
-- **Risk:** the single biggest hole in the project. Advisor progress, case studies, every
-  firm-editable setting, courses and the whole people layer run on development files or in memory.
-  Two real course sessions were completed in the running app and **both writes failed.**
-- **Asked by:** **Mike** and the master team both — nothing works without it.
-- **Touches:** every store in the app. See 4.13, which is the same wound seen from the inside.
-
-**3.3 · 🔒 The firm membership data.** **SCORE 3 · sells the package**
-- **Why:** the firms table has no country, group or parent column, so nothing in our data says
-  which firms are in which group.
-- **Risk:** the two middle hubs show **invented firms**. They cannot be demonstrated honestly.
-- **Asked by:** the master team must supply it. Merged with the old 3.4 — asking them for the two
-  role values *is* this item, not a separate one.
-- **Touches:** both middle-tier hubs, every roll-up above a firm.
-
-**3.2 · 🔒 The middle-tier logins.** **SCORE 3 · sells the package**
-- **Why:** no role value produces a global group manager or a group manager, and the mentor is
-  still borrowing the platform-admin role.
-- **Risk:** two hubs that exist cannot be shown to anyone by signing in as that person.
-- **Asked by:** the master team must supply the role values.
-- **Touches:** `firmAuth`, every tier-resolved route.
+*One item. The other three were settled by Mike on 2026-08-15 — see §1.*
 
 **3.5 · Reply to Carl about `npm install`.** **SCORE 1 · internal only**
 - **Why:** somebody outside is waiting on an answer.
@@ -160,16 +170,6 @@ early production beta stage."*
 ---
 
 ## 6. Ours to build
-
-**4.8 · 🔒 Finish the course-builder walk-through.** **SCORE 4 · the user is worse off**
-- **Why:** part done 2026-08-14 — the whole course document lifecycle was walked live, and a real
-  advisor session ran 14 turns to a genuine streamed recommendation. **Still not walked:**
-  interrupting a streaming reply with Start-fresh, refreshing to confirm a course survives, and
-  confirming the migration ran.
-- **Risk:** we hand UAT "key functionality in position" without having clicked the last of it. A
-  green suite does not prove the app boots — the route tests call handlers directly.
-- **Asked by:** **Mike's** §3 bar for the release.
-- **Touches:** the course builder, the advisor screen, the streaming path.
 
 **4.12 · 🔒 One handover story for the master team.** **SCORE 3 · sells the package**
 - **Why:** the merged app's own handover documents still describe a separate standalone
