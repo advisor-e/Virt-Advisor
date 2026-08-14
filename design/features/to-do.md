@@ -212,15 +212,33 @@ code. Pinned by `tests/unit/retiredPrimaryIssueSelector.test.js`.
 code said "this never runs".** Two items in a row have been mis-titled in a way that would have
 produced real work with no effect. **Measure before believing a title.**
 
-**4.5b · Decide whether the advisor needs a "none of these fit" escape.** New 2026-08-14.
-*(Waits on Mike.)* The deleted card carried a button — *"None of these fit — let me describe it
-differently"* — which cleared the detected area and asked the advisor to re-describe the problem
-in their own words. **It had not been reachable since June, so nothing was lost today**, but the
-capability is a good one and it is now gone rather than merely hidden.
+**4.5b · Can an advisor correct a wrong read? — ANSWERED, and a real defect fixed.**
+2026-08-14. ✅**traced in code, then measured by running the actual patterns.** **Yes, and it never
+needed the deleted button** — the correction is conversational. The engine always asks *"I'm
+reading this as a **X** situation — have I got that right, or is it really about a different
+area?"*, and the field is commented *"Conversational — NO drop-tab."*
 
-**The question is whether an advisor can currently correct a wrong read.** If yes, this closes as
-"already covered". If no, it wants a home somewhere reachable. **Do not rebuild the old card** —
-that is the screen we just established should not exist.
+**The defect found while answering it:** the switch required the reply to contain the **entire**
+label. Real phrasings were measured against the live code:
+
+| The advisor says | Switched? | Re-checked? |
+| --- | --- | --- |
+| "No, it's really about staff" | ✗ | ✗ |
+| "No — it's a staff problem" | ✗ | ✗ |
+| "Not quite, it's more about profit" | ✗ | ✗ |
+| "You've got it wrong" | ✗ | ✓ |
+| "it's really about staff, productivity and leadership" | ✓ | ✗ |
+
+**The only reply that worked was one nobody would type**, while an emphatic rejection was caught by
+the separate contradiction check. **The engine answered annoyance and ignored a calm, specific
+correction.**
+
+**Fixed** by `resolveDomainCorrection` in `server/advisorEngine.js`, which reads the reply the way
+the disambiguation step already reads a tie — the per-domain `disambiguationKeywords` authored for
+exactly this question. **Deliberately conservative, because a wrong switch is worse than no
+switch:** it moves only when exactly one *other* area is named and the current one is not, so
+*"yes, staff costs are squeezing their margins"* stays put as agreement-with-detail. Failing tests
+were written first; `tests/unit/domainCorrection.test.js` holds all eleven cases.
 
 **4.5c · Remove the orphaned `__none_of_these__` handler, or give it a caller.** New 2026-08-14.
 ✅**verified.** `server/advisorEngine.js:2193` still answers the `__none_of_these__` query by

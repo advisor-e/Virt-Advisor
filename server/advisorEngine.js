@@ -951,6 +951,45 @@ function buildIntakeMessages (phase, ctx, conversationHistory) {
   ]
 }
 
+/**
+ * Resolve the area an advisor is correcting the engine TO, from their own words.
+ *
+ * The confirmation step ("have I got that right, or is it really about a different
+ * area?") is the one lever that re-routes the whole recommendation, and until
+ * 2026-08-14 it only moved when the reply contained the entire label — so "no, it's
+ * really about staff" did nothing, while "you've got it wrong" reset the read via the
+ * separate contradiction check. The engine answered annoyance and ignored a calm,
+ * specific correction, which is the wrong way round.
+ *
+ * Deliberately conservative: a WRONG switch is worse than no switch, because it
+ * silently re-routes the advice while the advisor believes they were understood. So
+ * it moves only on an unambiguous signal — exactly one other area named, and the
+ * current area not named. "Yes, staff costs are squeezing their margins" names both
+ * and is therefore treated as agreement with detail, not as a correction.
+ *
+ * When this returns null the answer still reaches `problemSignals` through
+ * `causeText()`, and an emphatic rejection is still caught by `detectContradiction`.
+ *
+ * @param {string} answer            The advisor's reply to the confirmation question.
+ * @param {string} currentDomainId   The area the engine is currently reading.
+ * @returns {string|null}            The domain id to switch to, or null to hold.
+ */
+function resolveDomainCorrection (answer, currentDomainId) {
+  const lower = (answer || '').toLowerCase()
+  if (!lower.trim()) { return null }
+
+  // 1. The advisor named the area outright — highest confidence, unchanged behaviour.
+  const byLabel = DOMAINS.find(d => lower.includes(d.label.toLowerCase()))
+  if (byLabel) { return byLabel.id === currentDomainId ? null : byLabel.id }
+
+  // 2. Otherwise read it the way the disambiguation step already reads a tie — the
+  //    per-domain keywords authored for exactly this "which of these is it?" question.
+  const hits = DOMAIN_PATTERNS.filter(d => d.disambigPattern.test(lower))
+  if (hits.some(d => d.id === currentDomainId)) { return null } // agreeing, with detail
+  const others = hits.filter(d => d.id !== currentDomainId)
+  return others.length === 1 ? others[0].id : null // 0 = nothing named, 2+ = ambiguous
+}
+
 function buildCourseCorrectionMsg (state) {
   const domainEntry = DOMAINS.find(d => d.id === state.detectedDomain)
   const domainLabel = domainEntry ? domainEntry.label : 'this area'
@@ -1889,14 +1928,14 @@ async function handleQuery (rawBody, res, identity) {
           return 'I want to make sure I focus on the right area for this client — in a sentence, what would you say the core issue is really about?'
         },
         onAnswer: (answer, s) => {
-          // If the advisor names a different area, switch to it; otherwise the
+          // If the advisor points at a different area, switch to it; otherwise the
           // proposed domain stands. An explicit rejection ("that's not the issue /
           // wrong area") is caught by the contradiction check that runs right after
           // this, which re-opens the question — so no risky reset here.
-          const lower = (answer || '').toLowerCase()
-          const named = DOMAINS.find(d => lower.includes(d.label.toLowerCase()))
-          if (named) {
-            setDetectedDomain(named.id)
+          // See `resolveDomainCorrection` for why this is deliberately cautious.
+          const correctedTo = resolveDomainCorrection(answer, s.detectedDomain)
+          if (correctedTo) {
+            setDetectedDomain(correctedTo)
             s.disambiguationNeeded = false
             s.disambiguationScenarios = []
           }
@@ -3499,6 +3538,7 @@ async function handleQuery (rawBody, res, identity) {
 // Exposed for unit testing (the middleware function itself is the default export above).
 module.exports.buildDomainConfirmationMessage = buildDomainConfirmationMessage
 module.exports._isValidConfirmation = _isValidConfirmation
+module.exports.resolveDomainCorrection = resolveDomainCorrection
 module.exports.urgencyDirective = urgencyDirective
 module.exports.detectCrisis = detectCrisis
 module.exports.CRISIS_PHRASES = CRISIS_PHRASES
