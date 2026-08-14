@@ -362,23 +362,6 @@
           :disabled="!selectedDomainId"
         ) {{ $t('advisor.confirm') }}
 
-      //- Primary issue selector — shown after domain is confirmed
-      .primary-issue-card(v-if="showPrimaryIssueSelector")
-        p.primary-issue-title {{ $t('advisor.primaryIssue.title') }}
-        .primary-issue-list
-          label.primary-issue-opt(
-            v-for="opt in primaryIssueOptions"
-            :key="opt"
-            :class="{ 'primary-issue-selected': selectedPrimaryIssue === opt }"
-          )
-            input(type="radio" :value="opt" v-model="selectedPrimaryIssue")
-            span {{ opt }}
-        button.primary-issue-submit(
-          @click="submitPrimaryIssue"
-          :disabled="!selectedPrimaryIssue"
-        ) {{ $t('advisor.confirm') }}
-        button.primary-issue-none(@click="noneOfTheseApply") {{ $t('advisor.primaryIssue.none') }}
-
       //- Win-work switch offer — when the advisor has no client problem and wants to win advisory work
       .sell-switch-card(v-if="showSellSwitch")
         button.sell-switch-yes(@click="acceptSellSwitch") {{ $t('advisor.sellSwitch.yes') }}
@@ -867,20 +850,11 @@ _md.disable(['image', 'html_inline', 'html_block'])
  */
 const PANEL_MODES = ['course', 'progression']
 
-// Primary issues per domain — Workshop 1 output, authored by Mike Barnes 2026-06-02
-const PRIMARY_ISSUES = {
-  profit: ['Cost of sales has increased', 'Excessive discounting eroding margin', 'Sales Revenue — low volume, revenue is the constraint', 'Fixed overhead costs grown beyond what revenue can support', 'Asset utilisation below viability threshold'],
-  staff: ['Too few qualified staff', 'Inexperienced or insufficiently trained staff', 'No internal training structures', 'Poor management practices — weak communication, feedback and formal discipline', 'Roles and responsibilities poorly defined', 'Weak hiring practices'],
-  'data-systems': ['No enforceable data capture methods', 'Poor data integrity', 'Too much lag indicator data, not enough lead indicators', 'Narrow data spread'],
-  'sales-marketing': ['Sales Execution — no visible sales process or poor sales training', 'Marketing Foundation — poor outbound messaging, no target market, no marketing statements', 'Product Market Fit — poor product fit or market acceptance', 'Poor positioning or brand perception'],
-  forecasting: ['Poor financial literacy', 'Over-trading', 'Cost structure imbalance'],
-  governance: ['Poor boardroom dynamics or partner/owner disputes', 'Lack of financial controls', 'Poor decision quality', 'Weak communication of expectations with no documentation', 'Culture left to chance', 'Personality and skill diversity not actively pursued'],
-  strategy: ['Lack of clarity or belief that the current business model will remain competitive', 'Poor business metrics or undefined operational objectives', 'No defined objectives means no communicated direction'],
-  systems: ['Processes are either undefined or over-engineered', 'No regular structured review of practices', 'Siloed operations', 'Supply line disruptions or poor quality controls'],
-  valuation: ['Transaction Readiness'],
-  risk: ['Risk Framework — no systematic process to identify and mitigate risks'],
-  succession: ['Owner Purpose and Status — no defined life after work', 'Sibling or family inequality', 'No clear succession pathway']
-}
+// The Workshop 1 primary-issues list (authored by Mike Barnes 2026-06-02) used to be
+// duplicated here as a const. It lives in `data/primary-issues.json` — the canonical
+// copy named by design/virt-advisor-registry.md — and the selector that read it was
+// retired from intake 2026-06-10, so the duplicate was removed 2026-08-14. Nothing
+// reads the data file today; the primary issue is inferred by the engine.
 
 export default {
   name: 'VirtualAdvisor',
@@ -967,9 +941,6 @@ export default {
       showDomainSelector: false,
       selectedDomainId: null,
       suggestedDomainId: null,
-      showPrimaryIssueSelector: false,
-      selectedPrimaryIssue: null,
-      primaryIssueDomain: null,
       // Client-knowledge-base step (design 2026-07-14): "Who is this session
       // for?" shown before the intake begins in client mode. sessionClient is
       // the chosen register entry ({id, name}) or null when skipped — the id
@@ -1025,9 +996,6 @@ export default {
     traceBoostList () {
       const boosts = (this.lastTrace && this.lastTrace.distinctions && this.lastTrace.distinctions.boostsApplied) || {}
       return Object.keys(boosts).map(title => ({ title, boost: boosts[title] }))
-    },
-    primaryIssueOptions () {
-      return (this.primaryIssueDomain && PRIMARY_ISSUES[this.primaryIssueDomain]) || []
     },
     domainSelectorOptions () {
       return [
@@ -1339,9 +1307,6 @@ export default {
       this.showDomainSelector = false
       this.selectedDomainId = null
       this.suggestedDomainId = null
-      this.showPrimaryIssueSelector = false
-      this.selectedPrimaryIssue = null
-      this.primaryIssueDomain = null
       this.$nextTick(() => this.scrollToBottom())
     },
 
@@ -1585,9 +1550,6 @@ export default {
       this.showDomainSelector = false
       this.selectedDomainId = null
       this.suggestedDomainId = null
-      this.showPrimaryIssueSelector = false
-      this.selectedPrimaryIssue = null
-      this.primaryIssueDomain = null
       this.showClientStep = false
       this.sessionClient = null
       this.clientNameInput = ''
@@ -1649,18 +1611,6 @@ export default {
       this.sendMessage()
     },
 
-    submitPrimaryIssue () {
-      if (!this.selectedPrimaryIssue) { return }
-      this.inputText = this.selectedPrimaryIssue
-      this.showDomainSelector = false
-      this.selectedDomainId = null
-      this.suggestedDomainId = null
-      this.showPrimaryIssueSelector = false
-      this.selectedPrimaryIssue = null
-      this.primaryIssueDomain = null
-      this.sendMessage()
-    },
-
     submitDomainSelection () {
       if (!this.selectedDomainId) { return }
       const domain = this.domainSelectorOptions.find(d => d.id === this.selectedDomainId)
@@ -1670,17 +1620,6 @@ export default {
       this.selectedDomainId = null
       this.suggestedDomainId = null
       this.sendMessage(domainId)
-    },
-
-    noneOfTheseApply () {
-      this.showDomainSelector = false
-      this.selectedDomainId = null
-      this.suggestedDomainId = null
-      this.showPrimaryIssueSelector = false
-      this.selectedPrimaryIssue = null
-      this.primaryIssueDomain = null
-      this.inputText = this.$t('advisor.primaryIssue.noneMessage')
-      this.sendMessage('__none_of_these__')
     },
 
     // Hand off to Learn mode carrying the advisor's ACTUAL opening (their stated
@@ -1788,7 +1727,7 @@ export default {
 
     async sendMessage (serverQueryOverride = null) {
       const query = this.inputText.trim()
-      if (!query || this.isStreaming || this.showDomainSelector || this.showGrowthCurveSelector || this.showStaircaseSelector || this.showFinMgtThemeSelector || this.showSessionLengthSelector || this.showPrimaryIssueSelector) { return }
+      if (!query || this.isStreaming || this.showDomainSelector || this.showGrowthCurveSelector || this.showStaircaseSelector || this.showFinMgtThemeSelector || this.showSessionLengthSelector) { return }
 
       this.messages.push({ role: 'user', content: query })
       this.inputText = ''
@@ -1901,12 +1840,11 @@ export default {
                   content = content.replace(_dsMatch[0], '').trim()
                   this.showDomainSelector = true
                 }
-                const _piMatch = content.match(/\[PRIMARY_ISSUE_SELECTOR:([^\]]+)\]/)
-                if (_piMatch) {
-                  this.primaryIssueDomain = _piMatch[1]
-                  content = content.replace(_piMatch[0], '').trim()
-                  this.showPrimaryIssueSelector = true
-                }
+                // The primary-issue selector was retired from intake 2026-06-10 — the
+                // issue is inferred, and nothing emits this marker any more. The STRIP
+                // stays deliberately: if a model ever produces it, an advisor must never
+                // see "[PRIMARY_ISSUE_SELECTOR:profit]" in the reply.
+                content = content.replace(/\[PRIMARY_ISSUE_SELECTOR:[^\]]+\]/g, '').trim()
                 // Win-work switch: show the Yes/No buttons under the offer.
                 if (content.includes('[SELL_SWITCH_OFFER]')) {
                   content = content.replace('[SELL_SWITCH_OFFER]', '').trim()
@@ -1955,12 +1893,8 @@ export default {
               content = content.replace('[SESSION_LENGTH_SELECTOR]', '').trim()
               this.showSessionLengthSelector = true
             }
-            const _piMatchFb = content.match(/\[PRIMARY_ISSUE_SELECTOR:([^\]]+)\]/)
-            if (_piMatchFb) {
-              this.primaryIssueDomain = _piMatchFb[1]
-              content = content.replace(_piMatchFb[0], '').trim()
-              this.showPrimaryIssueSelector = true
-            }
+            // Strip only — see the note on the streaming path above.
+            content = content.replace(/\[PRIMARY_ISSUE_SELECTOR:[^\]]+\]/g, '').trim()
             this.messages.push({ role: 'assistant', content })
             this.streamingText = ''
           }
@@ -2879,19 +2813,6 @@ export default {
 .domain-selector-submit { padding: 9px 22px; background: #1d4ed8; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
 .domain-selector-submit:hover:not(:disabled) { background: #1e40af; }
 .domain-selector-submit:disabled { background: #9ca3af; cursor: not-allowed; }
-.primary-issue-card { margin: 8px 16px 4px; padding: 16px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; }
-.primary-issue-title { font-size: 14px; font-weight: 600; color: #14532d; margin: 0 0 12px; }
-.primary-issue-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-.primary-issue-opt { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border: 1px solid #86efac; border-radius: 8px; background: #fff; cursor: pointer; font-size: 13px; color: #111827; transition: background 0.15s; }
-.primary-issue-opt:hover { background: #dcfce7; border-color: #4ade80; }
-.primary-issue-opt input[type="radio"] { margin-top: 2px; accent-color: #16a34a; flex-shrink: 0; }
-.primary-issue-selected { background: #16a34a !important; color: #fff !important; border-color: #16a34a !important; }
-.primary-issue-selected span { color: #fff; }
-.primary-issue-submit { padding: 9px 22px; background: #16a34a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
-.primary-issue-submit:hover:not(:disabled) { background: #15803d; }
-.primary-issue-submit:disabled { background: #9ca3af; cursor: not-allowed; }
-.primary-issue-none { display: block; width: 100%; margin-top: 10px; padding: 8px; background: none; border: none; color: #6b7280; font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
-.primary-issue-none:hover { color: #374151; }
 
 /* Win-work switch offer buttons */
 .sell-switch-card { display: flex; gap: 10px; margin: 8px 16px 4px; padding: 14px 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; }

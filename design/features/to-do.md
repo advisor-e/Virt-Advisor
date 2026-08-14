@@ -191,18 +191,43 @@ read `advisor.save.confirm` and every other test would still pass.
 ⚠ **Not yet seen in a browser.** Proven by 5,256 passing tests and a key-resolution check, not by
 use. *(Waits on Mike — worth pairing with 4.4, which is the same kind of look.)*
 
-**4.5a · 🔴 Wire the primary-issues table to its data file, and delete the duplicate.** New
-2026-08-14. ✅**verified by comparison.** `PRIMARY_ISSUES` at `components/VirtualAdvisor.vue:871`
-holds 11 domains of business problems, and its comment says *"Workshop 1 output, authored by Mike
-Barnes 2026-06-02"*. **`data/primary-issues.json` holds the same content — identical today, no
-drift** — and **nothing in the codebase reads it.** The live copy is the hardcoded one; the data
-file is an orphan.
+**4.5a · The duplicate primary-issues list — DONE, by deletion rather than by wiring.**
+2026-08-14. ✅**verified.** The first plan was to wire the component to
+`data/primary-issues.json`. **Checking first showed that would have been busywork on code that
+cannot run**, and the honest fix was to remove it:
 
-**This is content, not wording, and it must NOT go into `locales/en.json`.** A locale file is not
-editable by a firm, so filing it there would quietly block §5.5, which wants exactly this table
-firm-editable. **Wire the component to `data/primary-issues.json`, delete the const, and prove the
-options are byte-identical before and after.** The recipe is the `single-source-wiring` skill.
-*(Waits on us. Nothing is broken today — the two copies match. They will not match forever.)*
+- The selector was **retired from intake 2026-06-10** — the engine infers the primary issue.
+- **Nothing emits `[PRIMARY_ISSUE_SELECTOR:…]`** — the string existed in exactly two places in the
+  repository, the component reading it and a design document. The screen was unreachable.
+- So **neither copy of the list was being used by the running app.**
+
+Removed: the card, its state, three methods, the styles and the duplicated const — about 100 lines
+out of a component §5.1 already flags as too large. **The marker strip was deliberately KEPT** on
+both reply paths: nothing emits it, but a model is not a compiler, and an advisor must never read
+`[PRIMARY_ISSUE_SELECTOR:profit]` in the middle of a reply. **`data/primary-issues.json` was
+kept** — authored Workshop 1 content, and deleting content is not the same act as deleting dead
+code. Pinned by `tests/unit/retiredPrimaryIssueSelector.test.js`.
+
+⚠ **The lesson is the one from 4.5 again, one step harder: the backlog said "de-duplicate", the
+code said "this never runs".** Two items in a row have been mis-titled in a way that would have
+produced real work with no effect. **Measure before believing a title.**
+
+**4.5b · Decide whether the advisor needs a "none of these fit" escape.** New 2026-08-14.
+*(Waits on Mike.)* The deleted card carried a button — *"None of these fit — let me describe it
+differently"* — which cleared the detected area and asked the advisor to re-describe the problem
+in their own words. **It had not been reachable since June, so nothing was lost today**, but the
+capability is a good one and it is now gone rather than merely hidden.
+
+**The question is whether an advisor can currently correct a wrong read.** If yes, this closes as
+"already covered". If no, it wants a home somewhere reachable. **Do not rebuild the old card** —
+that is the screen we just established should not exist.
+
+**4.5c · Remove the orphaned `__none_of_these__` handler, or give it a caller.** New 2026-08-14.
+✅**verified.** `server/advisorEngine.js:2193` still answers the `__none_of_these__` query by
+clearing the domain and asking the advisor to re-describe. **Its only caller was the button
+deleted in 4.5a, so it is now provably unreachable.** Left in place deliberately rather than
+bundling a backend change into a frontend deletion. **It is settled by 4.5b:** if Mike wants the
+escape, this handler is what the new route calls; if not, delete it. *(Waits on 4.5b.)*
 
 **4.6 · Sweep the domains for authored commentary — READ COMPLETE, 29 of 29.** ✅**measured
 2026-08-14** — the blast-radius question is answered. **The facts are clean:** all 140

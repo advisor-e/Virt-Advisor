@@ -36,11 +36,6 @@
     "finMgt": { "title": "Where is your client starting from? Select the theme that best reflects their current relationship with financial management." },
     "sessionLength": { "title": "How long can you allow per meeting?" },
     "domainSelector": { "title": "Which area best describes the primary focus for this client?" },
-    "primaryIssue": {
-      "title": "Which of these best captures the core problem for this client?",
-      "none": "None of these fit — let me describe it differently",
-      "noneMessage": "None of these fit my situation"
-    },
     "sellSwitch": {
       "yes": "Yes, help me sell",
       "no": "No, stay on this",
