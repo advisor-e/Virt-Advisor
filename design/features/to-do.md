@@ -70,7 +70,9 @@ warning about it and nothing owned it.
 **2.1 · Send the master team the release number.** ✅**verified** — `v0.8.0` is tagged and pushed,
 and nobody outside has been told. They cannot pull what they do not know exists; v0.6.0 was never
 pulled at all. Three lines: pull the **tag** `v0.8.0`, **no `npm install` this time**, read the
-notes first.
+notes first. **As of 2026-08-14 there is now a page to point them at** —
+[`../UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md), linked from the README, covering the runtime, the
+environment, the schema rows, the screen addresses and how to prove the app really started.
 
 **2.2 · The four missing hub tabs.** ✅**verified against `TAB_TIERS`** — the approved mockup says
 the Mentor hub should gain *Team Progress* and *Team Case Studies*, and the Firm hub *Case
@@ -262,10 +264,26 @@ over-declare their Node requirement and need pinning down first, then one instal
 ⚠ **Reinstall is overnight-only on this machine**, and there is a documented safe procedure —
 follow it exactly rather than running a plain `npm install`.
 
-**4.8 · The course builder live click-through.** Never done. Build a course end to end, complete
-a session and quiz, interrupt a streaming reply with Start-fresh, refresh and confirm the course
-survives, reload and confirm the migration ran. **Three tracked items close only on that
-session** — until then the feature is proven by tests and not by use.
+**4.8 · The course builder live click-through — PART DONE 2026-08-14.** ✅**walked live against
+the running app.** The whole course document lifecycle works: create → list → update progress →
+re-read → delete, through the real HTTP path with the progress edit surviving a re-read. Mike
+confirms building a course and setting the quiz works well in the screen itself. **A real advisor
+session was also walked end to end** — 14 turns through the intake pipeline to a genuine streamed
+AI recommendation (444 chunks, 2,579 characters), and the live OpenAI call answers in ~1.1s with
+the CA bundle correctly configured. ⚠ **Storage caveat: it saved to `data/dev-courses.json`, not
+MySQL** — see 3.1, and 4.13 below. **Still not walked:** interrupting a streaming reply with
+Start-fresh, refreshing to confirm the course survives, and confirming the migration ran. *(Waits
+on us — a short session.)*
+
+**4.13 · Make a write that cannot REACH MySQL as loud as one MySQL refuses.** New 2026-08-14.
+✅**verified — the course saved this afternoon went to a local file and reported success, exactly
+like a real save.** v0.8.0 fixed half of this: `server/utils/dbFailure.js` tells a *refusal* (which
+carries a `sqlState`) from a connection failure (which does not), so a rejected write no longer
+lands in a scratch file. **The other half is open** — when nothing answers at all, the dev fallback
+still writes `data/dev-*.json` and the screen still says saved. The load pack tells UAT to run with
+`NODE_ENV=production`, which closes it, **but a documented workaround is not a fix**: it depends on
+whoever deploys reading section 5, and choosing production mode also forbids the dev tokens the two
+middle-tier hubs currently need. *(Waits on us.)*
 
 **4.9 · Make the coaching reference inherit.** ✅**verified as a real gap** — its fifteen rows
 already carry stable ids; it simply never joined the inheritance mechanism, and its firm side is

@@ -46,6 +46,35 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**The master team can now be handed a release with instructions.** ✅ Closed 2026-08-14, commit
+`206476a`. Four things that would each have cost them an afternoon, none of them ever on this list
+because nothing was looking at *loading* the app rather than building it:
+
+- **`HOST` and `PORT` were silently ignored.** `nuxt.config.js` set both explicitly, and Nuxt merges
+  that file over the defaults its own `HOST`/`PORT` lookup produces — so a server setting
+  `HOST=0.0.0.0` saw no change at all, which reads as a broken build rather than a setting that
+  never applied. Both now read the variables and keep the loopback default when unset. **Proven
+  live the same afternoon, by accident:** a script of mine hit `ECONNREFUSED 127.0.0.1:3000`
+  against a server answering perfectly on `::1`.
+- **`package.json` said `0.6.0`** through the whole of v0.7.0 and v0.8.0. Corrected, and held by
+  `tests/unit/releaseVersion.test.js`, which compares it to the newest `RELEASE-NOTES-v*.md` file.
+  Fixing the number alone would have expired at v0.9.0 — nothing reads that field, which is exactly
+  why it drifts.
+- **There was no `.env.example`.** The variables were spread across three documents and
+  `OPENAI_API_KEY` — the one that stops the app dead — was in none of the tables. Now one file,
+  grouped by whether UAT needs it, names only.
+- **There was no load pack.** [`../UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md), linked from the README:
+  pull the tag, the runtime, the environment, the schema **including the reserved `firms` rows**,
+  the screen addresses (nothing in the app links to them), and how to prove the app really started.
+
+**A rule Mike never made, removed from the four places still asserting it.** ✅ Closed 2026-08-14,
+commit `7aee852`. *"The dev server belongs to Mike — never start or restart it"* was invented by an
+AI session on 2026-07-21 after a bad afternoon, written into `WORKING-AGREEMENT.md`, and quoted back
+at him as his own instruction. He struck it out on 2026-08-03; it survived in the report skill, the
+progress handover and three places in `ACTIONS.md`, **and was quoted at him again on 2026-08-14**.
+All four corrected, each keeping the original wording quoted so the trail survives. The July session
+notes keep their copies deliberately — they are the record of what was believed at the time.
+
 **The advisor screen's words can be changed without a developer.** ✅ Closed 2026-08-14 (was
 §4.5), commit `bf9c7fe`. 87 interface strings moved out of `VirtualAdvisor.vue` into
 `locales/en.json` under `advisor.*` — buttons, prompts, placeholders, the 14 domain-dropdown

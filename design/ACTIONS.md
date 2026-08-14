@@ -36,6 +36,38 @@
 
 ---
 
+- <a id="session-55-closures"></a>✅ **CLOSED 2026-08-14 (session 55, laptop) — the UAT load pack,
+  pushed on `feat/advisor-progress` (`206476a`, `7aee852`).** Full write-ups on
+  [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2. **The question asked
+  was "what stops the master team loading this into UAT", and nothing on the to-do list was the
+  answer** — the list is about building the app, and every blocker found was about *loading* it.
+  - **`HOST`/`PORT` were silently ignored** — `nuxt.config.js` is merged OVER the defaults Nuxt's
+    own `HOST`/`PORT` lookup produces (`@nuxt/config`, `defaultsDeep(options, nuxtConfig)`), so
+    setting the variable did nothing. Both now read the env first and keep the loopback default when
+    unset. Proven live the same afternoon: a script hit `ECONNREFUSED 127.0.0.1:3000` against a
+    server answering fine on `::1`.
+  - **`package.json` read `0.6.0`** through v0.7.0 and v0.8.0. Corrected + guarded by
+    `tests/unit/releaseVersion.test.js` against the newest `RELEASE-NOTES-v*.md`.
+  - **`.env.example` and [`UAT-LOAD-PACK.md`](UAT-LOAD-PACK.md) created**, the pack linked from the
+    README. The pack states two things previously left to be discovered: `NODE_ENV=production` and
+    `ALLOW_DEV_AUTH=true` cannot both be set (the server exits — `productionGuard.js`), so UAT
+    chooses between honest storage and being able to open the two middle-tier hubs at all; and **a
+    green test suite does not prove the app boots**, because the route tests call handlers directly
+    and never start the server (`STACK-RECONCILIATION-PLAN.md` §3) — yet every release note we have
+    written leads with a test count.
+  - **A rule Mike never made was withdrawn from four places** — see the withdrawal notes at the
+    dev-server items below, and `WORKING-AGREEMENT.md` → *The running application*.
+  - ⚠ **NEW, NOT FIXED — `features/to-do.md` §4.13.** The dev fallback still writes a local JSON
+    file and reports success when MySQL cannot be *reached* at all; v0.8.0 only closed the case
+    where a live server *refuses*. Today's live course save landed in `data/dev-courses.json` and
+    was indistinguishable from a real one.
+  - ✅ **PROVEN LIVE (not by tests), on the running app:** `/api/health` 200 · `/advisor` and all
+    four hub addresses 200 · the course document lifecycle create→update→re-read→delete · a real
+    OpenAI call answering in ~1.1s (`gpt-4o-mini-2024-07-18`, CA bundle correct) · **a full advisor
+    session, 14 turns of intake to a genuine streamed AI recommendation.** The reply contained a
+    mid-response ``` fence — the exact case `preprocessAIResponse()` rule 3 exists to strip, still
+    earning its place.
+
 - <a id="session-54-closures"></a>✅ **CLOSED 2026-08-14 (session 54, laptop) — four items, all
   pushed on `feat/advisor-progress`.** Full write-ups on
   [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md); rules on the Briefs.
