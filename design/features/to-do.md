@@ -15,10 +15,17 @@
 computed one** — where his call and the score disagree, his call wins and the score stays visible
 so the disagreement is on the page rather than hidden.
 
-🔴 **The items are now data.** [`to-do-items.json`](to-do-items.json) is the source, and
-[`../../tests/unit/toDoItems.test.js`](../../tests/unit/toDoItems.test.js) fails the build if any
-item is missing one of its five fields, or if this table and the data disagree. **Edit the JSON,
-not this table.** *(§2's "not yet enforced" is now enforced.)*
+🔴 **The table below is generated. Do not edit it — your edit will be overwritten.**
+[`to-do-items.json`](to-do-items.json) is the source; `npm run to-do` rewrites the block between the
+markers from it, and [`../../tests/unit/applyToDo.test.js`](../../tests/unit/applyToDo.test.js)
+fails the build if the page and the data have drifted apart. It is no longer a second copy kept in
+step by hand. *(§2's "not yet enforced" is now enforced.)*
+
+🔴 **A list saved from the Handbook comes back with `npm run to-do -- <file>`** — Mike's order, his
+scores, his calls and his comments, validated against §2's five fields before anything is written.
+**An item he settles does not silently vanish:** the command applies *nothing at all* until that
+item's closure is written on [`to-do-done-and-parked.md`](to-do-done-and-parked.md), and prints the
+block that needs writing. An item gone from both pages is an item nobody knows existed.
 
 🔴 **In the Handbook this table is a control, not a table.** The generator replaces it with the
 ranking screen from [`../mockups/to-do-list-table.html`](../mockups/to-do-list-table.html) — score
@@ -26,19 +33,21 @@ it, mark **Proceed / Done / Park / Delete**, comment on any row, and **Save the 
 `to-do-items.json` to Downloads for a session to apply. The table below is what a reader of the
 repository sees; the two never both appear, and the build stops if they would.
 
+<!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on |
 | --- | --- | --- | --- | --- |
 | 1 | **4.14** Put the ranking control into the Handbook | 1 | — | Us |
 | 2 | 🔒 **2.1** Send the master team the release number | 3 | The whole UAT round | **Mike** |
 | 3 | 🔒 **4.12** One handover story for the master team | 3 | Handover | Us |
-| 4 | **2.6** `advisor_note` — one line from you | 4 | — | **Mike** |
-| 5 | **2.3** Seminar's seven lines | 4 | — | **Mike** |
+| 4 | **2.6** advisor_note — one line from you | 4 | — | **Mike** |
+| 5 | **2.3** Seminar's seven lines — reword toward Public Speaking | 4 | — | **Mike** |
 | 6 | **2.9** The education-gate wording | 4 | — | **Mike** |
 | 7 | **4.9** Make the coaching reference inherit | 3 | — | Us |
-| 8 | **4.7** Flip `engine-strict` back on | 2 | — | Us |
-| 9 | **3.5** Reply to Carl about `npm install` | 1 | — | Us |
+| 8 | **4.7** Flip engine-strict back on | 2 | — | Us |
+| 9 | **3.5** Reply to Carl about npm install | 1 | — | Us |
 
 **Nine live items. Four need Mike.** If this list passes about twenty, something is wrong.
+<!-- END GENERATED -->
 
 ✅ **4.4 came off this list on 2026-08-15 — closed by Mike, from the control itself.** He marked it
 Done on screen and pressed Save; the file reached Downloads with his call and comment on it. It is
@@ -213,7 +222,7 @@ early production beta stage."*
 | --- | --- | --- |
 | **1** | The items become data, with a guard test on the five fields | ✅ **Done 2026-08-15** — [`to-do-items.json`](to-do-items.json) + [`toDoItems.test.js`](../../tests/unit/toDoItems.test.js) |
 | **2** | The Handbook's To-Do page renders the ranking control instead of prose | ✅ **Done 2026-08-15** — [`../../scripts/handbook-shell.html`](../../scripts/handbook-shell.html) |
-| **3** | The Save file comes back into the data; this table is generated from it | ☐ |
+| **3** | The Save file comes back into the data; this table is generated from it | ✅ **Done 2026-08-15** — [`../../scripts/apply-to-do.js`](../../scripts/apply-to-do.js) + [`applyToDo.test.js`](../../tests/unit/applyToDo.test.js) |
 
 **The approved artefact is [`../mockups/to-do-list-table.html`](../mockups/to-do-list-table.html)** —
 Mike used it to set the current order, so it is approved by use. Phase 2 was measured against it, and

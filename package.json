@@ -16,6 +16,7 @@
     "check:branch": "node scripts/check-branch-state.js --report",
     "routing": "node scripts/generate-content-routing.js",
     "handbook": "node scripts/build-handbook.js",
+    "to-do": "node scripts/apply-to-do.js",
     "feature": "node scripts/new-feature.js",
     "lint": "eslint --ext .js,.vue .",
     "lint:fix": "eslint --ext .js,.vue . --fix",

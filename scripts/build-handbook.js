@@ -182,8 +182,20 @@ function relink (html) {
     .replace(/href="\.\.\/([^"]*)"/g, 'href="#" data-file="$1" class="filelink"')
 }
 
+/**
+ * Removes a generator's own BEGIN/END markers from the markdown.
+ *
+ * markdown-it runs with `html: false`, so an HTML comment does not disappear —
+ * it is escaped and shown to the reader as literal `<!-- BEGIN ... -->`. The
+ * markers exist for scripts/apply-to-do.js and mean nothing to anybody reading
+ * the page.
+ */
+function stripMarkers (markdown) {
+  return markdown.replace(/^[ \t]*<!--\s*(?:BEGIN|END) GENERATED[^\n]*-->[ \t]*\r?\n?/gm, '')
+}
+
 function renderMarkdown (markdown) {
-  return relink(md.render(body(markdown)))
+  return relink(md.render(stripMarkers(body(markdown))))
 }
 
 // ── The ranking control ────────────────────────────────────────────────────
@@ -397,6 +409,7 @@ module.exports = {
   companionOf,
   relink,
   body,
+  stripMarkers,
   substitute,
   mountQueue,
   PLACEHOLDERS

@@ -1,7 +1,17 @@
 {
   "_readme": [
-    "THE LIVE TO-DO LIST, AS DATA. This file is the source; to-do.md's table and the",
-    "Handbook's ranking control both read it. Edit here, not in two places.",
+    "THE LIVE TO-DO LIST, AS DATA. This file is the source. to-do.md's ranked table is",
+    "GENERATED from it by `npm run to-do`, and the Handbook's ranking control reads it.",
+    "Edit here — an edit to that table is overwritten.",
+    "",
+    "A list saved from the control comes back with `npm run to-do -- <file>`. It is",
+    "validated against the five fields first, and an item Mike settles is NOT removed",
+    "until its closure is written on to-do-done-and-parked.md — the command applies",
+    "nothing at all until then. An item gone from both pages is an item nobody knows",
+    "existed.",
+    "",
+    "FORMATTING IS THE SCRIPT'S. Applying a saved list rewrites this file with two-space",
+    "JSON, so do not hand-tune the layout; it will not survive.",
     "",
     "Every item must carry all five fields the list's own rules demand — score, why,",
     "risk, askedBy, touches — and tests/unit/toDoItems.test.js fails the build if one",
@@ -22,10 +32,8 @@
     "it is a defect to hide it. An item that cannot name Mike or a named outsider has",
     "to justify itself."
   ],
-
   "orderedByMikeOn": "2026-08-15",
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it.",
-
   "items": [
     {
       "ref": "4.14",
@@ -45,9 +53,21 @@
       "touches": "This file, scripts/build-handbook.js, scripts/handbook-shell.html, to-do.md's table, tests/unit/buildHandbook.test.js.",
       "note": "SCORE 1 AND RANKED FIRST — the disagreement is deliberate and stays visible. No customer will ever see the Handbook, so by the table it is internal. Mike asked for it and ranked it now; his call beats the score, and the score stays on the page rather than being quietly inflated to justify the position.",
       "phases": [
-        { "n": 1, "what": "The ten items become data, with a guard test on the five fields.", "done": true },
-        { "n": 2, "what": "The Handbook's To-Do page renders the ranking control instead of prose.", "done": true },
-        { "n": 3, "what": "The Save file comes back into this data, and to-do.md's table is generated from it.", "done": false }
+        {
+          "n": 1,
+          "what": "The ten items become data, with a guard test on the five fields.",
+          "done": true
+        },
+        {
+          "n": 2,
+          "what": "The Handbook's To-Do page renders the ranking control instead of prose.",
+          "done": true
+        },
+        {
+          "n": 3,
+          "what": "The Save file comes back into this data, and to-do.md's table is generated from it.",
+          "done": true
+        }
       ]
     },
     {
@@ -60,7 +80,11 @@
       "waitingOn": "Mike",
       "why": "v0.8.0 is tagged and pushed and nobody outside has been told it exists. They cannot pull what they do not know about; v0.6.0 was never pulled at all.",
       "risk": "The release round does not start. Every piece of feedback we need is deferred by however long this sits.",
-      "askedBy": { "who": "Mike", "ours": false, "detail": "§3 ruling of 2026-08-14" },
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "§3 ruling of 2026-08-14"
+      },
       "touches": "Everything already built. Three lines: pull the tag v0.8.0, no npm install this time, read design/UAT-LOAD-PACK.md first.",
       "note": "The integration email that goes with it is already drafted at design/MASTER-TEAM-INTEGRATION-EMAIL.md — five questions. Do not re-derive it."
     },
@@ -110,7 +134,11 @@
       "waitingOn": "Mike",
       "why": "The gate correctly refuses to name a tool nobody can open, so seven lines of coaching never reach an adviser.",
       "risk": "A table of coaching advisers simply are not receiving. This is not tidying.",
-      "askedBy": { "who": "Mike", "ours": false, "detail": "His to reword, carried since session 48" },
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "His to reword, carried since session 48"
+      },
       "touches": "Mentor Hub → Logic Tables → Get Seminar.",
       "note": null
     },
@@ -124,7 +152,11 @@
       "waitingOn": "Mike",
       "why": "The behaviour is already ruled — on low client literacy the adviser is asked whether to apply education-first or see what is technically needed, reasoning shown either way. Only the on-screen words are missing.",
       "risk": "It stays uncoded. Advisers keep getting advice pitched over a client's head.",
-      "askedBy": { "who": "Mike", "ours": false, "detail": "His own design, 2026-07-16" },
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "His own design, 2026-07-16"
+      },
       "touches": "The Advisory Staircase, the pre-recommendation prompt.",
       "note": null
     },
@@ -156,7 +188,11 @@
       "waitingOn": "Us",
       "why": "Still false. Two transitive packages (consola, node-releases) over-declare their Node requirement and need pinning down first.",
       "risk": "The Node 14.15 lock is not actually enforced at install time, so a future install can drift off the Stack Constitution silently.",
-      "askedBy": { "who": "the Stack Constitution", "ours": false, "detail": "The coding team's locked spec" },
+      "askedBy": {
+        "who": "the Stack Constitution",
+        "ours": false,
+        "detail": "The coding team's locked spec"
+      },
       "touches": ".npmrc, package.json overrides.",
       "note": "Reinstall is overnight-only on this machine and there is a documented safe procedure — follow it rather than a plain npm install."
     },
@@ -170,7 +206,11 @@
       "waitingOn": "Us",
       "why": "Somebody outside is waiting on an answer.",
       "risk": "Small, but it is a person waiting. One message.",
-      "askedBy": { "who": "Carl", "ours": false, "detail": "Outside the project" },
+      "askedBy": {
+        "who": "Carl",
+        "ours": false,
+        "detail": "Outside the project"
+      },
       "touches": "Nothing in the app.",
       "note": null
     }
