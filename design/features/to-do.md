@@ -129,7 +129,7 @@ through the wording layer. It is logged as critical, not accepted. Its real cost
 own the words cannot change them without a developer, and a second language stops being a data
 problem.
 
-**4.6 · Sweep the remaining 28 domains for authored commentary.** ✅**part-measured 2026-08-14** —
+**4.6 · Sweep the domains for authored commentary — 19 of 29 read.** ✅**part-measured 2026-08-14** —
 the blast-radius question is no longer unanswered. **The facts are clean:** all 140 marker-carrying
 claims in the data — every acronym expansion, counted list, quotation and named authority — were
 verified present in the firm's own documents. **What was found instead** is a layer of short
@@ -144,15 +144,44 @@ the Domain Support screen. Approved from
 the rule it now follows is [`domain-support-provenance.md`](domain-support-provenance.md) §4.1. Read
 that before marking anything, and record the marks as it says.
 
-**(b) The sweep is NOT started** — 28 domains, estimated 150–200 clauses on the observed rate.
-⚠ **That estimate rests on one domain of twenty-nine — do not quote it as a count.** The sweep
-**cannot be automated**: three detectors were built and all three were defeated by paraphrase, which
-is proven rather than assumed. Order by weight — Seminar, EOY, Sales & Marketing after Strategy —
-and run `npx jest tests/unit/authoredCommentary.test.js` after each domain, so a mistyped fragment is
-caught while you still have that domain open. *(Waits on us.)*
+**(b) The read is HALF DONE — 19 of 29 domains, 104 of 194 materials, 2026-08-14.** Full record,
+including the method and the list of what was cleared:
+[`../DOMAIN-SUPPORT-SWEEP-PROGRESS.md`](../DOMAIN-SUPPORT-SWEEP-PROGRESS.md). **Read the remaining
+ten domains** — people-power (26), fm-coach-culture (20), org-board-pack (11), get-marketing (7),
+org-firm-strategy (6), raising-capital (6), succession (4), systems (4), org-capacity-planner (3),
+org-leadership (3). *(Waits on us.)*
+
+**Mike ruled 2026-08-14: read all 29 first, write the marks as one batch afterwards** — this is
+beta-stage detail and must not hold up getting a release to the master coding team. So do **not**
+write marks domain by domain.
+
+**The yield so far is 1 confirmed clause and 7 candidates, not the 150–200 once estimated — that
+figure is withdrawn.** The habit tracks the shape of the *source document*: where the source gives
+terse steps someone expanded them and added the tails, and where the source is already full prose
+the transcription is near-verbatim.
 
 ⚠ **One thing the mechanism does not do: find them.** It is the container. Finding a clause is still
-a person reading a domain beside its own source PDF.
+a person reading a domain beside its own source PDF. Three detectors were built and all three were
+defeated by paraphrase, and a fourth measurement confirms it: the nine known marks score 25–75%
+against the corpus and **61 non-marks fall in the same band**.
+
+**4.6a · Check whether a source document exists for 20 domain-support rows.** New 2026-08-14.
+Measured, not investigated: **20 rows match no document in the 115 at all** (under 6% word overlap
+with any of them), concentrated in `people-power` (8), `fm-coach-culture` (4) and `org-board-pack`
+(3) — the three biggest domains still unread. Two were already known from
+[`../DOMAIN-SUPPORT-REVIEW-CHECKLIST.md`](../DOMAIN-SUPPORT-REVIEW-CHECKLIST.md). **Open each of the
+20, find its source or establish there isn't one, and record which.** This is a *different question*
+from the commentary sweep and must not be answered with a commentary mark — a row with no source is
+a bigger problem than a row with an added clause. The five `sales-marketing` rows in that count are
+index rows carrying no steps at all, which is the known deliberate gap, not a defect. *(Waits on us.)*
+
+**4.6b · Two undeclared edits to the firm's own material — do they stand?** New 2026-08-14. Neither
+is authored commentary, so neither belongs in `authored_commentary`; both are changes to the firm's
+words with nothing recording that we made them. **(1)** `get-seminar-blank-platform-template` step 5
+renumbers the source's *"Stage 2 (Call to Action & Close)"* to *"Stage 4"* — the source itself runs
+1, 1, 2, 3, 2, so it is almost certainly a correction of their typo. **(2)** `forecasting-cash-tactics`
+step 4 softens the source's *"If they refuse, **fire them as a client**"* to *"stop acting for them."*
+**Ask Mike whether each stands, then record the answer beside the row.** *(Waits on Mike.)*
 
 **4.7 · Flip `engine-strict` back on.** ✅**verified** — still `false`. Two transitive packages
 over-declare their Node requirement and need pinning down first, then one install to verify.

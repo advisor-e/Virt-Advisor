@@ -69,14 +69,28 @@ process ran — and the same process ran everywhere.
 clarifies what the 8 Profit Levers are for. The instinct to keep such a clause is right; the
 instinct to leave it unattributed is what this page exists to correct.
 
-**The estimate for the rest of the app is an extrapolation, not a measurement.** One domain of
-twenty-nine has been swept. On the observed rate the app-wide figure is of the order of 150–200
-clauses. That number must not harden into a fact through repetition — it has one domain behind it.
+**The 150–200 estimate is WITHDRAWN, not merely unproven.** It was an extrapolation from the one
+domain then swept. Eighteen further domains have since been read — 104 of 194 materials — and they
+produced **one confirmed clause and seven candidates**, against roughly eighty predicted pro-rata.
+Do not quote the old figure.
+
+**The habit tracks the shape of the SOURCE DOCUMENT, not the transcriber.** This is why Strategy
+was so misleading a sample. Its source gives terse steps with sub-bullets, so four source steps
+became nine of ours — and expanding a terse step is exactly where a "why it matters" tail gets
+welded on. Most other domains are transcribed from documents whose steps are **already full prose**
+(`Get the Job Content.supt`, `EOY Support`, `Sales & Marketing Support`). There was nothing to
+expand, so the transcription is near-verbatim and adds nothing. **Predict the yield of an unread
+domain from its source document, not from the app-wide average.**
 
 **A mechanical sweep cannot find these.** This was tested, not assumed. A word-proximity detector
 scores known-good transcriptions between 31% and 70% because the material is paraphrased into the
 firm's voice by design — so paraphrase and invention are indistinguishable to it. The only method
 that works is reading a domain's rows beside its source document.
+
+**A fourth confirmation, now measured rather than argued.** Scoring every clause against every
+sentence in all 115 documents, the **nine known marks score between 25% and 75%** — and **61
+clauses that are NOT marks fall inside that same band**. No threshold separates them. A score is
+only ever a pointer to what to read next.
 
 **What a marker-based sweep *can* do is check the facts.** All 140 marker-carrying claims in the
 data — every acronym expansion, counted list, quotation and named authority — were verified present
@@ -91,10 +105,17 @@ in the firm's own documents. That half of the problem is measured and clean.
 | Piece | State |
 |---|---|
 | The ruling | Given 2026-08-14 — *mark them* |
-| Strategy domain | **Swept.** 9 rows against `Domain Support/Strategic Planning Support.pdf`; 9 clauses found |
-| The other 28 domains | **Not swept.** Estimated 150–200 clauses on the observed rate |
+| Strategy domain | **Swept, all 13 rows.** The original 9 (against `Strategic Planning Support.pdf`) yielded the 9 marks; its other 4 rows come from four *different* documents, were never in that sweep, and are clean |
+| 18 further domains | **Read 2026-08-14, 104 of 194 materials** — 1 confirmed clause, 7 candidates. Full record: [`../DOMAIN-SUPPORT-SWEEP-PROGRESS.md`](../DOMAIN-SUPPORT-SWEEP-PROGRESS.md) |
+| The remaining 10 domains | **Not read.** people-power · fm-coach-culture · org-board-pack · get-marketing · org-firm-strategy · raising-capital · succession · systems · org-capacity-planner · org-leadership |
 | The marking mechanism | **Built 2026-08-14** to the approved artefact [`../mockups/domain-support-authored-commentary.html`](../mockups/domain-support-authored-commentary.html) — see §4.1 below |
 | Fact-level claims | **Swept and clean** — 140 of 140 verified against the firm's documents |
+
+**P7 · A mark goes in `steps`, never in `summary` or `who_when`.** All nine originals are in
+steps. The other two fields are our own descriptive rewriting of each source's "Benefits" block in
+*every* domain — so if they were in scope, every row in the app would carry a mark, which is not
+what was ruled. `tests/unit/authoredCommentary.test.js` permits all three fields deliberately, to
+keep an existing mark checkable if this ever widens; the permission is not an invitation.
 
 ### 4.1 · The mechanism, as built
 
@@ -196,7 +217,21 @@ beside its own source document and list what is not there. Search the whole corp
 a clause ours — several turned out to be genuine material that had simply moved between documents,
 which is a different finding and not a fault.
 
-**Order by content weight.** After Strategy the largest are Seminar, EOY, and Sales & Marketing.
+**Order by content weight.** After Strategy the largest are Seminar, EOY, and Sales & Marketing —
+all now read. Of what remains, people-power (26) and fm-coach-culture (20) are the largest.
+
+**Build the corpus first — it makes `searched` reproducible.** `pdftotext -layout` over all 115
+PDFs in the repo (`Domain Support/`, `Logic Tables/`, `Central Frameworks/`, `Course Builder Quiz/`)
+converts cleanly, none image-only. **Those 115 files ARE the "115 firm documents"** named in every
+mark's `searched` field, so the phrase is a checkable claim rather than a form of words.
+
+**Find each material's source without trusting a filename.** Every firm document shares one shape —
+title, `Benefits`, a step header (about fourteen wordings of it), then numbered steps. **A section
+starts at the non-empty line above each `Benefits` line.** Sectioning that way and matching on word
+overlap identifies the true source of every material, and re-derives the known Strategy mapping
+exactly. Several documents (Risk, Valuation, Stock Purchasing, Due Diligence, Sales & Marketing)
+have **no `Benefits` blocks at all** and must be read whole — do not let a bad section match stand
+in for a source.
 
 **Recording what you find.** Add an `authored_commentary` entry beside that material's `steps`
 (shape in §4.1). Copy the clause **exactly** — the guard test fails on a fragment that is not in the
@@ -207,7 +242,13 @@ fragment is caught in the domain you are holding rather than a week later.
 
 ### Traps
 
-1. **Do not report the 150–200 estimate as a count.** It rests on one domain.
+1. **Do not report the 150–200 estimate at all — it is withdrawn.** Eighteen further domains
+   failed to reproduce it. See §3.
+1a. **`grep -E "a\|b"` treats `\|` as a LITERAL pipe, not alternation.** Two "this phrase appears
+   nowhere in the 115 documents" results were produced this way on 2026-08-14 and **both were
+   wrong** — *"3-ton loads"* and a clause about guilt are the firm's own words. Under `-E` use `|`,
+   never `\|`, and **re-run any zero-match result before believing it.** A false positive here
+   attributes the firm's own writing to us, which is the exact error this page exists to prevent.
 2. **Do not treat absence from the source as proof of invention.** A clause may live in another
    firm document — the valuation overview's *MBO / BIMBO / Newco* sentence is real firm material
    that came from the Specialist Tools Quiz, not from the valuation source.

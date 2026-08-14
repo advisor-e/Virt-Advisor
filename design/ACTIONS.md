@@ -55,6 +55,49 @@
   must fail; a verbatim line from a real source must pass. Detector (1)'s numbers were **discarded
   rather than reported** because it failed two of them. Full account:
   [`features/domain-support-provenance-history.md`](features/domain-support-provenance-history.md) §2–3.
+  **A fourth confirmation, 2026-08-14, this time a measurement rather than a failed build:** scoring
+  every clause against every sentence in all 115 documents, the **nine known marks score 25%–75%**
+  and **61 clauses that are not marks fall inside that same band**. No threshold separates them.
+
+- <a id="domain-support-sweep-read-half"></a>◐ **P2 · DOC — the authored-commentary read is half
+  done: 19 of 29 domains, 104 of 194 materials.** 2026-08-14. Record, method and the cleared list:
+  [`DOMAIN-SUPPORT-SWEEP-PROGRESS.md`](DOMAIN-SUPPORT-SWEEP-PROGRESS.md). **No marks written** —
+  Mike ruled the whole read completes first and the marks go in as one batch, because this is
+  beta-stage detail that must not hold up a release to the master coding team. Yield so far: **1
+  confirmed clause** (*"not a pitch"*, `sales-marketing-powerful-seminars` step 16) and 7 candidates,
+  the most serious being *"Treating coincidence as causation is the most common form of tampering"*
+  in `data-systems-deming-s-theory-of-volatility` — **a factual claim about a named framework, which
+  P5 says is never ours to author**, and a more serious class than a rationale tail. 🔴 **The
+  150–200 estimate is WITHDRAWN**, not merely unproven: eighteen further domains failed to reproduce
+  it. **The habit tracks the shape of the source document, not the transcriber** — terse source steps
+  got expanded and acquired tails; already-prose source steps were transcribed near-verbatim.
+  ⚠ **A grep bug cost two false positives** — `grep -E "a\|b"` treats `\|` as a *literal* pipe, so
+  two "appears nowhere in the 115 documents" findings were wrong (*"3-ton loads"* and a guilt clause
+  are the firm's own words). Under `-E` use `|`, and re-run any zero-match before believing it; a
+  false positive here attributes the firm's own writing to us. Remaining ten domains listed in
+  [`features/to-do.md`](features/to-do.md) §4.6.
+
+- <a id="domain-support-rows-with-no-source"></a>☐ **P1 · DOC — 20 domain-support rows match NO
+  source document at all.** Found 2026-08-14 while mapping every material to its source; **measured,
+  not investigated.** Under 6% word overlap with any of the 115 firm documents, concentrated in
+  `people-power` (8), `fm-coach-culture` (4) and `org-board-pack` (3) — the three largest domains
+  still unread. Two of the Board Pack rows were already flagged in
+  [`DOMAIN-SUPPORT-REVIEW-CHECKLIST.md`](DOMAIN-SUPPORT-REVIEW-CHECKLIST.md) as unsourced, so this is
+  a wider instance of a known fault, not a new one. **This is a different and probably larger problem
+  than the commentary sweep — a row with no source behind it, versus a row with an added clause — and
+  it must never be answered with a commentary mark.** The five `sales-marketing` rows in the count
+  carry no steps at all and are the known deliberate index-row gap, not a defect. Task:
+  [`features/to-do.md`](features/to-do.md) §4.6a.
+
+- <a id="domain-support-undeclared-edits"></a>☐ **P2 · DECISION — two undeclared edits to the firm's
+  own material.** Found 2026-08-14. Neither is authored commentary, so neither belongs in
+  `authored_commentary`; both are changes to the firm's words with nothing recording that we made
+  them — the same family as the marking problem. **(1)** `get-seminar-blank-platform-template` step 5
+  renumbers the source's *"Stage 2 (Call to Action & Close)"* to *"Stage 4"*; the source runs
+  1, 1, 2, 3, 2, so it is almost certainly a correction of their own typo. **(2)**
+  `forecasting-cash-tactics` step 4 softens the source's *"If they refuse, **fire them as a client**"*
+  to *"stop acting for them."* **Needs Mike's call on each.** Task:
+  [`features/to-do.md`](features/to-do.md) §4.6b.
 
 - <a id="domain-support-authored-commentary"></a>◐ **P1 · BUILD — authored commentary in the
   domain-support data must be MARKED as ours.** Mike's ruling 2026-08-14: *mark them* — not
