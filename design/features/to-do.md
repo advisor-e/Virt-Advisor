@@ -11,6 +11,33 @@
 
 ---
 
+## 0. Release position — read before picking anything up
+
+🔴 **Ruled by Mike, 2026-08-14. Getting another release to the master coding team is the
+priority.** In his words: *"I want all key functionality and key pages in position so we can load
+into UAT and get initial thoughts sorted — details like this domain word sweep can be done in
+early production beta stage."*
+
+**So judge every candidate task by one question: does this get a release out?**
+
+- **Key functionality and key pages in position** — that is the bar. Not polished, not complete.
+- **Finer detail is explicitly deferred to early production beta.** The domain-support word sweep
+  (§4.6) is the named example. Do not let that class of work hold a release.
+- **This SUPERSEDES the ruling of 2026-08-11** — *"no PR to `master` until the task list is
+  clear"*. That position is withdrawn. A PR to `master` is now on the table rather than
+  deliberately held back, and there are **20 commits ahead of `master`** already waiting.
+
+⚠ **Why this block exists at all, and why nothing like it goes in a session note again.** The
+2026-08-11 ruling it replaces lived *only* in session notes, hand-copied forward into five of them
+(`SESSION-2026-08-11-C`, `-08-12-B`, `-08-12-C`, `-08-12-D`, `-08-12-E`) and never once written
+into this list or `ACTIONS.md`. Every session faithfully carried it and no session promoted it, so
+a standing instruction about *when we release* sat in a dated file for four days. Those five copies
+are now stale — **this block is the current position and they are not.** It is the same fault the
+Working Agreement names in its own checklist: a rule left in a session note is a rule nobody will
+find. **A ruling that changes what we work on belongs here, on the day it is given.**
+
+---
+
 ## 1. Why this list exists
 
 **`ACTIONS.md` is 6,135 lines long, and it reads as about seventy open tasks. The real number is
