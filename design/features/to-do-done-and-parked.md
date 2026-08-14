@@ -51,6 +51,7 @@ changed:**
 | 5.4 · Status table "paused" marker | Went with STATUS.md |
 | 5.5 · Six firm-editable blocks | A menu of possible features nobody requested. If one is wanted it is a new request |
 | 2.2 · The four missing hub tabs | Deleted later the same day — see the box below, which exists so nobody re-raises it |
+| 4.13 · Make a silent save failure loud | Deleted 2026-08-15 by Mike — scored 5, reaches no user; see the second box below |
 
 ### 🔴 2.2 — the four hub tabs, and why this is a DELIBERATE, RECORDED deviation
 
@@ -97,6 +98,41 @@ into §3.2 and §3.3, being the action they wait on rather than a task of its ow
 ⚠ **§4.4 could NOT be done here and is honestly still Mike's.** Opening the Handbook, editing a
 word and reloading needs a real browser; this machine has no browser automation, so no session can
 prove it for him.
+
+### 🔴 4.13 — a SCORE 5 that could not reach a single user
+
+**Deleted 2026-08-15 on Mike's call**, at the top of the very next session, after it had been
+presented to him as the highest-scoring job on the list.
+
+**What it claimed.** When no database answers at all, every store falls back to a gitignored
+`data/dev-*.json` file and the route returns a normal success reply, so the screen says *Saved*.
+That is all true, and it is exactly what happened to a course on 2026-08-14.
+
+**Why it went.** Mike's question was *"who is this function for?"*, and the honest answer kills the
+item. `devFallbackAllowed()` can only fire where there is **no database at all** — which is a
+developer machine and nothing else. **UAT has MySQL. Production has MySQL.** Production mode
+refuses the fallback outright ([`UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md) §5 already tells the master
+team to run that way). No adviser, no firm and no client can reach it. Against the §2 scoring table
+a 5 requires that *someone's data could be lost without anyone noticing* — the only "someone"
+available is us, and we already know.
+
+**In his words:** *"I know I'm in a development role… the UAT and production have MySQL connected —
+I know this, you know this, why are we wasting time?"*
+
+**🔴 What must NOT be revived, and what must NOT be touched.**
+- The task is dead. The scored-5 framing was wrong; by the list's own table it was a **1**.
+- **The v0.8.0 half is real and stays.** [`server/utils/dbFailure.js`](../../server/utils/dbFailure.js)
+  stops a write that a **live MySQL refused** from reporting success. That one *does* bite in UAT and
+  production, where a server is present and can say no. Deleting the task deletes no code.
+- **The fallback itself is a feature, not a defect.** Without its read half every screen on a
+  developer machine is blank; without its write half no journey can be walked to its last click.
+  Three fixes were proposed in this conversation — a warning banner, blocking writes, and reworded
+  save confirmations — and **all three were wrong**. Do not re-propose them.
+
+**The lesson, and it is the same one as 2026-08-15's other two.** The item's own *Asked by* field
+said ⚠ **found by us**. It was written honestly, scored by us, ranked by us, and put in front of
+Mike as priority three. **The field worked; nobody read it.** A score assigned by whoever found the
+thing is not a priority — it is the finder's own opinion wearing a number.
 
 ---
 

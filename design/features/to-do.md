@@ -15,11 +15,16 @@
 computed one** — where his call and the score disagree, his call wins and the score stays visible
 so the disagreement is on the page rather than hidden.
 
+🔴 **The items are now data.** [`to-do-items.json`](to-do-items.json) is the source, and
+[`../../tests/unit/toDoItems.test.js`](../../tests/unit/toDoItems.test.js) fails the build if any
+item is missing one of its five fields, or if this table and the data disagree. **Edit the JSON,
+not this table.** *(§2's "not yet enforced" is now enforced.)*
+
 | # | Item | Score | Blocks | Waiting on |
 | --- | --- | --- | --- | --- |
-| 1 | 🔒 **2.1** Send the master team the release number | 3 | The whole UAT round | **Mike** |
-| 2 | 🔒 **4.12** One handover story for the master team | 3 | Handover | Us |
-| 3 | **4.13** Make a silent save failure loud | 5 | — | Us |
+| 1 | **4.14** Put the ranking control into the Handbook | 1 | — | Us |
+| 2 | 🔒 **2.1** Send the master team the release number | 3 | The whole UAT round | **Mike** |
+| 3 | 🔒 **4.12** One handover story for the master team | 3 | Handover | Us |
 | 4 | **2.6** `advisor_note` — one line from you | 4 | — | **Mike** |
 | 5 | **2.3** Seminar's seven lines | 4 | — | **Mike** |
 | 6 | **2.9** The education-gate wording | 4 | — | **Mike** |
@@ -28,7 +33,13 @@ so the disagreement is on the page rather than hidden.
 | 9 | **4.7** Flip `engine-strict` back on | 2 | — | Us |
 | 10 | **3.5** Reply to Carl about `npm install` | 1 | — | Us |
 
-**Ten live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Ten live items. Five need Mike**, one of them a single click. If this list passes about twenty,
+something is wrong.
+
+⚠ **4.14 scores 1 and sits first, and that disagreement is deliberate.** No customer will ever see
+the Handbook, so by §2's table it is internal work. Mike asked for it on 2026-08-15 and ranked it
+now. His call beats the score; the score stays visible rather than being inflated to justify the
+position.
 
 ### Settled by Mike on 2026-08-15 — off the live list
 
@@ -171,6 +182,32 @@ early production beta stage."*
 
 ## 6. Ours to build
 
+**4.14 · Put the ranking control into the Handbook.** **SCORE 1 · internal only**
+- **Why:** the ranking table Mike used on 2026-08-15 was a standalone drawing with its items typed
+  in by hand, and its Save only put text in a box to copy out. The Handbook already has the round
+  trip it needs — edit, survives a reload, **Save writes a real file to Downloads** — so the control
+  belongs there.
+- **Risk:** the ranking and the notes Mike applies cannot reach the repository except by hand, so
+  his own ordering decays back into prose the moment a session ends. It already has once.
+- **Asked by:** **Mike**, 2026-08-15 — *"the last session developed a ranking system that I could
+  apply and I could add notes. It was never coded into the handbook as we ran out of context."*
+  He also asked for it to be **split across two or three sessions** so it cannot be lost again.
+- **Touches:** [`to-do-items.json`](to-do-items.json),
+  [`../../scripts/build-handbook.js`](../../scripts/build-handbook.js),
+  [`../../scripts/handbook-shell.html`](../../scripts/handbook-shell.html), and the table in §1.
+
+**The three phases, and where we are:**
+
+| Phase | What | State |
+| --- | --- | --- |
+| **1** | The items become data, with a guard test on the five fields | ✅ **Done 2026-08-15** — [`to-do-items.json`](to-do-items.json) + [`toDoItems.test.js`](../../tests/unit/toDoItems.test.js) |
+| **2** | The Handbook's To-Do page renders the ranking control instead of prose | ☐ Next session |
+| **3** | The Save file comes back into the data; this table is generated from it | ☐ |
+
+**The approved artefact is [`../mockups/to-do-list-table.html`](../mockups/to-do-list-table.html)** —
+Mike used it to set the current order, so it is approved by use. Phase 2 is measured against it, and
+**every deviation from it must be named** before shipping.
+
 **4.12 · 🔒 One handover story for the master team.** **SCORE 3 · sells the package**
 - **Why:** the merged app's own handover documents still describe a separate standalone
   application.
@@ -179,16 +216,6 @@ early production beta stage."*
 - **Asked by:** ⚠ **ours** — `COLLABORATE-MERGE-PLAN.md` §6. Nobody outside asked. Kept because
   the master team genuinely receives the wrong documents; **say so if you would rather it went.**
 - **Touches:** the Collaborate handover documents, the UAT load pack.
-
-**4.13 · Make a silent save failure loud.** **SCORE 5 · data integrity**
-- **Why:** v0.8.0 fixed half of it — a database that *refuses* a write no longer lands in a scratch
-  file. **The other half is open:** when nothing answers at all, the dev fallback writes
-  `data/dev-*.json` and **the screen still says saved.**
-- **Risk:** an adviser's work vanishes and nobody finds out until they go looking for it. The
-  course saved on 2026-08-14 went to a local file and reported success, exactly like a real save.
-- **Asked by:** ⚠ **found by us**, then confirmed live in Mike's own running app.
-- **Touches:** every store. The load pack's `NODE_ENV=production` closes it, but a documented
-  workaround is not a fix — and production mode also forbids the dev tokens the two middle hubs need.
 
 **4.9 · Make the coaching reference inherit.** **SCORE 3 · sells the package**
 - **Why:** its fifteen rows already carry stable ids; it simply never joined the inheritance
