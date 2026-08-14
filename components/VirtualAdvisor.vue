@@ -40,9 +40,9 @@
         button.btn-cases(v-if="myCases.length > 0" @click="showCasesPanel = true")
           svg(xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" width="15" height="15")
             path(stroke-linecap="round" stroke-linejoin="round" d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z")
-          span.btn-cases-label Case Studies
+          span.btn-cases-label {{ $t('advisor.caseStudies') }}
           span.cases-badge {{ myCases.length }}
-        a.btn-firm-manager(href="/firm-manager" target="_blank") Firm Manager
+        a.btn-firm-manager(href="/firm-manager" target="_blank") {{ $t('advisor.firmManager') }}
         button.btn-clear(v-if="mode" @click="reset") {{ $t('header.backToMenu') }}
         button.btn-close(@click="closeSession" :title="$t('header.close')") ✕
 
@@ -194,14 +194,14 @@
 
       //- Retry button — shown after a failed request
       .retry-row(v-if="showRetry && !isStreaming")
-        button.retry-btn(@click="retryLastMessage") Try again
+        button.retry-btn(@click="retryLastMessage") {{ $t('advisor.retry') }}
 
       //- Client step — "Who is this session for?" (client knowledge base, design
       //- 2026-07-14). Shown before the intake begins in client mode. The question
       //- + explanation copy is Mike's approved wording, verbatim — do not edit.
       .client-step-card(v-if="showClientStep")
-        p.client-step-title Who is this session for?
-        p.client-step-desc Give me the business name. I'll use it to keep this client's history together — so next time you come back, I can see what we recommended, what worked, and what didn't, and build on it rather than starting again. You can skip this if you'd rather not save it.
+        p.client-step-title {{ $t('advisor.clientStep.title') }}
+        p.client-step-desc {{ $t('advisor.clientStep.desc') }}
 
         //- Pick from the firm register — you cannot mistype what you never
         //- retype. Empty input = recently-worked clients first (capped);
@@ -213,11 +213,11 @@
             @click="chooseExistingClient(c)"
           ) {{ c.name }}
         p.client-step-note(v-if="clientPicker.truncated && !clientDuplicates.length")
-          | Showing your recent clients — type to search all {{ clientRegister.length }}.
+          | {{ $t('advisor.clientStep.showingRecent', { count: clientRegister.length }) }}
 
         //- "Did you mean…?" — the typed name nearly matches existing clients
         .client-step-duplicates(v-if="clientDuplicates.length")
-          p.client-step-dup-title Did you mean one of these existing clients?
+          p.client-step-dup-title {{ $t('advisor.clientStep.dupTitle') }}
           button.client-step-opt(
             v-for="c in clientDuplicates"
             :key="c.id"
@@ -226,36 +226,36 @@
           button.client-step-create-anyway(
             @click="submitClientName(true)"
             :disabled="clientStepBusy"
-          ) No — “{{ clientNameInput.trim() }}” is a new client
+          ) {{ $t('advisor.clientStep.createAnyway', { name: clientNameInput.trim() }) }}
 
         //- Type a new business name
         .client-step-input-row(v-if="!clientDuplicates.length")
           input.client-step-input(
             v-model="clientNameInput"
-            :placeholder="clientRegister.length ? 'Type to search your clients, or enter a new business name…' : 'Business name…'"
+            :placeholder="clientRegister.length ? $t('advisor.clientStep.searchPlaceholder') : $t('advisor.clientStep.namePlaceholder')"
             maxlength="255"
             @keyup.enter="submitClientName(false)"
           )
           button.client-step-continue(
             @click="submitClientName(false)"
             :disabled="!clientNameInput.trim() || clientStepBusy"
-          ) Continue
+          ) {{ $t('advisor.clientStep.continue') }}
 
         p.client-step-error(v-if="clientStepError") {{ clientStepError }}
-        p.client-step-note(v-if="clientRegisterError") Your client list couldn’t be loaded — you can still type a name, or skip.
-        button.client-step-skip(@click="skipClientStep") Skip this session
+        p.client-step-note(v-if="clientRegisterError") {{ $t('advisor.clientStep.registerError') }}
+        button.client-step-skip(@click="skipClientStep") {{ $t('advisor.clientStep.skip') }}
 
       //- Catch-up card (Stage 5c) — a returning client has an own case with
       //- unrecorded template outcomes; ask once with the review-panel chips.
       //- Heading/copy approved by the product owner (Option 1, 2026-07-14).
       .catchup-card(v-if="showCatchUp && catchUpCase")
-        p.catchup-title Before we start — how did last time go?
+        p.catchup-title {{ $t('advisor.catchUp.title') }}
         p.catchup-desc Last time with {{ sessionClient ? sessionClient.name : 'this client' }} you took away: {{ catchUpCase.templates.join(', ') }}. Recording how each went sharpens what I recommend today.
         .review-outcome-row(v-for="t in catchUpCase.templates" :key="t")
           span.review-outcome-name {{ t }}
           .review-chip-group
             button.review-chip(
-              v-for="u in [{ v: 'full', l: 'Used fully' }, { v: 'partial', l: 'Partly used' }, { v: 'none', l: 'Didn\\'t use it' }]"
+              v-for="u in [{ v: 'full', l: $t('advisor.outcome.usedFully') }, { v: 'partial', l: $t('advisor.outcome.partlyUsed') }, { v: 'none', l: $t('advisor.outcome.didntUse') }]"
               :key="u.v"
               :class="{ 'review-chip-on': catchUpOutcomes[t] && catchUpOutcomes[t].used === u.v }"
               @click="catchUpSetUsed(t, u.v)"
@@ -264,22 +264,22 @@
             button.review-chip.review-chip-well(
               :class="{ 'review-chip-on-well': catchUpOutcomes[t].outcome === 'well' }"
               @click="catchUpSetResult(t, 'well')"
-            ) Landed well
+            ) {{ $t('advisor.outcome.landedWell') }}
             button.review-chip.review-chip-less(
               :class="{ 'review-chip-on-less': catchUpOutcomes[t].outcome === 'less' }"
               @click="catchUpSetResult(t, 'less')"
-            ) Didn't land
+            ) {{ $t('advisor.outcome.didntLand') }}
         p.client-step-error(v-if="catchUpError") {{ catchUpError }}
         .catchup-actions
           button.catchup-save(
             @click="saveCatchUp"
             :disabled="catchUpBusy || !Object.values(catchUpOutcomes).some(v => v && v.used)"
-          ) Save & continue
-          button.client-step-skip(@click="skipCatchUp") Not now
+          ) {{ $t('advisor.catchUp.save') }}
+          button.client-step-skip(@click="skipCatchUp") {{ $t('advisor.notNow') }}
 
       //- Growth Curve selector — shown when AI signals privately owned branch
       .growth-curve-card(v-if="showGrowthCurveSelector")
-        p.growth-curve-title Where would you place them on the Growth Curve?
+        p.growth-curve-title {{ $t('advisor.growthCurve.title') }}
         .growth-stage-list
           label.growth-stage-opt(
             v-for="stage in growthStages"
@@ -293,11 +293,11 @@
         button.growth-curve-submit(
           @click="submitGrowthStage"
           :disabled="!selectedGrowthStage"
-        ) Confirm selection
+        ) {{ $t('advisor.confirmSelection') }}
 
       //- Advisory Staircase selector — shown when engagement depth question fires
       .growth-curve-card(v-if="showStaircaseSelector")
-        p.growth-curve-title Where would you say your current engagement with this client sits on the Advisory Staircase?
+        p.growth-curve-title {{ $t('advisor.staircase.title') }}
         .growth-stage-list
           label.growth-stage-opt(
             v-for="step in staircaseSteps"
@@ -311,11 +311,11 @@
         button.growth-curve-submit(
           @click="submitStaircaseStep"
           :disabled="!selectedStaircaseStep"
-        ) Confirm selection
+        ) {{ $t('advisor.confirmSelection') }}
 
       //- Fin Mgt Theme selector — shown when Forecasting/Management Reporting scenario detected
       .fin-mgt-card(v-if="showFinMgtThemeSelector")
-        p.fin-mgt-title Where is your client starting from? Select the theme that best reflects their current relationship with financial management.
+        p.fin-mgt-title {{ $t('advisor.finMgt.title') }}
         .fin-mgt-theme-list
           label.fin-mgt-theme-opt(
             v-for="theme in finMgtThemes"
@@ -329,11 +329,11 @@
         button.fin-mgt-submit(
           @click="submitFinMgtTheme"
           :disabled="!selectedFinMgtTheme"
-        ) Confirm selection
+        ) {{ $t('advisor.confirmSelection') }}
 
       //- Session length selector — shown when session length question fires
       .session-length-card(v-if="showSessionLengthSelector")
-        p.session-length-title How long can you allow per meeting?
+        p.session-length-title {{ $t('advisor.sessionLength.title') }}
         .session-length-list
           button.session-length-opt(
             v-for="opt in sessionLengthOptions"
@@ -344,11 +344,11 @@
         button.session-length-submit(
           @click="submitSessionLength"
           :disabled="!selectedSessionLength"
-        ) Confirm selection
+        ) {{ $t('advisor.confirmSelection') }}
 
       //- Domain selector — advisor confirms the detected advisory area before domain questions begin
       .domain-selector-card(v-if="showDomainSelector")
-        p.domain-selector-title Which area best describes the primary focus for this client?
+        p.domain-selector-title {{ $t('advisor.domainSelector.title') }}
         .domain-selector-list
           label.domain-selector-opt(
             v-for="opt in domainSelectorOptions"
@@ -360,11 +360,11 @@
         button.domain-selector-submit(
           @click="submitDomainSelection"
           :disabled="!selectedDomainId"
-        ) Confirm
+        ) {{ $t('advisor.confirm') }}
 
       //- Primary issue selector — shown after domain is confirmed
       .primary-issue-card(v-if="showPrimaryIssueSelector")
-        p.primary-issue-title Which of these best captures the core problem for this client?
+        p.primary-issue-title {{ $t('advisor.primaryIssue.title') }}
         .primary-issue-list
           label.primary-issue-opt(
             v-for="opt in primaryIssueOptions"
@@ -376,13 +376,13 @@
         button.primary-issue-submit(
           @click="submitPrimaryIssue"
           :disabled="!selectedPrimaryIssue"
-        ) Confirm
-        button.primary-issue-none(@click="noneOfTheseApply") None of these fit — let me describe it differently
+        ) {{ $t('advisor.confirm') }}
+        button.primary-issue-none(@click="noneOfTheseApply") {{ $t('advisor.primaryIssue.none') }}
 
       //- Win-work switch offer — when the advisor has no client problem and wants to win advisory work
       .sell-switch-card(v-if="showSellSwitch")
-        button.sell-switch-yes(@click="acceptSellSwitch") Yes, help me sell
-        button.sell-switch-no(@click="declineSellSwitch") No, stay on this
+        button.sell-switch-yes(@click="acceptSellSwitch") {{ $t('advisor.sellSwitch.yes') }}
+        button.sell-switch-no(@click="declineSellSwitch") {{ $t('advisor.sellSwitch.no') }}
 
       //- Budget notice (Bugs 3+4, 2026-07-14) — code-authored, approved copy.
       //- Framing line on every recommendation; cap message ONLY when the stated
@@ -444,11 +444,11 @@
       //- Intake prompt — shown after Phase 3, before advisor dismisses
       .intake-prompt-card(v-if="showIntakePrompt")
         .save-prompt-text
-          strong Record a quick observation?
-          span  Do you want to do this now while it's fresh in your memory?
+          strong {{ $t('advisor.intakePrompt.title') }}
+          span  {{ $t('advisor.intakePrompt.desc') }}
         .save-prompt-actions
-          button.save-prompt-yes(@click="startIntake") Yes, let's do it
-          button.save-prompt-no(@click="dismissIntake") Not now
+          button.save-prompt-yes(@click="startIntake") {{ $t('advisor.intakePrompt.yes') }}
+          button.save-prompt-no(@click="dismissIntake") {{ $t('advisor.notNow') }}
 
       //- Save prompt — only shown after Phase 3 recommendation, never alongside a VA question
       //- Copy is the product-owner-approved case-study nudge (2026-07-14) — the
@@ -456,11 +456,11 @@
       //- client knowledge base (Stages 4–5c). Do not paraphrase.
       .save-prompt-card(v-if="showSavePrompt")
         .save-prompt-text
-          strong Save this as a case study.
-          span  When you return, I can see which templates you used and how they landed — and pick up from there.
+          strong {{ $t('advisor.savePrompt.title') }}
+          span  {{ $t('advisor.savePrompt.desc') }}
         .save-prompt-actions
-          button.save-prompt-yes(@click="showSavePanel = true; savePromptDismissed = true") Save case study
-          button.save-prompt-no(@click="savePromptDismissed = true") Not now
+          button.save-prompt-yes(@click="showSavePanel = true; savePromptDismissed = true") {{ $t('advisor.savePrompt.save') }}
+          button.save-prompt-no(@click="savePromptDismissed = true") {{ $t('advisor.notNow') }}
 
   //- Input (only shown once mode is selected)
   //- Hidden for every mode that renders a full-screen panel instead of a conversation.
@@ -521,53 +521,53 @@
       button.btn-save-inline(@click="showSavePanel = true; savePromptDismissed = true" :disabled="isStreaming")
         svg(xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" width="13" height="13")
           path(stroke-linecap="round" stroke-linejoin="round" d="M17 16v2a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h2m3-3h6l3 3v10a2 2 0 01-2 2h-1M9 3h6l3 3")
-        | Save as case study
-      span.save-inline-saved(v-if="saveSuccess") ✓ Saved
+        | {{ $t('advisor.save.inline') }}
+      span.save-inline-saved(v-if="saveSuccess") {{ $t('advisor.save.saved') }}
 
   //- Save case study panel
   .save-overlay(v-if="showSavePanel" @click.self="showSavePanel = false")
     .save-modal
-      h2.save-title Save as case study
-      p.save-desc Give this session a title and choose who can see it.
+      h2.save-title {{ $t('advisor.save.title') }}
+      p.save-desc {{ $t('advisor.save.desc') }}
 
-      label.save-label Session title
+      label.save-label {{ $t('advisor.save.labelTitle') }}
       input.save-input(
         v-model="saveTitle"
-        placeholder="e.g. Cash flow challenge — retail client"
+        :placeholder="$t('advisor.save.titlePlaceholder')"
         maxlength="100"
         ref="saveTitleInput"
       )
 
-      label.save-label Visibility
+      label.save-label {{ $t('advisor.save.labelVisibility') }}
       .save-visibility
         label.vis-opt(:class="{ 'vis-active': saveVisibility === 'shared' }")
           input(type="radio" v-model="saveVisibility" value="shared")
           .vis-body
             span.vis-icon 🏢
             div
-              strong Share with my firm
-              p Advisors in your firm can see this and the AI will reference it in their sessions
+              strong {{ $t('advisor.save.sharedTitle') }}
+              p {{ $t('advisor.save.sharedDesc') }}
         label.vis-opt(:class="{ 'vis-active': saveVisibility === 'private' }")
           input(type="radio" v-model="saveVisibility" value="private")
           .vis-body
             span.vis-icon 🔒
             div
-              strong My eyes only
-              p Only you can see this — the AI will reference it only in your sessions
+              strong {{ $t('advisor.save.privateTitle') }}
+              p {{ $t('advisor.save.privateDesc') }}
 
-      p.save-success(v-if="saveSuccess") ✓ Saved successfully
+      p.save-success(v-if="saveSuccess") {{ $t('advisor.save.success') }}
       p.save-error(v-if="saveError") {{ saveError }}
 
       .save-actions
-        button.save-btn-confirm(@click="saveSession" :disabled="!saveTitle.trim()") Save case study
-        button.save-btn-cancel(@click="showSavePanel = false") Cancel
+        button.save-btn-confirm(@click="saveSession" :disabled="!saveTitle.trim()") {{ $t('advisor.save.confirm') }}
+        button.save-btn-cancel(@click="showSavePanel = false") {{ $t('advisor.cancel') }}
 
   //- Advisor Profile screen (inline, same as chat view)
   .profile-screen(v-if="profileOpen && !mode")
     .profile-modal-header
       div
         h2.profile-modal-title {{ $t('profile.title') }}
-        p.profile-modal-sub Tell me about yourself — I'll use this to tailor every recommendation.
+        p.profile-modal-sub {{ $t('advisor.profileScreen.sub') }}
       button.profile-modal-close(@click="profileOpen = false") ✕
 
     .profile-modal-body
@@ -633,23 +633,23 @@
 
             .profile-q-advance(v-if="advisorProfile[q.field] && advisorProfile[q.field].trim()")
               button.profile-advance-btn(@click="saveFieldAndAdvance")
-                | {{ index < profileQuestions.length - 1 ? 'Save & continue →' : 'Save profile' }}
+                | {{ index < profileQuestions.length - 1 ? $t('advisor.profileScreen.saveContinue') : $t('advisor.profileScreen.saveProfile') }}
 
         .profile-q-actions
-          button.profile-clear-btn(v-if="profileSaved" @click="clearProfile") Clear
-          button.profile-clear-btn(@click="profileOpen = false") Main menu
+          button.profile-clear-btn(v-if="profileSaved" @click="clearProfile") {{ $t('advisor.profileScreen.clear') }}
+          button.profile-clear-btn(@click="profileOpen = false") {{ $t('advisor.profileScreen.mainMenu') }}
 
   //- My Cases panel
   .cases-overlay(v-if="showCasesPanel" @click.self="closeCasesPanel")
     .cases-modal
       .cases-modal-header
         div
-          h2.cases-modal-title My Saved Cases
+          h2.cases-modal-title {{ $t('advisor.cases.title') }}
           p.cases-modal-sub {{ myCases.length }} session{{ myCases.length === 1 ? '' : 's' }} saved
         button.cases-close(@click="closeCasesPanel") ✕
 
       .cases-empty(v-if="myCases.length === 0")
-        p No saved cases yet. Save a session using the 💾 button during a conversation.
+        p {{ $t('advisor.cases.empty') }}
 
       .cases-list(v-else)
         .case-item(v-for="c in myCases" :key="c.id")
@@ -658,8 +658,8 @@
               span.case-title {{ c.title }}
               .case-tags
                 span.case-mode-tag {{ modeName(c.mode) }}
-                span.case-vis-tag {{ c.visibility === 'shared' ? '🏢 Shared' : '🔒 Private' }}
-                span.case-feedback-tag(v-if="c.feedbackPending") Feedback welcome
+                span.case-vis-tag {{ c.visibility === 'shared' ? $t('advisor.cases.shared') : $t('advisor.cases.private') }}
+                span.case-feedback-tag(v-if="c.feedbackPending") {{ $t('advisor.cases.feedbackWelcome') }}
             .case-header-right
               span.case-date {{ formatDate(c.createdAt) }}
               span.case-chevron {{ expandedCaseId === c.id ? '▲' : '▼' }}
@@ -670,15 +670,15 @@
                 :class="c.visibility === 'shared' ? 'vis-btn-make-private' : 'vis-btn-share'"
                 :disabled="visibilityBusyId === c.id"
                 @click="toggleVisibility(c.id)"
-              ) {{ c.visibility === 'shared' ? 'Make private' : 'Share with the firm' }}
+              ) {{ c.visibility === 'shared' ? $t('advisor.cases.makePrivate') : $t('advisor.cases.shareWithFirm') }}
 
             .case-summary
-              p.case-summary-label AI Recommendation Summary
+              p.case-summary-label {{ $t('advisor.cases.summaryLabel') }}
               p.case-summary-text {{ c.summary }}
 
             .case-transcript-toggle(v-if="c.transcript && c.transcript.length")
               button.transcript-btn(@click="transcriptOpenId = transcriptOpenId === c.id ? null : c.id")
-                | {{ transcriptOpenId === c.id ? '▲ Hide conversation' : '▼ Read Case Study Conversation' }}
+                | {{ transcriptOpenId === c.id ? $t('advisor.cases.hideConversation') : $t('advisor.cases.readConversation') }}
 
             .case-transcript(v-if="transcriptOpenId === c.id && c.transcript && c.transcript.length")
               .transcript-msg(
@@ -686,24 +686,24 @@
                 :key="i"
                 :class="msg.role === 'user' ? 'transcript-msg-user' : 'transcript-msg-va'"
               )
-                span.transcript-role {{ msg.role === 'user' ? 'You' : 'VA' }}
+                span.transcript-role {{ msg.role === 'user' ? $t('advisor.cases.roleYou') : $t('advisor.cases.roleVa') }}
                 div(v-if="msg.role === 'assistant'" v-html="renderMarkdown(msg.content)" class="prose transcript-prose")
                 p.transcript-text(v-else) {{ msg.content }}
 
             .case-review-section
-              h3.review-heading Post-Delivery Review
-              p.review-sub After delivering this session to your client, record what actually happened. The AI will use this to improve future recommendations.
+              h3.review-heading {{ $t('advisor.review.heading') }}
+              p.review-sub {{ $t('advisor.review.sub') }}
 
               //- Per-template outcomes (Stage 5b, 2026-07-14) — which templates were
               //- actually used and how each landed. Feeds the template-precise
               //- hold-back for this client's future sessions.
               .review-outcomes(v-if="c.templates && c.templates.length && reviewDraft.templateOutcomes")
-                p.review-outcomes-title How did each template go?
+                p.review-outcomes-title {{ $t('advisor.review.outcomesTitle') }}
                 .review-outcome-row(v-for="t in c.templates" :key="t")
                   span.review-outcome-name {{ t }}
                   .review-chip-group
                     button.review-chip(
-                      v-for="u in [{ v: 'full', l: 'Used fully' }, { v: 'partial', l: 'Partly used' }, { v: 'none', l: 'Didn\\'t use it' }]"
+                      v-for="u in [{ v: 'full', l: $t('advisor.outcome.usedFully') }, { v: 'partial', l: $t('advisor.outcome.partlyUsed') }, { v: 'none', l: $t('advisor.outcome.didntUse') }]"
                       :key="u.v"
                       :class="{ 'review-chip-on': reviewDraft.templateOutcomes[t] && reviewDraft.templateOutcomes[t].used === u.v }"
                       @click="setOutcomeUsed(t, u.v)"
@@ -712,14 +712,14 @@
                     button.review-chip.review-chip-well(
                       :class="{ 'review-chip-on-well': reviewDraft.templateOutcomes[t].outcome === 'well' }"
                       @click="setOutcomeResult(t, 'well')"
-                    ) Landed well
+                    ) {{ $t('advisor.outcome.landedWell') }}
                     button.review-chip.review-chip-less(
                       :class="{ 'review-chip-on-less': reviewDraft.templateOutcomes[t].outcome === 'less' }"
                       @click="setOutcomeResult(t, 'less')"
-                    ) Didn't land
+                    ) {{ $t('advisor.outcome.didntLand') }}
 
               .review-field
-                label.review-label ⚠ What went less well?
+                label.review-label {{ $t('advisor.review.wentLess') }}
                 .review-voice-bar(v-if="speechSupported")
                   .voice-state.voice-idle(v-if="reviewRecordingField !== 'wentLess' && !reviewDraft.wentLess")
                     button.voice-btn.voice-btn-idle(@click="toggleReviewListening('wentLess')")
@@ -740,17 +740,17 @@
                     button.voice-btn.voice-btn-redo(@click="toggleReviewListening('wentLess')")
                       svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
                         path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-                      | Record again
+                      | {{ $t('advisor.recordAgain') }}
                 textarea.review-textarea(
                   v-if="reviewDraft.wentLess || reviewRecordingField === 'wentLess'"
                   v-model="reviewDraft.wentLess"
-                  placeholder="What was harder than expected? What didn't land well?"
+                  :placeholder="$t('advisor.review.wentLessPlaceholder')"
                   :class="{ 'pq-recording': reviewRecordingField === 'wentLess' }"
                   @input="autoResizeTextarea($event.target)"
                 )
 
               .review-field
-                label.review-label ✓ What went well?
+                label.review-label {{ $t('advisor.review.wentWell') }}
                 .review-voice-bar(v-if="speechSupported")
                   .voice-state.voice-idle(v-if="reviewRecordingField !== 'wentWell' && !reviewDraft.wentWell")
                     button.voice-btn.voice-btn-idle(@click="toggleReviewListening('wentWell')")
@@ -771,17 +771,17 @@
                     button.voice-btn.voice-btn-redo(@click="toggleReviewListening('wentWell')")
                       svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
                         path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-                      | Record again
+                      | {{ $t('advisor.recordAgain') }}
                 textarea.review-textarea(
                   v-if="reviewDraft.wentWell || reviewRecordingField === 'wentWell'"
                   v-model="reviewDraft.wentWell"
-                  placeholder="What worked? What did the client respond well to?"
+                  :placeholder="$t('advisor.review.wentWellPlaceholder')"
                   :class="{ 'pq-recording': reviewRecordingField === 'wentWell' }"
                   @input="autoResizeTextarea($event.target)"
                 )
 
               .review-field
-                label.review-label → Suggested changes for similar cases
+                label.review-label {{ $t('advisor.review.changes') }}
                 .review-voice-bar(v-if="speechSupported")
                   .voice-state.voice-idle(v-if="reviewRecordingField !== 'changesRecommended' && !reviewDraft.changesRecommended")
                     button.voice-btn.voice-btn-idle(@click="toggleReviewListening('changesRecommended')")
@@ -802,35 +802,35 @@
                     button.voice-btn.voice-btn-redo(@click="toggleReviewListening('changesRecommended')")
                       svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor")
                         path(d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V6zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z")
-                      | Record again
+                      | {{ $t('advisor.recordAgain') }}
                 textarea.review-textarea(
                   v-if="reviewDraft.changesRecommended || reviewRecordingField === 'changesRecommended'"
                   v-model="reviewDraft.changesRecommended"
-                  placeholder="What would you do differently next time?"
+                  :placeholder="$t('advisor.review.changesPlaceholder')"
                   :class="{ 'pq-recording': reviewRecordingField === 'changesRecommended' }"
                   @input="autoResizeTextarea($event.target)"
                 )
 
               .review-actions
-                button.review-save-btn(@click="saveReview(c.id)") {{ reviewSavedId === c.id ? '✓ Saved' : 'Save review' }}
+                button.review-save-btn(@click="saveReview(c.id)") {{ reviewSavedId === c.id ? $t('advisor.review.saved') : $t('advisor.review.save') }}
                 button.review-promote-btn(
                   v-if="isFirmManager"
                   @click="promoteCase(c)"
                   :disabled="promoteSuccessId === c.id"
                 )
-                  | {{ promoteSuccessId === c.id ? '✓ Added to coaching reference' : 'Promote to coaching reference' }}
-                span.promote-error(v-if="promoteErrorId === c.id") Failed — check server connection
+                  | {{ promoteSuccessId === c.id ? $t('advisor.review.promoted') : $t('advisor.review.promote') }}
+                span.promote-error(v-if="promoteErrorId === c.id") {{ $t('advisor.review.promoteError') }}
                 button.review-delete-btn(
                   @click="confirmDeleteId === c.id ? deleteCaseAndRefresh(c.id) : confirmDeleteId = c.id"
                 )
-                  | {{ confirmDeleteId === c.id ? 'Confirm delete' : 'Delete case' }}
-                button.review-cancel-btn(v-if="confirmDeleteId === c.id" @click="confirmDeleteId = null") Cancel
+                  | {{ confirmDeleteId === c.id ? $t('advisor.review.confirmDelete') : $t('advisor.review.delete') }}
+                button.review-cancel-btn(v-if="confirmDeleteId === c.id" @click="confirmDeleteId = null") {{ $t('advisor.cancel') }}
 
       .cases-footer
         button.cases-footer-close(@click="closeCasesPanel")
           svg(xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="15" height="15")
             path(stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18")
-          | Return to menu
+          | {{ $t('advisor.cases.returnToMenu') }}
 </template>
 
 <script>
@@ -1031,31 +1031,20 @@ export default {
     },
     domainSelectorOptions () {
       return [
-        { id: 'profit', label: 'Profitability & Feasibility' },
-        { id: 'staff', label: 'Staff & Team' },
-        { id: 'data-systems', label: 'Data & Financial Systems' },
-        { id: 'sales-marketing', label: 'Sales & Marketing' },
-        { id: 'forecasting', label: 'Financial Management & Forecasting' },
-        { id: 'governance', label: 'Governance & Leadership' },
-        { id: 'strategy', label: 'Strategy & Planning' },
-        { id: 'systems', label: 'Business Systems' },
-        { id: 'valuation', label: 'Business Valuation' },
-        { id: 'risk', label: 'Risk Management' },
-        { id: 'succession', label: 'Succession & Exit Planning' },
-        { id: 'conflict', label: 'Conflict & Dispute' },
-        { id: 'eoy', label: 'End of Year' },
-        { id: 'due-diligence', label: 'Due Diligence & Acquisitions' }
-      ]
+        'profit', 'staff', 'data-systems', 'sales-marketing', 'forecasting',
+        'governance', 'strategy', 'systems', 'valuation', 'risk', 'succession',
+        'conflict', 'eoy', 'due-diligence'
+      ].map(id => ({ id, label: this.$t('advisor.domains.' + id) }))
     },
     sectionBannerLabel () {
       const labels = {
-        client: 'I have a client situation',
-        discover: 'I want to find something specific',
-        plan: 'I want to plan ahead',
-        learn: 'I\'m interested in learning more',
-        course: 'I want to build a course',
-        firm: 'Team Dashboard',
-        progression: 'My Progress'
+        client: this.$t('mode.client.title'),
+        discover: this.$t('mode.discover.title'),
+        plan: this.$t('mode.plan.title'),
+        learn: this.$t('mode.learn.title'),
+        course: this.$t('mode.course.title'),
+        firm: this.$t('advisor.banner.firm'),
+        progression: this.$t('advisor.banner.progression')
       }
       return labels[this.mode] || ''
     },
@@ -1285,7 +1274,7 @@ export default {
           this._saveTimer = null
         }, 1500)
       } catch (e) {
-        this.saveError = 'Could not save. Please try again.'
+        this.saveError = this.$t('advisor.save.failed')
       }
     },
 
@@ -1690,7 +1679,7 @@ export default {
       this.showPrimaryIssueSelector = false
       this.selectedPrimaryIssue = null
       this.primaryIssueDomain = null
-      this.inputText = 'None of these fit my situation'
+      this.inputText = this.$t('advisor.primaryIssue.noneMessage')
       this.sendMessage('__none_of_these__')
     },
 
@@ -1725,7 +1714,7 @@ export default {
     // Free-text "yes" path: the backend returned [SWITCH_TO_LEARN]. Flip to Learn
     // mode the same way, carrying the advisor's stated goal.
     switchToLearn () {
-      this._handoffToLearn('Help me win more advisory work from this client')
+      this._handoffToLearn(this.$t('advisor.sellSwitch.handoff'))
     },
 
     submitGrowthStage () {

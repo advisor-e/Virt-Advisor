@@ -84,4 +84,42 @@ describe('the real locale files', () => {
 
     expect(missing).toEqual([])
   })
+
+  test('every key the advisor screen renders actually resolves', () => {
+    // Added 2026-08-14 with the move of ~90 interface strings off VirtualAdvisor.vue
+    // and into `advisor.*`. A key that does not resolve does NOT throw — vue-i18n
+    // renders the key itself, so the screen would show "advisor.save.confirm" on a
+    // button and every test would still pass. This is the only thing that catches it.
+    const fs = require('fs')
+    const text = fs.readFileSync('components/VirtualAdvisor.vue', 'utf8')
+
+    const missing = []
+    const pattern = /\$t\('([^']+)'/g
+    let match
+    while ((match = pattern.exec(text))) {
+      const key = match[1]
+      // Keys built by concatenation ($t('advisor.domains.' + id)) end at a dot;
+      // their parent must exist, and that is what is checked.
+      const path = key.endsWith('.') ? key.slice(0, -1).split('.') : key.split('.')
+      const resolved = path.reduce((node, part) => (node && typeof node === 'object') ? node[part] : undefined, ourEn)
+      if (resolved === undefined) { missing.push(key) }
+    }
+
+    expect(missing).toEqual([])
+  })
+
+  test('the domain dropdown has a label for every id it asks for', () => {
+    // The dropdown builds its keys by concatenation, so a missing domain would
+    // render the raw key as a selectable option rather than failing anywhere.
+    const fs = require('fs')
+    const text = fs.readFileSync('components/VirtualAdvisor.vue', 'utf8')
+    const block = text.match(/domainSelectorOptions \(\) \{\s*return \[([\s\S]*?)\]\.map/)
+
+    expect(block).not.toBeNull()
+    const ids = (block[1].match(/'([^']+)'/g) || []).map(s => s.replace(/'/g, ''))
+    expect(ids.length).toBe(14)
+    ids.forEach((id) => {
+      expect(typeof ourEn.advisor.domains[id]).toBe('string')
+    })
+  })
 })

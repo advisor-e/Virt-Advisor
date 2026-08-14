@@ -170,11 +170,39 @@ should name it, and should say that a missing artefact is a **stop**, not a lice
 **4.4 · Open the Handbook, edit a word, reload, confirm it survives.** The edit-persistence is
 proven in code and has not been seen working in a browser since the restore. *(Waits on Mike.)*
 
-**4.5 · 🔴 Hardcoded English on the report screens and parts of the advisor screen.**
-✅**verified** — a breach of the locked stack requirement that every user-facing string goes
-through the wording layer. It is logged as critical, not accepted. Its real cost: the people who
-own the words cannot change them without a developer, and a second language stops being a data
-problem.
+**4.5 · Hardcoded English — the interface strings are DONE.** ✅**measured and fixed
+2026-08-14.** The breach was of the locked stack requirement that every user-facing string goes
+through the wording layer; its real cost was that the people who own the words could not change
+them without a developer.
+
+⚠ **The item's old title was wrong and cost a session's worth of assumption. The report screens
+were never the problem — they are clean.** Every apparent hit on them is inside a JSDoc comment,
+and `BusinessPerformanceReport.vue` already does the right thing: the backend returns the
+workbook's own value (`'Cashflow Negative'`, cell J3) and the screen maps it through `$t()`.
+**Measure before believing a backlog title.**
+
+**87 interface strings moved out of `components/VirtualAdvisor.vue` into `locales/en.json`
+under `advisor.*`** — buttons, prompts, placeholders, the 14 domain-dropdown labels and the
+section banner. **No wording changed**; two interpolations became the wording layer's `{count}`
+and `{name}` form. Guarded by two new tests in `tests/unit/i18nMessages.test.js`, which exist
+because an unresolved key does **not** throw — vue-i18n renders the key itself, so a button would
+read `advisor.save.confirm` and every other test would still pass.
+
+⚠ **Not yet seen in a browser.** Proven by 5,256 passing tests and a key-resolution check, not by
+use. *(Waits on Mike — worth pairing with 4.4, which is the same kind of look.)*
+
+**4.5a · 🔴 Wire the primary-issues table to its data file, and delete the duplicate.** New
+2026-08-14. ✅**verified by comparison.** `PRIMARY_ISSUES` at `components/VirtualAdvisor.vue:871`
+holds 11 domains of business problems, and its comment says *"Workshop 1 output, authored by Mike
+Barnes 2026-06-02"*. **`data/primary-issues.json` holds the same content — identical today, no
+drift** — and **nothing in the codebase reads it.** The live copy is the hardcoded one; the data
+file is an orphan.
+
+**This is content, not wording, and it must NOT go into `locales/en.json`.** A locale file is not
+editable by a firm, so filing it there would quietly block §5.5, which wants exactly this table
+firm-editable. **Wire the component to `data/primary-issues.json`, delete the const, and prove the
+options are byte-identical before and after.** The recipe is the `single-source-wiring` skill.
+*(Waits on us. Nothing is broken today — the two copies match. They will not match forever.)*
 
 **4.6 · Sweep the domains for authored commentary — READ COMPLETE, 29 of 29.** ✅**measured
 2026-08-14** — the blast-radius question is answered. **The facts are clean:** all 140
