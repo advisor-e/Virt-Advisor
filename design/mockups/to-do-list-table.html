@@ -1,0 +1,679 @@
+<title>Advisor-e Work Queue</title>
+
+<style>
+  :root {
+    --ground: #eef3f8; --ground-2: #f6f9fc; --card: #ffffff;
+    --ink: #002b64; --body: #23405f; --muted: #5b6f8a; --line: #d5e1ee;
+    --accent: #0070c0; --accent-bright: #00b1e0;
+    --s5: #c81e1e; --s5-bg: #fdeaea;
+    --s4: #b56200; --s4-bg: #fdf1e0;
+    --s3: #0070c0; --s3-bg: #e6f2fb;
+    --s2: #4a6b8a; --s2-bg: #edf2f7;
+    --s1: #7a8ba0; --s1-bg: #f1f4f7;
+    --s0: #8a8f96; --s0-bg: #f2f3f4;
+    --lock: #b56200; --lock-bg: #fdf1e0;
+    --shadow: 0 10px 28px rgba(0,43,100,.09);
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    --radius: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #05132a; --ground-2: #07182f; --card: #0a1f3d;
+      --ink: #e6f0fa; --body: #cfe0f2; --muted: #9fb4d0; --line: #1a3559;
+      --accent: #00b1e0; --accent-bright: #7fd3f1;
+      --s5: #ff8080; --s5-bg: #3a1414;
+      --s4: #ffb454; --s4-bg: #3a2810;
+      --s3: #6cc4f5; --s3-bg: #0e2b45;
+      --s2: #9ab4cc; --s2-bg: #142639;
+      --s1: #8ea1b6; --s1-bg: #111f31;
+      --s0: #7d858e; --s0-bg: #171c22;
+      --lock: #ffb454; --lock-bg: #3a2810;
+      --shadow: 0 10px 28px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #05132a; --ground-2: #07182f; --card: #0a1f3d;
+    --ink: #e6f0fa; --body: #cfe0f2; --muted: #9fb4d0; --line: #1a3559;
+    --accent: #00b1e0; --accent-bright: #7fd3f1;
+    --s5: #ff8080; --s5-bg: #3a1414;
+    --s4: #ffb454; --s4-bg: #3a2810;
+    --s3: #6cc4f5; --s3-bg: #0e2b45;
+    --s2: #9ab4cc; --s2-bg: #142639;
+    --s1: #8ea1b6; --s1-bg: #111f31;
+    --s0: #7d858e; --s0-bg: #171c22;
+    --lock: #ffb454; --lock-bg: #3a2810;
+    --shadow: 0 10px 28px rgba(0,0,0,.4);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--body);
+    font-family: var(--sans); font-size: 15px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1420px; margin: 0 auto; padding: 24px 20px 80px;
+          display: flex; flex-direction: column; gap: 18px; }
+
+  header { display: flex; flex-direction: column; gap: 4px; }
+  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .16em;
+             text-transform: uppercase; color: var(--accent); }
+  h1 { margin: 0; font-size: clamp(24px, 3.2vw, 33px); line-height: 1.1;
+       letter-spacing: -.02em; color: var(--ink); font-weight: 700; }
+  .rule { font-size: 14.5px; color: var(--muted); }
+  .rule b { color: var(--ink); }
+
+  h2 { margin: 0; font-size: 20px; letter-spacing: -.01em; color: var(--ink); font-weight: 700; }
+  section { display: flex; flex-direction: column; gap: 12px; }
+  .divider { border: 0; border-top: 1px solid var(--line); margin: 10px 0 0; }
+
+  /* ---------- toolbar + legend ---------- */
+  .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  button {
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    border-radius: 9px; padding: 8px 14px; border: 1px solid var(--accent);
+    background: var(--accent); color: #fff;
+  }
+  button.ghost { background: transparent; color: var(--accent); }
+  button.quiet { background: transparent; border-color: var(--line); color: var(--muted); font-weight: 500; }
+  button:hover { filter: brightness(1.08); }
+  button:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+  .count { color: var(--muted); font-size: 13.5px; margin-left: auto; }
+  .count b { color: var(--ink); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; font-size: 12.5px; }
+  .chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px;
+          border-radius: 999px; border: 1px solid currentColor; font-weight: 600; }
+  .chip i { font-style: normal; font-weight: 400; opacity: .85; }
+  .c5 { color: var(--s5); background: var(--s5-bg); }
+  .c4 { color: var(--s4); background: var(--s4-bg); }
+  .c3 { color: var(--s3); background: var(--s3-bg); }
+  .c2 { color: var(--s2); background: var(--s2-bg); }
+  .c1 { color: var(--s1); background: var(--s1-bg); }
+  .c0 { color: var(--s5); background: var(--s0-bg); }
+
+  /* ---------- table ---------- */
+  .tablewrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line);
+               border-radius: var(--radius); box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; min-width: 1080px; }
+  thead th {
+    text-align: left; font-size: 10.5px; font-weight: 700; letter-spacing: .11em;
+    text-transform: uppercase; color: var(--muted); padding: 12px 12px 10px;
+    border-bottom: 1px solid var(--line); white-space: nowrap; background: var(--card);
+    position: sticky; top: 0; z-index: 2;
+  }
+  thead th.sortable { cursor: pointer; user-select: none; }
+  thead th.sortable:hover { color: var(--ink); }
+  thead th .arrow { opacity: .5; font-size: 10px; }
+
+  tbody tr.main > td { padding: 12px 12px 6px; vertical-align: top; }
+  tbody tr.detail > td { padding: 0 12px 14px; }
+  tbody tr.detail { border-bottom: 1px solid var(--line); }
+
+  .rank { font-family: var(--mono); font-variant-numeric: tabular-nums;
+          font-size: 13px; color: var(--muted); width: 44px; }
+  .lockcell { width: 34px; }
+  .lock { display: inline-flex; align-items: center; justify-content: center;
+          width: 24px; height: 24px; border-radius: 7px; border: 1px solid transparent;
+          background: transparent; color: var(--muted); cursor: pointer; font-size: 12px; padding: 0; }
+  .lock[aria-pressed="true"] { background: var(--lock-bg); color: var(--lock); border-color: var(--lock); }
+
+  .name { font-weight: 700; color: var(--ink); font-size: 15px; min-width: 210px; }
+  .ref { font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+         font-weight: 400; display: block; margin-top: 2px; }
+
+  .scorecell { width: 94px; }
+  select.score {
+    font: inherit; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums;
+    border-radius: 999px; padding: 4px 8px; border: 1px solid currentColor;
+    background: var(--sbg); color: var(--sfg); cursor: pointer;
+  }
+  select.score:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+  .cat { font-size: 12.5px; color: var(--muted); display: block; margin-top: 4px; }
+
+  .who { font-size: 13.5px; color: var(--body); min-width: 116px; }
+  .askedby { font-size: 13.5px; min-width: 150px; }
+  .askedby.ours { color: var(--s4); font-weight: 600; }
+
+  .facts { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+  .fact { display: flex; flex-direction: column; gap: 2px; }
+  .fact label { font-size: 10px; font-weight: 700; letter-spacing: .1em;
+                text-transform: uppercase; color: var(--muted); }
+  .fact div { font-size: 13.5px; color: var(--body); line-height: 1.45; }
+
+  [contenteditable] { border-radius: 5px; outline: 1px dashed transparent; outline-offset: 3px; }
+  [contenteditable]:hover { outline-color: var(--line); }
+  [contenteditable]:focus { outline: 2px solid var(--accent-bright);
+                            background: color-mix(in srgb, var(--accent-bright) 9%, transparent); }
+
+  .del { border: none; background: transparent; color: var(--muted); cursor: pointer;
+         font-size: 16px; padding: 2px 6px; border-radius: 6px; width: 34px; }
+  .del:hover { color: var(--s5); background: var(--s5-bg); }
+
+  .zero-warn { color: var(--s5); font-weight: 600; font-size: 12.5px; margin-top: 4px; display: none; }
+  tr.main[data-score="0"] .zero-warn { display: block; }
+  tr.main[data-score="0"] .name { text-decoration: line-through; opacity: .65; }
+
+  /* ---------- context ---------- */
+  .prose { font-size: 15px; color: var(--body); display: flex; flex-direction: column; gap: 12px; }
+  .prose p { margin: 0; max-width: 78ch; }
+  .prose b { color: var(--ink); }
+  .pull { font-family: var(--serif); font-size: 16px; border-left: 3px solid var(--accent);
+          padding-left: 15px; color: var(--body); }
+
+  .keygrid { display: grid; gap: 7px; }
+  .keyrow { display: grid; grid-template-columns: 40px 1fr 1.3fr; gap: 12px;
+            align-items: start; padding: 8px 11px; border-radius: 9px;
+            background: var(--card); border: 1px solid var(--line); }
+  .keyrow b { color: var(--ink); }
+  .keyrow span { color: var(--muted); font-size: 14px; }
+
+  /* ---------- drop-tabs ---------- */
+  .drop { background: var(--card); border: 1px solid var(--line);
+          border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .drop > summary { cursor: pointer; list-style: none; padding: 14px 16px;
+                    display: flex; align-items: center; gap: 11px;
+                    font-weight: 700; color: var(--ink); font-size: 16px; }
+  .drop > summary::-webkit-details-marker { display: none; }
+  .drop > summary::before { content: "\203A"; font-size: 23px; line-height: 1; color: var(--muted);
+                            transition: transform .18s ease; display: inline-block; }
+  .drop[open] > summary::before { transform: rotate(90deg); }
+  .drop > summary:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: -3px; }
+  .drop > summary .tag { margin-left: auto; font-size: 12px; font-weight: 600;
+                         color: var(--muted); }
+  .dropbody { padding: 0 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+
+  .gone { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 620px; }
+  .gone th { text-align: left; font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+             color: var(--muted); padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); }
+  .gone td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .gone td:first-child { color: var(--ink); font-weight: 600; white-space: nowrap; }
+
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+           background: var(--ink); color: var(--card); font-size: 14px;
+           padding: 10px 18px; border-radius: 9px; box-shadow: var(--shadow); z-index: 40; }
+  .toast[hidden] { display: none; }
+
+  @media (max-width: 720px) {
+    .facts { grid-template-columns: 1fr; }
+    .keyrow { grid-template-columns: 34px 1fr; }
+    .keyrow span { grid-column: 2; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Mockup for approval &middot; 15 August 2026</div>
+    <h1>Advisor-e Work Queue</h1>
+    <p class="rule"><b>Blockers first, then score.</b> An item holding up other people beats a
+    higher-scoring one that holds up nobody. Every cell on this page is editable.</p>
+  </header>
+
+  <div class="bar">
+    <button id="add">+ Add an item</button>
+    <button class="ghost" id="copy">Copy as Markdown</button>
+    <button class="quiet" id="reset">Reset to saved list</button>
+    <span class="count"><b id="n">0</b> items &middot; <b id="nblock">0</b> blocking &middot; <b id="nmike">0</b> need Mike</span>
+  </div>
+
+  <div class="legend">
+    <span class="chip c5">5 <i>security / data</i></span>
+    <span class="chip c4">4 <i>user worse off</i></span>
+    <span class="chip c3">3 <i>helps sell it</i></span>
+    <span class="chip c2">2 <i>robustness</i></span>
+    <span class="chip c1">1 <i>internal only</i></span>
+    <span class="chip c0">0 <i>delete it</i></span>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="sortable" data-sort="rank">#<span class="arrow"> &#9660;</span></th>
+          <th title="Blocks other work">Blk</th>
+          <th>Item</th>
+          <th class="sortable" data-sort="score">Score<span class="arrow"></span></th>
+          <th>Waiting on</th>
+          <th class="sortable" data-sort="asked">Asked by<span class="arrow"></span></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <section>
+    <h2>Why this list exists</h2>
+    <div class="prose">
+      <p>The old list recorded who each item was <b>waiting for</b> and never who <b>wanted</b> it.
+      Once anything was written down, an AI&rsquo;s passing observation and Mike&rsquo;s instruction
+      looked identical &mdash; so every later session treated both as work. On 15 August two pieces of
+      unrequested work reached him dressed as priorities. One had grown from a single AI-written
+      sentence; the other from a cell in a mockup that didn&rsquo;t match the code.</p>
+
+      <p class="pull">&ldquo;Unless I specifically asked for it, unless it meets all my criteria for
+      building a better app, I want it deleted &mdash; off the list, not parked.&rdquo;</p>
+
+      <p>An audit that day cut <b>thirty-one items to fourteen</b>. One had already been built
+      seventeen days earlier. Three were the same blocker written three times. Two existed only to
+      maintain a document nobody read. A whole section of &ldquo;tidying&rdquo; broke the list&rsquo;s
+      own rule that a warning is not a task.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>How an item is scored</h2>
+    <div class="keygrid">
+      <div class="keyrow">
+        <b style="color:var(--s5)">5</b>
+        <b>Security, privacy or data integrity</b>
+        <span>Data could leak, reach the wrong tier, or be lost without anyone noticing</span>
+      </div>
+      <div class="keyrow">
+        <b style="color:var(--s4)">4</b>
+        <b>The user is worse off without it</b>
+        <span>An adviser or their client gets worse advice, a wrong screen, or no screen</span>
+      </div>
+      <div class="keyrow">
+        <b style="color:var(--s3)">3</b>
+        <b>It helps sell the package</b>
+        <span>A competitive advantage, or something a buyer asks to see before committing</span>
+      </div>
+      <div class="keyrow">
+        <b style="color:var(--s2)">2</b>
+        <b>Robustness &mdash; it fails better</b>
+        <span>Invisible until something breaks, and then it decides how bad the break is</span>
+      </div>
+      <div class="keyrow">
+        <b style="color:var(--s1)">1</b>
+        <b>Internal only</b>
+        <span>Helps us work. No customer would ever see it</span>
+      </div>
+      <div class="keyrow">
+        <b style="color:var(--s5)">0</b>
+        <b>Fails all of it</b>
+        <span>Serves no user, fixes nothing, sells nothing &mdash; <b>deleted, with its code</b></span>
+      </div>
+    </div>
+    <div class="prose">
+      <p class="pull"><b>&ldquo;Asked by&rdquo; is the field that matters most.</b> Not who the item
+      waits on &mdash; who <em>wanted</em> it. Neither of the two wasted jobs could have filled it in.
+      Anything marked <b style="color:var(--s4)">ours</b> has no requester outside this project and
+      has to justify itself or go.</p>
+      <p><b>The five fields are enforced, not encouraged.</b> A guard test fails the build if any item
+      in the repository is missing a score, a why, a risk, an <em>asked by</em> or a
+      <em>touches</em>. That is what stops this decaying back into a list of notes.</p>
+    </div>
+  </section>
+
+  <details class="drop">
+    <summary>Deleted &mdash; 15 August 2026 <span class="tag">13 items, gone with their code</span></summary>
+    <div class="dropbody">
+      <div class="prose">
+        <p><b>Deleted is not parked.</b> A parked item is still in the codebase and still an invitation
+        to finish it. These are gone from the list <em>and</em> from the code, recorded here so nobody
+        re-derives them &mdash; not so they can be revived.</p>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="gone">
+          <thead><tr><th>Item</th><th>Why it went</th></tr></thead>
+          <tbody>
+            <tr><td>2.2 &middot; Four missing hub tabs</td><td>Mismatch with a drawing is not a defect. The hubs were built 10&ndash;11 Aug; the mentor&rsquo;s two would show invented firms</td></tr>
+            <tr><td>2.4 &middot; Annual plan name</td><td>A working name already in use; nothing broken, nothing blocked</td></tr>
+            <tr><td>2.5 &middot; Five roll-up labels</td><td>Locale strings already on screen; nothing broken</td></tr>
+            <tr><td>2.7 &middot; Quiz free text</td><td><b>Already built 29 July</b> &mdash; sat here seventeen days as an open question</td></tr>
+            <tr><td>2.8 &middot; STATUS.md staleness</td><td>Machinery for a stale copy of a superseded file</td></tr>
+            <tr><td>2.10 &middot; Net Promoter Score</td><td>Part of the domain sweep nobody requested</td></tr>
+            <tr><td>4.3 &middot; Point CLAUDE.md at the register</td><td>Paperwork about paperwork; serves no user</td></tr>
+            <tr><td>4.6 a/b/c &middot; The domain-support sweep</td><td>Grew from one AI-written sentence. The fact-level result came back clean</td></tr>
+            <tr><td>4.10 &middot; Extend the invisible mode swap</td><td>Written as &ldquo;Ruled:&rdquo; &mdash; no record anywhere of who ruled it</td></tr>
+            <tr><td>4.11 &middot; Reconcile the two data layers</td><td>Duplicate of 3.1</td></tr>
+            <tr><td>5.1 &middot; Large components</td><td>A warning, not a task; no user impact by its own heading</td></tr>
+            <tr><td>5.2 &middot; Sparse doc comments</td><td>Same</td></tr>
+            <tr><td>5.3 &middot; Profile off browser storage</td><td>Duplicate of 3.1</td></tr>
+            <tr><td>5.4 &middot; Status table &ldquo;paused&rdquo; marker</td><td>Went with STATUS.md</td></tr>
+            <tr><td>5.5 &middot; Six firm-editable blocks</td><td>A menu of possible features nobody requested</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <details class="drop">
+    <summary>Parked by your own ruling <span class="tag">decisions, not tasks</span></summary>
+    <div class="dropbody">
+      <div class="prose">
+        <p>Nobody should re-raise these as open work. If circumstances change, <b>the ruling changes
+        first.</b></p>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="gone">
+          <thead><tr><th>Item</th><th>The ruling</th></tr></thead>
+          <tbody>
+            <tr><td>Template Check queue, Logic Tables rewording</td><td>Parked 13 Aug &mdash; sort them after UAT testing</td></tr>
+            <tr><td>The state-management refactor</td><td>Until the master app&rsquo;s UAT settles. A broad refactor under a live UAT moves the ground under the testers for no feature gain</td></tr>
+            <tr><td>The advisor-enablement distinction table</td><td>Ruled 22 Jun: keep the concerns separate. Evidence it is needed is accruing, but it stays parked</td></tr>
+            <tr><td>Broadening crisis detection</td><td>Build when a real session shows a missed crisis, not preemptively</td></tr>
+            <tr><td>The primary-issue clarification</td><td>Build if a real session produces a genuine fork</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function () {
+  'use strict'
+
+  var CATS = {
+    5: 'Security / data integrity',
+    4: 'User is worse off',
+    3: 'Helps sell the package',
+    2: 'Robustness',
+    1: 'Internal only',
+    0: 'Fails the test — delete it'
+  }
+
+  var SEED = [
+    { ref: '3.1', name: 'Provision MySQL', score: 5, blocks: true, who: 'Master team',
+      asked: 'Mike + master team', ours: false,
+      why: 'The credentials are still placeholders and no row has ever been written anywhere.',
+      risk: 'The biggest hole in the project. Progress, cases, courses and the people layer all run on files or in memory. Two real course sessions ran and both writes failed.',
+      touches: 'Every store in the app. Item 4.13 is the same wound seen from the inside.' },
+
+    { ref: '2.1', name: 'Send the master team the release number', score: 3, blocks: true, who: 'Mike',
+      asked: 'Mike — ruling 14 Aug', ours: false,
+      why: 'v0.8.0 is tagged and pushed and nobody outside has been told it exists.',
+      risk: 'The release round never starts. Every piece of feedback we need is deferred by however long this sits.',
+      touches: 'Everything already built. Three lines: pull the tag, no npm install, read UAT-LOAD-PACK.md first.' },
+
+    { ref: '4.8', name: 'Finish the course-builder walk-through', score: 4, blocks: true, who: 'Us',
+      asked: 'Mike — his release bar', ours: false,
+      why: 'The lifecycle and a real 14-turn advisor session were walked live. Still not walked: interrupting a stream with Start-fresh, refreshing to confirm a course survives, confirming the migration ran.',
+      risk: 'We hand UAT "key functionality in position" without having clicked the last of it. A green suite does not prove the app boots.',
+      touches: 'Course builder, advisor screen, the streaming path.' },
+
+    { ref: '3.3', name: 'Firm membership data', score: 3, blocks: true, who: 'Master team',
+      asked: 'Master team must supply', ours: false,
+      why: 'The firms table has no country, group or parent column, so nothing says which firms are in which group.',
+      risk: 'Both middle hubs show invented firms. They cannot be demonstrated honestly.',
+      touches: 'Both middle-tier hubs, every roll-up above a firm. Absorbs the old item 3.4.' },
+
+    { ref: '3.2', name: 'The middle-tier logins', score: 3, blocks: true, who: 'Master team',
+      asked: 'Master team must supply', ours: false,
+      why: 'No role value produces a global group manager or a group manager; the mentor still borrows platform-admin.',
+      risk: 'Two hubs that exist cannot be shown to anyone by signing in as that person.',
+      touches: 'firmAuth, every tier-resolved route.' },
+
+    { ref: '4.12', name: 'One handover story for the master team', score: 3, blocks: true, who: 'Us',
+      asked: 'ours — merge plan §6', ours: true,
+      why: 'The merged app’s own handover documents still describe a separate standalone application.',
+      risk: 'The master team reads documents describing an app that no longer exists and builds the tiers above it wrongly.',
+      touches: 'The Collaborate handover documents, the UAT load pack. Say the word if you would rather it went.' },
+
+    { ref: '4.13', name: 'Make a silent save failure loud', score: 5, blocks: false, who: 'Us',
+      asked: 'ours — confirmed live by Mike', ours: true,
+      why: 'v0.8.0 fixed the case where a database refuses a write. When nothing answers at all, the fallback writes a local file and the screen still says saved.',
+      risk: 'An adviser’s work vanishes and nobody finds out until they go looking. The course saved on 14 Aug did exactly this.',
+      touches: 'Every store. Production mode closes it, but that also forbids the dev tokens the middle hubs need.' },
+
+    { ref: '2.6', name: 'advisor_note — one line from you', score: 4, blocks: false, who: 'Mike',
+      asked: 'ours — found in Mike’s own tree', ours: true,
+      why: 'A node in your logic tree carries a real instruction about delivery method that reaches the AI nowhere — formatNodeForPrompt never reads the field.',
+      risk: 'The AI keeps choosing a delivery method against your own written instruction.',
+      touches: 'formatNodeForPrompt, every recommendation using that branch.' },
+
+    { ref: '2.3', name: 'Seminar’s seven lines — reword toward Public Speaking', score: 4, blocks: false, who: 'Mike',
+      asked: 'Mike — carried since s48', ours: false,
+      why: 'The gate correctly refuses to name a tool nobody can open, so seven lines of coaching never reach an adviser.',
+      risk: 'A table of coaching advisers simply are not receiving. This is not tidying.',
+      touches: 'Mentor Hub → Logic Tables → Get Seminar.' },
+
+    { ref: '2.9', name: 'The education-gate wording', score: 4, blocks: false, who: 'Mike',
+      asked: 'Mike — his own design, 16 Jul', ours: false,
+      why: 'Behaviour is already ruled: on low client literacy the adviser is asked whether to apply education-first, reasoning shown either way.',
+      risk: 'It stays uncoded. Advisers keep getting advice pitched over a client’s head.',
+      touches: 'The Advisory Staircase, the pre-recommendation prompt.' },
+
+    { ref: '4.9', name: 'Make the coaching reference inherit', score: 3, blocks: false, who: 'Us',
+      asked: 'ours — from the tier design', ours: true,
+      why: 'Its fifteen rows already carry stable ids; it never joined the inheritance mechanism and its firm side is append-only.',
+      risk: 'A firm cannot tailor its coaching reference the way it can everything else. The cascade has a hole in it.',
+      touches: 'resolveInheritedRows, the firm overlay, the coaching reference screen.' },
+
+    { ref: '4.4', name: 'Prove a Handbook edit survives a reload', score: 2, blocks: false, who: 'Mike',
+      asked: 'Mike — it is his Handbook', ours: false,
+      why: 'Edit-persistence is proven in code and has never been seen working in a browser.',
+      risk: 'The one-link Handbook may not actually keep an edit, and we would not know.',
+      touches: 'The published Handbook only. One click, and it has to be his — no browser automation here.' },
+
+    { ref: '4.7', name: 'Flip engine-strict back on', score: 2, blocks: false, who: 'Us',
+      asked: 'Stack Constitution', ours: false,
+      why: 'Still false. Two transitive packages over-declare their Node requirement and need pinning first.',
+      risk: 'The Node 14.15 lock is not enforced at install time, so a future install can drift off the spec silently.',
+      touches: '.npmrc, package.json overrides. Reinstall is overnight-only — follow the documented procedure.' },
+
+    { ref: '3.5', name: 'Reply to Carl about npm install', score: 1, blocks: false, who: 'Us',
+      asked: 'Carl — outside the project', ours: false,
+      why: 'Somebody outside is waiting on an answer.',
+      risk: 'Small, but it is a person waiting. One message.',
+      touches: 'Nothing in the app.' }
+  ]
+
+  var KEY = 'advisor-e-work-queue-v1'
+  var rows = document.getElementById('rows')
+  var toastEl = document.getElementById('toast')
+  var items = load()
+  var sortBy = 'rank'
+
+  function load () {
+    try {
+      var raw = localStorage.getItem(KEY)
+      if (raw) {
+        var parsed = JSON.parse(raw)
+        if (Array.isArray(parsed) && parsed.length) { return parsed }
+      }
+    } catch (e) { /* fall through to the seed */ }
+    return SEED.map(function (o) { return Object.assign({}, o) })
+  }
+
+  function save () {
+    try { localStorage.setItem(KEY, JSON.stringify(items)) } catch (e) { /* private mode */ }
+  }
+
+  function toast (msg) {
+    toastEl.textContent = msg
+    toastEl.hidden = false
+    clearTimeout(toast._t)
+    toast._t = setTimeout(function () { toastEl.hidden = true }, 2200)
+  }
+
+  function ordered () {
+    var copy = items.slice()
+    if (sortBy === 'score') {
+      copy.sort(function (a, b) { return (b.score - a.score) || (b.blocks - a.blocks) })
+    } else if (sortBy === 'asked') {
+      copy.sort(function (a, b) { return (b.ours - a.ours) || (b.blocks - a.blocks) || (b.score - a.score) })
+    } else {
+      copy.sort(function (a, b) { return (b.blocks - a.blocks) || (b.score - a.score) })
+    }
+    return copy
+  }
+
+  function cell (item, field, cls) {
+    var d = document.createElement('div')
+    d.className = cls || ''
+    d.contentEditable = 'true'
+    d.spellcheck = false
+    d.textContent = item[field]
+    d.addEventListener('input', function () { item[field] = d.textContent; save() })
+    return d
+  }
+
+  function paintScore (sel, score) {
+    sel.style.setProperty('--sfg', 'var(--s' + score + ')')
+    sel.style.setProperty('--sbg', 'var(--s' + score + '-bg)')
+  }
+
+  function render () {
+    rows.textContent = ''
+    ordered().forEach(function (item, i) {
+      var tr = document.createElement('tr')
+      tr.className = 'main'
+      tr.dataset.score = String(item.score)
+
+      var tdRank = document.createElement('td')
+      tdRank.className = 'rank'
+      tdRank.textContent = String(i + 1)
+      tr.appendChild(tdRank)
+
+      var tdLock = document.createElement('td')
+      tdLock.className = 'lockcell'
+      var lock = document.createElement('button')
+      lock.className = 'lock'
+      lock.type = 'button'
+      lock.textContent = '●'
+      lock.setAttribute('aria-pressed', item.blocks ? 'true' : 'false')
+      lock.title = item.blocks ? 'Blocks other work — click to clear' : 'Does not block — click to mark as blocking'
+      lock.addEventListener('click', function () { item.blocks = !item.blocks; save(); render() })
+      tdLock.appendChild(lock)
+      tr.appendChild(tdLock)
+
+      var tdName = document.createElement('td')
+      tdName.appendChild(cell(item, 'name', 'name'))
+      var ref = document.createElement('span')
+      ref.className = 'ref'
+      ref.textContent = 'item ' + item.ref
+      tdName.appendChild(ref)
+      var warn = document.createElement('div')
+      warn.className = 'zero-warn'
+      warn.textContent = 'Scores 0 — this is deleted, not filed.'
+      tdName.appendChild(warn)
+      tr.appendChild(tdName)
+
+      var tdScore = document.createElement('td')
+      tdScore.className = 'scorecell'
+      var sel = document.createElement('select')
+      sel.className = 'score'
+      ;[5, 4, 3, 2, 1, 0].forEach(function (v) {
+        var o = document.createElement('option')
+        o.value = String(v)
+        o.textContent = String(v)
+        if (v === item.score) { o.selected = true }
+        sel.appendChild(o)
+      })
+      paintScore(sel, item.score)
+      sel.addEventListener('change', function () { item.score = Number(sel.value); save(); render() })
+      tdScore.appendChild(sel)
+      var cat = document.createElement('span')
+      cat.className = 'cat'
+      cat.textContent = CATS[item.score]
+      tdScore.appendChild(cat)
+      tr.appendChild(tdScore)
+
+      var tdWho = document.createElement('td')
+      tdWho.appendChild(cell(item, 'who', 'who'))
+      tr.appendChild(tdWho)
+
+      var tdAsk = document.createElement('td')
+      tdAsk.appendChild(cell(item, 'asked', 'askedby' + (item.ours ? ' ours' : '')))
+      tr.appendChild(tdAsk)
+
+      var tdDel = document.createElement('td')
+      var del = document.createElement('button')
+      del.className = 'del'
+      del.type = 'button'
+      del.textContent = '×'
+      del.title = 'Delete this item'
+      del.addEventListener('click', function () {
+        items.splice(items.indexOf(item), 1); save(); render(); toast('Deleted — not parked.')
+      })
+      tdDel.appendChild(del)
+      tr.appendChild(tdDel)
+
+      rows.appendChild(tr)
+
+      var dr = document.createElement('tr')
+      dr.className = 'detail'
+      var dtd = document.createElement('td')
+      dtd.colSpan = 7
+      var facts = document.createElement('div')
+      facts.className = 'facts'
+      ;[['why', 'Why it matters'], ['risk', 'What we risk if we don’t'], ['touches', 'What it touches']]
+        .forEach(function (pair) {
+          var f = document.createElement('div')
+          f.className = 'fact'
+          var l = document.createElement('label')
+          l.textContent = pair[1]
+          f.appendChild(l)
+          f.appendChild(cell(item, pair[0]))
+          facts.appendChild(f)
+        })
+      dtd.appendChild(facts)
+      dr.appendChild(dtd)
+      rows.appendChild(dr)
+    })
+
+    document.getElementById('n').textContent = String(items.length)
+    document.getElementById('nblock').textContent = String(items.filter(function (i) { return i.blocks }).length)
+    document.getElementById('nmike').textContent = String(items.filter(function (i) { return /mike/i.test(i.who) }).length)
+  }
+
+  document.querySelectorAll('th.sortable').forEach(function (th) {
+    th.addEventListener('click', function () {
+      sortBy = th.dataset.sort
+      document.querySelectorAll('th.sortable .arrow').forEach(function (a) { a.textContent = '' })
+      th.querySelector('.arrow').textContent = ' ▼'
+      render()
+    })
+  })
+
+  document.getElementById('add').addEventListener('click', function () {
+    items.push({
+      ref: 'new', name: 'Name the item', score: 3, blocks: false, who: 'Us',
+      asked: 'ours — name a requester or delete it', ours: true,
+      why: 'Why does this matter?',
+      risk: 'What do we lose by not doing it? If nothing, score it 0.',
+      touches: 'What else moves if this moves?'
+    })
+    save(); render()
+    var last = rows.querySelectorAll('tr.main')
+    if (last.length) { last[last.length - 1].querySelector('.name').focus() }
+  })
+
+  document.getElementById('copy').addEventListener('click', function () {
+    var out = ['| # | Item | Score | Category | Blocks | Waiting on | Asked by | Why | Risk | Touches |',
+               '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |']
+    ordered().forEach(function (it, i) {
+      out.push('| ' + (i + 1) + ' | ' + it.ref + ' · ' + it.name + ' | ' + it.score + ' | ' +
+        CATS[it.score] + ' | ' + (it.blocks ? 'yes' : '—') + ' | ' + it.who + ' | ' + it.asked +
+        ' | ' + it.why + ' | ' + it.risk + ' | ' + it.touches + ' |')
+    })
+    var text = out.join('\n')
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () { toast('Copied — paste it back to me.') },
+        function () { toast('Could not copy. Select the table and copy by hand.') }
+      )
+    } else {
+      toast('Clipboard unavailable here — select the table and copy by hand.')
+    }
+  })
+
+  document.getElementById('reset').addEventListener('click', function () {
+    items = SEED.map(function (o) { return Object.assign({}, o) })
+    save(); render(); toast('Back to the saved list.')
+  })
+
+  render()
+})()
+</script>
