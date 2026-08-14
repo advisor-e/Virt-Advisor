@@ -17,8 +17,8 @@ that matters more than the feature did:
 > *"I am worried the app is becoming overwhelming for an accountant or their educators. If they
 > don't absolutely need to see it, why are we adding it to their hub pages?"*
 
-That single case was resolved on its own facts ([`domain-support-provenance-history.md`](domain-support-provenance-history.md)
-§8). Then he generalised it, unprompted:
+That single case was resolved on its own facts — the note was hidden below mentor level. Then he
+generalised it, unprompted:
 
 > *"Another 'litmus test' we can apply to all our functions are — is it marketable? — will it help
 > us sell the software package, is it a competitive advantage? — if not, it may just be confusing
@@ -80,8 +80,8 @@ the specific lesson of this one exchange.
 ## 5. The first recommendation was wrong, and how
 
 Asked whether to hide the note, the initial answer was **keep it** — on the strength of a sentence
-in [`domain-support-provenance.md`](domain-support-provenance.md) §1: *"A firm manager reviewing the
-material has no way to tell which sentences are theirs to change."*
+in the feature's own Brief: *"A firm manager reviewing the material has no way to tell which
+sentences are theirs to change."*
 
 **The Brief said it; the code did not support it.** The sentence assumed an ongoing hazard — AI
 adding words to a firm's material that the firm would want to clean off. There is no such path.
@@ -101,6 +101,35 @@ data and the document it had been copied to stayed wrong for a fortnight.
 
 ## 6. Where this page's own sources are
 
-The exchange is in the session record for 2026-08-14 (laptop, session 54). The decision it produced
-is in [`domain-support-provenance.md`](domain-support-provenance.md) under *Who may see a mark*, and
-the case that pins it is `tests/unit/authoredCommentaryScreen.test.js`.
+The exchange is in the session record for 2026-08-14 (laptop, session 54). ⚠ **The decision it
+produced no longer exists** — the Brief, the mechanism and its test were all deleted on 2026-08-15.
+
+---
+
+## 7. The day after: the test deleted the feature that produced it
+
+**2026-08-15.** Asked why a Client Survey item was on his list, Mike asked the question nobody had
+asked in a fortnight: *who requested this feature?* Traced through `ACTIONS.md`, the answer was
+**nobody**. The real defect — an acronym expansion invented as *"Conviction, Response"* — was his own
+find, corrected by him on 2026-07-31, with the follow-up **deferred in writing**. The line that
+spawned everything after it, *"the blast radius was never measured"*, was written by an AI session.
+When it was measured, the fact-level result was **clean**.
+
+His ruling, verbatim:
+
+> *"You are the senior software engineer — if it doesn't serve the user, make the system better
+> quality or robust, improve marketability — then get it the fuck out of my app."*
+
+And on the offer to park it rather than delete it:
+
+> *"Why would you park them!? That would mean they're still in the system — keep only the work that
+> makes a difference and get rid of all the other shit — just wastes my time and causes more
+> confusion."*
+
+**Two things this page now records that it could not before.** First, the test has teeth: it
+deleted the feature it was born from, one day later, including working tested code. Second,
+**hiding was the wrong answer on 2026-08-14** — not wrong on its own terms, but too small. The note
+came off three screens and everything behind it stayed: the data, the mechanism, the tests, a Brief,
+a mockup and five backlog items, all of which then generated more work. That correction is now in
+[`product-principles.md`](product-principles.md) §3. Full record:
+[`../ACTIONS.md`](../ACTIONS.md) §authored-commentary-sweep-deleted.

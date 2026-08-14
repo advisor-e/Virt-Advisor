@@ -19,7 +19,7 @@ section.firm-manager-hub.section
       //- (owner decision); its FirmDocuments component + document/storage routes
       //- remain in the codebase but dormant (logged in ACTIONS for later deletion).
       b-tab-item(label="Domain Support")
-        firm-domain-support(:api-token="apiToken" :scope="scope")
+        firm-domain-support(:api-token="apiToken")
 
       //- ── Tab: Logic Tables (FIRM-EDITABLE-TABLES-PLAN.md Phase 3, §0.6) ──
       //- The IF→THEN branch tables. Read-only preview (Slice A); Save + the

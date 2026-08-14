@@ -91,109 +91,39 @@
     not a fact.** Two items in a row were mis-titled in ways that would have produced real work
     with no effect. **Measure before believing an entry here.**
 
-- <a id="fabrication-sweep-cannot-be-automated"></a>☐ **P1 · DOC/BUILD — the domain-support
-  fabrication sweep CANNOT BE AUTOMATED, and this is proven rather than assumed.** 2026-08-14.
-  **Record this before anyone tries again**, because the obvious approach looks like it works.
-  Three detectors were built. **(1)** "Do this claim's words appear in the firm's documents?" —
-  across 115 business documents the answer is nearly always yes, so it reported a clean sweep, and
-  scored the *known* AIDCRA fabrication at **88% sourced** and a deliberately invented control
-  framework at **67%**. **(2)** Same question, but requiring the words to co-occur in one passage —
-  the nonsense control correctly fell to 22%, but the known fabrication still scored 88%, because
-  **most of a fabrication is usually true**: it was two substituted words inside an otherwise
-  faithful claim. A score threshold therefore separated the one known fault from clean rows by two
-  percentage points. **(3)** Row-level prose traceability — flagged 157 of 223 rows, until it was
-  run against transcriptions *known* to be faithful, which scored **31–70% themselves**. It was
-  measuring how closely wording copies the source, not whether it is true; the material is
-  paraphrased into the firm's voice by design, so paraphrase and invention are indistinguishable
-  to it. **The four controls any future detector must pass before its numbers are quoted:** the
-  known fabrication must be flagged; its corrected form must pass; an invented control framework
-  must fail; a verbatim line from a real source must pass. Detector (1)'s numbers were **discarded
-  rather than reported** because it failed two of them. Full account:
-  [`features/domain-support-provenance-history.md`](features/domain-support-provenance-history.md) §2–3.
-  **A fourth confirmation, 2026-08-14, this time a measurement rather than a failed build:** scoring
-  every clause against every sentence in all 115 documents, the **nine known marks score 25%–75%**
-  and **61 clauses that are not marks fall inside that same band**. No threshold separates them.
-
-- <a id="domain-support-sweep-read-half"></a>◐ **P2 · DOC — the authored-commentary read is half
-  done: 19 of 29 domains, 104 of 194 materials.** 2026-08-14. Record, method and the cleared list:
-  [`DOMAIN-SUPPORT-SWEEP-PROGRESS.md`](DOMAIN-SUPPORT-SWEEP-PROGRESS.md). **No marks written** —
-  Mike ruled the whole read completes first and the marks go in as one batch, because this is
-  beta-stage detail that must not hold up a release to the master coding team. Yield so far: **1
-  confirmed clause** (*"not a pitch"*, `sales-marketing-powerful-seminars` step 16) and 7 candidates,
-  the most serious being *"Treating coincidence as causation is the most common form of tampering"*
-  in `data-systems-deming-s-theory-of-volatility` — **a factual claim about a named framework, which
-  P5 says is never ours to author**, and a more serious class than a rationale tail. 🔴 **The
-  150–200 estimate is WITHDRAWN**, not merely unproven: eighteen further domains failed to reproduce
-  it. **The habit tracks the shape of the source document, not the transcriber** — terse source steps
-  got expanded and acquired tails; already-prose source steps were transcribed near-verbatim.
-  ⚠ **A grep bug cost two false positives** — `grep -E "a\|b"` treats `\|` as a *literal* pipe, so
-  two "appears nowhere in the 115 documents" findings were wrong (*"3-ton loads"* and a guilt clause
-  are the firm's own words). Under `-E` use `|`, and re-run any zero-match before believing it; a
-  false positive here attributes the firm's own writing to us. Remaining ten domains listed in
-  [`features/to-do.md`](features/to-do.md) §4.6.
-
-- <a id="domain-support-rows-with-no-source"></a>☐ **P1 · DOC — 20 domain-support rows match NO
-  source document at all.** Found 2026-08-14 while mapping every material to its source; **measured,
-  not investigated.** Under 6% word overlap with any of the 115 firm documents, concentrated in
-  `people-power` (8), `fm-coach-culture` (4) and `org-board-pack` (3) — the three largest domains
-  still unread. Two of the Board Pack rows were already flagged in
-  [`DOMAIN-SUPPORT-REVIEW-CHECKLIST.md`](DOMAIN-SUPPORT-REVIEW-CHECKLIST.md) as unsourced, so this is
-  a wider instance of a known fault, not a new one. **This is a different and probably larger problem
-  than the commentary sweep — a row with no source behind it, versus a row with an added clause — and
-  it must never be answered with a commentary mark.** The five `sales-marketing` rows in the count
-  carry no steps at all and are the known deliberate index-row gap, not a defect. Task:
-  [`features/to-do.md`](features/to-do.md) §4.6a.
-
-- <a id="domain-support-undeclared-edits"></a>☐ **P2 · DECISION — two undeclared edits to the firm's
-  own material.** Found 2026-08-14. Neither is authored commentary, so neither belongs in
-  `authored_commentary`; both are changes to the firm's words with nothing recording that we made
-  them — the same family as the marking problem. **(1)** `get-seminar-blank-platform-template` step 5
-  renumbers the source's *"Stage 2 (Call to Action & Close)"* to *"Stage 4"*; the source runs
-  1, 1, 2, 3, 2, so it is almost certainly a correction of their own typo. **(2)**
-  `forecasting-cash-tactics` step 4 softens the source's *"If they refuse, **fire them as a client**"*
-  to *"stop acting for them."* **Needs Mike's call on each.** Task:
-  [`features/to-do.md`](features/to-do.md) §4.6b.
-
-- <a id="domain-support-authored-commentary"></a>◐ **P1 · BUILD — authored commentary in the
-  domain-support data must be MARKED as ours.** Mike's ruling 2026-08-14: *mark them* — not
-  deleted, not left silent. **The facts are clean:** all 140 marker-carrying claims (every acronym
-  expansion, counted list, quotation, named authority) verified present in the firm's own
-  documents; the AIDCRA row matches its source exactly. **What was found instead:** nine short
-  clauses across seven of the nine sourced Strategy rows that appear in **none** of the firm's 115
-  documents — glosses explaining why a step matters. One per row, steadily, two rows completely
-  clean: a writing habit, not accidents. ⚠ **The 150–200 estimate rests on ONE domain of
-  twenty-nine — never quote it as a count.** `domain-support.md` P2 carries the rule; the nine
-  clauses are listed verbatim in
-  [`features/domain-support-provenance.md`](features/domain-support-provenance.md) §4. Closes the
-  open half of the old *measure the blast radius* item, which had no answer at all.
-  - ✅ **(a) THE MARKING MECHANISM IS BUILT — `90b673d`, 2026-08-14 (laptop, Mike-approved at each
-    step).** Approved from a saved artefact rather than from chat:
-    [`mockups/domain-support-authored-commentary.html`](mockups/domain-support-authored-commentary.html),
-    registered in [`ARTEFACTS.md`](ARTEFACTS.md), with all six decisions recorded on the page in the
-    words they were made in. **An `authored_commentary` list beside a material's `steps`** holds the
-    words verbatim, the date checked and what was searched — additive, so a material with no marks
-    is byte-for-byte what it was and the other 28 areas are untouched until swept. **The words are
-    the anchor, never a step number**, because the screen already allows reordering and an index
-    would quietly come to mean a different sentence; the price is paid twice over by
-    `tests/unit/authoredCommentary.test.js` (fails the build on a platform mark that is missing or
-    ambiguous, across ALL 29 areas from day one) and by `livingCommentary()` re-checking presence at
-    the point of display — the only thing that protects a firm's own saved copy, which no test can
-    reach. **The AI gets the steps UNCHANGED** plus a block naming what was ours; both prompt paths
-    carry it. **The control:** highlight the words, press *"This is our wording"* — never retyped, so
-    a mark that does not match its sentence cannot be created at all. **`canMark` is
-    `scope === 'mentor'`, named POSITIVELY** (Tier Cascade P5 — a negative gate answers *yes* for a
-    tier that does not exist yet). Firm-level marking waits on its own label wording, which is asked
-    for rather than invented. +30 tests, suite **5,221 → 5,251 green / 306 suites**, lint clean.
-    ⚠ **Never run in the app** — proven by tests, not by use; no dev server was started.
-    ⚠ **A screen-made mark records `"marked on screen — no corpus search recorded"`** and is NOT the
-    same claim as one from a sweep. Rule for the sweep:
-    [`features/domain-support-provenance.md`](features/domain-support-provenance.md) §4.1.
-  - ☐ **(b) The sweep of the other 28 domains — NOT started.** ⚠ **The mechanism does not FIND
-    anything; it is the container.** Finding a clause is still a person reading a domain beside its
-    own source PDF, because three detectors were built and all three were defeated by paraphrase.
-    Order by weight — Seminar, EOY, Sales & Marketing after Strategy — and run
-    `npx jest tests/unit/authoredCommentary.test.js` after each domain, so a mistyped fragment is
-    caught while that domain is still open.
+- <a id="authored-commentary-sweep-deleted"></a>🗑 **DELETED 2026-08-15 — the entire
+  authored-commentary sweep, on Mike's instruction. Five entries stood here; they are gone, and so
+  are the documents, the tasks and the code.** He asked who had requested the feature. The answer,
+  traced through this file: **nobody.** The real defect was his own — the A.I.D.C.R.A expansion
+  invented as *"Conviction, Response"* — and he **corrected it himself on 2026-07-31** and then
+  **deferred the follow-up in writing** (*"logged deliberately, NOT to be picked up next"*). The
+  sentence that spawned everything after it, *"the blast radius was never measured"*, was written by
+  an AI session, not by him. A later AI session read that sentence and measured it; the fact-level
+  result came back **clean — all 140 checkable claims verified present in the firm's own
+  documents** — and the sweep then pursued a writing-style question nobody had asked for, growing
+  into a Brief, a mockup, a marking mechanism, a 29-domain read and a 49-item batch.
+  - **What was removed:** `DOMAIN-SUPPORT-SWEEP-PROGRESS.md`, `features/domain-support-provenance.md`
+    and its history, the mockup `domain-support-authored-commentary.html`, the `ARTEFACTS.md` row, the
+    `features/README.md` index row, `to-do.md` §2.10 / §4.6 / §4.6a / §4.6b / §4.6c, and the built
+    mechanism — nine tags in `data/strategy-domain-support.json`, `livingCommentary()` and the AI
+    prompt block in `server/utils/domainSupport.js`, the *"This is our wording"* control in
+    `components/firm/FirmDomainSupport.vue`, five `locales/en.json` keys and three test files.
+    The code files were restored to their exact pre-`90b673d` state; no other work rode on them.
+  - **What was KEPT, deliberately:** the A.I.D.C.R.A correction in the data (the real defect, fixed);
+    `domain-support.md` **P2**, back to its original wording — *never invent the firm's material* is
+    unchanged and still binding; `DOMAIN-SUPPORT-REVIEW-CHECKLIST.md` (Mike's own working document);
+    `features/product-principles.md`; and the dated session notes, which are the record of how this
+    grew and must not be rewritten.
+  - 🔴 **The lesson, and it is the reason this entry exists rather than a silent deletion.** An AI
+    session wrote *"the blast radius was never measured"* into this file as an observation. Nothing
+    marked it as unrequested. Two weeks later another session read it as a task, and the project
+    spent parts of three sessions on work the owner had explicitly parked — then it was put back in
+    front of him at the top of a startup report, above his own standing ruling that this exact sweep
+    must not hold a release. **An observation written here is not a task, and an AI-authored line in
+    this file carries no authority at all.** The test that now governs is
+    [`features/product-principles.md`](features/product-principles.md), in Mike's words on
+    2026-08-15: *if it does not serve the user, make the system better quality or robust, or improve
+    marketability, it comes out of the app.*
 
 - <a id="feature-starts-as-a-page"></a>✅ **P2 · BUILD — a new feature now starts as a Handbook
   page, by command rather than by discipline.** Closed 2026-08-14, part 3 of Mike's instruction and
@@ -280,17 +210,15 @@
   - **Why it is logged rather than just fixed.** Prose copies are the ones nothing tests. A
     correction is not complete until every copy of the wrong thing is found — and the repo-wide
     sweep that proves it took one command.
-  - ⚠ **CORRECTED 2026-08-14 — this bullet said the blast radius had "never been measured" and
-    that "no sweep has checked the other domain-support rows". Both stopped being true on
-    2026-08-14** and the line was found still standing a day later, which is the same fault as the
-    ~~stale-counts~~ item below: a prose claim nothing tests, left to age. **What is actually
-    true:** the fact-level sweep is DONE and CLEAN — all 140 marker-carrying claims across the
-    dataset (every acronym expansion, counted list, quotation and named authority) were verified
-    present in the firm's own documents. What it turned up instead was a different fault — authored
-    commentary — of which **one domain of twenty-nine has been read**. The open verification pass is
-    therefore the remaining 28 domains, not the blast radius question, which has its answer. See
-    [§domain-support-authored-commentary](#domain-support-authored-commentary) and
-    [§fabricated-detail-in-summaries](#fabricated-detail-in-summaries).
+  - ⚠ **CLOSED 2026-08-15. This bullet used to say the blast radius had "never been measured" and
+    that "no sweep has checked the other domain-support rows" — and that sentence is what caused all
+    the trouble.** Nobody asked for it; an AI session wrote it here as an observation, and a later
+    session read it as a task. It was measured on 2026-08-14 and **the result was clean: all 140
+    marker-carrying claims across the dataset — every acronym expansion, counted list, quotation and
+    named authority — were verified present in the firm's own documents.** No second fabrication
+    exists. The style sweep that followed was deleted on 2026-08-15 at Mike's instruction; see
+    [§authored-commentary-sweep-deleted](#authored-commentary-sweep-deleted). **Nothing here is
+    open.** The A.I.D.C.R.A correction stands and is verified in the data.
 
 - <a id="stale-counts-in-design-docs"></a>☐ **P3 · DOC — six design documents carry counts and
   build-status claims that were true when written and are now wrong.** Catalogued 2026-08-13 while

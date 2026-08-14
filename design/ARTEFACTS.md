@@ -40,7 +40,6 @@ approved, never saved, and gone a day later.
 | Case origin path | [case-origin.html](mockups/case-origin.html) | Case Reviews, Cases & Clients, Tier Cascade |
 | Debtor Drag | [debtor-drag-mockup.html](mockups/debtor-drag-mockup.html) | ⚠ nothing — see *Orphans* below |
 | Decision logic map | [decision-logic-map-mockup.html](mockups/decision-logic-map-mockup.html) | LOGIC-LAB-BUILD-VS-MOCKUP.md |
-| Domain Support — marking our commentary | [domain-support-authored-commentary.html](mockups/domain-support-authored-commentary.html) | domain-support-provenance.md, to-do.md item 4.6 |
 | EBITDA-DCF deconstruction | [ebitda-dcf-deconstruction-preview.html](mockups/ebitda-dcf-deconstruction-preview.html) | BUSINESS-PERFORMANCE-REPORT-PLAN.md |
 | EBITDA-DCF screen | [ebitda-dcf-mockup.html](mockups/ebitda-dcf-mockup.html) | BUSINESS-PERFORMANCE-REPORT-PLAN.md |
 | Firm quiz builder | [firm-quiz-builder-mockup.html](mockups/firm-quiz-builder-mockup.html) | ACTIONS.md, 2026-07-21 desktop notes |

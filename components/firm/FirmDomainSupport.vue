@@ -155,48 +155,7 @@ section.firm-domain-support
                           type="textarea"
                           rows="1"
                           :aria-label="$t('firmDomainSupport.stepLabel', { n: sIndex + 1 })"
-                          @mouseup.native="captureSelection($event, mIndex, sIndex)"
-                          @keyup.native="captureSelection($event, mIndex, sIndex)"
                         )
-
-                        //- Commentary WE authored inside the firm's own sentence
-                        //- (owner's ruling 2026-08-14). Shown only while those exact
-                        //- words are still in the box above: rewrite the sentence and
-                        //- the words become the firm's, so the note retires itself
-                        //- rather than pointing at text nobody wrote.
-                        //-
-                        //- Platform level only — see `canSeeMarks`. A manager below
-                        //- the mentor can do nothing with this note, and screen space
-                        //- a reader cannot act on is clutter. The v-if sits on a
-                        //- template, not on .ds-mark, because v-if and v-for on one
-                        //- element is a lint error and reads ambiguously besides.
-                        template(v-if="canSeeMarks")
-                          .ds-mark(v-for="mark in marksIn(material, step)" :key="mark.text")
-                            //- Retained under canSeeMarks: the two gates answer
-                            //- different questions, and seeing widens first.
-                            button.ds-unmark(
-                              v-if="canMark"
-                              type="button"
-                              :aria-label="$t('firmDomainSupport.unmark')"
-                              :title="$t('firmDomainSupport.unmark')"
-                              @click="unmark(material, mark)"
-                            ) ×
-                            span.ds-mark-lab {{ $t('firmDomainSupport.markedLabel') }}
-                            q.ds-mark-text {{ mark.text }}
-
-                        //- Making a mark: highlight the words, press the button. The
-                        //- words are never retyped, so a mark cannot come adrift from
-                        //- the sentence it names.
-                        .ds-mark-tools(v-if="canMark")
-                          button.ds-mark-btn(
-                            type="button"
-                            :disabled="!hasSelectionIn(mIndex, sIndex)"
-                            @click="markSelection(material, mIndex, sIndex)"
-                          ) {{ $t('firmDomainSupport.markButton') }}
-                          span.ds-mark-hint(v-if="hasSelectionIn(mIndex, sIndex)")
-                            | {{ $t('firmDomainSupport.markSelected', { n: selectionWordCount }) }}
-                          span.ds-mark-hint(v-else) {{ $t('firmDomainSupport.markHint') }}
-
                         .ds-step-tools
                           button.ds-step-move(
                             type="button"
@@ -285,15 +244,7 @@ export default {
 
   props: {
     /** Bearer token for the firm-manager API (the server re-checks every call). */
-    apiToken: { type: String, required: true },
-    /**
-     * Which tier is looking at this screen, passed down from FirmManagerHub.
-     * Read for two things only, both about commentary marks: who may SEE one
-     * (`canSeeMarks`) and who may MAKE one (`canMark`). The material itself,
-     * and every control over it, behaves identically at every tier — that is
-     * the cascade rule, and it is unchanged.
-     */
-    scope: { type: String, default: 'firm' }
+    apiToken: { type: String, required: true }
   },
 
   data () {
@@ -321,59 +272,11 @@ export default {
        *  display preference like the drag-to-size box heights — remembered in
        *  this browser only, never in the firm's saved content. Restored in
        *  mounted(), never here: localStorage does not exist during SSR. */
-      railHidden: false,
-      /** The text currently highlighted inside one step box, and which box it
-       *  belongs to ('<materialIndex>:<stepIndex>'). Held so the Mark button
-       *  knows what it would mark; cleared once used. */
-      selection: { key: '', text: '' }
+      railHidden: false
     }
   },
 
   computed: {
-    /**
-     * Who may SEE a commentary mark. Platform level only (owner's ruling
-     * 2026-08-14, second sitting): nothing in the running app writes into a
-     * firm's material — the clauses came from our own transcription of the
-     * firm's sources — so below the mentor a mark is a record of finished
-     * work, not a tool. It fails the marketability test in
-     * `design/features/product-principles.md`: a manager cannot act on it, so
-     * it is screen space spent on nothing.
-     *
-     * ⚠ TRIGGER, not a preference. The day anything in the app drafts or
-     * extends material FOR a firm, this must widen — that firm would then need
-     * to see which words it did not write. Pinned by the "a manager sees
-     * nothing" case in tests/unit/authoredCommentaryScreen.test.js, which
-     * carries the same note, so widening is a deliberate act.
-     *
-     * Kept separate from `canMark` rather than reusing it: they answer
-     * different questions and the first will widen before the second.
-     * @returns {boolean}
-     */
-    canSeeMarks () {
-      return this.scope === 'mentor'
-    },
-
-    /**
-     * Who may MAKE or REMOVE a commentary mark. Named positively — `=== 'mentor'`,
-     * never `!== 'firm'` — because Tier Cascade P5's trap is that a gate written
-     * as a negative answers *yes* for a tier that does not exist yet, and switches
-     * itself on silently the day one is added.
-     *
-     * Platform level only for now (owner's ruling 2026-08-14). A firm marking
-     * commentary IT has written is a real case and will come; the label above
-     * the mark is the platform speaking to a firm and would read wrong in a
-     * firm's own voice, so that wording is asked for rather than invented.
-     * @returns {boolean}
-     */
-    canMark () {
-      return this.scope === 'mentor'
-    },
-
-    /** Words in the current highlight, for the hint beside the button. */
-    selectionWordCount () {
-      return this.selection.text.trim().split(/\s+/).filter(Boolean).length
-    },
-
     /**
      * The rail: the three master-section groups (Do the Job / Get the Job / Get
      * Organised), each a flat list filtered by the search box. An empty group is
@@ -426,91 +329,6 @@ export default {
   },
 
   methods: {
-    /**
-     * Remember what is highlighted inside a step box, so the Mark button knows
-     * what it would mark. Fired on mouseup and keyup rather than the `select`
-     * event because those bubble reliably through Buefy's wrapper.
-     * @param {Event} event - native mouseup/keyup from inside the b-input
-     * @param {number} mIndex - material index
-     * @param {number} sIndex - step index
-     */
-    captureSelection (event, mIndex, sIndex) {
-      const el = event.target
-      if (!el || typeof el.selectionStart !== 'number') { return }
-      const text = String(el.value || '').slice(el.selectionStart, el.selectionEnd)
-      this.selection = text.trim() ? { key: `${mIndex}:${sIndex}`, text } : { key: '', text: '' }
-    },
-
-    /**
-     * True when the live highlight belongs to this step box. Selection is held
-     * for one box at a time, so the button only wakes up under the words it
-     * would actually mark.
-     * @param {number} mIndex
-     * @param {number} sIndex
-     * @returns {boolean}
-     */
-    hasSelectionIn (mIndex, sIndex) {
-      return this.selection.key === `${mIndex}:${sIndex}` && this.selection.text.trim().length > 0
-    },
-
-    /**
-     * The marks belonging to one step: those whose recorded words still appear
-     * in it. A mark stores the words rather than a step number so reordering
-     * cannot make it point at a different sentence; the price is that an edit
-     * can orphan it, and this presence check is what makes that harmless —
-     * the note simply retires.
-     * @param {{authored_commentary?: Array<{text: string}>}} material
-     * @param {string} step - the step's CURRENT text, as edited on screen
-     * @returns {Array<{text: string}>}
-     */
-    marksIn (material, step) {
-      const list = material && material.authored_commentary
-      if (!Array.isArray(list) || !step) { return [] }
-      return list.filter(mark => mark && mark.text && step.includes(mark.text))
-    },
-
-    /**
-     * Mark the highlighted words as ours. The words are taken from the live
-     * selection and never retyped, which is why a mark cannot be created that
-     * does not match its sentence.
-     *
-     * `searched` records HOW the mark was justified and is deliberately honest:
-     * a mark made here has not been checked against the firm's document corpus,
-     * unlike the nine written during the 2026-08-14 sweep. A future reader must
-     * be able to tell those apart.
-     * @param {Object} material - the material being edited
-     * @param {number} mIndex
-     * @param {number} sIndex
-     */
-    markSelection (material, mIndex, sIndex) {
-      if (!this.hasSelectionIn(mIndex, sIndex)) { return }
-      const text = this.selection.text.trim()
-      if (!Array.isArray(material.authored_commentary)) {
-        this.$set(material, 'authored_commentary', [])
-      }
-      const already = material.authored_commentary.some(m => m && m.text === text)
-      if (!already) {
-        material.authored_commentary.push({
-          text,
-          checked: new Date().toISOString().slice(0, 10),
-          searched: 'marked on screen — no corpus search recorded'
-        })
-      }
-      this.selection = { key: '', text: '' }
-    },
-
-    /**
-     * Take a mark back off. The firm's sentence is untouched — only the claim
-     * about who wrote those words goes away.
-     * @param {Object} material
-     * @param {{text: string}} mark
-     */
-    unmark (material, mark) {
-      if (!Array.isArray(material.authored_commentary)) { return }
-      const at = material.authored_commentary.indexOf(mark)
-      if (at !== -1) { material.authored_commentary.splice(at, 1) }
-    },
-
     /**
      * Restore the collapsed/expanded state of the domain list from this
      * browser. Client-only and failure-tolerant: private browsing or blocked
@@ -604,12 +422,6 @@ export default {
           summary: m.summary || '',
           who_when: m.who_when || '',
           steps: Array.isArray(m.steps) ? m.steps.slice() : [],
-          // Carried through the editable copy, not dropped: a firm editing one
-          // step must not silently strip the marks on every other step. Cloned
-          // per mark so editing this copy cannot reach the fetched payload.
-          authored_commentary: Array.isArray(m.authored_commentary)
-            ? m.authored_commentary.map(mark => Object.assign({}, mark))
-            : [],
           origin: rowOrigin
         }))
       }
@@ -620,32 +432,16 @@ export default {
      * The materials as they will be saved: the on-screen-only `origin` field
      * dropped, text trimmed, and blank steps removed. Also the comparison shape
      * for `dirty`, so a pure-whitespace change never counts as an edit.
-     *
-     * Orphaned marks are dropped here rather than saved. A mark whose words are
-     * no longer in the material has already stopped showing on screen, and
-     * storing one would leave a claim in the data that nothing displays and no
-     * one can remove — the silent state this whole mechanism exists to prevent.
-     * An empty list is omitted so a material with no marks saves exactly the
-     * shape it did before.
      * @param {Array<Object>} materials
-     * @returns {Array<{name,summary,who_when,steps:string[],authored_commentary?:Array}>}
+     * @returns {Array<{name,summary,who_when,steps:string[]}>}
      */
     cleanMaterials (materials) {
-      return (materials || []).map((m) => {
-        const steps = (m.steps || []).map(s => (s || '').trim()).filter(Boolean)
-        const haystack = [(m.summary || '').trim(), (m.who_when || '').trim()].concat(steps).join('\n')
-        const marks = (m.authored_commentary || [])
-          .filter(mark => mark && typeof mark.text === 'string' && mark.text.trim() &&
-            haystack.includes(mark.text))
-        const clean = {
-          name: (m.name || '').trim(),
-          summary: (m.summary || '').trim(),
-          who_when: (m.who_when || '').trim(),
-          steps
-        }
-        if (marks.length > 0) { clean.authored_commentary = marks }
-        return clean
-      })
+      return (materials || []).map(m => ({
+        name: (m.name || '').trim(),
+        summary: (m.summary || '').trim(),
+        who_when: (m.who_when || '').trim(),
+        steps: (m.steps || []).map(s => (s || '').trim()).filter(Boolean)
+      }))
     },
 
     /**
@@ -1037,53 +833,6 @@ export default {
   cursor: pointer;
 }
 .ds-step-add:hover { background: #f5f7fa; }
-
-/* Commentary we authored inside the firm's own sentence. Kept visually quiet —
-   it is an attribution, not a warning (Tier Cascade P9: help, never score). */
-.ds-mark {
-  position: relative;
-  margin-top: 0.3rem;
-  padding: 0.3rem 1.3rem 0.3rem 0.45rem;
-  font-size: 0.72rem;
-  line-height: 1.5;
-  color: #4a3266;
-  background: #f7f3fc;
-  border-left: 3px solid #c4a8e0;
-  border-radius: 0 3px 3px 0;
-}
-.ds-mark-lab { font-weight: 700; color: #6b3fa0; margin-right: 0.25rem; }
-.ds-mark-text { font-style: italic; }
-.ds-unmark {
-  position: absolute;
-  top: 0.15rem;
-  right: 0.2rem;
-  border: 0;
-  background: none;
-  color: #6b3fa0;
-  cursor: pointer;
-  font-size: 0.95rem;
-  line-height: 1;
-  padding: 0.1rem 0.25rem;
-}
-.ds-unmark:hover { color: #cc0f35; }
-.ds-mark-tools { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.3rem; }
-.ds-mark-btn {
-  font-size: 0.72rem;
-  font-weight: 600;
-  border-radius: 4px;
-  padding: 0.25rem 0.6rem;
-  background: #6b3fa0;
-  border: 1px solid #6b3fa0;
-  color: #fff;
-  cursor: pointer;
-}
-.ds-mark-btn[disabled] {
-  background: #f6f7f9;
-  border-color: #d8dce3;
-  color: #b0b6c0;
-  cursor: not-allowed;
-}
-.ds-mark-hint { font-size: 0.71rem; color: #7a869a; }
 
 /* Action bar. */
 .ds-actionbar {

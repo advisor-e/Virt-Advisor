@@ -28,7 +28,6 @@ Claude for the link.
 | [Logic Tables](logic-tables.md) — the advisory thinking, written down | [history](logic-tables-history.md) |
 | [Domain Support](domain-support.md) — the material the AI draws on | [history](domain-support-history.md) |
 | [Advisory Distinctions](advisory-distinctions.md) — teaching the engine, without code | [history](advisory-distinctions-history.md) |
-| [Domain Support Provenance](domain-support-provenance.md) — what we wrote, and what the firm wrote | [history](domain-support-provenance-history.md) |
 
 ## Hub pages — mentor & firm
 

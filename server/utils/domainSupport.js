@@ -92,44 +92,11 @@ function resolveDomainSupport (domainId, firmSupport) {
 }
 
 /**
- * The marked fragments of a material that are STILL PRESENT in its text.
- *
- * A mark records the words verbatim rather than a step number, so reordering
- * the steps cannot make it point at a different sentence. The price is that an
- * edit to the text can orphan a mark — so presence is checked at the point of
- * use and an orphan is simply not rendered. Platform data is held to the
- * stronger rule by tests/unit/authoredCommentary.test.js, which fails the build
- * on an orphan rather than letting it disappear quietly; this check is what
- * keeps a FIRM's edited copy honest, where no test can reach.
- *
- * @param {{summary?: string, who_when?: string, steps?: Array<string>, authored_commentary?: Array<{text: string}>}} material
- * @returns {Array<string>} the surviving fragments, in the order they are recorded
- */
-function livingCommentary (material) {
-  if (!material || !Array.isArray(material.authored_commentary)) { return [] }
-  const haystack = [material.summary || '', material.who_when || '']
-    .concat(Array.isArray(material.steps) ? material.steps : [])
-    .join('\n')
-  return material.authored_commentary
-    .filter(mark => mark && typeof mark.text === 'string' && mark.text.trim() &&
-      haystack.includes(mark.text))
-    .map(mark => mark.text)
-}
-
-/**
  * Formats one four-column material (§0.5: name / summary / who & when / steps)
  * into prompt lines. The four-column `materials` shape is the re-authored
  * domain-support standard; files still on the legacy `support_tools` shape are
  * rendered by each caller's fallback branch, unchanged.
- *
- * Commentary we authored ABOUT a step — as opposed to the firm's own method —
- * is named in a block after the steps (owner's ruling 2026-08-14, P6 of
- * design/features/domain-support-provenance.md: "the AI is told which is
- * which"). The steps themselves reach the model UNCHANGED, so the method still
- * reads as one instruction; only the attribution is added. A material with no
- * marks renders exactly as it did before.
- *
- * @param {{name?: string, summary?: string, who_when?: string, steps?: Array<string>, authored_commentary?: Array<{text: string}>}} material
+ * @param {{name?: string, summary?: string, who_when?: string, steps?: Array<string>}} material
  * @returns {Array<string>}
  */
 function formatMaterialLines (material) {
@@ -141,11 +108,6 @@ function formatMaterialLines (material) {
   if (Array.isArray(material.steps) && material.steps.length > 0) {
     lines.push('**How to use it:**')
     material.steps.forEach((step, i) => lines.push(`${i + 1}. ${step}`))
-  }
-  const ours = livingCommentary(material)
-  if (ours.length > 0) {
-    lines.push("**Not the firm's own words — commentary added by Advisor-e. Do not present these as the firm's method:**")
-    ours.forEach(text => lines.push(`- "${text}"`))
   }
   return lines
 }
@@ -440,4 +402,4 @@ function detectDomainsForDesign (query, firmSupport) {
     .map(s => s.domainId)
 }
 
-module.exports = { resolveDomainSupport, formatDomainSupportForPrompt, supportIdForLearnTree, detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign, livingCommentary }
+module.exports = { resolveDomainSupport, formatDomainSupportForPrompt, supportIdForLearnTree, detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign }

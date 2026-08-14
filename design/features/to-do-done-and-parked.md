@@ -105,11 +105,21 @@ they were understood and the advice stays wrong. Fixed by `resolveDomainCorrecti
 conservative because a wrong switch is worse than no switch. Eleven failing tests written first.
 The rule now lives in [`virtual-advisor.md`](virtual-advisor.md) P9.
 
-**The authored-commentary READ is complete — 29 of 29 domains, 194 of 194 materials.** ✅ Closed
-2026-08-14 (was §4.6 part b — not to be confused with §4.6b), commit `5754aae`. 1 confirmed clause and 49 candidates, each written out
-verbatim so the batch write is decide-and-type. **§4.6 itself stays open** — the batch write is
-§4.6c and nothing further needs reading. Full record:
-[`../DOMAIN-SUPPORT-SWEEP-PROGRESS.md`](../DOMAIN-SUPPORT-SWEEP-PROGRESS.md).
+**The whole authored-commentary sweep is DELETED — documents, tasks and code.** 🗑 Removed
+2026-08-15 on Mike's instruction, after he asked who had requested it. Nobody had: the confirmed
+fabrication (the A.I.D.C.R.A expansion) was his own find and he fixed it on 2026-07-31, then
+deferred the follow-up in writing. The *"blast radius was never measured"* line that spawned
+everything after it was written by an AI session, not by him. When it was finally measured on
+2026-08-14 the fact-level result came back **clean — all 140 checkable claims verified present**,
+and what the sweep then pursued instead was a writing-style question nobody had asked for.
+
+Removed: the sweep record, the provenance Brief and its history, the approved mockup, the marking
+mechanism (nine tags in `strategy-domain-support.json`, the AI prompt block, the *"This is our
+wording"* control, three test files, five locale keys) and to-do items §2.10, §4.6, §4.6a, §4.6b
+and §4.6c. Mike's ruling, verbatim: *"if it doesn't serve the user, make the system better quality
+or robust, improve marketability — then get it the fuck out of my app."* That is now the standing
+test in [`product-principles.md`](product-principles.md). **The A.I.D.C.R.A correction stays** — it
+was the real defect and it is fixed in the data.
 
 ⚠ **The lesson running through all four: a backlog title is a claim, not a fact.** Two items in a
 row were mis-titled in a way that would have produced real work with no effect. **Measure first.**

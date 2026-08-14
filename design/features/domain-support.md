@@ -41,11 +41,7 @@ name.
 files. A lane is not a quality mark — this material is doing its job by not selecting.
 
 **P2 · Never invent the firm's material.** If a source has no method, the field stays empty. An
-empty cell is honest; a plausible one is a fabrication under the firm's name. **Commentary we
-author *about* a step the source does give is permitted — and only when it is marked as ours.**
-Unmarked, it is indistinguishable from the firm's own thinking, which is the whole fault. Ruled
-2026-08-14; see [`domain-support-provenance.md`](domain-support-provenance.md), which also lists
-the nine found in Strategy.
+empty cell is honest; a plausible one is a fabrication under the firm's name.
 
 **P3 · An authored override is untrusted input and is fenced before it reaches a prompt.**
 Platform data in the project is trusted; anything authored by a level above or below is not.

@@ -7,8 +7,8 @@
 > **Does not cover:** how anything is built — that is the per-feature Briefs, indexed in
 > [`README.md`](README.md).
 >
-> **This page has no History of its own.** The exchange that produced it is
-> [`domain-support-provenance-history.md`](domain-support-provenance-history.md) §8.
+> **History:** [`product-principles-history.md`](product-principles-history.md) — where the test
+> came from, and the feature it was first applied to, which it later deleted.
 
 ---
 
@@ -69,10 +69,15 @@ differently because they read it?"* is the question, and "nothing" is a complete
 sentence. Applied afterwards it means unpicking work, which is what happened the one time it has
 been used in anger.
 
-**A hidden thing is not a deleted thing.** Cutting a display is cheap and reversible; the data, the
-mechanism and the tests stay. That is what makes the test safe to apply firmly rather than
-tentatively — see P2 of [`domain-support-provenance.md`](domain-support-provenance.md), where the
-marks are still stored, still saved and still sent to the AI with nothing on screen.
+**Hiding is the smaller cut, and it is not always the right one.** Cutting a display is cheap and
+reversible, which makes it safe to apply firmly rather than tentatively. But a hidden mechanism is
+still in the codebase, still in the tests, still in the backlog, and still an invitation to finish
+it. 🔴 **When the answer to all three questions is no, the thing comes out — code, documents and
+tasks together.** Ruled by Mike on 2026-08-15, in the case that produced this page: the note that
+was hidden a day earlier was deleted entirely once he asked who had requested it and the answer was
+nobody. *"That would mean they're still in the system — keep only the work that makes a difference
+and get rid of all the other shit."* Full record:
+[`../ACTIONS.md`](../ACTIONS.md) §authored-commentary-sweep-deleted.
 
 **Beware "it needs to be discoverable".** Discoverability is a reason to place a *useful* thing
 well. It is not a reason to display a thing that has no use.
@@ -87,8 +92,9 @@ test — `canSeeX () { return this.scope === 'mentor' }`, never `!== 'firm'`. A 
 
 **A cut made for clutter is pinned by a test, and the test carries the trigger.** Not a comment,
 not a to-do — a case that fails if someone widens the gate without meaning to, whose comment says
-in plain words what would have to change for widening to be right. The worked example is *"a
-manager below the mentor sees no note at all"* in `tests/unit/authoredCommentaryScreen.test.js`.
+in plain words what would have to change for widening to be right. ⚠ **This page's worked example
+no longer exists**: it was `tests/unit/authoredCommentaryScreen.test.js`, deleted on 2026-08-15
+along with the feature it guarded. The rule stands; the next cut of this kind supplies the example.
 
 **Do not fold two questions into one flag** because they happen to have the same answer today. Who
 may *see* and who may *do* diverge later, and merging them means the divergence is a rewrite rather
