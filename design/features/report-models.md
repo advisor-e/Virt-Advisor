@@ -15,6 +15,7 @@
 A report model is **a teaching instrument an advisor drives in front of a client.**
 That single sentence decides most of what follows.
 
+
 It is not a page a client browses alone, and it is not a spreadsheet with a web front end.
 The advisor moves a slider and the client watches the number move — the *movement* is the
 product. Everything else exists to keep that moment credible: the figures have to be
@@ -104,7 +105,7 @@ number of headline figures (3 or 4), the chart or diagram, sliders vs typed inpu
 figures and verdict wording, and one model-specific accent where it earns its place.
 Anything outside that list is an owner decision, not a screen's decision.
 
-**Do not force sharing that isn't there.** `SliderGroup` covers four screens; Quick
+**Do not force sharing that isn't there.** `SliderField` covers four screens; Quick
 Position's sliders carry provenance badges and a dynamic ceiling, and EBITDA/DCF has no
 sliders at all. Gradients on data marks are a readability decision. Neither is duplication
 to be tidied away.

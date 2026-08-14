@@ -94,10 +94,12 @@ all honest."*
 ### The five things every item must say
 
 An item missing any of these is not a task, it is a note — and notes are what produced the two
-wasted pieces of work on 2026-08-15. ⚠ **Not yet enforced.** A guard test that fails the build on an
-item missing any of the five is the control this needs, and it is **not built** — it waits on Mike
-approving the shape from [`../mockups/to-do-list-table.html`](../mockups/to-do-list-table.html),
-so the test is written once against a settled format rather than twice.
+wasted pieces of work on 2026-08-15. ✅ **Enforced since 2026-08-15.**
+[`../../tests/unit/toDoItems.test.js`](../../tests/unit/toDoItems.test.js) fails the build on an
+item missing any of the five, on a score outside 1–5, on an `askedBy.ours` claim with nothing
+justifying it, on a duplicate ref, and on a blocker that does not say what it blocks. It is
+mutation-verified — dropping a `risk` line, claiming *ours* with no reason, and filing a 0 instead
+of deleting were each confirmed to fail it.
 
 1. **Score** — from the table above.
 2. **Why** — why it matters, in one sentence.
@@ -253,6 +255,11 @@ Mike used it to set the current order, so it is approved by use. Phase 2 is meas
   expect to justify it. Both wastes of 2026-08-15 would have been stopped by that one field.
 - **An observation is not a task, and an AI-written line carries no authority.** A fortnight of work
   grew out of one AI-authored sentence in `ACTIONS.md` that a later session read as an instruction.
+- 🔴 **A score given by whoever found the thing is not a priority — it is the finder's own opinion
+  wearing a number.** §4.13 was written honestly, scored **5** by us, ranked by us, and put in front
+  of Mike as the third job on the list. His one question — *"who is this function for?"* — took it to
+  a **1**, because the only people it could ever reach were us. **Its `Asked by` field already said
+  ⚠ ours. The field worked; nobody read it.** Before defending a high score, read that field first.
 - **Nothing is parked.** Parking was tried and it failed: a parked item is still in the codebase and
   still an invitation to finish it. Deleted means deleted.
 - **Re-verify what is already here, not only what is proposed.** The 2026-08-15 audit found §2.7

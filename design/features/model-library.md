@@ -10,7 +10,7 @@
 
 ## 1. Design philosophy
 
-**An advisor picking from nineteen models needs to know what kind of thing they are opening
+**An advisor picking from eighteen models needs to know what kind of thing they are opening
 before they open it.**
 
 This screen is a shopfront, not a menu. Its job is to let someone find the right model quickly —

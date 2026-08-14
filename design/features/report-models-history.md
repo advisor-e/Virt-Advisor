@@ -106,9 +106,18 @@ despite importing nothing. → Brief **P6**.
 
 ## 3. Considered and deliberately rejected
 
-- **Forcing `SliderGroup` onto all screens.** Quick Position's sliders carry provenance
+- **Forcing `SliderField` onto all screens.** Quick Position's sliders carry provenance
   badges and a dynamic ceiling so a touch can never snap a real figure down to a cap;
   EBITDA/DCF has no sliders. The exclusion is structural, not laziness.
+
+  ⚠ **It was called `SliderGroup` in three documents until 2026-08-15, and no such component
+  has ever existed.** The name came from `REPORT-SCAFFOLDING-PLAN.md`, which proposed it; what
+  was built is `components/base/SliderField.vue`, used by MarginBreakeven, LoanEstimator,
+  DebtorDrag and BusinessPerformanceReport — so the *"four screens"* was right and only the name
+  was wrong. The Brief carried both names, twenty lines apart, and contradicted itself for two
+  days. Corrected in the Brief, this page and `ADDING-A-REPORT.md`; the plan and the July session
+  notes keep the old name as accurate records of their own date. **A proposed name is not a
+  built component — check `components/` before quoting one.**
 - **Flattening gradients on data marks.** The cash-runway bar, the EBITDA bars and the
   slider tracks keep theirs. Readability decision, not tidying.
 - **A per-model look, ever.** Raised more than once. Settled permanently 2026-07-23.

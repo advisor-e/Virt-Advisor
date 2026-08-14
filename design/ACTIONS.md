@@ -22,10 +22,16 @@
 > 🔴 **2026-08-13 — THIS FILE IS NO LONGER THE TRIAGE LIST. READ
 > [`features/to-do.md`](features/to-do.md) FIRST.** This file stays the full record — nothing is
 > deleted from it — but it is 6,000+ lines and reads as ~70 open tasks when the real live list is
-> **thirty-two, nine of which are waiting on Mike rather than on code** (nineteen when that list
-> was written on 2026-08-13; four of the additions are one-line jobs). Every item there names who
-> it waits on and whether it was verified against the code or merely carried from here. Finished
-> and parked work lives in [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md).
+> **ten, five of which are waiting on Mike rather than on code** (nineteen when that list was
+> written on 2026-08-13; the 2026-08-15 audit cut 31 items to 15, and Mike settled or deleted five
+> more the same day). Every item there names who it waits on and whether it was verified against
+> the code or merely carried from here. Finished and parked work lives in
+> [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md).
+>
+> 🔴 **AND SINCE 2026-08-15 THE ITEMS ARE DATA.** [`features/to-do-items.json`](features/to-do-items.json)
+> is the source, and `tests/unit/toDoItems.test.js` fails the build on an item missing any of its
+> five fields — score, why, risk, **askedBy**, touches. **An item written here that cannot name who
+> asked for it will not survive being moved there**, which is the point.
 >
 > 🔴 **AND THE RULES NOW LIVE IN [`features/`](features/README.md), NOT IN SESSION NOTES.** Every
 > page/feature has a **Brief** (current rules only — no dates, no arguments) and a **History**
@@ -35,6 +41,37 @@
 > rule nobody will find.
 
 ---
+
+- <a id="session-57-closures"></a>✅ **CLOSED 2026-08-15 (session 57, laptop) — the to-do items
+  become data, and two Handbook claims are corrected against the code** (`e0f1413`, plus the
+  shutdown commit). Full write-up: [`SESSION-2026-08-15-B-NOTES.md`](SESSION-2026-08-15-B-NOTES.md).
+  - ✅ **The five-field guard is BUILT** — `features/to-do.md` §2 said *"not yet enforced… it is not
+    built"* and that is no longer true. `features/to-do-items.json` holds the ten items;
+    `tests/unit/toDoItems.test.js` (44 tests) refuses a missing field, a score outside 1–5, an
+    unjustified `askedBy.ours`, a duplicate ref, or a blocker that does not say what it blocks, and
+    cross-checks the JSON against the ranked table. **Mutation-verified**, not merely green.
+  - ✅ **Mike's ordering is pinned.** Array order is his ranking; the test fails if a script or a
+    session re-sorts the list into score order.
+  - ☐ **NEW — §4.14, phases 2 and 3 of the ranking control.** Phase 1 done. Phase 2 renders the
+    control on the Handbook's To-Do page, measured against the approved artefact
+    `mockups/to-do-list-table.html` **with every deviation named**; phase 3 brings his Save file
+    back into the JSON and generates the §1 table from it. Split into sessions at Mike's request
+    *"so we don't lose it again"* — the first attempt was lost when a session ran out of context.
+  - ✅ **Two Handbook claims corrected after checking the code** — the first substantive
+    verification any Brief has had since all 20 were written in one sitting on 2026-08-13.
+    `model-library.md` said advisors pick *"from nineteen models"*; `utils/reportModelCatalogue.js`
+    holds **eighteen** (9 ready, 9 coming). `report-models.md` named **`SliderGroup`**, which
+    **exists nowhere in the code** — it is `components/base/SliderField.vue`, and the same Brief
+    named it correctly twenty lines later. Also corrected in `ADDING-A-REPORT.md`. Stale copies in
+    `MODEL-CLASSIFICATION.md`, `REPORT-SCAFFOLDING-PLAN.md` and the July session notes are **left in
+    place as accurate records of their own date**, and each is now named in the relevant History so
+    nobody quotes it as current.
+  - ⚠ **NOT DONE, and it is the real finding.** Only **4 of 26** Briefs have ever been checked
+    against the code. The other 22 were written in the same sitting, from the same 120 design
+    documents, and two of the first two checked were wrong. A page-by-page verification pass was
+    proposed and **Mike redirected to the ranking work instead** — so this is a live gap, not a task
+    anyone has agreed to. It is deliberately **not** on `features/to-do.md`: nobody outside asked
+    for it, and §7's rule is that such an item must justify itself before it is filed.
 
 - <a id="session-55-closures"></a>✅ **CLOSED 2026-08-14 (session 55, laptop) — the UAT load pack,
   pushed on `feat/advisor-progress` (`206476a`, `7aee852`).** Full write-ups on
@@ -61,6 +98,18 @@
     file and reports success when MySQL cannot be *reached* at all; v0.8.0 only closed the case
     where a live server *refuses*. Today's live course save landed in `data/dev-courses.json` and
     was indistinguishable from a real one.
+    - 🔴 **CLOSED 2026-08-15 — DELETED BY MIKE, NOT FIXED. Do not read the paragraph above as an
+      open task.** Everything it states is true; what it never asked is *who the function is for*.
+      `devFallbackAllowed()` can only fire where there is **no database at all** — a developer
+      machine. **UAT and production both have MySQL**, and production mode refuses the fallback
+      outright, which `UAT-LOAD-PACK.md` §5 already instructs. No adviser, firm or client can reach
+      it. Mike: *"I know I'm in a development role… the UAT and production have MySQL connected — I
+      know this, you know this, why are we wasting time?"* Scored **5** by us; by the list's own
+      table it is a **1**. Recorded with its reasoning at `features/to-do-done-and-parked.md` §0,
+      including a block naming the three fixes proposed for it — a warning banner, blocking writes,
+      reworded save confirmations — **all three wrong, none to be re-proposed.** The v0.8.0 code in
+      `server/utils/dbFailure.js` is untouched and stays: it catches a write a **live** MySQL
+      refused, which does bite in UAT and production.
   - ✅ **PROVEN LIVE (not by tests), on the running app:** `/api/health` 200 · `/advisor` and all
     four hub addresses 200 · the course document lifecycle create→update→re-read→delete · a real
     OpenAI call answering in ~1.1s (`gpt-4o-mini-2024-07-18`, CA bundle correct) · **a full advisor
