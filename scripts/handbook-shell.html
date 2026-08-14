@@ -7,6 +7,14 @@
     --good: #4ca52d; --warn: #ff9900; --crit: #e00000;
     --band: #002b64; --band-ink: #ffffff; --band-muted: #9dc2e8;
     --code-bg: #f1f6fb; --rail: #ffffff;
+    --s5: #c81e1e; --s5-bg: #fdeaea;
+    --s4: #b56200; --s4-bg: #fdf1e0;
+    --s3: #0070c0; --s3-bg: #e6f2fb;
+    --s2: #4a6b8a; --s2-bg: #edf2f7;
+    --s1: #7a8ba0; --s1-bg: #f1f4f7;
+    --s0: #8a8f96; --s0-bg: #f2f3f4;
+    --lock: #b56200; --lock-bg: #fdf1e0;
+    --go: #2f7d32; --go-bg: #e8f4e9;
     --shadow: 0 12px 32px rgba(0,43,100,.10);
     --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
@@ -21,6 +29,14 @@
       --good: #6fc44e; --warn: #ffab33; --crit: #ff6b6b;
       --band: #0a1f3d; --band-ink: #e6f0fa; --band-muted: #9fb4d0;
       --code-bg: #07182f; --rail: #07182f;
+      --s5: #ff8080; --s5-bg: #3a1414;
+      --s4: #ffb454; --s4-bg: #3a2810;
+      --s3: #6cc4f5; --s3-bg: #0e2b45;
+      --s2: #9ab4cc; --s2-bg: #142639;
+      --s1: #8ea1b6; --s1-bg: #111f31;
+      --s0: #7d858e; --s0-bg: #171c22;
+      --lock: #ffb454; --lock-bg: #3a2810;
+      --go: #6fc44e; --go-bg: #16301a;
       --shadow: 0 12px 32px rgba(0,0,0,.38);
     }
   }
@@ -31,6 +47,14 @@
     --good: #6fc44e; --warn: #ffab33; --crit: #ff6b6b;
     --band: #0a1f3d; --band-ink: #e6f0fa; --band-muted: #9fb4d0;
     --code-bg: #07182f; --rail: #07182f;
+    --s5: #ff8080; --s5-bg: #3a1414;
+    --s4: #ffb454; --s4-bg: #3a2810;
+    --s3: #6cc4f5; --s3-bg: #0e2b45;
+    --s2: #9ab4cc; --s2-bg: #142639;
+    --s1: #8ea1b6; --s1-bg: #111f31;
+    --s0: #7d858e; --s0-bg: #171c22;
+    --lock: #ffb454; --lock-bg: #3a2810;
+    --go: #6fc44e; --go-bg: #16301a;
     --shadow: 0 12px 32px rgba(0,0,0,.38);
   }
 
@@ -228,6 +252,156 @@
     border-radius: 8px; padding: 12px; resize: none;
   }
 
+  /* ---------- the ranking control (To-Do page) ---------- */
+  /* Adapted from design/mockups/to-do-list-table.html — the approved artefact.
+     It sits inside .prose, so several rules here exist only to undo the prose
+     table styling above rather than to invent a second look. */
+  .queue { display: flex; flex-direction: column; gap: 12px; }
+  .queue-fallback { color: var(--muted); font-style: italic; }
+
+  .queue .qbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .queue .qbtn {
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    border-radius: 9px; padding: 8px 14px; border: 1px solid var(--accent);
+    background: var(--accent); color: #fff; white-space: nowrap;
+  }
+  .queue .qbtn.ghost { background: transparent; color: var(--accent); }
+  .queue .qbtn.quiet { background: transparent; border-color: var(--line); color: var(--muted); font-weight: 500; }
+  .queue .qbtn:hover { filter: brightness(1.08); }
+  .queue .qbtn:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+  .queue .qcount { color: var(--muted); font-size: 13.5px; margin-left: auto; }
+  .queue .qcount b { color: var(--ink); }
+
+  .queue .qlegend { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; font-size: 12.5px; }
+  .queue .chip {
+    display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px;
+    border-radius: 999px; border: 1px solid currentColor; font-weight: 600;
+  }
+  .queue .chip i { font-style: normal; font-weight: 400; opacity: .85; }
+  .queue .c5 { color: var(--s5); background: var(--s5-bg); }
+  .queue .c4 { color: var(--s4); background: var(--s4-bg); }
+  .queue .c3 { color: var(--s3); background: var(--s3-bg); }
+  .queue .c2 { color: var(--s2); background: var(--s2-bg); }
+  .queue .c1 { color: var(--s1); background: var(--s1-bg); }
+  .queue .c0 { color: var(--s5); background: var(--s0-bg); }
+
+  /* The list in the project moved on since this browser last saved. Never
+     resolved silently — Mike's own calls are the thing at stake. */
+  .queue .qstale {
+    background: var(--card); border: 1px solid var(--warn);
+    border-left: 3px solid var(--warn); border-radius: 0 10px 10px 0;
+    padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 14px;
+  }
+  .queue .qstale b { color: var(--ink); }
+  .queue .qstale .qbar { gap: 8px; }
+
+  .queue .qtablewrap {
+    overflow-x: auto; background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .queue table { border-collapse: collapse; width: 100%; min-width: 1080px; font-size: 15px; }
+  .queue thead th {
+    text-align: left; font-size: 10.5px; font-weight: 700; letter-spacing: .11em;
+    text-transform: uppercase; color: var(--muted); padding: 12px 12px 10px;
+    border-bottom: 1px solid var(--line); white-space: nowrap; background: var(--card);
+    position: sticky; top: 0; z-index: 2;
+  }
+  .queue thead th.sortable { cursor: pointer; user-select: none; }
+  .queue thead th.sortable:hover { color: var(--ink); }
+  .queue thead th .arrow { opacity: .5; font-size: 10px; }
+  .queue tbody tr.main > td { padding: 12px 12px 6px; vertical-align: top; border-bottom: 0; }
+  .queue tbody tr.detail > td { padding: 0 12px 14px; border-bottom: 0; }
+  .queue tbody tr.detail { border-bottom: 1px solid var(--line); }
+  .queue td:first-child { font-weight: 400; }
+
+  .queue .rank {
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+    font-size: 13px; color: var(--muted); width: 44px;
+  }
+  .queue .lockcell { width: 34px; }
+  .queue .lock {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 7px; border: 1px solid transparent;
+    background: transparent; color: var(--muted); cursor: pointer; font-size: 12px; padding: 0;
+  }
+  .queue .lock[aria-pressed="true"] { background: var(--lock-bg); color: var(--lock); border-color: var(--lock); }
+
+  .queue .name { font-weight: 700; color: var(--ink); font-size: 15px; min-width: 210px; }
+  .queue .ref {
+    font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+    font-weight: 400; display: block; margin-top: 2px;
+  }
+
+  .queue .scorecell { width: 94px; }
+  .queue select.score {
+    font: inherit; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums;
+    border-radius: 999px; padding: 4px 8px; border: 1px solid currentColor;
+    background: var(--sbg); color: var(--sfg); cursor: pointer;
+  }
+  .queue select.score:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+  .queue .cat { font-size: 12.5px; color: var(--muted); display: block; margin-top: 4px; }
+
+  .queue .who { font-size: 13.5px; color: var(--body); min-width: 116px; }
+  .queue .askedby { font-size: 13.5px; min-width: 150px; }
+  .queue .askedby.ours { color: var(--s4); font-weight: 600; }
+
+  .queue .statuscell { width: 118px; }
+  .queue select.status {
+    font: inherit; font-size: 12.5px; font-weight: 700; letter-spacing: .04em;
+    text-transform: uppercase; border-radius: 999px; padding: 5px 10px;
+    border: 1px solid currentColor; background: var(--stbg); color: var(--stfg);
+    cursor: pointer; width: 100%;
+  }
+  .queue select.status:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+  .queue .st-proceed { --stfg: var(--go); --stbg: var(--go-bg); }
+  .queue .st-done    { --stfg: var(--go); --stbg: var(--go-bg); }
+  .queue .st-park    { --stfg: var(--s1); --stbg: var(--s1-bg); }
+  .queue .st-delete  { --stfg: var(--s5); --stbg: var(--s5-bg); }
+
+  .queue tr.main.settled .name,
+  .queue tr.main.settled .who,
+  .queue tr.main.settled .askedby { opacity: .55; }
+  .queue tr.main.settled .rank { opacity: .4; }
+  .queue tr.detail.settled .fact:not(.comment) { opacity: .5; }
+  .queue tr.main[data-status="done"] .name { text-decoration: line-through; }
+  .queue tr.main[data-status="delete"] .name { text-decoration: line-through; }
+
+  .queue .facts { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+  .queue .fact { display: flex; flex-direction: column; gap: 2px; }
+  .queue .fact label {
+    font-size: 10px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .queue .fact div { font-size: 13.5px; color: var(--body); line-height: 1.45; max-width: none; }
+  .queue .wide { grid-column: 1 / -1; }
+  .queue .fact.ours label { color: var(--s4); }
+
+  .queue .comment {
+    grid-column: 1 / -1; background: var(--ground-2); border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0;
+    padding: 9px 12px; margin-top: 4px;
+  }
+  .queue .comment label { color: var(--accent); }
+  .queue .comment div { min-height: 20px; }
+  .queue .comment div:empty::before { content: attr(data-placeholder); color: var(--muted); font-style: italic; }
+
+  .queue [contenteditable] { border-radius: 5px; outline: 1px dashed transparent; outline-offset: 3px; }
+  .queue [contenteditable]:hover { outline-color: var(--line); }
+  .queue [contenteditable]:focus {
+    outline: 2px solid var(--accent-bright);
+    background: color-mix(in srgb, var(--accent-bright) 9%, transparent);
+  }
+
+  .queue .del {
+    border: none; background: transparent; color: var(--muted); cursor: pointer;
+    font-size: 16px; padding: 2px 6px; border-radius: 6px; width: 34px;
+  }
+  .queue .del:hover { color: var(--s5); background: var(--s5-bg); }
+
+  .queue .zero-warn { color: var(--s5); font-weight: 600; font-size: 12.5px; margin-top: 4px; display: none; }
+  .queue tr.main[data-score="0"] .zero-warn { display: block; }
+  .queue tr.main[data-score="0"] .name { text-decoration: line-through; opacity: .65; }
+
   .railtoggle { display: none; }
 
   @media (max-width: 900px) {
@@ -242,6 +416,9 @@
       border-radius: 9px; padding: 7px 12px;
     }
     .main { padding: 20px 16px 90px; }
+    /* The mockup broke its three fact columns at 720px; the shell has one
+       breakpoint and this follows it rather than adding a second. */
+    .queue .facts { grid-template-columns: 1fr; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
   @media print { .rail, .editbar, .editnote, .fallback { display: none !important; } }
@@ -284,6 +461,8 @@
     <button class="editbtn quiet" type="button" onclick="document.getElementById('fallback').hidden=true">Close</button>
   </div>
 </div>
+
+<!--QUEUE-->
 
 <script>
 (function () {
@@ -328,6 +507,10 @@
       if (el.querySelector(SEL)) return
       if (!norm(el.textContent)) return
       if (el.classList.contains('gate-hint')) return
+      // The ranking control keeps its own text in its own store and hands it
+      // back as a data file. Tagging it as prose too would put the same edit in
+      // two saves, in two formats, and let a stale one overwrite the other.
+      if (el.closest('[data-queue]')) return
       var eid = slug + ':' + (i++)
       el.setAttribute('data-eid', eid)
       originals[eid] = { html: el.innerHTML, text: norm(el.textContent), slug: slug }
@@ -486,20 +669,38 @@
     document.getElementById('fallbackText').select()
   }
 
-  function save () {
-    var list = changes()
-    if (!list.length) { say('Nothing has changed yet.'); return }
-    var text = report(list)
-    if (!window.claude || !window.claude.downloads) { showFallback(text); return }
-    btnSave.disabled = true
-    window.claude.downloads.save({ filename: FILENAME, data: text })
-      .then(function () { say('Saved as ' + FILENAME + ' — tell Claude it is in your Downloads folder.', 7000) })
+  /**
+   * Hands a file to the browser, or falls back to a copy-out box.
+   *
+   * Both saves on this page go through here — the prose edits and the ranking
+   * control — so a declined save, a save already open, or a viewer with no
+   * download capability behaves and reads the same in both places.
+   *
+   * @param {string} filename
+   * @param {string} text
+   * @param {string} kept  what to tell the reader is still safe if they cancel
+   * @returns {Promise} settles when the attempt is over, however it ended
+   */
+  function download (filename, text, kept) {
+    if (!window.claude || !window.claude.downloads) {
+      showFallback(text)
+      return Promise.resolve()
+    }
+    return window.claude.downloads.save({ filename: filename, data: text })
+      .then(function () { say('Saved as ' + filename + ' — tell Claude it is in your Downloads folder.', 7000) })
       .catch(function (err) {
         var code = (err && err.code) || 'unavailable'
-        if (code === 'declined') say('Save cancelled. Your edits are still here.')
+        if (code === 'declined') say('Save cancelled. ' + kept)
         else if (code === 'rate_limited') say('A save is already open — finish that one, then try again.')
         else showFallback(text)
       })
+  }
+
+  function save () {
+    var list = changes()
+    if (!list.length) { say('Nothing has changed yet.'); return }
+    btnSave.disabled = true
+    download(FILENAME, report(list), 'Your edits are still here.')
       .then(function () { btnSave.disabled = changes().length === 0 })
   }
 
@@ -566,8 +767,412 @@
     rail.setAttribute('data-open', rail.getAttribute('data-open') === 'yes' ? 'no' : 'yes')
   })
 
+  // ---------- the ranking control, on the To-Do page ----------
+  // Built from design/mockups/to-do-list-table.html, the artefact Mike used to
+  // set the current order. Its items are design/features/to-do-items.json,
+  // carried into the page by the generator, and Save hands that same file back.
+  //
+  // THE ONE RULE THIS MUST NOT BREAK: the array order in that file is Mike's
+  // ranking. It is not computed, and nothing here may re-sort it behind him.
+
+  var QUEUE_STORE = 'handbook-queue'
+  var QUEUE_FILE = 'to-do-items.json'
+  var LIVE = 'proceed'
+  var STATUSES = [['proceed', 'Proceed'], ['done', 'Done'], ['park', 'Park'], ['delete', 'Delete']]
+  var CATS = {
+    5: 'Security / data integrity', 4: 'User is worse off', 3: 'Helps sell the package',
+    2: 'Robustness', 1: 'Internal only', 0: 'Fails the test — delete it'
+  }
+  // The phrasing the data file already uses, so a score changed on screen writes
+  // what a hand-edit would have written.
+  var REASONS = {
+    5: 'security, privacy or data integrity', 4: 'the user is worse off',
+    3: 'sells the package', 2: 'robustness', 1: 'internal only', 0: 'fails the test'
+  }
+
+  function el (tag, cls, text) {
+    var n = document.createElement(tag)
+    if (cls) n.className = cls
+    if (text !== undefined) n.textContent = text
+    return n
+  }
+
+  function today () { return new Date().toISOString().slice(0, 10) }
+
+  function queue () {
+    var mount = inner.querySelector('[data-queue]')
+    var island = document.getElementById('queuedata')
+    if (!mount || !island) return
+
+    var source
+    try { source = JSON.parse(island.textContent) } catch (e) { return }
+    if (!source || !source.items || !source.items.length) return
+
+    // What the PROJECT's list looks like — never touched by anything typed here,
+    // so it can be compared against what this browser last saved.
+    var STAMP = (source.orderedByMikeOn || '') + '|' +
+      source.items.map(function (i) { return i.ref + '/' + i.score }).join(',')
+
+    function seed () {
+      return source.items.map(function (o) {
+        var copy = {}
+        Object.keys(o).forEach(function (k) { copy[k] = o[k] })
+        // askedBy is edited on screen; sharing the object would write through
+        // to the data island and quietly change what "the project's list" says.
+        copy.askedBy = {
+          who: (o.askedBy && o.askedBy.who) || '',
+          ours: !!(o.askedBy && o.askedBy.ours),
+          detail: (o.askedBy && o.askedBy.detail) || ''
+        }
+        copy.status = LIVE
+        copy.comment = ''
+        return copy
+      })
+    }
+
+    var saved = store(QUEUE_STORE, null)
+    var items = (saved && saved.items && saved.items.length) ? saved.items : seed()
+    var heldStamp = (saved && saved.stamp) || STAMP
+    var stale = heldStamp !== STAMP
+    var sortBy = 'rank'
+
+    function keep () { put(QUEUE_STORE, { stamp: heldStamp, items: items }) }
+    function isLive (o) { return (o.status || LIVE) === LIVE }
+
+    /**
+     * The order on screen.
+     *
+     * `rank` is Mike's own order — the array as it came from the file — and the
+     * comparator deliberately does nothing, because sort is stable. The mockup
+     * computed this column as blockers-then-score; here that would push item
+     * 4.14 (a 1 that he ranked first) below every blocker and silently overwrite
+     * the ranking the file exists to preserve.
+     *
+     * Anything he has settled sinks to the bottom whatever the column, so the
+     * top of the table only ever shows work he has said to get on with.
+     */
+    function ordered () {
+      var within
+      if (sortBy === 'score') {
+        within = function (a, b) { return (b.score - a.score) || (b.blocker - a.blocker) }
+      } else if (sortBy === 'asked') {
+        within = function (a, b) {
+          return (b.askedBy.ours - a.askedBy.ours) || (b.blocker - a.blocker) || (b.score - a.score)
+        }
+      } else {
+        within = function () { return 0 }
+      }
+      return items.slice().sort(function (a, b) { return (isLive(b) - isLive(a)) || within(a, b) })
+    }
+
+    function editable (get, set, cls, placeholder) {
+      var d = el('div', cls)
+      d.contentEditable = 'true'
+      d.spellcheck = false
+      d.textContent = get()
+      if (placeholder) d.setAttribute('data-placeholder', placeholder)
+      d.addEventListener('input', function () { set(d.textContent); keep() })
+      return d
+    }
+
+    function fact (label, get, set, cls) {
+      var f = el('div', 'fact' + (cls ? ' ' + cls : ''))
+      f.appendChild(el('label', null, label))
+      f.appendChild(editable(get, set))
+      return f
+    }
+
+    // ── chrome, built once so typing never loses the caret ──
+    mount.textContent = ''
+
+    var staleBox = el('div', 'qstale')
+    staleBox.hidden = !stale
+    var staleWords = el('div')
+    staleWords.innerHTML = '<b>The list in the project has changed</b> since you last saved ' +
+      'from this browser. Your own scores, calls and comments are still here — nothing has ' +
+      'been thrown away. Choose which list you want to work from.'
+    staleBox.appendChild(staleWords)
+    var staleBar = el('div', 'qbar')
+    var takeNew = el('button', 'qbtn', 'Use the project\'s list')
+    var keepMine = el('button', 'qbtn quiet', 'Keep mine')
+    staleBar.appendChild(takeNew)
+    staleBar.appendChild(keepMine)
+    staleBox.appendChild(staleBar)
+    mount.appendChild(staleBox)
+
+    takeNew.addEventListener('click', function () {
+      if (!window.confirm('Replace what is on screen with the list as it stands in the project? Your scores, calls and comments here are lost.')) return
+      items = seed(); heldStamp = STAMP; stale = false
+      staleBox.hidden = true; keep(); render(); say('Working from the project\'s list.')
+    })
+    keepMine.addEventListener('click', function () {
+      heldStamp = STAMP; stale = false
+      staleBox.hidden = true; keep(); say('Keeping yours. The project\'s newer list is not shown.')
+    })
+
+    var bar = el('div', 'qbar')
+    var btnQueueSave = el('button', 'qbtn', 'Save the list')
+    var btnAdd = el('button', 'qbtn ghost', '+ Add an item')
+    var btnReset = el('button', 'qbtn quiet', 'Start again')
+    var counts = el('span', 'qcount')
+    bar.appendChild(btnQueueSave); bar.appendChild(btnAdd); bar.appendChild(btnReset)
+    bar.appendChild(counts)
+    mount.appendChild(bar)
+
+    var legend = el('div', 'qlegend')
+    legend.innerHTML =
+      '<span class="chip c5">5 <i>security / data</i></span>' +
+      '<span class="chip c4">4 <i>user worse off</i></span>' +
+      '<span class="chip c3">3 <i>helps sell it</i></span>' +
+      '<span class="chip c2">2 <i>robustness</i></span>' +
+      '<span class="chip c1">1 <i>internal only</i></span>' +
+      '<span class="chip c0">0 <i>delete it</i></span>'
+    mount.appendChild(legend)
+
+    var wrap = el('div', 'qtablewrap')
+    var table = el('table')
+    table.innerHTML =
+      '<thead><tr>' +
+      '<th class="sortable" data-sort="rank">#<span class="arrow"> ▼</span></th>' +
+      '<th title="Blocks other work">Blk</th>' +
+      '<th>Item</th>' +
+      '<th class="sortable" data-sort="score">Score<span class="arrow"></span></th>' +
+      '<th>Your call</th>' +
+      '<th>Waiting on</th>' +
+      '<th class="sortable" data-sort="asked">Asked by<span class="arrow"></span></th>' +
+      '<th></th>' +
+      '</tr></thead>'
+    var tbody = el('tbody')
+    table.appendChild(tbody)
+    wrap.appendChild(table)
+    mount.appendChild(wrap)
+
+    Array.prototype.forEach.call(table.querySelectorAll('th.sortable'), function (th) {
+      th.addEventListener('click', function () {
+        sortBy = th.getAttribute('data-sort')
+        Array.prototype.forEach.call(table.querySelectorAll('th.sortable .arrow'), function (a) {
+          a.textContent = ''
+        })
+        th.querySelector('.arrow').textContent = ' ▼'
+        render()
+      })
+    })
+
+    // ── rows ──
+    function row (item, i) {
+      var live = isLive(item)
+      var tr = el('tr', 'main' + (live ? '' : ' settled'))
+      tr.setAttribute('data-score', String(item.score))
+      tr.setAttribute('data-status', item.status || LIVE)
+
+      var tdRank = el('td', 'rank', live ? String(i + 1) : '—')
+      tr.appendChild(tdRank)
+
+      var tdLock = el('td', 'lockcell')
+      var lock = el('button', 'lock', '●')
+      lock.type = 'button'
+      lock.setAttribute('aria-pressed', item.blocker ? 'true' : 'false')
+      lock.title = item.blocker
+        ? 'Blocks other work — click to clear'
+        : 'Does not block — click to mark as blocking'
+      lock.addEventListener('click', function () {
+        item.blocker = !item.blocker
+        if (item.blocker && !item.blocks) item.blocks = ''
+        keep(); render()
+      })
+      tdLock.appendChild(lock)
+      tr.appendChild(tdLock)
+
+      var tdName = el('td')
+      tdName.appendChild(editable(
+        function () { return item.name },
+        function (v) { item.name = v }, 'name'))
+      tdName.appendChild(el('span', 'ref', 'item ' + item.ref))
+      tdName.appendChild(el('div', 'zero-warn', 'Scores 0 — this is deleted, not filed.'))
+      tr.appendChild(tdName)
+
+      var tdScore = el('td', 'scorecell')
+      var sel = el('select', 'score')
+      ;[5, 4, 3, 2, 1, 0].forEach(function (v) {
+        var o = el('option', null, String(v))
+        o.value = String(v)
+        if (v === item.score) o.selected = true
+        sel.appendChild(o)
+      })
+      sel.style.setProperty('--sfg', 'var(--s' + item.score + ')')
+      sel.style.setProperty('--sbg', 'var(--s' + item.score + '-bg)')
+      sel.addEventListener('change', function () {
+        item.score = Number(sel.value)
+        item.scoreReason = REASONS[item.score]
+        keep(); render()
+      })
+      tdScore.appendChild(sel)
+      tdScore.appendChild(el('span', 'cat', CATS[item.score]))
+      tr.appendChild(tdScore)
+
+      var tdStatus = el('td', 'statuscell')
+      var st = el('select', 'status st-' + (item.status || LIVE))
+      STATUSES.forEach(function (pair) {
+        var o = el('option', null, pair[1])
+        o.value = pair[0]
+        if (pair[0] === (item.status || LIVE)) o.selected = true
+        st.appendChild(o)
+      })
+      st.addEventListener('change', function () { item.status = st.value; keep(); render() })
+      tdStatus.appendChild(st)
+      tr.appendChild(tdStatus)
+
+      var tdWho = el('td')
+      tdWho.appendChild(editable(
+        function () { return item.waitingOn },
+        function (v) { item.waitingOn = v }, 'who'))
+      tr.appendChild(tdWho)
+
+      var tdAsk = el('td')
+      tdAsk.appendChild(editable(
+        function () { return item.askedBy.who },
+        function (v) { item.askedBy.who = v },
+        'askedby' + (item.askedBy.ours ? ' ours' : '')))
+      tr.appendChild(tdAsk)
+
+      var tdDel = el('td')
+      var del = el('button', 'del', '×')
+      del.type = 'button'
+      del.title = 'Delete this item'
+      del.addEventListener('click', function () {
+        if (!window.confirm('Delete "' + item.name + '" from the list?')) return
+        items.splice(items.indexOf(item), 1)
+        keep(); render(); say('Deleted — not parked.')
+      })
+      tdDel.appendChild(del)
+      tr.appendChild(tdDel)
+
+      // ── the expanded row ──
+      var dr = el('tr', 'detail' + (live ? '' : ' settled'))
+      var dtd = el('td')
+      dtd.colSpan = 8
+      var facts = el('div', 'facts')
+
+      facts.appendChild(fact('Why it matters',
+        function () { return item.why }, function (v) { item.why = v }))
+      facts.appendChild(fact('What we risk if we don’t',
+        function () { return item.risk }, function (v) { item.risk = v }))
+      facts.appendChild(fact('What it touches',
+        function () { return item.touches }, function (v) { item.touches = v }))
+
+      // Three things the data carries that the mockup had no slot for. Dropping
+      // them would hide the field the list itself calls the one that matters.
+      if (item.blocker) {
+        facts.appendChild(fact('What it blocks',
+          function () { return item.blocks || '' },
+          function (v) { item.blocks = v }, 'wide'))
+      }
+      facts.appendChild(fact(item.askedBy.ours ? 'Nobody outside asked — why it stays' : 'Who asked, and when',
+        function () { return item.askedBy.detail },
+        function (v) { item.askedBy.detail = v },
+        'wide' + (item.askedBy.ours ? ' ours' : '')))
+      if (item.note) {
+        facts.appendChild(fact('Note',
+          function () { return item.note }, function (v) { item.note = v }, 'wide'))
+      }
+
+      var cm = el('div', 'fact comment')
+      cm.appendChild(el('label', null, 'Your comment'))
+      cm.appendChild(editable(
+        function () { return item.comment || '' },
+        function (v) { item.comment = v }, null,
+        'Type here — why it is wrong, what you want instead, or what you already did.'))
+      facts.appendChild(cm)
+
+      dtd.appendChild(facts)
+      dr.appendChild(dtd)
+      return [tr, dr]
+    }
+
+    function render () {
+      tbody.textContent = ''
+      ordered().forEach(function (item, i) {
+        row(item, i).forEach(function (n) { tbody.appendChild(n) })
+      })
+      var live = items.filter(isLive)
+      counts.innerHTML =
+        '<b>' + live.length + '</b> to proceed · ' +
+        '<b>' + live.filter(function (i) { return i.blocker }).length + '</b> blocking · ' +
+        '<b>' + live.filter(function (i) { return /mike/i.test(i.waitingOn) }).length + '</b> need you · ' +
+        '<b>' + (items.length - live.length) + '</b> settled by you'
+    }
+
+    // ── the toolbar ──
+    btnAdd.addEventListener('click', function () {
+      items.push({
+        ref: 'new', name: 'Name the item', score: 3, scoreReason: REASONS[3],
+        blocker: false, blocks: null, waitingOn: 'Us',
+        why: 'Why does this matter?',
+        risk: 'What do we lose by not doing it? If nothing, score it 0.',
+        askedBy: { who: 'us', ours: true, detail: 'Name a requester, or delete it.' },
+        touches: 'What else moves if this moves?',
+        note: null, status: LIVE, comment: ''
+      })
+      keep(); render()
+      var all = tbody.querySelectorAll('tr.main .name')
+      if (all.length) all[all.length - 1].focus()
+    })
+
+    btnReset.addEventListener('click', function () {
+      // The mockup discarded immediately. Here it asks first: what is thrown
+      // away is Mike's own calls, and they exist nowhere else until he saves.
+      if (!window.confirm('Throw away every score, call and comment on this screen and start from the project’s list?')) return
+      items = seed(); heldStamp = STAMP
+      keep(); render(); say('Back to the project’s list.')
+    })
+
+    btnQueueSave.addEventListener('click', function () {
+      var out = {
+        _savedFromTheHandbook: [
+          'Saved from the Handbook ranking control on ' + today() + '.',
+          '',
+          'ARRAY ORDER IS THE ORDER ON SCREEN. Anything Mike settled sank to the bottom.',
+          '',
+          '`yourCall` and `yourComment` are HIS decisions, not part of the committed',
+          'schema. A session applies them — proceeds, moves a Done item to',
+          'to-do-done-and-parked.md, deletes a Deleted one with its code — and then',
+          'removes both keys. Do not commit this file with them still in it.'
+        ],
+        _readme: source._readme,
+        orderedByMikeOn: today(),
+        orderSource: 'the Handbook ranking control',
+        items: ordered().map(function (o) {
+          return {
+            ref: o.ref,
+            name: o.name,
+            score: o.score,
+            scoreReason: REASONS[o.score] || o.scoreReason,
+            blocker: !!o.blocker,
+            blocks: o.blocks || null,
+            waitingOn: o.waitingOn,
+            why: o.why,
+            risk: o.risk,
+            askedBy: o.askedBy,
+            touches: o.touches,
+            note: o.note || null,
+            phases: o.phases,
+            yourCall: o.status || LIVE,
+            yourComment: o.comment || ''
+          }
+        })
+      }
+      btnQueueSave.disabled = true
+      download(QUEUE_FILE, JSON.stringify(out, null, 2), 'Your list is still on screen.')
+        .then(function () { btnQueueSave.disabled = false })
+    })
+
+    render()
+    if (stale) say('The list in the project has changed since you last saved here. Nothing of yours was touched.', 8000)
+  }
+
   // ---------- boot ----------
   restore()
+  queue()
   paintSeen()
   document.body.setAttribute('data-editing', 'off')
   show((location.hash || '').replace('#', '') || store(LAST, 'to-do'))

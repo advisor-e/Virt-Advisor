@@ -42,11 +42,11 @@
         "ours": false,
         "detail": "2026-08-15, session 57 — \"the last session developed a ranking system that I could apply and I could add notes. It was never coded into the handbook as we ran out of context.\" He also asked for it to be split across 2-3 sessions so it cannot be lost again."
       },
-      "touches": "This file, scripts/build-handbook.js, scripts/handbook-shell.html, to-do.md's table.",
+      "touches": "This file, scripts/build-handbook.js, scripts/handbook-shell.html, to-do.md's table, tests/unit/buildHandbook.test.js.",
       "note": "SCORE 1 AND RANKED FIRST — the disagreement is deliberate and stays visible. No customer will ever see the Handbook, so by the table it is internal. Mike asked for it and ranked it now; his call beats the score, and the score stays on the page rather than being quietly inflated to justify the position.",
       "phases": [
-        { "n": 1, "what": "The nine items become data, with a guard test on the five fields.", "done": false },
-        { "n": 2, "what": "The Handbook's To-Do page renders the ranking control instead of prose.", "done": false },
+        { "n": 1, "what": "The ten items become data, with a guard test on the five fields.", "done": true },
+        { "n": 2, "what": "The Handbook's To-Do page renders the ranking control instead of prose.", "done": true },
         { "n": 3, "what": "The Save file comes back into this data, and to-do.md's table is generated from it.", "done": false }
       ]
     },

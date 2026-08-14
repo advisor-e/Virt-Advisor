@@ -227,4 +227,110 @@ describe('the Handbook', () => {
       expect(builder.body('# Quizzes — the Brief\n\nText.\n')).toBe('\nText.\n')
     })
   })
+
+  // 🔴 The whole point of the control is that Mike's ranking is a thing he can
+  // change, not a table he can only read. The failure to guard against is not a
+  // missing control — that is obvious on screen — but a control shipping BESIDE
+  // the hand-written table it replaces. Two copies of his own ordering, one of
+  // them stale, and nothing on the page saying which is which.
+  describe('the ranking control on the To-Do page', () => {
+    const ITEMS = JSON.parse(
+      fs.readFileSync(path.join(FEATURES_DIR, 'to-do-items.json'), 'utf8'))
+
+    /** The To-Do page's own markup, cut out of the built document. */
+    function toDoPage () {
+      const start = html.indexOf('id="page-to-do"')
+      expect(start).toBeGreaterThan(-1)
+      const next = html.indexOf('<article class="page"', start)
+      return html.slice(start, next === -1 ? html.length : next)
+    }
+
+    it('mounts the control on the To-Do page, and only there', () => {
+      expect(toDoPage()).toContain('<div class="queue" data-queue>')
+      expect((html.match(/<div class="queue" data-queue>/g) || [])).toHaveLength(1)
+    })
+
+    it('does not also ship the hand-written table it replaces', () => {
+      // The markdown keeps its table — that is what a reader of the repo sees,
+      // and what toDoItems.test.js compares the data against. What must never
+      // happen is BOTH reaching the page.
+      expect(fs.readFileSync(path.join(FEATURES_DIR, 'to-do.md'), 'utf8'))
+        .toContain('| Waiting on |')
+      expect(toDoPage()).not.toContain('<th>Waiting on</th>')
+    })
+
+    it('leaves the other tables on that page alone', () => {
+      // §2's scoring key and §6's phases explain the control. Replacing the
+      // wrong table would delete the explanation and leave the ranking twice.
+      expect(toDoPage()).toContain('<th>Score</th>')
+      expect(toDoPage()).toContain('<th>Phase</th>')
+    })
+
+    it('says what a reader without JavaScript is looking at', () => {
+      expect(toDoPage()).toContain('The ranking control needs JavaScript')
+    })
+
+    it('carries every item into the page, in the order the file sets', () => {
+      const island = html.match(/<script type="application\/json" id="queuedata">([\s\S]*?)<\/script>/)
+      expect(island).not.toBeNull()
+
+      const carried = JSON.parse(island[1])
+      expect(carried.items.map(i => i.ref)).toEqual(ITEMS.items.map(i => i.ref))
+      expect(carried.orderedByMikeOn).toBe(ITEMS.orderedByMikeOn)
+    })
+
+    it('escapes the data so no value can close the script element early', () => {
+      const island = html.match(/<script type="application\/json" id="queuedata">([\s\S]*?)<\/script>/)
+      expect(island[1]).not.toContain('<')
+    })
+
+    it('refuses to build when the ranked table cannot be found', () => {
+      expect(() => builder.mountQueue('<p>no table here</p>'))
+        .toThrow(/exactly one ranked table .* found 0/)
+    })
+
+    it('refuses to build when two tables look like the ranking', () => {
+      const one = '<table><thead><tr><th>Score</th><th>Waiting on</th></tr></thead></table>'
+      expect(() => builder.mountQueue(one + one))
+        .toThrow(/exactly one ranked table .* found 2/)
+    })
+
+    it('keeps the control out of the prose edit machinery', () => {
+      // Both saves write the same words otherwise — one as a change report, one
+      // as a data file — and whichever is applied second wins by accident.
+      expect(shell).toContain('if (el.closest(\'[data-queue]\')) return')
+    })
+
+    it('hands the list back as the data file, not as prose', () => {
+      expect(shell).toContain('to-do-items.json')
+      expect(shell).toContain('yourCall')
+      expect(shell).toContain('yourComment')
+    })
+
+    it('never re-sorts Mike\'s own order behind him', () => {
+      // The mockup computed its default column as blockers-then-score. Item
+      // 4.14 is a 1 that he ranked first, so that comparator would move it — and
+      // the data file's own header forbids exactly this.
+      expect(shell).toContain('within = function () { return 0 }')
+      const raw = fs.readFileSync(path.join(FEATURES_DIR, 'to-do-items.json'), 'utf8')
+      expect(raw).toContain('must never be re-sorted by a script or a session')
+    })
+
+    it('tells the reader when the project\'s list has moved on, rather than choosing', () => {
+      expect(shell).toContain('The list in the project has changed')
+      expect(shell).toContain('Use the project\\\'s list')
+    })
+
+    it('gives every score a colour in both themes, from tokens', () => {
+      const blocks = shell.split(':root')
+      const light = blocks.find(b => b.includes('--ground: #eef3f8'))
+      const dark = blocks.find(b => b.startsWith('[data-theme="dark"]'))
+      ;[1, 2, 3, 4, 5].forEach((score) => {
+        expect(light).toContain('--s' + score + ':')
+        expect(light).toContain('--s' + score + '-bg:')
+        expect(dark).toContain('--s' + score + ':')
+        expect(dark).toContain('--s' + score + '-bg:')
+      })
+    })
+  })
 })

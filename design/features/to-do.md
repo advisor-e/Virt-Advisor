@@ -20,6 +20,12 @@ so the disagreement is on the page rather than hidden.
 item is missing one of its five fields, or if this table and the data disagree. **Edit the JSON,
 not this table.** *(§2's "not yet enforced" is now enforced.)*
 
+🔴 **In the Handbook this table is a control, not a table.** The generator replaces it with the
+ranking screen from [`../mockups/to-do-list-table.html`](../mockups/to-do-list-table.html) — score
+it, mark **Proceed / Done / Park / Delete**, comment on any row, and **Save the list** writes
+`to-do-items.json` to Downloads for a session to apply. The table below is what a reader of the
+repository sees; the two never both appear, and the build stops if they would.
+
 | # | Item | Score | Blocks | Waiting on |
 | --- | --- | --- | --- | --- |
 | 1 | **4.14** Put the ranking control into the Handbook | 1 | — | Us |
@@ -203,12 +209,33 @@ early production beta stage."*
 | Phase | What | State |
 | --- | --- | --- |
 | **1** | The items become data, with a guard test on the five fields | ✅ **Done 2026-08-15** — [`to-do-items.json`](to-do-items.json) + [`toDoItems.test.js`](../../tests/unit/toDoItems.test.js) |
-| **2** | The Handbook's To-Do page renders the ranking control instead of prose | ☐ Next session |
+| **2** | The Handbook's To-Do page renders the ranking control instead of prose | ✅ **Done 2026-08-15** — [`../../scripts/handbook-shell.html`](../../scripts/handbook-shell.html) |
 | **3** | The Save file comes back into the data; this table is generated from it | ☐ |
 
 **The approved artefact is [`../mockups/to-do-list-table.html`](../mockups/to-do-list-table.html)** —
-Mike used it to set the current order, so it is approved by use. Phase 2 is measured against it, and
-**every deviation from it must be named** before shipping.
+Mike used it to set the current order, so it is approved by use. Phase 2 was measured against it, and
+**every deviation is named below** rather than left to be discovered.
+
+### Phase 2 — every difference from the approved mockup
+
+Approved by Mike on 2026-08-15 before the build. The mockup remains the artefact; this is the
+record of where the shipped control departs from it and why.
+
+| # | The mockup | What shipped | Why |
+| --- | --- | --- | --- |
+| 1 | Fourteen items typed into the script | The live ten, read from [`to-do-items.json`](to-do-items.json) | Six of the mockup's were already wrong — four settled on 2026-08-15, one deleted, and 4.14 did not exist |
+| 2 | Save put a markdown table in a copy-out box | Save writes `to-do-items.json` to Downloads | Mike's ranking returns as data, which is what phase 3 consumes. His explicit call |
+| 3 | Two drop-downs listing deleted and parked work | Removed | The Handbook already shows both behind its **Done & parked** gate on the same page, generated from [`to-do-done-and-parked.md`](to-do-done-and-parked.md). Two copies drift |
+| 4 | The browser's saved copy silently outlived any change to the list | A warning naming the difference, with **Use the project's list** / **Keep mine** | Never resolved silently — what is at stake is Mike's own scoring |
+| 5 | The `#` column sorted by blockers-then-score | The `#` column is the file's array order, untouched | The mockup's own comparator would push 4.14 (a 1 he ranked **first**) below every blocker. [`to-do-items.json`](to-do-items.json) forbids exactly this |
+| 6 | Expanded row held why · risk · touches · comment | Adds *what it blocks*, the *asked-by* detail, and the item's note | The data carries all three and §2 calls **asked by** the field that matters most. Dropping them would hide it |
+| 7 | **Start again** and **×** discarded immediately | Both confirm first | What is discarded is Mike's own calls, and they exist nowhere else until he saves |
+| 8 | Fact columns collapsed at 720px | They collapse at the Handbook's own 900px | The shell has one breakpoint; a second would be a second answer to the same question |
+
+⚠ **Not built, and it is not in the mockup either: an item cannot be dragged up or down.** The
+ranking is applied through the score, the **Your call** column and the three sortable headings —
+which is what the approved artefact does. If moving a row by hand is wanted, it is a new decision,
+not a deviation.
 
 **4.12 · 🔒 One handover story for the master team.** **SCORE 3 · sells the package**
 - **Why:** the merged app's own handover documents still describe a separate standalone

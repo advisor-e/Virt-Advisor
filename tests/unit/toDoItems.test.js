@@ -91,7 +91,7 @@ describe('the to-do data carries what the list\'s own rules demand', () => {
   })
 })
 
-describe('the data and the page a human reads hold the same nine items', () => {
+describe('the data and the page a human reads hold the same items', () => {
   const md = readFileSync(LIST_FILE, 'utf8')
 
   // The ranked table in §1: rows read `| 3 | **2.6** name | 4 | — | Mike |`.
@@ -106,5 +106,72 @@ describe('the data and the page a human reads hold the same nine items', () => {
 
   test('every item in the data appears in the table, and in the same order', () => {
     expect(tableRefs).toEqual(refs)
+  })
+})
+
+// 🔴 WHY THIS BLOCK EXISTS. The cross-check above compared the items and nothing
+// compared the PHASES, so on 2026-08-15 the data recorded phase 1 as not done
+// while to-do.md recorded it as done that same day — a contradiction inside one
+// feature, in two files edited in one sitting, that the guard test sat beside
+// and never looked at. An item that tracks its own phases has two copies of that
+// progress until Phase 3 generates one from the other, and two copies drift.
+describe('an item\'s phases say the same thing in both files', () => {
+  const md = readFileSync(LIST_FILE, 'utf8')
+
+  const lines = md.split(/\r?\n/)
+  const phased = items.filter(item => Array.isArray(item.phases))
+
+  /**
+   * §6's phase table, found by its own header rather than by row shape.
+   *
+   * A row-shaped pattern is not enough: §2's scoring key opens its rows with
+   * `| **5** |` too, so a loose match reads the six scores as six phases and
+   * compares the wrong table. Anchoring on `| Phase | What | State |` is what
+   * makes the comparison mean what it says.
+   *
+   * @returns {Object<number, boolean>} phase number → ticked on the page
+   */
+  function phasesOnPage () {
+    const heads = lines
+      .map((line, i) => (/^\|\s*Phase\s*\|\s*What\s*\|\s*State\s*\|/.test(line) ? i : -1))
+      .filter(i => i !== -1)
+
+    // Two phase tables and this guard would silently pick the first.
+    expect(heads).toHaveLength(1)
+
+    const out = {}
+    for (let i = heads[0] + 1; i < lines.length && lines[i].charAt(0) === '|'; i++) {
+      const cells = lines[i].split('|').slice(1, -1)
+      const n = (cells[0] || '').replace(/[*\s]/g, '')
+      if (!/^\d+$/.test(n)) { continue } // the separator row
+      out[Number(n)] = (cells[2] || '').includes('✅')
+    }
+    return out
+  }
+
+  test('at least one item tracks phases, or this guard is dead weight', () => {
+    expect(phased.length).toBeGreaterThan(0)
+  })
+
+  test.each(phased.map(i => i.ref))('%s numbers its phases 1..n, once each', (ref) => {
+    const item = items.find(i => i.ref === ref)
+    expect(item.phases.map(p => p.n)).toEqual(item.phases.map((_, i) => i + 1))
+    item.phases.forEach((phase) => {
+      expect(typeof phase.done).toBe('boolean')
+      expect(String(phase.what || '').trim().length).toBeGreaterThan(0)
+    })
+  })
+
+  test('a phase ticked in the data is ticked on the page, and the reverse', () => {
+    const onPage = phasesOnPage()
+
+    // An empty {} would pass every comparison below by matching nothing.
+    expect(Object.keys(onPage).length).toBeGreaterThan(0)
+
+    phased.forEach((item) => {
+      const inData = {}
+      item.phases.forEach((phase) => { inData[phase.n] = phase.done })
+      expect(inData).toEqual(onPage)
+    })
   })
 })

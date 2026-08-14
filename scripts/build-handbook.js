@@ -31,6 +31,13 @@
  * Then publish the written file as an Artifact, updating the EXISTING handbook
  * URL rather than creating a second one.
  *
+ * THE TO-DO PAGE IS THE ONE EXCEPTION to "markdown in, prose out". Its ranked
+ * table is replaced by a mount point, and design/features/to-do-items.json rides
+ * along as a data island, so the shell can render Mike's ranking as a control he
+ * can re-order, score and comment on rather than a table he can only read. The
+ * two must never both appear: the table is a second copy of his ranking, and a
+ * stale copy is the one a reader trusts. mountQueue() enforces that.
+ *
  * WHAT IT DOES NOT DO, stated here rather than discovered later:
  *  - It never writes to design/. It only reads the repo.
  *  - A link that leaves design/features/ (../ACTIONS.md, ../../server/…) has no
@@ -52,13 +59,17 @@ const FEATURES_DIR = path.join(ROOT, 'design', 'features')
 const SHELL_PATH = path.join(__dirname, 'handbook-shell.html')
 const INDEX_SLUG = 'README'
 
+/** The page whose ranked table becomes the ranking control. */
+const QUEUE_SLUG = 'to-do'
+const QUEUE_DATA_PATH = path.join(FEATURES_DIR, 'to-do-items.json')
+
 const DEFAULT_OUT = path.join(os.tmpdir(), 'advisor-e-handbook.html')
 
 const MarkdownIt = require(path.join(ROOT, 'node_modules', 'markdown-it'))
 const md = new MarkdownIt({ html: false, linkify: false, typographer: false })
 
 /** The shell's substitution slots. Each must appear EXACTLY once — see substitute(). */
-const PLACEHOLDERS = ['<!--NAV-->', '<!--PAGES-->', '<!--COUNT-->']
+const PLACEHOLDERS = ['<!--NAV-->', '<!--PAGES-->', '<!--COUNT-->', '<!--QUEUE-->']
 
 /**
  * Replaces a slot in the shell, refusing to guess when the slot is not where it
@@ -175,6 +186,76 @@ function renderMarkdown (markdown) {
   return relink(md.render(body(markdown)))
 }
 
+// ── The ranking control ────────────────────────────────────────────────────
+
+/**
+ * What the shell renders the control into. The words inside are what a reader
+ * sees if the script never runs — the sections further down the page still hold
+ * every item's why, risk and touches, so the page is degraded, not empty.
+ */
+const QUEUE_MOUNT =
+  '<div class="queue" data-queue>' +
+  '<p class="queue-fallback">The ranking control needs JavaScript. Every item below ' +
+  'still carries its score, why, risk and who asked for it.</p>' +
+  '</div>'
+
+/**
+ * The header cells that identify §1's ranked table. Both are required: §2's
+ * scoring key also has a `Score` column, and matching that one instead would
+ * delete the explanation of the scores and leave the ranking on screen twice.
+ */
+const RANKED_TABLE_MARKS = ['<th>Score</th>', '<th>Waiting on</th>']
+
+/**
+ * Replaces §1's ranked table with the control's mount point.
+ *
+ * Refusing to guess is the point. If the table cannot be found the build stops
+ * rather than shipping a page carrying BOTH a live control and a hand-written
+ * table of the same ranking — two copies of Mike's own ordering, one of which is
+ * stale, with nothing on screen saying which.
+ *
+ * @param {string} html  the rendered To-Do page
+ * @returns {string}
+ * @throws if the page holds anything other than exactly one ranked table
+ */
+function mountQueue (html) {
+  const tables = html.match(/<table>[\s\S]*?<\/table>/g) || []
+  const ranked = tables.filter(table =>
+    RANKED_TABLE_MARKS.every(mark => table.indexOf(mark) !== -1))
+
+  if (ranked.length !== 1) {
+    throw new Error(
+      'design/features/' + QUEUE_SLUG + '.md must hold exactly one ranked table for the ' +
+      'control to replace — found ' + ranked.length + '. It is the table whose header ' +
+      'row reads `| # | Item | Score | Blocks | Waiting on |`. Shipping without this ' +
+      'substitution would put the control and a hand-written copy of the same ranking ' +
+      'on one page.'
+    )
+  }
+
+  return html.replace(ranked[0], () => QUEUE_MOUNT)
+}
+
+/**
+ * design/features/to-do-items.json, carried into the page for the shell to read.
+ *
+ * Parsed here rather than passed through as text so a malformed data file fails
+ * the build with a JSON error, instead of producing a Handbook whose control is
+ * silently empty.
+ *
+ * @returns {string} a JSON data island
+ */
+function renderQueueData () {
+  const data = JSON.parse(fs.readFileSync(QUEUE_DATA_PATH, 'utf8'))
+
+  // `<` cannot survive raw inside a script element — a `</script>` in any string
+  // would end the island early. It only ever occurs inside JSON string values,
+  // where < is the same character.
+  return '<script type="application/json" id="queuedata">' +
+    JSON.stringify(data).replace(/</g, '\\u003c') +
+    '</script>'
+}
+
 /**
  * One feature page: the Brief, and its companion behind the gate.
  *
@@ -185,7 +266,10 @@ function renderPage (page, read) {
   let out = '<article class="page" id="page-' + page.slug + '" data-page="' + page.slug + '" hidden>'
   out += '<header class="pagehead"><div class="eyebrow">' + escapeHtml(page.group) +
     '</div><h1>' + escapeHtml(page.title) + '</h1></header>'
-  out += '<div class="prose">' + renderMarkdown(read(page.slug)) + '</div>'
+  const prose = renderMarkdown(read(page.slug))
+  out += '<div class="prose">' +
+    (page.slug === QUEUE_SLUG ? mountQueue(prose) : prose) +
+    '</div>'
 
   if (page.companion) {
     const isToDo = page.slug === 'to-do'
@@ -256,7 +340,8 @@ function build (outPath) {
   const values = {
     '<!--NAV-->': nav,
     '<!--PAGES-->': allPages.map(page => renderPage(page, read)).join(''),
-    '<!--COUNT-->': String(allPages.length)
+    '<!--COUNT-->': String(allPages.length),
+    '<!--QUEUE-->': renderQueueData()
   }
 
   const html = PLACEHOLDERS.reduce(
@@ -272,6 +357,7 @@ function build (outPath) {
     unlisted,
     files,
     outPath,
+    queueItems: JSON.parse(fs.readFileSync(QUEUE_DATA_PATH, 'utf8')).items.length,
     bytes: Buffer.byteLength(html)
   }
 }
@@ -290,6 +376,7 @@ if (require.main === module) {
   console.log('  ' + result.pages.length + ' feature pages, ' + gated + ' with a history behind the gate')
   console.log('  ' + result.files.length + ' markdown files read from design/features/')
   console.log('  ' + result.groups.length + ' navigation groups, ' + navCount + ' entries, read from ' + INDEX_SLUG + '.md')
+  console.log('  ' + result.queueItems + ' ranked items on the To-Do page, as a control rather than a table')
   console.log('  ' + Math.round(result.bytes / 1024) + ' KB written to ' + result.outPath)
 
   if (result.unlisted.length) {
@@ -311,5 +398,6 @@ module.exports = {
   relink,
   body,
   substitute,
+  mountQueue,
   PLACEHOLDERS
 }
