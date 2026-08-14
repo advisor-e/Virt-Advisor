@@ -14,7 +14,6 @@
     "start": "cross-env NODE_OPTIONS=--max-old-space-size=12288 nuxt start",
     "generate": "nuxt generate",
     "check:branch": "node scripts/check-branch-state.js --report",
-    "status": "node scripts/generate-status-table.js",
     "routing": "node scripts/generate-content-routing.js",
     "handbook": "node scripts/build-handbook.js",
     "feature": "node scripts/new-feature.js",

@@ -2228,17 +2228,6 @@ async function handleQuery (rawBody, res, identity) {
       return
     }
 
-    // ── NONE OF THESE APPLY escape ──
-    if (query === '__none_of_these__') {
-      state.detectedDomain = null
-      state.disambiguationNeeded = false
-      state.disambiguationScenarios = []
-      state.disambiguationAnswer = null
-      state.domainConfirmed = null
-      state.primaryIssue = null
-      return sendQuestion("No problem — tell me in your own words what's actually going on with this client.")
-    }
-
     dbg('SEQUENCER: checking pipeline, detectedDomain=' + state.detectedDomain)
     console.log('[advisor] TURN histLen=' + conversationHistory.length + ' session=' + (sessionId ? sessionId.slice(0, 8) : 'none') + ' domain=' + (state.detectedDomain || 'none') + ' recDelivered=' + state.recommendationDelivered)
 

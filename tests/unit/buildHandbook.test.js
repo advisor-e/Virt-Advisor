@@ -173,17 +173,18 @@ describe('the Handbook', () => {
 
     it('leaves no relative path in an href, except the one below', () => {
       const survivors = (html.match(/href="\.\.[^"]*"/g) || [])
-      expect(survivors).toEqual(['href="../"'])
+      expect(survivors).toEqual([])
     })
 
-    // ⚠ CURRENT BEHAVIOUR, not desired behaviour. localisation-and-currency-history.md
-    // links to the parent FOLDER — [`../i18n-*`](../) — and relink() requires at
-    // least one character after '../', so it is the one link that stays relative
-    // and does nothing when clicked. Identical in the original build; left alone
-    // rather than quietly changed, because restoring the original means restoring
-    // it. The fix is one character ([^"]+ → [^"]*) and needs Mike's yes.
-    it('does not yet convert a link to the parent folder itself', () => {
-      expect(builder.relink('<a href="../">x</a>')).toBe('<a href="../">x</a>')
+    // A link to the parent FOLDER — [`../i18n-*`](../) in
+    // localisation-and-currency-history.md — used to survive relink() because the
+    // pattern demanded at least one character after '../', leaving the one link in
+    // the Handbook that rendered as a link and did nothing when clicked. Fixed
+    // 2026-08-15 on Mike's yes: [^"]+ → [^"]*. It now reads as a file reference
+    // like every other link that leaves the folder.
+    it('converts a link to the parent folder itself', () => {
+      expect(builder.relink('<a href="../">x</a>'))
+        .toBe('<a href="#" data-file="" class="filelink">x</a>')
     })
   })
 

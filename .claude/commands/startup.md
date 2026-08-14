@@ -14,7 +14,7 @@ it, do not perform it unasked.
 
 1. **Where am I?** Report the current branch, whether the working tree is clean, and
    whether the branch matches the machine's expected branch (desktop → course builder,
-   laptop → business performance report). If the tree is dirty, list what is uncommitted
+   laptop → `feat/advisor-progress`). If the tree is dirty, list what is uncommitted
    and stop for instructions — never start new work on top of unexplained changes.
 
 2. **How far off master am I?** Run `npm run check:branch`. Report the ahead/behind

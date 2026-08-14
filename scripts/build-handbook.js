@@ -168,7 +168,7 @@ function relink (html) {
   return html
     .replace(/href="([a-z0-9-]+)\.md"/g, 'href="#$1"')
     .replace(/href="\.\.\/\.\.\/([^"]+)"/g, 'href="#" data-file="$1" class="filelink"')
-    .replace(/href="\.\.\/([^"]+)"/g, 'href="#" data-file="$1" class="filelink"')
+    .replace(/href="\.\.\/([^"]*)"/g, 'href="#" data-file="$1" class="filelink"')
 }
 
 function renderMarkdown (markdown) {

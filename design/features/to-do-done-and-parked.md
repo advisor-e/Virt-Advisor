@@ -4,8 +4,61 @@
 > and what is deliberately waiting, kept so that nothing is forgotten and nothing has to be
 > re-derived.
 >
-> **Parked is not the same as forgotten.** Every item in §2 was paused by a decision, and the
+> **Parked is not the same as forgotten.** Every item in §1 was paused by a decision, and the
 > decision is recorded with it. If somebody proposes one of them as new work, the answer is here.
+>
+> 🔴 **And deleted is not the same as parked.** §0 below lists what was cut on 2026-08-15 for
+> failing the product test. Those items are gone from the list and gone from the codebase. They are
+> recorded here so nobody re-derives them, **not so they can be revived.**
+
+---
+
+## 0. Deleted 2026-08-15 — the audit that cut the list from 31 items to 16
+
+Mike asked for a full review: every item checked against the code, and against whether he had ever
+asked for it. His instruction: *"unless I specifically asked for it, unless it meets all my criteria
+for building a better app, I want it deleted — off the list, not parked."*
+
+**Four things the audit found, and they are the reason the rules on [`to-do.md`](to-do.md) §5
+changed:**
+
+1. **§2.7 had been built on 2026-07-29** and still read *"not to be built either way without your
+   answer"*. Seventeen days. The per-question quiz record ships with no free text, enforced on the
+   way in and on the way out, pinned by tests.
+2. **Three items were one item.** §4.11 (reconcile the two data layers) and §5.3 (advisor profile
+   off browser storage) were both §3.1 — there is no database. One blocker, written three times.
+3. **Two items existed to maintain a file nobody reads.** §2.8 and §5.4 both served
+   `design/STATUS.md`, a generated view of the 6,135-line `ACTIONS.md` that this very list replaced
+   as the front door. Last generated 2026-08-03. **STATUS.md, `scripts/generate-status-table.js`,
+   its test and the `npm run status` script are all deleted.**
+4. **The whole of section 5 broke the list's own rule** — *"a warning is not an item"* — under a
+   heading that admitted *"no user impact"*.
+
+**Deleted, with the reason each failed:**
+
+| Item | Why it went |
+| --- | --- |
+| 2.4 · Annual plan name | A working name already in use; nothing broken and nothing blocked |
+| 2.5 · Five roll-up labels | Locale strings already on screen; nothing broken |
+| 2.7 · Quiz free text | **Already built 2026-07-29** — the recommendation was implemented, not left open |
+| 2.8 · STATUS.md staleness | Machinery for a stale copy of a superseded file |
+| 4.3 · Point CLAUDE.md at ARTEFACTS.md | Paperwork about paperwork; serves no user |
+| 4.10 · Extend the invisible mode swap | Written as *"Ruled:"* — **no record anywhere of who ruled it**, and not Mike as far as the repo shows |
+| 4.11 · Reconcile the two data layers | Duplicate of 3.1 |
+| 5.1 · Large components | A warning, not a task; no user impact by its own heading |
+| 5.2 · Sparse doc comments | Same |
+| 5.3 · Profile off browser storage | Duplicate of 3.1 |
+| 5.4 · Status table "paused" marker | Went with STATUS.md |
+| 5.5 · Six firm-editable blocks | A menu of possible features nobody requested. If one is wanted it is a new request |
+
+**Done in the same pass rather than left on Mike's plate:** §4.1 (the laptop's branch was wrong in
+`/startup` and confused this session), §4.2 (the one dead Handbook link — `relink()` needed
+`[^"]+` → `[^"]*`), §4.5c (the unreachable `__none_of_these__` handler, deleted). §3.4 was merged
+into §3.2 and §3.3, being the action they wait on rather than a task of its own.
+
+⚠ **§4.4 could NOT be done here and is honestly still Mike's.** Opening the Handbook, editing a
+word and reloading needs a real browser; this machine has no browser automation, so no session can
+prove it for him.
 
 ---
 

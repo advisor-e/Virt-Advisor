@@ -195,8 +195,12 @@
     link" while that link lived nowhere in the repo — the same failure as a design in a temp
     folder. Publishing without it silently creates a **second** Handbook and the bookmarked one
     stops updating. The URL is now in `ARTEFACTS.md`.
-  - ⚠ **`features/to-do.md` now holds 31 items against its own §6 limit of "about twenty".** Four
-    of today's are one-line jobs. Worth a triage pass, not a rewrite.
+  - ✅ **RESOLVED 2026-08-15 — the triage pass happened, and it was a cut rather than a tidy.**
+    31 items became **16**: one had been built seventeen days earlier, three were the same blocker
+    written three times, two existed to maintain a generated copy of this file, and the whole
+    "tidying" section broke the list's own *a warning is not an item* rule. Mike's instruction was
+    that anything he had not asked for and that fails the product test is **deleted, not parked**.
+    Record: [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §0.
 
 - <a id="record-keeps-the-paraphrase"></a>☐ **P2 · DOC — the correction was applied where the fault
   WAS, and nothing asked where the content had been COPIED to.** Found and fixed 2026-08-13
@@ -6107,40 +6111,19 @@ Two honest answers on different axes — the file used to conflate them:
 
 ## OPEN — actionable now (build / decide this session)
 
-- <a id="status-table-deferred-glyph"></a>☐ **P3 · FIX — a real backlog item is invisible in `STATUS.md` because the parser
-  does not recognise its `⏸` status glyph.** Found 2026-08-01 while re-pointing the status guard;
-  logged rather than folded into that change.
-  - **The instance.** The `⏸ DEFERRED (intentional while in dev, Mike 2026-07-10) — Team Dashboard
-    renders mock advisors` entry is a top-level item with a genuine status, but `parseItem`
-    ([`scripts/generate-status-table.js`](../scripts/generate-status-table.js)) reads no `⏸`, so the
-    row is absent from the generated table. It is one of the 3 `topLevelUnparsed` lines; the other
-    two are summary pointers that are correctly not tasks.
-  - **Why it matters more than one row.** `⏸` is exactly the status a reader most needs to see —
-    deliberately paused work is the kind that gets forgotten. A table that silently omits it reads
-    as "not a thing", which is the no-silent-parking rule failing at the display layer.
-  - **Fix:** teach `parseItem` the `⏸` marker (mapping to a "Deferred" label alongside the existing
-    in-progress / open / blocked set), and add a case to
-    [`tests/unit/statusTable.test.js`](../tests/unit/statusTable.test.js) pinning it. Cheap, but it
-    changes what the generated table claims, so it takes its own approval.
-
-- <a id="status-md-silent-staleness"></a>☐ **P3 · DECISION — `STATUS.md` goes stale silently, and nothing says so on
-  the page.** Found 2026-08-01: regenerating it moved **57 → 62 outstanding** and **108 → 113
-  completed**, and its links were pointing roughly **260 lines** off (an item linked at `#L1156` had
-  moved to `#L1418`). Today's edits account for about two of those ten items — the rest of the drift
-  predates this session.
-  - **The mechanism.** It only updates when a person runs `npm run status`. Nothing in the commit
-    hooks or CI regenerates it, and the file carries no "generated on" stamp, so a stale copy is
-    indistinguishable from a current one. **A wrong line link is worse than no link** — it silently
-    lands the reader on an unrelated item.
-  - **Same failure class as the routing defects of 2026-07-30/31:** a surface that renders
-    confidently, is believed, and is wrong. That is why it is logged rather than left as housekeeping.
-  - **Three options, needing Mike's call rather than a default:** (a) regenerate in the pre-commit
-    hook whenever `ACTIONS.md` is staged — always true, at the cost of touching a second file in
-    every backlog commit; (b) a test that fails when `STATUS.md` does not match a fresh generation —
-    same guarantee, but it blocks the commit instead of fixing it; (c) stamp the file with the
-    `ACTIONS.md` commit it was generated from, so a reader can see it is stale without preventing it.
-    Recommendation: (a), because the only thing worse than a stale view is one that needs a human to
-    remember it exists.
+- <a id="status-md-deleted"></a>🗑 **DELETED 2026-08-15 — `STATUS.md`, its generator, its test and
+  the two backlog items that existed to maintain it.** Two P3 entries stood here: one to teach the
+  parser the `⏸` glyph, one to stop the page going stale silently. Both were real. Neither
+  mattered, because the page they served was a **generated view of this file** — and this file
+  stopped being the front door when [`features/to-do.md`](features/to-do.md) was written. It was
+  last generated on 2026-08-03 and nothing reads it.
+  - **Removed:** `design/STATUS.md`, `scripts/generate-status-table.js`,
+    `tests/unit/statusTable.test.js` and the `npm run status` script.
+  - **The `⏸` entry also carried expired evidence** — the one example it existed to surface, a
+    Team Dashboard rendering mock advisors, refers to a screen deleted on 2026-07-29.
+  - **The general form, and it is why this was cut rather than fixed:** a second surface that
+    restates a first one has to be maintained, and the maintenance generates tasks of its own. Two
+    of the sixteen items on the live list were about keeping a copy honest. Delete the copy.
 
 - <a id="fabricated-detail-in-summaries"></a>◐ **THE CONFIRMED INSTANCE IS FIXED — corrected 2026-07-31 in
   `a557096`, verified in the data 2026-08-03.** [`sales-marketing-domain-support.json`](../data/sales-marketing-domain-support.json)

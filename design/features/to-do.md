@@ -1,13 +1,21 @@
 # The To-Do List
 
 > **This is the whole live list. If it is not here, nobody is doing it.**
-> Finished and deliberately-parked work is on
-> [`to-do-done-and-parked.md`](to-do-done-and-parked.md) — kept so nothing is forgotten, moved so
-> nothing is buried.
+> Finished work, and work deleted for failing the product test, is on
+> [`to-do-done-and-parked.md`](to-do-done-and-parked.md).
 >
-> **Last verified against the code: 2026-08-14.** Items marked ✅**verified** were checked against
-> the actual code or git history on that date. Items marked ⚠**unverified** came from the backlog
-> and have not been re-checked — treat them as claims, not facts.
+> 🔴 **Every item here has to pass Mike's test before it earns a line** —
+> [`product-principles.md`](product-principles.md): *does it serve the user, make the system better
+> quality or more robust, or improve marketability?* **If the answer to all three is no, it is not
+> parked, deprioritised or filed under tidying. It is deleted, with its code.** Ruled 2026-08-15
+> after a full audit cut the list from 31 items to 16.
+>
+> **Numbers are stable and gaps are deliberate.** A missing number means that item was deleted;
+> [`to-do-done-and-parked.md`](to-do-done-and-parked.md) says which and why.
+>
+> **Last verified against the code: 2026-08-15**, item by item. Items marked ✅**verified** were
+> checked against the actual code or git history on that date. Items marked ⚠**unverified** came
+> from the backlog and have not been re-checked — treat them as claims, not facts.
 
 ---
 
@@ -68,7 +76,7 @@ warning about it and nothing owned it.
 
 ## 2. Waiting on you — nothing happens until you rule
 
-*Nine items. None of them need code first; all of them block code.*
+*Five items. None of them need code first; all of them block code.*
 
 **2.1 · Send the master team the release number.** ✅**verified** — `v0.8.0` is tagged and pushed,
 and nobody outside has been told. They cannot pull what they do not know exists; v0.6.0 was never
@@ -85,23 +93,13 @@ broken — the tabs are absent, not faulty.
 
 **2.3 · Seminar's seven lines** — reword toward Public Speaking. ⚠ carried since session 48.
 
-**2.4 · The Management Reporting annual plan name** — "Mgt Annual Plan" or "Annual Board Plan".
-⚠ carried.
-
-**2.5 · The five roll-up labels.** ⚠ carried since session 45.
-
-**2.6 · `advisor_note` — decide what it is.** ⚠ carried since session 45.
-
-**2.7 · Should the per-question quiz record store the advisor's own written answer?** The
-recommendation on file is **no free text** — advisors write differently once they believe a
-manager reads their words, which degrades the very signal the record exists to collect. Text can
-be added later; it cannot be un-stored. **Not to be built either way without your answer.**
-
-**2.8 · How should `STATUS.md` stop going stale silently?** ✅**verified** — regenerating it once
-moved the counts by ten items and its links were pointing about 260 lines off target. **A wrong
-link is worse than no link.** Three options: regenerate it automatically whenever the backlog is
-committed; add a test that fails when it is out of date; or stamp it with the version it was
-generated from so a reader can see it is stale. Recommendation: the first.
+**2.6 · `advisor_note` — one line from you.** ✅**verified 2026-08-15** — the
+`profitability_feasibility` / `pf_awareness` node in your own logic tree carries a real
+instruction that reaches the AI **nowhere**: *"This determines the delivery method. Do not use
+Trial Fit on an unaware client — it will cause map shock. Do not use Cautious Reveal on a
+motivated client — it will feel slow and condescending."* `formatNodeForPrompt` does not read the
+field. Not fixed unasked, because emitting a new field changes what the model is told. **Should
+`advisor_note` be emitted the same gated way `recommendation` now is?**
 
 **2.9 · The education-gate wording.** The behaviour is already ruled — on low client literacy the
 advisor gets a prompt asking whether to apply education-first or see what is technically needed,
@@ -111,7 +109,7 @@ with the reasoning shown either way. **The on-screen words need confirming befor
 
 ## 3. Waiting on somebody else — not ours to finish
 
-*Five items. Every one of them is why something else looks half-built.*
+*Four items. Every one of them is why something else looks half-built.*
 
 **3.1 · 🔴 Provision MySQL.** ✅**verified** — the credentials are still placeholders and no row
 has ever been written anywhere. **This is the single biggest blocker in the project.** Advisor
@@ -127,40 +125,19 @@ those hubs cannot be demonstrated by signing in as one.
 parent column, so nothing in our data says which firms are in which group. In development the two
 middle hubs show **invented firms**, and the server says so loudly at startup.
 
-**3.4 · Ask the master team for the two role values, and which group a manager manages.** ⚠
-carried since session 39.
-
 **3.5 · Reply to Carl about `npm install`.** ⚠ carried.
+
+*(3.4 — "ask the master team for the two role values" — was merged into 3.2 and 3.3 on 2026-08-15.
+It was the action those two items are waiting on, not a separate task.)*
 
 ---
 
 ## 4. Ready to build — approved or unblocked
 
-**4.1 · Correct the laptop's expected branch in `/startup`.** ✅**verified** —
-[`.claude/commands/startup.md`](../../.claude/commands/startup.md) still says the laptop works the
-*business performance report* branch. It has been `feat/advisor-progress` since 2026-07-29. One
-line. *(Waits on Mike — it was left alone rather than folded into a change he was approving.)*
-
-**4.2 · Convert the one dead link in the Handbook.** `[../i18n-*](../)` in
-[`localisation-and-currency-history.md`](localisation-and-currency-history.md) points at the
-parent folder and does nothing when clicked, because the rewrite needs a character after `../`.
-One character in `relink()`. Currently pinned as a ⚠ CURRENT BEHAVIOUR test so it cannot be
-forgotten. *(Waits on Mike.)*
-
-**4.3 · Point `CLAUDE.md`'s "Save the Artefact" section at the register.**
-[`ARTEFACTS.md`](../ARTEFACTS.md) now exists and is guarded; the rule that failed on 2026-08-13
-should name it, and should say that a missing artefact is a **stop**, not a licence to redesign.
-*(Waits on Mike — it is his file.)*
-
-**4.4 · Open the Handbook, edit a word, reload, confirm it survives.** The edit-persistence is
-proven in code and has not been seen working in a browser since the restore. *(Waits on Mike.)*
-
-**4.5c · Remove the orphaned `__none_of_these__` handler, or give it a caller.** New 2026-08-14.
-✅**verified.** `server/advisorEngine.js:2193` still answers the `__none_of_these__` query by
-clearing the domain and asking the advisor to re-describe. **Its only caller was the button
-deleted in 4.5a, so it is now provably unreachable.** Left in place deliberately rather than
-bundling a backend change into a frontend deletion. **It is settled by 4.5b:** if Mike wants the
-escape, this handler is what the new route calls; if not, delete it. *(Waits on 4.5b.)*
+**4.4 · Open the Handbook, edit a word, reload, confirm it survives.** ⚠ **This is one click, and
+it has to be yours** — the edit-persistence is proven in code but has never been seen working in a
+browser, and this machine has no browser automation (no Playwright), so no session can prove it for
+you. *(Waits on Mike — 30 seconds.)*
 
 **4.7 · Flip `engine-strict` back on.** ✅**verified** — still `false`. Two transitive packages
 over-declare their Node requirement and need pinning down first, then one install to verify.
@@ -192,52 +169,28 @@ middle-tier hubs currently need. *(Waits on us.)*
 already carry stable ids; it simply never joined the inheritance mechanism, and its firm side is
 append-only.
 
-**4.10 · Extend the invisible mode swap.** Ruled: it should fire in Discover mode and before a
-recommendation, as well as during the client deep-dive. Needs a scenario-lab pass so the early
-version cannot derail the intake questions.
-
-**4.11 · Reconcile the two data layers.** This app uses MySQL with a file fallback; the people
-layer runs in memory. Neither has a real database, which is exactly why it should be done
-knowingly rather than by accident.
-
 **4.12 · One handover story for the master team.** The merged app's own handover documents still
 describe a separate standalone application.
 
 ---
 
-## 5. Tidying — real, low value, no user impact
+## 5. How to keep this list honest
 
-*Do these when something else brings you into the file, not as a project.*
-
-**5.1 · The three large components keep growing** — the advisor screen, the course builder and
-the hub are all well past the point where they would normally be split. Each is load-bearing and
-needs tests in front of any split.
-
-**5.2 · Sparse documentation comments** across the mixins and two large backend files. Already
-scheduled into a planned clean-up pass, gated behind the master team's work.
-
-**5.3 · Move the advisor profile off browser storage into the database.** Same family as the case
-studies migration; waits on the same thing.
-
-**5.4 · Teach the status table the "paused" marker.** ✅**verified as still open** — and worth a
-sentence, because it is a small lesson in itself. The reason this fix was logged is that a paused
-item was invisible in the generated table, and *paused work is exactly what gets forgotten*. But
-the one example it exists to surface — a fake team dashboard — refers to **a screen that has
-since been deleted**. The fix is still right; its evidence has expired.
-
-**5.5 · Six building blocks could become firm-editable** — the question weights, the strategy
-table, the primary-issues table, the content summaries, the coaching reference and a logic-tree
-editor. A known recipe exists for each.
-
----
-
-## 6. How to keep this list honest
-
+- **Apply the product test before writing anything down.** Serves the user, improves quality or
+  robustness, improves marketability — if none of the three, it does not go on the list at all.
+  This is the rule the 2026-08-15 audit added, and it is the one that keeps the list short.
+- **Nothing is parked.** Parking was tried and it failed: a parked item is still in the codebase,
+  still in the backlog and still an invitation to finish it. Deleted means deleted, code included.
 - **When something is done, move it** to [`to-do-done-and-parked.md`](to-do-done-and-parked.md).
   Do not tick it and leave it here.
 - **When a hazard is discovered, write it as a task** — something a person does — or it will not
   get done.
-- **Re-verify before acting.** An item marked ⚠ is a claim from the backlog, not a fact. Three
-  separate items have been found *already built* while still flagged open.
+- **Re-verify before acting, and re-verify what is already here.** An item marked ⚠ is a claim from
+  the backlog, not a fact. **The 2026-08-15 audit found §2.7 had been BUILT on 2026-07-29** and had
+  sat here for seventeen days saying it must not be built without Mike's answer. Four items in total
+  have now been found already built while still flagged open.
+- **An observation is not a task, and an AI-written line carries no authority.** A whole fortnight of
+  work grew out of one AI-authored sentence in `ACTIONS.md` that a later session read as an
+  instruction. If nobody asked for it, it does not go on the list.
 - **If this list passes about twenty live items, something is wrong** — either work is not being
   moved off it, or warnings are being filed as tasks again.
