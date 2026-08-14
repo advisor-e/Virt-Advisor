@@ -110,6 +110,8 @@ identifiable as the firm's.
 | Decision | Ruling | Date |
 |---|---|---|
 | Are the added clauses acceptable? | **Yes, if marked as ours.** Not deleted, not left silent. | 2026-08-14 |
+| Who sees a mark? | **The mentor only.** See §8 — the tiers below cannot act on it. | 2026-08-14 |
+| Is `canSeeMarks` a preference? | **No, a trigger.** It widens the day anything drafts material for a firm. | 2026-08-14 |
 | Does this relax the never-invent rule? | **No.** Inventing the firm's *method* stays forbidden. | 2026-08-14 |
 | May we author a fact about a named framework? | **Never.** That is the AIDCRA failure and is a different class. | 2026-08-14 |
 | Can the sweep be automated? | **No — proven, not assumed.** Three detectors, all defeated by paraphrase. | 2026-08-14 |
@@ -135,3 +137,35 @@ old wording so the change is checkable rather than silent.
 **Where the earlier record is wrong:** [`../ACTIONS.md`](../ACTIONS.md) and
 [`to-do.md`](to-do.md) both described 4.6 as a verification pass of unknown size. It now has a
 measured answer for one domain of twenty-nine, and a stated method for the rest.
+
+---
+
+## 8. The second sitting — the note came off three screens the day after it went on
+
+Built on 2026-08-14, the mark was visible at all four tiers: the mentor could create one, the three
+manager tiers could read it. The Brief's own §1 justified that — *"a firm manager reviewing the
+material has no way to tell which sentences are theirs to change"*.
+
+**The owner asked the question that undid it: if they can see it but not edit it, why are we showing
+them?** — with the concern that the hub is becoming overwhelming for an accountant.
+
+**Defending it failed on the code.** The stated case rested on an implied ongoing hazard: AI adding
+words to a firm's material, which the firm would want to clean off. No such path exists.
+`formatMaterialLines` **reads** this material into a prompt; nothing writes back. The nine clauses
+came from *our own transcription sessions*, a development activity, and they stop when the
+transcription stops. So for a firm manager the note is a record of finished work — and the first
+recommendation given that day, to keep it visible, was withdrawn the same hour.
+
+**Two things were separated in the process, and the distinction is worth keeping.** The mechanism
+*is* marketable — *"every sentence an advisor reads is either yours, or labelled as ours"* is a real
+claim for a product sold on advice sounding like the advisor. **The manager-screen label is not.**
+Same feature; one is a promise, the other is a widget nobody can act on.
+
+**What was accepted in exchange**, stated rather than buried: a firm manager editing a step will not
+know a clause was ours, and may adopt it as their firm's wording. That is the same silence §1
+objects to. It was judged the smaller cost because the clause is one the owner had already ruled
+worth keeping.
+
+**The general test came out of this exchange** and is now
+[`product-principles.md`](product-principles.md) — with the exemption that saved the rest of the
+mechanism: *invisible plumbing is judged on whether it prevents a fault, not on whether it sells.*

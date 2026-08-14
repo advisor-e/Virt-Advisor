@@ -164,16 +164,25 @@ section.firm-domain-support
                         //- words are still in the box above: rewrite the sentence and
                         //- the words become the firm's, so the note retires itself
                         //- rather than pointing at text nobody wrote.
-                        .ds-mark(v-for="mark in marksIn(material, step)" :key="mark.text")
-                          button.ds-unmark(
-                            v-if="canMark"
-                            type="button"
-                            :aria-label="$t('firmDomainSupport.unmark')"
-                            :title="$t('firmDomainSupport.unmark')"
-                            @click="unmark(material, mark)"
-                          ) ×
-                          span.ds-mark-lab {{ $t('firmDomainSupport.markedLabel') }}
-                          q.ds-mark-text {{ mark.text }}
+                        //-
+                        //- Platform level only — see `canSeeMarks`. A manager below
+                        //- the mentor can do nothing with this note, and screen space
+                        //- a reader cannot act on is clutter. The v-if sits on a
+                        //- template, not on .ds-mark, because v-if and v-for on one
+                        //- element is a lint error and reads ambiguously besides.
+                        template(v-if="canSeeMarks")
+                          .ds-mark(v-for="mark in marksIn(material, step)" :key="mark.text")
+                            //- Retained under canSeeMarks: the two gates answer
+                            //- different questions, and seeing widens first.
+                            button.ds-unmark(
+                              v-if="canMark"
+                              type="button"
+                              :aria-label="$t('firmDomainSupport.unmark')"
+                              :title="$t('firmDomainSupport.unmark')"
+                              @click="unmark(material, mark)"
+                            ) ×
+                            span.ds-mark-lab {{ $t('firmDomainSupport.markedLabel') }}
+                            q.ds-mark-text {{ mark.text }}
 
                         //- Making a mark: highlight the words, press the button. The
                         //- words are never retyped, so a mark cannot come adrift from
@@ -279,9 +288,10 @@ export default {
     apiToken: { type: String, required: true },
     /**
      * Which tier is looking at this screen, passed down from FirmManagerHub.
-     * Read for one thing only: who may MAKE a commentary mark (see `canMark`).
-     * Everything else on this screen behaves identically at every tier, which
-     * is the cascade rule — there is no per-tier functionality here.
+     * Read for two things only, both about commentary marks: who may SEE one
+     * (`canSeeMarks`) and who may MAKE one (`canMark`). The material itself,
+     * and every control over it, behaves identically at every tier — that is
+     * the cascade rule, and it is unchanged.
      */
     scope: { type: String, default: 'firm' }
   },
@@ -321,6 +331,29 @@ export default {
 
   computed: {
     /**
+     * Who may SEE a commentary mark. Platform level only (owner's ruling
+     * 2026-08-14, second sitting): nothing in the running app writes into a
+     * firm's material — the clauses came from our own transcription of the
+     * firm's sources — so below the mentor a mark is a record of finished
+     * work, not a tool. It fails the marketability test in
+     * `design/features/product-principles.md`: a manager cannot act on it, so
+     * it is screen space spent on nothing.
+     *
+     * ⚠ TRIGGER, not a preference. The day anything in the app drafts or
+     * extends material FOR a firm, this must widen — that firm would then need
+     * to see which words it did not write. Pinned by the "a manager sees
+     * nothing" case in tests/unit/authoredCommentaryScreen.test.js, which
+     * carries the same note, so widening is a deliberate act.
+     *
+     * Kept separate from `canMark` rather than reusing it: they answer
+     * different questions and the first will widen before the second.
+     * @returns {boolean}
+     */
+    canSeeMarks () {
+      return this.scope === 'mentor'
+    },
+
+    /**
      * Who may MAKE or REMOVE a commentary mark. Named positively — `=== 'mentor'`,
      * never `!== 'firm'` — because Tier Cascade P5's trap is that a gate written
      * as a negative answers *yes* for a tier that does not exist yet, and switches
@@ -329,8 +362,7 @@ export default {
      * Platform level only for now (owner's ruling 2026-08-14). A firm marking
      * commentary IT has written is a real case and will come; the label above
      * the mark is the platform speaking to a firm and would read wrong in a
-     * firm's own voice, so that wording is asked for rather than invented. Until
-     * then a firm reads the notes and cannot edit them.
+     * firm's own voice, so that wording is asked for rather than invented.
      * @returns {boolean}
      */
     canMark () {

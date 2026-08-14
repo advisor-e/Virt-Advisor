@@ -131,17 +131,38 @@ added by Advisor-e. Do not present these as the firm's method."* Both prompt pat
 advisor engine and the course session, because both format through `formatMaterialLines`.
 
 **What a person sees.** Under the step, quiet and not alarming: *"Our wording, not yours — change or
-remove it freely:"* followed by the clause. Mike's wording, chosen 2026-08-14.
+remove it freely:"* followed by the clause. Mike's wording, chosen 2026-08-14. **The mentor is the
+only person who sees it** — see *Who may see* below.
+
+**Who may see a mark.** The platform only — `canSeeMarks` is `scope === 'mentor'`. **Nothing in the
+running app writes into anyone's material.** The AI reads this material to brief itself and is told
+which words were ours; it never writes back. The clauses came from *our own transcription* of the
+firm's source documents, which is a development activity that ends when the transcription ends. So
+below the mentor a mark is a record of finished work rather than a tool — it fails the
+marketability test ([`product-principles.md`](product-principles.md)): a manager cannot act on it,
+so it is screen space spent on nothing. **The cost is named, not hidden:** a firm manager editing a
+step will not know a clause was ours and may adopt it as their firm's wording. That is the very
+silence §1 objects to, accepted here because the clause is one the owner has already ruled worth
+keeping.
+
+⚠ **This is a trigger, not a preference.** The day anything in the app drafts or extends material
+**for** a firm, `canSeeMarks` must widen — that firm would then need to see which words it did not
+write. Pinned by the *"a manager below the mentor sees no note at all"* case in
+`tests/unit/authoredCommentaryScreen.test.js`, which carries the same note.
 
 **Who may mark.** The platform only, for now — `canMark` is `scope === 'mentor'`, named
 **positively** because Tier Cascade P5's trap is that a negative gate answers *yes* for a tier that
-does not exist yet. A firm marking commentary **it** wrote is a real case and will come; the label
-above is the platform speaking to a firm and would read wrong in a firm's own voice, so **that
-wording is asked for, never invented**. A firm that disagrees with a mark is not stuck — rewriting
-the sentence clears it, and the words genuinely become theirs at that point. What a firm cannot do
-is un-tick a mark while keeping our words: that would leave something known to be false standing at
-every other firm, and would silently cost that firm every future improvement to the whole area
-(`domain-support.md` P4 — arrays replace wholesale).
+does not exist yet. **Kept as a second computed rather than folded into `canSeeMarks`:** they answer
+different questions, and seeing will widen before marking does. A firm marking commentary **it**
+wrote is a real case and will come; the label above is the platform speaking to a firm and would
+read wrong in a firm's own voice, so **that wording is asked for, never invented**. A firm that
+disagrees with a mark is not stuck — rewriting the sentence clears it, and the words genuinely
+become theirs at that point. What a firm cannot do is un-tick a mark while keeping our words: that
+would leave something known to be false standing at every other firm, and would silently cost that
+firm every future improvement to the whole area (`domain-support.md` P4 — arrays replace wholesale).
+
+**Hiding the note touches the screen and nothing else.** The marks are still stored, still saved by
+a firm's edit, and still reach the AI labelled as ours — none of that reads the tier.
 
 ⚠ **A mark made on the screen is not the same claim as a mark made in a sweep**, and the data says
 so: its `searched` reads *"marked on screen — no corpus search recorded"*. Do not read the two as

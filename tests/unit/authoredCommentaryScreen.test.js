@@ -18,9 +18,10 @@ const FirmDomainSupport = require('~/components/firm/FirmDomainSupport.vue').def
  *      a mark that does not match its sentence cannot be created.
  *   3. Marks survive an edit to a DIFFERENT step. Dropping them on load or save
  *      would silently lose the record — the failure this feature exists to end.
- *   4. Who may mark is gated by naming the tier POSITIVELY. Tier Cascade P5:
- *      a gate written as a negative answers yes for a tier that does not exist
- *      yet and switches itself on the day one is added.
+ *   4. Who may SEE and who may MARK are both gated by naming the tier
+ *      POSITIVELY. Tier Cascade P5: a gate written as a negative answers yes
+ *      for a tier that does not exist yet and switches itself on the day one
+ *      is added.
  *
  * Assertions use i18n KEYS, not English (tests/helpers/mountComponent.js).
  */
@@ -96,14 +97,14 @@ afterEach(() => { delete global.fetch })
 
 describe('the note under a step', () => {
   test('shows the marked words, labelled', async () => {
-    const wrapper = await openScreen()
+    const wrapper = await openScreen('mentor')
 
     expect(wrapper.text()).toContain('firmDomainSupport.markedLabel')
     expect(wrapper.text()).toContain('so the owner sees the year before judging it')
   })
 
   test('retires itself when the sentence is rewritten', async () => {
-    const wrapper = await openScreen()
+    const wrapper = await openScreen('mentor')
     const material = wrapper.vm.form.materials[0]
 
     // $set is what `v-model="material.steps[sIndex]"` itself compiles to in
@@ -195,26 +196,56 @@ describe('making a mark', () => {
   })
 })
 
-describe('who may mark', () => {
-  test('the platform may', async () => {
+describe('who may see and who may mark', () => {
+  test('the platform sees the note and holds the control', async () => {
     const wrapper = await openScreen('mentor')
+    expect(wrapper.vm.canSeeMarks).toBe(true)
     expect(wrapper.vm.canMark).toBe(true)
+    expect(wrapper.text()).toContain('firmDomainSupport.markedLabel')
     expect(wrapper.text()).toContain('firmDomainSupport.markButton')
   })
 
-  test('a firm reads the note but has no control', async () => {
+  // ⚠ CURRENT BEHAVIOUR, and a TRIGGER rather than a preference.
+  //
+  // Owner's ruling 2026-08-14 (second sitting): nothing in the running app
+  // writes into a firm's material — the clauses came from our own
+  // transcription of the firm's sources — so below the mentor a mark is a
+  // record of finished work, not a tool. It fails the marketability test in
+  // design/features/product-principles.md.
+  //
+  // The day anything in the app drafts or extends material FOR a firm, that
+  // firm needs to see which words it did not write, and this test is what
+  // should stop you. Change it deliberately; do not delete it quietly.
+  test('a manager below the mentor sees no note at all', async () => {
+    for (const scope of ['global', 'group', 'firm']) {
+      const wrapper = await openScreen(scope)
+      expect(wrapper.vm.canSeeMarks).toBe(false)
+      expect(wrapper.vm.canMark).toBe(false)
+      expect(wrapper.text()).not.toContain('firmDomainSupport.markedLabel')
+      expect(wrapper.text()).not.toContain('firmDomainSupport.markButton')
+    }
+  })
+
+  test('hiding the note does not touch the material itself', async () => {
+    // The point of the gate is screen space, never data. A firm still holds
+    // the marks, still saves them, and the AI is still told which words were
+    // ours — none of that reads the scope.
     const wrapper = await openScreen('firm')
-    expect(wrapper.vm.canMark).toBe(false)
-    expect(wrapper.text()).toContain('firmDomainSupport.markedLabel')
-    expect(wrapper.text()).not.toContain('firmDomainSupport.markButton')
+    const material = wrapper.vm.form.materials[0]
+
+    expect(material.authored_commentary).toHaveLength(1)
+    expect(wrapper.vm.marksIn(material, material.steps[1])).toHaveLength(1)
+    expect(wrapper.vm.cleanMaterials(wrapper.vm.form.materials)[0].authored_commentary)
+      .toHaveLength(1)
   })
 
   test('a tier nobody has thought about yet does NOT get it by default', async () => {
-    // The Tier Cascade P5 trap, pinned. Written as `!== 'firm'` this passes for
-    // 'global' and 'group' silently — the exact way three tabs once switched
-    // themselves on at tiers they were never designed for.
+    // The Tier Cascade P5 trap, pinned. Written as `!== 'firm'` both gates pass
+    // for 'global' and 'group' silently — the exact way three tabs once
+    // switched themselves on at tiers they were never designed for.
     for (const scope of ['global', 'group']) {
       const wrapper = await openScreen(scope)
+      expect(wrapper.vm.canSeeMarks).toBe(false)
       expect(wrapper.vm.canMark).toBe(false)
     }
   })
