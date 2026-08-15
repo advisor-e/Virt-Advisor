@@ -67,6 +67,17 @@ section.firm-manager-hub.section
       b-tab-item(label="Advisory Staircase" icon="stairs")
         firm-staircase(:api-token="apiToken")
 
+      //- ── Tab: Coaching Reference ────────────────────────────────────────
+      //- Item 4.9's visible half (2026-08-15). The fifteen entries the AI is
+      //- coached by when it chooses a template — the fifth and last block named
+      //- in the 2026-07-30 ruling to join the one firm-editable mechanism, and
+      //- the only one whose engine shipped before its screen.
+      //- Ungated, like the Staircase above: the mechanism means the same thing at
+      //- every tier that has a layer above it, and the mentor edits the platform
+      //- rows through the same tab.
+      b-tab-item(label="Coaching Reference" icon="book-open-variant")
+        firm-coaching-reference(:api-token="apiToken")
+
       //- ── Templates & Videos — HIDDEN 2026-07-27 (owner decision) ──────
       //- Not wired to anything usable in UAT (needs Firm-Manager MySQL); shown
       //- as a dead tab was misleading. Kept dormant (v-if="false") rather than
@@ -663,6 +674,7 @@ import FirmQuizzes from '~/components/firm/FirmQuizzes.vue'
 import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
 import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 import FirmStaircase from '~/components/firm/FirmStaircase.vue'
+import FirmCoachingReference from '~/components/firm/FirmCoachingReference.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
@@ -822,7 +834,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmCoachingReference, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 
