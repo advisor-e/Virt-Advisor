@@ -76,6 +76,13 @@ without it silently creates a **second** Handbook, and the one Mike has bookmark
 stops being updated. Build with `npm run handbook`, then republish to that URL — never
 publish a new one.
 
+**Words the AI is shown** — prompt content Mike approves before it reaches a model. Not a screen,
+but the same rule: he cannot say yes to something that exists only in a chat window.
+
+| Artefact | File | What it governs |
+|---|---|---|
+| The Awareness Check block | [PF-AWARENESS-DECISION-BLOCK.md](PF-AWARENESS-DECISION-BLOCK.md) | The context the AI is given while choosing between Cautious Reveal and Trial Fit on the `pf_awareness` branch. ☐ awaiting approval — item 2.6, features/to-do.md. |
+
 ### Orphans
 
 Two mockups are listed above but referenced by no document:
