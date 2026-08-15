@@ -151,6 +151,26 @@ comfortably. 🔒 marks a blocker.
 
 ## 3. Release position — read before picking anything up
 
+### 🔴 THE RELEASE NUMBER IS PARKED BEHIND THE TECHNICAL WORK — Mike, 2026-08-15 (session 60)
+
+> **"lets sort the new release number when we've sorted all the tech issues, till then stay
+> focused on the tech issues for uat testing"**
+
+**Do not raise the release number again until the technical items on this list are cleared.** It
+is not an open decision waiting on him, and it is not a blocker — it is *sequenced after* the work
+below.
+
+⚠ **This entry exists because the question was put to him three sessions running** — 58, 59 and
+60 each listed it as the top open decision, and each time it was the same question he had already
+answered by parking **2.1**. A decision that keeps being re-asked is a decision nobody wrote down.
+**The goal is unchanged** — the master team testing in UAT — but the *number and the
+announcement* come after the technical list, not alongside it.
+
+**What this does NOT change:** the 2026-08-14 ruling below still stands. The bar is still key
+functionality in position, and finer detail is still deferred to early production beta.
+
+---
+
 🔴 **Ruled by Mike, 2026-08-14. Getting another release to the master coding team is the
 priority.** In his words: *"I want all key functionality and key pages in position so we can load
 into UAT and get initial thoughts sorted — details like this domain word sweep can be done in

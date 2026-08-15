@@ -150,8 +150,14 @@ have added new features since."*
   deadline it was cut for has passed and work has landed since — three commits on the ranking
   control alone, on the day it was parked.
 - 🔴 **This does not mean the release stopped mattering.** It means the *number* changed. Nothing on
-  the live list now covers cutting the newer release, and that gap is deliberate: it is Mike's to
-  say whether it becomes an item.
+  the live list covers cutting the newer release, and that gap is deliberate.
+- ✅ **AND THE GAP IS NOW ANSWERED — Mike, 2026-08-15 (session 60):** *"lets sort the new release
+  number when we've sorted all the tech issues, till then stay focused on the tech issues for uat
+  testing."* **It is sequenced after the technical list, not waiting on him.** This line used to
+  read *"it is Mike's to say whether it becomes an item"*, which is what put the question in front
+  of him in sessions 58, 59 and 60 — three times, for a decision he had already made by parking
+  this item. **Do not raise it again until the technical items on
+  [`to-do.md`](to-do.md) are cleared.** See `to-do.md` §3.
 - **Untouched and still correct:** the integration email at
   [`../MASTER-TEAM-INTEGRATION-EMAIL.md`](../MASTER-TEAM-INTEGRATION-EMAIL.md) and the load pack at
   [`../UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md). Only the version number in them is stale. **Do not

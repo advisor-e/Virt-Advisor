@@ -21,9 +21,14 @@ education-gate wording, his own design). **4.7** needs a *time*, not an answer �
 window on this laptop for the reinstall. **4.12** needs two decisions (which repository, and
 what it should describe).
 
-🔴 **The new release number is still uncovered and still his.** Carried from session 58 now
-through 59 and 60. `v0.8.0` is tagged and nobody outside has been told; **2.1** is parked
-because the number changed, and **nothing on the list covers cutting the newer one.**
+✅ **THE RELEASE NUMBER IS SETTLED — do not raise it.** Mike, at the end of session 60: *"lets
+sort the new release number when we've sorted all the tech issues, till then stay focused on the
+tech issues for uat testing."* It is **sequenced after the technical list**, not waiting on him.
+Recorded in [`features/to-do.md`](features/to-do.md) §3 and against **2.1** on the done page.
+
+⚠ **It had been put to him in sessions 58, 59 AND 60** — three times, for a decision he had
+already made by parking 2.1. **A decision that keeps being re-asked is a decision nobody wrote
+down.** That is the whole reason a ruling goes in the Brief or the list, never only in a note.
 
 ---
 
@@ -123,11 +128,17 @@ promoted case observations. The fields are present-only for exactly that reason.
 
 ---
 
-## ☐ Open for Mike — one new, four carried
+## ☐ Open for Mike — one new, three carried
 
-1. 🔴 **The new release number** — carried from session 58. Still uncovered, still his.
-2. **4.12 · where the corrected handover lives, and what it describes** — carried.
-3. **4.7 · when the overnight reinstall can run** — a time, not an answer. Carried.
-4. **2.6 · `advisor_note`** — one word: yes. Carried.
-5. **2.9 · the education-gate wording** — his own design. Carried.
-6. 🆕 **Whether the template picker becomes an item** — see "What is open" §3.
+**The release number is NOT on this list.** It was settled at the end of this session — see the
+first-task block above. ✅
+
+1. **4.12 · where the corrected handover lives, and what it describes** — carried.
+2. **4.7 · when the overnight reinstall can run** — a time, not an answer. Carried.
+3. **2.6 · `advisor_note`** — one word: yes. Carried.
+4. **2.9 · the education-gate wording** — his own design. Carried.
+5. 🆕 **Whether the template picker becomes an item** — see "What is open" §3.
+
+⚠ **Note the shape of items 3 and 4: both are one sentence from Mike and both have been carried
+for several sessions.** Neither needs a working session. If a session opens and he is available,
+ask those two first — they are the cheapest things on the list to close.
