@@ -78,6 +78,30 @@ never look alike.
 
 **P9 · Tone is help, never score.** The users are learning. A badge means *act*, not *glance*.
 
+**P10 · Every AI fix surfaces on a hub page — mentor first, cascading down.** Ruled by the
+owner, 2026-08-16: *"ALL AI fixes must use hub pages where possible, starting with the mentor
+and cascading down as appropriate."* Content that shapes what the AI is shown does not get to
+live only in `data/*.json`, and never hardcoded in a prompt builder. Build the **mentor's**
+view first and let it cascade — never the firm's copy first, reasoning upward. Which tiers
+receive it is a judgement to **state in the same change**, and *"where possible"* is the only
+escape, carrying a named reason. **Wiring content into the prompt without a screen is half a
+fix** — it makes the content live and still untouchable. The rule is in
+[`../../CLAUDE.md`](../../CLAUDE.md); the evidence that forced it is below.
+
+⚠ **The evidence, and it is the twin of the warning in §4.** The 4.16 sweep of 2026-08-16
+found **102 pieces of authored content reaching no prompt at all** — 71 in domain support
+(65 `diagnostic_entry` routing branches across 20 files, 6 `if_then_logic` rules), 15 in the
+logic trees (13 `stage_entry_question`, 2 `flat_branches`), plus the engagement types and the
+staircase `selectorPrompt`. **No screen renders any of them** — and note the trap: the
+**Domain Support** and **Logic Tables** tabs are ungated in `TAB_TIERS`, so every tier from
+the mentor down already has both pages. The Domain Support tab edits the materials table
+only; the Logic Tables tab edits the branch rows only. **The pages were there all along; the
+fields were never put on them** — which is why "does this block have a screen?" is the wrong
+question and "does *this field* have one?" is the right one.
+So §4's warning — *a field can be authored, stored, made firm-editable and still reach
+nothing* — has a worse sibling: **a field can be authored and reach neither a prompt nor a
+screen**, and then no test, no tab and no person can find it.
+
 ---
 
 ## 3. Design considerations

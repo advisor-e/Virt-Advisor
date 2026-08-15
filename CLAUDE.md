@@ -317,6 +317,41 @@ to the written note, and nothing compares the build to the artefact when the art
 not exist. This is the same failure family as the `request-compressed-to-one-line` P1: the
 record keeps the paraphrase and loses the original, and no test can catch it.
 
+## 🔴 AI FIXES SURFACE ON A HUB PAGE — mentor first, cascading down (binding)
+
+**Ruled by Mike, 2026-08-16.** In his words: *"ALL AI fixes must use hub pages where
+possible, starting with the mentor and cascading down as appropriate."*
+
+Any change to what the AI is shown — content wired up, corrected, added, or newly emitted
+into a prompt — surfaces on a **hub page**. The page starts at the **Mentor Hub** and
+cascades down through global group manager → group manager → firm manager as appropriate.
+
+- **The default is a screen, not a file.** Content that shapes AI output does not get to
+  live only in `data/*.json`, and never hardcoded inside a prompt builder. If the AI reads
+  it, somebody must be able to see it and change it.
+- **Start at the mentor tier.** Platform content is the mentor's. Build the mentor's view
+  first and let it cascade — never build the firm's copy first and reason upward.
+- **"As appropriate" is a judgement to state, not to assume.** Name which tiers get it and
+  why, in the same change. Silence is not a decision.
+- **"Where possible" is the only escape and it must carry a reason.** Name what prevents a
+  screen. An unexplained omission is a defect, not a scope call.
+- **Wiring content into the prompt without a screen is half a fix.** It makes the content
+  live and still untouchable — precisely the state the 4.16 sweep found, at scale.
+
+**Why this is binding (2026-08-16).** The 4.16 sweep found **102 pieces of authored
+advisory content that reach no prompt at all** — 86 of them in the two cascading blocks
+(71 in domain support, 15 in the logic trees), the rest in the engagement types and the
+Advisory Staircase. Tracing where they are edited found the second half of the fault:
+**no screen anywhere in the app renders any of them** — including the **Domain Support**
+and **Logic Tables** tabs that every tier from the mentor down already has, because those
+two expose only the materials table and the branch rows. The pages exist; these fields are
+not on them. The content was authored into JSON, dropped on the way into the prompt, and
+has been invisible in both directions ever since. Wiring it to the AI alone
+would have left it driving advice that nobody could inspect or correct.
+
+Related: [`design/features/tier-cascade.md`](design/features/tier-cascade.md) §2 P10 ·
+[`design/features/firm-manager-hub.md`](design/features/firm-manager-hub.md).
+
 ## Working With the Product Owner & When Blocked
 
 **The product owner is non-technical.**
