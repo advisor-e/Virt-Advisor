@@ -199,6 +199,38 @@ Two patterns worth naming rather than leaving him to spot:
 materials for this domain, and no routing."* Never a blank panel that reads as broken
 (`tier-cascade.md` P8).
 
+### 🔴 RULED BY MIKE, 2026-08-16 — ship it filled
+
+> Asked whether to build now with the ten gaps shown as empty for him to fill whenever, or to write
+> End of Year, Profit and Staff first so the section ships with them filled, he chose:
+> **"ship it filled with as many sections as possible."**
+
+**The section does not ship with holes in it.** The empty state above is still built — a domain added
+later must never render a blank panel — but **it should be reached by as few domains as possible on
+the day this lands**, not by ten of twenty-nine.
+
+**The target: all 10.** The three carrying nothing (`eoy`, `profit`, `staff`) are the priority
+inside that, because they are core client-facing domains. The seven Get-the-Job domains follow.
+**"As many as possible" is the instruction, so any domain left empty at ship time is a fact to
+report to him by name — never a silent shortfall** (the no-silent-caps rule).
+
+⚠ **This changes the shape of Phase 1 and its order.** The wiring and the screen are now the
+*second* half of the job; **authoring ten domains' routing is the first**, and it is the larger
+piece. The two ship together.
+
+🔴 **UNRESOLVED, AND IT IS THE FIRST THING TO SETTLE NEXT SESSION: who drafts the ten.** The three
+options, none of them chosen:
+
+1. **Mike authors them.** Most faithful — this is advisory content and he is the mentor. Slowest.
+2. **We draft from each domain's own `overview` and `materials`, he approves.** The raw material is
+   already in the file, so a draft is a summarising job rather than an inventing one. **Every draft
+   must be committed as an artefact before he approves it** (Save the Artefact) — ten domains is ten
+   sets of words he has to actually read, and it must not become a rubber stamp.
+3. **A mix** — we draft the seven Get-the-Job ones, he writes the three core client-facing ones.
+
+**Do not start drafting before this is answered.** Writing advisory routing text is authoring, and
+authoring it unasked would be the same fault as inventing wording — at ten times the scale.
+
 ### Going forward — the standing ask
 
 **When a domain is added or reworked, the mentor owes it one entry question and its starting
