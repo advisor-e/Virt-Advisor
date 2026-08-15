@@ -41,8 +41,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 4 | **4.9** Make the coaching reference inherit | 5 | — | Us |
 | 5 | **4.7** Flip engine-strict back on | 5 | — | Us |
 | 6 | **3.5** Reply to Carl about npm install | 5 | — | Us |
+| 7 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
 
-**Six live items. Two need Mike.** If this list passes about twenty, something is wrong.
+**Seven live items. Two need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off this list on 2026-08-15** — see
@@ -156,6 +157,33 @@ early production beta stage."*
   named example, **and on 2026-08-15 Mike deleted it outright** rather than deferring it.
 - **This SUPERSEDES the ruling of 2026-08-11** — *"no PR to `master` until the task list is
   clear"*. That position is withdrawn.
+
+### 🔴 The ordering rule — Mike, 2026-08-15
+
+> **"I want to clear all technical / feature issues first so the master team can start testing in
+> the UAT — THEN I can double back and sort the fine tuning — wording — doc title alignment etc."**
+
+**This decides the order of the whole list, not one item.** Two buckets, and the first empties
+before the second starts:
+
+| First — **technical and feature** | Then — **fine tuning** |
+| --- | --- |
+| Something is not built, not wired up, or does not work | Something works, and the words or the names could be better |
+| It stops the master team testing in UAT | It does not stop anybody testing anything |
+
+**How today's list reads against it, so the reading can be checked rather than assumed:**
+
+- **Technical / feature:** 4.12 (the master team's documents are wrong), 2.9 (the education gate is
+  not coded at all — it needs Mike's words, but what is missing is a *feature*), 2.6 (a field that
+  reaches the AI nowhere), 4.9 (the cascade has a hole in it), 4.7 (the Node lock is not enforced).
+- **Fine tuning:** 4.15 — twenty-one branches naming pages that exist under other names. **Ranked
+  last for exactly this reason**, and it scores 4, so the disagreement is on the page as §2 requires.
+- **Neither:** 3.5 is one message to a person who is waiting.
+
+⚠ **A wording item is not automatically fine tuning.** 2.3 was filed as a wording tidy-up and was in
+fact a table of coaching seven branches of advisers were not receiving. **Ask what breaks if it is
+not done** — if the answer is "an adviser gets worse advice", it belongs in the first bucket
+whatever it looks like.
 
 ---
 

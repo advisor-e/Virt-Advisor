@@ -142,6 +142,24 @@
       },
       "touches": "Nothing in the app.",
       "note": null
+    },
+    {
+      "ref": "4.15",
+      "name": "The 21 branches that still name a page nobody can open",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Of the 55 recommendations across the logic tables, 28 lose text to the template gate because they name a page that does not exist in the 291-record library. Seven were the Get Seminar branches, fixed 2026-08-15 once Mike named the real page (Design & Deliver). The other 21 sit in the fmc_, cas_, fbp_ and ol_ tables and nobody has looked at them.",
+      "risk": "21 branches of Mike's own coaching are cut back or withheld before they reach an adviser. The gate is behaving correctly; the content names tools that are not there. Each one is advice an adviser is not getting, and nothing on screen says so.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-08-15 — \"put them in the list of to dos\", after being shown that the seven Seminar branches were seven of twenty-eight. Found by us; filed on his instruction."
+      },
+      "touches": "data/logic_trees.json, the Mentor Hub logic tables, and the Template Check screen where the real page names are settled.",
+      "note": "RANKED LAST DELIBERATELY, and it scores 4. Mike's ruling the same day: clear the technical and feature work first so the master team can start UAT testing, THEN double back to wording and document-title alignment. This is wording and title alignment. The pattern is proven and cheap once a name is known — the Seminar seven took five words and a seven-line diff — but each of the 21 needs the REAL page name, and that is Mike's to give, never a developer's to rule on. Put the actual sentences in front of him, not the label: that is what unblocked 2.3 after four sessions."
     }
   ]
 }
