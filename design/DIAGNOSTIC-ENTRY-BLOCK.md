@@ -14,7 +14,8 @@
 Every domain-support file carries a `diagnostic_entry` object: an entry question, and beneath it a
 set of named branches saying **where to start when the client presents a particular way**.
 
-**65 of those branches, across 20 of the 29 domains, reach no prompt on any path.** Proved by
+**65 of those branches, across 19 of the 29 domains, reach no prompt on any path.** (A 20th,
+`get-team-problem`, carries 6 more of the same kind under a different key — §5.) Proved by
 rendering all three prompt builders for all 29 domains and searching the output for each authored
 string — not by reading the code. The method is the one item 4.16 prescribes.
 
@@ -141,12 +142,68 @@ repo data and is not fenced, exactly as the platform overview and materials are 
 
 ---
 
-## 6. Open questions for Mike
+## 6. Wording — ✅ APPROVED by Mike, 2026-08-16
 
-1. **The two column names.** Proposed: *"When the client presents"* and *"Where to start"*.
-2. **The section heading.** Proposed: *"Diagnostic Entry"*, matching the field's name in the data.
-   *"Where to start"* is the plainer alternative.
-3. **The label style** — see rule 2 above. Nothing has been reworded; confirm that is right.
-4. **Whether the entry question should reach the advisor prompt** — see §3.
+All four as proposed, unchanged:
 
-**None of these are in the build. The build does not start until they are answered.**
+1. **Column names** — *"When the client presents"* and *"Where to start"*.
+2. **Section heading** — *"Diagnostic Entry"*.
+3. **Label style** — the authored key with underscores replaced by spaces. Nothing reworded.
+4. **The entry question reaches the advisor prompt too** — the change named in §3 is wanted.
+
+---
+
+## 7. What the mentor edits, and what he is asked to complete
+
+### The editable fields — there are three, and that is all
+
+Per domain, on the section:
+
+| Field | Shape | Count |
+|---|---|---|
+| **Entry question** | One line of free text | One per domain |
+| **When the client presents** | A short label | One per starting point |
+| **Where to start** | A paragraph of guidance | One per starting point |
+
+Plus **add a starting point** and **remove one**. Nothing else on the section is editable — the
+origin marker is display only.
+
+**How a new row gets its key.** The mentor types the label; the stored key is that label
+lower-cased with spaces as underscores (*"Culture misalignment"* → `culture_misalignment`). It is
+derived, never typed, and never shown as a second field to fill in. This matches §2 rule 2 in the
+other direction: the key and the label are one authored thing, transformed mechanically.
+
+### What he is asked to complete NOW: nothing
+
+**All 19 domains that carry starting points already carry their text.** The section makes existing
+content visible and sends it to the AI; it asks for no authoring to work.
+
+### What the section will SHOW him — the honest gaps
+
+| State | Domains | Which |
+|---|---|---|
+| Question **and** starting points | **19** | The 19 in §4 — 65 starting points, 2 to 6 each, median 3 |
+| Question but **no** starting points | **7** | `get-marketing`, `get-positioning`, `get-pricing-proposals`, `get-sales`, `get-sales-tracker`, `get-seminar`, `get-team-problem` |
+| **Nothing at all** | **3** | `eoy`, `profit`, `staff` |
+
+Two patterns worth naming rather than leaving him to spot:
+
+- 🔴 **The three carrying nothing are core client-facing domains** — End of Year, Profit and Staff.
+  They are among the most-used conversations in the app, and the AI gets no routing for any of them.
+- **All seven question-only domains are Get-the-Job** — the advisor's own business development, not
+  client work. That they were authored to a shallower depth looks deliberate rather than missed.
+  `get-team-problem` is the exception in that group: it *has* six rules, under the different key
+  excluded in §5.
+
+**An empty section says so on screen** — *"No starting points set. The AI receives the overview and
+materials for this domain, and no routing."* Never a blank panel that reads as broken
+(`tier-cascade.md` P8).
+
+### Going forward — the standing ask
+
+**When a domain is added or reworked, the mentor owes it one entry question and its starting
+points.** On today's evidence that is **2 to 6 starting points, most often 3** — a label and a
+paragraph each. It belongs in the `add-a-domain` procedure as a named step, so a new domain cannot
+quietly arrive with no routing the way `eoy`, `profit` and `staff` did.
+
+**No other tier is ever asked for this** — see §4.
