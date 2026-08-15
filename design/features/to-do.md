@@ -238,11 +238,42 @@ record of where the shipped control departs from it and why.
 | 1 | Fourteen items typed into the script | The live ten, read from [`to-do-items.json`](to-do-items.json) | Six of the mockup's were already wrong — four settled on 2026-08-15, one deleted, and 4.14 did not exist |
 | 2 | Save put a markdown table in a copy-out box | Save writes `to-do-items.json` to Downloads | Mike's ranking returns as data, which is what phase 3 consumes. His explicit call |
 | 3 | Two drop-downs listing deleted and parked work | Removed | The Handbook already shows both behind its **Done & parked** gate on the same page, generated from [`to-do-done-and-parked.md`](to-do-done-and-parked.md). Two copies drift |
-| 4 | The browser's saved copy silently outlived any change to the list | A warning naming the difference, with **Use the project's list** / **Keep mine** | Never resolved silently — what is at stake is Mike's own scoring |
-| 5 | The `#` column sorted by blockers-then-score | The `#` column is the file's array order, untouched | The mockup's own comparator would push 4.14 (a 1 he ranked **first**) below every blocker. [`to-do-items.json`](to-do-items.json) forbids exactly this |
+| 4 | The browser's saved copy silently outlived any change to the list | The two lists are merged, and what changed is *reported* | See the rule below — the two-button version lasted one afternoon |
+| 5 | The `#` column sorted by blockers-then-score, and settled rows sank to the bottom | **Nothing reorders itself at all** | See the rule below — this one Mike gave after using it |
 | 6 | Expanded row held why · risk · touches · comment | Adds *what it blocks*, the *asked-by* detail, and the item's note | The data carries all three and §2 calls **asked by** the field that matters most. Dropping them would hide it |
 | 7 | **Start again** and **×** discarded immediately | Both confirm first | What is discarded is Mike's own calls, and they exist nowhere else until he saves |
 | 8 | Fact columns collapsed at 720px | They collapse at the Handbook's own 900px | The shell has one breakpoint; a second would be a second answer to the same question |
+
+### 🔴 The rule Mike gave after using it — 2026-08-15
+
+> **"Nothing leaves my sight in terms of order etc until I click save."**
+
+He marked the release item **Park**, and the row dropped to the bottom of the table before he could
+type the reason. He could not find it again. In his words: *"the handbook is clunky and confusing —
+I see the chances of a fuck-up occurring… this is very poor design."* He was right, and both faults
+were ours, not the mockup's:
+
+- **Settled rows sank to the bottom.** Taken from the mockup, where every call had already been made
+  before anyone looked at the screen. In use it is exactly backwards — the moment you settle an item
+  is the moment you need to write *why*, and the box has just left the screen.
+- **The stale warning made him choose between two lists he could not compare.** That was our
+  addition, not the mockup's. A decision with no information attached to it, where either answer
+  could throw away work.
+
+**What the control does now:**
+
+1. **Nothing moves on its own, ever.** Settling, scoring, or flagging an item as a blocker repaints
+   that row where it stands. The only thing that reorders the list is Mike pressing a sort heading,
+   a banner says so while it is sorted, and **Back to my order** restores it in one click. What is on
+   screen is what Save writes. Pinned by test, and the test is mutation-verified against the exact
+   bug he hit.
+2. **Choosing Park, Done or Delete asks for the reason there and then** — the box takes focus, its
+   label becomes *"Why you are marking it Park"*, and the row is flagged amber until something is
+   written. The count line carries *"N still need a reason"*.
+3. **The two-button choice is gone.** His work and the project's list are merged: his copy of an item
+   wins, in his order; new items are appended and named; an item that has left the project is
+   reported **with his comment on it**, so his words outlive the item. It is information, never a
+   question — because nothing of his is discarded, there is nothing to ask.
 
 ⚠ **Not built, and it is not in the mockup either: an item cannot be dragged up or down.** The
 ranking is applied through the score, the **Your call** column and the three sortable headings —

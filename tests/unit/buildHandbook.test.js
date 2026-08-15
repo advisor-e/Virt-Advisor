@@ -307,18 +307,44 @@ describe('the Handbook', () => {
       expect(shell).toContain('yourComment')
     })
 
-    it('never re-sorts Mike\'s own order behind him', () => {
-      // The mockup computed its default column as blockers-then-score. Item
-      // 4.14 is a 1 that he ranked first, so that comparator would move it — and
-      // the data file's own header forbids exactly this.
-      expect(shell).toContain('within = function () { return 0 }')
+    // 🔴 Mike's rule, 2026-08-15, after the first version moved a row out from
+    // under him the instant he marked it Park: "nothing leaves my sight in terms
+    // of order etc until I click save". He could not find the item again.
+    it('never reorders the list by itself — only a sort heading does, and he presses it', () => {
+      // Settling, scoring or flagging an item repaints its own row and nothing
+      // else. If any of these ever calls renderAll() again, a row moves under
+      // his hand and the box he needs jumps off the screen.
+      const handlers = shell.match(/st\.addEventListener\('change'[\s\S]*?\n {6}\}\)/)
+      expect(handlers).not.toBeNull()
+      expect(handlers[0]).toContain('repaint()')
+      expect(handlers[0]).not.toContain('renderAll()')
+
+      // The mockup sank settled rows to the bottom. That comparator is gone.
+      expect(shell).not.toContain('isLive(b) - isLive(a)')
+
       const raw = fs.readFileSync(path.join(FEATURES_DIR, 'to-do-items.json'), 'utf8')
       expect(raw).toContain('must never be re-sorted by a script or a session')
     })
 
-    it('tells the reader when the project\'s list has moved on, rather than choosing', () => {
-      expect(shell).toContain('The list in the project has changed')
-      expect(shell).toContain('Use the project\\\'s list')
+    it('asks for the reason at the moment he settles an item, not later', () => {
+      expect(shell).toContain('cbox.focus()')
+      expect(shell).toContain('still need a reason')
+    })
+
+    it('says out loud when a sort has changed what Save would write', () => {
+      expect(shell).toContain('This is not your ranking')
+      expect(shell).toContain('Back to my order')
+    })
+
+    it('merges the project\'s list with his own work instead of making him choose', () => {
+      // The two-button "use the project's list / keep mine" choice is gone: it
+      // asked for a decision with no information attached to it, and either
+      // answer could throw away work.
+      expect(shell).not.toContain('Use the project\\\'s list')
+      expect(shell).not.toContain('Keep mine')
+      expect(shell).toContain('has come off the list since you ')
+      expect(shell).toContain('is new since you last looked')
+      expect(shell).toContain('Nothing of yours was changed or thrown away')
     })
 
     // 🔴 Found by Mike in the first minute of real use, not by any of the tests

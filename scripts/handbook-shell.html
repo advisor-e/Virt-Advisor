@@ -285,15 +285,38 @@
   .queue .c1 { color: var(--s1); background: var(--s1-bg); }
   .queue .c0 { color: var(--s5); background: var(--s0-bg); }
 
-  /* The list in the project moved on since this browser last saved. Never
-     resolved silently — Mike's own calls are the thing at stake. */
-  .queue .qstale {
-    background: var(--card); border: 1px solid var(--warn);
-    border-left: 3px solid var(--warn); border-radius: 0 10px 10px 0;
+  .queue .qcount .owed { color: var(--s4); }
+
+  /* What changed in the project since this browser last looked. INFORMATION,
+     never a choice: the first version offered "use the project's list" or "keep
+     mine" with no way to see what differed, which is a decision with nothing
+     attached to it. Nothing of Mike's is discarded, so there is nothing to ask. */
+  .queue .qnotes {
+    background: var(--card); border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0;
     padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 14px;
   }
-  .queue .qstale b { color: var(--ink); }
-  .queue .qstale .qbar { gap: 8px; }
+  .queue .qnotes[hidden] { display: none; }
+  .queue .qnotes b { color: var(--ink); }
+  .queue .qnotes ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 5px; }
+  .queue .qnotes li { max-width: 90ch; }
+  .queue .quiet-note { color: var(--muted); font-size: 13px; }
+
+  /* A sort heading is the ONLY thing that reorders the list, and this says so
+     while it is doing it. */
+  .queue .qview {
+    background: var(--s4-bg); border: 1px solid var(--s4); color: var(--s4);
+    border-radius: 10px; padding: 9px 13px; font-size: 13.5px; font-weight: 600;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  }
+  .queue .qview[hidden] { display: none; }
+  .queue .qview .qbtn { padding: 5px 11px; font-size: 13px; }
+
+  /* An item settled with no reason. It stays exactly where it is — the warning
+     comes to the row, the row never goes anywhere. */
+  .queue .needs-reason {
+    display: none; color: var(--s4); font-weight: 600; font-size: 12.5px; margin-top: 4px;
+  }
 
   .queue .qtablewrap {
     overflow-x: auto; background: var(--card); border: 1px solid var(--line);
@@ -368,6 +391,9 @@
 
   .queue .facts { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
   .queue .fact { display: flex; flex-direction: column; gap: 2px; }
+  /* `display: flex` above outranks the browser's own [hidden] rule, so a fact
+     hidden from script would otherwise stay on screen. */
+  .queue .fact[hidden] { display: none; }
   .queue .fact label {
     font-size: 10px; font-weight: 700; letter-spacing: .1em;
     text-transform: uppercase; color: var(--muted);
@@ -772,8 +798,18 @@
   // set the current order. Its items are design/features/to-do-items.json,
   // carried into the page by the generator, and Save hands that same file back.
   //
-  // THE ONE RULE THIS MUST NOT BREAK: the array order in that file is Mike's
-  // ranking. It is not computed, and nothing here may re-sort it behind him.
+  // 🔴 THE RULE, given by Mike on 2026-08-15: NOTHING LEAVES HIS SIGHT, IN ORDER
+  // OR ANYTHING ELSE, UNTIL HE PRESSES SAVE. A row does not move when he settles
+  // it, scores it, deletes nothing, or marks it a blocker. The only thing that
+  // ever reorders the list is Mike pressing a sort heading, and one click puts it
+  // back. What is on screen is exactly what Save writes.
+  //
+  // The first version sank settled rows to the bottom, inherited from the mockup
+  // — where every call had already been made before anyone looked at it. In real
+  // use it is precisely backwards: the moment you settle an item is the moment
+  // you need to type WHY, and the box you need has just jumped off the screen. He
+  // pressed Park, the row vanished, and he could not find it again. That is the
+  // whole reason the rule above exists.
 
   var QUEUE_STORE = 'handbook-queue'
   var QUEUE_FILE = 'to-do-items.json'
@@ -789,6 +825,8 @@
     5: 'security, privacy or data integrity', 4: 'the user is worse off',
     3: 'sells the package', 2: 'robustness', 1: 'internal only', 0: 'fails the test'
   }
+  /** Wording compared between his copy and the project's, to tell him it moved. */
+  var FACTS = ['name', 'why', 'risk', 'touches']
 
   function el (tag, cls, text) {
     var n = document.createElement(tag)
@@ -820,62 +858,96 @@
     try { source = JSON.parse(island.textContent) } catch (e) { return }
     if (!source || !source.items || !source.items.length) return
 
-    // What the PROJECT's list looks like — never touched by anything typed here,
-    // so it can be compared against what this browser last saved.
+    // What the PROJECT's list looks like — never touched by anything typed here.
     var STAMP = (source.orderedByMikeOn || '') + '|' +
       source.items.map(function (i) { return i.ref + '/' + i.score }).join(',')
 
-    function seed () {
-      return source.items.map(function (o) {
-        var copy = {}
-        Object.keys(o).forEach(function (k) { copy[k] = o[k] })
-        // askedBy is edited on screen; sharing the object would write through
-        // to the data island and quietly change what "the project's list" says.
-        copy.askedBy = {
-          who: (o.askedBy && o.askedBy.who) || '',
-          ours: !!(o.askedBy && o.askedBy.ours),
-          detail: (o.askedBy && o.askedBy.detail) || ''
+    function fresh (o) {
+      var copy = {}
+      Object.keys(o).forEach(function (k) { copy[k] = o[k] })
+      // askedBy is edited on screen; sharing the object would write through to
+      // the data island and quietly change what "the project's list" says.
+      copy.askedBy = {
+        who: (o.askedBy && o.askedBy.who) || '',
+        ours: !!(o.askedBy && o.askedBy.ours),
+        detail: (o.askedBy && o.askedBy.detail) || ''
+      }
+      copy.status = LIVE
+      copy.comment = ''
+      return copy
+    }
+
+    /**
+     * Puts this browser's work and the project's list together.
+     *
+     * There is NO CHOICE TO MAKE any more. The first version offered two buttons
+     * — "use the project's list" or "keep mine" — with no way to see what
+     * differed between them. Mike called that a mess waiting to happen and he was
+     * right: it is a decision with no information attached to it.
+     *
+     * The rule instead: NOTHING OF HIS IS EVER DISCARDED. His copy of an item
+     * wins, in his order. Items new to the project are appended and named. An
+     * item that has left the project is reported WITH his comment on it, so his
+     * words survive the item. Where the project's wording has moved on, he keeps
+     * his and is told.
+     *
+     * @returns {{items: Array, notes: Array<string>}}
+     */
+    function merge (projectItems, mine) {
+      var byRef = {}
+      projectItems.forEach(function (o) { byRef[o.ref] = o })
+
+      var notes = []
+      var out = []
+      var placed = {}
+
+      if (mine && mine.length) {
+        mine.forEach(function (item) {
+          var project = byRef[item.ref]
+          if (!project) {
+            var said = String(item.comment || '').trim()
+            notes.push('“' + item.name + '” (' + item.ref + ') has come off the list since you ' +
+              'last looked' + (said ? ' — what you wrote on it was: “' + said + '”' : '.'))
+            return
+          }
+          // Any field the project has and his copy does not — a field added
+          // since he saved — is carried across so nothing is left undefined.
+          Object.keys(project).forEach(function (k) {
+            if (item[k] === undefined) item[k] = project[k]
+          })
+          var moved = FACTS.filter(function (k) { return project[k] !== item[k] })
+          if (moved.length) {
+            notes.push('The project’s wording for ' + item.ref + ' has changed (' +
+              moved.join(', ') + '). Yours is what is on screen.')
+          }
+          out.push(item)
+          placed[item.ref] = true
+        })
+      }
+
+      projectItems.forEach(function (o) {
+        if (placed[o.ref]) return
+        if (mine && mine.length) {
+          notes.push('“' + o.name + '” (' + o.ref + ') is new since you last looked.')
         }
-        copy.status = LIVE
-        copy.comment = ''
-        return copy
+        out.push(fresh(o))
       })
+
+      return { items: out, notes: notes }
     }
 
     var saved = store(QUEUE_STORE, null)
-    var items = (saved && saved.items && saved.items.length) ? saved.items : seed()
-    var heldStamp = (saved && saved.stamp) || STAMP
-    var stale = heldStamp !== STAMP
-    var sortBy = 'rank'
+    var joined = merge(source.items, saved && saved.items)
+    var items = joined.items
+    var notes = (saved && saved.stamp !== STAMP) ? joined.notes : []
 
-    function keep () { put(QUEUE_STORE, { stamp: heldStamp, items: items }) }
+    /** His order before he pressed a sort heading, so one click restores it. */
+    var homeOrder = null
+    var sortedBy = null
+
+    function keep () { put(QUEUE_STORE, { stamp: STAMP, items: items }) }
     function isLive (o) { return (o.status || LIVE) === LIVE }
-
-    /**
-     * The order on screen.
-     *
-     * `rank` is Mike's own order — the array as it came from the file — and the
-     * comparator deliberately does nothing, because sort is stable. The mockup
-     * computed this column as blockers-then-score; here that would push item
-     * 4.14 (a 1 that he ranked first) below every blocker and silently overwrite
-     * the ranking the file exists to preserve.
-     *
-     * Anything he has settled sinks to the bottom whatever the column, so the
-     * top of the table only ever shows work he has said to get on with.
-     */
-    function ordered () {
-      var within
-      if (sortBy === 'score') {
-        within = function (a, b) { return (b.score - a.score) || (b.blocker - a.blocker) }
-      } else if (sortBy === 'asked') {
-        within = function (a, b) {
-          return (b.askedBy.ours - a.askedBy.ours) || (b.blocker - a.blocker) || (b.score - a.score)
-        }
-      } else {
-        within = function () { return 0 }
-      }
-      return items.slice().sort(function (a, b) { return (isLive(b) - isLive(a)) || within(a, b) })
-    }
+    function needsReason (o) { return !isLive(o) && !String(o.comment || '').trim() }
 
     function editable (get, set, cls, placeholder) {
       var d = el('div', cls)
@@ -897,30 +969,8 @@
     // ── chrome, built once so typing never loses the caret ──
     mount.textContent = ''
 
-    var staleBox = el('div', 'qstale')
-    staleBox.hidden = !stale
-    var staleWords = el('div')
-    staleWords.innerHTML = '<b>The list in the project has changed</b> since you last saved ' +
-      'from this browser. Your own scores, calls and comments are still here — nothing has ' +
-      'been thrown away. Choose which list you want to work from.'
-    staleBox.appendChild(staleWords)
-    var staleBar = el('div', 'qbar')
-    var takeNew = el('button', 'qbtn', 'Use the project\'s list')
-    var keepMine = el('button', 'qbtn quiet', 'Keep mine')
-    staleBar.appendChild(takeNew)
-    staleBar.appendChild(keepMine)
-    staleBox.appendChild(staleBar)
-    mount.appendChild(staleBox)
-
-    takeNew.addEventListener('click', function () {
-      if (!window.confirm('Replace what is on screen with the list as it stands in the project? Your scores, calls and comments here are lost.')) return
-      items = seed(); heldStamp = STAMP; stale = false
-      staleBox.hidden = true; keep(); render(); say('Working from the project\'s list.')
-    })
-    keepMine.addEventListener('click', function () {
-      heldStamp = STAMP; stale = false
-      staleBox.hidden = true; keep(); say('Keeping yours. The project\'s newer list is not shown.')
-    })
+    var noteBox = el('div', 'qnotes')
+    mount.appendChild(noteBox)
 
     var bar = el('div', 'qbar')
     var btnQueueSave = el('button', 'qbtn', 'Save the list')
@@ -930,6 +980,14 @@
     bar.appendChild(btnQueueSave); bar.appendChild(btnAdd); bar.appendChild(btnReset)
     bar.appendChild(counts)
     mount.appendChild(bar)
+
+    var viewBox = el('div', 'qview')
+    viewBox.hidden = true
+    var viewWords = el('span')
+    var btnHome = el('button', 'qbtn ghost', 'Back to my order')
+    viewBox.appendChild(viewWords)
+    viewBox.appendChild(btnHome)
+    mount.appendChild(viewBox)
 
     var legend = el('div', 'qlegend')
     legend.innerHTML =
@@ -959,39 +1017,17 @@
     wrap.appendChild(table)
     mount.appendChild(wrap)
 
-    Array.prototype.forEach.call(table.querySelectorAll('th.sortable'), function (th) {
-      th.addEventListener('click', function () {
-        sortBy = th.getAttribute('data-sort')
-        Array.prototype.forEach.call(table.querySelectorAll('th.sortable .arrow'), function (a) {
-          a.textContent = ''
-        })
-        th.querySelector('.arrow').textContent = ' ▼'
-        render()
-      })
-    })
+    // ── one row, which repaints itself in place and never moves ──
+    function row (item) {
+      var tr = el('tr', 'main')
+      var dr = el('tr', 'detail')
 
-    // ── rows ──
-    function row (item, i) {
-      var live = isLive(item)
-      var tr = el('tr', 'main' + (live ? '' : ' settled'))
-      tr.setAttribute('data-score', String(item.score))
-      tr.setAttribute('data-status', item.status || LIVE)
-
-      var tdRank = el('td', 'rank', live ? String(i + 1) : '—')
+      var tdRank = el('td', 'rank')
       tr.appendChild(tdRank)
 
       var tdLock = el('td', 'lockcell')
       var lock = el('button', 'lock', '●')
       lock.type = 'button'
-      lock.setAttribute('aria-pressed', item.blocker ? 'true' : 'false')
-      lock.title = item.blocker
-        ? 'Blocks other work — click to clear'
-        : 'Does not block — click to mark as blocking'
-      lock.addEventListener('click', function () {
-        item.blocker = !item.blocker
-        if (item.blocker && !item.blocks) item.blocks = ''
-        keep(); render()
-      })
       tdLock.appendChild(lock)
       tr.appendChild(tdLock)
 
@@ -1001,6 +1037,9 @@
         function (v) { item.name = v }, 'name'))
       tdName.appendChild(el('span', 'ref', 'item ' + item.ref))
       tdName.appendChild(el('div', 'zero-warn', 'Scores 0 — this is deleted, not filed.'))
+      var reasonWarn = el('div', 'needs-reason',
+        'Say why, below — it cannot come off the list without a reason.')
+      tdName.appendChild(reasonWarn)
       tr.appendChild(tdName)
 
       var tdScore = el('td', 'scorecell')
@@ -1011,26 +1050,19 @@
         if (v === item.score) o.selected = true
         sel.appendChild(o)
       })
-      sel.style.setProperty('--sfg', 'var(--s' + item.score + ')')
-      sel.style.setProperty('--sbg', 'var(--s' + item.score + '-bg)')
-      sel.addEventListener('change', function () {
-        item.score = Number(sel.value)
-        item.scoreReason = REASONS[item.score]
-        keep(); render()
-      })
       tdScore.appendChild(sel)
-      tdScore.appendChild(el('span', 'cat', CATS[item.score]))
+      var cat = el('span', 'cat')
+      tdScore.appendChild(cat)
       tr.appendChild(tdScore)
 
       var tdStatus = el('td', 'statuscell')
-      var st = el('select', 'status st-' + (item.status || LIVE))
+      var st = el('select', 'status')
       STATUSES.forEach(function (pair) {
         var o = el('option', null, pair[1])
         o.value = pair[0]
         if (pair[0] === (item.status || LIVE)) o.selected = true
         st.appendChild(o)
       })
-      st.addEventListener('change', function () { item.status = st.value; keep(); render() })
       tdStatus.appendChild(st)
       tr.appendChild(tdStatus)
 
@@ -1051,16 +1083,10 @@
       var del = el('button', 'del', '×')
       del.type = 'button'
       del.title = 'Delete this item'
-      del.addEventListener('click', function () {
-        if (!window.confirm('Delete "' + item.name + '" from the list?')) return
-        items.splice(items.indexOf(item), 1)
-        keep(); render(); say('Deleted — not parked.')
-      })
       tdDel.appendChild(del)
       tr.appendChild(tdDel)
 
       // ── the expanded row ──
-      var dr = el('tr', 'detail' + (live ? '' : ' settled'))
       var dtd = el('td')
       dtd.colSpan = 8
       var facts = el('div', 'facts')
@@ -1074,11 +1100,11 @@
 
       // Three things the data carries that the mockup had no slot for. Dropping
       // them would hide the field the list itself calls the one that matters.
-      if (item.blocker) {
-        facts.appendChild(fact('What it blocks',
-          function () { return item.blocks || '' },
-          function (v) { item.blocks = v }, 'wide'))
-      }
+      var blocksFact = fact('What it blocks',
+        function () { return item.blocks || '' },
+        function (v) { item.blocks = v }, 'wide')
+      facts.appendChild(blocksFact)
+
       facts.appendChild(fact(item.askedBy.ours ? 'Nobody outside asked — why it stays' : 'Who asked, and when',
         function () { return item.askedBy.detail },
         function (v) { item.askedBy.detail = v },
@@ -1089,71 +1115,218 @@
       }
 
       var cm = el('div', 'fact comment')
-      cm.appendChild(el('label', null, 'Your comment'))
-      cm.appendChild(editable(
+      var cmLabel = el('label', null, 'Your comment')
+      cm.appendChild(cmLabel)
+      var cbox = editable(
         function () { return item.comment || '' },
-        function (v) { item.comment = v }, null,
-        'Type here — why it is wrong, what you want instead, or what you already did.'))
+        function (v) { item.comment = v; repaint(); tally() }, null,
+        'Type here — why it is wrong, what you want instead, or what you already did.')
+      cm.appendChild(cbox)
       facts.appendChild(cm)
 
       dtd.appendChild(facts)
       dr.appendChild(dtd)
-      return [tr, dr]
+
+      /** Everything about this row that depends on its own values. In place. */
+      function repaint () {
+        var live = isLive(item)
+        var call = item.status || LIVE
+
+        tr.setAttribute('data-score', String(item.score))
+        tr.setAttribute('data-status', call)
+        tr.classList.toggle('settled', !live)
+        dr.classList.toggle('settled', !live)
+
+        lock.setAttribute('aria-pressed', item.blocker ? 'true' : 'false')
+        lock.title = item.blocker
+          ? 'Blocks other work — click to clear'
+          : 'Does not block — click to mark as blocking'
+
+        sel.style.setProperty('--sfg', 'var(--s' + item.score + ')')
+        sel.style.setProperty('--sbg', 'var(--s' + item.score + '-bg)')
+        cat.textContent = CATS[item.score]
+
+        st.className = 'status st-' + call
+
+        blocksFact.hidden = !item.blocker
+        cmLabel.textContent = live
+          ? 'Your comment'
+          : 'Why you are marking it ' + call.charAt(0).toUpperCase() + call.slice(1)
+        reasonWarn.style.display = needsReason(item) ? 'block' : 'none'
+      }
+
+      // ── the handlers, none of which move anything ──
+      lock.addEventListener('click', function () {
+        item.blocker = !item.blocker
+        if (item.blocker && !item.blocks) item.blocks = ''
+        keep(); repaint(); tally()
+        if (item.blocker) blocksFact.querySelector('[contenteditable]').focus()
+      })
+
+      sel.addEventListener('change', function () {
+        item.score = Number(sel.value)
+        item.scoreReason = REASONS[item.score]
+        keep(); repaint(); tally()
+      })
+
+      st.addEventListener('change', function () {
+        item.status = st.value
+        keep(); repaint(); tally()
+        // The reason is wanted NOW, while he has it in his head — and the row
+        // has not moved, so the box is where he was already looking.
+        if (!isLive(item)) {
+          cbox.focus()
+          if (cbox.scrollIntoView) cbox.scrollIntoView({ block: 'nearest' })
+        }
+      })
+
+      del.addEventListener('click', function () {
+        if (!window.confirm('Delete “' + item.name + '” from the list?')) return
+        items.splice(items.indexOf(item), 1)
+        keep(); renderAll(); say('Deleted — not parked.')
+      })
+
+      repaint()
+      return { main: tr, detail: dr, repaint: repaint, rank: tdRank }
     }
 
-    function render () {
+    var built = []
+
+    /** Rebuilds the body. Called only when the ORDER or the SET changes. */
+    function renderAll () {
       tbody.textContent = ''
-      ordered().forEach(function (item, i) {
-        row(item, i).forEach(function (n) { tbody.appendChild(n) })
+      built = items.map(function (item) {
+        var made = row(item)
+        tbody.appendChild(made.main)
+        tbody.appendChild(made.detail)
+        return made
       })
+      built.forEach(function (made, i) { made.rank.textContent = String(i + 1) })
+      tally()
+      paintNotes()
+    }
+
+    /** The counts under the toolbar. Never touches the order. */
+    function tally () {
       var live = items.filter(isLive)
+      var owed = items.filter(needsReason).length
       counts.innerHTML =
         '<b>' + live.length + '</b> to proceed · ' +
         '<b>' + live.filter(function (i) { return i.blocker }).length + '</b> blocking · ' +
         '<b>' + live.filter(function (i) { return /mike/i.test(i.waitingOn) }).length + '</b> need you · ' +
-        '<b>' + (items.length - live.length) + '</b> settled by you'
+        '<b>' + (items.length - live.length) + '</b> settled by you' +
+        (owed ? ' · <b class="owed">' + owed + '</b> still need a reason' : '')
     }
+
+    function paintNotes () {
+      noteBox.textContent = ''
+      noteBox.hidden = !notes.length
+      if (!notes.length) return
+
+      noteBox.appendChild(el('b', null, 'What has changed in the project since you last looked'))
+      var ul = el('ul')
+      notes.forEach(function (n) { ul.appendChild(el('li', null, n)) })
+      noteBox.appendChild(ul)
+      noteBox.appendChild(el('span', 'quiet-note',
+        'Nothing of yours was changed or thrown away. This is only so you know.'))
+      var okBar = el('div', 'qbar')
+      var ok = el('button', 'qbtn ghost', 'Got it')
+      ok.addEventListener('click', function () { notes = []; keep(); paintNotes() })
+      okBar.appendChild(ok)
+      noteBox.appendChild(okBar)
+    }
+
+    // ── sorting is the ONLY thing that reorders, and only when he asks ──
+    var COMPARE = {
+      score: function (a, b) { return (b.score - a.score) || (b.blocker - a.blocker) },
+      asked: function (a, b) {
+        return (b.askedBy.ours - a.askedBy.ours) || (b.blocker - a.blocker) || (b.score - a.score)
+      },
+      rank: null
+    }
+
+    function paintView () {
+      viewBox.hidden = !sortedBy
+      if (sortedBy) {
+        viewWords.textContent = sortedBy === 'score'
+          ? 'Sorted by score. This is not your ranking — press Save and this order is what gets written.'
+          : 'Sorted by who asked. This is not your ranking — press Save and this order is what gets written.'
+      }
+      Array.prototype.forEach.call(table.querySelectorAll('th.sortable'), function (th) {
+        th.querySelector('.arrow').textContent =
+          th.getAttribute('data-sort') === (sortedBy || 'rank') ? ' ▼' : ''
+      })
+    }
+
+    Array.prototype.forEach.call(table.querySelectorAll('th.sortable'), function (th) {
+      th.addEventListener('click', function () {
+        var key = th.getAttribute('data-sort')
+        if (key === 'rank') { backHome(); return }
+        if (!homeOrder) { homeOrder = items.map(function (i) { return i.ref }) }
+        items = items.slice().sort(COMPARE[key])
+        sortedBy = key
+        keep(); renderAll(); paintView()
+      })
+    })
+
+    function backHome () {
+      if (!homeOrder) { sortedBy = null; paintView(); return }
+      var at = {}
+      homeOrder.forEach(function (ref, i) { at[ref] = i })
+      items = items.slice().sort(function (a, b) {
+        var x = at[a.ref] === undefined ? 9999 : at[a.ref]
+        var y = at[b.ref] === undefined ? 9999 : at[b.ref]
+        return x - y
+      })
+      homeOrder = null
+      sortedBy = null
+      keep(); renderAll(); paintView()
+      say('Back to your order.')
+    }
+
+    btnHome.addEventListener('click', backHome)
 
     // ── the toolbar ──
     btnAdd.addEventListener('click', function () {
-      items.push({
+      items.push(fresh({
         ref: 'new', name: 'Name the item', score: 3, scoreReason: REASONS[3],
         blocker: false, blocks: null, waitingOn: 'Us',
         why: 'Why does this matter?',
         risk: 'What do we lose by not doing it? If nothing, score it 0.',
         askedBy: { who: 'us', ours: true, detail: 'Name a requester, or delete it.' },
         touches: 'What else moves if this moves?',
-        note: null, status: LIVE, comment: ''
-      })
-      keep(); render()
-      var all = tbody.querySelectorAll('tr.main .name')
-      if (all.length) all[all.length - 1].focus()
+        note: null
+      }))
+      keep(); renderAll()
+      if (built.length) { built[built.length - 1].main.querySelector('.name').focus() }
     })
 
     btnReset.addEventListener('click', function () {
       // The mockup discarded immediately. Here it asks first: what is thrown
       // away is Mike's own calls, and they exist nowhere else until he saves.
       if (!window.confirm('Throw away every score, call and comment on this screen and start from the project’s list?')) return
-      items = seed(); heldStamp = STAMP
-      keep(); render(); say('Back to the project’s list.')
+      items = source.items.map(fresh)
+      homeOrder = null; sortedBy = null; notes = []
+      keep(); renderAll(); paintView(); say('Back to the project’s list.')
     })
 
     btnQueueSave.addEventListener('click', function () {
+      var owed = items.filter(needsReason)
       var out = {
         _savedFromTheHandbook: [
           'Saved from the Handbook ranking control on ' + today() + '.',
           '',
-          'ARRAY ORDER IS THE ORDER ON SCREEN. Anything Mike settled sank to the bottom.',
+          'ARRAY ORDER IS THE ORDER ON SCREEN, exactly as Mike left it.',
           '',
           '`yourCall` and `yourComment` are HIS decisions, not part of the committed',
-          'schema. A session applies them — proceeds, moves a Done item to',
-          'to-do-done-and-parked.md, deletes a Deleted one with its code — and then',
-          'removes both keys. Do not commit this file with them still in it.'
+          'schema. Apply them with `npm run to-do -- <this file>`, which refuses to',
+          'remove a settled item until its closure is written on',
+          'to-do-done-and-parked.md, and strips both keys when it does.'
         ],
         _readme: source._readme,
         orderedByMikeOn: today(),
         orderSource: 'the Handbook ranking control',
-        items: ordered().map(function (o) {
+        items: items.map(function (o) {
           return {
             ref: o.ref,
             name: o.name,
@@ -1175,11 +1348,19 @@
       }
       btnQueueSave.disabled = true
       download(QUEUE_FILE, JSON.stringify(out, null, 2), 'Your list is still on screen.')
-        .then(function () { btnQueueSave.disabled = false })
+        .then(function () {
+          btnQueueSave.disabled = false
+          if (owed.length) {
+            say(owed.length + ' item' + (owed.length === 1 ? '' : 's') + ' you settled ' +
+              'carr' + (owed.length === 1 ? 'ies' : 'y') + ' no reason: ' +
+              owed.map(function (o) { return o.ref }).join(', ') + '. Saved anyway.', 9000)
+          }
+        })
     })
 
-    render()
-    if (stale) say('The list in the project has changed since you last saved here. Nothing of yours was touched.', 8000)
+    renderAll()
+    paintView()
+    if (notes.length) say('Some things changed in the project since you last looked. Nothing of yours was touched.', 8000)
   }
 
   // ---------- boot ----------
