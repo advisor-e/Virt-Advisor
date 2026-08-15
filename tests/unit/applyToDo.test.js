@@ -124,7 +124,18 @@ describe('the ranked table is generated, not maintained', () => {
   })
 
   it('counts in words, in the list\'s own voice, and counts Mike\'s separately', () => {
-    expect(apply.renderTable(list)).toContain('**Three live items. One need')
+    expect(apply.renderTable(list)).toContain('**Three live items. One needs Mike.**')
+  })
+
+  it('agrees with itself at one, and at none — the counts the first version got wrong', () => {
+    // Printed on the live page as "One need Mike." and then "no need Mike." A
+    // generated sentence carries the list's own voice; it cannot go slack at the
+    // exact moment the list is nearly clear.
+    const one = list.slice(0, 2).filter(i => i.waitingOn === 'Mike')
+    expect(apply.renderTable(one)).toContain('**One live item. One needs Mike.**')
+
+    const none = list.filter(i => i.waitingOn !== 'Mike')
+    expect(apply.renderTable(none)).toContain('live items. None need Mike.**')
   })
 
   it('replaces only what sits between the markers', () => {

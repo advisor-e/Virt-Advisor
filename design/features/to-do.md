@@ -36,13 +36,13 @@ repository sees; the two never both appear, and the build stops if they would.
 | # | Item | Score | Blocks | Waiting on |
 | --- | --- | --- | --- | --- |
 | 1 | 🔒 **4.12** One handover story for the master team | 5 | Handover | Us |
-| 2 | **2.9** The education-gate wording | 4 | — | **Mike** |
+| 2 | **2.9** The education gate | 4 | — | Us |
 | 3 | **4.7** Flip engine-strict back on | 5 | — | Us |
 | 4 | **3.5** Reply to Carl about npm install | 5 | — | Us |
 | 5 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
 | 6 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | Us |
 
-**Six live items. One need Mike.** If this list passes about twenty, something is wrong.
+**Six live items. None need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **One item came off this list on 2026-08-16** — see
@@ -224,14 +224,53 @@ whatever it looks like.
 
 ---
 
-## 4. Waiting on Mike
+## 4. The education gate
 
-**2.9 · The education-gate wording.** **SCORE 4 · the user is worse off**
-- **Why:** the behaviour is already ruled — on low client literacy the adviser is asked whether to
-  apply education-first or see what is technically needed, reasoning shown either way.
-- **Risk:** it stays uncoded. Advisers keep getting advice pitched over a client's head.
-- **Asked by:** **Mike** — his own design, 2026-07-16.
-- **Touches:** the Advisory Staircase, the pre-recommendation prompt.
+### 🔴 RULED BY MIKE, 2026-08-16 — the gate fires wherever poor financial literacy shows up
+
+> Asked whether the gate should work **wherever poor financial literacy shows up**, or **only where
+> the app can already see it** (inside a forecasting conversation), Mike chose: **"wherever it shows
+> up."**
+
+**This item is no longer waiting on Mike, and it is no longer a wording task.** It was carried for a
+month as *"only the on-screen words are missing"*. **That sentence was wrong**, and it is recorded
+here as wrong so nobody re-derives it: putting the wording question to him again is asking a
+question he has already answered.
+
+**What the 2026-08-16 check found**, and it is why the scope moved:
+
+1. **The pattern the ruling says to copy does not exist.** The 2026-07-16 ruling models the gate on
+   *"the existing outside-your-range pattern"* — the two-card output decided on 2026-06-04 in
+   [`../virt-advisor-system-design.md`](../virt-advisor-system-design.md) §13. **No code carries
+   that text or anything like it.** It was decided and never built, so there is no working screen to
+   take the shape from.
+2. **The literacy signal exists in one domain out of eight.** *"Poor financial literacy — owner
+   focused on wrong numbers"* sits under **forecasting** in [`../../data/primary-issues.json`](../../data/primary-issues.json)
+   and nowhere else; all eight domains were checked. A client who plainly cannot read their numbers
+   but came about staffing or profitability **would not trip the gate.** Mike's own 2026-07-16
+   precondition — *"the literacy signal's reliability verified first"* — is what this answers.
+   `advisory-staircase.json` agrees: `"status": "not-wired"`.
+
+**The order of work, and it is fixed by his ruling:**
+
+1. **Widen the signal — ours, and first.** ⚠ **NOT by copying the line into all eight domains' issue
+   lists.** Eight copies of one sentence is how content drifts apart here, and it is the fault
+   closed on 2026-08-16 by item 2.6. It needs to become a signal the engine reads **independently of
+   the domain** the conversation happens to be in. That shape has to be designed.
+2. **Then the wording — Mike's**, and only then. **Where the gate can fire decides what it should
+   say**, which is why asking for the words first would have produced words for a gate that mostly
+   stays shut.
+3. **Then build the gate**, with the reasoning shown either way, per the 2026-07-16 ruling below.
+
+**2.9 · The education gate.** **SCORE 4 · the user is worse off**
+- **Why:** on low client literacy the adviser is asked whether to apply education-first or see what
+  is technically needed, with the reasoning shown either way. The behaviour was ruled 2026-07-16;
+  the **reach** was ruled 2026-08-16.
+- **Risk:** it stays uncoded. Advisers keep getting advice pitched over a client's head — and, since
+  2026-08-16, we know the narrow version would have looked finished while firing almost never.
+- **Asked by:** **Mike** — his own design, 2026-07-16, rescoped by him 2026-08-16.
+- **Touches:** the literacy signal across all eight domains, the Advisory Staircase, the
+  pre-recommendation prompt.
 
 ---
 

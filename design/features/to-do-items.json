@@ -55,21 +55,21 @@
     },
     {
       "ref": "2.9",
-      "name": "The education-gate wording",
+      "name": "The education gate",
       "score": 4,
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The behaviour is already ruled — on low client literacy the adviser is asked whether to apply education-first or see what is technically needed, reasoning shown either way. Only the on-screen words are missing.",
-      "risk": "It stays uncoded. Advisers keep getting advice pitched over a client's head.",
+      "waitingOn": "Us",
+      "why": "On low client literacy the adviser is asked whether to apply education-first or see what is technically needed, reasoning shown either way. Behaviour ruled 2026-07-16; REACH ruled 2026-08-16 — the gate fires wherever poor financial literacy shows up, not only inside forecasting.",
+      "risk": "It stays uncoded and advisers keep getting advice pitched over a client's head. The narrow version would have been worse than nothing visible: it would have looked finished while firing almost never.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
-        "detail": "His own design, 2026-07-16"
+        "detail": "His own design, 2026-07-16, rescoped by him 2026-08-16"
       },
-      "touches": "The Advisory Staircase, the pre-recommendation prompt.",
-      "note": null
+      "touches": "The literacy signal across all eight domains, the Advisory Staircase, the pre-recommendation prompt.",
+      "note": "NO LONGER A WORDING TASK AND NO LONGER WAITING ON MIKE — it was carried for a month as 'only the on-screen words are missing', and that was wrong. Order is fixed: (1) widen the literacy signal, ours and first — NOT by copying the line into eight domains, but as a signal read independently of domain; (2) then Mike's wording, because where the gate can fire decides what it should say; (3) then build. Two findings behind the rescope: the 'outside-your-range' pattern the ruling says to copy was designed 2026-06-04 and never built, and 'Poor financial literacy' exists under forecasting only. See to-do.md section 4."
     },
     {
       "ref": "4.7",

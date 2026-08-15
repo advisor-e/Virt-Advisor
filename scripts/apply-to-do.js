@@ -157,8 +157,17 @@ function renderTable (items) {
 
   const mike = items.filter(item => item.waitingOn === 'Mike').length
 
+  // Both halves agree with their own count. The first version pluralised neither,
+  // and the day the list first reached one Mike-item it printed "One need Mike.";
+  // the day it reached none, "no need Mike." A generated sentence is read as the
+  // list's own voice, so it has to survive its own edge cases.
+  const liveLine = word(items.length) + ' live item' + (items.length === 1 ? '' : 's') + '.'
+  const mikeLine = mike === 0
+    ? 'None need Mike.'
+    : word(mike) + (mike === 1 ? ' needs Mike.' : ' need Mike.')
+
   return head.concat(rows).join('\n') + '\n\n' +
-    '**' + word(items.length) + ' live items. ' + word(mike) + ' need Mike.** ' +
+    '**' + liveLine + ' ' + mikeLine + '** ' +
     'If this list passes about twenty, something is wrong.'
 }
 
