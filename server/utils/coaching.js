@@ -70,8 +70,20 @@ Scenarios: \n${scenarios}
 Where it leads: ${c.whereMayLead}`
 }
 
-function formatCoachingForPrompt () {
-  return loadCoaching().map(formatEntry).join('\n\n')
+/**
+ * Render the coaching reference rows for the prompt, UNFENCED — this is curated
+ * guidance the model is meant to act on, not user text to weigh. The firm's promoted
+ * observations are the fenced ones; they go through formatFirmCoachingForPrompt below
+ * and never through here.
+ *
+ * @param {Object[]} [rows] - the scope's resolved rows (see coachingConfig
+ *   .loadResolvedCoaching). Omitted, it falls back to the shipped platform file, which
+ *   is what every caller got before the block joined the inheritance mechanism.
+ * @returns {string} the rendered block
+ */
+function formatCoachingForPrompt (rows) {
+  const list = Array.isArray(rows) && rows.length > 0 ? rows : loadCoaching()
+  return list.map(formatEntry).join('\n\n')
 }
 
 // ── Firm-scoped promoted entries (overlay-backed) ─────────────────────────────

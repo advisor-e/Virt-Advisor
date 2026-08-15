@@ -12,6 +12,7 @@ const path = require('path')
 const { createOpenAIClient } = require('../server/utils/openaiClient')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { formatCoachingForPrompt, loadFirmCoaching, formatFirmCoachingForPrompt } = require('../server/utils/coaching')
+const { loadResolvedCoaching } = require('../server/utils/coachingConfig')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
@@ -483,7 +484,11 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     firmCoaching = null,
     // The session's detected domain, so the firm's promoted entries can be
     // narrowed to the topic in hand. null = no topic known → no filter.
-    firmCoachingDomain = null
+    firmCoachingDomain = null,
+    // The coaching reference rows resolved for this firm's scope. null falls back
+    // to the shipped platform rows — the behaviour every caller had before the
+    // block joined the inheritance mechanism.
+    coachingRows = null
   } = options || {}
 
   const orgTemplates = getOrgTemplates(orgTemplateIds || null, firmTemplates)
@@ -495,7 +500,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   const relevant = filterTemplatesByQuery(baseTemplates, searchQuery, maxTemplates)
   const templatesToUse = relevant.length > 0 ? relevant : baseTemplates.slice(0, maxTemplates)
   const templatesText = formatTemplatesForPrompt(templatesToUse)
-  const coachingText = includeCoaching ? formatCoachingForPrompt() : null
+  const coachingText = includeCoaching ? formatCoachingForPrompt(coachingRows) : null
   // The firm's own promoted case observations — advisor free text, so the
   // formatter returns it FENCED (data to weigh, never instructions), narrowed to
   // this session's topic and capped (see coaching.selectFirmCoaching).
@@ -1620,6 +1625,13 @@ async function handleQuery (rawBody, res, identity) {
     ? await loadFirmCoaching(firmId).catch(() => null)
     : null
 
+  // The coaching reference rows themselves — the platform's fifteen, resolved through
+  // this firm's decisions and every tier above it. Separate from firmCoaching above and
+  // deliberately so: these are curated guidance the model acts on, those are an
+  // advisor's free text about a real client and stay fenced. loadResolvedCoaching never
+  // rejects; a firm that has changed nothing gets the shipped rows unchanged.
+  const coachingRows = await loadResolvedCoaching(firmId, loadFirmConfig)
+
   // Past case studies, read server-side from the verified identity. Only client
   // and discover modes use them, so the other modes skip the read entirely.
   const promptCases = (mode === 'client' || mode === 'discover')
@@ -2424,7 +2436,7 @@ async function handleQuery (rawBody, res, identity) {
       const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain, firmDomainSupport) : null
       const allUserText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).join(' ')
       const postRecContextQuery = [allUserText, query, state.detectedDomain, state.industry].filter(Boolean).join(' ')
-      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching, firmCoachingDomain: state.detectedDomain }) +
+      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching, firmCoachingDomain: state.detectedDomain, coachingRows }) +
         (domainSupportPost ? '\n---\n\n' + domainSupportPost : '')
 
       const messagesPost = [
@@ -2997,7 +3009,8 @@ async function handleQuery (rawBody, res, identity) {
       firmTemplates,
       preFilteredNames,
       firmCoaching,
-      firmCoachingDomain: state.detectedDomain
+      firmCoachingDomain: state.detectedDomain,
+      coachingRows
     }) + _preSelectedSummariesText + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
     // Phase C/D — merge strategy + resolver decisions into observability snapshot
@@ -3307,7 +3320,7 @@ async function handleQuery (rawBody, res, identity) {
   // Discover mode always needs it (first response IS a recommendation).
   // Other modes: defer until conversation is deep enough (4+ exchanges).
   const includeCoaching = mode === 'discover' || trimmedHistory.length >= 4
-  const coachingText = includeCoaching ? formatCoachingForPrompt() : null
+  const coachingText = includeCoaching ? formatCoachingForPrompt(coachingRows) : null
   // Firm-promoted entries ride the same gate; fenced and capped by the formatter.
   // No domain is passed because none exists here: discover/plan/learn return above
   // the client sequencer, which is the only path that detects one. Passing a guess
