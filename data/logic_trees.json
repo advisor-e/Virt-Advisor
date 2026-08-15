@@ -6564,7 +6564,7 @@
           "type": "recommendation",
           "condition": "Audience holds preemptive negative thoughts about the presentation (e.g. rumoured price rises, known objections)",
           "notes": "Call out the ghosts early in the presentation — acknowledge known concerns before the audience can raise them. This preempts negativity and builds immediate trust. Naming the objection disarms it; ignoring it allows it to fester and undermine the rest of the session.",
-          "recommendation": "Use Get Seminar template. Address known objections at the opening of the session before the audience can voice them.",
+          "recommendation": "Use Design & Deliver template. Address known objections at the opening of the session before the audience can voice them.",
           "templates": []
         },
         {
@@ -6573,7 +6573,7 @@
           "type": "recommendation",
           "condition": "Audience includes a mix of learning styles: Reflectors, Pragmatists, Theorists, Activists",
           "notes": "Reflectors: direct them to take a moment and write down their thoughts — they process by reflecting. Pragmatists need facts and real-world application. Theorists need input and conceptual understanding before acting. Activists need to get hands-on immediately. Tailor delivery to accommodate all four styles — do not run a purely lecture-based format.",
-          "recommendation": "Use Get Seminar template and Powerful Seminars support content to structure delivery that accommodates all four learning styles.",
+          "recommendation": "Use Design & Deliver template and Powerful Seminars support content to structure delivery that accommodates all four learning styles.",
           "templates": []
         },
         {
@@ -6582,7 +6582,7 @@
           "type": "recommendation",
           "condition": "A client attempts to discuss detailed services or products while being entertained at a networking event",
           "notes": "Politely steer the conversation to a future Monday call and refocus on hospitality. Engaging in detailed service discussions at social events prevents insincerity, loss of control over the environment, and buyer's remorse. The social context is for relationship building, not transacting.",
-          "recommendation": "Use Get Seminar template. Redirect to a scheduled follow-up call and maintain the hospitality focus for the event.",
+          "recommendation": "Use Design & Deliver template. Redirect to a scheduled follow-up call and maintain the hospitality focus for the event.",
           "templates": []
         },
         {
@@ -6591,7 +6591,7 @@
           "type": "recommendation",
           "condition": "Advisor wishes to join an established group of people at a networking event",
           "notes": "Check body position and explicitly ask permission to join (e.g. 'Hey guys, would it be OK if I joined you?'). This mitigates the basic tribal instinct to exclude outsiders and invokes a compassionate response. Simply walking into a group without asking triggers subconscious exclusion behaviour.",
-          "recommendation": "Use Get Seminar template. Practise the approach and body language techniques before major networking events.",
+          "recommendation": "Use Design & Deliver template. Practise the approach and body language techniques before major networking events.",
           "templates": []
         },
         {
@@ -6600,7 +6600,7 @@
           "type": "recommendation",
           "condition": "Advisor is naturally quiet, reserved, or feeling drained before a social or networking event",
           "notes": "Take 5 minutes before the event to get into 'state' by imagining confident posture and voice tone. Physicality dictates confidence — otherwise quietness may be mistaken for snobbery. The technique uses physical anchoring: stand tall, breathe deep, visualise a successful interaction before entering.",
-          "recommendation": "Use Get Seminar template. Build the pre-event state preparation into standard networking preparation habits.",
+          "recommendation": "Use Design & Deliver template. Build the pre-event state preparation into standard networking preparation habits.",
           "templates": []
         },
         {
@@ -6609,7 +6609,7 @@
           "type": "recommendation",
           "condition": "The group is prematurely assessing ideas and stalling out during a brainstorming or divergent thinking session",
           "notes": "Premature assessment is the most frequent point of failure in divergent thinking and brainstorming. The facilitator must strictly enforce the no-assessment rule — no criticism or evaluation of ideas during the divergent phase. Use mind mapping to capture all ideas visually before any assessment begins. Do not allow idea killing until the full ideation phase is complete.",
-          "recommendation": "Use Get Seminar template and Get Team Problem template. The no-assessment rule must be announced and enforced from the start of the session.",
+          "recommendation": "Use Design & Deliver template and Get Team Problem template. The no-assessment rule must be announced and enforced from the start of the session.",
           "templates": []
         },
         {
@@ -6618,7 +6618,7 @@
           "type": "recommendation",
           "condition": "Team has agreed on an Action Plan but risks losing momentum when they return to their normal workplace environment",
           "notes": "Assign an Enforcer — a nominated team member who takes psychological and operational ownership to monitor milestones. The Enforcer is not a manager; they are an internal accountability partner. Without this role, social pressure fades when participants re-enter their day-to-day context and competing priorities take over.",
-          "recommendation": "Use Get Seminar template. Assign an Enforcer during the session before participants leave and document their role in the Action Plan.",
+          "recommendation": "Use Design & Deliver template. Assign an Enforcer during the session before participants leave and document their role in the Action Plan.",
           "templates": []
         }
       ]

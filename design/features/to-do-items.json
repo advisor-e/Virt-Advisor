@@ -72,24 +72,6 @@
       "note": "The open question for Mike: should it be emitted the same gated way `recommendation` now is?"
     },
     {
-      "ref": "2.3",
-      "name": "Seminar's seven lines — reword toward Public Speaking",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The gate correctly refuses to name a tool nobody can open, so seven lines of coaching never reach an adviser.",
-      "risk": "A table of coaching advisers simply are not receiving. This is not tidying.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "His to reword, carried since session 48"
-      },
-      "touches": "Mentor Hub → Logic Tables → Get Seminar.",
-      "note": null
-    },
-    {
       "ref": "2.9",
       "name": "The education-gate wording",
       "score": 4,

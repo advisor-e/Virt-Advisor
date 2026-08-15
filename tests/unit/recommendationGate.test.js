@@ -180,12 +180,19 @@ describe('the corpus — what the real trees emit today', () => {
     expect(leaks).toEqual([])
   })
 
-  it('delivers 27 branches whole and 14 in part, and withholds 14 entirely', () => {
+  it('delivers 34 branches whole and 8 in part, and withholds 13 entirely', () => {
     // A SNAPSHOT, AND IT IS MEANT TO MOVE. Every withheld branch is waiting on a
     // name being settled on the Template Check screen and applied to the tables.
     // When that happens this test fails and the number it names is the number of
     // instructions that started reaching advisors — which is the point of
     // recording it. Adjust it deliberately; never delete it.
+    //
+    // MOVED 2026-08-15, and this is exactly the event the note above describes.
+    // Mike named the page behind the seven Get-the-Job Seminar branches —
+    // "Design & Deliver" — and they went from 1 withheld + 6 partial to 7 whole:
+    //   27 / 14 / 14  →  34 / 8 / 13
+    // Seven instructions started reaching advisors that day. **21 branches still
+    // lose text and nobody has ruled on them yet.**
     let full = 0
     let partial = 0
     let withheld = 0
@@ -194,7 +201,7 @@ describe('the corpus — what the real trees emit today', () => {
       if (!out) { withheld++ } else if (out === node.recommendation.trim()) { full++ } else { partial++ }
     }
     expect(recommendationNodes.length).toBe(55)
-    expect({ full, partial, withheld }).toEqual({ full: 27, partial: 14, withheld: 14 })
+    expect({ full, partial, withheld }).toEqual({ full: 34, partial: 8, withheld: 13 })
   })
 })
 

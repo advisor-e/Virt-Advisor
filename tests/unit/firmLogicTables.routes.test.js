@@ -460,7 +460,11 @@ describe('the THEN column reaches every field a node keeps its instruction in', 
     expect(res._status).toBe(200)
     const row = res._body.branches.find(b => b.id === 'gs_audience_negativity')
     expect(row).toBeTruthy()
-    expect(row.action).toContain('Use Get Seminar template')
+    // Was 'Use Get Seminar template' until 2026-08-15, when Mike named the page
+    // that actually exists. The branch was never blank — it is what the branch
+    // NAMES that changed, and this row is the one the gate used to cut back to
+    // its second sentence.
+    expect(row.action).toContain('Use Design & Deliver template')
   })
 
   test('a reworded recommendation goes home to `recommendation`, never to `action`', async () => {

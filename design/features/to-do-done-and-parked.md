@@ -190,6 +190,32 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**2.3 · Seminar's seven lines — reworded toward Public Speaking.** ✅ Closed 2026-08-15. Carried
+since session 48, and it took Mike five words: **the page is called "Design & Deliver."**
+
+- **What was wrong.** Seven Get-the-Job branches said *"Use Get Seminar template."* No page in the
+  291-record library has ever been called that. The gate does the right thing and refuses to name a
+  tool nobody can open, so the sentence was cut — **one branch withheld entirely, six cut back to
+  their second sentence** — from the day the gate shipped (`fdb15ca`) until now.
+- **Why nobody could close it.** It needed the real page name, and that is Mike's to give, not a
+  developer's to rule on. He gave it the moment he was shown the seven actual sentences instead of
+  being asked about *"Seminar's seven lines"* for the fourth session running.
+- **What proves it.** `Design & Deliver` is in the committed library —
+  Get the Job → Seminar Delivery → **Public Speaking**. Run through the production gate, all seven
+  now pass **intact**, ampersand and all. Measured across the whole corpus:
+  **27 whole / 14 partial / 14 withheld → 34 whole / 8 partial / 13 withheld.**
+  Seven instructions started reaching advisers.
+- **Guarded** by [`logicTreeRecommendationNames.test.js`](../../tests/unit/logicTreeRecommendationNames.test.js),
+  which runs the real gate rather than imitating it, and is mutation-verified: putting the old name
+  back on one branch turns three tests red.
+- **Nothing else changed.** Seven strings, five words each — `git diff` is 7 lines.
+
+🔴 **A bigger finding came out of it, and NOBODY HAS RULED ON IT.** These seven were seven of
+**28 branches, out of 55, that lose text to the same gate.** The remaining **21** — across the
+`fmc_`, `cas_`, `fbp_` and `ol_` tables — are advisers not receiving instructions, for the same
+reason and with nobody having looked. It is deliberately **not** filed as a to-do: nobody asked for
+it, and §7 says such an item must justify itself first. **Raise it with Mike; do not start it.**
+
 **4.14 · The ranking control is in the Handbook.** ✅ Closed 2026-08-15 by Mike, from the control
 itself — the second item ever settled that way, and the first that was settled *using the thing it
 built*. All three phases shipped in one day, which is what he asked for when he said it had to be

@@ -37,17 +37,21 @@ repository sees; the two never both appear, and the build stops if they would.
 | --- | --- | --- | --- | --- |
 | 1 | 🔒 **4.12** One handover story for the master team | 5 | Handover | Us |
 | 2 | **2.6** advisor_note — one line from you | 4 | — | **Mike** |
-| 3 | **2.3** Seminar's seven lines — reword toward Public Speaking | 4 | — | **Mike** |
-| 4 | **2.9** The education-gate wording | 4 | — | **Mike** |
-| 5 | **4.9** Make the coaching reference inherit | 5 | — | Us |
-| 6 | **4.7** Flip engine-strict back on | 5 | — | Us |
-| 7 | **3.5** Reply to Carl about npm install | 5 | — | Us |
+| 3 | **2.9** The education-gate wording | 4 | — | **Mike** |
+| 4 | **4.9** Make the coaching reference inherit | 5 | — | Us |
+| 5 | **4.7** Flip engine-strict back on | 5 | — | Us |
+| 6 | **3.5** Reply to Carl about npm install | 5 | — | Us |
 
-**Seven live items. Three need Mike.** If this list passes about twenty, something is wrong.
+**Six live items. Two need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
-**Three items came off this list on 2026-08-15, all three settled by Mike from the control itself
-rather than in chat** — see [`to-do-done-and-parked.md`](to-do-done-and-parked.md):
+**Four items came off this list on 2026-08-15** — see
+[`to-do-done-and-parked.md`](to-do-done-and-parked.md):
+
+- ✅ **2.3** — Seminar's seven lines. Carried since session 48; closed in one message once Mike was
+  shown the seven actual sentences instead of being asked about them by label. The page is
+  **Design & Deliver**. 🔴 **21 other branches still lose text to the same gate and nobody has
+  ruled on them.**
 
 - ✅ **4.4** — a Handbook edit survives a reload. The first item ever settled that way, and it found
   a date defect in the first minute of use.
@@ -156,24 +160,6 @@ early production beta stage."*
 ---
 
 ## 4. Waiting on Mike
-
-**2.3 · Seminar's seven lines — reword toward Public Speaking.** **SCORE 4 · the user is worse off**
-- **Why:** the gate correctly refuses to name a tool nobody can open, so seven lines of coaching
-  never reach an adviser.
-- **Risk:** a table of coaching advisers simply are not receiving. This is not tidying.
-- **Asked by:** **Mike** — his to reword, carried since session 48.
-- **Touches:** Mentor Hub → Logic Tables → Get Seminar.
-
-**2.6 · `advisor_note` — one line from you.** **SCORE 4 · the user is worse off**
-- **Why:** the `profitability_feasibility` / `pf_awareness` node in your own logic tree carries a
-  real instruction that reaches the AI **nowhere** — *"This determines the delivery method. Do not
-  use Trial Fit on an unaware client — it will cause map shock. Do not use Cautious Reveal on a
-  motivated client — it will feel slow and condescending."* `formatNodeForPrompt` does not read it.
-- **Risk:** the AI keeps choosing a delivery method against your own written instruction.
-- **Asked by:** ⚠ **found by us**, in Mike's own logic-tree content. Not fixed unasked because
-  emitting a new field changes what the model is told. **Should it be emitted the same gated way
-  `recommendation` now is?**
-- **Touches:** `formatNodeForPrompt`, every recommendation using that branch.
 
 **2.9 · The education-gate wording.** **SCORE 4 · the user is worse off**
 - **Why:** the behaviour is already ruled — on low client literacy the adviser is asked whether to
