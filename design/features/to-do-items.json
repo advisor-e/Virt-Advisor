@@ -90,24 +90,6 @@
       "note": null
     },
     {
-      "ref": "4.9",
-      "name": "Make the coaching reference inherit",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Its fifteen rows already carry stable ids; it simply never joined the inheritance mechanism, and its firm side is append-only.",
-      "risk": "A firm cannot tailor its own coaching reference the way it can everything else — the cascade has a hole in it.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "From Mike's tier-cascade design, but nobody asked for this row specifically."
-      },
-      "touches": "resolveInheritedRows, the firm overlay, the coaching reference screen.",
-      "note": null
-    },
-    {
       "ref": "4.7",
       "name": "Flip engine-strict back on",
       "score": 5,
@@ -160,6 +142,24 @@
       },
       "touches": "data/logic_trees.json, the Mentor Hub logic tables, and the Template Check screen where the real page names are settled.",
       "note": "RANKED LAST DELIBERATELY, and it scores 4. Mike's ruling the same day: clear the technical and feature work first so the master team can start UAT testing, THEN double back to wording and document-title alignment. This is wording and title alignment. The pattern is proven and cheap once a name is known — the Seminar seven took five words and a seven-line diff — but each of the 21 needs the REAL page name, and that is Mike's to give, never a developer's to rule on. Put the actual sentences in front of him, not the label: that is what unblocked 2.3 after four sessions."
+    },
+    {
+      "ref": "4.16",
+      "name": "Check every block's authored fields actually reach the prompt",
+      "score": 4,
+      "scoreReason": "the user is worse off without it",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Closing 4.9 found two fields that were authored, stored and firm-editable and reached no prompt at all — so editing them changed nothing about the advice. It is the second instance: 55 logic-tree branches keep their instruction under a key formatNodeForPrompt never reads.",
+      "risk": "A firm or the mentor carefully edits content that the AI is never shown, and believes the advice changed. Nothing on screen and no test can tell them otherwise — every test asks whether a field was SAVED, none asks whether it was USED.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "Found while closing 4.9 on 2026-08-15, and shown to Mike with the rendered prompt as proof. He ruled the two coaching fields must reach the AI; this item is the same check run across the blocks nobody has checked."
+      },
+      "touches": "domain support, the logic trees, the advisory staircase — each block's data file compared against the prompt builder that renders it.",
+      "note": "Do it by rendering the real prompt and reading it, not by inspecting the store. That is the only method that found it the first two times."
     }
   ]
 }

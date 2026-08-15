@@ -486,6 +486,48 @@ that the warning is not being followed by default.
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
 
+- <a id="coaching-reference-screen"></a>✅ **DONE 2026-08-15 (session 60) — item 4.9 CLOSED end to
+  end: the coaching reference inherits AND has a screen.** Four commits, pushed
+  (`f98b681` mockup → `af79304` routes → `9cd39c9` the tab → `8d0ca29` the prompt fix). Full closure
+  on [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2; the rules earned
+  are in the Brief, [`features/tier-cascade.md`](features/tier-cascade.md).
+  - **What existed and what did not.** The engine half shipped the session before (`869909c`) and
+    had **nothing to resolve** — no route could record a firm's decision, so fifteen entries
+    cascaded perfectly down every tier and arrived identical for everyone. Seven routes + a Firm
+    Manager tab (unconditional at every tier, seventh in the list) closed it.
+  - 🔴 **THE FINDING, and it is worth more than the feature.** `howItHelps` and `deliveryNotes` are
+    authored in `data/coaching-reference.json`, were made firm-editable by `869909c`, are stored
+    correctly by the new routes — and `formatEntry` rendered **neither**. Both appeared nowhere else
+    in the backend. A firm could have rewritten the longest and most prominent field on its new tab
+    and changed **nothing** about the advice its advisers received. Mike ruled they must reach the
+    AI; they now do.
+  - 🔴 **WHY NOTHING CAUGHT IT: every test asked whether the field was SAVED, and none asked whether
+    it was USED.** It surfaced only by rendering the real prompt for a firm that had made a real
+    edit, through the running app, and reading it. **Second instance of this exact shape** — the 55
+    logic-tree branches whose instruction sits under a key `formatNodeForPrompt` never reads. Twice
+    is a pattern, so it is now a live item: **4.16**, and its method is prescribed — *render the
+    prompt and read it, do not inspect the store.*
+  - **The size guard did its job and was re-argued, not bumped.** The coaching block grew
+    **8,483 → 12,846 characters** in every eligible prompt; `coachingSelection.test.js` refused it at
+    12,000. The ceiling moved **with the new measurement, the date and the reason beside it**, and
+    still leaves room for about one entry so *adding* one trips it.
+  - **The shared-renderer risk was checked before the change, not after.** `formatEntry` also renders
+    a firm's PROMOTED CASE OBSERVATIONS, which reach the model **fenced**. Promoted entries carry
+    neither field, so the fix is present-only and they render byte-identically — pinned by test,
+    along with the fence itself.
+  - **Artefact-first held.** The mockup was committed **before** Mike approved it, its wording listed
+    at its foot, and its **two deviations named in the build commit** rather than discovered later.
+    The `designArtefacts.test.js` register guard **refused the first commit** because the mockup had
+    no row in `ARTEFACTS.md` — the control working, first time it was tested by a real addition.
+  - **Suite 5,341 → 5,429 / 313 suites** (+88), lint 0 errors, `nuxt build` green.
+  - ⚠ **Left open, deliberately and NOT filed:** a firm's own entry names its template as **free
+    text**, and nothing checks the name against the library — a typo coaches the AI toward a template
+    it cannot find. The absence was on the approved mockup and Mike has seen it. **His to say whether
+    it becomes an item.**
+  - ⚠ **Not clicked through in a browser.** Tests prove the behaviour, `nuxt build` proves it
+    compiles, and the routes were exercised against the running app — but no one has looked at the
+    screen.
+
 - <a id="pr-advisor-progress-to-master"></a>✅ **P1 · PROCESS — DONE. PR #33 MERGED to `master` as
   `3fdbf9f`.** The entry below is the original task, kept verbatim for its reasoning. The stale "OPEN"
   flag was caught by `/startup` on 2026-08-03 — a reminder that this list's own flags are claims to

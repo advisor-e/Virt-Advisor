@@ -190,6 +190,49 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.9 · Make the coaching reference inherit.** ✅ Closed 2026-08-15, session 60. The fifth and last
+block named in the 2026-07-30 ruling to join the one firm-editable mechanism — and the only one
+whose engine shipped a session before its screen.
+
+- **What was wrong.** The fifteen coaching entries the AI reads when it chooses which template to
+  put in front of a client went to the model **exactly as shipped, for every firm on the platform.**
+  The mentor could not edit them, a group could not, and a firm could only ever *add* to them by
+  promoting a case. The cascade had a hole in it.
+- **What was built.** Seven Restify routes (read · edit · reset · switch off · add / edit / delete
+  your own), a Firm Manager tab, a pure row-builder, and 47 approved strings. The tab is
+  unconditional at every tier, like the Advisory Staircase.
+- **The artefact came first**, per the rule the Logic-Lab failure earned:
+  [`../mockups/firm-coaching-reference.html`](../mockups/firm-coaching-reference.html) was committed
+  (`f98b681`) *before* Mike approved it, with every new sentence listed at its foot. **Two
+  deviations from it, both additions and both named in `9cd39c9`:** Reset to platform is also
+  offered on a switched-off entry that still carries a firm edit, and Reset and Remove each confirm
+  first.
+- 🔴 **What closing it uncovered, and it is the more valuable half.** Exercising the finished tab
+  against the running app showed that **`howItHelps` and `deliveryNotes` reached nothing at all** —
+  not the prompt, not any adviser screen. Both are authored in `data/coaching-reference.json`, both
+  had just been made firm-editable, both were stored correctly, and `formatEntry` rendered neither.
+  A firm could have rewritten the longest and most prominent field on its new tab and changed
+  **nothing** about the advice its advisers received. **Every test was green, because every test
+  asked whether the field was SAVED and none asked whether it was USED.** Mike ruled both must reach
+  the AI; they now do (`8d0ca29`).
+- **What proves it.** Suite 5,341 → **5,429 / 313 suites**, +88 tests. And, more to the point,
+  proven against the running application rather than only in tests: a firm's edit is stored,
+  resolved, and **replaces Advisor-e's text in the prompt the model actually receives**; the firm's
+  own added entry is in it; its switched-off entry is not.
+- **A cost accepted knowingly.** The coaching block grew **8,483 → 12,846 characters**, half as long
+  again, in every eligible prompt. The existing size guard refused it at 12,000 — which is exactly
+  its job — and the ceiling was re-argued with the new measurement rather than quietly bumped.
+- **What it did NOT get, each recorded as absent rather than forgotten:** no "platform updated this
+  entry" badge and no Adopt / Keep mine (the engine stores no drift baseline, and a badge with no
+  stamp behind it is a light that can never come on); no version history; and **no template picker
+  on a firm's own entry — its template is free text.**
+- ⚠ **The template picker is the one thing left genuinely open, and it is NOT on the live list.** A
+  firm's own entry names its template by typing it, and nothing checks that the name matches a
+  template in the library — so a typo coaches the AI toward something it cannot find. The named
+  absence was on the approved mockup and Mike has seen it. **It is his to say whether it becomes an
+  item**, and it is written here rather than filed, because an item nobody asked for is what the
+  list's own rules exist to keep out.
+
 **2.3 · Seminar's seven lines — reworded toward Public Speaking.** ✅ Closed 2026-08-15. Carried
 since session 48, and it took Mike five words: **the page is called "Design & Deliver."**
 

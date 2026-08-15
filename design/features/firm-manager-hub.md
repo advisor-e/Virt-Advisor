@@ -106,7 +106,11 @@ are candidates for decomposition, and both are load-bearing. A split needs tests
 ### The tab matrix, as built
 
 Unconditional at every tier: **Domain Support · Logic Tables · Logic-Lab · Advisory Staircase ·
-Quizzes · Adviser Network**.
+Coaching Reference · Quizzes · Adviser Network**. *(Seven since 2026-08-15, when Coaching Reference
+was added — the fifth and last block to join the row-inheritance mechanism, and the only one whose
+engine shipped before its screen. It is unconditional for the same reason the Staircase is: the
+mechanism means the same thing at every tier with a layer above it, and the mentor edits the
+platform rows through the same tab.)*
 
 | Tab | Tiers |
 |---|---|

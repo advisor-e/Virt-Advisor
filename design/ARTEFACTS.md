@@ -38,7 +38,7 @@ approved, never saved, and gone a day later.
 | Artefact | File | Referenced from |
 |---|---|---|
 | Case origin path | [case-origin.html](mockups/case-origin.html) | Case Reviews, Cases & Clients, Tier Cascade |
-| Coaching Reference tab | [firm-coaching-reference.html](mockups/firm-coaching-reference.html) | ⚠ nothing yet — proposed 2026-08-15, awaiting Mike's decision on to-do item 4.9 |
+| Coaching Reference tab | [firm-coaching-reference.html](mockups/firm-coaching-reference.html) | ✅ approved + BUILT 2026-08-15 (item 4.9) — two deviations named in `9cd39c9`; features/tier-cascade.md, features/firm-manager-hub.md |
 | Debtor Drag | [debtor-drag-mockup.html](mockups/debtor-drag-mockup.html) | ⚠ nothing — see *Orphans* below |
 | Decision logic map | [decision-logic-map-mockup.html](mockups/decision-logic-map-mockup.html) | LOGIC-LAB-BUILD-VS-MOCKUP.md |
 | EBITDA-DCF deconstruction | [ebitda-dcf-deconstruction-preview.html](mockups/ebitda-dcf-deconstruction-preview.html) | BUSINESS-PERFORMANCE-REPORT-PLAN.md |

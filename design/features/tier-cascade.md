@@ -182,8 +182,40 @@ screens as real firms, and do not demonstrate them to anyone as though they were
 exists.** It is evidenced by tests against a seeded membership map — a weaker claim than a live
 screen, and it should be stated as one.
 
-**The coaching reference does not inherit.** Its 15 rows carry stable `cr-` ids; it simply never
-joined `resolveInheritedRows`, and its firm side is append-only.
+### The coaching reference — the fifth block, and the last to join
+
+**It inherits, at every tier, and it has a screen.** Its 15 rows carry stable `cr-` ids; the engine
+half joined `resolveInheritedRows` on 2026-08-15 (`869909c`) and the Firm Manager tab followed the
+same day. A firm can switch an entry off, edit one, reset it, or add its own, exactly as it can the
+Advisory Staircase — `server/utils/coachingConfig.js`, `server/utils/firmCoachingReference.js`,
+`components/firm/FirmCoachingReference.vue`.
+
+*(Superseded 2026-08-15. This section previously read "The coaching reference does not inherit …
+its firm side is append-only", which was true until the day it wasn't. Recorded rather than quietly
+overwritten, because that sentence is the reason it went on the list.)*
+
+🔴 **TWO KINDS OF COACHING ROW LIVE UNDER SIMILAR NAMES AND MUST NEVER BE FOLDED TOGETHER.** The
+obvious wiring was to inherit through the existing `coaching-reference` key. That key does not hold
+platform guidance — it holds a firm's **promoted case observations**, an adviser's own free text
+about a real client, which reaches the model **fenced** as untrusted. Folding them together would
+have stripped the fence off every promoted entry: a prompt-injection hole with nothing on screen to
+notice it by. They now live under different keys (`coaching-declines` / `coaching-overrides` /
+`coaching-own` versus `coaching-reference`), resolve through different code, and render into
+different prompt sections. Tests fail if they ever meet.
+
+**A firm may not retitle an inherited entry's `template`, and that is not tidiness.** The field
+names a template in the library, and the whole purpose of the block is to steer the model toward
+that template *by name*. Retitling an inherited row would leave Advisor-e's id attached to guidance
+pointing somewhere else, and the model would be coached toward a template that may not exist. A
+firm wanting different guidance switches the entry off and adds its own — which it may title
+freely, because no platform id sits behind it. Enforced three times over: the route refuses it, the
+read strips it, and the form renders it locked *with the reason beside it*.
+
+⚠ **A field can be authored, stored, made firm-editable and still reach nothing.** `howItHelps` and
+`deliveryNotes` were all four, and no prompt builder rendered either until 2026-08-15 — so a firm
+could have rewritten the longest field on the tab and changed nothing about the advice. Every test
+was green, because every test asked whether the field was *saved*. **When a block joins the
+mechanism, check its fields against the prompt builder, not against the store.**
 
 ---
 

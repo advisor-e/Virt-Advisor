@@ -4,7 +4,7 @@
 > Finished work, and work deleted for failing the product test, is on
 > [`to-do-done-and-parked.md`](to-do-done-and-parked.md).
 >
-> **Last verified against the code: 2026-08-15**, item by item.
+> **Last verified against the code: 2026-08-15** (session 60), item by item.
 
 ---
 
@@ -38,17 +38,21 @@ repository sees; the two never both appear, and the build stops if they would.
 | 1 | 🔒 **4.12** One handover story for the master team | 5 | Handover | Us |
 | 2 | **2.6** advisor_note — one line from you | 4 | — | **Mike** |
 | 3 | **2.9** The education-gate wording | 4 | — | **Mike** |
-| 4 | **4.9** Make the coaching reference inherit | 5 | — | Us |
-| 5 | **4.7** Flip engine-strict back on | 5 | — | Us |
-| 6 | **3.5** Reply to Carl about npm install | 5 | — | Us |
-| 7 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
+| 4 | **4.7** Flip engine-strict back on | 5 | — | Us |
+| 5 | **3.5** Reply to Carl about npm install | 5 | — | Us |
+| 6 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
+| 7 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | Us |
 
 **Seven live items. Two need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
-**Four items came off this list on 2026-08-15** — see
+**Five items came off this list on 2026-08-15** — see
 [`to-do-done-and-parked.md`](to-do-done-and-parked.md):
 
+- ✅ **4.9** — the coaching reference inherits, and now has a screen. Session 60 built the visible
+  half: seven routes and a Firm Manager tab, so a firm can finally answer the engine that shipped
+  the session before. 🔴 **Closing it found two fields that were authored, stored, firm-editable and
+  reached no prompt at all** — the reason **4.16** is now on the list.
 - ✅ **2.3** — Seminar's seven lines. Carried since session 48; closed in one message once Mike was
   shown the seven actual sentences instead of being asked about them by label. The page is
   **Design & Deliver**. 🔴 **21 other branches still lose text to the same gate and nobody has
@@ -62,7 +66,7 @@ repository sees; the two never both appear, and the build stops if they would.
   🔴 **Nothing on this list now covers cutting that newer release.** That gap is deliberate and it
   is his to close.
 
-⚠ **Four items were scored 5 by Mike on 2026-08-15 — 4.12, 4.9, 4.7 and 3.5 — and by §2's table a 5
+⚠ **Four items were scored 5 by Mike on 2026-08-15 — 4.12, 4.9 (now closed), 4.7 and 3.5 — and by §2's table a 5
 means security, privacy or data integrity.** Read alongside his comments (*"just get it done"*,
 *"should never have been parked"*) he was plainly using 5 to mean **do this now**, not to name the
 category. **His scores are recorded exactly as he set them and have not been adjusted.** The
@@ -175,7 +179,9 @@ before the second starts:
 
 - **Technical / feature:** 4.12 (the master team's documents are wrong), 2.9 (the education gate is
   not coded at all — it needs Mike's words, but what is missing is a *feature*), 2.6 (a field that
-  reaches the AI nowhere), 4.9 (the cascade has a hole in it), 4.7 (the Node lock is not enforced).
+  reaches the AI nowhere), 4.7 (the Node lock is not enforced), 4.16 (content nobody can be sure
+  the AI is shown). ⚠ **2.6 and 4.16 are the same fault at different scales** — 2.6 is one known
+  field that reaches the AI nowhere, and 4.16 is the sweep for the ones nobody has looked for.
 - **Fine tuning:** 4.15 — twenty-one branches naming pages that exist under other names. **Ranked
   last for exactly this reason**, and it scores 4, so the disagreement is on the page as §2 requires.
 - **Neither:** 3.5 is one message to a person who is waiting.
@@ -221,14 +227,22 @@ whatever it looks like.
   the master team genuinely receives the wrong documents; **say so if you would rather it went.**
 - **Touches:** the Collaborate handover documents, the UAT load pack.
 
-**4.9 · Make the coaching reference inherit.** **SCORE 3 · sells the package**
-- **Why:** its fifteen rows already carry stable ids; it simply never joined the inheritance
-  mechanism, and its firm side is append-only.
-- **Risk:** a firm cannot tailor its own coaching reference the way it can everything else — the
-  cascade has a hole in it.
-- **Asked by:** ⚠ **ours** — from Mike's tier-cascade design, but nobody asked for this row
-  specifically.
-- **Touches:** `resolveInheritedRows`, the firm overlay, the coaching reference screen.
+**4.16 · Check every block's authored fields actually reach the prompt.** **SCORE 4 · the user is
+worse off**
+- **Why:** closing 4.9 found two fields — `howItHelps` and `deliveryNotes` — that were authored,
+  stored and firm-editable and reached **no prompt at all**, so editing them changed nothing about
+  the advice. It is the second instance: 55 logic-tree branches keep their instruction under a key
+  `formatNodeForPrompt` never reads. Twice is a pattern.
+- **Risk:** a firm or the mentor carefully edits content the AI is never shown, and believes the
+  advice changed. **Nothing on screen and no test can tell them otherwise** — every test asks
+  whether a field was SAVED, and none asks whether it was USED.
+- **Asked by:** ⚠ **ours** — found on 2026-08-15 while closing 4.9, and shown to Mike with the
+  rendered prompt as proof. He ruled the two coaching fields must reach the AI; this is the same
+  check across the blocks nobody has run it on.
+- **Touches:** domain support, the logic trees, the Advisory Staircase — each block's data file
+  compared against the prompt builder that renders it.
+- ⚠ **Do it by rendering the real prompt and reading it, not by inspecting the store.** That is the
+  only method that found it either time.
 
 **4.7 · Flip `engine-strict` back on.** **SCORE 2 · robustness**
 - **Why:** still `false`. Two transitive packages (`consola`, `node-releases`) over-declare their
