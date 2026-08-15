@@ -215,4 +215,11 @@ block *including* the ruling. `formatDeliveryMethodChoiceForPrompt` builds the c
 it, which measures 1,835. The test's ceiling is 2,200 against that function.
 
 **Unchanged and worth stating:** the availability gate itself, the full 19,000-character guides,
-and every other prompt in the app. Suite **5,442 green / 314 suites**, lint **0 errors**.
+and every other prompt in the app. Lint **0 errors**.
+
+**The test count, in full, because the halfway figure is misleading.** The build took the suite
+**5,429 → 5,442** (+13, one new suite). Closing 2.6 on the live list then took it **5,442 →
+5,438**: [`../tests/unit/toDoItems.test.js`](../tests/unit/toDoItems.test.js) generates four
+validation tests per live item (`test.each(refs)`), so retiring an item retires its four checks.
+**5,438 / 314 suites is the true final count.** Nothing failed. Recorded this way because "5,442"
+was written down first and a number in a record gets quoted back as fact.

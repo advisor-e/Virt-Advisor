@@ -233,7 +233,10 @@ the one on the ticket.
 - **One judgement call was put to him and he ruled on it.** One of his own Cautious Reveal signs —
   *"Client would experience map shock if shown a complex model immediately"* — names the consequence
   rather than something an adviser can observe. **Mike: keep it.** It is in the block as written.
-- **What proves it.** Suite 5,429 → **5,442 / 314 suites**, and the new suite is the point: it reads
+- **What proves it.** The build took the suite 5,429 → 5,442 (+13, one new suite); closing this item
+  then took it to **5,438 / 314 suites**, because `toDoItems.test.js` generates four validation tests
+  per live item and retiring an item retires its four. **5,438 is the true final count** — the
+  halfway figure reached the commit message and is corrected here. The new suite is the point: it reads
   every expected sentence **out of the source file at test time** and requires it to survive into the
   rendered prompt. A test carrying its own copy of the sentence would pass while the file drifted
   away from the prompt — which is this defect reproduced inside its own test.
