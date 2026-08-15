@@ -214,15 +214,16 @@ describe('GUARD — no tree field may be silently dropped again', () => {
     id: 'structural — identifies the node to the walker',
     next_node: 'structural — a single-successor link, followed by the walker',
     stage: 'structural — the walker\'s position in a staged tree',
-    next_stage: 'structural — the walker\'s next position',
-    // ⚠ NOT structural. This is a real instruction on one node
-    // (profitability_feasibility/pf_awareness) that reaches the AI nowhere: "Do
-    // not use Trial Fit on an unaware client — it will cause map shock." It is
-    // the SAME defect as `recommendation`, found by this guard the day it was
-    // written, and it is listed here rather than fixed because emitting a new
-    // field into live prompts is Mike's call, not a developer's. Raised with him
-    // 2026-08-12.
-    advisor_note: 'AWAITING MIKE — a dropped instruction, not a structural field'
+    next_stage: 'structural — the walker\'s next position'
+    // `advisor_note` WAS LISTED HERE, and it is the entry that justified the
+    // whole guard: a real instruction on profitability_feasibility/pf_awareness
+    // reaching the AI nowhere, found by this test the day it was written and
+    // left listed because emitting a new field into live prompts is Mike's call.
+    // He made it on 2026-08-16 — send it, and send the reasoning with it. The
+    // field is emitted by formatNodeForPrompt and pinned by
+    // tests/unit/deliveryMethodContext.test.js. Removed from this list rather
+    // than reworded, because a wired-up field left here would quietly license
+    // the next silent drop.
   }
 
   it('the list of unemitted fields is honest — every one is really in the data', () => {
@@ -280,12 +281,14 @@ describe('GUARD — no tree field may be silently dropped again', () => {
       templates_if_unsure: ['6 Hats'],
       support_templates: ['Quality Decisions'],
       notes: 'MARKER_NOTES',
+      advisor_note: 'MARKER_ADVISOR_NOTE',
       branches: [{ answer_pattern: 'MARKER_PATTERN', next_node: 'target' }]
     }
     const out = formatNodeForPrompt(node, [target])
     for (const marker of [
       'MARKER_BRANCH', 'MARKER_CONDITION', 'MARKER_GATE', 'MARKER_ACTION',
       'marker_recommendation', 'MARKER_QUESTION', 'MARKER_SALES', 'MARKER_NOTES',
+      'MARKER_ADVISOR_NOTE',
       'MARKER_PATTERN', 'Stock Policies', '6 Hats', 'Quality Decisions'
     ]) {
       expect(out).toContain(marker)

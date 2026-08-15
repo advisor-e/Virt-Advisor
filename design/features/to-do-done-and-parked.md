@@ -196,6 +196,58 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**2.6 · `advisor_note` — one line from you.** ✅ Closed 2026-08-16, session 61. Carried since
+2026-08-12, and it closed at four times its filed size because Mike asked a better question than
+the one on the ticket.
+
+- **What was wrong.** The *Profitability — Client Awareness Check* branch carries Mike's own
+  instruction — *"This determines the delivery method. Do not use Trial Fit on an unaware client —
+  it will cause map shock. Do not use Cautious Reveal on a motivated client — it will feel slow and
+  condescending."* — under a key `formatNodeForPrompt` did not read. It reached the AI nowhere. The
+  guard test that found it had listed it as `AWAITING MIKE` since the day it was written, because
+  emitting a new field into live prompts is his call.
+- 🔴 **The filed plan would have made it worse, and only running the code showed that.** The plan
+  was to emit the sentence through the availability gate like `recommendation`. Put through
+  `withholdUnavailableNames`, what survives is **"This determines the delivery method."** — the gate
+  reads "use Trial Fit" and "use Cautious Reveal" as tools it cannot find, when they are delivery
+  approaches and not documents. It would have shipped as a fix while deleting the instruction.
+- 🔴 **Mike's question is what changed the shape of it:** *"perhaps AI would benefit from greater
+  context? what are the notes about WHY I said not to spring it on somebody — what to look for
+  etc..."* The answer was yes, **and the notes already existed** — the map shock definition, four
+  observable signs of a motivated client, the resistant client's profile, and the contrast between
+  the two methods, all authored in `data/trial-fit-reference.json` and
+  `data/cautious-reveal-reference.json`. None of it loaded at that branch:
+  `buildLearnReferenceText()` returns null for the Profitability tree, and three realistic
+  profitability conversations — including *"I am not sure they realise they need a revenue model
+  yet"* — all route to `profitability_feasibility`, so neither guide attaches. Rendered, the branch
+  gave the model **a question and two labels.**
+- **What was built.** A 1,835-character context block on that one branch, **read at run time from
+  the two reference files** — no sentence copied into code — followed by Mike's ruling. The full
+  19,000-character guides stay attached to their own coaching trees; the availability gate is
+  untouched.
+- **The artefact came first**, per the rule: [`../PF-AWARENESS-DECISION-BLOCK.md`](../PF-AWARENESS-DECISION-BLOCK.md)
+  was committed (`717706d`) *before* Mike approved it, with every line traced to the file and key it
+  is read from, and registered in [`../ARTEFACTS.md`](../ARTEFACTS.md) under a new heading, **"Words
+  the AI is shown"** — prompt content is an artefact he approves even though it is not a screen.
+  **Four differences from it are named on the artefact itself.**
+- **One judgement call was put to him and he ruled on it.** One of his own Cautious Reveal signs —
+  *"Client would experience map shock if shown a complex model immediately"* — names the consequence
+  rather than something an adviser can observe. **Mike: keep it.** It is in the block as written.
+- **What proves it.** Suite 5,429 → **5,442 / 314 suites**, and the new suite is the point: it reads
+  every expected sentence **out of the source file at test time** and requires it to survive into the
+  rendered prompt. A test carrying its own copy of the sentence would pass while the file drifted
+  away from the prompt — which is this defect reproduced inside its own test.
+- 🔴 **A guard beyond the plan, because the note is the one field emitted past the availability
+  gate.** Safe for this note; not a general licence. A second `advisor_note`, written later and
+  naming a real template the catalogue cannot serve, would reach the AI ungated. The test asserts
+  `profitability_feasibility/pf_awareness` is the **only** node in the corpus carrying one, so a
+  second stops the build and gets a decision.
+- ⚠ **Not yet watched in a live conversation.** The proof is the rendered prompt, read end to end
+  and matching the approved block line for line. Nobody has yet seen the AI *use* it with an adviser.
+- **This is the third instance of one defect** — `recommendation` (55 branches), `howItHelps` /
+  `deliveryNotes` (2026-08-15), and now this. **4.16 is the sweep for the rest**, and its method is
+  the one that worked all three times: render the prompt and read it.
+
 **4.9 · Make the coaching reference inherit.** ✅ Closed 2026-08-15, session 60. The fifth and last
 block named in the 2026-07-30 ruling to join the one firm-editable mechanism — and the only one
 whose engine shipped a session before its screen.

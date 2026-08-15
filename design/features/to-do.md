@@ -36,15 +36,24 @@ repository sees; the two never both appear, and the build stops if they would.
 | # | Item | Score | Blocks | Waiting on |
 | --- | --- | --- | --- | --- |
 | 1 | 🔒 **4.12** One handover story for the master team | 5 | Handover | Us |
-| 2 | **2.6** advisor_note — one line from you | 4 | — | **Mike** |
-| 3 | **2.9** The education-gate wording | 4 | — | **Mike** |
-| 4 | **4.7** Flip engine-strict back on | 5 | — | Us |
-| 5 | **3.5** Reply to Carl about npm install | 5 | — | Us |
-| 6 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
-| 7 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | Us |
+| 2 | **2.9** The education-gate wording | 4 | — | **Mike** |
+| 3 | **4.7** Flip engine-strict back on | 5 | — | Us |
+| 4 | **3.5** Reply to Carl about npm install | 5 | — | Us |
+| 5 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
+| 6 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | Us |
 
-**Seven live items. Two need Mike.** If this list passes about twenty, something is wrong.
+**Six live items. One need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
+
+**One item came off this list on 2026-08-16** — see
+[`to-do-done-and-parked.md`](to-do-done-and-parked.md):
+
+- ✅ **2.6** — `advisor_note` reaches the AI, and the reasoning goes with it. Filed as one sentence
+  to emit; it closed at four times that size because Mike asked *"what are the notes about WHY I
+  said not to spring it on somebody — what to look for?"* The answer was that the reasoning had been
+  authored all along and never loaded at that branch. 🔴 **The filed plan would have shipped as a fix
+  while deleting his instruction** — only rendering the prompt showed it. Approved artefact:
+  [`../PF-AWARENESS-DECISION-BLOCK.md`](../PF-AWARENESS-DECISION-BLOCK.md).
 
 **Five items came off this list on 2026-08-15** — see
 [`to-do-done-and-parked.md`](to-do-done-and-parked.md):
@@ -198,10 +207,12 @@ before the second starts:
 **How today's list reads against it, so the reading can be checked rather than assumed:**
 
 - **Technical / feature:** 4.12 (the master team's documents are wrong), 2.9 (the education gate is
-  not coded at all — it needs Mike's words, but what is missing is a *feature*), 2.6 (a field that
-  reaches the AI nowhere), 4.7 (the Node lock is not enforced), 4.16 (content nobody can be sure
-  the AI is shown). ⚠ **2.6 and 4.16 are the same fault at different scales** — 2.6 is one known
-  field that reaches the AI nowhere, and 4.16 is the sweep for the ones nobody has looked for.
+  not coded at all — it needs Mike's words, but what is missing is a *feature*), 4.7 (the Node lock
+  is not enforced), 4.16 (content nobody can be sure the AI is shown).
+  ⚠ **4.16 is the sweep, and 2.6 was its first known instance** — one field that reached the AI
+  nowhere, closed 2026-08-16. **4.16 is the search for the ones nobody has looked for**, and closing
+  2.6 raised its expected yield rather than lowering it: the fix had to grow four-fold once anyone
+  actually read the rendered prompt.
 - **Fine tuning:** 4.15 — twenty-one branches naming pages that exist under other names. **Ranked
   last for exactly this reason**, and it scores 4, so the disagreement is on the page as §2 requires.
 - **Neither:** 3.5 is one message to a person who is waiting.

@@ -54,24 +54,6 @@
       "note": null
     },
     {
-      "ref": "2.6",
-      "name": "advisor_note — one line from you",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The profitability_feasibility / pf_awareness node in Mike's own logic tree carries a real instruction that reaches the AI nowhere — \"This determines the delivery method. Do not use Trial Fit on an unaware client — it will cause map shock. Do not use Cautious Reveal on a motivated client — it will feel slow and condescending.\" formatNodeForPrompt does not read it.",
-      "risk": "The AI keeps choosing a delivery method against Mike's own written instruction.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "Found by us, in Mike's own logic-tree content. Not fixed unasked because emitting a new field changes what the model is told."
-      },
-      "touches": "formatNodeForPrompt, every recommendation using that branch.",
-      "note": "The open question for Mike: should it be emitted the same gated way `recommendation` now is?"
-    },
-    {
       "ref": "2.9",
       "name": "The education-gate wording",
       "score": 4,

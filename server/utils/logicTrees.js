@@ -508,6 +508,42 @@ function formatNodeForPrompt (node, allNodes, fence = false) {
     }
   }
 
+  // Context for a choice the branch labels alone cannot support. Platform
+  // content read from the reference files, so it is NOT fenced — `fence` marks
+  // firm-authored tree text, and this is neither authored by a firm nor stored
+  // in the tree. See DECISION_CONTEXT_FORMATTERS.
+  const decisionContext = DECISION_CONTEXT_FORMATTERS[node.id]
+  let hasDecisionContext = false
+  if (decisionContext) {
+    const block = decisionContext()
+    if (block) {
+      lines.push('', block)
+      hasDecisionContext = true
+    }
+  }
+
+  // `advisor_note` is the branch author's ruling on the choice above, and it sat
+  // unread here for as long as `recommendation` did — authored, stored, and
+  // emitted nowhere. Mike's, on 2026-08-16: send it.
+  //
+  // UNGATED, DELIBERATELY, and this is the one field that is. Run through
+  // `withholdUnavailableNames` the live note survives as "This determines the
+  // delivery method." and nothing else — the gate reads "use Trial Fit" and "use
+  // Cautious Reveal" as tools it cannot find, when they are delivery approaches
+  // and not documents an advisor could fail to open. Gating it would have looked
+  // like a fix while deleting the instruction. The gate is unchanged for every
+  // other field; `recommendationGate.test.js` pins this note as the only one in
+  // the data, so a second one cannot arrive ungated without the build stopping.
+  //
+  // Fenced when the tree is firm-authored, exactly like every other node field.
+  if (node.advisor_note) {
+    // Blank line only when the block precedes it, matching the approved artefact
+    // — the ruling reads as the close of that block, not as another bullet. On an
+    // ordinary branch the note is just the next line.
+    if (hasDecisionContext) { lines.push('') }
+    lines.push(`Advisor note: ${fx(node.advisor_note)}`)
+  }
+
   return lines.join('\n')
 }
 
@@ -698,6 +734,72 @@ function formatCautiousRevealReferenceForPrompt () {
   }
 
   return lines.join('\n')
+}
+
+/**
+ * The short-form context for the Cautious Reveal vs Trial Fit choice.
+ *
+ * WHY THIS EXISTS. The `pf_awareness` branch asks the engine to pick a delivery
+ * method, and until now gave it a question and two labels to pick from — no
+ * reason, and no signal to read the client by. The reasoning was authored all
+ * along, in the two method reference files, but it never loaded here:
+ * `buildLearnReferenceText` returns null for the Profitability tree because
+ * those references attach to their own learn-mode coaching trees, and a
+ * profitability conversation routes to `profitability_feasibility`. The two
+ * destination branches do carry some of it, but only after the choice is made
+ * and only on the road already taken — the model never saw both sides while it
+ * was choosing.
+ *
+ * Approved as design/PF-AWARENESS-DECISION-BLOCK.md, which lists every line
+ * against the file and key it is read from.
+ *
+ * ⚠ READ, NEVER COPIED. Every sentence is pulled from the reference file that
+ * owns it, so editing that file changes what the model is shown and the two
+ * cannot drift. This is the failure that produced items 2.6 and 4.16 — content
+ * authored in one place and quietly not used in another — so it is not repeated
+ * here by transcribing the sentences into code.
+ *
+ * ⚠ THE SHORT FORM ONLY. The full guides are ~19,000 characters each and stay
+ * attached to their own trees. This block is ~1,900 and is emitted on one branch.
+ *
+ * @returns {string} the block, or '' if either reference file cannot be read
+ */
+function formatDeliveryMethodChoiceForPrompt () {
+  const tf = loadReferenceFile('trial-fit-reference.json')
+  const cr = loadReferenceFile('cautious-reveal-reference.json')
+  if (!tf || !cr || !tf.when_to_use || !cr.when_to_use || !cr.key_concepts) { return '' }
+
+  const lines = [
+    'Choosing the delivery method — why this choice matters',
+    '',
+    `Map shock: ${cr.key_concepts.map_shock}`,
+    '',
+    'Signs the client is AWARE / motivated (points to Trial Fit):'
+  ]
+  for (const indicator of (tf.when_to_use.indicators || [])) {
+    lines.push(`  • ${indicator}`)
+  }
+  if (tf.when_to_use.caution) { lines.push(`  Caution: ${tf.when_to_use.caution}`) }
+
+  lines.push('')
+  lines.push('Signs the client is UNAWARE / resistant (points to Cautious Reveal):')
+  lines.push(`  • ${cr.when_to_use.client_profile}`)
+  for (const scenario of (cr.when_to_use.typical_scenarios || [])) {
+    lines.push(`  • ${scenario}`)
+  }
+  if (cr.when_to_use.contrast_with_trial_fit) {
+    lines.push(`  Contrast: ${cr.when_to_use.contrast_with_trial_fit}`)
+  }
+
+  return lines.join('\n')
+}
+
+// Nodes that make a choice the model cannot make well from the branch labels
+// alone, mapped to the context it needs while making it. Keyed by node id and
+// deliberately tiny: every entry grows a live prompt, so one is added only with
+// an approved artefact behind it.
+const DECISION_CONTEXT_FORMATTERS = {
+  pf_awareness: formatDeliveryMethodChoiceForPrompt
 }
 
 function formatSeminarsReferenceForPrompt () {
@@ -1519,4 +1621,4 @@ function walkLogicTree (state, treeId, firmTrees) {
   return [...templates]
 }
 
-module.exports = { isTemplateName, splitByAvailability, withholdUnavailableNames, formatNodeForPrompt, loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, explainDetection, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
+module.exports = { isTemplateName, splitByAvailability, withholdUnavailableNames, formatDeliveryMethodChoiceForPrompt, formatNodeForPrompt, loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, explainDetection, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }

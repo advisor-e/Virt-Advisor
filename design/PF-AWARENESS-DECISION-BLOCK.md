@@ -174,4 +174,45 @@ only — the guide itself is unchanged either way.
 
 ## Status
 
-☐ **Awaiting Mike's approval.** Nothing has been built. No code has been changed.
+✅ **Approved by Mike 2026-08-16 and BUILT the same day.** He also ruled on the judgement call
+above: **keep the circular line.** It is in the block as written.
+
+Built in [`../server/utils/logicTrees.js`](../server/utils/logicTrees.js)
+(`formatDeliveryMethodChoiceForPrompt`, `DECISION_CONTEXT_FORMATTERS`, and the two additions to
+`formatNodeForPrompt`), pinned by
+[`../tests/unit/deliveryMethodContext.test.js`](../tests/unit/deliveryMethodContext.test.js).
+
+---
+
+## The build, beside the artefact — every difference named
+
+The rendered block matches the text above line for line. Four things about the *wiring* differ
+from, or go beyond, what this page said before it was approved. All four are deliberate.
+
+**1 · `advisor_note` is emitted on ANY branch that carries one — not only this one.** This page
+said the block is emitted on `pf_awareness` alone, and it is. The *note* is wired separately and
+generally, because restricting it to one node id would leave the original defect exactly as it
+was for the next note anybody writes: authored, stored, and silently unread. The block and the
+note are two mechanisms on purpose. Only one node carries a note today, and the guard below keeps
+it that way until someone decides otherwise.
+
+**2 · A guard test that was not in the plan.** `advisor_note` is the only field emitted past the
+availability gate. That is safe for *this* note — "Trial Fit" and "Cautious Reveal" are
+approaches, not documents an adviser could fail to open — but it is not a general licence. A
+second note, written later and naming a real template the catalogue cannot serve, would reach the
+AI ungated and send an adviser after a page that does not open. So the test asserts
+`profitability_feasibility/pf_awareness` is the **only** node in the corpus carrying an
+`advisor_note`. A second one stops the build and gets a decision rather than inheriting this
+one's exemption.
+
+**3 · Position within the branch: after the branch list.** This page did not say where the block
+sits. It is appended after `Branches:`, so the model reads the choice, then the reasoning, then
+the ruling. A blank line separates the ruling from the block, matching the layout above — the
+first render had them touching, and that was corrected rather than left.
+
+**4 · The ceiling test measures 1,835, not 2,044.** The 2,044 figure on this page is the whole
+block *including* the ruling. `formatDeliveryMethodChoiceForPrompt` builds the context without
+it, which measures 1,835. The test's ceiling is 2,200 against that function.
+
+**Unchanged and worth stating:** the availability gate itself, the full 19,000-character guides,
+and every other prompt in the app. Suite **5,442 green / 314 suites**, lint **0 errors**.
