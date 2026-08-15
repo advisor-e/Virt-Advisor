@@ -168,6 +168,20 @@ unknown**.
    would have nothing to check and would switch itself off.
 5. **Strip internal ids and personal detail before anything reaches the AI**, and never trust its
    output as structured data — parse and validate the shape first.
+6. 🔴 **A field the prompt builder does not read is invisible, and nothing fails.** Three instances
+   now: `recommendation` on 55 branches (unread for about a year), `howItHelps` and `deliveryNotes`
+   on the coaching reference (authored, stored, firm-editable, rendered into no prompt at all), and
+   `advisor_note` on `pf_awareness`. Every one looked complete on screen and passed every test,
+   **because every test asked whether the field was SAVED and none asked whether it was USED.** The
+   only method that has ever caught it is **rendering the real prompt and reading it** — never
+   inspecting the store. Write the test that way, or it will pass while the content goes nowhere.
+   A firm or the mentor edits carefully and believes the advice changed; nothing on screen can tell
+   them otherwise.
+7. **A gate built for tool names will eat prose that merely looks like one.** The availability gate
+   reduced `advisor_note` to its first sentence, because it read "use Trial Fit" and "use Cautious
+   Reveal" as templates it could not serve when they are delivery *approaches*. Gating that field
+   would have shipped as a fix while deleting the instruction. Before putting a new field through
+   the gate, **run it through and read what survives.**
 
 ### Known gaps, honestly
 

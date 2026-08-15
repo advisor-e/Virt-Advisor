@@ -67,6 +67,19 @@ purposes; rewriting a step's description does not move where the engine draws th
 **This tab appears at every tier**, and the middle tiers take the firm flavour of it — they have
 a level above them, so decline and reset mean something.
 
+**The education gate is NOT part of this brief, and that is deliberate.** `education-gates-ascent`
+is a design intent stored in [`../../data/advisory-staircase.json`](../../data/advisory-staircase.json),
+so it is easily mistaken for a staircase feature. Its own rule guard forbids that: *"Must never
+couple staircase step → engagement type. Staircase stays ceiling-only; **the education decision
+lives in the acumen lens.**"* Education is what lets a client *ascend* the steps; it is not a step,
+and it never sets the ceiling.
+
+Its status is `"not-wired"` and the substance sits in [`advisory-engine.md`](advisory-engine.md)
+and on the live list as item 2.9. 🔴 **Mike ruled its reach on 2026-08-16 — the gate fires wherever
+poor financial literacy shows up, not only inside a forecasting conversation** — which is why the
+work begins with the literacy signal and not with the wording. **Do not ask him for the on-screen
+words**; that question is answered until the signal is widened.
+
 ---
 
 ## 4. For the coder

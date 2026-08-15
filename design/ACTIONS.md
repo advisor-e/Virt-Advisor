@@ -3023,7 +3023,29 @@ that the warning is not being followed by default.
     `scorePattern` count distinct words; the second changes scoring for all 42 trees at once and would
     need a full before/after.
 
-- <a id="advisor-note-dropped"></a>☐ **🟠 DECISION (MIKE) — A SECOND DROPPED INSTRUCTION, FOUND BY THE
+- <a id="advisor-note-dropped"></a>☑ **CLOSED 2026-08-16 — and the one-line question below was the
+  wrong question.** Mike answered it by asking a better one: *"perhaps AI would benefit from greater
+  context? what are the notes about WHY I said not to spring it on somebody — what to look for?"*
+  - **The answer to the question as filed is NO, do not gate it.** Run through
+    `withholdUnavailableNames` the note survives as *"This determines the delivery method."* and
+    nothing else — the gate reads "use Trial Fit" and "use Cautious Reveal" as tools it cannot serve
+    when they are delivery approaches. **Gating it would have shipped as a fix while deleting the
+    instruction.** It is emitted ungated, and it is the only field that is.
+  - **What was actually built** is four times the filed scope: a 1,835-character context block on
+    that branch — the map shock definition, the four signs of a motivated client, the resistant
+    client's profile, the contrast between the methods — **read at run time from
+    `trial-fit-reference.json` and `cautious-reveal-reference.json`**, then the note. All of it was
+    authored already and none of it loaded there: `buildLearnReferenceText()` returns null for the
+    Profitability tree, and three realistic profitability conversations all route to
+    `profitability_feasibility`.
+  - **Artefact:** [`PF-AWARENESS-DECISION-BLOCK.md`](PF-AWARENESS-DECISION-BLOCK.md), committed
+    before approval, with four build differences named on it. **Guard:** the note is ungated, so
+    `recommendationGate.test.js` now pins `pf_awareness` as the **only** node carrying an
+    `advisor_note` — a second stops the build rather than inheriting the exemption.
+  - ⚠ **Not yet watched in a live conversation.** Proven by rendering the prompt and reading it.
+  - *The original entry, kept because the wrong question is the lesson:*
+
+- **🟠 DECISION (MIKE) — A SECOND DROPPED INSTRUCTION, FOUND BY THE
   GUARD THE DAY IT WAS WRITTEN. Raised 2026-08-12, deliberately not fixed.**
   - One node — `profitability_feasibility` / `pf_awareness` — carries a field called `advisor_note`
     that `formatNodeForPrompt` does not read, so it reaches the AI nowhere: *"This determines the
@@ -6443,7 +6465,7 @@ Two honest answers on different axes — the file used to conflate them:
 - 🔒 **STATE — Vuex installed but unused — RULED: PARKED until the Advisor-e UAT settles, then bundled with the localStorage→MySQL migration.** Virt Advisor is integrated into the master app's UAT (fact recorded 2026-07-16); a broad state refactor under a live UAT would change the ground under the testers for zero feature gain. When data moves server-side, each screen adopts Vuex as its storage moves — no double rework. The standard itself is unchanged (Vuex remains the required mechanism); this ruling is timing only, per the one-directional rule. *Source:* code-gov audit 2026-06-15; ruling 2026-07-16.
 - ☐ **P3 · BUILD — HOW-swap scope — RULED: YES, both places.** The invisible client→learn swap is to fire in Discover mode AND pre-recommendation as well as the client deep-dive. Scenario-lab pass required so the early-session version cannot derail the 14-question intake. *Source:* registry Part 8; ruling 2026-07-16.
 - ✅ **P3 · BUILD — Raw-JSON "Decision Framework" Firm Manager tab — SHIPPED 2026-07-16 (ruled: HIDE, admin/mentor-only).** The tab renders only for `platform_admin` (= the interim mentor role, so the mentor keeps the support tool); the page passes `userRole` into the hub, most-restrictive default (no role → no tab); the raw framework data isn't fetched for users who can't see the tab; dev auto-login runs as admin so it stays locally testable. **Deliberately UI-only:** the `/api/firm-manager/framework*` routes stay manager-level because the friendly Staircase tab's version-history/restore rides them (traced 2026-07-16) — managers hold that write access by design via the friendly screens. ⚠ Residual: the hidden-state (firm-manager view) can't be demonstrated locally (dev login is always admin) — verify in Advisor-e UAT with a real firm-manager login. Suite 1,089 green, lint clean, build green. *Source:* SESSION-2026-06-17-NOTES §5, §7; ruling + build 2026-07-16.
-- ☐ **P2 · BUILD — Education gates on the Advisory Staircase — RULED: advisor-choice prompt (Mike's own design, 2026-07-16).** Not silently wired, not left display-only: on low client literacy (Lens 2), a **pre-recommendation prompt** — modelled on the existing outside-your-range pattern — asks the advisor *"apply education-first, or skip and see what's technically needed"*, with the reasoning shown either way. Fits guide-don't-replace. On-screen wording to be confirmed with Mike before coding; scenario-lab tested; the literacy signal's reliability verified first. *Source:* memory `design-education-gates-ascent`; ruling 2026-07-16.
+- ☐ **P2 · BUILD — Education gates on the Advisory Staircase — RULED: advisor-choice prompt (Mike's own design, 2026-07-16).** Not silently wired, not left display-only: on low client literacy (Lens 2), a **pre-recommendation prompt** — modelled on the existing outside-your-range pattern — asks the advisor *"apply education-first, or skip and see what's technically needed"*, with the reasoning shown either way. Fits guide-don't-replace. Scenario-lab tested. 🔴 **RESCOPED BY MIKE 2026-08-16 — the gate fires WHEREVER poor financial literacy shows up, not only where the app can already see it.** The precondition in this entry — *"the literacy signal's reliability verified first"* — was finally run, and it came back against two of this entry's own assumptions. **(1)** The *"existing outside-your-range pattern"* named above **does not exist**: it was decided 2026-06-04 (`virt-advisor-system-design.md` §13) and never built, so no code carries that text and there is no working screen to model on. **(2)** *"Poor financial literacy"* sits under the **forecasting** domain and nowhere else — all eight primary-issue lists checked — so a client who plainly cannot read their numbers but came about staffing or profitability would not have tripped the gate. ⚠ **"On-screen wording to be confirmed with Mike" is WITHDRAWN as the next step and must not be re-asked** — it was put to him and he moved the scope instead. **Order is now fixed: (1) widen the literacy signal — ours, and NOT by copying the line into eight domain lists, but as a signal read independently of domain; (2) then Mike's wording, because where the gate can fire decides what it should say; (3) then build.** Live entry and full reasoning: [`features/to-do.md`](features/to-do.md) §4 (item 2.9, now `waitingOn: Us`). *Source:* memory `design-education-gates-ascent`; ruling 2026-07-16; rescope 2026-08-16.
 - ✅ **"Context domains override the strategy layer" — RULED: current per-domain handling IS the design.** The old note (whose `CONTEXT_DOMAINS` dead code was removed 2026-06-12) is superseded; no override rule is built. Reopen only if a live session shows a context-led conversation mishandled. Closed, no code change. *Source:* lint cleanup trace 2026-06-12; ruling 2026-07-16.
 
 ---
