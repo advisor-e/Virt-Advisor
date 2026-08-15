@@ -83,24 +83,50 @@ advisor path renders branches only.
 
 ---
 
-## 4. Who can edit it
+## 4. Who can edit it — 🔴 MENTOR ONLY
 
-Stated in this change, as P10 requires.
+### Where it lives on screen
 
-| Tier | Can edit | Why |
+**A section inside the existing Domain Support tab — not another page and not another tab.** It
+renders in the same panel as the materials table, above it, when a domain is selected from the rail.
+Nothing else on the tab moves.
+
+### The tier ruling
+
+> **Mike, 2026-08-16:** *"this looks too technical for a firm or global manager — this looks mentor
+> level only."*
+
+| Tier | Sees the section | Why |
 |---|---|---|
-| Mentor | **Yes — owns it** | Platform advisory content. The mentor authors it; everyone below inherits. |
-| Global group manager | Yes | A brand may route its firms differently. Same screen, re-scoped. |
-| Group manager | Yes | A country may route differently again. |
-| Firm manager | Yes | A firm may know its own client base better than the tier above. |
+| Mentor | **Yes — authors it** | Platform advisory content, and the only tier expected to reason about routing logic. |
+| Global group manager | No | Ruled too technical for this tier. |
+| Group manager | No | Ruled too technical for this tier. |
+| Firm manager | No | Ruled too technical for this tier. |
 | Advisor · business entity | No | Neither authors configuration — the advisor is a pass-through, the entity a recipient (`tier-cascade.md` §3). |
 
-**Mechanism: row-level inheritance** (`resolveInheritedRows`), the same one the Advisory Staircase
-and the coaching reference use — switch a row off, edit it, reset it, or add your own. An untouched
-row keeps receiving the tier above's improvements automatically (`tier-cascade.md` P3).
+*(Superseded 2026-08-16, before any code was written. This table first proposed all four managing
+tiers editing the block, with row-level inheritance beneath the mentor. Mike ruled it mentor-only on
+sight of the mockup. Recorded rather than quietly overwritten, because the first version is what P10
+produced by default and the correction is the useful part: **a hub page is the rule; every tier
+getting it is not.**)*
 
-**Own-row id prefixes stay distinct per tier** — mentor `md-`, global `xd-`, group `gd-`, firm
-`fd-` — or one level switching off "its own" row silently drops another's (`tier-cascade.md` §3).
+**Nothing is being taken away from anyone.** The section does not exist today, so no tier loses a
+control it currently has.
+
+### What that means in the code
+
+- **The gate is named positively — `['mentor']` — never `scope !== 'mentor'`.** A negative gate
+  answers *yes* for a tier that does not exist yet, and would switch this section on by itself the
+  day a new scope appears (`tier-cascade.md` P5; the trap that had already bitten three tabs).
+- **`FirmDomainSupport.vue` does not currently know its tier** — it takes only `apiToken`. It gains
+  a `scope` prop, passed from `FirmManagerHub.vue` exactly as the hub already passes scope elsewhere.
+- **No inheritance machinery is needed for this phase.** With one authoring tier there is nothing to
+  cascade, so `resolveInheritedRows`, the per-tier id prefixes and the fencing of lower-tier text are
+  all **not built** — and this is recorded so a later session does not read their absence as an
+  oversight. If the ruling is ever widened, that is the work it implies.
+
+**Fencing still applies the day a second tier authors here**, and not before: platform content is
+repo data and is not fenced, exactly as the platform overview and materials are not.
 
 ---
 

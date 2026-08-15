@@ -322,7 +322,7 @@
 <div class="wrap">
 
   <header>
-    <p class="eyebrow">Firm Manager Hub · Domain Support tab</p>
+    <p class="eyebrow">Mentor Hub · Domain Support tab · mentor tier only</p>
     <h1>Diagnostic Entry — the section that was never built</h1>
     <p class="lede">
       Every domain carries an entry question and a set of “if the client presents like this, start
@@ -494,33 +494,46 @@ about the gap between documented governance and how it is practised in reality?
       named here rather than slipped in.</strong></p>
   </div>
 
-  <h2><span class="num">3.</span> Who can edit it</h2>
-  <p class="sub">Stated in this change, as P10 requires — not left to be inferred.</p>
+  <h2><span class="num">3.</span> Where it lives, and who sees it</h2>
+  <p class="sub">
+    <strong>A section inside the existing Domain Support tab — not another page, and not another
+    tab.</strong> It renders in the same panel as the materials table, directly above it, when a
+    domain is picked from the rail. Nothing else on the tab moves.
+  </p>
+
+  <div class="note" style="border-left-color:var(--firm);">
+    <p><strong>Ruled by Mike, 2026-08-16, on seeing this mockup:</strong> <em>“this looks too
+      technical for a firm or global manager — this looks mentor level only.”</em></p>
+    <p>The table below is <strong>revised to match</strong>. It first proposed all four managing
+      tiers editing the block with row-level inheritance beneath the mentor — the default P10
+      produces. The correction is the useful part: <strong>a hub page is the rule; every tier getting
+      it is not.</strong></p>
+  </div>
 
   <table class="tiers">
     <thead>
-      <tr><th scope="col">Tier</th><th scope="col">Can edit</th><th scope="col">Why</th></tr>
+      <tr><th scope="col">Tier</th><th scope="col">Sees it</th><th scope="col">Why</th></tr>
     </thead>
     <tbody>
       <tr>
         <td>Mentor</td>
-        <td>Yes — owns it</td>
-        <td>This is platform advisory content. The mentor authors it and everyone below inherits.</td>
+        <td>Yes — authors it</td>
+        <td>Platform advisory content, and the only tier expected to reason about routing logic.</td>
       </tr>
       <tr>
         <td>Global group manager</td>
-        <td>Yes</td>
-        <td>A brand may route its firms differently. Same screen, re-scoped.</td>
+        <td>No</td>
+        <td>Ruled too technical for this tier.</td>
       </tr>
       <tr>
         <td>Group manager</td>
-        <td>Yes</td>
-        <td>A country may route differently again — regulation and market differ.</td>
+        <td>No</td>
+        <td>Ruled too technical for this tier.</td>
       </tr>
       <tr>
         <td>Firm manager</td>
-        <td>Yes</td>
-        <td>A firm may know its own client base better than the tier above.</td>
+        <td>No</td>
+        <td>Ruled too technical for this tier.</td>
       </tr>
       <tr>
         <td>Advisor · business entity</td>
@@ -532,14 +545,17 @@ about the gap between documented governance and how it is practised in reality?
   </table>
 
   <div class="note">
-    <p><strong>Mechanism: row-level inheritance, not a wholesale copy.</strong> Each starting point is
-      a decision a level can switch off, edit, reset, or add its own — the same
-      <code>resolveInheritedRows</code> mechanism the Advisory Staircase and the coaching reference
-      already use. An untouched row keeps receiving the tier above’s improvements automatically
-      (<code>tier-cascade.md</code> P3).</p>
-    <p><strong>Anything a level below the mentor writes is fenced before it reaches the model</strong>,
-      exactly as the overview and materials already are — firm-authored text is data, never
-      instructions.</p>
+    <p><strong>Nothing is taken away from anyone.</strong> The section does not exist today, so no
+      tier loses a control it currently has.</p>
+    <p><strong>The gate is named positively — <code>['mentor']</code>, never
+      <code>scope !== 'mentor'</code>.</strong> A negative gate answers <em>yes</em> for a tier that
+      does not exist yet, and would switch this section on by itself the day a new scope appears
+      (<code>tier-cascade.md</code> P5 — the trap that had already bitten three tabs).</p>
+    <p><strong>With one authoring tier there is nothing to cascade</strong>, so row-level
+      inheritance, per-tier id prefixes and the fencing of lower-tier text are <strong>not
+      built</strong> — recorded here so a later session does not read their absence as an oversight.
+      Platform content is repo data and is not fenced, exactly as the platform overview and materials
+      are not.</p>
   </div>
 
   <h2><span class="num">4.</span> The 65 branches, by domain</h2>
