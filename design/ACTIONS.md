@@ -21,6 +21,72 @@
 >
 > ---
 >
+> ## 🔴 SESSION 62 — 2026-08-16 (laptop). Five commits. NO APPLICATION CODE.
+>
+> **A rule, a completed sweep, and two approved artefacts. Nothing was built.**
+>
+> **NEW BINDING RULE — every AI fix surfaces on a hub page, mentor first.** Mike's words:
+> *"ALL AI fixes must use hub pages where possible, starting with the mentor and cascading down as
+> appropriate."* Written into [`../CLAUDE.md`](../CLAUDE.md) as its own section **and**
+> [`features/tier-cascade.md`](features/tier-cascade.md) as **P10** — not into a session note, which
+> is where rules go to die. Content that shapes AI output never lives only in `data/*.json` and is
+> never hardcoded in a prompt builder.
+>
+> **✅ 4.16's SWEEP IS COMPLETE, and it found 102 — not the handful expected.** Every one proved by
+> rendering the real prompt and searching it, never by inspecting the store:
+>
+> | Block | Unreachable | What |
+> |---|---|---|
+> | Domain support | **71** | 65 `diagnostic_entry` branches across 19 domains, 6 `if_then_logic` rules |
+> | Logic trees | **15** | 13 `stage_entry_question`, 2 `flat_branches` |
+> | Engagement types | **15** | 5 fields × 3 types, behind a hardcoded paraphrase |
+> | Advisory Staircase | **1** | `selectorPrompt`, duplicated as a hardcoded string in the engine |
+>
+> 🔴 **THE SECOND HALF NOBODY PREDICTED, and it is why the rule exists: no screen renders any of
+> them either.** The Domain Support tab edits the materials table only; the Logic Tables tab edits
+> the branch rows only. Invisible in **both** directions — no test, no tab and no person could find
+> it. **And the trap is sharper than "this block has no page":** both tabs are ungated in
+> `TAB_TIERS`, so every tier from the mentor down has had them all along. **The pages were there;
+> the fields were never put on them.** The question that catches this is not *"does this block have
+> a screen?"* but *"does THIS FIELD have one?"*
+>
+> **The guard built the day before did not catch any of it** — `recommendationGate.test.js` walks
+> `tree.nodes` only, and every miss is either a tree-level field or in another file entirely. The
+> control was real; its reach was one level too narrow.
+>
+> **PHASE 1 ARTEFACTS APPROVED AND COMMITTED** (before approval, per Save the Artefact):
+> [`DIAGNOSTIC-ENTRY-BLOCK.md`](DIAGNOSTIC-ENTRY-BLOCK.md) ·
+> [`mockups/domain-support-diagnostic-entry.html`](mockups/domain-support-diagnostic-entry.html).
+> Mike's rulings, all 2026-08-16 — wording approved as proposed; **mentor tier only** (*"too
+> technical for a firm or global manager"*); a **section inside the existing Domain Support tab**,
+> not a new page; and **ship it filled**, *"with as many sections as possible"*, which makes
+> authoring the 10 empty domains the first and larger half of the phase.
+>
+> ⚠ **The mentor-only ruling corrected the artefact's own first draft**, which proposed all four
+> managing tiers with row-level inheritance — the default P10 produces. Recorded as superseded
+> rather than overwritten, because that is the reusable lesson: **a hub page is the rule; every tier
+> getting it is not.**
+>
+> 🔴 **BLOCKED ON MIKE — the first thing to settle next session: who drafts the ten empty domains.**
+> He authors them · we draft from each domain's own `overview` and `materials` for his approval · or
+> a mix. **No drafting starts before he answers.**
+>
+> **NEW ITEM 4.17, found by Mike himself on the Mentor Hub** — a screen can show 1 row when 67
+> exist and say nothing. A local git-ignored dev file is deliberately preferred over the committed
+> seed when there is no database, and one stale test row shadowed all 67 platform advisory
+> distinctions. **The local symptom is a one-line deletion Mike was given** (the AI's own safety
+> guard refused it); **the item is the underlying fault** — a screen served from a dev fallback must
+> say so — **and the same pattern applies to every dev-JSON fallback in the app.**
+>
+> **Corrections made in-session, recorded because each was reported wrong first:** the Mentor Hub
+> *does* drive these tabs (it renders the same hub component at `scope="mentor"`); the count is 102,
+> not the 86 first reported (86 covered domain support and the logic trees only); and the 65
+> branches span 19 domains, not 20 — the 20th carries 6 more under a different key.
+>
+> Full write-up: [`SESSION-2026-08-16-B-NOTES.md`](SESSION-2026-08-16-B-NOTES.md).
+>
+> ---
+>
 > ## 🔴 SESSION 58 — 2026-08-15 (laptop). Seven commits, all pushed.
 >
 > **CLOSED, with what proved each:**

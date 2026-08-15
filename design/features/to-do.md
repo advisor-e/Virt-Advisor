@@ -40,9 +40,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 3 | **4.7** Flip engine-strict back on | 5 | — | Us |
 | 4 | **3.5** Reply to Carl about npm install | 5 | — | Us |
 | 5 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
-| 6 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | Us |
+| 6 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | **Mike** |
+| 7 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
 
-**Six live items. None need Mike.** If this list passes about twenty, something is wrong.
+**Seven live items. One needs Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **One item came off this list on 2026-08-16** — see
@@ -208,11 +209,12 @@ before the second starts:
 
 - **Technical / feature:** 4.12 (the master team's documents are wrong), 2.9 (the education gate is
   not coded at all — it needs Mike's words, but what is missing is a *feature*), 4.7 (the Node lock
-  is not enforced), 4.16 (content nobody can be sure the AI is shown).
-  ⚠ **4.16 is the sweep, and 2.6 was its first known instance** — one field that reached the AI
-  nowhere, closed 2026-08-16. **4.16 is the search for the ones nobody has looked for**, and closing
-  2.6 raised its expected yield rather than lowering it: the fix had to grow four-fold once anyone
-  actually read the rendered prompt.
+  is not enforced), 4.16 (content the AI is never shown), 4.17 (a screen showing 1 row of 67).
+  ✅ **4.16's sweep is finished — 2026-08-16 — and 2.6 was its first known instance.** It found
+  **102** pieces of authored content reaching no prompt, and a second half nobody had predicted:
+  **no screen renders them either.** Closing 2.6 raised the expected yield rather than lowering it,
+  exactly as this line warned it might. What is left of 4.16 is the fixing, in three phases, and
+  Phase 1 waits on Mike — see §6.
 - **Fine tuning:** 4.15 — twenty-one branches naming pages that exist under other names. **Ranked
   last for exactly this reason**, and it scores 4, so the disagreement is on the page as §2 requires.
 - **Neither:** 3.5 is one message to a person who is waiting.
@@ -298,21 +300,69 @@ question he has already answered.
 - **Touches:** the Collaborate handover documents, the UAT load pack.
 
 **4.16 · Check every block's authored fields actually reach the prompt.** **SCORE 4 · the user is
-worse off**
-- **Why:** closing 4.9 found two fields — `howItHelps` and `deliveryNotes` — that were authored,
-  stored and firm-editable and reached **no prompt at all**, so editing them changed nothing about
-  the advice. It is the second instance: 55 logic-tree branches keep their instruction under a key
-  `formatNodeForPrompt` never reads. Twice is a pattern.
-- **Risk:** a firm or the mentor carefully edits content the AI is never shown, and believes the
-  advice changed. **Nothing on screen and no test can tell them otherwise** — every test asks
-  whether a field was SAVED, and none asks whether it was USED.
-- **Asked by:** ⚠ **ours** — found on 2026-08-15 while closing 4.9, and shown to Mike with the
-  rendered prompt as proof. He ruled the two coaching fields must reach the AI; this is the same
-  check across the blocks nobody has run it on.
-- **Touches:** domain support, the logic trees, the Advisory Staircase — each block's data file
-  compared against the prompt builder that renders it.
-- ⚠ **Do it by rendering the real prompt and reading it, not by inspecting the store.** That is the
-  only method that found it either time.
+worse off** · 🔴 **WAITING ON MIKE**
+
+### ✅ The sweep is DONE — 2026-08-16. It found 102.
+
+| Block | Unreachable | What it is |
+| --- | --- | --- |
+| Domain support | **71** | 65 `diagnostic_entry` routing branches across 19 domains, 6 `if_then_logic` rules |
+| Logic trees | **15** | 13 `stage_entry_question`, 2 `flat_branches` |
+| Engagement types | **15** | 5 authored fields × 3 types, behind a hardcoded paraphrase |
+| Advisory Staircase | **1** | `selectorPrompt`, duplicated as a hardcoded string in the engine |
+
+Every one proved by **rendering the real prompt and searching it** — the method this item
+prescribes, and the only one that has ever worked here.
+
+🔴 **The risk was worse than filed.** It read *"a firm or the mentor carefully edits content the AI
+is never shown"*. **Nobody can edit any of these — no screen renders one of them.** The Domain
+Support tab edits the materials table only; the Logic Tables tab edits the branch rows only. The
+content is invisible in **both** directions, which is why no test, no tab and no person had found
+it. That finding is what produced the hub-page rule in `CLAUDE.md` and
+[`tier-cascade.md`](tier-cascade.md) P10.
+
+### The three phases
+
+**Phase 1 · domain support, 71 items.** Artefacts approved and committed —
+[`../DIAGNOSTIC-ENTRY-BLOCK.md`](../DIAGNOSTIC-ENTRY-BLOCK.md) and
+[`../mockups/domain-support-diagnostic-entry.html`](../mockups/domain-support-diagnostic-entry.html).
+Mike's rulings, all 2026-08-16: wording approved as proposed; **mentor tier only** (*"too technical
+for a firm or global manager"*); a **section inside the existing Domain Support tab**, not a new
+page; and **ship it filled** — *"with as many sections as possible"*.
+
+⚠ **"Ship it filled" reorders the phase.** Authoring the **10 empty domains** — `eoy`, `profit`,
+`staff` first, then the 7 Get-the-Job ones — is now the **first and larger half**, and it ships with
+the wiring. The section never goes live half-filled. Any domain still empty at ship time is named to
+him, never quietly dropped.
+
+🔴 **BLOCKED ON MIKE, and it is the first thing to settle next session: who drafts the ten.** He
+authors them · we draft from each domain's own `overview` and `materials` for his approval · or a
+mix. **No drafting starts before he answers** — authoring advisory routing text unasked is the same
+fault as inventing wording, at ten times the scale. If we draft, each one is a committed artefact
+*before* he approves it; ten domains must not become a rubber stamp.
+
+**Phase 2 · the logic trees, 15 items.** **Phase 3 · engagement types and the staircase, 16 items** —
+neither has a hub tab today, so both need a home decided first.
+
+**Still open and deliberately excluded from Phase 1:** `get-team-problem`'s 6 rules sit under
+`if_then_logic` and carry three parts, not two. Same fault, different shape — excluded rather than
+bent to fit.
+
+**4.17 · A screen can show one row when 67 exist, and say nothing.** **SCORE 2 · robustness**
+- **Why:** the mentor's Advisory Distinctions tab showed **1** distinction when the shipped set is
+  **67**. A local, git-ignored dev file (`data/dev-platform-distinctions.json`) is deliberately
+  preferred over the committed seed when there is no database, and one stale test row in it shadowed
+  all 67 — **with nothing on screen saying so.**
+- **Risk:** anyone developing, demoing or reviewing reads what is on screen as the real platform
+  set. It cost most of a session to diagnose, and **the same pattern applies to every dev-JSON
+  fallback in the app**, not just this one.
+- **Asked by:** **Mike** — he spotted it himself on the Mentor Hub, 2026-08-16.
+- **Touches:** `server/utils/platformDistinctions.js` and every other dev-JSON fallback
+  (`firmDistinctions`, quizzes, coaching, currency); the Mentor Hub Advisory Distinctions tab.
+- ⚠ **The local symptom is fixed by deleting that file** — Mike was given the command on 2026-08-16
+  because the AI's own safety guard refused the deletion. **The item is the underlying fault:** a
+  screen served from a dev fallback must *say* it is. Verify by loading the tab with and without the
+  file, never by reading the loader.
 
 **4.7 · Flip `engine-strict` back on.** **SCORE 2 · robustness**
 - **Why:** still `false`. Two transitive packages (`consola`, `node-releases`) over-declare their

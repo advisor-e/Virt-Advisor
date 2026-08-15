@@ -132,16 +132,34 @@
       "scoreReason": "the user is worse off without it",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
-      "why": "Closing 4.9 found two fields that were authored, stored and firm-editable and reached no prompt at all — so editing them changed nothing about the advice. It is the second instance: 55 logic-tree branches keep their instruction under a key formatNodeForPrompt never reads.",
-      "risk": "A firm or the mentor carefully edits content that the AI is never shown, and believes the advice changed. Nothing on screen and no test can tell them otherwise — every test asks whether a field was SAVED, none asks whether it was USED.",
+      "waitingOn": "Mike",
+      "why": "THE SWEEP IS DONE (2026-08-16) and it found 102 pieces of authored advisory content reaching no prompt at all: 71 in domain support (65 diagnostic_entry routing branches across 19 domains, 6 if_then_logic rules), 15 in the logic trees (13 stage_entry_question, 2 flat_branches), 15 engagement-type fields behind a hardcoded paraphrase, and the staircase selectorPrompt. What remains is the fixing, in three phases.",
+      "risk": "Worse than first filed. NO SCREEN RENDERS ANY OF THEM EITHER — the Domain Support tab edits the materials table only, the Logic Tables tab the branch rows only. This content is invisible in both directions, so no test, no tab and no person can find it. Every test asks whether a field was SAVED; none asks whether it was USED.",
       "askedBy": {
         "who": "us",
         "ours": true,
-        "detail": "Found while closing 4.9 on 2026-08-15, and shown to Mike with the rendered prompt as proof. He ruled the two coaching fields must reach the AI; this item is the same check run across the blocks nobody has checked."
+        "detail": "Found while closing 4.9 on 2026-08-15, and shown to Mike with the rendered prompt as proof. He ruled the two coaching fields must reach the AI; this item is the same check run across the blocks nobody has checked. Phase 1's scope and rulings are all his, 2026-08-16."
       },
-      "touches": "domain support, the logic trees, the advisory staircase — each block's data file compared against the prompt builder that renders it.",
-      "note": "Do it by rendering the real prompt and reading it, not by inspecting the store. That is the only method that found it the first two times."
+      "touches": "domain support, the logic trees, the engagement types, the Advisory Staircase — each block's data file compared against the prompt builder that renders it; plus the Mentor Hub's Domain Support and Logic Tables tabs, which is where the fix must surface.",
+      "note": "PHASE 1 — domain support, 71 items. Artefacts approved and committed: design/DIAGNOSTIC-ENTRY-BLOCK.md and design/mockups/domain-support-diagnostic-entry.html. Wording approved; MENTOR TIER ONLY (Mike, 2026-08-16 — 'too technical for a firm or global manager'); a SECTION inside the existing Domain Support tab, not a new page. He also ruled SHIP IT FILLED — 'with as many sections as possible' — so authoring the 10 empty domains (eoy, profit, staff first; then the 7 Get-the-Job) is now the FIRST and larger half of the job, and it ships with the wiring, never half-filled. 🔴 BLOCKED ON MIKE, AND IT IS THE FIRST THING TO SETTLE: who drafts the ten — he authors them, we draft from each domain's own overview and materials for his approval, or a mix. No drafting starts before he answers; authoring advisory routing text unasked is the same fault as inventing wording, at ten times the scale. PHASE 2 — the logic trees, 15 items. PHASE 3 — engagement types and the staircase, 16 items; neither has a hub tab today so both need a home decided. EXCLUDED FROM PHASE 1 and still open: get-team-problem's 6 rules live under if_then_logic and carry three parts, not two. METHOD, unchanged and proven three times: render the real prompt and read it, never inspect the store."
+    },
+    {
+      "ref": "4.17",
+      "name": "A screen can show one row when 67 exist, and say nothing",
+      "score": 2,
+      "scoreReason": "robustness — it fails better",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The mentor's Advisory Distinctions tab showed 1 distinction when the shipped set is 67. A local, git-ignored dev file (data/dev-platform-distinctions.json) is deliberately preferred over the committed seed when there is no database, and one stale test row in it shadowed all 67 — with nothing on screen saying so.",
+      "risk": "Anyone developing, demoing or reviewing reads what is on screen as the real platform set. It cost most of a session to diagnose, and the same pattern applies to every dev-JSON fallback in the app, not just this one.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "He spotted it himself on the Mentor Hub, 2026-08-16 — 'the advisory distinctions ... no longer appear to be linked and working at mentor level'. Diagnosed the same session."
+      },
+      "touches": "server/utils/platformDistinctions.js and every other dev-JSON fallback (firmDistinctions, quizzes, coaching, currency); the Mentor Hub Advisory Distinctions tab.",
+      "note": "THE LOCAL SYMPTOM IS FIXED BY DELETING THE FILE — Mike was given the command on 2026-08-16 because the AI's own safety guard refused the deletion. THE ITEM IS THE UNDERLYING FAULT, not that file: a screen served from a dev fallback must SAY it is, e.g. 'showing local dev data — 67 shipped rows are being shadowed'. Same family as 4.16 and the same lesson: the content was there, the screen was there, and nothing connected the two or admitted the gap. Verify the fix by loading the tab with and without the local file, not by reading the loader."
     }
   ]
 }
