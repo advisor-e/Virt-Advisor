@@ -19,6 +19,55 @@
 >
 > **Last swept:** 2026-08-03 — see the verified sweep immediately below.
 >
+> ---
+>
+> ## 🔴 SESSION 58 — 2026-08-15 (laptop). Seven commits, all pushed.
+>
+> **CLOSED, with what proved each:**
+>
+> - **4.14 · the ranking control** — all three phases, then a fourth rebuild on Mike's own rule.
+>   The To-Do page now renders [`features/to-do-items.json`](features/to-do-items.json) as a working
+>   screen; `npm run to-do` generates the ranked table from it and brings a saved list home.
+>   Closed by Mike **from the control it built**.
+> - **4.4 · a Handbook edit survives a reload** — proved by Mike in a browser, the one thing no
+>   session on this machine can do for him.
+> - **2.3 · Seminar's seven lines** — carried since session 48, closed by five words:
+>   **"Design & Deliver"**. Corpus moved **27 whole / 14 partial / 14 withheld → 34 / 8 / 13.**
+>   Seven instructions started reaching advisers.
+> - **2.1 · announce v0.8.0 — PARKED**, not done: *"we will need to issue a new release."*
+>   🔴 **Nothing on the live list covers cutting the newer release.** Deliberate; Mike's to close.
+>
+> **NEW · 4.15 — 21 branches still name a page nobody can open.** Filed on Mike's instruction and
+> **ranked last** under his ordering rule below. `fmc_`, `cas_`, `fbp_`, `ol_`. The pattern is cheap
+> once a name is known; each needs the **real** page name, which is Mike's to give.
+>
+> **NEW RULES, all written into the Briefs the same session (not left here):**
+>
+> - 🔴 **"Nothing leaves my sight in terms of order etc until I click save."** —
+>   [`features/handbook.md`](features/handbook.md) rule 7. Mutation-verified.
+> - 🔴 **Never make him choose between two states he cannot compare** — rule 8. Merge and report.
+> - 🔴 **Technical and feature work first, so the master team can start UAT; fine tuning after** —
+>   [`features/to-do.md`](features/to-do.md) §3, with today's list classified in the open.
+> - ⚠ **A wording item is not automatically fine tuning.** 2.3 was carried as a wording tidy-up for
+>   four sessions and was a table of coaching advisers were not receiving. Ask what breaks.
+>
+> **⚠ FINDINGS RECORDED, NOT ACTED ON:**
+>
+> - **Four items carry a score of 5 whose stated category is false.** Mike scored 4.12, 4.9, 4.7 and
+>   3.5 as 5 meaning *do this now*; §2 defines 5 as *security, privacy or data integrity*, and the
+>   data file writes that phrase automatically from the score. *"Reply to Carl about npm install"*
+>   is therefore labelled a data-integrity item in the repo. **His scores were not adjusted** — the
+>   mismatch is on the page instead. Decoupling the label from the score was offered and is open.
+> - **22 of the 26 Handbook Briefs have still never been checked against the code** (carried from
+>   session 57). The sample checked is now three, and all three were wrong.
+> - **The two broken Brief links** — `tier-cascade.md` → `collaborate.md`, and
+>   `to-do-done-and-parked.md` → `STATUS.md` — are still unfixed.
+>
+> **Every fault that mattered today was found by Mike using the screen, not by the 41 tests guarding
+> it:** a UTC date stamp a day out (he is UTC+12), a row that moved out from under him mid-decision,
+> and a two-button choice he called *"very poor design"*. Full account in
+> [`features/handbook-history.md`](features/handbook-history.md).
+>
 > 🔴 **2026-08-13 — THIS FILE IS NO LONGER THE TRIAGE LIST. READ
 > [`features/to-do.md`](features/to-do.md) FIRST.** This file stays the full record — nothing is
 > deleted from it — but it is 6,000+ lines and reads as ~70 open tasks when the real live list is

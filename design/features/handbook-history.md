@@ -77,4 +77,70 @@ Identical in the original. Pinned as a ⚠ CURRENT BEHAVIOUR test rather than qu
 
 ---
 
+## 2026-08-15 — the To-Do page becomes a control, and Mike breaks it three times in an afternoon
+
+The list stopped being a table you read and became a screen you use. It took three rebuilds in one
+day, and **every fault that mattered was found by a person using it, not by the forty-one tests
+guarding it.** That is the whole lesson of this entry.
+
+### What it is
+
+The Handbook's To-Do page renders [`to-do-items.json`](to-do-items.json) as a working control —
+score, **Proceed / Done / Park / Delete**, a comment on every row — in place of §1's ranked table.
+The generator refuses to ship both: two copies of Mike's own ranking with nothing on screen saying
+which is stale is precisely what the item existed to end. **Save** writes the list back as data,
+and `npm run to-do -- <file>` applies it.
+
+Built in the three phases Mike asked for so it could not be lost again, all in one day:
+the items as data with a guard on the five fields; the control; the round trip home.
+
+### Fault one — a UTC date, found in the first minute
+
+His very first save came back stamped `2026-08-14`. He saved it at 11:36 on the 15th. `today()` was
+built from `toISOString()`, which is UTC, and **he is twelve hours ahead of it** — so every save he
+made before midday recorded yesterday. On a project where half the arguments are settled by which
+day a thing was decided, that is not cosmetic.
+
+Thirteen tests over the control, a syntax check and a full build all passed. **No test could have
+caught it. It needed a person, in a timezone, pressing a button.**
+
+### Fault two — the row that vanished, and the rule it produced
+
+He marked the release item **Park**. The row sank to the bottom of the table before he could type
+the reason, and he could not find it again.
+
+> *"The handbook is clunky and confusing — I see the chances of a fuck-up occurring… this is very
+> poor design."*
+
+He was right, and **both faults were ours, not the mockup's.**
+
+- **Settled rows sank to the bottom.** Taken faithfully from
+  [`../mockups/to-do-list-table.html`](../mockups/to-do-list-table.html), where every call had
+  already been made before anybody looked at the screen. In use it is exactly backwards: the moment
+  you settle an item is the moment you need to write *why*, and the box has just left the screen.
+  🔴 **An approved artefact is approved for how it looks, not for how its logic behaves against
+  real data.** Check the behaviour too.
+- **A two-button choice — "use the project's list" or "keep mine" — with no way to compare them.**
+  That was ours, never in the mockup. A decision with no information attached to it, where either
+  answer could throw away work.
+
+His rule, now Brief rule 7: **"nothing leaves my sight in terms of order etc until I click save."**
+Nothing moves as a side effect; a sort heading is the only thing that reorders, says so while it
+does, and undoes in one click. The reason for a settled item is asked for **where he decides it**.
+The two-button choice was replaced by a merge that discards nothing and reports what changed.
+
+The guard is mutation-verified: reintroducing the exact `renderAll()` he hit turns the suite red.
+
+### Fault three — the thing the control was for
+
+Its first real use closed three items and produced the day's most useful finding. `npm run to-do`
+**refused to apply anything** — not the order, not the scores — because two items were leaving with
+no closure recorded, and printed the blocks that needed writing. That refusal is the feature.
+
+It also settled item **2.3** in one message after four sessions, by a route that had nothing to do
+with the Handbook: Mike was shown the seven actual sentences instead of being asked about
+*"Seminar's seven lines"* again. 🔴 **The label was the blocker, not the decision.**
+
+---
+
 **Brief:** [`handbook.md`](handbook.md)

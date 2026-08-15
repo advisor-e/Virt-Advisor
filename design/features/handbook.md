@@ -42,14 +42,34 @@ begins as a page in it before any code is written.
    up without a History or without a row in the index, however it got there.
 6. **Rules established in a session are written into the Brief that same session.** A rule left
    in a session note is a rule nobody will find.
+7. 🔴 **Nothing on a Handbook screen may move as a side effect of what Mike does.** His rule,
+   2026-08-15: *"nothing leaves my sight in terms of order etc until I click save."* An action
+   changes only the thing it acted on. Reordering happens because he asked for it, says so on
+   screen while it applies, and undoes in one click. Pinned by
+   [`buildHandbook.test.js`](../../tests/unit/buildHandbook.test.js) and mutation-verified against
+   the bug that produced the rule — see [`handbook-history.md`](handbook-history.md).
+8. 🔴 **Never make him choose between two states he cannot compare.** Where his work and the
+   repository disagree, they are merged — his copy wins, in his order — and the difference is
+   *reported*. Nothing of his is discarded, so there is nothing to ask.
 
 ## 3. Reading and editing it
 
-Mike reads the page and edits directly on it. Edits survive a reload — they are held in the
-browser — and **Save** exports only what changed (which page, what it said, what it now says) as
-a file in Downloads, which is applied to the markdown by hand.
+**There are two Saves, and they do different things.** Both write a real file to Downloads.
 
-**Edits live in one browser on one machine.** Save and send them before switching machines.
+| | The edit bar | The ranking control |
+|---|---|---|
+| **Where** | Bottom right of every page | The top of the To-Do page only |
+| **What it edits** | Any prose — click the text and type | The live to-do list: score, **Your call**, a comment per row |
+| **What Save writes** | `handbook-changes.txt` — which page, what it said, what it now says | `to-do-items.json` — the whole list as data |
+| **How it is applied** | By hand, to the markdown | `npm run to-do -- <file>` |
+
+The ranking control renders in place of §1's ranked table on [`to-do.md`](to-do.md) — the two
+never both appear, and the build stops if they would. What it will not do is let an item leave the
+list quietly: `npm run to-do` applies **nothing at all** until a settled item's closure is written
+on [`to-do-done-and-parked.md`](to-do-done-and-parked.md), and prints the block that needs writing.
+
+Edits survive a reload — they are held in the browser. **They live in one browser on one machine.**
+Save and send them before switching machines.
 
 ## 4. How it opens
 
