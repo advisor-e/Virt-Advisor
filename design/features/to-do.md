@@ -10,8 +10,7 @@
 
 ## 1. The list — blockers first, then score
 
-🔴 **Ordered by Mike himself, 2026-08-15**, from
-[`../mockups/to-do-list-table.html`](../mockups/to-do-list-table.html). **This is his order, not a
+🔴 **Ordered by Mike himself, 2026-08-15, from the Handbook control.** **This is his order, not a
 computed one** — where his call and the score disagree, his call wins and the score stays visible
 so the disagreement is on the page rather than hidden.
 
@@ -36,28 +35,34 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on |
 | --- | --- | --- | --- | --- |
-| 1 | **4.14** Put the ranking control into the Handbook | 1 | — | Us |
-| 2 | 🔒 **2.1** Send the master team the release number | 3 | The whole UAT round | **Mike** |
-| 3 | 🔒 **4.12** One handover story for the master team | 3 | Handover | Us |
-| 4 | **2.6** advisor_note — one line from you | 4 | — | **Mike** |
-| 5 | **2.3** Seminar's seven lines — reword toward Public Speaking | 4 | — | **Mike** |
-| 6 | **2.9** The education-gate wording | 4 | — | **Mike** |
-| 7 | **4.9** Make the coaching reference inherit | 3 | — | Us |
-| 8 | **4.7** Flip engine-strict back on | 2 | — | Us |
-| 9 | **3.5** Reply to Carl about npm install | 1 | — | Us |
+| 1 | 🔒 **4.12** One handover story for the master team | 5 | Handover | Us |
+| 2 | **2.6** advisor_note — one line from you | 4 | — | **Mike** |
+| 3 | **2.3** Seminar's seven lines — reword toward Public Speaking | 4 | — | **Mike** |
+| 4 | **2.9** The education-gate wording | 4 | — | **Mike** |
+| 5 | **4.9** Make the coaching reference inherit | 5 | — | Us |
+| 6 | **4.7** Flip engine-strict back on | 5 | — | Us |
+| 7 | **3.5** Reply to Carl about npm install | 5 | — | Us |
 
-**Nine live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Seven live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
-✅ **4.4 came off this list on 2026-08-15 — closed by Mike, from the control itself.** He marked it
-Done on screen and pressed Save; the file reached Downloads with his call and comment on it. It is
-the first item settled through the control rather than in chat, and it found a date defect on the
-way. See [`to-do-done-and-parked.md`](to-do-done-and-parked.md) §2.
+**Three items came off this list on 2026-08-15, all three settled by Mike from the control itself
+rather than in chat** — see [`to-do-done-and-parked.md`](to-do-done-and-parked.md):
 
-⚠ **4.14 scores 1 and sits first, and that disagreement is deliberate.** No customer will ever see
-the Handbook, so by §2's table it is internal work. Mike asked for it on 2026-08-15 and ranked it
-now. His call beats the score; the score stays visible rather than being inflated to justify the
-position.
+- ✅ **4.4** — a Handbook edit survives a reload. The first item ever settled that way, and it found
+  a date defect in the first minute of use.
+- ✅ **4.14** — the ranking control. All three phases in one day, then rebuilt on his instruction
+  after the first version moved a row out from under him.
+- ⏸ **2.1** — announcing `v0.8.0`. Parked, not done: *"we will need to issue a new release."*
+  🔴 **Nothing on this list now covers cutting that newer release.** That gap is deliberate and it
+  is his to close.
+
+⚠ **Four items were scored 5 by Mike on 2026-08-15 — 4.12, 4.9, 4.7 and 3.5 — and by §2's table a 5
+means security, privacy or data integrity.** Read alongside his comments (*"just get it done"*,
+*"should never have been parked"*) he was plainly using 5 to mean **do this now**, not to name the
+category. **His scores are recorded exactly as he set them and have not been adjusted.** The
+mismatch is written here rather than quietly corrected, because §2 says the disagreement belongs on
+the page.
 
 ### Settled by Mike on 2026-08-15 — off the live list
 
@@ -152,15 +157,6 @@ early production beta stage."*
 
 ## 4. Waiting on Mike
 
-**2.1 · Send the master team the release number.** 🔒 **SCORE 3 · sells the package**
-- **Why:** `v0.8.0` is tagged and pushed and nobody outside has been told it exists. They cannot
-  pull what they do not know about; v0.6.0 was never pulled at all.
-- **Risk:** the release round does not start. Every piece of feedback we need is deferred by
-  however long this sits.
-- **Asked by:** **Mike**, §3 ruling of 2026-08-14.
-- **Touches:** everything already built. Three lines: pull the **tag** `v0.8.0`, **no
-  `npm install` this time**, read [`../UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md) first.
-
 **2.3 · Seminar's seven lines — reword toward Public Speaking.** **SCORE 4 · the user is worse off**
 - **Why:** the gate correctly refuses to name a tool nobody can open, so seven lines of coaching
   never reach an adviser.
@@ -201,84 +197,6 @@ early production beta stage."*
 ---
 
 ## 6. Ours to build
-
-**4.14 · Put the ranking control into the Handbook.** **SCORE 1 · internal only**
-- **Why:** the ranking table Mike used on 2026-08-15 was a standalone drawing with its items typed
-  in by hand, and its Save only put text in a box to copy out. The Handbook already has the round
-  trip it needs — edit, survives a reload, **Save writes a real file to Downloads** — so the control
-  belongs there.
-- **Risk:** the ranking and the notes Mike applies cannot reach the repository except by hand, so
-  his own ordering decays back into prose the moment a session ends. It already has once.
-- **Asked by:** **Mike**, 2026-08-15 — *"the last session developed a ranking system that I could
-  apply and I could add notes. It was never coded into the handbook as we ran out of context."*
-  He also asked for it to be **split across two or three sessions** so it cannot be lost again.
-- **Touches:** [`to-do-items.json`](to-do-items.json),
-  [`../../scripts/build-handbook.js`](../../scripts/build-handbook.js),
-  [`../../scripts/handbook-shell.html`](../../scripts/handbook-shell.html), and the table in §1.
-
-**The three phases, and where we are:**
-
-| Phase | What | State |
-| --- | --- | --- |
-| **1** | The items become data, with a guard test on the five fields | ✅ **Done 2026-08-15** — [`to-do-items.json`](to-do-items.json) + [`toDoItems.test.js`](../../tests/unit/toDoItems.test.js) |
-| **2** | The Handbook's To-Do page renders the ranking control instead of prose | ✅ **Done 2026-08-15** — [`../../scripts/handbook-shell.html`](../../scripts/handbook-shell.html) |
-| **3** | The Save file comes back into the data; this table is generated from it | ✅ **Done 2026-08-15** — [`../../scripts/apply-to-do.js`](../../scripts/apply-to-do.js) + [`applyToDo.test.js`](../../tests/unit/applyToDo.test.js) |
-
-**The approved artefact is [`../mockups/to-do-list-table.html`](../mockups/to-do-list-table.html)** —
-Mike used it to set the current order, so it is approved by use. Phase 2 was measured against it, and
-**every deviation is named below** rather than left to be discovered.
-
-### Phase 2 — every difference from the approved mockup
-
-Approved by Mike on 2026-08-15 before the build. The mockup remains the artefact; this is the
-record of where the shipped control departs from it and why.
-
-| # | The mockup | What shipped | Why |
-| --- | --- | --- | --- |
-| 1 | Fourteen items typed into the script | The live ten, read from [`to-do-items.json`](to-do-items.json) | Six of the mockup's were already wrong — four settled on 2026-08-15, one deleted, and 4.14 did not exist |
-| 2 | Save put a markdown table in a copy-out box | Save writes `to-do-items.json` to Downloads | Mike's ranking returns as data, which is what phase 3 consumes. His explicit call |
-| 3 | Two drop-downs listing deleted and parked work | Removed | The Handbook already shows both behind its **Done & parked** gate on the same page, generated from [`to-do-done-and-parked.md`](to-do-done-and-parked.md). Two copies drift |
-| 4 | The browser's saved copy silently outlived any change to the list | The two lists are merged, and what changed is *reported* | See the rule below — the two-button version lasted one afternoon |
-| 5 | The `#` column sorted by blockers-then-score, and settled rows sank to the bottom | **Nothing reorders itself at all** | See the rule below — this one Mike gave after using it |
-| 6 | Expanded row held why · risk · touches · comment | Adds *what it blocks*, the *asked-by* detail, and the item's note | The data carries all three and §2 calls **asked by** the field that matters most. Dropping them would hide it |
-| 7 | **Start again** and **×** discarded immediately | Both confirm first | What is discarded is Mike's own calls, and they exist nowhere else until he saves |
-| 8 | Fact columns collapsed at 720px | They collapse at the Handbook's own 900px | The shell has one breakpoint; a second would be a second answer to the same question |
-
-### 🔴 The rule Mike gave after using it — 2026-08-15
-
-> **"Nothing leaves my sight in terms of order etc until I click save."**
-
-He marked the release item **Park**, and the row dropped to the bottom of the table before he could
-type the reason. He could not find it again. In his words: *"the handbook is clunky and confusing —
-I see the chances of a fuck-up occurring… this is very poor design."* He was right, and both faults
-were ours, not the mockup's:
-
-- **Settled rows sank to the bottom.** Taken from the mockup, where every call had already been made
-  before anyone looked at the screen. In use it is exactly backwards — the moment you settle an item
-  is the moment you need to write *why*, and the box has just left the screen.
-- **The stale warning made him choose between two lists he could not compare.** That was our
-  addition, not the mockup's. A decision with no information attached to it, where either answer
-  could throw away work.
-
-**What the control does now:**
-
-1. **Nothing moves on its own, ever.** Settling, scoring, or flagging an item as a blocker repaints
-   that row where it stands. The only thing that reorders the list is Mike pressing a sort heading,
-   a banner says so while it is sorted, and **Back to my order** restores it in one click. What is on
-   screen is what Save writes. Pinned by test, and the test is mutation-verified against the exact
-   bug he hit.
-2. **Choosing Park, Done or Delete asks for the reason there and then** — the box takes focus, its
-   label becomes *"Why you are marking it Park"*, and the row is flagged amber until something is
-   written. The count line carries *"N still need a reason"*.
-3. **The two-button choice is gone.** His work and the project's list are merged: his copy of an item
-   wins, in his order; new items are appended and named; an item that has left the project is
-   reported **with his comment on it**, so his words outlive the item. It is information, never a
-   question — because nothing of his is discarded, there is nothing to ask.
-
-⚠ **Not built, and it is not in the mockup either: an item cannot be dragged up or down.** The
-ranking is applied through the score, the **Your call** column and the three sortable headings —
-which is what the approved artefact does. If moving a row by hand is wanted, it is a new decision,
-not a deviation.
 
 **4.12 · 🔒 One handover story for the master team.** **SCORE 3 · sells the package**
 - **Why:** the merged app's own handover documents still describe a separate standalone

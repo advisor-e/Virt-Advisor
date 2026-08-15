@@ -140,6 +140,23 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**2.1 · Send the master team the release number.** ⏸ Parked 2026-08-15 by Mike, from the Handbook
+control. In his own words: *"we will need to issue a new release. we missed last weeks deadline and
+have added new features since."*
+
+- **What it was:** `v0.8.0` was tagged and pushed on 2026-08-14 and nobody outside was ever told.
+  It had been the list's only blocker on other people for four sessions.
+- **Why it is parked and not done:** announcing `v0.8.0` is now the wrong thing to announce. The
+  deadline it was cut for has passed and work has landed since — three commits on the ranking
+  control alone, on the day it was parked.
+- 🔴 **This does not mean the release stopped mattering.** It means the *number* changed. Nothing on
+  the live list now covers cutting the newer release, and that gap is deliberate: it is Mike's to
+  say whether it becomes an item.
+- **Untouched and still correct:** the integration email at
+  [`../MASTER-TEAM-INTEGRATION-EMAIL.md`](../MASTER-TEAM-INTEGRATION-EMAIL.md) and the load pack at
+  [`../UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md). Only the version number in them is stale. **Do not
+  re-derive either.**
+
 **Template Check queue, and the Logic Tables rewording.** Parked 2026-08-13 — sort them after
 UAT testing.
 
@@ -172,6 +189,114 @@ locked in the prompt. Either is fine; deciding by accident is not.
 ---
 
 ## 2. Closed recently, with what proved it
+
+**4.14 · The ranking control is in the Handbook.** ✅ Closed 2026-08-15 by Mike, from the control
+itself — the second item ever settled that way, and the first that was settled *using the thing it
+built*. All three phases shipped in one day, which is what he asked for when he said it had to be
+split so it could not be lost again.
+
+- **Phase 1** — the items became data, with a guard test on the five fields.
+  [`to-do-items.json`](to-do-items.json) + [`toDoItems.test.js`](../../tests/unit/toDoItems.test.js).
+- **Phase 2** — the To-Do page renders the control instead of a table, commit `7449313`. Eight
+  deviations from the approved mockup, every one named in [`to-do.md`](to-do.md) §6 before it
+  shipped.
+- **Phase 3** — `npm run to-do` generates the ranked table from the data, and
+  `npm run to-do -- <file>` brings a saved list back, commit `a003c95`. It refuses to remove a
+  settled item until its closure is written on this page. **This entry is that refusal working:**
+  the command declined to close 4.14 until these words existed.
+- **Then it was rebuilt on his instruction**, commit `41141d6`. The first version moved a row out
+  from under him the moment he marked it Park and he could not find it again. His rule —
+  *"nothing leaves my sight in terms of order etc until I click save"* — is now the control's
+  governing constraint and is mutation-verified by test.
+
+⚠ **What it cost, recorded honestly:** three rebuilds in one day, one defect he found in the first
+minute of real use (a UTC date stamp, a day out), and one design he called *"very poor"* — the
+two-button list choice, which was ours and not the mockup's. **Every one of those was found by a
+person using it, not by 41 tests.**
+
+#### The full 4.14 record, moved here with the item
+
+*Written on the live list while the work was open, and moved intact on 2026-08-15 when Mike
+closed it. The phase table, the eight named deviations from the approved mockup, and the rule he
+gave after using it are all here — the live list keeps only what is live.*
+
+**4.14 · Put the ranking control into the Handbook.** **SCORE 1 · internal only**
+- **Why:** the ranking table Mike used on 2026-08-15 was a standalone drawing with its items typed
+  in by hand, and its Save only put text in a box to copy out. The Handbook already has the round
+  trip it needs — edit, survives a reload, **Save writes a real file to Downloads** — so the control
+  belongs there.
+- **Risk:** the ranking and the notes Mike applies cannot reach the repository except by hand, so
+  his own ordering decays back into prose the moment a session ends. It already has once.
+- **Asked by:** **Mike**, 2026-08-15 — *"the last session developed a ranking system that I could
+  apply and I could add notes. It was never coded into the handbook as we ran out of context."*
+  He also asked for it to be **split across two or three sessions** so it cannot be lost again.
+- **Touches:** [`to-do-items.json`](to-do-items.json),
+  [`../../scripts/build-handbook.js`](../../scripts/build-handbook.js),
+  [`../../scripts/handbook-shell.html`](../../scripts/handbook-shell.html), and the table in §1.
+
+**The three phases, and where we are:**
+
+| Phase | What | State |
+| --- | --- | --- |
+| **1** | The items become data, with a guard test on the five fields | ✅ **Done 2026-08-15** — [`to-do-items.json`](to-do-items.json) + [`toDoItems.test.js`](../../tests/unit/toDoItems.test.js) |
+| **2** | The Handbook's To-Do page renders the ranking control instead of prose | ✅ **Done 2026-08-15** — [`../../scripts/handbook-shell.html`](../../scripts/handbook-shell.html) |
+| **3** | The Save file comes back into the data; this table is generated from it | ✅ **Done 2026-08-15** — [`../../scripts/apply-to-do.js`](../../scripts/apply-to-do.js) + [`applyToDo.test.js`](../../tests/unit/applyToDo.test.js) |
+
+**The approved artefact is [`../mockups/to-do-list-table.html`](../mockups/to-do-list-table.html)** —
+Mike used it to set the current order, so it is approved by use. Phase 2 was measured against it, and
+**every deviation is named below** rather than left to be discovered.
+
+### Phase 2 — every difference from the approved mockup
+
+Approved by Mike on 2026-08-15 before the build. The mockup remains the artefact; this is the
+record of where the shipped control departs from it and why.
+
+| # | The mockup | What shipped | Why |
+| --- | --- | --- | --- |
+| 1 | Fourteen items typed into the script | The live ten, read from [`to-do-items.json`](to-do-items.json) | Six of the mockup's were already wrong — four settled on 2026-08-15, one deleted, and 4.14 did not exist |
+| 2 | Save put a markdown table in a copy-out box | Save writes `to-do-items.json` to Downloads | Mike's ranking returns as data, which is what phase 3 consumes. His explicit call |
+| 3 | Two drop-downs listing deleted and parked work | Removed | The Handbook already shows both behind its **Done & parked** gate on the same page, generated from [`to-do-done-and-parked.md`](to-do-done-and-parked.md). Two copies drift |
+| 4 | The browser's saved copy silently outlived any change to the list | The two lists are merged, and what changed is *reported* | See the rule below — the two-button version lasted one afternoon |
+| 5 | The `#` column sorted by blockers-then-score, and settled rows sank to the bottom | **Nothing reorders itself at all** | See the rule below — this one Mike gave after using it |
+| 6 | Expanded row held why · risk · touches · comment | Adds *what it blocks*, the *asked-by* detail, and the item's note | The data carries all three and §2 calls **asked by** the field that matters most. Dropping them would hide it |
+| 7 | **Start again** and **×** discarded immediately | Both confirm first | What is discarded is Mike's own calls, and they exist nowhere else until he saves |
+| 8 | Fact columns collapsed at 720px | They collapse at the Handbook's own 900px | The shell has one breakpoint; a second would be a second answer to the same question |
+
+### 🔴 The rule Mike gave after using it — 2026-08-15
+
+> **"Nothing leaves my sight in terms of order etc until I click save."**
+
+He marked the release item **Park**, and the row dropped to the bottom of the table before he could
+type the reason. He could not find it again. In his words: *"the handbook is clunky and confusing —
+I see the chances of a fuck-up occurring… this is very poor design."* He was right, and both faults
+were ours, not the mockup's:
+
+- **Settled rows sank to the bottom.** Taken from the mockup, where every call had already been made
+  before anyone looked at the screen. In use it is exactly backwards — the moment you settle an item
+  is the moment you need to write *why*, and the box has just left the screen.
+- **The stale warning made him choose between two lists he could not compare.** That was our
+  addition, not the mockup's. A decision with no information attached to it, where either answer
+  could throw away work.
+
+**What the control does now:**
+
+1. **Nothing moves on its own, ever.** Settling, scoring, or flagging an item as a blocker repaints
+   that row where it stands. The only thing that reorders the list is Mike pressing a sort heading,
+   a banner says so while it is sorted, and **Back to my order** restores it in one click. What is on
+   screen is what Save writes. Pinned by test, and the test is mutation-verified against the exact
+   bug he hit.
+2. **Choosing Park, Done or Delete asks for the reason there and then** — the box takes focus, its
+   label becomes *"Why you are marking it Park"*, and the row is flagged amber until something is
+   written. The count line carries *"N still need a reason"*.
+3. **The two-button choice is gone.** His work and the project's list are merged: his copy of an item
+   wins, in his order; new items are appended and named; an item that has left the project is
+   reported **with his comment on it**, so his words outlive the item. It is information, never a
+   question — because nothing of his is discarded, there is nothing to ask.
+
+⚠ **Not built, and it is not in the mockup either: an item cannot be dragged up or down.** The
+ranking is applied through the score, the **Your call** column and the three sortable headings —
+which is what the approved artefact does. If moving a row by hand is wanted, it is a new decision,
+not a deviation.
 
 **4.4 · A Handbook edit survives a reload — and the ranking control works.** ✅ Closed 2026-08-15
 by **Mike**, and only he could close it: this machine has no browser automation, so no session could

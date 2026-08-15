@@ -131,14 +131,11 @@ describe('an item\'s phases say the same thing in both files', () => {
    *
    * @returns {Object<number, boolean>} phase number → ticked on the page
    */
+  const heads = lines
+    .map((line, i) => (/^\|\s*Phase\s*\|\s*What\s*\|\s*State\s*\|/.test(line) ? i : -1))
+    .filter(i => i !== -1)
+
   function phasesOnPage () {
-    const heads = lines
-      .map((line, i) => (/^\|\s*Phase\s*\|\s*What\s*\|\s*State\s*\|/.test(line) ? i : -1))
-      .filter(i => i !== -1)
-
-    // Two phase tables and this guard would silently pick the first.
-    expect(heads).toHaveLength(1)
-
     const out = {}
     for (let i = heads[0] + 1; i < lines.length && lines[i].charAt(0) === '|'; i++) {
       const cells = lines[i].split('|').slice(1, -1)
@@ -149,20 +146,34 @@ describe('an item\'s phases say the same thing in both files', () => {
     return out
   }
 
-  test('at least one item tracks phases, or this guard is dead weight', () => {
-    expect(phased.length).toBeGreaterThan(0)
+  // 🔴 The guard has to hold in BOTH directions, because on 2026-08-15 item 4.14
+  // — the only item that has ever tracked phases — was closed and moved to
+  // to-do-done-and-parked.md. Asserting only "the data matches the table" would
+  // then have passed forever on nothing at all. A phase table left behind on the
+  // live list for a closed item is exactly the stale-copy problem this file
+  // exists to prevent, so it is a failure in its own right.
+  test('a phase table on the live list belongs to an item on the live list', () => {
+    if (!phased.length) {
+      expect(heads).toHaveLength(0)
+      return
+    }
+    // Two tables and the comparison below would silently pick the first.
+    expect(heads).toHaveLength(1)
   })
 
-  test.each(phased.map(i => i.ref))('%s numbers its phases 1..n, once each', (ref) => {
-    const item = items.find(i => i.ref === ref)
-    expect(item.phases.map(p => p.n)).toEqual(item.phases.map((_, i) => i + 1))
-    item.phases.forEach((phase) => {
-      expect(typeof phase.done).toBe('boolean')
-      expect(String(phase.what || '').trim().length).toBeGreaterThan(0)
+  test.each(phased.length ? phased.map(i => i.ref) : ['(no item tracks phases)'])(
+    '%s numbers its phases 1..n, once each', (ref) => {
+      const item = items.find(i => i.ref === ref)
+      if (!item) { return } // nothing tracks phases today; the test above holds the line
+      expect(item.phases.map(p => p.n)).toEqual(item.phases.map((_, i) => i + 1))
+      item.phases.forEach((phase) => {
+        expect(typeof phase.done).toBe('boolean')
+        expect(String(phase.what || '').trim().length).toBeGreaterThan(0)
+      })
     })
-  })
 
   test('a phase ticked in the data is ticked on the page, and the reverse', () => {
+    if (!phased.length) { return }
     const onPage = phasesOnPage()
 
     // An empty {} would pass every comparison below by matching nothing.

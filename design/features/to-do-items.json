@@ -36,63 +36,10 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it.",
   "items": [
     {
-      "ref": "4.14",
-      "name": "Put the ranking control into the Handbook",
-      "score": 1,
-      "scoreReason": "internal only",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The ranking table Mike used on 2026-08-15 was a standalone drawing with its items typed in by hand, and its Save only put text in a box to copy out. The Handbook already has the round trip it needs — edit, survives a reload, Save writes a real file to Downloads — so the control belongs there.",
-      "risk": "The ranking and the notes Mike applies cannot reach the repository except by hand, so his own ordering decays back into prose the moment a session ends.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-08-15, session 57 — \"the last session developed a ranking system that I could apply and I could add notes. It was never coded into the handbook as we ran out of context.\" He also asked for it to be split across 2-3 sessions so it cannot be lost again."
-      },
-      "touches": "This file, scripts/build-handbook.js, scripts/handbook-shell.html, to-do.md's table, tests/unit/buildHandbook.test.js.",
-      "note": "SCORE 1 AND RANKED FIRST — the disagreement is deliberate and stays visible. No customer will ever see the Handbook, so by the table it is internal. Mike asked for it and ranked it now; his call beats the score, and the score stays on the page rather than being quietly inflated to justify the position.",
-      "phases": [
-        {
-          "n": 1,
-          "what": "The ten items become data, with a guard test on the five fields.",
-          "done": true
-        },
-        {
-          "n": 2,
-          "what": "The Handbook's To-Do page renders the ranking control instead of prose.",
-          "done": true
-        },
-        {
-          "n": 3,
-          "what": "The Save file comes back into this data, and to-do.md's table is generated from it.",
-          "done": true
-        }
-      ]
-    },
-    {
-      "ref": "2.1",
-      "name": "Send the master team the release number",
-      "score": 3,
-      "scoreReason": "sells the package",
-      "blocker": true,
-      "blocks": "The whole UAT round",
-      "waitingOn": "Mike",
-      "why": "v0.8.0 is tagged and pushed and nobody outside has been told it exists. They cannot pull what they do not know about; v0.6.0 was never pulled at all.",
-      "risk": "The release round does not start. Every piece of feedback we need is deferred by however long this sits.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "§3 ruling of 2026-08-14"
-      },
-      "touches": "Everything already built. Three lines: pull the tag v0.8.0, no npm install this time, read design/UAT-LOAD-PACK.md first.",
-      "note": "The integration email that goes with it is already drafted at design/MASTER-TEAM-INTEGRATION-EMAIL.md — five questions. Do not re-derive it."
-    },
-    {
       "ref": "4.12",
       "name": "One handover story for the master team",
-      "score": 3,
-      "scoreReason": "sells the package",
+      "score": 5,
+      "scoreReason": "security, privacy or data integrity",
       "blocker": true,
       "blocks": "Handover",
       "waitingOn": "Us",
@@ -163,8 +110,8 @@
     {
       "ref": "4.9",
       "name": "Make the coaching reference inherit",
-      "score": 3,
-      "scoreReason": "sells the package",
+      "score": 5,
+      "scoreReason": "security, privacy or data integrity",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
@@ -181,8 +128,8 @@
     {
       "ref": "4.7",
       "name": "Flip engine-strict back on",
-      "score": 2,
-      "scoreReason": "robustness",
+      "score": 5,
+      "scoreReason": "security, privacy or data integrity",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
@@ -199,8 +146,8 @@
     {
       "ref": "3.5",
       "name": "Reply to Carl about npm install",
-      "score": 1,
-      "scoreReason": "internal only",
+      "score": 5,
+      "scoreReason": "security, privacy or data integrity",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
