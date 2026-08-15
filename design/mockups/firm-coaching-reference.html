@@ -1,0 +1,728 @@
+<title>Coaching Reference Tab</title>
+
+<!--
+  design/mockups/firm-coaching-reference.html
+
+  PROPOSED — nothing on this screen is built. Item 4.9's engine half shipped in
+  869909c; this is the visible half, and it is what Mike is being asked to approve.
+
+  Faithful to the app rather than to a mockup house style: the palette is
+  utils/brandTokens.js, the type is Bulma's stack, and the controls are the ones
+  Buefy actually draws. Light only, deliberately — dark mode was removed from the
+  whole app on 2026-07-28 and tests/unit/modelLibraryLight.test.js keeps it out.
+
+  The row content below is the REAL content of data/coaching-reference.json, not
+  sample text. That is the point of the mockup: fifteen rows of five prose fields
+  is a very different volume from the Advisory Staircase's short steps, and the
+  layout has to be judged against the real thing.
+-->
+
+<style>
+  :root {
+    /* utils/brandTokens.js — do not invent values here */
+    --navy: #002B64;
+    --blue: #0070C0;
+    --cyan: #00B1E0;
+    --tint: #ebf4fa;
+    --charcoal: #3A3A3A;
+    --good: #4CA52D;
+    --caution: #FF9900;
+
+    /* Bulma's own neutrals, so the mockup and the built screen match */
+    --ink: #363636;
+    --grey: #7a7a7a;
+    --line: #dbdbdb;
+    --line-soft: #ededed;
+    --white: #ffffff;
+    --ground: #f7f9fb;
+
+    --radius: 6px;
+    --gap: 16px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen,
+      Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  /* ---------- the mockup's own framing, not part of the screen ---------- */
+  .meta {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--caution);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .meta h1 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .meta p { margin: 0; font-size: 0.85rem; color: var(--ink); max-width: 78ch; }
+  .meta strong { color: var(--navy); }
+
+  .framelabel {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin: 34px 0 10px;
+  }
+
+  /* ---------- the browser frame around the real screen ---------- */
+  .screen {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .tabbar {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--line);
+    background: var(--white);
+    overflow-x: auto;
+  }
+  .tabbar span {
+    padding: 11px 15px;
+    font-size: 0.85rem;
+    color: var(--blue);
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+  }
+  .tabbar span.on {
+    color: var(--navy);
+    font-weight: 600;
+    border-bottom-color: var(--blue);
+  }
+  .tabbody { padding: 22px 24px 30px; }
+
+  /* ---------- screen furniture ---------- */
+  .lede {
+    margin: 0 0 16px;
+    font-size: 0.95rem;
+    color: var(--grey);
+    max-width: 76ch;
+  }
+  .headrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap);
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .headrow h2 { margin: 0; font-size: 1rem; font-weight: 600; color: var(--ink); }
+
+  .notice {
+    background: var(--tint);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-size: 0.85rem;
+    color: var(--navy);
+    margin-bottom: 20px;
+  }
+
+  /* Buefy buttons, as they actually render */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: inherit;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    padding: 4px 11px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    background: var(--white);
+    color: var(--ink);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: #b5b5b5; }
+  .btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
+  .btn.primary { background: var(--blue); border-color: var(--blue); color: var(--white); }
+  .btn.primary-light { background: var(--tint); border-color: transparent; color: var(--blue); }
+  .btn.danger-light { background: #ffecec; border-color: transparent; color: #cc0000; }
+  .btn.big { font-size: 0.8rem; padding: 6px 13px; }
+
+  .buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  /* Buefy tags */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.5;
+    padding: 2px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .tag.platform { background: #f0f2f5; color: var(--charcoal); }
+  .tag.customised { background: var(--tint); color: var(--blue); }
+  .tag.own { background: #eaf7e6; color: #38801f; }
+  .tag.off { background: #f0f2f5; color: var(--grey); }
+
+  /* ---------- a coaching row ---------- */
+  .rows { display: flex; flex-direction: column; gap: 10px; }
+
+  .row {
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--navy);
+    border-radius: var(--radius);
+    background: var(--white);
+  }
+  .row.is-customised { border-left-color: var(--blue); }
+  .row.is-own { border-left-color: var(--good); }
+  .row.is-editing { border-left-color: var(--cyan); background: #fbfeff; }
+  .row.is-off { border-left-color: var(--line); background: #fafafa; }
+
+  .rowhead {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    width: 100%;
+    background: none;
+    border: 0;
+    font: inherit;
+    text-align: left;
+  }
+  .rowhead:hover { background: #fafcfe; }
+  .rowhead:focus-visible { outline: 2px solid var(--cyan); outline-offset: -2px; }
+  .chev {
+    flex: none;
+    width: 0; height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 7px solid var(--charcoal);
+    transform-origin: 3px 50%;
+  }
+  .row.is-open .chev, .row.is-editing .chev { transform: rotate(90deg); }
+  .rowname {
+    font-weight: 600;
+    color: var(--navy);
+    flex: none;
+  }
+  .rowsum {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.8rem;
+    color: var(--grey);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .rowbody {
+    padding: 2px 14px 14px 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 3px; }
+  .field label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--grey);
+  }
+  .field p { margin: 0; font-size: 0.88rem; max-width: 78ch; }
+  .field ul { margin: 0; padding-left: 20px; font-size: 0.88rem; }
+  .field li { margin-bottom: 2px; }
+
+  .field .empty { color: var(--grey); font-style: italic; }
+
+  /* the locked template field, in the edit form */
+  .locked {
+    background: #f7f8fa;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 8px 11px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 0.88rem;
+    color: var(--charcoal);
+  }
+  .locked .padlock { color: var(--grey); font-size: 0.8rem; }
+  .hint { font-size: 0.75rem; color: var(--grey); margin: 4px 0 0; max-width: 74ch; }
+
+  input.textbox, textarea.textbox {
+    font: inherit;
+    font-size: 0.88rem;
+    width: 100%;
+    padding: 8px 11px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--white);
+    color: var(--ink);
+    resize: vertical;
+  }
+  input.textbox:focus, textarea.textbox:focus {
+    outline: 0;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 2px rgba(0, 112, 192, 0.18);
+  }
+
+  .editlabel {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--cyan);
+    margin: 0;
+  }
+
+  .scenariorow { display: flex; gap: 8px; align-items: center; }
+  .scenariorow .textbox { flex: 1; }
+
+  .sectionbreak {
+    margin: 34px 0 0;
+    padding-top: 22px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .sectionbreak h3 { margin: 0 0 3px; font-size: 0.95rem; font-weight: 600; }
+  .sectionbreak p.note { margin: 0 0 14px; font-size: 0.8rem; color: var(--grey); max-width: 76ch; }
+
+  /* ---------- the wording table ---------- */
+  .words {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .tablescroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.85rem; min-width: 620px; }
+  th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  th {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--grey);
+    background: #fbfcfd;
+    white-space: nowrap;
+  }
+  td.where { color: var(--grey); white-space: nowrap; }
+  td.text { color: var(--ink); }
+  td.text b { color: var(--navy); }
+  tr:last-child td { border-bottom: 0; }
+  .reused { color: var(--good); font-weight: 600; }
+
+  .absent {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--charcoal);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .absent h3 { margin: 0; font-size: 0.95rem; color: var(--navy); }
+  .absent p { margin: 0; font-size: 0.85rem; max-width: 78ch; }
+  .absent b { color: var(--navy); }
+
+  @media (max-width: 640px) {
+    .rowsum { display: none; }
+    .tabbody { padding: 18px 14px 24px; }
+  }
+</style>
+
+<div class="wrap">
+
+  <div class="meta">
+    <h1>Coaching Reference — proposed Firm Manager tab</h1>
+    <p><strong>Nothing here is built.</strong> The engine half of item 4.9 shipped on
+      2026-08-15: the fifteen coaching rows now cascade down every tier, so a firm's
+      decisions about them would be honoured. There is no screen, so no firm can make
+      a decision for the engine to honour. This is that screen, for approval.</p>
+    <p>The rows below are the <strong>real content</strong> of
+      <code>data/coaching-reference.json</code>, not sample text — fifteen rows of five
+      prose fields each. That volume is why the rows are closed by default and open
+      where you click, rather than laid out flat the way the Advisory Staircase's short
+      steps are. The single "Your firm" entry is the one invention on the page, and it is
+      labelled as such — no firm has ever added one, because there is no screen to do it
+      with.</p>
+    <p>Two things need your word: <strong>the wording</strong> (every new sentence is
+      listed at the foot of this page) and <strong>whether this shape is right</strong>.</p>
+  </div>
+
+  <p class="framelabel">The screen — Firm Manager Hub</p>
+
+  <div class="screen">
+    <div class="tabbar">
+      <span>Domain Support</span>
+      <span>Logic Tables</span>
+      <span>Advisory Staircase</span>
+      <span class="on">Coaching Reference</span>
+      <span>Advisory Distinctions</span>
+      <span>Quizzes</span>
+      <span>Team Progress</span>
+    </div>
+
+    <div class="tabbody">
+
+      <p class="lede">The guidance the AI works to when it decides which template to put
+        in front of a client. Each entry tells it what a template is good for, the client
+        it suits, and how to deliver it.</p>
+
+      <div class="headrow">
+        <h2>Coaching Reference</h2>
+        <button class="btn primary big" type="button">+ Add your own entry</button>
+      </div>
+
+      <div class="notice">Edit any entry to make it your firm's own, or switch one off.
+        Platform entries are shared defaults; your changes apply to your firm only.</div>
+
+      <div class="rows">
+
+        <!-- 1 · closed, untouched platform row -->
+        <div class="row">
+          <button class="rowhead" type="button">
+            <span class="chev" aria-hidden="true"></span>
+            <span class="rowname">Growth Fundamentals Framework</span>
+            <span class="rowsum">A superb way to create self-relevance for your clients…</span>
+            <span class="tag platform">Platform</span>
+          </button>
+        </div>
+
+        <!-- 2 · OPEN, showing the full real content -->
+        <div class="row is-open">
+          <button class="rowhead" type="button">
+            <span class="chev" aria-hidden="true"></span>
+            <span class="rowname">EOY Meeting</span>
+            <span class="rowsum">Facilitates a Global and Local reference to support your meeting…</span>
+            <span class="tag platform">Platform</span>
+          </button>
+          <div class="rowbody">
+            <div class="field">
+              <label>How it helps</label>
+              <p>This template and matching meeting script enables you to facilitate a
+                Global and Local reference to support your meeting. These references give
+                you two bites at the cherry to secure additional services from your client,
+                without high pressure tactics.</p>
+            </div>
+            <div class="field">
+              <label>What to look for</label>
+              <p>Any client you have historically struggled to suggest additional services
+                to. Clients who only engage around compliance work and have not yet explored
+                advisory services.</p>
+            </div>
+            <div class="field">
+              <label>Where it may lead</label>
+              <p>Advisory services — opens the door to a broader advisory relationship.</p>
+            </div>
+            <div class="field">
+              <label>Delivery notes</label>
+              <p class="empty">None given.</p>
+            </div>
+            <div class="field">
+              <label>When to use it</label>
+              <ul>
+                <li>Advisor wants to introduce advisory services at the annual accounts meeting</li>
+                <li>Client only engages for compliance but advisor wants to expand the relationship</li>
+                <li>Advisor needs a structured way to facilitate an end of year review</li>
+              </ul>
+            </div>
+            <div class="buttons">
+              <button class="btn" type="button">Edit</button>
+              <button class="btn" type="button">Switch off</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 · OPEN and being edited, in place -->
+        <div class="row is-editing">
+          <button class="rowhead" type="button">
+            <span class="chev" aria-hidden="true"></span>
+            <span class="rowname">Working Capital Cycle</span>
+            <span class="rowsum">Often achieves an 'A-ha' moment for the client…</span>
+            <span class="tag customised">Customised</span>
+          </button>
+          <div class="rowbody">
+            <p class="editlabel">Edit entry</p>
+
+            <div class="field">
+              <label>Template</label>
+              <div class="locked">
+                <span class="padlock" aria-hidden="true">🔒</span>
+                <span>Working Capital Cycle</span>
+              </div>
+              <p class="hint">The template an entry points at cannot be changed. To coach
+                your advisors toward a different template, switch this entry off and add
+                your own.</p>
+            </div>
+
+            <div class="field">
+              <label>How it helps</label>
+              <textarea class="textbox" rows="4">This template often achieves an 'A-ha' moment for the client as they understand the money in movement and use of profits principles. This is the best foundation discussion you can have with a business owner that fails to understand the importance of regularly reviewing their financial accounts and performance.</textarea>
+            </div>
+
+            <div class="field">
+              <label>What to look for</label>
+              <textarea class="textbox" rows="3">Clients who make comments like 'How come I have no money or a big tax bill but don't have any cash in the bank?' Clients who don't understand the relationship between profit and cash.</textarea>
+            </div>
+
+            <div class="field">
+              <label>Where it may lead</label>
+              <textarea class="textbox" rows="2">Regular management reporting services.</textarea>
+            </div>
+
+            <div class="field">
+              <label>Delivery notes</label>
+              <textarea class="textbox" rows="2" placeholder="How your advisors should deliver this — optional"></textarea>
+            </div>
+
+            <div class="field">
+              <label>When to use it</label>
+              <div class="scenariorow">
+                <input class="textbox" type="text" value="Client is confused about why they are profitable but have no cash">
+                <button class="btn" type="button">Remove</button>
+              </div>
+              <div class="scenariorow">
+                <input class="textbox" type="text" value="Client has a large tax bill and is surprised by it">
+                <button class="btn" type="button">Remove</button>
+              </div>
+              <div class="scenariorow">
+                <input class="textbox" type="text" value="Client doesn't understand where their money goes">
+                <button class="btn" type="button">Remove</button>
+              </div>
+              <div class="scenariorow">
+                <input class="textbox" type="text" value="Client wants to understand cash flow basics">
+                <button class="btn" type="button">Remove</button>
+              </div>
+              <div class="buttons" style="margin-top:4px">
+                <button class="btn" type="button">+ Add a situation</button>
+              </div>
+            </div>
+
+            <div class="buttons">
+              <button class="btn primary" type="button">Save changes</button>
+              <button class="btn" type="button">Cancel</button>
+              <button class="btn" type="button">Reset to platform</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 · a firm's own entry, closed -->
+        <div class="row is-own">
+          <button class="rowhead" type="button">
+            <span class="chev" aria-hidden="true"></span>
+            <span class="rowname">Succession Readiness Review</span>
+            <span class="rowsum">Invented example — no firm has added an entry, because there is no screen to add one with.</span>
+            <span class="tag own">Your firm</span>
+          </button>
+        </div>
+
+        <!-- 5 · remaining platform rows, closed -->
+        <div class="row">
+          <button class="rowhead" type="button">
+            <span class="chev" aria-hidden="true"></span>
+            <span class="rowname">8 Profit Levers</span>
+            <span class="rowsum">Encourages your client to walk the customer's journey and recognise the mini decisions…</span>
+            <span class="tag platform">Platform</span>
+          </button>
+        </div>
+        <div class="row">
+          <button class="rowhead" type="button">
+            <span class="chev" aria-hidden="true"></span>
+            <span class="rowname">Deming's Theory of Volatility</span>
+            <span class="rowsum">Encourages people to accept that business goes up and down, and to interpret it properly…</span>
+            <span class="tag platform">Platform</span>
+          </button>
+        </div>
+        <div class="row">
+          <button class="rowhead" type="button">
+            <span class="chev" aria-hidden="true"></span>
+            <span class="rowname">Rubbish In - Rubbish Out</span>
+            <span class="rowsum">Focuses on the Chart of Accounts as a foundation for Reporting and Interpretation…</span>
+            <span class="tag platform">Platform</span>
+          </button>
+        </div>
+        <div class="row">
+          <button class="rowhead" type="button">
+            <span class="chev" aria-hidden="true"></span>
+            <span class="rowname">Revenue Model</span>
+            <span class="rowsum">Aids the calculation of activity and financial variables, quantifying the owner's expectations…</span>
+            <span class="tag platform">Platform</span>
+          </button>
+        </div>
+
+        <p class="hint" style="margin-left:4px">…and six more platform entries.</p>
+
+      </div>
+
+      <!-- switched off -->
+      <div class="sectionbreak">
+        <h3>Switched off</h3>
+        <p class="note">The AI is not coached by these entries. Switch one back on to use
+          it again — it returns with any wording your firm gave it.</p>
+        <div class="rows">
+          <div class="row is-off">
+            <button class="rowhead" type="button">
+              <span class="chev" aria-hidden="true"></span>
+              <span class="rowname">Covid 19 Client Pre-Meeting</span>
+              <span class="rowsum">A video and presentation explaining the way people cope with adversity…</span>
+              <span class="tag off">Switched off</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================ WORDING ============================ -->
+
+  <p class="framelabel">Every word on the screen — your call on each</p>
+
+  <div class="words">
+    <div class="tablescroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Where</th>
+            <th>Proposed wording</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="where">Tab name</td>
+            <td class="text"><b>Coaching Reference</b></td>
+            <td>The name already used for this block in the code and the Handbook.</td>
+          </tr>
+          <tr>
+            <td class="where">Opening line</td>
+            <td class="text">The guidance the AI works to when it decides which template to
+              put in front of a client. Each entry tells it what a template is good for, the
+              client it suits, and how to deliver it.</td>
+            <td>New. Says what the block actually does without naming a file.</td>
+          </tr>
+          <tr>
+            <td class="where">Blue notice</td>
+            <td class="text">Edit any entry to make it your firm's own, or switch one off.
+              Platform entries are shared defaults; your changes apply to your firm only.</td>
+            <td><span class="reused">Reused</span> — the Advisory Staircase's approved
+              notice, "step" changed to "entry".</td>
+          </tr>
+          <tr>
+            <td class="where">Add button</td>
+            <td class="text">+ Add your own entry</td>
+            <td>New. The staircase says "Add step".</td>
+          </tr>
+          <tr>
+            <td class="where">Row badges</td>
+            <td class="text">Platform · Customised · Your firm · Switched off</td>
+            <td><span class="reused">Reused</span> — the staircase's four badges, unchanged.</td>
+          </tr>
+          <tr>
+            <td class="where">Buttons</td>
+            <td class="text">Edit · Switch off · Switch on · Reset to platform · Remove ·
+              Save changes · Cancel</td>
+            <td><span class="reused">Reused</span> — all seven already approved on the
+              staircase.</td>
+          </tr>
+          <tr>
+            <td class="where">Field 1</td>
+            <td class="text"><b>How it helps</b></td>
+            <td>New. The data calls it <code>howItHelps</code>.</td>
+          </tr>
+          <tr>
+            <td class="where">Field 2</td>
+            <td class="text"><b>What to look for</b></td>
+            <td>New. <code>whatToLookFor</code>.</td>
+          </tr>
+          <tr>
+            <td class="where">Field 3</td>
+            <td class="text"><b>Where it may lead</b></td>
+            <td>New. <code>whereMayLead</code>.</td>
+          </tr>
+          <tr>
+            <td class="where">Field 4</td>
+            <td class="text"><b>Delivery notes</b></td>
+            <td>New. <code>deliveryNotes</code>. ⚠ Only one of the fifteen platform entries
+              fills this in — the other fourteen would show "None given."</td>
+          </tr>
+          <tr>
+            <td class="where">Field 5</td>
+            <td class="text"><b>When to use it</b></td>
+            <td>New, and a deliberate rename: the data calls these
+              <code>scenarios</code>, which is our word, not an adviser's.</td>
+          </tr>
+          <tr>
+            <td class="where">Add a scenario</td>
+            <td class="text">+ Add a situation</td>
+            <td>New. Pairs with "When to use it" above.</td>
+          </tr>
+          <tr>
+            <td class="where">Locked template</td>
+            <td class="text">The template an entry points at cannot be changed. To coach
+              your advisors toward a different template, switch this entry off and add your
+              own.</td>
+            <td>New. Explains a restriction the engine already enforces, so a firm meets a
+              reason rather than a greyed-out box.</td>
+          </tr>
+          <tr>
+            <td class="where">Switched-off note</td>
+            <td class="text">The AI is not coached by these entries. Switch one back on to
+              use it again — it returns with any wording your firm gave it.</td>
+            <td><span class="reused">Reused</span> — the staircase's note, with "your
+              advisors are not offered these steps" changed, because a coaching entry is
+              never shown to an adviser.</td>
+          </tr>
+          <tr>
+            <td class="where">Empty field</td>
+            <td class="text">None given.</td>
+            <td>New. Shown where an entry leaves a field blank.</td>
+          </tr>
+          <tr>
+            <td class="where">Load failure</td>
+            <td class="text">Your Coaching Reference could not be loaded. Please try again,
+              and tell us if it keeps happening.</td>
+            <td><span class="reused">Reused</span> — the staircase's failure message.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="framelabel">What is deliberately not on this screen</p>
+
+  <div class="absent">
+    <h3>Three things a sibling tab has and this one does not</h3>
+    <p><b>No "Platform updated this entry" badge, and no Adopt / Keep mine panel.</b> The
+      Advisory Staircase can spot when Advisor-e changes a step a firm has already edited,
+      because it stores a fingerprint of what the firm was shown at the time. The coaching
+      engine that shipped stores no such fingerprint, so this screen cannot honestly tell a
+      firm that anything changed. Building the badge without it would be a light that never
+      comes on. It is a separate piece of work if you want it.</p>
+    <p><b>No version history.</b> Same reason — the staircase's history list belongs to its
+      single whole-config setting, and the coaching rows have no equivalent.</p>
+    <p><b>No template picker on your own entries.</b> An entry you add still has to name a
+      template that exists, or the AI is coached toward something it cannot find. Whether
+      that is a free-text box or a list to pick from is a question for you, and it is the
+      one gap in this design I would want settled before building.</p>
+  </div>
+
+</div>
