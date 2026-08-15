@@ -155,12 +155,20 @@ describe('the platform base is deliberately left whole', () => {
   })
 
   test('and its size is pinned, so growing it is a decision and not a drift', () => {
-    // 8,483 characters across 15 entries, measured 2026-08-03. The platform base
-    // is exempt from the cap because only a developer adds to it and it is the
-    // menu the AI picks a template FROM. If this fails because entries were
-    // added, that exemption is what needs re-arguing — not this number.
+    // 12,846 characters across 15 entries, measured 2026-08-15 — up from 8,483 on
+    // 2026-08-03. THE JUMP WAS A DECISION, which is what this guard exists to force:
+    // `howItHelps` and `deliveryNotes` were authored, stored, made firm-editable, and
+    // rendered into no prompt at all, so a firm editing them changed nothing. Mike
+    // ruled on 2026-08-15 that they must reach the AI. The block is now half as long
+    // again, and that cost was accepted knowingly.
+    //
+    // The platform base is exempt from the per-firm cap because only a developer adds
+    // to it and it is the menu the AI picks a template FROM. The ceiling below leaves
+    // room for roughly one more entry (~850 characters), so ADDING one trips this on
+    // purpose. If it fails because entries were added, that exemption is what needs
+    // re-arguing — not this number.
     const base = require('../../data/coaching-reference.json')
     expect(base.length).toBeLessThanOrEqual(20)
-    expect(formatCoachingForPrompt().length).toBeLessThan(12000)
+    expect(formatCoachingForPrompt().length).toBeLessThan(14000)
   })
 })
