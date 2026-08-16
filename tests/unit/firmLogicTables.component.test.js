@@ -345,3 +345,115 @@ describe('hide / show the table list', () => {
     expect(window.localStorage.getItem('ds:railHidden')).toBeNull()
   })
 })
+
+/**
+ * Item 4.16 C — the opening question and the standing rules on this screen.
+ * Approved artefact: design/LEARN-TREE-OPENING-QUESTION-FIELD.md.
+ */
+describe('the question this table opens with', () => {
+  const withQuestion = () => Object.assign(eoyDetail(), {
+    openingQuestion: 'Where are you in the EOY meeting process right now?'
+  })
+
+  test('the box appears, holding the question, on a table that has one', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: withQuestion() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    expect(wrapper.vm.form.openingQuestion).toBe('Where are you in the EOY meeting process right now?')
+    expect(wrapper.text()).toContain('firmLogicTables.openingQuestion')
+    expect(wrapper.text()).toContain('firmLogicTables.openingQuestionHint')
+  })
+
+  // No box where an edit would reach no prompt — the fault 4.16 exists to close.
+  test('no box at all on a table that has none', async () => {
+    const wrapper = await openTable(await mountScreen(), 'eoy_meeting', 'End of Year Meeting')
+    expect(wrapper.vm.form.openingQuestion).toBeNull()
+    expect(wrapper.text()).not.toContain('firmLogicTables.openingQuestion')
+  })
+
+  // Save read the branches alone, so editing only the question left it greyed out.
+  test('editing only the question lights up Save', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: withQuestion() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    expect(wrapper.vm.dirty).toBe(false)
+    wrapper.vm.form.openingQuestion = 'Reworded by the firm.'
+    expect(wrapper.vm.dirty).toBe(true)
+  })
+
+  test('a whitespace-only change is not a change', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: withQuestion() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    wrapper.vm.form.openingQuestion = '  Where are you in the EOY meeting process right now?  '
+    expect(wrapper.vm.dirty).toBe(false)
+  })
+
+  test('the save posts the trimmed question alongside the branches', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: withQuestion() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    wrapper.vm.form.openingQuestion = '  Reworded.  '
+    await wrapper.vm.save()
+    const post = global.fetch.mock.calls.find(c => (c[1] || {}).method === 'POST')
+    expect(JSON.parse(post[1].body).openingQuestion).toBe('Reworded.')
+  })
+
+  // Sending null would be a claim, and the route rejects it. Silence is correct.
+  test('a table with no question sends no question key at all', async () => {
+    const wrapper = await openTable(await mountScreen(), 'eoy_meeting', 'End of Year Meeting')
+    wrapper.vm.form.branches[0].action = 'edited'
+    await wrapper.vm.save()
+    const post = global.fetch.mock.calls.find(c => (c[1] || {}).method === 'POST')
+    expect(JSON.parse(post[1].body)).not.toHaveProperty('openingQuestion')
+  })
+})
+
+describe('standing rules — the rows that always apply', () => {
+  const withStanding = () => Object.assign(eoyDetail(), {
+    reorderable: true,
+    branches: [
+      { id: 'eoy_stage1', kind: 'branch', branch_name: 'Stage 1', condition: 'c', action: 'a', notes: '' },
+      { id: 'eoy_stage2', kind: 'branch', branch_name: 'Stage 2', condition: 'c', action: 'a', notes: '' },
+      { id: 'ps_networking', kind: 'standing', branch_name: 'Networking Boundaries', condition: 'c', action: 'a', notes: '' }
+    ]
+  })
+
+  test('a standing row is tagged so it reads as a rule, not a stage', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: withStanding() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    expect(wrapper.text()).toContain('firmLogicTables.tagStanding')
+  })
+
+  test('a standing row carries no move arrows — it has no place in the sequence', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: withStanding() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    const rows = wrapper.findAll('tbody tr')
+    expect(rows.at(0).findAll('.lt-branch-move').length).toBe(2)
+    expect(rows.at(2).findAll('.lt-branch-move').length).toBe(0)
+  })
+
+  // The last staged row's "down" must stop at the standing block, not push a
+  // rule that applies everywhere into the middle of the sequence.
+  test('the last staged row cannot be moved below a standing rule', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: withStanding() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    expect(wrapper.vm.lastStagedIndex).toBe(1)
+    const down = wrapper.findAll('tbody tr').at(1).findAll('.lt-branch-move').at(1)
+    expect(down.attributes('disabled')).toBeTruthy()
+  })
+
+  test('each row keeps its kind through the save payload', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: withStanding() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    wrapper.vm.form.branches[2].condition = 'reworded'
+    await wrapper.vm.save()
+    const post = global.fetch.mock.calls.find(c => (c[1] || {}).method === 'POST')
+    const sent = JSON.parse(post[1].body).branches
+    expect(sent.map(b => b.kind)).toEqual(['branch', 'branch', 'standing'])
+  })
+
+  // The standing set is the platform's: it can be reworded, not added to.
+  test('an added row is always an ordinary branch', async () => {
+    const wrapper = await mountScreen(undefined, { eoy_meeting: withStanding() })
+    await openTable(wrapper, 'eoy_meeting', 'End of Year Meeting')
+    wrapper.vm.addBranch()
+    expect(wrapper.vm.form.branches[wrapper.vm.form.branches.length - 1].kind).toBe('branch')
+  })
+})

@@ -3199,22 +3199,44 @@ function _thenFieldOf (node) {
  * tree uses: a branching `nodes` graph or a `flat_if_then` `branches` list. Each
  * node's `id` rides along so a later save can merge edits back by id and
  * preserve the node's hidden flow wiring (Slice B).
+ *
+ * STANDING RULES ride along too, tagged `kind: 'standing'` and appended last.
+ * A nodes-shaped table may hold rules that apply whichever stage the advisor is
+ * in, kept out of the walked graph in `flat_branches` — `public_speaking`'s two
+ * are the only ones today. They were invisible in both directions until item
+ * 4.16 C: this function read `nodes` OR `branches` and never the third array, so
+ * no screen showed them; `formatLogicTreeForPrompt` read `tree.branches`, empty
+ * on a nodes table, so no prompt carried them.
+ *
+ * `kind` is what the save path uses to send each row home to the array it came
+ * from — a standing rule written back into `nodes` would join the walk.
+ *
  * @param {Object} tree
- * @returns {Array<{id:string,branch_name:string,condition:string,action:string,notes:string}>}
+ * @returns {Array<{id:string,branch_name:string,condition:string,action:string,notes:string,kind:string}>}
  */
 function _treeBranchRows (tree) {
   const src = Array.isArray(tree.nodes)
     ? tree.nodes
     : (Array.isArray(tree.branches) ? tree.branches : [])
-  return src.map((n, i) => ({
+  const rows = src.map((n, i) => ({
     id: n.id || `row-${i}`,
     branch_name: n.branch_name || '',
     condition: n.condition || '',
     // The THEN column shows whichever field holds this node's instruction, and
     // _thenFieldOf is the single answer the save path uses too.
     action: n[_thenFieldOf(n)] || '',
-    notes: n.notes || ''
+    notes: n.notes || '',
+    kind: 'branch'
   }))
+  const standing = Array.isArray(tree.flat_branches) ? tree.flat_branches : []
+  return rows.concat(standing.map((n, i) => ({
+    id: n.id || `standing-${i}`,
+    branch_name: n.branch_name || '',
+    condition: n.condition || '',
+    action: n[_thenFieldOf(n)] || '',
+    notes: n.notes || '',
+    kind: 'standing'
+  })))
 }
 
 /**
@@ -3283,6 +3305,22 @@ async function getLogicTreeDetail (req, res) {
       // Logic-Lab asked a firm to add or remove trigger phrases while showing
       // them none of the ones already there, so every edit was made blind.
       entryTriggers: (merged.entry_triggers || []).map(String),
+      // The sentence an advisor is asked before any coaching starts, on the 13
+      // learn tables that have one (item 4.16 C). Null everywhere else, and the
+      // editor shows no box then — an empty field on a table the engine would
+      // never read it from reads as "nobody has set this", which is a lie.
+      //
+      // THE GATE HERE IS THE PROMPT'S GATE, deliberately: mode === 'learn' AND
+      // the field present, exactly as formatLogicTreeForPrompt tests it. Tying
+      // the two to the same condition is what stops a screen offering an edit
+      // that reaches nothing — the fault this whole item exists to close.
+      //
+      // RESOLVED, not this tier's own stored value: a firm that has written none
+      // must see the sentence its advisors are actually asked, which is the
+      // mentor's. `effectiveTrees` has already merged the override in above.
+      openingQuestion: (merged.mode === 'learn' && typeof merged.stage_entry_question === 'string')
+        ? merged.stage_entry_question
+        : null,
       branches: _treeBranchRows(merged)
     })
   } catch (err) {
@@ -3345,13 +3383,30 @@ async function _saveFirmLogicTreesMap (firmId, map, savedBy) {
  * carry the COMPLETE list — a sparse list would drop the untouched branches.
  *
  * @param {Object} baseTree - the platform tree (nodes- or flat_if_then-shaped)
- * @param {Array<{id?:string,branch_name?:string,condition?:string,action?:string,notes?:string}>} rows
- * @returns {{ key: 'nodes'|'branches', list: Array<Object> }}
+ * STANDING RULES (`flat_branches`) are split back out here, because a rule that
+ * holds whichever stage the advisor is in must not be written into the walked
+ * graph. A submitted row counts as standing ONLY when its id matches one the
+ * platform already authored there — which is both the scope rule (reword the
+ * standing rules; new rows are ordinary branches, per the approved artefact §3c)
+ * and the guard: a hand-made request cannot mint new `flat_branches` entries by
+ * setting `kind` itself.
+ *
+ * `standing` comes back null when the body is the OLD shape — no row carrying a
+ * `kind` at all. A client that does not know about the field must not silently
+ * wipe it; only a body that speaks the new shape is authoritative about it.
+ *
+ * @param {Array<{id?:string,branch_name?:string,condition?:string,action?:string,notes?:string,kind?:string}>} rows
+ * @returns {{ key: 'nodes'|'branches', list: Array<Object>, standing: Array<Object>|null }}
  */
 function _mergeBranchRows (baseTree, rows) {
   const usesNodes = Array.isArray(baseTree.nodes)
   const key = usesNodes ? 'nodes' : 'branches'
   const baseList = usesNodes ? baseTree.nodes : (baseTree.branches || [])
+  const baseStanding = Array.isArray(baseTree.flat_branches) ? baseTree.flat_branches : []
+  const standingById = new Map(baseStanding.map((n, i) => [n.id || `standing-${i}`, n]))
+  const speaksKind = (rows || []).some(r => r && typeof r.kind === 'string')
+  const isStanding = row => speaksKind && row && row.kind === 'standing' &&
+    typeof row.id === 'string' && standingById.has(row.id)
   // Key by the SAME display id the detail route assigns (_treeBranchRows:
   // n.id || `row-${i}`), so both graph `nodes` (real ids) and flat_if_then
   // branches (often id-less) round-trip and keep their hidden fields —
@@ -3367,7 +3422,7 @@ function _mergeBranchRows (baseTree, rows) {
   // with no error. So a generated id now dodges every id already spoken for —
   // every platform row, and every id the submitted rows arrived with (which is
   // how previously-saved firm rows keep theirs).
-  const taken = new Set(byId.keys())
+  const taken = new Set([...byId.keys(), ...standingById.keys()])
   for (const row of (rows || [])) {
     if (row && typeof row.id === 'string' && row.id) { taken.add(row.id) }
   }
@@ -3379,7 +3434,18 @@ function _mergeBranchRows (baseTree, rows) {
     return id
   }
 
-  const list = (rows || []).map((row) => {
+  const standingList = []
+  const list = (rows || []).filter((row) => {
+    // A standing rule goes home to `flat_branches`, keeping every field the
+    // platform authored (its `templates` included) and taking only the four
+    // edited columns.
+    if (!isStanding(row)) { return true }
+    const base = standingById.get(row.id)
+    const next = { ...base, branch_name: str(row.branch_name), condition: str(row.condition), notes: str(row.notes) }
+    next[_thenFieldOf(base)] = str(row.action)
+    standingList.push(next)
+    return false
+  }).map((row) => {
     const existing = row && row.id ? byId.get(row.id) : null
     if (existing) {
       // Reword in place: overwrite only the four editable fields, keep the rest
@@ -3402,12 +3468,27 @@ function _mergeBranchRows (baseTree, rows) {
       notes: str(row && row.notes)
     }
   })
-  return { key, list }
+  return { key, list, standing: (speaksKind && baseStanding.length > 0) ? standingList : null }
 }
 
 /**
+ * How long an opening question may be (item 4.16 C).
+ *
+ * The longest of the 13 the platform authored is 346 characters, so the Advisory
+ * Staircase's 500 (SELECTOR_PROMPT_MAX) would leave a tier only 154 characters of
+ * headroom on its own longest table — a cap that bites on legitimate editing is a
+ * cap people work around. 800 leaves room to rewrite and still bounds it: the
+ * value travels into the advisor prompt on every learn conversation that opens
+ * this table, so an unbounded field is a place to paste an essay, or an
+ * instruction, into every one of them.
+ * @type {number}
+ */
+const OPENING_QUESTION_MAX = 800
+
+/**
  * POST /api/firm-manager/logic-trees/:treeId — save the firm's edits to one
- * logic table. Body: { branches: [{id,branch_name,condition,action,notes}] }.
+ * logic table. Body: { branches: [{id,branch_name,condition,action,notes,kind}],
+ * openingQuestion?: string }.
  * The edits merge onto the SINGLE `logic-trees` bundle the advisor engine reads,
  * so a save reaches the AI (fenced — see logicTrees.formatLogicTreeForPrompt).
  */
@@ -3423,9 +3504,41 @@ async function saveLogicTree (req, res) {
     if (!base) {
       return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Logic table not found' } })
     }
-    const { key, list } = _mergeBranchRows(base, rows)
+
+    // The opening question is OPTIONAL. A body that omits it says nothing about
+    // it, which must not wipe a value already stored — the same rule the
+    // staircase question follows, and for the same reason: the field shares one
+    // Save button with the branch table, but a hand-made request need not send
+    // both.
+    //
+    // ⚠ ACCEPTED ONLY WHERE THE ENGINE WOULD READ IT — a learn table that already
+    // carries one. Anywhere else the editor shows no box, and accepting a value
+    // there would store an edit on a screen nobody can see it on, which is item
+    // 4.16 itself in miniature.
+    const question = req.body ? req.body.openingQuestion : undefined
+    if (question !== undefined) {
+      if (!(base.mode === 'learn' && typeof base.stage_entry_question === 'string')) {
+        return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: 'This logic table has no opening question' } })
+      }
+      if (typeof question !== 'string' || !question.trim()) {
+        return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: 'openingQuestion must be a non-empty string' } })
+      }
+      if (question.trim().length > OPENING_QUESTION_MAX) {
+        return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: `openingQuestion must be ${OPENING_QUESTION_MAX} characters or fewer` } })
+      }
+    }
+
+    const { key, list, standing } = _mergeBranchRows(base, rows)
     const map = await _loadFirmLogicTreesMapRaw(req.firmId)
-    map[treeId] = { [key]: list }
+    // Merge onto this table's EXISTING override rather than replacing it. The
+    // override now carries up to three things — the branch list, the standing
+    // rules and the opening question — and they are saved by controls that do not
+    // all have to be present in one request.
+    const prev = (map[treeId] && typeof map[treeId] === 'object' && !Array.isArray(map[treeId])) ? map[treeId] : {}
+    const override = { ...prev, [key]: list }
+    if (standing) { override.flat_branches = standing }
+    if (question !== undefined) { override.stage_entry_question = question.trim() }
+    map[treeId] = override
     const version = await _saveFirmLogicTreesMap(req.firmId, map, req.userEmail)
     res.send(200, { saved: true, version, treeId })
   } catch (err) {

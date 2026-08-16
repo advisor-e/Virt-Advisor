@@ -587,16 +587,40 @@ function formatApproachGuidance (guidance) {
 function formatLogicTreeForPrompt (tree) {
   if (!tree) { return '' }
 
-  const header = [
+  // A firm-overridden tree carries firm-authored branch text (tagged in
+  // effectiveTrees); fence it so the model treats it as data, not instructions.
+  const fence = !!(tree && tree.__firmAuthored)
+  const fx = v => (fence ? fenceUntrusted(v) : v)
+
+  const headerLines = [
     `## Diagnostic Logic Tree — ${tree.name}`,
     '',
     tree.description,
     ''
-  ].join('\n')
+  ]
 
-  // A firm-overridden tree carries firm-authored branch text (tagged in
-  // effectiveTrees); fence it so the model treats it as data, not instructions.
-  const fence = !!(tree && tree.__firmAuthored)
+  // The sentence that establishes WHERE IN THE METHOD the advisor already is,
+  // before any coaching starts. Authored on all 13 learn tables since they
+  // shipped and read by nothing — item 4.16 C, design/LEARN-TREE-OPENING-QUESTION-FIELD.md.
+  //
+  // WHY IT MATTERS MORE THAN ITS SIZE SUGGESTS: these 13 are exactly the 13
+  // tables with a companion method guide (LEARN_REFERENCE_FORMATTERS), and the
+  // guide reaches the model in full — ~19,000 characters of staged coaching. The
+  // one sentence saying which stage the advisor needs did not, so the model has
+  // been reading the whole method with no idea where the advisor is standing in
+  // it, and opening at stage one for somebody halfway through.
+  //
+  // LEARN MODE ONLY, and the gate is deliberate rather than incidental. Every one
+  // of the 13 is `mode: 'learn'`; a client-delivery table is WALKED to a
+  // recommendation rather than opened with a question. The gate means a
+  // `stage_entry_question` authored later onto a client table cannot silently
+  // start asking a business owner where they are up to.
+  if (tree.mode === 'learn' && tree.stage_entry_question) {
+    headerLines.push(`Ask this first, before coaching any stage: ${fx(tree.stage_entry_question)}`)
+    headerLines.push('')
+  }
+
+  const header = headerLines.join('\n')
 
   const nodeBlocks = (tree.nodes || [])
     .map(node => formatNodeForPrompt(node, tree.nodes, fence))
@@ -607,11 +631,30 @@ function formatLogicTreeForPrompt (tree) {
     .map(branch => formatFlatBranch(branch, fence))
     .join('\n\n')
 
+  // Standing rules on a NODES-shaped table: rules that hold whichever stage the
+  // advisor is in, so they are kept out of the walked graph in a second array.
+  //
+  // THIS IS WHY THEY WERE INVISIBLE. `flatBlocks` above reads `tree.branches`,
+  // which on a nodes-shaped table is empty — so `public_speaking`'s two rules
+  // (networking boundaries, event conclusion) reached neither the prompt nor the
+  // Logic Tables screen, and no test could notice a field nothing named.
+  //
+  // Formatted by the SAME `formatFlatBranch` the Get-the-Job tables use, not a
+  // second renderer — which also means their `templates` are emitted ungated,
+  // exactly as those tables' are. That is the deliberate Get-the-Job carve-out
+  // recorded at validateLogicTreeReferences: these name advisor-kit materials
+  // that legitimately do not live in the client search content.
+  const standing = tree.flat_branches || []
+  const standingBlock = standing.length > 0
+    ? '\n\n### Rules that always apply, whichever stage the advisor is in\n\n' +
+      standing.map(branch => formatFlatBranch(branch, fence)).join('\n\n')
+    : ''
+
   const approachBlock = tree.approach_guidance
     ? formatApproachGuidance(tree.approach_guidance)
     : ''
 
-  return header + nodeBlocks + flatBlocks + approachBlock
+  return header + nodeBlocks + flatBlocks + standingBlock + approachBlock
 }
 
 function formatTrialFitReferenceForPrompt () {

@@ -339,6 +339,222 @@ describe('POST /logic-trees/:treeId (save)', () => {
   })
 })
 
+/**
+ * Item 4.16 C — the opening question and the standing rules on this screen.
+ *
+ * The prompt half is pinned in tests/unit/logicTreeOpeningQuestion.test.js. What
+ * matters HERE is that the screen offers an edit exactly where the engine reads
+ * one, and that a saved edit goes home to the array it came from. Approved
+ * artefact: design/LEARN-TREE-OPENING-QUESTION-FIELD.md.
+ */
+describe('the opening question on the Logic Tables screen', () => {
+  test('a learn table with one returns it, so the editor can show a box', async () => {
+    const res = makeMockRes()
+    await getLogicTreeDetail(makeReq({ params: { treeId: 'eoy_meeting' } }), res)
+    expect(typeof res._body.openingQuestion).toBe('string')
+    expect(res._body.openingQuestion).toContain('Where are you in the EOY meeting process')
+  })
+
+  // The box must not appear where an edit would reach nothing — that is item
+  // 4.16 in miniature, and the reason the gate here is the prompt's gate.
+  test('a table without one returns null, so the editor shows no box', async () => {
+    const logicTrees = require('../../server/utils/logicTrees')
+    const without = logicTrees.effectiveTrees(null).filter(t => !t.stage_entry_question)
+    expect(without.length).toBe(29)
+    for (const tree of without) {
+      const res = makeMockRes()
+      await getLogicTreeDetail(makeReq({ params: { treeId: tree.id } }), res)
+      expect(res._body.openingQuestion).toBeNull()
+    }
+  })
+
+  test('the question returned is the RESOLVED one — a firm sees its own edit', async () => {
+    overlay.loadFirmConfig.mockResolvedValue({ eoy_meeting: { stage_entry_question: 'Our own wording.' } })
+    const res = makeMockRes()
+    await getLogicTreeDetail(makeReq({ params: { treeId: 'eoy_meeting' } }), res)
+    expect(res._body.openingQuestion).toBe('Our own wording.')
+  })
+
+  test('a firm that has written none inherits the tier above, not an empty box', async () => {
+    overlay.loadFirmConfig.mockResolvedValue({ eoy_meeting: { nodes: [] } })
+    const res = makeMockRes()
+    await getLogicTreeDetail(makeReq({ params: { treeId: 'eoy_meeting' } }), res)
+    expect(res._body.openingQuestion).toContain('Where are you in the EOY meeting process')
+  })
+
+  test('a save stores the edited question in the shared bundle', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(4)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'eoy_meeting' },
+      body: { branches: [], openingQuestion: '  Where are you up to?  ' }
+    }), res)
+    expect(res._status).toBe(200)
+    const map = overlay.saveFirmConfig.mock.calls[0][2]
+    expect(map.eoy_meeting.stage_entry_question).toBe('Where are you up to?')
+  })
+
+  // The field shares one Save button with the branch table, but a hand-made
+  // request need not send both — and silence must not be read as "delete it".
+  test('a body that omits the question leaves a stored one alone', async () => {
+    overlay.loadFirmConfig.mockResolvedValue({ eoy_meeting: { stage_entry_question: 'Kept.' } })
+    overlay.saveFirmConfig.mockResolvedValue(5)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({ params: { treeId: 'eoy_meeting' }, body: { branches: [] } }), res)
+    expect(res._status).toBe(200)
+    const map = overlay.saveFirmConfig.mock.calls[0][2]
+    expect(map.eoy_meeting.stage_entry_question).toBe('Kept.')
+  })
+
+  test('an empty question is refused rather than stored', async () => {
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'eoy_meeting' },
+      body: { branches: [], openingQuestion: '   ' }
+    }), res)
+    expect(res._status).toBe(400)
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test('an over-length question is refused — the value travels into every session', async () => {
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'eoy_meeting' },
+      body: { branches: [], openingQuestion: 'x'.repeat(801) }
+    }), res)
+    expect(res._status).toBe(400)
+    expect(res._body.error.message).toContain('800')
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+
+  test('the longest question the platform authored still fits inside the cap', () => {
+    const logicTrees = require('../../server/utils/logicTrees')
+    const longest = logicTrees.effectiveTrees(null)
+      .filter(t => t.stage_entry_question)
+      .reduce((a, t) => Math.max(a, t.stage_entry_question.length), 0)
+    expect(longest).toBeLessThan(800)
+  })
+
+  test('a table with no opening question refuses one rather than storing it unseen', async () => {
+    const logicTrees = require('../../server/utils/logicTrees')
+    const without = logicTrees.effectiveTrees(null).find(t => !t.stage_entry_question)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: without.id },
+      body: { branches: [], openingQuestion: 'Sneaked in.' }
+    }), res)
+    expect(res._status).toBe(400)
+    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
+  })
+})
+
+describe('the standing rules on the Logic Tables screen', () => {
+  test('public_speaking shows its two standing rules, tagged and last', async () => {
+    const res = makeMockRes()
+    await getLogicTreeDetail(makeReq({ params: { treeId: 'public_speaking' } }), res)
+    const rows = res._body.branches
+    const standing = rows.filter(r => r.kind === 'standing')
+    expect(standing.map(r => r.branch_name)).toEqual(['Networking Boundaries', 'Event Conclusion'])
+    // Last, because they are not part of the staged sequence.
+    expect(rows.slice(-2)).toEqual(standing)
+    expect(rows.filter(r => r.kind === 'branch')).toHaveLength(8)
+  })
+
+  test('every other row on every table is a plain branch', async () => {
+    const logicTrees = require('../../server/utils/logicTrees')
+    for (const tree of logicTrees.effectiveTrees(null).filter(t => t.id !== 'public_speaking')) {
+      const res = makeMockRes()
+      await getLogicTreeDetail(makeReq({ params: { treeId: tree.id } }), res)
+      expect(res._body.branches.every(r => r.kind === 'branch')).toBe(true)
+    }
+  })
+
+  // The rail badge is the count of what the screen shows and saves. It read 8
+  // while the table held 10, because two of them were in an array nothing looked at.
+  test('the rail count includes the standing rules', async () => {
+    const res = makeMockRes()
+    await getLogicTrees(makeReq(), res)
+    const ps = res._body.getTheJob.find(t => t.id === 'public_speaking')
+    expect(ps.count).toBe(10)
+  })
+
+  test('a reworded standing rule goes home to flat_branches, never into the walk', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'public_speaking' },
+      body: {
+        branches: [
+          { id: 'ps_networking', kind: 'standing', branch_name: 'Networking Boundaries', condition: 'REWORDED', action: 'a', notes: 'n' },
+          { id: 'ps_conclusion', kind: 'standing', branch_name: 'Event Conclusion', condition: 'c', action: 'a', notes: 'n' }
+        ]
+      }
+    }), res)
+    expect(res._status).toBe(200)
+    const saved = overlay.saveFirmConfig.mock.calls[0][2].public_speaking
+    expect(saved.flat_branches.map(b => b.id)).toEqual(['ps_networking', 'ps_conclusion'])
+    expect(saved.flat_branches[0].condition).toBe('REWORDED')
+    // The staged list is untouched by a standing-rule edit, and no standing rule
+    // has leaked into it.
+    expect(saved.nodes.some(n => n.id === 'ps_networking')).toBe(false)
+  })
+
+  test('a standing rule keeps the templates the platform authored on it', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'public_speaking' },
+      body: {
+        branches: [
+          { id: 'ps_networking', kind: 'standing', branch_name: 'N', condition: 'c', action: 'a', notes: 'n' },
+          { id: 'ps_conclusion', kind: 'standing', branch_name: 'E', condition: 'c', action: 'a', notes: 'n' }
+        ]
+      }
+    }), res)
+    const saved = overlay.saveFirmConfig.mock.calls[0][2].public_speaking
+    const conclusion = saved.flat_branches.find(b => b.id === 'ps_conclusion')
+    expect(conclusion.templates).toEqual(['Get. Seminar Feedback Form'])
+  })
+
+  // The guard AND the scope rule in one: standing rules can be reworded, not
+  // created. A hand-made request cannot mint a new flat_branches entry by
+  // claiming `kind` for an id the platform never authored there.
+  test('a forged standing row with an unknown id becomes an ordinary branch', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'public_speaking' },
+      body: { branches: [{ id: 'made-up', kind: 'standing', branch_name: 'Forged', condition: 'c', action: 'a', notes: '' }] }
+    }), res)
+    const saved = overlay.saveFirmConfig.mock.calls[0][2].public_speaking
+    expect((saved.flat_branches || []).some(b => b.branch_name === 'Forged')).toBe(false)
+    expect(saved.nodes.some(n => n.branch_name === 'Forged')).toBe(true)
+  })
+
+  // An older client posting the pre-4.16 shape knows nothing about standing
+  // rules. Its silence must not be read as "the firm deleted both".
+  test('a body with no kind at all leaves the standing rules untouched', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'public_speaking' },
+      body: { branches: [{ id: 'ps_stage1', branch_name: 'S1', condition: 'c', action: 'a', notes: '' }] }
+    }), res)
+    const saved = overlay.saveFirmConfig.mock.calls[0][2].public_speaking
+    expect(saved.flat_branches).toBeUndefined()
+  })
+
+  test('a table with no standing rules never stores an empty flat_branches', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'eoy_meeting' },
+      body: { branches: [{ id: 'x', kind: 'branch', branch_name: 'B', condition: 'c', action: 'a', notes: '' }] }
+    }), res)
+    expect(overlay.saveFirmConfig.mock.calls[0][2].eoy_meeting.flat_branches).toBeUndefined()
+  })
+})
+
 describe('DELETE /logic-trees/:treeId (reset)', () => {
   test('drops just that table from the firm bundle and saves the rest', async () => {
     overlay.loadFirmConfig.mockResolvedValue({ eoy_meeting: { nodes: [] }, quickfire: { nodes: [] } })

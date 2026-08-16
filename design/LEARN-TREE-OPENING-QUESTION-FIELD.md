@@ -121,21 +121,33 @@ not read for that table.
 
 ---
 
-## 3. ⚠ THE WORDING — MIKE'S CHOICE, NOTHING IS BUILT UNTIL THIS IS ANSWERED
+## 3. ✅ THE WORDING — CHOSEN BY MIKE, 2026-08-16
+
+**Label:** **The question your advisors are asked first**
+**Hint:** *"Your advisor is asked this before any coaching starts, so the AI knows which stage they
+need. The branches below are the stages it chooses between."*
+**The two seminar rules:** §3c option **A** — two more rows in the same table, tagged **Always
+applies**.
+
+**This is what the build must match, word for word.** Any difference between the screen and these
+lines is a deviation to be named, not a detail.
+
+*The options he chose between are kept below so the choice can be read back rather than taken on
+trust.*
 
 ### 3a. The label above the box
 
 | | Option | Reads as |
 |---|---|---|
 | **A** | **The question this table opens with** | Names the thing and where it sits. Matches the tab's own voice — the lede already calls each row *"a branch"* of a *"table"*. |
-| **B** | **The question your advisors are asked first** | Closest to the wording approved for the Advisory Staircase — *"The question your advisors are asked"* — with "first" doing the work of saying it comes before the branches. |
+| **B** ✅ | **The question your advisors are asked first** | Closest to the wording approved for the Advisory Staircase — *"The question your advisors are asked"* — with "first" doing the work of saying it comes before the branches. |
 | **C** | **Where are you up to?** | Uses the question's own voice rather than describing it. Shortest. |
 
 ### 3b. The hint beneath it
 
 | | Option |
 |---|---|
-| **A** | *"Your advisor is asked this before any coaching starts, so the AI knows which stage they need. The branches below are the stages it chooses between."* |
+| **A** ✅ | *"Your advisor is asked this before any coaching starts, so the AI knows which stage they need. The branches below are the stages it chooses between."* |
 | **B** | *"What an advisor is asked before the AI picks a stage to coach."* |
 | **C** | *(no hint — the label carries it)* |
 
