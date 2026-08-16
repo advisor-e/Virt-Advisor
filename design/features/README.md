@@ -17,6 +17,21 @@ Claude for the link.
 |---|---|
 | **[The To-Do List](to-do.md)** | The whole live list — who each item waits on, and how it was verified. [Done & parked](to-do-done-and-parked.md) |
 | **[Product Principles](product-principles.md)** | The tests a thing must pass to earn a place in the product at all. Read before proposing any feature. |
+| **[What Each Hub Page Is For](../HUB-PAGE-PURPOSES.md)** | Twelve tabs, one question each — and the names are not a reliable guide to which. Read before deciding where a piece of content belongs. Every row says whether it was checked against the code or only against a Brief. |
+| **[Design Logic](../ADVISOR-E-DESIGN-LOGIC.md)** | Where Virt Advisor ends and Advisor-e begins, and how the tier logic applies to every feature built here. |
+| **[The Working Agreement](../WORKING-AGREEMENT.md)** | How a session starts and ends, and how the two machines and the master team stay in step. Binding. |
+
+## Checkable records
+
+*Kept in `design/` because generators and tests write to them there. Listed here so they
+can be read in one place — the Handbook does not move them.*
+
+| | |
+|---|---|
+| **[The Tier Cascade Map](../TIER-CASCADE-MAP.md)** | For each thing the Hub does: does it cascade down the tiers, and does anything report back up? Read out of the code. |
+| **[Approved Artefacts](../ARTEFACTS.md)** | The register of what Mike has actually approved. If a thing is not in that table, nothing should be built from it. Guarded by a test. |
+| **[Content Routing](../CONTENT-ROUTING.md)** | What reaches a client recommendation, and what is filed into a lane where it becomes invisible. Regenerated from the code by `npm run routing`. |
+| **[Deployed Versions](../DEPLOYED-VERSIONS.md)** | Which commit is running in which environment, who put it there, and when. |
 | **[The Handbook](handbook.md)** | How this handbook is built, published, opened and edited — and why a new feature starts as a page in it. [history](handbook-history.md) |
 
 ## The AI engine

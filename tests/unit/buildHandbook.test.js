@@ -186,6 +186,100 @@ describe('the Handbook', () => {
       expect(builder.relink('<a href="../">x</a>'))
         .toBe('<a href="#" data-file="" class="filelink">x</a>')
     })
+
+    // ── design/ documents as pages (2026-08-16) ────────────────────────────
+    // Six documents that are current rules sat one level up and could never
+    // appear here, while Handbook pages linked to them to nothing. The index can
+    // now list one WITHOUT the file moving — moving them would have meant editing
+    // a generator, a guarded test, CLAUDE.md, both slash commands and a skill.
+
+    it('resolves a link to a design/ document the index lists', () => {
+      const pages = new Map([['TIER-CASCADE-MAP.md', 'tier-cascade-map']])
+      expect(builder.relink('<a href="../TIER-CASCADE-MAP.md">x</a>', 'features', pages))
+        .toBe('<a href="#tier-cascade-map">x</a>')
+    })
+
+    it('leaves a design/ document the index does NOT list exactly as it was', () => {
+      // The old behaviour has to survive untouched for the ~100 links to documents
+      // that are records rather than rules.
+      const pages = new Map([['TIER-CASCADE-MAP.md', 'tier-cascade-map']])
+      expect(builder.relink('<a href="../ACTIONS.md">x</a>', 'features', pages))
+        .toBe('<a href="#" data-file="ACTIONS.md" class="filelink">x</a>')
+    })
+
+    it('reads the SAME path differently depending on which folder wrote it', () => {
+      // '../server/…' means the repo root from design/, and design/ from
+      // design/features/. One set of rules for both would mislabel every link on
+      // the six pages added that day.
+      expect(builder.relink('<a href="../server/utils/coaching.js">x</a>', 'design'))
+        .toBe('<a href="#" data-file="server/utils/coaching.js" class="filelink">x</a>')
+      expect(builder.relink('<a href="../server/utils/coaching.js">x</a>', 'features'))
+        .toBe('<a href="#" data-file="server/utils/coaching.js" class="filelink">x</a>')
+    })
+
+    it('a design/ page reaches a Brief, and names an unlisted sibling by its real path', () => {
+      expect(builder.relink('<a href="features/tier-cascade.md">x</a>', 'design'))
+        .toBe('<a href="#tier-cascade">x</a>')
+      expect(builder.relink('<a href="MENTOR-TIER-CHAIN-PLAN.md">x</a>', 'design'))
+        .toBe('<a href="#" data-file="design/MENTOR-TIER-CHAIN-PLAN.md" class="filelink">x</a>')
+    })
+
+    it('a design/ page links to a listed sibling as a page', () => {
+      const pages = new Map([['ARTEFACTS.md', 'artefacts']])
+      expect(builder.relink('<a href="ARTEFACTS.md">x</a>', 'design', pages))
+        .toBe('<a href="#artefacts">x</a>')
+    })
+  })
+
+  describe('the six design/ documents are really in the built page', () => {
+    // Asserted against the BUILT html, not the index: a row in README.md that the
+    // generator silently skipped would leave the menu right and the page missing —
+    // which is exactly how hub-page-purposes went unnoticed for a day.
+    const expected = [
+      'hub-page-purposes',
+      'advisor-e-design-logic',
+      'working-agreement',
+      'tier-cascade-map',
+      'artefacts',
+      'content-routing',
+      'deployed-versions'
+    ]
+
+    it.each(expected)('renders %s as a page of its own', (slug) => {
+      expect(html).toContain('id="page-' + slug + '"')
+    })
+
+    it('gives each of them a navigation entry', () => {
+      expected.forEach((slug) => {
+        expect(html).toContain('data-slug="' + slug + '"')
+      })
+    })
+
+    it('none of them is given a history gate — only a Brief has one', () => {
+      const built = builder.build(path.join(os.tmpdir(), 'handbook-design-pages-test.html'))
+      built.pages
+        .filter(page => expected.includes(page.slug))
+        .forEach(page => expect(page.companion).toBeNull())
+    })
+
+    it('leaves the file where it is — the Handbook reads it, it does not move it', () => {
+      // CONTENT-ROUTING.md is written by scripts/generate-content-routing.js and
+      // ARTEFACTS.md is guarded by designArtefacts.test.js. If a later tidy-up moves
+      // either into features/, this fails before those do.
+      expect(fs.existsSync(path.join(ROOT, 'design', 'CONTENT-ROUTING.md'))).toBe(true)
+      expect(fs.existsSync(path.join(ROOT, 'design', 'ARTEFACTS.md'))).toBe(true)
+      expect(fs.existsSync(path.join(ROOT, 'design', 'WORKING-AGREEMENT.md'))).toBe(true)
+    })
+
+    it('design/features/ still holds Briefs only — every page there has a History', () => {
+      // HUB-PAGE-PURPOSES.md was moved INTO features/ first, and newFeature.test.js
+      // caught it: that folder is feature Briefs, each with a History behind the
+      // gate, and a reference table is neither. It went back, and reaches the
+      // Handbook the same way the other six do. Kept as its own assertion so the
+      // reason survives the next tidy-up.
+      expect(fs.existsSync(path.join(ROOT, 'design', 'HUB-PAGE-PURPOSES.md'))).toBe(true)
+      expect(fs.existsSync(path.join(FEATURES_DIR, 'hub-page-purposes.md'))).toBe(false)
+    })
   })
 
   describe('the index drives the navigation', () => {

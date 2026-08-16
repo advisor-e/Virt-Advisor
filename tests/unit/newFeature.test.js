@@ -194,7 +194,13 @@ describe('starting a feature as a page', () => {
       expect(handbook.companionOf('case-reviews', known)).toBe('case-reviews-history')
 
       const learning = handbook.parseIndex(read('README.md')).find(group => group.name === 'Learning')
-      expect(learning.items).toContainEqual({ slug: 'case-reviews', title: 'Case Reviews' })
+      // objectContaining, not an exact shape: an index item also carries `file` and
+      // `source` since 2026-08-16, when a row gained the ability to point at a
+      // document in design/ rather than only a Brief beside it. What this test is
+      // for is that the scaffolder's new page is navigable — not the field list.
+      expect(learning.items).toContainEqual(
+        expect.objectContaining({ slug: 'case-reviews', title: 'Case Reviews', source: 'features' })
+      )
     })
 
     it('refuses to overwrite a Brief that already exists', () => {

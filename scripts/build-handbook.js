@@ -55,7 +55,8 @@ const os = require('os')
 const path = require('path')
 
 const ROOT = path.join(__dirname, '..')
-const FEATURES_DIR = path.join(ROOT, 'design', 'features')
+const DESIGN_DIR = path.join(ROOT, 'design')
+const FEATURES_DIR = path.join(DESIGN_DIR, 'features')
 const SHELL_PATH = path.join(__dirname, 'handbook-shell.html')
 const INDEX_SLUG = 'README'
 
@@ -116,8 +117,20 @@ function escapeHtml (text) {
  * navigation entry in both and is RENDERED ONCE, under the first group it
  * appears in. Rendering it twice would put two elements on the same id.
  *
+ * A ROW MAY POINT ONE LEVEL UP (`../ADVISOR-E-DESIGN-LOGIC.md`), and that document
+ * becomes a page without moving (2026-08-16). Six documents that are current rules
+ * — the design logic, the cascade map, the artefact register, the routing report,
+ * the working agreement and the deployed-versions ledger — sat in `design/` and so
+ * could never appear here, while Handbook pages linked to them 129 times to nothing.
+ * Moving them was the obvious fix and the wrong one: `CONTENT-ROUTING.md` is written
+ * by a generator, `ARTEFACTS.md` is guarded by a test, and `WORKING-AGREEMENT.md` is
+ * named in CLAUDE.md, README.md, both slash commands, a skill and check-branch-state.
+ * A documentation tidy-up does not get to put those at risk. The index stays the one
+ * source of the navigation either way.
+ *
  * @param {string} markdown  the index file's contents
- * @returns {Array<{name: string, items: Array<{slug: string, title: string}>}>}
+ * @returns {Array<{name: string, items: Array<{slug: string, title: string,
+ *   file: string, source: string}>}>}
  */
 function parseIndex (markdown) {
   const groups = []
@@ -136,16 +149,38 @@ function parseIndex (markdown) {
     const cells = line.split('|').slice(1, -1)
     if (!cells.length) return
 
-    const link = cells[0].match(/\[([^\]]+)\]\(([a-z0-9-]+)\.md[^)]*\)/i)
+    const link = cells[0].match(/\[([^\]]+)\]\((\.\.\/)?([A-Za-z0-9._-]+)\.md[^)]*\)/i)
     if (!link) return // a header row, or a cell with no page in it
 
     const title = link[1].replace(/[*`]/g, '').trim()
     if (/^(brief|history)$/i.test(title)) return // the table's own header row
 
-    current.items.push({ slug: link[2], title })
+    const fromDesign = Boolean(link[2])
+    const name = link[3]
+    current.items.push({
+      slug: fromDesign ? designSlug(name) : name,
+      title,
+      file: name + '.md',
+      source: fromDesign ? 'design' : 'features'
+    })
   })
 
   return groups.filter(group => group.items.length)
+}
+
+/**
+ * The page id a `design/` document takes.
+ *
+ * Those filenames are SHOUTED (`TIER-CASCADE-MAP.md`) and every id in the shell is
+ * lowercase, so it is lowered rather than used as it stands. Collisions are refused
+ * outright in build() — two pages on one id would put two elements on the same
+ * anchor and the second would be unreachable.
+ *
+ * @param {string} name  the filename without its extension
+ * @returns {string}
+ */
+function designSlug (name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 }
 
 /**
@@ -171,13 +206,50 @@ function body (markdown) {
 }
 
 /**
- * Rewrites cross-links between feature files into in-page navigation, and turns
- * a link that leaves the folder into a .filelink — informational, not clickable
- * through to nowhere. Both behaviours are the original's, unchanged.
+ * Rewrites cross-links into in-page navigation, and turns a link with no page
+ * behind it into a .filelink — informational, rather than clickable through to
+ * nowhere.
+ *
+ * TWO BASES, because a page can now come from either folder (2026-08-16). The same
+ * text `../server/utils/coaching.js` means one thing written in `design/features/`
+ * and another written in `design/`, so resolving both with one set of rules would
+ * mislabel every link on the pages added that day.
+ *
+ * `pages` is what makes the dead links live: a Brief linking `../TIER-CASCADE-MAP.md`
+ * resolved to nothing before, because no page could exist there. Where the index now
+ * lists that document, the link becomes in-page navigation; where it does not, the
+ * old .filelink behaviour is unchanged.
+ *
+ * Both arguments after the html DEFAULT, so the one-argument call still means what
+ * it always did: a features page, with no design/ document listed. A helper that
+ * threw when called the obvious way would be a trap for the next reader.
+ *
+ * @param {string} html
+ * @param {string} [base]  'features' or 'design' — the folder the source file is in
+ * @param {Map<string, string>} [pages]  design/ filename -> its page slug
+ * @returns {string}
  */
-function relink (html) {
+function relink (html, base = 'features', pages = new Map()) {
+  const upOne = (match, name) => {
+    const slug = pages.get(name + '.md')
+    return slug ? 'href="#' + slug + '"' : match
+  }
+
+  if (base === 'design') {
+    return html
+      // design/features/x.md — a Brief, written from one level up
+      .replace(/href="features\/([a-z0-9-]+)\.md"/g, 'href="#$1"')
+      // a sibling in design/ — a page here when the index lists it
+      .replace(/href="([A-Za-z0-9._-]+)\.md"/g, upOne)
+      .replace(/href="([A-Za-z0-9._-]+)\.md"/g, 'href="#" data-file="design/$1.md" class="filelink"')
+      // ../ from design/ is the repository root
+      .replace(/href="\.\.\/([^"]+)"/g, 'href="#" data-file="$1" class="filelink"')
+  }
+
   return html
     .replace(/href="([a-z0-9-]+)\.md"/g, 'href="#$1"')
+    // one level up is design/ — a page here when the index lists it
+    .replace(/href="\.\.\/([A-Za-z0-9._-]+)\.md"/g, upOne)
     .replace(/href="\.\.\/\.\.\/([^"]+)"/g, 'href="#" data-file="$1" class="filelink"')
     .replace(/href="\.\.\/([^"]*)"/g, 'href="#" data-file="$1" class="filelink"')
 }
@@ -194,8 +266,8 @@ function stripMarkers (markdown) {
   return markdown.replace(/^[ \t]*<!--\s*(?:BEGIN|END) GENERATED[^\n]*-->[ \t]*\r?\n?/gm, '')
 }
 
-function renderMarkdown (markdown) {
-  return relink(md.render(stripMarkers(body(markdown))))
+function renderMarkdown (markdown, base, pages) {
+  return relink(md.render(stripMarkers(body(markdown))), base || 'features', pages || new Map())
 }
 
 // ── The ranking control ────────────────────────────────────────────────────
@@ -274,11 +346,11 @@ function renderQueueData () {
  * @param {{slug: string, title: string, group: string, companion: string|null}} page
  * @param {function(string): string} read  slug → markdown
  */
-function renderPage (page, read) {
+function renderPage (page, read, pages) {
   let out = '<article class="page" id="page-' + page.slug + '" data-page="' + page.slug + '" hidden>'
   out += '<header class="pagehead"><div class="eyebrow">' + escapeHtml(page.group) +
     '</div><h1>' + escapeHtml(page.title) + '</h1></header>'
-  const prose = renderMarkdown(read(page.slug))
+  const prose = renderMarkdown(read(page), page.source, pages)
   out += '<div class="prose">' +
     (page.slug === QUEUE_SLUG ? mountQueue(prose) : prose) +
     '</div>'
@@ -293,7 +365,10 @@ function renderPage (page, read) {
         ? 'Finished work, and everything parked by a decision of yours. Nothing here is live.'
         : 'Read the page above first. Nothing below is a current instruction. If this and the page above disagree, the page above wins.') +
       '</p>' +
-      '<div class="prose history">' + renderMarkdown(read(page.companion)) + '</div></details>'
+      // A companion is always a Brief's history, which only ever lives in features/.
+      '<div class="prose history">' +
+      renderMarkdown(read({ slug: page.companion, source: 'features', file: page.companion + '.md' }), 'features', pages) +
+      '</div></details>'
   }
 
   return out + '</article>'
@@ -317,9 +392,26 @@ function renderNavLink (item) {
 function build (outPath) {
   const files = fs.readdirSync(FEATURES_DIR).filter(name => name.endsWith('.md'))
   const known = new Set(files.map(name => name.replace(/\.md$/, '')))
-  const read = slug => fs.readFileSync(path.join(FEATURES_DIR, slug + '.md'), 'utf8')
+  const read = page => fs.readFileSync(
+    path.join(page.source === 'design' ? DESIGN_DIR : FEATURES_DIR, page.file), 'utf8'
+  )
 
-  const groups = parseIndex(read(INDEX_SLUG))
+  const groups = parseIndex(read({ source: 'features', file: INDEX_SLUG + '.md' }))
+
+  // Every design/ document the index lists, by filename, so a link written as
+  // `../TIER-CASCADE-MAP.md` on any page can be resolved to the page it now has.
+  const designPages = new Map()
+  groups.forEach(group => group.items.forEach(item => {
+    if (item.source !== 'design') return
+    if (known.has(item.slug)) {
+      throw new Error(
+        'Handbook index: ../' + item.file + ' takes the page id "' + item.slug +
+        '", which design/features/' + item.slug + '.md already holds. Two pages on one id ' +
+        'means the second cannot be reached — rename one before listing it.'
+      )
+    }
+    designPages.set(item.file, item.slug)
+  }))
 
   // Render each page once, under the first group that lists it.
   const pages = []
@@ -327,9 +419,13 @@ function build (outPath) {
   groups.forEach(group => group.items.forEach(item => {
     if (rendered.has(item.slug)) return
     rendered.add(item.slug)
-    const companion = companionOf(item.slug, known)
+    // Only a Brief has a history behind the gate; a design/ document is one page.
+    const companion = item.source === 'design' ? null : companionOf(item.slug, known)
     if (companion) rendered.add(companion)
-    pages.push({ slug: item.slug, title: item.title, group: group.name, companion })
+    pages.push({
+      slug: item.slug, title: item.title, group: group.name, companion,
+      source: item.source, file: item.file
+    })
   }))
 
   // A page nothing points at is a page nobody will read. Never drop it silently.
@@ -337,7 +433,7 @@ function build (outPath) {
   const unlisted = Array.from(known)
     .filter(slug => slug !== INDEX_SLUG && !rendered.has(slug))
     .sort()
-    .map(slug => ({ slug, title: slug, group: 'Unlisted', companion: null }))
+    .map(slug => ({ slug, title: slug, group: 'Unlisted', companion: null, source: 'features', file: slug + '.md' }))
 
   const allPages = pages.concat(unlisted)
   const navGroups = groups.concat(
@@ -351,7 +447,7 @@ function build (outPath) {
 
   const values = {
     '<!--NAV-->': nav,
-    '<!--PAGES-->': allPages.map(page => renderPage(page, read)).join(''),
+    '<!--PAGES-->': allPages.map(page => renderPage(page, read, designPages)).join(''),
     '<!--COUNT-->': String(allPages.length),
     '<!--QUEUE-->': renderQueueData()
   }
@@ -367,6 +463,7 @@ function build (outPath) {
     pages: allPages,
     groups: navGroups,
     unlisted,
+    designPages,
     files,
     outPath,
     queueItems: JSON.parse(fs.readFileSync(QUEUE_DATA_PATH, 'utf8')).items.length,
