@@ -21,6 +21,57 @@
 >
 > ---
 >
+> ## 🔴 SESSION 66 — 2026-08-17 (laptop). 4.16 ITEM F — DESIGN SETTLED, NOT BUILT.
+>
+> **No application code changed.** The session produced the artefact item F could not start without,
+> and it found two things wrong in the spec that filed it.
+>
+> **✅ THE ARTEFACT** (`0398826`, `33e1859`, `e9cd3f6`) —
+> [`METHOD-GUIDES-SCREEN.md`](METHOD-GUIDES-SCREEN.md) and
+> [`mockups/method-guides.html`](mockups/method-guides.html), registered in
+> [`ARTEFACTS.md`](ARTEFACTS.md). All four wordings chosen by Mike, and the tier ruling with them.
+> **Nothing about the screen is undecided; what remains is the build.**
+>
+> **🔴 IT IS THIRTEEN GUIDES, NOT TWELVE.** `powerful-seminars.json` is not named `*-reference.json`,
+> so the sweep's file pattern missed it. `LEARN_REFERENCE_FORMATTERS` registers it beside the other
+> twelve and treats it identically. **A count taken from a filename pattern is a count of filenames.**
+>
+> **🔴 THEY ARE NOT "READ BY THE AI IN FULL" — 116 OF 954 AUTHORED LINES REACH NO PROMPT.** Measured
+> by rendering each guide's own prompt block and searching it for every authored string over 25
+> characters: **62 missing in Dashboard Discussions** (including the `discussion_questions` authored
+> against every one of its twelve metrics, and their `tactical_options`), **29 in Working Capital
+> Cycle** (each problem type's `causes` and `impact` — the trigger reaches the AI and the diagnosis
+> does not), **20 in Ratio Analysis**, 5 across the rest. Each formatter names its fields by hand, so
+> a field authored afterwards is never mentioned again.
+>
+> ⚠ **THE SWEEP COUNTED THESE THIRTEEN AS REACHING THE PROMPT BECAUSE THE FORMATTER EXISTS.** That is
+> 4.16's own fault one level below where 4.16 looked, and it is why F is no longer only a screen: the
+> build feeds screen and prompt from **one walk of each guide's own shape**, so they cannot disagree.
+> Both Briefs now carry it — `domain-support.md` trap 6, `logic-tables.md` trap 6 and P2c.
+>
+> **✅ RULED BY MIKE, 2026-08-17 — the method guides get the SAME TIERS as the materials table they
+> open from** (mentor authors; global group, group and firm managers inherit and may reword their own
+> copy). **The opposite of item B's mentor-only ruling**, which was about routing logic. It was asked
+> rather than carried across, and asking changed the answer. `domain-support.md` P3c.
+>
+> **⚠ THE MOCKUP WAS DRAWN SHOWING OPTION A OF EACH AND ONE CHOICE WENT THE OTHER WAY.** The drawing
+> was corrected the same day rather than left disagreeing with the approved wording — the drift the
+> Save-the-Artefact rule exists to stop.
+>
+> **⚠ ALSO WORTH KNOWING:** the guide-to-material-row mapping **exists nowhere in the data**. The
+> guides key to a logic table and those thirteen tables carry no domain, so nothing in the code can
+> say which page a guide belongs on. Thirteen lines get authored in the open; a guide with no mapping
+> renders nowhere rather than being placed by guesswork. **Facilitation 101 has no material row
+> anywhere** — it is the universal protocol, and gets its own entry above the domains.
+>
+> **⚠ STILL OPEN, unchanged by this session:** item D (engagement types, no page at any tier, waits on
+> Mike); the release Mike asked for in session 65 was still not cut; and the carried items from
+> sessions 61–65 — six ghost template references, two broken Brief links, no Coaching Reference Brief,
+> `ARTEFACTS.md` showing 2.6 as awaiting approval, and ~100 Handbook links pointing at documents with
+> no page. **Now carried seven sessions.**
+>
+> ---
+>
 > ## 🔴 SESSION 65 — 2026-08-16 (laptop). Four commits. 4.16 IS FIVE-SEVENTHS DONE.
 >
 > **Mike's instruction: *"4.16 — complete all your pieces then i want a new release created."*** Four

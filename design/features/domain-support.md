@@ -60,6 +60,15 @@ screen therefore does not offer either — **never offer a control that does not
 OWN situations can be renamed and removed freely. Removing an inherited one needs a different
 store, not a button, and is an open decision.
 
+**P3c · A method guide surfaces on this tab, from the framework row it belongs to.** The thirteen
+deep method guides are the full version of a framework this tab already lists, so the guide opens
+from that row rather than living on a page of its own — *"how do I run this session"* is this tab's
+question. **They get the same tiers as the materials table around them:** the mentor authors, and
+global group, group and firm managers each inherit and may reword their own copy. ⚠ **That is the
+opposite of P3a's block**, which was ruled mentor-only because it is routing logic — the ruling was
+*asked* rather than carried across, and asking changed the answer. Ruled by Mike, 2026-08-17;
+artefact [`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md).
+
 **P4 · Overrides are sparse and merge per field.** A level stores only what it changed, and the
 rest keeps tracking the platform. **Arrays are the exception — they replace wholesale**, so
 overriding a list means every item in it is now firm-authored, all or nothing.
@@ -148,7 +157,16 @@ across the board — 29 assets, none of them selecting a template.
    path that mattered most, and no test noticed, because every test asked whether a field was
    *saved* and none asked whether it was *used*. Fixed 2026-08-16 by one shared formatter called
    from all three. **When adding a field here, change the shared formatter, never one caller.**
-6. 🔴 **"It duplicates the logic table" is a claim to test, not to accept.** A committed spec said
+6. 🔴 **A formatter that lists the fields it emits BY HAND goes quiet on every field authored
+   afterwards.** Trap 5 above is one instance; the thirteen method guides are the same fault at
+   scale. Each has a hand-written formatter naming its fields one by one, and **116 of the 954
+   authored lines across them reach no prompt** — 62 in Dashboard Discussions, 29 in Working
+   Capital Cycle, 20 in Ratio Analysis, including the discussion questions authored against every
+   dashboard metric. Nothing failed, because a formatter cannot notice a field it was never told
+   about. **The test is not "does the file reach the AI" but "does every line in it".** Render the
+   prompt and search it for each authored string; measured at
+   [`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md) §2.
+7. 🔴 **"It duplicates the logic table" is a claim to test, not to accept.** A committed spec said
    ~55 of the 65 branches duplicated tree routing and proposed deleting them. Tested text by text,
    the claim failed: the tree says *which* conversation this is, the branch says *what to do* once
    you are in it, and their words overlap only because they share a subject. **The comparison had

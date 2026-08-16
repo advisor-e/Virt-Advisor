@@ -53,6 +53,15 @@ stage the advisor is in live in `flat_branches`, outside the walked graph. They 
 rows tagged **Always applies**, and they can be reworded but not added to — the set is the
 platform's. A row saved back into the staged list would join the walk.
 
+**P2c · Thirteen learn tables carry a companion METHOD GUIDE, formatted here and screened
+elsewhere.** `LEARN_REFERENCE_FORMATTERS` attaches a deep guide — 155,000 characters across the
+thirteen — to the same tables that carry an opening question, and it reaches the model in full
+whenever that table is coached. **The guide is edited on Domain Support, not on this tab:** it
+answers *how do I run this session*, which is that page's question, and it opens from the framework
+row it belongs to. Formatted in `logicTrees.js`; screened in `FirmDomainSupport.vue`. **Do not go
+looking for the screen where the code is.** Ruled by Mike, 2026-08-17; artefact
+[`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md).
+
 **P3 · A tree may legitimately name a tool the catalogue has not published yet.** That keeps the
 tree faithful to its source. The availability gate holds the name back until the catalogue
 carries it, and then it starts flowing **with no edit to the tree**.
@@ -152,6 +161,13 @@ affect a screen you were not thinking about.
    at, and no test could name a field nothing named. Fixed 2026-08-16. **A field that appears in
    only one file in the repository — the one that authors it — is unreachable by definition; grep
    for it before assuming it is wired.**
+6. 🔴 **"The file reaches the AI" does not mean its contents do.** The thirteen method-guide
+   formatters in this file each name their fields by hand, so **116 of 954 authored lines across
+   them arrive nowhere** — a field added to a guide after its formatter was written is simply never
+   mentioned again. A 4.16-era sweep counted all thirteen as *reaching the prompt* on the strength
+   of the formatter existing. **Render the prompt and search it for each authored string**; the
+   measurement is at [`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md) §2. The fix is one
+   walker over each guide's own shape, feeding screen and prompt from the same read.
 
 ---
 

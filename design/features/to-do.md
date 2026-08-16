@@ -337,7 +337,7 @@ actual templates while the branches do not. The real list is seven items:
 | `stage_entry_question` + `flat_branches` | 15 | Logic Tables | ✅ **2026-08-16** |
 | Engagement-type authored fields — 6 per type | 18 | 🔴 **no page exists** | 🔴 **waits on Mike** |
 | Staircase `selectorPrompt` from data, not a hardcoded string | 1 | Advisory Staircase | ✅ **2026-08-16** |
-| The 12 method guides get a screen | 12 | Domain Support | **the only build left that is ours** |
+| The method guides get a screen | ~~12~~ **13** | Domain Support | **design settled 2026-08-17 — the build is the only one left that is ours** |
 | `get-team-problem`'s `if_then_logic` — check against its tree first | 6 | Logic Tables | ✅ **2026-08-16 — a real duplicate, no work needed** |
 
 🔴 **"About 55 of the 65 are duplicates" was WRONG, and it was overturned by the very test the spec
@@ -354,6 +354,32 @@ knowing that the intuition was right once in seven and wrong the other six times
 **The job also grew by 26 deliberately:** the `primary_question` fields DO reach the AI and appear on
 no screen either — the same fault, the same field, the same tab. Fixing the 65 and leaving those
 invisible would have been a choice, and the wrong one.
+
+### ✅ F's design is SETTLED — session 66, 2026-08-17 · next session builds
+
+🔴 **Read [`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md) and
+[`../mockups/method-guides.html`](../mockups/method-guides.html) and build.** The artefact, all four
+wordings and the tier ruling are done. **Do not re-ask them.**
+
+**Two things in this item's own description were wrong, and both were found by opening the files:**
+
+1. 🔴 **It is THIRTEEN guides, not twelve.** `powerful-seminars.json` is not named `*-reference.json`,
+   so the file-pattern sweep missed it — `LEARN_REFERENCE_FORMATTERS` registers it beside the other
+   twelve and treats it identically.
+2. 🔴 **They are NOT "read by the AI in full", which this list said for two sessions.**
+   **116 of the 954 authored lines across them reach no prompt** — 62 in Dashboard Discussions
+   (including the discussion questions authored against every one of its twelve metrics), 29 in
+   Working Capital Cycle, 20 in Ratio Analysis. Each formatter names its fields by hand, so a field
+   authored afterwards is never mentioned again. **The sweep counted the file as reaching the AI
+   because the formatter exists.**
+
+**So F is not only a screen.** Screen and prompt get built from **one walk of each guide's own
+shape** — 155,000 characters, of which only 21% sits in fields all thirteen share and **35% is blocks
+unique to a single guide** — so the two cannot disagree and the 116 close as a consequence of the
+design rather than as thirteen patches. Each guide opens from the framework row it already has on
+Domain Support; **Facilitation 101 has no row anywhere** and gets its own entry above the domains.
+**Tiers: the same as the materials table around it** — the opposite of B's mentor-only ruling,
+because a method guide is prose rather than routing logic, and it was asked rather than assumed.
 
 ✅ **E shipped 2026-08-16 (`5873c06`) — the first of the seven, and the safe one on purpose.**
 The sentence an advisor is asked before choosing a staircase step now comes from the data and is
