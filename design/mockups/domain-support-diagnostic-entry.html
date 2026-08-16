@@ -1,0 +1,706 @@
+<title>Domain Support — Diagnostic Entry</title>
+<style>
+  /* ------------------------------------------------------------------
+     Palette and type are TAKEN FROM components/firm/FirmDomainSupport.vue,
+     not invented — a mockup's job is fidelity to the tab it proposes to
+     change. Committed light-only and painted explicitly, because the app
+     it depicts is light-only; nothing here inherits the viewer's ground.
+     ------------------------------------------------------------------ */
+  :root {
+    --ground: #f2f4f7;
+    --card: #ffffff;
+    --ink: #1f2733;
+    --body: #404b5a;
+    --muted: #8a94a3;
+    --line: #eef1f5;
+    --head-bg: #f4f6f9;
+    --rule: #dfe4ea;
+    --platform: #c7ceda;
+    --firm: #e0b24e;
+    --firm-bg: #fdf6e6;
+    --accent: #3273dc;
+    --new: #1f9d76;
+    --new-bg: #e9f6f1;
+    --sans: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--body);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 34px 22px 90px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  /* ---------- page head ---------- */
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0;
+  }
+  h1 {
+    margin: 4px 0 0;
+    font-size: 30px;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .lede { margin: 10px 0 0; max-width: 68ch; }
+
+  .note {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 13px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .note p { margin: 0; max-width: 78ch; }
+  .note strong { color: var(--ink); }
+
+  h2 {
+    margin: 12px 0 0;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  h2 .num {
+    display: inline-block;
+    min-width: 1.5em;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .sub { margin: 0; color: var(--muted); font-size: 13.5px; max-width: 78ch; }
+
+  /* ---------- the mocked screen ---------- */
+  .screen {
+    background: var(--ground);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 18px;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 18px;
+  }
+
+  .rail {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 12px;
+  }
+  .rail-heading {
+    font-size: 10.9px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-weight: 700;
+    color: var(--muted);
+    margin: 0 0 6px;
+  }
+  .rail-group + .rail-group { margin-top: 16px; }
+  .rail-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  .rail-row.is-current { background: #eaf1fc; color: var(--ink); font-weight: 600; }
+  .count {
+    font-size: 11.5px;
+    background: #f0f2f5;
+    color: var(--body);
+    border-radius: 999px;
+    padding: 1px 8px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px;
+    min-width: 0;
+  }
+  .panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .panel-title { margin: 0 0 6px; font-size: 20px; font-weight: 700; color: var(--ink); }
+  .tag {
+    display: inline-block;
+    font-size: 11.5px;
+    background: #f0f2f5;
+    color: var(--body);
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); }
+  .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .dot.is-platform { background: var(--platform); }
+  .dot.is-firm { background: var(--firm); }
+
+  /* the section this artefact proposes */
+  .newblock {
+    border: 1px solid var(--new);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 22px;
+    background: var(--new-bg);
+  }
+  .newflag {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--new);
+    border-radius: 3px;
+    padding: 2px 7px;
+    margin-bottom: 10px;
+  }
+  .fieldlabel {
+    font-size: 10.9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 5px;
+  }
+  .fieldbox {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    padding: 9px 11px;
+    font-size: 14px;
+    color: var(--ink);
+  }
+
+  .table-scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 640px; }
+  thead th {
+    background: var(--head-bg);
+    text-align: left;
+    vertical-align: bottom;
+    font-size: 10.9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--muted);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+  tbody td {
+    vertical-align: top;
+    padding: 10px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  .c-when { width: 26%; }
+  .c-start { width: 68%; }
+  .c-origin { width: 6%; }
+  .when {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .slug {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .addrow {
+    margin-top: 11px;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .materials-head {
+    font-size: 10.9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    color: var(--muted);
+    margin: 0 0 8px;
+  }
+  .faded { opacity: 0.55; }
+
+  /* ---------- prompt block ---------- */
+  pre {
+    margin: 0;
+    background: #1f2733;
+    color: #e6ecf3;
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  pre .added { color: #7ee0b8; }
+  pre .was { color: #8a94a3; }
+
+  /* ---------- tiers ---------- */
+  .tiers { border-collapse: collapse; width: 100%; }
+  .tiers th, .tiers td {
+    text-align: left;
+    padding: 9px 12px 9px 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 14px;
+    vertical-align: top;
+  }
+  .tiers th {
+    font-size: 10.9px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--muted);
+  }
+  .tiers td:first-child { color: var(--ink); font-weight: 600; white-space: nowrap; }
+
+  .decide {
+    background: var(--firm-bg);
+    border: 1px solid var(--firm);
+    border-radius: 8px;
+    padding: 15px 17px;
+  }
+  .decide h2 { margin-top: 0; }
+  .decide ol { margin: 8px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 7px; }
+  .decide li { max-width: 76ch; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--head-bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: var(--ink);
+  }
+
+  @media (max-width: 860px) {
+    .screen { grid-template-columns: 1fr; }
+    .rail { display: none; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Mentor Hub · Domain Support tab · mentor tier only</p>
+    <h1>Diagnostic Entry — the section that was never built</h1>
+    <p class="lede">
+      Every domain carries an entry question and a set of “if the client presents like this, start
+      here” branches. <strong>65 of those branches exist in the data, appear on no screen, and reach
+      the AI nowhere.</strong> This artefact proposes the section that puts them on the tab, and shows
+      exactly what the AI starts receiving.
+    </p>
+  </header>
+
+  <div class="note">
+    <p><strong>Approval artefact — Phase 1 of to-do item 4.16.</strong> Saved before approval, per
+      CLAUDE.md → Save the Artefact. Built under the ruling of 2026-08-16: <em>“ALL AI fixes must use
+      hub pages where possible, starting with the mentor and cascading down as appropriate”</em>
+      (CLAUDE.md; <code>tier-cascade.md</code> P10).</p>
+    <p><strong>The worked example is the real <code>governance</code> domain</strong>, with its real
+      authored text. Nothing here is placeholder.</p>
+  </div>
+
+  <h2><span class="num">1.</span> The screen</h2>
+  <p class="sub">
+    The tab as it is today, with the proposed section outlined in green. The rail and the materials
+    table below it are unchanged — the new block sits above the materials, because deciding
+    <em>where to start</em> comes before choosing <em>what to use</em>.
+  </p>
+
+  <div class="screen">
+    <nav class="rail">
+      <div class="rail-group">
+        <p class="rail-heading">Do the job — with a client</p>
+        <div class="rail-row"><span>Conflict &amp; Dispute</span><span class="count">3</span></div>
+        <div class="rail-row is-current"><span>Governance</span><span class="count">3</span></div>
+        <div class="rail-row"><span>Risk</span><span class="count">3</span></div>
+        <div class="rail-row"><span>Succession</span><span class="count">3</span></div>
+        <div class="rail-row"><span>Valuation</span><span class="count">3</span></div>
+      </div>
+      <div class="rail-group">
+        <p class="rail-heading">Get organised — your firm</p>
+        <div class="rail-row"><span>Board Pack</span><span class="count">4</span></div>
+        <div class="rail-row"><span>Firm Strategy</span><span class="count">4</span></div>
+        <div class="rail-row"><span>Leadership</span><span class="count">4</span></div>
+      </div>
+    </nav>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <p class="panel-title">Governance</p>
+          <span class="tag">Platform content</span>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="dot is-platform"></span>Inherited</span>
+          <span class="legend-item"><span class="dot is-firm"></span>Edited here</span>
+        </div>
+      </div>
+
+      <div class="newblock">
+        <span class="newflag">New section</span>
+
+        <label class="fieldlabel" for="entryq">Entry question — asked before anything else</label>
+        <div class="fieldbox" id="entryq">
+          Is the governance problem about leadership style and culture fit, about how the board or
+          leadership team actually makes decisions, or about the gap between documented governance
+          and how it is practised in reality?
+        </div>
+
+        <p class="fieldlabel" style="margin-top:14px;">Where to start, by what the client is presenting</p>
+        <div class="table-scroll">
+          <table>
+            <colgroup>
+              <col class="c-when" />
+              <col class="c-start" />
+              <col class="c-origin" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col">When the client presents</th>
+                <th scope="col">Where to start</th>
+                <th scope="col">From</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="when">Culture misalignment</span><span class="slug">culture_misalignment</span></td>
+                <td>If the presenting issue is team dysfunction, morale, or leadership conflict — start with the Leadership Fit audit and the 5 Levels of Team Functioning to establish where the team’s waterline sits before recommending any structural changes.</td>
+                <td><span class="dot is-platform"></span></td>
+              </tr>
+              <tr>
+                <td><span class="when">Decision quality</span><span class="slug">decision_quality</span></td>
+                <td>If the presenting issue is poor decisions, recurring mistakes, or a sense that the board is not functioning effectively — introduce the psyche errors and boardroom manipulation tactics, then apply the 8-step decision quality framework.</td>
+                <td><span class="dot is-platform"></span></td>
+              </tr>
+              <tr>
+                <td><span class="when">Governance gap</span><span class="slug">governance_gap</span></td>
+                <td>If governance structures exist on paper but are not being followed — the issue is almost always cultural. Written codes, protocols, and tolerances are necessary but insufficient without the behavioural commitment to use them.</td>
+                <td><span class="dot is-platform"></span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="addrow">+ Add a starting point</p>
+      </div>
+
+      <p class="materials-head faded">Materials — unchanged</p>
+      <div class="table-scroll faded">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Summary</th>
+              <th scope="col">Who &amp; when</th>
+              <th scope="col">Steps</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Leadership Fit Audit</td>
+              <td>Establishes where the leadership team’s waterline sits.</td>
+              <td>Where morale or conflict is the presenting issue.</td>
+              <td>4 steps</td>
+            </tr>
+            <tr>
+              <td>8-Step Decision Quality</td>
+              <td>A structured framework for board decision-making.</td>
+              <td>Where decisions keep going wrong.</td>
+              <td>8 steps</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <h2><span class="num">2.</span> What the AI starts receiving</h2>
+  <p class="sub">
+    The real rendered prompt for <code>governance</code>. Grey is what it says today; green is what
+    this change adds. The same block goes to all three prompt paths — the advisor session, the
+    course-design phase, and the session briefing.
+  </p>
+
+  <pre><span class="was">## Domain Context — Governance
+
+Governance is the system by which a business directs and controls itself…
+</span><span class="added">**Diagnostic entry point:** Is the governance problem about leadership style and
+culture fit, about how the board or leadership team actually makes decisions, or
+about the gap between documented governance and how it is practised in reality?
+
+**Where to start, by what the client is presenting:**
+- **culture misalignment** — If the presenting issue is team dysfunction, morale,
+  or leadership conflict — start with the Leadership Fit audit and the 5 Levels of
+  Team Functioning to establish where the team's waterline sits before recommending
+  any structural changes.
+- **decision quality** — If the presenting issue is poor decisions, recurring
+  mistakes, or a sense that the board is not functioning effectively — introduce the
+  psyche errors and boardroom manipulation tactics, then apply the 8-step decision
+  quality framework.
+- **governance gap** — If governance structures exist on paper but are not being
+  followed — the issue is almost always cultural. Written codes, protocols, and
+  tolerances are necessary but insufficient without the behavioural commitment to
+  use them.
+</span><span class="was">
+### Leadership Fit Audit
+…materials continue unchanged…</span></pre>
+
+  <div class="note">
+    <p><strong>One honest note on the entry question.</strong> It already reaches two of the three
+      paths — the session briefing and course design — but not the advisor path, which is the main
+      one. Rendering all three through one shared formatter fixes that inconsistency as a side
+      effect. <strong>That is a real change to the advisor prompt beyond the 65 branches, and it is
+      named here rather than slipped in.</strong></p>
+  </div>
+
+  <h2><span class="num">3.</span> Where it lives, and who sees it</h2>
+  <p class="sub">
+    <strong>A section inside the existing Domain Support tab — not another page, and not another
+    tab.</strong> It renders in the same panel as the materials table, directly above it, when a
+    domain is picked from the rail. Nothing else on the tab moves.
+  </p>
+
+  <div class="note" style="border-left-color:var(--firm);">
+    <p><strong>Ruled by Mike, 2026-08-16, on seeing this mockup:</strong> <em>“this looks too
+      technical for a firm or global manager — this looks mentor level only.”</em></p>
+    <p>The table below is <strong>revised to match</strong>. It first proposed all four managing
+      tiers editing the block with row-level inheritance beneath the mentor — the default P10
+      produces. The correction is the useful part: <strong>a hub page is the rule; every tier getting
+      it is not.</strong></p>
+  </div>
+
+  <table class="tiers">
+    <thead>
+      <tr><th scope="col">Tier</th><th scope="col">Sees it</th><th scope="col">Why</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Mentor</td>
+        <td>Yes — authors it</td>
+        <td>Platform advisory content, and the only tier expected to reason about routing logic.</td>
+      </tr>
+      <tr>
+        <td>Global group manager</td>
+        <td>No</td>
+        <td>Ruled too technical for this tier.</td>
+      </tr>
+      <tr>
+        <td>Group manager</td>
+        <td>No</td>
+        <td>Ruled too technical for this tier.</td>
+      </tr>
+      <tr>
+        <td>Firm manager</td>
+        <td>No</td>
+        <td>Ruled too technical for this tier.</td>
+      </tr>
+      <tr>
+        <td>Advisor · business entity</td>
+        <td>No</td>
+        <td>Neither authors configuration — the advisor is a pass-through, the entity a recipient
+          (<code>tier-cascade.md</code> §3).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <p><strong>Nothing is taken away from anyone.</strong> The section does not exist today, so no
+      tier loses a control it currently has.</p>
+    <p><strong>The gate is named positively — <code>['mentor']</code>, never
+      <code>scope !== 'mentor'</code>.</strong> A negative gate answers <em>yes</em> for a tier that
+      does not exist yet, and would switch this section on by itself the day a new scope appears
+      (<code>tier-cascade.md</code> P5 — the trap that had already bitten three tabs).</p>
+    <p><strong>With one authoring tier there is nothing to cascade</strong>, so row-level
+      inheritance, per-tier id prefixes and the fencing of lower-tier text are <strong>not
+      built</strong> — recorded here so a later session does not read their absence as an oversight.
+      Platform content is repo data and is not fenced, exactly as the platform overview and materials
+      are not.</p>
+  </div>
+
+  <h2><span class="num">4.</span> The 65 branches, by domain</h2>
+  <p class="sub">
+    Every one is authored, stored, invisible, and unread — across 19 of the 29 domains. A 20th,
+    <code>get-team-problem</code>, carries 6 more of the same kind under a different key.
+  </p>
+
+  <div class="table-scroll">
+    <table class="tiers">
+      <thead>
+        <tr><th scope="col">Domain</th><th scope="col">Branches</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>people-power</td><td>6</td></tr>
+        <tr><td>raising-capital</td><td>5</td></tr>
+        <tr><td>fm-coach-culture</td><td>4</td></tr>
+        <tr><td>org-board-pack</td><td>4</td></tr>
+        <tr><td>org-firm-strategy</td><td>4</td></tr>
+        <tr><td>org-leadership</td><td>4</td></tr>
+        <tr><td>strategy</td><td>4</td></tr>
+        <tr><td>conflict</td><td>3</td></tr>
+        <tr><td>due-diligence</td><td>3</td></tr>
+        <tr><td>governance</td><td>3</td></tr>
+        <tr><td>org-capacity-planner</td><td>3</td></tr>
+        <tr><td>risk</td><td>3</td></tr>
+        <tr><td>sales-marketing</td><td>3</td></tr>
+        <tr><td>stock-purchasing</td><td>3</td></tr>
+        <tr><td>succession</td><td>3</td></tr>
+        <tr><td>systems</td><td>3</td></tr>
+        <tr><td>valuation</td><td>3</td></tr>
+        <tr><td>data-systems</td><td>2</td></tr>
+        <tr><td>forecasting</td><td>2</td></tr>
+        <tr><td>get-team-problem</td><td>6 — a different shape, see below</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <p><strong><code>get-team-problem</code> is the odd one out.</strong> Its six rules sit under a
+      top-level <code>if_then_logic</code> key rather than <code>diagnostic_entry</code>, and carry
+      three parts — condition, action, context — not two. It needs the same treatment in a different
+      shape, and is <strong>excluded from this phase</strong> rather than bent to fit.</p>
+  </div>
+
+  <h2><span class="num">5.</span> What you edit, and what you are asked to complete</h2>
+  <p class="sub">Three editable fields, and that is all. The origin marker is display only.</p>
+
+  <table class="tiers">
+    <thead>
+      <tr><th scope="col">Field</th><th scope="col">Shape</th><th scope="col">How many</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Entry question</td><td>One line of free text</td><td>One per domain</td></tr>
+      <tr><td>When the client presents</td><td>A short label</td><td>One per starting point</td></tr>
+      <tr><td>Where to start</td><td>A paragraph of guidance</td><td>One per starting point</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <p><strong>Right now you are asked for nothing.</strong> All 19 domains that carry starting
+      points already carry their text — this section makes existing content visible and sends it to
+      the AI. It needs no authoring to work.</p>
+    <p><strong>When you add a starting point</strong>, you type the label; the stored key is derived
+      from it automatically (<em>“Culture misalignment”</em> → <code>culture_misalignment</code>).
+      Never a second field to fill in.</p>
+    <p><strong>Going forward</strong>, a new or reworked domain owes one entry question and its
+      starting points — on today’s evidence <strong>2 to 6, most often 3</strong>. That becomes a
+      named step in the add-a-domain procedure, so a domain cannot quietly arrive with no routing.</p>
+  </div>
+
+  <h2><span class="num">6.</span> The gaps this section will show you</h2>
+
+  <table class="tiers">
+    <thead>
+      <tr><th scope="col">State</th><th scope="col">Domains</th><th scope="col">Which</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Question and starting points</td>
+        <td>19</td>
+        <td>The 19 listed above — 65 starting points between them</td>
+      </tr>
+      <tr>
+        <td>Question, no starting points</td>
+        <td>7</td>
+        <td>get-marketing · get-positioning · get-pricing-proposals · get-sales ·
+          get-sales-tracker · get-seminar · get-team-problem</td>
+      </tr>
+      <tr>
+        <td>Nothing at all</td>
+        <td>3</td>
+        <td>eoy · profit · staff</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="decide">
+    <h2 style="margin-top:0;">Two patterns worth your eye</h2>
+    <ol>
+      <li>🔴 <strong>The three carrying nothing are core client-facing domains</strong> — End of
+        Year, Profit and Staff. They are among the most-used conversations in the app, and the AI
+        gets no routing for any of them.</li>
+      <li><strong>All seven question-only domains are Get-the-Job</strong> — the advisor’s own
+        business development, not client work. Authored to a shallower depth, which looks deliberate
+        rather than missed. <code>get-team-problem</code> is the exception: it has six rules, under
+        the different key excluded from this phase.</li>
+    </ol>
+    <p style="margin:10px 0 0;"><strong>An empty section says so on screen</strong> — “No starting
+      points set. The AI receives the overview and materials for this domain, and no routing.” Never
+      a blank panel that reads as broken.</p>
+  </div>
+
+  <h2><span class="num">7.</span> Ruled 2026-08-16 — ship it filled</h2>
+
+  <div class="note" style="border-left-color:var(--firm);">
+    <p>Asked whether to build now with the ten gaps left empty, or to write the core domains first so
+      the section ships filled, Mike chose: <strong>“ship it filled with as many sections as
+      possible.”</strong></p>
+    <p><strong>The section does not ship with holes in it.</strong> The empty state is still built —
+      a domain added later must never render a blank panel — but it should be reached by as few
+      domains as possible on the day this lands, not by ten of twenty-nine.</p>
+    <p><strong>Target: all 10</strong>, with <code>eoy</code>, <code>profit</code> and
+      <code>staff</code> first because they are core client-facing domains. Any domain still empty at
+      ship time is reported to him <strong>by name</strong> — never a silent shortfall.</p>
+    <p>⚠ <strong>This changes the order of Phase 1.</strong> Authoring ten domains’ routing is now
+      the first and larger half of the job; the wiring and the screen are the second. They ship
+      together.</p>
+  </div>
+
+  <div class="decide">
+    <h2 style="margin-top:0;">🔴 First thing to settle next session — who drafts the ten</h2>
+    <ol>
+      <li><strong>Mike authors them.</strong> Most faithful — this is advisory content and he is the
+        mentor. Slowest.</li>
+      <li><strong>We draft from each domain’s own overview and materials; he approves.</strong> The
+        raw material is already in the file, so it is a summarising job rather than an inventing one.
+        Every draft is committed as an artefact <em>before</em> he approves it — ten domains is ten
+        sets of words he must actually read, and it must not become a rubber stamp.</li>
+      <li><strong>A mix</strong> — we draft the seven Get-the-Job domains, he writes the three core
+        client-facing ones.</li>
+    </ol>
+    <p style="margin:10px 0 0;"><strong>No drafting starts before this is answered.</strong> Writing
+      advisory routing text is authoring, and doing it unasked would be the same fault as inventing
+      wording — at ten times the scale.</p>
+  </div>
+
+</div>

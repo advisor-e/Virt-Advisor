@@ -94,6 +94,27 @@ section.firm-logic-tables
                   span.lt-dot.is-firm
                   | {{ $t('firmLogicTables.legendFirm') }}
 
+          //- ── The question this table opens with (item 4.16 C) ─────────────
+          //- Shown ONLY on the 13 learn tables that carry one, and the engine
+          //- reads it under exactly the same condition (see the detail route's
+          //- `openingQuestion`). Tying screen and prompt to one condition is what
+          //- stops this becoming a box whose edits reach nothing — which is the
+          //- fault the whole of 4.16 exists to close.
+          //- Above the branch table because that is the order it happens in: the
+          //- advisor is asked this, and the branches are the stages it chooses
+          //- between. design/LEARN-TREE-OPENING-QUESTION-FIELD.md.
+          b-field.mb-4(
+            v-if="form.openingQuestion !== null"
+            :label="$t('firmLogicTables.openingQuestion')"
+            :message="$t('firmLogicTables.openingQuestionHint')"
+          )
+            b-input(
+              v-model="form.openingQuestion"
+              type="textarea"
+              rows="3"
+              maxlength="800"
+            )
+
           b-message.mb-0(
             v-if="!hasBranches"
             type="is-warning"
@@ -132,7 +153,11 @@ section.firm-logic-tables
                       //- Reorder is offered only where row order is presentation
                       //- alone. A nodes-shaped tree starts its walk at row 1, so
                       //- moving rows there would repoint the engine's entry.
-                      template(v-if="current.reorderable")
+                      //- Standing rules are not in the staged sequence, so they
+                      //- have no position to move within. They also always sit
+                      //- last, which is why the staged rows' "down" stops at
+                      //- lastStagedIndex rather than the end of the list.
+                      template(v-if="current.reorderable && branch.kind !== 'standing'")
                         button.lt-branch-move(
                           type="button"
                           :disabled="bIndex === 0"
@@ -141,7 +166,7 @@ section.firm-logic-tables
                         ) ↑
                         button.lt-branch-move(
                           type="button"
-                          :disabled="bIndex === form.branches.length - 1"
+                          :disabled="bIndex === lastStagedIndex"
                           :aria-label="$t('firmLogicTables.moveBranchDown')"
                           @click="moveBranch(bIndex, 1)"
                         ) ↓
@@ -152,6 +177,12 @@ section.firm-logic-tables
                       ) ×
                     b-tag.mt-2(:type="branch.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small")
                       | {{ branch.origin === 'firm' ? $t('firmLogicTables.tagFirm') : $t('firmLogicTables.tagPlatform') }}
+                    //- A rule that holds whichever stage the advisor is in,
+                    //- rather than one step of the sequence. Two exist today,
+                    //- both on Public Speaking, and neither was visible anywhere
+                    //- before item 4.16 C.
+                    b-tag.mt-2.ml-1(v-if="branch.kind === 'standing'" type="is-info is-light" size="is-small")
+                      | {{ $t('firmLogicTables.tagStanding') }}
                   td.td-if
                     b-input(
                       v-model="branch.condition"
@@ -267,9 +298,10 @@ export default {
       query: '',
       /** The table on screen: {id, label, origin}, or null. */
       current: null,
-      /** A deep, editable copy of the current table's branches. */
-      form: { branches: [] },
-      /** Cleaned baseline of the loaded branches, JSON — drives `dirty`. */
+      /** A deep, editable copy of the current table's branches, plus the
+       *  question the table opens with (null on the tables that have none). */
+      form: { openingQuestion: null, branches: [] },
+      /** Cleaned baseline of the loaded table, JSON — drives `dirty`. */
       original: null,
       saving: false,
       /** Bundle-level saved-versions list (all logic tables share one history). */
@@ -331,10 +363,24 @@ export default {
       return Array.isArray(this.form.branches) && this.form.branches.length > 0
     },
 
-    /** True once the on-screen branches differ from what was loaded. */
+    /** True once the on-screen table differs from what was loaded. */
     dirty () {
       if (this.original === null) { return false }
-      return JSON.stringify(this.cleanBranches(this.form.branches)) !== this.original
+      return this.cleanForm() !== this.original
+    },
+
+    /**
+     * The last row that is part of the staged sequence. Standing rules always
+     * come last, and moving a staged row past one would put a rule that applies
+     * everywhere into the middle of the sequence it does not belong to.
+     * @returns {number} -1 when every row is standing
+     */
+    lastStagedIndex () {
+      const rows = this.form.branches || []
+      for (let i = rows.length - 1; i >= 0; i--) {
+        if (rows[i].kind !== 'standing') { return i }
+      }
+      return -1
     },
 
     /** Reset is meaningful only when the firm actually has a saved override. */
@@ -418,7 +464,7 @@ export default {
       // `reorderable` is declared up front, not added later: Vue 2 cannot make a
       // property reactive once the object exists, so the arrows would never appear.
       this.current = { id: item.id, label: item.label, origin: item.origin, reorderable: false }
-      this.form = { branches: [] }
+      this.form = { openingQuestion: null, branches: [] }
       this.original = null
       this.history = []
       try {
@@ -445,24 +491,31 @@ export default {
       // or flow; default to NOT reorderable if the field is missing.
       if (this.current) { this.current.reorderable = detail.reorderable === true }
       this.form = {
+        // null means "this table has no opening question", which is a different
+        // thing from an empty one and is what hides the box entirely.
+        openingQuestion: typeof detail.openingQuestion === 'string' ? detail.openingQuestion : null,
         branches: branches.map(b => ({
           id: b.id,
           branch_name: b.branch_name || '',
           condition: b.condition || '',
           action: b.action || '',
           notes: b.notes || '',
+          // Which array this row came from, so the save sends it home to the
+          // same one. A standing rule written back into the staged list would
+          // join the walk.
+          kind: b.kind === 'standing' ? 'standing' : 'branch',
           origin: rowOrigin
         }))
       }
-      this.original = JSON.stringify(this.cleanBranches(this.form.branches))
+      this.original = this.cleanForm()
     },
 
     /**
      * The branches as they will be saved: the on-screen-only `origin` field
-     * dropped and text trimmed, `id` kept so the backend merges by id. Also the
-     * comparison shape for `dirty`, so a pure-whitespace change never counts.
+     * dropped and text trimmed, `id` and `kind` kept so the backend merges by id
+     * and returns each row to its own array.
      * @param {Array<Object>} branches
-     * @returns {Array<{id,branch_name,condition,action,notes}>}
+     * @returns {Array<{id,branch_name,condition,action,notes,kind}>}
      */
     cleanBranches (branches) {
       return (branches || []).map(b => ({
@@ -470,8 +523,24 @@ export default {
         branch_name: (b.branch_name || '').trim(),
         condition: (b.condition || '').trim(),
         action: (b.action || '').trim(),
-        notes: (b.notes || '').trim()
+        notes: (b.notes || '').trim(),
+        kind: b.kind === 'standing' ? 'standing' : 'branch'
       }))
+    },
+
+    /**
+     * The whole editable table as one comparable string — branches AND the
+     * opening question. `dirty` reads this, so editing only the question still
+     * lights up Save; comparing the branches alone was why it would not.
+     * @returns {string}
+     */
+    cleanForm () {
+      return JSON.stringify({
+        openingQuestion: typeof this.form.openingQuestion === 'string'
+          ? this.form.openingQuestion.trim()
+          : null,
+        branches: this.cleanBranches(this.form.branches)
+      })
     },
 
     /**
@@ -486,9 +555,14 @@ export default {
       this.saving = true
       try {
         const id = this.current.id
-        await this.api('POST', `/api/firm-manager/logic-trees/${encodeURIComponent(id)}`, {
-          branches: this.cleanBranches(this.form.branches)
-        })
+        const body = { branches: this.cleanBranches(this.form.branches) }
+        // Sent only when this table HAS one. Omitting the key says nothing about
+        // it, which is what the route needs to hear from a table that has none —
+        // sending null would be a claim, and a rejected one.
+        if (typeof this.form.openingQuestion === 'string') {
+          body.openingQuestion = this.form.openingQuestion.trim()
+        }
+        await this.api('POST', `/api/firm-manager/logic-trees/${encodeURIComponent(id)}`, body)
         this.$buefy.toast.open({ message: this.$t('firmLogicTables.saved'), type: 'is-success' })
         this.current.origin = 'firm'
         // Re-fetch so the panel shows exactly what was stored and the baseline
@@ -562,9 +636,16 @@ export default {
       }
     },
 
-    /** Add a blank firm-authored branch (appended; no flow wiring). */
+    /**
+     * Add a blank firm-authored branch (appended; no flow wiring).
+     *
+     * Always an ordinary staged branch, never a standing rule: the standing set
+     * is the platform's and can be reworded, not added to (approved artefact
+     * §3c). The route enforces the same rule, so this is convenience, not the
+     * guard.
+     */
     addBranch () {
-      this.form.branches.push({ branch_name: '', condition: '', action: '', notes: '', origin: 'firm' })
+      this.form.branches.push({ branch_name: '', condition: '', action: '', notes: '', kind: 'branch', origin: 'firm' })
     },
 
     /** Remove a branch from the on-screen table. */

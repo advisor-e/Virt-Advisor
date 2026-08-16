@@ -12,11 +12,13 @@ const path = require('path')
 const { createOpenAIClient } = require('../server/utils/openaiClient')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { formatCoachingForPrompt, loadFirmCoaching, formatFirmCoachingForPrompt } = require('../server/utils/coaching')
+const { loadResolvedCoaching } = require('../server/utils/coachingConfig')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
 const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
+const { loadResolvedGuideOverrides } = require('../server/utils/methodGuideConfig')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { nameForLanguageCode } = require('../server/utils/languageName')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -39,7 +41,7 @@ const clientStore = require('../server/utils/clientStore')
 const { listForClient, listForAdvisor } = require('../server/utils/caseStore')
 const { buildPriorEngagementSummary, formatPriorEngagementText, deriveHistoryScoringInputs } = require('../server/utils/priorEngagement')
 
-const { loadBlendedStaircase, resolveStaircaseStep } = require('../server/utils/staircaseConfig')
+const { loadBlendedStaircase, resolveStaircaseStep, BASE_STAIRCASE } = require('../server/utils/staircaseConfig')
 
 // Reference data
 const DOMAINS = require('../data/domains.json')
@@ -483,7 +485,11 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     firmCoaching = null,
     // The session's detected domain, so the firm's promoted entries can be
     // narrowed to the topic in hand. null = no topic known → no filter.
-    firmCoachingDomain = null
+    firmCoachingDomain = null,
+    // The coaching reference rows resolved for this firm's scope. null falls back
+    // to the shipped platform rows — the behaviour every caller had before the
+    // block joined the inheritance mechanism.
+    coachingRows = null
   } = options || {}
 
   const orgTemplates = getOrgTemplates(orgTemplateIds || null, firmTemplates)
@@ -495,7 +501,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   const relevant = filterTemplatesByQuery(baseTemplates, searchQuery, maxTemplates)
   const templatesToUse = relevant.length > 0 ? relevant : baseTemplates.slice(0, maxTemplates)
   const templatesText = formatTemplatesForPrompt(templatesToUse)
-  const coachingText = includeCoaching ? formatCoachingForPrompt() : null
+  const coachingText = includeCoaching ? formatCoachingForPrompt(coachingRows) : null
   // The firm's own promoted case observations — advisor free text, so the
   // formatter returns it FENCED (data to weigh, never instructions), narrowed to
   // this session's topic and capped (see coaching.selectFirmCoaching).
@@ -949,6 +955,45 @@ function buildIntakeMessages (phase, ctx, conversationHistory) {
     },
     ...(conversationHistory || []).slice(-4)
   ]
+}
+
+/**
+ * Resolve the area an advisor is correcting the engine TO, from their own words.
+ *
+ * The confirmation step ("have I got that right, or is it really about a different
+ * area?") is the one lever that re-routes the whole recommendation, and until
+ * 2026-08-14 it only moved when the reply contained the entire label — so "no, it's
+ * really about staff" did nothing, while "you've got it wrong" reset the read via the
+ * separate contradiction check. The engine answered annoyance and ignored a calm,
+ * specific correction, which is the wrong way round.
+ *
+ * Deliberately conservative: a WRONG switch is worse than no switch, because it
+ * silently re-routes the advice while the advisor believes they were understood. So
+ * it moves only on an unambiguous signal — exactly one other area named, and the
+ * current area not named. "Yes, staff costs are squeezing their margins" names both
+ * and is therefore treated as agreement with detail, not as a correction.
+ *
+ * When this returns null the answer still reaches `problemSignals` through
+ * `causeText()`, and an emphatic rejection is still caught by `detectContradiction`.
+ *
+ * @param {string} answer            The advisor's reply to the confirmation question.
+ * @param {string} currentDomainId   The area the engine is currently reading.
+ * @returns {string|null}            The domain id to switch to, or null to hold.
+ */
+function resolveDomainCorrection (answer, currentDomainId) {
+  const lower = (answer || '').toLowerCase()
+  if (!lower.trim()) { return null }
+
+  // 1. The advisor named the area outright — highest confidence, unchanged behaviour.
+  const byLabel = DOMAINS.find(d => lower.includes(d.label.toLowerCase()))
+  if (byLabel) { return byLabel.id === currentDomainId ? null : byLabel.id }
+
+  // 2. Otherwise read it the way the disambiguation step already reads a tie — the
+  //    per-domain keywords authored for exactly this "which of these is it?" question.
+  const hits = DOMAIN_PATTERNS.filter(d => d.disambigPattern.test(lower))
+  if (hits.some(d => d.id === currentDomainId)) { return null } // agreeing, with detail
+  const others = hits.filter(d => d.id !== currentDomainId)
+  return others.length === 1 ? others[0].id : null // 0 = nothing named, 2+ = ambiguous
 }
 
 function buildCourseCorrectionMsg (state) {
@@ -1446,7 +1491,53 @@ async function resolveSavedClientContext (params, deps) {
   }
 }
 
-function buildSavedFactConfirmPrompt (field, savedValue, clientName) {
+/**
+ * The staircase question an advisor is asked, taken from the resolved config rather
+ * than typed here.
+ *
+ * WHY THIS EXISTS (item 4.16 E, 2026-08-16). `selectorPrompt` has been authored in
+ * data/advisory-staircase.json since the framework shipped, and until now NOTHING read
+ * it — this sentence was typed into the engine in two places instead. So a mentor or a
+ * firm could edit the question, see it saved, and every advisor would still be asked
+ * Advisor-e's wording. It is the same fault fixed for the step NAMES on 2026-07-31 (see
+ * the comment at the loadBlendedStaircase call below); the question above the steps was
+ * missed. design/STAIRCASE-SELECTOR-PROMPT-FIELD.md.
+ *
+ * @param {Object} [staircase] - the resolved staircase for this advisor's firm
+ * @returns {string} the question, with the selector token the frontend swaps for the
+ *   on-screen step list. Falls back to the shipped sentence, never to an empty
+ *   question — an advisor asked nothing cannot answer.
+ */
+function staircaseSelectorQuestion (staircase) {
+  const authored = staircase && typeof staircase.selectorPrompt === 'string'
+    ? staircase.selectorPrompt.trim()
+    : ''
+  return `${authored || BASE_STAIRCASE.selectorPrompt}\n[STAIRCASE_SELECTOR]`
+}
+
+/**
+ * The same question, re-asked after the advisor declines a saved answer.
+ *
+ * The "No problem — " lead-in belongs to that MOMENT, not to the question, so it stays
+ * here and is never editable: a firm must not be able to delete it from a conversation
+ * it was never shown. It runs INTO the sentence, so the platform's own wording is
+ * lowered to join it exactly as the hardcoded string did. A sentence another tier wrote
+ * is used verbatim — lowering its first letter would silently edit their words, and an
+ * em dash followed by a capital reads perfectly well.
+ *
+ * @param {Object} [staircase] - the resolved staircase for this advisor's firm
+ * @returns {string}
+ */
+function staircaseReaskQuestion (staircase) {
+  const question = staircaseSelectorQuestion(staircase)
+  const isPlatformWording = question.startsWith(BASE_STAIRCASE.selectorPrompt)
+  const tail = isPlatformWording
+    ? question.charAt(0).toLowerCase() + question.slice(1)
+    : question
+  return `No problem — ${tail}`
+}
+
+function buildSavedFactConfirmPrompt (field, savedValue, clientName, staircase) {
   if (!isMeaningfulContextValue(savedValue)) {
     if (field === 'industry') {
       return 'What industry is the client in?'
@@ -1455,7 +1546,7 @@ function buildSavedFactConfirmPrompt (field, savedValue, clientName) {
       return 'Is the business privately owned, a not-for-profit, or publicly listed?'
     }
     if (field === 'advisoryStaircase') {
-      return 'Where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
+      return staircaseSelectorQuestion(staircase)
     }
   }
   if (field === 'industry') {
@@ -1581,6 +1672,13 @@ async function handleQuery (rawBody, res, identity) {
     ? await loadFirmCoaching(firmId).catch(() => null)
     : null
 
+  // The coaching reference rows themselves — the platform's fifteen, resolved through
+  // this firm's decisions and every tier above it. Separate from firmCoaching above and
+  // deliberately so: these are curated guidance the model acts on, those are an
+  // advisor's free text about a real client and stay fenced. loadResolvedCoaching never
+  // rejects; a firm that has changed nothing gets the shipped rows unchanged.
+  const coachingRows = await loadResolvedCoaching(firmId, loadFirmConfig)
+
   // Past case studies, read server-side from the verified identity. Only client
   // and discover modes use them, so the other modes skip the read entirely.
   const promptCases = (mode === 'client' || mode === 'discover')
@@ -1608,6 +1706,10 @@ async function handleQuery (rawBody, res, identity) {
   // line is the difference between a degraded session and a silent one.
   const firmDomainSupport = await readForSession(loadFirmDomainSupport, firmId, loadFirmConfig, 'advisor')
   const firmLogicTrees = await readForSession(loadFirmLogicTrees, firmId, loadFirmConfig, 'advisor')
+  // The method-guide wording this scope works to (item 4.16 F). Its own loader
+  // recurses up the tier chain and absorbs a storage fault itself — it never
+  // rejects — so it needs no readForSession wrapper.
+  const firmMethodGuides = await loadResolvedGuideOverrides(firmId, loadFirmConfig)
 
   if (!query || !query.trim()) {
     sendError(res, 400, 'QUERY_REQUIRED', 'Query is required')
@@ -1889,14 +1991,14 @@ async function handleQuery (rawBody, res, identity) {
           return 'I want to make sure I focus on the right area for this client — in a sentence, what would you say the core issue is really about?'
         },
         onAnswer: (answer, s) => {
-          // If the advisor names a different area, switch to it; otherwise the
+          // If the advisor points at a different area, switch to it; otherwise the
           // proposed domain stands. An explicit rejection ("that's not the issue /
           // wrong area") is caught by the contradiction check that runs right after
           // this, which re-opens the question — so no risky reset here.
-          const lower = (answer || '').toLowerCase()
-          const named = DOMAINS.find(d => lower.includes(d.label.toLowerCase()))
-          if (named) {
-            setDetectedDomain(named.id)
+          // See `resolveDomainCorrection` for why this is deliberately cautious.
+          const correctedTo = resolveDomainCorrection(answer, s.detectedDomain)
+          if (correctedTo) {
+            setDetectedDomain(correctedTo)
             s.disambiguationNeeded = false
             s.disambiguationScenarios = []
           }
@@ -2092,7 +2194,11 @@ async function handleQuery (rawBody, res, identity) {
           s.savedClientContext && s.savedClientContext.resolvedFacts
             ? s.savedClientContext.resolvedFacts.advisoryStaircase
             : null,
-          s.savedClientContext ? s.savedClientContext.clientName : null
+          s.savedClientContext ? s.savedClientContext.clientName : null,
+          // The firm's resolved staircase, already loaded above for the ceiling. The
+          // question and the steps it offers must come from the SAME resolved config,
+          // or a tier's edited question would sit above Advisor-e's steps.
+          staircaseConfig
         ),
         onAnswer: (answer, s) => {
           const saved = s.savedClientContext && s.savedClientContext.resolvedFacts
@@ -2111,7 +2217,7 @@ async function handleQuery (rawBody, res, identity) {
           }
           s.advisoryStaircase = null
           s._forceAskField = 'advisoryStaircase'
-          s._forceAskPrompt = 'No problem — where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
+          s._forceAskPrompt = staircaseReaskQuestion(staircaseConfig)
           s.savedClientContextUsage.advisoryStaircase = 'manual-followup'
         }
       },
@@ -2187,17 +2293,6 @@ async function handleQuery (rawBody, res, identity) {
       if (sessionId) { sessionSave(sessionId, state) }
       if (!res.writableEnded) { res.end() }
       return
-    }
-
-    // ── NONE OF THESE APPLY escape ──
-    if (query === '__none_of_these__') {
-      state.detectedDomain = null
-      state.disambiguationNeeded = false
-      state.disambiguationScenarios = []
-      state.disambiguationAnswer = null
-      state.domainConfirmed = null
-      state.primaryIssue = null
-      return sendQuestion("No problem — tell me in your own words what's actually going on with this client.")
     }
 
     dbg('SEQUENCER: checking pipeline, detectedDomain=' + state.detectedDomain)
@@ -2396,7 +2491,7 @@ async function handleQuery (rawBody, res, identity) {
       const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain, firmDomainSupport) : null
       const allUserText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).join(' ')
       const postRecContextQuery = [allUserText, query, state.detectedDomain, state.industry].filter(Boolean).join(' ')
-      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching, firmCoachingDomain: state.detectedDomain }) +
+      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching, firmCoachingDomain: state.detectedDomain, coachingRows }) +
         (domainSupportPost ? '\n---\n\n' + domainSupportPost : '')
 
       const messagesPost = [
@@ -2969,7 +3064,8 @@ async function handleQuery (rawBody, res, identity) {
       firmTemplates,
       preFilteredNames,
       firmCoaching,
-      firmCoachingDomain: state.detectedDomain
+      firmCoachingDomain: state.detectedDomain,
+      coachingRows
     }) + _preSelectedSummariesText + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
     // Phase C/D — merge strategy + resolver decisions into observability snapshot
@@ -3279,7 +3375,7 @@ async function handleQuery (rawBody, res, identity) {
   // Discover mode always needs it (first response IS a recommendation).
   // Other modes: defer until conversation is deep enough (4+ exchanges).
   const includeCoaching = mode === 'discover' || trimmedHistory.length >= 4
-  const coachingText = includeCoaching ? formatCoachingForPrompt() : null
+  const coachingText = includeCoaching ? formatCoachingForPrompt(coachingRows) : null
   // Firm-promoted entries ride the same gate; fenced and capped by the formatter.
   // No domain is passed because none exists here: discover/plan/learn return above
   // the client sequencer, which is the only path that detects one. Passing a guess
@@ -3326,7 +3422,7 @@ async function handleQuery (rawBody, res, identity) {
         detectLogicTree([...userMsgs, query].join(' '), firmLogicTrees)
     }
     if (learnTree && learnTree.mode === 'learn') {
-      learnSalesTreeText = buildLearnReferenceText(learnTree)
+      learnSalesTreeText = buildLearnReferenceText(learnTree, firmMethodGuides)
       // Learn enrichment (Mike's ruling 2026-07-16): when the picked coaching
       // tree has a VERIFIED domain-support file (explicit data mapping or
       // exact name match — never guessed), inject that richer coaching too.
@@ -3347,7 +3443,7 @@ async function handleQuery (rawBody, res, identity) {
     // their "sales/marketing/pricing" means the advisor selling THEIR services, the opposite
     // of the client's situation (design §2.5). See isClientDeliveryLearnTree.
     if (isClientDeliveryLearnTree(deepDiveTree)) {
-      deepDiveText = buildLearnReferenceText(deepDiveTree)
+      deepDiveText = buildLearnReferenceText(deepDiveTree, firmMethodGuides)
     }
   }
 
@@ -3499,6 +3595,7 @@ async function handleQuery (rawBody, res, identity) {
 // Exposed for unit testing (the middleware function itself is the default export above).
 module.exports.buildDomainConfirmationMessage = buildDomainConfirmationMessage
 module.exports._isValidConfirmation = _isValidConfirmation
+module.exports.resolveDomainCorrection = resolveDomainCorrection
 module.exports.urgencyDirective = urgencyDirective
 module.exports.detectCrisis = detectCrisis
 module.exports.CRISIS_PHRASES = CRISIS_PHRASES
@@ -3539,6 +3636,8 @@ module.exports.parseSavedFactAnswer = parseSavedFactAnswer
 // String.match (stateless) and never RegExp.test (stateful via lastIndex).
 module.exports.DOMAIN_PATTERNS = DOMAIN_PATTERNS
 module.exports.buildSavedFactConfirmPrompt = buildSavedFactConfirmPrompt
+module.exports.staircaseSelectorQuestion = staircaseSelectorQuestion
+module.exports.staircaseReaskQuestion = staircaseReaskQuestion
 module.exports.continuityClaimAllowed = continuityClaimAllowed
 module.exports.buildContinuityDirective = buildContinuityDirective
 module.exports.buildSavedClientTraceAudit = buildSavedClientTraceAudit

@@ -1,10 +1,14 @@
 # Nuxt Minimal Starter
 
-> **📌 Taking a version of this code into UAT or production? Pull a release **tag**
-> (`v0.6.0`, `v0.6.1`, …), never the moving `master` branch — and reply to us with the
-> tag you installed.** A tag is immutable, so "UAT is on `v0.6.0`" stays true and
-> checkable forever. Please also report UAT bugs against the tag number, so a report can
-> be matched to the exact code that produced it.
+> **📌 Taking a version of this code into UAT or production? Start with
+> [`design/UAT-LOAD-PACK.md`](design/UAT-LOAD-PACK.md)** — one page covering the runtime,
+> the environment variables, the database rows that must exist, the screen addresses
+> (nothing in the app links to them), and how to prove the app really started.
+>
+> **Pull a release **tag** (`v0.6.0`, `v0.6.1`, …), never the moving `master` branch — and
+> reply to us with the tag you installed.** A tag is immutable, so "UAT is on `v0.6.0`"
+> stays true and checkable forever. Please also report UAT bugs against the tag number, so
+> a report can be matched to the exact code that produced it.
 >
 > The full hand-off process is in **[`design/WORKING-AGREEMENT.md`](design/WORKING-AGREEMENT.md)**,
 > and what is running where is recorded in
@@ -17,6 +21,7 @@ Project documentation is in the **[`design/`](design/)** folder:
 
 | Document | What it is |
 |---|---|
+| [`design/UAT-LOAD-PACK.md`](design/UAT-LOAD-PACK.md) | **Loading a release into UAT** — runtime, environment variables, database rows, screen addresses, and how to prove it started. Read this before deploying anything. |
 | [`design/virt-advisor-registry.md`](design/virt-advisor-registry.md) | **The system registry** — the authoritative map of how the whole app works (the 8 functions, the decision pipeline, every asset). **Start here.** |
 | [`design/ACTIONS.md`](design/ACTIONS.md) | **The action backlog** — the single prioritised list of open tasks. Triage from here. |
 | [`design/HANDOFF.md`](design/HANDOFF.md) | Integration / handover checklist (auth, DB, Google Drive wiring). |

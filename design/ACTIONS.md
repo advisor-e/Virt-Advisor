@@ -18,8 +18,553 @@
 > **⚠ Trust the CODE, not these flags.** Three separate items (Intervention Urgency, cause-first confirmation, grade-validation) were found *already built* while still flagged open. **Verify a candidate against the actual code/git before building it.**
 >
 > **Last swept:** 2026-08-03 — see the verified sweep immediately below.
+>
+> ---
+>
+> ## 🔴 SESSION 66 — 2026-08-17 (laptop). 4.16 ITEM F — DESIGN SETTLED, NOT BUILT.
+>
+> **No application code changed.** The session produced the artefact item F could not start without,
+> and it found two things wrong in the spec that filed it.
+>
+> **✅ THE ARTEFACT** (`0398826`, `33e1859`, `e9cd3f6`) —
+> [`METHOD-GUIDES-SCREEN.md`](METHOD-GUIDES-SCREEN.md) and
+> [`mockups/method-guides.html`](mockups/method-guides.html), registered in
+> [`ARTEFACTS.md`](ARTEFACTS.md). All four wordings chosen by Mike, and the tier ruling with them.
+> **Nothing about the screen is undecided; what remains is the build.**
+>
+> **🔴 IT IS THIRTEEN GUIDES, NOT TWELVE.** `powerful-seminars.json` is not named `*-reference.json`,
+> so the sweep's file pattern missed it. `LEARN_REFERENCE_FORMATTERS` registers it beside the other
+> twelve and treats it identically. **A count taken from a filename pattern is a count of filenames.**
+>
+> **🔴 THEY ARE NOT "READ BY THE AI IN FULL" — 116 OF 954 AUTHORED LINES REACH NO PROMPT.** Measured
+> by rendering each guide's own prompt block and searching it for every authored string over 25
+> characters: **62 missing in Dashboard Discussions** (including the `discussion_questions` authored
+> against every one of its twelve metrics, and their `tactical_options`), **29 in Working Capital
+> Cycle** (each problem type's `causes` and `impact` — the trigger reaches the AI and the diagnosis
+> does not), **20 in Ratio Analysis**, 5 across the rest. Each formatter names its fields by hand, so
+> a field authored afterwards is never mentioned again.
+>
+> ⚠ **THE SWEEP COUNTED THESE THIRTEEN AS REACHING THE PROMPT BECAUSE THE FORMATTER EXISTS.** That is
+> 4.16's own fault one level below where 4.16 looked, and it is why F is no longer only a screen: the
+> build feeds screen and prompt from **one walk of each guide's own shape**, so they cannot disagree.
+> Both Briefs now carry it — `domain-support.md` trap 6, `logic-tables.md` trap 6 and P2c.
+>
+> **✅ RULED BY MIKE, 2026-08-17 — the method guides get the SAME TIERS as the materials table they
+> open from** (mentor authors; global group, group and firm managers inherit and may reword their own
+> copy). **The opposite of item B's mentor-only ruling**, which was about routing logic. It was asked
+> rather than carried across, and asking changed the answer. `domain-support.md` P3c.
+>
+> **⚠ THE MOCKUP WAS DRAWN SHOWING OPTION A OF EACH AND ONE CHOICE WENT THE OTHER WAY.** The drawing
+> was corrected the same day rather than left disagreeing with the approved wording — the drift the
+> Save-the-Artefact rule exists to stop.
+>
+> **⚠ ALSO WORTH KNOWING:** the guide-to-material-row mapping **exists nowhere in the data**. The
+> guides key to a logic table and those thirteen tables carry no domain, so nothing in the code can
+> say which page a guide belongs on. Thirteen lines get authored in the open; a guide with no mapping
+> renders nowhere rather than being placed by guesswork. **Facilitation 101 has no material row
+> anywhere** — it is the universal protocol, and gets its own entry above the domains.
+>
+> **⚠ STILL OPEN, unchanged by this session:** item D (engagement types, no page at any tier, waits on
+> Mike); the release Mike asked for in session 65 was still not cut; and the carried items from
+> sessions 61–65 — six ghost template references, two broken Brief links, no Coaching Reference Brief,
+> `ARTEFACTS.md` showing 2.6 as awaiting approval, and ~100 Handbook links pointing at documents with
+> no page. **Now carried seven sessions.**
+>
+> ---
+>
+> ## 🔴 SESSION 65 — 2026-08-16 (laptop). Four commits. 4.16 IS FIVE-SEVENTHS DONE.
+>
+> **Mike's instruction: *"4.16 — complete all your pieces then i want a new release created."*** Four
+> of the five closed; **F remains, and the release did not happen** — see the honest note at the end.
+>
+> **✅ ITEM C** (`95e96ec`) — 13 learn tables each carry a `stage_entry_question`, the sentence that
+> establishes where in a method the advisor already is. It appeared in **exactly one file in the
+> repository — the one that authors it.** These are the same 13 tables that ship a ~19,000-character
+> method guide to the model, so the AI has been reading a whole staged method with no idea where the
+> advisor stands in it. Plus 2 standing rules on `public_speaking` in a `flat_branches` array the
+> formatter never read. Both halves shipped: prompt + the Logic Tables tab, wording approved by Mike.
+> Artefact: [`LEARN-TREE-OPENING-QUESTION-FIELD.md`](LEARN-TREE-OPENING-QUESTION-FIELD.md).
+>
+> **✅ ITEMS A+B, merged** (`e30eb3f`) — all **65** `diagnostic_entry` branches now reach the AI, plus
+> the **26** `primary_question` fields that reached it and appeared on no screen. Both halves shipped
+> on the **Domain Support** tab (Mike's ruling), wording his.
+>
+> **🔴 ITEM A IS CANCELLED, BY THE TEST IT ITSELF DEMANDED.** The spec claimed ~55 of the 65 were
+> duplicates of tree routing and proposed retiring them, while admitting the comparison had been made
+> on node **names**. Run text-by-text, only 3 of the 65 had even 85% of their words present in their
+> best-matching tree, and all 3 read as complementary: **the tree says WHICH conversation this is,
+> the branch says WHAT TO DO once you are in it.** Nothing was deleted; there is no deletion left for
+> Mike to rule on. Evidence and method:
+> [`DOMAIN-DIAGNOSTIC-BRANCHES.md`](DOMAIN-DIAGNOSTIC-BRANCHES.md) §1.
+>
+> **✅ ITEM G CLOSED — the one genuine duplicate in the whole sweep.** `get-team-problem`'s six
+> `if_then_logic` rules are the six branches of its logic table: same conditions, same actions, same
+> order. No work needed. **Right once in seven** — which is the argument for testing the claim, not
+> for trusting or dismissing it.
+>
+> **⚠ THREE FAULTS FOUND WHILE BUILDING, all now in the Briefs rather than only here:**
+>
+> 1. **`domainSupport.js` has THREE prompt formatters and they had drifted.** Two emitted the entry
+>    question and stopped; **the advisor path — the one an adviser's own session reads — emitted
+>    neither the question nor the 65 branches.** The largest loss was on the path that mattered most.
+> 2. **`to-do-items.json` still described 4.16 with a plan withdrawn two sessions earlier** —
+>    "mentor tier only", "ship it filled by authoring the ten empty domains", "BLOCKED ON MIKE".
+>    Anyone picking the item up would have started the wrong job. Rewritten this session.
+> 3. **A field that appears in only one file — the one that authors it — is unreachable by
+>    definition.** Both C's fields and B's failed that test. It is a one-command check.
+>
+> ### ☐ NEW — a decision for a person, not a note
+>
+> **☐ Decide whether a firm may REMOVE an inherited diagnostic situation.** Today it cannot: overrides
+> merge per field, so a deleted inherited row returns on the next load. The screen therefore does not
+> offer the button — **never offer a control that does not work** — and a firm can reword every
+> inherited situation and freely add and remove its own. Making inherited rows removable needs a
+> different way of storing the override (a tombstone, or a replace-shaped store), **not a button**.
+> Raised with Mike 2026-08-16; not yet ruled on. Recorded in
+> [`features/domain-support.md`](features/domain-support.md) P3b.
+>
+> ### ⚠ What did NOT happen, said plainly
+>
+> **The release Mike asked for was not created.** Item F — the 12 method guides need a screen — is
+> still open and is the biggest of the seven, and Mike chose to stop rather than start it on a tired
+> session. **Item D still has no page at any tier and cannot start without him.**
+>
+> ---
+>
+> ## 🔴 SESSION 64 — 2026-08-16 (laptop). Four commits. 4.16 STARTS BUILDING.
+>
+> **✅ 4.16 ITEM E IS DONE** (`5873c06`) — the first of the seven, and the safe one on purpose. The
+> staircase `selectorPrompt` was authored in `data/advisory-staircase.json` from the day the
+> framework shipped and **read by nothing**; the engine asked a hardcoded copy in two places, so a
+> mentor's or a firm's edit reached no advisor. Both halves shipped per the hub-page rule — the
+> field is on the Advisory Staircase tab (*"The question your advisors are asked"*, wording approved
+> by Mike, [`STAIRCASE-SELECTOR-PROMPT-FIELD.md`](STAIRCASE-SELECTOR-PROMPT-FIELD.md)) and the
+> engine reads the resolved value. Proved on the running app, not only in the suite: saved as the
+> mentor, inherited by a firm that had written none of its own, and the engine then put that
+> sentence to the advisor. **Two tests pin the exact strings that were hardcoded**, so today's
+> advisor provably sees no change.
+>
+> ⚠ **The build spec was wrong on one point and silent on another — read before starting B–G.** The
+> two hardcoded strings were **not identical**: the second carries a `No problem —` lead-in for the
+> moment an advisor declines a saved answer. It belongs to the moment, not the question, and stays
+> in code. 🔴 **And a wording decision is open, deliberately not bundled:** that block's history
+> button reads **"Ceiling history"** while now covering two settings.
+>
+> ### 🔴 NEW FINDING — the Handbook could omit a document entirely and report success
+>
+> **Raised by Mike:** *"why is the 'what each hub page is for' page not been added to the
+> handbook???"* Because `build-handbook.js` read **one** directory and that file was written one
+> level up. It was never dropped — it was never a candidate.
+>
+> **Nothing would ever have said so.** The "Unlisted" warning reports a file *inside*
+> `design/features/` that the index forgot, so a document outside the folder is invisible to it.
+> That morning's build reported 26 pages, all listed, and was right. **A control whose reach is one
+> level too narrow — the same shape as the `recommendationGate` miss recorded in session 62.**
+>
+> **Fixed for seven documents** (`0d640c8`): an index row may now point one level up
+> (`../TIER-CASCADE-MAP.md`) and that document becomes a page **where it lies**. Moving them was the
+> obvious fix and the wrong one — `CONTENT-ROUTING.md` is written by a generator, `ARTEFACTS.md` is
+> guarded by a test, and `WORKING-AGREEMENT.md` is named in `CLAUDE.md`, `README.md`, both slash
+> commands, a skill and a script. Handbook: 26 pages → 33.
+>
+> ⚠ **A move WAS tried first and a test caught it.** `HUB-PAGE-PURPOSES.md` went into
+> `design/features/`, and `newFeature.test.js` failed: that folder holds feature Briefs, each with a
+> History behind the gate, and a reference table is neither. It went back, and a test now asserts it
+> stays out with the reason beside it. **Recorded rather than tidied away** — the rule it broke was
+> one no session note mentions.
+>
+> ### ☐ OPEN — about 100 Handbook links still point at documents with no page
+>
+> Handbook pages carry **135** outbound `../*.md` links to 54 documents. **33 now open a page; the
+> rest still resolve to nothing** and render as informational file references. **Most should
+> probably lose the link rather than gain a page** — they are session notes, executed plans and
+> handovers, whose lessons belong in a History page — **but nobody has decided which, and there is
+> no check that would fail if a Brief linked to a document that does not exist at all.**
+>
+> **This is a task for a person, not a warning:** go through the 54, decide per document *page /
+> unlink / fold into a History*, and add a build check that fails on a link to a missing file.
+> Nobody is doing it today.
+>
+> ---
+>
+> ## 🔴 SESSION 62 — 2026-08-16 (laptop). Five commits. NO APPLICATION CODE.
+>
+> **A rule, a completed sweep, and two approved artefacts. Nothing was built.**
+>
+> **NEW BINDING RULE — every AI fix surfaces on a hub page, mentor first.** Mike's words:
+> *"ALL AI fixes must use hub pages where possible, starting with the mentor and cascading down as
+> appropriate."* Written into [`../CLAUDE.md`](../CLAUDE.md) as its own section **and**
+> [`features/tier-cascade.md`](features/tier-cascade.md) as **P10** — not into a session note, which
+> is where rules go to die. Content that shapes AI output never lives only in `data/*.json` and is
+> never hardcoded in a prompt builder.
+>
+> **✅ 4.16's SWEEP IS COMPLETE, and it found 102 — not the handful expected.** Every one proved by
+> rendering the real prompt and searching it, never by inspecting the store:
+>
+> | Block | Unreachable | What |
+> |---|---|---|
+> | Domain support | **71** | 65 `diagnostic_entry` branches across 19 domains, 6 `if_then_logic` rules |
+> | Logic trees | **15** | 13 `stage_entry_question`, 2 `flat_branches` |
+> | Engagement types | **15** | 5 fields × 3 types, behind a hardcoded paraphrase |
+> | Advisory Staircase | **1** | `selectorPrompt`, duplicated as a hardcoded string in the engine |
+>
+> 🔴 **THE SECOND HALF NOBODY PREDICTED, and it is why the rule exists: no screen renders any of
+> them either.** The Domain Support tab edits the materials table only; the Logic Tables tab edits
+> the branch rows only. Invisible in **both** directions — no test, no tab and no person could find
+> it. **And the trap is sharper than "this block has no page":** both tabs are ungated in
+> `TAB_TIERS`, so every tier from the mentor down has had them all along. **The pages were there;
+> the fields were never put on them.** The question that catches this is not *"does this block have
+> a screen?"* but *"does THIS FIELD have one?"*
+>
+> **The guard built the day before did not catch any of it** — `recommendationGate.test.js` walks
+> `tree.nodes` only, and every miss is either a tree-level field or in another file entirely. The
+> control was real; its reach was one level too narrow.
+>
+> **PHASE 1 ARTEFACTS APPROVED AND COMMITTED** (before approval, per Save the Artefact):
+> [`DIAGNOSTIC-ENTRY-BLOCK.md`](DIAGNOSTIC-ENTRY-BLOCK.md) ·
+> [`mockups/domain-support-diagnostic-entry.html`](mockups/domain-support-diagnostic-entry.html).
+> Mike's rulings, all 2026-08-16 — wording approved as proposed; **mentor tier only** (*"too
+> technical for a firm or global manager"*); a **section inside the existing Domain Support tab**,
+> not a new page; and **ship it filled**, *"with as many sections as possible"*, which makes
+> authoring the 10 empty domains the first and larger half of the phase.
+>
+> ⚠ **The mentor-only ruling corrected the artefact's own first draft**, which proposed all four
+> managing tiers with row-level inheritance — the default P10 produces. Recorded as superseded
+> rather than overwritten, because that is the reusable lesson: **a hub page is the rule; every tier
+> getting it is not.**
+>
+> 🔴 **BLOCKED ON MIKE — the first thing to settle next session: who drafts the ten empty domains.**
+> He authors them · we draft from each domain's own `overview` and `materials` for his approval · or
+> a mix. **No drafting starts before he answers.**
+>
+> **NEW ITEM 4.17, found by Mike himself on the Mentor Hub** — a screen can show 1 row when 67
+> exist and say nothing. A local git-ignored dev file is deliberately preferred over the committed
+> seed when there is no database, and one stale test row shadowed all 67 platform advisory
+> distinctions. **The local symptom is a one-line deletion Mike was given** (the AI's own safety
+> guard refused it); **the item is the underlying fault** — a screen served from a dev fallback must
+> say so — **and the same pattern applies to every dev-JSON fallback in the app.**
+>
+> **Corrections made in-session, recorded because each was reported wrong first:** the Mentor Hub
+> *does* drive these tabs (it renders the same hub component at `scope="mentor"`); the count is 102,
+> not the 86 first reported (86 covered domain support and the logic trees only); and the 65
+> branches span 19 domains, not 20 — the 20th carries 6 more under a different key.
+>
+> Full write-up: [`SESSION-2026-08-16-B-NOTES.md`](SESSION-2026-08-16-B-NOTES.md).
+>
+> ---
+>
+> ## 🔴 SESSION 58 — 2026-08-15 (laptop). Seven commits, all pushed.
+>
+> **CLOSED, with what proved each:**
+>
+> - **4.14 · the ranking control** — all three phases, then a fourth rebuild on Mike's own rule.
+>   The To-Do page now renders [`features/to-do-items.json`](features/to-do-items.json) as a working
+>   screen; `npm run to-do` generates the ranked table from it and brings a saved list home.
+>   Closed by Mike **from the control it built**.
+> - **4.4 · a Handbook edit survives a reload** — proved by Mike in a browser, the one thing no
+>   session on this machine can do for him.
+> - **2.3 · Seminar's seven lines** — carried since session 48, closed by five words:
+>   **"Design & Deliver"**. Corpus moved **27 whole / 14 partial / 14 withheld → 34 / 8 / 13.**
+>   Seven instructions started reaching advisers.
+> - **2.1 · announce v0.8.0 — PARKED**, not done: *"we will need to issue a new release."*
+>   🔴 **Nothing on the live list covers cutting the newer release.** Deliberate; Mike's to close.
+>
+> **NEW · 4.15 — 21 branches still name a page nobody can open.** Filed on Mike's instruction and
+> **ranked last** under his ordering rule below. `fmc_`, `cas_`, `fbp_`, `ol_`. The pattern is cheap
+> once a name is known; each needs the **real** page name, which is Mike's to give.
+>
+> **NEW RULES, all written into the Briefs the same session (not left here):**
+>
+> - 🔴 **"Nothing leaves my sight in terms of order etc until I click save."** —
+>   [`features/handbook.md`](features/handbook.md) rule 7. Mutation-verified.
+> - 🔴 **Never make him choose between two states he cannot compare** — rule 8. Merge and report.
+> - 🔴 **Technical and feature work first, so the master team can start UAT; fine tuning after** —
+>   [`features/to-do.md`](features/to-do.md) §3, with today's list classified in the open.
+> - ⚠ **A wording item is not automatically fine tuning.** 2.3 was carried as a wording tidy-up for
+>   four sessions and was a table of coaching advisers were not receiving. Ask what breaks.
+>
+> **⚠ FINDINGS RECORDED, NOT ACTED ON:**
+>
+> - **Four items carry a score of 5 whose stated category is false.** Mike scored 4.12, 4.9, 4.7 and
+>   3.5 as 5 meaning *do this now*; §2 defines 5 as *security, privacy or data integrity*, and the
+>   data file writes that phrase automatically from the score. *"Reply to Carl about npm install"*
+>   is therefore labelled a data-integrity item in the repo. **His scores were not adjusted** — the
+>   mismatch is on the page instead. Decoupling the label from the score was offered and is open.
+> - **22 of the 26 Handbook Briefs have still never been checked against the code** (carried from
+>   session 57). The sample checked is now three, and all three were wrong.
+> - **The two broken Brief links** — `tier-cascade.md` → `collaborate.md`, and
+>   `to-do-done-and-parked.md` → `STATUS.md` — are still unfixed.
+>
+> **Every fault that mattered today was found by Mike using the screen, not by the 41 tests guarding
+> it:** a UTC date stamp a day out (he is UTC+12), a row that moved out from under him mid-decision,
+> and a two-button choice he called *"very poor design"*. Full account in
+> [`features/handbook-history.md`](features/handbook-history.md).
+>
+> 🔴 **2026-08-13 — THIS FILE IS NO LONGER THE TRIAGE LIST. READ
+> [`features/to-do.md`](features/to-do.md) FIRST.** This file stays the full record — nothing is
+> deleted from it — but it is 6,000+ lines and reads as ~70 open tasks when the real live list is
+> **ten, five of which are waiting on Mike rather than on code** (nineteen when that list was
+> written on 2026-08-13; the 2026-08-15 audit cut 31 items to 15, and Mike settled or deleted five
+> more the same day). Every item there names who it waits on and whether it was verified against
+> the code or merely carried from here. Finished and parked work lives in
+> [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md).
+>
+> 🔴 **AND SINCE 2026-08-15 THE ITEMS ARE DATA.** [`features/to-do-items.json`](features/to-do-items.json)
+> is the source, and `tests/unit/toDoItems.test.js` fails the build on an item missing any of its
+> five fields — score, why, risk, **askedBy**, touches. **An item written here that cannot name who
+> asked for it will not survive being moved there**, which is the point.
+>
+> 🔴 **AND THE RULES NOW LIVE IN [`features/`](features/README.md), NOT IN SESSION NOTES.** Every
+> page/feature has a **Brief** (current rules only — no dates, no arguments) and a **History**
+> (why they exist, what was tried and rejected). 24 features, incl. one page per Mentor Hub tab so
+> a single hub screen can be reviewed on its own. **When a session establishes a new rule, it is
+> written into that feature's Brief in the same session** — a rule left in a session note is a
+> rule nobody will find.
 
 ---
+
+- <a id="session-57-closures"></a>✅ **CLOSED 2026-08-15 (session 57, laptop) — the to-do items
+  become data, and two Handbook claims are corrected against the code** (`e0f1413`, plus the
+  shutdown commit). Full write-up: [`SESSION-2026-08-15-B-NOTES.md`](SESSION-2026-08-15-B-NOTES.md).
+  - ✅ **The five-field guard is BUILT** — `features/to-do.md` §2 said *"not yet enforced… it is not
+    built"* and that is no longer true. `features/to-do-items.json` holds the ten items;
+    `tests/unit/toDoItems.test.js` (44 tests) refuses a missing field, a score outside 1–5, an
+    unjustified `askedBy.ours`, a duplicate ref, or a blocker that does not say what it blocks, and
+    cross-checks the JSON against the ranked table. **Mutation-verified**, not merely green.
+  - ✅ **Mike's ordering is pinned.** Array order is his ranking; the test fails if a script or a
+    session re-sorts the list into score order.
+  - ☐ **NEW — §4.14, phases 2 and 3 of the ranking control.** Phase 1 done. Phase 2 renders the
+    control on the Handbook's To-Do page, measured against the approved artefact
+    `mockups/to-do-list-table.html` **with every deviation named**; phase 3 brings his Save file
+    back into the JSON and generates the §1 table from it. Split into sessions at Mike's request
+    *"so we don't lose it again"* — the first attempt was lost when a session ran out of context.
+  - ✅ **Two Handbook claims corrected after checking the code** — the first substantive
+    verification any Brief has had since all 20 were written in one sitting on 2026-08-13.
+    `model-library.md` said advisors pick *"from nineteen models"*; `utils/reportModelCatalogue.js`
+    holds **eighteen** (9 ready, 9 coming). `report-models.md` named **`SliderGroup`**, which
+    **exists nowhere in the code** — it is `components/base/SliderField.vue`, and the same Brief
+    named it correctly twenty lines later. Also corrected in `ADDING-A-REPORT.md`. Stale copies in
+    `MODEL-CLASSIFICATION.md`, `REPORT-SCAFFOLDING-PLAN.md` and the July session notes are **left in
+    place as accurate records of their own date**, and each is now named in the relevant History so
+    nobody quotes it as current.
+  - ⚠ **NOT DONE, and it is the real finding.** Only **4 of 26** Briefs have ever been checked
+    against the code. The other 22 were written in the same sitting, from the same 120 design
+    documents, and two of the first two checked were wrong. A page-by-page verification pass was
+    proposed and **Mike redirected to the ranking work instead** — so this is a live gap, not a task
+    anyone has agreed to. It is deliberately **not** on `features/to-do.md`: nobody outside asked
+    for it, and §7's rule is that such an item must justify itself before it is filed.
+
+- <a id="session-55-closures"></a>✅ **CLOSED 2026-08-14 (session 55, laptop) — the UAT load pack,
+  pushed on `feat/advisor-progress` (`206476a`, `7aee852`).** Full write-ups on
+  [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2. **The question asked
+  was "what stops the master team loading this into UAT", and nothing on the to-do list was the
+  answer** — the list is about building the app, and every blocker found was about *loading* it.
+  - **`HOST`/`PORT` were silently ignored** — `nuxt.config.js` is merged OVER the defaults Nuxt's
+    own `HOST`/`PORT` lookup produces (`@nuxt/config`, `defaultsDeep(options, nuxtConfig)`), so
+    setting the variable did nothing. Both now read the env first and keep the loopback default when
+    unset. Proven live the same afternoon: a script hit `ECONNREFUSED 127.0.0.1:3000` against a
+    server answering fine on `::1`.
+  - **`package.json` read `0.6.0`** through v0.7.0 and v0.8.0. Corrected + guarded by
+    `tests/unit/releaseVersion.test.js` against the newest `RELEASE-NOTES-v*.md`.
+  - **`.env.example` and [`UAT-LOAD-PACK.md`](UAT-LOAD-PACK.md) created**, the pack linked from the
+    README. The pack states two things previously left to be discovered: `NODE_ENV=production` and
+    `ALLOW_DEV_AUTH=true` cannot both be set (the server exits — `productionGuard.js`), so UAT
+    chooses between honest storage and being able to open the two middle-tier hubs at all; and **a
+    green test suite does not prove the app boots**, because the route tests call handlers directly
+    and never start the server (`STACK-RECONCILIATION-PLAN.md` §3) — yet every release note we have
+    written leads with a test count.
+  - **A rule Mike never made was withdrawn from four places** — see the withdrawal notes at the
+    dev-server items below, and `WORKING-AGREEMENT.md` → *The running application*.
+  - ⚠ **NEW, NOT FIXED — `features/to-do.md` §4.13.** The dev fallback still writes a local JSON
+    file and reports success when MySQL cannot be *reached* at all; v0.8.0 only closed the case
+    where a live server *refuses*. Today's live course save landed in `data/dev-courses.json` and
+    was indistinguishable from a real one.
+    - 🔴 **CLOSED 2026-08-15 — DELETED BY MIKE, NOT FIXED. Do not read the paragraph above as an
+      open task.** Everything it states is true; what it never asked is *who the function is for*.
+      `devFallbackAllowed()` can only fire where there is **no database at all** — a developer
+      machine. **UAT and production both have MySQL**, and production mode refuses the fallback
+      outright, which `UAT-LOAD-PACK.md` §5 already instructs. No adviser, firm or client can reach
+      it. Mike: *"I know I'm in a development role… the UAT and production have MySQL connected — I
+      know this, you know this, why are we wasting time?"* Scored **5** by us; by the list's own
+      table it is a **1**. Recorded with its reasoning at `features/to-do-done-and-parked.md` §0,
+      including a block naming the three fixes proposed for it — a warning banner, blocking writes,
+      reworded save confirmations — **all three wrong, none to be re-proposed.** The v0.8.0 code in
+      `server/utils/dbFailure.js` is untouched and stays: it catches a write a **live** MySQL
+      refused, which does bite in UAT and production.
+  - ✅ **PROVEN LIVE (not by tests), on the running app:** `/api/health` 200 · `/advisor` and all
+    four hub addresses 200 · the course document lifecycle create→update→re-read→delete · a real
+    OpenAI call answering in ~1.1s (`gpt-4o-mini-2024-07-18`, CA bundle correct) · **a full advisor
+    session, 14 turns of intake to a genuine streamed AI recommendation.** The reply contained a
+    mid-response ``` fence — the exact case `preprocessAIResponse()` rule 3 exists to strip, still
+    earning its place.
+
+- <a id="session-54-closures"></a>✅ **CLOSED 2026-08-14 (session 54, laptop) — four items, all
+  pushed on `feat/advisor-progress`.** Full write-ups on
+  [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md); rules on the Briefs.
+  - **`5754aae` — the authored-commentary READ is complete**, 29 of 29 domains, 194 of 194
+    materials. 1 confirmed clause + 49 candidates, each written out verbatim. **The batch write is
+    all that remains** (`to-do.md` §4.6c). Three findings became numbered tasks rather than notes:
+    §2.10 (Net Promoter Score is taught in the Client Survey and appears in none of the 113 firm
+    documents), §4.6a (21 rows with no source, one more than measured), and the "115 documents"
+    count being wrong on the nine existing marks.
+  - **`bf9c7fe` — P1 hardcoded English CLOSED.** 87 strings out of `VirtualAdvisor.vue` into
+    `advisor.*`. ⚠ **The item's title was wrong: the report screens never had the problem.**
+  - **`7f69a74` — the retired primary-issue selector deleted**, ~100 lines, taking a duplicate of
+    the Workshop 1 list with it. `data/primary-issues.json` KEPT.
+  - **`a168123` — P1-class silent defect fixed:** the engine only accepted a correction containing
+    the *entire* area label, so *"no, it's really about staff"* did nothing while *"you've got it
+    wrong"* forced a reset. It answered annoyance and ignored a calm correction, and failed
+    silently. Rule now in [`features/virtual-advisor.md`](features/virtual-advisor.md) P9.
+  - **Still open from this work:** `to-do.md` §4.5c (the orphaned `__none_of_these__` handler in
+    `server/advisorEngine.js`, now provably unreachable — delete it or give it a caller).
+  - ⚠ **The lesson, and it applies to this file more than any other: a backlog title is a claim,
+    not a fact.** Two items in a row were mis-titled in ways that would have produced real work
+    with no effect. **Measure before believing an entry here.**
+
+- <a id="authored-commentary-sweep-deleted"></a>🗑 **DELETED 2026-08-15 — the entire
+  authored-commentary sweep, on Mike's instruction. Five entries stood here; they are gone, and so
+  are the documents, the tasks and the code.** He asked who had requested the feature. The answer,
+  traced through this file: **nobody.** The real defect was his own — the A.I.D.C.R.A expansion
+  invented as *"Conviction, Response"* — and he **corrected it himself on 2026-07-31** and then
+  **deferred the follow-up in writing** (*"logged deliberately, NOT to be picked up next"*). The
+  sentence that spawned everything after it, *"the blast radius was never measured"*, was written by
+  an AI session, not by him. A later AI session read that sentence and measured it; the fact-level
+  result came back **clean — all 140 checkable claims verified present in the firm's own
+  documents** — and the sweep then pursued a writing-style question nobody had asked for, growing
+  into a Brief, a mockup, a marking mechanism, a 29-domain read and a 49-item batch.
+  - **What was removed:** `DOMAIN-SUPPORT-SWEEP-PROGRESS.md`, `features/domain-support-provenance.md`
+    and its history, the mockup `domain-support-authored-commentary.html`, the `ARTEFACTS.md` row, the
+    `features/README.md` index row, `to-do.md` §2.10 / §4.6 / §4.6a / §4.6b / §4.6c, and the built
+    mechanism — nine tags in `data/strategy-domain-support.json`, `livingCommentary()` and the AI
+    prompt block in `server/utils/domainSupport.js`, the *"This is our wording"* control in
+    `components/firm/FirmDomainSupport.vue`, five `locales/en.json` keys and three test files.
+    The code files were restored to their exact pre-`90b673d` state; no other work rode on them.
+  - **What was KEPT, deliberately:** the A.I.D.C.R.A correction in the data (the real defect, fixed);
+    `domain-support.md` **P2**, back to its original wording — *never invent the firm's material* is
+    unchanged and still binding; `DOMAIN-SUPPORT-REVIEW-CHECKLIST.md` (Mike's own working document);
+    `features/product-principles.md`; and the dated session notes, which are the record of how this
+    grew and must not be rewritten.
+  - 🔴 **The lesson, and it is the reason this entry exists rather than a silent deletion.** An AI
+    session wrote *"the blast radius was never measured"* into this file as an observation. Nothing
+    marked it as unrequested. Two weeks later another session read it as a task, and the project
+    spent parts of three sessions on work the owner had explicitly parked — then it was put back in
+    front of him at the top of a startup report, above his own standing ruling that this exact sweep
+    must not hold a release. **An observation written here is not a task, and an AI-authored line in
+    this file carries no authority at all.** The test that now governs is
+    [`features/product-principles.md`](features/product-principles.md), in Mike's words on
+    2026-08-15: *if it does not serve the user, make the system better quality or robust, or improve
+    marketability, it comes out of the app.*
+
+- <a id="feature-starts-as-a-page"></a>✅ **P2 · BUILD — a new feature now starts as a Handbook
+  page, by command rather than by discipline.** Closed 2026-08-14, part 3 of Mike's instruction and
+  the last of the three. `npm run feature "<name>" "<group>" "<summary>"` writes the Brief, the
+  History and the index row from the standard skeleton. Refuses to overwrite a page, refuses a
+  group `features/README.md` does not already have (a typo would otherwise invent a navigation
+  category that reads on screen as a real one), refuses a name colliding with the `-history`
+  suffix, and writes nothing until every check passes. **The guard tests the FOLDER, not the
+  script** — any Brief anywhere without a History or an index row fails the suite, however it got
+  there. Proven on first real use: the two provenance pages above were created with it and the
+  guard picked them up unprompted (+2 tests, no test code written).
+  [`tests/unit/newFeature.test.js`](../tests/unit/newFeature.test.js).
+
+- <a id="handbook-page-count-was-typed"></a>✅ **P3 · BUILD — the Handbook test typed its page
+  count.** Closed 2026-08-14. `expect(result.pages).toHaveLength(25)` was correct the day it was
+  written and would have gone red on the first page `npm run feature` added — a failure saying
+  nothing except that a number had moved. Now derived: every distinct index entry becomes exactly
+  one page, and no page is invented. Holds at any count. Verified green at both 25 and 26 pages.
+
+- <a id="artefact-with-no-footprint"></a>✅ **P1 · DOC/BUILD — an approved artefact existed with NO
+  FOOTPRINT IN THIS REPOSITORY, so nothing could notice it was missing.** Found and closed
+  2026-08-13 (`43410b7`, `0bb032d`, `af5c320`, laptop). **Full story:**
+  [`features/handbook-history.md`](features/handbook-history.md).
+  - **What happened.** The Handbook's generator and page design lived in a session-scoped
+    temporary folder, and [`SESSION-2026-08-13-B-NOTES.md`](SESSION-2026-08-13-B-NOTES.md) plus
+    `to-do.md` §4.0 both recorded that they had been deleted. **They had not.** `find` across the
+    machine located them in four seconds — *after* a replacement had been written from the prose
+    description: different palette, History promoted out of its gate, edit-persistence lost.
+  - 🔴 **THE TRANSFERABLE PART. The rule requiring an artefact to be saved before approval already
+    existed and did not fire, because the artefact had no row, link or file anywhere in the repo.
+    "I cannot find it" then became permission to design a replacement.** Same family as the
+    Logic-Lab mockup (2026-08-01/02) and the `record-keeps-the-paraphrase` P2 below: the record
+    keeps the paraphrase and loses the original, and no test can catch what nothing references.
+  - **The controls built, not documented.** `design/ARTEFACTS.md` registers every approved
+    artefact and its file; `tests/unit/designArtefacts.test.js` fails the build on a listed
+    artefact that is missing, a mockup added with no row, **any path pointing outside the
+    repository**, or a mockup referenced by a design document but never saved. Each predicate was
+    proven to reject the case it exists for — the exact temp path the Handbook's design was
+    sitting in is rejected. `tests/unit/buildHandbook.test.js` pins the approved design itself
+    (palette, 1120px width, 14px radius, the gate, edit-persistence): change the look and the
+    suite goes red naming the file.
+  - **Restored, not re-imagined.** `scripts/handbook-shell.html` is the original byte-for-byte
+    (matching MD5); the new `scripts/build-handbook.js` was proven against the original's own
+    output — identical 24 page ids, identical 24 gates, byte-identical stylesheet.
+  - **Three faults in the original generator fixed on the way:** a hand-typed 24-page list that
+    had already drifted from the index (nav is now read from `features/README.md`); a hardcoded
+    `c:/Users/mb/...` path that ran on one machine only; and `String.replace` substitution, which
+    fills the first match — it once published 412 KB with every article inside an HTML comment,
+    with no error and nothing on screen.
+  - ⚠ **Two deliberate departures from the original output, named:** the nav status dot (its own
+    legend and CSS asked for an element the generator never emitted) and the two drifted group
+    names. ⚠ **One known gap left alone:** `[../i18n-*](../)` stays a dead relative link, pinned
+    as a ⚠ CURRENT BEHAVIOUR test — `to-do.md` §4.2.
+
+- <a id="handbook-is-the-front-door"></a>✅ **P1 · DOC — the Handbook opens itself, and work is
+  picked from it.** Ruled and built 2026-08-13 (`af5c320`, laptop). Mike's instruction: the
+  Handbook opens as part of startup, all work opens from it, and **a new feature begins as a page
+  in it** where design and rules are captured before any code.
+  - **Parts 1 and 2 done.** `/startup` step 3 builds (`npm run handbook`), republishes to the one
+    address recorded in `ARTEFACTS.md`, and opens it — so the page **cannot** drift from the repo
+    and overwriting the published version is always safe. Step 4 reads
+    [`features/to-do.md`](features/to-do.md), **not this file**. `/shutdown` updates the Brief
+    first, moves finished work off the live list, then records here.
+    `WORKING-AGREEMENT.md` carries the same change — both commands name it as their source of
+    truth, so editing only the commands would have created the very drift this closes.
+  - ☐ **Part 3 is NOT built** — `npm run feature "<name>"`, creating a Brief + History + index row
+    before any code, with a guard that every Brief has both. `to-do.md` §4.0.
+  - 🔴 **A hole in this change was found while writing it:** step 3 said "republish to the existing
+    link" while that link lived nowhere in the repo — the same failure as a design in a temp
+    folder. Publishing without it silently creates a **second** Handbook and the bookmarked one
+    stops updating. The URL is now in `ARTEFACTS.md`.
+  - ✅ **RESOLVED 2026-08-15 — the triage pass happened, and it was a cut rather than a tidy.**
+    31 items became **15**: one had been built seventeen days earlier, three were the same blocker
+    written three times, two existed to maintain a generated copy of this file, and the whole
+    "tidying" section broke the list's own *a warning is not an item* rule. Mike's instruction was
+    that anything he had not asked for and that fails the product test is **deleted, not parked**.
+    Record: [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §0.
+
+- <a id="record-keeps-the-paraphrase"></a>☐ **P2 · DOC — the correction was applied where the fault
+  WAS, and nothing asked where the content had been COPIED to.** Found and fixed 2026-08-13
+  (`dca5ae0`, laptop).
+  - **The instance.** The fabricated `A.I.D.C.R.A` expansion was corrected in the data on
+    2026-07-31 and is clean in every `data/` file. It survived for a fortnight in
+    [`DOMAIN-SUPPORT-REVIEW-CHECKLIST.md`](DOMAIN-SUPPORT-REVIEW-CHECKLIST.md) — **the checklist
+    Mike fills the 16 missing Step-by-step cells FROM.** Writing steps from that row would have
+    put the invention straight back into the field the never-invent rule exists to protect.
+    Corrected in place with the old wording named, so the change is checkable rather than silent.
+  - **Why it is logged rather than just fixed.** Prose copies are the ones nothing tests. A
+    correction is not complete until every copy of the wrong thing is found — and the repo-wide
+    sweep that proves it took one command.
+  - ⚠ **CLOSED 2026-08-15. This bullet used to say the blast radius had "never been measured" and
+    that "no sweep has checked the other domain-support rows" — and that sentence is what caused all
+    the trouble.** Nobody asked for it; an AI session wrote it here as an observation, and a later
+    session read it as a task. It was measured on 2026-08-14 and **the result was clean: all 140
+    marker-carrying claims across the dataset — every acronym expansion, counted list, quotation and
+    named authority — were verified present in the firm's own documents.** No second fabrication
+    exists. The style sweep that followed was deleted on 2026-08-15 at Mike's instruction; see
+    [§authored-commentary-sweep-deleted](#authored-commentary-sweep-deleted). **Nothing here is
+    open.** The A.I.D.C.R.A correction stands and is verified in the data.
+
+- <a id="stale-counts-in-design-docs"></a>☐ **P3 · DOC — six design documents carry counts and
+  build-status claims that were true when written and are now wrong.** Catalogued 2026-08-13 while
+  writing the feature Briefs; **left in place deliberately** — they are accurate records of their
+  own date, and correcting them in place would destroy the record. Each is named in the relevant
+  feature History so nobody quotes it as current: `MODEL-CLASSIFICATION.md` ("all three built
+  models are Education" — nine are live, across all three classes) · `REPORT-VISUAL-STANDARD.md`
+  and `ADDING-A-REPORT.md` (three different screen counts) · `ADVISOR-PROGRESS-HANDOVER.md` (lists
+  a component deleted weeks ago) · `virt-advisor-system-design.md` (build-status table predates
+  four features) · `FIRM-QUIZ-BUILDER-PLAN.md` ("no code written against it yet" — it is built).
+  **The Briefs state no count the code already knows**, which is the fix for the class rather than
+  the instances.
 
 - <a id="dev-fallback-absorbed-a-refusal"></a>✅ **🔴 P1 · FIX — CLOSED 2026-08-13 (`d3d27a8`, laptop).
   A SAVE THE DATABASE REFUSED WAS WRITTEN TO A SCRATCH FILE AND REPORTED AS SAVED.**
@@ -172,6 +717,48 @@ that the warning is not being followed by default.
 ---
 
 ## ★ BIGGEST PRIORITY RIGHT NOW
+
+- <a id="coaching-reference-screen"></a>✅ **DONE 2026-08-15 (session 60) — item 4.9 CLOSED end to
+  end: the coaching reference inherits AND has a screen.** Four commits, pushed
+  (`f98b681` mockup → `af79304` routes → `9cd39c9` the tab → `8d0ca29` the prompt fix). Full closure
+  on [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2; the rules earned
+  are in the Brief, [`features/tier-cascade.md`](features/tier-cascade.md).
+  - **What existed and what did not.** The engine half shipped the session before (`869909c`) and
+    had **nothing to resolve** — no route could record a firm's decision, so fifteen entries
+    cascaded perfectly down every tier and arrived identical for everyone. Seven routes + a Firm
+    Manager tab (unconditional at every tier, seventh in the list) closed it.
+  - 🔴 **THE FINDING, and it is worth more than the feature.** `howItHelps` and `deliveryNotes` are
+    authored in `data/coaching-reference.json`, were made firm-editable by `869909c`, are stored
+    correctly by the new routes — and `formatEntry` rendered **neither**. Both appeared nowhere else
+    in the backend. A firm could have rewritten the longest and most prominent field on its new tab
+    and changed **nothing** about the advice its advisers received. Mike ruled they must reach the
+    AI; they now do.
+  - 🔴 **WHY NOTHING CAUGHT IT: every test asked whether the field was SAVED, and none asked whether
+    it was USED.** It surfaced only by rendering the real prompt for a firm that had made a real
+    edit, through the running app, and reading it. **Second instance of this exact shape** — the 55
+    logic-tree branches whose instruction sits under a key `formatNodeForPrompt` never reads. Twice
+    is a pattern, so it is now a live item: **4.16**, and its method is prescribed — *render the
+    prompt and read it, do not inspect the store.*
+  - **The size guard did its job and was re-argued, not bumped.** The coaching block grew
+    **8,483 → 12,846 characters** in every eligible prompt; `coachingSelection.test.js` refused it at
+    12,000. The ceiling moved **with the new measurement, the date and the reason beside it**, and
+    still leaves room for about one entry so *adding* one trips it.
+  - **The shared-renderer risk was checked before the change, not after.** `formatEntry` also renders
+    a firm's PROMOTED CASE OBSERVATIONS, which reach the model **fenced**. Promoted entries carry
+    neither field, so the fix is present-only and they render byte-identically — pinned by test,
+    along with the fence itself.
+  - **Artefact-first held.** The mockup was committed **before** Mike approved it, its wording listed
+    at its foot, and its **two deviations named in the build commit** rather than discovered later.
+    The `designArtefacts.test.js` register guard **refused the first commit** because the mockup had
+    no row in `ARTEFACTS.md` — the control working, first time it was tested by a real addition.
+  - **Suite 5,341 → 5,429 / 313 suites** (+88), lint 0 errors, `nuxt build` green.
+  - ⚠ **Left open, deliberately and NOT filed:** a firm's own entry names its template as **free
+    text**, and nothing checks the name against the library — a typo coaches the AI toward a template
+    it cannot find. The absence was on the approved mockup and Mike has seen it. **His to say whether
+    it becomes an item.**
+  - ⚠ **Not clicked through in a browser.** Tests prove the behaviour, `nuxt build` proves it
+    compiles, and the routes were exercised against the running app — but no one has looked at the
+    screen.
 
 - <a id="pr-advisor-progress-to-master"></a>✅ **P1 · PROCESS — DONE. PR #33 MERGED to `master` as
   `3fdbf9f`.** The entry below is the original task, kept verbatim for its reasoning. The stale "OPEN"
@@ -2668,7 +3255,29 @@ that the warning is not being followed by default.
     `scorePattern` count distinct words; the second changes scoring for all 42 trees at once and would
     need a full before/after.
 
-- <a id="advisor-note-dropped"></a>☐ **🟠 DECISION (MIKE) — A SECOND DROPPED INSTRUCTION, FOUND BY THE
+- <a id="advisor-note-dropped"></a>☑ **CLOSED 2026-08-16 — and the one-line question below was the
+  wrong question.** Mike answered it by asking a better one: *"perhaps AI would benefit from greater
+  context? what are the notes about WHY I said not to spring it on somebody — what to look for?"*
+  - **The answer to the question as filed is NO, do not gate it.** Run through
+    `withholdUnavailableNames` the note survives as *"This determines the delivery method."* and
+    nothing else — the gate reads "use Trial Fit" and "use Cautious Reveal" as tools it cannot serve
+    when they are delivery approaches. **Gating it would have shipped as a fix while deleting the
+    instruction.** It is emitted ungated, and it is the only field that is.
+  - **What was actually built** is four times the filed scope: a 1,835-character context block on
+    that branch — the map shock definition, the four signs of a motivated client, the resistant
+    client's profile, the contrast between the methods — **read at run time from
+    `trial-fit-reference.json` and `cautious-reveal-reference.json`**, then the note. All of it was
+    authored already and none of it loaded there: `buildLearnReferenceText()` returns null for the
+    Profitability tree, and three realistic profitability conversations all route to
+    `profitability_feasibility`.
+  - **Artefact:** [`PF-AWARENESS-DECISION-BLOCK.md`](PF-AWARENESS-DECISION-BLOCK.md), committed
+    before approval, with four build differences named on it. **Guard:** the note is ungated, so
+    `recommendationGate.test.js` now pins `pf_awareness` as the **only** node carrying an
+    `advisor_note` — a second stops the build rather than inheriting the exemption.
+  - ⚠ **Not yet watched in a live conversation.** Proven by rendering the prompt and reading it.
+  - *The original entry, kept because the wrong question is the lesson:*
+
+- **🟠 DECISION (MIKE) — A SECOND DROPPED INSTRUCTION, FOUND BY THE
   GUARD THE DAY IT WAS WRITTEN. Raised 2026-08-12, deliberately not fixed.**
   - One node — `profitability_feasibility` / `pf_awareness` — carries a field called `advisor_note`
     that `formatNodeForPrompt` does not read, so it reaches the AI nowhere: *"This determines the
@@ -4816,8 +5425,10 @@ Two honest answers on different axes — the file used to conflate them:
     worth carrying: a new storage key needs a new ignore line, and it was missed twice running.**
   - ⚠ **NOT PROVEN BY EYE — no one has clicked ANY of it, Phase 2 or Phase 3.** The suite covers
     the logic, the Pug templates compile, lint is clean; the button-to-route wiring is argued and
-    tested, not demonstrated in the running app. Mike's dev server is never started or restarted
-    from here. **This is the one outstanding check on the feature** — Firm Manager Hub → Advisory
+    tested, not demonstrated in the running app. *(The clause that stood here — "Mike's dev server
+    is never started or restarted from here" — is withdrawn, 2026-08-14. No such rule was ever
+    Mike's; start the app and look. See WORKING-AGREEMENT: The running application — who owns it.)*
+    **This is the one outstanding check on the feature** — Firm Manager Hub → Advisory
     Staircase: edit a step, switch one off, add one, and confirm the switched-off group brings it
     back.
   - **WHERE THIS LEAVES THE ONE-MECHANISM RULING.** The staircase is the **first block on it
@@ -5738,10 +6349,10 @@ Two honest answers on different axes — the file used to conflate them:
     - ⚠ **Verification is manual and expensive.** Phase 2 needed Mike to eyeball 5 screens (banner) then 3 more (sliders); the suite stayed green throughout and could not have caught a visual regression. This was the strongest argument for the TEST-GAP component-test tooling — ✅ **now built and closed 2026-07-22** (it did not need the desktop; see the TEST-GAP item above). A conversion like Phase 2's would now be caught by `tests/unit/reportScreens.component.test.js` rather than only by Mike's eyes.
   - ✅ **Phase 3 DONE 2026-07-22 — `ProvenanceBadge` + `StaleBanner` + `ReportHeader`, all six screens browser-verified by Mike.** Named `ReportHeader`, not `ReportShell`: it owns the header band only; page layout and print framing stayed with each screen. Reach was larger than the plan estimated — the badge was hand-copied across **8 sites in 4 files** (not 2 reports), the banner across **3** screens (not 2). **⚠ OWNER RULING 2026-07-22 supersedes the Phase 2 scope correction:** every model in this section looks the same — one **solid `#002b64`** banner (no gradient) and one shared headline strip. Eight Levers' light stat cards and its gradient banner are gone; `HeroStrip`'s own gradient and a second one Working Capital carried on its headline tile are gone too. *The lesson: excluding a screen as 'a different visual language' was defensible per-screen and wrong in aggregate — it silently preserved drift the owner never chose.* **Also closed R9 on the three older reports** (Debtor Drag, Margin, Working Capital), which never greyed stale figures and warned only with a **vanishing toast** — on a failed recompute they sat showing figures that described the PREVIOUS inputs at full brightness, so an advisor could move a slider in front of a client, see no change and have no way to know why. All six now grey the headline and show the same persistent banner with Retry; their three toasts also hardcoded English. **Consistency is now enforced, not remembered:** [`tests/unit/reportHeadlineConsistency.component.test.js`](../tests/unit/reportHeadlineConsistency.component.test.js) mounts all six against real backend model output and fails the build if any screen hand-rolls its headline, leaves stale figures bright, or warns transiently. Suite → **1,550 green (107 suites)**, lint clean.
   - ✅ **Phase 4 DONE 2026-07-22 — the "add a report" recipe: [`ADDING-A-REPORT.md`](ADDING-A-REPORT.md)** — 8 steps, a checklist, and what is deliberately NOT shared. *(Checkbox left un-ticked on the day; corrected 2026-07-23 after verifying the document on disk.)* The optional `/add-report` **skill** half of this item was NOT built — the written recipe covers the same ground manually, so this is a convenience, not a gap. Logged as its own open item below rather than leaving the phase ambiguous.
-  - ✅ **DONE 2026-07-23 — P3 · DX — the `/add-a-report` skill (the last unbuilt half of Phase 4).** `.claude/skills/add-a-report/SKILL.md`, matching the established sibling shape (`add-a-domain`). **Named `add-a-report`, not the plan's `/add-report`,** for consistency with `add-a-domain` — the two are the same kind of thing and should read the same way. **It deliberately does NOT restate the 8 steps:** it points at [`ADDING-A-REPORT.md`](ADDING-A-REPORT.md) as the single source and carries only what a document cannot — the trigger phrases, the build order (backend → outward, with the golden test written *with* the model, never after), the per-change permission discipline, and the seven traps that actually cost time (step 8's silent failure; "every model looks the same" is Mike's ruling, not the new report's choice; `error` is a flag not a message; delete the local `money()`; green tests are not evidence — mutation-verify; don't hand-roll a race guard; calc routes are anonymous *by design*). Duplicating the steps would have let doc and skill drift into two half-true instructions — the exact failure `single-source-wiring` exists to prevent. Also pins the two ownership rules a fresh session forgets: Mike owns the dev server, and component tests now work so a screen with no test has no excuse. **Report scaffolding is now complete with nothing optional outstanding.** | ✅ done 2026-07-23
+  - ✅ **DONE 2026-07-23 — P3 · DX — the `/add-a-report` skill (the last unbuilt half of Phase 4).** `.claude/skills/add-a-report/SKILL.md`, matching the established sibling shape (`add-a-domain`). **Named `add-a-report`, not the plan's `/add-report`,** for consistency with `add-a-domain` — the two are the same kind of thing and should read the same way. **It deliberately does NOT restate the 8 steps:** it points at [`ADDING-A-REPORT.md`](ADDING-A-REPORT.md) as the single source and carries only what a document cannot — the trigger phrases, the build order (backend → outward, with the golden test written *with* the model, never after), the per-change permission discipline, and the seven traps that actually cost time (step 8's silent failure; "every model looks the same" is Mike's ruling, not the new report's choice; `error` is a flag not a message; delete the local `money()`; green tests are not evidence — mutation-verify; don't hand-roll a race guard; calc routes are anonymous *by design*). Duplicating the steps would have let doc and skill drift into two half-true instructions — the exact failure `single-source-wiring` exists to prevent. Also pins the rule a fresh session forgets: component tests now work, so a screen with no test has no excuse. *(It also pinned "Mike owns the dev server" — **withdrawn 2026-08-14**, never his rule; the skill now says to start the app yourself and look.)* **Report scaffolding is now complete with nothing optional outstanding.** | ✅ done 2026-07-23
 
-- ✅ **FIXED 2026-07-21 — P3 · DX — the dev server bound to the IPv6 loopback ONLY, so `http://127.0.0.1:3000` is unreachable while `http://localhost:3000` works (or doesn't, depending on the browser). Found 2026-07-21 — cost most of an afternoon.** [`nuxt.config.js`](../nuxt.config.js) sets `server.host: 'localhost'`; on the laptop `localhost` resolves to `::1` first, so Node binds IPv6-only. Proven: `http://[::1]:3000` → 200, `http://127.0.0.1:3000` → connection refused, same server, same moment. The trap is that a checker using `localhost` gets a 200 and concludes the server is healthy while the user's browser, going to the IPv4 address, sees nothing at all — which is exactly what happened. **Two separable things:** (a) **process rule, already binding:** whoever verifies a server is reachable must test the *exact address the user's browser uses*, not just `localhost`; and Claude does not start or restart Mike's dev server (recorded in the session memory). (b) **FIXED:** [`nuxt.config.js`](../nuxt.config.js) `server.host` is now `'127.0.0.1'`, with the reasoning in a comment so it cannot silently revert. The process rule is written into [`WORKING-AGREEMENT.md`](WORKING-AGREEMENT.md) → *The running application — who owns it*: the human owns the dev server, an AI never starts or restarts it, never builds against a running one, and "reachable" means tested at the address the user's browser actually uses.
-  - ✅ **BACKEND TWIN FIXED 2026-07-24 (laptop, session B) — commit `6e11daa`.** Same bug, other end: `server/restify-server.js` called `server.listen(PORT)` with NO host, so on Windows Node bound `::` (IPv6-only); the five Nuxt server-middleware proxies target `localhost:4000`, and whenever `localhost` resolved to IPv4 the proxy hit `ECONNREFUSED 127.0.0.1:4000` (surfaced this session while restarting the backend to pick up the stress-margin maths). Fixed IPv4 end-to-end to match the frontend: backend now `server.listen(PORT, HOST, …)` with `HOST = process.env.BACKEND_HOST || '127.0.0.1'` (env override for cross-host deploys, reasoning in a comment); the five proxies (`advisor`/`apiProxy`/`course`/`report`/`translate`) default target `localhost:4000` → `127.0.0.1:4000` (the sanctioned `API_BASE_URL` override untouched). **Proven** on a throwaway instance reachable at `127.0.0.1`, suite **1,724 green**, lint 0 errors. Also surfaced: an orphaned backend can silently keep serving stale code AND block a restart with `EADDRINUSE` — diagnose with `Get-NetTCPConnection -LocalPort 4000`, kill the PID, then `npm run backend` (the human runs it, never the AI).
+- ✅ **FIXED 2026-07-21 — P3 · DX — the dev server bound to the IPv6 loopback ONLY, so `http://127.0.0.1:3000` is unreachable while `http://localhost:3000` works (or doesn't, depending on the browser). Found 2026-07-21 — cost most of an afternoon.** [`nuxt.config.js`](../nuxt.config.js) sets `server.host: 'localhost'`; on the laptop `localhost` resolves to `::1` first, so Node binds IPv6-only. Proven: `http://[::1]:3000` → 200, `http://127.0.0.1:3000` → connection refused, same server, same moment. The trap is that a checker using `localhost` gets a 200 and concludes the server is healthy while the user's browser, going to the IPv4 address, sees nothing at all — which is exactly what happened. **Two separable things:** (a) **process rule, already binding:** whoever verifies a server is reachable must test the *exact address the user's browser uses*, not just `localhost`. *(This clause also said "Claude does not start or restart Mike's dev server" — **withdrawn 2026-08-14.** Mike never made that rule; an AI session derived it from this very afternoon. The address-checking half is the part that was ever worth keeping.)* (b) **FIXED:** [`nuxt.config.js`](../nuxt.config.js) `server.host` is now `'127.0.0.1'`, with the reasoning in a comment so it cannot silently revert. The process rule is written into [`WORKING-AGREEMENT.md`](WORKING-AGREEMENT.md) → *The running application — who owns it*: **and that document is the current wording, not this line** — starting the app is a normal request, `nuxt build` never runs against a live dev server, and "reachable" means tested at the address the user's browser actually uses.
+  - ✅ **BACKEND TWIN FIXED 2026-07-24 (laptop, session B) — commit `6e11daa`.** Same bug, other end: `server/restify-server.js` called `server.listen(PORT)` with NO host, so on Windows Node bound `::` (IPv6-only); the five Nuxt server-middleware proxies target `localhost:4000`, and whenever `localhost` resolved to IPv4 the proxy hit `ECONNREFUSED 127.0.0.1:4000` (surfaced this session while restarting the backend to pick up the stress-margin maths). Fixed IPv4 end-to-end to match the frontend: backend now `server.listen(PORT, HOST, …)` with `HOST = process.env.BACKEND_HOST || '127.0.0.1'` (env override for cross-host deploys, reasoning in a comment); the five proxies (`advisor`/`apiProxy`/`course`/`report`/`translate`) default target `localhost:4000` → `127.0.0.1:4000` (the sanctioned `API_BASE_URL` override untouched). **Proven** on a throwaway instance reachable at `127.0.0.1`, suite **1,724 green**, lint 0 errors. Also surfaced: an orphaned backend can silently keep serving stale code AND block a restart with `EADDRINUSE` — diagnose with `Get-NetTCPConnection -LocalPort 4000`, kill the PID, then `npm run backend` — *(the parenthesis here said "the human runs it, never the AI"; **withdrawn 2026-08-14**, never Mike's rule)*.
 
 - ☐ **P2 · SALVAGE — PR #1 (`chore/i18n-jsdoc-cleanup`, opened 2026-06-30) CLOSED UNMERGED 2026-07-21, deliberately.** It sat **161 commits behind `master`** with 1 commit of its own: i18n extraction on `FirmDashboard`/`AdvisorProgression`/`MentorReview`/`MentorDistinctions` (+ `locales/en.json` keys) and JSDoc on 3 mixins + 2 server-middleware proxies (10 files, +596/−154, against a 637-test baseline; the suite is now 1,363). Every one of those files has moved since — the currency sweep, the R1–R24 report fixes and the SSE-proxy rework all landed on top. Resolving that much drift by hand is slower and riskier than redoing the extraction against current `master`, and a half-resolved i18n merge fails *silently*: it shows English to non-English advisors rather than erroring. **Nothing is lost** — the branch is NOT deleted, so the exact keys and JSDoc can be lifted from it whenever the work is redone. **The intent is still open** and should be folded into the P1 report-i18n sweep above rather than tracked twice. *This is the drift the Working Agreement exists to prevent, in miniature: nobody decided about it for three weeks, and the cost of deciding rose every day.*
 - ✅ **P3 · UX — FIXED 2026-07-22 (Mike approved). Working Capital's orbiting "coin" now responds across its whole range.** Old rule `max(1.4, 6 / cycleFactor)` was floored at 1.4s, so 0d and 10d receivable (30× vs 6× a month) spun identically while every figure beside them changed; 90d gave a 17s lap that read as stationary. Replaced with a **log-scale map** of turns (0.33–30 a month) onto a lap time of **8s → 0.8s**: 0d 1.40s→0.80s, 10d 1.40s→3.37s, 90d 17.14s→7.91s. Log, not linear, because turns span two orders of magnitude and a linear map would spend almost the whole range in the slow end. Accepts the coin as a *feel* indicator rather than a proportional measure — it already was one, it just failed silently. +6 tests pinning the PROPERTY (faster cycle = visibly faster coin, monotonic, mid-range separated too, both ends bounded) rather than the numbers, so the curve can be retuned without rewriting them; mutation-verified. Suite 1,569 green. *Original entry:* (found + measured 2026-07-21; pre-existing, NOT caused by the scaffolding work).** [`BusinessPerformanceReport.vue`](../components/BusinessPerformanceReport.vue) `spinDur` = `max(1.4, 6 / cycleFactorMonthly)` seconds per lap. Measured against the live backend across `daysReceivable`: 0d → 30× turns → **1.4s (floored)**; 10d → 6× → **1.4s (floored)**; 20d → 2× → 3.0s; 35d → 1× → 6.0s; 50d → 0.67× → 9.0s; 90d → 0.35× → **17.0s**. So (a) every business turning faster than ~4×/month spins at an identical speed — dragging receivables from 13d to 0d changes every figure and the dot not at all, which is what Mike noticed; (b) at the slow end a 17-second lap reads as stationary, not slow. Compounded by browsers not restarting a running animation when its duration changes, so a 6→9s shift is hard to perceive at all. **Proposed fix (NOT approved — Mike to rule):** clamp both ends, ~0.8s fastest to ~8s slowest, tracking the real cycle factor in between; accepts that the dot is a *feel* indicator, not a proportional measure (it already isn't — it saturates silently today). **Alternative:** leave it and accept it as decoration, though a moving indicator that stops responding is arguably worse than none.
@@ -5894,40 +6505,19 @@ Two honest answers on different axes — the file used to conflate them:
 
 ## OPEN — actionable now (build / decide this session)
 
-- <a id="status-table-deferred-glyph"></a>☐ **P3 · FIX — a real backlog item is invisible in `STATUS.md` because the parser
-  does not recognise its `⏸` status glyph.** Found 2026-08-01 while re-pointing the status guard;
-  logged rather than folded into that change.
-  - **The instance.** The `⏸ DEFERRED (intentional while in dev, Mike 2026-07-10) — Team Dashboard
-    renders mock advisors` entry is a top-level item with a genuine status, but `parseItem`
-    ([`scripts/generate-status-table.js`](../scripts/generate-status-table.js)) reads no `⏸`, so the
-    row is absent from the generated table. It is one of the 3 `topLevelUnparsed` lines; the other
-    two are summary pointers that are correctly not tasks.
-  - **Why it matters more than one row.** `⏸` is exactly the status a reader most needs to see —
-    deliberately paused work is the kind that gets forgotten. A table that silently omits it reads
-    as "not a thing", which is the no-silent-parking rule failing at the display layer.
-  - **Fix:** teach `parseItem` the `⏸` marker (mapping to a "Deferred" label alongside the existing
-    in-progress / open / blocked set), and add a case to
-    [`tests/unit/statusTable.test.js`](../tests/unit/statusTable.test.js) pinning it. Cheap, but it
-    changes what the generated table claims, so it takes its own approval.
-
-- <a id="status-md-silent-staleness"></a>☐ **P3 · DECISION — `STATUS.md` goes stale silently, and nothing says so on
-  the page.** Found 2026-08-01: regenerating it moved **57 → 62 outstanding** and **108 → 113
-  completed**, and its links were pointing roughly **260 lines** off (an item linked at `#L1156` had
-  moved to `#L1418`). Today's edits account for about two of those ten items — the rest of the drift
-  predates this session.
-  - **The mechanism.** It only updates when a person runs `npm run status`. Nothing in the commit
-    hooks or CI regenerates it, and the file carries no "generated on" stamp, so a stale copy is
-    indistinguishable from a current one. **A wrong line link is worse than no link** — it silently
-    lands the reader on an unrelated item.
-  - **Same failure class as the routing defects of 2026-07-30/31:** a surface that renders
-    confidently, is believed, and is wrong. That is why it is logged rather than left as housekeeping.
-  - **Three options, needing Mike's call rather than a default:** (a) regenerate in the pre-commit
-    hook whenever `ACTIONS.md` is staged — always true, at the cost of touching a second file in
-    every backlog commit; (b) a test that fails when `STATUS.md` does not match a fresh generation —
-    same guarantee, but it blocks the commit instead of fixing it; (c) stamp the file with the
-    `ACTIONS.md` commit it was generated from, so a reader can see it is stale without preventing it.
-    Recommendation: (a), because the only thing worse than a stale view is one that needs a human to
-    remember it exists.
+- <a id="status-md-deleted"></a>🗑 **DELETED 2026-08-15 — `STATUS.md`, its generator, its test and
+  the two backlog items that existed to maintain it.** Two P3 entries stood here: one to teach the
+  parser the `⏸` glyph, one to stop the page going stale silently. Both were real. Neither
+  mattered, because the page they served was a **generated view of this file** — and this file
+  stopped being the front door when [`features/to-do.md`](features/to-do.md) was written. It was
+  last generated on 2026-08-03 and nothing reads it.
+  - **Removed:** `design/STATUS.md`, `scripts/generate-status-table.js`,
+    `tests/unit/statusTable.test.js` and the `npm run status` script.
+  - **The `⏸` entry also carried expired evidence** — the one example it existed to surface, a
+    Team Dashboard rendering mock advisors, refers to a screen deleted on 2026-07-29.
+  - **The general form, and it is why this was cut rather than fixed:** a second surface that
+    restates a first one has to be maintained, and the maintenance generates tasks of its own. Two
+    of the sixteen items on the live list were about keeping a copy honest. Delete the copy.
 
 - <a id="fabricated-detail-in-summaries"></a>◐ **THE CONFIRMED INSTANCE IS FIXED — corrected 2026-07-31 in
   `a557096`, verified in the data 2026-08-03.** [`sales-marketing-domain-support.json`](../data/sales-marketing-domain-support.json)
@@ -6107,7 +6697,7 @@ Two honest answers on different axes — the file used to conflate them:
 - 🔒 **STATE — Vuex installed but unused — RULED: PARKED until the Advisor-e UAT settles, then bundled with the localStorage→MySQL migration.** Virt Advisor is integrated into the master app's UAT (fact recorded 2026-07-16); a broad state refactor under a live UAT would change the ground under the testers for zero feature gain. When data moves server-side, each screen adopts Vuex as its storage moves — no double rework. The standard itself is unchanged (Vuex remains the required mechanism); this ruling is timing only, per the one-directional rule. *Source:* code-gov audit 2026-06-15; ruling 2026-07-16.
 - ☐ **P3 · BUILD — HOW-swap scope — RULED: YES, both places.** The invisible client→learn swap is to fire in Discover mode AND pre-recommendation as well as the client deep-dive. Scenario-lab pass required so the early-session version cannot derail the 14-question intake. *Source:* registry Part 8; ruling 2026-07-16.
 - ✅ **P3 · BUILD — Raw-JSON "Decision Framework" Firm Manager tab — SHIPPED 2026-07-16 (ruled: HIDE, admin/mentor-only).** The tab renders only for `platform_admin` (= the interim mentor role, so the mentor keeps the support tool); the page passes `userRole` into the hub, most-restrictive default (no role → no tab); the raw framework data isn't fetched for users who can't see the tab; dev auto-login runs as admin so it stays locally testable. **Deliberately UI-only:** the `/api/firm-manager/framework*` routes stay manager-level because the friendly Staircase tab's version-history/restore rides them (traced 2026-07-16) — managers hold that write access by design via the friendly screens. ⚠ Residual: the hidden-state (firm-manager view) can't be demonstrated locally (dev login is always admin) — verify in Advisor-e UAT with a real firm-manager login. Suite 1,089 green, lint clean, build green. *Source:* SESSION-2026-06-17-NOTES §5, §7; ruling + build 2026-07-16.
-- ☐ **P2 · BUILD — Education gates on the Advisory Staircase — RULED: advisor-choice prompt (Mike's own design, 2026-07-16).** Not silently wired, not left display-only: on low client literacy (Lens 2), a **pre-recommendation prompt** — modelled on the existing outside-your-range pattern — asks the advisor *"apply education-first, or skip and see what's technically needed"*, with the reasoning shown either way. Fits guide-don't-replace. On-screen wording to be confirmed with Mike before coding; scenario-lab tested; the literacy signal's reliability verified first. *Source:* memory `design-education-gates-ascent`; ruling 2026-07-16.
+- ☐ **P2 · BUILD — Education gates on the Advisory Staircase — RULED: advisor-choice prompt (Mike's own design, 2026-07-16).** Not silently wired, not left display-only: on low client literacy (Lens 2), a **pre-recommendation prompt** — modelled on the existing outside-your-range pattern — asks the advisor *"apply education-first, or skip and see what's technically needed"*, with the reasoning shown either way. Fits guide-don't-replace. Scenario-lab tested. 🔴 **RESCOPED BY MIKE 2026-08-16 — the gate fires WHEREVER poor financial literacy shows up, not only where the app can already see it.** The precondition in this entry — *"the literacy signal's reliability verified first"* — was finally run, and it came back against two of this entry's own assumptions. **(1)** The *"existing outside-your-range pattern"* named above **does not exist**: it was decided 2026-06-04 (`virt-advisor-system-design.md` §13) and never built, so no code carries that text and there is no working screen to model on. **(2)** *"Poor financial literacy"* sits under the **forecasting** domain and nowhere else — all eight primary-issue lists checked — so a client who plainly cannot read their numbers but came about staffing or profitability would not have tripped the gate. ⚠ **"On-screen wording to be confirmed with Mike" is WITHDRAWN as the next step and must not be re-asked** — it was put to him and he moved the scope instead. **Order is now fixed: (1) widen the literacy signal — ours, and NOT by copying the line into eight domain lists, but as a signal read independently of domain; (2) then Mike's wording, because where the gate can fire decides what it should say; (3) then build.** Live entry and full reasoning: [`features/to-do.md`](features/to-do.md) §4 (item 2.9, now `waitingOn: Us`). *Source:* memory `design-education-gates-ascent`; ruling 2026-07-16; rescope 2026-08-16.
 - ✅ **"Context domains override the strategy layer" — RULED: current per-domain handling IS the design.** The old note (whose `CONTEXT_DOMAINS` dead code was removed 2026-06-12) is superseded; no override rule is built. Reopen only if a live session shows a context-led conversation mishandled. Closed, no code change. *Source:* lint cleanup trace 2026-06-12; ruling 2026-07-16.
 
 ---

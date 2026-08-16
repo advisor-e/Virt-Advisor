@@ -114,7 +114,7 @@ async function loadBlendedStaircase (firmId, loadFirmConfig) {
   const hasDecisions = state.declinedIds.length > 0 ||
     Object.keys(state.overrides).length > 0 ||
     state.ownRows.length > 0
-  if (!hasDecisions && !state.defaultCeiling) { return base }
+  if (!hasDecisions && !state.defaultCeiling && !state.selectorPrompt) { return base }
 
   const resolved = renumber(resolveInheritedRows(
     base.steps, state, { sourceLabels: STAIRCASE_SOURCE_LABELS }
@@ -123,6 +123,11 @@ async function loadBlendedStaircase (firmId, loadFirmConfig) {
   return {
     ...base,
     defaultCeiling: state.defaultCeiling || base.defaultCeiling,
+    // The question the advisor is asked before choosing from the steps below it.
+    // Same inherit-or-keep rule as defaultCeiling, and it recurses with this
+    // function, so a firm that has not set one gets the mentor's and the mentor's
+    // falls through to the shipped file (item 4.16 E, 2026-08-16).
+    selectorPrompt: state.selectorPrompt || base.selectorPrompt,
     // A staircase with no steps is not a customisation, it is a dead end: the advisor
     // would be asked to choose from nothing. Storage should never hold that shape;
     // this is the second lock, matching the route's own fallback.

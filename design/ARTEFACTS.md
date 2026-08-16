@@ -1,0 +1,108 @@
+# Approved Artefacts — the register
+
+> **An artefact is anything shown to Mike so he can say yes or no to it** — a screen mockup, a
+> layout, a wording list, the design of a page he reads. **Every one of them lives in this
+> repository. If it is not in this table, it is not approved, and nothing should be built from it.**
+
+**This table is guarded.** [`tests/unit/designArtefacts.test.js`](../tests/unit/designArtefacts.test.js)
+fails the build if a file listed here is missing, if an artefact is added to
+[`mockups/`](mockups/) without being listed, or if any path here points outside the repository.
+A row is a claim the test checks — not a note.
+
+---
+
+## Why this register exists
+
+On **2026-08-13** the Advisor-e Handbook was rebuilt from a written description of itself, in a
+different palette, with the History moved out of the gate the index says it sits behind. It was
+rebuilt because a note said the original had been deleted. **The original was on this machine the
+whole time** — in a session-scoped temporary folder — and `find` located it in four seconds.
+
+The rule requiring an artefact to be saved before approval already existed, and every check passed,
+because **the artefact had no footprint in this repository at all**. Nothing referenced it, so
+nothing could notice it was missing, and "I could not find it" became permission to design a
+replacement.
+
+That is the hole this table closes. An artefact with no row is invisible; an artefact with a row
+is checked on every commit.
+
+This is the same failure family as the Logic-Lab mockup of 2026-08-01/02 — rendered in chat,
+approved, never saved, and gone a day later.
+
+---
+
+## The register
+
+**Screens and layouts** — in [`mockups/`](mockups/), one HTML file each.
+
+| Artefact | File | Referenced from |
+|---|---|---|
+| Case origin path | [case-origin.html](mockups/case-origin.html) | Case Reviews, Cases & Clients, Tier Cascade |
+| Coaching Reference tab | [firm-coaching-reference.html](mockups/firm-coaching-reference.html) | ✅ approved + BUILT 2026-08-15 (item 4.9) — two deviations named in `9cd39c9`; features/tier-cascade.md, features/firm-manager-hub.md |
+| Debtor Drag | [debtor-drag-mockup.html](mockups/debtor-drag-mockup.html) | ⚠ nothing — see *Orphans* below |
+| Decision logic map | [decision-logic-map-mockup.html](mockups/decision-logic-map-mockup.html) | LOGIC-LAB-BUILD-VS-MOCKUP.md |
+| EBITDA-DCF deconstruction | [ebitda-dcf-deconstruction-preview.html](mockups/ebitda-dcf-deconstruction-preview.html) | BUSINESS-PERFORMANCE-REPORT-PLAN.md |
+| EBITDA-DCF screen | [ebitda-dcf-mockup.html](mockups/ebitda-dcf-mockup.html) | BUSINESS-PERFORMANCE-REPORT-PLAN.md |
+| Firm quiz builder | [firm-quiz-builder-mockup.html](mockups/firm-quiz-builder-mockup.html) | ACTIONS.md, 2026-07-21 desktop notes |
+| Global groups membership | [global-groups-membership.html](mockups/global-groups-membership.html) | ACTIONS.md, 2026-08-10 notes |
+| Logic Lab wording | [logic-lab-wording-mockup.html](mockups/logic-lab-wording-mockup.html) | ACTIONS.md |
+| Logic table — Template Check | [logic-table-template-check.html](mockups/logic-table-template-check.html) | MENTOR-HUB-CONSOLIDATED-NOTES.md, TREE-RECOMMENDATION-REVIEW.md |
+| Logic tables — rule in place | [logic-tables-rule-in-place.html](mockups/logic-tables-rule-in-place.html) | ACTIONS.md, 2026-08-12 notes |
+| Margin Breakeven | [margin-breakeven-mockup.html](mockups/margin-breakeven-mockup.html) | ⚠ nothing — see *Orphans* below |
+| Mentor adoption view | [mentor-adoption-view.html](mockups/mentor-adoption-view.html) | Adoption, Firm Manager Hub, Tier Cascade |
+| Mentor Logic-Lab report | [mentor-logic-lab-report-mockup.html](mockups/mentor-logic-lab-report-mockup.html) | Logic-Lab Report, MENTOR-AI-HUB-STUB.md |
+| Model Library launcher | [model-library-launcher.html](mockups/model-library-launcher.html) | BUSINESS-PERFORMANCE-REPORT-PLAN.md |
+| Quick Position | [quick-position-mockup.html](mockups/quick-position-mockup.html) | BUSINESS-PERFORMANCE-REPORT-PLAN.md |
+| Sliced course outline | [sliced-course-outline.html](mockups/sliced-course-outline.html) | COURSE-SESSION-PLANNING.md, COURSE-SLICED-SESSION-WORDING.md |
+| Template Check — evidence row | [template-check-evidence-row.html](mockups/template-check-evidence-row.html) | ACTIONS.md, 2026-08-12 notes |
+| Template Check — table context | [template-check-table-context.html](mockups/template-check-table-context.html) | ACTIONS.md, 2026-08-12 notes |
+| Tier hub pages | [tier-hub-pages.html](mockups/tier-hub-pages.html) | Firm Manager Hub, Tier Cascade, WORDING-CASE-SHARE-CASCADE.md |
+| To-do list — scored table | [to-do-list-table.html](mockups/to-do-list-table.html) | features/to-do.md, product-principles.md |
+| Working Capital Cycle | [working-capital-cycle-mockup.html](mockups/working-capital-cycle-mockup.html) | BRAND-TOKENS.md, BUSINESS-PERFORMANCE-REPORT-PLAN.md |
+
+**Pages Mike reads** — an approved design that is generated rather than drawn once.
+
+| Artefact | File | What it governs |
+|---|---|---|
+| The Advisor-e Handbook | [`scripts/handbook-shell.html`](../scripts/handbook-shell.html) | The palette, layout, gate and edit bar of the Handbook. Restored byte-for-byte 2026-08-13 after being rebuilt from a description. Its values are pinned by [`tests/unit/buildHandbook.test.js`](../tests/unit/buildHandbook.test.js). |
+
+**The Handbook's published address**, which `/startup` republishes to every session:
+
+> [The Advisor-e Handbook](https://claude.ai/code/artifact/77ed69c4-c8b9-47d3-b384-7900c63d29d6)
+
+It is written here because it has to live somewhere the repository can see. A link held only
+in a chat window is the same failure as a design held only in a temporary folder: publishing
+without it silently creates a **second** Handbook, and the one Mike has bookmarked quietly
+stops being updated. Build with `npm run handbook`, then republish to that URL — never
+publish a new one.
+
+**Words the AI is shown** — prompt content Mike approves before it reaches a model. Not a screen,
+but the same rule: he cannot say yes to something that exists only in a chat window.
+
+| Artefact | File | What it governs |
+|---|---|---|
+| The Awareness Check block | [PF-AWARENESS-DECISION-BLOCK.md](PF-AWARENESS-DECISION-BLOCK.md) | The context the AI is given while choosing between Cautious Reveal and Trial Fit on the `pf_awareness` branch. ☐ awaiting approval — item 2.6, features/to-do.md. |
+| The Diagnostic Entry block | [DIAGNOSTIC-ENTRY-BLOCK.md](DIAGNOSTIC-ENTRY-BLOCK.md) · screen: [mockups/domain-support-diagnostic-entry.html](mockups/domain-support-diagnostic-entry.html) | The 65 authored "where to start when the client presents like this" branches across 20 domains — today on no screen and in no prompt. ☐ awaiting approval — item 4.16 Phase 1, features/to-do.md. |
+| The method guides | [METHOD-GUIDES-SCREEN.md](METHOD-GUIDES-SCREEN.md) · screen: [mockups/method-guides.html](mockups/method-guides.html) | The 13 deep method guides — 155,000 characters reaching the AI and no screen at any tier — and the 116 authored lines inside them that reach neither. ☐ awaiting wording, §6 a–d — item 4.16 F, features/to-do.md. |
+
+### Orphans
+
+Two mockups are listed above but referenced by no document:
+`debtor-drag-mockup.html` and `margin-breakeven-mockup.html`. **Both screens are built and live**,
+so these are records of a finished decision rather than pending work. They are kept, not deleted —
+an artefact is the evidence of what was approved, and the build is checked against it, not the
+other way round.
+
+---
+
+## How to use it
+
+1. **Making something for Mike to approve?** Commit the file *first*, add its row here in the same
+   change, then ask him. An artefact shown from chat alone does not exist.
+2. **About to build from an approved design?** Open the file in this table, put it beside the
+   build, and name every difference. A deliberate deviation is fine; an unrecorded one is not.
+3. **Cannot find the artefact?** That is a **stop**, not a licence to design a replacement. Search
+   the repository, then the machine — including temporary folders from earlier sessions. Say what
+   you found before writing anything.
+4. **Never move an artefact outside the repository.** A temporary folder is where things go to be
+   declared missing.

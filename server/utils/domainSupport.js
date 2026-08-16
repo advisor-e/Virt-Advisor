@@ -112,6 +112,69 @@ function formatMaterialLines (material) {
   return lines
 }
 
+/**
+ * A stored situation key rendered as ordinary words.
+ * `entrenched_position_with_loss_of_self` → `Entrenched position with loss of self`.
+ *
+ * Generated rather than authored, and READ-ONLY on the screen for that reason:
+ * the key is the identity the stored guidance is filed under, so renaming one
+ * would repoint the content. See design/DOMAIN-DIAGNOSTIC-BRANCHES.md §3b.
+ * @param {string} key
+ * @returns {string}
+ */
+function humaniseSituation (key) {
+  const words = String(key || '').replace(/_/g, ' ').trim()
+  return words ? words.charAt(0).toUpperCase() + words.slice(1) : ''
+}
+
+/**
+ * The domain's diagnostic entry: the question that works out which situation the
+ * client is in, and the authored guidance for each answer.
+ *
+ * WHY THIS EXISTS (item 4.16 A+B, 2026-08-16). The 65 branches under
+ * `diagnostic_entry` reached NO prompt at all — two of the three formatters in
+ * this file emitted `primary_question` and stopped, and the advisor path below
+ * emitted neither. So an adviser asking about an entrenched partnership dispute
+ * was never told the authored rule that trying to resolve the substance before
+ * the loss-of-self dynamic WILL fail.
+ *
+ * ⚠ THEY ARE NOT DUPLICATES OF THE LOGIC TREES, and that was tested rather than
+ * assumed — the build spec's claim that ~55 of them were is overturned with
+ * evidence in design/DOMAIN-DIAGNOSTIC-BRANCHES.md §1. The tree says WHICH
+ * conversation this is; the branch says WHAT TO DO once you are in it.
+ *
+ * The heading matches the Domain Support screen's own, word for word (approved
+ * by Mike 2026-08-16), so a firm editing a row can find what it changed in the
+ * prompt.
+ *
+ * @param {Object} ref - the resolved domain-support entry
+ * @param {boolean} fenced - true when the firm authored this domain's entry
+ * @returns {Array<string>} lines, or [] when the domain has no diagnostic entry
+ */
+function formatDiagnosticEntryLines (ref, fenced) {
+  const de = ref && ref.diagnostic_entry
+  if (!de || typeof de !== 'object' || Array.isArray(de)) { return [] }
+
+  const lines = []
+  if (de.primary_question) {
+    const q = `**Diagnostic entry point:** ${de.primary_question}`
+    lines.push(fenced ? fenceUntrusted(q) : q)
+    lines.push('')
+  }
+
+  const situations = Object.keys(de)
+    .filter(k => k !== 'primary_question' && typeof de[k] === 'string' && de[k].trim())
+  if (situations.length > 0) {
+    lines.push('**What to do, depending on the situation:**')
+    const body = situations
+      .map(k => `- **${humaniseSituation(k)}:** ${de[k]}`)
+      .join('\n')
+    lines.push(fenced ? fenceUntrusted(body) : body)
+    lines.push('')
+  }
+  return lines
+}
+
 function formatDomainSupportForPrompt (domainId, firmSupport) {
   const ref = resolveDomainSupport(domainId, firmSupport)
   if (!ref) { return null }
@@ -123,11 +186,16 @@ function formatDomainSupportForPrompt (domainId, firmSupport) {
   const overviewFirm = _firmAuthored(firmSupport, domainId, 'overview')
   const materialsFirm = _firmAuthored(firmSupport, domainId, 'materials')
 
+  const diagnosticFirm = _firmAuthored(firmSupport, domainId, 'diagnostic_entry')
+
   const lines = []
   lines.push(`## Domain Support Reference — ${ref.label}`)
   lines.push('')
   lines.push(overviewFirm ? fenceUntrusted(ref.overview) : ref.overview)
   lines.push('')
+  // THE ADVISOR PATH HAD NEITHER the entry question nor its branches — not just
+  // the branches. This is the formatter an advisor's own session reads.
+  for (const line of formatDiagnosticEntryLines(ref, diagnosticFirm)) { lines.push(line) }
 
   // Four-column re-authored shape (§0.5) takes precedence; legacy support_tools
   // files fall through to the original rich renderer below.
@@ -270,9 +338,8 @@ function formatDomainContextForSession (domainId, firmSupport) {
   lines.push('')
   if (ref.overview) { lines.push(overviewFirm ? fenceUntrusted(ref.overview) : ref.overview); lines.push('') }
 
-  if (ref.diagnostic_entry) {
-    const de = ref.diagnostic_entry
-    if (de.primary_question) { lines.push(`**Diagnostic entry point:** ${de.primary_question}`); lines.push('') }
+  for (const line of formatDiagnosticEntryLines(ref, _firmAuthored(firmSupport, domainId, 'diagnostic_entry'))) {
+    lines.push(line)
   }
 
   // EVERY material for the detected domain reaches the prompt — there is no
@@ -349,9 +416,8 @@ function formatDomainSummaryForDesign (domainId, firmSupport) {
   lines.push('')
   if (ref.overview) { lines.push(overviewFirm ? fenceUntrusted(ref.overview) : ref.overview); lines.push('') }
 
-  if (ref.diagnostic_entry && ref.diagnostic_entry.primary_question) {
-    lines.push(`**Diagnostic entry point:** ${ref.diagnostic_entry.primary_question}`)
-    lines.push('')
+  for (const line of formatDiagnosticEntryLines(ref, _firmAuthored(firmSupport, domainId, 'diagnostic_entry'))) {
+    lines.push(line)
   }
 
   // CB-33: these tool names are teaching concepts from the support file, NOT
@@ -402,4 +468,4 @@ function detectDomainsForDesign (query, firmSupport) {
     .map(s => s.domainId)
 }
 
-module.exports = { resolveDomainSupport, formatDomainSupportForPrompt, supportIdForLearnTree, detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign }
+module.exports = { resolveDomainSupport, formatDomainSupportForPrompt, supportIdForLearnTree, detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign, formatDiagnosticEntryLines, humaniseSituation }

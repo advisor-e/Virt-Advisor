@@ -60,7 +60,9 @@ describe('loadFirmStaircaseState', () => {
   test('a firm with no id is never looked up at all', async () => {
     const state = await loadFirmStaircaseState(null, overlay.loadFirmConfig, BASE.steps)
 
-    expect(state).toEqual({ declinedIds: [], overrides: {}, ownRows: [], defaultCeiling: null, fromLegacy: false })
+    expect(state).toEqual({
+      declinedIds: [], overrides: {}, ownRows: [], defaultCeiling: null, selectorPrompt: null, fromLegacy: false
+    })
     expect(overlay.loadFirmConfig).not.toHaveBeenCalled()
   })
 
@@ -274,6 +276,65 @@ describe('loadBlendedStaircase — the firm decisions the mechanism now allows',
     const blended = await loadBlendedStaircase(FIRM, overlay.loadFirmConfig)
 
     expect(blended).toBe(BASE)
+  })
+
+  // ── The advisor's question (item 4.16 E, 2026-08-16) ────────────────────────
+  // `selectorPrompt` was authored in the data file from the start and read by
+  // NOTHING — the engine asked a hardcoded copy — so every tier's edit to it
+  // reached no advisor. These lock the read path end to end.
+
+  test('a firm question is honoured, and the platform file is untouched', async () => {
+    mockKeys({ [CONFIG_KEYS.settings]: { selectorPrompt: 'How deep is this relationship right now?' } })
+
+    const blended = await loadBlendedStaircase(FIRM, overlay.loadFirmConfig)
+
+    expect(blended.selectorPrompt).toBe('How deep is this relationship right now?')
+    expect(BASE.selectorPrompt).toBe('Where would you say your current engagement with this client sits on the Advisory Staircase?')
+  })
+
+  test('a firm question alone is enough to resolve — it is not lost for want of a step decision', async () => {
+    // The early return exists so an untouched firm gets the base object itself. It
+    // guarded on decisions and defaultCeiling only, so before this the one thing a
+    // firm had actually written would have been dropped on the way out.
+    mockKeys({ [CONFIG_KEYS.settings]: { selectorPrompt: 'Where are we with this client?' } })
+
+    const blended = await loadBlendedStaircase(FIRM, overlay.loadFirmConfig)
+
+    expect(blended).not.toBe(BASE)
+    expect(blended.selectorPrompt).toBe('Where are we with this client?')
+    expect(blended.steps.map(s => s.name)).toEqual(BASE.steps.map(s => s.name))
+  })
+
+  test('a firm that has written no question of its own inherits the one above it', async () => {
+    mockKeys({ [CONFIG_KEYS.settings]: { defaultCeiling: 'strategic' } })
+
+    const blended = await loadBlendedStaircase(FIRM, overlay.loadFirmConfig)
+
+    expect(blended.selectorPrompt).toBe(BASE.selectorPrompt)
+  })
+
+  test('a blank question is not a customisation — the advisor is never asked nothing', async () => {
+    mockKeys({ [CONFIG_KEYS.settings]: { selectorPrompt: '   ' } })
+
+    const blended = await loadBlendedStaircase(FIRM, overlay.loadFirmConfig)
+
+    expect(blended.selectorPrompt).toBe(BASE.selectorPrompt)
+  })
+
+  test('surrounding whitespace is trimmed rather than asked', async () => {
+    mockKeys({ [CONFIG_KEYS.settings]: { selectorPrompt: '  Where are we?  ' } })
+
+    const state = await loadFirmStaircaseState(FIRM, overlay.loadFirmConfig, BASE.steps)
+
+    expect(state.selectorPrompt).toBe('Where are we?')
+  })
+
+  test('a non-string question is ignored, not asked', async () => {
+    mockKeys({ [CONFIG_KEYS.settings]: { selectorPrompt: 42 } })
+
+    const state = await loadFirmStaircaseState(FIRM, overlay.loadFirmConfig, BASE.steps)
+
+    expect(state.selectorPrompt).toBeNull()
   })
 })
 

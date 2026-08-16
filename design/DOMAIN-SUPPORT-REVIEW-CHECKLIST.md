@@ -25,7 +25,7 @@ written, and the who-and-when names the source page. Only the steps are missing.
 | ☐ | Product Fit | p7 | Trade-off between profitability and customer acceptance — is the offer genuinely wanted |
 | ☐ | 10 Marketing Messages | p10 | Ten statements written to the customer's actual purchase decision points |
 | ☐ | Customer Type Table | p12 | Customer types against product fit in one table; separates the message per type |
-| ☐ | A.I.D.C.R.A Advertisement Framework | p14 | The order an advert should be built in — Attention, Interest, Desire, Conviction, Response, Action |
+| ☐ | A.I.D.C.R.A Advertisement Framework | p14 | The order an advert should be built in — Attention, Interest, Desire, **Credibility, Risk Removal**, Action. *(Corrected 2026-08-13: this row previously read "Conviction, Response" — the fabricated expansion that was removed from the data on 2026-07-31 and had survived here. Do not write steps from the old wording.)* |
 | ☐ | Digital Funnel Storyboard | p17 | Maps the offerings and messages that move a target customer from couch to client |
 | ☐ | (Outbound) Messaging Plan | p22 | Schedules messaging activity — medium, platform, time, cost |
 | ☐ | (Inbound) Landing Page Review | p26 | Reader's logic vs page logic, then sequences text, graphics and widgets |

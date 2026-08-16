@@ -67,6 +67,13 @@ data/dev-firm-staircase-override-baselines.json
 # Dev-only firm template import (created locally when MySQL is unavailable)
 data/dev-firm-templates.json
 data/dev-firm-coaching.json
+# The coaching reference's per-entry decisions (2026-08-15, item 4.9). Listed WITH the
+# config keys that create them, per the rule at the quiz block below. NOT the same file
+# as dev-firm-coaching.json above, which holds PROMOTED CASE OBSERVATIONS — a firm's
+# advisors' own free text, which reaches the model fenced and is never inherited.
+data/dev-firm-coaching-declines.json
+data/dev-firm-coaching-overrides.json
+data/dev-firm-coaching-own.json
 
 # Dev-only firm quiz overlay (created locally when MySQL is unavailable)
 data/dev-firm-quizzes.json
@@ -82,6 +89,9 @@ data/dev-firm-quiz-override-baselines.json
 # Dev-only firm content overlays — domain support + logic trees (created locally when MySQL is unavailable)
 data/dev-firm-domain-support.json
 data/dev-firm-logic-trees.json
+# Dev-only method-guide wording overlay (item 4.16 F) — keyed by GUIDE id, because
+# three of the thirteen are shown on two domain pages and must not diverge between them.
+data/dev-firm-method-guides.json
 # Dev-only firm section placement overlays (firm re-filing, display-only)
 data/dev-firm-logic-tree-sections.json
 data/dev-firm-domain-support-sections.json

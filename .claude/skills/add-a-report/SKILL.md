@@ -65,8 +65,12 @@ Work the checklist at the end of `ADDING-A-REPORT.md` literally, then:
 - `npm test` — green (the two guards must pass, not be skipped: a report with no entry in
   `reportBadgeClass.component.test.js`'s route map is a **failure**, by design).
 - `npm run lint` — clean.
-- The screen viewed in the running app. **Mike owns the dev server** — never start, restart or
-  build against it (WORKING-AGREEMENT: *The running application — who owns it*). Ask him to look.
+- The screen viewed in the running app. **Start it yourself — `npm run go`** — and look at the
+  screen before calling the work done. Do not ask permission and do not hand this back as
+  "needs a human to look" (WORKING-AGREEMENT: *Starting the app is a normal request — just do
+  it*). Check the address a browser actually uses; `curl` alone can return 200 against a
+  binding no browser can reach. The one real restriction: never run `nuxt build` while a dev
+  server is running — they share `.nuxt`.
 
 Component tests are available and do work — `tests/helpers/mountComponent.js` is the shared entry
 point. There is no excuse for a screen with no test.

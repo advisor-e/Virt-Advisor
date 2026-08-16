@@ -298,6 +298,16 @@ server.post('/api/firm-manager/staircase/platform/:id/keep-mine', ...fmGuard, fm
 server.post('/api/firm-manager/staircase/own', ...fmGuard, fm.addOwnStaircaseStep)
 server.put('/api/firm-manager/staircase/own/:id', ...fmGuard, fm.updateOwnStaircaseStep)
 server.del('/api/firm-manager/staircase/own/:id', ...fmGuard, fm.deleteOwnStaircaseStep)
+// The coaching-reference cascade — item 4.9's visible half, 2026-08-15. Same shape as
+// the staircase routes above, minus keep-mine: coachingConfig stores no drift baseline,
+// so there is no "the platform changed this" state for a firm to resolve.
+server.get('/api/firm-manager/coaching', ...fmGuard, fm.getCoaching)
+server.put('/api/firm-manager/coaching/platform/:id', ...fmGuard, fm.setCoachingOverride)
+server.del('/api/firm-manager/coaching/platform/:id', ...fmGuard, fm.resetCoachingOverride)
+server.put('/api/firm-manager/coaching/platform/:id/decline', ...fmGuard, fm.setCoachingDecline)
+server.post('/api/firm-manager/coaching/own', ...fmGuard, fm.addOwnCoachingEntry)
+server.put('/api/firm-manager/coaching/own/:id', ...fmGuard, fm.updateOwnCoachingEntry)
+server.del('/api/firm-manager/coaching/own/:id', ...fmGuard, fm.deleteOwnCoachingEntry)
 server.get('/api/firm-manager/quizzes', ...fmGuard, fm.getQuizzes)
 server.post('/api/firm-manager/quizzes', ...fmGuard, fm.saveQuizzes)
 // The quiz cascade — one decision per request about ONE question, mirroring the
@@ -319,6 +329,15 @@ server.get('/api/firm-manager/domain-support/:domainId/history', ...fmGuard, fm.
 server.post('/api/firm-manager/domain-support/:domainId/restore', ...fmGuard, fm.restoreDomainSupport)
 // Display-only re-file into another master section (firm-scoped; AI unaffected).
 server.post('/api/firm-manager/domain-support/:domainId/section', ...fmGuard, fm.setDomainSupportSection)
+// The thirteen method guides (item 4.16 F, 2026-08-17). Same guard as the domain
+// support routes above, deliberately: the guide opens from a framework row on that
+// tab and Mike ruled it visible to the same tiers as the table around it, so there
+// is no second list of tier names here that could drift away from that one.
+server.get('/api/firm-manager/method-guides', ...fmGuard, fm.getMethodGuides)
+server.get('/api/firm-manager/method-guides/:guideId', ...fmGuard, fm.getMethodGuideDetail)
+server.post('/api/firm-manager/method-guides/:guideId', ...fmGuard, fm.saveMethodGuide)
+server.del('/api/firm-manager/method-guides/:guideId', ...fmGuard, fm.resetMethodGuide)
+server.get('/api/firm-manager/method-guides/:guideId/history', ...fmGuard, fm.getMethodGuideHistory)
 // Logic Tables (FIRM-EDITABLE-TABLES-PLAN.md Phase 3). Slice A: read; Slice B:
 // save/reset/history on the single `logic-trees` bundle the advisor engine reads
 // (firm-authored branch text is fenced in logicTrees.formatLogicTreeForPrompt).

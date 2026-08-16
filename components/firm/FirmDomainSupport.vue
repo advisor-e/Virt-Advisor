@@ -34,6 +34,24 @@ section.firm-domain-support
     //- touch). Re-filing is firm-only and display-only — the AI is unaffected.
     .column.is-4(v-if="!railHidden")
       nav.ds-rail(:aria-label="$t('firmDomainSupport.railLabel')")
+        //- ── The standing guide, above the domains (item 4.16 F) ───────────
+        //- Facilitation 101 is "the universal 3-stage entry protocol for
+        //- introducing ANY advisory concept to a client" — it belongs to no
+        //- domain, and there is no material row for it in any of the 30 domain
+        //- files. Ruled by Mike 2026-08-17 (§6d option A): its own entry above
+        //- the domains rather than filed under an arbitrary one, where nobody
+        //- would look for it.
+        .ds-rail-group(v-if="standingGuides.length")
+          h3.ds-rail-heading {{ $t('firmDomainSupport.guideStandingHeading') }}
+          .ds-rail-row(
+            v-for="g in standingGuides"
+            :key="g.id"
+            :class="{ 'is-current': openGuideId === g.id && !current }"
+          )
+            button.ds-rail-select(type="button" @click="selectStandingGuide(g)")
+              span.ds-rail-name {{ g.label }}
+              b-tag(:type="g.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small" rounded) {{ $t('firmDomainSupport.guideTag') }}
+
         .ds-rail-empty(v-if="!groups.length")
           span.has-text-grey.is-size-7 {{ query ? $t('firmDomainSupport.noMatchHere') : $t('firmDomainSupport.emptyLibrary') }}
 
@@ -54,8 +72,13 @@ section.firm-domain-support
             @dragend="onDragEnd"
           )
             button.ds-rail-select(type="button" @click="select(item)")
-              span.ds-rail-name(:class="{ 'is-empty': !item.count }") {{ item.label }}
-              b-tag(v-if="item.count" :type="item.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small" rounded) {{ item.count }}
+              span.ds-rail-name(:class="{ 'is-empty': !item.count && !guideCountFor(item.id) }") {{ item.label }}
+              //- A domain with a method guide behind one of its rows says so here,
+              //- per the approved mockup — otherwise the rail gives no sign that
+              //- 15,000 characters of coaching sit one click inside it.
+              span.ds-rail-guidemark(v-if="guideCountFor(item.id)")
+                | {{ guideCountFor(item.id) > 1 ? $t('firmDomainSupport.guideTagMany', { n: guideCountFor(item.id) }) : $t('firmDomainSupport.guideTag') }}
+              b-tag(v-else-if="item.count" :type="item.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small" rounded) {{ item.count }}
               span.ds-rail-notset(v-else) {{ $t('firmDomainSupport.notSetUp') }}
             b-dropdown.ds-rail-move(aria-role="menu" position="is-bottom-left" :mobile-modal="false")
               template(#trigger)
@@ -74,9 +97,19 @@ section.firm-domain-support
     //- Takes the whole row once the list is hidden, which is the point of it.
     .column(:class="railHidden ? 'is-12' : 'is-8'")
       //- Nothing picked yet.
-      .box.panel-empty(v-if="!current")
+      .box.panel-empty(v-if="!current && !openGuideId")
         p.has-text-weight-semibold {{ $t('firmDomainSupport.pickPrompt') }}
         p.has-text-grey.is-size-7 {{ $t('firmDomainSupport.pickHint') }}
+
+      //- The standing guide, opened on its own: it belongs to no domain, so it has
+      //- no materials table to sit under (item 4.16 F, §6d).
+      .box(v-else-if="!current")
+        method-guide-panel(
+          :api-token="apiToken"
+          :guide-id="openGuideId"
+          @close="openGuideId = null"
+          @saved="loadGuideList"
+        )
 
       div(v-else)
         .box
@@ -95,6 +128,73 @@ section.firm-domain-support
                 span.ds-legend-item
                   span.ds-dot.is-firm
                   | {{ $t('firmDomainSupport.legendFirm') }}
+
+          //- ── What to do, depending on the situation (item 4.16 A+B) ───────
+          //- The 65 branches under `diagnostic_entry`, which reached no prompt
+          //- and no screen, plus the 26 entry questions which reached the prompt
+          //- and no screen. design/DOMAIN-DIAGNOSTIC-BRANCHES.md.
+          //- Above the materials table because the question and its answers come
+          //- before the "how to run it" material.
+          .ds-diagnostic.mb-5(v-if="hasDiagnostic")
+            p.title.is-6.mb-2 {{ $t('firmDomainSupport.diagnosticHeading') }}
+
+            b-field(
+              v-if="form.diagnostic.primaryQuestion !== null"
+              :label="$t('firmDomainSupport.entryQuestion')"
+            )
+              b-input(
+                v-model="form.diagnostic.primaryQuestion"
+                type="textarea"
+                rows="3"
+                maxlength="800"
+              )
+
+            .table-scroll(v-if="form.diagnostic.situations.length")
+              table.ds-table
+                thead
+                  tr
+                    th(scope="col") {{ $t('firmDomainSupport.colSituation') }}
+                    th(scope="col") {{ $t('firmDomainSupport.colDoThis') }}
+                tbody
+                  tr(v-for="(row, dIndex) in form.diagnostic.situations" :key="row.key")
+                    td
+                      //- READ-ONLY on a platform row, deliberately: the key is the
+                      //- identity the stored guidance is filed under, so renaming
+                      //- it would repoint the content. A firm's own row is named
+                      //- by the firm, so that one is editable.
+                      span.has-text-weight-semibold(v-if="row.origin !== 'firm'") {{ row.label }}
+                      b-input(
+                        v-else
+                        v-model="row.label"
+                        v-autogrow
+                        type="textarea"
+                        rows="1"
+                        :aria-label="$t('firmDomainSupport.colSituation')"
+                      )
+                      b-tag.mt-2(:type="row.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small")
+                        | {{ row.origin === 'firm' ? $t('firmDomainSupport.tagFirm') : $t('firmDomainSupport.tagPlatform') }}
+                      //- Only a firm's own row can be removed. A platform row
+                      //- dropped here would simply reappear on the next load,
+                      //- because the stored override MERGES onto the platform
+                      //- entry rather than replacing it — so offering the button
+                      //- would be offering something that does not work.
+                      button.ds-step-remove(
+                        v-if="row.origin === 'firm'"
+                        type="button"
+                        :aria-label="$t('firmDomainSupport.removeSituation')"
+                        @click="removeSituation(dIndex)"
+                      ) ×
+                    td
+                      b-input(
+                        v-model="row.text"
+                        v-resize-persist="'ds:' + current.id + ':sit:' + dIndex"
+                        type="textarea"
+                        rows="5"
+                        :aria-label="$t('firmDomainSupport.colDoThis')"
+                      )
+
+            b-button.mt-2(type="is-light" size="is-small" @click="addSituation")
+              | {{ $t('firmDomainSupport.addSituation') }}
 
           //- A domain still on the old shape has no four-column material to show.
           b-message.mb-0(
@@ -130,6 +230,20 @@ section.firm-domain-support
                     )
                     b-tag.mt-2(:type="material.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small")
                       | {{ material.origin === 'firm' ? $t('firmDomainSupport.tagFirm') : $t('firmDomainSupport.tagPlatform') }}
+                    //- ── The method guide behind this framework (item 4.16 F) ──
+                    //- Shown only where a guide is MAPPED to this row, by the
+                    //- written mapping in server/utils/methodGuides.js. A guide
+                    //- with no mapping renders nowhere rather than being placed by
+                    //- guesswork — guessing is the failure this item closes.
+                    //- Mike's wording, 2026-08-17 (§6a option C), word for word.
+                    button.ds-guide-open(
+                      v-if="guideForMaterial(material.name)"
+                      type="button"
+                      :aria-expanded="String(openGuideId === guideForMaterial(material.name).id)"
+                      @click="toggleGuide(guideForMaterial(material.name).id)"
+                    )
+                      span.ds-guide-chev {{ openGuideId === guideForMaterial(material.name).id ? '▴' : '▾' }}
+                      | {{ $t('firmDomainSupport.guideOpen') }}
                   td
                     b-input(
                       v-model="material.summary"
@@ -177,9 +291,21 @@ section.firm-domain-support
                     button.ds-step-add(type="button" @click="addStep(material)")
                       | {{ $t('firmDomainSupport.addStep') }}
 
+          //- The guide, opened from one of the rows above. It sits under the table
+          //- rather than inside a cell because it is the whole framework in full —
+          //- ~15,000 characters — and a table cell cannot hold it legibly.
+          method-guide-panel(
+            v-if="openGuideId && guideIsOnThisDomain"
+            :api-token="apiToken"
+            :guide-id="openGuideId"
+            :from-domain="current.id"
+            @close="openGuideId = null"
+            @saved="loadGuideList"
+          )
+
           //- Action bar. Save lights up once the table is edited; Reset removes
           //- the firm's saved override and returns to the platform default.
-          .ds-actionbar(v-if="hasMaterials")
+          .ds-actionbar(v-if="hasMaterials || hasDiagnostic")
             b-button(type="is-light" @click="addMaterial") {{ $t('firmDomainSupport.addMaterial') }}
             b-button(
               type="is-text"
@@ -209,6 +335,7 @@ section.firm-domain-support
 
 <script>
 import { autogrow, resizePersist } from '~/utils/textareaDirectives'
+import MethodGuidePanel from '~/components/firm/MethodGuidePanel.vue'
 
 /** Where this browser remembers whether the domain list is hidden. */
 const RAIL_STATE_KEY = 'ds:railHidden'
@@ -240,6 +367,8 @@ const RAIL_STATE_KEY = 'ds:railHidden'
 export default {
   name: 'FirmDomainSupport',
 
+  components: { MethodGuidePanel },
+
   directives: { autogrow, resizePersist },
 
   props: {
@@ -258,9 +387,11 @@ export default {
       query: '',
       /** The domain on screen: {id, label, origin} plus its merged detail. */
       current: null,
-      /** A deep, editable copy of the current domain's materials. */
-      form: { materials: [] },
-      /** Cleaned baseline of the loaded materials, JSON — drives `dirty`. */
+      /** A deep, editable copy of the current domain's materials, plus its
+       *  diagnostic entry — the question that works out which situation the
+       *  client is in, and the guidance for each (item 4.16 A+B). */
+      form: { materials: [], diagnostic: { primaryQuestion: null, situations: [] } },
+      /** Cleaned baseline of the loaded domain, JSON — drives `dirty`. */
       original: null,
       saving: false,
       history: [],
@@ -272,7 +403,17 @@ export default {
        *  display preference like the drag-to-size box heights — remembered in
        *  this browser only, never in the firm's saved content. Restored in
        *  mounted(), never here: localStorage does not exist during SSR. */
-      railHidden: false
+      railHidden: false,
+      /** The method guides that open from the CURRENT domain's material rows —
+       *  from the detail route, so a row and its control can never disagree
+       *  (item 4.16 F). Each { id, label, material, alsoUsedBy }. */
+      domainGuides: [],
+      /** Every guide, for the standing entry above the domains and its edited
+       *  badge. Loaded once with the tab. */
+      allGuides: [],
+      /** Which guide is open, or null. One at a time — two 15,000-character
+       *  guides open together is not a screen anybody can read. */
+      openGuideId: null
     }
   },
 
@@ -302,15 +443,46 @@ export default {
       return Array.isArray(this.form.materials) && this.form.materials.length > 0
     },
 
+    /**
+     * True when this domain has a diagnostic entry to show — an entry question,
+     * a situation, or both. Ten domains have neither and simply show the
+     * materials table as they always did, with no empty block inviting a firm to
+     * fill in a field the AI would never read for them.
+     */
+    hasDiagnostic () {
+      const d = this.form.diagnostic || {}
+      return d.primaryQuestion !== null || (Array.isArray(d.situations) && d.situations.length > 0)
+    },
+
     /** True once the on-screen table differs from what was loaded. */
     dirty () {
       if (this.original === null) { return false }
-      return JSON.stringify(this.cleanMaterials(this.form.materials)) !== this.original
+      return this.cleanForm() !== this.original
     },
 
     /** Reset is meaningful only when the firm actually has a saved override. */
     canReset () {
       return !!(this.current && this.current.origin === 'firm')
+    },
+
+    /**
+     * The guides that belong to no domain and are shown above the list instead.
+     * Today that is Facilitation 101 alone — "the universal 3-stage entry protocol
+     * for introducing ANY advisory concept to a client" — but the screen reads the
+     * flag from the data rather than naming the guide, so a second standing guide
+     * would need no change here.
+     */
+    standingGuides () {
+      return this.allGuides.filter(g => g.standing)
+    },
+
+    /**
+     * Is the open guide one of THIS domain's? Guards the panel under the materials
+     * table: clicking the standing entry while a domain is open must not drop
+     * Facilitation 101 underneath that domain's rows as though it belonged there.
+     */
+    guideIsOnThisDomain () {
+      return this.domainGuides.some(g => g.id === this.openGuideId)
     },
 
     /** The three section drop targets, for the "Move to" menu. */
@@ -326,6 +498,7 @@ export default {
   mounted () {
     this.restoreRailState()
     this.load()
+    this.loadGuideList()
   },
 
   methods: {
@@ -393,9 +566,13 @@ export default {
      */
     async select (item) {
       this.current = { id: item.id, label: item.label, origin: item.origin }
-      this.form = { materials: [] }
+      this.form = { materials: [], diagnostic: { primaryQuestion: null, situations: [] } }
       this.original = null
       this.history = []
+      // A guide opened on the previous domain is not this domain's, so it closes
+      // with the domain rather than following the reader to an unrelated page.
+      this.domainGuides = []
+      this.openGuideId = null
       try {
         const detail = await this.api('GET', `/api/firm-manager/domain-support/${encodeURIComponent(item.id)}`)
         this.applyDetail(detail, item.origin)
@@ -414,8 +591,17 @@ export default {
      * @param {string} origin - 'firm' or 'platform' for this domain
      */
     applyDetail (detail, origin) {
+      // Which framework rows on this domain have a method guide behind them. From
+      // the detail route rather than matched in the browser: the mapping is authored
+      // once, on the server, and a second copy of it here is how the control comes
+      // to sit on a row whose guide the AI is not actually reading.
+      this.domainGuides = Array.isArray(detail.guides) ? detail.guides : []
       const materials = Array.isArray(detail.materials) ? detail.materials : []
       const rowOrigin = origin === 'firm' ? 'firm' : 'platform'
+      const de = (detail && typeof detail.diagnostic_entry === 'object' && detail.diagnostic_entry) || {}
+      // A key the PLATFORM authored is inherited; anything else is this firm's
+      // own. The route tells us which, because a merged entry cannot.
+      const platformKeys = new Set(Array.isArray(detail.platformSituationKeys) ? detail.platformSituationKeys : [])
       this.form = {
         materials: materials.map(m => ({
           name: m.name || '',
@@ -423,9 +609,152 @@ export default {
           who_when: m.who_when || '',
           steps: Array.isArray(m.steps) ? m.steps.slice() : [],
           origin: rowOrigin
-        }))
+        })),
+        diagnostic: {
+          // null means "this domain has no entry question", which is a different
+          // thing from an empty one and is what hides the box.
+          primaryQuestion: typeof de.primary_question === 'string' ? de.primary_question : null,
+          situations: Object.keys(de)
+            .filter(k => k !== 'primary_question' && typeof de[k] === 'string')
+            .map(k => ({
+              key: k,
+              label: this.humanise(k),
+              text: de[k],
+              origin: platformKeys.has(k) ? 'platform' : 'firm'
+            }))
+        }
       }
-      this.original = JSON.stringify(this.cleanMaterials(this.form.materials))
+      this.original = this.cleanForm()
+    },
+
+    /**
+     * The thirteen guides and where each opens from. Loaded once with the tab,
+     * separately from a domain, because the standing entry must show before any
+     * domain has been picked. A failure here is silent on purpose: it costs the
+     * standing entry and the edited badges, and must not stop the materials table
+     * — which is the thing this tab has always been for.
+     */
+    async loadGuideList () {
+      try {
+        const data = await this.api('GET', '/api/firm-manager/method-guides')
+        this.allGuides = Array.isArray(data.guides) ? data.guides : []
+      } catch (err) {
+        this.allGuides = []
+      }
+    },
+
+    /**
+     * How many method guides sit behind a domain's framework rows, for the rail
+     * mark. Derived from the guide list the server already sent, not counted a
+     * second way — the mapping has one home.
+     * @param {string} domainId
+     * @returns {number}
+     */
+    guideCountFor (domainId) {
+      return this.allGuides.filter(g => (g.rows || []).some(r => r.domain === domainId)).length
+    },
+
+    /**
+     * The guide that opens from a given framework row, or null.
+     * @param {string} name - the material's name as it stands on screen
+     * @returns {Object|null}
+     */
+    guideForMaterial (name) {
+      const trimmed = String(name || '').trim()
+      if (!trimmed) { return null }
+      return this.domainGuides.find(g => g.material === trimmed) || null
+    },
+
+    /**
+     * Open a guide, or close it if it is the one already open.
+     *
+     * ⚠ A ROW RENAMED BY THIS FIRM LOSES ITS CONTROL, and that is deliberate rather
+     * than an oversight. The mapping is by material NAME, so a firm that rewords a
+     * framework row no longer matches it. Showing the control anyway would need a
+     * guess about which row was meant, and a guess is exactly what this item exists
+     * to remove — the guide is still reachable, still going to the AI, and the
+     * platform wording restores the control.
+     * @param {string} guideId
+     */
+    toggleGuide (guideId) {
+      this.openGuideId = this.openGuideId === guideId ? null : guideId
+    },
+
+    /** Open a standing guide, which belongs to no domain and so clears the panel. */
+    selectStandingGuide (guide) {
+      this.current = null
+      this.domainGuides = []
+      this.openGuideId = this.openGuideId === guide.id ? null : guide.id
+    },
+
+    /**
+     * A stored situation key rendered as ordinary words. Mirrors
+     * `humaniseSituation` in server/utils/domainSupport.js so the screen and the
+     * prompt name a situation the same way.
+     * @param {string} key
+     * @returns {string}
+     */
+    humanise (key) {
+      const words = String(key || '').replace(/_/g, ' ').trim()
+      return words ? words.charAt(0).toUpperCase() + words.slice(1) : ''
+    },
+
+    /**
+     * A firm-authored situation label turned back into a stored key. Platform
+     * rows keep the key they arrived with — their label is read-only precisely
+     * so this can never repoint inherited guidance.
+     * @param {string} label
+     * @returns {string}
+     */
+    keyFor (label) {
+      return String(label || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '')
+    },
+
+    /**
+     * The diagnostic entry as it will be saved: `{ primary_question, <key>: text }`,
+     * matching the shape the prompt formatters read. Empty rows are dropped —
+     * a situation with no guidance is not advice, and the formatter skips it
+     * anyway.
+     * @returns {Object}
+     */
+    diagnosticEntry () {
+      const out = {}
+      const q = this.form.diagnostic.primaryQuestion
+      if (typeof q === 'string' && q.trim()) { out.primary_question = q.trim() }
+      for (const row of this.form.diagnostic.situations) {
+        const key = row.origin === 'firm' ? this.keyFor(row.label) : row.key
+        const text = (row.text || '').trim()
+        if (key && text) { out[key] = text }
+      }
+      return out
+    },
+
+    /**
+     * The whole editable domain as one comparable string — materials AND the
+     * diagnostic entry. `dirty` reads this, so editing only a situation still
+     * lights up Save.
+     * @returns {string}
+     */
+    cleanForm () {
+      return JSON.stringify({
+        materials: this.cleanMaterials(this.form.materials),
+        diagnostic: this.diagnosticEntry()
+      })
+    },
+
+    /** Add a blank firm-authored situation, named by the firm. */
+    addSituation () {
+      this.form.diagnostic.situations.push({ key: '', label: '', text: '', origin: 'firm' })
+    },
+
+    /**
+     * Remove a situation from the on-screen list. Offered for a firm's own rows
+     * only — see the template comment: a platform row would return on the next
+     * load because the stored override merges onto the platform entry.
+     * @param {number} index
+     */
+    removeSituation (index) {
+      this.form.diagnostic.situations.splice(index, 1)
     },
 
     /**
@@ -456,9 +785,10 @@ export default {
       this.saving = true
       try {
         const id = this.current.id
-        await this.api('POST', `/api/firm-manager/domain-support/${encodeURIComponent(id)}`, {
-          materials: this.cleanMaterials(this.form.materials)
-        })
+        const body = { materials: this.cleanMaterials(this.form.materials) }
+        const diagnostic = this.diagnosticEntry()
+        if (Object.keys(diagnostic).length > 0) { body.diagnostic_entry = diagnostic }
+        await this.api('POST', `/api/firm-manager/domain-support/${encodeURIComponent(id)}`, body)
         this.$buefy.toast.open({ message: this.$t('firmDomainSupport.saved'), type: 'is-success' })
         this.current.origin = 'firm'
         // Re-fetch so the panel shows exactly what was stored (blank steps
@@ -697,6 +1027,13 @@ export default {
 }
 .ds-rail-name { flex: 1; min-width: 0; }
 .ds-rail-name.is-empty { color: #9aa4b2; }
+.ds-rail-guidemark {
+  flex: 0 0 auto;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #1f9d76;
+  white-space: nowrap;
+}
 .ds-rail-notset {
   flex: 0 0 auto;
   font-size: 0.66rem;
@@ -833,6 +1170,28 @@ export default {
   cursor: pointer;
 }
 .ds-step-add:hover { background: #f5f7fa; }
+
+/* The control that opens a framework's method guide (item 4.16 F). Green rather
+   than the tab's navy so it reads as "there is more behind this row" instead of a
+   second edit control on a row that is already editable — the approved mockup's
+   colour, design/mockups/method-guides.html. */
+.ds-guide-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1f9d76;
+  border: 1px solid #1f9d76;
+  background: #e9f6f1;
+  border-radius: 5px;
+  padding: 0.18rem 0.55rem;
+  cursor: pointer;
+}
+.ds-guide-open:hover { background: #d9efe6; }
+.ds-guide-chev { font-size: 0.68rem; }
 
 /* Action bar. */
 .ds-actionbar {

@@ -1,0 +1,521 @@
+# The To-Do List
+
+> **This is the whole live list. If it is not here, nobody is doing it.**
+> Finished work, and work deleted for failing the product test, is on
+> [`to-do-done-and-parked.md`](to-do-done-and-parked.md).
+>
+> **Last verified against the code: 2026-08-15** (session 60), item by item.
+
+---
+
+## 1. The list — blockers first, then score
+
+🔴 **Ordered by Mike himself, 2026-08-15, from the Handbook control.** **This is his order, not a
+computed one** — where his call and the score disagree, his call wins and the score stays visible
+so the disagreement is on the page rather than hidden.
+
+🔴 **The table below is generated. Do not edit it — your edit will be overwritten.**
+[`to-do-items.json`](to-do-items.json) is the source; `npm run to-do` rewrites the block between the
+markers from it, and [`../../tests/unit/applyToDo.test.js`](../../tests/unit/applyToDo.test.js)
+fails the build if the page and the data have drifted apart. It is no longer a second copy kept in
+step by hand. *(§2's "not yet enforced" is now enforced.)*
+
+🔴 **A list saved from the Handbook comes back with `npm run to-do -- <file>`** — Mike's order, his
+scores, his calls and his comments, validated against §2's five fields before anything is written.
+**An item he settles does not silently vanish:** the command applies *nothing at all* until that
+item's closure is written on [`to-do-done-and-parked.md`](to-do-done-and-parked.md), and prints the
+block that needs writing. An item gone from both pages is an item nobody knows existed.
+
+🔴 **In the Handbook this table is a control, not a table.** The generator replaces it with the
+ranking screen from [`../mockups/to-do-list-table.html`](../mockups/to-do-list-table.html) — score
+it, mark **Proceed / Done / Park / Delete**, comment on any row, and **Save the list** writes
+`to-do-items.json` to Downloads for a session to apply. The table below is what a reader of the
+repository sees; the two never both appear, and the build stops if they would.
+
+<!-- BEGIN GENERATED: the ranked list — npm run to-do -->
+| # | Item | Score | Blocks | Waiting on |
+| --- | --- | --- | --- | --- |
+| 1 | 🔒 **4.12** One handover story for the master team | 5 | Handover | Us |
+| 2 | **2.9** The education gate | 4 | — | Us |
+| 3 | **4.7** Flip engine-strict back on | 5 | — | Us |
+| 4 | **3.5** Reply to Carl about npm install | 5 | — | Us |
+| 5 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
+| 6 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | **Mike** |
+| 7 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
+| 8 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
+
+**Eight live items. One needs Mike.** If this list passes about twenty, something is wrong.
+<!-- END GENERATED -->
+
+**One item came off this list on 2026-08-16** — see
+[`to-do-done-and-parked.md`](to-do-done-and-parked.md):
+
+- ✅ **2.6** — `advisor_note` reaches the AI, and the reasoning goes with it. Filed as one sentence
+  to emit; it closed at four times that size because Mike asked *"what are the notes about WHY I
+  said not to spring it on somebody — what to look for?"* The answer was that the reasoning had been
+  authored all along and never loaded at that branch. 🔴 **The filed plan would have shipped as a fix
+  while deleting his instruction** — only rendering the prompt showed it. Approved artefact:
+  [`../PF-AWARENESS-DECISION-BLOCK.md`](../PF-AWARENESS-DECISION-BLOCK.md).
+
+**Five items came off this list on 2026-08-15** — see
+[`to-do-done-and-parked.md`](to-do-done-and-parked.md):
+
+- ✅ **4.9** — the coaching reference inherits, and now has a screen. Session 60 built the visible
+  half: seven routes and a Firm Manager tab, so a firm can finally answer the engine that shipped
+  the session before. 🔴 **Closing it found two fields that were authored, stored, firm-editable and
+  reached no prompt at all** — the reason **4.16** is now on the list.
+- ✅ **2.3** — Seminar's seven lines. Carried since session 48; closed in one message once Mike was
+  shown the seven actual sentences instead of being asked about them by label. The page is
+  **Design & Deliver**. 🔴 **21 other branches still lose text to the same gate and nobody has
+  ruled on them.**
+
+- ✅ **4.4** — a Handbook edit survives a reload. The first item ever settled that way, and it found
+  a date defect in the first minute of use.
+- ✅ **4.14** — the ranking control. All three phases in one day, then rebuilt on his instruction
+  after the first version moved a row out from under him.
+- ⏸ **2.1** — announcing `v0.8.0`. Parked, not done: *"we will need to issue a new release."*
+  🔴 **Nothing on this list now covers cutting that newer release.** That gap is deliberate and it
+  is his to close.
+
+⚠ **Four items were scored 5 by Mike on 2026-08-15 — 4.12, 4.9 (now closed), 4.7 and 3.5 — and by §2's table a 5
+means security, privacy or data integrity.** Read alongside his comments (*"just get it done"*,
+*"should never have been parked"*) he was plainly using 5 to mean **do this now**, not to name the
+category. **His scores are recorded exactly as he set them and have not been adjusted.** The
+mismatch is written here rather than quietly corrected, because §2 says the disagreement belongs on
+the page.
+
+### Settled by Mike on 2026-08-15 — off the live list
+
+**The through-line in all four: the master app already provides this, and our side only had to
+offer the connection point.** Verified in the code the same day — `config/integration.js` is that
+point, and it is one file with no code change behind it.
+
+**3.1 · Provision MySQL — DONE.** Not ours and never was. `server/utils/db.js` is a singleton pool
+reading `config/integration.js` → `DB`; five values and it is live. Nothing to build.
+
+**4.8 · The course-builder walk-through — PARKED.** In Mike's words: *"So long as you have created
+the stubs or connection point — only the master coding team can complete this. If there's anything
+specific you need to know, in technical terms to enable you to make provision for this, draft me
+the email and I will provide you their response — else park it."* ✅ **Verified 2026-08-15: the
+connection points exist**, and the email is drafted at
+[`../MASTER-TEAM-INTEGRATION-EMAIL.md`](../MASTER-TEAM-INTEGRATION-EMAIL.md).
+
+**3.3 · Firm membership data — PARKED.** Mike: *"All of this will be provided by master coding
+team once they hook up to the master app. All of the IDs already exist — this ties in with the
+MySQL database task."* ⚠ **One technical detail is genuinely still open and is question 5 of the
+email:** a *manager's own* group arrives in their token and already works, but mapping *a firm* to
+its brand and country needs a source we do not have. Until it exists `parentScopeOf()` returns the
+platform scope — it falls back flat, it never guesses.
+
+**3.2 · The middle-tier logins — PARKED.** Mike: *"Already provided for by the master app — login
+and authentication and creation of accounts already exists in master app. You just need to create
+stubs or make provision for master coding team to hook up."* ✅ **The provision is already there
+and deliberately fails closed:** `globalManagerRole` and `groupManagerRole` are empty strings that
+match no role, so no token can resolve to a tier that does not exist yet. Two role values and two
+claim names, all four in the email.
+
+---
+
+## 2. How an item earns its place — the scoring system
+
+**Built 2026-08-15 on Mike's instruction**, after two pieces of unrequested work reached him in one
+day dressed as priorities: *"it also needs a ranking against my feature criteria — if it's a
+security issue it gets 5 points, if it's a user enhancement it gets 4 points etc. This will keep us
+all honest."*
+
+### The score
+
+| Score | What it is | The test it has to pass |
+| --- | --- | --- |
+| **5** | **Security, privacy or data integrity** | Someone's data could leak, reach the wrong tier, or be lost without anyone noticing |
+| **4** | **The user is worse off without it** | An adviser or their client gets worse advice, a wrong screen, or no screen |
+| **3** | **It helps sell the package** | A competitive advantage, or something a buyer asks to see before they commit |
+| **2** | **Robustness — it fails better** | Nobody sees it until something breaks, and then it decides how bad the break is |
+| **1** | **Internal only** | Helps us work. No customer would ever see it |
+| **0** | 🔴 **Fails all of it** | Serves no user, fixes nothing, sells nothing. **A zero is not filed — it is deleted, with its code.** |
+
+### The five things every item must say
+
+An item missing any of these is not a task, it is a note — and notes are what produced the two
+wasted pieces of work on 2026-08-15. ✅ **Enforced since 2026-08-15.**
+[`../../tests/unit/toDoItems.test.js`](../../tests/unit/toDoItems.test.js) fails the build on an
+item missing any of the five, on a score outside 1–5, on an `askedBy.ours` claim with nothing
+justifying it, on a duplicate ref, and on a blocker that does not say what it blocks. It is
+mutation-verified — dropping a `risk` line, claiming *ours* with no reason, and filing a 0 instead
+of deleting were each confirmed to fail it.
+
+1. **Score** — from the table above.
+2. **Why** — why it matters, in one sentence.
+3. **Risk** — what we actually lose by not doing it. If nothing is lost, the score is 0.
+4. **Asked by** — **who wanted it.** Not who it waits on. ⚠ **If this cannot name Mike or a named
+   person outside the project, say so plainly** — that is the single field that would have caught
+   both of 2026-08-15's wastes, because neither could have filled it in.
+5. **Touches** — what else in the app moves if this moves.
+
+### How the order is decided
+
+**Blockers first, then score.** An item that holds up other people beats a higher-scoring item that
+holds up nobody — a 3 that unblocks a whole team is worth more this week than a 4 that waits
+comfortably. 🔒 marks a blocker.
+
+---
+
+## 3. Release position — read before picking anything up
+
+### 🔴 THE RELEASE NUMBER IS PARKED BEHIND THE TECHNICAL WORK — Mike, 2026-08-15 (session 60)
+
+> **"lets sort the new release number when we've sorted all the tech issues, till then stay
+> focused on the tech issues for uat testing"**
+
+**Do not raise the release number again until the technical items on this list are cleared.** It
+is not an open decision waiting on him, and it is not a blocker — it is *sequenced after* the work
+below.
+
+⚠ **This entry exists because the question was put to him three sessions running** — 58, 59 and
+60 each listed it as the top open decision, and each time it was the same question he had already
+answered by parking **2.1**. A decision that keeps being re-asked is a decision nobody wrote down.
+**The goal is unchanged** — the master team testing in UAT — but the *number and the
+announcement* come after the technical list, not alongside it.
+
+**What this does NOT change:** the 2026-08-14 ruling below still stands. The bar is still key
+functionality in position, and finer detail is still deferred to early production beta.
+
+---
+
+🔴 **Ruled by Mike, 2026-08-14. Getting another release to the master coding team is the
+priority.** In his words: *"I want all key functionality and key pages in position so we can load
+into UAT and get initial thoughts sorted — details like this domain word sweep can be done in
+early production beta stage."*
+
+- **Key functionality and key pages in position** — that is the bar. Not polished, not complete.
+- **Finer detail is deferred to early production beta.** The domain-support word sweep was the
+  named example, **and on 2026-08-15 Mike deleted it outright** rather than deferring it.
+- **This SUPERSEDES the ruling of 2026-08-11** — *"no PR to `master` until the task list is
+  clear"*. That position is withdrawn.
+
+### 🔴 The ordering rule — Mike, 2026-08-15
+
+> **"I want to clear all technical / feature issues first so the master team can start testing in
+> the UAT — THEN I can double back and sort the fine tuning — wording — doc title alignment etc."**
+
+**This decides the order of the whole list, not one item.** Two buckets, and the first empties
+before the second starts:
+
+| First — **technical and feature** | Then — **fine tuning** |
+| --- | --- |
+| Something is not built, not wired up, or does not work | Something works, and the words or the names could be better |
+| It stops the master team testing in UAT | It does not stop anybody testing anything |
+
+**How today's list reads against it, so the reading can be checked rather than assumed:**
+
+- **Technical / feature:** 4.12 (the master team's documents are wrong), 2.9 (the education gate is
+  not coded at all — it needs Mike's words, but what is missing is a *feature*), 4.7 (the Node lock
+  is not enforced), 4.16 (content the AI is never shown), 4.17 (a screen showing 1 row of 67).
+  ✅ **4.16's sweep is finished — 2026-08-16 — and 2.6 was its first known instance.** It found
+  **102** pieces of authored content reaching no prompt, and a second half nobody had predicted:
+  **no screen renders them either.** Closing 2.6 raised the expected yield rather than lowering it,
+  exactly as this line warned it might. What is left of 4.16 is the fixing, in three phases, and
+  Phase 1 waits on Mike — see §6.
+- **Fine tuning:** 4.15 — twenty-one branches naming pages that exist under other names. **Ranked
+  last for exactly this reason**, and it scores 4, so the disagreement is on the page as §2 requires.
+- **Neither:** 3.5 is one message to a person who is waiting.
+
+⚠ **A wording item is not automatically fine tuning.** 2.3 was filed as a wording tidy-up and was in
+fact a table of coaching seven branches of advisers were not receiving. **Ask what breaks if it is
+not done** — if the answer is "an adviser gets worse advice", it belongs in the first bucket
+whatever it looks like.
+
+---
+
+## 4. The education gate
+
+### 🔴 RULED BY MIKE, 2026-08-16 — the gate fires wherever poor financial literacy shows up
+
+> Asked whether the gate should work **wherever poor financial literacy shows up**, or **only where
+> the app can already see it** (inside a forecasting conversation), Mike chose: **"wherever it shows
+> up."**
+
+**This item is no longer waiting on Mike, and it is no longer a wording task.** It was carried for a
+month as *"only the on-screen words are missing"*. **That sentence was wrong**, and it is recorded
+here as wrong so nobody re-derives it: putting the wording question to him again is asking a
+question he has already answered.
+
+**What the 2026-08-16 check found**, and it is why the scope moved:
+
+1. **The pattern the ruling says to copy does not exist.** The 2026-07-16 ruling models the gate on
+   *"the existing outside-your-range pattern"* — the two-card output decided on 2026-06-04 in
+   [`../virt-advisor-system-design.md`](../virt-advisor-system-design.md) §13. **No code carries
+   that text or anything like it.** It was decided and never built, so there is no working screen to
+   take the shape from.
+2. **The literacy signal exists in one domain out of eight.** *"Poor financial literacy — owner
+   focused on wrong numbers"* sits under **forecasting** in [`../../data/primary-issues.json`](../../data/primary-issues.json)
+   and nowhere else; all eight domains were checked. A client who plainly cannot read their numbers
+   but came about staffing or profitability **would not trip the gate.** Mike's own 2026-07-16
+   precondition — *"the literacy signal's reliability verified first"* — is what this answers.
+   `advisory-staircase.json` agrees: `"status": "not-wired"`.
+
+**The order of work, and it is fixed by his ruling:**
+
+1. **Widen the signal — ours, and first.** ⚠ **NOT by copying the line into all eight domains' issue
+   lists.** Eight copies of one sentence is how content drifts apart here, and it is the fault
+   closed on 2026-08-16 by item 2.6. It needs to become a signal the engine reads **independently of
+   the domain** the conversation happens to be in. That shape has to be designed.
+2. **Then the wording — Mike's**, and only then. **Where the gate can fire decides what it should
+   say**, which is why asking for the words first would have produced words for a gate that mostly
+   stays shut.
+3. **Then build the gate**, with the reasoning shown either way, per the 2026-07-16 ruling below.
+
+**2.9 · The education gate.** **SCORE 4 · the user is worse off**
+- **Why:** on low client literacy the adviser is asked whether to apply education-first or see what
+  is technically needed, with the reasoning shown either way. The behaviour was ruled 2026-07-16;
+  the **reach** was ruled 2026-08-16.
+- **Risk:** it stays uncoded. Advisers keep getting advice pitched over a client's head — and, since
+  2026-08-16, we know the narrow version would have looked finished while firing almost never.
+- **Asked by:** **Mike** — his own design, 2026-07-16, rescoped by him 2026-08-16.
+- **Touches:** the literacy signal across all eight domains, the Advisory Staircase, the
+  pre-recommendation prompt.
+
+---
+
+## 5. Waiting on somebody else — not ours to finish
+
+*One item. The other three were settled by Mike on 2026-08-15 — see §1.*
+
+**3.5 · Reply to Carl about `npm install`.** **SCORE 1 · internal only**
+- **Why:** somebody outside is waiting on an answer.
+- **Risk:** small, but it is a person waiting. One message.
+- **Asked by:** **Carl**, outside the project.
+- **Touches:** nothing in the app.
+
+---
+
+## 6. Ours to build
+
+**4.12 · 🔒 One handover story for the master team.** **SCORE 3 · sells the package**
+- **Why:** the merged app's own handover documents still describe a separate standalone
+  application.
+- **Risk:** the master team reads documents describing an app that no longer exists and builds the
+  tiers above it wrongly.
+- **Asked by:** ⚠ **ours** — `COLLABORATE-MERGE-PLAN.md` §6. Nobody outside asked. Kept because
+  the master team genuinely receives the wrong documents; **say so if you would rather it went.**
+- **Touches:** the Collaborate handover documents, the UAT load pack.
+
+**4.16 · Check every block's authored fields actually reach the prompt.** **SCORE 4 · the user is
+worse off** · 🔴 **WAITING ON MIKE**
+
+### ✅ The sweep is DONE — 2026-08-16. It found 102.
+
+| Block | Unreachable | What it is |
+| --- | --- | --- |
+| Domain support | **71** | 65 `diagnostic_entry` routing branches across 19 domains, 6 `if_then_logic` rules |
+| Logic trees | **15** | 13 `stage_entry_question`, 2 `flat_branches` |
+| Engagement types | **15** | 5 authored fields × 3 types, behind a hardcoded paraphrase |
+| Advisory Staircase | **1** | `selectorPrompt`, duplicated as a hardcoded string in the engine |
+
+Every one proved by **rendering the real prompt and searching it** — the method this item
+prescribes, and the only one that has ever worked here.
+
+🔴 **The risk was worse than filed.** It read *"a firm or the mentor carefully edits content the AI
+is never shown"*. **Nobody can edit any of these — no screen renders one of them.** The Domain
+Support tab edits the materials table only; the Logic Tables tab edits the branch rows only. The
+content is invisible in **both** directions, which is why no test, no tab and no person had found
+it. That finding is what produced the hub-page rule in `CLAUDE.md` and
+[`tier-cascade.md`](tier-cascade.md) P10.
+
+### ✅ The design is SETTLED — session 63, 2026-08-16 · next session builds
+
+🔴 **The spec is [`../4-16-BUILD-SPEC.md`](../4-16-BUILD-SPEC.md). Read it and build — do not
+re-derive the analysis.** Page purposes: [`../HUB-PAGE-PURPOSES.md`](../HUB-PAGE-PURPOSES.md).
+
+**102 is a measurement, not a work list.** About **55 of the 65 `diagnostic_entry` branches are
+duplicates** of routing the logic trees already carry at higher resolution — and the trees name the
+actual templates while the branches do not. The real list is seven items:
+
+| Work | Count | Page | |
+| --- | --- | --- | --- |
+| ~~Retire `diagnostic_entry` where the tree covers it~~ | ~~55~~ | — | 🔴 **CANCELLED 2026-08-16** |
+| Every `diagnostic_entry` branch reaches the prompt and gets a screen | **65** + 26 | Domain Support | ✅ **2026-08-16** |
+| `stage_entry_question` + `flat_branches` | 15 | Logic Tables | ✅ **2026-08-16** |
+| Engagement-type authored fields — 6 per type | 18 | 🔴 **no page exists** | 🔴 **waits on Mike** |
+| Staircase `selectorPrompt` from data, not a hardcoded string | 1 | Advisory Staircase | ✅ **2026-08-16** |
+| The method guides get a screen | ~~12~~ **13** | Domain Support | ✅ **BUILT 2026-08-17** |
+| `get-team-problem`'s `if_then_logic` — check against its tree first | 6 | Logic Tables | ✅ **2026-08-16 — a real duplicate, no work needed** |
+
+🔴 **"About 55 of the 65 are duplicates" was WRONG, and it was overturned by the very test the spec
+demanded before deleting anything.** Only three of the 65 had even 85% of their words present in
+their best-matching tree, and all three read as complementary when put side by side: the tree says
+WHICH conversation this is, the branch says WHAT TO DO once you are in it. **Nothing was deleted, and
+there is no deletion left for Mike to rule on.** Evidence and method:
+[`../DOMAIN-DIAGNOSTIC-BRANCHES.md`](../DOMAIN-DIAGNOSTIC-BRANCHES.md) §1.
+
+⚠ **The one genuine duplicate in the whole sweep was `get-team-problem`'s six** — same conditions,
+same actions, same order as its logic table. That one IS redundant and needs no work. It is worth
+knowing that the intuition was right once in seven and wrong the other six times.
+
+**The job also grew by 26 deliberately:** the `primary_question` fields DO reach the AI and appear on
+no screen either — the same fault, the same field, the same tab. Fixing the 65 and leaving those
+invisible would have been a choice, and the wrong one.
+
+### ✅ F IS BUILT — session 67, 2026-08-17
+
+🔴 **The build, and every difference from the approved artefact, is recorded at
+[`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md) §10.** Read that before touching
+any of it. Three differences matter: **only three of the five "shared" guides really are
+shared** (two of the artefact's second rows name artefacts that are not this guide); the
+overrides live in their **own bundle keyed by guide id**, not per domain, or the on-screen
+"an edit here changes it there too" would be false; and numeric fields render read-only,
+found by opening the real guide on the running app.
+
+**Proved rather than asserted:** 967 authored strings across the thirteen, **0 missing from
+the prompt** (was 116 missing). All three affected conversations were opened for real —
+Dashboard Discussions returned **6/6** tactical options and **3/3** discussion questions
+verbatim, Working Capital Cycle **9/9** causes.
+
+⚠ **One thing found on the way, and it is NOT this item.** The engine routed a Dashboard
+Discussions question to the **Ratio Analysis** tree, and the AI then **invented** tactical
+options and discussion questions rather than saying it had none. Tree detection, not the
+guides — but inventing content that reads as authored is the same failure family.
+
+**D — the engagement types — is now the only part of 4.16 still open, and it waits on Mike.**
+
+**Two things in this item's own description were wrong, and both were found by opening the files:**
+
+1. 🔴 **It is THIRTEEN guides, not twelve.** `powerful-seminars.json` is not named `*-reference.json`,
+   so the file-pattern sweep missed it — `LEARN_REFERENCE_FORMATTERS` registers it beside the other
+   twelve and treats it identically.
+2. 🔴 **They are NOT "read by the AI in full", which this list said for two sessions.**
+   **116 of the 954 authored lines across them reach no prompt** — 62 in Dashboard Discussions
+   (including the discussion questions authored against every one of its twelve metrics), 29 in
+   Working Capital Cycle, 20 in Ratio Analysis. Each formatter names its fields by hand, so a field
+   authored afterwards is never mentioned again. **The sweep counted the file as reaching the AI
+   because the formatter exists.**
+
+**So F is not only a screen.** Screen and prompt get built from **one walk of each guide's own
+shape** — 155,000 characters, of which only 21% sits in fields all thirteen share and **35% is blocks
+unique to a single guide** — so the two cannot disagree and the 116 close as a consequence of the
+design rather than as thirteen patches. Each guide opens from the framework row it already has on
+Domain Support; **Facilitation 101 has no row anywhere** and gets its own entry above the domains.
+**Tiers: the same as the materials table around it** — the opposite of B's mentor-only ruling,
+because a method guide is prose rather than routing logic, and it was asked rather than assumed.
+
+✅ **E shipped 2026-08-16 (`5873c06`) — the first of the seven, and the safe one on purpose.**
+The sentence an advisor is asked before choosing a staircase step now comes from the data and is
+editable on the Advisory Staircase tab, mentor first, firms inheriting. Approved wording:
+[`../STAIRCASE-SELECTOR-PROMPT-FIELD.md`](../STAIRCASE-SELECTOR-PROMPT-FIELD.md) §3.
+
+**Today's advisor sees no change, and two tests hold that** rather than assert it — they pin the
+exact strings that were hardcoded, written out in full so a later edit to the data file cannot
+silently re-point them. Proved on the running app as well as in the suite: saved as the mentor,
+inherited by a firm that had written none of its own, and the engine then put that sentence to the
+advisor.
+
+⚠ **Two things the build spec did not have, both found by opening the code — read before doing B–G:**
+
+1. **The two hardcoded strings were NOT identical.** The second carries a "No problem —" lead-in for
+   the moment an advisor declines a saved answer. It belongs to the moment, not the question, so it
+   stays in code — a firm must not be able to delete it from a conversation it never saw.
+2. 🔴 **A wording decision is still open and was deliberately not bundled:** that block's history
+   button reads **"Ceiling history"** while now covering two settings. Renaming it is Mike's call.
+
+🔴 **Two earlier plans are withdrawn, both by evidence rather than opinion.**
+**(1) The ten "empty" domains are not empty** — `eoy`, `profit` and `staff` each have a live logic
+tree, as do all seven Get-the-Job domains. Mike stopped it: *"the domain support material exists (I
+know this because I created it) but the problem is — not all of it was being read by AI."* Authoring
+them would have duplicated his own work tenfold.
+**(2) The 65 do not go on the Coaching Reference page** — he instructed it, then the code showed they
+are Logic Tables content and mostly duplicates. Recorded at
+[`../COACHING-REFERENCE-DOMAIN-ROWS.md`](../COACHING-REFERENCE-DOMAIN-ROWS.md).
+[`../DIAGNOSTIC-ENTRY-BLOCK.md`](../DIAGNOSTIC-ENTRY-BLOCK.md) is superseded by both.
+
+**The cascade is binding on all of it** — Mike, 2026-08-16: *"each respective hub page needs to link
+to AI so their changes work in practice so the cascade rules need apply here also."* Build
+tier-agnostic on the `coachingConfig.loadResolvedCoaching` shape. The two middle tiers cannot be
+exercised until the master team issues their roles and the firm→brand/country data; it fails toward
+today's behaviour, never toward a guess.
+
+✅ **`org-capacity-planner` having no logic tree is correct and is NOT an item** — ruled by Mike,
+2026-08-16: *"there is no capacity planner logic — it is a single model used for firms to plan and has
+a tutorial video attached."* Its 3 branches turn out to be a **sequence** across its own three
+materials, not routing — the one place in all 65 where the field holds something other than
+IF-THEN. See the spec §B.
+
+**4.17 · A screen can show one row when 67 exist, and say nothing.** **SCORE 2 · robustness**
+- **Why:** the mentor's Advisory Distinctions tab showed **1** distinction when the shipped set is
+  **67**. A local, git-ignored dev file (`data/dev-platform-distinctions.json`) is deliberately
+  preferred over the committed seed when there is no database, and one stale test row in it shadowed
+  all 67 — **with nothing on screen saying so.**
+- **Risk:** anyone developing, demoing or reviewing reads what is on screen as the real platform
+  set. It cost most of a session to diagnose, and **the same pattern applies to every dev-JSON
+  fallback in the app**, not just this one.
+- **Asked by:** **Mike** — he spotted it himself on the Mentor Hub, 2026-08-16.
+- **Touches:** `server/utils/platformDistinctions.js` and every other dev-JSON fallback
+  (`firmDistinctions`, quizzes, coaching, currency); the Mentor Hub Advisory Distinctions tab.
+- ⚠ **The local symptom is fixed by deleting that file** — Mike was given the command on 2026-08-16
+  because the AI's own safety guard refused the deletion. **The item is the underlying fault:** a
+  screen served from a dev fallback must *say* it is. Verify by loading the tab with and without the
+  file, never by reading the loader.
+
+**4.18 · The AI invents advice when it is routed to the wrong method.** **SCORE 4 · the user is
+worse off**
+
+⚠ **Sitting last because Mike has not ranked it, not because it scores low.** It was added on
+2026-08-17, after his own ranking pass, and appending is the only way to add an item without
+moving one of his. **Its position is not a judgement.**
+
+- **Why:** a Dashboard Discussions question was routed by the engine to the **Ratio Analysis**
+  coaching tree. The AI then produced its own plausible *"tactical options"* and *"discussion
+  questions"* for the metric rather than saying it had none for it. **Two faults stacked:** the
+  wrong guide was selected, and the model filled the gap instead of admitting it.
+- **Risk:** an adviser reads invented content as Mike's authored method and takes it to a client.
+  On screen it is indistinguishable from the real thing — right headings, right tone, right shape.
+  🔴 **This is 4.16's failure from the other direction.** 4.16 was authored content that never
+  arrived; this is unauthored content that arrives *looking* authored — and it is the worse of the
+  two, because nothing about it looks wrong.
+- **Asked by:** **Mike.** Found by us on 2026-08-17 while verifying 4.16 F on the running app — the
+  first Dashboard Discussions attempt came back with invented questions. Reported the same session
+  and he ruled it on: *"if you found this problem then yes - it gets put on the to do list."*
+- **Touches:** `detectLogicTree` / `detectLogicTrees` in `server/utils/logicTrees.js` and
+  `pickLearnTreeAI` in `server/advisorEngine.js` for the routing half; the learn-mode prompt for
+  the honesty half.
+- 🔴 **TWO HALVES, AND THE SECOND ONE IS THE ITEM.** Sharpening the routing reduces how often this
+  happens and can never remove it — some questions are genuinely ambiguous, and Ratio Analysis and
+  Dashboard Discussions are neighbouring methods. **The fault worth fixing is that the model does
+  not say "I do not have that for this method."** Do not close this on a routing tweak alone.
+- ⚠ **Verify the way 4.16 was verified** — ask a real question on the running app and compare the
+  answer word for word against the source file. **Every automated test here passes on an answer the
+  model made up.**
+- Written into [`../RELEASE-NOTES-v0.9.0.md`](../RELEASE-NOTES-v0.9.0.md) §4a, so the master team
+  meets it as a known issue rather than as a surprise in UAT.
+
+**4.7 · Flip `engine-strict` back on.** **SCORE 2 · robustness**
+- **Why:** still `false`. Two transitive packages (`consola`, `node-releases`) over-declare their
+  Node requirement and need pinning down first.
+- **Risk:** the Node 14.15 lock is not actually enforced at install time, so a future install can
+  drift off the Stack Constitution silently.
+- **Asked by:** the **Stack Constitution** — the coding team's locked spec.
+- **Touches:** `.npmrc`, `package.json` overrides. ⚠ **Reinstall is overnight-only on this
+  machine** and there is a documented safe procedure — follow it rather than a plain `npm install`.
+
+---
+
+## 7. How to keep this list honest
+
+- **Score it before you write it.** A zero does not get filed under tidying — it is deleted, with
+  its code.
+- **Fill in "Asked by" honestly.** If it cannot name Mike or a named outsider, write ⚠ **ours** and
+  expect to justify it. Both wastes of 2026-08-15 would have been stopped by that one field.
+- **An observation is not a task, and an AI-written line carries no authority.** A fortnight of work
+  grew out of one AI-authored sentence in `ACTIONS.md` that a later session read as an instruction.
+- 🔴 **A score given by whoever found the thing is not a priority — it is the finder's own opinion
+  wearing a number.** §4.13 was written honestly, scored **5** by us, ranked by us, and put in front
+  of Mike as the third job on the list. His one question — *"who is this function for?"* — took it to
+  a **1**, because the only people it could ever reach were us. **Its `Asked by` field already said
+  ⚠ ours. The field worked; nobody read it.** Before defending a high score, read that field first.
+- **Nothing is parked.** Parking was tried and it failed: a parked item is still in the codebase and
+  still an invitation to finish it. Deleted means deleted.
+- **Re-verify what is already here, not only what is proposed.** The 2026-08-15 audit found §2.7
+  had been **built on 2026-07-29** and had sat here for seventeen days as an open question. Four
+  items in total have now been found already built while still flagged open.
+- **When something is done, move it** to [`to-do-done-and-parked.md`](to-do-done-and-parked.md).
+- **Numbers are stable and gaps are deliberate.** A missing number means that item was deleted;
+  the second page says which and why.

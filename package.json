@@ -1,6 +1,6 @@
 {
   "name": "virt-advisor",
-  "version": "0.6.0",
+  "version": "0.9.0",
   "private": true,
   "engines": {
     "node": "14.15.x"
@@ -14,8 +14,10 @@
     "start": "cross-env NODE_OPTIONS=--max-old-space-size=12288 nuxt start",
     "generate": "nuxt generate",
     "check:branch": "node scripts/check-branch-state.js --report",
-    "status": "node scripts/generate-status-table.js",
     "routing": "node scripts/generate-content-routing.js",
+    "handbook": "node scripts/build-handbook.js",
+    "to-do": "node scripts/apply-to-do.js",
+    "feature": "node scripts/new-feature.js",
     "lint": "eslint --ext .js,.vue .",
     "lint:fix": "eslint --ext .js,.vue . --fix",
     "test": "jest",

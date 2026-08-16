@@ -61,17 +61,56 @@ function resetCoachingCache () {
   _coaching = null
 }
 
-/** Render one coaching entry (platform or firm shape) as prompt text. */
+/**
+ * Render one coaching entry (platform or firm shape) as prompt text.
+ *
+ * 🔴 `howItHelps` AND `deliveryNotes` WERE ABSENT FROM THIS UNTIL 2026-08-15, and the
+ * omission was invisible. Both fields are authored in data/coaching-reference.json, both
+ * were made firm-editable when the block joined the inheritance mechanism (`869909c`),
+ * and neither appeared anywhere else in the backend — so a firm could have rewritten the
+ * longest and most prominent field on its Coaching Reference tab and changed nothing at
+ * all about the advice its advisers received. Found by rendering the prompt for a firm
+ * that had actually edited an entry, which no test asked. Mike ruled they must reach the
+ * AI, so they now do.
+ *
+ * PRESENT-ONLY, WHICH IS WHAT MAKES THIS SAFE TO SHARE. This same function renders the
+ * firm's PROMOTED CASE OBSERVATIONS through formatFirmCoachingForPrompt, where the
+ * result is FENCED as untrusted. Those entries are built by cases.promote and carry
+ * neither field, so they render byte-identically to before — pinned by test. Emitting an
+ * empty labelled line would also have put "Delivery notes:" with nothing after it on
+ * fourteen of the fifteen platform entries, which reads to a model as a field the author
+ * left blank rather than one that does not apply.
+ *
+ * @param {Object} c - a coaching entry
+ * @returns {string} the rendered block
+ */
 function formatEntry (c) {
   const scenarios = (c.scenarios || []).map(s => `  - ${s}`).join('\n')
-  return `**${c.template}**
-What to look for: ${c.whatToLookFor}
-Scenarios: \n${scenarios}
-Where it leads: ${c.whereMayLead}`
+  const lines = [`**${c.template}**`]
+  // Opens the entry, matching the order the Firm Manager tab shows the fields in: a
+  // manager editing top to bottom is editing the prompt top to bottom.
+  if (c.howItHelps) { lines.push(`How it helps: ${c.howItHelps}`) }
+  lines.push(`What to look for: ${c.whatToLookFor}`)
+  lines.push(`Scenarios: \n${scenarios}`)
+  lines.push(`Where it leads: ${c.whereMayLead}`)
+  if (c.deliveryNotes) { lines.push(`Delivery notes: ${c.deliveryNotes}`) }
+  return lines.join('\n')
 }
 
-function formatCoachingForPrompt () {
-  return loadCoaching().map(formatEntry).join('\n\n')
+/**
+ * Render the coaching reference rows for the prompt, UNFENCED — this is curated
+ * guidance the model is meant to act on, not user text to weigh. The firm's promoted
+ * observations are the fenced ones; they go through formatFirmCoachingForPrompt below
+ * and never through here.
+ *
+ * @param {Object[]} [rows] - the scope's resolved rows (see coachingConfig
+ *   .loadResolvedCoaching). Omitted, it falls back to the shipped platform file, which
+ *   is what every caller got before the block joined the inheritance mechanism.
+ * @returns {string} the rendered block
+ */
+function formatCoachingForPrompt (rows) {
+  const list = Array.isArray(rows) && rows.length > 0 ? rows : loadCoaching()
+  return list.map(formatEntry).join('\n\n')
 }
 
 // ── Firm-scoped promoted entries (overlay-backed) ─────────────────────────────

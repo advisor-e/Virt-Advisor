@@ -46,9 +46,14 @@ Type **`/startup`** and the checklist runs itself. What it does, and why:
    work on top of unexplained uncommitted changes is how work gets lost.
 2. **How far off master am I?** — `npm run check:branch`. *Behind* is the number that
    matters. This is the step that catches drift at 3 commits instead of 97.
-3. **What is open?** — the P1 items in `ACTIONS.md` and the latest session notes, so the
-   two machines do not duplicate or contradict each other.
-4. **Catch up if behind** — merge `origin/master`, run the tests, prove nothing broke.
+3. **Open the Handbook** — `npm run handbook`, republished to its existing link and opened
+   in the browser. Because it is rebuilt from committed markdown every session, the page
+   cannot drift from the repository, and the link never needs re-sending.
+4. **What is open?** — [`design/features/to-do.md`](features/to-do.md), the live list, and
+   the latest session notes, so the two machines do not duplicate or contradict each other.
+   **Not `ACTIONS.md`**: it remains the full record, but at 6,000+ lines it reads as about
+   seventy open tasks when the real number is nineteen, and it is not the front door.
+5. **Catch up if behind** — merge `origin/master`, run the tests, prove nothing broke.
 
 ## End of session — either machine
 
@@ -57,8 +62,12 @@ Type **`/shutdown`**. What it does, and why:
 1. **What changed?** — every file, in plain English. Anything unapproved is named, not
    buried in the commit.
 2. **Is it green?** — full suite. A red suite is never pushed.
-3. **Is the record up to date?** — `ACTIONS.md` reflects what actually happened,
-   including things found but not fixed.
+3. **Is the Handbook up to date?** — the front door is updated first. Rules established
+   today are written into that feature's **Brief** the same session; finished work **moves**
+   off [`to-do.md`](features/to-do.md) onto the done-and-parked page rather than being
+   ticked in place; anything discovered is written as *something a person does*. Then
+   `ACTIONS.md`, which remains the full record of what actually happened, including things
+   found but not fixed.
 4. **Commit** — message shown and approved first.
 5. **Push this machine's own branch only.**
 6. **Leave a handover note** — where you stopped, what is half-finished. This is what

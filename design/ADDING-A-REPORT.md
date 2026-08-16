@@ -254,7 +254,7 @@ the catalogue's ready routes, so your report is covered the moment its row flips
 
 Not everything is duplication, and forcing these together would be a redesign:
 
-- **`SliderGroup`** covers 4 screens. Quick Position's sliders carry provenance badges
+- **`SliderField`** covers 4 screens. Quick Position's sliders carry provenance badges
   and the R22 dynamic ceiling (so a touch can never snap a real figure down to a cap);
   EBITDA/DCF has no sliders. That exclusion is structural.
 - **Gradients on data marks** — the cash-runway bar, the EBITDA chart bars, slider

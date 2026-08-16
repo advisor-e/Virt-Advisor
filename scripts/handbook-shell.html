@@ -1,0 +1,1377 @@
+<title>Advisor-e Handbook</title>
+<style>
+  :root {
+    --ground: #eef3f8; --ground-2: #f1f6fb; --card: #ffffff;
+    --ink: #002b64; --body: #23405f; --muted: #5b6f8a; --line: #d5e1ee;
+    --accent: #0070c0; --accent-bright: #00b1e0;
+    --good: #4ca52d; --warn: #ff9900; --crit: #e00000;
+    --band: #002b64; --band-ink: #ffffff; --band-muted: #9dc2e8;
+    --code-bg: #f1f6fb; --rail: #ffffff;
+    --s5: #c81e1e; --s5-bg: #fdeaea;
+    --s4: #b56200; --s4-bg: #fdf1e0;
+    --s3: #0070c0; --s3-bg: #e6f2fb;
+    --s2: #4a6b8a; --s2-bg: #edf2f7;
+    --s1: #7a8ba0; --s1-bg: #f1f4f7;
+    --s0: #8a8f96; --s0-bg: #f2f3f4;
+    --lock: #b56200; --lock-bg: #fdf1e0;
+    --go: #2f7d32; --go-bg: #e8f4e9;
+    --shadow: 0 12px 32px rgba(0,43,100,.10);
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    --gap: 16px; --radius: 14px; --pad: 16px; --railw: 268px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #05132a; --ground-2: #07182f; --card: #0a1f3d;
+      --ink: #e6f0fa; --body: #cfe0f2; --muted: #9fb4d0; --line: #1a3559;
+      --accent: #00b1e0; --accent-bright: #7fd3f1;
+      --good: #6fc44e; --warn: #ffab33; --crit: #ff6b6b;
+      --band: #0a1f3d; --band-ink: #e6f0fa; --band-muted: #9fb4d0;
+      --code-bg: #07182f; --rail: #07182f;
+      --s5: #ff8080; --s5-bg: #3a1414;
+      --s4: #ffb454; --s4-bg: #3a2810;
+      --s3: #6cc4f5; --s3-bg: #0e2b45;
+      --s2: #9ab4cc; --s2-bg: #142639;
+      --s1: #8ea1b6; --s1-bg: #111f31;
+      --s0: #7d858e; --s0-bg: #171c22;
+      --lock: #ffb454; --lock-bg: #3a2810;
+      --go: #6fc44e; --go-bg: #16301a;
+      --shadow: 0 12px 32px rgba(0,0,0,.38);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #05132a; --ground-2: #07182f; --card: #0a1f3d;
+    --ink: #e6f0fa; --body: #cfe0f2; --muted: #9fb4d0; --line: #1a3559;
+    --accent: #00b1e0; --accent-bright: #7fd3f1;
+    --good: #6fc44e; --warn: #ffab33; --crit: #ff6b6b;
+    --band: #0a1f3d; --band-ink: #e6f0fa; --band-muted: #9fb4d0;
+    --code-bg: #07182f; --rail: #07182f;
+    --s5: #ff8080; --s5-bg: #3a1414;
+    --s4: #ffb454; --s4-bg: #3a2810;
+    --s3: #6cc4f5; --s3-bg: #0e2b45;
+    --s2: #9ab4cc; --s2-bg: #142639;
+    --s1: #8ea1b6; --s1-bg: #111f31;
+    --s0: #7d858e; --s0-bg: #171c22;
+    --lock: #ffb454; --lock-bg: #3a2810;
+    --go: #6fc44e; --go-bg: #16301a;
+    --shadow: 0 12px 32px rgba(0,0,0,.38);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--body);
+    font-family: var(--sans); font-size: 15.5px; line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell { display: grid; grid-template-columns: var(--railw) 1fr; min-height: 100vh; }
+
+  /* ---------- rail ---------- */
+  .rail {
+    background: var(--rail); border-right: 1px solid var(--line);
+    padding: 20px 14px 28px; position: sticky; top: 0; height: 100vh;
+    overflow-y: auto; display: flex; flex-direction: column; gap: 14px;
+  }
+  .brand { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; }
+  .brand b { color: var(--ink); font-size: 16px; letter-spacing: -.01em; }
+  .brand span { color: var(--muted); font-size: 12px; }
+
+  .filter {
+    width: 100%; font: inherit; font-size: 13.5px; padding: 8px 10px;
+    border: 1px solid var(--line); border-radius: 9px;
+    background: var(--ground-2); color: var(--ink);
+  }
+  .filter::placeholder { color: var(--muted); }
+  .filter:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 1px; }
+
+  .navwrap { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .navgroup {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); padding: 14px 8px 4px;
+  }
+  .navlink {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; border-radius: 8px; text-decoration: none;
+    color: var(--body); font-size: 14px; border-left: 3px solid transparent;
+  }
+  .navlink:hover { background: var(--ground-2); color: var(--ink); }
+  .navlink.on {
+    background: color-mix(in srgb, var(--accent-bright) 12%, transparent);
+    color: var(--ink); font-weight: 600; border-left-color: var(--accent-bright);
+  }
+  .navlink:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 1px; }
+  .navlink[hidden] { display: none; }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%; flex: none; background: transparent;
+  }
+  .navlink.unseen .dot { background: var(--accent-bright); }
+  .navlink.stale .dot { background: var(--warn); }
+  .raillegend {
+    font-size: 11.5px; color: var(--muted); padding: 10px 8px 0;
+    border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px;
+  }
+  .raillegend i { font-style: normal; }
+
+  /* ---------- content ---------- */
+  .main { padding: 28px 26px 90px; min-width: 0; }
+  .inner { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--gap); }
+
+  .pagehead { display: flex; flex-direction: column; gap: 4px; }
+  .eyebrow {
+    font-size: 11.5px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .pagehead h1 {
+    margin: 0; font-size: clamp(26px, 4vw, 38px); line-height: 1.12;
+    font-weight: 700; letter-spacing: -.015em; color: var(--ink); text-wrap: balance;
+  }
+
+  .prose { display: flex; flex-direction: column; gap: 14px; }
+  .prose > * { margin: 0; }
+  .prose h2 {
+    font-size: 21px; font-weight: 700; color: var(--ink); letter-spacing: -.01em;
+    margin-top: 12px; text-wrap: balance;
+  }
+  .prose h3 { font-size: 16px; font-weight: 700; color: var(--ink); margin-top: 6px; }
+  .prose p, .prose li { max-width: 78ch; }
+  .prose strong { color: var(--ink); font-weight: 700; }
+  .prose ul, .prose ol { padding-left: 20px; display: flex; flex-direction: column; gap: 7px; }
+  .prose hr { border: 0; border-top: 1px solid var(--line); margin: 6px 0; }
+
+  .prose blockquote {
+    background: var(--card); border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0;
+    padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;
+    box-shadow: var(--shadow);
+  }
+  .prose blockquote p { max-width: 74ch; }
+
+  .prose code {
+    font-family: var(--mono); font-size: .885em; background: var(--code-bg);
+    border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px;
+    color: var(--ink); white-space: nowrap;
+  }
+  .prose a { color: var(--accent); text-underline-offset: 2px; }
+  .prose a:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; border-radius: 3px; }
+
+  .prose table {
+    border-collapse: collapse; width: 100%; font-size: 14px; min-width: 460px;
+  }
+  .prose th, .prose td {
+    text-align: left; padding: 9px 12px 9px 0;
+    border-bottom: 1px solid var(--line); vertical-align: top;
+  }
+  .prose th {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .prose td:first-child { color: var(--ink); font-weight: 600; }
+  .tablewrap { overflow-x: auto; }
+
+  .page[hidden] { display: none; }
+
+  /* ---------- the gate ---------- */
+  .gate {
+    background: var(--card); border: 1px solid var(--line);
+    border-top: 3px solid var(--muted); border-radius: var(--radius);
+    padding: var(--pad); box-shadow: var(--shadow); margin-top: 10px;
+  }
+  .gate > summary {
+    cursor: pointer; list-style: none; display: flex; align-items: center; gap: 12px;
+    font-family: var(--serif); font-size: 19px; font-weight: 700; color: var(--ink);
+  }
+  .gate > summary::-webkit-details-marker { display: none; }
+  .gate > summary::before {
+    content: "\203A"; font-family: var(--sans); font-size: 26px; line-height: 1;
+    color: var(--muted); transition: transform .18s ease; display: inline-block;
+  }
+  .gate[open] > summary::before { transform: rotate(90deg); }
+  .gate > summary:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 3px; border-radius: 4px; }
+  .gate-hint { font-size: 13.5px; color: var(--muted); margin: 6px 0 0 30px; }
+  .history { font-family: var(--serif); font-size: 16px; line-height: 1.68; margin-top: 18px;
+    padding-top: 18px; border-top: 1px solid var(--line); }
+  .history h2, .history h3 { font-family: var(--serif); }
+  .history th, .history code { font-family: var(--sans); }
+  .history code { font-family: var(--mono); }
+  .history table { font-family: var(--sans); font-size: 13.5px; }
+
+  /* ---------- edit mode ---------- */
+  .editbar {
+    position: fixed; right: 18px; bottom: 18px; z-index: 50;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: var(--card); border: 1px solid var(--line);
+    border-top: 3px solid var(--accent-bright); border-radius: 12px;
+    padding: 10px 12px; box-shadow: 0 14px 34px rgba(0,43,100,.22);
+    font-size: 13.5px; max-width: calc(100vw - 36px);
+  }
+  .editbtn {
+    font: inherit; font-weight: 600; cursor: pointer; border-radius: 9px;
+    padding: 8px 14px; border: 1px solid var(--accent);
+    background: var(--accent); color: #fff; white-space: nowrap;
+  }
+  .editbtn.ghost { background: transparent; color: var(--accent); }
+  .editbtn.quiet { background: transparent; border-color: var(--line); color: var(--muted); font-weight: 400; }
+  .editbtn:hover { filter: brightness(1.07); }
+  .editbtn:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+  .editbtn[disabled] { opacity: .5; cursor: default; filter: none; }
+  .editcount { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+  .editcount strong { color: var(--ink); }
+
+  body[data-editing="on"] [data-eid] {
+    outline: 1px dashed transparent; outline-offset: 3px; border-radius: 3px;
+  }
+  body[data-editing="on"] [data-eid]:hover { outline-color: var(--line); }
+  body[data-editing="on"] [data-eid]:focus {
+    outline: 2px solid var(--accent-bright);
+    background: color-mix(in srgb, var(--accent-bright) 8%, transparent);
+  }
+  body[data-editing="on"] [data-eid][data-changed="yes"] {
+    background: color-mix(in srgb, var(--warn) 14%, transparent); outline-color: var(--warn);
+  }
+  .navlink .edited {
+    margin-left: auto; font-size: 11px; font-weight: 700; color: var(--warn);
+  }
+
+  .editnote {
+    position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 60;
+    background: var(--band); color: var(--band-ink); font-size: 14px;
+    padding: 11px 18px; border-radius: 10px; box-shadow: 0 12px 32px rgba(0,43,100,.3);
+    max-width: min(560px, calc(100vw - 40px)); text-align: center;
+  }
+  .editnote[hidden] { display: none; }
+  .fallback {
+    position: fixed; inset: 24px; z-index: 70; background: var(--card);
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 18px;
+    display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 60px rgba(0,43,100,.3);
+  }
+  .fallback[hidden] { display: none; }
+  .fallback textarea {
+    flex: 1; width: 100%; font-family: var(--mono); font-size: 12.5px; line-height: 1.5;
+    background: var(--code-bg); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 8px; padding: 12px; resize: none;
+  }
+
+  /* ---------- the ranking control (To-Do page) ---------- */
+  /* Adapted from design/mockups/to-do-list-table.html — the approved artefact.
+     It sits inside .prose, so several rules here exist only to undo the prose
+     table styling above rather than to invent a second look. */
+  .queue { display: flex; flex-direction: column; gap: 12px; }
+  .queue-fallback { color: var(--muted); font-style: italic; }
+
+  .queue .qbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .queue .qbtn {
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    border-radius: 9px; padding: 8px 14px; border: 1px solid var(--accent);
+    background: var(--accent); color: #fff; white-space: nowrap;
+  }
+  .queue .qbtn.ghost { background: transparent; color: var(--accent); }
+  .queue .qbtn.quiet { background: transparent; border-color: var(--line); color: var(--muted); font-weight: 500; }
+  .queue .qbtn:hover { filter: brightness(1.08); }
+  .queue .qbtn:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+  .queue .qcount { color: var(--muted); font-size: 13.5px; margin-left: auto; }
+  .queue .qcount b { color: var(--ink); }
+
+  .queue .qlegend { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; font-size: 12.5px; }
+  .queue .chip {
+    display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px;
+    border-radius: 999px; border: 1px solid currentColor; font-weight: 600;
+  }
+  .queue .chip i { font-style: normal; font-weight: 400; opacity: .85; }
+  .queue .c5 { color: var(--s5); background: var(--s5-bg); }
+  .queue .c4 { color: var(--s4); background: var(--s4-bg); }
+  .queue .c3 { color: var(--s3); background: var(--s3-bg); }
+  .queue .c2 { color: var(--s2); background: var(--s2-bg); }
+  .queue .c1 { color: var(--s1); background: var(--s1-bg); }
+  .queue .c0 { color: var(--s5); background: var(--s0-bg); }
+
+  .queue .qcount .owed { color: var(--s4); }
+
+  /* What changed in the project since this browser last looked. INFORMATION,
+     never a choice: the first version offered "use the project's list" or "keep
+     mine" with no way to see what differed, which is a decision with nothing
+     attached to it. Nothing of Mike's is discarded, so there is nothing to ask. */
+  .queue .qnotes {
+    background: var(--card); border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0;
+    padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 14px;
+  }
+  .queue .qnotes[hidden] { display: none; }
+  .queue .qnotes b { color: var(--ink); }
+  .queue .qnotes ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 5px; }
+  .queue .qnotes li { max-width: 90ch; }
+  .queue .quiet-note { color: var(--muted); font-size: 13px; }
+
+  /* A sort heading is the ONLY thing that reorders the list, and this says so
+     while it is doing it. */
+  .queue .qview {
+    background: var(--s4-bg); border: 1px solid var(--s4); color: var(--s4);
+    border-radius: 10px; padding: 9px 13px; font-size: 13.5px; font-weight: 600;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  }
+  .queue .qview[hidden] { display: none; }
+  .queue .qview .qbtn { padding: 5px 11px; font-size: 13px; }
+
+  /* An item settled with no reason. It stays exactly where it is — the warning
+     comes to the row, the row never goes anywhere. */
+  .queue .needs-reason {
+    display: none; color: var(--s4); font-weight: 600; font-size: 12.5px; margin-top: 4px;
+  }
+
+  .queue .qtablewrap {
+    overflow-x: auto; background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .queue table { border-collapse: collapse; width: 100%; min-width: 1080px; font-size: 15px; }
+  .queue thead th {
+    text-align: left; font-size: 10.5px; font-weight: 700; letter-spacing: .11em;
+    text-transform: uppercase; color: var(--muted); padding: 12px 12px 10px;
+    border-bottom: 1px solid var(--line); white-space: nowrap; background: var(--card);
+    position: sticky; top: 0; z-index: 2;
+  }
+  .queue thead th.sortable { cursor: pointer; user-select: none; }
+  .queue thead th.sortable:hover { color: var(--ink); }
+  .queue thead th .arrow { opacity: .5; font-size: 10px; }
+  .queue tbody tr.main > td { padding: 12px 12px 6px; vertical-align: top; border-bottom: 0; }
+  .queue tbody tr.detail > td { padding: 0 12px 14px; border-bottom: 0; }
+  .queue tbody tr.detail { border-bottom: 1px solid var(--line); }
+  .queue td:first-child { font-weight: 400; }
+
+  .queue .rank {
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+    font-size: 13px; color: var(--muted); width: 44px;
+  }
+  .queue .lockcell { width: 34px; }
+  .queue .lock {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 7px; border: 1px solid transparent;
+    background: transparent; color: var(--muted); cursor: pointer; font-size: 12px; padding: 0;
+  }
+  .queue .lock[aria-pressed="true"] { background: var(--lock-bg); color: var(--lock); border-color: var(--lock); }
+
+  .queue .name { font-weight: 700; color: var(--ink); font-size: 15px; min-width: 210px; }
+  .queue .ref {
+    font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+    font-weight: 400; display: block; margin-top: 2px;
+  }
+
+  .queue .scorecell { width: 94px; }
+  .queue select.score {
+    font: inherit; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums;
+    border-radius: 999px; padding: 4px 8px; border: 1px solid currentColor;
+    background: var(--sbg); color: var(--sfg); cursor: pointer;
+  }
+  .queue select.score:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+  .queue .cat { font-size: 12.5px; color: var(--muted); display: block; margin-top: 4px; }
+
+  .queue .who { font-size: 13.5px; color: var(--body); min-width: 116px; }
+  .queue .askedby { font-size: 13.5px; min-width: 150px; }
+  .queue .askedby.ours { color: var(--s4); font-weight: 600; }
+
+  .queue .statuscell { width: 118px; }
+  .queue select.status {
+    font: inherit; font-size: 12.5px; font-weight: 700; letter-spacing: .04em;
+    text-transform: uppercase; border-radius: 999px; padding: 5px 10px;
+    border: 1px solid currentColor; background: var(--stbg); color: var(--stfg);
+    cursor: pointer; width: 100%;
+  }
+  .queue select.status:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+  .queue .st-proceed { --stfg: var(--go); --stbg: var(--go-bg); }
+  .queue .st-done    { --stfg: var(--go); --stbg: var(--go-bg); }
+  .queue .st-park    { --stfg: var(--s1); --stbg: var(--s1-bg); }
+  .queue .st-delete  { --stfg: var(--s5); --stbg: var(--s5-bg); }
+
+  .queue tr.main.settled .name,
+  .queue tr.main.settled .who,
+  .queue tr.main.settled .askedby { opacity: .55; }
+  .queue tr.main.settled .rank { opacity: .4; }
+  .queue tr.detail.settled .fact:not(.comment) { opacity: .5; }
+  .queue tr.main[data-status="done"] .name { text-decoration: line-through; }
+  .queue tr.main[data-status="delete"] .name { text-decoration: line-through; }
+
+  .queue .facts { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+  .queue .fact { display: flex; flex-direction: column; gap: 2px; }
+  /* `display: flex` above outranks the browser's own [hidden] rule, so a fact
+     hidden from script would otherwise stay on screen. */
+  .queue .fact[hidden] { display: none; }
+  .queue .fact label {
+    font-size: 10px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .queue .fact div { font-size: 13.5px; color: var(--body); line-height: 1.45; max-width: none; }
+  .queue .wide { grid-column: 1 / -1; }
+  .queue .fact.ours label { color: var(--s4); }
+
+  .queue .comment {
+    grid-column: 1 / -1; background: var(--ground-2); border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0;
+    padding: 9px 12px; margin-top: 4px;
+  }
+  .queue .comment label { color: var(--accent); }
+  .queue .comment div { min-height: 20px; }
+  .queue .comment div:empty::before { content: attr(data-placeholder); color: var(--muted); font-style: italic; }
+
+  .queue [contenteditable] { border-radius: 5px; outline: 1px dashed transparent; outline-offset: 3px; }
+  .queue [contenteditable]:hover { outline-color: var(--line); }
+  .queue [contenteditable]:focus {
+    outline: 2px solid var(--accent-bright);
+    background: color-mix(in srgb, var(--accent-bright) 9%, transparent);
+  }
+
+  .queue .del {
+    border: none; background: transparent; color: var(--muted); cursor: pointer;
+    font-size: 16px; padding: 2px 6px; border-radius: 6px; width: 34px;
+  }
+  .queue .del:hover { color: var(--s5); background: var(--s5-bg); }
+
+  .queue .zero-warn { color: var(--s5); font-weight: 600; font-size: 12.5px; margin-top: 4px; display: none; }
+  .queue tr.main[data-score="0"] .zero-warn { display: block; }
+  .queue tr.main[data-score="0"] .name { text-decoration: line-through; opacity: .65; }
+
+  .railtoggle { display: none; }
+
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: 1fr; }
+    .rail {
+      position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line);
+    }
+    .rail[data-open="no"] .navwrap, .rail[data-open="no"] .raillegend, .rail[data-open="no"] .filter { display: none; }
+    .railtoggle {
+      display: inline-block; font: inherit; font-weight: 600; cursor: pointer;
+      background: transparent; border: 1px solid var(--line); color: var(--ink);
+      border-radius: 9px; padding: 7px 12px;
+    }
+    .main { padding: 20px 16px 90px; }
+    /* The mockup broke its three fact columns at 720px; the shell has one
+       breakpoint and this follows it rather than adding a second. */
+    .queue .facts { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media print { .rail, .editbar, .editnote, .fallback { display: none !important; } }
+</style>
+
+<div class="shell">
+  <nav class="rail" id="rail" data-open="no">
+    <div class="brand">
+      <b>Advisor-e Handbook</b>
+      <span><!--COUNT--> features · rules first, history behind the gate</span>
+    </div>
+    <button class="railtoggle" id="railtoggle" type="button">Browse features</button>
+    <input class="filter" id="filter" type="search" placeholder="Filter features…" aria-label="Filter features">
+    <div class="navwrap" id="nav"><!--NAV--></div>
+    <div class="raillegend">
+      <div><i class="dotkey" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent-bright)"></i> never opened</div>
+      <div><i class="dotkey" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn)"></i> not opened in 3 weeks</div>
+      <div id="unreadline"></div>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="inner" id="inner"><!--PAGES--></div>
+  </main>
+</div>
+
+<div class="editbar">
+  <button class="editbtn" id="btnEdit" type="button">Edit</button>
+  <span class="editcount" id="count" hidden></span>
+  <button class="editbtn ghost" id="btnSave" type="button" hidden>Save my changes</button>
+  <button class="editbtn quiet" id="btnDiscard" type="button" hidden>Undo all</button>
+</div>
+
+<div class="editnote" id="note" hidden role="status"></div>
+
+<div class="fallback" id="fallback" hidden>
+  <strong>Copy this and send it to Claude</strong>
+  <textarea id="fallbackText" readonly></textarea>
+  <div style="display:flex;gap:10px;justify-content:flex-end">
+    <button class="editbtn quiet" type="button" onclick="document.getElementById('fallback').hidden=true">Close</button>
+  </div>
+</div>
+
+<!--QUEUE-->
+
+<script>
+(function () {
+  'use strict'
+
+  var STORE = 'handbook-edits'
+  var SEEN = 'handbook-seen'
+  var LAST = 'handbook-last'
+  var FILENAME = 'handbook-changes.txt'
+  var STALE_DAYS = 21
+
+  var inner = document.getElementById('inner')
+  var navEl = document.getElementById('nav')
+  var btnEdit = document.getElementById('btnEdit')
+  var btnSave = document.getElementById('btnSave')
+  var btnDiscard = document.getElementById('btnDiscard')
+  var countEl = document.getElementById('count')
+  var noteEl = document.getElementById('note')
+  var rail = document.getElementById('rail')
+
+  var originals = {}
+  var titles = {}
+  var noteTimer = null
+
+  function norm (s) { return (s || '').replace(/\s+/g, ' ').trim() }
+  function store (k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d } catch (e) { return d } }
+  function put (k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch (e) {} }
+
+  // ---------- tables get their own scroll container ----------
+  Array.prototype.forEach.call(inner.querySelectorAll('table'), function (t) {
+    var w = document.createElement('div'); w.className = 'tablewrap'
+    t.parentNode.insertBefore(w, t); w.appendChild(t)
+  })
+
+  // ---------- tag editable elements, per page ----------
+  var SEL = 'h2,h3,p,li,td,th,summary'
+  Array.prototype.forEach.call(inner.querySelectorAll('.page'), function (page) {
+    var slug = page.getAttribute('data-page')
+    titles[slug] = norm(page.querySelector('h1').textContent)
+    var i = 0
+    Array.prototype.forEach.call(page.querySelectorAll(SEL), function (el) {
+      if (el.querySelector(SEL)) return
+      if (!norm(el.textContent)) return
+      if (el.classList.contains('gate-hint')) return
+      // The ranking control keeps its own text in its own store and hands it
+      // back as a data file. Tagging it as prose too would put the same edit in
+      // two saves, in two formats, and let a stale one overwrite the other.
+      if (el.closest('[data-queue]')) return
+      var eid = slug + ':' + (i++)
+      el.setAttribute('data-eid', eid)
+      originals[eid] = { html: el.innerHTML, text: norm(el.textContent), slug: slug }
+    })
+  })
+
+  function restore () {
+    var saved = store(STORE, null)
+    if (!saved) return
+    Object.keys(saved).forEach(function (eid) {
+      var el = inner.querySelector('[data-eid="' + CSS.escape(eid) + '"]')
+      if (el) el.innerHTML = saved[eid]
+    })
+  }
+
+  function labelFor (el) {
+    var n = el
+    while (n && n !== inner) {
+      var s = n.previousElementSibling
+      while (s) {
+        if (s.matches('h2,h3,summary')) return norm(s.textContent)
+        s = s.previousElementSibling
+      }
+      n = n.parentElement
+    }
+    return 'top of page'
+  }
+
+  function changes () {
+    var out = []
+    Object.keys(originals).forEach(function (eid) {
+      var el = inner.querySelector('[data-eid="' + CSS.escape(eid) + '"]')
+      if (!el) return
+      var now = norm(el.textContent)
+      if (now !== originals[eid].text) {
+        out.push({ eid: eid, el: el, slug: originals[eid].slug,
+          was: originals[eid].text, now: now, where: labelFor(el) })
+      }
+    })
+    return out
+  }
+
+  function persist () {
+    var s = {}
+    changes().forEach(function (c) { s[c.eid] = c.el.innerHTML })
+    put(STORE, s)
+  }
+
+  function paint () {
+    var list = changes()
+    Array.prototype.forEach.call(inner.querySelectorAll('[data-changed]'), function (e) {
+      e.removeAttribute('data-changed')
+    })
+    Array.prototype.forEach.call(navEl.querySelectorAll('.edited'), function (e) { e.remove() })
+
+    var perPage = {}
+    list.forEach(function (c) {
+      c.el.setAttribute('data-changed', 'yes')
+      perPage[c.slug] = (perPage[c.slug] || 0) + 1
+    })
+    Object.keys(perPage).forEach(function (slug) {
+      var link = navEl.querySelector('[data-slug="' + slug + '"]')
+      if (link) {
+        var b = document.createElement('span')
+        b.className = 'edited'; b.textContent = perPage[slug] + ' edit' + (perPage[slug] === 1 ? '' : 's')
+        link.appendChild(b)
+      }
+    })
+
+    var n = list.length
+    countEl.innerHTML = n === 0 ? 'No changes yet'
+      : '<strong>' + n + '</strong> change' + (n === 1 ? '' : 's') +
+        ' on ' + Object.keys(perPage).length + ' page' + (Object.keys(perPage).length === 1 ? '' : 's')
+    btnSave.disabled = n === 0
+    btnDiscard.disabled = n === 0
+    return n
+  }
+
+  function say (msg, ms) {
+    noteEl.textContent = msg; noteEl.hidden = false
+    if (noteTimer) clearTimeout(noteTimer)
+    noteTimer = setTimeout(function () { noteEl.hidden = true }, ms || 4200)
+  }
+
+  // ---------- navigation ----------
+  function markSeen (slug) {
+    var seen = store(SEEN, {})
+    seen[slug] = Date.now()
+    put(SEEN, seen); put(LAST, slug); paintSeen()
+  }
+
+  function paintSeen () {
+    var seen = store(SEEN, {})
+    var unread = 0
+    Array.prototype.forEach.call(navEl.querySelectorAll('.navlink'), function (a) {
+      var slug = a.getAttribute('data-slug')
+      a.classList.remove('unseen', 'stale')
+      var t = seen[slug]
+      if (!t) { a.classList.add('unseen'); unread++ }
+      else if ((Date.now() - t) / 86400000 > STALE_DAYS) { a.classList.add('stale'); unread++ }
+    })
+    var line = document.getElementById('unreadline')
+    line.textContent = unread === 0
+      ? 'All pages read recently.'
+      : unread + ' page' + (unread === 1 ? '' : 's') + ' needing a look.'
+  }
+
+  function show (slug) {
+    var target = document.getElementById('page-' + slug)
+    if (!target) { slug = 'to-do'; target = document.getElementById('page-to-do') }
+    Array.prototype.forEach.call(inner.querySelectorAll('.page'), function (p) { p.hidden = true })
+    target.hidden = false
+    Array.prototype.forEach.call(navEl.querySelectorAll('.navlink'), function (a) {
+      a.classList.toggle('on', a.getAttribute('data-slug') === slug)
+    })
+    window.scrollTo(0, 0)
+    markSeen(slug)
+    if (window.innerWidth <= 900) rail.setAttribute('data-open', 'no')
+  }
+
+  window.addEventListener('hashchange', function () {
+    show((location.hash || '').replace('#', '') || 'to-do')
+  })
+
+  // ---------- report ----------
+  function report (list) {
+    var line = new Array(65).join('=')
+    var thin = new Array(65).join('-')
+    var byPage = {}
+    list.forEach(function (c) { (byPage[c.slug] = byPage[c.slug] || []).push(c) })
+
+    var out = ['ADVISOR-E HANDBOOK — CHANGES', 'Saved: ' + new Date().toLocaleString(),
+      'Changes: ' + list.length + ' across ' + Object.keys(byPage).length + ' page(s)', '',
+      'Apply each to design/features/<page>.md', '']
+
+    Object.keys(byPage).forEach(function (slug) {
+      out.push(line)
+      out.push('PAGE: ' + (titles[slug] || slug) + '   (design/features/' + slug + '.md)')
+      out.push(line)
+      byPage[slug].forEach(function (c, i) {
+        out.push('')
+        out.push('CHANGE ' + (i + 1) + '  ·  under "' + c.where + '"')
+        out.push(thin)
+        out.push('BEFORE:'); out.push(c.was); out.push('')
+        out.push('AFTER:'); out.push(c.now)
+      })
+      out.push('')
+    })
+    out.push(line); out.push('End of changes.')
+    return out.join('\n')
+  }
+
+  function showFallback (text) {
+    document.getElementById('fallbackText').value = text
+    document.getElementById('fallback').hidden = false
+    document.getElementById('fallbackText').select()
+  }
+
+  /**
+   * Hands a file to the browser, or falls back to a copy-out box.
+   *
+   * Both saves on this page go through here — the prose edits and the ranking
+   * control — so a declined save, a save already open, or a viewer with no
+   * download capability behaves and reads the same in both places.
+   *
+   * @param {string} filename
+   * @param {string} text
+   * @param {string} kept  what to tell the reader is still safe if they cancel
+   * @returns {Promise} settles when the attempt is over, however it ended
+   */
+  function download (filename, text, kept) {
+    if (!window.claude || !window.claude.downloads) {
+      showFallback(text)
+      return Promise.resolve()
+    }
+    return window.claude.downloads.save({ filename: filename, data: text })
+      .then(function () { say('Saved as ' + filename + ' — tell Claude it is in your Downloads folder.', 7000) })
+      .catch(function (err) {
+        var code = (err && err.code) || 'unavailable'
+        if (code === 'declined') say('Save cancelled. ' + kept)
+        else if (code === 'rate_limited') say('A save is already open — finish that one, then try again.')
+        else showFallback(text)
+      })
+  }
+
+  function save () {
+    var list = changes()
+    if (!list.length) { say('Nothing has changed yet.'); return }
+    btnSave.disabled = true
+    download(FILENAME, report(list), 'Your edits are still here.')
+      .then(function () { btnSave.disabled = changes().length === 0 })
+  }
+
+  function setEditing (on) {
+    document.body.setAttribute('data-editing', on ? 'on' : 'off')
+    Array.prototype.forEach.call(inner.querySelectorAll('[data-eid]'), function (el) {
+      if (on) el.setAttribute('contenteditable', 'true'); else el.removeAttribute('contenteditable')
+    })
+    btnEdit.textContent = on ? 'Stop editing' : 'Edit'
+    btnSave.hidden = !on; btnDiscard.hidden = !on; countEl.hidden = !on
+    if (on) { paint(); say('Click any text and type. Edits are kept automatically, on every page.', 6000) }
+  }
+
+  btnEdit.addEventListener('click', function () {
+    setEditing(document.body.getAttribute('data-editing') !== 'on')
+  })
+  btnSave.addEventListener('click', save)
+  btnDiscard.addEventListener('click', function () {
+    if (!window.confirm('Undo every edit on every page and put the handbook back as it was?')) return
+    Object.keys(originals).forEach(function (eid) {
+      var el = inner.querySelector('[data-eid="' + CSS.escape(eid) + '"]')
+      if (el) el.innerHTML = originals[eid].html
+    })
+    try { localStorage.removeItem(STORE) } catch (e) {}
+    paint(); say('All edits undone.')
+  })
+
+  inner.addEventListener('paste', function (ev) {
+    if (document.body.getAttribute('data-editing') !== 'on') return
+    if (!ev.target.closest || !ev.target.closest('[data-eid]')) return
+    ev.preventDefault()
+    document.execCommand('insertText', false,
+      (ev.clipboardData || window.clipboardData).getData('text/plain'))
+  })
+
+  var t = null
+  inner.addEventListener('input', function (ev) {
+    if (!ev.target.closest || !ev.target.closest('[data-eid]')) return
+    if (t) clearTimeout(t)
+    t = setTimeout(function () { persist(); paint() }, 400)
+  })
+
+  // links to repo files are informational only
+  inner.addEventListener('click', function (ev) {
+    var a = ev.target.closest && ev.target.closest('a.filelink')
+    if (!a) return
+    ev.preventDefault()
+    say('That is a project file: ' + a.getAttribute('data-file'), 5000)
+  })
+
+  document.getElementById('filter').addEventListener('input', function (ev) {
+    var q = ev.target.value.toLowerCase().trim()
+    Array.prototype.forEach.call(navEl.querySelectorAll('.navlink'), function (a) {
+      a.hidden = q ? a.textContent.toLowerCase().indexOf(q) === -1 : false
+    })
+    Array.prototype.forEach.call(navEl.querySelectorAll('.navgroup'), function (g) {
+      var any = false, n = g.nextElementSibling
+      while (n && n.classList.contains('navlink')) { if (!n.hidden) any = true; n = n.nextElementSibling }
+      g.hidden = !any
+    })
+  })
+
+  document.getElementById('railtoggle').addEventListener('click', function () {
+    rail.setAttribute('data-open', rail.getAttribute('data-open') === 'yes' ? 'no' : 'yes')
+  })
+
+  // ---------- the ranking control, on the To-Do page ----------
+  // Built from design/mockups/to-do-list-table.html, the artefact Mike used to
+  // set the current order. Its items are design/features/to-do-items.json,
+  // carried into the page by the generator, and Save hands that same file back.
+  //
+  // 🔴 THE RULE, given by Mike on 2026-08-15: NOTHING LEAVES HIS SIGHT, IN ORDER
+  // OR ANYTHING ELSE, UNTIL HE PRESSES SAVE. A row does not move when he settles
+  // it, scores it, deletes nothing, or marks it a blocker. The only thing that
+  // ever reorders the list is Mike pressing a sort heading, and one click puts it
+  // back. What is on screen is exactly what Save writes.
+  //
+  // The first version sank settled rows to the bottom, inherited from the mockup
+  // — where every call had already been made before anyone looked at it. In real
+  // use it is precisely backwards: the moment you settle an item is the moment
+  // you need to type WHY, and the box you need has just jumped off the screen. He
+  // pressed Park, the row vanished, and he could not find it again. That is the
+  // whole reason the rule above exists.
+
+  var QUEUE_STORE = 'handbook-queue'
+  var QUEUE_FILE = 'to-do-items.json'
+  var LIVE = 'proceed'
+  var STATUSES = [['proceed', 'Proceed'], ['done', 'Done'], ['park', 'Park'], ['delete', 'Delete']]
+  var CATS = {
+    5: 'Security / data integrity', 4: 'User is worse off', 3: 'Helps sell the package',
+    2: 'Robustness', 1: 'Internal only', 0: 'Fails the test — delete it'
+  }
+  // The phrasing the data file already uses, so a score changed on screen writes
+  // what a hand-edit would have written.
+  var REASONS = {
+    5: 'security, privacy or data integrity', 4: 'the user is worse off',
+    3: 'sells the package', 2: 'robustness', 1: 'internal only', 0: 'fails the test'
+  }
+  /** Wording compared between his copy and the project's, to tell him it moved. */
+  var FACTS = ['name', 'why', 'risk', 'touches']
+
+  function el (tag, cls, text) {
+    var n = document.createElement(tag)
+    if (cls) n.className = cls
+    if (text !== undefined) n.textContent = text
+    return n
+  }
+
+  /**
+   * Today, where the reader is standing.
+   *
+   * NOT toISOString().slice(0, 10) — that is UTC. Mike is twelve hours ahead of
+   * it, so the first list he ever saved from this control, at 11:36 on the 15th,
+   * came back stamped the 14th. On this project the date on a record is what
+   * settles who decided what and when, so a day out is not cosmetic.
+   */
+  function today () {
+    function pad (n) { return (n < 10 ? '0' : '') + n }
+    var d = new Date()
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+  }
+
+  function queue () {
+    var mount = inner.querySelector('[data-queue]')
+    var island = document.getElementById('queuedata')
+    if (!mount || !island) return
+
+    var source
+    try { source = JSON.parse(island.textContent) } catch (e) { return }
+    if (!source || !source.items || !source.items.length) return
+
+    // What the PROJECT's list looks like — never touched by anything typed here.
+    var STAMP = (source.orderedByMikeOn || '') + '|' +
+      source.items.map(function (i) { return i.ref + '/' + i.score }).join(',')
+
+    function fresh (o) {
+      var copy = {}
+      Object.keys(o).forEach(function (k) { copy[k] = o[k] })
+      // askedBy is edited on screen; sharing the object would write through to
+      // the data island and quietly change what "the project's list" says.
+      copy.askedBy = {
+        who: (o.askedBy && o.askedBy.who) || '',
+        ours: !!(o.askedBy && o.askedBy.ours),
+        detail: (o.askedBy && o.askedBy.detail) || ''
+      }
+      copy.status = LIVE
+      copy.comment = ''
+      return copy
+    }
+
+    /**
+     * Puts this browser's work and the project's list together.
+     *
+     * There is NO CHOICE TO MAKE any more. The first version offered two buttons
+     * — "use the project's list" or "keep mine" — with no way to see what
+     * differed between them. Mike called that a mess waiting to happen and he was
+     * right: it is a decision with no information attached to it.
+     *
+     * The rule instead: NOTHING OF HIS IS EVER DISCARDED. His copy of an item
+     * wins, in his order. Items new to the project are appended and named. An
+     * item that has left the project is reported WITH his comment on it, so his
+     * words survive the item. Where the project's wording has moved on, he keeps
+     * his and is told.
+     *
+     * @returns {{items: Array, notes: Array<string>}}
+     */
+    function merge (projectItems, mine) {
+      var byRef = {}
+      projectItems.forEach(function (o) { byRef[o.ref] = o })
+
+      var notes = []
+      var out = []
+      var placed = {}
+
+      if (mine && mine.length) {
+        mine.forEach(function (item) {
+          var project = byRef[item.ref]
+          if (!project) {
+            var said = String(item.comment || '').trim()
+            notes.push('“' + item.name + '” (' + item.ref + ') has come off the list since you ' +
+              'last looked' + (said ? ' — what you wrote on it was: “' + said + '”' : '.'))
+            return
+          }
+          // Any field the project has and his copy does not — a field added
+          // since he saved — is carried across so nothing is left undefined.
+          Object.keys(project).forEach(function (k) {
+            if (item[k] === undefined) item[k] = project[k]
+          })
+          var moved = FACTS.filter(function (k) { return project[k] !== item[k] })
+          if (moved.length) {
+            notes.push('The project’s wording for ' + item.ref + ' has changed (' +
+              moved.join(', ') + '). Yours is what is on screen.')
+          }
+          out.push(item)
+          placed[item.ref] = true
+        })
+      }
+
+      projectItems.forEach(function (o) {
+        if (placed[o.ref]) return
+        if (mine && mine.length) {
+          notes.push('“' + o.name + '” (' + o.ref + ') is new since you last looked.')
+        }
+        out.push(fresh(o))
+      })
+
+      return { items: out, notes: notes }
+    }
+
+    var saved = store(QUEUE_STORE, null)
+    var joined = merge(source.items, saved && saved.items)
+    var items = joined.items
+    var notes = (saved && saved.stamp !== STAMP) ? joined.notes : []
+
+    /** His order before he pressed a sort heading, so one click restores it. */
+    var homeOrder = null
+    var sortedBy = null
+
+    function keep () { put(QUEUE_STORE, { stamp: STAMP, items: items }) }
+    function isLive (o) { return (o.status || LIVE) === LIVE }
+    function needsReason (o) { return !isLive(o) && !String(o.comment || '').trim() }
+
+    function editable (get, set, cls, placeholder) {
+      var d = el('div', cls)
+      d.contentEditable = 'true'
+      d.spellcheck = false
+      d.textContent = get()
+      if (placeholder) d.setAttribute('data-placeholder', placeholder)
+      d.addEventListener('input', function () { set(d.textContent); keep() })
+      return d
+    }
+
+    function fact (label, get, set, cls) {
+      var f = el('div', 'fact' + (cls ? ' ' + cls : ''))
+      f.appendChild(el('label', null, label))
+      f.appendChild(editable(get, set))
+      return f
+    }
+
+    // ── chrome, built once so typing never loses the caret ──
+    mount.textContent = ''
+
+    var noteBox = el('div', 'qnotes')
+    mount.appendChild(noteBox)
+
+    var bar = el('div', 'qbar')
+    var btnQueueSave = el('button', 'qbtn', 'Save the list')
+    var btnAdd = el('button', 'qbtn ghost', '+ Add an item')
+    var btnReset = el('button', 'qbtn quiet', 'Start again')
+    var counts = el('span', 'qcount')
+    bar.appendChild(btnQueueSave); bar.appendChild(btnAdd); bar.appendChild(btnReset)
+    bar.appendChild(counts)
+    mount.appendChild(bar)
+
+    var viewBox = el('div', 'qview')
+    viewBox.hidden = true
+    var viewWords = el('span')
+    var btnHome = el('button', 'qbtn ghost', 'Back to my order')
+    viewBox.appendChild(viewWords)
+    viewBox.appendChild(btnHome)
+    mount.appendChild(viewBox)
+
+    var legend = el('div', 'qlegend')
+    legend.innerHTML =
+      '<span class="chip c5">5 <i>security / data</i></span>' +
+      '<span class="chip c4">4 <i>user worse off</i></span>' +
+      '<span class="chip c3">3 <i>helps sell it</i></span>' +
+      '<span class="chip c2">2 <i>robustness</i></span>' +
+      '<span class="chip c1">1 <i>internal only</i></span>' +
+      '<span class="chip c0">0 <i>delete it</i></span>'
+    mount.appendChild(legend)
+
+    var wrap = el('div', 'qtablewrap')
+    var table = el('table')
+    table.innerHTML =
+      '<thead><tr>' +
+      '<th class="sortable" data-sort="rank">#<span class="arrow"> ▼</span></th>' +
+      '<th title="Blocks other work">Blk</th>' +
+      '<th>Item</th>' +
+      '<th class="sortable" data-sort="score">Score<span class="arrow"></span></th>' +
+      '<th>Your call</th>' +
+      '<th>Waiting on</th>' +
+      '<th class="sortable" data-sort="asked">Asked by<span class="arrow"></span></th>' +
+      '<th></th>' +
+      '</tr></thead>'
+    var tbody = el('tbody')
+    table.appendChild(tbody)
+    wrap.appendChild(table)
+    mount.appendChild(wrap)
+
+    // ── one row, which repaints itself in place and never moves ──
+    function row (item) {
+      var tr = el('tr', 'main')
+      var dr = el('tr', 'detail')
+
+      var tdRank = el('td', 'rank')
+      tr.appendChild(tdRank)
+
+      var tdLock = el('td', 'lockcell')
+      var lock = el('button', 'lock', '●')
+      lock.type = 'button'
+      tdLock.appendChild(lock)
+      tr.appendChild(tdLock)
+
+      var tdName = el('td')
+      tdName.appendChild(editable(
+        function () { return item.name },
+        function (v) { item.name = v }, 'name'))
+      tdName.appendChild(el('span', 'ref', 'item ' + item.ref))
+      tdName.appendChild(el('div', 'zero-warn', 'Scores 0 — this is deleted, not filed.'))
+      var reasonWarn = el('div', 'needs-reason',
+        'Say why, below — it cannot come off the list without a reason.')
+      tdName.appendChild(reasonWarn)
+      tr.appendChild(tdName)
+
+      var tdScore = el('td', 'scorecell')
+      var sel = el('select', 'score')
+      ;[5, 4, 3, 2, 1, 0].forEach(function (v) {
+        var o = el('option', null, String(v))
+        o.value = String(v)
+        if (v === item.score) o.selected = true
+        sel.appendChild(o)
+      })
+      tdScore.appendChild(sel)
+      var cat = el('span', 'cat')
+      tdScore.appendChild(cat)
+      tr.appendChild(tdScore)
+
+      var tdStatus = el('td', 'statuscell')
+      var st = el('select', 'status')
+      STATUSES.forEach(function (pair) {
+        var o = el('option', null, pair[1])
+        o.value = pair[0]
+        if (pair[0] === (item.status || LIVE)) o.selected = true
+        st.appendChild(o)
+      })
+      tdStatus.appendChild(st)
+      tr.appendChild(tdStatus)
+
+      var tdWho = el('td')
+      tdWho.appendChild(editable(
+        function () { return item.waitingOn },
+        function (v) { item.waitingOn = v }, 'who'))
+      tr.appendChild(tdWho)
+
+      var tdAsk = el('td')
+      tdAsk.appendChild(editable(
+        function () { return item.askedBy.who },
+        function (v) { item.askedBy.who = v },
+        'askedby' + (item.askedBy.ours ? ' ours' : '')))
+      tr.appendChild(tdAsk)
+
+      var tdDel = el('td')
+      var del = el('button', 'del', '×')
+      del.type = 'button'
+      del.title = 'Delete this item'
+      tdDel.appendChild(del)
+      tr.appendChild(tdDel)
+
+      // ── the expanded row ──
+      var dtd = el('td')
+      dtd.colSpan = 8
+      var facts = el('div', 'facts')
+
+      facts.appendChild(fact('Why it matters',
+        function () { return item.why }, function (v) { item.why = v }))
+      facts.appendChild(fact('What we risk if we don’t',
+        function () { return item.risk }, function (v) { item.risk = v }))
+      facts.appendChild(fact('What it touches',
+        function () { return item.touches }, function (v) { item.touches = v }))
+
+      // Three things the data carries that the mockup had no slot for. Dropping
+      // them would hide the field the list itself calls the one that matters.
+      var blocksFact = fact('What it blocks',
+        function () { return item.blocks || '' },
+        function (v) { item.blocks = v }, 'wide')
+      facts.appendChild(blocksFact)
+
+      facts.appendChild(fact(item.askedBy.ours ? 'Nobody outside asked — why it stays' : 'Who asked, and when',
+        function () { return item.askedBy.detail },
+        function (v) { item.askedBy.detail = v },
+        'wide' + (item.askedBy.ours ? ' ours' : '')))
+      if (item.note) {
+        facts.appendChild(fact('Note',
+          function () { return item.note }, function (v) { item.note = v }, 'wide'))
+      }
+
+      var cm = el('div', 'fact comment')
+      var cmLabel = el('label', null, 'Your comment')
+      cm.appendChild(cmLabel)
+      var cbox = editable(
+        function () { return item.comment || '' },
+        function (v) { item.comment = v; repaint(); tally() }, null,
+        'Type here — why it is wrong, what you want instead, or what you already did.')
+      cm.appendChild(cbox)
+      facts.appendChild(cm)
+
+      dtd.appendChild(facts)
+      dr.appendChild(dtd)
+
+      /** Everything about this row that depends on its own values. In place. */
+      function repaint () {
+        var live = isLive(item)
+        var call = item.status || LIVE
+
+        tr.setAttribute('data-score', String(item.score))
+        tr.setAttribute('data-status', call)
+        tr.classList.toggle('settled', !live)
+        dr.classList.toggle('settled', !live)
+
+        lock.setAttribute('aria-pressed', item.blocker ? 'true' : 'false')
+        lock.title = item.blocker
+          ? 'Blocks other work — click to clear'
+          : 'Does not block — click to mark as blocking'
+
+        sel.style.setProperty('--sfg', 'var(--s' + item.score + ')')
+        sel.style.setProperty('--sbg', 'var(--s' + item.score + '-bg)')
+        cat.textContent = CATS[item.score]
+
+        st.className = 'status st-' + call
+
+        blocksFact.hidden = !item.blocker
+        cmLabel.textContent = live
+          ? 'Your comment'
+          : 'Why you are marking it ' + call.charAt(0).toUpperCase() + call.slice(1)
+        reasonWarn.style.display = needsReason(item) ? 'block' : 'none'
+      }
+
+      // ── the handlers, none of which move anything ──
+      lock.addEventListener('click', function () {
+        item.blocker = !item.blocker
+        if (item.blocker && !item.blocks) item.blocks = ''
+        keep(); repaint(); tally()
+        if (item.blocker) blocksFact.querySelector('[contenteditable]').focus()
+      })
+
+      sel.addEventListener('change', function () {
+        item.score = Number(sel.value)
+        item.scoreReason = REASONS[item.score]
+        keep(); repaint(); tally()
+      })
+
+      st.addEventListener('change', function () {
+        item.status = st.value
+        keep(); repaint(); tally()
+        // The reason is wanted NOW, while he has it in his head — and the row
+        // has not moved, so the box is where he was already looking.
+        if (!isLive(item)) {
+          cbox.focus()
+          if (cbox.scrollIntoView) cbox.scrollIntoView({ block: 'nearest' })
+        }
+      })
+
+      del.addEventListener('click', function () {
+        if (!window.confirm('Delete “' + item.name + '” from the list?')) return
+        items.splice(items.indexOf(item), 1)
+        keep(); renderAll(); say('Deleted — not parked.')
+      })
+
+      repaint()
+      return { main: tr, detail: dr, repaint: repaint, rank: tdRank }
+    }
+
+    var built = []
+
+    /** Rebuilds the body. Called only when the ORDER or the SET changes. */
+    function renderAll () {
+      tbody.textContent = ''
+      built = items.map(function (item) {
+        var made = row(item)
+        tbody.appendChild(made.main)
+        tbody.appendChild(made.detail)
+        return made
+      })
+      built.forEach(function (made, i) { made.rank.textContent = String(i + 1) })
+      tally()
+      paintNotes()
+    }
+
+    /** The counts under the toolbar. Never touches the order. */
+    function tally () {
+      var live = items.filter(isLive)
+      var owed = items.filter(needsReason).length
+      counts.innerHTML =
+        '<b>' + live.length + '</b> to proceed · ' +
+        '<b>' + live.filter(function (i) { return i.blocker }).length + '</b> blocking · ' +
+        '<b>' + live.filter(function (i) { return /mike/i.test(i.waitingOn) }).length + '</b> need you · ' +
+        '<b>' + (items.length - live.length) + '</b> settled by you' +
+        (owed ? ' · <b class="owed">' + owed + '</b> still need a reason' : '')
+    }
+
+    function paintNotes () {
+      noteBox.textContent = ''
+      noteBox.hidden = !notes.length
+      if (!notes.length) return
+
+      noteBox.appendChild(el('b', null, 'What has changed in the project since you last looked'))
+      var ul = el('ul')
+      notes.forEach(function (n) { ul.appendChild(el('li', null, n)) })
+      noteBox.appendChild(ul)
+      noteBox.appendChild(el('span', 'quiet-note',
+        'Nothing of yours was changed or thrown away. This is only so you know.'))
+      var okBar = el('div', 'qbar')
+      var ok = el('button', 'qbtn ghost', 'Got it')
+      ok.addEventListener('click', function () { notes = []; keep(); paintNotes() })
+      okBar.appendChild(ok)
+      noteBox.appendChild(okBar)
+    }
+
+    // ── sorting is the ONLY thing that reorders, and only when he asks ──
+    var COMPARE = {
+      score: function (a, b) { return (b.score - a.score) || (b.blocker - a.blocker) },
+      asked: function (a, b) {
+        return (b.askedBy.ours - a.askedBy.ours) || (b.blocker - a.blocker) || (b.score - a.score)
+      },
+      rank: null
+    }
+
+    function paintView () {
+      viewBox.hidden = !sortedBy
+      if (sortedBy) {
+        viewWords.textContent = sortedBy === 'score'
+          ? 'Sorted by score. This is not your ranking — press Save and this order is what gets written.'
+          : 'Sorted by who asked. This is not your ranking — press Save and this order is what gets written.'
+      }
+      Array.prototype.forEach.call(table.querySelectorAll('th.sortable'), function (th) {
+        th.querySelector('.arrow').textContent =
+          th.getAttribute('data-sort') === (sortedBy || 'rank') ? ' ▼' : ''
+      })
+    }
+
+    Array.prototype.forEach.call(table.querySelectorAll('th.sortable'), function (th) {
+      th.addEventListener('click', function () {
+        var key = th.getAttribute('data-sort')
+        if (key === 'rank') { backHome(); return }
+        if (!homeOrder) { homeOrder = items.map(function (i) { return i.ref }) }
+        items = items.slice().sort(COMPARE[key])
+        sortedBy = key
+        keep(); renderAll(); paintView()
+      })
+    })
+
+    function backHome () {
+      if (!homeOrder) { sortedBy = null; paintView(); return }
+      var at = {}
+      homeOrder.forEach(function (ref, i) { at[ref] = i })
+      items = items.slice().sort(function (a, b) {
+        var x = at[a.ref] === undefined ? 9999 : at[a.ref]
+        var y = at[b.ref] === undefined ? 9999 : at[b.ref]
+        return x - y
+      })
+      homeOrder = null
+      sortedBy = null
+      keep(); renderAll(); paintView()
+      say('Back to your order.')
+    }
+
+    btnHome.addEventListener('click', backHome)
+
+    // ── the toolbar ──
+    btnAdd.addEventListener('click', function () {
+      items.push(fresh({
+        ref: 'new', name: 'Name the item', score: 3, scoreReason: REASONS[3],
+        blocker: false, blocks: null, waitingOn: 'Us',
+        why: 'Why does this matter?',
+        risk: 'What do we lose by not doing it? If nothing, score it 0.',
+        askedBy: { who: 'us', ours: true, detail: 'Name a requester, or delete it.' },
+        touches: 'What else moves if this moves?',
+        note: null
+      }))
+      keep(); renderAll()
+      if (built.length) { built[built.length - 1].main.querySelector('.name').focus() }
+    })
+
+    btnReset.addEventListener('click', function () {
+      // The mockup discarded immediately. Here it asks first: what is thrown
+      // away is Mike's own calls, and they exist nowhere else until he saves.
+      if (!window.confirm('Throw away every score, call and comment on this screen and start from the project’s list?')) return
+      items = source.items.map(fresh)
+      homeOrder = null; sortedBy = null; notes = []
+      keep(); renderAll(); paintView(); say('Back to the project’s list.')
+    })
+
+    btnQueueSave.addEventListener('click', function () {
+      var owed = items.filter(needsReason)
+      var out = {
+        _savedFromTheHandbook: [
+          'Saved from the Handbook ranking control on ' + today() + '.',
+          '',
+          'ARRAY ORDER IS THE ORDER ON SCREEN, exactly as Mike left it.',
+          '',
+          '`yourCall` and `yourComment` are HIS decisions, not part of the committed',
+          'schema. Apply them with `npm run to-do -- <this file>`, which refuses to',
+          'remove a settled item until its closure is written on',
+          'to-do-done-and-parked.md, and strips both keys when it does.'
+        ],
+        _readme: source._readme,
+        orderedByMikeOn: today(),
+        orderSource: 'the Handbook ranking control',
+        items: items.map(function (o) {
+          return {
+            ref: o.ref,
+            name: o.name,
+            score: o.score,
+            scoreReason: REASONS[o.score] || o.scoreReason,
+            blocker: !!o.blocker,
+            blocks: o.blocks || null,
+            waitingOn: o.waitingOn,
+            why: o.why,
+            risk: o.risk,
+            askedBy: o.askedBy,
+            touches: o.touches,
+            note: o.note || null,
+            phases: o.phases,
+            yourCall: o.status || LIVE,
+            yourComment: o.comment || ''
+          }
+        })
+      }
+      btnQueueSave.disabled = true
+      download(QUEUE_FILE, JSON.stringify(out, null, 2), 'Your list is still on screen.')
+        .then(function () {
+          btnQueueSave.disabled = false
+          if (owed.length) {
+            say(owed.length + ' item' + (owed.length === 1 ? '' : 's') + ' you settled ' +
+              'carr' + (owed.length === 1 ? 'ies' : 'y') + ' no reason: ' +
+              owed.map(function (o) { return o.ref }).join(', ') + '. Saved anyway.', 9000)
+          }
+        })
+    })
+
+    renderAll()
+    paintView()
+    if (notes.length) say('Some things changed in the project since you last looked. Nothing of yours was touched.', 8000)
+  }
+
+  // ---------- boot ----------
+  restore()
+  queue()
+  paintSeen()
+  document.body.setAttribute('data-editing', 'off')
+  show((location.hash || '').replace('#', '') || store(LAST, 'to-do'))
+  if (changes().length) {
+    countEl.hidden = false; paint()
+    say('Your earlier edits are still here. Press Edit to carry on.', 6000)
+  }
+})()
+</script>

@@ -266,6 +266,9 @@ recommended sequence, not a mandate.
   change** — CLAUDE.md, LIVE-APP rule. It applies on this branch exactly as on any other.
 - **Start with `/startup`, end with `/shutdown`.** Merge `master` in at the start of each
   session; push only this branch; reach `master` by pull request.
-- **The dev server belongs to Mike.** Never start, stop or restart it — ask him to.
-- **Say what is unverified.** The test suite cannot see a screen. If a change is only
-  provable by eye, name the screen and say a human has to look.
+- **Start the app yourself when seeing it would answer the question** — `npm run go`. This
+  line used to say the opposite; it was withdrawn by Mike (2026-08-03, restated 2026-08-14)
+  and no such rule was ever his. See WORKING-AGREEMENT: *The running application — who owns it*.
+- **Say what is unverified.** The test suite cannot see a screen — and it does not start the
+  server either, so a green suite is no evidence the app boots. If a change is only provable
+  by eye, open it and look; if you genuinely could not, name the screen and say so.

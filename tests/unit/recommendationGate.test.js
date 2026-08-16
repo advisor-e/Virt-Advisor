@@ -180,12 +180,19 @@ describe('the corpus — what the real trees emit today', () => {
     expect(leaks).toEqual([])
   })
 
-  it('delivers 27 branches whole and 14 in part, and withholds 14 entirely', () => {
+  it('delivers 34 branches whole and 8 in part, and withholds 13 entirely', () => {
     // A SNAPSHOT, AND IT IS MEANT TO MOVE. Every withheld branch is waiting on a
     // name being settled on the Template Check screen and applied to the tables.
     // When that happens this test fails and the number it names is the number of
     // instructions that started reaching advisors — which is the point of
     // recording it. Adjust it deliberately; never delete it.
+    //
+    // MOVED 2026-08-15, and this is exactly the event the note above describes.
+    // Mike named the page behind the seven Get-the-Job Seminar branches —
+    // "Design & Deliver" — and they went from 1 withheld + 6 partial to 7 whole:
+    //   27 / 14 / 14  →  34 / 8 / 13
+    // Seven instructions started reaching advisors that day. **21 branches still
+    // lose text and nobody has ruled on them yet.**
     let full = 0
     let partial = 0
     let withheld = 0
@@ -194,7 +201,7 @@ describe('the corpus — what the real trees emit today', () => {
       if (!out) { withheld++ } else if (out === node.recommendation.trim()) { full++ } else { partial++ }
     }
     expect(recommendationNodes.length).toBe(55)
-    expect({ full, partial, withheld }).toEqual({ full: 27, partial: 14, withheld: 14 })
+    expect({ full, partial, withheld }).toEqual({ full: 34, partial: 8, withheld: 13 })
   })
 })
 
@@ -207,15 +214,16 @@ describe('GUARD — no tree field may be silently dropped again', () => {
     id: 'structural — identifies the node to the walker',
     next_node: 'structural — a single-successor link, followed by the walker',
     stage: 'structural — the walker\'s position in a staged tree',
-    next_stage: 'structural — the walker\'s next position',
-    // ⚠ NOT structural. This is a real instruction on one node
-    // (profitability_feasibility/pf_awareness) that reaches the AI nowhere: "Do
-    // not use Trial Fit on an unaware client — it will cause map shock." It is
-    // the SAME defect as `recommendation`, found by this guard the day it was
-    // written, and it is listed here rather than fixed because emitting a new
-    // field into live prompts is Mike's call, not a developer's. Raised with him
-    // 2026-08-12.
-    advisor_note: 'AWAITING MIKE — a dropped instruction, not a structural field'
+    next_stage: 'structural — the walker\'s next position'
+    // `advisor_note` WAS LISTED HERE, and it is the entry that justified the
+    // whole guard: a real instruction on profitability_feasibility/pf_awareness
+    // reaching the AI nowhere, found by this test the day it was written and
+    // left listed because emitting a new field into live prompts is Mike's call.
+    // He made it on 2026-08-16 — send it, and send the reasoning with it. The
+    // field is emitted by formatNodeForPrompt and pinned by
+    // tests/unit/deliveryMethodContext.test.js. Removed from this list rather
+    // than reworded, because a wired-up field left here would quietly license
+    // the next silent drop.
   }
 
   it('the list of unemitted fields is honest — every one is really in the data', () => {
@@ -273,12 +281,14 @@ describe('GUARD — no tree field may be silently dropped again', () => {
       templates_if_unsure: ['6 Hats'],
       support_templates: ['Quality Decisions'],
       notes: 'MARKER_NOTES',
+      advisor_note: 'MARKER_ADVISOR_NOTE',
       branches: [{ answer_pattern: 'MARKER_PATTERN', next_node: 'target' }]
     }
     const out = formatNodeForPrompt(node, [target])
     for (const marker of [
       'MARKER_BRANCH', 'MARKER_CONDITION', 'MARKER_GATE', 'MARKER_ACTION',
       'marker_recommendation', 'MARKER_QUESTION', 'MARKER_SALES', 'MARKER_NOTES',
+      'MARKER_ADVISOR_NOTE',
       'MARKER_PATTERN', 'Stock Policies', '6 Hats', 'Quality Decisions'
     ]) {
       expect(out).toContain(marker)

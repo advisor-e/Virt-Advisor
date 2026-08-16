@@ -13,11 +13,18 @@
  *   - staircase-overrides -> the firm's edits, keyed by the as-* id they replace (object)
  *   - staircase-own       -> steps the firm added itself                       (array)
  *   - advisory-staircase  -> UNCHANGED, and still the home of defaultCeiling
+ *                           and selectorPrompt
  *
  * WHY defaultCeiling STAYS WHERE IT IS. The mechanism is for a LIST OF ROWS inherited
  * from above, where "switch this one off" and "add your own" mean something.
  * defaultCeiling is a single setting — the same reason Currency was ruled out of the
  * mechanism entirely. Forcing it through would be cargo-cult consistency.
+ *
+ * selectorPrompt joins it on the same reasoning (2026-08-16, item 4.16 E). It is the
+ * one sentence an advisor is asked before choosing a step — a single setting, not a
+ * row — and it was authored in data/advisory-staircase.json from the start while the
+ * engine asked a hardcoded copy of it, so no tier's edit ever reached an advisor.
+ * design/STAIRCASE-SELECTOR-PROMPT-FIELD.md.
  *
  * Both the advisor engine and the Firm Manager routes read through this one function,
  * so the management screen and the advisor session can never disagree about what a
@@ -247,11 +254,14 @@ function adaptLegacyWholeConfig (baseSteps, legacyConfig, ownPrefix = FIRM_STEP_
  * @param {Function} loadFirmConfig - async (firmId, key) => stored value
  * @param {Array<Object>} [baseSteps] - platform steps, used only by the legacy adapter
  * @returns {Promise<{declinedIds: string[], overrides: Object, ownRows: Array,
- *   defaultCeiling: (string|null), fromLegacy: boolean}>} `defaultCeiling` is null when
- *   the firm has not set one — the caller then keeps the platform's.
+ *   defaultCeiling: (string|null), selectorPrompt: (string|null), fromLegacy: boolean}>}
+ *   `defaultCeiling` and `selectorPrompt` are null when the firm has not set one — the
+ *   caller then keeps the platform's.
  */
 async function loadFirmStaircaseState (firmId, loadFirmConfig, baseSteps) {
-  const none = { declinedIds: [], overrides: {}, ownRows: [], defaultCeiling: null, fromLegacy: false }
+  const none = {
+    declinedIds: [], overrides: {}, ownRows: [], defaultCeiling: null, selectorPrompt: null, fromLegacy: false
+  }
   if (!firmId) { return none }
 
   const declines = await _load(loadFirmConfig, firmId, CONFIG_KEYS.declines, DEV_FILES.declines, [])
@@ -265,6 +275,13 @@ async function loadFirmStaircaseState (firmId, loadFirmConfig, baseSteps) {
     ownRows: Array.isArray(own) ? own : [],
     defaultCeiling: (settings && typeof settings === 'object' && typeof settings.defaultCeiling === 'string')
       ? settings.defaultCeiling
+      : null,
+    // Trimmed and required to be non-empty: whitespace stored here would ask the
+    // advisor a blank question, and a blank question is worse than the platform's.
+    // An empty value therefore reads as "this tier has not set one" and inherits.
+    selectorPrompt: (settings && typeof settings === 'object' &&
+      typeof settings.selectorPrompt === 'string' && settings.selectorPrompt.trim())
+      ? settings.selectorPrompt.trim()
       : null,
     fromLegacy: false
   }

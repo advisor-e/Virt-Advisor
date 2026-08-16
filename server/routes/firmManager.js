@@ -1405,6 +1405,19 @@ const STAIRCASE_CEILINGS = new Set(
   BASE_STAIRCASE.steps.map(s => s.complexityCeiling).concat(BASE_STAIRCASE.defaultCeiling)
 )
 
+/**
+ * Length cap on the staircase question a tier may write (item 4.16 E).
+ *
+ * The platform's own sentence is 88 characters. This is not a formatting preference:
+ * the value is put to the advisor as a question and travels into the advisor prompt,
+ * so an unbounded field is a place to paste an essay — or an instruction — into every
+ * session that tier runs. A cap does not make the field safe on its own (any tier that
+ * can edit it is already trusted with step names and descriptions, which reach the same
+ * place), it bounds the blast radius of a mistake.
+ * @type {number}
+ */
+const SELECTOR_PROMPT_MAX = 500
+
 function _devReadStaircase (firmId) {
   try {
     const all = JSON.parse(fs.readFileSync(DEV_STAIRCASE_FILE, 'utf8'))
@@ -1451,6 +1464,18 @@ function _validateStaircase (cfg) {
   }
   if (cfg.steps !== undefined && (!Array.isArray(cfg.steps) || cfg.steps.length === 0)) {
     return 'steps must be a non-empty array'
+  }
+  // selectorPrompt is OPTIONAL on every shape (item 4.16 E). A body that omits it is
+  // saying nothing about it, which must not wipe a value already stored — the ceiling
+  // controls and this field share one key and one Save button, and the frontend sends
+  // both together, but a hand-made request need not.
+  if (cfg.selectorPrompt !== undefined) {
+    if (typeof cfg.selectorPrompt !== 'string' || !cfg.selectorPrompt.trim()) {
+      return 'selectorPrompt must be a non-empty string'
+    }
+    if (cfg.selectorPrompt.trim().length > SELECTOR_PROMPT_MAX) {
+      return `selectorPrompt must be ${SELECTOR_PROMPT_MAX} characters or fewer`
+    }
   }
   if (cfg.steps === undefined) {
     return STAIRCASE_CEILINGS.has(cfg.defaultCeiling)
@@ -1709,6 +1734,10 @@ async function getStaircase (req, res) {
       state,
       resolved: resolved.steps,
       defaultCeiling: resolved.defaultCeiling,
+      // The RESOLVED question, not this tier's own stored value: a firm that has not
+      // written one must see the sentence its advisors are actually asked, which is
+      // the mentor's. Showing an empty box there would read as "nobody has set this".
+      selectorPrompt: resolved.selectorPrompt,
       driftIds,
       hasOverride: firmOverride !== null ||
         state.declinedIds.length > 0 ||
@@ -2934,7 +2963,27 @@ async function getDomainSupportDetail (req, res) {
     const overrides = await _loadFirmDomainSupportMapRaw(req.firmId)
     const override = overrides[domainId] || null
     const merged = domainSupport.resolveDomainSupport(domainId, override ? { [domainId]: override } : null)
-    res.send(200, merged || {})
+    if (!merged) { return res.send(200, {}) }
+    // Which diagnostic situations the PLATFORM authored (item 4.16 A+B). The
+    // merged entry cannot say: the stored override merges key-by-key onto the
+    // platform's, so a firm's own situation and an inherited one look identical
+    // by the time they arrive here.
+    //
+    // The screen needs the difference for two reasons. A platform situation's
+    // name is READ-ONLY — the key is the identity its guidance is filed under,
+    // so renaming it would repoint the content. And a platform situation cannot
+    // be REMOVED, because a merge puts it straight back on the next load; the
+    // screen must not offer a button that does nothing.
+    const base = domainSupport.resolveDomainSupport(domainId, null)
+    const baseEntry = (base && base.diagnostic_entry) || {}
+    res.send(200, Object.assign({}, merged, {
+      platformSituationKeys: Object.keys(baseEntry).filter(k => k !== 'primary_question'),
+      // Which framework rows on this domain have a method guide behind them (item
+      // 4.16 F). Sent with the detail rather than fetched separately so a row and
+      // its control can never render out of step with each other.
+      guides: require('../utils/methodGuides').guidesForDomain(domainId)
+        .map(g => Object.assign({}, g, { alsoUsedBy: g.alsoUsedBy.map(_domainLabel) }))
+    }))
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
@@ -3019,6 +3068,270 @@ async function restoreDomainSupport (req, res) {
     await _restoreDomainSupportVersion(req.firmId, domainId, version, req.userEmail)
     res.send(200, { restored: true, domainId, version })
   } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+// ── Method guides (item 4.16 F) ──────────────────────────────────────────────
+//
+// The thirteen deep method guides that go to the AI whenever an advisor is coached
+// — 155,000 characters of authored method that appeared on NO screen at any tier
+// until now, and 116 lines of which reached no prompt either (see the header of
+// server/utils/methodGuides.js for how that was measured).
+//
+// Approved artefact: design/METHOD-GUIDES-SCREEN.md + design/mockups/method-guides.html.
+//
+// WHO SEES IT — the same tiers as the materials table each guide opens from (Mike,
+// 2026-08-17). That needs no gate of its own here: these routes sit behind the same
+// `fmGuard` as the domain-support routes above, and the tab renders at every scope,
+// so the guide inherits the materials table's audience by construction rather than
+// by a second list of tier names that could drift from it.
+//
+// STORED PER GUIDE, NOT PER DOMAIN. Three of the thirteen are shown on two domain
+// pages; keying storage by domain would let the same document say two different
+// things, which is exactly what the on-screen "an edit here changes it there too"
+// line promises it will not do.
+
+const methodGuides = require('../utils/methodGuides')
+const { loadResolvedGuideOverrides } = require('../utils/methodGuideConfig')
+
+const DEV_METHOD_GUIDES_FILE = path.resolve(__dirname, '../../data/dev-firm-method-guides.json')
+
+/**
+ * A domain-support id rendered for a person. `domains.json` carries the labels for
+ * the advisory domains; the seller-facing `get-*` files have no row there, so they
+ * are prettified the same way the rail does it.
+ * @param {string} id
+ * @returns {string}
+ */
+function _domainLabel (id) {
+  const domains = require('../../data/domains.json') || []
+  const row = domains.find(d => d && d.id === id)
+  if (row && row.label) { return row.label }
+  return String(id || '').replace(/^get-/, '').replace(/-/g, ' ')
+}
+
+/**
+ * This scope's own raw method-guide override map, for reading and writing — one
+ * level only, so a save writes what this scope typed and never re-saves what it
+ * merely inherited. Missing / malformed → {}.
+ * @param {string} scopeId - authenticated scope id (never client-supplied)
+ * @returns {Promise<Object>}
+ */
+async function _loadMethodGuideMapRaw (scopeId) {
+  try {
+    const v = await overlay.loadFirmConfig(scopeId, CONTENT_CONFIG_KEYS.methodGuides)
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
+  } catch (err) {
+    if (devFallbackOk(err)) {
+      try {
+        const all = JSON.parse(fs.readFileSync(DEV_METHOD_GUIDES_FILE, 'utf8'))
+        return (all[scopeId] && typeof all[scopeId] === 'object' && !Array.isArray(all[scopeId])) ? all[scopeId] : {}
+      } catch { return {} }
+    }
+    throw err
+  }
+}
+
+/**
+ * Persist this scope's whole method-guide override map. Production goes through the
+ * overlay store (version history + restore for free); development writes the
+ * gitignored JSON the engines fall back to.
+ * @param {string} scopeId
+ * @param {Object} map - { guideId: sparse override }
+ * @param {string} savedBy - userEmail
+ * @returns {Promise<number|null>} the new version, or null in development
+ */
+async function _saveMethodGuideMap (scopeId, map, savedBy) {
+  try {
+    return await overlay.saveFirmConfig(scopeId, CONTENT_CONFIG_KEYS.methodGuides, map, savedBy)
+  } catch (err) {
+    if (devFallbackOk(err)) {
+      let all = {}
+      try { all = JSON.parse(fs.readFileSync(DEV_METHOD_GUIDES_FILE, 'utf8')) } catch {}
+      all[scopeId] = map
+      fs.writeFileSync(DEV_METHOD_GUIDES_FILE, JSON.stringify(all, null, 2))
+      return null
+    }
+    throw err
+  }
+}
+
+/**
+ * The guide as this scope should see it: platform content resolved through every
+ * tier above, then this scope's own edits.
+ * @param {string} scopeId
+ * @param {string} guideId
+ * @returns {Promise<{content: Object|null, inherited: Object|null, own: Object|null}>}
+ */
+async function _resolveGuideForScope (scopeId, guideId) {
+  const resolved = await loadResolvedGuideOverrides(scopeId, overlay.loadFirmConfig)
+  const own = await _loadMethodGuideMapRaw(scopeId)
+  return {
+    content: methodGuides.resolveGuide(guideId, resolved),
+    resolved,
+    own
+  }
+}
+
+/**
+ * GET /api/firm-manager/method-guides — which guides exist, where each one opens
+ * from, and whether this scope has reworded it.
+ *
+ * The screen needs the whole list rather than one domain's, because Facilitation
+ * 101 belongs to no domain at all: it is the standing entry above the domains
+ * (Mike's ruling 2026-08-17, §6d).
+ */
+async function getMethodGuides (req, res) {
+  try {
+    const own = await _loadMethodGuideMapRaw(req.firmId)
+    res.send(200, {
+      guides: methodGuides.GUIDES.map(g => ({
+        id: g.id,
+        label: g.label,
+        standing: g.standing,
+        rows: g.rows.map(r => ({ domain: r.domain, domainLabel: _domainLabel(r.domain), material: r.material })),
+        origin: Object.prototype.hasOwnProperty.call(own, g.id) ? 'firm' : 'platform'
+      }))
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/method-guides/:guideId — one guide, walked into the
+ * sections the screen renders.
+ *
+ * 🔴 THE SCREEN IS SERVED FROM THE SAME WALK AS THE PROMPT (methodGuides.walkGuide),
+ * not from a second description of the same file. That is the whole point of the
+ * item: a screen built from its own list of fields would show a firm text the AI
+ * does not receive, and imply that it does.
+ */
+async function getMethodGuideDetail (req, res) {
+  const { guideId } = req.params
+  const guide = methodGuides.GUIDE_BY_ID[guideId]
+  if (!guide) {
+    return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Method guide not found' } })
+  }
+  try {
+    const { content, own } = await _resolveGuideForScope(req.firmId, guideId)
+    if (!content) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Method guide content unavailable' } })
+    }
+    res.send(200, {
+      id: guide.id,
+      label: guide.label,
+      standing: guide.standing,
+      description: typeof content.description === 'string' ? content.description : '',
+      // BOTH the walk and the content it was walked from. The walk carries the
+      // structure, the labels and the order — everything the screen draws. The
+      // content is what an edit is written back into, addressed by each node's
+      // `path`, so a saved value can never land on a different line from the box it
+      // was typed in.
+      sections: methodGuides.walkGuide(content),
+      content,
+      origin: Object.prototype.hasOwnProperty.call(own, guideId) ? 'firm' : 'platform',
+      rows: guide.rows.map(r => ({ domain: r.domain, domainLabel: _domainLabel(r.domain), material: r.material }))
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/method-guides/:guideId — save this scope's wording.
+ *
+ * The body is the WHOLE edited guide (`{ content }`); the route reduces it to the
+ * smallest override that reproduces it, so a scope that rewords one sentence stores
+ * one sentence and keeps inheriting every other line — including later platform
+ * corrections to them.
+ *
+ * 🔴 STRUCTURE IS FIXED; WORDS ARE EDITABLE. validateGuideOverride refuses an added
+ * key, a removed one, a changed type or a changed array length, and says which
+ * position was wrong. A firm may reword any line; adding or removing a stage is
+ * authoring a method, which is the mentor's work in the data file.
+ */
+async function saveMethodGuide (req, res) {
+  const { guideId } = req.params
+  const guide = methodGuides.GUIDE_BY_ID[guideId]
+  if (!guide) {
+    return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Method guide not found' } })
+  }
+
+  const content = req.body && req.body.content
+  if (!content || typeof content !== 'object' || Array.isArray(content)) {
+    return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: 'content must be an object' } })
+  }
+
+  try {
+    // Validated against the PLATFORM base, not against what this scope currently
+    // sees: the inherited copy is itself an override, and validating against it
+    // would let two small edits, each legal on the last, walk the shape away from
+    // the file the walker reads.
+    const base = methodGuides.loadGuideBase(guideId)
+    if (!base) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Method guide content unavailable' } })
+    }
+    const check = methodGuides.validateGuideOverride(base, content, [])
+    if (!check.ok) {
+      return res.send(400, { success: false, error: { code: 'INVALID_SHAPE', message: check.reason } })
+    }
+
+    const map = await _loadMethodGuideMapRaw(req.firmId)
+    const sparse = methodGuides.sparseOverride(base, content)
+    if (sparse === undefined) {
+      // Edited back to the platform wording — that is a reset, not an empty save.
+      delete map[guideId]
+    } else {
+      map[guideId] = sparse
+    }
+    const version = await _saveMethodGuideMap(req.firmId, map, req.userEmail)
+    res.send(200, { saved: true, version, guideId, origin: sparse === undefined ? 'platform' : 'firm' })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * DELETE /api/firm-manager/method-guides/:guideId — drop this scope's wording for
+ * one guide and go back to what it inherits. Every other guide is left alone.
+ */
+async function resetMethodGuide (req, res) {
+  const { guideId } = req.params
+  if (!methodGuides.GUIDE_BY_ID[guideId]) {
+    return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Method guide not found' } })
+  }
+  try {
+    const map = await _loadMethodGuideMapRaw(req.firmId)
+    if (Object.prototype.hasOwnProperty.call(map, guideId)) {
+      delete map[guideId]
+      await _saveMethodGuideMap(req.firmId, map, req.userEmail)
+    }
+    res.send(200, { reset: true, guideId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/method-guides/:guideId/history — the saved versions of this
+ * scope's method-guide bundle. Bundle-level, not per-guide: every guide shares one
+ * stored bundle, the same caveat domain support and logic tables carry.
+ */
+async function getMethodGuideHistory (req, res) {
+  const { guideId } = req.params
+  try {
+    const [rows] = await db.execute(
+      `SELECT version, saved_by, created_at
+       FROM firm_framework_versions
+       WHERE firm_id = ? AND config_key = ?
+       ORDER BY version DESC`,
+      [req.firmId, CONTENT_CONFIG_KEYS.methodGuides]
+    )
+    res.send(200, { history: rows, guideId })
+  } catch (err) {
+    if (devFallbackOk(err)) { return res.send(200, { history: [], guideId }) }
     return serverError(res, 500, 'DB_ERROR', err)
   }
 }
@@ -3170,22 +3483,44 @@ function _thenFieldOf (node) {
  * tree uses: a branching `nodes` graph or a `flat_if_then` `branches` list. Each
  * node's `id` rides along so a later save can merge edits back by id and
  * preserve the node's hidden flow wiring (Slice B).
+ *
+ * STANDING RULES ride along too, tagged `kind: 'standing'` and appended last.
+ * A nodes-shaped table may hold rules that apply whichever stage the advisor is
+ * in, kept out of the walked graph in `flat_branches` — `public_speaking`'s two
+ * are the only ones today. They were invisible in both directions until item
+ * 4.16 C: this function read `nodes` OR `branches` and never the third array, so
+ * no screen showed them; `formatLogicTreeForPrompt` read `tree.branches`, empty
+ * on a nodes table, so no prompt carried them.
+ *
+ * `kind` is what the save path uses to send each row home to the array it came
+ * from — a standing rule written back into `nodes` would join the walk.
+ *
  * @param {Object} tree
- * @returns {Array<{id:string,branch_name:string,condition:string,action:string,notes:string}>}
+ * @returns {Array<{id:string,branch_name:string,condition:string,action:string,notes:string,kind:string}>}
  */
 function _treeBranchRows (tree) {
   const src = Array.isArray(tree.nodes)
     ? tree.nodes
     : (Array.isArray(tree.branches) ? tree.branches : [])
-  return src.map((n, i) => ({
+  const rows = src.map((n, i) => ({
     id: n.id || `row-${i}`,
     branch_name: n.branch_name || '',
     condition: n.condition || '',
     // The THEN column shows whichever field holds this node's instruction, and
     // _thenFieldOf is the single answer the save path uses too.
     action: n[_thenFieldOf(n)] || '',
-    notes: n.notes || ''
+    notes: n.notes || '',
+    kind: 'branch'
   }))
+  const standing = Array.isArray(tree.flat_branches) ? tree.flat_branches : []
+  return rows.concat(standing.map((n, i) => ({
+    id: n.id || `standing-${i}`,
+    branch_name: n.branch_name || '',
+    condition: n.condition || '',
+    action: n[_thenFieldOf(n)] || '',
+    notes: n.notes || '',
+    kind: 'standing'
+  })))
 }
 
 /**
@@ -3254,6 +3589,22 @@ async function getLogicTreeDetail (req, res) {
       // Logic-Lab asked a firm to add or remove trigger phrases while showing
       // them none of the ones already there, so every edit was made blind.
       entryTriggers: (merged.entry_triggers || []).map(String),
+      // The sentence an advisor is asked before any coaching starts, on the 13
+      // learn tables that have one (item 4.16 C). Null everywhere else, and the
+      // editor shows no box then — an empty field on a table the engine would
+      // never read it from reads as "nobody has set this", which is a lie.
+      //
+      // THE GATE HERE IS THE PROMPT'S GATE, deliberately: mode === 'learn' AND
+      // the field present, exactly as formatLogicTreeForPrompt tests it. Tying
+      // the two to the same condition is what stops a screen offering an edit
+      // that reaches nothing — the fault this whole item exists to close.
+      //
+      // RESOLVED, not this tier's own stored value: a firm that has written none
+      // must see the sentence its advisors are actually asked, which is the
+      // mentor's. `effectiveTrees` has already merged the override in above.
+      openingQuestion: (merged.mode === 'learn' && typeof merged.stage_entry_question === 'string')
+        ? merged.stage_entry_question
+        : null,
       branches: _treeBranchRows(merged)
     })
   } catch (err) {
@@ -3316,13 +3667,30 @@ async function _saveFirmLogicTreesMap (firmId, map, savedBy) {
  * carry the COMPLETE list — a sparse list would drop the untouched branches.
  *
  * @param {Object} baseTree - the platform tree (nodes- or flat_if_then-shaped)
- * @param {Array<{id?:string,branch_name?:string,condition?:string,action?:string,notes?:string}>} rows
- * @returns {{ key: 'nodes'|'branches', list: Array<Object> }}
+ * STANDING RULES (`flat_branches`) are split back out here, because a rule that
+ * holds whichever stage the advisor is in must not be written into the walked
+ * graph. A submitted row counts as standing ONLY when its id matches one the
+ * platform already authored there — which is both the scope rule (reword the
+ * standing rules; new rows are ordinary branches, per the approved artefact §3c)
+ * and the guard: a hand-made request cannot mint new `flat_branches` entries by
+ * setting `kind` itself.
+ *
+ * `standing` comes back null when the body is the OLD shape — no row carrying a
+ * `kind` at all. A client that does not know about the field must not silently
+ * wipe it; only a body that speaks the new shape is authoritative about it.
+ *
+ * @param {Array<{id?:string,branch_name?:string,condition?:string,action?:string,notes?:string,kind?:string}>} rows
+ * @returns {{ key: 'nodes'|'branches', list: Array<Object>, standing: Array<Object>|null }}
  */
 function _mergeBranchRows (baseTree, rows) {
   const usesNodes = Array.isArray(baseTree.nodes)
   const key = usesNodes ? 'nodes' : 'branches'
   const baseList = usesNodes ? baseTree.nodes : (baseTree.branches || [])
+  const baseStanding = Array.isArray(baseTree.flat_branches) ? baseTree.flat_branches : []
+  const standingById = new Map(baseStanding.map((n, i) => [n.id || `standing-${i}`, n]))
+  const speaksKind = (rows || []).some(r => r && typeof r.kind === 'string')
+  const isStanding = row => speaksKind && row && row.kind === 'standing' &&
+    typeof row.id === 'string' && standingById.has(row.id)
   // Key by the SAME display id the detail route assigns (_treeBranchRows:
   // n.id || `row-${i}`), so both graph `nodes` (real ids) and flat_if_then
   // branches (often id-less) round-trip and keep their hidden fields —
@@ -3338,7 +3706,7 @@ function _mergeBranchRows (baseTree, rows) {
   // with no error. So a generated id now dodges every id already spoken for —
   // every platform row, and every id the submitted rows arrived with (which is
   // how previously-saved firm rows keep theirs).
-  const taken = new Set(byId.keys())
+  const taken = new Set([...byId.keys(), ...standingById.keys()])
   for (const row of (rows || [])) {
     if (row && typeof row.id === 'string' && row.id) { taken.add(row.id) }
   }
@@ -3350,7 +3718,18 @@ function _mergeBranchRows (baseTree, rows) {
     return id
   }
 
-  const list = (rows || []).map((row) => {
+  const standingList = []
+  const list = (rows || []).filter((row) => {
+    // A standing rule goes home to `flat_branches`, keeping every field the
+    // platform authored (its `templates` included) and taking only the four
+    // edited columns.
+    if (!isStanding(row)) { return true }
+    const base = standingById.get(row.id)
+    const next = { ...base, branch_name: str(row.branch_name), condition: str(row.condition), notes: str(row.notes) }
+    next[_thenFieldOf(base)] = str(row.action)
+    standingList.push(next)
+    return false
+  }).map((row) => {
     const existing = row && row.id ? byId.get(row.id) : null
     if (existing) {
       // Reword in place: overwrite only the four editable fields, keep the rest
@@ -3373,12 +3752,27 @@ function _mergeBranchRows (baseTree, rows) {
       notes: str(row && row.notes)
     }
   })
-  return { key, list }
+  return { key, list, standing: (speaksKind && baseStanding.length > 0) ? standingList : null }
 }
 
 /**
+ * How long an opening question may be (item 4.16 C).
+ *
+ * The longest of the 13 the platform authored is 346 characters, so the Advisory
+ * Staircase's 500 (SELECTOR_PROMPT_MAX) would leave a tier only 154 characters of
+ * headroom on its own longest table — a cap that bites on legitimate editing is a
+ * cap people work around. 800 leaves room to rewrite and still bounds it: the
+ * value travels into the advisor prompt on every learn conversation that opens
+ * this table, so an unbounded field is a place to paste an essay, or an
+ * instruction, into every one of them.
+ * @type {number}
+ */
+const OPENING_QUESTION_MAX = 800
+
+/**
  * POST /api/firm-manager/logic-trees/:treeId — save the firm's edits to one
- * logic table. Body: { branches: [{id,branch_name,condition,action,notes}] }.
+ * logic table. Body: { branches: [{id,branch_name,condition,action,notes,kind}],
+ * openingQuestion?: string }.
  * The edits merge onto the SINGLE `logic-trees` bundle the advisor engine reads,
  * so a save reaches the AI (fenced — see logicTrees.formatLogicTreeForPrompt).
  */
@@ -3394,9 +3788,41 @@ async function saveLogicTree (req, res) {
     if (!base) {
       return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Logic table not found' } })
     }
-    const { key, list } = _mergeBranchRows(base, rows)
+
+    // The opening question is OPTIONAL. A body that omits it says nothing about
+    // it, which must not wipe a value already stored — the same rule the
+    // staircase question follows, and for the same reason: the field shares one
+    // Save button with the branch table, but a hand-made request need not send
+    // both.
+    //
+    // ⚠ ACCEPTED ONLY WHERE THE ENGINE WOULD READ IT — a learn table that already
+    // carries one. Anywhere else the editor shows no box, and accepting a value
+    // there would store an edit on a screen nobody can see it on, which is item
+    // 4.16 itself in miniature.
+    const question = req.body ? req.body.openingQuestion : undefined
+    if (question !== undefined) {
+      if (!(base.mode === 'learn' && typeof base.stage_entry_question === 'string')) {
+        return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: 'This logic table has no opening question' } })
+      }
+      if (typeof question !== 'string' || !question.trim()) {
+        return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: 'openingQuestion must be a non-empty string' } })
+      }
+      if (question.trim().length > OPENING_QUESTION_MAX) {
+        return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: `openingQuestion must be ${OPENING_QUESTION_MAX} characters or fewer` } })
+      }
+    }
+
+    const { key, list, standing } = _mergeBranchRows(base, rows)
     const map = await _loadFirmLogicTreesMapRaw(req.firmId)
-    map[treeId] = { [key]: list }
+    // Merge onto this table's EXISTING override rather than replacing it. The
+    // override now carries up to three things — the branch list, the standing
+    // rules and the opening question — and they are saved by controls that do not
+    // all have to be present in one request.
+    const prev = (map[treeId] && typeof map[treeId] === 'object' && !Array.isArray(map[treeId])) ? map[treeId] : {}
+    const override = { ...prev, [key]: list }
+    if (standing) { override.flat_branches = standing }
+    if (question !== undefined) { override.stage_entry_question = question.trim() }
+    map[treeId] = override
     const version = await _saveFirmLogicTreesMap(req.firmId, map, req.userEmail)
     res.send(200, { saved: true, version, treeId })
   } catch (err) {
@@ -3976,6 +4402,369 @@ async function acceptLogicLabIdea (req, res) {
   }
 }
 
+// ── Coaching Reference (item 4.9, the visible half) ───────────────────────────
+// The engine half shipped 2026-08-15 (server/utils/coachingConfig.js): the fifteen
+// rows in data/coaching-reference.json resolve down every tier through the one
+// firm-editable mechanism. Nothing could make a decision for it to resolve, because
+// there was no screen and no route. These are the routes.
+//
+// Deliberately modelled on the staircase handlers above, key for key, so the two
+// cannot drift. Two differences, both honest rather than incidental:
+//
+//   1. NO DRIFT BASELINE, so no Adopt / Keep mine. The staircase stamps a signature
+//      of the platform wording a firm edited against, and offers a review when that
+//      wording later changes. coachingConfig stores nothing equivalent, and a badge
+//      backed by no stamp is a light that can never come on. Approved as absent by
+//      Mike on 2026-08-15 against design/mockups/firm-coaching-reference.html.
+//   2. NO whole-config key and no history routes. The staircase's history belongs to
+//      its one scalar setting (defaultCeiling); the coaching block has no scalar.
+//
+// 🔴 THE KEY THIS SECTION MUST NEVER TOUCH: `coaching-reference`. It holds a firm's
+// PROMOTED CASE OBSERVATIONS — advisor free text about a real client, which reaches
+// the model FENCED. These routes write only coaching-declines / coaching-overrides /
+// coaching-own. See the header of server/utils/firmCoachingReference.js.
+
+const BASE_COACHING_ROWS = require('../../data/coaching-reference.json')
+const {
+  loadFirmCoachingState,
+  CONFIG_KEYS: COACHING_KEYS,
+  EDITABLE_COACHING_FIELDS,
+  ownCoachingPrefix
+} = require('../utils/firmCoachingReference')
+const { loadResolvedCoaching } = require('../utils/coachingConfig')
+
+const DEV_COACHING_DECLINES_FILE = path.resolve(__dirname, '../../data/dev-firm-coaching-declines.json')
+const DEV_COACHING_OVERRIDES_FILE = path.resolve(__dirname, '../../data/dev-firm-coaching-overrides.json')
+const DEV_COACHING_OWN_FILE = path.resolve(__dirname, '../../data/dev-firm-coaching-own.json')
+
+const COACHING_DEV_FILES = {
+  [COACHING_KEYS.declines]: DEV_COACHING_DECLINES_FILE,
+  [COACHING_KEYS.overrides]: DEV_COACHING_OVERRIDES_FILE,
+  [COACHING_KEYS.own]: DEV_COACHING_OWN_FILE
+}
+
+const PLATFORM_COACHING_IDS = new Set(BASE_COACHING_ROWS.map(r => r.id))
+
+/**
+ * The most scenarios one entry may carry, and the longest any single one may be.
+ *
+ * Not arbitrary tidiness: every field here is rendered into the prompt that chooses a
+ * template, so an unbounded array is an unbounded prompt. The platform's own widest
+ * entry has four scenarios, so twenty is far above any honest use and still bounded.
+ */
+const MAX_COACHING_SCENARIOS = 20
+const MAX_COACHING_SCENARIO_LENGTH = 500
+
+async function _loadCoachingPart (firmId, key, fallback) {
+  try {
+    const stored = await overlay.loadFirmConfig(firmId, key)
+    return (stored === null || stored === undefined) ? fallback : stored
+  } catch (err) {
+    if (devFallbackOk(err)) { return _devReadStaircasePart(COACHING_DEV_FILES[key], firmId, fallback) }
+    throw err
+  }
+}
+
+async function _saveCoachingPart (firmId, key, value, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, key, value, savedBy)
+  } catch (err) {
+    if (devFallbackOk(err)) { _devWriteStaircasePart(COACHING_DEV_FILES[key], firmId, value); return }
+    throw err
+  }
+}
+
+/**
+ * Accept only the fields a firm may edit on a coaching entry, in the types they must be.
+ *
+ * `template` is absent from EDITABLE_COACHING_FIELDS on purpose and is NOT accepted here
+ * for a platform row: the field names a template in the library, and letting a firm
+ * retitle an inherited row would leave the platform's id attached to guidance pointing
+ * somewhere else. firmCoachingReference.filterEditableFields strips it again on the read,
+ * so this is the first of two locks rather than the only one.
+ *
+ * @param {Object} body
+ * @param {{allowTemplate: boolean}} [opts] - own rows carry their own template, because
+ *   an entry that names no template coaches the model toward nothing
+ * @returns {{ok: boolean, value?: Object, code?: string, message?: string}}
+ */
+function _sanitiseCoachingFields (body, opts) {
+  const src = (body && typeof body === 'object' && !Array.isArray(body)) ? body : {}
+  const allowTemplate = !!(opts && opts.allowTemplate)
+  const value = {}
+
+  if (allowTemplate && Object.prototype.hasOwnProperty.call(src, 'template')) {
+    if (typeof src.template !== 'string') {
+      return { ok: false, code: 'INVALID_FIELD', message: 'template must be a string' }
+    }
+    value.template = src.template.trim()
+  }
+
+  for (const field of EDITABLE_COACHING_FIELDS) {
+    if (!Object.prototype.hasOwnProperty.call(src, field)) { continue }
+
+    if (field === 'scenarios') {
+      if (!Array.isArray(src[field])) {
+        return { ok: false, code: 'INVALID_FIELD', message: 'scenarios must be an array of strings' }
+      }
+      if (src[field].length > MAX_COACHING_SCENARIOS) {
+        return {
+          ok: false,
+          code: 'TOO_MANY_SCENARIOS',
+          message: `No more than ${MAX_COACHING_SCENARIOS} situations per entry`
+        }
+      }
+      const cleaned = []
+      for (const item of src[field]) {
+        if (typeof item !== 'string') {
+          return { ok: false, code: 'INVALID_FIELD', message: 'scenarios must be an array of strings' }
+        }
+        if (item.length > MAX_COACHING_SCENARIO_LENGTH) {
+          return {
+            ok: false,
+            code: 'SCENARIO_TOO_LONG',
+            message: `A situation must be under ${MAX_COACHING_SCENARIO_LENGTH} characters`
+          }
+        }
+        // A blank row is what an untouched "add a situation" box sends. Dropping it
+        // here means the screen never has to police its own empty inputs, and an
+        // empty string can never reach the prompt as a bullet with nothing after it.
+        const trimmed = item.trim()
+        if (trimmed) { cleaned.push(trimmed) }
+      }
+      value[field] = cleaned
+      continue
+    }
+
+    if (typeof src[field] !== 'string') {
+      return { ok: false, code: 'INVALID_FIELD', message: `${field} must be a string` }
+    }
+    value[field] = src[field].trim()
+  }
+
+  if (Object.keys(value).length === 0) {
+    const offered = allowTemplate
+      ? ['template', ...EDITABLE_COACHING_FIELDS]
+      : EDITABLE_COACHING_FIELDS
+    return { ok: false, code: 'NO_FIELDS', message: `Provide at least one of: ${offered.join(', ')}` }
+  }
+  return { ok: true, value }
+}
+
+/**
+ * @route GET /api/firm-manager/coaching
+ * The tab's whole picture: Advisor-e's coaching entries, this firm's decisions, and the
+ * resolved list those two produce — the SAME list server/utils/coaching.js renders into
+ * the prompt, so the screen can never show a firm something different from what its
+ * advisors' AI is actually coached by.
+ * @returns {{base: Array, state: Object, resolved: Array, hasOverride: boolean}}
+ */
+async function getCoaching (req, res) {
+  try {
+    const state = await loadFirmCoachingState(req.firmId, overlay.loadFirmConfig)
+    const resolved = await loadResolvedCoaching(req.firmId, overlay.loadFirmConfig)
+    res.send(200, {
+      base: BASE_COACHING_ROWS,
+      state,
+      resolved,
+      hasOverride: state.declinedIds.length > 0 ||
+        Object.keys(state.overrides).length > 0 ||
+        state.ownRows.length > 0
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/coaching/platform/:id
+ * Edit an Advisor-e coaching entry for this firm. Fields the body does not carry are NOT
+ * recorded, so they keep tracking Advisor-e's wording rather than being frozen at today's
+ * text — the whole point of the mechanism.
+ * @param {string} id - a platform entry id (cr-*)
+ * @returns {{updated: true, id: string}}
+ */
+async function setCoachingOverride (req, res) {
+  const id = String(req.params.id || '')
+  if (!PLATFORM_COACHING_IDS.has(id)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform coaching entry with that id')
+  }
+  const sani = _sanitiseCoachingFields(req.body || {})
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  try {
+    const stored = await _loadCoachingPart(req.firmId, COACHING_KEYS.overrides, {})
+    const current = (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
+    const next = { ...current, [id]: { ...(current[id] || {}), ...sani.value } }
+    await _saveCoachingPart(req.firmId, COACHING_KEYS.overrides, next, req.userEmail)
+    res.send(200, { updated: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route DELETE /api/firm-manager/coaching/platform/:id
+ * Reset to platform — drop this firm's version so Advisor-e's entry applies again, and
+ * keeps applying as Advisor-e changes it. Idempotent.
+ * @param {string} id - a platform entry id (cr-*)
+ * @returns {{reset: true, id: string}}
+ */
+async function resetCoachingOverride (req, res) {
+  const id = String(req.params.id || '')
+  if (!PLATFORM_COACHING_IDS.has(id)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform coaching entry with that id')
+  }
+  try {
+    const stored = await _loadCoachingPart(req.firmId, COACHING_KEYS.overrides, {})
+    const current = (stored && typeof stored === 'object' && !Array.isArray(stored)) ? stored : {}
+    if (Object.prototype.hasOwnProperty.call(current, id)) {
+      const next = { ...current }
+      delete next[id]
+      await _saveCoachingPart(req.firmId, COACHING_KEYS.overrides, next, req.userEmail)
+    }
+    res.send(200, { reset: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/coaching/platform/:id/decline
+ * Switch an Advisor-e coaching entry off for this firm, or back on. Only the declines key
+ * is written — the firm's override survives — so an entry switched back on returns with
+ * ITS OWN wording, not Advisor-e's. Dropping an edit is the reset route above; the two
+ * are separate on purpose.
+ *
+ * THE LAST-ENTRY REFUSAL IS THE STAIRCASE'S, FOR THE SAME REASON AND A DIFFERENT COST.
+ * loadResolvedCoaching already refuses to resolve to zero rows and falls back to the
+ * layer above — so without this a firm could switch every entry off, see them all
+ * greyed out, and still be coached by all fifteen. The screen would be lying. Refusing
+ * here is the lock that can explain itself to the person who asked for it.
+ *
+ * @param {string} id - a platform entry id (cr-*)
+ * @param {boolean} req.body.declined
+ * @returns {{declined: boolean, id: string}}
+ */
+async function setCoachingDecline (req, res) {
+  const id = String(req.params.id || '')
+  if (!PLATFORM_COACHING_IDS.has(id)) {
+    return sendError(res, 404, 'NOT_FOUND', 'No platform coaching entry with that id')
+  }
+  const declined = (req.body || {}).declined
+  if (typeof declined !== 'boolean') {
+    return sendError(res, 400, 'INVALID_DECLINED', 'declined must be a boolean')
+  }
+  try {
+    const stored = await _loadCoachingPart(req.firmId, COACHING_KEYS.declines, [])
+    const set = new Set(Array.isArray(stored) ? stored : [])
+    if (declined) { set.add(id) } else { set.delete(id) }
+    if (declined && set.size >= PLATFORM_COACHING_IDS.size) {
+      const ownRows = await _loadCoachingPart(req.firmId, COACHING_KEYS.own, [])
+      if (!Array.isArray(ownRows) || ownRows.length === 0) {
+        return sendError(res, 409, 'LAST_ENTRY', 'At least one entry must stay switched on — add your own entry first, or switch another back on')
+      }
+    }
+    await _saveCoachingPart(req.firmId, COACHING_KEYS.declines, [...set], req.userEmail)
+    res.send(200, { declined, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route POST /api/firm-manager/coaching/own
+ * Add a coaching entry of the firm's own, after Advisor-e's. Its id is assigned here and
+ * never taken from the body — an id from the browser could collide with a platform entry
+ * and silently replace it. The prefix depends on WHO is adding (mc- / xc- / gc- / fc-),
+ * because own-row numbers are minted per scope and every decision is keyed to an id.
+ * @returns {{added: true, id: string}}
+ */
+async function addOwnCoachingEntry (req, res) {
+  const sani = _sanitiseCoachingFields(req.body || {}, { allowTemplate: true })
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  if (!sani.value.template) {
+    return sendError(res, 400, 'INVALID_FIELD', 'An entry needs a template name')
+  }
+  try {
+    const stored = await _loadCoachingPart(req.firmId, COACHING_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    // Highest existing number + 1, never the row count: reusing a deleted entry's id
+    // would hand a new entry the decisions recorded against the old one.
+    const prefix = ownCoachingPrefix(req.firmId)
+    const used = rows
+      .map(r => parseInt(String((r && r.id) || '').replace(prefix, ''), 10))
+      .filter(n => Number.isInteger(n))
+    const id = `${prefix}${(used.length ? Math.max(...used) : 0) + 1}`
+    const next = [...rows, {
+      id,
+      template: sani.value.template,
+      howItHelps: sani.value.howItHelps || '',
+      whatToLookFor: sani.value.whatToLookFor || '',
+      whereMayLead: sani.value.whereMayLead || '',
+      deliveryNotes: sani.value.deliveryNotes || '',
+      scenarios: sani.value.scenarios || []
+    }]
+    await _saveCoachingPart(req.firmId, COACHING_KEYS.own, next, req.userEmail)
+    res.send(201, { added: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route PUT /api/firm-manager/coaching/own/:id
+ * Edit an entry this firm added. `template` IS editable here, unlike on an inherited
+ * entry: this row is the firm's own, so there is no platform id left pointing at wording
+ * that has moved underneath it.
+ * @param {string} id - a firm entry id (fc-*, or the tier prefix that minted it)
+ * @returns {{updated: true, id: string}}
+ */
+async function updateOwnCoachingEntry (req, res) {
+  const id = String(req.params.id || '')
+  const sani = _sanitiseCoachingFields(req.body || {}, { allowTemplate: true })
+  if (!sani.ok) { return sendError(res, 400, sani.code, sani.message) }
+  if (Object.prototype.hasOwnProperty.call(sani.value, 'template') && !sani.value.template) {
+    return sendError(res, 400, 'INVALID_FIELD', 'An entry needs a template name')
+  }
+  try {
+    const stored = await _loadCoachingPart(req.firmId, COACHING_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    const index = rows.findIndex(r => r && r.id === id)
+    if (index === -1) {
+      return sendError(res, 404, 'NOT_FOUND', 'No entry of your own with that id')
+    }
+    const next = rows.map((r, i) => (i === index ? { ...r, ...sani.value, id } : r))
+    await _saveCoachingPart(req.firmId, COACHING_KEYS.own, next, req.userEmail)
+    res.send(200, { updated: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * @route DELETE /api/firm-manager/coaching/own/:id
+ * Remove an entry this firm added. Only the firm's own entries can be removed — an
+ * Advisor-e entry is switched off, never deleted, so it can come back.
+ * @param {string} id - a firm entry id
+ * @returns {{removed: true, id: string}}
+ */
+async function deleteOwnCoachingEntry (req, res) {
+  const id = String(req.params.id || '')
+  try {
+    const stored = await _loadCoachingPart(req.firmId, COACHING_KEYS.own, [])
+    const rows = Array.isArray(stored) ? stored : []
+    if (!rows.some(r => r && r.id === id)) {
+      return sendError(res, 404, 'NOT_FOUND', 'No entry of your own with that id')
+    }
+    await _saveCoachingPart(
+      req.firmId, COACHING_KEYS.own, rows.filter(r => !(r && r.id === id)), req.userEmail
+    )
+    res.send(200, { removed: true, id })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
 module.exports = {
   quizzablePages,
   listDocuments,
@@ -4014,6 +4803,13 @@ module.exports = {
   addOwnStaircaseStep,
   updateOwnStaircaseStep,
   deleteOwnStaircaseStep,
+  getCoaching,
+  setCoachingOverride,
+  resetCoachingOverride,
+  setCoachingDecline,
+  addOwnCoachingEntry,
+  updateOwnCoachingEntry,
+  deleteOwnCoachingEntry,
   getQuizzes,
   saveQuizzes,
   setQuizOverride,
@@ -4029,6 +4825,11 @@ module.exports = {
   resetDomainSupport,
   getDomainSupportHistory,
   restoreDomainSupport,
+  getMethodGuides,
+  getMethodGuideDetail,
+  saveMethodGuide,
+  resetMethodGuide,
+  getMethodGuideHistory,
   getLogicTrees,
   getLogicTreeDetail,
   saveLogicTree,

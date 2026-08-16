@@ -15,6 +15,7 @@ const masterExport = require('./masterExport')
 const { mergeEntry } = require('./firmContent')
 const { fenceUntrusted } = require('./promptSafety')
 const { normalise, extractProseNames } = require('./toolNameScan')
+const { formatGuideForPrompt, GUIDE_BY_ID } = require('./methodGuides')
 
 let _trees = null
 const _refCache = new Map()
@@ -508,6 +509,42 @@ function formatNodeForPrompt (node, allNodes, fence = false) {
     }
   }
 
+  // Context for a choice the branch labels alone cannot support. Platform
+  // content read from the reference files, so it is NOT fenced — `fence` marks
+  // firm-authored tree text, and this is neither authored by a firm nor stored
+  // in the tree. See DECISION_CONTEXT_FORMATTERS.
+  const decisionContext = DECISION_CONTEXT_FORMATTERS[node.id]
+  let hasDecisionContext = false
+  if (decisionContext) {
+    const block = decisionContext()
+    if (block) {
+      lines.push('', block)
+      hasDecisionContext = true
+    }
+  }
+
+  // `advisor_note` is the branch author's ruling on the choice above, and it sat
+  // unread here for as long as `recommendation` did — authored, stored, and
+  // emitted nowhere. Mike's, on 2026-08-16: send it.
+  //
+  // UNGATED, DELIBERATELY, and this is the one field that is. Run through
+  // `withholdUnavailableNames` the live note survives as "This determines the
+  // delivery method." and nothing else — the gate reads "use Trial Fit" and "use
+  // Cautious Reveal" as tools it cannot find, when they are delivery approaches
+  // and not documents an advisor could fail to open. Gating it would have looked
+  // like a fix while deleting the instruction. The gate is unchanged for every
+  // other field; `recommendationGate.test.js` pins this note as the only one in
+  // the data, so a second one cannot arrive ungated without the build stopping.
+  //
+  // Fenced when the tree is firm-authored, exactly like every other node field.
+  if (node.advisor_note) {
+    // Blank line only when the block precedes it, matching the approved artefact
+    // — the ruling reads as the close of that block, not as another bullet. On an
+    // ordinary branch the note is just the next line.
+    if (hasDecisionContext) { lines.push('') }
+    lines.push(`Advisor note: ${fx(node.advisor_note)}`)
+  }
+
   return lines.join('\n')
 }
 
@@ -551,16 +588,40 @@ function formatApproachGuidance (guidance) {
 function formatLogicTreeForPrompt (tree) {
   if (!tree) { return '' }
 
-  const header = [
+  // A firm-overridden tree carries firm-authored branch text (tagged in
+  // effectiveTrees); fence it so the model treats it as data, not instructions.
+  const fence = !!(tree && tree.__firmAuthored)
+  const fx = v => (fence ? fenceUntrusted(v) : v)
+
+  const headerLines = [
     `## Diagnostic Logic Tree — ${tree.name}`,
     '',
     tree.description,
     ''
-  ].join('\n')
+  ]
 
-  // A firm-overridden tree carries firm-authored branch text (tagged in
-  // effectiveTrees); fence it so the model treats it as data, not instructions.
-  const fence = !!(tree && tree.__firmAuthored)
+  // The sentence that establishes WHERE IN THE METHOD the advisor already is,
+  // before any coaching starts. Authored on all 13 learn tables since they
+  // shipped and read by nothing — item 4.16 C, design/LEARN-TREE-OPENING-QUESTION-FIELD.md.
+  //
+  // WHY IT MATTERS MORE THAN ITS SIZE SUGGESTS: these 13 are exactly the 13
+  // tables with a companion method guide (LEARN_REFERENCE_FORMATTERS), and the
+  // guide reaches the model in full — ~19,000 characters of staged coaching. The
+  // one sentence saying which stage the advisor needs did not, so the model has
+  // been reading the whole method with no idea where the advisor is standing in
+  // it, and opening at stage one for somebody halfway through.
+  //
+  // LEARN MODE ONLY, and the gate is deliberate rather than incidental. Every one
+  // of the 13 is `mode: 'learn'`; a client-delivery table is WALKED to a
+  // recommendation rather than opened with a question. The gate means a
+  // `stage_entry_question` authored later onto a client table cannot silently
+  // start asking a business owner where they are up to.
+  if (tree.mode === 'learn' && tree.stage_entry_question) {
+    headerLines.push(`Ask this first, before coaching any stage: ${fx(tree.stage_entry_question)}`)
+    headerLines.push('')
+  }
+
+  const header = headerLines.join('\n')
 
   const nodeBlocks = (tree.nodes || [])
     .map(node => formatNodeForPrompt(node, tree.nodes, fence))
@@ -571,863 +632,162 @@ function formatLogicTreeForPrompt (tree) {
     .map(branch => formatFlatBranch(branch, fence))
     .join('\n\n')
 
+  // Standing rules on a NODES-shaped table: rules that hold whichever stage the
+  // advisor is in, so they are kept out of the walked graph in a second array.
+  //
+  // THIS IS WHY THEY WERE INVISIBLE. `flatBlocks` above reads `tree.branches`,
+  // which on a nodes-shaped table is empty — so `public_speaking`'s two rules
+  // (networking boundaries, event conclusion) reached neither the prompt nor the
+  // Logic Tables screen, and no test could notice a field nothing named.
+  //
+  // Formatted by the SAME `formatFlatBranch` the Get-the-Job tables use, not a
+  // second renderer — which also means their `templates` are emitted ungated,
+  // exactly as those tables' are. That is the deliberate Get-the-Job carve-out
+  // recorded at validateLogicTreeReferences: these name advisor-kit materials
+  // that legitimately do not live in the client search content.
+  const standing = tree.flat_branches || []
+  const standingBlock = standing.length > 0
+    ? '\n\n### Rules that always apply, whichever stage the advisor is in\n\n' +
+      standing.map(branch => formatFlatBranch(branch, fence)).join('\n\n')
+    : ''
+
   const approachBlock = tree.approach_guidance
     ? formatApproachGuidance(tree.approach_guidance)
     : ''
 
-  return header + nodeBlocks + flatBlocks + approachBlock
+  return header + nodeBlocks + flatBlocks + standingBlock + approachBlock
 }
 
-function formatTrialFitReferenceForPrompt () {
-  const ref = loadReferenceFile('trial-fit-reference.json')
-  if (!ref) { return '' }
+/**
+ * The short-form context for the Cautious Reveal vs Trial Fit choice.
+ *
+ * WHY THIS EXISTS. The `pf_awareness` branch asks the engine to pick a delivery
+ * method, and until now gave it a question and two labels to pick from — no
+ * reason, and no signal to read the client by. The reasoning was authored all
+ * along, in the two method reference files, but it never loaded here:
+ * `buildLearnReferenceText` returns null for the Profitability tree because
+ * those references attach to their own learn-mode coaching trees, and a
+ * profitability conversation routes to `profitability_feasibility`. The two
+ * destination branches do carry some of it, but only after the choice is made
+ * and only on the road already taken — the model never saw both sides while it
+ * was choosing.
+ *
+ * Approved as design/PF-AWARENESS-DECISION-BLOCK.md, which lists every line
+ * against the file and key it is read from.
+ *
+ * ⚠ READ, NEVER COPIED. Every sentence is pulled from the reference file that
+ * owns it, so editing that file changes what the model is shown and the two
+ * cannot drift. This is the failure that produced items 2.6 and 4.16 — content
+ * authored in one place and quietly not used in another — so it is not repeated
+ * here by transcribing the sentences into code.
+ *
+ * ⚠ THE SHORT FORM ONLY. The full guides are ~19,000 characters each and stay
+ * attached to their own trees. This block is ~1,900 and is emitted on one branch.
+ *
+ * @returns {string} the block, or '' if either reference file cannot be read
+ */
+function formatDeliveryMethodChoiceForPrompt () {
+  const tf = loadReferenceFile('trial-fit-reference.json')
+  const cr = loadReferenceFile('cautious-reveal-reference.json')
+  if (!tf || !cr || !tf.when_to_use || !cr.when_to_use || !cr.key_concepts) { return '' }
 
   const lines = [
-    '## Trial Fit Method — Detailed Coaching Reference',
+    'Choosing the delivery method — why this choice matters',
     '',
-    `Objective: ${ref.objective}`,
-    `Core principle: ${ref.core_principle}`,
-    ''
+    `Map shock: ${cr.key_concepts.map_shock}`,
+    '',
+    'Signs the client is AWARE / motivated (points to Trial Fit):'
   ]
-
-  if (ref.why_advisors_use_revenue_models) {
-    const why = ref.why_advisors_use_revenue_models
-    lines.push('### Why Advisors Use Revenue Models')
-    lines.push(why.summary)
-    for (const b of (why.benefits || [])) { lines.push(`• ${b}`) }
-    if (why.key_script) { lines.push(`Key script: ${why.key_script}`) }
-    if (why.advisor_confidence_note) { lines.push(`Advisor confidence: ${why.advisor_confidence_note}`) }
-    lines.push('')
+  for (const indicator of (tf.when_to_use.indicators || [])) {
+    lines.push(`  • ${indicator}`)
   }
+  if (tf.when_to_use.caution) { lines.push(`  Caution: ${tf.when_to_use.caution}`) }
 
-  if (ref.when_to_use) {
-    lines.push('### When to Use the Trial Fit Method')
-    lines.push(`Client profile: ${ref.when_to_use.client_profile}`)
-    lines.push('Indicators:')
-    for (const ind of (ref.when_to_use.indicators || [])) {
-      lines.push(`• ${ind}`)
-    }
-    if (ref.when_to_use.caution) { lines.push(`Caution: ${ref.when_to_use.caution}`) }
-    lines.push('')
+  lines.push('')
+  lines.push('Signs the client is UNAWARE / resistant (points to Cautious Reveal):')
+  lines.push(`  • ${cr.when_to_use.client_profile}`)
+  for (const scenario of (cr.when_to_use.typical_scenarios || [])) {
+    lines.push(`  • ${scenario}`)
   }
-
-  for (const stage of (ref.stages || [])) {
-    lines.push(`### Stage ${stage.stage}: ${stage.name}`)
-    lines.push(`Key principle: ${stage.key_principle}`)
-    for (const point of (stage.coaching_points || [])) {
-      lines.push(`• ${point}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.key_concepts) {
-    lines.push('### Key Concepts')
-    for (const value of Object.values(ref.key_concepts)) {
-      lines.push(`• ${value}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.additional_guidance) {
-    lines.push('### Additional Guidance')
-    for (const value of Object.values(ref.additional_guidance)) {
-      lines.push(`• ${value}`)
-    }
+  if (cr.when_to_use.contrast_with_trial_fit) {
+    lines.push(`  Contrast: ${cr.when_to_use.contrast_with_trial_fit}`)
   }
 
   return lines.join('\n')
 }
 
-function formatCautiousRevealReferenceForPrompt () {
-  const ref = loadReferenceFile('cautious-reveal-reference.json')
-  if (!ref) { return '' }
-
-  const lines = [
-    '## Cautious Reveal Method — Detailed Coaching Reference',
-    '',
-    `Objective: ${ref.objective}`,
-    `Core principle: ${ref.core_principle}`,
-    ''
-  ]
-
-  if (ref.why_advisors_use_revenue_models) {
-    const why = ref.why_advisors_use_revenue_models
-    lines.push('### Why Advisors Use Revenue Models')
-    lines.push(why.summary)
-    for (const b of (why.benefits || [])) { lines.push(`• ${b}`) }
-    if (why.key_script) { lines.push(`Key script: ${why.key_script}`) }
-    if (why.advisor_confidence_note) { lines.push(`Advisor confidence: ${why.advisor_confidence_note}`) }
-    lines.push('')
-  }
-
-  if (ref.when_to_use) {
-    lines.push('### When to Use the Cautious Reveal Method')
-    lines.push(`Client profile: ${ref.when_to_use.client_profile}`)
-    if (ref.when_to_use.typical_scenarios) {
-      lines.push('Typical scenarios:')
-      for (const s of ref.when_to_use.typical_scenarios) {
-        lines.push(`• ${s}`)
-      }
-    }
-    if (ref.when_to_use.contrast_with_trial_fit) { lines.push(`Contrast with Trial Fit: ${ref.when_to_use.contrast_with_trial_fit}`) }
-    lines.push('')
-  }
-
-  for (const step of (ref.steps || [])) {
-    lines.push(`### Step ${step.step}: ${step.name}`)
-    lines.push(`Key principle: ${step.key_principle}`)
-    for (const point of (step.coaching_points || [])) {
-      lines.push(`• ${point}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.key_concepts) {
-    lines.push('### Key Concepts')
-    for (const value of Object.values(ref.key_concepts)) {
-      lines.push(`• ${value}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.additional_guidance) {
-    lines.push('### Additional Guidance')
-    for (const value of Object.values(ref.additional_guidance)) {
-      lines.push(`• ${value}`)
-    }
-  }
-
-  return lines.join('\n')
+// Nodes that make a choice the model cannot make well from the branch labels
+// alone, mapped to the context it needs while making it. Keyed by node id and
+// deliberately tiny: every entry grows a live prompt, so one is added only with
+// an approved artefact behind it.
+const DECISION_CONTEXT_FORMATTERS = {
+  pf_awareness: formatDeliveryMethodChoiceForPrompt
 }
 
-function formatSeminarsReferenceForPrompt () {
-  const ref = loadReferenceFile('powerful-seminars.json')
-  if (!ref) { return '' }
-
-  const lines = [
-    '## Powerful Seminars Reference — Detailed Coaching Content',
-    '',
-    `Objective: ${ref.objective}`,
-    `Core principle: ${ref.core_principle}`,
-    ''
-  ]
-
-  for (const stage of (ref.stages || [])) {
-    lines.push(`### Stage ${stage.stage}: ${stage.name}`)
-    lines.push(`Key principle: ${stage.key_principle}`)
-
-    if (stage.coaching_points) {
-      for (const point of stage.coaching_points) {
-        lines.push(`• ${point}`)
-      }
-    }
-
-    if (stage.styles) {
-      for (const style of stage.styles) {
-        lines.push(`**${style.style}** — Use when: ${style.use_when}`)
-        lines.push(`  Characteristics: ${style.characteristics}`)
-        if (style.frame) { lines.push(`  Frame: ${style.frame}`) }
-      }
-      if (stage.delivery_circle) { lines.push(`Delivery sequence: ${stage.delivery_circle}`) }
-    }
-
-    if (stage.eight_steps) {
-      for (const step of stage.eight_steps) {
-        lines.push(`Step ${step.step}: ${step.name} — ${step.guidance}`)
-      }
-    }
-
-    if (stage.cpd_example) {
-      const ex = stage.cpd_example
-      lines.push(`C.P.D. example — Concept: "${ex.concept}" | Principles: ${ex.principles.join(', ')}`)
-    }
-
-    lines.push('')
-  }
-
-  if (ref.additional_guidance) {
-    lines.push('### Additional Guidance')
-    for (const value of Object.values(ref.additional_guidance)) {
-      lines.push(`• ${value}`)
-    }
-  }
-
-  return lines.join('\n')
-}
-
-function formatEoyReferenceForPrompt () {
-  const ref = loadReferenceFile('eoy-reference.json')
-  if (!ref) { return '' }
-
-  const lines = [
-    '## End of Year Meeting — Detailed Coaching Reference',
-    '',
-    `Objective: ${ref.objective}`,
-    `Core principle: ${ref.core_principle}`,
-    ''
-  ]
-
-  if (ref.templates && ref.templates.length) {
-    lines.push('### EOY Template Suite')
-    for (const t of ref.templates) {
-      lines.push(`**${t.name}**`)
-      lines.push(`Purpose: ${t.purpose}`)
-      if (t.variants) {
-        lines.push('Deck variants:')
-        for (const v of t.variants) { lines.push(`  • ${v.name}: ${v.use_when}`) }
-      }
-      lines.push(`Helps advisor: ${t.helps_advisor}`)
-      lines.push(`Helps owner: ${t.helps_owner}`)
-      if (t.indicators) { lines.push(`Indicators: ${t.indicators}`) }
-      lines.push('')
-    }
-  }
-
-  if (ref.stages && ref.stages.length) {
-    lines.push('### EOY Meeting Stages — Coaching Detail')
-    for (const stage of ref.stages) {
-      lines.push(`**Stage ${stage.stage}: ${stage.name}**`)
-      lines.push(`Key principle: ${stage.key_principle}`)
-      if (stage.coaching_points) {
-        for (const point of stage.coaching_points) { lines.push(`• ${point}`) }
-      }
-      if (stage.difficult_client_handling) {
-        lines.push('Difficult client handling:')
-        for (const d of stage.difficult_client_handling) {
-          lines.push(`  • ${d.type}: ${d.approach}`)
-        }
-      }
-      lines.push('')
-    }
-  }
-
-  if (ref.cash_volatility_strategies) {
-    const cv = ref.cash_volatility_strategies
-    lines.push('### Cash Volatility Strategies (WHAT-HOW Framework)')
-    lines.push(cv.overview)
-    lines.push(`Framework: ${cv.framework}`)
-    for (const s of (cv.strategies || [])) {
-      lines.push(`• ${s.area} — WHAT: ${s.what} | HOW: ${s.how}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.key_concepts) {
-    lines.push('### Key Concepts')
-    for (const value of Object.values(ref.key_concepts)) {
-      lines.push(`• ${value}`)
-    }
-  }
-
-  return lines.join('\n')
-}
-
-function formatHealdMatrixReferenceForPrompt () {
-  const ref = loadReferenceFile('heald-matrix-reference.json')
-  if (!ref) { return '' }
-
-  const lines = [
-    '## The Heald Matrix — Detailed Coaching Reference',
-    '',
-    `Objective: ${ref.objective}`,
-    `Core principle: ${ref.core_principle}`,
-    ''
-  ]
-
-  if (ref.framework_purpose) {
-    const fp = ref.framework_purpose
-    lines.push('### Framework Purpose')
-    lines.push(fp.overview)
-    lines.push('Coping styles:')
-    for (const cs of (fp.coping_styles || [])) {
-      lines.push(`  • ${cs.style}: positive = ${cs.positive_state} | negative = ${cs.negative_state}. ${cs.note}`)
-    }
-    lines.push(`Why it works: ${fp.why_it_works}`)
-    lines.push('')
-  }
-
-  if (ref.quadrants) {
-    lines.push('### The Four Quadrants (reveal in this order)')
-    for (const q of ref.quadrants) {
-      lines.push(`${q.reveal_order}. ${q.name} (${q.position}): ${q.description}`)
-    }
-    lines.push('')
-  }
-
-  for (const step of (ref.steps || [])) {
-    lines.push(`### Step ${step.step}: ${step.name}`)
-    lines.push(`Key principle: ${step.key_principle}`)
-    for (const point of (step.coaching_points || [])) { lines.push(`• ${point}`) }
-    if (step.facilitation_prompts) {
-      lines.push('Facilitation prompts:')
-      for (const p of step.facilitation_prompts) { lines.push(`  • "${p}"`) }
-    }
-    if (step.closing_script) { lines.push(`Closing script: "${step.closing_script}"`) }
-    if (step.email_template) { lines.push(`Follow-up email template: ${step.email_template}`) }
-    lines.push('')
-  }
-
-  if (ref.key_concepts) {
-    lines.push('### Key Concepts')
-    for (const value of Object.values(ref.key_concepts)) { lines.push(`• ${value}`) }
-  }
-
-  return lines.join('\n')
-}
-
-function formatCCOReferenceForPrompt () {
-  const ref = loadReferenceFile('capacity-capability-opportunity-reference.json')
-  if (!ref) { return '' }
-
-  const lines = [
-    '## Capacity, Capability, Opportunity — Detailed Coaching Reference',
-    '',
-    `Objective: ${ref.objective}`,
-    `Core principle: ${ref.core_principle}`,
-    ''
-  ]
-
-  if (ref.framework_overview) {
-    const ov = ref.framework_overview
-    lines.push('### Framework Overview')
-    lines.push(`Purpose: ${ov.purpose}`)
-    lines.push(`Goldilocks conditions: ${ov.goldilocks_conditions}`)
-    lines.push(`Legitimate constraints language: ${ov.legitimate_constraints_language}`)
-    lines.push(`Advisor protection: ${ov.advisor_protection}`)
-    lines.push('Delivery options:')
-    for (const d of (ov.delivery_options || [])) { lines.push(`  • ${d}`) }
-    lines.push('')
-  }
-
-  for (const pillar of (ref.pillars || [])) {
-    lines.push(`### Pillar ${pillar.pillar}: ${pillar.name}`)
-    lines.push(`Definition: ${pillar.definition}`)
-    lines.push(`Key principle: ${pillar.key_principle}`)
-    for (const point of (pillar.coaching_points || [])) { lines.push(`• ${point}`) }
-    if (pillar.key_script) { lines.push(`Key script: "${pillar.key_script}"`) }
-    if (pillar.not_yet_note) { lines.push(`NOT YET note: ${pillar.not_yet_note}`) }
-    if (pillar.key_saying) { lines.push(`Key saying: "${pillar.key_saying}"`) }
-    lines.push('')
-  }
-
-  if (ref.application_steps) {
-    lines.push('### Application Steps')
-    for (const step of ref.application_steps) {
-      lines.push(`Step ${step.step} — ${step.name}: ${step.guidance}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.key_concepts) {
-    lines.push('### Key Concepts')
-    for (const value of Object.values(ref.key_concepts)) { lines.push(`• ${value}`) }
-  }
-
-  return lines.join('\n')
-}
-
-function formatConflictMeetingReferenceForPrompt () {
-  const ref = loadReferenceFile('conflict-meeting-reference.json')
-  if (!ref) { return '' }
-
-  const lines = [
-    '## Framing a Conflict Meeting — Detailed Coaching Reference',
-    '',
-    `Objective: ${ref.objective}`,
-    `Core principle: ${ref.core_principle}`,
-    ''
-  ]
-
-  for (const stage of (ref.stages || [])) {
-    lines.push(`### Stage ${stage.stage}: ${stage.name}`)
-    lines.push(`Key principle: ${stage.key_principle}`)
-    for (const point of (stage.coaching_points || [])) { lines.push(`• ${point}`) }
-    if (stage.santa_claus_sequence) {
-      lines.push('Santa Claus sequence:')
-      for (const q of stage.santa_claus_sequence) { lines.push(`  • ${q.type}: "${q.question}"`) }
-    }
-    if (stage.prescribed_cognitive_pathway) { lines.push(`Prescribed cognitive pathway: ${stage.prescribed_cognitive_pathway}`) }
-    if (stage.closing_anchor) { lines.push(`Closing anchor: ${stage.closing_anchor}`) }
-    if (stage.steps) {
-      for (const s of stage.steps) {
-        lines.push(`Step ${s.step} — ${s.name}:`)
-        if (s.script) { lines.push(`  Script: "${s.script}"`) }
-        if (s.scripts) { s.scripts.forEach(sc => lines.push(`  Script: "${sc}"`)) }
-        if (s.description) { lines.push(`  ${s.description}`) }
-      }
-    }
-    if (stage.concepts) {
-      for (const c of stage.concepts) {
-        lines.push(`Concept ${c.concept} — ${c.name}: ${c.description}`)
-        if (c.example_script) { lines.push(`  Example: "${c.example_script}"`) }
-      }
-    }
-    if (stage.delivery_elements) {
-      lines.push('Delivery elements:')
-      for (const d of stage.delivery_elements) { lines.push(`  • ${d.element}: ${d.description}`) }
-    }
-    lines.push('')
-  }
-
-  if (ref.facilitator_framework) {
-    const fw = ref.facilitator_framework
-    lines.push('### Facilitator Framework — Sustain These Three Things')
-    for (const p of (fw.pillars || [])) { lines.push(`• ${p.pillar}: ${p.guidance}`) }
-    lines.push('')
-  }
-
-  if (ref.key_concepts) {
-    lines.push('### Key Concepts')
-    for (const value of Object.values(ref.key_concepts)) { lines.push(`• ${value}`) }
-  }
-
-  return lines.join('\n')
-}
-
-function formatGrowthCurveRevealReferenceForPrompt () {
-  const ref = loadReferenceFile('growth-curve-reveal-reference.json')
-  if (!ref) { return '' }
-
-  const lines = [
-    '## Revealing the Growth Curve — Detailed Coaching Reference',
-    '',
-    `Objective: ${ref.objective}`,
-    `Core principle: ${ref.core_principle}`,
-    ''
-  ]
-
-  for (const step of (ref.steps || [])) {
-    lines.push(`### Step ${step.step}: ${step.name}`)
-    lines.push(`Key principle: ${step.key_principle}`)
-    if (step.opening_script) { lines.push(`Opening script: "${step.opening_script}"`) }
-    if (step.transition_script) { lines.push(`Transition: "${step.transition_script}"`) }
-    if (step.closing_script) { lines.push(`Closing script: "${step.closing_script}"`) }
-    if (step.yes_response) { lines.push(`Yes response: "${step.yes_response}"`) }
-    if (step.persona_elements) {
-      lines.push('Persona elements to develop:')
-      for (const el of step.persona_elements) { lines.push(`  • ${el}`) }
-    }
-    if (step.sequence) {
-      for (const part of step.sequence) {
-        lines.push(`Part ${part.part} — ${part.name}: ${part.description}`)
-        lines.push(`  Script: "${part.script}"`)
-      }
-    }
-    if (step.relevance_questions) {
-      lines.push('Relevance questions:')
-      for (const q of step.relevance_questions) { lines.push(`  • "${q}"`) }
-    }
-    for (const point of (step.coaching_points || [])) {
-      lines.push(`• ${point}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.key_concepts) {
-    lines.push('### Key Concepts')
-    for (const value of Object.values(ref.key_concepts)) {
-      lines.push(`• ${value}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.additional_guidance) {
-    lines.push('### Additional Guidance')
-    for (const value of Object.values(ref.additional_guidance)) {
-      lines.push(`• ${value}`)
-    }
-  }
-
-  return lines.join('\n')
-}
-
-function formatFacilitationReferenceForPrompt () {
-  const ref = loadReferenceFile('facilitation-reference.json')
-  if (!ref) { return '' }
-
-  const lines = [
-    '## Facilitation 101 — Detailed Coaching Reference',
-    '',
-    `Objective: ${ref.objective}`,
-    `Core principle: ${ref.core_principle}`,
-    ''
-  ]
-
-  for (const stage of (ref.stages || [])) {
-    lines.push(`### Stage ${stage.stage}: ${stage.name}`)
-    lines.push(`Key principle: ${stage.key_principle}`)
-    if (stage.opening_script) { lines.push(`Opening script: "${stage.opening_script}"`) }
-    for (const point of (stage.coaching_points || [])) {
-      lines.push(`• ${point}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.key_concepts) {
-    lines.push('### Key Concepts')
-    for (const value of Object.values(ref.key_concepts)) {
-      lines.push(`• ${value}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.additional_guidance) {
-    lines.push('### Additional Guidance')
-    for (const value of Object.values(ref.additional_guidance)) {
-      lines.push(`• ${value}`)
-    }
-  }
-
-  return lines.join('\n')
-}
-
-function formatDemingsVolatilityReferenceForPrompt () {
-  const ref = loadReferenceFile('demings-volatility-reference.json')
-  if (!ref) { return '' }
-
-  const lines = [
-    "## Deming's Theory of Volatility — Detailed Coaching Reference",
-    '',
-    `Objective: ${ref.objective}`,
-    `Core principle: ${ref.core_principle}`,
-    ''
-  ]
-
-  if (ref.theory_overview) {
-    lines.push('### Theory Overview')
-    lines.push(`• The problem with averages: ${ref.theory_overview.the_problem_with_averages}`)
-    lines.push(`• The solution: ${ref.theory_overview.the_solution}`)
-    lines.push(`• Deming quote: "${ref.theory_overview.deming_quote}"`)
-    lines.push('')
-  }
-
-  if (ref.variation_types) {
-    lines.push('### The Four Variation Types')
-    for (const v of ref.variation_types) {
-      lines.push(`**${v.type}** (${v.frequency} / ${v.impact}): ${v.description}`)
-      lines.push(`  Advisor note: ${v.advisor_note}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.causation_correlation_coincidence) {
-    const ccc = ref.causation_correlation_coincidence
-    lines.push('### Causation, Correlation, and Coincidence')
-    lines.push(ccc.description)
-    for (const level of (ccc.levels || [])) {
-      lines.push(`• ${level.level}: ${level.definition} Example: ${level.example}`)
-    }
-    lines.push(`Advisor note: ${ccc.advisor_note}`)
-    lines.push('')
-  }
-
-  if (ref.caravan_metaphor) {
-    lines.push('### The Caravan Metaphor')
-    lines.push(ref.caravan_metaphor)
-    lines.push('')
-  }
-
-  if (ref.application_steps) {
-    lines.push('### Application Steps')
-    for (const step of ref.application_steps) {
-      lines.push(`**Step ${step.step} — ${step.name}:** ${step.guidance}`)
-      if (step.options) {
-        for (const opt of step.options) {
-          lines.push(`  • ${opt.option}: ${opt.question} ${opt.detail}`)
-        }
-      }
-    }
-    lines.push('')
-  }
-
-  if (ref.key_concepts) {
-    lines.push('### Key Concepts')
-    for (const value of Object.values(ref.key_concepts)) {
-      lines.push(`• ${value}`)
-    }
-  }
-
-  return lines.join('\n')
-}
-
-function formatWorkingCapitalCycleReferenceForPrompt () {
-  const ref = loadReferenceFile('working-capital-cycle-reference.json')
-  if (!ref) { return '' }
-
-  const lines = [
-    '## Working Capital Cycle — Detailed Coaching Reference',
-    '',
-    `Objective: ${ref.objective}`,
-    `Core principle: ${ref.core_principle}`,
-    ''
-  ]
-
-  if (ref.capital_types) {
-    lines.push('### Fixed vs Working Capital')
-    lines.push(`• ${ref.capital_types.fixed_capital.label}: ${ref.capital_types.fixed_capital.description} Advisor note: ${ref.capital_types.fixed_capital.advisor_note}`)
-    lines.push(`• ${ref.capital_types.working_capital.label}: ${ref.capital_types.working_capital.description} Advisor note: ${ref.capital_types.working_capital.advisor_note}`)
-    lines.push('')
-  }
-
-  if (ref.the_cycle) {
-    lines.push('### The Working Capital Cycle')
-    lines.push(ref.the_cycle.description)
-    lines.push(ref.the_cycle.cycle_speed_example)
-    lines.push('')
-  }
-
-  if (ref.three_problem_types) {
-    lines.push('### The Three Problem Types')
-    for (const p of ref.three_problem_types) {
-      lines.push(`**${p.type}**`)
-      lines.push(`Trigger: ${p.trigger}`)
-      lines.push(`Diagnosis: ${p.diagnosis}`)
-      if (p.scenario) { lines.push(`Scenario: ${p.scenario}`) }
-      if (p.advisor_note) { lines.push(`Advisor note: ${p.advisor_note}`) }
-      if (p.funding_note) { lines.push(`Funding note: ${p.funding_note}`) }
-      lines.push('')
-    }
-  }
-
-  if (ref.cash_preservation_tactics) {
-    lines.push('### Cash Preservation Tactics')
-    for (const cat of (ref.cash_preservation_tactics.categories || [])) {
-      lines.push(`**${cat.area}**`)
-      for (const t of cat.tactics) {
-        lines.push(`• ${t}`)
-      }
-      lines.push('')
-    }
-  }
-
-  if (ref.cost_categories) {
-    lines.push('### Cost Categories (Category Secrets Framework)')
-    for (const cat of (ref.cost_categories.categories || [])) {
-      lines.push(`• ${cat.label} (${cat.also_known_as}): ${cat.description} Focus: ${cat.focus}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.management_effectiveness_audit) {
-    lines.push('### Management Effectiveness Audit — Red Flags')
-    for (const flag of (ref.management_effectiveness_audit.red_flags || [])) {
-      lines.push(`• ${flag}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.over_trading_warning) {
-    lines.push('### Over-Trading Warning')
-    lines.push(ref.over_trading_warning.description)
-    lines.push(ref.over_trading_warning.risk)
-    lines.push(ref.over_trading_warning.expansion_principle)
-    lines.push('')
-  }
-
-  if (ref.discounting_danger) {
-    lines.push('### Discounting Danger')
-    lines.push(ref.discounting_danger.key_point)
-    lines.push('')
-  }
-
-  if (ref.key_concepts) {
-    lines.push('### Key Concepts')
-    for (const value of Object.values(ref.key_concepts)) {
-      lines.push(`• ${value}`)
-    }
-  }
-
-  return lines.join('\n')
-}
-
-function formatRatioAnalysisReferenceForPrompt () {
-  const ref = loadReferenceFile('ratio-analysis-reference.json')
-  if (!ref) { return '' }
-
-  const lines = [
-    '## Ratio Analysis — Detailed Coaching Reference',
-    '',
-    `Objective: ${ref.objective}`,
-    `Core principle: ${ref.core_principle}`,
-    ''
-  ]
-
-  if (ref.advisory_staircase) {
-    lines.push('### The Advisory Staircase')
-    lines.push(ref.advisory_staircase.description)
-    for (const s of (ref.advisory_staircase.steps || [])) {
-      lines.push(`• Step ${s.step} — ${s.name}: ${s.description}`)
-    }
-    lines.push(`Advisor note: ${ref.advisory_staircase.advisor_note}`)
-    lines.push('')
-  }
-
-  if (ref.know_thyself_first) {
-    lines.push('### Know Thyself First')
-    lines.push(ref.know_thyself_first.description)
-    lines.push('Three perspectives required before using external benchmarks:')
-    for (const p of (ref.know_thyself_first.three_perspectives || [])) {
-      lines.push(`• ${p}`)
-    }
-    lines.push(`Advisor note: ${ref.know_thyself_first.advisor_note}`)
-    lines.push('')
-  }
-
-  if (ref.when_data_is_less_relevant) {
-    lines.push('### When Data Is Less Relevant')
-    for (const c of (ref.when_data_is_less_relevant.conditions || [])) {
-      lines.push(`**${c.label}**`)
-      lines.push(c.explanation)
-      if (c.example) { lines.push(`Example: ${c.example}`) }
-      lines.push('')
-    }
-  }
-
-  if (ref.common_size_year_on_year) {
-    lines.push('### Common Size Year on Year Data')
-    lines.push(ref.common_size_year_on_year.drag_race_metaphor)
-    lines.push(ref.common_size_year_on_year.the_fix)
-    for (const m of (ref.common_size_year_on_year.methods || [])) {
-      lines.push(`• ${m.name}: ${m.method} ${m.purpose}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.ratio_categories) {
-    lines.push('### Ratio Categories and Key Formulas')
-    lines.push(ref.ratio_categories.description)
-    for (const c of (ref.ratio_categories.categories || [])) {
-      lines.push(`**${c.name}:** ${c.examples}`)
-    }
-    lines.push(`Advisor note: ${ref.ratio_categories.advisor_note}`)
-    lines.push('')
-  }
-
-  if (ref.interrogate_benchmark_data) {
-    lines.push('### Interrogate External Benchmark Data')
-    lines.push('Questions to ask of any purchased benchmark data:')
-    for (const q of (ref.interrogate_benchmark_data.questions_to_ask || [])) {
-      lines.push(`• ${q}`)
-    }
-    lines.push(`Advisor note: ${ref.interrogate_benchmark_data.advisor_note}`)
-    lines.push('')
-  }
-
-  if (ref.collaborative_approach) {
-    lines.push('### Collaborative Approach')
-    lines.push(ref.collaborative_approach.why_it_matters)
-    lines.push(ref.collaborative_approach.manual_over_automated)
-    lines.push('')
-  }
-
-  if (ref.key_concepts) {
-    lines.push('### Key Concepts')
-    for (const value of Object.values(ref.key_concepts)) {
-      lines.push(`• ${value}`)
-    }
-  }
-
-  return lines.join('\n')
-}
-
-function formatDashboardDiscussionsReferenceForPrompt () {
-  const ref = loadReferenceFile('dashboard-discussions-reference.json')
-  if (!ref) { return '' }
-
-  const lines = [
-    '## Dashboard Discussions — Detailed Coaching Reference',
-    '',
-    `Objective: ${ref.objective}`,
-    `Core principle: ${ref.core_principle}`,
-    ''
-  ]
-
-  if (ref.session_mindset) {
-    lines.push('### Session Mindset')
-    lines.push(`• Advisor role: ${ref.session_mindset.advisor_role}`)
-    lines.push(`• Client role: ${ref.session_mindset.client_role}`)
-    lines.push(`• Session objective: ${ref.session_mindset.session_objective}`)
-    lines.push('')
-  }
-
-  if (ref.the_3x3_framework) {
-    lines.push('### The 3x3 Framework')
-    lines.push(ref.the_3x3_framework.cause_event_effect)
-    lines.push('')
-    for (const cat of (ref.the_3x3_framework.cost_categories || [])) {
-      lines.push(`**${cat.label} (${cat.cost_type})**`)
-      lines.push(`Definition: ${cat.definition}`)
-      lines.push(`To change these: ${cat.to_change_these}`)
-      lines.push(`Tactical options: ${cat.tactical_options.join('; ')}`)
-      lines.push('')
-    }
-  }
-
-  if (ref.dashboard_metrics) {
-    lines.push('### Dashboard Metrics')
-    for (const m of ref.dashboard_metrics) {
-      lines.push(`**${m.name}**`)
-      lines.push(`Relates to: ${m.relates_to.join(', ')}`)
-      lines.push(`What it highlights: ${m.what_it_highlights}`)
-      if (m.variation_types) {
-        for (const v of m.variation_types) {
-          lines.push(`• ${v}`)
-        }
-      }
-      lines.push('')
-    }
-  }
-
-  if (ref.facilitation_process) {
-    lines.push('### Facilitation Process')
-    for (const step of ref.facilitation_process) {
-      lines.push(`**Step ${step.step} — ${step.name}:** ${step.guidance}`)
-    }
-    lines.push('')
-  }
-
-  if (ref.key_concepts) {
-    lines.push('### Key Concepts')
-    for (const value of Object.values(ref.key_concepts)) {
-      lines.push(`• ${value}`)
-    }
-  }
-
-  return lines.join('\n')
-}
-
-// Maps learn-mode tree IDs to their companion reference formatter functions.
-// Add a new entry here whenever a new learn-mode tree gets a reference file.
-const LEARN_REFERENCE_FORMATTERS = {
-  public_speaking: formatSeminarsReferenceForPrompt,
-  trial_fit: formatTrialFitReferenceForPrompt,
-  cautious_reveal: formatCautiousRevealReferenceForPrompt,
-  eoy_meeting: formatEoyReferenceForPrompt,
-  facilitation_101: formatFacilitationReferenceForPrompt,
-  reveal_growth_curve: formatGrowthCurveRevealReferenceForPrompt,
-  conflict_meeting: formatConflictMeetingReferenceForPrompt,
-  capacity_capability_opportunity: formatCCOReferenceForPrompt,
-  heald_matrix: formatHealdMatrixReferenceForPrompt,
-  demings_volatility: formatDemingsVolatilityReferenceForPrompt,
-  working_capital_cycle: formatWorkingCapitalCycleReferenceForPrompt,
-  ratio_analysis: formatRatioAnalysisReferenceForPrompt,
-  dashboard_discussions: formatDashboardDiscussionsReferenceForPrompt
-}
+// ── The thirteen method guides ───────────────────────────────────────────────
+//
+// 🔴 THESE THIRTEEN FUNCTIONS USED TO BE ~900 LINES OF HAND-WRITTEN FORMATTING,
+// each naming the fields it emitted one by one. A field authored into the JSON
+// afterwards was never mentioned again — silently. Measured 2026-08-17: **116 of
+// the 954 authored lines across the thirteen reached no prompt at all**, including
+// the discussion questions authored against every one of Dashboard Discussions'
+// twelve metrics, and the `causes` behind each of Working Capital Cycle's three
+// problem types (the symptom reached the model; the diagnosis did not).
+//
+// They are now one line each, over the shared walker in server/utils/methodGuides.js,
+// which walks the document's own shape and therefore cannot skip a field. That
+// closes the 116 as a consequence of the design rather than as thirteen patches the
+// next authored field would defeat again.
+//
+// ⚠ DO NOT ADD A FOURTEENTH HAND-WRITTEN FORMATTER, and do not add a field to one
+// of these by hand. A new guide is a row in methodGuides.GUIDES; a new field is a
+// key in the JSON and needs no code at all. Adding one here is the exact pattern
+// that lost the 116.
+//
+// They are kept as named functions because the module's public API and
+// tests/unit/learnReferenceFormatters.test.js both name them, and because each
+// still answers the question "does this guide's file still load?" — the silent
+// failure those tests exist to catch. They take no firm overrides: a caller that
+// needs a scope's edits goes through buildLearnReferenceText.
+
+function formatTrialFitReferenceForPrompt () { return formatGuideForPrompt('trial_fit') }
+function formatCautiousRevealReferenceForPrompt () { return formatGuideForPrompt('cautious_reveal') }
+function formatSeminarsReferenceForPrompt () { return formatGuideForPrompt('public_speaking') }
+function formatEoyReferenceForPrompt () { return formatGuideForPrompt('eoy_meeting') }
+function formatHealdMatrixReferenceForPrompt () { return formatGuideForPrompt('heald_matrix') }
+function formatCCOReferenceForPrompt () { return formatGuideForPrompt('capacity_capability_opportunity') }
+function formatConflictMeetingReferenceForPrompt () { return formatGuideForPrompt('conflict_meeting') }
+function formatGrowthCurveRevealReferenceForPrompt () { return formatGuideForPrompt('reveal_growth_curve') }
+function formatFacilitationReferenceForPrompt () { return formatGuideForPrompt('facilitation_101') }
+function formatDemingsVolatilityReferenceForPrompt () { return formatGuideForPrompt('demings_volatility') }
+function formatWorkingCapitalCycleReferenceForPrompt () { return formatGuideForPrompt('working_capital_cycle') }
+function formatRatioAnalysisReferenceForPrompt () { return formatGuideForPrompt('ratio_analysis') }
+function formatDashboardDiscussionsReferenceForPrompt () { return formatGuideForPrompt('dashboard_discussions') }
 
 /**
  * Builds the full reference text block for a given learn-mode tree.
  * Used by both learn mode (primary path) and the deep-dive offer in client/discover mode.
  * Returns a formatted string combining the tree prompt and its companion reference content,
  * or null if the tree is not a recognised learn-mode tree.
+ *
+ * The companion guide is resolved through the reading scope's edits (item 4.16 F):
+ * the mentor's wording, then any tier below it that has reworded a line, with the
+ * whole block fenced when anybody has. Called with no overrides — which is every
+ * pre-existing call site until it is threaded through — it serves the platform
+ * guides exactly as it always did.
+ *
+ * @param {Object|null} tree - a logic tree
+ * @param {Object|null} [guideOverrides] - resolved method-guide override map, keyed
+ *   by guide id (methodGuideConfig.loadResolvedGuideOverrides)
+ * @returns {string|null}
  */
-function buildLearnReferenceText (tree) {
+function buildLearnReferenceText (tree, guideOverrides) {
   if (!tree || tree.mode !== 'learn') { return null }
 
   let text = formatLogicTreeForPrompt(tree)
 
-  const formatter = LEARN_REFERENCE_FORMATTERS[tree.id]
-  if (formatter) {
-    const ref = formatter()
+  if (GUIDE_BY_ID[tree.id]) {
+    const ref = formatGuideForPrompt(tree.id, guideOverrides)
     if (ref) { text += '\n\n---\n\n' + ref }
   }
 
@@ -1519,4 +879,4 @@ function walkLogicTree (state, treeId, firmTrees) {
   return [...templates]
 }
 
-module.exports = { isTemplateName, splitByAvailability, withholdUnavailableNames, formatNodeForPrompt, loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, explainDetection, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
+module.exports = { isTemplateName, splitByAvailability, withholdUnavailableNames, formatDeliveryMethodChoiceForPrompt, formatNodeForPrompt, loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, explainDetection, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
