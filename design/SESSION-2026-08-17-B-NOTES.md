@@ -1,30 +1,29 @@
 # Session Notes — 2026-08-17 · Laptop, Session 67
 
-> **Nothing is unsaved.** `feat/advisor-progress`, tree clean, pushed. Suite **5,745 green /
-> 321 suites**, lint 0 errors, audit gate PASS, `nuxt build` exit 0 with zero warnings.
+> **Nothing is unsaved.** `feat/advisor-progress`, tree clean, pushed, and **level with
+> `master`**. Suite **5,749 green / 321 suites**, lint 0 errors, audit gate PASS,
+> `nuxt build` exit 0 with zero warnings.
 >
-> ✅ **4.16 ITEM F IS BUILT.** ⏳ **v0.9.0 IS PREPARED AND WAITING ON ONE CLICK** — PR #44.
+> ✅ **4.16 ITEM F IS BUILT.** ✅ **v0.9.0 IS CUT, TAGGED AND PUSHED.**
 
 ---
 
-## 🔴 THE ONE THING OUTSTANDING
+## ✅ THE RELEASE IS DONE — nothing is outstanding
 
-**[PR #44](https://github.com/advisor-e/Virt-Advisor/pull/44) needs merging, then
-`v0.9.0` tagging on the merge commit, then the hash backfilling into the ledger row.**
+**`v0.9.0` is tagged on `d4284e6`**, the merge commit of
+[PR #44](https://github.com/advisor-e/Virt-Advisor/pull/44), confirmed on `origin`. The
+ledger row in [`DEPLOYED-VERSIONS.md`](DEPLOYED-VERSIONS.md) carries the hash. The email
+telling the master team is drafted and saved at
+[`RELEASE-v0.9.0-EMAIL.md`](RELEASE-v0.9.0-EMAIL.md) — **Mike had not sent it when this
+note was written**, so that is the one loose end, and it is his to close, not ours.
 
-The merge was attempted and **refused by the permission guard on this machine** — not by
-any rule in this repo, and nothing is wrong with the release. Everything up to the merge
-button is done: notes written, version stamped, ledger row written ahead and marked
-not-yet-cut, branch pushed, PR open, all four gates green on the head commit.
+⚠ **`master` and this branch are level.** The pre-push hook caught the branch sitting one
+commit behind after the merge; `master` was merged back in and the suite re-run green
+before the tag was pushed. **Nothing was pushed with `--no-verify`.**
 
-```
-gh pr merge 44 --merge
-git checkout master && git pull
-git tag -a v0.9.0 -m "Release v0.9.0" && git push origin v0.9.0
-```
-
-Then put the merge-commit hash into the `v0.9.0` row of
-[`DEPLOYED-VERSIONS.md`](DEPLOYED-VERSIONS.md), which is written and waiting for it.
+⚠ **An earlier version of this note said the merge was blocked and left instructions for
+finishing it. That is withdrawn — it is done.** Recorded here rather than quietly deleted,
+because a handover that silently changes its mind is worse than one that says it did.
 
 ---
 
@@ -89,7 +88,7 @@ suites, and this note. **Touched:** `logicTrees.js`, `firmContent.js`, `firmMana
 
 ---
 
-## ⚠ Found on the way — NOT this item, and nobody is on it
+## ⚠ Found on the way — now item 4.18 on the live list
 
 🔴 **The engine can route a question to the wrong coaching tree, and the AI then INVENTS
 content that reads as authored.** A Dashboard Discussions question routed to the **Ratio
@@ -100,27 +99,41 @@ was correct and reachable; the wrong guide was picked, and the model filled the 
 **It is tree detection, not the guides** — but inventing content that reads as authored is
 the same failure family this whole item exists to close. It is written into
 [`RELEASE-NOTES-v0.9.0.md`](RELEASE-NOTES-v0.9.0.md) §4a so the master team is not
-surprised by it. **It is not on the to-do list and it is not scored** — that is Mike's call,
-not ours, and it is named here rather than filed quietly.
+surprised by it.
+
+✅ **Mike ruled it onto the list the same session** — *"if you found this problem then yes -
+it gets put on the to do list"* — and it is now **4.18**, scored **4**, in
+[`features/to-do.md`](features/to-do.md) §6 and `to-do-items.json`. **Appended, not ranked:
+his order is his, and inserting it would have moved one of his rows.** The page says the
+last position is not a judgement.
+
+🔴 **TWO HALVES, AND THE SECOND IS THE ITEM.** Better routing reduces this and can never
+remove it — some questions are genuinely ambiguous. **The fault worth fixing is that the
+model does not say "I do not have that for this method."** Do not close 4.18 on a routing
+tweak alone, and verify it the way 4.16 was verified: a real question on the running app,
+compared word for word against the source. **Every automated test here passes on an answer
+the model made up.**
 
 ---
 
 ## ☐ Open for Mike
 
-1. **Merge PR #44 and cut the tag** — the release he asked for, one click away.
+1. **Send the release email** — drafted and saved at
+   [`RELEASE-v0.9.0-EMAIL.md`](RELEASE-v0.9.0-EMAIL.md), not sent when this note was
+   written. Its closing section also answers Carl's `npm install` question (**item 3.5**),
+   so sending it as written closes that item too.
 2. **Where the engagement types live** — 18 authored fields, no page at any tier. **Now the
    only part of 4.16 still open**, and the one thing in it that cannot start without him.
    🔺 **carried four sessions.**
-3. **Whether the mis-routing above deserves a place on the list** — see the section above.
-4. **Whether a firm may REMOVE an inherited diagnostic situation** — today it cannot.
+3. **Whether a firm may REMOVE an inherited diagnostic situation** — today it cannot.
    Carried from session 65.
-5. **The "Ceiling history" button** — covers two settings, names one. Carried from session 64.
-6. **4.12 · where the corrected handover lives** — carried **ten** sessions.
-7. **4.7 · when the overnight reinstall can run** — a time, not an answer. Carried **ten**
+4. **The "Ceiling history" button** — covers two settings, names one. Carried from session 64.
+5. **4.12 · where the corrected handover lives** — carried **ten** sessions.
+6. **4.7 · when the overnight reinstall can run** — a time, not an answer. Carried **ten**
    sessions.
-8. **The template picker on a firm's own coaching entry** — carried from session 60.
+7. **The template picker on a firm's own coaching entry** — carried from session 60.
 
-⚠ **Items 6 and 7 have now been carried for ten sessions each.** Neither needs a working
+⚠ **Items 5 and 6 have now been carried for ten sessions each.** Neither needs a working
 session.
 
 ---
