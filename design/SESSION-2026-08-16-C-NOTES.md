@@ -7,7 +7,7 @@
 
 ---
 
-## 🔴 FIRST TASK NEXT SESSION — build. The design is settled.
+## 🔴 FIRST TASK NEXT SESSION — build · the design is settled
 
 **Read [`4-16-BUILD-SPEC.md`](4-16-BUILD-SPEC.md) and build from it. Do not re-derive the analysis.**
 Two sessions went into this design; the evidence is recorded in that file's §6 so it never has to be
@@ -92,9 +92,13 @@ carries a confirm-then-ask-Mike step before anything is removed.
 
 1. **Nothing is built.** Two sessions of design, no code. That is the honest position and Mike said so
    himself: *"this has been the second session just trying to get the design right."*
-2. **`org-capacity-planner` has no logic tree at all** — every other domain with diagnostic-entry
-   branches has one. **Missing routing, not missing plumbing. Needs Mike as its own item**; it is not
-   filed on the to-do list yet.
+2. ✅ **`org-capacity-planner` — raised with Mike and CLOSED, not an item.** *"there is no capacity
+   planner logic — it is a single model used for firms to plan and has a tutorial video attached."*
+   One model means no competing-template decision, so no tree is correct. ⚠ **But its 3 branches then
+   turn out to be a `sequence`, not routing** — Base Capacity → Scenario Versioning → Client Trimming,
+   in that order — so they are Domain Support content. **The one place in all 65 where
+   `diagnostic_entry` holds something other than IF-THEN.** Do not assume the field means the same
+   thing everywhere.
 3. **The Coaching Reference has no Brief** — the only content page in the hub without one, and the
    likeliest reason its name promises coaching while its code calls it *"the menu the AI picks a
    template FROM"*. Writing that Brief is real work and is **not** part of 4.16.

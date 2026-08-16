@@ -1,4 +1,4 @@
-# 4.16 — the settled spec. Next session builds from this.
+# 4.16 — the settled spec, for the next session to build from
 
 > **Two sessions went into getting this design right. Nothing here is open.** Read this file, then
 > build. Do not re-derive the analysis; it is recorded in §6 so it does not have to be run again.
@@ -26,9 +26,10 @@ another route. The real list is below.
 | F | The 12 method guides get a screen | 12 | Domain Support | Real |
 | G | `get-team-problem`'s `if_then_logic` — check against its tree first, then treat as B or A | 6 | Logic Tables | Check first |
 
-**Separately found, not part of 4.16 and not a wiring fault:**
-🔴 **`org-capacity-planner` has no logic tree at all.** Every other domain carrying diagnostic-entry
-branches has one. This is missing routing, not missing plumbing. Raise it with Mike as its own item.
+✅ **`org-capacity-planner` having no logic tree is CORRECT, and is not an item.** Ruled by Mike,
+2026-08-16: *"there is no capacity planner logic — it is a single model used for firms to plan and has
+a tutorial video attached."* With one model there is no competing-template decision to route, so there
+is nothing for a tree to do. **Do not file this and do not build a tree for it.**
 
 ---
 
@@ -87,15 +88,30 @@ propose the deletion to Mike. **Deleting authored content is his call, never our
 
 | Domain | Branches | Why not covered |
 |---|---|---|
-| `org-capacity-planner` | 3 | no tree exists |
+| `org-capacity-planner` | 3 | ✅ **not routing at all — see below** |
 | `conflict` | 3 | its tree is a 6-stage delivery sequence; 0 nodes name templates |
 | `forecasting` | 1 — `progression_guide` | tree is `cashflow`; no matching node |
 | `data-systems` | 1 — `has_data_but_cannot_interpret` | tree is `financial_systems_review`, which builds systems rather than interprets data |
 | `strategy` | 1 — `revenue_model_always_required` | a standing rule, not a branch |
 | `org-board-pack` | 1 — `thought_leadership` | no matching node |
 
-These are genuine routing. They belong in the **logic tree**, as nodes, on the **Logic Tables** page —
-not in a second field. Where no tree exists (`org-capacity-planner`), that is §1's separate item.
+Most of these are genuine routing. They belong in the **logic tree**, as nodes, on the **Logic Tables**
+page — not in a second field.
+
+🔴 **`org-capacity-planner`'s 3 are the exception, and they are Domain Support content.** Mike ruled
+there is no capacity-planner logic — one model, with a tutorial video. Read against that, the three
+branches are not a choice between templates at all, they are a **sequence** across the domain's own
+three materials:
+
+> *"Run the base capacity model first… This baseline is the prerequisite for any other capacity
+> planning work — scenario modelling is meaningless without an accurate starting position."*
+> Then *"Once the baseline is established, build the scenario version models."* Then, only if the base
+> model shows uneven load, the client trimming analysis.
+
+Base Capacity → Scenario Versioning → Client Trimming, in that order. That answers *how do I run this,
+step by step*, so it belongs with Domain Support's ordered steps — **not on Logic Tables, and not as a
+tree.** It is the one place in all 65 where a `diagnostic_entry` holds sequence rather than routing,
+which is worth knowing before assuming the field means the same thing everywhere.
 
 ### C · `stage_entry_question` and `flat_branches` — 15
 

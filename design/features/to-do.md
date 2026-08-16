@@ -356,9 +356,11 @@ tier-agnostic on the `coachingConfig.loadResolvedCoaching` shape. The two middle
 exercised until the master team issues their roles and the firm→brand/country data; it fails toward
 today's behaviour, never toward a guess.
 
-🆕 **Found on the way, and it is not a wiring fault: `org-capacity-planner` has no logic tree at
-all.** Every other domain carrying diagnostic-entry branches has one. Missing routing, not missing
-plumbing — **needs Mike, as its own item.**
+✅ **`org-capacity-planner` having no logic tree is correct and is NOT an item** — ruled by Mike,
+2026-08-16: *"there is no capacity planner logic — it is a single model used for firms to plan and has
+a tutorial video attached."* Its 3 branches turn out to be a **sequence** across its own three
+materials, not routing — the one place in all 65 where the field holds something other than
+IF-THEN. See the spec §B.
 
 **4.17 · A screen can show one row when 67 exist, and say nothing.** **SCORE 2 · robustness**
 - **Why:** the mentor's Advisory Distinctions tab showed **1** distinction when the shipped set is
