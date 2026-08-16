@@ -83,6 +83,7 @@ but the same rule: he cannot say yes to something that exists only in a chat win
 |---|---|---|
 | The Awareness Check block | [PF-AWARENESS-DECISION-BLOCK.md](PF-AWARENESS-DECISION-BLOCK.md) | The context the AI is given while choosing between Cautious Reveal and Trial Fit on the `pf_awareness` branch. ☐ awaiting approval — item 2.6, features/to-do.md. |
 | The Diagnostic Entry block | [DIAGNOSTIC-ENTRY-BLOCK.md](DIAGNOSTIC-ENTRY-BLOCK.md) · screen: [mockups/domain-support-diagnostic-entry.html](mockups/domain-support-diagnostic-entry.html) | The 65 authored "where to start when the client presents like this" branches across 20 domains — today on no screen and in no prompt. ☐ awaiting approval — item 4.16 Phase 1, features/to-do.md. |
+| The method guides | [METHOD-GUIDES-SCREEN.md](METHOD-GUIDES-SCREEN.md) · screen: [mockups/method-guides.html](mockups/method-guides.html) | The 13 deep method guides — 155,000 characters reaching the AI and no screen at any tier — and the 116 authored lines inside them that reach neither. ☐ awaiting wording, §6 a–d — item 4.16 F, features/to-do.md. |
 
 ### Orphans
 

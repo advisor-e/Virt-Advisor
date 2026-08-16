@@ -1,0 +1,619 @@
+<title>The Method Guides</title>
+<style>
+  /* ------------------------------------------------------------------
+     Palette and type are TAKEN FROM mockups/domain-support-diagnostic-entry.html,
+     which took them from components/firm/FirmDomainSupport.vue. This artefact
+     proposes a second block on that same tab, so it must not look like a
+     different application. Light-only and painted explicitly, as the app is.
+     ------------------------------------------------------------------ */
+  :root {
+    --ground: #f2f4f7;
+    --card: #ffffff;
+    --ink: #1f2733;
+    --body: #404b5a;
+    --muted: #8a94a3;
+    --line: #eef1f5;
+    --head-bg: #f4f6f9;
+    --rule: #dfe4ea;
+    --platform: #c7ceda;
+    --firm: #e0b24e;
+    --firm-bg: #fdf6e6;
+    --accent: #3273dc;
+    --new: #1f9d76;
+    --new-bg: #e9f6f1;
+    --lost: #c0392b;
+    --lost-bg: #fdecea;
+    --sans: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--body);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 34px 22px 90px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--accent); margin: 0;
+  }
+  h1 {
+    margin: 4px 0 0; font-size: 30px; line-height: 1.15; font-weight: 700;
+    letter-spacing: -0.015em; color: var(--ink); text-wrap: balance;
+  }
+  .lede { margin: 10px 0 0; max-width: 68ch; }
+
+  .note {
+    background: var(--card); border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0;
+    padding: 13px 16px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .note p { margin: 0; max-width: 78ch; }
+  .note strong { color: var(--ink); }
+  .note.is-lost { border-left-color: var(--lost); }
+  .note.is-firm { border-left-color: var(--firm); }
+
+  h2 {
+    margin: 12px 0 0; font-size: 19px; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.01em;
+  }
+  h2 .num {
+    display: inline-block; min-width: 1.5em; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .sub { margin: 0; color: var(--muted); font-size: 13.5px; max-width: 78ch; }
+
+  /* ---------- the mocked screen ---------- */
+  .screen {
+    background: var(--ground); border: 1px solid var(--rule); border-radius: 10px;
+    padding: 18px; display: grid; grid-template-columns: 300px 1fr; gap: 18px;
+  }
+  .rail {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 8px; padding: 14px 12px;
+  }
+  .rail-heading {
+    font-size: 10.9px; text-transform: uppercase; letter-spacing: 0.09em;
+    font-weight: 700; color: var(--muted); margin: 0 0 6px;
+  }
+  .rail-group + .rail-group { margin-top: 16px; }
+  .rail-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; padding: 6px 8px; border-radius: 5px; font-size: 14px;
+  }
+  .rail-row.is-current { background: #eaf1fc; color: var(--ink); font-weight: 600; }
+  .rail-row.is-standing { color: var(--ink); }
+  .count {
+    font-size: 11.5px; background: #f0f2f5; color: var(--body);
+    border-radius: 999px; padding: 1px 8px; font-variant-numeric: tabular-nums;
+  }
+  .guidemark {
+    font-size: 11px; color: var(--new); font-weight: 700;
+  }
+
+  .panel {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 8px; padding: 18px; min-width: 0;
+  }
+  .panel-head {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap; margin-bottom: 16px;
+  }
+  .panel-title { margin: 0 0 6px; font-size: 20px; font-weight: 700; color: var(--ink); }
+  .tag {
+    display: inline-block; font-size: 11.5px; background: #f0f2f5;
+    color: var(--body); border-radius: 4px; padding: 2px 8px;
+  }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); }
+  .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .dot.is-platform { background: var(--platform); }
+  .dot.is-firm { background: var(--firm); }
+
+  .materials-head {
+    font-size: 10.9px; text-transform: uppercase; letter-spacing: 0.08em;
+    font-weight: 700; color: var(--muted); margin: 0 0 8px;
+  }
+  .faded { opacity: 0.55; }
+
+  .table-scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 640px; }
+  thead th {
+    background: var(--head-bg); text-align: left; vertical-align: bottom;
+    font-size: 10.9px; letter-spacing: 0.08em; text-transform: uppercase;
+    font-weight: 700; color: var(--muted); padding: 8px 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+  tbody td {
+    vertical-align: top; padding: 10px; border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  .rowname { font-weight: 600; color: var(--ink); }
+
+  /* the control this artefact proposes, sitting on an existing material row */
+  .openguide {
+    display: inline-flex; align-items: center; gap: 7px; margin-top: 7px;
+    font-size: 13px; font-weight: 600; color: var(--new);
+    border: 1px solid var(--new); background: var(--new-bg);
+    border-radius: 5px; padding: 3px 9px;
+  }
+  .openguide .chev { font-size: 11px; }
+
+  /* the guide, opened */
+  .guide {
+    border: 1px solid var(--new); border-radius: 8px; padding: 16px;
+    margin: 12px 0 22px; background: var(--new-bg);
+  }
+  .newflag {
+    display: inline-block; font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: #fff;
+    background: var(--new); border-radius: 3px; padding: 2px 7px; margin-bottom: 10px;
+  }
+  .guide-title { margin: 0 0 2px; font-size: 17px; font-weight: 700; color: var(--ink); }
+  .shared {
+    font-size: 13px; color: #8a6d1f; background: var(--firm-bg);
+    border: 1px solid var(--firm); border-radius: 5px;
+    padding: 6px 10px; margin: 8px 0 14px;
+  }
+  .fieldlabel {
+    font-size: 10.9px; text-transform: uppercase; letter-spacing: 0.08em;
+    font-weight: 700; color: var(--muted); display: block; margin-bottom: 5px;
+  }
+  .fieldbox {
+    background: var(--card); border: 1px solid var(--rule); border-radius: 5px;
+    padding: 9px 11px; font-size: 14px; color: var(--ink);
+  }
+  .field + .field { margin-top: 12px; }
+
+  .stage {
+    background: var(--card); border: 1px solid var(--rule); border-radius: 6px;
+    padding: 12px 14px; margin-top: 12px;
+  }
+  .stage-head {
+    font-size: 14.5px; font-weight: 700; color: var(--ink); margin: 0 0 8px;
+  }
+  .stage-head .n {
+    display: inline-block; font-size: 11px; font-weight: 700; color: #fff;
+    background: var(--muted); border-radius: 3px; padding: 1px 6px;
+    margin-right: 8px; vertical-align: 2px;
+  }
+  .bullets { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+  .bullets li { font-size: 13.5px; }
+  .nested {
+    border-left: 2px solid var(--rule); padding-left: 12px; margin-top: 10px;
+  }
+  .nested .fieldlabel { color: var(--accent); }
+  .qrow { display: flex; gap: 10px; font-size: 13.5px; margin-top: 6px; }
+  .qtype {
+    flex: none; width: 96px; font-weight: 700; color: var(--ink); font-size: 12.5px;
+    text-transform: uppercase; letter-spacing: 0.05em; padding-top: 1px;
+  }
+
+  .lostflag {
+    display: inline-block; font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; color: #fff;
+    background: var(--lost); border-radius: 3px; padding: 1px 7px; margin-left: 8px;
+  }
+  .is-lost-box { border-color: var(--lost); background: var(--lost-bg); }
+
+  .actions {
+    display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px;
+    font-size: 13.5px;
+  }
+  .btn {
+    border-radius: 5px; padding: 6px 14px; font-weight: 600;
+    border: 1px solid var(--rule); color: var(--body); background: var(--card);
+  }
+  .btn.is-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ---------- prompt block ---------- */
+  pre {
+    margin: 0; background: #1f2733; color: #e6ecf3; border-radius: 8px;
+    padding: 16px 18px; overflow-x: auto; font-family: var(--mono);
+    font-size: 12.5px; line-height: 1.62; white-space: pre-wrap; word-break: break-word;
+  }
+  pre .added { color: #7ee0b8; }
+  pre .was { color: #8a94a3; }
+
+  .tiers { border-collapse: collapse; width: 100%; }
+  .tiers th, .tiers td {
+    text-align: left; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--rule);
+    font-size: 14px; vertical-align: top;
+  }
+  .tiers th {
+    font-size: 10.9px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted);
+  }
+  .tiers td:first-child { color: var(--ink); font-weight: 600; }
+
+  .decide {
+    background: var(--firm-bg); border: 1px solid var(--firm);
+    border-radius: 8px; padding: 15px 17px;
+  }
+  .decide h2 { margin-top: 0; }
+  .opts { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .opts li { max-width: 76ch; }
+  .opts .k {
+    display: inline-block; width: 1.6em; font-weight: 700; color: var(--ink);
+  }
+  .opts .shown { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+  code {
+    font-family: var(--mono); font-size: 0.88em; background: var(--head-bg);
+    border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; color: var(--ink);
+  }
+
+  @media (max-width: 860px) {
+    .screen { grid-template-columns: 1fr; }
+    .rail { display: none; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Domain Support tab · to-do item 4.16 F · approval artefact</p>
+    <h1>The method guides — 155,000 characters nobody can see</h1>
+    <p class="lede">
+      Thirteen deep method guides go to the AI every time an advisor is coached. <strong>None of them
+      appears on any screen, at any tier</strong> — and 116 authored lines inside them never reach the
+      AI either. This artefact proposes where they live, and shows what changes.
+    </p>
+  </header>
+
+  <div class="note">
+    <p><strong>Saved before approval</strong>, per CLAUDE.md → Save the Artefact. Built under the
+      ruling of 2026-08-16: <em>“ALL AI fixes must use hub pages where possible, starting with the
+      mentor and cascading down as appropriate.”</em></p>
+    <p><strong>The worked example is the real <code>conflict</code> domain and the real
+      <code>conflict-meeting-reference.json</code></strong>, with its authored text. Nothing here is
+      placeholder. Full reasoning and evidence:
+      <code>design/METHOD-GUIDES-SCREEN.md</code>.</p>
+  </div>
+
+  <h2><span class="num">1.</span> The screen</h2>
+  <p class="sub">
+    The tab as it is today, with the proposed guide opened from a material row that already exists.
+    The rail, the diagnostic block shipped on 2026-08-16 and the materials table are unchanged — the
+    guide opens <em>inside</em> the row it belongs to, because it is that framework in full rather
+    than a new subject.
+  </p>
+
+  <div class="screen">
+    <nav class="rail">
+      <div class="rail-group">
+        <p class="rail-heading">Applies to every domain</p>
+        <div class="rail-row is-standing"><span>Facilitation 101</span><span class="guidemark">guide</span></div>
+      </div>
+      <div class="rail-group">
+        <p class="rail-heading">Do the job — with a client</p>
+        <div class="rail-row is-current"><span>Conflict &amp; Dispute</span><span class="guidemark">guide</span></div>
+        <div class="rail-row"><span>Data &amp; Systems</span><span class="guidemark">guide ×3</span></div>
+        <div class="rail-row"><span>Forecasting</span><span class="guidemark">guide</span></div>
+        <div class="rail-row"><span>Profit</span><span class="guidemark">guide ×2</span></div>
+        <div class="rail-row"><span>Strategy</span><span class="guidemark">guide ×3</span></div>
+        <div class="rail-row"><span>Succession</span><span class="count">3</span></div>
+      </div>
+      <div class="rail-group">
+        <p class="rail-heading">Get organised — your firm</p>
+        <div class="rail-row"><span>Board Pack</span><span class="guidemark">guide</span></div>
+        <div class="rail-row"><span>Firm Strategy</span><span class="guidemark">guide</span></div>
+      </div>
+    </nav>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <p class="panel-title">Conflict &amp; Dispute</p>
+          <span class="tag">Platform content</span>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="dot is-platform"></span>Inherited</span>
+          <span class="legend-item"><span class="dot is-firm"></span>Edited here</span>
+        </div>
+      </div>
+
+      <p class="materials-head faded">What to do, depending on the situation — unchanged</p>
+      <p class="sub faded" style="margin-bottom:16px;">The block shipped on 2026-08-16 sits here, above the materials.</p>
+
+      <p class="materials-head">Teaching frameworks</p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Framework</th>
+              <th scope="col">What it is</th>
+              <th scope="col">Who &amp; when</th>
+              <th scope="col">How to use it</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="faded">
+              <td><span class="rowname">Conflict Psychology — Detachment and the Cognitive Pathway</span></td>
+              <td>The psychology of why parties double down, and the pathway out of it.</td>
+              <td>Before facilitating any conflict meeting.</td>
+              <td>6 steps</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="rowname">Force Field Analysis — The 6-Step Conflict Meeting</span>
+                <span class="openguide"><span class="chev">▾</span> The full method guide</span>
+              </td>
+              <td>The structured meeting that moves a room from entrenched positions to a shared decision.</td>
+              <td>Where two or more parties are stuck and a decision cannot be reached.</td>
+              <td>11 steps</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="guide">
+        <span class="newflag">New — the guide, opened</span>
+        <p class="guide-title">What your advisors’ AI is taught about this method</p>
+        <p class="sub" style="margin-bottom:12px;">Framing a Conflict Meeting · 12,090 characters · every line below goes to the AI</p>
+
+        <div class="field">
+          <span class="fieldlabel">Objective</span>
+          <div class="fieldbox">To equip advisors with the psychological framework and practical facilitation tools to run a conflict meeting — from understanding why people double down on their positions, through creating a cognitive pathway for letting go, to managing the room with status and structured process.</div>
+        </div>
+
+        <div class="field">
+          <span class="fieldlabel">Core principle</span>
+          <div class="fieldbox">The goal of a conflict meeting is not to declare a winner — it is to create an environment where people can catch themselves acting in violation of their own higher values, and choose to let go of their current position for the greater good.</div>
+        </div>
+
+        <div class="stage">
+          <p class="stage-head"><span class="n">Stage 1</span>Understanding Conflict Psychology</p>
+          <span class="fieldlabel">Key principle</span>
+          <div class="fieldbox" style="margin-bottom:10px;">Before you can facilitate conflict effectively, you need to understand why people argue the way they do. Reason and logic are not neutral — they are survival tools wired for persuasion.</div>
+          <span class="fieldlabel">Coaching points</span>
+          <ul class="bullets">
+            <li>Dan Sperber (evolutionary psychologist): the function of internalised reason and logic is to help us argue — to manipulate and convince others to meet our survival needs, and to be wary when others attempt to do the same to us.</li>
+            <li>Confirmation bias is the proof: people don’t reason to find truth — they reason to find information that supports the position they already hold.</li>
+            <li class="faded">…three more</li>
+          </ul>
+        </div>
+
+        <div class="stage">
+          <p class="stage-head"><span class="n">Stage 2</span>Creating the Cognitive Pathway — Detachment</p>
+          <span class="fieldlabel">Key principle</span>
+          <div class="fieldbox" style="margin-bottom:10px;">People double down on their positions not because they are stubborn — but because letting go feels like a loss of self. Your first job is to create a safe cognitive pathway for them to release their position without losing their identity.</div>
+          <span class="fieldlabel">Coaching points</span>
+          <ul class="bullets">
+            <li>To accept new information, a person must first be prepared to let go of their current belief without feeling a loss of self.</li>
+            <li class="faded">…four more</li>
+          </ul>
+
+          <div class="nested">
+            <span class="fieldlabel">Santa Claus sequence</span>
+            <div class="qrow">
+              <span class="qtype">Disturb</span>
+              <div class="fieldbox" style="flex:1;">Do you remember who the first person was to tell you Santa Claus wasn’t real?</div>
+            </div>
+            <div class="qrow">
+              <span class="qtype">Affirm</span>
+              <div class="fieldbox" style="flex:1;">Did believing in Santa Claus make you less of a person?</div>
+            </div>
+            <div class="qrow">
+              <span class="qtype">Aspirational</span>
+              <div class="fieldbox" style="flex:1;">Is it possible that the process of learning that a once firmly held belief was incorrect, releasing it, and accepting a new understanding, actually gave you the early life experience that you can change a belief and NOT be any weaker for it?</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage faded">
+          <p class="stage-head"><span class="n">Stages 3–5</span>The 6-Step Facilitation Process · The 3 Framing Concepts · Achieving and Sustaining Status</p>
+          <p class="sub">Each carries a differently-shaped block of its own — <code>steps</code>, <code>concepts</code>, <code>delivery_elements</code>. All render the same way.</p>
+        </div>
+
+        <div class="stage">
+          <p class="stage-head">The facilitator’s three pillars <span class="lostflag">never reached the AI</span></p>
+          <span class="fieldlabel">Description</span>
+          <div class="fieldbox is-lost-box">As a facilitator in a conflict meeting, you are simultaneously sustaining three things in the room at all times.</div>
+          <p class="sub" style="margin-top:8px;">
+            The three pillars below it do reach the AI. This one line, which says what they are for,
+            does not — the formatter names the fields it emits one by one, and this field was never
+            added to the list. <strong>It is one of 116.</strong>
+          </p>
+        </div>
+
+        <div class="actions">
+          <span class="btn">Reset to platform</span>
+          <span class="btn is-primary">Save changes</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="note is-lost">
+    <p><strong>The red flag above is the finding, not a decoration.</strong> Across the thirteen
+      guides, <strong>116 of 954 authored lines never reach the AI</strong> — 62 in Dashboard
+      Discussions, 29 in Working Capital Cycle, 20 in Ratio Analysis. Each formatter lists the fields
+      it emits by hand, so anything authored later is silently skipped.</p>
+    <p><strong>A screen alone would make this worse</strong>, not better: it would put those lines
+      in front of a firm and imply the AI reads them. The screen and the prompt must be built from
+      one walk of the same structure, so they cannot disagree.</p>
+  </div>
+
+  <h2><span class="num">2.</span> What the AI starts receiving</h2>
+  <p class="sub">
+    Real rendered output for <code>dashboard-discussions</code>, the worst affected. Grey is what it
+    gets today; green is what it has never had.
+  </p>
+
+  <pre><span class="was">### Dashboard Metrics
+**Sales to Gross Profit Ratio**
+Relates to: Trading income, Variable costs
+What it highlights: The relationship between trading income and the gross
+profit retained after variable costs…
+</span><span class="added">Tactical options:
+• Purchasing, warehousing, logistics efficiencies
+• Project management, wastage/error reductions
+• Process improvements, skill/equipment advantages
+• Product fit, positioning, packaging, pricing, bundling
+• Message clarity and penetration, market knowledge
+• Sales effectiveness, brand awareness, customer loyalty
+
+Discussion questions:
+• Is the information consistent with your previous business assumptions
+  and beliefs?
+• Which tactical options are of greatest influence and why?
+• Did you have any actions planned prior to this data — do they still
+  stand?
+</span><span class="was">
+**Cost of Goods Sold to Sales**
+…eleven more metrics, each missing the same two lists…</span></pre>
+
+  <div class="note">
+    <p><strong>Those are the questions an advisor puts to a client in the room.</strong> They are
+      authored against every one of the twelve dashboard metrics, and the AI has never seen one of
+      them.</p>
+  </div>
+
+  <h2><span class="num">3.</span> Where the thirteen live</h2>
+  <p class="sub">
+    Twelve open from a framework row that is already on the tab. The thirteenth does not belong to a
+    domain at all.
+  </p>
+
+  <div class="table-scroll">
+    <table class="tiers">
+      <thead>
+        <tr><th scope="col">Guide</th><th scope="col">Opens from</th><th scope="col">Domain</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Trial Fit</td><td>Trial Fit Method</td><td>profit</td></tr>
+        <tr><td>Cautious Reveal</td><td>Cautious Reveal Method</td><td>profit</td></tr>
+        <tr><td>End of Year</td><td>EOY Meeting Agenda</td><td>eoy</td></tr>
+        <tr><td>Conflict Meeting</td><td>Force Field Analysis — The 6-Step Conflict Meeting</td><td>conflict</td></tr>
+        <tr><td>Heald Matrix</td><td>The Heald Matrix</td><td>strategy</td></tr>
+        <tr><td>Ratio Analysis</td><td>Ratio Analysis Deck — the Advisory Staircase</td><td>data-systems</td></tr>
+        <tr><td>Working Capital Cycle</td><td>Working Capital Cycle — Money in Movement</td><td>forecasting</td></tr>
+        <tr><td>Growth Curve Reveal</td><td>Revealing the Growth Curve</td><td>strategy · org-firm-strategy</td></tr>
+        <tr><td>Capacity, Capability, Opportunity</td><td>Capacity, Capability, Opportunity</td><td>strategy · get-positioning</td></tr>
+        <tr><td>Deming’s Volatility</td><td>Deming’s Theory of Volatility</td><td>data-systems · org-board-pack</td></tr>
+        <tr><td>Dashboard Discussions</td><td>Dashboard Discussions</td><td>data-systems · get-sales-tracker</td></tr>
+        <tr><td>Powerful Seminars</td><td>Powerful Seminars</td><td>get-seminar · sales-marketing</td></tr>
+        <tr><td>Facilitation 101</td><td colspan="2">🔴 no row anywhere — <em>“the universal protocol for introducing any advisory concept”</em></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note is-firm">
+    <p><strong>Five guides serve two domains at once.</strong> One document, two pages — an edit made
+      on <em>Strategy</em> changes what <em>Firm Strategy</em> shows. The screen says so where the
+      edit happens:</p>
+    <p class="shared" style="margin:0;">This guide is also used by <strong>Firm Strategy</strong>. An
+      edit here changes it there too.</p>
+  </div>
+
+  <div class="note">
+    <p><strong>This mapping does not exist in the data and is proposed here by name.</strong> The
+      guides are keyed to a logic table, and those thirteen tables carry no domain — so nothing in the
+      code can say today which page a guide belongs on. Thirteen lines get written down once, in the
+      open. <strong>A guide with no mapping renders nowhere</strong>, rather than being placed by
+      guesswork.</p>
+  </div>
+
+  <h2><span class="num">4.</span> Why the boxes are not all the same</h2>
+  <p class="sub">Measured across all 155,000 characters of the thirteen.</p>
+
+  <table class="tiers">
+    <thead>
+      <tr><th scope="col">What it is</th><th scope="col">Share</th><th scope="col">Consequence</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>The four fields all thirteen share</td><td>21%</td>
+        <td>Objective, core principle, key concepts, additional guidance</td>
+      </tr>
+      <tr>
+        <td>The staged sequence</td><td>44%</td>
+        <td>Called <code>stages</code>, <code>steps</code>, <code>application_steps</code>, <code>step_by_step</code> or <code>pillars</code>, depending on the guide</td>
+      </tr>
+      <tr>
+        <td><strong>Blocks unique to one guide</strong></td><td><strong>35%</strong></td>
+        <td>86% of Dashboard Discussions · 73% of Working Capital Cycle · 69% of Ratio Analysis</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <p><strong>A screen with a fixed set of boxes would leave most of those three guides
+      invisible</strong> — this item’s own fault, one level down. The Santa Claus sequence above is
+      the illustration: an array of question objects, inside a coaching stage, inside the document.</p>
+    <p><strong>So one renderer walks each guide’s own shape.</strong> Every authored line becomes a
+      field; the document’s own section names become the headings; nothing is listed by hand in code.
+      A guide with a section nobody anticipated still renders in full — and the same walk builds the
+      prompt.</p>
+    <p><strong>Structure is fixed; words are editable.</strong> A firm may reword any line and cannot
+      add or remove a stage. Editing the shape is authoring a method, and that is the mentor’s work.</p>
+  </div>
+
+  <div class="decide">
+    <h2 style="margin-top:0;">🔴 The wording — four choices, and nothing is built until they are made</h2>
+    <p style="margin:6px 0 0;">The mockup shows <strong>option A</strong> throughout, for no reason
+      other than that a mockup has to show something.</p>
+
+    <h2 style="font-size:15.5px;">a · The control on the material row</h2>
+    <ul class="opts">
+      <li><span class="k">A</span><strong>The full method guide</strong> <span class="shown">— shown above</span></li>
+      <li><span class="k">B</span><strong>How to run this, in full</strong></li>
+      <li><span class="k">C</span><strong>The detail behind this framework</strong></li>
+    </ul>
+
+    <h2 style="font-size:15.5px;">b · The heading over the guide once open</h2>
+    <ul class="opts">
+      <li><span class="k">A</span><strong>What your advisors’ AI is taught about this method</strong> <span class="shown">— shown above</span></li>
+      <li><span class="k">B</span><strong>The method, in full</strong></li>
+      <li><span class="k">C</span><strong>Coaching detail — every line of this goes to the AI</strong></li>
+    </ul>
+
+    <h2 style="font-size:15.5px;">c · The line where a guide serves two domains</h2>
+    <ul class="opts">
+      <li><span class="k">A</span><strong>This guide is also used by <em>Firm Strategy</em>. An edit here changes it there too.</strong> <span class="shown">— shown above</span></li>
+      <li><span class="k">B</span><strong>Shared with <em>Firm Strategy</em> — one guide, shown in both places.</strong></li>
+      <li><span class="k">C</span><strong>Careful: editing this also edits <em>Firm Strategy</em>.</strong></li>
+    </ul>
+
+    <h2 style="font-size:15.5px;">d · Where Facilitation 101 goes</h2>
+    <ul class="opts">
+      <li><span class="k">A</span><strong>Its own entry above the domains, named “Applies to every domain”</strong> <span class="shown">— shown in the rail above</span></li>
+      <li><span class="k">B</span><strong>A material row of its own inside one domain</strong> — Mike names which</li>
+      <li><span class="k">C</span><strong>On every domain page</strong>, repeated, marked as a standing guide</li>
+    </ul>
+  </div>
+
+  <div class="note is-lost">
+    <p><strong>What changes for a live adviser, said plainly.</strong> The screen takes nothing away —
+      no tier has these controls today. But <strong>the AI starts receiving 116 pieces of coaching it
+      has never had</strong>, concentrated in Dashboard Discussions, Working Capital Cycle and Ratio
+      Analysis. Those three conversations will move. They should move toward what Mike wrote — that is
+      the point — but <strong>“should” is a prediction</strong>, and the check is to open a session in
+      each of the three and read what comes back on the running app before it ships.</p>
+  </div>
+
+  <div class="note">
+    <p><strong>Which tiers see it is not assumed here.</strong> The diagnostic block was ruled
+      <em>mentor only</em> on 2026-08-16 — <em>“this looks too technical for a firm or global
+      manager.”</em> A method guide is ordinary advisory prose rather than routing logic, so that
+      reasoning does not obviously carry across. <strong>It is asked, not inherited</strong>, once the
+      wording is settled.</p>
+  </div>
+
+</div>
