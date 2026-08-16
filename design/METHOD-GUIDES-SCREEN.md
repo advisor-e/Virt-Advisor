@@ -147,10 +147,25 @@ in code. Three consequences, all of them the point:
 
 ---
 
-## 6. 🔴 THE WORDING — for Mike to choose
+## 6. ✅ THE WORDING — CHOSEN BY MIKE, 2026-08-17
 
-**Nothing is built until these are answered.** The mockup shows option **A** of each throughout, for
-no reason other than that a mockup has to show something.
+**Control on the framework row:** **The detail behind this framework**
+**Heading over the open guide:** **What your advisors' AI is taught about this method**
+**Where a guide serves two domains:** **This guide is also used by _Firm Strategy_. An edit here
+changes it there too.**
+**Facilitation 101:** **its own entry above the domains, named _Applies to every domain_** — §4's
+recommendation, taken.
+
+**This is what the build must match, word for word.** Any difference between the screen and these
+lines is a deviation to be named, not a detail.
+
+⚠ **The mockup was drawn showing option A of each and one choice went the other way**
+([`mockups/method-guides.html`](mockups/method-guides.html) was updated the same day to carry **6a
+C**). The other three were already what it showed. **Check the built screen against the mockup, not
+against this paragraph** — a paraphrase is what the artefact rule exists to prevent.
+
+*The options he chose between are kept below so the choice can be read back rather than taken on
+trust.*
 
 ### 6a. What the control on the material row is called
 
@@ -158,13 +173,13 @@ no reason other than that a mockup has to show something.
 |---|---|
 | **A** | **The full method guide** |
 | **B** | **How to run this, in full** |
-| **C** | **The detail behind this framework** |
+| **C** ✅ | **The detail behind this framework** |
 
 ### 6b. The heading over the guide once it is open
 
 | | Option |
 |---|---|
-| **A** | **What your advisors' AI is taught about this method** |
+| **A** ✅ | **What your advisors' AI is taught about this method** |
 | **B** | **The method, in full** |
 | **C** | **Coaching detail — every line of this goes to the AI** |
 
@@ -172,7 +187,7 @@ no reason other than that a mockup has to show something.
 
 | | Option |
 |---|---|
-| **A** | **This guide is also used by _Firm Strategy_. An edit here changes it there too.** |
+| **A** ✅ | **This guide is also used by _Firm Strategy_. An edit here changes it there too.** |
 | **B** | **Shared with _Firm Strategy_ — one guide, shown in both places.** |
 | **C** | **Careful: editing this also edits _Firm Strategy_.** |
 
@@ -180,7 +195,7 @@ no reason other than that a mockup has to show something.
 
 | | Option |
 |---|---|
-| **A** | **Its own entry, above the domains, named _Applies to every domain_** |
+| **A** ✅ | **Its own entry, above the domains, named _Applies to every domain_** |
 | **B** | **A material row of its own inside one domain** — Mike names which |
 | **C** | **On every domain page**, repeated, marked as a standing guide |
 
