@@ -1405,6 +1405,19 @@ const STAIRCASE_CEILINGS = new Set(
   BASE_STAIRCASE.steps.map(s => s.complexityCeiling).concat(BASE_STAIRCASE.defaultCeiling)
 )
 
+/**
+ * Length cap on the staircase question a tier may write (item 4.16 E).
+ *
+ * The platform's own sentence is 88 characters. This is not a formatting preference:
+ * the value is put to the advisor as a question and travels into the advisor prompt,
+ * so an unbounded field is a place to paste an essay — or an instruction — into every
+ * session that tier runs. A cap does not make the field safe on its own (any tier that
+ * can edit it is already trusted with step names and descriptions, which reach the same
+ * place), it bounds the blast radius of a mistake.
+ * @type {number}
+ */
+const SELECTOR_PROMPT_MAX = 500
+
 function _devReadStaircase (firmId) {
   try {
     const all = JSON.parse(fs.readFileSync(DEV_STAIRCASE_FILE, 'utf8'))
@@ -1451,6 +1464,18 @@ function _validateStaircase (cfg) {
   }
   if (cfg.steps !== undefined && (!Array.isArray(cfg.steps) || cfg.steps.length === 0)) {
     return 'steps must be a non-empty array'
+  }
+  // selectorPrompt is OPTIONAL on every shape (item 4.16 E). A body that omits it is
+  // saying nothing about it, which must not wipe a value already stored — the ceiling
+  // controls and this field share one key and one Save button, and the frontend sends
+  // both together, but a hand-made request need not.
+  if (cfg.selectorPrompt !== undefined) {
+    if (typeof cfg.selectorPrompt !== 'string' || !cfg.selectorPrompt.trim()) {
+      return 'selectorPrompt must be a non-empty string'
+    }
+    if (cfg.selectorPrompt.trim().length > SELECTOR_PROMPT_MAX) {
+      return `selectorPrompt must be ${SELECTOR_PROMPT_MAX} characters or fewer`
+    }
   }
   if (cfg.steps === undefined) {
     return STAIRCASE_CEILINGS.has(cfg.defaultCeiling)
@@ -1709,6 +1734,10 @@ async function getStaircase (req, res) {
       state,
       resolved: resolved.steps,
       defaultCeiling: resolved.defaultCeiling,
+      // The RESOLVED question, not this tier's own stored value: a firm that has not
+      // written one must see the sentence its advisors are actually asked, which is
+      // the mentor's. Showing an empty box there would read as "nobody has set this".
+      selectorPrompt: resolved.selectorPrompt,
       driftIds,
       hasOverride: firmOverride !== null ||
         state.declinedIds.length > 0 ||

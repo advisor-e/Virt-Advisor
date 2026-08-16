@@ -179,11 +179,27 @@ section.firm-staircase
         @cancel="closeForm"
       )
 
-    //- ── The one setting that is not a list of rows ────────────────────────
-    //- defaultCeiling stays in the whole-config key: the switch-off / edit / add
-    //- mechanism is for a list inherited from above, and a single setting is not
-    //- one. Same reason Currency stays out of it.
+    //- ── The settings that are not a list of rows ──────────────────────────
+    //- Both stay in the whole-config key: the switch-off / edit / add mechanism is
+    //- for a list inherited from above, and a single setting is not one. Same
+    //- reason Currency stays out of it.
     hr
+
+    //- The question comes BEFORE the ceiling because that is the order it happens
+    //- in: the advisor is asked this, chooses from the steps above, and the ceiling
+    //- is what the engine then does with their answer. Wired to the AI 2026-08-16
+    //- (item 4.16 E) — before that it was authored in the data file and read by
+    //- nothing. design/STAIRCASE-SELECTOR-PROMPT-FIELD.md.
+    b-field(
+      :label="$t('firmStaircase.selectorPrompt')"
+      :message="$t('firmStaircase.selectorPromptHint')"
+    )
+      b-input(
+        v-model="selectorPrompt"
+        type="textarea"
+        rows="2"
+        maxlength="500"
+      )
 
     b-field(
       :label="$t('firmStaircase.defaultCeiling')"
@@ -272,6 +288,10 @@ export default {
       updateRow: null,
       resolvingUpdate: false,
       defaultCeiling: '',
+      // The question an advisor is asked before choosing a step. Held here rather
+      // than with the steps because it is a single setting, and saved by the same
+      // button as the ceiling — they share one config key.
+      selectorPrompt: '',
       savingCeiling: false,
       history: [],
       showHistoryModal: false,
@@ -337,6 +357,10 @@ export default {
         this.resolvedSteps = data.resolved || []
         this.driftIds = data.driftIds || []
         this.defaultCeiling = data.defaultCeiling || (data.base && data.base.defaultCeiling) || ''
+        // The RESOLVED question — what this firm's advisors are actually asked. A firm
+        // that has written none of its own sees the mentor's wording here, not a blank
+        // box, so what is on screen is always what is in use.
+        this.selectorPrompt = data.selectorPrompt || (data.base && data.base.selectorPrompt) || ''
         await this.loadHistory()
       } catch (e) {
         this.error = this.$t('firmStaircase.loadFailed')
@@ -604,15 +628,22 @@ export default {
     },
 
     /**
-     * Save the default complexity ceiling. The steps are NOT sent: posting them here
-     * is what used to freeze a firm's staircase into a private copy.
+     * Save the two whole-config settings — the advisor's question and the default
+     * complexity ceiling. The steps are NOT sent: posting them here is what used to
+     * freeze a firm's staircase into a private copy.
+     *
+     * Both go in one request because they share one config key and one Save button;
+     * sending only the edited one would drop the other from the stored object.
      * @returns {Promise<void>}
      */
     async saveCeiling () {
       this.savingCeiling = true
       try {
         await this.api('POST', '/api/firm-manager/staircase', {
-          staircase: { defaultCeiling: this.defaultCeiling }
+          staircase: {
+            defaultCeiling: this.defaultCeiling,
+            selectorPrompt: this.selectorPrompt
+          }
         })
         this.toast('firmStaircase.ceilingSaved')
         await this.load()

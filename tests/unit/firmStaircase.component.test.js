@@ -131,3 +131,69 @@ describe('editing a step happens in the step', () => {
     expect(wrapper.vm.isEditing({ id: 'as-interpretation' })).toBe(false)
   })
 })
+
+// ── The advisor's question (item 4.16 E, 2026-08-16) ──────────────────────────
+// Wiring this to the AI without a screen would have been half a fix: the content
+// would drive advice that nobody could inspect or correct — the exact state the
+// 4.16 sweep found at scale. These prove the screen half is real, on the tab both
+// the mentor and a firm manager already have.
+
+describe('the question an advisor is asked', () => {
+  test('the field is on the tab, below the steps and above the ceiling', async () => {
+    // Position is asserted, not just presence: the question is what happens FIRST in
+    // the conversation, and its hint tells the reader the steps are above it.
+    const wrapper = await mountTab()
+    const html = wrapper.html()
+
+    const question = html.indexOf('firmStaircase.selectorPrompt')
+    const ceiling = html.indexOf('firmStaircase.defaultCeiling')
+    const lastStep = html.lastIndexOf('staircase-step-badge')
+
+    expect(question).toBeGreaterThan(-1)
+    expect(question).toBeGreaterThan(lastStep)
+    expect(question).toBeLessThan(ceiling)
+  })
+
+  test('it is a text area, so a longer question is not hidden past the end of a line', async () => {
+    const wrapper = await mountTab()
+
+    expect(wrapper.findAll('textarea').length).toBeGreaterThan(0)
+  })
+
+  test('it shows the RESOLVED question — what this firm advisors are actually asked', async () => {
+    const wrapper = await mountTab({ selectorPrompt: 'Where are we with this client?' })
+
+    expect(wrapper.vm.selectorPrompt).toBe('Where are we with this client?')
+  })
+
+  test('a firm that has written none of its own sees the inherited one, never a blank box', async () => {
+    // A blank box reads as "nobody has set this", which would be untrue — the advisor
+    // is being asked the mentor's question right now.
+    const wrapper = await mountTab({
+      selectorPrompt: null,
+      base: { ...BASE, selectorPrompt: 'The platform question?' }
+    })
+
+    expect(wrapper.vm.selectorPrompt).toBe('The platform question?')
+  })
+
+  test('Save sends the question AND the ceiling — one key, one button', async () => {
+    // Sending only the edited one would drop the other from the stored object.
+    const wrapper = await mountTab({ selectorPrompt: 'Where are we with this client?' })
+    wrapper.vm.selectorPrompt = 'How deep is this relationship?'
+
+    global.fetch.mockClear()
+    await wrapper.vm.saveCeiling()
+
+    const posted = global.fetch.mock.calls
+      .map(c => c[1])
+      .filter(o => o && o.method === 'POST')
+      .map(o => JSON.parse(o.body))
+
+    expect(posted.length).toBeGreaterThan(0)
+    expect(posted[0].staircase).toEqual({
+      defaultCeiling: 'moderate',
+      selectorPrompt: 'How deep is this relationship?'
+    })
+  })
+})

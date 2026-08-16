@@ -29,6 +29,8 @@ jest.mock('../../server/utils/firmOverlay', () => ({
 const db = require('../../server/utils/db')
 const drive = require('../../server/services/driveService')
 const overlay = require('../../server/utils/firmOverlay')
+// The shipped staircase, for the fields the routes resolve from it (item 4.16 E).
+const BASE_STAIRCASE_FILE = require('../../data/advisory-staircase.json')
 
 const {
   listDocuments,
@@ -532,6 +534,22 @@ describe('getStaircase', () => {
     // base is always sent so the editor can show the starting point
     expect(Array.isArray(res._body.base.steps)).toBe(true)
     expect(res._body.base.defaultCeiling).toBeDefined()
+    // The RESOLVED question, so a firm that has written none of its own sees the
+    // sentence its advisors are actually asked rather than an empty box.
+    expect(res._body.selectorPrompt).toBe(BASE_STAIRCASE_FILE.selectorPrompt)
+  })
+
+  test('sends the FIRM\'s question once it has written one', async () => {
+    overlay.loadFirmConfig.mockImplementation((firmId, key) =>
+      Promise.resolve(key === 'advisory-staircase' ? { selectorPrompt: 'Where are we with this client?' } : null))
+
+    const req = makeReq()
+    const res = makeMockRes()
+
+    await getStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(200)
+    expect(res._body.selectorPrompt).toBe('Where are we with this client?')
   })
 
   test('returns hasOverride: true and the override when one exists', async () => {
@@ -651,5 +669,84 @@ describe('saveStaircase', () => {
     expect(overlay.saveFirmConfig).toHaveBeenCalledWith(
       'firm-test-123', 'advisory-staircase', expect.any(Object), 'mgr@testfirm.com'
     )
+  })
+
+  // ── The advisor's question (item 4.16 E, 2026-08-16) ────────────────────────
+  // It shares this key and this Save button with defaultCeiling. The validation
+  // matters more than it looks: the value is put to an advisor as a question and
+  // travels into the advisor prompt, so what this route accepts is what every
+  // session that tier runs will carry.
+
+  test('accepts a question alongside the ceiling, and stores it', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(3)
+
+    const cfg = { defaultCeiling: 'foundational', selectorPrompt: 'Where are we with this client?' }
+    const req = makeReq({ body: { staircase: cfg } })
+    const res = makeMockRes()
+
+    await saveStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(200)
+    expect(overlay.saveFirmConfig).toHaveBeenCalledWith(
+      'firm-test-123', 'advisory-staircase',
+      expect.objectContaining({ selectorPrompt: 'Where are we with this client?' }),
+      'mgr@testfirm.com'
+    )
+  })
+
+  test('a body that omits the question is still valid — it says nothing about it', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(4)
+
+    const req = makeReq({ body: { staircase: { defaultCeiling: 'foundational' } } })
+    const res = makeMockRes()
+
+    await saveStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(200)
+  })
+
+  test('returns 400 on an empty question — an advisor asked nothing cannot answer', async () => {
+    for (const value of ['', '   ']) {
+      const req = makeReq({ body: { staircase: { defaultCeiling: 'foundational', selectorPrompt: value } } })
+      const res = makeMockRes()
+
+      await saveStaircase(req, res, jest.fn())
+
+      expect(res._status).toBe(400)
+    }
+  })
+
+  test('returns 400 on a non-string question', async () => {
+    const req = makeReq({ body: { staircase: { defaultCeiling: 'foundational', selectorPrompt: 42 } } })
+    const res = makeMockRes()
+
+    await saveStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(400)
+  })
+
+  test('returns 400 past the length cap, and accepts the value at it', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(5)
+
+    const tooLong = makeReq({ body: { staircase: { defaultCeiling: 'foundational', selectorPrompt: 'x'.repeat(501) } } })
+    const tooLongRes = makeMockRes()
+    await saveStaircase(tooLong, tooLongRes, jest.fn())
+    expect(tooLongRes._status).toBe(400)
+
+    const atCap = makeReq({ body: { staircase: { defaultCeiling: 'foundational', selectorPrompt: 'x'.repeat(500) } } })
+    const atCapRes = makeMockRes()
+    await saveStaircase(atCap, atCapRes, jest.fn())
+    expect(atCapRes._status).toBe(200)
+  })
+
+  test('the question is validated on the steps-carrying shape too', async () => {
+    const bad = validStaircase()
+    bad.selectorPrompt = ''
+    const req = makeReq({ body: { staircase: bad } })
+    const res = makeMockRes()
+
+    await saveStaircase(req, res, jest.fn())
+
+    expect(res._status).toBe(400)
   })
 })

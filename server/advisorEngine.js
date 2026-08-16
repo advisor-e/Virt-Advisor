@@ -40,7 +40,7 @@ const clientStore = require('../server/utils/clientStore')
 const { listForClient, listForAdvisor } = require('../server/utils/caseStore')
 const { buildPriorEngagementSummary, formatPriorEngagementText, deriveHistoryScoringInputs } = require('../server/utils/priorEngagement')
 
-const { loadBlendedStaircase, resolveStaircaseStep } = require('../server/utils/staircaseConfig')
+const { loadBlendedStaircase, resolveStaircaseStep, BASE_STAIRCASE } = require('../server/utils/staircaseConfig')
 
 // Reference data
 const DOMAINS = require('../data/domains.json')
@@ -1490,7 +1490,53 @@ async function resolveSavedClientContext (params, deps) {
   }
 }
 
-function buildSavedFactConfirmPrompt (field, savedValue, clientName) {
+/**
+ * The staircase question an advisor is asked, taken from the resolved config rather
+ * than typed here.
+ *
+ * WHY THIS EXISTS (item 4.16 E, 2026-08-16). `selectorPrompt` has been authored in
+ * data/advisory-staircase.json since the framework shipped, and until now NOTHING read
+ * it — this sentence was typed into the engine in two places instead. So a mentor or a
+ * firm could edit the question, see it saved, and every advisor would still be asked
+ * Advisor-e's wording. It is the same fault fixed for the step NAMES on 2026-07-31 (see
+ * the comment at the loadBlendedStaircase call below); the question above the steps was
+ * missed. design/STAIRCASE-SELECTOR-PROMPT-FIELD.md.
+ *
+ * @param {Object} [staircase] - the resolved staircase for this advisor's firm
+ * @returns {string} the question, with the selector token the frontend swaps for the
+ *   on-screen step list. Falls back to the shipped sentence, never to an empty
+ *   question — an advisor asked nothing cannot answer.
+ */
+function staircaseSelectorQuestion (staircase) {
+  const authored = staircase && typeof staircase.selectorPrompt === 'string'
+    ? staircase.selectorPrompt.trim()
+    : ''
+  return `${authored || BASE_STAIRCASE.selectorPrompt}\n[STAIRCASE_SELECTOR]`
+}
+
+/**
+ * The same question, re-asked after the advisor declines a saved answer.
+ *
+ * The "No problem — " lead-in belongs to that MOMENT, not to the question, so it stays
+ * here and is never editable: a firm must not be able to delete it from a conversation
+ * it was never shown. It runs INTO the sentence, so the platform's own wording is
+ * lowered to join it exactly as the hardcoded string did. A sentence another tier wrote
+ * is used verbatim — lowering its first letter would silently edit their words, and an
+ * em dash followed by a capital reads perfectly well.
+ *
+ * @param {Object} [staircase] - the resolved staircase for this advisor's firm
+ * @returns {string}
+ */
+function staircaseReaskQuestion (staircase) {
+  const question = staircaseSelectorQuestion(staircase)
+  const isPlatformWording = question.startsWith(BASE_STAIRCASE.selectorPrompt)
+  const tail = isPlatformWording
+    ? question.charAt(0).toLowerCase() + question.slice(1)
+    : question
+  return `No problem — ${tail}`
+}
+
+function buildSavedFactConfirmPrompt (field, savedValue, clientName, staircase) {
   if (!isMeaningfulContextValue(savedValue)) {
     if (field === 'industry') {
       return 'What industry is the client in?'
@@ -1499,7 +1545,7 @@ function buildSavedFactConfirmPrompt (field, savedValue, clientName) {
       return 'Is the business privately owned, a not-for-profit, or publicly listed?'
     }
     if (field === 'advisoryStaircase') {
-      return 'Where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
+      return staircaseSelectorQuestion(staircase)
     }
   }
   if (field === 'industry') {
@@ -2143,7 +2189,11 @@ async function handleQuery (rawBody, res, identity) {
           s.savedClientContext && s.savedClientContext.resolvedFacts
             ? s.savedClientContext.resolvedFacts.advisoryStaircase
             : null,
-          s.savedClientContext ? s.savedClientContext.clientName : null
+          s.savedClientContext ? s.savedClientContext.clientName : null,
+          // The firm's resolved staircase, already loaded above for the ceiling. The
+          // question and the steps it offers must come from the SAME resolved config,
+          // or a tier's edited question would sit above Advisor-e's steps.
+          staircaseConfig
         ),
         onAnswer: (answer, s) => {
           const saved = s.savedClientContext && s.savedClientContext.resolvedFacts
@@ -2162,7 +2212,7 @@ async function handleQuery (rawBody, res, identity) {
           }
           s.advisoryStaircase = null
           s._forceAskField = 'advisoryStaircase'
-          s._forceAskPrompt = 'No problem — where would you say your current engagement with this client sits on the Advisory Staircase?\n[STAIRCASE_SELECTOR]'
+          s._forceAskPrompt = staircaseReaskQuestion(staircaseConfig)
           s.savedClientContextUsage.advisoryStaircase = 'manual-followup'
         }
       },
@@ -3581,6 +3631,8 @@ module.exports.parseSavedFactAnswer = parseSavedFactAnswer
 // String.match (stateless) and never RegExp.test (stateful via lastIndex).
 module.exports.DOMAIN_PATTERNS = DOMAIN_PATTERNS
 module.exports.buildSavedFactConfirmPrompt = buildSavedFactConfirmPrompt
+module.exports.staircaseSelectorQuestion = staircaseSelectorQuestion
+module.exports.staircaseReaskQuestion = staircaseReaskQuestion
 module.exports.continuityClaimAllowed = continuityClaimAllowed
 module.exports.buildContinuityDirective = buildContinuityDirective
 module.exports.buildSavedClientTraceAudit = buildSavedClientTraceAudit

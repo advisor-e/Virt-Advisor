@@ -70,13 +70,34 @@ lengthen it; a one-line input would hide the end of their own wording.
 
 ---
 
-## 3. 🔴 The wording to choose — Mike picks one
+## 3. ✅ The wording — CHOSEN BY MIKE, 2026-08-16
+
+**Label:** **The question your advisors are asked**
+**Hint:** *"The wording an advisor sees when they are asked where a client engagement sits. The steps
+above are the answers they choose from."*
+
+**This is what the build must match, word for word.** Any difference between the screen and these two
+lines is a deviation to be named, not a detail.
+
+### ⚠ ONE DEVIATION, named — "below" became "above"
+
+The option offered to Mike, and the one he chose, read *"The steps **below** are the answers they
+choose from."* **That was wrong in the artefact.** §2's own layout puts this field underneath the list
+of steps, so on the real screen the steps are above it and the hint would have pointed at the
+complexity ceiling.
+
+Changed to **"above"** when building, 2026-08-16, and recorded here rather than left to be discovered.
+It is a correction of our drafting error, not a change to his decision — but it is still a word he did
+not approve, so it is written down as one.
+
+*The options he chose between are kept below so the choice can be read back rather than taken on
+trust.*
 
 ### 3a. The field label
 
 | | Option | Reads as |
 |---|---|---|
-| **A** | **The question your advisors are asked** | Says who sees it and that it is a question. Matches `fieldDescriptionHint`'s existing voice — *"this is the wording they see when choosing"*. |
+| **A** ✅ | **The question your advisors are asked** | Says who sees it and that it is a question. Matches `fieldDescriptionHint`'s existing voice — *"this is the wording they see when choosing"*. |
 | **B** | **Staircase question** | Shortest. Matches the terse house style of `Step name` and `Complexity ceiling`. |
 | **C** | **How the staircase is introduced** | Describes the purpose rather than the thing. |
 
@@ -84,7 +105,7 @@ lengthen it; a one-line input would hide the end of their own wording.
 
 | | Option |
 |---|---|
-| **A** | *"The wording an advisor sees when they are asked where a client engagement sits. The steps below are the answers they choose from."* |
+| **A** ✅ | *"The wording an advisor sees when they are asked where a client engagement sits. The steps below are the answers they choose from."* |
 | **B** | *"What an advisor is asked before choosing a step."* |
 | **C** | *(no hint — the label carries it)* |
 
