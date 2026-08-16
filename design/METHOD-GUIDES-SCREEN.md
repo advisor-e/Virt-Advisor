@@ -236,7 +236,38 @@ trust.*
    and the check is to open a session in each of the three and read what comes back, on the running
    app, before it ships.
 
-**Which tiers see it is not assumed here.** Item B's block was ruled *mentor only* on 2026-08-16
-(*"this looks too technical for a firm or global manager"*). A method guide is ordinary advisory
-prose rather than routing logic, so the same reasoning does not obviously carry across — **it is
-asked, not inherited**, once the wording is settled.
+---
+
+## 9. ✅ WHO SEES IT — CHOSEN BY MIKE, 2026-08-17
+
+**The same tiers as the materials table it opens from.** The mentor authors; global group manager,
+group manager and firm manager each inherit and may reword their own copy; the advisor and the client
+receive the result and author nothing.
+
+| Tier | Sees it | May edit |
+|---|---|---|
+| Mentor | Yes — authors it | Yes |
+| Global group manager | Yes — inherits | Yes, its own copy |
+| Group manager | Yes — inherits | Yes, its own copy |
+| Firm manager | Yes — inherits | Yes, its own copy |
+| Advisor · client | No | No — neither authors configuration ([`features/tier-cascade.md`](features/tier-cascade.md) §3) |
+
+**Why this rather than mentor-only.** Item B's diagnostic block was ruled *mentor only* on
+2026-08-16 — *"this looks too technical for a firm or global manager."* That reasoning was about
+**routing logic**. A method guide is ordinary advisory prose sitting inside the very panel where a
+firm already edits the materials table, so the guide behaving differently from the rows around it
+would be the surprise. **It was asked rather than inherited**, and the answer came out the other way
+from item B's — which is the point of asking.
+
+⚠ **The two middle tiers cannot be exercised yet**, and that is not ours: `roles.js` issues no
+`global_group_manager` or `group_manager`, and no firm→brand/country membership exists, so
+`parentScopeOf` returns the platform scope and the chain stays mentor → firm. Build it
+tier-agnostic on the `coachingConfig.loadResolvedCoaching` shape; **it fails toward today's
+behaviour, never toward a guess**, and lights up when the master team delivers.
+
+🔴 **The gate is named positively — `['mentor','global_group_manager','group_manager','firm']`,
+never `scope !== 'advisor'`.** A negative gate answers *yes* for a tier that does not exist yet
+([`features/tier-cascade.md`](features/tier-cascade.md) P5 — the trap that had already caught three
+tabs).
+
+**Nothing about this screen is now undecided.** What remains is the build, listed in §7.
