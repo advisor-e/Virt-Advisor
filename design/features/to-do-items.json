@@ -1,165 +1,165 @@
 {
-  "_readme": [
-    "THE LIVE TO-DO LIST, AS DATA. This file is the source. to-do.md's ranked table is",
-    "GENERATED from it by `npm run to-do`, and the Handbook's ranking control reads it.",
-    "Edit here — an edit to that table is overwritten.",
-    "",
-    "A list saved from the control comes back with `npm run to-do -- <file>`. It is",
-    "validated against the five fields first, and an item Mike settles is NOT removed",
-    "until its closure is written on to-do-done-and-parked.md — the command applies",
-    "nothing at all until then. An item gone from both pages is an item nobody knows",
-    "existed.",
-    "",
-    "FORMATTING IS THE SCRIPT'S. Applying a saved list rewrites this file with two-space",
-    "JSON, so do not hand-tune the layout; it will not survive.",
-    "",
-    "Every item must carry all five fields the list's own rules demand — score, why,",
-    "risk, askedBy, touches — and tests/unit/toDoItems.test.js fails the build if one",
-    "is missing. That guard is the whole reason this file exists: an item missing a",
-    "field is a note, and notes are what produced two pieces of unrequested work on",
-    "2026-08-15.",
-    "",
-    "ORDER IS MIKE'S RANKING. The array order is the order on screen. It is not",
-    "computed from the score, and it must never be re-sorted by a script or a session.",
-    "Where his order and the score disagree, his order wins and the score stays",
-    "visible so the disagreement is on the page.",
-    "",
-    "SCORE — 5 security/privacy/data integrity · 4 the user is worse off · 3 helps",
-    "sell the package · 2 robustness · 1 internal only · 0 is not filed, it is",
-    "deleted with its code.",
-    "",
-    "askedBy.ours = true means NOBODY OUTSIDE ASKED. It is not a defect to record it;",
-    "it is a defect to hide it. An item that cannot name Mike or a named outsider has",
-    "to justify itself."
-  ],
-  "orderedByMikeOn": "2026-08-15",
-  "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it.",
-  "items": [
-    {
-      "ref": "4.12",
-      "name": "One handover story for the master team",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
-      "blocker": true,
-      "blocks": "Handover",
-      "waitingOn": "Us",
-      "why": "The merged app's own handover documents still describe a separate standalone application.",
-      "risk": "The master team reads documents describing an app that no longer exists and builds the tiers above it wrongly.",
-      "askedBy": {
-        "who": "COLLABORATE-MERGE-PLAN.md §6",
-        "ours": true,
-        "detail": "Nobody outside asked. Kept because the master team genuinely receives the wrong documents — say so if you would rather it went."
-      },
-      "touches": "The Collaborate handover documents, the UAT load pack.",
-      "note": null
-    },
-    {
-      "ref": "2.9",
-      "name": "The education gate",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "On low client literacy the adviser is asked whether to apply education-first or see what is technically needed, reasoning shown either way. Behaviour ruled 2026-07-16; REACH ruled 2026-08-16 — the gate fires wherever poor financial literacy shows up, not only inside forecasting.",
-      "risk": "It stays uncoded and advisers keep getting advice pitched over a client's head. The narrow version would have been worse than nothing visible: it would have looked finished while firing almost never.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "His own design, 2026-07-16, rescoped by him 2026-08-16"
-      },
-      "touches": "The literacy signal across all eight domains, the Advisory Staircase, the pre-recommendation prompt.",
-      "note": "NO LONGER A WORDING TASK AND NO LONGER WAITING ON MIKE — it was carried for a month as 'only the on-screen words are missing', and that was wrong. Order is fixed: (1) widen the literacy signal, ours and first — NOT by copying the line into eight domains, but as a signal read independently of domain; (2) then Mike's wording, because where the gate can fire decides what it should say; (3) then build. Two findings behind the rescope: the 'outside-your-range' pattern the ruling says to copy was designed 2026-06-04 and never built, and 'Poor financial literacy' exists under forecasting only. See to-do.md section 4."
-    },
-    {
-      "ref": "4.7",
-      "name": "Flip engine-strict back on",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Still false. Two transitive packages (consola, node-releases) over-declare their Node requirement and need pinning down first.",
-      "risk": "The Node 14.15 lock is not actually enforced at install time, so a future install can drift off the Stack Constitution silently.",
-      "askedBy": {
-        "who": "the Stack Constitution",
-        "ours": false,
-        "detail": "The coding team's locked spec"
-      },
-      "touches": ".npmrc, package.json overrides.",
-      "note": "Reinstall is overnight-only on this machine and there is a documented safe procedure — follow it rather than a plain npm install."
-    },
-    {
-      "ref": "3.5",
-      "name": "Reply to Carl about npm install",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Somebody outside is waiting on an answer.",
-      "risk": "Small, but it is a person waiting. One message.",
-      "askedBy": {
-        "who": "Carl",
-        "ours": false,
-        "detail": "Outside the project"
-      },
-      "touches": "Nothing in the app.",
-      "note": null
-    },
-    {
-      "ref": "4.15",
-      "name": "The 21 branches that still name a page nobody can open",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Of the 55 recommendations across the logic tables, 28 lose text to the template gate because they name a page that does not exist in the 291-record library. Seven were the Get Seminar branches, fixed 2026-08-15 once Mike named the real page (Design & Deliver). The other 21 sit in the fmc_, cas_, fbp_ and ol_ tables and nobody has looked at them.",
-      "risk": "21 branches of Mike's own coaching are cut back or withheld before they reach an adviser. The gate is behaving correctly; the content names tools that are not there. Each one is advice an adviser is not getting, and nothing on screen says so.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-08-15 — \"put them in the list of to dos\", after being shown that the seven Seminar branches were seven of twenty-eight. Found by us; filed on his instruction."
-      },
-      "touches": "data/logic_trees.json, the Mentor Hub logic tables, and the Template Check screen where the real page names are settled.",
-      "note": "RANKED LAST DELIBERATELY, and it scores 4. Mike's ruling the same day: clear the technical and feature work first so the master team can start UAT testing, THEN double back to wording and document-title alignment. This is wording and title alignment. The pattern is proven and cheap once a name is known — the Seminar seven took five words and a seven-line diff — but each of the 21 needs the REAL page name, and that is Mike's to give, never a developer's to rule on. Put the actual sentences in front of him, not the label: that is what unblocked 2.3 after four sessions."
-    },
-    {
-      "ref": "4.16",
-      "name": "Check every block's authored fields actually reach the prompt",
-      "score": 4,
-      "scoreReason": "the user is worse off without it",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "THE SWEEP IS DONE (2026-08-16) and it found 102 pieces of authored advisory content reaching no prompt at all: 71 in domain support (65 diagnostic_entry routing branches across 19 domains, 6 if_then_logic rules), 15 in the logic trees (13 stage_entry_question, 2 flat_branches), 15 engagement-type fields behind a hardcoded paraphrase, and the staircase selectorPrompt. What remains is the fixing, in three phases.",
-      "risk": "Worse than first filed. NO SCREEN RENDERS ANY OF THEM EITHER — the Domain Support tab edits the materials table only, the Logic Tables tab the branch rows only. This content is invisible in both directions, so no test, no tab and no person can find it. Every test asks whether a field was SAVED; none asks whether it was USED.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "Found while closing 4.9 on 2026-08-15, and shown to Mike with the rendered prompt as proof. He ruled the two coaching fields must reach the AI; this item is the same check run across the blocks nobody has checked. Phase 1's scope and rulings are all his, 2026-08-16."
-      },
-      "touches": "domain support, the logic trees, the engagement types, the Advisory Staircase — each block's data file compared against the prompt builder that renders it; plus the Mentor Hub's Domain Support and Logic Tables tabs, which is where the fix must surface.",
-      "note": "PHASE 1 — domain support, 71 items. Artefacts approved and committed: design/DIAGNOSTIC-ENTRY-BLOCK.md and design/mockups/domain-support-diagnostic-entry.html. Wording approved; MENTOR TIER ONLY (Mike, 2026-08-16 — 'too technical for a firm or global manager'); a SECTION inside the existing Domain Support tab, not a new page. He also ruled SHIP IT FILLED — 'with as many sections as possible' — so authoring the 10 empty domains (eoy, profit, staff first; then the 7 Get-the-Job) is now the FIRST and larger half of the job, and it ships with the wiring, never half-filled. 🔴 BLOCKED ON MIKE, AND IT IS THE FIRST THING TO SETTLE: who drafts the ten — he authors them, we draft from each domain's own overview and materials for his approval, or a mix. No drafting starts before he answers; authoring advisory routing text unasked is the same fault as inventing wording, at ten times the scale. PHASE 2 — the logic trees, 15 items. PHASE 3 — engagement types and the staircase, 16 items; neither has a hub tab today so both need a home decided. EXCLUDED FROM PHASE 1 and still open: get-team-problem's 6 rules live under if_then_logic and carry three parts, not two. METHOD, unchanged and proven three times: render the real prompt and read it, never inspect the store."
-    },
-    {
-      "ref": "4.17",
-      "name": "A screen can show one row when 67 exist, and say nothing",
-      "score": 2,
-      "scoreReason": "robustness — it fails better",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The mentor's Advisory Distinctions tab showed 1 distinction when the shipped set is 67. A local, git-ignored dev file (data/dev-platform-distinctions.json) is deliberately preferred over the committed seed when there is no database, and one stale test row in it shadowed all 67 — with nothing on screen saying so.",
-      "risk": "Anyone developing, demoing or reviewing reads what is on screen as the real platform set. It cost most of a session to diagnose, and the same pattern applies to every dev-JSON fallback in the app, not just this one.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "He spotted it himself on the Mentor Hub, 2026-08-16 — 'the advisory distinctions ... no longer appear to be linked and working at mentor level'. Diagnosed the same session."
-      },
-      "touches": "server/utils/platformDistinctions.js and every other dev-JSON fallback (firmDistinctions, quizzes, coaching, currency); the Mentor Hub Advisory Distinctions tab.",
-      "note": "THE LOCAL SYMPTOM IS FIXED BY DELETING THE FILE — Mike was given the command on 2026-08-16 because the AI's own safety guard refused the deletion. THE ITEM IS THE UNDERLYING FAULT, not that file: a screen served from a dev fallback must SAY it is, e.g. 'showing local dev data — 67 shipped rows are being shadowed'. Same family as 4.16 and the same lesson: the content was there, the screen was there, and nothing connected the two or admitted the gap. Verify the fix by loading the tab with and without the local file, not by reading the loader."
-    }
-  ]
+ "_readme": [
+  "THE LIVE TO-DO LIST, AS DATA. This file is the source. to-do.md's ranked table is",
+  "GENERATED from it by `npm run to-do`, and the Handbook's ranking control reads it.",
+  "Edit here — an edit to that table is overwritten.",
+  "",
+  "A list saved from the control comes back with `npm run to-do -- <file>`. It is",
+  "validated against the five fields first, and an item Mike settles is NOT removed",
+  "until its closure is written on to-do-done-and-parked.md — the command applies",
+  "nothing at all until then. An item gone from both pages is an item nobody knows",
+  "existed.",
+  "",
+  "FORMATTING IS THE SCRIPT'S. Applying a saved list rewrites this file with two-space",
+  "JSON, so do not hand-tune the layout; it will not survive.",
+  "",
+  "Every item must carry all five fields the list's own rules demand — score, why,",
+  "risk, askedBy, touches — and tests/unit/toDoItems.test.js fails the build if one",
+  "is missing. That guard is the whole reason this file exists: an item missing a",
+  "field is a note, and notes are what produced two pieces of unrequested work on",
+  "2026-08-15.",
+  "",
+  "ORDER IS MIKE'S RANKING. The array order is the order on screen. It is not",
+  "computed from the score, and it must never be re-sorted by a script or a session.",
+  "Where his order and the score disagree, his order wins and the score stays",
+  "visible so the disagreement is on the page.",
+  "",
+  "SCORE — 5 security/privacy/data integrity · 4 the user is worse off · 3 helps",
+  "sell the package · 2 robustness · 1 internal only · 0 is not filed, it is",
+  "deleted with its code.",
+  "",
+  "askedBy.ours = true means NOBODY OUTSIDE ASKED. It is not a defect to record it;",
+  "it is a defect to hide it. An item that cannot name Mike or a named outsider has",
+  "to justify itself."
+ ],
+ "orderedByMikeOn": "2026-08-15",
+ "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it.",
+ "items": [
+  {
+   "ref": "4.12",
+   "name": "One handover story for the master team",
+   "score": 5,
+   "scoreReason": "security, privacy or data integrity",
+   "blocker": true,
+   "blocks": "Handover",
+   "waitingOn": "Us",
+   "why": "The merged app's own handover documents still describe a separate standalone application.",
+   "risk": "The master team reads documents describing an app that no longer exists and builds the tiers above it wrongly.",
+   "askedBy": {
+    "who": "COLLABORATE-MERGE-PLAN.md §6",
+    "ours": true,
+    "detail": "Nobody outside asked. Kept because the master team genuinely receives the wrong documents — say so if you would rather it went."
+   },
+   "touches": "The Collaborate handover documents, the UAT load pack.",
+   "note": null
+  },
+  {
+   "ref": "2.9",
+   "name": "The education gate",
+   "score": 4,
+   "scoreReason": "the user is worse off",
+   "blocker": false,
+   "blocks": null,
+   "waitingOn": "Us",
+   "why": "On low client literacy the adviser is asked whether to apply education-first or see what is technically needed, reasoning shown either way. Behaviour ruled 2026-07-16; REACH ruled 2026-08-16 — the gate fires wherever poor financial literacy shows up, not only inside forecasting.",
+   "risk": "It stays uncoded and advisers keep getting advice pitched over a client's head. The narrow version would have been worse than nothing visible: it would have looked finished while firing almost never.",
+   "askedBy": {
+    "who": "Mike",
+    "ours": false,
+    "detail": "His own design, 2026-07-16, rescoped by him 2026-08-16"
+   },
+   "touches": "The literacy signal across all eight domains, the Advisory Staircase, the pre-recommendation prompt.",
+   "note": "NO LONGER A WORDING TASK AND NO LONGER WAITING ON MIKE — it was carried for a month as 'only the on-screen words are missing', and that was wrong. Order is fixed: (1) widen the literacy signal, ours and first — NOT by copying the line into eight domains, but as a signal read independently of domain; (2) then Mike's wording, because where the gate can fire decides what it should say; (3) then build. Two findings behind the rescope: the 'outside-your-range' pattern the ruling says to copy was designed 2026-06-04 and never built, and 'Poor financial literacy' exists under forecasting only. See to-do.md section 4."
+  },
+  {
+   "ref": "4.7",
+   "name": "Flip engine-strict back on",
+   "score": 5,
+   "scoreReason": "security, privacy or data integrity",
+   "blocker": false,
+   "blocks": null,
+   "waitingOn": "Us",
+   "why": "Still false. Two transitive packages (consola, node-releases) over-declare their Node requirement and need pinning down first.",
+   "risk": "The Node 14.15 lock is not actually enforced at install time, so a future install can drift off the Stack Constitution silently.",
+   "askedBy": {
+    "who": "the Stack Constitution",
+    "ours": false,
+    "detail": "The coding team's locked spec"
+   },
+   "touches": ".npmrc, package.json overrides.",
+   "note": "Reinstall is overnight-only on this machine and there is a documented safe procedure — follow it rather than a plain npm install."
+  },
+  {
+   "ref": "3.5",
+   "name": "Reply to Carl about npm install",
+   "score": 5,
+   "scoreReason": "security, privacy or data integrity",
+   "blocker": false,
+   "blocks": null,
+   "waitingOn": "Us",
+   "why": "Somebody outside is waiting on an answer.",
+   "risk": "Small, but it is a person waiting. One message.",
+   "askedBy": {
+    "who": "Carl",
+    "ours": false,
+    "detail": "Outside the project"
+   },
+   "touches": "Nothing in the app.",
+   "note": null
+  },
+  {
+   "ref": "4.15",
+   "name": "The 21 branches that still name a page nobody can open",
+   "score": 4,
+   "scoreReason": "the user is worse off",
+   "blocker": false,
+   "blocks": null,
+   "waitingOn": "Us",
+   "why": "Of the 55 recommendations across the logic tables, 28 lose text to the template gate because they name a page that does not exist in the 291-record library. Seven were the Get Seminar branches, fixed 2026-08-15 once Mike named the real page (Design & Deliver). The other 21 sit in the fmc_, cas_, fbp_ and ol_ tables and nobody has looked at them.",
+   "risk": "21 branches of Mike's own coaching are cut back or withheld before they reach an adviser. The gate is behaving correctly; the content names tools that are not there. Each one is advice an adviser is not getting, and nothing on screen says so.",
+   "askedBy": {
+    "who": "Mike",
+    "ours": false,
+    "detail": "2026-08-15 — \"put them in the list of to dos\", after being shown that the seven Seminar branches were seven of twenty-eight. Found by us; filed on his instruction."
+   },
+   "touches": "data/logic_trees.json, the Mentor Hub logic tables, and the Template Check screen where the real page names are settled.",
+   "note": "RANKED LAST DELIBERATELY, and it scores 4. Mike's ruling the same day: clear the technical and feature work first so the master team can start UAT testing, THEN double back to wording and document-title alignment. This is wording and title alignment. The pattern is proven and cheap once a name is known — the Seminar seven took five words and a seven-line diff — but each of the 21 needs the REAL page name, and that is Mike's to give, never a developer's to rule on. Put the actual sentences in front of him, not the label: that is what unblocked 2.3 after four sessions."
+  },
+  {
+   "ref": "4.16",
+   "name": "Check every block's authored fields actually reach the prompt",
+   "score": 4,
+   "scoreReason": "the user is worse off without it",
+   "blocker": false,
+   "blocks": null,
+   "waitingOn": "Mike",
+   "why": "THE SWEEP IS DONE (2026-08-16) and it found 102 pieces of authored advisory content reaching no prompt. FIVE OF THE SEVEN WORK ITEMS ARE NOW CLOSED (sessions 64-65): E the staircase question, C the 13 learn-table opening questions plus 2 standing rules, A+B all 65 diagnostic_entry branches plus the 26 entry questions, and G proved a true duplicate needing no work. What remains is F -- the 12 method guides need a screen -- and D, the engagement types, which waits on Mike.",
+   "risk": "Worse than first filed. NO SCREEN RENDERED ANY OF THEM EITHER, so the content was invisible in both directions and no test could find it: every test asks whether a field was SAVED, none asks whether it was USED. That is now closed for the domain-support and logic-table blocks. It is still open for the 12 method guides (F), which the AI reads in full today and nobody at any tier can see or correct.",
+   "askedBy": {
+    "who": "us",
+    "ours": true,
+    "detail": "Found while closing 4.9 on 2026-08-15 and shown to Mike with the rendered prompt as proof. Every scope ruling since is his: the hub-page cascade (2026-08-16), Domain Support as the home for the branches (2026-08-16), and all screen wording on both blocks."
+   },
+   "touches": "The 12 method reference files in data/*-reference.json and the Domain Support tab where they must surface (F); data/engagement-types.json and whichever page Mike rules is its home (D).",
+   "note": "🔴 TWO PARTS LEFT AND THEY MOVE INDEPENDENTLY. F IS OURS AND CAN START NOW; D CANNOT START AT ALL WITHOUT MIKE, which is why this row says Mike. 🔴 READ design/4-16-BUILD-SPEC.md WITH ITS SUPERSEDED BANNER, then design/DOMAIN-DIAGNOSTIC-BRANCHES.md and design/LEARN-TREE-OPENING-QUESTION-FIELD.md. DO NOT re-derive the analysis. WHAT IS LEFT, and only these two: F -- the 12 method guides (trial-fit, cautious-reveal, eoy, facilitation, conflict-meeting, capacity-capability-opportunity, heald-matrix, demings-volatility, dashboard-discussions, growth-curve-reveal, ratio-analysis, working-capital-cycle) are read by the AI in full and appear on NO screen at any tier. They belong on Domain Support -- they answer 'how do I run this session'. Biggest of the seven: each is a deeply nested document of a different shape, and unlike C and B there is no existing table on screen to hang them off. Ours to build; needs its own artefact and wording approval first. D -- engagement types, 3 types x 6 authored fields, behind a hardcoded paraphrase at advisorEngine.js ~line 2836. NO PAGE EXISTS AT ANY TIER and Mike must rule where it lives before anything starts. ⚠ THREE EARLIER PLANS IN THIS ITEM ARE WITHDRAWN, all by evidence: (1) 'mentor tier only' and 'ship it filled by authoring the ten empty domains' -- the ten are NOT empty (Mike, session 63: 'the domain support material exists, I created it'), and the block built in session 65 cascades mentor->firm like every other. (2) 'Retire ~55 duplicate branches' -- tested text by text and FALSE; nothing was deleted. (3) 'Put the 65 on Coaching Reference' -- they are Domain Support content (Mike, 2026-08-16). METHOD, unchanged and proven five times: render the real prompt and read it, never inspect the store."
+  },
+  {
+   "ref": "4.17",
+   "name": "A screen can show one row when 67 exist, and say nothing",
+   "score": 2,
+   "scoreReason": "robustness — it fails better",
+   "blocker": false,
+   "blocks": null,
+   "waitingOn": "Us",
+   "why": "The mentor's Advisory Distinctions tab showed 1 distinction when the shipped set is 67. A local, git-ignored dev file (data/dev-platform-distinctions.json) is deliberately preferred over the committed seed when there is no database, and one stale test row in it shadowed all 67 — with nothing on screen saying so.",
+   "risk": "Anyone developing, demoing or reviewing reads what is on screen as the real platform set. It cost most of a session to diagnose, and the same pattern applies to every dev-JSON fallback in the app, not just this one.",
+   "askedBy": {
+    "who": "Mike",
+    "ours": false,
+    "detail": "He spotted it himself on the Mentor Hub, 2026-08-16 — 'the advisory distinctions ... no longer appear to be linked and working at mentor level'. Diagnosed the same session."
+   },
+   "touches": "server/utils/platformDistinctions.js and every other dev-JSON fallback (firmDistinctions, quizzes, coaching, currency); the Mentor Hub Advisory Distinctions tab.",
+   "note": "THE LOCAL SYMPTOM IS FIXED BY DELETING THE FILE — Mike was given the command on 2026-08-16 because the AI's own safety guard refused the deletion. THE ITEM IS THE UNDERLYING FAULT, not that file: a screen served from a dev fallback must SAY it is, e.g. 'showing local dev data — 67 shipped rows are being shadowed'. Same family as 4.16 and the same lesson: the content was there, the screen was there, and nothing connected the two or admitted the gap. Verify the fix by loading the tab with and without the local file, not by reading the loader."
+  }
+ ]
 }

@@ -41,6 +41,18 @@ content silently unreachable.
 **P2 · 🔴 The two look identical on screen.** Nothing in the interface distinguishes them.
 Assume nothing from appearance — check the shape in the data.
 
+**P2a · A learn table's opening question reaches the AI, and it is edited on this tab.** The
+sentence that establishes *where in the method the advisor already is* is emitted **for learn-mode
+tables only** — a client-delivery table is walked to a recommendation, not opened with a question.
+**The screen shows the box under exactly that condition**, so the 13 tables that have one offer an
+edit and the other 29 offer nothing. Wording approved by Mike, 2026-08-16; artefact
+[`../LEARN-TREE-OPENING-QUESTION-FIELD.md`](../LEARN-TREE-OPENING-QUESTION-FIELD.md).
+
+**P2b · A nodes table may also carry STANDING RULES, in a third array.** Rules that hold whichever
+stage the advisor is in live in `flat_branches`, outside the walked graph. They show as ordinary
+rows tagged **Always applies**, and they can be reworded but not added to — the set is the
+platform's. A row saved back into the staged list would join the walk.
+
 **P3 · A tree may legitimately name a tool the catalogue has not published yet.** That keeps the
 tree faithful to its source. The availability gate holds the name back until the catalogue
 carries it, and then it starts flowing **with no edit to the tree**.
@@ -134,6 +146,12 @@ affect a screen you were not thinking about.
    usually sitting inside longer names and ordinary prose. Walk the structure instead.
 4. **The generated routing report must not be hand-edited** — regenerate it. Its rules live in
    code that the build guard also reads, so the report and the tests cannot disagree.
+5. 🔴 **The prompt formatter reads flat rules from `tree.branches` — which is EMPTY on a nodes
+   table.** That is why `public_speaking`'s two standing rules reached neither the prompt nor any
+   screen for as long as they existed: they sat in `flat_branches`, a third array nothing looked
+   at, and no test could name a field nothing named. Fixed 2026-08-16. **A field that appears in
+   only one file in the repository — the one that authors it — is unreachable by definition; grep
+   for it before assuming it is wired.**
 
 ---
 

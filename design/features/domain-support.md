@@ -46,6 +46,20 @@ empty cell is honest; a plausible one is a fabrication under the firm's name.
 **P3 · An authored override is untrusted input and is fenced before it reaches a prompt.**
 Platform data in the project is trusted; anything authored by a level above or below is not.
 
+**P3a · The diagnostic entry reaches the AI and is editable — both, or neither.** Each area's
+entry question and its situation guidance (*"if it's this kind of problem, do this"*) go into
+**all three** prompt paths, and the same content is edited on the Domain Support tab. **The screen
+shows the block under exactly the condition the engine reads it**, so an edit can never reach
+nothing. Ruled by Mike, 2026-08-16; artefact
+[`../DOMAIN-DIAGNOSTIC-BRANCHES.md`](../DOMAIN-DIAGNOSTIC-BRANCHES.md).
+
+**P3b · An inherited situation's NAME is read-only, and it cannot be removed.** The name is the
+key its guidance is filed under, so renaming would repoint inherited content; and because
+overrides merge per field (P4), a removed inherited row simply returns on the next load. The
+screen therefore does not offer either — **never offer a control that does not work.** A level's
+OWN situations can be renamed and removed freely. Removing an inherited one needs a different
+store, not a button, and is an open decision.
+
 **P4 · Overrides are sparse and merge per field.** A level stores only what it changed, and the
 rest keeps tracking the platform. **Arrays are the exception — they replace wholesale**, so
 overriding a list means every item in it is now firm-authored, all or nothing.
@@ -128,6 +142,18 @@ across the board — 29 assets, none of them selecting a template.
 4. **Adding an area touches more than its file** — several code paths carry hardcoded lists, and
    a write once landed in the gap between two of them. There is now a test so that gap cannot
    silently reopen.
+5. 🔴 **There are THREE prompt formatters in this file and they had drifted apart.** Two emitted
+   the entry question and stopped; the **advisor path — the one an adviser's own session reads —
+   emitted neither the question nor the 65 situation branches.** So the largest loss was on the
+   path that mattered most, and no test noticed, because every test asked whether a field was
+   *saved* and none asked whether it was *used*. Fixed 2026-08-16 by one shared formatter called
+   from all three. **When adding a field here, change the shared formatter, never one caller.**
+6. 🔴 **"It duplicates the logic table" is a claim to test, not to accept.** A committed spec said
+   ~55 of the 65 branches duplicated tree routing and proposed deleting them. Tested text by text,
+   the claim failed: the tree says *which* conversation this is, the branch says *what to do* once
+   you are in it, and their words overlap only because they share a subject. **The comparison had
+   been made on node NAMES.** One genuine duplicate existed in the whole sweep. Evidence:
+   [`../DOMAIN-DIAGNOSTIC-BRANCHES.md`](../DOMAIN-DIAGNOSTIC-BRANCHES.md) §1.
 
 ---
 

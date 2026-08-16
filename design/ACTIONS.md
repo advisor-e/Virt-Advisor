@@ -21,6 +21,65 @@
 >
 > ---
 >
+> ## 🔴 SESSION 65 — 2026-08-16 (laptop). Four commits. 4.16 IS FIVE-SEVENTHS DONE.
+>
+> **Mike's instruction: *"4.16 — complete all your pieces then i want a new release created."*** Four
+> of the five closed; **F remains, and the release did not happen** — see the honest note at the end.
+>
+> **✅ ITEM C** (`95e96ec`) — 13 learn tables each carry a `stage_entry_question`, the sentence that
+> establishes where in a method the advisor already is. It appeared in **exactly one file in the
+> repository — the one that authors it.** These are the same 13 tables that ship a ~19,000-character
+> method guide to the model, so the AI has been reading a whole staged method with no idea where the
+> advisor stands in it. Plus 2 standing rules on `public_speaking` in a `flat_branches` array the
+> formatter never read. Both halves shipped: prompt + the Logic Tables tab, wording approved by Mike.
+> Artefact: [`LEARN-TREE-OPENING-QUESTION-FIELD.md`](LEARN-TREE-OPENING-QUESTION-FIELD.md).
+>
+> **✅ ITEMS A+B, merged** (`e30eb3f`) — all **65** `diagnostic_entry` branches now reach the AI, plus
+> the **26** `primary_question` fields that reached it and appeared on no screen. Both halves shipped
+> on the **Domain Support** tab (Mike's ruling), wording his.
+>
+> **🔴 ITEM A IS CANCELLED, BY THE TEST IT ITSELF DEMANDED.** The spec claimed ~55 of the 65 were
+> duplicates of tree routing and proposed retiring them, while admitting the comparison had been made
+> on node **names**. Run text-by-text, only 3 of the 65 had even 85% of their words present in their
+> best-matching tree, and all 3 read as complementary: **the tree says WHICH conversation this is,
+> the branch says WHAT TO DO once you are in it.** Nothing was deleted; there is no deletion left for
+> Mike to rule on. Evidence and method:
+> [`DOMAIN-DIAGNOSTIC-BRANCHES.md`](DOMAIN-DIAGNOSTIC-BRANCHES.md) §1.
+>
+> **✅ ITEM G CLOSED — the one genuine duplicate in the whole sweep.** `get-team-problem`'s six
+> `if_then_logic` rules are the six branches of its logic table: same conditions, same actions, same
+> order. No work needed. **Right once in seven** — which is the argument for testing the claim, not
+> for trusting or dismissing it.
+>
+> **⚠ THREE FAULTS FOUND WHILE BUILDING, all now in the Briefs rather than only here:**
+>
+> 1. **`domainSupport.js` has THREE prompt formatters and they had drifted.** Two emitted the entry
+>    question and stopped; **the advisor path — the one an adviser's own session reads — emitted
+>    neither the question nor the 65 branches.** The largest loss was on the path that mattered most.
+> 2. **`to-do-items.json` still described 4.16 with a plan withdrawn two sessions earlier** —
+>    "mentor tier only", "ship it filled by authoring the ten empty domains", "BLOCKED ON MIKE".
+>    Anyone picking the item up would have started the wrong job. Rewritten this session.
+> 3. **A field that appears in only one file — the one that authors it — is unreachable by
+>    definition.** Both C's fields and B's failed that test. It is a one-command check.
+>
+> ### ☐ NEW — a decision for a person, not a note
+>
+> **☐ Decide whether a firm may REMOVE an inherited diagnostic situation.** Today it cannot: overrides
+> merge per field, so a deleted inherited row returns on the next load. The screen therefore does not
+> offer the button — **never offer a control that does not work** — and a firm can reword every
+> inherited situation and freely add and remove its own. Making inherited rows removable needs a
+> different way of storing the override (a tombstone, or a replace-shaped store), **not a button**.
+> Raised with Mike 2026-08-16; not yet ruled on. Recorded in
+> [`features/domain-support.md`](features/domain-support.md) P3b.
+>
+> ### ⚠ What did NOT happen, said plainly
+>
+> **The release Mike asked for was not created.** Item F — the 12 method guides need a screen — is
+> still open and is the biggest of the seven, and Mike chose to stop rather than start it on a tired
+> session. **Item D still has no page at any tier and cannot start without him.**
+>
+> ---
+>
 > ## 🔴 SESSION 64 — 2026-08-16 (laptop). Four commits. 4.16 STARTS BUILDING.
 >
 > **✅ 4.16 ITEM E IS DONE** (`5873c06`) — the first of the seven, and the safe one on purpose. The
