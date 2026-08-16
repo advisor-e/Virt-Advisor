@@ -42,8 +42,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 5 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
 | 6 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | **Mike** |
 | 7 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
+| 8 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
 
-**Seven live items. One needs Mike.** If this list passes about twenty, something is wrong.
+**Eight live items. One needs Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **One item came off this list on 2026-08-16** — see
@@ -453,6 +454,38 @@ IF-THEN. See the spec §B.
   because the AI's own safety guard refused the deletion. **The item is the underlying fault:** a
   screen served from a dev fallback must *say* it is. Verify by loading the tab with and without the
   file, never by reading the loader.
+
+**4.18 · The AI invents advice when it is routed to the wrong method.** **SCORE 4 · the user is
+worse off**
+
+⚠ **Sitting last because Mike has not ranked it, not because it scores low.** It was added on
+2026-08-17, after his own ranking pass, and appending is the only way to add an item without
+moving one of his. **Its position is not a judgement.**
+
+- **Why:** a Dashboard Discussions question was routed by the engine to the **Ratio Analysis**
+  coaching tree. The AI then produced its own plausible *"tactical options"* and *"discussion
+  questions"* for the metric rather than saying it had none for it. **Two faults stacked:** the
+  wrong guide was selected, and the model filled the gap instead of admitting it.
+- **Risk:** an adviser reads invented content as Mike's authored method and takes it to a client.
+  On screen it is indistinguishable from the real thing — right headings, right tone, right shape.
+  🔴 **This is 4.16's failure from the other direction.** 4.16 was authored content that never
+  arrived; this is unauthored content that arrives *looking* authored — and it is the worse of the
+  two, because nothing about it looks wrong.
+- **Asked by:** **Mike.** Found by us on 2026-08-17 while verifying 4.16 F on the running app — the
+  first Dashboard Discussions attempt came back with invented questions. Reported the same session
+  and he ruled it on: *"if you found this problem then yes - it gets put on the to do list."*
+- **Touches:** `detectLogicTree` / `detectLogicTrees` in `server/utils/logicTrees.js` and
+  `pickLearnTreeAI` in `server/advisorEngine.js` for the routing half; the learn-mode prompt for
+  the honesty half.
+- 🔴 **TWO HALVES, AND THE SECOND ONE IS THE ITEM.** Sharpening the routing reduces how often this
+  happens and can never remove it — some questions are genuinely ambiguous, and Ratio Analysis and
+  Dashboard Discussions are neighbouring methods. **The fault worth fixing is that the model does
+  not say "I do not have that for this method."** Do not close this on a routing tweak alone.
+- ⚠ **Verify the way 4.16 was verified** — ask a real question on the running app and compare the
+  answer word for word against the source file. **Every automated test here passes on an answer the
+  model made up.**
+- Written into [`../RELEASE-NOTES-v0.9.0.md`](../RELEASE-NOTES-v0.9.0.md) §4a, so the master team
+  meets it as a known issue rather than as a surprise in UAT.
 
 **4.7 · Flip `engine-strict` back on.** **SCORE 2 · robustness**
 - **Why:** still `false`. Two transitive packages (`consola`, `node-releases`) over-declare their
