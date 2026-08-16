@@ -1,5 +1,16 @@
 # The Diagnostic Entry block — words the AI is shown
 
+> 🔴 **SUPERSEDED — session 63, 2026-08-16 · DO NOT BUILD FROM THIS FILE**
+>
+> Its **findings** stand: the 65 branches are authored, reach no prompt, and appear on no screen.
+> Its **plan** does not. Two of its premises were disproved by the code the day after it was approved:
+> the ten "empty" domains each have a live logic tree, so nothing needs authoring; and the branches
+> are Logic Tables content, of which **about 55 duplicate the trees already**.
+>
+> **Build from [`4-16-BUILD-SPEC.md`](4-16-BUILD-SPEC.md) instead.** Why this one was wrong is
+> recorded in [`COACHING-REFERENCE-DOMAIN-ROWS.md`](COACHING-REFERENCE-DOMAIN-ROWS.md).
+> Kept whole rather than deleted, because the mistake is the reusable part.
+>
 > **Approval artefact. Saved before approval**, per `CLAUDE.md` → Save the Artefact.
 > **Screen:** [`mockups/domain-support-diagnostic-entry.html`](mockups/domain-support-diagnostic-entry.html).
 > **Item:** 4.16, Phase 1 — [`features/to-do.md`](features/to-do.md).

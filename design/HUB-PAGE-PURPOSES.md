@@ -1,0 +1,95 @@
+# What each hub page is for
+
+> **Read this before deciding where a piece of content belongs.** Twelve tabs, each answering exactly
+> one question — and **the names are not a reliable guide to which.**
+>
+> **Verified from the code**, not from the Briefs. Where a row says *brief only*, it has not been
+> code-checked and must not be relied on.
+> **Screen version:** https://claude.ai/code/artifact/be01a4ac-1d31-44b2-99ab-73b0f1b2639d
+
+---
+
+## 1. The pages, by the question each answers
+
+### The AI reads these — editing them changes advice
+
+| Page | The question it answers | What it is **not** | Checked |
+|---|---|---|---|
+| **Domain Support** | *How do I run this, step by step?* | Not which template to choose | code ✓ |
+| **Logic Tables** | *Which template, in which scenario?* | Not how to deliver it once chosen | code ✓ |
+| **Coaching Reference** | *Which tool fits this client?* — a flat menu | Not coaching, despite the name | code ✓ |
+| **Advisory Staircase** | *How deep is this relationship?* | Not the kind of work — explicitly independent | code ✓ |
+| **Advisory Distinctions** | *What did the advisor just mean?* | Not what to do about it | brief only |
+| **Quizzes** | *Does the adviser know this?* | Not how a session is delivered | brief only |
+
+### People read these — the AI never does
+
+| Page | The question it answers | Checked |
+|---|---|---|
+| **Logic Lab** | *Why did the engine decide that?* — desktop's ground | route ✓ |
+| **Adoption** | *How are firms actually using it?* | brief only |
+| **Logic-Lab Report** | *What did the firms push back on?* | brief only |
+| **Case Reviews** | *Was the advice any good?* | brief only |
+| **Template Check** | *Does the catalogue match the tables?* — mentor only, parked | brief only |
+| **Adviser Network** | *Who reports to me?* | brief only |
+| **Templates & Videos** | dormant since 2026-07-27, by Mike's decision | code ✓ |
+
+---
+
+## 2. The three that are proved, and how
+
+**Domain Support — the step-by-step.** `formatMaterialLines()` in
+[`../server/utils/domainSupport.js`](../server/utils/domainSupport.js):
+
+```
+### <name>
+<summary>
+**Who & when it suits:** <who_when>
+**How to use it:**
+1. <step>
+2. <step>  …
+```
+
+**187 of 194 materials carry ordered steps — 1,118 steps in total.**
+
+**Logic Tables — the IF-THEN template selector.** Every node in all 42 trees, verbatim from
+`governance`:
+
+```
+"condition": "Primary concern is leadership style or culture alignment"
+"action":    "Explore the fit between leadership style and business strategy."
+"templates": [ "Leadership Review" ]
+"branches":  [ answer_pattern → next_node, … ]
+```
+
+**Coaching Reference — a flat selection menu, not coaching.** Its own code
+([`../server/utils/coaching.js`](../server/utils/coaching.js) lines 4 and 176): *"the
+template-selection guidance injected into the Phase 3 prompt"* … *"it is the menu the AI picks a
+template FROM"*. Five of its six fields choose a tool; only `deliveryNotes` says how to run one.
+
+---
+
+## 3. 🔴 The Coaching Reference has no Brief
+
+It is **the only content page in the hub with none**. Nobody ever wrote down what it is for, which is
+the likeliest reason its name promises coaching while its code calls it a selection menu. **Its
+purpose needs settling as its own piece of work** — writing the Brief is the fix, and it is not part
+of 4.16.
+
+---
+
+## 4. How this page came to be written
+
+Mike, 2026-08-16: *"I think we need to get really clear on the purpose of each page… this might show
+us how the content we're dealing with here may be spread across different pages but make it
+consistent in terms of user experience."*
+
+⚠ **The first version had Domain Support and Logic Tables reversed**, because it was written from the
+Briefs in `design/features/` rather than from the formatters. Mike caught it in one line: *"the step
+by step — here's how you do it in sequence — is provided by the domain support page; the if-then-else
+logic of which template to use in which scenario vs another template is provided by the logic
+tables."*
+
+**The lesson is the one already in the repo and it was ignored anyway: a Brief is a claim, the code is
+the authority.** That is why every row above carries how it was checked, and why six rows say *brief
+only* rather than quietly reading as verified.

@@ -321,32 +321,44 @@ content is invisible in **both** directions, which is why no test, no tab and no
 it. That finding is what produced the hub-page rule in `CLAUDE.md` and
 [`tier-cascade.md`](tier-cascade.md) P10.
 
-### The three phases
+### ✅ The design is SETTLED — session 63, 2026-08-16 · next session builds
 
-**Phase 1 · domain support, 71 items.** Artefacts approved and committed —
-[`../DIAGNOSTIC-ENTRY-BLOCK.md`](../DIAGNOSTIC-ENTRY-BLOCK.md) and
-[`../mockups/domain-support-diagnostic-entry.html`](../mockups/domain-support-diagnostic-entry.html).
-Mike's rulings, all 2026-08-16: wording approved as proposed; **mentor tier only** (*"too technical
-for a firm or global manager"*); a **section inside the existing Domain Support tab**, not a new
-page; and **ship it filled** — *"with as many sections as possible"*.
+🔴 **The spec is [`../4-16-BUILD-SPEC.md`](../4-16-BUILD-SPEC.md). Read it and build — do not
+re-derive the analysis.** Page purposes: [`../HUB-PAGE-PURPOSES.md`](../HUB-PAGE-PURPOSES.md).
 
-⚠ **"Ship it filled" reorders the phase.** Authoring the **10 empty domains** — `eoy`, `profit`,
-`staff` first, then the 7 Get-the-Job ones — is now the **first and larger half**, and it ships with
-the wiring. The section never goes live half-filled. Any domain still empty at ship time is named to
-him, never quietly dropped.
+**102 is a measurement, not a work list.** About **55 of the 65 `diagnostic_entry` branches are
+duplicates** of routing the logic trees already carry at higher resolution — and the trees name the
+actual templates while the branches do not. The real list is seven items:
 
-🔴 **BLOCKED ON MIKE, and it is the first thing to settle next session: who drafts the ten.** He
-authors them · we draft from each domain's own `overview` and `materials` for his approval · or a
-mix. **No drafting starts before he answers** — authoring advisory routing text unasked is the same
-fault as inventing wording, at ten times the scale. If we draft, each one is a committed artefact
-*before* he approves it; ten domains must not become a rubber stamp.
+| Work | Count | Page |
+| --- | --- | --- |
+| Retire `diagnostic_entry` where the tree covers it — no screen, no prompt | ~55 | — |
+| The branches no tree covers | ~10 | Logic Tables |
+| `stage_entry_question` + `flat_branches` | 15 | Logic Tables |
+| Engagement-type authored fields — 6 per type | 18 | 🔴 **no page exists** |
+| Staircase `selectorPrompt` from data, not a hardcoded string | 1 | Advisory Staircase |
+| The 12 method guides get a screen | 12 | Domain Support |
+| `get-team-problem`'s `if_then_logic` — check against its tree first | 6 | Logic Tables |
 
-**Phase 2 · the logic trees, 15 items.** **Phase 3 · engagement types and the staircase, 16 items** —
-neither has a hub tab today, so both need a home decided first.
+🔴 **Two earlier plans are withdrawn, both by evidence rather than opinion.**
+**(1) The ten "empty" domains are not empty** — `eoy`, `profit` and `staff` each have a live logic
+tree, as do all seven Get-the-Job domains. Mike stopped it: *"the domain support material exists (I
+know this because I created it) but the problem is — not all of it was being read by AI."* Authoring
+them would have duplicated his own work tenfold.
+**(2) The 65 do not go on the Coaching Reference page** — he instructed it, then the code showed they
+are Logic Tables content and mostly duplicates. Recorded at
+[`../COACHING-REFERENCE-DOMAIN-ROWS.md`](../COACHING-REFERENCE-DOMAIN-ROWS.md).
+[`../DIAGNOSTIC-ENTRY-BLOCK.md`](../DIAGNOSTIC-ENTRY-BLOCK.md) is superseded by both.
 
-**Still open and deliberately excluded from Phase 1:** `get-team-problem`'s 6 rules sit under
-`if_then_logic` and carry three parts, not two. Same fault, different shape — excluded rather than
-bent to fit.
+**The cascade is binding on all of it** — Mike, 2026-08-16: *"each respective hub page needs to link
+to AI so their changes work in practice so the cascade rules need apply here also."* Build
+tier-agnostic on the `coachingConfig.loadResolvedCoaching` shape. The two middle tiers cannot be
+exercised until the master team issues their roles and the firm→brand/country data; it fails toward
+today's behaviour, never toward a guess.
+
+🆕 **Found on the way, and it is not a wiring fault: `org-capacity-planner` has no logic tree at
+all.** Every other domain carrying diagnostic-entry branches has one. Missing routing, not missing
+plumbing — **needs Mike, as its own item.**
 
 **4.17 · A screen can show one row when 67 exist, and say nothing.** **SCORE 2 · robustness**
 - **Why:** the mentor's Advisory Distinctions tab showed **1** distinction when the shipped set is
