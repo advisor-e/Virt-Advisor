@@ -330,15 +330,34 @@ re-derive the analysis.** Page purposes: [`../HUB-PAGE-PURPOSES.md`](../HUB-PAGE
 duplicates** of routing the logic trees already carry at higher resolution — and the trees name the
 actual templates while the branches do not. The real list is seven items:
 
-| Work | Count | Page |
-| --- | --- | --- |
-| Retire `diagnostic_entry` where the tree covers it — no screen, no prompt | ~55 | — |
-| The branches no tree covers | ~10 | Logic Tables |
-| `stage_entry_question` + `flat_branches` | 15 | Logic Tables |
-| Engagement-type authored fields — 6 per type | 18 | 🔴 **no page exists** |
-| Staircase `selectorPrompt` from data, not a hardcoded string | 1 | Advisory Staircase |
-| The 12 method guides get a screen | 12 | Domain Support |
-| `get-team-problem`'s `if_then_logic` — check against its tree first | 6 | Logic Tables |
+| Work | Count | Page | |
+| --- | --- | --- | --- |
+| Retire `diagnostic_entry` where the tree covers it — no screen, no prompt | ~55 | — | |
+| The branches no tree covers | ~10 | Logic Tables | |
+| `stage_entry_question` + `flat_branches` | 15 | Logic Tables | |
+| Engagement-type authored fields — 6 per type | 18 | 🔴 **no page exists** | |
+| Staircase `selectorPrompt` from data, not a hardcoded string | 1 | Advisory Staircase | ✅ **2026-08-16** |
+| The 12 method guides get a screen | 12 | Domain Support | |
+| `get-team-problem`'s `if_then_logic` — check against its tree first | 6 | Logic Tables | |
+
+✅ **E shipped 2026-08-16 (`5873c06`) — the first of the seven, and the safe one on purpose.**
+The sentence an advisor is asked before choosing a staircase step now comes from the data and is
+editable on the Advisory Staircase tab, mentor first, firms inheriting. Approved wording:
+[`../STAIRCASE-SELECTOR-PROMPT-FIELD.md`](../STAIRCASE-SELECTOR-PROMPT-FIELD.md) §3.
+
+**Today's advisor sees no change, and two tests hold that** rather than assert it — they pin the
+exact strings that were hardcoded, written out in full so a later edit to the data file cannot
+silently re-point them. Proved on the running app as well as in the suite: saved as the mentor,
+inherited by a firm that had written none of its own, and the engine then put that sentence to the
+advisor.
+
+⚠ **Two things the build spec did not have, both found by opening the code — read before doing B–G:**
+
+1. **The two hardcoded strings were NOT identical.** The second carries a "No problem —" lead-in for
+   the moment an advisor declines a saved answer. It belongs to the moment, not the question, so it
+   stays in code — a firm must not be able to delete it from a conversation it never saw.
+2. 🔴 **A wording decision is still open and was deliberately not bundled:** that block's history
+   button reads **"Ceiling history"** while now covering two settings. Renaming it is Mike's call.
 
 🔴 **Two earlier plans are withdrawn, both by evidence rather than opinion.**
 **(1) The ten "empty" domains are not empty** — `eoy`, `profit` and `staff` each have a live logic

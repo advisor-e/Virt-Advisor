@@ -21,6 +21,62 @@
 >
 > ---
 >
+> ## 🔴 SESSION 64 — 2026-08-16 (laptop). Four commits. 4.16 STARTS BUILDING.
+>
+> **✅ 4.16 ITEM E IS DONE** (`5873c06`) — the first of the seven, and the safe one on purpose. The
+> staircase `selectorPrompt` was authored in `data/advisory-staircase.json` from the day the
+> framework shipped and **read by nothing**; the engine asked a hardcoded copy in two places, so a
+> mentor's or a firm's edit reached no advisor. Both halves shipped per the hub-page rule — the
+> field is on the Advisory Staircase tab (*"The question your advisors are asked"*, wording approved
+> by Mike, [`STAIRCASE-SELECTOR-PROMPT-FIELD.md`](STAIRCASE-SELECTOR-PROMPT-FIELD.md)) and the
+> engine reads the resolved value. Proved on the running app, not only in the suite: saved as the
+> mentor, inherited by a firm that had written none of its own, and the engine then put that
+> sentence to the advisor. **Two tests pin the exact strings that were hardcoded**, so today's
+> advisor provably sees no change.
+>
+> ⚠ **The build spec was wrong on one point and silent on another — read before starting B–G.** The
+> two hardcoded strings were **not identical**: the second carries a `No problem —` lead-in for the
+> moment an advisor declines a saved answer. It belongs to the moment, not the question, and stays
+> in code. 🔴 **And a wording decision is open, deliberately not bundled:** that block's history
+> button reads **"Ceiling history"** while now covering two settings.
+>
+> ### 🔴 NEW FINDING — the Handbook could omit a document entirely and report success
+>
+> **Raised by Mike:** *"why is the 'what each hub page is for' page not been added to the
+> handbook???"* Because `build-handbook.js` read **one** directory and that file was written one
+> level up. It was never dropped — it was never a candidate.
+>
+> **Nothing would ever have said so.** The "Unlisted" warning reports a file *inside*
+> `design/features/` that the index forgot, so a document outside the folder is invisible to it.
+> That morning's build reported 26 pages, all listed, and was right. **A control whose reach is one
+> level too narrow — the same shape as the `recommendationGate` miss recorded in session 62.**
+>
+> **Fixed for seven documents** (`0d640c8`): an index row may now point one level up
+> (`../TIER-CASCADE-MAP.md`) and that document becomes a page **where it lies**. Moving them was the
+> obvious fix and the wrong one — `CONTENT-ROUTING.md` is written by a generator, `ARTEFACTS.md` is
+> guarded by a test, and `WORKING-AGREEMENT.md` is named in `CLAUDE.md`, `README.md`, both slash
+> commands, a skill and a script. Handbook: 26 pages → 33.
+>
+> ⚠ **A move WAS tried first and a test caught it.** `HUB-PAGE-PURPOSES.md` went into
+> `design/features/`, and `newFeature.test.js` failed: that folder holds feature Briefs, each with a
+> History behind the gate, and a reference table is neither. It went back, and a test now asserts it
+> stays out with the reason beside it. **Recorded rather than tidied away** — the rule it broke was
+> one no session note mentions.
+>
+> ### ☐ OPEN — about 100 Handbook links still point at documents with no page
+>
+> Handbook pages carry **135** outbound `../*.md` links to 54 documents. **33 now open a page; the
+> rest still resolve to nothing** and render as informational file references. **Most should
+> probably lose the link rather than gain a page** — they are session notes, executed plans and
+> handovers, whose lessons belong in a History page — **but nobody has decided which, and there is
+> no check that would fail if a Brief linked to a document that does not exist at all.**
+>
+> **This is a task for a person, not a warning:** go through the 54, decide per document *page /
+> unlink / fold into a History*, and add a build check that fails on a link to a missing file.
+> Nobody is doing it today.
+>
+> ---
+>
 > ## 🔴 SESSION 62 — 2026-08-16 (laptop). Five commits. NO APPLICATION CODE.
 >
 > **A rule, a completed sweep, and two approved artefacts. Nothing was built.**

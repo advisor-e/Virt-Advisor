@@ -97,12 +97,23 @@ words**; that question is answered until the signal is widened.
 ### The four config keys
 
 Declines (an array of platform step ids switched off), overrides (a level's edits keyed by the id
-they replace), own steps (added by that level), and the original file — **unchanged**, and still
-the home of the default ceiling.
+they replace), own steps (added by that level), and the original file — **unchanged**, and the home
+of the two settings that are not rows: the **default ceiling** and the **question the advisor is
+asked**.
 
-**Traps.** Do not fold the ceiling into the row mechanism. Do not let the advisor read and the
-engine rule resolve separately. And a read that throws breaks a live client session — degrade
-instead.
+**The question comes from the data, and every level may write its own** (2026-08-16). It is
+`selectorPrompt`, edited on the tab as *"The question your advisors are asked"*, and it inherits
+exactly as the steps do — a level that has written none gets the level above's, down to the shipped
+file. It was authored from the start and read by nothing until that date; the engine asked a
+hardcoded copy, so no level's edit ever reached an advisor. Capped at 500 characters, because the
+value travels into the advisor prompt. Approved wording:
+[`../STAIRCASE-SELECTOR-PROMPT-FIELD.md`](../STAIRCASE-SELECTOR-PROMPT-FIELD.md).
+
+**Traps.** Do not fold either setting into the row mechanism. Do not let the advisor read and the
+engine rule resolve separately. A read that throws breaks a live client session — degrade instead,
+and an unreadable question degrades to the shipped sentence rather than to silence, because an
+advisor asked nothing cannot answer. And the `No problem —` lead-in on the re-ask belongs to the
+code, not to the question: a level must not be able to delete it from a conversation it never saw.
 
 **Known state.** Runs on the development file fallback like every other level-editable block.
 

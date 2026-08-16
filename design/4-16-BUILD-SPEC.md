@@ -22,7 +22,7 @@ another route. The real list is below.
 | B | The branches no tree covers | ~10 | Logic Tables | Real |
 | C | `stage_entry_question` + `flat_branches` reach the prompt | 15 | Logic Tables | Real |
 | D | Engagement-type authored fields reach the prompt, and get a screen | 18 | **none exists** | Real |
-| E | Staircase `selectorPrompt` reaches the prompt from data, not a hardcoded string | 1 | Advisory Staircase | Real |
+| E | Staircase `selectorPrompt` reaches the prompt from data, not a hardcoded string | 1 | Advisory Staircase | ✅ **DONE 2026-08-16** (`5873c06`) |
 | F | The 12 method guides get a screen | 12 | Domain Support | Real |
 | G | `get-team-problem`'s `if_then_logic` — check against its tree first, then treat as B or A | 6 | Logic Tables | Check first |
 

@@ -10,7 +10,7 @@ begins as a page in it before any code is written.
 
 | | |
 |---|---|
-| **The content** | Every `*.md` file in [`design/features/`](README.md). Nothing else. |
+| **The content** | Every `*.md` file in [`design/features/`](README.md), plus any document in `design/` that the index lists with a `../` row — read where it lies, never moved. |
 | **The navigation** | Read from [`README.md`](README.md) — its headings are the groups, its table rows the entries. |
 | **The design** | [`scripts/handbook-shell.html`](../../scripts/handbook-shell.html) — an approved artefact. |
 | **The generator** | [`scripts/build-handbook.js`](../../scripts/build-handbook.js), run with `npm run handbook`. |
@@ -51,6 +51,14 @@ begins as a page in it before any code is written.
 8. 🔴 **Never make him choose between two states he cannot compare.** Where his work and the
    repository disagree, they are merged — his copy wins, in his order — and the difference is
    *reported*. Nothing of his is discarded, so there is nothing to ask.
+9. **A document a generator writes or a test guards is listed with a `../` row, never moved
+   into this folder.** `CONTENT-ROUTING.md` is written by `npm run routing`, `ARTEFACTS.md` is
+   guarded by a test, and `WORKING-AGREEMENT.md` is named in `CLAUDE.md`, `README.md`, both slash
+   commands, a skill and a script. A documentation tidy-up does not get to put those at risk.
+   **And this folder holds feature Briefs only** — every page in it must have a History behind
+   the gate (rule 4), so a reference table belongs in `design/` and is listed from there.
+   `HUB-PAGE-PURPOSES.md` was moved in on 2026-08-16 and
+   [`tests/unit/newFeature.test.js`](../../tests/unit/newFeature.test.js) caught it; it went back.
 
 ## 3. Reading and editing it
 
