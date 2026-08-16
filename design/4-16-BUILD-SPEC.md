@@ -16,15 +16,27 @@ The sweep found **102 authored fields reaching no prompt**. That number stands a
 it is **not a work list**: about 55 of them are duplicates of content the AI already receives by
 another route. The real list is below.
 
+> 🔴 **§1 AND §4 A ARE SUPERSEDED — 2026-08-16, session 65.** The "~55 are duplicates" claim was
+> tested text-by-text, as §4 A itself demanded, and **it does not hold**. Nothing is retired; all 65
+> branches are real, unreached content, and A and B are one job on **Domain Support** (Mike's ruling,
+> same day). The evidence, the method and its limits are in
+> [`DOMAIN-DIAGNOSTIC-BRANCHES.md`](DOMAIN-DIAGNOSTIC-BRANCHES.md) §1. **Read that before acting on
+> anything below about A or B.**
+
 | # | Work | Count | Page | Status |
 |---|---|---|---|---|
-| A | Retire `diagnostic_entry` where the logic tree already covers it | ~55 | — | **No screen. No prompt. Delete-or-dormant.** |
-| B | The branches no tree covers | ~10 | Logic Tables | Real |
-| C | `stage_entry_question` + `flat_branches` reach the prompt | 15 | Logic Tables | Real |
-| D | Engagement-type authored fields reach the prompt, and get a screen | 18 | **none exists** | Real |
+| A | ~~Retire `diagnostic_entry` where the logic tree already covers it~~ | ~~55~~ | — | 🔴 **CANCELLED 2026-08-16 — the claim failed its own test. Merged into B.** |
+| B | Every `diagnostic_entry` branch reaches the prompt, and gets a screen | **65** + 26 entry questions | **Domain Support** | ✅ **DONE 2026-08-16** |
+| C | `stage_entry_question` + `flat_branches` reach the prompt | 15 | Logic Tables | ✅ **DONE 2026-08-16** (`95e96ec`) |
+| D | Engagement-type authored fields reach the prompt, and get a screen | 18 | **none exists** | Real — 🔴 waits on Mike |
 | E | Staircase `selectorPrompt` reaches the prompt from data, not a hardcoded string | 1 | Advisory Staircase | ✅ **DONE 2026-08-16** (`5873c06`) |
 | F | The 12 method guides get a screen | 12 | Domain Support | Real |
-| G | `get-team-problem`'s `if_then_logic` — check against its tree first, then treat as B or A | 6 | Logic Tables | Check first |
+| G | `get-team-problem`'s `if_then_logic` — check against its tree first, then treat as B or A | 6 | Logic Tables | ✅ **CLOSED 2026-08-16 — proved a true duplicate, no work needed** |
+
+**G is the only genuine duplicate the whole sweep found.** Its six `if_then_logic` rules are the six
+branches of the `get_team_problem` table — same conditions, same actions, same order, lightly
+reworded. The AI already receives every one of them by that route. That it IS a duplicate, while the
+65 are not, is why the check mattered rather than the intuition.
 
 ✅ **`org-capacity-planner` having no logic tree is CORRECT, and is not an item.** Ruled by Mike,
 2026-08-16: *"there is no capacity planner logic — it is a single model used for firms to plan and has

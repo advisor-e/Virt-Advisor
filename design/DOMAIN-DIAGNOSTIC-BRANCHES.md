@@ -142,13 +142,25 @@ empty block inviting a firm to fill in a field the AI would never read for them.
 
 ---
 
-## 4. ⚠ THE WORDING — MIKE'S CHOICE, NOTHING IS BUILT UNTIL THIS IS ANSWERED
+## 4. ✅ THE WORDING — CHOSEN BY MIKE, 2026-08-16
+
+**Block heading:** **What to do, depending on the situation**
+**Columns:** **When this is the situation** / **What the adviser should do**
+**Entry-question label:** **The question your advisors are asked first** — deliberately identical to
+the Logic Tables label approved the same day, so the same thing is named the same way on both
+screens.
+
+**This is what the build must match, word for word.** Any difference between the screen and these
+lines is a deviation to be named, not a detail.
+
+*The options he chose between are kept below so the choice can be read back rather than taken on
+trust.*
 
 ### 4a. The heading over the block
 
 | | Option |
 |---|---|
-| **A** | **What to do, depending on the situation** |
+| **A** ✅ | **What to do, depending on the situation** |
 | **B** | **Diagnosis — matching the advice to the problem** |
 | **C** | **Where this conversation goes next** |
 
@@ -156,7 +168,7 @@ empty block inviting a firm to fill in a field the AI would never read for them.
 
 | | Left column | Right column |
 |---|---|---|
-| **A** | **When this is the situation** | **What the adviser should do** |
+| **A** ✅ | **When this is the situation** | **What the adviser should do** |
 | **B** | **The situation** | **The advice** |
 | **C** | **If** | **Then** — matching the Logic Tables columns exactly |
 
@@ -165,7 +177,7 @@ empty block inviting a firm to fill in a field the AI would never read for them.
 | | Option |
 |---|---|
 | **A** | **The question that opens this area** |
-| **B** | **The question your advisors are asked first** — identical to the wording approved for Logic Tables on 2026-08-16 |
+| **B** ✅ | **The question your advisors are asked first** — identical to the wording approved for Logic Tables on 2026-08-16 |
 | **C** | **Working out which situation this is** |
 
 **Neighbours, for comparison — the exact words already on this screen:**

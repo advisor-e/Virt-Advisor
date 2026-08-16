@@ -2963,7 +2963,22 @@ async function getDomainSupportDetail (req, res) {
     const overrides = await _loadFirmDomainSupportMapRaw(req.firmId)
     const override = overrides[domainId] || null
     const merged = domainSupport.resolveDomainSupport(domainId, override ? { [domainId]: override } : null)
-    res.send(200, merged || {})
+    if (!merged) { return res.send(200, {}) }
+    // Which diagnostic situations the PLATFORM authored (item 4.16 A+B). The
+    // merged entry cannot say: the stored override merges key-by-key onto the
+    // platform's, so a firm's own situation and an inherited one look identical
+    // by the time they arrive here.
+    //
+    // The screen needs the difference for two reasons. A platform situation's
+    // name is READ-ONLY — the key is the identity its guidance is filed under,
+    // so renaming it would repoint the content. And a platform situation cannot
+    // be REMOVED, because a merge puts it straight back on the next load; the
+    // screen must not offer a button that does nothing.
+    const base = domainSupport.resolveDomainSupport(domainId, null)
+    const baseEntry = (base && base.diagnostic_entry) || {}
+    res.send(200, Object.assign({}, merged, {
+      platformSituationKeys: Object.keys(baseEntry).filter(k => k !== 'primary_question')
+    }))
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }

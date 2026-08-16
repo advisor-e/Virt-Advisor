@@ -332,13 +332,28 @@ actual templates while the branches do not. The real list is seven items:
 
 | Work | Count | Page | |
 | --- | --- | --- | --- |
-| Retire `diagnostic_entry` where the tree covers it — no screen, no prompt | ~55 | — | |
-| The branches no tree covers | ~10 | Logic Tables | |
-| `stage_entry_question` + `flat_branches` | 15 | Logic Tables | |
-| Engagement-type authored fields — 6 per type | 18 | 🔴 **no page exists** | |
+| ~~Retire `diagnostic_entry` where the tree covers it~~ | ~~55~~ | — | 🔴 **CANCELLED 2026-08-16** |
+| Every `diagnostic_entry` branch reaches the prompt and gets a screen | **65** + 26 | Domain Support | ✅ **2026-08-16** |
+| `stage_entry_question` + `flat_branches` | 15 | Logic Tables | ✅ **2026-08-16** |
+| Engagement-type authored fields — 6 per type | 18 | 🔴 **no page exists** | 🔴 **waits on Mike** |
 | Staircase `selectorPrompt` from data, not a hardcoded string | 1 | Advisory Staircase | ✅ **2026-08-16** |
-| The 12 method guides get a screen | 12 | Domain Support | |
-| `get-team-problem`'s `if_then_logic` — check against its tree first | 6 | Logic Tables | |
+| The 12 method guides get a screen | 12 | Domain Support | **the only build left that is ours** |
+| `get-team-problem`'s `if_then_logic` — check against its tree first | 6 | Logic Tables | ✅ **2026-08-16 — a real duplicate, no work needed** |
+
+🔴 **"About 55 of the 65 are duplicates" was WRONG, and it was overturned by the very test the spec
+demanded before deleting anything.** Only three of the 65 had even 85% of their words present in
+their best-matching tree, and all three read as complementary when put side by side: the tree says
+WHICH conversation this is, the branch says WHAT TO DO once you are in it. **Nothing was deleted, and
+there is no deletion left for Mike to rule on.** Evidence and method:
+[`../DOMAIN-DIAGNOSTIC-BRANCHES.md`](../DOMAIN-DIAGNOSTIC-BRANCHES.md) §1.
+
+⚠ **The one genuine duplicate in the whole sweep was `get-team-problem`'s six** — same conditions,
+same actions, same order as its logic table. That one IS redundant and needs no work. It is worth
+knowing that the intuition was right once in seven and wrong the other six times.
+
+**The job also grew by 26 deliberately:** the `primary_question` fields DO reach the AI and appear on
+no screen either — the same fault, the same field, the same tab. Fixing the 65 and leaving those
+invisible would have been a choice, and the wrong one.
 
 ✅ **E shipped 2026-08-16 (`5873c06`) — the first of the seven, and the safe one on purpose.**
 The sentence an advisor is asked before choosing a staircase step now comes from the data and is

@@ -361,3 +361,105 @@ describe('hide / show the domain list', () => {
     }
   })
 })
+
+/**
+ * Item 4.16 A+B — the diagnostic block on this screen.
+ * Approved artefact: design/DOMAIN-DIAGNOSTIC-BRANCHES.md.
+ */
+describe('what to do, depending on the situation', () => {
+  const withDiagnostic = () => Object.assign(eoyDetail(), {
+    diagnostic_entry: {
+      primary_question: 'What kind of end of year conversation is this?',
+      first_review: 'Start with the agenda.',
+      our_own_one: 'Do it our way.'
+    },
+    platformSituationKeys: ['first_review']
+  })
+
+  test('the block shows the question and both situations', async () => {
+    const wrapper = await openDomain(await mountScreen(undefined, { eoy: withDiagnostic() }), 'eoy', 'End of Year')
+    expect(wrapper.vm.form.diagnostic.primaryQuestion).toBe('What kind of end of year conversation is this?')
+    expect(wrapper.vm.form.diagnostic.situations.map(s => s.label))
+      .toEqual(['First review', 'Our own one'])
+    expect(wrapper.text()).toContain('firmDomainSupport.diagnosticHeading')
+    expect(wrapper.text()).toContain('firmDomainSupport.colSituation')
+  })
+
+  // A platform key is inherited; anything else is the firm's own. The merged
+  // entry cannot say which, so the route tells the screen.
+  test('a platform situation is marked inherited and its name is read-only', async () => {
+    const wrapper = await openDomain(await mountScreen(undefined, { eoy: withDiagnostic() }), 'eoy', 'End of Year')
+    const rows = wrapper.vm.form.diagnostic.situations
+    expect(rows[0].origin).toBe('platform')
+    expect(rows[1].origin).toBe('firm')
+  })
+
+  // Ten domains have neither, and must not get an empty box inviting a firm to
+  // fill in a field the AI would never read for them.
+  test('no block at all on a domain with no diagnostic entry', async () => {
+    const wrapper = await openDomain(await mountScreen(), 'eoy', 'End of Year')
+    expect(wrapper.vm.hasDiagnostic).toBe(false)
+    expect(wrapper.text()).not.toContain('firmDomainSupport.diagnosticHeading')
+  })
+
+  test('editing only a situation lights up Save', async () => {
+    const wrapper = await openDomain(await mountScreen(undefined, { eoy: withDiagnostic() }), 'eoy', 'End of Year')
+    expect(wrapper.vm.dirty).toBe(false)
+    wrapper.vm.form.diagnostic.situations[0].text = 'Reworded by the firm.'
+    expect(wrapper.vm.dirty).toBe(true)
+  })
+
+  test('the save posts the entry in the shape the prompt reads', async () => {
+    const wrapper = await openDomain(await mountScreen(undefined, { eoy: withDiagnostic() }), 'eoy', 'End of Year')
+    wrapper.vm.form.diagnostic.situations[0].text = 'Reworded.'
+    await wrapper.vm.save()
+    const post = global.fetch.mock.calls.find(c => (c[1] || {}).method === 'POST')
+    expect(JSON.parse(post[1].body).diagnostic_entry).toEqual({
+      primary_question: 'What kind of end of year conversation is this?',
+      first_review: 'Reworded.',
+      our_own_one: 'Do it our way.'
+    })
+  })
+
+  test('a firm-added situation is keyed from the name the firm typed', async () => {
+    const wrapper = await openDomain(await mountScreen(undefined, { eoy: withDiagnostic() }), 'eoy', 'End of Year')
+    wrapper.vm.addSituation()
+    const row = wrapper.vm.form.diagnostic.situations[2]
+    row.label = 'Client is brand new'
+    row.text = 'Start slowly.'
+    await wrapper.vm.save()
+    const post = global.fetch.mock.calls.find(c => (c[1] || {}).method === 'POST')
+    expect(JSON.parse(post[1].body).diagnostic_entry.client_is_brand_new).toBe('Start slowly.')
+  })
+
+  // A named row with no guidance is not advice, so it is not an edit either —
+  // Save stays greyed out rather than storing an empty situation.
+  test('a situation with a name but no guidance is not an edit', async () => {
+    const wrapper = await openDomain(await mountScreen(undefined, { eoy: withDiagnostic() }), 'eoy', 'End of Year')
+    wrapper.vm.addSituation()
+    wrapper.vm.form.diagnostic.situations[2].label = 'Empty one'
+    expect(wrapper.vm.dirty).toBe(false)
+
+    wrapper.vm.form.diagnostic.situations[2].text = 'Now it says something.'
+    expect(wrapper.vm.dirty).toBe(true)
+    await wrapper.vm.save()
+    const post = global.fetch.mock.calls.find(c => (c[1] || {}).method === 'POST')
+    expect(JSON.parse(post[1].body).diagnostic_entry.empty_one).toBe('Now it says something.')
+  })
+
+  test('a domain with no diagnostic entry sends no diagnostic_entry key', async () => {
+    const wrapper = await openDomain(await mountScreen(), 'eoy', 'End of Year')
+    wrapper.vm.form.materials[0].summary = 'edited'
+    await wrapper.vm.save()
+    const post = global.fetch.mock.calls.find(c => (c[1] || {}).method === 'POST')
+    expect(JSON.parse(post[1].body)).not.toHaveProperty('diagnostic_entry')
+  })
+
+  test('removing a firm situation drops it from the save', async () => {
+    const wrapper = await openDomain(await mountScreen(undefined, { eoy: withDiagnostic() }), 'eoy', 'End of Year')
+    wrapper.vm.removeSituation(1)
+    await wrapper.vm.save()
+    const post = global.fetch.mock.calls.find(c => (c[1] || {}).method === 'POST')
+    expect(JSON.parse(post[1].body).diagnostic_entry).not.toHaveProperty('our_own_one')
+  })
+})

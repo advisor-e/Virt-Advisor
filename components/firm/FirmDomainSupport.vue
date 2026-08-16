@@ -96,6 +96,73 @@ section.firm-domain-support
                   span.ds-dot.is-firm
                   | {{ $t('firmDomainSupport.legendFirm') }}
 
+          //- ── What to do, depending on the situation (item 4.16 A+B) ───────
+          //- The 65 branches under `diagnostic_entry`, which reached no prompt
+          //- and no screen, plus the 26 entry questions which reached the prompt
+          //- and no screen. design/DOMAIN-DIAGNOSTIC-BRANCHES.md.
+          //- Above the materials table because the question and its answers come
+          //- before the "how to run it" material.
+          .ds-diagnostic.mb-5(v-if="hasDiagnostic")
+            p.title.is-6.mb-2 {{ $t('firmDomainSupport.diagnosticHeading') }}
+
+            b-field(
+              v-if="form.diagnostic.primaryQuestion !== null"
+              :label="$t('firmDomainSupport.entryQuestion')"
+            )
+              b-input(
+                v-model="form.diagnostic.primaryQuestion"
+                type="textarea"
+                rows="3"
+                maxlength="800"
+              )
+
+            .table-scroll(v-if="form.diagnostic.situations.length")
+              table.ds-table
+                thead
+                  tr
+                    th(scope="col") {{ $t('firmDomainSupport.colSituation') }}
+                    th(scope="col") {{ $t('firmDomainSupport.colDoThis') }}
+                tbody
+                  tr(v-for="(row, dIndex) in form.diagnostic.situations" :key="row.key")
+                    td
+                      //- READ-ONLY on a platform row, deliberately: the key is the
+                      //- identity the stored guidance is filed under, so renaming
+                      //- it would repoint the content. A firm's own row is named
+                      //- by the firm, so that one is editable.
+                      span.has-text-weight-semibold(v-if="row.origin !== 'firm'") {{ row.label }}
+                      b-input(
+                        v-else
+                        v-model="row.label"
+                        v-autogrow
+                        type="textarea"
+                        rows="1"
+                        :aria-label="$t('firmDomainSupport.colSituation')"
+                      )
+                      b-tag.mt-2(:type="row.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small")
+                        | {{ row.origin === 'firm' ? $t('firmDomainSupport.tagFirm') : $t('firmDomainSupport.tagPlatform') }}
+                      //- Only a firm's own row can be removed. A platform row
+                      //- dropped here would simply reappear on the next load,
+                      //- because the stored override MERGES onto the platform
+                      //- entry rather than replacing it — so offering the button
+                      //- would be offering something that does not work.
+                      button.ds-step-remove(
+                        v-if="row.origin === 'firm'"
+                        type="button"
+                        :aria-label="$t('firmDomainSupport.removeSituation')"
+                        @click="removeSituation(dIndex)"
+                      ) ×
+                    td
+                      b-input(
+                        v-model="row.text"
+                        v-resize-persist="'ds:' + current.id + ':sit:' + dIndex"
+                        type="textarea"
+                        rows="5"
+                        :aria-label="$t('firmDomainSupport.colDoThis')"
+                      )
+
+            b-button.mt-2(type="is-light" size="is-small" @click="addSituation")
+              | {{ $t('firmDomainSupport.addSituation') }}
+
           //- A domain still on the old shape has no four-column material to show.
           b-message.mb-0(
             v-if="!hasMaterials"
@@ -179,7 +246,7 @@ section.firm-domain-support
 
           //- Action bar. Save lights up once the table is edited; Reset removes
           //- the firm's saved override and returns to the platform default.
-          .ds-actionbar(v-if="hasMaterials")
+          .ds-actionbar(v-if="hasMaterials || hasDiagnostic")
             b-button(type="is-light" @click="addMaterial") {{ $t('firmDomainSupport.addMaterial') }}
             b-button(
               type="is-text"
@@ -258,9 +325,11 @@ export default {
       query: '',
       /** The domain on screen: {id, label, origin} plus its merged detail. */
       current: null,
-      /** A deep, editable copy of the current domain's materials. */
-      form: { materials: [] },
-      /** Cleaned baseline of the loaded materials, JSON — drives `dirty`. */
+      /** A deep, editable copy of the current domain's materials, plus its
+       *  diagnostic entry — the question that works out which situation the
+       *  client is in, and the guidance for each (item 4.16 A+B). */
+      form: { materials: [], diagnostic: { primaryQuestion: null, situations: [] } },
+      /** Cleaned baseline of the loaded domain, JSON — drives `dirty`. */
       original: null,
       saving: false,
       history: [],
@@ -302,10 +371,21 @@ export default {
       return Array.isArray(this.form.materials) && this.form.materials.length > 0
     },
 
+    /**
+     * True when this domain has a diagnostic entry to show — an entry question,
+     * a situation, or both. Ten domains have neither and simply show the
+     * materials table as they always did, with no empty block inviting a firm to
+     * fill in a field the AI would never read for them.
+     */
+    hasDiagnostic () {
+      const d = this.form.diagnostic || {}
+      return d.primaryQuestion !== null || (Array.isArray(d.situations) && d.situations.length > 0)
+    },
+
     /** True once the on-screen table differs from what was loaded. */
     dirty () {
       if (this.original === null) { return false }
-      return JSON.stringify(this.cleanMaterials(this.form.materials)) !== this.original
+      return this.cleanForm() !== this.original
     },
 
     /** Reset is meaningful only when the firm actually has a saved override. */
@@ -393,7 +473,7 @@ export default {
      */
     async select (item) {
       this.current = { id: item.id, label: item.label, origin: item.origin }
-      this.form = { materials: [] }
+      this.form = { materials: [], diagnostic: { primaryQuestion: null, situations: [] } }
       this.original = null
       this.history = []
       try {
@@ -416,6 +496,10 @@ export default {
     applyDetail (detail, origin) {
       const materials = Array.isArray(detail.materials) ? detail.materials : []
       const rowOrigin = origin === 'firm' ? 'firm' : 'platform'
+      const de = (detail && typeof detail.diagnostic_entry === 'object' && detail.diagnostic_entry) || {}
+      // A key the PLATFORM authored is inherited; anything else is this firm's
+      // own. The route tells us which, because a merged entry cannot.
+      const platformKeys = new Set(Array.isArray(detail.platformSituationKeys) ? detail.platformSituationKeys : [])
       this.form = {
         materials: materials.map(m => ({
           name: m.name || '',
@@ -423,9 +507,92 @@ export default {
           who_when: m.who_when || '',
           steps: Array.isArray(m.steps) ? m.steps.slice() : [],
           origin: rowOrigin
-        }))
+        })),
+        diagnostic: {
+          // null means "this domain has no entry question", which is a different
+          // thing from an empty one and is what hides the box.
+          primaryQuestion: typeof de.primary_question === 'string' ? de.primary_question : null,
+          situations: Object.keys(de)
+            .filter(k => k !== 'primary_question' && typeof de[k] === 'string')
+            .map(k => ({
+              key: k,
+              label: this.humanise(k),
+              text: de[k],
+              origin: platformKeys.has(k) ? 'platform' : 'firm'
+            }))
+        }
       }
-      this.original = JSON.stringify(this.cleanMaterials(this.form.materials))
+      this.original = this.cleanForm()
+    },
+
+    /**
+     * A stored situation key rendered as ordinary words. Mirrors
+     * `humaniseSituation` in server/utils/domainSupport.js so the screen and the
+     * prompt name a situation the same way.
+     * @param {string} key
+     * @returns {string}
+     */
+    humanise (key) {
+      const words = String(key || '').replace(/_/g, ' ').trim()
+      return words ? words.charAt(0).toUpperCase() + words.slice(1) : ''
+    },
+
+    /**
+     * A firm-authored situation label turned back into a stored key. Platform
+     * rows keep the key they arrived with — their label is read-only precisely
+     * so this can never repoint inherited guidance.
+     * @param {string} label
+     * @returns {string}
+     */
+    keyFor (label) {
+      return String(label || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '')
+    },
+
+    /**
+     * The diagnostic entry as it will be saved: `{ primary_question, <key>: text }`,
+     * matching the shape the prompt formatters read. Empty rows are dropped —
+     * a situation with no guidance is not advice, and the formatter skips it
+     * anyway.
+     * @returns {Object}
+     */
+    diagnosticEntry () {
+      const out = {}
+      const q = this.form.diagnostic.primaryQuestion
+      if (typeof q === 'string' && q.trim()) { out.primary_question = q.trim() }
+      for (const row of this.form.diagnostic.situations) {
+        const key = row.origin === 'firm' ? this.keyFor(row.label) : row.key
+        const text = (row.text || '').trim()
+        if (key && text) { out[key] = text }
+      }
+      return out
+    },
+
+    /**
+     * The whole editable domain as one comparable string — materials AND the
+     * diagnostic entry. `dirty` reads this, so editing only a situation still
+     * lights up Save.
+     * @returns {string}
+     */
+    cleanForm () {
+      return JSON.stringify({
+        materials: this.cleanMaterials(this.form.materials),
+        diagnostic: this.diagnosticEntry()
+      })
+    },
+
+    /** Add a blank firm-authored situation, named by the firm. */
+    addSituation () {
+      this.form.diagnostic.situations.push({ key: '', label: '', text: '', origin: 'firm' })
+    },
+
+    /**
+     * Remove a situation from the on-screen list. Offered for a firm's own rows
+     * only — see the template comment: a platform row would return on the next
+     * load because the stored override merges onto the platform entry.
+     * @param {number} index
+     */
+    removeSituation (index) {
+      this.form.diagnostic.situations.splice(index, 1)
     },
 
     /**
@@ -456,9 +623,10 @@ export default {
       this.saving = true
       try {
         const id = this.current.id
-        await this.api('POST', `/api/firm-manager/domain-support/${encodeURIComponent(id)}`, {
-          materials: this.cleanMaterials(this.form.materials)
-        })
+        const body = { materials: this.cleanMaterials(this.form.materials) }
+        const diagnostic = this.diagnosticEntry()
+        if (Object.keys(diagnostic).length > 0) { body.diagnostic_entry = diagnostic }
+        await this.api('POST', `/api/firm-manager/domain-support/${encodeURIComponent(id)}`, body)
         this.$buefy.toast.open({ message: this.$t('firmDomainSupport.saved'), type: 'is-success' })
         this.current.origin = 'firm'
         // Re-fetch so the panel shows exactly what was stored (blank steps
