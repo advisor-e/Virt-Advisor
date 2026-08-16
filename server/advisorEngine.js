@@ -18,6 +18,7 @@ const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = requir
 const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
 const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
+const { loadResolvedGuideOverrides } = require('../server/utils/methodGuideConfig')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { nameForLanguageCode } = require('../server/utils/languageName')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -1705,6 +1706,10 @@ async function handleQuery (rawBody, res, identity) {
   // line is the difference between a degraded session and a silent one.
   const firmDomainSupport = await readForSession(loadFirmDomainSupport, firmId, loadFirmConfig, 'advisor')
   const firmLogicTrees = await readForSession(loadFirmLogicTrees, firmId, loadFirmConfig, 'advisor')
+  // The method-guide wording this scope works to (item 4.16 F). Its own loader
+  // recurses up the tier chain and absorbs a storage fault itself — it never
+  // rejects — so it needs no readForSession wrapper.
+  const firmMethodGuides = await loadResolvedGuideOverrides(firmId, loadFirmConfig)
 
   if (!query || !query.trim()) {
     sendError(res, 400, 'QUERY_REQUIRED', 'Query is required')
@@ -3417,7 +3422,7 @@ async function handleQuery (rawBody, res, identity) {
         detectLogicTree([...userMsgs, query].join(' '), firmLogicTrees)
     }
     if (learnTree && learnTree.mode === 'learn') {
-      learnSalesTreeText = buildLearnReferenceText(learnTree)
+      learnSalesTreeText = buildLearnReferenceText(learnTree, firmMethodGuides)
       // Learn enrichment (Mike's ruling 2026-07-16): when the picked coaching
       // tree has a VERIFIED domain-support file (explicit data mapping or
       // exact name match — never guessed), inject that richer coaching too.
@@ -3438,7 +3443,7 @@ async function handleQuery (rawBody, res, identity) {
     // their "sales/marketing/pricing" means the advisor selling THEIR services, the opposite
     // of the client's situation (design §2.5). See isClientDeliveryLearnTree.
     if (isClientDeliveryLearnTree(deepDiveTree)) {
-      deepDiveText = buildLearnReferenceText(deepDiveTree)
+      deepDiveText = buildLearnReferenceText(deepDiveTree, firmMethodGuides)
     }
   }
 

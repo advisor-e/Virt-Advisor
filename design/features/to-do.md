@@ -337,7 +337,7 @@ actual templates while the branches do not. The real list is seven items:
 | `stage_entry_question` + `flat_branches` | 15 | Logic Tables | ✅ **2026-08-16** |
 | Engagement-type authored fields — 6 per type | 18 | 🔴 **no page exists** | 🔴 **waits on Mike** |
 | Staircase `selectorPrompt` from data, not a hardcoded string | 1 | Advisory Staircase | ✅ **2026-08-16** |
-| The method guides get a screen | ~~12~~ **13** | Domain Support | **design settled 2026-08-17 — the build is the only one left that is ours** |
+| The method guides get a screen | ~~12~~ **13** | Domain Support | ✅ **BUILT 2026-08-17** |
 | `get-team-problem`'s `if_then_logic` — check against its tree first | 6 | Logic Tables | ✅ **2026-08-16 — a real duplicate, no work needed** |
 
 🔴 **"About 55 of the 65 are duplicates" was WRONG, and it was overturned by the very test the spec
@@ -355,11 +355,27 @@ knowing that the intuition was right once in seven and wrong the other six times
 no screen either — the same fault, the same field, the same tab. Fixing the 65 and leaving those
 invisible would have been a choice, and the wrong one.
 
-### ✅ F's design is SETTLED — session 66, 2026-08-17 · next session builds
+### ✅ F IS BUILT — session 67, 2026-08-17
 
-🔴 **Read [`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md) and
-[`../mockups/method-guides.html`](../mockups/method-guides.html) and build.** The artefact, all four
-wordings and the tier ruling are done. **Do not re-ask them.**
+🔴 **The build, and every difference from the approved artefact, is recorded at
+[`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md) §10.** Read that before touching
+any of it. Three differences matter: **only three of the five "shared" guides really are
+shared** (two of the artefact's second rows name artefacts that are not this guide); the
+overrides live in their **own bundle keyed by guide id**, not per domain, or the on-screen
+"an edit here changes it there too" would be false; and numeric fields render read-only,
+found by opening the real guide on the running app.
+
+**Proved rather than asserted:** 967 authored strings across the thirteen, **0 missing from
+the prompt** (was 116 missing). All three affected conversations were opened for real —
+Dashboard Discussions returned **6/6** tactical options and **3/3** discussion questions
+verbatim, Working Capital Cycle **9/9** causes.
+
+⚠ **One thing found on the way, and it is NOT this item.** The engine routed a Dashboard
+Discussions question to the **Ratio Analysis** tree, and the AI then **invented** tactical
+options and discussion questions rather than saying it had none. Tree detection, not the
+guides — but inventing content that reads as authored is the same failure family.
+
+**D — the engagement types — is now the only part of 4.16 still open, and it waits on Mike.**
 
 **Two things in this item's own description were wrong, and both were found by opening the files:**
 

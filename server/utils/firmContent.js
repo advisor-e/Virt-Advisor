@@ -37,12 +37,18 @@ const { deepMerge } = require('./deepMerge')
 
 const CONFIG_KEYS = {
   domainSupport: 'domain-support',
-  logicTrees: 'logic-trees'
+  logicTrees: 'logic-trees',
+  // The thirteen method guides (item 4.16 F). Keyed by GUIDE id, not by domain:
+  // three of the guides are shown on two domain pages, and storing per domain
+  // would make the same document diverge between them — which is precisely what
+  // the on-screen "an edit here changes it there too" line promises it will not do.
+  methodGuides: 'method-guides'
 }
 
 const DEV_FILES = {
   domainSupport: 'data/dev-firm-domain-support.json',
-  logicTrees: 'data/dev-firm-logic-trees.json'
+  logicTrees: 'data/dev-firm-logic-trees.json',
+  methodGuides: 'data/dev-firm-method-guides.json'
 }
 
 // See server/utils/dbFailure.js — also refuses the fallback when a live server
@@ -127,6 +133,22 @@ function loadFirmLogicTrees (firmId, loadFirmConfig) {
 }
 
 /**
+ * One scope's method-guide edits, keyed by guide id — or null.
+ *
+ * ONE LEVEL ONLY. Use methodGuideConfig.loadResolvedGuideOverrides for the value a
+ * session should actually read: this returns what THIS scope typed, and a firm must
+ * also inherit what the mentor typed.
+ *
+ * @param {string|null} firmId - a firm id, or the reserved PLATFORM_SCOPE
+ * @param {Function} loadFirmConfig - async (firmId, key) => stored value
+ * @returns {Promise<Object|null>}
+ * @throws in production, when the store cannot be read (never in development)
+ */
+function loadFirmMethodGuides (firmId, loadFirmConfig) {
+  return _load(loadFirmConfig, firmId, CONFIG_KEYS.methodGuides, DEV_FILES.methodGuides)
+}
+
+/**
  * Session-safe wrapper around either reader above, for the ENGINES only.
  *
  * The readers reject in production so a storage fault cannot be mistaken for "this
@@ -158,5 +180,6 @@ module.exports = {
   mergeEntry,
   loadFirmDomainSupport,
   loadFirmLogicTrees,
+  loadFirmMethodGuides,
   readForSession
 }

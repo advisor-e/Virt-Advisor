@@ -2977,7 +2977,12 @@ async function getDomainSupportDetail (req, res) {
     const base = domainSupport.resolveDomainSupport(domainId, null)
     const baseEntry = (base && base.diagnostic_entry) || {}
     res.send(200, Object.assign({}, merged, {
-      platformSituationKeys: Object.keys(baseEntry).filter(k => k !== 'primary_question')
+      platformSituationKeys: Object.keys(baseEntry).filter(k => k !== 'primary_question'),
+      // Which framework rows on this domain have a method guide behind them (item
+      // 4.16 F). Sent with the detail rather than fetched separately so a row and
+      // its control can never render out of step with each other.
+      guides: require('../utils/methodGuides').guidesForDomain(domainId)
+        .map(g => Object.assign({}, g, { alsoUsedBy: g.alsoUsedBy.map(_domainLabel) }))
     }))
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
@@ -3063,6 +3068,270 @@ async function restoreDomainSupport (req, res) {
     await _restoreDomainSupportVersion(req.firmId, domainId, version, req.userEmail)
     res.send(200, { restored: true, domainId, version })
   } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+// ── Method guides (item 4.16 F) ──────────────────────────────────────────────
+//
+// The thirteen deep method guides that go to the AI whenever an advisor is coached
+// — 155,000 characters of authored method that appeared on NO screen at any tier
+// until now, and 116 lines of which reached no prompt either (see the header of
+// server/utils/methodGuides.js for how that was measured).
+//
+// Approved artefact: design/METHOD-GUIDES-SCREEN.md + design/mockups/method-guides.html.
+//
+// WHO SEES IT — the same tiers as the materials table each guide opens from (Mike,
+// 2026-08-17). That needs no gate of its own here: these routes sit behind the same
+// `fmGuard` as the domain-support routes above, and the tab renders at every scope,
+// so the guide inherits the materials table's audience by construction rather than
+// by a second list of tier names that could drift from it.
+//
+// STORED PER GUIDE, NOT PER DOMAIN. Three of the thirteen are shown on two domain
+// pages; keying storage by domain would let the same document say two different
+// things, which is exactly what the on-screen "an edit here changes it there too"
+// line promises it will not do.
+
+const methodGuides = require('../utils/methodGuides')
+const { loadResolvedGuideOverrides } = require('../utils/methodGuideConfig')
+
+const DEV_METHOD_GUIDES_FILE = path.resolve(__dirname, '../../data/dev-firm-method-guides.json')
+
+/**
+ * A domain-support id rendered for a person. `domains.json` carries the labels for
+ * the advisory domains; the seller-facing `get-*` files have no row there, so they
+ * are prettified the same way the rail does it.
+ * @param {string} id
+ * @returns {string}
+ */
+function _domainLabel (id) {
+  const domains = require('../../data/domains.json') || []
+  const row = domains.find(d => d && d.id === id)
+  if (row && row.label) { return row.label }
+  return String(id || '').replace(/^get-/, '').replace(/-/g, ' ')
+}
+
+/**
+ * This scope's own raw method-guide override map, for reading and writing — one
+ * level only, so a save writes what this scope typed and never re-saves what it
+ * merely inherited. Missing / malformed → {}.
+ * @param {string} scopeId - authenticated scope id (never client-supplied)
+ * @returns {Promise<Object>}
+ */
+async function _loadMethodGuideMapRaw (scopeId) {
+  try {
+    const v = await overlay.loadFirmConfig(scopeId, CONTENT_CONFIG_KEYS.methodGuides)
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {}
+  } catch (err) {
+    if (devFallbackOk(err)) {
+      try {
+        const all = JSON.parse(fs.readFileSync(DEV_METHOD_GUIDES_FILE, 'utf8'))
+        return (all[scopeId] && typeof all[scopeId] === 'object' && !Array.isArray(all[scopeId])) ? all[scopeId] : {}
+      } catch { return {} }
+    }
+    throw err
+  }
+}
+
+/**
+ * Persist this scope's whole method-guide override map. Production goes through the
+ * overlay store (version history + restore for free); development writes the
+ * gitignored JSON the engines fall back to.
+ * @param {string} scopeId
+ * @param {Object} map - { guideId: sparse override }
+ * @param {string} savedBy - userEmail
+ * @returns {Promise<number|null>} the new version, or null in development
+ */
+async function _saveMethodGuideMap (scopeId, map, savedBy) {
+  try {
+    return await overlay.saveFirmConfig(scopeId, CONTENT_CONFIG_KEYS.methodGuides, map, savedBy)
+  } catch (err) {
+    if (devFallbackOk(err)) {
+      let all = {}
+      try { all = JSON.parse(fs.readFileSync(DEV_METHOD_GUIDES_FILE, 'utf8')) } catch {}
+      all[scopeId] = map
+      fs.writeFileSync(DEV_METHOD_GUIDES_FILE, JSON.stringify(all, null, 2))
+      return null
+    }
+    throw err
+  }
+}
+
+/**
+ * The guide as this scope should see it: platform content resolved through every
+ * tier above, then this scope's own edits.
+ * @param {string} scopeId
+ * @param {string} guideId
+ * @returns {Promise<{content: Object|null, inherited: Object|null, own: Object|null}>}
+ */
+async function _resolveGuideForScope (scopeId, guideId) {
+  const resolved = await loadResolvedGuideOverrides(scopeId, overlay.loadFirmConfig)
+  const own = await _loadMethodGuideMapRaw(scopeId)
+  return {
+    content: methodGuides.resolveGuide(guideId, resolved),
+    resolved,
+    own
+  }
+}
+
+/**
+ * GET /api/firm-manager/method-guides — which guides exist, where each one opens
+ * from, and whether this scope has reworded it.
+ *
+ * The screen needs the whole list rather than one domain's, because Facilitation
+ * 101 belongs to no domain at all: it is the standing entry above the domains
+ * (Mike's ruling 2026-08-17, §6d).
+ */
+async function getMethodGuides (req, res) {
+  try {
+    const own = await _loadMethodGuideMapRaw(req.firmId)
+    res.send(200, {
+      guides: methodGuides.GUIDES.map(g => ({
+        id: g.id,
+        label: g.label,
+        standing: g.standing,
+        rows: g.rows.map(r => ({ domain: r.domain, domainLabel: _domainLabel(r.domain), material: r.material })),
+        origin: Object.prototype.hasOwnProperty.call(own, g.id) ? 'firm' : 'platform'
+      }))
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/method-guides/:guideId — one guide, walked into the
+ * sections the screen renders.
+ *
+ * 🔴 THE SCREEN IS SERVED FROM THE SAME WALK AS THE PROMPT (methodGuides.walkGuide),
+ * not from a second description of the same file. That is the whole point of the
+ * item: a screen built from its own list of fields would show a firm text the AI
+ * does not receive, and imply that it does.
+ */
+async function getMethodGuideDetail (req, res) {
+  const { guideId } = req.params
+  const guide = methodGuides.GUIDE_BY_ID[guideId]
+  if (!guide) {
+    return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Method guide not found' } })
+  }
+  try {
+    const { content, own } = await _resolveGuideForScope(req.firmId, guideId)
+    if (!content) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Method guide content unavailable' } })
+    }
+    res.send(200, {
+      id: guide.id,
+      label: guide.label,
+      standing: guide.standing,
+      description: typeof content.description === 'string' ? content.description : '',
+      // BOTH the walk and the content it was walked from. The walk carries the
+      // structure, the labels and the order — everything the screen draws. The
+      // content is what an edit is written back into, addressed by each node's
+      // `path`, so a saved value can never land on a different line from the box it
+      // was typed in.
+      sections: methodGuides.walkGuide(content),
+      content,
+      origin: Object.prototype.hasOwnProperty.call(own, guideId) ? 'firm' : 'platform',
+      rows: guide.rows.map(r => ({ domain: r.domain, domainLabel: _domainLabel(r.domain), material: r.material }))
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/method-guides/:guideId — save this scope's wording.
+ *
+ * The body is the WHOLE edited guide (`{ content }`); the route reduces it to the
+ * smallest override that reproduces it, so a scope that rewords one sentence stores
+ * one sentence and keeps inheriting every other line — including later platform
+ * corrections to them.
+ *
+ * 🔴 STRUCTURE IS FIXED; WORDS ARE EDITABLE. validateGuideOverride refuses an added
+ * key, a removed one, a changed type or a changed array length, and says which
+ * position was wrong. A firm may reword any line; adding or removing a stage is
+ * authoring a method, which is the mentor's work in the data file.
+ */
+async function saveMethodGuide (req, res) {
+  const { guideId } = req.params
+  const guide = methodGuides.GUIDE_BY_ID[guideId]
+  if (!guide) {
+    return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Method guide not found' } })
+  }
+
+  const content = req.body && req.body.content
+  if (!content || typeof content !== 'object' || Array.isArray(content)) {
+    return res.send(400, { success: false, error: { code: 'INVALID_BODY', message: 'content must be an object' } })
+  }
+
+  try {
+    // Validated against the PLATFORM base, not against what this scope currently
+    // sees: the inherited copy is itself an override, and validating against it
+    // would let two small edits, each legal on the last, walk the shape away from
+    // the file the walker reads.
+    const base = methodGuides.loadGuideBase(guideId)
+    if (!base) {
+      return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Method guide content unavailable' } })
+    }
+    const check = methodGuides.validateGuideOverride(base, content, [])
+    if (!check.ok) {
+      return res.send(400, { success: false, error: { code: 'INVALID_SHAPE', message: check.reason } })
+    }
+
+    const map = await _loadMethodGuideMapRaw(req.firmId)
+    const sparse = methodGuides.sparseOverride(base, content)
+    if (sparse === undefined) {
+      // Edited back to the platform wording — that is a reset, not an empty save.
+      delete map[guideId]
+    } else {
+      map[guideId] = sparse
+    }
+    const version = await _saveMethodGuideMap(req.firmId, map, req.userEmail)
+    res.send(200, { saved: true, version, guideId, origin: sparse === undefined ? 'platform' : 'firm' })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * DELETE /api/firm-manager/method-guides/:guideId — drop this scope's wording for
+ * one guide and go back to what it inherits. Every other guide is left alone.
+ */
+async function resetMethodGuide (req, res) {
+  const { guideId } = req.params
+  if (!methodGuides.GUIDE_BY_ID[guideId]) {
+    return res.send(404, { success: false, error: { code: 'NOT_FOUND', message: 'Method guide not found' } })
+  }
+  try {
+    const map = await _loadMethodGuideMapRaw(req.firmId)
+    if (Object.prototype.hasOwnProperty.call(map, guideId)) {
+      delete map[guideId]
+      await _saveMethodGuideMap(req.firmId, map, req.userEmail)
+    }
+    res.send(200, { reset: true, guideId })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/method-guides/:guideId/history — the saved versions of this
+ * scope's method-guide bundle. Bundle-level, not per-guide: every guide shares one
+ * stored bundle, the same caveat domain support and logic tables carry.
+ */
+async function getMethodGuideHistory (req, res) {
+  const { guideId } = req.params
+  try {
+    const [rows] = await db.execute(
+      `SELECT version, saved_by, created_at
+       FROM firm_framework_versions
+       WHERE firm_id = ? AND config_key = ?
+       ORDER BY version DESC`,
+      [req.firmId, CONTENT_CONFIG_KEYS.methodGuides]
+    )
+    res.send(200, { history: rows, guideId })
+  } catch (err) {
+    if (devFallbackOk(err)) { return res.send(200, { history: [], guideId }) }
     return serverError(res, 500, 'DB_ERROR', err)
   }
 }
@@ -4556,6 +4825,11 @@ module.exports = {
   resetDomainSupport,
   getDomainSupportHistory,
   restoreDomainSupport,
+  getMethodGuides,
+  getMethodGuideDetail,
+  saveMethodGuide,
+  resetMethodGuide,
+  getMethodGuideHistory,
   getLogicTrees,
   getLogicTreeDetail,
   saveLogicTree,

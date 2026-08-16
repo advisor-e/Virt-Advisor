@@ -271,3 +271,89 @@ never `scope !== 'advisor'`.** A negative gate answers *yes* for a tier that doe
 tabs).
 
 **Nothing about this screen is now undecided.** What remains is the build, listed in §7.
+
+---
+
+## 10. ✅ BUILT — 2026-08-17. Every difference from this artefact, named
+
+Per CLAUDE.md → Save the Artefact: *"open the artefact, put it beside the build, and name
+every difference. A deliberate deviation is fine; an unrecorded one is not."* This section
+is that comparison. **All four wordings and the tier ruling shipped exactly as §6 and §9
+state them** — the differences below are structural.
+
+### 10a. 🔴 Five guides serve two domains — **only three of those second rows exist**
+
+§3's table was proposed by name and never checked against the data. It was checked before
+being authored into code, and **four of the five second-domain rows do not exist under the
+names given**. What is actually there:
+
+| Guide | §3 said | The data says | Mapped? |
+|---|---|---|---|
+| Capacity, Capability, Opportunity | get-positioning :: *Capacity, Capability, Opportunity* | **"Capacity, Capability, Opportunity (CCO)"** | ✅ yes — the abbreviation, same framework |
+| Deming's Volatility | org-board-pack :: *Deming's Theory of Volatility* | **"Deming's Volatility Principles in Governance"** | ✅ yes — the same theory applied to governance |
+| Powerful Seminars | get-seminar · sales-marketing | both carry **"Powerful Seminars"** verbatim | ✅ yes |
+| Revealing the Growth Curve | org-firm-strategy :: *Revealing the Growth Curve* | **"Growth Curve Checklist"** | 🔴 **NO** |
+| Dashboard Discussions | get-sales-tracker :: *Dashboard Discussions* | **"Stats to Date Dashboard"** | 🔴 **NO** |
+
+The last two are **different artefacts, not different names for this one** — a firm-strategy
+checklist and a tracker screen. Attaching a client-conversation method to either would put
+the guide behind a row it does not belong to and quietly claim the two are the same
+document. **So it is three, not five**, and §3's table is corrected here rather than in the
+code alone.
+
+### 10b. The overrides are stored in their OWN bundle, keyed by guide
+
+§7 says *"saved through the tab's existing override bundle — same mechanism as items B and
+C."* It is the **same mechanism** — the overlay store, version history and restore for free
+— but a **separate bundle** (`method-guides`), keyed by **guide id, not domain id**.
+
+**Because §6c would otherwise be a lie.** Three guides appear on two domain pages, and the
+screen promises *"an edit here changes it there too."* Storing per domain would let the same
+document say two different things on two pages. Held by a test.
+
+### 10c. Numbers render read-only — found on the running app, not in the code
+
+Not in this artefact at all. Opening the real `conflict` guide on the running app showed a
+stage NUMBER rendered as a box to type into — while the backend's own shape rule refuses to
+store a changed one. **A screen that offers an edit the save then rejects is worse than one
+that shows the value plainly**, so numeric fields are a distinct `fixed` kind: shown, because
+the AI reads them, and not editable.
+
+The same pass fixed item headings: the conflict guide's three facilitator pillars are
+`{ pillar, guidance }` with no `name` key, and were headed **"1", "2", "3"** with *"The
+Person"* buried inside as a field. The walk now falls back to the first SHORT string, which
+is a name wherever one exists — rather than adding a fourteenth key name to a list, which is
+the habit that lost the 116 in the first place.
+
+### 10d. Smaller differences
+
+- **The rail marks a domain that has a guide** (`guide`, `guide ×3`), as the mockup shows.
+- **The character count** is computed from the stored guide, so it will not match the
+  mockup's illustrative `12,090` exactly.
+- **The mockup's green "New — the guide, opened" flag and its red "never reached the AI"
+  badge are annotations on the artefact**, not shipped interface. They are not built, which
+  is correct — they describe the finding, not the screen.
+
+### 10e. What was proved on the running app, not merely tested
+
+- **967 authored strings across the thirteen, 0 missing from the prompt.** Measured by
+  rendering each block and searching it, the same method §2 used to find the 116. It is
+  967 rather than §2's 954 because each guide's own `description` is now emitted too.
+- **A firm's edit saved through the live route, reached the live prompt, and was fenced.**
+  Saved on `conflict_meeting`, found verbatim inside the `<<<ADVISOR_DATA` markers, then
+  reset — the machine was left as found.
+- 🔴 **The three affected conversations were opened for real** (§8's required check):
+  - **Dashboard Discussions** — all **6/6** tactical options and **3/3** discussion
+    questions for the Sales to Gross Profit Ratio came back **verbatim**. None of them
+    reached a prompt before today.
+  - **Working Capital Cycle** — **9/9** causes across the three problem types, verbatim.
+    The diagnosis behind why a business cannot pay its wages now reaches the model.
+  - **Ratio Analysis** — the Know Thyself First and Interrogate Benchmark Data blocks both
+    came back with their authored lines.
+
+⚠ **One thing to know, and it is NOT this item.** On the first Dashboard Discussions attempt
+the engine routed to the **Ratio Analysis** tree, and the AI then invented its own tactical
+options and discussion questions rather than saying it did not have them. The authored
+content was correct and reachable; the wrong guide was selected. **That is tree detection,
+not the guides** — but it is worth someone's attention, because inventing content that looks
+authored is precisely the failure this item exists to remove.

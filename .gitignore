@@ -89,6 +89,9 @@ data/dev-firm-quiz-override-baselines.json
 # Dev-only firm content overlays — domain support + logic trees (created locally when MySQL is unavailable)
 data/dev-firm-domain-support.json
 data/dev-firm-logic-trees.json
+# Dev-only method-guide wording overlay (item 4.16 F) — keyed by GUIDE id, because
+# three of the thirteen are shown on two domain pages and must not diverge between them.
+data/dev-firm-method-guides.json
 # Dev-only firm section placement overlays (firm re-filing, display-only)
 data/dev-firm-logic-tree-sections.json
 data/dev-firm-domain-support-sections.json

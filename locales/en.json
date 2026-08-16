@@ -1327,7 +1327,20 @@
     "historyDate": "Date",
     "historyEmpty": "No firm changes saved yet — this is the material as provided. Once you edit and save, every earlier version is kept here and can be restored.",
     "loadFailed": "Your domain support material could not be loaded. Please try again, and tell us if it keeps happening.",
-    "detailFailed": "That domain's material could not be opened. Please try again, and tell us if it keeps happening."
+    "detailFailed": "That domain's material could not be opened. Please try again, and tell us if it keeps happening.",
+    "guideOpen": "The detail behind this framework",
+    "guideClose": "Close the detail",
+    "guideHeading": "What your advisors' AI is taught about this method",
+    "guideSubtitle": "{chars} characters · every line below goes to the AI",
+    "guideShared": "This guide is also used by {domains}. An edit here changes it there too.",
+    "guideStandingHeading": "Applies to every domain",
+    "guideTag": "guide",
+    "guideTagMany": "guide ×{n}",
+    "guideLoadFailed": "That method guide could not be opened. Please try again, and tell us if it keeps happening.",
+    "guideSaved": "Your wording has been saved.",
+    "guideWasReset": "Reset to the wording you inherit.",
+    "guideResetConfirm": "Reset <strong>{name}</strong> to the wording you inherit? Your own changes to this guide will be removed.",
+    "guideHistoryHeading": "Earlier versions of your method-guide wording"
   },
   "firmLogicTables": {
     "lede": "The IF-THEN rules that steer how a meeting is run. Each row is a branch: a condition your advisor meets, the action to take, and why. Editing these changes the guidance the AI gives — for your firm only.",

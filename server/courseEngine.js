@@ -19,6 +19,7 @@ const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescripti
 const { detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign } = require('../server/utils/domainSupport')
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
 const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
+const { loadResolvedGuideOverrides } = require('../server/utils/methodGuideConfig')
 const { groundOutlineResources } = require('../server/utils/outlineResources')
 const { findQuizOverride, findQuizBank } = require('../server/utils/quizOverrides')
 const { loadBlendedQuizBanks, isBrowserAuthored } = require('../server/utils/quizConfig')
@@ -593,6 +594,9 @@ async function handleSession (req, body, res) {
   // storage fault is logged and the session runs on the platform content.
   const firmDomainSupport = await readForSession(loadFirmDomainSupport, req.firmId, loadFirmConfig, 'course')
   const firmLogicTrees = await readForSession(loadFirmLogicTrees, req.firmId, loadFirmConfig, 'course')
+  // The method-guide wording this scope works to (item 4.16 F). Absorbs its own
+  // storage faults and never rejects, so it needs no readForSession wrapper.
+  const firmMethodGuides = await loadResolvedGuideOverrides(req.firmId, loadFirmConfig)
   const domainQuery = focusQuery
   const domainId = detectDomainForSession(domainQuery, firmDomainSupport)
   const domainContext = domainId
@@ -601,7 +605,7 @@ async function handleSession (req, body, res) {
 
   // Logic tree reference — match session topic to a learn-mode logic tree
   const logicTree = detectLogicTree(domainQuery, firmLogicTrees)
-  const logicTreeContext = logicTree ? '\n\n' + (buildLearnReferenceText(logicTree) || '') : ''
+  const logicTreeContext = logicTree ? '\n\n' + (buildLearnReferenceText(logicTree, firmMethodGuides) || '') : ''
 
   const advisorContext = advisorProfile
     ? '\n\n## Advisor profile\n\n' +
