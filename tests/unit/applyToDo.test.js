@@ -155,9 +155,19 @@ describe('the ranked table is generated, not maintained', () => {
   it('the committed page already matches the committed data', () => {
     // This is what makes the table stop being a second copy. If it fails, the
     // fix is `npm run to-do` — never editing the table by hand.
+    //
+    // Line endings are normalised before comparing, and ONLY line endings.
+    // `core.autocrlf=true` on a Windows machine rewrites the working copy to
+    // CRLF on checkout while the generator emits LF, so a plain text compare
+    // failed after a branch switch with not one word changed — 13 invisible
+    // characters, one per row of the table. `git status` cannot see it, because
+    // git is configured to expect exactly that conversion. Comparing the words
+    // rather than the invisible characters keeps what this guards — that the
+    // page and the data agree — and stops it firing on a checkout.
+    const lf = text => text.replace(/\r\n/g, '\n')
     const page = fs.readFileSync(PAGE_FILE, 'utf8')
     const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'))
-    expect(apply.spliceTable(page, data.items)).toBe(page)
+    expect(lf(apply.spliceTable(page, data.items))).toBe(lf(page))
   })
 })
 
