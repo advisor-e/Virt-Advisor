@@ -127,6 +127,7 @@ first column and leaves the rest blank. The port must do the same, not inflate t
 
 | Row | Label (workbook's own) | Sample |
 |---|---|---|
+| 15 | Total Savings for (Combined) Investment Property's Deposit | 315,000 |
 | 65 | Funding Required | 649,000 |
 | 68 | – Interest Only Loan | 350,000 |
 | 69 | – Principal & Interest Loan | 299,000 *(derived: Funding Required − Interest Only)* |
@@ -136,6 +137,15 @@ first column and leaves the rest blank. The port must do the same, not inflate t
 | 76 | Assumed Interest Rate on P&I Loan | 4.0% |
 | 78 | Interest is a Deductible Expense | Yes / No / **Phasing** |
 | 80–84 | Phasing Interest Deductibility Table | yr1 100%, yr2 75%, yr3 50%, yr4 25%, yr5 0% |
+
+⚠ **The cash deposit moved out of Phase 2 and into Phase 1 — 2026-08-17.** §2 puts `INPUTS`
+rows 3–17 in Phase 2, but row 15 is the only source of the deposit and **Projected Return on
+Investor Funds — one of the four headline figures — cannot be calculated without it**
+(`OUTPUTS` C18 → C21 → C23). It is carried as a typed input under the workbook's own label.
+⚠ In the full five-property model this figure is the *combined* deposit and property 1
+receives all of it — `OUTPUTS` C18 is `INPUTS!E15` while property 2 takes the apportionment
+balance `INPUTS!L7`. With one property the distinction does not arise; it returns with
+Phase 2.
 
 **Year-by-year interest rates.** The workbook lets each of the ten years carry its own rate
 for both loans, so a fixed-to-floating change can be modelled. Its own note (row 79) says:
@@ -172,8 +182,14 @@ $929 a week must not look neutral.
 `OUTPUTS` rows 11–28. One row per line, one column per year:
 
 Assumed Property Value · Total Debt Position · Net Equity · Cash Deposit · Annual Cash Top
-Up · Cumulative Investor Funds · Projected Return on Investor Funds · Weekly Cash
-Profit/(Loss).
+Up · **Capital Introduced** · Cumulative Investor Funds · Projected Return on Investor
+Funds · Weekly Cash Profit/(Loss).
+
+🔴 **Capital Introduced is a new line, not one of the workbook's — added 2026-08-17 by
+Mike's ruling in rule 9 of §6.** It carries the money the client puts in to clear the
+interest-only loan, and it is what stops that payoff being counted as free money. It shows
+only under the *repay* setting; under the *convert* setting it is absent, because no capital
+is introduced. **Its label is open — Q4c in §8.**
 
 ### 5c. Profit & loss — ten years
 
@@ -216,6 +232,53 @@ Each of these was read out of the cells, and each would produce a wrong figure i
 8. **Interest rate inflation compounds by year index** — year 3's rate is
    `rate + (rate × inflation × 2)`, year 4 `× 3`, and so on.
 
+### 9. 🔴 The interest-only loan vanishes at the end of its term — a fault, corrected
+
+**Found 2026-08-17 by reading the cells, before any code was written. This is the one rule
+below that does NOT describe what the workbook does — it describes what we build instead.**
+
+`MODEL` row 60 is `=if(INPUTS!$E$71 >= <year>, INPUTS!$E$68, 0)`. With the interest-only
+term set to 8 years, **the 350,000 balance is set to zero in year 9 and nothing repays it** —
+no repayment in the cash flow (row 28 covers the P&I loan only), no sale, no refinance. The
+debt simply ceases to exist. Its own cached values:
+
+| | Yr 8 | Yr 9 |
+|---|---|---|
+| Total Debt Position (`OUTPUTS` 13) | 350,000 | **0** |
+| Net Equity (`OUTPUTS` 15) | 448,188 | **822,134** |
+
+🔴 **Two of the four headline figures in §5a ride on that step** — Net equity year 10
+(846,798) and Projected return on investor funds year 10 (36.4%). Left as it is, the screen
+would tell an advisor a property returns 36% when, with the loan still owed, equity is about
+**496,798** and the return is **negative**. `modelClass` is `CLASS_DECISION`; somebody may
+buy a property on this figure. ⚠ **§5a's sample values for those two figures are therefore
+the pre-fix ones and will be restated when the golden test pins the corrected numbers.**
+
+#### Ruled by Mike, 2026-08-17 — the advisor chooses, because the client decides
+
+Asked what should happen instead, he ruled first that the loan **converts to principal and
+interest**, and then asked for the second ending as well: *"can we adde the option to convert
+the debt to principle and interest or, pay off the debt with a capital introduction?"*
+**Both are built, as a setting the advisor picks.** Which one is true depends on the client,
+so the model must not decide it.
+
+| Setting | What the model does from year 9 |
+|---|---|
+| **Convert to principal & interest** | The 350,000 amortises over the loan's remaining term, using the same `PMT` and sub-250 residual rule as the existing P&I block and the interest-only loan's own year-by-year rate (which is already defined for years 9–10). Interest continues on a reducing balance, repayments appear in the cash flow, equity climbs steadily instead of jumping. **Needs one input that does not exist in the workbook — Q4b in §8.** |
+| **Repay from capital introduced** | The balance goes to zero in year 9 and interest stops — the workbook's own behaviour — **but the money is counted.** The amount is added to Cumulative Investor Funds through the new Capital Introduced line (§5b), so the return figure reflects what the client actually put in. |
+
+⚠ **The second setting is what the workbook does today, done honestly.** The fault was never
+the zeroing — it was zeroing without recording where the money came from.
+
+*The options turned down, recorded so they are not re-derived: leaving the balance
+outstanding and charging interest to year 10 (rejected — it models a loan nobody has agreed
+to roll over), and porting the workbook unchanged (rejected under the standing rule that a
+proven source defect is corrected, not reproduced).*
+
+⚠ **This affects properties 2–5 identically** — the same block, repeated — so Phase 2
+inherits the corrected behaviour rather than the fault. **The source workbook itself is not
+corrected by this document;** that is a separate change and it has not been made.
+
 ---
 
 ## 7. The look — not a question
@@ -234,8 +297,8 @@ full-width band, then the two-column body.
 
 ## 8. 🔴 What actually needs Mike's word
 
-Everything above is either the workbook's own wording or the ruled house style. **Three
-things are genuinely open, and only these are being asked:**
+Everything above is either the workbook's own wording or the ruled house style. **Four things
+have been genuinely open. Q1 is ruled, so three are still being asked:**
 
 ### Q1 — The screen's name — ✅ **RULED BY MIKE, 2026-08-17**
 
@@ -283,6 +346,56 @@ constants. **This is a judgement for Mike, and it is stated rather than assumed.
 
 **Phase 1 proceeds with them fixed and clearly labelled** unless he says otherwise —
 making them editable is additive and does not change the maths.
+
+### Q4 — The wording for the end of the interest-only period
+
+**The behaviour is settled — rule 9 of §6. Only the words are open**, and there are three
+labels because Mike ruled that the advisor picks between two endings. **Nothing here is
+chosen; each is written out for him to rule on, and he may give his own wording instead.**
+
+#### Q4a — the choice field itself, and its two settings
+
+| | The field | Setting one | Setting two |
+|---|---|---|---|
+| **(a)** | At the End of the Interest Only Period | Convert to Principal & Interest | Repay from Capital Introduced |
+| **(b)** | Interest Only Loan — What Happens at Term End | Converts to Principal & Interest | Paid Off |
+
+*(a) names the moment and then the action, which is how the workbook's own funding rows
+read. (b) is shorter on the settings but puts a dash into a label, which no other field on
+this screen does.*
+
+#### Q4b — the extra figure the *convert* setting needs
+
+The workbook has no field for how long the loan runs once the interest-only period ends, and
+it cannot be inferred: `INPUTS` row 71 is the interest-only period itself (8 years), not the
+loan's life.
+
+| | Label | Default | What the advisor types |
+|---|---|---|---|
+| **(a)** | Total Term of Interest Only Loan (yrs) | 30 | The loan's full term as it appears on the bank's offer. The model derives the rest — 30 − 8 = 22 years of repayments. |
+| **(b)** | Repayment Term After Interest Only Period (yrs) | 22 | The after-period directly. Closer to row 71's existing wording, but it is a number no loan document states. |
+
+*Our recommendation is (a): it mirrors how the sheet already derives the P&I loan from
+Funding Required minus the interest-only portion — the advisor gives what they have, the
+model does the arithmetic.*
+
+#### Q4c — the new investment-summary line the *repay* setting needs
+
+It sits beside Cash Deposit and Annual Cash Top Up in §5b, and it carries the money the
+client puts in to clear the loan.
+
+| | Label |
+|---|---|
+| **(a)** | Capital Introduced |
+| **(b)** | Capital Introduced to Repay Loan |
+
+*(a) matches the length of the lines either side of it; (b) says what it is for, at the cost
+of being the longest label in the block.*
+
+⚠ **One thing here is NOT being asked, because it is a technical default rather than a
+choice:** after conversion the loan keeps charging the interest-only loan's own year-by-year
+rate, which the workbook already defines for years 9 and 10 (`INPUTS` P74, Q74). Using
+anything else would mean inventing a rate.
 
 ---
 
