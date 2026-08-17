@@ -1,9 +1,15 @@
 # Multiple Property Assessment — screen design (Phase 1)
 
-> **Status: AWAITING MIKE'S APPROVAL.** Nothing is built. This document and
+> **Status: APPROVED AND PART-BUILT (2026-08-17).** All eight design questions are ruled —
+> see §8. The maths, its golden test and the Restify route are built and green; the
+> catalogue row, the screen and the group-tier tax cascade are not — see §9.
+>
+> This document and
 > [`mockups/multiple-property-assessment.html`](mockups/multiple-property-assessment.html)
-> are the artefact the build will be measured against, saved before approval as
-> `CLAUDE.md` requires.
+> are the artefact the build is measured against, saved before approval as `CLAUDE.md`
+> requires. **Open the mockup beside the screen before shipping it and name every
+> difference in §10** — that section is empty because the screen does not exist yet, not
+> because there is nothing to say.
 >
 > **Source workbook:** [`report-source-models/Multiple Property Assessment.xlsx`](report-source-models/Multiple%20Property%20Assessment.xlsx)
 > — sheets `INTRO`, `INPUTS`, `MODEL`, `OUTPUTS`, `Consolidated Report`, `Import Range`,
@@ -345,21 +351,25 @@ full-width band, then the two-column body.
 
 Everything above is either the workbook's own wording or the ruled house style.
 
-**Seven things have been open. Four are ruled — Q1 the name, Q3 the tax rules becoming
-variable, Q4 the end of the interest-only period, Q5 the Tax rules labels. Three are still
-being asked:**
+✅ **NOTHING IS OPEN. All eight were ruled by Mike on 2026-08-17, in one session.**
 
-| | Open | Blocks |
+| | Question | Ruled |
 |---|---|---|
-| **Q2** | The four labels on the headline band | The screen |
-| **Q6** | Who sets the tax rules — **which tiers may override**, corrected 2026-08-17 | The screen |
-| **Q7a** | Whether the card carries the "Property 1 of 5" scope line too | The catalogue row |
+| **Q1** | The screen's name | Keep the catalogue name; the header carries "Property 1 of 5" |
+| **Q2** | The four headline band labels | The short ones, as drawn |
+| **Q3** | The New Zealand tax assumptions | All four become variable inputs |
+| **Q4** | The end of the interest-only period | Three labels, all as proposed |
+| **Q5** | The Tax rules card | `Tax rules`, and all six labels as drawn |
+| **Q6** | Who sets the tax rules | Group sets it; firm **and** advisor may override |
+| **Q7** | The Model Library card's line | "Whether a rental property is worth buying…" |
+| **Q7a** | Does the card carry the scope line too | Yes |
 
-**Ruled: Q1 the name · Q3 the tax rules becoming variable · Q4 the end of the interest-only
-period · Q5 the Tax rules labels · Q7 the card's line.**
+⚠ **Nothing in the remaining build waits on Mike.** Steps 1–3 of §9 are built and green;
+steps 4–8 and the group-tier cascade are unblocked.
 
-⚠ **All three block the screen and none of them blocks anything else.** Steps 1–3 of §9
-are built and green without them.
+🔴 **Read each ruling before building to it, not this table.** The table names the answer;
+the section beneath gives the reason and the options turned down — and the reason is what
+stops a later session re-deriving a settled question.
 
 ### Q1 — The screen's name — ✅ **RULED BY MIKE, 2026-08-17**
 
@@ -381,7 +391,22 @@ a scheduling question**, and it could not be answered until the schedule was.
 (e.g. Rental Property Assessment) and letting the catalogue name arrive with Phase 2, which
 would have meant renaming a live screen and breaking its route.*
 
-### Q2 — The four headline labels
+### Q2 — The four headline labels — ✅ **RULED BY MIKE, 2026-08-17**
+
+**The short labels, as drawn on the mockup:**
+
+> **Weekly cash position** · **Total debt** · **Net equity** · **Return on investor funds**
+
+The year sits underneath each in the muted sub-line, not inside the label — which is how
+the band already reads on every other model.
+
+*The option turned down: the workbook's own longer wording (`Weekly Cash Profit/(Loss)`,
+`Total Debt Position`, `Projected Return on Investor Funds`). It matches the spreadsheet
+exactly, and the longest of them wraps on the band.* ⚠ **The workbook's wording is still
+used verbatim in the ten-year tables below the band** — the short labels are the band's
+alone, so nothing is renamed where there is room for the real name.
+
+### Q2 (as asked)
 
 Proposed, from the workbook's own row names:
 **Weekly cash position · Total debt · Net equity (year 10) · Return on investor funds
@@ -524,9 +549,37 @@ that decides whether anything may be depreciated at all; and the Tax position ta
 *"Loss to Carry Forward (Ring-Fenced)"* now has the Rental Losses setting speaking in its
 name, so it must read differently under the other setting.
 
-### Q6 — Who sets the tax rules
+### Q6 — Who sets the tax rules — ✅ **RULED BY MIKE, 2026-08-17**
 
-**Open, and deliberately separated from Q3.** Q3 decided the model *can* vary them. This
+**Option (a): set at the group (the country), and BOTH the firm and the advisor may
+override.** The app's existing inheritance pattern exactly — P3 of
+[`features/tier-cascade.md`](features/tier-cascade.md) — so an untouched setting keeps
+receiving the level above's improvements, an edited one is protected, and a change from
+above is offered rather than forced.
+
+**What that means for the build, stated so it is not re-derived:**
+
+- The cascade is `group → firm → advisor`, on the **existing firm-overlay mechanism** —
+  the Advisory Distinctions and coaching-reference pattern, which brings version history
+  and restore with it.
+- **Build tier-agnostic**, on the resolved-config shape, per the Brief. Do not write a
+  route that takes a bare `firmId` (P6).
+- **The advisor's override is per client**, and it is the level with the sharpest edge:
+  the risk Mike accepted is that an advisor can get one client's tax wrong on one
+  property. **The screen must therefore state the rules in force** — the model already
+  returns `taxRules` for exactly this.
+- 🔴 **The group tier cannot be exercised by a real login today** — see the honest limit
+  below. It falls back to the platform scope, which is today's behaviour and today's New
+  Zealand defaults. It fails toward what already works, never toward a guess.
+
+*The options turned down: firm-only override (tax stops being a per-client question,
+which for most firms it is not — rejected because a firm advising across a border could
+not vary it for one client), and mentor-seeds-then-group (one more tier, and the mentor
+has no country of its own to speak for).*
+
+### Q6 (as asked)
+
+**Deliberately separated from Q3.** Q3 decided the model *can* vary them. This
 decides where they are set.
 
 > ⚠ **This question was first written as "advisor, firm, or both" and that framing was
@@ -624,6 +677,18 @@ scope is stated where somebody is looking at it. **Whether the CARD should carry
 is a real question** — a card that promises five properties and opens on one is the
 problem Q1 was ruled to avoid, and the card is the thing an advisor sees *first*.
 
+### Q7a — Does the card carry the scope line too — ✅ **RULED BY MIKE, 2026-08-17**
+
+**Yes. The card says it as well as the screen's header.** His reason is the one above:
+the card is what an advisor sees first, and the name promises five properties.
+
+The catalogue row therefore carries the scope alongside the summary, in the same change
+that flips it to `STATUS_READY`. ⚠ **The exact placement on the card is not a new wording
+question** — the card's shape is the ruled house standard and is read off the existing
+Model Library cards, per the owner ruling of 2026-07-23. **It must be removed when
+Phase 2 lands** (item 4.19), and that is the one line of this design that is written to
+be deleted later.
+
 ---
 
 ## 9. Build order once approved
@@ -658,5 +723,18 @@ change:
 
 ## 10. Build vs artefact — filled in when the build lands
 
-*(Empty until Phase 1 ships. Per `CLAUDE.md`, the finished build is put beside this
+*(Empty until the SCREEN ships. Per `CLAUDE.md`, the finished build is put beside this
 artefact and **every difference named here**, deliberate or not.)*
+
+**The backend, built 2026-08-17 — no differences to record, and that is the point.**
+Everything the build needed that the artefact did not have was written INTO the artefact
+first and ruled on: the cash deposit input (§4), the two funding fields and the Capital
+Introduced line (§6 rule 9, §8 Q4), and the whole Tax rules card (§6 rule 10, §8 Q3/Q5).
+The mockup was redrawn from the model's real output before Mike approved the labels, so
+the figures he judged are the figures the screen will show. **Nothing drifted because
+nothing was built ahead of the artefact.**
+
+⚠ **The one thing the screen must NOT quietly drop:** the mockup shows the effective
+management fee — *"charged at 8.625% with GST"* — under the fee itself. The model returns
+`taxRules.effectiveManagementFeePct` for it. That line is the visible half of §6 rule 10's
+fix, and a screen without it puts the model back where it started.
