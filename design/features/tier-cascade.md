@@ -241,6 +241,37 @@ could have rewritten the longest field on the tab and changed nothing about the 
 was green, because every test asked whether the field was *saved*. **When a block joins the
 mechanism, check its fields against the prompt builder, not against the store.**
 
+### Property tax rules — the sixth block, and the first that is SETTINGS rather than ROWS
+
+**Built 2026-08-18** (`1feefa2`). The tax settings behind the Multiple Property Assessment cascade
+group → firm, and the advisor types over them on the report. Ruled by Mike 2026-08-17
+([`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md) §8 Q6) —
+`server/utils/propertyTaxRules.js`, `server/routes/propertyTaxRules.js`,
+`components/firm/FirmPropertyTaxRules.vue`.
+
+🔴 **THE MECHANISM IS `deepMerge`, NOT `resolveInheritedRows`, AND THE CHOICE IS THE WHOLE POINT.**
+The five blocks above are **rows**, each carrying its own decision, so a level switches one off,
+edits one, or adds its own. These are **map-shaped settings**: there is nothing to switch off and
+nothing to add. A group that sets only `lossTreatment` must keep receiving the platform's value for
+everything else, which is P3 stated for a shape P3 was not written against. ⚠ **Do not reach for
+the row mechanism because five blocks already use it** — a settings block forced through
+`resolveInheritedRows` would need a synthetic id per field and an off-switch that means nothing.
+
+⚠ **`phasingTable` is an array and replaces wholesale.** That is `deepMerge`'s rule and it is the
+right one here: a phasing schedule half from one country and half from another is a schedule no tax
+authority has ever written.
+
+**The mentor is excluded** — see [`firm-manager-hub.md`](firm-manager-hub.md) §4 for the ruling and
+the option turned down. **The advisor is still a pass-through**: their override is the report's own
+card and is never stored, so §3 above stands unamended.
+
+🔴 **The group tier cannot be exercised by a real login today**, and this block is where that limit
+bites first — a group is normally a country, and country is exactly what the chain cannot yet
+resolve. No role value produces `group_manager` and `firms` has no country column, so
+`parentScopeOf` returns the platform scope and the chain runs mentor → firm as before. **It fails
+toward the shipped New Zealand defaults, never toward a guess.** The evidence is tests against a
+seeded membership map, which is a weaker claim than a live screen and is stated as one.
+
 ---
 
 ## 5. Related briefs

@@ -728,10 +728,19 @@ change:
 8. ✅ **BUILT 2026-08-17** — every string through `$t()` in `locales/en.json`. No hardcoded
    English; this screen does not repeat the older screens' logged P1.
 
-🔴 **Still NOT done, and it is the other half of item 4.20: the tax rules cascading from
-the group tier (§8 Q6).** The model takes them as inputs and the screen types them, so
-nothing is blocked — but a group cannot yet set them and have a firm or an advisor inherit
-or override. That is the firm-overlay work, and it has not been started.
+9. ✅ **BUILT 2026-08-18** (`1feefa2`) — the tax rules cascading from the group tier (§8 Q6),
+   on the existing firm-overlay mechanism, so version history and restore came for free.
+   `server/utils/propertyTaxRules.js` resolves them up the tier chain, four manager routes
+   save and restore them, `components/firm/FirmPropertyTaxRules.vue` is the Hub tab, and the
+   report seeds its Tax rules card from the result and stays editable. **34 tests.**
+
+✅ **PHASE 1 IS COMPLETE.** Item 4.20 closed 2026-08-18.
+
+*(Superseded 2026-08-18. This block previously read* **"Still NOT done, and it is the other
+half of item 4.20 … That is the firm-overlay work, and it has not been started."** *It is
+recorded rather than quietly overwritten, because an approved artefact that contradicts the
+code is exactly what §10 exists to catch — and on 2026-08-18 this sentence was the thing
+caught.)*
 
 ---
 
@@ -763,6 +772,39 @@ discovered by somebody else in a month.
 ✅ **The thing §10 warned must not be dropped was not dropped.** *"charged at 8.625% with
 GST"* renders under the management fee, from `taxRules.effectiveManagementFeePct`, and a
 test fails the build if it ever stops.
+
+### 🔴 The PROPERTY TAX RULES TAB, built 2026-08-18 — there was NO artefact, and Mike has not seen it
+
+**This is a Save-the-Artefact failure and it is written here as one.** `CLAUDE.md` requires
+anything shown for approval to exist as a committed file first, and requires the finished
+build to be put beside that file with every difference named. **There is no drawing of this
+tab.** The one mockup for this model — [`mockups/multiple-property-assessment.html`](mockups/multiple-property-assessment.html)
+— is the report screen. Nothing was ever drawn for the Hub tab, so there is nothing to put
+the build beside, and this section cannot say what §10 is supposed to say.
+
+**What IS approved, and it is not nothing:**
+
+| | Ruled | Where |
+|---|---|---|
+| The labels on the tax settings | ✅ Mike, 2026-08-17 | §8 Q5 |
+| Who sets them, who may correct them, who types over them | ✅ Mike, 2026-08-17 | §8 Q6 |
+| The mentor's exclusion, and the option turned down | ✅ Mike, 2026-08-17 | §8 Q6 |
+
+**So no wording on the tab is invented — the words are his rulings.** What was never put to
+anyone is the **layout**: that the tab shows what it INHERITS, what this tier has CHANGED,
+and what its advisors RESOLVE to, in three columns, with version history beside them.
+
+⚠ **The remedy is NOT a mockup drawn after the fact.** A drawing made from the finished build
+proves nothing — it can only agree with what it was copied from, which is the failure this
+rule exists to prevent, wearing the rule's own clothes. **The remedy is Mike opening the tab
+on the running app.** Until he has, this screen is built, tested and unseen, and any sentence
+calling it done should say so.
+
+🔴 **How it happened, so the next one is caught earlier.** The tab was built as the second half
+of a report model. The report screen had an artefact and went through §10 properly; the Hub
+tab was treated as plumbing attached to it rather than as a screen in its own right. **A tab is
+a screen.** The Save-the-Artefact rule does not have a size threshold, and the thing that
+disguised this one was that it arrived inside a job whose *other* half was fully covered.
 
 ### The backend, built 2026-08-17
 

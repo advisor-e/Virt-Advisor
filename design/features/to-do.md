@@ -44,11 +44,19 @@ repository sees; the two never both appear, and the build stops if they would.
 | 7 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
 | 8 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
 | 9 | **4.19** Finish the property model — properties 2 to 5, the apportionment and the consolidated report | 4 | — | Us |
-| 10 | **4.20** Finish Phase 1 of the property model — the screen, and the tax rules cascading from the group | 4 | — | Us |
-| 11 | **4.22** Settle whether purchase costs are non-deductible in the property model's first year | 1 | — | **Mike** |
+| 10 | **4.22** Settle whether purchase costs are non-deductible in the property model's first year | 1 | — | **Mike** |
 
-**Eleven live items. Two need Mike.** If this list passes about twenty, something is wrong.
+**Ten live items. Two need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
+
+**One item came off this list on 2026-08-18** — see
+[`to-do-done-and-parked.md`](to-do-done-and-parked.md):
+
+- ✅ **4.20** — Phase 1 of the property model is complete. The screen shipped 2026-08-17 with all
+  seven differences from the approved mockup named; the tax rules cascading from the group shipped
+  2026-08-18. 🔴 **Closing it found that the Hub tab was built with no approved artefact and Mike
+  has still not seen it** — the wording is his rulings, the layout was never put to anyone. A tab
+  is a screen, and this one was treated as plumbing attached to a report. **This unblocks 4.19.**
 
 **One item came off this list on 2026-08-16** — see
 [`to-do-done-and-parked.md`](to-do-done-and-parked.md):
@@ -517,10 +525,15 @@ of his. **Its position is not a judgement.**
   [`../../utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js), the page and screen
   components, and the `SCREENS` list in
   [`../../tests/unit/reportHeadlineConsistency.component.test.js`](../../tests/unit/reportHeadlineConsistency.component.test.js).
-- 🔴 **DEPENDS ON PHASE 1 — do not start this first.** Phase 1 holds all the mathematical
-  difficulty: two loans amortised, diminishing-value depreciation on chattels only, ring-fenced
-  losses, and the five-year interest-deductibility phasing. Phase 2 is the apportionment and the
-  consolidation **on top of** it.
+- ✅ **PHASE 1 IS COMPLETE — item 4.20 closed 2026-08-18, and this row is UNBLOCKED.** Phase 1 held
+  all the mathematical difficulty: two loans amortised, diminishing-value depreciation on chattels
+  only, ring-fenced losses, and the five-year interest-deductibility phasing. Phase 2 is the
+  apportionment and the consolidation **on top of** it. *(This line read "DEPENDS ON PHASE 1 — do
+  not start this first" until 2026-08-18.)*
+- ⚠ **Phase 1's Hub tab was built with no approved artefact and Mike has not seen it** —
+  [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md) §10. **Do not repeat
+  that here.** Anything Phase 2 puts on a screen gets its artefact committed *before* it is
+  approved, per `CLAUDE.md`.
 - ✅ **The name is settled — Mike, 2026-08-17.** The catalogue name **Multiple Property
   Assessment** is kept, and Phase 1 ships under it showing *"Property 1 of 5 · the remaining four
   arrive in the next release"*. The name never changes between the phases and nobody is misled at

@@ -21,6 +21,69 @@
 >
 > ---
 >
+> ## ✅ SESSION 71 — 2026-08-18 (laptop). 4.20 IS CLOSED — AND ITS TAB HAS NO ARTEFACT.
+>
+> **The session opened on unsaved work.** `/startup` found a dirty tree: the Property Tax Rules
+> screen, complete and untested against the full suite, sitting uncommitted with no session note
+> covering it. It is now committed and pushed — **`1feefa2`, 12 files, 1,156 insertions, 34 new
+> tests.** Suite **5,861 green / 325 suites**, audit gate PASS, `21 ahead / 0 behind` master.
+>
+> ✅ **4.20 IS CLOSED**, which **supersedes the "4.20 IS NOT CLOSED" paragraph in the session 70
+> block immediately below.** The group → firm cascade is built on the existing firm-overlay
+> mechanism, so version history and restore came for free:
+> [`server/utils/propertyTaxRules.js`](../server/utils/propertyTaxRules.js),
+> [`server/routes/propertyTaxRules.js`](../server/routes/propertyTaxRules.js),
+> [`components/firm/FirmPropertyTaxRules.vue`](../components/firm/FirmPropertyTaxRules.vue),
+> [`data/property-tax-rules.json`](../data/property-tax-rules.json). Closure and evidence:
+> [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2. **The live list is
+> ten items; 4.19 is unblocked.**
+>
+> 🔴 **NEW FINDING — DOC/PROCESS, and it is a Save-the-Artefact failure: the Property Tax Rules
+> TAB WAS BUILT WITH NO APPROVED ARTEFACT, AND MIKE HAS NOT SEEN IT.** Its *wording* is his rulings
+> (§8 Q5 and Q6) so nothing on it is invented; its **layout** was never put to anyone. It was
+> treated as plumbing attached to a report model whose *other* half had a mockup and went through
+> §10 properly — which is exactly what disguised it. **A tab is a screen; the rule has no size
+> threshold.** ⚠ **The remedy is NOT a mockup drawn afterwards** — a drawing copied from a finished
+> build can only agree with it, which is the failure wearing the rule's own clothes. **The remedy
+> is Mike opening the tab on the running app.** Recorded in full at
+> [`MULTIPLE-PROPERTY-ASSESSMENT.md`](MULTIPLE-PROPERTY-ASSESSMENT.md) §10. **This is NOT filed as
+> a to-do item** — it is one action by Mike, not a piece of work, per the list's own "an
+> observation is not a task" rule.
+>
+> 🔴 **AN APPROVED ARTEFACT HAD DRIFTED FROM THE CODE, AND NOTHING WOULD HAVE CAUGHT IT.**
+> `MULTIPLE-PROPERTY-ASSESSMENT.md` §9 still read *"has not been started"* about work that was
+> finished. Corrected in place with the old sentence quoted, not overwritten. ⚠ **No test compares
+> a design document to the code**, and this one was found only because `/shutdown` re-read the file
+> — the same failure family as the Logic-Lab mockup that produced the Save-the-Artefact rule.
+>
+> **Two commit-gate guards objected and both were right.** (1) `mentorHubScope.component.test.js`
+> required the new tab to be **named** as a tier exception rather than absorbed — the list is now
+> three, and Property Tax Rules carries its own reason because it is the first exception that is
+> *not* "a manager's view of their own advisers by name". (2) `design/CONTENT-ROUTING.md` needed
+> regenerating for the new data file (32 → 33 unclassified, beside `tax-bands.json`).
+> ⚠ **The first fix to guard (1) was WRONG: the exception list is in TAB ORDER**, so appending the
+> name failed. Now a written trap at [`features/firm-manager-hub.md`](features/firm-manager-hub.md)
+> §4 rather than a thing the next person rediscovers.
+>
+> ⚠ **`.gitignore` was missing `data/dev-property-tax-rules.json`** — every one of its thirty
+> siblings had a line. Nothing had broken yet because the file is only written when a rule is saved
+> without a database. **It is keyed by SCOPE, not by firm**, so leaking it would put one machine's
+> whole tier chain into the repo rather than one firm's row.
+>
+> **Rules written into Briefs this session, not left in a note:**
+> [`features/tier-cascade.md`](features/tier-cascade.md) §4 — property tax rules as **the sixth
+> block and the first that is SETTINGS rather than ROWS**, so it uses `deepMerge` and *not*
+> `resolveInheritedRows`; [`features/firm-manager-hub.md`](features/firm-manager-hub.md) §4 — the
+> tab matrix, the mentor's exclusion and the tab-order trap.
+>
+> 🔴 **THE GROUP TIER STILL CANNOT BE EXERCISED BY A REAL LOGIN**, and this block is where that
+> limit bites hardest — a group is normally a country, and country is what the chain cannot resolve.
+> No role value produces `group_manager`; `firms` has no country column. It falls back to the
+> platform scope and the shipped New Zealand defaults — today's behaviour, never a guess. Evidence
+> is tests against a seeded membership map, which is a weaker claim than a live screen.
+>
+> ---
+>
 > ## ✅ SESSION 70 — 2026-08-17 (laptop). THE PROPERTY SCREEN IS BUILT — 4.20's FIRST HALF.
 >
 > **Steps 4–8 of [`ADDING-A-REPORT.md`](ADDING-A-REPORT.md) are built**, so the Multiple Property

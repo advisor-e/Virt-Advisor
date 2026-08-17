@@ -120,11 +120,32 @@ platform rows through the same tab.)*
 | Adoption | mentor, global, group |
 | Logic-Lab Report · Case Reviews | mentor, global, group |
 | Template Check | **mentor only** — the one named exception |
+| Property Tax Rules | firm, global, group — **not the mentor** |
 | Templates & Videos | dormant everywhere |
 
 `hubTabTiers.test.js` pins the firm and mentor columns to what they showed *before* the middle
 tiers existed — the proof that adding them was behaviour-preserving rather than a claim that it
 was.
+
+**Property Tax Rules (2026-08-18)** carries the settings the Multiple Property Assessment is
+built on: what may be depreciated and how, whether rental losses ring-fence, the GST inside the
+management fee, and which year-1 costs are added back. Ruled by Mike 2026-08-17
+([`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md) §8 Q6): **a group —
+normally a country — sets them, a firm may correct them, and an advisor types over them on the
+report for one client.** The advisor's override is the report's own Tax rules card and is never
+stored, which is why [`tier-cascade.md`](tier-cascade.md) §3's "the advisor gets no override
+storage" is not contradicted by that ruling.
+
+🔴 **The mentor is excluded, and that is a ruling rather than an oversight.** Option (c) — the
+platform seeds New Zealand, then the group — was put to Mike and turned down: the mentor has no
+country of its own to speak for. The New Zealand base ships in
+[`../../data/property-tax-rules.json`](../../data/property-tax-rules.json) and is deliberately
+not editable from a screen, so a mentor tab would mean one tier editing a country's tax rules on
+behalf of every country.
+
+⚠ **This is the first tab whose reason for being tier-limited is not "a manager's view of their
+own advisers by name".** Both earlier exceptions shared that reason; this one does not, which is
+why it is written out here rather than added to their sentence.
 
 ### Traps that have actually bitten
 
@@ -140,6 +161,16 @@ was.
    drops another's.
 4. **The `group` table in the schema is not a management tier.** It is a Collaborate special
    interest group.
+5. 🔴 **A new tab that does not appear at every tier must be NAMED in
+   [`../../tests/unit/mentorHubScope.component.test.js`](../../tests/unit/mentorHubScope.component.test.js),
+   and the list is in TAB ORDER, not in the order the exceptions were ruled on.** That file
+   guards the claim that a person who knows the firm screen recognises the mentor screen; it
+   compares the two and fails on any tab present at one and not the other. **Appending the new
+   name is the obvious move and it is wrong** whenever the tab is not drawn last — the assertion
+   compares against the tabs in the order the screen draws them. Property Tax Rules sits after
+   Coaching Reference, ahead of both existing exceptions, and appending it failed on 2026-08-18
+   before the order was understood. ⚠ **A growing list here is the "same screen" claim being
+   eroded a tab at a time**, so a new entry earns its own written reason.
 
 ### Known state
 

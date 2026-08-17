@@ -1,237 +1,219 @@
 {
- "_readme": [
-  "THE LIVE TO-DO LIST, AS DATA. This file is the source. to-do.md's ranked table is",
-  "GENERATED from it by `npm run to-do`, and the Handbook's ranking control reads it.",
-  "Edit here — an edit to that table is overwritten.",
-  "",
-  "A list saved from the control comes back with `npm run to-do -- <file>`. It is",
-  "validated against the five fields first, and an item Mike settles is NOT removed",
-  "until its closure is written on to-do-done-and-parked.md — the command applies",
-  "nothing at all until then. An item gone from both pages is an item nobody knows",
-  "existed.",
-  "",
-  "FORMATTING IS THE SCRIPT'S. Applying a saved list rewrites this file with two-space",
-  "JSON, so do not hand-tune the layout; it will not survive.",
-  "",
-  "Every item must carry all five fields the list's own rules demand — score, why,",
-  "risk, askedBy, touches — and tests/unit/toDoItems.test.js fails the build if one",
-  "is missing. That guard is the whole reason this file exists: an item missing a",
-  "field is a note, and notes are what produced two pieces of unrequested work on",
-  "2026-08-15.",
-  "",
-  "ORDER IS MIKE'S RANKING. The array order is the order on screen. It is not",
-  "computed from the score, and it must never be re-sorted by a script or a session.",
-  "Where his order and the score disagree, his order wins and the score stays",
-  "visible so the disagreement is on the page.",
-  "",
-  "SCORE — 5 security/privacy/data integrity · 4 the user is worse off · 3 helps",
-  "sell the package · 2 robustness · 1 internal only · 0 is not filed, it is",
-  "deleted with its code.",
-  "",
-  "askedBy.ours = true means NOBODY OUTSIDE ASKED. It is not a defect to record it;",
-  "it is a defect to hide it. An item that cannot name Mike or a named outsider has",
-  "to justify itself."
- ],
- "orderedByMikeOn": "2026-08-15",
- "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it.",
- "items": [
-  {
-   "ref": "4.12",
-   "name": "One handover story for the master team",
-   "score": 5,
-   "scoreReason": "security, privacy or data integrity",
-   "blocker": true,
-   "blocks": "Handover",
-   "waitingOn": "Us",
-   "why": "The merged app's own handover documents still describe a separate standalone application.",
-   "risk": "The master team reads documents describing an app that no longer exists and builds the tiers above it wrongly.",
-   "askedBy": {
-    "who": "COLLABORATE-MERGE-PLAN.md §6",
-    "ours": true,
-    "detail": "Nobody outside asked. Kept because the master team genuinely receives the wrong documents — say so if you would rather it went."
-   },
-   "touches": "The Collaborate handover documents, the UAT load pack.",
-   "note": null
-  },
-  {
-   "ref": "2.9",
-   "name": "The education gate",
-   "score": 4,
-   "scoreReason": "the user is worse off",
-   "blocker": false,
-   "blocks": null,
-   "waitingOn": "Us",
-   "why": "On low client literacy the adviser is asked whether to apply education-first or see what is technically needed, reasoning shown either way. Behaviour ruled 2026-07-16; REACH ruled 2026-08-16 — the gate fires wherever poor financial literacy shows up, not only inside forecasting.",
-   "risk": "It stays uncoded and advisers keep getting advice pitched over a client's head. The narrow version would have been worse than nothing visible: it would have looked finished while firing almost never.",
-   "askedBy": {
-    "who": "Mike",
-    "ours": false,
-    "detail": "His own design, 2026-07-16, rescoped by him 2026-08-16"
-   },
-   "touches": "The literacy signal across all eight domains, the Advisory Staircase, the pre-recommendation prompt.",
-   "note": "NO LONGER A WORDING TASK AND NO LONGER WAITING ON MIKE — it was carried for a month as 'only the on-screen words are missing', and that was wrong. Order is fixed: (1) widen the literacy signal, ours and first — NOT by copying the line into eight domains, but as a signal read independently of domain; (2) then Mike's wording, because where the gate can fire decides what it should say; (3) then build. Two findings behind the rescope: the 'outside-your-range' pattern the ruling says to copy was designed 2026-06-04 and never built, and 'Poor financial literacy' exists under forecasting only. See to-do.md section 4."
-  },
-  {
-   "ref": "4.7",
-   "name": "Flip engine-strict back on",
-   "score": 5,
-   "scoreReason": "security, privacy or data integrity",
-   "blocker": false,
-   "blocks": null,
-   "waitingOn": "Us",
-   "why": "Still false. Two transitive packages (consola, node-releases) over-declare their Node requirement and need pinning down first.",
-   "risk": "The Node 14.15 lock is not actually enforced at install time, so a future install can drift off the Stack Constitution silently.",
-   "askedBy": {
-    "who": "the Stack Constitution",
-    "ours": false,
-    "detail": "The coding team's locked spec"
-   },
-   "touches": ".npmrc, package.json overrides.",
-   "note": "Reinstall is overnight-only on this machine and there is a documented safe procedure — follow it rather than a plain npm install."
-  },
-  {
-   "ref": "3.5",
-   "name": "Reply to Carl about npm install",
-   "score": 5,
-   "scoreReason": "security, privacy or data integrity",
-   "blocker": false,
-   "blocks": null,
-   "waitingOn": "Us",
-   "why": "Somebody outside is waiting on an answer.",
-   "risk": "Small, but it is a person waiting. One message.",
-   "askedBy": {
-    "who": "Carl",
-    "ours": false,
-    "detail": "Outside the project"
-   },
-   "touches": "Nothing in the app.",
-   "note": null
-  },
-  {
-   "ref": "4.15",
-   "name": "The 21 branches that still name a page nobody can open",
-   "score": 4,
-   "scoreReason": "the user is worse off",
-   "blocker": false,
-   "blocks": null,
-   "waitingOn": "Us",
-   "why": "Of the 55 recommendations across the logic tables, 28 lose text to the template gate because they name a page that does not exist in the 291-record library. Seven were the Get Seminar branches, fixed 2026-08-15 once Mike named the real page (Design & Deliver). The other 21 sit in the fmc_, cas_, fbp_ and ol_ tables and nobody has looked at them.",
-   "risk": "21 branches of Mike's own coaching are cut back or withheld before they reach an adviser. The gate is behaving correctly; the content names tools that are not there. Each one is advice an adviser is not getting, and nothing on screen says so.",
-   "askedBy": {
-    "who": "Mike",
-    "ours": false,
-    "detail": "2026-08-15 — \"put them in the list of to dos\", after being shown that the seven Seminar branches were seven of twenty-eight. Found by us; filed on his instruction."
-   },
-   "touches": "data/logic_trees.json, the Mentor Hub logic tables, and the Template Check screen where the real page names are settled.",
-   "note": "RANKED LAST DELIBERATELY, and it scores 4. Mike's ruling the same day: clear the technical and feature work first so the master team can start UAT testing, THEN double back to wording and document-title alignment. This is wording and title alignment. The pattern is proven and cheap once a name is known — the Seminar seven took five words and a seven-line diff — but each of the 21 needs the REAL page name, and that is Mike's to give, never a developer's to rule on. Put the actual sentences in front of him, not the label: that is what unblocked 2.3 after four sessions."
-  },
-  {
-   "ref": "4.16",
-   "name": "Check every block's authored fields actually reach the prompt",
-   "score": 4,
-   "scoreReason": "the user is worse off without it",
-   "blocker": false,
-   "blocks": null,
-   "waitingOn": "Mike",
-   "why": "THE SWEEP IS DONE (2026-08-16) and it found 102 pieces of authored advisory content reaching no prompt. FIVE OF THE SEVEN WORK ITEMS ARE NOW CLOSED (sessions 64-65): E the staircase question, C the 13 learn-table opening questions plus 2 standing rules, A+B all 65 diagnostic_entry branches plus the 26 entry questions, and G proved a true duplicate needing no work. What remains is F -- the method guides, whose DESIGN IS NOW SETTLED (2026-08-17) and whose BUILD IS NOT STARTED -- and D, the engagement types, which waits on Mike.",
-   "risk": "Worse than first filed, and worse again since 2026-08-17. NO SCREEN RENDERED ANY OF THEM EITHER, so the content was invisible in both directions and no test could find it: every test asks whether a field was SAVED, none asks whether it was USED. That is now closed for the domain-support and logic-table blocks. It is still open for the 13 method guides (F) -- and they are NOT read by the AI in full as this row long claimed: 116 of the 954 authored lines across them reach no prompt at all, because each formatter names its fields by hand and anything authored later is never mentioned again. 62 of the 116 are in Dashboard Discussions, including the discussion questions authored against every one of its twelve metrics.",
-   "askedBy": {
-    "who": "us",
-    "ours": true,
-    "detail": "Found while closing 4.9 on 2026-08-15 and shown to Mike with the rendered prompt as proof. Every scope ruling since is his: the hub-page cascade (2026-08-16), Domain Support as the home for the branches (2026-08-16), and all screen wording on both blocks."
-   },
-   "touches": "The 13 method guide files -- 12 named data/*-reference.json plus data/powerful-seminars.json -- their 13 hand-written formatters in server/utils/logicTrees.js, and the Domain Support tab where they surface (F); data/engagement-types.json and whichever page Mike rules is its home (D).",
-   "note": "🔴 TWO PARTS LEFT AND THEY MOVE INDEPENDENTLY. F IS OURS AND CAN START NOW; D CANNOT START AT ALL WITHOUT MIKE, which is why this row says Mike. 🔴 READ design/4-16-BUILD-SPEC.md WITH ITS SUPERSEDED BANNER, then design/DOMAIN-DIAGNOSTIC-BRANCHES.md and design/LEARN-TREE-OPENING-QUESTION-FIELD.md. DO NOT re-derive the analysis. WHAT IS LEFT, and only these two: F -- THIRTEEN method guides, not twelve (powerful-seminars.json is the thirteenth; it is not named *-reference.json so a file-pattern sweep misses it, and LEARN_REFERENCE_FORMATTERS treats it identically). 🔴 F'S DESIGN IS SETTLED AND ITS BUILD IS NOT STARTED -- read design/METHOD-GUIDES-SCREEN.md and design/mockups/method-guides.html and BUILD; the artefact, all four wordings and the tier ruling are done (2026-08-17) and must not be re-asked. Each guide opens from the framework row it already has on Domain Support, at the same tiers as the materials table; Facilitation 101 has no row anywhere and gets its own entry above the domains. 🔴 IT IS NOT ONLY A SCREEN: 116 of 954 authored lines inside the guides reach no prompt, so screen and prompt get built from ONE walk of each guide's own shape rather than thirteen hand-listed formatters. 155,000 characters, 21% shared fields, 44% staged sequence, 35% blocks unique to one guide. D -- engagement types, 3 types x 6 authored fields, behind a hardcoded paraphrase at advisorEngine.js ~line 2836. NO PAGE EXISTS AT ANY TIER and Mike must rule where it lives before anything starts. ⚠ THREE EARLIER PLANS IN THIS ITEM ARE WITHDRAWN, all by evidence: (1) 'mentor tier only' and 'ship it filled by authoring the ten empty domains' -- the ten are NOT empty (Mike, session 63: 'the domain support material exists, I created it'), and the block built in session 65 cascades mentor->firm like every other. (2) 'Retire ~55 duplicate branches' -- tested text by text and FALSE; nothing was deleted. (3) 'Put the 65 on Coaching Reference' -- they are Domain Support content (Mike, 2026-08-16). METHOD, unchanged and proven five times: render the real prompt and read it, never inspect the store."
-  },
-  {
-   "ref": "4.17",
-   "name": "A screen can show one row when 67 exist, and say nothing",
-   "score": 2,
-   "scoreReason": "robustness — it fails better",
-   "blocker": false,
-   "blocks": null,
-   "waitingOn": "Us",
-   "why": "The mentor's Advisory Distinctions tab showed 1 distinction when the shipped set is 67. A local, git-ignored dev file (data/dev-platform-distinctions.json) is deliberately preferred over the committed seed when there is no database, and one stale test row in it shadowed all 67 — with nothing on screen saying so.",
-   "risk": "Anyone developing, demoing or reviewing reads what is on screen as the real platform set. It cost most of a session to diagnose, and the same pattern applies to every dev-JSON fallback in the app, not just this one.",
-   "askedBy": {
-    "who": "Mike",
-    "ours": false,
-    "detail": "He spotted it himself on the Mentor Hub, 2026-08-16 — 'the advisory distinctions ... no longer appear to be linked and working at mentor level'. Diagnosed the same session."
-   },
-   "touches": "server/utils/platformDistinctions.js and every other dev-JSON fallback (firmDistinctions, quizzes, coaching, currency); the Mentor Hub Advisory Distinctions tab.",
-   "note": "THE LOCAL SYMPTOM IS FIXED BY DELETING THE FILE — Mike was given the command on 2026-08-16 because the AI's own safety guard refused the deletion. THE ITEM IS THE UNDERLYING FAULT, not that file: a screen served from a dev fallback must SAY it is, e.g. 'showing local dev data — 67 shipped rows are being shadowed'. Same family as 4.16 and the same lesson: the content was there, the screen was there, and nothing connected the two or admitted the gap. Verify the fix by loading the tab with and without the local file, not by reading the loader."
-  },
-  {
-   "ref": "4.18",
-   "name": "The AI invents advice when it is routed to the wrong method",
-   "score": 4,
-   "scoreReason": "the user is worse off — an adviser is given advice that reads as authored and is not",
-   "blocker": false,
-   "blocks": null,
-   "waitingOn": "Us",
-   "why": "A Dashboard Discussions question was routed by the engine to the Ratio Analysis coaching tree. The AI then produced its own plausible 'tactical options' and 'discussion questions' for the metric rather than saying it had none for it. Two faults stacked: the wrong guide was selected, and the model filled the gap instead of admitting it.",
-   "risk": "An adviser reads invented content as Mike's authored method and takes it to a client. It is indistinguishable from the real thing on screen — it has the right headings, the right tone and the right shape. This is the precise failure 4.16 spent five sessions closing from the other direction: 4.16 was authored content that never arrived; this is unauthored content that arrives looking authored, and it is the worse of the two because nothing about it looks wrong.",
-   "askedBy": {
-    "who": "Mike",
-    "ours": false,
-    "detail": "Found by us on 2026-08-17 while verifying item 4.16 F on the running app — the first Dashboard Discussions attempt came back with invented questions. Reported to Mike the same session and HE RULED IT ONTO THE LIST: 'if you found this problem then yes - it gets put on the to do list'. Written into RELEASE-NOTES-v0.9.0.md §4a so the master team is not surprised by it in UAT."
-   },
-   "touches": "server/utils/logicTrees.js (detectLogicTree, detectLogicTrees) and pickLearnTreeAI in server/advisorEngine.js for the routing half; the learn-mode prompt for the honesty half.",
-   "note": "TWO HALVES, AND THE SECOND ONE IS THE ITEM. Sharpening the routing reduces how often it happens and can never remove it — some questions are genuinely ambiguous, and Ratio Analysis and Dashboard Discussions are neighbouring methods. THE FAULT WORTH FIXING IS THAT THE MODEL DOES NOT SAY 'I DO NOT HAVE THAT FOR THIS METHOD.' Do not close this item on a routing tweak alone. VERIFY THE WAY 4.16 WAS VERIFIED — ask a real question on the running app and compare the answer word for word against the source file, because every automated test here passes on an answer the model made up."
-  },
-  {
-   "ref": "4.19",
-   "name": "Finish the property model — properties 2 to 5, the apportionment and the consolidated report",
-   "score": 4,
-   "scoreReason": "the user is worse off — an adviser whose client holds several rentals has no screen that puts them together",
-   "blocker": false,
-   "blocks": null,
-   "waitingOn": "Us",
-   "why": "Phase 1 builds ONE investment property over ten years. The source workbook is a five-property portfolio: it also carries the family home and its mortgage, a loan apportionment table that spreads the available lending across the residence and five investments in order until the borrowing ceiling is reached, and a consolidated report stacking all five into total revenue, total expenses, net operating profit, total debt, net equity and a combined weekly cash position. Without Phase 2 the model answers 'is this one property worth buying' and cannot answer 'does this portfolio work', which is the question the workbook was built to answer.",
-   "risk": "Phase 1 ships and the model looks finished. Properties 2-5 are the same block repeated, so what is left is precisely the part nobody can infer from the built screen — the apportionment and the consolidation exist nowhere in Phase 1 in any form. It is written into design/MULTIPLE-PROPERTY-ASSESSMENT.md §2 and nothing schedules it; on this project a plan that lives only in a design document is how work quietly becomes never. That is the whole reason this row exists.",
-   "askedBy": {
-    "who": "Mike",
-    "ours": false,
-    "detail": "Mike chose Multiple Property Assessment from the nine unbuilt models in the catalogue on 2026-08-17 and approved building it in two phases. He then asked directly whether the additional properties would be added in future, and on being told Phase 2 was a written plan with nothing scheduling it, RULED IT ONTO THE LIVE LIST the same session. The contents of both phases are recorded in design/MULTIPLE-PROPERTY-ASSESSMENT.md §2."
-   },
-   "touches": "The Phase 1 maths model in server/report/ and its golden test, the Restify route, the catalogue row in utils/reportModelCatalogue.js, the page and screen components, and the SCREENS list in tests/unit/reportHeadlineConsistency.component.test.js. The approved artefact is design/MULTIPLE-PROPERTY-ASSESSMENT.md with design/mockups/multiple-property-assessment.html.",
-   "note": "DEPENDS ON PHASE 1 — do not start this first. Phase 1 holds all the mathematical difficulty (two loans amortised, diminishing-value depreciation on chattels, ring-fenced losses, the five-year interest-deductibility phasing) and Phase 2 is the apportionment plus the consolidation on top of it. THE NAME IS SETTLED — Mike, 2026-08-17: the catalogue name 'Multiple Property Assessment' is kept and Phase 1 ships under it showing 'Property 1 of 5 — the remaining four arrive in the next release', so the name never changes between the phases. His own question settled it: asking whether the other properties were coming turned a naming problem into a scheduling one, and this item is the answer. ✅ NOTHING IS OPEN FOR MIKE ON THIS MODEL — all eight design questions were ruled on 2026-08-17 and are recorded with the options he turned down at §8 of design/MULTIPLE-PROPERTY-ASSESSMENT.md. Read the ruling, not the summary table, and do not re-ask. PHASE 1 IS PART-BUILT — see item 4.20; this row does not start until that one is finished. 🔴 THE WORKBOOK IS WRONG IN THE OTHER FOUR PROPERTY BLOCKS TOO, AND IT WILL NOT BE FIXED — Mike deleted item 4.21 on 2026-08-17: 'im not fussed about fixing the workbook, so longs as the code is strong and backed up in github we don't need it again.' Properties 2-5 are copies of the first block, so all three proven faults repeat at rows 137/147, 214/224, 291/301 and 368/378: the interest-only balance zeroed with nothing repaying it, the residual repayment's flipped sign, and year 1's weekly figure returning 0 when positive. APPLY THE CORRECTIONS ALREADY WORKED OUT — they are in the header of server/report/multiplePropertyModel.js and §6 rule 9 of the design document — AND DO NOT RE-DERIVE THEM, and do not read the workbook's cached values for those years as evidence of anything."
-  },
-  {
-   "ref": "4.20",
-   "name": "Finish Phase 1 of the property model — the screen, and the tax rules cascading from the group",
-   "score": 4,
-   "scoreReason": "the user is worse off — the maths is built and no adviser can reach it",
-   "blocker": false,
-   "blocks": null,
-   "waitingOn": "Us",
-   "why": "The maths model, its 55 golden tests and the Restify route are built and green (2026-08-17). Nothing renders them. What is left is the catalogue row, the page, the screen component, its strings, the consistency guard, and the four tax rules cascading group → firm → adviser on the existing firm-overlay mechanism.",
-   "risk": "A model that computes correctly and appears nowhere is worth exactly nothing to an adviser, and it is the state hardest to see from outside: the tests are green, the suite is bigger, and the Model Library looks the same as it did. It is also the point where a build drifts from an approved mockup, which is the failure CLAUDE.md's Save-the-Artefact rule exists for.",
-   "askedBy": {
-    "who": "Mike",
-    "ours": false,
-    "detail": "He chose the model from the nine unbuilt ones on 2026-08-17, approved the two-phase split, and ruled all eight design questions the same day. This row exists because the session ended with Phase 1 half-built, and on this project a half-built thing with nothing scheduling the rest is how work quietly becomes never — the same reasoning that put 4.19 on the list."
-   },
-   "touches": "utils/reportModelCatalogue.js (the row is still STATUS_SOON), pages/multiple-property.vue and components/MultipleProperty.vue (neither exists), locales/en.json, the SCREENS list in tests/unit/reportHeadlineConsistency.component.test.js, and the firm-overlay mechanism for the tax rules. The backend is server/report/multiplePropertyModel.js and POST /api/report/multiple-property.",
-   "note": "🔴 READ design/MULTIPLE-PROPERTY-ASSESSMENT.md §8 AND §9 FIRST, AND DO NOT RE-ASK ANY OF THE EIGHT RULINGS. Open design/mockups/multiple-property-assessment.html beside the build and name every difference in §10, per CLAUDE.md. ORDER TRAP, and it cost time to find: the catalogue row must be flipped in the SAME change as the page, because tests/unit/reportShellFrame.test.js derives its list from the catalogue's ready routes and fails when a ready model has no shell-wrapped page — ADDING-A-REPORT.md numbers the catalogue before the page, and the guard does not care about the numbering. THE ONE LINE THE SCREEN MUST NOT DROP: the effective management fee, 'charged at 8.625% with GST', under the fee itself — the model returns taxRules.effectiveManagementFeePct for exactly that, and a screen without it puts the model back where it started. THE TAX CASCADE: build tier-agnostic on the resolved-config shape, never a bare firmId (tier-cascade.md P6); the group tier cannot be exercised by a real login until Advisor-e supplies the roles and the firm→country map, so it falls back to today's platform scope and today's New Zealand defaults."
-  },
-  {
-   "ref": "4.22",
-   "name": "Settle whether purchase costs are non-deductible in the property model's first year",
-   "score": 1,
-   "scoreReason": "internal only — it decides a default nobody outside would ever name",
-   "blocker": false,
-   "blocks": null,
-   "waitingOn": "Mike",
-   "why": "MODEL C46 adds back Setup Costs only. The workbook's own note at INPUTS H46 reads 'Setup Costs / Purchase Costs - Non Deductible', which names both. If the note is right, year 1's taxable loss is 2,000 smaller and every carried-forward year moves with it — the year-10 tax bill goes from 1,521.61 to 2,081.61.",
-   "risk": "Small, and honestly stated: Mike's ruling of 2026-08-17 turned this into a setting (yearOneAddBack), so the model no longer depends on the answer and nothing is blocked. What is still wrong is the New Zealand DEFAULT, which every firm that changes nothing will use.",
-   "askedBy": {
-    "who": "ours",
-    "ours": true,
-    "detail": "⚠ OURS. Found on 2026-08-17 by reading the cells against the workbook's own note while porting the model. Nobody asked for it. It is kept because it is a real contradiction inside Mike's own source — the formula and the label beside it disagree — and because it decides a default. It is a tax judgement, not an arithmetic slip, which is why it was NOT corrected the way the three faults in 4.21 were. Say so if you would rather it went."
-   },
-   "touches": "The DEFAULT_INPUTS.yearOneAddBack value in server/report/multiplePropertyModel.js, the Tax rules card's default on the screen, and the same note in the source workbook if the note is the thing that is wrong.",
-   "note": "NEEDS AN ACCOUNTANT, NOT A DEVELOPER, and it needs one sentence from Mike either way. In New Zealand practice legal, loan, valuation and body-corporate establishment fees on a purchase are capital and non-deductible, which is what the note says and what the formula does not do — but that is a reading of the rules, not a reading of the cells, and it is not ours to assert. THE MODEL IS ALREADY CORRECT FOR BOTH ANSWERS: yearOneAddBack takes 'setup', 'setupAndPurchase' or 'none' and is golden-tested at all three. Only the default moves."
-  }
- ]
+  "_readme": [
+    "THE LIVE TO-DO LIST, AS DATA. This file is the source. to-do.md's ranked table is",
+    "GENERATED from it by `npm run to-do`, and the Handbook's ranking control reads it.",
+    "Edit here — an edit to that table is overwritten.",
+    "",
+    "A list saved from the control comes back with `npm run to-do -- <file>`. It is",
+    "validated against the five fields first, and an item Mike settles is NOT removed",
+    "until its closure is written on to-do-done-and-parked.md — the command applies",
+    "nothing at all until then. An item gone from both pages is an item nobody knows",
+    "existed.",
+    "",
+    "FORMATTING IS THE SCRIPT'S. Applying a saved list rewrites this file with two-space",
+    "JSON, so do not hand-tune the layout; it will not survive.",
+    "",
+    "Every item must carry all five fields the list's own rules demand — score, why,",
+    "risk, askedBy, touches — and tests/unit/toDoItems.test.js fails the build if one",
+    "is missing. That guard is the whole reason this file exists: an item missing a",
+    "field is a note, and notes are what produced two pieces of unrequested work on",
+    "2026-08-15.",
+    "",
+    "ORDER IS MIKE'S RANKING. The array order is the order on screen. It is not",
+    "computed from the score, and it must never be re-sorted by a script or a session.",
+    "Where his order and the score disagree, his order wins and the score stays",
+    "visible so the disagreement is on the page.",
+    "",
+    "SCORE — 5 security/privacy/data integrity · 4 the user is worse off · 3 helps",
+    "sell the package · 2 robustness · 1 internal only · 0 is not filed, it is",
+    "deleted with its code.",
+    "",
+    "askedBy.ours = true means NOBODY OUTSIDE ASKED. It is not a defect to record it;",
+    "it is a defect to hide it. An item that cannot name Mike or a named outsider has",
+    "to justify itself."
+  ],
+  "orderedByMikeOn": "2026-08-15",
+  "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it.",
+  "items": [
+    {
+      "ref": "4.12",
+      "name": "One handover story for the master team",
+      "score": 5,
+      "scoreReason": "security, privacy or data integrity",
+      "blocker": true,
+      "blocks": "Handover",
+      "waitingOn": "Us",
+      "why": "The merged app's own handover documents still describe a separate standalone application.",
+      "risk": "The master team reads documents describing an app that no longer exists and builds the tiers above it wrongly.",
+      "askedBy": {
+        "who": "COLLABORATE-MERGE-PLAN.md §6",
+        "ours": true,
+        "detail": "Nobody outside asked. Kept because the master team genuinely receives the wrong documents — say so if you would rather it went."
+      },
+      "touches": "The Collaborate handover documents, the UAT load pack.",
+      "note": null
+    },
+    {
+      "ref": "2.9",
+      "name": "The education gate",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "On low client literacy the adviser is asked whether to apply education-first or see what is technically needed, reasoning shown either way. Behaviour ruled 2026-07-16; REACH ruled 2026-08-16 — the gate fires wherever poor financial literacy shows up, not only inside forecasting.",
+      "risk": "It stays uncoded and advisers keep getting advice pitched over a client's head. The narrow version would have been worse than nothing visible: it would have looked finished while firing almost never.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "His own design, 2026-07-16, rescoped by him 2026-08-16"
+      },
+      "touches": "The literacy signal across all eight domains, the Advisory Staircase, the pre-recommendation prompt.",
+      "note": "NO LONGER A WORDING TASK AND NO LONGER WAITING ON MIKE — it was carried for a month as 'only the on-screen words are missing', and that was wrong. Order is fixed: (1) widen the literacy signal, ours and first — NOT by copying the line into eight domains, but as a signal read independently of domain; (2) then Mike's wording, because where the gate can fire decides what it should say; (3) then build. Two findings behind the rescope: the 'outside-your-range' pattern the ruling says to copy was designed 2026-06-04 and never built, and 'Poor financial literacy' exists under forecasting only. See to-do.md section 4."
+    },
+    {
+      "ref": "4.7",
+      "name": "Flip engine-strict back on",
+      "score": 5,
+      "scoreReason": "security, privacy or data integrity",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Still false. Two transitive packages (consola, node-releases) over-declare their Node requirement and need pinning down first.",
+      "risk": "The Node 14.15 lock is not actually enforced at install time, so a future install can drift off the Stack Constitution silently.",
+      "askedBy": {
+        "who": "the Stack Constitution",
+        "ours": false,
+        "detail": "The coding team's locked spec"
+      },
+      "touches": ".npmrc, package.json overrides.",
+      "note": "Reinstall is overnight-only on this machine and there is a documented safe procedure — follow it rather than a plain npm install."
+    },
+    {
+      "ref": "3.5",
+      "name": "Reply to Carl about npm install",
+      "score": 5,
+      "scoreReason": "security, privacy or data integrity",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Somebody outside is waiting on an answer.",
+      "risk": "Small, but it is a person waiting. One message.",
+      "askedBy": {
+        "who": "Carl",
+        "ours": false,
+        "detail": "Outside the project"
+      },
+      "touches": "Nothing in the app.",
+      "note": null
+    },
+    {
+      "ref": "4.15",
+      "name": "The 21 branches that still name a page nobody can open",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Of the 55 recommendations across the logic tables, 28 lose text to the template gate because they name a page that does not exist in the 291-record library. Seven were the Get Seminar branches, fixed 2026-08-15 once Mike named the real page (Design & Deliver). The other 21 sit in the fmc_, cas_, fbp_ and ol_ tables and nobody has looked at them.",
+      "risk": "21 branches of Mike's own coaching are cut back or withheld before they reach an adviser. The gate is behaving correctly; the content names tools that are not there. Each one is advice an adviser is not getting, and nothing on screen says so.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-08-15 — \"put them in the list of to dos\", after being shown that the seven Seminar branches were seven of twenty-eight. Found by us; filed on his instruction."
+      },
+      "touches": "data/logic_trees.json, the Mentor Hub logic tables, and the Template Check screen where the real page names are settled.",
+      "note": "RANKED LAST DELIBERATELY, and it scores 4. Mike's ruling the same day: clear the technical and feature work first so the master team can start UAT testing, THEN double back to wording and document-title alignment. This is wording and title alignment. The pattern is proven and cheap once a name is known — the Seminar seven took five words and a seven-line diff — but each of the 21 needs the REAL page name, and that is Mike's to give, never a developer's to rule on. Put the actual sentences in front of him, not the label: that is what unblocked 2.3 after four sessions."
+    },
+    {
+      "ref": "4.16",
+      "name": "Check every block's authored fields actually reach the prompt",
+      "score": 4,
+      "scoreReason": "the user is worse off without it",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "THE SWEEP IS DONE (2026-08-16) and it found 102 pieces of authored advisory content reaching no prompt. FIVE OF THE SEVEN WORK ITEMS ARE NOW CLOSED (sessions 64-65): E the staircase question, C the 13 learn-table opening questions plus 2 standing rules, A+B all 65 diagnostic_entry branches plus the 26 entry questions, and G proved a true duplicate needing no work. What remains is F -- the method guides, whose DESIGN IS NOW SETTLED (2026-08-17) and whose BUILD IS NOT STARTED -- and D, the engagement types, which waits on Mike.",
+      "risk": "Worse than first filed, and worse again since 2026-08-17. NO SCREEN RENDERED ANY OF THEM EITHER, so the content was invisible in both directions and no test could find it: every test asks whether a field was SAVED, none asks whether it was USED. That is now closed for the domain-support and logic-table blocks. It is still open for the 13 method guides (F) -- and they are NOT read by the AI in full as this row long claimed: 116 of the 954 authored lines across them reach no prompt at all, because each formatter names its fields by hand and anything authored later is never mentioned again. 62 of the 116 are in Dashboard Discussions, including the discussion questions authored against every one of its twelve metrics.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "Found while closing 4.9 on 2026-08-15 and shown to Mike with the rendered prompt as proof. Every scope ruling since is his: the hub-page cascade (2026-08-16), Domain Support as the home for the branches (2026-08-16), and all screen wording on both blocks."
+      },
+      "touches": "The 13 method guide files -- 12 named data/*-reference.json plus data/powerful-seminars.json -- their 13 hand-written formatters in server/utils/logicTrees.js, and the Domain Support tab where they surface (F); data/engagement-types.json and whichever page Mike rules is its home (D).",
+      "note": "🔴 TWO PARTS LEFT AND THEY MOVE INDEPENDENTLY. F IS OURS AND CAN START NOW; D CANNOT START AT ALL WITHOUT MIKE, which is why this row says Mike. 🔴 READ design/4-16-BUILD-SPEC.md WITH ITS SUPERSEDED BANNER, then design/DOMAIN-DIAGNOSTIC-BRANCHES.md and design/LEARN-TREE-OPENING-QUESTION-FIELD.md. DO NOT re-derive the analysis. WHAT IS LEFT, and only these two: F -- THIRTEEN method guides, not twelve (powerful-seminars.json is the thirteenth; it is not named *-reference.json so a file-pattern sweep misses it, and LEARN_REFERENCE_FORMATTERS treats it identically). 🔴 F'S DESIGN IS SETTLED AND ITS BUILD IS NOT STARTED -- read design/METHOD-GUIDES-SCREEN.md and design/mockups/method-guides.html and BUILD; the artefact, all four wordings and the tier ruling are done (2026-08-17) and must not be re-asked. Each guide opens from the framework row it already has on Domain Support, at the same tiers as the materials table; Facilitation 101 has no row anywhere and gets its own entry above the domains. 🔴 IT IS NOT ONLY A SCREEN: 116 of 954 authored lines inside the guides reach no prompt, so screen and prompt get built from ONE walk of each guide's own shape rather than thirteen hand-listed formatters. 155,000 characters, 21% shared fields, 44% staged sequence, 35% blocks unique to one guide. D -- engagement types, 3 types x 6 authored fields, behind a hardcoded paraphrase at advisorEngine.js ~line 2836. NO PAGE EXISTS AT ANY TIER and Mike must rule where it lives before anything starts. ⚠ THREE EARLIER PLANS IN THIS ITEM ARE WITHDRAWN, all by evidence: (1) 'mentor tier only' and 'ship it filled by authoring the ten empty domains' -- the ten are NOT empty (Mike, session 63: 'the domain support material exists, I created it'), and the block built in session 65 cascades mentor->firm like every other. (2) 'Retire ~55 duplicate branches' -- tested text by text and FALSE; nothing was deleted. (3) 'Put the 65 on Coaching Reference' -- they are Domain Support content (Mike, 2026-08-16). METHOD, unchanged and proven five times: render the real prompt and read it, never inspect the store."
+    },
+    {
+      "ref": "4.17",
+      "name": "A screen can show one row when 67 exist, and say nothing",
+      "score": 2,
+      "scoreReason": "robustness — it fails better",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The mentor's Advisory Distinctions tab showed 1 distinction when the shipped set is 67. A local, git-ignored dev file (data/dev-platform-distinctions.json) is deliberately preferred over the committed seed when there is no database, and one stale test row in it shadowed all 67 — with nothing on screen saying so.",
+      "risk": "Anyone developing, demoing or reviewing reads what is on screen as the real platform set. It cost most of a session to diagnose, and the same pattern applies to every dev-JSON fallback in the app, not just this one.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "He spotted it himself on the Mentor Hub, 2026-08-16 — 'the advisory distinctions ... no longer appear to be linked and working at mentor level'. Diagnosed the same session."
+      },
+      "touches": "server/utils/platformDistinctions.js and every other dev-JSON fallback (firmDistinctions, quizzes, coaching, currency); the Mentor Hub Advisory Distinctions tab.",
+      "note": "THE LOCAL SYMPTOM IS FIXED BY DELETING THE FILE — Mike was given the command on 2026-08-16 because the AI's own safety guard refused the deletion. THE ITEM IS THE UNDERLYING FAULT, not that file: a screen served from a dev fallback must SAY it is, e.g. 'showing local dev data — 67 shipped rows are being shadowed'. Same family as 4.16 and the same lesson: the content was there, the screen was there, and nothing connected the two or admitted the gap. Verify the fix by loading the tab with and without the local file, not by reading the loader."
+    },
+    {
+      "ref": "4.18",
+      "name": "The AI invents advice when it is routed to the wrong method",
+      "score": 4,
+      "scoreReason": "the user is worse off — an adviser is given advice that reads as authored and is not",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "A Dashboard Discussions question was routed by the engine to the Ratio Analysis coaching tree. The AI then produced its own plausible 'tactical options' and 'discussion questions' for the metric rather than saying it had none for it. Two faults stacked: the wrong guide was selected, and the model filled the gap instead of admitting it.",
+      "risk": "An adviser reads invented content as Mike's authored method and takes it to a client. It is indistinguishable from the real thing on screen — it has the right headings, the right tone and the right shape. This is the precise failure 4.16 spent five sessions closing from the other direction: 4.16 was authored content that never arrived; this is unauthored content that arrives looking authored, and it is the worse of the two because nothing about it looks wrong.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "Found by us on 2026-08-17 while verifying item 4.16 F on the running app — the first Dashboard Discussions attempt came back with invented questions. Reported to Mike the same session and HE RULED IT ONTO THE LIST: 'if you found this problem then yes - it gets put on the to do list'. Written into RELEASE-NOTES-v0.9.0.md §4a so the master team is not surprised by it in UAT."
+      },
+      "touches": "server/utils/logicTrees.js (detectLogicTree, detectLogicTrees) and pickLearnTreeAI in server/advisorEngine.js for the routing half; the learn-mode prompt for the honesty half.",
+      "note": "TWO HALVES, AND THE SECOND ONE IS THE ITEM. Sharpening the routing reduces how often it happens and can never remove it — some questions are genuinely ambiguous, and Ratio Analysis and Dashboard Discussions are neighbouring methods. THE FAULT WORTH FIXING IS THAT THE MODEL DOES NOT SAY 'I DO NOT HAVE THAT FOR THIS METHOD.' Do not close this item on a routing tweak alone. VERIFY THE WAY 4.16 WAS VERIFIED — ask a real question on the running app and compare the answer word for word against the source file, because every automated test here passes on an answer the model made up."
+    },
+    {
+      "ref": "4.19",
+      "name": "Finish the property model — properties 2 to 5, the apportionment and the consolidated report",
+      "score": 4,
+      "scoreReason": "the user is worse off — an adviser whose client holds several rentals has no screen that puts them together",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Phase 1 builds ONE investment property over ten years. The source workbook is a five-property portfolio: it also carries the family home and its mortgage, a loan apportionment table that spreads the available lending across the residence and five investments in order until the borrowing ceiling is reached, and a consolidated report stacking all five into total revenue, total expenses, net operating profit, total debt, net equity and a combined weekly cash position. Without Phase 2 the model answers 'is this one property worth buying' and cannot answer 'does this portfolio work', which is the question the workbook was built to answer.",
+      "risk": "Phase 1 ships and the model looks finished. Properties 2-5 are the same block repeated, so what is left is precisely the part nobody can infer from the built screen — the apportionment and the consolidation exist nowhere in Phase 1 in any form. It is written into design/MULTIPLE-PROPERTY-ASSESSMENT.md §2 and nothing schedules it; on this project a plan that lives only in a design document is how work quietly becomes never. That is the whole reason this row exists.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "Mike chose Multiple Property Assessment from the nine unbuilt models in the catalogue on 2026-08-17 and approved building it in two phases. He then asked directly whether the additional properties would be added in future, and on being told Phase 2 was a written plan with nothing scheduling it, RULED IT ONTO THE LIVE LIST the same session. The contents of both phases are recorded in design/MULTIPLE-PROPERTY-ASSESSMENT.md §2."
+      },
+      "touches": "The Phase 1 maths model in server/report/ and its golden test, the Restify route, the catalogue row in utils/reportModelCatalogue.js, the page and screen components, and the SCREENS list in tests/unit/reportHeadlineConsistency.component.test.js. The approved artefact is design/MULTIPLE-PROPERTY-ASSESSMENT.md with design/mockups/multiple-property-assessment.html.",
+      "note": "DEPENDS ON PHASE 1 — do not start this first. Phase 1 holds all the mathematical difficulty (two loans amortised, diminishing-value depreciation on chattels, ring-fenced losses, the five-year interest-deductibility phasing) and Phase 2 is the apportionment plus the consolidation on top of it. THE NAME IS SETTLED — Mike, 2026-08-17: the catalogue name 'Multiple Property Assessment' is kept and Phase 1 ships under it showing 'Property 1 of 5 — the remaining four arrive in the next release', so the name never changes between the phases. His own question settled it: asking whether the other properties were coming turned a naming problem into a scheduling one, and this item is the answer. ✅ NOTHING IS OPEN FOR MIKE ON THIS MODEL — all eight design questions were ruled on 2026-08-17 and are recorded with the options he turned down at §8 of design/MULTIPLE-PROPERTY-ASSESSMENT.md. Read the ruling, not the summary table, and do not re-ask. ✅ PHASE 1 IS COMPLETE — item 4.20 closed 2026-08-18, so this row is UNBLOCKED and is the next piece of the model. Phase 1 held all the mathematical difficulty; what is left here is the apportionment and the consolidation on top of it. ⚠ THE HUB TAB BUILT IN PHASE 1 HAS NO APPROVED ARTEFACT AND MIKE HAS NOT SEEN IT (design/MULTIPLE-PROPERTY-ASSESSMENT.md §10) — do not repeat that here: anything Phase 2 puts on a screen gets its artefact committed BEFORE it is approved. 🔴 THE WORKBOOK IS WRONG IN THE OTHER FOUR PROPERTY BLOCKS TOO, AND IT WILL NOT BE FIXED — Mike deleted item 4.21 on 2026-08-17: 'im not fussed about fixing the workbook, so longs as the code is strong and backed up in github we don't need it again.' Properties 2-5 are copies of the first block, so all three proven faults repeat at rows 137/147, 214/224, 291/301 and 368/378: the interest-only balance zeroed with nothing repaying it, the residual repayment's flipped sign, and year 1's weekly figure returning 0 when positive. APPLY THE CORRECTIONS ALREADY WORKED OUT — they are in the header of server/report/multiplePropertyModel.js and §6 rule 9 of the design document — AND DO NOT RE-DERIVE THEM, and do not read the workbook's cached values for those years as evidence of anything."
+    },
+    {
+      "ref": "4.22",
+      "name": "Settle whether purchase costs are non-deductible in the property model's first year",
+      "score": 1,
+      "scoreReason": "internal only — it decides a default nobody outside would ever name",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "MODEL C46 adds back Setup Costs only. The workbook's own note at INPUTS H46 reads 'Setup Costs / Purchase Costs - Non Deductible', which names both. If the note is right, year 1's taxable loss is 2,000 smaller and every carried-forward year moves with it — the year-10 tax bill goes from 1,521.61 to 2,081.61.",
+      "risk": "Small, and honestly stated: Mike's ruling of 2026-08-17 turned this into a setting (yearOneAddBack), so the model no longer depends on the answer and nothing is blocked. What is still wrong is the New Zealand DEFAULT, which every firm that changes nothing will use.",
+      "askedBy": {
+        "who": "ours",
+        "ours": true,
+        "detail": "⚠ OURS. Found on 2026-08-17 by reading the cells against the workbook's own note while porting the model. Nobody asked for it. It is kept because it is a real contradiction inside Mike's own source — the formula and the label beside it disagree — and because it decides a default. It is a tax judgement, not an arithmetic slip, which is why it was NOT corrected the way the three faults in 4.21 were. Say so if you would rather it went."
+      },
+      "touches": "The DEFAULT_INPUTS.yearOneAddBack value in server/report/multiplePropertyModel.js, the Tax rules card's default on the screen, and the same note in the source workbook if the note is the thing that is wrong.",
+      "note": "NEEDS AN ACCOUNTANT, NOT A DEVELOPER, and it needs one sentence from Mike either way. In New Zealand practice legal, loan, valuation and body-corporate establishment fees on a purchase are capital and non-deductible, which is what the note says and what the formula does not do — but that is a reading of the rules, not a reading of the cells, and it is not ours to assert. THE MODEL IS ALREADY CORRECT FOR BOTH ANSWERS: yearOneAddBack takes 'setup', 'setupAndPurchase' or 'none' and is golden-tested at all three. Only the default moves."
+    }
+  ]
 }

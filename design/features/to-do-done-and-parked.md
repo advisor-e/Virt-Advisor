@@ -219,6 +219,43 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.20 · Finish Phase 1 of the property model — the screen, and the tax rules cascading from the
+group.** ✅ Closed 2026-08-18, session 70. Filed 2026-08-17 the moment the maths was built and the
+screen was not, precisely so a half-built thing would not quietly become never. It did not.
+
+- **What was left when it was filed.** The model, its 55 golden tests and the Restify route were
+  green; nothing rendered them. Left to build: the catalogue row, the page, the screen component,
+  its strings, the consistency guard, and the four tax rules cascading group → firm → advisor.
+- **The screen shipped 2026-08-17** (`908f1b2`), with **seven differences from the approved mockup,
+  every one named** at [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md)
+  §10. Two of the seven are the drawing being a drawing; five are the build knowing things the
+  drawing could not.
+- **The cascade shipped 2026-08-18** (`1feefa2`) — 1,156 lines, 34 tests, on the existing
+  firm-overlay mechanism so version history and restore came for free. Its rules are now in
+  [`tier-cascade.md`](tier-cascade.md) §4 and [`firm-manager-hub.md`](firm-manager-hub.md) §4, not
+  only in a session note.
+- 🔴 **The GST rule is why the tax settings could not stay assumptions.** `fee% × 1.15` was
+  hardcoded *inside* the formula: an advisor read **7.5%** on screen while the model charged
+  **8.625%**, and nothing said so. The other three were at least wrong *visibly* in the wrong
+  country; that one was wrong **silently**.
+- 🔴 **What closing it found, and it is a defect rather than a flourish: the Hub tab was built with
+  NO approved artefact, and Mike has still not seen it.** Its wording is his rulings (§8 Q5, Q6) so
+  nothing on it is invented — but the layout was never put to anyone. It was treated as plumbing
+  attached to a report screen instead of as a screen in its own right. **A tab is a screen.**
+  Recorded in full, with why a mockup drawn afterwards is not the remedy, at §10 of the design
+  document. **The remedy is Mike opening the tab on the running app**, and until he does, "done"
+  means built-and-tested, not seen.
+- **What proves it.** The suite runs **5,861 / 325 suites, zero failures**, with the audit gate
+  passing. Two guards objected before the commit was allowed through and both were right to: the
+  "same screen" test wanted the new tab **named** as a tier exception rather than absorbed, and the
+  generated content-routing index needed rebuilding for the new data file.
+- ⚠ **The first fix to that guard was wrong and the test caught it.** The exception list is in
+  **tab order**, not the order exceptions were ruled on, so appending the name failed. That is now
+  a written trap at [`firm-manager-hub.md`](firm-manager-hub.md) §4 rather than a thing the next
+  person rediscovers.
+- **This unblocks 4.19** — properties 2 to 5, the apportionment and the consolidated report — which
+  was explicitly waiting on Phase 1 and holds none of the mathematical difficulty.
+
 **2.6 · `advisor_note` — one line from you.** ✅ Closed 2026-08-16, session 61. Carried since
 2026-08-12, and it closed at four times its filed size because Mike asked a better question than
 the one on the ticket.
