@@ -117,11 +117,27 @@ first column and leaves the rest blank. The port must do the same, not inflate t
 
 | Row | Label (workbook's own) | Sample |
 |---|---|---|
-| 50 | Depreciation Rate on Chattels (DV) | 28% |
+| 50 | Depreciation Rate on Chattels (DV) — **moved to Tax rules, 2026-08-17** | 28% |
 | 52 | Assumed Rental Growth (per annum) | 3.5% |
 | 54 | Assumed Capital Growth (per annum) | 3.0% |
 | 58 | Assumed Expense Inflation | 5.0% |
 | 60 | Assumed Interest Rate Inflation | 0.1% |
+
+### Tax rules — **new, and none of it is the workbook's wording**
+
+🔴 **This card does not exist in the workbook.** These four rules were assumptions inside
+formulas, not fields, so every label here is new and every one is Mike's — **§8 Q5**. They
+are listed here for completeness; the ruling that created them is §8 Q3 and §6 rule 10.
+
+| Setting | Default (New Zealand) | Was |
+|---|---|---|
+| Non-Deductible Costs Added Back in Year 1 | Setup Costs only | `MODEL` C46 |
+| GST on Rental Management Fee | 15.0% | hardcoded inside `MODEL` row 14 |
+| What May Be Depreciated | Chattels only | `MODEL` row 42 |
+| Depreciation Method | Diminishing Value | `MODEL` row 42 |
+| Depreciation Rate on Chattels | 28.0% | `INPUTS` E50 — **moves here from Assumptions** |
+| Rental Losses | Ring-Fenced | `MODEL` rows 48–54 |
+| Interest is a Deductible Expense | Phasing | `INPUTS` E78 — already an input, joins its neighbours |
 
 ### Funding structure
 
@@ -279,6 +295,36 @@ proven source defect is corrected, not reproduced).*
 inherits the corrected behaviour rather than the fault. **The source workbook itself is not
 corrected by this document;** that is a separate change and it has not been made.
 
+### 10. 🔴 Four New Zealand rules stop being assumptions and become inputs
+
+**Ruled by Mike, 2026-08-17 — see Q3 in §8 for the ruling and the exchange that produced
+it.** Rules 1, 3 and 5 above, plus the year-1 cost add-back, are jurisdiction-specific. They
+are reproduced faithfully *as defaults*, and each is now a setting:
+
+| Rule | Default (New Zealand) | What changes elsewhere |
+|---|---|---|
+| GST inside the management fee | **15%** | The fee costs a different amount. **Silently**, today |
+| What may be depreciated, and how | **Chattels only, diminishing value** | Where the building may be depreciated the answer improves markedly |
+| Rental losses | **Ring-fenced, carried forward** | Where losses offset other income, tax relief arrives years earlier |
+| Year-1 non-deductible costs added back | **Setup Costs only** | See the open question below — it may be wrong for NZ too |
+
+⚠ **The defaults reproduce the workbook exactly, so the golden test is unaffected.** A
+firm that changes nothing gets the same figures it gets today.
+
+#### The one that is still open — and it is a question about New Zealand, not the world
+
+`MODEL` C46 adds back **Setup Costs only** (`+C19`), while the workbook's own note at
+`INPUTS` H46 reads *"Setup Costs / Purchase Costs - Non Deductible"*. **The note names both;
+the formula uses one.** If the note is right, year 1's taxable loss is 2,000 smaller and
+every carried-forward year after it moves — on the *repay* ending the year-10 tax bill goes
+from 1,521.61 to 2,081.61.
+
+**It is reproduced exactly and NOT corrected**, because it is a tax judgement rather than an
+arithmetic slip — unlike the three corrections above, which are provable from the cells
+alone. **Mike's ruling turned it from a question into a setting**, so the model no longer
+depends on the answer; but somebody should still say which is right, because it decides what
+the New Zealand *default* should be.
+
 ---
 
 ## 7. The look — not a question
@@ -330,7 +376,30 @@ The workbook's own wording is longer — *"Weekly Cash Profit/(Loss)"*, *"Total 
 Position"*, *"Projected Return on Investor Funds"*. The band has room for short labels
 only. **Which wording does he want on the band?**
 
-### Q3 — The New Zealand tax assumptions
+### Q3 — The New Zealand tax assumptions — ✅ **RULED BY MIKE, 2026-08-17**
+
+**All four become variable inputs.** Asked whether the year-1 cost add-back could be made
+configurable — *"can this be made a variable input to allow for different tax treatements
+around the world?"* — and then shown that the same reasoning applies to three other rules
+baked into the maths, he ruled: **"yes - all 4."**
+
+| Baked in | Where it lived | What it becomes |
+|---|---|---|
+| Which year-1 costs are non-deductible | `MODEL` C46 | An input — see rule 10 in §6 |
+| **15% GST inside the management fee** | Hardcoded *inside* `MODEL` row 14 | A rate input, with the effective charge shown |
+| Depreciation on chattels only, diminishing value | `MODEL` row 42 | What may be depreciated, and by which method |
+| Losses ring-fence and carry forward | `MODEL` rows 48–54 | Ring-fenced, or offset against other income |
+
+🔴 **The GST one is the reason this could not stay as it was.** An advisor reading *"7.5%"*
+on screen has no way to know the model charges **8.625%** — the 1.15 is inside the formula
+and nothing on the sheet says so. It is the only one of the four that is wrong *silently*.
+
+⚠ **This decides what the MODEL can vary, not who sets it.** Where these live — typed by the
+advisor on the screen, or set once by the firm on a hub page — is **Q6**, and it is open.
+
+*The original question, kept because the ruling is best read against it:*
+
+### Q3 (as asked) — The New Zealand tax assumptions
 
 The model has NZ rules baked in: **15% GST** inside the management fee, **chattels-only
 diminishing-value depreciation**, **ring-fenced rental losses**, and the **five-year
@@ -347,7 +416,23 @@ constants. **This is a judgement for Mike, and it is stated rather than assumed.
 **Phase 1 proceeds with them fixed and clearly labelled** unless he says otherwise —
 making them editable is additive and does not change the maths.
 
-### Q4 — The wording for the end of the interest-only period
+⚠ **That last sentence was wrong on both counts, and it is left standing as a record.**
+Making them editable is *not* additive — the GST multiplier sits inside a formula and had
+to be lifted out — and it *does* change the maths for any firm outside New Zealand, which
+is the whole reason Mike ruled as he did.
+
+### Q4 — The wording for the end of the interest-only period — ✅ **RULED BY MIKE, 2026-08-17**
+
+**All three as proposed — (a), (a), (a):**
+
+| | Ruled |
+|---|---|
+| **Q4a** | **At the End of the Interest Only Period** → *Convert to Principal & Interest* · *Repay from Capital Introduced* |
+| **Q4b** | **Total Term of Interest Only Loan (yrs)**, default **30** — the advisor gives the loan's full term and the model derives the rest |
+| **Q4c** | **Capital Introduced** |
+
+*The options below are kept as they were put to him, so the choice can be read against what
+it was chosen over.*
 
 **The behaviour is settled — rule 9 of §6. Only the words are open**, and there are three
 labels because Mike ruled that the advisor picks between two endings. **Nothing here is
@@ -396,6 +481,45 @@ of being the longest label in the block.*
 choice:** after conversion the loan keeps charging the interest-only loan's own year-by-year
 rate, which the workbook already defines for years 9 and 10 (`INPUTS` P74, Q74). Using
 anything else would mean inventing a rate.
+
+### Q5 — The labels on the new Tax rules card
+
+Q3's ruling creates a fifth input card, and **none of its labels exists in the workbook** —
+these rules were never fields, they were assumptions inside formulas. So every one is new
+wording and every one is Mike's. They are drawn in
+[`mockups/multiple-property-assessment.html`](mockups/multiple-property-assessment.html) as
+proposed below; **nothing is chosen.**
+
+| | Proposed label | Its settings | Notes |
+|---|---|---|---|
+| **Q5a** | The card's own title: **Tax rules** | — | *Tax treatment* and *Tax settings* were the alternatives |
+| **Q5b** | **Non-Deductible Costs Added Back in Year 1** | *Setup Costs only* · *Setup and Purchase Costs* · *None* | The question that started this. NZ is the first |
+| **Q5c** | **GST on Rental Management Fee** | a rate, **15.0%** | The fee's own label drops *"(plus GST)"* and shows the effective charge instead — **8.625%** on the sample |
+| **Q5d** | **What May Be Depreciated** | *Chattels only* · *Chattels and Building* | A building rate appears only when the building may be depreciated |
+| **Q5e** | **Depreciation Method** | *Diminishing Value* · *Straight Line* | |
+| **Q5f** | **Rental Losses** | *Ring-Fenced* · *Offset Against Other Income* | Ring-fenced is what the workbook does; it delays all tax relief to year 10 |
+
+⚠ **Two consequences of the card, both visible in the mockup rather than described:**
+the depreciation rate **moves** out of Assumptions and into this card, beside the setting
+that decides whether anything may be depreciated at all; and the Tax position table's row
+*"Loss to Carry Forward (Ring-Fenced)"* now has the Rental Losses setting speaking in its
+name, so it must read differently under the other setting.
+
+### Q6 — Who sets the tax rules
+
+**Open, and deliberately separated from Q3.** Q3 decided the model can vary them. This
+decides where they are set:
+
+- **The advisor, on the screen** — every input beside the others, changed per client. Right
+  if a firm advises clients in more than one country.
+- **The firm, once, on a hub page** — set for the whole firm and inherited, per the
+  hub-page rule of 2026-08-16. Right if a firm works in one jurisdiction, which most do, and
+  removes four chances to get tax wrong from every advisor's screen.
+- **Both** — the firm sets the default, the advisor may override it on a client.
+
+⚠ **The hub-page rule in `CLAUDE.md` does not settle this by itself**: it governs content
+that shapes what the **AI** is shown, and these are model constants that never reach a
+prompt. It is raised rather than assumed, as that rule requires.
 
 ---
 

@@ -14,7 +14,8 @@
    design/REPORT-LAYOUT-REFERENCE.html, per the owner ruling of 2026-07-23.
    The shipped screen reads the --rs-* tokens from components/base/ReportShell.vue
    and declares none of this itself.
-   Figures are the source workbook's own cached values (property 1).
+   Figures are the BUILT MODEL's own output (property 1), not the workbook's —
+   see the amber note at the top. Updated 2026-08-17 for Mike's three rulings.
    ------------------------------------------------------------------ */
 :root {
   --rs-bg:#eef3f8; --rs-card-bg:#ffffff; --rs-panel-2:#f1f6fb;
@@ -86,9 +87,13 @@ body{
   min-width:104px;text-align:right;font-size:13px;font-weight:600;color:var(--rs-ink);
   background:var(--rs-panel-2);border:1px solid var(--rs-card-border);border-radius:8px;padding:5px 9px;
 }
+/* A setting chosen from a list rather than typed — same box, wider, so a long
+   option does not wrap. No new colour, no new component. */
+.f .box.pick{min-width:168px}
 .reconcile{margin-top:10px;font-size:12px;padding:7px 10px;border-radius:8px;background:#e8f4e9;color:#2f7d32}
 .reconcile.bad{background:#fdeaea;color:#c81e1e}
 .disclosure{margin-top:10px;font-size:12.5px;color:var(--rs-accent);cursor:pointer}
+.cardnote{margin-top:10px;font-size:12px;color:var(--rs-muted);font-style:italic}
 
 /* tables */
 .tw{overflow-x:auto}
@@ -100,6 +105,8 @@ tr.total td{font-weight:600;border-top:1px solid var(--rs-card-border);border-bo
 td.neg{color:#c81e1e}
 td.pos{color:#2f7d32}
 tr.rule td{border-bottom:1px solid var(--rs-card-border)}
+tr.dim td{color:var(--rs-muted)}
+td i{font-style:italic;color:var(--rs-muted)}
 
 /* coach panel [D2c] */
 .coach{background:var(--rs-panel-2);border-left:3px solid var(--rs-accent);border-radius:0 9px 9px 0;padding:12px 14px;font-size:13px;color:#23405f}
@@ -111,6 +118,9 @@ tr.rule td{border-bottom:1px solid var(--rs-card-border)}
   border-radius:10px;padding:12px 14px;font-size:12.5px;
 }
 .anno b{color:#7a4400}
+.anno table{min-width:0;font-size:12px;margin-top:8px}
+.anno th,.anno td{border-bottom:1px solid #e8d3b4;color:#7a4400}
+.anno th:first-child,.anno td:first-child{color:#7a4400}
 </style>
 
 <div class="rs-shell">
@@ -120,9 +130,16 @@ tr.rule td{border-bottom:1px solid var(--rs-card-border)}
     <b>DESIGN ARTEFACT — Phase 1 of the Multiple Property Assessment.</b>
     One investment property, ten years. The family home, the loan apportionment across five
     properties and the consolidated report are Phase 2 and are deliberately absent.
-    Figures below are the source workbook's own values for property 1
-    (<i>56 Big Deal Avenue, Goldentown</i>). This amber block is annotation and is not part
-    of the screen. See <b>MULTIPLE-PROPERTY-ASSESSMENT.md §8</b> for the three questions.
+    This amber block is annotation and is not part of the screen.
+    <br><br>
+    🔴 <b>The figures below are the BUILT MODEL's output, not the workbook's.</b> They
+    differ from the spreadsheet in the two years Mike ruled on — the interest-only loan no
+    longer repays itself (<b>§6 rule 9</b>) — and in the year-8 residual whose sign was
+    flipped. The screen is shown on the default ending, <b>Convert to Principal &amp;
+    Interest</b>; the other ending's figures are set out at the foot of this page.
+    <br><br>
+    <b>Open for Mike — §8:</b> Q2 the four band labels, and Q5 the labels on the new
+    <b>Tax rules</b> card. Q1, Q3 and Q4 are ruled.
   </div>
 
   <!-- [B] header — full width, no Illustrative badge (Decision class) -->
@@ -143,7 +160,7 @@ tr.rule td{border-bottom:1px solid var(--rs-card-border)}
     <div class="hero-figure">
       <span class="hf-label">Weekly cash position</span>
       <span class="hf-value crit">&minus;$929</span>
-      <span class="hf-sub">Year 1 &middot; positive from year 8</span>
+      <span class="hf-sub">Year 1 &middot; see the ten-year view</span>
     </div>
     <div class="hero-figure">
       <span class="hf-label">Total debt</span>
@@ -152,12 +169,12 @@ tr.rule td{border-bottom:1px solid var(--rs-card-border)}
     </div>
     <div class="hero-figure">
       <span class="hf-label">Net equity</span>
-      <span class="hf-value good">$846,798</span>
-      <span class="hf-sub">Year 10</span>
+      <span class="hf-value good">$517,407</span>
+      <span class="hf-sub">Year 10 &middot; after the loan still owing</span>
     </div>
     <div class="hero-figure">
       <span class="hf-label">Return on investor funds</span>
-      <span class="hf-value good">36.4%</span>
+      <span class="hf-value crit">&minus;16.7%</span>
       <span class="hf-sub">Year 10</span>
     </div>
   </div>
@@ -183,7 +200,10 @@ tr.rule td{border-bottom:1px solid var(--rs-card-border)}
       <div class="card">
         <h2>Annual costs</h2>
         <div class="f"><label>Accounting Fees</label><span class="box">1,500</span></div>
-        <div class="f"><label>Rental Management Fee (plus GST)</label><span class="box">7.5%</span></div>
+        <!-- The fee no longer says "(plus GST)" and leaves the reader to guess: the rate
+             is now a setting on the Tax rules card and the effective charge is shown. -->
+        <div class="f"><label>Rental Management Fee</label><span class="box">7.5%</span></div>
+        <div class="f"><label>&nbsp;&nbsp;<i>charged at 8.625% with GST</i></label><span class="box">&mdash;</span></div>
         <div class="f"><label>Insurance</label><span class="box">3,600</span></div>
         <div class="f"><label>Rates</label><span class="box">1,850</span></div>
         <div class="f"><label>Body Corp Fee</label><span class="box">1,387.50</span></div>
@@ -195,11 +215,30 @@ tr.rule td{border-bottom:1px solid var(--rs-card-border)}
 
       <div class="card">
         <h2>Assumptions</h2>
-        <div class="f"><label>Depreciation Rate on Chattels (DV)</label><span class="box">28.0%</span></div>
         <div class="f"><label>Assumed Rental Growth</label><span class="box">3.5%</span></div>
         <div class="f"><label>Assumed Capital Growth</label><span class="box">3.0%</span></div>
         <div class="f"><label>Assumed Expense Inflation</label><span class="box">5.0%</span></div>
         <div class="f"><label>Assumed Interest Rate Inflation</label><span class="box">0.1%</span></div>
+        <div class="cardnote">The depreciation rate has moved to Tax rules, beside the
+          setting that decides what may be depreciated at all.</div>
+      </div>
+
+      <!-- NEW CARD — ruled by Mike 2026-08-17: "can this be made a variable input to
+           allow for different tax treatements around the world?", extended by him to all
+           four New Zealand rules that were baked into the maths. Every label here is
+           OPEN — §8 Q5. -->
+      <div class="card">
+        <h2>Tax rules</h2>
+        <div class="f"><label>Non-Deductible Costs Added Back in Year 1</label><span class="box pick">Setup Costs only</span></div>
+        <div class="f"><label>GST on Rental Management Fee</label><span class="box">15.0%</span></div>
+        <div class="f"><label>What May Be Depreciated</label><span class="box pick">Chattels only</span></div>
+        <div class="f"><label>Depreciation Method</label><span class="box pick">Diminishing Value</span></div>
+        <div class="f"><label>Depreciation Rate on Chattels</label><span class="box">28.0%</span></div>
+        <div class="f"><label>Rental Losses</label><span class="box pick">Ring-Fenced</span></div>
+        <div class="f"><label>Interest is a Deductible Expense</label><span class="box pick">Phasing</span></div>
+        <div class="disclosure">&#9656; Phasing table &mdash; 100% / 75% / 50% / 25% / 0%</div>
+        <div class="cardnote">Set to New Zealand. A rate on the building appears only when
+          the building may be depreciated.</div>
       </div>
 
       <div class="card">
@@ -208,12 +247,14 @@ tr.rule td{border-bottom:1px solid var(--rs-card-border)}
         <div class="f"><label>&ndash; Interest Only Loan</label><span class="box">350,000</span></div>
         <div class="f"><label>&ndash; Principal &amp; Interest Loan</label><span class="box">299,000</span></div>
         <div class="f"><label>Term of Interest Only Loan (yrs)</label><span class="box">8</span></div>
+        <!-- Both fields ruled by Mike 2026-08-17 — §8 Q4a and Q4b. -->
+        <div class="f"><label>At the End of the Interest Only Period</label><span class="box pick">Convert to P&amp;I</span></div>
+        <div class="f"><label>Total Term of Interest Only Loan (yrs)</label><span class="box">30</span></div>
         <div class="f"><label>Term of P&amp;I Loan (yrs)</label><span class="box">7</span></div>
         <div class="f"><label>Rate on Interest Only Loan</label><span class="box">4.00%</span></div>
         <div class="f"><label>Rate on P&amp;I Loan</label><span class="box">4.00%</span></div>
-        <div class="f"><label>Interest is a Deductible Expense</label><span class="box">Phasing</span></div>
+        <div class="f"><label>Cash Deposit</label><span class="box">315,000</span></div>
         <div class="disclosure">&#9656; Set interest rates year by year (10 years, both loans)</div>
-        <div class="disclosure">&#9656; Phasing table &mdash; 100% / 75% / 50% / 25% / 0%</div>
       </div>
 
     </aside>
@@ -229,13 +270,17 @@ tr.rule td{border-bottom:1px solid var(--rs-card-border)}
           <thead><tr><th>&nbsp;</th><th>Yr1</th><th>Yr2</th><th>Yr3</th><th>Yr4</th><th>Yr5</th><th>Yr6</th><th>Yr7</th><th>Yr8</th><th>Yr9</th><th>Yr10</th></tr></thead>
           <tbody>
             <tr><td>Assumed Property Value</td><td>649,000</td><td>668,470</td><td>688,524</td><td>709,180</td><td>730,455</td><td>752,369</td><td>774,940</td><td>798,188</td><td>822,134</td><td>846,798</td></tr>
-            <tr><td>Total Debt Position</td><td>611,144</td><td>571,784</td><td>530,856</td><td>488,296</td><td>444,034</td><td>397,998</td><td>350,113</td><td>350,000</td><td>0</td><td>0</td></tr>
-            <tr class="rule"><td>Net Equity</td><td>37,856</td><td>96,686</td><td>157,668</td><td>220,884</td><td>286,421</td><td>354,371</td><td>424,827</td><td>448,188</td><td>822,134</td><td>846,798</td></tr>
+            <tr><td>Total Debt Position</td><td>611,144</td><td>571,784</td><td>530,856</td><td>488,296</td><td>444,034</td><td>397,998</td><td>350,113</td><td>350,000</td><td>339,892</td><td>329,391</td></tr>
+            <tr class="rule"><td>Net Equity</td><td>37,856</td><td>96,686</td><td>157,668</td><td>220,884</td><td>286,421</td><td>354,371</td><td>424,827</td><td>448,188</td><td>482,241</td><td>517,407</td></tr>
             <tr><td>&ndash; Cash Deposit</td><td>315,000</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
-            <tr><td>&ndash; Annual Cash Top Up</td><td>48,309</td><td>44,291</td><td>43,761</td><td>43,218</td><td>42,664</td><td>42,097</td><td>41,518</td><td>0</td><td>0</td><td>0</td></tr>
-            <tr class="rule"><td>Cumulative Investor Funds</td><td>363,309</td><td>407,600</td><td>451,361</td><td>494,580</td><td>537,244</td><td>579,341</td><td>620,859</td><td>620,859</td><td>620,859</td><td>620,859</td></tr>
-            <tr><td>Projected Return on Investor Funds</td><td class="neg">&minus;89.6%</td><td class="neg">&minus;76.3%</td><td class="neg">&minus;65.1%</td><td class="neg">&minus;55.3%</td><td class="neg">&minus;46.7%</td><td class="neg">&minus;38.8%</td><td class="neg">&minus;31.6%</td><td class="neg">&minus;27.8%</td><td class="pos">32.4%</td><td class="pos">36.4%</td></tr>
-            <tr class="total"><td>Weekly Cash Profit / (Loss)</td><td class="neg">&minus;929</td><td class="neg">&minus;852</td><td class="neg">&minus;842</td><td class="neg">&minus;831</td><td class="neg">&minus;820</td><td class="neg">&minus;810</td><td class="neg">&minus;798</td><td class="pos">173</td><td class="pos">454</td><td class="pos">437</td></tr>
+            <tr><td>&ndash; Annual Cash Top Up</td><td>48,309</td><td>44,291</td><td>43,761</td><td>43,218</td><td>42,664</td><td>42,097</td><td>41,518</td><td>0</td><td>615</td><td>0</td></tr>
+            <!-- NEW ROW — §8 Q4c, ruled. Present only under "Repay from Capital
+                 Introduced"; on this ending nothing is introduced, so it is absent from
+                 the screen. Shown dimmed here so the label can be judged. -->
+            <tr class="dim"><td>&ndash; Capital Introduced <i>(other ending only)</i></td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+            <tr class="rule"><td>Cumulative Investor Funds</td><td>363,309</td><td>407,600</td><td>451,361</td><td>494,580</td><td>537,244</td><td>579,341</td><td>620,859</td><td>620,859</td><td>621,474</td><td>621,474</td></tr>
+            <tr><td>Projected Return on Investor Funds</td><td class="neg">&minus;89.6%</td><td class="neg">&minus;76.3%</td><td class="neg">&minus;65.1%</td><td class="neg">&minus;55.3%</td><td class="neg">&minus;46.7%</td><td class="neg">&minus;38.8%</td><td class="neg">&minus;31.6%</td><td class="neg">&minus;27.8%</td><td class="neg">&minus;22.4%</td><td class="neg">&minus;16.7%</td></tr>
+            <tr class="total"><td>Weekly Cash Profit / (Loss)</td><td class="neg">&minus;929</td><td class="neg">&minus;852</td><td class="neg">&minus;842</td><td class="neg">&minus;831</td><td class="neg">&minus;820</td><td class="neg">&minus;810</td><td class="neg">&minus;798</td><td class="pos">169</td><td class="neg">&minus;12</td><td class="pos">0</td></tr>
           </tbody>
         </table>
         </div>
@@ -258,13 +303,13 @@ tr.rule td{border-bottom:1px solid var(--rs-card-border)}
             <tr><td>Setup Costs</td><td>1,500</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
             <tr><td>Repairs &amp; Maintenance</td><td>500</td><td>525</td><td>551</td><td>579</td><td>608</td><td>638</td><td>670</td><td>704</td><td>739</td><td>776</td></tr>
             <tr><td>Other</td><td>25</td><td>26</td><td>28</td><td>29</td><td>30</td><td>32</td><td>34</td><td>35</td><td>37</td><td>39</td></tr>
-            <tr><td>Interest &ndash; Interest Only</td><td>14,000</td><td>14,014</td><td>14,028</td><td>14,042</td><td>14,056</td><td>14,070</td><td>14,084</td><td>14,098</td><td>0</td><td>0</td></tr>
+            <tr><td>Interest &ndash; Interest Only</td><td>14,000</td><td>14,014</td><td>14,028</td><td>14,042</td><td>14,056</td><td>14,070</td><td>14,084</td><td>14,098</td><td>14,112</td><td>13,718</td></tr>
             <tr><td>Interest &ndash; P&amp;I</td><td>11,960</td><td>10,456</td><td>8,889</td><td>7,256</td><td>5,554</td><td>3,780</td><td>1,931</td><td>0</td><td>0</td><td>0</td></tr>
-            <tr class="total"><td>Total Expenses</td><td>40,953</td><td>36,499</td><td>35,506</td><td>34,474</td><td>33,401</td><td>32,286</td><td>31,126</td><td>29,915</td><td>16,558</td><td>17,334</td></tr>
-            <tr class="rule"><td>Net Operating Profit (Loss)</td><td class="neg">&minus;10,453</td><td class="neg">&minus;4,931</td><td class="neg">&minus;2,834</td><td class="neg">&minus;658</td><td class="pos">1,598</td><td class="pos">3,939</td><td class="pos">6,367</td><td class="pos">8,889</td><td class="pos">23,605</td><td class="pos">24,234</td></tr>
-            <tr><td>Loan Repayments</td><td>37,856</td><td>39,360</td><td>40,927</td><td>42,560</td><td>44,262</td><td>46,036</td><td>47,885</td><td>&minus;113</td><td>0</td><td>0</td></tr>
-            <tr><td>Tax Payable</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1,522</td></tr>
-            <tr class="total"><td>Net Cash Position</td><td class="neg">&minus;48,309</td><td class="neg">&minus;44,291</td><td class="neg">&minus;43,761</td><td class="neg">&minus;43,218</td><td class="neg">&minus;42,664</td><td class="neg">&minus;42,097</td><td class="neg">&minus;41,518</td><td class="pos">9,002</td><td class="pos">23,605</td><td class="pos">22,713</td></tr>
+            <tr class="total"><td>Total Expenses</td><td>40,953</td><td>36,499</td><td>35,506</td><td>34,474</td><td>33,401</td><td>32,286</td><td>31,126</td><td>29,915</td><td>30,670</td><td>31,052</td></tr>
+            <tr class="rule"><td>Net Operating Profit (Loss)</td><td class="neg">&minus;10,453</td><td class="neg">&minus;4,931</td><td class="neg">&minus;2,834</td><td class="neg">&minus;658</td><td class="pos">1,598</td><td class="pos">3,939</td><td class="pos">6,367</td><td class="pos">8,889</td><td class="pos">9,493</td><td class="pos">10,516</td></tr>
+            <tr><td>Loan Repayments</td><td>37,856</td><td>39,360</td><td>40,927</td><td>42,560</td><td>44,262</td><td>46,036</td><td>47,885</td><td>113</td><td>10,108</td><td>10,502</td></tr>
+            <tr><td>Tax Payable</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr class="total"><td>Net Cash Position</td><td class="neg">&minus;48,309</td><td class="neg">&minus;44,291</td><td class="neg">&minus;43,761</td><td class="neg">&minus;43,218</td><td class="neg">&minus;42,664</td><td class="neg">&minus;42,097</td><td class="neg">&minus;41,518</td><td class="pos">8,776</td><td class="neg">&minus;615</td><td class="pos">15</td></tr>
           </tbody>
         </table>
         </div>
@@ -277,14 +322,16 @@ tr.rule td{border-bottom:1px solid var(--rs-card-border)}
         <table>
           <thead><tr><th>&nbsp;</th><th>Yr1</th><th>Yr2</th><th>Yr3</th><th>Yr4</th><th>Yr5</th><th>Yr6</th><th>Yr7</th><th>Yr8</th><th>Yr9</th><th>Yr10</th></tr></thead>
           <tbody>
-            <tr><td>Net Operating Profit (Loss)</td><td class="neg">&minus;10,453</td><td class="neg">&minus;4,931</td><td class="neg">&minus;2,834</td><td class="neg">&minus;658</td><td>1,598</td><td>3,939</td><td>6,367</td><td>8,889</td><td>23,605</td><td>24,234</td></tr>
+            <tr><td>Net Operating Profit (Loss)</td><td class="neg">&minus;10,453</td><td class="neg">&minus;4,931</td><td class="neg">&minus;2,834</td><td class="neg">&minus;658</td><td>1,598</td><td>3,939</td><td>6,367</td><td>8,889</td><td>9,493</td><td>10,516</td></tr>
             <tr><td>Depreciation Expense</td><td>8,353</td><td>6,014</td><td>4,330</td><td>3,118</td><td>2,245</td><td>1,616</td><td>1,164</td><td>838</td><td>603</td><td>434</td></tr>
-            <tr><td>Add Back Deductible Interest</td><td>7,269</td><td>5,139</td><td>3,208</td><td>1,492</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-            <tr class="rule"><td>Taxable Operating Income (Loss)</td><td class="neg">&minus;24,575</td><td class="neg">&minus;16,084</td><td class="neg">&minus;10,372</td><td class="neg">&minus;5,267</td><td class="neg">&minus;646</td><td>2,323</td><td>5,203</td><td>8,051</td><td>23,001</td><td>23,800</td></tr>
-            <tr><td>Prior Year Tax Loss</td><td>&mdash;</td><td class="neg">&minus;24,575</td><td class="neg">&minus;40,659</td><td class="neg">&minus;51,031</td><td class="neg">&minus;56,298</td><td class="neg">&minus;56,944</td><td class="neg">&minus;54,621</td><td class="neg">&minus;49,419</td><td class="neg">&minus;41,367</td><td class="neg">&minus;18,366</td></tr>
-            <tr class="rule"><td>Net Taxable Income (Loss)</td><td class="neg">&minus;24,575</td><td class="neg">&minus;40,659</td><td class="neg">&minus;51,031</td><td class="neg">&minus;56,298</td><td class="neg">&minus;56,944</td><td class="neg">&minus;54,621</td><td class="neg">&minus;49,419</td><td class="neg">&minus;41,367</td><td class="neg">&minus;18,366</td><td class="pos">5,434</td></tr>
-            <tr class="total"><td>Tax Payable</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1,522</td></tr>
-            <tr><td>Loss to Carry Forward (Ring-Fenced)</td><td class="neg">&minus;24,575</td><td class="neg">&minus;40,659</td><td class="neg">&minus;51,031</td><td class="neg">&minus;56,298</td><td class="neg">&minus;56,944</td><td class="neg">&minus;54,621</td><td class="neg">&minus;49,419</td><td class="neg">&minus;41,367</td><td class="neg">&minus;18,366</td><td>0</td></tr>
+            <tr><td>Add Back Deductible Interest</td><td>7,269</td><td>5,139</td><td>3,208</td><td>1,491</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr class="rule"><td>Taxable Operating Income (Loss)</td><td class="neg">&minus;24,575</td><td class="neg">&minus;16,084</td><td class="neg">&minus;10,372</td><td class="neg">&minus;5,267</td><td class="neg">&minus;646</td><td>2,323</td><td>5,203</td><td>8,051</td><td>8,889</td><td>10,082</td></tr>
+            <tr><td>Prior Year Tax Loss</td><td>&mdash;</td><td class="neg">&minus;24,575</td><td class="neg">&minus;40,659</td><td class="neg">&minus;51,031</td><td class="neg">&minus;56,298</td><td class="neg">&minus;56,944</td><td class="neg">&minus;54,621</td><td class="neg">&minus;49,419</td><td class="neg">&minus;41,367</td><td class="neg">&minus;32,478</td></tr>
+            <tr class="rule"><td>Net Taxable Income (Loss)</td><td class="neg">&minus;24,575</td><td class="neg">&minus;40,659</td><td class="neg">&minus;51,031</td><td class="neg">&minus;56,298</td><td class="neg">&minus;56,944</td><td class="neg">&minus;54,621</td><td class="neg">&minus;49,419</td><td class="neg">&minus;41,367</td><td class="neg">&minus;32,478</td><td class="neg">&minus;22,396</td></tr>
+            <tr class="total"><td>Tax Payable</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <!-- The "(Ring-Fenced)" in this row's name is now the Rental Losses setting
+                 speaking. It reads differently where losses may be offset. -->
+            <tr><td>Loss to Carry Forward (Ring-Fenced)</td><td class="neg">&minus;24,575</td><td class="neg">&minus;40,659</td><td class="neg">&minus;51,031</td><td class="neg">&minus;56,298</td><td class="neg">&minus;56,944</td><td class="neg">&minus;54,621</td><td class="neg">&minus;49,419</td><td class="neg">&minus;41,367</td><td class="neg">&minus;32,478</td><td class="neg">&minus;22,396</td></tr>
           </tbody>
         </table>
         </div>
@@ -297,11 +344,14 @@ tr.rule td{border-bottom:1px solid var(--rs-card-border)}
         <table>
           <thead><tr><th>&nbsp;</th><th>Yr1</th><th>Yr2</th><th>Yr3</th><th>Yr4</th><th>Yr5</th><th>Yr6</th><th>Yr7</th><th>Yr8</th><th>Yr9</th><th>Yr10</th></tr></thead>
           <tbody>
-            <tr><td><b>Interest Only</b> &mdash; Loan Balance</td><td>350,000</td><td>350,000</td><td>350,000</td><td>350,000</td><td>350,000</td><td>350,000</td><td>350,000</td><td>350,000</td><td>0</td><td>0</td></tr>
-            <tr><td>Annual Interest</td><td>14,000</td><td>14,014</td><td>14,028</td><td>14,042</td><td>14,056</td><td>14,070</td><td>14,084</td><td>14,098</td><td>0</td><td>0</td></tr>
-            <tr class="rule"><td>Assumed Annual Interest Rate</td><td>4.000%</td><td>4.004%</td><td>4.008%</td><td>4.012%</td><td>4.016%</td><td>4.020%</td><td>4.024%</td><td>4.028%</td><td>&mdash;</td><td>&mdash;</td></tr>
+            <tr><td><b>Interest Only</b> &mdash; Loan Balance</td><td>350,000</td><td>350,000</td><td>350,000</td><td>350,000</td><td>350,000</td><td>350,000</td><td>350,000</td><td>350,000</td><td>339,892</td><td>329,391</td></tr>
+            <!-- NEW ROW: the repayments that begin when the loan converts. The workbook
+                 has no such row, because in it the balance simply disappears. -->
+            <tr><td>Loan Repayment</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>24,220</td><td>24,220</td></tr>
+            <tr><td>Annual Interest</td><td>14,000</td><td>14,014</td><td>14,028</td><td>14,042</td><td>14,056</td><td>14,070</td><td>14,084</td><td>14,098</td><td>14,112</td><td>13,718</td></tr>
+            <tr class="rule"><td>Assumed Annual Interest Rate</td><td>4.000%</td><td>4.004%</td><td>4.008%</td><td>4.012%</td><td>4.016%</td><td>4.020%</td><td>4.024%</td><td>4.028%</td><td>4.032%</td><td>4.036%</td></tr>
             <tr><td><b>P&amp;I</b> &mdash; Opening Loan Balance</td><td>299,000</td><td>261,144</td><td>221,784</td><td>180,856</td><td>138,296</td><td>94,034</td><td>47,998</td><td>113</td><td>0</td><td>0</td></tr>
-            <tr><td>Loan Repayment</td><td>&minus;49,816</td><td>&minus;49,816</td><td>&minus;49,816</td><td>&minus;49,816</td><td>&minus;49,816</td><td>&minus;49,816</td><td>&minus;49,816</td><td>113</td><td>0</td><td>0</td></tr>
+            <tr><td>Loan Repayment</td><td>49,816</td><td>49,816</td><td>49,816</td><td>49,816</td><td>49,816</td><td>49,816</td><td>49,816</td><td>113</td><td>0</td><td>0</td></tr>
             <tr><td>Annual Interest</td><td>11,960</td><td>10,456</td><td>8,889</td><td>7,256</td><td>5,554</td><td>3,780</td><td>1,931</td><td>0</td><td>0</td><td>0</td></tr>
             <tr class="total"><td>Closing Loan Balance</td><td>261,144</td><td>221,784</td><td>180,856</td><td>138,296</td><td>94,034</td><td>47,998</td><td>113</td><td>0</td><td>0</td><td>0</td></tr>
           </tbody>
@@ -314,20 +364,49 @@ tr.rule td{border-bottom:1px solid var(--rs-card-border)}
         <h2>What this says</h2>
         <div class="coach">
           <b>This property costs the client $929 a week for the first seven years.</b>
-          It turns cash-positive in year 8, once the principal-and-interest loan is repaid.
-          Over ten years it builds <b>$846,798</b> of equity against <b>$620,859</b> of
-          money put in &mdash; a return of <b>36.4%</b>, which only turns positive in year 9.
+          It turns cash-positive in year 8, once the principal-and-interest loan is repaid
+          &mdash; then dips again in year 9, when the interest-only loan converts and starts
+          repaying principal.
           <br><br>
-          No tax is payable until year 10: the rental losses are ring-fenced and carried
-          forward, and the interest deduction phases out over the first five years.
+          Over ten years it builds <b>$517,407</b> of equity against <b>$621,474</b> of money
+          put in &mdash; a return of <b>&minus;16.7%</b>. The property has not yet paid back
+          what the client has put into it, and on these assumptions it does not do so inside
+          ten years.
+          <br><br>
+          No tax is payable at all: the rental losses are ring-fenced and carried forward,
+          the interest deduction phases out over the first five years, and the loan still
+          being serviced keeps the carried-forward loss alive.
         </div>
+      </div>
+
+      <div class="anno">
+        <b>The other ending &mdash; Repay from Capital Introduced.</b> The client clears the
+        350,000 in year 9 with their own money. Same property, same ten years:
+        <table>
+          <thead><tr><th>&nbsp;</th><th>Convert to P&amp;I</th><th>Repay from capital</th><th>The workbook</th></tr></thead>
+          <tbody>
+            <tr><td>Total debt, year 10</td><td>329,391</td><td>0</td><td>0</td></tr>
+            <tr><td>Capital introduced, year 9</td><td>&mdash;</td><td>350,000</td><td><b>not counted</b></td></tr>
+            <tr><td>Cumulative investor funds</td><td>621,474</td><td>970,859</td><td>620,859</td></tr>
+            <tr><td>Net equity, year 10</td><td>517,407</td><td>846,798</td><td>846,798</td></tr>
+            <tr><td>Tax payable, year 10</td><td>0</td><td>1,522</td><td>1,522</td></tr>
+            <tr><td><b>Return on investor funds</b></td><td><b>&minus;16.7%</b></td><td><b>&minus;12.8%</b></td><td><b>+36.4%</b></td></tr>
+          </tbody>
+        </table>
+        <br>
+        🔴 <b>The workbook's +36.4% is the figure this whole correction was for.</b> It
+        clears the same 350,000 of debt as the middle column but never records the money,
+        so a property that loses the client money reads as a 36% return.
       </div>
 
       <div class="anno">
         <b>Deliberately absent from Phase 1:</b> the family home and its mortgage, the loan
         apportionment across five properties, properties 2&ndash;5, and the consolidated
-        report. <b>Wording still open (see §8):</b> the screen's name, the four band labels,
-        and whether the New Zealand tax rules are fixed or firm-editable.
+        report &mdash; all item 4.19 on the live list.
+        <br><br>
+        <b>Still open &mdash; §8:</b> <b>Q2</b> the four labels on the headline band, and
+        <b>Q5</b> every label on the Tax rules card. <b>Q3 is answered</b> by Mike's ruling
+        that the four New Zealand rules become variable inputs.
       </div>
 
     </section>
