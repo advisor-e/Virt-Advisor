@@ -162,8 +162,17 @@ session.
 
 ## Housekeeping
 
-- **The live list grew by three and lost none** — 4.20 (finish Phase 1), 4.21 (correct the
-  workbook), 4.22 (the purchase-costs question). **Twelve items; two need Mike.**
+- **The live list grew by three and lost one in the same session** — 4.20 (finish Phase 1),
+  4.22 (the purchase-costs question), and **4.21 deleted by Mike minutes after it was
+  filed**: *"im not fussed about fixing the workbook, so longs as the code is strong and
+  backed up in github we don't need it again."* **Eleven items; two need Mike.**
+- 🔴 **The source workbook will NOT be corrected, and the consequence is on 4.19.**
+  Properties 2–5 are copies of the first block, so all three proven faults repeat there.
+  Phase 2 must apply the corrections already worked out rather than re-derive them, and
+  must not read the workbook's cached values for those years as evidence. Closure and the
+  reasoning: [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §1.
+  ⚠ **The standing "fix the code AND the source" rule is not repealed** — this is one
+  decision about one file whose job is finished.
 - ⚠ **4.19 sits ABOVE 4.20 on the list and depends on it.** Appending is the only way to add
   a row without moving one of Mike's, so the position is not a judgement — both rows say so.
 - **The dev servers were not started.** No screen was built, so there was nothing to look at

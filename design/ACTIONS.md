@@ -50,8 +50,17 @@
 > client's cash (year 8 weekly 173.12 → 168.78); and `MODEL` C33 alone returns 0 for a *positive*
 > year-1 weekly figure where every other year divides by 52.
 >
-> 🔴 **The workbook itself is NOT corrected — that is item 4.21**, and it is the half of Mike's
-> standing "fix the code and the .xlsx" rule that this session did not do.
+> 🔴 **The workbook itself is NOT corrected, and it never will be.** Filed as item 4.21 and
+> **deleted by Mike the same session:** *"im not fussed about fixing the workbook, so longs as the
+> code is strong and backed up in github we don't need it again."* Closure and reasoning:
+> [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §1.
+>
+> ⚠ **Two things follow, and both are recorded where they will be read.** The standing "fix the
+> code **and** the source" rule is **not repealed** — this is one decision about one file whose job
+> is finished, not a precedent that source defects may stand. And **Phase 2 (item 4.19) opens that
+> workbook again**: properties 2–5 are copies of the first block, so all three faults repeat at rows
+> 137/147, 214/224, 291/301 and 368/378. Apply the corrections already worked out; do not re-derive
+> them, and do not read its cached values for those years as evidence.
 >
 > ### The four New Zealand rules became settings
 >

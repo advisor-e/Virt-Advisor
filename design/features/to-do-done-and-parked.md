@@ -140,6 +140,29 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**4.21 · Correct the three proven faults in the property source workbook.** 🗑 **Deleted 2026-08-17
+by Mike, the same session it was filed.** In his own words: *"im not fussed about fixing the
+workbook, so longs as the code is strong and backed up in github we don't need it again."*
+
+- **What it was:** three faults proved from the cells of
+  [`../report-source-models/Multiple Property Assessment.xlsx`](../report-source-models/Multiple%20Property%20Assessment.xlsx)
+  and corrected in our code the same day — the interest-only balance zeroed with nothing repaying
+  it, the residual repayment's flipped sign, and year 1's weekly figure returning 0 when positive.
+  The item asked for the workbook itself to be corrected, under the standing rule that a proven
+  source defect is fixed in the code **and** the `.xlsx` so the two cannot diverge.
+- **Why it is deleted and not done:** the workbook was the *source*, and it has now been read. What
+  it knew is in [`../../server/report/multiplePropertyModel.js`](../../server/report/multiplePropertyModel.js)'s
+  header, in §6 of [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md), and
+  in 55 golden tests that carry its cached values **with their cell references**, so any figure can
+  still be checked by hand without opening it.
+- 🔴 **The standing rule is not repealed.** *"Correct the code and the source"* still holds for the
+  next workbook. This is one owner decision about one file whose job is finished — **not a new
+  precedent that source defects may be left standing.**
+- ⚠ **The workbook IS opened again, once: Phase 2 (item 4.19)** reads it for properties 2–5, the
+  apportionment and the consolidated report. **Those four blocks are copies of the first, so all
+  three faults are waiting there** — apply the corrections already worked out rather than
+  re-deriving them. That warning now lives on 4.19 itself, where it will be read.
+
 **2.1 · Send the master team the release number.** ⏸ Parked 2026-08-15 by Mike, from the Handbook
 control. In his own words: *"we will need to issue a new release. we missed last weeks deadline and
 have added new features since."*
