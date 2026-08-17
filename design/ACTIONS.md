@@ -21,6 +21,60 @@
 >
 > ---
 >
+> ## 🔴 SESSION 68 — 2026-08-17 (laptop). THE PROPERTY MODEL DESIGNED; A BRANCH MOVED ON ITS OWN.
+>
+> **No application code changed.** Mike chose **Multiple Property Assessment** from the nine unbuilt
+> models and approved a two-phase build. Phase 1 (one property, ten years) is designed and saved —
+> [`MULTIPLE-PROPERTY-ASSESSMENT.md`](MULTIPLE-PROPERTY-ASSESSMENT.md) +
+> [`mockups/multiple-property-assessment.html`](mockups/multiple-property-assessment.html),
+> registered in [`ARTEFACTS.md`](ARTEFACTS.md) (`9aee15e`). **Phase 2 is item 4.19 on the live
+> list** (`4f33e1b`) — it exists as a task because a plan in a design document is how work quietly
+> becomes never. Name ruled by Mike and recorded in all four files that said it was open
+> (`ae5c26a`); the rule earned is **P9** in [`features/report-models.md`](features/report-models.md).
+>
+> ⚠ **A size estimate given to Mike in chat was wrong and is corrected in the artefact, not dropped.**
+> "One of the smallest and cleanest of the nine" was read off the file size and the sheet count.
+> The cells show a five-property portfolio with a ten-year projection behind each. **A count taken
+> from a file's metadata is a count of metadata** — the same shape as session 66's "a count taken
+> from a filename pattern is a count of filenames."
+>
+> ### ☐ **Find out what switched the branch. — OPEN, and it is a person's job, not a warning.**
+>
+> **Mid-session this repository moved from `feat/advisor-progress` to
+> `feat/business-performance-report` — 250 commits behind master — with no instruction from the
+> session.** `git reflog` records the checkout. It was noticed only because a commit was about to be
+> made, and the design files (untracked at the time) survived it.
+>
+> 🔴 **What it actually cost, which is the part worth reading.** `core.autocrlf=true` on this
+> machine, so the checkout rewrote line endings across the tree: **53 files under
+> `design/features/` alone** now carry CRLF in the working copy while git stores LF. **`git status`
+> reports the tree clean throughout**, because git is configured to expect precisely that
+> conversion. So the change is invisible to every normal check.
+>
+> It surfaced as a **red suite** — `applyToDo.test.js` compared the generated to-do table against
+> the page as raw text and failed on **13 invisible characters, one per row**, 34,201 bytes against
+> 34,188, with not one word of content different. **Read at face value the failure accuses the
+> content.** Session 67 signed off green; session 68 opened red, and nothing had been edited.
+>
+> ✅ **Fixed** (`52ecfe7`): the comparison normalises line endings, **and only line endings**.
+> Mutation-verified against the real files rather than asserted — a changed name, ref, score,
+> `waitingOn`, a flipped blocker, a reordered list and a dropped item are each still caught.
+> *(The first mutation attempt changed a `title` field and was NOT caught, which looked like a hole
+> in the fix. There is no `title` field — items carry `ref` and `name`. The mutation was wrong, not
+> the test. Recorded because a mutation that silently tests nothing is the failure the technique
+> exists to prevent.)*
+>
+> ✅ **Swept for the same exposure elsewhere: `applyToDo` was the only one.** Every other suite
+> reading a repo file compares inline strings or a mocked `readFileSync`, not whole-file text.
+> **The rule for the next such guard: a check that compares a repo file's whole text normalises
+> line endings, or it fails on any Windows machine after any checkout.**
+>
+> **What is still open is the cause.** If Mike switched the branch himself in another terminal this
+> closes as understood. If he did not, something else is moving branches on this machine, and it can
+> do it again during a build rather than during a document edit.
+>
+> ---
+>
 > ## 🔴 SESSION 66 — 2026-08-17 (laptop). 4.16 ITEM F — DESIGN SETTLED, NOT BUILT.
 >
 > **No application code changed.** The session produced the artefact item F could not start without,

@@ -82,6 +82,21 @@ number can be re-checked by hand.
 **P8 · A failed calculation is visible.** Stale figures grey out and a banner offers a
 retry. A model must never leave a dead number looking live.
 
+**P9 · A model shipped in phases says on screen how much of it is in place.** Multiple
+Property Assessment ships Phase 1 as one property of five, **under the finished model's
+name**, with *"Property 1 of 5 · the remaining four arrive in the next release"* in the
+header — muted ink, standard border, no new component. Ruled by Mike, 2026-08-17.
+
+The alternative considered and turned down was an interim name for Phase 1, which means
+renaming a live screen and breaking its route when the rest arrives. **A phased model that
+says nothing reads as finished, and its gaps then read as the model's opinion** — an
+advisor seeing one property assumes the model holds one property's worth of thinking.
+
+⚠ **The naming question could not be answered until the schedule was.** It only settled
+once Phase 2 was a row on the live list ([`to-do.md`](to-do.md) item **4.19**) rather than
+a paragraph in a design document. **If a phase has no item, this principle has nothing to
+promise** — the header would be claiming a release nobody has committed to.
+
 ---
 
 ## 3. Design considerations — check these before changing anything
