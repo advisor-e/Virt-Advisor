@@ -343,8 +343,20 @@ full-width band, then the two-column body.
 
 ## 8. 🔴 What actually needs Mike's word
 
-Everything above is either the workbook's own wording or the ruled house style. **Four things
-have been genuinely open. Q1 is ruled, so three are still being asked:**
+Everything above is either the workbook's own wording or the ruled house style.
+
+**Seven things have been open. Four are ruled — Q1 the name, Q3 the tax rules becoming
+variable, Q4 the end of the interest-only period, Q5 the Tax rules labels. Three are still
+being asked:**
+
+| | Open | Blocks |
+|---|---|---|
+| **Q2** | The four labels on the headline band | The screen |
+| **Q6** | Who sets the tax rules — advisor, firm, or both | The screen |
+| **Q7** | What the Model Library card should say | The catalogue row, and therefore the screen |
+
+⚠ **All three block the screen and none of them blocks anything else.** Steps 1–4 of §9
+are built and green without them.
 
 ### Q1 — The screen's name — ✅ **RULED BY MIKE, 2026-08-17**
 
@@ -525,6 +537,50 @@ decides where they are set:
 that shapes what the **AI** is shown, and these are model constants that never reach a
 prompt. It is raised rather than assumed, as that rule requires.
 
+**What each choice costs to build, so the decision is not made blind:**
+
+| | What gets built | What it costs later |
+|---|---|---|
+| **Advisor, on the screen** | Seven more fields in the left column. The model already accepts them, so this is the screen and nothing else | Every advisor sees seven tax questions they will mostly never change, on every property |
+| **Firm, once, on a hub page** | A Firm Manager tab on the existing firm-overlay mechanism — version history and restore come free with it | A firm advising into two countries cannot vary it per client |
+| **Both** | The hub page, plus the fields on the screen defaulting from it | The most build, and it needs a rule for what an advisor's override means next time |
+
+⚠ **One thing that does NOT vary by this choice:** whichever way it goes, the screen must
+**state** the rules the figures were built on. The model already returns them
+(`taxRules`, including the effective management fee) precisely so a reader is never left
+to assume New Zealand. That is not a display nicety — it is the fix for the fault that
+made this a setting in the first place.
+
+### Q7 — What the Model Library card should say
+
+🔴 **The catalogue's current summary is wrong and must not ship as it is:**
+
+> *"Compare several property investments side by side."*
+
+**It is not a side-by-side comparison** (§1), and Phase 1 is one property over ten years.
+The row stays `STATUS_SOON` until this is answered and the page exists — a row flipped to
+ready with no page fails
+[`../tests/unit/reportShellFrame.test.js`](../../tests/unit/reportShellFrame.test.js).
+
+The card carries a name and one line. The name is ruled (Q1). The line is open:
+
+| | Proposed |
+|---|---|
+| **(a)** | Whether a rental property is worth buying — ten years of cash, tax and equity. |
+| **(b)** | Ten years of cash flow, tax and equity on a rental property. |
+| **(c)** | What a rental property really costs each week, and what it is worth in ten years. |
+
+*(a) names the question an advisor is being asked, which is how the other Valuation cards
+read — "Which way to fund an asset, compared on real cash terms." (b) describes the
+output. (c) leads with the weekly figure, which is the number an advisor says out loud
+(§5a), at the cost of being the longest of the three.*
+
+⚠ **It says "a rental property", singular, on purpose.** The screen's own header already
+carries *"Property 1 of 5 · the remaining four arrive in the next release"* (Q1), so the
+scope is stated where somebody is looking at it. **Whether the CARD should carry that too
+is a real question** — a card that promises five properties and opens on one is the
+problem Q1 was ruled to avoid, and the card is the thing an advisor sees *first*.
+
 ---
 
 ## 9. Build order once approved
@@ -532,11 +588,22 @@ prompt. It is raised rather than assumed, as that rule requires.
 Per [`ADDING-A-REPORT.md`](ADDING-A-REPORT.md), backend outward, each step its own approved
 change:
 
-1. `server/report/multiplePropertyModel.js` — pure, CommonJS, exports `DEFAULT_INPUTS`
-2. `tests/unit/multiplePropertyModel.test.js` — **golden test, written alongside**, every
-   expected number the workbook's own cached value with its cell reference
-3. Restify route + registration (anonymous — no file intake)
-4. Catalogue row flipped to `STATUS_READY` with `route`
+1. ✅ **BUILT 2026-08-17** — `server/report/multiplePropertyModel.js`, pure, CommonJS,
+   exports `DEFAULT_INPUTS`
+2. ✅ **BUILT 2026-08-17** — `tests/unit/multiplePropertyModel.test.js`, the golden test
+   written alongside. **55 tests.** Years 1–8 are the workbook's own cached values with
+   their cell references; years 9–10 under `convert` are hand-worked with the arithmetic
+   beside each, because those are the years the workbook gets wrong. Every correction is
+   mutation-verified outside the repository.
+3. ✅ **BUILT 2026-08-17** — `POST /api/report/multiple-property`, registered, anonymous
+   (no file intake). **7 route tests**, including one that fails the build if the client's
+   property address ever reaches a log line.
+4. 🔴 **NOT DONE, deliberately** — the catalogue row stays `STATUS_SOON`. Flipping it
+   before the page exists fails
+   [`../tests/unit/reportShellFrame.test.js`](../../tests/unit/reportShellFrame.test.js),
+   which derives its list from the catalogue's ready routes. **The recipe numbers the
+   catalogue before the page; the guard does not care about the numbering.** It also needs
+   Q7 — the current summary is wrong.
 5. `pages/…vue` wrapping the screen in `<report-shell>`
 6. `components/…vue` composing `ReportHeader` + `HeroStrip`/`HeroFigure` + `StaleBanner`,
    mixing in `currencyMixin` + `reportRecompute`
