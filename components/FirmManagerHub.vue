@@ -78,6 +78,15 @@ section.firm-manager-hub.section
       b-tab-item(label="Coaching Reference" icon="book-open-variant")
         firm-coaching-reference(:api-token="apiToken")
 
+      //- ── Tab: Property Tax Rules ────────────────────────────────────────
+      //- Item 4.20's second half (2026-08-17). The tax settings the Multiple
+      //- Property Assessment is built on. Ruled by Mike: a GROUP — normally a
+      //- country — sets them, a FIRM may correct them, and an ADVISOR types over
+      //- them on the report for one client. Gated to the tiers with a layer above
+      //- them; the mentor is excluded by that same ruling.
+      b-tab-item(v-if="showsTab('propertyTaxRules')" label="Property Tax Rules" icon="home-city-outline")
+        firm-property-tax-rules(:api-token="apiToken")
+
       //- ── Templates & Videos — HIDDEN 2026-07-27 (owner decision) ──────
       //- Not wired to anything usable in UAT (needs Firm-Manager MySQL); shown
       //- as a dead tab was misleading. Kept dormant (v-if="false") rather than
@@ -675,6 +684,7 @@ import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
 import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 import FirmStaircase from '~/components/firm/FirmStaircase.vue'
 import FirmCoachingReference from '~/components/firm/FirmCoachingReference.vue'
+import FirmPropertyTaxRules from '~/components/firm/FirmPropertyTaxRules.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
@@ -798,7 +808,23 @@ const TAB_TIERS = {
   // group that could be shown to that group. Its routes keep requireMentorRole
   // (server/restify-server.js) rather than the managing-tier guard the other three
   // moved to. This makes each middle hub 12 tabs, not the 13 first drawn.
-  templateCheck: ['mentor']
+  templateCheck: ['mentor'],
+
+  // The property model's tax rules (Mike, 2026-08-17, §8 Q6). Every tier that has a
+  // LAYER ABOVE IT — the same shape as distinctionsFirm, and for the same reason: the
+  // decline / override / inherit language only means something when something sits
+  // above you.
+  //
+  // 🔴 NOT the mentor, and that is a ruling rather than an oversight. Option (c) —
+  // "the platform seeds New Zealand, then the group" — was put to Mike and turned
+  // down: "the mentor has no country of its own to speak for". The New Zealand base
+  // ships in data/property-tax-rules.json and is not editable from a screen, so the
+  // mentor tier would be editing a country's tax rules on behalf of every country.
+  //
+  // The global tier IS included even though a brand spans countries, because the
+  // alternative is per-tier functionality — the one thing §1 of the Brief says must
+  // never happen. A global group that sets nothing changes nothing.
+  propertyTaxRules: ['global', 'group', 'firm']
 }
 
 /**
@@ -834,7 +860,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmCoachingReference, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmCoachingReference, FirmPropertyTaxRules, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

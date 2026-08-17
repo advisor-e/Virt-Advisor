@@ -45,9 +45,22 @@ const MENTOR_BEFORE = [
   'templateCheck'
 ].sort()
 
+/**
+ * Tabs DELIBERATELY added to a live hub since that baseline, each with the ruling that
+ * put it there.
+ *
+ * 🔴 THIS LIST IS NOT A LICENCE TO EDIT `FIRM_BEFORE`. The baseline above stays frozen;
+ * an addition is recorded HERE, by name, so the diff shows a tab being added rather than
+ * a historical record being quietly rewritten. A tab appearing in neither still fails.
+ *
+ * - `propertyTaxRules` — Mike, 2026-08-17 (`MULTIPLE-PROPERTY-ASSESSMENT.md` §8 Q6):
+ *   a group sets the property model's tax rules, a firm may correct them.
+ */
+const FIRM_ADDED_SINCE = ['propertyTaxRules']
+
 describe('hub tab matrix — the live hubs are untouched', () => {
-  it('the firm hub shows exactly what it showed before the middle tiers existed', () => {
-    expect(tabsAt('firm')).toEqual(FIRM_BEFORE)
+  it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {
+    expect(tabsAt('firm')).toEqual(FIRM_BEFORE.concat(FIRM_ADDED_SINCE).sort())
   })
 
   it('the mentor hub shows exactly what it showed before the middle tiers existed', () => {
@@ -78,14 +91,15 @@ describe('hub tab matrix — the two new tiers', () => {
     expect(tabsAt('global')).toEqual(tabsAt('group'))
   })
 
-  it('each middle tier shows 12 tabs — 6 unconditional plus these', () => {
+  it('each middle tier shows 13 tabs — 6 unconditional plus these', () => {
     // The 6 unconditional tabs (Domain Support, Logic Tables, Logic-Lab, Advisory
     // Staircase, Quizzes, Adviser Network) carry no TAB_TIERS entry, so the
-    // conditional count is 12 - 6 = 6.
+    // conditional count is 13 - 6 = 7.
     //
     // It was 13 when the two hubs were built on 2026-08-11. Template Check came
-    // off the same day, on the owner's ruling — see the exception below.
-    expect(tabsAt('global')).toHaveLength(6)
+    // off the same day, on the owner's ruling — see the exception below. Property
+    // Tax Rules was ruled ON on 2026-08-17, taking the conditional count to 7.
+    expect(tabsAt('global')).toHaveLength(7)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {

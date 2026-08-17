@@ -538,10 +538,62 @@ export default {
   },
 
   mounted () {
+    // Paint immediately on the shipped New Zealand defaults, then re-seed from whatever
+    // this advisor's group or firm has set — the same "cached first, then refresh"
+    // order currencyMixin uses. The seed writes to `form`, so the deep watcher queues
+    // the second recompute itself.
     this.recompute()
+    this.loadTaxRuleDefaults()
   },
 
   methods: {
+    /**
+     * Seed the Tax rules card from the settings this advisor's tier inherits.
+     *
+     * RULED BY MIKE, 2026-08-17: a group (normally a country) sets these and a firm may
+     * correct them — and the advisor may still type over any of them for the client in
+     * front of them. *"It should populate with group set rate but still be editable per
+     * client if needed."* That is why this seeds the form rather than locking it, and
+     * why nothing here is saved back.
+     *
+     * Silent on every failure, exactly like the currency read: a settings service that
+     * cannot be reached must never stop an advisor assessing a property. The worst case
+     * is the shipped New Zealand set, which is what every firm gets today.
+     * @returns {Promise<void>}
+     */
+    async loadTaxRuleDefaults () {
+      if (!process.client) { return }
+      try {
+        const token = window.localStorage.getItem('advisor_e_token') || 'dev-local-bypass'
+        const res = await fetch('/api/report/property-tax-rules', {
+          headers: { Authorization: 'Bearer ' + token }
+        })
+        if (!res.ok) { return }
+        const body = await res.json()
+        if (body && body.rules) { this.applyTaxRuleDefaults(body.rules) }
+      } catch (e) { /* keep the shipped defaults — never surface to the report */ }
+    },
+
+    /**
+     * Put resolved rules (decimal rates) onto the form (display percentages).
+     *
+     * Only the fields actually present are written, so a partial answer can never blank
+     * a setting the advisor can see.
+     * @param {object} rules
+     */
+    applyTaxRuleDefaults (rules) {
+      const pct = v => Math.round(Number(v || 0) * 1000000) / 10000 //  0.08625 → 8.625
+      if (rules.yearOneAddBack) { this.form.yearOneAddBack = rules.yearOneAddBack }
+      if (rules.depreciableAssets) { this.form.depreciableAssets = rules.depreciableAssets }
+      if (rules.depreciationMethod) { this.form.depreciationMethod = rules.depreciationMethod }
+      if (rules.lossTreatment) { this.form.lossTreatment = rules.lossTreatment }
+      if (rules.interestDeductibility) { this.form.interestDeductibility = rules.interestDeductibility }
+      if (rules.managementFeeGstRate !== undefined) { this.form.managementFeeGstPct = pct(rules.managementFeeGstRate) }
+      if (rules.depreciationRateChattels !== undefined) { this.form.depreciationRateChattelsPct = pct(rules.depreciationRateChattels) }
+      if (rules.buildingDepreciationRate !== undefined) { this.form.buildingDepreciationRatePct = pct(rules.buildingDepreciationRate) }
+      if (Array.isArray(rules.phasingTable)) { this.form.phasingPct = rules.phasingTable.map(pct) }
+    },
+
     /**
      * The backend request — consumed by the reportRecompute mixin (debounce, race
      * guard, stale flag). Display percentages become decimals here.

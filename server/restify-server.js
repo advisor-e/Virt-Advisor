@@ -113,6 +113,7 @@ const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
 const reportRoute = require('./routes/report')
 const currencyRoute = require('./routes/currency')
+const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
 const staircaseRoute = require('./routes/staircase')
 const { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 // Collaborate — the people layer and its template catalogue. Merged in from what
@@ -208,6 +209,11 @@ server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfInta
 // WRITE managers only (account-wide setting). Persistence via firmOverlay (config_key 'currency').
 server.get('/api/report/currency', firmAuth, currencyRoute.get)
 server.post('/api/report/currency', firmAuth, requireManagerRole, currencyRoute.set)
+// The property model's tax rules, resolved through the tier chain. READ open to any
+// signed-in user — every advisor opening the Multiple Property Assessment needs it, and
+// they may type over any of it for the client in front of them (Mike, 2026-08-17). The
+// WRITE lives on the manager-only /api/firm-manager route below.
+server.get('/api/report/property-tax-rules', firmAuth, propertyTaxRulesRoute.get)
 // /api/firm/advisors and /api/firm/insights were removed 2026-07-29 with the
 // FirmDashboard mock they existed for. Both were stubs returning empty data, and
 // proposed a three-table schema (advisors/courses/course_sessions) that was never
@@ -286,6 +292,13 @@ server.del('/api/firm-manager/distinctions/platform/:id', ...fmGuard, fm.resetDi
 server.post('/api/firm-manager/distinctions/platform/:id/keep-mine', ...fmGuard, fm.keepMineDistinction)
 server.put('/api/firm-manager/distinctions/platform/:id/decline', ...fmGuard, fm.setDistinctionDecline)
 server.post('/api/firm-manager/distinctions/platform/:id/move', ...fmGuard, fm.moveDistinction)
+// The property model's tax rules — a GROUP (normally a country) sets them and a FIRM may
+// correct them (Mike, 2026-08-17, §8 Q6). One set of routes for every tier: the scope is
+// `req.firmId` from the verified JWT, never an id from the request.
+server.get('/api/firm-manager/property-tax-rules', ...fmGuard, propertyTaxRulesRoute.getForManager)
+server.post('/api/firm-manager/property-tax-rules', ...fmGuard, propertyTaxRulesRoute.save)
+server.get('/api/firm-manager/property-tax-rules/history', ...fmGuard, propertyTaxRulesRoute.history)
+server.post('/api/firm-manager/property-tax-rules/restore', ...fmGuard, propertyTaxRulesRoute.restore)
 server.get('/api/firm-manager/staircase', ...fmGuard, fm.getStaircase)
 server.post('/api/firm-manager/staircase', ...fmGuard, fm.saveStaircase)
 // The staircase cascade — one decision per request, mirroring the distinction routes

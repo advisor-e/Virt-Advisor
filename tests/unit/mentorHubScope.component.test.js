@@ -204,7 +204,24 @@ describe('the two tiers are recognisably the same screen', () => {
   // one thing that must not travel up a tier. They are listed by name below so the
   // exception stays small and visible — a growing list here means the "same screen"
   // claim is being eroded a tab at a time, which is exactly what this file is for.
-  const FIRM_ONLY = ['firmTeamProgress.tab', 'Team Case Studies']
+  //
+  // ⚠ AMENDED AGAIN 2026-08-18, and the list is now THREE. Property Tax Rules is firm-only
+  // for a DIFFERENT reason from the two above, which is why it gets its own sentence rather
+  // than joining their line: it is not a view of named advisers, it is a country's tax
+  // settings. Ruled by Mike 2026-08-17 (MULTIPLE-PROPERTY-ASSESSMENT.md §8 Q6) — a group is
+  // normally a country, so a group sets these and a firm may correct them. Option (c), the
+  // platform seeding New Zealand first, was put to him and turned down: the mentor has no
+  // country of its own to speak for, and the New Zealand base ships in
+  // data/property-tax-rules.json rather than being edited from a screen.
+  //
+  // 🔴 The tab IS also shown to the global and group tiers (TAB_TIERS.propertyTaxRules), so
+  // it is firm-only relative to the MENTOR alone. This file compares those two scopes only.
+  //
+  // ⚠ THIS LIST IS IN TAB ORDER, not in the order the exceptions were ruled on. The second
+  // assertion below compares it against `firm.filter(...)`, which comes off the screen in
+  // the order the tabs are drawn, so appending a new name is wrong whenever its tab does
+  // not sit last. Property Tax Rules is drawn after Coaching Reference, ahead of both.
+  const FIRM_ONLY = ['Property Tax Rules', 'firmTeamProgress.tab', 'Team Case Studies']
   const MENTOR_ONLY = ['mentorAdoption.tab', 'Case Reviews', 'templateCheck.tab', 'logicLabReport.tab']
 
   it('presents every shared tab in the same order at both scopes', async () => {
