@@ -519,10 +519,13 @@ of his. **Its position is not a judgement.**
   difficulty: two loans amortised, diminishing-value depreciation on chattels only, ring-fenced
   losses, and the five-year interest-deductibility phasing. Phase 2 is the apportionment and the
   consolidation **on top of** it.
-- ⚠ **Still open and NOT decided — the screen's name.** If properties 2–5 are coming then
-  *Multiple Property Assessment* is right for the finished thing, and Phase 1 would ship under it
-  showing *"Property 1 of 5"*. **That was recommended to Mike on 2026-08-17 and he has not ruled on
-  it.** Approved artefact and the three open questions:
+- ✅ **The name is settled — Mike, 2026-08-17.** The catalogue name **Multiple Property
+  Assessment** is kept, and Phase 1 ships under it showing *"Property 1 of 5 · the remaining four
+  arrive in the next release"*. The name never changes between the phases and nobody is misled at
+  either stage. ⚠ **It was his own question that settled it** — asking whether the other properties
+  were coming turned a naming problem into a scheduling one, and this row is the answer.
+  **Two questions remain open** (the four headline labels, and whether the New Zealand tax
+  assumptions are fixed or firm-editable):
   [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md) §8.
 
 **4.7 · Flip `engine-strict` back on.** **SCORE 2 · robustness**

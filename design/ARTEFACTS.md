@@ -52,8 +52,8 @@ approved, never saved, and gone a day later.
 | Mentor adoption view | [mentor-adoption-view.html](mockups/mentor-adoption-view.html) | Adoption, Firm Manager Hub, Tier Cascade |
 | Mentor Logic-Lab report | [mentor-logic-lab-report-mockup.html](mockups/mentor-logic-lab-report-mockup.html) | Logic-Lab Report, MENTOR-AI-HUB-STUB.md |
 | Model Library launcher | [model-library-launcher.html](mockups/model-library-launcher.html) | BUSINESS-PERFORMANCE-REPORT-PLAN.md |
+| Multiple Property Assessment (Phase 1) | [multiple-property-assessment.html](mockups/multiple-property-assessment.html) | MULTIPLE-PROPERTY-ASSESSMENT.md, features/to-do.md item 4.19 |
 | Quick Position | [quick-position-mockup.html](mockups/quick-position-mockup.html) | BUSINESS-PERFORMANCE-REPORT-PLAN.md |
-| Rental Property Assessment (Phase 1) | [multiple-property-assessment.html](mockups/multiple-property-assessment.html) | MULTIPLE-PROPERTY-ASSESSMENT.md |
 | Sliced course outline | [sliced-course-outline.html](mockups/sliced-course-outline.html) | COURSE-SESSION-PLANNING.md, COURSE-SLICED-SESSION-WORDING.md |
 | Template Check — evidence row | [template-check-evidence-row.html](mockups/template-check-evidence-row.html) | ACTIONS.md, 2026-08-12 notes |
 | Template Check — table context | [template-check-table-context.html](mockups/template-check-table-context.html) | ACTIONS.md, 2026-08-12 notes |

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rental Property Assessment &mdash; design artefact</title>
+<title>Multiple Property Assessment &mdash; design artefact</title>
 </head>
 <body>
 <style>
@@ -42,6 +42,13 @@ body{
 .rs-title{margin:0;font-size:28px;font-weight:600;letter-spacing:-.01em;color:var(--rs-ink)}
 .rs-client{font-size:13px;color:var(--rs-muted)}
 .rs-note{font-size:12px;color:var(--rs-muted);font-style:italic}
+/* Scope line — says how much of the model is built. Reads the same muted ink and
+   the same card border as everything else; no new colour is introduced. */
+.rs-scope{
+  font-size:12px;color:var(--rs-muted);margin-top:4px;align-self:flex-start;
+  border:1px solid var(--rs-card-border);border-radius:999px;padding:3px 10px;
+  background:var(--rs-panel-2);
+}
 
 /* [C] headline band — full width, direct child of root */
 .hero-strip{
@@ -122,9 +129,13 @@ tr.rule td{border-bottom:1px solid var(--rs-card-border)}
   <div class="rs-top">
     <a class="rs-back" href="#">&larr; Back to the Model Library</a>
     <span class="rs-eyebrow">Business Performance Report</span>
-    <h1 class="rs-title">Rental Property Assessment</h1>
+    <h1 class="rs-title">Multiple Property Assessment</h1>
     <span class="rs-client">Prepared for: Bill &amp; Sue Mcgue &middot; 56 Big Deal Avenue, Goldentown</span>
     <span class="rs-note">Uses the client's real figures &mdash; not illustrative.</span>
+    <!-- Ruled by Mike 2026-08-17: the catalogue name is kept, and the screen says
+         plainly how much of the model is in place, so an advisor is never shown a
+         one-property screen that reads as a finished portfolio. -->
+    <span class="rs-scope">Property 1 of 5 &middot; the remaining four arrive in the next release</span>
   </div>
 
   <!-- [C] headline band — full width, direct child of root -->

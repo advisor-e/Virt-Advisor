@@ -237,18 +237,25 @@ full-width band, then the two-column body.
 Everything above is either the workbook's own wording or the ruled house style. **Three
 things are genuinely open, and only these are being asked:**
 
-### Q1 — The screen's name
+### Q1 — The screen's name — ✅ **RULED BY MIKE, 2026-08-17**
 
-The catalogue calls it **"Multiple Property Assessment"**. Phase 1 assesses **one**
-property. A screen with that title that takes a single property tells the advisor
-something untrue on first sight.
+**Option (a): keep the catalogue name, and show "Property 1 of 5" on the screen.**
 
-Options, for Mike alone to pick:
-- **(a)** Ship Phase 1 under the catalogue name, with the property list visibly showing
-  "Property 1 of 5 — the rest arrive in the next release".
-- **(b)** Give Phase 1 its own honest name — e.g. *Rental Property Assessment* — and let
-  *Multiple Property Assessment* arrive with Phase 2.
-- **(c)** Something in his own words.
+The name does not change between the phases, and nobody is misled at either stage: an
+advisor opening Phase 1 sees both what the model is *for* and how much of it is *in
+place*. The header carries **"Property 1 of 5 · the remaining four arrive in the next
+release"**, in the muted ink and the standard card border — no new colour, no new
+component.
+
+⚠ **What settled it was his own question, not the argument for it.** He asked whether the
+additional properties would be added in future. Once the answer was yes and Phase 2 was on
+the live list as **4.19**, the interim name stopped being a problem worth solving — the
+finished thing genuinely is a multiple property assessment. **A naming question was really
+a scheduling question**, and it could not be answered until the schedule was.
+
+*The options turned down, recorded so they are not re-derived: giving Phase 1 its own name
+(e.g. Rental Property Assessment) and letting the catalogue name arrive with Phase 2, which
+would have meant renaming a live screen and breaking its route.*
 
 ### Q2 — The four headline labels
 
