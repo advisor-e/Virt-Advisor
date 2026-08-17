@@ -352,10 +352,13 @@ being asked:**
 | | Open | Blocks |
 |---|---|---|
 | **Q2** | The four labels on the headline band | The screen |
-| **Q6** | Who sets the tax rules — advisor, firm, or both | The screen |
-| **Q7** | What the Model Library card should say | The catalogue row, and therefore the screen |
+| **Q6** | Who sets the tax rules — **which tiers may override**, corrected 2026-08-17 | The screen |
+| **Q7a** | Whether the card carries the "Property 1 of 5" scope line too | The catalogue row |
 
-⚠ **All three block the screen and none of them blocks anything else.** Steps 1–4 of §9
+**Ruled: Q1 the name · Q3 the tax rules becoming variable · Q4 the end of the interest-only
+period · Q5 the Tax rules labels · Q7 the card's line.**
+
+⚠ **All three block the screen and none of them blocks anything else.** Steps 1–3 of §9
 are built and green without them.
 
 ### Q1 — The screen's name — ✅ **RULED BY MIKE, 2026-08-17**
@@ -523,27 +526,50 @@ name, so it must read differently under the other setting.
 
 ### Q6 — Who sets the tax rules
 
-**Open, and deliberately separated from Q3.** Q3 decided the model can vary them. This
-decides where they are set:
+**Open, and deliberately separated from Q3.** Q3 decided the model *can* vary them. This
+decides where they are set.
 
-- **The advisor, on the screen** — every input beside the others, changed per client. Right
-  if a firm advises clients in more than one country.
-- **The firm, once, on a hub page** — set for the whole firm and inherited, per the
-  hub-page rule of 2026-08-16. Right if a firm works in one jurisdiction, which most do, and
-  removes four chances to get tax wrong from every advisor's screen.
-- **Both** — the firm sets the default, the advisor may override it on a client.
+> ⚠ **This question was first written as "advisor, firm, or both" and that framing was
+> wrong.** It named two tiers out of six and missed the mechanism the app already has.
+> Corrected 2026-08-17 on Mike's instruction, after reading
+> [`features/tier-cascade.md`](features/tier-cascade.md) — which is what that Brief is for.
+> The original is recorded here rather than deleted, because the mistake is instructive:
+> **a design question phrased in terms of two tiers invents a two-tier answer.**
+
+**What the Brief settles before Mike is asked anything:**
+
+- **P2 — a group is normally a COUNTRY.** Tax rules are per-country. A firm is a *branch*
+  inside one, so a firm is the wrong place for a country's tax rules to *originate*, even
+  though it may well be the place they are corrected.
+- **P3 — a level holds only its changes, never a copy.** An untouched setting keeps
+  receiving the level above's improvements; one a level has edited is protected, and a
+  later change from above is **offered** (Adopt / Keep mine), never silently applied. This
+  is built and in use — the Advisory Distinctions and coaching-reference pattern.
+- **P5 — every tab names the tiers it belongs to**, and never gates on a negative.
+
+**So the real question is how far down the override runs:**
+
+| | Set at | May override | Costs |
+|---|---|---|---|
+| **(a)** | Group (the country) | Firm **and** advisor | The house pattern exactly. An advisor can get a client's tax wrong on one property |
+| **(b)** | Group (the country) | Firm only | Tax stops being a per-client question, which for most firms it is not. A firm advising across a border cannot vary it per client |
+| **(c)** | Mentor (the platform seeds New Zealand), then group | Firm and advisor | Mentor-first, as P10 has it for AI content. One more tier to build, and the mentor has no country of its own to speak for |
+
+🔴 **The honest limit, and it applies to every option above.** The Brief's own §4 says the
+two middle-tier hubs are **built and hold no real data**: no role value produces
+`group_manager`, and the `firms` table has no country or parent column, so `parentScopeOf`
+returns the mentor scope for every firm. **A group-tier setting cannot be exercised by a
+real login today** — it would be evidenced by tests against a seeded membership map, which
+is a weaker claim than a live screen and must be stated as one. That is Advisor-e's to
+supply, not ours, and it is already question 5 of
+[`MASTER-TEAM-INTEGRATION-EMAIL.md`](MASTER-TEAM-INTEGRATION-EMAIL.md).
+
+**It does not block the build:** the model takes these as inputs whatever tier eventually
+supplies them, and the fallback is what it already does — the New Zealand defaults.
 
 ⚠ **The hub-page rule in `CLAUDE.md` does not settle this by itself**: it governs content
 that shapes what the **AI** is shown, and these are model constants that never reach a
 prompt. It is raised rather than assumed, as that rule requires.
-
-**What each choice costs to build, so the decision is not made blind:**
-
-| | What gets built | What it costs later |
-|---|---|---|
-| **Advisor, on the screen** | Seven more fields in the left column. The model already accepts them, so this is the screen and nothing else | Every advisor sees seven tax questions they will mostly never change, on every property |
-| **Firm, once, on a hub page** | A Firm Manager tab on the existing firm-overlay mechanism — version history and restore come free with it | A firm advising into two countries cannot vary it per client |
-| **Both** | The hub page, plus the fields on the screen defaulting from it | The most build, and it needs a rule for what an advisor's override means next time |
 
 ⚠ **One thing that does NOT vary by this choice:** whichever way it goes, the screen must
 **state** the rules the figures were built on. The model already returns them
@@ -551,7 +577,24 @@ prompt. It is raised rather than assumed, as that rule requires.
 to assume New Zealand. That is not a display nicety — it is the fix for the fault that
 made this a setting in the first place.
 
-### Q7 — What the Model Library card should say
+### Q7 — What the Model Library card should say — ✅ **RULED BY MIKE, 2026-08-17**
+
+> **Whether a rental property is worth buying — ten years of cash, tax and equity.**
+
+Option (a): it names the question the advisor is being asked, which is how the other
+Valuation cards read. It goes into
+[`../utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js) **in the same
+change that flips the row to `STATUS_READY`**, which waits on the page — see §9 step 4.
+
+⚠ **One thing under this was NOT asked and is still open:** whether the card should also
+carry the *"Property 1 of 5"* scope line. See the note at the foot of this question.
+
+*The options turned down, recorded so they are not re-derived: "Ten years of cash flow,
+tax and equity on a rental property" (describes the output rather than the question) and
+"What a rental property really costs each week, and what it is worth in ten years" (leads
+with the weekly figure, but is the longest of the three).*
+
+### Q7 (as asked)
 
 🔴 **The catalogue's current summary is wrong and must not ship as it is:**
 
