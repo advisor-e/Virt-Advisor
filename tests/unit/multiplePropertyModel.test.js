@@ -5,12 +5,22 @@ const {
   computeMultiplePropertyAssessment,
   interestRateSeries,
   chattelsDepreciation,
+  yearOneAddBackAmount,
   deductibilityFactor,
   amortiseYear,
   annuityPayment,
   YEARS,
   END_CONVERT,
-  END_REPAY
+  END_REPAY,
+  ADD_BACK_SETUP,
+  ADD_BACK_SETUP_AND_PURCHASE,
+  ADD_BACK_NONE,
+  DEPRECIABLE_CHATTELS,
+  DEPRECIABLE_CHATTELS_AND_BUILDING,
+  METHOD_DIMINISHING_VALUE,
+  METHOD_STRAIGHT_LINE,
+  LOSSES_RING_FENCED,
+  LOSSES_OFFSET
 } = require('../../server/report/multiplePropertyModel')
 
 /**
@@ -642,6 +652,203 @@ describe('Multiple Property Assessment — the three corrections, each by name',
     expect(strong.profitAndLoss.weeklyCashPosition[0])
       .toBeCloseTo(strong.profitAndLoss.netCashPosition[0] / 52, 6)
     expect(strong.profitAndLoss.weeklyCashPosition[0]).not.toBe(0) // the workbook's answer
+  })
+})
+
+describe('Multiple Property Assessment — the four tax rules (§6 rule 10)', () => {
+  /** The sample with one tax rule changed and nothing else. */
+  const withRule = o => computeMultiplePropertyAssessment(Object.assign({}, DEFAULT_INPUTS, o))
+
+  it('🔴 every default IS the workbook — a firm that changes nothing sees no change', () => {
+    // The 38 tests above are the real proof of this, since they run on the defaults. This
+    // one states it directly: supplying none of the four settings changes nothing at all.
+    const bare = Object.assign({}, DEFAULT_INPUTS)
+    delete bare.yearOneAddBack
+    delete bare.managementFeeGstRate
+    delete bare.depreciableAssets
+    delete bare.depreciationMethod
+    delete bare.lossTreatment
+    const r = computeMultiplePropertyAssessment(bare)
+
+    expect(r.profitAndLoss.managementFee[0]).toBeCloseTo(2630.625, MONEY) //        MODEL C14
+    expect(r.taxPosition.depreciation[0]).toBeCloseTo(8352.96, MONEY) //            MODEL C42
+    expect(r.taxPosition.taxableOperatingIncome[0]).toBeCloseTo(-24574.885, MONEY) // MODEL C46
+    expect(r.profitAndLoss.netCashPosition[0]).toBeCloseTo(-48309.399, 4) //         MODEL C31
+    // …and each fallback is declared rather than assumed (the R8 ruling).
+    expect(r.defaultedInputs).toContain('yearOneAddBack')
+    expect(r.defaultedInputs).toContain('managementFeeGstRate')
+    expect(r.defaultedInputs).toContain('lossTreatment')
+  })
+
+  describe('which year-1 costs are added back', () => {
+    it('setup only (the workbook), setup and purchase (its own note), or neither', () => {
+      // MODEL C46 = (C40 − C42 − C44) + C19. The three settings differ ONLY in what is
+      // added on the end: 1,500 / 3,500 / 0 against a base of −26,074.885.
+      expect(withRule({ yearOneAddBack: ADD_BACK_SETUP })
+        .taxPosition.taxableOperatingIncome[0]).toBeCloseTo(-24574.885, MONEY)
+      expect(withRule({ yearOneAddBack: ADD_BACK_SETUP_AND_PURCHASE })
+        .taxPosition.taxableOperatingIncome[0]).toBeCloseTo(-22574.885, MONEY)
+      expect(withRule({ yearOneAddBack: ADD_BACK_NONE })
+        .taxPosition.taxableOperatingIncome[0]).toBeCloseTo(-26074.885, MONEY)
+    })
+
+    it('touches year 1 only — later years carry it forward but never repeat it', () => {
+      const both = withRule({ yearOneAddBack: ADD_BACK_SETUP_AND_PURCHASE })
+      // Year 2's own taxable income is untouched…
+      expect(both.taxPosition.taxableOperatingIncome[1]).toBeCloseTo(-16083.88877, 5)
+      // …but its carried-forward loss is 2,000 smaller, and so is every year after.
+      expect(both.taxPosition.priorYearTaxLoss[1]).toBeCloseTo(-22574.885, MONEY)
+      expect(convert.taxPosition.priorYearTaxLoss[1]).toBeCloseTo(-24574.885, MONEY)
+    })
+
+    it('and it reaches the tax bill ten years later', () => {
+      // On the repay ending the workbook's own year-10 bill is 1,521.605891. Adding the
+      // 2,000 back makes the loss smaller, so 2,000 × 28% = 560 more tax falls due.
+      const both = withRule({
+        yearOneAddBack: ADD_BACK_SETUP_AND_PURCHASE, endOfInterestOnly: END_REPAY
+      })
+      expect(both.taxPosition.netTaxableIncome[9]).toBeCloseTo(7434.306754, 5)
+      expect(both.profitAndLoss.taxPayable[9]).toBeCloseTo(2081.605891, 5)
+      expect(repay.profitAndLoss.taxPayable[9]).toBeCloseTo(1521.605891, 5)
+    })
+
+    it('the helper stands on its own', () => {
+      expect(yearOneAddBackAmount(ADD_BACK_SETUP, 1500, 2000)).toBe(1500)
+      expect(yearOneAddBackAmount(ADD_BACK_SETUP_AND_PURCHASE, 1500, 2000)).toBe(3500)
+      expect(yearOneAddBackAmount(ADD_BACK_NONE, 1500, 2000)).toBe(0)
+    })
+  })
+
+  describe('the GST inside the management fee', () => {
+    it('is a rate now, and 15% reproduces the hardcoded 1.15', () => {
+      expect(convert.profitAndLoss.managementFee[0]).toBeCloseTo(2630.625, MONEY) // MODEL C14
+      // No GST: the fee is simply 7.5% of the rent.
+      expect(withRule({ managementFeeGstRate: 0 }).profitAndLoss.managementFee[0])
+        .toBeCloseTo(2287.5, MONEY) //                                    30,500 × 7.5%
+      // 20% (the UK, say): 30,500 × 7.5% × 1.20.
+      expect(withRule({ managementFeeGstRate: 0.2 }).profitAndLoss.managementFee[0])
+        .toBeCloseTo(2745, MONEY)
+    })
+
+    it('🔴 reports what the fee ACTUALLY costs — the figure nobody could see', () => {
+      // This is the whole reason the rule could not stay an assumption: an advisor reads
+      // 7.5% on screen while the model charges 8.625%, and nothing said so.
+      expect(convert.taxRules.effectiveManagementFeePct).toBeCloseTo(0.08625, 8)
+      expect(withRule({ managementFeeGstRate: 0 }).taxRules.effectiveManagementFeePct)
+        .toBeCloseTo(0.075, 8)
+    })
+  })
+
+  describe('what may be depreciated, and how', () => {
+    it('chattels on diminishing value is the default, and is the workbook', () => {
+      expect(withRule({}).taxPosition.depreciation[0]).toBeCloseTo(8352.96, MONEY) // MODEL C42
+    })
+
+    it('straight line charges a flat amount and STOPS when the asset is written off', () => {
+      // 29,832 × 28% = 8,352.96 a year. Three full years, then only 4,773.12 is left.
+      // 🔴 Running the flat charge on regardless would claim 83,529 of a 29,832 asset —
+      // ours is capped, which is not something the workbook ever had to decide.
+      const sl = withRule({ depreciationMethod: METHOD_STRAIGHT_LINE })
+      expectYears(sl.taxPosition.depreciation,
+        [8352.96, 8352.96, 8352.96, 4773.12, 0, 0, 0, 0, 0, 0], 'straight line', 4)
+      const claimed = sl.taxPosition.depreciation.reduce((a, b) => a + b, 0)
+      expect(claimed).toBeCloseTo(29832, MONEY) // exactly the chattels, never more
+    })
+
+    it('the building can be depreciated too, where the country allows it', () => {
+      const both = withRule({
+        depreciableAssets: DEPRECIABLE_CHATTELS_AND_BUILDING,
+        buildingDepreciationRate: 0.02
+      })
+      // Year 1 = chattels 8,352.96 + building 359,168 × 2% = 7,183.36.
+      expect(both.taxPosition.depreciation[0]).toBeCloseTo(15536.32, MONEY)
+      expect(both.taxPosition.depreciation[1]).toBeCloseTo(13053.824, 4)
+      // The land is never depreciated under either setting — it is not in the sum.
+      expect(both.taxPosition.depreciation[0]).toBeLessThan(8352.96 + (359168 + 260000) * 0.02)
+    })
+
+    it('a negative rate depreciates nothing — it never ADDS value back', () => {
+      // Nonsense input, but the guard is what stops it becoming a negative expense, which
+      // would raise taxable income and quietly invent a tax bill.
+      const daft = withRule({
+        depreciableAssets: DEPRECIABLE_CHATTELS_AND_BUILDING,
+        buildingDepreciationRate: -0.05
+      })
+      expectYears(daft.taxPosition.depreciation, convert.taxPosition.depreciation,
+        'negative building rate', 6)
+      expect(withRule({ depreciationRateChattels: -0.28 }).taxPosition.depreciation
+        .every(v => v === 0)).toBe(true)
+    })
+
+    it('choosing the building without a rate gives no building depreciation, honestly', () => {
+      // There is no right default for a building rate — it differs by country — so the
+      // model invents nothing. The result is identical to chattels only, which is at
+      // least true, and the screen shows the empty field.
+      const noRate = withRule({ depreciableAssets: DEPRECIABLE_CHATTELS_AND_BUILDING })
+      expectYears(noRate.taxPosition.depreciation, convert.taxPosition.depreciation,
+        'building with no rate', 6)
+    })
+  })
+
+  describe('how a rental loss is treated', () => {
+    const offset = withRule({ lossTreatment: LOSSES_OFFSET })
+
+    it('ring-fenced holds the loss; offset turns it into a refund the same year', () => {
+      // Ring-fenced (the workbook): nothing payable, and the loss is carried forward.
+      expect(convert.profitAndLoss.taxPayable[0]).toBe(0)
+      expect(convert.taxPosition.lossToCarryForward[0]).toBeCloseTo(-24574.885, MONEY)
+
+      // Offset: the loss reduces the client's OTHER income, so tax goes negative.
+      // −24,574.885 × 28% = −6,880.9678.
+      expect(offset.profitAndLoss.taxPayable[0]).toBeCloseTo(-6880.9678, 4)
+      expect(offset.taxPosition.lossToCarryForward.every(v => v === 0)).toBe(true)
+      expect(offset.taxPosition.priorYearTaxLoss.every(v => v === 0)).toBe(true)
+    })
+
+    it('🔴 the refund reaches the cash flow immediately — the setting with teeth', () => {
+      // Net cash year 1: −48,309.399 ring-fenced, −41,428.4312 offset. The whole
+      // difference is the refund, to the penny.
+      expect(offset.profitAndLoss.netCashPosition[0]).toBeCloseTo(-41428.4312, 4)
+      expect(offset.profitAndLoss.netCashPosition[0] - convert.profitAndLoss.netCashPosition[0])
+        .toBeCloseTo(6880.9678, 4)
+      expect(offset.profitAndLoss.weeklyCashPosition[0]).toBeCloseTo(-796.7006, 4)
+    })
+
+    it('and once the property is profitable, offset simply pays tax every year', () => {
+      // Year 6 is the first profitable one; ring-fencing still shows nothing payable
+      // because the earlier losses are not yet used up.
+      expect(offset.profitAndLoss.taxPayable[5]).toBeCloseTo(650.339212, 5)
+      expect(convert.profitAndLoss.taxPayable[5]).toBe(0)
+      expect(offset.profitAndLoss.taxPayable[9]).toBeCloseTo(2822.974043, 5)
+    })
+  })
+
+  it('a mistyped setting falls back to New Zealand AND says that it did', () => {
+    // 🔴 The one that must never be silent: 'ringfence' is not 'ringFenced', and a firm
+    // that meant to offset its losses would otherwise be shown NZ's answer with no sign.
+    const typo = withRule({ lossTreatment: 'ringfence' })
+    expect(typo.taxRules.lossTreatment).toBe(LOSSES_RING_FENCED)
+    expect(typo.defaultedInputs).toContain('lossTreatment')
+
+    // Case is not the trap, though — a setting is matched case-insensitively.
+    const caps = withRule({ lossTreatment: 'RINGFENCED', depreciationMethod: 'SL' })
+    expect(caps.taxRules.lossTreatment).toBe(LOSSES_RING_FENCED)
+    expect(caps.taxRules.depreciationMethod).toBe(METHOD_STRAIGHT_LINE)
+    expect(caps.defaultedInputs).toEqual([])
+  })
+
+  it('the payload states which rules the figures were built on', () => {
+    // So a reader of the screen is never left to assume New Zealand.
+    expect(convert.taxRules).toEqual({
+      yearOneAddBack: ADD_BACK_SETUP,
+      managementFeeGstRate: 0.15,
+      effectiveManagementFeePct: 0.08625,
+      depreciableAssets: DEPRECIABLE_CHATTELS,
+      depreciationMethod: METHOD_DIMINISHING_VALUE,
+      depreciationRateChattels: 0.28,
+      buildingDepreciationRate: 0,
+      lossTreatment: LOSSES_RING_FENCED
+    })
   })
 })
 

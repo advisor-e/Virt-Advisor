@@ -482,13 +482,17 @@ choice:** after conversion the loan keeps charging the interest-only loan's own 
 rate, which the workbook already defines for years 9 and 10 (`INPUTS` P74, Q74). Using
 anything else would mean inventing a rate.
 
-### Q5 — The labels on the new Tax rules card
+### Q5 — The labels on the new Tax rules card — ✅ **RULED BY MIKE, 2026-08-17**
+
+**The card is `Tax rules`, and all six labels stand exactly as proposed.** He ruled from
+the drawn card rather than from a list — the mockup was published and updated first, and
+the wording judged in place.
 
 Q3's ruling creates a fifth input card, and **none of its labels exists in the workbook** —
 these rules were never fields, they were assumptions inside formulas. So every one is new
 wording and every one is Mike's. They are drawn in
 [`mockups/multiple-property-assessment.html`](mockups/multiple-property-assessment.html) as
-proposed below; **nothing is chosen.**
+proposed below.
 
 | | Proposed label | Its settings | Notes |
 |---|---|---|---|

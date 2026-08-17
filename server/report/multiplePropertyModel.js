@@ -44,19 +44,42 @@
  *      sample (year 1 is negative there, so no golden value moves); corrected because a
  *      cash-positive property would report $0 a week in its first year.
  *
+ * FOUR NEW ZEALAND RULES ARE SETTINGS, NOT ASSUMPTIONS (Mike, 2026-08-17; §6 rule 10).
+ * Asked whether the year-1 cost add-back could be configurable — "can this be made a
+ * variable input to allow for different tax treatements around the world?" — he extended
+ * it to all four rules the workbook had baked into its formulas:
+ *
+ *   `yearOneAddBack`     which year-1 costs are non-deductible   (`MODEL` C46)
+ *   `managementFeeGstRate`  the GST inside the management fee    (`MODEL` row 14)
+ *   `depreciableAssets` + `depreciationMethod`  what may be depreciated, and how
+ *                                                                (`MODEL` row 42)
+ *   `lossTreatment`      ring-fenced, or offset against other income (`MODEL` rows 48–54)
+ *
+ * 🔴 EVERY DEFAULT REPRODUCES THE WORKBOOK EXACTLY, so a firm that changes nothing sees
+ * what it saw before and the golden values are untouched. The GST one is why this could
+ * not stay as it was: an advisor reading "7.5%" on screen had no way to know the model
+ * charged 8.625%, because the 1.15 lived inside the formula.
+ *
+ * ⚠ `lossTreatment: 'offset'` is the one with teeth. Ring-fenced holds a loss until the
+ * property itself makes money; offset reduces the client's OTHER income in the same year,
+ * so `taxPayable` goes NEGATIVE — a refund — and the cash flow improves immediately
+ * (about 6,881 in year 1 on the sample). It is standard, and it is wrong for New Zealand.
+ *
  * NOT CORRECTED — one open question, deliberately left as the workbook has it:
  *   - `MODEL` C46 adds back Setup Costs only (`+C19`), while the workbook's own note at
  *     `INPUTS` H46 reads "Setup Costs / Purchase Costs - Non Deductible". If the note is
  *     right, the 2,000 of purchase costs should be added back too and year 1's taxable
  *     loss is 2,000 smaller. That is a tax-treatment judgement, not an arithmetic slip,
  *     so it is reproduced exactly and raised with Mike rather than decided here.
+ *     ⚠ His ruling turned it into `yearOneAddBack`, so the model no longer DEPENDS on the
+ *     answer — but the answer still decides what the New Zealand default should be.
  *
  * FIDELITY NOTES — reproduced exactly, and each would be wrong if assumed:
  *   - The management fee carries GST INSIDE the calculation: `rental × (fee% × 1.15)`.
  *     The 15% is hardcoded in `MODEL` row 14, not an input.
  *   - Rental income is net of vacancy: `rent PW × ((52 − vacancy) / 52) × 52`.
  *   - Depreciation is diminishing-value on CHATTELS ONLY, the base shrinking by the
- *     depreciation already claimed (`MODEL` row 42).
+ *     depreciation already claimed (`MODEL` row 42) — now the DEFAULT of a setting.
  *   - Year 1's taxable income adds Setup Costs back; no other year does (`MODEL` C46).
  *   - Tax losses RING-FENCE and carry forward: tax is payable only once cumulative net
  *     taxable income turns positive — year 10 on the sample, not year 5 where the
@@ -88,15 +111,35 @@ const YEARS = 10
  */
 const RESIDUAL_THRESHOLD = 250
 
-/** GST inside the rental management fee — hardcoded in `MODEL` row 14, not an input. */
-const MANAGEMENT_FEE_GST_MULTIPLIER = 1.15
-
 /** Weeks in the workbook's year, for the weekly cash figure (`MODEL` row 33). */
 const WEEKS_PER_YEAR = 52
 
 /** What happens to the interest-only loan when its term ends — §6 rule 9. */
 const END_CONVERT = 'convert'
 const END_REPAY = 'repay'
+
+/** Which year-1 costs are non-deductible and added back — §6 rule 10. */
+const ADD_BACK_SETUP = 'setup' //                       the workbook's own behaviour
+const ADD_BACK_SETUP_AND_PURCHASE = 'setupAndPurchase' // what its note at INPUTS H46 says
+const ADD_BACK_NONE = 'none'
+
+/** What may be depreciated — §6 rule 10. New Zealand allows chattels only. */
+const DEPRECIABLE_CHATTELS = 'chattels'
+const DEPRECIABLE_CHATTELS_AND_BUILDING = 'chattelsAndBuilding'
+
+/** How it is depreciated — §6 rule 10. */
+const METHOD_DIMINISHING_VALUE = 'dv'
+const METHOD_STRAIGHT_LINE = 'sl'
+
+/**
+ * What happens to a rental loss — §6 rule 10.
+ *
+ * `ringFenced` holds it against the property's own future income (New Zealand, and the
+ * workbook). `offset` sets it against the client's other income in the same year, so tax
+ * payable goes negative — a refund — and no loss is carried forward.
+ */
+const LOSSES_RING_FENCED = 'ringFenced'
+const LOSSES_OFFSET = 'offset'
 
 /**
  * Coerce a value to a finite number (accepts JSON-string numbers), else the fallback.
@@ -173,8 +216,7 @@ const DEFAULT_INPUTS = {
   repairs: 500, //                                E47 ($/yr)
   other: 25, //                                   E48 ($/yr)
 
-  // Assumptions (INPUTS rows 50–60)
-  depreciationRateChattels: 0.28, //              E50 (28% diminishing value)
+  // Assumptions (INPUTS rows 52–60)
   rentalGrowth: 0.035, //                         E52 (3.5%/yr)
   capitalGrowth: 0.03, //                         E54 (3.0%/yr)
   expenseInflation: 0.05, //                      E58 (5.0%/yr)
@@ -188,6 +230,18 @@ const DEFAULT_INPUTS = {
   piTermYears: 7, //                              E72
   interestOnlyRate: 0.04, //                      E74 (4%)
   piRate: 0.04, //                                E76 (4%)
+  // Tax rules — §6 rule 10. NOT fields in the workbook: these were assumptions inside its
+  // formulas. Every default below reproduces it exactly.
+  yearOneAddBack: ADD_BACK_SETUP, //              MODEL C46 adds back Setup Costs only
+  managementFeeGstRate: 0.15, //                  the 1.15 hardcoded inside MODEL row 14
+  depreciableAssets: DEPRECIABLE_CHATTELS, //     MODEL row 42 — chattels, never the building
+  depreciationMethod: METHOD_DIMINISHING_VALUE, // MODEL row 42
+  depreciationRateChattels: 0.28, //              E50 (28%)
+  buildingDepreciationRate: 0, //                 no such rate exists in the workbook, and
+  //                                              there is no honest default — it differs by
+  //                                              country. Zero means "none", and the screen
+  //                                              shows the field so it cannot be missed.
+  lossTreatment: LOSSES_RING_FENCED, //           MODEL rows 48–54
   interestDeductibility: 'Phasing', //            E78 — 'Yes' | 'No' | 'Phasing'
   phasingTable: [1, 0.75, 0.5, 0.25, 0], //       E80:E84 (yr1..yr5; yr5's entry also covers yr6–10)
 
@@ -328,24 +382,89 @@ function principalAndInterestSchedule (p) {
 }
 
 /**
- * Diminishing-value depreciation on chattels only (`MODEL` row 42).
+ * Depreciate one asset over the ten years.
  *
- * The base shrinks by everything already claimed, so it is NOT a flat percentage of the
- * original figure: year 1 is `chattels × rate`, year 2 `(chattels − year 1) × rate`, and
- * so on.
+ *   Diminishing value — the base shrinks by everything already claimed, so it is NOT a
+ *   flat percentage of the original figure: year 1 is `cost × rate`, year 2
+ *   `(cost − year 1) × rate`. It never reaches zero, which is why no cap is needed.
+ *
+ *   Straight line — a flat `cost × rate` every year, STOPPED once the asset is fully
+ *   written down. The stop is ours: a flat charge run past the asset's life would claim
+ *   more than the asset ever cost (28% × 10 years = 280% of the chattels), which no tax
+ *   authority allows and which the workbook never has to face, having only ever done
+ *   diminishing value.
+ *
+ * @param {number} cost
+ * @param {number} rate
+ * @param {string} method  METHOD_DIMINISHING_VALUE | METHOD_STRAIGHT_LINE
+ * @returns {number[]} length `YEARS`, index 0 = year 1
+ */
+function depreciateAsset (cost, rate, method) {
+  const out = new Array(YEARS).fill(0)
+  if (!(cost > 0)) { return out }
+  let claimed = 0
+  for (let y = 0; y < YEARS; y++) {
+    const charge = method === METHOD_STRAIGHT_LINE
+      ? Math.min(cost * rate, cost - claimed) //  flat, and it stops when nothing is left
+      : (cost - claimed) * rate //                diminishing value
+    // The clamp does two jobs: it stops straight line once the asset is written off, and
+    // it stops a zero or negative rate ever ADDING value back as a negative expense —
+    // which would raise taxable income and invent a tax bill. It is the only guard the
+    // rate needs; an `if (rate > 0)` above it would be dead code.
+    out[y] = charge > 0 ? charge : 0
+    claimed += out[y]
+  }
+  return out
+}
+
+/**
+ * The whole depreciation expense, per year (`MODEL` row 42) — §6 rule 10.
+ *
+ * New Zealand allows chattels only, which is the workbook's own behaviour and the
+ * default. Where the building may be depreciated too, both are charged and added.
+ *
+ * @param {object} p
+ * @param {number} p.chattels
+ * @param {number} p.building
+ * @param {number} p.chattelsRate
+ * @param {number} p.buildingRate
+ * @param {string} p.assets   DEPRECIABLE_CHATTELS | DEPRECIABLE_CHATTELS_AND_BUILDING
+ * @param {string} p.method
+ * @returns {number[]} length `YEARS`, index 0 = year 1
+ */
+function depreciationSchedule (p) {
+  const chattels = depreciateAsset(p.chattels, p.chattelsRate, p.method)
+  if (p.assets !== DEPRECIABLE_CHATTELS_AND_BUILDING) { return chattels }
+  const building = depreciateAsset(p.building, p.buildingRate, p.method)
+  return chattels.map((v, i) => v + building[i])
+}
+
+/**
+ * Diminishing-value depreciation on chattels only — the New Zealand case, and what the
+ * workbook does. Kept as a named entry point because it is the default everything else
+ * is measured against.
  *
  * @param {number} chattels
  * @param {number} rate
  * @returns {number[]} length `YEARS`, index 0 = year 1
  */
 function chattelsDepreciation (chattels, rate) {
-  const out = new Array(YEARS).fill(0)
-  let claimed = 0
-  for (let y = 0; y < YEARS; y++) {
-    out[y] = (chattels - claimed) * rate
-    claimed += out[y]
-  }
-  return out
+  return depreciateAsset(chattels, rate, METHOD_DIMINISHING_VALUE)
+}
+
+/**
+ * The year-1 costs that are non-deductible and so added back to taxable income
+ * (`MODEL` C46's `+C19`) — §6 rule 10.
+ *
+ * @param {string} mode  ADD_BACK_SETUP | ADD_BACK_SETUP_AND_PURCHASE | ADD_BACK_NONE
+ * @param {number} setupCosts
+ * @param {number} purchaseCosts
+ * @returns {number}
+ */
+function yearOneAddBackAmount (mode, setupCosts, purchaseCosts) {
+  if (mode === ADD_BACK_NONE) { return 0 }
+  if (mode === ADD_BACK_SETUP_AND_PURCHASE) { return setupCosts + purchaseCosts }
+  return setupCosts
 }
 
 /**
@@ -415,6 +534,21 @@ function computeMultiplePropertyAssessment (inputs) {
     }
     return String(src[key])
   }
+  /**
+   * Pick a setting from a fixed list of allowed values, case-insensitively.
+   *
+   * A value that is missing OR unrecognised falls back to the default AND is named in
+   * `defaultedInputs` — the R8 ruling applied to settings. A mistyped `'ringfence'` must
+   * never quietly become New Zealand's rules without saying so.
+   */
+  const pick = (key, allowed) => {
+    const want = (src[key] === undefined || src[key] === null) ? '' : String(src[key]).toLowerCase()
+    for (let i = 0; i < allowed.length; i++) {
+      if (allowed[i].toLowerCase() === want) { return allowed[i] }
+    }
+    defaultedInputs.push(key)
+    return DEFAULT_INPUTS[key]
+  }
 
   // ---- inputs ----
   const address = txt('address')
@@ -434,7 +568,6 @@ function computeMultiplePropertyAssessment (inputs) {
   const setupCosts = n('setupCosts')
   const repairs = n('repairs')
   const other = n('other')
-  const depreciationRateChattels = n('depreciationRateChattels')
   const rentalGrowth = n('rentalGrowth')
   const capitalGrowth = n('capitalGrowth')
   const expenseInflation = n('expenseInflation')
@@ -449,6 +582,18 @@ function computeMultiplePropertyAssessment (inputs) {
   const interestDeductibility = txt('interestDeductibility')
   const interestOnlyTotalTermYears = n('interestOnlyTotalTermYears')
 
+  // ---- the four tax rules (§6 rule 10) — every default is the workbook's behaviour ----
+  const yearOneAddBack = pick('yearOneAddBack',
+    [ADD_BACK_SETUP, ADD_BACK_SETUP_AND_PURCHASE, ADD_BACK_NONE])
+  const managementFeeGstRate = n('managementFeeGstRate')
+  const depreciableAssets = pick('depreciableAssets',
+    [DEPRECIABLE_CHATTELS, DEPRECIABLE_CHATTELS_AND_BUILDING])
+  const depreciationMethod = pick('depreciationMethod',
+    [METHOD_DIMINISHING_VALUE, METHOD_STRAIGHT_LINE])
+  const depreciationRateChattels = n('depreciationRateChattels')
+  const buildingDepreciationRate = n('buildingDepreciationRate')
+  const lossTreatment = pick('lossTreatment', [LOSSES_RING_FENCED, LOSSES_OFFSET])
+
   // The phasing table: an array, else the workbook's series — flagged, never silently used.
   let phasingTable = DEFAULT_INPUTS.phasingTable
   if (Array.isArray(src.phasingTable)) {
@@ -457,14 +602,9 @@ function computeMultiplePropertyAssessment (inputs) {
     defaultedInputs.push('phasingTable')
   }
 
-  // What happens when the interest-only period ends (§6 rule 9). Anything that is not
-  // 'repay' converts — the safer of the two, because it never clears a debt for free.
-  let endOfInterestOnly = DEFAULT_INPUTS.endOfInterestOnly
-  if (src.endOfInterestOnly === undefined || src.endOfInterestOnly === null || src.endOfInterestOnly === '') {
-    defaultedInputs.push('endOfInterestOnly')
-  } else {
-    endOfInterestOnly = String(src.endOfInterestOnly).toLowerCase() === END_REPAY ? END_REPAY : END_CONVERT
-  }
+  // What happens when the interest-only period ends (§6 rule 9). Missing or unrecognised
+  // converts — the safer of the two, because it never clears a debt for free.
+  const endOfInterestOnly = pick('endOfInterestOnly', [END_CONVERT, END_REPAY])
 
   // The P&I loan is what is left of the funding once the interest-only slice is taken
   // (INPUTS E69 = E65 − E68). It is derived, never typed.
@@ -488,7 +628,14 @@ function computeMultiplePropertyAssessment (inputs) {
     rates: piRates
   })
 
-  const depreciation = chattelsDepreciation(chattels, depreciationRateChattels)
+  const depreciation = depreciationSchedule({
+    chattels,
+    building,
+    chattelsRate: depreciationRateChattels,
+    buildingRate: buildingDepreciationRate,
+    assets: depreciableAssets,
+    method: depreciationMethod
+  })
 
   // ---- the ten years ----
   const rental = new Array(YEARS).fill(0)
@@ -531,7 +678,7 @@ function computeMultiplePropertyAssessment (inputs) {
     const inflator = Math.pow(1 + expenseInflation, y)
 
     expenseRows.accountingFees[y] = accountingFees * inflator //   MODEL row 13
-    expenseRows.managementFee[y] = rental[y] * (managementFeePct * MANAGEMENT_FEE_GST_MULTIPLIER) // row 14
+    expenseRows.managementFee[y] = rental[y] * (managementFeePct * (1 + managementFeeGstRate)) // row 14
     expenseRows.insurance[y] = insurance * inflator //             row 15
     expenseRows.rates[y] = rates * inflator //                     row 16
     expenseRows.bodyCorp[y] = bodyCorp * inflator //               row 17
@@ -551,15 +698,28 @@ function computeMultiplePropertyAssessment (inputs) {
     const factor = deductibilityFactor(interestDeductibility, phasingTable, y + 1)
     addBackDeductibleInterest[y] = (io.interest[y] + pi.interest[y]) * (taxRate * factor) // row 44
 
-    // Year 1 adds Setup Costs back because they are non-deductible; no other year does.
-    // (The workbook does NOT add Purchase Costs back — see the open question in the header.)
+    // Year 1 adds its non-deductible costs back; no other year does. Which costs those
+    // are is a setting — the workbook's own answer, Setup Costs only, is the default.
     taxableOperatingIncome[y] = netOperatingProfit[y] - depreciation[y] -
-      addBackDeductibleInterest[y] + (y === 0 ? setupCosts : 0) //  row 46
+      addBackDeductibleInterest[y] +
+      (y === 0 ? yearOneAddBackAmount(yearOneAddBack, setupCosts, purchaseCosts) : 0) // row 46
 
-    priorYearTaxLoss[y] = y === 0 ? 0 : lossToCarryForward[y - 1] // row 48
-    netTaxableIncome[y] = taxableOperatingIncome[y] + priorYearTaxLoss[y] // row 50
-    taxPayable[y] = netTaxableIncome[y] > 0 ? netTaxableIncome[y] * taxRate : 0 // row 52
-    lossToCarryForward[y] = netTaxableIncome[y] < 0 ? netTaxableIncome[y] : 0 //  row 54
+    if (lossTreatment === LOSSES_OFFSET) {
+      // The loss goes against the client's OTHER income in the same year, so nothing is
+      // carried forward and tax payable goes NEGATIVE — a refund, which the cash flow
+      // picks up immediately. Rows 48 and 54 have nothing to hold.
+      priorYearTaxLoss[y] = 0
+      netTaxableIncome[y] = taxableOperatingIncome[y]
+      taxPayable[y] = netTaxableIncome[y] * taxRate
+      lossToCarryForward[y] = 0
+    } else {
+      // Ring-fenced (New Zealand, and the workbook): the loss waits for the property's
+      // own future income, so no tax is payable until the cumulative position turns.
+      priorYearTaxLoss[y] = y === 0 ? 0 : lossToCarryForward[y - 1] //             row 48
+      netTaxableIncome[y] = taxableOperatingIncome[y] + priorYearTaxLoss[y] //     row 50
+      taxPayable[y] = netTaxableIncome[y] > 0 ? netTaxableIncome[y] * taxRate : 0 // row 52
+      lossToCarryForward[y] = netTaxableIncome[y] < 0 ? netTaxableIncome[y] : 0 //  row 54
+    }
 
     // ---- cash (MODEL rows 28–33) ----
     // The principal repaid on both loans: the instalment less the interest already
@@ -592,6 +752,21 @@ function computeMultiplePropertyAssessment (inputs) {
     address,
     endOfInterestOnly, //  which ending the figures below are built on
     years: Array.from({ length: YEARS }, (_, i) => i + 1),
+
+    // The tax rules these figures were built on, so the screen can state them rather than
+    // leave a reader to assume New Zealand — §6 rule 10.
+    taxRules: {
+      yearOneAddBack,
+      managementFeeGstRate,
+      // What the fee ACTUALLY costs: 7.5% with 15% GST is 8.625%. Computed here rather
+      // than in the component, and shown, because its invisibility was the whole problem.
+      effectiveManagementFeePct: managementFeePct * (1 + managementFeeGstRate),
+      depreciableAssets,
+      depreciationMethod,
+      depreciationRateChattels,
+      buildingDepreciationRate,
+      lossTreatment
+    },
 
     headline: {
       weeklyCashPosition: weeklyCashPosition[0], //         MODEL C33 — the figure said out loud
@@ -679,12 +854,24 @@ module.exports = {
   interestRateSeries,
   interestOnlySchedule,
   principalAndInterestSchedule,
+  depreciateAsset,
+  depreciationSchedule,
   chattelsDepreciation,
+  yearOneAddBackAmount,
   deductibilityFactor,
   amortiseYear,
   annuityPayment,
   YEARS,
   RESIDUAL_THRESHOLD,
   END_CONVERT,
-  END_REPAY
+  END_REPAY,
+  ADD_BACK_SETUP,
+  ADD_BACK_SETUP_AND_PURCHASE,
+  ADD_BACK_NONE,
+  DEPRECIABLE_CHATTELS,
+  DEPRECIABLE_CHATTELS_AND_BUILDING,
+  METHOD_DIMINISHING_VALUE,
+  METHOD_STRAIGHT_LINE,
+  LOSSES_RING_FENCED,
+  LOSSES_OFFSET
 }
