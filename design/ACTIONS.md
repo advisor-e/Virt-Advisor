@@ -38,12 +38,26 @@
 > from a file's metadata is a count of metadata** — the same shape as session 66's "a count taken
 > from a filename pattern is a count of filenames."
 >
-> ### ☐ **Find out what switched the branch. — OPEN, and it is a person's job, not a warning.**
+> ### ✅ **What switched the branch — ANSWERED BY MIKE THE SAME SESSION. Closed.**
 >
 > **Mid-session this repository moved from `feat/advisor-progress` to
 > `feat/business-performance-report` — 250 commits behind master — with no instruction from the
 > session.** `git reflog` records the checkout. It was noticed only because a commit was about to be
 > made, and the design files (untracked at the time) survived it.
+>
+> ✅ **Mike switched it himself, deliberately**, in his words: *"i might have - i think i started it
+> on advisor/performance report as i wasnt sure if the records came across, now i know to just drive
+> everything from here."* **Nothing is moving branches on this machine.** The laptop drives from
+> `feat/advisor-progress` and that is settled.
+>
+> ✅ **The worry behind it is answered with evidence, so nobody re-checks it.**
+> `feat/business-performance-report` is **0 ahead** of master — not mostly merged, but holding
+> **nothing** that is not already here. That is precisely why it reads 250 *behind*: the work moved
+> forward onto `feat/advisor-progress` and that branch stood still. **The records came across.**
+>
+> ⚠ **The switch was not damage and is not written up as any.** It was a reasonable check. What it
+> exposed was a real fragility that would have reached the desktop eventually anyway — see below —
+> and that fragility is the part worth keeping.
 >
 > 🔴 **What it actually cost, which is the part worth reading.** `core.autocrlf=true` on this
 > machine, so the checkout rewrote line endings across the tree: **53 files under
@@ -69,9 +83,13 @@
 > **The rule for the next such guard: a check that compares a repo file's whole text normalises
 > line endings, or it fails on any Windows machine after any checkout.**
 >
-> **What is still open is the cause.** If Mike switched the branch himself in another terminal this
-> closes as understood. If he did not, something else is moving branches on this machine, and it can
-> do it again during a build rather than during a document edit.
+> ✅ **The cause is closed — Mike, same session (see the top of this entry).** Nothing on this
+> machine moves branches on its own.
+>
+> 🔴 **The fragility stays open as a rule, because it was never about the branch switch.** Any
+> checkout rewrites line endings here, and the desktop would have met the same red suite eventually.
+> **A check comparing a repo file's whole text normalises line endings, or it fails on any Windows
+> machine after any checkout.** That is the durable finding; the switch was only what surfaced it.
 >
 > ---
 >

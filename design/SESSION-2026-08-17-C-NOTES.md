@@ -27,9 +27,10 @@ workbook.
 
 ## What shipped
 
-Four commits, all documentation. **No application code changed.**
+Six commits, all documentation. **No application code changed.**
 
-`52ecfe7` the test fix · `9aee15e` the design · `4f33e1b` item 4.19 · `ae5c26a` the name
+`52ecfe7` the test fix · `9aee15e` the design · `4f33e1b` item 4.19 · `ae5c26a` the name ·
+`b2ee7a0` these notes · and the closure of the branch question below.
 
 ### 1. The design — Phase 1, one property, ten years
 
@@ -72,9 +73,17 @@ insertions and 0 deletions, so rows 1–8 are byte-identical.
 
 ## 🔴 THE THING THE DESKTOP MOST NEEDS TO KNOW
 
-**A branch switch happened mid-session that nobody in the session performed** — this repo
-moved to `feat/business-performance-report`, 250 commits behind master. `git reflog` records
-the checkout.
+⚠ **Read this for the line-ending rule, NOT for a branch mystery — there isn't one.**
+Mike switched the branch himself, deliberately, and said so the same session: *"i might have
+- i think i started it on advisor/performance report as i wasnt sure if the records came
+across, now i know to just drive everything from here."* **Nothing moves branches on its
+own.** And the records did come across: `feat/business-performance-report` is **0 ahead** of
+master — it holds nothing that is not already here, which is why it reads 250 *behind*.
+
+**The switch was not damage.** What follows is a genuine fragility it exposed, which would
+have reached your machine eventually anyway.
+
+Mid-session this repo moved to `feat/business-performance-report`, 250 commits behind master.
 
 **`core.autocrlf=true` here, so the checkout rewrote line endings across the tree** — 53
 files under `design/features/` alone now carry CRLF in the working copy while git stores LF.
@@ -88,9 +97,8 @@ the failure accuses the content.** Session 67 signed off green; session 68 opene
 test.** The rule for the next such guard: **a check comparing a repo file's whole text
 normalises line endings, or it fails on any Windows machine after any checkout.**
 
-☐ **The cause is still open** and is logged in [`ACTIONS.md`](ACTIONS.md). If Mike switched
-it himself this closes as understood. **If he did not, something is moving branches on this
-machine, and next time it could land during a build rather than a document edit.**
+✅ **The cause is closed** — Mike, same session; see the top of this section. **The rule is
+what survives**, not the incident.
 
 ---
 
@@ -112,23 +120,21 @@ after any branch switch. The fix is already on `master` once this merges.
 
 ## ☐ Open for Mike
 
-1. **What switched the branch** — his to answer, and it is the only new question this
-   session raised. See above.
-2. **Two design questions on the property screen**, §8 of the artefact: the four headline
+1. **Two design questions on the property screen**, §8 of the artefact: the four headline
    labels, and whether the New Zealand tax assumptions are fixed or firm-editable. **Neither
    blocks Phase 1's backend.**
-3. **Send the release email** — drafted at [`RELEASE-v0.9.0-EMAIL.md`](RELEASE-v0.9.0-EMAIL.md),
+2. **Send the release email** — drafted at [`RELEASE-v0.9.0-EMAIL.md`](RELEASE-v0.9.0-EMAIL.md),
    still not sent. Sending it as written also closes **item 3.5**. 🔺 **carried from session 67.**
-4. **Where the engagement types live** — the only part of 4.16 still open. 🔺 **carried five
+3. **Where the engagement types live** — the only part of 4.16 still open. 🔺 **carried five
    sessions.**
-5. **Whether a firm may REMOVE an inherited diagnostic situation.** Carried from session 65.
-6. **The "Ceiling history" button** — covers two settings, names one. Carried from session 64.
-7. **4.12 · where the corrected handover lives** — carried **eleven** sessions.
-8. **4.7 · when the overnight reinstall can run** — a time, not an answer. Carried **eleven**
+4. **Whether a firm may REMOVE an inherited diagnostic situation.** Carried from session 65.
+5. **The "Ceiling history" button** — covers two settings, names one. Carried from session 64.
+6. **4.12 · where the corrected handover lives** — carried **eleven** sessions.
+7. **4.7 · when the overnight reinstall can run** — a time, not an answer. Carried **eleven**
    sessions.
-9. **The template picker on a firm's own coaching entry** — carried from session 60.
+8. **The template picker on a firm's own coaching entry** — carried from session 60.
 
-⚠ **Items 7 and 8 have now been carried for eleven sessions each.** Neither needs a working
+⚠ **Items 6 and 7 have now been carried for eleven sessions each.** Neither needs a working
 session.
 
 ---
