@@ -18,6 +18,7 @@ const { computeQuickPosition, computeExpensesReview } = require('../report/quick
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
 const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
+const { computeMultiplePropertyAssessment } = require('../report/multiplePropertyModel')
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { parseUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
@@ -392,4 +393,52 @@ function costOfCapital (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital }
+/**
+ * POST /api/report/multiple-property
+ * @param {object} req.body - partial Multiple Property Assessment inputs, merged over the
+ *   workbook's sample (Phase 1: ONE investment property, ten years). The property
+ *   (purchasePrice and its land/building/chattels split, rentPerWeek, vacancyWeeks,
+ *   taxRate), the nine annual costs, the growth and inflation assumptions, and the funding
+ *   structure (fundingRequired, interestOnlyLoan, the two terms, the two rates,
+ *   interestDeductibility 'Yes'/'No'/'Phasing' with its phasingTable[], cashDeposit).
+ *
+ *   Two groups exist in no workbook cell and both are Mike's rulings of 2026-08-17:
+ *   `endOfInterestOnly` ('convert'/'repay') with `interestOnlyTotalTermYears`, which
+ *   decides what happens when the interest-only period ends — the workbook simply zeroed
+ *   the balance with nothing repaying it; and the four tax rules (`yearOneAddBack`,
+ *   `managementFeeGstRate`, `depreciableAssets` + `depreciationMethod` +
+ *   `buildingDepreciationRate`, `lossTreatment`) which were assumptions inside its
+ *   formulas. Every default reproduces the workbook exactly.
+ *
+ *   An omitted field computes on the sample and is named in `defaultedInputs`
+ *   (R8 — defaults never substitute silently). A setting that is present but
+ *   unrecognised is named there too, so a mistyped rule never passes as a chosen one.
+ * @returns {object} { success, data, timestamp } — data = { address, endOfInterestOnly,
+ *   years[], headline {weeklyCashPosition, totalDebt, netEquityFinalYear,
+ *   returnOnInvestorFundsFinalYear}, taxRules {…, effectiveManagementFeePct},
+ *   purchasePriceSplit {total, difference, reconciles}, profitAndLoss{}, taxPosition{},
+ *   loans {interestOnly{}, principalAndInterest{}}, investmentSummary{}, defaultedInputs }.
+ *   Every series is ten long, index 0 = year 1.
+ *
+ *   `purchasePriceSplit.reconciles` is reported, never enforced: the model computes either
+ *   way and the screen refuses on a non-zero difference, so an advisor mid-typing is not
+ *   an advisor in error.
+ *
+ * Anonymous, like every other calc route: numbers in, numbers out. It reads no database,
+ * writes nothing, calls no third party, and sends nothing to an LLM — the client's real
+ * purchase price, rent and loan balances are used to compute the response and are never
+ * stored or logged.
+ */
+function multipleProperty (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeMultiplePropertyAssessment(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] multiple-property compute failed:', err)
+    res.send(400, { success: false, error: { code: 'MULTIPLE_PROPERTY_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty }
