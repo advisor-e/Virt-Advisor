@@ -21,6 +21,42 @@
 >
 > ---
 >
+> ## ✅ SESSION 70 — 2026-08-17 (laptop). THE PROPERTY SCREEN IS BUILT — 4.20's FIRST HALF.
+>
+> **Steps 4–8 of [`ADDING-A-REPORT.md`](ADDING-A-REPORT.md) are built**, so the Multiple Property
+> Assessment is a live model an advisor can open:
+> [`components/MultiplePropertyAssessment.vue`](../components/MultiplePropertyAssessment.vue),
+> [`pages/multiple-property.vue`](../pages/multiple-property.vue), the catalogue row flipped to
+> `STATUS_READY` carrying Q7's summary **and** Q7a's scope line, every string through `$t()`, and
+> entries added to both `SCREENS` and `RENDERED_BY` — the two guards that fail silently when a new
+> report is missed. Suite **5,839 green / 324 suites**, lint 0 errors.
+>
+> 🔴 **THE MOCKUP WAS OPENED BESIDE THE FINISHED SCREEN AND ALL SEVEN DIFFERENCES ARE NAMED** —
+> [`MULTIPLE-PROPERTY-ASSESSMENT.md`](MULTIPLE-PROPERTY-ASSESSMENT.md) **§10**, which is the record
+> `CLAUDE.md`'s Save-the-Artefact rule requires and the reason that rule exists. **Read §10, never
+> this paragraph, before touching the screen.** Two of the seven are worth knowing here:
+>
+> - **The mockup's "set interest rates year by year" disclosure is NOT built, and cannot be.** The
+>   model takes a base rate plus an inflation figure and has **no per-year rate input at all** —
+>   §4's "behind a disclosure" was written before the model was. Building it is a change to the
+>   MATHS with its own golden test. ⚠ **It is not on the live list. Raising it is a decision, not a
+>   to-do somebody has already taken.**
+> - **The "What this says" panel became three conditional sentences**, because the mockup's single
+>   paragraph would have been false for every property but the sample — and would have read as
+>   authored analysis while being a hardcoded string, which is item **4.18**'s exact failure.
+>   ✅ **Approved by Mike the same session, from the sentences themselves: *"the wording is great."***
+>
+> 🔴 **4.20 IS NOT CLOSED. Its second half — the tax rules cascading from the GROUP tier (§8 Q6) —
+> has not been started.** The model takes them as inputs and the screen types them, so nothing is
+> blocked; but a group cannot set them and have a firm or an advisor inherit or override. That is
+> firm-overlay work.
+>
+> ⚠ **A new optional catalogue field, `scope`, ships with this** — one line saying how much of a
+> phased model is built, rendered under the summary on the Model Library card. **It exists to be
+> DELETED when Phase 2 lands** (item 4.19). It is the only card in the library carrying one.
+>
+> ---
+>
 > ## 🔴 SESSION 69 — 2026-08-17 (laptop). THE PROPERTY MODEL'S MATHS IS BUILT, AND THE WORKBOOK WAS WRONG.
 >
 > **Session notes:** [`SESSION-2026-08-17-D-NOTES.md`](SESSION-2026-08-17-D-NOTES.md). Eight commits,

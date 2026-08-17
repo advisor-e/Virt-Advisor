@@ -1,15 +1,15 @@
 # Multiple Property Assessment — screen design (Phase 1)
 
-> **Status: APPROVED AND PART-BUILT (2026-08-17).** All eight design questions are ruled —
-> see §8. The maths, its golden test and the Restify route are built and green; the
-> catalogue row, the screen and the group-tier tax cascade are not — see §9.
+> **Status: PHASE 1 IS BUILT AND LIVE (2026-08-17).** All eight design questions are ruled
+> — see §8. The maths, its golden test, the Restify route, the catalogue row, the page and
+> the screen are all built and green. 🔴 **One thing remains on item 4.20: the group-tier
+> tax cascade** (§8 Q6) — see §9.
 >
 > This document and
 > [`mockups/multiple-property-assessment.html`](mockups/multiple-property-assessment.html)
 > are the artefact the build is measured against, saved before approval as `CLAUDE.md`
-> requires. **Open the mockup beside the screen before shipping it and name every
-> difference in §10** — that section is empty because the screen does not exist yet, not
-> because there is nothing to say.
+> requires. ✅ **The mockup was opened beside the finished screen and all seven differences
+> are named in §10.**
 >
 > **Source workbook:** [`report-source-models/Multiple Property Assessment.xlsx`](report-source-models/Multiple%20Property%20Assessment.xlsx)
 > — sheets `INTRO`, `INPUTS`, `MODEL`, `OUTPUTS`, `Consolidated Report`, `Import Range`,
@@ -706,27 +706,67 @@ change:
 3. ✅ **BUILT 2026-08-17** — `POST /api/report/multiple-property`, registered, anonymous
    (no file intake). **7 route tests**, including one that fails the build if the client's
    property address ever reaches a log line.
-4. 🔴 **NOT DONE, deliberately** — the catalogue row stays `STATUS_SOON`. Flipping it
-   before the page exists fails
-   [`../tests/unit/reportShellFrame.test.js`](../../tests/unit/reportShellFrame.test.js),
-   which derives its list from the catalogue's ready routes. **The recipe numbers the
-   catalogue before the page; the guard does not care about the numbering.** It also needs
-   Q7 — the current summary is wrong.
-5. `pages/…vue` wrapping the screen in `<report-shell>`
-6. `components/…vue` composing `ReportHeader` + `HeroStrip`/`HeroFigure` + `StaleBanner`,
-   mixing in `currencyMixin` + `reportRecompute`
-7. Added to `SCREENS` in `reportHeadlineConsistency.component.test.js` — **the step nothing
-   reminds you about**
-8. All strings through `$t()` in `locales/en.json`
+4. ✅ **BUILT 2026-08-17** — the catalogue row carries Q7's summary and Q7a's scope line
+   and is `STATUS_READY` on `/multiple-property`. **Flipped in the SAME change as the
+   page**, because
+   [`../tests/unit/reportShellFrame.test.js`](../../tests/unit/reportShellFrame.test.js)
+   derives its list from the catalogue's ready routes. `scope` is a new optional catalogue
+   field; the Model Library renders it under the summary. ⚠ **It is written to be deleted
+   when Phase 2 lands** (item 4.19).
+5. ✅ **BUILT 2026-08-17** — `pages/multiple-property.vue`, wrapping the screen in
+   `<report-shell>`
+6. ✅ **BUILT 2026-08-17** — `components/MultiplePropertyAssessment.vue`, composing
+   `ReportHeader` + `HeroStrip`/`HeroFigure` + `StaleBanner` + `SampleNotice`, mixing in
+   `currencyMixin` + `reportRecompute`. The four ten-year tables are built from row
+   descriptors in `computed`, so the formatting rules have one definition rather than
+   sixty lines of template.
+7. ✅ **BUILT 2026-08-17** — added to `SCREENS` in
+   `reportHeadlineConsistency.component.test.js` **and** to `RENDERED_BY` in
+   `reportBadgeClass.component.test.js`, whose unmapped-route check is a failure, not a
+   skip. Plus `tests/unit/multiplePropertyScreen.component.test.js` — 8 tests on what only
+   the screen can get wrong.
+8. ✅ **BUILT 2026-08-17** — every string through `$t()` in `locales/en.json`. No hardcoded
+   English; this screen does not repeat the older screens' logged P1.
+
+🔴 **Still NOT done, and it is the other half of item 4.20: the tax rules cascading from
+the group tier (§8 Q6).** The model takes them as inputs and the screen types them, so
+nothing is blocked — but a group cannot yet set them and have a firm or an advisor inherit
+or override. That is the firm-overlay work, and it has not been started.
 
 ---
 
-## 10. Build vs artefact — filled in when the build lands
+## 10. Build vs artefact
 
-*(Empty until the SCREEN ships. Per `CLAUDE.md`, the finished build is put beside this
-artefact and **every difference named here**, deliberate or not.)*
+*(Per `CLAUDE.md`, the finished build is put beside this artefact and **every difference
+named here**, deliberate or not.)*
 
-**The backend, built 2026-08-17 — no differences to record, and that is the point.**
+### The SCREEN, built 2026-08-17 — seven differences, all named
+
+The mockup was opened beside the running screen before this was written. Nothing below was
+found afterwards.
+
+| | The mockup | The build | Why |
+|---|---|---|---|
+| **1** | A light header with a navy title | The shared `ReportHeader` — the solid `#002b64` banner every model wears | The owner ruling of 2026-07-23 says the look is **read off the live screens**. The mockup's header was a simplification of a component it could not import; the component wins |
+| **2** | *"Prepared for: Bill & Sue Mcgue · 56 Big Deal Avenue, Goldentown"* | The house `report.preparedFor` placeholder, as on every other model. **The address is a typed field** at the top of *The property* card | There is no client-name source on this screen, and inventing one would have put a sample couple's name in front of a real client. The address had to become an input anyway — §4 lists it (row 23) and the mockup showed it nowhere it could be edited |
+| **3** | Net equity sub-line: *"Year 10 · after the loan still owing"* | **"Year 10"** | 🔴 The clause is **false under the *Repay from Capital Introduced* ending**, where the loan is cleared. §8 Q2's ruling is that *the year* sits in the sub-line; the year is what stayed |
+| **4** | The loan table has no *P&I — Assumed Annual Interest Rate* row | The row **is** there | §5e lists it. The mockup dropped it, and the two rates genuinely differ once the inflation figure bites |
+| **5** | *Total Term of Interest Only Loan* drawn under the *Convert* ending | **Always shown** | Nothing on a screen vanishes as a side effect of the reader changing a setting. It is inert under *Repay*, not hidden |
+| **6** | A *"▸ Set interest rates year by year (10 years, both loans)"* disclosure | 🔴 **NOT BUILT** | **The model cannot serve it.** It takes a base rate plus an inflation figure and has no per-year rate input at all — §4's "behind a disclosure" was written before the model was. Building it is a change to the maths with its own golden test, not a screen job. **It is not on the live list; raising it is a decision, not a to-do already taken** |
+| **7** | One paragraph of prose under *What this says*, about this property | **Three sentences built from the figures**, covering the cases the one paragraph could not: a property that never turns cash-positive, one positive from year 1, tax that does become payable, and losses offset rather than ring-fenced | A fixed paragraph would have been **false for any property but the sample** — and it would have read as authored analysis while being a hardcoded string, which is precisely item 4.18's failure. ✅ **The exact sentences were put to Mike on 2026-08-17 and approved: *"the wording is great."*** |
+
+⚠ **Differences 1 and 2 are the mockup being a drawing rather than a build, and 3–7 are
+the build knowing things the drawing could not.** None of them is drift: each was found by
+putting the two side by side, which is the only reason they are listed rather than
+discovered by somebody else in a month.
+
+✅ **The thing §10 warned must not be dropped was not dropped.** *"charged at 8.625% with
+GST"* renders under the management fee, from `taxRules.effectiveManagementFeePct`, and a
+test fails the build if it ever stops.
+
+### The backend, built 2026-08-17
+
+**No differences to record, and that is the point.**
 Everything the build needed that the artefact did not have was written INTO the artefact
 first and ruled on: the cash deposit input (§4), the two funding fields and the Capital
 Introduced line (§6 rule 9, §8 Q4), and the whole Tax rules card (§6 rule 10, §8 Q3/Q5).

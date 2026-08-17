@@ -99,6 +99,10 @@
             .mlb-cbody
               h3.mlb-cname {{ model.name }}
               p.mlb-csum {{ model.summary }}
+              //- Only a model shipping in phases carries this: how much of it is built.
+              //- Ruled by Mike 2026-08-17 — the card is what an advisor sees first, so a
+              //- name promising more than the screen delivers must say so here too.
+              p.mlb-cscope(v-if="model.scope") {{ model.scope }}
               span.mlb-status(:class="openable(model) ? 'is-ready' : 'is-soon'")
                 span.mlb-dot
                 | {{ openable(model) ? $t('modelLibrary.openReport') : $t('modelLibrary.comingSoon') }}
@@ -408,6 +412,11 @@ a.mlb-card:hover {
 .mlb-cbody { padding:9px 15px 15px; }
 .mlb-cname { margin:0 0 4px; font-size:15.5px; font-weight:600; letter-spacing:-.01em; line-height:1.25; }
 .mlb-csum { margin:0 0 12px; font-size:12.5px; color:var(--mlb-muted); line-height:1.5; }
+/* The phase note — muted ink and the card's own border, no new colour. */
+.mlb-cscope {
+  margin:0 0 12px; font-size:11px; color:var(--mlb-muted); line-height:1.4;
+  display:inline-block; border:1px solid var(--mlb-line); border-radius:999px; padding:2px 9px;
+}
 
 .mlb-status { display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600; }
 .mlb-status.is-ready { color:var(--mlb-good); }
