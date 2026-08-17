@@ -178,6 +178,24 @@
    },
    "touches": "server/utils/logicTrees.js (detectLogicTree, detectLogicTrees) and pickLearnTreeAI in server/advisorEngine.js for the routing half; the learn-mode prompt for the honesty half.",
    "note": "TWO HALVES, AND THE SECOND ONE IS THE ITEM. Sharpening the routing reduces how often it happens and can never remove it — some questions are genuinely ambiguous, and Ratio Analysis and Dashboard Discussions are neighbouring methods. THE FAULT WORTH FIXING IS THAT THE MODEL DOES NOT SAY 'I DO NOT HAVE THAT FOR THIS METHOD.' Do not close this item on a routing tweak alone. VERIFY THE WAY 4.16 WAS VERIFIED — ask a real question on the running app and compare the answer word for word against the source file, because every automated test here passes on an answer the model made up."
+  },
+  {
+   "ref": "4.19",
+   "name": "Finish the property model — properties 2 to 5, the apportionment and the consolidated report",
+   "score": 4,
+   "scoreReason": "the user is worse off — an adviser whose client holds several rentals has no screen that puts them together",
+   "blocker": false,
+   "blocks": null,
+   "waitingOn": "Us",
+   "why": "Phase 1 builds ONE investment property over ten years. The source workbook is a five-property portfolio: it also carries the family home and its mortgage, a loan apportionment table that spreads the available lending across the residence and five investments in order until the borrowing ceiling is reached, and a consolidated report stacking all five into total revenue, total expenses, net operating profit, total debt, net equity and a combined weekly cash position. Without Phase 2 the model answers 'is this one property worth buying' and cannot answer 'does this portfolio work', which is the question the workbook was built to answer.",
+   "risk": "Phase 1 ships and the model looks finished. Properties 2-5 are the same block repeated, so what is left is precisely the part nobody can infer from the built screen — the apportionment and the consolidation exist nowhere in Phase 1 in any form. It is written into design/MULTIPLE-PROPERTY-ASSESSMENT.md §2 and nothing schedules it; on this project a plan that lives only in a design document is how work quietly becomes never. That is the whole reason this row exists.",
+   "askedBy": {
+    "who": "Mike",
+    "ours": false,
+    "detail": "Mike chose Multiple Property Assessment from the nine unbuilt models in the catalogue on 2026-08-17 and approved building it in two phases. He then asked directly whether the additional properties would be added in future, and on being told Phase 2 was a written plan with nothing scheduling it, RULED IT ONTO THE LIVE LIST the same session. The contents of both phases are recorded in design/MULTIPLE-PROPERTY-ASSESSMENT.md §2."
+   },
+   "touches": "The Phase 1 maths model in server/report/ and its golden test, the Restify route, the catalogue row in utils/reportModelCatalogue.js, the page and screen components, and the SCREENS list in tests/unit/reportHeadlineConsistency.component.test.js. The approved artefact is design/MULTIPLE-PROPERTY-ASSESSMENT.md with design/mockups/multiple-property-assessment.html.",
+   "note": "DEPENDS ON PHASE 1 — do not start this first. Phase 1 holds all the mathematical difficulty (two loans amortised, diminishing-value depreciation on chattels, ring-fenced losses, the five-year interest-deductibility phasing) and Phase 2 is the apportionment plus the consolidation on top of it. STILL OPEN AND NOT DECIDED: the screen's name. If properties 2-5 are coming then 'Multiple Property Assessment' is right for the finished thing and Phase 1 would ship under it showing 'Property 1 of 5' — that was RECOMMENDED to Mike on 2026-08-17 and he has not ruled on it. Do not record it as settled. See §8 of the design document for that question and two others (the four headline labels, and whether the New Zealand tax assumptions are fixed or firm-editable)."
   }
  ]
 }

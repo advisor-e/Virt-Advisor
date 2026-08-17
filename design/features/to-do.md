@@ -43,8 +43,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 6 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | **Mike** |
 | 7 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
 | 8 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
+| 9 | **4.19** Finish the property model — properties 2 to 5, the apportionment and the consolidated report | 4 | — | Us |
 
-**Eight live items. One needs Mike.** If this list passes about twenty, something is wrong.
+**Nine live items. One needs Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **One item came off this list on 2026-08-16** — see
@@ -486,6 +487,43 @@ moving one of his. **Its position is not a judgement.**
   model made up.**
 - Written into [`../RELEASE-NOTES-v0.9.0.md`](../RELEASE-NOTES-v0.9.0.md) §4a, so the master team
   meets it as a known issue rather than as a surprise in UAT.
+
+**4.19 · Finish the property model — properties 2 to 5, the apportionment and the consolidated
+report.** **SCORE 4 · the user is worse off**
+
+⚠ **Sitting last because Mike has not ranked it, not because it scores low.** It was added on
+2026-08-17, after his ranking pass, and appending is the only way to add an item without moving one
+of his. **Its position is not a judgement.**
+
+- **Why:** Phase 1 builds **one** investment property over ten years. The source workbook is a
+  **five-property portfolio**: it also carries the family home and its mortgage, a **loan
+  apportionment table** spreading the available lending across the residence and five investments in
+  order until the borrowing ceiling is reached, and a **consolidated report** stacking all five into
+  total revenue, total expenses, net operating profit, total debt, net equity and a combined weekly
+  cash position. Without Phase 2 the model answers *"is this one property worth buying"* and cannot
+  answer *"does this portfolio work"* — the question the workbook was built for.
+- **Risk:** Phase 1 ships and the model **looks finished**. Properties 2–5 are the same block
+  repeated, so what remains is precisely the part nobody can infer from the built screen — the
+  apportionment and the consolidation exist nowhere in Phase 1 in any form. 🔴 **It was written into
+  a design document with nothing scheduling it, and on this project that is how a plan quietly
+  becomes never.** That is the whole reason this row exists.
+- **Asked by:** **Mike.** He chose the model from the nine unbuilt ones on 2026-08-17 and approved
+  the two-phase split, then asked directly whether the additional properties would be added in
+  future — and on being told Phase 2 was a written plan with nothing scheduling it, ruled it onto
+  the live list the same session.
+- **Touches:** the Phase 1 maths model and its golden test, the Restify route,
+  [`../../utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js), the page and screen
+  components, and the `SCREENS` list in
+  [`../../tests/unit/reportHeadlineConsistency.component.test.js`](../../tests/unit/reportHeadlineConsistency.component.test.js).
+- 🔴 **DEPENDS ON PHASE 1 — do not start this first.** Phase 1 holds all the mathematical
+  difficulty: two loans amortised, diminishing-value depreciation on chattels only, ring-fenced
+  losses, and the five-year interest-deductibility phasing. Phase 2 is the apportionment and the
+  consolidation **on top of** it.
+- ⚠ **Still open and NOT decided — the screen's name.** If properties 2–5 are coming then
+  *Multiple Property Assessment* is right for the finished thing, and Phase 1 would ship under it
+  showing *"Property 1 of 5"*. **That was recommended to Mike on 2026-08-17 and he has not ruled on
+  it.** Approved artefact and the three open questions:
+  [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md) §8.
 
 **4.7 · Flip `engine-strict` back on.** **SCORE 2 · robustness**
 - **Why:** still `false`. Two transitive packages (`consola`, `node-releases`) over-declare their
