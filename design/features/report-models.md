@@ -97,6 +97,60 @@ once Phase 2 was a row on the live list ([`to-do.md`](to-do.md) item **4.19**) r
 a paragraph in a design document. **If a phase has no item, this principle has nothing to
 promise** — the header would be claiming a release nobody has committed to.
 
+**P10 · A workbook rule that differs by country is a SETTING, not an assumption.** Tax
+rates, what may be depreciated and by which method, how losses are treated, which costs
+are non-deductible, the GST inside a fee — each becomes an input whose **default
+reproduces the workbook exactly**, so a firm that changes nothing sees no change. Ruled by
+Mike, 2026-08-17: *"can this be made a variable input to allow for different tax
+treatements around the world?"*
+
+🔴 **The one that proves the rule is the invisible one.** The property model's management
+fee was `rental × (fee% × 1.15)` with the 1.15 **hardcoded inside the formula**. An advisor
+read *"7.5%"* on screen while the model charged **8.625%**, and nothing anywhere said so.
+The other three rules are at least wrong *visibly* when applied in the wrong country; that
+one was wrong silently.
+
+**So the setting is only half of it: the screen must SHOW what the rule does.** The
+effective rate is computed on the backend and rendered under the fee. A model that makes a
+buried constant editable and still does not display its effect has moved the problem, not
+fixed it — the same shape as `CLAUDE.md`'s hub-page rule, where wiring content to the AI
+without a screen is half a fix.
+
+⚠ **Where the settings are SET is a tier question, and it is answered from
+[`tier-cascade.md`](tier-cascade.md), not invented.** For tax that is the **group** — P2
+of that Brief: *a group is normally a country*. A firm is a branch inside one, so a firm
+is the wrong place for a country's rules to originate, however likely it is to be where
+they get corrected.
+
+**P11 · A catalogue row goes ready in the SAME change as its page.** Flipping
+`STATUS_READY` earlier fails the build:
+[`reportShellFrame.test.js`](../../tests/unit/reportShellFrame.test.js) derives its list
+from the catalogue's ready routes and fails when a ready model has no shell-wrapped page.
+⚠ **[`ADDING-A-REPORT.md`](../ADDING-A-REPORT.md) numbers the catalogue (step 5) before
+the page (step 6), and the guard does not care about the numbering.** The recipe's order
+is a reading order, not a commit order.
+
+**P12 · A golden test may have two provenances, and every number says which it is.** The
+normal case is one: the workbook's own cached value with its cell reference. But where the
+workbook is **wrong** and the owner has ruled a correction, those figures cannot come from
+the spreadsheet — they are worked out here, and each one carries its arithmetic in the
+comment beside it so it can still be checked by hand.
+
+**Label them individually, never a blanket note at the top.** A reader looking at one
+expectation must be able to tell, from that line, whether it is evidence or reasoning.
+✅ **Then find the case that proves the port did not disturb anything else:** for the
+property model, the *repay* ending reproduces the workbook's own years 9 and 10 to the
+last decimal, which confines the correction to exactly what was ruled.
+
+**P13 · A mutation that PASSES may mean dead code, not a weak test.** When a fix is
+reverted on an out-of-repo copy and the suite stays green, the two possibilities are a
+gap in the tests **or** an equivalent mutant — code that cannot change behaviour.
+🔴 **Establish which before writing a test to cover it.** On 2026-08-17 a rate guard in the
+property model's depreciation looked untested; it was in fact unreachable, because the
+clamp on the next line already did the work. The honest fix was to delete the guard and
+test the clamp — writing a test for the dead branch would have pinned code that does
+nothing and read as coverage.
+
 ---
 
 ## 3. Design considerations — check these before changing anything

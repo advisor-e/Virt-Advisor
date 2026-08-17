@@ -21,6 +21,91 @@
 >
 > ---
 >
+> ## 🔴 SESSION 69 — 2026-08-17 (laptop). THE PROPERTY MODEL'S MATHS IS BUILT, AND THE WORKBOOK WAS WRONG.
+>
+> **Session notes:** [`SESSION-2026-08-17-D-NOTES.md`](SESSION-2026-08-17-D-NOTES.md). Eight commits,
+> suite **5,815 green / 323 suites**, lint 0 errors, audit gate PASS, tree clean.
+>
+> **Steps 1–3 of [`ADDING-A-REPORT.md`](ADDING-A-REPORT.md) are built:**
+> [`server/report/multiplePropertyModel.js`](../server/report/multiplePropertyModel.js) with **55
+> golden tests** (`5e61cc4`, `16b99b0`), and `POST /api/report/multiple-property` with **7 route
+> tests** (`8ead5f6`). **Step 4 onward is item 4.20** on the live list. **No screen exists.**
+>
+> ### 🔴 THE WORKBOOK IS WRONG IN THE TWO YEARS THAT DECIDE THE HEADLINE
+>
+> Found by reading the cells **before** writing any code. `MODEL` row 60 zeroes the interest-only
+> balance at the end of its term with **nothing repaying it** — total debt 350,000 → 0 in year 9,
+> net equity 448,188 → 822,134. **Two of the four headline figures ride on that step**, and the
+> year-10 return reads **+36.4%** where the property is losing money.
+>
+> **Mike ruled the advisor chooses** — convert to principal and interest, or repay from capital
+> introduced — *"can we adde the option to convert the debt to principle and interest or, pay off
+> the debt with a capital introduction?"* Under the two endings the same property returns **−16.7%**
+> and **−12.8%**. ⚠ **The repay ending is what the workbook already does, done honestly:** the fault
+> was never the zeroing, it was zeroing without recording where the money came from — hence the new
+> **Capital Introduced** line.
+>
+> **Two more faults, both corrected:** `MODEL` row 68's residual branch returns the final 112.89
+> repayment positive where the normal branch returns it negative, so the workbook ADDS it to the
+> client's cash (year 8 weekly 173.12 → 168.78); and `MODEL` C33 alone returns 0 for a *positive*
+> year-1 weekly figure where every other year divides by 52.
+>
+> 🔴 **The workbook itself is NOT corrected — that is item 4.21**, and it is the half of Mike's
+> standing "fix the code and the .xlsx" rule that this session did not do.
+>
+> ### The four New Zealand rules became settings
+>
+> Asked whether one add-back could be configurable, Mike extended it to all four: the year-1
+> non-deductible costs, the **GST inside the management fee**, what may be depreciated and how, and
+> whether losses ring-fence. **Every default reproduces the workbook, and the proof is that all 38
+> original golden tests pass with no expected number changed** (`16b99b0`).
+>
+> 🔴 **The GST one is why this could not stay an assumption.** `fee% × 1.15` was hardcoded *inside*
+> the formula: an advisor read **7.5%** while the model charged **8.625%**. The other three are at
+> least wrong visibly in the wrong country; that one was wrong **silently**. The rule earned is
+> **P10** in [`features/report-models.md`](features/report-models.md), and it carries the second
+> half — **the screen must SHOW what the rule does**, not merely make it editable.
+>
+> ### Three more rules earned, all in the Brief
+>
+> **P11** — a catalogue row goes ready in the **same change** as its page;
+> [`reportShellFrame.test.js`](../tests/unit/reportShellFrame.test.js) derives its list from the
+> catalogue and ⚠ **`ADDING-A-REPORT.md` numbers the catalogue BEFORE the page**. The recipe's order
+> is a reading order, not a commit order. **P12** — a golden test may have two provenances and every
+> number says which; the workbook's cached values for years 1–8, hand-worked arithmetic for the two
+> years it gets wrong. **P13** — 🔴 **a mutation that PASSES may mean dead code, not a weak test.**
+> A rate guard looked untested and was in fact unreachable; the clamp below it already did the work.
+> It was **deleted**, and the clamp tested. Writing a test for the dead branch would have pinned
+> code that does nothing and read as coverage.
+>
+> ### A design question asked wrongly, caught by the Brief
+>
+> **Q6 was written as "advisor, firm, or both"** — two tiers out of six. Reading
+> [`features/tier-cascade.md`](features/tier-cascade.md) changed the question: **P2, a group is
+> normally a country**, and tax rules are per-country, so a firm is the wrong place for them to
+> *originate*. Mike ruled group-sets, firm **and** advisor may override. ⚠ **This is the third time
+> a Brief has caught a wrong premise before it reached him**, which is what they are for.
+>
+> ⚠ **The group tier cannot be exercised by a real login** — no role produces `group_manager` and
+> the `firms` table has no country column, so `parentScopeOf` returns the mentor scope. Advisor-e's
+> to supply; already question 5 of [`MASTER-TEAM-INTEGRATION-EMAIL.md`](MASTER-TEAM-INTEGRATION-EMAIL.md).
+>
+> ### One fault of ours, found because the workbook would not reconcile
+>
+> Interest-only years were counted as loan repayments, flattering the client's cash by **14,000 a
+> year** — year 1 came to 23,856.274 where `MODEL` C28 says 37,856.274. **The golden test caught it
+> on the first run.** The guard that fixes it is its own named function so the next loan cannot
+> repeat it.
+>
+> ### Open for Mike
+>
+> **Nothing on this model.** All eight design questions were ruled in one session and are recorded
+> with the options he turned down at [`MULTIPLE-PROPERTY-ASSESSMENT.md`](MULTIPLE-PROPERTY-ASSESSMENT.md)
+> §8. **Item 4.22** (whether purchase costs are non-deductible) needs one sentence from him but
+> blocks nothing — the model already handles all three answers.
+>
+> ---
+>
 > ## 🔴 SESSION 68 — 2026-08-17 (laptop). THE PROPERTY MODEL DESIGNED; A BRANCH MOVED ON ITS OWN.
 >
 > **No application code changed.** Mike chose **Multiple Property Assessment** from the nine unbuilt

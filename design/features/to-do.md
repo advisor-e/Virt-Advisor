@@ -44,8 +44,11 @@ repository sees; the two never both appear, and the build stops if they would.
 | 7 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
 | 8 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
 | 9 | **4.19** Finish the property model — properties 2 to 5, the apportionment and the consolidated report | 4 | — | Us |
+| 10 | **4.20** Finish Phase 1 of the property model — the screen, and the tax rules cascading from the group | 4 | — | Us |
+| 11 | **4.21** Correct the three proven faults in the property source workbook | 4 | — | Us |
+| 12 | **4.22** Settle whether purchase costs are non-deductible in the property model's first year | 1 | — | **Mike** |
 
-**Nine live items. One needs Mike.** If this list passes about twenty, something is wrong.
+**Twelve live items. Two need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **One item came off this list on 2026-08-16** — see
