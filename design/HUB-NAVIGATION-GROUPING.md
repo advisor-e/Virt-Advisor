@@ -222,15 +222,40 @@ rather than rediscovered.
 
 ---
 
-## 7. The decisions being asked for
+## 7. The decisions
 
-| # | Decision | Recommended |
+**Approved by Mike, 2026-08-19**, in the conversation that produced this file.
+
+| # | Decision | Outcome |
 | --- | --- | --- |
-| 1 | Sidebar with grouped names, replacing the horizontal band | Yes |
-| 2 | One group of six for everything that teaches the AI, not two | Yes |
-| 3 | The four group headings (§4) | Your AI coach · Your Team In Action · Model Inputs · Rolled up from below |
-| 4 | The two case-tab names (§4) | Your advisors' cases · Shared cases (anonymised) |
-| 5 | The duplicate at group and global tier (§5) | Drop the firm-flavoured tab at those two tiers |
+| 1 | Sidebar with grouped names, replacing the horizontal band | ✅ **Approved** |
+| 2 | One group of six for everything that teaches the AI, not two | ✅ **Approved** |
+| 3 | The four group headings (§4) | ✅ **Approved** — Your AI coach · **Your Team In Action** · **Model Inputs** · Rolled up from below. The two in bold are his own words, not from the options offered. |
+| 4 | The two case-tab names (§4) | ✅ **Settled — NO RENAME.** "Team Case Studies" and "Case Reviews" both stay exactly as they are |
+| 5 | The duplicate at group and global tier (§5) | ✅ **Approved** — drop the firm-flavoured tab at those two tiers |
+
+⚠ **Decision 5 dissolved decision 4, which is why nothing is renamed.** The rename was proposed
+because a group manager saw *both* case tabs side by side and could not tell them apart. With the
+duplicate dropped, **no tier ever sees both**: the firm manager has one, every tier above has the
+other. The collision that motivated the rename is gone, so the rename was withdrawn rather than
+carried out for its own sake.
+
+🔴 **Do not "finish" this later.** The rename options in §4 are recorded as history, not as pending
+work. A future reader finding two proposed names and no rename in the code is looking at a decision,
+not an omission. The one weakness left — **"Case Reviews" does not say the cases are anonymised** —
+is real, and belongs in the text on that page rather than in the tab name.
+
+### What decision 5 means in the code
+
+`teamCaseStudies` in `TAB_TIERS` becomes `['firm']`. It is the **third** tab to be tier-limited, and
+per [`features/firm-manager-hub.md`](features/firm-manager-hub.md) §4 it needs its own written reason
+and a named entry — **in tab order** — in
+[`tests/unit/mentorHubScope.component.test.js`](../tests/unit/mentorHubScope.component.test.js).
+
+🔴 **This narrows a tab that was deliberately widened on 2026-08-12.** That widening was correct at
+the time and is not being reversed as a mistake: it fixed a middle tier being shown an empty list.
+What it created, unnoticed, was an overlap with a tab that already did the same job at those tiers.
+The reason must say so, or a future reader will restore it believing a bug was reintroduced.
 
 ---
 
