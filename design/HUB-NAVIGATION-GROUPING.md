@@ -46,8 +46,8 @@ of a database decision, which means nothing to the person reading the screen.
 | Group | Tabs |
 | --- | --- |
 | **Your AI coach** | Domain Support · Advisory Distinctions · Coaching Reference · Logic Tables · Advisory Staircase · Logic-Lab |
-| **Your team** | Advisor Network · Team Progress · Quizzes · *Your advisors' cases* |
-| **Model settings** | Property Tax Rules |
+| **Your Team In Action** | Advisor Network · Team Progress · Quizzes · *Your advisors' cases* |
+| **Model Inputs** | Property Tax Rules |
 | **Rolled up from below** *(not the firm manager)* | How firms are using the app · Logic Lab Report · *Shared cases (anonymised)* · Template Check |
 
 Resulting counts: firm **3 headings / 11 items**, mentor **3 / 12**, group and global **4 / 13**
@@ -75,7 +75,7 @@ teaches the AI* — which is the hub's own stated purpose: *"The hub exists so a
 system without a developer."* It also matches the door managers arrive through: **"Manage AI
 Coach"** in the master app.
 
-### 2.2 Why Case Reviews is not under "Your team"
+### 2.2 Why Case Reviews is not under "Your Team In Action"
 
 Two tabs concern cases and they are not the same thing:
 
@@ -84,7 +84,7 @@ Two tabs concern cases and they are not the same thing:
 - **Cases sent up from the level below** — anonymised, and only where a firm manager took a second,
   explicit decision to share. Those are not the reader's team.
 
-Filing the second under *Your team*, beside Advisor Network and Team Progress which name real
+Filing the second under *Your Team In Action*, beside Advisor Network and Team Progress which name real
 individuals, would say the opposite of what the consent gate exists to say.
 
 ---
@@ -127,12 +127,23 @@ once* plus *room to name things properly*.
 **Every name below is a proposal.** Labels are the owner's call; see the artefact for the full
 option tables.
 
-| Group | Recommended | Alternatives offered |
+✅ **Two are settled, both in Mike's own words rather than from the options offered (2026-08-19):
+"Your Team In Action"** and **"Model Inputs"**. They are recorded here verbatim rather than
+paraphrased, because a label approved in chat and summarised afterwards is the failure this whole
+page exists to avoid.
+
+| Group | Heading | Alternatives offered |
 | --- | --- | --- |
-| The six that teach the AI | **Your AI coach** | AI coach · How your AI advises |
-| Advisors, progress, quizzes, cases | **Your team** | Your advisors · People |
-| Settings the report models compute with | **Model settings** | Technical inputs *(Mike's phrase)* · Report settings |
-| What arrives from the levels below | **Rolled up from below** | Across the levels below you · Roll-up reports |
+| The six that teach the AI | **Your AI coach** *(proposed)* | AI coach · How your AI advises |
+| Advisors, progress, quizzes, cases | ✅ **Your Team In Action** *(ruled)* | ~~Your team~~ · Your advisors · People |
+| Settings the report models compute with | ✅ **Model Inputs** *(ruled)* | ~~Model settings~~ · Technical inputs · Report settings |
+| What arrives from the levels below | **Rolled up from below** *(proposed)* | Across the levels below you · Roll-up reports |
+
+⚠ **The headings are deliberately NOT harmonised to one capitalisation style.** Both ruled names are
+title case; the two still proposed are sentence case. Harmonising them was put to Mike on 2026-08-19
+and declined — *"no — keep capitals etc as you have them"*. **Do not tidy this on sight.** Each label
+is the owner's, exactly as he gave it, and a later pass that "fixes the inconsistency" would be
+overwriting a decision with a preference.
 
 ⚠ **"Across your firms" is not offered**, though it reads best. It is wrong for a global group
 manager, whose level below is a *country*. A heading has to be true at every tier that sees it.
@@ -217,7 +228,7 @@ rather than rediscovered.
 | --- | --- | --- |
 | 1 | Sidebar with grouped names, replacing the horizontal band | Yes |
 | 2 | One group of six for everything that teaches the AI, not two | Yes |
-| 3 | The four group headings (§4) | Your AI coach · Your team · Model settings · Rolled up from below |
+| 3 | The four group headings (§4) | Your AI coach · Your Team In Action · Model Inputs · Rolled up from below |
 | 4 | The two case-tab names (§4) | Your advisors' cases · Shared cases (anonymised) |
 | 5 | The duplicate at group and global tier (§5) | Drop the firm-flavoured tab at those two tiers |
 
