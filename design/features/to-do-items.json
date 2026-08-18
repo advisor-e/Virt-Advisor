@@ -214,6 +214,24 @@
       },
       "touches": "The DEFAULT_INPUTS.yearOneAddBack value in server/report/multiplePropertyModel.js, the Tax rules card's default on the screen, and the same note in the source workbook if the note is the thing that is wrong.",
       "note": "NEEDS AN ACCOUNTANT, NOT A DEVELOPER, and it needs one sentence from Mike either way. In New Zealand practice legal, loan, valuation and body-corporate establishment fees on a purchase are capital and non-deductible, which is what the note says and what the formula does not do — but that is a reading of the rules, not a reading of the cells, and it is not ours to assert. THE MODEL IS ALREADY CORRECT FOR BOTH ANSWERS: yearOneAddBack takes 'setup', 'setupAndPurchase' or 'none' and is golden-tested at all three. Only the default moves."
+    },
+    {
+      "ref": "4.23",
+      "name": "Build the Firm Manager Hub sidebar — grouped navigation, and drop the duplicate cases tab",
+      "score": 4,
+      "scoreReason": "the user is worse off — a manager cannot see what they have not scrolled to, and above the firm two of their tabs show the same list. ⚠ PROVISIONAL: Mike has NOT ranked this item. 4 is the §2 reading of a user enhancement, entered because the validator requires 1-5, not a judgement he made. It sits last because a new item never jumps his order.",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The hub is one component rendered at four tiers and tabs have been added one at a time, each landing at the end of a single horizontal band: 11 for a firm manager, 12 for the mentor, 14 for a group or global group manager. A row wider than the page puts items PAST THE EDGE, so a manager cannot see what they have not scrolled to — the complaint is not clutter, it is invisibility. Approved 2026-08-19: a Buefy b-menu sidebar with four group headings (Your AI coach · Your Team In Action · Model Inputs · Rolled up from below), and teamCaseStudies narrowed to ['firm'] to remove a duplicate. Counts as designed: firm 3/11, mentor 3/12, group and global 4/13.",
+      "risk": "The design is committed and approved and NOTHING SCHEDULES THE BUILD. On this project a plan that lives only in a design document is how work quietly becomes never — that is the whole reason this row exists. The duplicate is the sharper half: it is live today, a group manager sees the same case list under two names, and it will keep being true until this ships.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "Mike raised it unprompted on 2026-08-19: 'the hub is getting overwhelming for a firm manager', then proposed the sidebar himself — 'simply making a side bar with names under each other vs a sliding banner with tabs across a page which forces you to scroll is probably half the confusion fix'. He approved all five decisions the same session and ruled two of the four headings in his own words."
+      },
+      "touches": "components/FirmManagerHub.vue (the tab band becomes b-menu; TAB_TIERS gains no new gate, teamCaseStudies changes to ['firm']), tests/unit/mentorHubScope.component.test.js and tests/unit/hubTabTiers.test.js (both lists rewritten in the new draw order), design/features/firm-manager-hub.md. NO TAB BODY CHANGES — every screen is untouched, it only moves.",
+      "note": "THE ARTEFACT IS design/HUB-NAVIGATION-GROUPING.md WITH design/mockups/hub-navigation-grouping.html — open it beside the build and name every difference. 🔴 THE HUB MENU MUST NEVER COLLAPSE ITSELF: four tab bodies already carry their own left rail (Domain Support, Logic Tables, Quizzes, Advisory Distinctions), and auto-hiding the hub menu when one opens is exactly the behaviour Mike ruled out on 2026-08-15. Reuse FirmDomainSupport.vue's Show/Hide pattern. 🔴 ALL SIX AI-FACING TABS ARE ONE GROUP AND ANY SPLIT STATES A FALSEHOOD — advisorEngine.js loads domain support, distinctions, coaching, logic trees AND the staircase; Mike rejected a two-way split on sight because it would say the logic tables sit outside the AI's reach. Do not reintroduce it. ⚠ THE EXCEPTION LIST IN mentorHubScope.component.test.js IS IN TAB ORDER, not the order exceptions were ruled on — appending failed on 2026-08-18 and grouping reorders everything, so expect to rewrite it rather than edit it. 🔴 NARROWING teamCaseStudies IS NOT REVERTING THE 2026-08-12 WIDENING — that widening correctly stopped a middle tier being shown an empty list; it created an overlap with a tab that already did the job. Write that reason into the code or someone restores it in six months believing a bug crept back. ✅ NO RENAMES — 'Team Case Studies' and 'Case Reviews' both stay; the rename was withdrawn because dropping the duplicate means no tier ever sees both. The options in §4 of the design file are HISTORY, not pending work."
     }
   ]
 }

@@ -21,6 +21,69 @@
 >
 > ---
 >
+> ## ✅ SESSION 72 — 2026-08-19 (laptop). A DESIGN SESSION — NO APP CODE CHANGED.
+>
+> **Three commits, all design: `43324d6`, `04879a8`, `6b017f0`.** Suite **5,857 green / 325
+> suites**, audit gate PASS, tree clean, `25 ahead / 0 behind` master. **Nothing was built.**
+>
+> **Mike raised the hub unprompted** — *"the hub is getting overwhelming for a firm manager"* —
+> and proposed the fix himself: a sidebar rather than a horizontal band, because a band puts items
+> past the edge of the page. Measuring it found the complaint understated: **the firm manager's hub
+> is the LIGHTEST at 11 tabs; group and global carry 14.** The code comment in `FirmManagerHub.vue`
+> claiming "each middle hub 12 tabs" is stale by two.
+>
+> **Artefact committed BEFORE approval, as the rule requires:**
+> [`HUB-NAVIGATION-GROUPING.md`](HUB-NAVIGATION-GROUPING.md) +
+> [`mockups/hub-navigation-grouping.html`](mockups/hub-navigation-grouping.html), registered in
+> [`ARTEFACTS.md`](ARTEFACTS.md). All five decisions approved 2026-08-19. **New live item 4.23**
+> carries the build; its score of 4 is **provisional — Mike has not ranked it.**
+>
+> ### 🔴 A live defect found, approved, and NOT yet fixed
+>
+> **Above the firm tier, Team Case Studies and Case Reviews return the identical list.** Both call
+> `caseStore.listSharedWithMentor` with the same scope and `withOrigin` decoration
+> (`cases.js` `listFirmCases` for non-firm tiers, `mentor.js` `listMentorCases`). A group manager and
+> a global group manager see the same cases twice under two names. Only the firm manager's version
+> differs — theirs is `listSharedForFirm`, their own advisers in full.
+>
+> ⚠ **Not a regression.** `listFirmCases` was deliberately widened above the firm on 2026-08-12 to
+> stop a middle tier seeing an empty list. That fix was right; the overlap it created went unnoticed.
+> **The fix must carry that reason in the code**, or someone restores it believing a bug crept back.
+>
+> ### The rule that nearly shipped as a falsehood
+>
+> 🔴 **The first grouping split "what the AI draws on" from "how advice is chosen" — and Mike
+> rejected it on sight:** *"sends the message that AI is not working across the logic tables and
+> advisory staircase — which is NOT true."* He is right and it is verifiable: `advisorEngine.js`
+> loads domain support, distinctions, coaching, logic trees **and** the staircase. **A navigation
+> heading is a permanent claim about the system**, and that one would have taught every new manager
+> something untrue. The six are now one group. **Nothing in the test suite could have caught this** —
+> the split was internally consistent, well-documented and wrong.
+>
+> ### Two headings are Mike's own words, and are NOT to be tidied
+>
+> **"Your Team In Action"** and **"Model Inputs"** — neither from the three options offered.
+> Harmonising the capitalisation was put to him and **declined**: *"no — keep capitals etc as you
+> have them."* The design file carries a written instruction not to fix this on sight. It does not
+> show anyway: Bulma's `.menu-label` is `text-transform: uppercase`, so every heading renders as
+> small capitals whatever case it is typed in.
+>
+> ### Decision 5 dissolved decision 4
+>
+> The two case tabs were to be renamed because a group manager could not tell them apart. Dropping
+> the duplicate means **no tier ever sees both**, so the rename was **withdrawn, not done**. The
+> options stay in the design file as *history, not pending work* — a reader finding two proposed
+> names and no rename is looking at a decision, not an omission.
+>
+> ### Still open for Mike
+>
+> 🔴 **The Property Tax Rules tab — he still has not seen it.** Carried from session 71, and it was
+> this session's first task before the placement conversation overtook it. That conversation settled
+> where the tab lives (it stays, under **Model Inputs**) without ever settling whether the screen
+> itself looks right. **One look, not a working session.**
+>
+> ---
+>
 > ## ✅ SESSION 71 — 2026-08-18 (laptop). 4.20 IS CLOSED — AND ITS TAB HAS NO ARTEFACT.
 >
 > **The session opened on unsaved work.** `/startup` found a dirty tree: the Property Tax Rules

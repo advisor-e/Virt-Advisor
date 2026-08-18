@@ -45,9 +45,21 @@ repository sees; the two never both appear, and the build stops if they would.
 | 8 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
 | 9 | **4.19** Finish the property model — properties 2 to 5, the apportionment and the consolidated report | 4 | — | Us |
 | 10 | **4.22** Settle whether purchase costs are non-deductible in the property model's first year | 1 | — | **Mike** |
+| 11 | **4.23** Build the Firm Manager Hub sidebar — grouped navigation, and drop the duplicate cases tab | 4 | — | Us |
 
-**Ten live items. Two need Mike.** If this list passes about twenty, something is wrong.
+**Eleven live items. Two need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
+
+**One item JOINED this list on 2026-08-19** — the first addition since the ranking control was built:
+
+- ➕ **4.23** — the Firm Manager Hub sidebar. Raised by Mike unprompted (*"the hub is getting
+  overwhelming for a firm manager"*), and he proposed the fix himself. All five design decisions were
+  settled the same session and the artefact is committed:
+  [`../HUB-NAVIGATION-GROUPING.md`](../HUB-NAVIGATION-GROUPING.md). 🔴 **Its score of 4 is
+  PROVISIONAL — Mike has not ranked it**, and it sits last because a new item never jumps his order.
+  🔴 **Settling it found a live defect**: above the firm tier, *Team Case Studies* and *Case Reviews*
+  return the identical list, so a group manager sees the same cases twice under two names. Approved
+  to fix, not yet fixed.
 
 **One item came off this list on 2026-08-18** — see
 [`to-do-done-and-parked.md`](to-do-done-and-parked.md):

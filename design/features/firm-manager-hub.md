@@ -147,6 +147,50 @@ behalf of every country.
 own advisers by name".** Both earlier exceptions shared that reason; this one does not, which is
 why it is written out here rather than added to their sentence.
 
+### 🔴 A duplicate at the group and global tiers — live, found 2026-08-19
+
+**Team Case Studies and Case Reviews return the identical list above the firm.** Both call
+`caseStore.listSharedWithMentor` with the same scope and the same `withOrigin` decoration —
+`cases.js` `listFirmCases` for any non-firm tier, and `mentor.js` `listMentorCases`. A group
+manager and a global group manager therefore open two differently-named tabs and find the same
+cases in both. **Only the firm manager's version is genuinely different**: theirs reads
+`listSharedForFirm` — their own advisers' cases in full, un-anonymised.
+
+⚠ **This is not a regression.** `listFirmCases` was deliberately widened above the firm on
+2026-08-12 to stop a middle tier being shown an empty list; that fix was correct. What it created,
+unnoticed, was an overlap with a tab that already did the job at those tiers.
+
+✅ **Mike approved the fix on 2026-08-19 and it is NOT yet built** — `teamCaseStudies` narrows to
+`['firm']`, making it the third tier-limited tab, which by rule 5 below needs its own written reason
+and a named entry **in tab order** in `mentorHubScope.component.test.js`. Tracked as live item
+**4.23**; the reasoning is in [`../HUB-NAVIGATION-GROUPING.md`](../HUB-NAVIGATION-GROUPING.md) §5.
+
+### The navigation grouping — approved 2026-08-19, NOT built
+
+🔴 **The hub still renders a flat horizontal `b-tabs` band today. Nothing below is in the code
+yet** — read this as a commitment, not a description, and do not describe the hub to anyone as
+having a sidebar until item **4.23** ships.
+
+Approved: a Buefy `b-menu` sidebar replacing the band, with four group headings — **Your AI coach ·
+Your Team In Action · Model Inputs · Rolled up from below**. The middle two are Mike's own words and
+[`../HUB-NAVIGATION-GROUPING.md`](../HUB-NAVIGATION-GROUPING.md) §4 carries a written instruction not
+to harmonise their capitalisation, which he was offered and declined.
+
+Two rules the build must hold:
+
+- **The hub menu never collapses itself.** Four tab bodies already carry their own left rail
+  (Domain Support, Logic Tables, Quizzes, Advisory Distinctions). Auto-hiding the hub menu when one
+  of those opens is the tidy thing to do and is exactly the behaviour ruled out on 2026-08-15.
+  Reuse `FirmDomainSupport.vue`'s Show/Hide pattern; the manager collapses it or it stays.
+- **All six AI-facing tabs are ONE group, and the reason is that any split states a falsehood.**
+  `advisorEngine.js` loads domain support, distinctions, coaching, logic trees *and* the staircase.
+  A heading implying the logic tables or the staircase sit outside the AI's reach would teach every
+  new manager something untrue from the navigation itself. Mike rejected exactly that split on
+  sight. Do not reintroduce it.
+
+**Counts as designed:** firm 3 headings / 11 items · mentor 3 / 12 · group and global 4 / **13**
+(13 rather than 14 because the duplicate above goes).
+
 ### Traps that have actually bitten
 
 1. 🔴 **A save can be refused by the database while the screen reports success.** Every store
