@@ -45,6 +45,7 @@ approved, never saved, and gone a day later.
 | EBITDA-DCF screen | [ebitda-dcf-mockup.html](mockups/ebitda-dcf-mockup.html) | BUSINESS-PERFORMANCE-REPORT-PLAN.md |
 | Firm quiz builder | [firm-quiz-builder-mockup.html](mockups/firm-quiz-builder-mockup.html) | ACTIONS.md, 2026-07-21 desktop notes |
 | Global groups membership | [global-groups-membership.html](mockups/global-groups-membership.html) | ACTIONS.md, 2026-08-10 notes |
+| Hub navigation grouping | [hub-navigation-grouping.html](mockups/hub-navigation-grouping.html) | HUB-NAVIGATION-GROUPING.md, features/firm-manager-hub.md |
 | Logic Lab wording | [logic-lab-wording-mockup.html](mockups/logic-lab-wording-mockup.html) | ACTIONS.md |
 | Logic table — Template Check | [logic-table-template-check.html](mockups/logic-table-template-check.html) | MENTOR-HUB-CONSOLIDATED-NOTES.md, TREE-RECOMMENDATION-REVIEW.md |
 | Logic tables — rule in place | [logic-tables-rule-in-place.html](mockups/logic-tables-rule-in-place.html) | ACTIONS.md, 2026-08-12 notes |
