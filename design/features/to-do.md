@@ -45,8 +45,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 8 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
 | 9 | **4.19** Finish the property model — properties 2 to 5, the apportionment and the consolidated report | 4 | — | Us |
 | 10 | **4.22** Settle whether purchase costs are non-deductible in the property model's first year | 1 | — | **Mike** |
+| 11 | **4.24** Fold the Coaching Reference into Logic Tables — Mike's Option D | 3 | — | Us |
 
-**Ten live items. Two need Mike.** If this list passes about twenty, something is wrong.
+**Eleven live items. Two need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **One item joined and came off again on 2026-08-19** — see

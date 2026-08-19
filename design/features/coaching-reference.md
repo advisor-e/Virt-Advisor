@@ -10,6 +10,20 @@
 >
 > ⚠ **This Brief was written on 2026-08-19, later than the feature.** Until then it was the only
 > content page in the hub with none — see §6.
+>
+> 🔴 **AND HOURS AFTER IT WAS WRITTEN, MIKE CHALLENGED WHETHER THE PAGE SHOULD EXIST — and the
+> evidence went his way. He chose OPTION D: fold what is worth keeping into Logic Tables.**
+> Filed as item **4.24**; nothing is done and the page runs exactly as described below.
+>
+> **Read this Brief as a description of the mechanism, NEVER as a justification of the purpose.**
+> It documents faithfully what the code does. It does not establish that the fifteen rows should
+> be there — nothing in the repository ever did, which is the finding. The evidence, the
+> measurement and the four options are at
+> [`../COACHING-REFERENCE-EVIDENCE.md`](../COACHING-REFERENCE-EVIDENCE.md).
+>
+> ⚠ **§1's "design philosophy" is the code's sentence, not a decision anyone took.** The 15 rows
+> are a PowerPoint converted to JSON in the repository's first commit and never reviewed. Seven of
+> them name no template that exists.
 
 ---
 

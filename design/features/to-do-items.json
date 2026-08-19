@@ -214,6 +214,24 @@
       },
       "touches": "The DEFAULT_INPUTS.yearOneAddBack value in server/report/multiplePropertyModel.js, the Tax rules card's default on the screen, and the same note in the source workbook if the note is the thing that is wrong.",
       "note": "NEEDS AN ACCOUNTANT, NOT A DEVELOPER, and it needs one sentence from Mike either way. In New Zealand practice legal, loan, valuation and body-corporate establishment fees on a purchase are capital and non-deductible, which is what the note says and what the formula does not do — but that is a reading of the rules, not a reading of the cells, and it is not ours to assert. THE MODEL IS ALREADY CORRECT FOR BOTH ANSWERS: yearOneAddBack takes 'setup', 'setupAndPurchase' or 'none' and is golden-tested at all three. Only the default moves."
+    },
+    {
+      "ref": "4.24",
+      "name": "Fold the Coaching Reference into Logic Tables — Mike's Option D",
+      "score": 3,
+      "scoreReason": "the user is worse off in a quiet way — ~3,200 tokens of unmeasurable content sits in every eligible prompt, and a hub tab teaches managers that choosing templates happens there when Mike ruled it happens in Logic Tables. Not a 4: nothing is WRONG on screen and no user is blocked. PROVISIONAL — Mike chose the option, not the score.",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "data/coaching-reference.json is fifteen rows extracted from a PowerPoint (\"Quickfire Advisory Directory\") in the FIRST commit of the repository, 2026-03-30, and edited once since — to add ids. Seven of the fifteen name no template in the 291-template catalogue; one is about Covid. The same deck now exists as logic tree 0, `quickfire`, with branching and an explicit title/tags/purpose matching rule. Measured 2026-08-19: removing the block changes which templates the AI recommends NO MORE than asking the same question twice does (9 and 12 differences against a control of 11 and 7). Evidence: design/COACHING-REFERENCE-EVIDENCE.md.",
+      "risk": "🔴 THE FIRST STEP IS READING, NOT DELETING. Eight of the fifteen name a live template; each must be read against the logic tree covering the same ground so anything genuinely unique MOVES rather than vanishes. Delete first and the loss is silent and unrecoverable from the record. Second risk: the firm-promoted entries share the words \"coaching reference\" and are a DIFFERENT mechanism — fenced, per-firm, uninherited, and the improvement loop's second half. They stay.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "Mike challenged the feature unprompted on 2026-08-19: \"this coaching reference page makes no sense - if it truly aids the AI in guidance then it would need one for every tool in the app - close to 300. I think this has developed out of miscommunication - find me the notes to prove it is essential how it serves the end user.\" He then approved measuring it, and on the evidence chose Option D: \"make a note to go with option D\"."
+      },
+      "touches": "data/coaching-reference.json, server/utils/coaching.js (formatCoachingForPrompt + formatEntry), server/utils/coachingConfig.js, server/utils/firmCoachingReference.js, server/advisorEngine.js (the ## Coaching Reference block), server/restify-server.js (7 routes), components/FirmManagerHub.vue (the tab + NAV_GROUPS entry), components/firm/FirmCoachingReference.vue, data/logic_trees.json (tree 0 quickfire, the destination), design/features/coaching-reference.md and its history, design/HUB-PAGE-PURPOSES.md.",
+      "note": "🔴 THE BRIEF DOCUMENTS THE MECHANISM AND DOES NOT ESTABLISH THE PURPOSE — it was written on 2026-08-19 hours before the feature was challenged, and says so at its head. Do not read it as justification. 🔴 THE MEASUREMENT IS NOT PROOF OF NO EFFECT: six questions, discover mode, four runs, and it measures WHICH TEMPLATES ARE NAMED, not tone or wording. What it establishes is that the first attempt to detect an effect could not find one. ⚠ Mike ruled the boundary once already (design/COACHING-REFERENCE-DOMAIN-ROWS.md): \"the if-then-else logic of which template to use in which scenario vs another template is provided by the logic tables\" — Option D follows that ruling rather than inventing a new home. ✅ KEEP the firm-promoted entries. 🔴 THE DESTINATION IS logic tree 0, id `quickfire`, name \"Quickfire Logic\" — the same PowerPoint this block was flattened from, already rebuilt properly."
     }
   ]
 }
