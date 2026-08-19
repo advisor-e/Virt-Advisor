@@ -51,6 +51,7 @@ can be read in one place — the Handbook does not move them.*
 | Brief | History |
 |---|---|
 | [The Hub itself](firm-manager-hub.md) — one screen, four tiers | [history](firm-manager-hub-history.md) |
+| [Coaching Reference](coaching-reference.md) — the menu the AI picks a template from, ⚠ not coaching | [history](coaching-reference-history.md) |
 | [Advisory Staircase](advisory-staircase.md) | [history](advisory-staircase-history.md) |
 | [Quizzes](quizzes.md) | [history](quizzes-history.md) |
 | [Logic Lab](logic-lab.md) ⚠ the desktop's ground | [history](logic-lab-history.md) |

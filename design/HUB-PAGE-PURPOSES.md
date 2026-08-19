@@ -69,12 +69,18 @@ template FROM"*. Five of its six fields choose a tool; only `deliveryNotes` says
 
 ---
 
-## 3. 🔴 The Coaching Reference has no Brief
+## 3. ✅ The Coaching Reference now has a Brief — written 2026-08-19
 
-It is **the only content page in the hub with none**. Nobody ever wrote down what it is for, which is
-the likeliest reason its name promises coaching while its code calls it a selection menu. **Its
-purpose needs settling as its own piece of work** — writing the Brief is the fix, and it is not part
-of 4.16.
+It was **the only content page in the hub with none**. Nobody ever wrote down what it was for, which
+is the likeliest reason its name promises coaching while its code calls it a selection menu.
+
+✅ **Settled:** [`features/coaching-reference.md`](features/coaching-reference.md) — the purpose, the
+eight principles, and **§5, the table of what belongs there and what does not**. Written because
+Mike asked why Facilitation 101 sits under Domain Support rather than there: a fair question that
+the name itself invites, and one this page could answer only by saying what the tab is *not*.
+
+🔴 **The name is still open, and it is Mike's decision** — four options are recorded at §6 of that
+Brief. Until it is settled, §5's table is what stops content landing on the wrong page.
 
 ---
 
