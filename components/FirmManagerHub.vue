@@ -11,20 +11,74 @@ section.firm-manager-hub.section
       .level-right(v-if="scope === 'firm'" style="gap:12px;display:flex;align-items:center;")
         a.button.is-light.is-small(href="/advisor") ← Back to Advisor
 
-    //- Main tabs
-    b-tabs(ref="hubTabs" v-model="activeTab" type="is-boxed" animated)
+    //- ── THE HUB MENU ────────────────────────────────────────────────────
+    //- design/HUB-NAVIGATION-GROUPING.md, approved by Mike 2026-08-19, drawn in
+    //- design/mockups/hub-navigation-grouping.html. Names stacked down the left
+    //- instead of across the top.
+    //-
+    //- WHY, in his words: "the hub is getting overwhelming for a firm manager".
+    //- A horizontal band is not merely cluttered — once it is wider than the page
+    //- it puts tabs PAST THE EDGE, so a manager cannot see what they have not
+    //- scrolled to. A vertical list shows every name at any window width, and
+    //- leaves room to name things properly.
+    //-
+    //- 🔴 THE PANELS BELOW DID NOT MOVE. Every one is exactly where its
+    //- `b-tab-item` stood, in the order tabs were added over the last year. Only
+    //- one is ever shown, so their DOM order is invisible; the order a manager
+    //- READS comes from NAV_GROUPS alone. Nothing about a tab body changed.
+    .hub-shell
+      .hub-menu(v-if="!menuHidden")
+        .hub-menu-top
+          //- 🔴 THE MENU NEVER COLLAPSES ITSELF (ruled 2026-08-15 — nothing moves
+          //- under the owner's hand). Opening one of the four tabs that carry
+          //- their own left-hand list must not tidy this away as a side effect.
+          //- Only this button closes it, and the choice is remembered — the same
+          //- pattern, deliberately, as the domain list on Domain Support.
+          button.button.is-small.is-light(
+            type="button"
+            aria-controls="hub-menu-list"
+            :aria-expanded="String(!menuHidden)"
+            @click="toggleMenu"
+          ) Hide menu
+        b-menu#hub-menu-list
+          //- A heading whose every item is hidden at this tier is not rendered at
+          //- all. The mentor therefore has no Model Inputs heading rather than an
+          //- empty one: a whole heading being absent reads as intentional, where
+          //- one gap in a list of fourteen reads as a bug.
+          b-menu-list(
+            v-for="group in visibleGroups"
+            :key="group.heading"
+            :label="group.heading"
+          )
+            b-menu-item(
+              v-for="item in group.items"
+              :key="item.key"
+              :data-tab="item.key"
+              :active="activeTab === item.key"
+              :label="item.i18n ? $t(item.i18n) : item.label"
+              @click="activeTab = item.key"
+            )
+      //- Closed, the menu leaves the way back to itself on the screen. A control
+      //- that hides its own means of return is a trap, not a preference.
+      .hub-menu-closed(v-else)
+        button.button.is-small.is-light(
+          type="button"
+          aria-controls="hub-menu-list"
+          :aria-expanded="String(!menuHidden)"
+          @click="toggleMenu"
+        ) Show menu
       //- ── Tab: Domain Support (FIRM-EDITABLE-TABLES-PLAN.md Phase 2, §0.6) ──
       //- The four-column material tables the advisors' AI reads. The former PDF
       //- "Decision Frameworks" (Document Library) tab was removed 2026-07-27
       //- (owner decision); its FirmDocuments component + document/storage routes
       //- remain in the codebase but dormant (logged in ACTIONS for later deletion).
-      b-tab-item(label="Domain Support")
+      div.hub-panel(v-show="activeTab === 'domainSupport'")
         firm-domain-support(:api-token="apiToken")
 
       //- ── Tab: Logic Tables (FIRM-EDITABLE-TABLES-PLAN.md Phase 3, §0.6) ──
       //- The IF→THEN branch tables. Read-only preview (Slice A); Save + the
       //- prompt-fencing safeguard land in Slice B.
-      b-tab-item(label="Logic Tables")
+      div.hub-panel(v-show="activeTab === 'logicTables'")
         firm-logic-tables(:api-token="apiToken")
 
       //- ── Logic-Lab — REMOVED FROM THE HUB 2026-08-02 (owner instruction) ──
@@ -49,7 +103,7 @@ section.firm-manager-hub.section
       //- can change, and which one to change for the outcome they want.
       //- Its one write path is the near-miss Move/Copy, which reuses the
       //- existing distinction endpoints and confirms first.
-      b-tab-item(label="Logic-Lab" icon="map-search")
+      div.hub-panel(v-show="activeTab === 'logicLab'")
         //- `distinctions-changed`: the Logic-Lab page wrote to this firm's
         //- distinctions (the attach button, or a near-miss Move/Copy). No
         //- payload — re-read from the server, so this tab can never hold a
@@ -64,7 +118,7 @@ section.firm-manager-hub.section
       //- Body lives in its own component. It was the whole-config editor here
       //- until 2026-07-31; every step is now a decision (switch off / edit /
       //- reset / add your own) through the one firm-editable mechanism.
-      b-tab-item(label="Advisory Staircase" icon="stairs")
+      div.hub-panel(v-show="activeTab === 'staircase'")
         firm-staircase(:api-token="apiToken")
 
       //- ── Tab: Coaching Reference ────────────────────────────────────────
@@ -75,7 +129,7 @@ section.firm-manager-hub.section
       //- Ungated, like the Staircase above: the mechanism means the same thing at
       //- every tier that has a layer above it, and the mentor edits the platform
       //- rows through the same tab.
-      b-tab-item(label="Coaching Reference" icon="book-open-variant")
+      div.hub-panel(v-show="activeTab === 'coachingReference'")
         firm-coaching-reference(:api-token="apiToken")
 
       //- ── Tab: Property Tax Rules ────────────────────────────────────────
@@ -84,7 +138,7 @@ section.firm-manager-hub.section
       //- country — sets them, a FIRM may correct them, and an ADVISOR types over
       //- them on the report for one client. Gated to the tiers with a layer above
       //- them; the mentor is excluded by that same ruling.
-      b-tab-item(v-if="showsTab('propertyTaxRules')" label="Property Tax Rules" icon="home-city-outline")
+      div.hub-panel(v-if="showsTab('propertyTaxRules')" v-show="activeTab === 'propertyTaxRules'")
         firm-property-tax-rules(:api-token="apiToken")
 
       //- ── Templates & Videos — HIDDEN 2026-07-27 (owner decision) ──────
@@ -92,7 +146,7 @@ section.firm-manager-hub.section
       //- as a dead tab was misleading. Kept dormant (v-if="false") rather than
       //- deleted — it's a real feature the master team may still want. Logged in
       //- ACTIONS alongside the Decision Frameworks removal.
-      b-tab-item(label="Templates & Videos" icon="play-box-multiple" v-if="false")
+      div.hub-panel(v-if="false")
         .columns
           //- Template Library column
           .column
@@ -191,7 +245,7 @@ section.firm-manager-hub.section
       //- FIRM FLAVOUR — carries decline / override / reset-to-platform, which
       //- only mean something when there is a layer above you. At mentor scope
       //- the plain-CRUD version below replaces it (DISTINCTIONS-CASCADE-PLAN §6).
-      b-tab-item(v-if="showsTab('distinctionsFirm')" label="Advisory Distinctions" icon="brain")
+      div.hub-panel(v-if="showsTab('distinctionsFirm')" v-show="activeTab === 'distinctionsFirm'")
         .columns
           //- Domain sidebar
           .column.is-3
@@ -458,13 +512,13 @@ section.firm-manager-hub.section
       //- Same slot in the tab order as the firm's, so the screen reads the same
       //- one level up. Plain CRUD only: there is no layer above the mentor to
       //- decline or reset to.
-      b-tab-item(v-if="showsTab('distinctionsMentor')" label="Advisory Distinctions" icon="brain")
+      div.hub-panel(v-if="showsTab('distinctionsMentor')" v-show="activeTab === 'distinctionsMentor'")
         mentor-distinctions(:api-token="apiToken")
 
       //- ── Tab: Quizzes (CB-31 Phase 3) ───────────────────────────────
       //- Body lives in its own component — the Hub is already over the
       //- decompose rule (CB-23), so a new tab adds a line here, not 200.
-      b-tab-item(:label="$t('firmQuizzes.tab')" icon="help-circle-outline")
+      div.hub-panel(v-show="activeTab === 'quizzes'")
         firm-quizzes(:api-token="apiToken")
 
       //- ── Tab: Adviser Network (Collaborate's manager console) ───────
@@ -472,7 +526,7 @@ section.firm-manager-hub.section
       //- from the verified token — a firm manager sees their firm, the levels
       //- above see a roll-up. Body is Collaborate's own component (CB-23), so
       //- the tiers above the firm keep working rather than being designed out.
-      b-tab-item(:label="$t('firmAdviserNetwork.tab')" icon="account-network")
+      div.hub-panel(v-show="activeTab === 'adviserNetwork'")
         firm-adviser-network
 
       //- ── Tab: Team Progress (advisor capability overview) ───────────
@@ -485,13 +539,13 @@ section.firm-manager-hub.section
       //- 2026-08-09 it rendered empty one level up; widening it would have put every
       //- firm's people in front of Advisor-e, against the boundary the Logic Lab
       //- Report enforces in code. The mentor gets the adoption tab below instead.
-      b-tab-item(v-if="showsTab('teamProgress')" :label="$t('firmTeamProgress.tab')" icon="chart-line")
+      div.hub-panel(v-if="showsTab('teamProgress')" v-show="activeTab === 'teamProgress'")
         firm-team-progress(:api-token="apiToken")
 
       //- ── Tab: How firms are using the app (mentor adoption) ─────────
       //- The same activity counted one level up and stripped of who did it.
       //- Design: design/mockups/mentor-adoption-view.html (ruled by Mike 2026-08-09).
-      b-tab-item(v-if="showsTab('adoption')" :label="$t('mentorAdoption.tab')" icon="chart-line")
+      div.hub-panel(v-if="showsTab('adoption')" v-show="activeTab === 'adoption'")
         mentor-adoption(:api-token="apiToken")
 
       //- ── Tab: Team Case Studies (manager review) ────────────────────
@@ -499,7 +553,7 @@ section.firm-manager-hub.section
       //- the correct cross-firm version in the Case Reviews tab below, which shows
       //- only cases a firm manager has anonymised and explicitly approved for
       //- sharing. Rolling this tab up would have walked past that consent gate.
-      b-tab-item(v-if="showsTab('teamCaseStudies')" label="Team Case Studies" icon="account-group")
+      div.hub-panel(v-if="showsTab('teamCaseStudies')" v-show="activeTab === 'teamCaseStudies'")
         .has-text-centered.py-5(v-if="loadingFirmCases")
           b-loading(:is-full-page="false" :active="true")
         //- A tier with no firms mapped beneath it yet. Checked BEFORE the lede, so
@@ -656,21 +710,21 @@ section.firm-manager-hub.section
       //- The addition that makes this the Mentor Hub rather than a re-scoped
       //- copy (design/MENTOR-AI-HUB-STUB.md). Reads across EVERY firm, so it can
       //- exist at no tier below this one.
-      b-tab-item(v-if="showsTab('logicLabReport')" :label="$t('logicLabReport.tab')" icon="chart-timeline-variant")
+      div.hub-panel(v-if="showsTab('logicLabReport')" v-show="activeTab === 'logicLabReport'")
         mentor-logic-lab-report(:api-token="apiToken")
 
       //- ── Tab (mentor only): Template Check ──────────────────────────
       //- Every tool a logic table names, checked against the catalogue. Mentor-only
       //- because a correction made here is meant to cascade to every firm — a firm
       //- fixing its own copy is the opposite of the point.
-      b-tab-item(v-if="showsTab('templateCheck')" :label="$t('templateCheck.tab')" icon="file-search-outline")
+      div.hub-panel(v-if="showsTab('templateCheck')" v-show="activeTab === 'templateCheck'")
         mentor-template-check(:api-token="apiToken")
 
       //- ── Tab (mentor only): Case Reviews ────────────────────────────
       //- Not a cascade function — it is the one read that travels UP, and it
       //- exists at no other tier. Last, so the tabs the firm also has keep the
       //- same order at both levels.
-      b-tab-item(v-if="showsTab('caseReviews')" label="Case Reviews" icon="clipboard-text")
+      div.hub-panel(v-if="showsTab('caseReviews')" v-show="activeTab === 'caseReviews'")
         mentor-review(:api-token="apiToken")
 </template>
 
@@ -835,6 +889,99 @@ const TAB_TIERS = {
 const HUB_SCOPES = ['mentor', 'global', 'group', 'firm']
 
 /**
+ * THE HUB MENU — what a manager reads down the left, grouped and in order.
+ * Approved by Mike 2026-08-19; the artefact is design/mockups/hub-navigation-grouping.html
+ * and the reasoning is design/HUB-NAVIGATION-GROUPING.md.
+ *
+ * 🔴 THIS IS THE ONLY THING THAT DECIDES THE ORDER. The panels in the template are
+ * still in the order the tabs were added; only one is ever shown, so their order is
+ * invisible. Moving an item here moves it on the screen, and moving a panel does
+ * nothing at all.
+ *
+ * 🔴 THE SIX UNDER "Your AI coach" ARE ONE GROUP AND MUST STAY ONE GROUP. The first
+ * draft split them into "what the AI draws on" (domain support, distinctions,
+ * coaching) against "how advice is chosen and delivered" (logic tables, staircase,
+ * Logic-Lab). Mike rejected it on sight: it "sends the message that AI is not working
+ * across the logic tables and advisory staircase — which is NOT true". It is checkable
+ * in one read of server/advisorEngine.js, the prompt builder, which loads all six.
+ * A navigation heading is a permanent claim about how the system works; that one would
+ * have taught every new manager something false, from the menu, forever — and no test
+ * in this suite could have caught it, because the split was internally consistent.
+ *
+ * ⚠ THE HEADINGS ARE DELIBERATELY NOT ONE CAPITALISATION STYLE. "Your Team In Action"
+ * and "Model Inputs" are Mike's own words, verbatim; the other two are sentence case.
+ * Harmonising them was put to him on 2026-08-19 and declined — "no — keep capitals etc
+ * as you have them". DO NOT TIDY THIS ON SIGHT: it would overwrite a decision with a
+ * preference.
+ *
+ * Each item's `key` is the value of `activeTab` when it is open, and — for the gated
+ * ones — its key in TAB_TIERS. One name, so a tab cannot be gated in the matrix and
+ * ungated in the menu. `i18n` is used where the label is already a locale key.
+ *
+ * NO ICONS, ruled by Mike 2026-08-19 — "if we don't need the icons drop them out". The
+ * approved mockup draws the sidebar as plain text and eleven of the horizontal tabs
+ * carried an icon; they are gone rather than carried over. Domain Support and Logic
+ * Tables never had one, so a vertical column of mixed icon / no-icon rows would have had
+ * to invent two to look straight. Plain text needs neither.
+ *
+ * @type {Array.<{heading: string, items: Array.<{key: string, label?: string, i18n?: string}>}>}
+ */
+const NAV_GROUPS = [
+  {
+    // Everything here teaches the AI — the hub's own stated purpose, and the door
+    // managers arrive through in the master app ("Manage AI Coach").
+    heading: 'Your AI coach',
+    items: [
+      { key: 'domainSupport', label: 'Domain Support' },
+      // Two panels, one name. Exactly one is ever gated on at a tier, so a manager
+      // sees a single Advisory Distinctions entry and never two.
+      { key: 'distinctionsFirm', label: 'Advisory Distinctions' },
+      { key: 'distinctionsMentor', label: 'Advisory Distinctions' },
+      { key: 'coachingReference', label: 'Coaching Reference' },
+      { key: 'logicTables', label: 'Logic Tables' },
+      { key: 'staircase', label: 'Advisory Staircase' },
+      { key: 'logicLab', label: 'Logic-Lab' }
+    ]
+  },
+  {
+    // Mike's own words for this heading (2026-08-19), kept verbatim.
+    heading: 'Your Team In Action',
+    items: [
+      { key: 'adviserNetwork', i18n: 'firmAdviserNetwork.tab' },
+      { key: 'teamProgress', i18n: 'firmTeamProgress.tab' },
+      { key: 'quizzes', i18n: 'firmQuizzes.tab' },
+      // 🔴 NOT the roll-up of cases from below. These are the reader's OWN advisors,
+      // named and in full; the shared ones are anonymised and opt-in, and filing them
+      // beside Advisor Network would say the opposite of what that consent gate exists
+      // to say. See "Rolled up from below".
+      { key: 'teamCaseStudies', label: 'Team Case Studies' }
+    ]
+  },
+  {
+    // Mike's own words for this heading (2026-08-19), kept verbatim.
+    heading: 'Model Inputs',
+    items: [
+      { key: 'propertyTaxRules', label: 'Property Tax Rules' }
+    ]
+  },
+  {
+    // ⚠ NOT "Across your firms", though it reads better. The level below a global
+    // group manager is a COUNTRY, not a firm, and a heading has to be true at every
+    // tier that sees it.
+    heading: 'Rolled up from below',
+    items: [
+      { key: 'adoption', i18n: 'mentorAdoption.tab' },
+      { key: 'logicLabReport', i18n: 'logicLabReport.tab' },
+      { key: 'caseReviews', label: 'Case Reviews' },
+      { key: 'templateCheck', i18n: 'templateCheck.tab' }
+    ]
+  }
+]
+
+/** Where this browser remembers whether the hub menu is hidden. */
+const HUB_MENU_STATE_KEY = 'hub:menuHidden'
+
+/**
  * The heading each tier reads at the top of the hub. Mike's own words for the two
  * new ones (2026-08-10): "a page that says Global Group Manager Hub and performs
  * accordingly… and then the group manager hub pages".
@@ -855,7 +1002,7 @@ const HUB_TITLES = {
 // columns to what they showed BEFORE the middle tiers existed. That test is the
 // proof this change is behaviour-preserving for the two live hubs, rather than a
 // claim that it is.
-export { TAB_TIERS, HUB_SCOPES, HUB_TITLES }
+export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 
 export default {
   name: 'FirmManagerHub',
@@ -890,7 +1037,13 @@ export default {
 
   data () {
     return {
-      activeTab: 0,
+      // Which panel is open. A KEY, not an index: an index is a promise that the
+      // menu and the panels are in the same order, and since 2026-08-19 they are
+      // deliberately not — the panels never moved. Domain Support opens first, as
+      // it always has.
+      activeTab: 'domainSupport',
+      // The hub menu is open until the manager closes it, and never otherwise.
+      menuHidden: false,
 
       // Template import
       templateImport: { hasImport: false, templateCount: 0, history: [] },
@@ -986,6 +1139,26 @@ export default {
     hubTitle () {
       return HUB_TITLES[this.scope] || HUB_TITLES.firm
     },
+
+    /**
+     * NAV_GROUPS with the items this tier does not show taken out, and any group
+     * left with nothing dropped entirely.
+     *
+     * The dropping is the point, not tidiness: the mentor tier has no Property Tax
+     * Rules, so it gets NO "Model Inputs" heading rather than an empty one. A whole
+     * heading being absent reads as intentional; a single gap in a list of fourteen
+     * reads as a bug.
+     *
+     * @returns {Array.<{heading: string, items: object[]}>} groups to draw, in order
+     */
+    visibleGroups () {
+      return NAV_GROUPS
+        .map(group => ({
+          heading: group.heading,
+          items: group.items.filter(item => this.tabVisible(item.key))
+        }))
+        .filter(group => group.items.length > 0)
+    },
     currentDistinctionDomainLabel () {
       const d = DISTINCTION_DOMAINS.find(d => d.id === this.selectedDistinctionDomain)
       return d ? d.label : ''
@@ -1039,13 +1212,16 @@ export default {
     // call could only ever fail — and a failed call raises a red toast over a Hub
     // where nothing is wrong.
     if (this.showsTab('teamCaseStudies')) { this.loadFirmCases() }
+    // localStorage is browser-only. Read here rather than in data() so the server
+    // render and the first client render agree — see restoreMenuState.
+    this.restoreMenuState()
   },
 
   methods: {
     /**
      * Does this tier show that tab? The single reader of TAB_TIERS — every
-     * conditional `b-tab-item` in the template asks this and nothing asks the
-     * scope directly, so the matrix cannot be contradicted from the template.
+     * conditional panel in the template asks this and nothing asks the scope
+     * directly, so the matrix cannot be contradicted from the template.
      *
      * An unknown key returns false: a typo hides a tab, which is visible, rather
      * than showing one at a tier that was never meant to have it.
@@ -1056,6 +1232,48 @@ export default {
     showsTab (key) {
       const tiers = TAB_TIERS[key]
       return Array.isArray(tiers) && tiers.includes(this.scope)
+    },
+
+    /**
+     * Is this menu entry drawn at this tier? Gated entries defer to showsTab;
+     * everything else is unconditional.
+     *
+     * Deliberately keyed off the PRESENCE of a TAB_TIERS entry rather than a second
+     * "gated" flag in NAV_GROUPS. A flag would be a copy of the matrix, and a copy
+     * drifts — the exact fault TAB_TIERS was written to end.
+     *
+     * @param {string} key - a NAV_GROUPS item key
+     * @returns {boolean}
+     */
+    tabVisible (key) {
+      return TAB_TIERS[key] ? this.showsTab(key) : true
+    },
+
+    /**
+     * Hide or show the hub menu, remembering the choice for next time.
+     *
+     * 🔴 THIS IS THE ONLY THING THAT CLOSES THE MENU. Nothing else may — not opening
+     * a tab that carries its own left-hand list, not a narrow window, not a "tidy"
+     * default. Ruled 2026-08-15: nothing moves under the owner's hand.
+     */
+    toggleMenu () {
+      this.menuHidden = !this.menuHidden
+      if (typeof window === 'undefined') { return }
+      try {
+        window.localStorage.setItem(HUB_MENU_STATE_KEY, this.menuHidden ? '1' : '0')
+      } catch (e) { /* storage blocked — the toggle still works this session */ }
+    },
+
+    /**
+     * Restore whether this browser had the menu hidden. Client-only and
+     * failure-tolerant: private browsing or blocked storage simply leaves the menu
+     * showing, which is the safe default — a manager can always see where to go.
+     */
+    restoreMenuState () {
+      if (typeof window === 'undefined') { return }
+      try {
+        this.menuHidden = window.localStorage.getItem(HUB_MENU_STATE_KEY) === '1'
+      } catch (e) { /* storage blocked — keep the menu showing */ }
     },
 
     // ── Shared fetch helper ─────────────────────────────────────────────────
@@ -1776,24 +1994,27 @@ export default {
      * template → Advisory Distinctions" has to actually take the manager there,
      * or the page teaches a route it cannot walk.
      *
-     * Resolved by LABEL against the tabs Buefy actually rendered, never by a
-     * hard-coded index: one tab is hidden behind `v-if="false"`, so an index
-     * written today would silently point at the wrong screen the day it comes
-     * back. An unknown key does nothing rather than jumping somewhere arbitrary.
+     * Resolved to a PANEL KEY, never to a position. It used to search the rendered
+     * tab bar by label, because one tab is hidden behind `v-if="false"` and an index
+     * written today would silently point at the wrong screen the day it came back.
+     * Since 2026-08-19 there is no tab bar to search and no index to be wrong: the
+     * key IS the identity, and it cannot drift.
+     *
+     * Advisory Distinctions is two panels with one name — the firm flavour and the
+     * mentor's — so the candidates are tried in turn and the one this tier actually
+     * shows wins. An unknown key, or a tab this tier does not have, does nothing
+     * rather than jumping somewhere arbitrary.
      *
      * @param {'distinctions'|'domain-support'|'logic-tables'} key which lever
      */
     goToTab (key) {
-      const labels = {
-        distinctions: 'Advisory Distinctions',
-        'domain-support': 'Domain Support',
-        'logic-tables': 'Logic Tables'
+      const candidates = {
+        distinctions: ['distinctionsFirm', 'distinctionsMentor'],
+        'domain-support': ['domainSupport'],
+        'logic-tables': ['logicTables']
       }
-      const wanted = labels[key]
-      const tabs = this.$refs.hubTabs
-      if (!wanted || !tabs || !Array.isArray(tabs.items)) { return }
-      const index = tabs.items.findIndex(item => item.label === wanted)
-      if (index > -1) { this.activeTab = index }
+      const wanted = (candidates[key] || []).find(k => this.tabVisible(k))
+      if (wanted) { this.activeTab = wanted }
     }
   }
 }
@@ -1803,6 +2024,36 @@ export default {
 .firm-manager-hub {
   background: #f5f5f5;
   min-height: 100vh;
+}
+
+/* ── The hub menu (design/HUB-NAVIGATION-GROUPING.md, approved 2026-08-19) ──
+   LAYOUT ONLY. The menu itself is Bulma's, unstyled, exactly as the domain rail on
+   the Advisory Distinctions tab one click away — the two are the same control and
+   must not become two looks. No colour is invented here. */
+.hub-shell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+.hub-menu {
+  flex: 0 0 232px;
+}
+.hub-menu-closed,
+.hub-menu-top {
+  display: flex;
+  justify-content: flex-end;
+}
+.hub-menu-top {
+  margin-bottom: 0.5rem;
+}
+/* Only one panel is ever shown; the rest are display:none and take no space, so the
+   open one fills whatever the menu leaves. `min-width: 0` stops a wide table inside
+   a tab from forcing the whole row wider than the page — the very fault the sidebar
+   exists to end. */
+.hub-panel {
+  flex: 1 1 320px;
+  min-width: 0;
 }
 /* A distinction layer that was never checked — read as a fault, not as a quiet
    grey note among the other trace lines. Matches VirtualAdvisor's .trace-fault so

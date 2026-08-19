@@ -1345,6 +1345,8 @@
     "lede": "Where your firm owns its quiz material — the questions the course builder uses when it tests an advisor on a page.",
     "searchPlaceholder": "Search pages and questions",
     "showEmpty": "Show sub-sections with no quizzes",
+    "hideList": "Hide list",
+    "showList": "Show list",
     "railLabel": "Sections and sub-sections",
     "ungrouped": "Ungrouped",
     "quizCount": "1 quiz | {n} quizzes",

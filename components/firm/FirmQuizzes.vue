@@ -18,12 +18,23 @@ section.firm-quizzes
         )
     .level-right
       b-switch(v-model="showEmpty") {{ $t('firmQuizzes.showEmpty') }}
+      //- Same control, same words, same remembered choice as Domain Support and
+      //- Logic Tables (Mike, 2026-08-19: "the one thing to make consistent").
+      //- Those two were the only rails a manager could get out of the way; this
+      //- rail is the same shape and the same 62-page length, so the omission was
+      //- an oversight rather than a decision. The other lists in the hub do not
+      //- get one — ruled the same day: "the others don't need it due to layout".
+      button.button.is-small.fq-railtoggle.ml-3(
+        type="button"
+        :aria-expanded="String(!railHidden)"
+        @click="toggleRail"
+      ) {{ railHidden ? $t('firmQuizzes.showList') : $t('firmQuizzes.hideList') }}
 
   b-loading(:is-full-page="false" :active="loading")
 
   .columns(v-if="!loading")
     //- ── Rail: sections → sub-sections → pages (shared FirmRail) ────────
-    .column.is-4
+    .column.is-4.fq-rail(v-if="!railHidden")
       firm-rail(
         :sections="tree"
         :query="query.trim()"
@@ -63,7 +74,7 @@ section.firm-quizzes
               | {{ query ? $t('firmQuizzes.noMatchHere') : $t('firmQuizzes.noQuizYet') }}
 
     //- ── Panel: the selected page's questions ───────────────────────────
-    .column.is-8
+    .column(:class="railHidden ? 'is-12' : 'is-8'")
       .box.panel-empty(v-if="!current")
         p.has-text-weight-semibold {{ $t('firmQuizzes.pickAPage') }}
         p.has-text-grey.is-size-7 {{ $t('firmQuizzes.pickAPageHint') }}
@@ -295,6 +306,16 @@ const { buildQuizRows, buildQuestionEdit, isLastLiveQuestion } = require('~/util
 /** Matches LIMITS.textChars on the backend, which is the rule actually enforced. */
 const MAX_CHARS = 2000
 
+/**
+ * Where this browser remembers whether the page rail is hidden.
+ *
+ * Its own key, deliberately — the same prefix pattern as `ds:railHidden` (Domain
+ * Support) and `lt:railHidden` (Logic Tables). One shared key would make hiding the
+ * rail on one tab hide it on the other two, which is the tab tidying itself under
+ * the manager's hand.
+ */
+const RAIL_STATE_KEY = 'fq:railHidden'
+
 export default {
   name: 'FirmQuizzes',
 
@@ -344,7 +365,9 @@ export default {
       saving: false,
       /** The row with a request in flight, so one question never freezes the tab. */
       busyId: null,
-      maxChars: MAX_CHARS
+      maxChars: MAX_CHARS,
+      /** Whether the page rail is out of the way. Restored in mounted(), not here. */
+      railHidden: false
     }
   },
 
@@ -453,9 +476,31 @@ export default {
 
   mounted () {
     this.load()
+    this.restoreRailState()
   },
 
   methods: {
+    /**
+     * Restore whether this browser had the rail hidden. Client-only and
+     * failure-tolerant: private browsing or blocked storage simply leaves the list
+     * showing, which is the safe default.
+     */
+    restoreRailState () {
+      if (typeof window === 'undefined') { return }
+      try {
+        this.railHidden = window.localStorage.getItem(RAIL_STATE_KEY) === '1'
+      } catch (e) { /* storage blocked — keep the list showing */ }
+    },
+
+    /** Hide or show the page list, remembering the choice for next time. */
+    toggleRail () {
+      this.railHidden = !this.railHidden
+      if (typeof window === 'undefined') { return }
+      try {
+        window.localStorage.setItem(RAIL_STATE_KEY, this.railHidden ? '1' : '0')
+      } catch (e) { /* storage blocked — the toggle still works this session */ }
+    },
+
     /**
      * Read the whole picture: Advisor-e's banks, this firm's decisions, and the
      * resolved banks the two produce.

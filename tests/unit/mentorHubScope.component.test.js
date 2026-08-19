@@ -25,9 +25,22 @@ const { mountWithBuefy } = require('../helpers/mountComponent')
 const FirmManagerHub = require('../../components/FirmManagerHub.vue').default
 const MentorPage = require('../../pages/mentor.vue').default
 
-/** Every tab label the hub is currently showing, in the order they appear. */
+/**
+ * Every tab name the hub is currently showing, in the order a manager reads them.
+ *
+ * ⚠ CHANGED 2026-08-19 with the sidebar (design/HUB-NAVIGATION-GROUPING.md). This used
+ * to read `nav.tabs li` — Buefy's horizontal tab bar, which no longer exists. That
+ * selector did not start failing when the bar went; it started returning NOTHING, and
+ * the order assertion below quietly passed on two empty arrays. A selector that finds
+ * no elements is the most dangerous thing in a component test, because absence and
+ * agreement look identical. Hence `assertMenuIsReallyThere` in the two order tests.
+ *
+ * Scoped to `.hub-menu` on purpose: four tab BODIES carry their own `b-menu` rail
+ * (the domain list, the table list, the quiz banks), and an unscoped menu selector
+ * would sweep those up as if they were hub tabs.
+ */
 function tabLabels (wrapper) {
-  return wrapper.findAll('nav.tabs li').wrappers.map(li => li.text().trim())
+  return wrapper.findAll('.hub-menu a[data-tab]').wrappers.map(a => a.text().trim())
 }
 
 /**
@@ -217,16 +230,34 @@ describe('the two tiers are recognisably the same screen', () => {
   // 🔴 The tab IS also shown to the global and group tiers (TAB_TIERS.propertyTaxRules), so
   // it is firm-only relative to the MENTOR alone. This file compares those two scopes only.
   //
-  // ⚠ THIS LIST IS IN TAB ORDER, not in the order the exceptions were ruled on. The second
-  // assertion below compares it against `firm.filter(...)`, which comes off the screen in
-  // the order the tabs are drawn, so appending a new name is wrong whenever its tab does
-  // not sit last. Property Tax Rules is drawn after Coaching Reference, ahead of both.
-  const FIRM_ONLY = ['Property Tax Rules', 'firmTeamProgress.tab', 'Team Case Studies']
-  const MENTOR_ONLY = ['mentorAdoption.tab', 'Case Reviews', 'templateCheck.tab', 'logicLabReport.tab']
+  // ⚠ THIS LIST IS IN MENU ORDER, not in the order the exceptions were ruled on. The
+  // second assertion below compares it against `firm.filter(...)`, which comes off the
+  // screen in the order the names are drawn, so appending a new one is wrong whenever
+  // its entry does not sit last.
+  //
+  // ⚠ REORDERED 2026-08-19 by the sidebar, and this is the trap the design file warned
+  // about (HUB-NAVIGATION-GROUPING.md §6). Grouping moved Property Tax Rules from third
+  // to LAST of the three — it is the whole of "Model Inputs", which sits after "Your Team
+  // In Action". Nothing about the ruling changed; only where the name is drawn.
+  const FIRM_ONLY = ['firmTeamProgress.tab', 'Team Case Studies', 'Property Tax Rules']
+  const MENTOR_ONLY = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab']
+
+  /**
+   * A selector that matches nothing makes every comparison below succeed against an
+   * empty list. Assert the menu is genuinely on the screen before trusting a word of it.
+   *
+   * @param {string[]} labels - what tabLabels() returned
+   */
+  function assertMenuIsReallyThere (labels) {
+    expect(labels.length).toBeGreaterThan(8)
+    expect(labels).toContain('Domain Support')
+  }
 
   it('presents every shared tab in the same order at both scopes', async () => {
     const firm = tabLabels(await mountHub())
     const mentor = tabLabels(await mountHub({ scope: 'mentor', firmId: '' }))
+    assertMenuIsReallyThere(firm)
+    assertMenuIsReallyThere(mentor)
 
     const sharedInMentor = mentor.filter(l => !MENTOR_ONLY.includes(l))
     const sharedInFirm = firm.filter(l => !FIRM_ONLY.includes(l))
@@ -239,14 +270,95 @@ describe('the two tiers are recognisably the same screen', () => {
     // only would be absorbed by widening the lists above and nothing would object.
     const firm = tabLabels(await mountHub())
     const mentor = tabLabels(await mountHub({ scope: 'mentor', firmId: '' }))
+    assertMenuIsReallyThere(firm)
+    assertMenuIsReallyThere(mentor)
 
     expect(firm.filter(l => !mentor.includes(l))).toEqual(FIRM_ONLY)
     expect(mentor.filter(l => !firm.includes(l)).sort()).toEqual([...MENTOR_ONLY].sort())
   })
 
   it('adds the mentor-only tabs at the end, so the shared run is uninterrupted', async () => {
+    // All four are now "Rolled up from below", the last heading — so the mentor-only run
+    // is the tail of the menu rather than three names scattered through a band of twelve.
     const mentor = tabLabels(await mountHub({ scope: 'mentor', firmId: '' }))
-    expect(mentor.slice(-3)).toEqual(['logicLabReport.tab', 'templateCheck.tab', 'Case Reviews'])
+    expect(mentor.slice(-4)).toEqual(MENTOR_ONLY)
+  })
+})
+
+describe('the hub menu — the sidebar itself', () => {
+  // design/HUB-NAVIGATION-GROUPING.md, approved by Mike 2026-08-19. These pin the three
+  // claims the menu makes that nothing else in the suite can see.
+
+  /** The group headings the hub is showing, in order. */
+  function groupHeadings (wrapper) {
+    return wrapper.findAll('.hub-menu .menu-label').wrappers.map(p => p.text().trim())
+  }
+
+  it('groups the firm manager’s eleven tabs under three headings', async () => {
+    const wrapper = await mountHub()
+    expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs'])
+    expect(tabLabels(wrapper)).toHaveLength(11)
+  })
+
+  it('gives the mentor NO Model Inputs heading rather than an empty one', async () => {
+    // A whole heading being absent reads as intentional. One gap in a list of twelve
+    // reads as a bug, which is why empty groups are dropped and not merely emptied.
+    const wrapper = await mountHub({ scope: 'mentor', firmId: '' })
+    expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Rolled up from below'])
+    expect(groupHeadings(wrapper)).not.toContain('Model Inputs')
+  })
+
+  it('🔴 keeps the six that teach the AI in ONE group', async () => {
+    // Mike rejected a two-way split on sight: it "sends the message that AI is not
+    // working across the logic tables and advisory staircase — which is NOT true".
+    // server/advisorEngine.js, the prompt builder, loads all six. A heading implying
+    // otherwise is a permanent falsehood taught from the navigation, and no other test
+    // in this suite could ever catch it — the split was internally consistent.
+    const wrapper = await mountHub()
+    const headings = groupHeadings(wrapper)
+    const names = tabLabels(wrapper)
+    expect(headings.filter(h => /coach/i.test(h))).toHaveLength(1)
+    expect(names.slice(0, 6)).toEqual([
+      'Domain Support', 'Advisory Distinctions', 'Coaching Reference',
+      'Logic Tables', 'Advisory Staircase', 'Logic-Lab'
+    ])
+  })
+
+  it('every menu entry has a panel behind it, and no panel is unreachable', async () => {
+    // The one thing the split between NAV_GROUPS and the panels can get wrong. The
+    // panels no longer sit in menu order, so nothing about reading the file reveals a
+    // name pointing at a panel that is not there, or a panel with no way in.
+    const wrapper = await mountHub()
+    const keys = wrapper.findAll('.hub-menu a[data-tab]').wrappers.map(a => a.attributes('data-tab'))
+    for (const key of keys) {
+      expect(wrapper.vm.tabVisible(key)).toBe(true)
+    }
+    expect(new Set(keys).size).toBe(keys.length)
+  })
+
+  it('🔴 the menu does not collapse itself when a tab is opened', async () => {
+    // Ruled 2026-08-15: nothing moves under the owner's hand. Four tab bodies carry
+    // their own left-hand list, and tidying the hub menu away to make room for one is
+    // exactly the helpful side effect that ruling forbids.
+    const wrapper = await mountHub()
+    wrapper.findAll('.hub-menu a[data-tab]').wrappers
+      .find(a => a.attributes('data-tab') === 'logicTables')
+      .trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.activeTab).toBe('logicTables')
+    expect(wrapper.vm.menuHidden).toBe(false)
+    expect(wrapper.find('.hub-menu').exists()).toBe(true)
+  })
+
+  it('leaves the way back on screen when the manager hides it', async () => {
+    // A control that hides its own means of return is a trap, not a preference.
+    const wrapper = await mountHub()
+    wrapper.vm.toggleMenu()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('.hub-menu').exists()).toBe(false)
+    expect(wrapper.find('.hub-menu-closed button').text().trim()).toBe('Show menu')
   })
 })
 

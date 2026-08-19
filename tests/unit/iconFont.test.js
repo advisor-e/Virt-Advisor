@@ -73,7 +73,21 @@ describe('the icon font', () => {
 
     // Guard the guard: if the scan ever finds nothing, this test would pass while
     // checking nothing at all.
-    expect(used.length).toBeGreaterThan(10)
+    //
+    // ⚠ CHANGED 2026-08-19, and the reason matters more than the change. This was
+    // `expect(used.length).toBeGreaterThan(10)`, and the hub sidebar broke it — dropping
+    // eleven tab icons took the WHOLE APP from eleven distinct icon names to seven,
+    // because the Firm Manager Hub was carrying most of them. Nothing was wrong; the
+    // floor was measuring how many icons the app happens to use, which was never a rule
+    // and is not this test's business.
+    //
+    // So it now pins NAMES the scan must find rather than a count it must clear. That is
+    // strictly stronger for the thing this guard is actually for — a regex that stopped
+    // matching fails it, and unlike a number it cannot be quietly satisfied by unrelated
+    // screens adding icons elsewhere. Both are in six files apiece; either disappearing
+    // is a real change worth stopping on.
+    expect(used).toContain('magnify')
+    expect(used).toContain('plus')
 
     const missing = used.filter(name => !css.includes(`.mdi-${name}:`))
     expect(missing).toEqual([])
