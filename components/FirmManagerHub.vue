@@ -843,7 +843,30 @@ const TAB_TIERS = {
   // mentor, who has no firms of its own beneath it in the same sense; the mentor
   // reads the adoption tab instead. That split is today's behaviour, preserved.
   teamProgress: ['firm', 'global', 'group'],
-  teamCaseStudies: ['firm', 'global', 'group'],
+
+  // 🔴 NARROWED TO THE FIRM ON 2026-08-19, AND THIS IS NOT A BUG CREEPING BACK.
+  // Approved by Mike as decision 5 of design/HUB-NAVIGATION-GROUPING.md.
+  //
+  // Above the firm, this tab and Case Reviews returned THE IDENTICAL LIST. Both ran
+  // caseStore.listSharedWithMentor(firmId) through withOrigin at the same scope —
+  // server/routes/cases.js listFirmCases (non-firm branch) and server/routes/mentor.js
+  // listMentorCases. A group manager opened two differently named tabs and found the
+  // same cases in both, and no label could have told them apart because there was
+  // nothing to tell apart.
+  //
+  // 🔴 IT WAS WIDENED ON PURPOSE ON 2026-08-12 AND THAT WAS CORRECT. Before then
+  // listFirmCases was firm-exact, so a middle tier opened this tab and was shown an
+  // empty list. The widening fixed a real fault; what it created, unnoticed, was an
+  // overlap with a tab already doing the job at those tiers. Restoring the middle
+  // tiers here would bring the duplicate back, not fix anything.
+  //
+  // ⚠ THE ROLL-UP IS UNAFFECTED. Mike's 2026-08-10 ruling is that every report rolls
+  // up, and it still does: those cases reach the group, global and mentor tiers
+  // through Case Reviews. One door closed, not the room. Only the FIRM's version is a
+  // genuinely different screen — listSharedForFirm, their own advisors in full and
+  // not anonymised — which is why the tab survives here and nowhere else.
+  teamCaseStudies: ['firm'],
+
   adoption: ['mentor', 'global', 'group'],
 
   // Accuracy reports — how the ENGINE is performing, never a person. Read at every
@@ -861,7 +884,14 @@ const TAB_TIERS = {
   // catalogue against the logic tables, so there is nothing in it belonging to a
   // group that could be shown to that group. Its routes keep requireMentorRole
   // (server/restify-server.js) rather than the managing-tier guard the other three
-  // moved to. This makes each middle hub 12 tabs, not the 13 first drawn.
+  // moved to.
+  //
+  // ⚠ COUNT CORRECTED 2026-08-19. This said "each middle hub 12 tabs, not the 13
+  // first drawn", which was true when written and then went stale twice without
+  // anyone noticing — Coaching Reference and Property Tax Rules both arrived after
+  // it. The middle hubs were showing FOURTEEN by the time it was read again. They
+  // show 13 now that teamCaseStudies is firm-only: 7 unconditional tabs plus 6
+  // conditional. Counted against the template, not against this comment.
   templateCheck: ['mentor'],
 
   // The property model's tax rules (Mike, 2026-08-17, §8 Q6). Every tier that has a
@@ -950,10 +980,11 @@ const NAV_GROUPS = [
       { key: 'adviserNetwork', i18n: 'firmAdviserNetwork.tab' },
       { key: 'teamProgress', i18n: 'firmTeamProgress.tab' },
       { key: 'quizzes', i18n: 'firmQuizzes.tab' },
-      // 🔴 NOT the roll-up of cases from below. These are the reader's OWN advisors,
-      // named and in full; the shared ones are anonymised and opt-in, and filing them
-      // beside Advisor Network would say the opposite of what that consent gate exists
-      // to say. See "Rolled up from below".
+      // 🔴 NOT the roll-up of cases from below, and firm-only since 2026-08-19. These
+      // are the reader's OWN advisors, named and in full; the shared ones are
+      // anonymised and opt-in, and filing them beside Advisor Network would say the
+      // opposite of what that consent gate exists to say. See "Rolled up from below",
+      // and TAB_TIERS.teamCaseStudies for why no tier above the firm has this one.
       { key: 'teamCaseStudies', label: 'Team Case Studies' }
     ]
   },

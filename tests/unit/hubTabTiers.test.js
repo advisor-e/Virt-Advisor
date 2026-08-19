@@ -91,15 +91,23 @@ describe('hub tab matrix — the two new tiers', () => {
     expect(tabsAt('global')).toEqual(tabsAt('group'))
   })
 
-  it('each middle tier shows 13 tabs — 6 unconditional plus these', () => {
-    // The 6 unconditional tabs (Domain Support, Logic Tables, Logic-Lab, Advisory
-    // Staircase, Quizzes, Adviser Network) carry no TAB_TIERS entry, so the
-    // conditional count is 13 - 6 = 7.
+  it('each middle tier shows 13 tabs — 7 unconditional plus these', () => {
+    // The 7 unconditional tabs (Domain Support, Logic Tables, Logic-Lab, Advisory
+    // Staircase, Coaching Reference, Quizzes, Adviser Network) carry no TAB_TIERS
+    // entry, so the conditional count is 13 - 7 = 6.
     //
-    // It was 13 when the two hubs were built on 2026-08-11. Template Check came
-    // off the same day, on the owner's ruling — see the exception below. Property
-    // Tax Rules was ruled ON on 2026-08-17, taking the conditional count to 7.
-    expect(tabsAt('global')).toHaveLength(7)
+    // ⚠ THE UNCONDITIONAL COUNT WAS WRONG HERE UNTIL 2026-08-19, and the assertion
+    // could not see it. This said SIX and listed six, omitting Coaching Reference,
+    // which became unconditional on 2026-08-15. The number asserted is the CONDITIONAL
+    // count, so the total in the test's own name drifted from 13 to 14 with nothing
+    // failing. A count that only lives in a comment is not a count anything checks —
+    // recorded here rather than silently corrected.
+    //
+    // It was 13 when the two hubs were built on 2026-08-11. Template Check came off
+    // the same day on the owner's ruling. Property Tax Rules was ruled ON on
+    // 2026-08-17 (taking it to 14), and Team Case Studies came off on 2026-08-19 as
+    // the duplicate — back to 13, by a different route than it started.
+    expect(tabsAt('global')).toHaveLength(6)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {
@@ -110,11 +118,33 @@ describe('hub tab matrix — the two new tiers', () => {
     expect(TAB_TIERS.distinctionsMentor).not.toContain('group')
   })
 
-  it('every report rolls up to both middle tiers (ruled 2026-08-10) — bar the one named exception', () => {
-    for (const key of ['teamProgress', 'teamCaseStudies', 'adoption', 'caseReviews', 'logicLabReport']) {
+  it('every report rolls up to both middle tiers (ruled 2026-08-10) — bar the named exceptions', () => {
+    for (const key of ['teamProgress', 'adoption', 'caseReviews', 'logicLabReport']) {
       expect(TAB_TIERS[key]).toContain('global')
       expect(TAB_TIERS[key]).toContain('group')
     }
+  })
+
+  it('Team Case Studies is firm-only — the DUPLICATE, not a report that stopped rolling up', () => {
+    // 🔴 ASSERTED RATHER THAN DELETED FROM THE LOOP ABOVE, for the same reason as
+    // Template Check below: an exception quietly dropped from a list is
+    // indistinguishable from one never considered.
+    //
+    // ⚠ THIS IS NOT A BREACH OF "every report rolls up". Those cases still reach the
+    // group, global and mentor tiers — through Case Reviews, which at those tiers was
+    // returning the IDENTICAL list. Both called caseStore.listSharedWithMentor through
+    // withOrigin at the same scope, so a group manager opened two differently named
+    // tabs and found the same cases in both. Decision 5 of
+    // design/HUB-NAVIGATION-GROUPING.md, approved by Mike 2026-08-19: close one door,
+    // not the room.
+    //
+    // 🔴 AND IT IS NOT A REVERT OF THE 2026-08-12 WIDENING, which was correct — before
+    // it, a middle tier opened this tab and was shown an empty list. That fix created
+    // the overlap unnoticed. Anyone widening this back must read that first, because
+    // it restores the duplicate rather than repairing anything.
+    expect(TAB_TIERS.teamCaseStudies).toEqual(['firm'])
+    expect(TAB_TIERS.caseReviews).toContain('global')
+    expect(TAB_TIERS.caseReviews).toContain('group')
   })
 
   it('Template Check is the exception, and it is MENTOR ONLY', () => {

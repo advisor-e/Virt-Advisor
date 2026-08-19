@@ -147,7 +147,7 @@ behalf of every country.
 own advisers by name".** Both earlier exceptions shared that reason; this one does not, which is
 why it is written out here rather than added to their sentence.
 
-### 🔴 A duplicate at the group and global tiers — live, found 2026-08-19
+### ✅ A duplicate at the group and global tiers — found 2026-08-19, FIXED the same day
 
 **Team Case Studies and Case Reviews return the identical list above the firm.** Both call
 `caseStore.listSharedWithMentor` with the same scope and the same `withOrigin` decoration —
@@ -160,36 +160,65 @@ cases in both. **Only the firm manager's version is genuinely different**: their
 2026-08-12 to stop a middle tier being shown an empty list; that fix was correct. What it created,
 unnoticed, was an overlap with a tab that already did the job at those tiers.
 
-✅ **Mike approved the fix on 2026-08-19 and it is NOT yet built** — `teamCaseStudies` narrows to
-`['firm']`, making it the third tier-limited tab, which by rule 5 below needs its own written reason
-and a named entry **in tab order** in `mentorHubScope.component.test.js`. Tracked as live item
-**4.23**; the reasoning is in [`../HUB-NAVIGATION-GROUPING.md`](../HUB-NAVIGATION-GROUPING.md) §5.
+✅ **Fixed 2026-08-19, session 73.** `teamCaseStudies` is now `['firm']` — the third tier-limited
+tab, carrying its own written reason in `TAB_TIERS` and a named entry **in menu order** in
+`mentorHubScope.component.test.js`. The reasoning is in
+[`../HUB-NAVIGATION-GROUPING.md`](../HUB-NAVIGATION-GROUPING.md) §5.
 
-### The navigation grouping — approved 2026-08-19, NOT built
+🔴 **Anyone tempted to widen it back must read the reason first.** Narrowing it is **not** a
+revert of the 2026-08-12 widening, which was correct, and it is **not** a breach of "every report
+rolls up" (2026-08-10): those cases still reach every tier above the firm through Case Reviews.
+One door closed, not the room. `hubTabTiers.test.js` asserts it explicitly rather than dropping it
+from the roll-up loop, because an exception quietly removed from a list looks identical to one
+never considered.
 
-🔴 **The hub still renders a flat horizontal `b-tabs` band today. Nothing below is in the code
-yet** — read this as a commitment, not a description, and do not describe the hub to anyone as
-having a sidebar until item **4.23** ships.
+⚠ **`listFirmCases`'s non-firm branch now has no caller from the hub**, and is deliberately left
+alone. It returns the same anonymised list Case Reviews returns, so nothing is exposed; narrowing
+a live route is a separate decision from removing a tab.
 
-Approved: a Buefy `b-menu` sidebar replacing the band, with four group headings — **Your AI coach ·
-Your Team In Action · Model Inputs · Rolled up from below**. The middle two are Mike's own words and
+### ✅ The navigation grouping — approved AND built 2026-08-19
+
+**The hub renders a grouped Buefy `b-menu` sidebar**, at all four tiers, replacing the horizontal
+`b-tabs` band. Commit `85097e9`. **Every difference from the approved mockup is named at
+[`../HUB-NAVIGATION-GROUPING.md`](../HUB-NAVIGATION-GROUPING.md) §8** — open that beside the code
+before changing anything here.
+
+Four group headings — **Your AI coach · Your Team In Action · Model Inputs · Rolled up from
+below**. The middle two are Mike's own words and
 [`../HUB-NAVIGATION-GROUPING.md`](../HUB-NAVIGATION-GROUPING.md) §4 carries a written instruction not
 to harmonise their capitalisation, which he was offered and declined.
 
-Two rules the build must hold:
+Two rules the build holds, and any change here must keep holding:
 
-- **The hub menu never collapses itself.** Four tab bodies already carry their own left rail
-  (Domain Support, Logic Tables, Quizzes, Advisory Distinctions). Auto-hiding the hub menu when one
-  of those opens is the tidy thing to do and is exactly the behaviour ruled out on 2026-08-15.
-  Reuse `FirmDomainSupport.vue`'s Show/Hide pattern; the manager collapses it or it stays.
+- **The hub menu never collapses itself.** Auto-hiding it when a tab with its own left-hand list
+  opens is the tidy thing to do and is exactly the behaviour ruled out on 2026-08-15. It reuses
+  `FirmDomainSupport.vue`'s Show/Hide pattern with its own `hub:menuHidden` key; the manager
+  collapses it or it stays. Asserted in `mentorHubScope.component.test.js`.
 - **All six AI-facing tabs are ONE group, and the reason is that any split states a falsehood.**
   `advisorEngine.js` loads domain support, distinctions, coaching, logic trees *and* the staircase.
   A heading implying the logic tables or the staircase sit outside the AI's reach would teach every
   new manager something untrue from the navigation itself. Mike rejected exactly that split on
   sight. Do not reintroduce it.
 
-**Counts as designed:** firm 3 headings / 11 items · mentor 3 / 12 · group and global 4 / **13**
-(13 rather than 14 because the duplicate above goes).
+**Counts as built:** firm 3 headings / 11 items · mentor 3 / 12 · group and global 4 / **13** —
+matching the design exactly, and asserted off the rendered screen rather than off `TAB_TIERS`.
+
+### 🔴 Which tabs can hide their own list — two, not four
+
+**Domain Support and Logic Tables. That is the whole list.**
+
+⚠ `HUB-NAVIGATION-GROUPING.md` §3 named **four** — adding Quizzes and Advisory Distinctions —
+and it was wrong. Both have a rail; neither had a control to collapse it. Mike found it on the
+running screen on 2026-08-19: *"you have a show menu/hide menu for all but only domain support and
+logic tables have an additional 'hide list'. Please add the same feature to Quizzes page."*
+
+✅ **Quizzes now has it**, built the same day, same words (**Hide list / Show list**), same
+remembered choice. 🔴 **Each screen keeps its OWN localStorage key** — `ds:`, `lt:`, `fq:` — and
+`firmQuizzes.component.test.js` fails if they are ever shared. One screen tidying another's list
+away is the same fault as the menu collapsing itself.
+
+🔴 **Advisory Distinctions deliberately does NOT get one**, ruled the same day: *"the others don't
+need it due to layout"*. That is a decision, not an omission — do not "finish" it later.
 
 ### Traps that have actually bitten
 

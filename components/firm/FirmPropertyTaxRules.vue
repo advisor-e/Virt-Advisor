@@ -35,7 +35,7 @@
 
       //- The phasing schedule is one setting, not five: a schedule half from one country
       //- and half from another is a schedule nobody has ever written.
-      .ptr-row(v-if="form.interestDeductibility === 'Phasing'")
+      .ptr-row.ptr-row-phasing(v-if="form.interestDeductibility === 'Phasing'")
         .ptr-label
           label.label.is-small Interest Deductibility Phasing (%)
           p.is-size-7.has-text-grey One entry per year. The last entry covers every later year.
@@ -377,6 +377,20 @@ export default {
 .ptr-label .label { margin-bottom: 0.1rem; }
 .ptr-source { text-align: right; }
 .ptr-phasing { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.35rem; }
+/* 🔴 THE ONE ROW WITH FIVE CONTROLS INSTEAD OF ONE, and it needs its own width.
+   180px is right for a single dropdown. Split five ways with four gaps it leaves
+   about 31px per box, of which ~18px is the input's own padding and border — less
+   than the number spinner needs on its own. The digits were pushed out of sight and
+   every phasing box read as EMPTY, while holding and saving the right value.
+
+   Found by Mike on the running screen, 2026-08-19, the first time anyone opened this
+   tab. 🔴 NO TEST COULD HAVE CAUGHT IT: Jest does not lay a page out, so nothing in
+   the suite can see a box too small to read. Widening it here rather than shrinking
+   the boxes keeps every other row on the screen identical.
+
+   `minmax(0, 1fr)` on the label, not `1fr`: a bare `1fr` floors at the label's own
+   width, so a long label would push the row wider than the panel instead of wrapping. */
+.ptr-row-phasing { grid-template-columns: minmax(0, 1fr) 420px 110px; }
 @media (max-width: 768px) {
   .ptr-row { grid-template-columns: 1fr; }
   .ptr-source { text-align: left; }

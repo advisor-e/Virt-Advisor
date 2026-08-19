@@ -1,6 +1,9 @@
 # Firm Manager Hub — Navigation Grouping
 
-> **Status: PROPOSED, awaiting the owner's approval. Nothing has been built.**
+> **Status: ✅ BUILT 2026-08-19, session 73.** All five decisions of §7 are in the code.
+> Phase 1 — the sidebar, at all four tiers — is commit `85097e9`. Phase 2 — the duplicate
+> of §5 — landed with it. **Every difference from the artefact is named in §8 below;
+> nothing is left to interpretation.**
 >
 > **The artefact is [`mockups/hub-navigation-grouping.html`](mockups/hub-navigation-grouping.html).**
 > Open it beside anything built from this. This page carries the reasoning and the decisions;
@@ -96,6 +99,15 @@ not open — nothing costs an extra click.
 
 **It must be collapsible, and the pattern already exists.** Four tab bodies already carry their own
 left rail:
+
+> 🔴 **CORRECTED 2026-08-19 — the table below was wrong, and Mike found it on the running screen.**
+> Four tabs have a rail; only **two** ever had a control to collapse it. In his words: *"you have a
+> show menu/hide menu for all but only domain support and logic tables have an additional 'hide
+> list'. Please add the same feature to Quizzes page."* **Quizzes now has it**, built the same day
+> with the same words and its own `fq:` storage key. **Advisory Distinctions does not, and that is a
+> ruling** — *"the others don't need it due to layout"* — not an unfinished job. The table is left
+> standing with this correction above it rather than quietly rewritten, because the wrong claim is
+> what the build was reasoned from.
 
 | Tab | Its rail |
 | --- | --- |
@@ -256,6 +268,41 @@ and a named entry — **in tab order** — in
 the time and is not being reversed as a mistake: it fixed a middle tier being shown an empty list.
 What it created, unnoticed, was an overlap with a tab that already did the same job at those tiers.
 The reason must say so, or a future reader will restore it believing a bug was reintroduced.
+
+---
+
+## 8. ✅ As built — every difference from the artefact, named
+
+Built 2026-08-19, session 73. The mockup was opened beside the build and read line by line;
+these are all the differences, deliberate ones included. **An unrecorded deviation is the
+failure this whole page exists to prevent, so a difference being small is not a reason to
+leave it out.**
+
+| # | The artefact says | The build does | Why |
+| --- | --- | --- | --- |
+| 1 | A **"Hide menu"** button, top right of the sidebar | Same, plus **"Show menu"** when it is closed | The mockup only ever draws the menu OPEN, so it has no name for the other state. A control that hides its own way back is a trap. The pair mirrors Show/Hide list on Domain Support. 🔴 **"Show menu" is the one label in the build that was never put to Mike.** |
+| 2 | Navy left-border on the open item, `#fbfcfd` rail, custom `.navitem` styling | Bulma's own `b-menu`, unstyled | §2's own banner says the look "is copied from `tier-hub-pages.html`, not proposed here… what is being asked for is the grouping, the group names". The hub already renders a `b-menu` rail on the Advisory Distinctions tab one click away; two looks for one control is worse than either. Only layout CSS was added. |
+| 3 | Plain text names, no icons | Same — **and eleven tabs lost the icon they had** | Ruled by Mike mid-build: *"if we don't need the icons drop them out"*. Domain Support and Logic Tables never had one, so a mixed column would have had to invent two. ⚠ This took the WHOLE APP from 11 distinct icon names to 7 and tripped `iconFont.test.js`, whose floor of >10 was measuring how many icons the app happens to use. It now pins names instead. |
+| 4 | Group and global: **4 headings / 13 items** | Same | §5's duplicate went in the same session. Asserted off the screen, not off the matrix, in `mentorHubScope.component.test.js`. |
+| 5 | *(silent — the mockup shows only the menu)* | **Quizzes gained a Hide list button** | Not from this design. Mike, on the running screen: *"the one thing to make consistent please"*. 🔴 **§3's table of four tabs with their own rail was WRONG** — it implied all four could be collapsed; only Domain Support and Logic Tables ever had the control. Advisory Distinctions still does not, ruled the same day: *"the others don't need it due to layout"*. |
+
+**Not a difference, but worth recording:** the panels in `FirmManagerHub.vue` were **not
+reordered**. Each sits exactly where its `b-tab-item` stood; only one is ever shown, so the
+order a manager reads comes from `NAV_GROUPS` alone. That kept the change to 17 single-line
+swaps instead of an 1,800-line reindent, and it is why `activeTab` is a key rather than an index.
+
+### What the build found that the design did not
+
+- 🔴 **`mentorHubScope.component.test.js` read `nav.tabs li`.** When the tab bar went it did not
+  fail — it returned **nothing**, and the order assertion passed by comparing two empty arrays.
+  A selector that matches nothing is indistinguishable from agreement. The file now proves the
+  menu is on screen before trusting a word it says.
+- ⚠ **The "6 unconditional tabs" comment in `hubTabTiers.test.js` had been wrong since
+  2026-08-15**, when Coaching Reference became unconditional. The assertion pins the
+  *conditional* count, so the total in the test's own name drifted 13 → 14 with nothing failing.
+- ⚠ **`listFirmCases`'s non-firm branch now has no caller from the hub.** It is left exactly as
+  it is: it returns the same anonymised list Case Reviews returns, so nothing is exposed, and
+  narrowing a live route is a separate decision from removing a tab. Flagged, not actioned.
 
 ---
 

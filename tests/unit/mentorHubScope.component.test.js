@@ -336,6 +336,30 @@ describe('the hub menu — the sidebar itself', () => {
     expect(new Set(keys).size).toBe(keys.length)
   })
 
+  it('🔴 a group manager no longer sees the same cases under two names', async () => {
+    // Decision 5, approved by Mike 2026-08-19. Above the firm, Team Case Studies and
+    // Case Reviews returned the identical list — same store call, same scope, same
+    // decoration. The counts here are the approved design's own
+    // (design/HUB-NAVIGATION-GROUPING.md §2: "group and global 4 / 13"), asserted off
+    // the screen rather than off the matrix, because the matrix is what the design
+    // predicted and this is what a manager actually gets.
+    const wrapper = await mountHub({ scope: 'group' })
+    expect(groupHeadings(wrapper)).toEqual([
+      'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Rolled up from below'
+    ])
+    expect(tabLabels(wrapper)).toHaveLength(13)
+    expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
+    expect(tabLabels(wrapper)).toContain('Case Reviews')
+  })
+
+  it('the firm keeps its own version — a different screen, not the same one', async () => {
+    // listSharedForFirm, their own advisors in full and not anonymised. Dropping it
+    // here too would have removed a screen rather than a duplicate.
+    const wrapper = await mountHub()
+    expect(tabLabels(wrapper)).toContain('Team Case Studies')
+    expect(tabLabels(wrapper)).not.toContain('Case Reviews')
+  })
+
   it('🔴 the menu does not collapse itself when a tab is opened', async () => {
     // Ruled 2026-08-15: nothing moves under the owner's hand. Four tab bodies carry
     // their own left-hand list, and tidying the hub menu away to make room for one is

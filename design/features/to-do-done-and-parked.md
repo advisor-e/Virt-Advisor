@@ -219,6 +219,54 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.23 · Build the Firm Manager Hub sidebar — grouped navigation, and drop the duplicate cases
+tab.** ✅ Closed 2026-08-19, session 73. Filed the day before, the same session that designed it,
+and built the next — the shortest gap between a design and its build on this list, which is the
+point of filing it at all.
+
+- **What shipped.** The horizontal `b-tabs` band is a grouped Buefy `b-menu` sidebar at all four
+  tiers, with Mike's four headings. Firm 3 headings / 11 items, mentor 3 / 12, group and global
+  4 / 13 — the design's own counts, asserted **off the rendered screen** rather than off
+  `TAB_TIERS`, because the matrix is what the design predicted and the screen is what a manager
+  gets. Phase 1 is commit `85097e9`; the duplicate followed in the same session.
+- **NO TAB BODY MOVED**, and that is why this was a safe change rather than a frightening one.
+  Every panel sits exactly where its `b-tab-item` stood; only one is ever shown, so the order a
+  manager reads comes from `NAV_GROUPS` alone. Seventeen single-line swaps instead of an 1,800-line
+  reindent. `activeTab` became a key rather than an index for the same reason — an index is a
+  promise that the menu and the panels are in the same order, and they deliberately are not.
+- **The duplicate is gone.** `teamCaseStudies` is `['firm']`. 🔴 **It is not a breach of "every
+  report rolls up"** (2026-08-10) — those cases still reach every tier above the firm through Case
+  Reviews, which was returning the identical list. One door closed, not the room. It is asserted
+  explicitly in `hubTabTiers.test.js` rather than dropped from the roll-up loop, because an
+  exception quietly removed from a list looks identical to one never considered.
+- 🔴 **Two tests changed and both reasons matter more than the changes.**
+  `mentorHubScope.component.test.js` read `nav.tabs li`; when the tab bar went it did not fail, it
+  returned **nothing**, and an order assertion passed by comparing two empty arrays. A selector
+  that matches nothing is indistinguishable from agreement. `iconFont.test.js` required more than
+  ten distinct icon names app-wide — dropping eleven tab icons took the **whole app** to seven,
+  because the hub was carrying most of them. That floor was measuring how many icons the app
+  happens to use, which was never a rule; it now pins names.
+- ⚠ **A stale comment had been wrong since 2026-08-15 and nothing could see it.** `hubTabTiers`
+  said "6 unconditional tabs" and listed six, omitting Coaching Reference. The assertion pins the
+  *conditional* count, so the total in the test's own name drifted 13 → 14 in silence.
+- 🔴 **CLOSING IT FOUND TWO THINGS THE DESIGN HAD WRONG, AND BOTH WERE FOUND BY MIKE OPENING THE
+  SCREEN — not by any test.** First, the design named four tabs as having a collapsible list; only
+  **two** ever did, and **Quizzes now has the control** (his instruction: *"the one thing to make
+  consistent please"*), each screen keeping its own storage key. Second, on the Property Tax Rules
+  tab the **interest-deductibility phasing boxes showed no numbers**: five inputs share a slot
+  sized 180px for one, leaving ~31px each — narrower than the spinner inside them. It held and
+  saved the right value the whole time. **No test in 5,874 could have caught either.** Jest does
+  not lay a page out.
+- ⚠ **`listFirmCases`'s non-firm branch now has no caller from the hub.** Left alone deliberately:
+  it returns the same anonymised list Case Reviews returns, so nothing is exposed, and narrowing a
+  live route is a separate decision from removing a tab. Flagged, not actioned.
+- **What proves it.** The suite runs **5,874 / 325 suites, zero failures**, audit gate passing.
+  Ten new tests. **Every difference from the approved mockup is named** at
+  [`../HUB-NAVIGATION-GROUPING.md`](../HUB-NAVIGATION-GROUPING.md) §8, including the one label —
+  **"Show menu"** — that was never put to Mike, because the mockup only ever draws the menu open.
+- 🔴 **Still open and now carried a third time: Mike has still not sat down with the Property Tax
+  Rules tab.** He saw enough of it to find the phasing defect. That is not the same as reviewing it.
+
 **4.20 · Finish Phase 1 of the property model — the screen, and the tax rules cascading from the
 group.** ✅ Closed 2026-08-18, session 70. Filed 2026-08-17 the moment the maths was built and the
 screen was not, precisely so a half-built thing would not quietly become never. It did not.
