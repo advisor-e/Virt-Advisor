@@ -162,6 +162,33 @@ screen fetches the resolved settings from the **authenticated** endpoint
 lets a model carry firm-editable rules without the calculation itself becoming a route that
 must be authorised, rate-limited and audited.
 
+**P17 · A model holding MANY of one thing shows the whole first, and opens one inside it.**
+Where a model takes a list — five properties, N of anything — the list-wide view *is* the
+screen and a single item is opened within it. Two things follow and neither is optional:
+
+- 🔴 **Nothing outside the open item's own cards may move when the reader opens a different
+  one.** Choosing what to inspect is navigation, not a setting; the totals, the tables and
+  the commentary above must be exactly where they were. Pin it with a test that snapshots
+  every list-wide computed before and after the switch.
+- **A summary comparing every item must exist**, so opening one is never the only way to
+  see how it sits against the others — otherwise the reader is asked to compare two states
+  they cannot see at once.
+
+⚠ **This is a shape decision, so it belongs in the artefact and needs the owner's word.**
+The alternative — one screen per item, linked from a summary — is right when the items are
+independent, and wrong when a figure typed on one changes another.
+
+**P18 · A figure the MODEL chose is a placeholder, never a blank and never written into the
+box.** Where a value may be either typed by the reader or derived by the model, the input
+shows the derived figure as its **placeholder**.
+
+- **Writing it into the field is wrong**: it converts a value the model worked out into one
+  the user appears to have chosen, and where those two mean different things to the maths
+  it silently changes the answer.
+- **Leaving the box empty is also wrong**: the reader sees a blank beside a total that
+  plainly had that figure deducted from it, and the screen is disagreeing with its own
+  table.
+
 **P11 · A catalogue row goes ready in the SAME change as its page.** Flipping
 `STATUS_READY` earlier fails the build:
 [`reportShellFrame.test.js`](../../tests/unit/reportShellFrame.test.js) derives its list
@@ -282,6 +309,25 @@ Work the checklist at the end of [`../ADDING-A-REPORT.md`](../ADDING-A-REPORT.md
 open the approved artefact, put it beside the build, and **name every difference.** A
 deliberate deviation is fine. An unrecorded one is not. If the artefact cannot be found,
 say so *before* building.
+
+🔴 **Then READ THE SCREEN'S OWN WORDS. Mount the finished component with the real
+`locales/en.json` — not the key-returning stub the component tests use — and read the
+rendered text end to end, as an advisor would.** It costs one throwaway file and it is not
+optional.
+
+*Why it is a step and not a nicety:* on 2026-08-21 this found **two defects with 5,885
+tests green**, in a screen whose own suite had just been rewritten to 26 tests. A scalar
+was indexed as if it were a ten-year series, so the client's cash deposit rendered as a row
+of dashes — the money missing from the one table that exists to show it, on a screen where
+*every other row genuinely is a series*. And an input bound to what the user typed sat
+blank beside a total that had plainly had that very figure deducted from it. **Neither is a
+maths error and neither is a layout error, so neither the golden tests nor a mockup could
+see them.** They are the screen quietly saying something untrue, and only reading it finds
+that.
+
+⚠ **Reading rendered text is still NOT seeing a laid-out page**, and no browser driver is
+installed in this repository. Say plainly that layout is unverified rather than implying
+the screen has been reviewed — §3's rule stands: jsdom has no layout engine.
 
 ---
 

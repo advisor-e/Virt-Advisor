@@ -43,11 +43,33 @@ repository sees; the two never both appear, and the build stops if they would.
 | 6 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | **Mike** |
 | 7 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
 | 8 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
-| 9 | **4.19** Finish the property model — properties 2 to 5, the apportionment and the consolidated report | 4 | — | Us |
-| 10 | **4.22** Settle whether purchase costs are non-deductible in the property model's first year | 1 | — | **Mike** |
+| 9 | **4.22** Settle whether purchase costs are non-deductible in the property model's first year | 1 | — | **Mike** |
+| 10 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
+| 11 | **4.26** The Model Library card still promises one rental property, not five | 2 | — | **Mike** |
+| 12 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
 
-**Ten live items. Two need Mike.** If this list passes about twenty, something is wrong.
+**Twelve live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
+
+**One item came off this list on 2026-08-21, and three joined it** — see
+[`to-do-done-and-parked.md`](to-do-done-and-parked.md):
+
+- ✅ **4.19** — the property model is finished. All five Phase 2 steps: the maths and its golden
+  test, the route taking two shapes on one URL, **the drawing before the screen**, the screen, and
+  the catalogue line. Carried since 2026-08-17, when Mike put it on the list himself after asking
+  whether the other four properties were ever coming.
+  🔴 **The drawing was its own numbered build step and it was not absorbed into "the screen"** —
+  which is exactly what happened to the Property Tax Rules tab, recorded in §10 of
+  [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md). Mike ruled its six
+  questions in one line (*"looks great - move forward"*) and opened the built screen.
+  🔴 **Closing it found two defects with 5,885 tests green**, both by reading the screen's rendered
+  words rather than by any assertion: a scalar indexed as a ten-year series, so the client's cash
+  deposit showed as ten dashes; and a deposit box left blank beside a total that had visibly had
+  that money taken off it. That reading step is now **P19** of
+  [`report-models.md`](report-models.md) §5 so it is a build step, not a lucky habit.
+  ⚠ **And it found a hole nothing can close by itself:** layout was shipped **unverified**, because
+  no browser driver is installed. That is now **4.25** — a job, not a warning. The two wording
+  calls it left with Mike are **4.26** and **4.27**.
 
 **One item came off this list on 2026-08-20** — see
 [`to-do-done-and-parked.md`](to-do-done-and-parked.md):

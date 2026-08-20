@@ -180,24 +180,6 @@
       "note": "TWO HALVES, AND THE SECOND ONE IS THE ITEM. Sharpening the routing reduces how often it happens and can never remove it — some questions are genuinely ambiguous, and Ratio Analysis and Dashboard Discussions are neighbouring methods. THE FAULT WORTH FIXING IS THAT THE MODEL DOES NOT SAY 'I DO NOT HAVE THAT FOR THIS METHOD.' Do not close this item on a routing tweak alone. VERIFY THE WAY 4.16 WAS VERIFIED — ask a real question on the running app and compare the answer word for word against the source file, because every automated test here passes on an answer the model made up."
     },
     {
-      "ref": "4.19",
-      "name": "Finish the property model — properties 2 to 5, the apportionment and the consolidated report",
-      "score": 4,
-      "scoreReason": "the user is worse off — an adviser whose client holds several rentals has no screen that puts them together",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Phase 1 builds ONE investment property over ten years. The source workbook is a five-property portfolio: it also carries the family home and its mortgage, a loan apportionment table that spreads the available lending across the residence and five investments in order until the borrowing ceiling is reached, and a consolidated report stacking all five into total revenue, total expenses, net operating profit, total debt, net equity and a combined weekly cash position. Without Phase 2 the model answers 'is this one property worth buying' and cannot answer 'does this portfolio work', which is the question the workbook was built to answer.",
-      "risk": "Phase 1 ships and the model looks finished. Properties 2-5 are the same block repeated, so what is left is precisely the part nobody can infer from the built screen — the apportionment and the consolidation exist nowhere in Phase 1 in any form. It is written into design/MULTIPLE-PROPERTY-ASSESSMENT.md §2 and nothing schedules it; on this project a plan that lives only in a design document is how work quietly becomes never. That is the whole reason this row exists.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "Mike chose Multiple Property Assessment from the nine unbuilt models in the catalogue on 2026-08-17 and approved building it in two phases. He then asked directly whether the additional properties would be added in future, and on being told Phase 2 was a written plan with nothing scheduling it, RULED IT ONTO THE LIVE LIST the same session. The contents of both phases are recorded in design/MULTIPLE-PROPERTY-ASSESSMENT.md §2."
-      },
-      "touches": "The Phase 1 maths model in server/report/ and its golden test, the Restify route, the catalogue row in utils/reportModelCatalogue.js, the page and screen components, and the SCREENS list in tests/unit/reportHeadlineConsistency.component.test.js. The approved artefact is design/MULTIPLE-PROPERTY-ASSESSMENT.md with design/mockups/multiple-property-assessment.html.",
-      "note": "DEPENDS ON PHASE 1 — do not start this first. Phase 1 holds all the mathematical difficulty (two loans amortised, diminishing-value depreciation on chattels, ring-fenced losses, the five-year interest-deductibility phasing) and Phase 2 is the apportionment plus the consolidation on top of it. THE NAME IS SETTLED — Mike, 2026-08-17: the catalogue name 'Multiple Property Assessment' is kept and Phase 1 ships under it showing 'Property 1 of 5 — the remaining four arrive in the next release', so the name never changes between the phases. His own question settled it: asking whether the other properties were coming turned a naming problem into a scheduling one, and this item is the answer. ✅ NOTHING IS OPEN FOR MIKE ON THIS MODEL — all eight design questions were ruled on 2026-08-17 and are recorded with the options he turned down at §8 of design/MULTIPLE-PROPERTY-ASSESSMENT.md. Read the ruling, not the summary table, and do not re-ask. ✅ PHASE 1 IS COMPLETE — item 4.20 closed 2026-08-18, so this row is UNBLOCKED and is the next piece of the model. Phase 1 held all the mathematical difficulty; what is left here is the apportionment and the consolidation on top of it. ⚠ THE HUB TAB BUILT IN PHASE 1 HAS NO APPROVED ARTEFACT AND MIKE HAS NOT SEEN IT (design/MULTIPLE-PROPERTY-ASSESSMENT.md §10) — do not repeat that here: anything Phase 2 puts on a screen gets its artefact committed BEFORE it is approved. 🔴 THE WORKBOOK IS WRONG IN THE OTHER FOUR PROPERTY BLOCKS TOO, AND IT WILL NOT BE FIXED — Mike deleted item 4.21 on 2026-08-17: 'im not fussed about fixing the workbook, so longs as the code is strong and backed up in github we don't need it again.' Properties 2-5 are copies of the first block, so all three proven faults repeat at rows 137/147, 214/224, 291/301 and 368/378: the interest-only balance zeroed with nothing repaying it, the residual repayment's flipped sign, and year 1's weekly figure returning 0 when positive. APPLY THE CORRECTIONS ALREADY WORKED OUT — they are in the header of server/report/multiplePropertyModel.js and §6 rule 9 of the design document — AND DO NOT RE-DERIVE THEM, and do not read the workbook's cached values for those years as evidence of anything."
-    },
-    {
       "ref": "4.22",
       "name": "Settle whether purchase costs are non-deductible in the property model's first year",
       "score": 1,
@@ -214,6 +196,60 @@
       },
       "touches": "The DEFAULT_INPUTS.yearOneAddBack value in server/report/multiplePropertyModel.js, the Tax rules card's default on the screen, and the same note in the source workbook if the note is the thing that is wrong.",
       "note": "NEEDS AN ACCOUNTANT, NOT A DEVELOPER, and it needs one sentence from Mike either way. In New Zealand practice legal, loan, valuation and body-corporate establishment fees on a purchase are capital and non-deductible, which is what the note says and what the formula does not do — but that is a reading of the rules, not a reading of the cells, and it is not ours to assert. THE MODEL IS ALREADY CORRECT FOR BOTH ANSWERS: yearOneAddBack takes 'setup', 'setupAndPurchase' or 'none' and is golden-tested at all three. Only the default moves."
+    },
+    {
+      "ref": "4.25",
+      "name": "Nothing in this project ever checks that a screen LOOKS right",
+      "score": 4,
+      "scoreReason": "the user is worse off — a screen can ship visually broken with every gate green, and it has",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "CLAUDE.md's testing standard names Playwright for critical journeys. It is not in package.json and never has been. Jest runs under jsdom, which has NO layout engine: it cannot measure a width, a gap or an overflow, so a screen whose boxes are squashed, whose columns collapse or whose table runs off the page passes all 5,887 tests. Every visual defect this project has had was found by a human opening the page, and only after it shipped.",
+      "risk": "It has already happened twice and both times the finder was Mike. On 2026-08-18 the Property Tax Rules tab shipped with five phasing percentage boxes sharing a slot sized for one — about 31px each — so every one read as empty while holding and saving the correct value; he found it by opening the tab. On 2026-08-21 the five-property screen shipped with layout stated as UNVERIFIED in its own design document because there was no way to check it. Until something can see a rendered page, \"the tests are green\" will keep meaning less than it sounds, and the product owner will keep being the visual regression suite.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Raised 2026-08-21 while closing 4.19, when the screen could not be visually verified before shipping and that had to be written into the design document as a gap. It stays because it is the named standard in CLAUDE.md going unmet, not a new idea — and because the two defects it would have caught were both found by Mike rather than by us. Adding a browser driver is a dependency change and needs his explicit approval under the Stack Constitution."
+      },
+      "touches": "package.json (a dev dependency and a script), a new tests/visual/ directory, and the CI step. Playwright is the version named in CLAUDE.md; whatever is chosen must install and run on the locked Node 14.15 target or the choice is not compliant — check that BEFORE proposing a version.",
+      "note": "DO NOT INSTALL ANYTHING WITHOUT MIKE SAYING YES — this is a dependency change and the Stack Constitution is one-directional: if a driver does not fit Node 14.15, the answer is a different driver, never a raised floor. Scope it to a handful of screenshots of the report screens at one width, not a full visual-regression suite; the goal is to SEE the page, not to pin every pixel."
+    },
+    {
+      "ref": "4.26",
+      "name": "The Model Library card still promises one rental property, not five",
+      "score": 2,
+      "scoreReason": "small but real — the first thing an adviser reads about the model now understates it",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The catalogue row reads \"Whether a rental property is worth buying — ten years of cash, tax and equity.\" Mike ruled that wording himself at Q8 Q7 on 2026-08-17, when the screen genuinely was one property, and it said \"a rental property\" singular ON PURPOSE. The screen now takes a household and up to five properties with an apportionment table and a consolidated report, so the card is the only place left that describes the old model.",
+      "risk": "The card is what an adviser sees FIRST, which is the exact reason Mike ruled at Q7a that it should carry the scope line at all. A card that undersells the model means the portfolio screen goes unused by the people who need it most — advisers whose clients hold several rentals.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Raised 2026-08-21 while closing 4.19. It stays on the list rather than being fixed because the sentence is MIKE'S OWN RULED WORDING and changing approved copy is his call, not ours. It is one line from him."
+      },
+      "touches": "One string in utils/reportModelCatalogue.js. The scope line beside it was already deleted as build step P2-5.",
+      "note": "THIS IS A WORDING DECISION, NOT A TASK — do not invent a replacement sentence. Ask him, offering the alternatives the way §8 Q7 did, with the option he turned down recorded beside the one he takes."
+    },
+    {
+      "ref": "4.27",
+      "name": "The property drawing promises a per-property tax override that nothing builds",
+      "score": 1,
+      "scoreReason": "nobody is worse off today — but an approved artefact says something the build does not do",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The Tax rules card on design/mockups/multiple-property-portfolio.html carries the note \"A single property may still differ — that override lives on the property itself, below.\" No such control is drawn anywhere on that page, and none is built: the tax rules are portfolio-level and apply to all five properties. The drawing's prose promises a control the drawing itself never shows.",
+      "risk": "This is the artefact and the build disagreeing, which is the precise thing §10 exists to catch. Building it unasked would ship something Mike never saw; deleting the sentence would hide the promise. Left alone and unrecorded it becomes a claim a later session believes because it is written down — the failure mode design-docs-are-claims-to-check describes, in an approved artefact rather than a plan.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Raised 2026-08-21 while naming the twelve build-vs-drawing differences in §10. It stays because the honest options are opposite — build the control, or strike the sentence — and only Mike can say which. It blocks nothing either way."
+      },
+      "touches": "Either components/MultiplePropertyAssessment.vue and locales/en.json (build the override), or one sentence in design/mockups/multiple-property-portfolio.html plus the §10 row (strike it). Whichever way it goes, §10 of design/MULTIPLE-PROPERTY-ASSESSMENT.md records the outcome.",
+      "note": "ASK, DO NOT CHOOSE. A firm advising across a border is the case for a per-property override; a family having one country is the case against, and that is the reasoning the card is built on today (§11 Q11)."
     }
   ]
 }

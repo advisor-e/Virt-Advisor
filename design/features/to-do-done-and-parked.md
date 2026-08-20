@@ -219,6 +219,47 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.19 · Finish the property model — properties 2 to 5, the apportionment and the consolidated
+report.** ✅ Closed 2026-08-21, sessions 75–76. Carried since 2026-08-17, when Mike put it on the
+live list himself after asking whether the other four properties were ever coming.
+
+- **Why it mattered:** Phase 1 answered *"is this one property worth buying"*. The workbook was
+  built to answer *"does this portfolio work"*, and an adviser whose client holds several rentals
+  had no screen that put them together.
+- **What we would have lost:** the apportionment and the consolidation exist nowhere in Phase 1 in
+  any form, so they were precisely the part nobody could infer from the built screen. It lived in a
+  design document with nothing scheduling it, which on this project is how work quietly becomes
+  never. That is why the row existed.
+- **Mike's own words:** *"finish 4.24 then lets get 4.19 finished at last"* (2026-08-20), then
+  *"looks great - move forward"* on the drawing and *"i like it"* on the built screen (2026-08-21).
+- **What proves it:** all five build steps are done — the maths and its golden test (`c7fc42b`,
+  `a0a779f`, `e36f8da`), the route taking two shapes on one URL with the live Phase 1 request shape
+  pinned by a test (`838cf46`), **the drawing before the screen** (`30c2b7a`), and the screen and
+  catalogue line (`4f34588`). Suite **5,887 green / 322 suites**, lint 0 errors. The workbook's own
+  `Consolidated Report` row 11 and row 22 match its cached values **exactly across all ten years**;
+  rows 24 and 26 deliberately do not, because those carry Mike's ruling that an interest-only loan
+  may not simply vanish. Mike opened the finished screen on the running app.
+- 🔴 **THE DRAWING CAME FIRST, AND THAT IS THE POINT.** P2-3 was written as its own numbered build
+  step precisely because §10 of [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md)
+  records the Property Tax Rules tab being built with no artefact at all. It was not absorbed into
+  "the screen" a second time. The drawing is
+  [`../mockups/multiple-property-portfolio.html`](../mockups/multiple-property-portfolio.html), its
+  six questions are §11, and **§10 names twelve differences between it and the build**.
+- 🔴 **THE SCREEN SAYS SOMETHING NO VERSION OF THE WORKBOOK COULD.** On the model's own figures the
+  first property absorbs the whole $315,000 deposit and the other four borrow **100% of their
+  purchase price**; the rentals stand at **90.9%** loan to value. Spread the deposit evenly instead
+  and **every** property breaches an 80% ceiling. *$315,000 does not buy five properties* — and the
+  spreadsheet could never have said so, because it has no lending test anywhere in it.
+- 🔴 **AND CLOSING IT FOUND TWO DEFECTS THAT 5,885 PASSING TESTS COULD NOT SEE.** Both were found by
+  mounting the screen with the real English strings and reading it as an adviser would: a scalar
+  indexed as a ten-year series, so the client's cash deposit rendered as ten dashes; and a deposit
+  box left blank beside a total that had visibly had that money deducted from it. Both are fixed,
+  both carry a mutation-verified test, and the reading step is now **P19 of
+  [`report-models.md`](report-models.md) §5** so it is a build step rather than a lucky habit.
+- ⚠ **What did NOT come off with it:** layout is unverified — no browser driver is installed and
+  jsdom has no layout engine. That gap is now item **4.25** on the live list rather than a warning
+  in a document. Two wording decisions also stayed with Mike and are **4.26** and **4.27**.
+
 **4.24 · Fold the Coaching Reference into Logic Tables — Mike's Option D.** ✅ Closed 2026-08-20,
 session 74. Filed the previous evening on the evidence in
 [`../COACHING-REFERENCE-EVIDENCE.md`](../COACHING-REFERENCE-EVIDENCE.md) and executed the next

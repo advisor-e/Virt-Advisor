@@ -25,6 +25,11 @@
 >
 > **Two commits.** Suite **5,887 green / 322 suites**, lint 0 errors, audit gate PASS.
 >
+> ✅ **ITEM 4.19 IS CLOSED**, on Mike's *"i like it"* after opening the built screen. Its closure
+> is written on [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2 and it
+> is off the live list, which is down to **twelve items, four needing Mike**. This **supersedes
+> the "Item 4.19 is NOT closed" paragraph in the session 75 block below.**
+>
 > **Steps P2-3, P2-4 and P2-5 are done, so every build step of item 4.19 is complete.**
 > The artefact came FIRST — the step §10 records as skipped for the Property Tax Rules tab. It
 > was written as its own numbered build step precisely so it could not be absorbed into "the
