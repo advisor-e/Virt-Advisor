@@ -1,6 +1,7 @@
 # Multiple Property Assessment — screen design
 
-> **Status, 2026-08-20: PHASE 1 IS LIVE. PHASE 2's MATHS IS BUILT; ITS SCREEN IS NOT.**
+> **Status, 2026-08-21: PHASE 1 IS LIVE. PHASE 2's MATHS AND ROUTE ARE BUILT; ITS SCREEN
+> IS NOT, AND ITS DRAWING NOW EXISTS.**
 >
 > - **Phase 1 (one property)** — built 2026-08-17, live. Maths, golden test, Restify
 >   route, catalogue row, page, screen. The group-tier tax cascade followed on
@@ -8,13 +9,22 @@
 > - **Phase 2 (the portfolio)** — item 4.19, started 2026-08-20. The maths is built and
 >   golden-tested: the household, the loan apportionment table, five properties and the
 >   consolidation, plus the deposit hold-back, the lending ceiling and the servicing
->   figures Mike asked for the same day. **The route, the screen and the catalogue line
->   are NOT built** — §9 steps P2-2 to P2-5.
+>   figures Mike asked for the same day. **The route is built too** (`838cf46`, one URL
+>   taking both shapes). **The screen and the catalogue line are NOT** — §9 steps P2-4
+>   and P2-5.
 >
-> 🔴 **A Phase 2 screen does not get built until its artefact exists.** Nothing in §4,
-> §5 or the mockup describes the household inputs, the apportionment table, the
-> hold-back or the consolidated report. That drawing is step P2-3 and it is not written
-> yet, so §10 currently has nothing to measure a Phase 2 screen against.
+> ✅ **THE PHASE 2 DRAWING EXISTS — step P2-3, written 2026-08-21:**
+> [`mockups/multiple-property-portfolio.html`](mockups/multiple-property-portfolio.html),
+> with the design and the six open questions in **§11** below. Its figures are the built
+> model's own output, not the workbook's and not invented. **The screen may now be built
+> against it once Q11–Q16 are ruled.**
+>
+> *(This block read* **"PHASE 2's MATHS IS BUILT; ITS SCREEN IS NOT … The route, the
+> screen and the catalogue line are NOT built"** *until 2026-08-21. The route sentence was
+> already wrong when it was written — `838cf46` landed in the same session. It is rewritten
+> rather than appended to, and recorded here, because a status line that is wrong is worse
+> than none; §10 records that the last two contradictions of this kind were both caught in
+> this very document.)*
 >
 > *(This block read "PHASE 1 IS BUILT AND LIVE … All eight design questions are ruled"
 > until 2026-08-20. It is rewritten rather than appended to because a status line that
@@ -914,17 +924,28 @@ change:
   reaches minus 68,772 in year 10 under the interest-only fault corrected in Phase 1, so
   pinning it would pin the fault.
 
-**P2-2. ☐ NOT BUILT — the Restify route.** Extend `POST /api/report/multiple-property` to
-take a household and up to five properties, and to resolve the lending ceiling from the
-tier cascade the way the tax rules already are.
+**P2-2. ✅ BUILT 2026-08-20 (`838cf46`) — the Restify route.** `POST
+/api/report/multiple-property` now takes either shape on one URL: a body carrying
+`household` or `properties` computes the portfolio, and **every other body computes exactly
+as it did before Phase 2 existed** — the Phase 1 screen is live in UAT, so the test this
+change is really about sends the old shape and asserts nothing moved. The lending ceiling is
+**not** resolved here: the route stays anonymous, and the ceiling reaches the caller from the
+authenticated `GET /api/report/property-tax-rules` alongside the tax rules it shares a
+settings block with. 16 route tests, up from 7.
 
-**P2-3. ☐ NOT BUILT — THE ARTEFACT, and it comes BEFORE the screen.** Nothing in §4, §5 or
-the mockup draws the household inputs, the apportionment table, the hold-back control, the
-LVR figures or the consolidated report. 🔴 **This is the step §10 says was skipped for the
-Property Tax Rules tab.** It is written here as its own numbered step so that it cannot be
-absorbed into "the screen" a second time.
+⚠ **This step was recorded as "NOT BUILT" until 2026-08-21, having already been built the
+session before.** The line is corrected rather than quietly replaced, because a build step
+that says it is outstanding when it is done is the same defect as one that says it is done
+when it is outstanding — and §10 exists because this document has now produced both.
 
-**P2-4. ☐ NOT BUILT — the screen**, once P2-3 is approved.
+**P2-3. ✅ BUILT 2026-08-21 — THE ARTEFACT, and it came BEFORE the screen.**
+[`mockups/multiple-property-portfolio.html`](mockups/multiple-property-portfolio.html), with
+its design written up in **§11** and its six open questions as **Q11–Q16**. 🔴 **This is the
+step §10 says was skipped for the Property Tax Rules tab.** It was written here as its own
+numbered step so that it could not be absorbed into "the screen" a second time, and it was
+not.
+
+**P2-4. ☐ NOT BUILT — the screen**, once §11's Q11–Q16 are ruled.
 
 **P2-5. ☐ NOT BUILT — the catalogue.** Delete the scope line *"Property 1 of 5 · the
 remaining four arrive in the next release"* from the catalogue row **and** the screen's
@@ -1092,3 +1113,133 @@ nothing was built ahead of the artefact.**
 management fee — *"charged at 8.625% with GST"* — under the fee itself. The model returns
 `taxRules.effectiveManagementFeePct` for it. That line is the visible half of §6 rule 10's
 fix, and a screen without it puts the model back where it started.
+
+---
+
+## 11. The Phase 2 screen — the portfolio
+
+> **The drawing is
+> [`mockups/multiple-property-portfolio.html`](mockups/multiple-property-portfolio.html),
+> written 2026-08-21 as build step P2-3.** Every figure on it is
+> `computeMultiplePropertyPortfolio()`'s own output on its own defaults — nothing is the
+> workbook's uncorrected arithmetic and nothing is invented. The second state shown near
+> its foot is the same function called with a hand-spread deposit and an 80% ceiling.
+>
+> 🔴 **The screen is not built and must not be built until Q11–Q16 are ruled.**
+
+### 11.1 The shape, and the problem it solves
+
+Five properties carry about **twenty-five inputs each** and **four ten-year tables each**.
+Drawn flat that is a screen with a hundred and twenty-five input boxes and twenty tables.
+The shape is therefore a real design decision rather than a layout preference, and it is
+**Q11**.
+
+**What is drawn: the portfolio is the screen, and one property is open inside it.** The
+ruled `[A]`–`[D2d]` skeleton is unchanged — full-width header, full-width headline band,
+then the 360px + `1fr` two-column body, 16px gaps throughout.
+
+| | Left column `[D1]` — what is typed | Right column `[D2]` — what is computed |
+|---|---|---|
+| Portfolio | **The household** · **The properties** (the list of five) · **Tax rules** | **Things to check** · **How the deposit is spread** · **Lending position** · **The five properties** · **Consolidated report** · **What the portfolio asks of the family** · **What this says** |
+| The open property | **Property n — the property** · **— funding** · *— annual costs* · *— assumptions* | **Property n — investment summary**, then its *profit & loss*, *tax position* and *loan calculations* |
+
+🔴 **Opening a different property changes only the property cards and the property section.
+Nothing in the portfolio moves.** This is the *nothing-moves-under-the-reader's-hand* rule
+applied rather than assumed: choosing which property to inspect is the reader navigating,
+which is a different thing from a screen rearranging itself as a side effect of an unrelated
+setting. And **the five-property comparison card exists so that opening a property is never
+the only way to compare it** — a reader is never asked to judge two states they cannot see
+at once.
+
+⚠ **The comparison card has to answer §1**, which says in terms that this model is *not* a
+side-by-side property comparison. It still is not. Nothing on that card is scored, ranked or
+recommended; it is the five properties the advisor already entered, each showing the four
+figures the model already computes.
+
+**The alternative, turned down and recorded so it is not re-derived:** a portfolio screen
+that links out to five separate property screens, each one Phase 1 as it stands. Less to
+build, and each screen stays simple. Rejected because **the deposit is a portfolio-wide
+decision made property by property** — changing property 3's deposit changes what properties
+4 and 5 can borrow — so splitting it across two screens means the advisor never sees the
+consequence of the number they are typing.
+
+### 11.2 What the drawing found, which is not a design question
+
+Running the model on its own defaults is the state an advisor meets first, and it says
+something the spreadsheet never could:
+
+- **Property 1 absorbs the whole $315,000 deposit and properties 2–5 borrow 100% of their
+  purchase price.** That is what *"no hold-back chosen"* means — the cascade spends the pool
+  in order until it runs out.
+- **The rentals on their own stand at 90.9% loan to value**, and 91.6% when the deposit is
+  spread evenly by hand instead. Against an 80% ceiling, spreading it puts *every* property
+  over; concentrating it leaves one comfortable and four impossible.
+- **The honest answer is that $315,000 does not buy five properties.** No version of the
+  workbook could produce that finding, because the workbook has no lending test at all
+  (§8 Q10).
+
+🔴 **THE SAME PROPERTY READS DIFFERENTLY ON THE TWO SCREENS.** Property 1 is **−$929 a
+week** on the live Phase 1 screen and **+$41 a week** here. Neither is a fault. Phase 1 lets
+the advisor type *Funding Required* and *Cash Deposit* as two independent numbers, and its
+sample types $649,000 of funding **and** a $315,000 deposit — borrowing the whole purchase
+price while also putting money down. The portfolio's table will not allow that, which is
+correction 4 of §8 Q8, ruled *"yes fix both"* after Mike was told live figures would move.
+
+⚠ **It is raised because an advisor who opens both screens will see it and will ask.**
+Nothing is proposed. It bears directly on Mike's still-open question of **whether the
+sample's own $350,000 / $299,000 loan split should be reset** now the deposit is genuinely
+applied — that same inconsistency is what produces the single finding on the drawn screen.
+
+### 11.3 🔴 What actually needs Mike's word — Q11 to Q16
+
+**Everything else on the drawing is either the workbook's own wording, an existing ruling of
+his, or the ruled house look.** What follows is ours, and each is listed so that changing one
+is a one-line instruction rather than an archaeology exercise. **He may give his own wording
+for any of them instead of choosing.**
+
+| | Question | Ours | Our recommendation |
+|---|---|---|---|
+| **Q11** | The shape of the screen | Portfolio-is-the-screen; the property list and *+ Add a property*; the titles *The household*, *The properties*, *The five properties*; Tax rules at portfolio level | As drawn |
+| **Q12** | The headline band | Only the sub-line *"Year 1 · all five properties"*. The four labels are his, unchanged (§8 Q2) | As drawn |
+| **Q13** | The deposit table | The title *How the deposit is spread*; the columns *Deposit applied*, *Deductible share*, *Loan to value*; the row *The family home*; the held-back sentence | As drawn |
+| **Q14** | The hold-back control | The label *Deposit Applied to This Property*; that it is typed in two places; that *Funding Required* and the P&I loan become read-only here | As drawn |
+| **Q15** | The seven finding sentences | The card *Things to check*, its sub-line, all seven sentences, and the *What this says* commentary | As drawn |
+| **Q16** | Lending and servicing | The titles *Lending position* and *What the portfolio asks of the family*; both ratio names; the *"shown, not judged"* wording — **and one real decision, below** | As drawn, plus **do not** ask for income yet |
+
+🔴 **Read the drawing, not this table.** The table names what is open; the drawing shows the
+words in place, and Q5 is the precedent — Mike ruled on the whole Tax rules card in one line
+because it had been *drawn* rather than listed.
+
+#### Q16 — the one that is a decision rather than a wording choice
+
+**Should the screen ask for the family's income and living costs, so that servicing can be
+judged rather than merely stated?**
+
+The model reports what the portfolio *demands* — $243,244 in year 1, about $4,678 a week,
+$1,566,523 over ten years — and deliberately stops there. A test fails the build if an
+affordability verdict is ever added.
+
+- **Ask for it.** The advisor gets a real answer to the question every client actually has:
+  *can we afford this?* It is also the single largest omission in the source workbook, which
+  collects no income on any sheet.
+- **Do not ask for it.** It is new maths, not a screen change: a serviceability test needs
+  income, living costs, existing commitments and a lender's own stress rate, and each of
+  those is a jurisdiction-specific rule of the kind §8 Q3 turned into settings. Building it
+  half-way would produce a verdict that looks authoritative and is not, on a screen whose
+  `modelClass` is `CLASS_DECISION` — somebody may buy five properties on it.
+
+**Our recommendation as engineers: do not ask for it now.** Ship the demand stated plainly,
+and treat serviceability as its own piece of work with its own artefact, its own settings and
+its own golden test. ⚠ **This is raised rather than assumed precisely because it is the kind
+of gap that gets noticed after a screen ships**, and the honest time to name it is before.
+
+### 11.4 What the drawing deliberately does not do
+
+- **It does not redraw what Phase 1 already had approved and built** — *Annual costs*,
+  *Assumptions*, and three of the four per-property ten-year tables. Redrawing settled work
+  only invites it to drift.
+- **It does not port `Import Range` or `Imported Report`** — §1.
+- **It does not judge affordability** — Q16 above.
+- **It does not offer the year-by-year interest rate table.** The model has no per-year rate
+  input; building one is a change to the maths with its own golden test (§10, difference 6).
+  It is not on the live list, and raising it is a decision rather than a to-do already taken.
