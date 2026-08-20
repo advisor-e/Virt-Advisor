@@ -122,6 +122,46 @@ of that Brief: *a group is normally a country*. A firm is a branch inside one, s
 is the wrong place for a country's rules to originate, however likely it is to be where
 they get corrected.
 
+🔴 **A SETTING THE WORKBOOK HAS NO VALUE FOR SHIPS UNSET.** P10 above is about a value the
+workbook *does* hold, buried in a formula; the default reproduces it exactly. Where the
+workbook holds **nothing**, there is nothing to reproduce, and a figure invented as a
+default is a policy nobody chose arriving with the authority of a calculated result.
+**Unset means the model computes and displays the measure and passes no judgement on it**
+until a real figure is entered. Added 2026-08-20: the property model's maximum LVR. Its
+source workbook computes a loan-to-value ratio at `INPUTS` R5 that **no formula on any of
+its seven sheets ever reads** — no ceiling, no threshold, not even conditional formatting.
+Asked which percentage to use, Mike ruled *"it needs to be an editable input"*; it ships
+blank, and both ratios are still shown.
+
+**P14 · A model may ADJUST an input to keep the sums right — and must say so out loud.**
+Where an input would otherwise produce arithmetic nonsense, the model corrects it, returns
+a `warnings[]` entry naming what was asked for and what was applied, and the screen renders
+it. 🔴 **The warning is not the polite half of the feature, it is the feature.** A model
+that silently clamps has gone back to producing a plausible wrong number, which is exactly
+the fault these corrections exist to remove. Established 2026-08-20: a deposit larger than
+the family's savings or larger than the house, and an interest-only loan larger than the
+whole loan it is a slice of — the last of which was found in the source workbook's **own
+sample**, where it drove the P&I loan to minus 16,000.
+
+**P15 · A "must add up" relationship is an IDENTITY — tested across many inputs, not
+asserted in a comment.** Name it, write it as an equation, and run it over ordinary input,
+deliberate edge cases *and* abuse in the same test. Established 2026-08-20 from Mike's
+condition — *"either way, the math has to add up"* — as three identities checked under
+seven different allocations including a negative and an over-spend:
+
+```text
+requiredFunding + depositApplied === purchasePrice        (every property)
+Σ depositApplied + depositHeldBack === totalSavings       (the portfolio)
+interestOnly + principalAndInterest === requiredFunding   (every property)
+```
+
+**P16 · A calc route stays ANONYMOUS, and cascaded settings are passed IN.** Numbers in,
+numbers out: the calculation reads no database and resolves no firm's configuration. The
+screen fetches the resolved settings from the **authenticated** endpoint
+(`GET /api/report/property-tax-rules`) and posts them back with the figures. That is what
+lets a model carry firm-editable rules without the calculation itself becoming a route that
+must be authorised, rate-limited and audited.
+
 **P11 · A catalogue row goes ready in the SAME change as its page.** Flipping
 `STATUS_READY` earlier fails the build:
 [`reportShellFrame.test.js`](../../tests/unit/reportShellFrame.test.js) derives its list

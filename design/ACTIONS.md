@@ -21,6 +21,68 @@
 >
 > ---
 >
+> ## ✅ SESSION 75 — 2026-08-20 (laptop). ITEM 4.19 — THE PORTFOLIO MATHS AND ITS ROUTE.
+>
+> **Five commits: `c7fc42b`, `a0a779f`, `e36f8da`, `4f4210c`, `838cf46`.** Suite **5,869 green
+> / 322 suites**, audit gate PASS, tree clean, `37 ahead / 0 behind` master.
+>
+> **Item 4.19 is NOT closed.** Steps P2-1 (maths) and P2-2 (route) are done; **P2-3 the artefact,
+> P2-4 the screen and P2-5 the catalogue line are not.** The row stays open.
+>
+> **TWO PROVEN SOURCE-WORKBOOK DEFECTS, CORRECTED ON MIKE'S RULING** (*"yes fix both"*, given
+> knowing that figures on a LIVE Phase 1 screen would move):
+> - `INPUTS` **L15** apportioned the purchase PRICE for the first investment (`=L9*L13`) where the
+>   residence's own cell apportions REQUIRED FUNDING (`=K11*K13`). Property 1 borrowed the full
+>   649,000 and the 90,000 available to it was ignored. **Proof: the workbook's own check cell
+>   R17.** Read correctly it lands on exactly the non-deductible share of the home loan every time
+>   (90,000 = 225,000 × 40%; 120,000 = 300,000 × 40%). Read as written it gives 0 then 105,000 —
+>   and the 0 that makes the sheet look reconciled is a coincidence of the sample figures.
+> - **The deposit was counted twice.** `OUTPUTS` C18 gave property 1 the whole 315,000 pool and
+>   C100 gave property 2 a second helping of the same money, so `Consolidated Report` C29 reported
+>   **405,000 of investor cash from a 315,000 deposit**, feeding the return-on-investor-funds
+>   headline.
+>
+> **MIKE'S RULING THAT CHANGED THE DESIGN.** Asked to choose whether the home mortgage should
+> reduce the deposit, he refused both options: *"either way, the math has to add up. If there is an
+> option for a family to 'hold-back' some of their cash deposit then that's fine but the remaining
+> math still has to work."* He was right that the sheet was reaching for it — `M15:P15` are **not
+> formulas but hand-typed constants**. The deposit is now chosen per property, and three identities
+> are tested under seven allocations including abuse. See `report-models.md` **P15**.
+>
+> **THE LENDING CEILING IS A SETTING, NOT A NUMBER WE PICKED** — *"it needs to be an editable
+> input"*. It joins the existing property-tax-rules cascade (mentor → global group → group → firm),
+> **ships blank**, and the model shows both LVRs and judges neither until it is set. Checked first:
+> the workbook has **no** lending test and **no** servicing test, and cannot have one — it collects
+> no household income on any sheet. Servicing is therefore SHOWN and deliberately not judged, with
+> a test that fails the build if an affordability verdict is ever added.
+>
+> **THE PROPERTY TAX RULES TAB GOT ITS FIRST COMPONENT TEST** — it had none since being built on
+> 2026-08-18. 12 tests. The one that matters: a blank lending ceiling must never be sent as 0,
+> because a maximum LVR of zero refuses every loan, silently, on a tab where every other blank
+> number legitimately means zero.
+>
+> 🔴 **A CLAIM THIS SESSION GOT WRONG, LOGGED BECAUSE IT IS THE SECOND TIME.** It repeated *"Mike
+> has not seen the Property Tax Rules tab"* — into `to-do.md`, into a commit message, and as a
+> proposed new to-do item — when **he had corrected exactly that claim the same morning**:
+> *"I DID look at the property tax rules — your notes should show that the phasing depreciation
+> inputs were too small and thus failed to show the % figures."* The correction was sitting in
+> `SESSION-2026-08-19-B-NOTES.md`, which the session did not read. **The startup rule "read every
+> session note back to the last merge" exists for precisely this, and following it partially is
+> what failed.** Corrected in place in both files; the wrong sentences are left visible above their
+> corrections so the pattern stays legible. **A finding is not evidence that the finder wasn't
+> looking.**
+>
+> ⚠ **Sessions 73 and 74 have no block in this file.** Not backfilled here — writing up sessions
+> this one was not present for would be invention. Their notes are in `design/SESSION-2026-08-19-B-NOTES.md`
+> and `design/SESSION-2026-08-20-NOTES.md`.
+>
+> **☐ STILL WITH MIKE — three decisions, none of them blocking:** the LVR ceiling figure itself;
+> whether the Property Tax Rules tab should be renamed now it holds a lending setting; and whether
+> the sample's own 350,000 / 299,000 loan split should be reset now its deposit is genuinely
+> applied (the model currently caps it and warns).
+>
+> ---
+>
 > ## ✅ SESSION 72 — 2026-08-19 (laptop). A DESIGN SESSION — NO APP CODE CHANGED.
 >
 > **Three commits, all design: `43324d6`, `04879a8`, `6b017f0`.** Suite **5,857 green / 325

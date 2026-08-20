@@ -568,21 +568,29 @@ of his. **Its position is not a judgement.**
   the **lending ceiling** as an editable setting on the existing cascade, and the **servicing
   demand**. 80 tests in `multiplePropertyPortfolio.test.js`; the workbook's own consolidated revenue
   and property-value rows match its cached values exactly across all ten years.
-  **STILL TO DO: the route, the artefact, the screen and the catalogue line** — the artefact §9
-  steps P2-2 to P2-5. **This row stays open until they are done.**
-- ⚠ **Phase 1's Hub tab was built with no approved artefact and Mike has not seen it** —
+  ✅ **The ROUTE followed the same day** (`838cf46`, step P2-2): one route serving both shapes,
+  with a test that fails the build if the LIVE Phase 1 request shape ever moves, and the address
+  guard widened from one real client address to five. 16 route tests, up from 7.
+  **STILL TO DO: the artefact, the screen and the catalogue line** — the artefact §9 steps P2-3 to
+  P2-5. **This row stays open until they are done.**
+- ⚠ **Phase 1's Hub tab was built with no approved artefact** —
   [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md) §10. **Do not repeat
   that here.** Anything Phase 2 puts on a screen gets its artefact committed *before* it is
   approved, per `CLAUDE.md`.
   🔴 **Updated 2026-08-20 — the rule was OFFERED and DECLINED, which is not the same as skipped.**
-  Adding the lending ceiling to that same tab, Mike was told the tab had no drawing and that he had
-  never opened it, and was offered one first. He said *"no, just add it as a field - I'm sure you
-  can do it."* So the field's label, help text and placement are **ours**, each listed individually
-  in the artefact §10 so any of them changes with one line from him. **The obligation for the Phase
-  2 SCREEN is untouched** — that is a whole screen, not a field, and it is its own build step.
-- ⚠ **The tab is still unopened, now four sessions.** It is built and tested and nobody has looked
-  at it. Two faults on the Hub sidebar were found the same way, by Mike opening a screen, and no
-  amount of tests would have found either.
+  Adding the lending ceiling to that same tab, Mike was offered a drawing first and said *"no, just
+  add it as a field - I'm sure you can do it."* So the field's label, help text and placement are
+  **ours**, each listed individually in the artefact §10 so any of them changes with one line from
+  him. **The obligation for the Phase 2 SCREEN is untouched** — that is a whole screen, not a
+  field, and it is its own build step.
+- ✅ **MIKE HAS REVIEWED THAT TAB, and this line previously said the opposite — twice.** In his
+  words: *"I DID look at the property tax rules — your notes should show that the phasing
+  depreciation inputs were too small and thus failed to show the % figures."* He was right; five
+  percentage boxes shared a slot sized for one. **Finding that defect WAS the review.** The claim
+  that he had not seen it was corrected by him on the morning of 2026-08-20 and then **repeated the
+  same afternoon** by a session that had not read the note holding the correction — which also
+  proposed adding it to this list as a task he had already done. 🔴 **A finding is not evidence
+  that the finder wasn't looking.** What is still missing is the artefact, not the review.
 - ✅ **The name is settled — Mike, 2026-08-17.** The catalogue name **Multiple Property
   Assessment** is kept, and Phase 1 ships under it showing *"Property 1 of 5 · the remaining four
   arrive in the next release"*. The name never changes between the phases and nobody is misled at

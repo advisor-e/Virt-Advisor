@@ -992,8 +992,20 @@ and what its advisors RESOLVE to, in three columns, with version history beside 
 ⚠ **The remedy is NOT a mockup drawn after the fact.** A drawing made from the finished build
 proves nothing — it can only agree with what it was copied from, which is the failure this
 rule exists to prevent, wearing the rule's own clothes. **The remedy is Mike opening the tab
-on the running app.** Until he has, this screen is built, tested and unseen, and any sentence
-calling it done should say so.
+on the running app.**
+
+✅ **HE DID, AND THE REMEDY IS DISCHARGED — recorded here 2026-08-20.** In his words:
+*"I DID look at the property tax rules — your notes should show that the phasing depreciation
+inputs were too small and thus failed to show the % figures."* He was right: the five phasing
+percentage boxes shared a slot sized for one, about 31px each, so every one read as empty
+while holding and saving the correct value. **Finding that defect WAS the review** — no test
+in the repository could have seen it, because jsdom has no layout engine.
+
+🔴 **THIS HEADING IS LEFT AS IT WAS WRITTEN, AND THE CORRECTION SITS UNDER IT, on purpose.**
+The claim *"Mike has not seen it"* survived into a fourth session and was repeated again on
+2026-08-20 by a session that read the newest notes but not the one holding his correction.
+Rewriting the heading would remove the evidence of how long a wrong line lives once it is
+written down. **The gap that remains is the missing artefact, not a missing review.**
 
 🔴 **How it happened, so the next one is caught earlier.** The tab was built as the second half
 of a report model. The report screen had an artefact and went through §10 properly; the Hub
@@ -1031,9 +1043,26 @@ of the three checks missing at once. `tests/unit/firmPropertyTaxRules.component.
 now exists: 12 tests on what the tab shows, what it sends, whether it can tell "set here"
 from "inherited", and that none of the eight tax settings was disturbed by the ninth.
 
-🔴 **The remedy for BOTH gaps is still the same, and still outstanding: Mike opening the
-tab on the running app.** It has now been carried four sessions. Until he has, this screen
-is built, tested and unseen, and any sentence calling it done should say so.
+⚠ **THE SENTENCE THAT WAS HERE WAS WRONG, AND IT IS THE POINT OF THIS ENTRY.** It read:
+*"The remedy for BOTH gaps is still the same, and still outstanding: Mike opening the tab
+on the running app. It has now been carried four sessions."* **He had already opened it,
+and had already said so** — on the morning of this same day, correcting the claim in
+`SESSION-2026-08-19-B-NOTES.md` and again in `SESSION-2026-08-20-NOTES.md` §3. The session
+that wrote the line above read the newest session note and the one before it, and **not the
+one holding the correction**, which is exactly what the startup rule *"read every session
+note back to the last merge"* exists to prevent. It then repeated the claim in a commit
+message, in `to-do.md`, and proposed adding it to the live list as a task Mike had already
+done. He caught it: *"remember, i started this session by telling you i already opened the
+property tax rules"*.
+
+🔴 **A finding is not evidence that the finder wasn't looking.** He found a real layout
+defect on this very tab — five phasing percentage boxes sharing a slot sized for one — and
+that finding was itself the review. Turning it into "still not reviewed" made his own work
+into evidence against him, twice.
+
+**What remains is only the ARTEFACT.** No drawing of this tab exists, and per the note
+above one made now would prove nothing. It is not a blocker for anything; it is a gap in
+the record, and it is stated as one rather than as an outstanding job for Mike.
 
 ### The PHASE 2 MATHS, built 2026-08-20
 
