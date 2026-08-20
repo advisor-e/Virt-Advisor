@@ -22,7 +22,6 @@ jest.mock('../../server/utils/firmOverlay', () => ({
 const overlay = require('../../server/utils/firmOverlay')
 const { OPEN, CLOSE, GUARD } = require('../../server/utils/promptSafety')
 const {
-  formatCoachingForPrompt,
   loadFirmCoaching,
   appendFirmCoachingEntry,
   formatFirmCoachingForPrompt,
@@ -49,15 +48,11 @@ afterAll(() => {
   try { fs.unlinkSync(TMP_DEV_FILE) } catch (e) { /* absent is fine */ }
 })
 
-// ── Platform base ─────────────────────────────────────────────────────────────
-
-describe('formatCoachingForPrompt (platform base)', () => {
-  test('renders the curated platform file — unfenced, as before', () => {
-    const text = formatCoachingForPrompt()
-    expect(text).toContain('**Growth Fundamentals Framework**')
-    expect(text).not.toContain(OPEN)
-  })
-})
+// 🔴 The platform base — fifteen curated rows rendered UNFENCED — was removed on
+// 2026-08-20 (item 4.24) along with its tab and its cascade. Its test went with it.
+// What is left below is the half that was never in question: a firm's promoted case
+// observations, which are an advisor's free text and must stay FENCED. That is the
+// property worth guarding, and every test in this file now guards it.
 
 // ── Firm entries: overlay read ────────────────────────────────────────────────
 

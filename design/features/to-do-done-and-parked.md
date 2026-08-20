@@ -219,6 +219,71 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.24 · Fold the Coaching Reference into Logic Tables — Mike's Option D.** ✅ Closed 2026-08-20,
+session 74. Filed the previous evening on the evidence in
+[`../COACHING-REFERENCE-EVIDENCE.md`](../COACHING-REFERENCE-EVIDENCE.md) and executed the next
+morning.
+
+- **THE READING CAME FIRST, WHICH IS THE ONLY REASON THIS WAS SAFE.** All fifteen rows were read
+  against the logic tree covering the same ground before anything was touched. **Seven had nothing
+  the trees do not already say better** — Deming's (`demings_volatility` already carries causality
+  vs correlation vs coincidence), Rubbish In (`financial_systems_review` has the Chart of
+  Accounts), Ratio Analysis (whose Stage 2 is literally *"When Data Is Less Relevant"* and Stage 3
+  Common Size), and Planning Outcomes Review, Porter's & Pine, Blue Ocean and Customer Journey,
+  all four of which `client_planning` and `client_sales` **name explicitly, with the routing rule
+  attached**.
+- **Seven pieces were genuinely unique and were MOVED, not deleted.** The delivery ladder
+  (free-draw best, presentation next, watch the video and rehearse) → `reveal_growth_curve` Stage 4
+  · *two bites at the cherry*, the reason both the Global and Local references get used →
+  `eoy_meeting` Stage 3 · the client's own words, *"a big tax bill but nothing in the bank"* →
+  `working_capital_cycle` Stage 1 · walk the customer's journey, the mini decisions, incremental
+  not drastic → `client_planning` Branch 2a · *shifts the burden of proof back onto the client's
+  business model* → `trial_fit` Stage 1 · the **7 Cash Drivers** template, named in no tree at all
+  → `dashboard_discussions` Stage 4 · easy liquidity and wealth inside vs outside the business →
+  `cashflow`, the Loan Estimator branch.
+- 🔴 **TWO OF THE SEVEN WENT IN AS TRIGGER WORDS, NOT ONLY AS NOTES** — the tax-bill sentence and
+  "7 Cash Drivers". A note reaches the model only once the tree is already open. A client saying
+  those words now *opens* it. Notes alone would have been half the fix.
+- **Then the removal, on Mike's instruction — *"remove the tab"*.** Out went the fifteen rows, the
+  `## Coaching Reference` prompt block at **both** build sites, seven routes, the 362-line
+  firm-editable cascade in `firmManager.js`, the Hub tab, and six now-dead source files
+  (`coaching-reference.json`, `coachingConfig.js`, `firmCoachingReference.js`,
+  `FirmCoachingReference.vue`, `FirmCoachingEntryForm.vue`, `utils/coachingRows.js`) plus three
+  gitignored dev files. Five test suites went with them; three were trimmed to keep the half that
+  survives.
+- ✅ **THE PROMOTED CASE OBSERVATIONS ARE UNTOUCHED**, as the item required — different key,
+  different loader, still FENCED. `coachingPromptFields.test.js` was rewritten rather than deleted
+  precisely to keep guarding that fence, and it now asserts the adviser's text sits *inside* it
+  rather than beside it: a fence that opens and closes around nothing would have passed the old
+  shape of that test.
+- 🔴 **THE ORPHAN ROW WAS NOT CONTENTLESS, AND FINDING THAT OUT TOOK MIKE PRODUCING THE SOURCE.**
+  Row 15, *"Covid 19 Client Pre-Meeting"*, was reported here as matching no template and no tree.
+  Mike supplied the deck — **Coping with Adversity**, based on the Enneagram — and it turned out
+  the template had existed all along under a *different name*, and the material was **already in
+  Domain Support**, in the people-power domain, still titled *"Coping with Covid"*. The search that
+  declared it missing had been run on the row's own stale name. **A name lookup is not an
+  existence check**, and this is the second time that exact mistake has been recorded on this
+  project.
+- ⚠ **A near-miss worth keeping.** Folding that row into the **Heald Matrix** was proposed, on the
+  grounds that the Heald Matrix already "names three coping styles". It does — **Assertion,
+  Withdrawal, Dutiful**, the *Hornevian* triad, how a person pursues what they want. Mike's deck
+  teaches **Intensity, Competency, Positive Outlook**, the *Harmonic* triad, how a person copes
+  when they **don't get it**. Same source tradition, different axis. The merge would have silently
+  replaced one framework with another, and only reading the deck stopped it.
+- **What that row became instead.** The people-power material was renamed to **Coping with
+  Adversity** and enriched from the deck with the two things nowhere in the app: the three-styles
+  table (what each looks like, when it is time to change focus, the Tips n Tricks) and the
+  *"catch ourselves early"* principle — that doing so avoids serious relationship, self-esteem and
+  poor judgement damage. Authored into `summary`, `who_when` and `steps` **only**, because those
+  are the four fields `domainSupport.js` actually emits; a fifth field would have been the 4.16
+  fault repeated in the same week it was closed.
+- 🔴 **Its id still says `covid` and that is correct.** `domainSupportRowIds.test.js` locks ids
+  against retitling: *"an id is assigned once and never changes… do not tidy an id to match a new
+  name."* A firm's decisions about a row are keyed to it. Renaming the id would have silently
+  discarded them.
+- **Suite: 320 suites / 5,764 tests green**, down from 325 / 5,876 — the difference is the five
+  deleted suites, not lost coverage. Lint 0 errors.
+
 **4.23 · Build the Firm Manager Hub sidebar — grouped navigation, and drop the duplicate cases
 tab.** ✅ Closed 2026-08-19, session 73. Filed the day before, the same session that designed it,
 and built the next — the shortest gap between a design and its build on this list, which is the

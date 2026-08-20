@@ -11,8 +11,7 @@ const fs = require('fs')
 const path = require('path')
 const { createOpenAIClient } = require('../server/utils/openaiClient')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
-const { formatCoachingForPrompt, loadFirmCoaching, formatFirmCoachingForPrompt } = require('../server/utils/coaching')
-const { loadResolvedCoaching } = require('../server/utils/coachingConfig')
+const { loadFirmCoaching, formatFirmCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
@@ -485,11 +484,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     firmCoaching = null,
     // The session's detected domain, so the firm's promoted entries can be
     // narrowed to the topic in hand. null = no topic known → no filter.
-    firmCoachingDomain = null,
-    // The coaching reference rows resolved for this firm's scope. null falls back
-    // to the shipped platform rows — the behaviour every caller had before the
-    // block joined the inheritance mechanism.
-    coachingRows = null
+    firmCoachingDomain = null
   } = options || {}
 
   const orgTemplates = getOrgTemplates(orgTemplateIds || null, firmTemplates)
@@ -501,7 +496,6 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   const relevant = filterTemplatesByQuery(baseTemplates, searchQuery, maxTemplates)
   const templatesToUse = relevant.length > 0 ? relevant : baseTemplates.slice(0, maxTemplates)
   const templatesText = formatTemplatesForPrompt(templatesToUse)
-  const coachingText = includeCoaching ? formatCoachingForPrompt(coachingRows) : null
   // The firm's own promoted case observations — advisor free text, so the
   // formatter returns it FENCED (data to weigh, never instructions), narrowed to
   // this session's topic and capped (see coaching.selectFirmCoaching).
@@ -542,7 +536,6 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     '',
     templatesText,
     sectionDescText ? '\n---\n\n' + sectionDescText : '',
-    coachingText ? '\n---\n\n## Coaching Reference\n\n' + coachingText : '',
     firmCoachingText ? '\n---\n\n## Firm Coaching Notes — observations promoted from this firm\'s reviewed cases\n\n' + firmCoachingText : '',
     growthText ? '\n---\n\n' + growthText : '',
     summariesText ? '\n---\n\n' + summariesText : '',
@@ -1672,12 +1665,9 @@ async function handleQuery (rawBody, res, identity) {
     ? await loadFirmCoaching(firmId).catch(() => null)
     : null
 
-  // The coaching reference rows themselves — the platform's fifteen, resolved through
-  // this firm's decisions and every tier above it. Separate from firmCoaching above and
-  // deliberately so: these are curated guidance the model acts on, those are an
-  // advisor's free text about a real client and stay fenced. loadResolvedCoaching never
-  // rejects; a firm that has changed nothing gets the shipped rows unchanged.
-  const coachingRows = await loadResolvedCoaching(firmId, loadFirmConfig)
+  // 🔴 The platform's fifteen coaching-reference rows were loaded here until 2026-08-20
+  // and are gone (item 4.24). `firmCoaching` above is the surviving half — an advisor's
+  // free text about a real client, which stays fenced.
 
   // Past case studies, read server-side from the verified identity. Only client
   // and discover modes use them, so the other modes skip the read entirely.
@@ -2491,7 +2481,7 @@ async function handleQuery (rawBody, res, identity) {
       const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain, firmDomainSupport) : null
       const allUserText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).join(' ')
       const postRecContextQuery = [allUserText, query, state.detectedDomain, state.industry].filter(Boolean).join(' ')
-      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching, firmCoachingDomain: state.detectedDomain, coachingRows }) +
+      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching, firmCoachingDomain: state.detectedDomain }) +
         (domainSupportPost ? '\n---\n\n' + domainSupportPost : '')
 
       const messagesPost = [
@@ -3064,8 +3054,7 @@ async function handleQuery (rawBody, res, identity) {
       firmTemplates,
       preFilteredNames,
       firmCoaching,
-      firmCoachingDomain: state.detectedDomain,
-      coachingRows
+      firmCoachingDomain: state.detectedDomain
     }) + _preSelectedSummariesText + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
     // Phase C/D — merge strategy + resolver decisions into observability snapshot
@@ -3375,7 +3364,6 @@ async function handleQuery (rawBody, res, identity) {
   // Discover mode always needs it (first response IS a recommendation).
   // Other modes: defer until conversation is deep enough (4+ exchanges).
   const includeCoaching = mode === 'discover' || trimmedHistory.length >= 4
-  const coachingText = includeCoaching ? formatCoachingForPrompt(coachingRows) : null
   // Firm-promoted entries ride the same gate; fenced and capped by the formatter.
   // No domain is passed because none exists here: discover/plan/learn return above
   // the client sequencer, which is the only path that detects one. Passing a guess
@@ -3465,9 +3453,6 @@ async function handleQuery (rawBody, res, identity) {
     '',
     templatesText,
     sectionDescText ? '\n---\n\n' + sectionDescText : '',
-    coachingText
-      ? '\n---\n\n## Coaching Reference — Expert Guidance on Template Selection\n\n' + coachingText
-      : '',
     firmCoachingText
       ? '\n---\n\n## Firm Coaching Notes — observations promoted from this firm\'s reviewed cases\n\n' + firmCoachingText
       : '',

@@ -312,16 +312,11 @@ server.post('/api/firm-manager/staircase/platform/:id/keep-mine', ...fmGuard, fm
 server.post('/api/firm-manager/staircase/own', ...fmGuard, fm.addOwnStaircaseStep)
 server.put('/api/firm-manager/staircase/own/:id', ...fmGuard, fm.updateOwnStaircaseStep)
 server.del('/api/firm-manager/staircase/own/:id', ...fmGuard, fm.deleteOwnStaircaseStep)
-// The coaching-reference cascade — item 4.9's visible half, 2026-08-15. Same shape as
-// the staircase routes above, minus keep-mine: coachingConfig stores no drift baseline,
-// so there is no "the platform changed this" state for a firm to resolve.
-server.get('/api/firm-manager/coaching', ...fmGuard, fm.getCoaching)
-server.put('/api/firm-manager/coaching/platform/:id', ...fmGuard, fm.setCoachingOverride)
-server.del('/api/firm-manager/coaching/platform/:id', ...fmGuard, fm.resetCoachingOverride)
-server.put('/api/firm-manager/coaching/platform/:id/decline', ...fmGuard, fm.setCoachingDecline)
-server.post('/api/firm-manager/coaching/own', ...fmGuard, fm.addOwnCoachingEntry)
-server.put('/api/firm-manager/coaching/own/:id', ...fmGuard, fm.updateOwnCoachingEntry)
-server.del('/api/firm-manager/coaching/own/:id', ...fmGuard, fm.deleteOwnCoachingEntry)
+// 🔴 The coaching-reference cascade (item 4.9) was REMOVED on 2026-08-20 with the
+// fifteen platform rows it served — item 4.24, Mike's Option D. What was worth keeping
+// in those rows was folded into the logic trees that superseded them; the tab went with
+// them on his instruction. The firm's PROMOTED CASE OBSERVATIONS are a different
+// mechanism under a different key and are untouched — see server/utils/coaching.js.
 server.get('/api/firm-manager/quizzes', ...fmGuard, fm.getQuizzes)
 server.post('/api/firm-manager/quizzes', ...fmGuard, fm.saveQuizzes)
 // The quiz cascade — one decision per request about ONE question, mirroring the

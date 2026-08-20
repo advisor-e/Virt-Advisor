@@ -137,7 +137,26 @@ session scratchpad (`ab-server.js`, `ab-run.js`) and writes nothing to the repos
 
 ---
 
-## 7. ✅ DECIDED — Option D, by Mike, 2026-08-19
+## 7. ✅ DECIDED — Option D, by Mike, 2026-08-19 · ✅ DONE 2026-08-20
+
+> 🔴 **THIS IS NOW HISTORY, NOT A PENDING DECISION.** Option D was executed on 2026-08-20,
+> session 74. The reading step ran first and moved seven pieces into the trees; the fifteen rows,
+> the prompt block, the seven routes, the firm-editable cascade and the Hub tab were then removed
+> on Mike's instruction (*"remove the tab"*). The firm-promoted case observations are untouched.
+> **The full account, including two things this page got wrong, is the 4.24 entry on**
+> [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2.
+>
+> ⚠ **What this page got wrong, recorded here because the page is the evidence.**
+> §2 says seven of the fifteen "name no template in the catalogue" and lists *Covid 19 Client
+> Pre-Meeting* among them. The count was right and the inference was not: that row's **template
+> existed all along** under a different name, and its material was **already in Domain Support**
+> under the people-power domain. The check had been run on the row's own stale title, and a name
+> lookup is not an existence check. The template is now called **Coping With Adversity**; Mike
+> renamed it at source and re-exported on 2026-08-20, and the material row was renamed to match.
+>
+> ⚠ §6's measurement stands unchanged, and so do its stated limits.
+
+### The decision as it was taken
 
 > **"make a note to go with option D"** — Mike, 2026-08-19, at the close of session 73.
 >

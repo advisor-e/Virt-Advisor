@@ -221,7 +221,7 @@ Split by `includedInClient`, the flag the master export carries to say whether a
 | PDF Storage | `client-recommendation` | `includedInClient: true` — eligible to be recommended to a client | data/templates.json · section=Do the Job |
 | FBT Questionnaire | `client-recommendation` | `includedInClient: true` — eligible to be recommended to a client | data/templates.json · section=Do the Job |
 | Growth Curve | `client-recommendation` | `includedInClient: true` — eligible to be recommended to a client | data/templates.json · section=Do the Job |
-| Client pre Meeting | `client-recommendation` | `includedInClient: true` — eligible to be recommended to a client | data/templates.json · section=Do the Job |
+| Coping With Adversity | `client-recommendation` | `includedInClient: true` — eligible to be recommended to a client | data/templates.json · section=Do the Job |
 | Covid Agendas | `advisor-read-only` | `includedInClient: false` — advisor-facing library page, not put in front of a client | data/templates.json · section=Do the Job |
 | Receivership vs Liquidation | `client-recommendation` | `includedInClient: true` — eligible to be recommended to a client | data/templates.json · section=Do the Job |
 | Quick & Worst | `advisor-read-only` | `includedInClient: false` — advisor-facing library page, not put in front of a client | data/templates.json · section=Do the Job |
@@ -588,14 +588,13 @@ Required only by courseEngine.js. No require chain reaches them from the advisor
 Stated rather than left to be inferred — an audit that hides its own edges is worse than
 no audit, because it reads as complete.
 
-- **33 data files are not classified.** They are listed below by name.
+- **32 data files are not classified.** They are listed below by name.
   This list is DERIVED from what is on disk, not typed out, so a new data file appears
   here by itself rather than waiting for someone to remember it.
 
   - `data/advisory-staircase.json`
   - `data/capacity-capability-opportunity-reference.json`
   - `data/cautious-reveal-reference.json`
-  - `data/coaching-reference.json`
   - `data/conflict-meeting-reference.json`
   - `data/content-summaries.json`
   - `data/course-starters.json`

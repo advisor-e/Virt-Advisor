@@ -106,11 +106,13 @@ are candidates for decomposition, and both are load-bearing. A split needs tests
 ### The tab matrix, as built
 
 Unconditional at every tier: **Domain Support · Logic Tables · Logic-Lab · Advisory Staircase ·
-Coaching Reference · Quizzes · Adviser Network**. *(Seven since 2026-08-15, when Coaching Reference
-was added — the fifth and last block to join the row-inheritance mechanism, and the only one whose
-engine shipped before its screen. It is unconditional for the same reason the Staircase is: the
-mechanism means the same thing at every tier with a layer above it, and the mentor edits the
-platform rows through the same tab.)*
+Quizzes · Adviser Network**. *(**Six since 2026-08-20.** It was seven from 2026-08-15, when
+Coaching Reference was added — the fifth and last block to join the row-inheritance mechanism, and
+the only one whose engine shipped before its screen. **That tab and the feature behind it were
+removed on 2026-08-20** (item 4.24, Mike: "remove the tab"): the fifteen rows it edited were
+measured against the logic trees that had superseded them, the seven pieces worth keeping were
+folded into those trees, and the rest went. See
+[`coaching-reference.md`](coaching-reference.md).)*
 
 | Tab | Tiers |
 |---|---|
@@ -194,14 +196,19 @@ Two rules the build holds, and any change here must keep holding:
   opens is the tidy thing to do and is exactly the behaviour ruled out on 2026-08-15. It reuses
   `FirmDomainSupport.vue`'s Show/Hide pattern with its own `hub:menuHidden` key; the manager
   collapses it or it stays. Asserted in `mentorHubScope.component.test.js`.
-- **All six AI-facing tabs are ONE group, and the reason is that any split states a falsehood.**
-  `advisorEngine.js` loads domain support, distinctions, coaching, logic trees *and* the staircase.
-  A heading implying the logic tables or the staircase sit outside the AI's reach would teach every
-  new manager something untrue from the navigation itself. Mike rejected exactly that split on
-  sight. Do not reintroduce it.
+- **Every AI-facing tab is ONE group, and the reason is that any split states a falsehood.**
+  `advisorEngine.js` loads domain support, distinctions, logic trees *and* the staircase. A heading
+  implying the logic tables or the staircase sit outside the AI's reach would teach every new
+  manager something untrue from the navigation itself. Mike rejected exactly that split on sight.
+  Do not reintroduce it. *(**Five since 2026-08-20**, six before it — the rule is about the group,
+  not the count, and the count follows whatever is in the group.)*
 
-**Counts as built:** firm 3 headings / 11 items · mentor 3 / 12 · group and global 4 / **13** —
-matching the design exactly, and asserted off the rendered screen rather than off `TAB_TIERS`.
+**Counts as built, measured 2026-08-20 off the rendered screen:** firm 3 headings / **10** items ·
+mentor 3 / **11** · group and global 4 / **12**. *(11 / 12 / 13 until the Coaching Reference tab was
+removed that day; the approved design's counts and this change are recorded together at
+[`../HUB-NAVIGATION-GROUPING.md`](../HUB-NAVIGATION-GROUPING.md) §2.)* Asserted off the rendered
+screen rather than off `TAB_TIERS`, because the matrix is what the design predicted and the screen
+is what a manager gets.
 
 ### 🔴 Which tabs can hide their own list — two, not four
 

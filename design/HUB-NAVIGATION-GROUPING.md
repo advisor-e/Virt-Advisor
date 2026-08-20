@@ -56,6 +56,14 @@ of a database decision, which means nothing to the person reading the screen.
 Resulting counts: firm **3 headings / 11 items**, mentor **3 / 12**, group and global **4 / 13**
 (13 rather than 14 assumes §5's duplicate is removed).
 
+> 🔴 **SUPERSEDED IN PART ON 2026-08-20, BY A LATER RULING — the counts above are what was
+> approved on 2026-08-19 and are left as approved.** **Coaching Reference has since been removed**
+> from the *Your AI coach* group, along with the feature behind it (item 4.24, Mike: *"remove the
+> tab"*). The **headings and the grouping are unchanged**; one entry has gone. Live counts are now
+> firm **3 / 10**, mentor **3 / 11**, group and global **4 / 12**, asserted off the rendered screen
+> in `mentorHubScope.component.test.js`. §2.1's rule — that everything teaching the AI stays in ONE
+> group — is untouched and now covers five entries rather than six.
+
 ### 2.1 Why the six are one group and not two
 
 🔴 **The first draft split them and it stated a falsehood.** It proposed *"what the AI draws on"*

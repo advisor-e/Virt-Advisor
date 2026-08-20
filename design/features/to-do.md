@@ -45,10 +45,25 @@ repository sees; the two never both appear, and the build stops if they would.
 | 8 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
 | 9 | **4.19** Finish the property model — properties 2 to 5, the apportionment and the consolidated report | 4 | — | Us |
 | 10 | **4.22** Settle whether purchase costs are non-deductible in the property model's first year | 1 | — | **Mike** |
-| 11 | **4.24** Fold the Coaching Reference into Logic Tables — Mike's Option D | 3 | — | Us |
 
-**Eleven live items. Two need Mike.** If this list passes about twenty, something is wrong.
+**Ten live items. Two need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
+
+**One item came off this list on 2026-08-20** — see
+[`to-do-done-and-parked.md`](to-do-done-and-parked.md):
+
+- ✅ **4.24** — the Coaching Reference is folded into Logic Tables and gone. All fifteen rows were
+  read against the tree covering the same ground **before anything was deleted**: seven said
+  nothing the trees do not say better, and **seven gave up a sentence or two that was moved**, two
+  of them as *trigger words* rather than notes so a client's own phrasing now opens the tree. The
+  block, its cascade, its seven routes and its tab went on Mike's instruction (*"remove the tab"*).
+  The firm-promoted case observations are untouched and still fenced.
+  🔴 **The reading step justified itself twice.** One row was reported here as matching no template
+  and no tree; **Mike produced the source deck and it turned out the template existed under a
+  different name and the material was already in Domain Support** — the search that called it
+  missing had been run on the row's own stale title. And folding that row into the Heald Matrix was
+  proposed and would have been wrong: both teach coping styles, but from **different Enneagram
+  triads**. Deleting on the first reading would have lost the content and the distinction.
 
 **One item joined and came off again on 2026-08-19** — see
 [`to-do-done-and-parked.md`](to-do-done-and-parked.md):

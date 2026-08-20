@@ -1,25 +1,43 @@
 # Coaching Reference — the Brief
 
-> **A hub tab at all four tiers.** Current rules only; the history is in
+> ## 🔴 THIS FEATURE NO LONGER EXISTS
+>
+> **Removed on 2026-08-20 (item 4.24, Mike's Option D).** The hub tab, the fifteen platform rows,
+> the prompt block, the seven routes and the firm-editable cascade are all gone. **Everything below
+> describes a screen nobody can open and code that is no longer in the repository.** It is kept
+> because the mechanism it documents was real, and because the reasoning that ended it is only
+> legible beside it.
+>
+> **What replaced it.** The seven pieces worth keeping were folded into the logic trees that had
+> superseded them — `reveal_growth_curve`, `eoy_meeting`, `working_capital_cycle`,
+> `client_planning`, `trial_fit`, `dashboard_discussions` and `cashflow`. Choosing a template is
+> Logic Tables' job by Mike's own ruling, and it is now Logic Tables' job in the code too.
+>
+> **What survived, and is NOT described by this page's tab sections.** A firm's **promoted case
+> observations** — an adviser's free text about a real client, reaching the model FENCED, per firm,
+> uninherited. Different key, different loader, untouched by the removal. See
+> [`server/utils/coaching.js`](../../server/utils/coaching.js).
+>
+> **Where the account is:** [`../COACHING-REFERENCE-EVIDENCE.md`](../COACHING-REFERENCE-EVIDENCE.md)
+> (origin, arithmetic, measurement, control, decision) and the **4.24** entry on
+> [`to-do-done-and-parked.md`](to-do-done-and-parked.md) §2 (what was read, what moved where, and
+> the two things the evidence page got wrong).
+>
+> ⚠ **Do not use this Brief to rebuild the feature.** It describes the mechanism faithfully and
+> never established the purpose — nothing in the repository ever did, which was the finding.
+
+---
+
+> **Historical, as at 2026-08-19 — a hub tab at all four tiers.** The history is in
 > [`coaching-reference-history.md`](coaching-reference-history.md).
 >
-> **Covers:** the guidance the AI reads when it decides *which template to put in front of this
-> client*, and the firm's own promoted observations that sit beside it. **Does not cover:** how a
+> **Covered:** the guidance the AI read when it decided *which template to put in front of this
+> client*, and the firm's own promoted observations that sat beside it. **Did not cover:** how a
 > chosen template is then run ([`domain-support.md`](domain-support.md)), or which template a
-> scenario routes to ([`logic-tables.md`](logic-tables.md)).
+> scenario routes to ([`logic-tables.md`](logic-tables.md)) — which is now where this went too.
 >
 > ⚠ **This Brief was written on 2026-08-19, later than the feature.** Until then it was the only
 > content page in the hub with none — see §6.
->
-> 🔴 **AND HOURS AFTER IT WAS WRITTEN, MIKE CHALLENGED WHETHER THE PAGE SHOULD EXIST — and the
-> evidence went his way. He chose OPTION D: fold what is worth keeping into Logic Tables.**
-> Filed as item **4.24**; nothing is done and the page runs exactly as described below.
->
-> **Read this Brief as a description of the mechanism, NEVER as a justification of the purpose.**
-> It documents faithfully what the code does. It does not establish that the fifteen rows should
-> be there — nothing in the repository ever did, which is the finding. The evidence, the
-> measurement and the four options are at
-> [`../COACHING-REFERENCE-EVIDENCE.md`](../COACHING-REFERENCE-EVIDENCE.md).
 >
 > ⚠ **§1's "design philosophy" is the code's sentence, not a decision anyone took.** The 15 rows
 > are a PowerPoint converted to JSON in the repository's first commit and never reviewed. Seven of

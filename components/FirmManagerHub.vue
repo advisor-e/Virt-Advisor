@@ -121,17 +121,6 @@ section.firm-manager-hub.section
       div.hub-panel(v-show="activeTab === 'staircase'")
         firm-staircase(:api-token="apiToken")
 
-      //- ── Tab: Coaching Reference ────────────────────────────────────────
-      //- Item 4.9's visible half (2026-08-15). The fifteen entries the AI is
-      //- coached by when it chooses a template — the fifth and last block named
-      //- in the 2026-07-30 ruling to join the one firm-editable mechanism, and
-      //- the only one whose engine shipped before its screen.
-      //- Ungated, like the Staircase above: the mechanism means the same thing at
-      //- every tier that has a layer above it, and the mentor edits the platform
-      //- rows through the same tab.
-      div.hub-panel(v-show="activeTab === 'coachingReference'")
-        firm-coaching-reference(:api-token="apiToken")
-
       //- ── Tab: Property Tax Rules ────────────────────────────────────────
       //- Item 4.20's second half (2026-08-17). The tax settings the Multiple
       //- Property Assessment is built on. Ruled by Mike: a GROUP — normally a
@@ -737,7 +726,6 @@ import FirmQuizzes from '~/components/firm/FirmQuizzes.vue'
 import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
 import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 import FirmStaircase from '~/components/firm/FirmStaircase.vue'
-import FirmCoachingReference from '~/components/firm/FirmCoachingReference.vue'
 import FirmPropertyTaxRules from '~/components/firm/FirmPropertyTaxRules.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
@@ -886,12 +874,13 @@ const TAB_TIERS = {
   // (server/restify-server.js) rather than the managing-tier guard the other three
   // moved to.
   //
-  // ⚠ COUNT CORRECTED 2026-08-19. This said "each middle hub 12 tabs, not the 13
-  // first drawn", which was true when written and then went stale twice without
-  // anyone noticing — Coaching Reference and Property Tax Rules both arrived after
-  // it. The middle hubs were showing FOURTEEN by the time it was read again. They
-  // show 13 now that teamCaseStudies is firm-only: 7 unconditional tabs plus 6
-  // conditional. Counted against the template, not against this comment.
+  // ⚠ COUNT CORRECTED 2026-08-19, AND AGAIN 2026-08-20. This said "each middle hub
+  // 12 tabs, not the 13 first drawn", which was true when written and then went stale
+  // twice without anyone noticing — Coaching Reference and Property Tax Rules both
+  // arrived after it. The middle hubs were showing FOURTEEN by the time it was read
+  // again, then 13 once teamCaseStudies became firm-only. They show 12 now that the
+  // Coaching Reference tab has gone (item 4.24, Mike 2026-08-20): 6 unconditional
+  // tabs plus 6 conditional. Counted against the template, not against this comment.
   templateCheck: ['mentor'],
 
   // The property model's tax rules (Mike, 2026-08-17, §8 Q6). Every tier that has a
@@ -967,7 +956,6 @@ const NAV_GROUPS = [
       // sees a single Advisory Distinctions entry and never two.
       { key: 'distinctionsFirm', label: 'Advisory Distinctions' },
       { key: 'distinctionsMentor', label: 'Advisory Distinctions' },
-      { key: 'coachingReference', label: 'Coaching Reference' },
       { key: 'logicTables', label: 'Logic Tables' },
       { key: 'staircase', label: 'Advisory Staircase' },
       { key: 'logicLab', label: 'Logic-Lab' }
@@ -1038,7 +1026,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmCoachingReference, FirmPropertyTaxRules, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

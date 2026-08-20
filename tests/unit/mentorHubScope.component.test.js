@@ -294,10 +294,12 @@ describe('the hub menu — the sidebar itself', () => {
     return wrapper.findAll('.hub-menu .menu-label').wrappers.map(p => p.text().trim())
   }
 
-  it('groups the firm manager’s eleven tabs under three headings', async () => {
+  it('groups the firm manager’s ten tabs under three headings', async () => {
+    // Was eleven until 2026-08-20, when the Coaching Reference tab was removed with the
+    // fifteen platform rows behind it (item 4.24, Mike: "remove the tab").
     const wrapper = await mountHub()
     expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs'])
-    expect(tabLabels(wrapper)).toHaveLength(11)
+    expect(tabLabels(wrapper)).toHaveLength(10)
   })
 
   it('gives the mentor NO Model Inputs heading rather than an empty one', async () => {
@@ -308,18 +310,21 @@ describe('the hub menu — the sidebar itself', () => {
     expect(groupHeadings(wrapper)).not.toContain('Model Inputs')
   })
 
-  it('🔴 keeps the six that teach the AI in ONE group', async () => {
+  it('🔴 keeps the five that teach the AI in ONE group', async () => {
     // Mike rejected a two-way split on sight: it "sends the message that AI is not
     // working across the logic tables and advisory staircase — which is NOT true".
-    // server/advisorEngine.js, the prompt builder, loads all six. A heading implying
+    // server/advisorEngine.js, the prompt builder, loads all of them. A heading implying
     // otherwise is a permanent falsehood taught from the navigation, and no other test
     // in this suite could ever catch it — the split was internally consistent.
+    //
+    // ⚠ SIX UNTIL 2026-08-20. Coaching Reference left this group when item 4.24 removed
+    // the block behind it; the rule is unchanged and the count follows the group.
     const wrapper = await mountHub()
     const headings = groupHeadings(wrapper)
     const names = tabLabels(wrapper)
     expect(headings.filter(h => /coach/i.test(h))).toHaveLength(1)
-    expect(names.slice(0, 6)).toEqual([
-      'Domain Support', 'Advisory Distinctions', 'Coaching Reference',
+    expect(names.slice(0, 5)).toEqual([
+      'Domain Support', 'Advisory Distinctions',
       'Logic Tables', 'Advisory Staircase', 'Logic-Lab'
     ])
   })
@@ -339,15 +344,18 @@ describe('the hub menu — the sidebar itself', () => {
   it('🔴 a group manager no longer sees the same cases under two names', async () => {
     // Decision 5, approved by Mike 2026-08-19. Above the firm, Team Case Studies and
     // Case Reviews returned the identical list — same store call, same scope, same
-    // decoration. The counts here are the approved design's own
+    // decoration. The counts here were the approved design's own
     // (design/HUB-NAVIGATION-GROUPING.md §2: "group and global 4 / 13"), asserted off
     // the screen rather than off the matrix, because the matrix is what the design
     // predicted and this is what a manager actually gets.
+    //
+    // ⚠ NOW 12, NOT THE DESIGN'S 13 — the Coaching Reference tab was removed on
+    // 2026-08-20 (item 4.24). The headings are unchanged; only that one entry has gone.
     const wrapper = await mountHub({ scope: 'group' })
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Rolled up from below'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(13)
+    expect(tabLabels(wrapper)).toHaveLength(12)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')
   })

@@ -9,17 +9,30 @@
 
 ---
 
-## 🔴 FIRST TASK NEXT SESSION
+## ✅ FIRST TASK NEXT SESSION — DONE 2026-08-20
 
 **Item 4.24 — fold the Coaching Reference into Logic Tables.** Mike's Option D, chosen 2026-08-19
 on the evidence in [`COACHING-REFERENCE-EVIDENCE.md`](COACHING-REFERENCE-EVIDENCE.md).
+**Completed in session 74** — see [`SESSION-2026-08-20-NOTES.md`](SESSION-2026-08-20-NOTES.md).
 
 🔴 **THE FIRST STEP IS READING, NOT DELETING.** Eight of the fifteen rows name a live template.
 Each gets read against the logic tree covering the same ground so anything genuinely unique
 **moves** rather than vanishes. Only then does the block come out.
 
-⚠ **Still carried, now a fourth time: Mike has not sat down with the Property Tax Rules tab.** He
-saw enough of it this session to find a live defect in it, which is not the same as reviewing it.
+✅ **That instruction earned its place twice over.** The reading found seven rows with nothing new
+and **seven pieces that were moved rather than lost**. It also found that one of the "orphan" rows
+was not an orphan at all — its template existed under a different name and its content was already
+in Domain Support. Deleting on the first pass would have destroyed content and hidden the mistake.
+
+✅ **CORRECTED 2026-08-20 BY MIKE — HE HAD REVIEWED THE PROPERTY TAX RULES TAB.** This line
+originally read *"Still carried, now a fourth time: Mike has not sat down with the Property Tax
+Rules tab"*, and that was wrong. In his words: *"I DID look at the property tax rules — your notes
+should show that the phasing depreciation inputs were too small and thus failed to show the %
+figures."* They do show exactly that, in §2 below: the five phasing percentage boxes shared a slot
+sized 180px for one, leaving ~31px each, so every one read as empty while holding and saving the
+right value. **Finding that defect WAS the review.** Treating it as "not the same as reviewing it"
+turned his own finding into evidence against him, and carried a task he had already done into a
+fourth session.
 
 ---
 

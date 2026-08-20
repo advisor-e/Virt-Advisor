@@ -601,7 +601,7 @@
             "Forecasting",
             "Assumptions"
           ],
-          "notes": "Brainstorm as a team to add cash management tactics to the support page in the Working Capital Cycle template (Firm Manager mode)."
+          "notes": "Brainstorm as a team to add cash management tactics to the support page in the Working Capital Cycle template (Firm Manager mode). What the Loan Estimator is for: it lets the client's finance advisor or banker complete a Summary Position view of the credit lines across your mutual client. Two things come out of it that the client rarely has to hand — which of their assets actually provide easy liquidity, and a straight answer on whether wealth should be captured inside or outside the business. Reach for it when a client says they are under financial duress and must go to the bank, when they cannot state their total borrowing exposure, or when you are preparing them for a bank meeting."
         },
         {
           "id": "cf_branch1b_management",
@@ -1074,7 +1074,7 @@
             "Orientation Part 1",
             "Orientation Part 2"
           ],
-          "notes": "Profit Levers & Blue Ocean are short-form templates found in advanced Strategic templates. They help explore strategic issues or position Management Reporting or Governance Services."
+          "notes": "Profit Levers & Blue Ocean are short-form templates found in advanced Strategic templates. They help explore strategic issues or position Management Reporting or Governance Services. What 8 Profit Levers does in the room: it walks the client through their own customer's journey and surfaces the mini decisions a customer makes in order to buy, and that the business must meet profitably. It is a framework for finding growth through incremental change rather than drastic movement. Reach for it when the client is about to jump all-in on a single idea — dropping prices, raising them, a loyalty programme, a new product line — without having explored what that idea does to the rest of the business."
         },
         {
           "id": "cp_branch2b_org",
@@ -2454,7 +2454,7 @@
           "condition": "Advisor is about to introduce the revenue model to a motivated client for the first time",
           "question": "Before we get into the model itself — have you framed the session for the client yet? The tailored suit metaphor is the critical first move. Have you introduced that idea, or are you still at the pre-meeting stage?",
           "action": "Coach the advisor to open with the tailored suit metaphor: 'Think of this like buying a suit off the rack — it fits reasonably well from the start, but it will need a few fittings before it's perfect.' This sets realistic expectations, creates permission for imperfection, and explains why starting with a baseline saves significant time and cost. Reinforce the 'get it down, then get it good' principle — no hunting for exact data today, best guesses are the starting point.",
-          "notes": "Even motivated clients may still experience map shock. Never skip the framing stage, regardless of the client's enthusiasm level. The metaphor is the psychological foundation for everything that follows.",
+          "notes": "Even motivated clients may still experience map shock. Never skip the framing stage, regardless of the client's enthusiasm level. The metaphor is the psychological foundation for everything that follows. Know why you are reaching for a model at all: it calculates the activity and financial variables, which turns the owner's expectations from opinion into a quantified figure. Facilitatively that is the whole prize — the model shifts the burden of proof away from the advisor and back onto the client's own business model. The advisor stops arguing and starts asking what the numbers require. Reach for one when a client has ambitious revenue targets but no model of how they get there, when they cannot name the drivers behind their revenue, or when they need to show projections to a funder.",
           "next_stage": 2
         },
         {
@@ -2690,7 +2690,7 @@
           "condition": "Advisor has completed pre-meeting prep and needs to choose the right presentation deck",
           "question": "There are four EOY deck variants — Frame, Standard Agenda, V2, and Rural. Which one are you planning to use, and what do you know about this client that's driving that choice? Tell me a bit about the client — their industry, their main challenges, and how emotionally engaged they typically are in these meetings.",
           "action": "Use the client profile to recommend the right deck. Frame: use as an opener for emotionally-driven clients or first-time advisory meetings — it bridges the Personal Zone to the Business Zone before any numbers appear. Standard Agenda: the default for most business clients — covers accounts review, Growth Curve, Volatility, and Start/Stop/Keep. Best for clients with cash or sales volatility. V2: for clients whose primary challenge is revenue probability — they need to focus on capacity to generate reliable revenue. Rural: for farming or agribusiness clients — replaces the Growth Curve with the 8-tier Farmer's Growth Position (Stage 1 Labourer up to Stage 8 Vertical/Consortium Owner; map where they are now versus their target, e.g. Herd Manager moving to Sharemilker, and the timeframe), and builds a 5-year Strategic Spending Plan splitting upcoming capex into Lifestyle (e.g. a new boat), Operational (e.g. a new tractor) and Strategic (e.g. an irrigation system, herd home or feed pad), each with monthly timeframes. The standard 6-step Accounts Review still remains the foundational opening step. The Frame deck can be combined with any other deck as an opening section — they are not mutually exclusive. If in doubt, default to the Standard Agenda.",
-          "notes": "Deck selection is not just a logistical choice — it is a psychological one. Using the wrong deck for the client type creates friction early in the meeting. A rural farmer shown a standard urban growth curve feels like the meeting wasn't prepared for them. A highly analytical client shown an emotional framing deck may disengage. Match the tool to the person.",
+          "notes": "Deck selection is not just a logistical choice — it is a psychological one. Using the wrong deck for the client type creates friction early in the meeting. A rural farmer shown a standard urban growth curve feels like the meeting wasn't prepared for them. A highly analytical client shown an emotional framing deck may disengage. Match the tool to the person. Whichever deck is chosen, the template and its matching meeting script let the advisor facilitate both a Global reference and a Local reference. That is the point of the structure: it gives two separate, natural openings to suggest additional services in one meeting — two bites at the cherry — without resorting to high-pressure tactics. Advisors who use only one of the two references halve their opportunity.",
           "next_stage": 4
         },
         {
@@ -2857,7 +2857,7 @@
           "stage": 4,
           "condition": "Advisor wants to improve their physical delivery of the Growth Curve — live drawing, chunking, and page management",
           "question": "How are you currently delivering the visual — are you drawing it live or using a pre-made slide or diagram? And are you familiar with the chunking technique for labelling the stages?",
-          "notes": "Live drawing is the preferred method even for advisors with poor handwriting — it slows the client's brain, creates curiosity, and makes the reveal feel like shared discovery. Chunking: write all three phase labels first, then speak about them — never write one, explain it, write the next. Plan page space ahead of time to leave room for milestones. Rhyming words (artisan/businessman) are intentional for memory retention.",
+          "notes": "Live drawing is the preferred method even for advisors with poor handwriting — it slows the client's brain, creates curiosity, and makes the reveal feel like shared discovery. Chunking: write all three phase labels first, then speak about them — never write one, explain it, write the next. Plan page space ahead of time to leave room for milestones. Rhyming words (artisan/businessman) are intentional for memory retention. Delivery methods in order of preference: (1) free-draw — best; (2) the Growth Curve Story presentation — next best; fall back to the presentation only when free-draw is not practical. It takes practice — watch the video and rehearse the story before using it with a live client. Most commonly delivered during year-end meetings, but it applies at any time.",
           "next_stage": 5
         },
         {
@@ -3229,7 +3229,12 @@
         "over-trading",
         "debt to equity",
         "billing cycle",
-        "money moving"
+        "money moving",
+        "big tax bill but no cash",
+        "profitable but no cash in the bank",
+        "why do I have a tax bill",
+        "where does all the money go",
+        "profit but no cash"
       ],
       "stage_entry_question": "Which part of the Working Capital Cycle do you want to work on — understanding the cycle and the difference between fixed and working capital, diagnosing the three problem types correctly, applying cash preservation tactics, or auditing costs and management effectiveness?",
       "entry_node": "wc_stage1",
@@ -3241,7 +3246,7 @@
           "stage": 1,
           "condition": "Advisor wants to understand the framework and explain how money moves through a business",
           "question": "Let's start with the basics. Can you explain the difference between fixed capital and working capital — and walk me through the working capital cycle in order?",
-          "notes": "Fixed Capital = the cost of being in business. Structural overheads: leases, plant and equipment, wages, marketing. This is incurred regardless of whether a sale occurs. Working Capital = the money that makes money. It moves through a continuous cycle: Cash → Stock → Sale → Debtors → Cash. The speed of this cycle is as important as the margin. A 30-day cycle = 12 stock turns per year. A 60-day cycle = 6 stock turns per year — halving the annual profit potential. Adding a 14-day supplier delay plus a 14-day debtor payment window effectively doubles the capital required to run the same volume of business. A business can go bust if its markup is insufficient to cover a prolonged cycle.",
+          "notes": "Fixed Capital = the cost of being in business. Structural overheads: leases, plant and equipment, wages, marketing. This is incurred regardless of whether a sale occurs. Working Capital = the money that makes money. It moves through a continuous cycle: Cash → Stock → Sale → Debtors → Cash. The speed of this cycle is as important as the margin. A 30-day cycle = 12 stock turns per year. A 60-day cycle = 6 stock turns per year — halving the annual profit potential. Adding a 14-day supplier delay plus a 14-day debtor payment window effectively doubles the capital required to run the same volume of business. A business can go bust if its markup is insufficient to cover a prolonged cycle. Listen for the client's own words as the way in — 'How come I have no money, or a big tax bill, but nothing in the bank?' is the classic opener, as is any sign the owner does not connect profit with cash. This stage regularly produces an 'A-ha' moment once money in movement and the use of profits land, and it is the strongest foundation discussion available for an owner who does not yet see why their accounts and performance are worth reviewing regularly. Where it commonly leads: regular management reporting services.",
           "next_stage": 2
         },
         {
@@ -3387,7 +3392,9 @@
         "volatility analysis",
         "variable costs",
         "activity costs",
-        "fixed costs"
+        "fixed costs",
+        "7 cash drivers",
+        "cash drivers"
       ],
       "stage_entry_question": "Which part of Dashboard Discussions do you want to work on — the 3x3 framework and category secrets philosophy, the profitability and margin metrics, the capital and balance sheet metrics, or the facilitation process including root cause analysis and building the action plan?",
       "entry_node": "dd_stage1",
@@ -3429,7 +3436,7 @@
           "stage": 4,
           "condition": "Advisor is ready to learn the step-by-step facilitation process, the 5 Whys technique, and how to close into an action plan",
           "question": "Last stage — the facilitation process itself. Walk me through the five steps for running a dashboard discussion, including how you use the 5 Whys when a metric isn't giving up a clear answer.",
-          "notes": "Step 1 — Set the Objective and Mindset: Open by establishing roles — advisor challenges beliefs, client explores with an open heart and open mind. Remind the group: no single ratio gives you the whole story. Step 2 — Map the Metric to the 3x3 Categories: For each metric, identify which cost category (Variable/Activity/Fixed) it relates to. This determines the tactical levers available. Step 3 — Analyse Against Business Assumptions: Ask 'Is this consistent with your previous assumptions and beliefs?' Determine causation vs correlation vs coincidence. Seek a balanced view — good and bad data. Step 4 — Root Cause Analysis with the 5 Whys: If the metric is unclear or performance doesn't match expectations, don't jump to conclusions. Ask WHY five times — each answer becomes the basis of the next why — to find the fundamental root cause. Don't act on surface symptoms. Step 5 — Identify Tactical Options and Build the Action Plan: Based on root cause and cost category, identify which tactical options are of greatest influence and why. Check whether any previously planned actions still stand. Record learnings and document specific future action steps. Three standard discussion questions for every metric: (1) Is this consistent with your previous assumptions? (2) Which tactical options are most influential — and why? (3) Did you have prior planned actions — do they still stand? Always record action steps before leaving the session.",
+          "notes": "Step 1 — Set the Objective and Mindset: Open by establishing roles — advisor challenges beliefs, client explores with an open heart and open mind. Remind the group: no single ratio gives you the whole story. Step 2 — Map the Metric to the 3x3 Categories: For each metric, identify which cost category (Variable/Activity/Fixed) it relates to. This determines the tactical levers available. Step 3 — Analyse Against Business Assumptions: Ask 'Is this consistent with your previous assumptions and beliefs?' Determine causation vs correlation vs coincidence. Seek a balanced view — good and bad data. Step 4 — Root Cause Analysis with the 5 Whys: If the metric is unclear or performance doesn't match expectations, don't jump to conclusions. Ask WHY five times — each answer becomes the basis of the next why — to find the fundamental root cause. Don't act on surface symptoms. Step 5 — Identify Tactical Options and Build the Action Plan: Based on root cause and cost category, identify which tactical options are of greatest influence and why. Check whether any previously planned actions still stand. Record learnings and document specific future action steps. Three standard discussion questions for every metric: (1) Is this consistent with your previous assumptions? (2) Which tactical options are most influential — and why? (3) Did you have prior planned actions — do they still stand? Always record action steps before leaving the session. Companion template — 7 Cash Drivers: use it alongside the dashboard to prepare a client for financial management reporting services. It is the natural bridge for a client who has just been set up with reporting and does not yet know how to use it, or who needs an introduction to KPIs and to what their financial ratios actually mean for their business.",
           "next_stage": null
         }
       ]
