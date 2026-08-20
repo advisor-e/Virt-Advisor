@@ -1,21 +1,33 @@
 'use strict'
 
 /**
- * Multiple Property Assessment — Phase 1: ONE investment property, ten years.
+ * Multiple Property Assessment — a five-property rental portfolio over ten years.
  *
  * A faithful port of `design/report-source-models/Multiple Property Assessment.xlsx`
- * (`INPUTS`, `MODEL` and `OUTPUTS` sheets, the first property's block) — the design
- * artefact is `design/MULTIPLE-PROPERTY-ASSESSMENT.md` and every rule below is §6 of it.
+ * (`INPUTS`, `MODEL`, `OUTPUTS` and `Consolidated Report`) — the design artefact is
+ * `design/MULTIPLE-PROPERTY-ASSESSMENT.md` and every rule below is §6 of it.
  *
- * It answers ONE question: is this rental property worth buying? It builds a ten-year
- * profit & loss, a ten-year tax position with ring-fenced losses carried forward, both
- * loans amortised, and the investment summary the four headline figures come off.
+ * TWO ENTRY POINTS, and the difference matters:
  *
- * SCOPE — Phase 1 (owner-approved 2026-08-17). Properties 2 to 5, the family home, the
- * loan apportionment table and the consolidated report are Phase 2 (`to-do.md` item
- * 4.19). Phase 1 holds all of the mathematical difficulty; 2–5 are this block repeated.
+ *   `computeMultiplePropertyAssessment(inputs)` — ONE property. It answers "is this
+ *      rental property worth buying?" and builds a ten-year profit & loss, a ten-year
+ *      tax position with ring-fenced losses carried forward, both loans amortised, and
+ *      the investment summary the four headline figures come off. Its funding and its
+ *      deposit are typed in. Everything from here to the Phase 2 banner is this.
  *
- * CORRECTED FROM THE SOURCE — three, and the first is an owner ruling:
+ *   `computeMultiplePropertyPortfolio(inputs)` — the HOUSEHOLD and up to five of them.
+ *      It answers "does this portfolio work?", which is the question the workbook was
+ *      built for. It adds the family home, the loan apportionment table that decides
+ *      each property's mortgage, and the consolidation. It calls the function above
+ *      once per property, unchanged. See the Phase 2 banner further down.
+ *
+ * Built in two phases (owner-approved 2026-08-17): Phase 1 the single property, Phase 2
+ * the portfolio (`to-do.md` item 4.19, closed 2026-08-20). Phase 1 held all of the
+ * mathematical difficulty; properties 2–5 are its block repeated.
+ *
+ * CORRECTED FROM THE SOURCE — five in all. Three are here and the first is an owner
+ * ruling; corrections 4 and 5 are both in the apportionment table and are documented at
+ * the Phase 2 banner.
  *
  *   1. THE INTEREST-ONLY LOAN NO LONGER REPAYS ITSELF (Mike, 2026-08-17; §6 rule 9).
  *      `MODEL` row 60 is `=if(term >= year, ioLoan, 0)`, so on the sample the 350,000
@@ -848,8 +860,401 @@ function computeMultiplePropertyAssessment (inputs) {
   }
 }
 
+/* ========================================================================== *
+ * PHASE 2 — the household, the loan apportionment table, and the consolidation
+ *
+ * `INPUTS` rows 3–17 (the apportionment table), the four remaining property blocks
+ * (rows 89, 155, 221 and 287 — the same block at a 66-row pitch), and the
+ * `Consolidated Report` sheet. Item 4.19; the artefact is `design/MULTIPLE-PROPERTY-
+ * ASSESSMENT.md` §1–§2.
+ *
+ * The apportionment table is NOT a display. `INPUTS` E65 — property 1's Funding
+ * Required — is literally `=L15`, and E131, E197, E263 and E329 are `=M15`, `=N15`,
+ * `=O15` and `=P15`. That table decides every property's mortgage. The consolidation,
+ * by contrast, adds up lines the per-property model already returns and introduces no
+ * arithmetic of its own (`Consolidated Report` C11 = `MODEL!C10+C87+C164+C241+C318`).
+ *
+ * TWO MORE SOURCE CORRECTIONS, both owner-approved 2026-08-20, and both in the table:
+ *
+ *   4. THE FIRST INVESTMENT WAS CHARGED FOR A LOAN IT DID NOT NEED. Row 15 ("Loan
+ *      Apportioned") is `req'd funding × tax apportionment %` in the residence's own
+ *      column (`K15 = K11*K13`) but `VALUE × %` in Invest 1's (`L15 = L9*L13`), so
+ *      property 1 borrows the full 649,000 purchase price and the 90,000 of savings
+ *      available to it is ignored. Invest 2–5's cells are hardcoded constants that
+ *      happen to equal both readings on the sample, so `L15` is the only cell that
+ *      distinguishes them.
+ *      PROOF — the workbook's own check cell R17 ("Balance of Loans to Apportion",
+ *      `=R11-R15`). Read as row 11 × row 13, R17 lands on EXACTLY the non-deductible
+ *      share of the home loan every time: 90,000 = 225,000 × 40% on the sample, and
+ *      120,000 = 300,000 × 40% when the home mortgage is raised to 300,000. Read as
+ *      written it gives 0 and then 105,000 — and the 0 that makes the sheet look
+ *      reconciled is a coincidence of the sample figures, `L7` happening to equal
+ *      `K11 × 40%`. Here EVERY column uses row 11 × row 13.
+ *
+ *   5. THE DEPOSIT WAS COUNTED TWICE. `OUTPUTS` C18 hands property 1 the WHOLE savings
+ *      pool (`INPUTS!E15`, 315,000) while C100 hands property 2 `INPUTS!L7` (90,000) —
+ *      but L7 is the part of that same 315,000 left after the residence. The
+ *      `Consolidated Report` therefore reports 405,000 of investor cash for a household
+ *      holding 315,000 (C29), and that flows through Cumulative Investor Funds (C32)
+ *      into the Projected Return on Investor Funds headline (C34). The columns are off
+ *      by one as well: property 2 reads Invest 1's balance, property 3 reads Invest 2's.
+ *      Here each property's deposit is the savings ACTUALLY applied to it — its value
+ *      less what it had to borrow — which gives 90,000 to property 1 and nothing to the
+ *      rest, and can never sum past the pool.
+ *
+ * ⚠ ONE GUARD ADDED, AND IT IS NOT A CORRECTION. `L7 = R3 − K11` is the only cell of
+ * row 7 without the `if(…, 0, …)` floor its neighbours carry, so a home mortgage larger
+ * than the savings drives the first property's balance NEGATIVE and its required
+ * funding ABOVE the purchase price. Floored at zero here, consistent with every other
+ * column of the same row. It cannot move a figure the workbook computes sensibly.
+ *
+ * ⚠ STILL EXACTLY AS THE WORKBOOK HAS IT, and raised separately rather than decided
+ * here: row 7 subtracts the home MORTGAGE from the savings pool, so a 225,000 mortgage
+ * consumes 225,000 of a 315,000 deposit and only 90,000 ever reaches the investments.
+ * Whether that is the intended meaning is a tax and accounting judgement, not an
+ * arithmetic slip.
+ *
+ * NOT PORTED — `Import Range` and `Imported Report`. They are a Google Sheets
+ * `IMPORTRANGE()` workaround for combining a SECOND copy of the workbook when a client
+ * holds more than five properties, and `Imported Report` is a byte-for-byte copy of
+ * `Consolidated Report` with a note saying its cells still need linking by hand. The
+ * mechanism has no meaning outside a spreadsheet.
+ * ========================================================================== */
+
+/** The apportionment table holds five investments — `INPUTS` columns L..P. */
+const MAX_PROPERTIES = 5
+
+/**
+ * The household — `INPUTS` rows 11–15, and the residence's column of the table.
+ * @type {object}
+ */
+const DEFAULT_HOUSEHOLD = {
+  residenceValue: 1400000, //           E11 — Value of Residential Home (if owned)
+  homeMortgage: 225000, //              E13 — Home Mortgage (if any)
+  totalSavings: 315000, //              E15 — Total Savings for (Combined) Investment
+  //                                          Property's Deposit; R3 of the table
+  residenceTaxApportionmentPct: 0.6 //  K13 — the deductible share of the home loan
+}
+
+/**
+ * The workbook's own five properties, as OVERRIDES on `DEFAULT_INPUTS`.
+ *
+ * Properties 2–5 are the same block at a 66-row pitch (`INPUTS` 89, 155, 221, 287), and
+ * only the fields that genuinely differ are listed — property 3, for instance, is
+ * property 1 with a different address and a six-year P&I term. Listing the differences
+ * rather than five near-identical copies is what makes a wrong figure visible.
+ *
+ * 🔴 `fundingRequired` and `cashDeposit` are ABSENT from every entry by design. In a
+ * portfolio the apportionment table decides both, and `computeMultiplePropertyPortfolio`
+ * supplies them. They stay typed inputs on the single-property model, which has no
+ * table to read them from.
+ * @type {object[]}
+ */
+const PROPERTY_OVERRIDES = [
+  {}, // Property 1 IS `DEFAULT_INPUTS` — INPUTS rows 23–84.
+  { // Property 2 — INPUTS rows 89–150
+    address: '51 Someday Street, Sometown', //  C89
+    purchasePrice: 515000, //                   E97
+    land: 189312, //                            E100
+    building: 301568, //                        E101
+    chattels: 24120, //                         E102
+    rentPerWeek: 485, //                        E104
+    insurance: 2500, //                         E108
+    rates: 1250, //                             E109
+    interestOnlyTermYears: 9 //                 E137 (the P&I term, E138, is 7 as property 1)
+  },
+  { // Property 3 — INPUTS rows 155–216. Property 1 but for the address and the P&I term.
+    address: '35 Average Deal Avenue, Goldentown', // C155
+    piTermYears: 6 //                                 E204
+  },
+  { // Property 4 — INPUTS rows 221–282
+    address: '55 Small Deal Avenue, Goldentown', // C221
+    purchasePrice: 864000, //                       E229
+    land: 390557, //                                E232
+    building: 423568, //                            E233
+    chattels: 49875, //                             E234
+    rentPerWeek: 645, //                            E236
+    managementFeePct: 0.0725, //                    E239
+    insurance: 4800, //                             E240
+    bodyCorp: 1425, //                              E242
+    interestOnlyTermYears: 9, //                    E269
+    piTermYears: 9 //                               E270
+  },
+  { // Property 5 — INPUTS rows 287–348
+    address: '45 Rock n Roll Ave, Swingtown', // C287
+    purchasePrice: 785000, //                    E295
+    land: 395000, //                             E298
+    building: 360158, //                         E299
+    chattels: 29842, //                          E300
+    rentPerWeek: 645, //                         E302
+    managementFeePct: 0.06, //                   E305
+    interestOnlyTermYears: 4, //                 E335
+    piTermYears: 5, //                           E336
+    interestOnlyRate: 0.03 //                    E338 — the only property not on 4%
+  }
+]
+
+/**
+ * The five properties as whole input objects, each one `DEFAULT_INPUTS` with its own
+ * overrides applied. Rebuilt on every call so a caller cannot mutate the defaults.
+ * @returns {object[]} five property input objects, without funding or deposit
+ */
+function defaultProperties () {
+  return PROPERTY_OVERRIDES.map(function (overrides) {
+    const p = Object.assign({}, DEFAULT_INPUTS, overrides)
+    // Both are decided by the table — see PROPERTY_OVERRIDES.
+    delete p.fundingRequired
+    delete p.cashDeposit
+    return p
+  })
+}
+
+/**
+ * The loan apportionment table — `INPUTS` rows 3–17.
+ *
+ * It walks the row once: residence, then Invest 1..5. Each property in turn is handed
+ * whatever is left of the savings pool and borrows the rest, so the money is spent in
+ * order until it runs out. Corrections 4 and 5 both live here.
+ *
+ * @param {object} input
+ * @param {number} input.residenceValue - `E11`/`K9`
+ * @param {number} input.homeMortgage - `E13`/`K11`; given, never derived
+ * @param {number} input.totalSavings - `E15`/`R3`, the combined deposit pool
+ * @param {number} input.residenceTaxApportionmentPct - `K13`, the home loan's deductible share
+ * @param {object[]} input.properties - `[{ purchasePrice, taxApportionmentPct }]`, in order
+ * @returns {object} the table: `residence`, `properties[]`, `totals` and `lvr`
+ */
+function apportionLoans (input) {
+  const src = (input && typeof input === 'object') ? input : {}
+  const totalSavings = num(src.totalSavings, DEFAULT_HOUSEHOLD.totalSavings)
+  const residenceValue = num(src.residenceValue, DEFAULT_HOUSEHOLD.residenceValue)
+  const homeMortgage = num(src.homeMortgage, DEFAULT_HOUSEHOLD.homeMortgage)
+  const residencePct = usable(src.residenceTaxApportionmentPct)
+    ? num(src.residenceTaxApportionmentPct, DEFAULT_HOUSEHOLD.residenceTaxApportionmentPct)
+    : DEFAULT_HOUSEHOLD.residenceTaxApportionmentPct
+  const list = Array.isArray(src.properties) ? src.properties : []
+
+  const residence = {
+    value: residenceValue, //                        K9
+    requiredFunding: homeMortgage, //                K11 — the mortgage as it stands
+    taxApportionmentPct: residencePct, //            K13
+    loanApportioned: homeMortgage * residencePct //  K15 = K11 × K13
+  }
+
+  // What the pool is already spoken for BEFORE the property whose turn it is: the home
+  // mortgage, then every earlier property's full value. This is the workbook's own
+  // running `K11`, `L9+K11`, `M9+L9+K11`, … inside rows 7 and 11.
+  let claimed = homeMortgage
+  const properties = []
+  for (let i = 0; i < list.length; i++) {
+    const p = (list[i] && typeof list[i] === 'object') ? list[i] : {}
+    const value = num(p.purchasePrice, 0)
+    const pct = usable(p.taxApportionmentPct) ? num(p.taxApportionmentPct, 1) : 1
+
+    // Row 7 — what is left of the pool when this property's turn comes. Floored at
+    // zero; see the guard note above.
+    const balanceAvailable = Math.max(0, totalSavings - claimed)
+    claimed += value
+
+    // Row 11 — nothing to borrow while the pool still covers everything to here.
+    const requiredFunding = totalSavings > claimed ? 0 : value - balanceAvailable
+
+    properties.push({
+      value, //                                      L9..P9
+      balanceAvailable, //                           L7..P7
+      // Correction 5: the deposit is the savings this property actually absorbed, which
+      // is the only reading that cannot sum past the pool.
+      depositApplied: value - requiredFunding,
+      requiredFunding, //                            L11..P11
+      taxApportionmentPct: pct, //                   L13..P13
+      // Correction 4: row 11 × row 13, as the residence's own column already does.
+      loanApportioned: requiredFunding * pct //      L15..P15
+    })
+  }
+
+  const sum = function (key) {
+    return properties.reduce(function (a, p) { return a + p[key] }, 0)
+  }
+  const totalValue = residenceValue + sum('value') //                       R9
+  const totalRequiredFunding = homeMortgage + sum('requiredFunding') //     R11
+  const totalLoanApportioned = residence.loanApportioned + sum('loanApportioned') // R15
+
+  return {
+    totalSavings, //                                                        R3
+    residence,
+    properties,
+    totals: {
+      value: totalValue, //                                                 R9
+      requiredFunding: totalRequiredFunding, //                             R11
+      loanApportioned: totalLoanApportioned, //                             R15
+      // R17. Under correction 4 this is always the residence's NON-deductible share —
+      // the part of the home loan that is not apportioned to the investments.
+      balanceToApportion: totalRequiredFunding - totalLoanApportioned,
+      depositApplied: sum('depositApplied')
+    },
+    lvr: div(totalRequiredFunding, totalValue) //                           R5 = R11/R9
+  }
+}
+
+/**
+ * The whole portfolio: the household, up to five properties, and the consolidation.
+ *
+ * Each property is run through `computeMultiplePropertyAssessment` UNCHANGED — the
+ * per-property maths is Phase 1's, already golden-tested — with only its funding and
+ * its deposit supplied from the apportionment table, exactly as `INPUTS` E65 reads
+ * `=L15` and `OUTPUTS` C18 reads a deposit it did not calculate itself.
+ *
+ * @param {object} inputs
+ * @param {object} inputs.household - `residenceValue`, `homeMortgage`, `totalSavings`,
+ *   `residenceTaxApportionmentPct`
+ * @param {object[]} inputs.properties - up to five per-property input objects; each may
+ *   carry a `taxApportionmentPct` (default 1 — an investment loan is fully deductible)
+ * @returns {object} `household`, `apportionment`, `properties[]`, `consolidated`,
+ *   `headline`, `warnings` and `defaultedInputs`
+ */
+function computeMultiplePropertyPortfolio (inputs) {
+  const src = (inputs && typeof inputs === 'object') ? inputs : {}
+  const defaultedInputs = []
+
+  const hSrc = (src.household && typeof src.household === 'object') ? src.household : {}
+  const h = {}
+  Object.keys(DEFAULT_HOUSEHOLD).forEach(function (key) {
+    if (!usable(hSrc[key])) {
+      defaultedInputs.push('household.' + key)
+      h[key] = DEFAULT_HOUSEHOLD[key]
+    } else {
+      h[key] = num(hSrc[key], DEFAULT_HOUSEHOLD[key])
+    }
+  })
+
+  let list = src.properties
+  if (!Array.isArray(list) || !list.length) {
+    defaultedInputs.push('properties')
+    list = defaultProperties()
+  }
+
+  // The apportionment must price each property at the SAME purchase price the
+  // per-property model will use, so the fallback is resolved once, here, rather than
+  // twice with two chances to disagree.
+  const resolvedPrice = list.map(function (p) {
+    const v = (p && typeof p === 'object') ? p.purchasePrice : undefined
+    return usable(v) ? num(v, DEFAULT_INPUTS.purchasePrice) : DEFAULT_INPUTS.purchasePrice
+  })
+
+  const apportionment = apportionLoans({
+    residenceValue: h.residenceValue,
+    homeMortgage: h.homeMortgage,
+    totalSavings: h.totalSavings,
+    residenceTaxApportionmentPct: h.residenceTaxApportionmentPct,
+    properties: list.map(function (p, i) {
+      return {
+        purchasePrice: resolvedPrice[i],
+        taxApportionmentPct: (p && typeof p === 'object') ? p.taxApportionmentPct : undefined
+      }
+    })
+  })
+
+  const warnings = []
+  const properties = list.map(function (p, i) {
+    const slot = apportionment.properties[i]
+    const merged = Object.assign({}, p, {
+      purchasePrice: resolvedPrice[i],
+      fundingRequired: slot.loanApportioned, //  INPUTS E65 = L15
+      cashDeposit: slot.depositApplied //        OUTPUTS C18, corrected
+    })
+    const result = computeMultiplePropertyAssessment(merged)
+    // Said out loud rather than quietly clamped: an interest-only slice bigger than the
+    // whole apportioned loan makes the P&I loan negative, and the figures below it
+    // meaningless. The maths is left exactly as asked for; the reader is told.
+    if (result.loans.interestOnly.balance[0] > slot.loanApportioned) {
+      warnings.push({
+        code: 'INTEREST_ONLY_EXCEEDS_FUNDING',
+        property: i + 1,
+        interestOnlyLoan: result.loans.interestOnly.balance[0],
+        fundingRequired: slot.loanApportioned
+      })
+    }
+    return result
+  })
+
+  // ---- the consolidation (`Consolidated Report` rows 11–39) ----
+  // Every line is a straight sum across the properties, exactly as the sheet has it.
+  const sumYears = function (pick) {
+    const out = new Array(YEARS).fill(0)
+    for (let i = 0; i < properties.length; i++) {
+      const series = pick(properties[i])
+      for (let y = 0; y < YEARS; y++) { out[y] += series[y] }
+    }
+    return out
+  }
+
+  const totalRevenue = sumYears(function (r) { return r.profitAndLoss.rental }) //          row 11
+  const totalExpenses = sumYears(function (r) { return r.profitAndLoss.totalExpenses }) //  row 13
+  const totalPropertyValue = sumYears(function (r) { return r.investmentSummary.propertyValue }) // row 22
+  const totalDebt = sumYears(function (r) { return r.investmentSummary.totalDebt }) //      row 24
+  const netEquity = sumYears(function (r) { return r.investmentSummary.netEquity }) //      row 26
+  const annualCashTopUp = sumYears(function (r) { return r.investmentSummary.annualCashTopUp }) // row 30
+  const capitalIntroduced = sumYears(function (r) { return r.investmentSummary.capitalIntroduced }) // §6 rule 9
+  const cumulativeInvestorFunds = sumYears(function (r) { return r.investmentSummary.cumulativeInvestorFunds }) // row 32
+  const weeklyCashPosition = sumYears(function (r) { return r.profitAndLoss.weeklyCashPosition }) // row 39
+
+  const netOperatingProfit = new Array(YEARS).fill(0) //                                    row 15
+  const returnOnInvestorFunds = new Array(YEARS).fill(0) //                                 row 34
+  for (let y = 0; y < YEARS; y++) {
+    netOperatingProfit[y] = totalRevenue[y] - totalExpenses[y]
+    // C34 = (C26−C32)/C32 — computed FROM the consolidated totals, never the sum of the
+    // per-property percentages, which would be an average of ratios and meaningless.
+    returnOnInvestorFunds[y] = div(netEquity[y] - cumulativeInvestorFunds[y], cumulativeInvestorFunds[y])
+  }
+
+  const cashDeposit = properties.reduce(function (a, r) { //                                row 29
+    return a + r.investmentSummary.cashDeposit
+  }, 0)
+
+  const last = YEARS - 1
+  return {
+    household: h,
+    apportionment,
+    properties,
+
+    consolidated: {
+      years: Array.from({ length: YEARS }, function (_, i) { return i + 1 }),
+      totalRevenue,
+      totalExpenses,
+      netOperatingProfit,
+      totalPropertyValue,
+      totalDebt,
+      netEquity,
+      cashDeposit,
+      annualCashTopUp,
+      capitalIntroduced,
+      cumulativeInvestorFunds,
+      returnOnInvestorFunds,
+      weeklyCashPosition
+    },
+
+    // The same four figures Phase 1 says out loud, read off the portfolio instead of
+    // off one property, so the two screens answer the same question at both scales.
+    headline: {
+      weeklyCashPosition: weeklyCashPosition[0],
+      totalDebt: totalDebt[0],
+      netEquityFinalYear: netEquity[last],
+      returnOnInvestorFundsFinalYear: returnOnInvestorFunds[last]
+    },
+
+    warnings,
+    defaultedInputs
+  }
+}
+
 module.exports = {
   DEFAULT_INPUTS,
+  DEFAULT_HOUSEHOLD,
+  PROPERTY_OVERRIDES,
+  defaultProperties,
+  apportionLoans,
+  computeMultiplePropertyPortfolio,
+  MAX_PROPERTIES,
   computeMultiplePropertyAssessment,
   interestRateSeries,
   interestOnlySchedule,
