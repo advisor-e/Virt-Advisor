@@ -129,6 +129,141 @@ describe('POST /api/report/multiple-property', () => {
     }
   })
 
+  // -------------------------------------------------------------------------
+  // PHASE 2 — the same route, the portfolio shape (item 4.19, 2026-08-20)
+  // -------------------------------------------------------------------------
+
+  it('🔴 the ORIGINAL body still computes ONE property, byte for byte', () => {
+    // The Phase 1 screen is LIVE in UAT and calls this route. Phase 2 must be invisible
+    // to it. This is the test that fails the build if the old contract ever moves.
+    const before = makeRes()
+    multipleProperty({ body: { rentPerWeek: 700, purchasePrice: 700000, land: 300000, building: 370000, chattels: 30000 } }, before, jest.fn())
+
+    expect(before.body.data.properties).toBeUndefined() //     no portfolio keys leak in
+    expect(before.body.data.consolidated).toBeUndefined()
+    expect(before.body.data.apportionment).toBeUndefined()
+    // and the single-property shape is all still there
+    expect(before.body.data.address).toBeDefined()
+    expect(before.body.data.investmentSummary.propertyValue[0]).toBeCloseTo(700000, 6)
+    expect(before.body.data.taxRules.effectiveManagementFeePct).toBeCloseTo(0.08625, 9)
+  })
+
+  it('an EMPTY body is still one property, not a five-property portfolio', () => {
+    // The most likely accident in the whole change: "no properties supplied" must not be
+    // read as "give me the sample portfolio".
+    const res = makeRes()
+    multipleProperty({ body: {} }, res, jest.fn())
+    expect(res.body.data.consolidated).toBeUndefined()
+    expect(res.body.data.headline.totalDebt).toBeCloseTo(611143.726, 2) //  OUTPUTS C13
+  })
+
+  it('a body with `properties` computes the portfolio', () => {
+    const res = makeRes()
+    multipleProperty({ body: { properties: [{ purchasePrice: 649000, land: 260000, building: 359168, chattels: 29832 }] } }, res, jest.fn())
+
+    expect(res.statusCode).toBe(200)
+    expect(res.body.data.properties).toHaveLength(1)
+    expect(res.body.data.consolidated.years).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    expect(res.body.data.apportionment.totals.value).toBeGreaterThan(0)
+  })
+
+  it('a body with only a `household` computes the sample portfolio', () => {
+    const res = makeRes()
+    multipleProperty({ body: { household: { totalSavings: 500000 } } }, res, jest.fn())
+
+    expect(res.body.data.properties).toHaveLength(5)
+    expect(res.body.data.household.totalSavings).toBe(500000)
+    // Consolidated Report row 22 — five purchase prices, and it matches the workbook.
+    expect(res.body.data.consolidated.totalPropertyValue[0]).toBeCloseTo(3462000, 2)
+  })
+
+  it('carries the consolidation, the servicing demand and the warnings', () => {
+    const res = makeRes()
+    multipleProperty({ body: { household: {} } }, res, jest.fn())
+    const data = res.body.data
+
+    // Consolidated Report row 11 — Total Revenue, matching the sheet's own cache.
+    expect(data.consolidated.totalRevenue[0]).toBeCloseTo(149750, 3)
+    expect(data.consolidated.servicing.totalDemand).toHaveLength(10)
+    expect(data.consolidated.servicing.peakYear).toBeGreaterThanOrEqual(1)
+    // The sample caps property 1's typed interest-only loan; the route must carry it out.
+    expect(data.warnings.map(w => w.code)).toContain('INTEREST_ONLY_CAPPED')
+  })
+
+  it('the lending ceiling arrives on the household and is TESTED, not assumed', () => {
+    // It is resolved by the authenticated GET /api/report/property-tax-rules and passed
+    // back in here, so this anonymous route never reads a firm's configuration.
+    const off = makeRes()
+    multipleProperty({ body: { household: {} } }, off, jest.fn())
+    expect(off.body.data.apportionment.maxLvr).toBeNull()
+    expect(off.body.data.warnings.filter(w => /LVR/.test(w.code))).toHaveLength(0)
+
+    const on = makeRes()
+    multipleProperty({ body: { household: { maxLvr: 0.8 } } }, on, jest.fn())
+    expect(on.body.data.warnings.map(w => w.code)).toContain('INVESTMENT_LVR_EXCEEDED')
+  })
+
+  it('the family hold-back survives the round trip', () => {
+    const res = makeRes()
+    multipleProperty({ body: { household: {}, properties: [{ purchasePrice: 649000, land: 260000, building: 359168, chattels: 29832, depositApplied: 215000 }] } }, res, jest.fn())
+
+    const slot = res.body.data.apportionment.properties[0]
+    expect(slot.depositApplied).toBe(215000)
+    expect(slot.requiredFunding).toBe(434000) //          649,000 − 215,000
+    expect(res.body.data.apportionment.depositHeldBack).toBe(100000)
+  })
+
+  it('never logs ANY of the five property addresses when the portfolio fails', () => {
+    // Phase 1 could leak one real address; a portfolio request carries five.
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      jest.resetModules()
+      jest.doMock('../../server/report/multiplePropertyModel', () => ({
+        computeMultiplePropertyAssessment: () => { throw new Error('boom') },
+        computeMultiplePropertyPortfolio: () => { throw new Error('boom') }
+      }))
+      const route = require('../../server/routes/report')
+      route.multipleProperty({
+        body: {
+          household: { residenceValue: 1400000 },
+          properties: [
+            { address: '1 Alpha Street, Onetown' },
+            { address: '2 Bravo Road, Twotown' },
+            { address: '3 Charlie Lane, Threetown' },
+            { address: '4 Delta Drive, Fourtown' },
+            { address: '5 Echo Avenue, Fivetown' }
+          ]
+        }
+      }, makeRes(), jest.fn())
+
+      const logged = spy.mock.calls.map(c => c.map(String).join(' ')).join(' ')
+      const addresses = /Alpha Street|Onetown|Bravo Road|Twotown|Charlie Lane|Threetown|Delta Drive|Fourtown|Echo Avenue|Fivetown/
+      expect(logged).not.toMatch(addresses)
+    } finally {
+      spy.mockRestore()
+    }
+  })
+
+  it('fails safely on the portfolio shape too, with the same envelope', () => {
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      jest.resetModules()
+      jest.doMock('../../server/report/multiplePropertyModel', () => ({
+        computeMultiplePropertyAssessment: () => ({}),
+        computeMultiplePropertyPortfolio: () => { throw new Error('boom') }
+      }))
+      const route = require('../../server/routes/report')
+      const res = makeRes()
+      route.multipleProperty({ body: { household: {} } }, res, jest.fn())
+
+      expect(res.statusCode).toBe(400)
+      expect(res.body.error.code).toBe('MULTIPLE_PROPERTY_COMPUTE_FAILED')
+      expect(JSON.stringify(res.body)).not.toMatch(/boom|\.js|at /)
+    } finally {
+      spy.mockRestore()
+    }
+  })
+
   it('source tripwire — the route is registered in restify-server.js, anonymous by design', () => {
     // Registration is wiring the unit tests cannot see, so pin the line itself.
     // Calc-only route: NO firmAuth (numbers in, numbers out).

@@ -18,7 +18,7 @@ const { computeQuickPosition, computeExpensesReview } = require('../report/quick
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
 const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
-const { computeMultiplePropertyAssessment } = require('../report/multiplePropertyModel')
+const { computeMultiplePropertyAssessment, computeMultiplePropertyPortfolio } = require('../report/multiplePropertyModel')
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { parseUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
@@ -429,10 +429,100 @@ function costOfCapital (req, res, next) {
  * purchase price, rent and loan balances are used to compute the response and are never
  * stored or logged.
  */
+/**
+ * Is this body asking for the PORTFOLIO rather than one property?
+ *
+ * 🔴 THE OLD SHAPE MUST KEEP WORKING UNCHANGED. The Phase 1 screen is live in UAT and
+ * calls this route, so the decision is made on what the caller SENT, never on a flag or
+ * a version the old screen does not know to set. A body carrying a `properties` list or
+ * a `household` object wants the portfolio; every other body computes exactly as it did
+ * before Phase 2 existed, and `multiplePropertyRoute.test.js` fails the build if that
+ * ever stops being true.
+ *
+ * One route rather than two, deliberately: the Phase 2 screen REPLACES the Phase 1 one
+ * (the catalogue's "Property 1 of 5" line is written to be deleted), so a second URL
+ * would be dead the day it was finished.
+ *
+ * @param {object} body
+ * @returns {boolean}
+ */
+function wantsPortfolio (body) {
+  if (!body || typeof body !== 'object') { return false }
+  if (Array.isArray(body.properties)) { return true }
+  return !!(body.household && typeof body.household === 'object')
+}
+
+/**
+ * POST /api/report/multiple-property
+ *
+ * TWO SHAPES, ONE ROUTE — see `wantsPortfolio` for why.
+ *
+ * @param {object} req.body - either shape:
+ *
+ *   **ONE PROPERTY (the original, unchanged).** Partial Multiple Property Assessment
+ *   inputs merged over the workbook's sample: the property (purchasePrice and its
+ *   land/building/chattels split, rentPerWeek, vacancyWeeks, taxRate), the nine annual
+ *   costs, the growth and inflation assumptions, and the funding structure
+ *   (fundingRequired, interestOnlyLoan, the two terms, the two rates,
+ *   interestDeductibility 'Yes'/'No'/'Phasing' with its phasingTable[], cashDeposit).
+ *
+ *   **THE PORTFOLIO (Phase 2).** `{ household, properties }`. `household` carries
+ *   `residenceValue`, `homeMortgage`, `totalSavings`, `residenceTaxApportionmentPct` and
+ *   `maxLvr`; `properties` is up to five of the objects above, each of which may also
+ *   carry `depositApplied` (the family's hold-back — omit it and the property takes what
+ *   is left of the pool) and `taxApportionmentPct`. 🔴 `fundingRequired` and
+ *   `cashDeposit` are IGNORED on this shape: the apportionment table decides both, and a
+ *   caller who sends them is describing a funding structure the table is about to
+ *   overrule.
+ *
+ *   Two groups exist in no workbook cell and both are Mike's rulings of 2026-08-17:
+ *   `endOfInterestOnly` ('convert'/'repay') with `interestOnlyTotalTermYears`, which
+ *   decides what happens when the interest-only period ends — the workbook simply zeroed
+ *   the balance with nothing repaying it; and the four tax rules (`yearOneAddBack`,
+ *   `managementFeeGstRate`, `depreciableAssets` + `depreciationMethod` +
+ *   `buildingDepreciationRate`, `lossTreatment`) which were assumptions inside its
+ *   formulas. Every default reproduces the workbook exactly.
+ *
+ *   ⚠ `maxLvr` is NOT resolved here. It reaches the caller from the tier cascade through
+ *   the authenticated `GET /api/report/property-tax-rules`, alongside the tax rules it
+ *   shares a settings block with, and is passed back in on the household. This route
+ *   stays anonymous, which it could not do if it read a firm's configuration itself.
+ *
+ *   An omitted field computes on the sample and is named in `defaultedInputs`
+ *   (R8 — defaults never substitute silently). A setting that is present but
+ *   unrecognised is named there too, so a mistyped rule never passes as a chosen one.
+ * @returns {object} { success, data, timestamp }.
+ *
+ *   ONE PROPERTY — data = { address, endOfInterestOnly, years[], headline{}, taxRules{},
+ *   purchasePriceSplit{}, profitAndLoss{}, taxPosition{}, loans{}, investmentSummary{},
+ *   defaultedInputs }.
+ *
+ *   THE PORTFOLIO — data = { household{}, apportionment{}, properties[] (each of them the
+ *   object above), consolidated{…, servicing{}}, headline{}, warnings[], defaultedInputs }.
+ *
+ *   🔴 `warnings[]` IS NOT OPTIONAL FOR A CALLER TO RENDER. A capped interest-only slice,
+ *   a deposit reduced to fit, or a breached LVR are each a sentence the advisor needs to
+ *   read; a screen that drops them puts the model back to producing a plausible wrong
+ *   number in silence, which is the fault the apportionment corrections were made to fix.
+ *
+ *   Every series is ten long, index 0 = year 1.
+ *
+ *   `purchasePriceSplit.reconciles` is reported, never enforced: the model computes either
+ *   way and the screen refuses on a non-zero difference, so an advisor mid-typing is not
+ *   an advisor in error.
+ *
+ * Anonymous, like every other calc route: numbers in, numbers out. It reads no database,
+ * writes nothing, calls no third party, and sends nothing to an LLM — the client's real
+ * purchase price, rent and loan balances are used to compute the response and are never
+ * stored or logged. With five properties there are now FIVE real addresses in a request
+ * and none of them reaches a log line either.
+ */
 function multipleProperty (req, res, next) {
   try {
     const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
-    const data = computeMultiplePropertyAssessment(inputs)
+    const data = wantsPortfolio(inputs)
+      ? computeMultiplePropertyPortfolio(inputs)
+      : computeMultiplePropertyAssessment(inputs)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
     console.error('[report] multiple-property compute failed:', err)
