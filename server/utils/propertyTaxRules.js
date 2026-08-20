@@ -77,8 +77,23 @@ const ALLOWED = {
   interestDeductibility: ['Yes', 'No', 'Phasing']
 }
 
-/** The fields carrying a rate, all of them decimals in 0..1 (15% is 0.15, never 15). */
-const RATE_FIELDS = ['managementFeeGstRate', 'depreciationRateChattels', 'buildingDepreciationRate']
+/**
+ * The fields carrying a rate, all of them decimals in 0..1 (15% is 0.15, never 15).
+ *
+ * ⚠ `maxLvr` is a LENDING rule, not a tax rule, and it shares this block deliberately:
+ * it cascades the same way, a firm corrects it the same way, and an advisor types over
+ * it the same way, so a second mechanism and a second Hub tab would buy nothing but a
+ * tab (Mike, 2026-08-20 — "it needs to be an editable input"). It is a rate like the
+ * others and this validator's 0..1 rule is exactly right for it: a `70` typed where
+ * `0.7` was meant is refused rather than read as 7000%.
+ *
+ * 🔴 IT IS ABSENT FROM `data/property-tax-rules.json` ON PURPOSE. The source workbook
+ * has no ceiling anywhere — it computes an LVR at `R5` that no formula ever reads — so
+ * a shipped figure would be a lending policy nobody chose. Absent means no ceiling is
+ * set, the model computes and shows both LVRs and judges neither, and the first real
+ * figure is the one a mentor types in.
+ */
+const RATE_FIELDS = ['managementFeeGstRate', 'depreciationRateChattels', 'buildingDepreciationRate', 'maxLvr']
 
 /** The longest phasing schedule worth accepting — the model projects ten years. */
 const MAX_PHASING_ENTRIES = 10

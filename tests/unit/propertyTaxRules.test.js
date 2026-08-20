@@ -222,3 +222,63 @@ describe('loadResolvedPropertyTaxRules', () => {
     expect(rules.lossTreatment).toBe('ringFenced')
   })
 })
+
+describe('maxLvr — the lending ceiling that shares this block', () => {
+  it('is NOT shipped, and that is the decision rather than an omission', () => {
+    // The source workbook has no ceiling anywhere: it computes an LVR at R5 that no
+    // formula on any of its seven sheets ever reads. A figure shipped here would be a
+    // lending policy nobody chose, arriving with the authority of a calculated result.
+    expect(BASE_PROPERTY_TAX_RULES.maxLvr).toBeUndefined()
+    expect(Object.prototype.hasOwnProperty.call(BASE_PROPERTY_TAX_RULES, 'maxLvr')).toBe(false)
+  })
+
+  it('is accepted as a rate, like every other rate on this tab', () => {
+    const out = validatePropertyTaxRules({ maxLvr: 0.7 })
+    expect(out.ok).toBe(true)
+    expect(out.value).toEqual({ maxLvr: 0.7 })
+  })
+
+  it('refuses 70 rather than reading it as 7000%', () => {
+    // The unit mistake this whole validator exists to catch, on the field where it would
+    // be easiest to make: an LVR is spoken as "seventy percent" every time it is said.
+    const out = validatePropertyTaxRules({ maxLvr: 70 })
+    expect(out.ok).toBe(false)
+    expect(out.errors.join(' ')).toMatch(/rate between 0 and 1/)
+    expect(out.value.maxLvr).toBeUndefined()
+  })
+
+  it('refuses a negative ceiling', () => {
+    expect(validatePropertyTaxRules({ maxLvr: -0.1 }).ok).toBe(false)
+  })
+
+  it('accepts a numeric string, as the other rates do', () => {
+    expect(validatePropertyTaxRules({ maxLvr: '0.65' }).value).toEqual({ maxLvr: 0.65 })
+  })
+
+  it("takes a GROUP's ceiling down to a firm, and lets the firm tighten it", async () => {
+    setFirmMembership({ [FIRM]: { globalGroup: BRAND, country: COUNTRY } })
+    const group = groupScopeId(BRAND, COUNTRY)
+
+    const inherited = await loadResolvedPropertyTaxRules(FIRM, readerFor({
+      [group]: { maxLvr: 0.7 }
+    }))
+    expect(inherited.maxLvr).toBe(0.7)
+    // And it did not disturb the tax rules it sits beside.
+    expect(inherited.depreciationRateChattels).toBe(0.28)
+
+    const corrected = await loadResolvedPropertyTaxRules(FIRM, readerFor({
+      [group]: { maxLvr: 0.7 },
+      [FIRM]: { maxLvr: 0.65 }
+    }))
+    expect(corrected.maxLvr).toBe(0.65)
+  })
+
+  it('is simply absent while nobody has set one', async () => {
+    setFirmMembership({ [FIRM]: { globalGroup: BRAND, country: COUNTRY } })
+    const rules = await loadResolvedPropertyTaxRules(FIRM, readerFor({
+      [groupScopeId(BRAND, COUNTRY)]: { lossTreatment: 'offset' }
+    }))
+    // Absent, never 0 — a ceiling of zero would refuse every loan ever written.
+    expect(rules.maxLvr).toBeUndefined()
+  })
+})

@@ -968,11 +968,14 @@ const DEFAULT_HOUSEHOLD = {
   totalSavings: 315000, //              E15 — Total Savings for (Combined) Investment
   //                                          Property's Deposit; R3 of the table
   residenceTaxApportionmentPct: 0.6, // K13 — the deductible share of the home loan
-  // ⚠ NOT THE WORKBOOK'S — it has no ceiling anywhere (see the banner). 80% is the
-  // common maximum and it is a PLACEHOLDER chosen here so the test has something to
-  // run against; it is an input precisely so a firm sets its own. On the sample the
-  // portfolio sits at 69.4% all-in and 90.9% on the investments alone.
-  maxLvr: 0.8
+  // 🔴 DELIBERATELY UNSET, and it is the only field here that is. The workbook has no
+  // ceiling anywhere (see the banner), so any figure shipped as a default would be a
+  // lending policy nobody chose — and it would arrive wearing the authority of a
+  // calculated result. `null` means the LVRs are still computed and shown but nothing
+  // is judged, until a mentor sets the real number and it cascades to everyone
+  // (`data/property-tax-rules.json`, Mike's ruling of 2026-08-20: "it needs to be an
+  // editable input").
+  maxLvr: null
 }
 
 /**

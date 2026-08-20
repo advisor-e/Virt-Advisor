@@ -2,7 +2,7 @@
 .ptr
   .notification.is-info.is-light.mb-4
     p.is-size-7
-      | These settings decide how the #[b Multiple Property Assessment] treats tax.
+      | These settings decide how the #[b Multiple Property Assessment] treats tax and lending.
       |  A group normally sets them for its country; a firm may correct them for itself.
       |  An advisor can still type over any of them on the report for one client.
 
@@ -92,7 +92,20 @@
  * above 1 outright rather than clamping it, so a unit mistake fails loudly.
  *
  * Every label here is the one Mike ruled in §8 Q5, so the tab and the report screen say
- * the same words about the same setting.
+ * the same words about the same setting — EXCEPT ONE.
+ *
+ * ⚠ `Maximum Loan to Value Ratio (%)` IS NOT HIS WORDING, and this note is the record.
+ * On 2026-08-20 he ruled the lending ceiling *"needs to be an editable input"*, was
+ * offered a drawing of this tab with the field on it before it was built, and declined
+ * it — *"no, just add it as a field - I'm sure you can do it"*. So the label, its help
+ * text and its placement are ours. That is his call to make and it is written here
+ * rather than left to look like a ruling, because §10 of the artefact exists precisely
+ * to stop a build quietly acquiring authority it was never given.
+ *
+ * ⚠ It is also a LENDING rule sitting on a tab called Tax Rules. It shares the block
+ * because it cascades, corrects and overrides identically, and a second Hub tab would
+ * buy nothing but a tab — Mike having already said the hub was getting overwhelming.
+ * The intro sentence says "tax and lending" so the tab does not misdescribe itself.
  */
 export default {
   name: 'FirmPropertyTaxRules',
@@ -118,6 +131,7 @@ export default {
         depreciableAssets: 'chattels',
         depreciationMethod: 'dv',
         depreciationRateChattelsPct: 28,
+        maxLvrPct: '',
         buildingDepreciationRatePct: 0,
         lossTreatment: 'ringFenced',
         interestDeductibility: 'Phasing',
@@ -169,6 +183,12 @@ export default {
           ]
         },
         { key: 'depreciationRateChattelsPct', ownKey: 'depreciationRateChattels', label: 'Depreciation Rate on Chattels (%)' },
+        {
+          key: 'maxLvrPct',
+          ownKey: 'maxLvr',
+          label: 'Maximum Loan to Value Ratio (%)',
+          help: 'The most a lender will advance against a property. Leave blank for no limit — the ratio is still shown, it is simply not judged.'
+        },
         {
           key: 'buildingDepreciationRatePct',
           ownKey: 'buildingDepreciationRate',
@@ -230,6 +250,8 @@ export default {
       if (rules.interestDeductibility) { this.form.interestDeductibility = rules.interestDeductibility }
       if (rules.managementFeeGstRate !== undefined) { this.form.managementFeeGstPct = pct(rules.managementFeeGstRate) }
       if (rules.depreciationRateChattels !== undefined) { this.form.depreciationRateChattelsPct = pct(rules.depreciationRateChattels) }
+      // Blank, not 0: an unset ceiling is not a ceiling of nothing.
+      this.form.maxLvrPct = rules.maxLvr === undefined || rules.maxLvr === null ? '' : pct(rules.maxLvr)
       if (rules.buildingDepreciationRate !== undefined) { this.form.buildingDepreciationRatePct = pct(rules.buildingDepreciationRate) }
       if (Array.isArray(rules.phasingTable)) { this.form.phasingPct = rules.phasingTable.map(pct) }
     },
@@ -254,7 +276,7 @@ export default {
     payload () {
       const dec = v => (Number(v) || 0) / 100
       const f = this.form
-      return {
+      const out = {
         yearOneAddBack: f.yearOneAddBack,
         managementFeeGstRate: dec(f.managementFeeGstPct),
         depreciableAssets: f.depreciableAssets,
@@ -265,6 +287,14 @@ export default {
         interestDeductibility: f.interestDeductibility,
         phasingTable: f.phasingPct.map(dec)
       }
+      // 🔴 THE ONE FIELD THAT IS OMITTED WHEN BLANK, and the exception is the point.
+      // Everything else is sent whole, because a manager who pressed Save has decided
+      // every value on the tab. A blank ceiling is not a decision to lend nothing — it
+      // is "no limit set" — and `dec('')` would turn it into 0 and refuse every loan.
+      if (f.maxLvrPct !== '' && f.maxLvrPct !== null && Number.isFinite(Number(f.maxLvrPct))) {
+        out.maxLvr = dec(f.maxLvrPct)
+      }
+      return out
     },
 
     async save () {

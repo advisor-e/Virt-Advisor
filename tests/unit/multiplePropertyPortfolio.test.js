@@ -439,8 +439,19 @@ describe('the five sample properties', () => {
     expect(defaultProperties()[0].purchasePrice).toBe(DEFAULT_INPUTS.purchasePrice)
   })
 
-  test('the household carries a ceiling that is ours, not the workbook\'s', () => {
-    expect(DEFAULT_HOUSEHOLD.maxLvr).toBe(0.8)
+  test('the household ships NO lending ceiling, and that is the decision', () => {
+    // The workbook has none — it computes an LVR at R5 that no formula ever reads — so a
+    // figure shipped here would be a lending policy nobody chose, wearing the authority
+    // of a calculated result. It is set on the Property Tax Rules tab and cascades from
+    // the mentor down (Mike, 2026-08-20: "it needs to be an editable input").
+    expect(DEFAULT_HOUSEHOLD.maxLvr).toBeNull()
+  })
+
+  test('and with none set, the ratios are still shown — they are simply not judged', () => {
+    const r = computeMultiplePropertyPortfolio({})
+    expect(r.apportionment.maxLvr).toBeNull()
+    expect(r.apportionment.investmentLvr).toBeCloseTo(3147000 / 3462000, 9)
+    expect(r.warnings.filter(w => /LVR/.test(w.code))).toHaveLength(0)
   })
 })
 
