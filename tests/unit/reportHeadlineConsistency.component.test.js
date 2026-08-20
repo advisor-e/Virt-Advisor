@@ -25,7 +25,7 @@ const { computeEbitdaDcf, DEFAULTS: ED_DEFAULTS } = require('~/server/report/ebi
 const { computeLoanEstimatorReport } = require('~/server/report/loanEstimatorModel')
 const { computeLeaseVsBuy } = require('~/server/report/leaseVsBuyModel')
 const { computeCostOfCapital } = require('~/server/report/costOfCapitalModel')
-const { computeMultiplePropertyAssessment } = require('~/server/report/multiplePropertyModel')
+const { computeMultiplePropertyPortfolio } = require('~/server/report/multiplePropertyModel')
 
 /**
  * CONSISTENCY GUARD — every report in this section presents its headline figures the
@@ -79,7 +79,7 @@ const SCREENS = [
   // An empty body computes the workbook sample through the assembler's own default path.
   { name: 'Cost of Capital (WACC)', component: CostOfCapital, result: () => computeCostOfCapital({}) },
   // Phase 1 — one property, ten years. An empty body computes the workbook's sample.
-  { name: 'Multiple Property Assessment', component: MultiplePropertyAssessment, result: () => computeMultiplePropertyAssessment({}) }
+  { name: 'Multiple Property Assessment', component: MultiplePropertyAssessment, result: () => computeMultiplePropertyPortfolio({}) }
 ]
 
 /** Mount with the backend answering successfully, and let the first result land. */

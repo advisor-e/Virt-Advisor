@@ -1,23 +1,27 @@
 # Multiple Property Assessment — screen design
 
-> **Status, 2026-08-21: PHASE 1 IS LIVE. PHASE 2's MATHS AND ROUTE ARE BUILT; ITS SCREEN
-> IS NOT, AND ITS DRAWING NOW EXISTS.**
+> **Status, 2026-08-21: BOTH PHASES ARE BUILT. THE SCREEN IS THE PORTFOLIO.**
 >
 > - **Phase 1 (one property)** — built 2026-08-17, live. Maths, golden test, Restify
 >   route, catalogue row, page, screen. The group-tier tax cascade followed on
 >   2026-08-18 and closed item 4.20.
-> - **Phase 2 (the portfolio)** — item 4.19, started 2026-08-20. The maths is built and
->   golden-tested: the household, the loan apportionment table, five properties and the
->   consolidation, plus the deposit hold-back, the lending ceiling and the servicing
->   figures Mike asked for the same day. **The route is built too** (`838cf46`, one URL
->   taking both shapes). **The screen and the catalogue line are NOT** — §9 steps P2-4
->   and P2-5.
+> - **Phase 2 (the portfolio)** — item 4.19, built 2026-08-20/21. The maths and its golden
+>   test, the route, **the drawing**, the screen and the catalogue line: all five steps
+>   P2-1 to P2-5 are done. The household, the loan apportionment table, five properties and
+>   the consolidation, plus the deposit hold-back, the lending ceiling and the servicing
+>   figures Mike asked for on 2026-08-20.
 >
-> ✅ **THE PHASE 2 DRAWING EXISTS — step P2-3, written 2026-08-21:**
-> [`mockups/multiple-property-portfolio.html`](mockups/multiple-property-portfolio.html),
-> with the design and the six open questions in **§11** below. Its figures are the built
-> model's own output, not the workbook's and not invented. **The screen may now be built
-> against it once Q11–Q16 are ruled.**
+> ✅ **The drawing is
+> [`mockups/multiple-property-portfolio.html`](mockups/multiple-property-portfolio.html)**
+> (step P2-3), its design and its six questions are **§11**, and Mike ruled all six on
+> 2026-08-21: *"looks great - move forward"*. Its figures are the built model's own output,
+> not the workbook's and not invented. **§10 names twelve differences between the drawing
+> and the build, and two defects that rendering the screen found.**
+>
+> ⚠ **Layout is NOT verified.** No browser driver is installed in this repository, and
+> jsdom has no layout engine — the screen's rendered TEXT was read before shipping, which
+> is not the same as seeing a laid-out page. This is the gap the Property Tax Rules tab's
+> phasing boxes fell through.
 >
 > *(This block read* **"PHASE 2's MATHS IS BUILT; ITS SCREEN IS NOT … The route, the
 > screen and the catalogue line are NOT built"** *until 2026-08-21. The route sentence was
@@ -945,12 +949,24 @@ step §10 says was skipped for the Property Tax Rules tab.** It was written here
 numbered step so that it could not be absorbed into "the screen" a second time, and it was
 not.
 
-**P2-4. ☐ NOT BUILT — the screen**, once §11's Q11–Q16 are ruled.
+**P2-4. ✅ BUILT 2026-08-21 — the screen**, once §11's Q11–Q16 were ruled (Mike,
+2026-08-21: *"looks great - move forward"*). `components/MultiplePropertyAssessment.vue`
+becomes the portfolio: the household, the property list, the portfolio-level tax rules and
+the open property's own figures on the left; the findings, the deposit table, the lending
+position, the properties compared, the consolidated report, the servicing demand, the
+commentary and the open property's four ten-year tables on the right. Every string through
+`$t()`. **26 component tests**, up from 8 — and §10 names twelve differences from the
+drawing plus **two defects that rendering found and no test would have**.
 
-**P2-5. ☐ NOT BUILT — the catalogue.** Delete the scope line *"Property 1 of 5 · the
-remaining four arrive in the next release"* from the catalogue row **and** the screen's
-header (Q1, Q7a). It is the one line of this design written to be deleted, and this is
-where it goes.
+**P2-5. ✅ BUILT 2026-08-21 — the catalogue.** The scope line *"Property 1 of 5 · the
+remaining four arrive in the next release"* is deleted from the catalogue row **and** the
+screen's header (Q1, Q7a), together with its locale key. It was the one line of this design
+written to be deleted, and it is gone.
+
+⚠ **What was NOT changed, and it is Mike's call:** the catalogue summary still reads
+*"Whether **a rental property** is worth buying — ten years of cash, tax and equity"* —
+singular. That is his own wording, ruled at Q7 when the screen was one property. It now
+understates a five-property model. See §10.
 
 *(Superseded 2026-08-18. This block previously read* **"Still NOT done, and it is the other
 half of item 4.20 … That is the firm-overlay work, and it has not been started."** *It is
@@ -1084,6 +1100,58 @@ into evidence against him, twice.
 **What remains is only the ARTEFACT.** No drawing of this tab exists, and per the note
 above one made now would prove nothing. It is not a blocker for anything; it is a gap in
 the record, and it is stated as one rather than as an outstanding job for Mike.
+
+### The PHASE 2 SCREEN, built 2026-08-21 — twelve differences, all named
+
+**The drawing was opened beside the running screen before this was written.** Approved by
+Mike on 2026-08-21 (*"looks great - move forward"*) after reading
+[`mockups/multiple-property-portfolio.html`](mockups/multiple-property-portfolio.html).
+
+| | The drawing | The build | Why |
+|---|---|---|---|
+| **1** | Sub-line *"Year 1 · all five properties"* | *"all {n} properties"*, and *"one property"* at one | The screen takes one to five. The drawn literal is false for every count but the one drawn |
+| **2** | Three more sub-lines saying *five* — *The five properties*, *All five properties added together*, *the family home and five rentals* | Counts, for the same reason | |
+| **3** | The household note cites `INPUTS` rows 11–15 and K13 | The cell references are dropped; the rest stands | A spreadsheet cell reference is developer shorthand. It means nothing to an advisor, and the half that says where the ceiling comes from is the half that helps |
+| **4** | The *Balance of Loans to Apportion* note cites *"the workbook's own row 17"* | Same — reference dropped, meaning kept | As above |
+| **5** | A `.warn-none` style for an all-clear findings card | 🔴 **The card is ABSENT when the model changed nothing** | The drawing defined the style and drew **no sentence for it**. Rather than invent wording after approval, the card does not appear. Guarded by a test |
+| **6** | *"Held back by the family — $0 of $315,000. Every dollar of the deposit is spent, and it is spent once."* | **Two sentences**: that one when the deposit is fully spent, and a plain statement of the amount kept when it is not | 🔴 The drawn sentence is **false in exactly the case the hold-back control exists to create**. It was drawn on a state where nothing was held back |
+| **7** | The lending card shows only *"shown, not judged"* | Adds *"Within the {max} ceiling."* / *"Above the {max} ceiling."* | **Ours, and never drawn.** The drawing showed only the unset state; the second-state annotation's *within* / *over* column is the closest it comes. One line from Mike changes either |
+| **8** | Commentary: *"…the rentals together stand at 90.9% loan to value, **which no ordinary investment lender will advance**."* | The final clause is **dropped** | 🔴 It is a lending judgement, and asserting it needs a threshold. The model ships the ceiling blank precisely so nothing is judged (§8 Q10) — hard-coding "no ordinary lender" would smuggle back the invented policy that ruling refused |
+| **9** | Commentary: *"…carry $4,678 a week **for the first five years**"* | *"…in the hardest year"*, using the model's own `peakYear` | "The first five years" was read off the sample's shape. It is not a figure the model produces, and it is wrong for a portfolio that peaks later |
+| **10** | Card titles *Property 1 — the property* and *— funding*; *Annual costs* and *Assumptions* not drawn at all | All four carry the *Property n —* prefix, composed with the **existing approved** card titles (so *— Funding structure*, not *— funding*) | No card in that column should be ambiguous about which property it belongs to. Composing reuses wording Mike already ruled rather than inventing a second name for the same card |
+| **11** | Tax rules note: *"A single property may still differ — that override lives on the property itself, below."* | 🔴 **NO per-property tax override is drawn, and none is built.** Tax rules are portfolio-level only | The drawing's prose promises a control the drawing does not show. Building it would be building something unapproved; deleting the sentence would hide the gap. **It is named here and it is open** |
+| **12** | The catalogue card carries the scope line | Scope line deleted from the row **and** the header (step P2-5, ruled) — but the summary still reads *"Whether **a rental property** is worth buying"*, singular | ⚠ That summary is **Mike's own wording, ruled at Q7** when the screen was one property. It now understates a five-property model. **Changing it is his call and was not made** |
+
+⚠ **Two behaviours the drawing implies but does not show, decided here rather than in the
+code:** a property may be added up to five and removed down to one (never to none — a
+portfolio of nothing would compute on the model's sample), and **a new property is seeded
+from the workbook sample with a blank address** rather than blanked. It is seeded because
+the *backend already defaults every absent figure to that same sample*: a blank card would
+show zeros while the model computed on 649,000, and the screen would disagree with its own
+figures.
+
+#### 🔴 Two defects found by RENDERING the screen, which no test would have caught
+
+Both were found by mounting the component with the real English strings and reading what
+an advisor would actually see — not by any assertion, and not by the 5,885 tests that were
+green at the time. **Both are fixed, and both now have a test that was mutation-verified
+by reverting the fix and watching it fail.**
+
+- **The cash deposit vanished from the per-property investment summary.**
+  `investmentSummary.cashDeposit` is a **scalar**, not a ten-year series; indexing it gave
+  `undefined` and the row rendered as ten dashes. *Every other row in that table is a
+  series*, which is what made it an easy mistake and a hard one to see.
+- **The deposit box was empty where the table had put money in.** The box binds to what
+  the family **typed**, so in the state the screen opens in it was blank — sitting beside a
+  funding figure of 334,000 that had visibly had 315,000 deducted from it. The screen was
+  disagreeing with its own table. The applied figure is now the box's **placeholder**, so
+  blank still means *"take what is left of the pool"* and the reader still sees the money.
+
+⚠ **This is the Property Tax Rules lesson arriving on time rather than late.** Jest has no
+layout engine and no eye; the tab's phasing-box defect was found by Mike opening the
+screen. Here the screen was read before it was shipped — but **reading rendered text is
+still not seeing a laid-out page**, and no browser driver is installed in this repository.
+**Layout remains unverified and it is stated as unverified.**
 
 ### The PHASE 2 MATHS, built 2026-08-20
 

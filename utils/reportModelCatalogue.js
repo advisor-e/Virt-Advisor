@@ -98,7 +98,7 @@ export const MODELS = [
   // (MULTIPLE-PROPERTY-ASSESSMENT.md §8 Q7a), because the card is what an advisor sees
   // FIRST and the name promises five properties. It is written to be DELETED when
   // Phase 2 lands (to-do item 4.19).
-  { name: 'Multiple Property Assessment', category: 'Valuation', summary: 'Whether a rental property is worth buying — ten years of cash, tax and equity.', scope: 'Property 1 of 5 · the remaining four arrive in the next release', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/multiple-property' },
+  { name: 'Multiple Property Assessment', category: 'Valuation', summary: 'Whether a rental property is worth buying — ten years of cash, tax and equity.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/multiple-property' },
   { name: 'Retirement Review', category: 'Valuation', summary: 'Whether the plan funds the retirement the owner wants.', status: STATUS_SOON, modelClass: CLASS_DECISION },
   { name: 'Quick Position', category: 'Valuation', summary: 'A fast read on where the business stands right now.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/quick-position' },
   { name: 'High-Level Budget', category: 'Budgeting', summary: 'A top-down budget with actuals and cash-flow variances.', status: STATUS_SOON, modelClass: CLASS_REPORT },

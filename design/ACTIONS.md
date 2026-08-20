@@ -21,6 +21,54 @@
 >
 > ---
 >
+> ## ✅ SESSION 76 — 2026-08-21 (laptop). ITEM 4.19 — THE DRAWING, THEN THE SCREEN.
+>
+> **Two commits.** Suite **5,887 green / 322 suites**, lint 0 errors, audit gate PASS.
+>
+> **Steps P2-3, P2-4 and P2-5 are done, so every build step of item 4.19 is complete.**
+> The artefact came FIRST — the step §10 records as skipped for the Property Tax Rules tab. It
+> was written as its own numbered build step precisely so it could not be absorbed into "the
+> screen" a second time, and it was not.
+>
+> - **The drawing:** [`mockups/multiple-property-portfolio.html`](mockups/multiple-property-portfolio.html),
+>   registered in [`ARTEFACTS.md`](ARTEFACTS.md). Every figure on it is
+>   `computeMultiplePropertyPortfolio()`'s own output — nothing invented, nothing the workbook's
+>   uncorrected arithmetic. Its design and its six open questions are
+>   [`MULTIPLE-PROPERTY-ASSESSMENT.md`](MULTIPLE-PROPERTY-ASSESSMENT.md) §11.
+> - **Mike ruled all six on 2026-08-21:** *"looks great - move forward"*.
+> - **The screen:** `components/MultiplePropertyAssessment.vue` becomes the portfolio. **26
+>   component tests**, up from 8. The scope line *"Property 1 of 5"* is deleted from the header,
+>   the catalogue row and the locale file — the one line of that design written to be deleted.
+>
+> **WHAT THE DRAWING FOUND, and it is not a design question.** On the model's own defaults
+> property 1 absorbs the whole 315,000 deposit and properties 2–5 borrow **100% of their purchase
+> price**; the rentals stand at **90.9%** loan to value. Spread the deposit evenly by hand instead
+> and **every** property goes over an 80% ceiling. **315,000 does not buy five properties** — a
+> finding no version of the workbook could produce, because it has no lending test at all.
+>
+> 🔴 **TWO DEFECTS FOUND BY RENDERING THE SCREEN, WHICH NO TEST CAUGHT.** Both were found by
+> mounting the component with the real English strings and reading what an advisor would see —
+> with 5,885 tests green at the time. Both are fixed and both now have a **mutation-verified**
+> test:
+> - `investmentSummary.cashDeposit` is a **scalar**, not a ten-year series. Indexing it rendered
+>   the deposit row as ten dashes — the client's own money missing from the one table that exists
+>   to show it. Every other row in that table IS a series, which is what hid it.
+> - **The deposit box was empty where the table had put money in.** It binds to what the family
+>   *typed*, so it was blank beside a funding figure that had visibly had 315,000 deducted from
+>   it. The applied figure is now the box's **placeholder**, so blank still means "take what is
+>   left of the pool" and the reader still sees the money.
+>
+> ⚠ **LAYOUT IS NOT VERIFIED, and it is stated as unverified.** No browser driver is installed in
+> this repository and jsdom has no layout engine. Reading rendered TEXT is not seeing a laid-out
+> page — which is exactly the gap the Property Tax Rules tab's phasing boxes fell through.
+>
+> ⚠ **TWO THINGS LEFT FOR MIKE, both named in §10 rather than decided:** the catalogue summary
+> still says *"a rental property"*, singular — his own wording, ruled at Q7 when the screen was
+> one property; and the drawing's Tax rules note promises a **per-property tax override** that the
+> drawing never shows and the build does not contain.
+>
+> ---
+>
 > ## ✅ SESSION 75 — 2026-08-20 (laptop). ITEM 4.19 — THE PORTFOLIO MATHS AND ITS ROUTE.
 >
 > **Five commits: `c7fc42b`, `a0a779f`, `e36f8da`, `4f4210c`, `838cf46`.** Suite **5,869 green

@@ -1042,11 +1042,12 @@
     },
     "multipleProperty": {
       "title": "Multiple Property Assessment",
-      "scope": "Property 1 of 5 · the remaining four arrive in the next release",
       "yearShort": "Yr{year}",
+      "propertyPrefix": "Property {n} — {card}",
+      "propertySub": "{address} · open a different property on the left to change this section.",
       "hero": {
         "weekly": "Weekly cash position",
-        "weeklySub": "Year 1 · see the ten-year view",
+        "weeklySub": "Year 1 · one property | Year 1 · all {count} properties",
         "debt": "Total debt",
         "debtSub": "Year 1",
         "equity": "Net equity",
@@ -1090,6 +1091,7 @@
       },
       "tax": {
         "title": "Tax rules",
+        "sub": "Set by the group, corrected by the firm, and typed over here for this client.",
         "addBack": "Non-Deductible Costs Added Back in Year 1",
         "addBackSetup": "Setup Costs only",
         "addBackSetupAndPurchase": "Setup and Purchase Costs",
@@ -1127,7 +1129,9 @@
         "piTerm": "Term of P&I Loan (yrs)",
         "ioRate": "Rate on Interest Only Loan (%)",
         "piRate": "Rate on P&I Loan (%)",
-        "cashDeposit": "Cash Deposit"
+        "sub": "Two of these are decided by the deposit table and cannot be typed.",
+        "depositApplied": "Deposit Applied to This Property",
+        "readOnlyNote": "Funding Required and the principal-and-interest loan are decided by the deposit table, so they are shown here rather than typed. The deposit is the one the family chooses."
       },
       "summary": {
         "title": "Investment summary — ten years",
@@ -1197,6 +1201,111 @@
         "taxFrom": "Tax first becomes payable in year {year}.",
         "ringFenced": "The rental losses are ring-fenced and carried forward against the property's own future income.",
         "offset": "The rental losses are offset against the client's other income in the year they arise."
+      },
+      "household": {
+        "title": "The household",
+        "residenceValue": "Value of Residential Home (if owned)",
+        "homeMortgage": "Home Mortgage (if any)",
+        "totalSavings": "Total Savings for (Combined) Investment Property's Deposit",
+        "residenceShare": "Deductible Share of the Home Loan",
+        "maxLvr": "Maximum Loan to Value Ratio",
+        "maxLvrUnset": "not set",
+        "note": "The ceiling is not typed here: it arrives from your firm's Property Tax Rules, and is shown so you know what the ratios are being judged against — or, as here, that nothing is judging them."
+      },
+      "properties": {
+        "title": "The properties",
+        "sub": "Five is the most the model takes. Open one to see and change its own figures.",
+        "add": "+ Add a property",
+        "remove": "Remove this property",
+        "untitled": "Property {n}",
+        "note": "Opening a property changes only the cards below this one and the property section at the foot of the results. The portfolio — the deposit table, the lending position, the consolidated report — never moves when you open one."
+      },
+      "findings": {
+        "title": "Things to check",
+        "sub": "The model changed something to make the sums balance, and says so.",
+        "interestOnlyCapped": "Property {n} — the interest-only loan was reduced from {typed} to {applied}. With the deposit applied this property only needs to borrow {applied}, so the principal-and-interest loan is nil. Check the split with the lender.",
+        "depositExceedsSavings": "Property {n} — the deposit of {wanted} was reduced to {applied}. That is all the savings left once the earlier properties took their share.",
+        "depositExceedsPrice": "Property {n} — the deposit of {wanted} was reduced to {applied}, the purchase price. A deposit cannot be larger than the property.",
+        "depositNegative": "Property {n} — a deposit below zero was treated as nil.",
+        "lvrExceeded": "Property {n} — borrowing {lvr} of the purchase price, above the {maxLvr} ceiling. A lender is unlikely to advance this.",
+        "investmentLvrExceeded": "The rentals on their own — borrowing {lvr} against the investment properties, above the {maxLvr} ceiling. This is the ratio an investment lender tests.",
+        "portfolioLvrExceeded": "Everything the family owns — borrowing above the {maxLvr} ceiling once the home and its mortgage are counted in."
+      },
+      "deposit": {
+        "title": "How the deposit is spread",
+        "sub": "{savings} of savings, across the family home and one rental. | {savings} of savings, across the family home and {count} rentals.",
+        "colValue": "Value",
+        "colDepositApplied": "Deposit applied",
+        "colFundingRequired": "Funding required",
+        "colShare": "Deductible share",
+        "colLoanApportioned": "Loan apportioned",
+        "colLvr": "Loan to value",
+        "residence": "The family home",
+        "total": "Total",
+        "heldBackNone": "Held back by the family — nothing of {savings}. Every dollar of the deposit is spent, and it is spent once.",
+        "heldBackSome": "Held back by the family — {held} of {savings}.",
+        "balance": "Balance of Loans to Apportion — {amount}. This is the part of the home loan that is not deductible.",
+        "autoNote": "Nobody typed a deposit, so the table spent the whole {savings} in order until it ran out. Type a figure into any Deposit applied box and the rest of the money stays with the family."
+      },
+      "lending": {
+        "title": "Lending position",
+        "sub": "Two ratios, because a lender asks two different questions.",
+        "all": "Everything the family owns",
+        "allSub": "All borrowing, including the home mortgage, against every property including the home.",
+        "investment": "The rentals on their own",
+        "investmentSub": "The investment loans against the investment properties. This is the one an investment lender tests.",
+        "notJudged": "No ceiling set — shown, not judged.",
+        "within": "Within the {max} ceiling.",
+        "over": "Above the {max} ceiling.",
+        "note": "Neither figure carries a pass or a fail until somebody sets a maximum. Set one in Property Tax Rules and both ratios start being judged, here and property by property in the table above."
+      },
+      "compare": {
+        "title": "The property | The {count} properties",
+        "sub": "Each one's own four figures, so they can be compared without opening them.",
+        "colWeekly": "Weekly cash, yr 1",
+        "colDebt": "Total debt, yr 1",
+        "colEquity": "Net equity, yr 10",
+        "colReturn": "Return, yr 10",
+        "portfolio": "The portfolio"
+      },
+      "consolidated": {
+        "title": "Consolidated report — ten years",
+        "sub": "The property on its own. | All {count} properties added together.",
+        "totalRevenue": "Total Revenue",
+        "totalExpenses": "Total Expenses",
+        "netOperatingProfit": "Net Operating Profit (Loss)",
+        "totalPropertyValue": "Total Assumed Property Values",
+        "totalDebt": "Total Debt Position",
+        "netEquity": "Net Equity",
+        "cashDeposit": "– Cash Deposit",
+        "annualCashTopUp": "– Annual Cash Top Up",
+        "capitalIntroduced": "– Capital Introduced",
+        "cumulativeInvestorFunds": "Cumulative Investor Funds",
+        "returnOnInvestorFunds": "Projected Return on Investor Funds",
+        "weeklyCashPosition": "Weekly Cash Profit / (Loss)"
+      },
+      "servicing": {
+        "title": "What the portfolio asks of the family",
+        "sub": "The money they must find. Not a judgement about whether they can find it.",
+        "annual": "Cash the properties cannot find",
+        "weekly": "Per week",
+        "summary": "The hardest year is year {year}, at {amount} — about {weekly} a week. Over ten years the portfolio asks the family for {total}.",
+        "note": "This card states a demand and stops there. There is no household income or living costs on this screen to test it against, so the model says what the portfolio needs and does not judge whether it can be met."
+      },
+      "portfolioCoach": {
+        "title": "What this says",
+        "depositShort": "On these figures the deposit does not stretch across all {count} properties — {n} of them are shown borrowing the whole purchase price.",
+        "depositCovers": "The deposit reaches every property.",
+        "rentalsLvr": "The rentals together stand at {lvr} loan to value.",
+        "rentalsLvrOver": "The rentals together stand at {lvr} loan to value, above the {max} ceiling.",
+        "costsWeekly": "The portfolio costs the family {amount} a week in year 1",
+        "easingTo": ", easing to {amount} a week by year 10.",
+        "worseningTo": ", and {amount} a week by year 10.",
+        "turnsPositive": ", and turns cash-positive in year {year}.",
+        "positiveFromStart": "The portfolio is cash-positive from year 1, at {amount} a week.",
+        "tenYearDemand": "Across the ten years it asks them for {total} of cash on top of the deposit.",
+        "equity": "Against that it builds {equity} of equity by year 10 on {funds} of money put in — a return of {rate}.",
+        "theQuestion": "The question is not whether the portfolio grows. It is whether the family can carry {weekly} a week in the hardest year while it does."
       }
     },
     "costOfCapital": {
