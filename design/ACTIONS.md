@@ -1051,6 +1051,15 @@ that the warning is not being followed by default.
   (`f98b681` mockup → `af79304` routes → `9cd39c9` the tab → `8d0ca29` the prompt fix). Full closure
   on [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2; the rules earned
   are in the Brief, [`features/tier-cascade.md`](features/tier-cascade.md).
+  - ⛔ **ALL OF THIS WAS REMOVED ON 2026-08-20 — five days after it shipped.** Item 4.24 (Mike's
+    Option D) measured the fifteen rows against the logic trees that had superseded them, could not
+    distinguish their effect on the AI's recommendations from the engine's own run-to-run noise,
+    folded the seven pieces worth keeping into those trees, and deleted the rest: the rows, the
+    prompt block, the seven routes below, the cascade and the tab. **The record below is history and
+    describes nothing that now exists.** It is kept because it is true of what happened, and because
+    the sequence is the lesson: *a screen was built for content whose purpose had never been
+    written down, and writing the Brief for it is what made the gap visible.* Nothing here was
+    wrongly built — it was well built for something that should not have been there.
   - **What existed and what did not.** The engine half shipped the session before (`869909c`) and
     had **nothing to resolve** — no route could record a firm's decision, so fifteen entries
     cascaded perfectly down every tier and arrived identical for everyone. Seven routes + a Firm
@@ -6981,13 +6990,15 @@ Two honest answers on different axes — the file used to conflate them:
 
 - ☐ **P3 · I18N — Hardcoded English in templates** (e.g. "Access Restricted" in `pages/firm-manager.vue`); should route through `$t()`. Infra (`localeMixin`, 8 locales) exists; pervasive sweep. **Measured 2026-06-30: 12 `.vue` screens, only 2 translated → 10 to do. Scheduled into the planned cleanup pass — see [`design/CLEANUP-PASS-PLAN.md`](CLEANUP-PASS-PLAN.md)** (English plumbing only; the other 7 languages are a human-translator job, out of scope; gated: runs AFTER the master team's DB + mentor-login wiring lands, on their email + Mike's go-ahead; branch `chore/i18n-jsdoc-cleanup`). *Source:* code-gov audit 2026-06-15.
 
-- ☐ **P3 · EDIT-TARGET — Bring building blocks under Firm-Manager no-code editing:** 14-question **weight sliders**, **Strategy table** (`strategyResolver` rules), **primary-issues** table, **content-summaries** editor, **coaching-reference** editor, **logic-trees** flowchart editor (tied to the dormant-trees item). *Source:* registry Part 2.
+- ☐ **P3 · EDIT-TARGET — Bring building blocks under Firm-Manager no-code editing:** 14-question **weight sliders**, **Strategy table** (`strategyResolver` rules), **primary-issues** table, **content-summaries** editor, **logic-trees** flowchart editor (tied to the dormant-trees item). *Source:* registry Part 2.
+  - ⛔ **The `coaching-reference` editor was on this list and is now VOID — not pending, not deferred.** It was built (item 4.9, 2026-08-15) and then **removed with the feature it edited** on 2026-08-20 (item 4.24, Mike's Option D: *"remove the tab"*). There is nothing left for it to edit. **Do not re-derive it from this line.** See [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2 and [`COACHING-REFERENCE-EVIDENCE.md`](COACHING-REFERENCE-EVIDENCE.md).
 
 - ☐ **P3 · EDIT-TARGET — Plan-mode's 2 proprietary frameworks** are embedded (locked) inside `plan.txt` and flagged "should become firm-editable." Add to the firm-editable consideration (or consciously decide they stay prompt-locked). *Source:* registry Part 1A → Plan.
 
 - ☐ **P3 · BUILD — Profile → DB.** Move the advisor profile off localStorage into the firm DB (same migration family as case studies). *Source:* registry Part 1A → Profile.
 
-- ◐ **P3 · BUILD — Close the improvement loop.** Case-study → suggested-distinction flow; wire coaching-reference editing into Firm Manager. **Storage half DONE 2026-07-15 (coaching-reference review, Phase 1):** promoted case observations now live PER FIRM in `firmOverlay` (`config_key='coaching-reference'`, version history/restore for free; dev fallback `data/dev-firm-coaching.json`) instead of the global `data/coaching-reference.json` (which is now platform-base, read-only at runtime). The Firm Manager list/edit/delete UI on top of that store is the remaining half. *Source:* registry Part 9; coaching-reference review 2026-07-15.
+- ◐ **P3 · BUILD — Close the improvement loop.** Case-study → suggested-distinction flow, and a Firm Manager screen for a firm's **promoted case observations**. **Storage half DONE 2026-07-15:** promoted observations live PER FIRM in `firmOverlay` (`config_key='coaching-reference'`, version history/restore for free; dev fallback `data/dev-firm-coaching.json`). The list/edit/delete UI on top of that store is the remaining half. *Source:* registry Part 9; coaching-reference review 2026-07-15.
+  - ⚠ **THIS ITEM IS STILL LIVE, AND ITS OLD WORDING POINTED AT A FILE THAT NO LONGER EXISTS.** It used to read *"instead of the global `data/coaching-reference.json` (which is now platform-base, read-only at runtime)"*. That platform base — the fifteen curated rows — **was removed on 2026-08-20** (item 4.24) along with its own editing screen. 🔴 **The promoted observations are a DIFFERENT mechanism and survive untouched:** per firm, uninherited, and reaching the model FENCED because they are an adviser's free text about a real client. They confusingly share the storage key name `coaching-reference`; the key was NOT renamed, because a firm's stored entries are addressed by it. **What is still missing is a screen for them — they can be promoted and read by the AI, and no human can see or delete one.**
 
 - ✅ **P1 · SEC/FIX — Coaching-reference learning loop hardened (Phase 1 of the 2026-07-15 review). DONE 2026-07-15.** Three defects in the case-review → AI learning path, found by a full trace of the feedback loop:
   - **(a) Cross-firm leak + unlocked global write:** `POST /api/cases/promote` appended the advisor's free-text case review to the single global `data/coaching-reference.json`, which every firm's Phase 3 prompt then ingested — one firm's client observations reached every other firm's AI sessions, via an unversioned read-modify-write file append. **Fix:** promoted entries are firm-scoped in `firmOverlay` (see the improvement-loop item above); the engine loads `loadFirmCoaching(firmId)` per request and injects it as its own prompt section, so a firm only ever sees platform base + its own entries.

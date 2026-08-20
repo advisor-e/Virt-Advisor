@@ -168,6 +168,21 @@ affect a screen you were not thinking about.
    of the formatter existing. **Render the prompt and search it for each authored string**; the
    measurement is at [`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md) §2. The fix is one
    walker over each guide's own shape, feeding screen and prompt from the same read.
+7. 🔴 **A NOTE ONLY REACHES THE MODEL ONCE THE TREE IS ALREADY OPEN. A TRIGGER IS WHAT OPENS IT.**
+   Content moved *into* a tree is not thereby reachable: `notes`, `condition` and `question` are
+   read only after the tree has been selected, and selection happens on `entry_triggers`. So
+   guidance whose whole value is recognising a situation must be authored in **both** places — the
+   explanation in the node, and the words a client would actually say in the triggers.
+   **Found when item 4.24 folded the Coaching Reference in (2026-08-20.)** Two of the seven pieces
+   were symptom-recognition rather than method: the client's own sentence *"how come I have a big
+   tax bill but nothing in the bank?"*, and a pointer to the **7 Cash Drivers** template, which no
+   tree named at all. Written as notes alone, the tax-bill sentence would have sat inside
+   `working_capital_cycle` and never once caused that tree to open for the conversation it
+   describes — content that is live, correct, and unreachable. Both went into
+   `entry_triggers` as well.
+   **Ask of any content being moved into a tree: does this tell an advisor how to run something
+   (a note), or does it tell you that you are IN a situation (a trigger)? If the second, it needs
+   both.**
 
 ---
 
