@@ -898,21 +898,55 @@ function computeMultiplePropertyAssessment (inputs) {
  *      holding 315,000 (C29), and that flows through Cumulative Investor Funds (C32)
  *      into the Projected Return on Investor Funds headline (C34). The columns are off
  *      by one as well: property 2 reads Invest 1's balance, property 3 reads Invest 2's.
- *      Here each property's deposit is the savings ACTUALLY applied to it — its value
- *      less what it had to borrow — which gives 90,000 to property 1 and nothing to the
- *      rest, and can never sum past the pool.
+ *      Here a property's deposit is the money ACTUALLY put into it, the pool is spent
+ *      once, and the two identities below are enforced rather than hoped for.
  *
- * ⚠ ONE GUARD ADDED, AND IT IS NOT A CORRECTION. `L7 = R3 − K11` is the only cell of
- * row 7 without the `if(…, 0, …)` floor its neighbours carry, so a home mortgage larger
- * than the savings drives the first property's balance NEGATIVE and its required
- * funding ABOVE the purchase price. Floored at zero here, consistent with every other
- * column of the same row. It cannot move a figure the workbook computes sensibly.
+ * 🔴 THE DEPOSIT IS CHOSEN, NOT IMPOSED (Mike, 2026-08-20). Asked whether the home
+ * mortgage should reduce the money available for rentals, he ruled that the real answer
+ * is neither: *"if there is an option for a family to 'hold-back' some of their cash
+ * deposit then that's fine but the remaining math still has to work — I think the sheet
+ * was trying to provide the option as to how much got used on this property but still
+ * met equity lending and servicing requirements."*
  *
- * ⚠ STILL EXACTLY AS THE WORKBOOK HAS IT, and raised separately rather than decided
- * here: row 7 subtracts the home MORTGAGE from the savings pool, so a 225,000 mortgage
- * consumes 225,000 of a 315,000 deposit and only 90,000 ever reaches the investments.
- * Whether that is the intended meaning is a tax and accounting judgement, not an
- * arithmetic slip.
+ * He is right that the sheet was reaching for it. `M15:P15` — the apportioned loans for
+ * properties 2 to 5 — are not formulas at all but HAND-TYPED constants: somebody was
+ * overriding that row by hand, which is this option done manually and unrecorded.
+ *
+ * So `depositApplied` is now an optional per-property input. Omit it and the property
+ * takes what is left of the pool, in order, exactly as before; supply it and the family
+ * holds the rest back. Whatever they choose, TWO IDENTITIES HOLD, and the golden test
+ * fails the build if either is ever broken:
+ *
+ *     requiredFunding + depositApplied === purchasePrice     (for every property)
+ *     Σ depositApplied <= totalSavings                       (across the portfolio)
+ *
+ * ⚠ AND THE HOME MORTGAGE NO LONGER EATS THE POOL. `L7 = R3 − K11` subtracted the home
+ * MORTGAGE from the savings, so a 225,000 mortgage consumed 225,000 of a 315,000 deposit
+ * and only 90,000 ever reached the investments — while `INPUTS` B15 calls that very
+ * figure "Total Savings for (Combined) Investment Property's Deposit". With the deposit
+ * chosen there is nothing left for that subtraction to express: a family who wants to
+ * keep 225,000 back now says so. The mortgage stays in the table for the tax
+ * apportionment (K13) and the LVR, where it belongs. The workbook's own allocation is
+ * still reachable — pass `depositApplied: 90000` on property 1 — and the golden test
+ * does exactly that to keep the sheet's row 11 as an anchor.
+ * ⚠ This also retires a guard the previous revision needed: `L7` was the only cell of
+ * row 7 without the floor its neighbours carry, so a mortgage larger than the savings
+ * drove the balance NEGATIVE and charged property 1 more than the house cost. Nothing
+ * subtracts from the pool now, so it cannot go negative in the first place.
+ *
+ * THE LENDING TEST THE WORKBOOK NEVER RAN. It computes an LVR at `R5` (`=R11/R9`) and
+ * then NOTHING READS IT — verified across all seven sheets: no formula references that
+ * cell, there is no ceiling to compare it against, and no conditional formatting marks
+ * it. Here `maxLvr` is an input, both LVRs are reported — all-in as `R5` has it, and
+ * investments-only, which is what an investor's lender actually tests — and a breach is
+ * named in `warnings` rather than left for a reader to spot.
+ *
+ * ⚠ SERVICING IS SHOWN, NOT TESTED, AND THE DIFFERENCE IS DELIBERATE. `consolidated.
+ * servicing` reports what the portfolio DEMANDS of the family each year — the cash
+ * top-up it cannot fund itself, plus any capital introduced under the 'repay' ending.
+ * It does not say whether they can afford it, because the workbook collects no income
+ * and no living costs on any sheet. An income box invented here would produce a
+ * serviceability verdict that nothing had earned.
  *
  * NOT PORTED — `Import Range` and `Imported Report`. They are a Google Sheets
  * `IMPORTRANGE()` workaround for combining a SECOND copy of the workbook when a client
@@ -933,7 +967,12 @@ const DEFAULT_HOUSEHOLD = {
   homeMortgage: 225000, //              E13 — Home Mortgage (if any)
   totalSavings: 315000, //              E15 — Total Savings for (Combined) Investment
   //                                          Property's Deposit; R3 of the table
-  residenceTaxApportionmentPct: 0.6 //  K13 — the deductible share of the home loan
+  residenceTaxApportionmentPct: 0.6, // K13 — the deductible share of the home loan
+  // ⚠ NOT THE WORKBOOK'S — it has no ceiling anywhere (see the banner). 80% is the
+  // common maximum and it is a PLACEHOLDER chosen here so the test has something to
+  // run against; it is an input precisely so a firm sets its own. On the sample the
+  // portfolio sits at 69.4% all-in and 90.9% on the investments alone.
+  maxLvr: 0.8
 }
 
 /**
@@ -1010,19 +1049,28 @@ function defaultProperties () {
 }
 
 /**
- * The loan apportionment table — `INPUTS` rows 3–17.
+ * The loan apportionment table — `INPUTS` rows 3–17, with the deposit chosen rather
+ * than imposed and the lending test the workbook never ran.
  *
- * It walks the row once: residence, then Invest 1..5. Each property in turn is handed
- * whatever is left of the savings pool and borrows the rest, so the money is spent in
- * order until it runs out. Corrections 4 and 5 both live here.
+ * It walks the row once: residence, then Invest 1..5. Each property in turn either
+ * takes the deposit the family chose for it or, if none was chosen, whatever is left of
+ * the pool — so the money is spent once, in order, and whatever is not spent is held
+ * back and reported. Corrections 4 and 5 both live here.
+ *
+ * Nothing is ever clamped silently: a deposit bigger than the pool or bigger than the
+ * house is reduced to fit AND named in `warnings`.
  *
  * @param {object} input
  * @param {number} input.residenceValue - `E11`/`K9`
  * @param {number} input.homeMortgage - `E13`/`K11`; given, never derived
  * @param {number} input.totalSavings - `E15`/`R3`, the combined deposit pool
  * @param {number} input.residenceTaxApportionmentPct - `K13`, the home loan's deductible share
- * @param {object[]} input.properties - `[{ purchasePrice, taxApportionmentPct }]`, in order
- * @returns {object} the table: `residence`, `properties[]`, `totals` and `lvr`
+ * @param {number} [input.maxLvr] - the highest loan-to-value the lender will go to; not
+ *   the workbook's, which has no ceiling. Omitted or unusable means no test is run.
+ * @param {object[]} input.properties - in order:
+ *   `[{ purchasePrice, taxApportionmentPct, depositApplied }]`, the last optional
+ * @returns {object} `residence`, `properties[]`, `totals`, both LVRs, `depositHeldBack`
+ *   and `warnings`
  */
 function apportionLoans (input) {
   const src = (input && typeof input === 'object') ? input : {}
@@ -1032,55 +1080,101 @@ function apportionLoans (input) {
   const residencePct = usable(src.residenceTaxApportionmentPct)
     ? num(src.residenceTaxApportionmentPct, DEFAULT_HOUSEHOLD.residenceTaxApportionmentPct)
     : DEFAULT_HOUSEHOLD.residenceTaxApportionmentPct
+  // No ceiling means no test — never a default ceiling smuggled in as a pass.
+  const maxLvr = usable(src.maxLvr) ? num(src.maxLvr, 0) : null
   const list = Array.isArray(src.properties) ? src.properties : []
+  const warnings = []
 
   const residence = {
     value: residenceValue, //                        K9
     requiredFunding: homeMortgage, //                K11 — the mortgage as it stands
     taxApportionmentPct: residencePct, //            K13
-    loanApportioned: homeMortgage * residencePct //  K15 = K11 × K13
+    loanApportioned: homeMortgage * residencePct, // K15 = K11 × K13
+    lvr: div(homeMortgage, residenceValue)
   }
 
-  // What the pool is already spoken for BEFORE the property whose turn it is: the home
-  // mortgage, then every earlier property's full value. This is the workbook's own
-  // running `K11`, `L9+K11`, `M9+L9+K11`, … inside rows 7 and 11.
-  let claimed = homeMortgage
+  // The pool is spent, never reduced by anything else — see the banner. It starts whole
+  // and each property takes from it in turn.
+  let pool = totalSavings
   const properties = []
   for (let i = 0; i < list.length; i++) {
     const p = (list[i] && typeof list[i] === 'object') ? list[i] : {}
     const value = num(p.purchasePrice, 0)
     const pct = usable(p.taxApportionmentPct) ? num(p.taxApportionmentPct, 1) : 1
+    const available = pool //                        what row 7 was reaching for
+    // The most this property could absorb: it cannot swallow more than the pool holds,
+    // and it cannot put down more than the house costs.
+    const ceiling = Math.min(available, value)
 
-    // Row 7 — what is left of the pool when this property's turn comes. Floored at
-    // zero; see the guard note above.
-    const balanceAvailable = Math.max(0, totalSavings - claimed)
-    claimed += value
+    const chose = usable(p.depositApplied)
+    let depositApplied
+    if (chose) {
+      const wanted = num(p.depositApplied, 0)
+      depositApplied = Math.min(Math.max(wanted, 0), ceiling)
+      if (wanted > value) {
+        warnings.push({
+          code: 'DEPOSIT_EXCEEDS_PRICE', property: i + 1, wanted, applied: depositApplied, purchasePrice: value
+        })
+      } else if (wanted > available) {
+        warnings.push({
+          code: 'DEPOSIT_EXCEEDS_SAVINGS', property: i + 1, wanted, applied: depositApplied, available
+        })
+      } else if (wanted < 0) {
+        warnings.push({ code: 'DEPOSIT_NEGATIVE', property: i + 1, wanted, applied: depositApplied })
+      }
+    } else {
+      // Nothing chosen: take what is there, in order, exactly as the table did.
+      depositApplied = ceiling
+    }
+    pool -= depositApplied
 
-    // Row 11 — nothing to borrow while the pool still covers everything to here.
-    const requiredFunding = totalSavings > claimed ? 0 : value - balanceAvailable
+    // Identity 1, and it holds by construction rather than by hope.
+    const requiredFunding = value - depositApplied //  L11..P11
+    const lvr = div(requiredFunding, value)
+    const lvrBreach = maxLvr !== null && lvr > maxLvr
+    if (lvrBreach) {
+      warnings.push({ code: 'LVR_EXCEEDED', property: i + 1, lvr, maxLvr })
+    }
 
     properties.push({
       value, //                                      L9..P9
-      balanceAvailable, //                           L7..P7
-      // Correction 5: the deposit is the savings this property actually absorbed, which
-      // is the only reading that cannot sum past the pool.
-      depositApplied: value - requiredFunding,
-      requiredFunding, //                            L11..P11
+      depositAvailable: available, //                 what row 7 meant to say
+      depositApplied,
+      depositChosen: chose, //                       did the family set this, or did it fall out?
+      requiredFunding,
       taxApportionmentPct: pct, //                   L13..P13
       // Correction 4: row 11 × row 13, as the residence's own column already does.
-      loanApportioned: requiredFunding * pct //      L15..P15
+      loanApportioned: requiredFunding * pct, //     L15..P15
+      lvr,
+      lvrBreach
     })
   }
 
   const sum = function (key) {
     return properties.reduce(function (a, p) { return a + p[key] }, 0)
   }
-  const totalValue = residenceValue + sum('value') //                       R9
-  const totalRequiredFunding = homeMortgage + sum('requiredFunding') //     R11
+  const investmentValue = sum('value')
+  const investmentRequiredFunding = sum('requiredFunding')
+  const totalValue = residenceValue + investmentValue //                    R9
+  const totalRequiredFunding = homeMortgage + investmentRequiredFunding //  R11
   const totalLoanApportioned = residence.loanApportioned + sum('loanApportioned') // R15
+
+  const lvr = div(totalRequiredFunding, totalValue) //                      R5 = R11/R9
+  // What an investor's lender actually tests: the rentals on their own, with the family
+  // home and its mortgage left out of both halves of the fraction.
+  const investmentLvr = div(investmentRequiredFunding, investmentValue)
+  const lvrBreach = maxLvr !== null && lvr > maxLvr
+  const investmentLvrBreach = maxLvr !== null && investmentLvr > maxLvr
+  if (lvrBreach) { warnings.push({ code: 'PORTFOLIO_LVR_EXCEEDED', lvr, maxLvr }) }
+  if (investmentLvrBreach) {
+    warnings.push({ code: 'INVESTMENT_LVR_EXCEEDED', lvr: investmentLvr, maxLvr })
+  }
 
   return {
     totalSavings, //                                                        R3
+    // Identity 2: what the family kept. Never negative — the pool cannot be overspent.
+    depositHeldBack: pool,
+    maxLvr,
     residence,
     properties,
     totals: {
@@ -1090,9 +1184,15 @@ function apportionLoans (input) {
       // R17. Under correction 4 this is always the residence's NON-deductible share —
       // the part of the home loan that is not apportioned to the investments.
       balanceToApportion: totalRequiredFunding - totalLoanApportioned,
-      depositApplied: sum('depositApplied')
+      depositApplied: sum('depositApplied'),
+      investmentValue,
+      investmentRequiredFunding
     },
-    lvr: div(totalRequiredFunding, totalValue) //                           R5 = R11/R9
+    lvr,
+    lvrBreach,
+    investmentLvr,
+    investmentLvrBreach,
+    warnings
   }
 }
 
@@ -1106,11 +1206,13 @@ function apportionLoans (input) {
  *
  * @param {object} inputs
  * @param {object} inputs.household - `residenceValue`, `homeMortgage`, `totalSavings`,
- *   `residenceTaxApportionmentPct`
+ *   `residenceTaxApportionmentPct`, `maxLvr`
  * @param {object[]} inputs.properties - up to five per-property input objects; each may
- *   carry a `taxApportionmentPct` (default 1 — an investment loan is fully deductible)
- * @returns {object} `household`, `apportionment`, `properties[]`, `consolidated`,
- *   `headline`, `warnings` and `defaultedInputs`
+ *   also carry a `taxApportionmentPct` (default 1 — an investment loan is fully
+ *   deductible) and a `depositApplied` (omit it and the property simply takes what is
+ *   left of the pool; supply it and the family holds the rest back)
+ * @returns {object} `household`, `apportionment`, `properties[]`, `consolidated`
+ *   (including `servicing`), `headline`, `warnings` and `defaultedInputs`
  */
 function computeMultiplePropertyPortfolio (inputs) {
   const src = (inputs && typeof inputs === 'object') ? inputs : {}
@@ -1146,35 +1248,51 @@ function computeMultiplePropertyPortfolio (inputs) {
     homeMortgage: h.homeMortgage,
     totalSavings: h.totalSavings,
     residenceTaxApportionmentPct: h.residenceTaxApportionmentPct,
+    maxLvr: h.maxLvr,
     properties: list.map(function (p, i) {
+      const o = (p && typeof p === 'object') ? p : {}
       return {
         purchasePrice: resolvedPrice[i],
-        taxApportionmentPct: (p && typeof p === 'object') ? p.taxApportionmentPct : undefined
+        taxApportionmentPct: o.taxApportionmentPct,
+        depositApplied: o.depositApplied //  the hold-back, if the family chose one
       }
     })
   })
 
-  const warnings = []
+  // The table's own findings travel with the portfolio's — one list for the screen to
+  // read, so a deposit that was quietly reduced cannot be lost between two of them.
+  const warnings = apportionment.warnings.slice()
   const properties = list.map(function (p, i) {
     const slot = apportionment.properties[i]
-    const merged = Object.assign({}, p, {
-      purchasePrice: resolvedPrice[i],
-      fundingRequired: slot.loanApportioned, //  INPUTS E65 = L15
-      cashDeposit: slot.depositApplied //        OUTPUTS C18, corrected
-    })
-    const result = computeMultiplePropertyAssessment(merged)
-    // Said out loud rather than quietly clamped: an interest-only slice bigger than the
-    // whole apportioned loan makes the P&I loan negative, and the figures below it
-    // meaningless. The maths is left exactly as asked for; the reader is told.
-    if (result.loans.interestOnly.balance[0] > slot.loanApportioned) {
+    const o = (p && typeof p === 'object') ? p : {}
+
+    // IDENTITY 3 — the two loans always sum to the funding required, because `INPUTS`
+    // E69 is `=E65−E68` and nothing may break that. Once a deposit reduces the funding,
+    // a typed interest-only slice can exceed the whole loan: the workbook's own sample
+    // types 350,000 against a property that, with the deposit applied, needs only
+    // 334,000. Capped so the P&I loan cannot go NEGATIVE and every figure below it turn
+    // to nonsense — and never silently: the reduction is named in `warnings`, because
+    // it is a signal that the loan split needs revisiting, not a detail to swallow.
+    const typedIo = usable(o.interestOnlyLoan)
+      ? num(o.interestOnlyLoan, DEFAULT_INPUTS.interestOnlyLoan)
+      : DEFAULT_INPUTS.interestOnlyLoan
+    const interestOnlyLoan = Math.max(0, Math.min(typedIo, slot.loanApportioned))
+    if (interestOnlyLoan < typedIo) {
       warnings.push({
-        code: 'INTEREST_ONLY_EXCEEDS_FUNDING',
+        code: 'INTEREST_ONLY_CAPPED',
         property: i + 1,
-        interestOnlyLoan: result.loans.interestOnly.balance[0],
+        typed: typedIo,
+        applied: interestOnlyLoan,
         fundingRequired: slot.loanApportioned
       })
     }
-    return result
+
+    return computeMultiplePropertyAssessment(Object.assign({}, o, {
+      purchasePrice: resolvedPrice[i],
+      fundingRequired: slot.loanApportioned, //  INPUTS E65 = L15
+      cashDeposit: slot.depositApplied, //       OUTPUTS C18, corrected
+      interestOnlyLoan
+    }))
   })
 
   // ---- the consolidation (`Consolidated Report` rows 11–39) ----
@@ -1211,6 +1329,22 @@ function computeMultiplePropertyPortfolio (inputs) {
     return a + r.investmentSummary.cashDeposit
   }, 0)
 
+  // ---- servicing: what the portfolio DEMANDS, which is not a test of affordability ----
+  // The workbook collects no household income and no living costs on any sheet, so the
+  // demand is all that can honestly be stated. See the banner.
+  const servicingTotal = new Array(YEARS).fill(0)
+  const servicingWeekly = new Array(YEARS).fill(0)
+  let peakAnnualDemand = 0
+  let peakYear = 1
+  for (let y = 0; y < YEARS; y++) {
+    servicingTotal[y] = annualCashTopUp[y] + capitalIntroduced[y]
+    servicingWeekly[y] = div(servicingTotal[y], WEEKS_PER_YEAR)
+    if (servicingTotal[y] > peakAnnualDemand) {
+      peakAnnualDemand = servicingTotal[y]
+      peakYear = y + 1
+    }
+  }
+
   const last = YEARS - 1
   return {
     household: h,
@@ -1230,7 +1364,18 @@ function computeMultiplePropertyPortfolio (inputs) {
       capitalIntroduced,
       cumulativeInvestorFunds,
       returnOnInvestorFunds,
-      weeklyCashPosition
+      weeklyCashPosition,
+
+      // A demand on the family, NOT a verdict on whether they can meet it.
+      servicing: {
+        annualDemand: annualCashTopUp, //      the cash the portfolio cannot find itself
+        capitalDemand: capitalIntroduced, //   lump sums under the 'repay' ending
+        totalDemand: servicingTotal, //        the two together, which is what they pay
+        weeklyDemand: servicingWeekly,
+        peakAnnualDemand,
+        peakYear,
+        tenYearDemand: servicingTotal.reduce(function (a, v) { return a + v }, 0)
+      }
     },
 
     // The same four figures Phase 1 says out loud, read off the portfolio instead of
