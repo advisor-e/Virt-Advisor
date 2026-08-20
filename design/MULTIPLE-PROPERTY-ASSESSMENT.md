@@ -1,9 +1,25 @@
-# Multiple Property Assessment — screen design (Phase 1)
+# Multiple Property Assessment — screen design
 
-> **Status: PHASE 1 IS BUILT AND LIVE (2026-08-17).** All eight design questions are ruled
-> — see §8. The maths, its golden test, the Restify route, the catalogue row, the page and
-> the screen are all built and green. 🔴 **One thing remains on item 4.20: the group-tier
-> tax cascade** (§8 Q6) — see §9.
+> **Status, 2026-08-20: PHASE 1 IS LIVE. PHASE 2's MATHS IS BUILT; ITS SCREEN IS NOT.**
+>
+> - **Phase 1 (one property)** — built 2026-08-17, live. Maths, golden test, Restify
+>   route, catalogue row, page, screen. The group-tier tax cascade followed on
+>   2026-08-18 and closed item 4.20.
+> - **Phase 2 (the portfolio)** — item 4.19, started 2026-08-20. The maths is built and
+>   golden-tested: the household, the loan apportionment table, five properties and the
+>   consolidation, plus the deposit hold-back, the lending ceiling and the servicing
+>   figures Mike asked for the same day. **The route, the screen and the catalogue line
+>   are NOT built** — §9 steps P2-2 to P2-5.
+>
+> 🔴 **A Phase 2 screen does not get built until its artefact exists.** Nothing in §4,
+> §5 or the mockup describes the household inputs, the apportionment table, the
+> hold-back or the consolidated report. That drawing is step P2-3 and it is not written
+> yet, so §10 currently has nothing to measure a Phase 2 screen against.
+>
+> *(This block read "PHASE 1 IS BUILT AND LIVE … All eight design questions are ruled"
+> until 2026-08-20. It is rewritten rather than appended to because a status line that
+> is wrong is worse than none — and §10 records that the last contradiction of this kind
+> was caught here, in this very document, on 2026-08-18.)*
 >
 > This document and
 > [`mockups/multiple-property-assessment.html`](mockups/multiple-property-assessment.html)
@@ -27,7 +43,7 @@ model with a ten-year projection behind each property**, plus a consolidation.
 | Layer | What it holds |
 |---|---|
 | The household | The family home, its value and mortgage, and the combined cash deposit |
-| Loan apportionment | Spreads available lending across the residence + up to 5 investments, in order, until the LVR ceiling is reached |
+| Loan apportionment | Spends the deposit across the residence + up to 5 investments, in order, until the money runs out; each property borrows the rest |
 | Per property (×5) | ~25 typed inputs, a ten-year P&L, a ten-year tax position, two loans amortised over ten years, and a ten-year investment summary |
 | Consolidated | All five stacked: total revenue, total expenses, net operating profit, total property value, total debt, net equity, investor funds, weekly cash position |
 
@@ -35,6 +51,27 @@ model with a ten-year projection behind each property**, plus a consolidation.
 That was wrong** — it was taken from the file size and sheet count, before the cells were
 read. It is recorded here rather than quietly dropped, because the size is what drove the
 decision to phase the build.
+
+🔴 **THE ROW ABOVE USED TO CLAIM AN "LVR CEILING". THERE IS NO CEILING IN THE WORKBOOK.**
+It read *"spreads available lending across the residence + up to 5 investments, in order,
+until the LVR ceiling is reached"*, and that sentence was written from the shape of the
+table before the formulas were read. Checked on 2026-08-20 across all seven sheets: `R5`
+computes an LVR (`=R11/R9`) and **no formula anywhere references that cell**, there is no
+threshold to compare it against, and no conditional formatting marks it. It is a number on
+display. What the table actually runs out of is the **deposit**, not a borrowing limit.
+*This is exactly the failure mode `design-docs-are-claims-to-check` describes: a plausible
+sentence in a design document, believed by later sessions because it is written down.* The
+ceiling now exists — as an editable setting nobody had to invent (§8 Q10) — but it never
+came from here.
+
+⚠ **`Import Range` and `Imported Report` are NOT part of the model and are not ported.**
+`Import Range` holds a single `IMPORTRANGE()` formula for pulling a SECOND copy of the
+workbook's consolidated report across from another Google Sheet — the manual answer to a
+client holding more than five properties. `Imported Report` is a copy of `Consolidated
+Report` carrying its own note: *"This report is for 'holding' purposes - you still need to
+link the cells from your Import Range (page) reports in order to get total consolidated
+figures."* The mechanism has no meaning outside a spreadsheet; in an app the answer is to
+allow more properties.
 
 ---
 
@@ -52,11 +89,24 @@ Properties 2–5 are the same block repeated.
 - Both loans amortised over ten years
 - The ten-year investment summary and the four headline figures
 
-**NOT in Phase 1 — Phase 2**
-- Properties 2 to 5
-- The family home and the loan apportionment table (`INPUTS` rows 3–17)
-- The consolidated report
-- The `Import Range` / `Imported Report` sheets
+**NOT in Phase 1 — Phase 2** *(the maths of all four is BUILT, 2026-08-20; see §9)*
+- ✅ Properties 2 to 5
+- ✅ The family home and the loan apportionment table (`INPUTS` rows 3–17)
+- ✅ The consolidated report
+- ❌ The `Import Range` / `Imported Report` sheets — **deliberately not ported**, see §1
+
+**And three things Phase 2 added that the workbook does not have**, all ruled by Mike on
+2026-08-20 and all in §8 Q8–Q10:
+- ✅ The deposit **hold-back** — a family chooses how much of their cash goes into each
+  property, rather than the table imposing it
+- ✅ The **lending ceiling**, as an editable setting on the existing tax-rules cascade
+- ✅ The **servicing demand** — what the portfolio costs the family each year, shown and
+  deliberately not judged
+
+⚠ **What Phase 2 still lacks is a SCREEN, and an artefact to build one against.** §4 and
+§5 below describe one property's inputs and results only. Nothing anywhere in this
+document or the mockup draws the household, the apportionment table, the hold-back, the
+LVR figures or the consolidated report.
 
 🔴 **Phase 1 is a usable screen on its own.** An advisor can assess a single rental
 property properly, which is more than the app can do today.
@@ -351,7 +401,8 @@ full-width band, then the two-column body.
 
 Everything above is either the workbook's own wording or the ruled house style.
 
-✅ **NOTHING IS OPEN. All eight were ruled by Mike on 2026-08-17, in one session.**
+✅ **NOTHING IS OPEN.** Q1–Q7a were ruled by Mike on 2026-08-17 in one session; Q8–Q10
+came out of Phase 2 and were ruled on 2026-08-20.
 
 | | Question | Ruled |
 |---|---|---|
@@ -363,9 +414,18 @@ Everything above is either the workbook's own wording or the ruled house style.
 | **Q6** | Who sets the tax rules | Group sets it; firm **and** advisor may override |
 | **Q7** | The Model Library card's line | "Whether a rental property is worth buying…" |
 | **Q7a** | Does the card carry the scope line too | Yes |
+| **Q8** | Two proven faults in the apportionment table | Correct both, even though live figures move |
+| **Q9** | Should the home mortgage reduce the deposit | Neither — **the family chooses the deposit**, and the sums must still balance |
+| **Q10** | What maximum LVR the model should use | None shipped — **"it needs to be an editable input"** |
 
-⚠ **Nothing in the remaining build waits on Mike.** Steps 1–3 of §9 are built and green;
-steps 4–8 and the group-tier cascade are unblocked.
+⚠ **Nothing in the remaining build waits on Mike.** Phase 1 is complete. Phase 2's maths
+is built and green; its route, artefact, screen and catalogue line (§9 P2-2 to P2-5) are
+unblocked.
+
+⚠ **Three things sit with Mike but block nothing:** the ceiling figure itself (nothing is
+judged until it is set), whether the tab should be renamed now it is not only tax, and
+whether the sample's own 350,000 / 299,000 loan split should be reset now the deposit is
+genuinely applied — see Q10 and §10.
 
 🔴 **Read each ruling before building to it, not this table.** The table names the answer;
 the section beneath gives the reason and the options turned down — and the reason is what
@@ -689,6 +749,105 @@ Model Library cards, per the owner ruling of 2026-07-23. **It must be removed wh
 Phase 2 lands** (item 4.19), and that is the one line of this design that is written to
 be deleted later.
 
+### Q8 — Two proven faults in the apportionment table — ✅ **RULED BY MIKE, 2026-08-20**
+
+**"yes fix both"** — and he was told plainly, before answering, that correcting the first
+one moves figures on a Phase 1 screen he has already seen.
+
+Both were found while reading `INPUTS` rows 3–17 for Phase 2, and both are proven rather
+than suspected:
+
+| | The fault | The proof |
+|---|---|---|
+| **1** | Row 15 apportions the purchase **PRICE** for the first investment (`L15 = L9*L13`) where the residence's own cell apportions **REQUIRED FUNDING** (`K15 = K11*K13`). Property 1 borrowed the full 649,000 and the 90,000 available to it was ignored. | The workbook's own check cell **R17** ("Balance of Loans to Apportion"). Read row 11 × row 13 it lands on exactly the non-deductible share of the home loan every time — 90,000 = 225,000 × 40%, and 120,000 = 300,000 × 40% when the mortgage is raised. Read as written it gives 0 and then 105,000, and the 0 that makes the sheet look reconciled is a coincidence of the sample figures. |
+| **2** | The deposit is counted twice. `OUTPUTS` C18 gives property 1 the **whole** pool (315,000) and C100 gives property 2 `INPUTS!L7` (90,000) — part of the same money. | `Consolidated Report` C29 caches **405,000** of investor cash for a household holding 315,000, and it flows through C32 into the Projected Return on Investor Funds headline at C34. |
+
+⚠ **Fault 2's columns are off by one as well** — property 2 reads Invest 1's balance,
+property 3 reads Invest 2's — which is a second sign that row 7 was never finished.
+
+**This is the standing rule applied, not a new one:** a proven source-workbook defect is
+corrected, not reproduced and flagged. It is the same call Mike made on all four Loan
+Estimator defects.
+
+### Q9 — Should the home mortgage reduce the deposit — ✅ **RULED BY MIKE, 2026-08-20**
+
+**Neither option he was offered.** He was asked to choose between the workbook's
+behaviour — `L7 = R3 − K11`, the home mortgage eating 225,000 of a 315,000 deposit — and
+letting the full savings reach the rentals. His answer:
+
+> *"either way, the math has to add up. If there is an option for a family to 'hold-back'
+> some of their cash deposit then that's fine but the remaining math still has to work - I
+> think the sheet was trying to provide the option as to how much got used on this
+> property but still met equity lending and servicing requirements - check if the math can
+> enable these"*
+
+🔴 **He was right that the sheet was reaching for it.** `M15:P15` — the apportioned loans
+for properties 2 to 5 — are **not formulas at all but hand-typed constants**. Somebody was
+overriding that row by hand. This ruling is that override, made visible and made to
+reconcile.
+
+**So `depositApplied` is a per-property input.** Omitted, the property takes what is left
+of the pool in order, as the cascade did. Supplied, the family holds the rest back. A zero
+is a choice and is honoured as one. And the home mortgage no longer reduces the pool —
+with the deposit chosen there is nothing left for that subtraction to express, and `INPUTS`
+B15 calls the figure *"Total Savings for (Combined) Investment Property's Deposit"*.
+
+**THE THREE IDENTITIES — his condition, "the math has to add up".** Each is asserted in
+the golden test under seven allocations, including abuse:
+
+```text
+requiredFunding + depositApplied === purchasePrice        (every property)
+Σ depositApplied + depositHeldBack === totalSavings       (the portfolio)
+interestOnly + principalAndInterest === requiredFunding   (every property)
+```
+
+⚠ **The third identity caught a fault in the workbook's own sample.** `INPUTS` E68 types a
+350,000 interest-only loan against a property that, once its deposit is genuinely applied,
+needs to borrow 334,000 — so E69 (`=E65−E68`) goes to **minus 16,000**. The slice is capped
+at the funding required and the reduction is named in `warnings`, because it signals that
+the loan split needs revisiting. **Whether the sample's own 350,000 / 299,000 split should
+be reset is open for Mike.**
+
+✅ **The workbook is still the reference.** Hand the table the deposits the sheet itself
+hands out and it reproduces the sheet cell for cell — row 11, R9, R11 and the 73.98% LVR
+at R5. Its allocation is simply one of the available choices, and the golden test's anchor
+block passes exactly that.
+
+### Q10 — What maximum LVR the model should use — ✅ **RULED BY MIKE, 2026-08-20**
+
+Offered 80%, 70%, 65% or a figure of his own, he answered: **"it needs to be an editable
+input"**.
+
+**What was checked first, across all seven sheets:** there is no lending test anywhere in
+the workbook. `R5` computes an LVR and no formula references it, no threshold exists, no
+conditional formatting marks it. There is likewise **no servicing test and no way to build
+one** — the workbook collects no household income and no living costs on any sheet.
+
+**So the ceiling joins the existing tax-rules cascade** (Q6's mechanism): mentor → global
+group → group → firm, each level correcting, version history and restore for free, and an
+advisor still typing over it on the report for one client. No new mechanism, and **no new
+Hub tab** — Mike having already said the hub was getting overwhelming for a firm manager.
+
+🔴 **It ships BLANK, not at 80%.** A figure shipped as a default would be a lending policy
+nobody chose, arriving with the authority of a calculated result. Unset means both LVRs
+are computed and shown and neither is judged. **Two LVRs**, because they answer different
+questions: `lvr` is R5's, everything in; `investmentLvr` is the rentals alone, which is
+what an investor's lender tests. On the sample, 69.4% and 90.9%.
+
+**Servicing is shown and deliberately not judged.** `consolidated.servicing` reports the
+annual demand, the weekly equivalent, the worst year and the ten-year total. A test fails
+the build if anyone ever adds an affordability verdict.
+
+⚠ **THE LABEL IS OURS, AND SO IS ITS PLACEMENT.** *"Maximum Loan to Value Ratio (%)"* and
+its help text are not Mike's, unlike every other label on that tab (Q5). He was offered a
+committed drawing of the tab with the field on it before it was built and declined it:
+*"no, just add it as a field - I'm sure you can do it"*. That is his call to make and it
+is recorded here and in the component's own header rather than left to read like a ruling.
+**One line from him changes either.**
+
+⚠ **It is a LENDING rule sitting on a tab named Tax Rules.** The tab's opening sentence now
+says "tax and lending"; its name is untouched, because renaming it is his call.
+
 ---
 
 ## 9. Build order once approved
@@ -735,6 +894,42 @@ change:
    report seeds its Tax rules card from the result and stays editable. **34 tests.**
 
 ✅ **PHASE 1 IS COMPLETE.** Item 4.20 closed 2026-08-18.
+
+### Phase 2 — the portfolio (item 4.19, started 2026-08-20)
+
+**P2-1. ✅ BUILT 2026-08-20 — the maths and its golden test**, in three approved changes:
+
+| | Commit | What |
+|---|---|---|
+| a | `c7fc42b` | The household, `apportionLoans()`, five properties and the consolidation, with corrections 4 and 5 (§8 Q8). 40 tests. |
+| b | `a0a779f` | The deposit hold-back, the two LVRs, the servicing block, and the three identities (§8 Q9). Grew the file to 80 tests. |
+| c | `e36f8da` | The lending ceiling as an editable setting on the tax-rules cascade, and the first component test that tab has ever had (§8 Q10). |
+
+- `computeMultiplePropertyPortfolio()` calls Phase 1's per-property function **unchanged**,
+  supplying only its funding and its deposit from the table — so Phase 1's 55 golden tests
+  never moved.
+- **The anchors that prove the port**: the workbook's own `Consolidated Report` row 11
+  (Total Revenue) and row 22 (Total Assumed Property Values) match its cached values
+  **exactly across all ten years**. Rows 24 and 26 are deliberately NOT pinned — row 24
+  reaches minus 68,772 in year 10 under the interest-only fault corrected in Phase 1, so
+  pinning it would pin the fault.
+
+**P2-2. ☐ NOT BUILT — the Restify route.** Extend `POST /api/report/multiple-property` to
+take a household and up to five properties, and to resolve the lending ceiling from the
+tier cascade the way the tax rules already are.
+
+**P2-3. ☐ NOT BUILT — THE ARTEFACT, and it comes BEFORE the screen.** Nothing in §4, §5 or
+the mockup draws the household inputs, the apportionment table, the hold-back control, the
+LVR figures or the consolidated report. 🔴 **This is the step §10 says was skipped for the
+Property Tax Rules tab.** It is written here as its own numbered step so that it cannot be
+absorbed into "the screen" a second time.
+
+**P2-4. ☐ NOT BUILT — the screen**, once P2-3 is approved.
+
+**P2-5. ☐ NOT BUILT — the catalogue.** Delete the scope line *"Property 1 of 5 · the
+remaining four arrive in the next release"* from the catalogue row **and** the screen's
+header (Q1, Q7a). It is the one line of this design written to be deleted, and this is
+where it goes.
 
 *(Superseded 2026-08-18. This block previously read* **"Still NOT done, and it is the other
 half of item 4.20 … That is the firm-overlay work, and it has not been started."** *It is
@@ -805,6 +1000,54 @@ of a report model. The report screen had an artefact and went through §10 prope
 tab was treated as plumbing attached to it rather than as a screen in its own right. **A tab is
 a screen.** The Save-the-Artefact rule does not have a size threshold, and the thing that
 disguised this one was that it arrived inside a job whose *other* half was fully covered.
+
+### 🔴 The LENDING CEILING FIELD, added to that same tab 2026-08-20 — no artefact, and this time it was DECLINED
+
+**The rule was offered and turned down, and that is a different thing from being skipped.**
+Mike was told, in these terms, that the tab had been built with no drawing, that he had
+still never opened it, and that the order should be *"write and commit the drawing of the
+tab with the new field in it first, then show it to you with the labels I'm proposing."*
+His answer: **"no, just add it as a field - I'm sure you can do it."**
+
+So there is again nothing to put the build beside, and this section again cannot say what
+§10 is supposed to say. What follows is the honest substitute.
+
+| | |
+|---|---|
+| **Label** | *"Maximum Loan to Value Ratio (%)"* — **OURS, not a ruling.** |
+| **Help text** | *"The most a lender will advance against a property. Leave blank for no limit — the ratio is still shown, it is simply not judged."* — **ours.** |
+| **Placement** | Sixth of nine, after Depreciation Rate on Chattels — **ours.** |
+| **Tab intro** | Widened from *"treats tax"* to *"treats tax and lending"* — **ours.** |
+| **The tab's NAME** | **Untouched.** It still says Property Tax Rules while holding a lending setting. Renaming it is his call and was not made. |
+| **That it exists at all, and is editable** | ✅ **His** — Q10. |
+| **That it ships blank** | Ours, with the reason in Q10: a shipped figure is a lending policy nobody chose. |
+
+⚠ **One line from Mike changes any row marked "ours".** They are listed individually so
+that changing one is a one-line instruction rather than an archaeology exercise.
+
+✅ **What did NOT happen again: shipping it untested.** The tab had no component test of
+any kind — it was built on 2026-08-18 with neither an artefact nor a test, which is two
+of the three checks missing at once. `tests/unit/firmPropertyTaxRules.component.test.js`
+now exists: 12 tests on what the tab shows, what it sends, whether it can tell "set here"
+from "inherited", and that none of the eight tax settings was disturbed by the ninth.
+
+🔴 **The remedy for BOTH gaps is still the same, and still outstanding: Mike opening the
+tab on the running app.** It has now been carried four sessions. Until he has, this screen
+is built, tested and unseen, and any sentence calling it done should say so.
+
+### The PHASE 2 MATHS, built 2026-08-20
+
+**No differences to record, because there is no drawing to differ from — and that is the
+point of P2-3.** The maths is backend-only and nothing of it reaches a screen yet. Every
+behaviour it added that the workbook does not have was written INTO this document and
+ruled on first: the hold-back and the three identities (§8 Q9), the lending ceiling and
+the two LVRs (§8 Q10), the servicing demand (§8 Q10), and the two corrections (§8 Q8).
+
+⚠ **The one thing a Phase 2 screen must NOT quietly drop:** the `warnings` list. A capped
+interest-only slice, a deposit reduced to fit, or a breached LVR are each a sentence the
+advisor needs to read. They are computed and returned; a screen that does not render them
+puts the model back to silently producing a plausible wrong number, which is the exact
+fault §8 Q8 was raised to fix.
 
 ### The backend, built 2026-08-17
 

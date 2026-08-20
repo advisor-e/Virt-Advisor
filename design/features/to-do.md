@@ -537,8 +537,10 @@ of his. **Its position is not a judgement.**
 
 - **Why:** Phase 1 builds **one** investment property over ten years. The source workbook is a
   **five-property portfolio**: it also carries the family home and its mortgage, a **loan
-  apportionment table** spreading the available lending across the residence and five investments in
-  order until the borrowing ceiling is reached, and a **consolidated report** stacking all five into
+  apportionment table** spending the deposit across the residence and five investments in order
+  until the money runs out — ⚠ *this read "until the borrowing ceiling is reached" until 2026-08-20;
+  there is no ceiling anywhere in the workbook, see the artefact §1* — and a **consolidated report**
+  stacking all five into
   total revenue, total expenses, net operating profit, total debt, net equity and a combined weekly
   cash position. Without Phase 2 the model answers *"is this one property worth buying"* and cannot
   answer *"does this portfolio work"* — the question the workbook was built for.
@@ -560,18 +562,41 @@ of his. **Its position is not a judgement.**
   only, ring-fenced losses, and the five-year interest-deductibility phasing. Phase 2 is the
   apportionment and the consolidation **on top of** it. *(This line read "DEPENDS ON PHASE 1 — do
   not start this first" until 2026-08-18.)*
+- 🟡 **PHASE 2's MATHS IS BUILT — 2026-08-20, in three approved changes** (`c7fc42b`, `a0a779f`,
+  `e36f8da`). The household, the apportionment table, five properties and the consolidation, plus
+  three things Mike ruled the same day that the workbook does not have: the deposit **hold-back**,
+  the **lending ceiling** as an editable setting on the existing cascade, and the **servicing
+  demand**. 80 tests in `multiplePropertyPortfolio.test.js`; the workbook's own consolidated revenue
+  and property-value rows match its cached values exactly across all ten years.
+  **STILL TO DO: the route, the artefact, the screen and the catalogue line** — the artefact §9
+  steps P2-2 to P2-5. **This row stays open until they are done.**
 - ⚠ **Phase 1's Hub tab was built with no approved artefact and Mike has not seen it** —
   [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md) §10. **Do not repeat
   that here.** Anything Phase 2 puts on a screen gets its artefact committed *before* it is
   approved, per `CLAUDE.md`.
+  🔴 **Updated 2026-08-20 — the rule was OFFERED and DECLINED, which is not the same as skipped.**
+  Adding the lending ceiling to that same tab, Mike was told the tab had no drawing and that he had
+  never opened it, and was offered one first. He said *"no, just add it as a field - I'm sure you
+  can do it."* So the field's label, help text and placement are **ours**, each listed individually
+  in the artefact §10 so any of them changes with one line from him. **The obligation for the Phase
+  2 SCREEN is untouched** — that is a whole screen, not a field, and it is its own build step.
+- ⚠ **The tab is still unopened, now four sessions.** It is built and tested and nobody has looked
+  at it. Two faults on the Hub sidebar were found the same way, by Mike opening a screen, and no
+  amount of tests would have found either.
 - ✅ **The name is settled — Mike, 2026-08-17.** The catalogue name **Multiple Property
   Assessment** is kept, and Phase 1 ships under it showing *"Property 1 of 5 · the remaining four
   arrive in the next release"*. The name never changes between the phases and nobody is misled at
   either stage. ⚠ **It was his own question that settled it** — asking whether the other properties
   were coming turned a naming problem into a scheduling one, and this row is the answer.
-  **Two questions remain open** (the four headline labels, and whether the New Zealand tax
-  assumptions are fixed or firm-editable):
+  ⚠ **This line used to end "Two questions remain open (the four headline labels, and whether the
+  New Zealand tax assumptions are fixed or firm-editable)". It was already wrong** — both were
+  ruled on 2026-08-17, the same day they were asked, as §8 Q2 and Q3 have said ever since. **No
+  design question on this model is open.** Q1–Q7a were ruled 2026-08-17 and Q8–Q10 on 2026-08-20:
   [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md) §8.
+- ☐ **Three things sit with Mike, and none of them blocks the build:** the LVR ceiling figure
+  (nothing is judged until it is set), whether the Property Tax Rules tab should be renamed now it
+  holds a lending setting, and whether the sample's own 350,000 / 299,000 loan split should be reset
+  now that its deposit is genuinely applied.
 
 **4.7 · Flip `engine-strict` back on.** **SCORE 2 · robustness**
 - **Why:** still `false`. Two transitive packages (`consola`, `node-releases`) over-declare their
