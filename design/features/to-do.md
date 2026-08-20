@@ -68,8 +68,12 @@ repository sees; the two never both appear, and the build stops if they would.
   that money taken off it. That reading step is now **P19** of
   [`report-models.md`](report-models.md) §5 so it is a build step, not a lucky habit.
   ⚠ **And it found a hole nothing can close by itself:** layout was shipped **unverified**, because
-  no browser driver is installed. That is now **4.25** — a job, not a warning. The two wording
+  no browser driver was installed. That is now **4.25** — a job, not a warning. The two wording
   calls it left with Mike are **4.26** and **4.27**.
+  ✅ **The driver half of 4.25 closed the next day** (2026-08-21, `7fa5e9a`): `playwright` pinned to
+  exact **1.34.3**, the last release that runs on the locked Node 14.15, configured so no other
+  machine downloads a browser on `npm install`. **4.25 stays open** — the project can now see a
+  rendered page, but no test does yet.
 
 **One item came off this list on 2026-08-20** — see
 [`to-do-done-and-parked.md`](to-do-done-and-parked.md):
