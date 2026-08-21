@@ -55,6 +55,41 @@ level above's improvements automatically. A row a level *has* edited is protecte
 level above's later change is **offered** — Adopt / Keep mine — never silently applied.
 Clone-like protection where someone made a decision; automatic freshness where they did not.
 
+**P11 · A level's own additions are OFFERED downward and must be accepted. Nothing is ever
+enforced — in either direction.** Ruled by Mike, 2026-08-22: *"everything in Advisor-e that is
+offered downwards in a cascade must be accepted by the level below. The higher levels can offer
+ideas but never enforce them. However, under no circumstance can a lower level push something up
+or enforce changes upward either."*
+
+**Scope, confirmed by him in the same exchange: this is about *changes a level makes on top*, not
+about the platform's shipped content** — *"else the software would be useless for a new firm"*. A
+firm that has just opened the app gets the full product working, not an empty shell awaiting
+several hundred acceptances. The baseline **is** the product; a level's own idea is an **offer**.
+
+- **Downward:** what a level adds or edits is an offer to the levels below. They accept or
+  decline. Declining is free, reversible, and changes nothing above.
+- **Upward:** ⚠ **do not read this as a hole to plug — it is already closed, structurally.**
+  Reports rolling up is the *feedback loop the design exists for* (P4) and is emphatically
+  allowed. What is forbidden is a lower level making a document, model or setting a
+  **requirement** for a level above. Today every roll-up route is a `GET`
+  (`/api/mentor/cases`, `/api/mentor/adoption`, `/api/mentor/logic-lab-report`), and every save
+  in the app calls `saveFirmConfig(req.firmId, …)` — the caller's **own** scope, resolved from
+  their own token, never a parent and never an id taken from the request body. There is no route
+  a firm could use to write into its group, so there is nothing to enforce in code.
+
+⚠ **This does not overturn P3, it finishes it.** P3 was underspecified rather than wrong: it says
+an untouched row *"keeps receiving the level above's improvements automatically"*, without
+separating **the platform baseline improving** (correct — it just works) from **a level above
+adding its own idea** (an offer, which needs accepting). The distinction is the whole of P11.
+
+🔴 **Where the code does not yet match, stated rather than implied.**
+`resolveInheritedRows` today offers a change only on a row the level has **already edited**
+(P3's *Adopt / Keep mine*); a row they have never touched applies automatically whatever its
+origin. Under P11 that is right for platform content and wrong for a level's own additions.
+Nine source files carry the mechanism — `resolveInheritedRows`, `resolveDistinctions`,
+`staircaseConfig`, `quizConfig`, `firmDistinctions`, `firmStaircase`, `firmQuizzes`,
+`firmManager`, `advisorEngine`. **Not yet reconciled and not to be reconciled quietly.**
+
 **P4 · Every report rolls up, to the level immediately below, summarised.** No per-report
 exceptions, ever. Firm manager → its advisers. Group manager → its firms. Global group manager
 → its groups. Mentor → its global groups. Deciding report-by-report which tier "should" see

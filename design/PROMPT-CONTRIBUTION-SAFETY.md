@@ -221,13 +221,26 @@ quality at a firm is that firm's business.
 | **Nothing arrives unnoticed** | Attribution. An offered contribution shows which level wrote it, so a firm can tell its group's opinion from the platform's — the same job the *set here* / *inherited* badges already do |
 | **Nothing is permanent** | Version history and restore, free with `firmOverlay`. A bad contribution is one click from undone and always attributable |
 
-⚠ **The one open question, and it is a real one.** Does an offered contribution apply to the
-level below **until declined** (like every other cascading block today), or only **once
-accepted**? Mike's word was *offering*, which leans toward explicit acceptance; every other
-block in the app works the other way. **Recommendation: match the existing blocks
-— inherited-until-declined** — because a second inheritance behaviour is exactly the per-block
-variation `tier-cascade.md` §1 forbids, and because the advisor still holds final selection
-regardless. Flagged rather than decided.
+✅ **Settled 2026-08-22 — accepted, not inherited-until-declined.** Put to Mike as an open
+question, and he ruled it app-wide rather than for this feature:
+
+> *"everything in Advisor-e that is offered downwards in a cascade must be accepted by the
+> level below. The higher levels can offer ideas but never enforce them."*
+
+...with the scope confirmed immediately after: *"common sense would confirm it only relates to
+changes being made — what a level adds on top — else the software would be useless for a new
+firm."*
+
+So a contribution offered downward **does nothing at the level below until that level accepts
+it.** My earlier recommendation — match the existing blocks, inherit-until-declined — was
+**wrong**, and wrong for a revealing reason: it argued from consistency with the code rather
+than from what the product is for. The existing blocks were the thing out of step, not this
+feature. It is now [`features/tier-cascade.md`](features/tier-cascade.md) **P11**, and the gap
+between P11 and the nine files implementing the old behaviour is recorded there — unreconciled,
+and not to be reconciled quietly.
+
+⚠ **The platform's shipped baseline is not an offer and needs no acceptance.** It is the
+product, and it works the moment a firm opens the app. P11 governs what a *level* adds on top.
 
 ---
 
