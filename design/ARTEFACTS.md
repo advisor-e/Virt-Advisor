@@ -37,6 +37,7 @@ approved, never saved, and gone a day later.
 
 | Artefact | File | Referenced from |
 |---|---|---|
+| AI Prompts tab | [ai-prompts-tab.html](mockups/ai-prompts-tab.html) | AI-PROMPTS-PAGE.md §10 step 4, features/to-do.md item 4.28 |
 | Case origin path | [case-origin.html](mockups/case-origin.html) | Case Reviews, Cases & Clients, Tier Cascade |
 | Coaching Reference tab | [firm-coaching-reference.html](mockups/firm-coaching-reference.html) | ✅ approved + BUILT 2026-08-15 (item 4.9) — two deviations named in `9cd39c9`; features/tier-cascade.md, features/firm-manager-hub.md |
 | Debtor Drag | [debtor-drag-mockup.html](mockups/debtor-drag-mockup.html) | ⚠ nothing — see *Orphans* below |
