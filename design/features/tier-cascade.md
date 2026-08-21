@@ -188,23 +188,58 @@ the logic tables, so there is nothing in it belonging to a group that could be s
 group. Its routes keep the mentor-role guard rather than the managing-tier guard the other
 reports moved to. This makes each middle hub **12 tabs, not the 13 first drawn**.
 
+### Logins are Advisor-e's to provide
+
+🔴 **Ruled by Mike, 2026-08-22: every manager-hub login is provided by Advisor-e.** Not by us,
+not by a screen in this app, and not by a table we own.
+
+This is **P1 applied to the hubs**, not a new rule — P1 already says login, accounts and roles
+are Advisor-e's. It is repeated here because P1 is a principle and this is the case that keeps
+being met: three documents in this folder describe the missing logins as an unowned gap, which
+invites somebody to fill it. It is not a gap. It is a settled division of responsibility, and
+the correct response to it is to wait, not to build.
+
+What Advisor-e supplies is small and named: the two role values in
+[`config/integration.js`](../../config/integration.js) — `globalManagerRole` and
+`groupManagerRole` — plus the brand and country claims on the token. **Nothing else changes when
+they arrive.** Both ship as empty strings, which match no role, so until then no real token can
+resolve to a middle tier and no save can land in a group's storage by accident. That failure
+mode is not hypothetical: see *Traps that have actually bitten*.
+
 ### The honest limit
 
 **The middle-tier hubs are built** — `pages/global-group-manager.vue` and
 `pages/group-manager.vue` render the same hub at the new scopes — **and they hold no real data.**
-Both reasons belong to Advisor-e, not to us: no role value produces `global_group_manager` or
-`group_manager` (and `mentor` still borrows `platform_admin`), and the `firms` table has no
-country, group or parent column. Without a membership map, `parentScopeOf` returns the mentor
-scope for every firm and the chain runs mentor → firm, exactly as it did before the chain
-existed.
+Both reasons belong to Advisor-e, per the ruling above: no role value produces
+`global_group_manager` or `group_manager` (and `mentor` still borrows `platform_admin`), and the
+`firms` table has no country, group or parent column. Without a membership map, `parentScopeOf`
+returns the mentor scope for every firm and the chain runs mentor → firm, exactly as it did
+before the chain existed.
 
 ⚠ **In development the two middle hubs show INVENTED firms.** Membership is seeded from
-`data/dev-firm-membership.json` and the server says so loudly at startup. Do not read those
-screens as real firms, and do not demonstrate them to anyone as though they were.
+`data/dev-firm-membership.json` — 27 invented firms across 3 brands and 5 countries — and the
+server says so loudly at startup. Do not read those screens as real firms, and do not
+demonstrate them to anyone as though they were.
 
-⚠ **This cannot be demonstrated by logging in as a group manager, because no such login
-exists.** It is evidenced by tests against a seeded membership map — a weaker claim than a live
-screen, and it should be stated as one.
+✅ **The two middle tiers CAN be opened and worked on today, with made-up logins.**
+[`server/middleware/firmAuth.js`](../../server/middleware/firmAuth.js) carries four invented
+dev tokens — `dev-local-bypass` (firm manager), `dev-local-mentor`, `dev-local-global`,
+`dev-local-group` — active only when `ALLOW_DEV_AUTH=true` **and** `NODE_ENV` is not
+production, so they cannot exist in a deployed environment. Each attaches the **real scope id**
+via the same `tierChain` helpers a real token will use, so what a developer exercises is the
+genuine storage path rather than a special case.
+
+⚠ **This paragraph replaced one that said the opposite** — *"cannot be demonstrated by logging
+in as a group manager, because no such login exists"* — which was written before the dev tokens
+landed and then stayed. It was not merely stale: it taught every session that read it to write a
+weaker caveat than the truth into whatever it was building, and at least three documents in this
+folder carry that caveat because of it. **A Brief that understates what works costs as much as
+one that overstates it.**
+
+⚠ **What the dev tokens do NOT prove.** They borrow `platform_admin` to get past
+`requireManagerRole`, because the real role values do not exist yet. So the *scope* behaviour is
+genuinely exercised and the *role gate* is not. When Advisor-e supplies the two values, the gate
+is the one thing still to be tested — and it is the thing the trap below is about.
 
 ### The coaching reference — the fifth block, and the last to join
 
