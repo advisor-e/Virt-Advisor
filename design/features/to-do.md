@@ -35,25 +35,32 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on |
 | --- | --- | --- | --- | --- |
-| 1 | 🔒 **4.12** One handover story for the master team | 5 | Handover | Us |
-| 2 | **2.9** The education gate | 4 | — | Us |
-| 3 | **4.7** Flip engine-strict back on | 5 | — | Us |
-| 4 | **3.5** Reply to Carl about npm install | 5 | — | Us |
-| 5 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
-| 6 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | **Mike** |
-| 7 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
-| 8 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
-| 9 | **4.22** Settle whether purchase costs are non-deductible in the property model's first year | 1 | — | **Mike** |
-| 10 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
-| 11 | **4.26** The Model Library card still promises one rental property, not five | 2 | — | **Mike** |
-| 12 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
+| 1 | **2.9** The education gate | 4 | — | Us |
+| 2 | **4.7** Flip engine-strict back on | 5 | — | Us |
+| 3 | **3.5** Reply to Carl about npm install | 5 | — | Us |
+| 4 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
+| 5 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | **Mike** |
+| 6 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
+| 7 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
+| 8 | **4.22** Settle whether purchase costs are non-deductible in the property model's first year | 1 | — | **Mike** |
+| 9 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
+| 10 | **4.26** The Model Library card still promises one rental property, not five | 2 | — | **Mike** |
+| 11 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
 
-**Twelve live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Eleven live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
-**One item came off this list on 2026-08-21, and three joined it** — see
+**Two items came off this list on 2026-08-21, and three joined it** — see
 [`to-do-done-and-parked.md`](to-do-done-and-parked.md):
 
+- ✅ **4.12** — closed **without doing what it said**, because its premise was never true. It named
+  Collaborate's `START-HERE.md` and `HANDOVER.md` as describing a standalone app; **neither file has
+  ever existed in this repository** (`git log --all` finds them never added and never deleted), and
+  the documents the master team does receive already describe a section of this app. It was ranked
+  **first** and was the list's only blocker.
+  🔴 **Checking it found the real fault:** [`../UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md) still told
+  the master team the newest release was `v0.8.0`, four days after `v0.9.0` was tagged — and on the
+  same morning Mike emailed Carl telling him to pull `v0.9.0`. Corrected.
 - ✅ **4.19** — the property model is finished. All five Phase 2 steps: the maths and its golden
   test, the route taking two shapes on one URL, **the drawing before the screen**, the screen, and
   the catalogue line. Carried since 2026-08-17, when Mike put it on the list himself after asking
@@ -144,7 +151,7 @@ repository sees; the two never both appear, and the build stops if they would.
   🔴 **Nothing on this list now covers cutting that newer release.** That gap is deliberate and it
   is his to close.
 
-⚠ **Four items were scored 5 by Mike on 2026-08-15 — 4.12, 4.9 (now closed), 4.7 and 3.5 — and by §2's table a 5
+⚠ **Four items were scored 5 by Mike on 2026-08-15 — 4.12 (now closed), 4.9 (now closed), 4.7 and 3.5 — and by §2's table a 5
 means security, privacy or data integrity.** Read alongside his comments (*"just get it done"*,
 *"should never have been parked"*) he was plainly using 5 to mean **do this now**, not to name the
 category. **His scores are recorded exactly as he set them and have not been adjusted.** The
@@ -275,7 +282,9 @@ before the second starts:
 
 **How today's list reads against it, so the reading can be checked rather than assumed:**
 
-- **Technical / feature:** 4.12 (the master team's documents are wrong), 2.9 (the education gate is
+- **Technical / feature:** ~~4.12 (the master team's documents are wrong)~~ — **closed 2026-08-21;
+  its premise was false, and it is left struck through here because the reading below was made
+  with it counted in**, 2.9 (the education gate is
   not coded at all — it needs Mike's words, but what is missing is a *feature*), 4.7 (the Node lock
   is not enforced), 4.16 (content the AI is never shown), 4.17 (a screen showing 1 row of 67).
   ✅ **4.16's sweep is finished — 2026-08-16 — and 2.6 was its first known instance.** It found
@@ -357,15 +366,6 @@ question he has already answered.
 ---
 
 ## 6. Ours to build
-
-**4.12 · 🔒 One handover story for the master team.** **SCORE 3 · sells the package**
-- **Why:** the merged app's own handover documents still describe a separate standalone
-  application.
-- **Risk:** the master team reads documents describing an app that no longer exists and builds the
-  tiers above it wrongly.
-- **Asked by:** ⚠ **ours** — `COLLABORATE-MERGE-PLAN.md` §6. Nobody outside asked. Kept because
-  the master team genuinely receives the wrong documents; **say so if you would rather it went.**
-- **Touches:** the Collaborate handover documents, the UAT load pack.
 
 **4.16 · Check every block's authored fields actually reach the prompt.** **SCORE 4 · the user is
 worse off** · 🔴 **WAITING ON MIKE**

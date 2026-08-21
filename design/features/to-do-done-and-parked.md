@@ -219,6 +219,40 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.12 · 🔒 One handover story for the master team.** ✅ Closed 2026-08-21, session 78, on Mike's
+approval — **not by doing what it said.** It was the first item on his ranked list and the list's
+only blocker, and it was carried from 2026-07 on a premise that was never true.
+
+- **Why it mattered:** the merged app's own handover documents were said to still describe a
+  separate standalone application, so the master team would build the tiers above it wrongly.
+- **What we would have lost:** nothing, as written — see below. What was genuinely at risk was
+  found only by checking it.
+- **Mike's own words:** *"if this is just a handover note - get it done"* (2026-08-15, and those
+  words were deleted by the control the same day — see `838f3a0`).
+- 🔴 **Why the premise was false, proved rather than argued:** the item named two files,
+  Collaborate's `START-HERE.md` and `HANDOVER.md`. **Neither has ever existed in this repository.**
+  `git log --all -- "*START-HERE.md" "**/HANDOVER.md"` returns nothing, and
+  `--diff-filter=D` returns nothing — they were never added and never deleted. They lived in the
+  separate Collaborate repo; the merge brought the code (`server/collaborate/`,
+  `mixins/collaborate/`), not those documents. The documents the master team actually receives —
+  [`../UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md) (*"For the Advisor-e master coding team"*) and
+  [`../HANDOFF.md`](../HANDOFF.md) (*"integrating the Firm Manager module into the main app"*) —
+  already describe a section of this app. Of the five surviving uses of "standalone", four are
+  correctly past tense and must not be "corrected".
+- **What proves it:** the false claim is written out of the brief it lived in
+  ([`collaborate-data-layer.md`](collaborate-data-layer.md) §4) rather than deleted, so the next
+  session cannot re-derive it from the merge plan.
+- 🔴 **What checking it DID find, and this is the item's real value.**
+  [`../UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md) — the one page the master team loads a release from
+  — still said *"the newest cut release is `v0.8.0`"* at five places. **`v0.9.0` was tagged
+  2026-08-17**, and Mike sent Carl the v0.9.0 release email on **2026-08-21**, so the announcement
+  and the loading instructions contradicted each other on the same morning. Corrected to `v0.9.0`,
+  with the `npm install` line and the *Known issues* link (renamed from *Known limits* at v0.9.0)
+  brought with it, and a standing warning added that cutting a tag includes updating that page.
+- ⚠ **The lesson, which is not new:** an item's premise is a claim, not a status. This one was
+  ranked **first** for weeks and nobody had opened the two files it named. See
+  [`../ACTIONS.md`](../ACTIONS.md)'s own warning — *"Trust the CODE, not these flags."*
+
 **4.19 · Finish the property model — properties 2 to 5, the apportionment and the consolidated
 report.** ✅ Closed 2026-08-21, sessions 75–76. Carried since 2026-08-17, when Mike put it on the
 live list himself after asking whether the other four properties were ever coming.

@@ -36,25 +36,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it.",
   "items": [
     {
-      "ref": "4.12",
-      "name": "One handover story for the master team",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
-      "blocker": true,
-      "blocks": "Handover",
-      "waitingOn": "Us",
-      "why": "The merged app's own handover documents still describe a separate standalone application.",
-      "risk": "The master team reads documents describing an app that no longer exists and builds the tiers above it wrongly.",
-      "askedBy": {
-        "who": "COLLABORATE-MERGE-PLAN.md §6",
-        "ours": true,
-        "detail": "Nobody outside asked. Kept because the master team genuinely receives the wrong documents — say so if you would rather it went."
-      },
-      "touches": "The Collaborate handover documents, the UAT load pack.",
-      "note": null,
-      "comment": "if this is just a handover note - get it done"
-    },
-    {
       "ref": "2.9",
       "name": "The education gate",
       "score": 4,

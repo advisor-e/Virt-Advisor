@@ -110,8 +110,24 @@ interim override table standing in until that claim is wired. Unknown resolves t
 ### Known state and open work
 
 The people layer is in memory and resets on restart. Reconciling it with this app's
-MySQL-with-fallback model is unstarted and unapproved. So is the single handover story for the
-master team — the standalone app's own handover documents still describe a separate application.
+MySQL-with-fallback model is unstarted and unapproved.
+
+⚠ **This brief used to end with a second open item — "the standalone app's own handover documents
+still describe a separate application". It was wrong and it is withdrawn (2026-08-21.)** The two
+documents it meant, Collaborate's `START-HERE.md` and `HANDOVER.md`, **have never existed in this
+repository**: `git log --all` finds no history for either name, added or deleted. The merge brought
+the code (`server/collaborate/`, `mixins/collaborate/`), not those files. The documents the master
+team actually receives — [`../UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md) and
+[`../HANDOFF.md`](../HANDOFF.md) — already describe a section of this app, not a separate one.
+The remaining "standalone" wording in [`collaborate-data-layer-history.md`](collaborate-data-layer-history.md),
+[`adviser-network-history.md`](adviser-network-history.md) and
+[`../COLLABORATE-MERGE-PLAN.md`](../COLLABORATE-MERGE-PLAN.md) is **past tense and correct** —
+it describes what Collaborate was before the merge, and must not be "corrected".
+
+🔴 **Why this is written out rather than deleted.** A brief is a ruleset, so a claim sitting in one
+is read as true and acted on. This one survived from 2026-07 to 2026-08-21 and became to-do item
+4.12 — ranked first on the live list — before anyone checked whether the files it named were
+there. Deleting the sentence would leave the next session free to re-derive it from the merge plan.
 
 ---
 
