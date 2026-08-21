@@ -51,7 +51,8 @@
         "detail": "Nobody outside asked. Kept because the master team genuinely receives the wrong documents — say so if you would rather it went."
       },
       "touches": "The Collaborate handover documents, the UAT load pack.",
-      "note": null
+      "note": null,
+      "comment": "if this is just a handover note - get it done"
     },
     {
       "ref": "2.9",
@@ -87,7 +88,8 @@
         "detail": "The coding team's locked spec"
       },
       "touches": ".npmrc, package.json overrides.",
-      "note": "Reinstall is overnight-only on this machine and there is a documented safe procedure — follow it rather than a plain npm install."
+      "note": "Reinstall is overnight-only on this machine and there is a documented safe procedure — follow it rather than a plain npm install.",
+      "comment": "get this done, it doesn't rely on me and should never have been parked"
     },
     {
       "ref": "3.5",
@@ -105,7 +107,8 @@
         "detail": "Outside the project"
       },
       "touches": "Nothing in the app.",
-      "note": null
+      "note": null,
+      "comment": "If this is important, draft the email you want me to send Carl and I'll pass it on."
     },
     {
       "ref": "4.15",

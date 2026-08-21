@@ -320,11 +320,31 @@ function planApply (saved, current, closedPage) {
     return { applied: false, data: null, lines: lines }
   }
 
+  // 🔴 HIS COMMENT ON A LIVE ITEM IS AN INSTRUCTION, NOT A DECISION.
+  //
+  // Until 2026-08-21 both `yourCall` and `yourComment` were dropped here, on the
+  // reasoning that a call and a comment are decisions rather than schema. That is
+  // true of a SETTLED item — its words are carried onto the closed page by
+  // closureBlock() and survive there. It was never true of a live one. A live
+  // item's comment is the only thing on the whole round trip that says what Mike
+  // wants done, and it was printed to the console once and thrown away.
+  //
+  // What that cost: on 2026-08-15 he wrote "get this done, it doesn't rely on me
+  // and should never have been parked" on 4.7, "if this is just a handover note -
+  // get it done" on 4.12, and "draft the email you want me to send Carl" on 3.5.
+  // All three were applied, all three words discarded, and six days later all
+  // three items were still open and still reading "waiting on Us" — because no
+  // session after that one could see he had said anything at all.
+  //
+  // `yourCall` is still dropped, and that part was always right: for an item on
+  // this list it is always "proceed", which the item's presence already says.
   const clean = keeping.map((item) => {
     const out = {}
     Object.keys(item).forEach((key) => {
       if (key !== 'yourCall' && key !== 'yourComment') out[key] = item[key]
     })
+    const said = String(item.yourComment || '').trim()
+    out.comment = said || null
     return out
   })
 
