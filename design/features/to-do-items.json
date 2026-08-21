@@ -215,7 +215,7 @@
         "detail": "2026-08-21 — \"I want to create a 'AI Prompts' page in the hub pages (Mentor, Global Group Manager, Group Manager and Firm Manager) so that users have the ability to influence the approach to formulas in the performance report models.\""
       },
       "touches": "components/FirmManagerHub.vue (NAV_GROUPS in the 'Your AI coach' group, plus TAB_TIERS), a new components/firm/FirmAiPrompts.vue, a Restify route reading server/utils/aiPrompts.js, locales/en.json, and the two guards named in design/AI-PROMPTS-PAGE.md §10 step 5.",
-      "note": "🔴 THE TAB LABEL IS RULED: \"AI Prompts\" (Mike, 2026-08-21). Design and build order: design/AI-PROMPTS-PAGE.md §10. ⚠ Two of the four tiers CANNOT BE LOGGED INTO — config/integration.js ships globalManagerRole and groupManagerRole EMPTY on purpose, fail-closed. Build all four anyway (the tab matrix is declarative and excluding them bakes in a limit that is wrong the day Advisor-e issues the roles), but 'it works' will mean the mentor and firm hubs proven, the middle two correct-by-construction and unexercised. Say that rather than implying four."
+      "note": "🔴 THE TAB LABEL IS RULED: \"AI Prompts\" (Mike, 2026-08-21). Design and build order: design/AI-PROMPTS-PAGE.md §10. ⚠ Two of the four tiers CANNOT BE LOGGED INTO — config/integration.js ships globalManagerRole and groupManagerRole EMPTY on purpose, fail-closed. Build all four anyway (the tab matrix is declarative and excluding them bakes in a limit that is wrong the day Advisor-e issues the roles), but 'it works' will mean the mentor and firm hubs proven, the middle two correct-by-construction and unexercised. Say that rather than implying four. \n\n🔴 STATUS 2026-08-22: THE DRAWING IS DONE AND COMMITTED — design/mockups/ai-prompts-tab.html (`1819597`), published and read by Mike. Two rulings came out of him reading it, both already applied: the security prompt’s two editable boxes controlled a step that does not apply to this app and were REMOVED (`28cb249`), and — the bigger one — THE PAGE MUST BE REDRAWN FOR AN ACCOUNTANT, not an engineer. His words: \"who is supposed to be working with this page? A computer coder or an accountant who has been given a word doc with some ai / claude prompts on it and told the prompts need to be included for their protection? If its the latter (and it is) then your version risks being too complicated for them.\" AGREED AND APPROVED BY HIM, NOT YET DONE: the cash flow prompt stays as drawn — materiality, three-way forecast and auditability are an accountant’s own vocabulary; the security prompt’s seven engineering headings (\"lethal trifecta\", \"taint-gate memory writes\", \"gate the sinks, not the reads\") are 7 of the 19 sections a firm manager sees and mean nothing to them. They collapse into ONE plain-English panel — \"How your clients’ information is protected\", four sentences — and the technical version stays MENTOR-ONLY. The manager’s page then carries one prompt and three settings, so the two-card picker goes with them. START HERE NEXT SESSION."
     },
     {
       "ref": "4.29",
@@ -244,7 +244,7 @@
       "blocks": null,
       "waitingOn": "Us",
       "why": "server/utils/promptSafety.stripInvisible() shipped 2026-08-21 (`ea6ac22`) with 11 tests, closing the zero-width / bidi / Unicode-tag channel named in the security document's step 5. It is NOT applied to server/advisorEngine.js, which is the output path a real advisor reads today.",
-      "risk": "The gap the fix was written for is still open where it actually matters. Worse, the commit message and the tests read as though the channel is closed — so the next session can reasonably believe it is done. That is the failure family this list exists to end.",
+      "risk": "The gap the fix was written for is still open where it actually matters. Worse, the commit message and the tests read as though the channel is closed — so the next session can reasonably believe it is done. That is the failure family this list exists to end. ⚠ 2026-08-22 — THIS ITEM GOT MORE IMPORTANT, not merely older. Mike ruled that an accountant contributing a prompt must PASTE the text rather than send a document (design/PROMPT-CONTRIBUTION-SAFETY.md §1a), because a document can hide text its own sender cannot see. Pasting defeats text hidden by LAYOUT and does nothing to text hidden by ENCODING: zero-width, bidi and Unicode-tag characters survive the clipboard perfectly and are still invisible in the box they land in. stripInvisible is therefore the ONLY thing between a hidden instruction and the model on that path — and it is the one check that can be made perfect, because an invisible character has no legitimate use in advisory prose at all.",
       "askedBy": {
         "who": "Us",
         "ours": true,
@@ -252,6 +252,24 @@
       },
       "touches": "server/advisorEngine.js and server/courseEngine.js output handling, plus tests proving a hidden payload is removed from a real streamed response and that ordinary content survives.",
       "note": "The frontend markdown pipeline is LOCKED by CLAUDE.md and must not be touched — the strip belongs server-side at the source, which is where stripInvisible already is. This is wiring an existing, tested function into two more call sites, not new logic."
+    },
+    {
+      "ref": "4.31",
+      "name": "An accountant can share a prompt and have it checked — designed, drawn, not built",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Mike asked for a place a firm manager can put a prompt they believe in, have it checked against our protocols, and get back what is good, what is missing and what conflicts — accepting or declining each suggestion. The design and the screen are committed (design/PROMPT-CONTRIBUTION-SAFETY.md, design/mockups/prompt-contribution.html, `4a7c47e`) and four of his rulings are already folded into them. NOTHING IS BUILT.",
+      "risk": "It is the first path in this app by which user-authored free text reaches a model, so it is the one feature where getting the ORDER wrong matters: the refusal screen is step 2 of the build for a reason. A refusal path built last is a refusal path built badly — and it is the screen an innocent accountant meets when their working document contains a real client name, which is the check most likely to fire and least likely to be anybody doing anything wrong.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-08-22 — \"they also need a place they can 'drag and drop' their AI prompts - click 'Analyse against existing protocols' and get a summary report of the pros and cons, what should be included with the ability to accept or decline the changes\", then narrowed by him to pasted text only: \"if pasting the wording (they copy and paste from their own source doc) is better security then that's what we require - and we explain this to them for their own clients protection.\""
+      },
+      "touches": "A new Restify route calling server/utils/openaiClient.js through server/utils/promptSafety.fenceUntrusted + stripInvisible; deterministic refusal checks with their own tests; a new panel on the AI Prompts page; and four AI-response validation tests (valid, malformed, missing fields, wrong types) per CLAUDE.md.",
+      "note": "🔴 BUILD ORDER IS §7 OF THE DESIGN AND IT IS NOT ARBITRARY. 1) the paste box, with the explanation of WHY we do not take files sitting beside it rather than behind a help link. 2) the deterministic refusals AND the blocked screen together. 3) the AI review. 4) — separately, later, and NOT in the same breath — storing a contribution as reference material the AI draws on. Steps 1–3 change nothing about how advice is produced; step 4 is the one that moves the app’s risk profile. ⚠ RULED, DO NOT RE-OPEN: pasted text only, no file uploads EVER (uploads are ruled OUT, not deferred — reinstating them is a new decision); nobody above signs a contribution off, because a level’s material is its own and is OFFERED downward under P11; and the AI review is an advisor, never a gatekeeper — \"the AI said it was fine\" must never be what admits text into a prompt. ⚠ AND DO NOT let this item pull the Advisory Staircase, Distinctions, Quizzes or Domain Support into scope: see the boundary paragraph under P11 in features/tier-cascade.md, which exists because an earlier draft of P11 nearly did exactly that."
     }
   ]
 }

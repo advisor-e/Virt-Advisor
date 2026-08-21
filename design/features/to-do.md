@@ -47,8 +47,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 10 | **4.28** The AI Prompts page has an engine and no screen | 4 | — | Us |
 | 11 | **4.29** The AI has never been told the report models exist | 4 | — | Us |
 | 12 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
+| 13 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
 
-**Twelve live items. Three need Mike.** If this list passes about twenty, something is wrong.
+**Thirteen live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off this list on 2026-08-21, and six joined it** — see
