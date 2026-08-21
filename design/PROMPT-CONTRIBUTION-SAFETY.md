@@ -30,6 +30,63 @@ door available.
 
 ---
 
+## 1a. 🔴 Ruled 2026-08-22 — pasted text only, no file uploads ever
+
+Mike, having been given the comparison below:
+
+> *"if pasting the wording (they copy and paste from their own source doc) is better
+> security then that's what we require - and we explain this to them for their own clients
+> protection"*
+
+**The app accepts a pasted prompt and nothing else.** No Word, no PDF, no drop zone, no
+widened MIME allowlist, no document parser. This is a **narrowing** of the original design,
+adopted because it is safer, and it must not be widened back without a fresh ruling.
+
+**Why pasting is safer, and it is not a small margin.** A document can carry text the person
+sending it cannot see: white text on white, text underneath an image, text positioned off the
+visible page. Somebody is handed a *"helpful prompt template"*, opens it, sees something
+completely ordinary, and forwards it to us in good faith. Neither of them ever knows. That is
+precisely the scenario Mike named — *"accountants mistakenly give hacker access because they
+don't know what they're adding"* — and no parser can close it, because the parser's whole job
+is to read what the reader could not.
+
+Pasting closes it at the source: **the words pass through the sender's own eyes on the way**.
+
+It also removes, rather than mitigates, three whole categories of risk: a document parser is a
+notorious class of security hole and we now need none; the upload allowlist stays PDF-only for
+the document library and is not widened; and there is no uploaded file to store, scan, or
+accidentally serve back to anyone.
+
+⚠ **What pasting does NOT solve, stated so the design cannot be oversold.**
+**Invisible characters survive the clipboard perfectly.** Zero-width spaces, bidi controls and
+Unicode tags copy across exactly as they were, and are still invisible in the box the
+accountant pastes into. Pasting defeats text hidden by *layout*; it does nothing to text hidden
+by *encoding*. Layer 2's invisible-character check is therefore **more** important under this
+ruling, not less — it is now the only thing standing between a hidden instruction and the
+fence. It is also the one check that can be made perfect, because invisible characters have no
+legitimate use in advisory prose at all.
+
+### What we tell them, and why
+
+Mike's instruction was to explain it to the accountant *"for their own clients protection"*, so
+the reason goes on the screen rather than into a help page nobody opens. Proposed wording —
+**ours, and needing his word** (§5 rules apply here too):
+
+> **Why we ask you to paste rather than send a file**
+>
+> Copy the words out of your document and paste them in. We do not accept documents, on
+> purpose.
+>
+> A document can contain text you cannot see when you open it — white text on a white
+> background, text hidden behind a picture, text sitting off the edge of the page. If somebody
+> sent you a prompt with instructions hidden in it, you would pass it on in good faith and
+> neither of us would ever know.
+>
+> Pasting means what you see is what we get, because it goes past your own eyes on the way.
+> It costs you one copy and paste and it is the strongest protection we can give your clients.
+
+---
+
 ## 2. 🔴 The rule this design turns on
 
 **We do not try to detect a malicious prompt. We make a malicious prompt unable to do
@@ -182,9 +239,11 @@ Stated because a design that only lists its strengths is not a design.
 - **The PII check will fire on innocent documents constantly** — a worked example naming a
   fictional "Jane Smith" trips it. That is the right failure direction, but it means the
   wording in §5 is doing heavy lifting, not decorating.
-- **Word files widen the upload surface.** Today only PDFs are accepted
-  (`config/integration.js`, `allowedMimeTypes`). `.docx` needs a Node-14-compatible parser and
-  a wider allowlist. **Paste-a-prompt needs neither and should ship first.**
+- **Convenience.** Somebody with a forty-page prompt has to select it and copy it. Ruled worth
+  it (§1a), and the screen explains why rather than simply refusing.
+- 🔴 **Text hidden by encoding still gets through the paste.** Invisible characters survive the
+  clipboard exactly as written. §1a covers this in full; it is repeated here because this is
+  the list people read when they want to know what the feature does *not* do.
 - 🔴 **Nothing here catches a legitimate but wrong contribution.** Safe, well-meaning text that
   gives bad advice passes every layer. Only Layer 4's human catches that, and only if they
   read it. The same limit is already recorded for the materiality threshold in
@@ -194,13 +253,18 @@ Stated because a design that only lists its strengths is not a design.
 
 ## 7. Build order
 
-1. **Lane A, paste-only.** Analyse, report, download the improved copy. No storage, no gate,
-   no upload parser. Most of the value, none of the risk.
+1. **Lane A, the paste box** — with §1a's explanation on the screen beside it, not behind a
+   help link. Analyse, report, copy the improved version out. No storage, no gate.
 2. **Layer 2's refusals + the §5 screen.** Deterministic, testable, no AI involved. Written
-   before Layer 3 so the "blocked" path is never the unfinished one.
-3. **Layer 3's review**, with its four AI-response validation tests.
-4. **File drop** — `.docx` parser and the widened allowlist.
-5. **Lane B** — Layer 1's storage as fenced reference material, and Layer 4's approval queue.
+   **before** Layer 3, so the "blocked" path is never the unfinished one — a refusal screen
+   built last is a refusal screen built badly.
+3. **Layer 3's review**, with its four AI-response validation tests (valid, malformed, missing
+   fields, wrong types) per CLAUDE.md's rule for anything that processes LLM output.
+4. **Lane B** — Layer 1's storage as fenced reference material, and Layer 4's approval queue.
 
-⚠ **Steps 1–3 are safe to build now. Step 5 is the one that changes the app's risk profile**
+⚠ **Steps 1–3 are safe to build now. Step 4 is the one that changes the app's risk profile**
 and should not be started in the same breath as the others.
+
+✅ **The former step 4 — a `.docx` parser and a widened upload allowlist — is deleted, not
+deferred.** §1a rules it out. If it is ever proposed again, it is a new decision needing a new
+ruling, not the resumption of a parked one.
