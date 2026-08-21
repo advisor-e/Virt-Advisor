@@ -232,15 +232,24 @@ changes being made — what a level adds on top — else the software would be u
 firm."*
 
 So a contribution offered downward **does nothing at the level below until that level accepts
-it.** My earlier recommendation — match the existing blocks, inherit-until-declined — was
-**wrong**, and wrong for a revealing reason: it argued from consistency with the code rather
-than from what the product is for. The existing blocks were the thing out of step, not this
-feature. It is now [`features/tier-cascade.md`](features/tier-cascade.md) **P11**, and the gap
-between P11 and the nine files implementing the old behaviour is recorded there — unreconciled,
-and not to be reconciled quietly.
+it.** It is now [`features/tier-cascade.md`](features/tier-cascade.md) **P11**.
 
 ⚠ **The platform's shipped baseline is not an offer and needs no acceptance.** It is the
-product, and it works the moment a firm opens the app. P11 governs what a *level* adds on top.
+product, and it works the moment a firm opens the app.
+
+🔴 **And this rule stops at authored content. It does not reach the engine.** Mike, correcting
+the first draft of P11 on 2026-08-22:
+
+> *"the Staircase, Distinctions, Quizzes and Domain Support are software features and ai
+> guidance tools to enable software execution — they are not templates like a word doc or excel
+> model to work with a client."*
+
+A contributed prompt is material somebody authored to be worked with. The Advisory Staircase,
+Distinctions, Quizzes, Domain Support and Logic Tables are what makes the software run, and
+they cascade as **shared tools** — arriving working, switchable off, editable, resettable.
+**Applying P11 to them would break four working features to satisfy a rule never aimed at
+them,** and an earlier revision of P11 came close to doing exactly that. See the boundary
+paragraph under P11.
 
 ---
 

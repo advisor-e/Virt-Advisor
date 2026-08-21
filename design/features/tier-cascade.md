@@ -77,18 +77,35 @@ several hundred acceptances. The baseline **is** the product; a level's own idea
   their own token, never a parent and never an id taken from the request body. There is no route
   a firm could use to write into its group, so there is nothing to enforce in code.
 
-⚠ **This does not overturn P3, it finishes it.** P3 was underspecified rather than wrong: it says
-an untouched row *"keeps receiving the level above's improvements automatically"*, without
-separating **the platform baseline improving** (correct — it just works) from **a level above
-adding its own idea** (an offer, which needs accepting). The distinction is the whole of P11.
+🔴 **WHAT P11 DOES NOT TOUCH, and this boundary is the whole point of it.** Corrected by Mike
+within the hour of it being written, because the first version got it wrong:
 
-🔴 **Where the code does not yet match, stated rather than implied.**
-`resolveInheritedRows` today offers a change only on a row the level has **already edited**
-(P3's *Adopt / Keep mine*); a row they have never touched applies automatically whatever its
-origin. Under P11 that is right for platform content and wrong for a level's own additions.
-Nine source files carry the mechanism — `resolveInheritedRows`, `resolveDistinctions`,
+> *"the Staircase, Distinctions, Quizzes and Domain Support are software features and ai
+> guidance tools to enable software execution — they are not templates like a word doc or excel
+> model to work with a client. don't over complicate things"*
+
+**The advisory decision configuration is a shared TOOL, not an offer.** The Advisory Staircase,
+Advisory Distinctions, Quizzes, Domain Support and the Logic Tables are what makes the software
+execute — §1's *"the tools cascade down so we share the tools effectively"*. They already behave
+correctly: they arrive working, a level may switch a row off, edit one, reset it, or add its
+own. **That is the design, not a gap in it.** Requiring a firm to accept those rows one by one
+before the engine would run is precisely the *"software would be useless for a new firm"* case
+Mike ruled out, applied to every firm rather than only new ones.
+
+P11 governs **content a level authors and offers to other levels** — a contributed prompt, a
+resource, material meant to be worked with. It does **not** govern the engine's configuration.
+
+⚠ **DO NOT open a reconciliation of `resolveInheritedRows`, `resolveDistinctions`,
 `staircaseConfig`, `quizConfig`, `firmDistinctions`, `firmStaircase`, `firmQuizzes`,
-`firmManager`, `advisorEngine`. **Not yet reconciled and not to be reconciled quietly.**
+`firmManager` or `advisorEngine` on the strength of P11.** An earlier revision of this very
+principle named those nine files as an unreconciled gap. **That was wrong and it was dangerous
+— it would have broken working software across four features to satisfy a rule that was never
+aimed at them.** It is recorded here rather than quietly deleted so that nobody re-derives it:
+the mechanism is right, and P11 is not about it.
+
+⚠ **P3 stands unchanged.** An untouched row keeps receiving the level above's improvements
+automatically, and that is correct for the tools. The earlier claim that P3 was
+"underspecified" was part of the same error.
 
 **P4 · Every report rolls up, to the level immediately below, summarised.** No per-report
 exceptions, ever. Firm manager → its advisers. Group manager → its firms. Global group manager
