@@ -119,11 +119,13 @@ it.
 This lane cannot endanger the software, because nothing from it ever reaches the advising AI.
 It is the default and it is the one presented first.
 
-### Lane B — I want our firm's advice to work this way *(gated)*
+### Lane B — I want our firm's advice to work this way *(checked, not gated)*
 
-The contribution is offered as **reference material the AI may draw on**. It goes through the
-four layers below and it is approved by a person above them. It is a deliberate, separate,
-clearly-labelled act.
+The contribution is stored as **reference material the AI may draw on for this level**. It goes
+through the four layers below. **Nobody signs it off** — it is their firm and their opinion
+(§4, Layer 4) — but it is a deliberate, separate, clearly-labelled act rather than a side
+effect of asking for an opinion, and it is offered downward for the levels below to take or
+leave.
 
 ---
 
@@ -182,15 +184,50 @@ through Layers 1 and 2.** Accepting a suggestion must not be a way to write unch
 into a prompt. This is the loophole an attacker would look for and it is closed by treating
 the AI's own output as untrusted.
 
-### Layer 4 — A person above them says yes
+### Layer 4 — Containment: a level's contribution reaches only itself, and is *offered* downward
 
-**Nobody approves their own contribution.** The tier cascade already gives us the approver for
-free: a firm manager's contribution is approved by the group manager above them; a group's by
-the global group; the top tier by the mentor. The approver sees the original, the refusals, the
-AI's report, and what would change.
+🔴 **Corrected 2026-08-22 by Mike. This layer originally read "a person above them says yes",
+and that was wrong** — not marginally, but against the product. His words:
 
-This is the layer that survives a compromised account. Every layer above is about text; this
-one is about a second human.
+> *"it doesnt have to be signed off by a level above. many firms in corporate groups will have
+> their own opinion so will want it their own way. and prompts introduced at higher levels
+> cascade down as an offering but can be accepted or declined at the subsequent lower level"*
+
+An approval queue would have made a group manager the gatekeeper of a firm's own opinion. That
+is the opposite of the cascade, which exists so every level can *"train their people the way
+they like"*, and it would have been a per-feature exception to the one mechanism every other
+block already uses.
+
+**What it actually is:**
+
+- A level's contribution **applies to that level immediately.** Nobody signs it off. It is
+  their firm, their opinion, their advice.
+- It **cascades downward as an offering** — the levels below see it, attributed, and **accept
+  or decline it**. Declining is free, reversible, and changes nothing above.
+- It **never travels upward or sideways.** A firm cannot write into its group, its brand, the
+  platform, or another firm.
+
+**Why removing the approver costs less than it looks.** Layer 4 was never what stopped a
+breach — **Layer 1 is**, and Layer 1 is unchanged. The fence makes a hostile contribution inert
+whether or not anyone reviewed it. What Layer 4 was really buying was a check on *quality*, and
+quality at a firm is that firm's business.
+
+**What now carries the weight, said plainly rather than assumed:**
+
+| | What holds |
+|---|---|
+| **Nothing hostile can act** | Layer 1's fence. Architectural, not detective, and already tested |
+| **Nothing spreads** | Scope containment. `firmOverlay` plus the IDOR-safe guard already stop a level writing anywhere but its own key — the blast radius of a bad contribution is one firm's own advice |
+| **Nothing arrives unnoticed** | Attribution. An offered contribution shows which level wrote it, so a firm can tell its group's opinion from the platform's — the same job the *set here* / *inherited* badges already do |
+| **Nothing is permanent** | Version history and restore, free with `firmOverlay`. A bad contribution is one click from undone and always attributable |
+
+⚠ **The one open question, and it is a real one.** Does an offered contribution apply to the
+level below **until declined** (like every other cascading block today), or only **once
+accepted**? Mike's word was *offering*, which leans toward explicit acceptance; every other
+block in the app works the other way. **Recommendation: match the existing blocks
+— inherited-until-declined** — because a second inheritance behaviour is exactly the per-block
+variation `tier-cascade.md` §1 forbids, and because the advisor still holds final selection
+regardless. Flagged rather than decided.
 
 ---
 
@@ -245,9 +282,14 @@ Stated because a design that only lists its strengths is not a design.
   clipboard exactly as written. §1a covers this in full; it is repeated here because this is
   the list people read when they want to know what the feature does *not* do.
 - 🔴 **Nothing here catches a legitimate but wrong contribution.** Safe, well-meaning text that
-  gives bad advice passes every layer. Only Layer 4's human catches that, and only if they
-  read it. The same limit is already recorded for the materiality threshold in
-  `AI-PROMPTS-PAGE.md` §8, and it is the honest boundary of the whole feature.
+  gives bad advice passes every layer. The same limit is already recorded for the materiality
+  threshold in `AI-PROMPTS-PAGE.md` §8, and it is the honest boundary of the whole feature.
+  ⚠ **This got weaker on 2026-08-22, not stronger.** With the approver removed (Layer 4), the
+  only readers left are the level that wrote it and the advisor who selects what to use. That
+  is the correct trade — a firm's advice is its own — but it is a trade, and recording it as a
+  simplification rather than a cost would be dishonest. What catches it in practice is that a
+  contribution is **visible on the page, attributed, versioned, and one click from undone** —
+  not that anything detects it.
 
 ---
 
@@ -260,7 +302,9 @@ Stated because a design that only lists its strengths is not a design.
    built last is a refusal screen built badly.
 3. **Layer 3's review**, with its four AI-response validation tests (valid, malformed, missing
    fields, wrong types) per CLAUDE.md's rule for anything that processes LLM output.
-4. **Lane B** — Layer 1's storage as fenced reference material, and Layer 4's approval queue.
+4. **Lane B** — Layer 1's storage as fenced reference material, attributed, with the downward
+   offer and its accept/decline. **No approval queue** — see Layer 4. This step reuses the
+   existing cascade mechanism rather than adding one.
 
 ⚠ **Steps 1–3 are safe to build now. Step 4 is the one that changes the app's risk profile**
 and should not be started in the same breath as the others.
