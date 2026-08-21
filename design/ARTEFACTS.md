@@ -39,6 +39,7 @@ approved, never saved, and gone a day later.
 |---|---|---|
 | AI Prompts tab | [ai-prompts-tab.html](mockups/ai-prompts-tab.html) | AI-PROMPTS-PAGE.md §10 step 4, features/to-do.md item 4.28 |
 | Case origin path | [case-origin.html](mockups/case-origin.html) | Case Reviews, Cases & Clients, Tier Cascade |
+| Share a prompt (accountant contribution) | [prompt-contribution.html](mockups/prompt-contribution.html) | PROMPT-CONTRIBUTION-SAFETY.md, AI-PROMPTS-PAGE.md |
 | Coaching Reference tab | [firm-coaching-reference.html](mockups/firm-coaching-reference.html) | ✅ approved + BUILT 2026-08-15 (item 4.9) — two deviations named in `9cd39c9`; features/tier-cascade.md, features/firm-manager-hub.md |
 | Debtor Drag | [debtor-drag-mockup.html](mockups/debtor-drag-mockup.html) | ⚠ nothing — see *Orphans* below |
 | Decision logic map | [decision-logic-map-mockup.html](mockups/decision-logic-map-mockup.html) | LOGIC-LAB-BUILD-VS-MOCKUP.md |
