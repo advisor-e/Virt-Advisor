@@ -21,6 +21,77 @@
 >
 > ---
 >
+> ## ✅ SESSION 78 — 2026-08-21 (laptop). THE CONTROL WAS DELETING MIKE'S INSTRUCTIONS.
+>
+> **Four commits.** Suite **323 suites / 5,936 green**, lint 0 errors, audit gate PASS, all pushed.
+>
+> 🔴 **THE FINDING THAT MATTERS, and it explains items nobody could explain.** Mike asked why
+> three items were still on the list. The list was telling the truth — but the reason they had
+> *stayed* was that **`scripts/apply-to-do.js` discarded his comment on every item he did not
+> close**, and `handbook-shell.html` blanked the box on load. Both halves, so a note could not
+> survive in either direction. It was **deliberate**, defended by a test named *"strips his call
+> and comment — they are decisions, not schema"*. True of a SETTLED item, whose words
+> `closureBlock()` carries onto the closed page. Never true of a LIVE one.
+>
+> **What it cost:** on 2026-08-15 he saved seven comments. The four settled items kept theirs. The
+> three he left open did not — 4.7 *"get this done, it doesn't rely on me and should never have
+> been parked"*, 4.12 *"if this is just a handover note - get it done"*, 3.5 *"draft the email you
+> want me to send Carl and I'll pass it on."* **Six days later all three were still open and still
+> reading "waiting on Us"**, because no session could see he had spoken. Nothing went red: every
+> gate compares generated prose to the data, and nothing compared the data to what he said. Same
+> family as the Logic-Lab mockup and `request-compressed-to-one-line` — the paraphrase survives,
+> the original is lost. Fixed (`838f3a0`), his three comments restored verbatim, guarded by a
+> round-trip test. Rule written into [`features/handbook.md`](features/handbook.md) P9.
+>
+> **☐ → ✅ 4.12 CLOSED, and its premise was never true.** Ranked **first** on Mike's list and its
+> only blocker. It named Collaborate's `START-HERE.md` and `HANDOVER.md`; **neither file has ever
+> existed in this repository** — `git log --all` finds them never added and never deleted. The
+> merge brought the code, not those documents, and `UAT-LOAD-PACK.md` / `HANDOFF.md` already
+> describe a section of this app. Four of the five surviving uses of "standalone" are correctly
+> past tense and must not be "corrected".
+> 🔴 **Checking it found the live fault:** `UAT-LOAD-PACK.md` still told the master team the newest
+> release was `v0.8.0`, **four days after `v0.9.0` was tagged** — on the morning Mike emailed Carl
+> telling him to pull `v0.9.0`. Corrected, with the renamed *Known issues* link repointed and a
+> standing warning that cutting a tag includes updating that page.
+>
+> **☐ → ✅ 3.5 CLOSED.** Mike sent Carl's email himself. It had been drafted since 2026-08-17.
+> **☐ → ✅ 4.22 CLOSED by Mike**, and its premise had expired: it asked which year-one add-back is
+> right for New Zealand, but it became a firm-manager setting on 2026-08-17, so the platform value
+> is a starting point rather than a ruling. Verified against
+> `components/firm/FirmPropertyTaxRules.vue`. ⚠ **The default is still applied SILENTLY** — the
+> pattern that fixes that arrived the same day and is not yet applied to the property model.
+>
+> **NEW FEATURE, HALF BUILT — AI Prompts (plan item T20, P1, open since 2026-07-09).** Mike's
+> request, his two documents, the design saved **before** approval (`2968d76`), then the engine
+> (`ea6ac22`). Brief: [`features/ai-prompts.md`](features/ai-prompts.md).
+> 🔴 **How "must not override the protocols" is enforced: `PROTOCOL_BLOCK` lives in code, not in
+> the editable document.** Marking text read-only would not have been enough — the documents'
+> privacy section is *advice to a model*, while `anonymiseCase` / `promptSafety` are what actually
+> protect. A prompt instruction is advisory; a server-side scrub is not.
+> **Seven things the documents gave us that the app did not have** are listed in
+> [`features/ai-prompts-history.md`](features/ai-prompts-history.md). The two acted on:
+> `unsetRule` (a default that must announce itself — the pattern `yearOneAddBack` needed), and
+> **stripping invisible characters** from model output, a real gap beside the images/HTML the
+> markdown pipeline already strips.
+>
+> **NEW OPEN ITEMS — three, all written as work rather than as warnings:**
+> - ☐ **4.28 · The AI Prompts page has an engine and no screen.** The half-a-fix state CLAUDE.md
+>   names on 2026-08-16. ⚠ Tab label **ruled: "AI Prompts"**. ⚠ Two of the four tiers cannot be
+>   logged into — `globalManagerRole` / `groupManagerRole` are **empty on purpose** in
+>   `config/integration.js`. Build four, claim two.
+> - ☐ **4.29 · The AI has never been told the report models exist.** `reportModelCatalogue.js` is
+>   read by one component and nothing in `server/`. Mike ruled it is **for the AI, not for the
+>   advisor or manager** — a stated exception to the hub-page rule. 🔴 **The AI must never
+>   recommend a model with no page**: eight are `STATUS_SOON` with no route, and a summary for one
+>   is item 4.15 happening again somewhere new.
+> - ☐ **4.30 · `stripInvisible` is on the new path only, not the live advisor screen.** Raised by
+>   the session that wrote the fix, deliberately, so it cannot read as done.
+>
+> ⚠ **`design/CONTENT-ROUTING.md` regenerated** — `contentRoutingReport.test.js` failed on the new
+> data file (*"a new data file cannot go unmentioned"*). The guard worked.
+>
+> ---
+>
 > ## ✅ SESSION 76 — 2026-08-21 (laptop). ITEM 4.19 — THE DRAWING, THEN THE SCREEN.
 >
 > **Two commits.** Suite **5,887 green / 322 suites**, lint 0 errors, audit gate PASS.

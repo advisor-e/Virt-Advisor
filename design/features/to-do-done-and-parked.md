@@ -219,6 +219,58 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**3.5 · Reply to Carl about `npm install`.** ✅ Closed 2026-08-21, session 78. **Mike sent it
+himself.** Carried since 2026-08-09 — twelve days for a question that needed one message.
+
+- **Why it mattered:** somebody outside the project was waiting on an answer.
+- **What we would have lost:** not much in the code, but it is a person waiting, and the
+  ledger row for the next pull depends on him replying.
+- **Mike's own words:** *"If this is important, draft the email you want me to send Carl and
+  I'll pass it on."* (2026-08-15) — then, on 2026-08-21: *"i already copied and sent it, i was
+  testing what you had at your end."*
+- **What proves it:** the email he sent is [`../RELEASE-v0.9.0-EMAIL.md`](../RELEASE-v0.9.0-EMAIL.md),
+  drafted 2026-08-17 and saved before sending, whose closing section answers the `npm install`
+  question for `v0.7.0`, `v0.8.0` and `v0.9.0` explicitly. Every fact in it was re-verified
+  against the repository on 2026-08-21 before he sent it: the tag exists on `origin` at
+  `d4284e6`, `origin/master` has not moved since, and `package-lock.json` is untouched between
+  `v0.8.0` and `v0.9.0`.
+- 🔴 **Why it sat for twelve days, which is the part worth keeping.** His instruction of
+  2026-08-15 asked for a draft. **The Handbook control deleted his comment on save** — see
+  `838f3a0` — so no session after that one could see he had asked for anything. The draft was
+  written on 2026-08-17 for a different reason and nobody connected the two. The item did not
+  wait on a decision; it waited on a sentence nobody could read.
+- ⚠ **The reply he asked for is still owed:** when Carl pulls, the date, environment and commit
+  hash go in [`../DEPLOYED-VERSIONS.md`](../DEPLOYED-VERSIONS.md). The email asks for them.
+
+**4.22 · Settle whether purchase costs are non-deductible in the property model's first year.**
+✅ Closed 2026-08-21, session 78, **by Mike, and the item's premise was the thing that was
+wrong.** Carried since 2026-08-17.
+
+- **Why it mattered:** `MODEL` C46 adds back Setup Costs only, while the workbook's own note at
+  `INPUTS` H46 reads *"Setup Costs / Purchase Costs - Non Deductible"*, naming both. On the note's
+  reading, year 1's taxable loss is 2,000 smaller and the year-10 tax bill moves from 1,521.61
+  to 2,081.61.
+- **What we would have lost:** the New Zealand DEFAULT — the value every firm that changes
+  nothing would use.
+- **Mike's own words:** *"I thought this was settled since we created the property tax rules
+  inputs for a firm manager to enter based on their local tax rules. This is done."*
+- **What proves it:** he is right, and it was checked rather than taken.
+  [`../../components/firm/FirmPropertyTaxRules.vue`](../../components/firm/FirmPropertyTaxRules.vue)
+  carries `yearOneAddBack` as a firm-manager field (`key: 'yearOneAddBack'`, line 157), and the
+  report screen reads whatever `server/utils/propertyTaxRules.js` resolves. A firm sets it to
+  its own jurisdiction's rule. The model already accepts `setup`, `setupAndPurchase` and `none`
+  and is golden-tested at all three.
+- ⚠ **The question the item asked is therefore the wrong question.** It asked which answer is
+  correct for New Zealand. The product's answer is that no single answer is correct for
+  everybody, which is why it became a setting on 2026-08-17 (§8 Q6) — and once it is a setting,
+  the platform default is a starting point rather than a ruling. Nobody had noticed that the
+  item outlived its own premise.
+- 🔴 **What it leaves behind, and it is now item 4.29's problem too:** the shipped default is
+  still `ADD_BACK_SETUP` and it is applied **silently**. A firm that never opens the tax rules
+  card gets it and is never told. The pattern that fixes this — a default that must announce
+  itself — arrived the same day in `data/ai-prompts.json` (`unsetRule: "announce"`), from the
+  cash flow document. It is not yet applied to the property model.
+
 **4.12 · 🔒 One handover story for the master team.** ✅ Closed 2026-08-21, session 78, on Mike's
 approval — **not by doing what it said.** It was the first item on his ranked list and the list's
 only blocker, and it was carried from 2026-07 on a premise that was never true.

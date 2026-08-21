@@ -37,22 +37,37 @@ repository sees; the two never both appear, and the build stops if they would.
 | --- | --- | --- | --- | --- |
 | 1 | **2.9** The education gate | 4 | — | Us |
 | 2 | **4.7** Flip engine-strict back on | 5 | — | Us |
-| 3 | **3.5** Reply to Carl about npm install | 5 | — | Us |
-| 4 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
-| 5 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | **Mike** |
-| 6 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
-| 7 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
-| 8 | **4.22** Settle whether purchase costs are non-deductible in the property model's first year | 1 | — | **Mike** |
-| 9 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
-| 10 | **4.26** The Model Library card still promises one rental property, not five | 2 | — | **Mike** |
-| 11 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
+| 3 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
+| 4 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | **Mike** |
+| 5 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
+| 6 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
+| 7 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
+| 8 | **4.26** The Model Library card still promises one rental property, not five | 2 | — | **Mike** |
+| 9 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
+| 10 | **4.28** The AI Prompts page has an engine and no screen | 4 | — | Us |
+| 11 | **4.29** The AI has never been told the report models exist | 4 | — | Us |
+| 12 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
 
-**Eleven live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Twelve live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
-**Two items came off this list on 2026-08-21, and three joined it** — see
+**Four items came off this list on 2026-08-21, and six joined it** — see
 [`to-do-done-and-parked.md`](to-do-done-and-parked.md):
 
+- ✅ **3.5** — **Mike sent Carl's email himself.** The draft had existed since 2026-08-17 and
+  answers the `npm install` question for v0.7.0, v0.8.0 and v0.9.0 explicitly.
+  🔴 **Why it sat twelve days is the part worth keeping:** his instruction of 2026-08-15 —
+  *"draft the email you want me to send Carl and I'll pass it on"* — **was deleted by the
+  Handbook control on save**, so no session after that one could see he had asked. The item did
+  not wait on a decision; it waited on a sentence nobody could read. Fixed in `838f3a0`.
+- ✅ **4.22** — closed by Mike, and **the item's premise was what was wrong.** It asked which
+  year-one add-back is correct for New Zealand; the product's answer is that no single answer is
+  correct for everybody, which is why it became a firm-manager setting on 2026-08-17. Verified
+  rather than taken on trust: `yearOneAddBack` is a field on
+  [`../../components/firm/FirmPropertyTaxRules.vue`](../../components/firm/FirmPropertyTaxRules.vue).
+  ⚠ **What it leaves:** the shipped default still applies **silently**. The pattern that fixes
+  that — a default which must announce itself — arrived the same day in `data/ai-prompts.json`
+  and is not yet applied to the property model.
 - ✅ **4.12** — closed **without doing what it said**, because its premise was never true. It named
   Collaborate's `START-HERE.md` and `HANDOVER.md` as describing a standalone app; **neither file has
   ever existed in this repository** (`git log --all` finds them never added and never deleted), and
@@ -355,13 +370,15 @@ question he has already answered.
 
 ## 5. Waiting on somebody else — not ours to finish
 
-*One item. The other three were settled by Mike on 2026-08-15 — see §1.*
+*Nothing. **3.5 closed 2026-08-21** when Mike sent Carl's email himself; the other three were
+settled by him on 2026-08-15. See §1.*
 
-**3.5 · Reply to Carl about `npm install`.** **SCORE 1 · internal only**
-- **Why:** somebody outside is waiting on an answer.
-- **Risk:** small, but it is a person waiting. One message.
-- **Asked by:** **Carl**, outside the project.
-- **Touches:** nothing in the app.
+⚠ **One thing is still owed by somebody outside, and it is not an item here:** when Carl pulls
+`v0.9.0`, the date, environment and commit hash go in
+[`../DEPLOYED-VERSIONS.md`](../DEPLOYED-VERSIONS.md). The email asks for them. It is a row we
+write on our side from four values only he can supply, which is why it cannot be a task with an
+owner here — but a pull that never gets its row is the gap the Version-Pull Recording Rule
+exists to close.
 
 ---
 
@@ -640,6 +657,66 @@ of his. **Its position is not a judgement.**
 - **Asked by:** the **Stack Constitution** — the coding team's locked spec.
 - **Touches:** `.npmrc`, `package.json` overrides. ⚠ **Reinstall is overnight-only on this
   machine** and there is a documented safe procedure — follow it rather than a plain `npm install`.
+
+**4.28 · The AI Prompts page has an engine and no screen.** **SCORE 4 · the user is worse off**
+- **Why:** the backend half shipped 2026-08-21 (`ea6ac22`) — both prompts as data, the protocol
+  block, the cascade, the validator, 32 tests. **No tab renders any of it**, so a manager cannot
+  see or change a single variable. Mike asked for a page and has an engine.
+- **Risk:** this is the half-a-fix state CLAUDE.md names on 2026-08-16 — content wired toward the
+  AI with no screen to inspect or correct it — and it is the state the 4.16 sweep found **102
+  times**. Left here it is worse than not starting, because the engine reads as done.
+- **Asked by:** **Mike**, 2026-08-21 — *"I want to create a 'AI Prompts' page in the hub pages
+  (Mentor, Global Group Manager, Group Manager and Firm Manager) so that users have the ability
+  to influence the approach to formulas in the performance report models."*
+- **Touches:** `FirmManagerHub.vue` (`NAV_GROUPS` under *Your AI coach*, plus `TAB_TIERS`), a new
+  `components/firm/FirmAiPrompts.vue`, a Restify route over `server/utils/aiPrompts.js`,
+  `locales/en.json`, and the two guards in [`../AI-PROMPTS-PAGE.md`](../AI-PROMPTS-PAGE.md) §10.
+- 🔴 **The tab label is ruled: "AI Prompts"** (Mike, 2026-08-21). Do not re-ask it.
+- ⚠ **Two of the four tiers cannot be logged into.** `config/integration.js` ships
+  `globalManagerRole` and `groupManagerRole` **empty on purpose**, fail-closed. Build all four —
+  the tab matrix is declarative and excluding them bakes in a limit that is wrong the day
+  Advisor-e issues the roles — but *"it works"* will mean the mentor and firm hubs proven and the
+  middle two correct-by-construction and unexercised. **Say that rather than implying four.**
+
+**4.29 · The AI has never been told the report models exist.** **SCORE 4 · the user is worse off**
+- **Why:** [`../../utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js) is read by
+  exactly one file, `components/ModelLibrary.vue`. Nothing in `server/` reads it, and
+  `server/routes/report.js` never calls OpenAI. The only mentions of a model's name on the backend
+  are JSDoc comments inside the model files themselves.
+- **Risk:** ten built models that answer real client questions are invisible to the one part of
+  the app an advisor actually asks for help. An advisor describing a client's cash problem cannot
+  be pointed at Debtor Drag, because the AI has never heard of it.
+- **Asked by:** **Mike**, 2026-08-21 — *"ensure that each of the performance models have a 'key
+  calculation output' page or section, so that the AI can read what the model serves"*, and
+  *"place it wherever you want, it's for AI - not the advisor or manager"*. Approved to build.
+- **Touches:** a new `data/report-model-summaries.json` keyed by route, a backend block putting it
+  in front of the model, and a guard tying it to the catalogue.
+- 🔴 **The constraint that decides the design: the AI must never recommend a model with no page.**
+  Eight catalogued models are `STATUS_SOON` with no route. A summary for one of those sends an
+  advisor to a screen that does not exist — **which is 4.15 happening again somewhere new.** Cover
+  the 10 `STATUS_READY` models only, and make the guard work **both ways**, so the day a `SOON`
+  model goes live the test says it needs a summary.
+- ⚠ **No screen, and that is Mike's explicit ruling** — a stated exception to the 2026-08-16
+  hub-page rule, on the grounds that a description of what a calculation does is a fact about the
+  maths, not authored advisory judgement. Most of the wording already exists in each model file's
+  own concept note, written and golden-tested when the workbook was ported.
+
+**4.30 · Invisible characters are stripped on the new path only, not the live advisor screen.**
+**SCORE 5 · security, privacy or data integrity**
+- **Why:** `promptSafety.stripInvisible()` shipped 2026-08-21 (`ea6ac22`) with 11 tests, closing
+  the zero-width / bidi / Unicode-tag channel named in the security document's step 5. **It is not
+  applied to `server/advisorEngine.js`**, which is the output path a real advisor reads today.
+- **Risk:** the gap the fix was written for is still open where it actually matters — and the
+  commit message and the tests read as though the channel is closed, so the next session can
+  reasonably believe it is done. **That is the failure family this list exists to end.**
+- **Asked by:** ⚠ **ours** — raised 2026-08-21 by the session that wrote the fix, deliberately
+  rather than quietly widening the change. Wiring it into `advisorEngine` alters live behaviour on
+  a deployed screen and deserves its own change with its own tests.
+- **Touches:** `server/advisorEngine.js` and `server/courseEngine.js` output handling, plus tests
+  proving a hidden payload is removed from a real streamed response and ordinary content survives.
+- ⚠ **The frontend markdown pipeline is LOCKED** by CLAUDE.md and must not be touched. The strip
+  belongs server-side at the source, which is where `stripInvisible` already lives. This is wiring
+  an existing tested function into two more call sites, not new logic.
 
 ---
 

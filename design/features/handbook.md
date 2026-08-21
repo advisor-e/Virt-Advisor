@@ -51,7 +51,28 @@ begins as a page in it before any code is written.
 8. 🔴 **Never make him choose between two states he cannot compare.** Where his work and the
    repository disagree, they are merged — his copy wins, in his order — and the difference is
    *reported*. Nothing of his is discarded, so there is nothing to ask.
-9. **A document a generator writes or a test guards is listed with a `../` row, never moved
+9. 🔴 **A comment Mike leaves on a LIVE item is an INSTRUCTION, and it survives the round trip.**
+   His words go back into [`to-do-items.json`](to-do-items.json) as `comment`, and the control
+   reads them back onto the screen the next time he opens it, so a note written weeks ago is
+   still in the box. **Both halves are required** — a save that keeps it and a load that blanks
+   it is the same fault twice.
+   ⚠ **A comment on an item he SETTLES is different and already worked:** `closureBlock()` carries
+   it onto [`to-do-done-and-parked.md`](to-do-done-and-parked.md) under *"Mike's own words"*, so
+   it survives the item.
+   **Why this is a rule and not an implementation note (2026-08-21).** Discarding a live item's
+   comment was deliberate, and a test named *"strips his call and comment — they are decisions,
+   not schema"* defended it. That reasoning is right for a settled item and was never right for
+   an open one: a live item's comment is the only thing on the whole round trip that says what he
+   wants done. On 2026-08-15 he wrote *"get this done, it doesn't rely on me and should never
+   have been parked"* on 4.7, *"if this is just a handover note - get it done"* on 4.12, and
+   *"draft the email you want me to send Carl"* on 3.5. All three were applied, all three sets of
+   words discarded, and **six days later all three items were still open and still reading
+   "waiting on Us"** — because no session after that one could see he had said anything. Nothing
+   went red: every gate compares generated prose to the data, and nothing compared the data to
+   what he actually said. Fixed in `838f3a0`; guarded by a round-trip test in
+   [`applyToDo.test.js`](../../tests/unit/applyToDo.test.js) that applies a comment, feeds the
+   list back through the way the control does, and proves the words are still there.
+10. **A document a generator writes or a test guards is listed with a `../` row, never moved
    into this folder.** `CONTENT-ROUTING.md` is written by `npm run routing`, `ARTEFACTS.md` is
    guarded by a test, and `WORKING-AGREEMENT.md` is named in `CLAUDE.md`, `README.md`, both slash
    commands, a skill and a script. A documentation tidy-up does not get to put those at risk.

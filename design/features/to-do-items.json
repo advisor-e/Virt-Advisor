@@ -73,25 +73,6 @@
       "comment": "get this done, it doesn't rely on me and should never have been parked"
     },
     {
-      "ref": "3.5",
-      "name": "Reply to Carl about npm install",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Somebody outside is waiting on an answer.",
-      "risk": "Small, but it is a person waiting. One message.",
-      "askedBy": {
-        "who": "Carl",
-        "ours": false,
-        "detail": "Outside the project"
-      },
-      "touches": "Nothing in the app.",
-      "note": null,
-      "comment": "If this is important, draft the email you want me to send Carl and I'll pass it on."
-    },
-    {
       "ref": "4.15",
       "name": "The 21 branches that still name a page nobody can open",
       "score": 4,
@@ -164,24 +145,6 @@
       "note": "TWO HALVES, AND THE SECOND ONE IS THE ITEM. Sharpening the routing reduces how often it happens and can never remove it — some questions are genuinely ambiguous, and Ratio Analysis and Dashboard Discussions are neighbouring methods. THE FAULT WORTH FIXING IS THAT THE MODEL DOES NOT SAY 'I DO NOT HAVE THAT FOR THIS METHOD.' Do not close this item on a routing tweak alone. VERIFY THE WAY 4.16 WAS VERIFIED — ask a real question on the running app and compare the answer word for word against the source file, because every automated test here passes on an answer the model made up."
     },
     {
-      "ref": "4.22",
-      "name": "Settle whether purchase costs are non-deductible in the property model's first year",
-      "score": 1,
-      "scoreReason": "internal only — it decides a default nobody outside would ever name",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "MODEL C46 adds back Setup Costs only. The workbook's own note at INPUTS H46 reads 'Setup Costs / Purchase Costs - Non Deductible', which names both. If the note is right, year 1's taxable loss is 2,000 smaller and every carried-forward year moves with it — the year-10 tax bill goes from 1,521.61 to 2,081.61.",
-      "risk": "Small, and honestly stated: Mike's ruling of 2026-08-17 turned this into a setting (yearOneAddBack), so the model no longer depends on the answer and nothing is blocked. What is still wrong is the New Zealand DEFAULT, which every firm that changes nothing will use.",
-      "askedBy": {
-        "who": "ours",
-        "ours": true,
-        "detail": "⚠ OURS. Found on 2026-08-17 by reading the cells against the workbook's own note while porting the model. Nobody asked for it. It is kept because it is a real contradiction inside Mike's own source — the formula and the label beside it disagree — and because it decides a default. It is a tax judgement, not an arithmetic slip, which is why it was NOT corrected the way the three faults in 4.21 were. Say so if you would rather it went."
-      },
-      "touches": "The DEFAULT_INPUTS.yearOneAddBack value in server/report/multiplePropertyModel.js, the Tax rules card's default on the screen, and the same note in the source workbook if the note is the thing that is wrong.",
-      "note": "NEEDS AN ACCOUNTANT, NOT A DEVELOPER, and it needs one sentence from Mike either way. In New Zealand practice legal, loan, valuation and body-corporate establishment fees on a purchase are capital and non-deductible, which is what the note says and what the formula does not do — but that is a reading of the rules, not a reading of the cells, and it is not ours to assert. THE MODEL IS ALREADY CORRECT FOR BOTH ANSWERS: yearOneAddBack takes 'setup', 'setupAndPurchase' or 'none' and is golden-tested at all three. Only the default moves."
-    },
-    {
       "ref": "4.25",
       "name": "Nothing in this project ever checks that a screen LOOKS right",
       "score": 4,
@@ -215,7 +178,8 @@
         "detail": "Raised 2026-08-21 while closing 4.19. It stays on the list rather than being fixed because the sentence is MIKE'S OWN RULED WORDING and changing approved copy is his call, not ours. It is one line from him."
       },
       "touches": "One string in utils/reportModelCatalogue.js. The scope line beside it was already deleted as build step P2-5.",
-      "note": "THIS IS A WORDING DECISION, NOT A TASK — do not invent a replacement sentence. Ask him, offering the alternatives the way §8 Q7 did, with the option he turned down recorded beside the one he takes."
+      "note": "THIS IS A WORDING DECISION, NOT A TASK — do not invent a replacement sentence. Ask him, offering the alternatives the way §8 Q7 did, with the option he turned down recorded beside the one he takes. ⚠ HE HAS MARKED THIS DONE ONCE (2026-08-21) AND IT IS HALF RIGHT: the SCREEN does five properties, and that is what he is looking at. The CARD is a separate string in utils/reportModelCatalogue.js line 101 and still reads \"Whether a rental property is worth buying\", singular. Show him that line rather than the item's label — the 'show it, don't reference it' rule exists for exactly this.",
+      "comment": "Again, this has been completed the model now shows 5 properties"
     },
     {
       "ref": "4.27",
@@ -234,6 +198,60 @@
       },
       "touches": "Either components/MultiplePropertyAssessment.vue and locales/en.json (build the override), or one sentence in design/mockups/multiple-property-portfolio.html plus the §10 row (strike it). Whichever way it goes, §10 of design/MULTIPLE-PROPERTY-ASSESSMENT.md records the outcome.",
       "note": "ASK, DO NOT CHOOSE. A firm advising across a border is the case for a per-property override; a family having one country is the case against, and that is the reasoning the card is built on today (§11 Q11)."
+    },
+    {
+      "ref": "4.28",
+      "name": "The AI Prompts page has an engine and no screen",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The backend half shipped 2026-08-21 (`ea6ac22`): both prompts as data, the protocol block, the cascade, the validator and 32 tests. No tab renders any of it, so a manager cannot see or change a single variable. Mike asked for a page and has an engine.",
+      "risk": "This is the exact half-a-fix state CLAUDE.md names on 2026-08-16 — content wired toward the AI with no screen to inspect or correct it — and it is the state the 4.16 sweep found 102 times. Left here it is worse than not starting, because the engine reads as done.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-08-21 — \"I want to create a 'AI Prompts' page in the hub pages (Mentor, Global Group Manager, Group Manager and Firm Manager) so that users have the ability to influence the approach to formulas in the performance report models.\""
+      },
+      "touches": "components/FirmManagerHub.vue (NAV_GROUPS in the 'Your AI coach' group, plus TAB_TIERS), a new components/firm/FirmAiPrompts.vue, a Restify route reading server/utils/aiPrompts.js, locales/en.json, and the two guards named in design/AI-PROMPTS-PAGE.md §10 step 5.",
+      "note": "🔴 THE TAB LABEL IS RULED: \"AI Prompts\" (Mike, 2026-08-21). Design and build order: design/AI-PROMPTS-PAGE.md §10. ⚠ Two of the four tiers CANNOT BE LOGGED INTO — config/integration.js ships globalManagerRole and groupManagerRole EMPTY on purpose, fail-closed. Build all four anyway (the tab matrix is declarative and excluding them bakes in a limit that is wrong the day Advisor-e issues the roles), but 'it works' will mean the mentor and firm hubs proven, the middle two correct-by-construction and unexercised. Say that rather than implying four."
+    },
+    {
+      "ref": "4.29",
+      "name": "The AI has never been told the report models exist",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "utils/reportModelCatalogue.js is read by exactly one file, components/ModelLibrary.vue. Nothing in server/ reads it, and server/routes/report.js never calls OpenAI. The only mentions of a model's name on the backend are JSDoc comments inside the model files. So an advisor describing a client's cash problem cannot be pointed at Debtor Drag — the AI has never heard of it.",
+      "risk": "Ten built models that answer real client questions are invisible to the one part of the app an advisor actually asks for help. This is plan item T22 feeding T23, open since 2026-07-09.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-08-21 — \"ensure that each of the performance models have a 'key calculation output' page or section, so that the AI can read what the model serves\", and \"place it wherever you want, it's for AI - not the advisor or manager\". Approved to build the same day."
+      },
+      "touches": "A new data/report-model-summaries.json keyed by route, a backend block putting it in front of the model, and a guard test tying it to utils/reportModelCatalogue.js.",
+      "note": "🔴 THE CONSTRAINT THAT DECIDES THE DESIGN: the AI must never recommend a model with no page. Eight catalogued models are STATUS_SOON with no route; a summary for one of those would send an advisor to a screen that does not exist, which is item 4.15 happening again somewhere new. Cover the 10 STATUS_READY models only, and make the guard work BOTH ways so the day a SOON model goes live the test says it needs a summary. ⚠ Mike ruled this is for the AI and NOT for the advisor or manager — no screen. That is a stated exception to the 2026-08-16 hub-page rule, and the reason is that a description of what a calculation does is a fact about the maths, not authored advisory judgement. Most of the wording already exists in each model file's own concept note, written and golden-tested when the workbook was ported."
+    },
+    {
+      "ref": "4.30",
+      "name": "Invisible characters are stripped on the new path only, not the live advisor screen",
+      "score": 5,
+      "scoreReason": "security, privacy or data integrity",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "server/utils/promptSafety.stripInvisible() shipped 2026-08-21 (`ea6ac22`) with 11 tests, closing the zero-width / bidi / Unicode-tag channel named in the security document's step 5. It is NOT applied to server/advisorEngine.js, which is the output path a real advisor reads today.",
+      "risk": "The gap the fix was written for is still open where it actually matters. Worse, the commit message and the tests read as though the channel is closed — so the next session can reasonably believe it is done. That is the failure family this list exists to end.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Raised 2026-08-21 by the session that wrote the fix, deliberately rather than quietly widening the change. Wiring it into advisorEngine alters live behaviour on a deployed screen and deserves its own change with its own tests, not a free ride inside a new feature."
+      },
+      "touches": "server/advisorEngine.js and server/courseEngine.js output handling, plus tests proving a hidden payload is removed from a real streamed response and that ordinary content survives.",
+      "note": "The frontend markdown pipeline is LOCKED by CLAUDE.md and must not be touched — the strip belongs server-side at the source, which is where stripInvisible already is. This is wiring an existing, tested function into two more call sites, not new logic."
     }
   ]
 }
