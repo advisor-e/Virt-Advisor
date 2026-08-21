@@ -59,6 +59,14 @@
   .yours > h3 { margin:0 0 0.15rem; font-size:1rem; color:var(--green); }
   .yours > .yhint { margin:0 0 1.1rem; font-size:0.81rem; color:#4a6a58; }
 
+  /* The same slot as .yours, for a prompt that has nothing editable in it. Deliberately
+     NOT an empty green box: a heading over nothing reads as something that failed to
+     load. It states the result instead. */
+  .nothing { border:1px solid var(--slate-line); background:var(--slate-bg); border-radius:7px;
+    padding:1rem 1.15rem; margin-top:1.6rem; }
+  .nothing h3 { margin:0 0 0.2rem; font-size:1rem; color:var(--navy); }
+  .nothing p { margin:0; font-size:0.83rem; color:var(--slate); }
+
   .var { background:#fff; border:1px solid #cfe6da; border-radius:6px; padding:0.8rem 0.95rem;
     margin-bottom:0.7rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-start; }
   .var:last-child { margin-bottom:0; }
@@ -143,10 +151,15 @@
     anything. It exists so the page can be looked at before it is built, per the
     &ldquo;Save the Artefact&rdquo; rule in <code>CLAUDE.md</code>.</p>
     <p><strong>What is already ruled</strong> &mdash; drawn here, not re-asked: the tab is called
-    <b>AI Prompts</b>; every section of both prompts is fixed except the five named settings;
-    the four manager tiers get the tab and advisors and clients do not; the safety protocols are
-    added by the server and are not part of the editable document.
+    <b>AI Prompts</b>; every section of both prompts is fixed except the three named settings on
+    the cash flow prompt; the four manager tiers get the tab and advisors and clients do not; the
+    safety protocols are added by the server and are not part of the editable document.
     Source: <code>design/AI-PROMPTS-PAGE.md</code>.</p>
+    <p><strong>Changed 2026-08-22, by Mike, on reading this drawing.</strong> The security prompt
+    used to carry two editable boxes &mdash; a fetch burst limit and its window. They belonged to
+    a step that does not apply to this app, so they controlled nothing. <b>They are gone</b>
+    (section 2 below). The step itself stays, marked <i>does not apply here</i>, because that is
+    a record; a box that does nothing is a control that lies.</p>
     <p><strong>What is ours and needs your eye</strong> is listed in section 3 at the bottom.
     It is all wording and layout &mdash; no rule is being re-opened.</p>
   </div>
@@ -161,10 +174,10 @@
   <section class="band">
     <h2>1. The tab, as it will look</h2>
     <p class="sub">The problem this layout solves: there are <b>nineteen fixed sections</b>
-    across the two prompts and only <b>five things a manager can change</b>. Drawn in document
-    order, those five would be buried inside sections 4, 5 and 10 of a wall of text. So the page
-    is turned inside out &mdash; what is yours comes first, and the method sits underneath it,
-    closed.</p>
+    across the two prompts and only <b>three things a manager can change</b>, all of them on this
+    prompt. Drawn in document order, those three would be buried inside sections 4, 5 and 10 of a
+    wall of text. So the page is turned inside out &mdash; what is yours comes first, and the
+    method sits underneath it, closed.</p>
 
     <div class="hub">
       <div class="hubhead">
@@ -187,7 +200,7 @@
           <div class="pcard">
             <div class="pname">AI Audit and Security</div>
             <div class="psub">Hardening an assistant against the lethal trifecta</div>
-            <div class="pmeta">7 fixed sections &middot; <b>2 settings you can change</b></div>
+            <div class="pmeta">7 fixed sections &middot; nothing to set</div>
           </div>
         </div>
 
@@ -359,11 +372,12 @@
 
   <!-- ============================================================ -->
   <section class="band">
-    <h2>2. The second prompt, and the one thing it does differently</h2>
+    <h2>2. The second prompt &mdash; all record, nothing to set</h2>
     <p class="sub">The security prompt carries something the cash flow one does not: each of its
     seven steps records <b>whether it applies to this app at all</b>. Four of the seven do not,
     and saying so is the honest part &mdash; a control listed without that note reads as a
-    promise the app is not keeping.</p>
+    promise the app is not keeping. Because it is protocol from end to end, <b>it has nothing a
+    manager can change</b>, and the tab says so plainly instead of showing an empty box.</p>
 
     <div class="hub">
       <div class="panel">
@@ -416,37 +430,31 @@
             <span class="tag t-no">does not apply here</span></div></div>
         </div>
 
-        <div class="yours" style="margin-top:1.6rem;margin-bottom:0;">
-          <h3>What you can set</h3>
-          <p class="yhint">Two settings, both belonging to a step that does not apply to this app
-          today. They are here so the record is complete, not because they change anything.</p>
+        <div class="nothing">
+          <h3>Nothing here is yours to set</h3>
+          <p>This prompt is entirely safety protocol. There is no part of it a firm, a group or
+          a brand could sensibly change, so there are no boxes on this tab &mdash; and that is
+          the right answer rather than something missing.</p>
+        </div>
 
-          <div class="var">
-            <div class="vleft">
-              <div class="vnum">Setting 1</div>
-              <div class="vlabel">Fetch burst limit</div>
-              <div class="vwhat">The most times the AI may fetch the same website in the window
-              below. Recorded for completeness &mdash; step 3 does not apply to this app.</div>
-            </div>
-            <div class="vright">
-              <div class="field">6</div>
-              <div class="badges"><span class="tag t-default">platform default</span></div>
-            </div>
-          </div>
-          <div class="var">
-            <div class="vleft">
-              <div class="vnum">Setting 2</div>
-              <div class="vlabel">Fetch burst window (seconds)</div>
-              <div class="vwhat">The window that limit is counted over.</div>
-            </div>
-            <div class="vright">
-              <div class="field">60</div>
-              <div class="badges"><span class="tag t-default">platform default</span></div>
-            </div>
-          </div>
+        <div class="btns">
+          <button class="btn text">Change history</button>
         </div>
 
       </div>
+    </div>
+
+    <div class="note">
+      <b>What this replaced, and why &mdash; your ruling of 22 August.</b> This prompt used to
+      show two editable boxes: a <i>fetch burst limit</i> of 6 and a <i>window</i> of 60 seconds.
+      They cap how often an AI may fetch the same website, which is a real protection against
+      data being leaked out a little at a time. <b>This app's AI cannot fetch anything</b>, so
+      the two boxes controlled nothing at all &mdash; a manager could have typed a number, saved
+      it, and believed they had tightened security. Step 3 itself stays on the page marked
+      <i>does not apply here</i>, because saying a known protection was considered and why it is
+      not needed is worth recording. A box that does nothing is not a record; it is a control
+      that lies. <b>No test in the project could have caught this</b> &mdash; the boxes worked
+      perfectly, they just meant nothing. It took drawing the page.
     </div>
   </section>
 
@@ -489,9 +497,9 @@
       </tr>
       <tr>
         <td>Settings on top, method underneath</td>
-        <td>The layout decision. Document order would bury the five settings inside sections 4, 5
-        and 10 of nineteen. The alternative is a two-column split, which we think reads worse on
-        a laptop.</td>
+        <td>The layout decision. Document order would bury the three settings inside sections 4,
+        5 and 10 of nineteen. The alternative is a two-column split, which we think reads worse
+        on a laptop.</td>
       </tr>
       <tr>
         <td>Sections closed by default</td>
@@ -503,6 +511,13 @@
         <td>It is the only setting where leaving it blank <b>stops the work</b> instead of
         falling back to a default. That difference is real and we did not want it to be
         invisible.</td>
+      </tr>
+      <tr>
+        <td>&ldquo;Nothing here is yours to set&rdquo;</td>
+        <td>The grey block on the second prompt, replacing the two boxes you had removed on
+        22 August. It has to say the emptiness is the answer rather than a loading failure.
+        Alternatives: &ldquo;This prompt is all protocol&rdquo;, or showing no block at all
+        &mdash; which we think reads as something missing.</td>
       </tr>
       <tr>
         <td>&ldquo;Go back to inherited&rdquo;</td>

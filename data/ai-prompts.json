@@ -239,32 +239,33 @@
           "body": "Tag data by trust level at write time; never let content that arrived from an untrusted source silently create or delete a memory. Read-gate anything tagged untrusted."
         }
       ],
-      "variables": [
-        {
-          "id": "fetchBurstLimit",
-          "n": 1,
-          "label": "Fetch burst limit",
-          "what": "Maximum fetches of the same registrable domain in the window, where step 3 applies. Recorded for completeness — step 3 does not apply to this app.",
-          "type": "number",
-          "min": 1,
-          "max": 100,
-          "default": 6,
-          "unsetRule": "announce",
-          "unsetText": "No fetch burst limit was set, so the default of 6 was applied."
-        },
-        {
-          "id": "fetchBurstWindowSeconds",
-          "n": 2,
-          "label": "Fetch burst window (seconds)",
-          "what": "The window the burst limit is counted over. Recorded for completeness — step 3 does not apply to this app.",
-          "type": "number",
-          "min": 5,
-          "max": 3600,
-          "default": 60,
-          "unsetRule": "announce",
-          "unsetText": "No fetch burst window was set, so the default of 60 seconds was applied."
-        }
-      ]
+      "_variablesNote": [
+        "DELIBERATELY EMPTY. Ruled by Mike 2026-08-22, on reading the drawn tab.",
+        "",
+        "This prompt used to declare two editable thresholds — fetchBurstLimit and",
+        "fetchBurstWindowSeconds — belonging to step 3, 'Cap outbound fetch bursts'.",
+        "Step 3 is marked appliesHere: 'no' three sections above, because this app's AI",
+        "cannot fetch anything. So the two boxes controlled nothing, at any tier.",
+        "",
+        "A SECTION marked 'does not apply here' is an honest record: it shows a known",
+        "protection was considered and says why it is not needed. An editable BOX that",
+        "does nothing is the opposite — a manager types a number, saves, and reasonably",
+        "believes they have hardened something. Nothing changed. That is a control that",
+        "lies, and it is worse than not showing it at all.",
+        "",
+        "AI-PROMPTS-PAGE.md section 5 already ruled this and the build did not follow it:",
+        "'its editable surface is which steps apply, and the numeric thresholds WHERE ONE",
+        "DOES.' Step 3 does not. Caught by drawing the screen, not by any test — no test",
+        "in this suite can tell a useful control from a decorative one.",
+        "",
+        "A prompt that is entirely protocol has no editable surface. That is the correct",
+        "result, not a gap, and section 5 says so. The tab renders 'Nothing here is yours",
+        "to set' rather than an empty green box.",
+        "",
+        "Do not restore these two unless this app's AI gains the ability to fetch. If it",
+        "ever does, step 3's appliesHere flips first and the thresholds follow it."
+      ],
+      "variables": []
     }
   ]
 }
