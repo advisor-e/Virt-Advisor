@@ -5,6 +5,11 @@
     h1.mlb-h1 {{ $t('modelLibrary.title') }}
     p.mlb-lede {{ $t('modelLibrary.lede') }}
 
+    //- The way through to the Model Guide. Placed here, under the lede and above the
+    //- search box, per the approved mockup (design/mockups/report-model-summaries.html)
+    //- — it is read before anyone starts hunting through cards, which is the point of it.
+    nuxt-link.mlb-guidelink(to="/model-guide") {{ $t('modelGuide.linkFromLibrary') }}
+
     .mlb-controls
       .mlb-search
         b-input(
@@ -330,7 +335,18 @@ export default {
   color:var(--mlb-accent-bright); font-weight:600;
 }
 .mlb-h1 { margin:4px 0 3px; font-size:29px; font-weight:300; letter-spacing:-.01em; }
-.mlb-lede { font-size:13.5px; color:var(--mlb-muted); margin:0 0 24px; }
+.mlb-lede { font-size:13.5px; color:var(--mlb-muted); margin:0 0 12px; }
+
+/* The through-line to the Model Guide. Understated on purpose: it is a reference,
+   not an eleventh model, so it must not compete with the cards. */
+.mlb-guidelink {
+  display:inline-block; margin:0 0 20px; font-size:12.5px; font-weight:600;
+  color:var(--mlb-accent); text-decoration:none;
+  border-bottom:1px solid #0070c033; padding-bottom:1px;
+}
+.mlb-guidelink:hover, .mlb-guidelink:focus {
+  color:var(--mlb-accent-bright); border-bottom-color:var(--mlb-accent-bright);
+}
 
 .mlb-controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
 .mlb-search { flex:1; min-width:220px; }

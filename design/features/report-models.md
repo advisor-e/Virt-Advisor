@@ -189,6 +189,26 @@ shows the derived figure as its **placeholder**.
   plainly had that figure deducted from it, and the screen is disagreeing with its own
   table.
 
+**P20 · A model describes itself for BOTH readers, or it does not go live.** Every entry in
+`data/report-model-summaries.json` carries, besides its purpose and its limits, three things
+the screen puts in front of a person: `heroFigures` (the headline figures with the sub-label
+the HeroStrip shows under each), `alsoOnScreen` (what sits below them — empty string where
+there is genuinely nothing), and `coach` (the reading the screen gives in plain English).
+
+- **There is one source and two readers.** `GET /api/report/model-guide` serves the Model
+  Guide screen at `/model-guide`; `formatReportModelsForPrompt()` serves the AI. Both read
+  that file. A firm manager choosing a model and the AI recommending one must never be told
+  different things about the same screen — `tests/unit/modelGuideRoute.test.js` compares the
+  served records against the prompt block word for word.
+- **The build stops a half-described model.** `tests/unit/reportModelSummaries.test.js` ties
+  the file to the catalogue in both directions and requires all three fields. A new model
+  going live without them fails there, which is what makes the Model Guide keep itself
+  current: nothing on that page names a model, so an entry is the only way on.
+- **`coachIsNotAPanel: true` where the screen has no Coach panel.** 8 Levers, Cost of Capital
+  and the Loan Estimator carry explanatory notes and verdict rules instead, and the screen
+  heads them differently. Claiming a Coach panel that is not there describes a screen the
+  reader will not find.
+
 **P11 · A catalogue row goes ready in the SAME change as its page.** Flipping
 `STATUS_READY` earlier fails the build:
 [`reportShellFrame.test.js`](../../tests/unit/reportShellFrame.test.js) derives its list

@@ -47,8 +47,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 10 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
 | 11 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
 | 12 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
+| 13 | **4.34** The Model Guide shows [placeholders] where the real figures belong | 4 | — | Us |
 
-**Twelve live items. Three need Mike.** If this list passes about twenty, something is wrong.
+**Thirteen live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Three items came off on 2026-08-22, and one joined** — see

@@ -1,6 +1,6 @@
 {
   "_readme": [
-    "WHAT EACH REPORT MODEL SERVES — written for the AI, and for the AI alone.",
+    "WHAT EACH REPORT MODEL SERVES — read by the AI *and* by the Model Guide screen.",
     "",
     "Asked for by Mike, 2026-08-21: 'ensure that each of the performance models have a",
     "\"key calculation output\" page or section, so that the AI can read what the model",
@@ -44,7 +44,6 @@
     "                 recommended without its limits is how an advisor promises a client",
     "                 something the screen does not do."
   ],
-
   "instruction": [
     "These are the calculation models built into this app. Each one has a working page an advisor can open.",
     "",
@@ -55,7 +54,6 @@
     "- Say what the model does not cover when that matters to the situation. The limits are listed for that purpose.",
     "- A model marked \"illustrative\" uses teaching figures, not the client's accounts. Never describe its numbers as a picture of the client's business."
   ],
-
   "models": [
     {
       "route": "/business-performance-report",
@@ -71,7 +69,31 @@
       ],
       "inputsNeeded": "Initial investment and the share of it spent on plant and equipment; unit cost, mark-up and discount; days deliverable, days on hand, days receivable, days payable; monthly fixed costs.",
       "useWhen": "The client is profitable on paper but short of cash. Stock sits too long, customers pay slowly, or the owner asks where the money has gone. Also when they want to know what tightening terms is actually worth.",
-      "limits": "Illustrative teaching figures — no client data goes into it. It shows the mechanics of a cycle, not this client's cycle."
+      "limits": "Illustrative teaching figures — no client data goes into it. It shows the mechanics of a cycle, not this client's cycle.",
+      "heroFigures": [
+        {
+          "label": "Working-capital cycle",
+          "sub": "days — cash tied up before you can trade again"
+        },
+        {
+          "label": "Cycle factor",
+          "sub": "× per year"
+        },
+        {
+          "label": "Annual revenue",
+          "sub": "from the capital employed"
+        },
+        {
+          "label": "Net profit · monthly",
+          "sub": ""
+        }
+      ],
+      "alsoOnScreen": "Working capital, monthly cash sales, total units, contribution margin, cash reserve required, return on working capital, the annual cycle factor, and the difference against a saved scenario in both dollars and per cent.",
+      "coach": [
+        "Watch the wheel: your [working capital] of working capital flows Cash → Stock → Sale → Debtors and back. Right now that takes [n] days, so it turns about [n]× a month. Fixed costs sit outside the wheel — paid whether it turns or not.",
+        "If you cut it to [n − 10] days, the wheel would turn [n]× a month — about [amount] more revenue a year, at the same price."
+      ],
+      "coachIsNotAPanel": false
     },
     {
       "route": "/debtor-drag",
@@ -86,7 +108,27 @@
       ],
       "inputsNeeded": "Twelve months of sales, and two collection profiles: the share collected in the same month, at one, two, three and four months, and the share written off.",
       "useWhen": "Overdraft pressure, slow payers, or the question of whether to chase debtors harder or simply arrange a bigger overdraft. It puts a number on the choice.",
-      "limits": "Illustrative teaching figures — no client data goes into it. It models a collection profile, not this client's ledger."
+      "limits": "Illustrative teaching figures — no client data goes into it. It models a collection profile, not this client's ledger.",
+      "heroFigures": [
+        {
+          "label": "Deepest cash low — your plan",
+          "sub": "the worst month under the profile you set"
+        },
+        {
+          "label": "Deepest cash low — Before",
+          "sub": "the same month on the frozen comparison"
+        },
+        {
+          "label": "Effect of your decisions",
+          "sub": "better or worse at the worst month"
+        }
+      ],
+      "alsoOnScreen": "Both collection profiles in full (same month, one, two, three and four months, write-off), the drag difference between them, monthly stock paid, months in overdraft, and the year-end balance.",
+      "coach": [
+        "Cash arrives late — customers pay across the months after the sale — but suppliers, wages and GST don't wait. Your bank dips to [amount] in [month], into overdraft, and you're in the red [n] months.",
+        "Collect earlier or pay suppliers slower and the blue line lifts; let collection drift later and you're forced to stretch suppliers, choking stock — the working capital cycle running backwards."
+      ],
+      "coachIsNotAPanel": false
     },
     {
       "route": "/ebitda-dcf",
@@ -102,7 +144,33 @@
       ],
       "inputsNeeded": "Several years of profit and loss, the normalisation add-backs, and the discount rate for each projected year. There is an optional listed-company block comparing an assessed share price against the market price.",
       "useWhen": "A sale, a purchase, a succession plan, a shareholder buy-out, or simply the owner asking what the business is worth.",
-      "limits": "Two parts of the source workbook do NOT port and are not in this model: the interest calculations, and the margin-of-error and capitalised-earnings workings. Each projected year is discounted once at that year's rate rather than compounded — the source's own convention. It takes the client's real accounts, so it is never illustrative."
+      "limits": "Two parts of the source workbook do NOT port and are not in this model: the interest calculations, and the margin-of-error and capitalised-earnings workings. Each projected year is discounted once at that year's rate rather than compounded — the source's own convention. It takes the client's real accounts, so it is never illustrative.",
+      "heroFigures": [
+        {
+          "label": "Enterprise Value",
+          "sub": "5-yr discounted cash flow + terminal"
+        },
+        {
+          "label": "Normalised EBITDA (latest year)",
+          "sub": "after owner-pay normalisation"
+        },
+        {
+          "label": "Discounted 5-yr cash flow",
+          "sub": "across the projected years"
+        },
+        {
+          "label": "Terminal value",
+          "sub": "final year × exit multiple"
+        }
+      ],
+      "alsoOnScreen": "Actual growth year by year and the average of it, the projected EBITDA series, and the sum of the discounted years. An optional listed-company block compares an assessed share price against the market price.",
+      "coach": [
+        "[n] years of accounts show normalised earnings moving from [from] to [to] — average actual growth [avg]. On your projected growth and discount rates, the business supports an enterprise value of [EV].",
+        "Note the [year] dip ([growth]) — growth is not a straight line, and a buyer will ask about that year.",
+        "The valuation is sensitive to the exit multiple: at [multiple] the terminal value is [share] of the total — test it either side before quoting a range.",
+        "Where the numbers do not support a price it says so instead: “On these figures the valuation is not positive — the projected cash flows do not support a price. That is the honest read: the conversation is about restoring earnings before it can be about value.”"
+      ],
+      "coachIsNotAPanel": false
     },
     {
       "route": "/margin-breakeven",
@@ -118,7 +186,31 @@
       ],
       "inputsNeeded": "Selling price and unit cost; overheads; the owner's target drawings; and the price change to test.",
       "useWhen": "Any pricing conversation. Discounting, quoting, a proposed price rise, or the classic question — if I drop the price ten per cent, how much more do I have to sell?",
-      "limits": "Illustrative teaching figures — no client data goes into it. It is a calculator for the arithmetic of pricing, not a costing system."
+      "limits": "Illustrative teaching figures — no client data goes into it. It is a calculator for the arithmetic of pricing, not a costing system.",
+      "heroFigures": [
+        {
+          "label": "Margin",
+          "sub": "of the sale price"
+        },
+        {
+          "label": "Mark-up",
+          "sub": "of the cost price"
+        },
+        {
+          "label": "Cost of sales",
+          "sub": "of each sale dollar"
+        },
+        {
+          "label": "Break-even · monthly",
+          "sub": "units to cover it"
+        }
+      ],
+      "alsoOnScreen": "",
+      "coach": [
+        "Same deal, two numbers: your margin is [margin] (of the sale) but your mark-up is [mark-up] (of the cost) — don't confuse them when you quote.",
+        "To cover [overheads] overheads and take [drawings] in drawings, you must sell [amount] a month. Cut the price and that work climbs fast; raise it and it drops away. Price and drawings decide how hard the business has to run."
+      ],
+      "coachIsNotAPanel": false
     },
     {
       "route": "/eight-levers",
@@ -134,7 +226,32 @@
       ],
       "inputsNeeded": "Either a trading position (a five-line product and labour mix, activity costs, fixed costs) or a set of funnel assumptions. It runs both ways.",
       "useWhen": "Growth planning, and the question of where to start. It is strongest when an owner believes only one lever matters — usually more sales — and needs to see the others.",
-      "limits": "🔴 EVERY figure in it is illustrative teaching data, including the 880,000 trading income. It is never a description of a real business. One known oddity is reproduced from the source rather than repaired: on the Scenarios sheet the current column is anchored to trading revenue while options B and C are built forward from the funnel, so the sheet's own profit increase reads as a large negative. That is the workbook's, not a fault in the client's numbers, and it should not be explained to a client as a finding."
+      "limits": "🔴 EVERY figure in it is illustrative teaching data, including the 880,000 trading income. It is never a description of a real business. One known oddity is reproduced from the source rather than repaired: on the Scenarios sheet the current column is anchored to trading revenue while options B and C are built forward from the funnel, so the sheet's own profit increase reads as a large negative. That is the workbook's, not a fault in the client's numbers, and it should not be explained to a client as a finding.",
+      "heroFigures": [
+        {
+          "label": "Revenue",
+          "sub": ""
+        },
+        {
+          "label": "Profit",
+          "sub": ""
+        },
+        {
+          "label": "Profit margin",
+          "sub": ""
+        },
+        {
+          "label": "Customers",
+          "sub": ""
+        }
+      ],
+      "alsoOnScreen": "The full lever chain with each step's contribution, options B and C side by side against the current position, the profit increase in dollars and per cent, and a labour panel comparing charge-out rate against true cost per hour.",
+      "coach": [
+        "On the chain: “Every customer is won through this chain. Each step multiplies the last — which is why a small gain early compounds all the way to revenue.”",
+        "On the comparison: “Look at Option C: it earns LESS revenue than Option B, yet makes MORE profit — because the margin lever outweighs the volume lever. That is the whole lesson.”",
+        "On labour: “What the business charges per hour against what it actually pays per hour — once leave, sick days and non-chargeable time are taken out. The labour lines look far more profitable on paper than they are in practice.”"
+      ],
+      "coachIsNotAPanel": true
     },
     {
       "route": "/cost-of-capital",
@@ -150,7 +267,32 @@
       ],
       "inputsNeeded": "Equity and debt amounts and rates, the tax rate, and a beta. There is a helper that derives a growth rate and two candidate betas from a pasted series of index values and shareholders' equity.",
       "useWhen": "Is this investment worth doing? Setting a hurdle rate, weighing a capital-structure change, or testing whether a project clears the cost of the money behind it.",
-      "limits": "The beta helper OFFERS a beta; the person using the model decides whether to take it. That relationship is deliberate and comes from the source workbook. It takes the client's real numbers, so it is never illustrative and the privacy boundary applies."
+      "limits": "The beta helper OFFERS a beta; the person using the model decides whether to take it. That relationship is deliberate and comes from the source workbook. It takes the client's real numbers, so it is never illustrative and the privacy boundary applies.",
+      "heroFigures": [
+        {
+          "label": "Weighted average cost of capital",
+          "sub": "the hurdle an investment must clear"
+        },
+        {
+          "label": "Cost of equity",
+          "sub": "what the owners' money expects to earn"
+        },
+        {
+          "label": "Cost of debt (after tax)",
+          "sub": "the borrowing rate, less the tax saved"
+        },
+        {
+          "label": "Funded by equity",
+          "sub": "and the balance funded by debt"
+        }
+      ],
+      "alsoOnScreen": "A beta helper deriving a growth rate, two candidate betas, average, standard deviation and volatility from a pasted index series — and a Test an investment panel that judges a specific investment against the hurdle.",
+      "coach": [
+        "Test an investment takes what the investment costs and what it should earn each year, and returns one of three verdicts: “Clears your cost of capital by [n] percentage points”, “Exactly meets your cost of capital”, or “Falls short of your cost of capital by [n] percentage points”.",
+        "It states its own strictness: “The bar is your cost of capital exactly as calculated above, with no safety margin added.”",
+        "It also warns when it cannot be trusted — too few periods to measure a spread, a beta outside the usual 0.3 to 2.5 range, or an index that does not move."
+      ],
+      "coachIsNotAPanel": true
     },
     {
       "route": "/lease-vs-buy",
@@ -165,7 +307,26 @@
       ],
       "inputsNeeded": "Asset price; loan amount, rate, term and amortisation method; depreciation method and rate; running costs; the lease term, payments and lease-end costs; and the tax rate.",
       "useWhen": "Funding a vehicle or a piece of equipment, and the client is weighing a lease against a loan.",
-      "limits": "The workbook's separate FBT-versus-reimbursement sheet is NOT part of the verdict and is not built — if the question is really about fringe benefit tax, this model does not answer it. It takes the client's real numbers, so it is never illustrative."
+      "limits": "The workbook's separate FBT-versus-reimbursement sheet is NOT part of the verdict and is not built — if the question is really about fringe benefit tax, this model does not answer it. It takes the client's real numbers, so it is never illustrative.",
+      "heroFigures": [
+        {
+          "label": "Total cost to buy",
+          "sub": "over the whole term, after resale"
+        },
+        {
+          "label": "Total cost to lease",
+          "sub": "over the whole term, after residual"
+        },
+        {
+          "label": "You save",
+          "sub": "by choosing the cheaper option"
+        }
+      ],
+      "alsoOnScreen": "",
+      "coach": [
+        "The model does not leave the choice open. It returns a one-word verdict — “Lease!” or “Buy!” — with the line: “That’s the cheaper option — [amount] less over the term.”"
+      ],
+      "coachIsNotAPanel": true
     },
     {
       "route": "/loan-estimator",
@@ -182,7 +343,35 @@
       ],
       "inputsNeeded": "Each security item the client owns — its class, market value, current debt, growth prospects and any value adjustment — plus household income and existing commitments.",
       "useWhen": "Borrowing capacity, refinancing, or a client asking whether the bank will lend for a purchase and whether they can afford it.",
-      "limits": "The stress-tested payment is the BANK's worst-case figure — the full lending limit at the assessment rate over the maximum term — not the client's actual loan terms, and it should never be described as their repayment. The lending rules themselves come from a configuration file rather than from any one bank. It takes the client's real numbers, so it is never illustrative."
+      "limits": "The stress-tested payment is the BANK's worst-case figure — the full lending limit at the assessment rate over the maximum term — not the client's actual loan terms, and it should never be described as their repayment. The lending rules themselves come from a configuration file rather than from any one bank. It takes the client's real numbers, so it is never illustrative.",
+      "heroFigures": [
+        {
+          "label": "Maximum business loan",
+          "sub": "against the business, on its EBIT — an indication only"
+        },
+        {
+          "label": "Monthly surplus",
+          "sub": "the number the affordability test is judged on"
+        },
+        {
+          "label": "Available security",
+          "sub": "across all assets, after existing debt"
+        },
+        {
+          "label": "Monthly repayment",
+          "sub": "on the proposed loan from the quick calculator"
+        },
+        {
+          "label": "Estimated maximum borrowing",
+          "sub": "with everything else as entered — an indication only"
+        }
+      ],
+      "alsoOnScreen": "Current equity, the stressed deposit required and the stress payment gap, debt-to-value / equity-to-value / loan-limit-to-value ratios, a household serviceability breakdown with the tax bands used, and a ten-year overdraft interest and closing-balance table.",
+      "coach": [
+        "It reaches a verdict on affordability — “Meets the affordability test” or “Falls short of the affordability test” — immediately qualified: “An indication of affordability only — not a lending decision.”",
+        "The serviceability panel shows its working: total net monthly income, minimum monthly loan payments, and the monthly expenses used — “the greater of actual expenses and the bank's minimum allowances”."
+      ],
+      "coachIsNotAPanel": true
     },
     {
       "route": "/multiple-property",
@@ -198,7 +387,32 @@
       ],
       "inputsNeeded": "Per property: purchase price, rent, operating costs and loan structure. For the portfolio: the family home and the loan apportionment across the properties.",
       "useWhen": "A client is buying a rental, or already owns several and wants to know whether the portfolio holds together over ten years rather than in the first month.",
-      "limits": "Its tax treatment follows the firm's own Property Tax Rules settings — what may be depreciated, whether rental losses ring-fence, interest deductibility — which a group or firm manager sets. It is therefore the firm's stated position, not universal tax advice, and it is not a substitute for a tax opinion. It takes the client's real numbers, so it is never illustrative."
+      "limits": "Its tax treatment follows the firm's own Property Tax Rules settings — what may be depreciated, whether rental losses ring-fence, interest deductibility — which a group or firm manager sets. It is therefore the firm's stated position, not universal tax advice, and it is not a substitute for a tax opinion. It takes the client's real numbers, so it is never illustrative.",
+      "heroFigures": [
+        {
+          "label": "Weekly cash position",
+          "sub": "year 1 — one property, or all of them"
+        },
+        {
+          "label": "Total debt",
+          "sub": "year 1"
+        },
+        {
+          "label": "Net equity",
+          "sub": "year 10"
+        },
+        {
+          "label": "Return on investor funds",
+          "sub": "year 10"
+        }
+      ],
+      "alsoOnScreen": "A ten-year investment summary: assumed property value, total debt position, net equity, cash deposit, annual cash top-up, capital introduced, cumulative investor funds, and the weekly cash profit or loss. Plus the loan apportionment across properties and the household's consolidated servicing.",
+      "coach": [
+        "Per property: “This property costs the client [amount] a week for the first [n] years… It turns cash-positive in year [n]… Over ten years it builds [equity] of equity against [funds] of money put in — a return of [rate].” Where it never turns, it says so.",
+        "On tax: either “No tax is payable across the ten years” or “Tax first becomes payable in year [n]” — and whether losses are ring-fenced against the property's own future income or offset against the client's other income.",
+        "Across the portfolio: whether the deposit stretches to every property, the combined loan to value against the ceiling, the ten-year cash demand on top of the deposit — closing on the question it is built to ask: “The question is not whether the portfolio grows. It is whether the family can carry [amount] a week in the hardest year while it does.”"
+      ],
+      "coachIsNotAPanel": false
     },
     {
       "route": "/quick-position",
@@ -214,7 +428,32 @@
       ],
       "inputsNeeded": "Current cash, debtors, stock and creditors; monthly fixed costs; gross profit percentage; and any life-line capital the owner could call on.",
       "useWhen": "Distress, a sudden stop in trading, a lost major customer, or the owner asking how long they have. It is the model for the first conversation, not the detailed one.",
-      "limits": "A service business with no stock removes the stock line from the model entirely rather than showing a misleading zero — set that, or the reading is wrong. Where a figure would divide by zero it returns nothing rather than a fabricated zero, so an unlimited runway shows as unlimited. The New Zealand COVID wage-subsidy block of the source workbook does not port. It takes the client's real numbers, so it is never illustrative."
+      "limits": "A service business with no stock removes the stock line from the model entirely rather than showing a misleading zero — set that, or the reading is wrong. Where a figure would divide by zero it returns nothing rather than a fabricated zero, so an unlimited runway shows as unlimited. The New Zealand COVID wage-subsidy block of the source workbook does not port. It takes the client's real numbers, so it is never illustrative.",
+      "heroFigures": [
+        {
+          "label": "Quick cash available",
+          "sub": "realisable now, after immediate debts"
+        },
+        {
+          "label": "Cover at zero sales",
+          "sub": "months on the business's own resources"
+        },
+        {
+          "label": "With life-line capital",
+          "sub": "months, adding outside support"
+        },
+        {
+          "label": "Break-even sales",
+          "sub": "needed per month to stand still"
+        }
+      ],
+      "alsoOnScreen": "",
+      "coach": [
+        "If sales stopped today, the business could cover its outgoings for [n] months from its own quick cash — [n] months with the life-line capital. To stand still it needs [amount] of sales a month at the current margin.",
+        "The discount trap: a [n]% discount means selling [n]% more just to keep the same gross profit.",
+        "Where the position is already negative it changes tone entirely: “Immediate debts exceed what the business can realise quickly. This is a now conversation: which creditors can wait, what can be turned to cash this week, and what outside support exists.”"
+      ],
+      "coachIsNotAPanel": false
     }
   ]
 }

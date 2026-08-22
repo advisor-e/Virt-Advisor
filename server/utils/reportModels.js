@@ -102,6 +102,16 @@ function formatReportModelsForPrompt () {
     lines.push(`- **Key calculation output:** ${(m.keyOutputs || []).join(' · ')}`)
     lines.push(`- **The advisor must be able to supply:** ${m.inputsNeeded}`)
     lines.push(`- **Reach for it when:** ${m.useWhen}`)
+    // What the screen actually puts in front of the advisor: the figures below the
+    // headline four, and the reading the Coach panel gives with them. `keyOutputs` names
+    // the numbers; these say what the advisor will be looking at.
+    if (m.alsoOnScreen) {
+      lines.push(`- **Also on the screen:** ${m.alsoOnScreen}`)
+    }
+    if ((m.coach || []).length) {
+      const heading = m.coachIsNotAPanel ? 'What the screen tells the advisor' : 'What the Coach panel says'
+      lines.push(`- **${heading}:** ${m.coach.join(' ')}`)
+    }
     // 🔴 Never optional. A model recommended without its limits is how an advisor
     // promises a client something the screen does not do.
     lines.push(`- **What it does NOT cover:** ${m.limits}`)
