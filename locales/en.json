@@ -1604,8 +1604,6 @@
     "guideSubtitle": "{chars} characters · every line below goes to the AI",
     "guideShared": "This guide is also used by {domains}. An edit here changes it there too.",
     "guideStandingHeading": "Applies to every domain",
-    "guideTag": "guide",
-    "guideTagMany": "guide ×{n}",
     "guideLoadFailed": "That method guide could not be opened. Please try again, and tell us if it keeps happening.",
     "guideSaved": "Your wording has been saved.",
     "guideWasReset": "Reset to the wording you inherit.",
