@@ -292,6 +292,22 @@ describe('🔴 the Coach reading arrives with its figures in it — to-do item 4
   })
 })
 
+describe('the reader is told these are sample figures, where the figures are', () => {
+  it('🔴 BOTH COACH HEADINGS NAME THEM AS SAMPLES', () => {
+    // Ruled by Mike, 2026-08-22, alongside the same change to what the AI reads. Before
+    // 4.34 the section had no numbers to mistake for a client's; it now shows "$120" and
+    // "$4,420,963". The caveat belongs beside the figures, not only in the limits further
+    // down the card.
+    //
+    // Asserted against the locale FILE rather than the rendered key, because the mount
+    // helper renders i18n keys and would happily pass on an empty string.
+    // eslint-disable-next-line global-require
+    const en = require('../../locales/en.json')
+    expect(en.modelGuide.label.coach).toMatch(/sample figures/)
+    expect(en.modelGuide.label.screenSays).toMatch(/sample figures/)
+  })
+})
+
 describe('a model with no Coach panel is not described as having one', () => {
   it('uses the screen-says heading where coachIsNotAPanel is set', async () => {
     const wrapper = await mountWith(realModels())

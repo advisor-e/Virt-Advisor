@@ -47,13 +47,28 @@ repository sees; the two never both appear, and the build stops if they would.
 | 10 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
 | 11 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
 | 12 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
-| 13 | **4.34** The Model Guide shows [placeholders] where the real figures belong | 4 | — | Us |
 
-**Thirteen live items. Three need Mike.** If this list passes about twenty, something is wrong.
+**Twelve live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
-**Three items came off on 2026-08-22, and one joined** — see
+**Four items came off on 2026-08-22, and one joined and left the same day** — see
 [`to-do-done-and-parked.md`](to-do-done-and-parked.md):
+
+- ✅ **4.34** — **the Model Guide's Coach reading carries its real figures.** Raised by Mike
+  the evening the page shipped (*"it makes this section worthless"*) and closed the next
+  morning. The sentence stays the one source both the screen and the AI share; each now
+  fills the same `{gaps}` from the same figures, computed **by calling the model function
+  the screen's own route calls** — so the guide reads $120 · 30 days · $1,800 because that
+  is what the screen reads.
+  🔴 **The item's own plan was wrong in one place, and checking it is what found it.** Two
+  readings were computed inside `.vue` files, so quoting them would have meant writing the
+  same sums twice. They were moved into the models instead, and both screens now read them
+  from there.
+  🔴 **And the fix introduced a risk that was surfaced, not shipped quietly:** the AI now
+  reads real money where it read `[amount]`. Mike ruled the same day that both headings name
+  the figures as samples in the same breath as the number. A test fails if either loses it.
+  ⚠ **Layout not verified by eye** — the rendered words are asserted, the look of the longer
+  headings is not. That gap is **4.25**, below.
 
 - ✅ **4.29** — **the AI has been told the report models exist.** What each of the ten built
   models serves, its key calculation output, what the advisor must supply, when to reach for

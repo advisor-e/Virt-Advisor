@@ -1426,8 +1426,8 @@
     "label": {
       "keyCalcs": "Key calculations",
       "alsoOnScreen": "Also on the screen",
-      "coach": "What the Coach tells you",
-      "screenSays": "What the screen tells you",
+      "coach": "What the Coach tells you, on the screen's own sample figures",
+      "screenSays": "What the screen tells you, on its own sample figures",
       "useWhen": "Reach for it when",
       "inputs": "What you need",
       "limits": "What it does not cover"

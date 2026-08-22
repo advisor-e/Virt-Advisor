@@ -252,24 +252,6 @@
       },
       "touches": "server/utils/videoInjector.js and its test, or data/report-model-summaries.json if the answer is to rename. Nothing in the prompts.",
       "note": "🔴 THE PROMPT CANNOT FIX THIS, and an earlier attempt made things worse — instructing the AI not to bold a model name stripped the bold off the TEMPLATE name too, which is the very thing the injector reads. Reverted. ⚠ TWO HONEST OPTIONS, and they are not equivalent: (1) teach the injector to skip a line that carries a calculator page path, which is narrow and cheap but is pattern-matching on output shape; (2) accept it — the video is real and same-named material is arguably relevant, so nothing is untrue, just imprecise. There is a third that is NOT ours: renaming a model or a template is Mike's call and would ripple through the catalogue, the summaries and the template library. ⚠ AFFECTS EXACTLY TWO NAMES TODAY. Adding a model whose name matches a template widens it, which is worth knowing before the next one is catalogued."
-    },
-    {
-      "ref": "4.34",
-      "name": "The Model Guide shows [placeholders] where the real figures belong",
-      "score": 4,
-      "scoreReason": "the section is unreadable as it stands — it describes a sentence instead of giving the reading",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The Model Guide at /model-guide renders each model's Coach reading from data/report-model-summaries.json, and that file stores the SENTENCE without its numbers — the figures are computed when the screen runs. So the page reads \"your [working capital] of working capital ... takes [n] days ... about [amount] more revenue a year\" where the screen itself reads \"$120 ... 30 days ... $1,800\". Mike, 2026-08-22: \"it makes this section worthless\".",
-      "risk": "A firm manager choosing a model gets the shape of the reading and none of its substance, which is worse than no reading at all: it looks finished. The AI is given the same placeholder text, so it can repeat a sentence with no figures in it to an advisor.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "Raised by Mike on 2026-08-22, reading the built page."
-      },
-      "touches": "data/report-model-summaries.json (coach lines become templates with named tokens), server/routes/report.js (compute each model from its defaults and return the values), components/ModelGuide.vue (render the tokens through currencyMixin so figures show in the firm's currency), and tests for all three.",
-      "note": "PROVEN FEASIBLE: all ten models answer a POST with an empty body, and Working Capital's defaults reproduce exactly what the screen shows — $120 working capital, 30 days, 1.0x, and the faster line's 20 days / 1.5x / $1,800. ⚠ NINE OF TEN CAN DO THIS TODAY. Margin - Mark-up - Break-even is the exception: its defaults live in the component, not in server/report/marginBreakevenModel.js, so from the backend it computes zeros. Mirror them into the model (with a test pinning them to the screen's) before wiring that one, or it will render a page of noughts. ⚠ FORMAT ON THE FRONTEND, NOT THE BACKEND: money is currency- and locale-dependent and mixins/currencyMixin.js is the one formatter every report screen uses. The route returns raw numbers; the page formats them."
     }
   ]
 }

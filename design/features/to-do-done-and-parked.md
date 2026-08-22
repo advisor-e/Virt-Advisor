@@ -219,6 +219,66 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.34 · The Model Guide showed `[placeholders]` where the real figures belong.** ✅ Raised
+AND closed 2026-08-22, session 81 — raised by Mike the evening the page shipped, fixed the
+next morning. Commit `e25b80c`.
+
+- **Why it mattered:** [`../../data/report-model-summaries.json`](../../data/report-model-summaries.json)
+  stored each model's Coach reading as the sentence with its numbers taken out, because the
+  figures are computed when the screen runs.
+  [`../../components/ModelGuide.vue`](../../components/ModelGuide.vue) printed those lines
+  verbatim, so the page read *"your [working capital] of working capital … takes [n] days …
+  about [amount] more revenue a year"* where the model's own screen reads **$120 · 30 days ·
+  $1,800**. A firm manager choosing a model got the shape of the reading and none of its
+  substance — **worse than no reading, because it looks finished** — and the AI was handed
+  the same bracketed text.
+- **Mike's own words:** *"it makes this section worthless"* (2026-08-22), and the next
+  morning *"last session left the model summary without actual figures in them which made
+  the reading useless"*.
+- **What proves it.** The sentence stays the single source both readers share; it now carries
+  `{named}` gaps that each reader fills from the same figures — the screen in the firm's
+  currency through `currencyMixin`, the AI in the platform default.
+  [`../../server/utils/reportModelFigures.js`](../../server/utils/reportModelFigures.js)
+  computes each model **by calling the same model function the screen's own route calls**,
+  on that model's own defaults. 27 new tests in
+  [`../../tests/unit/reportModelFigures.test.js`](../../tests/unit/reportModelFigures.test.js),
+  plus 6 on the route and 6 on the screen. Suite **6,103 green**, lint 0 errors.
+- 🔴 **THE ITEM'S OWN PLAN WAS WRONG IN ONE PLACE, AND CHECKING IT IS WHAT FOUND IT.** The
+  item said the route could compute every model from its defaults. Two of the readings were
+  not the model's to give: Working Capital's *"cut it to 20 days"* what-if lived in
+  `BusinessPerformanceReport.vue`, and EBITDA's dip year and terminal share lived in
+  `EbitdaDcfReport.vue`. Computing them here would have been **a second copy of the same
+  arithmetic** — the drift fault this repo keeps closing, in a new place. They were **moved
+  into the models**, both screens now read them from there, and the golden tests confirm the
+  move changed nothing. Approved by Mike before building, on the grounds that a number
+  quoted on two screens needs one home.
+  ⚠ **The EBITDA half was one step past what was asked for**, and was reported as such
+  rather than folded in quietly.
+- 🔴 **WHERE A LINE DESCRIBES A PATTERN, IT IS NOW PROSE AND CARRIES NO GAP.** Cost of
+  Capital's three verdicts and the Multiple Property per-property sentence give a different
+  answer every run; **a single number there would read as the answer**. Reworded, and the
+  wording put in front of Mike before anything was built.
+- **Margin · Mark-up · Break-even was the one model that could not answer at all** — its
+  defaults lived only in the component, so the backend computed a page of zeros. They are
+  mirrored into the model with a test pinning them to the screen's own `DEFAULTS` line.
+  ⚠ **Its live route was deliberately NOT changed to fall back on them.** Its overheads and
+  drawings sliders both start at zero, so *"missing"* and *"dragged to nothing"* are the same
+  value on the wire, and defaulting there would silently overwrite a real choice.
+- 🔴 **THE FIX INTRODUCED A RISK, AND IT WAS SURFACED RATHER THAN SHIPPED QUIETLY.** The AI
+  now reads *"$4,420,963"* where it read *"[amount]"*. All six models state "illustrative
+  teaching figures" in their limits and the list instruction already forbids passing them off
+  as the client's — but that asked the model to join two sentences a page apart. Mike ruled
+  the same day that the heading name them as samples **in the same breath as the number**, in
+  the prompt and on the screen. Both headings now do, and a test fails if either loses it.
+- **What guards it now.** A gap with no figure fails the build. A figure that stops computing
+  fails the build. A screen that goes back to deriving its own copy fails the build. A
+  mirrored default that drifts from the screen's fails the build. And no brace or bracket can
+  reach either reader: a figure that will not compute degrades to "—", the reports' own
+  no-figure convention.
+- ⚠ **Not verified by eye in a browser.** The rendered text is asserted by component tests,
+  which is the substance of this change; the layout of the longer headings is not. That gap
+  is **4.25**, still open.
+
 **4.29 · The AI had never been told the report models exist.** ✅ Closed 2026-08-22,
 session 80. Carried since 2026-08-21 — Mike's own instruction, approved to build the same
 day. Plan item T22, open since 2026-07-09.
