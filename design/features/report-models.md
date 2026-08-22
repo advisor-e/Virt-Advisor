@@ -199,15 +199,58 @@ there is genuinely nothing), and `coach` (the reading the screen gives in plain 
   Guide screen at `/model-guide`; `formatReportModelsForPrompt()` serves the AI. Both read
   that file. A firm manager choosing a model and the AI recommending one must never be told
   different things about the same screen — `tests/unit/modelGuideRoute.test.js` compares the
-  served records against the prompt block word for word.
+  served records against the prompt block, **after each reader has filled the gaps**, so it
+  proves they get the same sentence *and* the same figures.
+  ⚠ **That test compared the two "word for word" until 2026-08-22.** Once the sentences
+  carried gaps, comparing them raw would have proved only that both readers were handed the
+  same holes — which is precisely the state item 4.34 was raised to end.
 - **The build stops a half-described model.** `tests/unit/reportModelSummaries.test.js` ties
   the file to the catalogue in both directions and requires all three fields. A new model
   going live without them fails there, which is what makes the Model Guide keep itself
   current: nothing on that page names a model, so an entry is the only way on.
-- **`coachIsNotAPanel: true` where the screen has no Coach panel.** 8 Levers, Cost of Capital
-  and the Loan Estimator carry explanatory notes and verdict rules instead, and the screen
-  heads them differently. Claiming a Coach panel that is not there describes a screen the
-  reader will not find.
+- **`coachIsNotAPanel: true` where the screen has no Coach panel.** **Four** models —
+  8 Levers, Cost of Capital, **Lease vs Buy** and the Loan Estimator — carry explanatory
+  notes and verdict rules instead, and the screen heads them differently. Claiming a Coach
+  panel that is not there describes a screen the reader will not find.
+  ⚠ *This listed three and omitted Lease vs Buy from the day it was written (2026-08-22,
+  `68f5fae`); corrected the same day in session 81, and
+  [`reportModelSummaries.test.js`](../../tests/unit/reportModelSummaries.test.js) now reads
+  this very sentence and fails if it stops matching the data. Mutation-verified: reverted to
+  the old wording, the test fails.*
+
+**P21 · A Coach reading carries its FIGURES, and a figure has ONE home.** `coach` lines are
+written with `{named}` gaps — `{cycleDays}`, `{fasterExtra}` — and both readers fill them
+from the same figures.
+[`server/utils/reportModelFigures.js`](../../server/utils/reportModelFigures.js) computes
+each model **by calling the same model function the screen's own route calls**, on that
+model's own defaults, and returns **raw values with a format tag — never formatted text**:
+money is currency-dependent, so the screen formats through `currencyMixin` in the firm's
+currency and the AI's block in the platform default.
+
+- 🔴 **A DERIVATION THAT LIVES IN A `.vue` FILE CANNOT BE QUOTED — MOVE IT, NEVER COPY IT.**
+  Working Capital's *"cut it to 20 days"* what-if and EBITDA's dip year and terminal share
+  were computed inside their screens. Copying them into the guide would have been the same
+  sum written twice, which is the drift fault this Brief exists to prevent. They are now
+  model output (`fasterCycle`, `valuation.dipYear` / `terminalShare`) and both screens read
+  them from there. A test asserts the components no longer derive their own.
+- 🔴 **WHERE A LINE DESCRIBES A PATTERN RATHER THAN ONE READING, IT IS PROSE WITH NO GAP.**
+  Cost of Capital returns one of three verdicts; the property model gives a sentence per
+  property. A single figure there **would read as the answer** when the screen gives a
+  different one every run. Say what the screen does, in words.
+- 🔴 **BOTH HEADINGS NAME THE FIGURES AS SAMPLES**, on the screen and in the prompt —
+  *"on the screen's own sample figures"*. These are teaching figures; once they became real
+  numbers the AI could quote, the caveat had to sit beside the number rather than only in
+  the model's limits further down. Ruled by Mike, 2026-08-22. Tests fail if either heading
+  loses it.
+- ⚠ **A GAP WITH NO FIGURE FAILS THE BUILD**, and a figure that will not compute degrades to
+  `—` — the reports' own no-figure convention. **A brace must never reach a screen**: that
+  was item 4.34, and it is what this principle exists to stop recurring.
+- ⚠ **A MODEL WHOSE DEFAULTS LIVE ONLY IN ITS COMPONENT CANNOT DESCRIBE ITSELF.**
+  Margin · Mark-up · Break-even computed a page of zeros from the backend for exactly that
+  reason. Its defaults are mirrored into the model with a test pinning them to the screen's.
+  **Its live route was deliberately not changed to fall back on them** — its overheads and
+  drawings sliders both start at zero, so *"missing"* and *"dragged to nothing"* are the same
+  value on the wire, and defaulting there would silently overwrite a real choice.
 
 **P11 · A catalogue row goes ready in the SAME change as its page.** Flipping
 `STATUS_READY` earlier fails the build:
@@ -287,14 +330,36 @@ screen's real hero figures), what the advisor must be able to supply, when to re
 and **what it does not cover**. [`../../server/utils/reportModels.js`](../../server/utils/reportModels.js)
 renders it into the client-mode prompt.
 
-🔴 **THIS ONE HAS NO SCREEN, AND THAT IS A STATED EXCEPTION.** CLAUDE.md's ruling of
-2026-08-16 is that every AI fix surfaces on a hub page. Mike ruled this one out of that
-himself. The reason holds: **a description of what a calculation does is a fact about the
-maths, not authored advisory judgement** — nobody at any tier gets to decide that Lease vs
-Buy answers a different question than it answers.
+🔴 **IT HAS A SCREEN NOW — `/model-guide`, built 2026-08-22 (`68f5fae`).** See **P20** above
+for what it is and what holds it current.
+
+> ⚠ **This paragraph said the opposite until 2026-08-22, and the correction is recorded
+> rather than quietly applied.** It read *"THIS ONE HAS NO SCREEN, AND THAT IS A STATED
+> EXCEPTION"* — true when Mike ruled it on 2026-08-21 (*"it's for AI - not the advisor or
+> manager"*), and **left standing when the screen was built the next day**. P20, higher up
+> this same page, described the screen correctly throughout, so the Brief told a reader both
+> things at once. Found on 2026-08-22 (session 81) while closing item 4.34. The identical
+> sentence in `data/report-model-summaries.json`'s own header was corrected in the same
+> change.
+>
+> **Why this is worth the space rather than a silent edit.** Session 80 made the same finding
+> about this file the day before — §5 claimed no browser driver was installed when
+> `playwright` had landed — and recorded that *a Brief which understates what works costs as
+> much as one that overstates it*. This is that fault again, one section along and in the
+> other direction: a document that had gone **false about the app's own capability** while
+> every test stayed green, because no test reads prose.
+
+**The exception it stated is still the live ruling on WHO MAY EDIT THIS CONTENT.** A
+description of what a calculation does is **a fact about the maths, not authored advisory
+judgement** — nobody at any tier gets to decide that Lease vs Buy answers a different
+question than it answers. So the screen that was built is a **reader, not an editor**:
+verified 2026-08-22, `components/ModelGuide.vue` carries no control but a search box and a
+retry, and the route is a `GET` with no writing counterpart. It is reached from the Model
+Library rather than from a hub tab, and it is not tier-gated — it is platform content
+describing the app's own screens, and holds no client or firm data.
 ⚠ If a firm ever wants to say when *its* advisors should reach for a model, that **is**
-authored judgement and needs a screen at the mentor tier first. Do not widen the JSON to
-hold it.
+authored judgement and needs an editable screen at the mentor tier first. Do not widen the
+JSON to hold it.
 
 🔴 **A MODEL WITH NO PAGE IS NEVER NAMED.** Eight catalogued models are `STATUS_SOON` with
 no route. `tests/unit/reportModelSummaries.test.js` holds the file to the catalogue **both

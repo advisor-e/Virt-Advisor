@@ -143,6 +143,44 @@ describe('every summary carries what an advisor needs before being sent to a mod
     })
   })
 
+  it('🔴 THE BRIEF’S LIST OF MODELS WITH NO COACH PANEL IS HELD TO THE DATA', () => {
+    // Added 2026-08-22 (session 81). `design/features/report-models.md` P20 named THREE
+    // such models and omitted Lease vs Buy from the day it was written — one day earlier.
+    // Nothing caught it, because no test reads prose, which is the same reason the same
+    // page was able to say the Model Guide had no screen the day after it was built.
+    //
+    // A count in prose is a claim nobody is checking. This is the cheapest way to make a
+    // sentence in a Brief fail the build when it goes false.
+    const { readFileSync } = require('fs')
+    const { resolve } = require('path')
+    // Line endings normalised first: this repo checks out CRLF on Windows, and a regex
+    // spelling "\n\n" for a blank line silently matches nothing there — which would leave
+    // this test passing for the wrong reason, the exact failure it exists to prevent.
+    const brief = readFileSync(resolve(__dirname, '../../design/features/report-models.md'), 'utf8')
+      .replace(/\r\n/g, '\n')
+
+    const noPanel = listReportModels().filter(s => s.coachIsNotAPanel)
+    const bullet = (brief.match(/\*\*`coachIsNotAPanel: true`[\s\S]*?\n\n/) || [''])[0]
+
+    expect(bullet).not.toBe('')
+    // The count, written as a word the way the Briefs write counts.
+    expect(bullet).toMatch(/\*\*Four\*\*|\bFour\b/)
+    expect(noPanel).toHaveLength(4)
+    // And every one of them named, so a new one cannot be added silently.
+    //
+    // Matched on the name's identifying stem rather than in full, because prose calls
+    // these "8 Levers" and "Cost of Capital" where the catalogue says "8 Levers Model" and
+    // "Cost of Capital (WACC)". The stem is still the part that identifies the model —
+    // "Lease vs Buy" was missing from this sentence entirely, and that is what failed.
+    noPanel.forEach((s) => {
+      const stem = s.name
+        .replace(/ \(.*\)$/, '') // "Cost of Capital (WACC)" → "Cost of Capital"
+        .replace(/^The /, '') // "The Loan Estimator"     → "Loan Estimator"
+        .replace(/ Model$/, '') // "8 Levers Model"         → "8 Levers"
+      expect(bullet).toContain(stem)
+    })
+  })
+
   it('a model without a Coach panel says so, rather than pretending to have one', () => {
     // 8 Levers and Cost of Capital have explanatory notes and verdict rules instead.
     // The screen must not head that content "What the Coach tells you" — it would

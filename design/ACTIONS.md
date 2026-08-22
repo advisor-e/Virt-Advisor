@@ -21,6 +21,64 @@
 >
 > ---
 >
+> ## ✅ SESSION 81 — 2026-08-22 (laptop). **4.34 CLOSED**, AND A BRIEF THAT HAD GONE FALSE.
+>
+> **Three commits, all pushed. Suite 329 suites / 6,101 green**, lint 0 errors, audit gate PASS.
+> Branch `feat/advisor-progress`, 7 ahead of `origin/master`, 0 behind. **`master` untouched.**
+>
+> **CLOSED — 4.34, the Model Guide showed `[placeholders]` where the real figures belong.**
+> Raised by Mike the evening the page shipped (*"it makes this section worthless"*) and closed the
+> next morning. `data/report-model-summaries.json` stored each Coach reading as the sentence with
+> its numbers taken out, and `ModelGuide.vue` printed it verbatim — so the page read *"takes [n]
+> days … about [amount] more revenue a year"* where the model's own screen reads **30 days …
+> $1,800**, and **the AI was handed the same bracketed text**. The sentence stays the one source
+> both readers share; each now fills the same `{gaps}` from figures computed **by calling the model
+> function the screen's own route calls**. → **P21** of
+> [`features/report-models.md`](features/report-models.md). Commits `e25b80c`, `2f3b0e9`.
+>
+> 🔴 **THE ITEM'S OWN PLAN WAS WRONG, AND CHECKING IT BEFORE BUILDING IS WHAT FOUND IT.** It said
+> the route could compute every model from its defaults. Two readings were not the model's to give
+> — Working Capital's *"cut it to 20 days"* what-if and EBITDA's dip year and terminal share were
+> computed **inside their `.vue` files**. Reproducing them on the backend would have been **the same
+> sum written twice**. They were moved into the models instead and both screens now read them from
+> there; the golden tests confirm the move changed nothing. ⚠ **The EBITDA half went one step past
+> what was explicitly approved** and was reported as such rather than folded in quietly.
+>
+> 🔴 **THE FIX INTRODUCED A RISK AND IT WAS SURFACED, NOT SHIPPED.** The AI now reads
+> *"$4,420,963"* where it read *"[amount]"*. All six models say "illustrative teaching figures" in
+> their limits and the list instruction already forbids passing them off as a client's — but that
+> asked the model to join two sentences a page apart. Mike ruled the same day that both headings
+> name them as samples **in the same breath as the number**. Tests fail if either loses it.
+>
+> 🔴 **A BRIEF HAD GONE FALSE ABOUT THE APP'S OWN CAPABILITY, AND NOTHING COULD HAVE CAUGHT IT.**
+> [`features/report-models.md`](features/report-models.md) §3a still said, in red, **"THIS ONE HAS
+> NO SCREEN, AND THAT IS A STATED EXCEPTION"** — true when Mike ruled it on 2026-08-21, and left
+> standing when `/model-guide` was built **the next day**. P20, higher up the *same page*, described
+> that screen correctly, so the Brief told a reader both things at once. The identical sentence sat
+> in `data/report-model-summaries.json`'s own header, **and was read past in this very session**
+> before being caught at shutdown. Both corrected, with the correction recorded rather than applied
+> silently.
+> ⚠ **This is session 80's finding one section along and in the other direction** — that one had the
+> Brief understating what works (`playwright`), this one had it denying a screen that exists. The
+> shared cause is that **no test reads prose**.
+>
+> **WHAT CHANGED BECAUSE OF IT — a prose claim now fails the build.** P20 also named **three**
+> models as having no Coach panel when there are **four** (Lease vs Buy omitted from the day it was
+> written). `reportModelSummaries.test.js` now **reads that sentence in the Brief** and fails if it
+> stops matching the data — mutation-verified by reverting to the old wording. It is the same move
+> session 80 made when a tab count lived only in prose, and it is the only kind of guard that would
+> have caught either fault.
+>
+> ⚠ **OPEN, NOT FIXED — the two remaining "no test reads prose" surfaces.** The Briefs are full of
+> counts and capability claims with nothing holding them to the code. Only this one sentence is
+> guarded. Recorded here rather than raised as an item, because a sweep of every claim in every
+> Brief is a decision for Mike, not a job to start unasked.
+>
+> ⚠ **NOT VERIFIED BY EYE.** The rendered words are asserted by component tests; the layout of the
+> now-longer headings is not. That gap is item **4.25**, still open.
+>
+> ---
+>
 > ## ✅ SESSION 80 — 2026-08-22 (laptop). THREE ITEMS CLOSED, AND **v0.10.0 IS CUT**.
 >
 > **Five commits, all pushed. Suite 326 suites / 6,037 green**, lint 0 errors, audit gate PASS.
