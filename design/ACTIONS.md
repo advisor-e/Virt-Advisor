@@ -21,6 +21,78 @@
 >
 > ---
 >
+> ## ✅ SESSION 80 — 2026-08-22 (laptop). THREE ITEMS CLOSED, AND **v0.10.0 IS CUT**.
+>
+> **Five commits, all pushed. Suite 326 suites / 6,037 green**, lint 0 errors, audit gate PASS.
+> 🔴 **`v0.10.0` is tagged on `458cf9e`** — the merge commit of
+> [PR #45](https://github.com/advisor-e/Virt-Advisor/pull/45), 60 commits, confirmed on
+> `origin`, ledger row backfilled. **Awaiting pull by the master team.**
+>
+> 🔴 **THE BANNER THAT DIFFERS FROM THE LAST TWO RELEASES: v0.10.0 NEEDS `npm install`.**
+> One devDependency (`playwright`, exact `1.34.3`) plus `.npmrc` and `package-lock.json`. It
+> downloads **no browser** — `playwright_skip_browser_download=1` suppresses the 604 MB fetch and
+> `npm ci --omit=dev` skips it entirely. No runtime dependency changed.
+> Notes: [`RELEASE-NOTES-v0.10.0.md`](RELEASE-NOTES-v0.10.0.md).
+>
+> **CLOSED — 4.28, the AI Prompts tab.** Built at all four manager tiers. The method renders
+> read-only at every tier; the platform protocols are prepended on the backend and are not in the
+> editable document, so no screen can reach them. **Redrawn first** on Mike's ruling that the page
+> is for an accountant, not an engineer — the security document is now **mentor-only** and below
+> the mentor it is four plain sentences. Nothing was taken from anybody, and a test proves it: that
+> document has no editable setting at any tier, so if it ever gains one the ruling has to be
+> revisited rather than a control quietly disappearing.
+>
+> 🔴 **A DEFECT CAUGHT INSIDE THE BUILD, and it is the fetch-burst fault in prose.** The
+> protection panel's fourth sentence read *"Nothing is treated as final until a person has approved
+> it."* The panel's own lede promises these things are *applied by the system every time*. That one
+> is **enforced nowhere** — it restates the prompt's Draft-and-Publish section, which is advice to a
+> model. Replaced before shipping. Every line now declares the module that performs it and a test
+> opens that file to check. → **P8** of [`features/ai-prompts.md`](features/ai-prompts.md).
+>
+> **CLOSED — 4.29, the AI had never been told the report models exist.**
+> `utils/reportModelCatalogue.js` was read by ONE component and by nothing on the backend, so an
+> advisor describing a cash problem could not be pointed at Debtor Drag. Each live model now states
+> what it answers, its key calculation output, what the advisor must supply, when to reach for it
+> and **what it does not cover**. ⚠ **Proven against the assembled prompt string, not a source
+> scan** — a scan proves a line exists; only that proves the text reaches the model, which is the
+> fault named at the top of `coachingPromptFields.test.js`. The guard runs **both ways**, so a model
+> going live cannot stay invisible and a model with no page can never be named.
+>
+> **CLOSED — 4.32, raised and closed the same session, which is the point of it.** 4.29 finished
+> with the content in the prompt, the tests green, and the advisor no better off: no mode prompt
+> invited the AI to mention a model, and `discover.txt` forbids adding anything to its answer.
+> Raised as its own item rather than a quiet widening; Mike ruled *"yes and both if its
+> appropriate"* the same afternoon. Both modes now carry the invitation **with its brake**, and the
+> search mode's *"End there. Full stop."* rule was **not loosened** — the calculator block sits
+> above it and a test asserts both. Verified on the running app four times, including a question
+> where nothing fitted and no calculator was offered.
+>
+> **NEW — 4.33 (score 2, ours).** `videoInjector.js` appends a template's tutorial-video sentence
+> after any bolded name matching a template with a video. Two model names are also template names
+> (*Working Capital Cycle*, *Quick Position*), so a template's video can land on a calculator line.
+> ⚠ **It cannot be fixed in the prompt** — the injector runs after the AI has finished writing and
+> matches on bold text alone. An attempt to fix it there stripped the bold off template names and
+> was reverted.
+>
+> ⚠ **TWO STALE CLAIMS CORRECTED IN DOCUMENTS, reported rather than quietly reworded.**
+> `features/report-models.md` §5 said *"no browser driver is installed in this repository"* —
+> `playwright` landed the day after that was written (2026-08-21, `7fa5e9a`) and was used this
+> session to drive the AI Prompts tab at two tiers. Item **4.25** already recorded it correctly; the
+> Brief did not. And §3 of the same Brief described an editable surface on the security prompt that
+> was never validly there.
+>
+> ⚠ **AND ONE CLAIM OF MINE WAS WRONG.** The tutorial-video sentence was first reported to Mike as
+> the AI *inventing* a video. It was not — the app appends it, from real template data. Corrected in
+> [`features/report-models-history.md`](features/report-models-history.md) rather than dropped.
+>
+> ⚠ **SESSION 79 (2026-08-22, earlier) HAS NO ENTRY IN THIS FILE.** It wrote eight commits of
+> design documents and no code; its record is
+> [`SESSION-2026-08-22-NOTES.md`](SESSION-2026-08-22-NOTES.md), and its rulings live in
+> `features/tier-cascade.md` (P11 and its boundary paragraph) and
+> `PROMPT-CONTRIBUTION-SAFETY.md`. Noted here so the gap is visible rather than assumed absent.
+>
+> ---
+>
 > ## ✅ SESSION 78 — 2026-08-21 (laptop). THE CONTROL WAS DELETING MIKE'S INSTRUCTIONS.
 >
 > **Four commits.** Suite **323 suites / 5,936 green**, lint 0 errors, audit gate PASS, all pushed.
