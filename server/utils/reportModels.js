@@ -34,8 +34,102 @@
 
 const { readFileSync } = require('fs')
 const { resolve } = require('path')
+const { computeCoachFigures } = require('./reportModelFigures')
 
 let _data = null
+let _figures = null
+
+/** The platform default, matching `data/currencies.json`. See `renderFigure` below. */
+const PROMPT_CURRENCY = 'NZD'
+const PROMPT_LOCALE = 'en'
+
+/**
+ * The Coach figures, computed once.
+ *
+ * Degrades to `{}` rather than throwing, on the same reasoning as `loadReportModels`
+ * below: a model that will not compute must cost an advisor a NUMBER, never their answer.
+ * An unresolved token then renders as "—", the reports' own no-figure convention, and
+ * never as a brace on a screen.
+ *
+ * @returns {Object<string, Object<string, {value: *, format: string}>>}
+ */
+function loadCoachFigures () {
+  if (_figures) { return _figures }
+  try {
+    _figures = computeCoachFigures()
+  } catch (err) {
+    console.error('[report-models] Failed to compute coach figures:', err.message)
+    _figures = {}
+  }
+  return _figures
+}
+
+/**
+ * One figure as text.
+ *
+ * ⚠ THIS IS THE AI'S COPY, IN THE PLATFORM DEFAULT CURRENCY. The screen formats the same
+ * raw values through `mixins/currencyMixin.js` in the FIRM's currency; the AI has no firm
+ * context, so it reads the default. `utils/currencyFormat.js` cannot be shared here — it
+ * is an ES module and this backend is CommonJS on Node 14 — so
+ * `tests/unit/reportModelFigures.test.js` asserts this renders money identically to it.
+ *
+ * @param {{value: *, format: string}} figure
+ * @returns {string} the figure, or '—' where there is no figure to give
+ */
+function renderFigure (figure) {
+  if (!figure) { return '—' }
+  const v = figure.value
+  if (v === null || v === undefined || v === '') { return '—' }
+  if (figure.format === 'text' || figure.format === 'plain') { return String(v) }
+  if (typeof v !== 'number' || !Number.isFinite(v)) { return '—' }
+
+  try {
+    switch (figure.format) {
+      case 'money':
+        return new Intl.NumberFormat(PROMPT_LOCALE, {
+          style: 'currency',
+          currency: PROMPT_CURRENCY,
+          currencyDisplay: 'narrowSymbol',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        }).format(v)
+      case 'number1':
+        return new Intl.NumberFormat(PROMPT_LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(v)
+      case 'percent1':
+        return (Math.round(v * 1000) / 10).toFixed(1) + '%'
+      case 'percentInt':
+        return Math.round(v * 100) + '%'
+      default:
+        return new Intl.NumberFormat(PROMPT_LOCALE, { maximumFractionDigits: 0 }).format(v)
+    }
+  } catch (e) {
+    // An ICU build that rejects `narrowSymbol` must not cost the line its number.
+    return String(v)
+  }
+}
+
+/**
+ * Put the figures back into a Coach sentence.
+ *
+ * 🔴 THE SENTENCE IS THE SINGLE SOURCE AND IT STAYS ONE. `data/report-model-summaries.json`
+ * holds the wording with `{named}` gaps; the screen and the AI each fill the same gaps from
+ * the same figures. Neither holds a second copy of the words.
+ *
+ * A token with no figure resolves to "—" rather than being left alone: a brace on a screen
+ * is the very fault item 4.34 was raised for, and it must not be able to come back through
+ * a missing value.
+ *
+ * @param {string} line - a Coach line, possibly containing `{token}` gaps.
+ * @param {Object<string, {value: *, format: string}>} figures
+ * @returns {string}
+ */
+function resolveCoachLine (line, figures) {
+  if (typeof line !== 'string') { return '' }
+  const f = figures || {}
+  return line.replace(/\{([a-zA-Z][a-zA-Z0-9]*)\}/g, function (whole, token) {
+    return renderFigure(f[token])
+  })
+}
 
 /**
  * The summaries, loaded once.
@@ -59,10 +153,22 @@ function loadReportModels () {
 
 /**
  * Every model the AI may name, in catalogue order.
+ *
+ * Each carries `coachFigures` — the real numbers behind the `{gaps}` in its Coach lines,
+ * as raw values with a format tag. The Model Guide screen fills the gaps in the firm's own
+ * currency; see `server/utils/reportModelFigures.js` for why they are not filled here.
+ *
+ * A model with no figures gets `{}`, which is normal: several Coach entries describe the
+ * pattern of a verdict rather than one reading, and carry no gaps to fill.
+ *
  * @returns {object[]}
  */
 function listReportModels () {
-  return loadReportModels().models || []
+  const models = loadReportModels().models || []
+  const figures = loadCoachFigures()
+  return models.map(function (m) {
+    return Object.assign({}, m, { coachFigures: figures[m.route] || {} })
+  })
 }
 
 /**
@@ -109,8 +215,21 @@ function formatReportModelsForPrompt () {
       lines.push(`- **Also on the screen:** ${m.alsoOnScreen}`)
     }
     if ((m.coach || []).length) {
-      const heading = m.coachIsNotAPanel ? 'What the screen tells the advisor' : 'What the Coach panel says'
-      lines.push(`- **${heading}:** ${m.coach.join(' ')}`)
+      // 🔴 THE HEADING NAMES THE FIGURES AS SAMPLES, IN THE SAME BREATH AS THE NUMBER.
+      // Ruled by Mike, 2026-08-22, on the risk 4.34 introduced: until that day the AI read
+      // "[amount]" here and had nothing to quote. It now reads "$4,420,963", and while
+      // every one of these models states "illustrative teaching figures" in its limits and
+      // the list instruction forbids passing them off as the client's, that protection
+      // depended on the model joining two separate sentences. This puts the caveat where
+      // the number is. It changes no rule.
+      const heading = m.coachIsNotAPanel
+        ? 'What the screen tells the advisor, on its own sample figures'
+        : "What the Coach panel says, on the screen's own sample figures"
+      // 🔴 RESOLVED, NOT RAW. Until 2026-08-22 the AI was handed the sentence with its
+      // numbers still missing — "takes [n] days … about [amount] more revenue a year" —
+      // so it could repeat a reading with no figures in it to an advisor. Item 4.34.
+      const resolved = m.coach.map(line => resolveCoachLine(line, m.coachFigures))
+      lines.push(`- **${heading}:** ${resolved.join(' ')}`)
     }
     // 🔴 Never optional. A model recommended without its limits is how an advisor
     // promises a client something the screen does not do.
@@ -121,4 +240,10 @@ function formatReportModelsForPrompt () {
   return lines.join('\n').trim()
 }
 
-module.exports = { loadReportModels, listReportModels, formatReportModelsForPrompt }
+module.exports = {
+  loadReportModels,
+  listReportModels,
+  formatReportModelsForPrompt,
+  resolveCoachLine,
+  renderFigure
+}

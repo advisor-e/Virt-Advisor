@@ -355,17 +355,19 @@ export default {
         avg: this.avgGrowthText,
         ev: this.money(r.valuation.enterpriseValue)
       })
-      const dipIdx = (r.valuation.actualGrowth || []).findIndex(g => g !== null && g < 0)
-      if (dipIdx !== -1) {
+      // 🔴 The dip year and the terminal share are read from the model, not derived here
+      // (moved 2026-08-22, to-do item 4.34). The Model Guide quotes this same reading, and
+      // the year-on-year growth rates carry an off-by-one — rate[i] is the step INTO
+      // years[i + 1] — that must not be spelled out in two places.
+      if (r.valuation.dipYear !== null && r.valuation.dipYear !== undefined) {
         text += ' ' + this.$t('report.ebitdaDcf.coach.dip', {
-          year: this.years[dipIdx + 1],
-          g: this.pct(r.valuation.actualGrowth[dipIdx])
+          year: r.valuation.dipYear,
+          g: this.pct(r.valuation.dipGrowth)
         })
       }
-      const share = r.valuation.enterpriseValue > 0 ? r.valuation.terminalValue / r.valuation.enterpriseValue : 0
       text += ' ' + this.$t('report.ebitdaDcf.coach.terminalNote', {
         mult: this.dcf.exitMultiple,
-        share: this.pct(share)
+        share: this.pct(r.valuation.terminalShare || 0)
       })
       return text
     }

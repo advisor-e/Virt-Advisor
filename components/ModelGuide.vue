@@ -63,7 +63,7 @@
               template(v-if="(model.coach || []).length")
                 p.mg-label {{ coachLabel(model) }}
                 .mg-coach
-                  p(v-for="(line, i) in model.coach" :key="i") {{ line }}
+                  p(v-for="(line, i) in coachLines(model)" :key="i") {{ line }}
 
               p.mg-label {{ $t('modelGuide.label.useWhen') }}
               p.mg-prose {{ model.useWhen }}
@@ -94,10 +94,20 @@
  * FAILS THE BUILD until it has an entry, and the moment it has one it appears here with no
  * change to this component.
  *
+ * 🔴 THE COACH READING CARRIES REAL FIGURES, and they are not computed here. The records
+ * arrive with `coachFigures` — raw values from the same model function the screen's own
+ * route calls — and this component only writes them out, in the firm's currency, into the
+ * `{gaps}` the sentence leaves. Until 2026-08-22 the sentence was printed with its numbers
+ * still missing ("takes [n] days"), which is to-do item 4.34.
+ *
  * Presentation only. No business logic: the records arrive whole from the backend.
  */
+import currencyMixin from '~/mixins/currencyMixin'
+
 export default {
   name: 'ModelGuide',
+
+  mixins: [currencyMixin],
 
   data () {
     return {
@@ -199,8 +209,54 @@ export default {
         m.route,
         (m.keyOutputs || []).join(' '),
         (m.heroFigures || []).map(f => `${f.label} ${f.sub || ''}`).join(' '),
-        (m.coach || []).join(' ')
+        // The RESOLVED lines, so the search reads what the manager reads.
+        this.coachLines(m).join(' ')
       ].filter(Boolean).join(' ').toLowerCase()
+    },
+
+    /**
+     * A model's Coach reading with its figures written in.
+     *
+     * The sentence and the figures both come from the backend — see the file note. A gap
+     * with no figure becomes "—", the reports' own no-figure convention, so a brace can
+     * never reach the screen even if a model fails to compute.
+     *
+     * @param {object} m
+     * @returns {string[]}
+     */
+    coachLines (m) {
+      const figures = m.coachFigures || {}
+      return (m.coach || []).map((line) => {
+        return String(line).replace(/\{([a-zA-Z][a-zA-Z0-9]*)\}/g, (whole, token) => {
+          return this.renderFigure(figures[token])
+        })
+      })
+    },
+
+    /**
+     * One figure as text, in the firm's currency and the reader's language.
+     *
+     * The `format` tag is set by `server/utils/reportModelFigures.js`, which documents what
+     * each kind means. `plain` is printed unformatted on purpose — grouping would render
+     * the year 2024 as "2,024".
+     *
+     * @param {{value: *, format: string}} [figure]
+     * @returns {string}
+     */
+    renderFigure (figure) {
+      if (!figure) { return '—' }
+      const v = figure.value
+      if (v === null || v === undefined || v === '') { return '—' }
+      if (figure.format === 'text' || figure.format === 'plain') { return String(v) }
+      if (typeof v !== 'number' || !isFinite(v)) { return '—' }
+
+      switch (figure.format) {
+        case 'money': return this.money(v)
+        case 'number1': return this.num(v, 1)
+        case 'percent1': return (Math.round(v * 1000) / 10).toFixed(1) + '%'
+        case 'percentInt': return Math.round(v * 100) + '%'
+        default: return this.num(v, 0)
+      }
     },
 
     /**

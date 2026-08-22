@@ -159,15 +159,48 @@ describe('🔴 the screen and the AI are given the same thing', () => {
     // Several models perform a what-if in their Coach panel — Working Capital prices what
     // ten days off the cycle is worth. The AI recommends these models, so it needs the
     // reading, not just the four headline numbers.
+    //
+    // 🔴 COMPARED AFTER RESOLUTION, and that is the point rather than a concession. The
+    // sentence is served with `{named}` gaps and each reader fills them; comparing the raw
+    // templates would prove only that both were handed the same holes, which is exactly
+    // the state to-do item 4.34 was raised to end. This asserts they are handed the same
+    // SENTENCE AND THE SAME FIGURES.
     // eslint-disable-next-line global-require
-    const { formatReportModelsForPrompt } = require('../../server/utils/reportModels')
+    const { formatReportModelsForPrompt, resolveCoachLine } = require('../../server/utils/reportModels')
     const block = formatReportModelsForPrompt()
 
     const res = makeRes()
     modelGuide({}, res, jest.fn())
 
     res.body.data.models.forEach((m) => {
-      m.coach.forEach(line => expect(block).toContain(line))
+      m.coach.forEach(line => expect(block).toContain(resolveCoachLine(line, m.coachFigures)))
     })
+  })
+
+  it('🔴 NO BRACE, AND NO EMPTY GAP, REACHES EITHER READER', () => {
+    // The fault itself, stated as a test. Mike, 2026-08-22, reading the built page: "it
+    // makes this section worthless" — the screen showed "takes [n] days ... about [amount]
+    // more revenue a year" and the AI was handed the same. A gap left unresolved, or a
+    // figure that failed to compute, must fail the build rather than reach a screen.
+    // eslint-disable-next-line global-require
+    const { formatReportModelsForPrompt, resolveCoachLine } = require('../../server/utils/reportModels')
+    const block = formatReportModelsForPrompt()
+
+    const res = makeRes()
+    modelGuide({}, res, jest.fn())
+
+    res.body.data.models.forEach((m) => {
+      m.coach.forEach((line) => {
+        const resolved = resolveCoachLine(line, m.coachFigures)
+        expect(resolved).not.toMatch(/\{[a-zA-Z]/) // an unfilled gap
+        expect(resolved).not.toMatch(/\[[a-z]/) // the old bracket form, e.g. "[n]"
+        // A figure that would not compute renders as "—". Checked where a gap WAS, not
+        // across the sentence: this prose uses em dashes of its own throughout.
+        ;(line.match(/\{([a-zA-Z][a-zA-Z0-9]*)\}/g) || []).forEach((t) => {
+          expect(resolveCoachLine(t, m.coachFigures)).not.toBe('—')
+        })
+      })
+    })
+    expect(block).not.toMatch(/\{[a-zA-Z][a-zA-Z0-9]*\}/)
   })
 })

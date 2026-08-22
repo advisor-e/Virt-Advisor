@@ -210,6 +210,88 @@ describe('the search reaches a model through what it is FOR, not just its name',
   })
 })
 
+describe('🔴 the Coach reading arrives with its figures in it — to-do item 4.34', () => {
+  // Mike, 2026-08-22, reading the built page: "it makes this section worthless". It showed
+  // "your [working capital] of working capital ... takes [n] days ... about [amount] more
+  // revenue a year" where the model's own screen reads "$120 ... 30 days ... $1,800".
+  //
+  // The figures arrive from the backend; this component only writes them into the gaps.
+  // Fixtures below are the real Working Capital values, so a change to how they are
+  // written out fails here rather than on Mike's screen.
+
+  /** The real Working Capital record, as the route serves it. */
+  function workingCapital () {
+    return Object.assign(inventedModel(), {
+      route: '/business-performance-report',
+      name: 'Working Capital Cycle',
+      coach: [
+        'Watch the wheel: your {workingCapital} of working capital flows Cash → Stock → Sale → Debtors and back. Right now that takes {cycleDays} days, so it turns about {cycleFactor}× a month.',
+        'If you cut it to {fasterDays} days, the wheel would turn {fasterFactor}× a month — about {fasterExtra} more revenue a year, at the same price.'
+      ],
+      coachFigures: {
+        workingCapital: { value: 120, format: 'money' },
+        cycleDays: { value: 30, format: 'number' },
+        cycleFactor: { value: 1, format: 'number1' },
+        fasterDays: { value: 20, format: 'number' },
+        fasterFactor: { value: 1.5, format: 'number1' },
+        fasterExtra: { value: 1800, format: 'money' }
+      }
+    })
+  }
+
+  it('🔴 SHOWS THE FIGURES, NOT THE GAPS', async () => {
+    const wrapper = await mountWith([workingCapital()])
+    const text = wrapper.text()
+
+    expect(text).toContain('your $120 of working capital')
+    expect(text).toContain('takes 30 days')
+    expect(text).toContain('turns about 1.0× a month')
+    expect(text).toContain('cut it to 20 days')
+    expect(text).toContain('turn 1.5× a month')
+    expect(text).toContain('about $1,800 more revenue a year')
+  })
+
+  it('no brace and no bracket survives to the page', async () => {
+    const wrapper = await mountWith([workingCapital()])
+    const text = wrapper.text()
+    expect(text).not.toMatch(/\{[a-zA-Z]/)
+    expect(text).not.toMatch(/\[[a-z]/)
+  })
+
+  it('a figure that will not compute shows a dash, never a brace', async () => {
+    // The reports' own no-figure convention. A model that stops computing must degrade
+    // to "—" and not put the raw sentence back on the screen.
+    const broken = Object.assign(workingCapital(), {
+      coachFigures: { workingCapital: { value: null, format: 'money' } }
+    })
+    const wrapper = await mountWith([broken])
+    const text = wrapper.text()
+
+    expect(text).toContain('your — of working capital')
+    expect(text).not.toMatch(/\{[a-zA-Z]/)
+  })
+
+  it('a year is written plainly — 2024, never 2,024', async () => {
+    const model = Object.assign(inventedModel(), {
+      coach: ['Note the {dipYear} dip.'],
+      coachFigures: { dipYear: { value: 2024, format: 'plain' } }
+    })
+    const wrapper = await mountWith([model])
+    expect(wrapper.text()).toContain('Note the 2024 dip')
+  })
+
+  it('the search finds a model by a figure now visible in its reading', async () => {
+    // The search reads the RESOLVED lines, so a manager who remembers the number can
+    // search for it. Before 4.34 there was no number in the text to find.
+    const wrapper = await mountWith([workingCapital(), ...realModels()])
+    wrapper.setData({ query: '1,800' })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Working Capital Cycle')
+    expect(wrapper.text()).not.toContain('Lease vs Buy')
+  })
+})
+
 describe('a model with no Coach panel is not described as having one', () => {
   it('uses the screen-says heading where coachIsNotAPanel is set', async () => {
     const wrapper = await mountWith(realModels())

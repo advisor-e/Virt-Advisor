@@ -320,6 +320,22 @@ function computeEbitdaDcf (inputs) {
   const futureYears = []
   for (let y = 1; y <= projectedGrowth.length; y++) { futureYears.push(latestYear + y) }
 
+  // The two readings the Coach panel gives beyond the headline figures: the first year
+  // earnings went backwards, and how much of the valuation rests on the exit multiple.
+  //
+  // 🔴 BOTH LIVED IN `components/EbitdaDcfReport.vue`'s `coachText` UNTIL 2026-08-22 and
+  // were moved here for to-do item 4.34, on the same reasoning as the working-capital
+  // what-if: the Model Guide quotes this reading, so the figure needs one home. The
+  // growth rates are year-on-year, so rate[i] describes the step INTO years[i + 1] —
+  // that off-by-one is the reason this is worth owning in one place.
+  const dipIndex = growth1.rates.findIndex(g => g !== null && g < 0)
+  const enterpriseValue = proj1.sumDiscounted + terminalValue
+  const dipYear = dipIndex === -1 ? null : years[dipIndex + 1]
+  const dipGrowth = dipIndex === -1 ? null : growth1.rates[dipIndex]
+  // A non-positive valuation is a real outcome the screen has its own words for; a share
+  // "of" nothing would be a fabricated ratio, so it is null rather than 0.
+  const terminalShare = enterpriseValue > 0 ? terminalValue / enterpriseValue : null
+
   // ---- DCF block 2: the listed-company lens ----
   const listedIn = (i.listed && typeof i.listed === 'object') ? i.listed : {}
   const sharesIssued = p('listed.sharesIssued', listedIn.sharesIssued, DEFAULTS.listed.sharesIssued)
@@ -357,7 +373,14 @@ function computeEbitdaDcf (inputs) {
       discountedCashFlow: proj1.discounted,
       sumDiscounted: proj1.sumDiscounted,
       terminalValue,
-      enterpriseValue: proj1.sumDiscounted + terminalValue
+      enterpriseValue,
+      // The Coach panel's two extra readings — see the note above. `exitMultiple` is
+      // echoed back because the sentence quotes it and the reader would otherwise have to
+      // keep its own copy of the input.
+      exitMultiple,
+      dipYear,
+      dipGrowth,
+      terminalShare
     },
     listed: {
       marketCap: sharesIssued * sharePrice,

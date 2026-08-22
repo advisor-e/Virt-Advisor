@@ -124,6 +124,21 @@ function computeWorkingCapitalCycle (input) {
   const Q3 = D25 > 1 ? D25 : 0
   const Q5 = D25 >= 1 ? D25 / K9 : 0
 
+  // The Coach panel's what-if: ten days off the cycle, priced.
+  //
+  // 🔴 THIS LIVED IN `components/BusinessPerformanceReport.vue` UNTIL 2026-08-22, and was
+  // moved here unchanged for to-do item 4.34. The Model Guide has to quote the same
+  // reading the screen gives, and the only way two screens can never disagree about a
+  // number is for that number to have one home. It is model output, not presentation —
+  // nothing here decides how it is worded, rounded for display, or formatted.
+  //
+  // Revenue per turn is held constant and the wheel spun faster: that IS the what-if, and
+  // it is why this is not simply `annualRevenue * fasterFactor / V25`.
+  const fasterDays = Math.max(1, V23 - 10)
+  const fasterFactor = 30 / fasterDays
+  const revenuePerTurn = V25 ? V29 / V25 : 0
+  const fasterExtraAnnualRevenue = (revenuePerTurn * fasterFactor * 12) - V33
+
   return {
     setupSpend: D12, // cell D12
     workingCapital: K9, // cell K9
@@ -152,7 +167,15 @@ function computeWorkingCapitalCycle (input) {
     cashReserveRequired: N9, // cell N9
     cashflowStatus: J3, // cell J3
     profitIfPositive: Q3, // cell Q3
-    returnOnWorkingCapital: Q5 // cell Q5
+    returnOnWorkingCapital: Q5, // cell Q5
+    // Not a source-sheet cell — the Coach panel's what-if, see the note above.
+    // `days` is rounded because it is a count of days in a sentence, never an input to
+    // anything below; `factor` and the revenue are left raw for the reader to format.
+    fasterCycle: {
+      days: Math.round(fasterDays),
+      factor: fasterFactor,
+      extraAnnualRevenue: fasterExtraAnnualRevenue
+    }
   }
 }
 

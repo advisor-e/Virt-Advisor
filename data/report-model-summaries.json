@@ -38,6 +38,20 @@
     "  inputsNeeded — what the advisor must be able to supply. An advisor who cannot get",
     "                 these numbers should not be sent to the model.",
     "  useWhen      — the client situations that genuinely point at it.",
+    "  coach        — the reading the screen's Coach panel gives, with its figures written",
+    "                 as {named} gaps. 🔴 THE GAPS ARE FILLED BEFORE ANYBODY SEES THEM:",
+    "                 server/utils/reportModelFigures.js computes each model on its own",
+    "                 defaults, the Model Guide fills them in the firm's currency and the",
+    "                 AI's block fills them in the platform default. Until 2026-08-22 they",
+    "                 were written [like this] and filled by nothing, so the screen read",
+    "                 'takes [n] days' and the AI was handed the same — to-do item 4.34,",
+    "                 raised by Mike: 'it makes this section worthless'.",
+    "                 ⚠ A GAP NEEDS A FIGURE. Adding {oneOfThese} without adding it to",
+    "                 reportModelFigures.js fails tests/unit/reportModelFigures.test.js.",
+    "                 ⚠ WHERE A LINE DESCRIBES A PATTERN RATHER THAN ONE READING — the",
+    "                 three Cost of Capital verdicts, the per-property sentence — it is",
+    "                 written as prose with NO gap. A single number there would read as",
+    "                 the answer when the screen gives a different one every time.",
     "  limits       — 🔴 what it does NOT cover, said out loud. Taken from the security",
     "                 document's own instruction, 'state honestly what each control does",
     "                 NOT cover', and from each model file's own fidelity notes. A model",
@@ -90,8 +104,8 @@
       ],
       "alsoOnScreen": "Working capital, monthly cash sales, total units, contribution margin, cash reserve required, return on working capital, the annual cycle factor, and the difference against a saved scenario in both dollars and per cent.",
       "coach": [
-        "Watch the wheel: your [working capital] of working capital flows Cash → Stock → Sale → Debtors and back. Right now that takes [n] days, so it turns about [n]× a month. Fixed costs sit outside the wheel — paid whether it turns or not.",
-        "If you cut it to [n − 10] days, the wheel would turn [n]× a month — about [amount] more revenue a year, at the same price."
+        "Watch the wheel: your {workingCapital} of working capital flows Cash → Stock → Sale → Debtors and back. Right now that takes {cycleDays} days, so it turns about {cycleFactor}× a month. Fixed costs sit outside the wheel — paid whether it turns or not.",
+        "If you cut it to {fasterDays} days, the wheel would turn {fasterFactor}× a month — about {fasterExtra} more revenue a year, at the same price."
       ],
       "coachIsNotAPanel": false
     },
@@ -125,7 +139,7 @@
       ],
       "alsoOnScreen": "Both collection profiles in full (same month, one, two, three and four months, write-off), the drag difference between them, monthly stock paid, months in overdraft, and the year-end balance.",
       "coach": [
-        "Cash arrives late — customers pay across the months after the sale — but suppliers, wages and GST don't wait. Your bank dips to [amount] in [month], into overdraft, and you're in the red [n] months.",
+        "Cash arrives late — customers pay across the months after the sale — but suppliers, wages and GST don't wait. Your bank dips to {deepestLow} in {deepestLowMonth}, into overdraft, and you're in the red {monthsInOverdraft} months.",
         "Collect earlier or pay suppliers slower and the blue line lifts; let collection drift later and you're forced to stretch suppliers, choking stock — the working capital cycle running backwards."
       ],
       "coachIsNotAPanel": false
@@ -165,9 +179,9 @@
       ],
       "alsoOnScreen": "Actual growth year by year and the average of it, the projected EBITDA series, and the sum of the discounted years. An optional listed-company block compares an assessed share price against the market price.",
       "coach": [
-        "[n] years of accounts show normalised earnings moving from [from] to [to] — average actual growth [avg]. On your projected growth and discount rates, the business supports an enterprise value of [EV].",
-        "Note the [year] dip ([growth]) — growth is not a straight line, and a buyer will ask about that year.",
-        "The valuation is sensitive to the exit multiple: at [multiple] the terminal value is [share] of the total — test it either side before quoting a range.",
+        "{years} years of accounts show normalised earnings moving from {from} to {to} — average actual growth {avgGrowth}. On your projected growth and discount rates, the business supports an enterprise value of {enterpriseValue}.",
+        "Note the {dipYear} dip ({dipGrowth}) — growth is not a straight line, and a buyer will ask about that year.",
+        "The valuation is sensitive to the exit multiple: at {exitMultiple} the terminal value is {terminalShare} of the total — test it either side before quoting a range.",
         "Where the numbers do not support a price it says so instead: “On these figures the valuation is not positive — the projected cash flows do not support a price. That is the honest read: the conversation is about restoring earnings before it can be about value.”"
       ],
       "coachIsNotAPanel": false
@@ -207,8 +221,8 @@
       ],
       "alsoOnScreen": "",
       "coach": [
-        "Same deal, two numbers: your margin is [margin] (of the sale) but your mark-up is [mark-up] (of the cost) — don't confuse them when you quote.",
-        "To cover [overheads] overheads and take [drawings] in drawings, you must sell [amount] a month. Cut the price and that work climbs fast; raise it and it drops away. Price and drawings decide how hard the business has to run."
+        "Same deal, two numbers: your margin is {margin} (of the sale) but your mark-up is {markup} (of the cost) — don't confuse them when you quote.",
+        "To cover {overheads} overheads and take {drawings} in drawings, you must sell {requiredSales} a month. Cut the price and that work climbs fast; raise it and it drops away. Price and drawings decide how hard the business has to run."
       ],
       "coachIsNotAPanel": false
     },
@@ -288,7 +302,7 @@
       ],
       "alsoOnScreen": "A beta helper deriving a growth rate, two candidate betas, average, standard deviation and volatility from a pasted index series — and a Test an investment panel that judges a specific investment against the hurdle.",
       "coach": [
-        "Test an investment takes what the investment costs and what it should earn each year, and returns one of three verdicts: “Clears your cost of capital by [n] percentage points”, “Exactly meets your cost of capital”, or “Falls short of your cost of capital by [n] percentage points”.",
+        "Test an investment takes what the investment costs and what it should earn each year, and returns one of three verdicts: that it clears your cost of capital by a stated number of percentage points, that it exactly meets it, or that it falls short by a stated number of percentage points.",
         "It states its own strictness: “The bar is your cost of capital exactly as calculated above, with no safety margin added.”",
         "It also warns when it cannot be trusted — too few periods to measure a spread, a beta outside the usual 0.3 to 2.5 range, or an index that does not move."
       ],
@@ -324,7 +338,7 @@
       ],
       "alsoOnScreen": "",
       "coach": [
-        "The model does not leave the choice open. It returns a one-word verdict — “Lease!” or “Buy!” — with the line: “That’s the cheaper option — [amount] less over the term.”"
+        "The model does not leave the choice open. It returns a one-word verdict — “Lease!” or “Buy!” — with the line: “That’s the cheaper option — {saving} less over the term.”"
       ],
       "coachIsNotAPanel": true
     },
@@ -408,9 +422,9 @@
       ],
       "alsoOnScreen": "A ten-year investment summary: assumed property value, total debt position, net equity, cash deposit, annual cash top-up, capital introduced, cumulative investor funds, and the weekly cash profit or loss. Plus the loan apportionment across properties and the household's consolidated servicing.",
       "coach": [
-        "Per property: “This property costs the client [amount] a week for the first [n] years… It turns cash-positive in year [n]… Over ten years it builds [equity] of equity against [funds] of money put in — a return of [rate].” Where it never turns, it says so.",
-        "On tax: either “No tax is payable across the ten years” or “Tax first becomes payable in year [n]” — and whether losses are ring-fenced against the property's own future income or offset against the client's other income.",
-        "Across the portfolio: whether the deposit stretches to every property, the combined loan to value against the ceiling, the ten-year cash demand on top of the deposit — closing on the question it is built to ask: “The question is not whether the portfolio grows. It is whether the family can carry [amount] a week in the hardest year while it does.”"
+        "Per property it gives the weekly cost to the client and how long that lasts, the year it turns cash-positive, and the equity built over ten years against the money put in, as a rate of return. Where a property never turns, it says so.",
+        "On tax: either that no tax is payable across the ten years, or the year tax first becomes payable — and whether losses are ring-fenced against the property's own future income or offset against the client's other income.",
+        "Across the portfolio: whether the deposit stretches to every property, the combined loan to value against the ceiling, the ten-year cash demand on top of the deposit — closing on the question it is built to ask, which is not whether the portfolio grows but whether the family can carry the hardest year's weekly cost while it does."
       ],
       "coachIsNotAPanel": false
     },
@@ -449,8 +463,8 @@
       ],
       "alsoOnScreen": "",
       "coach": [
-        "If sales stopped today, the business could cover its outgoings for [n] months from its own quick cash — [n] months with the life-line capital. To stand still it needs [amount] of sales a month at the current margin.",
-        "The discount trap: a [n]% discount means selling [n]% more just to keep the same gross profit.",
+        "If sales stopped today, the business could cover its outgoings for {monthsZeroSales} months from its own quick cash — {monthsWithLifeline} months with the life-line capital. To stand still it needs {breakEvenSales} of sales a month at the current margin.",
+        "The discount trap: a {discount} discount means selling {salesIncrease} more just to keep the same gross profit.",
         "Where the position is already negative it changes tone entirely: “Immediate debts exceed what the business can realise quickly. This is a now conversation: which creditors can wait, what can be turned to cash this week, and what outside support exists.”"
       ],
       "coachIsNotAPanel": false
