@@ -140,6 +140,29 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**4.21 · Correct the three proven faults in the property source workbook.** 🗑 **Deleted 2026-08-17
+by Mike, the same session it was filed.** In his own words: *"im not fussed about fixing the
+workbook, so longs as the code is strong and backed up in github we don't need it again."*
+
+- **What it was:** three faults proved from the cells of
+  [`../report-source-models/Multiple Property Assessment.xlsx`](../report-source-models/Multiple%20Property%20Assessment.xlsx)
+  and corrected in our code the same day — the interest-only balance zeroed with nothing repaying
+  it, the residual repayment's flipped sign, and year 1's weekly figure returning 0 when positive.
+  The item asked for the workbook itself to be corrected, under the standing rule that a proven
+  source defect is fixed in the code **and** the `.xlsx` so the two cannot diverge.
+- **Why it is deleted and not done:** the workbook was the *source*, and it has now been read. What
+  it knew is in [`../../server/report/multiplePropertyModel.js`](../../server/report/multiplePropertyModel.js)'s
+  header, in §6 of [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md), and
+  in 55 golden tests that carry its cached values **with their cell references**, so any figure can
+  still be checked by hand without opening it.
+- 🔴 **The standing rule is not repealed.** *"Correct the code and the source"* still holds for the
+  next workbook. This is one owner decision about one file whose job is finished — **not a new
+  precedent that source defects may be left standing.**
+- ⚠ **The workbook IS opened again, once: Phase 2 (item 4.19)** reads it for properties 2–5, the
+  apportionment and the consolidated report. **Those four blocks are copies of the first, so all
+  three faults are waiting there** — apply the corrections already worked out rather than
+  re-deriving them. That warning now lives on 4.19 itself, where it will be read.
+
 **2.1 · Send the master team the release number.** ⏸ Parked 2026-08-15 by Mike, from the Handbook
 control. In his own words: *"we will need to issue a new release. we missed last weeks deadline and
 have added new features since."*
@@ -195,6 +218,414 @@ locked in the prompt. Either is fine; deciding by accident is not.
 ---
 
 ## 2. Closed recently, with what proved it
+
+**4.29 · The AI had never been told the report models exist.** ✅ Closed 2026-08-22,
+session 80. Carried since 2026-08-21 — Mike's own instruction, approved to build the same
+day. Plan item T22, open since 2026-07-09.
+
+- **Why it mattered:** `utils/reportModelCatalogue.js` was read by exactly one file,
+  `components/ModelLibrary.vue`. Nothing in `server/` read it, and the only mention of a
+  model's name on the backend was a JSDoc comment inside the model itself. **Ten built
+  models that answer real client questions were invisible to the one part of the app an
+  advisor actually asks for help.**
+- **Mike's own words:** *"ensure that each of the performance models have a 'key calculation
+  output' page or section, so that the AI can read what the model serves"*, and *"place it
+  wherever you want, it's for AI - not the advisor or manager"* (2026-08-21).
+- **What proves it.** [`../../data/report-model-summaries.json`](../../data/report-model-summaries.json)
+  carries one entry per live model, rendered into the client-mode prompt by
+  [`../../server/utils/reportModels.js`](../../server/utils/reportModels.js). 27 tests.
+  🔴 **The assertion that matters runs the real builder and reads the real text** — the
+  assembled prompt string is 18,706 characters and contains every model, every page path,
+  and no model that has no page. A source scan proves a line exists; only that proves the
+  text reaches the model, and the difference is the exact fault named at the top of
+  `coachingPromptFields.test.js`: fields authored, stored, cascaded and rendered into no
+  prompt anywhere, with every test green because every test asked whether they were SAVED.
+- **The guard runs BOTH ways, and that was deliberate.** A summary for a model with no page
+  fails — that is the constraint the whole design turns on, and it is item 4.15 happening
+  again if it slips. A live model with **no** summary also fails, so the day one of the
+  eight `STATUS_SOON` models goes live the build says it needs an entry. Without the second
+  half it would have been a one-way ratchet: safe, and no protection against the failure
+  that actually happened. Mutation-verified three ways, plus a fourth on the wiring.
+- **Every model states what it does NOT cover, and that is not optional.** A test fails an
+  entry without it. An Education model must say its figures are illustrative — the 8 Levers
+  workbook's 880,000 "Trading Income" is a teaching figure, and an advisor told about that
+  model without the caveat could repeat it to a client as a finding.
+- 🔴 **NO SCREEN, AND THAT IS A STATED EXCEPTION TO THE 2026-08-16 HUB-PAGE RULE.** Mike
+  ruled it himself. The reason holds: a description of what a calculation does is a fact
+  about the maths, not authored advisory judgement — nobody at any tier gets to decide that
+  Lease vs Buy answers a different question than it answers. ⚠ If a firm ever wants to say
+  when *its* advisors should reach for a model, that **is** authored judgement and needs a
+  mentor-tier screen. The data file says so in its own header.
+- 🔴 **WHAT IT DID NOT DO BECAME ITEM 4.32 RATHER THAN A SILENCE — and 4.32 closed the same
+  session.** The AI could read the list and nothing invited it to use it: none of the six
+  mode prompts in `data/prompts/` mentioned a calculation model, and `discover.txt` ends
+  *"Do not add any other sentence after it… End there. Full stop."* Tried live with a
+  builder-short-of-cash question: three templates, no model. It was raised as its own item
+  because editing a mode prompt changes what a deployed screen says to real advisors. Mike
+  ruled the same afternoon — *"yes and both if its appropriate"* — and it was built. See
+  4.32 below.
+- ⚠ **One stale claim corrected on the way past:** `report-models.md` §5 still said *"no
+  browser driver is installed in this repository"*. `playwright` landed the day after that
+  was written (2026-08-21, `7fa5e9a`) and was used this session to drive the AI Prompts tab.
+  Item 4.25 already recorded it correctly; the Brief did not.
+
+**4.32 · The AI could read what the models do and was never invited to mention one.**
+✅ Raised AND closed 2026-08-22, session 80 — which is the whole point of it having been an
+item at all rather than a quiet widening of 4.29.
+
+- **Why it mattered:** 4.29 finished with the content in the prompt, the tests green, and
+  the advisor no better off. Asked live about a builder short of cash, the AI returned three
+  templates and no calculator — correctly, because nothing had told it it could.
+- **Mike's own words:** *"yes and both if its appropriate"* (2026-08-22), answering whether
+  the AI should be allowed to point at a calculator, and in which modes.
+- **What changed, and what deliberately did not.** `discover.txt` gains a **"A calculator
+  that fits"** block *inside* its format, and `client.txt` gains hard rule **R18**. Both
+  carry the brake as well as the invitation: only when one genuinely fits, always with its
+  exact page path, only from the list, never in place of a template.
+  🔴 **The search mode's closing rule is untouched** — *"MUST be the final line… End there.
+  Full stop."* The calculator block was placed **above** that line rather than the rule
+  being loosened, and a test asserts both that the rule is still there and that the block
+  sits before it. That rule exists so the AI stops talking; weakening it was never the ask.
+  🔴 **R18 says in terms that it is NOT an exception to R17**, which fixes the recommended
+  template set. A model is not a template and never joins, replaces or reorders it. Without
+  that sentence the two rules read as contradictory, and a contradicted hard rule is one the
+  model gets to choose about.
+- **Verified against the running app four times, not asserted.** A lease-or-buy question
+  returned the Lease vs Buy calculator with `/lease-vs-buy`. A cash-flow question returned
+  Debtor Business Drag with `/debtor-drag`. **A question about two directors who cannot
+  agree returned three templates and no calculator at all** — the restraint half, which is
+  the one that matters, because an invitation without a brake is item 4.18 waiting to happen.
+- ⚠ **One attempt was reverted mid-flight and it is worth recording.** Telling the AI not to
+  bold a model name — meant to stop a template's video attaching to it — stripped the bold
+  off the **template** name too, which is exactly what `videoInjector` reads. It made the
+  output worse than the problem it addressed. Reverted, and the underlying issue became
+  item **4.33** instead: it cannot be fixed in the prompt, because the injector runs after
+  the AI has finished writing.
+
+**4.28 · The AI Prompts page had an engine and no screen.** ✅ Closed 2026-08-22, session 80.
+Carried since 2026-08-21 — Mike's own instruction, and the backend half had shipped the day
+before, which is exactly the half-a-fix state CLAUDE.md names.
+
+- **Why it mattered:** *"Wiring content into the prompt without a screen is half a fix"*
+  (CLAUDE.md, 2026-08-16). Both prompts, the protocol block, the cascade and 32 tests had
+  shipped in `ea6ac22`, and **no tab rendered a line of it** — so no manager could see or change
+  a single variable. The engine read as done and was not.
+- **Mike's own words:** *"I want to create a 'AI Prompts' page in the hub pages (Mentor, Global
+  Group Manager, Group Manager and Firm Manager) so that users have the ability to influence the
+  approach to formulas in the performance report models"* (2026-08-21), then *"finish 4.28 you
+  should have everything you need"* (2026-08-22).
+- **What proves it, and it is not only the tests.** The tab is
+  [`../../components/firm/FirmAiPrompts.vue`](../../components/firm/FirmAiPrompts.vue), served by
+  [`../../server/routes/aiPrompts.js`](../../server/routes/aiPrompts.js), gated by
+  `TAB_TIERS.aiPrompts` to all four manager tiers. 47 engine tests, 22 route tests, 24 component
+  tests. **And the running app was driven with Playwright at both loginable tiers**: the tab
+  appears sixth under *Your AI coach*, the three settings carry the ruled labels, the protection
+  panel renders its four sentences, all twelve method sections render with no input inside any of
+  them, no raw locale key reaches the screen, and the page does not scroll sideways.
+- **The cascade was exercised over real HTTP, not asserted:** the mentor saved a materiality of 3,
+  the firm read 3 as *inherited* with nothing of its own, the firm then set 12 and held it, and
+  the mentor was unaffected. Every refusal was tried live too — an undeclared variable, an
+  out-of-range number, an unknown prompt, an invalid choice, and a scope named in the request
+  body, which wrote to the caller's own scope and left the mentor's untouched.
+- 🔴 **The redraw is the part worth keeping.** The first drawing was written for an engineer and
+  Mike rejected it on sight: *"who is supposed to be working with this page? A computer coder or
+  an accountant …? If its the latter (and it is) then your version risks being too complicated
+  for them."* The security document is now **mentor-only** — its seven engineering headings were
+  7 of the 19 sections a firm manager saw — and below the mentor it is four plain sentences. **No
+  manager lost a control**, because that document has no editable setting at any tier, and a test
+  fails if it ever gains one.
+- 🔴 **One defect was caught in the build and is worth recording, because it is the same fault
+  Mike found in the two fetch-burst boxes — in prose instead of in a control.** The protection
+  panel's fourth sentence was *"Nothing is treated as final until a person has approved it"*. The
+  panel's own heading promises these things are *applied by the system every time*, and that one
+  is **enforced nowhere** — it restates the prompt's Draft-and-Publish section, which is advice to
+  a model. It was replaced before shipping with *"Pictures and web code are stripped out of the
+  AI's answer"*, which the locked markdown pipeline does enforce. Every line now declares the
+  module that performs it and a test opens that file to check.
+- ⚠ **Two stale counts fell out of this and are fixed:** `hubTabTiers.test.js` asserted a
+  conditional-tab count while its own headline total lived only in prose — the total is now
+  derived from `NAV_GROUPS`, and doing that immediately caught a second error, a comment claiming
+  seven unconditional tabs when Coaching Reference left on 2026-08-20 and there are six.
+- ⚠ **Still true and not fixed by this item:** item **4.30** — `stripInvisible` is not applied to
+  the live advisor output path. The panel's third sentence is true of this prompt path and not yet
+  of the advisor screen.
+
+**3.5 · Reply to Carl about `npm install`.** ✅ Closed 2026-08-21, session 78. **Mike sent it
+himself.** Carried since 2026-08-09 — twelve days for a question that needed one message.
+
+- **Why it mattered:** somebody outside the project was waiting on an answer.
+- **What we would have lost:** not much in the code, but it is a person waiting, and the
+  ledger row for the next pull depends on him replying.
+- **Mike's own words:** *"If this is important, draft the email you want me to send Carl and
+  I'll pass it on."* (2026-08-15) — then, on 2026-08-21: *"i already copied and sent it, i was
+  testing what you had at your end."*
+- **What proves it:** the email he sent is [`../RELEASE-v0.9.0-EMAIL.md`](../RELEASE-v0.9.0-EMAIL.md),
+  drafted 2026-08-17 and saved before sending, whose closing section answers the `npm install`
+  question for `v0.7.0`, `v0.8.0` and `v0.9.0` explicitly. Every fact in it was re-verified
+  against the repository on 2026-08-21 before he sent it: the tag exists on `origin` at
+  `d4284e6`, `origin/master` has not moved since, and `package-lock.json` is untouched between
+  `v0.8.0` and `v0.9.0`.
+- 🔴 **Why it sat for twelve days, which is the part worth keeping.** His instruction of
+  2026-08-15 asked for a draft. **The Handbook control deleted his comment on save** — see
+  `838f3a0` — so no session after that one could see he had asked for anything. The draft was
+  written on 2026-08-17 for a different reason and nobody connected the two. The item did not
+  wait on a decision; it waited on a sentence nobody could read.
+- ⚠ **The reply he asked for is still owed:** when Carl pulls, the date, environment and commit
+  hash go in [`../DEPLOYED-VERSIONS.md`](../DEPLOYED-VERSIONS.md). The email asks for them.
+
+**4.22 · Settle whether purchase costs are non-deductible in the property model's first year.**
+✅ Closed 2026-08-21, session 78, **by Mike, and the item's premise was the thing that was
+wrong.** Carried since 2026-08-17.
+
+- **Why it mattered:** `MODEL` C46 adds back Setup Costs only, while the workbook's own note at
+  `INPUTS` H46 reads *"Setup Costs / Purchase Costs - Non Deductible"*, naming both. On the note's
+  reading, year 1's taxable loss is 2,000 smaller and the year-10 tax bill moves from 1,521.61
+  to 2,081.61.
+- **What we would have lost:** the New Zealand DEFAULT — the value every firm that changes
+  nothing would use.
+- **Mike's own words:** *"I thought this was settled since we created the property tax rules
+  inputs for a firm manager to enter based on their local tax rules. This is done."*
+- **What proves it:** he is right, and it was checked rather than taken.
+  [`../../components/firm/FirmPropertyTaxRules.vue`](../../components/firm/FirmPropertyTaxRules.vue)
+  carries `yearOneAddBack` as a firm-manager field (`key: 'yearOneAddBack'`, line 157), and the
+  report screen reads whatever `server/utils/propertyTaxRules.js` resolves. A firm sets it to
+  its own jurisdiction's rule. The model already accepts `setup`, `setupAndPurchase` and `none`
+  and is golden-tested at all three.
+- ⚠ **The question the item asked is therefore the wrong question.** It asked which answer is
+  correct for New Zealand. The product's answer is that no single answer is correct for
+  everybody, which is why it became a setting on 2026-08-17 (§8 Q6) — and once it is a setting,
+  the platform default is a starting point rather than a ruling. Nobody had noticed that the
+  item outlived its own premise.
+- 🔴 **What it leaves behind, and it is now item 4.29's problem too:** the shipped default is
+  still `ADD_BACK_SETUP` and it is applied **silently**. A firm that never opens the tax rules
+  card gets it and is never told. The pattern that fixes this — a default that must announce
+  itself — arrived the same day in `data/ai-prompts.json` (`unsetRule: "announce"`), from the
+  cash flow document. It is not yet applied to the property model.
+
+**4.12 · 🔒 One handover story for the master team.** ✅ Closed 2026-08-21, session 78, on Mike's
+approval — **not by doing what it said.** It was the first item on his ranked list and the list's
+only blocker, and it was carried from 2026-07 on a premise that was never true.
+
+- **Why it mattered:** the merged app's own handover documents were said to still describe a
+  separate standalone application, so the master team would build the tiers above it wrongly.
+- **What we would have lost:** nothing, as written — see below. What was genuinely at risk was
+  found only by checking it.
+- **Mike's own words:** *"if this is just a handover note - get it done"* (2026-08-15, and those
+  words were deleted by the control the same day — see `838f3a0`).
+- 🔴 **Why the premise was false, proved rather than argued:** the item named two files,
+  Collaborate's `START-HERE.md` and `HANDOVER.md`. **Neither has ever existed in this repository.**
+  `git log --all -- "*START-HERE.md" "**/HANDOVER.md"` returns nothing, and
+  `--diff-filter=D` returns nothing — they were never added and never deleted. They lived in the
+  separate Collaborate repo; the merge brought the code (`server/collaborate/`,
+  `mixins/collaborate/`), not those documents. The documents the master team actually receives —
+  [`../UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md) (*"For the Advisor-e master coding team"*) and
+  [`../HANDOFF.md`](../HANDOFF.md) (*"integrating the Firm Manager module into the main app"*) —
+  already describe a section of this app. Of the five surviving uses of "standalone", four are
+  correctly past tense and must not be "corrected".
+- **What proves it:** the false claim is written out of the brief it lived in
+  ([`collaborate-data-layer.md`](collaborate-data-layer.md) §4) rather than deleted, so the next
+  session cannot re-derive it from the merge plan.
+- 🔴 **What checking it DID find, and this is the item's real value.**
+  [`../UAT-LOAD-PACK.md`](../UAT-LOAD-PACK.md) — the one page the master team loads a release from
+  — still said *"the newest cut release is `v0.8.0`"* at five places. **`v0.9.0` was tagged
+  2026-08-17**, and Mike sent Carl the v0.9.0 release email on **2026-08-21**, so the announcement
+  and the loading instructions contradicted each other on the same morning. Corrected to `v0.9.0`,
+  with the `npm install` line and the *Known issues* link (renamed from *Known limits* at v0.9.0)
+  brought with it, and a standing warning added that cutting a tag includes updating that page.
+- ⚠ **The lesson, which is not new:** an item's premise is a claim, not a status. This one was
+  ranked **first** for weeks and nobody had opened the two files it named. See
+  [`../ACTIONS.md`](../ACTIONS.md)'s own warning — *"Trust the CODE, not these flags."*
+
+**4.19 · Finish the property model — properties 2 to 5, the apportionment and the consolidated
+report.** ✅ Closed 2026-08-21, sessions 75–76. Carried since 2026-08-17, when Mike put it on the
+live list himself after asking whether the other four properties were ever coming.
+
+- **Why it mattered:** Phase 1 answered *"is this one property worth buying"*. The workbook was
+  built to answer *"does this portfolio work"*, and an adviser whose client holds several rentals
+  had no screen that put them together.
+- **What we would have lost:** the apportionment and the consolidation exist nowhere in Phase 1 in
+  any form, so they were precisely the part nobody could infer from the built screen. It lived in a
+  design document with nothing scheduling it, which on this project is how work quietly becomes
+  never. That is why the row existed.
+- **Mike's own words:** *"finish 4.24 then lets get 4.19 finished at last"* (2026-08-20), then
+  *"looks great - move forward"* on the drawing and *"i like it"* on the built screen (2026-08-21).
+- **What proves it:** all five build steps are done — the maths and its golden test (`c7fc42b`,
+  `a0a779f`, `e36f8da`), the route taking two shapes on one URL with the live Phase 1 request shape
+  pinned by a test (`838cf46`), **the drawing before the screen** (`30c2b7a`), and the screen and
+  catalogue line (`4f34588`). Suite **5,887 green / 322 suites**, lint 0 errors. The workbook's own
+  `Consolidated Report` row 11 and row 22 match its cached values **exactly across all ten years**;
+  rows 24 and 26 deliberately do not, because those carry Mike's ruling that an interest-only loan
+  may not simply vanish. Mike opened the finished screen on the running app.
+- 🔴 **THE DRAWING CAME FIRST, AND THAT IS THE POINT.** P2-3 was written as its own numbered build
+  step precisely because §10 of [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md)
+  records the Property Tax Rules tab being built with no artefact at all. It was not absorbed into
+  "the screen" a second time. The drawing is
+  [`../mockups/multiple-property-portfolio.html`](../mockups/multiple-property-portfolio.html), its
+  six questions are §11, and **§10 names twelve differences between it and the build**.
+- 🔴 **THE SCREEN SAYS SOMETHING NO VERSION OF THE WORKBOOK COULD.** On the model's own figures the
+  first property absorbs the whole $315,000 deposit and the other four borrow **100% of their
+  purchase price**; the rentals stand at **90.9%** loan to value. Spread the deposit evenly instead
+  and **every** property breaches an 80% ceiling. *$315,000 does not buy five properties* — and the
+  spreadsheet could never have said so, because it has no lending test anywhere in it.
+- 🔴 **AND CLOSING IT FOUND TWO DEFECTS THAT 5,885 PASSING TESTS COULD NOT SEE.** Both were found by
+  mounting the screen with the real English strings and reading it as an adviser would: a scalar
+  indexed as a ten-year series, so the client's cash deposit rendered as ten dashes; and a deposit
+  box left blank beside a total that had visibly had that money deducted from it. Both are fixed,
+  both carry a mutation-verified test, and the reading step is now **P19 of
+  [`report-models.md`](report-models.md) §5** so it is a build step rather than a lucky habit.
+- ⚠ **What did NOT come off with it:** layout is unverified — no browser driver is installed and
+  jsdom has no layout engine. That gap is now item **4.25** on the live list rather than a warning
+  in a document. Two wording decisions also stayed with Mike and are **4.26** and **4.27**.
+
+**4.24 · Fold the Coaching Reference into Logic Tables — Mike's Option D.** ✅ Closed 2026-08-20,
+session 74. Filed the previous evening on the evidence in
+[`../COACHING-REFERENCE-EVIDENCE.md`](../COACHING-REFERENCE-EVIDENCE.md) and executed the next
+morning.
+
+- **THE READING CAME FIRST, WHICH IS THE ONLY REASON THIS WAS SAFE.** All fifteen rows were read
+  against the logic tree covering the same ground before anything was touched. **Seven had nothing
+  the trees do not already say better** — Deming's (`demings_volatility` already carries causality
+  vs correlation vs coincidence), Rubbish In (`financial_systems_review` has the Chart of
+  Accounts), Ratio Analysis (whose Stage 2 is literally *"When Data Is Less Relevant"* and Stage 3
+  Common Size), and Planning Outcomes Review, Porter's & Pine, Blue Ocean and Customer Journey,
+  all four of which `client_planning` and `client_sales` **name explicitly, with the routing rule
+  attached**.
+- **Seven pieces were genuinely unique and were MOVED, not deleted.** The delivery ladder
+  (free-draw best, presentation next, watch the video and rehearse) → `reveal_growth_curve` Stage 4
+  · *two bites at the cherry*, the reason both the Global and Local references get used →
+  `eoy_meeting` Stage 3 · the client's own words, *"a big tax bill but nothing in the bank"* →
+  `working_capital_cycle` Stage 1 · walk the customer's journey, the mini decisions, incremental
+  not drastic → `client_planning` Branch 2a · *shifts the burden of proof back onto the client's
+  business model* → `trial_fit` Stage 1 · the **7 Cash Drivers** template, named in no tree at all
+  → `dashboard_discussions` Stage 4 · easy liquidity and wealth inside vs outside the business →
+  `cashflow`, the Loan Estimator branch.
+- 🔴 **TWO OF THE SEVEN WENT IN AS TRIGGER WORDS, NOT ONLY AS NOTES** — the tax-bill sentence and
+  "7 Cash Drivers". A note reaches the model only once the tree is already open. A client saying
+  those words now *opens* it. Notes alone would have been half the fix.
+- **Then the removal, on Mike's instruction — *"remove the tab"*.** Out went the fifteen rows, the
+  `## Coaching Reference` prompt block at **both** build sites, seven routes, the 362-line
+  firm-editable cascade in `firmManager.js`, the Hub tab, and six now-dead source files
+  (`coaching-reference.json`, `coachingConfig.js`, `firmCoachingReference.js`,
+  `FirmCoachingReference.vue`, `FirmCoachingEntryForm.vue`, `utils/coachingRows.js`) plus three
+  gitignored dev files. Five test suites went with them; three were trimmed to keep the half that
+  survives.
+- ✅ **THE PROMOTED CASE OBSERVATIONS ARE UNTOUCHED**, as the item required — different key,
+  different loader, still FENCED. `coachingPromptFields.test.js` was rewritten rather than deleted
+  precisely to keep guarding that fence, and it now asserts the adviser's text sits *inside* it
+  rather than beside it: a fence that opens and closes around nothing would have passed the old
+  shape of that test.
+- 🔴 **THE ORPHAN ROW WAS NOT CONTENTLESS, AND FINDING THAT OUT TOOK MIKE PRODUCING THE SOURCE.**
+  Row 15, *"Covid 19 Client Pre-Meeting"*, was reported here as matching no template and no tree.
+  Mike supplied the deck — **Coping with Adversity**, based on the Enneagram — and it turned out
+  the template had existed all along under a *different name*, and the material was **already in
+  Domain Support**, in the people-power domain, still titled *"Coping with Covid"*. The search that
+  declared it missing had been run on the row's own stale name. **A name lookup is not an
+  existence check**, and this is the second time that exact mistake has been recorded on this
+  project.
+- ⚠ **A near-miss worth keeping.** Folding that row into the **Heald Matrix** was proposed, on the
+  grounds that the Heald Matrix already "names three coping styles". It does — **Assertion,
+  Withdrawal, Dutiful**, the *Hornevian* triad, how a person pursues what they want. Mike's deck
+  teaches **Intensity, Competency, Positive Outlook**, the *Harmonic* triad, how a person copes
+  when they **don't get it**. Same source tradition, different axis. The merge would have silently
+  replaced one framework with another, and only reading the deck stopped it.
+- **What that row became instead.** The people-power material was renamed to **Coping with
+  Adversity** and enriched from the deck with the two things nowhere in the app: the three-styles
+  table (what each looks like, when it is time to change focus, the Tips n Tricks) and the
+  *"catch ourselves early"* principle — that doing so avoids serious relationship, self-esteem and
+  poor judgement damage. Authored into `summary`, `who_when` and `steps` **only**, because those
+  are the four fields `domainSupport.js` actually emits; a fifth field would have been the 4.16
+  fault repeated in the same week it was closed.
+- 🔴 **Its id still says `covid` and that is correct.** `domainSupportRowIds.test.js` locks ids
+  against retitling: *"an id is assigned once and never changes… do not tidy an id to match a new
+  name."* A firm's decisions about a row are keyed to it. Renaming the id would have silently
+  discarded them.
+- **Suite: 320 suites / 5,764 tests green**, down from 325 / 5,876 — the difference is the five
+  deleted suites, not lost coverage. Lint 0 errors.
+
+**4.23 · Build the Firm Manager Hub sidebar — grouped navigation, and drop the duplicate cases
+tab.** ✅ Closed 2026-08-19, session 73. Filed the day before, the same session that designed it,
+and built the next — the shortest gap between a design and its build on this list, which is the
+point of filing it at all.
+
+- **What shipped.** The horizontal `b-tabs` band is a grouped Buefy `b-menu` sidebar at all four
+  tiers, with Mike's four headings. Firm 3 headings / 11 items, mentor 3 / 12, group and global
+  4 / 13 — the design's own counts, asserted **off the rendered screen** rather than off
+  `TAB_TIERS`, because the matrix is what the design predicted and the screen is what a manager
+  gets. Phase 1 is commit `85097e9`; the duplicate followed in the same session.
+- **NO TAB BODY MOVED**, and that is why this was a safe change rather than a frightening one.
+  Every panel sits exactly where its `b-tab-item` stood; only one is ever shown, so the order a
+  manager reads comes from `NAV_GROUPS` alone. Seventeen single-line swaps instead of an 1,800-line
+  reindent. `activeTab` became a key rather than an index for the same reason — an index is a
+  promise that the menu and the panels are in the same order, and they deliberately are not.
+- **The duplicate is gone.** `teamCaseStudies` is `['firm']`. 🔴 **It is not a breach of "every
+  report rolls up"** (2026-08-10) — those cases still reach every tier above the firm through Case
+  Reviews, which was returning the identical list. One door closed, not the room. It is asserted
+  explicitly in `hubTabTiers.test.js` rather than dropped from the roll-up loop, because an
+  exception quietly removed from a list looks identical to one never considered.
+- 🔴 **Two tests changed and both reasons matter more than the changes.**
+  `mentorHubScope.component.test.js` read `nav.tabs li`; when the tab bar went it did not fail, it
+  returned **nothing**, and an order assertion passed by comparing two empty arrays. A selector
+  that matches nothing is indistinguishable from agreement. `iconFont.test.js` required more than
+  ten distinct icon names app-wide — dropping eleven tab icons took the **whole app** to seven,
+  because the hub was carrying most of them. That floor was measuring how many icons the app
+  happens to use, which was never a rule; it now pins names.
+- ⚠ **A stale comment had been wrong since 2026-08-15 and nothing could see it.** `hubTabTiers`
+  said "6 unconditional tabs" and listed six, omitting Coaching Reference. The assertion pins the
+  *conditional* count, so the total in the test's own name drifted 13 → 14 in silence.
+- 🔴 **CLOSING IT FOUND TWO THINGS THE DESIGN HAD WRONG, AND BOTH WERE FOUND BY MIKE OPENING THE
+  SCREEN — not by any test.** First, the design named four tabs as having a collapsible list; only
+  **two** ever did, and **Quizzes now has the control** (his instruction: *"the one thing to make
+  consistent please"*), each screen keeping its own storage key. Second, on the Property Tax Rules
+  tab the **interest-deductibility phasing boxes showed no numbers**: five inputs share a slot
+  sized 180px for one, leaving ~31px each — narrower than the spinner inside them. It held and
+  saved the right value the whole time. **No test in 5,874 could have caught either.** Jest does
+  not lay a page out.
+- ⚠ **`listFirmCases`'s non-firm branch now has no caller from the hub.** Left alone deliberately:
+  it returns the same anonymised list Case Reviews returns, so nothing is exposed, and narrowing a
+  live route is a separate decision from removing a tab. Flagged, not actioned.
+- **What proves it.** The suite runs **5,874 / 325 suites, zero failures**, audit gate passing.
+  Ten new tests. **Every difference from the approved mockup is named** at
+  [`../HUB-NAVIGATION-GROUPING.md`](../HUB-NAVIGATION-GROUPING.md) §8, including the one label —
+  **"Show menu"** — that was never put to Mike, because the mockup only ever draws the menu open.
+- 🔴 **Still open and now carried a third time: Mike has still not sat down with the Property Tax
+  Rules tab.** He saw enough of it to find the phasing defect. That is not the same as reviewing it.
+
+**4.20 · Finish Phase 1 of the property model — the screen, and the tax rules cascading from the
+group.** ✅ Closed 2026-08-18, session 70. Filed 2026-08-17 the moment the maths was built and the
+screen was not, precisely so a half-built thing would not quietly become never. It did not.
+
+- **What was left when it was filed.** The model, its 55 golden tests and the Restify route were
+  green; nothing rendered them. Left to build: the catalogue row, the page, the screen component,
+  its strings, the consistency guard, and the four tax rules cascading group → firm → advisor.
+- **The screen shipped 2026-08-17** (`908f1b2`), with **seven differences from the approved mockup,
+  every one named** at [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md)
+  §10. Two of the seven are the drawing being a drawing; five are the build knowing things the
+  drawing could not.
+- **The cascade shipped 2026-08-18** (`1feefa2`) — 1,156 lines, 34 tests, on the existing
+  firm-overlay mechanism so version history and restore came for free. Its rules are now in
+  [`tier-cascade.md`](tier-cascade.md) §4 and [`firm-manager-hub.md`](firm-manager-hub.md) §4, not
+  only in a session note.
+- 🔴 **The GST rule is why the tax settings could not stay assumptions.** `fee% × 1.15` was
+  hardcoded *inside* the formula: an advisor read **7.5%** on screen while the model charged
+  **8.625%**, and nothing said so. The other three were at least wrong *visibly* in the wrong
+  country; that one was wrong **silently**.
+- 🔴 **What closing it found, and it is a defect rather than a flourish: the Hub tab was built with
+  NO approved artefact, and Mike has still not seen it.** Its wording is his rulings (§8 Q5, Q6) so
+  nothing on it is invented — but the layout was never put to anyone. It was treated as plumbing
+  attached to a report screen instead of as a screen in its own right. **A tab is a screen.**
+  Recorded in full, with why a mockup drawn afterwards is not the remedy, at §10 of the design
+  document. **The remedy is Mike opening the tab on the running app**, and until he does, "done"
+  means built-and-tested, not seen.
+- **What proves it.** The suite runs **5,861 / 325 suites, zero failures**, with the audit gate
+  passing. Two guards objected before the commit was allowed through and both were right to: the
+  "same screen" test wanted the new tab **named** as a tier exception rather than absorbed, and the
+  generated content-routing index needed rebuilding for the new data file.
+- ⚠ **The first fix to that guard was wrong and the test caught it.** The exception list is in
+  **tab order**, not the order exceptions were ruled on, so appending the name failed. That is now
+  a written trap at [`firm-manager-hub.md`](firm-manager-hub.md) §4 rather than a thing the next
+  person rediscovers.
+- **This unblocks 4.19** — properties 2 to 5, the apportionment and the consolidated report — which
+  was explicitly waiting on Phase 1 and holds none of the mathematical difficulty.
 
 **2.6 · `advisor_note` — one line from you.** ✅ Closed 2026-08-16, session 61. Carried since
 2026-08-12, and it closed at four times its filed size because Mike asked a better question than

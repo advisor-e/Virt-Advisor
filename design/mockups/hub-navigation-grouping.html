@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Firm Manager Hub &mdash; navigation grouping (design for approval)</title>
+<style>
+  :root {
+    --navy:#002b64; --grey:#7a869a; --line:#e2e6ec; --ink:#363636;
+    --green:#1f7a45; --green-bg:#eefaf2; --green-line:#63c48d;
+    --amber:#b35309; --amber-bg:#fffaf3; --amber-line:#ffb870;
+    --slate:#5a6b82; --slate-bg:#f3f6fa; --slate-line:#b8c6d8;
+    --dim:#8a94a3; --dim-bg:#f6f7f9; --dim-line:#d8dce3;
+    --red:#a02b2b; --red-bg:#fdf3f3; --red-line:#e2a0a0;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.5rem 6rem; background:#f5f5f5;
+    font:15px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); }
+  .wrap { max-width:1060px; margin:0 auto; }
+
+  .banner { background:#fffaf3; border:1px solid #f3ddc0; border-left:4px solid var(--amber-line);
+    border-radius:5px; padding:0.9rem 1.05rem; margin-bottom:2.5rem; font-size:0.84rem; line-height:1.6; }
+  .banner strong { color:var(--amber); }
+
+  h1 { font-size:1.6rem; margin:0 0 0.4rem; color:var(--navy); letter-spacing:-0.01em; }
+  .lede { color:var(--grey); font-size:0.92rem; margin:0; max-width:56rem; }
+
+  section.band { margin-top:3.6rem; }
+  section.band > h2 { font-size:1.15rem; color:var(--navy); margin:0 0 0.35rem; letter-spacing:-0.01em; }
+  section.band > .sub { color:var(--grey); font-size:0.86rem; margin:0 0 1.6rem; max-width:56rem; }
+  h3.subhead { font-size:0.95rem; color:var(--navy); margin:1.6rem 0 0.2rem; }
+
+  /* Hub chrome preview */
+  .hub { background:#fff; border:1px solid var(--line); border-radius:8px; overflow:hidden;
+    margin-bottom:1.6rem; }
+  .hubhead { padding:1.1rem 1.3rem 0.9rem; border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap; }
+  .hubtitle { font-size:1.15rem; font-weight:700; color:var(--navy); }
+  .hubcount { font-size:0.76rem; color:var(--grey); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+
+  /* TODAY: the horizontal band */
+  .tabs { display:flex; gap:0.3rem; padding:0.8rem 1.3rem 1.1rem; overflow-x:auto; }
+  .tab { font-size:0.74rem; border:1px solid #d7dde6; background:#fff; white-space:nowrap;
+    border-radius:5px 5px 0 0; padding:0.35rem 0.7rem; color:var(--slate); flex:0 0 auto; }
+  .tab.on { background:var(--navy); border-color:var(--navy); color:#fff; font-weight:600; }
+  .edge { padding:0 1.3rem 1rem; margin:0; font-size:0.76rem; color:var(--red); }
+
+  /* PROPOSED: the sidebar */
+  .split { display:flex; min-height:300px; flex-wrap:wrap; }
+  .side { flex:0 0 232px; border-right:1px solid var(--line); background:#fbfcfd; padding:0.9rem 0; }
+  .sidetop { display:flex; justify-content:flex-end; padding:0 0.9rem 0.7rem; }
+  .hidebtn { font-size:0.7rem; border:1px solid #d7dde6; background:#fff; border-radius:4px;
+    padding:0.2rem 0.5rem; color:var(--slate); }
+  .grouplabel { font-size:0.66rem; letter-spacing:0.13em; text-transform:uppercase; font-weight:700;
+    color:var(--grey); padding:0.9rem 1.1rem 0.35rem; }
+  .navitem { font-size:0.82rem; padding:0.36rem 1.1rem; color:var(--slate); border-left:3px solid transparent; }
+  .navitem.on { background:#fff; border-left-color:var(--navy); color:var(--navy); font-weight:600; }
+  .navitem.renamed { color:var(--green); font-weight:600; }
+  .panel { flex:1 1 320px; padding:1.3rem 1.4rem; }
+  .panelghost { border:1px dashed var(--dim-line); border-radius:6px; background:var(--dim-bg);
+    padding:2.4rem 1rem; text-align:center; color:var(--dim); font-size:0.82rem; }
+  .panelnote { font-size:0.78rem; color:var(--grey); margin-top:0.9rem; }
+
+  /* Boxes */
+  .note { border:1px solid var(--line); border-left:4px solid var(--slate-line); background:var(--slate-bg);
+    border-radius:5px; padding:0.85rem 1rem; font-size:0.84rem; margin:1.2rem 0; }
+  .note.red { border-left-color:var(--red-line); background:var(--red-bg); }
+  .note.red strong { color:var(--red); }
+  .note.green { border-left-color:var(--green-line); background:var(--green-bg); }
+  .note.green strong { color:var(--green); }
+  .note.amber { border-left-color:var(--amber-line); background:var(--amber-bg); }
+  .note.amber strong { color:var(--amber); }
+
+  .scroll { overflow-x:auto; }
+  table.mx { border-collapse:collapse; width:100%; font-size:0.83rem; margin:0.8rem 0 1.4rem; background:#fff; }
+  table.mx th, table.mx td { border:1px solid var(--line); padding:0.5rem 0.7rem; text-align:left; vertical-align:top; }
+  table.mx th { background:#f7f9fb; color:var(--navy); font-size:0.76rem; letter-spacing:0.02em; }
+  table.mx td.pick { background:var(--green-bg); font-weight:600; color:var(--green); }
+  td.no { color:var(--red); font-weight:600; }
+  td.yes { color:var(--green); font-weight:600; }
+  td.none { color:var(--dim); }
+  .q { font-size:0.72rem; font-weight:700; color:var(--amber); letter-spacing:0.06em; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.86em;
+    background:#f2f4f7; padding:0.08rem 0.3rem; border-radius:3px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="banner" style="background:#eefaf2;border-color:#b9e3cb;border-left-color:#63c48d">
+  <strong style="color:#1f7a45">APPROVED BY MIKE, 2026-08-19.</strong> All five decisions in section 7 are settled.
+  Decision 4 ended as <strong>no rename</strong>: dropping the duplicate means no tier ever sees both
+  case tabs, so the confusion that prompted the rename no longer exists. Put this page beside the build and name every difference.
+  <br><br>
+  <strong>DESIGN ARTEFACT &mdash; not shipped code.</strong> Drawn 2026-08-19 for the owner's approval,
+  before any build. It exists so that what gets built can be put beside what was approved and every
+  difference named. Nothing on this page is in the app today.
+  <br><br>
+  The look is copied from <code>design/mockups/tier-hub-pages.html</code>, not proposed here. What is
+  being asked for is the <strong>grouping, the group names, and two tab renames</strong>.
+</div>
+
+<h1>Firm Manager Hub &mdash; navigation grouping</h1>
+<p class="lede">
+  One hub serves four tiers. It has grown to eleven tabs for a firm manager and fourteen for a group
+  or global group manager, in a single horizontal band. This proposes a grouped sidebar instead.
+</p>
+
+<section class="band">
+  <h2>1 &middot; What it looks like today</h2>
+  <p class="sub">
+    Every tab in one horizontal row, in the order each was added. The row is wider than the page, so
+    the last tabs sit past the right edge &mdash; a manager cannot see what they have not scrolled to.
+  </p>
+
+  <div class="hub">
+    <div class="hubhead"><span class="hubtitle">Firm Manager Hub</span><span class="hubcount">11 tabs</span></div>
+    <div class="tabs">
+      <span class="tab on">Domain Support</span><span class="tab">Logic Tables</span><span class="tab">Logic-Lab</span>
+      <span class="tab">Advisory Staircase</span><span class="tab">Coaching Reference</span>
+      <span class="tab">Property Tax Rules</span><span class="tab">Advisory Distinctions</span>
+      <span class="tab">Quizzes</span><span class="tab">Advisor Network</span>
+      <span class="tab">Team Progress</span><span class="tab">Team Case Studies</span>
+    </div>
+    <p class="edge">&rarr; the row runs past the edge of the page</p>
+  </div>
+
+  <div class="hub">
+    <div class="hubhead"><span class="hubtitle">Group Manager Hub &middot; Global Group Manager Hub</span><span class="hubcount">14 tabs &mdash; the most crowded</span></div>
+    <div class="tabs">
+      <span class="tab on">Domain Support</span><span class="tab">Logic Tables</span><span class="tab">Logic-Lab</span>
+      <span class="tab">Advisory Staircase</span><span class="tab">Coaching Reference</span>
+      <span class="tab">Property Tax Rules</span><span class="tab">Advisory Distinctions</span>
+      <span class="tab">Quizzes</span><span class="tab">Advisor Network</span>
+      <span class="tab">Team Progress</span><span class="tab">Team Case Studies</span>
+      <span class="tab">How firms are using the app</span><span class="tab">Logic Lab Report</span><span class="tab">Case Reviews</span>
+    </div>
+    <p class="edge">&rarr; the row runs a long way past the edge of the page</p>
+  </div>
+
+  <div class="hub">
+    <div class="hubhead"><span class="hubtitle">Mentor Hub</span><span class="hubcount">12 tabs</span></div>
+    <div class="tabs">
+      <span class="tab on">Domain Support</span><span class="tab">Logic Tables</span><span class="tab">Logic-Lab</span>
+      <span class="tab">Advisory Staircase</span><span class="tab">Coaching Reference</span>
+      <span class="tab">Advisory Distinctions</span><span class="tab">Quizzes</span>
+      <span class="tab">Advisor Network</span><span class="tab">How firms are using the app</span>
+      <span class="tab">Logic Lab Report</span><span class="tab">Template Check</span><span class="tab">Case Reviews</span>
+    </div>
+  </div>
+
+  <div class="note amber">
+    <strong>Worth knowing:</strong> the firm manager's hub is the <em>lightest</em> of the three. The
+    crowding is worst at the two tiers that were not being looked at.
+  </div>
+</section>
+
+<section class="band">
+  <h2>2 &middot; What is proposed &mdash; a grouped sidebar</h2>
+  <p class="sub">
+    Names stacked down the left instead of across the top. Every name is visible at once at any window
+    width, and nothing is hidden past an edge. Group headings are not clickable &mdash; they label, they
+    do not open, so nothing costs an extra click.
+  </p>
+
+  <div class="hub">
+    <div class="hubhead"><span class="hubtitle">Firm Manager Hub</span><span class="hubcount">3 headings &middot; 11 items</span></div>
+    <div class="split">
+      <div class="side">
+        <div class="sidetop"><span class="hidebtn">Hide menu</span></div>
+        <div class="grouplabel">Your AI coach</div>
+        <div class="navitem on">Domain Support</div>
+        <div class="navitem">Advisory Distinctions</div>
+        <div class="navitem">Coaching Reference</div>
+        <div class="navitem">Logic Tables</div>
+        <div class="navitem">Advisory Staircase</div>
+        <div class="navitem">Logic-Lab</div>
+        <div class="grouplabel">Your Team In Action</div>
+        <div class="navitem">Advisor Network</div>
+        <div class="navitem">Team Progress</div>
+        <div class="navitem">Quizzes</div>
+        <div class="navitem">Team Case Studies</div>
+        <div class="grouplabel">Model Inputs</div>
+        <div class="navitem">Property Tax Rules</div>
+      </div>
+      <div class="panel">
+        <div class="panelghost">The tab you picked opens here, exactly as it does today.<br>No tab body changes.</div>
+        <p class="panelnote">
+          Section 4 ended with no rename &mdash; both case tabs keep their names. The four tabs that already have their own list down
+          their left side &mdash; Domain Support, Logic Tables, Quizzes, Advisory Distinctions &mdash;
+          show that list inside this panel, with the hub menu collapsible via <em>Hide menu</em>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hub">
+    <div class="hubhead"><span class="hubtitle">Group Manager Hub &middot; Global Group Manager Hub</span><span class="hubcount">4 headings &middot; 13 items</span></div>
+    <div class="split">
+      <div class="side">
+        <div class="sidetop"><span class="hidebtn">Hide menu</span></div>
+        <div class="grouplabel">Your AI coach</div>
+        <div class="navitem">Domain Support</div>
+        <div class="navitem">Advisory Distinctions</div>
+        <div class="navitem">Coaching Reference</div>
+        <div class="navitem">Logic Tables</div>
+        <div class="navitem">Advisory Staircase</div>
+        <div class="navitem">Logic-Lab</div>
+        <div class="grouplabel">Your Team In Action</div>
+        <div class="navitem">Advisor Network</div>
+        <div class="navitem">Team Progress</div>
+        <div class="navitem">Quizzes</div>
+        <div class="grouplabel">Model Inputs</div>
+        <div class="navitem">Property Tax Rules</div>
+        <div class="grouplabel">Rolled up from below</div>
+        <div class="navitem on">How firms are using the app</div>
+        <div class="navitem">Logic Lab Report</div>
+        <div class="navitem">Case Reviews</div>
+      </div>
+      <div class="panel">
+        <div class="panelghost">The tab you picked opens here, exactly as it does today.</div>
+        <p class="panelnote">
+          <strong>13 items, not 14</strong> &mdash; this drawing assumes the duplicate in section 5 is
+          removed. If it is kept, &ldquo;Team Case Studies&rdquo; returns under <em>Your Team In Action</em>
+          and the count goes back to 14.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hub">
+    <div class="hubhead"><span class="hubtitle">Mentor Hub</span><span class="hubcount">3 headings &middot; 12 items</span></div>
+    <div class="split">
+      <div class="side">
+        <div class="sidetop"><span class="hidebtn">Hide menu</span></div>
+        <div class="grouplabel">Your AI coach</div>
+        <div class="navitem">Domain Support</div>
+        <div class="navitem">Advisory Distinctions</div>
+        <div class="navitem">Coaching Reference</div>
+        <div class="navitem">Logic Tables</div>
+        <div class="navitem">Advisory Staircase</div>
+        <div class="navitem">Logic-Lab</div>
+        <div class="grouplabel">Your Team In Action</div>
+        <div class="navitem">Advisor Network</div>
+        <div class="navitem">Quizzes</div>
+        <div class="grouplabel">Rolled up from below</div>
+        <div class="navitem">How firms are using the app</div>
+        <div class="navitem">Logic Lab Report</div>
+        <div class="navitem">Case Reviews</div>
+        <div class="navitem on">Template Check</div>
+      </div>
+      <div class="panel">
+        <div class="panelghost">The tab you picked opens here, exactly as it does today.</div>
+        <p class="panelnote">
+          The mentor has <strong>no Model Inputs heading</strong> &mdash; property tax rules are
+          deliberately not the mentor's (ruled 2026-08-17: the mentor has no country of its own to speak
+          for). A whole heading being absent reads as intentional; a single missing tab in a row of
+          fourteen reads as a bug.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <h2>3 &middot; Why these six are one group and not two</h2>
+  <p class="sub">The line that was drawn first, and why it was wrong.</p>
+
+  <div class="note red">
+    <strong>The rejected split.</strong> The first draft separated &ldquo;what the AI draws on&rdquo;
+    (Domain Support, Distinctions, Coaching Reference) from &ldquo;how advice is chosen and
+    delivered&rdquo; (Logic Tables, Advisory Staircase, Logic-Lab). <strong>That states a
+    falsehood.</strong> The prompt builder <code>server/advisorEngine.js</code> loads all six &mdash;
+    domain support, distinctions, coaching, logic trees <em>and</em> the staircase. Any name implying the
+    logic tables or the staircase are outside the AI's reach would teach every new manager something
+    untrue, permanently, from the navigation itself.
+  </div>
+
+  <div class="note">
+    It fails a second time on the detail. <strong>Coaching Reference is not content</strong> &mdash; its
+    own file describes it as <em>&ldquo;the guidance the model reads when it chooses which template to
+    put in front of a client&rdquo;</em>. That is a decision, not a thing said. The honest split is
+    therefore two items and four, and a group of two is too thin to earn a heading.
+  </div>
+
+  <div class="note green">
+    <strong>One group of six.</strong> The true statement about all six is the same statement &mdash;
+    <em>everything here teaches the AI</em> &mdash; which is the hub's own stated purpose:
+    <em>&ldquo;The hub exists so a firm can teach the system without a developer.&rdquo;</em> It also
+    matches the door managers arrive through: <strong>&ldquo;Manage AI Coach&rdquo;</strong> in the
+    master app.
+  </div>
+</section>
+
+<section class="band">
+  <h2>4 &middot; The names &mdash; for the owner to settle</h2>
+  <p class="sub">Nothing here is decided. The recommended option is shaded; every alternative is a real option.</p>
+
+  <h3 class="subhead">The four group headings</h3>
+  <div class="scroll">
+  <table class="mx">
+    <tr><th style="width:26%">Group</th><th>Option A</th><th>Option B</th><th>Option C</th></tr>
+    <tr><td>The six that teach the AI</td><td class="pick">Your AI coach</td><td>AI coach</td><td>How your AI advises</td></tr>
+    <tr><td>Advisors, progress, quizzes, cases</td><td class="pick">Your Team In Action &mdash; <span class="q">RULED 2026-08-19</span></td><td>Your advisors</td><td>People</td></tr>
+    <tr><td>Settings the report models compute with</td><td class="pick">Model Inputs &mdash; <span class="q">RULED 2026-08-19</span></td><td>Technical inputs</td><td>Report settings</td></tr>
+    <tr><td>What arrives from the levels below <span class="q">(not the firm manager)</span></td><td class="pick">Rolled up from below</td><td>Across the levels below you</td><td>Roll-up reports</td></tr>
+  </table>
+  </div>
+
+  <div class="note amber">
+    <strong>Why not &ldquo;Across your firms&rdquo;</strong> for the last one, which reads best of all: it
+    is wrong for a global group manager, whose level below is a <em>country</em>, not a firm. The heading
+    has to be true at both tiers.
+  </div>
+
+  <h3 class="subhead">The two case tabs</h3>
+  <p style="font-size:0.86rem;color:var(--grey);margin:0 0 0.4rem;">
+    Today they are called &ldquo;Team Case Studies&rdquo; and &ldquo;Case Reviews&rdquo;. A group manager
+    sees both. Nobody could reliably tell from those two labels which is which.
+  </p>
+  <div class="scroll">
+  <table class="mx">
+    <tr><th style="width:18%">Today</th><th style="width:24%">What it actually is</th><th>Option A</th><th>Option B</th><th>Option C</th></tr>
+    <tr>
+      <td>Team Case Studies</td>
+      <td>A firm manager's own advisors' cases, <strong>in full, not anonymised</strong></td>
+      <td class="pick">Your advisors&rsquo; cases</td><td>Team cases</td><td>keep as is</td>
+    </tr>
+    <tr>
+      <td>Case Reviews</td>
+      <td>Cases sent up from the level below, <strong>anonymised</strong>, only where a firm manager opted in</td>
+      <td class="pick">Shared cases (anonymised)</td><td>Anonymised case library</td><td>keep as is</td>
+    </tr>
+  </table>
+  </div>
+  <div class="note">
+    The recommended pair carries the two facts that actually separate them &mdash; <em>whose</em>, and
+    <em>whether identities were stripped</em>. The horizontal band could not afford names this long. The
+    sidebar can: this is what the layout change buys.
+  </div>
+</section>
+
+<section class="band">
+  <h2>5 &middot; A duplicate found while drawing this</h2>
+  <p class="sub">Not a naming problem. Two of the fourteen tabs are the same data.</p>
+
+  <div class="note red">
+    <strong>A group manager and a global group manager are shown the same cases twice.</strong>
+    <br><br>
+    <code>/api/firm-manager/cases</code> (Team Case Studies), for any tier above a firm, returns
+    <code>withOrigin(listSharedWithMentor(firmId), firmId)</code>.
+    <br>
+    <code>/api/mentor/cases</code> (Case Reviews) returns
+    <code>withOrigin(listSharedWithMentor(req.firmId), req.firmId)</code>.
+    <br><br>
+    Same store call, same decoration, same scope &mdash; the identical set of cases, in two tabs, under
+    two different names. Only the <strong>firm manager's</strong> version differs: theirs reads their own
+    advisors' cases in full, which is genuinely a different screen.
+  </div>
+
+  <div class="scroll">
+  <table class="mx">
+    <tr><th style="width:22%">Tier</th><th>Team Case Studies shows</th><th>Case Reviews shows</th><th style="width:16%">Same?</th></tr>
+    <tr><td>Firm manager</td><td>Own advisors' cases, in full</td><td class="none">&mdash; no tab &mdash;</td><td class="yes">No &mdash; correct</td></tr>
+    <tr><td>Group manager</td><td>Anonymised, shared up from firms</td><td>Anonymised, shared up from firms</td><td class="no">Yes &mdash; duplicate</td></tr>
+    <tr><td>Global group manager</td><td>Anonymised, shared up from countries</td><td>Anonymised, shared up from countries</td><td class="no">Yes &mdash; duplicate</td></tr>
+    <tr><td>Mentor</td><td class="none">&mdash; no tab &mdash;</td><td>Anonymised, shared up</td><td class="yes">No &mdash; correct</td></tr>
+  </table>
+  </div>
+
+  <div class="note amber">
+    <span class="q">DECISION NEEDED.</span> <strong>Drop &ldquo;Your advisors' cases&rdquo; at the group
+    and global tiers only</strong>, leaving it a firm-manager tab, and let the roll-up version carry those
+    two tiers. That takes them from 14 tabs to 13 and removes a contradiction, not just a crowd. The
+    alternative &mdash; keep both &mdash; means two names for one list, which no rename can fix.
+    <br><br>
+    This has <strong>not</strong> been actioned. Removing a tab is the owner's call.
+  </div>
+</section>
+
+<section class="band">
+  <h2>6 &middot; Rules this design holds to</h2>
+  <div class="scroll">
+  <table class="mx">
+    <tr><th style="width:34%">Rule</th><th>How this design satisfies it</th></tr>
+    <tr>
+      <td><strong>Nothing moves under the owner's hand</strong> (ruled 2026-08-15)</td>
+      <td>The hub menu <strong>never collapses itself</strong>. Opening Domain Support, which has its own
+      list, does not tidy the hub menu away as a side effect. The manager collapses it, or it stays.</td>
+    </tr>
+    <tr>
+      <td><strong>One screen, four tiers, no forking</strong> (Brief P1)</td>
+      <td>One component still. Groups are declared once beside <code>TAB_TIERS</code>; a tier shows the
+      headings its tabs fall under and no others.</td>
+    </tr>
+    <tr>
+      <td><strong>Every conditional tab names its tiers positively</strong> (Brief P2)</td>
+      <td>Unchanged. Grouping is a display layer over <code>TAB_TIERS</code>; no gate is rewritten.</td>
+    </tr>
+    <tr>
+      <td><strong>Bulma + Buefy only</strong> (Stack Constitution req. 6)</td>
+      <td>Buefy ships <code>b-menu</code> with grouped lists. No second UI library, nothing new installed.</td>
+    </tr>
+    <tr>
+      <td><strong>The collapse pattern already exists</strong></td>
+      <td>Domain Support and Logic Tables already have a Show/Hide list button that remembers the choice
+      in the browser. The hub menu reuses it rather than inventing a second one.</td>
+    </tr>
+    <tr>
+      <td><strong>The tab-order trap</strong> (Brief &sect;4, bit on 2026-08-18)</td>
+      <td>Grouping <em>reorders</em> tabs, so <code>mentorHubScope.component.test.js</code> needs its list
+      rewritten in the new draw order. Flagged here so it is expected rather than discovered.</td>
+    </tr>
+  </table>
+  </div>
+</section>
+
+<section class="band">
+  <h2>7 &middot; What is being asked</h2>
+  <div class="scroll">
+  <table class="mx">
+    <tr><th style="width:6%">#</th><th>Decision</th><th style="width:32%">Recommended</th></tr>
+    <tr><td>1</td><td>Sidebar with grouped names, replacing the horizontal tab band</td><td class="pick">&#10003; APPROVED</td></tr>
+    <tr><td>2</td><td>One group of six for everything that teaches the AI, not two</td><td class="pick">&#10003; APPROVED</td></tr>
+    <tr><td>3</td><td>The four group headings (section 4)</td><td class="pick">&#10003; APPROVED &mdash; Your AI coach &middot; Your Team In Action &middot; Model Inputs &middot; Rolled up from below</td></tr>
+    <tr><td>4</td><td>The two case-tab names (section 4)</td><td class="pick">&#10003; SETTLED &mdash; no rename; both names stay as they are</td></tr>
+    <tr><td>5</td><td>The duplicate at group and global tier (section 5)</td><td class="pick">&#10003; APPROVED &mdash; drop the firm-flavoured tab at those two tiers</td></tr>
+  </table>
+  </div>
+</section>
+
+</div>
+</body>
+</html>

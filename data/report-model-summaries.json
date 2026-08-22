@@ -1,0 +1,220 @@
+{
+  "_readme": [
+    "WHAT EACH REPORT MODEL SERVES — written for the AI, and for the AI alone.",
+    "",
+    "Asked for by Mike, 2026-08-21: 'ensure that each of the performance models have a",
+    "\"key calculation output\" page or section, so that the AI can read what the model",
+    "serves', and 'place it wherever you want, it's for AI - not the advisor or manager'.",
+    "To-do item 4.29. Plan item T22, feeding T23.",
+    "",
+    "🔴 WHY THIS HAS NO SCREEN, WHICH IS A STATED EXCEPTION AND NOT AN OVERSIGHT.",
+    "CLAUDE.md's ruling of 2026-08-16 is that every AI fix surfaces on a hub page. Mike",
+    "ruled this one out of that himself, in the sentence above, and the reason holds: a",
+    "description of what a calculation DOES is a fact about the maths, not authored",
+    "advisory judgement. Nobody at any tier gets to decide that Lease vs Buy answers a",
+    "different question than it answers. Content a tier may shape lives on a hub page;",
+    "this is a label on a machine.",
+    "⚠ If that ever stops being true — if a firm wants to say when ITS advisors should",
+    "reach for a model — that IS authored judgement and it needs a screen at the mentor",
+    "tier first, per the standing rule. Do not quietly widen this file to hold it.",
+    "",
+    "🔴 THE CONSTRAINT THAT DECIDES WHAT IS IN HERE: THE AI MUST NEVER RECOMMEND A MODEL",
+    "WITH NO PAGE. Eight models in utils/reportModelCatalogue.js are STATUS_SOON and have",
+    "no route. A summary for one of those would send an advisor to a screen that does not",
+    "exist — which is to-do item 4.15 happening again somewhere new. Only the models that",
+    "are STATUS_READY and carry a route appear here, keyed BY that route.",
+    "",
+    "tests/unit/reportModelSummaries.test.js holds this file to the catalogue BOTH WAYS:",
+    "a summary for a model that is not ready fails, and a ready model with no summary",
+    "fails. So the day a SOON model goes live, the build says it needs an entry rather",
+    "than the model quietly staying invisible to the AI.",
+    "",
+    "THE FIELDS, and why each is here:",
+    "  answers      — the question the model exists to answer, in an advisor's words.",
+    "  keyOutputs   — Mike's 'key calculation output': the ACTUAL headline figures the",
+    "                 screen puts in its hero band, so the AI names what the advisor will",
+    "                 see rather than something it invented. Kept in step with the",
+    "                 locale hero labels by hand; the guard test checks the count.",
+    "  inputsNeeded — what the advisor must be able to supply. An advisor who cannot get",
+    "                 these numbers should not be sent to the model.",
+    "  useWhen      — the client situations that genuinely point at it.",
+    "  limits       — 🔴 what it does NOT cover, said out loud. Taken from the security",
+    "                 document's own instruction, 'state honestly what each control does",
+    "                 NOT cover', and from each model file's own fidelity notes. A model",
+    "                 recommended without its limits is how an advisor promises a client",
+    "                 something the screen does not do."
+  ],
+
+  "instruction": [
+    "These are the calculation models built into this app. Each one has a working page an advisor can open.",
+    "",
+    "HOW TO USE THIS LIST:",
+    "- Mention a model ONLY when it directly answers the client situation being discussed. It is a tool, not a recommendation to make for its own sake.",
+    "- When you do, give its exact page path from this list so the advisor can open it.",
+    "- NEVER name a model that is not in this list, and never invent a page path. If no model fits, say that plainly — the app has models for some questions and not others.",
+    "- Say what the model does not cover when that matters to the situation. The limits are listed for that purpose.",
+    "- A model marked \"illustrative\" uses teaching figures, not the client's accounts. Never describe its numbers as a picture of the client's business."
+  ],
+
+  "models": [
+    {
+      "route": "/business-performance-report",
+      "name": "Working Capital Cycle",
+      "category": "Cash Flow",
+      "modelClass": "education",
+      "answers": "How fast a fixed pot of cash recycles through stock and debtors, and what speeding that cycle up is worth in revenue and profit.",
+      "keyOutputs": [
+        "Working-capital cycle (days)",
+        "Cycle factor — how many times a year the cash turns over",
+        "Annual revenue at that cycle speed",
+        "Net profit, monthly"
+      ],
+      "inputsNeeded": "Initial investment and the share of it spent on plant and equipment; unit cost, mark-up and discount; days deliverable, days on hand, days receivable, days payable; monthly fixed costs.",
+      "useWhen": "The client is profitable on paper but short of cash. Stock sits too long, customers pay slowly, or the owner asks where the money has gone. Also when they want to know what tightening terms is actually worth.",
+      "limits": "Illustrative teaching figures — no client data goes into it. It shows the mechanics of a cycle, not this client's cycle."
+    },
+    {
+      "route": "/debtor-drag",
+      "name": "Debtor Business Drag",
+      "category": "Cash Flow",
+      "modelClass": "education",
+      "answers": "How much of a year's sales is not lost but merely DELAYED into next year because customers pay slowly — the drag — and how much two different collection profiles change it, month by month, including the deepest overdraft.",
+      "keyOutputs": [
+        "Deepest cash low under the plan",
+        "Deepest cash low before the change",
+        "The effect of the decisions — the difference between the two"
+      ],
+      "inputsNeeded": "Twelve months of sales, and two collection profiles: the share collected in the same month, at one, two, three and four months, and the share written off.",
+      "useWhen": "Overdraft pressure, slow payers, or the question of whether to chase debtors harder or simply arrange a bigger overdraft. It puts a number on the choice.",
+      "limits": "Illustrative teaching figures — no client data goes into it. It models a collection profile, not this client's ledger."
+    },
+    {
+      "route": "/ebitda-dcf",
+      "name": "EBITDA & Discounted Cash Flow",
+      "category": "Profitability",
+      "modelClass": "report",
+      "answers": "What the business is worth — normalised earnings before interest, tax and depreciation, and what its future cash is worth in today's money.",
+      "keyOutputs": [
+        "Enterprise Value",
+        "Normalised EBITDA for the latest year",
+        "Discounted five-year cash flow",
+        "Terminal value"
+      ],
+      "inputsNeeded": "Several years of profit and loss, the normalisation add-backs, and the discount rate for each projected year. There is an optional listed-company block comparing an assessed share price against the market price.",
+      "useWhen": "A sale, a purchase, a succession plan, a shareholder buy-out, or simply the owner asking what the business is worth.",
+      "limits": "Two parts of the source workbook do NOT port and are not in this model: the interest calculations, and the margin-of-error and capitalised-earnings workings. Each projected year is discounted once at that year's rate rather than compounded — the source's own convention. It takes the client's real accounts, so it is never illustrative."
+    },
+    {
+      "route": "/margin-breakeven",
+      "name": "Margin · Mark-up · Break-even",
+      "category": "Profitability",
+      "modelClass": "education",
+      "answers": "The pricing trio every quote depends on: the difference between margin and mark-up, the sales needed to break even, and what a price change does to the volume required to hold the same profit. The whole model rests on one rule — required sales = (overheads + the owner's drawings) ÷ margin.",
+      "keyOutputs": [
+        "Margin",
+        "Mark-up",
+        "Cost of sales",
+        "Break-even sales, monthly"
+      ],
+      "inputsNeeded": "Selling price and unit cost; overheads; the owner's target drawings; and the price change to test.",
+      "useWhen": "Any pricing conversation. Discounting, quoting, a proposed price rise, or the classic question — if I drop the price ten per cent, how much more do I have to sell?",
+      "limits": "Illustrative teaching figures — no client data goes into it. It is a calculator for the arithmetic of pricing, not a costing system."
+    },
+    {
+      "route": "/eight-levers",
+      "name": "8 Levers Model",
+      "category": "Profitability",
+      "modelClass": "education",
+      "answers": "Which of the eight levers moves profit most, and which to pull first. The chain runs market size, foot traffic, prospects, customers, average spend, average frequency, revenue, margin, activity costs, fixed costs, profit — and the teaching point is that small nudges compound.",
+      "keyOutputs": [
+        "Revenue",
+        "Profit",
+        "Profit margin",
+        "Customers"
+      ],
+      "inputsNeeded": "Either a trading position (a five-line product and labour mix, activity costs, fixed costs) or a set of funnel assumptions. It runs both ways.",
+      "useWhen": "Growth planning, and the question of where to start. It is strongest when an owner believes only one lever matters — usually more sales — and needs to see the others.",
+      "limits": "🔴 EVERY figure in it is illustrative teaching data, including the 880,000 trading income. It is never a description of a real business. One known oddity is reproduced from the source rather than repaired: on the Scenarios sheet the current column is anchored to trading revenue while options B and C are built forward from the funnel, so the sheet's own profit increase reads as a large negative. That is the workbook's, not a fault in the client's numbers, and it should not be explained to a client as a finding."
+    },
+    {
+      "route": "/cost-of-capital",
+      "name": "Cost of Capital (WACC)",
+      "category": "Valuation",
+      "modelClass": "decision",
+      "answers": "What the money funding this business actually costs, blending what the owners expect on their equity with what the bank charges on debt. The result is the hurdle an investment has to clear to be worth doing.",
+      "keyOutputs": [
+        "Weighted average cost of capital",
+        "Cost of equity",
+        "Cost of debt, after tax",
+        "The share funded by equity"
+      ],
+      "inputsNeeded": "Equity and debt amounts and rates, the tax rate, and a beta. There is a helper that derives a growth rate and two candidate betas from a pasted series of index values and shareholders' equity.",
+      "useWhen": "Is this investment worth doing? Setting a hurdle rate, weighing a capital-structure change, or testing whether a project clears the cost of the money behind it.",
+      "limits": "The beta helper OFFERS a beta; the person using the model decides whether to take it. That relationship is deliberate and comes from the source workbook. It takes the client's real numbers, so it is never illustrative and the privacy boundary applies."
+    },
+    {
+      "route": "/lease-vs-buy",
+      "name": "Lease vs Buy",
+      "category": "Valuation",
+      "modelClass": "decision",
+      "answers": "Whether leasing or buying an asset — a vehicle in the source model — costs less over its whole life, and which of the two to recommend.",
+      "keyOutputs": [
+        "Total cost to buy",
+        "Total cost to lease",
+        "What the cheaper option saves"
+      ],
+      "inputsNeeded": "Asset price; loan amount, rate, term and amortisation method; depreciation method and rate; running costs; the lease term, payments and lease-end costs; and the tax rate.",
+      "useWhen": "Funding a vehicle or a piece of equipment, and the client is weighing a lease against a loan.",
+      "limits": "The workbook's separate FBT-versus-reimbursement sheet is NOT part of the verdict and is not built — if the question is really about fringe benefit tax, this model does not answer it. It takes the client's real numbers, so it is never illustrative."
+    },
+    {
+      "route": "/loan-estimator",
+      "name": "The Loan Estimator",
+      "category": "Valuation",
+      "modelClass": "decision",
+      "answers": "What lenders would lend against the security the client owns, whether the household can service it, and what the repayments would be.",
+      "keyOutputs": [
+        "Maximum business loan",
+        "Monthly surplus",
+        "Available security — the unused lending headroom",
+        "Monthly repayment",
+        "Estimated maximum borrowing"
+      ],
+      "inputsNeeded": "Each security item the client owns — its class, market value, current debt, growth prospects and any value adjustment — plus household income and existing commitments.",
+      "useWhen": "Borrowing capacity, refinancing, or a client asking whether the bank will lend for a purchase and whether they can afford it.",
+      "limits": "The stress-tested payment is the BANK's worst-case figure — the full lending limit at the assessment rate over the maximum term — not the client's actual loan terms, and it should never be described as their repayment. The lending rules themselves come from a configuration file rather than from any one bank. It takes the client's real numbers, so it is never illustrative."
+    },
+    {
+      "route": "/multiple-property",
+      "name": "Multiple Property Assessment",
+      "category": "Valuation",
+      "modelClass": "decision",
+      "answers": "Whether a rental property is worth buying, and whether a household's portfolio of up to five works — ten years of cash flow, tax with ring-fenced losses carried forward, both loans amortised, and the equity position.",
+      "keyOutputs": [
+        "Weekly cash position",
+        "Total debt",
+        "Net equity",
+        "Return on investor funds"
+      ],
+      "inputsNeeded": "Per property: purchase price, rent, operating costs and loan structure. For the portfolio: the family home and the loan apportionment across the properties.",
+      "useWhen": "A client is buying a rental, or already owns several and wants to know whether the portfolio holds together over ten years rather than in the first month.",
+      "limits": "Its tax treatment follows the firm's own Property Tax Rules settings — what may be depreciated, whether rental losses ring-fence, interest deductibility — which a group or firm manager sets. It is therefore the firm's stated position, not universal tax advice, and it is not a substitute for a tax opinion. It takes the client's real numbers, so it is never illustrative."
+    },
+    {
+      "route": "/quick-position",
+      "name": "Quick Position",
+      "category": "Valuation",
+      "modelClass": "report",
+      "answers": "A fast read on where the business stands right now — how much cash it can actually reach, how long that lasts if sales stop, and what it must sell to break even.",
+      "keyOutputs": [
+        "Quick cash available",
+        "Cover at zero sales",
+        "Cover with life-line capital",
+        "Break-even sales"
+      ],
+      "inputsNeeded": "Current cash, debtors, stock and creditors; monthly fixed costs; gross profit percentage; and any life-line capital the owner could call on.",
+      "useWhen": "Distress, a sudden stop in trading, a lost major customer, or the owner asking how long they have. It is the model for the first conversation, not the detailed one.",
+      "limits": "A service business with no stock removes the stock line from the model entirely rather than showing a misleading zero — set that, or the reading is wrong. Where a figure would divide by zero it returns nothing rather than a fabricated zero, so an unlimited runway shows as unlimited. The New Zealand COVID wage-subsidy block of the source workbook does not port. It takes the client's real numbers, so it is never illustrative."
+    }
+  ]
+}

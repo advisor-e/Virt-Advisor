@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Prompts &mdash; the hub tab (design for approval)</title>
+<style>
+  :root {
+    --navy:#002b64; --grey:#7a869a; --line:#e2e6ec; --ink:#363636;
+    --green:#1f7a45; --green-bg:#eefaf2; --green-line:#63c48d;
+    --amber:#b35309; --amber-bg:#fffaf3; --amber-line:#ffb870;
+    --slate:#5a6b82; --slate-bg:#f3f6fa; --slate-line:#b8c6d8;
+    --dim:#8a94a3; --dim-bg:#f6f7f9; --dim-line:#d8dce3;
+    --red:#a02b2b; --red-bg:#fdf3f3; --red-line:#e2a0a0;
+    --blue:#0a5ea8; --blue-bg:#eef5fc; --blue-line:#9cc4e8;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2.5rem 1.5rem 6rem; background:#f5f5f5;
+    font:15px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); }
+  .wrap { max-width:1060px; margin:0 auto; }
+
+  .banner { background:#fffaf3; border:1px solid #f3ddc0; border-left:4px solid var(--amber-line);
+    border-radius:5px; padding:0.9rem 1.05rem; margin-bottom:2.5rem; font-size:0.84rem; line-height:1.6; }
+  .banner strong { color:var(--amber); }
+  .banner p { margin:0 0 0.6rem; }
+  .banner p:last-child { margin-bottom:0; }
+
+  h1 { font-size:1.6rem; margin:0 0 0.4rem; color:var(--navy); letter-spacing:-0.01em; }
+  .lede { color:var(--grey); font-size:0.92rem; margin:0; max-width:56rem; }
+
+  section.band { margin-top:3.6rem; }
+  section.band > h2 { font-size:1.15rem; color:var(--navy); margin:0 0 0.35rem; letter-spacing:-0.01em; }
+  section.band > .sub { color:var(--grey); font-size:0.86rem; margin:0 0 1.6rem; max-width:56rem; }
+
+  /* ---- the drawn tab ---- */
+  .hub { background:#fff; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .hubhead { padding:1.1rem 1.3rem 0.9rem; border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap; }
+  .hubtitle { font-size:1.15rem; font-weight:700; color:var(--navy); }
+  .hubwho { font-size:0.76rem; color:var(--grey); }
+  .panel { padding:1.4rem; }
+
+  .intro { background:var(--blue-bg); border:1px solid var(--blue-line); border-left:4px solid var(--blue);
+    border-radius:5px; padding:0.85rem 1rem; font-size:0.85rem; margin:0 0 1.5rem; }
+
+  /* prompt picker */
+  .picker { display:flex; gap:0.7rem; flex-wrap:wrap; margin-bottom:1.7rem; }
+  .pcard { flex:1 1 300px; border:1px solid #d7dde6; border-radius:6px; background:#fff;
+    padding:0.75rem 0.9rem; }
+  .pcard.on { border-color:var(--navy); border-width:2px; padding:0.7rem 0.85rem;
+    box-shadow:0 1px 5px rgba(0,43,100,0.10); }
+  .pcard .pname { font-weight:700; color:var(--navy); font-size:0.92rem; }
+  .pcard .psub { font-size:0.76rem; color:var(--grey); margin-top:0.1rem; }
+  .pcard .pmeta { font-size:0.72rem; color:var(--slate); margin-top:0.45rem; }
+
+  /* the editable block - the point of the page */
+  .yours { border:2px solid var(--green-line); background:var(--green-bg); border-radius:7px;
+    padding:1.05rem 1.15rem 1.15rem; margin-bottom:1.8rem; }
+  .yours > h3 { margin:0 0 0.15rem; font-size:1rem; color:var(--green); }
+  .yours > .yhint { margin:0 0 1.1rem; font-size:0.81rem; color:#4a6a58; }
+
+  /* The same slot as .yours, for a prompt that has nothing editable in it. Deliberately
+     NOT an empty green box: a heading over nothing reads as something that failed to
+     load. It states the result instead. */
+  .nothing { border:1px solid var(--slate-line); background:var(--slate-bg); border-radius:7px;
+    padding:1rem 1.15rem; margin-top:1.6rem; }
+  .nothing h3 { margin:0 0 0.2rem; font-size:1rem; color:var(--navy); }
+  .nothing p { margin:0; font-size:0.83rem; color:var(--slate); }
+
+  .var { background:#fff; border:1px solid #cfe6da; border-radius:6px; padding:0.8rem 0.95rem;
+    margin-bottom:0.7rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-start; }
+  .var:last-child { margin-bottom:0; }
+  .vleft { flex:1 1 300px; min-width:0; }
+  .vnum { font-size:0.7rem; font-weight:700; letter-spacing:0.09em; text-transform:uppercase; color:var(--grey); }
+  .vlabel { font-weight:700; color:var(--navy); font-size:0.93rem; }
+  .vwhat { font-size:0.79rem; color:var(--slate); margin-top:0.15rem; }
+  .vright { flex:0 0 250px; }
+  .field { width:100%; border:1px solid #c8d2de; border-radius:4px; padding:0.4rem 0.55rem;
+    font-size:0.87rem; background:#fff; color:var(--ink); }
+  .field.empty { color:var(--dim); font-style:italic; }
+  .field.sel::after { content:"\25BE"; float:right; color:var(--grey); }
+  .badges { margin-top:0.45rem; display:flex; gap:0.35rem; flex-wrap:wrap; }
+
+  .tag { display:inline-block; font-size:0.68rem; font-weight:700; letter-spacing:0.04em;
+    border-radius:3px; padding:0.13rem 0.42rem; border:1px solid; }
+  .t-here { color:var(--blue); background:var(--blue-bg); border-color:var(--blue-line); }
+  .t-inherit { color:var(--slate); background:var(--slate-bg); border-color:var(--slate-line); }
+  .t-default { color:var(--dim); background:var(--dim-bg); border-color:var(--dim-line); }
+  .t-lock { color:var(--slate); background:var(--slate-bg); border-color:var(--slate-line); }
+  .t-yes { color:var(--green); background:var(--green-bg); border-color:var(--green-line); }
+  .t-no { color:var(--dim); background:var(--dim-bg); border-color:var(--dim-line); }
+  .t-already { color:var(--blue); background:var(--blue-bg); border-color:var(--blue-line); }
+  .t-partly { color:var(--amber); background:var(--amber-bg); border-color:var(--amber-line); }
+
+  .unset { margin-top:0.5rem; font-size:0.76rem; border-radius:4px; padding:0.4rem 0.55rem;
+    border:1px solid; }
+  .unset.announce { color:#5a6b82; background:var(--slate-bg); border-color:var(--slate-line); }
+  .unset.ask { color:var(--amber); background:var(--amber-bg); border-color:var(--amber-line); }
+  .unset b { font-weight:700; }
+
+  /* protocol block */
+  .prot { border:1px solid var(--slate-line); background:var(--slate-bg); border-radius:6px;
+    padding:0.9rem 1rem; margin-bottom:1.8rem; }
+  .prot h3 { margin:0 0 0.15rem; font-size:0.93rem; color:var(--navy); }
+  .prot p { margin:0.35rem 0 0; font-size:0.81rem; color:var(--slate); }
+  .protlines { margin:0.7rem 0 0; padding:0 0 0 1.1rem; font-size:0.79rem; color:var(--slate); }
+  .protlines li { margin-bottom:0.22rem; }
+
+  /* the method */
+  .method h3 { font-size:0.95rem; color:var(--navy); margin:0 0 0.15rem; }
+  .method > .mhint { font-size:0.81rem; color:var(--grey); margin:0 0 0.9rem; }
+  .sec { border:1px solid var(--line); border-radius:5px; margin-bottom:0.4rem; background:#fff; }
+  .sechead { display:flex; align-items:center; gap:0.65rem; padding:0.55rem 0.8rem; }
+  .caret { color:var(--grey); font-size:0.8rem; width:0.7rem; flex:0 0 auto; }
+  .secn { font-size:0.72rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    color:var(--grey); flex:0 0 1.8rem; }
+  .sectitle { font-size:0.87rem; color:var(--ink); flex:1 1 auto; }
+  .secbody { padding:0.75rem 0.8rem 0.85rem 3.15rem; font-size:0.82rem; color:var(--slate);
+    border-top:1px solid #f0f2f5; }
+  .secbody p { margin:0 0 0.55rem; }
+  .secbody ul { margin:0 0 0.55rem; padding-left:1.1rem; }
+  .applies { margin-top:0.55rem; font-size:0.78rem; color:var(--slate);
+    background:var(--dim-bg); border:1px solid var(--dim-line); border-radius:4px; padding:0.4rem 0.55rem; }
+
+  /* buttons */
+  .btns { display:flex; gap:0.55rem; flex-wrap:wrap; margin-top:1.6rem; padding-top:1.2rem;
+    border-top:1px solid var(--line); }
+  .btn { font-size:0.82rem; border-radius:4px; padding:0.45rem 0.9rem; border:1px solid #d7dde6;
+    background:#fff; color:var(--slate); }
+  .btn.primary { background:var(--navy); border-color:var(--navy); color:#fff; font-weight:600; }
+  .btn.text { border-color:transparent; background:transparent; color:var(--blue); }
+
+  /* notes */
+  .note { border-left:3px solid var(--slate-line); background:#fbfcfd; padding:0.75rem 1rem;
+    font-size:0.84rem; margin:1.1rem 0 0; }
+  .note b { color:var(--navy); }
+  .ours { color:var(--amber); font-weight:700; }
+  table.diff { border-collapse:collapse; width:100%; font-size:0.83rem; margin-top:0.9rem; }
+  table.diff th { text-align:left; font-size:0.7rem; letter-spacing:0.09em; text-transform:uppercase;
+    color:var(--grey); border-bottom:1px solid var(--line); padding:0.4rem 0.7rem 0.35rem 0; }
+  table.diff td { border-bottom:1px solid var(--line); padding:0.55rem 0.7rem 0.55rem 0;
+    vertical-align:top; color:var(--slate); }
+  table.diff td:first-child { color:var(--navy); font-weight:600; width:34%; }
+
+  /* ---- the protection panel: what replaced seven engineering headings ----
+     Deliberately NOT the grey of a disabled control. It is reassurance, so it
+     reads as a statement the firm can rely on rather than a restriction on them. */
+  .prot h3 { margin:0 0 0.15rem; font-size:0.95rem; color:var(--navy); }
+  .protlede { margin:0.3rem 0 0; font-size:0.81rem; color:var(--slate); }
+  .protlist { margin:0.75rem 0 0; padding:0; list-style:none; }
+  .protlist li { position:relative; padding-left:1.35rem; margin-bottom:0.4rem;
+    font-size:0.845rem; color:var(--ink); }
+  .protlist li:last-child { margin-bottom:0; }
+  .protlist li::before { content:"\2713"; position:absolute; left:0; top:-0.02rem;
+    color:var(--green); font-weight:700; }
+
+  /* the tier strip above each drawing */
+  .who { display:inline-block; font-size:0.7rem; font-weight:700; letter-spacing:0.07em;
+    text-transform:uppercase; border-radius:3px; padding:0.18rem 0.5rem; margin-bottom:0.9rem;
+    color:var(--blue); background:var(--blue-bg); border:1px solid var(--blue-line); }
+  .who.mentoronly { color:var(--amber); background:var(--amber-bg); border-color:var(--amber-line); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <p><strong>This is a drawing, not the built screen.</strong> Nothing here is wired to
+    anything. It exists so the page can be looked at before it is built, per the
+    &ldquo;Save the Artefact&rdquo; rule in CLAUDE.md.</p>
+
+    <p><strong>This is the SECOND drawing, redrawn on your ruling of 22 August.</strong> The
+    first one was written for an engineer. Your words: <em>&ldquo;who is supposed to be working
+    with this page? A computer coder or an accountant who has been given a word doc with some ai
+    / claude prompts on it and told the prompts need to be included for their protection? If its
+    the latter (and it is) then your version risks being too complicated for them.&rdquo;</em>
+    What changed, and what it cost, is listed in section 3 at the bottom. The previous drawing is
+    in the repository&rsquo;s history &mdash; nothing has been lost.</p>
+
+    <p><strong>What is already ruled &mdash; drawn here, not re-asked:</strong> the tab is called
+    <b>AI Prompts</b>; every section of both prompts is fixed except the three named settings on
+    the cash flow prompt; the four manager tiers get the tab and advisors and clients do not; the
+    safety protocols are added by the server and are not part of the editable document; the
+    security prompt is now <b>mentor-only</b>; setting 2 is called <b>Reporting periods</b> and
+    setting 3 stays <b>Currency and units</b> (both your word, 22 August).
+    Source: <code>design/AI-PROMPTS-PAGE.md</code>.</p>
+  </div>
+
+  <h1>AI Prompts &mdash; the hub tab</h1>
+  <p class="lede">The tab a manager opens to see the instructions the AI works to, and to set the
+  handful of things that are theirs to decide. Two drawings below: what a <b>firm, group or
+  global group manager</b> sees, and then the one thing the <b>mentor</b> additionally sees.</p>
+
+  <!-- =============== 1. THE MANAGER'S TAB =============== -->
+  <section class="band">
+    <h2>1. The manager&rsquo;s tab &mdash; firm, group and global group</h2>
+    <p class="sub">Drawn at firm manager scope, which is the busiest case: it has a level above
+    it, so every value can read either &ldquo;set here&rdquo; or &ldquo;inherited&rdquo;. The
+    group and global group versions are the same screen with a different name in the corner.
+    <b>One prompt, three settings, and one paragraph about safety</b> &mdash; that is the whole
+    page now.</p>
+
+    <span class="who">What a firm manager sees</span>
+
+    <div class="hub">
+      <div class="hubhead">
+        <div class="hubtitle">AI Prompts</div>
+        <div class="hubwho">Kirkwood &amp; Co &mdash; firm manager</div>
+      </div>
+      <div class="panel">
+
+        <p class="intro">These are the instructions the AI is given when it builds a cash flow
+        model for your clients. <b>The method is fixed</b> &mdash; it is what makes the output
+        auditable, and it is shown in full below so you can see the standard your firm is held
+        to. <b>The highlighted boxes are yours to set.</b></p>
+
+        <div class="yours">
+          <h3>What you can set</h3>
+          <p class="yhint">Three decisions. Everything else on this page is fixed.</p>
+
+          <div class="var">
+            <div class="vleft">
+              <div class="vnum">Setting 1</div>
+              <div class="vlabel">Materiality threshold</div>
+              <div class="vwhat">The % move in closing cash or the funding requirement that
+              triggers a flag.</div>
+            </div>
+            <div class="vright">
+              <div class="field">5</div>
+              <div class="badges"><span class="tag t-inherit">inherited from your group</span></div>
+            </div>
+          </div>
+
+          <div class="var">
+            <div class="vleft">
+              <div class="vnum">Setting 2</div>
+              <div class="vlabel">Reporting periods</div>
+              <div class="vwhat">The reporting period for the model. This decides the column
+              structure of all three statements and the time axis of every chart.</div>
+            </div>
+            <div class="vright">
+              <div class="field sel">Monthly for two years, then annual</div>
+              <div class="badges"><span class="tag t-here">set here</span></div>
+            </div>
+          </div>
+
+          <div class="var">
+            <div class="vleft">
+              <div class="vnum">Setting 3</div>
+              <div class="vlabel">Currency and units</div>
+              <div class="vwhat">The reporting currency and units &mdash; for example NZD in
+              $000, or USD in whole dollars. This appears in every statement header and every
+              chart axis label.</div>
+              <div class="unset ask"><b>Nothing is set, and there is no default for this
+              one.</b> The AI will stop and ask before building rather than guess. Currency
+              cannot be safely defaulted.</div>
+            </div>
+            <div class="vright">
+              <div class="field empty">Not set</div>
+              <div class="badges"><span class="tag t-default">nothing set at any level</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="prot">
+          <h3>How your clients&rsquo; information is protected</h3>
+          <p class="protlede">These are applied by the system every time, on every prompt. They
+          are not stored on this page, they are not in any of the boxes above, and no level of
+          the system can switch them off. They are here so you know they are there.</p>
+          <ul class="protlist">
+            <li>Client names, addresses and tax numbers are removed before the AI sees
+            anything.</li>
+            <li>Anything a client or a document says is fenced off, so instructions hidden inside
+            it are not obeyed.</li>
+            <li>Invisible characters are stripped from the AI&rsquo;s answer before anyone reads
+            it.</li>
+            <li>Pictures and web code are stripped out of the AI&rsquo;s answer, so nothing can
+            be hidden inside it.</li>
+          </ul>
+        </div>
+
+        <div class="method" style="margin-top:1.8rem;">
+          <h3>The method &mdash; fixed, and shown in full</h3>
+          <p class="mhint">Twelve sections. Click one to read it. Nothing here can be changed at
+          any level.</p>
+
+          <div class="sec">
+            <div class="sechead"><span class="caret">&#9656;</span><span class="secn">1</span>
+              <span class="sectitle">Role and Objective</span><span class="tag t-lock">fixed</span></div>
+          </div>
+          <div class="sec">
+            <div class="sechead"><span class="caret">&#9662;</span><span class="secn">2</span>
+              <span class="sectitle">Output Format</span><span class="tag t-lock">fixed</span></div>
+            <div class="secbody">
+              <p>Deliver a single .xlsx workbook with the following sheets, in order:</p>
+              <ul>
+                <li>Cover &amp; Contents &mdash; title, client, preparation date, version
+                (Draft/Published), and a sheet index.</li>
+                <li>Assumptions &amp; Inputs &mdash; all editable drivers in one place.</li>
+                <li>P&amp;L, Balance Sheet and Cash Flow &mdash; live formulas, never pasted
+                values.</li>
+              </ul>
+              <p><em>Shortened for this drawing. The built page shows every section in full,
+              exactly as it is sent to the AI.</em></p>
+            </div>
+          </div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">3</span>
+            <span class="sectitle">Source Discipline (Non-Negotiable)</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">3A</span>
+            <span class="sectitle">Privacy and De-identification Protocol (Non-Negotiable)</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">4</span>
+            <span class="sectitle">Editable Variables</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">5</span>
+            <span class="sectitle">Materiality &mdash; What &ldquo;Key&rdquo; Means</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">6</span>
+            <span class="sectitle">Scenario and Sensitivity Requirement</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">7</span>
+            <span class="sectitle">Flagged Issues Register</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">8</span>
+            <span class="sectitle">Draft and Publish Stages</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">9</span>
+            <span class="sectitle">Graphs</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">10</span>
+            <span class="sectitle">Plain-English Summary</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">11</span>
+            <span class="sectitle">Auditability Standard</span><span class="tag t-lock">fixed</span></div></div>
+        </div>
+
+        <div class="btns">
+          <button class="btn primary">Save these settings</button>
+          <button class="btn">Go back to inherited</button>
+          <button class="btn text">Change history</button>
+        </div>
+
+      </div>
+    </div>
+
+    <p class="note"><b>Why every setting carries a badge.</b> A level holds only its own changes,
+    so a setting reading <i>inherited</i> keeps receiving your group&rsquo;s corrections, and one
+    reading <i>set here</i> is protected from them. Without the badge those two look identical on
+    screen, and they are not the same thing. This is the same pattern as the Property Tax Rules
+    tab, deliberately &mdash; two ways of showing inheritance is how two ways drift apart.</p>
+  </section>
+
+  <!-- =============== 2. THE MENTOR'S TAB =============== -->
+  <section class="band">
+    <h2>2. The mentor&rsquo;s tab &mdash; the same page, plus the security audit</h2>
+    <p class="sub">The mentor sees everything above, unchanged, and one thing more: the
+    <b>AI Audit and Security</b> prompt in full. Because the mentor now has two documents and a
+    manager has one, <b>the mentor is the only tier that gets a document picker</b>. Below the
+    mentor there is nothing to pick between, so it is gone.</p>
+
+    <span class="who mentoronly">Mentor only</span>
+
+    <div class="hub">
+      <div class="hubhead">
+        <div class="hubtitle">AI Prompts</div>
+        <div class="hubwho">Advisor-e &mdash; mentor</div>
+      </div>
+      <div class="panel">
+
+        <div class="picker">
+          <div class="pcard on">
+            <div class="pname">Three-Way Cash Flow Forecast</div>
+            <div class="psub">AI Build Instructions &mdash; Excel Model Deliverable</div>
+            <div class="pmeta">12 fixed sections &middot; 3 settings you can change</div>
+          </div>
+          <div class="pcard">
+            <div class="pname">AI Audit and Security</div>
+            <div class="psub">Hardening an assistant against the lethal trifecta</div>
+            <div class="pmeta">7 fixed sections &middot; nothing to set</div>
+          </div>
+        </div>
+
+        <div class="method">
+          <h3>AI Audit and Security &mdash; the second card, opened</h3>
+          <p class="mhint">Each of its seven steps records whether it applies to this app at all.
+          Four of the seven do not, and saying so is the honest part &mdash; a control listed
+          without that note reads as a promise the app is not keeping.</p>
+
+          <div class="sec">
+            <div class="sechead"><span class="caret">&#9662;</span><span class="secn">1</span>
+              <span class="sectitle">Inventory the three legs</span><span class="tag t-yes">applies &mdash; not yet done</span></div>
+            <div class="secbody">
+              <p>List every private-data source the AI can read; every place untrusted content
+              enters; and every outbound sink. Give the concrete list, with locations.</p>
+              <div class="applies"><b>Never done for this app.</b> It is the prerequisite for
+              letting four levels edit prompt text.</div>
+            </div>
+          </div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">2</span>
+            <span class="sectitle">Gate the sinks, not the reads</span><span class="tag t-no">does not apply here</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">3</span>
+            <span class="sectitle">Cap outbound fetch bursts</span><span class="tag t-no">does not apply here</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">4</span>
+            <span class="sectitle">Strip secrets from the environment</span><span class="tag t-already">already true</span></div></div>
+          <div class="sec">
+            <div class="sechead"><span class="caret">&#9662;</span><span class="secn">5</span>
+              <span class="sectitle">Fence untrusted content, sanitise output</span><span class="tag t-partly">partly done</span></div>
+            <div class="secbody">
+              <p>Wrap all untrusted content in a clearly marked boundary before the AI sees it.
+              Strip invisible characters and auto-loading images from what comes back.</p>
+              <div class="applies">Fencing is done. Images and raw HTML are stripped from output.
+              Invisible characters were not stripped until 21 August &mdash; that gap was closed
+              as part of this work.</div>
+            </div>
+          </div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">6</span>
+            <span class="sectitle">Taint-gate memory writes</span><span class="tag t-no">does not apply here</span></div></div>
+        </div>
+
+        <div class="nothing">
+          <h3>Nothing here is yours to set</h3>
+          <p>This prompt is entirely safety protocol. There is no part of it a firm, a group or a
+          brand could sensibly change, so there are no boxes on it &mdash; and that is the right
+          answer rather than something missing.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <p class="note"><b>Nothing is hidden from a manager by this, and that is checkable.</b> This
+    prompt had <b>no editable setting at any tier</b> before the change and has none now, so no
+    manager lost a control. What a manager stops seeing is the <i>engineering write-up</i> of
+    protections that still apply to them either way &mdash; and the four sentences under
+    <i>How your clients&rsquo; information is protected</i> are that write-up in their language.
+    <b>Every safeguard it describes runs for every tier, unchanged.</b></p>
+  </section>
+
+  <!-- =============== 3. WHAT CHANGED, AND WHAT IS OURS =============== -->
+  <section class="band">
+    <h2>3. What changed from the 21 August drawing, and what is still ours</h2>
+    <p class="sub">The first rows are your rulings. Everything after them is wording or layout
+    that we chose. None of it re-opens a ruling. If you are happy with all of it, this is exactly
+    what has been built.</p>
+
+    <table class="diff">
+      <tr><th>What changed</th><th>Why, and what it cost</th></tr>
+
+      <tr>
+        <td>The security prompt is now mentor-only</td>
+        <td><b>Your ruling, 22 August.</b> Its seven headings &mdash; <i>the lethal trifecta</i>,
+        <i>gate the sinks, not the reads</i>, <i>taint-gate memory writes</i> &mdash; were
+        <b>7 of the 19 sections a firm manager saw</b>, in a different profession&rsquo;s
+        language. That does the opposite of reassuring: it is a list of alarming things they
+        cannot evaluate. <b>What it cost: nothing a manager could act on.</b> The prompt had no
+        editable setting at any tier, so nothing was taken away from anyone &mdash; only a
+        document they could not use.</td>
+      </tr>
+
+      <tr>
+        <td>Seven headings became four sentences</td>
+        <td><b>Your ruling, 22 August.</b> The panel <i>How your clients&rsquo; information is
+        protected</i> replaces them below the mentor. &#9888; <b>It is the one paraphrase on the
+        screen</b> &mdash; every other word the tab shows is the verbatim text the AI is sent.
+        Given how often a paraphrase has cost us, it does not sit loose: each sentence is stored
+        beside the protocol it describes and is tied by a test to the code that performs it, so a
+        sentence whose protection is removed fails the build instead of going quietly false.</td>
+      </tr>
+
+      <tr>
+        <td>&ldquo;Reporting periods&rdquo;, and &ldquo;Currency and units&rdquo; kept</td>
+        <td><b>Your word, 22 August.</b> Setting 2 was <i>Reporting granularity</i> &mdash; the
+        source document&rsquo;s term, and a specification writer&rsquo;s rather than an
+        accountant&rsquo;s. You kept <i>Currency and units</i> as it was.</td>
+      </tr>
+
+      <tr>
+        <td><span class="ours">The two-card picker is gone below the mentor</span></td>
+        <td>Ours, though it follows from your rulings rather than being a fresh decision: a
+        manager now has one document, and a picker offering a choice of one is furniture. The
+        mentor keeps it, because the mentor genuinely has two.</td>
+      </tr>
+
+      <tr>
+        <td><span class="ours">The fourth safety sentence was replaced before it shipped</span></td>
+        <td>Ours, and it is the same fault you caught on 22 August, in prose instead of in a
+        control. The panel says these things are <i>applied by the system every time</i>. Three of
+        the four are: names stripped, content fenced, invisible characters removed &mdash; all
+        code, all tested. The fourth was <i>&ldquo;Nothing is treated as final until a person has
+        approved it&rdquo;</i>, which is <b>not enforced anywhere</b>; it restates something the
+        AI is <i>asked</i> to do. Under that heading it would have been a promise the app is not
+        keeping. It now reads <i>&ldquo;Pictures and web code are stripped out of the AI&rsquo;s
+        answer&rdquo;</i>, which is enforced by the locked markdown pipeline and is the same kind
+        of thing as the other three.</td>
+      </tr>
+
+      <tr>
+        <td><span class="ours">One safety panel, not two</span></td>
+        <td>Ours, and the judgement worth your eye. The first drawing had a grey
+        <i>Always applied &mdash; not part of this document</i> block AND the security prompt.
+        Keeping both would have left a manager with two boxes answering the same question &mdash;
+        <i>is my client&rsquo;s data safe?</i> &mdash; which is the complication you objected to.
+        They are now one panel. If you would rather the &ldquo;cannot be switched off&rdquo; point
+        stood on its own, that is a five-minute change.</td>
+      </tr>
+
+      <tr>
+        <td><span class="ours">&ldquo;What you can set&rdquo;</span></td>
+        <td>The green block&rsquo;s heading, unchanged from the first drawing. The source document
+        calls these <i>Editable Variables</i>, which is right for an accountant reading a
+        specification and wrong for a manager looking for the thing they came to change.</td>
+      </tr>
+
+      <tr>
+        <td><span class="ours">&ldquo;The method &mdash; fixed, and shown in full&rdquo;</span></td>
+        <td>The heading over the read-only sections, and the word <i>fixed</i> rather than
+        <i>locked</i> on each row. <i>Locked</i> sounds like something is being withheld when the
+        point is the opposite: it is all there to read.</td>
+      </tr>
+
+      <tr>
+        <td><span class="ours">Settings on top, method underneath</span></td>
+        <td>Document order would bury the three settings inside sections 4, 5 and 10. Sections are
+        closed by default: open, the prompt runs to roughly six screens; closed, the whole method
+        is a twelve-line list a manager can take in at a glance.</td>
+      </tr>
+
+      <tr>
+        <td><span class="ours">The amber warning under Currency</span></td>
+        <td>It is the only setting where leaving it blank stops the work instead of falling back
+        to a default. That difference is real and we did not want it to be invisible.</td>
+      </tr>
+
+      <tr>
+        <td><span class="ours">&ldquo;Go back to inherited&rdquo;</span></td>
+        <td>The reset button, worded the same as the Property Tax Rules tab so the two say the
+        same words for the same action.</td>
+      </tr>
+    </table>
+
+    <p class="note"><b>One thing we cannot prove, said rather than implied.</b> This tab is meant
+    for four levels &mdash; mentor, global group, group and firm. <b>Only two of them can be
+    logged into today</b>, because Advisor-e has not supplied the role names for the two middle
+    ones. The code is correct for all four; it can only be exercised on two. That is unchanged
+    from every other cascading tab in the hub, and it is Advisor-e&rsquo;s data to supply, not
+    something we can finish here.</p>
+  </section>
+
+</div>
+</body>
+</html>

@@ -37,7 +37,9 @@ approved, never saved, and gone a day later.
 
 | Artefact | File | Referenced from |
 |---|---|---|
+| AI Prompts tab | [ai-prompts-tab.html](mockups/ai-prompts-tab.html) | ✅ approved + BUILT 2026-08-22 (item 4.28) — **SECOND drawing**: the first was written for an engineer and Mike rejected it, and the file's own §3 names every difference between the drawing and the build. AI-PROMPTS-PAGE.md §10, features/ai-prompts.md |
 | Case origin path | [case-origin.html](mockups/case-origin.html) | Case Reviews, Cases & Clients, Tier Cascade |
+| Share a prompt (accountant contribution) | [prompt-contribution.html](mockups/prompt-contribution.html) | PROMPT-CONTRIBUTION-SAFETY.md, AI-PROMPTS-PAGE.md |
 | Coaching Reference tab | [firm-coaching-reference.html](mockups/firm-coaching-reference.html) | ✅ approved + BUILT 2026-08-15 (item 4.9) — two deviations named in `9cd39c9`; features/tier-cascade.md, features/firm-manager-hub.md |
 | Debtor Drag | [debtor-drag-mockup.html](mockups/debtor-drag-mockup.html) | ⚠ nothing — see *Orphans* below |
 | Decision logic map | [decision-logic-map-mockup.html](mockups/decision-logic-map-mockup.html) | LOGIC-LAB-BUILD-VS-MOCKUP.md |
@@ -45,6 +47,7 @@ approved, never saved, and gone a day later.
 | EBITDA-DCF screen | [ebitda-dcf-mockup.html](mockups/ebitda-dcf-mockup.html) | BUSINESS-PERFORMANCE-REPORT-PLAN.md |
 | Firm quiz builder | [firm-quiz-builder-mockup.html](mockups/firm-quiz-builder-mockup.html) | ACTIONS.md, 2026-07-21 desktop notes |
 | Global groups membership | [global-groups-membership.html](mockups/global-groups-membership.html) | ACTIONS.md, 2026-08-10 notes |
+| Hub navigation grouping | [hub-navigation-grouping.html](mockups/hub-navigation-grouping.html) | HUB-NAVIGATION-GROUPING.md, features/firm-manager-hub.md |
 | Logic Lab wording | [logic-lab-wording-mockup.html](mockups/logic-lab-wording-mockup.html) | ACTIONS.md |
 | Logic table — Template Check | [logic-table-template-check.html](mockups/logic-table-template-check.html) | MENTOR-HUB-CONSOLIDATED-NOTES.md, TREE-RECOMMENDATION-REVIEW.md |
 | Logic tables — rule in place | [logic-tables-rule-in-place.html](mockups/logic-tables-rule-in-place.html) | ACTIONS.md, 2026-08-12 notes |
@@ -52,6 +55,8 @@ approved, never saved, and gone a day later.
 | Mentor adoption view | [mentor-adoption-view.html](mockups/mentor-adoption-view.html) | Adoption, Firm Manager Hub, Tier Cascade |
 | Mentor Logic-Lab report | [mentor-logic-lab-report-mockup.html](mockups/mentor-logic-lab-report-mockup.html) | Logic-Lab Report, MENTOR-AI-HUB-STUB.md |
 | Model Library launcher | [model-library-launcher.html](mockups/model-library-launcher.html) | BUSINESS-PERFORMANCE-REPORT-PLAN.md |
+| Multiple Property Assessment (Phase 1) | [multiple-property-assessment.html](mockups/multiple-property-assessment.html) | MULTIPLE-PROPERTY-ASSESSMENT.md, features/to-do.md item 4.19 |
+| Multiple Property Assessment (Phase 2 — the portfolio) | [multiple-property-portfolio.html](mockups/multiple-property-portfolio.html) | MULTIPLE-PROPERTY-ASSESSMENT.md §11, features/to-do.md item 4.19 |
 | Quick Position | [quick-position-mockup.html](mockups/quick-position-mockup.html) | BUSINESS-PERFORMANCE-REPORT-PLAN.md |
 | Sliced course outline | [sliced-course-outline.html](mockups/sliced-course-outline.html) | COURSE-SESSION-PLANNING.md, COURSE-SLICED-SESSION-WORDING.md |
 | Template Check — evidence row | [template-check-evidence-row.html](mockups/template-check-evidence-row.html) | ACTIONS.md, 2026-08-12 notes |

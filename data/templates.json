@@ -217,9 +217,9 @@
     "menuSection": "do-the-job",
     "page": "id-4277160310",
     "section": "Do the Job",
-    "subSection": "General Tools",
-    "topic": "Covid 19",
-    "title": "Client pre Meeting",
+    "subSection": "Specialist Tools",
+    "topic": "Personality Traits",
+    "title": "Coping With Adversity",
     "link": "id-4277160310",
     "purpose": "This page contains a video and a presentation that explains the way people cope with adversity. It's the most practical way you can serve the topic of 'Wellness' for a business person as it helps them identify their dominant coping style so they can 'catch themselves' when fixated. 'Seeing themselves' is the critical first step in changing behaviour.",
     "support": "Sales; Awareness; Interest; Desire; Credibility; Product Fit; marketing; messaging; stress",
@@ -232,9 +232,9 @@
       "reheasedTemplate": 0
     },
     "growth": {
-      "isHidden": true,
-      "stage": "",
-      "fundamental": ""
+      "isHidden": false,
+      "stage": "Breakeven",
+      "fundamental": "This page contains a video and a presentation that explains the way people cope with adversity. It's the most practical way you can serve the topic of 'Wellness' for a business person."
     },
     "status": "--",
     "tags": [
@@ -9805,7 +9805,7 @@
       "fundamental": "This is an extremely detailed template to help advisors understand the psychological complexities of marketing and selling so they can better analyse their own 'winning business' activities."
     },
     "status": "--",
-    "index": 290,
-    "tags": []
+    "tags": [],
+    "index": 290
   }
 ]

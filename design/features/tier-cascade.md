@@ -55,6 +55,58 @@ level above's improvements automatically. A row a level *has* edited is protecte
 level above's later change is **offered** — Adopt / Keep mine — never silently applied.
 Clone-like protection where someone made a decision; automatic freshness where they did not.
 
+**P11 · A level's own additions are OFFERED downward and must be accepted. Nothing is ever
+enforced — in either direction.** Ruled by Mike, 2026-08-22: *"everything in Advisor-e that is
+offered downwards in a cascade must be accepted by the level below. The higher levels can offer
+ideas but never enforce them. However, under no circumstance can a lower level push something up
+or enforce changes upward either."*
+
+**Scope, confirmed by him in the same exchange: this is about *changes a level makes on top*, not
+about the platform's shipped content** — *"else the software would be useless for a new firm"*. A
+firm that has just opened the app gets the full product working, not an empty shell awaiting
+several hundred acceptances. The baseline **is** the product; a level's own idea is an **offer**.
+
+- **Downward:** what a level adds or edits is an offer to the levels below. They accept or
+  decline. Declining is free, reversible, and changes nothing above.
+- **Upward:** ⚠ **do not read this as a hole to plug — it is already closed, structurally.**
+  Reports rolling up is the *feedback loop the design exists for* (P4) and is emphatically
+  allowed. What is forbidden is a lower level making a document, model or setting a
+  **requirement** for a level above. Today every roll-up route is a `GET`
+  (`/api/mentor/cases`, `/api/mentor/adoption`, `/api/mentor/logic-lab-report`), and every save
+  in the app calls `saveFirmConfig(req.firmId, …)` — the caller's **own** scope, resolved from
+  their own token, never a parent and never an id taken from the request body. There is no route
+  a firm could use to write into its group, so there is nothing to enforce in code.
+
+🔴 **WHAT P11 DOES NOT TOUCH, and this boundary is the whole point of it.** Corrected by Mike
+within the hour of it being written, because the first version got it wrong:
+
+> *"the Staircase, Distinctions, Quizzes and Domain Support are software features and ai
+> guidance tools to enable software execution — they are not templates like a word doc or excel
+> model to work with a client. don't over complicate things"*
+
+**The advisory decision configuration is a shared TOOL, not an offer.** The Advisory Staircase,
+Advisory Distinctions, Quizzes, Domain Support and the Logic Tables are what makes the software
+execute — §1's *"the tools cascade down so we share the tools effectively"*. They already behave
+correctly: they arrive working, a level may switch a row off, edit one, reset it, or add its
+own. **That is the design, not a gap in it.** Requiring a firm to accept those rows one by one
+before the engine would run is precisely the *"software would be useless for a new firm"* case
+Mike ruled out, applied to every firm rather than only new ones.
+
+P11 governs **content a level authors and offers to other levels** — a contributed prompt, a
+resource, material meant to be worked with. It does **not** govern the engine's configuration.
+
+⚠ **DO NOT open a reconciliation of `resolveInheritedRows`, `resolveDistinctions`,
+`staircaseConfig`, `quizConfig`, `firmDistinctions`, `firmStaircase`, `firmQuizzes`,
+`firmManager` or `advisorEngine` on the strength of P11.** An earlier revision of this very
+principle named those nine files as an unreconciled gap. **That was wrong and it was dangerous
+— it would have broken working software across four features to satisfy a rule that was never
+aimed at them.** It is recorded here rather than quietly deleted so that nobody re-derives it:
+the mechanism is right, and P11 is not about it.
+
+⚠ **P3 stands unchanged.** An untouched row keeps receiving the level above's improvements
+automatically, and that is correct for the tools. The earlier claim that P3 was
+"underspecified" was part of the same error.
+
 **P4 · Every report rolls up, to the level immediately below, summarised.** No per-report
 exceptions, ever. Firm manager → its advisers. Group manager → its firms. Global group manager
 → its groups. Mentor → its global groups. Deciding report-by-report which tier "should" see
@@ -188,23 +240,58 @@ the logic tables, so there is nothing in it belonging to a group that could be s
 group. Its routes keep the mentor-role guard rather than the managing-tier guard the other
 reports moved to. This makes each middle hub **12 tabs, not the 13 first drawn**.
 
+### Logins are Advisor-e's to provide
+
+🔴 **Ruled by Mike, 2026-08-22: every manager-hub login is provided by Advisor-e.** Not by us,
+not by a screen in this app, and not by a table we own.
+
+This is **P1 applied to the hubs**, not a new rule — P1 already says login, accounts and roles
+are Advisor-e's. It is repeated here because P1 is a principle and this is the case that keeps
+being met: three documents in this folder describe the missing logins as an unowned gap, which
+invites somebody to fill it. It is not a gap. It is a settled division of responsibility, and
+the correct response to it is to wait, not to build.
+
+What Advisor-e supplies is small and named: the two role values in
+[`config/integration.js`](../../config/integration.js) — `globalManagerRole` and
+`groupManagerRole` — plus the brand and country claims on the token. **Nothing else changes when
+they arrive.** Both ship as empty strings, which match no role, so until then no real token can
+resolve to a middle tier and no save can land in a group's storage by accident. That failure
+mode is not hypothetical: see *Traps that have actually bitten*.
+
 ### The honest limit
 
 **The middle-tier hubs are built** — `pages/global-group-manager.vue` and
 `pages/group-manager.vue` render the same hub at the new scopes — **and they hold no real data.**
-Both reasons belong to Advisor-e, not to us: no role value produces `global_group_manager` or
-`group_manager` (and `mentor` still borrows `platform_admin`), and the `firms` table has no
-country, group or parent column. Without a membership map, `parentScopeOf` returns the mentor
-scope for every firm and the chain runs mentor → firm, exactly as it did before the chain
-existed.
+Both reasons belong to Advisor-e, per the ruling above: no role value produces
+`global_group_manager` or `group_manager` (and `mentor` still borrows `platform_admin`), and the
+`firms` table has no country, group or parent column. Without a membership map, `parentScopeOf`
+returns the mentor scope for every firm and the chain runs mentor → firm, exactly as it did
+before the chain existed.
 
 ⚠ **In development the two middle hubs show INVENTED firms.** Membership is seeded from
-`data/dev-firm-membership.json` and the server says so loudly at startup. Do not read those
-screens as real firms, and do not demonstrate them to anyone as though they were.
+`data/dev-firm-membership.json` — 27 invented firms across 3 brands and 5 countries — and the
+server says so loudly at startup. Do not read those screens as real firms, and do not
+demonstrate them to anyone as though they were.
 
-⚠ **This cannot be demonstrated by logging in as a group manager, because no such login
-exists.** It is evidenced by tests against a seeded membership map — a weaker claim than a live
-screen, and it should be stated as one.
+✅ **The two middle tiers CAN be opened and worked on today, with made-up logins.**
+[`server/middleware/firmAuth.js`](../../server/middleware/firmAuth.js) carries four invented
+dev tokens — `dev-local-bypass` (firm manager), `dev-local-mentor`, `dev-local-global`,
+`dev-local-group` — active only when `ALLOW_DEV_AUTH=true` **and** `NODE_ENV` is not
+production, so they cannot exist in a deployed environment. Each attaches the **real scope id**
+via the same `tierChain` helpers a real token will use, so what a developer exercises is the
+genuine storage path rather than a special case.
+
+⚠ **This paragraph replaced one that said the opposite** — *"cannot be demonstrated by logging
+in as a group manager, because no such login exists"* — which was written before the dev tokens
+landed and then stayed. It was not merely stale: it taught every session that read it to write a
+weaker caveat than the truth into whatever it was building, and at least three documents in this
+folder carry that caveat because of it. **A Brief that understates what works costs as much as
+one that overstates it.**
+
+⚠ **What the dev tokens do NOT prove.** They borrow `platform_admin` to get past
+`requireManagerRole`, because the real role values do not exist yet. So the *scope* behaviour is
+genuinely exercised and the *role gate* is not. When Advisor-e supplies the two values, the gate
+is the one thing still to be tested — and it is the thing the trap below is about.
 
 ### The coaching reference — the fifth block, and the last to join
 
@@ -240,6 +327,37 @@ read strips it, and the form renders it locked *with the reason beside it*.
 could have rewritten the longest field on the tab and changed nothing about the advice. Every test
 was green, because every test asked whether the field was *saved*. **When a block joins the
 mechanism, check its fields against the prompt builder, not against the store.**
+
+### Property tax rules — the sixth block, and the first that is SETTINGS rather than ROWS
+
+**Built 2026-08-18** (`1feefa2`). The tax settings behind the Multiple Property Assessment cascade
+group → firm, and the advisor types over them on the report. Ruled by Mike 2026-08-17
+([`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md) §8 Q6) —
+`server/utils/propertyTaxRules.js`, `server/routes/propertyTaxRules.js`,
+`components/firm/FirmPropertyTaxRules.vue`.
+
+🔴 **THE MECHANISM IS `deepMerge`, NOT `resolveInheritedRows`, AND THE CHOICE IS THE WHOLE POINT.**
+The five blocks above are **rows**, each carrying its own decision, so a level switches one off,
+edits one, or adds its own. These are **map-shaped settings**: there is nothing to switch off and
+nothing to add. A group that sets only `lossTreatment` must keep receiving the platform's value for
+everything else, which is P3 stated for a shape P3 was not written against. ⚠ **Do not reach for
+the row mechanism because five blocks already use it** — a settings block forced through
+`resolveInheritedRows` would need a synthetic id per field and an off-switch that means nothing.
+
+⚠ **`phasingTable` is an array and replaces wholesale.** That is `deepMerge`'s rule and it is the
+right one here: a phasing schedule half from one country and half from another is a schedule no tax
+authority has ever written.
+
+**The mentor is excluded** — see [`firm-manager-hub.md`](firm-manager-hub.md) §4 for the ruling and
+the option turned down. **The advisor is still a pass-through**: their override is the report's own
+card and is never stored, so §3 above stands unamended.
+
+🔴 **The group tier cannot be exercised by a real login today**, and this block is where that limit
+bites first — a group is normally a country, and country is exactly what the chain cannot yet
+resolve. No role value produces `group_manager` and `firms` has no country column, so
+`parentScopeOf` returns the platform scope and the chain runs mentor → firm as before. **It fails
+toward the shipped New Zealand defaults, never toward a guess.** The evidence is tests against a
+seeded membership map, which is a weaker claim than a live screen and is stated as one.
 
 ---
 

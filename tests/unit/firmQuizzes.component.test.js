@@ -846,6 +846,64 @@ describe('closing a sub-section (the three-state rail fix)', () => {
   })
 })
 
+/**
+ * Getting the page list out of the way — added 2026-08-19 on Mike's instruction,
+ * "the one thing to make consistent please".
+ *
+ * Domain Support and Logic Tables had this and Quizzes did not, which is the harder
+ * kind of inconsistency to see: nothing on the Quizzes screen looks wrong, and only
+ * moving between the three tabs shows that one of them will not get out of the way.
+ * Mirrors firmLogicTables.component.test.js assertion for assertion, deliberately —
+ * one behaviour tested three different ways is three behaviours waiting to happen.
+ */
+describe('hiding the page list', () => {
+  afterEach(() => { window.localStorage.clear() })
+
+  test('the list goes, and the questions take the full width', async () => {
+    const wrapper = await mountRail()
+    expect(wrapper.find('.fq-rail').exists()).toBe(true)
+
+    await wrapper.find('.fq-railtoggle').trigger('click')
+
+    expect(wrapper.find('.fq-rail').exists()).toBe(false)
+    expect(wrapper.find('.column.is-12').exists()).toBe(true)
+  })
+
+  test('the control stays on screen and flips its label, so the list can always be brought back', async () => {
+    const wrapper = await mountRail()
+    expect(wrapper.find('.fq-railtoggle').text()).toContain('firmQuizzes.hideList')
+
+    await wrapper.find('.fq-railtoggle').trigger('click')
+    expect(wrapper.find('.fq-railtoggle').exists()).toBe(true)
+    expect(wrapper.find('.fq-railtoggle').text()).toContain('firmQuizzes.showList')
+
+    await wrapper.find('.fq-railtoggle').trigger('click')
+    expect(wrapper.find('.fq-rail').exists()).toBe(true)
+  })
+
+  // The regression that would go unnoticed: the preference looks right for the rest
+  // of the session and is silently forgotten on the next visit.
+  test('the choice survives leaving the screen and coming back', async () => {
+    const first = await mountRail()
+    await first.find('.fq-railtoggle').trigger('click')
+
+    const second = await mountRail()
+    expect(second.vm.railHidden).toBe(true)
+    expect(second.find('.fq-rail').exists()).toBe(false)
+  })
+
+  // Three screens, three preferences. Hiding the list on one must not hide it on the
+  // others — that is the tab tidying itself under the manager's hand.
+  test('the three screens keep separate preferences', async () => {
+    const wrapper = await mountRail()
+    await wrapper.find('.fq-railtoggle').trigger('click')
+
+    expect(window.localStorage.getItem('fq:railHidden')).toBe('1')
+    expect(window.localStorage.getItem('lt:railHidden')).toBeNull()
+    expect(window.localStorage.getItem('ds:railHidden')).toBeNull()
+  })
+})
+
 /** jsdom reports inline colours as rgb(); convert for comparison. */
 function hexToRgb (hex) {
   const r = parseInt(hex.slice(1, 3), 16)

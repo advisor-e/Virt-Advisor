@@ -17,7 +17,7 @@
 |---|---|---|---|
 | **Domain Support** | *How do I run this, step by step?* | Not which template to choose | code ✓ |
 | **Logic Tables** | *Which template, in which scenario?* | Not how to deliver it once chosen | code ✓ |
-| **Coaching Reference** | *Which tool fits this client?* — a flat menu | Not coaching, despite the name | code ✓ |
+| ~~**Coaching Reference**~~ | 🔴 **REMOVED 2026-08-20** — it answered *"which tool fits this client?"*, which is Logic Tables' question by Mike's own ruling | Never coaching, despite the name | code ✓ |
 | **Advisory Staircase** | *How deep is this relationship?* | Not the kind of work — explicitly independent | code ✓ |
 | **Advisory Distinctions** | *What did the advisor just mean?* | Not what to do about it | brief only |
 | **Quizzes** | *Does the adviser know this?* | Not how a session is delivered | brief only |
@@ -62,19 +62,38 @@
 "branches":  [ answer_pattern → next_node, … ]
 ```
 
-**Coaching Reference — a flat selection menu, not coaching.** Its own code
-([`../server/utils/coaching.js`](../server/utils/coaching.js) lines 4 and 176): *"the
-template-selection guidance injected into the Phase 3 prompt"* … *"it is the menu the AI picks a
-template FROM"*. Five of its six fields choose a tool; only `deliveryNotes` says how to run one.
+**Coaching Reference — a flat selection menu, not coaching. 🔴 REMOVED 2026-08-20.** Its own code
+said so while it existed: *"the template-selection guidance injected into the Phase 3 prompt"* …
+*"it is the menu the AI picks a template FROM"*. Five of its six fields chose a tool; only
+`deliveryNotes` said how to run one.
+
+**That description is what condemned it.** *Which template, in which scenario* is the row directly
+above in this same table — Logic Tables — and Mike had already ruled that boundary
+([`COACHING-REFERENCE-DOMAIN-ROWS.md`](COACHING-REFERENCE-DOMAIN-ROWS.md)). The page was answering a
+question another page owned. Item 4.24 folded the seven pieces worth keeping into the logic trees
+and removed the rest, its cascade and its tab. See
+[`features/coaching-reference.md`](features/coaching-reference.md) and
+[`COACHING-REFERENCE-EVIDENCE.md`](COACHING-REFERENCE-EVIDENCE.md).
 
 ---
 
-## 3. 🔴 The Coaching Reference has no Brief
+## 3. ✅ The Coaching Reference got a Brief — and then the page went
 
-It is **the only content page in the hub with none**. Nobody ever wrote down what it is for, which is
-the likeliest reason its name promises coaching while its code calls it a selection menu. **Its
-purpose needs settling as its own piece of work** — writing the Brief is the fix, and it is not part
-of 4.16.
+🔴 **The page was removed on 2026-08-20**, the day after its Brief was written. Read this section as
+the record of how that happened, not as a description of a live screen.
+
+It was **the only content page in the hub with none**. Nobody ever wrote down what it was for, which
+is the likeliest reason its name promised coaching while its code called it a selection menu — and,
+as it turned out, the likeliest reason it should not have existed. Writing the Brief is what let
+Mike see the claim plainly enough to challenge it, hours later.
+
+✅ **Settled:** [`features/coaching-reference.md`](features/coaching-reference.md) — the purpose, the
+eight principles, and **§5, the table of what belongs there and what does not**. Written because
+Mike asked why Facilitation 101 sits under Domain Support rather than there: a fair question that
+the name itself invites, and one this page could answer only by saying what the tab is *not*.
+
+🔴 **The name is still open, and it is Mike's decision** — four options are recorded at §6 of that
+Brief. Until it is settled, §5's table is what stops content landing on the wrong page.
 
 ---
 

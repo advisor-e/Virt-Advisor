@@ -72,7 +72,10 @@ export const CLASS_ALL = 'All'
  * `route` is only present on `ready` models and points at the live in-app report
  * page — deliberately not at the mockup HTML, which is a design artefact.
  *
- * @type {Array<{name: string, category: string, summary: string, status: string, modelClass: string, route?: string}>}
+ * `scope` is optional and rare: a model that ships in phases carries one line saying
+ * how much of it is built, so the card cannot promise more than the screen delivers.
+ *
+ * @type {Array<{name: string, category: string, summary: string, scope?: string, status: string, modelClass: string, route?: string}>}
  */
 export const MODELS = [
   { name: 'Working Capital Cycle', category: 'Cash Flow', summary: 'How fast a fixed pot of cash recycles through stock and debtors — speed it up to earn more.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/business-performance-report' },
@@ -91,7 +94,11 @@ export const MODELS = [
   { name: 'Cost of Capital (WACC)', category: 'Valuation', summary: 'The true cost of the money funding the business — debt and equity blended.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/cost-of-capital' },
   { name: 'Lease vs Buy', category: 'Valuation', summary: 'Which way to fund an asset, compared on real cash terms.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/lease-vs-buy' },
   { name: 'The Loan Estimator', category: 'Valuation', summary: 'What lenders would lend against, whether the household can service it, and the repayments.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/loan-estimator' },
-  { name: 'Multiple Property Assessment', category: 'Valuation', summary: 'Compare several property investments side by side.', status: STATUS_SOON, modelClass: CLASS_DECISION },
+  // `scope` says how much of the model is actually in place — ruled by Mike 2026-08-17
+  // (MULTIPLE-PROPERTY-ASSESSMENT.md §8 Q7a), because the card is what an advisor sees
+  // FIRST and the name promises five properties. It is written to be DELETED when
+  // Phase 2 lands (to-do item 4.19).
+  { name: 'Multiple Property Assessment', category: 'Valuation', summary: 'Whether a rental property is worth buying — ten years of cash, tax and equity.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/multiple-property' },
   { name: 'Retirement Review', category: 'Valuation', summary: 'Whether the plan funds the retirement the owner wants.', status: STATUS_SOON, modelClass: CLASS_DECISION },
   { name: 'Quick Position', category: 'Valuation', summary: 'A fast read on where the business stands right now.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/quick-position' },
   { name: 'High-Level Budget', category: 'Budgeting', summary: 'A top-down budget with actuals and cash-flow variances.', status: STATUS_SOON, modelClass: CLASS_REPORT },

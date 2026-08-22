@@ -873,7 +873,12 @@
         detail: (o.askedBy && o.askedBy.detail) || ''
       }
       copy.status = LIVE
-      copy.comment = ''
+      // His standing comment comes BACK from the project's list, so a note he
+      // wrote in an earlier session is on screen the next time he opens this —
+      // rather than an empty box that reads as "you never said anything".
+      // Blanking it here was the second half of the fault fixed on 2026-08-21;
+      // the first half was apply-to-do.js dropping it on the way in.
+      copy.comment = o.comment || ''
       return copy
     }
 

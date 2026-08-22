@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Property Portfolio Screen</title>
+</head>
+<body>
+<style>
+/* ------------------------------------------------------------------
+   DESIGN ARTEFACT — Phase 2 (the portfolio). NOT shipped code.
+
+   The look is NOT proposed here. Every token below is copied verbatim from
+   design/mockups/multiple-property-assessment.html — the Phase 1 artefact —
+   which itself copies design/REPORT-VISUAL-STANDARD.md and the [A]-[D2d]
+   skeleton in design/REPORT-LAYOUT-REFERENCE.html, per the owner ruling of
+   2026-07-23. The shipped screen reads the --rs-* tokens from
+   components/base/ReportShell.vue and declares none of this itself.
+
+   FIGURES ARE THE BUILT MODEL'S OWN OUTPUT, not the workbook's and not
+   invented. Produced by computeMultiplePropertyPortfolio() on its own
+   defaults (no hold-back chosen, no lending ceiling set) on 2026-08-21.
+   The second state — deposits spread by hand against an 80% ceiling — is
+   the same function called with those inputs, and is shown in the amber
+   annotation near the foot.
+
+   THREE new style rules exist that Phase 1 had no need of, and each is
+   built from tokens that already exist rather than introducing a colour:
+   .warn-list, .prow and .lvr. They are marked NEW where they are defined.
+   ------------------------------------------------------------------ */
+:root {
+  --rs-bg:#eef3f8; --rs-card-bg:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-card-border:#d5e1ee;
+  --rs-accent:#0070c0; --rs-card-top:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-card-radius:14px; --rs-card-pad:16px;
+  --rs-col-input:360px; --rs-col-gap:16px; --rs-width:1120px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--rs-bg); color:var(--rs-ink);
+  font-family:'Open Sans',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  font-weight:300; -webkit-font-smoothing:antialiased; font-size:14px; line-height:1.55;
+}
+.rs-shell{max-width:var(--rs-width);margin:0 auto;padding:28px 22px 64px;min-height:100vh}
+
+/* [A] screen root — ONE gap value */
+.mpa-root{display:flex;flex-direction:column;gap:16px}
+
+/* [B] header — full width */
+.rs-top{margin:0;display:flex;flex-direction:column;gap:4px}
+.rs-back{font-size:13px;color:var(--rs-accent);text-decoration:none}
+.rs-eyebrow{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--rs-accent)}
+.rs-title{margin:0;font-size:28px;font-weight:600;letter-spacing:-.01em;color:var(--rs-ink)}
+.rs-client{font-size:13px;color:var(--rs-muted)}
+.rs-note{font-size:12px;color:var(--rs-muted);font-style:italic}
+
+/* [C] headline band — full width, direct child of root */
+.hero-strip{
+  background:#002b64;border-radius:14px;padding:20px;
+  box-shadow:0 12px 32px rgba(0,43,100,.10);
+  display:grid;grid-template-columns:repeat(4,1fr);gap:20px;
+}
+.hero-figure .hf-label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#9dc2e8;display:block;margin-bottom:6px}
+.hero-figure .hf-value{font-size:26px;font-weight:600;color:#ffffff;letter-spacing:-.01em;display:block}
+.hero-figure .hf-value.crit{color:#ff8080}
+.hero-figure .hf-value.good{color:#8fd96f}
+.hero-figure .hf-sub{font-size:12px;color:#9dc2e8;display:block;margin-top:2px}
+
+/* [D] two-column body */
+.mpa-layout{display:grid;grid-template-columns:var(--rs-col-input) 1fr;gap:var(--rs-col-gap);align-items:start}
+@media (max-width:860px){.mpa-layout{grid-template-columns:1fr}.hero-strip{grid-template-columns:repeat(2,1fr)}}
+
+/* [D1]/[D2] cards */
+.mpa-inputs,.mpa-results{display:flex;flex-direction:column;gap:16px}
+.card{
+  background:var(--rs-card-bg);border:1px solid var(--rs-card-border);
+  border-top:3px solid var(--rs-card-top);border-radius:var(--rs-card-radius);
+  padding:var(--rs-card-pad);
+}
+.card > h2{
+  margin:0 0 12px;font-size:12px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--rs-ink);
+}
+.card > h2 .h2sub{
+  display:block;margin-top:3px;font-size:11px;font-weight:400;letter-spacing:0;
+  text-transform:none;color:var(--rs-muted);font-style:italic;
+}
+
+/* typed input rows */
+.f{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0}
+.f + .f{border-top:1px solid #edf2f7}
+.f label{font-size:13px;color:var(--rs-muted);flex:1}
+.f .box{
+  min-width:104px;text-align:right;font-size:13px;font-weight:600;color:var(--rs-ink);
+  background:var(--rs-panel-2);border:1px solid var(--rs-card-border);border-radius:8px;padding:5px 9px;
+}
+.f .box.pick{min-width:168px}
+/* A figure this screen does not let anybody type — it is resolved elsewhere and
+   shown so the reader knows what the sums were built on. Same box, no fill. */
+.f .box.ro{background:transparent;border-style:dashed;font-weight:400;color:var(--rs-muted)}
+.reconcile{margin-top:10px;font-size:12px;padding:7px 10px;border-radius:8px;background:#e8f4e9;color:#2f7d32}
+.reconcile.bad{background:#fdeaea;color:#c81e1e}
+.disclosure{margin-top:10px;font-size:12.5px;color:var(--rs-accent);cursor:pointer}
+.cardnote{margin-top:10px;font-size:12px;color:var(--rs-muted);font-style:italic}
+
+/* NEW — the property list, and the row that is open below. Built from .f, with
+   the selected row taking the panel fill the boxes already use. No new colour. */
+.prow{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:9px;cursor:pointer}
+.prow + .prow{margin-top:2px}
+.prow .pn{font-size:11px;font-weight:600;color:var(--rs-muted);min-width:14px}
+.prow .pa{flex:1;font-size:12.5px;color:var(--rs-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow .pv{font-size:12.5px;color:var(--rs-muted)}
+.prow.sel{background:var(--rs-panel-2);border:1px solid var(--rs-card-border)}
+.prow.sel .pn,.prow.sel .pa{color:var(--rs-ink);font-weight:600}
+.prow .px{font-size:15px;color:var(--rs-muted);text-decoration:none}
+.padd{margin-top:10px;font-size:12.5px;color:var(--rs-accent);cursor:pointer}
+
+/* NEW — the findings list. Amber and red already exist as tokens; this only
+   arranges them. A finding is a sentence, never a code. */
+.warn-list{display:flex;flex-direction:column;gap:8px}
+.warn-item{display:flex;gap:9px;font-size:12.5px;padding:9px 11px;border-radius:9px;background:#fff6e8;color:#7a4400;border-left:3px solid var(--rs-warn)}
+.warn-item.crit{background:#fdeaea;color:#c81e1e;border-left-color:#c81e1e}
+.warn-item b{color:inherit}
+.warn-none{font-size:12.5px;padding:9px 11px;border-radius:9px;background:#e8f4e9;color:#2f7d32}
+
+/* NEW — the two lending ratios. A big number, its question underneath, and a
+   verdict only when a ceiling exists to judge it against. */
+.lvr{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.lvr .l{background:var(--rs-panel-2);border:1px solid var(--rs-card-border);border-radius:11px;padding:12px 14px}
+.lvr .lv{font-size:24px;font-weight:600;color:var(--rs-ink);display:block}
+.lvr .lv.bad{color:#c81e1e}
+.lvr .ll{font-size:12.5px;color:var(--rs-ink);display:block;margin-top:2px}
+.lvr .ls{font-size:11.5px;color:var(--rs-muted);display:block;margin-top:4px}
+.lvr .lj{font-size:11.5px;display:block;margin-top:6px;font-style:italic;color:var(--rs-muted)}
+
+/* tables */
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:640px}
+th,td{padding:6px 8px;text-align:right;white-space:nowrap;border-bottom:1px solid #edf2f7}
+th{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--rs-muted)}
+th:first-child,td:first-child{text-align:left;color:var(--rs-ink);font-weight:400}
+tr.total td{font-weight:600;border-top:1px solid var(--rs-card-border);border-bottom:none}
+td.neg{color:#c81e1e}
+td.pos{color:#2f7d32}
+tr.rule td{border-bottom:1px solid var(--rs-card-border)}
+tr.dim td{color:var(--rs-muted)}
+tr.self td:first-child{font-style:italic;color:var(--rs-muted)}
+td i{font-style:italic;color:var(--rs-muted)}
+td .in{background:var(--rs-panel-2);border:1px solid var(--rs-card-border);border-radius:7px;padding:3px 8px;font-weight:600}
+
+/* coach panel [D2c] */
+.coach{background:var(--rs-panel-2);border-left:3px solid var(--rs-accent);border-radius:0 9px 9px 0;padding:12px 14px;font-size:13px;color:#23405f}
+.coach b{color:var(--rs-ink)}
+
+/* artefact-only annotation — NOT part of the screen */
+.anno{
+  background:#fdf1e0;border:1px dashed #b56200;color:#7a4400;
+  border-radius:10px;padding:12px 14px;font-size:12.5px;
+}
+.anno b{color:#7a4400}
+.anno table{min-width:0;font-size:12px;margin-top:8px}
+.anno th,.anno td{border-bottom:1px solid #e8d3b4;color:#7a4400}
+.anno th:first-child,.anno td:first-child{color:#7a4400}
+.anno code{background:#f6e3c8;padding:1px 5px;border-radius:4px;font-size:11.5px}
+</style>
+
+<div class="rs-shell">
+<div class="mpa-root">
+
+  <div class="anno">
+    <b>DESIGN ARTEFACT &mdash; Phase 2 of the Multiple Property Assessment, item 4.19,
+    build step P2-3.</b> The household, the loan apportionment, up to five properties and
+    the consolidated report. This amber block and the other amber blocks are annotation
+    and are <b>not</b> part of the screen.
+    <br><br>
+    🔴 <b>Every figure below is the BUILT MODEL's own output</b>, taken from
+    <code>computeMultiplePropertyPortfolio()</code> on its own defaults on 2026-08-21.
+    Nothing is invented and nothing is the workbook's uncorrected arithmetic. The state
+    drawn is the one an advisor meets first: <b>no hold-back chosen and no lending ceiling
+    set</b>.
+    <br><br>
+    <b>WHAT IS OURS AND NEEDS YOUR WORD &mdash; §11, questions Q11 to Q16.</b> The shape of
+    the screen, every column name in the apportionment table that the workbook does not
+    supply, the hold-back control, the seven finding sentences, how a loan-to-value ratio
+    reads when nothing is judging it, and the servicing card. They are marked <b>OURS</b>
+    wherever they appear, and listed together at the foot.
+  </div>
+
+  <!-- ================= [B] header — full width ================= -->
+  <div class="rs-top">
+    <a class="rs-back" href="#">&larr; Back to the Model Library</a>
+    <span class="rs-eyebrow">Business Performance Report</span>
+    <h1 class="rs-title">Multiple Property Assessment</h1>
+    <span class="rs-client">Prepared for: [client name] &middot; five properties</span>
+    <span class="rs-note">Uses the client's real figures &mdash; not illustrative.</span>
+  </div>
+
+  <div class="anno">
+    <b>The scope line is GONE, and that is build step P2-5.</b> Phase 1's header carried
+    <i>"Property 1 of 5 &middot; the remaining four arrive in the next release"</i>. It was
+    written to be deleted the day the other four arrived, and this is that day. It goes
+    from the header <b>and</b> from the Model Library card in the same change (§8 Q1, Q7a).
+  </div>
+
+  <!-- ================= [C] headline band ================= -->
+  <div class="hero-strip">
+    <div class="hero-figure">
+      <span class="hf-label">Weekly cash position</span>
+      <span class="hf-value crit">&minus;$4,636</span>
+      <span class="hf-sub">Year 1 &middot; all five properties</span>
+    </div>
+    <div class="hero-figure">
+      <span class="hf-label">Total debt</span>
+      <span class="hf-value">$2,952,149</span>
+      <span class="hf-sub">Year 1</span>
+    </div>
+    <div class="hero-figure">
+      <span class="hf-label">Net equity</span>
+      <span class="hf-value good">$2,972,139</span>
+      <span class="hf-sub">Year 10</span>
+    </div>
+    <div class="hero-figure">
+      <span class="hf-label">Return on investor funds</span>
+      <span class="hf-value good">58.0%</span>
+      <span class="hf-sub">Year 10</span>
+    </div>
+  </div>
+
+  <div class="anno">
+    <b>The four labels are UNCHANGED from Phase 1 &mdash; ruled by you on 2026-08-17
+    (§8 Q2) &mdash; and the model returns the same four fields at portfolio scale.</b> The
+    only thing that moved is the sub-line under the first figure, which now says
+    <i>"all five properties"</i> so nobody reads a portfolio total as one house.
+    <b>OURS &mdash; Q12.</b>
+  </div>
+
+  <!-- ================= [D] two-column body ================= -->
+  <div class="mpa-layout">
+
+    <!-- ---------------- [D1] inputs ---------------- -->
+    <aside class="mpa-inputs">
+
+      <div class="card">
+        <h2>The household</h2>
+        <div class="f"><label>Value of Residential Home (if owned)</label><span class="box">1,400,000</span></div>
+        <div class="f"><label>Home Mortgage (if any)</label><span class="box">225,000</span></div>
+        <div class="f"><label>Total Savings for (Combined) Investment Property's Deposit</label><span class="box">315,000</span></div>
+        <div class="f"><label>Deductible Share of the Home Loan</label><span class="box">60.0%</span></div>
+        <div class="f"><label>Maximum Loan to Value Ratio</label><span class="box ro">not set</span></div>
+        <div class="cardnote">The first four labels are the workbook's own
+          (<code>INPUTS</code> rows 11&ndash;15 and K13). The ceiling is not typed here: it
+          arrives from your firm's Property Tax Rules and is shown so the reader knows what
+          the ratios below are being judged against &mdash; or, as here, that nothing is
+          judging them.</div>
+      </div>
+
+      <div class="card">
+        <h2>The properties
+          <span class="h2sub">Five is the most the model takes. Open one to see and change its own figures.</span>
+        </h2>
+        <div class="prow sel">
+          <span class="pn">1</span><span class="pa">56 Big Deal Avenue, Goldentown</span>
+          <span class="pv">649,000</span><a class="px" href="#">&times;</a>
+        </div>
+        <div class="prow">
+          <span class="pn">2</span><span class="pa">51 Someday Street, Sometown</span>
+          <span class="pv">515,000</span><a class="px" href="#">&times;</a>
+        </div>
+        <div class="prow">
+          <span class="pn">3</span><span class="pa">35 Average Deal Avenue, Goldentown</span>
+          <span class="pv">649,000</span><a class="px" href="#">&times;</a>
+        </div>
+        <div class="prow">
+          <span class="pn">4</span><span class="pa">55 Small Deal Avenue, Goldentown</span>
+          <span class="pv">864,000</span><a class="px" href="#">&times;</a>
+        </div>
+        <div class="prow">
+          <span class="pn">5</span><span class="pa">45 Rock n Roll Ave, Swingtown</span>
+          <span class="pv">785,000</span><a class="px" href="#">&times;</a>
+        </div>
+        <div class="padd">+ Add a property</div>
+        <div class="cardnote"><b>OURS &mdash; Q11.</b> Opening a property changes only the
+          card below this one and the property section at the foot of the results. The
+          portfolio &mdash; the deposit table, the lending position, the consolidated report
+          &mdash; never moves when you open one.</div>
+      </div>
+
+      <div class="card">
+        <h2>Tax rules
+          <span class="h2sub">Set by the group, corrected by the firm, and typed over here for this client.</span>
+        </h2>
+        <div class="f"><label>Non-Deductible Costs Added Back in Year 1</label><span class="box pick">Setup Costs only</span></div>
+        <div class="f"><label>GST on Rental Management Fee</label><span class="box">15.0%</span></div>
+        <div class="f"><label>What May Be Depreciated</label><span class="box pick">Chattels only</span></div>
+        <div class="f"><label>Depreciation Method</label><span class="box pick">Diminishing Value</span></div>
+        <div class="f"><label>Depreciation Rate on Chattels</label><span class="box">28.0%</span></div>
+        <div class="f"><label>Rental Losses</label><span class="box pick">Ring-Fenced</span></div>
+        <div class="f"><label>Interest is a Deductible Expense</label><span class="box pick">Phasing</span></div>
+        <div class="disclosure">&#9656; Phasing table &mdash; 100% / 75% / 50% / 25% / 0%</div>
+        <div class="cardnote">Every label here was ruled by you on 2026-08-17 (§8 Q5) and
+          none has changed. <b>OURS &mdash; Q11:</b> the card sits at portfolio level and
+          applies to all five properties, because these are a country's rules and a family
+          has one country. A single property may still differ &mdash; that override lives on
+          the property itself, below.</div>
+      </div>
+
+      <div class="card">
+        <h2>Property 1 &mdash; the property
+          <span class="h2sub">56 Big Deal Avenue, Goldentown</span>
+        </h2>
+        <div class="f"><label>Address</label><span class="box" style="min-width:150px">56 Big Deal Avenue&hellip;</span></div>
+        <div class="f"><label>Purchase Price</label><span class="box">649,000</span></div>
+        <div class="f"><label>&ndash; Land</label><span class="box">260,000</span></div>
+        <div class="f"><label>&ndash; Building</label><span class="box">359,168</span></div>
+        <div class="f"><label>&ndash; Chattels</label><span class="box">29,832</span></div>
+        <div class="reconcile">Split reconciles to the purchase price &mdash; difference $0</div>
+        <div class="f" style="margin-top:8px"><label>Rental Assessment (per week)</label><span class="box">610</span></div>
+        <div class="f"><label>Assumed Vacancy (weeks p.a.)</label><span class="box">2</span></div>
+        <div class="f"><label>Tax Rate Applicable to Rental Income</label><span class="box">28.0%</span></div>
+      </div>
+
+      <div class="card">
+        <h2>Property 1 &mdash; funding
+          <span class="h2sub">Two of these are decided by the deposit table and cannot be typed.</span>
+        </h2>
+        <div class="f"><label>Deposit Applied to This Property</label><span class="box">315,000</span></div>
+        <div class="f"><label>Funding Required</label><span class="box ro">334,000</span></div>
+        <div class="f"><label>&ndash; Interest Only Loan</label><span class="box">334,000</span></div>
+        <div class="f"><label>&ndash; Principal &amp; Interest Loan</label><span class="box ro">0</span></div>
+        <div class="f"><label>Term of Interest Only Loan (yrs)</label><span class="box">8</span></div>
+        <div class="f"><label>At the End of the Interest Only Period</label><span class="box pick">Convert to P&amp;I</span></div>
+        <div class="f"><label>Total Term of Interest Only Loan (yrs)</label><span class="box">30</span></div>
+        <div class="f"><label>Term of P&amp;I Loan (yrs)</label><span class="box">7</span></div>
+        <div class="f"><label>Rate on Interest Only Loan</label><span class="box">4.00%</span></div>
+        <div class="f"><label>Rate on P&amp;I Loan</label><span class="box">4.00%</span></div>
+        <div class="cardnote">🔴 <b>The change Phase 1 does not have.</b> <i>Funding
+          Required</i> and <i>Cash Deposit</i> were typed fields on the one-property screen.
+          In a portfolio the deposit table decides both, so they are shown and not typed
+          &mdash; the route ignores them on this shape. <b>The deposit is the one the family
+          chooses, and it is typed here as well as in the table.</b> <b>OURS &mdash; Q14.</b></div>
+      </div>
+
+      <div class="anno">
+        <b>Property 1's other two input cards &mdash; <i>Annual costs</i> and
+        <i>Assumptions</i> &mdash; are unchanged from Phase 1</b> and are not redrawn here.
+        They are already approved and already built; repeating them would only invite them
+        to drift. See <code>design/mockups/multiple-property-assessment.html</code>.
+      </div>
+
+    </aside>
+
+    <!-- ---------------- [D2] results ---------------- -->
+    <section class="mpa-results">
+
+      <!-- [D2a] THE FINDINGS — first, because they are the model telling the
+           advisor that a figure below is not what they asked for. -->
+      <div class="card">
+        <h2>Things to check
+          <span class="h2sub">The model changed something to make the sums balance, and says so.</span>
+        </h2>
+        <div class="warn-list">
+          <div class="warn-item">
+            <span>&#9888;</span>
+            <span><b>Property 1 &mdash; the interest-only loan was reduced from $350,000 to
+            $334,000.</b> With the deposit applied this property only needs to borrow
+            $334,000, so the principal-and-interest loan is nil. Check the split with the
+            lender.</span>
+          </div>
+        </div>
+        <div class="cardnote">🔴 <b>This card is not optional and it must never be empty of
+          a finding the model made.</b> A capped loan, a deposit reduced to fit, or a
+          breached lending ratio each changes a number on this page; a screen that swallows
+          them puts the model back to producing a plausible wrong figure in silence, which
+          is the exact fault the apportionment corrections were made to fix.
+          <b>All seven sentences are OURS &mdash; Q15</b>, and the other six are listed at
+          the foot of this page.</div>
+      </div>
+
+      <!-- [D2b] THE APPORTIONMENT — the centre of Phase 2 -->
+      <div class="card">
+        <h2>How the deposit is spread
+          <span class="h2sub">$315,000 of savings, across the family home and five rentals.</span>
+        </h2>
+        <div class="tw">
+        <table>
+          <thead>
+            <tr>
+              <th>&nbsp;</th><th>Value</th><th>Deposit applied</th><th>Funding required</th>
+              <th>Deductible share</th><th>Loan apportioned</th><th>Loan to value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="self">
+              <td>The family home</td><td>1,400,000</td><td>&mdash;</td><td>225,000</td>
+              <td>60%</td><td>135,000</td><td>16.1%</td>
+            </tr>
+            <tr>
+              <td>1 &middot; 56 Big Deal Avenue</td><td>649,000</td>
+              <td><span class="in">315,000</span></td><td>334,000</td><td>100%</td>
+              <td>334,000</td><td>51.5%</td>
+            </tr>
+            <tr>
+              <td>2 &middot; 51 Someday Street</td><td>515,000</td>
+              <td><span class="in">0</span></td><td>515,000</td><td>100%</td>
+              <td>515,000</td><td class="neg">100.0%</td>
+            </tr>
+            <tr>
+              <td>3 &middot; 35 Average Deal Avenue</td><td>649,000</td>
+              <td><span class="in">0</span></td><td>649,000</td><td>100%</td>
+              <td>649,000</td><td class="neg">100.0%</td>
+            </tr>
+            <tr>
+              <td>4 &middot; 55 Small Deal Avenue</td><td>864,000</td>
+              <td><span class="in">0</span></td><td>864,000</td><td>100%</td>
+              <td>864,000</td><td class="neg">100.0%</td>
+            </tr>
+            <tr class="rule">
+              <td>5 &middot; 45 Rock n Roll Ave</td><td>785,000</td>
+              <td><span class="in">0</span></td><td>785,000</td><td>100%</td>
+              <td>785,000</td><td class="neg">100.0%</td>
+            </tr>
+            <tr class="total">
+              <td>Total</td><td>4,862,000</td><td>315,000</td><td>3,372,000</td><td>&mdash;</td>
+              <td>3,282,000</td><td>69.4%</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="reconcile">Held back by the family &mdash; $0 of $315,000.
+          Every dollar of the deposit is spent, and it is spent once.</div>
+        <div class="cardnote"><b>Nobody typed a deposit, so the table gave the whole
+          $315,000 to the first property and the other four are borrowing the entire
+          purchase price.</b> That is what "no hold-back chosen" means, and it is the
+          situation your ruling of 2026-08-20 was made for: type a figure into any
+          <i>Deposit applied</i> box and the rest of the money stays with the family, named
+          below the table.
+          <br><br>
+          <b>Balance of Loans to Apportion &mdash; $90,000.</b> The workbook's own row 17,
+          and under the correction it is always the part of the home loan that is
+          <i>not</i> deductible.
+          <br><br>
+          <b>OURS &mdash; Q13:</b> the card's title and four of the seven column names.
+          <i>Value</i>, <i>Funding required</i> and <i>Loan apportioned</i> are the
+          workbook's own; <i>Deposit applied</i>, <i>Deductible share</i>, <i>Loan to
+          value</i> and <i>The family home</i> are ours.</div>
+      </div>
+
+      <!-- [D2c] LENDING -->
+      <div class="card">
+        <h2>Lending position
+          <span class="h2sub">Two ratios, because a lender asks two different questions.</span>
+        </h2>
+        <div class="lvr">
+          <div class="l">
+            <span class="lv">69.4%</span>
+            <span class="ll">Everything the family owns</span>
+            <span class="ls">All borrowing, including the home mortgage, against every
+              property including the home.</span>
+            <span class="lj">No ceiling set &mdash; shown, not judged.</span>
+          </div>
+          <div class="l">
+            <span class="lv">90.9%</span>
+            <span class="ll">The rentals on their own</span>
+            <span class="ls">The five investment loans against the five investment
+              properties. This is the one an investment lender tests.</span>
+            <span class="lj">No ceiling set &mdash; shown, not judged.</span>
+          </div>
+        </div>
+        <div class="cardnote">🔴 <b>Neither figure carries a pass or a fail until somebody
+          sets a maximum.</b> The model ships the ceiling blank on purpose: a percentage
+          nobody chose would arrive on this card wearing the authority of a calculated
+          result. Set it in <b>Property Tax Rules</b> and both ratios start being judged,
+          here and property by property in the table above.
+          <br><br>
+          <b>OURS &mdash; Q16:</b> the card's title, both ratio names, both explanations and
+          the wording of the not-judged line.</div>
+      </div>
+
+      <!-- [D2d] THE FIVE PROPERTIES -->
+      <div class="card">
+        <h2>The five properties
+          <span class="h2sub">Each one's own four figures, so they can be compared without opening them.</span>
+        </h2>
+        <div class="tw">
+        <table>
+          <thead>
+            <tr><th>&nbsp;</th><th>Weekly cash, yr 1</th><th>Total debt, yr 1</th>
+            <th>Net equity, yr 10</th><th>Return, yr 10</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1 &middot; 56 Big Deal Avenue</td><td class="pos">41</td><td>334,000</td><td>532,465</td><td class="pos">66.9%</td></tr>
+            <tr><td>2 &middot; 51 Someday Street</td><td class="neg">&minus;577</td><td>494,109</td><td>332,780</td><td class="pos">78.9%</td></tr>
+            <tr><td>3 &middot; 35 Average Deal Avenue</td><td class="neg">&minus;1,068</td><td>603,922</td><td>517,407</td><td class="pos">67.8%</td></tr>
+            <tr><td>4 &middot; 55 Small Deal Avenue</td><td class="neg">&minus;1,292</td><td>815,431</td><td>856,919</td><td class="pos">36.8%</td></tr>
+            <tr class="rule"><td>5 &middot; 45 Rock n Roll Ave</td><td class="neg">&minus;1,741</td><td>704,687</td><td>732,568</td><td class="pos">65.9%</td></tr>
+            <tr class="total"><td>The portfolio</td><td class="neg">&minus;4,636</td><td>2,952,149</td><td>2,972,139</td><td class="pos">58.0%</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="cardnote">⚠ <b>This is the one card that has to answer §1 of the design
+          document</b>, which says in terms that this model is <i>not</i> a side-by-side
+          property comparison. It still is not: nothing here is scored, ranked or
+          recommended. It is the five properties the advisor already entered, each showing
+          the four figures the model already computes, so that opening one property is
+          never the only way to see how it sits against the others. <b>OURS &mdash; Q11.</b></div>
+      </div>
+
+      <!-- CONSOLIDATED -->
+      <div class="card">
+        <h2>Consolidated report &mdash; ten years
+          <span class="h2sub">All five properties added together. The workbook's Consolidated Report, rows 11&ndash;39.</span>
+        </h2>
+        <div class="tw">
+        <table>
+          <thead><tr><th>&nbsp;</th><th>Yr1</th><th>Yr2</th><th>Yr3</th><th>Yr4</th><th>Yr5</th><th>Yr6</th><th>Yr7</th><th>Yr8</th><th>Yr9</th><th>Yr10</th></tr></thead>
+          <tbody>
+            <tr><td>Total Revenue</td><td>149,750</td><td>154,991</td><td>160,416</td><td>166,031</td><td>171,842</td><td>177,856</td><td>184,081</td><td>190,524</td><td>197,192</td><td>204,094</td></tr>
+            <tr><td>Total Expenses</td><td>195,997</td><td>173,439</td><td>168,180</td><td>162,712</td><td>157,026</td><td>150,838</td><td>148,338</td><td>148,049</td><td>148,877</td><td>148,964</td></tr>
+            <tr class="rule"><td>Net Operating Profit (Loss)</td><td class="neg">&minus;46,247</td><td class="neg">&minus;18,448</td><td class="neg">&minus;7,764</td><td class="pos">3,318</td><td class="pos">14,816</td><td class="pos">27,018</td><td class="pos">35,743</td><td class="pos">42,475</td><td class="pos">48,315</td><td class="pos">55,130</td></tr>
+            <tr><td>Total Assumed Property Values</td><td>3,462,000</td><td>3,565,860</td><td>3,672,836</td><td>3,783,021</td><td>3,896,512</td><td>4,013,407</td><td>4,133,809</td><td>4,257,823</td><td>4,385,558</td><td>4,517,125</td></tr>
+            <tr><td>Total Debt Position</td><td>2,952,149</td><td>2,749,554</td><td>2,538,886</td><td>2,319,808</td><td>2,082,927</td><td>1,934,280</td><td>1,836,805</td><td>1,763,028</td><td>1,666,702</td><td>1,544,986</td></tr>
+            <tr class="rule"><td>Net Equity</td><td>509,851</td><td>816,306</td><td>1,133,949</td><td>1,463,213</td><td>1,813,585</td><td>2,079,127</td><td>2,297,004</td><td>2,494,795</td><td>2,718,856</td><td>2,972,139</td></tr>
+            <tr><td>&ndash; Cash Deposit</td><td>315,000</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+            <tr><td>&ndash; Annual Cash Top Up</td><td>243,244</td><td>227,210</td><td>225,128</td><td>223,000</td><td>229,860</td><td>134,684</td><td>84,345</td><td>59,829</td><td>62,030</td><td>77,193</td></tr>
+            <tr class="dim"><td>&ndash; Capital Introduced <i>(repay ending only)</i></td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+            <tr class="rule"><td>Cumulative Investor Funds</td><td>558,244</td><td>785,454</td><td>1,010,582</td><td>1,233,582</td><td>1,463,443</td><td>1,598,126</td><td>1,682,471</td><td>1,742,300</td><td>1,804,330</td><td>1,881,523</td></tr>
+            <tr><td>Projected Return on Investor Funds</td><td class="neg">&minus;8.7%</td><td class="pos">3.9%</td><td class="pos">12.2%</td><td class="pos">18.6%</td><td class="pos">23.9%</td><td class="pos">30.1%</td><td class="pos">36.5%</td><td class="pos">43.2%</td><td class="pos">50.7%</td><td class="pos">58.0%</td></tr>
+            <tr class="total"><td>Weekly Cash Profit / (Loss)</td><td class="neg">&minus;4,636</td><td class="neg">&minus;4,251</td><td class="neg">&minus;4,201</td><td class="neg">&minus;4,149</td><td class="neg">&minus;4,270</td><td class="neg">&minus;2,365</td><td class="neg">&minus;1,229</td><td class="neg">&minus;670</td><td class="neg">&minus;1,063</td><td class="neg">&minus;1,433</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="cardnote">Every label here is the workbook's own. ✅ <b>Two of these rows
+          are the proof the port is right:</b> Total Revenue and Total Assumed Property
+          Values match the spreadsheet's own cached figures exactly across all ten years.
+          Total Debt and Net Equity deliberately do not &mdash; those are the rows carrying
+          your ruling that an interest-only loan may not simply vanish (§6 rule 9).</div>
+      </div>
+
+      <!-- SERVICING -->
+      <div class="card">
+        <h2>What the portfolio asks of the family
+          <span class="h2sub">The money they must find. Not a judgement about whether they can find it.</span>
+        </h2>
+        <div class="tw">
+        <table>
+          <thead><tr><th>&nbsp;</th><th>Yr1</th><th>Yr2</th><th>Yr3</th><th>Yr4</th><th>Yr5</th><th>Yr6</th><th>Yr7</th><th>Yr8</th><th>Yr9</th><th>Yr10</th></tr></thead>
+          <tbody>
+            <tr><td>Cash the properties cannot find</td><td>243,244</td><td>227,210</td><td>225,128</td><td>223,000</td><td>229,860</td><td>134,684</td><td>84,345</td><td>59,829</td><td>62,030</td><td>77,193</td></tr>
+            <tr class="total"><td>Per week</td><td class="neg">4,678</td><td class="neg">4,369</td><td class="neg">4,329</td><td class="neg">4,288</td><td class="neg">4,420</td><td class="neg">2,590</td><td class="neg">1,622</td><td class="neg">1,151</td><td class="neg">1,193</td><td class="neg">1,484</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="reconcile bad">The hardest year is <b>year 1</b>, at <b>$243,244</b> &mdash;
+          about <b>$4,678 a week</b>. Over ten years the portfolio asks the family for
+          <b>$1,566,523</b>.</div>
+        <div class="cardnote">🔴 <b>This card states a demand and stops there.</b> The
+          workbook collects no household income and no living costs on any sheet, so there
+          is nothing here to test affordability against and the model must not pretend
+          otherwise. A test in the repository fails the build if an affordability verdict is
+          ever added to it. <b>Whether the screen should ASK for the family's income so the
+          question can be answered honestly is a real decision and it is yours &mdash; Q16.</b>
+          <br><br>
+          <b>OURS:</b> the card's title, both row names and the summary sentence.</div>
+      </div>
+
+      <!-- COACH -->
+      <div class="card">
+        <h2>What this says</h2>
+        <div class="coach">
+          <b>On these figures the family cannot buy all five properties with $315,000.</b>
+          The first property absorbs the whole deposit and the other four are shown
+          borrowing 100% of their purchase price &mdash; the rentals together stand at
+          <b>90.9%</b> loan to value, which no ordinary investment lender will advance.
+          <br><br>
+          The portfolio costs them <b>$4,636 a week</b> in year 1 and stays cash-negative
+          for all ten years, easing to about <b>$1,433 a week</b> by year 10. Across the ten
+          years it asks them for <b>$1,566,523</b> of cash on top of the deposit.
+          <br><br>
+          Against that it builds <b>$2,972,139</b> of equity by year 10 on
+          <b>$1,881,523</b> of money put in &mdash; a return of <b>58.0%</b>. The question
+          this screen puts to the client is not whether the portfolio grows. It is whether
+          they can carry $4,678 a week for the first five years while it does.
+        </div>
+        <div class="cardnote"><b>OURS, and built from the figures rather than written
+          out.</b> The same rule as Phase 1's version, which you approved on 2026-08-17
+          (<i>"the wording is great"</i>): a fixed paragraph would be false for any portfolio
+          but this one, and would read as authored analysis while being a hardcoded string.
+          The sentences change with the numbers &mdash; a portfolio inside its lending
+          ceiling does not get told it is over one. <b>Q15.</b></div>
+      </div>
+
+      <!-- SELECTED PROPERTY DETAIL -->
+      <div class="card">
+        <h2>Property 1 &mdash; investment summary, ten years
+          <span class="h2sub">56 Big Deal Avenue, Goldentown. Open a different property on the left to change this section.</span>
+        </h2>
+        <div class="tw">
+        <table>
+          <thead><tr><th>&nbsp;</th><th>Yr1</th><th>Yr2</th><th>Yr3</th><th>Yr4</th><th>Yr5</th><th>Yr6</th><th>Yr7</th><th>Yr8</th><th>Yr9</th><th>Yr10</th></tr></thead>
+          <tbody>
+            <tr><td>Assumed Property Value</td><td>649,000</td><td>668,470</td><td>688,524</td><td>709,180</td><td>730,455</td><td>752,369</td><td>774,940</td><td>798,188</td><td>822,134</td><td>846,798</td></tr>
+            <tr><td>Total Debt Position</td><td>334,000</td><td>334,000</td><td>334,000</td><td>334,000</td><td>334,000</td><td>334,000</td><td>334,000</td><td>334,000</td><td>324,354</td><td>314,333</td></tr>
+            <tr class="rule"><td>Net Equity</td><td>315,000</td><td>334,470</td><td>354,524</td><td>375,180</td><td>396,455</td><td>418,369</td><td>440,940</td><td>464,188</td><td>497,779</td><td>532,465</td></tr>
+            <tr><td>&ndash; Cash Deposit</td><td>315,000</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+            <tr><td>&ndash; Annual Cash Top Up</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2,177</td><td>1,877</td></tr>
+            <tr class="rule"><td>Cumulative Investor Funds</td><td>315,000</td><td>315,000</td><td>315,000</td><td>315,000</td><td>315,000</td><td>315,000</td><td>315,000</td><td>315,000</td><td>317,177</td><td>319,054</td></tr>
+            <tr><td>Projected Return on Investor Funds</td><td>0.0%</td><td class="pos">6.2%</td><td class="pos">12.5%</td><td class="pos">19.1%</td><td class="pos">25.9%</td><td class="pos">32.8%</td><td class="pos">40.0%</td><td class="pos">47.4%</td><td class="pos">56.9%</td><td class="pos">66.9%</td></tr>
+            <tr class="total"><td>Weekly Cash Profit / (Loss)</td><td class="pos">41</td><td class="pos">119</td><td class="pos">129</td><td class="pos">139</td><td class="pos">150</td><td class="pos">135</td><td class="pos">130</td><td class="pos">137</td><td class="neg">&minus;42</td><td class="neg">&minus;36</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="cardnote">The property's other three ten-year tables &mdash; <i>Profit &amp;
+          loss</i>, <i>Tax position</i> and <i>Loan calculations</i> &mdash; follow here,
+          exactly as Phase 1 already draws and already builds them. They are not redrawn in
+          this artefact because they are unchanged and repeating them would only invite them
+          to drift.</div>
+      </div>
+
+      <!-- ============ ANNOTATIONS ============ -->
+
+      <div class="anno">
+        <b>🔴 THE SAME PROPERTY READS DIFFERENTLY ON THE TWO SCREENS, AND YOU WERE TOLD IT
+        WOULD.</b> Property 1 is <b>&minus;$929 a week</b> on the live Phase 1 screen and
+        <b>+$41 a week</b> here.
+        <br><br>
+        Neither is a bug. Phase 1 lets the advisor type <i>Funding Required</i> and
+        <i>Cash Deposit</i> as two independent numbers, and its sample types $649,000 of
+        funding <i>and</i> a $315,000 deposit &mdash; borrowing the whole purchase price
+        while also putting money down. In a portfolio the table will not allow that: funding
+        is the price less the deposit, which is correction 4 of §8 Q8, the one you ruled
+        <i>"yes fix both"</i> on after being told live figures would move.
+        <br><br>
+        ⚠ <b>It is raised because an advisor who opens both screens will see it and will ask.</b>
+        Nothing is proposed here. It bears directly on your still-open question of whether the
+        sample's own $350,000 / $299,000 loan split should be reset now the deposit is
+        genuinely applied &mdash; that same inconsistency is what produces the one finding on
+        this page.
+      </div>
+
+      <div class="anno">
+        <b>THE OTHER SIX FINDING SENTENCES &mdash; ALL OURS, Q15.</b> The model returns seven
+        kinds of finding. One is drawn above; here are the rest, in the words proposed for
+        them. Each is shown with the numbers filled in, because that is how they will read.
+        <table>
+          <thead><tr><th>When</th><th>The sentence proposed</th></tr></thead>
+          <tbody>
+            <tr><td><code>DEPOSIT_EXCEEDS_SAVINGS</code></td>
+              <td>Property 3 &mdash; the deposit of $120,000 was reduced to $90,000. That is
+                all the savings left once the earlier properties took their share.</td></tr>
+            <tr><td><code>DEPOSIT_EXCEEDS_PRICE</code></td>
+              <td>Property 2 &mdash; the deposit of $600,000 was reduced to $515,000, the
+                purchase price. A deposit cannot be larger than the property.</td></tr>
+            <tr><td><code>DEPOSIT_NEGATIVE</code></td>
+              <td>Property 4 &mdash; a deposit below zero was treated as nil.</td></tr>
+            <tr><td><code>LVR_EXCEEDED</code></td>
+              <td>Property 5 &mdash; borrowing 94.9% of the purchase price, above the 80.0%
+                ceiling. A lender is unlikely to advance this.</td></tr>
+            <tr><td><code>INVESTMENT_LVR_EXCEEDED</code></td>
+              <td>The rentals on their own &mdash; borrowing 91.6% against the investment
+                properties, above the 80.0% ceiling. This is the ratio an investment lender
+                tests.</td></tr>
+            <tr><td><code>PORTFOLIO_LVR_EXCEEDED</code></td>
+              <td>Everything the family owns &mdash; borrowing above the 80.0% ceiling once
+                the home and its mortgage are counted in.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="anno">
+        <b>THE SECOND STATE &mdash; A HOLD-BACK CHOSEN AND AN 80% CEILING SET.</b> The same
+        five properties, with the deposit spread by hand
+        (70,000 / 50,000 / 60,000 / 70,000 / 40,000) and $25,000 kept back. These are the
+        model's real figures for those inputs, not a sketch.
+        <table>
+          <thead><tr><th>&nbsp;</th><th>Deposit</th><th>Funding required</th><th>Loan to value</th><th>Against an 80% ceiling</th></tr></thead>
+          <tbody>
+            <tr><td>1 &middot; 56 Big Deal Avenue</td><td>70,000</td><td>579,000</td><td>89.2%</td><td><b>over</b></td></tr>
+            <tr><td>2 &middot; 51 Someday Street</td><td>50,000</td><td>465,000</td><td>90.3%</td><td><b>over</b></td></tr>
+            <tr><td>3 &middot; 35 Average Deal Avenue</td><td>60,000</td><td>589,000</td><td>90.8%</td><td><b>over</b></td></tr>
+            <tr><td>4 &middot; 55 Small Deal Avenue</td><td>70,000</td><td>794,000</td><td>91.9%</td><td><b>over</b></td></tr>
+            <tr><td>5 &middot; 45 Rock n Roll Ave</td><td>40,000</td><td>745,000</td><td>94.9%</td><td><b>over</b></td></tr>
+            <tr><td><b>The rentals on their own</b></td><td>290,000</td><td>3,172,000</td><td><b>91.6%</b></td><td><b>over</b></td></tr>
+            <tr><td><b>Everything the family owns</b></td><td>&mdash;</td><td>3,397,000</td><td><b>69.9%</b></td><td>within</td></tr>
+          </tbody>
+        </table>
+        <br>
+        🔴 <b>This is the screen earning its place.</b> Spreading the deposit evenly puts
+        <i>every</i> property over an 80% ceiling, where concentrating it left one property
+        comfortable and four impossible. Either way the rentals stand at about 91%. The
+        honest answer this screen gives a family is that $315,000 does not buy five
+        properties &mdash; and it is a finding no version of the spreadsheet could produce,
+        because the spreadsheet has no lending test at all.
+        <br><br>
+        Six findings appear in this state: one per property, plus the rentals-only ratio.
+        The card at the top of the results column is therefore a list, never a single line.
+      </div>
+
+      <div class="anno">
+        <b>THE SHAPE, AND THE ALTERNATIVE THAT WAS NOT DRAWN &mdash; Q11.</b>
+        <br><br>
+        Five properties carry about twenty-five inputs each and four ten-year tables each.
+        Drawn flat that is a screen with a hundred and twenty-five input boxes and twenty
+        tables, and no advisor would find anything on it.
+        <br><br>
+        <b>What is drawn:</b> the portfolio is the screen, and one property is open inside it.
+        The left column holds the household, the list of five, the tax rules, and the open
+        property's own figures. The right column holds the portfolio &mdash; findings,
+        deposit table, lending, the five compared, the consolidated report, servicing, the
+        commentary &mdash; and then the open property's tables at the foot. Opening a
+        different property changes <b>only</b> the two property cards on the left and the
+        section at the foot. Nothing in the portfolio moves.
+        <br><br>
+        <b>The alternative, turned down but recorded so it is not re-derived:</b> a portfolio
+        screen that links out to five separate property screens, each one Phase 1 as it
+        stands today. It is less to build and each screen stays simple. It was turned down
+        because the deposit is a portfolio-wide decision made property by property &mdash;
+        changing property 3's deposit changes what properties 4 and 5 can borrow &mdash; and
+        splitting that across two screens means the advisor never sees the consequence of
+        the number they are typing. <b>If you prefer it, say so and the drawing changes;
+        that is a one-line instruction and it is why this paragraph exists.</b>
+      </div>
+
+      <div class="anno">
+        <b>EVERY WORD ON THIS PAGE THAT IS OURS RATHER THAN YOURS.</b> One line from you
+        changes any of them. They are listed individually so that changing one is an
+        instruction rather than an archaeology exercise.
+        <table>
+          <thead><tr><th>&nbsp;</th><th>Ours</th></tr></thead>
+          <tbody>
+            <tr><td><b>Q11 &mdash; shape</b></td><td>The portfolio-is-the-screen shape; the property list and its
+              <i>+ Add a property</i>; the card titles <i>The household</i>, <i>The properties</i>,
+              <i>The five properties</i>; putting Tax rules at portfolio level</td></tr>
+            <tr><td><b>Q12 &mdash; band</b></td><td>The sub-line <i>"Year 1 &middot; all five properties"</i>.
+              The four labels themselves are yours, unchanged</td></tr>
+            <tr><td><b>Q13 &mdash; deposit table</b></td><td>The title <i>How the deposit is spread</i>; the column names
+              <i>Deposit applied</i>, <i>Deductible share</i>, <i>Loan to value</i>; the row name
+              <i>The family home</i>; the held-back sentence</td></tr>
+            <tr><td><b>Q14 &mdash; hold-back</b></td><td>The label <i>Deposit Applied to This Property</i>; that it is
+              typed in two places; that <i>Funding Required</i> and the P&amp;I loan become read-only
+              on this screen</td></tr>
+            <tr><td><b>Q15 &mdash; findings</b></td><td>The card title <i>Things to check</i>, its sub-line, and all
+              seven finding sentences; the commentary sentences under <i>What this says</i></td></tr>
+            <tr><td><b>Q16 &mdash; lending &amp; servicing</b></td><td>The titles <i>Lending position</i> and <i>What
+              the portfolio asks of the family</i>; both ratio names and explanations; the
+              <i>"shown, not judged"</i> wording; the servicing row names. <b>And one real
+              decision: whether to ask for the family's income at all</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="anno">
+        <b>WHAT THIS DRAWING DELIBERATELY DOES NOT DO.</b>
+        <ul style="margin:8px 0 0;padding-left:18px">
+          <li>It does not redraw anything Phase 1 already had approved and built &mdash;
+            <i>Annual costs</i>, <i>Assumptions</i>, and three of the four per-property
+            ten-year tables. Redrawing settled work only invites it to drift.</li>
+          <li>It does not port <code>Import Range</code> or <code>Imported Report</code>.
+            Those two sheets are the spreadsheet's manual workaround for a family with more
+            than five properties, and in an app the answer is to allow more properties (§1).</li>
+          <li>It does not judge affordability, and a test in the repository fails the build
+            if anything ever makes it.</li>
+          <li>It does not offer the year-by-year interest rate table. The model has no
+            per-year rate input; building one is a change to the maths with its own golden
+            test, and it is not on the live list (§10, difference 6).</li>
+        </ul>
+      </div>
+
+    </section>
+  </div>
+</div>
+</div>
+</body>
+</html>

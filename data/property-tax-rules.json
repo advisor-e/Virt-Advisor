@@ -1,0 +1,12 @@
+{
+  "_comment": "The property model's tax rules, as the platform ships them — NEW ZEALAND. Every value here reproduces the source workbook exactly, so a group that changes nothing gets the figures the workbook gives. A group (normally a country) sets its own; a firm may correct them; an advisor types over them on the screen for one client. See design/MULTIPLE-PROPERTY-ASSESSMENT.md §8 Q3/Q5/Q6 and design/features/tier-cascade.md.",
+  "yearOneAddBack": "setup",
+  "managementFeeGstRate": 0.15,
+  "depreciableAssets": "chattels",
+  "depreciationMethod": "dv",
+  "depreciationRateChattels": 0.28,
+  "buildingDepreciationRate": 0,
+  "lossTreatment": "ringFenced",
+  "interestDeductibility": "Phasing",
+  "phasingTable": [1, 0.75, 0.5, 0.25, 0]
+}

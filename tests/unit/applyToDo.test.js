@@ -155,9 +155,19 @@ describe('the ranked table is generated, not maintained', () => {
   it('the committed page already matches the committed data', () => {
     // This is what makes the table stop being a second copy. If it fails, the
     // fix is `npm run to-do` — never editing the table by hand.
+    //
+    // Line endings are normalised before comparing, and ONLY line endings.
+    // `core.autocrlf=true` on a Windows machine rewrites the working copy to
+    // CRLF on checkout while the generator emits LF, so a plain text compare
+    // failed after a branch switch with not one word changed — 13 invisible
+    // characters, one per row of the table. `git status` cannot see it, because
+    // git is configured to expect exactly that conversion. Comparing the words
+    // rather than the invisible characters keeps what this guards — that the
+    // page and the data agree — and stops it firing on a checkout.
+    const lf = text => text.replace(/\r\n/g, '\n')
     const page = fs.readFileSync(PAGE_FILE, 'utf8')
     const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'))
-    expect(apply.spliceTable(page, data.items)).toBe(page)
+    expect(lf(apply.spliceTable(page, data.items))).toBe(lf(page))
   })
 })
 
@@ -179,18 +189,60 @@ describe('applying a list saved from the control', () => {
     expect(result.data.items[0].score).toBe(5)
     expect(result.data.orderedByMikeOn).toBe('2026-02-02')
     expect(result.lines.join('\n')).toContain('The order changed')
+    // This test was named "...and comments" from the day it was written and never
+    // once looked at one. The assertion below is the one that was missing.
+    expect(result.data.items[0].comment).toBe('do this first')
   })
 
-  it('strips his call and comment — they are decisions, not schema', () => {
+  // 🔴 THE SECOND ONE THAT MATTERS, and it replaces a test that asserted the
+  // opposite. "Strips his call and comment — they are decisions, not schema" was
+  // deliberate, tested, and wrong for a live item: a comment on something still
+  // open is an instruction, and dropping it lost three of his on 2026-08-15
+  // (4.7, 4.12, 3.5) for six days without a single gate going red.
+  it('KEEPS his comment on a live item — it is an instruction, not a decision', () => {
     const result = apply.planApply(
-      saved([item({ ref: '1.1', yourCall: 'proceed', yourComment: 'note' }),
+      saved([item({ ref: '1.1', yourCall: 'proceed', yourComment: 'get this done' }),
         item({ ref: '1.2', yourCall: 'proceed' })]),
       current, '')
 
+    const kept = result.data.items.filter(o => o.ref === '1.1')[0]
+    expect(kept.comment).toBe('get this done')
+
+    // An item he said nothing about carries null, not an empty string — the same
+    // shape `note` uses, so "he said nothing" and "he said ''" cannot diverge.
+    expect(result.data.items.filter(o => o.ref === '1.2')[0].comment).toBeNull()
+
+    // The control's own two fields never become schema. `yourCall` is always
+    // "proceed" for a live item, which its presence on the list already says.
     result.data.items.forEach((saved_) => {
       expect(saved_).not.toHaveProperty('yourCall')
       expect(saved_).not.toHaveProperty('yourComment')
     })
+  })
+
+  it('trims his comment, and does not keep whitespace as though he had spoken', () => {
+    const result = apply.planApply(
+      saved([item({ ref: '1.1', yourCall: 'proceed', yourComment: '   ' }),
+        item({ ref: '1.2', yourCall: 'proceed', yourComment: '  spaced  ' })]),
+      current, '')
+
+    expect(result.data.items.filter(o => o.ref === '1.1')[0].comment).toBeNull()
+    expect(result.data.items.filter(o => o.ref === '1.2')[0].comment).toBe('spaced')
+  })
+
+  it('a comment survives the NEXT round trip — the failure was silent for six days', () => {
+    // Apply once, then feed the result straight back in the way the control does,
+    // with him saying nothing new. His earlier words must still be there.
+    const first = apply.planApply(
+      saved([item({ ref: '1.1', yourCall: 'proceed', yourComment: 'draft the email' }),
+        item({ ref: '1.2', yourCall: 'proceed' })]),
+      current, '')
+
+    const roundTripped = first.data.items.map(o =>
+      Object.assign({}, o, { yourCall: 'proceed', yourComment: o.comment || '' }))
+
+    const second = apply.planApply(saved(roundTripped), first.data, '')
+    expect(second.data.items.filter(o => o.ref === '1.1')[0].comment).toBe('draft the email')
   })
 
   // 🔴 THE ONE THAT MATTERS.

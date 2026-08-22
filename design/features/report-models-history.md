@@ -10,6 +10,82 @@
 
 ---
 
+## 0. What the AI was told, and what it still is not · 2026-08-22
+
+**Item 4.29.** Mike, 2026-08-21: *"ensure that each of the performance models have a 'key
+calculation output' page or section, so that the AI can read what the model serves"*, and
+*"place it wherever you want, it's for AI - not the advisor or manager"*.
+
+### The fault was a single reader
+
+`utils/reportModelCatalogue.js` was imported by **one file**, `components/ModelLibrary.vue`.
+Nothing on the backend touched it, and `server/routes/report.js` never calls OpenAI at all.
+So the only place a model's name appeared in `server/` was inside a JSDoc comment. An
+advisor could describe a builder who is profitable on paper and permanently overdrawn, and
+the AI had **never heard of Debtor Drag**.
+
+### Two decisions worth keeping
+
+**The summaries are keyed by ROUTE, and only live models are in them.** Eight of the
+eighteen catalogued models are `STATUS_SOON` with no page. Summarising one of those would
+send an advisor to a screen that does not exist — item 4.15, in a new place. Keying by route
+makes a model without a page literally unrepresentable.
+
+**The guard runs both ways, and the second direction is the one that earns its place.** A
+summary for a model with no page fails. A live model with **no summary** also fails. Only
+the second protects against the failure that actually happened: a model shipping and staying
+invisible because nobody remembered a file existed. A one-way guard would have been safe and
+useless.
+
+### The paragraph this history exists for
+
+**The block reaches the prompt. Nothing invites the AI to use it.**
+
+None of the six mode prompts in `data/prompts/` mentions a calculation model. `discover.txt`
+is stricter than silence — its output format is three template fields and it ends *"Do not
+add any other sentence after it. Do not offer emails, scripts, approach tips, or anything
+else. End there. Full stop."* Asked live on 2026-08-22 about a builder short of cash, it
+returned three templates and no model, exactly as its own rules require.
+
+🔴 **That is the half-a-fix shape in its quietest form**, and it is worth naming precisely
+because everything looks finished: the content is authored, the wiring is proven against the
+assembled prompt string, twenty-seven tests are green, and **the advisor is no better off
+than before.** It became item **4.32** rather than a quiet widening of this change, because
+editing a mode prompt alters what a deployed screen says to real advisors — the same
+reasoning that put 4.30 on the list instead of folding it into the work that found it.
+
+### And then it was answered the same afternoon
+
+Mike: *"yes and both if its appropriate"*. `discover.txt` gained a **"A calculator that
+fits"** block inside its format; `client.txt` gained hard rule **R18**.
+
+**The closing rule was not loosened, and that was the whole design of the change.** The
+block sits *above* the "End there. Full stop." line rather than that line being relaxed. A
+test asserts both — the rule is still present, and the block precedes it. A rule that exists
+to make the AI stop talking is not collateral in a feature that wants it to say one more
+thing.
+
+### The reverted attempt, kept because it is the transferable part
+
+Testing against the running app showed a template's tutorial-video sentence attaching to a
+calculator line, because two model names are also template names. The instinct was to fix it
+in the prompt: *write the model's name as plain text, not bold*. It worked, and it also
+**stripped the bold off the template name** — which is precisely what `videoInjector` reads
+to decide where videos go. The output got worse in a new place.
+
+🔴 **The lesson is about where a rule can live.** `videoInjector` runs *after* the AI has
+finished writing and matches on bold text alone. Nothing said to the AI can reach it. Three
+rounds of prompt wording were spent before that was checked; reading `videoInjector.js`
+first would have cost two minutes and saved all of it. It is now item **4.33**, and the item
+says in terms that the prompt cannot fix it.
+
+⚠ **One claim was wrong and is corrected here rather than quietly dropped.** The video
+sentence was first reported as the AI inventing a tutorial video. It was not — the app
+appends it, from real template data. The video is real; what is wrong is which line it lands
+on.
+
+---
+
 ## 1. The five incidents that produced the rules
 
 Every principle in the Brief was bought with a mistake. They are recorded because the

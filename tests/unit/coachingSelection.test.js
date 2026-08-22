@@ -13,15 +13,16 @@
  * untagged entries always pass — newest first, eight at most, and the cap is
  * logged when it bites.
  *
- * The platform base is deliberately untouched: it is not the growth problem, and
- * it is the menu the AI picks a template FROM. The last test pins its size so a
- * future addition is a decision rather than a drift.
+ * ⚠ THE PLATFORM BASE THIS FILE ONCE ALSO GUARDED IS GONE (item 4.24, 2026-08-20).
+ * It was exempt from the cap below on the grounds that it was not the growth problem
+ * and was the menu the AI picked a template FROM. Both were true; what could not be
+ * shown was that it changed the advice at all. The cap tested here always governed the
+ * promoted entries only, and is unaffected by its removal.
  */
 
 const {
   selectFirmCoaching,
   formatFirmCoachingForPrompt,
-  formatCoachingForPrompt,
   MAX_FIRM_COACHING_ENTRIES
 } = require('../../server/utils/coaching')
 const { OPEN, CLOSE } = require('../../server/utils/promptSafety')
@@ -146,29 +147,11 @@ describe('formatFirmCoachingForPrompt — the block that reaches the AI', () => 
   })
 })
 
-describe('the platform base is deliberately left whole', () => {
-  test('it is neither filtered nor capped — every entry still reaches the prompt', () => {
-    const base = require('../../data/coaching-reference.json')
-    const text = formatCoachingForPrompt()
-
-    base.forEach((entry) => { expect(text).toContain(entry.template) })
-  })
-
-  test('and its size is pinned, so growing it is a decision and not a drift', () => {
-    // 12,846 characters across 15 entries, measured 2026-08-15 — up from 8,483 on
-    // 2026-08-03. THE JUMP WAS A DECISION, which is what this guard exists to force:
-    // `howItHelps` and `deliveryNotes` were authored, stored, made firm-editable, and
-    // rendered into no prompt at all, so a firm editing them changed nothing. Mike
-    // ruled on 2026-08-15 that they must reach the AI. The block is now half as long
-    // again, and that cost was accepted knowingly.
-    //
-    // The platform base is exempt from the per-firm cap because only a developer adds
-    // to it and it is the menu the AI picks a template FROM. The ceiling below leaves
-    // room for roughly one more entry (~850 characters), so ADDING one trips this on
-    // purpose. If it fails because entries were added, that exemption is what needs
-    // re-arguing — not this number.
-    const base = require('../../data/coaching-reference.json')
-    expect(base.length).toBeLessThanOrEqual(20)
-    expect(formatCoachingForPrompt().length).toBeLessThan(14000)
-  })
-})
+// 🔴 A "the platform base is deliberately left whole" block stood here until
+// 2026-08-20. It pinned the fifteen curated rows at under 14,000 characters so that
+// GROWING the block would be a decision rather than a drift. The block itself is now
+// gone (item 4.24, Mike's Option D): it was measured against the logic trees that had
+// superseded it, and its effect on which templates get recommended could not be
+// distinguished from the engine's own run-to-run noise. The ~12,846 characters it cost
+// every eligible prompt are no longer spent. Everything above is unchanged — the cap
+// always governed the promoted entries alone.

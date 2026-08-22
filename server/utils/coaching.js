@@ -1,16 +1,20 @@
 'use strict'
 
 /**
- * Coaching reference — the template-selection guidance injected into the
- * Phase 3 prompt. Two layers, deliberately separate:
+ * Coaching reference — a firm's own promoted case observations, injected into the
+ * Phase 3 prompt.
  *
- *   1. PLATFORM BASE — data/coaching-reference.json. Curated, developer-placed
- *      guidance every firm receives. READ-ONLY at runtime: the app never
- *      appends to it (the old promote flow did — that made one firm's client
- *      observations visible in every other firm's prompts, and the unlocked
- *      file write had no history and no concurrency safety).
+ * 🔴 THERE USED TO BE A SECOND LAYER AND IT IS GONE. Until 2026-08-20 this module also
+ * carried a PLATFORM BASE — the fifteen curated rows in data/coaching-reference.json,
+ * shipped to every firm and injected unfenced. Item 4.24 (Mike's Option D) measured that
+ * block against the logic trees that had superseded it, found its effect on which
+ * templates get recommended to be below the engine's own noise floor, folded the seven
+ * pieces worth keeping into those trees, and removed the rest along with its
+ * firm-editable cascade and its Hub tab. See design/COACHING-REFERENCE-EVIDENCE.md.
  *
- *   2. FIRM ENTRIES — promoted case observations, stored PER FIRM in the
+ * What remains is the half that was never in question:
+ *
+ *      FIRM ENTRIES — promoted case observations, stored PER FIRM in the
  *      firm_framework_versions overlay under config_key 'coaching-reference'
  *      (version history + restore for free, same as Advisory Distinctions).
  *      These are the advisor's own free-text words about a real client, so
@@ -29,9 +33,6 @@ const overlay = require('./firmOverlay')
 const { fenceUntrusted } = require('./promptSafety')
 const { devFallbackAllowed } = require('./dbFailure')
 
-let _coaching = null
-
-const COACHING_FILE = resolve(process.cwd(), 'data/coaching-reference.json')
 const FIRM_COACHING_KEY = 'coaching-reference'
 // Overridable via FIRM_COACHING_DEV_FILE so tests use an isolated temp file
 // (the CASE_DEV_FILE convention). Production never sets this — it uses MySQL.
@@ -46,40 +47,18 @@ function devFallbackEnabled (err) {
   return devFallbackAllowed(err)
 }
 
-function loadCoaching () {
-  if (_coaching) { return _coaching }
-  try {
-    _coaching = JSON.parse(readFileSync(COACHING_FILE, 'utf8'))
-  } catch (err) {
-    console.error('[coaching] Failed to load coaching-reference.json:', err.message)
-    _coaching = []
-  }
-  return _coaching
-}
-
-function resetCoachingCache () {
-  _coaching = null
-}
-
 /**
- * Render one coaching entry (platform or firm shape) as prompt text.
+ * Render one promoted case observation as prompt text.
  *
- * 🔴 `howItHelps` AND `deliveryNotes` WERE ABSENT FROM THIS UNTIL 2026-08-15, and the
- * omission was invisible. Both fields are authored in data/coaching-reference.json, both
- * were made firm-editable when the block joined the inheritance mechanism (`869909c`),
- * and neither appeared anywhere else in the backend — so a firm could have rewritten the
- * longest and most prominent field on its Coaching Reference tab and changed nothing at
- * all about the advice its advisers received. Found by rendering the prompt for a firm
- * that had actually edited an entry, which no test asked. Mike ruled they must reach the
- * AI, so they now do.
+ * PRESENT-ONLY, AND THAT IS DELIBERATE. Promoted entries are built by cases.promote and
+ * carry neither `howItHelps` nor `deliveryNotes`, so the guards below simply never fire
+ * for them. They are kept rather than deleted because emitting an empty labelled line —
+ * "Delivery notes:" with nothing after it — reads to a model as a field the author left
+ * blank rather than one that does not apply.
  *
- * PRESENT-ONLY, WHICH IS WHAT MAKES THIS SAFE TO SHARE. This same function renders the
- * firm's PROMOTED CASE OBSERVATIONS through formatFirmCoachingForPrompt, where the
- * result is FENCED as untrusted. Those entries are built by cases.promote and carry
- * neither field, so they render byte-identically to before — pinned by test. Emitting an
- * empty labelled line would also have put "Delivery notes:" with nothing after it on
- * fourteen of the fifteen platform entries, which reads to a model as a field the author
- * left blank rather than one that does not apply.
+ * 🔴 THIS ONCE RENDERED THE FIFTEEN PLATFORM ROWS TOO. Those rows and their tab were
+ * removed on 2026-08-20 (item 4.24); this function now serves only the fenced firm
+ * entries. The output for a promoted entry is unchanged — pinned by test.
  *
  * @param {Object} c - a coaching entry
  * @returns {string} the rendered block
@@ -95,22 +74,6 @@ function formatEntry (c) {
   lines.push(`Where it leads: ${c.whereMayLead}`)
   if (c.deliveryNotes) { lines.push(`Delivery notes: ${c.deliveryNotes}`) }
   return lines.join('\n')
-}
-
-/**
- * Render the coaching reference rows for the prompt, UNFENCED — this is curated
- * guidance the model is meant to act on, not user text to weigh. The firm's promoted
- * observations are the fenced ones; they go through formatFirmCoachingForPrompt below
- * and never through here.
- *
- * @param {Object[]} [rows] - the scope's resolved rows (see coachingConfig
- *   .loadResolvedCoaching). Omitted, it falls back to the shipped platform file, which
- *   is what every caller got before the block joined the inheritance mechanism.
- * @returns {string} the rendered block
- */
-function formatCoachingForPrompt (rows) {
-  const list = Array.isArray(rows) && rows.length > 0 ? rows : loadCoaching()
-  return list.map(formatEntry).join('\n\n')
 }
 
 // ── Firm-scoped promoted entries (overlay-backed) ─────────────────────────────
@@ -232,8 +195,6 @@ function formatFirmCoachingForPrompt (entries, domain = null) {
 }
 
 module.exports = {
-  formatCoachingForPrompt,
-  resetCoachingCache,
   loadFirmCoaching,
   appendFirmCoachingEntry,
   formatFirmCoachingForPrompt,

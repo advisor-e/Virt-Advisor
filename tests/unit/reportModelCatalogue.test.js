@@ -65,6 +65,7 @@ describe('report model catalogue', () => {
         '/lease-vs-buy',
         '/loan-estimator',
         '/margin-breakeven',
+        '/multiple-property',
         '/quick-position'
       ])
     })
@@ -111,18 +112,25 @@ describe('report model catalogue', () => {
       expect(by(CLASS_REPORT)).toHaveLength(9)
     })
 
-    it('classes the built models correctly — 4 Education + 2 Report-class + 3 Decision-class builds', () => {
+    it('classes the built models correctly — 4 Education + 2 Report-class + 4 Decision-class builds', () => {
       // The four education models are badged "Illustrative" and take no client data.
       // Quick Position (built 2026-07-16) and EBITDA & DCF (built 2026-07-17) are
       // deliberately DIFFERENT: Report-class — real client numbers via file intake,
       // privacy applies, and they must NEVER carry the Illustrative badge.
       // The Loan Estimator (built 2026-07-23), Lease vs Buy (built 2026-07-27) and
       // Cost of Capital (built 2026-07-28) are Decision-class builds: real client
-      // numbers by keyboard, no file intake — and no badge either.
+      // numbers by keyboard, no file intake — and no badge either. The Multiple Property
+      // Assessment (Phase 1, built 2026-08-17) joins them: somebody may BUY A PROPERTY on
+      // its output, which is why it carries no Illustrative badge.
       const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow']
-      const DECISION_BUILDS = ['The Loan Estimator', 'Lease vs Buy', 'Cost of Capital (WACC)']
+      const DECISION_BUILDS = [
+        'The Loan Estimator',
+        'Lease vs Buy',
+        'Cost of Capital (WACC)',
+        'Multiple Property Assessment'
+      ]
       const built = MODELS.filter(m => m.status === STATUS_READY)
-      expect(built).toHaveLength(9)
+      expect(built).toHaveLength(10)
       built.forEach((m) => {
         if (REPORT_BUILDS.includes(m.name)) {
           expect(m.modelClass).toBe(CLASS_REPORT)
@@ -274,7 +282,7 @@ describe('report model catalogue', () => {
 
   describe('readyCount', () => {
     it('counts only the models with a built report', () => {
-      expect(readyCount(MODELS)).toBe(9)
+      expect(readyCount(MODELS)).toBe(10)
       expect(readyCount([])).toBe(0)
       expect(readyCount(null)).toBe(0)
     })

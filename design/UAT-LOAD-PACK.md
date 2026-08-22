@@ -5,14 +5,21 @@ UAT, and how to know it is *really* running. It is deliberately short and links 
 repeats: what a release **contains** is in its own release note, and this page is only how you
 **load** it.
 
-Written 2026-08-14. The newest cut release is [`v0.8.0`](RELEASE-NOTES-v0.8.0.md).
+Written 2026-08-14. **The newest cut release is [`v0.9.0`](RELEASE-NOTES-v0.9.0.md)**, tagged
+2026-08-17 on commit `d4284e6`. It supersedes `v0.8.0`, which was tagged on 13 August and never
+pulled — taking `v0.9.0` gets you both.
+
+⚠ **This line goes stale the moment a tag is cut and nothing makes it go red.** It said `v0.8.0`
+for four days after `v0.9.0` existed, while the release email sent to the master team named
+`v0.9.0` — so the announcement and the loading instructions disagreed. **Cutting a tag includes
+updating this page.**
 
 ---
 
 ## 1. Pull the tag, then write the ledger row
 
-Pull a **tag** (`v0.8.0`, …), never the `master` branch — a tag is immutable, a branch keeps
-moving, so "UAT is on v0.8.0" stays true and checkable forever.
+Pull a **tag** (`v0.9.0`, …), never the `master` branch — a tag is immutable, a branch keeps
+moving, so "UAT is on v0.9.0" stays true and checkable forever.
 
 The moment it is pulled, add a row to [`DEPLOYED-VERSIONS.md`](DEPLOYED-VERSIONS.md): date,
 environment, exact commit hash (`git rev-parse HEAD`), who pulled it. **A deployment is not
@@ -30,8 +37,8 @@ Node 22+ refuses to start at all.
 
 **`npm install`** — read the line at the top of the release note. `v0.7.0` needed one (it added
 an icon font, and without the install the Hub's tab icons rendered blank, which reads as a
-broken build). `v0.8.0` needed none. It is stated explicitly in every release note for exactly
-this reason.
+broken build). **`v0.8.0` and `v0.9.0` needed none** — neither changed a single dependency. It is
+stated explicitly in every release note for exactly this reason.
 
 ## 3. Environment variables
 
@@ -133,7 +140,8 @@ firms rather than real ones.
 ## 9. Known limits
 
 Not repeated here — they are stated in the release note you are loading
-([`v0.8.0`](RELEASE-NOTES-v0.8.0.md) → *Known limits*), and the tier/login handover is
+([`v0.9.0`](RELEASE-NOTES-v0.9.0.md) → *§4 Known issues — read before reporting*; the section is
+named *Known limits* on `v0.8.0` and earlier), and the tier/login handover is
 [`USER-LEVEL-CASCADE-HANDOVER.md`](USER-LEVEL-CASCADE-HANDOVER.md).
 
 ## 10. Tell us three things

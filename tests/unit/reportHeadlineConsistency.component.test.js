@@ -14,6 +14,7 @@ const EbitdaDcfReport = require('~/components/EbitdaDcfReport.vue').default
 const LoanEstimatorReport = require('~/components/LoanEstimatorReport.vue').default
 const LeaseVsBuy = require('~/components/LeaseVsBuy.vue').default
 const CostOfCapital = require('~/components/CostOfCapital.vue').default
+const MultiplePropertyAssessment = require('~/components/MultiplePropertyAssessment.vue').default
 
 const { computeDebtorCashflow } = require('~/server/report/debtorDragModel')
 const { computeWorkingCapitalCycle, DEFAULT_INPUTS: WCC_DEFAULTS } = require('~/server/report/workingCapitalCycleModel')
@@ -24,6 +25,7 @@ const { computeEbitdaDcf, DEFAULTS: ED_DEFAULTS } = require('~/server/report/ebi
 const { computeLoanEstimatorReport } = require('~/server/report/loanEstimatorModel')
 const { computeLeaseVsBuy } = require('~/server/report/leaseVsBuyModel')
 const { computeCostOfCapital } = require('~/server/report/costOfCapitalModel')
+const { computeMultiplePropertyPortfolio } = require('~/server/report/multiplePropertyModel')
 
 /**
  * CONSISTENCY GUARD — every report in this section presents its headline figures the
@@ -75,7 +77,9 @@ const SCREENS = [
   { name: 'Loan Estimator', component: LoanEstimatorReport, result: () => computeLoanEstimatorReport({}) },
   { name: 'Lease vs Buy', component: LeaseVsBuy, result: () => computeLeaseVsBuy({}) },
   // An empty body computes the workbook sample through the assembler's own default path.
-  { name: 'Cost of Capital (WACC)', component: CostOfCapital, result: () => computeCostOfCapital({}) }
+  { name: 'Cost of Capital (WACC)', component: CostOfCapital, result: () => computeCostOfCapital({}) },
+  // Phase 1 — one property, ten years. An empty body computes the workbook's sample.
+  { name: 'Multiple Property Assessment', component: MultiplePropertyAssessment, result: () => computeMultiplePropertyPortfolio({}) }
 ]
 
 /** Mount with the backend answering successfully, and let the first result land. */

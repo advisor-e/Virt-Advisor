@@ -113,6 +113,8 @@ const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
 const reportRoute = require('./routes/report')
 const currencyRoute = require('./routes/currency')
+const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
+const aiPromptsRoute = require('./routes/aiPrompts')
 const staircaseRoute = require('./routes/staircase')
 const { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 // Collaborate — the people layer and its template catalogue. Merged in from what
@@ -200,6 +202,7 @@ server.post('/api/report/ebitda-dcf', reportRoute.ebitdaDcf)
 server.post('/api/report/loan-estimator', reportRoute.loanEstimator)
 server.post('/api/report/lease-vs-buy', reportRoute.leaseVsBuy)
 server.post('/api/report/cost-of-capital', reportRoute.costOfCapital)
+server.post('/api/report/multiple-property', reportRoute.multipleProperty)
 // firmAuth deliberately ON for the intake (unlike the calc-only report routes): it accepts file uploads
 server.post('/api/report/quick-position/intake', firmAuth, reportRoute.quickPositionIntake)
 server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfIntake)
@@ -207,6 +210,11 @@ server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfInta
 // WRITE managers only (account-wide setting). Persistence via firmOverlay (config_key 'currency').
 server.get('/api/report/currency', firmAuth, currencyRoute.get)
 server.post('/api/report/currency', firmAuth, requireManagerRole, currencyRoute.set)
+// The property model's tax rules, resolved through the tier chain. READ open to any
+// signed-in user — every advisor opening the Multiple Property Assessment needs it, and
+// they may type over any of it for the client in front of them (Mike, 2026-08-17). The
+// WRITE lives on the manager-only /api/firm-manager route below.
+server.get('/api/report/property-tax-rules', firmAuth, propertyTaxRulesRoute.get)
 // /api/firm/advisors and /api/firm/insights were removed 2026-07-29 with the
 // FirmDashboard mock they existed for. Both were stubs returning empty data, and
 // proposed a three-table schema (advisors/courses/course_sessions) that was never
@@ -285,6 +293,21 @@ server.del('/api/firm-manager/distinctions/platform/:id', ...fmGuard, fm.resetDi
 server.post('/api/firm-manager/distinctions/platform/:id/keep-mine', ...fmGuard, fm.keepMineDistinction)
 server.put('/api/firm-manager/distinctions/platform/:id/decline', ...fmGuard, fm.setDistinctionDecline)
 server.post('/api/firm-manager/distinctions/platform/:id/move', ...fmGuard, fm.moveDistinction)
+// The property model's tax rules — a GROUP (normally a country) sets them and a FIRM may
+// correct them (Mike, 2026-08-17, §8 Q6). One set of routes for every tier: the scope is
+// `req.firmId` from the verified JWT, never an id from the request.
+server.get('/api/firm-manager/property-tax-rules', ...fmGuard, propertyTaxRulesRoute.getForManager)
+server.post('/api/firm-manager/property-tax-rules', ...fmGuard, propertyTaxRulesRoute.save)
+server.get('/api/firm-manager/property-tax-rules/history', ...fmGuard, propertyTaxRulesRoute.history)
+server.post('/api/firm-manager/property-tax-rules/restore', ...fmGuard, propertyTaxRulesRoute.restore)
+// The instructions the AI is given when it builds a model, and the three settings a
+// manager may change on them (Mike, 2026-08-21). Same shape and same guard as the tax
+// rules above: one set of routes for every tier, scoped to `req.firmId` from the verified
+// JWT and never to an id in the request. design/AI-PROMPTS-PAGE.md.
+server.get('/api/firm-manager/ai-prompts', ...fmGuard, aiPromptsRoute.getForManager)
+server.post('/api/firm-manager/ai-prompts', ...fmGuard, aiPromptsRoute.save)
+server.get('/api/firm-manager/ai-prompts/history', ...fmGuard, aiPromptsRoute.history)
+server.post('/api/firm-manager/ai-prompts/restore', ...fmGuard, aiPromptsRoute.restore)
 server.get('/api/firm-manager/staircase', ...fmGuard, fm.getStaircase)
 server.post('/api/firm-manager/staircase', ...fmGuard, fm.saveStaircase)
 // The staircase cascade — one decision per request, mirroring the distinction routes
@@ -298,16 +321,11 @@ server.post('/api/firm-manager/staircase/platform/:id/keep-mine', ...fmGuard, fm
 server.post('/api/firm-manager/staircase/own', ...fmGuard, fm.addOwnStaircaseStep)
 server.put('/api/firm-manager/staircase/own/:id', ...fmGuard, fm.updateOwnStaircaseStep)
 server.del('/api/firm-manager/staircase/own/:id', ...fmGuard, fm.deleteOwnStaircaseStep)
-// The coaching-reference cascade — item 4.9's visible half, 2026-08-15. Same shape as
-// the staircase routes above, minus keep-mine: coachingConfig stores no drift baseline,
-// so there is no "the platform changed this" state for a firm to resolve.
-server.get('/api/firm-manager/coaching', ...fmGuard, fm.getCoaching)
-server.put('/api/firm-manager/coaching/platform/:id', ...fmGuard, fm.setCoachingOverride)
-server.del('/api/firm-manager/coaching/platform/:id', ...fmGuard, fm.resetCoachingOverride)
-server.put('/api/firm-manager/coaching/platform/:id/decline', ...fmGuard, fm.setCoachingDecline)
-server.post('/api/firm-manager/coaching/own', ...fmGuard, fm.addOwnCoachingEntry)
-server.put('/api/firm-manager/coaching/own/:id', ...fmGuard, fm.updateOwnCoachingEntry)
-server.del('/api/firm-manager/coaching/own/:id', ...fmGuard, fm.deleteOwnCoachingEntry)
+// 🔴 The coaching-reference cascade (item 4.9) was REMOVED on 2026-08-20 with the
+// fifteen platform rows it served — item 4.24, Mike's Option D. What was worth keeping
+// in those rows was folded into the logic trees that superseded them; the tab went with
+// them on his instruction. The firm's PROMOTED CASE OBSERVATIONS are a different
+// mechanism under a different key and are untouched — see server/utils/coaching.js.
 server.get('/api/firm-manager/quizzes', ...fmGuard, fm.getQuizzes)
 server.post('/api/firm-manager/quizzes', ...fmGuard, fm.saveQuizzes)
 // The quiz cascade — one decision per request about ONE question, mirroring the
