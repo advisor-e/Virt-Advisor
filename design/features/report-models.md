@@ -248,6 +248,70 @@ to be tidied away.
 
 ---
 
+## 3a. What the AI is told about these models
+
+**Ruled by Mike, 2026-08-21 (to-do item 4.29):** *"ensure that each of the performance
+models have a 'key calculation output' page or section, so that the AI can read what the
+model serves"*, and *"place it wherever you want, it's for AI - not the advisor or
+manager"*.
+
+Until then, [`../../utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js)
+was read by **one file** — `components/ModelLibrary.vue`. Nothing on the backend read it,
+and the only mention of a model's name in `server/` was a JSDoc comment inside the model
+itself. **Ten built models that answer real client questions were invisible to the one part
+of the app an advisor actually asks for help.**
+
+**Where it lives.** [`../../data/report-model-summaries.json`](../../data/report-model-summaries.json)
+holds one entry per live model — what it answers, its **key calculation output** (the
+screen's real hero figures), what the advisor must be able to supply, when to reach for it,
+and **what it does not cover**. [`../../server/utils/reportModels.js`](../../server/utils/reportModels.js)
+renders it into the client-mode prompt.
+
+🔴 **THIS ONE HAS NO SCREEN, AND THAT IS A STATED EXCEPTION.** CLAUDE.md's ruling of
+2026-08-16 is that every AI fix surfaces on a hub page. Mike ruled this one out of that
+himself. The reason holds: **a description of what a calculation does is a fact about the
+maths, not authored advisory judgement** — nobody at any tier gets to decide that Lease vs
+Buy answers a different question than it answers.
+⚠ If a firm ever wants to say when *its* advisors should reach for a model, that **is**
+authored judgement and needs a screen at the mentor tier first. Do not widen the JSON to
+hold it.
+
+🔴 **A MODEL WITH NO PAGE IS NEVER NAMED.** Eight catalogued models are `STATUS_SOON` with
+no route. `tests/unit/reportModelSummaries.test.js` holds the file to the catalogue **both
+ways** — a summary for a model that is not ready fails, and a ready model with no summary
+fails. So the day a `SOON` model goes live the build says it needs an entry, rather than
+the model quietly staying invisible.
+
+⚠ **ADDING A MODEL TO THE CATALOGUE NOW MEANS ADDING A SUMMARY.** If you make a model
+`STATUS_READY` and give it a route, the suite fails until
+`data/report-model-summaries.json` has its entry — including its **limits**, which is not
+optional. That is deliberate: a model recommended without its limits is how an advisor
+promises a client something the screen does not do.
+
+**And the AI is invited to use it** (item 4.32, Mike 2026-08-22: *"yes and both if its
+appropriate"*). `discover.txt` carries an **"A calculator that fits"** block inside its
+format; `client.txt` carries hard rule **R18**. Both are written as an invitation **with a
+brake**: only when a model directly answers the situation, always with its exact page path,
+only from the list, and never in place of a template.
+
+🔴 **THE SEARCH MODE'S CLOSING RULE WAS NOT LOOSENED.** *"MUST be the final line… End there.
+Full stop."* still stands; the calculator block sits **above** it. A test asserts both. That
+rule exists so the AI stops talking — if a future change needs room after the closing line,
+that is a decision to take on its own merits, not a side effect.
+
+🔴 **R18 IS NOT AN EXCEPTION TO R17.** R17 fixes the recommended template set. A model is not
+a template and never joins, replaces or reorders it. R18 says so in terms, because two hard
+rules that appear to contradict each other are two hard rules the model gets to choose
+between.
+
+⚠ **A model that shares a name with a template gets that template's tutorial video attached
+to it** — `videoInjector` matches bold text after the AI has finished writing. Two names
+collide today: *Working Capital Cycle* and *Quick Position*. Item **4.33**. It cannot be
+fixed in the prompt, and an attempt to do so stripped the bold off template names and was
+reverted.
+
+---
+
 ## 4. For the coder
 
 ### Where things live
@@ -257,6 +321,7 @@ to be tidied away.
 | Maths models (pure, CommonJS) | [`server/report/`](../../server/report/) |
 | Routes | [`server/routes/report.js`](../../server/routes/report.js), registered in [`server/restify-server.js`](../../server/restify-server.js) |
 | Catalogue (single source for what exists) | [`utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js) |
+| What the AI is told each model serves | [`data/report-model-summaries.json`](../../data/report-model-summaries.json), rendered by [`server/utils/reportModels.js`](../../server/utils/reportModels.js) — §3a |
 | The shared frame + `--rs-*` tokens | [`components/base/ReportShell.vue`](../../components/base/ReportShell.vue) |
 | Shared blocks | `components/base/` — `ReportHeader` · `HeroStrip` · `HeroFigure` · `StaleBanner` · `SliderField` · `ProvenanceBadge` |
 | Mixins | `currencyMixin` (money formatting) · `reportRecompute` (debounce, race guard, stale flag) |
@@ -268,7 +333,7 @@ Eight steps, with copy-paste templates:
 [`../REPORT-VISUAL-STANDARD.md`](../REPORT-VISUAL-STANDARD.md). Class rules:
 [`../MODEL-CLASSIFICATION.md`](../MODEL-CLASSIFICATION.md).
 
-### The four guards
+### The five guards
 
 | Test | Fails the build if… |
 |---|---|
@@ -276,8 +341,9 @@ Eight steps, with copy-paste templates:
 | `reportHeadlineConsistency.component.test.js` | a screen hand-rolls its headline, nests the banner in a column, or leaves stale figures bright |
 | `reportHeaderFullWidth.test.js` | a screen renders the header itself without resetting its margin |
 | `reportBadgeClass.component.test.js` | the badge does not match `modelClass` — **a shipped report absent from the map is a failure, not a skip** |
+| `reportModelSummaries.test.js` | a live model has no summary for the AI, a summary names a model with no page, a summary omits its limits, or the block stops reaching the assembled prompt |
 
-All four are mutation-verified.
+All five are mutation-verified.
 
 ### Traps that have actually bitten
 
@@ -325,9 +391,20 @@ maths error and neither is a layout error, so neither the golden tests nor a moc
 see them.** They are the screen quietly saying something untrue, and only reading it finds
 that.
 
-⚠ **Reading rendered text is still NOT seeing a laid-out page**, and no browser driver is
-installed in this repository. Say plainly that layout is unverified rather than implying
-the screen has been reviewed — §3's rule stands: jsdom has no layout engine.
+⚠ **Reading rendered text is still NOT seeing a laid-out page.** §3's rule stands: jsdom has
+no layout engine, so no test in the suite can see a shrunk header or a box too small to read
+its own digits.
+
+🔴 **CORRECTED 2026-08-22: THIS PARAGRAPH USED TO SAY "no browser driver is installed in
+this repository". That stopped being true the day after it was written.** `playwright` is a
+declared devDependency at exact `1.34.3` (landed 2026-08-21, `7fa5e9a`), with an
+`npm run visual:setup` script that installs Chromium for it. It was used on 2026-08-22 to
+drive the AI Prompts tab at two tiers and read back what the page actually rendered.
+**What is missing is a TEST that uses it — not the dependency.**
+⚠ To-do item **4.25** already says exactly that; this page did not, and a Brief that
+understates what works costs as much as one that overstates it. Layout is still unverified
+by anything in `tests/`, so keep saying so — but "we have no way to look" is no longer the
+reason.
 
 ---
 

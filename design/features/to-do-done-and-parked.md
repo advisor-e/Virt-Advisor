@@ -219,6 +219,89 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.29 · The AI had never been told the report models exist.** ✅ Closed 2026-08-22,
+session 80. Carried since 2026-08-21 — Mike's own instruction, approved to build the same
+day. Plan item T22, open since 2026-07-09.
+
+- **Why it mattered:** `utils/reportModelCatalogue.js` was read by exactly one file,
+  `components/ModelLibrary.vue`. Nothing in `server/` read it, and the only mention of a
+  model's name on the backend was a JSDoc comment inside the model itself. **Ten built
+  models that answer real client questions were invisible to the one part of the app an
+  advisor actually asks for help.**
+- **Mike's own words:** *"ensure that each of the performance models have a 'key calculation
+  output' page or section, so that the AI can read what the model serves"*, and *"place it
+  wherever you want, it's for AI - not the advisor or manager"* (2026-08-21).
+- **What proves it.** [`../../data/report-model-summaries.json`](../../data/report-model-summaries.json)
+  carries one entry per live model, rendered into the client-mode prompt by
+  [`../../server/utils/reportModels.js`](../../server/utils/reportModels.js). 27 tests.
+  🔴 **The assertion that matters runs the real builder and reads the real text** — the
+  assembled prompt string is 18,706 characters and contains every model, every page path,
+  and no model that has no page. A source scan proves a line exists; only that proves the
+  text reaches the model, and the difference is the exact fault named at the top of
+  `coachingPromptFields.test.js`: fields authored, stored, cascaded and rendered into no
+  prompt anywhere, with every test green because every test asked whether they were SAVED.
+- **The guard runs BOTH ways, and that was deliberate.** A summary for a model with no page
+  fails — that is the constraint the whole design turns on, and it is item 4.15 happening
+  again if it slips. A live model with **no** summary also fails, so the day one of the
+  eight `STATUS_SOON` models goes live the build says it needs an entry. Without the second
+  half it would have been a one-way ratchet: safe, and no protection against the failure
+  that actually happened. Mutation-verified three ways, plus a fourth on the wiring.
+- **Every model states what it does NOT cover, and that is not optional.** A test fails an
+  entry without it. An Education model must say its figures are illustrative — the 8 Levers
+  workbook's 880,000 "Trading Income" is a teaching figure, and an advisor told about that
+  model without the caveat could repeat it to a client as a finding.
+- 🔴 **NO SCREEN, AND THAT IS A STATED EXCEPTION TO THE 2026-08-16 HUB-PAGE RULE.** Mike
+  ruled it himself. The reason holds: a description of what a calculation does is a fact
+  about the maths, not authored advisory judgement — nobody at any tier gets to decide that
+  Lease vs Buy answers a different question than it answers. ⚠ If a firm ever wants to say
+  when *its* advisors should reach for a model, that **is** authored judgement and needs a
+  mentor-tier screen. The data file says so in its own header.
+- 🔴 **WHAT IT DID NOT DO BECAME ITEM 4.32 RATHER THAN A SILENCE — and 4.32 closed the same
+  session.** The AI could read the list and nothing invited it to use it: none of the six
+  mode prompts in `data/prompts/` mentioned a calculation model, and `discover.txt` ends
+  *"Do not add any other sentence after it… End there. Full stop."* Tried live with a
+  builder-short-of-cash question: three templates, no model. It was raised as its own item
+  because editing a mode prompt changes what a deployed screen says to real advisors. Mike
+  ruled the same afternoon — *"yes and both if its appropriate"* — and it was built. See
+  4.32 below.
+- ⚠ **One stale claim corrected on the way past:** `report-models.md` §5 still said *"no
+  browser driver is installed in this repository"*. `playwright` landed the day after that
+  was written (2026-08-21, `7fa5e9a`) and was used this session to drive the AI Prompts tab.
+  Item 4.25 already recorded it correctly; the Brief did not.
+
+**4.32 · The AI could read what the models do and was never invited to mention one.**
+✅ Raised AND closed 2026-08-22, session 80 — which is the whole point of it having been an
+item at all rather than a quiet widening of 4.29.
+
+- **Why it mattered:** 4.29 finished with the content in the prompt, the tests green, and
+  the advisor no better off. Asked live about a builder short of cash, the AI returned three
+  templates and no calculator — correctly, because nothing had told it it could.
+- **Mike's own words:** *"yes and both if its appropriate"* (2026-08-22), answering whether
+  the AI should be allowed to point at a calculator, and in which modes.
+- **What changed, and what deliberately did not.** `discover.txt` gains a **"A calculator
+  that fits"** block *inside* its format, and `client.txt` gains hard rule **R18**. Both
+  carry the brake as well as the invitation: only when one genuinely fits, always with its
+  exact page path, only from the list, never in place of a template.
+  🔴 **The search mode's closing rule is untouched** — *"MUST be the final line… End there.
+  Full stop."* The calculator block was placed **above** that line rather than the rule
+  being loosened, and a test asserts both that the rule is still there and that the block
+  sits before it. That rule exists so the AI stops talking; weakening it was never the ask.
+  🔴 **R18 says in terms that it is NOT an exception to R17**, which fixes the recommended
+  template set. A model is not a template and never joins, replaces or reorders it. Without
+  that sentence the two rules read as contradictory, and a contradicted hard rule is one the
+  model gets to choose about.
+- **Verified against the running app four times, not asserted.** A lease-or-buy question
+  returned the Lease vs Buy calculator with `/lease-vs-buy`. A cash-flow question returned
+  Debtor Business Drag with `/debtor-drag`. **A question about two directors who cannot
+  agree returned three templates and no calculator at all** — the restraint half, which is
+  the one that matters, because an invitation without a brake is item 4.18 waiting to happen.
+- ⚠ **One attempt was reverted mid-flight and it is worth recording.** Telling the AI not to
+  bold a model name — meant to stop a template's video attaching to it — stripped the bold
+  off the **template** name too, which is exactly what `videoInjector` reads. It made the
+  output worse than the problem it addressed. Reverted, and the underlying issue became
+  item **4.33** instead: it cannot be fixed in the prompt, because the injector runs after
+  the AI has finished writing.
+
 **4.28 · The AI Prompts page had an engine and no screen.** ✅ Closed 2026-08-22, session 80.
 Carried since 2026-08-21 — Mike's own instruction, and the backend half had shipped the day
 before, which is exactly the half-a-fix state CLAUDE.md names.

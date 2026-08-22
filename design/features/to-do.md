@@ -44,15 +44,29 @@ repository sees; the two never both appear, and the build stops if they would.
 | 7 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
 | 8 | **4.26** The Model Library card still promises one rental property, not five | 2 | — | **Mike** |
 | 9 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
-| 10 | **4.29** The AI has never been told the report models exist | 4 | — | Us |
-| 11 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
-| 12 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
+| 10 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
+| 11 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
+| 12 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
 
 **Twelve live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
-**One item came off on 2026-08-22** — see [`to-do-done-and-parked.md`](to-do-done-and-parked.md):
+**Three items came off on 2026-08-22, and one joined** — see
+[`to-do-done-and-parked.md`](to-do-done-and-parked.md):
 
+- ✅ **4.29** — **the AI has been told the report models exist.** What each of the ten built
+  models serves, its key calculation output, what the advisor must supply, when to reach for
+  it and **what it does not cover** now reach the client-mode prompt — proven against the
+  assembled prompt string, not a source scan. A guard holds it to the catalogue **both ways**,
+  so a model going live cannot stay invisible and a model with no page can never be named.
+- ✅ **4.32** — **raised and closed the same session, which is the point of it.** 4.29 put the
+  models in the prompt and stopped: no mode prompt invited the AI to mention one, and asked
+  live it returned three templates and no calculator. Rather than quietly widening 4.29, it
+  became an item — Mike ruled *"yes and both if its appropriate"* the same afternoon, and both
+  modes now carry the invitation **with its brake**: a calculator appears only when one
+  genuinely fits, always with its page path, never in place of a template, and the search
+  mode's "end there, full stop" rule is untouched. Verified against the running app four
+  times, including a question where nothing fitted and no calculator was offered.
 - ✅ **4.28** — **the AI Prompts tab is built**, at all four manager tiers, and the engine that
   had shipped the day before is no longer a half-fix. Redrawn first on Mike's ruling that the
   page is for an accountant and not an engineer: the security document is **mentor-only**, and

@@ -14,6 +14,7 @@ const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = re
 const { loadFirmCoaching, formatFirmCoachingForPrompt } = require('../server/utils/coaching')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
+const { formatReportModelsForPrompt } = require('../server/utils/reportModels')
 const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
 const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
@@ -525,6 +526,10 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
       : null
   }
 
+  // What each built calculation model serves (item 4.29). Platform content, unfenced by
+  // design — see the note in server/utils/reportModels.js.
+  const reportModelsText = formatReportModelsForPrompt()
+
   // Logic trees — diagnostic pathways that led to this situation
   const treesForPrompt = Array.isArray(logicTrees) ? logicTrees : (logicTree ? [logicTree] : [])
   const logicTreeText = treesForPrompt.length > 0
@@ -539,7 +544,14 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     firmCoachingText ? '\n---\n\n## Firm Coaching Notes — observations promoted from this firm\'s reviewed cases\n\n' + firmCoachingText : '',
     growthText ? '\n---\n\n' + growthText : '',
     summariesText ? '\n---\n\n' + summariesText : '',
-    logicTreeText ? '\n---\n\n' + logicTreeText : ''
+    logicTreeText ? '\n---\n\n' + logicTreeText : '',
+    // The ten built calculation models (item 4.29, Mike 2026-08-21). Until this, the
+    // backend had never heard of them: the catalogue was read by ModelLibrary.vue alone,
+    // so an advisor describing a cash problem could not be pointed at Debtor Drag.
+    // Included on BOTH client-mode paths — the Phase 3 recommendation and the post-
+    // recommendation conversation — because those are the two places an advisor is
+    // talking about a live client situation and a model could answer it.
+    reportModelsText ? '\n---\n\n' + reportModelsText : ''
   ].filter(Boolean).join('\n') + profileText
 }
 
@@ -3442,6 +3454,18 @@ async function handleQuery (rawBody, res, identity) {
   // Section descriptions always included for client/discover modes so AI can tier-match from the start
   const sectionDescText = (mode === 'client' || mode === 'discover') ? formatSectionDescriptionsForPrompt() : null
 
+  // The ten built calculation models (item 4.29, Mike 2026-08-21) — gated to the same two
+  // modes as the section descriptions, and deliberately not to all four.
+  //
+  // 🔴 WHY NOT `learn` OR `plan`. The fault this closes is named in the item: "an advisor
+  // describing a client's cash problem cannot be pointed at Debtor Drag". That advisor is
+  // in client or discover mode. `learn` is coaching the advisor on how to RUN a meeting
+  // and `plan` is their own business development — offering a client calculator there
+  // invites the AI to reach for a tool that answers a question nobody asked, which is the
+  // shape of to-do item 4.18. Widening this is a decision to take deliberately, with a
+  // reason, not a default.
+  const reportModelsText = (mode === 'client' || mode === 'discover') ? formatReportModelsForPrompt() : null
+
   // Domain support reference — client mode injects this directly in its own block
   // (Phase 3 + post-rec). Learn mode (enrichment ruling 2026-07-16) injects the
   // picked coaching tree's verified support file; discover/plan run no domain
@@ -3457,6 +3481,7 @@ async function handleQuery (rawBody, res, identity) {
       ? '\n---\n\n## Firm Coaching Notes — observations promoted from this firm\'s reviewed cases\n\n' + firmCoachingText
       : '',
     domainSupportText ? '\n---\n\n' + domainSupportText : '',
+    reportModelsText ? '\n---\n\n' + reportModelsText : '',
     growthText ? '\n---\n\n' + growthText : '',
     summariesText ? '\n---\n\n## Detailed Template Summaries — Purpose, Indicators & Delivery Guidance\n\n' + summariesText : '',
     advisorProfileText
@@ -3630,3 +3655,8 @@ module.exports.buildContinuityTraceAudit = buildContinuityTraceAudit
 module.exports.loadPromptCases = loadPromptCases
 module.exports.formatCaseSummaries = formatCaseSummaries
 module.exports.MAX_PROMPT_CASES = MAX_PROMPT_CASES
+// Exported for the same reason as the two above: a test can then assert against the
+// ASSEMBLED PROMPT STRING rather than against a regex over this file. A source scan
+// proves a line exists; only this proves the text reaches the model. See
+// tests/unit/reportModelSummaries.test.js — item 4.29.
+module.exports.buildClientContext = buildClientContext
