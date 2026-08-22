@@ -38,7 +38,7 @@
 
 const BASE_FILE = require('../../data/ai-prompts.json')
 const { deepMerge } = require('./deepMerge')
-const { parentScopeOf } = require('./tierChain')
+const { parentScopeOf, tierOfScope } = require('./tierChain')
 const { fenceUntrusted } = require('./promptSafety')
 
 /** The overlay address these settings are stored under, at every tier. */
@@ -53,6 +53,67 @@ const BASE_PROMPTS = BASE_FILE.prompts
 
 /** Prompt id → prompt, for the lookups every other function here needs. */
 const BY_ID = BASE_PROMPTS.reduce((out, p) => { out[p.id] = p; return out }, {})
+
+/**
+ * The safety story in an accountant's language — the four plain sentences that stand in,
+ * below the mentor, for the security prompt's seven engineering headings.
+ *
+ * 🔴 THE ONE PARAPHRASE ON THE SCREEN, so it is the one place drift can hide. Every other
+ * word the tab shows is the verbatim text the model is sent. Each line declares the module
+ * that actually does the work, and `tests/unit/aiPrompts.test.js` holds it to that module
+ * — a sentence whose backing is deleted fails the build rather than going quietly false.
+ *
+ * @type {{heading: string, lede: string, lines: Array.<{text: string, backedBy: string}>}}
+ */
+const PROTECTION_PANEL = BASE_FILE.protectionPanel
+
+/**
+ * The hub's four scope names, which are what `data/ai-prompts.json` declares a prompt's
+ * `tiers` in, keyed by the tier vocabulary `tierChain.tierOfScope` answers in.
+ *
+ * ⚠ TWO VOCABULARIES, ON PURPOSE, AND NEITHER IS WRONG. `roles.js` / `tierChain.js` are
+ * canonical for the tier NAMES (`tierVocabulary.test.js` enforces them); the hub's
+ * `HUB_SCOPES` are canonical for the SCOPE a component is rendered at. This map is the
+ * single declared seam between them, so neither list has to learn the other's spelling
+ * and a rename of either fails here rather than silently showing the wrong tab.
+ */
+const HUB_TIER_OF = {
+  mentor: 'mentor',
+  global_group_manager: 'global',
+  group_manager: 'group',
+  firm_manager: 'firm'
+}
+
+/**
+ * Which hub tier is this scope, in the vocabulary `tiers` is declared in?
+ *
+ * @param {string} scopeId - a firm id or a reserved tier scope (`req.firmId`)
+ * @returns {string} one of `mentor` · `global` · `group` · `firm`
+ */
+function hubTierOfScope (scopeId) {
+  return HUB_TIER_OF[tierOfScope(scopeId)] || 'firm'
+}
+
+/**
+ * The prompts a tier is shown.
+ *
+ * 🔴 IT HIDES A DOCUMENT, NEVER A CONTROL. A prompt absent here has no editable surface at
+ * any tier — see `_tiersNote` and `_variablesNote` in the data file — so no manager loses
+ * a setting they had. The security prompt is mentor-only because its seven engineering
+ * headings were 7 of the 19 sections a firm manager read, in a different profession's
+ * language (Mike, 2026-08-22). The protection it describes still applies to every tier;
+ * below the mentor `PROTECTION_PANEL` says so in theirs.
+ *
+ * A prompt that declares no `tiers` is shown everywhere. That is the safe default: a new
+ * prompt added without the field appears rather than silently vanishing.
+ *
+ * @param {string} [tier] - `mentor` · `global` · `group` · `firm`; omitted means every one
+ * @returns {object[]} the shipped prompt records, unmodified
+ */
+function promptsForTier (tier) {
+  if (!tier) { return BASE_PROMPTS }
+  return BASE_PROMPTS.filter(p => !Array.isArray(p.tiers) || p.tiers.includes(tier))
+}
 
 /**
  * 🔴 THE PROTOCOLS. Prepended to every assembled prompt, outside the editable document.
@@ -325,10 +386,13 @@ function assemblePrompt (promptId, resolvedOverrides) {
  * with its declaration and the value in force at this scope.
  *
  * @param {object} [resolvedOverrides]
+ * @param {string} [tier] - `mentor` · `global` · `group` · `firm`. Omitted returns every
+ *   prompt, which is what the assembly path and the existing tests want; a screen always
+ *   passes its own tier, so a manager is never shown a document written for the mentor.
  * @returns {object[]}
  */
-function listPrompts (resolvedOverrides) {
-  return BASE_PROMPTS.map((p) => {
+function listPrompts (resolvedOverrides, tier) {
+  return promptsForTier(tier).map((p) => {
     const mine = (resolvedOverrides && resolvedOverrides[p.id]) || {}
     return {
       id: p.id,
@@ -371,6 +435,10 @@ module.exports = {
   CONFIG_KEY,
   BASE_PROMPTS,
   PROTOCOL_BLOCK,
+  PROTECTION_PANEL,
+  HUB_TIER_OF,
+  hubTierOfScope,
+  promptsForTier,
   DECLARED,
   checkValue,
   validateAiPromptOverrides,

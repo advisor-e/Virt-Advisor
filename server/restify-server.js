@@ -114,6 +114,7 @@ const mentorRoute = require('./routes/mentor')
 const reportRoute = require('./routes/report')
 const currencyRoute = require('./routes/currency')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
+const aiPromptsRoute = require('./routes/aiPrompts')
 const staircaseRoute = require('./routes/staircase')
 const { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 // Collaborate — the people layer and its template catalogue. Merged in from what
@@ -299,6 +300,14 @@ server.get('/api/firm-manager/property-tax-rules', ...fmGuard, propertyTaxRulesR
 server.post('/api/firm-manager/property-tax-rules', ...fmGuard, propertyTaxRulesRoute.save)
 server.get('/api/firm-manager/property-tax-rules/history', ...fmGuard, propertyTaxRulesRoute.history)
 server.post('/api/firm-manager/property-tax-rules/restore', ...fmGuard, propertyTaxRulesRoute.restore)
+// The instructions the AI is given when it builds a model, and the three settings a
+// manager may change on them (Mike, 2026-08-21). Same shape and same guard as the tax
+// rules above: one set of routes for every tier, scoped to `req.firmId` from the verified
+// JWT and never to an id in the request. design/AI-PROMPTS-PAGE.md.
+server.get('/api/firm-manager/ai-prompts', ...fmGuard, aiPromptsRoute.getForManager)
+server.post('/api/firm-manager/ai-prompts', ...fmGuard, aiPromptsRoute.save)
+server.get('/api/firm-manager/ai-prompts/history', ...fmGuard, aiPromptsRoute.history)
+server.post('/api/firm-manager/ai-prompts/restore', ...fmGuard, aiPromptsRoute.restore)
 server.get('/api/firm-manager/staircase', ...fmGuard, fm.getStaircase)
 server.post('/api/firm-manager/staircase', ...fmGuard, fm.saveStaircase)
 // The staircase cascade — one decision per request, mirroring the distinction routes

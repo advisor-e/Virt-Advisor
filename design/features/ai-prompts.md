@@ -4,9 +4,9 @@
 > only; the history is in [`ai-prompts-history.md`](ai-prompts-history.md).
 >
 > **Covers:** the two shipped prompts, what is editable and what is not, how the platform
-> protocols are enforced, and how a tier's settings cascade.
-> **Does not cover:** the hub tab that renders it — **that is not built** (item 4.28), and the
-> report models' own key-calculation summaries, which are item 4.29 and a separate thing.
+> protocols are enforced, how a tier's settings cascade, and the hub tab that renders it.
+> **Does not cover:** the report models' own key-calculation summaries, which are item 4.29 and a
+> separate thing.
 
 ---
 
@@ -84,6 +84,40 @@ from a folder on one laptop that neither the desktop nor the master team can ope
 *If ignored:* a design whose source cannot be read by its reviewers — the `save-the-artefact`
 failure with extra steps.
 
+**P7 · The page is written for an accountant, not for an engineer.**
+🔴 **Ruled by Mike on 2026-08-22, on reading the first drawing:** *"who is supposed to be working
+with this page? A computer coder or an accountant who has been given a word doc with some ai /
+claude prompts on it and told the prompts need to be included for their protection? If its the
+latter (and it is) then your version risks being too complicated for them."*
+What that produced, and each half matters:
+- **The cash flow prompt stays exactly as drawn.** *Materiality*, *three-way forecast*, *draft and
+  publish*, *auditability* are an accountant's **own** vocabulary. Seeing it reassures them.
+- **The security prompt is MENTOR-ONLY.** Its seven headings — *the lethal trifecta*, *gate the
+  sinks not the reads*, *taint-gate memory writes* — were **7 of the 19 sections a firm manager
+  saw**, in a different profession's language. That is the opposite of reassurance: a list of
+  alarming things they cannot evaluate. Below the mentor it is replaced by **one plain-English
+  panel of four sentences**, *How your clients' information is protected*.
+- **Nothing is hidden by this, and a test proves it.** The security prompt has no editable setting
+  at any tier, so no manager loses a control — only a document they could not use. If it ever
+  gains one, `aiPrompts.test.js` fails and the ruling has to be revisited rather than quietly
+  taking a control away from three tiers.
+- **Filtering is done on the BACKEND** (`promptsForTier`), never by hiding markup, so a tier
+  cannot reach the mentor's document by asking for it.
+*If ignored:* the page becomes a security briefing a firm manager cannot act on, and the three
+settings they actually came for are buried in it.
+
+**P8 · Every line of the protection panel must be something the system DOES.**
+The panel's own lede says *"applied by the system every time"*. So each line declares the module
+that performs it (`backedBy`) and the exact export or call that proves it (`provenBy`), and a test
+reads the file to check. A line describing an **instruction to the model** would be a claim the
+app is not keeping.
+🔴 *Why, and it is not hypothetical:* the fourth line was *"Nothing is treated as final until a
+person has approved it"* when the tab was drawn. It is enforced nowhere — it restates the prompt's
+own Draft and Publish section, which is advice to a model. It was replaced before shipping. **This
+is the same fault Mike caught in the two fetch-burst boxes on 2026-08-22, in prose instead of in a
+control**, and it is the reason P1's distinction is not academic.
+*If ignored:* a manager reads a reassurance the app does not deliver, and no test can tell.
+
 ---
 
 ## 3. Design considerations
@@ -93,9 +127,14 @@ failure with extra steps.
 nobody can enforce, and the first inconvenient case widens it. A test asserts every section is
 locked, so a section becoming editable requires somebody to argue for it rather than to slip.
 
-**The security prompt has almost no editable surface, and that is a correct result.** Its content
-is entirely protocol. What remains editable is which steps apply and the numeric thresholds where
-one does. A prompt with nothing to tune is not a defect — it is a prompt that is all method.
+**The security prompt has NO editable surface at all, and that is a correct result.** Its content
+is entirely protocol. A prompt with nothing to tune is not a defect — it is a prompt that is all
+method, and the tab says *"Nothing here is yours to set"* rather than showing an empty box.
+⚠ **This paragraph said "almost none … the numeric thresholds where one does" until 2026-08-22.**
+It was already wrong when written: the only two thresholds it could have meant belonged to step 3,
+*Cap outbound fetch bursts*, which is marked **does not apply here**. Mike found the two boxes by
+looking at a picture and removed them (`28cb249`); the wording is corrected here rather than
+quietly, because a Brief that overstates an editable surface teaches the next session to build one.
 
 **Deferred on purpose: the Flagged Issues Register.** The cash flow document's register — every
 assumption listed with a status of *open / accountant-accepted / resolved* — is the single most
@@ -118,11 +157,15 @@ ruled that one *"for AI - not the advisor or manager"*.
 | Piece | Path |
 |---|---|
 | The prompts, as data | [`../../data/ai-prompts.json`](../../data/ai-prompts.json) |
-| Assembly, validation, cascade | [`../../server/utils/aiPrompts.js`](../../server/utils/aiPrompts.js) |
+| Assembly, validation, cascade, tier filter | [`../../server/utils/aiPrompts.js`](../../server/utils/aiPrompts.js) |
+| The Restify routes | [`../../server/routes/aiPrompts.js`](../../server/routes/aiPrompts.js) |
+| The hub tab | [`../../components/firm/FirmAiPrompts.vue`](../../components/firm/FirmAiPrompts.vue) |
+| Its wording | `locales/en.json` → `firmAiPrompts` (the panel and the prompts themselves are DATA, not locale keys) |
 | Fencing and output stripping | [`../../server/utils/promptSafety.js`](../../server/utils/promptSafety.js) |
 | The design and its build order | [`../AI-PROMPTS-PAGE.md`](../AI-PROMPTS-PAGE.md) |
+| The approved drawing | [`../mockups/ai-prompts-tab.html`](../mockups/ai-prompts-tab.html) — **second** drawing; §3 names every difference |
 | The source documents, verbatim | [`../prompt-sources/`](../prompt-sources/) |
-| Tests | [`../../tests/unit/aiPrompts.test.js`](../../tests/unit/aiPrompts.test.js) · [`promptSafety.test.js`](../../tests/unit/promptSafety.test.js) |
+| Tests | [`aiPrompts.test.js`](../../tests/unit/aiPrompts.test.js) · [`aiPrompts.routes.test.js`](../../tests/unit/aiPrompts.routes.test.js) · [`firmAiPrompts.component.test.js`](../../tests/unit/firmAiPrompts.component.test.js) · [`promptSafety.test.js`](../../tests/unit/promptSafety.test.js) |
 | Override storage | `firmOverlay`, `config_key: 'ai-prompts'` |
 
 **Traps.**
@@ -138,12 +181,17 @@ ruled that one *"for AI - not the advisor or manager"*.
 
 **Known state.**
 - ✅ **Built and tested:** the data, the protocol block, the validator, the cascade, assembly,
-  `stripInvisible`. 32 tests here, 11 more on the stripper.
-- ❌ **NOT built: the screen.** No tab renders any of this, so no manager can see or change a
-  single variable. Item **4.28**. The engine reads as done and is not.
-- ❌ **NOT built: the Restify route.** Nothing serves this to a frontend yet.
+  `stripInvisible`, the tier filter, the four Restify routes, and **the hub tab**. 47 tests on the
+  engine, 22 on the routes, 24 on the screen, 11 more on the stripper.
+- ✅ **The screen exists** — *AI Prompts*, last under *Your AI coach*, at all four manager tiers.
+  Item **4.28**, closed 2026-08-22.
 - ⚠ **`stripInvisible` is not applied to the live advisor output path** — `advisorEngine.js` is
-  untouched. Item **4.30**.
+  untouched. Item **4.30**. 🔴 The protection panel's third line — *"Invisible characters are
+  stripped from the AI's answer"* — is true of **this** prompt path and not yet of the advisor
+  screen. Closing 4.30 is what makes that sentence true everywhere a manager would assume it is.
+- ⚠ **The tab has been proven by tests, not by a person opening it at every tier.** Nothing in
+  this project checks that a screen LOOKS right (item **4.25**), and the two defects this feature
+  has had were both found by Mike looking at a picture.
 - 🔴 **Two of the four tiers cannot be logged into.** `config/integration.js` ships
   `globalManagerRole` and `groupManagerRole` **empty on purpose**, fail-closed. The cascade is
   correct for four tiers and exercisable on two. **Never report this as working at four tiers.**

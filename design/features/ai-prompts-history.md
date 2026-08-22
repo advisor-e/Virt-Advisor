@@ -5,6 +5,83 @@
 
 ---
 
+## 2026-08-22 · The screen — redrawn for the reader, then built
+
+**Mike:** *"finish 4.28 you should have everything you need."*
+
+### The picture is what found both defects, and neither was findable by a test
+
+This feature has now had two faults. **Both were found by Mike looking at a drawing**, and the
+suite could not have caught either:
+
+1. **Two editable boxes that controlled nothing** (2026-08-22, `28cb249`). A fetch-burst limit
+   and its window, belonging to a step marked *does not apply here* — this app's AI cannot fetch.
+   They validated, saved, and inherited down the tiers perfectly. **A test can prove a control
+   works. It cannot ask whether the thing it controls exists.**
+
+2. **The page was written for the wrong reader.** His words:
+
+   > *"who is supposed to be working with this page? A computer coder or an accountant who has
+   > been given a word doc with some ai / claude prompts on it and told the prompts need to be
+   > included for their protection? If its the latter (and it is) then your version risks being
+   > too complicated for them."*
+
+   The arithmetic makes it undeniable: the security document contributed **7 of the 19 sections
+   a firm manager was shown**, in headings like *the lethal trifecta* and *taint-gate memory
+   writes*. Not reassurance — a list of alarming things they cannot evaluate.
+
+### What the redraw did, and the one thing it had to prove
+
+The security document became **mentor-only**; below the mentor it is four plain sentences,
+*How your clients' information is protected*. The two-card picker went with it, because a picker
+offering a choice of one is furniture.
+
+🔴 **The thing that had to be proved is that nothing was taken away.** Hiding a document from
+three tiers looks like removing their access. It is not, and the proof is small: that document
+has **no editable setting at any tier** — see its `_variablesNote` — so no manager loses a
+control, only a write-up they could not act on. A test asserts it, so if it ever gains a setting
+the ruling has to be revisited rather than a control quietly disappearing.
+
+The filter runs on the **backend** (`promptsForTier`), not by hiding markup, so a tier cannot
+reach the mentor's document by asking for it.
+
+### A third fault, caught inside the build this time
+
+The protection panel's fourth sentence was *"Nothing is treated as final until a person has
+approved it."* The panel's own lede says these things are **applied by the system every time**.
+That one is enforced nowhere — it restates the prompt's own Draft-and-Publish section, which is
+**advice to a model**, and P1 of the Brief exists precisely to say those are not the same thing.
+
+**It is the fetch-burst fault again, in prose instead of in a control:** a reassurance a manager
+would reasonably rely on, with nothing behind it. Replaced before shipping with *"Pictures and
+web code are stripped out of the AI's answer"*, which the locked markdown pipeline enforces.
+
+That produced **P8**: every line of the panel declares the module that performs it (`backedBy`)
+and the exact export or call that proves it (`provenBy`), and a test opens the file to check. A
+sentence whose protection is deleted now fails the build instead of going quietly false. It is
+the only paraphrase on the screen, so it is the only place this kind of drift can hide.
+
+### Two labels, and the one that stayed
+
+Mike ruled both on 2026-08-22. *Reporting granularity* became **Reporting periods** — the source
+document's term is a specification writer's, not an accountant's. He kept **Currency and units**
+as it was, which was the recommendation: an accountant already reads *$000* as units.
+
+### What was verified, and what still cannot be
+
+The running app was driven at both loginable tiers, and the cascade exercised over real HTTP
+rather than asserted: the mentor set a materiality of 3, the firm read it as *inherited* holding
+nothing of its own, the firm set 12 and held it, and the mentor was unaffected. Every refusal was
+tried live, including a scope named in the request body — which wrote to the caller's own scope
+and left the mentor's untouched.
+
+⚠ **Still true:** the two middle tiers have no real login (`config/integration.js` ships their
+role names empty, fail-closed). The dev tokens exercise them; a customer cannot yet. And nothing
+in this project checks that a screen LOOKS right — item **4.25** — which is why both of this
+feature's first two faults reached a branch.
+
+---
+
 ## 2026-08-21 · Asked for, designed, and half built in one session
 
 Mike, opening the request:

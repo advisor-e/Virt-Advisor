@@ -60,6 +60,10 @@ data/dev-platform-distinctions.json
 # the repo, not one firm's row.
 data/dev-property-tax-rules.json
 
+# Dev-only AI prompt settings. Keyed by SCOPE for the same reason as the tax rules
+# above, and ignored for the same reason.
+data/dev-ai-prompts.json
+
 # Dev-only firm staircase override (created locally when MySQL is unavailable)
 data/dev-firm-staircase.json
 # The four cascade keys, added when the staircase joined the one firm-editable

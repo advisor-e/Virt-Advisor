@@ -294,12 +294,16 @@ describe('the hub menu — the sidebar itself', () => {
     return wrapper.findAll('.hub-menu .menu-label').wrappers.map(p => p.text().trim())
   }
 
-  it('groups the firm manager’s ten tabs under three headings', async () => {
+  it('groups the firm manager’s eleven tabs under three headings', async () => {
     // Was eleven until 2026-08-20, when the Coaching Reference tab was removed with the
-    // fifteen platform rows behind it (item 4.24, Mike: "remove the tab").
+    // fifteen platform rows behind it (item 4.24, Mike: "remove the tab") — ten. Back to
+    // eleven on 2026-08-22, when AI Prompts joined "Your AI coach" (item 4.28, Mike
+    // 2026-08-21, naming all four manager tiers).
     const wrapper = await mountHub()
     expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs'])
-    expect(tabLabels(wrapper)).toHaveLength(10)
+    expect(tabLabels(wrapper)).toHaveLength(11)
+    // Appended, not inserted: nothing already on a manager's screen moved to make room.
+    expect(tabLabels(wrapper)[5]).toBe('AI Prompts')
   })
 
   it('gives the mentor NO Model Inputs heading rather than an empty one', async () => {
@@ -349,13 +353,15 @@ describe('the hub menu — the sidebar itself', () => {
     // the screen rather than off the matrix, because the matrix is what the design
     // predicted and this is what a manager actually gets.
     //
-    // ⚠ NOW 12, NOT THE DESIGN'S 13 — the Coaching Reference tab was removed on
-    // 2026-08-20 (item 4.24). The headings are unchanged; only that one entry has gone.
+    // ⚠ WENT TO 12 ON 2026-08-20, when the Coaching Reference tab was removed (item
+    // 4.24), and back to the design's 13 on 2026-08-22, when AI Prompts joined (item
+    // 4.28) — the same number by a different route, as has now happened twice here.
+    // The headings are unchanged throughout; only entries within them have moved.
     const wrapper = await mountHub({ scope: 'group' })
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Rolled up from below'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(12)
+    expect(tabLabels(wrapper)).toHaveLength(13)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')
   })

@@ -141,6 +141,24 @@
   table.diff td { border-bottom:1px solid var(--line); padding:0.55rem 0.7rem 0.55rem 0;
     vertical-align:top; color:var(--slate); }
   table.diff td:first-child { color:var(--navy); font-weight:600; width:34%; }
+
+  /* ---- the protection panel: what replaced seven engineering headings ----
+     Deliberately NOT the grey of a disabled control. It is reassurance, so it
+     reads as a statement the firm can rely on rather than a restriction on them. */
+  .prot h3 { margin:0 0 0.15rem; font-size:0.95rem; color:var(--navy); }
+  .protlede { margin:0.3rem 0 0; font-size:0.81rem; color:var(--slate); }
+  .protlist { margin:0.75rem 0 0; padding:0; list-style:none; }
+  .protlist li { position:relative; padding-left:1.35rem; margin-bottom:0.4rem;
+    font-size:0.845rem; color:var(--ink); }
+  .protlist li:last-child { margin-bottom:0; }
+  .protlist li::before { content:"\2713"; position:absolute; left:0; top:-0.02rem;
+    color:var(--green); font-weight:700; }
+
+  /* the tier strip above each drawing */
+  .who { display:inline-block; font-size:0.7rem; font-weight:700; letter-spacing:0.07em;
+    text-transform:uppercase; border-radius:3px; padding:0.18rem 0.5rem; margin-bottom:0.9rem;
+    color:var(--blue); background:var(--blue-bg); border:1px solid var(--blue-line); }
+  .who.mentoronly { color:var(--amber); background:var(--amber-bg); border-color:var(--amber-line); }
 </style>
 </head>
 <body>
@@ -149,35 +167,40 @@
   <div class="banner">
     <p><strong>This is a drawing, not the built screen.</strong> Nothing here is wired to
     anything. It exists so the page can be looked at before it is built, per the
-    &ldquo;Save the Artefact&rdquo; rule in <code>CLAUDE.md</code>.</p>
-    <p><strong>What is already ruled</strong> &mdash; drawn here, not re-asked: the tab is called
+    &ldquo;Save the Artefact&rdquo; rule in CLAUDE.md.</p>
+
+    <p><strong>This is the SECOND drawing, redrawn on your ruling of 22 August.</strong> The
+    first one was written for an engineer. Your words: <em>&ldquo;who is supposed to be working
+    with this page? A computer coder or an accountant who has been given a word doc with some ai
+    / claude prompts on it and told the prompts need to be included for their protection? If its
+    the latter (and it is) then your version risks being too complicated for them.&rdquo;</em>
+    What changed, and what it cost, is listed in section 3 at the bottom. The previous drawing is
+    in the repository&rsquo;s history &mdash; nothing has been lost.</p>
+
+    <p><strong>What is already ruled &mdash; drawn here, not re-asked:</strong> the tab is called
     <b>AI Prompts</b>; every section of both prompts is fixed except the three named settings on
     the cash flow prompt; the four manager tiers get the tab and advisors and clients do not; the
-    safety protocols are added by the server and are not part of the editable document.
+    safety protocols are added by the server and are not part of the editable document; the
+    security prompt is now <b>mentor-only</b>; setting 2 is called <b>Reporting periods</b> and
+    setting 3 stays <b>Currency and units</b> (both your word, 22 August).
     Source: <code>design/AI-PROMPTS-PAGE.md</code>.</p>
-    <p><strong>Changed 2026-08-22, by Mike, on reading this drawing.</strong> The security prompt
-    used to carry two editable boxes &mdash; a fetch burst limit and its window. They belonged to
-    a step that does not apply to this app, so they controlled nothing. <b>They are gone</b>
-    (section 2 below). The step itself stays, marked <i>does not apply here</i>, because that is
-    a record; a box that does nothing is a control that lies.</p>
-    <p><strong>What is ours and needs your eye</strong> is listed in section 3 at the bottom.
-    It is all wording and layout &mdash; no rule is being re-opened.</p>
   </div>
 
   <h1>AI Prompts &mdash; the hub tab</h1>
-  <p class="lede">The tab a manager opens to see the instructions the AI works to, and to set
-  the handful of things that are theirs to decide. Drawn at <b>firm manager</b> scope, which is
-  the busiest case: it has a level above it, so every value can read either
-  &ldquo;set here&rdquo; or &ldquo;inherited&rdquo;.</p>
+  <p class="lede">The tab a manager opens to see the instructions the AI works to, and to set the
+  handful of things that are theirs to decide. Two drawings below: what a <b>firm, group or
+  global group manager</b> sees, and then the one thing the <b>mentor</b> additionally sees.</p>
 
-  <!-- ============================================================ -->
+  <!-- =============== 1. THE MANAGER'S TAB =============== -->
   <section class="band">
-    <h2>1. The tab, as it will look</h2>
-    <p class="sub">The problem this layout solves: there are <b>nineteen fixed sections</b>
-    across the two prompts and only <b>three things a manager can change</b>, all of them on this
-    prompt. Drawn in document order, those three would be buried inside sections 4, 5 and 10 of a
-    wall of text. So the page is turned inside out &mdash; what is yours comes first, and the
-    method sits underneath it, closed.</p>
+    <h2>1. The manager&rsquo;s tab &mdash; firm, group and global group</h2>
+    <p class="sub">Drawn at firm manager scope, which is the busiest case: it has a level above
+    it, so every value can read either &ldquo;set here&rdquo; or &ldquo;inherited&rdquo;. The
+    group and global group versions are the same screen with a different name in the corner.
+    <b>One prompt, three settings, and one paragraph about safety</b> &mdash; that is the whole
+    page now.</p>
+
+    <span class="who">What a firm manager sees</span>
 
     <div class="hub">
       <div class="hubhead">
@@ -186,25 +209,11 @@
       </div>
       <div class="panel">
 
-        <p class="intro">These are the instructions the AI is given when it builds a model for
-        your clients. <b>The method is fixed</b> &mdash; it is what makes the output auditable,
-        and it is shown in full below so you can see the standard your firm is held to.
-        <b>The highlighted boxes are yours to set.</b></p>
+        <p class="intro">These are the instructions the AI is given when it builds a cash flow
+        model for your clients. <b>The method is fixed</b> &mdash; it is what makes the output
+        auditable, and it is shown in full below so you can see the standard your firm is held
+        to. <b>The highlighted boxes are yours to set.</b></p>
 
-        <div class="picker">
-          <div class="pcard on">
-            <div class="pname">Three-Way Cash Flow Forecast</div>
-            <div class="psub">AI Build Instructions &mdash; Excel Model Deliverable</div>
-            <div class="pmeta">12 fixed sections &middot; <b>3 settings you can change</b></div>
-          </div>
-          <div class="pcard">
-            <div class="pname">AI Audit and Security</div>
-            <div class="psub">Hardening an assistant against the lethal trifecta</div>
-            <div class="pmeta">7 fixed sections &middot; nothing to set</div>
-          </div>
-        </div>
-
-        <!-- ---------- what you can change ---------- -->
         <div class="yours">
           <h3>What you can set</h3>
           <p class="yhint">Three decisions. Everything else on this page is fixed.</p>
@@ -218,24 +227,20 @@
             </div>
             <div class="vright">
               <div class="field">5</div>
-              <div class="badges">
-                <span class="tag t-inherit">inherited from your group</span>
-              </div>
+              <div class="badges"><span class="tag t-inherit">inherited from your group</span></div>
             </div>
           </div>
 
           <div class="var">
             <div class="vleft">
               <div class="vnum">Setting 2</div>
-              <div class="vlabel">Reporting granularity</div>
+              <div class="vlabel">Reporting periods</div>
               <div class="vwhat">The reporting period for the model. This decides the column
               structure of all three statements and the time axis of every chart.</div>
             </div>
             <div class="vright">
               <div class="field sel">Monthly for two years, then annual</div>
-              <div class="badges">
-                <span class="tag t-here">set here</span>
-              </div>
+              <div class="badges"><span class="tag t-here">set here</span></div>
             </div>
           </div>
 
@@ -246,55 +251,46 @@
               <div class="vwhat">The reporting currency and units &mdash; for example NZD in
               $000, or USD in whole dollars. This appears in every statement header and every
               chart axis label.</div>
-              <div class="unset ask">
-                <b>Nothing is set, and there is no default for this one.</b> The AI will stop and
-                ask before building rather than guess. Currency cannot be safely defaulted.
-              </div>
+              <div class="unset ask"><b>Nothing is set, and there is no default for this
+              one.</b> The AI will stop and ask before building rather than guess. Currency
+              cannot be safely defaulted.</div>
             </div>
             <div class="vright">
               <div class="field empty">Not set</div>
-              <div class="badges">
-                <span class="tag t-inherit">nothing set at any level</span>
-              </div>
+              <div class="badges"><span class="tag t-default">nothing set at any level</span></div>
             </div>
           </div>
         </div>
 
-        <!-- ---------- the protocols ---------- -->
         <div class="prot">
-          <h3>Always applied &mdash; not part of this document</h3>
-          <p>These are added to every prompt by the server as it is sent. They are not stored
-          here, they are not in any of the boxes above, and no level of the system can switch
-          them off. They are shown so you know they are there.</p>
-          <ul class="protlines">
-            <li>Client names, addresses and tax numbers are removed before the AI sees anything.</li>
+          <h3>How your clients&rsquo; information is protected</h3>
+          <p class="protlede">These are applied by the system every time, on every prompt. They
+          are not stored on this page, they are not in any of the boxes above, and no level of
+          the system can switch them off. They are here so you know they are there.</p>
+          <ul class="protlist">
+            <li>Client names, addresses and tax numbers are removed before the AI sees
+            anything.</li>
             <li>Anything a client or a document says is fenced off, so instructions hidden inside
             it are not obeyed.</li>
-            <li>Invisible characters are stripped from the AI's answer before anyone reads it.</li>
-            <li>Nothing is treated as final until a person has approved it.</li>
+            <li>Invisible characters are stripped from the AI&rsquo;s answer before anyone reads
+            it.</li>
+            <li>Pictures and web code are stripped out of the AI&rsquo;s answer, so nothing can
+            be hidden inside it.</li>
           </ul>
         </div>
 
-        <!-- ---------- the method ---------- -->
-        <div class="method">
+        <div class="method" style="margin-top:1.8rem;">
           <h3>The method &mdash; fixed, and shown in full</h3>
           <p class="mhint">Twelve sections. Click one to read it. Nothing here can be changed at
           any level.</p>
 
           <div class="sec">
-            <div class="sechead">
-              <span class="caret">&#9656;</span><span class="secn">1</span>
-              <span class="sectitle">Role and Objective</span>
-              <span class="tag t-lock">fixed</span>
-            </div>
+            <div class="sechead"><span class="caret">&#9656;</span><span class="secn">1</span>
+              <span class="sectitle">Role and Objective</span><span class="tag t-lock">fixed</span></div>
           </div>
-
           <div class="sec">
-            <div class="sechead">
-              <span class="caret">&#9662;</span><span class="secn">2</span>
-              <span class="sectitle">Output Format</span>
-              <span class="tag t-lock">fixed</span>
-            </div>
+            <div class="sechead"><span class="caret">&#9662;</span><span class="secn">2</span>
+              <span class="sectitle">Output Format</span><span class="tag t-lock">fixed</span></div>
             <div class="secbody">
               <p>Deliver a single .xlsx workbook with the following sheets, in order:</p>
               <ul>
@@ -304,51 +300,30 @@
                 <li>P&amp;L, Balance Sheet and Cash Flow &mdash; live formulas, never pasted
                 values.</li>
               </ul>
-              <p><i>Shortened for this drawing. The built page shows every section in full,
-              exactly as it is sent to the AI.</i></p>
+              <p><em>Shortened for this drawing. The built page shows every section in full,
+              exactly as it is sent to the AI.</em></p>
             </div>
           </div>
-
-          <div class="sec"><div class="sechead">
-            <span class="caret">&#9656;</span><span class="secn">3</span>
-            <span class="sectitle">Source Discipline (Non-Negotiable)</span>
-            <span class="tag t-lock">fixed</span></div></div>
-          <div class="sec"><div class="sechead">
-            <span class="caret">&#9656;</span><span class="secn">3A</span>
-            <span class="sectitle">Privacy and De-identification Protocol (Non-Negotiable)</span>
-            <span class="tag t-lock">fixed</span></div></div>
-          <div class="sec"><div class="sechead">
-            <span class="caret">&#9656;</span><span class="secn">4</span>
-            <span class="sectitle">Editable Variables</span>
-            <span class="tag t-lock">fixed</span></div></div>
-          <div class="sec"><div class="sechead">
-            <span class="caret">&#9656;</span><span class="secn">5</span>
-            <span class="sectitle">Materiality &mdash; What &ldquo;Key&rdquo; Means</span>
-            <span class="tag t-lock">fixed</span></div></div>
-          <div class="sec"><div class="sechead">
-            <span class="caret">&#9656;</span><span class="secn">6</span>
-            <span class="sectitle">Scenario and Sensitivity Requirement</span>
-            <span class="tag t-lock">fixed</span></div></div>
-          <div class="sec"><div class="sechead">
-            <span class="caret">&#9656;</span><span class="secn">7</span>
-            <span class="sectitle">Flagged Issues Register</span>
-            <span class="tag t-lock">fixed</span></div></div>
-          <div class="sec"><div class="sechead">
-            <span class="caret">&#9656;</span><span class="secn">8</span>
-            <span class="sectitle">Draft and Publish Stages</span>
-            <span class="tag t-lock">fixed</span></div></div>
-          <div class="sec"><div class="sechead">
-            <span class="caret">&#9656;</span><span class="secn">9</span>
-            <span class="sectitle">Graphs</span>
-            <span class="tag t-lock">fixed</span></div></div>
-          <div class="sec"><div class="sechead">
-            <span class="caret">&#9656;</span><span class="secn">10</span>
-            <span class="sectitle">Plain-English Summary</span>
-            <span class="tag t-lock">fixed</span></div></div>
-          <div class="sec"><div class="sechead">
-            <span class="caret">&#9656;</span><span class="secn">11</span>
-            <span class="sectitle">Auditability Standard</span>
-            <span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">3</span>
+            <span class="sectitle">Source Discipline (Non-Negotiable)</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">3A</span>
+            <span class="sectitle">Privacy and De-identification Protocol (Non-Negotiable)</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">4</span>
+            <span class="sectitle">Editable Variables</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">5</span>
+            <span class="sectitle">Materiality &mdash; What &ldquo;Key&rdquo; Means</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">6</span>
+            <span class="sectitle">Scenario and Sensitivity Requirement</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">7</span>
+            <span class="sectitle">Flagged Issues Register</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">8</span>
+            <span class="sectitle">Draft and Publish Stages</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">9</span>
+            <span class="sectitle">Graphs</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">10</span>
+            <span class="sectitle">Plain-English Summary</span><span class="tag t-lock">fixed</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">11</span>
+            <span class="sectitle">Auditability Standard</span><span class="tag t-lock">fixed</span></div></div>
         </div>
 
         <div class="btns">
@@ -360,61 +335,68 @@
       </div>
     </div>
 
-    <div class="note">
-      <b>Why every setting carries a badge.</b> A level holds only its own changes, so a setting
-      reading <i>inherited</i> keeps receiving your group's corrections, and one reading
-      <i>set here</i> is protected from them. Without the badge those two look identical on
-      screen, and they are not the same thing. This is the same pattern as the Property Tax
-      Rules tab, deliberately &mdash; two ways of showing inheritance is how two ways drift
-      apart.
-    </div>
+    <p class="note"><b>Why every setting carries a badge.</b> A level holds only its own changes,
+    so a setting reading <i>inherited</i> keeps receiving your group&rsquo;s corrections, and one
+    reading <i>set here</i> is protected from them. Without the badge those two look identical on
+    screen, and they are not the same thing. This is the same pattern as the Property Tax Rules
+    tab, deliberately &mdash; two ways of showing inheritance is how two ways drift apart.</p>
   </section>
 
-  <!-- ============================================================ -->
+  <!-- =============== 2. THE MENTOR'S TAB =============== -->
   <section class="band">
-    <h2>2. The second prompt &mdash; all record, nothing to set</h2>
-    <p class="sub">The security prompt carries something the cash flow one does not: each of its
-    seven steps records <b>whether it applies to this app at all</b>. Four of the seven do not,
-    and saying so is the honest part &mdash; a control listed without that note reads as a
-    promise the app is not keeping. Because it is protocol from end to end, <b>it has nothing a
-    manager can change</b>, and the tab says so plainly instead of showing an empty box.</p>
+    <h2>2. The mentor&rsquo;s tab &mdash; the same page, plus the security audit</h2>
+    <p class="sub">The mentor sees everything above, unchanged, and one thing more: the
+    <b>AI Audit and Security</b> prompt in full. Because the mentor now has two documents and a
+    manager has one, <b>the mentor is the only tier that gets a document picker</b>. Below the
+    mentor there is nothing to pick between, so it is gone.</p>
+
+    <span class="who mentoronly">Mentor only</span>
 
     <div class="hub">
+      <div class="hubhead">
+        <div class="hubtitle">AI Prompts</div>
+        <div class="hubwho">Advisor-e &mdash; mentor</div>
+      </div>
       <div class="panel">
+
+        <div class="picker">
+          <div class="pcard on">
+            <div class="pname">Three-Way Cash Flow Forecast</div>
+            <div class="psub">AI Build Instructions &mdash; Excel Model Deliverable</div>
+            <div class="pmeta">12 fixed sections &middot; 3 settings you can change</div>
+          </div>
+          <div class="pcard">
+            <div class="pname">AI Audit and Security</div>
+            <div class="psub">Hardening an assistant against the lethal trifecta</div>
+            <div class="pmeta">7 fixed sections &middot; nothing to set</div>
+          </div>
+        </div>
+
         <div class="method">
+          <h3>AI Audit and Security &mdash; the second card, opened</h3>
+          <p class="mhint">Each of its seven steps records whether it applies to this app at all.
+          Four of the seven do not, and saying so is the honest part &mdash; a control listed
+          without that note reads as a promise the app is not keeping.</p>
+
           <div class="sec">
-            <div class="sechead">
-              <span class="caret">&#9662;</span><span class="secn">1</span>
-              <span class="sectitle">Inventory the three legs</span>
-              <span class="tag t-yes">applies &mdash; not yet done</span>
-            </div>
+            <div class="sechead"><span class="caret">&#9662;</span><span class="secn">1</span>
+              <span class="sectitle">Inventory the three legs</span><span class="tag t-yes">applies &mdash; not yet done</span></div>
             <div class="secbody">
               <p>List every private-data source the AI can read; every place untrusted content
               enters; and every outbound sink. Give the concrete list, with locations.</p>
-              <div class="applies">Never done for this app. It is the prerequisite for letting
-              four levels edit prompt text.</div>
+              <div class="applies"><b>Never done for this app.</b> It is the prerequisite for
+              letting four levels edit prompt text.</div>
             </div>
           </div>
-
-          <div class="sec"><div class="sechead">
-            <span class="caret">&#9656;</span><span class="secn">2</span>
-            <span class="sectitle">Gate the sinks, not the reads</span>
-            <span class="tag t-no">does not apply here</span></div></div>
-          <div class="sec"><div class="sechead">
-            <span class="caret">&#9656;</span><span class="secn">3</span>
-            <span class="sectitle">Cap outbound fetch bursts</span>
-            <span class="tag t-no">does not apply here</span></div></div>
-          <div class="sec"><div class="sechead">
-            <span class="caret">&#9656;</span><span class="secn">4</span>
-            <span class="sectitle">Strip secrets from the environment</span>
-            <span class="tag t-already">already true</span></div></div>
-
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">2</span>
+            <span class="sectitle">Gate the sinks, not the reads</span><span class="tag t-no">does not apply here</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">3</span>
+            <span class="sectitle">Cap outbound fetch bursts</span><span class="tag t-no">does not apply here</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">4</span>
+            <span class="sectitle">Strip secrets from the environment</span><span class="tag t-already">already true</span></div></div>
           <div class="sec">
-            <div class="sechead">
-              <span class="caret">&#9662;</span><span class="secn">5</span>
-              <span class="sectitle">Fence untrusted content, sanitise output</span>
-              <span class="tag t-partly">partly done</span>
-            </div>
+            <div class="sechead"><span class="caret">&#9662;</span><span class="secn">5</span>
+              <span class="sectitle">Fence untrusted content, sanitise output</span><span class="tag t-partly">partly done</span></div>
             <div class="secbody">
               <p>Wrap all untrusted content in a clearly marked boundary before the AI sees it.
               Strip invisible characters and auto-loading images from what comes back.</p>
@@ -423,116 +405,136 @@
               as part of this work.</div>
             </div>
           </div>
-
-          <div class="sec"><div class="sechead">
-            <span class="caret">&#9656;</span><span class="secn">6</span>
-            <span class="sectitle">Taint-gate memory writes</span>
-            <span class="tag t-no">does not apply here</span></div></div>
+          <div class="sec"><div class="sechead"><span class="caret">&#9656;</span><span class="secn">6</span>
+            <span class="sectitle">Taint-gate memory writes</span><span class="tag t-no">does not apply here</span></div></div>
         </div>
 
         <div class="nothing">
           <h3>Nothing here is yours to set</h3>
-          <p>This prompt is entirely safety protocol. There is no part of it a firm, a group or
-          a brand could sensibly change, so there are no boxes on this tab &mdash; and that is
-          the right answer rather than something missing.</p>
-        </div>
-
-        <div class="btns">
-          <button class="btn text">Change history</button>
+          <p>This prompt is entirely safety protocol. There is no part of it a firm, a group or a
+          brand could sensibly change, so there are no boxes on it &mdash; and that is the right
+          answer rather than something missing.</p>
         </div>
 
       </div>
     </div>
 
-    <div class="note">
-      <b>What this replaced, and why &mdash; your ruling of 22 August.</b> This prompt used to
-      show two editable boxes: a <i>fetch burst limit</i> of 6 and a <i>window</i> of 60 seconds.
-      They cap how often an AI may fetch the same website, which is a real protection against
-      data being leaked out a little at a time. <b>This app's AI cannot fetch anything</b>, so
-      the two boxes controlled nothing at all &mdash; a manager could have typed a number, saved
-      it, and believed they had tightened security. Step 3 itself stays on the page marked
-      <i>does not apply here</i>, because saying a known protection was considered and why it is
-      not needed is worth recording. A box that does nothing is not a record; it is a control
-      that lies. <b>No test in the project could have caught this</b> &mdash; the boxes worked
-      perfectly, they just meant nothing. It took drawing the page.
-    </div>
+    <p class="note"><b>Nothing is hidden from a manager by this, and that is checkable.</b> This
+    prompt had <b>no editable setting at any tier</b> before the change and has none now, so no
+    manager lost a control. What a manager stops seeing is the <i>engineering write-up</i> of
+    protections that still apply to them either way &mdash; and the four sentences under
+    <i>How your clients&rsquo; information is protected</i> are that write-up in their language.
+    <b>Every safeguard it describes runs for every tier, unchanged.</b></p>
   </section>
 
-  <!-- ============================================================ -->
+  <!-- =============== 3. WHAT CHANGED, AND WHAT IS OURS =============== -->
   <section class="band">
-    <h2>3. What is ours, and what we would like your word on</h2>
-    <p class="sub">Everything below is wording or layout that we chose. None of it re-opens a
-    ruling. If you are happy with all of it, say so and we will build exactly this.</p>
+    <h2>3. What changed from the 21 August drawing, and what is still ours</h2>
+    <p class="sub">The first rows are your rulings. Everything after them is wording or layout
+    that we chose. None of it re-opens a ruling. If you are happy with all of it, this is exactly
+    what has been built.</p>
 
     <table class="diff">
-      <tr><th>What we chose</th><th>Why, and what else it could be</th></tr>
+      <tr><th>What changed</th><th>Why, and what it cost</th></tr>
+
       <tr>
-        <td>&ldquo;What you can set&rdquo;</td>
-        <td>The green block's heading. The source document calls these
-        <i>Editable Variables</i>, which is right for an accountant reading a specification and
-        wrong for a manager looking for the thing they came to change. Alternatives:
-        &ldquo;Your settings&rdquo;, &ldquo;Settings you control&rdquo;.</td>
+        <td>The security prompt is now mentor-only</td>
+        <td><b>Your ruling, 22 August.</b> Its seven headings &mdash; <i>the lethal trifecta</i>,
+        <i>gate the sinks, not the reads</i>, <i>taint-gate memory writes</i> &mdash; were
+        <b>7 of the 19 sections a firm manager saw</b>, in a different profession&rsquo;s
+        language. That does the opposite of reassuring: it is a list of alarming things they
+        cannot evaluate. <b>What it cost: nothing a manager could act on.</b> The prompt had no
+        editable setting at any tier, so nothing was taken away from anyone &mdash; only a
+        document they could not use.</td>
       </tr>
+
       <tr>
-        <td>&ldquo;The method &mdash; fixed, and shown in full&rdquo;</td>
-        <td>The heading over the read-only sections. We kept the word <i>locked</i> out of it,
-        because locked sounds like something is being withheld when the point is the opposite:
-        it is all there to read.</td>
+        <td>Seven headings became four sentences</td>
+        <td><b>Your ruling, 22 August.</b> The panel <i>How your clients&rsquo; information is
+        protected</i> replaces them below the mentor. &#9888; <b>It is the one paraphrase on the
+        screen</b> &mdash; every other word the tab shows is the verbatim text the AI is sent.
+        Given how often a paraphrase has cost us, it does not sit loose: each sentence is stored
+        beside the protocol it describes and is tied by a test to the code that performs it, so a
+        sentence whose protection is removed fails the build instead of going quietly false.</td>
       </tr>
+
       <tr>
-        <td>The word <b>fixed</b> rather than <b>locked</b> on each section</td>
-        <td>Same reason, and it appears on nineteen rows, so it is worth choosing deliberately.</td>
+        <td>&ldquo;Reporting periods&rdquo;, and &ldquo;Currency and units&rdquo; kept</td>
+        <td><b>Your word, 22 August.</b> Setting 2 was <i>Reporting granularity</i> &mdash; the
+        source document&rsquo;s term, and a specification writer&rsquo;s rather than an
+        accountant&rsquo;s. You kept <i>Currency and units</i> as it was.</td>
       </tr>
+
       <tr>
-        <td>&ldquo;Always applied &mdash; not part of this document&rdquo;</td>
-        <td>The grey protocol block. It has to tell a manager the safety rules cannot be edited
-        away, without reading as a restriction aimed at them.</td>
+        <td><span class="ours">The two-card picker is gone below the mentor</span></td>
+        <td>Ours, though it follows from your rulings rather than being a fresh decision: a
+        manager now has one document, and a picker offering a choice of one is furniture. The
+        mentor keeps it, because the mentor genuinely has two.</td>
       </tr>
+
       <tr>
-        <td>The four protocol lines, in plain English</td>
-        <td>The real protocol text sent to the AI is technical. Showing it word for word would be
-        honest and unreadable, so we wrote four plain sentences that describe it truthfully.
-        <b>This is the one place on the screen where something is paraphrased rather than shown
-        verbatim</b> &mdash; worth your eye, given how often a paraphrase has cost us.</td>
+        <td><span class="ours">The fourth safety sentence was replaced before it shipped</span></td>
+        <td>Ours, and it is the same fault you caught on 22 August, in prose instead of in a
+        control. The panel says these things are <i>applied by the system every time</i>. Three of
+        the four are: names stripped, content fenced, invisible characters removed &mdash; all
+        code, all tested. The fourth was <i>&ldquo;Nothing is treated as final until a person has
+        approved it&rdquo;</i>, which is <b>not enforced anywhere</b>; it restates something the
+        AI is <i>asked</i> to do. Under that heading it would have been a promise the app is not
+        keeping. It now reads <i>&ldquo;Pictures and web code are stripped out of the AI&rsquo;s
+        answer&rdquo;</i>, which is enforced by the locked markdown pipeline and is the same kind
+        of thing as the other three.</td>
       </tr>
+
       <tr>
-        <td>Settings on top, method underneath</td>
-        <td>The layout decision. Document order would bury the three settings inside sections 4,
-        5 and 10 of nineteen. The alternative is a two-column split, which we think reads worse
-        on a laptop.</td>
+        <td><span class="ours">One safety panel, not two</span></td>
+        <td>Ours, and the judgement worth your eye. The first drawing had a grey
+        <i>Always applied &mdash; not part of this document</i> block AND the security prompt.
+        Keeping both would have left a manager with two boxes answering the same question &mdash;
+        <i>is my client&rsquo;s data safe?</i> &mdash; which is the complication you objected to.
+        They are now one panel. If you would rather the &ldquo;cannot be switched off&rdquo; point
+        stood on its own, that is a five-minute change.</td>
       </tr>
+
       <tr>
-        <td>Sections closed by default</td>
-        <td>Open, the cash flow prompt runs to roughly six screens of text. Closed, the whole
-        method is a twelve-line list a manager can take in at a glance.</td>
+        <td><span class="ours">&ldquo;What you can set&rdquo;</span></td>
+        <td>The green block&rsquo;s heading, unchanged from the first drawing. The source document
+        calls these <i>Editable Variables</i>, which is right for an accountant reading a
+        specification and wrong for a manager looking for the thing they came to change.</td>
       </tr>
+
       <tr>
-        <td>The amber warning under Currency</td>
-        <td>It is the only setting where leaving it blank <b>stops the work</b> instead of
-        falling back to a default. That difference is real and we did not want it to be
-        invisible.</td>
+        <td><span class="ours">&ldquo;The method &mdash; fixed, and shown in full&rdquo;</span></td>
+        <td>The heading over the read-only sections, and the word <i>fixed</i> rather than
+        <i>locked</i> on each row. <i>Locked</i> sounds like something is being withheld when the
+        point is the opposite: it is all there to read.</td>
       </tr>
+
       <tr>
-        <td>&ldquo;Nothing here is yours to set&rdquo;</td>
-        <td>The grey block on the second prompt, replacing the two boxes you had removed on
-        22 August. It has to say the emptiness is the answer rather than a loading failure.
-        Alternatives: &ldquo;This prompt is all protocol&rdquo;, or showing no block at all
-        &mdash; which we think reads as something missing.</td>
+        <td><span class="ours">Settings on top, method underneath</span></td>
+        <td>Document order would bury the three settings inside sections 4, 5 and 10. Sections are
+        closed by default: open, the prompt runs to roughly six screens; closed, the whole method
+        is a twelve-line list a manager can take in at a glance.</td>
       </tr>
+
       <tr>
-        <td>&ldquo;Go back to inherited&rdquo;</td>
+        <td><span class="ours">The amber warning under Currency</span></td>
+        <td>It is the only setting where leaving it blank stops the work instead of falling back
+        to a default. That difference is real and we did not want it to be invisible.</td>
+      </tr>
+
+      <tr>
+        <td><span class="ours">&ldquo;Go back to inherited&rdquo;</span></td>
         <td>The reset button, worded the same as the Property Tax Rules tab so the two say the
         same words for the same action.</td>
       </tr>
     </table>
 
-    <div class="note">
-      <b>One thing we cannot prove, said rather than implied.</b> This tab is meant for four
-      levels &mdash; mentor, global group, group and firm. Only two of them can be logged into
-      today, because Advisor-e has not supplied the role names for the two middle ones. The code
-      will be correct for all four; it can only be tested on two. That is unchanged from every
-      other cascading tab in the hub.
-    </div>
+    <p class="note"><b>One thing we cannot prove, said rather than implied.</b> This tab is meant
+    for four levels &mdash; mentor, global group, group and firm. <b>Only two of them can be
+    logged into today</b>, because Advisor-e has not supplied the role names for the two middle
+    ones. The code is correct for all four; it can only be exercised on two. That is unchanged
+    from every other cascading tab in the hub, and it is Advisor-e&rsquo;s data to supply, not
+    something we can finish here.</p>
   </section>
 
 </div>

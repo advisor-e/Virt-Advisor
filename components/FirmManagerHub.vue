@@ -130,6 +130,19 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('propertyTaxRules')" v-show="activeTab === 'propertyTaxRules'")
         firm-property-tax-rules(:api-token="apiToken")
 
+      //- ── Tab: AI Prompts (item 4.28) ────────────────────────────────────
+      //- The instructions the AI is given when it builds a model, and the three
+      //- settings a manager may change on them. Asked for by Mike 2026-08-21,
+      //- naming all four manager tiers. design/AI-PROMPTS-PAGE.md; the artefact
+      //- is design/mockups/ai-prompts-tab.html (SECOND drawing — the first was
+      //- written for an engineer and he rejected it).
+      //- ⚠ WHICH DOCUMENTS A TIER SEES IS DECIDED ON THE BACKEND, not here. The
+      //- security prompt is mentor-only (Mike, 2026-08-22) and is filtered out of
+      //- the response itself, so it cannot be reached by a request from a tier
+      //- that should not have it.
+      div.hub-panel(v-if="showsTab('aiPrompts')" v-show="activeTab === 'aiPrompts'")
+        firm-ai-prompts(:api-token="apiToken")
+
       //- ── Templates & Videos — HIDDEN 2026-07-27 (owner decision) ──────
       //- Not wired to anything usable in UAT (needs Firm-Manager MySQL); shown
       //- as a dead tab was misleading. Kept dormant (v-if="false") rather than
@@ -727,6 +740,7 @@ import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
 import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 import FirmStaircase from '~/components/firm/FirmStaircase.vue'
 import FirmPropertyTaxRules from '~/components/firm/FirmPropertyTaxRules.vue'
+import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
@@ -897,7 +911,24 @@ const TAB_TIERS = {
   // The global tier IS included even though a brand spans countries, because the
   // alternative is per-tier functionality — the one thing §1 of the Brief says must
   // never happen. A global group that sets nothing changes nothing.
-  propertyTaxRules: ['global', 'group', 'firm']
+  propertyTaxRules: ['global', 'group', 'firm'],
+
+  // 🔴 ALL FOUR MANAGER TIERS, NAMED BY MIKE HIMSELF (2026-08-21): "a 'AI Prompts' page
+  // in the hub pages (Mentor, Global Group Manager, Group Manager and Firm Manager)".
+  // Advisors and clients are excluded — they consume the output, they do not set the
+  // method (design/AI-PROMPTS-PAGE.md §7), and that exclusion is stated rather than
+  // assumed because "as appropriate" is a judgement to state.
+  //
+  // ⚠ THIS GATES THE TAB, NOT THE CONTENT. What each tier is shown INSIDE the tab is
+  // decided on the backend — the security prompt is mentor-only and is filtered out of
+  // the API response, never merely hidden here.
+  //
+  // ⚠ Two of the four cannot be logged into today: config/integration.js ships
+  // globalManagerRole and groupManagerRole EMPTY on purpose, fail-closed. All four are
+  // listed anyway, because excluding them would bake in a limit that is wrong the day
+  // Advisor-e issues the roles. "It works" means the mentor and firm hubs proven, the
+  // middle two correct-by-construction and unexercised.
+  aiPrompts: ['mentor', 'global', 'group', 'firm']
 }
 
 /**
@@ -917,7 +948,9 @@ const HUB_SCOPES = ['mentor', 'global', 'group', 'firm']
  * invisible. Moving an item here moves it on the screen, and moving a panel does
  * nothing at all.
  *
- * 🔴 THE SIX UNDER "Your AI coach" ARE ONE GROUP AND MUST STAY ONE GROUP. The first
+ * 🔴 EVERYTHING UNDER "Your AI coach" IS ONE GROUP AND MUST STAY ONE GROUP. (It said
+ * "the six" until AI Prompts joined them on 2026-08-22 — a count in a comment goes stale
+ * without anyone noticing, exactly as the TAB_TIERS note below did twice.) The first
  * draft split them into "what the AI draws on" (domain support, distinctions,
  * coaching) against "how advice is chosen and delivered" (logic tables, staircase,
  * Logic-Lab). Mike rejected it on sight: it "sends the message that AI is not working
@@ -958,7 +991,11 @@ const NAV_GROUPS = [
       { key: 'distinctionsMentor', label: 'Advisory Distinctions' },
       { key: 'logicTables', label: 'Logic Tables' },
       { key: 'staircase', label: 'Advisory Staircase' },
-      { key: 'logicLab', label: 'Logic-Lab' }
+      { key: 'logicLab', label: 'Logic-Lab' },
+      // 🔴 THE LABEL IS MIKE'S OWN WORD, 2026-08-21 — "a 'AI Prompts' page" — and was
+      // confirmed as the tab label rather than a working title. Added at the END of the
+      // group on purpose: appending moves nothing that is already on a manager's screen.
+      { key: 'aiPrompts', label: 'AI Prompts' }
     ]
   },
   {
@@ -1026,7 +1063,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmAiPrompts, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

@@ -31,6 +31,65 @@
     "Sources, verbatim, committed beside this file: design/prompt-sources/."
   ],
   "configKey": "ai-prompts",
+
+  "_protectionPanelNote": [
+    "THE SAFETY STORY, IN AN ACCOUNTANT'S LANGUAGE. Ruled by Mike 2026-08-22.",
+    "",
+    "Below the mentor this panel is the WHOLE of what the screen says about safety.",
+    "It stands in for the seven engineering sections of the `ai-audit-security`",
+    "prompt (mentor-only, see its `_tiersNote`) AND describes PROTOCOL_BLOCK, which",
+    "server/utils/aiPrompts.js prepends to every prompt at send time.",
+    "",
+    "🔴 IT IS A PARAPHRASE, AND IT IS THE ONLY PARAPHRASE ON THE SCREEN. Everything",
+    "else the tab shows is the verbatim text the AI is sent. The real protocol text",
+    "is technical; showing it word for word would be honest and unreadable. That",
+    "makes this the one place drift can hide, so it lives HERE, beside what it",
+    "paraphrases, and tests/unit/aiPrompts.test.js holds each line to a protection",
+    "the code actually implements — a line whose backing is removed fails the build.",
+    "",
+    "Each line names the module that does the work (`backedBy`) and the exact thing in",
+    "it that proves the claim (`provenBy`). Those are for the test and for the next",
+    "reader; they never reach the screen.",
+    "",
+    "🔴 EVERY LINE HERE MUST BE SOMETHING THE SYSTEM DOES, NOT SOMETHING THE MODEL IS",
+    "ASKED TO DO. The lede says 'applied by the system every time', so a line describing",
+    "an INSTRUCTION would be a claim the app is not keeping — the same fault as the two",
+    "fetch-burst boxes Mike removed on 2026-08-22, in prose instead of in a control.",
+    "",
+    "The fourth line was 'Nothing is treated as final until a person has approved it.'",
+    "when the tab was drawn. It was replaced on 2026-08-22, before shipping, because it",
+    "was NOT enforced anywhere: it restates the prompt's own Draft and Publish section,",
+    "which is advice to a model. Its replacement — images and raw HTML stripped from the",
+    "answer — is enforced by the locked markdown pipeline, and is the same class of",
+    "protection as the other three."
+  ],
+  "protectionPanel": {
+    "heading": "How your clients’ information is protected",
+    "lede": "These are applied by the system every time, on every prompt. They are not stored on this page, they are not in any of the boxes above, and no level of the system can switch them off. They are here so you know they are there.",
+    "lines": [
+      {
+        "text": "Client names, addresses and tax numbers are removed before the AI sees anything.",
+        "backedBy": "server/utils/anonymiseCase.js",
+        "provenBy": "anonymiseCaseContent"
+      },
+      {
+        "text": "Anything a client or a document says is fenced off, so instructions hidden inside it are not obeyed.",
+        "backedBy": "server/utils/promptSafety.js",
+        "provenBy": "fenceUntrusted"
+      },
+      {
+        "text": "Invisible characters are stripped from the AI's answer before anyone reads it.",
+        "backedBy": "server/utils/promptSafety.js",
+        "provenBy": "stripInvisible"
+      },
+      {
+        "text": "Pictures and web code are stripped out of the AI's answer, so nothing can be hidden inside it.",
+        "backedBy": "components/VirtualAdvisor.vue",
+        "provenBy": "_md.disable(['image', 'html_inline', 'html_block'])"
+      }
+    ]
+  },
+
   "prompts": [
     {
       "id": "cashflow-forecast",
@@ -38,6 +97,7 @@
       "subtitle": "AI Build Instructions — Excel Model Deliverable",
       "source": "design/prompt-sources/cashflow forecast prompt with privacy.docx",
       "intro": "Prompt specification for an AI agent tasked with building an auditable, editable cash flow model.",
+      "tiers": ["mentor", "global", "group", "firm"],
       "sections": [
         {
           "id": "role",
@@ -144,7 +204,7 @@
         {
           "id": "granularity",
           "n": 2,
-          "label": "Reporting granularity",
+          "label": "Reporting periods",
           "what": "The reporting period for the model. This determines the column structure of all three statements and the time axis of every chart.",
           "type": "choice",
           "choices": [
@@ -155,7 +215,7 @@
           ],
           "default": "monthlyThenAnnual",
           "unsetRule": "announce",
-          "unsetText": "No reporting granularity was set, so the default was applied: monthly for the first two years then annual thereafter. Say so in the Flagged Issues Register."
+          "unsetText": "No reporting periods setting was supplied, so the default was applied: monthly for the first two years then annual thereafter. Say so in the Flagged Issues Register."
         },
         {
           "id": "currency",
@@ -176,6 +236,30 @@
       "subtitle": "Hardening an assistant against the lethal trifecta",
       "source": "design/prompt-sources/AI Audit and Security Prompt.docx",
       "intro": "A security engineer's audit of an AI assistant that holds private data, reads untrusted content, and can send data outward. Do not try to detect the injection — that is unwinnable. Break a leg of the trifecta architecturally.",
+      "_tiersNote": [
+        "MENTOR ONLY. Ruled by Mike 2026-08-22, on reading the drawn tab:",
+        "",
+        "  'who is supposed to be working with this page? A computer coder or an",
+        "   accountant who has been given a word doc with some ai / claude prompts on",
+        "   it and told the prompts need to be included for their protection? If its",
+        "   the latter (and it is) then your version risks being too complicated for",
+        "   them.'",
+        "",
+        "Its seven headings — the lethal trifecta, gate the sinks not the reads,",
+        "taint-gate memory writes — were 7 of the 19 sections a firm manager saw, in a",
+        "different profession's language. Not reassurance: a list of alarming things",
+        "they cannot evaluate. Below the mentor this prompt is replaced by the four",
+        "plain sentences in `protectionPanel`, which say the same thing in theirs.",
+        "",
+        "NOTHING IS HIDDEN BY THIS. The prompt has no editable surface at any tier",
+        "(see _variablesNote), so no tier loses a control it had. What changes is who",
+        "is shown the engineering write-up of a safeguard that applies to everyone",
+        "either way.",
+        "",
+        "The cash flow prompt keeps all four tiers: materiality, three-way forecast,",
+        "draft and publish, auditability are an accountant's OWN vocabulary."
+      ],
+      "tiers": ["mentor"],
       "sections": [
         {
           "id": "context",

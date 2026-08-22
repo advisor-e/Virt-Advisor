@@ -1,9 +1,24 @@
 # AI Prompts — the hub page
 
-> **Design for approval. Nothing here is built.** Written 2026-08-21, session 78, from
-> Mike's instruction and the two documents he supplied. Saved before he approves it, per
-> CLAUDE.md → *Save the Artefact* — a design shown only in chat cannot be checked against
-> what gets built.
+> **✅ BUILT 2026-08-22 (item 4.28).** Written 2026-08-21, session 78, from Mike's
+> instruction and the two documents he supplied. Saved before he approved it, per
+> CLAUDE.md → *Save the Artefact*. The drawing is
+> [`mockups/ai-prompts-tab.html`](mockups/ai-prompts-tab.html) — the **second** drawing,
+> and its own §3 names every difference between it and the build.
+>
+> **What §9 asked Mike, and what he said** — recorded here so no session re-asks:
+>
+> | | Question | His answer |
+> |---|---|---|
+> | **Q1** | The page's name | **"AI Prompts"** is the tab label (2026-08-21). |
+> | **Q2** | Do the variables cascade, or does each tier set its own? | **They cascade**, `deepMerge`, field level. A tier holds only its own changes, so a setting reading *inherited* keeps receiving the level above's corrections. Confirmed by P11 of `features/tier-cascade.md`. |
+> | **Q3** | Copy the source documents into `design/`? | **Yes** — both are committed under [`prompt-sources/`](prompt-sources/). |
+> | **Q4** | Is the Flagged Issues Register in scope? | **Deferred**, and the reasoning is in `features/ai-prompts.md` §3: it is an approval workflow for AI output, and no report calls the AI yet. |
+> | **Q5** | The two small security fixes — now or later? | **Split.** Invisible-character stripping shipped 2026-08-21 on this path; applying it to the live advisor screen is item **4.30**. The three-legs inventory is still not done and says so on the mentor's tab. |
+>
+> **And one ruling that came after §9 was written, on him reading the drawing (2026-08-22):**
+> the page is for an accountant, not an engineer. The security document is now **mentor-only**;
+> below the mentor it is four plain sentences. See §5a and `features/ai-prompts.md` P7.
 
 **Mike's instruction, verbatim (2026-08-21):**
 
@@ -124,9 +139,45 @@ building.** Shipping them would be security theatre. They stay on the page marke
 applicable, and why* — recording the reason rather than silently dropping them, per
 CLAUDE.md.
 
-✏️ **Its editable surface is therefore small and honest:** which steps apply, and the
-numeric thresholds where one does. A prompt whose content is entirely protocol has almost no
-editable surface, and that is a correct result rather than a defect.
+✏️ **Its editable surface is therefore NONE, and that is a correct result rather than a
+defect.** This section said *"which steps apply, and the numeric thresholds where one does"*
+and the build read it as a licence to ship two: a fetch-burst limit of 6 and a 60-second
+window, belonging to **step 3, which is marked *does not apply here***. They validated, they
+saved, they inherited down the tiers. They controlled nothing. **Mike found them by looking at
+the drawing** and removed them (`28cb249`, 2026-08-22). The tab now renders *"Nothing here is
+yours to set"*.
+
+🔴 **No test in this suite could have caught it** — the boxes worked perfectly. A test can
+prove a control works; it cannot ask whether the thing it controls exists.
+
+---
+
+## 5a. 🔴 Who this page is written for — the ruling that redrew it
+
+**Mike, 2026-08-22, on reading the first drawing:**
+
+> *"who is supposed to be working with this page? A computer coder or an accountant who has
+> been given a word doc with some ai / claude prompts on it and told the prompts need to be
+> included for their protection? If its the latter (and it is) then your version risks being
+> too complicated for them."*
+
+He is right, and the arithmetic makes it plain: the security document above contributed
+**7 of the 19 sections a firm manager was shown**, in a different profession's language.
+
+| | Mentor | Global group · Group · Firm |
+|---|---|---|
+| Three-Way Cash Flow Forecast | ✅ in full | ✅ in full — *materiality*, *three-way forecast*, *draft and publish*, *auditability* are an accountant's **own** words |
+| AI Audit and Security | ✅ in full, all seven steps with their applies-here verdicts | ❌ replaced by four plain sentences: **"How your clients' information is protected"** |
+| The document picker | ✅ — it genuinely has two | ❌ — a picker offering a choice of one is furniture |
+| Editable settings | 3 | 3 — **unchanged** |
+
+**Nothing is taken from anybody by this, and it is proven rather than asserted.** The security
+document has **no editable setting at any tier**, so no manager loses a control — only a
+document they could not act on. `aiPrompts.test.js` fails if it ever gains one, which forces
+the ruling to be revisited rather than a control being quietly removed from three tiers.
+
+**The filter is on the backend** (`promptsForTier`), not in the markup, so a tier cannot reach
+the mentor's document by asking for it.
 
 ---
 
@@ -255,3 +306,46 @@ mitigation is that the value is visible on the page and versioned, not that it i
 
 Steps 2–4 are one deliverable. **Wiring content into the prompt without a screen is half a
 fix** (CLAUDE.md, 2026-08-16), and a screen with no send path is the other half.
+
+---
+
+## 11. What was built, 2026-08-22 — step by step against §10
+
+| Step | State | Where |
+|---|---|---|
+| 1 · Sources into `design/` | ✅ 2026-08-21 | [`prompt-sources/`](prompt-sources/) |
+| 2 · The content, as data | ✅ 2026-08-21 | `data/ai-prompts.json` — plus, on 2026-08-22, per-prompt `tiers` and the `protectionPanel` |
+| 3 · The backend send path | ✅ 2026-08-21 | `server/utils/aiPrompts.js` — `PROTOCOL_BLOCK` prepended, values fenced |
+| 4 · The tab | ✅ 2026-08-22 | `components/firm/FirmAiPrompts.vue`, last under *Your AI coach*, gated by `TAB_TIERS.aiPrompts` to all four manager tiers; served by `server/routes/aiPrompts.js` |
+| 5 · The guards | ✅ 2026-08-22 | 47 · 22 · 24 tests, below |
+
+**The guards §10 step 5 asked for, and what each actually holds:**
+
+- **Every locked section renders read-only** — asserted at all four tiers, with every section
+  *opened*, checking there is no `input`, `textarea`, `select` or `contenteditable` inside a
+  section body. Collapsed sections would have passed trivially, so they are expanded first.
+- **The protocol block is in every assembled prompt** — and, its other half, **never in an API
+  response and never in the rendered page**. It cannot be edited away because it is not in the
+  thing being edited.
+- **A request cannot reach a locked section or a protocol** — a body naming a section id, an
+  unknown prompt, an unknown variable, an out-of-range number or an undeclared choice is a
+  400, and `saveFirmConfig` is asserted *not* to have been called.
+- **Every route writes to `req.firmId` and nothing else** — a scope named in the body is
+  ignored, asserted directly.
+- **Each line of the protection panel names a real protection** — the test opens the named
+  file and looks for the named export or call, so a sentence whose backing is deleted fails
+  the build instead of going quietly false.
+- **Every locale key the screen asks for has English behind it** — the component tests assert
+  i18n *keys* by the suite's own convention, so without this a key with no translation would
+  pass every one of them and show a manager the raw string `firmAiPrompts.save`.
+
+**What is NOT proven, said plainly:**
+
+- 🔴 **Only two of the four tiers can be logged into.** `config/integration.js` ships
+  `globalManagerRole` and `groupManagerRole` empty on purpose, fail-closed. The middle two are
+  correct-by-construction and unexercised by a real login. That is Advisor-e's data to supply.
+- ⚠ **No test in this project can see that a screen LOOKS right** (item 4.25). Both defects
+  this feature has had were found by Mike looking at a picture, and neither was findable by a
+  test.
+- ⚠ **No prompt here has ever been sent to a model.** No report model calls the AI (§2), so
+  assembly is proven against its own output rather than against a real completion.

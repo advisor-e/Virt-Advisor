@@ -200,24 +200,6 @@
       "note": "ASK, DO NOT CHOOSE. A firm advising across a border is the case for a per-property override; a family having one country is the case against, and that is the reasoning the card is built on today (§11 Q11)."
     },
     {
-      "ref": "4.28",
-      "name": "The AI Prompts page has an engine and no screen",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The backend half shipped 2026-08-21 (`ea6ac22`): both prompts as data, the protocol block, the cascade, the validator and 32 tests. No tab renders any of it, so a manager cannot see or change a single variable. Mike asked for a page and has an engine.",
-      "risk": "This is the exact half-a-fix state CLAUDE.md names on 2026-08-16 — content wired toward the AI with no screen to inspect or correct it — and it is the state the 4.16 sweep found 102 times. Left here it is worse than not starting, because the engine reads as done.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-08-21 — \"I want to create a 'AI Prompts' page in the hub pages (Mentor, Global Group Manager, Group Manager and Firm Manager) so that users have the ability to influence the approach to formulas in the performance report models.\""
-      },
-      "touches": "components/FirmManagerHub.vue (NAV_GROUPS in the 'Your AI coach' group, plus TAB_TIERS), a new components/firm/FirmAiPrompts.vue, a Restify route reading server/utils/aiPrompts.js, locales/en.json, and the two guards named in design/AI-PROMPTS-PAGE.md §10 step 5.",
-      "note": "🔴 THE TAB LABEL IS RULED: \"AI Prompts\" (Mike, 2026-08-21). Design and build order: design/AI-PROMPTS-PAGE.md §10. ⚠ Two of the four tiers CANNOT BE LOGGED INTO — config/integration.js ships globalManagerRole and groupManagerRole EMPTY on purpose, fail-closed. Build all four anyway (the tab matrix is declarative and excluding them bakes in a limit that is wrong the day Advisor-e issues the roles), but 'it works' will mean the mentor and firm hubs proven, the middle two correct-by-construction and unexercised. Say that rather than implying four. \n\n🔴 STATUS 2026-08-22: THE DRAWING IS DONE AND COMMITTED — design/mockups/ai-prompts-tab.html (`1819597`), published and read by Mike. Two rulings came out of him reading it, both already applied: the security prompt’s two editable boxes controlled a step that does not apply to this app and were REMOVED (`28cb249`), and — the bigger one — THE PAGE MUST BE REDRAWN FOR AN ACCOUNTANT, not an engineer. His words: \"who is supposed to be working with this page? A computer coder or an accountant who has been given a word doc with some ai / claude prompts on it and told the prompts need to be included for their protection? If its the latter (and it is) then your version risks being too complicated for them.\" AGREED AND APPROVED BY HIM, NOT YET DONE: the cash flow prompt stays as drawn — materiality, three-way forecast and auditability are an accountant’s own vocabulary; the security prompt’s seven engineering headings (\"lethal trifecta\", \"taint-gate memory writes\", \"gate the sinks, not the reads\") are 7 of the 19 sections a firm manager sees and mean nothing to them. They collapse into ONE plain-English panel — \"How your clients’ information is protected\", four sentences — and the technical version stays MENTOR-ONLY. The manager’s page then carries one prompt and three settings, so the two-card picker goes with them. START HERE NEXT SESSION."
-    },
-    {
       "ref": "4.29",
       "name": "The AI has never been told the report models exist",
       "score": 4,

@@ -44,13 +44,23 @@ repository sees; the two never both appear, and the build stops if they would.
 | 7 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
 | 8 | **4.26** The Model Library card still promises one rental property, not five | 2 | — | **Mike** |
 | 9 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
-| 10 | **4.28** The AI Prompts page has an engine and no screen | 4 | — | Us |
-| 11 | **4.29** The AI has never been told the report models exist | 4 | — | Us |
-| 12 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
-| 13 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
+| 10 | **4.29** The AI has never been told the report models exist | 4 | — | Us |
+| 11 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
+| 12 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
 
-**Thirteen live items. Three need Mike.** If this list passes about twenty, something is wrong.
+**Twelve live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
+
+**One item came off on 2026-08-22** — see [`to-do-done-and-parked.md`](to-do-done-and-parked.md):
+
+- ✅ **4.28** — **the AI Prompts tab is built**, at all four manager tiers, and the engine that
+  had shipped the day before is no longer a half-fix. Redrawn first on Mike's ruling that the
+  page is for an accountant and not an engineer: the security document is **mentor-only**, and
+  below the mentor it is four plain sentences under *How your clients' information is protected*.
+  Proven by 93 tests **and** by driving the running app at both loginable tiers.
+  🔴 **One defect was caught in the build:** the panel's fourth sentence promised something the
+  system does not enforce. Replaced before shipping — the same fault Mike found in the two
+  fetch-burst boxes, in prose instead of in a control.
 
 **Four items came off this list on 2026-08-21, and six joined it** — see
 [`to-do-done-and-parked.md`](to-do-done-and-parked.md):

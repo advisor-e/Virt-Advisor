@@ -282,3 +282,137 @@ describe('listPrompts — what a screen is given', () => {
     expect(() => ap.assemblePrompt('no-such-prompt', {})).toThrow('unknown prompt')
   })
 })
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Item 4.28 — the screen. Added 2026-08-22 with the tab it guards.
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('which documents a tier is shown', () => {
+  test('the mentor gets both', () => {
+    expect(ap.promptsForTier('mentor').map(p => p.id)).toEqual([CASHFLOW, SECURITY])
+  })
+
+  test('every tier below the mentor gets the cash flow document ONLY', () => {
+    // Mike, 2026-08-22: the security document's seven engineering headings were
+    // 7 of the 19 sections a firm manager read, in a different profession's language.
+    ;['global', 'group', 'firm'].forEach((tier) => {
+      expect(ap.promptsForTier(tier).map(p => p.id)).toEqual([CASHFLOW])
+    })
+  })
+
+  test('NO TIER LOSES A CONTROL BY THIS — the hidden document has none to lose', () => {
+    // 🔴 The point of the filter is that it hides a DOCUMENT, never a setting. If the
+    // security prompt ever gains an editable variable, this fails and the ruling has to
+    // be revisited rather than quietly taking a control away from three tiers.
+    const security = ap.BASE_PROMPTS.filter(p => p.id === SECURITY)[0]
+    expect(security.variables).toEqual([])
+  })
+
+  test('asking for no tier at all returns everything, so the send path is unaffected', () => {
+    expect(ap.promptsForTier().map(p => p.id)).toEqual([CASHFLOW, SECURITY])
+    expect(ap.listPrompts({}).map(p => p.id)).toEqual([CASHFLOW, SECURITY])
+  })
+
+  test('a prompt that declares no tiers is shown everywhere, not nowhere', () => {
+    // The safe default: a prompt added without the field appears rather than vanishing.
+    const declared = ap.BASE_PROMPTS.filter(p => Array.isArray(p.tiers))
+    expect(declared.length).toBe(ap.BASE_PROMPTS.length) // today, both declare
+    expect(ap.promptsForTier.length).toBe(1) // and the filter takes one argument
+  })
+
+  test('a scope id maps to the tier the data file speaks in', () => {
+    expect(ap.hubTierOfScope('__platform__')).toBe('mentor')
+    expect(ap.hubTierOfScope('__global__:acme')).toBe('global')
+    expect(ap.hubTierOfScope('__group__:acme:nz')).toBe('group')
+    expect(ap.hubTierOfScope('firm-123')).toBe('firm')
+  })
+
+  test('an unknown scope falls to the LEAST privileged tier, never the most', () => {
+    expect(ap.hubTierOfScope('')).toBe('firm')
+    expect(ap.hubTierOfScope(null)).toBe('firm')
+  })
+})
+
+describe('the protection panel — the one paraphrase on the screen', () => {
+  const panel = ap.PROTECTION_PANEL
+
+  test('it exists, with a heading, a lede and its lines', () => {
+    expect(panel.heading).toBe('How your clients\u2019 information is protected')
+    expect(typeof panel.lede).toBe('string')
+    expect(panel.lines.length).toBe(4)
+  })
+
+  test('EVERY LINE NAMES A REAL PROTECTION, and the naming is checked not trusted', () => {
+    // 🔴 THE GUARD THIS BLOCK EXISTS FOR. The panel tells a manager these things are
+    // "applied by the system every time". A sentence whose backing is deleted must fail
+    // the build rather than go quietly false — the failure family CLAUDE.md names on
+    // 2026-08-01 (the record keeps the paraphrase and loses the original).
+    const fs = require('fs')
+    const path = require('path')
+    panel.lines.forEach((line) => {
+      const file = path.resolve(__dirname, '../../', line.backedBy)
+      expect(fs.existsSync(file)).toBe(true)
+      const source = fs.readFileSync(file, 'utf8')
+      expect(source).toContain(line.provenBy)
+    })
+  })
+
+  test('the three code-enforced claims are live exports, not just text in a file', () => {
+    const ps = require('../../server/utils/promptSafety')
+    const ac = require('../../server/utils/anonymiseCase')
+    expect(typeof ac.anonymiseCaseContent).toBe('function')
+    expect(typeof ps.fenceUntrusted).toBe('function')
+    expect(typeof ps.stripInvisible).toBe('function')
+  })
+
+  test('it describes the protocols and never carries them', () => {
+    // The block itself stays on the backend. A screen that held its text could show a
+    // manager an edited copy of it and look identical.
+    expect(JSON.stringify(panel)).not.toContain('PLATFORM PROTOCOLS')
+  })
+})
+
+describe('what the screen is handed can never be edited into a protocol', () => {
+  test('every section of every prompt, at every tier, comes back locked', () => {
+    ;['mentor', 'global', 'group', 'firm'].forEach((tier) => {
+      ap.listPrompts({}, tier).forEach((p) => {
+        expect(p.sections.length).toBeGreaterThan(0)
+        p.sections.forEach(s => expect(s.locked).toBe(true))
+      })
+    })
+  })
+
+  test('a section carries no field a form could bind to', () => {
+    // Mutation-verified in spirit: the shape a screen receives has text and flags and
+    // nothing that looks like a value to edit. `carriesVariable` is deliberately not
+    // passed through — it is authoring metadata, not a control.
+    const allowed = ['id', 'n', 'heading', 'body', 'locked', 'appliesHere', 'appliesNote']
+    ap.listPrompts({}, 'mentor').forEach((p) => {
+      p.sections.forEach((s) => {
+        Object.keys(s).forEach(k => expect(allowed).toContain(k))
+      })
+    })
+  })
+
+  test('the editable surface at every tier is the three declared cash flow settings', () => {
+    ;['mentor', 'global', 'group', 'firm'].forEach((tier) => {
+      const ids = ap.listPrompts({}, tier)
+        .reduce((out, p) => out.concat(p.variables.map(v => p.id + '.' + v.id)), [])
+      expect(ids).toEqual([
+        CASHFLOW + '.materiality',
+        CASHFLOW + '.granularity',
+        CASHFLOW + '.currency'
+      ])
+    })
+  })
+})
+
+describe('the labels Mike ruled on 2026-08-22', () => {
+  test('setting 2 reads "Reporting periods", not the source document\'s term', () => {
+    const cash = ap.BASE_PROMPTS.filter(p => p.id === CASHFLOW)[0]
+    const byId = cash.variables.reduce((o, v) => { o[v.id] = v; return o }, {})
+    expect(byId.granularity.label).toBe('Reporting periods')
+    expect(byId.currency.label).toBe('Currency and units')
+    expect(byId.materiality.label).toBe('Materiality threshold')
+  })
+})

@@ -219,6 +219,54 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.28 · The AI Prompts page had an engine and no screen.** ✅ Closed 2026-08-22, session 80.
+Carried since 2026-08-21 — Mike's own instruction, and the backend half had shipped the day
+before, which is exactly the half-a-fix state CLAUDE.md names.
+
+- **Why it mattered:** *"Wiring content into the prompt without a screen is half a fix"*
+  (CLAUDE.md, 2026-08-16). Both prompts, the protocol block, the cascade and 32 tests had
+  shipped in `ea6ac22`, and **no tab rendered a line of it** — so no manager could see or change
+  a single variable. The engine read as done and was not.
+- **Mike's own words:** *"I want to create a 'AI Prompts' page in the hub pages (Mentor, Global
+  Group Manager, Group Manager and Firm Manager) so that users have the ability to influence the
+  approach to formulas in the performance report models"* (2026-08-21), then *"finish 4.28 you
+  should have everything you need"* (2026-08-22).
+- **What proves it, and it is not only the tests.** The tab is
+  [`../../components/firm/FirmAiPrompts.vue`](../../components/firm/FirmAiPrompts.vue), served by
+  [`../../server/routes/aiPrompts.js`](../../server/routes/aiPrompts.js), gated by
+  `TAB_TIERS.aiPrompts` to all four manager tiers. 47 engine tests, 22 route tests, 24 component
+  tests. **And the running app was driven with Playwright at both loginable tiers**: the tab
+  appears sixth under *Your AI coach*, the three settings carry the ruled labels, the protection
+  panel renders its four sentences, all twelve method sections render with no input inside any of
+  them, no raw locale key reaches the screen, and the page does not scroll sideways.
+- **The cascade was exercised over real HTTP, not asserted:** the mentor saved a materiality of 3,
+  the firm read 3 as *inherited* with nothing of its own, the firm then set 12 and held it, and
+  the mentor was unaffected. Every refusal was tried live too — an undeclared variable, an
+  out-of-range number, an unknown prompt, an invalid choice, and a scope named in the request
+  body, which wrote to the caller's own scope and left the mentor's untouched.
+- 🔴 **The redraw is the part worth keeping.** The first drawing was written for an engineer and
+  Mike rejected it on sight: *"who is supposed to be working with this page? A computer coder or
+  an accountant …? If its the latter (and it is) then your version risks being too complicated
+  for them."* The security document is now **mentor-only** — its seven engineering headings were
+  7 of the 19 sections a firm manager saw — and below the mentor it is four plain sentences. **No
+  manager lost a control**, because that document has no editable setting at any tier, and a test
+  fails if it ever gains one.
+- 🔴 **One defect was caught in the build and is worth recording, because it is the same fault
+  Mike found in the two fetch-burst boxes — in prose instead of in a control.** The protection
+  panel's fourth sentence was *"Nothing is treated as final until a person has approved it"*. The
+  panel's own heading promises these things are *applied by the system every time*, and that one
+  is **enforced nowhere** — it restates the prompt's Draft-and-Publish section, which is advice to
+  a model. It was replaced before shipping with *"Pictures and web code are stripped out of the
+  AI's answer"*, which the locked markdown pipeline does enforce. Every line now declares the
+  module that performs it and a test opens that file to check.
+- ⚠ **Two stale counts fell out of this and are fixed:** `hubTabTiers.test.js` asserted a
+  conditional-tab count while its own headline total lived only in prose — the total is now
+  derived from `NAV_GROUPS`, and doing that immediately caught a second error, a comment claiming
+  seven unconditional tabs when Coaching Reference left on 2026-08-20 and there are six.
+- ⚠ **Still true and not fixed by this item:** item **4.30** — `stripInvisible` is not applied to
+  the live advisor output path. The panel's third sentence is true of this prompt path and not yet
+  of the advisor screen.
+
 **3.5 · Reply to Carl about `npm install`.** ✅ Closed 2026-08-21, session 78. **Mike sent it
 himself.** Carried since 2026-08-09 — twelve days for a question that needed one message.
 

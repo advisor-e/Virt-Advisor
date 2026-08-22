@@ -21,7 +21,7 @@
  * design/mockups/tier-hub-pages.html §2 (ruled by Mike 2026-08-10).
  */
 
-const { TAB_TIERS, HUB_SCOPES, HUB_TITLES } = require('../../components/FirmManagerHub.vue')
+const { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS } = require('../../components/FirmManagerHub.vue')
 
 /** Every conditional tab this tier shows, sorted. */
 function tabsAt (scope) {
@@ -55,16 +55,31 @@ const MENTOR_BEFORE = [
  *
  * - `propertyTaxRules` — Mike, 2026-08-17 (`MULTIPLE-PROPERTY-ASSESSMENT.md` §8 Q6):
  *   a group sets the property model's tax rules, a firm may correct them.
+ * - `aiPrompts` — Mike, 2026-08-21 (`AI-PROMPTS-PAGE.md`, item 4.28), naming all four
+ *   manager tiers himself: *"a 'AI Prompts' page in the hub pages (Mentor, Global Group
+ *   Manager, Group Manager and Firm Manager)"*.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts']
+
+/**
+ * The same, for the MENTOR hub — which had nothing added to it between the baseline and
+ * 2026-08-22, so this list did not exist until it did.
+ *
+ * 🔴 IT IS A SEPARATE LIST, NOT AN EDIT TO `MENTOR_BEFORE`, for exactly the reason the
+ * firm's note gives: the baseline stays frozen so the diff shows a tab being ADDED rather
+ * than a historical record being quietly rewritten.
+ *
+ * - `aiPrompts` — the same ruling as the firm's, which named the mentor first.
+ */
+const MENTOR_ADDED_SINCE = ['aiPrompts']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {
     expect(tabsAt('firm')).toEqual(FIRM_BEFORE.concat(FIRM_ADDED_SINCE).sort())
   })
 
-  it('the mentor hub shows exactly what it showed before the middle tiers existed', () => {
-    expect(tabsAt('mentor')).toEqual(MENTOR_BEFORE)
+  it('the mentor hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {
+    expect(tabsAt('mentor')).toEqual(MENTOR_BEFORE.concat(MENTOR_ADDED_SINCE).sort())
   })
 
   it('the firm still never sees the accuracy reports or the adoption roll-up', () => {
@@ -91,7 +106,7 @@ describe('hub tab matrix — the two new tiers', () => {
     expect(tabsAt('global')).toEqual(tabsAt('group'))
   })
 
-  it('each middle tier shows 13 tabs — 7 unconditional plus these', () => {
+  it('each middle tier shows every unconditional tab plus its own six conditional ones', () => {
     // The 7 unconditional tabs (Domain Support, Logic Tables, Logic-Lab, Advisory
     // Staircase, Coaching Reference, Quizzes, Adviser Network) carry no TAB_TIERS
     // entry, so the conditional count is 13 - 7 = 6.
@@ -106,8 +121,25 @@ describe('hub tab matrix — the two new tiers', () => {
     // It was 13 when the two hubs were built on 2026-08-11. Template Check came off
     // the same day on the owner's ruling. Property Tax Rules was ruled ON on
     // 2026-08-17 (taking it to 14), and Team Case Studies came off on 2026-08-19 as
-    // the duplicate — back to 13, by a different route than it started.
-    expect(tabsAt('global')).toHaveLength(6)
+    // the duplicate — back to 13, by a different route than it started. AI Prompts was
+    // ruled ON on 2026-08-21 (Mike, naming all four manager tiers), taking it to 14.
+    //
+    // 🔴 THE TOTAL IS NOW DERIVED, NOT WRITTEN DOWN. The note above records that this
+    // test's own headline count drifted from 13 to 14 with nothing failing, because the
+    // number asserted was the conditional half and the total lived only in prose. It is
+    // computed from NAV_GROUPS here, so the two can no longer disagree in silence.
+    const conditional = tabsAt('global')
+    const everyMenuKey = NAV_GROUPS.reduce((keys, g) => keys.concat(g.items.map(i => i.key)), [])
+    const unconditional = everyMenuKey.filter(k => !TAB_TIERS[k])
+
+    // ⚠ AND IT CAUGHT ONE IMMEDIATELY. The comment above said "7 unconditional"; there
+    // are SIX — Coaching Reference came off the hub on 2026-08-20 (item 4.24, Mike) and
+    // this test's prose was never updated. So a middle tier shows 13, not 14: six
+    // unconditional plus seven conditional. Recorded rather than silently corrected,
+    // exactly as the 13-to-14 drift above was.
+    expect(conditional).toHaveLength(7)
+    expect(unconditional).toHaveLength(6)
+    expect(unconditional.concat(conditional)).toHaveLength(13)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {
