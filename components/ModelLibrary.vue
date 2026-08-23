@@ -8,7 +8,12 @@
     //- The way through to the Model Guide. Placed here, under the lede and above the
     //- search box, per the approved mockup (design/mockups/report-model-summaries.html)
     //- — it is read before anyone starts hunting through cards, which is the point of it.
-    nuxt-link.mlb-guidelink(to="/model-guide") {{ $t('modelGuide.linkFromLibrary') }}
+    //- A button rather than a text link (Mike, 2026-08-23): as a 12.5px underlined line
+    //- it read as prose and was missed. It stays a nuxt-link because it navigates —
+    //- middle-click and open-in-new-tab keep working; only its appearance is a button.
+    nuxt-link.mlb-guidebtn(to="/model-guide")
+      | {{ $t('modelGuide.linkFromLibrary') }}
+      span.mlb-guidebtn-arrow(aria-hidden="true") →
 
     .mlb-controls
       .mlb-search
@@ -337,16 +342,24 @@ export default {
 .mlb-h1 { margin:4px 0 3px; font-size:29px; font-weight:300; letter-spacing:-.01em; }
 .mlb-lede { font-size:13.5px; color:var(--mlb-muted); margin:0 0 12px; }
 
-/* The through-line to the Model Guide. Understated on purpose: it is a reference,
-   not an eleventh model, so it must not compete with the cards. */
-.mlb-guidelink {
-  display:inline-block; margin:0 0 20px; font-size:12.5px; font-weight:600;
-  color:var(--mlb-accent); text-decoration:none;
-  border-bottom:1px solid #0070c033; padding-bottom:1px;
+/* The way through to the Model Guide. Filled rather than underlined text so it is seen
+   without being looked for; sized like a control, not like a sentence. */
+.mlb-guidebtn {
+  display:inline-flex; align-items:center; gap:8px; margin:0 0 20px;
+  font-size:13.5px; font-weight:600; line-height:1;
+  color:#fff; text-decoration:none;
+  background:var(--mlb-accent); border:1px solid var(--mlb-accent);
+  border-radius:10px; padding:12px 18px;
+  box-shadow:var(--mlb-shadow);
+  transition:background .15s ease, border-color .15s ease;
 }
-.mlb-guidelink:hover, .mlb-guidelink:focus {
-  color:var(--mlb-accent-bright); border-bottom-color:var(--mlb-accent-bright);
+.mlb-guidebtn:hover {
+  color:#fff; background:var(--mlb-accent-bright); border-color:var(--mlb-accent-bright);
 }
+.mlb-guidebtn:focus-visible {
+  outline:none; box-shadow:0 0 0 3px #0070c040;
+}
+.mlb-guidebtn-arrow { font-size:15px; }
 
 .mlb-controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
 .mlb-search { flex:1; min-width:220px; }
