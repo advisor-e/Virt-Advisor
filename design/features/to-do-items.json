@@ -37,20 +37,20 @@
   "items": [
     {
       "ref": "2.9",
-      "name": "The education-gate wording",
+      "name": "The education gate",
       "score": 4,
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The behaviour is already ruled — on low client literacy the adviser is asked whether to apply education-first or see what is technically needed, reasoning shown either way. Only the on-screen words are missing.",
-      "risk": "It stays uncoded. Advisers keep getting advice pitched over a client's head.",
+      "waitingOn": "Us",
+      "why": "Ruled twice by Mike — the behaviour on 2026-07-16 (on low client literacy the adviser is asked whether to apply education-first or see what is technically needed, with the reasoning shown either way) and the reach on 2026-08-16 (the gate fires wherever poor financial literacy shows up). The old \"only the on-screen words are missing\" is WITHDRAWN and must not be re-asked. Order is fixed: widen the literacy signal (ours, first), then Mike's wording, then build.",
+      "risk": "It stays uncoded. Advisers keep getting advice pitched over a client's head — and a narrow version would look finished while firing almost never.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
-        "detail": "His own design, 2026-07-16"
+        "detail": "His own design, 2026-07-16; rescoped by him 2026-08-16"
       },
-      "touches": "The Advisory Staircase, the pre-recommendation prompt.",
+      "touches": "The literacy signal in server/utils/signals.js, the Advisory Staircase, the pre-recommendation prompt.",
       "note": null,
       "comment": null
     },

@@ -35,7 +35,7 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on |
 | --- | --- | --- | --- | --- |
-| 1 | **2.9** The education-gate wording | 4 | — | **Mike** |
+| 1 | **2.9** The education gate | 4 | — | Us |
 | 2 | **4.7** Flip engine-strict back on | 5 | — | Us |
 | 3 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
 | 4 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
@@ -47,7 +47,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 10 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
 | 11 | **4.36** The Model Guide search only matches the exact words the page happens to use | 3 | — | Us |
 
-**Eleven live items. Two need Mike.** If this list passes about twenty, something is wrong.
+**Eleven live items. One needs Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off on 2026-08-22, and one joined and left the same day** — see
@@ -378,19 +378,47 @@ question he has already answered.
    [`../virt-advisor-system-design.md`](../virt-advisor-system-design.md) §13. **No code carries
    that text or anything like it.** It was decided and never built, so there is no working screen to
    take the shape from.
-2. **The literacy signal exists in one domain out of eight.** *"Poor financial literacy — owner
-   focused on wrong numbers"* sits under **forecasting** in [`../../data/primary-issues.json`](../../data/primary-issues.json)
-   and nowhere else; all eight domains were checked. A client who plainly cannot read their numbers
-   but came about staffing or profitability **would not trip the gate.** Mike's own 2026-07-16
-   precondition — *"the literacy signal's reliability verified first"* — is what this answers.
-   `advisory-staircase.json` agrees: `"status": "not-wired"`.
+2. ~~**The literacy signal exists in one domain out of eight.**~~ **CORRECTED 2026-08-24 — this
+   was wrong, and it was wrong in the direction that matters.** It is struck through rather than
+   deleted because the ruling above was made with it on the page. What it said: *"Poor financial
+   literacy — owner focused on wrong numbers"* sits under **forecasting** in
+   [`../../data/primary-issues.json`](../../data/primary-issues.json) and nowhere else. What is
+   actually true, checked against the code:
+   - **`primary-issues.json` is read by nothing.** The selector that read it was retired from
+     intake on 2026-06-10 and the file has been disconnected ever since. A whole-repo search finds
+     no loader except [`../../tests/unit/retiredPrimaryIssueSelector.test.js`](../../tests/unit/retiredPrimaryIssueSelector.test.js),
+     which asserts the selector *stays* retired. [`../virt-advisor-registry.md`](../virt-advisor-registry.md)
+     already said so — *"⚠ no code reads it"* — and so does the comment in
+     [`../../components/VirtualAdvisor.vue`](../../components/VirtualAdvisor.vue). **So the signal
+     did not fire in one domain out of eight. In that file it fires in none.**
+   - **There is a live literacy signal, and the check missed it.**
+     [`../../server/utils/signals.js`](../../server/utils/signals.js) raises
+     `FINANCIAL_FOUNDATIONS_GAP`, and [`../../server/utils/caseState.js`](../../server/utils/caseState.js)
+     turns it into the solution category `financial_literacy`. It is wired and working.
+   - **It is domain-locked — but to `data-systems`, not forecasting**, inside
+     `if (state.detectedDomain === 'data-systems')`, and it fires from exactly one intake question
+     about the chart of accounts. So the conclusion the ruling rests on survives — a client who
+     cannot read their numbers but came about staffing or profitability **would not trip the
+     gate** — but the thing to widen is not the thing this entry named.
+   - *(Smaller symptom of the same staleness: "eight domains". `primary-issues.json` has 11 domain
+     keys; `domains.json` registers 22.)*
+
+   Mike's own 2026-07-16 precondition — *"the literacy signal's reliability verified first"* — is
+   what this answers. `advisory-staircase.json` agrees: `"status": "not-wired"`.
 
 **The order of work, and it is fixed by his ruling:**
 
-1. **Widen the signal — ours, and first.** ⚠ **NOT by copying the line into all eight domains' issue
-   lists.** Eight copies of one sentence is how content drifts apart here, and it is the fault
-   closed on 2026-08-16 by item 2.6. It needs to become a signal the engine reads **independently of
-   the domain** the conversation happens to be in. That shape has to be designed.
+1. **Widen the signal — ours, and first.** ⚠ **NOT by copying the line into the domains' issue
+   lists.** Copies of one sentence is how content drifts apart here, and it is the fault closed on
+   2026-08-16 by item 2.6 — and since `primary-issues.json` is read by nothing, copying it there
+   would achieve nothing at all. It needs to be a signal the engine reads **independently of the
+   domain** the conversation happens to be in. ✅ **CORRECTED 2026-08-24 — the shape does NOT have
+   to be designed; it already exists.** [`../../server/utils/signals.js`](../../server/utils/signals.js)
+   opens with a domain-independent **"Client signals"** block — client awareness, ownership, growth
+   stage, operator execution style — sitting above the per-domain blocks. Raising the literacy
+   signal into that block is the job. What still has to be decided is what *raises* it outside
+   `data-systems`: a question asked of every client, or inference from what they say. **That is a
+   product call and it is Mike's**, but it belongs with step 2, not before it.
 2. **Then the wording — Mike's**, and only then. **Where the gate can fire decides what it should
    say**, which is why asking for the words first would have produced words for a gate that mostly
    stays shut.
@@ -403,8 +431,38 @@ question he has already answered.
 - **Risk:** it stays uncoded. Advisers keep getting advice pitched over a client's head — and, since
   2026-08-16, we know the narrow version would have looked finished while firing almost never.
 - **Asked by:** **Mike** — his own design, 2026-07-16, rescoped by him 2026-08-16.
-- **Touches:** the literacy signal across all eight domains, the Advisory Staircase, the
+- **Touches:** the literacy signal in [`../../server/utils/signals.js`](../../server/utils/signals.js)
+  (`FINANCIAL_FOUNDATIONS_GAP`, today locked to `data-systems`), the Advisory Staircase, the
   pre-recommendation prompt.
+- **Waiting on:** **us**, not Mike — corrected 2026-08-24. The generated table said *"Mike"* and
+  *"only the on-screen words are missing"* for eight days after this section declared both wrong,
+  because [`to-do-items.json`](to-do-items.json) was never updated alongside the prose. See the box
+  below.
+
+### 🔴 HOW THIS PAGE CONTRADICTED ITSELF FOR EIGHT DAYS — 2026-08-24
+
+On 2026-08-16 this section was written to say, in terms, that 2.9 no longer waits on Mike and that
+the wording question **must not be re-asked**. [`to-do-items.json`](to-do-items.json) — which the
+ranked table at the top of this page is *generated from* — was not touched. It kept
+`"waitingOn": "Mike"` and kept the exact sentence this section calls wrong.
+
+**On 2026-08-24 that worked exactly as designed and produced the wrong outcome.** A session ran
+`/startup`, read the generated table, and told Mike 2.9 was *"waiting on you — a five-minute
+wording answer"*. He picked it on that basis. The question he was about to be asked for a second
+time was one he had settled eight days earlier. [`../ACTIONS.md`](../ACTIONS.md) meanwhile asserts
+the entry is *"now `waitingOn: Us`"* — a third version, true of none of the files.
+
+**Why no test caught it.** [`../../tests/unit/applyToDo.test.js`](../../tests/unit/applyToDo.test.js)
+guards the **table against the JSON**, and `npm run to-do` regenerates one from the other, so those
+two can never drift. **Nothing compares either to the hand-written prose on the same page**, and
+the prose is where the ruling lives. The drift landed precisely in the unguarded gap.
+
+**This is the fourth instance of one fault in four sessions** — 4.26's guard that accepted a passing
+mention as a closure, session 81's Brief that denied a screen built the day before, session 82's
+4.16 record that claimed a shipped part was unbuilt, and now this. The shared cause has been named
+each time and is still true: **nothing compares the record to the code, or to itself.** ⚠ **The
+generated table is the front door and is therefore the most dangerous place for a stale field:** a
+reader who trusts it never reaches the section that corrects it.
 
 ---
 
