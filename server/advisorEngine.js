@@ -19,6 +19,7 @@ const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnR
 const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
 const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
 const { loadResolvedGuideOverrides } = require('../server/utils/methodGuideConfig')
+const { formatEngagementTypeForPrompt } = require('../server/utils/methodGuides')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { nameForLanguageCode } = require('../server/utils/languageName')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -2883,14 +2884,17 @@ async function handleQuery (rawBody, res, identity) {
       eoy: 'End of Year',
       'due-diligence': 'Due Diligence & Acquisitions'
     }
-    const ENGAGEMENT_CONTEXT_E = {
-      education: 'client lacks knowledge — teach and build up sequentially',
-      facilitation: 'client needs to change — pace the reveal, stay professionally detached',
-      advice: 'client knows the problem and wants it solved — be direct and expert'
-    }
-
     const _domainLabel = DOMAIN_LABELS_E[state.detectedDomain] || state.detectedDomain || 'General advisory'
-    const _engagementContext = ENGAGEMENT_CONTEXT_E[_strategyDecision.engagementType] || ''
+
+    // 🔴 THE AUTHORED WORDING, NOT A PARAPHRASE OF IT (item 4.16 D, 2026-08-23).
+    // Until today this was a hardcoded three-line map — 'client lacks knowledge —
+    // teach and build up sequentially' and two like it — while the six authored
+    // fields per type in data/engagement-types.json reached no prompt and no screen.
+    // It now reads the same document The 3 Engagement Types page edits, through the
+    // same tier-resolved overrides, so a firm that rewords its delivery guidance
+    // changes what the model is told. Empty string if the file cannot be read, which
+    // leaves the type named and nothing invented.
+    const _engagementContext = formatEngagementTypeForPrompt(_strategyDecision.engagementType, firmMethodGuides)
     const _sessionContext = state.advisorSessionLength && state.advisorSessionLength !== 'pending' ? ` @ ${state.advisorSessionLength}` : ''
     const _budgetLabel = tier1Capacity === 0
       ? '0 templates — session is 30 minutes only. Tell the advisor to schedule at least 60–90 minutes first.'
@@ -3020,7 +3024,7 @@ async function handleQuery (rawBody, res, identity) {
       _urgencyDirective || null,
       _continuityDirective,
       `Domain: ${_domainLabel}`,
-      `Engagement type: ${_strategyDecision.engagementType} — ${_engagementContext}`,
+      `Engagement type: ${_strategyDecision.engagementType}` + (_engagementContext ? `\n${_engagementContext}` : ''),
       `Template budget: ${_budgetLabel}`,
       ..._copySignals,
       _outlierContext,

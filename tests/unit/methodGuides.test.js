@@ -32,19 +32,34 @@ const {
   guidesForDomain,
   sparseOverride,
   validateGuideOverride,
-  loadGuideBase
+  loadGuideBase,
+  formatEngagementTypeForPrompt
 } = require('../../server/utils/methodGuides')
 
 const { OPEN, CLOSE } = require('../../server/utils/promptSafety')
 
-/** Every authored string in a guide worth checking: over 25 characters, excluding housekeeping. */
-function authoredStrings (value, out, key) {
+/**
+ * Every authored string in a guide worth checking: over 25 characters, excluding
+ * housekeeping.
+ *
+ * `hide` is the guide's own machine-key list (the registry's `hide` field) and is
+ * passed in rather than hardcoded, so this stays a measurement of AUTHORED content.
+ * A key on that list names the record for the engine — `designNote.id` is
+ * `domain-heuristic-vs-client-readiness`, long enough to look like prose and not a
+ * line anybody wrote for an advisor to read. The list is asserted separately, below,
+ * so nothing can be hidden quietly to make this test pass.
+ */
+function authoredStrings (value, out, key, hide) {
+  const hidden = hide || []
   if (typeof value === 'string') {
-    if (key !== 'version' && value.trim().length > 25) { out.push(value.trim()) }
+    if (key !== 'version' && !hidden.includes(key) && value.trim().length > 25) { out.push(value.trim()) }
   } else if (Array.isArray(value)) {
-    for (const v of value) { authoredStrings(v, out, key) }
+    for (const v of value) { authoredStrings(v, out, key, hidden) }
   } else if (value && typeof value === 'object') {
-    for (const k of Object.keys(value)) { authoredStrings(value[k], out, k) }
+    for (const k of Object.keys(value)) {
+      if (hidden.includes(k)) { continue }
+      authoredStrings(value[k], out, k, hidden)
+    }
   }
   return out
 }
@@ -59,7 +74,7 @@ describe.each(GUIDES)('method guide — $id', (guide) => {
   })
 
   test('EVERY authored line reaches the prompt — the 116 that did not, and the next one', () => {
-    const authored = authoredStrings(readGuideFile(guide), [])
+    const authored = authoredStrings(readGuideFile(guide), [], undefined, guide.hide)
     const rendered = formatGuideForPrompt(guide.id)
     const missing = authored.filter(s => !rendered.includes(s))
     // Named in the failure message so a break says WHICH line went quiet, not just
@@ -99,22 +114,26 @@ describe.each(GUIDES)('method guide — $id', (guide) => {
   })
 })
 
-describe('the thirteen as a whole', () => {
-  test('there are thirteen, not twelve', () => {
+describe('the fourteen as a whole', () => {
+  test('there are fourteen, not twelve', () => {
     // The build spec said twelve: `powerful-seminars.json` is not named
     // `*-reference.json`, so a file-pattern sweep missed it. A count taken from a
     // filename pattern is a count of filenames.
-    expect(GUIDES).toHaveLength(13)
+    // The fourteenth is The 3 Engagement Types (item 4.16 D, 2026-08-23).
+    expect(GUIDES).toHaveLength(14)
     expect(GUIDE_BY_ID.public_speaking.file).toBe('powerful-seminars.json')
   })
 
-  test('exactly one is standing, and it is Facilitation 101', () => {
+  test('two are standing, and the second is The 3 Engagement Types', () => {
     const standing = GUIDES.filter(g => g.standing)
-    expect(standing.map(g => g.id)).toEqual(['facilitation_101'])
-    // Ruled by Mike 2026-08-17 (§6d option A): its own entry above the domains. It
-    // has no material row anywhere, and inventing one would file it where nobody
-    // would look.
-    expect(standing[0].rows).toEqual([])
+    // 🔴 ORDER IS THE RULING. Mike, 2026-08-23, asked for three times: the
+    // engagement types are their OWN page listed UNDER Facilitation 101 — not
+    // something reached by opening Facilitation 101. The rail renders standing
+    // guides in this order, so this array IS the on-screen order.
+    expect(standing.map(g => g.id)).toEqual(['facilitation_101', 'engagement_types'])
+    // Neither has a material row anywhere, and inventing one would file it under a
+    // single domain when it is true of all of them.
+    for (const g of standing) { expect(g.rows).toEqual([]) }
   })
 
   test('every non-standing guide has at least one row, and no guide is placed by guesswork', () => {
@@ -309,5 +328,81 @@ describe('a guide whose file cannot be read', () => {
     // "no base to render" branch, and a mocked fs here would test the mock.
     expect(formatGuideForPrompt('facilitation_101', { facilitation_101: { objective: 'x' } })).not.toBe('')
     expect(formatGuideForPrompt('not_a_guide', {})).toBe('')
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// THE 3 ENGAGEMENT TYPES — item 4.16 D, built 2026-08-23.
+//
+// The sweep of 2026-08-16 called this "the only one with no page" and "genuinely
+// homeless": three types x six authored fields that reached NO screen at any tier
+// and NO prompt at all, because advisorEngine emitted a hardcoded three-line
+// paraphrase in their place. Mike ruled the placement on 2026-08-23 — its OWN page,
+// listed under Facilitation 101, not opened from it.
+//
+// These tests hold the two halves that made it a fix rather than half a fix: the
+// page exists AND what a firm edits on it is what the model reads.
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('The 3 Engagement Types', () => {
+  const ENGINE_KEYS = ['id', 'type', 'defaultEngagement']
+
+  test('the machine keys are hidden from the screen and the prompt alike', () => {
+    // Hidden in ONE place (loadGuideBase), so the screen and the prompt cannot
+    // disagree about what the document contains — the guarantee this module exists
+    // for. strategyResolver still reads the raw file, so the engine is unaffected.
+    const content = loadGuideBase('engagement_types')
+    for (const k of ENGINE_KEYS) { expect(Object.prototype.hasOwnProperty.call(content, k)).toBe(false) }
+    for (const t of content.types) { expect(Object.prototype.hasOwnProperty.call(t, 'id')).toBe(false) }
+    expect(formatGuideForPrompt('engagement_types')).not.toContain('domain-heuristic-vs-client-readiness')
+  })
+
+  test('all three types survive the hiding, with their six authored fields', () => {
+    const content = loadGuideBase('engagement_types')
+    expect(content.types).toHaveLength(3)
+    for (const t of content.types) {
+      for (const f of ['advisorDefinition', 'deliveryGuidance', 'driver', 'clientRequirement', 'advisorPosition', 'deliveryImperative']) {
+        expect(typeof t[f]).toBe('string')
+        expect(t[f].trim().length).toBeGreaterThan(0)
+      }
+    }
+  })
+
+  test('the prompt carries the authored wording, not the paraphrase it replaced', () => {
+    // The exact sentence the hardcoded map used to send, so this fails if anybody
+    // reinstates it, and the authored line that now goes in its place.
+    const block = formatEngagementTypeForPrompt('education')
+    expect(block).not.toContain('client lacks knowledge — teach and build up sequentially')
+    expect(block).toContain('Client lacks the knowledge to make informed decisions.')
+    expect(block).toContain('Sequential, foundational, build-up logic.')
+    // camelCase keys read as words rather than as field names.
+    expect(block).toContain('**Advisor definition:**')
+    expect(block).not.toContain('AdvisorDefinition')
+  })
+
+  test('each type gets its OWN wording — the block is not the same for all three', () => {
+    const e = formatEngagementTypeForPrompt('education')
+    const f = formatEngagementTypeForPrompt('facilitation')
+    const a = formatEngagementTypeForPrompt('advice')
+    expect(new Set([e, f, a]).size).toBe(3)
+    expect(f).toContain('Pace the reveal.')
+    expect(a).toContain('Advice')
+  })
+
+  test("a firm's reworded wording reaches the model, fenced as data", () => {
+    // The whole point of the page. A firm rewords delivery guidance; the model is
+    // told the firm's sentence, inside the untrusted fence every overridden guide
+    // gets — never as instructions it might follow.
+    const overrides = { engagement_types: { types: [{ deliveryGuidance: 'Our firm teaches in ten-minute blocks.' }, {}, {}] } }
+    const block = formatEngagementTypeForPrompt('education', overrides)
+    expect(block).toContain('Our firm teaches in ten-minute blocks.')
+    expect(block).toContain(OPEN)
+    expect(block).toContain(CLOSE)
+  })
+
+  test('an unknown engagement type invents nothing', () => {
+    expect(formatEngagementTypeForPrompt('nonsense')).toBe('')
+    expect(formatEngagementTypeForPrompt('')).toBe('')
+    expect(formatEngagementTypeForPrompt(undefined)).toBe('')
   })
 })

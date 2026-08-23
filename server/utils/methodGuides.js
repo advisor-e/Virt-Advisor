@@ -203,6 +203,32 @@ const GUIDES = [
     heading: '## Facilitation 101 — Detailed Coaching Reference',
     standing: true,
     rows: []
+  },
+  {
+    // 🔴 THE 3 ENGAGEMENT TYPES — ITS OWN PAGE, listed under Facilitation 101.
+    // Ruled by Mike 2026-08-23, after being asked for three times: it is NOT reached
+    // from Facilitation 101 and is not a material row on any domain. It is a second
+    // standing entry beside it.
+    //
+    // This is item 4.16 D, the one the sweep called "the only one with no page" and
+    // "genuinely homeless": 3 types x 6 authored fields that reached NO screen at any
+    // tier and NO prompt at all — advisorEngine emitted a hardcoded three-line
+    // paraphrase in their place. It sits above the domains for the same reason
+    // Facilitation 101 does: it is how the advisor works with the client, which is
+    // true of every domain, so filing it under one would hide it from the rest.
+    id: 'engagement_types',
+    file: 'engagement-types.json',
+    label: 'The 3 Engagement Types',
+    heading: '## The 3 Engagement Types — Detailed Coaching Reference',
+    standing: true,
+    rows: [],
+    // ⚠ MACHINE KEYS, HIDDEN FROM SCREEN AND PROMPT ALIKE. `id` and `type` name the
+    // record for the engine (strategyResolver keys on types[].id) and
+    // `defaultEngagement` is engine configuration, not advisory wording. Rendered,
+    // they would offer an edit that changes nothing and read as noise beside the six
+    // fields that are the point of the page. Hidden here rather than in the walker so
+    // screen and prompt still see ONE document — the guarantee this module exists for.
+    hide: ['id', 'type', 'defaultEngagement']
   }
 ]
 
@@ -245,11 +271,20 @@ const isPlainObject = v => typeof v === 'object' && v !== null && !Array.isArray
  * A stored key rendered as ordinary words: `why_advisors_use_revenue_models` →
  * `Why advisors use revenue models`. Mirrors `humaniseSituation` in
  * server/utils/domainSupport.js so the two screens name a field the same way.
+ *
+ * camelCase is split too (`advisorDefinition` → `Advisor definition`). Twelve of the
+ * fourteen guides are authored in snake_case and are unaffected; engagement-types.json
+ * is camelCase because the engine reads it as data, and without this its fields read
+ * as `AdvisorDefinition` on screen and in the prompt alike.
  * @param {string} key
  * @returns {string}
  */
 function humaniseKey (key) {
-  const words = String(key || '').replace(/_/g, ' ').trim()
+  const words = String(key || '')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/_/g, ' ')
+    .trim()
+    .toLowerCase()
   return words ? words.charAt(0).toUpperCase() + words.slice(1) : ''
 }
 
@@ -260,12 +295,39 @@ function humaniseKey (key) {
  * @param {string} guideId
  * @returns {Object|null}
  */
+/**
+ * Remove a guide's machine keys, at any depth, BEFORE anything walks the document.
+ *
+ * Done here rather than inside the walker so that the screen, the prompt and
+ * validateGuideOverride all see the same document — a key hidden from one and not
+ * the others is how a screen and a prompt come to disagree, which is the fault this
+ * module was built to end. A hidden key is therefore also un-editable and
+ * un-storable, which is the intent: it is the engine's, not the author's.
+ *
+ * @param {*} value - any node of the parsed guide
+ * @param {Array<string>} hide - key names to drop wherever they appear
+ * @returns {*} the same shape with those keys gone
+ */
+function stripHidden (value, hide) {
+  if (Array.isArray(value)) { return value.map(v => stripHidden(v, hide)) }
+  if (isPlainObject(value)) {
+    const out = {}
+    for (const k of Object.keys(value)) {
+      if (hide.includes(k)) { continue }
+      out[k] = stripHidden(value[k], hide)
+    }
+    return out
+  }
+  return value
+}
+
 function loadGuideBase (guideId) {
   const guide = GUIDE_BY_ID[guideId]
   if (!guide) { return null }
   if (Object.prototype.hasOwnProperty.call(_cache, guideId)) { return _cache[guideId] }
   try {
-    _cache[guideId] = JSON.parse(readFileSync(resolve(process.cwd(), 'data/' + guide.file), 'utf8'))
+    const parsed = JSON.parse(readFileSync(resolve(process.cwd(), 'data/' + guide.file), 'utf8'))
+    _cache[guideId] = guide.hide ? stripHidden(parsed, guide.hide) : parsed
   } catch (err) {
     console.error('[methodGuides] Failed to load ' + guide.file + ':', err.message)
     _cache[guideId] = null
@@ -476,6 +538,56 @@ function formatGuideForPrompt (guideId, overrides) {
 }
 
 /**
+ * The platform order of the three engagement types, for id -> position lookup.
+ *
+ * 🔴 WHY POSITION AND NOT ID. `types[].id` is a machine key and is stripped from the
+ * guide before anything reads it (see the `hide` list on the registry row), so the
+ * resolved document a firm may have reworded no longer carries one. Position is safe
+ * to key on because validateGuideOverride refuses an override that adds or removes
+ * an item: a firm may reword the three types, never reorder or replace them.
+ * @returns {Array<string>} the ids, in file order
+ */
+let _engagementOrder = null
+function engagementTypeOrder () {
+  if (_engagementOrder === null) {
+    try {
+      const raw = JSON.parse(readFileSync(resolve(process.cwd(), 'data/engagement-types.json'), 'utf8'))
+      _engagementOrder = (raw.types || []).map(t => (t && t.id) || '')
+    } catch (err) {
+      console.error('[methodGuides] Failed to read engagement-types order:', err.message)
+      _engagementOrder = []
+    }
+  }
+  return _engagementOrder
+}
+
+/**
+ * The authored wording for ONE engagement type, as the prompt should carry it.
+ *
+ * Item 4.16 D. Until 2026-08-23 advisorEngine emitted a hardcoded three-line
+ * paraphrase here and the six authored fields per type reached nothing. This reads
+ * the same document the screen edits, through the same tier-resolved overrides, so
+ * a firm that rewords "delivery guidance" changes what the model is told.
+ *
+ * @param {string} typeId - 'education' | 'facilitation' | 'advice'
+ * @param {Object|null} [overrides] - resolved override map, keyed by guide id
+ * @returns {string} the block, or '' when the type or the file is unreadable
+ */
+function formatEngagementTypeForPrompt (typeId, overrides) {
+  const index = engagementTypeOrder().indexOf(typeId)
+  if (index < 0) { return '' }
+  const content = resolveGuide('engagement_types', overrides)
+  const type = (content && Array.isArray(content.types)) ? content.types[index] : null
+  if (!isPlainObject(type)) { return '' }
+  const nodes = walkGuide(type)
+  if (!nodes.length) { return '' }
+  const text = renderGuideSections(nodes, 4).join('\n').replace(/\n{3,}/g, '\n\n').trim()
+  // Firm-authored text reaching a prompt is fenced as data, never instructions -
+  // the same all-or-nothing rule formatGuideForPrompt applies to a whole guide.
+  return guideIsOverridden('engagement_types', overrides) ? fenceUntrusted(text) : text
+}
+
+/**
  * The guides that open from a given domain's material rows.
  * @param {string} domainId
  * @returns {Array<{id: string, label: string, material: string, alsoUsedBy: Array<string>}>}
@@ -585,6 +697,7 @@ module.exports = {
   walkGuide,
   renderGuideSections,
   formatGuideForPrompt,
+  formatEngagementTypeForPrompt,
   guidesForDomain,
   sparseOverride,
   validateGuideOverride,
