@@ -1,0 +1,101 @@
+{
+  "version": "1.0",
+  "description": "The psychology underneath any delivery: how people actually react to learning, the path learning travels, the five drivers behind a person's output, and the five steps that turn a decision into a habit. Transcribed from the master app's own template, 'Productive Habits — Using the 2x5 Step Method' (data/templates.json, index 27). It sits beside Facilitation 101 and The 3 Engagement Types because all three deliveries rest on it.",
+
+  "emotional_reaction_to_learning": {
+    "the_common_expectation": "The common expectation of 'learning over time' is that it's a linear process. We do something; it goes well (or not well) and we expect that because of the 'lessons learnt' we will simply make an adjustment, and expect a better outcome next time.",
+    "what_actually_happens": "In reality there are many factors that contribute towards our success or failings. Often ignored is our EMOTIONAL REACTION to learning which, as it turns out, is often the single biggest obstacle to us moving forward.",
+    "the_saying_it_produces": "Hence the common saying: 'I need to get out of my own way...'",
+    "plotted_on_the_original_as": "Skill against Time."
+  },
+
+  "progressive_learning_path": {
+    "where_learning_comes_from": "Much of what we learn comes from a combination of External Observations and Internal Reflections.",
+    "acquiring_is_only_a_third": "We can ACQUIRE information via our 5 senses but this is only one third of how we learn; we must then PROCESS what we've acquired and then associate it with past learnings so that we can RECALL the learning afterwards.",
+    "the_cycle": "A sequence of Acquiring, Internal Reflection, External Testing, Observation and Re-Internalising.",
+    "why_testing_matters": "It's a cyclical process of internalised thought and externalised actions; which is why it's so critical to 'Test' things as we learn. Hence the philosophy of 'Minimum Viable Product'.",
+    "the_path_in_order": [
+      "Information",
+      "Self Relevance",
+      "Knowledge",
+      "Applied Actions",
+      "Experience",
+      "Regular Practice + Varied Perspective",
+      "Skill / Competency",
+      "Focused Improvement",
+      "Mastery",
+      "Contemplation (Synthesis)",
+      "Wisdom / Contextual Awareness (continuous)"
+    ]
+  },
+
+  "five_drivers_of_human_output": {
+    "what_it_is_for": "A framework for directing both Observation and Improvement, rather than lumping every observation of a person's performance into one single point of view.",
+    "drivers": [
+      {
+        "name": "Knowledge",
+        "definition": "New Information that is mixed with past experience to create Self Relevance, Recognition and Comprehension."
+      },
+      {
+        "name": "Skill",
+        "definition": "Knowledge and an Understanding of the Practical Application gained by way of Practiced Actions."
+      },
+      {
+        "name": "Resource (and Planning)",
+        "definition": "The tools required and the sequential understanding of how actions should be prioritised to improve effectiveness."
+      },
+      {
+        "name": "Environment (internal / external)",
+        "definition": "The Organisational Structure that supports the individual and the Field of Engagement that the individual competes in."
+      },
+      {
+        "name": "Mind Set (mental state / attitude)",
+        "definition": "The dominant patterns that contribute to the internal (self talk) dialogue of an individual."
+      }
+    ],
+    "the_question_to_put_to_the_client": "When reviewing a staff member's performance, do you break it down to the contributors above or simply 'lump your observations' into one single point of view?",
+    "the_invitation": "Going forward, why not use the 5 Drivers as a Framework for directing both Observation and Improvement?"
+  },
+
+  "five_steps_to_building_new_habits": {
+    "worked_example_used_throughout": "Giving up smoking.",
+    "steps": [
+      {
+        "step": 1,
+        "name": "Reason",
+        "perspective": "Global perspective",
+        "example": "Smoking is bad for health long term and expensive."
+      },
+      {
+        "step": 2,
+        "name": "Trigger",
+        "perspective": "Localised / 'Self Relevant' perspective",
+        "example": "Out of breath in morning, Uncle diagnosed with lung cancer, New-born child."
+      },
+      {
+        "step": 3,
+        "name": "Micro Habit",
+        "perspective": "Small change consistent with success but not seen as too risky or painful",
+        "example": "Reduce from 2 packets per day to just 5 cigarettes per day."
+      },
+      {
+        "step": 4,
+        "name": "Effective Practice",
+        "perspective": "Repetition of micro-habit when associated to trigger environment",
+        "example": "Recognise habit triggers — 'Arriving at work, Finishing dinner' were habit triggers. In those instances in future, will drink glass of water and visualise it cleansing the lungs. Just like washing a car, don't want to 'get it dirty' straight after. Additionally, have 'PERMISSION' to smoke at 5 specific times per day and see this action as 'Success'."
+      },
+      {
+        "step": 5,
+        "name": "Plan",
+        "perspective": "Global perspective of on-going management 'in the real world'",
+        "example": "Will maintain this new habit for 6 months and then use same technique to give up completely once the toxicity has reduced in the body. Plan to run half marathon with friend in 12 months time; training starts 6 months out. Newborn child will be there to greet them at the finish line."
+      }
+    ]
+  },
+
+  "interference_triggers": {
+    "why_the_original_habit_holds": "The same habit forming patterns were used to establish the original habit; albeit often subconsciously. Thereafter, a series of 'environment triggers' would remind us to employ our habit, even though we consciously recognised the negative side effects.",
+    "what_the_plan_must_do": "The 'Global Plan' and 'Micro-habit' must recognise these 'environment triggers' as being INTERFERENCE TRIGGERS when pursuing a new habit and, to be effective, must ALSO require us to understand the THINKING and ASSOCIATED FEELINGS that supported these previous triggers.",
+    "the_example_for_an_advisory_firm": "How will you react to the 'Trigger' of Compliance Work deadlines running INTERFERENCE with your plan to deliver advisory services? Especially in the vital stage of 'Positioning' your team for this work, where often it's non-chargeable."
+  }
+}

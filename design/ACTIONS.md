@@ -21,6 +21,73 @@
 >
 > ---
 >
+> ## ✅ SESSION 82 — 2026-08-23 (laptop). **4.16 AND 4.35 CLOSED — TWO NEW PAGES, AND THE AI READS BOTH.**
+>
+> **Four commits. Suite 329 suites / 6,127 green**, lint 0 errors, audit gate PASS.
+> Branch `feat/advisor-progress`. **`master` untouched.**
+>
+> **CLOSED — 4.16, the last of its seven parts (D, the engagement types).** 3 types x 6 authored
+> fields in `data/engagement-types.json` reached **no screen at any tier and no prompt at all**;
+> `advisorEngine.js` emitted a hardcoded three-line paraphrase in their place. **The 3 Engagement
+> Types** is now its own page in Domain Support, listed under Facilitation 101, editable at all four
+> tiers, and the client-mode prompt reads that same document through the same tier overrides. →
+> **P3d / P3e** of [`features/domain-support.md`](features/domain-support.md). Commit `341402f`.
+>
+> 🔴 **IT WAITED SEVEN DAYS ON A QUESTION NOBODY ASKED.** The item said *"Mike must rule where it
+> lives before anything starts"* and was carried unasked through four sessions of notes. Asked, he
+> answered in one sentence. **An item blocked on a question nobody puts is not blocked; it is
+> forgotten.** Worth a rule: an item marked "waiting on Mike" for more than one session is either
+> put to him or it is not really waiting on him.
+>
+> 🔴 **AND THE ITEM'S OWN RECORD WAS FALSE THE WHOLE TIME.** Its `why` said part F — the method
+> guides — *"BUILD IS NOT STARTED"*. F shipped on 2026-08-17 and was verified on screen at four
+> tiers today. So the live list told Mike this needed **him**, while half of what it named was
+> already built. **Third instance of the same family in three sessions** (4.26's passing-mention
+> guard; session 81's Brief that denied a screen built the day before). The shared cause is stated
+> plainly because it keeps recurring: **no test reads the record against the code.**
+>
+> **CLOSED — 4.35, raised and closed the same day.** Mike asked through the Handbook control for
+> *"the drivers of human performance, reaction to learning and 5 steps in making a new habit"* as a
+> separate editable page under the other two, and named it **Learning Psychology** the same
+> afternoon. Third standing page in Domain Support, all four tiers, 56 editable fields.
+>
+> 🔴 **TRANSCRIBED, NOT AUTHORED**, as the item demanded: from `Productive Habits.pdf`
+> (`data/templates.json` index 27). The PDF's font subset drops its ligatures — it literally reads
+> *"e ectiveness"*, *"Re ections"*, *" nish line"* — so those were repaired and nothing else
+> changed. Tests pin the source sentences AND fail if the holes return, so the master app's own
+> wording cannot be quietly improved later. Two slides (session housekeeping, blank worksheet) were
+> deliberately not transcribed.
+>
+> **⚠ OPEN, NOT FINISHED — where Learning Psychology reaches the AI.** It goes to the prompt only
+> alongside Facilitation 101's learn reference. At ~6,000 characters, attaching it to every client
+> recommendation is a real cost and was **not** made a default. **Mike's call, outstanding.**
+>
+> **⚠ NEW FINDING, RECORDED NOT FIXED — the five drivers now exist twice.** Learning Psychology
+> carries the source definitions; `data/staff-domain-support.json`'s *"5 Drivers of Human Output —
+> Performance Diagnosis"* row paraphrases them for a diagnosis. Two copies is how content drifts
+> apart here (see the `single-source-wiring` skill). **Needs Mike's call; not reconciled.**
+>
+> **NEW — 4.36, the Model Guide search is literal to the point of uselessness.** Reported by Mike
+> and **reproduced in the running app the same hour**: *"Investing in houses"* returns *no models
+> match* while the property model sits in the library. Two faults, not one: `haystack(m).includes(q)`
+> in [`../components/ModelGuide.vue`](../components/ModelGuide.vue) matches the query as ONE whole
+> phrase, so *"investment property"* fails though both words are present; and nothing maps an
+> advisor's vocabulary (*houses*, *landlord*) onto the page's (*property*, *rental*). ⚠ **The
+> tempting fix is the wrong one** — with ~18 models a confidently wrong match is worse than a miss,
+> because the advisor carries it into a client meeting.
+>
+> **ALSO — the Model Library's way into the Model Guide is a button, not a line of prose.** Mike,
+> opening the page: it *"should be a clear button so a user can see easily — not a hyperlink"*. It
+> was a 12.5px underlined line that read as a sentence. Now a filled button, still a `nuxt-link`
+> underneath so open-in-new-tab keeps working. The label lost its explaining half by his choice.
+> Commit `06368e0`.
+>
+> ⚠ **NO ARTEFACT WAS SAVED FOR EITHER OF TODAY'S TWO SCREENS.** A mockup of the button was offered
+> and declined (*"just get it done"*), and none was drawn for the two new pages. **This is the
+> `save-the-artefact` rule not being met**, recorded here rather than left silent: if either screen
+> is disputed later, there is nothing to put beside it. Both were instead verified by driving a real
+> browser at all four tiers, which is evidence of what shipped but not of what was agreed.
+>
 > ## ✅ SESSION 81 — 2026-08-22 (laptop). **4.34 CLOSED**, AND A BRIEF THAT HAD GONE FALSE.
 >
 > **Three commits, all pushed. Suite 329 suites / 6,101 green**, lint 0 errors, audit gate PASS.

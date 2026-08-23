@@ -38,17 +38,16 @@ repository sees; the two never both appear, and the build stops if they would.
 | 1 | **2.9** The education-gate wording | 4 | — | **Mike** |
 | 2 | **4.7** Flip engine-strict back on | 5 | — | Us |
 | 3 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
-| 4 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | **Mike** |
-| 5 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
-| 6 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
-| 7 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
-| 8 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
-| 9 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
-| 10 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
-| 11 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
-| 12 | **4.35** Domain support general content | 3 | — | Us |
+| 4 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
+| 5 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
+| 6 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
+| 7 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
+| 8 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
+| 9 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
+| 10 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
+| 11 | **4.36** The Model Guide search only matches the exact words the page happens to use | 3 | — | Us |
 
-**Twelve live items. Three need Mike.** If this list passes about twenty, something is wrong.
+**Eleven live items. Two need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off on 2026-08-22, and one joined and left the same day** — see

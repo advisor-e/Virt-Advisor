@@ -114,24 +114,25 @@ describe.each(GUIDES)('method guide — $id', (guide) => {
   })
 })
 
-describe('the fourteen as a whole', () => {
-  test('there are fourteen, not twelve', () => {
+describe('the fifteen as a whole', () => {
+  test('there are fifteen, not twelve', () => {
     // The build spec said twelve: `powerful-seminars.json` is not named
     // `*-reference.json`, so a file-pattern sweep missed it. A count taken from a
     // filename pattern is a count of filenames.
-    // The fourteenth is The 3 Engagement Types (item 4.16 D, 2026-08-23).
-    expect(GUIDES).toHaveLength(14)
+    // The fourteenth is The 3 Engagement Types (item 4.16 D) and the fifteenth is
+    // Productive Habits (item 4.35), both 2026-08-23.
+    expect(GUIDES).toHaveLength(15)
     expect(GUIDE_BY_ID.public_speaking.file).toBe('powerful-seminars.json')
   })
 
-  test('two are standing, and the second is The 3 Engagement Types', () => {
+  test('three are standing, in the order Mike asked for them', () => {
     const standing = GUIDES.filter(g => g.standing)
-    // 🔴 ORDER IS THE RULING. Mike, 2026-08-23, asked for three times: the
-    // engagement types are their OWN page listed UNDER Facilitation 101 — not
-    // something reached by opening Facilitation 101. The rail renders standing
-    // guides in this order, so this array IS the on-screen order.
-    expect(standing.map(g => g.id)).toEqual(['facilitation_101', 'engagement_types'])
-    // Neither has a material row anywhere, and inventing one would file it under a
+    // 🔴 ORDER IS THE RULING. Mike, 2026-08-23: the engagement types are their OWN
+    // page listed UNDER Facilitation 101 — not something reached by opening it — and
+    // Productive Habits is a separate page again, under both. The rail renders
+    // standing guides in this order, so this array IS the on-screen order.
+    expect(standing.map(g => g.id)).toEqual(['facilitation_101', 'engagement_types', 'productive_habits'])
+    // None has a material row anywhere, and inventing one would file it under a
     // single domain when it is true of all of them.
     for (const g of standing) { expect(g.rows).toEqual([]) }
   })
@@ -404,5 +405,86 @@ describe('The 3 Engagement Types', () => {
     expect(formatEngagementTypeForPrompt('nonsense')).toBe('')
     expect(formatEngagementTypeForPrompt('')).toBe('')
     expect(formatEngagementTypeForPrompt(undefined)).toBe('')
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LEARNING PSYCHOLOGY — item 4.35, built and named 2026-08-23.
+//
+// Mike: "the drivers of human performance, reaction to learning and 5 steps in
+// making a new habit ... as a separate editable page ... showing under the
+// facilitation 101 page and the engagement types pages." Named by him the same day.
+//
+// ⚠ THE PAGE IS "Learning Psychology"; THE RECORD IS STILL `productive_habits`.
+// The id is the storage key a firm's saved wording is filed under, so it is not
+// renamed with the page — doing so would orphan every override saved before the
+// rename, silently. Same for data/productive-habits.json.
+//
+// 🔴 THE CONTENT IS TRANSCRIBED, NOT AUTHORED. The item says so in terms: these are
+// the master app's own frameworks with their own wording, from 'Productive
+// Habits.pdf'. These tests pin the exact source sentences, so a later edit that
+// quietly rewrites the master template into something more fluent fails.
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Learning Psychology', () => {
+  const content = loadGuideBase('productive_habits')
+
+  test('the five drivers are the template five, with the template definitions', () => {
+    const drivers = content.five_drivers_of_human_output.drivers
+    expect(drivers.map(d => d.name)).toEqual([
+      'Knowledge',
+      'Skill',
+      'Resource (and Planning)',
+      'Environment (internal / external)',
+      'Mind Set (mental state / attitude)'
+    ])
+    // Verbatim from the source. Not a summary of it.
+    expect(drivers[0].definition).toBe(
+      'New Information that is mixed with past experience to create Self Relevance, Recognition and Comprehension.'
+    )
+    expect(drivers[4].definition).toContain('(self talk) dialogue')
+  })
+
+  test('the five habit steps are in order, each with the worked example', () => {
+    const steps = content.five_steps_to_building_new_habits.steps
+    expect(steps.map(s => s.name)).toEqual([
+      'Reason', 'Trigger', 'Micro Habit', 'Effective Practice', 'Plan'
+    ])
+    expect(steps.map(s => s.step)).toEqual([1, 2, 3, 4, 5])
+    for (const s of steps) {
+      expect(typeof s.perspective).toBe('string')
+      expect(s.example.trim().length).toBeGreaterThan(20)
+    }
+    expect(steps[2].example).toContain('2 packets per day')
+  })
+
+  test('the emotional reaction to learning keeps the line the whole idea rests on', () => {
+    const e = content.emotional_reaction_to_learning
+    expect(e.what_actually_happens).toContain('EMOTIONAL REACTION')
+    expect(e.what_actually_happens).toContain('single biggest obstacle')
+  })
+
+  test('the learning path keeps all eleven stages, in order', () => {
+    const path = content.progressive_learning_path.the_path_in_order
+    expect(path).toHaveLength(11)
+    expect(path[0]).toBe('Information')
+    expect(path[path.length - 1]).toContain('Wisdom')
+  })
+
+  test('the ligatures the PDF font dropped are repaired, not left as holes', () => {
+    // The source renders "e ectiveness", "Re ections", "sta ", " nish". A
+    // transcription that shipped those would read as typos in front of a client.
+    const all = JSON.stringify(content)
+    for (const hole of ['e ectiveness', 'Re ection', 'sta  member', ' nish line', 'speci c']) {
+      expect(all).not.toContain(hole)
+    }
+    expect(all).toContain('effectiveness')
+    expect(all).toContain('Reflections')
+  })
+
+  test('every authored line reaches the prompt', () => {
+    const rendered = formatGuideForPrompt('productive_habits')
+    const authored = authoredStrings(content, [])
+    expect(authored.filter(x => !rendered.includes(x))).toEqual([])
   })
 })

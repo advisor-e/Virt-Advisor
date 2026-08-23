@@ -229,6 +229,46 @@ const GUIDES = [
     // fields that are the point of the page. Hidden here rather than in the walker so
     // screen and prompt still see ONE document — the guarantee this module exists for.
     hide: ['id', 'type', 'defaultEngagement']
+  },
+  {
+    // 🔴 PRODUCTIVE HABITS — the third standing page, listed under the other two.
+    // Item 4.35, asked for by Mike 2026-08-23: "the drivers of human performance,
+    // reaction to learning and 5 steps in making a new habit ... as a separate
+    // editable page ... showing under the facilitation 101 page and the engagement
+    // types pages."
+    //
+    // WHY IT BELONGS BESIDE THEM RATHER THAN INSIDE EITHER. Facilitation 101 says
+    // how to introduce a concept; The 3 Engagement Types says which relationship the
+    // work is. Both rest on the same psychology — how a person reacts to learning at
+    // all, and what turns a decision into a habit afterwards. The AI was being asked
+    // to deliver both while that psychology was named in the template and held
+    // nowhere in this repo, so it improvised the part that decides whether a client
+    // accepts the concept.
+    //
+    // ⚠ SOURCE: transcribed from 'Productive Habits.pdf' (the master app's own
+    // template, data/templates.json index 27), NOT authored from general knowledge —
+    // the item says so in terms. The PDF's ligatures are dropped by its font subset
+    // ("e ectiveness", "Re ections"); those are repaired and nothing else is changed.
+    // Two slides are deliberately not transcribed: the session housekeeping slide and
+    // the blank worksheet, neither of which is content the AI can use.
+    //
+    // ⚠ KNOWN OVERLAP, RECORDED RATHER THAN LEFT TO DRIFT. The five drivers are also
+    // defined in data/staff-domain-support.json's "5 Drivers of Human Output —
+    // Performance Diagnosis" row, where they serve a DIAGNOSIS (which driver is
+    // failing). These are the source definitions the diagnosis paraphrases. Two
+    // copies is how content drifts apart in this repo; reconciling them is its own
+    // change and needs Mike's call, so it is named here and in ACTIONS rather than
+    // done quietly.
+    id: 'productive_habits',
+    file: 'productive-habits.json',
+    // ⚠ THE ID AND THE FILENAME KEEP THE OLD NAME ON PURPOSE. `id` is the storage
+    // key a firm's saved wording is filed under; renaming it would orphan every
+    // override written before the rename, silently. The page is called Learning
+    // Psychology (Mike, 2026-08-23); the record it is stored as is not renamed with it.
+    label: 'Learning Psychology',
+    heading: '## Learning Psychology — Detailed Coaching Reference',
+    standing: true,
+    rows: []
   }
 ]
 

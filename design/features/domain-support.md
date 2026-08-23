@@ -60,14 +60,51 @@ screen therefore does not offer either — **never offer a control that does not
 OWN situations can be renamed and removed freely. Removing an inherited one needs a different
 store, not a button, and is an open decision.
 
-**P3c · A method guide surfaces on this tab, from the framework row it belongs to.** The thirteen
-deep method guides are the full version of a framework this tab already lists, so the guide opens
-from that row rather than living on a page of its own — *"how do I run this session"* is this tab's
-question. **They get the same tiers as the materials table around them:** the mentor authors, and
-global group, group and firm managers each inherit and may reword their own copy. ⚠ **That is the
-opposite of P3a's block**, which was ruled mentor-only because it is routing logic — the ruling was
-*asked* rather than carried across, and asking changed the answer. Ruled by Mike, 2026-08-17;
-artefact [`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md).
+**P3c · A method guide surfaces on this tab, from the framework row it belongs to.** The deep method
+guides are the full version of a framework this tab already lists, so such a guide opens from that
+row rather than living on a page of its own — *"how do I run this session"* is this tab's question.
+**They get the same tiers as the materials table around them:** the mentor authors, and global
+group, group and firm managers each inherit and may reword their own copy. ⚠ **That is the opposite
+of P3a's block**, which was ruled mentor-only because it is routing logic — the ruling was *asked*
+rather than carried across, and asking changed the answer. Ruled by Mike, 2026-08-17; artefact
+[`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md).
+
+**P3d · THREE guides belong to no domain and are pages in their own right, listed above the
+domains under *Applies to every domain*.** In this order, which is the order on screen:
+
+| | Page | Why it belongs to no single domain |
+|---|---|---|
+| 1 | **Facilitation 101** | The universal 3-stage protocol for introducing *any* concept to a client. Ruled 2026-08-17. |
+| 2 | **The 3 Engagement Types** | Whether the work is Education, Facilitation or Advice — the relationship, not the subject. Ruled 2026-08-23. |
+| 3 | **Learning Psychology** | The psychology both of the above rest on: how a person reacts to learning, and what turns a decision into a habit. Ruled and named 2026-08-23. |
+
+🔴 **"Under" means listed beneath, NOT opened from.** Mike ruled this three times on 2026-08-23,
+after a build that read it the other way: each of the three is **its own page**, reached from the
+list. None is a tab, a section or a panel inside another. A future change that nests one inside
+another is a regression, and `tests/unit/methodGuides.test.js` fails on the order.
+
+⚠ **P3c's "from the framework row it belongs to" therefore describes twelve of the fifteen, not
+all of them.** A guide with no row renders as a standing page instead; the screen reads the
+`standing` flag from the data rather than naming any guide, so a fourth would need no code change
+here.
+
+**P3e · What each of the three sends to the AI, which is not the same for all three.**
+
+- **Facilitation 101** — reaches the prompt through its own learn tree, as every row-attached guide does.
+- **The 3 Engagement Types** — reaches the CLIENT-mode situation brief, replacing a hardcoded
+  three-line paraphrase that had stood in for the authored fields (item 4.16 D). Only the type the
+  engine selected is sent, not all three.
+- **Learning Psychology** — reaches the prompt **only** alongside Facilitation 101's learn
+  reference. It is ~6,000 characters; attaching it to every learn tree would spend that on guides it
+  has nothing to do with, and attaching it to every client recommendation would spend it on every
+  answer the product gives. ⚠ **Where else it should go is an open decision for Mike**, recorded
+  rather than defaulted.
+
+⚠ **Known duplication, recorded so it cannot drift quietly.** Learning Psychology's five drivers are
+also defined in [`../../data/staff-domain-support.json`](../../data/staff-domain-support.json), in
+the *"5 Drivers of Human Output — Performance Diagnosis"* row, where they serve a diagnosis of which
+driver is failing. Learning Psychology carries the source definitions that row paraphrases.
+Reconciling the two is its own change and needs Mike's call.
 
 **P4 · Overrides are sparse and merge per field.** A level stores only what it changed, and the
 rest keeps tracking the platform. **Arrays are the exception — they replace wholesale**, so

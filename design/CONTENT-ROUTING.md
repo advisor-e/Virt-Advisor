@@ -588,7 +588,7 @@ Required only by courseEngine.js. No require chain reaches them from the advisor
 Stated rather than left to be inferred — an audit that hides its own edges is worse than
 no audit, because it reads as complete.
 
-- **34 data files are not classified.** They are listed below by name.
+- **35 data files are not classified.** They are listed below by name.
   This list is DERIVED from what is on disk, not typed out, so a new data file appears
   here by itself rather than waiting for someone to remember it.
 
@@ -614,6 +614,7 @@ no audit, because it reads as complete.
   - `data/loan-criteria.json`
   - `data/powerful-seminars.json`
   - `data/primary-issues.json`
+  - `data/productive-habits.json`
   - `data/property-tax-rules.json`
   - `data/quizzable-sections.json`
   - `data/ratio-analysis-reference.json`

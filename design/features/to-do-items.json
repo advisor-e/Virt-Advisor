@@ -93,25 +93,6 @@
       "comment": null
     },
     {
-      "ref": "4.16",
-      "name": "Check every block's authored fields actually reach the prompt",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "THE SWEEP IS DONE (2026-08-16) and it found 102 pieces of authored advisory content reaching no prompt. FIVE OF THE SEVEN WORK ITEMS ARE NOW CLOSED (sessions 64-65): E the staircase question, C the 13 learn-table opening questions plus 2 standing rules, A+B all 65 diagnostic_entry branches plus the 26 entry questions, and G proved a true duplicate needing no work. What remains is F -- the method guides, whose DESIGN IS NOW SETTLED (2026-08-17) and whose BUILD IS NOT STARTED -- and D, the engagement types, which waits on Mike.",
-      "risk": "Worse than first filed, and worse again since 2026-08-17. NO SCREEN RENDERED ANY OF THEM EITHER, so the content was invisible in both directions and no test could find it: every test asks whether a field was SAVED, none asks whether it was USED. That is now closed for the domain-support and logic-table blocks. It is still open for the 13 method guides (F) -- and they are NOT read by the AI in full as this row long claimed: 116 of the 954 authored lines across them reach no prompt at all, because each formatter names its fields by hand and anything authored later is never mentioned again. 62 of the 116 are in Dashboard Discussions, including the discussion questions authored against every one of its twelve metrics.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "Found while closing 4.9 on 2026-08-15 and shown to Mike with the rendered prompt as proof. Every scope ruling since is his: the hub-page cascade (2026-08-16), Domain Support as the home for the branches (2026-08-16), and all screen wording on both blocks."
-      },
-      "touches": "The 13 method guide files -- 12 named data/*-reference.json plus data/powerful-seminars.json -- their 13 hand-written formatters in server/utils/logicTrees.js, and the Domain Support tab where they surface (F); data/engagement-types.json and whichever page Mike rules is its home (D).",
-      "note": "🔴 TWO PARTS LEFT AND THEY MOVE INDEPENDENTLY. F IS OURS AND CAN START NOW; D CANNOT START AT ALL WITHOUT MIKE, which is why this row says Mike. 🔴 READ design/4-16-BUILD-SPEC.md WITH ITS SUPERSEDED BANNER, then design/DOMAIN-DIAGNOSTIC-BRANCHES.md and design/LEARN-TREE-OPENING-QUESTION-FIELD.md. DO NOT re-derive the analysis. WHAT IS LEFT, and only these two: F -- THIRTEEN method guides, not twelve (powerful-seminars.json is the thirteenth; it is not named *-reference.json so a file-pattern sweep misses it, and LEARN_REFERENCE_FORMATTERS treats it identically). 🔴 F'S DESIGN IS SETTLED AND ITS BUILD IS NOT STARTED -- read design/METHOD-GUIDES-SCREEN.md and design/mockups/method-guides.html and BUILD; the artefact, all four wordings and the tier ruling are done (2026-08-17) and must not be re-asked. Each guide opens from the framework row it already has on Domain Support, at the same tiers as the materials table; Facilitation 101 has no row anywhere and gets its own entry above the domains. 🔴 IT IS NOT ONLY A SCREEN: 116 of 954 authored lines inside the guides reach no prompt, so screen and prompt get built from ONE walk of each guide's own shape rather than thirteen hand-listed formatters. 155,000 characters, 21% shared fields, 44% staged sequence, 35% blocks unique to one guide. D -- engagement types, 3 types x 6 authored fields, behind a hardcoded paraphrase at advisorEngine.js ~line 2836. NO PAGE EXISTS AT ANY TIER and Mike must rule where it lives before anything starts. ⚠ THREE EARLIER PLANS IN THIS ITEM ARE WITHDRAWN, all by evidence: (1) 'mentor tier only' and 'ship it filled by authoring the ten empty domains' -- the ten are NOT empty (Mike, session 63: 'the domain support material exists, I created it'), and the block built in session 65 cascades mentor->firm like every other. (2) 'Retire ~55 duplicate branches' -- tested text by text and FALSE; nothing was deleted. (3) 'Put the 65 on Coaching Reference' -- they are Domain Support content (Mike, 2026-08-16). METHOD, unchanged and proven five times: render the real prompt and read it, never inspect the store.",
-      "comment": null
-    },
-    {
       "ref": "4.17",
       "name": "A screen can show one row when 67 exist, and say nothing",
       "score": 2,
@@ -245,23 +226,22 @@
       "comment": null
     },
     {
-      "ref": "4.35",
-      "name": "Domain support general content",
+      "ref": "4.36",
+      "name": "The Model Guide search only matches the exact words the page happens to use",
       "score": 3,
-      "scoreReason": "sells the package",
+      "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "Why does this matter? It supports the AI coach in its understanding of human adoption and resistence to change or new information.",
-      "risk": "The AI is asked to deliver Facilitation 101 and the three engagement types while the psychology those deliveries rest on is named in the templates and held nowhere in this repo, so it improvises the part that decides whether a client accepts the concept at all. And because it is authored content the AI reads, CLAUDE.md's binding hub-page rule applies: wiring it into the prompt WITHOUT a screen would leave it live and untouchable - the exact state the 4.16 sweep found 102 times over.",
+      "why": "The search on /model-guide matches ONE whole phrase against one joined string: haystack(m).includes(q) in components/ModelGuide.vue. So it finds a model only when the advisor happens to type a run of words that appears verbatim in that model's own text. It cannot match two words that are both present but not adjacent, and it knows no synonyms - the property model calls its subject 'property' and 'rental', so an advisor who thinks in 'houses' is told the library holds nothing.",
+      "risk": "REPRODUCED IN THE RUNNING APP, 2026-08-23, exactly as Mike reported: 'Investing in houses' returns 'no models match' while the Multiple Property Assessment model sits in the library. It is not one unlucky phrase - 'houses' returns nothing, and so does 'investment property', because those two words never sit next to each other in the text. Only the single word 'property' or 'rental' finds it. The screen exists so an advisor can choose the right model BEFORE opening one; a search that answers 'nothing here' to a fair description of what they want defeats the page, and does it silently - the advisor concludes the product cannot help rather than that the search is narrow.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
-        "detail": "Asked by Mike on 2026-08-23 through the Handbook ranking control. His words are kept verbatim in `yourComment` on this item rather than summarised. The source template is \"Productive Habits\" - the PDF he saved to Downloads at 12:21 the same day, and the template of that name in data/templates.json (index 27), whose support tags are exactly \"Emotional reaction to learning; the progressive learning path; 5 Drivers of human output/productivity; 5 Steps to building new habits\"."
+        "detail": "Reported by Mike on 2026-08-23 while looking at the Model Guide: 'the search function in the models summary is too literal. I typed \"Investing in houses\" and it failed to find the property assessment model.' Verified the same day by driving the running page rather than by reading the code."
       },
-      "touches": "What else moves if this moves? The general advice and appropriateness of the content and AI discussion",
-      "note": "SOURCE: 'Productive Habits.pdf', saved by Mike to Downloads 2026-08-23. DO NOT AUTHOR THIS CONTENT FROM GENERAL KNOWLEDGE - these are the master app's own frameworks with their own wording. WHEN BUILDING: the table is a HUB PAGE first (CLAUDE.md, ruled 2026-08-16 - start at the mentor tier and cascade down), the wording is Mike's to approve, and the artefact is committed BEFORE he approves it. CHECK data/staff-domain-support.json FIRST - the 5 Drivers already exist there in prose, and a second copy is how content drifts apart in this repo (see the single-source-wiring skill).",
-      "comment": "i want you to review this template that includes the emotional reaction towards learning, the 5 drivers of human performance and the 5 steps in forming a habit. Create an editable table, using this content, in the domain support section, under the facilitation 101 pages and the 3 engagemebt types pages, so the AI can read them and utilise them in its delivery. The content must be editable in case a firm manager, mentor, global manager etc disagrees with them or wants to add to them in any way"
+      "touches": "What else moves if this moves? Only the Model Guide search. The catalogue, the models and the report screens are untouched - this is how the page filters what it already has.",
+      "note": "TWO SEPARATE FAULTS, and the cheap one is not the interesting one. (1) WHOLE-PHRASE MATCHING: split the query into words and require every word to appear somewhere in the haystack, which fixes 'investment property' and any other pair of words the advisor uses in their own order. (2) NO VOCABULARY: 'houses', 'landlord', 'rental yield' are what an advisor says; 'property' is what the page says. That needs a small authored synonym list per model - and under CLAUDE.md's hub-page rule, authored content the product reads belongs on a screen, not buried in a component. CHECK FIRST whether data/report-model-summaries.json is the right home for it, beside the model's other authored lines, rather than inventing a second store. DO NOT reach for fuzzy matching or an embedding search: this library holds ~18 models, and a wrong-but-confident match is worse here than a miss, because the advisor takes the suggestion into a client meeting."
     }
   ]
 }

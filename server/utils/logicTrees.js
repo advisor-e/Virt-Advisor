@@ -791,6 +791,21 @@ function buildLearnReferenceText (tree, guideOverrides) {
     if (ref) { text += '\n\n---\n\n' + ref }
   }
 
+  // 🔴 THE PSYCHOLOGY UNDER THE DELIVERY (item 4.35, 2026-08-23). Facilitation 101
+  // teaches HOW to introduce a concept; Productive Habits is why the sequence works
+  // at all — how a person reacts to learning, and what turns their decision into a
+  // habit afterwards. Without it the model is asked to run the protocol and left to
+  // improvise the part that decides whether the client accepts the concept.
+  //
+  // ⚠ ONLY ON THIS TREE, deliberately. The block is ~6,000 characters; attaching it
+  // to every learn tree would spend that on guides it has nothing to do with, and
+  // attaching it to every client recommendation would spend it on every answer the
+  // product gives. Where else it should go is Mike's call, not a default.
+  if (tree.id === 'facilitation_101') {
+    const habits = formatGuideForPrompt('productive_habits', guideOverrides)
+    if (habits) { text += '\n\n---\n\n' + habits }
+  }
+
   return text
 }
 

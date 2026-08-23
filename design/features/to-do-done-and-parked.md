@@ -219,6 +219,64 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.16 · 102 pieces of authored advice the AI never saw — the last part closed.** ✅ Closed
+2026-08-23, session 82. The sweep began 2026-08-16; D was the last of its seven parts.
+
+- **What D was:** `data/engagement-types.json` holds 3 engagement types × 6 authored fields.
+  **None reached a prompt and none reached a screen.** `server/advisorEngine.js` emitted a
+  hardcoded three-line paraphrase in their place — *"client lacks knowledge — teach and build up
+  sequentially"* and two like it. The build spec called it *"the only one with no page"* and
+  *"the one genuinely homeless item"*.
+- **What closed it:** **The 3 Engagement Types** is now its own page in Domain Support, listed
+  under Facilitation 101, editable at all four tiers, and the client-mode prompt reads that same
+  document through the same tier overrides — fenced as untrusted data when any tier has reworded
+  it. `341402f`.
+- 🔴 **It waited seven days on a decision, and the decision took one sentence.** The item said
+  *"Mike must rule where it lives before anything starts"*, and it was carried unasked through
+  four sessions of notes. When he was finally asked he answered immediately. **An item blocked on
+  a question nobody puts is not blocked; it is forgotten.** That is the transferable part.
+- 🔴 **AND THIS ITEM'S OWN RECORD WAS FALSE WHILE IT SAT THERE.** Its `why` said part F — the
+  method guides — *"DESIGN IS NOW SETTLED AND BUILD IS NOT STARTED"*. F was built on 2026-08-17
+  (`server/utils/methodGuides.js`, all thirteen guides, on screen at every tier); it was verified
+  by opening those screens in a browser on 2026-08-23. So the list told Mike this item needed
+  **him**, when half of what it named was already shipped. Same family as 4.26 above and as
+  session 81's false Brief: **the record keeps its own account, and nothing compares it to the
+  code.**
+
+**4.35 · Domain support general content — the psychology under the delivery.** ✅ Raised and
+closed 2026-08-23, session 82. Asked by Mike through the Handbook control that morning, built the
+same afternoon.
+
+- **What he asked for:** *"the drivers of human performance, reaction to learning and 5 steps in
+  making a new habit — as a separate editable page — showing under the facilitation 101 page and
+  the engagement types pages."* Named by him the same day: **Learning Psychology**.
+- **What shipped:** a third standing page in Domain Support, under the other two, editable at all
+  four tiers: the emotional reaction to learning, the eleven-stage progressive learning path, the
+  5 Drivers of Human Output with their definitions, the 5 Steps to Building New Habits with the
+  smoking worked example, and the interference-triggers block with its compliance-deadlines
+  example.
+- 🔴 **The content is TRANSCRIBED, not authored.** From `Productive Habits.pdf` — the master app's
+  own template, `data/templates.json` index 27 — as the item demanded in terms. The PDF's font
+  subset drops its ligatures (*"e ectiveness"*, *"Re ections"*, *" nish line"*); those are repaired
+  and nothing else is changed. Tests pin the exact source sentences and fail if the holes return,
+  so a later hand cannot quietly rewrite the master template into something more fluent.
+- **Two slides deliberately not transcribed:** the session housekeeping slide and the blank
+  worksheet. Neither is content the AI can use. Recorded so nobody wonders where they went.
+- ⚠ **The page is Learning Psychology; the record is still `productive_habits`** — and
+  `data/productive-habits.json` keeps its name. The id is the storage key a firm's saved wording
+  is filed under, so renaming it with the page would orphan every override saved before the
+  rename, silently.
+- ⚠ **WHERE ELSE IT REACHES THE AI IS STILL MIKE'S CALL.** It goes to the prompt only alongside
+  Facilitation 101's learn reference. It is ~6,000 characters, so putting it on every client
+  recommendation is a real cost and was not made a default. **This is a live open question, not a
+  finished decision.**
+- ⚠ **A duplication was found and NOT resolved.** The five drivers are also defined in
+  `data/staff-domain-support.json` — the *"5 Drivers of Human Output — Performance Diagnosis"* row
+  — where they serve a diagnosis. Learning Psychology carries the source definitions that row
+  paraphrases. Two copies is how content drifts apart here. **Recorded, not reconciled; it needs
+  Mike's call.**
+
+
 **4.26 · The Model Library card promised one rental property, not five.** ✅ Closed
 2026-08-23, session 82. Marked Done by Mike from the Handbook control.
 
