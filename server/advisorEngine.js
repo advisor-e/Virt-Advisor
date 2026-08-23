@@ -44,6 +44,16 @@ const { buildPriorEngagementSummary, formatPriorEngagementText, deriveHistorySco
 
 const { loadBlendedStaircase, resolveStaircaseStep, BASE_STAIRCASE } = require('../server/utils/staircaseConfig')
 
+// The education gate (item 2.9) — the question asked before any recommendation when the
+// client cannot read their own numbers. It NEVER changes what is selected, only whether
+// the advisor is asked. See server/utils/educationGate.js and design/EDUCATION-GATE.md.
+const {
+  loadResolvedEducationGate,
+  detectLiteracyGap,
+  buildAcknowledgement: buildGateAcknowledgement,
+  readAnswer: readGateAnswer
+} = require('../server/utils/educationGate')
+
 // Reference data
 const DOMAINS = require('../data/domains.json')
 
@@ -1714,10 +1724,25 @@ async function handleQuery (rawBody, res, identity) {
   // rejects — so it needs no readForSession wrapper.
   const firmMethodGuides = await loadResolvedGuideOverrides(firmId, loadFirmConfig)
 
+  // The education gate this scope works to (item 2.9). Loaded here with the other
+  // per-request overlays because the question pipeline's skip() is synchronous — the
+  // wording and the trigger phrases have to be in hand before the sequencer runs.
+  // Its loader absorbs a storage fault itself and falls back to the platform default,
+  // so a failed read degrades to the shipped question rather than switching the gate off.
+  const educationGate = await loadResolvedEducationGate(firmId, loadFirmConfig)
+
   if (!query || !query.trim()) {
     sendError(res, 400, 'QUERY_REQUIRED', 'Query is required')
     return
   }
+
+  // The education gate's acknowledgement (item 2.9), handed from the client-mode block to
+  // the shared streaming section below — the same shape `learnDomainSupportText` uses.
+  //
+  // 🔴 IT IS WRITTEN AS ITS OWN SSE DELTA, NOT PUT IN THE PROMPT. The 2026-07-16 ruling
+  // requires the reasoning to be shown either way; a model asked nicely to open with a
+  // sentence is a model that sometimes does not. This one is deterministic.
+  let educationGateAck = null
 
   // ─────────────────────────────────────────────────────────────────
   // CLIENT MODE SEQUENCER
@@ -1756,6 +1781,14 @@ async function handleQuery (rawBody, res, identity) {
       salesProductFit: null,
       // Forecasting scenario question (droptab)
       forecastingTheme: null,
+      // The education gate (item 2.9). `educationGateAnswer` is what the advisor typed or
+      // clicked — the sequencer's own field. `educationGateChoice` is the normalised option
+      // value the rest of the engine reads; the two are separate because a free-text answer
+      // ("yes please") must be kept as given AND resolved to a decision.
+      educationGateAnswer: null,
+      educationGateChoice: null,
+      educationGatePhrase: null,
+      educationGateRetried: false,
       // Shared Phase 1 questions
       ownership: null,
       growthStage: null,
@@ -1965,6 +1998,25 @@ async function handleQuery (rawBody, res, identity) {
     // Full sequence of questions in order. Each has an optional skip() condition.
     // The sequencer asks the first unanswered, non-skipped question, then stops.
     const isNFPorPublic = s => s.ownership && /not.for.profit|nfp|non.profit|public|listed/i.test(s.ownership)
+
+    /**
+     * Everything the advisor has typed in this case, for the education gate's detection.
+     *
+     * ⚠ Deliberately NOT just the opening line. The 2026-08-16 ruling is that the gate
+     * fires wherever poor financial literacy shows up — and it usually shows up in the
+     * answer to "what contributed to this situation", not in the opener, which is often
+     * a generic "I have a client situation". This is the same lesson `_advisorFullText`
+     * further down learned the hard way for crisis detection.
+     *
+     * @param {object} s - conversation state
+     * @returns {string} the advisor's words, joined
+     */
+    const gateTextOf = s => [
+      ...(conversationHistory || []).filter(m => m.role === 'user').map(m => m.content),
+      s.situationDiagnostic || '',
+      s.clientAlreadyTried || '',
+      s.domainConfirmed || ''
+    ].filter(t => t && t !== 'pending' && t !== 'skipped').join(' ')
 
     const QUESTIONS = [
       {
@@ -2250,6 +2302,53 @@ async function handleQuery (rawBody, res, identity) {
       {
         field: 'advisorSessionLength',
         text: 'How long can you allow per meeting?\n[SESSION_LENGTH_SELECTOR]'
+      },
+      // ── The education gate (item 2.9) ────────────────────────────────────────
+      // 🔴 LAST ON PURPOSE. Mike's 2026-07-16 ruling calls for a PRE-RECOMMENDATION
+      // prompt: everything else has been asked, nothing has been recommended yet.
+      // Moving it earlier changes what it means — it would interrupt the diagnosis
+      // rather than sit between the diagnosis and the advice.
+      //
+      // 🔴 IT ASKS ONCE. Once the field holds an answer, skip() is never reached for it
+      // again, so an advisor is not asked twice in one case.
+      //
+      // ⚠ THIS QUESTION CHANGES NOTHING ABOUT WHICH TEMPLATES ARE RECOMMENDED. It sets a
+      // sequencing preference the strategy resolver reads. See design/EDUCATION-GATE.md §5c
+      // for why that separation is structural rather than a promise.
+      {
+        field: 'educationGateAnswer',
+        skip: (s) => {
+          // Prep mode has no client to pitch to, and the gate is a question about how to
+          // pitch to one.
+          if (s.prepMode) { return true }
+          const { detected, phrase } = detectLiteracyGap(gateTextOf(s), educationGate.phrases)
+          if (!detected) { return true }
+          // Remember the words that triggered it, for the reason line after the answer.
+          s.educationGatePhrase = phrase
+          return false
+        },
+        textFn: () => educationGate.question,
+        onAnswer: (answer, s) => {
+          const choice = readGateAnswer(educationGate, answer)
+          if (choice) {
+            s.educationGateChoice = choice
+            educationGateAck = buildGateAcknowledgement(educationGate, choice, s.educationGatePhrase)
+            return
+          }
+          // Not recognisable. Ask once more rather than guessing — picking a pitch for a
+          // client on an unreadable answer is worse than one extra question.
+          if (!s.educationGateRetried) {
+            s.educationGateRetried = true
+            s._forceAskField = 'educationGateAnswer'
+            s._forceAskPrompt = 'Sorry — I did not follow that. ' + educationGate.question
+            return
+          }
+          // Asked twice and still unclear. Fall back to the option that changes NOTHING
+          // about today's behaviour, so an unparsed answer can never quietly re-pitch the
+          // advice. `technical` leaves sequencing exactly where the engagement type put it.
+          s.educationGateChoice = 'technical'
+          educationGateAck = buildGateAcknowledgement(educationGate, 'technical', s.educationGatePhrase)
+        }
       }
     ]
 
@@ -3552,6 +3651,13 @@ async function handleQuery (rawBody, res, identity) {
   // Disable Nagle's algorithm so each SSE chunk is sent immediately
   if (res.socket) {
     res.socket.setNoDelay(true)
+  }
+
+  // The education gate's answer, read back before the recommendation (item 2.9). Written
+  // here rather than asked of the model, so "the reasoning shown either way" is a
+  // guarantee rather than an instruction the model may or may not follow.
+  if (educationGateAck) {
+    res.write('data: ' + JSON.stringify({ type: 'delta', text: educationGateAck + '\n\n' }) + '\n\n')
   }
 
   const _t0main = Date.now()

@@ -35,19 +35,18 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on |
 | --- | --- | --- | --- | --- |
-| 1 | **2.9** The education gate | 4 | — | Us |
-| 2 | **4.7** Flip engine-strict back on | 5 | — | Us |
-| 3 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
-| 4 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
-| 5 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
-| 6 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
-| 7 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
-| 8 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
-| 9 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
-| 10 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
-| 11 | **4.36** The Model Guide search only matches the exact words the page happens to use | 3 | — | Us |
+| 1 | **4.7** Flip engine-strict back on | 5 | — | Us |
+| 2 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
+| 3 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
+| 4 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
+| 5 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
+| 6 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
+| 7 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
+| 8 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
+| 9 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
+| 10 | **4.36** The Model Guide search only matches the exact words the page happens to use | 3 | — | Us |
 
-**Eleven live items. One needs Mike.** If this list passes about twenty, something is wrong.
+**Ten live items. One needs Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off on 2026-08-22, and one joined and left the same day** — see
@@ -391,15 +390,25 @@ question he has already answered.
      already said so — *"⚠ no code reads it"* — and so does the comment in
      [`../../components/VirtualAdvisor.vue`](../../components/VirtualAdvisor.vue). **So the signal
      did not fire in one domain out of eight. In that file it fires in none.**
-   - **There is a live literacy signal, and the check missed it.**
-     [`../../server/utils/signals.js`](../../server/utils/signals.js) raises
-     `FINANCIAL_FOUNDATIONS_GAP`, and [`../../server/utils/caseState.js`](../../server/utils/caseState.js)
-     turns it into the solution category `financial_literacy`. It is wired and working.
-   - **It is domain-locked — but to `data-systems`, not forecasting**, inside
-     `if (state.detectedDomain === 'data-systems')`, and it fires from exactly one intake question
-     about the chart of accounts. So the conclusion the ruling rests on survives — a client who
-     cannot read their numbers but came about staffing or profitability **would not trip the
-     gate** — but the thing to widen is not the thing this entry named.
+   - **There are TWO live literacy signals, and the check named neither.** ⚠ **This bullet was
+     itself corrected later the same day** — the first version of it named only the second of the
+     two below and called it "the" live signal. Recorded as wrong rather than rewritten, because
+     an incomplete correction is how the original error survived a month.
+     1. **`pd-35` in [`../../data/advisory-distinctions.json`](../../data/advisory-distinctions.json)**
+        — *"Poor financial literacy — owner focused on wrong numbers"*, six authored trigger
+        phrases, boost 5. Live: [`../../server/advisorEngine.js`](../../server/advisorEngine.js)
+        AI-classifies every advisor message against it. **Scoped to `forecasting`** — the engine's
+        own note reads *"Distinctions are evaluated only within the detected domain."* This is the
+        forecasting literacy content the entry above meant to point at, and it carries the exact
+        description it quoted.
+     2. **`FINANCIAL_FOUNDATIONS_GAP` in [`../../server/utils/signals.js`](../../server/utils/signals.js)**
+        → the `financial_literacy` category in [`../../server/utils/caseState.js`](../../server/utils/caseState.js).
+        **Scoped to `data-systems`**, and fired by exactly one intake question about the chart of
+        accounts.
+   - **So the ruling's conclusion survives intact** — a client who cannot read their numbers but
+     came about staffing or profitability **trips neither** — but every specific in the entry
+     above was wrong: wrong file, wrong count, and one of the two live signals is not in the
+     domain it named.
    - *(Smaller symptom of the same staleness: "eight domains". `primary-issues.json` has 11 domain
      keys; `domains.json` registers 22.)*
 

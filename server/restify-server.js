@@ -115,6 +115,7 @@ const reportRoute = require('./routes/report')
 const currencyRoute = require('./routes/currency')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
 const aiPromptsRoute = require('./routes/aiPrompts')
+const educationGateRoute = require('./routes/educationGate')
 const staircaseRoute = require('./routes/staircase')
 const { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 // Collaborate — the people layer and its template catalogue. Merged in from what
@@ -311,6 +312,16 @@ server.get('/api/firm-manager/ai-prompts', ...fmGuard, aiPromptsRoute.getForMana
 server.post('/api/firm-manager/ai-prompts', ...fmGuard, aiPromptsRoute.save)
 server.get('/api/firm-manager/ai-prompts/history', ...fmGuard, aiPromptsRoute.history)
 server.post('/api/firm-manager/ai-prompts/restore', ...fmGuard, aiPromptsRoute.restore)
+// The education gate (item 2.9) — the question an advisor is asked, before any
+// recommendation, when a client cannot read their own numbers. On a hub page because
+// Mike's 2026-08-16 ruling requires it: content that shapes what the AI does is edited on
+// a screen, mentor first, never only in a data file. Same shape and same guard as the two
+// blocks above — one set of routes for every tier, scoped to `req.firmId` from the verified
+// JWT and never to an id in the request body. design/EDUCATION-GATE.md §8.
+server.get('/api/firm-manager/education-gate', ...fmGuard, educationGateRoute.getForManager)
+server.post('/api/firm-manager/education-gate', ...fmGuard, educationGateRoute.save)
+server.get('/api/firm-manager/education-gate/history', ...fmGuard, educationGateRoute.history)
+server.post('/api/firm-manager/education-gate/restore', ...fmGuard, educationGateRoute.restore)
 server.get('/api/firm-manager/staircase', ...fmGuard, fm.getStaircase)
 server.post('/api/firm-manager/staircase', ...fmGuard, fm.saveStaircase)
 // The staircase cascade — one decision per request, mirroring the distinction routes

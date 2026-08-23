@@ -139,6 +139,13 @@ function buildCaseState (signals, state, staircase = ADVISORY_STAIRCASE) {
       ownershipType: get(SIGNAL_TYPES.BUSINESS_OWNERSHIP),
       urgency: deriveUrgency(signals)
     },
+    // The education gate's answer (item 2.9) — 'education_first', 'technical', or null
+    // when the gate never fired or was not answered. It is the ADVISOR'S decision, not a
+    // derived signal, which is why it is read straight from state rather than inferred:
+    // the whole point of the gate is that a person chose. Consumed by resolveStrategy.
+    educationChoice: (state.educationGateChoice === 'education_first' || state.educationGateChoice === 'technical')
+      ? state.educationGateChoice
+      : null,
     advisor: {
       confidence: advisorConfidence,
       experience: advisorExperience,

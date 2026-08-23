@@ -58,8 +58,12 @@ const MENTOR_BEFORE = [
  * - `aiPrompts` — Mike, 2026-08-21 (`AI-PROMPTS-PAGE.md`, item 4.28), naming all four
  *   manager tiers himself: *"a 'AI Prompts' page in the hub pages (Mentor, Global Group
  *   Manager, Group Manager and Firm Manager)"*.
+ * - `educationGate` — Mike, 2026-08-24 (`EDUCATION-GATE.md` §8, item 2.9), choosing "the
+ *   mentor screen ships in the same change" when asked how far the change should go. It
+ *   reaches the firm by the cascade, not by a separate ruling: the wording is platform
+ *   content the mentor authors and every tier below inherits and may override.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'educationGate']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
@@ -70,8 +74,11 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts']
  * than a historical record being quietly rewritten.
  *
  * - `aiPrompts` — the same ruling as the firm's, which named the mentor first.
+ * - `educationGate` — item 2.9, Mike 2026-08-24. The MENTOR is where it starts: the
+ *   wording is platform content, and the 2026-08-16 hub-page ruling says to build the
+ *   mentor's view first and let it cascade, never the firm's copy first.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'educationGate']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {
@@ -137,9 +144,13 @@ describe('hub tab matrix — the two new tiers', () => {
     // this test's prose was never updated. So a middle tier shows 13, not 14: six
     // unconditional plus seven conditional. Recorded rather than silently corrected,
     // exactly as the 13-to-14 drift above was.
-    expect(conditional).toHaveLength(7)
+    // ⚠ 2026-08-24: the Education Gate was ruled ON (item 2.9, all four manager tiers),
+    // taking the conditional count from 7 to 8 and the total from 13 to 14. Recorded
+    // here by name, in the same style as every change above it, so the diff shows a tab
+    // being added rather than a number being quietly bumped to make a test pass.
+    expect(conditional).toHaveLength(8)
     expect(unconditional).toHaveLength(6)
-    expect(unconditional.concat(conditional)).toHaveLength(13)
+    expect(unconditional.concat(conditional)).toHaveLength(14)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {

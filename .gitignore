@@ -64,6 +64,11 @@ data/dev-property-tax-rules.json
 # above, and ignored for the same reason.
 data/dev-ai-prompts.json
 
+# Dev-only education-gate wording and phrases (item 2.9). Keyed by SCOPE, and ignored for
+# the same reason as every sibling here: a local stand-in must never be committed and then
+# served as a tier's real content.
+data/dev-education-gate.json
+
 # Dev-only firm staircase override (created locally when MySQL is unavailable)
 data/dev-firm-staircase.json
 # The four cascade keys, added when the staircase joined the one firm-editable

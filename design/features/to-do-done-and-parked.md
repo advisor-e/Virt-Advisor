@@ -219,6 +219,46 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**2.9 · The education gate — built, with its mentor screen.** ✅ Closed 2026-08-24, session 83.
+Behaviour ruled 2026-07-16, reach ruled 2026-08-16, wording ruled 2026-08-24. Design:
+[`../EDUCATION-GATE.md`](../EDUCATION-GATE.md); artefact:
+[`../mockups/education-gate.html`](../mockups/education-gate.html).
+
+- **What it does now.** When the engine can see a client is not comfortable reading their own
+  numbers, the advisor is asked — after every other question, immediately before any
+  recommendation — *"Do you want me to put education first, or show what's technically needed and
+  leave the teaching to you?"* Whichever they answer, they are told what triggered the question,
+  in the client's own words.
+- **The signal is domain-independent at last.** A `financial_literacy_gap` entry in
+  [`../../data/signal-dictionary.json`](../../data/signal-dictionary.json)'s new `gateSignals`
+  map, matched against everything the advisor has typed in **any** advisory area. Its phrases are
+  **pd-35's own authored triggers**, not new writing — a fourth vocabulary for the same idea is
+  how the existing three drifted apart.
+- **It is editable by the people whose content it is.** An Education Gate tab at all four manager
+  tiers, mentor first, with version history and restore. Mike chose "the mentor screen ships in
+  the same change" when asked how far to go.
+- 🔴 **The gate cannot change what is recommended, and that is structural rather than promised.**
+  The phrases live in a map `problemSignals.SIGNAL_REGISTRY` does not read, so there is no wire to
+  `templateResolver` to cut — not a weight of zero a later maintainer could "fix".
+  `tests/unit/educationGate.test.js` fails if one is ever added. Two reasons it matters: the
+  staircase rule guard keeps this decision in the acumen lens, and **pd-35 already boosts
+  templates for this idea in forecasting**, so a second lever would double-count it there.
+- 🔴 **THE ITEM SAT A MONTH BEHIND A SENTENCE THAT WAS WRONG, AND THE LIST KEPT SERVING IT.** The
+  generated table said *waiting on Mike — "only the on-screen words are missing"* for eight days
+  after §4 of [`to-do.md`](to-do.md) declared both wrong and said the wording question **must not
+  be re-asked**. On 2026-08-24 a `/startup` session read the table, told Mike it was a five-minute
+  wording answer, and he picked it on that basis. The prose had been corrected; the JSON it is
+  generated from had not, and no test compares the two.
+- 🔴 **AND THE CORRECTION ITSELF WAS WRONG TWICE BEFORE IT WAS RIGHT.** §4 named the dead
+  `primary-issues.json` as where the literacy signal lived; the first correction replaced that
+  with `FINANCIAL_FOUNDATIONS_GAP` and called it *the* live signal; there are **two**, and the
+  forecasting one — pd-35 — is the content §4 had actually meant all along. Both wrong versions
+  are struck through on the page rather than rewritten. **An incomplete correction is how the
+  original error survived a month.**
+- **Verified:** 6,188 tests / 330 suites green, lint 0 errors. The new backend files cover 99.5%
+  of statements, 100% of functions. ⚠ **Not verified by eye at any tier** — no browser was driven
+  against the new hub tab, and that is a human check nobody has done yet.
+
 **4.16 · 102 pieces of authored advice the AI never saw — the last part closed.** ✅ Closed
 2026-08-23, session 82. The sweep began 2026-08-16; D was the last of its seven parts.
 
