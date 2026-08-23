@@ -219,6 +219,23 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.26 · The Model Library card promised one rental property, not five.** ✅ Closed
+2026-08-23, session 82. Marked Done by Mike from the Handbook control.
+
+- **What changed:** [`../../utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js)
+  now reads *"Whether a rental portfolio is worth buying — up to five properties, ten years of
+  cash, tax and equity."* The stale comment beside it, which described a `scope` field deleted
+  when Phase 2 landed, went with it.
+- 🔴 **He had marked it Done once before, on 2026-08-21, and it was half right both times** —
+  the *screen* does five properties, which is what he was looking at; the *card* was a separate
+  string. The item's own note predicted this and said to show him the line rather than the
+  label.
+- 🔴 **And the guard that should have held it on the list failed.** `apply-to-do.js` treats an
+  item as closed if the text `**4.26**` appears anywhere on this page — and it did, inside
+  4.19's closure, in the sentence *"Two wording decisions also stayed with Mike and are 4.26 and
+  4.27."* A passing mention counted as a closure record. The check matches a string, not a
+  record. **Not fixed — recorded here, and it will do the same to 4.27.**
+
 **4.34 · The Model Guide showed `[placeholders]` where the real figures belong.** ✅ Raised
 AND closed 2026-08-22, session 81 — raised by Mike the evening the page shipped, fixed the
 next morning. Commit `e25b80c`.

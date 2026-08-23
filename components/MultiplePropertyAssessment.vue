@@ -278,7 +278,7 @@
           b-input(v-model.number="sel.interestOnlyTermYears" type="number" step="any" size="is-small")
         //- §6 rule 9, ruled by Mike: the advisor chooses what happens when the
         //- interest-only period ends, because the client decides it, not the model.
-        .mpa-field
+        .mpa-field.mpa-field-wide
           label {{ $t('report.multipleProperty.funding.ending') }}
           b-select(v-model="sel.endOfInterestOnly" size="is-small")
             option(value="convert") {{ $t('report.multipleProperty.funding.endingConvert') }}
@@ -1446,6 +1446,10 @@ export default {
 }
 .mpa-field label { font-size: 12.5px; font-weight: 600; color: #223a57; }
 .mpa-field .control { width: 150px; flex: 0 0 auto; }
+/* "Convert to Principal & Interest" needs ~200px and was rendering as "Convert to
+   Principal &" in the 150px column. The row is space-between, so a wider control
+   keeps its right edge flush with every other field. Found by `npm run visual`. */
+.mpa-field-wide .control { width: 200px; }
 .mpa-derived {
   width: 150px; flex: 0 0 auto; text-align: right;
   font-size: 12.5px; font-weight: 600; color: var(--rs-ink);

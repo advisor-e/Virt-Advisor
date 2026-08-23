@@ -32,26 +32,27 @@
     "it is a defect to hide it. An item that cannot name Mike or a named outsider has",
     "to justify itself."
   ],
-  "orderedByMikeOn": "2026-08-15",
+  "orderedByMikeOn": "2026-08-23",
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it.",
   "items": [
     {
       "ref": "2.9",
-      "name": "The education gate",
+      "name": "The education-gate wording",
       "score": 4,
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
-      "why": "On low client literacy the adviser is asked whether to apply education-first or see what is technically needed, reasoning shown either way. Behaviour ruled 2026-07-16; REACH ruled 2026-08-16 — the gate fires wherever poor financial literacy shows up, not only inside forecasting.",
-      "risk": "It stays uncoded and advisers keep getting advice pitched over a client's head. The narrow version would have been worse than nothing visible: it would have looked finished while firing almost never.",
+      "waitingOn": "Mike",
+      "why": "The behaviour is already ruled — on low client literacy the adviser is asked whether to apply education-first or see what is technically needed, reasoning shown either way. Only the on-screen words are missing.",
+      "risk": "It stays uncoded. Advisers keep getting advice pitched over a client's head.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
-        "detail": "His own design, 2026-07-16, rescoped by him 2026-08-16"
+        "detail": "His own design, 2026-07-16"
       },
-      "touches": "The literacy signal across all eight domains, the Advisory Staircase, the pre-recommendation prompt.",
-      "note": "NO LONGER A WORDING TASK AND NO LONGER WAITING ON MIKE — it was carried for a month as 'only the on-screen words are missing', and that was wrong. Order is fixed: (1) widen the literacy signal, ours and first — NOT by copying the line into eight domains, but as a signal read independently of domain; (2) then Mike's wording, because where the gate can fire decides what it should say; (3) then build. Two findings behind the rescope: the 'outside-your-range' pattern the ruling says to copy was designed 2026-06-04 and never built, and 'Poor financial literacy' exists under forecasting only. See to-do.md section 4."
+      "touches": "The Advisory Staircase, the pre-recommendation prompt.",
+      "note": null,
+      "comment": null
     },
     {
       "ref": "4.7",
@@ -88,31 +89,33 @@
         "detail": "2026-08-15 — \"put them in the list of to dos\", after being shown that the seven Seminar branches were seven of twenty-eight. Found by us; filed on his instruction."
       },
       "touches": "data/logic_trees.json, the Mentor Hub logic tables, and the Template Check screen where the real page names are settled.",
-      "note": "RANKED LAST DELIBERATELY, and it scores 4. Mike's ruling the same day: clear the technical and feature work first so the master team can start UAT testing, THEN double back to wording and document-title alignment. This is wording and title alignment. The pattern is proven and cheap once a name is known — the Seminar seven took five words and a seven-line diff — but each of the 21 needs the REAL page name, and that is Mike's to give, never a developer's to rule on. Put the actual sentences in front of him, not the label: that is what unblocked 2.3 after four sessions."
+      "note": "RANKED LAST DELIBERATELY, and it scores 4. Mike's ruling the same day: clear the technical and feature work first so the master team can start UAT testing, THEN double back to wording and document-title alignment. This is wording and title alignment. The pattern is proven and cheap once a name is known — the Seminar seven took five words and a seven-line diff — but each of the 21 needs the REAL page name, and that is Mike's to give, never a developer's to rule on. Put the actual sentences in front of him, not the label: that is what unblocked 2.3 after four sessions.",
+      "comment": null
     },
     {
       "ref": "4.16",
       "name": "Check every block's authored fields actually reach the prompt",
       "score": 4,
-      "scoreReason": "the user is worse off without it",
+      "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
-      "why": "THE SWEEP IS DONE (2026-08-16) and it found 102 pieces of authored advisory content reaching no prompt. SIX OF THE SEVEN WORK ITEMS ARE NOW CLOSED: E the staircase question, C the 13 learn-table opening questions plus 2 standing rules, A+B all 65 diagnostic_entry branches plus the 26 entry questions, G proved a true duplicate needing no work, and F the 13 method guides (BUILT 2026-08-17, session 67, commit 6ae9778). ONLY D REMAINS -- the engagement types -- and it cannot start without Mike.",
-      "risk": "The sweep's whole point was that NO SCREEN RENDERED ANY OF THEM EITHER, so the content was invisible in both directions and no test could find it: every test asks whether a field was SAVED, none asks whether it was USED. That is now closed for the domain-support block, the logic-table block and the 13 method guides -- F went from 116 of 954 authored lines missing to 967 authored strings with 0 missing, verified by opening the real conversations rather than by inspecting the store. What is left is D: 3 engagement types x 6 authored fields sitting behind a hardcoded paraphrase, so the AI reads a summary of them rather than what Mike wrote, and no screen at any tier shows them.",
+      "why": "THE SWEEP IS DONE (2026-08-16) and it found 102 pieces of authored advisory content reaching no prompt. FIVE OF THE SEVEN WORK ITEMS ARE NOW CLOSED (sessions 64-65): E the staircase question, C the 13 learn-table opening questions plus 2 standing rules, A+B all 65 diagnostic_entry branches plus the 26 entry questions, and G proved a true duplicate needing no work. What remains is F -- the method guides, whose DESIGN IS NOW SETTLED (2026-08-17) and whose BUILD IS NOT STARTED -- and D, the engagement types, which waits on Mike.",
+      "risk": "Worse than first filed, and worse again since 2026-08-17. NO SCREEN RENDERED ANY OF THEM EITHER, so the content was invisible in both directions and no test could find it: every test asks whether a field was SAVED, none asks whether it was USED. That is now closed for the domain-support and logic-table blocks. It is still open for the 13 method guides (F) -- and they are NOT read by the AI in full as this row long claimed: 116 of the 954 authored lines across them reach no prompt at all, because each formatter names its fields by hand and anything authored later is never mentioned again. 62 of the 116 are in Dashboard Discussions, including the discussion questions authored against every one of its twelve metrics.",
       "askedBy": {
         "who": "us",
         "ours": true,
         "detail": "Found while closing 4.9 on 2026-08-15 and shown to Mike with the rendered prompt as proof. Every scope ruling since is his: the hub-page cascade (2026-08-16), Domain Support as the home for the branches (2026-08-16), and all screen wording on both blocks."
       },
-      "touches": "data/engagement-types.json and whichever page Mike rules is its home (D). F is DONE and touches nothing further: the 13 guides now reach the prompt through ONE walk in server/utils/methodGuides.js (which replaced 893 lines of hand-written formatters in server/utils/logicTrees.js) and surface on Domain Support via components/firm/MethodGuidePanel.vue.",
-      "note": "🔴 ONE PART LEFT, AND IT CANNOT START WITHOUT MIKE -- which is why this row says Mike. D -- engagement types, 3 types x 6 authored fields, behind a hardcoded paraphrase at advisorEngine.js ~line 2836. NO PAGE EXISTS AT ANY TIER and Mike must rule where it lives before anything starts. ✅ F IS BUILT AND VERIFIED (session 67, 2026-08-17, commit 6ae9778): 967 authored strings across the thirteen guides, 0 missing from the prompt, down from 116 missing; the 13 hand-written formatters are gone, replaced by ONE walk of each guide's own shape. Every difference from the approved artefact is recorded at design/METHOD-GUIDES-SCREEN.md §10 -- READ THAT before touching any of it, and do NOT re-ask the four wordings or the tier ruling. 🔴 DO NOT re-derive the sweep: read design/4-16-BUILD-SPEC.md WITH ITS SUPERSEDED BANNER, then design/DOMAIN-DIAGNOSTIC-BRANCHES.md and design/LEARN-TREE-OPENING-QUESTION-FIELD.md. ⚠ THREE EARLIER PLANS IN THIS ITEM ARE WITHDRAWN, all by evidence: (1) 'mentor tier only' and 'ship it filled by authoring the ten empty domains' -- the ten are NOT empty (Mike, session 63: 'the domain support material exists, I created it'), and the block built in session 65 cascades mentor->firm like every other. (2) 'Retire ~55 duplicate branches' -- tested text by text and FALSE; nothing was deleted. (3) 'Put the 65 on Coaching Reference' -- they are Domain Support content (Mike, 2026-08-16). METHOD, unchanged and proven six times: render the real prompt and read it, never inspect the store. ⚠ F's build is also what FOUND 4.18 (the AI inventing advice when routed to the wrong method) -- that is its own item and closing D does not close it."
+      "touches": "The 13 method guide files -- 12 named data/*-reference.json plus data/powerful-seminars.json -- their 13 hand-written formatters in server/utils/logicTrees.js, and the Domain Support tab where they surface (F); data/engagement-types.json and whichever page Mike rules is its home (D).",
+      "note": "🔴 TWO PARTS LEFT AND THEY MOVE INDEPENDENTLY. F IS OURS AND CAN START NOW; D CANNOT START AT ALL WITHOUT MIKE, which is why this row says Mike. 🔴 READ design/4-16-BUILD-SPEC.md WITH ITS SUPERSEDED BANNER, then design/DOMAIN-DIAGNOSTIC-BRANCHES.md and design/LEARN-TREE-OPENING-QUESTION-FIELD.md. DO NOT re-derive the analysis. WHAT IS LEFT, and only these two: F -- THIRTEEN method guides, not twelve (powerful-seminars.json is the thirteenth; it is not named *-reference.json so a file-pattern sweep misses it, and LEARN_REFERENCE_FORMATTERS treats it identically). 🔴 F'S DESIGN IS SETTLED AND ITS BUILD IS NOT STARTED -- read design/METHOD-GUIDES-SCREEN.md and design/mockups/method-guides.html and BUILD; the artefact, all four wordings and the tier ruling are done (2026-08-17) and must not be re-asked. Each guide opens from the framework row it already has on Domain Support, at the same tiers as the materials table; Facilitation 101 has no row anywhere and gets its own entry above the domains. 🔴 IT IS NOT ONLY A SCREEN: 116 of 954 authored lines inside the guides reach no prompt, so screen and prompt get built from ONE walk of each guide's own shape rather than thirteen hand-listed formatters. 155,000 characters, 21% shared fields, 44% staged sequence, 35% blocks unique to one guide. D -- engagement types, 3 types x 6 authored fields, behind a hardcoded paraphrase at advisorEngine.js ~line 2836. NO PAGE EXISTS AT ANY TIER and Mike must rule where it lives before anything starts. ⚠ THREE EARLIER PLANS IN THIS ITEM ARE WITHDRAWN, all by evidence: (1) 'mentor tier only' and 'ship it filled by authoring the ten empty domains' -- the ten are NOT empty (Mike, session 63: 'the domain support material exists, I created it'), and the block built in session 65 cascades mentor->firm like every other. (2) 'Retire ~55 duplicate branches' -- tested text by text and FALSE; nothing was deleted. (3) 'Put the 65 on Coaching Reference' -- they are Domain Support content (Mike, 2026-08-16). METHOD, unchanged and proven five times: render the real prompt and read it, never inspect the store.",
+      "comment": null
     },
     {
       "ref": "4.17",
       "name": "A screen can show one row when 67 exist, and say nothing",
       "score": 2,
-      "scoreReason": "robustness — it fails better",
+      "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
@@ -124,13 +127,14 @@
         "detail": "He spotted it himself on the Mentor Hub, 2026-08-16 — 'the advisory distinctions ... no longer appear to be linked and working at mentor level'. Diagnosed the same session."
       },
       "touches": "server/utils/platformDistinctions.js and every other dev-JSON fallback (firmDistinctions, quizzes, coaching, currency); the Mentor Hub Advisory Distinctions tab.",
-      "note": "THE LOCAL SYMPTOM IS FIXED BY DELETING THE FILE — Mike was given the command on 2026-08-16 because the AI's own safety guard refused the deletion. THE ITEM IS THE UNDERLYING FAULT, not that file: a screen served from a dev fallback must SAY it is, e.g. 'showing local dev data — 67 shipped rows are being shadowed'. Same family as 4.16 and the same lesson: the content was there, the screen was there, and nothing connected the two or admitted the gap. Verify the fix by loading the tab with and without the local file, not by reading the loader."
+      "note": "THE LOCAL SYMPTOM IS FIXED BY DELETING THE FILE — Mike was given the command on 2026-08-16 because the AI's own safety guard refused the deletion. THE ITEM IS THE UNDERLYING FAULT, not that file: a screen served from a dev fallback must SAY it is, e.g. 'showing local dev data — 67 shipped rows are being shadowed'. Same family as 4.16 and the same lesson: the content was there, the screen was there, and nothing connected the two or admitted the gap. Verify the fix by loading the tab with and without the local file, not by reading the loader.",
+      "comment": null
     },
     {
       "ref": "4.18",
       "name": "The AI invents advice when it is routed to the wrong method",
       "score": 4,
-      "scoreReason": "the user is worse off — an adviser is given advice that reads as authored and is not",
+      "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
@@ -142,50 +146,33 @@
         "detail": "Found by us on 2026-08-17 while verifying item 4.16 F on the running app — the first Dashboard Discussions attempt came back with invented questions. Reported to Mike the same session and HE RULED IT ONTO THE LIST: 'if you found this problem then yes - it gets put on the to do list'. Written into RELEASE-NOTES-v0.9.0.md §4a so the master team is not surprised by it in UAT."
       },
       "touches": "server/utils/logicTrees.js (detectLogicTree, detectLogicTrees) and pickLearnTreeAI in server/advisorEngine.js for the routing half; the learn-mode prompt for the honesty half.",
-      "note": "TWO HALVES, AND THE SECOND ONE IS THE ITEM. Sharpening the routing reduces how often it happens and can never remove it — some questions are genuinely ambiguous, and Ratio Analysis and Dashboard Discussions are neighbouring methods. THE FAULT WORTH FIXING IS THAT THE MODEL DOES NOT SAY 'I DO NOT HAVE THAT FOR THIS METHOD.' Do not close this item on a routing tweak alone. VERIFY THE WAY 4.16 WAS VERIFIED — ask a real question on the running app and compare the answer word for word against the source file, because every automated test here passes on an answer the model made up."
+      "note": "TWO HALVES, AND THE SECOND ONE IS THE ITEM. Sharpening the routing reduces how often it happens and can never remove it — some questions are genuinely ambiguous, and Ratio Analysis and Dashboard Discussions are neighbouring methods. THE FAULT WORTH FIXING IS THAT THE MODEL DOES NOT SAY 'I DO NOT HAVE THAT FOR THIS METHOD.' Do not close this item on a routing tweak alone. VERIFY THE WAY 4.16 WAS VERIFIED — ask a real question on the running app and compare the answer word for word against the source file, because every automated test here passes on an answer the model made up.",
+      "comment": null
     },
     {
       "ref": "4.25",
       "name": "Nothing in this project ever checks that a screen LOOKS right",
       "score": 4,
-      "scoreReason": "the user is worse off — a screen can ship visually broken with every gate green, and it has",
+      "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "Jest runs under jsdom, which has NO layout engine: it cannot measure a width, a gap or an overflow, so a screen whose boxes are squashed, whose columns collapse or whose table runs off the page passes all 5,895 tests. Every visual defect this project has had was found by a human opening the page, and only after it shipped. ✅ THE DRIVER IS NOW IN (2026-08-21, commit 7fa5e9a) -- playwright pinned to exact 1.34.3, proven launching Chromium 114 from the locked Node 14.15 and reading a rendered page. WHAT REMAINS IS THE CHECKS THEMSELVES: nothing in tests/ looks at a laid-out page yet, so the gap this item describes is still open, just no longer blocked.",
+      "why": "CLAUDE.md's testing standard names Playwright for critical journeys. It is not in package.json and never has been. Jest runs under jsdom, which has NO layout engine: it cannot measure a width, a gap or an overflow, so a screen whose boxes are squashed, whose columns collapse or whose table runs off the page passes all 5,887 tests. Every visual defect this project has had was found by a human opening the page, and only after it shipped.",
       "risk": "It has already happened twice and both times the finder was Mike. On 2026-08-18 the Property Tax Rules tab shipped with five phasing percentage boxes sharing a slot sized for one — about 31px each — so every one read as empty while holding and saving the correct value; he found it by opening the tab. On 2026-08-21 the five-property screen shipped with layout stated as UNVERIFIED in its own design document because there was no way to check it. Until something can see a rendered page, \"the tests are green\" will keep meaning less than it sounds, and the product owner will keep being the visual regression suite.",
       "askedBy": {
         "who": "Us",
         "ours": true,
         "detail": "Raised 2026-08-21 while closing 4.19, when the screen could not be visually verified before shipping and that had to be written into the design document as a gap. It stays because it is the named standard in CLAUDE.md going unmet, not a new idea — and because the two defects it would have caught were both found by Mike rather than by us. Adding a browser driver is a dependency change and needs his explicit approval under the Stack Constitution."
       },
-      "touches": "A new tests/visual/ directory and the CI step. package.json and .npmrc are DONE: playwright pinned exact 1.34.3, a visual:setup script, and playwright_skip_browser_download=1 so no other machine downloads a browser as a side effect of npm install.",
-      "note": "✅ THE INSTALL IS DONE (2026-08-21, on Mike's explicit instruction) — do not re-ask that question. It is `playwright`, NOT `playwright-core`: core is the same Microsoft driver and downloads nothing, but it is a different package name from the one the standards name, and CLAUDE.md:215 treats the named-package requirement as binding, so taking it would have been an avoidable deviation. Pinned to exact 1.34.3 — the last release declaring node >= 14; 1.35.0 moves to >= 16 and cannot be taken under the lock. GHSA-7mvr-c777-76hp is accepted and written up in design/SECURITY-AUDIT-NOTES.md, and its governance §5.6 team sign-off is an open action THERE, not here. 🔴 WHAT IS LEFT IS THE HARD HALF AND IT IS NOT DESIGNED YET. Scope it to a handful of screenshots of the report screens at one width, not a full visual-regression suite; the goal is to SEE the page, not to pin every pixel. ⚠ A blunt 'does anything overflow?' sweep is the WRONG SHAPE, and that was measured rather than guessed: run against the five-property screen on 2026-08-21 it flagged 10 elements and 51 dashed cells, and EVERY ONE was deliberate — side-scrolling ten-year tables, an ellipsised address, and one-off costs correctly blank in years 2-10. A check must assert what a screen SHOULD look like, not hunt for anomalies. ⚠ These tests need the app running, so they must NOT join the Jest suite the pre-commit hook runs."
-    },
-    {
-      "ref": "4.26",
-      "name": "The Model Library card still promises one rental property, not five",
-      "score": 2,
-      "scoreReason": "small but real — the first thing an adviser reads about the model now understates it",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The catalogue row reads \"Whether a rental property is worth buying — ten years of cash, tax and equity.\" Mike ruled that wording himself at Q8 Q7 on 2026-08-17, when the screen genuinely was one property, and it said \"a rental property\" singular ON PURPOSE. The screen now takes a household and up to five properties with an apportionment table and a consolidated report, so the card is the only place left that describes the old model.",
-      "risk": "The card is what an adviser sees FIRST, which is the exact reason Mike ruled at Q7a that it should carry the scope line at all. A card that undersells the model means the portfolio screen goes unused by the people who need it most — advisers whose clients hold several rentals.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Raised 2026-08-21 while closing 4.19. It stays on the list rather than being fixed because the sentence is MIKE'S OWN RULED WORDING and changing approved copy is his call, not ours. It is one line from him."
-      },
-      "touches": "One string in utils/reportModelCatalogue.js. The scope line beside it was already deleted as build step P2-5.",
-      "note": "THIS IS A WORDING DECISION, NOT A TASK — do not invent a replacement sentence. Ask him, offering the alternatives the way §8 Q7 did, with the option he turned down recorded beside the one he takes. ⚠ HE HAS MARKED THIS DONE ONCE (2026-08-21) AND IT IS HALF RIGHT: the SCREEN does five properties, and that is what he is looking at. The CARD is a separate string in utils/reportModelCatalogue.js line 101 and still reads \"Whether a rental property is worth buying\", singular. Show him that line rather than the item's label — the 'show it, don't reference it' rule exists for exactly this.",
-      "comment": "Again, this has been completed the model now shows 5 properties"
+      "touches": "package.json (a dev dependency and a script), a new tests/visual/ directory, and the CI step. Playwright is the version named in CLAUDE.md; whatever is chosen must install and run on the locked Node 14.15 target or the choice is not compliant — check that BEFORE proposing a version.",
+      "note": "DO NOT INSTALL ANYTHING WITHOUT MIKE SAYING YES — this is a dependency change and the Stack Constitution is one-directional: if a driver does not fit Node 14.15, the answer is a different driver, never a raised floor. Scope it to a handful of screenshots of the report screens at one width, not a full visual-regression suite; the goal is to SEE the page, not to pin every pixel.",
+      "comment": null
     },
     {
       "ref": "4.27",
       "name": "The property drawing promises a per-property tax override that nothing builds",
       "score": 1,
-      "scoreReason": "nobody is worse off today — but an approved artefact says something the build does not do",
+      "scoreReason": "internal only",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
@@ -197,7 +184,8 @@
         "detail": "Raised 2026-08-21 while naming the twelve build-vs-drawing differences in §10. It stays because the honest options are opposite — build the control, or strike the sentence — and only Mike can say which. It blocks nothing either way."
       },
       "touches": "Either components/MultiplePropertyAssessment.vue and locales/en.json (build the override), or one sentence in design/mockups/multiple-property-portfolio.html plus the §10 row (strike it). Whichever way it goes, §10 of design/MULTIPLE-PROPERTY-ASSESSMENT.md records the outcome.",
-      "note": "ASK, DO NOT CHOOSE. A firm advising across a border is the case for a per-property override; a family having one country is the case against, and that is the reasoning the card is built on today (§11 Q11)."
+      "note": "ASK, DO NOT CHOOSE. A firm advising across a border is the case for a per-property override; a family having one country is the case against, and that is the reasoning the card is built on today (§11 Q11).",
+      "comment": null
     },
     {
       "ref": "4.30",
@@ -208,14 +196,15 @@
       "blocks": null,
       "waitingOn": "Us",
       "why": "server/utils/promptSafety.stripInvisible() shipped 2026-08-21 (`ea6ac22`) with 11 tests, closing the zero-width / bidi / Unicode-tag channel named in the security document's step 5. It is NOT applied to server/advisorEngine.js, which is the output path a real advisor reads today.",
-      "risk": "The gap the fix was written for is still open where it actually matters. Worse, the commit message and the tests read as though the channel is closed — so the next session can reasonably believe it is done. That is the failure family this list exists to end. ⚠ 2026-08-22 — THIS ITEM GOT MORE IMPORTANT, not merely older. Mike ruled that an accountant contributing a prompt must PASTE the text rather than send a document (design/PROMPT-CONTRIBUTION-SAFETY.md §1a), because a document can hide text its own sender cannot see. Pasting defeats text hidden by LAYOUT and does nothing to text hidden by ENCODING: zero-width, bidi and Unicode-tag characters survive the clipboard perfectly and are still invisible in the box they land in. stripInvisible is therefore the ONLY thing between a hidden instruction and the model on that path — and it is the one check that can be made perfect, because an invisible character has no legitimate use in advisory prose at all.",
+      "risk": "The gap the fix was written for is still open where it actually matters. Worse, the commit message and the tests read as though the channel is closed — so the next session can reasonably believe it is done. That is the failure family this list exists to end.",
       "askedBy": {
         "who": "Us",
         "ours": true,
         "detail": "Raised 2026-08-21 by the session that wrote the fix, deliberately rather than quietly widening the change. Wiring it into advisorEngine alters live behaviour on a deployed screen and deserves its own change with its own tests, not a free ride inside a new feature."
       },
       "touches": "server/advisorEngine.js and server/courseEngine.js output handling, plus tests proving a hidden payload is removed from a real streamed response and that ordinary content survives.",
-      "note": "The frontend markdown pipeline is LOCKED by CLAUDE.md and must not be touched — the strip belongs server-side at the source, which is where stripInvisible already is. This is wiring an existing, tested function into two more call sites, not new logic."
+      "note": "The frontend markdown pipeline is LOCKED by CLAUDE.md and must not be touched — the strip belongs server-side at the source, which is where stripInvisible already is. This is wiring an existing, tested function into two more call sites, not new logic.",
+      "comment": null
     },
     {
       "ref": "4.31",
@@ -233,13 +222,14 @@
         "detail": "2026-08-22 — \"they also need a place they can 'drag and drop' their AI prompts - click 'Analyse against existing protocols' and get a summary report of the pros and cons, what should be included with the ability to accept or decline the changes\", then narrowed by him to pasted text only: \"if pasting the wording (they copy and paste from their own source doc) is better security then that's what we require - and we explain this to them for their own clients protection.\""
       },
       "touches": "A new Restify route calling server/utils/openaiClient.js through server/utils/promptSafety.fenceUntrusted + stripInvisible; deterministic refusal checks with their own tests; a new panel on the AI Prompts page; and four AI-response validation tests (valid, malformed, missing fields, wrong types) per CLAUDE.md.",
-      "note": "🔴 BUILD ORDER IS §7 OF THE DESIGN AND IT IS NOT ARBITRARY. 1) the paste box, with the explanation of WHY we do not take files sitting beside it rather than behind a help link. 2) the deterministic refusals AND the blocked screen together. 3) the AI review. 4) — separately, later, and NOT in the same breath — storing a contribution as reference material the AI draws on. Steps 1–3 change nothing about how advice is produced; step 4 is the one that moves the app’s risk profile. ⚠ RULED, DO NOT RE-OPEN: pasted text only, no file uploads EVER (uploads are ruled OUT, not deferred — reinstating them is a new decision); nobody above signs a contribution off, because a level’s material is its own and is OFFERED downward under P11; and the AI review is an advisor, never a gatekeeper — \"the AI said it was fine\" must never be what admits text into a prompt. ⚠ AND DO NOT let this item pull the Advisory Staircase, Distinctions, Quizzes or Domain Support into scope: see the boundary paragraph under P11 in features/tier-cascade.md, which exists because an earlier draft of P11 nearly did exactly that."
+      "note": "🔴 BUILD ORDER IS §7 OF THE DESIGN AND IT IS NOT ARBITRARY. 1) the paste box, with the explanation of WHY we do not take files sitting beside it rather than behind a help link. 2) the deterministic refusals AND the blocked screen together. 3) the AI review. 4) — separately, later, and NOT in the same breath — storing a contribution as reference material the AI draws on. Steps 1–3 change nothing about how advice is produced; step 4 is the one that moves the app’s risk profile. ⚠ RULED, DO NOT RE-OPEN: pasted text only, no file uploads EVER (uploads are ruled OUT, not deferred — reinstating them is a new decision); nobody above signs a contribution off, because a level’s material is its own and is OFFERED downward under P11; and the AI review is an advisor, never a gatekeeper — \"the AI said it was fine\" must never be what admits text into a prompt. ⚠ AND DO NOT let this item pull the Advisory Staircase, Distinctions, Quizzes or Domain Support into scope: see the boundary paragraph under P11 in features/tier-cascade.md, which exists because an earlier draft of P11 nearly did exactly that.",
+      "comment": null
     },
     {
       "ref": "4.33",
       "name": "A template's tutorial video gets attached to a calculator that shares its name",
       "score": 2,
-      "scoreReason": "robustness — the advisor is told something that is true of a different thing",
+      "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
@@ -251,7 +241,27 @@
         "detail": "Found 2026-08-22 while testing item 4.32 against the running app. Raised rather than fixed in passing, because videoInjector is a shipped, tested utility and the honest options differ in cost — see the note."
       },
       "touches": "server/utils/videoInjector.js and its test, or data/report-model-summaries.json if the answer is to rename. Nothing in the prompts.",
-      "note": "🔴 THE PROMPT CANNOT FIX THIS, and an earlier attempt made things worse — instructing the AI not to bold a model name stripped the bold off the TEMPLATE name too, which is the very thing the injector reads. Reverted. ⚠ TWO HONEST OPTIONS, and they are not equivalent: (1) teach the injector to skip a line that carries a calculator page path, which is narrow and cheap but is pattern-matching on output shape; (2) accept it — the video is real and same-named material is arguably relevant, so nothing is untrue, just imprecise. There is a third that is NOT ours: renaming a model or a template is Mike's call and would ripple through the catalogue, the summaries and the template library. ⚠ AFFECTS EXACTLY TWO NAMES TODAY. Adding a model whose name matches a template widens it, which is worth knowing before the next one is catalogued."
+      "note": "🔴 THE PROMPT CANNOT FIX THIS, and an earlier attempt made things worse — instructing the AI not to bold a model name stripped the bold off the TEMPLATE name too, which is the very thing the injector reads. Reverted. ⚠ TWO HONEST OPTIONS, and they are not equivalent: (1) teach the injector to skip a line that carries a calculator page path, which is narrow and cheap but is pattern-matching on output shape; (2) accept it — the video is real and same-named material is arguably relevant, so nothing is untrue, just imprecise. There is a third that is NOT ours: renaming a model or a template is Mike's call and would ripple through the catalogue, the summaries and the template library. ⚠ AFFECTS EXACTLY TWO NAMES TODAY. Adding a model whose name matches a template widens it, which is worth knowing before the next one is catalogued.",
+      "comment": null
+    },
+    {
+      "ref": "4.35",
+      "name": "Domain support general content",
+      "score": 3,
+      "scoreReason": "sells the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Why does this matter? It supports the AI coach in its understanding of human adoption and resistence to change or new information.",
+      "risk": "The AI is asked to deliver Facilitation 101 and the three engagement types while the psychology those deliveries rest on is named in the templates and held nowhere in this repo, so it improvises the part that decides whether a client accepts the concept at all. And because it is authored content the AI reads, CLAUDE.md's binding hub-page rule applies: wiring it into the prompt WITHOUT a screen would leave it live and untouchable - the exact state the 4.16 sweep found 102 times over.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "Asked by Mike on 2026-08-23 through the Handbook ranking control. His words are kept verbatim in `yourComment` on this item rather than summarised. The source template is \"Productive Habits\" - the PDF he saved to Downloads at 12:21 the same day, and the template of that name in data/templates.json (index 27), whose support tags are exactly \"Emotional reaction to learning; the progressive learning path; 5 Drivers of human output/productivity; 5 Steps to building new habits\"."
+      },
+      "touches": "What else moves if this moves? The general advice and appropriateness of the content and AI discussion",
+      "note": "SOURCE: 'Productive Habits.pdf', saved by Mike to Downloads 2026-08-23. DO NOT AUTHOR THIS CONTENT FROM GENERAL KNOWLEDGE - these are the master app's own frameworks with their own wording. WHEN BUILDING: the table is a HUB PAGE first (CLAUDE.md, ruled 2026-08-16 - start at the mentor tier and cascade down), the wording is Mike's to approve, and the artefact is committed BEFORE he approves it. CHECK data/staff-domain-support.json FIRST - the 5 Drivers already exist there in prose, and a second copy is how content drifts apart in this repo (see the single-source-wiring skill).",
+      "comment": "i want you to review this template that includes the emotional reaction towards learning, the 5 drivers of human performance and the 5 steps in forming a habit. Create an editable table, using this content, in the domain support section, under the facilitation 101 pages and the 3 engagemebt types pages, so the AI can read them and utilise them in its delivery. The content must be editable in case a firm manager, mentor, global manager etc disagrees with them or wants to add to them in any way"
     }
   ]
 }

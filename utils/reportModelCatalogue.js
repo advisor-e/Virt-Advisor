@@ -94,11 +94,7 @@ export const MODELS = [
   { name: 'Cost of Capital (WACC)', category: 'Valuation', summary: 'The true cost of the money funding the business — debt and equity blended.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/cost-of-capital' },
   { name: 'Lease vs Buy', category: 'Valuation', summary: 'Which way to fund an asset, compared on real cash terms.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/lease-vs-buy' },
   { name: 'The Loan Estimator', category: 'Valuation', summary: 'What lenders would lend against, whether the household can service it, and the repayments.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/loan-estimator' },
-  // `scope` says how much of the model is actually in place — ruled by Mike 2026-08-17
-  // (MULTIPLE-PROPERTY-ASSESSMENT.md §8 Q7a), because the card is what an advisor sees
-  // FIRST and the name promises five properties. It is written to be DELETED when
-  // Phase 2 lands (to-do item 4.19).
-  { name: 'Multiple Property Assessment', category: 'Valuation', summary: 'Whether a rental property is worth buying — ten years of cash, tax and equity.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/multiple-property' },
+  { name: 'Multiple Property Assessment', category: 'Valuation', summary: 'Whether a rental portfolio is worth buying — up to five properties, ten years of cash, tax and equity.', status: STATUS_READY, modelClass: CLASS_DECISION, route: '/multiple-property' },
   { name: 'Retirement Review', category: 'Valuation', summary: 'Whether the plan funds the retirement the owner wants.', status: STATUS_SOON, modelClass: CLASS_DECISION },
   { name: 'Quick Position', category: 'Valuation', summary: 'A fast read on where the business stands right now.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/quick-position' },
   { name: 'High-Level Budget', category: 'Budgeting', summary: 'A top-down budget with actuals and cash-flow variances.', status: STATUS_SOON, modelClass: CLASS_REPORT },

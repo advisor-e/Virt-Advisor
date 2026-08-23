@@ -130,3 +130,7 @@ data/dev-collaborate-people.json
 
 # Local CA cert bundle (machine-specific export from Windows cert store)
 certs/
+
+# Visual-check screenshots (npm run visual). Pictures of the screens as they
+# rendered, for a person to look at -- regenerated on every run, never kept.
+visual-screenshots/
