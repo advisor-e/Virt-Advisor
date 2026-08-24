@@ -263,25 +263,6 @@
       "comment": ""
     },
     {
-      "ref": "4.41",
-      "name": "A package the Constitution bans by name sits in the tree, unlogged",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "`@types/node@25.9.3` is installed. Stack Constitution req 2 reads \"JavaScript only — no TypeScript, ever. No `typescript`, `vue-tsc`, `@types/node`\" and names this package outright. It is a transitive dev dependency, not something we asked for, and it was already in the committed lockfile before 2026-08-24 — so it is pre-existing drift rather than anything a recent change introduced. What needs deciding is only whether it can be removed without disturbing the ESLint toolchain that pulls it, or whether it is accepted and documented.",
-      "risk": "Build-time only; nothing reaches the deployed runtime, so the direct risk is low. The reason it is scored 5 is the deviation-logging rule in CLAUDE.md, which makes any Stack Constitution deviation a score-5 reconcile task the moment it is found — precisely so drift is never quietly accepted as the new normal. Item 4.7 is what happens when that rule does not fire: five packages arrived on 2026-07-21, none was logged, and the task understated itself by a month.",
-      "askedBy": {
-        "who": "the Stack Constitution",
-        "ours": false,
-        "detail": "The coding team’s locked spec, req 2, which names this package."
-      },
-      "touches": "`package.json` (an override or a devDependency change), or `design/SECURITY-AUDIT-NOTES.md` if the answer is to accept and document it.",
-      "note": "⚠ Do NOT reach for a blunt removal. It arrives as a peer of the @typescript-eslint packages inside `@nuxtjs/eslint-config`, which is the lint baseline the Constitution itself mandates. Check first whether `legacy-peer-deps=true` (added 2026-08-24) already keeps it out of a fresh tree — the scan that found zero engine offenders did not check for banned packages, only for Node versions. The one-directional rule applies: the answer is never to soften req 2.",
-      "comment": ""
-    },
-    {
       "ref": "4.42",
       "name": "The to-do page’s hand-written half describes six finished items and misses ten live ones",
       "score": 2,

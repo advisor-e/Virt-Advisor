@@ -219,6 +219,36 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.41 · A package the Constitution bans by name, and why it cannot leave.** ✅ Closed
+2026-08-25. Pinned in `package.json` overrides; the reasoning lives in `.npmrc` beside it.
+
+- **Two of req 2’s three names were already clean.** Neither `typescript` nor `vue-tsc` is in
+  the tree, and there is not one `.ts` file in our own source. The `legacy-peer-deps` line in
+  `.npmrc` exists specifically to keep `typescript` out, and it is working.
+- **`@types/node` is real, and it is unremovable.** **21 packages require it**, every one
+  transitive — Jest internals and webpack typings — and each asks for `*`. Jest is the test
+  runner the Engineering Standards mandate, so removing it means removing Jest. npm
+  `overrides` can change a version; it cannot delete a transitive dependency. There is no
+  action that takes req 2 to zero for this package.
+- **Context that narrows it.** It is one of **25 `@types/*` packages** the toolchain already
+  pulls in (`@types/webpack`, `@types/dompurify`, `@types/json-schema` and 22 more), and it is
+  type definitions only — text describing shapes. Nothing in the package executes, in the
+  build or at runtime.
+- **What was done instead: a DOWNGRADE toward the spec.** Every requirer accepts `*`, so npm
+  had resolved the newest (**25.9.3**) and the tree carried definitions for Node 25 APIs this
+  project must never use. Pinned to **14.18.63**, the Node 14 line. This is the same shape as
+  the `isomorphic-dompurify` 1.3.0 ruling in CLAUDE.md and sits inside the one-directional
+  rule: the locked target is untouched and only the drift moved.
+- **What proved it.** Installed with npm 8.19.4 on Node 14.15.0 under `engine-strict=true`.
+  The lockfile diff is exactly the intent and nothing else: `@types/node@25.9.3` removed with
+  its only dependency `undici-types`, 20 nested copies at 14.18.63 added, and **zero version
+  changes to any other package**. Engine scan **0 offenders across 1,982 packages**. Suite
+  **6,284 green** at the point of verification — **6,280** once this item came off the list,
+  because `toDoItems.test.js` generates 4 tests per item — lint 0 errors, `nuxt build` exit 0.
+- ⚠ **The residue, stated rather than hidden.** `@types/node` is still in the tree and req 2
+  still names it. The item is closed because the action space is empty, not because the
+  package is gone. If Jest is ever replaced, this becomes removable and should be removed.
+
 **4.30 · The invisible-character strip ran on no path at all.** ✅ Closed 2026-08-25. Wired in
 `server/utils/openaiClient.js`; tests in `tests/unit/openaiClient.test.js`.
 

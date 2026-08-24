@@ -47,12 +47,11 @@ repository sees; the two never both appear, and the build stops if they would.
 | 10 | **4.38** Whether Learning Psychology should reach the AI on every recommendation | 3 | — | **Mike** |
 | 11 | **4.39** Sweep the frozen ACTIONS.md for anything that is genuinely still open | 2 | — | Us |
 | 12 | **4.40** A HIGH prototype-pollution advisory sits in four copies of defu in the Nuxt tree | 5 | — | Us |
-| 13 | **4.41** A package the Constitution bans by name sits in the tree, unlogged | 5 | — | Us |
-| 14 | **4.42** The to-do page’s hand-written half describes six finished items and misses ten live ones | 2 | — | Us |
-| 15 | **4.43** A test flips a global switch mid-run and fails about one run in four | 2 | — | Us |
-| 16 | **4.44** The .npmrc tells the next person to run a check that does not exist | 2 | — | Us |
+| 13 | **4.42** The to-do page’s hand-written half describes six finished items and misses ten live ones | 2 | — | Us |
+| 14 | **4.43** A test flips a global switch mid-run and fails about one run in four | 2 | — | Us |
+| 15 | **4.44** The .npmrc tells the next person to run a check that does not exist | 2 | — | Us |
 
-**Sixteen live items. Three need Mike.** If this list passes about twenty, something is wrong.
+**Fifteen live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off on 2026-08-22, and one joined and left the same day** — see
