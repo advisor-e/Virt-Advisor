@@ -219,6 +219,34 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.40 · The `defu` advisory — reviewed, corrected, and accepted.** ✅ Closed 2026-08-25.
+The review is in [`../SECURITY-AUDIT-NOTES.md`](../SECURITY-AUDIT-NOTES.md).
+
+- **The item’s count was wrong.** It recorded four copies in the vulnerable range. There are
+  **five physical copies**: `defu@2.0.4` (shared by `@nuxt/config` and `@nuxt/static`)
+  and two separate `defu@5.0.1` are vulnerable; the copies under `@nuxt/telemetry` and
+  `rc9` are **already patched at 6.1.7**. Four dependency edges had been counted as copies.
+- 🔴 **The item’s "build-time only" was wrong.** It said none was reachable from the deployed
+  runtime. npm classifies **all five copies and all four parent packages as production
+  dependencies**. `@nuxt/config` loads the config when the SSR server starts;
+  `serve-placeholder` is runtime 404 middleware. The general Nuxt 2 acceptance rests on
+  *"build-time tools only"*, so this one could not borrow that reasoning and does not.
+- **It is still safe, for a reason nobody had written down.** The advisory needs an
+  attacker-supplied `__proto__` key in the **defaults argument**. All four call sites were
+  traced: every one merges our own configuration — `nuxt.config` values or module options
+  — and none takes request data. The code runs; the vulnerable path does not.
+- **The fix was available and was deliberately not taken.** One unscoped `"defu": "6.1.7"`
+  override would clear the advisory outright, and the compatibility evidence is good: every
+  consumer uses only the base `defu(a, b)` call, none touches the three helpers renamed
+  between 5 and 6, and 6.1.7 already installs in this tree under `engine-strict`. It was
+  not done because CLAUDE.md’s npm-audit policy permits a fix *"only for packages outside the
+  Nuxt 2 build toolchain"* and every copy arrives through the locked Nuxt 2.14.0 chain.
+  **Mike’s ruling, 2026-08-25: *"we stick to the rules"*.** The full option is recorded in the
+  security notes so it is not re-derived.
+- **What this item actually needed was the review, and this was it.** The audit policy’s
+  counterweight is that every high finding is *logged as a task and reviewed*, never silently
+  swallowed. Reviewing it found two factual errors and left the conclusion unchanged.
+
 **4.41 · A package the Constitution bans by name, and why it cannot leave.** ✅ Closed
 2026-08-25. Pinned in `package.json` overrides; the reasoning lives in `.npmrc` beside it.
 

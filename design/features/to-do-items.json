@@ -244,25 +244,6 @@
       "comment": ""
     },
     {
-      "ref": "4.40",
-      "name": "A HIGH prototype-pollution advisory sits in four copies of defu in the Nuxt tree",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "GHSA-737v-mqg7-c878 (HIGH — prototype pollution via a `__proto__` key in the defaults argument) affects defu <=6.1.4. The installed tree carries four copies inside that range: defu@2.0.4 via @nuxt/config and @nuxt/static, and defu@5.0.1 via @nuxt/loading-screen and serve-placeholder. All four are Nuxt 2.14.0 dependencies and cannot be removed under the lock.",
-      "risk": "Build-time only — none of the four is reachable from the deployed runtime, so this very probably falls under CLAUDE.md's accepted npm-audit policy for the Nuxt 2 build tree. It is logged rather than swallowed because that policy is explicit that every high-severity finding is logged as a task and reviewed. What needs deciding is only whether to pin the two defu@5.0.1 copies up to the patched 6.1.7, or to accept and document.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "Found 2026-08-24 during the read-only registry advisory check on the item 4.7 downgrade candidates. Unrelated to that change and nobody outside asked."
-      },
-      "touches": "package.json overrides (scoped to @nuxt/loading-screen and serve-placeholder), or design/SECURITY-AUDIT-NOTES.md if the answer is to accept it.",
-      "note": "⚠ DO NOT reach for a blanket `defu` override. @nuxt/config and @nuxt/static want ^2.0.4, and forcing those up four majors touches Nuxt 2.14 core config handling — real boot risk for no runtime gain. If anything moves, move ONLY the two ^5.0.0 consumers to 6.1.7, which is already in the tree and Node-14 clean. ⚠ This finding also explains a decision inside 4.7: the @nuxt/telemetry override was deliberately SCOPED to consola alone, because downgrading that package whole would have swapped its patched defu@6.1.7 for a vulnerable 5.0.1.",
-      "comment": ""
-    },
-    {
       "ref": "4.42",
       "name": "The to-do page’s hand-written half describes six finished items and misses ten live ones",
       "score": 2,
