@@ -35,9 +35,10 @@ production, outside this repo).
 1. **Start a session by running `/startup`** — branch, clean tree, drift vs `master`, open
    P1s. If Mike begins work without it, run the read-only parts yourself and report before
    touching anything. Drift caught at 3 commits is free; at 97 it blocks a whole team.
-2. **End a session by running `/shutdown`** — tests green, changes named, `ACTIONS.md`
-   current, commit and push approved, handover note left. Never end a session implying
-   work is safe when it is uncommitted; say so explicitly.
+2. **End a session by running `/shutdown`** — tests green, changes named, the **three
+   write-targets** current (the feature's Brief, `design/features/to-do-items.json`, the
+   commit message), commit and push approved, handover left in `design/HANDOVER.md`. Never
+   end a session implying work is safe when it is uncommitted; say so explicitly.
 3. **`master` means releasable.** Work in progress never lands on it. It is reached by
    pull request only — `.husky/pre-push` refuses a direct push, and refuses any push from
    a branch that is behind `origin/master`.
@@ -132,9 +133,11 @@ wins and the drift is logged for reconciliation** (see the drift box below and
 
 **Deviation logging rule (binding).** Any deviation from this Stack Constitution — a
 dependency version bump, a new plugin, a framework variation, anything that doesn't match
-the team spec — is logged in `design/ACTIONS.md` as a **P1 (critical) reconcile task the
-moment it is found or introduced**. It is never silently accepted as the new normal. This
-extends the no-silent-parking rule to the stack itself.
+the team spec — is logged on the live list (`design/features/to-do-items.json`) as a
+**score-5 reconcile task the moment it is found or introduced**. It is never silently
+accepted as the new normal. This extends the no-silent-parking rule to the stack itself.
+*(Target changed 2026-08-24 when `ACTIONS.md` was frozen — the rule is unchanged, only
+where it writes.)*
 
 ---
 
@@ -249,6 +252,29 @@ routes ≥ 90%, AI-response validation functions 100% (valid, malformed, missing
 wrong types). **Any function that processes or validates LLM output gets tests written
 before or alongside it.**
 
+**What a test must earn (Mike's ruling, 2026-08-24).** This code is tested by people in UAT
+before it ever reaches production, so a test earns its place when it catches what **UAT
+cannot**. The full-coverage targets above are unchanged and non-negotiable — a wrong number,
+an unsafe permission or a malformed AI response looks perfectly fine to a human tester right
+up until a client acts on it.
+
+The rule bites in the other direction. **Do not write new tests that assert:**
+
+- **the exact wording of user-facing text** — a label, a button, a heading, a message;
+- **the presence of a CSS class**, or any other purely visual property;
+- **that a file exists**, where nothing reads that file's contents.
+
+A person in UAT sees all three instantly and judges them better than an assertion can. This
+is a rule about what gets **written from now on, not a licence to delete** — the ~441
+existing assertions of these shapes stay until the code around them changes anyway. They cost
+nothing to run (the whole suite of 6,255 tests takes 30 seconds); they cost a rewrite every
+time a word on a screen changes, which is why the suite has felt like overkill.
+
+**Where wording genuinely must not drift** — the master app's own transcribed content, a
+regulatory phrase, wording Mike has explicitly approved — pin it in **one** test next to the
+data it protects, and say in a comment why that string is load-bearing. One deliberate pin is
+a guard; forty incidental ones are friction.
+
 ### Error handling
 Every async Restify route is wrapped in try/catch and returns
 `{ success: false, error: { code, message }, timestamp }` — never a stack trace, file
@@ -301,7 +327,7 @@ shapes — any artefact whose whole purpose is *"does this look right to you?"*
 
 - Screens go in `design/mockups/<name>.html`; wording and structure go in
   `design/<NAME>.md`. Committed in the same change that asks for the decision.
-- **`ACTIONS.md` and the commit message LINK the file. They never summarise it.**
+- **The live list and the commit message LINK the file. They never summarise it.**
   *"Wording approved by Mike"* is not a record — it names an event, not a thing, and
   cannot be checked by anyone afterwards.
 - Before shipping anything built from an approved design, **open the artefact, put it
@@ -333,6 +359,15 @@ cascades down through global group manager → group manager → firm manager as
   first and let it cascade — never build the firm's copy first and reason upward.
 - **"As appropriate" is a judgement to state, not to assume.** Name which tiers get it and
   why, in the same change. Silence is not a decision.
+- **The default is the mentor tier ALONE (Mike's ruling, 2026-08-24).** *"As appropriate"*
+  had in practice been read as *"all four tiers, every time"* — and with four manager tiers
+  that turns one decision into sixteen units of work: four screens, four sets of tests, four
+  entries in the record. **Build the mentor's view, state in one line why the other three
+  are or are not needed, and cascade only when a firm actually needs to change that
+  content.** This satisfies the rule exactly as written — the judgement is still stated,
+  never assumed — and it weakens nothing: the content is on a screen, visible and editable,
+  which is what this rule exists to guarantee. Cascading remains mandatory the moment a
+  lower tier has a real reason to hold a different value.
 - **"Where possible" is the only escape and it must carry a reason.** Name what prevents a
   screen. An unexplained omission is a defect, not a scope call.
 - **Wiring content into the prompt without a screen is half a fix.** It makes the content

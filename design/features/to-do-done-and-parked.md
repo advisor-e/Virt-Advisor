@@ -1247,10 +1247,12 @@ live list: a warning written in prose is not a task, and only a task gets done.
 
 ## 4. Where the full record is
 
-[`../ACTIONS.md`](../ACTIONS.md) — the full 6,135-line backlog, including the verified sweep of
-2026-08-03 that first established the real number is about ten. ⚠ Read its own warning:
-*"Trust the CODE, not these flags"* — three separate items were found already built while still
-flagged open.
+[`../ACTIONS.md`](../ACTIONS.md) — ⛔ **FROZEN 2026-08-24.** The historical backlog, 7,400+
+lines, including the verified sweep of 2026-08-03 that first established the real number is
+about ten. Nothing is added to it and nothing is triaged from it; it stays as searchable
+history. ⚠ Read its own warning: *"Trust the CODE, not these flags"* — three separate items
+were found already built while still flagged open. **The live list is
+[`to-do-items.json`](to-do-items.json).**
 
 [`../ACTIONS-ARCHIVE.md`](../ACTIONS-ARCHIVE.md) — completed work, verbatim, by date. Nothing is
 deleted, only moved.

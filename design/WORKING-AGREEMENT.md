@@ -38,6 +38,36 @@ meaningless a day later.
 
 ---
 
+## How we work here — quality, concise, purposeful
+
+**Mike's ruling, 2026-08-24, after a productivity review measured where a session actually
+goes.** It is quoted at the top of both `/startup` and `/shutdown`, so it is read at the
+start and the end of every session.
+
+**We write quality, concise, purposeful code.** Every line must earn its place — and so must
+every test and every sentence of documentation.
+
+**This code is tested by people in UAT before it ever reaches production.** A test earns its
+place when it catches what UAT cannot: a wrong number, an unsafe permission, a malformed AI
+response. A test that checks what a person would notice in five seconds on screen is work we
+do twice. The coverage targets for maths, permissions and AI-output validation are unchanged
+and non-negotiable; see *What a test must earn* in `CLAUDE.md`.
+
+**One fact, one home.** A Brief says how the product works *now* — when something changes,
+replace the old sentence rather than adding a new one beneath it.
+
+> **What was measured.** Of the 30 commits before this ruling, **16 changed no code and no
+> tests at all** — 2,264 lines of prose about the work rather than the work. The end of a
+> session had come to require the same fact in **seven** places; it is now three. The Briefs
+> were running at a **94–96% append rate** (528 lines added to Report Models against 19
+> removed), which is how a specification turns into a diary. `ACTIONS.md` had reached 7,448
+> lines and is now frozen. **85 session-notes files** totalling 11,990 lines had accumulated
+> that no checklist ever asked for, and they were not working: on 2026-08-23 two open
+> questions for Mike went into one and reached no list. Meanwhile the full test suite —
+> 6,255 tests — runs in **30 seconds**, so the tests were never the cost.
+
+---
+
 ## Start of session — either machine
 
 Type **`/startup`** and the checklist runs itself. What it does, and why:
@@ -49,10 +79,13 @@ Type **`/startup`** and the checklist runs itself. What it does, and why:
 3. **Open the Handbook** — `npm run handbook`, republished to its existing link and opened
    in the browser. Because it is rebuilt from committed markdown every session, the page
    cannot drift from the repository, and the link never needs re-sending.
-4. **What is open?** — [`design/features/to-do.md`](features/to-do.md), the live list, and
-   the latest session notes, so the two machines do not duplicate or contradict each other.
-   **Not `ACTIONS.md`**: it remains the full record, but at 6,000+ lines it reads as about
-   seventy open tasks when the real number is nineteen, and it is not the front door.
+4. **What is open?** — [`features/to-do-items.json`](features/to-do-items.json), which *is*
+   the live list, and [`HANDOVER.md`](HANDOVER.md), the one rolling note from whoever worked
+   last, so the two machines do not duplicate or contradict each other. Read the JSON rather
+   than [`to-do.md`](features/to-do.md): the page is 850 lines of standing explanation around
+   a generated ten-row table, and is rebuilt from the JSON anyway.
+   **Not `ACTIONS.md`** — frozen as an archive on 2026-08-24. **And there are no session
+   notes to read**: the 85 files written before that date stay as history, none is written now.
 5. **Catch up if behind** — merge `origin/master`, run the tests, prove nothing broke.
 
 ## End of session — either machine
@@ -62,16 +95,18 @@ Type **`/shutdown`**. What it does, and why:
 1. **What changed?** — every file, in plain English. Anything unapproved is named, not
    buried in the commit.
 2. **Is it green?** — full suite. A red suite is never pushed.
-3. **Is the Handbook up to date?** — the front door is updated first. Rules established
-   today are written into that feature's **Brief** the same session; finished work **moves**
-   off [`to-do.md`](features/to-do.md) onto the done-and-parked page rather than being
-   ticked in place; anything discovered is written as *something a person does*. Then
-   `ACTIONS.md`, which remains the full record of what actually happened, including things
-   found but not fixed.
+3. **Is the Handbook up to date?** — the front door is updated first, into **three places
+   and only three** (see *One fact, one home* below). **(a)** The feature's **Brief** — how
+   the product works *now*, with the sentence that is no longer true **replaced**, not left
+   above a new one. **(b)** [`to-do-items.json`](features/to-do-items.json) — finished work
+   **moves** to the done-and-parked page rather than being ticked in place, anything
+   discovered is written as *something a person does*, and an open question for Mike is an
+   item on this list, never a line in a note. **(c)** The **commit message**.
 4. **Commit** — message shown and approved first.
 5. **Push this machine's own branch only.**
-6. **Leave a handover note** — where you stopped, what is half-finished. This is what
-   stops the two divisions treading on each other.
+6. **Leave the handover** — in [`HANDOVER.md`](HANDOVER.md), one file carrying one session:
+   where you stopped, what is half-finished. This is what stops the two divisions treading
+   on each other, and it is the only narrative file a session writes.
 
 If anything is left uncommitted, the session ends by saying so out loud.
 

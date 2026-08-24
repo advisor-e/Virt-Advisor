@@ -223,6 +223,63 @@
       },
       "touches": "What else moves if this moves? Only the Model Guide search. The catalogue, the models and the report screens are untouched - this is how the page filters what it already has.",
       "note": "TWO SEPARATE FAULTS, and the cheap one is not the interesting one. (1) WHOLE-PHRASE MATCHING: split the query into words and require every word to appear somewhere in the haystack, which fixes 'investment property' and any other pair of words the advisor uses in their own order. (2) NO VOCABULARY: 'houses', 'landlord', 'rental yield' are what an advisor says; 'property' is what the page says. That needs a small authored synonym list per model - and under CLAUDE.md's hub-page rule, authored content the product reads belongs on a screen, not buried in a component. CHECK FIRST whether data/report-model-summaries.json is the right home for it, beside the model's other authored lines, rather than inventing a second store. DO NOT reach for fuzzy matching or an embedding search: this library holds ~18 models, and a wrong-but-confident match is worse here than a miss, because the advisor takes the suggestion into a client meeting."
+    },
+    {
+      "ref": "4.37",
+      "name": "The five drivers are defined in two places, and the copies can drift",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Learning Psychology carries the source definitions of the five drivers of human output, transcribed from the master app's own Productive Habits template. data/staff-domain-support.json paraphrases the same five in its \"5 Drivers of Human Output - Performance Diagnosis\" row, where they serve a diagnosis rather than a definition. Both reach the advisor. Found 2026-08-23, recorded but not reconciled. Mike's call: which one is the source, and should the other quote it.",
+      "risk": "Two copies of the same authored content is how content drifts apart in this repo - the 4.16 sweep exists because of exactly that. Corrected in one place and not the other, the AI is given two different definitions of the same five drivers.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "Found during the Learning Psychology build, 2026-08-23. Nobody outside asked."
+      },
+      "touches": "data/productive-habits.json, data/staff-domain-support.json.",
+      "note": "Written into the 2026-08-23 session notes and it reached no list until 2026-08-24 - one of the two items that prompted the session-notes rule change.",
+      "comment": ""
+    },
+    {
+      "ref": "4.38",
+      "name": "Whether Learning Psychology should reach the AI on every recommendation",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The page reaches the AI only alongside Facilitation 101's learn reference. At around 6,000 characters, putting it on every client recommendation is a real cost per call and was deliberately not made the default when it shipped on 2026-08-23. Mike's call: leave it as it is, put it on every recommendation, or gate it on something.",
+      "risk": "Left unasked it stays at the accidental setting rather than a chosen one - and the advice the AI gives is shaped by whether it can see the psychology or not.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "Raised as an open question when Learning Psychology shipped, 2026-08-23."
+      },
+      "touches": "server/utils/methodGuides.js, server/advisorEngine.js.",
+      "note": "Appended at the end of the array because the order is Mike's ranking and no session re-sorts it. He ranks these two when he is ready.",
+      "comment": ""
+    },
+    {
+      "ref": "4.39",
+      "name": "Sweep the frozen ACTIONS.md for anything that is genuinely still open",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "ACTIONS.md was frozen on 2026-08-24 at 7,400+ lines because it had become unreadable - /startup already steered sessions away from it. Freezing does not prove it was empty. 65 pointers elsewhere in the repo still read \"logged in ACTIONS.md\" or \"tracked in ACTIONS.md\", including live ones in virt-advisor-registry.md (the 28-dormant-trees programme, broadening the urgency trigger coverage), server/collaborate/data/repository.js and BusinessPerformanceReport.vue. Read it once, end to end, and move anything still genuinely open onto this list.",
+      "risk": "If a real open task exists only in the frozen file, nobody triages it - which is the exact failure the freeze was meant to prevent, moved rather than removed. The file's own warning says three items were once found already built while still flagged open, so expect most of it to be stale; the point is to prove that rather than assume it.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "Raised by the session that froze the file, 2026-08-24, as the named cost of freezing it."
+      },
+      "touches": "design/ACTIONS.md (read only), design/features/to-do-items.json.",
+      "note": "Do this before trusting the live list as complete. Until it is done, the honest statement is that the live list holds everything anyone has looked at recently, not everything that is open.",
+      "comment": ""
     }
   ]
 }

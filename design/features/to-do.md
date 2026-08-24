@@ -45,8 +45,11 @@ repository sees; the two never both appear, and the build stops if they would.
 | 8 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
 | 9 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
 | 10 | **4.36** The Model Guide search only matches the exact words the page happens to use | 3 | — | Us |
+| 11 | **4.37** The five drivers are defined in two places, and the copies can drift | 2 | — | **Mike** |
+| 12 | **4.38** Whether Learning Psychology should reach the AI on every recommendation | 3 | — | **Mike** |
+| 13 | **4.39** Sweep the frozen ACTIONS.md for anything that is genuinely still open | 2 | — | Us |
 
-**Ten live items. One needs Mike.** If this list passes about twenty, something is wrong.
+**Thirteen live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off on 2026-08-22, and one joined and left the same day** — see

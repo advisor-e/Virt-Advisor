@@ -1,5 +1,27 @@
-# Virt Advisor — Action Backlog
+# Virt Advisor — Action Backlog (FROZEN ARCHIVE)
 
+> ## ⛔ FROZEN 2026-08-24 — DO NOT ADD TO THIS FILE
+>
+> **This is history, not a work list.** By Mike's ruling of 2026-08-24, nothing is written
+> here any more and nothing is triaged from here.
+>
+> **The live list is [`features/to-do-items.json`](features/to-do-items.json)** — ten items,
+> rendered onto [`features/to-do.md`](features/to-do.md) by `npm run to-do`. That is the
+> whole list. If a task is not there, nobody is doing it.
+>
+> **Why it was frozen.** This file reached **7,448 lines**. `/startup` had already been
+> amended to steer sessions away from it, in its own words because it *"reads as about
+> seventy open tasks when the real list is nineteen"* — the real list is now ten. A
+> document that needs a warning label against itself has stopped being an asset. It was
+> also one of seven places the same fact had to be written at the end of every session,
+> and six copies of a fact are six chances to drift.
+>
+> **Nothing here is deleted.** Everything below stays searchable, and an item found here is
+> a claim to check against the code — never a status. If something in it is still genuinely
+> open, the fix is to raise it on the live list, not to revive this file.
+>
+> ---
+>
 > **📋 2026-07-10 full-app bug-fix pass — master-team handover:**
 > [`SESSION-2026-07-10-NOTES.md`](SESSION-2026-07-10-NOTES.md). 8 commits on
 > `feat/business-performance-report` (`master` untouched); 2 critical + several high

@@ -23,7 +23,8 @@ Project documentation is in the **[`design/`](design/)** folder:
 |---|---|
 | [`design/UAT-LOAD-PACK.md`](design/UAT-LOAD-PACK.md) | **Loading a release into UAT** — runtime, environment variables, database rows, screen addresses, and how to prove it started. Read this before deploying anything. |
 | [`design/virt-advisor-registry.md`](design/virt-advisor-registry.md) | **The system registry** — the authoritative map of how the whole app works (the 8 functions, the decision pipeline, every asset). **Start here.** |
-| [`design/ACTIONS.md`](design/ACTIONS.md) | **The action backlog** — the single prioritised list of open tasks. Triage from here. |
+| [`design/features/to-do.md`](design/features/to-do.md) | **The live list** — the whole of the open work, generated from [`to-do-items.json`](design/features/to-do-items.json). Triage from here. If it is not on it, nobody is doing it. |
+| [`design/ACTIONS.md`](design/ACTIONS.md) | ⛔ **Frozen archive** (2026-08-24) — the historical action backlog. Searchable history, not a work list; nothing is added to it and nothing is triaged from it. |
 | [`design/HANDOFF.md`](design/HANDOFF.md) | Integration / handover checklist (auth, DB, Google Drive wiring). |
 | [`design/SECURITY-AUDIT-NOTES.md`](design/SECURITY-AUDIT-NOTES.md) | Security audit notes + formally accepted risks. |
 | [`design/archive/`](design/archive/) | Superseded docs — reference only, never authoritative. |
