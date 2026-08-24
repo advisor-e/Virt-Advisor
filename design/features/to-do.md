@@ -35,22 +35,25 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on |
 | --- | --- | --- | --- | --- |
-| 1 | **4.7** Flip engine-strict back on | 5 | — | Us |
-| 2 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
-| 3 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
-| 4 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
-| 5 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
-| 6 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
-| 7 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
-| 8 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
-| 9 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
-| 10 | **4.36** The Model Guide search only matches the exact words the page happens to use | 3 | — | Us |
-| 11 | **4.37** The five drivers are defined in two places, and the copies can drift | 2 | — | **Mike** |
-| 12 | **4.38** Whether Learning Psychology should reach the AI on every recommendation | 3 | — | **Mike** |
-| 13 | **4.39** Sweep the frozen ACTIONS.md for anything that is genuinely still open | 2 | — | Us |
-| 14 | **4.40** A HIGH prototype-pollution advisory sits in four copies of defu in the Nuxt tree | 5 | — | Us |
+| 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
+| 2 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
+| 3 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
+| 4 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
+| 5 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
+| 6 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
+| 7 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
+| 8 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
+| 9 | **4.36** The Model Guide search only matches the exact words the page happens to use | 3 | — | Us |
+| 10 | **4.37** The five drivers are defined in two places, and the copies can drift | 2 | — | **Mike** |
+| 11 | **4.38** Whether Learning Psychology should reach the AI on every recommendation | 3 | — | **Mike** |
+| 12 | **4.39** Sweep the frozen ACTIONS.md for anything that is genuinely still open | 2 | — | Us |
+| 13 | **4.40** A HIGH prototype-pollution advisory sits in four copies of defu in the Nuxt tree | 5 | — | Us |
+| 14 | **4.41** A package the Constitution bans by name sits in the tree, unlogged | 5 | — | Us |
+| 15 | **4.42** The to-do page’s hand-written half describes six finished items and misses ten live ones | 2 | — | Us |
+| 16 | **4.43** A test flips a global switch mid-run and fails about one run in four | 2 | — | Us |
+| 17 | **4.44** The .npmrc tells the next person to run a check that does not exist | 2 | — | Us |
 
-**Fourteen live items. Three need Mike.** If this list passes about twenty, something is wrong.
+**Seventeen live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off on 2026-08-22, and one joined and left the same day** — see
@@ -209,7 +212,7 @@ repository sees; the two never both appear, and the build stops if they would.
   🔴 **Nothing on this list now covers cutting that newer release.** That gap is deliberate and it
   is his to close.
 
-⚠ **Four items were scored 5 by Mike on 2026-08-15 — 4.12 (now closed), 4.9 (now closed), 4.7 and 3.5 — and by §2's table a 5
+⚠ **Four items were scored 5 by Mike on 2026-08-15 — 4.12 (now closed), 4.9 (now closed), 4.7 (now closed) and 3.5 — and by §2's table a 5
 means security, privacy or data integrity.** Read alongside his comments (*"just get it done"*,
 *"should never have been parked"*) he was plainly using 5 to mean **do this now**, not to name the
 category. **His scores are recorded exactly as he set them and have not been adjusted.** The
@@ -343,8 +346,8 @@ before the second starts:
 - **Technical / feature:** ~~4.12 (the master team's documents are wrong)~~ — **closed 2026-08-21;
   its premise was false, and it is left struck through here because the reading below was made
   with it counted in**, 2.9 (the education gate is
-  not coded at all — it needs Mike's words, but what is missing is a *feature*), 4.7 (the Node lock
-  is not enforced), 4.16 (content the AI is never shown), 4.17 (a screen showing 1 row of 67).
+  not coded at all — it needs Mike's words, but what is missing is a *feature*), ~~4.7 (the Node lock
+  is not enforced)~~ — **closed 2026-08-24**, 4.16 (content the AI is never shown), 4.17 (a screen showing 1 row of 67).
   ✅ **4.16's sweep is finished — 2026-08-16 — and 2.6 was its first known instance.** It found
   **102** pieces of authored content reaching no prompt, and a second half nobody had predicted:
   **no screen renders them either.** Closing 2.6 raised the expected yield rather than lowering it,
@@ -759,15 +762,6 @@ of his. **Its position is not a judgement.**
   (nothing is judged until it is set), whether the Property Tax Rules tab should be renamed now it
   holds a lending setting, and whether the sample's own 350,000 / 299,000 loan split should be reset
   now that its deposit is genuinely applied.
-
-**4.7 · Flip `engine-strict` back on.** **SCORE 2 · robustness**
-- **Why:** still `false`. Two transitive packages (`consola`, `node-releases`) over-declare their
-  Node requirement and need pinning down first.
-- **Risk:** the Node 14.15 lock is not actually enforced at install time, so a future install can
-  drift off the Stack Constitution silently.
-- **Asked by:** the **Stack Constitution** — the coding team's locked spec.
-- **Touches:** `.npmrc`, `package.json` overrides. ⚠ **Reinstall is overnight-only on this
-  machine** and there is a documented safe procedure — follow it rather than a plain `npm install`.
 
 **4.28 · The AI Prompts page has an engine and no screen.** **SCORE 4 · the user is worse off**
 - **Why:** the backend half shipped 2026-08-21 (`ea6ac22`) — both prompts as data, the protocol

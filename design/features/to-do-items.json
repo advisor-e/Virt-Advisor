@@ -36,25 +36,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it.",
   "items": [
     {
-      "ref": "4.7",
-      "name": "Flip engine-strict back on",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "HALF DONE 2026-08-24 — the edits are made, the install is not. `.npmrc` now reads engine-strict=true and package.json carries three overrides, but NO INSTALL has run, so nothing has proved they resolve. A scan of the installed tree that day found SEVEN Node-engine mismatches, not the two this item had recorded since June: node-releases@2.0.47 (wants >=18), consola@3.4.2 nested under @nuxt/telemetry (wants 14.18+), and FIVE that arrived on 2026-07-21 in `bbc476e` with the component-test tooling — minimatch@9, minipass@7, path-scurry, nopt@7 and abbrev@2, all via @vue/test-utils -> pretty -> js-beautify@1.15.4, whose glob@10 chain needs Node 14.17+.",
-      "risk": "Until the install runs, engine-strict=true is a loaded change: by design it makes `npm install` hard-fail, and nobody has yet confirmed the three overrides clear all seven. 🔴 DO NOT MERGE `feat/advisor-progress` TO `master` UNTIL THAT INSTALL PASSES — the master team has no commit access here and could not repair a broken install from their side. The underlying risk is unchanged: without this switch the Node 14.15 lock is advisory only (npm warns and proceeds), so a future install can drift off the Stack Constitution silently.",
-      "askedBy": {
-        "who": "the Stack Constitution",
-        "ours": false,
-        "detail": "The coding team's locked spec"
-      },
-      "touches": ".npmrc and package.json overrides (both edited 2026-08-24), plus package-lock.json once the install runs.",
-      "note": "🔴 FIRST TASK NEXT SESSION — Mike's instruction, 2026-08-24. ONLY THE INSTALL AND ITS VERIFICATION REMAIN. Procedure is design/STACK-RECONCILIATION-PLAN.md §5-§6: dedicated branch, back up package.json + package-lock.json first, VS Code closed, NEVER wipe node_modules. npm 6 must NEVER run in this repo — it rewrites the v2 lockfile to v1 and ignores `overrides` entirely; use nvm's Node 20.20.2 / npm 10.8.2 with NODE_EXTRA_CA_CERTS pointing at the Avast cert. ⚠ The plan's §5 step 2 warning that a standalone Node 20 shadows nvm does NOT apply to this laptop — checked 2026-08-24, `node` resolves through nvm and both runtimes are present. VERIFY IN THIS ORDER: lockfile diff is sane -> re-run the engine scan and expect ZERO offenders -> lint -> full suite -> backend boot + /api/health -> nuxt build. THEN correct the '✅ EXECUTED — this plan is DONE' header on STACK-RECONCILIATION-PLAN.md, which has been untrue since June precisely because §4's second half is this switch. ⚠ WHY THIS ITEM READ SMALLER THAN IT WAS: the five July packages were a Stack Constitution deviation that was never logged when introduced, so the item described a two-package job for a month after it had become a seven-package one.",
-      "comment": "get this done, it doesn't rely on me and should never have been parked"
-    },
-    {
       "ref": "4.15",
       "name": "The 21 branches that still name a page nobody can open",
       "score": 4,
@@ -298,6 +279,82 @@
       },
       "touches": "package.json overrides (scoped to @nuxt/loading-screen and serve-placeholder), or design/SECURITY-AUDIT-NOTES.md if the answer is to accept it.",
       "note": "⚠ DO NOT reach for a blanket `defu` override. @nuxt/config and @nuxt/static want ^2.0.4, and forcing those up four majors touches Nuxt 2.14 core config handling — real boot risk for no runtime gain. If anything moves, move ONLY the two ^5.0.0 consumers to 6.1.7, which is already in the tree and Node-14 clean. ⚠ This finding also explains a decision inside 4.7: the @nuxt/telemetry override was deliberately SCOPED to consola alone, because downgrading that package whole would have swapped its patched defu@6.1.7 for a vulnerable 5.0.1.",
+      "comment": ""
+    },
+    {
+      "ref": "4.41",
+      "name": "A package the Constitution bans by name sits in the tree, unlogged",
+      "score": 5,
+      "scoreReason": "security, privacy or data integrity",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "`@types/node@25.9.3` is installed. Stack Constitution req 2 reads \"JavaScript only — no TypeScript, ever. No `typescript`, `vue-tsc`, `@types/node`\" and names this package outright. It is a transitive dev dependency, not something we asked for, and it was already in the committed lockfile before 2026-08-24 — so it is pre-existing drift rather than anything a recent change introduced. What needs deciding is only whether it can be removed without disturbing the ESLint toolchain that pulls it, or whether it is accepted and documented.",
+      "risk": "Build-time only; nothing reaches the deployed runtime, so the direct risk is low. The reason it is scored 5 is the deviation-logging rule in CLAUDE.md, which makes any Stack Constitution deviation a score-5 reconcile task the moment it is found — precisely so drift is never quietly accepted as the new normal. Item 4.7 is what happens when that rule does not fire: five packages arrived on 2026-07-21, none was logged, and the task understated itself by a month.",
+      "askedBy": {
+        "who": "the Stack Constitution",
+        "ours": false,
+        "detail": "The coding team’s locked spec, req 2, which names this package."
+      },
+      "touches": "`package.json` (an override or a devDependency change), or `design/SECURITY-AUDIT-NOTES.md` if the answer is to accept and document it.",
+      "note": "⚠ Do NOT reach for a blunt removal. It arrives as a peer of the @typescript-eslint packages inside `@nuxtjs/eslint-config`, which is the lint baseline the Constitution itself mandates. Check first whether `legacy-peer-deps=true` (added 2026-08-24) already keeps it out of a fresh tree — the scan that found zero engine offenders did not check for banned packages, only for Node versions. The one-directional rule applies: the answer is never to soften req 2.",
+      "comment": ""
+    },
+    {
+      "ref": "4.42",
+      "name": "The to-do page’s hand-written half describes six finished items and misses ten live ones",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "`to-do.md` is a generated ranked table wrapped in hand-written per-item detail. Only the table is regenerated by `npm run to-do`; the prose is edited by hand and has drifted. As of 2026-08-24 it carries detail blocks for six items that are no longer live (2.9, 4.16, 4.19, 4.28, 4.29 and, until today, 4.7) and none at all for ten that are (4.15, 4.25, 4.27, 4.31, 4.33, 4.36–4.40). Only three live items have both. 4.7’s block also disagreed with its own data on score — the prose said 2, the JSON said 5.",
+      "risk": "A reader cannot tell which half to believe, and the page is the human-readable front door to the work list. This is the same mechanism recorded in 2.9’s own closure: the generated table said one thing, the prose said another, and on 2026-08-24 a session read the wrong one and advised Mike to pick an item on a false basis. Nothing tests the prose against the data, so the drift is silent and grows every session.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "Found 2026-08-24 while closing 4.7 — regenerating the table left a stale hand-written block behind, which exposed the wider gap. Nobody outside asked."
+      },
+      "touches": "`design/features/to-do.md` (the hand-written sections outside the generated region), and a guard in `tests/unit/toDoItems.test.js` comparing detail blocks to the live refs.",
+      "note": "The fix is two jobs and the second is the one that lasts: remove or label the six stale blocks, then add the guard so this cannot recur. A guard that simply requires every detail block to name a live ref would have caught all six. Decide deliberately whether every live item MUST have a block — the four DONE/PARKED blocks (3.1, 3.2, 3.3, 4.8) are kept on purpose and carry an explicit label, so the rule is \"labelled or live\", not \"live only\".",
+      "comment": ""
+    },
+    {
+      "ref": "4.43",
+      "name": "A test flips a global switch mid-run and fails about one run in four",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "`tests/unit/cases.routes.test.js` — \"502s when the case read itself fails in production\" — sets `process.env.NODE_ENV = 'production'` and then awaits an async call before restoring it. `NODE_ENV` is global to the worker, so anything reading it inside that window sees the wrong value. Observed failing once in four full runs on 2026-08-24; passes in isolation (57/57) and passed on the immediate re-run.",
+      "risk": "An intermittently red suite is worse than a reliably red one: it trains everyone to re-run rather than read, which is exactly how a real failure gets waved through. The pre-commit hook requires zero failures, so this will occasionally block a commit for no reason and be cleared by retrying — the habit that hides the next genuine break.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "Observed 2026-08-24 during the 4.7 verification runs. Not caused by that change — the first full run after the install was green. Nobody outside asked."
+      },
+      "touches": "`tests/unit/cases.routes.test.js` around the production-read test.",
+      "note": "The comment above the test already explains why NODE_ENV must be pinned there, so the intent is right and the mechanism is wrong. Prefer injecting the value the code under test reads, or restoring in a `finally`, over mutating a global across an await. ⚠ Confirm the diagnosis before fixing — it failed once and the reading above is inferred from the code, not from a reproduction.",
+      "comment": ""
+    },
+    {
+      "ref": "4.44",
+      "name": "The .npmrc tells the next person to run a check that does not exist",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "`.npmrc` and item 4.7 both instruct the next person to \"re-run the engine scan and expect zero offenders\". There is no such script. The scan that proved zero offenders across 1,964 packages on 2026-08-24 was written ad hoc and thrown away, as was the one that found seven offenders that morning.",
+      "risk": "`engine-strict=true` catches an offender at install time, but only for whoever runs the install. Nothing lets anyone else check the tree on demand, and nothing runs in CI — so the state that took a morning to reach cannot be confirmed by the next person without rebuilding the tool first. An instruction pointing at a missing tool also quietly teaches readers that the instructions are approximate.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "Found 2026-08-24 while verifying 4.7 — the item’s own note assumed the script existed. Nobody outside asked."
+      },
+      "touches": "A new `scripts/check-engines.js`, an `npm run check:engines` entry in `package.json`, and the sentence in `.npmrc` that promises it.",
+      "note": "Keep it small: walk `node_modules`, read each `package.json`, compare `engines.node` against the locked 14.15 with the `semver` already in the tree, print offenders and exit non-zero. Worth extending to banned packages at the same time — req 2 names `typescript`, `vue-tsc` and `@types/node`, and 4.41 exists because nothing looks for them. This is a check UAT genuinely cannot perform, so it earns its place under the testing rule.",
       "comment": ""
     }
   ]

@@ -219,6 +219,69 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.7 · Flip engine-strict back on — the Node 14.15 lock is no longer advisory.** ✅ Closed
+2026-08-24. Plan: [`../STACK-RECONCILIATION-PLAN.md`](../STACK-RECONCILIATION-PLAN.md); the
+operational detail lives in [`../../.npmrc`](../../.npmrc), beside the settings it governs.
+
+- **What it does now.** `.npmrc` carries `engine-strict=true`, so `npm install` **hard-fails** on
+  any package whose `engines.node` excludes the locked 14.15 — where before npm merely warned and
+  carried on, which is how the stack drifted in the first place. Five `overrides` in
+  `package.json` clear the offenders. A scan of the installed tree now reports **zero engine
+  offenders across 1,964 packages**, down from seven.
+- **The job was seven packages, not the two recorded since June.** Five arrived on 2026-07-21 with
+  the component-test tooling (`bbc476e`) — `minimatch@9`, `minipass@7`, `path-scurry`, `nopt@7`
+  and `abbrev@2`, all via `@vue/test-utils → pretty → js-beautify@1.15.4`, whose `glob@10` chain
+  needs Node 14.17+. **None was logged as a Stack Constitution deviation when it arrived**, which is
+  the whole reason this item understated itself for a month. The deviation-logging rule exists
+  precisely to stop that, and it did not fire.
+- 🔴 **Turning engine-strict on changed which npm can run in this repo at all, and nothing said so.**
+  The half-done note left on 2026-08-24 said to use Node 20.20.2 / npm 10.8.2. That cannot work:
+  `engine-strict` checks the **root project too**, and `package.json` declares `engines.node`
+  `14.15.x`, so npm 10 rejects the repo before reading a single dependency. npm 6 — bundled with
+  Node 14.15 — is equally barred, because it ignores `overrides` outright and rewrites the v2
+  lockfile to v1. **npm 8 on Node 14.15.0 is the only combination that satisfies all three
+  constraints** (`overrides` landed in 8.3; npm 8's own engines are `^12.13 || ^14.15 || >=16`).
+  Verified with npm 8.19.4, run from a temp directory so nothing on PATH changed.
+- 🔴 **The overrides were right all along; the lockfile was holding old pins.** With the lockfile
+  present, the scoped `@nuxt/telemetry → consola` override had no effect at all. **npm does not
+  retroactively apply an override to a package already pinned in `package-lock.json`.** The
+  `js-beautify` override appeared to work only because it changed that package's own version, which
+  invalidated its subtree and forced re-resolution; `@nuxt/telemetry`'s version never changed, so
+  its subtree was never revisited. Proved by resolving with **no lockfile**, which produced a clean
+  tree from the repo's own unmodified overrides. The fix was to delete the two stale `consola`
+  entries and let npm re-resolve that single edge.
+- **The surgical route was taken over regenerating the lockfile, and the numbers are why.** A full
+  regeneration also produced a clean tree, but churned **280 added / 269 removed / 86 version
+  changes** — including `dompurify 3.4.9 → 3.4.14`, which sits underneath the deliberately exact
+  `isomorphic-dompurify@1.3.0` pin. Removing two lines instead churned **9 added / 35 removed / 1
+  changed**, and every one of those 45 entries is accounted for: the old js-beautify chain out, the
+  1.14.0 chain in, the nested consola gone, `node-releases` pinned, `js-cookie` dropped (a
+  dependency of js-beautify 1.15.4 only, imported nowhere in our source), and the lockfile's stale
+  `0.9.0` stamp catching up to `0.10.0`.
+- 🔴 **npm 8 drags in TypeScript, which the Constitution bans by name.** npm 7+ auto-installs peer
+  dependencies; npm 6 did not, so this tree never had them. Installing them pulls `typescript@7.0.2`
+  as a peer of `tsutils`, reached via `@typescript-eslint` from `@nuxtjs/eslint-config` — breaking
+  **req 2** (no TypeScript, ever) and `engine-strict` at once, since typescript@7 wants Node
+  >=16.20. `legacy-peer-deps=true` restores the npm 6 behaviour. It relaxes nothing: the Node
+  target and `engine-strict` are untouched, and it **keeps a forbidden package out** of the tree.
+- 🔴 **The plan's header claimed this was finished for two months while it was half-done.**
+  [`../STACK-RECONCILIATION-PLAN.md`](../STACK-RECONCILIATION-PLAN.md) read *"✅ EXECUTED — this
+  plan is DONE"* from June 2026, when §3 had run and the second half of §4 — the `.npmrc` — had
+  not. Nothing failed and nobody erred; the header simply asserted completion, so **no later reader
+  had reason to look**. It also pointed at `ACTIONS.md` and the `SESSION-*.md` notes as the live
+  record, both of which stopped being that on 2026-08-24. All three corrected in this change. This
+  is the same failure family as the item above: **the record kept the claim and lost the state.**
+- **Verified, in the order the item specified.** Lockfile diff sane (45 entries, all explained) ·
+  engine scan **0 offenders / 1,964 packages** · lint **0 errors** (204 pre-existing warnings) ·
+  suite **6,271 passed / 332 suites** · backend boots and `/api/health` returns **200**, which is
+  what proves the restify 9.1.0 surface still works · `nuxt build` exits 0. The install itself ran
+  with `engine-strict` **on**, which is the real proof — that setting fails rather than warns.
+- ⚠ **Two things deliberately left open.** `@types/node@25.9.3` is in the tree and **req 2 forbids
+  it by name**; it was already in the committed lockfile before this change, so it is a
+  pre-existing deviation to be logged as its own item, not something this change introduced. And
+  the engine scan that proved the zero above **exists only as a throwaway script** — the `.npmrc`
+  tells the next person to run a check that is not yet in the repository.
+
 **2.9 · The education gate — built, with its mentor screen.** ✅ Closed 2026-08-24, session 83.
 Behaviour ruled 2026-07-16, reach ruled 2026-08-16, wording ruled 2026-08-24. Design:
 [`../EDUCATION-GATE.md`](../EDUCATION-GATE.md); artefact:
