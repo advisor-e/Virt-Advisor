@@ -182,13 +182,17 @@ ruled that one *"for AI - not the advisor or manager"*.
 **Known state.**
 - ✅ **Built and tested:** the data, the protocol block, the validator, the cascade, assembly,
   `stripInvisible`, the tier filter, the four Restify routes, and **the hub tab**. 47 tests on the
-  engine, 22 on the routes, 24 on the screen, 11 more on the stripper.
+  engine, 22 on the routes, 24 on the screen, 11 more on the stripper, 5 on the client door
+  that applies it.
 - ✅ **The screen exists** — *AI Prompts*, last under *Your AI coach*, at all four manager tiers.
   Item **4.28**, closed 2026-08-22.
-- ⚠ **`stripInvisible` is not applied to the live advisor output path** — `advisorEngine.js` is
-  untouched. Item **4.30**. 🔴 The protection panel's third line — *"Invisible characters are
-  stripped from the AI's answer"* — is true of **this** prompt path and not yet of the advisor
-  screen. Closing 4.30 is what makes that sentence true everywhere a manager would assume it is.
+- ✅ **`stripInvisible` runs on every AI path.** Applied at `server/utils/openaiClient.js` — the
+  one function every OpenAI reply in this app passes through — rather than at each engine, so the
+  advisor screen, the course screen, the case routes and the anonymiser are all covered by one
+  change. Item **4.30**, closed 2026-08-25. The protection panel's third line — *"Invisible
+  characters are stripped from the AI's answer"* — is now true on every screen a manager would
+  assume it is, not only this one. A character arriving split across two streamed chunks is
+  rejoined before it is tested, so the streaming case is closed too.
 - ⚠ **The tab has been proven by tests, not by a person opening it at every tier.** Nothing in
   this project checks that a screen LOOKS right (item **4.25**), and the two defects this feature
   has had were both found by Mike looking at a picture.

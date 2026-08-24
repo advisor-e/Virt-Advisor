@@ -131,25 +131,6 @@
       "comment": null
     },
     {
-      "ref": "4.30",
-      "name": "Invisible characters are stripped on the new path only, not the live advisor screen",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "server/utils/promptSafety.stripInvisible() shipped 2026-08-21 (`ea6ac22`) with 11 tests, closing the zero-width / bidi / Unicode-tag channel named in the security document's step 5. It is NOT applied to server/advisorEngine.js, which is the output path a real advisor reads today.",
-      "risk": "The gap the fix was written for is still open where it actually matters. Worse, the commit message and the tests read as though the channel is closed — so the next session can reasonably believe it is done. That is the failure family this list exists to end.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Raised 2026-08-21 by the session that wrote the fix, deliberately rather than quietly widening the change. Wiring it into advisorEngine alters live behaviour on a deployed screen and deserves its own change with its own tests, not a free ride inside a new feature."
-      },
-      "touches": "server/advisorEngine.js and server/courseEngine.js output handling, plus tests proving a hidden payload is removed from a real streamed response and that ordinary content survives.",
-      "note": "The frontend markdown pipeline is LOCKED by CLAUDE.md and must not be touched — the strip belongs server-side at the source, which is where stripInvisible already is. This is wiring an existing, tested function into two more call sites, not new logic.",
-      "comment": null
-    },
-    {
       "ref": "4.31",
       "name": "An accountant can share a prompt and have it checked — designed, drawn, not built",
       "score": 4,

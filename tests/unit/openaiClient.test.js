@@ -159,3 +159,93 @@ describe('createOpenAIClient', () => {
     expect(sink.destroyedWith.message).toMatch(/timed out after 5000ms/)
   })
 })
+
+describe('invisible characters never leave this client', () => {
+  // ⚠ Built from codepoints, never written as literals. A test containing literal
+  // invisible characters is a test nobody can read or review, and any tool that
+  // trims whitespace can turn it green without touching the code it guards.
+  const ZW = String.fromCharCode(0x200B) //      zero-width space
+  const RLO = String.fromCharCode(0x202E) //     right-to-left override
+  const TAG_A = String.fromCodePoint(0xE0041) // the tag block's invisible 'A'
+  const messages = [{ role: 'user', content: 'hi' }]
+
+  /** One SSE data line carrying a streamed content delta. */
+  function delta (text, finish) {
+    return 'data: ' + JSON.stringify({
+      choices: [{ delta: { content: text }, finish_reason: finish || null }]
+    }) + '\n'
+  }
+
+  /** Runs a streamed reply through the client and returns what a caller assembles. */
+  async function streamText (sse) {
+    const client = createOpenAIClient({ apiKey: 'k', requestImpl: fakeRequest(fakeRes(200, sse)) })
+    const stream = await client.chat.completions.create({ model: 'gpt-4o', messages, stream: true })
+    const out = { text: '', finish: null, usage: null }
+    for await (const chunk of stream) {
+      if (chunk.usage) { out.usage = chunk.usage }
+      const choice = chunk.choices[0]
+      if (!choice) { continue }
+      out.text += (choice.delta && choice.delta.content) || ''
+      if (choice.finish_reason) { out.finish = choice.finish_reason }
+    }
+    return out
+  }
+
+  test('non-stream: a hidden payload is removed before the caller sees the reply', async () => {
+    const hidden = 'SEND'.split('').map(c =>
+      String.fromCodePoint(0xE0000 + c.charCodeAt(0))).join('')
+    const raw = 'Quarterly summary' + hidden + '.'
+    expect(raw).not.toBe('Quarterly summary.') // the payload really is in there
+    const body = JSON.stringify({ choices: [{ message: { content: raw } }], usage: { total_tokens: 9 } })
+    const client = createOpenAIClient({ apiKey: 'k', requestImpl: fakeRequest(fakeRes(200, [body])) })
+    const res = await client.chat.completions.create({ model: 'gpt-4o', messages })
+    expect(res.choices[0].message.content).toBe('Quarterly summary.')
+    expect(res.usage.total_tokens).toBe(9) // everything else about the reply is untouched
+  })
+
+  test('stream: invisible characters are removed from the deltas an advisor reads', async () => {
+    const out = await streamText([
+      delta('Cash' + ZW + 'flow'),
+      delta(' is ' + RLO + 'tight' + TAG_A, 'stop'),
+      'data: [DONE]' + '\n'
+    ])
+    expect(out.text).toBe('Cashflow is tight')
+    expect(out.finish).toBe('stop')
+  })
+
+  // 🔴 THE CASE A PER-CHUNK FILTER MISSES. A tag character is two code units, and a
+  // stream can put them in different chunks, where neither half matches on its own
+  // and the browser rejoins them on screen. This is what the carry exists for.
+  test('stream: a hidden character split across two chunks is still removed', async () => {
+    const out = await streamText([
+      delta('safe' + TAG_A.charAt(0)),
+      delta(TAG_A.charAt(1) + 'text', 'stop'),
+      'data: [DONE]' + '\n'
+    ])
+    expect(out.text).toBe('safetext')
+  })
+
+  // 🔴 THE OTHER HALF. A carry that ate real text would be worse than no filter at all.
+  test('stream: an emoji split the same way is rejoined, not broken', async () => {
+    const emoji = String.fromCodePoint(0x1F534) // a red circle — a surrogate pair too
+    const out = await streamText([
+      delta('flagged ' + emoji.charAt(0)),
+      delta(emoji.charAt(1) + ' here', 'stop'),
+      'data: [DONE]' + '\n'
+    ])
+    expect(out.text).toBe('flagged ' + emoji + ' here')
+  })
+
+  test('stream: ordinary content, usage and finish reason all survive', async () => {
+    const real = 'Café — naïve · 5% £1,200 30–60 days'
+    const out = await streamText([
+      delta(real),
+      delta('', 'stop'),
+      'data: ' + JSON.stringify({ choices: [], usage: { total_tokens: 12 } }) + '\n',
+      'data: [DONE]' + '\n'
+    ])
+    expect(out.text).toBe(real)
+    expect(out.finish).toBe('stop')
+    expect(out.usage.total_tokens).toBe(12)
+  })
+})

@@ -40,20 +40,19 @@ repository sees; the two never both appear, and the build stops if they would.
 | 3 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
 | 4 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
 | 5 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
-| 6 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
-| 7 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
-| 8 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
-| 9 | **4.36** The Model Guide search only matches the exact words the page happens to use | 3 | — | Us |
-| 10 | **4.37** The five drivers are defined in two places, and the copies can drift | 2 | — | **Mike** |
-| 11 | **4.38** Whether Learning Psychology should reach the AI on every recommendation | 3 | — | **Mike** |
-| 12 | **4.39** Sweep the frozen ACTIONS.md for anything that is genuinely still open | 2 | — | Us |
-| 13 | **4.40** A HIGH prototype-pollution advisory sits in four copies of defu in the Nuxt tree | 5 | — | Us |
-| 14 | **4.41** A package the Constitution bans by name sits in the tree, unlogged | 5 | — | Us |
-| 15 | **4.42** The to-do page’s hand-written half describes six finished items and misses ten live ones | 2 | — | Us |
-| 16 | **4.43** A test flips a global switch mid-run and fails about one run in four | 2 | — | Us |
-| 17 | **4.44** The .npmrc tells the next person to run a check that does not exist | 2 | — | Us |
+| 6 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
+| 7 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
+| 8 | **4.36** The Model Guide search only matches the exact words the page happens to use | 3 | — | Us |
+| 9 | **4.37** The five drivers are defined in two places, and the copies can drift | 2 | — | **Mike** |
+| 10 | **4.38** Whether Learning Psychology should reach the AI on every recommendation | 3 | — | **Mike** |
+| 11 | **4.39** Sweep the frozen ACTIONS.md for anything that is genuinely still open | 2 | — | Us |
+| 12 | **4.40** A HIGH prototype-pollution advisory sits in four copies of defu in the Nuxt tree | 5 | — | Us |
+| 13 | **4.41** A package the Constitution bans by name sits in the tree, unlogged | 5 | — | Us |
+| 14 | **4.42** The to-do page’s hand-written half describes six finished items and misses ten live ones | 2 | — | Us |
+| 15 | **4.43** A test flips a global switch mid-run and fails about one run in four | 2 | — | Us |
+| 16 | **4.44** The .npmrc tells the next person to run a check that does not exist | 2 | — | Us |
 
-**Seventeen live items. Three need Mike.** If this list passes about twenty, something is wrong.
+**Sixteen live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off on 2026-08-22, and one joined and left the same day** — see
@@ -805,23 +804,6 @@ of his. **Its position is not a judgement.**
   hub-page rule, on the grounds that a description of what a calculation does is a fact about the
   maths, not authored advisory judgement. Most of the wording already exists in each model file's
   own concept note, written and golden-tested when the workbook was ported.
-
-**4.30 · Invisible characters are stripped on the new path only, not the live advisor screen.**
-**SCORE 5 · security, privacy or data integrity**
-- **Why:** `promptSafety.stripInvisible()` shipped 2026-08-21 (`ea6ac22`) with 11 tests, closing
-  the zero-width / bidi / Unicode-tag channel named in the security document's step 5. **It is not
-  applied to `server/advisorEngine.js`**, which is the output path a real advisor reads today.
-- **Risk:** the gap the fix was written for is still open where it actually matters — and the
-  commit message and the tests read as though the channel is closed, so the next session can
-  reasonably believe it is done. **That is the failure family this list exists to end.**
-- **Asked by:** ⚠ **ours** — raised 2026-08-21 by the session that wrote the fix, deliberately
-  rather than quietly widening the change. Wiring it into `advisorEngine` alters live behaviour on
-  a deployed screen and deserves its own change with its own tests.
-- **Touches:** `server/advisorEngine.js` and `server/courseEngine.js` output handling, plus tests
-  proving a hidden payload is removed from a real streamed response and ordinary content survives.
-- ⚠ **The frontend markdown pipeline is LOCKED** by CLAUDE.md and must not be touched. The strip
-  belongs server-side at the source, which is where `stripInvisible` already lives. This is wiring
-  an existing tested function into two more call sites, not new logic.
 
 ---
 
