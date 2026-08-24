@@ -219,6 +219,39 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.44 · The check two documents promised, now written.** ✅ Closed 2026-08-25.
+`scripts/check-engines.js` · `npm run check:engines` · tests in
+`tests/unit/checkEngines.test.js`.
+
+- **The gap.** Item 4.7 brought the tree to zero engine offenders and turned
+  `engine-strict=true` on — but that fires only for whoever runs the install, and the scan
+  that PROVED the zero was written ad hoc and thrown away, as was the one that found seven
+  offenders the same morning. `.npmrc` and 4.7’s own closure both pointed at a check that
+  was not in the repository. An instruction naming a missing tool teaches readers that the
+  instructions are approximate.
+- **What it checks — three things, each of which fails the run.** Every installed package
+  whose `engines.node` excludes the locked runtime; the packages req 2 forbids outright
+  (`typescript`, `vue-tsc`); and the `@types/node` pin from item 4.41, so a drift
+  back up the versions is reported rather than found a month later. Nothing looked for the
+  banned names before — **4.41 exists precisely because nothing did**.
+- 🔴 **The target is read, never typed.** The locked runtime comes from the root
+  `package.json`’s own `engines.node`. A version typed into the script could drift from
+  the lock it exists to enforce and would then report a comfortable zero against the wrong
+  number. A root with no `engines.node` stops the scan instead of scanning against nothing.
+- **Not wired into pre-commit or CI, deliberately.** A full `node_modules` walk is too slow
+  for every commit, and `engine-strict` already hard-fails the install, which is the
+  enforcement. This is the on-demand confirmation nobody had.
+- **What proved it.** Nine tests over fixture trees, and they exist for one reason: a checker
+  that reports green unconditionally is worse than no checker — that is the fault closed in
+  **4.30** the same day, green and documented and doing nothing. They prove it flags a nested
+  offender, a scoped offender, a banned package, a copy off the pin and a pin that has been
+  deleted — **and that a compliant tree reports nothing at all**. Run live against the real
+  tree: **0 offenders across 1,982 packages**, matching the throwaway scan of 2026-08-24
+  independently. Suite **6,285 green** at verification — **6,281** once this item came off the
+  list, four generated tests going with it — lint 0 errors.
+- **The two sentences that promised it are now true.** `.npmrc` names the command, and
+  4.7’s closure above no longer says the check is missing.
+
 **4.40 · The `defu` advisory — reviewed, corrected, and accepted.** ✅ Closed 2026-08-25.
 The review is in [`../SECURITY-AUDIT-NOTES.md`](../SECURITY-AUDIT-NOTES.md).
 
@@ -369,8 +402,9 @@ operational detail lives in [`../../.npmrc`](../../.npmrc), beside the settings 
 - ⚠ **Two things deliberately left open.** `@types/node@25.9.3` is in the tree and **req 2 forbids
   it by name**; it was already in the committed lockfile before this change, so it is a
   pre-existing deviation to be logged as its own item, not something this change introduced. And
-  the engine scan that proved the zero above **exists only as a throwaway script** — the `.npmrc`
-  tells the next person to run a check that is not yet in the repository.
+  the engine scan that proved the zero above existed **only as a throwaway script**, so nobody
+  else could confirm the state without rebuilding it. That was item **4.44**, closed 2026-08-25:
+  the check is now `npm run check:engines`.
 
 **2.9 · The education gate — built, with its mentor screen.** ✅ Closed 2026-08-24, session 83.
 Behaviour ruled 2026-07-16, reach ruled 2026-08-16, wording ruled 2026-08-24. Design:

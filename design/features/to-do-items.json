@@ -280,25 +280,6 @@
       "touches": "`tests/unit/cases.routes.test.js` around the production-read test.",
       "note": "The comment above the test already explains why NODE_ENV must be pinned there, so the intent is right and the mechanism is wrong. Prefer injecting the value the code under test reads, or restoring in a `finally`, over mutating a global across an await. ⚠ Confirm the diagnosis before fixing — it failed once and the reading above is inferred from the code, not from a reproduction.",
       "comment": ""
-    },
-    {
-      "ref": "4.44",
-      "name": "The .npmrc tells the next person to run a check that does not exist",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "`.npmrc` and item 4.7 both instruct the next person to \"re-run the engine scan and expect zero offenders\". There is no such script. The scan that proved zero offenders across 1,964 packages on 2026-08-24 was written ad hoc and thrown away, as was the one that found seven offenders that morning.",
-      "risk": "`engine-strict=true` catches an offender at install time, but only for whoever runs the install. Nothing lets anyone else check the tree on demand, and nothing runs in CI — so the state that took a morning to reach cannot be confirmed by the next person without rebuilding the tool first. An instruction pointing at a missing tool also quietly teaches readers that the instructions are approximate.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "Found 2026-08-24 while verifying 4.7 — the item’s own note assumed the script existed. Nobody outside asked."
-      },
-      "touches": "A new `scripts/check-engines.js`, an `npm run check:engines` entry in `package.json`, and the sentence in `.npmrc` that promises it.",
-      "note": "Keep it small: walk `node_modules`, read each `package.json`, compare `engines.node` against the locked 14.15 with the `semver` already in the tree, print offenders and exit non-zero. Worth extending to banned packages at the same time — req 2 names `typescript`, `vue-tsc` and `@types/node`, and 4.41 exists because nothing looks for them. This is a check UAT genuinely cannot perform, so it earns its place under the testing rule.",
-      "comment": ""
     }
   ]
 }
