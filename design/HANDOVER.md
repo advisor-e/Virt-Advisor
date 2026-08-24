@@ -10,28 +10,29 @@
 
 ## 2026-08-24 · Laptop · branch `feat/advisor-progress`
 
-**What happened.** Item **4.7** (engine-strict) — half done. `0a8d182` is pushed.
+**What happened.** Item **4.7 is DONE and closed.** `158ff4c` is pushed. The install ran and
+verified: engine scan **0 offenders across 1,964 packages**, down from seven. Suite 6,283
+green, lint 0 errors, backend `/api/health` 200, `nuxt build` exit 0.
 
-🔴 **DO NOT MERGE THIS BRANCH TO `master`.** It carries `engine-strict=true` in
-`.npmrc` with three new `overrides` in `package.json`, and **no install has proved
-they resolve**. engine-strict makes `npm install` hard-fail by design, and the master
-team could not repair a broken install from their side. The branch is safe where it
-is; it is not safe on `master` yet.
+✅ **The "DO NOT MERGE THIS BRANCH" warning from last session is LIFTED.** The install it was
+waiting on has passed. The branch is 17 ahead, 0 behind `master`.
 
-**First task next session — Mike's instruction.** Run the install and verify it.
-Everything you need is in 4.7's note on [`features/to-do-items.json`](features/to-do-items.json):
-dedicated branch, back up `package.json` + `package-lock.json`, VS Code closed, never
-wipe `node_modules`, and **npm 6 must never run here** — use nvm's Node 20.20.2 / npm
-10.8.2 with the Avast cert. Verify in order: lockfile diff → engine scan (expect zero)
-→ lint → suite → backend boot + `/api/health` → `nuxt build`.
+🔴 **THE ONE THING THE OTHER MACHINE MUST KNOW — `npm install` will now fail for you.**
+`engine-strict=true` is live, and it checks the **root project too**. So:
 
-**What the job turned out to be.** Not two packages — **seven**. Five arrived
-2026-07-21 with the component-test tooling (`bbc476e`) and were never logged as a
-Stack Constitution deviation, so 4.7 understated itself for a month.
+- **npm 6** (bundled with Node 14.15) — ignores `overrides`, rewrites the v2 lockfile to v1.
+  Never run it here.
+- **npm 10** (Node 20) — refuses the repo outright: `package.json` declares `engines.node 14.15.x`.
+- **npm 8 on Node 14.15.0 is the only combination that works.** Get it with
+  `npm install npm@8.19.4` into a scratch folder, then call its `npm-cli.js` with Node 14.15’s
+  `node.exe`. My copy is in this laptop’s temp folder and will not survive; you need your own.
 
-**Also filed: 4.40** — a HIGH `defu` prototype-pollution advisory affecting four
-copies already in the Nuxt 2.14.0 tree. Found while checking 4.7, unrelated to it,
-build-time only. 14 items on the list now.
+The full reasoning is in [`../.npmrc`](../.npmrc), beside the settings — read it before any install.
 
-**Still true from last session:** `v0.10.0` has awaited pull by the master team since
-2026-08-22, with three earlier releases also unpulled. Not ours to close.
+**Four findings filed, none fixed:** 4.41 (`@types/node` is in the tree; req 2 bans it by name —
+pre-existing, score 5 by the deviation rule), 4.42 (`to-do.md`’s hand-written half describes six
+closed items and misses ten live ones), 4.43 (a flaky test mutating global `NODE_ENV`), 4.44 (the
+engine scan `.npmrc` tells you to run does not exist). **17 live items now.**
+
+**Still true from last session:** `v0.10.0` has awaited pull by the master team since 2026-08-22,
+with three earlier releases also unpulled. Not ours to close.
