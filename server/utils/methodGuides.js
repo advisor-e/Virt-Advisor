@@ -252,13 +252,14 @@ const GUIDES = [
     // Two slides are deliberately not transcribed: the session housekeeping slide and
     // the blank worksheet, neither of which is content the AI can use.
     //
-    // ⚠ KNOWN OVERLAP, RECORDED RATHER THAN LEFT TO DRIFT. The five drivers are also
-    // defined in data/staff-domain-support.json's "5 Drivers of Human Output —
-    // Performance Diagnosis" row, where they serve a DIAGNOSIS (which driver is
-    // failing). These are the source definitions the diagnosis paraphrases. Two
-    // copies is how content drifts apart in this repo; reconciling them is its own
-    // change and needs Mike's call, so it is named here and in ACTIONS rather than
-    // done quietly.
+    // 🔴 THIS FILE IS THE SOURCE OF THE FIVE DRIVERS, AND CODE NOW ENFORCES THAT.
+    // data/staff-domain-support.json's "5 Drivers of Human Output — Performance
+    // Diagnosis" row used to paraphrase these definitions in its own words, so both
+    // reached the AI and either could be corrected without the other. Mike ruled on
+    // 2026-08-25 that this file is the source (item 4.37). The row now declares
+    // `definitions_from` and domainSupport.formatDefinitionsFrom reads the block
+    // below, so there is one copy rather than two kept level by hand. Editing the
+    // drivers here changes what the diagnosis row tells the AI.
     id: 'productive_habits',
     file: 'productive-habits.json',
     // ⚠ THE ID AND THE FILENAME KEEP THE OLD NAME ON PURPOSE. `id` is the storage

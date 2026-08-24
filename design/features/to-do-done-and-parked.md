@@ -219,6 +219,35 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.37 · The five drivers were written down twice.** ✅ Closed 2026-08-25.
+`server/utils/domainSupport.js` · tests in `tests/unit/domainSupportDefinitions.test.js`.
+
+- **The fault.** Learning Psychology (`data/productive-habits.json`) holds the five drivers
+  transcribed from the master app’s own Productive Habits template. The staff diagnosis row in
+  `data/staff-domain-support.json` paraphrased the same five in its own shorter words, and
+  even used different names — `Mindset` against `Mind Set (mental state / attitude)`.
+  Both reached the AI, on different occasions. Correct one and not the other and the model holds
+  two definitions of the same five things with no way to tell which was meant — and nobody sees
+  it, because the copies sit in separate files. That is how content drifted apart here before.
+- **Mike’s ruling, 2026-08-25: Learning Psychology is the source.** The row defers to it.
+- **Wired, not merely aligned.** The material declares
+  `"definitions_from": "productive_habits.five_drivers_of_human_output"` and
+  `formatDefinitionsFrom` renders the block from the guide at prompt-build time, inside
+  `formatMaterialLines` — the one point every domain-support material passes through, so any
+  future row can do the same. **There is now one copy, not two kept level by hand.**
+- **What the AI sees.** The five source definitions as their own labelled block above the steps.
+  Step 1 keeps its own sentence and the row’s own names; only the second set of definitions went.
+- ⚠ **Platform base only, stated rather than hidden.** A firm can override a guide’s wording on
+  its own page; this reads the committed base. Threading firm context through means changing
+  several signatures, so it waits for the day a firm actually needs it.
+- **Hub-page judgement (2026-08-16 rule), stated not assumed.** Both halves already have screens
+  — Learning Psychology at mentor tier, and the Domain Support tab. This makes the row show what
+  that screen holds, so nothing became less visible. **No new screen, no cascade.**
+- **What proved it.** Five tests, including one that pins every definition the AI receives to the
+  source character for character — it fails the moment either file is edited alone, which is the
+  drift that used to go unnoticed. Suite **6,286 green** at verification — **6,282** once this
+  item came off the list, four generated tests going with it — lint 0 errors.
+
 **4.44 · The check two documents promised, now written.** ✅ Closed 2026-08-25.
 `scripts/check-engines.js` · `npm run check:engines` · tests in
 `tests/unit/checkEngines.test.js`.
