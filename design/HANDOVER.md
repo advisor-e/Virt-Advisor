@@ -10,29 +10,28 @@
 
 ## 2026-08-24 · Laptop · branch `feat/advisor-progress`
 
-**What happened.** A productivity review, then the six changes it recommended. No product
-code was touched — only the rules and the records. Nothing is half-built.
+**What happened.** Item **4.7** (engine-strict) — half done. `0a8d182` is pushed.
 
-**What the other machine needs to know:**
+🔴 **DO NOT MERGE THIS BRANCH TO `master`.** It carries `engine-strict=true` in
+`.npmrc` with three new `overrides` in `package.json`, and **no install has proved
+they resolve**. engine-strict makes `npm install` hard-fail by design, and the master
+team could not repair a broken install from their side. The branch is safe where it
+is; it is not safe on `master` yet.
 
-- **Session-notes files are over.** Write your handover here, replacing this. `/startup` no
-  longer reads `SESSION-*.md`.
-- **`ACTIONS.md` is frozen** — add nothing. The live list is `to-do-items.json`. The three
-  rules in `CLAUDE.md` that still told you to write to it now point at the live list.
-- **Briefs are edited, not appended to.** Replace the sentence that is wrong; superseded
-  text goes to the feature's history page.
-- **New tests must not pin on-screen wording, CSS classes, or file existence.** Existing
-  ones stay. Maths, permissions and AI-output validation are unchanged — full coverage.
-- **The hub-page cascade defaults to the mentor tier alone**, with one line saying why the
-  other three are or are not needed.
+**First task next session — Mike's instruction.** Run the install and verify it.
+Everything you need is in 4.7's note on [`features/to-do-items.json`](features/to-do-items.json):
+dedicated branch, back up `package.json` + `package-lock.json`, VS Code closed, never
+wipe `node_modules`, and **npm 6 must never run here** — use nvm's Node 20.20.2 / npm
+10.8.2 with the Avast cert. Verify in order: lockfile diff → engine scan (expect zero)
+→ lint → suite → backend boot + `/api/health` → `nuxt build`.
 
-**Three items raised, all on the live list (13 items now):** **4.37** the five drivers
-defined in two places and **4.38** whether Learning Psychology reaches the AI on every
-recommendation — both carried from 2026-08-23 notes where they had reached no list, which is
-the fault this session fixed. **4.39** sweep the frozen `ACTIONS.md` for anything genuinely
-still open: 65 pointers across the repo say "logged in ACTIONS.md", and freezing it does not
-prove it was empty. **Until 4.39 is done, the honest statement is that the live list holds
-everything anyone has looked at recently, not everything that is open.**
+**What the job turned out to be.** Not two packages — **seven**. Five arrived
+2026-07-21 with the component-test tooling (`bbc476e`) and were never logged as a
+Stack Constitution deviation, so 4.7 understated itself for a month.
 
-**Not ours to close:** `v0.10.0` has awaited pull by the master team since 2026-08-22, with
-three earlier releases also unpulled.
+**Also filed: 4.40** — a HIGH `defu` prototype-pollution advisory affecting four
+copies already in the Nuxt 2.14.0 tree. Found while checking 4.7, unrelated to it,
+build-time only. 14 items on the list now.
+
+**Still true from last session:** `v0.10.0` has awaited pull by the master team since
+2026-08-22, with three earlier releases also unpulled. Not ours to close.
