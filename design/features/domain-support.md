@@ -97,14 +97,20 @@ here.
 - **Learning Psychology** — reaches the prompt **only** alongside Facilitation 101's learn
   reference. It is ~6,000 characters; attaching it to every learn tree would spend that on guides it
   has nothing to do with, and attaching it to every client recommendation would spend it on every
-  answer the product gives. ⚠ **Where else it should go is an open decision for Mike**, recorded
-  rather than defaulted.
+  answer the product gives. ✅ **Ruled by Mike 2026-08-25 (item 4.38): leave it there.** The learn
+  path is where how a person reacts to learning actually bears on how advice is delivered. Changing
+  the reach is a decision to put to him, not a tune.
 
-⚠ **Known duplication, recorded so it cannot drift quietly.** Learning Psychology's five drivers are
-also defined in [`../../data/staff-domain-support.json`](../../data/staff-domain-support.json), in
-the *"5 Drivers of Human Output — Performance Diagnosis"* row, where they serve a diagnosis of which
-driver is failing. Learning Psychology carries the source definitions that row paraphrases.
-Reconciling the two is its own change and needs Mike's call.
+✅ **The five drivers are defined once, and code enforces it.** Learning Psychology holds the source
+definitions, transcribed from the master app's own template. The *"5 Drivers of Human Output —
+Performance Diagnosis"* row in
+[`../../data/staff-domain-support.json`](../../data/staff-domain-support.json) used to paraphrase
+them in its own words; it now declares `definitions_from` and `domainSupport.formatDefinitionsFrom`
+renders the block from the guide at prompt-build time. **Any material may name a guide block this
+way** — it is the general mechanism, not a one-off, and it lives in `formatMaterialLines`, the one
+point every material passes through. Ruled by Mike 2026-08-25 (item 4.37). A test pins every
+definition the AI receives to the source character for character, so editing either file alone goes
+red. ⚠ It reads the **platform base**: a firm override of a guide does not flow through here yet.
 
 **P4 · Overrides are sparse and merge per field.** A level stores only what it changed, and the
 rest keeps tracking the platform. **Arrays are the exception — they replace wholesale**, so
