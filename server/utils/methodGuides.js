@@ -260,6 +260,13 @@ const GUIDES = [
     // `definitions_from` and domainSupport.formatDefinitionsFrom reads the block
     // below, so there is one copy rather than two kept level by hand. Editing the
     // drivers here changes what the diagnosis row tells the AI.
+    // ✅ HOW OFTEN THE AI SEES THIS IS A DECISION, NOT AN ACCIDENT. It reaches the
+    // model alongside the learn reference (see logicTrees.buildLearnReferenceText) and
+    // NOT on every client recommendation. At around 6,000 characters that would be a
+    // real cost on every call, and the learn path is where how people learn actually
+    // bears on how advice is delivered. It was left off the default when this shipped
+    // on 2026-08-23 without anyone choosing it; Mike chose it on 2026-08-25 — leave it
+    // as it is (item 4.38). Changing the reach is a decision to put to him, not a tune.
     id: 'productive_habits',
     file: 'productive-habits.json',
     // ⚠ THE ID AND THE FILENAME KEEP THE OLD NAME ON PURPOSE. `id` is the storage

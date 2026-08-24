@@ -39,16 +39,14 @@ repository sees; the two never both appear, and the build stops if they would.
 | 2 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
 | 3 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
 | 4 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
-| 5 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
-| 6 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
-| 7 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
-| 8 | **4.36** The Model Guide search only matches the exact words the page happens to use | 3 | — | Us |
-| 9 | **4.38** Whether Learning Psychology should reach the AI on every recommendation | 3 | — | **Mike** |
-| 10 | **4.39** Sweep the frozen ACTIONS.md for anything that is genuinely still open | 2 | — | Us |
-| 11 | **4.42** The to-do page’s hand-written half describes six finished items and misses ten live ones | 2 | — | Us |
-| 12 | **4.43** A test flips a global switch mid-run and fails about one run in four | 2 | — | Us |
+| 5 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
+| 6 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
+| 7 | **4.36** The Model Guide search only matches the exact words the page happens to use | 3 | — | Us |
+| 8 | **4.39** Sweep the frozen ACTIONS.md for anything that is genuinely still open | 2 | — | Us |
+| 9 | **4.42** The to-do page’s hand-written half describes six finished items and misses ten live ones | 2 | — | Us |
+| 10 | **4.43** A test flips a global switch mid-run and fails about one run in four | 2 | — | Us |
 
-**Twelve live items. Two need Mike.** If this list passes about twenty, something is wrong.
+**Ten live items. None need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off on 2026-08-22, and one joined and left the same day** — see
@@ -133,6 +131,7 @@ repository sees; the two never both appear, and the build stops if they would.
   ⚠ **And it found a hole nothing can close by itself:** layout was shipped **unverified**, because
   no browser driver was installed. That is now **4.25** — a job, not a warning. The two wording
   calls it left with Mike are **4.26** and **4.27**.
+  ✅ **4.27 closed 2026-08-25** — Mike struck the sentence; the tax rules stay portfolio-level.
   ✅ **The driver half of 4.25 closed the next day** (2026-08-21, `7fa5e9a`): `playwright` pinned to
   exact **1.34.3**, the last release that runs on the locked Node 14.15, configured so no other
   machine downloads a browser on `npm install`. **4.25 stays open** — the project can now see a

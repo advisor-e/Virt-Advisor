@@ -219,6 +219,38 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.38 · How often Learning Psychology reaches the AI — now chosen, not inherited.** ✅ Closed
+2026-08-25. No code change; the decision is the deliverable.
+
+- **Why it was on the list.** The page reaches the model alongside the learn reference and not on
+  every client recommendation. At around 6,000 characters, putting it on every call is a real
+  cost — so it was left off the default when it shipped on 2026-08-23, **without anyone actually
+  deciding**. The advice the AI gives is shaped by whether it can see the psychology, so an
+  accidental setting is the wrong kind of quiet.
+- **Mike’s ruling, 2026-08-25: leave it as it is.** The learn path is where how people learn
+  bears on how advice is delivered; ordinary calls carry no extra cost.
+- **Checked before accepting the answer.** The guide is marked `standing: true`, which could
+  have meant "always sent". It does not — that flag is read only by the Firm Manager screen. The
+  item’s premise was right.
+- **Where it is recorded.** Beside the guide definition in `server/utils/methodGuides.js`, so
+  the next person to look at the reach finds a decision rather than an arrangement.
+
+**4.27 · The property drawing promised an override nothing builds.** ✅ Closed 2026-08-25.
+Artefact: [`../mockups/multiple-property-portfolio.html`](../mockups/multiple-property-portfolio.html);
+outcome recorded in §10 of [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md).
+
+- **The fault.** The Tax rules card said *"A single property may still differ — that override
+  lives on the property itself, below."* No such control was drawn on that page and none was
+  built: the tax rules are portfolio-level and apply to all five properties.
+- **Why it needed Mike and not a developer.** Building the override unasked would have shipped
+  something he never saw; deleting the sentence quietly would have hidden a promise he may have
+  meant. The case for it is a firm advising across a border; the case against is a family whose
+  properties are all in one country — the reasoning the card is built on (§11 Q11).
+- **Mike’s ruling, 2026-08-25: strike the sentence.** The card now states there is no
+  per-property override outright, rather than leaving it to omission.
+- **Recorded as withdrawn, not vanished.** §10 carries the promise, the two cases and the ruling,
+  so a later session finds an answer instead of re-deriving the question from an old drawing.
+
 **4.37 · The five drivers were written down twice.** ✅ Closed 2026-08-25.
 `server/utils/domainSupport.js` · tests in `tests/unit/domainSupportDefinitions.test.js`.
 

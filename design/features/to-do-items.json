@@ -112,25 +112,6 @@
       "comment": null
     },
     {
-      "ref": "4.27",
-      "name": "The property drawing promises a per-property tax override that nothing builds",
-      "score": 1,
-      "scoreReason": "internal only",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The Tax rules card on design/mockups/multiple-property-portfolio.html carries the note \"A single property may still differ — that override lives on the property itself, below.\" No such control is drawn anywhere on that page, and none is built: the tax rules are portfolio-level and apply to all five properties. The drawing's prose promises a control the drawing itself never shows.",
-      "risk": "This is the artefact and the build disagreeing, which is the precise thing §10 exists to catch. Building it unasked would ship something Mike never saw; deleting the sentence would hide the promise. Left alone and unrecorded it becomes a claim a later session believes because it is written down — the failure mode design-docs-are-claims-to-check describes, in an approved artefact rather than a plan.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Raised 2026-08-21 while naming the twelve build-vs-drawing differences in §10. It stays because the honest options are opposite — build the control, or strike the sentence — and only Mike can say which. It blocks nothing either way."
-      },
-      "touches": "Either components/MultiplePropertyAssessment.vue and locales/en.json (build the override), or one sentence in design/mockups/multiple-property-portfolio.html plus the §10 row (strike it). Whichever way it goes, §10 of design/MULTIPLE-PROPERTY-ASSESSMENT.md records the outcome.",
-      "note": "ASK, DO NOT CHOOSE. A firm advising across a border is the case for a per-property override; a family having one country is the case against, and that is the reasoning the card is built on today (§11 Q11).",
-      "comment": null
-    },
-    {
       "ref": "4.31",
       "name": "An accountant can share a prompt and have it checked — designed, drawn, not built",
       "score": 4,
@@ -185,25 +166,6 @@
       },
       "touches": "What else moves if this moves? Only the Model Guide search. The catalogue, the models and the report screens are untouched - this is how the page filters what it already has.",
       "note": "TWO SEPARATE FAULTS, and the cheap one is not the interesting one. (1) WHOLE-PHRASE MATCHING: split the query into words and require every word to appear somewhere in the haystack, which fixes 'investment property' and any other pair of words the advisor uses in their own order. (2) NO VOCABULARY: 'houses', 'landlord', 'rental yield' are what an advisor says; 'property' is what the page says. That needs a small authored synonym list per model - and under CLAUDE.md's hub-page rule, authored content the product reads belongs on a screen, not buried in a component. CHECK FIRST whether data/report-model-summaries.json is the right home for it, beside the model's other authored lines, rather than inventing a second store. DO NOT reach for fuzzy matching or an embedding search: this library holds ~18 models, and a wrong-but-confident match is worse here than a miss, because the advisor takes the suggestion into a client meeting."
-    },
-    {
-      "ref": "4.38",
-      "name": "Whether Learning Psychology should reach the AI on every recommendation",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The page reaches the AI only alongside Facilitation 101's learn reference. At around 6,000 characters, putting it on every client recommendation is a real cost per call and was deliberately not made the default when it shipped on 2026-08-23. Mike's call: leave it as it is, put it on every recommendation, or gate it on something.",
-      "risk": "Left unasked it stays at the accidental setting rather than a chosen one - and the advice the AI gives is shaped by whether it can see the psychology or not.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "Raised as an open question when Learning Psychology shipped, 2026-08-23."
-      },
-      "touches": "server/utils/methodGuides.js, server/advisorEngine.js.",
-      "note": "Appended at the end of the array because the order is Mike's ranking and no session re-sorts it. He ranks these two when he is ready.",
-      "comment": ""
     },
     {
       "ref": "4.39",
