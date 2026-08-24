@@ -48,8 +48,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 11 | **4.37** The five drivers are defined in two places, and the copies can drift | 2 | — | **Mike** |
 | 12 | **4.38** Whether Learning Psychology should reach the AI on every recommendation | 3 | — | **Mike** |
 | 13 | **4.39** Sweep the frozen ACTIONS.md for anything that is genuinely still open | 2 | — | Us |
+| 14 | **4.40** A HIGH prototype-pollution advisory sits in four copies of defu in the Nuxt tree | 5 | — | Us |
 
-**Thirteen live items. Three need Mike.** If this list passes about twenty, something is wrong.
+**Fourteen live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off on 2026-08-22, and one joined and left the same day** — see

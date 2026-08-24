@@ -43,15 +43,15 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "Still false. Two transitive packages (consola, node-releases) over-declare their Node requirement and need pinning down first.",
-      "risk": "The Node 14.15 lock is not actually enforced at install time, so a future install can drift off the Stack Constitution silently.",
+      "why": "HALF DONE 2026-08-24 — the edits are made, the install is not. `.npmrc` now reads engine-strict=true and package.json carries three overrides, but NO INSTALL has run, so nothing has proved they resolve. A scan of the installed tree that day found SEVEN Node-engine mismatches, not the two this item had recorded since June: node-releases@2.0.47 (wants >=18), consola@3.4.2 nested under @nuxt/telemetry (wants 14.18+), and FIVE that arrived on 2026-07-21 in `bbc476e` with the component-test tooling — minimatch@9, minipass@7, path-scurry, nopt@7 and abbrev@2, all via @vue/test-utils -> pretty -> js-beautify@1.15.4, whose glob@10 chain needs Node 14.17+.",
+      "risk": "Until the install runs, engine-strict=true is a loaded change: by design it makes `npm install` hard-fail, and nobody has yet confirmed the three overrides clear all seven. 🔴 DO NOT MERGE `feat/advisor-progress` TO `master` UNTIL THAT INSTALL PASSES — the master team has no commit access here and could not repair a broken install from their side. The underlying risk is unchanged: without this switch the Node 14.15 lock is advisory only (npm warns and proceeds), so a future install can drift off the Stack Constitution silently.",
       "askedBy": {
         "who": "the Stack Constitution",
         "ours": false,
         "detail": "The coding team's locked spec"
       },
-      "touches": ".npmrc, package.json overrides.",
-      "note": "Reinstall is overnight-only on this machine and there is a documented safe procedure — follow it rather than a plain npm install.",
+      "touches": ".npmrc and package.json overrides (both edited 2026-08-24), plus package-lock.json once the install runs.",
+      "note": "🔴 FIRST TASK NEXT SESSION — Mike's instruction, 2026-08-24. ONLY THE INSTALL AND ITS VERIFICATION REMAIN. Procedure is design/STACK-RECONCILIATION-PLAN.md §5-§6: dedicated branch, back up package.json + package-lock.json first, VS Code closed, NEVER wipe node_modules. npm 6 must NEVER run in this repo — it rewrites the v2 lockfile to v1 and ignores `overrides` entirely; use nvm's Node 20.20.2 / npm 10.8.2 with NODE_EXTRA_CA_CERTS pointing at the Avast cert. ⚠ The plan's §5 step 2 warning that a standalone Node 20 shadows nvm does NOT apply to this laptop — checked 2026-08-24, `node` resolves through nvm and both runtimes are present. VERIFY IN THIS ORDER: lockfile diff is sane -> re-run the engine scan and expect ZERO offenders -> lint -> full suite -> backend boot + /api/health -> nuxt build. THEN correct the '✅ EXECUTED — this plan is DONE' header on STACK-RECONCILIATION-PLAN.md, which has been untrue since June precisely because §4's second half is this switch. ⚠ WHY THIS ITEM READ SMALLER THAN IT WAS: the five July packages were a Stack Constitution deviation that was never logged when introduced, so the item described a two-package job for a month after it had become a seven-package one.",
       "comment": "get this done, it doesn't rely on me and should never have been parked"
     },
     {
@@ -279,6 +279,25 @@
       },
       "touches": "design/ACTIONS.md (read only), design/features/to-do-items.json.",
       "note": "Do this before trusting the live list as complete. Until it is done, the honest statement is that the live list holds everything anyone has looked at recently, not everything that is open.",
+      "comment": ""
+    },
+    {
+      "ref": "4.40",
+      "name": "A HIGH prototype-pollution advisory sits in four copies of defu in the Nuxt tree",
+      "score": 5,
+      "scoreReason": "security, privacy or data integrity",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "GHSA-737v-mqg7-c878 (HIGH — prototype pollution via a `__proto__` key in the defaults argument) affects defu <=6.1.4. The installed tree carries four copies inside that range: defu@2.0.4 via @nuxt/config and @nuxt/static, and defu@5.0.1 via @nuxt/loading-screen and serve-placeholder. All four are Nuxt 2.14.0 dependencies and cannot be removed under the lock.",
+      "risk": "Build-time only — none of the four is reachable from the deployed runtime, so this very probably falls under CLAUDE.md's accepted npm-audit policy for the Nuxt 2 build tree. It is logged rather than swallowed because that policy is explicit that every high-severity finding is logged as a task and reviewed. What needs deciding is only whether to pin the two defu@5.0.1 copies up to the patched 6.1.7, or to accept and document.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "Found 2026-08-24 during the read-only registry advisory check on the item 4.7 downgrade candidates. Unrelated to that change and nobody outside asked."
+      },
+      "touches": "package.json overrides (scoped to @nuxt/loading-screen and serve-placeholder), or design/SECURITY-AUDIT-NOTES.md if the answer is to accept it.",
+      "note": "⚠ DO NOT reach for a blanket `defu` override. @nuxt/config and @nuxt/static want ^2.0.4, and forcing those up four majors touches Nuxt 2.14 core config handling — real boot risk for no runtime gain. If anything moves, move ONLY the two ^5.0.0 consumers to 6.1.7, which is already in the tree and Node-14 clean. ⚠ This finding also explains a decision inside 4.7: the @nuxt/telemetry override was deliberately SCOPED to consola alone, because downgrading that package whole would have swapped its patched defu@6.1.7 for a vulnerable 5.0.1.",
       "comment": ""
     }
   ]
