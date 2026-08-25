@@ -1,6 +1,16 @@
 # Letting an accountant contribute to the AI — safely
 
-> **Status:** design for approval. Nothing here is built.
+> **Status: BUILT, 2026-08-25.** Steps 1-3 shipped first; step 4 followed the same day
+> on Mike's instruction, after he had been told it is the step that changes the app's
+> risk profile. What remains is step 4's SCREEN and its wording — the routes, the
+> storage, the cascade and the wiring are done, so nothing can be added by a user until
+> that panel exists.
+>
+> ⚠ **One thing in §7 turned out to be wrong, and the code says so.** Step 4 was
+> expected to *"reuse the existing cascade mechanism rather than adding one"*. It could
+> not: every existing cascade in this app is inherited-until-declined, and P11 is
+> accept-first. This is P11's first implementation anywhere — see
+> `server/utils/promptContributions.js`.
 > **Asked for by Mike, 2026-08-22**, in his words:
 >
 > > *"i do not want security put at risk or allow accountants to mistakenly give hacker

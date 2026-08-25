@@ -82,6 +82,10 @@ data/dev-firm-staircase-override-baselines.json
 # Dev-only firm template import (created locally when MySQL is unavailable)
 data/dev-firm-templates.json
 data/dev-firm-coaching.json
+
+# Item 4.31 step 4 - a level's own prompt material and the offers it has accepted.
+# Same reason as dev-firm-coaching.json above: a firm's own words about how it works.
+data/dev-prompt-contributions.json
 # The coaching reference's per-entry decisions (2026-08-15, item 4.9). Listed WITH the
 # config keys that create them, per the rule at the quiz block below. NOT the same file
 # as dev-firm-coaching.json above, which holds PROMOTED CASE OBSERVATIONS — a firm's

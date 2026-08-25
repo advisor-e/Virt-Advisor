@@ -6,9 +6,13 @@
  *
  * A firm manager pastes a prompt they believe in and asks for it to be checked. This is
  * **Lane A**: nothing is stored, nothing is written to any firm's configuration, and
- * nothing here changes how the advising AI behaves. The lane that would change a firm's
- * advice is step 4 of the design and is **not built** — there is no route for it, on
- * purpose.
+ * nothing here changes how the advising AI behaves.
+ *
+ * 🔴 THAT IS STILL TRUE NOW THAT LANE B EXISTS, AND KEEPING IT TRUE IS WHY LANE B IS A
+ * DIFFERENT FILE. Step 4 — material a level puts in force for its own advisors — is built
+ * and lives in `promptContributions.js`. This route gained nothing when it was: an
+ * accountant asking *"is this any good?"* still reaches a route with no writer in it at
+ * all, so a curious question can never become a live change by accident.
  *
  * Design: `design/PROMPT-CONTRIBUTION-SAFETY.md`.
  * Wording: `design/PROMPT-CONTRIBUTION-WORDING.md` (approved by Mike 2026-08-25).

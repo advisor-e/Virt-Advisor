@@ -12,6 +12,13 @@ const path = require('path')
 const { createOpenAIClient } = require('../server/utils/openaiClient')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { loadFirmCoaching, formatFirmCoachingForPrompt } = require('../server/utils/coaching')
+// Item 4.31 step 4 — the material a level has put in force for itself, plus what it has
+// accepted from the levels above. Fenced by its own formatter, like the coaching notes
+// beside it: this is a firm's free prose and is treated as hostile input either way.
+const {
+  loadInForceForSession,
+  formatContributionsForPrompt
+} = require('../server/utils/promptContributions')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 const { formatReportModelsForPrompt } = require('../server/utils/reportModels')
@@ -496,7 +503,10 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     firmCoaching = null,
     // The session's detected domain, so the firm's promoted entries can be
     // narrowed to the topic in hand. null = no topic known → no filter.
-    firmCoachingDomain = null
+    firmCoachingDomain = null,
+    // What this level has put in force under item 4.31 — its own material plus the
+    // offers it has accepted. Already resolved by the caller.
+    firmContributions = null
   } = options || {}
 
   const orgTemplates = getOrgTemplates(orgTemplateIds || null, firmTemplates)
@@ -512,6 +522,10 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   // formatter returns it FENCED (data to weigh, never instructions), narrowed to
   // this session's topic and capped (see coaching.selectFirmCoaching).
   const firmCoachingText = includeCoaching ? formatFirmCoachingForPrompt(firmCoaching, firmCoachingDomain) : null
+  // The level's own house material (item 4.31). Fenced by its formatter — a firm's own
+  // prose is hostile input under the governance rules, exactly like the coaching notes
+  // above, and being a manager's words rather than an advisor's changes nothing.
+  const firmContributionsText = formatContributionsForPrompt(firmContributions)
   const sectionDescText = includeSectionDesc ? formatSectionDescriptionsForPrompt() : null
   const growthText = includeGrowthStage
     ? formatGrowthFundamentalsForPrompt([{ role: 'user', content: includeGrowthStage }])
@@ -553,6 +567,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     templatesText,
     sectionDescText ? '\n---\n\n' + sectionDescText : '',
     firmCoachingText ? '\n---\n\n## Firm Coaching Notes — observations promoted from this firm\'s reviewed cases\n\n' + firmCoachingText : '',
+    firmContributionsText ? '\n---\n\n## This Firm\'s Own Method — material this firm has put in force for its own advisors\n\n' + firmContributionsText : '',
     growthText ? '\n---\n\n' + growthText : '',
     summariesText ? '\n---\n\n' + summariesText : '',
     logicTreeText ? '\n---\n\n' + logicTreeText : '',
@@ -1719,6 +1734,16 @@ async function handleQuery (rawBody, res, identity) {
     ? await loadFirmCoaching(firmId).catch(() => null)
     : null
 
+  // The material this level has put in force (item 4.31 step 4): its own, plus the
+  // offers it has accepted from the levels above. An offer it has NOT accepted is not
+  // here — that is P11, and it is the whole difference between this and every other
+  // cascade in the app.
+  //
+  // Its loader absorbs a storage fault itself and warns rather than rejecting, so a
+  // failed read degrades to "this firm has none" and never kills a live conversation —
+  // the same shape as the coaching notes above.
+  const firmContributions = await loadInForceForSession(firmId)
+
   // 🔴 The platform's fifteen coaching-reference rows were loaded here until 2026-08-20
   // and are gone (item 4.24). `firmCoaching` above is the surviving half — an advisor's
   // free text about a real client, which stays fenced.
@@ -2624,7 +2649,7 @@ async function handleQuery (rawBody, res, identity) {
       const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain, firmDomainSupport) : null
       const allUserText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).join(' ')
       const postRecContextQuery = [allUserText, query, state.detectedDomain, state.industry].filter(Boolean).join(' ')
-      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching, firmCoachingDomain: state.detectedDomain }) +
+      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching, firmCoachingDomain: state.detectedDomain, firmContributions }) +
         (domainSupportPost ? '\n---\n\n' + domainSupportPost : '')
 
       const messagesPost = [
@@ -3200,7 +3225,8 @@ async function handleQuery (rawBody, res, identity) {
       firmTemplates,
       preFilteredNames,
       firmCoaching,
-      firmCoachingDomain: state.detectedDomain
+      firmCoachingDomain: state.detectedDomain,
+      firmContributions
     }) + _preSelectedSummariesText + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
     // Phase C/D — merge strategy + resolver decisions into observability snapshot
@@ -3515,6 +3541,12 @@ async function handleQuery (rawBody, res, identity) {
   // the client sequencer, which is the only path that detects one. Passing a guess
   // would silently drop every tagged entry in these modes.
   const firmCoachingText = includeCoaching ? formatFirmCoachingForPrompt(firmCoaching, null) : null
+  // Item 4.31 step 4, on this path too. A firm's house method is not mode-specific: if it
+  // governs how their advisors talk to a client, it governs how they are taught and how
+  // they plan. Rendering it on one path only would make it depend on which screen the
+  // advisor happened to open, which is exactly the kind of half-wiring the 4.16 sweep
+  // found at scale.
+  const firmContributionsText = formatContributionsForPrompt(firmContributions)
 
   // Use gpt-4o-mini throughout — fast and more than capable for conversational Q&A.
   const model = 'gpt-4o-mini'
@@ -3617,6 +3649,9 @@ async function handleQuery (rawBody, res, identity) {
     sectionDescText ? '\n---\n\n' + sectionDescText : '',
     firmCoachingText
       ? '\n---\n\n## Firm Coaching Notes — observations promoted from this firm\'s reviewed cases\n\n' + firmCoachingText
+      : '',
+    firmContributionsText
+      ? '\n---\n\n## This Firm\'s Own Method — material this firm has put in force for its own advisors\n\n' + firmContributionsText
       : '',
     domainSupportText ? '\n---\n\n' + domainSupportText : '',
     reportModelsText ? '\n---\n\n' + reportModelsText : '',

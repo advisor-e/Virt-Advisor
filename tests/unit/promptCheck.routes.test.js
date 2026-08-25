@@ -287,9 +287,12 @@ describe('what this route does NOT do', () => {
     spyLog.mockRestore()
   })
 
-  it('🔴 exposes no route that puts a contribution into use — step 4 is not built', () => {
-    // If a second export ever appears here, somebody has started Lane B. That is a
-    // separate decision with its own design section, not a quiet addition.
+  it('🔴 still exposes nothing but the check, now that Lane B exists', () => {
+    // This test was written when step 4 was unbuilt, to notice anyone starting it here.
+    // Step 4 IS built now — in server/routes/promptContributions.js — and this assertion
+    // is worth more rather than less for it: Lane A's whole promise is that asking for an
+    // opinion cannot change anything, and a writer appearing in this file is how that
+    // promise would be lost while both screens still looked right.
     expect(Object.keys(route)).toEqual(['check'])
   })
 
