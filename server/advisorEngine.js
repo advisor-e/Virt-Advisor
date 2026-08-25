@@ -15,7 +15,7 @@ const { loadFirmCoaching, formatFirmCoachingForPrompt } = require('../server/uti
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 const { formatReportModelsForPrompt } = require('../server/utils/reportModels')
-const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
+const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree, treeDescription } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
 const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
 const { loadResolvedGuideOverrides } = require('../server/utils/methodGuideConfig')
@@ -594,8 +594,18 @@ async function pickLearnTreeAI (advisorText, firmTrees) {
   const learnTrees = effectiveTrees(firmTrees).filter(t => t && t.mode === 'learn')
   if (learnTrees.length === 0) { return null }
 
+  // 🔴 THE MENU IS THE ONLY THING THE PICKER SEES, so a tree with no description is a
+  // choice made on its label alone. Four of the twenty-one carried none — ratio_analysis,
+  // dashboard_discussions, working_capital_cycle and demings_volatility — the four
+  // financial methods, and the only four with genuinely overlapping vocabulary. The
+  // seventeen that are easy to tell apart all had a paragraph. treeDescription falls back
+  // to the companion guide's own authored summary, so the sentence is read rather than
+  // written twice. Item 4.18, the routing half.
   const menu = learnTrees
-    .map(t => `- ${t.id}: ${t.name}${t.description ? ' — ' + String(t.description).slice(0, 150) : ''}`)
+    .map((t) => {
+      const desc = treeDescription(t)
+      return `- ${t.id}: ${t.name}${desc ? ' — ' + desc.slice(0, 150) : ''}`
+    })
     .join('\n')
   const system = 'You match an advisor to the single most relevant coaching guide for what they want help with. The advisor text may contain speech-to-text errors — read it for meaning (e.g. "ND year" / "India meeting" means "end of year"). The advisor\'s messages are ordered NEWEST FIRST — the first line is what they want help with NOW and outweighs everything after it; later lines are older context, and when the newest line changes topic, follow the newest line. Reply with ONLY the guide id exactly as written in the list, or the word none if nothing clearly fits. No other words.'
   const user = `Coaching guides:\n${menu}\n\nThe advisor said (newest message first):\n${fenceUntrusted(advisorText.slice(0, 1000))}\n\nWhich one guide id best fits?`

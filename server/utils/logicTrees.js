@@ -15,7 +15,7 @@ const masterExport = require('./masterExport')
 const { mergeEntry } = require('./firmContent')
 const { fenceUntrusted } = require('./promptSafety')
 const { normalise, extractProseNames } = require('./toolNameScan')
-const { formatGuideForPrompt, GUIDE_BY_ID, GUIDES } = require('./methodGuides')
+const { formatGuideForPrompt, loadGuideBase, GUIDE_BY_ID, GUIDES } = require('./methodGuides')
 
 let _trees = null
 const _refCache = new Map()
@@ -596,7 +596,9 @@ function formatLogicTreeForPrompt (tree) {
   const headerLines = [
     `## Diagnostic Logic Tree — ${tree.name}`,
     '',
-    tree.description,
+    // Falls back to the companion guide's own authored summary when the tree carries
+    // no description — four of the twenty-one learn trees do not. See treeDescription.
+    treeDescription(tree),
     ''
   ]
 
@@ -763,6 +765,42 @@ function formatDemingsVolatilityReferenceForPrompt () { return formatGuideForPro
 function formatWorkingCapitalCycleReferenceForPrompt () { return formatGuideForPrompt('working_capital_cycle') }
 function formatRatioAnalysisReferenceForPrompt () { return formatGuideForPrompt('ratio_analysis') }
 function formatDashboardDiscussionsReferenceForPrompt () { return formatGuideForPrompt('dashboard_discussions') }
+
+/**
+ * What this tree IS, in one sentence — for the prompt header and the AI picker's menu.
+ *
+ * 🔴 FOUR OF THE TWENTY-ONE LEARN TREES CARRY NO `description`, AND THEY ARE THE FOUR
+ * THAT MOST NEED ONE (item 4.18, found 2026-08-25). `ratio_analysis`,
+ * `dashboard_discussions`, `working_capital_cycle` and `demings_volatility` — the four
+ * financial methods, the only four with genuinely overlapping vocabulary. The other
+ * seventeen, which are easy to tell apart, all carry a paragraph. Two things went wrong
+ * because of it, and both were invisible:
+ *
+ *   1. `formatLogicTreeForPrompt` emitted a BLANK LINE where every other tree states
+ *      what it is, so the model read the whole method with no statement of its subject.
+ *   2. `pickLearnTreeAI` built its menu from `id`, `name` and `description`, so the
+ *      picker was asked to choose between the bare labels "Ratio Analysis" and
+ *      "Dashboard Discussions" while every easy choice came with 150 characters of help.
+ *      That is the routing half of the incident this item was raised for.
+ *
+ * ⚠ THE SENTENCE IS NOT AUTHORED HERE, AND MUST NOT BE. Every one of the four companion
+ * reference files already opens with Mike's own one-line summary, so the fix is to READ
+ * the description that exists rather than to write a second one into logic_trees.json.
+ * Two copies of a sentence is two things to keep level by hand, and the one nobody edits
+ * is the one the AI reads — the exact mechanism that lost the 116 lines in 4.16.
+ *
+ * ⚠ A TREE'S OWN `description` ALWAYS WINS. This is a fallback for the gap, not a
+ * redirect: authoring one on a tree later silently takes precedence, with no code change.
+ *
+ * @param {Object|null} tree - a logic tree
+ * @returns {string} the sentence, or '' when neither source has one
+ */
+function treeDescription (tree) {
+  if (!tree) { return '' }
+  if (tree.description) { return String(tree.description) }
+  const base = GUIDE_BY_ID[tree.id] ? loadGuideBase(tree.id) : null
+  return (base && base.description) ? String(base.description) : ''
+}
 
 // ── Coaching reference scope ────────────────────────────────────────────────
 //
@@ -1030,4 +1068,4 @@ function walkLogicTree (state, treeId, firmTrees) {
   return [...templates]
 }
 
-module.exports = { isTemplateName, splitByAvailability, withholdUnavailableNames, formatDeliveryMethodChoiceForPrompt, formatNodeForPrompt, loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, explainDetection, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, formatCoachingScopeForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
+module.exports = { isTemplateName, splitByAvailability, withholdUnavailableNames, formatDeliveryMethodChoiceForPrompt, formatNodeForPrompt, loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, explainDetection, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, treeDescription, formatCoachingScopeForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
