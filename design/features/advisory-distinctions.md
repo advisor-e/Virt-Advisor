@@ -138,7 +138,10 @@ versions swapped in, **plus** this level's own added rows.
 ### Known state
 
 MySQL has never been provisioned. Every level's rows run on the dev-file fallback, which has **no
-version history**. Buildable and testable, but not *done* — do not mistake the fallback for
+version history**. **Since 2026-08-26 the mentor's tab says so on screen** when it is serving that
+file, and names how many committed rows the file is hiding — Mike saw one distinction where 67 are
+shipped, and nothing told him why (item 4.17). Buildable and testable, but not *done* — do not
+mistake the fallback for
 finished.
 
 ---

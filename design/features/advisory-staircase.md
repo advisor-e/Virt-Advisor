@@ -67,7 +67,7 @@ purposes; rewriting a step's description does not move where the engine draws th
 **This tab appears at every tier**, and the middle tiers take the firm flavour of it — they have
 a level above them, so decline and reset mean something.
 
-**The education gate is NOT part of this brief, and that is deliberate.** `education-gates-ascent`
+**`education-gates-ascent` is NOT part of this brief, and that is deliberate.** It
 is a design intent stored in [`../../data/advisory-staircase.json`](../../data/advisory-staircase.json),
 so it is easily mistaken for a staircase feature. Its own rule guard forbids that: *"Must never
 couple staircase step → engagement type. Staircase stays ceiling-only; **the education decision

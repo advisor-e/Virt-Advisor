@@ -39,7 +39,6 @@ approved, never saved, and gone a day later.
 |---|---|---|
 | AI Prompts tab | [ai-prompts-tab.html](mockups/ai-prompts-tab.html) | ✅ approved + BUILT 2026-08-22 (item 4.28) — **SECOND drawing**: the first was written for an engineer and Mike rejected it, and the file's own §3 names every difference between the drawing and the build. AI-PROMPTS-PAGE.md §10, features/ai-prompts.md |
 | Case origin path | [case-origin.html](mockups/case-origin.html) | Case Reviews, Cases & Clients, Tier Cascade |
-| The education gate | [education-gate.html](mockups/education-gate.html) | ✅ wording approved 2026-08-24 + BUILT the same day (item 2.9) — the advisor prompt and the mentor screen. ⚠ **The wording was approved from a preview in chat and this file written immediately after, not before** — the `save-the-artefact` rule half-met, recorded in EDUCATION-GATE.md rather than smoothed over. EDUCATION-GATE.md, features/to-do.md §4 |
 | Share a prompt (accountant contribution) | [prompt-contribution.html](mockups/prompt-contribution.html) | PROMPT-CONTRIBUTION-SAFETY.md, AI-PROMPTS-PAGE.md |
 | Coaching Reference tab | [firm-coaching-reference.html](mockups/firm-coaching-reference.html) | ✅ approved + BUILT 2026-08-15 (item 4.9) — two deviations named in `9cd39c9`; features/tier-cascade.md, features/firm-manager-hub.md |
 | Debtor Drag | [debtor-drag-mockup.html](mockups/debtor-drag-mockup.html) | ⚠ nothing — see *Orphans* below |

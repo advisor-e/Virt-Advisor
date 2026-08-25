@@ -404,11 +404,15 @@ a template and never joins, replaces or reorders it. R18 says so in terms, becau
 rules that appear to contradict each other are two hard rules the model gets to choose
 between.
 
-⚠ **A model that shares a name with a template gets that template's tutorial video attached
-to it** — `videoInjector` matches bold text after the AI has finished writing. Two names
-collide today: *Working Capital Cycle* and *Quick Position*. Item **4.33**. It cannot be
-fixed in the prompt, and an attempt to do so stripped the bold off template names and was
-reverted.
+**A model that shares a name with a template no longer gets that template's tutorial video
+attached to it** — fixed 2026-08-26, item **4.33**. `videoInjector` matches bold text after
+the AI has finished writing, so it could not tell a calculator reference from a template
+recommendation. It now stays quiet when the bolded name is a known model **and** the text
+sends the advisor to a calculator route — both conditions, so a genuine recommendation keeps
+its video. Two names collide today, *Working Capital Cycle* and *Quick Position*, and only the
+first has a video; the guard is built from `report-model-summaries.json` rather than that pair,
+so cataloguing another colliding model cannot reopen it silently. It could not be fixed in the
+prompt: an attempt to do so stripped the bold off template names and was reverted.
 
 ---
 

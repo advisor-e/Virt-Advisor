@@ -331,8 +331,7 @@ before the second starts:
 
 - **Technical / feature:** ~~4.12 (the master team's documents are wrong)~~ — **closed 2026-08-21;
   its premise was false, and it is left struck through here because the reading below was made
-  with it counted in**, 2.9 (the education gate is
-  not coded at all — it needs Mike's words, but what is missing is a *feature*), ~~4.7 (the Node lock
+  with it counted in**, ~~4.7 (the Node lock
   is not enforced)~~ — **closed 2026-08-24**, 4.16 (content the AI is never shown), 4.17 (a screen showing 1 row of 67).
   ✅ **4.16's sweep is finished — 2026-08-16 — and 2.6 was its first known instance.** It found
   **102** pieces of authored content reaching no prompt, and a second half nobody had predicted:

@@ -30,14 +30,35 @@ const DESIGN_DIR = path.join(ROOT, 'design')
 const MOCKUPS_DIR = path.join(DESIGN_DIR, 'mockups')
 const REGISTER_PATH = path.join(DESIGN_DIR, 'ARTEFACTS.md')
 
-/** Every markdown file under design/, recursively. */
+/**
+ * Documents that are FROZEN HISTORY rather than live design.
+ *
+ * 🔴 WHY THEY ARE SKIPPED, and it is not to make a test pass. This check exists so a LIVE
+ * design document can never point at a mockup that does not exist — "an approved mockup is
+ * never a paraphrase". A frozen archive is a different thing: it records what was true on
+ * the day it was written, and a link in it is a historical fact, not a claim that a file is
+ * on disk today. Holding history to a live document's standard would mean either restoring
+ * artefacts for deleted features or editing a file that is explicitly closed to edits.
+ *
+ * `ACTIONS.md` was frozen 2026-08-24 (see its own header, and CLAUDE.md). The
+ * `SESSION-*.md` notes stopped being written the same day; 85 remain as history.
+ *
+ * First needed on 2026-08-26, when the Education Gate's mockup was deleted with the rest of
+ * its documents on Mike's instruction and only the frozen archive still named it.
+ */
+function isFrozenHistory (name) {
+  return name === 'ACTIONS.md' || name === 'ACTIONS-ARCHIVE.md' || name.startsWith('SESSION-')
+}
+
+/** Every markdown file under design/, recursively, that is not frozen history. */
 function designDocs (dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).reduce((all, entry) => {
     const full = path.join(dir, entry.name)
     if (entry.isDirectory()) {
       return all.concat(designDocs(full))
     }
-    return entry.name.endsWith('.md') ? all.concat([full]) : all
+    if (!entry.name.endsWith('.md') || isFrozenHistory(entry.name)) { return all }
+    return all.concat([full])
   }, [])
 }
 

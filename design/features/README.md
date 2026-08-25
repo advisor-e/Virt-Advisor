@@ -61,7 +61,6 @@ can be read in one place — the Handbook does not move them.*
 | [Case Reviews](case-reviews.md) — mentor & middle tiers | [history](case-reviews-history.md) |
 | [Template Check](template-check.md) — **mentor only** | [history](template-check-history.md) |
 | [AI Prompts](ai-prompts.md) — The prompt templates a manager can tune — locked method, three declared variables | [history](ai-prompts-history.md) |
-| [The Education Gate](education-gate.md) — When a client cannot read their own numbers, the advisor is asked how to pitch the advice | [history](education-gate-history.md) |
 
 *Also on the Hub but covered elsewhere: Domain Support and Logic Tables (above, under the
 engine), and Team Progress / Team Case Studies (see Advisor Progress and Case Studies).
