@@ -81,6 +81,26 @@
       "touches": "nothing — this is a live check, not a code change. server/advisorEngine.js holds the marker logic if the check fails.",
       "note": "CANNOT BE DONE ON THIS MACHINE — it needs one Virtual Advisor conversation somewhere an OpenAI key exists. Three things to look at, and it is a two-minute job for whoever has the key: (a) the reply streams normally, (b) no [[TEMPLATES text is ever visible, even briefly, (c) the session recommended templates look right on the Team Dashboard afterwards.",
       "comment": null
+    },
+    {
+      "ref": "4.52",
+      "name": "The education gate still asks its question, and its documents are gone",
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The gate's hub page and all four of its documents were deleted on 2026-08-26 on Mike's instruction, in his words because it is 'a feature we will never use again'. But the question itself still fires: server/advisorEngine.js still asks the advisor, before any recommendation, whether to lead with education or show what is technically needed. So the statement and the code disagree.",
+      "risk": "Live behaviour whose only remaining description is the code itself. An advisor is still asked a question Mike may believe was removed, and nobody reading the documents would know it exists. The reverse risk is real too: removing it touches 15 files and about 1,000 lines, and it is behaviour he ruled on three times.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "Raised 2026-08-26 by the session that deleted the documents, as the named consequence of deleting them. Nobody outside asked; it is filed because CLAUDE.md requires an open question for Mike to be an item on this list rather than a line in a note."
+      },
+      "touches": "server/utils/educationGate.js, server/advisorEngine.js, data/education-gate.json, data/signal-dictionary.json (gateSignals), tests/unit/educationGate.test.js. Read-only until Mike rules.",
+      "note": "TWO HONEST ANSWERS AND THEY ARE NOT EQUIVALENT. (1) Remove the gate entirely — the question stops being asked, about 1,000 lines go, and the deletion of its documents becomes consistent. (2) Keep it — the question is one extra step that cannot change which templates are recommended, and the code plus its test are a sufficient record for something that small. DO NOT DECIDE THIS WITHOUT HIM: he ruled on the behaviour three times (2026-07-16, 2026-08-16, 2026-08-24), and although each was him answering a question we raised, removing shipped behaviour is not a tidy-up.",
+      "comment": null
     }
   ]
 }

@@ -37,8 +37,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | --- | --- | --- | --- | --- |
 | 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | **Mike** |
 | 2 | **4.50** The hidden-marker change has never been run in a real conversation | 2 | — | **Mike** |
+| 3 | **4.52** The education gate still asks its question, and its documents are gone | 2 | — | **Mike** |
 
-**Two live items. Two need Mike.** If this list passes about twenty, something is wrong.
+**Three live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off on 2026-08-22, and one joined and left the same day** — see

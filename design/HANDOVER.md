@@ -8,35 +8,40 @@
 
 ---
 
-## 2026-08-25 (fourth session) · Laptop · branch `feat/advisor-progress`
+## 2026-08-26 · Laptop · branch `feat/advisor-progress`
 
-**4.31 and 4.43 closed. 4.15 waits on Mike.** List 7 → 5. Suite **6,524 green**, lint 0
-errors. Branch **52 ahead, 0 behind** `master`. Nothing uncommitted.
+**The list is down to three items and every one waits on Mike.** Suite **6,490 green**, lint 0
+errors. Branch **56 ahead, 0 behind** `master`. Nothing uncommitted. Three commits: `01e793d`,
+`4d72de9`, `612534c`.
 
-**4.31 — the prompt checker, both lanes.** An accountant pastes a prompt and gets six
-refusals or an AI review; a level puts its own method in force and it reaches every
-conversation its advisers have, fenced, and passes down. Recorded in
-[`features/ai-prompts.md`](features/ai-prompts.md) §3a.
+🔴 **THE ONE THING TO CARRY FORWARD — there is now a gate, and it stops the build.** Mike, this
+session: *"ONLY the features and ideas I specifically request. From now on I will push back on
+every new feature suggestion from AI."* Every item declares `kind: defect|feature`, and a
+**feature** whose `askedBy.ours` is true is **refused** — by
+[`toDoItems.test.js`](../tests/unit/toDoItems.test.js) and by
+[`apply-to-do.js`](../scripts/apply-to-do.js), so the Handbook's ranking control is not a way
+round it. A **defect you found yourself still files**; he never asked anyone to stop reporting
+bugs. **It exists because I filed a P3 line out of the frozen `ACTIONS.md` at score 5 and built
+a backend for a screen nobody had asked for.** Reverted the same day. It was the **third**
+instance of that failure, and two written warnings against it already existed — including one I
+had quoted back to him an hour earlier. A rule was not enough; this is a test.
 
-**4.15 — waiting on Mike, and everything he needs is written down** in
-[`LOGIC-TABLE-TEMPLATES-NEEDED.md`](LOGIC-TABLE-TEMPLATES-NEEDED.md): 23 template names, the
-19 branches asking for them, and the command to re-measure. **Do not re-derive it and do not
-ask him again** — that is what kept 2.3 open for four sessions.
+**The Education Gate page is gone, and so are all four of its documents** — Brief, history,
+design artefact, mockup. Its rulings were all Mike *answering* questions we raised, never asking.
+⚠ **Its question still fires**, which is item **4.52**.
 
-**4.43 — one failure stays one.** 29 test files mutate `NODE_ENV`; eight never restored it
-if an assertion threw first, so a single failure knocked over unrelated tests. Reproduced,
-then fixed once globally in [`../tests/setupEnv.js`](../tests/setupEnv.js).
+**Four bugs fixed and closed.** 4.17 — a screen now says when it is serving local dev data and
+how many shipped rows that file is hiding. 4.33 — the tutorial video no longer attaches to a
+calculator sharing a template's name. 4.42 — `to-do.md` cut 822→405 lines, with a guard that
+fails the build on a stale detail block. 4.47 — Learn stopped asking what the advisor's own
+profile already answered.
 
-**Three defects fixed that were never on the list:** three firm-facing logic tables were
-leaking into CLIENT recommendations (`fa79a7d`); the name scanner cut titles at a lowercase
-`pt`, silencing branches that named published pages (`48265ac`); every auto-growing textarea
-was 2px short with the overflow hidden (`7854da9`). A standing rule can now be added on any
-logic table (`48a0f80`) — it could only be reworded before.
+**Waiting on Mike:** **4.15** (the 23 template names, once the search content is updated) ·
+**4.50** (one Virtual Advisor conversation wherever an OpenAI key exists — this laptop has none) ·
+**4.52** (remove the education gate's question, or keep it).
 
-🔴 **THE ONE THING TO CARRY FORWARD.** Mike, this session: *"I spend a lot of time fixing
-fuck ups due to you not reading the code properly."* Every fix above came from reading the
-code or driving the screen — the 2px clip was measured in a real browser, the client leak
-proved by running `walkLogicTree`. The wasted time came from the opposite: producing
-analysis before checking where the content was even used. **Check first, then build.**
+**Do not triage from `design/ACTIONS.md`.** It is frozen history and it was swept end to end this
+session: **eight** of its open-looking flags were already built, five were real. Anything left in
+it is a claim to check against the code.
 
 **Unchanged:** `npm install` still needs npm 8.19.4 on Node 14.15 — [`../.npmrc`](../.npmrc).
