@@ -35,14 +35,14 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on |
 | --- | --- | --- | --- | --- |
-| 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
+| 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | **Mike** |
 | 2 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
 | 3 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
 | 4 | **4.39** Sweep the frozen ACTIONS.md for anything that is genuinely still open | 2 | — | Us |
 | 5 | **4.42** The to-do page’s hand-written half describes six finished items and misses ten live ones | 2 | — | Us |
 | 6 | **4.43** A test flips a global switch mid-run and fails about one run in four | 2 | — | Us |
 
-**Six live items. None need Mike.** If this list passes about twenty, something is wrong.
+**Six live items. One needs Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off on 2026-08-22, and one joined and left the same day** — see

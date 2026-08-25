@@ -8,29 +8,40 @@
 
 ---
 
-## 2026-08-25 (third session) · Laptop · branch `feat/advisor-progress`
+## 2026-08-25 (fourth session) · Laptop · branch `feat/advisor-progress`
 
-**Two closed (4.46, 4.36). List 9 → 7.** Nothing half-finished, nothing uncommitted.
-Branch **38 ahead, 0 behind** `master`. Suite **6,289 green**, lint 0 errors.
+**4.31 closed. 4.15 is waiting on Mike and everything he needs is written down.**
+List 7 → 6. Suite **6,528 green**, lint 0 errors. Branch **50 ahead, 0 behind** `master`.
+Nothing uncommitted.
 
-**4.46 — the switch offer now switches.** The picker read only the advisor's own words, so
-the guide named in the AI's own offer could never reach it. Narrow fix, guarded on the offer
-wording; conversations with no offer route exactly as before. Recorded as **P10** in
-[`features/advisory-engine.md`](features/advisory-engine.md).
+**4.31 — an accountant can share a prompt, and a firm can put its own method in force.**
+Both lanes, on the AI Prompts tab at all four tiers. Words approved before the build
+([`PROMPT-CONTRIBUTION-WORDING.md`](PROMPT-CONTRIBUTION-WORDING.md)). Recorded in
+[`features/ai-prompts.md`](features/ai-prompts.md) §3a.
 
-**4.36 — the Model Guide search meets the advisor's words.** Whole-phrase matching, filler
-words and word endings, plus a `searchWords` list per model. **All of it applies to every
-search, not just the property one** — seven ordinary queries that found nothing now work.
-Recorded in [`features/report-models.md`](features/report-models.md); the two phrasings that
-still miss are named there rather than glossed.
+**4.15 — waiting on Mike.** He says the 23 documents exist and will update the search
+content, then pick it up. Everything is in
+[`LOGIC-TABLE-TEMPLATES-NEEDED.md`](LOGIC-TABLE-TEMPLATES-NEEDED.md) — the names, the
+branches, and the command to re-measure afterwards. **Do not re-derive this and do not ask
+him again**; that is what kept 2.3 open for four sessions.
 
-🔴 **THE ONE THING TO CARRY FORWARD.** Both of yesterday's AI defects and today's were found
-by driving the real model, never by a test — 4.46 shipped with a fully green suite. **Six
-live calls cost a fraction of a penny.** `pickLearnTreeAI` is now exported so that check can
-be re-run. Do this before calling any prompt or routing change done.
+**Three fixes found along the way, none of them on the list:**
+- Three firm-facing logic tables carried no `mode`, so they were invisible to Learn and
+  live on the CLIENT recommendation path — the opposite of the 2026-06-23 ruling. Six
+  lines of data (`fa79a7d`).
+- The name scanner cut a title at a lowercase `pt`, so two branches naming published pages
+  were silenced (`48265ac`). 53 of 55 recommendations byte-identical after; 34/8/13 → 36/6/13.
+- Every auto-growing textarea was 2px short under `box-sizing: border-box`, with
+  `overflow-y: hidden` hiding what was cut. Logic Tables and Domain Support both (`7854da9`).
 
-**Unchanged:** `npm install` still needs npm 8.19.4 on Node 14.15 — [`../.npmrc`](../.npmrc)
-explains it.
+**A standing rule can now be added on every logic table** (`48a0f80`) — it could only be
+reworded before, and on 41 of 42 tables a new one was silently discarded. This overturned a
+written rule; the old wording is gone rather than left beside the new one.
 
-**Nothing waits on Mike, but 4.15 is the one he can unblock fastest** — it needs him to name
-21 real page names, and its own note says to put the sentences in front of him, not the label.
+🔴 **THE ONE THING TO CARRY FORWARD.** Mike's words: *"I spend a lot of time fixing fuck ups
+due to you not reading the code properly."* Every fix above came from reading the actual
+code or driving the actual screen — the 2px clip was measured in a real browser, the client
+leak was proved by running `walkLogicTree`. The wasted time in this session came from the
+opposite: producing analysis pages before checking where the content was even used.
+
+**Unchanged:** `npm install` still needs npm 8.19.4 on Node 14.15 — [`../.npmrc`](../.npmrc).
