@@ -6247,6 +6247,8 @@
     },
     {
       "id": "fm_coach_culture",
+      "mode": "learn",
+      "section": "get-organised",
       "name": "FM Coaching & Firm Culture — Internal Firm Development",
       "source_pdf": "FM Coach & Culture Logic.pdf",
       "source_support": "FM Coach & Culture Spt.pdf",
@@ -6632,6 +6634,8 @@
     },
     {
       "id": "org_ca_firm_strategy",
+      "mode": "learn",
+      "section": "get-organised",
       "name": "CA Firm Strategy",
       "source_pdf": "Org. CA Firm Strategy logic.pdf",
       "source_support": "Org CA Firm Strategy Support.pdf",
@@ -6758,6 +6762,8 @@
     },
     {
       "id": "org_firm_board_pack",
+      "mode": "learn",
+      "section": "get-organised",
       "name": "Firm Board Pack",
       "source_pdf": "Org. Firm Board Pack Logic.pdf",
       "source_support": "Org. Firm Board Pack Support.pdf",
