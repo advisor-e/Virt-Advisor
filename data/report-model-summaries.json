@@ -8,6 +8,10 @@
     "To-do item 4.29. Plan item T22, feeding T23.",
     "",
     "🔴 THIS FILE HAS TWO READERS: THE AI, AND THE MODEL GUIDE SCREEN AT /model-guide.",
+    "⚠ ONE FIELD IS THE EXCEPTION: `searchWords` is read ONLY by the screen's search box.",
+    "It is the everyday vocabulary an advisor types — \"houses\" for the property model — and it",
+    "never reaches the AI: formatReportModelsForPrompt reads named fields and does not read this",
+    "one. So it is not content that shapes advice, and needs no manager screen. Item 4.36.",
     "The screen was built 2026-08-22 (68f5fae) and reads these records through",
     "GET /api/report/model-guide. Change anything here and you change both.",
     "⚠ THESE LINES SAID 'WHY THIS HAS NO SCREEN' UNTIL 2026-08-22 and were left standing",
@@ -115,7 +119,15 @@
         "Watch the wheel: your {workingCapital} of working capital flows Cash → Stock → Sale → Debtors and back. Right now that takes {cycleDays} days, so it turns about {cycleFactor}× a month. Fixed costs sit outside the wheel — paid whether it turns or not.",
         "If you cut it to {fasterDays} days, the wheel would turn {fasterFactor}× a month — about {fasterExtra} more revenue a year, at the same price."
       ],
-      "coachIsNotAPanel": false
+      "coachIsNotAPanel": false,
+      "searchWords": [
+        "inventory",
+        "cash conversion",
+        "cash tied up",
+        "stock turn",
+        "free up cash",
+        "terms of trade"
+      ]
     },
     {
       "route": "/debtor-drag",
@@ -150,7 +162,15 @@
         "Cash arrives late — customers pay across the months after the sale — but suppliers, wages and GST don't wait. Your bank dips to {deepestLow} in {deepestLowMonth}, into overdraft, and you're in the red {monthsInOverdraft} months.",
         "Collect earlier or pay suppliers slower and the blue line lifts; let collection drift later and you're forced to stretch suppliers, choking stock — the working capital cycle running backwards."
       ],
-      "coachIsNotAPanel": false
+      "coachIsNotAPanel": false,
+      "searchWords": [
+        "receivables",
+        "aged receivables",
+        "credit control",
+        "chasing invoices",
+        "late payment",
+        "getting paid"
+      ]
     },
     {
       "route": "/ebitda-dcf",
@@ -192,7 +212,17 @@
         "The valuation is sensitive to the exit multiple: at {exitMultiple} the terminal value is {terminalShare} of the total — test it either side before quoting a range.",
         "Where the numbers do not support a price it says so instead: “On these figures the valuation is not positive — the projected cash flows do not support a price. That is the honest read: the conversation is about restoring earnings before it can be about value.”"
       ],
-      "coachIsNotAPanel": false
+      "coachIsNotAPanel": false,
+      "searchWords": [
+        "valuation",
+        "business value",
+        "sell the business",
+        "exit",
+        "goodwill",
+        "multiple",
+        "what is it worth",
+        "selling"
+      ]
     },
     {
       "route": "/margin-breakeven",
@@ -232,7 +262,17 @@
         "Same deal, two numbers: your margin is {margin} (of the sale) but your mark-up is {markup} (of the cost) — don't confuse them when you quote.",
         "To cover {overheads} overheads and take {drawings} in drawings, you must sell {requiredSales} a month. Cut the price and that work climbs fast; raise it and it drops away. Price and drawings decide how hard the business has to run."
       ],
-      "coachIsNotAPanel": false
+      "coachIsNotAPanel": false,
+      "searchWords": [
+        "gross profit",
+        "profit margin",
+        "price increase",
+        "put prices up",
+        "cost plus",
+        "how much to charge",
+        "pricing",
+        "discounting"
+      ]
     },
     {
       "route": "/eight-levers",
@@ -273,7 +313,15 @@
         "On the comparison: “Look at Option C: it earns LESS revenue than Option B, yet makes MORE profit — because the margin lever outweighs the volume lever. That is the whole lesson.”",
         "On labour: “What the business charges per hour against what it actually pays per hour — once leave, sick days and non-chargeable time are taken out. The labour lines look far more profitable on paper than they are in practice.”"
       ],
-      "coachIsNotAPanel": true
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "grow profit",
+        "increase sales",
+        "more customers",
+        "profit drivers",
+        "where to start",
+        "marketing"
+      ]
     },
     {
       "route": "/cost-of-capital",
@@ -314,7 +362,14 @@
         "It states its own strictness: “The bar is your cost of capital exactly as calculated above, with no safety margin added.”",
         "It also warns when it cannot be trusted — too few periods to measure a spread, a beta outside the usual 0.3 to 2.5 range, or an index that does not move."
       ],
-      "coachIsNotAPanel": true
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "discount rate",
+        "required return",
+        "borrowing cost",
+        "capital structure",
+        "worth investing"
+      ]
     },
     {
       "route": "/lease-vs-buy",
@@ -348,7 +403,18 @@
       "coach": [
         "The model does not leave the choice open. It returns a one-word verdict — “Lease!” or “Buy!” — with the line: “That’s the cheaper option — {saving} less over the term.”"
       ],
-      "coachIsNotAPanel": true
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "car",
+        "van",
+        "truck",
+        "machinery",
+        "hire purchase",
+        "rent or own",
+        "finance an asset",
+        "buying",
+        "leasing"
+      ]
     },
     {
       "route": "/loan-estimator",
@@ -393,7 +459,16 @@
         "It reaches a verdict on affordability — “Meets the affordability test” or “Falls short of the affordability test” — immediately qualified: “An indication of affordability only — not a lending decision.”",
         "The serviceability panel shows its working: total net monthly income, minimum monthly loan payments, and the monthly expenses used — “the greater of actual expenses and the bank's minimum allowances”."
       ],
-      "coachIsNotAPanel": true
+      "coachIsNotAPanel": true,
+      "searchWords": [
+        "mortgage",
+        "serviceability",
+        "how much can they borrow",
+        "security",
+        "loan application",
+        "afford the repayments",
+        "borrowing"
+      ]
     },
     {
       "route": "/multiple-property",
@@ -434,7 +509,19 @@
         "On tax: either that no tax is payable across the ten years, or the year tax first becomes payable — and whether losses are ring-fenced against the property's own future income or offset against the client's other income.",
         "Across the portfolio: whether the deposit stretches to every property, the combined loan to value against the ceiling, the ten-year cash demand on top of the deposit — closing on the question it is built to ask, which is not whether the portfolio grows but whether the family can carry the hardest year's weekly cost while it does."
       ],
-      "coachIsNotAPanel": false
+      "coachIsNotAPanel": false,
+      "searchWords": [
+        "houses",
+        "house",
+        "landlord",
+        "tenants",
+        "rental yield",
+        "buy to let",
+        "real estate",
+        "investment property",
+        "invest",
+        "investing"
+      ]
     },
     {
       "route": "/quick-position",
@@ -475,7 +562,16 @@
         "The discount trap: a {discount} discount means selling {salesIncrease} more just to keep the same gross profit.",
         "Where the position is already negative it changes tone entirely: “Immediate debts exceed what the business can realise quickly. This is a now conversation: which creditors can wait, what can be turned to cash this week, and what outside support exists.”"
       ],
-      "coachIsNotAPanel": false
+      "coachIsNotAPanel": false,
+      "searchWords": [
+        "survival",
+        "runway",
+        "crisis",
+        "emergency",
+        "urgent",
+        "cash left",
+        "in trouble"
+      ]
     }
   ]
 }

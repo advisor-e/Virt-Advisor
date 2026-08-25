@@ -112,24 +112,6 @@
       "comment": null
     },
     {
-      "ref": "4.36",
-      "name": "The Model Guide search only matches the exact words the page happens to use",
-      "score": 3,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The search on /model-guide matches ONE whole phrase against one joined string: haystack(m).includes(q) in components/ModelGuide.vue. So it finds a model only when the advisor happens to type a run of words that appears verbatim in that model's own text. It cannot match two words that are both present but not adjacent, and it knows no synonyms - the property model calls its subject 'property' and 'rental', so an advisor who thinks in 'houses' is told the library holds nothing.",
-      "risk": "REPRODUCED IN THE RUNNING APP, 2026-08-23, exactly as Mike reported: 'Investing in houses' returns 'no models match' while the Multiple Property Assessment model sits in the library. It is not one unlucky phrase - 'houses' returns nothing, and so does 'investment property', because those two words never sit next to each other in the text. Only the single word 'property' or 'rental' finds it. The screen exists so an advisor can choose the right model BEFORE opening one; a search that answers 'nothing here' to a fair description of what they want defeats the page, and does it silently - the advisor concludes the product cannot help rather than that the search is narrow.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "Reported by Mike on 2026-08-23 while looking at the Model Guide: 'the search function in the models summary is too literal. I typed \"Investing in houses\" and it failed to find the property assessment model.' Verified the same day by driving the running page rather than by reading the code."
-      },
-      "touches": "What else moves if this moves? Only the Model Guide search. The catalogue, the models and the report screens are untouched - this is how the page filters what it already has.",
-      "note": "TWO SEPARATE FAULTS, and the cheap one is not the interesting one. (1) WHOLE-PHRASE MATCHING: split the query into words and require every word to appear somewhere in the haystack, which fixes 'investment property' and any other pair of words the advisor uses in their own order. (2) NO VOCABULARY: 'houses', 'landlord', 'rental yield' are what an advisor says; 'property' is what the page says. That needs a small authored synonym list per model - and under CLAUDE.md's hub-page rule, authored content the product reads belongs on a screen, not buried in a component. CHECK FIRST whether data/report-model-summaries.json is the right home for it, beside the model's other authored lines, rather than inventing a second store. DO NOT reach for fuzzy matching or an embedding search: this library holds ~18 models, and a wrong-but-confident match is worse here than a miss, because the advisor takes the suggestion into a client meeting."
-    },
-    {
       "ref": "4.39",
       "name": "Sweep the frozen ACTIONS.md for anything that is genuinely still open",
       "score": 2,

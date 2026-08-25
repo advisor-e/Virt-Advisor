@@ -361,6 +361,21 @@ describing the app's own screens, and holds no client or firm data.
 authored judgement and needs an editable screen at the mentor tier first. Do not widen the
 JSON to hold it.
 
+**THE SEARCH MEETS THE ADVISOR'S WORDS, NOT THE PAGE'S.** Item 4.36, reported by Mike
+2026-08-23: *"Investing in houses"* found nothing while the property model sat in the
+library. It matched the query as one whole phrase against one joined string, so it needed a
+run of words that appeared verbatim, and it knew only the vocabulary the page happens to use
+— *property*, never *houses*. It now takes each word separately, drops filler (`SEARCH_NOISE`
+in `ModelGuide.vue` — *should*, *my*, *more*), and trims common endings so *paying* reaches
+*pay*. Every word must still appear, so more words always narrow. Each model also carries a
+`searchWords` list in `data/report-model-summaries.json` — the everyday words an advisor
+types. **That field is read by this screen alone and never reaches the AI**
+(`formatReportModelsForPrompt` reads named fields), so it is not content shaping advice and
+needs no manager screen; if a firm ever wants its own vocabulary, that judgement changes.
+⚠ Deliberately NOT fuzzy matching or an embedding search: with ten models a confident wrong
+match is worse than a miss, because the advisor takes the suggestion into a client meeting.
+The cost is that an unanticipated word still misses — the fix is a word on the model's list.
+
 🔴 **A MODEL WITH NO PAGE IS NEVER NAMED.** Eight catalogued models are `STATUS_SOON` with
 no route. `tests/unit/reportModelSummaries.test.js` holds the file to the catalogue **both
 ways** — a summary for a model that is not ready fails, and a ready model with no summary

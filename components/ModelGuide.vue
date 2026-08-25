@@ -104,6 +104,19 @@
  */
 import currencyMixin from '~/mixins/currencyMixin'
 
+/**
+ * Words carried by almost any sentence, which say nothing about which model is wanted.
+ * Dropped from a search because every remaining word has to appear: leaving "should" in
+ * means a model is only found if the word "should" is somewhere in its text. Item 4.36.
+ */
+const SEARCH_NOISE = new Set([
+  'a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'can', 'client', 'clients', 'do',
+  'does', 'for', 'from', 'has', 'have', 'how', 'i', 'if', 'in', 'is', 'it', 'its', 'me',
+  'more', 'my', 'of', 'on', 'or', 'out', 'should', 'so', 'that', 'the', 'their', 'them',
+  'then', 'they', 'this', 'to', 'too', 'up', 'was', 'we', 'what', 'when', 'where', 'which',
+  'who', 'why', 'will', 'with', 'you', 'your'
+])
+
 export default {
   name: 'ModelGuide',
 
@@ -131,12 +144,29 @@ export default {
      * must reach EBITDA through the situation it is built for — neither word appears in
      * either model's name.
      *
+     * 🔴 EVERY WORD MUST APPEAR, NOT THE WHOLE PHRASE. Until 2026-08-25 this matched the
+     * query as one run of characters, so it found a model only when the advisor happened to
+     * type words that sit next to each other in that model's own text — "investment
+     * property" failed while both words were present. Item 4.36.
+     *
+     * 🔴 FILLER WORDS ARE DROPPED AND ENDINGS ARE TRIMMED, because every word having to
+     * appear means "should", "my" and "more" would each have to be somewhere in a model's
+     * text, and "paying" is not "pay". Measured on the same day this was built: "slow
+     * paying customers", "should I put my prices up" and "can the client borrow more" all
+     * returned nothing without these two steps. Both are deterministic — a query either
+     * matches or it does not. NOT fuzzy matching or an embedding search: with ten models a
+     * confident wrong match is worse than a miss, because the advisor takes the suggestion
+     * into a client meeting.
+     *
      * @returns {object[]}
      */
     visibleModels () {
-      const q = this.query.trim().toLowerCase()
-      if (!q) { return this.models }
-      return this.models.filter(m => this.haystack(m).includes(q))
+      const words = this.searchTerms(this.query)
+      if (!words.length) { return this.models }
+      return this.models.filter((m) => {
+        const hay = this.haystack(m)
+        return words.every(w => hay.includes(w))
+      })
     },
 
     /**
@@ -192,6 +222,30 @@ export default {
     },
 
     /**
+     * The words a search is actually made of: filler dropped, common endings trimmed so
+     * "paying" reaches "pay" and "prices" reaches "price".
+     *
+     * A trim is only taken when three characters survive it — below that the stump matches
+     * things it should not ("fees" would become "fe"). Three rather than four because
+     * "paying" trims to "pay", which is the case this was built for. A query of nothing but
+     * filler ("what should I do") returns no terms, and the caller shows the whole library
+     * rather than an empty page.
+     *
+     * @param {string} query - what the manager typed
+     * @returns {string[]} the terms every model must contain to match
+     */
+    searchTerms (query) {
+      return String(query || '')
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter(w => w && !SEARCH_NOISE.has(w))
+        .map((w) => {
+          const trimmed = w.replace(/(ing|ies|ed|es|s)$/, '')
+          return trimmed.length >= 3 ? trimmed : w
+        })
+    },
+
+    /**
      * Everything about a model that the search should reach, lower-cased.
      * @param {object} m
      * @returns {string}
@@ -208,6 +262,10 @@ export default {
         m.limits,
         m.route,
         (m.keyOutputs || []).join(' '),
+        // The advisor's own vocabulary — "houses" for the property model. Authored in
+        // data/report-model-summaries.json beside the model's other lines; screen-only,
+        // never given to the AI. Item 4.36.
+        (m.searchWords || []).join(' '),
         (m.heroFigures || []).map(f => `${f.label} ${f.sub || ''}`).join(' '),
         // The RESOLVED lines, so the search reads what the manager reads.
         this.coachLines(m).join(' ')

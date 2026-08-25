@@ -210,6 +210,92 @@ describe('the search reaches a model through what it is FOR, not just its name',
   })
 })
 
+// Item 4.36 (Mike, 2026-08-23): "the search function in the models summary is too
+// literal. I typed 'Investing in houses' and it failed to find the property assessment
+// model." Two faults — the query was matched as one whole phrase, and the page knew
+// none of the everyday words an advisor uses for what a model is about.
+describe('the search meets the advisor’s own words — to-do item 4.36', () => {
+  // 🔴 THE SHIPPED FILE, NOT A FIXTURE. The fault was half in the matcher and half in the
+  // vocabulary, so a fixture written here would prove only the matcher and would go on
+  // passing if the authored words were ever dropped from the data.
+  const shippedModels = () => require('../../data/report-model-summaries.json').models
+
+  it('🔴 THE REPORTED SEARCH FINDS THE MODEL', async () => {
+    const wrapper = await mountWith(shippedModels())
+    wrapper.setData({ query: 'Investing in houses' })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Multiple Property Assessment')
+  })
+
+  it('the words no longer have to sit next to each other', async () => {
+    // "investment" and "property" are both reachable but never adjacent, which is why
+    // whole-phrase matching returned nothing.
+    const wrapper = await mountWith(shippedModels())
+    wrapper.setData({ query: 'investment property' })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Multiple Property Assessment')
+  })
+
+  it('an advisor’s vocabulary reaches the model the page describes differently', async () => {
+    // The page says "property" and "rental"; an advisor says "houses" and "landlord".
+    for (const q of ['houses', 'landlord']) {
+      const wrapper = await mountWith(shippedModels())
+      wrapper.setData({ query: q })
+      await wrapper.vm.$nextTick()
+      expect(wrapper.text()).toContain('Multiple Property Assessment')
+    }
+  })
+
+  it('every live model carries some of the advisor’s vocabulary', () => {
+    // A new model added with no searchWords is findable only by the words the page
+    // happens to use about it — the state this item exists to end.
+    for (const m of shippedModels()) {
+      expect(Array.isArray(m.searchWords)).toBe(true)
+      expect(m.searchWords.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('a word’s ending does not hide the model — "paying" reaches "pay"', async () => {
+    // Measured before this was added: this query, and the two below, all returned nothing
+    // while the right model sat in the library.
+    const wrapper = await mountWith(shippedModels())
+    wrapper.setData({ query: 'slow paying customers' })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Debtor Business Drag')
+  })
+
+  it('filler words do not have to appear in a model’s text', async () => {
+    const wrapper = await mountWith(shippedModels())
+    wrapper.setData({ query: 'should I put my prices up' })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Margin')
+  })
+
+  it('a question made only of filler shows the library, not an empty page', async () => {
+    const wrapper = await mountWith(shippedModels())
+    wrapper.setData({ query: 'what should I do' })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).not.toContain('modelGuide.noMatches')
+    expect(wrapper.text()).toContain('Quick Position')
+  })
+
+  it('EVERY word must appear — more words narrow the search, never widen it', async () => {
+    // The guard against the opposite fault: matching on ANY word would make a long
+    // description match half the library, and a confident wrong model is worse than a
+    // miss when the advisor takes it into a client meeting.
+    const wrapper = await mountWith(shippedModels())
+    wrapper.setData({ query: 'houses zzzznothing' })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('modelGuide.noMatches')
+  })
+})
+
 describe('🔴 the Coach reading arrives with its figures in it — to-do item 4.34', () => {
   // Mike, 2026-08-22, reading the built page: "it makes this section worthless". It showed
   // "your [working capital] of working capital ... takes [n] days ... about [amount] more
