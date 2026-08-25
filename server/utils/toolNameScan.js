@@ -181,9 +181,19 @@ function extractProseNames (text) {
   // <verb> [the|a|an|your|their] <Capitalised Phrase> [and <Capitalised Phrase>]
   // The sentence is cut at any full stop, colon or dash before matching, so a
   // phrase can never run across a boundary and glue two names together.
+  // ⚠ `ptN` IS THE ONE LOWERCASE WORD A NAME MAY CONTINUE THROUGH. Every other
+  // continuation must start `[A-Z0-9]`, which is what stops a phrase running on into
+  // ordinary prose. Two published pages break that rule in their own titles — `COI
+  // Development pt1` and `pt2` — so the scanner stopped at the lowercase `pt`, looked
+  // up "COI Development", found nothing, and the gate withheld a sentence naming a page
+  // the advisor could open. The branch's own `templates[]` entry resolved the whole
+  // time, because that path exact-matches instead of scanning prose.
+  //
+  // It is spelled `pt` + digits and nothing looser on purpose: it can only ever LENGTHEN
+  // a name that was already being cut short at that exact token.
   const re = new RegExp(
     `\\b(?:${verbs})\\s+(?:the|a|an|your|their|our)?\\s*` +
-    '([A-Z][A-Za-z0-9\'’&-]*(?:\\s+(?:of|the|and|for|to|in|on|with|&)?\\s*[A-Z0-9][A-Za-z0-9\'’&-]*)*)',
+    '([A-Z][A-Za-z0-9\'’&-]*(?:\\s+(?:of|the|and|for|to|in|on|with|&)?\\s*(?:pt\\d+|[A-Z0-9][A-Za-z0-9\'’&-]*))*)',
     'g'
   )
 

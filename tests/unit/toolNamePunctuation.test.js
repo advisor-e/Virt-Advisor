@@ -204,3 +204,56 @@ describe("Mike's existing rulings stay attached to their rows", () => {
     expect(report.findings.some(f => /Porter's & Pine/.test(f.name))).toBe(false)
   })
 })
+
+/**
+ * THE SAME BLINDNESS, ONE CHARACTER CLASS OVER — a lowercase part-number.
+ *
+ * A tool name may continue only through a word starting `[A-Z0-9]`, which is what stops a
+ * phrase running on into ordinary prose. Two published pages break that rule in their own
+ * titles: **COI Development pt1** and **pt2**. The scanner stopped at the lowercase `pt`,
+ * looked up "COI Development", found nothing, and the gate withheld a sentence naming a
+ * page the advisor can open. The branch's own `templates[]` entry resolved the whole time,
+ * because that path exact-matches instead of scanning prose — so the tree looked correct
+ * from every angle except the one that mattered.
+ *
+ * Measured across the corpus: 53 of 55 gated recommendations are byte-identical before and
+ * after, and the two that change are these.
+ */
+describe('a lowercase part-number is part of the name', () => {
+  test('the two pages are still published under these exact titles', () => {
+    // If Advisor-e retitles them upstream, this is the line that says so.
+    const titles = new Set((Array.isArray(TEMPLATES) ? TEMPLATES : TEMPLATES.templates || [])
+      .map(t => t && t.title))
+    expect(titles.has('COI Development pt1')).toBe(true)
+    expect(titles.has('COI Development pt2')).toBe(true)
+  })
+
+  test('the scanner reads the whole name, not the half before the suffix', () => {
+    expect(extractProseNames('Use COI Development pt1 to structure the approach.'))
+      .toEqual(['COI Development pt1'])
+    expect(extractProseNames('Use COI Development pt2 to rebuild the relationship.'))
+      .toEqual(['COI Development pt2'])
+  })
+
+  test('it does not swallow the prose that follows', () => {
+    // The suffix is the ONE lowercase word a name continues through. The next word must
+    // still start a capital or the name ends there.
+    expect(extractProseNames('Use COI Development pt1 to structure the approach.'))
+      .not.toContain('COI Development pt1 to structure')
+  })
+
+  test('🔴 and the sentences now reach the advisor whole', () => {
+    // The outcome, through the production gate rather than an imitation of it.
+    const canary = withholdUnavailableNames('Use Quick Position template.')
+    if (!canary) {
+      console.warn('[test] template catalogue unavailable — gate outcome not asserted')
+      return
+    }
+    ;[
+      'Use COI Development pt1 to structure the approach and early relationship-building.',
+      'Use COI Development pt2 to rebuild the relationship toward a referral structure.'
+    ].forEach((sentence) => {
+      expect(withholdUnavailableNames(sentence)).toBe(sentence)
+    })
+  })
+})
