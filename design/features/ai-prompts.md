@@ -174,23 +174,13 @@ on this same tab at all four tiers, below the settings and above the method.
    level's advisors have — **fenced**, beside the firm's coaching notes, as a quotation the model
    is told to read and never obey.
 
-### The cascade, and the one place it departs from every other block
+### The cascade
 
-🔴 **P11 is accept-first, and nothing else in this app is.** Every other cascade — distinctions,
-the staircase, quizzes, domain support, logic trees — is *inherited until declined*: a row arrives
-live and a level switches it off. Mike's P11 ruling is the opposite for authored material: *"the
-higher levels can offer ideas but never enforce them."* So an offered contribution does **nothing**
-at the level below until that level accepts it, and absence of a decision is not consent.
-
-The design expected this step to *"reuse the existing cascade mechanism rather than adding one"*.
-**It could not** — no existing mechanism has this polarity. This is P11's first implementation, and
-it is deliberately small: a list of accepted offer ids, and nothing in force that is not either the
-level's own or on that list.
-
-⚠ **It reaches authored material only.** The Staircase, Distinctions, Quizzes, Domain Support and
-Logic Tables are engine configuration and cascade as shared tools — the boundary paragraph under
-P11 in [`tier-cascade.md`](tier-cascade.md), which exists because an earlier draft nearly broke four
-working features on the strength of this rule.
+Material a level writes is **pushed down and is in force immediately** at the levels below. Once
+it is in place, the level below may **edit it, switch it off, and refuse a later change** to it —
+the level above keeps its own version either way. It runs on `resolveInheritedRows`, the one
+mechanism every firm-editable block resolves through ([`tier-cascade.md`](tier-cascade.md) §3 and
+P11), with the four keys every other block uses.
 
 ⚠ **A firm chains straight to the mentor today.** A firm with no recorded membership has the
 platform as its parent, because the two middle tiers ship fail-closed. The cascade is correct for
@@ -245,7 +235,7 @@ leaving an accountant with a dead button.
 | Lane B — storage, cascade, the fenced block | [`../../server/utils/promptContributions.js`](../../server/utils/promptContributions.js) |
 | Lane B — the routes | [`../../server/routes/promptContributions.js`](../../server/routes/promptContributions.js) |
 | Where it reaches the AI | `server/advisorEngine.js` — `buildClientContext` and the generic context message, beside the firm coaching notes |
-| Its overlay keys | `prompt-contributions` (a level's own) · `prompt-contributions-accepted` (offers it has taken) |
+| Its overlay keys | `prompt-contributions-own` · `-declines` · `-overrides` · `-override-baselines` |
 | Share a prompt — the panel | [`../../components/firm/FirmPromptCheck.vue`](../../components/firm/FirmPromptCheck.vue) |
 | Its wording, approved before it was built | [`../PROMPT-CONTRIBUTION-WORDING.md`](../PROMPT-CONTRIBUTION-WORDING.md) · locale keys under `promptCheck` |
 | Its design and build order | [`../PROMPT-CONTRIBUTION-SAFETY.md`](../PROMPT-CONTRIBUTION-SAFETY.md) |

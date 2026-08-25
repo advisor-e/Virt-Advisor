@@ -320,14 +320,16 @@ server.post('/api/firm-manager/ai-prompts/restore', ...fmGuard, aiPromptsRoute.r
 // separate file so this one's promise stays true.
 server.post('/api/firm-manager/prompt-check', ...fmGuard, promptCheckRoute.check)
 
-// Lane B (item 4.31, step 4) — a level's own material, in force for that level, offered
-// downward and doing nothing below until accepted (tier-cascade.md P11).
+// Lane B (item 4.31) — a level's own material. Pushed down and in force at the levels
+// below, where it may be edited, switched off, or held against a later change from above.
 server.get('/api/firm-manager/prompt-contributions', ...fmGuard, promptContributionsRoute.list)
 server.post('/api/firm-manager/prompt-contributions', ...fmGuard, promptContributionsRoute.add)
-server.del('/api/firm-manager/prompt-contributions/:id', ...fmGuard, promptContributionsRoute.remove)
-server.post('/api/firm-manager/prompt-contributions/accept', ...fmGuard, promptContributionsRoute.setAccepted)
 server.get('/api/firm-manager/prompt-contributions/history', ...fmGuard, promptContributionsRoute.history)
 server.post('/api/firm-manager/prompt-contributions/restore', ...fmGuard, promptContributionsRoute.restore)
+server.put('/api/firm-manager/prompt-contributions/:id', ...fmGuard, promptContributionsRoute.update)
+server.post('/api/firm-manager/prompt-contributions/:id/off', ...fmGuard, promptContributionsRoute.setOff)
+server.post('/api/firm-manager/prompt-contributions/:id/adopt', ...fmGuard, promptContributionsRoute.adopt)
+server.post('/api/firm-manager/prompt-contributions/:id/keep-mine', ...fmGuard, promptContributionsRoute.keepMine)
 // The education gate (item 2.9) — the question an advisor is asked, before any
 // recommendation, when a client cannot read their own numbers. On a hub page because
 // Mike's 2026-08-16 ruling requires it: content that shapes what the AI does is edited on

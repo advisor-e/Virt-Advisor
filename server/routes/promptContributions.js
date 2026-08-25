@@ -1,31 +1,20 @@
 'use strict'
 
 /**
- * Lane B — a level's own prompt material, stored and cascaded. Item 4.31, step 4 of
- * `design/PROMPT-CONTRIBUTION-SAFETY.md` §7.
+ * A level's own prompt material — Restify routes. Item 4.31, Lane B of
+ * `design/PROMPT-CONTRIBUTION-SAFETY.md`.
  *
- * 🔴 THIS IS A SEPARATE FILE FROM `promptCheck.js` ON PURPOSE. That route is Lane A and
- * its promise is that it stores nothing — a promise a test asserts by reading its source
- * for any sign of a writer. Putting Lane B beside it would have made that promise false
- * for both lanes at once. An accountant asking *"is this any good?"* still reaches a
- * route that cannot write anywhere.
+ * 🔴 SEPARATE FROM `promptCheck.js` ON PURPOSE. That route is Lane A and its promise is
+ * that it stores nothing — a promise a test asserts by reading its source for any sign of
+ * a writer. An accountant asking *"is this any good?"* must never be able to change
+ * anything by accident.
  *
- * 🔴 EVERY HANDLER IS SCOPED TO `req.firmId`, THE VERIFIED SCOPE FROM THE JWT. No handler
- * reads a scope from a body or a query, so a level can only ever write its own material
- * and can only ever accept an offer it was actually made. That is `tier-cascade.md` P6
- * and the IDOR rule, and here it is load-bearing rather than precautionary: this is the
- * first block where one level's free text can reach another level's advice at all.
+ * 🔴 EVERY HANDLER IS SCOPED TO `req.firmId`, THE VERIFIED SCOPE FROM THE JWT, and no
+ * handler reads a scope from a body or a query. A level writes its own material, its own
+ * edits and its own declines, and nothing else — `tier-cascade.md` P6.
  *
- * 🔴 NOTHING TRAVELS UP OR SIDEWAYS. There is no route that writes to a parent scope and
- * none that names another firm. The only cross-scope read is `loadOffered`, which walks
- * from this scope toward the platform through the verified chain.
- *
- * ⚠ THE MATERIAL IS RE-CHECKED HERE, NOT TRUSTED FROM THE SCREEN. `validateContribution`
- * runs the same six deterministic checks the paste box runs. A route that assumes its
- * caller validated has no validation.
- *
- * ⚠ AND THE PROSE IS NEVER LOGGED. Same rule as the paste route: it is a firm's own
- * working material and may carry anything.
+ * ⚠ THE MATERIAL IS CHECKED HERE, NOT TRUSTED FROM THE SCREEN, and the prose is never
+ * logged.
  *
  * Node 14, CommonJS.
  */
@@ -36,36 +25,40 @@ const { devFallbackAllowed } = require('../utils/dbFailure')
 const {
   read,
   write,
+  loadState,
+  loadInherited,
+  resolveForScope,
+  findChangedAbove,
   validateContribution,
-  loadOwn,
-  loadAccepted,
-  loadOffered,
-  resolveInForce,
-  nextId,
+  signatureOf,
+  mintId,
   OWN_KEY,
-  ACCEPTED_KEY,
+  DECLINES_KEY,
+  OVERRIDES_KEY,
+  BASELINES_KEY,
   MAX_IN_FORCE,
   MAX_TITLE,
   MAX_TEXT
 } = require('../utils/promptContributions')
 
 /**
- * The whole screen's payload: this level's own material, what the levels above have
- * offered it with the accept state of each, and what is actually in force.
+ * Everything the screen draws: the material in force here, what was inherited before this
+ * level touched it, which rows this level has switched off, and which of its edits the
+ * level above has since moved underneath.
  *
  * @route GET /api/firm-manager/prompt-contributions
- * @returns {{own: object[], offered: object[], inForce: object[], limits: object}}
  */
 async function list (req, res) {
   try {
-    const own = await loadOwn(req.firmId, read)
-    const offered = await loadOffered(req.firmId, read)
-    const inForce = await resolveInForce(req.firmId, read)
+    const resolved = await resolveForScope(req.firmId, read)
+    const inherited = await loadInherited(req.firmId, read)
+    const state = await loadState(req.firmId, read)
 
     res.send(200, {
-      own,
-      offered,
-      inForce,
+      resolved,
+      inherited,
+      declinedIds: state.declinedIds,
+      changedAbove: await findChangedAbove(req.firmId, read),
       limits: { maxInForce: MAX_IN_FORCE, maxTitle: MAX_TITLE, maxText: MAX_TEXT }
     })
   } catch (err) {
@@ -75,22 +68,16 @@ async function list (req, res) {
 }
 
 /**
- * Add one piece of material to THIS level.
+ * Add a piece of material of this level's own. It is in force here at once, and is pushed
+ * down to the levels below.
  *
- * 🔴 IT APPLIES IMMEDIATELY AND NOBODY SIGNS IT OFF. That is Layer 4 as Mike corrected it
- * on 2026-08-22: *"it doesnt have to be signed off by a level above. many firms in
- * corporate groups will have their own opinion so will want it their own way."* An
- * approval queue here would have made a group manager the gatekeeper of a firm's opinion.
- *
- * A refusal comes back as a 200 with `refused`, carrying the same shape the paste box
- * draws, so one wording serves both screens.
+ * A refusal comes back as a 200 with `refused`, carrying the shape the paste box draws.
  *
  * @route POST /api/firm-manager/prompt-contributions
  * @param {object} req.body - `{ title, text }`
  */
 async function add (req, res) {
   const checked = validateContribution(req.body)
-
   if (!checked.ok && checked.refusal) {
     return res.send(200, { saved: false, refused: true, refusal: checked.refusal })
   }
@@ -99,9 +86,9 @@ async function add (req, res) {
   }
 
   try {
-    const own = await loadOwn(req.firmId, read)
+    const own = (await loadState(req.firmId, read)).ownRows
     const rows = own.concat([{
-      id: nextId(own),
+      id: mintId(req.firmId, own),
       title: checked.value.title,
       text: checked.value.text,
       addedBy: req.userEmail || 'unknown',
@@ -109,7 +96,7 @@ async function add (req, res) {
     }])
 
     await write(req.firmId, OWN_KEY, rows, req.userEmail)
-    res.send(200, { saved: true, refused: false, own: rows })
+    res.send(200, { saved: true, refused: false, resolved: await resolveForScope(req.firmId, read) })
   } catch (err) {
     console.error('[prompt-contributions] save failed:', err.message)
     return sendError(res, 500, 'DB_ERROR', 'Could not save that just now')
@@ -117,91 +104,178 @@ async function add (req, res) {
 }
 
 /**
- * Remove one piece of THIS level's own material.
+ * Edit a piece of material.
  *
- * ⚠ IT DOES NOT REACH DOWNWARD. A level below that accepted this material keeps its
- * acceptance — the offer simply stops existing, so `loadOffered` no longer lists it and
- * `resolveInForce` no longer includes it. Nothing has to be cleaned up at the level
- * below, and nothing there breaks: an accepted id that names nothing resolves to nothing.
+ * A row this level added is edited in place. A row it inherited is edited by storing an
+ * override against its id — the level above keeps its own version, and this level's
+ * replaces it here and downward. The baseline is stamped at the same time, so a later
+ * change above is noticed rather than silently overwriting the edit.
  *
- * @route DELETE /api/firm-manager/prompt-contributions/:id
+ * @route PUT /api/firm-manager/prompt-contributions/:id
+ * @param {object} req.body - `{ title, text }`
  */
-async function remove (req, res) {
-  const id = Number(req.params && req.params.id)
-  if (!Number.isInteger(id) || id <= 0) {
+async function update (req, res) {
+  const id = req.params && req.params.id
+  if (typeof id !== 'string' || id.trim() === '') {
     return sendError(res, 400, 'INVALID_ID', 'That is not a piece of material')
   }
+
+  const checked = validateContribution(req.body)
+  if (!checked.ok && checked.refusal) {
+    return res.send(200, { saved: false, refused: true, refusal: checked.refusal })
+  }
+  if (!checked.ok) {
+    return sendError(res, 400, 'INVALID_CONTRIBUTION', checked.error)
+  }
+
   try {
-    const own = await loadOwn(req.firmId, read)
-    const rows = own.filter(row => Number(row.id) !== id)
-    if (rows.length === own.length) {
-      return sendError(res, 404, 'NOT_FOUND', 'There is nothing here with that name')
+    const state = await loadState(req.firmId, read)
+    const mine = state.ownRows.filter(row => row.id === id)[0]
+
+    if (mine) {
+      const rows = state.ownRows.map(row => (
+        row.id === id ? Object.assign({}, row, checked.value) : row
+      ))
+      await write(req.firmId, OWN_KEY, rows, req.userEmail)
+    } else {
+      const inherited = (await loadInherited(req.firmId, read)).filter(row => row.id === id)[0]
+      if (!inherited) {
+        return sendError(res, 404, 'NOT_FOUND', 'There is nothing here with that name')
+      }
+      const overrides = Object.assign({}, state.overrides)
+      overrides[id] = checked.value
+      await write(req.firmId, OVERRIDES_KEY, overrides, req.userEmail)
+
+      const baselines = Object.assign({}, await read(req.firmId, BASELINES_KEY) || {})
+      baselines[id] = signatureOf(inherited)
+      await write(req.firmId, BASELINES_KEY, baselines, req.userEmail)
     }
-    await write(req.firmId, OWN_KEY, rows, req.userEmail)
-    res.send(200, { removed: true, own: rows })
+
+    res.send(200, { saved: true, refused: false, resolved: await resolveForScope(req.firmId, read) })
   } catch (err) {
-    console.error('[prompt-contributions] remove failed:', err.message)
-    return sendError(res, 500, 'DB_ERROR', 'Could not remove that just now')
+    console.error('[prompt-contributions] update failed:', err.message)
+    return sendError(res, 500, 'DB_ERROR', 'Could not save that just now')
   }
 }
 
 /**
- * Accept, or un-accept, one offer from a level above.
+ * Switch a piece of material off, or back on.
  *
- * 🔴 THIS IS P11'S FIRST IMPLEMENTATION, AND ITS POLARITY IS THE POINT. Nothing offered
- * is in force until it appears on this list. Absence of a decision is not consent, which
- * is the opposite of every other cascade in this app — see the header of
- * `server/utils/promptContributions.js` for why that difference is deliberate.
+ * A row this level added is deleted. A row it inherited is declined — the level above
+ * keeps it, and it stops reaching this level and the levels below. Declining is free and
+ * reversible, and changes nothing above.
  *
- * 🔴 A FORGED OFFER ID NAMES NOTHING. The id from the body is matched against the offers
- * THIS scope was actually made, resolved server-side by walking the verified chain. An id
- * naming another firm's material, or a level this scope does not sit under, is a 404.
- *
- * @route POST /api/firm-manager/prompt-contributions/accept
- * @param {object} req.body - `{ offerId, accepted }`
+ * @route POST /api/firm-manager/prompt-contributions/:id/off
+ * @param {object} req.body - `{ off }`
  */
-async function setAccepted (req, res) {
-  const body = req.body || {}
-  if (typeof body.offerId !== 'string' || body.offerId.trim() === '') {
-    return sendError(res, 400, 'INVALID_OFFER', 'No offer was named')
+async function setOff (req, res) {
+  const id = req.params && req.params.id
+  if (typeof id !== 'string' || id.trim() === '') {
+    return sendError(res, 400, 'INVALID_ID', 'That is not a piece of material')
   }
-  if (typeof body.accepted !== 'boolean') {
-    return sendError(res, 400, 'INVALID_OFFER', 'accepted must be true or false')
+  const off = req.body && req.body.off
+  if (typeof off !== 'boolean') {
+    return sendError(res, 400, 'INVALID_OPTION', 'off must be true or false')
   }
 
   try {
-    const offered = await loadOffered(req.firmId, read)
-    const match = offered.filter(offer => offer.offerId === body.offerId)[0]
-    if (!match) {
-      return sendError(res, 404, 'NOT_FOUND', 'That is not something you have been offered')
+    const state = await loadState(req.firmId, read)
+    const mine = state.ownRows.filter(row => row.id === id)[0]
+
+    if (mine) {
+      if (!off) {
+        // A row this level added is deleted rather than declined, so there is nothing to
+        // switch back on. Saying so beats silently doing nothing.
+        return sendError(res, 400, 'NOT_DECLINABLE', 'That is your own material — add it again to bring it back')
+      }
+      await write(req.firmId, OWN_KEY, state.ownRows.filter(row => row.id !== id), req.userEmail)
+    } else {
+      const inherited = (await loadInherited(req.firmId, read)).filter(row => row.id === id)[0]
+      if (!inherited) {
+        return sendError(res, 404, 'NOT_FOUND', 'There is nothing here with that name')
+      }
+      const without = state.declinedIds.filter(declined => declined !== id)
+      await write(req.firmId, DECLINES_KEY, off ? without.concat([id]) : without, req.userEmail)
     }
 
-    const accepted = await loadAccepted(req.firmId, read)
-    const without = accepted.filter(id => id !== body.offerId)
-    const next = body.accepted ? without.concat([body.offerId]) : without
-
-    await write(req.firmId, ACCEPTED_KEY, next, req.userEmail)
-
-    res.send(200, {
-      offered: await loadOffered(req.firmId, read),
-      inForce: await resolveInForce(req.firmId, read)
-    })
+    res.send(200, { resolved: await resolveForScope(req.firmId, read) })
   } catch (err) {
-    console.error('[prompt-contributions] accept failed:', err.message)
+    console.error('[prompt-contributions] off failed:', err.message)
     return sendError(res, 500, 'DB_ERROR', 'Could not record that just now')
   }
 }
 
 /**
- * Every saved version of THIS scope's own material — free with `firmOverlay`, and the
- * reason the design can say a bad contribution is "one click from undone".
+ * Take the level above's newer version, dropping this level's edit.
  *
+ * @route POST /api/firm-manager/prompt-contributions/:id/adopt
+ */
+async function adopt (req, res) {
+  const id = req.params && req.params.id
+  if (typeof id !== 'string' || id.trim() === '') {
+    return sendError(res, 400, 'INVALID_ID', 'That is not a piece of material')
+  }
+  try {
+    const state = await loadState(req.firmId, read)
+    if (!Object.prototype.hasOwnProperty.call(state.overrides, id)) {
+      return sendError(res, 404, 'NOT_FOUND', 'You have not edited that')
+    }
+    const overrides = Object.assign({}, state.overrides)
+    delete overrides[id]
+    await write(req.firmId, OVERRIDES_KEY, overrides, req.userEmail)
+
+    const baselines = Object.assign({}, await read(req.firmId, BASELINES_KEY) || {})
+    delete baselines[id]
+    await write(req.firmId, BASELINES_KEY, baselines, req.userEmail)
+
+    res.send(200, { resolved: await resolveForScope(req.firmId, read) })
+  } catch (err) {
+    console.error('[prompt-contributions] adopt failed:', err.message)
+    return sendError(res, 500, 'DB_ERROR', 'Could not record that just now')
+  }
+}
+
+/**
+ * Refuse the level above's newer version and keep this level's own wording.
+ *
+ * The edit is untouched; only the baseline moves, so the row stops being reported as
+ * changed until the level above changes it again.
+ *
+ * @route POST /api/firm-manager/prompt-contributions/:id/keep-mine
+ */
+async function keepMine (req, res) {
+  const id = req.params && req.params.id
+  if (typeof id !== 'string' || id.trim() === '') {
+    return sendError(res, 400, 'INVALID_ID', 'That is not a piece of material')
+  }
+  try {
+    const state = await loadState(req.firmId, read)
+    if (!Object.prototype.hasOwnProperty.call(state.overrides, id)) {
+      return sendError(res, 404, 'NOT_FOUND', 'You have not edited that')
+    }
+    const inherited = (await loadInherited(req.firmId, read)).filter(row => row.id === id)[0]
+    if (!inherited) {
+      return sendError(res, 404, 'NOT_FOUND', 'There is nothing above you with that name')
+    }
+
+    const baselines = Object.assign({}, await read(req.firmId, BASELINES_KEY) || {})
+    baselines[id] = signatureOf(inherited)
+    await write(req.firmId, BASELINES_KEY, baselines, req.userEmail)
+
+    res.send(200, { changedAbove: await findChangedAbove(req.firmId, read) })
+  } catch (err) {
+    console.error('[prompt-contributions] keep-mine failed:', err.message)
+    return sendError(res, 500, 'DB_ERROR', 'Could not record that just now')
+  }
+}
+
+/**
+ * Every saved version of this level's own material.
  * @route GET /api/firm-manager/prompt-contributions/history
  */
 async function history (req, res) {
   try {
-    const rows = await overlay.getVersionHistory(req.firmId, OWN_KEY)
-    res.send(200, { history: rows })
+    res.send(200, { history: await overlay.getVersionHistory(req.firmId, OWN_KEY) })
   } catch (err) {
     if (devFallbackAllowed(err)) { res.send(200, { history: [] }); return }
     console.error('[prompt-contributions] history failed:', err.message)
@@ -221,11 +295,11 @@ async function restore (req, res) {
   }
   try {
     await overlay.restoreVersion(req.firmId, OWN_KEY, versionId)
-    res.send(200, { restored: true, own: await loadOwn(req.firmId, read) })
+    res.send(200, { restored: true, resolved: await resolveForScope(req.firmId, read) })
   } catch (err) {
     console.error('[prompt-contributions] restore failed:', err.message)
     return sendError(res, 500, 'DB_ERROR', 'Could not restore that version')
   }
 }
 
-module.exports = { list, add, remove, setAccepted, history, restore }
+module.exports = { list, add, update, setOff, adopt, keepMine, history, restore }

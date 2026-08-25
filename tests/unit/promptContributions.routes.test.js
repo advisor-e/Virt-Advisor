@@ -1,26 +1,20 @@
 'use strict'
 
 /**
- * The Lane B routes — item 4.31, step 4.
+ * The routes behind a level's own prompt material — item 4.31, Lane B.
  *
- * 🔴 THE THREE THAT MATTER, and none of them is visible to a person in UAT:
+ * 🔴 THE THREE THAT MATTER, and none is visible to a person in UAT:
  *
- *   1. A LEVEL CAN ONLY EVER WRITE ITS OWN MATERIAL. Every handler is scoped to
- *      `req.firmId`, the verified scope from the JWT, and no handler reads a scope from a
- *      body or a query. This is the first block in the app where one level's free text
- *      can reach another level's advice at all, so the IDOR rule is load-bearing here
- *      rather than precautionary.
- *   2. A FORGED OFFER ID NAMES NOTHING. Accepting is matched against the offers this
- *      scope was actually made, resolved server-side by walking the verified chain — so a
- *      request naming another level's material is a 404 and not a quiet acceptance.
- *   3. THE MATERIAL IS RE-CHECKED AT THE POINT OF STORAGE. The screen having run the
- *      checks is not a reason to trust the request that follows.
+ *   1. A LEVEL WRITES ONLY ITS OWN SCOPE. Every handler takes the scope from `req.firmId`,
+ *      the verified value from the JWT, and no handler reads one from a body or a query.
+ *   2. AN EDIT IS STORED AS AN OVERRIDE, NOT AS A COPY. The level above keeps its own
+ *      version; the edit replaces it here and downward, keyed to the same id, so a later
+ *      change above can still be matched to the row it is about.
+ *   3. THE MATERIAL IS CHECKED AT THE POINT OF STORAGE, not only on the screen.
  *
- * ⚠ `firmOverlay` IS MOCKED, so these never touch MySQL. The dev-file fallback is
- * exercised separately — a failure WITHOUT a sqlState means "there is no database here"
- * and is allowed to fall back; a live refusal must surface as a 500. That distinction is
- * `server/utils/dbFailure.js`, and it exists because weeks of mentor saves once vanished
- * into a dev file.
+ * ⚠ `firmOverlay` IS MOCKED, so these never touch MySQL. A failure WITHOUT a sqlState
+ * means "there is no database here" and may fall back to the dev file; a live refusal must
+ * surface as a 500 — `server/utils/dbFailure.js`.
  */
 
 jest.mock('../../server/utils/firmOverlay', () => ({
@@ -32,10 +26,15 @@ jest.mock('../../server/utils/firmOverlay', () => ({
 
 const overlay = require('../../server/utils/firmOverlay')
 const routes = require('../../server/routes/promptContributions')
-const { OWN_KEY, ACCEPTED_KEY } = require('../../server/utils/promptContributions')
+const {
+  signatureOf,
+  OWN_KEY,
+  DECLINES_KEY,
+  OVERRIDES_KEY,
+  BASELINES_KEY
+} = require('../../server/utils/promptContributions')
 
 const PLATFORM = '__platform__'
-const GLOBAL = '__global__:kirkwood'
 const GROUP = '__group__:kirkwood::nz'
 const FIRM = 'firm-42'
 
@@ -64,16 +63,14 @@ function makeReq (scopeId, extra) {
   }, extra || {})
 }
 
-/** A failure a LIVE MySQL answered and refused — no dev fallback is allowed for it. */
 function refusal (message) {
   return Object.assign(new Error(message), { code: 'ER_NO_REFERENCED_ROW_2', sqlState: '23000' })
 }
 
-/** Point the mocked overlay at an in-memory store keyed `scope::key`. */
 function store (seed) {
   const data = Object.assign({}, seed)
   overlay.loadFirmConfig.mockImplementation((scopeId, key) =>
-    Promise.resolve(data[scopeId + '::' + key] || null))
+    Promise.resolve(data[scopeId + '::' + key] === undefined ? null : data[scopeId + '::' + key]))
   overlay.saveFirmConfig.mockImplementation((scopeId, key, value) => {
     data[scopeId + '::' + key] = value
     return Promise.resolve()
@@ -81,34 +78,32 @@ function store (seed) {
   return data
 }
 
-function contribution (id, title, text) {
+function row (id, title, text) {
   return { id, title, text, addedBy: 'manager@example.com', addedAt: '2026-08-25T00:00:00.000Z' }
 }
 
 beforeEach(() => { jest.clearAllMocks(); store({}) })
 
-describe('reading what a level has', () => {
-  it('returns its own material, what it has been offered, and what is in force', async () => {
+describe('reading the screen', () => {
+  it('returns what is in force, what was inherited, and what is switched off', async () => {
     store({
-      [PLATFORM + '::' + OWN_KEY]: [contribution(1, 'Platform method', 'The mentor way.')],
-      [GROUP + '::' + OWN_KEY]: [contribution(1, 'Our method', 'Our way.')]
+      [PLATFORM + '::' + OWN_KEY]: [row('pc-1', 'Platform method', 'The mentor way.')],
+      [GROUP + '::' + DECLINES_KEY]: ['pc-1']
     })
     const res = makeMockRes()
     await routes.list(makeReq(GROUP), res)
 
     expect(res._status).toBe(200)
-    expect(res._body.own.map(r => r.title)).toEqual(['Our method'])
-    // The global group is walked and has written nothing, so it offers nothing. Only
-    // levels that actually hold material appear — an empty level is not an empty offer.
-    expect(res._body.offered.map(o => o.offeredBy)).toEqual([PLATFORM])
-    expect(res._body.inForce.map(r => r.title)).toEqual(['Our method'])
+    expect(res._body.resolved).toEqual([])
+    expect(res._body.inherited.map(r => r.title)).toEqual(['Platform method'])
+    expect(res._body.declinedIds).toEqual(['pc-1'])
   })
 
   it('tells the screen the limits rather than the screen guessing them', async () => {
     const res = makeMockRes()
     await routes.list(makeReq(FIRM), res)
-    expect(res._body.limits.maxInForce).toBeGreaterThan(0)
     expect(res._body.limits.maxText).toBe(6000)
+    expect(res._body.limits.maxInForce).toBeGreaterThan(0)
   })
 
   it('500s on a live database refusal rather than answering "you have none"', async () => {
@@ -124,30 +119,29 @@ describe('adding material', () => {
   it('stores it against the caller\'s own scope and puts it in force at once', async () => {
     const data = store({})
     const res = makeMockRes()
-    await routes.add(makeReq(FIRM, { body: { title: 'Our method', text: 'Always show the funding line.' } }), res)
+    await routes.add(makeReq(FIRM, { body: { title: 'Our method', text: 'Show the funding line.' } }), res)
 
     expect(res._body.saved).toBe(true)
     expect(overlay.saveFirmConfig).toHaveBeenCalledWith(FIRM, OWN_KEY, expect.any(Array), 'manager@example.com')
     expect(data[FIRM + '::' + OWN_KEY][0].title).toBe('Our method')
+    expect(res._body.resolved.map(r => r.title)).toEqual(['Our method'])
   })
 
-  it('🔴 ignores any scope in the body — the firm is the JWT\'s and nothing else', async () => {
+  it('🔴 ignores any scope in the body — the scope is the JWT\'s and nothing else', async () => {
     store({})
-    const res = makeMockRes()
     await routes.add(makeReq(FIRM, {
       body: { title: 'Ours', text: 'Our way.', firmId: 'firm-99', scopeId: PLATFORM }
-    }), res)
+    }), makeMockRes())
 
     expect(overlay.saveFirmConfig).toHaveBeenCalledTimes(1)
     expect(overlay.saveFirmConfig.mock.calls[0][0]).toBe(FIRM)
   })
 
-  it('stamps who added it and when, because a bad contribution must be attributable', async () => {
+  it('stamps who added it and when, because material must be attributable', async () => {
     const data = store({})
     await routes.add(makeReq(FIRM, { body: { title: 'Ours', text: 'Our way.' } }), makeMockRes())
-    const row = data[FIRM + '::' + OWN_KEY][0]
-    expect(row.addedBy).toBe('manager@example.com')
-    expect(typeof row.addedAt).toBe('string')
+    expect(data[FIRM + '::' + OWN_KEY][0].addedBy).toBe('manager@example.com')
+    expect(typeof data[FIRM + '::' + OWN_KEY][0].addedAt).toBe('string')
   })
 
   it('🔴 refuses material the paste box would have refused', async () => {
@@ -155,7 +149,6 @@ describe('adding material', () => {
     await routes.add(makeReq(FIRM, { body: { title: 'Ours', text: 'See https://example.com/x' } }), res)
 
     expect(res._status).toBe(200)
-    expect(res._body.saved).toBe(false)
     expect(res._body.refused).toBe(true)
     expect(res._body.refusal.kind).toBe('link')
     expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
@@ -167,125 +160,171 @@ describe('adding material', () => {
     expect(res._status).toBe(400)
     expect(errorBody(res).error.code).toBe('INVALID_CONTRIBUTION')
   })
-
-  it('appends rather than replacing, and never reuses an id', async () => {
-    const data = store({ [FIRM + '::' + OWN_KEY]: [contribution(4, 'First', 'One.')] })
-    await routes.add(makeReq(FIRM, { body: { title: 'Second', text: 'Two.' } }), makeMockRes())
-    expect(data[FIRM + '::' + OWN_KEY].map(r => r.id)).toEqual([4, 5])
-  })
 })
 
-describe('removing material', () => {
-  it('removes only the row named, from the caller\'s own scope', async () => {
-    const data = store({
-      [FIRM + '::' + OWN_KEY]: [contribution(1, 'One', 'a'), contribution(2, 'Two', 'b')]
-    })
+describe('editing', () => {
+  it('edits a row this level added, in place', async () => {
+    const data = store({ [FIRM + '::' + OWN_KEY]: [row('fc-1', 'Old', 'Old body.')] })
     const res = makeMockRes()
-    await routes.remove(makeReq(FIRM, { params: { id: '1' } }), res)
+    await routes.update(makeReq(FIRM, { params: { id: 'fc-1' }, body: { title: 'New', text: 'New body.' } }), res)
 
-    expect(res._body.removed).toBe(true)
-    expect(data[FIRM + '::' + OWN_KEY].map(r => r.id)).toEqual([2])
+    expect(res._body.saved).toBe(true)
+    expect(data[FIRM + '::' + OWN_KEY][0].title).toBe('New')
+    expect(overlay.saveFirmConfig).toHaveBeenCalledWith(FIRM, OWN_KEY, expect.any(Array), 'manager@example.com')
   })
 
-  it('404s rather than silently succeeding on something that is not there', async () => {
-    store({ [FIRM + '::' + OWN_KEY]: [contribution(1, 'One', 'a')] })
+  it('🔴 edits an INHERITED row as an override, leaving the level above untouched', async () => {
+    const data = store({ [PLATFORM + '::' + OWN_KEY]: [row('pc-1', 'Platform method', 'The mentor way.')] })
     const res = makeMockRes()
-    await routes.remove(makeReq(FIRM, { params: { id: '99' } }), res)
-    expect(res._status).toBe(404)
+    await routes.update(makeReq(GROUP, { params: { id: 'pc-1' }, body: { title: 'Ours', text: 'Our way.' } }), res)
+
+    expect(data[GROUP + '::' + OVERRIDES_KEY]['pc-1'].title).toBe('Ours')
+    expect(data[PLATFORM + '::' + OWN_KEY][0].title).toBe('Platform method')
+    expect(res._body.resolved[0].title).toBe('Ours')
+    expect(res._body.resolved[0].id).toBe('pc-1')
   })
 
-  it('400s on an id that is not one', async () => {
-    const res = makeMockRes()
-    await routes.remove(makeReq(FIRM, { params: { id: 'all' } }), res)
-    expect(res._status).toBe(400)
-  })
-})
+  it('stamps the baseline, so a later change above is noticed', async () => {
+    const data = store({ [PLATFORM + '::' + OWN_KEY]: [row('pc-1', 'Platform method', 'The mentor way.')] })
+    await routes.update(makeReq(GROUP, { params: { id: 'pc-1' }, body: { title: 'Ours', text: 'Our way.' } }), makeMockRes())
 
-describe('🔴 accepting an offer — P11\'s polarity, enforced at the door', () => {
-  const seeded = () => store({
-    [PLATFORM + '::' + OWN_KEY]: [contribution(1, 'Platform method', 'The mentor way.')],
-    [GLOBAL + '::' + OWN_KEY]: [contribution(1, 'Brand method', 'The brand way.')]
+    expect(data[GROUP + '::' + BASELINES_KEY]['pc-1'])
+      .toBe(signatureOf({ title: 'Platform method', text: 'The mentor way.' }))
   })
 
-  it('accepts an offer this level was actually made', async () => {
-    const data = seeded()
-    const res = makeMockRes()
-    await routes.setAccepted(makeReq(GROUP, { body: { offerId: GLOBAL + '#1', accepted: true } }), res)
-
-    expect(res._status).toBe(200)
-    expect(data[GROUP + '::' + ACCEPTED_KEY]).toEqual([GLOBAL + '#1'])
-    expect(res._body.inForce.map(r => r.title)).toEqual(['Brand method'])
-  })
-
-  it('un-accepts, and the material stops reaching the AI immediately', async () => {
-    const data = seeded()
-    data[GROUP + '::' + ACCEPTED_KEY] = [GLOBAL + '#1']
-    const res = makeMockRes()
-    await routes.setAccepted(makeReq(GROUP, { body: { offerId: GLOBAL + '#1', accepted: false } }), res)
-
-    expect(data[GROUP + '::' + ACCEPTED_KEY]).toEqual([])
-    expect(res._body.inForce).toEqual([])
-  })
-
-  it('🔴 404s on an offer id naming a level this scope does not sit under', async () => {
-    seeded()
-    const res = makeMockRes()
-    await routes.setAccepted(makeReq(GROUP, {
-      body: { offerId: '__group__:kirkwood::au#1', accepted: true }
-    }), res)
-
-    expect(res._status).toBe(404)
-    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
-  })
-
-  it('🔴 404s on an offer id naming another firm', async () => {
-    const data = seeded()
-    data['firm-99::' + OWN_KEY] = [contribution(1, 'Rival method', 'Their way.')]
-    const res = makeMockRes()
-    await routes.setAccepted(makeReq(FIRM, { body: { offerId: 'firm-99#1', accepted: true } }), res)
-
-    expect(res._status).toBe(404)
-    expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
-  })
-
-  it('404s on an offer that has since been withdrawn', async () => {
+  it('404s on a row that exists nowhere', async () => {
     store({})
     const res = makeMockRes()
-    await routes.setAccepted(makeReq(GROUP, { body: { offerId: GLOBAL + '#1', accepted: true } }), res)
+    await routes.update(makeReq(GROUP, { params: { id: 'pc-9' }, body: { title: 'x', text: 'y' } }), res)
     expect(res._status).toBe(404)
   })
 
-  it('400s when the request names no offer, or does not say accept or decline', async () => {
-    seeded()
-    const a = makeMockRes()
-    await routes.setAccepted(makeReq(GROUP, { body: { accepted: true } }), a)
-    expect(a._status).toBe(400)
-
-    const b = makeMockRes()
-    await routes.setAccepted(makeReq(GROUP, { body: { offerId: GLOBAL + '#1' } }), b)
-    expect(b._status).toBe(400)
-
-    const c = makeMockRes()
-    await routes.setAccepted(makeReq(GROUP, { body: { offerId: GLOBAL + '#1', accepted: 'yes' } }), c)
-    expect(c._status).toBe(400)
-  })
-
-  it('accepting twice does not list the same offer twice', async () => {
-    const data = seeded()
-    await routes.setAccepted(makeReq(GROUP, { body: { offerId: GLOBAL + '#1', accepted: true } }), makeMockRes())
-    await routes.setAccepted(makeReq(GROUP, { body: { offerId: GLOBAL + '#1', accepted: true } }), makeMockRes())
-    expect(data[GROUP + '::' + ACCEPTED_KEY]).toEqual([GLOBAL + '#1'])
-  })
-
-  it('🔴 writes the acceptance to the ACCEPTING scope, never to the offering one', async () => {
-    seeded()
-    await routes.setAccepted(makeReq(GROUP, { body: { offerId: GLOBAL + '#1', accepted: true } }), makeMockRes())
-    expect(overlay.saveFirmConfig.mock.calls[0][0]).toBe(GROUP)
-    expect(overlay.saveFirmConfig.mock.calls[0][1]).toBe(ACCEPTED_KEY)
+  it('refuses an edit the paste box would have refused', async () => {
+    store({ [FIRM + '::' + OWN_KEY]: [row('fc-1', 'Old', 'Old body.')] })
+    const res = makeMockRes()
+    await routes.update(makeReq(FIRM, { params: { id: 'fc-1' }, body: { title: 'x', text: 'mail me at a@b.com' } }), res)
+    expect(res._body.refused).toBe(true)
   })
 })
 
-describe('version history, which is what makes a bad contribution undoable', () => {
+describe('switching material off', () => {
+  it('declines an inherited row, leaving it in place above', async () => {
+    const data = store({ [PLATFORM + '::' + OWN_KEY]: [row('pc-1', 'Platform method', 'The mentor way.')] })
+    const res = makeMockRes()
+    await routes.setOff(makeReq(GROUP, { params: { id: 'pc-1' }, body: { off: true } }), res)
+
+    expect(data[GROUP + '::' + DECLINES_KEY]).toEqual(['pc-1'])
+    expect(data[PLATFORM + '::' + OWN_KEY]).toHaveLength(1)
+    expect(res._body.resolved).toEqual([])
+  })
+
+  it('switches a declined row back on', async () => {
+    const data = store({
+      [PLATFORM + '::' + OWN_KEY]: [row('pc-1', 'Platform method', 'The mentor way.')],
+      [GROUP + '::' + DECLINES_KEY]: ['pc-1']
+    })
+    const res = makeMockRes()
+    await routes.setOff(makeReq(GROUP, { params: { id: 'pc-1' }, body: { off: false } }), res)
+
+    expect(data[GROUP + '::' + DECLINES_KEY]).toEqual([])
+    expect(res._body.resolved.map(r => r.id)).toEqual(['pc-1'])
+  })
+
+  it('declining twice does not list the row twice', async () => {
+    const data = store({
+      [PLATFORM + '::' + OWN_KEY]: [row('pc-1', 'Platform method', 'The mentor way.')]
+    })
+    await routes.setOff(makeReq(GROUP, { params: { id: 'pc-1' }, body: { off: true } }), makeMockRes())
+    await routes.setOff(makeReq(GROUP, { params: { id: 'pc-1' }, body: { off: true } }), makeMockRes())
+    expect(data[GROUP + '::' + DECLINES_KEY]).toEqual(['pc-1'])
+  })
+
+  it('deletes a row this level added rather than declining it', async () => {
+    const data = store({ [FIRM + '::' + OWN_KEY]: [row('fc-1', 'Ours', 'Our way.')] })
+    await routes.setOff(makeReq(FIRM, { params: { id: 'fc-1' }, body: { off: true } }), makeMockRes())
+    expect(data[FIRM + '::' + OWN_KEY]).toEqual([])
+  })
+
+  it('says so rather than silently doing nothing when asked to restore its own deleted row', async () => {
+    store({ [FIRM + '::' + OWN_KEY]: [row('fc-1', 'Ours', 'Our way.')] })
+    const res = makeMockRes()
+    await routes.setOff(makeReq(FIRM, { params: { id: 'fc-1' }, body: { off: false } }), res)
+    expect(res._status).toBe(400)
+    expect(errorBody(res).error.code).toBe('NOT_DECLINABLE')
+  })
+
+  it('400s when the request does not say on or off', async () => {
+    const res = makeMockRes()
+    await routes.setOff(makeReq(GROUP, { params: { id: 'pc-1' }, body: {} }), res)
+    expect(res._status).toBe(400)
+  })
+
+  it('404s on a row that exists nowhere', async () => {
+    store({})
+    const res = makeMockRes()
+    await routes.setOff(makeReq(GROUP, { params: { id: 'pc-9' }, body: { off: true } }), res)
+    expect(res._status).toBe(404)
+  })
+})
+
+describe('🔴 a later change from above', () => {
+  function edited () {
+    const data = store({ [PLATFORM + '::' + OWN_KEY]: [row('pc-1', 'Platform method', 'The mentor way.')] })
+    data[GROUP + '::' + OVERRIDES_KEY] = { 'pc-1': { title: 'Ours', text: 'Our way.' } }
+    data[GROUP + '::' + BASELINES_KEY] = {
+      'pc-1': signatureOf({ title: 'Platform method', text: 'The mentor way.' })
+    }
+    return data
+  }
+
+  it('is reported once the level above rewrites the row', async () => {
+    const data = edited()
+    data[PLATFORM + '::' + OWN_KEY] = [row('pc-1', 'Platform method', 'A NEW mentor way.')]
+    const res = makeMockRes()
+    await routes.list(makeReq(GROUP), res)
+    expect(res._body.changedAbove).toEqual(['pc-1'])
+  })
+
+  it('adopting drops this level\'s edit and takes the newer version', async () => {
+    const data = edited()
+    data[PLATFORM + '::' + OWN_KEY] = [row('pc-1', 'Platform method', 'A NEW mentor way.')]
+    const res = makeMockRes()
+    await routes.adopt(makeReq(GROUP, { params: { id: 'pc-1' } }), res)
+
+    expect(data[GROUP + '::' + OVERRIDES_KEY]['pc-1']).toBeUndefined()
+    expect(res._body.resolved[0].text).toBe('A NEW mentor way.')
+  })
+
+  it('🔴 keeping mine leaves the edit alone and stops the row being reported', async () => {
+    const data = edited()
+    data[PLATFORM + '::' + OWN_KEY] = [row('pc-1', 'Platform method', 'A NEW mentor way.')]
+    const res = makeMockRes()
+    await routes.keepMine(makeReq(GROUP, { params: { id: 'pc-1' } }), res)
+
+    expect(data[GROUP + '::' + OVERRIDES_KEY]['pc-1'].text).toBe('Our way.')
+    expect(res._body.changedAbove).toEqual([])
+  })
+
+  it('404s when the level has not edited that row at all', async () => {
+    store({ [PLATFORM + '::' + OWN_KEY]: [row('pc-1', 'Platform method', 'The mentor way.')] })
+    const a = makeMockRes()
+    await routes.adopt(makeReq(GROUP, { params: { id: 'pc-1' } }), a)
+    expect(a._status).toBe(404)
+
+    const b = makeMockRes()
+    await routes.keepMine(makeReq(GROUP, { params: { id: 'pc-1' } }), b)
+    expect(b._status).toBe(404)
+  })
+
+  it('🔴 writes only to the deciding scope, never to the one above', async () => {
+    const data = edited()
+    data[PLATFORM + '::' + OWN_KEY] = [row('pc-1', 'Platform method', 'A NEW mentor way.')]
+    await routes.keepMine(makeReq(GROUP, { params: { id: 'pc-1' } }), makeMockRes())
+    overlay.saveFirmConfig.mock.calls.forEach((call) => { expect(call[0]).toBe(GROUP) })
+  })
+})
+
+describe('version history, which is what makes bad material undoable', () => {
   it('returns the versions of this scope\'s own material', async () => {
     overlay.getVersionHistory.mockResolvedValue([{ id: 7, version: 2, created_by: 'a@b.c' }])
     const res = makeMockRes()
@@ -311,11 +350,9 @@ describe('version history, which is what makes a bad contribution undoable', () 
 })
 
 describe('what these routes do NOT expose', () => {
-  it('🔴 offers no way to write to another scope', () => {
-    // Every handler takes its scope from req.firmId. If a handler ever appears that reads
-    // one from a body, this list is where it shows up first.
+  it('🔴 offers no handler that writes to another scope', () => {
     expect(Object.keys(routes).sort())
-      .toEqual(['add', 'history', 'list', 'remove', 'restore', 'setAccepted'])
+      .toEqual(['add', 'adopt', 'history', 'keepMine', 'list', 'restore', 'setOff', 'update'])
   })
 
   it('🔴 never logs the material itself', async () => {
@@ -326,8 +363,7 @@ describe('what these routes do NOT expose', () => {
       body: { title: 'Ours', text: 'Our confidential house method, in full.' }
     }), makeMockRes())
 
-    const written = spy.mock.calls.map(a => a.join(' ')).join(' | ')
-    expect(written).not.toContain('confidential house method')
+    expect(spy.mock.calls.map(a => a.join(' ')).join(' | ')).not.toContain('confidential house method')
     spy.mockRestore()
   })
 })

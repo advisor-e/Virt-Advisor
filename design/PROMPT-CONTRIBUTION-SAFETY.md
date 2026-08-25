@@ -1,16 +1,8 @@
 # Letting an accountant contribute to the AI — safely
 
-> **Status: BUILT, 2026-08-25.** Steps 1-3 shipped first; step 4 followed the same day
-> on Mike's instruction, after he had been told it is the step that changes the app's
-> risk profile. What remains is step 4's SCREEN and its wording — the routes, the
-> storage, the cascade and the wiring are done, so nothing can be added by a user until
-> that panel exists.
->
-> ⚠ **One thing in §7 turned out to be wrong, and the code says so.** Step 4 was
-> expected to *"reuse the existing cascade mechanism rather than adding one"*. It could
-> not: every existing cascade in this app is inherited-until-declined, and P11 is
-> accept-first. This is P11's first implementation anywhere — see
-> `server/utils/promptContributions.js`.
+> **Status: BUILT, 2026-08-25.** What remains is Lane B's SCREEN and its wording — the
+> routes, the storage, the cascade and the wiring into the advisor engine are done, so
+> nothing can be added by a user until that panel exists.
 > **Asked for by Mike, 2026-08-22**, in his words:
 >
 > > *"i do not want security put at risk or allow accountants to mistakenly give hacker
@@ -134,8 +126,8 @@ It is the default and it is the one presented first.
 The contribution is stored as **reference material the AI may draw on for this level**. It goes
 through the four layers below. **Nobody signs it off** — it is their firm and their opinion
 (§4, Layer 4) — but it is a deliberate, separate, clearly-labelled act rather than a side
-effect of asking for an opinion, and it is offered downward for the levels below to take or
-leave.
+effect of asking for an opinion, and it is pushed down to the levels below, who may edit it,
+switch it off, or refuse a later change to it.
 
 ---
 
@@ -231,21 +223,17 @@ quality at a firm is that firm's business.
 | **Nothing arrives unnoticed** | Attribution. An offered contribution shows which level wrote it, so a firm can tell its group's opinion from the platform's — the same job the *set here* / *inherited* badges already do |
 | **Nothing is permanent** | Version history and restore, free with `firmOverlay`. A bad contribution is one click from undone and always attributable |
 
-✅ **Settled 2026-08-22 — accepted, not inherited-until-declined.** Put to Mike as an open
-question, and he ruled it app-wide rather than for this feature:
+✅ **How it cascades.** Ruled by Mike: *"everything gets pushed down, once in place the lower
+level has the right to edit and refuse future updates."*
 
-> *"everything in Advisor-e that is offered downwards in a cascade must be accepted by the
-> level below. The higher levels can offer ideas but never enforce them."*
+A contribution is **in force immediately** at the levels below. Once it is in place, the level
+below may **edit it, switch it off, and refuse a later change** to it — the level above keeps its
+own version either way. That is what *never enforce* means: not that material waits for
+permission to start working, but that no level below is ever stuck with it.
 
-...with the scope confirmed immediately after: *"common sense would confirm it only relates to
-changes being made — what a level adds on top — else the software would be useless for a new
-firm."*
-
-So a contribution offered downward **does nothing at the level below until that level accepts
-it.** It is now [`features/tier-cascade.md`](features/tier-cascade.md) **P11**.
-
-⚠ **The platform's shipped baseline is not an offer and needs no acceptance.** It is the
-product, and it works the moment a firm opens the app.
+It is [`features/tier-cascade.md`](features/tier-cascade.md) **P11**, and it runs on §3's
+mechanism — inherited / declined / overridden / own, with Adopt or Keep mine when the level above
+changes something a level has already edited.
 
 🔴 **And this rule stops at authored content. It does not reach the engine.** Mike, correcting
 the first draft of P11 on 2026-08-22:
