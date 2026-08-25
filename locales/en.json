@@ -1671,6 +1671,7 @@
     "colThen": "Then (action / next step)",
     "colNotes": "Notes",
     "addBranch": "+ Add branch",
+    "addStanding": "+ Add rule that always applies",
     "reset": "Reset to platform default",
     "save": "Save changes",
     "loadFailed": "Your logic tables could not be loaded. Please try again, and tell us if it keeps happening.",

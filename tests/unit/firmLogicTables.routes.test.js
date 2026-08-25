@@ -516,19 +516,74 @@ describe('the standing rules on the Logic Tables screen', () => {
     expect(conclusion.templates).toEqual(['Get. Seminar Feedback Form'])
   })
 
-  // The guard AND the scope rule in one: standing rules can be reworded, not
-  // created. A hand-made request cannot mint a new flat_branches entry by
-  // claiming `kind` for an id the platform never authored there.
-  test('a forged standing row with an unknown id becomes an ordinary branch', async () => {
+  // A level may WRITE a standing rule, not only reword the two that shipped.
+  // Ruled by Mike 2026-08-25: "I should be able to edit, delete and add new ones
+  // easily", on every table.
+  test('a standing row the platform never authored is saved as a standing rule', async () => {
     overlay.saveFirmConfig.mockResolvedValue(1)
     const res = makeMockRes()
     await saveLogicTree(makeReq({
       params: { treeId: 'public_speaking' },
-      body: { branches: [{ id: 'made-up', kind: 'standing', branch_name: 'Forged', condition: 'c', action: 'a', notes: '' }] }
+      body: { branches: [{ kind: 'standing', branch_name: 'Ours', condition: 'c', action: 'a', notes: '' }] }
     }), res)
     const saved = overlay.saveFirmConfig.mock.calls[0][2].public_speaking
-    expect((saved.flat_branches || []).some(b => b.branch_name === 'Forged')).toBe(false)
-    expect(saved.nodes.some(n => n.branch_name === 'Forged')).toBe(true)
+    expect(saved.flat_branches.some(b => b.branch_name === 'Ours')).toBe(true)
+    expect(saved.nodes.some(n => n.branch_name === 'Ours')).toBe(false)
+  })
+
+  test('🔴 a standing row cannot claim a platform row id', async () => {
+    // Keeping the submitted id is what lets a saved rule round-trip. Keeping one
+    // that already belongs to a platform node would put a second row into the
+    // table under a name that already means something else.
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'public_speaking' },
+      body: { branches: [{ id: 'ps_stage1', kind: 'standing', branch_name: 'Impostor', condition: 'c', action: 'a', notes: '' }] }
+    }), res)
+    const saved = overlay.saveFirmConfig.mock.calls[0][2].public_speaking
+    const impostor = saved.flat_branches.find(b => b.branch_name === 'Impostor')
+    expect(impostor).toBeDefined()
+    expect(impostor.id).not.toBe('ps_stage1')
+    expect(impostor.id).toMatch(/^firm-standing-/)
+  })
+
+  test('a firm-authored standing rule keeps its id across a second save', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'public_speaking' },
+      body: { branches: [{ id: 'firm-standing-0', kind: 'standing', branch_name: 'Ours', condition: 'c', action: 'a', notes: '' }] }
+    }), res)
+    const saved = overlay.saveFirmConfig.mock.calls[0][2].public_speaking
+    expect(saved.flat_branches.find(b => b.branch_name === 'Ours').id).toBe('firm-standing-0')
+  })
+
+  test('a standing rule can be deleted by leaving it out', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'public_speaking' },
+      body: { branches: [{ id: 'ps_networking', kind: 'standing', branch_name: 'N', condition: 'c', action: 'a', notes: '' }] }
+    }), res)
+    const saved = overlay.saveFirmConfig.mock.calls[0][2].public_speaking
+    expect(saved.flat_branches.map(b => b.id)).toEqual(['ps_networking'])
+  })
+
+  test('a standing rule can be added to a table that never had one', async () => {
+    overlay.saveFirmConfig.mockResolvedValue(1)
+    const res = makeMockRes()
+    await saveLogicTree(makeReq({
+      params: { treeId: 'eoy_meeting' },
+      body: {
+        branches: [
+          { id: 'x', kind: 'branch', branch_name: 'B', condition: 'c', action: 'a', notes: '' },
+          { kind: 'standing', branch_name: 'Always', condition: 'c', action: 'a', notes: '' }
+        ]
+      }
+    }), res)
+    const saved = overlay.saveFirmConfig.mock.calls[0][2].eoy_meeting
+    expect(saved.flat_branches.map(b => b.branch_name)).toEqual(['Always'])
   })
 
   // An older client posting the pre-4.16 shape knows nothing about standing
