@@ -11,7 +11,7 @@
 ## 2026-08-25 (second session) · Laptop · branch `feat/advisor-progress`
 
 **Two items closed — 4.18 built, 4.25 found already built. The list is 10 → 9.**
-Nothing is half-finished and nothing is uncommitted. Branch **32 ahead, 0 behind** `master`.
+Nothing is half-finished and nothing is uncommitted. Branch **34 ahead, 0 behind** `master`.
 Suite **6,289 green**, lint 0 errors.
 
 **Closed: 4.18 — the AI invents advice when it is routed to the wrong method.** Three commits:
@@ -40,22 +40,25 @@ Suite **6,289 green**, lint 0 errors.
    called done. Eight `gpt-4o-mini` calls cost a fraction of a penny; the method is written up
    in `LEARN-SCOPE-HONESTY.md` §8–§9 and the scripts are disposable.
 
-**Nothing waits on Mike** except the ranking position of the new item (below).
+**Nothing waits on Mike.**
 
-**New on the list: 4.45 — a vague word beats an exact phrase because of where it sits in the
-file.** This is the *root cause* of 4.18's reported incident, found while closing it:
-`detectLogicTree` counts matched triggers and breaks a tie by **array position**. On the reported
-question `ratio_analysis` and `dashboard_discussions` both scored 1 — one on the generic word
-*"ratio"*, one on the exact metric name *"wages to sales"* — and the vague match won because it is
-listed first.
+**New on the list: 4.46 — the AI offers to switch guides, the advisor says yes, and nothing
+happens.** 🔴 **A defect THIS SESSION shipped**, found by testing an assumption instead of
+trusting it. 4.18 gave the model an honest exit that ends *"Would you like me to switch to it?"*.
+Reproduced live: **"yes", "yes please" and "yes, switch to it" all load NO coaching guide at
+all** — the AI picker returns nothing and so does the keyword fallback. Only the advisor typing
+the guide’s full name works, which is what the offer exists to spare them.
 
-⚠ **The fix was built, measured, and then deliberately reverted — read 4.45's note before
-starting.** It is correct (66 of 66 real trigger phrases moved from generic to specific) but its
-blast radius is the whole app, and it exposes a second defect: the Learn-mode fallback searches
-all 43 trees then bins any non-learn result, so a client table winning on specificity leaves learn
-mode with **no coaching guide at all**. Mike stopped it on reading that measurement rather than
-letting it ride in on 4.18's back. The measurement is in the item so nobody re-derives it.
-**4.45 sits last only because it was appended — its ranking is Mike's to set.**
+⚠ **The cause is proven, so do not re-diagnose it.** `newestFirstUserText` builds the picker’s
+input from `history.filter(m => m.role === 'user')`. The guide name is in the **assistant’s**
+message, so the one fact needed to honour the offer is structurally excluded. The picker is not
+failing; it was never told. **Size the fix before building it** — carrying the offered guide id
+forward is cheap, including the assistant turn changes routing for every learn conversation.
+
+**4.45 was deleted the day it was filed** (the routing tie-break). Mike asked why it was worth
+keeping once 4.18 removed the harm, and he was right — it cost one extra turn, not an answer. Its
+measurements live in 4.18’s closure. **Deleting it was right; deleting it without testing the
+"just say yes" premise would have closed the list on a false one.**
 
 **🔴 CLOSED 4.25 — IT WAS ALREADY BUILT, FOUR DAYS EARLIER.** `7fa5e9a` (2026-08-21), already in
 `origin/master`: `npm run visual`, 16 screens, four plain-English rules in

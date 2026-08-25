@@ -219,6 +219,23 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.45 · A vague word beats an exact phrase because of where it sits in the file.** ✅ Deleted
+2026-08-25, the day it was filed — **not built, and deliberately not kept.** The tie-break work is
+described in 4.18's closure below; the code was reverted and nothing of it remains.
+
+- **Mike's question, and it was the right one:** *"if 4.18 no longer causes harm — why keep it at
+  all?"* Once the AI declines and names the correct guide instead of inventing content, a misroute
+  costs the advisor **one extra turn, not an answer**. Nobody outside asked for it (`ours: true`).
+  Against his 2026-08-15 product test — *unless it makes the app better, delete it, don't park it*
+  — one saved keystroke does not earn a place on a nine-item list.
+- **🔴 BUT THE QUESTION UNCOVERED A REAL ONE, AND THAT IS WHY IT WAS TESTED RATHER THAN ASSUMED.**
+  The whole argument rested on the advisor being able to say *"yes"* to the switch offer. **They
+  cannot.** Filed as **4.46**, score 4. Deleting 4.45 was right; deleting it *without checking that
+  premise* would have closed the list on a false one.
+- **Nothing was lost.** The measurement — a 31,636-probe baseline, 66 real-trigger moves all
+  generic-to-specific, and the learn-mode side effect at 2,912 probes — is in 4.18's closure and in
+  the git history of the reverted work.
+
 **4.25 · Nothing in this project ever checks that a screen LOOKS right.** ✅ Closed 2026-08-25 —
 **found already built, and built four days earlier.** Artefact:
 [`../VISUAL-CHECKS.md`](../VISUAL-CHECKS.md). Built in `7fa5e9a`, 2026-08-21, and already merged
