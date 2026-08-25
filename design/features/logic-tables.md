@@ -86,6 +86,14 @@ fast as the library changes; signals do not. The build emits names today. **Do n
 intent downward to match the build** — but do not add more name-emitting trees on the assumption
 that it is the target either.
 
+**P9 · Every learn tree states its subject to the model.** Four of the twenty-one carried no
+`description` — the four financial ones, the only four whose vocabulary genuinely overlaps — so
+their prompt header emitted a **blank line** where every other tree says what it is, and the AI
+picker chose between bare labels. A tree with none now falls back to its companion guide's own
+authored summary. **The sentence is read, never copied:** a second copy in `logic_trees.json`
+would be two things to keep level by hand, and the one nobody edits is the one the AI reads. A
+tree's own `description` always wins, so authoring one later needs no code change.
+
 ---
 
 ## 3. Design considerations
