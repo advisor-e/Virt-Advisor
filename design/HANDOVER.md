@@ -8,33 +8,29 @@
 
 ---
 
-## 2026-08-25 (second session) · Laptop · branch `feat/advisor-progress`
+## 2026-08-25 (third session) · Laptop · branch `feat/advisor-progress`
 
-**Two closed (4.18, 4.25), one deleted (4.45), one filed (4.46). List 10 → 9.** Nothing
-half-finished, nothing uncommitted. Branch **35 ahead, 0 behind** `master`. Suite **6,285
-green**, lint 0 errors. *(The count fell from 6,289: `toDoItems.test.js` is data-driven, so
-closing items removes assertions.)*
+**Two closed (4.46, 4.36). List 9 → 7.** Nothing half-finished, nothing uncommitted.
+Branch **38 ahead, 0 behind** `master`. Suite **6,289 green**, lint 0 errors.
 
-**4.18 — the AI can no longer invent your coaching method.** When the loaded guide does not
-cover the question it says so and names the guide that does. Recorded as **P10** in
-[`features/advisory-engine.md`](features/advisory-engine.md); wording artefact
-[`LEARN-SCOPE-HONESTY.md`](LEARN-SCOPE-HONESTY.md); the four guides that could not state their
-subject are **P9** in [`features/logic-tables.md`](features/logic-tables.md).
+**4.46 — the switch offer now switches.** The picker read only the advisor's own words, so
+the guide named in the AI's own offer could never reach it. Narrow fix, guarded on the offer
+wording; conversations with no offer route exactly as before. Recorded as **P10** in
+[`features/advisory-engine.md`](features/advisory-engine.md).
 
-🔴 **THREE THINGS THE OTHER MACHINE MUST KNOW.**
+**4.36 — the Model Guide search meets the advisor's words.** Whole-phrase matching, filler
+words and word endings, plus a `searchWords` list per model. **All of it applies to every
+search, not just the property one** — seven ordinary queries that found nothing now work.
+Recorded in [`features/report-models.md`](features/report-models.md); the two phrasings that
+still miss are named there rather than glossed.
 
-1. **`npm install` still needs npm 8.19.4 on Node 14.15.0**, and still moves 20 packages.
-   Unchanged; [`../.npmrc`](../.npmrc) explains it, `npm run check:engines` confirms the tree.
-2. **`npm run build` is now step 2 of Integration** — build it, see it succeed, *then* tag.
-   Nothing else on our side ever builds the app, and CI is the master team's.
-3. **🔴 A GREEN SUITE CANNOT CLOSE AN AI CHANGE, AND TODAY PROVED IT TWICE.** All tests passed
-   while the AI's refusal named *the guide it was already holding*, and again while the
-   "shall I switch?" offer led nowhere. Both were found by driving the real model — eight
-   calls, a fraction of a penny. Method in `LEARN-SCOPE-HONESTY.md` §8–§9. **Do this before
-   calling any prompt change done.**
+🔴 **THE ONE THING TO CARRY FORWARD.** Both of yesterday's AI defects and today's were found
+by driving the real model, never by a test — 4.46 shipped with a fully green suite. **Six
+live calls cost a fraction of a penny.** `pickLearnTreeAI` is now exported so that check can
+be re-run. Do this before calling any prompt or routing change done.
 
-**4.46 is the one to pick up, and it is ours.** The switch offer 4.18 introduced does not work:
-"yes" loads no guide at all. Cause proven and written in the item — do not re-diagnose it, and
-size the fix before building it.
+**Unchanged:** `npm install` still needs npm 8.19.4 on Node 14.15 — [`../.npmrc`](../.npmrc)
+explains it.
 
-**Nothing waits on Mike.**
+**Nothing waits on Mike, but 4.15 is the one he can unblock fastest** — it needs him to name
+21 real page names, and its own note says to put the sentences in front of him, not the label.
