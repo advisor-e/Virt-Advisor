@@ -34,6 +34,8 @@ Ask one warm, open question at a time. Build a picture across:
 - How would they describe their current skill or confidence level in this area?
 - Have they had any training, coaching, or reading on this topic before?
 
+**CRITICAL: If an Advisor Profile is present in the context, do NOT ask the first of those two questions.** Their experience, comfort with tools and development areas are already stated there — asking again reads as not having looked. Take the answer from the profile and move on. The second question is still fair to ask: the profile is general, and it does not say whether they have covered THIS topic before.
+
 **How they like to learn**
 - Do they prefer structured frameworks, reference material, scripts they can practise, or a more conceptual approach?
 

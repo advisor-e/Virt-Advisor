@@ -294,21 +294,23 @@ describe('the hub menu — the sidebar itself', () => {
     return wrapper.findAll('.hub-menu .menu-label').wrappers.map(p => p.text().trim())
   }
 
-  it('groups the firm manager’s twelve tabs under three headings', async () => {
+  it('groups the firm manager’s eleven tabs under three headings', async () => {
     // Was eleven until 2026-08-20, when the Coaching Reference tab was removed with the
     // fifteen platform rows behind it (item 4.24, Mike: "remove the tab") — ten. Back to
     // eleven on 2026-08-22, when AI Prompts joined "Your AI coach" (item 4.28, Mike
     // 2026-08-21, naming all four manager tiers). Twelve on 2026-08-24, when the
     // Education Gate joined the same group (item 2.9, Mike: the mentor screen ships in
-    // the same change).
+    // the same change). 🔴 BACK TO ELEVEN on 2026-08-26: the Education Gate page was
+    // removed on Mike's instruction, once it was shown he had only ever answered a
+    // question about it and never asked for it. His rule from that day — pages get built
+    // only for features he specifically requests. The gate's question still fires.
     const wrapper = await mountHub()
     expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs'])
-    expect(tabLabels(wrapper)).toHaveLength(12)
+    expect(tabLabels(wrapper)).toHaveLength(11)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Both additions are checked, because "appended" is only true of the LAST one added
     // unless the one before it is still where it was.
     expect(tabLabels(wrapper)[5]).toBe('AI Prompts')
-    expect(tabLabels(wrapper)[6]).toBe('Education Gate')
   })
 
   it('gives the mentor NO Model Inputs heading rather than an empty one', async () => {
@@ -373,7 +375,8 @@ describe('the hub menu — the sidebar itself', () => {
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Rolled up from below'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(14)
+    // 14 → 13 on 2026-08-26 with the Education Gate page's removal (see above).
+    expect(tabLabels(wrapper)).toHaveLength(13)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')
   })

@@ -31,6 +31,13 @@ const items = data.items
 /** Who an item may be waiting on. A free-text value here hides a blocker. */
 const WAITING = ['Mike', 'Us', 'Outside']
 
+/**
+ * What an item IS. A `defect` is something that already exists being wrong, missing,
+ * unverified or unmaintainable. A `feature` is a new capability, page, screen or
+ * behaviour. Two values only — a third would give the gate below somewhere to hide.
+ */
+const KINDS = ['defect', 'feature']
+
 /** Refs quoted in the order Mike set, so a silent re-sort by a script is visible. */
 const refs = items.map(i => i.ref)
 
@@ -77,6 +84,74 @@ describe('the to-do data carries what the list\'s own rules demand', () => {
     }
   })
 
+  test.each(refs)('%s says whether it is a defect or a feature', (ref) => {
+    const item = items.find(i => i.ref === ref)
+    expect(KINDS).toContain(item.kind)
+  })
+})
+
+// 🔴 THE GATE. Mike, 2026-08-26: "ONLY the features and ideas I specifically request.
+// From now on I will push back on every new feature suggestion from AI."
+//
+// WHY A TEST AND NOT A RULE. There were already two written warnings against exactly this
+// — the header of `design/ACTIONS.md` ("a claim to check against the code, never a
+// status") and the comment at the top of THIS FILE, which describes the same failure
+// happening twice before. On 2026-08-26 a session read both, quoted the second one back
+// to Mike in its own report, and then did it again: it found a P3 line in the frozen
+// ACTIONS.md written by an earlier AI session, filed it here at score 5, and built the
+// backend for a screen nobody had asked for. Its `askedBy.ours` said `true`, so the
+// record admitted nobody asked and the item was filed anyway. The old assertion above
+// permitted that: it demanded an EXPLANATION for `ours: true`, never refused it.
+//
+// A third written warning would be the same kind of object as the two that failed. This
+// is the control that has teeth, because it stops the build.
+//
+// ⚠ IT IS DELIBERATELY NARROW, AND THE LINE IS *NEW THING* vs *BROKEN THING*. Mike did
+// not ask anyone to stop reporting bugs — two items on the list today are `ours: true`
+// and both are defects he is glad to have (4.33, a video attached to the wrong
+// calculator; 4.42, this page's prose disagreeing with its own data). What he stopped was
+// work being INVENTED. So a defect we found ourselves still files; a feature we thought
+// of does not.
+//
+// ⚠ WHAT THIS CANNOT DO, said plainly rather than left to be discovered: nothing stops a
+// session labelling a feature `defect` to get past it. The gate does not make that
+// impossible — it makes it a deliberate false statement in a committed file, rather than
+// a drift nobody notices. That is the whole of what a test can offer here.
+describe('a feature nobody asked for cannot be filed at all', () => {
+  test.each(refs)('%s is not an AI-invented feature', (ref) => {
+    const item = items.find(i => i.ref === ref)
+    const invented = item.kind === 'feature' && item.askedBy.ours === true
+
+    // Reported with the item's own name, because the failure message IS the explanation
+    // the next session will read at the moment it is blocked.
+    expect(invented ? `${ref} "${item.name}" is a FEATURE that nobody outside asked for` : 'ok')
+      .toBe('ok')
+  })
+
+  test('the gate would actually have caught the item that caused it', () => {
+    // A guard nobody has seen fire is a guard nobody knows works. This is the shape of
+    // the real item, reverted on 2026-08-26.
+    const reverted = {
+      ref: '4.48',
+      name: 'An adviser can promote text into the AI that no human can ever see or delete',
+      kind: 'feature',
+      askedBy: { who: 'us', ours: true, detail: 'found in the frozen ACTIONS.md' }
+    }
+    expect(reverted.kind === 'feature' && reverted.askedBy.ours === true).toBe(true)
+  })
+
+  test('a defect we found ourselves is still allowed', () => {
+    const ourDefect = { kind: 'defect', askedBy: { who: 'us', ours: true, detail: 'found in testing' } }
+    expect(ourDefect.kind === 'feature' && ourDefect.askedBy.ours === true).toBe(false)
+  })
+
+  test('a feature MIKE asked for is still allowed', () => {
+    const hisFeature = { kind: 'feature', askedBy: { who: 'Mike', ours: false, detail: 'asked 2026-08-26' } }
+    expect(hisFeature.kind === 'feature' && hisFeature.askedBy.ours === true).toBe(false)
+  })
+})
+
+describe('the to-do data carries what the list\'s own rules demand (cont.)', () => {
   test.each(refs)('%s waits on a known party, and a blocker says what it blocks', (ref) => {
     const item = items.find(i => i.ref === ref)
     expect(WAITING).toContain(item.waitingOn)

@@ -363,6 +363,43 @@ record keeps the paraphrase and loses the original, and no test can catch it.
 **Ruled by Mike, 2026-08-16.** In his words: *"ALL AI fixes must use hub pages where
 possible, starting with the mentor and cascading down as appropriate."*
 
+> ## ⛔ THE GATE COMES FIRST — Mike's ruling, 2026-08-26 (binding, and it overrides everything below)
+>
+> In his words: *"I asked that mock ups be made and new features get added as a page — **BUT
+> — ONLY the features and ideas I specifically request.** From now on I will push back on
+> every new feature suggestion from AI."*
+>
+> **This rule below is not a licence to build. It is the standard for how a thing Mike asked
+> for gets built.** Read in the other direction — as a duty to surface every piece of AI
+> content on a screen — it becomes a machine for manufacturing pages, because an AI session
+> will always find more content that isn't on a screen. That is exactly what happened.
+>
+> **The test is one question: did Mike ask for this, in his own words?**
+> - *He answered a question we put to him* is **NOT** a request. Neither is a ruling given
+>   inside a batch of options, nor a "yes" to "shall we also build X?".
+> - *An AI session found a real gap* is **NOT** a request. A gap being real is not the same
+>   as it being wanted, and confirming the gap against the code changes nothing about that.
+> - *A line in a document* is **NOT** a request — least of all in the frozen `ACTIONS.md`,
+>   whose own first page says an item there is *"a claim to check against the code, never a
+>   status"*. Most of it was written by AI sessions, not by Mike.
+>
+> **If it fails that test: propose it in one sentence and stop.** Do not file it on the live
+> list, do not score it, do not build a mockup, do not build the backend "since it needs no
+> decision". Expect the answer to be no — he has said he will push back on every one.
+>
+> **Why this is binding (2026-08-26).** On this day a session swept the frozen `ACTIONS.md`,
+> found a **P3** line written by an earlier AI session — *"a Firm Manager screen for a firm's
+> promoted case observations"* — filed it on the live list at **score 5**, and built the
+> backend. Nobody had ever asked for it. The item's own `askedBy` field said `ours: true`,
+> which is to say the session recorded that nobody asked and proceeded anyway. It was
+> reverted the same day. **This is the third instance of the same failure**: the guard test in
+> `tests/unit/toDoItems.test.js` opens by describing the first two, and names the cause —
+> *"a single AI-written sentence in `ACTIONS.md` that a later session read as an instruction."*
+>
+> **The Education Gate page was removed the same day** for the same reason. It had three
+> rulings from Mike behind it — and every one was him answering a question we raised. He never
+> asked for it. The gate's *question* still fires; only its editing screen went.
+
 Any change to what the AI is shown — content wired up, corrected, added, or newly emitted
 into a prompt — surfaces on a **hub page**. The page starts at the **Mentor Hub** and
 cascades down through global group manager → group manager → firm manager as appropriate.

@@ -143,17 +143,6 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('aiPrompts')" v-show="activeTab === 'aiPrompts'")
         firm-ai-prompts(:api-token="apiToken")
 
-      //- ── Tab: The Education Gate (item 2.9) ─────────────────────────────
-      //- The question an advisor is asked, before any recommendation, when the
-      //- engine can see a client cannot read their own numbers. Behaviour ruled
-      //- by Mike 2026-07-16, reach 2026-08-16, wording 2026-08-24.
-      //- design/EDUCATION-GATE.md §8; artefact design/mockups/education-gate.html.
-      //- 🔴 On a hub page because the 2026-08-16 ruling requires it: content that
-      //- shapes what the AI does is edited on a screen, mentor first — never left
-      //- live-but-untouchable in a data file.
-      div.hub-panel(v-if="showsTab('educationGate')" v-show="activeTab === 'educationGate'")
-        firm-education-gate(:api-token="apiToken")
-
       //- ── Templates & Videos — HIDDEN 2026-07-27 (owner decision) ──────
       //- Not wired to anything usable in UAT (needs Firm-Manager MySQL); shown
       //- as a dead tab was misleading. Kept dormant (v-if="false") rather than
@@ -752,7 +741,6 @@ import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 import FirmStaircase from '~/components/firm/FirmStaircase.vue'
 import FirmPropertyTaxRules from '~/components/firm/FirmPropertyTaxRules.vue'
 import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
-import FirmEducationGate from '~/components/firm/FirmEducationGate.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
@@ -940,7 +928,7 @@ const TAB_TIERS = {
   // listed anyway, because excluding them would bake in a limit that is wrong the day
   // Advisor-e issues the roles. "It works" means the mentor and firm hubs proven, the
   // middle two correct-by-construction and unexercised.
-  aiPrompts: ['mentor', 'global', 'group', 'firm'],
+  aiPrompts: ['mentor', 'global', 'group', 'firm']
 
   // 🔴 ALL FOUR MANAGER TIERS, AND THE REASON IS STATED RATHER THAN ASSUMED — "as
   // appropriate" is a judgement to make out loud (Mike's hub-page ruling, 2026-08-16).
@@ -956,7 +944,6 @@ const TAB_TIERS = {
   // ⚠ Two of the four cannot be logged into today: config/integration.js ships
   // globalManagerRole and groupManagerRole EMPTY on purpose, fail-closed. All four are
   // listed anyway, for the reason given on aiPrompts above.
-  educationGate: ['mentor', 'global', 'group', 'firm']
 }
 
 /**
@@ -1023,10 +1010,7 @@ const NAV_GROUPS = [
       // 🔴 THE LABEL IS MIKE'S OWN WORD, 2026-08-21 — "a 'AI Prompts' page" — and was
       // confirmed as the tab label rather than a working title. Added at the END of the
       // group on purpose: appending moves nothing that is already on a manager's screen.
-      { key: 'aiPrompts', label: 'AI Prompts' },
-      // Item 2.9. Appended at the END of the group for the same reason AI Prompts was:
-      // appending moves nothing that is already on a manager's screen.
-      { key: 'educationGate', label: 'Education Gate' }
+      { key: 'aiPrompts', label: 'AI Prompts' }
     ]
   },
   {
@@ -1094,7 +1078,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmAiPrompts, FirmEducationGate, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmAiPrompts, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

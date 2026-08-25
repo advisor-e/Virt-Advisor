@@ -32,6 +32,10 @@ function item (over) {
   return Object.assign({
     ref: '9.1',
     name: 'A thing',
+    // Every item must say what it IS since 2026-08-26 — see the gate in
+    // scripts/apply-to-do.js. A defect by default here: the fixture exists to exercise
+    // the OTHER rules, and a feature would drag the gate into every unrelated case.
+    kind: 'defect',
     score: 3,
     scoreReason: 'sells the package',
     blocker: false,
@@ -91,6 +95,38 @@ describe('the five fields are checked on the way IN, not only once committed', (
       .toMatch(/does not say why it stays/)
     expect(apply.validate([item({ askedBy: { who: 'us', ours: true, detail: 'Kept because…' } })]))
       .toEqual([])
+  })
+
+  // 🔴 THE GATE — Mike, 2026-08-26: "ONLY the features and ideas I specifically request."
+  // It is enforced here as well as in toDoItems.test.js because this is the OTHER way
+  // into the list: a file saved from the Handbook's ranking control. A gate on one door
+  // is not a gate.
+  it('refuses a FEATURE that nobody outside asked for', () => {
+    expect(apply.validate([item({
+      kind: 'feature',
+      askedBy: { who: 'us', ours: true, detail: 'seemed useful at the time' }
+    })]).join(' ')).toMatch(/is a FEATURE that nobody outside asked for/)
+  })
+
+  it('still allows a DEFECT we found ourselves — he never asked us to stop reporting bugs', () => {
+    expect(apply.validate([item({
+      kind: 'defect',
+      askedBy: { who: 'us', ours: true, detail: 'found while testing 4.32' }
+    })])).toEqual([])
+  })
+
+  it('still allows a FEATURE Mike asked for', () => {
+    expect(apply.validate([item({
+      kind: 'feature',
+      askedBy: { who: 'Mike', ours: false, detail: 'asked for it on 2026-08-26' }
+    })])).toEqual([])
+  })
+
+  it('refuses an item that will not say which it is', () => {
+    expect(apply.validate([item({ kind: undefined })]).join(' '))
+      .toMatch(/does not say whether it is a defect or a feature/)
+    expect(apply.validate([item({ kind: 'chore' })]).join(' '))
+      .toMatch(/does not say whether it is a defect or a feature/)
   })
 
   it('reports every problem at once, not just the first', () => {

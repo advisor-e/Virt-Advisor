@@ -445,6 +445,48 @@ function formatAdvisorProfile (profile) {
   return lines.join('\n')
 }
 
+/**
+ * The two instructions that accompany a pre-supplied advisor profile, which differ by
+ * mode and used not to.
+ *
+ * 🔴 WHY THIS IS MODE-AWARE. Both strings were once the single client-mode wording,
+ * naming a section ("Why this suits you as the advisor") and a Phase 1/2/3 order that
+ * exist only in the client prompt. Injected into Learn — which has neither — it told
+ * the model nothing it could act on, so the profile arrived in the context with nothing
+ * saying to USE it, while `learn.txt` went on ordering the very questions the profile
+ * answers. Found live by Mike on 2026-07-16: the AI asked an advisor to describe their
+ * confidence level, was told to read the profile, and apologised — proving it had held
+ * the profile the whole time. Item 4.47.
+ *
+ * ⚠ THE LEARN WORDING DOES NOT SAY "never ask about their starting point", and that is
+ * deliberate. The profile is general — role, experience, tools comfort, development
+ * areas — and the Learn question is topic-specific. Nothing in the profile says whether
+ * this advisor has read or been trained on THIS subject, so silencing that question too
+ * would trade one defect for a worse one: an AI that assumes it knows.
+ *
+ * @param {string} mode - the conversation mode ('client', 'discover', 'learn', 'plan')
+ * @param {boolean} hasProfile - whether a profile was actually supplied
+ * @returns {{system: string, context: string}} `system` is appended to the system
+ *   prompt (empty when there is no profile); `context` heads the profile block inside
+ *   the context and is always returned, since the caller only uses it when it renders
+ *   that block.
+ */
+function profileInstructionsFor (mode, hasProfile) {
+  const learn = mode === 'learn'
+
+  const system = !hasProfile
+    ? ''
+    : learn
+      ? '\n\nADVISOR PROFILE PRE-SUPPLIED: This advisor has already given their background. Do not ask them to restate anything the profile already answers.'
+      : '\n\nADVISOR PROFILE PRE-SUPPLIED: Use the profile in the context when writing the "Why this suits you as the advisor" section.'
+
+  const context = learn
+    ? 'This advisor has already provided their background, below. Do not ask them to describe their experience, confidence, skill level or comfort with tools — it is already stated here, and asking again reads as not having looked. You may still ask what the profile does not cover, including whether they have had training or reading on this particular topic. When you refer to their background, use ONLY what is explicitly stated below — do not infer, extrapolate, or assume anything about their career stage, seniority, years of experience, or interests that is not written here.'
+    : 'This advisor has already provided their background. Do not ask the Phase 2 questions — skip directly from Phase 1 to Phase 3 once you have a clear enough picture of the client. When writing "Why this suits you as the advisor", use ONLY what is explicitly stated in the profile below — do not infer, extrapolate, or assume anything about their career stage, seniority, years of experience, or interests that is not written here.'
+
+  return { system, context }
+}
+
 // ── Phase 4 — AI picks the most natural Moving Forward question ──
 // Uses gpt-4o-mini with a 50-token cap — fast and cheap.
 // Falls back to the first option if the AI returns something unexpected.
@@ -3562,9 +3604,8 @@ async function handleQuery (rawBody, res, identity) {
   const summariesText = formatSummariesForPrompt(relevantSummaries)
 
   const advisorProfileText = advisorProfile ? formatAdvisorProfile(advisorProfile) : null
-  const profileSystemInstruction = advisorProfileText
-    ? '\n\nADVISOR PROFILE PRE-SUPPLIED: Use the profile in the context when writing the "Why this suits you as the advisor" section.'
-    : ''
+  const { system: profileSystemInstruction, context: profileContextInstruction } =
+    profileInstructionsFor(mode, !!advisorProfileText)
 
   const basePrompt = loadPrompt(mode) || loadPrompt('client')
   const systemPrompt = basePrompt + profileSystemInstruction + languageInstruction
@@ -3658,7 +3699,7 @@ async function handleQuery (rawBody, res, identity) {
     growthText ? '\n---\n\n' + growthText : '',
     summariesText ? '\n---\n\n## Detailed Template Summaries — Purpose, Indicators & Delivery Guidance\n\n' + summariesText : '',
     advisorProfileText
-      ? '\n---\n\n## Advisor Profile (pre-supplied)\n\nThis advisor has already provided their background. Do not ask the Phase 2 questions — skip directly from Phase 1 to Phase 3 once you have a clear enough picture of the client. When writing "Why this suits you as the advisor", use ONLY what is explicitly stated in the profile below — do not infer, extrapolate, or assume anything about their career stage, seniority, years of experience, or interests that is not written here.\n\n' + advisorProfileText
+      ? '\n---\n\n## Advisor Profile (pre-supplied)\n\n' + profileContextInstruction + '\n\n' + advisorProfileText
       : '',
     caseSummariesText ? '\n---\n\n' + caseSummariesText : '',
     learnSalesTreeText ? '\n---\n\n' + learnSalesTreeText : '',
@@ -3844,3 +3885,5 @@ module.exports.MAX_PROMPT_CASES = MAX_PROMPT_CASES
 // proves a line exists; only this proves the text reaches the model. See
 // tests/unit/reportModelSummaries.test.js — item 4.29.
 module.exports.buildClientContext = buildClientContext
+
+module.exports.profileInstructionsFor = profileInstructionsFor

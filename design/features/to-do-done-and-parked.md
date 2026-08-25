@@ -219,6 +219,107 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.49 · One invented fact was found in the AI's reference material and nobody ever checked for
+others.** ✅ Closed 2026-08-26. **Measured: seventeen high-risk claims, sixteen exactly right, one
+drift of a single letter.** No second fabrication. Guard added so these cannot drift again.
+
+- **The sample was the shape the item named** — rows carrying an expanded acronym, a numbered
+  model or a named framework, because that is where an inventable specific can hide. **17 of the
+  194 domain-support rows** across 29 files have that shape.
+- 🔴 **The sources were read, not assumed.** All 45 PDFs in `Domain Support/` were converted with
+  `pdftotext -layout` and each claim checked against the sentence in its own source. This is the
+  step that had never been taken — the item's own note said *"nothing compares a summary against
+  its source PDF"*, and that was true until today.
+- **Sixteen were verbatim correct**, including the ones that look wrong and are not:
+  **S.M.A.R.T** as *"Specific, Measurable, **Agreed, Revisable**, and Time-bound"* — not the
+  textbook expansion, and the source says so explicitly; **W.I.I.F.M** used as a label for the five
+  values rather than expanded as words; **De Bono's six hats**, colour for colour; **P.E.S.T**,
+  **S.W.O.T**, the **Growth Curve's 9 stages**, the **3 Pillars**, and the **Business Dating**
+  ladder (One Night Stand / Dating / Engaged / Married).
+- **The one hit was a plural.** `get-seminar-domain-support.json` expanded the C.P.D hierarchy as
+  *"Concept, **Principles**, Detail"* where the source, the sales-marketing file and the master
+  export all say *"Concept, **Principle**, Detail"*. Corrected.
+- **What this says about the original defect.** The A.I.D.C.R.A invention appears to have been
+  **isolated**, not the tip of anything. That is the answer the item existed to get.
+- ⚠ **What was NOT checked, stated plainly.** The other 177 rows do not carry an acronym or a named
+  framework, and their ordinary prose was not read line-by-line against source. The sample was
+  chosen deliberately — it is where invention hides — but it is a sample, and this closure is not a
+  claim that every sentence in the domain-support data has been verified.
+- ⚠ **One instrument was tried and rejected, recorded so nobody repeats it.** Checking whether each
+  row's NAME appears in the source corpus flagged **44 of 194** — including
+  `A.I.D.C.R.A Advertisement Framework`, whose content we had just proved IS in the source. Row
+  names are authored labels, not quoted document titles, so name-matching produces alarm without
+  evidence. It is the wrong instrument and those 44 mean nothing.
+- **What proves it, and what stops it recurring:**
+  [`tests/unit/sourcedExpansions.test.js`](../../tests/unit/sourcedExpansions.test.js) pins the
+  seven load-bearing expansions with the source quote beside each, **fails if the invented
+  `Conviction, Response` ever returns**, and fails if any domain-support file pluralises C.P.D
+  again. Nine assertions. The PDF extraction is deliberately NOT part of the test — poppler is not
+  a dependency of this project and must not become one.
+
+**4.51 · 51 of 241 logic-tree branches name no template at all.** ✅ Closed 2026-08-26, the day
+it was raised — **measured, and it is not a defect.** Its own note said to split the 51 before
+filling any of them. Splitting them is what closed it.
+
+- **The number resolves to 47 + 3 + 1.** 47 are `recommendation` nodes inside `tree.nodes`
+  (46 of them terminal), 3 are flat branches in tree 29, and the 51st was a nested array the
+  first sweep counted twice. The figure was never the useful thing.
+- **25 of the 47 are legitimately empty and must not be touched.** They are `condition`/`action`
+  coaching branches — client processing styles, the five objection types, sales-team distribution,
+  pricing strategy, cognitive blocks. *"IF the client states 'It costs too much' THEN calculate
+  financial loss/gain over time."* The answer is a behaviour the adviser performs, not a document
+  they open. This is exactly the case the item warned against "fixing".
+- **The other 22 name their templates in the recommendation PROSE instead** — *"Use Design &
+  Deliver template"*, *"Use De Bono's 6 Hats"* — and those names are **item 4.15's missing
+  documents, in 4.15's own trees** (35, `cas_`, `fbp_`). So this was 4.15 seen through a
+  different field, not a second problem.
+- 🔴 **WHAT THE MEASUREMENT DID FIND, AND IT IS NOW RECORDED ON 4.15.**
+  [`walkLogicTree`](../../server/utils/logicTrees.js) L1037 reads **only** `node.templates`,
+  never the recommendation prose. So for those 22 branches the tree's judgement reaches the
+  **adviser** as a sentence and never reaches the **ranking engine**, where it is meant to be the
+  tie-breaker. Resolving 4.15 fixes the sentences; it does **not** fix that unless `templates[]`
+  is populated as a second step. Nobody had written that down.
+- ⚠ **And it cannot be done first.** `validateLogicTreeReferences` scans `nodes[].templates`
+  and hard-fails under `VA_STRICT_CONTENT`, so writing a name into the array before the document
+  exists turns a silent gap into a broken build.
+- **What proves it:** the split was produced by walking `data/logic_trees.json` directly, and the
+  prose names were checked against `data/templates.json` — seven of eight sampled names did not
+  resolve, which is 4.15's symptom exactly. (4.15 already records that its matcher ignores case and
+  punctuation, so some may yet resolve; the gate's own matcher is the authority, not that sample.)
+
+**4.39 · Sweep the frozen `ACTIONS.md` for anything that is genuinely still open.** ✅ Closed
+2026-08-26. Read end to end, every open-looking claim checked against the code, and the findings
+filed as **4.47–4.51**.
+
+- **The file was 7,470 lines and almost all of it is session history.** The triage-able content is
+  four buckets at the end plus the verified sweep of 2026-08-03, which had already found that "the
+  list said 70; the real number is about 10."
+- **Eight flags were stale — already built, still marked open.** The `engine-strict` flip that the
+  file marks as its own ⛔ DO-FIRST P1 (done 2026-08-24; `.npmrc` has it `true` with six
+  overrides); `advisor_note` reaching no prompt (emitted at `logicTrees.js` L545, ruled
+  2026-08-16); Learning Psychology's prompt reach and the duplicated five drivers (both ruled and
+  fixed 2026-08-25, items 4.38 and 4.37); the distinction classifier being unable to tell failure
+  from no-match (built — it returns `{ok, boosts}` and carries `ok` into the trace); "no
+  Playwright anywhere in the repo" (installed; `npm run visual` and `tests/visual/` exist);
+  `startup-blind-to-other-machine` "planned, not built" (built — it printed in this morning's
+  `/startup`); and `primary-issues.json` (read by no code, and guarded by a test that says so).
+- **Five were genuinely open, and each was proved against the code before it was filed** — see
+  4.47 (Learn mode is profile-blind), 4.48 (promoted text reaches the AI with no screen), 4.49 (the
+  fabrication blast radius), 4.50 (the hidden marker never run live) and 4.51 (51 empty branches).
+- **One was folded rather than filed.** The video sentence being hardcoded English on the backend
+  is the same file as live item **4.33**, so it is recorded in that item's note — one item per file
+  to open, not two.
+- **What this closes, honestly.** The live list can now be described as everything anyone has
+  looked at, rather than everything recently looked at. It does **not** mean the frozen file is
+  empty of value: its P3 tidying (JSDoc, i18n plumbing, the monolith line counts) is real, low
+  value and gated behind the cleanup pass, and its MySQL items are ops work nobody here can do.
+  Those were read and deliberately not filed.
+- ⚠ **The ratio is the finding.** Eight stale against five live, in a file whose own first page
+  says *"Trust the CODE, not these flags."* Every one of the eight was found by running a grep, not
+  by reading the prose — which is the argument for the freeze, and for checking any claim in it
+  against the code before acting on it.
+
+
 **4.43 · A test flips a global switch mid-run and fails about one run in four.** ✅ Closed
 2026-08-25. Fixed by [`tests/setupEnv.js`](../../tests/setupEnv.js), registered in
 `jest.config.js`.

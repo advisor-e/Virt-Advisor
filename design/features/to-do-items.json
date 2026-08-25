@@ -24,6 +24,13 @@
     "Where his order and the score disagree, his order wins and the score stays",
     "visible so the disagreement is on the page.",
     "",
+    "KIND — 'defect' or 'feature', and it is a GATE, not a label. A defect is something",
+    "that already exists being wrong, missing, unverified or unmaintainable. A feature is a",
+    "new capability, page, screen or behaviour. tests/unit/toDoItems.test.js FAILS THE BUILD",
+    "on a feature whose askedBy.ours is true — a new thing nobody outside asked for cannot be",
+    "filed at all. A defect we found ourselves still can, because Mike never asked us to stop",
+    "reporting bugs; he asked us to stop inventing work.",
+    "",
     "SCORE — 5 security/privacy/data integrity · 4 the user is worse off · 3 helps",
     "sell the package · 2 robustness · 1 internal only · 0 is not filed, it is",
     "deleted with its code.",
@@ -38,6 +45,7 @@
     {
       "ref": "4.15",
       "name": "The 21 branches that still name a page nobody can open",
+      "kind": "defect",
       "score": 4,
       "scoreReason": "the user is worse off",
       "blocker": false,
@@ -51,12 +59,13 @@
         "detail": "2026-08-15 — \"put them in the list of to dos\", after being shown that the seven Seminar branches were seven of twenty-eight. Found by us; filed on his instruction."
       },
       "touches": "data/logic_trees.json, the Mentor Hub logic tables, and the Template Check screen where the real page names are settled.",
-      "note": "RANKED LAST DELIBERATELY, and it scores 4. Mike's ruling the same day: clear the technical and feature work first so the master team can start UAT testing, THEN double back to wording and document-title alignment. This is wording and title alignment. The pattern is proven and cheap once a name is known — the Seminar seven took five words and a seven-line diff — but each of the 21 needs the REAL page name, and that is Mike's to give, never a developer's to rule on. Put the actual sentences in front of him, not the label: that is what unblocked 2.3 after four sessions.",
+      "note": "RANKED LAST DELIBERATELY, and it scores 4. Mike's ruling the same day: clear the technical and feature work first so the master team can start UAT testing, THEN double back to wording and document-title alignment. This is wording and title alignment. The pattern is proven and cheap once a name is known — the Seminar seven took five words and a seven-line diff — but each of the 21 needs the REAL page name, and that is Mike's to give, never a developer's to rule on. Put the actual sentences in front of him, not the label: that is what unblocked 2.3 after four sessions. 🔴 A SECOND STEP WAS FOUND ON 2026-08-26 AND IT IS NOT OPTIONAL. Measuring the empty `templates[]` arrays (raised as 4.51, closed the same day) showed that 22 of the branches with an EMPTY array name their templates in the recommendation PROSE instead — \"Use Design & Deliver template\", \"Use De Bono's 6 Hats\" — and those prose names are this item's own missing documents, in the same trees (35, cas_, fbp_). The consequence nobody had recorded: `walkLogicTree` in server/utils/logicTrees.js L1037 reads ONLY `node.templates`, never the prose. So the tree's judgement about which tool fits reaches the ADVISER as a sentence and never reaches the RANKING ENGINE, where it is meant to act as the tie-breaker. When the search content is updated and the names resolve, populating `templates[]` on those 22 branches is a required second step — the sentences alone leave the engine exactly as blind as it is now. ⚠ AND IT CANNOT BE DONE FIRST: `validateLogicTreeReferences` scans `nodes[].templates` and hard-fails under VA_STRICT_CONTENT, so writing a name into the array before the document exists turns a silent gap into a broken build.",
       "comment": "2026-08-25 - WAITING ON MIKE, AND THE WHOLE LIST IS WRITTEN DOWN: design/LOGIC-TABLE-TEMPLATES-NEEDED.md, and as a page at https://claude.ai/code/artifact/9a5bf350-befd-444f-b574-4d806200420f. 19 branches across three logic tables (CA Firm Strategy 5, Firm Board Pack 7, Leadership & Partner Development 7) name 23 documents data/templates.json does not hold. Mike says the documents exist and will update the search content, then pick this up. Nothing to do here until he does. MATCHING IGNORES CASE AND PUNCTUATION, so some may already be solved - 'Demings Volatility' is published and matches \"Deming's Theory of Volatility\"; '6 Hats' matches \"De Bono's 6 Hats\". A sentence dies if ANY name in it is missing, and four branches name two. 'Psyche Errors' and 'Team AI' may be concepts rather than documents - if so the fix is to reword the sentence and no page is needed. WAS 21, NOW 19: COI Development pt1 and pt2 were published all along and the name scanner was cutting the title at the lowercase 'pt' (fixed in 48265ac). When the search content is updated, re-run the gate over all 55 recommendations - the command is in the reference file. Today: 36 whole / 6 partial / 13 withheld, pinned in tests/unit/recommendationGate.test.js."
     },
     {
       "ref": "4.17",
       "name": "A screen can show one row when 67 exist, and say nothing",
+      "kind": "defect",
       "score": 2,
       "scoreReason": "robustness",
       "blocker": false,
@@ -76,6 +85,7 @@
     {
       "ref": "4.33",
       "name": "A template's tutorial video gets attached to a calculator that shares its name",
+      "kind": "defect",
       "score": 2,
       "scoreReason": "robustness",
       "blocker": false,
@@ -89,31 +99,13 @@
         "detail": "Found 2026-08-22 while testing item 4.32 against the running app. Raised rather than fixed in passing, because videoInjector is a shipped, tested utility and the honest options differ in cost — see the note."
       },
       "touches": "server/utils/videoInjector.js and its test, or data/report-model-summaries.json if the answer is to rename. Nothing in the prompts.",
-      "note": "🔴 THE PROMPT CANNOT FIX THIS, and an earlier attempt made things worse — instructing the AI not to bold a model name stripped the bold off the TEMPLATE name too, which is the very thing the injector reads. Reverted. ⚠ TWO HONEST OPTIONS, and they are not equivalent: (1) teach the injector to skip a line that carries a calculator page path, which is narrow and cheap but is pattern-matching on output shape; (2) accept it — the video is real and same-named material is arguably relevant, so nothing is untrue, just imprecise. There is a third that is NOT ours: renaming a model or a template is Mike's call and would ripple through the catalogue, the summaries and the template library. ⚠ AFFECTS EXACTLY TWO NAMES TODAY. Adding a model whose name matches a template widens it, which is worth knowing before the next one is catalogued.",
+      "note": "🔴 THE PROMPT CANNOT FIX THIS, and an earlier attempt made things worse — instructing the AI not to bold a model name stripped the bold off the TEMPLATE name too, which is the very thing the injector reads. Reverted. ⚠ TWO HONEST OPTIONS, and they are not equivalent: (1) teach the injector to skip a line that carries a calculator page path, which is narrow and cheap but is pattern-matching on output shape; (2) accept it — the video is real and same-named material is arguably relevant, so nothing is untrue, just imprecise. There is a third that is NOT ours: renaming a model or a template is Mike's call and would ripple through the catalogue, the summaries and the template library. ⚠ AFFECTS EXACTLY TWO NAMES TODAY. Adding a model whose name matches a template widens it, which is worth knowing before the next one is catalogued. ⚠ FOUND IN THE SAME FILE 2026-08-26 (ACTIONS sweep, item 4.39): the injected sentence is hardcoded English on the BACKEND, so a non-English advisor gets one English line inside otherwise translated advice. `vue-i18n` does not exist on the backend, so the wording would have to be resolved another way. Pre-existing and separate from the name clash, but it is the same sentence in the same file — whoever opens videoInjector.js should settle both at once rather than touch it twice.",
       "comment": null
-    },
-    {
-      "ref": "4.39",
-      "name": "Sweep the frozen ACTIONS.md for anything that is genuinely still open",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "ACTIONS.md was frozen on 2026-08-24 at 7,400+ lines because it had become unreadable - /startup already steered sessions away from it. Freezing does not prove it was empty. 65 pointers elsewhere in the repo still read \"logged in ACTIONS.md\" or \"tracked in ACTIONS.md\", including live ones in virt-advisor-registry.md (the 28-dormant-trees programme, broadening the urgency trigger coverage), server/collaborate/data/repository.js and BusinessPerformanceReport.vue. Read it once, end to end, and move anything still genuinely open onto this list.",
-      "risk": "If a real open task exists only in the frozen file, nobody triages it - which is the exact failure the freeze was meant to prevent, moved rather than removed. The file's own warning says three items were once found already built while still flagged open, so expect most of it to be stale; the point is to prove that rather than assume it.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "Raised by the session that froze the file, 2026-08-24, as the named cost of freezing it."
-      },
-      "touches": "design/ACTIONS.md (read only), design/features/to-do-items.json.",
-      "note": "Do this before trusting the live list as complete. Until it is done, the honest statement is that the live list holds everything anyone has looked at recently, not everything that is open.",
-      "comment": ""
     },
     {
       "ref": "4.42",
       "name": "The to-do page’s hand-written half describes six finished items and misses ten live ones",
+      "kind": "defect",
       "score": 2,
       "scoreReason": "robustness",
       "blocker": false,
@@ -129,6 +121,46 @@
       "touches": "`design/features/to-do.md` (the hand-written sections outside the generated region), and a guard in `tests/unit/toDoItems.test.js` comparing detail blocks to the live refs.",
       "note": "The fix is two jobs and the second is the one that lasts: remove or label the six stale blocks, then add the guard so this cannot recur. A guard that simply requires every detail block to name a live ref would have caught all six. Decide deliberately whether every live item MUST have a block — the four DONE/PARKED blocks (3.1, 3.2, 3.3, 4.8) are kept on purpose and carry an explicit label, so the rule is \"labelled or live\", not \"live only\".",
       "comment": ""
+    },
+    {
+      "ref": "4.47",
+      "name": "Learn mode asks the advisor questions their own profile already answers",
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The advisor profile never reaches the Learn prompt. server/advisorEngine.js L3675 applies the profile only when mode is client or discover — Learn is excluded outright — and the profile block at L3661 is written in client-mode language (\"do not ask the Phase 2 questions\"), which means nothing to the Learn prompt. Meanwhile data/prompts/learn.txt L34-35 positively instructs the AI to ask \"How would they describe their current skill or confidence level?\" and \"Have they had any training, coaching, or reading on this topic before?\". The only carve-out (L80) is conditional on a Sales Process Decision Tree being present, not on the profile.",
+      "risk": "The advisor fills in a profile and is then interviewed about what they just supplied. Mike caught this live: the AI asked, was told to read the profile, and apologised — proving it had held the profile all along. It reads as an app that does not remember, on the one screen meant to feel like coaching.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-07-16 — found by Mike in a live Learn thread and audit-confirmed the same day. Logged in ACTIONS.md, which was frozen 2026-08-24 before it was picked up; re-verified against the code 2026-08-26 and unchanged."
+      },
+      "touches": "server/advisorEngine.js (the mode test at L3675 and the profile wording at L3661) and data/prompts/learn.txt (the \"Where they are starting from\" questions).",
+      "note": "TWO CAUSES, AND FIXING ONE LEAVES THE DEFECT. Letting the profile through to Learn does not help while learn.txt still orders the question; removing the question does not help while the profile never arrives. Both halves, or neither. The carve-out to copy already exists at learn.txt L80 — it just keys off the wrong thing.",
+      "comment": null
+    },
+    {
+      "ref": "4.50",
+      "name": "The hidden-marker change has never been run in a real conversation",
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Merged 2026-07-22 (PR #21, d791a9a): the AI declares its recommendations in a trailing [[TEMPLATES: ...]] marker that the engine holds back from the stream so it never reaches the advisor. 22 tests cover the parsing, the catalogue validation, the hold-back across awkward chunk splits and a truncated marker. No real conversation has ever been run against it, because this machine has no OPENAI_API_KEY and every advisor request fails at startup.",
+      "risk": "Small but it is the last unproven step before UAT. What the tests cannot answer is whether the reply still streams smoothly and nothing odd surfaces at the end — a half-written marker appearing on screen for a moment would be visible to a tester and is exactly what no unit test can see.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "Logged at the 2026-07-22 merge as the named residual of that change. Carried in ACTIONS.md until it was frozen 2026-08-24; re-checked 2026-08-26 and still unexercised."
+      },
+      "touches": "nothing — this is a live check, not a code change. server/advisorEngine.js holds the marker logic if the check fails.",
+      "note": "CANNOT BE DONE ON THIS MACHINE — it needs one Virtual Advisor conversation somewhere an OpenAI key exists. Three things to look at, and it is a two-minute job for whoever has the key: (a) the reply streams normally, (b) no [[TEMPLATES text is ever visible, even briefly, (c) the session recommended templates look right on the Team Dashboard afterwards.",
+      "comment": null
     }
   ]
 }
