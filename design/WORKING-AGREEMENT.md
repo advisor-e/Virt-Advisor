@@ -153,9 +153,18 @@ screens, and do not describe the work as verified until someone has looked.
 When both branches are in and `master` is green:
 
 1. Merge both branches into `master` via pull requests.
-2. Cut a version tag: `git tag -a v0.6.0 -m "…"` then `git push origin v0.6.0`.
-3. Record the row in [`DEPLOYED-VERSIONS.md`](DEPLOYED-VERSIONS.md).
-4. Tell the team the **version number** — not a commit hash, not "latest master".
+2. **Run `npm run build` and see it succeed.** Only then cut the tag.
+3. Cut a version tag: `git tag -a v0.6.0 -m "…"` then `git push origin v0.6.0`.
+4. Record the row in [`DEPLOYED-VERSIONS.md`](DEPLOYED-VERSIONS.md).
+5. Tell the team the **version number** — not a commit hash, not "latest master".
+
+> 🔴 **Why step 2 exists (Mike, 2026-08-25).** **Nothing else on our side ever builds the
+> app.** The pre-commit hook runs lint and the tests; the tests exercise the logic and never
+> assemble the bundle, so **all 6,285 can pass on a branch where `nuxt build` fails.** CI is
+> the master team's — checks before UAT, a fuller set before production — which means without
+> this step the first person to discover a broken build is *them*, after we have told them a
+> version is ready. One command, about a minute, and the failure lands on our desk instead of
+> at their gate. See the Enforcement section of [`../CLAUDE.md`](../CLAUDE.md).
 
 **What we ask of the master team:**
 

@@ -297,8 +297,8 @@ whole of it.
 > ⚠ **The consequence, stated so nobody has to infer it.** A release tag can be cut from a
 > branch that does not build, and the first person to find out is the master team at the UAT
 > gate. A green suite here says nothing about whether `nuxt build` succeeds. Running
-> `npm run build` once before tagging closes that with no new tooling — raised 2026-08-25 and
-> left as Mike's call, not adopted as a rule.
+> `npm run build` before tagging closes that with no new tooling. **Ruled by Mike 2026-08-25 and
+> now step 2 of Integration in `design/WORKING-AGREEMENT.md` — run it, see it succeed, then tag.**
 >
 > *This paragraph replaced a sentence that read "CI additionally requires `nuxt build` to
 > succeed…", which described a gate on this repository. There has never been one — no
