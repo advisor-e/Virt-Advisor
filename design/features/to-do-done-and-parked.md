@@ -219,6 +219,48 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.18 · The AI invents advice when it is routed to the wrong method.** ✅ Closed 2026-08-25.
+Artefact: [`../LEARN-SCOPE-HONESTY.md`](../LEARN-SCOPE-HONESTY.md) (wording approved by Mike the
+same day, committed *before* approval as `5776ab3`). Built in `9ddc37b` and `c102f91`.
+
+- **The fault, proved rather than assumed.** A Dashboard Discussions question was routed to the
+  Ratio Analysis guide and the model produced its own *tactical options* and *discussion
+  questions*. Those two fields exist in **exactly one file in this repository** —
+  `data/dashboard-discussions-reference.json` — and it was not in the conversation. The premise
+  was checked too: the word *wages* appears **nowhere** in `ratio-analysis-reference.json`, while
+  *Wages to Sales Ratio* is metric 2 of the twelve in the dashboard file. The model had nothing,
+  and wrote it.
+- **Why nothing stopped it.** `NEVER_INVENT_GUARDRAIL` governs **quotation** — scripts, wording,
+  personas, and the *names* of templates and methods. Structured coaching content presented as the
+  model's own analysis is none of those. And `learn.txt` closes every honest exit: *"do NOT fall
+  back to the template library when a coaching tree is present."* The model was told to coach from
+  the one guide it holds, told to reach for nothing else, and **never given the words "I don't
+  have that."** Generating was the only move left open to it.
+- **What was built.** `formatCoachingScopeForPrompt` in `server/utils/logicTrees.js` emits a block
+  with every loaded coaching guide, naming what this prompt holds, what it does not, and the
+  approved refusal wording. Generated from `methodGuides.GUIDES` intersected with the `mode: learn`
+  tree ids, so a guide added later appears with no edit — the property whose absence lost the 116
+  lines in 4.16. Second half (`c102f91`): four of the twenty-one learn trees carried **no
+  description at all** — the four financial ones — so their prompt header emitted a blank line
+  where their subject belongs and the AI picker chose between bare labels. `treeDescription` reads
+  the summary already authored in each companion reference file rather than writing a second copy.
+- **🔴 Verified against the live model, because no test here could be.** The item said so in terms:
+  *"every automated test here passes on an answer the model made up."* Eight `gpt-4o-mini` calls
+  through the real prompt. The defect **reproduced** with the block off — five invented tactical
+  options, five invented discussion questions. With it on: the refusal and nothing else. Three
+  probes asking for content the guide **does** hold, under headings the block names (*questions to
+  ask*, *ratios*, *steps*), were all answered from the file — so the model reads the condition, not
+  the word list. Routing measured with a baseline: picker 1 of 8 → 3 of 8, never worse on any case.
+- **🔴 The live check caught a fault the whole test suite passed over.** The first refusal named
+  *"the Ratio Analysis guide"* — the one it was holding. A dead end delivered in a helpful tone,
+  and every assertion in `coachingScope.test.js` was green while it did that. Fixed by ruling that
+  `<NAME>` is always from the not-given list, and that it must stop mid-sentence rather than guess.
+- **What this deliberately does NOT fix.** The routing itself, which will always sometimes be
+  wrong — the item said so and forbade closing on a routing tweak alone. The honesty block covers
+  every misroute: the model declines instead of inventing, whichever way the routing falls. The
+  root cause of the reported case was found and **left alone on purpose** — see **4.45**, filed
+  rather than folded in.
+
 **4.38 · How often Learning Psychology reaches the AI — now chosen, not inherited.** ✅ Closed
 2026-08-25. No code change; the decision is the deliverable.
 

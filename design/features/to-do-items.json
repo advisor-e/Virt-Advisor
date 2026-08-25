@@ -74,25 +74,6 @@
       "comment": null
     },
     {
-      "ref": "4.18",
-      "name": "The AI invents advice when it is routed to the wrong method",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "A Dashboard Discussions question was routed by the engine to the Ratio Analysis coaching tree. The AI then produced its own plausible 'tactical options' and 'discussion questions' for the metric rather than saying it had none for it. Two faults stacked: the wrong guide was selected, and the model filled the gap instead of admitting it.",
-      "risk": "An adviser reads invented content as Mike's authored method and takes it to a client. It is indistinguishable from the real thing on screen — it has the right headings, the right tone and the right shape. This is the precise failure 4.16 spent five sessions closing from the other direction: 4.16 was authored content that never arrived; this is unauthored content that arrives looking authored, and it is the worse of the two because nothing about it looks wrong.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "Found by us on 2026-08-17 while verifying item 4.16 F on the running app — the first Dashboard Discussions attempt came back with invented questions. Reported to Mike the same session and HE RULED IT ONTO THE LIST: 'if you found this problem then yes - it gets put on the to do list'. Written into RELEASE-NOTES-v0.9.0.md §4a so the master team is not surprised by it in UAT."
-      },
-      "touches": "server/utils/logicTrees.js (detectLogicTree, detectLogicTrees) and pickLearnTreeAI in server/advisorEngine.js for the routing half; the learn-mode prompt for the honesty half.",
-      "note": "TWO HALVES, AND THE SECOND ONE IS THE ITEM. Sharpening the routing reduces how often it happens and can never remove it — some questions are genuinely ambiguous, and Ratio Analysis and Dashboard Discussions are neighbouring methods. THE FAULT WORTH FIXING IS THAT THE MODEL DOES NOT SAY 'I DO NOT HAVE THAT FOR THIS METHOD.' Do not close this item on a routing tweak alone. VERIFY THE WAY 4.16 WAS VERIFIED — ask a real question on the running app and compare the answer word for word against the source file, because every automated test here passes on an answer the model made up.",
-      "comment": null
-    },
-    {
       "ref": "4.25",
       "name": "Nothing in this project ever checks that a screen LOOKS right",
       "score": 4,
@@ -222,6 +203,25 @@
       },
       "touches": "`tests/unit/cases.routes.test.js` around the production-read test.",
       "note": "The comment above the test already explains why NODE_ENV must be pinned there, so the intent is right and the mechanism is wrong. Prefer injecting the value the code under test reads, or restoring in a `finally`, over mutating a global across an await. ⚠ Confirm the diagnosis before fixing — it failed once and the reading above is inferred from the code, not from a reproduction.",
+      "comment": ""
+    },
+    {
+      "ref": "4.45",
+      "name": "A vague word beats an exact phrase because of where it sits in the file",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "detectLogicTree scores a table by COUNTING matched trigger phrases and breaks a tie by ARRAY POSITION. On the question that produced item 4.18, ratio_analysis and dashboard_discussions both scored exactly 1 - ratio_analysis on the single generic word \"ratio\" (inside \"wages to sales ratio\"), dashboard_discussions on the exact metric name \"wages to sales\". ratio_analysis is listed first in logic_trees.json, so it won. The precise match lost to the vague one on file order.",
+      "risk": "The advisor gets the wrong coaching guide, and which one they get is decided by nothing anybody chose. It is invisible: the Phrase Probe screen shows both tables scoring 1 and gives no reason for the order. Since 4.18 closed, the consequence is no longer invented advice - the AI declines and names the right guide - so this costs an advisor a useful answer rather than giving them a false one. That is why it is a 3 and not a 4.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "2026-08-25 - found while closing 4.18, by running explainDetection on the reported question. Mike then asked for it to be sorted, the work was done and MEASURED, and he stopped it on reading the measurement: the change was correct but its blast radius was outside 4.18. Filed rather than folded in, on his ruling: \"throw away the tie-break for now ... log the tie-break as its own item with today's measurements attached\". Reverted, not built."
+      },
+      "touches": "server/utils/logicTrees.js - detectLogicTree, detectLogicTrees and explainDetection must move TOGETHER or the Phrase Probe screen explains a decision production never made (tests/unit/phraseProbe.test.js locks that across the whole corpus). Also the learn fallback in server/advisorEngine.js - see the note.",
+      "note": "THE WORK IS DONE AND MEASURED; IT WAS REVERTED, NOT ABANDONED. The rule that fixes it: on a tie, the LONGER matched trigger wins - a longer authored phrase is a more deliberate statement of subject. File order still decides a full tie. Measured against a 31,636-probe baseline taken before the change. Of the 982 probes that are real authored trigger phrases, 66 moved and EVERY ONE was a generic word losing to the specific phrase containing it: \"risk management\" left governance (on \"management\"), \"exit strategy\" left client_planning (on \"strategy\"), \"quick ratio\" and \"debt ratio\" left ratio_analysis for dashboard_discussions where those metrics live. Of eight advisor-worded questions, exactly one moved - the broken one. IGNORE ANY \"31% CHANGED\" FIGURE: that was 30,646 synthetic probes built by gluing two unrelated triggers together, which are manufactured ties by construction and not advisor language. 🔴 THE REASON IT WAS STOPPED, AND THE REAL WORK IN THIS ITEM. The tie-break exposes a SECOND defect it does not cause: the Learn-mode fallback calls detectLogicTree across ALL 43 trees and then discards the result if it is not mode:learn. So when a client-mode table wins on specificity, learn mode injects NO coaching guide at all - 2,912 probes take that shape, including real phrases \"chronic debtors\" and \"late invoicing\". Fixing that FIRST is what makes the tie-break safe, and it is strictly an improvement on its own: searching only learn trees can find a learn tree it would otherwise have missed, never lose one. ⚠ ONE EXISTING TEST DISAGREES AND NEEDS MIKE'S EYE, NOT A QUIET EDIT: logicTreeTriggerBoundary.test.js asserts \"chronic debtors\" reaches working_capital_cycle. Its stated purpose is a word-boundary defect (the letters HR inside \"chronic\" sent it to staff_performance) and that still holds; the working_capital_cycle expectation was the then-correct answer, not the thing being protected.",
       "comment": ""
     }
   ]
