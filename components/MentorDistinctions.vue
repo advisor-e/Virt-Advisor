@@ -53,6 +53,24 @@
       b-notification.mb-3(type="is-info is-light" :closable="false" style="font-size:0.85rem")
         | These are the master Advisory Distinctions. Every firm receives them as defaults, and each firm can then adapt or switch off its own copy. Adding or editing one here changes the default for every firm.
 
+      //- 🔴 ITEM 4.17. Mike opened this tab and saw ONE distinction where the shipped
+      //- set is 67 — a stale local dev file was shadowing the committed seed, and
+      //- nothing on screen said so. It cost most of a session to diagnose. The rows
+      //- that win are unchanged; the screen now says what it is showing. Only ever
+      //- visible when a dev file is actually in use, so it is silent in UAT and in
+      //- production by construction.
+      b-notification.mb-3(
+        v-if="servedFromDevFile"
+        type="is-warning"
+        :closable="false"
+        style="font-size:0.85rem"
+      )
+        strong Showing local development data, not the real platform set.
+        |  {{ distinctions.length }} row{{ distinctions.length === 1 ? '' : 's' }} loaded from
+        |  #[code data/dev-platform-distinctions.json], and the
+        |  #[strong {{ shadowedCount }}] shipped rows are hidden while that file exists.
+        |  Delete the file to see the real set.
+
       .has-text-centered.py-5(v-if="loadingDistinctions")
         b-loading(:is-full-page="false" :active="true")
 
@@ -237,6 +255,9 @@ export default {
       selectedDistinctionDomain: DISTINCTION_DOMAINS[0].id,
       // The mentor's full platform set (every domain), loaded from the API.
       distinctions: [],
+      // Where the rows above came from — 'store', 'seed' or 'dev-file' (item 4.17).
+      distinctionSource: null,
+      shadowedCount: 0,
       loadingDistinctions: false,
       showDistinctionForm: false,
       showDistinctionHelpModal: false,
@@ -258,6 +279,15 @@ export default {
   },
 
   computed: {
+    /**
+     * Is this screen being served from the gitignored local dev file rather than the
+     * store or the committed seed? Item 4.17 — the condition the warning above tests.
+     * @returns {boolean}
+     */
+    servedFromDevFile () {
+      return this.distinctionSource === 'dev-file'
+    },
+
     currentDistinctionDomainLabel () {
       const d = DISTINCTION_DOMAINS.find(d => d.id === this.selectedDistinctionDomain)
       return d ? d.label : ''
@@ -308,6 +338,8 @@ export default {
       try {
         const data = await this.api('GET', '/api/mentor/distinctions')
         this.distinctions = data.distinctions || []
+        this.distinctionSource = data.source || null
+        this.shadowedCount = data.shadowed || 0
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
       } finally {

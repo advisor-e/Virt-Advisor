@@ -219,6 +219,100 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.33 · A template's tutorial video was attached to a calculator that shares its name.** ✅
+Closed 2026-08-26. **Option 1 of the two honest options** — the injector now recognises a
+calculator reference and stays quiet.
+
+- **The scope, measured rather than assumed.** Exactly **two** model names are also template
+  titles — Working Capital Cycle and Quick Position — and only the first carries a video (24
+  minutes). So there was **one** live case, not a class of them.
+- **The guard needs BOTH conditions**: the bolded name must be a known model name AND the
+  template's own block must carry a calculator route. Either alone changes nothing, so a genuine
+  template recommendation keeps its video even when a route is mentioned nearby.
+- 🔴 **BUILT FROM THE DATA, NOT FROM THAT PAIR.** The names and routes are derived from
+  `data/report-model-summaries.json` at load. The item warned that cataloguing another model
+  whose name matches a template would widen the defect; derived sets mean that cannot happen
+  silently.
+- ⚠ **The prompt could not have fixed it**, and the note in the item records that trying made it
+  worse: instructing the AI not to bold a model name stripped the bold off the TEMPLATE name too,
+  which is what the injector reads. The injector runs after the answer is written, so this is the
+  only place the two can be told apart.
+- **What proves it:**
+  [`tests/unit/videoInjectorCalculator.test.js`](../../tests/unit/videoInjectorCalculator.test.js),
+  6 assertions — the live defect's exact text, a model's own route, and both negative cases. Two
+  of them assert the PREMISE (that Working Capital Cycle is still both a model and a template with
+  a video), so if that stops being true the next maintainer finds out here.
+- ⚠ **STILL OPEN AND NOT PART OF THIS**: the injected sentence is hardcoded English on the
+  backend, so a non-English advisor gets one English line in otherwise translated advice.
+  `vue-i18n` does not exist on the backend and the wording would have to be resolved another
+  way. Nobody has asked for it; it is recorded here rather than filed as work.
+
+**4.47 · Learn mode asked the advisor questions their own profile already answered.** ✅ Closed
+2026-08-26, commit `01e793d`. Mike caught this live on 2026-07-16; it was unchanged six weeks later.
+
+- **Two causes, and fixing one would have left the defect.** `advisorEngine.js` applied the
+  profile only when `mode === 'client' || mode === 'discover'` — Learn was excluded outright —
+  and the profile block it injected was written in client-mode language ("do not ask the Phase 2
+  questions"), which names a sequence the Learn prompt does not have. Meanwhile `learn.txt`
+  positively ORDERED the question the profile answers. Letting the profile through would not have
+  helped while the prompt still asked; removing the question would not have helped while the
+  profile never arrived.
+- **Both halves shipped.** `profileInstructionsFor(mode, hasProfile)` — a small pure function,
+  extracted so the fix could be tested at all, since `handleQuery` is 2,000 lines — now returns
+  Learn-specific wording, and `learn.txt` carries a carve-out modelled on the one already at its
+  line 80.
+- 🔴 **THE CARVE-OUT DELIBERATELY DOES NOT SILENCE THE SECOND QUESTION.** The profile states
+  experience, tools comfort and development areas; it says nothing about whether this advisor has
+  read or been trained on THIS topic. Banning the whole "where they're starting from" block would
+  have produced an AI that assumes it knows — a worse defect than the one being fixed, and a
+  silent one. Pinned by a test that fails if a later change over-corrects.
+- **What proves it:** [`tests/unit/profileInstructions.test.js`](../../tests/unit/profileInstructions.test.js),
+  8 assertions. They pin prompt wording, which the house rule normally forbids — the file explains
+  why this is the exception: nobody in UAT can see a system prompt, which is exactly how this
+  shipped and survived six weeks.
+
+**4.42 · The to-do page's hand-written half described six finished items and missed ten live
+ones.** ✅ Closed 2026-08-26. **The page went from 822 lines to 405.**
+
+- **Six stale detail blocks removed** — 2.9, 4.16, 4.18, 4.19, 4.28 and 4.29, all long closed.
+  Every one was checked against this page first: all six closures are recorded here, so nothing
+  was lost. §4 (the education gate, item 2.9) went entirely, and the sections renumbered.
+- **Four blocks kept on purpose** — 3.1, 3.2, 3.3 and 4.8 describe DONE or PARKED work and say so
+  in their first line. A reader who proposes one of them needs to find the answer, which is why
+  the rule is **"labelled or live"**, not "live only".
+- 🔴 **THE HALF THAT LASTS IS THE GUARD.** Removing the blocks fixes today; nothing stopped it
+  recurring, and it had been drifting every session since the page was written. A new block in
+  [`tests/unit/toDoItems.test.js`](../../tests/unit/toDoItems.test.js) fails the build when a
+  detail block names a ref that is neither on the live list nor labelled DONE/PARKED. **Proven by
+  planting a stale block and watching it fail**, with a message naming the ref and both ways out.
+- **It earned its place immediately:** closing 4.17 in the same session left a stale block behind,
+  and the guard is what says so.
+
+**4.17 · A screen can show one row when 67 exist, and say nothing.** ✅ Closed 2026-08-26.
+
+- **Nothing was ever broken, which is what made it expensive.** A gitignored
+  `data/dev-platform-distinctions.json` holding one stale test row is deliberately preferred over
+  the committed seed when there is no database. It shadowed all 67 shipped rows, and the screen
+  was indistinguishable from one showing the real set. It cost most of a session to diagnose.
+- 🔴 **WHICH ROWS WIN IS UNCHANGED, DELIBERATELY.** The dev fallback is a good affordance and
+  removing it would break local development. What changed is that the loader now reports WHERE the
+  rows came from — `store`, `seed` or `dev-file` — and how many committed rows a dev file is
+  hiding. `loadPlatformDistinctionsWithSource` carries it; `loadPlatformDistinctions` is now a
+  thin wrapper, so the five existing callers are untouched and the two paths cannot disagree.
+- **The screen says it in the number that matters.** The Mentor Hub's Advisory Distinctions tab
+  shows a warning only when `source === 'dev-file'`: *"1 row loaded from
+  data/dev-platform-distinctions.json, and the 67 shipped rows are hidden while that file exists."*
+  Silent in UAT and production by construction.
+- ⚠ **THE SAME PATTERN EXISTS IN FOUR OTHER LOADERS AND WAS NOT TOUCHED** — firmDistinctions,
+  quizzes, coaching and currency all have dev-JSON fallbacks that announce nothing. This closes the
+  one Mike actually hit. Named here rather than swept up silently, and not filed as a new item:
+  nobody has hit those, and a fix nobody asked for is what 2026-08-26 was about.
+- **What proves it:**
+  [`tests/unit/platformDistinctionsSource.test.js`](../../tests/unit/platformDistinctionsSource.test.js),
+  11 assertions — including that a live database REFUSING the read still throws (a stray dev file
+  on a production box must never be served as the mentor's live set) and that the wrapper and the
+  source-reporting loader return identical rows on every path.
+
 **4.49 · One invented fact was found in the AI's reference material and nobody ever checked for
 others.** ✅ Closed 2026-08-26. **Measured: seventeen high-risk claims, sixteen exactly right, one
 drift of a single letter.** No second fabrication. Guard added so these cannot drift again.

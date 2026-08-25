@@ -24,10 +24,59 @@
  *   deleted, and nothing else ever read `videoMinutes`.
  */
 
+const REPORT_MODEL_SUMMARIES = require('../../data/report-model-summaries.json')
 const { getOrgTemplates } = require('./templates')
 
 const VIDEO_PRESENT = /tutorial video|video available/i
 const BOLD_RE = /\*\*([^*\n]+)\*\*/g
+
+// ── The calculator/template name clash (item 4.33) ────────────────────────────
+//
+// 🔴 THE DEFECT, seen live 2026-08-22. The advisor was pointed at a CALCULATOR:
+//   "**Working Capital Cycle** — ... open it at /business-performance-report"
+// and this function then appended "A 24-minute tutorial video is available...". The
+// video is real and it belongs to the TEMPLATE of that name, not to the calculator page
+// the advisor was just sent to. Nothing is fabricated, which is what makes it easy to
+// miss — it is simply about a different thing that shares a name.
+//
+// ⚠ THE PROMPT CANNOT FIX THIS, and an earlier attempt made it worse: instructing the
+// AI not to bold a model name stripped the bold off the TEMPLATE name too, which is the
+// very thing this function reads. Reverted. This runs AFTER the model has written the
+// answer, so the only place to tell the two apart is here.
+//
+// BUILT FROM THE DATA, NOT A HARDCODED PAIR. Exactly two model names are also template
+// titles today — Working Capital Cycle and Quick Position — and only the first has a
+// video, so there is one live case. Cataloguing another model whose name matches a
+// template would widen it silently, which is precisely why these sets are derived from
+// `report-model-summaries.json` at load rather than written out by hand.
+const MODEL_NAMES = new Set()
+const MODEL_ROUTES = []
+const _modelList = Array.isArray(REPORT_MODEL_SUMMARIES.models) ? REPORT_MODEL_SUMMARIES.models : []
+for (const m of _modelList) {
+  if (m && typeof m.name === 'string') { MODEL_NAMES.add(m.name.toLowerCase().trim()) }
+  if (m && typeof m.route === 'string' && m.route.trim()) { MODEL_ROUTES.push(m.route.trim()) }
+}
+// The Business Performance Report is the page the models are opened from, and it is the
+// path that appeared in the live defect. It is not one model's own route, so it is not
+// in the loop above.
+MODEL_ROUTES.push('/business-performance-report')
+
+/**
+ * Is this bold name being used as a CALCULATOR here, rather than as a template?
+ *
+ * Both conditions must hold, and the pairing is what keeps this narrow: the name has to
+ * be a known model name AND the surrounding text has to send the advisor to a calculator
+ * page. A genuine template recommendation that merely mentions a route keeps its video
+ * sentence, and a model name discussed with no link is left alone.
+ *
+ * @param {string} boldTitle - the bolded name as written by the model
+ * @param {string} ownContent - the template's own block, up to the first blank line
+ * @returns {boolean} true when the video sentence must NOT be appended
+ */
+function looksLikeCalculatorReference (boldTitle, ownContent) {
+  if (!MODEL_NAMES.has(String(boldTitle).toLowerCase().trim())) { return false }
+  return MODEL_ROUTES.some(route => ownContent.includes(route))
+}
 
 /** An allowance below a minute is not worth a sentence. Mirrors cpdCatalogue. */
 const MIN_MINUTES = 1
@@ -78,7 +127,7 @@ function injectVideoInfo (responseText, orgTemplateIds) {
   while ((m = BOLD_RE.exec(responseText)) !== null) {
     const title = m[1].trim()
     const mins = videoMap.get(normalise(title)) || 0
-    allBolds.push({ index: m.index, end: m.index + m[0].length, mins })
+    allBolds.push({ index: m.index, end: m.index + m[0].length, mins, title })
   }
   if (allBolds.length === 0) { return responseText }
 
@@ -100,6 +149,11 @@ function injectVideoInfo (responseText, orgTemplateIds) {
     const ownContent = firstBlankIdx !== -1 ? block.slice(0, firstBlankIdx) : block
     const trimmed = ownContent.trimEnd()
     if (!trimmed) { continue }
+
+    // Item 4.33 — the name is a calculator here, and the video belongs to the template
+    // that shares its name. Checked against the template's OWN content, because that is
+    // where the live defect put the link: on the same line as the bold name.
+    if (looksLikeCalculatorReference(bold.title, ownContent)) { continue }
 
     const insertAt = bold.end + trimmed.length
     const sentence = `\nA ${bold.mins}-minute tutorial video is available in Advisor-e to help you prepare.`
