@@ -219,6 +219,51 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.46 · The AI offers to switch guides, the advisor says yes, and nothing happens.** ✅ Closed
+2026-08-25, the day after it was filed. Built in `28c52df`; recorded as **P10** in
+[`advisory-engine.md`](advisory-engine.md).
+
+- **The cause was structural, not a bug in the picker.** The offer names the guide in the
+  **assistant's** message; `newestFirstUserText` builds the picker's input from
+  `history.filter(m => m.role === 'user')`. So the one fact needed to honour the offer could never
+  be in the picker's input. It was not failing — it was never told.
+- **What was built.** `offeredGuideFromLastAnswer` reads the newest answer, and only when that
+  answer made the offer, folding the named guide into the newest slot so the AI picker **and** the
+  keyword fallback both see it. The **narrow** of the two options the item named: a Learn
+  conversation where no offer was made routes exactly as before. The broad option — feeding the
+  assistant turn into every pick — was rejected as the trap 4.45 fell into.
+- **🔴 PROVED BY DRIVING THE MODEL, NOT BY A TEST, and this is the second time on this path that
+  mattered.** Six live calls: *"yes"*, *"yes please"* and *"yes, switch to it"* each returned
+  **nothing** before and **`dashboard_discussions`** after. The defect had shipped with a fully
+  green suite, exactly as 4.18's did. `pickLearnTreeAI` is exported so that check can be re-run.
+- **The residual risk, stated.** It relies on the model reproducing the offer wording the prompt
+  instructs verbatim. If a future model drifts off it, the offer stops working again — no worse
+  than before, but silently.
+
+**4.36 · The Model Guide search only matches the exact words the page happens to use.** ✅ Closed
+2026-08-25. Built in `068f1ff`; recorded in [`report-models.md`](report-models.md).
+
+- **Reported by Mike, 2026-08-23:** *"I typed 'Investing in houses' and it failed to find the
+  property assessment model."* Two faults, and **both fixes apply to every search against every
+  model** — this was never property-specific.
+- **What was built.** (1) Each word matched separately instead of the query as one phrase, all
+  words still required, so more words always narrow. (2) `SEARCH_NOISE` drops filler — *should*,
+  *my*, *more* — which would otherwise each have to appear in a model's text; endings are trimmed
+  where three characters survive, so *paying* reaches *pay*. (3) A `searchWords` list per model in
+  `data/report-model-summaries.json`: the advisor's vocabulary, not the page's.
+- **Measured on the shipped data.** Seven ordinary queries that returned **nothing** now find the
+  right model — *"slow paying customers"*, *"should I put my prices up"*, *"can the client borrow
+  more"*, *"what is the business worth"*, *"buying a van"*, *"where do I start with growth"*, and
+  Mike's own *"Investing in houses"*.
+- **⚠ IT IS NOT EXHAUSTIVE, AND THAT IS DELIBERATE.** *"Stock sitting too long"* still misses
+  (*sitting* trims to *sitt*), and so does *"client wants to sell up"*. Fuzzy matching and
+  embedding search were ruled out by the item: with ten models a confident wrong match is worse
+  than a miss, because the advisor takes the suggestion into a client meeting. The fix for any
+  missed phrasing is one word on that model's list.
+- **`searchWords` is screen-only.** `formatReportModelsForPrompt` reads named fields, so it never
+  reaches the AI — which is why it is not content shaping advice and needs no manager screen. If a
+  firm ever wants its own vocabulary, that judgement changes.
+
 **4.45 · A vague word beats an exact phrase because of where it sits in the file.** ✅ Deleted
 2026-08-25, the day it was filed — **not built, and deliberately not kept.** The tie-break work is
 described in 4.18's closure below; the code was reverted and nothing of it remains.
