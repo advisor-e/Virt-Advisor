@@ -2650,6 +2650,21 @@
     "lengthBack": "Go back to my prompt",
     "clearedHeading": "Nothing here would stop us taking it",
     "clearedBody": "We found no web addresses, no hidden characters, no keys and nothing that looks like a real client's details. Your prompt is yours — nothing has been saved and nothing about your firm's AI has changed.",
-    "failed": "We could not check the prompt just now. Please try again in a moment."
+    "failed": "We could not check the prompt just now. Please try again in a moment.",
+    "reportHeading": "What we found in your prompt",
+    "kindGood": "good as it is",
+    "kindGap": "worth adding",
+    "kindClash": "conflicts with your protocols",
+    "addThis": "Add this",
+    "noThanks": "No thanks",
+    "changeToMatch": "Change it to match our protocol",
+    "keepMine": "Keep my wording",
+    "applied": "Added to your prompt above.",
+    "leftAlone": "Left exactly as you wrote it.",
+    "download": "Download my improved prompt",
+    "startAgain": "Start again with another one",
+    "reviewFailed": "We checked your prompt and found nothing we would refuse — but we could not produce the report itself just now. That is our end, not yours. Try again in a moment.",
+    "reviewStale": "This report is about your prompt as it was a moment ago. Check it again when you have finished editing.",
+    "reviewNothing": "We read it and found nothing worth changing. That is not a common answer."
   }
 }

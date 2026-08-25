@@ -33,6 +33,7 @@ const { PROTOCOL_BLOCK } = require('../../server/utils/aiPrompts')
 
 const CASHFLOW = 'cashflow-forecast'
 const SECURITY = 'ai-audit-security'
+const REVIEW = 'prompt-review' // item 4.31 — mentor only
 
 function makeMockRes () {
   return {
@@ -105,7 +106,7 @@ describe('what a tier is given when it opens the tab', () => {
     await routes.getForManager(makeReq({ firmId: '__platform__' }), res)
 
     expect(res._body.tier).toBe('mentor')
-    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY])
+    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW])
   })
 
   test('the two middle tiers resolve correctly, unexercised though they are today', async () => {

@@ -38,12 +38,100 @@ const { sendError } = require('../utils/sendError')
 const { createLimiter } = require('../utils/rateLimit')
 const { checkContribution, MAX_CHARACTERS } = require('../utils/promptContribution')
 const { supportEmail } = require('../utils/supportContact')
+const { createOpenAIClient } = require('../utils/openaiClient')
+const { buildReviewMessages, parseReview, validateReview } = require('../utils/promptReview')
 
 /**
  * Ten checks a minute per address. A person pasting and correcting a prompt does maybe
  * five in that time; anything faster is not somebody reading the answers.
  */
 const limiter = createLimiter(10)
+
+/**
+ * The review model and its ceiling.
+ *
+ * `gpt-4o-mini` is what every other classification call in this application uses
+ * (`server/advisorEngine.js`), and a review of two pages of prose is the same class of
+ * work. The token cap is what eight findings actually cost, with room to spare; the
+ * timeout is longer than the twenty seconds the screen promises, so a slow answer still
+ * arrives rather than being thrown away a moment before it lands.
+ */
+const REVIEW_MODEL = 'gpt-4o-mini'
+const REVIEW_MAX_TOKENS = 1400
+const REVIEW_TIMEOUT_MS = 30000
+
+let openaiClient = null
+
+/** Built once, on first use, so a missing key is a failed review and not a dead server. */
+function getOpenAI () {
+  if (!openaiClient) {
+    openaiClient = createOpenAIClient({ apiKey: process.env.OPENAI_API_KEY })
+  }
+  return openaiClient
+}
+
+/**
+ * CLAUDE.md requires every LLM call to log its model, tokens, latency and result.
+ *
+ * ⚠ AND NOTHING ELSE. Not the prompt, not the findings, not a single word the accountant
+ * typed — this is the one call in the application whose input is a person's own working
+ * document.
+ */
+function logReview (startedAt, success, usage) {
+  const tokens = usage
+    ? `prompt=${usage.prompt_tokens} completion=${usage.completion_tokens} total=${usage.total_tokens}`
+    : 'tokens=unknown'
+  console.log(`[openai] prompt-review model=${REVIEW_MODEL} status=${success ? 'ok' : 'error'} ` +
+    `latency=${Date.now() - startedAt}ms ${tokens}`)
+}
+
+/**
+ * Runs the review and returns only findings that are safe to show.
+ *
+ * 🔴 A REVIEW THAT FAILED IS REPORTED AS A FAILURE, NEVER AS "NOTHING TO SAY". An empty
+ * findings list and a dead API look identical on screen unless the difference travels,
+ * and the second one silently tells an accountant their prompt is fine. This is the same
+ * defect `advisorEngine` records against its own classifiers, and it is why `ok` comes
+ * back alongside the findings rather than being inferred from their number.
+ *
+ * ⚠ NO OVERRIDES ARE LOADED. The review document declares no variables (it is entirely
+ * method), so there is nothing for a tier to have set and no reason for this route to
+ * touch the database at all.
+ *
+ * @param {string} text - the pasted prompt, already past the deterministic checks
+ * @returns {Promise<{ok: boolean, findings: object[], dropped: number}>}
+ */
+async function runReview (text) {
+  const startedAt = Date.now()
+  try {
+    const { messages } = buildReviewMessages(text, {})
+    const response = await getOpenAI().chat.completions.create({
+      model: REVIEW_MODEL,
+      max_tokens: REVIEW_MAX_TOKENS,
+      temperature: 0,
+      messages
+    }, { timeout: REVIEW_TIMEOUT_MS })
+
+    logReview(startedAt, true, response.usage)
+
+    const content = response &&
+      response.choices &&
+      response.choices[0] &&
+      response.choices[0].message
+      ? response.choices[0].message.content
+      : ''
+
+    const validated = validateReview(parseReview(content))
+    if (!validated.ok) {
+      console.warn('[prompt-review] the reply carried no readable findings — reported as a failure')
+    }
+    return validated
+  } catch (err) {
+    logReview(startedAt, false, null)
+    console.error('[prompt-review] failed:', err.message)
+    return { ok: false, findings: [], dropped: 0 }
+  }
+}
 
 /**
  * 🔴 THE DESIGN FORBIDS A REFUSAL WITH NO ROUTE BACK TO A HUMAN (§5), and until
@@ -74,10 +162,10 @@ const limiter = createLimiter(10)
  * @param {boolean} [req.body.removeInvisible] - True when the manager has pressed
  *   *"Take them out and check it again"*. The one alteration this route will make, and
  *   only because a person asked for it.
- * @returns {{ok: boolean, refusal: (object|null), cleared: boolean, limit: number,
- *   contactEmail: string}}
+ * @returns {{ok: boolean, refusal: (object|null), cleared: boolean, review: object[],
+ *   reviewFailed: boolean, limit: number, contactEmail: string}}
  */
-function check (req, res) {
+async function check (req, res) {
   if (limiter(req, res) === false) { return }
 
   const body = req.body || {}
@@ -105,12 +193,14 @@ function check (req, res) {
       })
     }
 
-    // Step 3 of the build order attaches the AI review here. Until it does, a clear
-    // result is still a real answer: every check we run found nothing to refuse.
+    const review = await runReview(result.text)
+
     return res.send(200, {
       ok: true,
       refusal: null,
       cleared: true,
+      review: review.findings,
+      reviewFailed: !review.ok,
       limit: MAX_CHARACTERS,
       contactEmail: supportEmail()
     })

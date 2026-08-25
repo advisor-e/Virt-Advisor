@@ -75,6 +75,47 @@
   .pc-cleared(v-if="cleared")
     h4.pc-cleared-h {{ $t('promptCheck.clearedHeading') }}
     p {{ $t('promptCheck.clearedBody') }}
+
+  //- ── The review could not be produced ─────────────────────────────────
+  //- 🔴 SAID OUT LOUD, NEVER SHOWN AS AN EMPTY REPORT. "We found nothing to
+  //- suggest" and "we could not read the answer" are the same picture unless
+  //- one of them says so, and the silent version tells an accountant their
+  //- prompt is fine on the strength of a broken call.
+  b-message(v-if="reviewFailed" type="is-warning" size="is-small")
+    | {{ $t('promptCheck.reviewFailed') }}
+
+  //- ── The report ───────────────────────────────────────────────────────
+  .pc-report(v-if="hasReport")
+    h4.pc-report-h {{ $t('promptCheck.reportHeading') }}
+    p.pc-stale(v-if="reviewStale") {{ $t('promptCheck.reviewStale') }}
+
+    .pc-find(
+      v-for="(f, i) in review"
+      :key="i"
+      :class="['is-' + f.kind, { 'is-settled': settled[i] }]")
+      .pc-fhead
+        span.pc-ftitle {{ f.title }}
+        b-tag(:type="tagFor(f.kind).type" size="is-small") {{ tagFor(f.kind).label }}
+      p.pc-fbody {{ f.body }}
+      .pc-quote(v-if="f.quote") {{ f.quote }}
+      .pc-quote.is-suggested(v-if="f.suggestion") {{ f.suggestion }}
+
+      .pc-actions(v-if="canApply(f) && !settled[i]")
+        b-button(
+          type="is-success"
+          size="is-small"
+          @click="accept(i)") {{ f.kind === 'clash' ? $t('promptCheck.changeToMatch') : $t('promptCheck.addThis') }}
+        b-button(size="is-small" @click="decline(i)")
+          | {{ f.kind === 'clash' ? $t('promptCheck.keepMine') : $t('promptCheck.noThanks') }}
+      p.pc-settled(v-else-if="settled[i]") {{ settled[i] === 'accepted' ? $t('promptCheck.applied') : $t('promptCheck.leftAlone') }}
+
+    .pc-actions.pc-foot
+      b-button(type="is-primary" size="is-small" @click="download")
+        | {{ $t('promptCheck.download') }}
+      b-button(size="is-small" @click="startAgain") {{ $t('promptCheck.startAgain') }}
+
+  //- ── Read, and nothing worth changing ─────────────────────────────────
+  p.pc-nofindings(v-else-if="cleared && !reviewFailed") {{ $t('promptCheck.reviewNothing') }}
 </template>
 
 <script>
@@ -132,6 +173,18 @@ export default {
        * ordering to get wrong: consent applies to these words and to no others.
        */
       consentFor: null,
+      /** The findings the review produced, already validated on the backend. */
+      review: [],
+      /** True when the review could not be produced at all — never inferred from []. */
+      reviewFailed: false,
+      /**
+       * The text the report was produced for. Kept so the report can say it is about an
+       * earlier version rather than silently describing words that have changed — the
+       * same string-comparison trick as `consentFor`, and for the same reason.
+       */
+      reviewFor: '',
+      /** Per-finding: 'accepted', 'declined', or undefined. */
+      settled: {},
       /** The cap the backend reported, so the counter cannot drift from the check. */
       limit: 6000
     }
@@ -148,6 +201,11 @@ export default {
     },
 
     canCheck () { return this.text.trim() !== '' && !this.checking },
+
+    hasReport () { return this.review.length > 0 },
+
+    /** The report describes words the manager has since changed. Said, not hidden. */
+    reviewStale () { return this.hasReport && this.reviewFor !== this.text },
 
     /**
      * The mail link. The subject names the app so the message is recognisable; the
@@ -287,6 +345,95 @@ export default {
 
   methods: {
     /**
+     * The label on a finding. Three kinds, three labels, and nothing else is drawable.
+     * @param {string} kind
+     * @returns {{type: string, label: string}}
+     */
+    tagFor (kind) {
+      if (kind === 'good') { return { type: 'is-success', label: this.$t('promptCheck.kindGood') } }
+      if (kind === 'clash') { return { type: 'is-danger', label: this.$t('promptCheck.kindClash') } }
+      return { type: 'is-warning', label: this.$t('promptCheck.kindGap') }
+    },
+
+    /**
+     * Whether this finding can actually be acted on.
+     *
+     * 🔴 A CLASH IS ONLY APPLIABLE WHEN WE CAN FIND THE MANAGER'S OWN LINE. "Change it to
+     * match our protocol" has to change something, and the only honest way to do that is
+     * to replace the exact words the model quoted. A model that paraphrased the line
+     * gives us nothing to replace, so the button is not offered rather than appending a
+     * second, contradictory sentence to their prompt and calling it a change.
+     *
+     * @param {object} finding
+     * @returns {boolean}
+     */
+    canApply (finding) {
+      if (finding.kind === 'good') { return false }
+      if (!finding.suggestion) { return false }
+      if (finding.kind === 'clash') {
+        return Boolean(finding.quote) && this.text.includes(finding.quote)
+      }
+      return true
+    },
+
+    /**
+     * Take a suggestion.
+     *
+     * ⚠ THIS CHANGES THEIR COPY AND NOTHING ELSE. Not this app, not their firm, not the
+     * AI — the words in the box on their screen. That is the whole of what is built, and
+     * it is why it is safe.
+     *
+     * @param {number} i - index into `review`
+     */
+    accept (i) {
+      const finding = this.review[i]
+      if (!this.canApply(finding)) { return }
+
+      this.text = finding.kind === 'clash'
+        ? this.text.split(finding.quote).join(finding.suggestion)
+        : (this.text.replace(/\s+$/, '') + '\n\n' + finding.suggestion)
+
+      this.$set(this.settled, i, 'accepted')
+    },
+
+    /**
+     * Leave a suggestion. Recorded rather than hidden, so the manager can see what they
+     * have already decided about on a long report.
+     * @param {number} i
+     */
+    decline (i) {
+      this.$set(this.settled, i, 'declined')
+    },
+
+    /** Clear everything and start on another prompt. */
+    startAgain () {
+      this.text = ''
+      this.review = []
+      this.reviewFailed = false
+      this.reviewFor = ''
+      this.settled = {}
+      this.focusBox()
+    },
+
+    /**
+     * Hand the manager their own prompt as a file.
+     *
+     * ⚠ CLIENT-ONLY BY CONSTRUCTION — it runs from a click, never from `created()`, so
+     * there is no server-side render in which `document` or `URL` is missing.
+     */
+    download () {
+      const blob = new Blob([this.text], { type: 'text/plain;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'my-prompt.txt'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    },
+
+    /**
      * Rounds a character count to something a person would say out loud.
      * @param {number} n
      * @returns {number}
@@ -308,6 +455,9 @@ export default {
       this.failed = false
       this.cleared = false
       this.refusal = null
+      this.review = []
+      this.reviewFailed = false
+      this.settled = {}
       try {
         if (removeInvisible === true) { this.consentFor = this.text }
         const data = await this.api('POST', '/api/firm-manager/prompt-check', {
@@ -318,6 +468,9 @@ export default {
         if (typeof data.contactEmail === 'string') { this.contactEmail = data.contactEmail }
         if (data.ok) {
           this.cleared = true
+          this.review = Array.isArray(data.review) ? data.review : []
+          this.reviewFailed = data.reviewFailed === true
+          this.reviewFor = this.text
         } else {
           this.refusal = data.refusal || null
           // A refusal shape this build cannot describe must not render as an empty
@@ -470,4 +623,43 @@ export default {
 }
 .pc-cleared-h { font-size: 0.98rem; font-weight: 600; color: #1f7a45; margin-bottom: 0.3rem; }
 .pc-cleared p { font-size: 0.86rem; color: #363636; }
+
+/* The report. A finding's stripe carries its kind, so the shape of the page says
+   what the labels say — good, worth adding, conflicts. */
+.pc-report { margin-top: 1.5rem; }
+.pc-report-h { font-size: 1rem; font-weight: 600; color: #002b64; margin-bottom: 0.5rem; }
+.pc-stale {
+  font-size: 0.8rem;
+  color: #b35309;
+  background: #fffaf3;
+  border: 1px solid #ffb870;
+  border-radius: 5px;
+  padding: 0.45rem 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.pc-find {
+  border: 1px solid #e2e6ec;
+  border-left: 3px solid #b8c6d8;
+  border-radius: 0 6px 6px 0;
+  background: #fff;
+  padding: 0.8rem 0.95rem;
+  margin-bottom: 0.65rem;
+}
+.pc-find.is-good { border-left-color: #63c48d; }
+.pc-find.is-gap { border-left-color: #ffb870; }
+.pc-find.is-clash { border-left-color: #e2a0a0; }
+.pc-find.is-settled { opacity: 0.72; }
+
+.pc-fhead { display: flex; gap: 0.6rem; align-items: baseline; flex-wrap: wrap; }
+.pc-ftitle { font-weight: 600; color: #002b64; font-size: 0.9rem; flex: 1 1 auto; }
+.pc-fbody { font-size: 0.83rem; color: #5a6b82; margin-top: 0.3rem; }
+
+/* A suggested sentence is set apart from a quotation of their own words: one is
+   ours to offer, the other is theirs, and they must not read as the same thing. */
+.pc-quote.is-suggested { background: #eefaf2; border-color: #63c48d; }
+
+.pc-settled { font-size: 0.79rem; color: #7a869a; margin-top: 0.55rem; margin-bottom: 0; }
+.pc-foot { border-top: 1px solid #e2e6ec; padding-top: 0.9rem; margin-top: 1rem; }
+.pc-nofindings { font-size: 0.85rem; color: #5a6b82; margin-top: 0.9rem; }
 </style>

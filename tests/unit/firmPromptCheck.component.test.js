@@ -240,6 +240,126 @@ describe('a verdict belongs to the text it was given', () => {
   })
 })
 
+describe('the report', () => {
+  const GAP = {
+    kind: 'gap',
+    title: 'Nothing says what material means',
+    body: 'It decides for itself each time.',
+    suggestion: 'Treat an item as material if it moves closing cash by more than 5%.',
+    quote: null
+  }
+  const CLASH = {
+    kind: 'clash',
+    title: 'This publishes without sign-off',
+    body: 'Your protocol is that an accountant approves first.',
+    suggestion: 'Mark the workbook as draft until an accountant has approved it.',
+    quote: 'Once it balances, mark the workbook final.'
+  }
+  const GOOD = { kind: 'good', title: 'Source discipline is strong', body: 'You never let it guess.', suggestion: null, quote: null }
+
+  function cleared (review, extra) {
+    return Object.assign({ ok: true, refusal: null, cleared: true, review, reviewFailed: false, limit: 6000, contactEmail: 'x@advisor-e.com' }, extra || {})
+  }
+
+  async function withReport (review, text) {
+    const wrapper = mountPanel(cleared(review))
+    wrapper.vm.text = text || 'Prepare a cash flow forecast.'
+    await wrapper.vm.check(false)
+    await wrapper.vm.$nextTick()
+    return wrapper
+  }
+
+  it('draws one row per finding', async () => {
+    const wrapper = await withReport([GOOD, GAP])
+    expect(wrapper.findAll('.pc-find').length).toBe(2)
+    expect(wrapper.vm.hasReport).toBe(true)
+  })
+
+  it('🔴 adding a suggestion changes THEIR copy and nothing else', async () => {
+    const wrapper = await withReport([GAP])
+    const before = wrapper.vm.text
+
+    wrapper.vm.accept(0)
+
+    expect(wrapper.vm.text).toContain(before)
+    expect(wrapper.vm.text).toContain('moves closing cash by more than 5%')
+    expect(wrapper.vm.settled[0]).toBe('accepted')
+    // Nothing was sent anywhere. Lane A stores nothing, and accepting is not a save.
+    expect(global.fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('declining records the decision rather than hiding the finding', async () => {
+    const wrapper = await withReport([GAP])
+    wrapper.vm.decline(0)
+    expect(wrapper.vm.settled[0]).toBe('declined')
+    expect(wrapper.vm.text).not.toContain('moves closing cash')
+  })
+
+  it('a clash REPLACES the line it quoted, rather than appending a contradiction', async () => {
+    const wrapper = await withReport([CLASH], 'Do the work.\nOnce it balances, mark the workbook final.')
+    wrapper.vm.accept(0)
+    expect(wrapper.vm.text).not.toContain('mark the workbook final')
+    expect(wrapper.vm.text).toContain('draft until an accountant has approved it')
+  })
+
+  it('🔴 offers no button on a clash whose quoted line is not in the prompt', async () => {
+    // "Change it to match our protocol" has to change something. A model that
+    // paraphrased their line gives us nothing to replace, and appending a second
+    // contradictory sentence is not a change.
+    const wrapper = await withReport([CLASH], 'A prompt that never contained that line.')
+    expect(wrapper.vm.canApply(CLASH)).toBe(false)
+  })
+
+  it('offers no button on a finding that is simply praise', async () => {
+    const wrapper = await withReport([GOOD])
+    expect(wrapper.vm.canApply(GOOD)).toBe(false)
+  })
+
+  it('says the report is about the earlier version once they edit', async () => {
+    const wrapper = await withReport([GAP])
+    expect(wrapper.vm.reviewStale).toBe(false)
+
+    wrapper.vm.text = wrapper.vm.text + ' and more'
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.reviewStale).toBe(true)
+    // The report itself survives the edit — advice about a prompt is still advice.
+    expect(wrapper.vm.hasReport).toBe(true)
+  })
+
+  it('🔴 tells the manager the report FAILED rather than showing nothing', async () => {
+    const wrapper = mountPanel(cleared([], { reviewFailed: true }))
+    wrapper.vm.text = 'anything'
+    await wrapper.vm.check(false)
+    expect(wrapper.vm.reviewFailed).toBe(true)
+    expect(wrapper.vm.hasReport).toBe(false)
+  })
+
+  it('distinguishes "nothing worth changing" from "no answer"', async () => {
+    const wrapper = mountPanel(cleared([]))
+    wrapper.vm.text = 'a genuinely good prompt'
+    await wrapper.vm.check(false)
+    expect(wrapper.vm.reviewFailed).toBe(false)
+    expect(wrapper.vm.hasReport).toBe(false)
+    expect(wrapper.vm.cleared).toBe(true)
+  })
+
+  it('starting again clears the report as well as the box', async () => {
+    const wrapper = await withReport([GAP])
+    wrapper.vm.accept(0)
+    wrapper.vm.startAgain()
+    expect(wrapper.vm.text).toBe('')
+    expect(wrapper.vm.review).toEqual([])
+    expect(wrapper.vm.settled).toEqual({})
+  })
+
+  it('a fresh check forgets what was settled on the last one', async () => {
+    const wrapper = await withReport([GAP])
+    wrapper.vm.decline(0)
+    await wrapper.vm.check(false)
+    expect(wrapper.vm.settled).toEqual({})
+  })
+})
+
 describe('when the backend cannot answer', () => {
   it('says so instead of leaving the manager waiting', async () => {
     global.fetch = jest.fn(() => Promise.reject(new Error('network down')))

@@ -3,8 +3,9 @@
 > **The prompt templates a manager can tune — locked method, declared variables.** Current rules
 > only; the history is in [`ai-prompts-history.md`](ai-prompts-history.md).
 >
-> **Covers:** the two shipped prompts, what is editable and what is not, how the platform
-> protocols are enforced, how a tier's settings cascade, and the hub tab that renders it.
+> **Covers:** the three shipped prompts, what is editable and what is not, how the platform
+> protocols are enforced, how a tier's settings cascade, the hub tab that renders it, and the
+> Share-a-prompt panel a firm manager pastes their own prompt into.
 > **Does not cover:** the report models' own key-calculation summaries, which are item 4.29 and a
 > separate thing.
 
@@ -152,6 +153,50 @@ ruled that one *"for AI - not the advisor or manager"*.
 
 ---
 
+## 3a. Share a prompt — a manager's own words, checked
+
+A firm manager pastes a prompt they believe in and asks whether it is any good. **Nothing is
+stored and nothing changes** — not this app, not their firm, not the advising AI. The panel sits
+on this same tab at all four tiers, below the settings and above the method.
+
+**Three things happen, in this order.**
+
+1. **Deterministic checks.** Six of them, worst first: the fence markers, invisible characters,
+   anything shaped like a key, web and email addresses, real client details, and a 6,000-character
+   limit checked before any of the others so a huge paste is never scanned. One refusal is shown
+   at a time, in three parts — what we found, why it matters to their clients, what to do now —
+   and every refusal offers a mail link to a person.
+2. **The review.** The model reads the prompt, fenced, and reports what is good, what is missing
+   and what conflicts. Each finding is theirs to take or leave, and taking one edits **the box on
+   their screen** and nothing else.
+3. **Nothing.** There is no step that puts a contribution into use. That is step 4 of the design
+   and it is deliberately not built — there is no route that could.
+
+🔴 **The review is an advisor and never a gate.** It cannot admit anything. The deterministic
+checks ran before it and do not consult it, and a review that fails is reported as a failure —
+never as an empty report, because on screen those are the same picture and the silent one tells an
+accountant their prompt is fine on the strength of a call that never came back.
+
+🔴 **The model's own output goes back through the checks.** A finding carrying a web address, a key
+or a hidden character is discarded whole before it reaches the screen. This closes the loophole the
+design names: accepting a suggestion must never become a way to write unchecked text into a prompt.
+
+🔴 **The words the reviewer is given are a document on this tab** (`prompt-review`, mentor only),
+not a string in the code — so a mentor can read every one of them. It is the first production
+caller of `assemblePrompt()`, which until now was built, tested and wired to nothing.
+
+⚠ **What the checks cannot do.** A bare personal name is not detectable — "Margaret Whitfield" and
+"Working Capital Cycle" are the same shape to a pattern. Addresses, tax numbers and titled names
+are caught; a bare name reaches the model inside the fence, which is what makes it survivable.
+Phone numbers are deliberately not matched: in an application full of figures that pattern catches
+columns of them.
+
+⚠ **The support address is one line in [`../../data/support-contact.json`](../../data/support-contact.json).**
+Edit it, save it, done — no restart and no rebuild. A blanked or broken file falls back rather than
+leaving an accountant with a dead button.
+
+---
+
 ## 4. For the coder
 
 | Piece | Path |
@@ -165,6 +210,13 @@ ruled that one *"for AI - not the advisor or manager"*.
 | The design and its build order | [`../AI-PROMPTS-PAGE.md`](../AI-PROMPTS-PAGE.md) |
 | The approved drawing | [`../mockups/ai-prompts-tab.html`](../mockups/ai-prompts-tab.html) — **second** drawing; §3 names every difference |
 | The source documents, verbatim | [`../prompt-sources/`](../prompt-sources/) |
+| Share a prompt — the checks | [`../../server/utils/promptContribution.js`](../../server/utils/promptContribution.js) |
+| Share a prompt — the review | [`../../server/utils/promptReview.js`](../../server/utils/promptReview.js) |
+| Share a prompt — the route | [`../../server/routes/promptCheck.js`](../../server/routes/promptCheck.js) |
+| Share a prompt — the panel | [`../../components/firm/FirmPromptCheck.vue`](../../components/firm/FirmPromptCheck.vue) |
+| Its wording, approved before it was built | [`../PROMPT-CONTRIBUTION-WORDING.md`](../PROMPT-CONTRIBUTION-WORDING.md) · locale keys under `promptCheck` |
+| Its design and build order | [`../PROMPT-CONTRIBUTION-SAFETY.md`](../PROMPT-CONTRIBUTION-SAFETY.md) |
+| The support address | [`../../data/support-contact.json`](../../data/support-contact.json) |
 | Tests | [`aiPrompts.test.js`](../../tests/unit/aiPrompts.test.js) · [`aiPrompts.routes.test.js`](../../tests/unit/aiPrompts.routes.test.js) · [`firmAiPrompts.component.test.js`](../../tests/unit/firmAiPrompts.component.test.js) · [`promptSafety.test.js`](../../tests/unit/promptSafety.test.js) |
 | Override storage | `firmOverlay`, `config_key: 'ai-prompts'` |
 

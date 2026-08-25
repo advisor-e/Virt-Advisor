@@ -1,8 +1,7 @@
 # Share a prompt — every sentence an accountant reads
 
-**Status: APPROVED by Mike, 2026-08-25. Steps 1 and 2 are BUILT** — the panel, the paste
-explanation, and all six messages. Step 3, the AI review, is next; step 4 is not being
-built. Written the same day on his instruction — *"just give me what you believe to be
+**Status: APPROVED by Mike, 2026-08-25. Steps 1, 2 and 3 are BUILT** — the panel, the paste
+explanation, all six messages, and the review. Step 4 is not being built. Written the same day on his instruction — *"just give me what you believe to be
 appropriate, i will say yes or no"* — so every judgement below is ours and named as ours.
 
 The design is [`PROMPT-CONTRIBUTION-SAFETY.md`](PROMPT-CONTRIBUTION-SAFETY.md); the screen
@@ -269,6 +268,58 @@ At the foot: **Download my improved prompt** · **Start again with another one**
 > the sentence into **their copy** of the prompt, in the box on the screen. It changes
 > nothing about this app, this firm, or the AI. That is the whole of Lane A, and it is why
 > Lane A is safe.
+
+---
+
+## 5a. The three things the report says about itself
+
+Added while building step 3. None of these was in the approved list, because none of them
+is about a finding — they are about the report as a whole.
+
+> **Added to your prompt above.** · **Left exactly as you wrote it.**
+
+Shown in place of the two buttons once a suggestion has been taken or left, so a manager
+working down a long report can see what they have already decided.
+
+> **This report is about your prompt as it was a moment ago. Check it again when you have
+> finished editing.**
+
+The report survives an edit rather than vanishing — advice about a prompt is still advice
+— but it stops being about the words on screen, and says so.
+
+> **We checked your prompt and found nothing we would refuse — but we could not produce
+> the report itself just now. That is our end, not yours. Try again in a moment.**
+
+🔴 **This sentence is the whole reason the report and the safety check are reported
+separately.** An empty report and a failed one are the same picture on a screen, and the
+silent version tells an accountant their prompt is fine on the strength of a call that
+never came back.
+
+> **We read it and found nothing worth changing. That is not a common answer.**
+
+The genuinely-clean case. The second sentence is there so it reads as a result rather than
+as something having gone wrong.
+
+---
+
+## 5b. What driving the real model changed
+
+The prompt the reviewer is given is a document on the Mentor Hub
+([`../data/ai-prompts.json`](../data/ai-prompts.json) → `prompt-review`), not a string in
+the code, so a change to it is visible to anyone who opens that tab.
+
+**Its first live run, 2026-08-25, produced a suggestion that could not be used.** Asked
+about a prompt with no materiality rule, the model answered *"Define what counts as a
+material item."* — an instruction to the accountant. Pressing **Add this** would have
+pasted a note-to-self into the document their model reads.
+
+The prompt now carries a worked contrast of a wrong suggestion against a right one. Driven
+again, the same input produced *"Flag an item as key if it moves the funding requirement by
+more than 5%, or if it is a significant assumption"* — the instruction itself.
+
+⚠ **A green suite said nothing about this**, and could not have. It is recorded here
+because the same class of defect will recur the next time the prompt changes, and the only
+thing that catches it is six live calls costing a fraction of a penny.
 
 ---
 

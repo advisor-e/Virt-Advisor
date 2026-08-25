@@ -21,6 +21,9 @@ const { OPEN, CLOSE } = require('../../server/utils/promptSafety')
 
 const CASHFLOW = 'cashflow-forecast'
 const SECURITY = 'ai-audit-security'
+// Added by item 4.31: the words the reviewer is given, on the mentor's tab so they can
+// be read rather than found in code (CLAUDE.md -> AI FIXES SURFACE ON A HUB PAGE).
+const REVIEW = 'prompt-review'
 
 describe('the shipped prompts are the shape the design says they are', () => {
   test('both documents are present, by id', () => {
@@ -289,7 +292,7 @@ describe('listPrompts — what a screen is given', () => {
 
 describe('which documents a tier is shown', () => {
   test('the mentor gets both', () => {
-    expect(ap.promptsForTier('mentor').map(p => p.id)).toEqual([CASHFLOW, SECURITY])
+    expect(ap.promptsForTier('mentor').map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW])
   })
 
   test('every tier below the mentor gets the cash flow document ONLY', () => {
@@ -309,8 +312,8 @@ describe('which documents a tier is shown', () => {
   })
 
   test('asking for no tier at all returns everything, so the send path is unaffected', () => {
-    expect(ap.promptsForTier().map(p => p.id)).toEqual([CASHFLOW, SECURITY])
-    expect(ap.listPrompts({}).map(p => p.id)).toEqual([CASHFLOW, SECURITY])
+    expect(ap.promptsForTier().map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW])
+    expect(ap.listPrompts({}).map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW])
   })
 
   test('a prompt that declares no tiers is shown everywhere, not nowhere', () => {
