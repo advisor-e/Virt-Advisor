@@ -11,7 +11,7 @@
 ## 2026-08-25 (second session) · Laptop · branch `feat/advisor-progress`
 
 **Two items closed — 4.18 built, 4.25 found already built. The list is 10 → 9.**
-Nothing is half-finished and nothing is uncommitted. Branch **31 ahead, 0 behind** `master`.
+Nothing is half-finished and nothing is uncommitted. Branch **32 ahead, 0 behind** `master`.
 Suite **6,289 green**, lint 0 errors.
 
 **Closed: 4.18 — the AI invents advice when it is routed to the wrong method.** Three commits:
@@ -65,11 +65,14 @@ item still read *"Playwright is not in package.json and never has been"* — it 
 built while still flagged open** (§0 of to-do-done-and-parked.md warns about exactly this). Before
 planning any item, check the code against it.
 
-**⚠ ONE THING FOR MIKE, SURFACED NOT FILED: there is no CI in this repository at all.** No
-`.github/workflows`, no equivalent. `CLAUDE.md`’s Enforcement section says CI requires `nuxt build`
-to pass and warns above a 300 KB bundle; nothing here does that, and 4.25’s own `touches` named a
-"CI step" that has never existed. Whether the master app’s pipeline runs anything is outside what
-this repo can see. Repo-wide, so it is Mike’s call whether it becomes an item.
+**✅ ANSWERED, AND `CLAUDE.md` CORRECTED: there is no CI in this repository, and there was never
+meant to be.** Mike, 2026-08-25: *the master team runs checks before loading into UAT, and more
+tests before pushing to production.* The Enforcement section had said *"CI additionally requires
+`nuxt build` to succeed…"*, which read as a gate on this repo; it now says where the two real
+gates are. ⚠ **The residual is worth knowing before any release:** nothing on our side builds the
+app, so a tag can be cut from a branch that does not build and the master team finds out first.
+`npm run build` once before tagging closes it — raised, and left as Mike’s call rather than
+adopted as a rule.
 
 **Next up, all ours:** **4.15** (21 logic-tree branches naming pages nobody can open) ·
 **4.36** (the Model Guide search only matches the exact words the page happens to use) ·

@@ -246,13 +246,14 @@ into `origin/master`.
   these however they are moved — a naming mismatch cannot be deleted the way an ignore rule can.
   And they need the app up, so a hook depending on them would fail for reasons unrelated to the
   commit.
-- **⚠ ONE PART OF THE ITEM COULD NOT BE DONE, AND IT IS NOT A 4.25 GAP.** Its `touches` named
-  *"the CI step"*. **There is no CI configuration in this repository at all** — no
-  `.github/workflows`, no equivalent. `CLAUDE.md`'s Enforcement section separately claims CI
-  requires `nuxt build` to pass and warns above a 300 KB bundle; nothing in this repo does that.
-  Whether the master app's own pipeline runs anything is outside what can be seen from here.
-  **Surfaced to Mike 2026-08-25 as its own question rather than filed as an item** — it is
-  repo-wide, not a visual-checks matter.
+- **⚠ ONE PART OF THE ITEM COULD NOT BE DONE, AND IT WAS NEVER A 4.25 GAP — now answered.** Its
+  `touches` named *"the CI step"*. **There is no CI configuration in this repository at all** — no
+  `.github/workflows`, no equivalent — and there was never meant to be. **Mike, 2026-08-25: the
+  master team runs checks before loading a version into UAT, and a fuller set before pushing to
+  production.** So the gates exist; they are simply not ours. `CLAUDE.md`'s Enforcement section
+  had described them as though they ran here, and was corrected the same day. **The residual risk
+  is named there rather than here:** nothing on our side builds the app, so a release tag can be
+  cut from a branch that does not build, and the master team finds out first.
 - **The residual worth knowing.** These run **on demand**. Nothing prompts anyone to run them, so
   *"the tests are green"* still does not include them. That was a recorded decision, not an
   oversight, and it is why the first run happened only when someone chose to look.

@@ -287,8 +287,23 @@ has a graceful fallback and logs model, prompt/completion tokens, latency, and r
 Pre-commit (Husky): `npm run lint`, `npm test` (zero failures), and the audit gate (see
 Dependency and Version Governance below). ESLint base `@nuxtjs/eslint-config`, enforcing
 `no-unused-vars` (error), `no-console` (warn), `eqeqeq` (error), `prefer-const` (error).
-CI additionally requires `nuxt build` to succeed with zero errors and warns if the
-first-load JS bundle exceeds 300 KB gzipped.
+**CI runs on the master team's side, not here, and it runs twice** — checks before a
+version is loaded into UAT, and a fuller set before it is pushed to production (Mike,
+2026-08-25). **Nothing in this repository builds the app.** `nuxt build` succeeding with
+zero errors, and the first-load JS bundle staying under 300 KB gzipped, are theirs to
+enforce at those two gates. What runs here is the pre-commit hook above, and that is the
+whole of it.
+
+> ⚠ **The consequence, stated so nobody has to infer it.** A release tag can be cut from a
+> branch that does not build, and the first person to find out is the master team at the UAT
+> gate. A green suite here says nothing about whether `nuxt build` succeeds. Running
+> `npm run build` once before tagging closes that with no new tooling — raised 2026-08-25 and
+> left as Mike's call, not adopted as a rule.
+>
+> *This paragraph replaced a sentence that read "CI additionally requires `nuxt build` to
+> succeed…", which described a gate on this repository. There has never been one — no
+> `.github/workflows`, no equivalent. Found 2026-08-25 while closing item 4.25, whose own
+> scope named a "CI step" that did not exist.*
 
 ---
 
