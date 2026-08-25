@@ -1,0 +1,19 @@
+{
+  "_readme": [
+    "WHO A FIRM MANAGER IS TOLD TO CONTACT when we refuse a prompt they pasted, or when",
+    "they press 'Ask someone about this'.",
+    "",
+    "TO CHANGE IT: edit the one line below, save the file, done. It takes effect on the",
+    "very next check — there is no restart, no rebuild and no deploy step. Nothing else",
+    "in the app needs changing to match.",
+    "",
+    "If this file is deleted, renamed, or the address is left blank or malformed, the app",
+    "falls back to mike@advisor-e.com rather than showing a firm manager a broken link or",
+    "a refusal with nowhere to go. The design forbids a refusal with no route back to a",
+    "person (design/PROMPT-CONTRIBUTION-SAFETY.md §5), so this cannot be allowed to fail",
+    "quietly.",
+    "",
+    "Set by Mike, 2026-08-25: 'for now, they can send it to mike@advisor-e.com'."
+  ],
+  "supportEmail": "mike@advisor-e.com"
+}

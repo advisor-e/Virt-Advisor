@@ -115,6 +115,7 @@ const reportRoute = require('./routes/report')
 const currencyRoute = require('./routes/currency')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
 const aiPromptsRoute = require('./routes/aiPrompts')
+const promptCheckRoute = require('./routes/promptCheck')
 const educationGateRoute = require('./routes/educationGate')
 const staircaseRoute = require('./routes/staircase')
 const { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
@@ -312,6 +313,11 @@ server.get('/api/firm-manager/ai-prompts', ...fmGuard, aiPromptsRoute.getForMana
 server.post('/api/firm-manager/ai-prompts', ...fmGuard, aiPromptsRoute.save)
 server.get('/api/firm-manager/ai-prompts/history', ...fmGuard, aiPromptsRoute.history)
 server.post('/api/firm-manager/ai-prompts/restore', ...fmGuard, aiPromptsRoute.restore)
+
+// Share a prompt (item 4.31, Lane A). Checks a pasted prompt and stores nothing.
+// There is deliberately no route that puts a contribution into use — that is step 4
+// of design/PROMPT-CONTRIBUTION-SAFETY.md and is not built.
+server.post('/api/firm-manager/prompt-check', ...fmGuard, promptCheckRoute.check)
 // The education gate (item 2.9) — the question an advisor is asked, before any
 // recommendation, when a client cannot read their own numbers. On a hub page because
 // Mike's 2026-08-16 ruling requires it: content that shapes what the AI does is edited on

@@ -1,9 +1,9 @@
 # Share a prompt — every sentence an accountant reads
 
-**Status: WORDING FOR APPROVAL. Nothing is built.** Written 2026-08-25 on Mike's
-instruction — *"just give me what you believe to be appropriate, i will say yes or no"* —
-so every judgement below is ours and named as ours. A no on any line is a line rewritten,
-not a design reopened.
+**Status: APPROVED by Mike, 2026-08-25. Steps 1 and 2 are BUILT** — the panel, the paste
+explanation, and all six messages. Step 3, the AI review, is next; step 4 is not being
+built. Written the same day on his instruction — *"just give me what you believe to be
+appropriate, i will say yes or no"* — so every judgement below is ours and named as ours.
 
 The design is [`PROMPT-CONTRIBUTION-SAFETY.md`](PROMPT-CONTRIBUTION-SAFETY.md); the screen
 is [`mockups/prompt-contribution.html`](mockups/prompt-contribution.html). **This file is
@@ -220,6 +220,33 @@ Buttons: **Go back to my prompt** · **Ask someone about this**
 
 ---
 
+## 4a. The route back to a person — **Ask someone about this**
+
+Every refusal carries this button, because §5 of the design forbids a refusal that leaves
+somebody with nowhere to go. It opens the reader's mail client:
+
+> Write to **mike@advisor-e.com** and say what the prompt is for and which part we
+> flagged — you do not need to send the prompt itself.
+
+**Set by Mike, 2026-08-25:** *"for now, they can send it to mike@advisor-e.com"*. Until
+that day the application had **no support address anywhere in it** — one `mailto:` in the
+whole codebase, belonging to an advisor's own profile.
+
+> 🔴 **THE ADDRESS IS CHANGED IN ONE PLACE AND NOWHERE ELSE.** Mike asked for that
+> the same day — *"make it really easy for me to change that address in future as
+> required please"*. It lives in **[`../data/support-contact.json`](../data/support-contact.json)**:
+> edit one line, save, done. It takes effect on the very next check — no restart, no
+> rebuild, no deploy step, and nothing else to change to match. A blanked, malformed or
+> deleted file falls back to the address above rather than showing an accountant a dead
+> button.
+
+⚠ **The prompt is never put in the mail.** It may hold the very client details we just
+refused, and pre-filling somebody's outbox with them would move the problem rather than
+solve it. The subject line reads *"Advisor-e — a prompt that was not accepted"* and the
+body is left empty.
+
+---
+
 ## 5. The report
 
 Heading: **What we found in your prompt**
@@ -256,4 +283,5 @@ At the foot: **Download my improved prompt** · **Start again with another one**
 | Too-long gets a different heading | **Ours** — it is a limit, not a safety refusal |
 | Web and email share one message | **Ours** — same risk, same sentence |
 | **6,000 characters** | **Mike's, 2026-08-25** — we proposed 8,000 |
+| **mike@advisor-e.com**, changed in one file | **Mike's, 2026-08-25** — the app had no support address at all before that day |
 | Everything in §2, §3.1 and §5's labels | **The design's**, kept |
