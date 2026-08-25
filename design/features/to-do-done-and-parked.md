@@ -219,6 +219,33 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.43 · A test flips a global switch mid-run and fails about one run in four.** ✅ Closed
+2026-08-25. Fixed by [`tests/setupEnv.js`](../../tests/setupEnv.js), registered in
+`jest.config.js`.
+
+- **The diagnosis was confirmed before anything was changed**, as the item asked. Twenty-nine
+  test files set `NODE_ENV = 'production'` to prove a database failure surfaces instead of
+  falling back to a dev JSON file, then set it back on the last line. **Eight had no `finally`
+  and no `afterEach`**, so the restore is skipped the moment an assertion above it throws.
+- **Reproduced.** One deliberate failure in `cases.routes.test.js` produced two:
+  `listCases › returns 500 when the DB errors in production` — the real one — and
+  `anonymiseCasePreview › outside production a failed read falls back to the dev file`, a test
+  whose whole subject is NOT being in production. That is the intermittent red: failures that
+  do not obviously relate, cleared by re-running, which teaches everyone to re-run rather than
+  read.
+- **Fixed in one place rather than eight.** A global `afterEach` puts the value back after
+  every test in every file, so forgetting cannot leak into the next test — and the next file
+  written cannot reintroduce it.
+- ⚠ **Captured per test, not once per process.** The first version restored the process's
+  original and broke `mentorDeletePartial.routes.test.js`, which sets `NODE_ENV` at module
+  load because every test in it is about production. Restoring to whatever was in force when
+  the test began leaves such a file alone and still stops the leak.
+- **What proves it.** The same deliberate break, with the guard in place, now reports
+  **1 failure instead of 2**. Suite 6,528 green.
+- **Not claimed:** this does not make mutating a global mid-test safe. Anything the code under
+  test schedules and does not await can still read the value after it is put back. Nothing in
+  the suite does that today, and the file says so.
+
 **4.31 · An accountant can share a prompt and have it checked — and a firm can put its own
 method in force.** ✅ Closed 2026-08-25. Built across `4b76e4c`, `14bcf76`, `0dd2be4`,
 `c820598` and `41863a2`; recorded in [`ai-prompts.md`](ai-prompts.md) §3a.

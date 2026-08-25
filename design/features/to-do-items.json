@@ -129,25 +129,6 @@
       "touches": "`design/features/to-do.md` (the hand-written sections outside the generated region), and a guard in `tests/unit/toDoItems.test.js` comparing detail blocks to the live refs.",
       "note": "The fix is two jobs and the second is the one that lasts: remove or label the six stale blocks, then add the guard so this cannot recur. A guard that simply requires every detail block to name a live ref would have caught all six. Decide deliberately whether every live item MUST have a block — the four DONE/PARKED blocks (3.1, 3.2, 3.3, 4.8) are kept on purpose and carry an explicit label, so the rule is \"labelled or live\", not \"live only\".",
       "comment": ""
-    },
-    {
-      "ref": "4.43",
-      "name": "A test flips a global switch mid-run and fails about one run in four",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "`tests/unit/cases.routes.test.js` — \"502s when the case read itself fails in production\" — sets `process.env.NODE_ENV = 'production'` and then awaits an async call before restoring it. `NODE_ENV` is global to the worker, so anything reading it inside that window sees the wrong value. Observed failing once in four full runs on 2026-08-24; passes in isolation (57/57) and passed on the immediate re-run.",
-      "risk": "An intermittently red suite is worse than a reliably red one: it trains everyone to re-run rather than read, which is exactly how a real failure gets waved through. The pre-commit hook requires zero failures, so this will occasionally block a commit for no reason and be cleared by retrying — the habit that hides the next genuine break.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "Observed 2026-08-24 during the 4.7 verification runs. Not caused by that change — the first full run after the install was green. Nobody outside asked."
-      },
-      "touches": "`tests/unit/cases.routes.test.js` around the production-read test.",
-      "note": "The comment above the test already explains why NODE_ENV must be pinned there, so the intent is right and the mechanism is wrong. Prefer injecting the value the code under test reads, or restoring in a `finally`, over mutating a global across an await. ⚠ Confirm the diagnosis before fixing — it failed once and the reading above is inferred from the code, not from a reproduction.",
-      "comment": ""
     }
   ]
 }

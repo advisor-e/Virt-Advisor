@@ -40,9 +40,8 @@ repository sees; the two never both appear, and the build stops if they would.
 | 3 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
 | 4 | **4.39** Sweep the frozen ACTIONS.md for anything that is genuinely still open | 2 | — | Us |
 | 5 | **4.42** The to-do page’s hand-written half describes six finished items and misses ten live ones | 2 | — | Us |
-| 6 | **4.43** A test flips a global switch mid-run and fails about one run in four | 2 | — | Us |
 
-**Six live items. One needs Mike.** If this list passes about twenty, something is wrong.
+**Five live items. One needs Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off on 2026-08-22, and one joined and left the same day** — see
