@@ -74,25 +74,6 @@
       "comment": null
     },
     {
-      "ref": "4.25",
-      "name": "Nothing in this project ever checks that a screen LOOKS right",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "CLAUDE.md's testing standard names Playwright for critical journeys. It is not in package.json and never has been. Jest runs under jsdom, which has NO layout engine: it cannot measure a width, a gap or an overflow, so a screen whose boxes are squashed, whose columns collapse or whose table runs off the page passes all 5,887 tests. Every visual defect this project has had was found by a human opening the page, and only after it shipped.",
-      "risk": "It has already happened twice and both times the finder was Mike. On 2026-08-18 the Property Tax Rules tab shipped with five phasing percentage boxes sharing a slot sized for one — about 31px each — so every one read as empty while holding and saving the correct value; he found it by opening the tab. On 2026-08-21 the five-property screen shipped with layout stated as UNVERIFIED in its own design document because there was no way to check it. Until something can see a rendered page, \"the tests are green\" will keep meaning less than it sounds, and the product owner will keep being the visual regression suite.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Raised 2026-08-21 while closing 4.19, when the screen could not be visually verified before shipping and that had to be written into the design document as a gap. It stays because it is the named standard in CLAUDE.md going unmet, not a new idea — and because the two defects it would have caught were both found by Mike rather than by us. Adding a browser driver is a dependency change and needs his explicit approval under the Stack Constitution."
-      },
-      "touches": "package.json (a dev dependency and a script), a new tests/visual/ directory, and the CI step. Playwright is the version named in CLAUDE.md; whatever is chosen must install and run on the locked Node 14.15 target or the choice is not compliant — check that BEFORE proposing a version.",
-      "note": "DO NOT INSTALL ANYTHING WITHOUT MIKE SAYING YES — this is a dependency change and the Stack Constitution is one-directional: if a driver does not fit Node 14.15, the answer is a different driver, never a raised floor. Scope it to a handful of screenshots of the report screens at one width, not a full visual-regression suite; the goal is to SEE the page, not to pin every pixel.",
-      "comment": null
-    },
-    {
       "ref": "4.31",
       "name": "An accountant can share a prompt and have it checked — designed, drawn, not built",
       "score": 4,

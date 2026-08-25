@@ -37,16 +37,15 @@ repository sees; the two never both appear, and the build stops if they would.
 | --- | --- | --- | --- | --- |
 | 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
 | 2 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
-| 3 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
-| 4 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
-| 5 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
-| 6 | **4.36** The Model Guide search only matches the exact words the page happens to use | 3 | — | Us |
-| 7 | **4.39** Sweep the frozen ACTIONS.md for anything that is genuinely still open | 2 | — | Us |
-| 8 | **4.42** The to-do page’s hand-written half describes six finished items and misses ten live ones | 2 | — | Us |
-| 9 | **4.43** A test flips a global switch mid-run and fails about one run in four | 2 | — | Us |
-| 10 | **4.45** A vague word beats an exact phrase because of where it sits in the file | 3 | — | **Mike** |
+| 3 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
+| 4 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
+| 5 | **4.36** The Model Guide search only matches the exact words the page happens to use | 3 | — | Us |
+| 6 | **4.39** Sweep the frozen ACTIONS.md for anything that is genuinely still open | 2 | — | Us |
+| 7 | **4.42** The to-do page’s hand-written half describes six finished items and misses ten live ones | 2 | — | Us |
+| 8 | **4.43** A test flips a global switch mid-run and fails about one run in four | 2 | — | Us |
+| 9 | **4.45** A vague word beats an exact phrase because of where it sits in the file | 3 | — | **Mike** |
 
-**Ten live items. One needs Mike.** If this list passes about twenty, something is wrong.
+**Nine live items. One needs Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off on 2026-08-22, and one joined and left the same day** — see

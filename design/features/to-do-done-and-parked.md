@@ -219,6 +219,44 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.25 · Nothing in this project ever checks that a screen LOOKS right.** ✅ Closed 2026-08-25 —
+**found already built, and built four days earlier.** Artefact:
+[`../VISUAL-CHECKS.md`](../VISUAL-CHECKS.md). Built in `7fa5e9a`, 2026-08-21, and already merged
+into `origin/master`.
+
+- **🔴 THE ITEM WAS STALE, NOT OPEN — the third time this has happened here.** Its own text read
+  *"Playwright … is not in package.json and never has been."* It is: `playwright` at **1.34.3**,
+  `engines: { node: '>=14' }`, so it satisfies the Node 14.15 lock without any relaxation. The
+  item was raised on 2026-08-21 while closing 4.19; the work landed the same day and nobody went
+  back to the item. §0 of this page warns about exactly this pattern.
+- **What is actually there.** `npm run visual` · `jest.visual.config.js` · `tests/visual/` with
+  **16 screens** (all ten model screens plus the four manager hubs, panel by panel) and **four
+  rules** written in plain English in `VISUAL-CHECKS.md`: an input is wide enough to show what you
+  typed, no text is cut off, the page does not scroll sideways, and it loaded without a JS error.
+  The page also records what is deliberately **not** a rule.
+- **It has already earned its place.** First run, 2026-08-23, found two real defects, both
+  confirmed by eye and both fixed: `/multiple-property` showed *"Convert to Principal &"* with the
+  last word cut off, and Group Manager › Team Progress scrolled sideways by 5px. Three faults in
+  the checks *themselves* were caught by looking rather than trusting the output.
+- **Verified still wired, 2026-08-25.** `npm run visual` with the app down fails all 16 loudly —
+  *"THE APP IS NOT RUNNING, so there is nothing to look at"* — and names the command to start it.
+  A visual check that quietly passes against a page it never loaded would be worse than none.
+- **Two things kept it out of `npm test`, and both were deliberate.** The filename is
+  `*.visual.js`, which the main config **cannot** match, so the pre-commit hook can never collect
+  these however they are moved — a naming mismatch cannot be deleted the way an ignore rule can.
+  And they need the app up, so a hook depending on them would fail for reasons unrelated to the
+  commit.
+- **⚠ ONE PART OF THE ITEM COULD NOT BE DONE, AND IT IS NOT A 4.25 GAP.** Its `touches` named
+  *"the CI step"*. **There is no CI configuration in this repository at all** — no
+  `.github/workflows`, no equivalent. `CLAUDE.md`'s Enforcement section separately claims CI
+  requires `nuxt build` to pass and warns above a 300 KB bundle; nothing in this repo does that.
+  Whether the master app's own pipeline runs anything is outside what can be seen from here.
+  **Surfaced to Mike 2026-08-25 as its own question rather than filed as an item** — it is
+  repo-wide, not a visual-checks matter.
+- **The residual worth knowing.** These run **on demand**. Nothing prompts anyone to run them, so
+  *"the tests are green"* still does not include them. That was a recorded decision, not an
+  oversight, and it is why the first run happened only when someone chose to look.
+
 **4.18 · The AI invents advice when it is routed to the wrong method.** ✅ Closed 2026-08-25.
 Artefact: [`../LEARN-SCOPE-HONESTY.md`](../LEARN-SCOPE-HONESTY.md) (wording approved by Mike the
 same day, committed *before* approval as `5776ab3`). Built in `9ddc37b` and `c102f91`.
