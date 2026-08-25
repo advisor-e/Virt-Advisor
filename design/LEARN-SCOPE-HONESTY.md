@@ -1,13 +1,18 @@
 # Learn-mode scope honesty — the exact wording, for approval
 
-> **Status: AWAITING MIKE'S APPROVAL. Nothing here is built.** This file exists so the
-> wording below is a thing that can be re-opened, not an event someone remembers. It is
-> the artefact for to-do item **4.18 — "The AI invents advice when it is routed to the
-> wrong method"**, and it is committed *before* approval under the Save-the-Artefact rule
-> in `CLAUDE.md`.
+> **Status: APPROVED by Mike 2026-08-25. BUILT the same day — see §3a for the three
+> differences between the approved block and the one that shipped, each named rather
+> than absorbed.** This file exists so the wording below is a thing that can be
+> re-opened, not an event someone remembers. It is the artefact for to-do item
+> **4.18 — "The AI invents advice when it is routed to the wrong method"**, and it was
+> committed *before* approval (`5776ab3`) under the Save-the-Artefact rule in `CLAUDE.md`.
 >
-> Written 2026-08-25. When the build ships, open this file beside it and name every
-> difference.
+> **The item is NOT closed.** §9 is why: the tests prove the block reaches the model and
+> no test can prove the model obeys it.
+>
+> Built in: `server/utils/logicTrees.js` (`formatCoachingScopeForPrompt`,
+> `coachingGuides`, and the call inside `buildLearnReferenceText`) ·
+> `tests/unit/coachingScope.test.js`.
 
 ---
 
@@ -61,10 +66,13 @@ guide added later appears here with no edit. Listed alphabetically so the order 
 deterministic and testable. Shown below as it would read when the **Ratio Analysis** guide
 is the one loaded:
 
-```
+**This is the block as it actually ships**, printed from the running code with the Ratio
+Analysis guide loaded:
+
+```text
 ## Coaching Reference Scope — READ THIS BEFORE ANSWERING
 
-The ONLY detailed Advisor-e coaching content you have been given in this conversation is:
+The ONLY Advisor-e coaching guides whose content you have been given in this conversation are:
 
   • Ratio Analysis
 
@@ -76,14 +84,37 @@ You have NOT been given the content of these other Advisor-e coaching guides:
   • The Heald Matrix · Trial Fit Method · Working Capital Cycle
 
 If the advisor asks about something the guide above does not cover, SAY SO and stop.
-Name the guide that covers it, and offer to switch.
+Name the guide that covers it, and offer to switch — use this wording:
 
-NEVER write your own version of a section that is absent from the guide above — including
-metrics, tactical options, discussion questions, stages, steps, questions to ask, or
-ratios. Content you produce here is indistinguishable from the firm's authored method on
-screen, which is what makes it the most damaging thing you can do. Having no answer is a
-correct answer. Inventing one is not.
+  "I don't have the Advisor-e coaching content for that in this guide — that sits
+  in the <NAME> guide. Would you like me to switch to it?"
+
+NEVER write your own version of a section that is absent from the guides above —
+including metrics, tactical options, discussion questions, stages, steps, questions
+to ask, or ratios. Content you produce here is indistinguishable from the firm's
+authored method on screen, which is what makes it the most damaging thing you can
+do. Having no answer is a correct answer. Inventing one is not.
 ```
+
+## 3a · The three differences from the block Mike approved
+
+Named rather than absorbed, per the Save-the-Artefact rule. None changes what the block
+does; each was forced by something the approved draft would have made untrue.
+
+**1 · "coaching guides whose content", not "detailed Advisor-e coaching content".**
+The approved line claimed this guide was the only content in the conversation. In a
+client-mode deep dive that is false — the prompt also carries the template list, domain
+support and the report models. A block that misdescribes the model's own context teaches it
+to distrust the rest, which is the opposite of the point.
+
+**2 · The refusal sentence is now inside the block.** The approved §3 said only "Name the
+guide that covers it, and offer to switch", with the sentence itself living in §4. As
+drafted, the approved wording would never have reached the model at all — §4 would have
+described a sentence nothing emitted. `<NAME>` is filled by the model with the guide it is
+declining toward, which is why it is a placeholder rather than a fixed name.
+
+**3 · "absent from the guides above", plural.** Facilitation 101 loads two blocks —
+itself and Learning Psychology — so the singular would have been wrong on that path.
 
 ## 4 · THE SENTENCE — what the advisor actually reads
 
@@ -153,7 +184,7 @@ to distinguish all carry a paragraph of help. That is 4.16's pattern again, and 
 by reading the description each reference file already holds — not by authoring anything
 new.
 
-## 8 · The honest cost
+## 8 · The honest cost — and what measuring it found
 
 **A refusal the advisor did not need.** Telling the model to name twelve guides it does not
 hold may make it offer to switch too readily — declining a question the loaded guide could
@@ -161,6 +192,29 @@ in fact have answered. That is the trade this change accepts: a needless offer t
 a mild irritation the advisor can wave away, and invented coaching taken into a client
 meeting is not. If it proves too eager in use, the fix is to soften the trigger, never to
 remove the refusal.
+
+**The risk was sharper than that paragraph made it sound, and it was nearly missed.** Four
+of the seven things the block forbids the model from authoring — *questions to ask*,
+*ratios*, *steps*, *stages* — name headings that **are present** in the Ratio Analysis
+guide. The rule only bites on content that is *absent*, so the block is correct as written;
+but if the model pattern-matched the forbidden list instead of reading the condition, it
+would withhold Mike's own authored material. That is this change causing the very harm it
+exists to prevent, from the other direction.
+
+**Measured 2026-08-25, four live calls, Ratio Analysis loaded and the block on.** Three
+probes asked for content the guide holds, under headings the block names; one control asked
+for content it does not hold.
+
+| Probe | Asked for | Refused? | Answered from the file? |
+| --- | --- | --- | --- |
+| 1 | the nine benchmark interrogation questions (`questions to ask`) | no | **yes** — all nine, near-verbatim |
+| 2 | the four ratio categories (`ratios`) | no | **yes** — Activity, Profitability, Liquidity, Leverage |
+| 3 | the Advisory Staircase (`steps`) | no | **yes** — Compilation, Assimilation, Interpretation, Application |
+| 4 | Deming's four variation types — **control, genuinely absent** | **yes** | n/a — named the Deming's Theory of Volatility guide |
+
+**No over-refusal in any probe, and the control refused correctly and routed correctly.**
+The model reads the condition rather than the word list. This is measured behaviour on four
+questions, not a proof — if it drifts in use, §8's first paragraph is still the rule.
 
 **Prompt size.** Roughly 900 characters on every Learn call that loads a guide, and on
 client-mode deep dives. Small beside the ~19,000-character guide it accompanies.
@@ -176,3 +230,35 @@ twelve. No test can prove the model **obeys** it. That is done by driving the ru
 asking a Dashboard Discussions question in Learn mode, forcing the Ratio Analysis guide,
 and reading what comes back against `data/ratio-analysis-reference.json`. If that cannot be
 run, this item does not close, and the reason gets written down rather than glossed.
+
+### Done — 2026-08-25, against the live model
+
+Eight calls to `gpt-4o-mini` through `server/utils/openaiClient.js`, using the real
+`learn.txt` system prompt and the real assembled reference text. Four are tabled in §8; the
+four here are the before-and-after pair on the reported incident.
+
+**The defect reproduced.** With the block OFF and the Ratio Analysis guide loaded, the
+question *"my client's wages to sales ratio has crept up — what tactical options and
+discussion questions should I use?"* produced **five invented tactical options and five
+invented discussion questions**, formatted as authored coaching. The premise was checked
+rather than assumed: the word *wages* appears **nowhere** in
+`data/ratio-analysis-reference.json`, while *Wages to Sales Ratio* is metric 2 of the twelve
+in `data/dashboard-discussions-reference.json`. The model had nothing, and wrote it.
+
+**With the block ON, the same question returns the refusal in §4 and nothing else** — no
+options, no questions, and the correct guide named.
+
+**🔴 THE LIVE CHECK CAUGHT A FAULT IN THE BLOCK ITSELF, WHICH IS WHY IT IS NOT OPTIONAL.**
+On the first run the refusal read *"that sits in the **Ratio Analysis** guide"* — the guide
+it was already holding. Told to name a guide and given no rule about which, it echoed the
+most prominent name in front of it. A refusal pointing back at the guide that just failed is
+a dead end delivered in a helpful tone, and **every test in this file passed while it did
+that**. Two lines were added telling it `<NAME>` is always from the not-given list and never
+the guide it holds, and to give only the first half of the sentence rather than guess. It
+then named Dashboard Discussions, and separately named Deming's Theory of Volatility on the
+§8 control — the right guide both times, from different questions.
+
+**Not yet done: the same questions driven through the browser and the Restify route.** These
+eight calls exercised the real prompt and the real model, not the real HTTP path. That is a
+smaller gap than it sounds — the route assembles this same text — but it is a gap, and it is
+recorded here rather than glossed.
