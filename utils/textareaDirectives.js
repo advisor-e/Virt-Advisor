@@ -26,12 +26,31 @@ function fieldOf (el) {
   return (el && el.querySelector) ? el.querySelector('textarea') : null
 }
 
-/** Size a textarea to fit its content. */
+/**
+ * Size a textarea to fit its content.
+ *
+ * 🔴 THE BORDER HAS TO BE ADDED BACK. `scrollHeight` measures the content box;
+ * under `box-sizing: border-box` — which Bulma sets on every control — the
+ * `height` we assign is read as the BORDER box, so a plain `height = scrollHeight`
+ * leaves the content exactly one border short at the top and bottom. Bulma's
+ * `.textarea` has a 1px border, so every field was 2px too small, and because this
+ * directive also sets `overflow-y: hidden` there was no scrollbar to reveal what
+ * was cut. Measured on the Logic Tables screen: every branch title reported
+ * scrollHeight 70 against clientHeight 68.
+ */
 function grow (ta) {
   ta.style.resize = 'none'
   ta.style.overflowY = 'hidden'
   ta.style.height = 'auto'
-  ta.style.height = ta.scrollHeight + 'px'
+
+  let extra = 0
+  if (typeof window !== 'undefined' && window.getComputedStyle) {
+    const cs = window.getComputedStyle(ta)
+    if (cs.boxSizing === 'border-box') {
+      extra = (parseFloat(cs.borderTopWidth) || 0) + (parseFloat(cs.borderBottomWidth) || 0)
+    }
+  }
+  ta.style.height = (ta.scrollHeight + extra) + 'px'
 }
 
 export const autogrow = {
