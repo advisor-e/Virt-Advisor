@@ -43,9 +43,8 @@ repository sees; the two never both appear, and the build stops if they would.
 | 6 | **4.39** Sweep the frozen ACTIONS.md for anything that is genuinely still open | 2 | — | Us |
 | 7 | **4.42** The to-do page’s hand-written half describes six finished items and misses ten live ones | 2 | — | Us |
 | 8 | **4.43** A test flips a global switch mid-run and fails about one run in four | 2 | — | Us |
-| 9 | **4.46** The AI offers to switch guides, the advisor says yes, and nothing happens | 4 | — | Us |
 
-**Nine live items. None need Mike.** If this list passes about twenty, something is wrong.
+**Eight live items. None need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 **Four items came off on 2026-08-22, and one joined and left the same day** — see

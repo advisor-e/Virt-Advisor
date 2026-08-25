@@ -185,25 +185,6 @@
       "touches": "`tests/unit/cases.routes.test.js` around the production-read test.",
       "note": "The comment above the test already explains why NODE_ENV must be pinned there, so the intent is right and the mechanism is wrong. Prefer injecting the value the code under test reads, or restoring in a `finally`, over mutating a global across an await. ⚠ Confirm the diagnosis before fixing — it failed once and the reading above is inferred from the code, not from a reproduction.",
       "comment": ""
-    },
-    {
-      "ref": "4.46",
-      "name": "The AI offers to switch guides, the advisor says yes, and nothing happens",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Item 4.18 gave the AI an honest exit: \"I don't have the Advisor-e coaching content for that in this guide - that sits in the Dashboard Discussions guide. Would you like me to switch to it?\" The advisor replies \"yes\" and NO coaching guide loads at all. Reproduced live 2026-08-25: \"yes\", \"yes please\" and \"yes, switch to it\" all return nothing from the AI picker AND nothing from the keyword fallback. Only \"yes please, switch me to the Dashboard Discussions guide\" works - the advisor naming the guide themselves, which is exactly what the offer exists to spare them.",
-      "risk": "The advisor is told the help exists, asks for it, and gets a generic answer with none of Mike's material behind it. A promise made on screen and not kept is its own kind of damage - worse for trust than never offering. It is still better than the invented advice 4.18 closed, so it is a 4 and not a 5, but it is a defect WE SHIPPED and it should not sit quietly.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "2026-08-25 - Mike asked why 4.45 was worth keeping once 4.18 had removed the harm. The honest answer depended on whether the switch offer actually worked, so it was tested rather than assumed. It does not. 4.45 was deleted on his ruling and this filed in its place. Nobody outside asked; the fault was introduced the same day by our own change."
-      },
-      "touches": "server/advisorEngine.js - newestFirstUserText and the Learn-mode picker call around line 3521. The refusal wording itself is approved and pinned (design/LEARN-SCOPE-HONESTY.md section 4, tests/unit/coachingScope.test.js) and is NOT the thing to change.",
-      "note": "🔴 THE CAUSE IS KNOWN AND PROVEN, SO DO NOT RE-DIAGNOSE IT. newestFirstUserText builds the picker's input from history.filter(m => m.role === 'user'). The guide name is in the ASSISTANT's message - that is where the offer is made - so the one fact needed to honour the offer is structurally excluded from the picker's input. What the picker actually sees is \"yes\" followed by the ORIGINAL question, and \"Dashboard Discussions\" appears nowhere in it. The picker is not failing; it was never told. ⚠ THE OBVIOUS FIX IS NOT THE ONLY ONE AND HAS NOT BEEN DESIGNED. Carrying the offered guide id forward is the cheap read; including the assistant turn in the picker input is the broader one and changes routing for every learn conversation, not just this path - which is the trap 4.45 fell into. Whichever is chosen, SIZE IT BEFORE BUILDING IT. ⚠ VERIFY THE WAY 4.18 WAS VERIFIED: drive the real model with a two-turn conversation and read what comes back. This defect shipped with a fully green suite, and it is the SECOND thing on this path that every test passed while it was broken - the first was the refusal naming the guide it was already holding. No assertion here can see either.",
-      "comment": ""
     }
   ]
 }

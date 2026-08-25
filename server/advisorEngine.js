@@ -19,7 +19,7 @@ const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnR
 const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
 const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
 const { loadResolvedGuideOverrides } = require('../server/utils/methodGuideConfig')
-const { formatEngagementTypeForPrompt } = require('../server/utils/methodGuides')
+const { formatEngagementTypeForPrompt, GUIDES } = require('../server/utils/methodGuides')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { nameForLanguageCode } = require('../server/utils/languageName')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
@@ -651,6 +651,27 @@ function newestFirstUserText (history, query, cap = 1000) {
     if (piece) { parts.push(piece); used += piece.length + 1 }
   }
   return parts.join('\n').slice(0, cap)
+}
+
+/**
+ * The coaching guide the AI itself offered to switch to, when the newest answer
+ * made that offer. The offer names the guide in the ASSISTANT's message, so an
+ * advisor who replies "yes" supplies no guide name at all — and the pickers read
+ * only the advisor's own words, which left the one fact needed to honour the
+ * offer structurally absent (item 4.46, 2026-08-25).
+ * Guarded on the offer's own wording: a Learn conversation where no offer was
+ * made routes exactly as it did before.
+ * @param {Array<{role: string, content: string}>} history - trimmed conversation
+ * @returns {string|null} the offered guide's label, or null when none was offered
+ */
+function offeredGuideFromLastAnswer (history) {
+  const answers = (history || []).filter(m => m && m.role === 'assistant')
+  const last = String((answers[answers.length - 1] || {}).content || '')
+  if (!/switch to it/i.test(last)) { return null }
+  // Exactly one name is an offer. Several means the scope block itself was echoed
+  // back, and guessing which of them was meant is the very fault this item fixes.
+  const named = GUIDES.filter(g => last.includes(g.label))
+  return named.length === 1 ? named[0].label : null
 }
 
 const _dbgLog = require('os').tmpdir() + '/va-debug.log'
@@ -3528,11 +3549,15 @@ async function handleQuery (rawBody, res, identity) {
     // survives dictation garbles + red-herring keyword ties); fall back to the
     // deterministic keyword matcher if the AI is unavailable. Newest-first +
     // recent-window-first so a mid-conversation pivot re-routes (P1 2026-07-16).
-    let learnTree = await pickLearnTreeAI(newestFirstUserText(trimmedHistory, query), firmLogicTrees)
+    // A "yes" to a switch offer carries no guide name — the name is in the answer
+    // that made the offer. Fold it into the newest slot so both pickers see it (4.46).
+    const offeredGuide = offeredGuideFromLastAnswer(trimmedHistory)
+    const learnQuery = offeredGuide ? query + '\n' + offeredGuide : query
+    let learnTree = await pickLearnTreeAI(newestFirstUserText(trimmedHistory, learnQuery), firmLogicTrees)
     if (!learnTree) {
       const userMsgs = trimmedHistory.filter(m => m.role === 'user').map(m => m.content)
-      learnTree = detectLogicTree([...userMsgs.slice(-2), query].join(' '), firmLogicTrees) ||
-        detectLogicTree([...userMsgs, query].join(' '), firmLogicTrees)
+      learnTree = detectLogicTree([...userMsgs.slice(-2), learnQuery].join(' '), firmLogicTrees) ||
+        detectLogicTree([...userMsgs, learnQuery].join(' '), firmLogicTrees)
     }
     if (learnTree && learnTree.mode === 'learn') {
       learnSalesTreeText = buildLearnReferenceText(learnTree, firmMethodGuides)
@@ -3738,6 +3763,10 @@ module.exports.PREP_SKIP_FIELDS = PREP_SKIP_FIELDS
 module.exports.detectWinWorkIntent = detectWinWorkIntent
 module.exports.pickLearnTreeAI = pickLearnTreeAI
 module.exports.newestFirstUserText = newestFirstUserText
+module.exports.offeredGuideFromLastAnswer = offeredGuideFromLastAnswer
+// Exported so the switch offer can be driven against the real model — no test can
+// prove the picker honours it (item 4.46; the same reason 4.18 was driven live).
+module.exports.pickLearnTreeAI = pickLearnTreeAI
 module.exports.detectUncertainty = detectUncertainty
 module.exports.detectFrustration = detectFrustration
 module.exports.parseMeetingCount = parseMeetingCount
