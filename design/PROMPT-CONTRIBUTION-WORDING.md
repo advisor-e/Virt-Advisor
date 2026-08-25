@@ -323,6 +323,40 @@ thing that catches it is six live calls costing a fraction of a penny.
 
 ---
 
+## 7. Your firm's own method — the panel
+
+Approved by Mike, 2026-08-25.
+
+> ### Your firm's own method
+>
+> Material saved here is used by your advisers on every conversation, and is passed on to
+> any firm below you — who can change it, switch it off, or keep their own version when you
+> change yours.
+
+Empty: *Nothing here yet. Anything you add becomes part of how your firm's AI works.*
+
+Badges on a piece of material: **from above** · **your version** · **yours**.
+
+Buttons: **Change this** · **Switch off** · **Switch back on** · **Remove** ·
+**Put this in force** · **Save the change** · **Cancel**. Switched-off material sits under
+**Switched off**.
+
+Beside the save button, where it cannot be missed:
+
+> This will be used by your advisers on every conversation, and passed on to any firm below
+> you. You can change it or remove it at any time.
+
+When a level above rewrites something this level had edited:
+
+> **{n} pieces of material have been changed above you.** You have your own version of
+> these. Nothing has changed for your advisers — your wording still stands until you decide.
+
+On the row itself: *This has been rewritten above you.* — **Use theirs** · **Keep mine**.
+
+A refusal here uses §3's words exactly. Two screens, one refusal.
+
+---
+
 ## 6. What we chose, in one place
 
 | Decision | Whose |

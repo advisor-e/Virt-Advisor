@@ -219,6 +219,36 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.31 · An accountant can share a prompt and have it checked — and a firm can put its own
+method in force.** ✅ Closed 2026-08-25. Built across `4b76e4c`, `14bcf76`, `0dd2be4`,
+`c820598` and `41863a2`; recorded in [`ai-prompts.md`](ai-prompts.md) §3a.
+
+- **Both lanes, on the AI Prompts tab at all four tiers.** Lane A: a paste box, the
+  explanation of why we do not accept documents, six deterministic refusals, and an AI
+  review that reports what is good, what is missing and what conflicts. Nothing stored.
+  Lane B: the panel a level puts its own material in force on.
+- **The words were approved before the build**, saved as
+  [`../PROMPT-CONTRIBUTION-WORDING.md`](../PROMPT-CONTRIBUTION-WORDING.md). Two deviations
+  from [`../mockups/prompt-contribution.html`](../mockups/prompt-contribution.html) are
+  recorded there: one door instead of two while Lane B was unbuilt, and the "nothing is
+  saved" line moved into the opening paragraph.
+- **What makes a firm's own prose survivable is the fence**, not detection. Every
+  contribution reaches the model inside `fenceUntrusted()`, beside the firm's coaching
+  notes. The six checks run again at the point of storage, and the model's own findings go
+  back through them before they reach a screen.
+- **The cascade is the one every other block uses** — inherited / declined / overridden /
+  own, with Use theirs or Keep mine when a level above rewrites something already edited.
+- 🔴 **Driving the real model found what the suite could not.** The review's first live run
+  produced suggestions an accountant could not paste — instructions to *them* rather than
+  text for their prompt. The prompt now carries a worked contrast of a wrong suggestion
+  against a right one, pinned in one test. A second live run put an injection through the
+  whole path: the model reported the override attempt as a conflict and returned valid
+  JSON.
+- **What it still cannot do**, recorded in the code and in a test: a bare personal name is
+  not detectable. Addresses, tax numbers and titled names are caught; a bare name reaches
+  the model inside the fence, which is what makes it survivable.
+- **Not built, and ruled out rather than deferred:** file uploads. Pasted text only.
+
 **4.46 · The AI offers to switch guides, the advisor says yes, and nothing happens.** ✅ Closed
 2026-08-25, the day after it was filed. Built in `28c52df`; recorded as **P10** in
 [`advisory-engine.md`](advisory-engine.md).
