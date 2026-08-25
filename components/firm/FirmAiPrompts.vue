@@ -82,6 +82,11 @@
       //- reading, and a tool buried under it is a tool nobody finds.
       firm-prompt-check(:api-token="apiToken")
 
+      //- ── The material this level has put in force (item 4.31, Lane B) ──
+      //- Below the checker on purpose: a manager forms an opinion about a
+      //- prompt before they put one into use.
+      firm-prompt-material(:api-token="apiToken")
+
       //- ── How your clients' information is protected ──
       //- 🔴 THE ONE PARAPHRASE ON THE SCREEN. Its words come from the backend, beside
       //- the protocol they describe, so this template cannot drift from what is
@@ -147,6 +152,7 @@
 
 <script>
 import FirmPromptCheck from '~/components/firm/FirmPromptCheck.vue'
+import FirmPromptMaterial from '~/components/firm/FirmPromptMaterial.vue'
 
 /**
  * FirmAiPrompts — the tab a manager opens to read the instructions the AI is given, and
@@ -188,7 +194,7 @@ import FirmPromptCheck from '~/components/firm/FirmPromptCheck.vue'
 export default {
   name: 'FirmAiPrompts',
 
-  components: { FirmPromptCheck },
+  components: { FirmPromptCheck, FirmPromptMaterial },
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */

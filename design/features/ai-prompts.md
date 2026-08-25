@@ -169,10 +169,12 @@ on this same tab at all four tiers, below the settings and above the method.
 2. **The review.** The model reads the prompt, fenced, and reports what is good, what is missing
    and what conflicts. Each finding is theirs to take or leave, and taking one edits **the box on
    their screen** and nothing else.
-3. **Putting it in force (Lane B).** A level saves material under its own name. It applies to that
-   level immediately, with nobody above signing it off, and it reaches every conversation that
-   level's advisors have — **fenced**, beside the firm's coaching notes, as a quotation the model
-   is told to read and never obey.
+3. **Putting it in force (Lane B).** A level saves material under its own name on the same tab. It
+   applies to that level immediately, with nobody above signing it off, and reaches every
+   conversation that level's advisors have — **fenced**, beside the firm's coaching notes, as a
+   quotation the model is told to read and never obey. The panel shows what is in force, where
+   each piece came from, what has been switched off, and any row the level above has rewritten
+   under an edit — offering Use theirs or Keep mine, and taking neither on its own.
 
 ### The cascade
 
@@ -234,6 +236,8 @@ leaving an accountant with a dead button.
 | Share a prompt — the route (Lane A, stores nothing) | [`../../server/routes/promptCheck.js`](../../server/routes/promptCheck.js) |
 | Lane B — storage, cascade, the fenced block | [`../../server/utils/promptContributions.js`](../../server/utils/promptContributions.js) |
 | Lane B — the routes | [`../../server/routes/promptContributions.js`](../../server/routes/promptContributions.js) |
+| Lane B — the panel | [`../../components/firm/FirmPromptMaterial.vue`](../../components/firm/FirmPromptMaterial.vue) |
+| The refusal wording, shared by both panels | [`../../mixins/promptRefusal.js`](../../mixins/promptRefusal.js) |
 | Where it reaches the AI | `server/advisorEngine.js` — `buildClientContext` and the generic context message, beside the firm coaching notes |
 | Its overlay keys | `prompt-contributions-own` · `-declines` · `-overrides` · `-override-baselines` |
 | Share a prompt — the panel | [`../../components/firm/FirmPromptCheck.vue`](../../components/firm/FirmPromptCheck.vue) |

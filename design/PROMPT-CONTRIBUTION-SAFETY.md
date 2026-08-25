@@ -1,8 +1,7 @@
 # Letting an accountant contribute to the AI — safely
 
-> **Status: BUILT, 2026-08-25.** What remains is Lane B's SCREEN and its wording — the
-> routes, the storage, the cascade and the wiring into the advisor engine are done, so
-> nothing can be added by a user until that panel exists.
+> **Status: BUILT, 2026-08-25.** Both lanes, end to end — the paste box and its six
+> refusals, the AI review, and the panel a level puts its own material in force on.
 > **Asked for by Mike, 2026-08-22**, in his words:
 >
 > > *"i do not want security put at risk or allow accountants to mistakenly give hacker

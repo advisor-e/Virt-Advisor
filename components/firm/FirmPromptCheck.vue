@@ -119,6 +119,8 @@
 </template>
 
 <script>
+import promptRefusal from '~/mixins/promptRefusal'
+
 /**
  * Share a prompt — the firm manager's paste-and-check panel.
  *
@@ -143,6 +145,8 @@
  */
 export default {
   name: 'FirmPromptCheck',
+
+  mixins: [promptRefusal],
 
   props: {
     /** Bearer token for the manager-scoped backend routes. */
@@ -218,116 +222,7 @@ export default {
         '?subject=' + encodeURIComponent(this.$t('promptCheck.askSomeoneSubject'))
     },
 
-    /**
-     * The refusal, turned into the six strings the screen shows.
-     *
-     * Every branch names its own heading, its own quote and its own button, because the
-     * three parts of a refusal are the same shape but never the same words. A missing
-     * branch returns null rather than a half-filled panel — a refusal we cannot describe
-     * is a refusal we must not display.
-     *
-     * @returns {object|null}
-     */
-    view () {
-      const r = this.refusal
-      if (!r) { return null }
-      const t = (k, params) => this.$t('promptCheck.' + k, params)
-
-      if (r.kind === 'length') {
-        return {
-          tone: 'is-limit',
-          heading: t('lengthHeading'),
-          found: t('lengthFound', {
-            characters: this.approximate(r.characters),
-            limit: r.limit,
-            pages: Math.max(1, Math.round(r.characters / 3000))
-          }),
-          quote: '',
-          afterQuote: '',
-          why: t('lengthWhy'),
-          todo: t('lengthDo'),
-          againLabel: t('lengthBack'),
-          again: 'edit'
-        }
-      }
-
-      const heading = t('refusedHeading')
-
-      if (r.kind === 'link') {
-        return {
-          tone: 'is-stop',
-          heading,
-          found: t(r.variant === 'email' ? 'linkEmailFound' : 'linkWebFound', { line: r.line }),
-          quote: r.quote,
-          afterQuote: '',
-          why: t('linkWhy'),
-          todo: t('linkDo'),
-          againLabel: t('linkAgain'),
-          again: 'edit'
-        }
-      }
-
-      if (r.kind === 'invisible') {
-        return {
-          tone: 'is-stop',
-          heading,
-          found: t('invisibleFound', { count: r.count, line: r.line }),
-          quote: '',
-          afterQuote: '',
-          why: t('invisibleWhy'),
-          todo: t('invisibleDo'),
-          againLabel: t('invisibleAgain'),
-          again: 'strip'
-        }
-      }
-
-      if (r.kind === 'secret') {
-        return {
-          tone: 'is-stop',
-          heading,
-          found: t('secretFound', { line: r.line }),
-          quote: r.quote,
-          afterQuote: t('secretShortened'),
-          why: t('secretWhy'),
-          todo: t('secretDo'),
-          againLabel: t('secretAgain'),
-          again: 'edit'
-        }
-      }
-
-      if (r.kind === 'fence') {
-        return {
-          tone: 'is-stop',
-          heading,
-          found: t('fenceFound', { line: r.line }),
-          quote: r.quote,
-          afterQuote: '',
-          why: t('fenceWhy'),
-          todo: t('fenceDo'),
-          againLabel: t('fenceAgain'),
-          again: 'edit'
-        }
-      }
-
-      if (r.kind === 'personal') {
-        const found = r.variant === 'taxNumber'
-          ? 'personalTaxFound'
-          : (r.variant === 'name' ? 'personalNameFound' : 'personalAddressFound')
-        return {
-          tone: 'is-stop',
-          heading,
-          found: t(found, { line: r.line }),
-          quote: r.quote,
-          afterQuote: '',
-          why: t('personalWhy'),
-          todo: t('personalDo'),
-          againLabel: t('personalAgain'),
-          again: 'edit'
-        }
-      }
-
-      return null
-    }
+    view () { return this.refusalView(this.refusal) }
   },
 
   watch: {
@@ -431,15 +326,6 @@ export default {
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
-    },
-
-    /**
-     * Rounds a character count to something a person would say out loud.
-     * @param {number} n
-     * @returns {number}
-     */
-    approximate (n) {
-      return n >= 10000 ? Math.round(n / 1000) * 1000 : Math.round(n / 100) * 100
     },
 
     /**
