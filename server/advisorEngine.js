@@ -2746,7 +2746,12 @@ async function handleQuery (rawBody, res, identity) {
             // Tier 2: watch for invented quoted wording — a hit appends the
             // approved correction note (a streamed reply can't be unprinted).
             const _postFlagged = logUnverifiedQuotes(isLearnRequest ? 'learn-post-rec' : 'client-post-rec', _postBuffer, _postMessages)
-            const processed = appendCorrectionNote(injectVideoInfo(_postBuffer, orgTemplateIds), _postFlagged, _postBuffer, _postMessages)
+            // The marker is machine-read and must never be displayed. SECTION 11 of
+            // client.txt is in this prompt too, so one can arrive here — and unlike
+            // Phase 3 this path buffers the whole reply and emits it once, so there is
+            // no streaming tail to hold back. One strip before display is the whole fix.
+            const visible = stripTemplateMarker(_postBuffer)
+            const processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds), _postFlagged, _postBuffer, _postMessages)
             res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
             if (sessionId) { sessionSave(sessionId, state) }
             res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
@@ -3806,7 +3811,10 @@ async function handleQuery (rawBody, res, identity) {
         // Tier 2: watch for invented quoted wording — a hit appends the
         // approved correction note (a streamed reply can't be unprinted).
         const _mainFlagged = logUnverifiedQuotes(mode, _mainBuffer, _mainMessages)
-        const processed = appendCorrectionNote(injectVideoInfo(_mainBuffer, orgTemplateIds), _mainFlagged, _mainBuffer, _mainMessages)
+        // Same reason as the post-recommendation path: this prompt is client.txt too,
+        // so the marker can arrive here. Buffered, so one strip covers it.
+        const visible = stripTemplateMarker(_mainBuffer)
+        const processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds), _mainFlagged, _mainBuffer, _mainMessages)
         res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
         res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
       }
