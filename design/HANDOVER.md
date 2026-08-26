@@ -10,38 +10,42 @@
 
 ## 2026-08-26 · Laptop · branch `feat/advisor-progress`
 
-**The list is down to three items and every one waits on Mike.** Suite **6,490 green**, lint 0
-errors. Branch **56 ahead, 0 behind** `master`. Nothing uncommitted. Three commits: `01e793d`,
-`4d72de9`, `612534c`.
+Suite **6,507 green**, lint 0 errors. Branch **60 ahead, 0 behind** `master`. Nothing
+uncommitted. Three commits: `06966c6`, `c1a4eb8`, and this one.
 
-🔴 **THE ONE THING TO CARRY FORWARD — there is now a gate, and it stops the build.** Mike, this
-session: *"ONLY the features and ideas I specifically request. From now on I will push back on
-every new feature suggestion from AI."* Every item declares `kind: defect|feature`, and a
-**feature** whose `askedBy.ours` is true is **refused** — by
-[`toDoItems.test.js`](../tests/unit/toDoItems.test.js) and by
-[`apply-to-do.js`](../scripts/apply-to-do.js), so the Handbook's ranking control is not a way
-round it. A **defect you found yourself still files**; he never asked anyone to stop reporting
-bugs. **It exists because I filed a P3 line out of the frozen `ACTIONS.md` at score 5 and built
-a backend for a screen nobody had asked for.** Reverted the same day. It was the **third**
-instance of that failure, and two written warnings against it already existed — including one I
-had quoted back to him an hour earlier. A rule was not enough; this is a test.
+🔴 **4.50's blocker was false, and had been for a month.** It said this machine has no
+OpenAI key. [`.env`](../.env) has held a live one since 30 July, dotenv loads it at
+[`restify-server.js:50`](../server/restify-server.js#L50), and the backend prints
+`OPENAI_API_KEY present=true` on boot. Nobody had looked. **Check the claim, not the note.**
 
-**The Education Gate page is gone, and so are all four of its documents** — Brief, history,
-design artefact, mockup. Its rulings were all Mike *answering* questions we raised, never asking.
-⚠ **Its question still fires**, which is item **4.52**.
+**The check was run** — three full conversations, 17 API calls, 77,605 tokens. **Two of its
+three checks pass and are closed.** The reply streams token by token (435/1,094/792 chunks),
+and no marker text ever reaches the screen — 2,321 chunks, every partial prefix tested. Not a
+vacuous pass: one run demonstrably *did* produce a marker, provable because its declared order
+differs from the deterministic prose-scan order. **The third check needs MySQL, not OpenAI** —
+all three sessions completed and *none* was recorded (`ECONNREFUSED 127.0.0.1:3306`, no error
+raised). So it needs UAT. ⚠ **"Team Dashboard" is not a screen** — it is the Team tab, fed by
+`/api/activity/team`. The words survive only in two code comments
+([`tierLookup.js:88`](../server/utils/tierLookup.js#L88) and this test's header), left alone
+deliberately.
 
-**Four bugs fixed and closed.** 4.17 — a screen now says when it is serving local dev data and
-how many shipped rows that file is hiding. 4.33 — the tutorial video no longer attaches to a
-calculator sharing a template's name. 4.42 — `to-do.md` cut 822→405 lines, with a guard that
-fails the build on a stale detail block. 4.47 — Learn stopped asking what the advisor's own
-profile already answered.
+**4.53 filed** — the AI writes the marker only *sometimes*: confirmed present once, absent
+once, one run genuinely indeterminate. That is not a measured rate and the item says so. When
+it is absent the engine silently falls back to the prose scan the marker was built to replace,
+and nothing anywhere records which path ran. **Waiting on Mike to rank.**
 
-**Waiting on Mike:** **4.15** (the 23 template names, once the search content is updated) ·
-**4.50** (one Virtual Advisor conversation wherever an OpenAI key exists — this laptop has none) ·
-**4.52** (remove the education gate's question, or keep it).
+**Fixed and verified live:** the two *buffered* AI paths never stripped the marker — the
+ordinary reply (`_mainBuffer`) and the post-recommendation follow-up (`_postBuffer`), both
+carrying `client.txt` §11. Unlike Phase 3, a leak there prints whole and stays. Proven from
+code, never seen to fire. ⚠ **Mike approved fixing one path; both were fixed** — same bug,
+stated in the commit rather than folded in.
 
-**Do not triage from `design/ACTIONS.md`.** It is frozen history and it was swept end to end this
-session: **eight** of its open-looking flags were already built, five were real. Anything left in
-it is a claim to check against the code.
+⚠ **Stopping the backend leaves an orphan.** Killing `npm run backend` through the task runner
+kills the wrapper, not node: port 4000 stays held, the next start fails `EADDRINUSE`, and the
+conversation silently runs the **old code**. It nearly produced a clean-looking verification of
+an unfixed build. Clear the port before trusting a restart.
+
+**Waiting on Mike:** **4.15** (23 template names) · **4.52** (education gate) · **4.53** (rank
+it). **4.50** now waits on UAT, not on us.
 
 **Unchanged:** `npm install` still needs npm 8.19.4 on Node 14.15 — [`../.npmrc`](../.npmrc).
