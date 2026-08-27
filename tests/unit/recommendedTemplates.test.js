@@ -2,6 +2,7 @@
 
 const {
   resolveRecommendedTemplates,
+  resolveRecommendedTemplatesWithSource,
   extractDeclaredTemplates,
   extractTemplatesFromText,
   stripTemplateMarker,
@@ -59,6 +60,53 @@ describe('the AI declares what it recommended', () => {
 
   it('returns null when there is no marker, so the caller can tell the difference', () => {
     expect(extractDeclaredTemplates('No marker here.')).toBeNull()
+  })
+})
+
+/**
+ * Item 4.53. The AI writes the marker only SOMETIMES — confirmed by three real
+ * conversations on 2026-08-26: one wrote it, one did not, one could not be told apart.
+ * When it does not, the prose fallback runs, and that fallback is the defect the marker
+ * was built to replace. Both paths return a plausible list, so a tester in UAT cannot
+ * see which ran. Reporting the source is what makes the fallback countable.
+ */
+describe('which path produced the list is recorded', () => {
+  it('reports "declared" when the AI wrote a marker', () => {
+    const out = resolveRecommendedTemplatesWithSource('Some prose.\n\n[[TEMPLATES: Retail]]')
+    expect(out.source).toBe('declared')
+    expect(out.templates).toEqual(['retail'])
+  })
+
+  it('reports "declared" for an explicitly empty marker, not "prose"', () => {
+    // The distinction that matters most: the AI saying "I recommended nothing" is an
+    // answer it gave, not a failure to answer. Scoring it as a fallback would count a
+    // working session as a broken one.
+    const out = resolveRecommendedTemplatesWithSource('Guidance about retail.\n\n[[TEMPLATES: ]]')
+    expect(out.source).toBe('declared')
+    expect(out.templates).toEqual([])
+  })
+
+  it('reports "prose" when there is no marker at all', () => {
+    const out = resolveRecommendedTemplatesWithSource('I suggest the **Retail** template.')
+    expect(out.source).toBe('prose')
+  })
+
+  it('reports "prose" even when the fallback finds nothing', () => {
+    // An empty list is not evidence a marker was present — the two must stay separable.
+    const out = resolveRecommendedTemplatesWithSource('No tools named anywhere in this answer.')
+    expect(out.source).toBe('prose')
+    expect(out.templates).toEqual([])
+  })
+
+  it('returns the same templates as the plain resolver, whichever path ran', () => {
+    for (const text of [
+      'Prose.\n\n[[TEMPLATES: Retail]]',
+      'I suggest the **Retail** template.',
+      'Nothing named here.'
+    ]) {
+      expect(resolveRecommendedTemplatesWithSource(text).templates)
+        .toEqual(resolveRecommendedTemplates(text))
+    }
   })
 })
 

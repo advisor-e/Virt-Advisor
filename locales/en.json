@@ -2565,41 +2565,6 @@
     "loadFailed": "The AI prompt settings could not be loaded."
   },
 
-  "firmEducationGate": {
-    "tab": "Education Gate",
-    "intro": "When the AI can see that a client is not comfortable reading their own numbers, it asks the advisor how to pitch the advice — before it recommends anything. This is exactly what the advisor sees, and what makes it appear.",
-    "questionTitle": "The question",
-    "questionHint": "Shown to the advisor before any recommendation.",
-    "answersTitle": "The two answers",
-    "answersHint": "The buttons the advisor picks between. You can reword them; what each one does is fixed.",
-    "option": {
-      "education_first": "Education first",
-      "technical": "What's technically needed"
-    },
-    "acknowledgement": "What the advisor is told after choosing",
-    "reasonTitle": "Why they were asked",
-    "reasonHint": "Added to whichever answer they pick, so the advisor always knows what triggered the question. Use {phrase} where the client's own words should appear. Leave it empty to say nothing.",
-    "reasonNoPlaceholder": "This no longer contains {phrase}, so the advisor will not be shown which words triggered the question.",
-    "phrasesTitle": "What makes it appear",
-    "phrasesHint": "Phrases suggesting a client is not comfortable with their own numbers. One per line. These are matched against everything the advisor has typed, in any advisory area.",
-    "phrasePlaceholder": "e.g. chasing turnover",
-    "addPhrase": "Add a phrase",
-    "removePhrase": "Remove",
-    "setHere": "Set here",
-    "inherited": "Inherited",
-    "save": "Save",
-    "saved": "Saved",
-    "reset": "Go back to inherited",
-    "reset_done": "Now inheriting again",
-    "showHistory": "Version history",
-    "hideHistory": "Hide version history",
-    "noHistory": "Nothing has been saved at this level yet.",
-    "when": "When",
-    "who": "Who",
-    "restore": "Restore",
-    "restored": "That version is back in force",
-    "loadFailed": "The education gate could not be loaded."
-  },
   "promptMaterial": {
     "heading": "Your firm's own method",
     "intro": "Material saved here is used by your advisers on every conversation, and is passed on to any firm below you — who can change it, switch it off, or keep their own version when you change yours.",

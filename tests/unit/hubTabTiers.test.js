@@ -58,14 +58,6 @@ const MENTOR_BEFORE = [
  * - `aiPrompts` — Mike, 2026-08-21 (`AI-PROMPTS-PAGE.md`, item 4.28), naming all four
  *   manager tiers himself: *"a 'AI Prompts' page in the hub pages (Mentor, Global Group
  *   Manager, Group Manager and Firm Manager)"*.
- * - ~~`educationGate`~~ — 🔴 **REMOVED FROM EVERY HUB 2026-08-26, on Mike's instruction.**
- *   It was here as "Mike, 2026-08-24, choosing 'the mentor screen ships in the same change'
- *   WHEN ASKED how far the change should go" — and that phrasing is the whole reason it is
- *   gone. He answered a question we put to him; he never asked for the page. His ruling of
- *   2026-08-26: mockups and pages still get built, but ONLY for features and ideas he
- *   specifically requests. The education-gate QUESTION still fires — only its editing
- *   screen was removed, so its wording now lives in `data/education-gate.json` and is
- *   changed by a developer.
  */
 const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts']
 
@@ -78,7 +70,6 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts']
  * than a historical record being quietly rewritten.
  *
  * - `aiPrompts` — the same ruling as the firm's, which named the mentor first.
- * - ~~`educationGate`~~ — removed 2026-08-26 with the firm's, same ruling. See above.
  */
 const MENTOR_ADDED_SINCE = ['aiPrompts']
 
@@ -146,15 +137,6 @@ describe('hub tab matrix — the two new tiers', () => {
     // this test's prose was never updated. So a middle tier shows 13, not 14: six
     // unconditional plus seven conditional. Recorded rather than silently corrected,
     // exactly as the 13-to-14 drift above was.
-    // ⚠ 2026-08-24: the Education Gate was ruled ON (item 2.9, all four manager tiers),
-    // taking the conditional count from 7 to 8 and the total from 13 to 14. Recorded
-    // here by name, in the same style as every change above it, so the diff shows a tab
-    // being added rather than a number being quietly bumped to make a test pass.
-    // 🔴 2026-08-26: and ruled straight back OFF — Mike, on being shown that he had only
-    // ever ANSWERED a question about that page and never asked for it. Conditional 8 → 7,
-    // total 14 → 13. His rule from that day: pages still get built, but only for features
-    // he specifically requests. The gate's QUESTION is untouched; only its editing screen
-    // went. Named here, not bumped, for the same reason as every line above.
     expect(conditional).toHaveLength(7)
     expect(unconditional).toHaveLength(6)
     expect(unconditional.concat(conditional)).toHaveLength(13)

@@ -276,7 +276,7 @@ ones.** ✅ Closed 2026-08-26. **The page went from 822 lines to 405.**
 
 - **Six stale detail blocks removed** — 2.9, 4.16, 4.18, 4.19, 4.28 and 4.29, all long closed.
   Every one was checked against this page first: all six closures are recorded here, so nothing
-  was lost. §4 (the education gate, item 2.9) went entirely, and the sections renumbered.
+  was lost. §4 (item 2.9) went entirely, and the sections renumbered.
 - **Four blocks kept on purpose** — 3.1, 3.2, 3.3 and 4.8 describe DONE or PARKED work and say so
   in their first line. A reader who proposes one of them needs to find the answer, which is why
   the rule is **"labelled or live"**, not "live only".
@@ -862,19 +862,17 @@ operational detail lives in [`../../.npmrc`](../../.npmrc), beside the settings 
   else could confirm the state without rebuilding it. That was item **4.44**, closed 2026-08-25:
   the check is now `npm run check:engines`.
 
-**2.9 · The education gate.** ✅ Built 2026-08-24. 🔴 **Its hub page was REMOVED 2026-08-26 and
-all four of its documents were deleted with it** — the Brief, its history page, the design
-artefact and the mockup — on Mike's instruction: *"leaving a massive amount of notes about a
-feature we will never use again is just asking for confusion going forward."*
+**2.9 · Removed in full.** ✅ Built 2026-08-24, page removed 2026-08-26, and the feature
+deleted outright 2026-08-27 on Mike's instruction — he never asked for it and asked four
+times for it to go. Code, data, tests, wording and every note are gone. Git history holds it
+if it is ever wanted. **Do not rebuild it.**
 
-- **The gate's QUESTION still fires.** When the engine can see a client is not comfortable
-  reading their own numbers, the advisor is asked whether to lead with education or show what is
-  technically needed. The wording lives in `data/education-gate.json` and is changed by a
-  developer. `server/utils/educationGate.js` and `tests/unit/educationGate.test.js` are the
-  remaining record of how it works.
-- **Do not rebuild the page.** Three of Mike's rulings sat behind it and every one was him
-  answering a question we raised; he never asked for it. See the gate at the top of `CLAUDE.md`.
-- The deleted documents are in git history if they are ever wanted.
+**4.53 · The AI declares what it recommended only sometimes.** ✅ Closed 2026-08-27.
+The app now records, on every recommendation, whether the list came from the AI's own
+declaration (`declared`) or from the prose fallback (`prose`) — a console line and a
+`source` field on the decision trace. It does not try to make the AI obey; it makes the
+fallback countable, so UAT can see how often it runs. `resolveRecommendedTemplatesWithSource`
+in `server/utils/tierLookup.js`; 5 tests in `tests/unit/recommendedTemplates.test.js`.
 
 **4.16 · 102 pieces of authored advice the AI never saw — the last part closed.** ✅ Closed
 2026-08-23, session 82. The sweep began 2026-08-16; D was the last of its seven parts.

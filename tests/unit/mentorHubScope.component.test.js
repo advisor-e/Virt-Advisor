@@ -298,12 +298,7 @@ describe('the hub menu — the sidebar itself', () => {
     // Was eleven until 2026-08-20, when the Coaching Reference tab was removed with the
     // fifteen platform rows behind it (item 4.24, Mike: "remove the tab") — ten. Back to
     // eleven on 2026-08-22, when AI Prompts joined "Your AI coach" (item 4.28, Mike
-    // 2026-08-21, naming all four manager tiers). Twelve on 2026-08-24, when the
-    // Education Gate joined the same group (item 2.9, Mike: the mentor screen ships in
-    // the same change). 🔴 BACK TO ELEVEN on 2026-08-26: the Education Gate page was
-    // removed on Mike's instruction, once it was shown he had only ever answered a
-    // question about it and never asked for it. His rule from that day — pages get built
-    // only for features he specifically requests. The gate's question still fires.
+    // 2026-08-21, naming all four manager tiers).
     const wrapper = await mountHub()
     expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs'])
     expect(tabLabels(wrapper)).toHaveLength(11)
@@ -364,18 +359,10 @@ describe('the hub menu — the sidebar itself', () => {
     // 4.24), and back to the design's 13 on 2026-08-22, when AI Prompts joined (item
     // 4.28) — the same number by a different route, as has now happened twice here.
     // The headings are unchanged throughout; only entries within them have moved.
-    //
-    // ⚠ AND TO 14 ON 2026-08-24, when the Education Gate joined "Your AI coach" (item
-    // 2.9, Mike: the mentor screen ships in the same change, cascading to all four
-    // manager tiers). This is the first time the count has gone PAST the approved
-    // design's 13 rather than returning to it — recorded here by name, because
-    // HUB-NAVIGATION-GROUPING.md §2 still says "group and global 4 / 13" and now
-    // disagrees with the screen by one.
     const wrapper = await mountHub({ scope: 'group' })
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Rolled up from below'
     ])
-    // 14 → 13 on 2026-08-26 with the Education Gate page's removal (see above).
     expect(tabLabels(wrapper)).toHaveLength(13)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')

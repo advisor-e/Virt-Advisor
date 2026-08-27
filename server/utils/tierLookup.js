@@ -202,15 +202,33 @@ function extractTemplatesFromText (text) {
 }
 
 /**
+ * The recommendations for a Phase 3 response, and WHICH of the two paths produced them.
+ *
+ * The AI is instructed (client.txt §11) to end with a [[TEMPLATES: ...]] marker declaring
+ * what it recommended. It obeys only sometimes. When it does not, the prose fallback runs —
+ * and that fallback is the defect the marker exists to fix, not a neutral second-best: it
+ * has read ordinary sentences as recommendations and inflated an advisor's recorded tier.
+ *
+ * Both paths return a plausible list, so nobody can tell them apart from the outside.
+ * Returning the source is what makes the fallback countable instead of invisible.
+ *
+ * @param {string} text - the full Phase 3 response, marker included
+ * @returns {{templates: string[], source: 'declared'|'prose'}}
+ */
+function resolveRecommendedTemplatesWithSource (text) {
+  const declared = extractDeclaredTemplates(text)
+  if (declared !== null) { return { templates: declared, source: 'declared' } }
+  return { templates: extractTemplatesFromText(text), source: 'prose' }
+}
+
+/**
  * The recommendations for a Phase 3 response: the AI's own declaration when it made
  * one, otherwise the prose fallback.
  *
  * @param {string} text @returns {string[]}
  */
 function resolveRecommendedTemplates (text) {
-  const declared = extractDeclaredTemplates(text)
-  if (declared !== null) { return declared }
-  return extractTemplatesFromText(text)
+  return resolveRecommendedTemplatesWithSource(text).templates
 }
 
 module.exports = {
@@ -218,6 +236,7 @@ module.exports = {
   extractTemplatesFromText,
   extractDeclaredTemplates,
   resolveRecommendedTemplates,
+  resolveRecommendedTemplatesWithSource,
   stripTemplateMarker,
   isKnownTemplate,
   TEMPLATE_MARK_OPEN,

@@ -81,46 +81,6 @@
       "touches": "nothing — this is a live observation, not a code change. server/utils/activityLogger.js (logVASession) and server/routes/activity.js (/api/activity/team) hold the path if it fails.",
       "note": "⚠ ITS ORIGINAL BLOCKER WAS WRONG, AND THE REAL ONE IS DIFFERENT. This item said for a month that it could not be done here because \"this machine has no OPENAI_API_KEY and every advisor request fails at startup\". That was false: .env on the laptop has held a live key since 30 July, dotenv loads it at server/restify-server.js L50, and the backend logs \"[advisor] OPENAI_API_KEY present=true\" on boot. The key was never the obstacle. THE REAL OBSTACLE IS MYSQL. The capability record is written by logVASession into the activity store, and on this machine that store logs \"database unavailable (connect ECONNREFUSED 127.0.0.1:3306) — using the dev file\". All three conversations completed and NONE was recorded: the Team tab still reads 2026-08-14 and data/dev-activity.json still ends at 2026-08-10. No error was logged — the write simply did not happen. So (c) needs any environment with a database, which means UAT rather than a developer machine, and it is a two-minute look: open the Team tab as a firm manager after a real session and check the templates and the tier are the ones the conversation actually produced. ⚠ \"Team Dashboard\", the name this item used to carry, IS NOT A SCREEN — the words appear nowhere in any page or component, only in a JSDoc comment at tierLookup.js L88. The screen is the Team tab, fed by /api/activity/team.",
       "comment": "2026-08-26 — checks (a) and (b) run live and passed; see 4.53 for what the same exercise turned up, which is that the AI writes the marker only sometimes and nothing records when it did not."
-    },
-    {
-      "ref": "4.52",
-      "name": "The education gate still asks its question, and its documents are gone",
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The gate's hub page and all four of its documents were deleted on 2026-08-26 on Mike's instruction, in his words because it is 'a feature we will never use again'. But the question itself still fires: server/advisorEngine.js still asks the advisor, before any recommendation, whether to lead with education or show what is technically needed. So the statement and the code disagree.",
-      "risk": "Live behaviour whose only remaining description is the code itself. An advisor is still asked a question Mike may believe was removed, and nobody reading the documents would know it exists. The reverse risk is real too: removing it touches 15 files and about 1,000 lines, and it is behaviour he ruled on three times.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "Raised 2026-08-26 by the session that deleted the documents, as the named consequence of deleting them. Nobody outside asked; it is filed because CLAUDE.md requires an open question for Mike to be an item on this list rather than a line in a note."
-      },
-      "touches": "server/utils/educationGate.js, server/advisorEngine.js, data/education-gate.json, data/signal-dictionary.json (gateSignals), tests/unit/educationGate.test.js. Read-only until Mike rules.",
-      "note": "TWO HONEST ANSWERS AND THEY ARE NOT EQUIVALENT. (1) Remove the gate entirely — the question stops being asked, about 1,000 lines go, and the deletion of its documents becomes consistent. (2) Keep it — the question is one extra step that cannot change which templates are recommended, and the code plus its test are a sufficient record for something that small. DO NOT DECIDE THIS WITHOUT HIM: he ruled on the behaviour three times (2026-07-16, 2026-08-16, 2026-08-24), and although each was him answering a question we raised, removing shipped behaviour is not a tidy-up.",
-      "comment": null
-    },
-    {
-      "ref": "4.53",
-      "name": "The AI declares what it recommended only sometimes, and nothing records when it did not",
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Merged 2026-07-22 (PR #21, d791a9a): the AI ends a Phase 3 answer with a trailing [[TEMPLATES: ...]] marker declaring what it actually recommended, so the advisor capability record stops being a guess made by scanning prose. data/prompts/client.txt SECTION 11 instructs it, and that instruction does reach the Phase 3 system prompt (advisorEngine.js L3452 loads the whole file). The first real conversations ever run against it — three of them, on Mike laptop, 2026-08-26, closing 4.50 — show the AI writes the marker only SOMETIMES. In the succession run it wrote one and the hold-back worked perfectly. In the joinery run it wrote none at all, and resolveRecommendedTemplates (tierLookup.js L210) fell through to extractTemplatesFromText — the prose scan the marker was built to replace. The third run genuinely could not be told apart, so the honest count is one confirmed present, one confirmed absent, one unknown; this is NOT a measured rate.",
-      "risk": "The capability record behind the Team Dashboard can be built from prose guesswork with nothing anywhere saying so. That fallback is not a neutral second-best — it is the defect the marker exists to fix. Its own JSDoc records what it did: it missed names the AI had bolded, and it read ordinary sentences such as \"your retail shop needs a pivot in leadership\" as four recommendations, inflating an advisor recorded tier because Leadership is an advanced-tier tool. Both paths produce a plausible list, so a tester in UAT cannot tell them apart, and nobody can say how often the fallback runs because nothing counts it.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "Found 2026-08-26 by the session running the 4.50 live check — three real conversations against the live OpenAI key on this laptop. Nobody outside asked for it. Filed as a defect with Mike explicit yes when it was put to him. A defect we found ourselves still files; what the gate in tests/unit/toDoItems.test.js bars is a FEATURE nobody asked for."
-      },
-      "touches": "server/advisorEngine.js (the Phase 3 close at L3525, where state.recommendedTemplates is set), server/utils/tierLookup.js (resolveRecommendedTemplates), data/prompts/client.txt SECTION 11.",
-      "note": "THE PROPOSED FIX IS ONE LOG LINE, NOT CHASING THE AI INTO OBEDIENCE. The model ignoring an instruction at the very end of a 15,799-character prompt is not something this repo can reliably fix, and trying would be guesswork. What is missing is that the choice is INVISIBLE: resolveRecommendedTemplates returns a list and never says which of its two paths produced it. Recording declared-vs-prose where state.recommendedTemplates is set turns an unmeasurable coin-toss into a number UAT can watch. ⚠ HOW TO TELL THE TWO APART FROM OUTSIDE, because it is not obvious and it cost this session an hour: (a) the marker preserves the AI OWN order while extractTemplatesFromText always returns catalogue order — so a session_meta order that differs from a fresh prose scan proves a marker was present; (b) stripTemplateMarker right-trims, so a stream ending in an untrimmed blank line proves there was NO marker. Both are readable from the SSE stream alone, with no code change. NOTE FOR WHOEVER PICKS THIS UP: 5 is arguable rather than 4 if the capability record counts as data integrity — the ranking is Mike.",
-      "comment": null
     }
   ]
 }

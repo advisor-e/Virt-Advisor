@@ -43,22 +43,8 @@ function resolveStrategy (caseState, firmOverrides) {
   const templateBudget = caseState.constraints.templateBudget || 1
 
   // ── Sequencing rule ──────────────────────────────────────────────────────
-  // Engagement type decides it by default. The education gate (item 2.9) overrides that
-  // when — and only when — the advisor actually answered it.
-  //
-  // 🔴 THE GATE SETS SEQUENCING DIRECTLY, NOT VIA ENGAGEMENT TYPE. `advisory-staircase.json`'s
-  // own ruleGuard forbids coupling here: "the education decision lives in the acumen lens".
-  // Routing the answer through engagementType would also change the complexity ceiling and
-  // the template budget as a side effect, which nobody asked for — the advisor answered a
-  // question about how to PITCH the advice, not about what the engagement IS.
-  //
-  // A gate answer of 'technical' is a real decision and beats an engagement type that would
-  // otherwise have sequenced education first: the advisor was shown the choice and declined.
-  const engagementSequencing = engagementType === 'education' ? 'education_first' : 'standard'
-  const gateChoice = caseState.educationChoice || null
-  const sequencingRule = gateChoice
-    ? (gateChoice === 'education_first' ? 'education_first' : 'standard')
-    : engagementSequencing
+  // ⚠ Inert: nothing reads this. Logged in the observability snapshot only.
+  const sequencingRule = engagementType === 'education' ? 'education_first' : 'standard'
 
   // ── Intervention urgency ─────────────────────────────────────────────────
   // Passed through from the client's derived urgency (deriveUrgency in caseState).

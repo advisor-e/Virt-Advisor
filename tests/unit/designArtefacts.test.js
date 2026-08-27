@@ -43,8 +43,6 @@ const REGISTER_PATH = path.join(DESIGN_DIR, 'ARTEFACTS.md')
  * `ACTIONS.md` was frozen 2026-08-24 (see its own header, and CLAUDE.md). The
  * `SESSION-*.md` notes stopped being written the same day; 85 remain as history.
  *
- * First needed on 2026-08-26, when the Education Gate's mockup was deleted with the rest of
- * its documents on Mike's instruction and only the frozen archive still named it.
  */
 function isFrozenHistory (name) {
   return name === 'ACTIONS.md' || name === 'ACTIONS-ARCHIVE.md' || name.startsWith('SESSION-')

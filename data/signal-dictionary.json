@@ -389,29 +389,5 @@
         "buy(ing)? into a franchise"
       ]
     }
-  },
-  "_gateSignalsNote": "🔴 gateSignals is a SEPARATE map from `signals` ON PURPOSE, and moving an entry between them is a behaviour change, not a tidy-up. Entries in `signals` feed template SCORING (problemSignals.SIGNAL_REGISTRY -> templateResolver.getSignalWeight -> decisionScore). Entries here feed a QUESTION the advisor is asked and nothing else. Keeping them apart is what makes 'the education gate cannot change which templates are recommended' provable by construction rather than by a weight of zero — see design/EDUCATION-GATE.md §5c. scripts/build-semantic-profiles.js reads neither map (it carries its own keyword list), so nothing here needs regenerating.",
-  "gateSignals": {
-    "financial_literacy_gap": {
-      "description": "The client is not comfortable reading their own numbers — focused on the wrong measure, or unable to interpret what they have",
-      "gate": "education-gate",
-      "_patternsNote": "NOT newly authored. These generalise pd-35's six triggers in data/advisory-distinctions.json — Mike's own content, previously reachable only inside the forecasting domain. A fourth vocabulary for the same idea is how the existing three drifted apart. The mentor-editable phrase list in data/education-gate.json is merged over these at runtime.",
-      "patterns": [
-        "(do|does)(n'?t| not) (really )?understand (their|his|her|its|the)? ?(own )?(numbers?|figures?|margins?|financials?|accounts?|p ?& ?l|profit)",
-        "((do|does)(n'?t| not)|can'?t|cannot|unable to) read (their|his|her|its|the)? ?(own )?(numbers?|figures?|financials?|accounts?|p ?& ?l|statements?)",
-        "focus(es|ed|ing)? on (sales|turnover|revenue|the top.?line) (not|rather than|instead of|over) (profit|margins?|the bottom.?line)",
-        "chas(e|es|ing) (turnover|revenue|the top.?line|sales)",
-        "obsessed with (revenue|turnover|sales|the top.?line)",
-        "wrong numbers focus",
-        "(focused|fixated) on the wrong (numbers?|measures?|metrics?)",
-        "(no|poor|weak|limited|lacks?|lacking|low) (financial |business )?(literacy|acumen|numeracy)",
-        "not (financially )?(literate|numerate)",
-        "(confus(e|es|ed|ing)|conflat(e|es|ed|ing)) (turnover|revenue|sales) (with|and|for) (profit|margins?)",
-        "thinks? (turnover|revenue|sales) (is|are|means?|equals?) profit",
-        "(do|does)(n'?t| not) know (what|the difference between) (a )?(margin|gross profit|net profit|ebitda)",
-        "(never|(do|does)(n'?t| not)) look(s)? at (the )?(margins?|gross profit|bottom.?line)",
-        "(out of|beyond) (their|his|her) depth with (the )?(numbers?|figures?|financials?)"
-      ]
-    }
   }
 }

@@ -45,7 +45,7 @@ kills the wrapper, not node: port 4000 stays held, the next start fails `EADDRIN
 conversation silently runs the **old code**. It nearly produced a clean-looking verification of
 an unfixed build. Clear the port before trusting a restart.
 
-**Waiting on Mike:** **4.15** (23 template names) · **4.52** (education gate) · **4.53** (rank
+**Waiting on Mike:** **4.15** (23 template names) · **4.53** (rank
 it). **4.50** now waits on UAT, not on us.
 
 **Unchanged:** `npm install` still needs npm 8.19.4 on Node 14.15 — [`../.npmrc`](../.npmrc).
