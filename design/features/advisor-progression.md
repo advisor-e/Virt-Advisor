@@ -58,6 +58,11 @@ excluded from averages and certificates.
 **P7 · Every request has a timeout.** An unanswered call must never leave a spinner running for
 ever.
 
+**P8 · A guessed tool list is recorded as a guess.** The AI declares what it recommended; when
+it does not, the app falls back to reading its prose, which has previously read ordinary
+sentences as recommendations. Every recommendation records which of the two produced it, so a
+fallback can be counted rather than assumed away.
+
 ---
 
 ## 3. Design considerations

@@ -8,44 +8,31 @@
 
 ---
 
-## 2026-08-26 · Laptop · branch `feat/advisor-progress`
+## 2026-08-27 · Laptop · branch `feat/advisor-progress`
 
-Suite **6,507 green**, lint 0 errors. Branch **60 ahead, 0 behind** `master`. Nothing
-uncommitted. Three commits: `06966c6`, `c1a4eb8`, and this one.
+Suite **6,432 green**, lint 0 errors. Branch **61 ahead, 0 behind** `master`. Nothing
+uncommitted. One commit: `48663f8`, pushed.
 
-🔴 **4.50's blocker was false, and had been for a month.** It said this machine has no
-OpenAI key. [`.env`](../.env) has held a live one since 30 July, dotenv loads it at
-[`restify-server.js:50`](../server/restify-server.js#L50), and the backend prints
-`OPENAI_API_KEY present=true` on boot. Nobody had looked. **Check the claim, not the note.**
+🔴 **The education gate is GONE — do not look for it and do not rebuild it.** Removed in
+full on Mike's instruction (4.52): code, data, tests, wording, screen strings and every
+note naming it. He never asked for it and asked four times for it to go. Git history holds
+it. The only surviving mention is `CLAUDE.md`'s own "only build what Mike requested" rule,
+which uses it as the worked example — that stays, it is his rule.
 
-**The check was run** — three full conversations, 17 API calls, 77,605 tokens. **Two of its
-three checks pass and are closed.** The reply streams token by token (435/1,094/792 chunks),
-and no marker text ever reaches the screen — 2,321 chunks, every partial prefix tested. Not a
-vacuous pass: one run demonstrably *did* produce a marker, provable because its declared order
-differs from the deterministic prose-scan order. **The third check needs MySQL, not OpenAI** —
-all three sessions completed and *none* was recorded (`ECONNREFUSED 127.0.0.1:3306`, no error
-raised). So it needs UAT. ⚠ **"Team Dashboard" is not a screen** — it is the Team tab, fed by
-`/api/activity/team`. The words survive only in two code comments
-([`tierLookup.js:88`](../server/utils/tierLookup.js#L88) and this test's header), left alone
-deliberately.
+It set one field, `sequencingRule`, which **nothing reads and has not since 2026-06-23**
+(recorded in `virt-advisor-registry.md`). So no advice changed. `sequencingRule` itself was
+left in place — it predates the gate and is still inert; the comment now says so.
 
-**4.53 filed** — the AI writes the marker only *sometimes*: confirmed present once, absent
-once, one run genuinely indeterminate. That is not a measured rate and the item says so. When
-it is absent the engine silently falls back to the prose scan the marker was built to replace,
-and nothing anywhere records which path ran. **Waiting on Mike to rank.**
+**4.53 closed.** `resolveRecommendedTemplatesWithSource` in
+[`tierLookup.js`](../server/utils/tierLookup.js) now returns `declared` or `prose` beside the
+templates; the engine logs it and puts `source` on the decision trace. It does **not** try to
+make the model obey — it makes the fallback countable. 5 tests.
 
-**Fixed and verified live:** the two *buffered* AI paths never stripped the marker — the
-ordinary reply (`_mainBuffer`) and the post-recommendation follow-up (`_postBuffer`), both
-carrying `client.txt` §11. Unlike Phase 3, a leak there prints whole and stays. Proven from
-code, never seen to fire. ⚠ **Mike approved fixing one path; both were fixed** — same bug,
-stated in the commit rather than folded in.
+⚠ **A brief in-flight scare, resolved.** Mid-removal the engine imported nothing but still
+called the gate's functions — the backend would not have started. It is whole now and the
+suite proves it, but if you see that shape again, finish or revert; do not leave it.
 
-⚠ **Stopping the backend leaves an orphan.** Killing `npm run backend` through the task runner
-kills the wrapper, not node: port 4000 stays held, the next start fails `EADDRINUSE`, and the
-conversation silently runs the **old code**. It nearly produced a clean-looking verification of
-an unfixed build. Clear the port before trusting a restart.
-
-**Waiting on Mike:** **4.15** (23 template names) · **4.53** (rank
-it). **4.50** now waits on UAT, not on us.
+**Waiting on Mike:** **4.15** (23 template names — needs his search-content update) ·
+**4.50** now waits on UAT, not on us. The live list is down to those two.
 
 **Unchanged:** `npm install` still needs npm 8.19.4 on Node 14.15 — [`../.npmrc`](../.npmrc).
