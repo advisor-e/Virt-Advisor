@@ -19,7 +19,7 @@
       tier-not-connected(v-if="awaitingFirms")
 
       p.has-text-grey.has-text-centered.py-6(v-else-if="cases.length === 0")
-        | No cases have been shared with you yet. When a firm manager shares one, it appears here.
+        | {{ $t('mentorReview.empty') }}
 
       div(v-else)
         //- Grouped by the level IMMEDIATELY BELOW whoever is looking — a firm for a
@@ -41,7 +41,7 @@
                 .level-left
                   div
                     p.has-text-weight-semibold {{ c.title }}
-                    p.is-size-7.has-text-grey {{ originPrefix(c) }}{{ domainLabel(c) }} &middot; shared {{ formatDate(c.mentorSharedAt) }}
+                    p.is-size-7.has-text-grey {{ originPrefix(c) }}{{ domainLabel(c) }} &middot; {{ $t('mentorReview.sharedDate', { date: formatDate(c.mentorSharedAt) }) }}
                 .level-right
                   b-icon(:icon="expandedId === c.id ? 'chevron-up' : 'chevron-down'")
 
@@ -50,45 +50,45 @@
 
                 //- Anonymised summary
                 .mb-4(v-if="c.summary")
-                  p.is-size-7.has-text-weight-semibold Summary
+                  p.is-size-7.has-text-weight-semibold {{ $t('mentorReview.summary') }}
                   p.is-size-7 {{ c.summary }}
 
                 //- Engine behaviour — how the recommendation was reached
                 template(v-if="c.decisionTrace")
                   p.is-size-7
-                    strong Area focused on:
+                    strong {{ $t('mentorReview.areaFocused') }}
                     |  {{ traceDomainLabel(c.decisionTrace) }}
                   .mt-3(v-if="topTemplates(c).length")
-                    p.is-size-7.has-text-weight-semibold How the templates scored
+                    p.is-size-7.has-text-weight-semibold {{ $t('mentorReview.templateScores') }}
                     table.table.is-narrow.is-fullwidth.is-size-7
                       thead
                         tr
                           th #
-                          th Template
-                          th Score
+                          th {{ $t('mentorReview.colTemplate') }}
+                          th {{ $t('mentorReview.colScore') }}
                       tbody
                         tr(v-for="t in topTemplates(c)" :key="t.rank")
                           td {{ t.rank }}
                           td {{ t.title }}
                           td {{ t.score }}
-                p.is-size-7.has-text-grey(v-else) No decision trace was recorded for this case.
+                p.is-size-7.has-text-grey(v-else) {{ $t('mentorReview.noTrace') }}
 
                 //- Advisor's own review
                 .mt-4(v-if="c.review")
-                  p.is-size-7.has-text-weight-semibold Post-Delivery Review (by the advisor)
-                  p.is-size-7(v-if="c.review.wentWell") ✓ What went well? — {{ c.review.wentWell }}
-                  p.is-size-7(v-if="c.review.wentLess") ⚠ What went less well? — {{ c.review.wentLess }}
-                  p.is-size-7(v-if="c.review.changesRecommended") What they'd do differently — {{ c.review.changesRecommended }}
+                  p.is-size-7.has-text-weight-semibold {{ $t('mentorReview.reviewHeading') }}
+                  p.is-size-7(v-if="c.review.wentWell") ✓ {{ $t('mentorReview.wentWell') }} — {{ c.review.wentWell }}
+                  p.is-size-7(v-if="c.review.wentLess") ⚠ {{ $t('mentorReview.wentLess') }} — {{ c.review.wentLess }}
+                  p.is-size-7(v-if="c.review.changesRecommended") {{ $t('mentorReview.changesRecommended') }} — {{ c.review.changesRecommended }}
 
                 //- Anonymised conversation
                 .mt-4(v-if="c.transcript && c.transcript.length")
-                  p.is-size-7.has-text-weight-semibold Conversation (anonymised)
+                  p.is-size-7.has-text-weight-semibold {{ $t('mentorReview.conversation') }}
                   .mentor-msg(
                     v-for="(m, i) in c.transcript"
                     :key="i"
                     :class="m.role === 'assistant' ? 'mentor-msg-va' : 'mentor-msg-adviser'"
                   )
-                    span.mentor-msg-role {{ m.role === 'assistant' ? 'Adviser tool' : 'Adviser' }}
+                    span.mentor-msg-role {{ m.role === 'assistant' ? $t('mentorReview.roleTool') : $t('mentorReview.roleAdviser') }}
                     p.mentor-msg-text {{ m.content }}
 </template>
 
@@ -248,7 +248,7 @@ export default {
     },
 
     domainLabel (c) {
-      return DOMAIN_LABELS[c.domain] || c.domain || 'No area recorded'
+      return DOMAIN_LABELS[c.domain] || c.domain || this.$t('mentorReview.noArea')
     },
 
     traceDomainLabel (trace) {
@@ -263,9 +263,9 @@ export default {
     },
 
     formatDate (value) {
-      if (!value) { return 'recently' }
+      if (!value) { return this.$t('mentorReview.recently') }
       const d = new Date(value)
-      return isNaN(d.getTime()) ? 'recently' : d.toLocaleDateString()
+      return isNaN(d.getTime()) ? this.$t('mentorReview.recently') : d.toLocaleDateString()
     }
   }
 }
