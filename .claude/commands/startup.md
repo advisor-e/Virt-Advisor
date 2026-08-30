@@ -49,9 +49,14 @@ it, do not perform it unasked.
    page under "Unlisted", say so — the index has forgotten a page.
 
 4. **What is open?** Read **`design/features/to-do-items.json`** — the ten live items
-   themselves — and **`design/HANDOVER.md`**, the one rolling note from whoever worked
-   last. Report the two or three things most likely to be today's work, saying for each
-   whether it waits on Mike, on us, or on someone outside. Do not start any of them.
+   themselves — and **BOTH handover notes**: `design/HANDOVER-desktop.md` and
+   `design/HANDOVER-laptop.md`, one per machine. Yours is the one matching the branch from
+   step 1; the other machine's is what stops the two divisions treading on each other.
+   Report the two or three things most likely to be today's work, saying for each whether
+   it waits on Mike, on us, or on someone outside. Do not start any of them.
+
+   **Say so if the other machine's note is stale.** Its date against today's is the only
+   signal that the other division has been idle, or ended a session without writing one.
 
    **Read the JSON, not `to-do.md`.** The page is 850 lines of standing explanation
    wrapped around a generated ten-row table; the JSON *is* the list, and the page is

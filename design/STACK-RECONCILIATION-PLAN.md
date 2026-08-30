@@ -26,8 +26,9 @@
 >
 > **Live record.** Open work is on [`features/to-do-items.json`](features/to-do-items.json).
 > `design/ACTIONS.md` is a **frozen archive** as of 2026-08-24 — history, not status — and the
-> `SESSION-*.md` notes this header used to cite are no longer written; the handover is
-> [`HANDOVER.md`](HANDOVER.md).
+> `SESSION-*.md` notes this header used to cite are no longer written; the handover is one
+> file per machine — [`HANDOVER-desktop.md`](HANDOVER-desktop.md) and
+> [`HANDOVER-laptop.md`](HANDOVER-laptop.md).
 >
 > **Governing principle (non-negotiable):** Node **14.15** is fixed. We reconcile *toward* the
 > Constitution — restify and Nuxt come back to the locked baseline; the drift is **never**

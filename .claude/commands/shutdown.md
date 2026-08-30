@@ -77,7 +77,11 @@ a time and wait for the answer.
    machine's branch, and never `master` directly (the pre-push hook will block both).
    Wait for approval.
 
-6. **Leave the handover — in `design/HANDOVER.md`, one file, replaced each session.**
+6. **Leave the handover — in THIS MACHINE'S OWN file, replaced each session.**
+   `design/HANDOVER-desktop.md` on the desktop, `design/HANDOVER-laptop.md` on the laptop,
+   matched to the branch. **Never write the other machine's file** — the same rule as the
+   branch you push, and for the same reason: it is not yours to overwrite.
+
    One session's worth: where the work stopped, what is half-finished, and what the other
    machine needs to know. Keep it under about 20 lines. This is what stops the two
    divisions treading on each other, and it is the *only* narrative file a session writes.

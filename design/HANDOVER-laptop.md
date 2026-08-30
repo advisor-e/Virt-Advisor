@@ -1,7 +1,9 @@
-# Handover — the last session, and only the last session
+# Handover — the laptop, last session only
 
-> **One file, one session. It is replaced each time, not added to.** Anything worth keeping
-> beyond tomorrow belongs in the feature's Brief or on
+> **One file per machine, one session each. It is replaced each time, not added to.**
+> This machine writes only this file; the desktop's is
+> [`HANDOVER-desktop.md`](HANDOVER-desktop.md), and a session reads BOTH at startup.
+> Anything worth keeping beyond tomorrow belongs in the feature's Brief or on
 > [`features/to-do-items.json`](features/to-do-items.json). Earlier handovers are in git
 > history. This replaces the 85 `SESSION-*.md` files written before 2026-08-24; those stay
 > as history and none is written now. See [`WORKING-AGREEMENT.md`](WORKING-AGREEMENT.md).
