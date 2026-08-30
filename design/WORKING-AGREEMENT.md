@@ -80,10 +80,11 @@ Type **`/startup`** and the checklist runs itself. What it does, and why:
    in the browser. Because it is rebuilt from committed markdown every session, the page
    cannot drift from the repository, and the link never needs re-sending.
 4. **What is open?** — [`features/to-do-items.json`](features/to-do-items.json), which *is*
-   the live list, and [`HANDOVER.md`](HANDOVER.md), the one rolling note from whoever worked
-   last, so the two machines do not duplicate or contradict each other. Read the JSON rather
-   than [`to-do.md`](features/to-do.md): the page is 850 lines of standing explanation around
-   a generated ten-row table, and is rebuilt from the JSON anyway.
+   the live list, and **both handover notes** —
+   [`HANDOVER-desktop.md`](HANDOVER-desktop.md) and [`HANDOVER-laptop.md`](HANDOVER-laptop.md),
+   one per machine — so the two machines do not duplicate or contradict each other. Read the
+   JSON rather than [`to-do.md`](features/to-do.md): the page is 850 lines of standing
+   explanation around a generated ten-row table, and is rebuilt from the JSON anyway.
    **Not `ACTIONS.md`** — frozen as an archive on 2026-08-24. **And there are no session
    notes to read**: the 85 files written before that date stay as history, none is written now.
 5. **Catch up if behind** — merge `origin/master`, run the tests, prove nothing broke.
@@ -104,9 +105,11 @@ Type **`/shutdown`**. What it does, and why:
    item on this list, never a line in a note. **(c)** The **commit message**.
 4. **Commit** — message shown and approved first.
 5. **Push this machine's own branch only.**
-6. **Leave the handover** — in [`HANDOVER.md`](HANDOVER.md), one file carrying one session:
-   where you stopped, what is half-finished. This is what stops the two divisions treading
-   on each other, and it is the only narrative file a session writes.
+6. **Leave the handover** — in this machine's own file,
+   [`HANDOVER-desktop.md`](HANDOVER-desktop.md) or [`HANDOVER-laptop.md`](HANDOVER-laptop.md),
+   each carrying one session: where you stopped, what is half-finished. You write only your
+   own, exactly as you push only your own branch. This is what stops the two divisions
+   treading on each other, and it is the only narrative file a session writes.
 
 If anything is left uncommitted, the session ends by saying so out loud.
 

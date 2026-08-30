@@ -37,8 +37,9 @@ production, outside this repo).
    touching anything. Drift caught at 3 commits is free; at 97 it blocks a whole team.
 2. **End a session by running `/shutdown`** — tests green, changes named, the **three
    write-targets** current (the feature's Brief, `design/features/to-do-items.json`, the
-   commit message), commit and push approved, handover left in `design/HANDOVER.md`. Never
-   end a session implying work is safe when it is uncommitted; say so explicitly.
+   commit message), commit and push approved, handover left in this machine's own
+   `design/HANDOVER-desktop.md` or `design/HANDOVER-laptop.md`. Never end a session
+   implying work is safe when it is uncommitted; say so explicitly.
 3. **`master` means releasable.** Work in progress never lands on it. It is reached by
    pull request only — `.husky/pre-push` refuses a direct push, and refuses any push from
    a branch that is behind `origin/master`.
