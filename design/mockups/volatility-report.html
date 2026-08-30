@@ -1,0 +1,510 @@
+<title>Volatility Report</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Volatility Report — screen mockup for approval.
+
+   EVERY value below is copied from the project's own locked sources. Nothing is
+   invented and nothing is approximated:
+     - design/REPORT-VISUAL-STANDARD.md      the ruled numbers + [A]-[D2d] anatomy
+     - design/REPORT-LAYOUT-REFERENCE.html   the labelled reference to "match exactly"
+     - components/base/ReportShell.vue       the --rs-* tokens
+     - components/base/HeroStrip.vue         solid #002b64, 20px, 14px radius
+     - components/base/HeroFigure.vue        .hk/.hv/.hs2 sizes and colours
+     - components/base/ProvenanceBadge.vue   the from-file / entered tag
+   Figures are the real output of design/report-source-models/Volatility Report.xlsx
+   ("12 Volatility Calcs"), so this shows true numbers, not placeholders.
+   No dark mode: one light look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-col-input:360px; --rs-col-gap:16px; --rs-content-width:1120px;
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0; --rs-accent-contrast:#ffffff;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#ff00000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:var(--rs-content-width);margin:0 auto;padding:28px 22px 64px}
+
+/* [A] screen root — ONE gap value */
+.vol-root{display:flex;flex-direction:column;gap:16px}
+.vol-root strong,.vol-root b{font-weight:600}
+/* [A] resets the shared header's own margin (mandatory; guarded) */
+.vol-root .rs-top{margin:0}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55}
+.tag{position:relative}
+.tag::after{content:attr(data-tag);position:absolute;top:-9px;left:10px;background:#614700;
+  color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;padding:1px 6px;border-radius:4px}
+
+/* [B] ReportHeader */
+.rs-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  margin:0 auto 22px;padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);
+  color:#fff;box-shadow:var(--rs-shadow)}
+.rs-backlink{display:inline-block;margin-bottom:10px;font-size:12px;font-weight:600;
+  letter-spacing:.04em;color:#7fd3f1;text-decoration:none;opacity:.9}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+
+/* step chips — file-intake reports only */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+/* [C] HeroStrip + HeroFigure — locked, do not change */
+.herostrip{background:#002b64;border-radius:14px;padding:20px;display:grid;gap:0;
+  box-shadow:0 12px 32px -12px #002b6466;grid-template-columns:repeat(4,1fr)}
+@media (max-width:700px){.herostrip{grid-template-columns:1fr 1fr;gap:14px 0}}
+.herostrip > *:first-child{border-left:0;padding-left:2px}
+.hs{padding:2px 16px;border-left:1px solid #ffffff30}
+.hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
+.hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;
+  font-variant-numeric:tabular-nums}
+.hv .u{font-size:.5em;font-weight:400;opacity:.85}
+.hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+.is-stale{opacity:.45;filter:grayscale(.6)}
+
+/* StaleBanner */
+.stale{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;
+  align-items:center;gap:14px}
+.stale b{display:block;font-size:13px}
+.stale span{font-size:12.5px;color:var(--rs-muted)}
+
+/* [D] two-column body */
+.vol-layout{display:grid;grid-template-columns:var(--rs-col-input) 1fr;gap:var(--rs-col-gap);
+  align-items:start}
+@media (max-width:860px){.vol-layout{grid-template-columns:1fr}}
+
+/* cards — no top edge: the four shipped screens define none */
+.vol-card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow)}
+.vol-h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.vol-group{padding:15px 16px;border-bottom:1px solid var(--rs-line)}
+.vol-group:last-child{border-bottom:0}
+.vol-glabel{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.vol-dot{width:7px;height:7px;border-radius:50%;background:var(--rs-accent-bright)}
+
+/* [D2] results column — same 16px rhythm */
+.vol-results{display:flex;flex-direction:column;gap:16px;min-height:200px}
+/* [D2a] tiles */
+.vol-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:560px){.vol-tiles{grid-template-columns:1fr}}
+.vol-tile{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:16px 17px;box-shadow:var(--rs-shadow);overflow:hidden}
+.vol-k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.vol-v{font-size:30px;font-weight:600;letter-spacing:-.01em;margin-top:6px;line-height:1;
+  font-variant-numeric:tabular-nums}
+.vol-sub{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+/* [D2c] coach panel */
+.vol-edu{border-left:3px solid var(--rs-accent-bright);background:var(--rs-accent-soft);
+  border-radius:0 9px 9px 0;padding:15px 17px}
+.vol-edu-h{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600;color:var(--rs-accent);margin-bottom:8px}
+.vol-edu-p{margin:0 0 8px;font-size:14px;line-height:1.6}
+.vol-edu-p:last-child{margin-bottom:0}
+.vol-lead{background:var(--rs-accent);color:var(--rs-accent-contrast);font-size:10px;font-weight:600;
+  letter-spacing:.08em;padding:3px 7px;border-radius:5px}
+/* [D2d] actions */
+.vol-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.vol-cta{font:inherit;font-weight:600;font-size:13.5px;color:var(--rs-accent-contrast);
+  background:var(--rs-accent);border:0;padding:11px 18px;border-radius:10px;cursor:pointer}
+.vol-ghost{background:transparent;color:var(--rs-ink);border:1px solid var(--rs-line)}
+.vol-foot{font-size:12px;color:var(--rs-muted)}
+
+/* pills + provenance */
+.vol-pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;
+  padding:5px 11px;border-radius:999px}
+.vol-pill.is-good{color:var(--rs-good);background:var(--rs-good-soft)}
+.vol-pill.is-crit{color:#ff8f8f;background:#ffffff1f}
+/* the rev-counter dial */
+.gaugewrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.gaugewrap svg{flex:none;min-width:0}
+.gaugekey{flex:1;min-width:240px}
+.keyrow{display:flex;align-items:center;gap:9px;font-size:12.5px;margin-top:6px}
+.keyrow .sw{width:14px;height:8px;border-radius:3px;flex:none}
+.num{font-variant-numeric:tabular-nums}
+.vol-pill-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.src{letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:999px;
+  white-space:nowrap;font-size:9.5px;padding:2.5px 7px;margin-left:7px}
+.src-file{color:#0070c0;background:#0070c018;border:1px solid #0070c04d}
+.src-hand{color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+
+/* segmented control */
+.seg{display:flex;border:1px solid var(--rs-line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:var(--rs-panel);padding:9px 0;font:inherit;font-size:13px;
+  font-weight:600;color:var(--rs-muted);cursor:pointer}
+.seg button.on{background:var(--rs-accent);color:#fff}
+.fieldlab{display:block;font-size:12.5px;color:var(--rs-ink);margin-bottom:6px}
+
+/* file source */
+.srcbox{display:flex;gap:10px;align-items:flex-start;background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);border-radius:10px;padding:11px}
+.srcbox .nm{font-size:12.5px;font-weight:600;word-break:break-all}
+.srcbox .mt{font-size:11.5px;color:var(--rs-muted);margin-top:2px}
+
+/* chart + tables */
+.chartwrap{overflow-x:auto}
+svg{display:block;min-width:660px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:11.5px;color:var(--rs-muted)}
+.legend i{display:inline-block;width:22px;height:0;border-top:2px solid;vertical-align:middle;margin-right:6px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--rs-line);
+  font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--rs-muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+td.out{color:var(--rs-warn);font-weight:600}
+.tblnote{font-size:11.5px;color:var(--rs-muted);padding:0 16px 14px}
+
+/* questions block — mockup only */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:14px 16px;font-size:13px}
+.q h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;margin:0 0 10px;color:var(--rs-muted)}
+.q ol{margin:0;padding-left:20px}.q li{margin-bottom:9px}
+.q .from{color:var(--rs-muted);font-size:12px}
+</style>
+
+<div class="shell">
+<div class="vol-root">
+
+  <div class="mock">
+    <strong>Mockup for approval — not built.</strong> Rebuilt 2026-08-31 against
+    <em>REPORT-VISUAL-STANDARD.md</em> and the labelled <em>REPORT-LAYOUT-REFERENCE.html</em>,
+    which the standard says to match exactly. Sections are tagged <b>[B]–[D2d]</b> to the same
+    anatomy. Every figure is the real output of the Volatility workbook’s “12 Volatility Calcs”
+    sheet. Wording still to settle is listed at the foot.
+  </div>
+
+  <!-- [B] ReportHeader — no badge: this is CLASS_REPORT, the client's own accounts -->
+  <header class="rs-top tag" data-tag="B">
+    <div>
+      <a class="rs-backlink" href="#">‹ Back to Model Library</a>
+      <div class="rs-eyebrow">Business Performance Report · Risk</div>
+      <h1 class="rs-h1">Volatility Report</h1>
+      <div class="rs-client">Prepared for Northgate Joinery Ltd · 12 months to Dec 2023</div>
+    </div>
+  </header>
+
+  <div class="chips">
+    <span class="chip done"><span class="n">✓</span> Accounts file uploaded</span>
+    <span class="chip done"><span class="n">✓</span> Sales rows matched</span>
+    <span class="chip now"><span class="n">3</span> Review volatility</span>
+    <span class="chip todo"><span class="n">4</span> Discuss with client</span>
+  </div>
+
+  <!-- [C] HeroStrip — full-width band, direct child of the root, above the layout -->
+  <div class="herostrip tag" data-tag="C">
+    <div class="hs">
+      <div class="hk">Average monthly swing</div>
+      <div class="hv">77.73</div>
+      <div class="hs2"><span class="vol-pill is-crit"><span class="vol-pill-dot"></span> High</span></div>
+    </div>
+    <div class="hs">
+      <div class="hk">Average monthly sales</div>
+      <div class="hv">£56,791</div>
+      <div class="hs2">£681,486 over 12 months</div>
+    </div>
+    <div class="hs">
+      <div class="hk">Normal range</div>
+      <div class="hv">£34,720<span class="u"> – </span>£78,861</div>
+      <div class="hs2">one deviation either side</div>
+    </div>
+    <div class="hs">
+      <div class="hk">Months in range</div>
+      <div class="hv">8<span class="u"> of 12</span></div>
+      <div class="hs2">67% — the model expects 68%</div>
+    </div>
+  </div>
+
+  <!-- [D] two-column body -->
+  <div class="vol-layout tag" data-tag="D">
+
+    <!-- [D1] inputs -->
+    <aside class="vol-card tag" data-tag="D1">
+      <div class="vol-group">
+        <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">Window</h2></div>
+        <label class="fieldlab">How many months to measure</label>
+        <div class="seg"><button class="on">12</button><button>18</button><button>24</button></div>
+      </div>
+      <div class="vol-group">
+        <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">Source</h2></div>
+        <div class="srcbox">
+          <span>📄</span>
+          <div>
+            <div class="nm">Northgate_ProfitAndLoss_2023.xlsx</div>
+            <div class="mt">Xero P&amp;L export · 12 monthly sales rows read</div>
+          </div>
+        </div>
+      </div>
+      <div class="vol-group">
+        <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">The bands</h2></div>
+        <table>
+          <tr><th>Band</th><th>Lower</th><th>Upper</th></tr>
+          <tr><td>3rd deviation</td><td>—</td><td>£123,003</td></tr>
+          <tr><td>2nd deviation</td><td>£12,649</td><td>£100,932</td></tr>
+          <tr><td>1st deviation</td><td>£34,720</td><td>£78,861</td></tr>
+        </table>
+        <p class="vol-sub" style="margin-bottom:0">
+          The third lower band computes to −£9,422. Sales cannot be negative, so it is not
+          plotted. <em>(Question 4.)</em>
+        </p>
+      </div>
+    </aside>
+
+    <!-- [D2] results -->
+    <section class="vol-results tag" data-tag="D2">
+
+      <!-- [D2a] tiles -->
+      <div class="vol-tiles tag" data-tag="D2a">
+        <div class="vol-tile">
+          <div class="vol-k">Total sales</div>
+          <div class="vol-v">£681,486<span class="src src-file">from file</span></div>
+          <div class="vol-sub">12 months to December</div>
+        </div>
+        <div class="vol-tile">
+          <div class="vol-k">Months outside the range</div>
+          <div class="vol-v">4<span class="u" style="font-size:.55em;font-weight:400"> of 12</span></div>
+          <div class="vol-sub">none beyond the second deviation</div>
+        </div>
+        <div class="vol-tile">
+          <div class="vol-k">Highest month</div>
+          <div class="vol-v">£85,743<span class="src src-file">from file</span></div>
+          <div class="vol-sub">June · +£28,953 on the average</div>
+        </div>
+        <div class="vol-tile">
+          <div class="vol-k">Lowest month</div>
+          <div class="vol-v">£16,892<span class="src src-file">from file</span></div>
+          <div class="vol-sub">January · −£39,899 on the average</div>
+        </div>
+      </div>
+
+      <!-- [D2b] the signature diagram — the rev counter from the workbook -->
+      <div class="vol-card tag" data-tag="D2b">
+        <div class="vol-group">
+          <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">Average monthly swing</h2></div>
+          <div class="gaugewrap">
+            <svg viewBox="0 0 220 210" width="220" height="210" role="img"
+                 aria-label="Dial showing an average monthly swing of 77.73 out of 100, in the red band above 75.">
+              <!-- the three bands: green 0-50, orange 50-75, red 75-100 (measured
+                   from the workbook's own gauge images, all three identical) -->
+              <path d="M 59.09 160.91 A 72 72 0 0 1 110 38"    fill="none" stroke="#4ca52d" stroke-width="18"/>
+              <path d="M 110 38 A 72 72 0 0 1 176.52 82.45"    fill="none" stroke="#ff9900" stroke-width="18"/>
+              <path d="M 176.52 82.45 A 72 72 0 0 1 160.91 160.91" fill="none" stroke="#ff0000" stroke-width="18"/>
+
+              <!-- boundary ticks -->
+              <line x1="110"    y1="29"     x2="110"    y2="47"     stroke="#002b64" stroke-width="2"/>
+              <line x1="184.8"  y1="78.1"   x2="168.3"  y2="86.8"   stroke="#002b64" stroke-width="2"/>
+              <line x1="52.7"   y1="167.3"  x2="65.5"   y2="154.5"  stroke="#002b64" stroke-width="2"/>
+              <line x1="167.3"  y1="167.3"  x2="154.5"  y2="154.5"  stroke="#002b64" stroke-width="2"/>
+
+              <!-- scale labels -->
+              <text x="47"  y="181" font-size="10" fill="#5b6f8a" text-anchor="middle">0</text>
+              <text x="110" y="24"  font-size="10" fill="#5b6f8a" text-anchor="middle">50</text>
+              <text x="196" y="74"  font-size="10" fill="#5b6f8a" text-anchor="middle">75</text>
+              <text x="173" y="181" font-size="10" fill="#5b6f8a" text-anchor="middle">100</text>
+
+              <!-- needle at 77.73 -->
+              <line x1="96.49" y1="113.65" x2="171.78" y2="93.30" stroke="#002b64"
+                    stroke-width="3.5" stroke-linecap="round"/>
+              <circle cx="110" cy="110" r="8" fill="#002b64"/>
+              <circle cx="110" cy="110" r="3.5" fill="#ffffff"/>
+
+              <text x="110" y="200" font-size="26" font-weight="600" fill="#002b64"
+                    text-anchor="middle" style="font-variant-numeric:tabular-nums">77.73</text>
+            </svg>
+            <div class="gaugekey">
+              <p class="vol-edu-p" style="font-size:13.5px">
+                The dial is <b>the width of the normal range as a share of an average month</b> —
+                <span class="num">(2 × deviation) ÷ average</span>. At 77.73, the ordinary swing
+                spans about three-quarters of a typical month’s sales.
+              </p>
+              <div class="keyrow"><span class="sw" style="background:#4ca52d"></span> Under 50 — a steady business</div>
+              <div class="keyrow"><span class="sw" style="background:#ff9900"></span> 50 to 75 — noticeable swing</div>
+              <div class="keyrow"><span class="sw" style="background:#ff0000"></span> Over 75 — a wide swing month to month</div>
+              <p class="vol-sub" style="margin-top:10px">
+                The score climbs the further back you look: <b>77.73</b> over 12 months,
+                <b>85.12</b> over 18, <b>95.13</b> over 24.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- [D2b] the band chart -->
+      <div class="vol-card">
+        <div class="vol-group">
+          <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">Monthly sales against the normal range</h2></div>
+          <div class="chartwrap">
+            <svg viewBox="0 0 720 330" width="100%" height="330" role="img"
+                 aria-label="Monthly sales plotted against bands at one, two and three standard deviations from the average.">
+              <rect x="60" y="35.1"  width="645" height="47.5" fill="#ff990010"/>
+              <rect x="60" y="82.6"  width="645" height="47.5" fill="#0070c00f"/>
+              <rect x="60" y="130.1" width="645" height="95.1" fill="#0070c01c"/>
+              <rect x="60" y="225.2" width="645" height="47.6" fill="#0070c00f"/>
+              <rect x="60" y="272.8" width="645" height="27.2" fill="#ff990010"/>
+
+              <line x1="60" y1="35.1"  x2="705" y2="35.1"  stroke="#ff9900" stroke-width="1" stroke-dasharray="2 4"/>
+              <line x1="60" y1="82.6"  x2="705" y2="82.6"  stroke="#5b6f8a" stroke-width="1" stroke-dasharray="4 4"/>
+              <line x1="60" y1="130.1" x2="705" y2="130.1" stroke="#0070c0" stroke-width="1.5" stroke-dasharray="6 4"/>
+              <line x1="60" y1="177.7" x2="705" y2="177.7" stroke="#002b64" stroke-width="2"/>
+              <line x1="60" y1="225.2" x2="705" y2="225.2" stroke="#0070c0" stroke-width="1.5" stroke-dasharray="6 4"/>
+              <line x1="60" y1="272.8" x2="705" y2="272.8" stroke="#5b6f8a" stroke-width="1" stroke-dasharray="4 4"/>
+
+              <text x="705" y="32"  text-anchor="end" font-size="9.5" fill="#ff9900">3rd dev £123,003</text>
+              <text x="705" y="79"  text-anchor="end" font-size="9.5" fill="#5b6f8a">2nd dev £100,932</text>
+              <text x="705" y="127" text-anchor="end" font-size="9.5" fill="#0070c0">1st dev £78,861</text>
+              <text x="705" y="174" text-anchor="end" font-size="10" font-weight="600" fill="#002b64">Average £56,791</text>
+              <text x="705" y="222" text-anchor="end" font-size="9.5" fill="#0070c0">1st dev £34,720</text>
+              <text x="705" y="270" text-anchor="end" font-size="9.5" fill="#5b6f8a">2nd dev £12,649</text>
+
+              <line x1="60" y1="300" x2="705" y2="300" stroke="#d5e1ee" stroke-width="1"/>
+              <text x="52" y="303" text-anchor="end" font-size="9.5" fill="#5b6f8a">£0</text>
+
+              <polyline fill="none" stroke="#002b64" stroke-width="2" stroke-linejoin="round"
+                points="70,263.6 126.4,131.7 182.7,177.5 239.1,255.5 295.5,173.6 351.8,115.3 408.2,150.4 464.5,115.6 520.9,165.4 577.3,221.9 633.6,202.4 690,159.3"/>
+
+              <circle cx="70"    cy="263.6" r="5"   fill="#ff9900" stroke="#fff" stroke-width="1.5"/>
+              <circle cx="126.4" cy="131.7" r="3.5" fill="#002b64"/>
+              <circle cx="182.7" cy="177.5" r="3.5" fill="#002b64"/>
+              <circle cx="239.1" cy="255.5" r="5"   fill="#ff9900" stroke="#fff" stroke-width="1.5"/>
+              <circle cx="295.5" cy="173.6" r="3.5" fill="#002b64"/>
+              <circle cx="351.8" cy="115.3" r="5"   fill="#ff9900" stroke="#fff" stroke-width="1.5"/>
+              <circle cx="408.2" cy="150.4" r="3.5" fill="#002b64"/>
+              <circle cx="464.5" cy="115.6" r="5"   fill="#ff9900" stroke="#fff" stroke-width="1.5"/>
+              <circle cx="520.9" cy="165.4" r="3.5" fill="#002b64"/>
+              <circle cx="577.3" cy="221.9" r="3.5" fill="#002b64"/>
+              <circle cx="633.6" cy="202.4" r="3.5" fill="#002b64"/>
+              <circle cx="690"   cy="159.3" r="3.5" fill="#002b64"/>
+
+              <g font-size="9.5" fill="#5b6f8a" text-anchor="middle">
+                <text x="70" y="315">Jan</text><text x="126.4" y="315">Feb</text>
+                <text x="182.7" y="315">Mar</text><text x="239.1" y="315">Apr</text>
+                <text x="295.5" y="315">May</text><text x="351.8" y="315">Jun</text>
+                <text x="408.2" y="315">Jul</text><text x="464.5" y="315">Aug</text>
+                <text x="520.9" y="315">Sep</text><text x="577.3" y="315">Oct</text>
+                <text x="633.6" y="315">Nov</text><text x="690" y="315">Dec</text>
+              </g>
+            </svg>
+          </div>
+          <div class="legend">
+            <span><i style="border-color:#002b64"></i>Monthly sales &amp; average</span>
+            <span><i style="border-color:#0070c0;border-top-style:dashed"></i>1st deviation</span>
+            <span><i style="border-color:#5b6f8a;border-top-style:dashed"></i>2nd deviation</span>
+            <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#ff9900;margin-right:6px"></span>Outside the 1st deviation</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- [D2b] the four months, and this year against last -->
+      <div class="vol-card">
+        <div class="vol-group">
+          <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">The four months outside the range</h2></div>
+          <table>
+            <tr><th>Month</th><th>Sales</th><th>Distance from average</th><th>Band</th></tr>
+            <tr><td>January</td><td class="out">£16,892</td><td class="out">−£39,899</td><td>Below 1st</td></tr>
+            <tr><td>April</td><td class="out">£20,659</td><td class="out">−£36,132</td><td>Below 1st</td></tr>
+            <tr><td>June</td><td class="out">£85,743</td><td class="out">+£28,953</td><td>Above 1st</td></tr>
+            <tr><td>August</td><td class="out">£85,631</td><td class="out">+£28,841</td><td>Above 1st</td></tr>
+          </table>
+        </div>
+        <div class="vol-group">
+          <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">This year against last</h2></div>
+          <table>
+            <tr><th>Month</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Jun</th></tr>
+            <tr><td>Last year</td><td>£16,892</td><td>£78,123</td><td>£56,894</td><td>£20,659</td><td>£58,693</td><td>£85,743</td></tr>
+            <tr><td>Year before</td><td>£145,632</td><td>£56,891</td><td>£87,541</td><td>£29,483</td><td>£75,961</td><td>£34,678</td></tr>
+          </table>
+          <p class="vol-sub" style="margin-bottom:0">Six of twelve shown; the built screen scrolls to all twelve.</p>
+        </div>
+      </div>
+
+      <!-- [D2c] the coach panel -->
+      <div class="vol-edu tag" data-tag="D2c">
+        <div class="vol-edu-h"><span class="vol-lead">COACH</span> What to say about this</div>
+        <p class="vol-edu-p">
+          Two-thirds of the months land inside the normal range, which is what the model predicts.
+          Going up and down is normal. An owner who reacts to every month above or below the
+          average is permanently passing or failing against a line that was never a target.
+        </p>
+        <p class="vol-edu-p">
+          Four months sit outside the range and none is beyond the second deviation. The report
+          shows <b>where</b> a month sits. Whether it is seasonal, a one-off, or something the
+          business did to itself is a judgement for you and the client — not for the arithmetic.
+        </p>
+      </div>
+
+      <!-- [D2d] actions -->
+      <div class="vol-actions tag" data-tag="D2d">
+        <button class="vol-cta">Download PDF</button>
+        <button class="vol-cta vol-ghost">Replace accounts file</button>
+        <span class="vol-foot">Figures tagged “from file” came from the upload; the rest are calculated.</span>
+      </div>
+
+    </section>
+  </div>
+
+  <!-- states + questions: mockup only -->
+  <div class="mock" style="margin-top:8px">
+    <strong>The failure state, which the recipe requires.</strong> If a recalculation cannot reach
+    the backend, the <em>StaleBanner</em> appears above the band and the figures grey out, so a
+    dead number can never sit on screen looking live:
+  </div>
+  <div class="stale">
+    <div><b>These figures may be out of date</b><span>The calculation could not be reached.</span></div>
+    <button class="vol-cta">Retry</button>
+  </div>
+  <div class="herostrip is-stale">
+    <div class="hs"><div class="hk">Average monthly sales</div><div class="hv">£56,791</div><div class="hs2">£681,486 over 12 months</div></div>
+    <div class="hs"><div class="hk">Normal range</div><div class="hv">£34,720<span class="u"> – </span>£78,861</div><div class="hs2">one deviation either side</div></div>
+    <div class="hs"><div class="hk">Months in range</div><div class="hv">8<span class="u"> of 12</span></div><div class="hs2">67% — the model expects 68%</div></div>
+    <div class="hs"><div class="hk">One deviation</div><div class="hv">£22,071</div><div class="hs2">stale</div></div>
+  </div>
+
+  <div class="q">
+    <h2>Wording to settle before this is built</h2>
+    <ol>
+      <li><strong>“Average monthly swing”</strong> for the dial — your words. The workbook
+        prints the bare number with no label at all. Confirm, or name it differently?</li>
+      <li><strong>The three band descriptions</strong> under the dial — “a steady business” /
+        “noticeable swing” / “a wide swing month to month”. Mine, and the dial is yours, so
+        these especially need your eye. The <span class="from">50</span> and
+        <span class="from">75</span> boundaries are measured from your own gauge images, not
+        chosen.</li>
+      <li><strong>“Normal range”</strong> — my phrase for the band one deviation either side.
+        Your workbook says <span class="from">“1st Deviation – Upper/Lower Range”</span>.
+        Which goes in front of a client?</li>
+      <li><strong>“Average monthly sales”</strong> — the workbook’s graph says
+        <span class="from">“Average Mthly Sales”</span>. I spelled it out. Confirm?</li>
+      <li><strong>The coach panel text.</strong> Drawn from your own
+        <span class="from">demings-volatility-reference.json</span> — the pass/fail trap and
+        “going up and down is normal”. Does it say what you want an adviser to say?</li>
+      <li><strong>The negative third band.</strong> The maths gives −£9,422. Sales cannot be
+        negative. Left off the chart and noted in the table — or floor it at £0, or plot it as
+        your workbook does?</li>
+      <li><strong>“Outside the 1st deviation”</strong> for the four ringed months. Alternatives:
+        <span class="from">“outside the expected range”</span>, or
+        <span class="from">“worth a conversation”</span>.</li>
+    </ol>
+  </div>
+
+</div>
+</div>

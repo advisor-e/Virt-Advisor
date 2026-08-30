@@ -116,10 +116,25 @@ asserts the HeroStrip's DOM parent is the screen root, so an in-column banner fa
 |---|---|
 | Background | `#ffffff` light / `#0a1f3d` dark |
 | Border | `1px solid #d5e1ee` light / `#1a3559` dark |
-| Top edge | `3px solid #00b1e0` (the cyan signature) |
+| Top edge | **None.** (Corrected 2026-08-31 — see below.) |
 | Corner radius | **14px** (RULED 2026-07-27) — Loan Estimator currently uses 10px |
 | Padding | **`16px`** (RULED 2026-07-27, revised from `16px 18px` — uniform inset via `--rs-card-pad`) |
 | Title | navy `#002b64`, uppercase, **12px, letter-spacing .1em, weight 600** (RULED 2026-07-27 — one size everywhere) |
+
+> **The cyan top edge: there isn't one, and this line used to say there was.** Until
+> 2026-08-31 the row above read *"Top edge — `3px solid #00b1e0` (the cyan signature)"*, and
+> `ADDING-A-REPORT.md` step 7 told a new screen to write `border-top: 3px solid
+> var(--rs-card-top)`. **No shipped screen has ever done it** — Debtor Drag, Eight Levers,
+> Margin Breakeven, Quick Position and the labelled `REPORT-LAYOUT-REFERENCE.html` all define
+> a card as background + `1px` border + radius + shadow, and nothing else.
+>
+> **Ruled by Mike 2026-08-31: consistency wins — the models look the same, so we do not add
+> it.** Both documents were corrected the same day rather than eight screens changed. Found
+> while building the Volatility Report mockup, where following the documents would have
+> shipped the ninth screen looking unlike the other eight.
+>
+> The `--rs-card-top` token still exists in `ReportShell.vue` and is read by nothing. It is
+> harmless; leave it unless it is ever the last reference standing.
 
 ### Brand palette (single source)
 Light: bg `#eef3f8` · panel `#ffffff` · panel-2 `#f1f6fb` · ink `#002b64` · muted `#5b6f8a`
