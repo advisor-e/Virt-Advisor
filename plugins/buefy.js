@@ -32,9 +32,14 @@ import {
  * CLAUDE.md → Performance.
  *
  * 🔴 ADDING A NEW `b-*` TAG TO A TEMPLATE? REGISTER IT HERE FIRST.
- * An unregistered Buefy component does not error — Vue renders nothing and the screen is
- * silently short of a control. If you add `<b-datepicker>` to a page, add `Datepicker` to
- * the import and to the list below, or it will not appear.
+ * An unregistered Buefy component throws no exception — Vue renders nothing and the
+ * screen is short of a control. If you add `<b-datepicker>` to a page, add `Datepicker`
+ * to the import and to the list below, or it will not appear.
+ *
+ * You WILL be told, but only while developing: Vue logs `Unknown custom element:
+ * <b-datepicker>` from `npm run dev`. That warning is compiled OUT of the production
+ * build, so the mistake is loud on the machine that makes it and invisible everywhere
+ * afterwards — which is why this note is here and why no guard test was written.
  *
  * Each plugin registers its own sub-components, so these 21 cover all 24 tags in use:
  * Table → b-table + b-table-column · Tabs → b-tabs + b-tab-item ·

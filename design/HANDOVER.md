@@ -11,8 +11,10 @@
 ## 2026-08-30 · Laptop · branch `feat/advisor-progress`
 
 Suite **6,432 green**, lint 0 errors, `npm run build` succeeds on Node 14.15.0, and all
-**16 screens pass `npm run visual`** in a real Chromium. Nothing uncommitted. Two commits,
-both pushed: `5f3f528`, `f14ff02`.
+**16 screens pass `npm run visual`** in a real Chromium. Nothing uncommitted, everything
+pushed. Two code commits — `5f3f528` and `f14ff02` — plus this note.
+
+**All of it is on `master`**, merged the same day, so a branch cut from `master` has it.
 
 ### 🖥 DESKTOP — READ THIS FIRST, IT IS WHY THIS NOTE EXISTS
 
@@ -24,7 +26,7 @@ was 599–708 commits behind it.
 ahead** of `master`, so nothing the desktop has ever pushed is stranded. Run these three,
 in order:
 
-```
+```sh
 git fetch origin
 git status
 git log --oneline origin/feat/course-builder-v3..HEAD
@@ -35,7 +37,7 @@ was never pushed — the one thing nobody can see from the laptop.
 
 - **Prints nothing (expected):** start fresh from today's `master`, do **not** revive v3:
 
-  ```
+  ```sh
   git switch -c feat/course-builder-v4 origin/master
   ```
 
@@ -53,11 +55,20 @@ actually uses instead of all ~40 (24 tags in use, derived by scanning all 101 `.
 files, plus Dialog and Toast for `$buefy.dialog` / `$buefy.toast`).
 
 > 🔴 **Adding a new `b-*` tag? Register it in `plugins/buefy.js` first.** An unregistered
-> Buefy component does not error — Vue renders **nothing** and the control is silently
-> missing. **No test can catch this:** `tests/helpers/mountComponent.js` installs the FULL
-> Buefy into its own `localVue` and never loads that plugin. A guard test was offered and
-> not written; only a comment in the file stands today. *(There is no date-picker bug —
-> `b-datepicker` is only the worked example in that comment.)*
+> Buefy component throws no exception — Vue renders **nothing** and the control is simply
+> absent.
+>
+> **You will be warned, but only while developing.** Vue logs `Unknown custom element:
+> <b-datepicker>` under `npm run dev`, naming the component. That warning is compiled
+> **out** of the production build, so the mistake is loud on the machine that makes it and
+> invisible from UAT onwards. **No test catches it either:**
+> `tests/helpers/mountComponent.js` installs the FULL Buefy into its own `localVue` and
+> never loads that plugin.
+>
+> A guard test was considered and **deliberately not written** (Mike, 2026-08-30): it would
+> duplicate a warning the developer already gets by name, which is work done twice. Revisit
+> only if someone actually trips over it. *(There is no date-picker bug — `b-datepicker` is
+> only the worked example.)*
 
 **`f14ff02` — the two mentor screens now go through `$t()`.** `MentorDistinctions.vue` had
 **513 lines and not one `$t()` call**; `MentorReview.vue` had 2. Now 56 and 19, with 80 new
@@ -101,11 +112,13 @@ today's code**. What genuinely remains undone from it is JSDoc only:
 **4.15** (23 template names — needs Mike's search-content update) · **4.50** (needs a
 database, so UAT rather than a developer machine). The live list is still those two.
 
-### Open, and Mike's to call
+### Decided today, so nobody reopens them
 
-- Should today's two commits go to `master` before the desktop branches? Not merged yet, so
-  a desktop branching from `0d5199d` starts one step behind again. Neither commit touches
-  course builder, so nothing breaks either way.
-- The Buefy guard test in the red box above.
+- **Today's work goes to `master` — done.** It was nearly missed: this very note was written
+  on the branch, so a desktop following the instructions above would have cut from `master`
+  and read the **27 August** handover instead. The instruction and the thing that delivers it
+  were the same commit. Worth remembering next time a handover carries an instruction.
+- **The Buefy guard test: deliberately NOT written** — see the red box. It would duplicate a
+  warning the developer already gets by name.
 
 **Unchanged:** `npm install` still needs npm 8.19.4 on Node 14.15 — [`../.npmrc`](../.npmrc).
