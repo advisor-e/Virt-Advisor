@@ -63,6 +63,7 @@ approved, never saved, and gone a day later.
 | Template Check — table context | [template-check-table-context.html](mockups/template-check-table-context.html) | ACTIONS.md, 2026-08-12 notes |
 | Tier hub pages | [tier-hub-pages.html](mockups/tier-hub-pages.html) | Firm Manager Hub, Tier Cascade, WORDING-CASE-SHARE-CASCADE.md |
 | To-do list — scored table | [to-do-list-table.html](mockups/to-do-list-table.html) | features/to-do.md, product-principles.md |
+| What each model is for — the Model Guide | [report-model-summaries.html](mockups/report-model-summaries.html) | features/report-models.md · built at `/model-guide`, 2026-08-22 |
 | Working Capital Cycle | [working-capital-cycle-mockup.html](mockups/working-capital-cycle-mockup.html) | BRAND-TOKENS.md, BUSINESS-PERFORMANCE-REPORT-PLAN.md |
 
 **Pages Mike reads** — an approved design that is generated rather than drawn once.

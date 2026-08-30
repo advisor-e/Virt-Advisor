@@ -25,6 +25,7 @@ const { listPrompts, PROTECTION_PANEL } = require('../../server/utils/aiPrompts'
 
 const CASHFLOW = 'cashflow-forecast'
 const SECURITY = 'ai-audit-security'
+const REVIEW = 'prompt-review' // item 4.31 — mentor only
 
 /**
  * Mount the tab with the backend answering exactly as the real route does — the payload
@@ -137,12 +138,14 @@ describe('🔴 nothing on this screen can edit a locked section', () => {
 })
 
 describe('what the mentor additionally sees', () => {
-  it('gets both documents and therefore a picker', async () => {
+  it('gets every mentor document and therefore a picker', async () => {
     const wrapper = await mountTab('mentor')
 
-    expect(wrapper.vm.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY])
+    expect(wrapper.vm.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW])
     expect(wrapper.vm.hasPicker).toBe(true)
-    expect(wrapper.findAll('.aip-card').length).toBe(2)
+    // One card per document. The count follows the list rather than being pinned to a
+    // number, so adding a fourth document is a data change and not a test change.
+    expect(wrapper.findAll('.aip-card').length).toBe(wrapper.vm.prompts.length)
   })
 
   it('says WHY the security document has no boxes, instead of showing an empty one', async () => {

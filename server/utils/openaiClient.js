@@ -18,6 +18,10 @@
  *     - stream true  → resolves to an async-iterable of SSE chunks,
  *                      each { choices: [{ delta: { content }, finish_reason }] }
  *
+ * Every piece of model text leaving this client has invisible characters removed
+ * first — see `stripStreamContent` below for why that happens here rather than at
+ * each call site.
+ *
  * Node 14 only: uses the built-in `https` module (no global `fetch`, which is
  * Node 18+) and async generators (Node 10+). CommonJS.
  *
@@ -25,6 +29,7 @@
  */
 
 const https = require('https')
+const { stripInvisible } = require('./promptSafety')
 
 const DEFAULT_HOST = 'api.openai.com'
 const COMPLETIONS_PATH = '/v1/chat/completions'
@@ -64,6 +69,71 @@ async function * parseSSEStream (source) {
         // Ignore an unparseable SSE line rather than killing the stream.
       }
     }
+  }
+}
+
+/**
+ * Removes invisible characters from a non-streamed completion's message content.
+ * Mutates and returns the same object, so the SDK-shaped result is unchanged in
+ * every other respect.
+ *
+ * @param {object} completion - parsed completion
+ * @returns {object} the same completion, content cleaned
+ */
+function stripCompletionContent (completion) {
+  const choices = completion && completion.choices
+  if (!Array.isArray(choices)) { return completion }
+  for (const choice of choices) {
+    const message = choice && choice.message
+    if (message && typeof message.content === 'string') {
+      message.content = stripInvisible(message.content)
+    }
+  }
+  return completion
+}
+
+/**
+ * Removes invisible characters from each streamed chunk's content, rejoining a
+ * character that arrives split across two chunks before testing it.
+ *
+ * 🔴 WHY THE CARRY EXISTS. A Unicode tag character (U+E0000..U+E007F — the channel
+ * most often used to smuggle text past a human reviewer) is stored as TWO code
+ * units. A stream delivers a reply a few characters at a time, so those two halves
+ * can land in different chunks; a filter reading one chunk at a time then matches
+ * neither half, passes both through, and the browser rejoins them on screen. Holding
+ * a trailing half-character back until the next chunk closes that case.
+ *
+ * It is safe in both directions: a lone half is never valid text by itself, so
+ * deferring it is always correct, and an ordinary astral character — an emoji —
+ * split the same way is rejoined rather than broken.
+ *
+ * A half still held when the stream ends is dropped: no partner is coming, and
+ * alone it is not a character.
+ *
+ * ⚠ The carry is kept PER CHOICE INDEX. Chat completions return one choice in
+ * practice, but mixing two choices' held halves would corrupt both.
+ *
+ * @param {AsyncIterable<object>} chunks - parsed completion chunks
+ * @returns {AsyncGenerator<object>} the same chunks, content cleaned
+ */
+async function * stripStreamContent (chunks) {
+  const carry = []
+  for await (const chunk of chunks) {
+    const choices = chunk && chunk.choices
+    if (!Array.isArray(choices)) { yield chunk; continue }
+    for (let i = 0; i < choices.length; i++) {
+      const delta = choices[i] && choices[i].delta
+      if (!delta || typeof delta.content !== 'string') { continue }
+      let text = (carry[i] || '') + delta.content
+      carry[i] = ''
+      const last = text.length ? text.charCodeAt(text.length - 1) : 0
+      if (last >= 0xD800 && last <= 0xDBFF) {
+        carry[i] = text.slice(-1)
+        text = text.slice(0, -1)
+      }
+      delta.content = stripInvisible(text)
+    }
+    yield chunk
   }
 }
 
@@ -166,11 +236,11 @@ function createOpenAIClient (opts) {
     }
 
     if (params && params.stream) {
-      return parseSSEStream(res)
+      return stripStreamContent(parseSSEStream(res))
     }
 
     const raw = await readBody(res)
-    return JSON.parse(raw)
+    return stripCompletionContent(JSON.parse(raw))
   }
 
   return { chat: { completions: { create } } }

@@ -929,6 +929,21 @@ const TAB_TIERS = {
   // Advisor-e issues the roles. "It works" means the mentor and firm hubs proven, the
   // middle two correct-by-construction and unexercised.
   aiPrompts: ['mentor', 'global', 'group', 'firm']
+
+  // 🔴 ALL FOUR MANAGER TIERS, AND THE REASON IS STATED RATHER THAN ASSUMED — "as
+  // appropriate" is a judgement to make out loud (Mike's hub-page ruling, 2026-08-16).
+  // The MENTOR authors the platform default, because the wording is platform content and
+  // the cascade starts there. The three below inherit it and may override, because a
+  // firm's advisors may need its own phrasing for the same decision — the same shape
+  // every other cascading block on this hub has.
+  //
+  // Advisors and clients are excluded: they meet the gate in the conversation. It is a
+  // platform decision about how advice is pitched, not a per-case one, and an advisor who
+  // could reword the question could quietly switch the gate off for themselves.
+  //
+  // ⚠ Two of the four cannot be logged into today: config/integration.js ships
+  // globalManagerRole and groupManagerRole EMPTY on purpose, fail-closed. All four are
+  // listed anyway, for the reason given on aiPrompts above.
 }
 
 /**

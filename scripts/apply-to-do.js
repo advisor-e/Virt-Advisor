@@ -50,6 +50,11 @@ const END = '<!-- END GENERATED -->'
 /** Who an item may be waiting on. Free text here hides a blocker. */
 const WAITING = ['Mike', 'Us', 'Outside']
 
+// What an item IS. A `defect` is something that already exists being wrong, missing,
+// unverified or unmaintainable; a `feature` is a new capability, page, screen or
+// behaviour. Two values only — a third gives the gate below somewhere to hide.
+const KINDS = ['defect', 'feature']
+
 /** The calls the control offers. Anything but `proceed` takes an item off the list. */
 const SETTLED = { done: 'Done', park: 'Park', delete: 'Delete' }
 
@@ -116,6 +121,21 @@ function validate (items) {
     } else if (item.askedBy.ours && !String(item.askedBy.detail || '').trim()) {
       problems.push(ref + ' says nobody outside asked for it, and then does not say why it stays.')
     }
+
+    // 🔴 THE GATE, and it is here as well as in tests/unit/toDoItems.test.js on purpose.
+    // The test guards the file; this guards the OTHER way in — a list saved from the
+    // Handbook's ranking control and applied with `npm run to-do -- <file>`. A gate on
+    // one door only is not a gate. Mike, 2026-08-26: "ONLY the features and ideas I
+    // specifically request."
+    if (KINDS.indexOf(item.kind) === -1) {
+      problems.push(ref + ' does not say whether it is a defect or a feature. ' +
+        'It must be one of: ' + KINDS.join(', ') + '.')
+    } else if (item.kind === 'feature' && item.askedBy && item.askedBy.ours === true) {
+      problems.push(ref + ' "' + (item.name || '') + '" is a FEATURE that nobody outside ' +
+        'asked for. Mike\'s ruling of 2026-08-26: only features and ideas he specifically ' +
+        'requests get built. Propose it to him in one sentence instead of filing it. ' +
+        '(A DEFECT found by us is still fine — that is what `kind` is for.)')
+    }
     if (WAITING.indexOf(item.waitingOn) === -1) {
       problems.push(ref + ' waits on "' + item.waitingOn + '". It must be one of: ' +
         WAITING.join(', ') + '.')
@@ -127,7 +147,6 @@ function validate (items) {
       problems.push(ref + ' carries an unknown call, "' + item.yourCall + '".')
     }
   })
-
   return problems
 }
 

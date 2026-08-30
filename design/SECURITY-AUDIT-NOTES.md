@@ -119,8 +119,66 @@ and none is needed.
 
 ---
 
+## Accepted high advisory — `defu` ≤ 6.1.4 in the Nuxt 2 tree (reviewed 2026-08-25)
+
+**GHSA-737v-mqg7-c878 · high · `defu` <= 6.1.4** — prototype pollution through a
+`__proto__` key supplied in the **defaults argument** of a `defu()` call.
+
+### What is actually installed — the to-do item had this wrong
+
+Item 4.40 recorded *"four copies inside that range"*. The lockfile holds **five physical
+copies**, of which **three are vulnerable** and **two are already patched**:
+
+| Copy | Version | State |
+| --- | --- | --- |
+| `node_modules/defu` (serves `@nuxt/config` + `@nuxt/static`) | 2.0.4 | vulnerable |
+| `@nuxt/loading-screen/node_modules/defu` | 5.0.1 | vulnerable |
+| `serve-placeholder/node_modules/defu` | 5.0.1 | vulnerable |
+| `@nuxt/telemetry/node_modules/defu` | 6.1.7 | patched |
+| `rc9/node_modules/defu` | 6.1.7 | patched |
+
+The item counted four *dependency edges* as copies, and did not notice the two safe ones.
+
+### 🔴 These are NOT build-time-only, and the item said they were
+
+Item 4.40 recorded *"none of the four is reachable from the deployed runtime"*. **npm
+classifies all five copies, and all four parent packages, as production dependencies — not
+dev.** `@nuxt/config` loads the configuration when the SSR server starts, and
+`serve-placeholder` is runtime 404 middleware. So the reasoning the general Nuxt 2
+acceptance above rests on — *"build-time tools only … not present in or reachable from the
+deployed runtime"* — **does not apply to these**, and this entry does not borrow it.
+
+### Why the risk is accepted anyway
+
+- **Nothing hostile reaches a `defu` call.** The advisory needs an attacker-supplied
+  `__proto__` key in the *defaults argument*. All four call sites were traced on
+  2026-08-25: `@nuxt/config` merges `nuxt.config` values, `@nuxt/static` and
+  `@nuxt/loading-screen` merge module options, `serve-placeholder` merges its own
+  options object. **Every one is our own configuration; none takes request data.** The code
+  runs; the vulnerable path does not.
+- **The fix is forbidden by our own policy, not merely inconvenient.** CLAUDE.md’s npm-audit
+  policy permits a fix *"only for packages outside the Nuxt 2 build toolchain"*. Every copy
+  arrives through the locked Nuxt 2.14.0 dependency chain.
+- **The gate is unaffected.** This is **high**, and `scripts/audit-gate.js` blocks only on
+  criticals, so no allowlist entry was added and none is needed.
+
+### What a fix would have looked like, recorded so it is not re-derived
+
+A single unscoped `"defu": "6.1.7"` override would remove the advisory from the tree
+entirely, and the compatibility evidence is good: every consumer uses only the base
+`defu(a, b)` call — none touches `.fn`, `.arrayFn` or `.extend`, the three
+helpers renamed between 5 and 6. `@nuxt/config` and `@nuxt/static` use
+`_interopDefault`, and defu 6 exports a `default` key that is the function itself.
+6.1.7 already installs in this tree under `engine-strict`, and defu declares no
+`engines` at any version. **It was not done**: Mike’s ruling, 2026-08-25 — *"we stick to
+the rules"* — because it buys no real security here and disturbs a locked toolchain.
+
+---
+
 ## Action items
 
+- [ ] **Re-check `defu` when Nuxt 2 is retired.** The three vulnerable copies exist only
+      because Nuxt 2.14.0 pins them. Nothing else can move them under the lock.
 - [ ] **Put the `playwright` high advisory (GHSA-7mvr-c777-76hp) to the team for the
       §5.6 sign-off.** Added on the product owner's instruction; not yet team-reviewed.
 - [ ] **Re-check the Playwright Node floor when the Node 14.15 lock is ever revisited.**

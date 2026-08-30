@@ -268,13 +268,25 @@ fields: [
       const pos = (Math.log(turns) - Math.log(MIN_TURNS)) / (Math.log(MAX_TURNS) - Math.log(MIN_TURNS))
       return (SLOWEST_LAP - pos * (SLOWEST_LAP - FASTEST_LAP)).toFixed(2) + 's'
     },
+    /**
+     * The Coach panel's what-if — ten days off the cycle, priced.
+     *
+     * 🔴 THE ARITHMETIC MOVED TO `server/report/workingCapitalCycleModel.js` on 2026-08-22
+     * (to-do item 4.34) and this now only FORMATS it. The Model Guide quotes this same
+     * reading, and a number computed in two places is a number that eventually differs in
+     * two places. The model owns it; both screens read it.
+     *
+     * @returns {{days: number, factor: string, extra: string}|null} null while the model
+     *   has not answered, or where the cycle is zero and the what-if means nothing.
+     */
     fasterHint () {
-      if (!this.out || this.out.cycleDays <= 0) { return null }
-      const trimmed = Math.max(1, this.out.cycleDays - 10)
-      const factor = 30 / trimmed
-      const perTurn = this.out.cycleFactorMonthly ? (this.out.monthlyCashSales / this.out.cycleFactorMonthly) : 0
-      const extra = (perTurn * factor * 12) - this.out.annualRevenue
-      return { days: Math.round(trimmed), factor: (Math.round(factor * 10) / 10).toFixed(1), extra: this.money(extra) }
+      if (!this.out || this.out.cycleDays <= 0 || !this.out.fasterCycle) { return null }
+      const f = this.out.fasterCycle
+      return {
+        days: f.days,
+        factor: (Math.round(f.factor * 10) / 10).toFixed(1),
+        extra: this.money(f.extraAnnualRevenue)
+      }
     },
     diffText () {
       const v = this.out ? this.out.differenceVsScenario : 0

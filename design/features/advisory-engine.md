@@ -81,6 +81,18 @@ not to be re-specified to match the drift.
 **P9 · Every recommendation must be traceable.** Signal → primary issue → routing group →
 strategy → template. If it cannot be traced, that is a bug, not a mystery.
 
+**P10 · The AI cannot invent coaching content either, and says so instead.** P2 protects
+template *names*; this protects the *method*. Every Learn-mode prompt that loads a coaching
+guide also carries a generated statement of which guides it holds and which it does not, and
+the instruction to decline rather than fill a gap — naming the guide that does cover it.
+Routing will still sometimes pick the wrong guide and always will; what changed is that a
+wrong pick is now **visible** instead of **invented**. **The offer to switch that ends that
+sentence works**: the guide it names is carried into the topic pickers, so "yes" loads it
+(`offeredGuideFromLastAnswer`, item 4.46 — the pickers read only the advisor's own words, and
+the guide's name is in the answer that made the offer). Built and
+verified against the live model 2026-08-25 (item 4.18); see
+[`../LEARN-SCOPE-HONESTY.md`](../LEARN-SCOPE-HONESTY.md).
+
 ---
 
 ## 3. Design considerations

@@ -1,6 +1,7 @@
 # Letting an accountant contribute to the AI — safely
 
-> **Status:** design for approval. Nothing here is built.
+> **Status: BUILT, 2026-08-25.** Both lanes, end to end — the paste box and its six
+> refusals, the AI review, and the panel a level puts its own material in force on.
 > **Asked for by Mike, 2026-08-22**, in his words:
 >
 > > *"i do not want security put at risk or allow accountants to mistakenly give hacker
@@ -124,8 +125,8 @@ It is the default and it is the one presented first.
 The contribution is stored as **reference material the AI may draw on for this level**. It goes
 through the four layers below. **Nobody signs it off** — it is their firm and their opinion
 (§4, Layer 4) — but it is a deliberate, separate, clearly-labelled act rather than a side
-effect of asking for an opinion, and it is offered downward for the levels below to take or
-leave.
+effect of asking for an opinion, and it is pushed down to the levels below, who may edit it,
+switch it off, or refuse a later change to it.
 
 ---
 
@@ -221,21 +222,17 @@ quality at a firm is that firm's business.
 | **Nothing arrives unnoticed** | Attribution. An offered contribution shows which level wrote it, so a firm can tell its group's opinion from the platform's — the same job the *set here* / *inherited* badges already do |
 | **Nothing is permanent** | Version history and restore, free with `firmOverlay`. A bad contribution is one click from undone and always attributable |
 
-✅ **Settled 2026-08-22 — accepted, not inherited-until-declined.** Put to Mike as an open
-question, and he ruled it app-wide rather than for this feature:
+✅ **How it cascades.** Ruled by Mike: *"everything gets pushed down, once in place the lower
+level has the right to edit and refuse future updates."*
 
-> *"everything in Advisor-e that is offered downwards in a cascade must be accepted by the
-> level below. The higher levels can offer ideas but never enforce them."*
+A contribution is **in force immediately** at the levels below. Once it is in place, the level
+below may **edit it, switch it off, and refuse a later change** to it — the level above keeps its
+own version either way. That is what *never enforce* means: not that material waits for
+permission to start working, but that no level below is ever stuck with it.
 
-...with the scope confirmed immediately after: *"common sense would confirm it only relates to
-changes being made — what a level adds on top — else the software would be useless for a new
-firm."*
-
-So a contribution offered downward **does nothing at the level below until that level accepts
-it.** It is now [`features/tier-cascade.md`](features/tier-cascade.md) **P11**.
-
-⚠ **The platform's shipped baseline is not an offer and needs no acceptance.** It is the
-product, and it works the moment a firm opens the app.
+It is [`features/tier-cascade.md`](features/tier-cascade.md) **P11**, and it runs on §3's
+mechanism — inherited / declined / overridden / own, with Adopt or Keep mine when the level above
+changes something a level has already edited.
 
 🔴 **And this rule stops at authored content. It does not reach the engine.** Mike, correcting
 the first draft of P11 on 2026-08-22:

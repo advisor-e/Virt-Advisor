@@ -104,6 +104,100 @@ describe('every summary carries what an advisor needs before being sent to a mod
     })
   })
 
+  // ── The Model Guide screen's half of the contract ─────────────────────────────────
+  //
+  // 🔴 THIS IS WHAT MAKES "IT UPDATES ITSELF" TRUE. Ruled by Mike, 2026-08-22: the page
+  // must show a new model the moment one is added. `components/ModelGuide.vue` names no
+  // model — it renders whatever the backend returns — so the only way a new model can
+  // arrive on the screen half-described is if its entry is allowed to be incomplete.
+  // These four stop that: a model going live without the screen fields FAILS THE BUILD,
+  // exactly as it already fails without `answers` or `limits`.
+
+  it('🔴 EVERY MODEL LISTS THE HEADLINE FIGURES ITS SCREEN ACTUALLY SHOWS', () => {
+    listReportModels().forEach((s) => {
+      expect(Array.isArray(s.heroFigures)).toBe(true)
+      // Same floor as keyOutputs, and for the same reason: the shared HeroStrip guard
+      // requires at least three HeroFigures on every report screen.
+      expect(s.heroFigures.length).toBeGreaterThanOrEqual(3)
+      s.heroFigures.forEach((f) => {
+        expect(typeof f.label).toBe('string')
+        expect(f.label.trim().length).toBeGreaterThan(0)
+        // `sub` may be empty — several figures carry no sub-label on the screen — but
+        // it must be present, so an absent one is a decision and not an oversight.
+        expect(typeof f.sub).toBe('string')
+      })
+    })
+  })
+
+  it('the headline figures agree with the keyOutputs count — one screen, one answer', () => {
+    listReportModels().forEach((s) => {
+      expect(s.heroFigures.length).toBe(s.keyOutputs.length)
+    })
+  })
+
+  it('🔴 EVERY MODEL CARRIES THE READING ITS SCREEN GIVES, not just its numbers', () => {
+    listReportModels().forEach((s) => {
+      expect(Array.isArray(s.coach)).toBe(true)
+      expect(s.coach.length).toBeGreaterThanOrEqual(1)
+      s.coach.forEach(line => expect(line.trim().length).toBeGreaterThan(30))
+    })
+  })
+
+  it('🔴 THE BRIEF’S LIST OF MODELS WITH NO COACH PANEL IS HELD TO THE DATA', () => {
+    // Added 2026-08-22 (session 81). `design/features/report-models.md` P20 named THREE
+    // such models and omitted Lease vs Buy from the day it was written — one day earlier.
+    // Nothing caught it, because no test reads prose, which is the same reason the same
+    // page was able to say the Model Guide had no screen the day after it was built.
+    //
+    // A count in prose is a claim nobody is checking. This is the cheapest way to make a
+    // sentence in a Brief fail the build when it goes false.
+    const { readFileSync } = require('fs')
+    const { resolve } = require('path')
+    // Line endings normalised first: this repo checks out CRLF on Windows, and a regex
+    // spelling "\n\n" for a blank line silently matches nothing there — which would leave
+    // this test passing for the wrong reason, the exact failure it exists to prevent.
+    const brief = readFileSync(resolve(__dirname, '../../design/features/report-models.md'), 'utf8')
+      .replace(/\r\n/g, '\n')
+
+    const noPanel = listReportModels().filter(s => s.coachIsNotAPanel)
+    const bullet = (brief.match(/\*\*`coachIsNotAPanel: true`[\s\S]*?\n\n/) || [''])[0]
+
+    expect(bullet).not.toBe('')
+    // The count, written as a word the way the Briefs write counts.
+    expect(bullet).toMatch(/\*\*Four\*\*|\bFour\b/)
+    expect(noPanel).toHaveLength(4)
+    // And every one of them named, so a new one cannot be added silently.
+    //
+    // Matched on the name's identifying stem rather than in full, because prose calls
+    // these "8 Levers" and "Cost of Capital" where the catalogue says "8 Levers Model" and
+    // "Cost of Capital (WACC)". The stem is still the part that identifies the model —
+    // "Lease vs Buy" was missing from this sentence entirely, and that is what failed.
+    noPanel.forEach((s) => {
+      const stem = s.name
+        .replace(/ \(.*\)$/, '') // "Cost of Capital (WACC)" → "Cost of Capital"
+        .replace(/^The /, '') // "The Loan Estimator"     → "Loan Estimator"
+        .replace(/ Model$/, '') // "8 Levers Model"         → "8 Levers"
+      expect(bullet).toContain(stem)
+    })
+  })
+
+  it('a model without a Coach panel says so, rather than pretending to have one', () => {
+    // 8 Levers and Cost of Capital have explanatory notes and verdict rules instead.
+    // The screen must not head that content "What the Coach tells you" — it would
+    // describe a panel that is not there.
+    listReportModels().forEach((s) => {
+      expect(typeof s.coachIsNotAPanel).toBe('boolean')
+    })
+  })
+
+  it('every model records whether anything sits below the headline figures', () => {
+    // May be empty — three models genuinely show nothing else — but the field must
+    // exist, so "nothing else" is recorded rather than merely absent.
+    listReportModels().forEach((s) => {
+      expect(typeof s.alsoOnScreen).toBe('string')
+    })
+  })
+
   it('an Education model says out loud that its figures are illustrative', () => {
     // 🔴 The 8 Levers workbook's 880,000 "Trading Income" is a teaching figure. An advisor
     // told about that model without this caveat could repeat it to a client as a finding.

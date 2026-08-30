@@ -24,6 +24,13 @@
     "Where his order and the score disagree, his order wins and the score stays",
     "visible so the disagreement is on the page.",
     "",
+    "KIND — 'defect' or 'feature', and it is a GATE, not a label. A defect is something",
+    "that already exists being wrong, missing, unverified or unmaintainable. A feature is a",
+    "new capability, page, screen or behaviour. tests/unit/toDoItems.test.js FAILS THE BUILD",
+    "on a feature whose askedBy.ours is true — a new thing nobody outside asked for cannot be",
+    "filed at all. A defect we found ourselves still can, because Mike never asked us to stop",
+    "reporting bugs; he asked us to stop inventing work.",
+    "",
     "SCORE — 5 security/privacy/data integrity · 4 the user is worse off · 3 helps",
     "sell the package · 2 robustness · 1 internal only · 0 is not filed, it is",
     "deleted with its code.",
@@ -32,54 +39,18 @@
     "it is a defect to hide it. An item that cannot name Mike or a named outsider has",
     "to justify itself."
   ],
-  "orderedByMikeOn": "2026-08-15",
+  "orderedByMikeOn": "2026-08-23",
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it.",
   "items": [
     {
-      "ref": "2.9",
-      "name": "The education gate",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "On low client literacy the adviser is asked whether to apply education-first or see what is technically needed, reasoning shown either way. Behaviour ruled 2026-07-16; REACH ruled 2026-08-16 — the gate fires wherever poor financial literacy shows up, not only inside forecasting.",
-      "risk": "It stays uncoded and advisers keep getting advice pitched over a client's head. The narrow version would have been worse than nothing visible: it would have looked finished while firing almost never.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "His own design, 2026-07-16, rescoped by him 2026-08-16"
-      },
-      "touches": "The literacy signal across all eight domains, the Advisory Staircase, the pre-recommendation prompt.",
-      "note": "NO LONGER A WORDING TASK AND NO LONGER WAITING ON MIKE — it was carried for a month as 'only the on-screen words are missing', and that was wrong. Order is fixed: (1) widen the literacy signal, ours and first — NOT by copying the line into eight domains, but as a signal read independently of domain; (2) then Mike's wording, because where the gate can fire decides what it should say; (3) then build. Two findings behind the rescope: the 'outside-your-range' pattern the ruling says to copy was designed 2026-06-04 and never built, and 'Poor financial literacy' exists under forecasting only. See to-do.md section 4."
-    },
-    {
-      "ref": "4.7",
-      "name": "Flip engine-strict back on",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Still false. Two transitive packages (consola, node-releases) over-declare their Node requirement and need pinning down first.",
-      "risk": "The Node 14.15 lock is not actually enforced at install time, so a future install can drift off the Stack Constitution silently.",
-      "askedBy": {
-        "who": "the Stack Constitution",
-        "ours": false,
-        "detail": "The coding team's locked spec"
-      },
-      "touches": ".npmrc, package.json overrides.",
-      "note": "Reinstall is overnight-only on this machine and there is a documented safe procedure — follow it rather than a plain npm install.",
-      "comment": "get this done, it doesn't rely on me and should never have been parked"
-    },
-    {
       "ref": "4.15",
       "name": "The 21 branches that still name a page nobody can open",
+      "kind": "defect",
       "score": 4,
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "Of the 55 recommendations across the logic tables, 28 lose text to the template gate because they name a page that does not exist in the 291-record library. Seven were the Get Seminar branches, fixed 2026-08-15 once Mike named the real page (Design & Deliver). The other 21 sit in the fmc_, cas_, fbp_ and ol_ tables and nobody has looked at them.",
       "risk": "21 branches of Mike's own coaching are cut back or withheld before they reach an adviser. The gate is behaving correctly; the content names tools that are not there. Each one is advice an adviser is not getting, and nothing on screen says so.",
       "askedBy": {
@@ -88,170 +59,28 @@
         "detail": "2026-08-15 — \"put them in the list of to dos\", after being shown that the seven Seminar branches were seven of twenty-eight. Found by us; filed on his instruction."
       },
       "touches": "data/logic_trees.json, the Mentor Hub logic tables, and the Template Check screen where the real page names are settled.",
-      "note": "RANKED LAST DELIBERATELY, and it scores 4. Mike's ruling the same day: clear the technical and feature work first so the master team can start UAT testing, THEN double back to wording and document-title alignment. This is wording and title alignment. The pattern is proven and cheap once a name is known — the Seminar seven took five words and a seven-line diff — but each of the 21 needs the REAL page name, and that is Mike's to give, never a developer's to rule on. Put the actual sentences in front of him, not the label: that is what unblocked 2.3 after four sessions."
+      "note": "RANKED LAST DELIBERATELY, and it scores 4. Mike's ruling the same day: clear the technical and feature work first so the master team can start UAT testing, THEN double back to wording and document-title alignment. This is wording and title alignment. The pattern is proven and cheap once a name is known — the Seminar seven took five words and a seven-line diff — but each of the 21 needs the REAL page name, and that is Mike's to give, never a developer's to rule on. Put the actual sentences in front of him, not the label: that is what unblocked 2.3 after four sessions. 🔴 A SECOND STEP WAS FOUND ON 2026-08-26 AND IT IS NOT OPTIONAL. Measuring the empty `templates[]` arrays (raised as 4.51, closed the same day) showed that 22 of the branches with an EMPTY array name their templates in the recommendation PROSE instead — \"Use Design & Deliver template\", \"Use De Bono's 6 Hats\" — and those prose names are this item's own missing documents, in the same trees (35, cas_, fbp_). The consequence nobody had recorded: `walkLogicTree` in server/utils/logicTrees.js L1037 reads ONLY `node.templates`, never the prose. So the tree's judgement about which tool fits reaches the ADVISER as a sentence and never reaches the RANKING ENGINE, where it is meant to act as the tie-breaker. When the search content is updated and the names resolve, populating `templates[]` on those 22 branches is a required second step — the sentences alone leave the engine exactly as blind as it is now. ⚠ AND IT CANNOT BE DONE FIRST: `validateLogicTreeReferences` scans `nodes[].templates` and hard-fails under VA_STRICT_CONTENT, so writing a name into the array before the document exists turns a silent gap into a broken build.",
+      "comment": "2026-08-25 - WAITING ON MIKE, AND THE WHOLE LIST IS WRITTEN DOWN: design/LOGIC-TABLE-TEMPLATES-NEEDED.md, and as a page at https://claude.ai/code/artifact/9a5bf350-befd-444f-b574-4d806200420f. 19 branches across three logic tables (CA Firm Strategy 5, Firm Board Pack 7, Leadership & Partner Development 7) name 23 documents data/templates.json does not hold. Mike says the documents exist and will update the search content, then pick this up. Nothing to do here until he does. MATCHING IGNORES CASE AND PUNCTUATION, so some may already be solved - 'Demings Volatility' is published and matches \"Deming's Theory of Volatility\"; '6 Hats' matches \"De Bono's 6 Hats\". A sentence dies if ANY name in it is missing, and four branches name two. 'Psyche Errors' and 'Team AI' may be concepts rather than documents - if so the fix is to reword the sentence and no page is needed. WAS 21, NOW 19: COI Development pt1 and pt2 were published all along and the name scanner was cutting the title at the lowercase 'pt' (fixed in 48265ac). When the search content is updated, re-run the gate over all 55 recommendations - the command is in the reference file. Today: 36 whole / 6 partial / 13 withheld, pinned in tests/unit/recommendationGate.test.js."
     },
     {
-      "ref": "4.16",
-      "name": "Check every block's authored fields actually reach the prompt",
-      "score": 4,
-      "scoreReason": "the user is worse off without it",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "THE SWEEP IS DONE (2026-08-16) and it found 102 pieces of authored advisory content reaching no prompt. SIX OF THE SEVEN WORK ITEMS ARE NOW CLOSED: E the staircase question, C the 13 learn-table opening questions plus 2 standing rules, A+B all 65 diagnostic_entry branches plus the 26 entry questions, G proved a true duplicate needing no work, and F the 13 method guides (BUILT 2026-08-17, session 67, commit 6ae9778). ONLY D REMAINS -- the engagement types -- and it cannot start without Mike.",
-      "risk": "The sweep's whole point was that NO SCREEN RENDERED ANY OF THEM EITHER, so the content was invisible in both directions and no test could find it: every test asks whether a field was SAVED, none asks whether it was USED. That is now closed for the domain-support block, the logic-table block and the 13 method guides -- F went from 116 of 954 authored lines missing to 967 authored strings with 0 missing, verified by opening the real conversations rather than by inspecting the store. What is left is D: 3 engagement types x 6 authored fields sitting behind a hardcoded paraphrase, so the AI reads a summary of them rather than what Mike wrote, and no screen at any tier shows them.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "Found while closing 4.9 on 2026-08-15 and shown to Mike with the rendered prompt as proof. Every scope ruling since is his: the hub-page cascade (2026-08-16), Domain Support as the home for the branches (2026-08-16), and all screen wording on both blocks."
-      },
-      "touches": "data/engagement-types.json and whichever page Mike rules is its home (D). F is DONE and touches nothing further: the 13 guides now reach the prompt through ONE walk in server/utils/methodGuides.js (which replaced 893 lines of hand-written formatters in server/utils/logicTrees.js) and surface on Domain Support via components/firm/MethodGuidePanel.vue.",
-      "note": "🔴 ONE PART LEFT, AND IT CANNOT START WITHOUT MIKE -- which is why this row says Mike. D -- engagement types, 3 types x 6 authored fields, behind a hardcoded paraphrase at advisorEngine.js ~line 2836. NO PAGE EXISTS AT ANY TIER and Mike must rule where it lives before anything starts. ✅ F IS BUILT AND VERIFIED (session 67, 2026-08-17, commit 6ae9778): 967 authored strings across the thirteen guides, 0 missing from the prompt, down from 116 missing; the 13 hand-written formatters are gone, replaced by ONE walk of each guide's own shape. Every difference from the approved artefact is recorded at design/METHOD-GUIDES-SCREEN.md §10 -- READ THAT before touching any of it, and do NOT re-ask the four wordings or the tier ruling. 🔴 DO NOT re-derive the sweep: read design/4-16-BUILD-SPEC.md WITH ITS SUPERSEDED BANNER, then design/DOMAIN-DIAGNOSTIC-BRANCHES.md and design/LEARN-TREE-OPENING-QUESTION-FIELD.md. ⚠ THREE EARLIER PLANS IN THIS ITEM ARE WITHDRAWN, all by evidence: (1) 'mentor tier only' and 'ship it filled by authoring the ten empty domains' -- the ten are NOT empty (Mike, session 63: 'the domain support material exists, I created it'), and the block built in session 65 cascades mentor->firm like every other. (2) 'Retire ~55 duplicate branches' -- tested text by text and FALSE; nothing was deleted. (3) 'Put the 65 on Coaching Reference' -- they are Domain Support content (Mike, 2026-08-16). METHOD, unchanged and proven six times: render the real prompt and read it, never inspect the store. ⚠ F's build is also what FOUND 4.18 (the AI inventing advice when routed to the wrong method) -- that is its own item and closing D does not close it."
-    },
-    {
-      "ref": "4.17",
-      "name": "A screen can show one row when 67 exist, and say nothing",
+      "ref": "4.50",
+      "name": "Nobody has seen a real conversation's recommendations reach the Team tab",
+      "kind": "defect",
       "score": 2,
-      "scoreReason": "robustness — it fails better",
+      "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
-      "why": "The mentor's Advisory Distinctions tab showed 1 distinction when the shipped set is 67. A local, git-ignored dev file (data/dev-platform-distinctions.json) is deliberately preferred over the committed seed when there is no database, and one stale test row in it shadowed all 67 — with nothing on screen saying so.",
-      "risk": "Anyone developing, demoing or reviewing reads what is on screen as the real platform set. It cost most of a session to diagnose, and the same pattern applies to every dev-JSON fallback in the app, not just this one.",
+      "waitingOn": "Outside",
+      "why": "Merged 2026-07-22 (PR #21, d791a9a): the AI declares its recommendations in a trailing [[TEMPLATES: ...]] marker that the engine holds back from the stream so it never reaches the advisor. THE LIVE CHECK WAS RUN ON 2026-08-26, on Mike laptop, against a live OpenAI key — three complete client conversations driven through to a Phase 3 recommendation, 17 API calls, 77,605 tokens on gpt-4o-mini. Two of the three checks PASSED and are closed. (a) The reply streams normally: the recommendations arrived in 435, 1,094 and 792 separate chunks, token by token. (b) No marker text is ever visible: not one bracket in 2,321 recorded chunks, tested against every partial prefix of the sentinel, against the chunks joined, and against the final rewritten text — and this is not a vacuous pass, because in the succession run the AI demonstrably DID write a marker (its declared order differs from the deterministic prose-scan order, which only the marker preserves) and not one character of it escaped. What remains is (c) alone.",
+      "risk": "Small, and now smaller than it was: the two checks that could show something ugly on screen have both passed. What is still unseen is whether a real session's recommended templates land correctly on the Team tab and set the right capability tier — the record that decides what an advisor is credited with. It cannot go wrong invisibly forever, but nobody has watched it go right once.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
-        "detail": "He spotted it himself on the Mentor Hub, 2026-08-16 — 'the advisory distinctions ... no longer appear to be linked and working at mentor level'. Diagnosed the same session."
+        "detail": "Logged at the 2026-07-22 merge as the named residual of that change. Carried in ACTIONS.md until it was frozen 2026-08-24; re-checked 2026-08-26 and still unexercised."
       },
-      "touches": "server/utils/platformDistinctions.js and every other dev-JSON fallback (firmDistinctions, quizzes, coaching, currency); the Mentor Hub Advisory Distinctions tab.",
-      "note": "THE LOCAL SYMPTOM IS FIXED BY DELETING THE FILE — Mike was given the command on 2026-08-16 because the AI's own safety guard refused the deletion. THE ITEM IS THE UNDERLYING FAULT, not that file: a screen served from a dev fallback must SAY it is, e.g. 'showing local dev data — 67 shipped rows are being shadowed'. Same family as 4.16 and the same lesson: the content was there, the screen was there, and nothing connected the two or admitted the gap. Verify the fix by loading the tab with and without the local file, not by reading the loader."
-    },
-    {
-      "ref": "4.18",
-      "name": "The AI invents advice when it is routed to the wrong method",
-      "score": 4,
-      "scoreReason": "the user is worse off — an adviser is given advice that reads as authored and is not",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "A Dashboard Discussions question was routed by the engine to the Ratio Analysis coaching tree. The AI then produced its own plausible 'tactical options' and 'discussion questions' for the metric rather than saying it had none for it. Two faults stacked: the wrong guide was selected, and the model filled the gap instead of admitting it.",
-      "risk": "An adviser reads invented content as Mike's authored method and takes it to a client. It is indistinguishable from the real thing on screen — it has the right headings, the right tone and the right shape. This is the precise failure 4.16 spent five sessions closing from the other direction: 4.16 was authored content that never arrived; this is unauthored content that arrives looking authored, and it is the worse of the two because nothing about it looks wrong.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "Found by us on 2026-08-17 while verifying item 4.16 F on the running app — the first Dashboard Discussions attempt came back with invented questions. Reported to Mike the same session and HE RULED IT ONTO THE LIST: 'if you found this problem then yes - it gets put on the to do list'. Written into RELEASE-NOTES-v0.9.0.md §4a so the master team is not surprised by it in UAT."
-      },
-      "touches": "server/utils/logicTrees.js (detectLogicTree, detectLogicTrees) and pickLearnTreeAI in server/advisorEngine.js for the routing half; the learn-mode prompt for the honesty half.",
-      "note": "TWO HALVES, AND THE SECOND ONE IS THE ITEM. Sharpening the routing reduces how often it happens and can never remove it — some questions are genuinely ambiguous, and Ratio Analysis and Dashboard Discussions are neighbouring methods. THE FAULT WORTH FIXING IS THAT THE MODEL DOES NOT SAY 'I DO NOT HAVE THAT FOR THIS METHOD.' Do not close this item on a routing tweak alone. VERIFY THE WAY 4.16 WAS VERIFIED — ask a real question on the running app and compare the answer word for word against the source file, because every automated test here passes on an answer the model made up."
-    },
-    {
-      "ref": "4.25",
-      "name": "Nothing in this project ever checks that a screen LOOKS right",
-      "score": 4,
-      "scoreReason": "the user is worse off — a screen can ship visually broken with every gate green, and it has",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Jest runs under jsdom, which has NO layout engine: it cannot measure a width, a gap or an overflow, so a screen whose boxes are squashed, whose columns collapse or whose table runs off the page passes all 5,895 tests. Every visual defect this project has had was found by a human opening the page, and only after it shipped. ✅ THE DRIVER IS NOW IN (2026-08-21, commit 7fa5e9a) -- playwright pinned to exact 1.34.3, proven launching Chromium 114 from the locked Node 14.15 and reading a rendered page. WHAT REMAINS IS THE CHECKS THEMSELVES: nothing in tests/ looks at a laid-out page yet, so the gap this item describes is still open, just no longer blocked.",
-      "risk": "It has already happened twice and both times the finder was Mike. On 2026-08-18 the Property Tax Rules tab shipped with five phasing percentage boxes sharing a slot sized for one — about 31px each — so every one read as empty while holding and saving the correct value; he found it by opening the tab. On 2026-08-21 the five-property screen shipped with layout stated as UNVERIFIED in its own design document because there was no way to check it. Until something can see a rendered page, \"the tests are green\" will keep meaning less than it sounds, and the product owner will keep being the visual regression suite.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Raised 2026-08-21 while closing 4.19, when the screen could not be visually verified before shipping and that had to be written into the design document as a gap. It stays because it is the named standard in CLAUDE.md going unmet, not a new idea — and because the two defects it would have caught were both found by Mike rather than by us. Adding a browser driver is a dependency change and needs his explicit approval under the Stack Constitution."
-      },
-      "touches": "A new tests/visual/ directory and the CI step. package.json and .npmrc are DONE: playwright pinned exact 1.34.3, a visual:setup script, and playwright_skip_browser_download=1 so no other machine downloads a browser as a side effect of npm install.",
-      "note": "✅ THE INSTALL IS DONE (2026-08-21, on Mike's explicit instruction) — do not re-ask that question. It is `playwright`, NOT `playwright-core`: core is the same Microsoft driver and downloads nothing, but it is a different package name from the one the standards name, and CLAUDE.md:215 treats the named-package requirement as binding, so taking it would have been an avoidable deviation. Pinned to exact 1.34.3 — the last release declaring node >= 14; 1.35.0 moves to >= 16 and cannot be taken under the lock. GHSA-7mvr-c777-76hp is accepted and written up in design/SECURITY-AUDIT-NOTES.md, and its governance §5.6 team sign-off is an open action THERE, not here. 🔴 WHAT IS LEFT IS THE HARD HALF AND IT IS NOT DESIGNED YET. Scope it to a handful of screenshots of the report screens at one width, not a full visual-regression suite; the goal is to SEE the page, not to pin every pixel. ⚠ A blunt 'does anything overflow?' sweep is the WRONG SHAPE, and that was measured rather than guessed: run against the five-property screen on 2026-08-21 it flagged 10 elements and 51 dashed cells, and EVERY ONE was deliberate — side-scrolling ten-year tables, an ellipsised address, and one-off costs correctly blank in years 2-10. A check must assert what a screen SHOULD look like, not hunt for anomalies. ⚠ These tests need the app running, so they must NOT join the Jest suite the pre-commit hook runs."
-    },
-    {
-      "ref": "4.26",
-      "name": "The Model Library card still promises one rental property, not five",
-      "score": 2,
-      "scoreReason": "small but real — the first thing an adviser reads about the model now understates it",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The catalogue row reads \"Whether a rental property is worth buying — ten years of cash, tax and equity.\" Mike ruled that wording himself at Q8 Q7 on 2026-08-17, when the screen genuinely was one property, and it said \"a rental property\" singular ON PURPOSE. The screen now takes a household and up to five properties with an apportionment table and a consolidated report, so the card is the only place left that describes the old model.",
-      "risk": "The card is what an adviser sees FIRST, which is the exact reason Mike ruled at Q7a that it should carry the scope line at all. A card that undersells the model means the portfolio screen goes unused by the people who need it most — advisers whose clients hold several rentals.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Raised 2026-08-21 while closing 4.19. It stays on the list rather than being fixed because the sentence is MIKE'S OWN RULED WORDING and changing approved copy is his call, not ours. It is one line from him."
-      },
-      "touches": "One string in utils/reportModelCatalogue.js. The scope line beside it was already deleted as build step P2-5.",
-      "note": "THIS IS A WORDING DECISION, NOT A TASK — do not invent a replacement sentence. Ask him, offering the alternatives the way §8 Q7 did, with the option he turned down recorded beside the one he takes. ⚠ HE HAS MARKED THIS DONE ONCE (2026-08-21) AND IT IS HALF RIGHT: the SCREEN does five properties, and that is what he is looking at. The CARD is a separate string in utils/reportModelCatalogue.js line 101 and still reads \"Whether a rental property is worth buying\", singular. Show him that line rather than the item's label — the 'show it, don't reference it' rule exists for exactly this.",
-      "comment": "Again, this has been completed the model now shows 5 properties"
-    },
-    {
-      "ref": "4.27",
-      "name": "The property drawing promises a per-property tax override that nothing builds",
-      "score": 1,
-      "scoreReason": "nobody is worse off today — but an approved artefact says something the build does not do",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The Tax rules card on design/mockups/multiple-property-portfolio.html carries the note \"A single property may still differ — that override lives on the property itself, below.\" No such control is drawn anywhere on that page, and none is built: the tax rules are portfolio-level and apply to all five properties. The drawing's prose promises a control the drawing itself never shows.",
-      "risk": "This is the artefact and the build disagreeing, which is the precise thing §10 exists to catch. Building it unasked would ship something Mike never saw; deleting the sentence would hide the promise. Left alone and unrecorded it becomes a claim a later session believes because it is written down — the failure mode design-docs-are-claims-to-check describes, in an approved artefact rather than a plan.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Raised 2026-08-21 while naming the twelve build-vs-drawing differences in §10. It stays because the honest options are opposite — build the control, or strike the sentence — and only Mike can say which. It blocks nothing either way."
-      },
-      "touches": "Either components/MultiplePropertyAssessment.vue and locales/en.json (build the override), or one sentence in design/mockups/multiple-property-portfolio.html plus the §10 row (strike it). Whichever way it goes, §10 of design/MULTIPLE-PROPERTY-ASSESSMENT.md records the outcome.",
-      "note": "ASK, DO NOT CHOOSE. A firm advising across a border is the case for a per-property override; a family having one country is the case against, and that is the reasoning the card is built on today (§11 Q11)."
-    },
-    {
-      "ref": "4.30",
-      "name": "Invisible characters are stripped on the new path only, not the live advisor screen",
-      "score": 5,
-      "scoreReason": "security, privacy or data integrity",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "server/utils/promptSafety.stripInvisible() shipped 2026-08-21 (`ea6ac22`) with 11 tests, closing the zero-width / bidi / Unicode-tag channel named in the security document's step 5. It is NOT applied to server/advisorEngine.js, which is the output path a real advisor reads today.",
-      "risk": "The gap the fix was written for is still open where it actually matters. Worse, the commit message and the tests read as though the channel is closed — so the next session can reasonably believe it is done. That is the failure family this list exists to end. ⚠ 2026-08-22 — THIS ITEM GOT MORE IMPORTANT, not merely older. Mike ruled that an accountant contributing a prompt must PASTE the text rather than send a document (design/PROMPT-CONTRIBUTION-SAFETY.md §1a), because a document can hide text its own sender cannot see. Pasting defeats text hidden by LAYOUT and does nothing to text hidden by ENCODING: zero-width, bidi and Unicode-tag characters survive the clipboard perfectly and are still invisible in the box they land in. stripInvisible is therefore the ONLY thing between a hidden instruction and the model on that path — and it is the one check that can be made perfect, because an invisible character has no legitimate use in advisory prose at all.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Raised 2026-08-21 by the session that wrote the fix, deliberately rather than quietly widening the change. Wiring it into advisorEngine alters live behaviour on a deployed screen and deserves its own change with its own tests, not a free ride inside a new feature."
-      },
-      "touches": "server/advisorEngine.js and server/courseEngine.js output handling, plus tests proving a hidden payload is removed from a real streamed response and that ordinary content survives.",
-      "note": "The frontend markdown pipeline is LOCKED by CLAUDE.md and must not be touched — the strip belongs server-side at the source, which is where stripInvisible already is. This is wiring an existing, tested function into two more call sites, not new logic."
-    },
-    {
-      "ref": "4.31",
-      "name": "An accountant can share a prompt and have it checked — designed, drawn, not built",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Mike asked for a place a firm manager can put a prompt they believe in, have it checked against our protocols, and get back what is good, what is missing and what conflicts — accepting or declining each suggestion. The design and the screen are committed (design/PROMPT-CONTRIBUTION-SAFETY.md, design/mockups/prompt-contribution.html, `4a7c47e`) and four of his rulings are already folded into them. NOTHING IS BUILT.",
-      "risk": "It is the first path in this app by which user-authored free text reaches a model, so it is the one feature where getting the ORDER wrong matters: the refusal screen is step 2 of the build for a reason. A refusal path built last is a refusal path built badly — and it is the screen an innocent accountant meets when their working document contains a real client name, which is the check most likely to fire and least likely to be anybody doing anything wrong.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-08-22 — \"they also need a place they can 'drag and drop' their AI prompts - click 'Analyse against existing protocols' and get a summary report of the pros and cons, what should be included with the ability to accept or decline the changes\", then narrowed by him to pasted text only: \"if pasting the wording (they copy and paste from their own source doc) is better security then that's what we require - and we explain this to them for their own clients protection.\""
-      },
-      "touches": "A new Restify route calling server/utils/openaiClient.js through server/utils/promptSafety.fenceUntrusted + stripInvisible; deterministic refusal checks with their own tests; a new panel on the AI Prompts page; and four AI-response validation tests (valid, malformed, missing fields, wrong types) per CLAUDE.md.",
-      "note": "🔴 BUILD ORDER IS §7 OF THE DESIGN AND IT IS NOT ARBITRARY. 1) the paste box, with the explanation of WHY we do not take files sitting beside it rather than behind a help link. 2) the deterministic refusals AND the blocked screen together. 3) the AI review. 4) — separately, later, and NOT in the same breath — storing a contribution as reference material the AI draws on. Steps 1–3 change nothing about how advice is produced; step 4 is the one that moves the app’s risk profile. ⚠ RULED, DO NOT RE-OPEN: pasted text only, no file uploads EVER (uploads are ruled OUT, not deferred — reinstating them is a new decision); nobody above signs a contribution off, because a level’s material is its own and is OFFERED downward under P11; and the AI review is an advisor, never a gatekeeper — \"the AI said it was fine\" must never be what admits text into a prompt. ⚠ AND DO NOT let this item pull the Advisory Staircase, Distinctions, Quizzes or Domain Support into scope: see the boundary paragraph under P11 in features/tier-cascade.md, which exists because an earlier draft of P11 nearly did exactly that."
-    },
-    {
-      "ref": "4.33",
-      "name": "A template's tutorial video gets attached to a calculator that shares its name",
-      "score": 2,
-      "scoreReason": "robustness — the advisor is told something that is true of a different thing",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "server/utils/videoInjector.js appends 'A 24-minute tutorial video is available in Advisor-e to help you prepare' after ANY bolded name that matches a template holding a video. Since 2026-08-22 the AI may also name a CALCULATION MODEL in its answer, and two model names are also template names: Working Capital Cycle and Quick Position. Seen live: the calculator line read 'Working Capital Cycle — ... open it at /business-performance-report' followed immediately by the 24-minute video sentence. The video is real, and it belongs to the TEMPLATE of that name, not to the calculator page the advisor was just pointed at.",
-      "risk": "Small and specific: an advisor goes looking for a tutorial about a calculator screen and finds a video about a different thing with the same name. It is not a fabrication — the video exists — which is what makes it easy to miss. It cannot be fixed in the prompt: the injector runs AFTER the AI has written the answer and matches on bold text alone, so telling the AI to write differently only moves the problem.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Found 2026-08-22 while testing item 4.32 against the running app. Raised rather than fixed in passing, because videoInjector is a shipped, tested utility and the honest options differ in cost — see the note."
-      },
-      "touches": "server/utils/videoInjector.js and its test, or data/report-model-summaries.json if the answer is to rename. Nothing in the prompts.",
-      "note": "🔴 THE PROMPT CANNOT FIX THIS, and an earlier attempt made things worse — instructing the AI not to bold a model name stripped the bold off the TEMPLATE name too, which is the very thing the injector reads. Reverted. ⚠ TWO HONEST OPTIONS, and they are not equivalent: (1) teach the injector to skip a line that carries a calculator page path, which is narrow and cheap but is pattern-matching on output shape; (2) accept it — the video is real and same-named material is arguably relevant, so nothing is untrue, just imprecise. There is a third that is NOT ours: renaming a model or a template is Mike's call and would ripple through the catalogue, the summaries and the template library. ⚠ AFFECTS EXACTLY TWO NAMES TODAY. Adding a model whose name matches a template widens it, which is worth knowing before the next one is catalogued."
+      "touches": "nothing — this is a live observation, not a code change. server/utils/activityLogger.js (logVASession) and server/routes/activity.js (/api/activity/team) hold the path if it fails.",
+      "note": "⚠ ITS ORIGINAL BLOCKER WAS WRONG, AND THE REAL ONE IS DIFFERENT. This item said for a month that it could not be done here because \"this machine has no OPENAI_API_KEY and every advisor request fails at startup\". That was false: .env on the laptop has held a live key since 30 July, dotenv loads it at server/restify-server.js L50, and the backend logs \"[advisor] OPENAI_API_KEY present=true\" on boot. The key was never the obstacle. THE REAL OBSTACLE IS MYSQL. The capability record is written by logVASession into the activity store, and on this machine that store logs \"database unavailable (connect ECONNREFUSED 127.0.0.1:3306) — using the dev file\". All three conversations completed and NONE was recorded: the Team tab still reads 2026-08-14 and data/dev-activity.json still ends at 2026-08-10. No error was logged — the write simply did not happen. So (c) needs any environment with a database, which means UAT rather than a developer machine, and it is a two-minute look: open the Team tab as a firm manager after a real session and check the templates and the tier are the ones the conversation actually produced. ⚠ \"Team Dashboard\", the name this item used to carry, IS NOT A SCREEN — the words appear nowhere in any page or component, only in a JSDoc comment at tierLookup.js L88. The screen is the Team tab, fed by /api/activity/team.",
+      "comment": "2026-08-26 — checks (a) and (b) run live and passed; see 4.53 for what the same exercise turned up, which is that the AI writes the marker only sometimes and nothing records when it did not."
     }
   ]
 }

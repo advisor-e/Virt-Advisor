@@ -1,5 +1,27 @@
-# Virt Advisor — Action Backlog
+# Virt Advisor — Action Backlog (FROZEN ARCHIVE)
 
+> ## ⛔ FROZEN 2026-08-24 — DO NOT ADD TO THIS FILE
+>
+> **This is history, not a work list.** By Mike's ruling of 2026-08-24, nothing is written
+> here any more and nothing is triaged from here.
+>
+> **The live list is [`features/to-do-items.json`](features/to-do-items.json)** — ten items,
+> rendered onto [`features/to-do.md`](features/to-do.md) by `npm run to-do`. That is the
+> whole list. If a task is not there, nobody is doing it.
+>
+> **Why it was frozen.** This file reached **7,448 lines**. `/startup` had already been
+> amended to steer sessions away from it, in its own words because it *"reads as about
+> seventy open tasks when the real list is nineteen"* — the real list is now ten. A
+> document that needs a warning label against itself has stopped being an asset. It was
+> also one of seven places the same fact had to be written at the end of every session,
+> and six copies of a fact are six chances to drift.
+>
+> **Nothing here is deleted.** Everything below stays searchable, and an item found here is
+> a claim to check against the code — never a status. If something in it is still genuinely
+> open, the fix is to raise it on the live list, not to revive this file.
+>
+> ---
+>
 > **📋 2026-07-10 full-app bug-fix pass — master-team handover:**
 > [`SESSION-2026-07-10-NOTES.md`](SESSION-2026-07-10-NOTES.md). 8 commits on
 > `feat/business-performance-report` (`master` untouched); 2 critical + several high
@@ -18,6 +40,203 @@
 > **⚠ Trust the CODE, not these flags.** Three separate items (Intervention Urgency, cause-first confirmation, grade-validation) were found *already built* while still flagged open. **Verify a candidate against the actual code/git before building it.**
 >
 > **Last swept:** 2026-08-03 — see the verified sweep immediately below.
+>
+> ---
+>
+> ## ✅ SESSION 82 — 2026-08-23 (laptop). **4.16 AND 4.35 CLOSED — TWO NEW PAGES, AND THE AI READS BOTH.**
+>
+> **Four commits. Suite 329 suites / 6,127 green**, lint 0 errors, audit gate PASS.
+> Branch `feat/advisor-progress`. **`master` untouched.**
+>
+> **CLOSED — 4.16, the last of its seven parts (D, the engagement types).** 3 types x 6 authored
+> fields in `data/engagement-types.json` reached **no screen at any tier and no prompt at all**;
+> `advisorEngine.js` emitted a hardcoded three-line paraphrase in their place. **The 3 Engagement
+> Types** is now its own page in Domain Support, listed under Facilitation 101, editable at all four
+> tiers, and the client-mode prompt reads that same document through the same tier overrides. →
+> **P3d / P3e** of [`features/domain-support.md`](features/domain-support.md). Commit `341402f`.
+>
+> 🔴 **IT WAITED SEVEN DAYS ON A QUESTION NOBODY ASKED.** The item said *"Mike must rule where it
+> lives before anything starts"* and was carried unasked through four sessions of notes. Asked, he
+> answered in one sentence. **An item blocked on a question nobody puts is not blocked; it is
+> forgotten.** Worth a rule: an item marked "waiting on Mike" for more than one session is either
+> put to him or it is not really waiting on him.
+>
+> 🔴 **AND THE ITEM'S OWN RECORD WAS FALSE THE WHOLE TIME.** Its `why` said part F — the method
+> guides — *"BUILD IS NOT STARTED"*. F shipped on 2026-08-17 and was verified on screen at four
+> tiers today. So the live list told Mike this needed **him**, while half of what it named was
+> already built. **Third instance of the same family in three sessions** (4.26's passing-mention
+> guard; session 81's Brief that denied a screen built the day before). The shared cause is stated
+> plainly because it keeps recurring: **no test reads the record against the code.**
+>
+> **CLOSED — 4.35, raised and closed the same day.** Mike asked through the Handbook control for
+> *"the drivers of human performance, reaction to learning and 5 steps in making a new habit"* as a
+> separate editable page under the other two, and named it **Learning Psychology** the same
+> afternoon. Third standing page in Domain Support, all four tiers, 56 editable fields.
+>
+> 🔴 **TRANSCRIBED, NOT AUTHORED**, as the item demanded: from `Productive Habits.pdf`
+> (`data/templates.json` index 27). The PDF's font subset drops its ligatures — it literally reads
+> *"e ectiveness"*, *"Re ections"*, *" nish line"* — so those were repaired and nothing else
+> changed. Tests pin the source sentences AND fail if the holes return, so the master app's own
+> wording cannot be quietly improved later. Two slides (session housekeeping, blank worksheet) were
+> deliberately not transcribed.
+>
+> **⚠ OPEN, NOT FINISHED — where Learning Psychology reaches the AI.** It goes to the prompt only
+> alongside Facilitation 101's learn reference. At ~6,000 characters, attaching it to every client
+> recommendation is a real cost and was **not** made a default. **Mike's call, outstanding.**
+>
+> **⚠ NEW FINDING, RECORDED NOT FIXED — the five drivers now exist twice.** Learning Psychology
+> carries the source definitions; `data/staff-domain-support.json`'s *"5 Drivers of Human Output —
+> Performance Diagnosis"* row paraphrases them for a diagnosis. Two copies is how content drifts
+> apart here (see the `single-source-wiring` skill). **Needs Mike's call; not reconciled.**
+>
+> **NEW — 4.36, the Model Guide search is literal to the point of uselessness.** Reported by Mike
+> and **reproduced in the running app the same hour**: *"Investing in houses"* returns *no models
+> match* while the property model sits in the library. Two faults, not one: `haystack(m).includes(q)`
+> in [`../components/ModelGuide.vue`](../components/ModelGuide.vue) matches the query as ONE whole
+> phrase, so *"investment property"* fails though both words are present; and nothing maps an
+> advisor's vocabulary (*houses*, *landlord*) onto the page's (*property*, *rental*). ⚠ **The
+> tempting fix is the wrong one** — with ~18 models a confidently wrong match is worse than a miss,
+> because the advisor carries it into a client meeting.
+>
+> **ALSO — the Model Library's way into the Model Guide is a button, not a line of prose.** Mike,
+> opening the page: it *"should be a clear button so a user can see easily — not a hyperlink"*. It
+> was a 12.5px underlined line that read as a sentence. Now a filled button, still a `nuxt-link`
+> underneath so open-in-new-tab keeps working. The label lost its explaining half by his choice.
+> Commit `06368e0`.
+>
+> ⚠ **NO ARTEFACT WAS SAVED FOR EITHER OF TODAY'S TWO SCREENS.** A mockup of the button was offered
+> and declined (*"just get it done"*), and none was drawn for the two new pages. **This is the
+> `save-the-artefact` rule not being met**, recorded here rather than left silent: if either screen
+> is disputed later, there is nothing to put beside it. Both were instead verified by driving a real
+> browser at all four tiers, which is evidence of what shipped but not of what was agreed.
+>
+> ## ✅ SESSION 81 — 2026-08-22 (laptop). **4.34 CLOSED**, AND A BRIEF THAT HAD GONE FALSE.
+>
+> **Three commits, all pushed. Suite 329 suites / 6,101 green**, lint 0 errors, audit gate PASS.
+> Branch `feat/advisor-progress`, 7 ahead of `origin/master`, 0 behind. **`master` untouched.**
+>
+> **CLOSED — 4.34, the Model Guide showed `[placeholders]` where the real figures belong.**
+> Raised by Mike the evening the page shipped (*"it makes this section worthless"*) and closed the
+> next morning. `data/report-model-summaries.json` stored each Coach reading as the sentence with
+> its numbers taken out, and `ModelGuide.vue` printed it verbatim — so the page read *"takes [n]
+> days … about [amount] more revenue a year"* where the model's own screen reads **30 days …
+> $1,800**, and **the AI was handed the same bracketed text**. The sentence stays the one source
+> both readers share; each now fills the same `{gaps}` from figures computed **by calling the model
+> function the screen's own route calls**. → **P21** of
+> [`features/report-models.md`](features/report-models.md). Commits `e25b80c`, `2f3b0e9`.
+>
+> 🔴 **THE ITEM'S OWN PLAN WAS WRONG, AND CHECKING IT BEFORE BUILDING IS WHAT FOUND IT.** It said
+> the route could compute every model from its defaults. Two readings were not the model's to give
+> — Working Capital's *"cut it to 20 days"* what-if and EBITDA's dip year and terminal share were
+> computed **inside their `.vue` files**. Reproducing them on the backend would have been **the same
+> sum written twice**. They were moved into the models instead and both screens now read them from
+> there; the golden tests confirm the move changed nothing. ⚠ **The EBITDA half went one step past
+> what was explicitly approved** and was reported as such rather than folded in quietly.
+>
+> 🔴 **THE FIX INTRODUCED A RISK AND IT WAS SURFACED, NOT SHIPPED.** The AI now reads
+> *"$4,420,963"* where it read *"[amount]"*. All six models say "illustrative teaching figures" in
+> their limits and the list instruction already forbids passing them off as a client's — but that
+> asked the model to join two sentences a page apart. Mike ruled the same day that both headings
+> name them as samples **in the same breath as the number**. Tests fail if either loses it.
+>
+> 🔴 **A BRIEF HAD GONE FALSE ABOUT THE APP'S OWN CAPABILITY, AND NOTHING COULD HAVE CAUGHT IT.**
+> [`features/report-models.md`](features/report-models.md) §3a still said, in red, **"THIS ONE HAS
+> NO SCREEN, AND THAT IS A STATED EXCEPTION"** — true when Mike ruled it on 2026-08-21, and left
+> standing when `/model-guide` was built **the next day**. P20, higher up the *same page*, described
+> that screen correctly, so the Brief told a reader both things at once. The identical sentence sat
+> in `data/report-model-summaries.json`'s own header, **and was read past in this very session**
+> before being caught at shutdown. Both corrected, with the correction recorded rather than applied
+> silently.
+> ⚠ **This is session 80's finding one section along and in the other direction** — that one had the
+> Brief understating what works (`playwright`), this one had it denying a screen that exists. The
+> shared cause is that **no test reads prose**.
+>
+> **WHAT CHANGED BECAUSE OF IT — a prose claim now fails the build.** P20 also named **three**
+> models as having no Coach panel when there are **four** (Lease vs Buy omitted from the day it was
+> written). `reportModelSummaries.test.js` now **reads that sentence in the Brief** and fails if it
+> stops matching the data — mutation-verified by reverting to the old wording. It is the same move
+> session 80 made when a tab count lived only in prose, and it is the only kind of guard that would
+> have caught either fault.
+>
+> ⚠ **OPEN, NOT FIXED — the two remaining "no test reads prose" surfaces.** The Briefs are full of
+> counts and capability claims with nothing holding them to the code. Only this one sentence is
+> guarded. Recorded here rather than raised as an item, because a sweep of every claim in every
+> Brief is a decision for Mike, not a job to start unasked.
+>
+> ⚠ **NOT VERIFIED BY EYE.** The rendered words are asserted by component tests; the layout of the
+> now-longer headings is not. That gap is item **4.25**, still open.
+>
+> ---
+>
+> ## ✅ SESSION 80 — 2026-08-22 (laptop). THREE ITEMS CLOSED, AND **v0.10.0 IS CUT**.
+>
+> **Five commits, all pushed. Suite 326 suites / 6,037 green**, lint 0 errors, audit gate PASS.
+> 🔴 **`v0.10.0` is tagged on `458cf9e`** — the merge commit of
+> [PR #45](https://github.com/advisor-e/Virt-Advisor/pull/45), 60 commits, confirmed on
+> `origin`, ledger row backfilled. **Awaiting pull by the master team.**
+>
+> 🔴 **THE BANNER THAT DIFFERS FROM THE LAST TWO RELEASES: v0.10.0 NEEDS `npm install`.**
+> One devDependency (`playwright`, exact `1.34.3`) plus `.npmrc` and `package-lock.json`. It
+> downloads **no browser** — `playwright_skip_browser_download=1` suppresses the 604 MB fetch and
+> `npm ci --omit=dev` skips it entirely. No runtime dependency changed.
+> Notes: [`RELEASE-NOTES-v0.10.0.md`](RELEASE-NOTES-v0.10.0.md).
+>
+> **CLOSED — 4.28, the AI Prompts tab.** Built at all four manager tiers. The method renders
+> read-only at every tier; the platform protocols are prepended on the backend and are not in the
+> editable document, so no screen can reach them. **Redrawn first** on Mike's ruling that the page
+> is for an accountant, not an engineer — the security document is now **mentor-only** and below
+> the mentor it is four plain sentences. Nothing was taken from anybody, and a test proves it: that
+> document has no editable setting at any tier, so if it ever gains one the ruling has to be
+> revisited rather than a control quietly disappearing.
+>
+> 🔴 **A DEFECT CAUGHT INSIDE THE BUILD, and it is the fetch-burst fault in prose.** The
+> protection panel's fourth sentence read *"Nothing is treated as final until a person has approved
+> it."* The panel's own lede promises these things are *applied by the system every time*. That one
+> is **enforced nowhere** — it restates the prompt's Draft-and-Publish section, which is advice to a
+> model. Replaced before shipping. Every line now declares the module that performs it and a test
+> opens that file to check. → **P8** of [`features/ai-prompts.md`](features/ai-prompts.md).
+>
+> **CLOSED — 4.29, the AI had never been told the report models exist.**
+> `utils/reportModelCatalogue.js` was read by ONE component and by nothing on the backend, so an
+> advisor describing a cash problem could not be pointed at Debtor Drag. Each live model now states
+> what it answers, its key calculation output, what the advisor must supply, when to reach for it
+> and **what it does not cover**. ⚠ **Proven against the assembled prompt string, not a source
+> scan** — a scan proves a line exists; only that proves the text reaches the model, which is the
+> fault named at the top of `coachingPromptFields.test.js`. The guard runs **both ways**, so a model
+> going live cannot stay invisible and a model with no page can never be named.
+>
+> **CLOSED — 4.32, raised and closed the same session, which is the point of it.** 4.29 finished
+> with the content in the prompt, the tests green, and the advisor no better off: no mode prompt
+> invited the AI to mention a model, and `discover.txt` forbids adding anything to its answer.
+> Raised as its own item rather than a quiet widening; Mike ruled *"yes and both if its
+> appropriate"* the same afternoon. Both modes now carry the invitation **with its brake**, and the
+> search mode's *"End there. Full stop."* rule was **not loosened** — the calculator block sits
+> above it and a test asserts both. Verified on the running app four times, including a question
+> where nothing fitted and no calculator was offered.
+>
+> **NEW — 4.33 (score 2, ours).** `videoInjector.js` appends a template's tutorial-video sentence
+> after any bolded name matching a template with a video. Two model names are also template names
+> (*Working Capital Cycle*, *Quick Position*), so a template's video can land on a calculator line.
+> ⚠ **It cannot be fixed in the prompt** — the injector runs after the AI has finished writing and
+> matches on bold text alone. An attempt to fix it there stripped the bold off template names and
+> was reverted.
+>
+> ⚠ **TWO STALE CLAIMS CORRECTED IN DOCUMENTS, reported rather than quietly reworded.**
+> `features/report-models.md` §5 said *"no browser driver is installed in this repository"* —
+> `playwright` landed the day after that was written (2026-08-21, `7fa5e9a`) and was used this
+> session to drive the AI Prompts tab at two tiers. Item **4.25** already recorded it correctly; the
+> Brief did not. And §3 of the same Brief described an editable surface on the security prompt that
+> was never validly there.
+>
+> ⚠ **AND ONE CLAIM OF MINE WAS WRONG.** The tutorial-video sentence was first reported to Mike as
+> the AI *inventing* a video. It was not — the app appends it, from real template data. Corrected in
+> [`features/report-models-history.md`](features/report-models-history.md) rather than dropped.
+>
+> ⚠ **SESSION 79 (2026-08-22, earlier) HAS NO ENTRY IN THIS FILE.** It wrote eight commits of
+> design documents and no code; its record is
+> [`SESSION-2026-08-22-NOTES.md`](SESSION-2026-08-22-NOTES.md), and its rulings live in
+> `features/tier-cascade.md` (P11 and its boundary paragraph) and
+> `PROMPT-CONTRIBUTION-SAFETY.md`. Noted here so the gap is visible rather than assumed absent.
 >
 > ---
 >
@@ -7222,7 +7441,8 @@ Two honest answers on different axes — the file used to conflate them:
 - 🔒 **STATE — Vuex installed but unused — RULED: PARKED until the Advisor-e UAT settles, then bundled with the localStorage→MySQL migration.** Virt Advisor is integrated into the master app's UAT (fact recorded 2026-07-16); a broad state refactor under a live UAT would change the ground under the testers for zero feature gain. When data moves server-side, each screen adopts Vuex as its storage moves — no double rework. The standard itself is unchanged (Vuex remains the required mechanism); this ruling is timing only, per the one-directional rule. *Source:* code-gov audit 2026-06-15; ruling 2026-07-16.
 - ☐ **P3 · BUILD — HOW-swap scope — RULED: YES, both places.** The invisible client→learn swap is to fire in Discover mode AND pre-recommendation as well as the client deep-dive. Scenario-lab pass required so the early-session version cannot derail the 14-question intake. *Source:* registry Part 8; ruling 2026-07-16.
 - ✅ **P3 · BUILD — Raw-JSON "Decision Framework" Firm Manager tab — SHIPPED 2026-07-16 (ruled: HIDE, admin/mentor-only).** The tab renders only for `platform_admin` (= the interim mentor role, so the mentor keeps the support tool); the page passes `userRole` into the hub, most-restrictive default (no role → no tab); the raw framework data isn't fetched for users who can't see the tab; dev auto-login runs as admin so it stays locally testable. **Deliberately UI-only:** the `/api/firm-manager/framework*` routes stay manager-level because the friendly Staircase tab's version-history/restore rides them (traced 2026-07-16) — managers hold that write access by design via the friendly screens. ⚠ Residual: the hidden-state (firm-manager view) can't be demonstrated locally (dev login is always admin) — verify in Advisor-e UAT with a real firm-manager login. Suite 1,089 green, lint clean, build green. *Source:* SESSION-2026-06-17-NOTES §5, §7; ruling + build 2026-07-16.
-- ☐ **P2 · BUILD — Education gates on the Advisory Staircase — RULED: advisor-choice prompt (Mike's own design, 2026-07-16).** Not silently wired, not left display-only: on low client literacy (Lens 2), a **pre-recommendation prompt** — modelled on the existing outside-your-range pattern — asks the advisor *"apply education-first, or skip and see what's technically needed"*, with the reasoning shown either way. Fits guide-don't-replace. Scenario-lab tested. 🔴 **RESCOPED BY MIKE 2026-08-16 — the gate fires WHEREVER poor financial literacy shows up, not only where the app can already see it.** The precondition in this entry — *"the literacy signal's reliability verified first"* — was finally run, and it came back against two of this entry's own assumptions. **(1)** The *"existing outside-your-range pattern"* named above **does not exist**: it was decided 2026-06-04 (`virt-advisor-system-design.md` §13) and never built, so no code carries that text and there is no working screen to model on. **(2)** *"Poor financial literacy"* sits under the **forecasting** domain and nowhere else — all eight primary-issue lists checked — so a client who plainly cannot read their numbers but came about staffing or profitability would not have tripped the gate. ⚠ **"On-screen wording to be confirmed with Mike" is WITHDRAWN as the next step and must not be re-asked** — it was put to him and he moved the scope instead. **Order is now fixed: (1) widen the literacy signal — ours, and NOT by copying the line into eight domain lists, but as a signal read independently of domain; (2) then Mike's wording, because where the gate can fire decides what it should say; (3) then build.** Live entry and full reasoning: [`features/to-do.md`](features/to-do.md) §4 (item 2.9, now `waitingOn: Us`). *Source:* memory `design-education-gates-ascent`; ruling 2026-07-16; rescope 2026-08-16.
+- ☑ **BUILT AND CLOSED 2026-08-24 — the education gate ships, with its mentor screen.** All three steps of the fixed order are done: **(1)** the literacy signal is domain-independent — a `financial_literacy_gap` entry in `data/signal-dictionary.json`'s new `gateSignals` map, seeded from pd-35's own authored triggers, matched against everything the advisor has typed in ANY area; **(2)** Mike chose the wording on 2026-08-24 from three drafts, and it is verbatim in `data/education-gate.json` and pinned by a test; **(3)** the gate is the LAST entry in `advisorEngine.js`'s question queue — after every domain question, immediately before recommendations — and its answer sets `sequencingRule` directly in `strategyResolver.js`, never via engagement type. The reason line is written as its own SSE delta rather than asked of the model, so *"the reasoning shown either way"* is a guarantee and not an instruction. 🔴 **THE GATE CANNOT CHANGE WHICH TEMPLATES ARE RECOMMENDED, BY CONSTRUCTION** — the phrases live in a map `problemSignals.SIGNAL_REGISTRY` does not read, so there is no wire to `templateResolver` to cut; `tests/unit/educationGate.test.js` fails if one is added. Also on a hub page at all four manager tiers (Mike's 2026-08-16 ruling; he chose "mentor screen in this change" when asked how far to go), so the wording and the trigger phrases are editable with version history and restore. Design: [`EDUCATION-GATE.md`](EDUCATION-GATE.md); artefact: [`mockups/education-gate.html`](mockups/education-gate.html). 6,188 tests green; the new files cover 99.5% of statements and 100% of functions. Closure: [`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md). *Below is the entry as it stood, kept because the reasoning in it is what the build followed.*
+- ☐ **P2 · BUILD — Education gates on the Advisory Staircase — RULED: advisor-choice prompt (Mike's own design, 2026-07-16).** Not silently wired, not left display-only: on low client literacy (Lens 2), a **pre-recommendation prompt** — modelled on the existing outside-your-range pattern — asks the advisor *"apply education-first, or skip and see what's technically needed"*, with the reasoning shown either way. Fits guide-don't-replace. Scenario-lab tested. 🔴 **RESCOPED BY MIKE 2026-08-16 — the gate fires WHEREVER poor financial literacy shows up, not only where the app can already see it.** The precondition in this entry — *"the literacy signal's reliability verified first"* — was finally run, and it came back against two of this entry's own assumptions. **(1)** The *"existing outside-your-range pattern"* named above **does not exist**: it was decided 2026-06-04 (`virt-advisor-system-design.md` §13) and never built, so no code carries that text and there is no working screen to model on. **(2)** ~~*"Poor financial literacy"* sits under the **forecasting** domain and nowhere else — all eight primary-issue lists checked~~ — **CORRECTED 2026-08-24, this was wrong: `data/primary-issues.json` is read by NO code at all** (the selector was retired from intake 2026-06-10; `virt-advisor-registry.md` already said *"⚠ no code reads it"*), so the signal fired in *no* domain, not one of eight. **There are TWO live literacy signals and the entry named neither** *(this sentence was itself corrected hours after it was first written, when it named only the second — recorded as wrong rather than rewritten)*: **(a)** `pd-35` in `data/advisory-distinctions.json` — the *"owner focused on wrong numbers"* row with six authored triggers and boost 5, AI-classified by `advisorEngine.js` and scoped to **`forecasting`**, which is the content this entry actually meant; **(b)** `FINANCIAL_FOUNDATIONS_GAP` in `server/utils/signals.js` (→ `financial_literacy` in `caseState.js`), scoped to **`data-systems`** and fired by one chart-of-accounts question. The ruling's conclusion survives — a client who plainly cannot read their numbers but came about staffing or profitability trips neither — but every specific in this entry was wrong. Full working: [`features/to-do.md`](features/to-do.md) §4. ⚠ **"On-screen wording to be confirmed with Mike" is WITHDRAWN as the next step and must not be re-asked** — it was put to him and he moved the scope instead. **Order is now fixed: (1) widen the literacy signal — ours, and NOT by copying the line into eight domain lists, but as a signal read independently of domain; (2) then Mike's wording, because where the gate can fire decides what it should say; (3) then build.** Live entry and full reasoning: [`features/to-do.md`](features/to-do.md) §4 (item 2.9, now `waitingOn: Us`). *Source:* memory `design-education-gates-ascent`; ruling 2026-07-16; rescope 2026-08-16.
 - ✅ **"Context domains override the strategy layer" — RULED: current per-domain handling IS the design.** The old note (whose `CONTEXT_DOMAINS` dead code was removed 2026-06-12) is superseded; no override rule is built. Reopen only if a live session shows a context-led conversation mishandled. Closed, no code change. *Source:* lint cleanup trace 2026-06-12; ruling 2026-07-16.
 
 ---

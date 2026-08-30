@@ -5,6 +5,7 @@ const caseStore = require('../utils/caseStore')
 const overlay = require('../utils/firmOverlay')
 const {
   loadPlatformDistinctions,
+  loadPlatformDistinctionsWithSource,
   savePlatformDistinctions
 } = require('../utils/platformDistinctions')
 // Stage D delete-promotion lives in firmManager (it owns the firm-distinction stores
@@ -60,13 +61,21 @@ function _nextPlatformId (rows) {
 
 /**
  * GET /api/mentor/distinctions — the mentor's full platform set.
+ *
+ * Returns `source` and `shadowed` alongside the rows (item 4.17). Mike opened this tab
+ * and saw ONE distinction where the shipped set is 67: a stale local dev file was
+ * shadowing the committed seed, and the screen said nothing. The rows themselves are
+ * unchanged — the screen can now tell a reader what it is looking at.
+ *
  * @route GET /api/mentor/distinctions
- * @returns {200} { success: true, distinctions: object[] }
+ * @returns {200} { success: true, distinctions: object[], source: string, shadowed: number }
+ *   `source` is 'store' | 'seed' | 'dev-file'; `shadowed` is how many committed rows a
+ *   dev file is hiding, and is 0 in every other case.
  */
 async function listMentorDistinctions (req, res) {
   try {
-    const rows = await loadPlatformDistinctions(overlay.loadFirmConfig)
-    res.send(200, { success: true, distinctions: rows })
+    const { rows, source, shadowed } = await loadPlatformDistinctionsWithSource(overlay.loadFirmConfig)
+    res.send(200, { success: true, distinctions: rows, source, shadowed })
   } catch (err) {
     console.error('[mentor] listMentorDistinctions failed:', err.message)
     sendError(res, 500, 'DB_ERROR', 'Could not load distinctions')

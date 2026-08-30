@@ -21,6 +21,11 @@ module.exports = {
   // Globals jsdom omits that the app's dependencies expect — see the file for why.
   setupFiles: ['<rootDir>/tests/setupJsdom.js'],
 
+  // Puts NODE_ENV back after every test even when an assertion threw before the
+  // test's own restore line — see tests/setupEnv.js for the failure it prevents.
+  // Registered here rather than per-file so it cannot be forgotten by the next one.
+  setupFilesAfterEnv: ['<rootDir>/tests/setupEnv.js'],
+
   // Compile Pug the same way the app does. `pug-plain-loader` (the app's build path)
   // hardcodes `doctype: 'html'`; @vue/vue2-jest does not, so a valueless Pug attribute
   // — `@dragover.prevent`, `@submit.prevent`, `hidden` — expands to

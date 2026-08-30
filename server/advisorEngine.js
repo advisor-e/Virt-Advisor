@@ -12,20 +12,28 @@ const path = require('path')
 const { createOpenAIClient } = require('../server/utils/openaiClient')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { loadFirmCoaching, formatFirmCoachingForPrompt } = require('../server/utils/coaching')
+// Item 4.31 step 4 — the material a level has put in force for itself, plus what it has
+// accepted from the levels above. Fenced by its own formatter, like the coaching notes
+// beside it: this is a firm's free prose and is treated as hostile input either way.
+const {
+  loadInForceForSession,
+  formatContributionsForPrompt
+} = require('../server/utils/promptContributions')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 const { formatReportModelsForPrompt } = require('../server/utils/reportModels')
-const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree } = require('../server/utils/logicTrees')
+const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree, treeDescription } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
 const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
 const { loadResolvedGuideOverrides } = require('../server/utils/methodGuideConfig')
+const { formatEngagementTypeForPrompt, GUIDES } = require('../server/utils/methodGuides')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
 const { nameForLanguageCode } = require('../server/utils/languageName')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
 const { sendError } = require('../server/utils/sendError')
 const { injectVideoInfo } = require('../server/utils/videoInjector')
 const { logUnverifiedQuotes, appendCorrectionNote } = require('../server/utils/fabricationWatch')
-const { resolveRecommendedTemplates, stripTemplateMarker, TEMPLATE_MARK_OPEN } = require('../server/utils/tierLookup')
+const { resolveRecommendedTemplatesWithSource, stripTemplateMarker, TEMPLATE_MARK_OPEN } = require('../server/utils/tierLookup')
 const { logVASession } = require('../server/utils/activityLogger')
 const { extractSignals, deriveInferredState, buildObservabilityPayload } = require('../server/utils/signals')
 const { buildCaseState } = require('../server/utils/caseState')
@@ -427,6 +435,48 @@ function formatAdvisorProfile (profile) {
   return lines.join('\n')
 }
 
+/**
+ * The two instructions that accompany a pre-supplied advisor profile, which differ by
+ * mode and used not to.
+ *
+ * 🔴 WHY THIS IS MODE-AWARE. Both strings were once the single client-mode wording,
+ * naming a section ("Why this suits you as the advisor") and a Phase 1/2/3 order that
+ * exist only in the client prompt. Injected into Learn — which has neither — it told
+ * the model nothing it could act on, so the profile arrived in the context with nothing
+ * saying to USE it, while `learn.txt` went on ordering the very questions the profile
+ * answers. Found live by Mike on 2026-07-16: the AI asked an advisor to describe their
+ * confidence level, was told to read the profile, and apologised — proving it had held
+ * the profile the whole time. Item 4.47.
+ *
+ * ⚠ THE LEARN WORDING DOES NOT SAY "never ask about their starting point", and that is
+ * deliberate. The profile is general — role, experience, tools comfort, development
+ * areas — and the Learn question is topic-specific. Nothing in the profile says whether
+ * this advisor has read or been trained on THIS subject, so silencing that question too
+ * would trade one defect for a worse one: an AI that assumes it knows.
+ *
+ * @param {string} mode - the conversation mode ('client', 'discover', 'learn', 'plan')
+ * @param {boolean} hasProfile - whether a profile was actually supplied
+ * @returns {{system: string, context: string}} `system` is appended to the system
+ *   prompt (empty when there is no profile); `context` heads the profile block inside
+ *   the context and is always returned, since the caller only uses it when it renders
+ *   that block.
+ */
+function profileInstructionsFor (mode, hasProfile) {
+  const learn = mode === 'learn'
+
+  const system = !hasProfile
+    ? ''
+    : learn
+      ? '\n\nADVISOR PROFILE PRE-SUPPLIED: This advisor has already given their background. Do not ask them to restate anything the profile already answers.'
+      : '\n\nADVISOR PROFILE PRE-SUPPLIED: Use the profile in the context when writing the "Why this suits you as the advisor" section.'
+
+  const context = learn
+    ? 'This advisor has already provided their background, below. Do not ask them to describe their experience, confidence, skill level or comfort with tools — it is already stated here, and asking again reads as not having looked. You may still ask what the profile does not cover, including whether they have had training or reading on this particular topic. When you refer to their background, use ONLY what is explicitly stated below — do not infer, extrapolate, or assume anything about their career stage, seniority, years of experience, or interests that is not written here.'
+    : 'This advisor has already provided their background. Do not ask the Phase 2 questions — skip directly from Phase 1 to Phase 3 once you have a clear enough picture of the client. When writing "Why this suits you as the advisor", use ONLY what is explicitly stated in the profile below — do not infer, extrapolate, or assume anything about their career stage, seniority, years of experience, or interests that is not written here.'
+
+  return { system, context }
+}
+
 // ── Phase 4 — AI picks the most natural Moving Forward question ──
 // Uses gpt-4o-mini with a 50-token cap — fast and cheap.
 // Falls back to the first option if the AI returns something unexpected.
@@ -485,7 +535,10 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     firmCoaching = null,
     // The session's detected domain, so the firm's promoted entries can be
     // narrowed to the topic in hand. null = no topic known → no filter.
-    firmCoachingDomain = null
+    firmCoachingDomain = null,
+    // What this level has put in force under item 4.31 — its own material plus the
+    // offers it has accepted. Already resolved by the caller.
+    firmContributions = null
   } = options || {}
 
   const orgTemplates = getOrgTemplates(orgTemplateIds || null, firmTemplates)
@@ -501,6 +554,10 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   // formatter returns it FENCED (data to weigh, never instructions), narrowed to
   // this session's topic and capped (see coaching.selectFirmCoaching).
   const firmCoachingText = includeCoaching ? formatFirmCoachingForPrompt(firmCoaching, firmCoachingDomain) : null
+  // The level's own house material (item 4.31). Fenced by its formatter — a firm's own
+  // prose is hostile input under the governance rules, exactly like the coaching notes
+  // above, and being a manager's words rather than an advisor's changes nothing.
+  const firmContributionsText = formatContributionsForPrompt(firmContributions)
   const sectionDescText = includeSectionDesc ? formatSectionDescriptionsForPrompt() : null
   const growthText = includeGrowthStage
     ? formatGrowthFundamentalsForPrompt([{ role: 'user', content: includeGrowthStage }])
@@ -542,6 +599,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     templatesText,
     sectionDescText ? '\n---\n\n' + sectionDescText : '',
     firmCoachingText ? '\n---\n\n## Firm Coaching Notes — observations promoted from this firm\'s reviewed cases\n\n' + firmCoachingText : '',
+    firmContributionsText ? '\n---\n\n## This Firm\'s Own Method — material this firm has put in force for its own advisors\n\n' + firmContributionsText : '',
     growthText ? '\n---\n\n' + growthText : '',
     summariesText ? '\n---\n\n' + summariesText : '',
     logicTreeText ? '\n---\n\n' + logicTreeText : '',
@@ -583,8 +641,18 @@ async function pickLearnTreeAI (advisorText, firmTrees) {
   const learnTrees = effectiveTrees(firmTrees).filter(t => t && t.mode === 'learn')
   if (learnTrees.length === 0) { return null }
 
+  // 🔴 THE MENU IS THE ONLY THING THE PICKER SEES, so a tree with no description is a
+  // choice made on its label alone. Four of the twenty-one carried none — ratio_analysis,
+  // dashboard_discussions, working_capital_cycle and demings_volatility — the four
+  // financial methods, and the only four with genuinely overlapping vocabulary. The
+  // seventeen that are easy to tell apart all had a paragraph. treeDescription falls back
+  // to the companion guide's own authored summary, so the sentence is read rather than
+  // written twice. Item 4.18, the routing half.
   const menu = learnTrees
-    .map(t => `- ${t.id}: ${t.name}${t.description ? ' — ' + String(t.description).slice(0, 150) : ''}`)
+    .map((t) => {
+      const desc = treeDescription(t)
+      return `- ${t.id}: ${t.name}${desc ? ' — ' + desc.slice(0, 150) : ''}`
+    })
     .join('\n')
   const system = 'You match an advisor to the single most relevant coaching guide for what they want help with. The advisor text may contain speech-to-text errors — read it for meaning (e.g. "ND year" / "India meeting" means "end of year"). The advisor\'s messages are ordered NEWEST FIRST — the first line is what they want help with NOW and outweighs everything after it; later lines are older context, and when the newest line changes topic, follow the newest line. Reply with ONLY the guide id exactly as written in the list, or the word none if nothing clearly fits. No other words.'
   const user = `Coaching guides:\n${menu}\n\nThe advisor said (newest message first):\n${fenceUntrusted(advisorText.slice(0, 1000))}\n\nWhich one guide id best fits?`
@@ -630,6 +698,27 @@ function newestFirstUserText (history, query, cap = 1000) {
     if (piece) { parts.push(piece); used += piece.length + 1 }
   }
   return parts.join('\n').slice(0, cap)
+}
+
+/**
+ * The coaching guide the AI itself offered to switch to, when the newest answer
+ * made that offer. The offer names the guide in the ASSISTANT's message, so an
+ * advisor who replies "yes" supplies no guide name at all — and the pickers read
+ * only the advisor's own words, which left the one fact needed to honour the
+ * offer structurally absent (item 4.46, 2026-08-25).
+ * Guarded on the offer's own wording: a Learn conversation where no offer was
+ * made routes exactly as it did before.
+ * @param {Array<{role: string, content: string}>} history - trimmed conversation
+ * @returns {string|null} the offered guide's label, or null when none was offered
+ */
+function offeredGuideFromLastAnswer (history) {
+  const answers = (history || []).filter(m => m && m.role === 'assistant')
+  const last = String((answers[answers.length - 1] || {}).content || '')
+  if (!/switch to it/i.test(last)) { return null }
+  // Exactly one name is an offer. Several means the scope block itself was echoed
+  // back, and guessing which of them was meant is the very fault this item fixes.
+  const named = GUIDES.filter(g => last.includes(g.label))
+  return named.length === 1 ? named[0].label : null
 }
 
 const _dbgLog = require('os').tmpdir() + '/va-debug.log'
@@ -1677,6 +1766,16 @@ async function handleQuery (rawBody, res, identity) {
     ? await loadFirmCoaching(firmId).catch(() => null)
     : null
 
+  // The material this level has put in force (item 4.31 step 4): its own, plus the
+  // offers it has accepted from the levels above. An offer it has NOT accepted is not
+  // here — that is P11, and it is the whole difference between this and every other
+  // cascade in the app.
+  //
+  // Its loader absorbs a storage fault itself and warns rather than rejecting, so a
+  // failed read degrades to "this firm has none" and never kills a live conversation —
+  // the same shape as the coaching notes above.
+  const firmContributions = await loadInForceForSession(firmId)
+
   // 🔴 The platform's fifteen coaching-reference rows were loaded here until 2026-08-20
   // and are gone (item 4.24). `firmCoaching` above is the surviving half — an advisor's
   // free text about a real client, which stays fenced.
@@ -2493,7 +2592,7 @@ async function handleQuery (rawBody, res, identity) {
       const domainSupportPost = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain, firmDomainSupport) : null
       const allUserText = conversationHistory.filter(m => m.role === 'user').map(m => m.content).join(' ')
       const postRecContextQuery = [allUserText, query, state.detectedDomain, state.industry].filter(Boolean).join(' ')
-      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching, firmCoachingDomain: state.detectedDomain }) +
+      const contextMsgPost = buildClientContext(orgTemplateIds, postRecContextQuery, { advisorProfile, firmTemplates, firmCoaching, firmCoachingDomain: state.detectedDomain, firmContributions }) +
         (domainSupportPost ? '\n---\n\n' + domainSupportPost : '')
 
       const messagesPost = [
@@ -2548,7 +2647,12 @@ async function handleQuery (rawBody, res, identity) {
             // Tier 2: watch for invented quoted wording — a hit appends the
             // approved correction note (a streamed reply can't be unprinted).
             const _postFlagged = logUnverifiedQuotes(isLearnRequest ? 'learn-post-rec' : 'client-post-rec', _postBuffer, _postMessages)
-            const processed = appendCorrectionNote(injectVideoInfo(_postBuffer, orgTemplateIds), _postFlagged, _postBuffer, _postMessages)
+            // The marker is machine-read and must never be displayed. SECTION 11 of
+            // client.txt is in this prompt too, so one can arrive here — and unlike
+            // Phase 3 this path buffers the whole reply and emits it once, so there is
+            // no streaming tail to hold back. One strip before display is the whole fix.
+            const visible = stripTemplateMarker(_postBuffer)
+            const processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds), _postFlagged, _postBuffer, _postMessages)
             res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
             if (sessionId) { sessionSave(sessionId, state) }
             res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
@@ -2883,14 +2987,17 @@ async function handleQuery (rawBody, res, identity) {
       eoy: 'End of Year',
       'due-diligence': 'Due Diligence & Acquisitions'
     }
-    const ENGAGEMENT_CONTEXT_E = {
-      education: 'client lacks knowledge — teach and build up sequentially',
-      facilitation: 'client needs to change — pace the reveal, stay professionally detached',
-      advice: 'client knows the problem and wants it solved — be direct and expert'
-    }
-
     const _domainLabel = DOMAIN_LABELS_E[state.detectedDomain] || state.detectedDomain || 'General advisory'
-    const _engagementContext = ENGAGEMENT_CONTEXT_E[_strategyDecision.engagementType] || ''
+
+    // 🔴 THE AUTHORED WORDING, NOT A PARAPHRASE OF IT (item 4.16 D, 2026-08-23).
+    // Until today this was a hardcoded three-line map — 'client lacks knowledge —
+    // teach and build up sequentially' and two like it — while the six authored
+    // fields per type in data/engagement-types.json reached no prompt and no screen.
+    // It now reads the same document The 3 Engagement Types page edits, through the
+    // same tier-resolved overrides, so a firm that rewords its delivery guidance
+    // changes what the model is told. Empty string if the file cannot be read, which
+    // leaves the type named and nothing invented.
+    const _engagementContext = formatEngagementTypeForPrompt(_strategyDecision.engagementType, firmMethodGuides)
     const _sessionContext = state.advisorSessionLength && state.advisorSessionLength !== 'pending' ? ` @ ${state.advisorSessionLength}` : ''
     const _budgetLabel = tier1Capacity === 0
       ? '0 templates — session is 30 minutes only. Tell the advisor to schedule at least 60–90 minutes first.'
@@ -3020,7 +3127,7 @@ async function handleQuery (rawBody, res, identity) {
       _urgencyDirective || null,
       _continuityDirective,
       `Domain: ${_domainLabel}`,
-      `Engagement type: ${_strategyDecision.engagementType} — ${_engagementContext}`,
+      `Engagement type: ${_strategyDecision.engagementType}` + (_engagementContext ? `\n${_engagementContext}` : ''),
       `Template budget: ${_budgetLabel}`,
       ..._copySignals,
       _outlierContext,
@@ -3066,7 +3173,8 @@ async function handleQuery (rawBody, res, identity) {
       firmTemplates,
       preFilteredNames,
       firmCoaching,
-      firmCoachingDomain: state.detectedDomain
+      firmCoachingDomain: state.detectedDomain,
+      firmContributions
     }) + _preSelectedSummariesText + (domainSupportPhase3 ? '\n---\n\n' + domainSupportPhase3 : '')
 
     // Phase C/D — merge strategy + resolver decisions into observability snapshot
@@ -3237,6 +3345,9 @@ async function handleQuery (rawBody, res, identity) {
       })),
       recommendation: {
         selected: [],
+        // 'declared' (the AI's own marker) or 'prose' (the fallback scan). Null until the
+        // Phase 3 response has been read. See item 4.53.
+        source: null,
         top: _top ? _top.title : null,
         topScore: _top ? _top.score : null,
         runnerUp: _second ? _second.title : null,
@@ -3319,8 +3430,15 @@ async function handleQuery (rawBody, res, identity) {
             res.write('data: ' + JSON.stringify({ type: 'replace', text: processed }) + '\n\n')
           }
           // The AI's own declaration when it made one; the prose scan only as a fallback.
-          state.recommendedTemplates = resolveRecommendedTemplates(_p3Buffer)
+          // `source` is recorded because the AI obeys the declaration instruction only
+          // sometimes, and both paths return a plausible list — so a fallback is otherwise
+          // invisible to everyone, including a tester in UAT. See item 4.53.
+          const _recommended = resolveRecommendedTemplatesWithSource(_p3Buffer)
+          state.recommendedTemplates = _recommended.templates
+          console.log('[advisor] recommendation source=' + _recommended.source +
+            ' count=' + _recommended.templates.length + ' session=' + (sessionId || 'none'))
           _decisionTrace.recommendation.selected = state.recommendedTemplates
+          _decisionTrace.recommendation.source = _recommended.source
           res.write('data: ' + JSON.stringify({ type: 'budget_notice', notice: _budgetNotice }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'trace', trace: _decisionTrace }) + '\n\n')
           res.write('data: ' + JSON.stringify({ type: 'session_meta', domain: state.detectedDomain, templates: state.recommendedTemplates }) + '\n\n')
@@ -3381,6 +3499,12 @@ async function handleQuery (rawBody, res, identity) {
   // the client sequencer, which is the only path that detects one. Passing a guess
   // would silently drop every tagged entry in these modes.
   const firmCoachingText = includeCoaching ? formatFirmCoachingForPrompt(firmCoaching, null) : null
+  // Item 4.31 step 4, on this path too. A firm's house method is not mode-specific: if it
+  // governs how their advisors talk to a client, it governs how they are taught and how
+  // they plan. Rendering it on one path only would make it depend on which screen the
+  // advisor happened to open, which is exactly the kind of half-wiring the 4.16 sweep
+  // found at scale.
+  const firmContributionsText = formatContributionsForPrompt(firmContributions)
 
   // Use gpt-4o-mini throughout — fast and more than capable for conversational Q&A.
   const model = 'gpt-4o-mini'
@@ -3396,9 +3520,8 @@ async function handleQuery (rawBody, res, identity) {
   const summariesText = formatSummariesForPrompt(relevantSummaries)
 
   const advisorProfileText = advisorProfile ? formatAdvisorProfile(advisorProfile) : null
-  const profileSystemInstruction = advisorProfileText
-    ? '\n\nADVISOR PROFILE PRE-SUPPLIED: Use the profile in the context when writing the "Why this suits you as the advisor" section.'
-    : ''
+  const { system: profileSystemInstruction, context: profileContextInstruction } =
+    profileInstructionsFor(mode, !!advisorProfileText)
 
   const basePrompt = loadPrompt(mode) || loadPrompt('client')
   const systemPrompt = basePrompt + profileSystemInstruction + languageInstruction
@@ -3415,11 +3538,15 @@ async function handleQuery (rawBody, res, identity) {
     // survives dictation garbles + red-herring keyword ties); fall back to the
     // deterministic keyword matcher if the AI is unavailable. Newest-first +
     // recent-window-first so a mid-conversation pivot re-routes (P1 2026-07-16).
-    let learnTree = await pickLearnTreeAI(newestFirstUserText(trimmedHistory, query), firmLogicTrees)
+    // A "yes" to a switch offer carries no guide name — the name is in the answer
+    // that made the offer. Fold it into the newest slot so both pickers see it (4.46).
+    const offeredGuide = offeredGuideFromLastAnswer(trimmedHistory)
+    const learnQuery = offeredGuide ? query + '\n' + offeredGuide : query
+    let learnTree = await pickLearnTreeAI(newestFirstUserText(trimmedHistory, learnQuery), firmLogicTrees)
     if (!learnTree) {
       const userMsgs = trimmedHistory.filter(m => m.role === 'user').map(m => m.content)
-      learnTree = detectLogicTree([...userMsgs.slice(-2), query].join(' '), firmLogicTrees) ||
-        detectLogicTree([...userMsgs, query].join(' '), firmLogicTrees)
+      learnTree = detectLogicTree([...userMsgs.slice(-2), learnQuery].join(' '), firmLogicTrees) ||
+        detectLogicTree([...userMsgs, learnQuery].join(' '), firmLogicTrees)
     }
     if (learnTree && learnTree.mode === 'learn') {
       learnSalesTreeText = buildLearnReferenceText(learnTree, firmMethodGuides)
@@ -3480,12 +3607,15 @@ async function handleQuery (rawBody, res, identity) {
     firmCoachingText
       ? '\n---\n\n## Firm Coaching Notes — observations promoted from this firm\'s reviewed cases\n\n' + firmCoachingText
       : '',
+    firmContributionsText
+      ? '\n---\n\n## This Firm\'s Own Method — material this firm has put in force for its own advisors\n\n' + firmContributionsText
+      : '',
     domainSupportText ? '\n---\n\n' + domainSupportText : '',
     reportModelsText ? '\n---\n\n' + reportModelsText : '',
     growthText ? '\n---\n\n' + growthText : '',
     summariesText ? '\n---\n\n## Detailed Template Summaries — Purpose, Indicators & Delivery Guidance\n\n' + summariesText : '',
     advisorProfileText
-      ? '\n---\n\n## Advisor Profile (pre-supplied)\n\nThis advisor has already provided their background. Do not ask the Phase 2 questions — skip directly from Phase 1 to Phase 3 once you have a clear enough picture of the client. When writing "Why this suits you as the advisor", use ONLY what is explicitly stated in the profile below — do not infer, extrapolate, or assume anything about their career stage, seniority, years of experience, or interests that is not written here.\n\n' + advisorProfileText
+      ? '\n---\n\n## Advisor Profile (pre-supplied)\n\n' + profileContextInstruction + '\n\n' + advisorProfileText
       : '',
     caseSummariesText ? '\n---\n\n' + caseSummariesText : '',
     learnSalesTreeText ? '\n---\n\n' + learnSalesTreeText : '',
@@ -3585,7 +3715,10 @@ async function handleQuery (rawBody, res, identity) {
         // Tier 2: watch for invented quoted wording — a hit appends the
         // approved correction note (a streamed reply can't be unprinted).
         const _mainFlagged = logUnverifiedQuotes(mode, _mainBuffer, _mainMessages)
-        const processed = appendCorrectionNote(injectVideoInfo(_mainBuffer, orgTemplateIds), _mainFlagged, _mainBuffer, _mainMessages)
+        // Same reason as the post-recommendation path: this prompt is client.txt too,
+        // so the marker can arrive here. Buffered, so one strip covers it.
+        const visible = stripTemplateMarker(_mainBuffer)
+        const processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds), _mainFlagged, _mainBuffer, _mainMessages)
         res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
         res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
       }
@@ -3618,6 +3751,10 @@ module.exports.PREP_SKIP_FIELDS = PREP_SKIP_FIELDS
 module.exports.detectWinWorkIntent = detectWinWorkIntent
 module.exports.pickLearnTreeAI = pickLearnTreeAI
 module.exports.newestFirstUserText = newestFirstUserText
+module.exports.offeredGuideFromLastAnswer = offeredGuideFromLastAnswer
+// Exported so the switch offer can be driven against the real model — no test can
+// prove the picker honours it (item 4.46; the same reason 4.18 was driven live).
+module.exports.pickLearnTreeAI = pickLearnTreeAI
 module.exports.detectUncertainty = detectUncertainty
 module.exports.detectFrustration = detectFrustration
 module.exports.parseMeetingCount = parseMeetingCount
@@ -3660,3 +3797,5 @@ module.exports.MAX_PROMPT_CASES = MAX_PROMPT_CASES
 // proves a line exists; only this proves the text reaches the model. See
 // tests/unit/reportModelSummaries.test.js — item 4.29.
 module.exports.buildClientContext = buildClientContext
+
+module.exports.profileInstructionsFor = profileInstructionsFor

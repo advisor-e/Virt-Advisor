@@ -15,7 +15,7 @@ const masterExport = require('./masterExport')
 const { mergeEntry } = require('./firmContent')
 const { fenceUntrusted } = require('./promptSafety')
 const { normalise, extractProseNames } = require('./toolNameScan')
-const { formatGuideForPrompt, GUIDE_BY_ID } = require('./methodGuides')
+const { formatGuideForPrompt, loadGuideBase, GUIDE_BY_ID, GUIDES } = require('./methodGuides')
 
 let _trees = null
 const _refCache = new Map()
@@ -596,7 +596,9 @@ function formatLogicTreeForPrompt (tree) {
   const headerLines = [
     `## Diagnostic Logic Tree — ${tree.name}`,
     '',
-    tree.description,
+    // Falls back to the companion guide's own authored summary when the tree carries
+    // no description — four of the twenty-one learn trees do not. See treeDescription.
+    treeDescription(tree),
     ''
   ]
 
@@ -765,6 +767,167 @@ function formatRatioAnalysisReferenceForPrompt () { return formatGuideForPrompt(
 function formatDashboardDiscussionsReferenceForPrompt () { return formatGuideForPrompt('dashboard_discussions') }
 
 /**
+ * What this tree IS, in one sentence — for the prompt header and the AI picker's menu.
+ *
+ * 🔴 FOUR OF THE TWENTY-ONE LEARN TREES CARRY NO `description`, AND THEY ARE THE FOUR
+ * THAT MOST NEED ONE (item 4.18, found 2026-08-25). `ratio_analysis`,
+ * `dashboard_discussions`, `working_capital_cycle` and `demings_volatility` — the four
+ * financial methods, the only four with genuinely overlapping vocabulary. The other
+ * seventeen, which are easy to tell apart, all carry a paragraph. Two things went wrong
+ * because of it, and both were invisible:
+ *
+ *   1. `formatLogicTreeForPrompt` emitted a BLANK LINE where every other tree states
+ *      what it is, so the model read the whole method with no statement of its subject.
+ *   2. `pickLearnTreeAI` built its menu from `id`, `name` and `description`, so the
+ *      picker was asked to choose between the bare labels "Ratio Analysis" and
+ *      "Dashboard Discussions" while every easy choice came with 150 characters of help.
+ *      That is the routing half of the incident this item was raised for.
+ *
+ * ⚠ THE SENTENCE IS NOT AUTHORED HERE, AND MUST NOT BE. Every one of the four companion
+ * reference files already opens with Mike's own one-line summary, so the fix is to READ
+ * the description that exists rather than to write a second one into logic_trees.json.
+ * Two copies of a sentence is two things to keep level by hand, and the one nobody edits
+ * is the one the AI reads — the exact mechanism that lost the 116 lines in 4.16.
+ *
+ * ⚠ A TREE'S OWN `description` ALWAYS WINS. This is a fallback for the gap, not a
+ * redirect: authoring one on a tree later silently takes precedence, with no code change.
+ *
+ * @param {Object|null} tree - a logic tree
+ * @returns {string} the sentence, or '' when neither source has one
+ */
+function treeDescription (tree) {
+  if (!tree) { return '' }
+  if (tree.description) { return String(tree.description) }
+  const base = GUIDE_BY_ID[tree.id] ? loadGuideBase(tree.id) : null
+  return (base && base.description) ? String(base.description) : ''
+}
+
+// ── Coaching reference scope ────────────────────────────────────────────────
+//
+// 🔴 THE MODEL HAD NO WAY TO SAY "I DO NOT HAVE THAT" (item 4.18, 2026-08-25).
+// Approved artefact: design/LEARN-SCOPE-HONESTY.md.
+//
+// A Dashboard Discussions question was routed to the Ratio Analysis guide, and the
+// model produced its own `tactical options` and `discussion questions` for the metric
+// rather than saying it held none. Those two fields exist in exactly ONE file in this
+// repository — data/dashboard-discussions-reference.json — and it was not in the
+// conversation, so that content was written by the model, not garbled from Mike's.
+//
+// ⚠ WHY THE EXISTING GUARDRAIL DOES NOT CATCH IT. NEVER_INVENT_GUARDRAIL governs
+// QUOTATION — scripts, wording, opening lines, personas, and the NAMES of templates
+// and methods. Tactical options and discussion questions are none of those: they are
+// structured coaching content presented as the model's own analysis. The guardrail
+// lets them through, correctly, because it was written for a different failure.
+//
+// ⚠ AND learn.txt CLOSES EVERY HONEST EXIT — "do NOT fall back to the template
+// library when a coaching tree is present ... the coaching tree IS the recommendation."
+// Right when the guide fits; when it does not, the model has been told to coach from
+// the one guide it holds, told to reach for nothing else, and never given the words
+// "I don't have that." Generating is the only move left open to it.
+//
+// 🔴 THIS DOES NOT FIX THE ROUTING AND IS NOT MEANT TO. Ratio Analysis and Dashboard
+// Discussions are neighbouring methods and some questions are genuinely ambiguous, so
+// the wrong guide will always sometimes load. This makes a wrong route VISIBLE and
+// HONEST instead of silent and invented, which is the whole of the item's stated fault.
+
+/**
+ * The coaching guides an advisor could have been given, sorted by label.
+ *
+ * A guide qualifies when a `mode: learn` tree carries its id — that is exactly the
+ * condition buildLearnReferenceText loads one under, so the list cannot claim a guide
+ * is "not given" that was never reachable in the first place. Both inputs are platform
+ * data (GUIDES is authored in methodGuides.js, the trees in logic_trees.json), so a
+ * guide added later appears here with no edit — the property that lost the 116 lines
+ * in 4.16 when thirteen formatters each named their own fields by hand.
+ *
+ * `The 3 Engagement Types` and `Learning Psychology` fall out naturally: no learn tree
+ * carries their id. Naming them as "not given" would be untrue on the calls where they
+ * ARE attached (see the Learning Psychology block below).
+ *
+ * @returns {Array<{id: string, label: string}>}
+ */
+let _coachingGuides = null
+function coachingGuides () {
+  if (_coachingGuides) { return _coachingGuides }
+  const learnIds = new Set(loadLogicTrees().filter(t => t && t.mode === 'learn').map(t => t.id))
+  _coachingGuides = GUIDES
+    .filter(g => learnIds.has(g.id))
+    .map(g => ({ id: g.id, label: g.label }))
+    .sort((a, b) => a.label.localeCompare(b.label))
+  return _coachingGuides
+}
+
+/**
+ * The scope block: which coaching guides this conversation holds, which it does not,
+ * and what to do at the edge of the one it has.
+ *
+ * ⚠ THE REFUSAL SENTENCE IS APPROVED WORDING (Mike, 2026-08-25) — it is
+ * design/LEARN-SCOPE-HONESTY.md §4 verbatim, and tests/unit/coachingScope.test.js
+ * pins it. It names the guide that DOES hold the answer because a refusal without a
+ * route is a dead end, and a dead end is what makes inventing look helpful.
+ *
+ * ⚠ IT SAYS "COACHING GUIDES", NOT "CONTENT". In client-mode deep dives the prompt
+ * also carries templates, domain support and the report models; a block claiming this
+ * guide is the only content in the conversation would be false there and would teach
+ * the model to distrust the rest of its own context.
+ *
+ * @param {Array<string>} loadedIds - guide ids whose content IS in this prompt
+ * @returns {string|null} the block, or null if nothing recognised was loaded
+ */
+function formatCoachingScopeForPrompt (loadedIds) {
+  const all = coachingGuides()
+  const loaded = all.filter(g => (loadedIds || []).includes(g.id))
+  if (loaded.length === 0) { return null }
+  const others = all.filter(g => !loaded.includes(g))
+
+  const lines = [
+    '## Coaching Reference Scope — READ THIS BEFORE ANSWERING',
+    '',
+    'The ONLY Advisor-e coaching guides whose content you have been given in this conversation are:',
+    ''
+  ]
+  for (const g of loaded) { lines.push('  • ' + g.label) }
+
+  if (others.length > 0) {
+    lines.push('')
+    lines.push('You have NOT been given the content of these other Advisor-e coaching guides:')
+    lines.push('')
+    // Three per line: long enough to stay compact, short enough to stay readable to a
+    // person reading the rendered prompt on the Method Guides screen.
+    for (let i = 0; i < others.length; i += 3) {
+      lines.push('  • ' + others.slice(i, i + 3).map(g => g.label).join(' · '))
+    }
+  }
+
+  lines.push('')
+  lines.push('If the advisor asks about something the guide above does not cover, SAY SO and stop.')
+  lines.push('Name the guide that covers it and offer to switch, using this wording exactly:')
+  lines.push('')
+  lines.push('  "I don\'t have the Advisor-e coaching content for that in this guide — that sits')
+  lines.push('  in the <NAME> guide. Would you like me to switch to it?"')
+  lines.push('')
+  // 🔴 BOTH OF THESE WERE WRITTEN AFTER THE LIVE CHECK, NOT BEFORE IT. Asked a
+  // Dashboard Discussions question with the Ratio Analysis guide loaded, the model
+  // declined correctly and then named "the Ratio Analysis guide" — the one it was
+  // holding. It had been told to name a guide and given no rule about which, so it
+  // echoed the most salient name in the block. A refusal that points back at the guide
+  // that just failed is worse than no pointer at all: it reads as a dead end with a
+  // helpful tone. See design/LEARN-SCOPE-HONESTY.md §3a.
+  lines.push('<NAME> is one of the guides in the NOT-GIVEN list above. It is NEVER the guide you')
+  lines.push('were given — that is the one that just fell short.')
+  lines.push('If no guide in that list clearly covers it, use only the first half of the sentence')
+  lines.push('and stop at "in this guide." Guessing a guide is the same fault as inventing content.')
+  lines.push('')
+  lines.push('NEVER write your own version of a section that is absent from the guides above —')
+  lines.push('including metrics, tactical options, discussion questions, stages, steps, questions')
+  lines.push('to ask, or ratios. Content you produce here is indistinguishable from the firm\'s')
+  lines.push('authored method on screen, which is what makes it the most damaging thing you can')
+  lines.push('do. Having no answer is a correct answer. Inventing one is not.')
+
+  return lines.join('\n')
+}
+
+/**
  * Builds the full reference text block for a given learn-mode tree.
  * Used by both learn mode (primary path) and the deep-dive offer in client/discover mode.
  * Returns a formatted string combining the tree prompt and its companion reference content,
@@ -786,10 +949,36 @@ function buildLearnReferenceText (tree, guideOverrides) {
 
   let text = formatLogicTreeForPrompt(tree)
 
+  // Guides whose content actually reaches this prompt. Collected as they are added
+  // rather than assumed from the tree id, because a guide whose file fails to load
+  // emits nothing — and a scope block naming a guide the model cannot see would be
+  // the same lie in the other direction (item 4.18).
+  const loadedGuideIds = []
+
   if (GUIDE_BY_ID[tree.id]) {
     const ref = formatGuideForPrompt(tree.id, guideOverrides)
-    if (ref) { text += '\n\n---\n\n' + ref }
+    if (ref) { text += '\n\n---\n\n' + ref; loadedGuideIds.push(tree.id) }
   }
+
+  // 🔴 THE PSYCHOLOGY UNDER THE DELIVERY (item 4.35, 2026-08-23). Facilitation 101
+  // teaches HOW to introduce a concept; Productive Habits is why the sequence works
+  // at all — how a person reacts to learning, and what turns their decision into a
+  // habit afterwards. Without it the model is asked to run the protocol and left to
+  // improvise the part that decides whether the client accepts the concept.
+  //
+  // ⚠ ONLY ON THIS TREE, deliberately. The block is ~6,000 characters; attaching it
+  // to every learn tree would spend that on guides it has nothing to do with, and
+  // attaching it to every client recommendation would spend it on every answer the
+  // product gives. Where else it should go is Mike's call, not a default.
+  if (tree.id === 'facilitation_101') {
+    const habits = formatGuideForPrompt('productive_habits', guideOverrides)
+    if (habits) { text += '\n\n---\n\n' + habits }
+  }
+
+  // The scope block leads, not trails: it is what the model must know BEFORE it reads
+  // the guide, and it is the answer to "what do I do when this guide runs out?".
+  const scope = formatCoachingScopeForPrompt(loadedGuideIds)
+  if (scope) { text = scope + '\n\n---\n\n' + text }
 
   return text
 }
@@ -879,4 +1068,4 @@ function walkLogicTree (state, treeId, firmTrees) {
   return [...templates]
 }
 
-module.exports = { isTemplateName, splitByAvailability, withholdUnavailableNames, formatDeliveryMethodChoiceForPrompt, formatNodeForPrompt, loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, explainDetection, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }
+module.exports = { isTemplateName, splitByAvailability, withholdUnavailableNames, formatDeliveryMethodChoiceForPrompt, formatNodeForPrompt, loadLogicTrees, effectiveTrees, validateLogicTreeReferences, detectLogicTree, detectLogicTrees, explainDetection, formatLogicTreeForPrompt, formatSeminarsReferenceForPrompt, formatTrialFitReferenceForPrompt, formatCautiousRevealReferenceForPrompt, formatEoyReferenceForPrompt, formatFacilitationReferenceForPrompt, formatGrowthCurveRevealReferenceForPrompt, formatConflictMeetingReferenceForPrompt, formatCCOReferenceForPrompt, formatHealdMatrixReferenceForPrompt, formatDemingsVolatilityReferenceForPrompt, formatWorkingCapitalCycleReferenceForPrompt, formatRatioAnalysisReferenceForPrompt, formatDashboardDiscussionsReferenceForPrompt, treeDescription, formatCoachingScopeForPrompt, buildLearnReferenceText, walkLogicTree, isClientDeliveryLearnTree }

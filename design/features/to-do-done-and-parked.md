@@ -219,6 +219,796 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.33 · A template's tutorial video was attached to a calculator that shares its name.** ✅
+Closed 2026-08-26. **Option 1 of the two honest options** — the injector now recognises a
+calculator reference and stays quiet.
+
+- **The scope, measured rather than assumed.** Exactly **two** model names are also template
+  titles — Working Capital Cycle and Quick Position — and only the first carries a video (24
+  minutes). So there was **one** live case, not a class of them.
+- **The guard needs BOTH conditions**: the bolded name must be a known model name AND the
+  template's own block must carry a calculator route. Either alone changes nothing, so a genuine
+  template recommendation keeps its video even when a route is mentioned nearby.
+- 🔴 **BUILT FROM THE DATA, NOT FROM THAT PAIR.** The names and routes are derived from
+  `data/report-model-summaries.json` at load. The item warned that cataloguing another model
+  whose name matches a template would widen the defect; derived sets mean that cannot happen
+  silently.
+- ⚠ **The prompt could not have fixed it**, and the note in the item records that trying made it
+  worse: instructing the AI not to bold a model name stripped the bold off the TEMPLATE name too,
+  which is what the injector reads. The injector runs after the answer is written, so this is the
+  only place the two can be told apart.
+- **What proves it:**
+  [`tests/unit/videoInjectorCalculator.test.js`](../../tests/unit/videoInjectorCalculator.test.js),
+  6 assertions — the live defect's exact text, a model's own route, and both negative cases. Two
+  of them assert the PREMISE (that Working Capital Cycle is still both a model and a template with
+  a video), so if that stops being true the next maintainer finds out here.
+- ⚠ **STILL OPEN AND NOT PART OF THIS**: the injected sentence is hardcoded English on the
+  backend, so a non-English advisor gets one English line in otherwise translated advice.
+  `vue-i18n` does not exist on the backend and the wording would have to be resolved another
+  way. Nobody has asked for it; it is recorded here rather than filed as work.
+
+**4.47 · Learn mode asked the advisor questions their own profile already answered.** ✅ Closed
+2026-08-26, commit `01e793d`. Mike caught this live on 2026-07-16; it was unchanged six weeks later.
+
+- **Two causes, and fixing one would have left the defect.** `advisorEngine.js` applied the
+  profile only when `mode === 'client' || mode === 'discover'` — Learn was excluded outright —
+  and the profile block it injected was written in client-mode language ("do not ask the Phase 2
+  questions"), which names a sequence the Learn prompt does not have. Meanwhile `learn.txt`
+  positively ORDERED the question the profile answers. Letting the profile through would not have
+  helped while the prompt still asked; removing the question would not have helped while the
+  profile never arrived.
+- **Both halves shipped.** `profileInstructionsFor(mode, hasProfile)` — a small pure function,
+  extracted so the fix could be tested at all, since `handleQuery` is 2,000 lines — now returns
+  Learn-specific wording, and `learn.txt` carries a carve-out modelled on the one already at its
+  line 80.
+- 🔴 **THE CARVE-OUT DELIBERATELY DOES NOT SILENCE THE SECOND QUESTION.** The profile states
+  experience, tools comfort and development areas; it says nothing about whether this advisor has
+  read or been trained on THIS topic. Banning the whole "where they're starting from" block would
+  have produced an AI that assumes it knows — a worse defect than the one being fixed, and a
+  silent one. Pinned by a test that fails if a later change over-corrects.
+- **What proves it:** [`tests/unit/profileInstructions.test.js`](../../tests/unit/profileInstructions.test.js),
+  8 assertions. They pin prompt wording, which the house rule normally forbids — the file explains
+  why this is the exception: nobody in UAT can see a system prompt, which is exactly how this
+  shipped and survived six weeks.
+
+**4.42 · The to-do page's hand-written half described six finished items and missed ten live
+ones.** ✅ Closed 2026-08-26. **The page went from 822 lines to 405.**
+
+- **Six stale detail blocks removed** — 2.9, 4.16, 4.18, 4.19, 4.28 and 4.29, all long closed.
+  Every one was checked against this page first: all six closures are recorded here, so nothing
+  was lost. §4 (item 2.9) went entirely, and the sections renumbered.
+- **Four blocks kept on purpose** — 3.1, 3.2, 3.3 and 4.8 describe DONE or PARKED work and say so
+  in their first line. A reader who proposes one of them needs to find the answer, which is why
+  the rule is **"labelled or live"**, not "live only".
+- 🔴 **THE HALF THAT LASTS IS THE GUARD.** Removing the blocks fixes today; nothing stopped it
+  recurring, and it had been drifting every session since the page was written. A new block in
+  [`tests/unit/toDoItems.test.js`](../../tests/unit/toDoItems.test.js) fails the build when a
+  detail block names a ref that is neither on the live list nor labelled DONE/PARKED. **Proven by
+  planting a stale block and watching it fail**, with a message naming the ref and both ways out.
+- **It earned its place immediately:** closing 4.17 in the same session left a stale block behind,
+  and the guard is what says so.
+
+**4.17 · A screen can show one row when 67 exist, and say nothing.** ✅ Closed 2026-08-26.
+
+- **Nothing was ever broken, which is what made it expensive.** A gitignored
+  `data/dev-platform-distinctions.json` holding one stale test row is deliberately preferred over
+  the committed seed when there is no database. It shadowed all 67 shipped rows, and the screen
+  was indistinguishable from one showing the real set. It cost most of a session to diagnose.
+- 🔴 **WHICH ROWS WIN IS UNCHANGED, DELIBERATELY.** The dev fallback is a good affordance and
+  removing it would break local development. What changed is that the loader now reports WHERE the
+  rows came from — `store`, `seed` or `dev-file` — and how many committed rows a dev file is
+  hiding. `loadPlatformDistinctionsWithSource` carries it; `loadPlatformDistinctions` is now a
+  thin wrapper, so the five existing callers are untouched and the two paths cannot disagree.
+- **The screen says it in the number that matters.** The Mentor Hub's Advisory Distinctions tab
+  shows a warning only when `source === 'dev-file'`: *"1 row loaded from
+  data/dev-platform-distinctions.json, and the 67 shipped rows are hidden while that file exists."*
+  Silent in UAT and production by construction.
+- ⚠ **THE SAME PATTERN EXISTS IN FOUR OTHER LOADERS AND WAS NOT TOUCHED** — firmDistinctions,
+  quizzes, coaching and currency all have dev-JSON fallbacks that announce nothing. This closes the
+  one Mike actually hit. Named here rather than swept up silently, and not filed as a new item:
+  nobody has hit those, and a fix nobody asked for is what 2026-08-26 was about.
+- **What proves it:**
+  [`tests/unit/platformDistinctionsSource.test.js`](../../tests/unit/platformDistinctionsSource.test.js),
+  11 assertions — including that a live database REFUSING the read still throws (a stray dev file
+  on a production box must never be served as the mentor's live set) and that the wrapper and the
+  source-reporting loader return identical rows on every path.
+
+**4.49 · One invented fact was found in the AI's reference material and nobody ever checked for
+others.** ✅ Closed 2026-08-26. **Measured: seventeen high-risk claims, sixteen exactly right, one
+drift of a single letter.** No second fabrication. Guard added so these cannot drift again.
+
+- **The sample was the shape the item named** — rows carrying an expanded acronym, a numbered
+  model or a named framework, because that is where an inventable specific can hide. **17 of the
+  194 domain-support rows** across 29 files have that shape.
+- 🔴 **The sources were read, not assumed.** All 45 PDFs in `Domain Support/` were converted with
+  `pdftotext -layout` and each claim checked against the sentence in its own source. This is the
+  step that had never been taken — the item's own note said *"nothing compares a summary against
+  its source PDF"*, and that was true until today.
+- **Sixteen were verbatim correct**, including the ones that look wrong and are not:
+  **S.M.A.R.T** as *"Specific, Measurable, **Agreed, Revisable**, and Time-bound"* — not the
+  textbook expansion, and the source says so explicitly; **W.I.I.F.M** used as a label for the five
+  values rather than expanded as words; **De Bono's six hats**, colour for colour; **P.E.S.T**,
+  **S.W.O.T**, the **Growth Curve's 9 stages**, the **3 Pillars**, and the **Business Dating**
+  ladder (One Night Stand / Dating / Engaged / Married).
+- **The one hit was a plural.** `get-seminar-domain-support.json` expanded the C.P.D hierarchy as
+  *"Concept, **Principles**, Detail"* where the source, the sales-marketing file and the master
+  export all say *"Concept, **Principle**, Detail"*. Corrected.
+- **What this says about the original defect.** The A.I.D.C.R.A invention appears to have been
+  **isolated**, not the tip of anything. That is the answer the item existed to get.
+- ⚠ **What was NOT checked, stated plainly.** The other 177 rows do not carry an acronym or a named
+  framework, and their ordinary prose was not read line-by-line against source. The sample was
+  chosen deliberately — it is where invention hides — but it is a sample, and this closure is not a
+  claim that every sentence in the domain-support data has been verified.
+- ⚠ **One instrument was tried and rejected, recorded so nobody repeats it.** Checking whether each
+  row's NAME appears in the source corpus flagged **44 of 194** — including
+  `A.I.D.C.R.A Advertisement Framework`, whose content we had just proved IS in the source. Row
+  names are authored labels, not quoted document titles, so name-matching produces alarm without
+  evidence. It is the wrong instrument and those 44 mean nothing.
+- **What proves it, and what stops it recurring:**
+  [`tests/unit/sourcedExpansions.test.js`](../../tests/unit/sourcedExpansions.test.js) pins the
+  seven load-bearing expansions with the source quote beside each, **fails if the invented
+  `Conviction, Response` ever returns**, and fails if any domain-support file pluralises C.P.D
+  again. Nine assertions. The PDF extraction is deliberately NOT part of the test — poppler is not
+  a dependency of this project and must not become one.
+
+**4.51 · 51 of 241 logic-tree branches name no template at all.** ✅ Closed 2026-08-26, the day
+it was raised — **measured, and it is not a defect.** Its own note said to split the 51 before
+filling any of them. Splitting them is what closed it.
+
+- **The number resolves to 47 + 3 + 1.** 47 are `recommendation` nodes inside `tree.nodes`
+  (46 of them terminal), 3 are flat branches in tree 29, and the 51st was a nested array the
+  first sweep counted twice. The figure was never the useful thing.
+- **25 of the 47 are legitimately empty and must not be touched.** They are `condition`/`action`
+  coaching branches — client processing styles, the five objection types, sales-team distribution,
+  pricing strategy, cognitive blocks. *"IF the client states 'It costs too much' THEN calculate
+  financial loss/gain over time."* The answer is a behaviour the adviser performs, not a document
+  they open. This is exactly the case the item warned against "fixing".
+- **The other 22 name their templates in the recommendation PROSE instead** — *"Use Design &
+  Deliver template"*, *"Use De Bono's 6 Hats"* — and those names are **item 4.15's missing
+  documents, in 4.15's own trees** (35, `cas_`, `fbp_`). So this was 4.15 seen through a
+  different field, not a second problem.
+- 🔴 **WHAT THE MEASUREMENT DID FIND, AND IT IS NOW RECORDED ON 4.15.**
+  [`walkLogicTree`](../../server/utils/logicTrees.js) L1037 reads **only** `node.templates`,
+  never the recommendation prose. So for those 22 branches the tree's judgement reaches the
+  **adviser** as a sentence and never reaches the **ranking engine**, where it is meant to be the
+  tie-breaker. Resolving 4.15 fixes the sentences; it does **not** fix that unless `templates[]`
+  is populated as a second step. Nobody had written that down.
+- ⚠ **And it cannot be done first.** `validateLogicTreeReferences` scans `nodes[].templates`
+  and hard-fails under `VA_STRICT_CONTENT`, so writing a name into the array before the document
+  exists turns a silent gap into a broken build.
+- **What proves it:** the split was produced by walking `data/logic_trees.json` directly, and the
+  prose names were checked against `data/templates.json` — seven of eight sampled names did not
+  resolve, which is 4.15's symptom exactly. (4.15 already records that its matcher ignores case and
+  punctuation, so some may yet resolve; the gate's own matcher is the authority, not that sample.)
+
+**4.39 · Sweep the frozen `ACTIONS.md` for anything that is genuinely still open.** ✅ Closed
+2026-08-26. Read end to end, every open-looking claim checked against the code, and the findings
+filed as **4.47–4.51**.
+
+- **The file was 7,470 lines and almost all of it is session history.** The triage-able content is
+  four buckets at the end plus the verified sweep of 2026-08-03, which had already found that "the
+  list said 70; the real number is about 10."
+- **Eight flags were stale — already built, still marked open.** The `engine-strict` flip that the
+  file marks as its own ⛔ DO-FIRST P1 (done 2026-08-24; `.npmrc` has it `true` with six
+  overrides); `advisor_note` reaching no prompt (emitted at `logicTrees.js` L545, ruled
+  2026-08-16); Learning Psychology's prompt reach and the duplicated five drivers (both ruled and
+  fixed 2026-08-25, items 4.38 and 4.37); the distinction classifier being unable to tell failure
+  from no-match (built — it returns `{ok, boosts}` and carries `ok` into the trace); "no
+  Playwright anywhere in the repo" (installed; `npm run visual` and `tests/visual/` exist);
+  `startup-blind-to-other-machine` "planned, not built" (built — it printed in this morning's
+  `/startup`); and `primary-issues.json` (read by no code, and guarded by a test that says so).
+- **Five were genuinely open, and each was proved against the code before it was filed** — see
+  4.47 (Learn mode is profile-blind), 4.48 (promoted text reaches the AI with no screen), 4.49 (the
+  fabrication blast radius), 4.50 (the hidden marker never run live) and 4.51 (51 empty branches).
+- **One was folded rather than filed.** The video sentence being hardcoded English on the backend
+  is the same file as live item **4.33**, so it is recorded in that item's note — one item per file
+  to open, not two.
+- **What this closes, honestly.** The live list can now be described as everything anyone has
+  looked at, rather than everything recently looked at. It does **not** mean the frozen file is
+  empty of value: its P3 tidying (JSDoc, i18n plumbing, the monolith line counts) is real, low
+  value and gated behind the cleanup pass, and its MySQL items are ops work nobody here can do.
+  Those were read and deliberately not filed.
+- ⚠ **The ratio is the finding.** Eight stale against five live, in a file whose own first page
+  says *"Trust the CODE, not these flags."* Every one of the eight was found by running a grep, not
+  by reading the prose — which is the argument for the freeze, and for checking any claim in it
+  against the code before acting on it.
+
+
+**4.43 · A test flips a global switch mid-run and fails about one run in four.** ✅ Closed
+2026-08-25. Fixed by [`tests/setupEnv.js`](../../tests/setupEnv.js), registered in
+`jest.config.js`.
+
+- **The diagnosis was confirmed before anything was changed**, as the item asked. Twenty-nine
+  test files set `NODE_ENV = 'production'` to prove a database failure surfaces instead of
+  falling back to a dev JSON file, then set it back on the last line. **Eight had no `finally`
+  and no `afterEach`**, so the restore is skipped the moment an assertion above it throws.
+- **Reproduced.** One deliberate failure in `cases.routes.test.js` produced two:
+  `listCases › returns 500 when the DB errors in production` — the real one — and
+  `anonymiseCasePreview › outside production a failed read falls back to the dev file`, a test
+  whose whole subject is NOT being in production. That is the intermittent red: failures that
+  do not obviously relate, cleared by re-running, which teaches everyone to re-run rather than
+  read.
+- **Fixed in one place rather than eight.** A global `afterEach` puts the value back after
+  every test in every file, so forgetting cannot leak into the next test — and the next file
+  written cannot reintroduce it.
+- ⚠ **Captured per test, not once per process.** The first version restored the process's
+  original and broke `mentorDeletePartial.routes.test.js`, which sets `NODE_ENV` at module
+  load because every test in it is about production. Restoring to whatever was in force when
+  the test began leaves such a file alone and still stops the leak.
+- **What proves it.** The same deliberate break, with the guard in place, now reports
+  **1 failure instead of 2**. Suite 6,528 green.
+- **Not claimed:** this does not make mutating a global mid-test safe. Anything the code under
+  test schedules and does not await can still read the value after it is put back. Nothing in
+  the suite does that today, and the file says so.
+
+**4.31 · An accountant can share a prompt and have it checked — and a firm can put its own
+method in force.** ✅ Closed 2026-08-25. Built across `4b76e4c`, `14bcf76`, `0dd2be4`,
+`c820598` and `41863a2`; recorded in [`ai-prompts.md`](ai-prompts.md) §3a.
+
+- **Both lanes, on the AI Prompts tab at all four tiers.** Lane A: a paste box, the
+  explanation of why we do not accept documents, six deterministic refusals, and an AI
+  review that reports what is good, what is missing and what conflicts. Nothing stored.
+  Lane B: the panel a level puts its own material in force on.
+- **The words were approved before the build**, saved as
+  [`../PROMPT-CONTRIBUTION-WORDING.md`](../PROMPT-CONTRIBUTION-WORDING.md). Two deviations
+  from [`../mockups/prompt-contribution.html`](../mockups/prompt-contribution.html) are
+  recorded there: one door instead of two while Lane B was unbuilt, and the "nothing is
+  saved" line moved into the opening paragraph.
+- **What makes a firm's own prose survivable is the fence**, not detection. Every
+  contribution reaches the model inside `fenceUntrusted()`, beside the firm's coaching
+  notes. The six checks run again at the point of storage, and the model's own findings go
+  back through them before they reach a screen.
+- **The cascade is the one every other block uses** — inherited / declined / overridden /
+  own, with Use theirs or Keep mine when a level above rewrites something already edited.
+- 🔴 **Driving the real model found what the suite could not.** The review's first live run
+  produced suggestions an accountant could not paste — instructions to *them* rather than
+  text for their prompt. The prompt now carries a worked contrast of a wrong suggestion
+  against a right one, pinned in one test. A second live run put an injection through the
+  whole path: the model reported the override attempt as a conflict and returned valid
+  JSON.
+- **What it still cannot do**, recorded in the code and in a test: a bare personal name is
+  not detectable. Addresses, tax numbers and titled names are caught; a bare name reaches
+  the model inside the fence, which is what makes it survivable.
+- **Not built, and ruled out rather than deferred:** file uploads. Pasted text only.
+
+**4.46 · The AI offers to switch guides, the advisor says yes, and nothing happens.** ✅ Closed
+2026-08-25, the day after it was filed. Built in `28c52df`; recorded as **P10** in
+[`advisory-engine.md`](advisory-engine.md).
+
+- **The cause was structural, not a bug in the picker.** The offer names the guide in the
+  **assistant's** message; `newestFirstUserText` builds the picker's input from
+  `history.filter(m => m.role === 'user')`. So the one fact needed to honour the offer could never
+  be in the picker's input. It was not failing — it was never told.
+- **What was built.** `offeredGuideFromLastAnswer` reads the newest answer, and only when that
+  answer made the offer, folding the named guide into the newest slot so the AI picker **and** the
+  keyword fallback both see it. The **narrow** of the two options the item named: a Learn
+  conversation where no offer was made routes exactly as before. The broad option — feeding the
+  assistant turn into every pick — was rejected as the trap 4.45 fell into.
+- **🔴 PROVED BY DRIVING THE MODEL, NOT BY A TEST, and this is the second time on this path that
+  mattered.** Six live calls: *"yes"*, *"yes please"* and *"yes, switch to it"* each returned
+  **nothing** before and **`dashboard_discussions`** after. The defect had shipped with a fully
+  green suite, exactly as 4.18's did. `pickLearnTreeAI` is exported so that check can be re-run.
+- **The residual risk, stated.** It relies on the model reproducing the offer wording the prompt
+  instructs verbatim. If a future model drifts off it, the offer stops working again — no worse
+  than before, but silently.
+
+**4.36 · The Model Guide search only matches the exact words the page happens to use.** ✅ Closed
+2026-08-25. Built in `068f1ff`; recorded in [`report-models.md`](report-models.md).
+
+- **Reported by Mike, 2026-08-23:** *"I typed 'Investing in houses' and it failed to find the
+  property assessment model."* Two faults, and **both fixes apply to every search against every
+  model** — this was never property-specific.
+- **What was built.** (1) Each word matched separately instead of the query as one phrase, all
+  words still required, so more words always narrow. (2) `SEARCH_NOISE` drops filler — *should*,
+  *my*, *more* — which would otherwise each have to appear in a model's text; endings are trimmed
+  where three characters survive, so *paying* reaches *pay*. (3) A `searchWords` list per model in
+  `data/report-model-summaries.json`: the advisor's vocabulary, not the page's.
+- **Measured on the shipped data.** Seven ordinary queries that returned **nothing** now find the
+  right model — *"slow paying customers"*, *"should I put my prices up"*, *"can the client borrow
+  more"*, *"what is the business worth"*, *"buying a van"*, *"where do I start with growth"*, and
+  Mike's own *"Investing in houses"*.
+- **⚠ IT IS NOT EXHAUSTIVE, AND THAT IS DELIBERATE.** *"Stock sitting too long"* still misses
+  (*sitting* trims to *sitt*), and so does *"client wants to sell up"*. Fuzzy matching and
+  embedding search were ruled out by the item: with ten models a confident wrong match is worse
+  than a miss, because the advisor takes the suggestion into a client meeting. The fix for any
+  missed phrasing is one word on that model's list.
+- **`searchWords` is screen-only.** `formatReportModelsForPrompt` reads named fields, so it never
+  reaches the AI — which is why it is not content shaping advice and needs no manager screen. If a
+  firm ever wants its own vocabulary, that judgement changes.
+
+**4.45 · A vague word beats an exact phrase because of where it sits in the file.** ✅ Deleted
+2026-08-25, the day it was filed — **not built, and deliberately not kept.** The tie-break work is
+described in 4.18's closure below; the code was reverted and nothing of it remains.
+
+- **Mike's question, and it was the right one:** *"if 4.18 no longer causes harm — why keep it at
+  all?"* Once the AI declines and names the correct guide instead of inventing content, a misroute
+  costs the advisor **one extra turn, not an answer**. Nobody outside asked for it (`ours: true`).
+  Against his 2026-08-15 product test — *unless it makes the app better, delete it, don't park it*
+  — one saved keystroke does not earn a place on a nine-item list.
+- **🔴 BUT THE QUESTION UNCOVERED A REAL ONE, AND THAT IS WHY IT WAS TESTED RATHER THAN ASSUMED.**
+  The whole argument rested on the advisor being able to say *"yes"* to the switch offer. **They
+  cannot.** Filed as **4.46**, score 4. Deleting 4.45 was right; deleting it *without checking that
+  premise* would have closed the list on a false one.
+- **Nothing was lost.** The measurement — a 31,636-probe baseline, 66 real-trigger moves all
+  generic-to-specific, and the learn-mode side effect at 2,912 probes — is in 4.18's closure and in
+  the git history of the reverted work.
+
+**4.25 · Nothing in this project ever checks that a screen LOOKS right.** ✅ Closed 2026-08-25 —
+**found already built, and built four days earlier.** Artefact:
+[`../VISUAL-CHECKS.md`](../VISUAL-CHECKS.md). Built in `7fa5e9a`, 2026-08-21, and already merged
+into `origin/master`.
+
+- **🔴 THE ITEM WAS STALE, NOT OPEN — the third time this has happened here.** Its own text read
+  *"Playwright … is not in package.json and never has been."* It is: `playwright` at **1.34.3**,
+  `engines: { node: '>=14' }`, so it satisfies the Node 14.15 lock without any relaxation. The
+  item was raised on 2026-08-21 while closing 4.19; the work landed the same day and nobody went
+  back to the item. §0 of this page warns about exactly this pattern.
+- **What is actually there.** `npm run visual` · `jest.visual.config.js` · `tests/visual/` with
+  **16 screens** (all ten model screens plus the four manager hubs, panel by panel) and **four
+  rules** written in plain English in `VISUAL-CHECKS.md`: an input is wide enough to show what you
+  typed, no text is cut off, the page does not scroll sideways, and it loaded without a JS error.
+  The page also records what is deliberately **not** a rule.
+- **It has already earned its place.** First run, 2026-08-23, found two real defects, both
+  confirmed by eye and both fixed: `/multiple-property` showed *"Convert to Principal &"* with the
+  last word cut off, and Group Manager › Team Progress scrolled sideways by 5px. Three faults in
+  the checks *themselves* were caught by looking rather than trusting the output.
+- **Verified still wired, 2026-08-25.** `npm run visual` with the app down fails all 16 loudly —
+  *"THE APP IS NOT RUNNING, so there is nothing to look at"* — and names the command to start it.
+  A visual check that quietly passes against a page it never loaded would be worse than none.
+- **Two things kept it out of `npm test`, and both were deliberate.** The filename is
+  `*.visual.js`, which the main config **cannot** match, so the pre-commit hook can never collect
+  these however they are moved — a naming mismatch cannot be deleted the way an ignore rule can.
+  And they need the app up, so a hook depending on them would fail for reasons unrelated to the
+  commit.
+- **⚠ ONE PART OF THE ITEM COULD NOT BE DONE, AND IT WAS NEVER A 4.25 GAP — now answered.** Its
+  `touches` named *"the CI step"*. **There is no CI configuration in this repository at all** — no
+  `.github/workflows`, no equivalent — and there was never meant to be. **Mike, 2026-08-25: the
+  master team runs checks before loading a version into UAT, and a fuller set before pushing to
+  production.** So the gates exist; they are simply not ours. `CLAUDE.md`'s Enforcement section
+  had described them as though they ran here, and was corrected the same day. **The residual risk
+  is named there rather than here:** nothing on our side builds the app, so a release tag can be
+  cut from a branch that does not build, and the master team finds out first.
+- **The residual worth knowing.** These run **on demand**. Nothing prompts anyone to run them, so
+  *"the tests are green"* still does not include them. That was a recorded decision, not an
+  oversight, and it is why the first run happened only when someone chose to look.
+
+**4.18 · The AI invents advice when it is routed to the wrong method.** ✅ Closed 2026-08-25.
+Artefact: [`../LEARN-SCOPE-HONESTY.md`](../LEARN-SCOPE-HONESTY.md) (wording approved by Mike the
+same day, committed *before* approval as `5776ab3`). Built in `9ddc37b` and `c102f91`.
+
+- **The fault, proved rather than assumed.** A Dashboard Discussions question was routed to the
+  Ratio Analysis guide and the model produced its own *tactical options* and *discussion
+  questions*. Those two fields exist in **exactly one file in this repository** —
+  `data/dashboard-discussions-reference.json` — and it was not in the conversation. The premise
+  was checked too: the word *wages* appears **nowhere** in `ratio-analysis-reference.json`, while
+  *Wages to Sales Ratio* is metric 2 of the twelve in the dashboard file. The model had nothing,
+  and wrote it.
+- **Why nothing stopped it.** `NEVER_INVENT_GUARDRAIL` governs **quotation** — scripts, wording,
+  personas, and the *names* of templates and methods. Structured coaching content presented as the
+  model's own analysis is none of those. And `learn.txt` closes every honest exit: *"do NOT fall
+  back to the template library when a coaching tree is present."* The model was told to coach from
+  the one guide it holds, told to reach for nothing else, and **never given the words "I don't
+  have that."** Generating was the only move left open to it.
+- **What was built.** `formatCoachingScopeForPrompt` in `server/utils/logicTrees.js` emits a block
+  with every loaded coaching guide, naming what this prompt holds, what it does not, and the
+  approved refusal wording. Generated from `methodGuides.GUIDES` intersected with the `mode: learn`
+  tree ids, so a guide added later appears with no edit — the property whose absence lost the 116
+  lines in 4.16. Second half (`c102f91`): four of the twenty-one learn trees carried **no
+  description at all** — the four financial ones — so their prompt header emitted a blank line
+  where their subject belongs and the AI picker chose between bare labels. `treeDescription` reads
+  the summary already authored in each companion reference file rather than writing a second copy.
+- **🔴 Verified against the live model, because no test here could be.** The item said so in terms:
+  *"every automated test here passes on an answer the model made up."* Eight `gpt-4o-mini` calls
+  through the real prompt. The defect **reproduced** with the block off — five invented tactical
+  options, five invented discussion questions. With it on: the refusal and nothing else. Three
+  probes asking for content the guide **does** hold, under headings the block names (*questions to
+  ask*, *ratios*, *steps*), were all answered from the file — so the model reads the condition, not
+  the word list. Routing measured with a baseline: picker 1 of 8 → 3 of 8, never worse on any case.
+- **🔴 The live check caught a fault the whole test suite passed over.** The first refusal named
+  *"the Ratio Analysis guide"* — the one it was holding. A dead end delivered in a helpful tone,
+  and every assertion in `coachingScope.test.js` was green while it did that. Fixed by ruling that
+  `<NAME>` is always from the not-given list, and that it must stop mid-sentence rather than guess.
+- **What this deliberately does NOT fix.** The routing itself, which will always sometimes be
+  wrong — the item said so and forbade closing on a routing tweak alone. The honesty block covers
+  every misroute: the model declines instead of inventing, whichever way the routing falls. The
+  root cause of the reported case was found and **left alone on purpose** — see **4.45**, filed
+  rather than folded in.
+
+**4.38 · How often Learning Psychology reaches the AI — now chosen, not inherited.** ✅ Closed
+2026-08-25. No code change; the decision is the deliverable.
+
+- **Why it was on the list.** The page reaches the model alongside the learn reference and not on
+  every client recommendation. At around 6,000 characters, putting it on every call is a real
+  cost — so it was left off the default when it shipped on 2026-08-23, **without anyone actually
+  deciding**. The advice the AI gives is shaped by whether it can see the psychology, so an
+  accidental setting is the wrong kind of quiet.
+- **Mike’s ruling, 2026-08-25: leave it as it is.** The learn path is where how people learn
+  bears on how advice is delivered; ordinary calls carry no extra cost.
+- **Checked before accepting the answer.** The guide is marked `standing: true`, which could
+  have meant "always sent". It does not — that flag is read only by the Firm Manager screen. The
+  item’s premise was right.
+- **Where it is recorded.** Beside the guide definition in `server/utils/methodGuides.js`, so
+  the next person to look at the reach finds a decision rather than an arrangement.
+
+**4.27 · The property drawing promised an override nothing builds.** ✅ Closed 2026-08-25.
+Artefact: [`../mockups/multiple-property-portfolio.html`](../mockups/multiple-property-portfolio.html);
+outcome recorded in §10 of [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md).
+
+- **The fault.** The Tax rules card said *"A single property may still differ — that override
+  lives on the property itself, below."* No such control was drawn on that page and none was
+  built: the tax rules are portfolio-level and apply to all five properties.
+- **Why it needed Mike and not a developer.** Building the override unasked would have shipped
+  something he never saw; deleting the sentence quietly would have hidden a promise he may have
+  meant. The case for it is a firm advising across a border; the case against is a family whose
+  properties are all in one country — the reasoning the card is built on (§11 Q11).
+- **Mike’s ruling, 2026-08-25: strike the sentence.** The card now states there is no
+  per-property override outright, rather than leaving it to omission.
+- **Recorded as withdrawn, not vanished.** §10 carries the promise, the two cases and the ruling,
+  so a later session finds an answer instead of re-deriving the question from an old drawing.
+
+**4.37 · The five drivers were written down twice.** ✅ Closed 2026-08-25.
+`server/utils/domainSupport.js` · tests in `tests/unit/domainSupportDefinitions.test.js`.
+
+- **The fault.** Learning Psychology (`data/productive-habits.json`) holds the five drivers
+  transcribed from the master app’s own Productive Habits template. The staff diagnosis row in
+  `data/staff-domain-support.json` paraphrased the same five in its own shorter words, and
+  even used different names — `Mindset` against `Mind Set (mental state / attitude)`.
+  Both reached the AI, on different occasions. Correct one and not the other and the model holds
+  two definitions of the same five things with no way to tell which was meant — and nobody sees
+  it, because the copies sit in separate files. That is how content drifted apart here before.
+- **Mike’s ruling, 2026-08-25: Learning Psychology is the source.** The row defers to it.
+- **Wired, not merely aligned.** The material declares
+  `"definitions_from": "productive_habits.five_drivers_of_human_output"` and
+  `formatDefinitionsFrom` renders the block from the guide at prompt-build time, inside
+  `formatMaterialLines` — the one point every domain-support material passes through, so any
+  future row can do the same. **There is now one copy, not two kept level by hand.**
+- **What the AI sees.** The five source definitions as their own labelled block above the steps.
+  Step 1 keeps its own sentence and the row’s own names; only the second set of definitions went.
+- ⚠ **Platform base only, stated rather than hidden.** A firm can override a guide’s wording on
+  its own page; this reads the committed base. Threading firm context through means changing
+  several signatures, so it waits for the day a firm actually needs it.
+- **Hub-page judgement (2026-08-16 rule), stated not assumed.** Both halves already have screens
+  — Learning Psychology at mentor tier, and the Domain Support tab. This makes the row show what
+  that screen holds, so nothing became less visible. **No new screen, no cascade.**
+- **What proved it.** Five tests, including one that pins every definition the AI receives to the
+  source character for character — it fails the moment either file is edited alone, which is the
+  drift that used to go unnoticed. Suite **6,286 green** at verification — **6,282** once this
+  item came off the list, four generated tests going with it — lint 0 errors.
+
+**4.44 · The check two documents promised, now written.** ✅ Closed 2026-08-25.
+`scripts/check-engines.js` · `npm run check:engines` · tests in
+`tests/unit/checkEngines.test.js`.
+
+- **The gap.** Item 4.7 brought the tree to zero engine offenders and turned
+  `engine-strict=true` on — but that fires only for whoever runs the install, and the scan
+  that PROVED the zero was written ad hoc and thrown away, as was the one that found seven
+  offenders the same morning. `.npmrc` and 4.7’s own closure both pointed at a check that
+  was not in the repository. An instruction naming a missing tool teaches readers that the
+  instructions are approximate.
+- **What it checks — three things, each of which fails the run.** Every installed package
+  whose `engines.node` excludes the locked runtime; the packages req 2 forbids outright
+  (`typescript`, `vue-tsc`); and the `@types/node` pin from item 4.41, so a drift
+  back up the versions is reported rather than found a month later. Nothing looked for the
+  banned names before — **4.41 exists precisely because nothing did**.
+- 🔴 **The target is read, never typed.** The locked runtime comes from the root
+  `package.json`’s own `engines.node`. A version typed into the script could drift from
+  the lock it exists to enforce and would then report a comfortable zero against the wrong
+  number. A root with no `engines.node` stops the scan instead of scanning against nothing.
+- **Not wired into pre-commit or CI, deliberately.** A full `node_modules` walk is too slow
+  for every commit, and `engine-strict` already hard-fails the install, which is the
+  enforcement. This is the on-demand confirmation nobody had.
+- **What proved it.** Nine tests over fixture trees, and they exist for one reason: a checker
+  that reports green unconditionally is worse than no checker — that is the fault closed in
+  **4.30** the same day, green and documented and doing nothing. They prove it flags a nested
+  offender, a scoped offender, a banned package, a copy off the pin and a pin that has been
+  deleted — **and that a compliant tree reports nothing at all**. Run live against the real
+  tree: **0 offenders across 1,982 packages**, matching the throwaway scan of 2026-08-24
+  independently. Suite **6,285 green** at verification — **6,281** once this item came off the
+  list, four generated tests going with it — lint 0 errors.
+- **The two sentences that promised it are now true.** `.npmrc` names the command, and
+  4.7’s closure above no longer says the check is missing.
+
+**4.40 · The `defu` advisory — reviewed, corrected, and accepted.** ✅ Closed 2026-08-25.
+The review is in [`../SECURITY-AUDIT-NOTES.md`](../SECURITY-AUDIT-NOTES.md).
+
+- **The item’s count was wrong.** It recorded four copies in the vulnerable range. There are
+  **five physical copies**: `defu@2.0.4` (shared by `@nuxt/config` and `@nuxt/static`)
+  and two separate `defu@5.0.1` are vulnerable; the copies under `@nuxt/telemetry` and
+  `rc9` are **already patched at 6.1.7**. Four dependency edges had been counted as copies.
+- 🔴 **The item’s "build-time only" was wrong.** It said none was reachable from the deployed
+  runtime. npm classifies **all five copies and all four parent packages as production
+  dependencies**. `@nuxt/config` loads the config when the SSR server starts;
+  `serve-placeholder` is runtime 404 middleware. The general Nuxt 2 acceptance rests on
+  *"build-time tools only"*, so this one could not borrow that reasoning and does not.
+- **It is still safe, for a reason nobody had written down.** The advisory needs an
+  attacker-supplied `__proto__` key in the **defaults argument**. All four call sites were
+  traced: every one merges our own configuration — `nuxt.config` values or module options
+  — and none takes request data. The code runs; the vulnerable path does not.
+- **The fix was available and was deliberately not taken.** One unscoped `"defu": "6.1.7"`
+  override would clear the advisory outright, and the compatibility evidence is good: every
+  consumer uses only the base `defu(a, b)` call, none touches the three helpers renamed
+  between 5 and 6, and 6.1.7 already installs in this tree under `engine-strict`. It was
+  not done because CLAUDE.md’s npm-audit policy permits a fix *"only for packages outside the
+  Nuxt 2 build toolchain"* and every copy arrives through the locked Nuxt 2.14.0 chain.
+  **Mike’s ruling, 2026-08-25: *"we stick to the rules"*.** The full option is recorded in the
+  security notes so it is not re-derived.
+- **What this item actually needed was the review, and this was it.** The audit policy’s
+  counterweight is that every high finding is *logged as a task and reviewed*, never silently
+  swallowed. Reviewing it found two factual errors and left the conclusion unchanged.
+
+**4.41 · A package the Constitution bans by name, and why it cannot leave.** ✅ Closed
+2026-08-25. Pinned in `package.json` overrides; the reasoning lives in `.npmrc` beside it.
+
+- **Two of req 2’s three names were already clean.** Neither `typescript` nor `vue-tsc` is in
+  the tree, and there is not one `.ts` file in our own source. The `legacy-peer-deps` line in
+  `.npmrc` exists specifically to keep `typescript` out, and it is working.
+- **`@types/node` is real, and it is unremovable.** **21 packages require it**, every one
+  transitive — Jest internals and webpack typings — and each asks for `*`. Jest is the test
+  runner the Engineering Standards mandate, so removing it means removing Jest. npm
+  `overrides` can change a version; it cannot delete a transitive dependency. There is no
+  action that takes req 2 to zero for this package.
+- **Context that narrows it.** It is one of **25 `@types/*` packages** the toolchain already
+  pulls in (`@types/webpack`, `@types/dompurify`, `@types/json-schema` and 22 more), and it is
+  type definitions only — text describing shapes. Nothing in the package executes, in the
+  build or at runtime.
+- **What was done instead: a DOWNGRADE toward the spec.** Every requirer accepts `*`, so npm
+  had resolved the newest (**25.9.3**) and the tree carried definitions for Node 25 APIs this
+  project must never use. Pinned to **14.18.63**, the Node 14 line. This is the same shape as
+  the `isomorphic-dompurify` 1.3.0 ruling in CLAUDE.md and sits inside the one-directional
+  rule: the locked target is untouched and only the drift moved.
+- **What proved it.** Installed with npm 8.19.4 on Node 14.15.0 under `engine-strict=true`.
+  The lockfile diff is exactly the intent and nothing else: `@types/node@25.9.3` removed with
+  its only dependency `undici-types`, 20 nested copies at 14.18.63 added, and **zero version
+  changes to any other package**. Engine scan **0 offenders across 1,982 packages**. Suite
+  **6,284 green** at the point of verification — **6,280** once this item came off the list,
+  because `toDoItems.test.js` generates 4 tests per item — lint 0 errors, `nuxt build` exit 0.
+- ⚠ **The residue, stated rather than hidden.** `@types/node` is still in the tree and req 2
+  still names it. The item is closed because the action space is empty, not because the
+  package is gone. If Jest is ever replaced, this becomes removable and should be removed.
+
+**4.30 · The invisible-character strip ran on no path at all.** ✅ Closed 2026-08-25. Wired in
+`server/utils/openaiClient.js`; tests in `tests/unit/openaiClient.test.js`.
+
+- **The item understated it.** 4.30 recorded that `promptSafety.stripInvisible` was not applied to
+  `advisorEngine.js`. A repo-wide search found it was applied **nowhere** — not the advisor engine,
+  not `courseEngine.js`, not `cases.js`, not the case anonymiser. It shipped on 2026-08-21 with its
+  own tests and **zero call sites**, and stayed that way for four days.
+- 🔴 **Two things made it read as done.** `server/utils/aiPrompts.js` carries a comment naming
+  `stripInvisible` among the protections, immediately followed by *"This block is what the model is
+  TOLD; those are what is DONE."* And `tests/unit/aiPrompts.test.js` asserted only that the function
+  **exists** — `typeof ps.stripInvisible === 'function'`. Nothing anywhere asserted it was ever
+  **called**. A function with tests, a comment vouching for it, and no caller: green, documented,
+  and doing nothing.
+- 🔴 **A DELIBERATE, RECORDED DEVIATION from the item's own `touches`.** The item named
+  `advisorEngine.js` and `courseEngine.js` output handling — six emit points. It was fixed instead
+  at `server/utils/openaiClient.js`, the single function every OpenAI reply passes through. That
+  covers all **seven** output paths in one change, including the anonymiser the item did not know
+  about, and covers whatever is added next. Six per-engine edits would have left the next AI
+  feature unprotected on the day it shipped — which is precisely how this gap appeared. Mike
+  approved the deviation before any code was written, 2026-08-25.
+- **The split character, handled rather than documented.** A Unicode tag character is two code
+  units, and a stream can deliver them in separate chunks, where neither half matches on its own
+  and the browser rejoins them on screen. The wrapper holds a trailing half back for the next
+  chunk, kept per choice index; a half still held when the stream ends is dropped, because alone
+  it is not a character. Checked against a filter without the carry: the payload survives intact
+  and still reads as `safetext` to a human.
+- **What proved it.** Five tests through the real client with an injected request, no network — a
+  hidden payload removed from a normal reply and from a streamed one; removed when deliberately
+  split across two chunks; a split emoji rejoined unbroken; and ordinary content, token usage and
+  finish reason all intact. Suite **6,284 green** — 5 new tests here, and 4 fewer generated by
+  `toDoItems.test.js` now this item is closed — lint 0 errors.
+
+**4.7 · Flip engine-strict back on — the Node 14.15 lock is no longer advisory.** ✅ Closed
+2026-08-24. Plan: [`../STACK-RECONCILIATION-PLAN.md`](../STACK-RECONCILIATION-PLAN.md); the
+operational detail lives in [`../../.npmrc`](../../.npmrc), beside the settings it governs.
+
+- **What it does now.** `.npmrc` carries `engine-strict=true`, so `npm install` **hard-fails** on
+  any package whose `engines.node` excludes the locked 14.15 — where before npm merely warned and
+  carried on, which is how the stack drifted in the first place. Five `overrides` in
+  `package.json` clear the offenders. A scan of the installed tree now reports **zero engine
+  offenders across 1,964 packages**, down from seven.
+- **The job was seven packages, not the two recorded since June.** Five arrived on 2026-07-21 with
+  the component-test tooling (`bbc476e`) — `minimatch@9`, `minipass@7`, `path-scurry`, `nopt@7`
+  and `abbrev@2`, all via `@vue/test-utils → pretty → js-beautify@1.15.4`, whose `glob@10` chain
+  needs Node 14.17+. **None was logged as a Stack Constitution deviation when it arrived**, which is
+  the whole reason this item understated itself for a month. The deviation-logging rule exists
+  precisely to stop that, and it did not fire.
+- 🔴 **Turning engine-strict on changed which npm can run in this repo at all, and nothing said so.**
+  The half-done note left on 2026-08-24 said to use Node 20.20.2 / npm 10.8.2. That cannot work:
+  `engine-strict` checks the **root project too**, and `package.json` declares `engines.node`
+  `14.15.x`, so npm 10 rejects the repo before reading a single dependency. npm 6 — bundled with
+  Node 14.15 — is equally barred, because it ignores `overrides` outright and rewrites the v2
+  lockfile to v1. **npm 8 on Node 14.15.0 is the only combination that satisfies all three
+  constraints** (`overrides` landed in 8.3; npm 8's own engines are `^12.13 || ^14.15 || >=16`).
+  Verified with npm 8.19.4, run from a temp directory so nothing on PATH changed.
+- 🔴 **The overrides were right all along; the lockfile was holding old pins.** With the lockfile
+  present, the scoped `@nuxt/telemetry → consola` override had no effect at all. **npm does not
+  retroactively apply an override to a package already pinned in `package-lock.json`.** The
+  `js-beautify` override appeared to work only because it changed that package's own version, which
+  invalidated its subtree and forced re-resolution; `@nuxt/telemetry`'s version never changed, so
+  its subtree was never revisited. Proved by resolving with **no lockfile**, which produced a clean
+  tree from the repo's own unmodified overrides. The fix was to delete the two stale `consola`
+  entries and let npm re-resolve that single edge.
+- **The surgical route was taken over regenerating the lockfile, and the numbers are why.** A full
+  regeneration also produced a clean tree, but churned **280 added / 269 removed / 86 version
+  changes** — including `dompurify 3.4.9 → 3.4.14`, which sits underneath the deliberately exact
+  `isomorphic-dompurify@1.3.0` pin. Removing two lines instead churned **9 added / 35 removed / 1
+  changed**, and every one of those 45 entries is accounted for: the old js-beautify chain out, the
+  1.14.0 chain in, the nested consola gone, `node-releases` pinned, `js-cookie` dropped (a
+  dependency of js-beautify 1.15.4 only, imported nowhere in our source), and the lockfile's stale
+  `0.9.0` stamp catching up to `0.10.0`.
+- 🔴 **npm 8 drags in TypeScript, which the Constitution bans by name.** npm 7+ auto-installs peer
+  dependencies; npm 6 did not, so this tree never had them. Installing them pulls `typescript@7.0.2`
+  as a peer of `tsutils`, reached via `@typescript-eslint` from `@nuxtjs/eslint-config` — breaking
+  **req 2** (no TypeScript, ever) and `engine-strict` at once, since typescript@7 wants Node
+  >=16.20. `legacy-peer-deps=true` restores the npm 6 behaviour. It relaxes nothing: the Node
+  target and `engine-strict` are untouched, and it **keeps a forbidden package out** of the tree.
+- 🔴 **The plan's header claimed this was finished for two months while it was half-done.**
+  [`../STACK-RECONCILIATION-PLAN.md`](../STACK-RECONCILIATION-PLAN.md) read *"✅ EXECUTED — this
+  plan is DONE"* from June 2026, when §3 had run and the second half of §4 — the `.npmrc` — had
+  not. Nothing failed and nobody erred; the header simply asserted completion, so **no later reader
+  had reason to look**. It also pointed at `ACTIONS.md` and the `SESSION-*.md` notes as the live
+  record, both of which stopped being that on 2026-08-24. All three corrected in this change. This
+  is the same failure family as the item above: **the record kept the claim and lost the state.**
+- **Verified, in the order the item specified.** Lockfile diff sane (45 entries, all explained) ·
+  engine scan **0 offenders / 1,964 packages** · lint **0 errors** (204 pre-existing warnings) ·
+  suite **6,271 passed / 332 suites** · backend boots and `/api/health` returns **200**, which is
+  what proves the restify 9.1.0 surface still works · `nuxt build` exits 0. The install itself ran
+  with `engine-strict` **on**, which is the real proof — that setting fails rather than warns.
+- ⚠ **Two things deliberately left open.** `@types/node@25.9.3` is in the tree and **req 2 forbids
+  it by name**; it was already in the committed lockfile before this change, so it is a
+  pre-existing deviation to be logged as its own item, not something this change introduced. And
+  the engine scan that proved the zero above existed **only as a throwaway script**, so nobody
+  else could confirm the state without rebuilding it. That was item **4.44**, closed 2026-08-25:
+  the check is now `npm run check:engines`.
+
+**2.9 · Removed in full.** ✅ Built 2026-08-24, page removed 2026-08-26, and the feature
+deleted outright 2026-08-27 on Mike's instruction — he never asked for it and asked four
+times for it to go. Code, data, tests, wording and every note are gone. Git history holds it
+if it is ever wanted. **Do not rebuild it.**
+
+**4.53 · The AI declares what it recommended only sometimes.** ✅ Closed 2026-08-27.
+The app now records, on every recommendation, whether the list came from the AI's own
+declaration (`declared`) or from the prose fallback (`prose`) — a console line and a
+`source` field on the decision trace. It does not try to make the AI obey; it makes the
+fallback countable, so UAT can see how often it runs. `resolveRecommendedTemplatesWithSource`
+in `server/utils/tierLookup.js`; 5 tests in `tests/unit/recommendedTemplates.test.js`.
+
+**4.16 · 102 pieces of authored advice the AI never saw — the last part closed.** ✅ Closed
+2026-08-23, session 82. The sweep began 2026-08-16; D was the last of its seven parts.
+
+- **What D was:** `data/engagement-types.json` holds 3 engagement types × 6 authored fields.
+  **None reached a prompt and none reached a screen.** `server/advisorEngine.js` emitted a
+  hardcoded three-line paraphrase in their place — *"client lacks knowledge — teach and build up
+  sequentially"* and two like it. The build spec called it *"the only one with no page"* and
+  *"the one genuinely homeless item"*.
+- **What closed it:** **The 3 Engagement Types** is now its own page in Domain Support, listed
+  under Facilitation 101, editable at all four tiers, and the client-mode prompt reads that same
+  document through the same tier overrides — fenced as untrusted data when any tier has reworded
+  it. `341402f`.
+- 🔴 **It waited seven days on a decision, and the decision took one sentence.** The item said
+  *"Mike must rule where it lives before anything starts"*, and it was carried unasked through
+  four sessions of notes. When he was finally asked he answered immediately. **An item blocked on
+  a question nobody puts is not blocked; it is forgotten.** That is the transferable part.
+- 🔴 **AND THIS ITEM'S OWN RECORD WAS FALSE WHILE IT SAT THERE.** Its `why` said part F — the
+  method guides — *"DESIGN IS NOW SETTLED AND BUILD IS NOT STARTED"*. F was built on 2026-08-17
+  (`server/utils/methodGuides.js`, all thirteen guides, on screen at every tier); it was verified
+  by opening those screens in a browser on 2026-08-23. So the list told Mike this item needed
+  **him**, when half of what it named was already shipped. Same family as 4.26 above and as
+  session 81's false Brief: **the record keeps its own account, and nothing compares it to the
+  code.**
+
+**4.35 · Domain support general content — the psychology under the delivery.** ✅ Raised and
+closed 2026-08-23, session 82. Asked by Mike through the Handbook control that morning, built the
+same afternoon.
+
+- **What he asked for:** *"the drivers of human performance, reaction to learning and 5 steps in
+  making a new habit — as a separate editable page — showing under the facilitation 101 page and
+  the engagement types pages."* Named by him the same day: **Learning Psychology**.
+- **What shipped:** a third standing page in Domain Support, under the other two, editable at all
+  four tiers: the emotional reaction to learning, the eleven-stage progressive learning path, the
+  5 Drivers of Human Output with their definitions, the 5 Steps to Building New Habits with the
+  smoking worked example, and the interference-triggers block with its compliance-deadlines
+  example.
+- 🔴 **The content is TRANSCRIBED, not authored.** From `Productive Habits.pdf` — the master app's
+  own template, `data/templates.json` index 27 — as the item demanded in terms. The PDF's font
+  subset drops its ligatures (*"e ectiveness"*, *"Re ections"*, *" nish line"*); those are repaired
+  and nothing else is changed. Tests pin the exact source sentences and fail if the holes return,
+  so a later hand cannot quietly rewrite the master template into something more fluent.
+- **Two slides deliberately not transcribed:** the session housekeeping slide and the blank
+  worksheet. Neither is content the AI can use. Recorded so nobody wonders where they went.
+- ⚠ **The page is Learning Psychology; the record is still `productive_habits`** — and
+  `data/productive-habits.json` keeps its name. The id is the storage key a firm's saved wording
+  is filed under, so renaming it with the page would orphan every override saved before the
+  rename, silently.
+- ⚠ **WHERE ELSE IT REACHES THE AI IS STILL MIKE'S CALL.** It goes to the prompt only alongside
+  Facilitation 101's learn reference. It is ~6,000 characters, so putting it on every client
+  recommendation is a real cost and was not made a default. **This is a live open question, not a
+  finished decision.**
+- ⚠ **A duplication was found and NOT resolved.** The five drivers are also defined in
+  `data/staff-domain-support.json` — the *"5 Drivers of Human Output — Performance Diagnosis"* row
+  — where they serve a diagnosis. Learning Psychology carries the source definitions that row
+  paraphrases. Two copies is how content drifts apart here. **Recorded, not reconciled; it needs
+  Mike's call.**
+
+
+**4.26 · The Model Library card promised one rental property, not five.** ✅ Closed
+2026-08-23, session 82. Marked Done by Mike from the Handbook control.
+
+- **What changed:** [`../../utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js)
+  now reads *"Whether a rental portfolio is worth buying — up to five properties, ten years of
+  cash, tax and equity."* The stale comment beside it, which described a `scope` field deleted
+  when Phase 2 landed, went with it.
+- 🔴 **He had marked it Done once before, on 2026-08-21, and it was half right both times** —
+  the *screen* does five properties, which is what he was looking at; the *card* was a separate
+  string. The item's own note predicted this and said to show him the line rather than the
+  label.
+- 🔴 **And the guard that should have held it on the list failed.** `apply-to-do.js` treats an
+  item as closed if the text `**4.26**` appears anywhere on this page — and it did, inside
+  4.19's closure, in the sentence *"Two wording decisions also stayed with Mike and are 4.26 and
+  4.27."* A passing mention counted as a closure record. The check matches a string, not a
+  record. **Not fixed — recorded here, and it will do the same to 4.27.**
+
+**4.34 · The Model Guide showed `[placeholders]` where the real figures belong.** ✅ Raised
+AND closed 2026-08-22, session 81 — raised by Mike the evening the page shipped, fixed the
+next morning. Commit `e25b80c`.
+
+- **Why it mattered:** [`../../data/report-model-summaries.json`](../../data/report-model-summaries.json)
+  stored each model's Coach reading as the sentence with its numbers taken out, because the
+  figures are computed when the screen runs.
+  [`../../components/ModelGuide.vue`](../../components/ModelGuide.vue) printed those lines
+  verbatim, so the page read *"your [working capital] of working capital … takes [n] days …
+  about [amount] more revenue a year"* where the model's own screen reads **$120 · 30 days ·
+  $1,800**. A firm manager choosing a model got the shape of the reading and none of its
+  substance — **worse than no reading, because it looks finished** — and the AI was handed
+  the same bracketed text.
+- **Mike's own words:** *"it makes this section worthless"* (2026-08-22), and the next
+  morning *"last session left the model summary without actual figures in them which made
+  the reading useless"*.
+- **What proves it.** The sentence stays the single source both readers share; it now carries
+  `{named}` gaps that each reader fills from the same figures — the screen in the firm's
+  currency through `currencyMixin`, the AI in the platform default.
+  [`../../server/utils/reportModelFigures.js`](../../server/utils/reportModelFigures.js)
+  computes each model **by calling the same model function the screen's own route calls**,
+  on that model's own defaults. 27 new tests in
+  [`../../tests/unit/reportModelFigures.test.js`](../../tests/unit/reportModelFigures.test.js),
+  plus 6 on the route and 6 on the screen. Suite **6,103 green**, lint 0 errors.
+- 🔴 **THE ITEM'S OWN PLAN WAS WRONG IN ONE PLACE, AND CHECKING IT IS WHAT FOUND IT.** The
+  item said the route could compute every model from its defaults. Two of the readings were
+  not the model's to give: Working Capital's *"cut it to 20 days"* what-if lived in
+  `BusinessPerformanceReport.vue`, and EBITDA's dip year and terminal share lived in
+  `EbitdaDcfReport.vue`. Computing them here would have been **a second copy of the same
+  arithmetic** — the drift fault this repo keeps closing, in a new place. They were **moved
+  into the models**, both screens now read them from there, and the golden tests confirm the
+  move changed nothing. Approved by Mike before building, on the grounds that a number
+  quoted on two screens needs one home.
+  ⚠ **The EBITDA half was one step past what was asked for**, and was reported as such
+  rather than folded in quietly.
+- 🔴 **WHERE A LINE DESCRIBES A PATTERN, IT IS NOW PROSE AND CARRIES NO GAP.** Cost of
+  Capital's three verdicts and the Multiple Property per-property sentence give a different
+  answer every run; **a single number there would read as the answer**. Reworded, and the
+  wording put in front of Mike before anything was built.
+- **Margin · Mark-up · Break-even was the one model that could not answer at all** — its
+  defaults lived only in the component, so the backend computed a page of zeros. They are
+  mirrored into the model with a test pinning them to the screen's own `DEFAULTS` line.
+  ⚠ **Its live route was deliberately NOT changed to fall back on them.** Its overheads and
+  drawings sliders both start at zero, so *"missing"* and *"dragged to nothing"* are the same
+  value on the wire, and defaulting there would silently overwrite a real choice.
+- 🔴 **THE FIX INTRODUCED A RISK, AND IT WAS SURFACED RATHER THAN SHIPPED QUIETLY.** The AI
+  now reads *"$4,420,963"* where it read *"[amount]"*. All six models state "illustrative
+  teaching figures" in their limits and the list instruction already forbids passing them off
+  as the client's — but that asked the model to join two sentences a page apart. Mike ruled
+  the same day that the heading name them as samples **in the same breath as the number**, in
+  the prompt and on the screen. Both headings now do, and a test fails if either loses it.
+- **What guards it now.** A gap with no figure fails the build. A figure that stops computing
+  fails the build. A screen that goes back to deriving its own copy fails the build. A
+  mirrored default that drifts from the screen's fails the build. And no brace or bracket can
+  reach either reader: a figure that will not compute degrades to "—", the reports' own
+  no-figure convention.
+- ⚠ **Not verified by eye in a browser.** The rendered text is asserted by component tests,
+  which is the substance of this change; the layout of the longer headings is not. That gap
+  is **4.25**, still open.
+
 **4.29 · The AI had never been told the report models exist.** ✅ Closed 2026-08-22,
 session 80. Carried since 2026-08-21 — Mike's own instruction, approved to build the same
 day. Plan item T22, open since 2026-07-09.
@@ -1072,10 +1862,12 @@ live list: a warning written in prose is not a task, and only a task gets done.
 
 ## 4. Where the full record is
 
-[`../ACTIONS.md`](../ACTIONS.md) — the full 6,135-line backlog, including the verified sweep of
-2026-08-03 that first established the real number is about ten. ⚠ Read its own warning:
-*"Trust the CODE, not these flags"* — three separate items were found already built while still
-flagged open.
+[`../ACTIONS.md`](../ACTIONS.md) — ⛔ **FROZEN 2026-08-24.** The historical backlog, 7,400+
+lines, including the verified sweep of 2026-08-03 that first established the real number is
+about ten. Nothing is added to it and nothing is triaged from it; it stays as searchable
+history. ⚠ Read its own warning: *"Trust the CODE, not these flags"* — three separate items
+were found already built while still flagged open. **The live list is
+[`to-do-items.json`](to-do-items.json).**
 
 [`../ACTIONS-ARCHIVE.md`](../ACTIONS-ARCHIVE.md) — completed work, verbatim, by date. Nothing is
 deleted, only moved.

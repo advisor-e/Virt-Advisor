@@ -14,6 +14,7 @@
     "start": "cross-env NODE_OPTIONS=--max-old-space-size=12288 nuxt start",
     "generate": "nuxt generate",
     "check:branch": "node scripts/check-branch-state.js --report",
+    "check:engines": "node scripts/check-engines.js",
     "routing": "node scripts/generate-content-routing.js",
     "handbook": "node scripts/build-handbook.js",
     "to-do": "node scripts/apply-to-do.js",
@@ -22,6 +23,7 @@
     "lint:fix": "eslint --ext .js,.vue . --fix",
     "test": "jest",
     "test:coverage": "jest --coverage",
+    "visual": "jest --config jest.visual.config.js",
     "visual:setup": "node node_modules/playwright/cli.js install chromium",
     "backend": "cross-env ALLOW_DEV_AUTH=true node server/restify-server.js",
     "dev:all": "concurrently --names \"nuxt,api\" --prefix-colors \"cyan,green\" \"npm run dev\" \"npm run backend\"",
@@ -73,6 +75,12 @@
   },
   "overrides": {
     "shell-quote": "1.8.4",
-    "@nuxt/friendly-errors-webpack-plugin": "2.5.2"
+    "@nuxt/friendly-errors-webpack-plugin": "2.5.2",
+    "js-beautify": "1.14.0",
+    "@nuxt/telemetry": {
+      "consola": "2.15.3"
+    },
+    "node-releases": "2.0.14",
+    "@types/node": "14.18.63"
   }
 }

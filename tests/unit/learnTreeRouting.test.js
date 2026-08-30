@@ -6,7 +6,7 @@
 // picker could never re-route (live case: sales → EOY pivot ignored).
 // newestFirstUserText guarantees the newest words are always inside the cap.
 
-const { newestFirstUserText } = require('../../server/advisorEngine')
+const { newestFirstUserText, offeredGuideFromLastAnswer } = require('../../server/advisorEngine')
 
 function msg (role, content) { return { role, content } }
 
@@ -42,5 +42,38 @@ describe('newestFirstUserText (Learn routing, P1 2026-07-16)', () => {
     expect(out).not.toContain('SHOULD NOT APPEAR')
     expect(newestFirstUserText([], '')).toBe('')
     expect(newestFirstUserText(null, 'only query')).toBe('only query')
+  })
+})
+
+// Item 4.46 (2026-08-25): the scope-honesty refusal offers a switch and names the
+// guide in the ASSISTANT's message. The pickers read only the advisor's own words,
+// so "yes" reached them with the guide name structurally absent and nothing loaded.
+describe('offeredGuideFromLastAnswer (Learn switch offer, item 4.46)', () => {
+  const OFFER = "I don't have the Advisor-e coaching content for that in this guide — that sits in the Dashboard Discussions guide. Would you like me to switch to it?"
+
+  test('the offered guide is recovered from the answer that made the offer', () => {
+    const history = [msg('user', 'what should I ask about a falling gross margin?'), msg('assistant', OFFER)]
+    expect(offeredGuideFromLastAnswer(history)).toBe('Dashboard Discussions')
+  })
+
+  test('no offer, no change: ordinary Learn answers route exactly as before', () => {
+    expect(offeredGuideFromLastAnswer([msg('assistant', 'Here is how the Ratio Analysis guide approaches it.')])).toBe(null)
+    expect(offeredGuideFromLastAnswer([msg('user', 'yes')])).toBe(null)
+    expect(offeredGuideFromLastAnswer([])).toBe(null)
+    expect(offeredGuideFromLastAnswer(null)).toBe(null)
+  })
+
+  test('an echoed scope block names many guides and is not guessed at', () => {
+    const many = 'Would you like me to switch to it? Ratio Analysis · Dashboard Discussions · The Heald Matrix'
+    expect(offeredGuideFromLastAnswer([msg('assistant', many)])).toBe(null)
+  })
+
+  test('only the NEWEST answer is read — a stale offer cannot re-route a later turn', () => {
+    const history = [
+      msg('assistant', OFFER),
+      msg('user', 'no, something else'),
+      msg('assistant', 'Understood — here is the Ratio Analysis view.')
+    ]
+    expect(offeredGuideFromLastAnswer(history)).toBe(null)
   })
 })

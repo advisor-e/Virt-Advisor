@@ -303,6 +303,8 @@ describe('the hub menu — the sidebar itself', () => {
     expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs'])
     expect(tabLabels(wrapper)).toHaveLength(11)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
+    // Both additions are checked, because "appended" is only true of the LAST one added
+    // unless the one before it is still where it was.
     expect(tabLabels(wrapper)[5]).toBe('AI Prompts')
   })
 

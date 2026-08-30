@@ -55,19 +55,17 @@ level above's improvements automatically. A row a level *has* edited is protecte
 level above's later change is **offered** — Adopt / Keep mine — never silently applied.
 Clone-like protection where someone made a decision; automatic freshness where they did not.
 
-**P11 · A level's own additions are OFFERED downward and must be accepted. Nothing is ever
-enforced — in either direction.** Ruled by Mike, 2026-08-22: *"everything in Advisor-e that is
-offered downwards in a cascade must be accepted by the level below. The higher levels can offer
-ideas but never enforce them. However, under no circumstance can a lower level push something up
-or enforce changes upward either."*
+**P11 · A level's own additions are pushed down, and the level below owns what it receives.
+Nothing is ever enforced — in either direction.** Ruled by Mike: *"everything gets pushed down,
+once in place the lower level has the right to edit and refuse future updates"*, and *"under no
+circumstance can a lower level push something up or enforce changes upward either."*
 
-**Scope, confirmed by him in the same exchange: this is about *changes a level makes on top*, not
-about the platform's shipped content** — *"else the software would be useless for a new firm"*. A
-firm that has just opened the app gets the full product working, not an empty shell awaiting
-several hundred acceptances. The baseline **is** the product; a level's own idea is an **offer**.
-
-- **Downward:** what a level adds or edits is an offer to the levels below. They accept or
-  decline. Declining is free, reversible, and changes nothing above.
+- **Downward:** what a level adds or edits is **in force immediately** at the levels below. Once
+  it is in place, the level below may **edit it, switch it off, and refuse a later change** to it.
+  That is what *never enforce* means — not that material waits for permission to start working,
+  but that no level below is ever stuck with it. Editing and declining are free, reversible, and
+  change nothing above. The mechanism is §3's: inherited / declined / overridden / own, with
+  Adopt or Keep mine when the level above changes a row somebody has already edited.
 - **Upward:** ⚠ **do not read this as a hole to plug — it is already closed, structurally.**
   Reports rolling up is the *feedback loop the design exists for* (P4) and is emphatically
   allowed. What is forbidden is a lower level making a document, model or setting a

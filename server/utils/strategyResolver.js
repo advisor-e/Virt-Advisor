@@ -43,6 +43,7 @@ function resolveStrategy (caseState, firmOverrides) {
   const templateBudget = caseState.constraints.templateBudget || 1
 
   // ── Sequencing rule ──────────────────────────────────────────────────────
+  // ⚠ Inert: nothing reads this. Logged in the observability snapshot only.
   const sequencingRule = engagementType === 'education' ? 'education_first' : 'standard'
 
   // ── Intervention urgency ─────────────────────────────────────────────────

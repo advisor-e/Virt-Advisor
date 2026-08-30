@@ -78,13 +78,21 @@ beforeEach(() => {
 })
 
 describe('GET /api/firm-manager/method-guides', () => {
-  test('lists all thirteen, with where each one opens from', async () => {
+  test('lists all fifteen, with where each one opens from', async () => {
     const res = makeMockRes()
     await getMethodGuides(makeReq(), res)
     expect(res._status).toBe(200)
-    expect(res._body.guides).toHaveLength(13)
+    expect(res._body.guides).toHaveLength(15)
     const standing = res._body.guides.filter(g => g.standing)
-    expect(standing.map(g => g.id)).toEqual(['facilitation_101'])
+    // Three standing entries, in the order the rail shows them (Mike, 2026-08-23):
+    // The 3 Engagement Types is its own page listed UNDER Facilitation 101, and
+    // Learning Psychology is a separate page again, under both. This is what puts
+    // all three on the screen at every tier.
+    expect(standing.map(g => g.id)).toEqual(['facilitation_101', 'engagement_types', 'productive_habits'])
+    expect(standing[1].label).toBe('The 3 Engagement Types')
+    // Named by Mike 2026-08-23. The id stays `productive_habits` — it is the storage
+    // key for a firm's saved wording, and renaming it would orphan saved overrides.
+    expect(standing[2].label).toBe('Learning Psychology')
     // Every row is named for a person as well as by id — the screen shows the
     // label, and deriving it in the browser would be a second copy of the mapping.
     for (const g of res._body.guides) {

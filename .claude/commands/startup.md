@@ -6,6 +6,24 @@ Run the start-of-session checklist from `design/WORKING-AGREEMENT.md`. Work thro
 in order and report the result of each step in plain English. Mike is non-technical —
 end with a short Non-Coder Summary.
 
+---
+
+## 🔴 HOW WE WORK HERE — read this before the checklist (Mike's ruling, 2026-08-24)
+
+**We write quality, concise, purposeful code.** Every line must earn its place — and so
+must every test and every sentence of documentation.
+
+**This code is tested by people in UAT before it ever reaches production.** A test earns
+its place when it catches what UAT cannot: a wrong number, an unsafe permission, a
+malformed AI response. A test that checks what a person would notice in five seconds on
+screen is work we do twice.
+
+**The same rule governs what we write down. One fact, one home.** A Brief says how the
+product works *now* — when something changes, replace the old sentence rather than adding
+a new one beneath it.
+
+---
+
 **The LIVE-APP / repo-change rule in `CLAUDE.md` still applies throughout.** Steps 1, 2 and
 4 are read-only. Step 3 writes nothing to the repository and republishes Mike's own private
 Handbook link — he asked for that to happen every session (2026-08-13), so it needs no fresh
@@ -30,15 +48,23 @@ it, do not perform it unasked.
    also means overwriting the published version is always safe. If the build reports a
    page under "Unlisted", say so — the index has forgotten a page.
 
-4. **What is open?** Read `design/features/to-do.md` — the live list — and the most recent
-   session-notes file in `design/`. Report the two or three things most likely to be
-   today's work, saying for each whether it waits on Mike, on us, or on someone outside.
-   Do not start any of them.
+4. **What is open?** Read **`design/features/to-do-items.json`** — the ten live items
+   themselves — and **`design/HANDOVER.md`**, the one rolling note from whoever worked
+   last. Report the two or three things most likely to be today's work, saying for each
+   whether it waits on Mike, on us, or on someone outside. Do not start any of them.
 
-   **Not `design/ACTIONS.md`.** That is the full record and stays so, but it is 6,000+
-   lines and reads as about seventy open tasks when the real list is nineteen. It is not
-   the front door. An item taken from it is a claim to check against the code, never a
-   status.
+   **Read the JSON, not `to-do.md`.** The page is 850 lines of standing explanation
+   wrapped around a generated ten-row table; the JSON *is* the list, and the page is
+   rebuilt from it. Same information, a fraction of the reading. Open the page only if
+   Mike asks why an item is worded as it is.
+
+   **Not `design/ACTIONS.md`.** It is a **frozen archive** as of 2026-08-24 — history,
+   not a work list. Nothing is added to it and nothing is triaged from it. An item found
+   there is a claim to check against the code, never a status.
+
+   **There are no session-notes files any more.** 85 of them exist from before
+   2026-08-24 and stay as history; none is written now, and none needs reading. The
+   handover lives in one place, above.
 
 5. **If the branch is behind master, propose catching it up** — merge `origin/master`
    in, then run the full test suite to prove the merge broke nothing. State the commit

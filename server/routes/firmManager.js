@@ -3689,8 +3689,12 @@ function _mergeBranchRows (baseTree, rows) {
   const baseStanding = Array.isArray(baseTree.flat_branches) ? baseTree.flat_branches : []
   const standingById = new Map(baseStanding.map((n, i) => [n.id || `standing-${i}`, n]))
   const speaksKind = (rows || []).some(r => r && typeof r.kind === 'string')
-  const isStanding = row => speaksKind && row && row.kind === 'standing' &&
-    typeof row.id === 'string' && standingById.has(row.id)
+  // A standing rule is one the caller SAYS is standing. It used to also have to
+  // carry an id the platform already knew, which meant a level could reword the
+  // two that shipped and never write a third: a new standing row failed the test,
+  // fell through to the branch list, and was silently saved as an ordinary staged
+  // branch — a different thing that fires at one step instead of at every step.
+  const isStanding = row => speaksKind && row && row.kind === 'standing'
   // Key by the SAME display id the detail route assigns (_treeBranchRows:
   // n.id || `row-${i}`), so both graph `nodes` (real ids) and flat_if_then
   // branches (often id-less) round-trip and keep their hidden fields —
@@ -3717,6 +3721,16 @@ function _mergeBranchRows (baseTree, rows) {
     taken.add(id)
     return id
   }
+  // Standing rules mint under their own prefix, for the same reason branches do:
+  // the id is the row's identity and must never collide with one already spoken
+  // for, at this level or any level below that has decided something about it.
+  let standingSeq = 0
+  const nextFirmStandingId = () => {
+    while (taken.has(`firm-standing-${standingSeq}`)) { standingSeq++ }
+    const id = `firm-standing-${standingSeq}`
+    taken.add(id)
+    return id
+  }
 
   const standingList = []
   const list = (rows || []).filter((row) => {
@@ -3724,10 +3738,30 @@ function _mergeBranchRows (baseTree, rows) {
     // platform authored (its `templates` included) and taking only the four
     // edited columns.
     if (!isStanding(row)) { return true }
-    const base = standingById.get(row.id)
-    const next = { ...base, branch_name: str(row.branch_name), condition: str(row.condition), notes: str(row.notes) }
-    next[_thenFieldOf(base)] = str(row.action)
-    standingList.push(next)
+    const base = (row && typeof row.id === 'string') ? standingById.get(row.id) : null
+    if (base) {
+      // Reword in place: the platform's own fields — `templates` included — are
+      // kept and only the four edited columns are taken.
+      const next = { ...base, branch_name: str(row.branch_name), condition: str(row.condition), notes: str(row.notes) }
+      next[_thenFieldOf(base)] = str(row.action)
+      standingList.push(next)
+    } else {
+      // A rule this level wrote. No flow wiring and no templates — the same shape
+      // a firm-added branch takes, in the block that always applies.
+      // The submitted id is kept so a saved rule round-trips and its identity
+      // survives, but ONLY when it is not a platform row's — a request claiming a
+      // platform id in this block would otherwise put a second row into the table
+      // under a name that already means something else.
+      const claimed = (row && typeof row.id === 'string') ? row.id : ''
+      const platformOwned = byId.has(claimed) || standingById.has(claimed)
+      standingList.push({
+        id: (claimed && !platformOwned) ? claimed : nextFirmStandingId(),
+        branch_name: str(row && row.branch_name),
+        condition: str(row && row.condition),
+        action: str(row && row.action),
+        notes: str(row && row.notes)
+      })
+    }
     return false
   }).map((row) => {
     const existing = row && row.id ? byId.get(row.id) : null
@@ -3752,7 +3786,18 @@ function _mergeBranchRows (baseTree, rows) {
       notes: str(row && row.notes)
     }
   })
-  return { key, list, standing: (speaksKind && baseStanding.length > 0) ? standingList : null }
+  // 🔴 EMITTED WHENEVER THE CALLER SPEAKS `kind`, not only where the platform
+  // already had standing rules. Gating on `baseStanding.length > 0` meant that on
+  // 41 of the 42 tables the first standing rule anyone wrote was computed here and
+  // then thrown away — the save returned 200 and the rule was simply gone.
+  //
+  // The `speaksKind` guard stays: a caller that says nothing about `kind` is not
+  // making a claim about the standing block, and must not wipe it.
+  // Emitted when there is something to say about the standing block — either this
+  // level wrote a rule, or the platform has rules whose absence from the submitted
+  // list is a deletion. A table with none, where none was added, stores nothing.
+  const speaksStanding = speaksKind && (standingList.length > 0 || baseStanding.length > 0)
+  return { key, list, standing: speaksStanding ? standingList : null }
 }
 
 /**

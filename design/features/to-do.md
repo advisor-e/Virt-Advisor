@@ -35,24 +35,30 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on |
 | --- | --- | --- | --- | --- |
-| 1 | **2.9** The education gate | 4 | — | Us |
-| 2 | **4.7** Flip engine-strict back on | 5 | — | Us |
-| 3 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | Us |
-| 4 | **4.16** Check every block's authored fields actually reach the prompt | 4 | — | **Mike** |
-| 5 | **4.17** A screen can show one row when 67 exist, and say nothing | 2 | — | Us |
-| 6 | **4.18** The AI invents advice when it is routed to the wrong method | 4 | — | Us |
-| 7 | **4.25** Nothing in this project ever checks that a screen LOOKS right | 4 | — | Us |
-| 8 | **4.26** The Model Library card still promises one rental property, not five | 2 | — | **Mike** |
-| 9 | **4.27** The property drawing promises a per-property tax override that nothing builds | 1 | — | **Mike** |
-| 10 | **4.30** Invisible characters are stripped on the new path only, not the live advisor screen | 5 | — | Us |
-| 11 | **4.31** An accountant can share a prompt and have it checked — designed, drawn, not built | 4 | — | Us |
-| 12 | **4.33** A template's tutorial video gets attached to a calculator that shares its name | 2 | — | Us |
+| 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | **Mike** |
+| 2 | **4.50** Nobody has seen a real conversation's recommendations reach the Team tab | 2 | — | Outside |
 
-**Twelve live items. Three need Mike.** If this list passes about twenty, something is wrong.
+**Two live items. One needs Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
-**Three items came off on 2026-08-22, and one joined** — see
+**Four items came off on 2026-08-22, and one joined and left the same day** — see
 [`to-do-done-and-parked.md`](to-do-done-and-parked.md):
+
+- ✅ **4.34** — **the Model Guide's Coach reading carries its real figures.** Raised by Mike
+  the evening the page shipped (*"it makes this section worthless"*) and closed the next
+  morning. The sentence stays the one source both the screen and the AI share; each now
+  fills the same `{gaps}` from the same figures, computed **by calling the model function
+  the screen's own route calls** — so the guide reads $120 · 30 days · $1,800 because that
+  is what the screen reads.
+  🔴 **The item's own plan was wrong in one place, and checking it is what found it.** Two
+  readings were computed inside `.vue` files, so quoting them would have meant writing the
+  same sums twice. They were moved into the models instead, and both screens now read them
+  from there.
+  🔴 **And the fix introduced a risk that was surfaced, not shipped quietly:** the AI now
+  reads real money where it read `[amount]`. Mike ruled the same day that both headings name
+  the figures as samples in the same breath as the number. A test fails if either loses it.
+  ⚠ **Layout not verified by eye** — the rendered words are asserted, the look of the longer
+  headings is not. That gap is **4.25**, below.
 
 - ✅ **4.29** — **the AI has been told the report models exist.** What each of the ten built
   models serves, its key calculation output, what the advisor must supply, when to reach for
@@ -117,6 +123,7 @@ repository sees; the two never both appear, and the build stops if they would.
   ⚠ **And it found a hole nothing can close by itself:** layout was shipped **unverified**, because
   no browser driver was installed. That is now **4.25** — a job, not a warning. The two wording
   calls it left with Mike are **4.26** and **4.27**.
+  ✅ **4.27 closed 2026-08-25** — Mike struck the sentence; the tax rules stay portfolio-level.
   ✅ **The driver half of 4.25 closed the next day** (2026-08-21, `7fa5e9a`): `playwright` pinned to
   exact **1.34.3**, the last release that runs on the locked Node 14.15, configured so no other
   machine downloads a browser on `npm install`. **4.25 stays open** — the project can now see a
@@ -191,7 +198,7 @@ repository sees; the two never both appear, and the build stops if they would.
   🔴 **Nothing on this list now covers cutting that newer release.** That gap is deliberate and it
   is his to close.
 
-⚠ **Four items were scored 5 by Mike on 2026-08-15 — 4.12 (now closed), 4.9 (now closed), 4.7 and 3.5 — and by §2's table a 5
+⚠ **Four items were scored 5 by Mike on 2026-08-15 — 4.12 (now closed), 4.9 (now closed), 4.7 (now closed) and 3.5 — and by §2's table a 5
 means security, privacy or data integrity.** Read alongside his comments (*"just get it done"*,
 *"should never have been parked"*) he was plainly using 5 to mean **do this now**, not to name the
 category. **His scores are recorded exactly as he set them and have not been adjusted.** The
@@ -324,14 +331,13 @@ before the second starts:
 
 - **Technical / feature:** ~~4.12 (the master team's documents are wrong)~~ — **closed 2026-08-21;
   its premise was false, and it is left struck through here because the reading below was made
-  with it counted in**, 2.9 (the education gate is
-  not coded at all — it needs Mike's words, but what is missing is a *feature*), 4.7 (the Node lock
-  is not enforced), 4.16 (content the AI is never shown), 4.17 (a screen showing 1 row of 67).
+  with it counted in**, ~~4.7 (the Node lock
+  is not enforced)~~ — **closed 2026-08-24**, 4.16 (content the AI is never shown), 4.17 (a screen showing 1 row of 67).
   ✅ **4.16's sweep is finished — 2026-08-16 — and 2.6 was its first known instance.** It found
   **102** pieces of authored content reaching no prompt, and a second half nobody had predicted:
   **no screen renders them either.** Closing 2.6 raised the expected yield rather than lowering it,
-  exactly as this line warned it might. What is left of 4.16 is the fixing, in three phases, and
-  Phase 1 waits on Mike — see §6.
+  exactly as this line warned it might. 4.16 was then fixed in phases and **closed 2026-08-23**;
+  its closure is on [`to-do-done-and-parked.md`](to-do-done-and-parked.md).
 - **Fine tuning:** 4.15 — twenty-one branches naming pages that exist under other names. **Ranked
   last for exactly this reason**, and it scores 4, so the disagreement is on the page as §2 requires.
 - **Neither:** 3.5 is one message to a person who is waiting.
@@ -343,57 +349,8 @@ whatever it looks like.
 
 ---
 
-## 4. The education gate
 
-### 🔴 RULED BY MIKE, 2026-08-16 — the gate fires wherever poor financial literacy shows up
-
-> Asked whether the gate should work **wherever poor financial literacy shows up**, or **only where
-> the app can already see it** (inside a forecasting conversation), Mike chose: **"wherever it shows
-> up."**
-
-**This item is no longer waiting on Mike, and it is no longer a wording task.** It was carried for a
-month as *"only the on-screen words are missing"*. **That sentence was wrong**, and it is recorded
-here as wrong so nobody re-derives it: putting the wording question to him again is asking a
-question he has already answered.
-
-**What the 2026-08-16 check found**, and it is why the scope moved:
-
-1. **The pattern the ruling says to copy does not exist.** The 2026-07-16 ruling models the gate on
-   *"the existing outside-your-range pattern"* — the two-card output decided on 2026-06-04 in
-   [`../virt-advisor-system-design.md`](../virt-advisor-system-design.md) §13. **No code carries
-   that text or anything like it.** It was decided and never built, so there is no working screen to
-   take the shape from.
-2. **The literacy signal exists in one domain out of eight.** *"Poor financial literacy — owner
-   focused on wrong numbers"* sits under **forecasting** in [`../../data/primary-issues.json`](../../data/primary-issues.json)
-   and nowhere else; all eight domains were checked. A client who plainly cannot read their numbers
-   but came about staffing or profitability **would not trip the gate.** Mike's own 2026-07-16
-   precondition — *"the literacy signal's reliability verified first"* — is what this answers.
-   `advisory-staircase.json` agrees: `"status": "not-wired"`.
-
-**The order of work, and it is fixed by his ruling:**
-
-1. **Widen the signal — ours, and first.** ⚠ **NOT by copying the line into all eight domains' issue
-   lists.** Eight copies of one sentence is how content drifts apart here, and it is the fault
-   closed on 2026-08-16 by item 2.6. It needs to become a signal the engine reads **independently of
-   the domain** the conversation happens to be in. That shape has to be designed.
-2. **Then the wording — Mike's**, and only then. **Where the gate can fire decides what it should
-   say**, which is why asking for the words first would have produced words for a gate that mostly
-   stays shut.
-3. **Then build the gate**, with the reasoning shown either way, per the 2026-07-16 ruling below.
-
-**2.9 · The education gate.** **SCORE 4 · the user is worse off**
-- **Why:** on low client literacy the adviser is asked whether to apply education-first or see what
-  is technically needed, with the reasoning shown either way. The behaviour was ruled 2026-07-16;
-  the **reach** was ruled 2026-08-16.
-- **Risk:** it stays uncoded. Advisers keep getting advice pitched over a client's head — and, since
-  2026-08-16, we know the narrow version would have looked finished while firing almost never.
-- **Asked by:** **Mike** — his own design, 2026-07-16, rescoped by him 2026-08-16.
-- **Touches:** the literacy signal across all eight domains, the Advisory Staircase, the
-  pre-recommendation prompt.
-
----
-
-## 5. Waiting on somebody else — not ours to finish
+## 4. Waiting on somebody else — not ours to finish
 
 *Nothing. **3.5 closed 2026-08-21** when Mike sent Carl's email himself; the other three were
 settled by him on 2026-08-15. See §1.*
@@ -407,345 +364,11 @@ exists to close.
 
 ---
 
-## 6. Ours to build
-
-**4.16 · Check every block's authored fields actually reach the prompt.** **SCORE 4 · the user is
-worse off** · 🔴 **WAITING ON MIKE**
-
-### ✅ The sweep is DONE — 2026-08-16. It found 102.
-
-| Block | Unreachable | What it is |
-| --- | --- | --- |
-| Domain support | **71** | 65 `diagnostic_entry` routing branches across 19 domains, 6 `if_then_logic` rules |
-| Logic trees | **15** | 13 `stage_entry_question`, 2 `flat_branches` |
-| Engagement types | **15** | 5 authored fields × 3 types, behind a hardcoded paraphrase |
-| Advisory Staircase | **1** | `selectorPrompt`, duplicated as a hardcoded string in the engine |
-
-Every one proved by **rendering the real prompt and searching it** — the method this item
-prescribes, and the only one that has ever worked here.
-
-🔴 **The risk was worse than filed.** It read *"a firm or the mentor carefully edits content the AI
-is never shown"*. **Nobody can edit any of these — no screen renders one of them.** The Domain
-Support tab edits the materials table only; the Logic Tables tab edits the branch rows only. The
-content is invisible in **both** directions, which is why no test, no tab and no person had found
-it. That finding is what produced the hub-page rule in `CLAUDE.md` and
-[`tier-cascade.md`](tier-cascade.md) P10.
-
-### ✅ The design is SETTLED — session 63, 2026-08-16 · next session builds
-
-🔴 **The spec is [`../4-16-BUILD-SPEC.md`](../4-16-BUILD-SPEC.md). Read it and build — do not
-re-derive the analysis.** Page purposes: [`../HUB-PAGE-PURPOSES.md`](../HUB-PAGE-PURPOSES.md).
-
-**102 is a measurement, not a work list.** About **55 of the 65 `diagnostic_entry` branches are
-duplicates** of routing the logic trees already carry at higher resolution — and the trees name the
-actual templates while the branches do not. The real list is seven items:
-
-| Work | Count | Page | |
-| --- | --- | --- | --- |
-| ~~Retire `diagnostic_entry` where the tree covers it~~ | ~~55~~ | — | 🔴 **CANCELLED 2026-08-16** |
-| Every `diagnostic_entry` branch reaches the prompt and gets a screen | **65** + 26 | Domain Support | ✅ **2026-08-16** |
-| `stage_entry_question` + `flat_branches` | 15 | Logic Tables | ✅ **2026-08-16** |
-| Engagement-type authored fields — 6 per type | 18 | 🔴 **no page exists** | 🔴 **waits on Mike** |
-| Staircase `selectorPrompt` from data, not a hardcoded string | 1 | Advisory Staircase | ✅ **2026-08-16** |
-| The method guides get a screen | ~~12~~ **13** | Domain Support | ✅ **BUILT 2026-08-17** |
-| `get-team-problem`'s `if_then_logic` — check against its tree first | 6 | Logic Tables | ✅ **2026-08-16 — a real duplicate, no work needed** |
-
-🔴 **"About 55 of the 65 are duplicates" was WRONG, and it was overturned by the very test the spec
-demanded before deleting anything.** Only three of the 65 had even 85% of their words present in
-their best-matching tree, and all three read as complementary when put side by side: the tree says
-WHICH conversation this is, the branch says WHAT TO DO once you are in it. **Nothing was deleted, and
-there is no deletion left for Mike to rule on.** Evidence and method:
-[`../DOMAIN-DIAGNOSTIC-BRANCHES.md`](../DOMAIN-DIAGNOSTIC-BRANCHES.md) §1.
-
-⚠ **The one genuine duplicate in the whole sweep was `get-team-problem`'s six** — same conditions,
-same actions, same order as its logic table. That one IS redundant and needs no work. It is worth
-knowing that the intuition was right once in seven and wrong the other six times.
-
-**The job also grew by 26 deliberately:** the `primary_question` fields DO reach the AI and appear on
-no screen either — the same fault, the same field, the same tab. Fixing the 65 and leaving those
-invisible would have been a choice, and the wrong one.
-
-### ✅ F IS BUILT — session 67, 2026-08-17
-
-🔴 **The build, and every difference from the approved artefact, is recorded at
-[`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md) §10.** Read that before touching
-any of it. Three differences matter: **only three of the five "shared" guides really are
-shared** (two of the artefact's second rows name artefacts that are not this guide); the
-overrides live in their **own bundle keyed by guide id**, not per domain, or the on-screen
-"an edit here changes it there too" would be false; and numeric fields render read-only,
-found by opening the real guide on the running app.
-
-**Proved rather than asserted:** 967 authored strings across the thirteen, **0 missing from
-the prompt** (was 116 missing). All three affected conversations were opened for real —
-Dashboard Discussions returned **6/6** tactical options and **3/3** discussion questions
-verbatim, Working Capital Cycle **9/9** causes.
-
-⚠ **One thing found on the way, and it is NOT this item.** The engine routed a Dashboard
-Discussions question to the **Ratio Analysis** tree, and the AI then **invented** tactical
-options and discussion questions rather than saying it had none. Tree detection, not the
-guides — but inventing content that reads as authored is the same failure family.
-
-**D — the engagement types — is now the only part of 4.16 still open, and it waits on Mike.**
-
-**Two things in this item's own description were wrong, and both were found by opening the files:**
-
-1. 🔴 **It is THIRTEEN guides, not twelve.** `powerful-seminars.json` is not named `*-reference.json`,
-   so the file-pattern sweep missed it — `LEARN_REFERENCE_FORMATTERS` registers it beside the other
-   twelve and treats it identically.
-2. 🔴 **They are NOT "read by the AI in full", which this list said for two sessions.**
-   **116 of the 954 authored lines across them reach no prompt** — 62 in Dashboard Discussions
-   (including the discussion questions authored against every one of its twelve metrics), 29 in
-   Working Capital Cycle, 20 in Ratio Analysis. Each formatter names its fields by hand, so a field
-   authored afterwards is never mentioned again. **The sweep counted the file as reaching the AI
-   because the formatter exists.**
-
-**So F is not only a screen.** Screen and prompt get built from **one walk of each guide's own
-shape** — 155,000 characters, of which only 21% sits in fields all thirteen share and **35% is blocks
-unique to a single guide** — so the two cannot disagree and the 116 close as a consequence of the
-design rather than as thirteen patches. Each guide opens from the framework row it already has on
-Domain Support; **Facilitation 101 has no row anywhere** and gets its own entry above the domains.
-**Tiers: the same as the materials table around it** — the opposite of B's mentor-only ruling,
-because a method guide is prose rather than routing logic, and it was asked rather than assumed.
-
-✅ **E shipped 2026-08-16 (`5873c06`) — the first of the seven, and the safe one on purpose.**
-The sentence an advisor is asked before choosing a staircase step now comes from the data and is
-editable on the Advisory Staircase tab, mentor first, firms inheriting. Approved wording:
-[`../STAIRCASE-SELECTOR-PROMPT-FIELD.md`](../STAIRCASE-SELECTOR-PROMPT-FIELD.md) §3.
-
-**Today's advisor sees no change, and two tests hold that** rather than assert it — they pin the
-exact strings that were hardcoded, written out in full so a later edit to the data file cannot
-silently re-point them. Proved on the running app as well as in the suite: saved as the mentor,
-inherited by a firm that had written none of its own, and the engine then put that sentence to the
-advisor.
-
-⚠ **Two things the build spec did not have, both found by opening the code — read before doing B–G:**
-
-1. **The two hardcoded strings were NOT identical.** The second carries a "No problem —" lead-in for
-   the moment an advisor declines a saved answer. It belongs to the moment, not the question, so it
-   stays in code — a firm must not be able to delete it from a conversation it never saw.
-2. 🔴 **A wording decision is still open and was deliberately not bundled:** that block's history
-   button reads **"Ceiling history"** while now covering two settings. Renaming it is Mike's call.
-
-🔴 **Two earlier plans are withdrawn, both by evidence rather than opinion.**
-**(1) The ten "empty" domains are not empty** — `eoy`, `profit` and `staff` each have a live logic
-tree, as do all seven Get-the-Job domains. Mike stopped it: *"the domain support material exists (I
-know this because I created it) but the problem is — not all of it was being read by AI."* Authoring
-them would have duplicated his own work tenfold.
-**(2) The 65 do not go on the Coaching Reference page** — he instructed it, then the code showed they
-are Logic Tables content and mostly duplicates. Recorded at
-[`../COACHING-REFERENCE-DOMAIN-ROWS.md`](../COACHING-REFERENCE-DOMAIN-ROWS.md).
-[`../DIAGNOSTIC-ENTRY-BLOCK.md`](../DIAGNOSTIC-ENTRY-BLOCK.md) is superseded by both.
-
-**The cascade is binding on all of it** — Mike, 2026-08-16: *"each respective hub page needs to link
-to AI so their changes work in practice so the cascade rules need apply here also."* Build
-tier-agnostic on the `coachingConfig.loadResolvedCoaching` shape. The two middle tiers cannot be
-exercised until the master team issues their roles and the firm→brand/country data; it fails toward
-today's behaviour, never toward a guess.
-
-✅ **`org-capacity-planner` having no logic tree is correct and is NOT an item** — ruled by Mike,
-2026-08-16: *"there is no capacity planner logic — it is a single model used for firms to plan and has
-a tutorial video attached."* Its 3 branches turn out to be a **sequence** across its own three
-materials, not routing — the one place in all 65 where the field holds something other than
-IF-THEN. See the spec §B.
-
-**4.17 · A screen can show one row when 67 exist, and say nothing.** **SCORE 2 · robustness**
-- **Why:** the mentor's Advisory Distinctions tab showed **1** distinction when the shipped set is
-  **67**. A local, git-ignored dev file (`data/dev-platform-distinctions.json`) is deliberately
-  preferred over the committed seed when there is no database, and one stale test row in it shadowed
-  all 67 — **with nothing on screen saying so.**
-- **Risk:** anyone developing, demoing or reviewing reads what is on screen as the real platform
-  set. It cost most of a session to diagnose, and **the same pattern applies to every dev-JSON
-  fallback in the app**, not just this one.
-- **Asked by:** **Mike** — he spotted it himself on the Mentor Hub, 2026-08-16.
-- **Touches:** `server/utils/platformDistinctions.js` and every other dev-JSON fallback
-  (`firmDistinctions`, quizzes, coaching, currency); the Mentor Hub Advisory Distinctions tab.
-- ⚠ **The local symptom is fixed by deleting that file** — Mike was given the command on 2026-08-16
-  because the AI's own safety guard refused the deletion. **The item is the underlying fault:** a
-  screen served from a dev fallback must *say* it is. Verify by loading the tab with and without the
-  file, never by reading the loader.
-
-**4.18 · The AI invents advice when it is routed to the wrong method.** **SCORE 4 · the user is
-worse off**
-
-⚠ **Sitting last because Mike has not ranked it, not because it scores low.** It was added on
-2026-08-17, after his own ranking pass, and appending is the only way to add an item without
-moving one of his. **Its position is not a judgement.**
-
-- **Why:** a Dashboard Discussions question was routed by the engine to the **Ratio Analysis**
-  coaching tree. The AI then produced its own plausible *"tactical options"* and *"discussion
-  questions"* for the metric rather than saying it had none for it. **Two faults stacked:** the
-  wrong guide was selected, and the model filled the gap instead of admitting it.
-- **Risk:** an adviser reads invented content as Mike's authored method and takes it to a client.
-  On screen it is indistinguishable from the real thing — right headings, right tone, right shape.
-  🔴 **This is 4.16's failure from the other direction.** 4.16 was authored content that never
-  arrived; this is unauthored content that arrives *looking* authored — and it is the worse of the
-  two, because nothing about it looks wrong.
-- **Asked by:** **Mike.** Found by us on 2026-08-17 while verifying 4.16 F on the running app — the
-  first Dashboard Discussions attempt came back with invented questions. Reported the same session
-  and he ruled it on: *"if you found this problem then yes - it gets put on the to do list."*
-- **Touches:** `detectLogicTree` / `detectLogicTrees` in `server/utils/logicTrees.js` and
-  `pickLearnTreeAI` in `server/advisorEngine.js` for the routing half; the learn-mode prompt for
-  the honesty half.
-- 🔴 **TWO HALVES, AND THE SECOND ONE IS THE ITEM.** Sharpening the routing reduces how often this
-  happens and can never remove it — some questions are genuinely ambiguous, and Ratio Analysis and
-  Dashboard Discussions are neighbouring methods. **The fault worth fixing is that the model does
-  not say "I do not have that for this method."** Do not close this on a routing tweak alone.
-- ⚠ **Verify the way 4.16 was verified** — ask a real question on the running app and compare the
-  answer word for word against the source file. **Every automated test here passes on an answer the
-  model made up.**
-- Written into [`../RELEASE-NOTES-v0.9.0.md`](../RELEASE-NOTES-v0.9.0.md) §4a, so the master team
-  meets it as a known issue rather than as a surprise in UAT.
-
-**4.19 · Finish the property model — properties 2 to 5, the apportionment and the consolidated
-report.** **SCORE 4 · the user is worse off**
-
-⚠ **Sitting last because Mike has not ranked it, not because it scores low.** It was added on
-2026-08-17, after his ranking pass, and appending is the only way to add an item without moving one
-of his. **Its position is not a judgement.**
-
-- **Why:** Phase 1 builds **one** investment property over ten years. The source workbook is a
-  **five-property portfolio**: it also carries the family home and its mortgage, a **loan
-  apportionment table** spending the deposit across the residence and five investments in order
-  until the money runs out — ⚠ *this read "until the borrowing ceiling is reached" until 2026-08-20;
-  there is no ceiling anywhere in the workbook, see the artefact §1* — and a **consolidated report**
-  stacking all five into
-  total revenue, total expenses, net operating profit, total debt, net equity and a combined weekly
-  cash position. Without Phase 2 the model answers *"is this one property worth buying"* and cannot
-  answer *"does this portfolio work"* — the question the workbook was built for.
-- **Risk:** Phase 1 ships and the model **looks finished**. Properties 2–5 are the same block
-  repeated, so what remains is precisely the part nobody can infer from the built screen — the
-  apportionment and the consolidation exist nowhere in Phase 1 in any form. 🔴 **It was written into
-  a design document with nothing scheduling it, and on this project that is how a plan quietly
-  becomes never.** That is the whole reason this row exists.
-- **Asked by:** **Mike.** He chose the model from the nine unbuilt ones on 2026-08-17 and approved
-  the two-phase split, then asked directly whether the additional properties would be added in
-  future — and on being told Phase 2 was a written plan with nothing scheduling it, ruled it onto
-  the live list the same session.
-- **Touches:** the Phase 1 maths model and its golden test, the Restify route,
-  [`../../utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js), the page and screen
-  components, and the `SCREENS` list in
-  [`../../tests/unit/reportHeadlineConsistency.component.test.js`](../../tests/unit/reportHeadlineConsistency.component.test.js).
-- ✅ **PHASE 1 IS COMPLETE — item 4.20 closed 2026-08-18, and this row is UNBLOCKED.** Phase 1 held
-  all the mathematical difficulty: two loans amortised, diminishing-value depreciation on chattels
-  only, ring-fenced losses, and the five-year interest-deductibility phasing. Phase 2 is the
-  apportionment and the consolidation **on top of** it. *(This line read "DEPENDS ON PHASE 1 — do
-  not start this first" until 2026-08-18.)*
-- 🟡 **PHASE 2's MATHS IS BUILT — 2026-08-20, in three approved changes** (`c7fc42b`, `a0a779f`,
-  `e36f8da`). The household, the apportionment table, five properties and the consolidation, plus
-  three things Mike ruled the same day that the workbook does not have: the deposit **hold-back**,
-  the **lending ceiling** as an editable setting on the existing cascade, and the **servicing
-  demand**. 80 tests in `multiplePropertyPortfolio.test.js`; the workbook's own consolidated revenue
-  and property-value rows match its cached values exactly across all ten years.
-  ✅ **The ROUTE followed the same day** (`838cf46`, step P2-2): one route serving both shapes,
-  with a test that fails the build if the LIVE Phase 1 request shape ever moves, and the address
-  guard widened from one real client address to five. 16 route tests, up from 7.
-  **STILL TO DO: the artefact, the screen and the catalogue line** — the artefact §9 steps P2-3 to
-  P2-5. **This row stays open until they are done.**
-- ⚠ **Phase 1's Hub tab was built with no approved artefact** —
-  [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md) §10. **Do not repeat
-  that here.** Anything Phase 2 puts on a screen gets its artefact committed *before* it is
-  approved, per `CLAUDE.md`.
-  🔴 **Updated 2026-08-20 — the rule was OFFERED and DECLINED, which is not the same as skipped.**
-  Adding the lending ceiling to that same tab, Mike was offered a drawing first and said *"no, just
-  add it as a field - I'm sure you can do it."* So the field's label, help text and placement are
-  **ours**, each listed individually in the artefact §10 so any of them changes with one line from
-  him. **The obligation for the Phase 2 SCREEN is untouched** — that is a whole screen, not a
-  field, and it is its own build step.
-- ✅ **MIKE HAS REVIEWED THAT TAB, and this line previously said the opposite — twice.** In his
-  words: *"I DID look at the property tax rules — your notes should show that the phasing
-  depreciation inputs were too small and thus failed to show the % figures."* He was right; five
-  percentage boxes shared a slot sized for one. **Finding that defect WAS the review.** The claim
-  that he had not seen it was corrected by him on the morning of 2026-08-20 and then **repeated the
-  same afternoon** by a session that had not read the note holding the correction — which also
-  proposed adding it to this list as a task he had already done. 🔴 **A finding is not evidence
-  that the finder wasn't looking.** What is still missing is the artefact, not the review.
-- ✅ **The name is settled — Mike, 2026-08-17.** The catalogue name **Multiple Property
-  Assessment** is kept, and Phase 1 ships under it showing *"Property 1 of 5 · the remaining four
-  arrive in the next release"*. The name never changes between the phases and nobody is misled at
-  either stage. ⚠ **It was his own question that settled it** — asking whether the other properties
-  were coming turned a naming problem into a scheduling one, and this row is the answer.
-  ⚠ **This line used to end "Two questions remain open (the four headline labels, and whether the
-  New Zealand tax assumptions are fixed or firm-editable)". It was already wrong** — both were
-  ruled on 2026-08-17, the same day they were asked, as §8 Q2 and Q3 have said ever since. **No
-  design question on this model is open.** Q1–Q7a were ruled 2026-08-17 and Q8–Q10 on 2026-08-20:
-  [`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md) §8.
-- ☐ **Three things sit with Mike, and none of them blocks the build:** the LVR ceiling figure
-  (nothing is judged until it is set), whether the Property Tax Rules tab should be renamed now it
-  holds a lending setting, and whether the sample's own 350,000 / 299,000 loan split should be reset
-  now that its deposit is genuinely applied.
-
-**4.7 · Flip `engine-strict` back on.** **SCORE 2 · robustness**
-- **Why:** still `false`. Two transitive packages (`consola`, `node-releases`) over-declare their
-  Node requirement and need pinning down first.
-- **Risk:** the Node 14.15 lock is not actually enforced at install time, so a future install can
-  drift off the Stack Constitution silently.
-- **Asked by:** the **Stack Constitution** — the coding team's locked spec.
-- **Touches:** `.npmrc`, `package.json` overrides. ⚠ **Reinstall is overnight-only on this
-  machine** and there is a documented safe procedure — follow it rather than a plain `npm install`.
-
-**4.28 · The AI Prompts page has an engine and no screen.** **SCORE 4 · the user is worse off**
-- **Why:** the backend half shipped 2026-08-21 (`ea6ac22`) — both prompts as data, the protocol
-  block, the cascade, the validator, 32 tests. **No tab renders any of it**, so a manager cannot
-  see or change a single variable. Mike asked for a page and has an engine.
-- **Risk:** this is the half-a-fix state CLAUDE.md names on 2026-08-16 — content wired toward the
-  AI with no screen to inspect or correct it — and it is the state the 4.16 sweep found **102
-  times**. Left here it is worse than not starting, because the engine reads as done.
-- **Asked by:** **Mike**, 2026-08-21 — *"I want to create a 'AI Prompts' page in the hub pages
-  (Mentor, Global Group Manager, Group Manager and Firm Manager) so that users have the ability
-  to influence the approach to formulas in the performance report models."*
-- **Touches:** `FirmManagerHub.vue` (`NAV_GROUPS` under *Your AI coach*, plus `TAB_TIERS`), a new
-  `components/firm/FirmAiPrompts.vue`, a Restify route over `server/utils/aiPrompts.js`,
-  `locales/en.json`, and the two guards in [`../AI-PROMPTS-PAGE.md`](../AI-PROMPTS-PAGE.md) §10.
-- 🔴 **The tab label is ruled: "AI Prompts"** (Mike, 2026-08-21). Do not re-ask it.
-- ⚠ **Two of the four tiers cannot be logged into.** `config/integration.js` ships
-  `globalManagerRole` and `groupManagerRole` **empty on purpose**, fail-closed. Build all four —
-  the tab matrix is declarative and excluding them bakes in a limit that is wrong the day
-  Advisor-e issues the roles — but *"it works"* will mean the mentor and firm hubs proven and the
-  middle two correct-by-construction and unexercised. **Say that rather than implying four.**
-
-**4.29 · The AI has never been told the report models exist.** **SCORE 4 · the user is worse off**
-- **Why:** [`../../utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js) is read by
-  exactly one file, `components/ModelLibrary.vue`. Nothing in `server/` reads it, and
-  `server/routes/report.js` never calls OpenAI. The only mentions of a model's name on the backend
-  are JSDoc comments inside the model files themselves.
-- **Risk:** ten built models that answer real client questions are invisible to the one part of
-  the app an advisor actually asks for help. An advisor describing a client's cash problem cannot
-  be pointed at Debtor Drag, because the AI has never heard of it.
-- **Asked by:** **Mike**, 2026-08-21 — *"ensure that each of the performance models have a 'key
-  calculation output' page or section, so that the AI can read what the model serves"*, and
-  *"place it wherever you want, it's for AI - not the advisor or manager"*. Approved to build.
-- **Touches:** a new `data/report-model-summaries.json` keyed by route, a backend block putting it
-  in front of the model, and a guard tying it to the catalogue.
-- 🔴 **The constraint that decides the design: the AI must never recommend a model with no page.**
-  Eight catalogued models are `STATUS_SOON` with no route. A summary for one of those sends an
-  advisor to a screen that does not exist — **which is 4.15 happening again somewhere new.** Cover
-  the 10 `STATUS_READY` models only, and make the guard work **both ways**, so the day a `SOON`
-  model goes live the test says it needs a summary.
-- ⚠ **No screen, and that is Mike's explicit ruling** — a stated exception to the 2026-08-16
-  hub-page rule, on the grounds that a description of what a calculation does is a fact about the
-  maths, not authored advisory judgement. Most of the wording already exists in each model file's
-  own concept note, written and golden-tested when the workbook was ported.
-
-**4.30 · Invisible characters are stripped on the new path only, not the live advisor screen.**
-**SCORE 5 · security, privacy or data integrity**
-- **Why:** `promptSafety.stripInvisible()` shipped 2026-08-21 (`ea6ac22`) with 11 tests, closing
-  the zero-width / bidi / Unicode-tag channel named in the security document's step 5. **It is not
-  applied to `server/advisorEngine.js`**, which is the output path a real advisor reads today.
-- **Risk:** the gap the fix was written for is still open where it actually matters — and the
-  commit message and the tests read as though the channel is closed, so the next session can
-  reasonably believe it is done. **That is the failure family this list exists to end.**
-- **Asked by:** ⚠ **ours** — raised 2026-08-21 by the session that wrote the fix, deliberately
-  rather than quietly widening the change. Wiring it into `advisorEngine` alters live behaviour on
-  a deployed screen and deserves its own change with its own tests.
-- **Touches:** `server/advisorEngine.js` and `server/courseEngine.js` output handling, plus tests
-  proving a hidden payload is removed from a real streamed response and ordinary content survives.
-- ⚠ **The frontend markdown pipeline is LOCKED** by CLAUDE.md and must not be touched. The strip
-  belongs server-side at the source, which is where `stripInvisible` already lives. This is wiring
-  an existing tested function into two more call sites, not new logic.
+## 5. Ours to build
 
 ---
 
-## 7. How to keep this list honest
+## 6. How to keep this list honest
 
 - **Score it before you write it.** A zero does not get filed under tidying — it is deleted, with
   its code.

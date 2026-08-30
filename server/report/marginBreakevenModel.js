@@ -96,4 +96,24 @@ function whatIfPrice (p) {
   return { newPrice, newMarginPct, salesRequired, unitsRequired, costPerUnit }
 }
 
-module.exports = { computeMarginMarkup, priceFromMarkup, requiredSales, whatIfPrice }
+/**
+ * The sample figures the screen opens on.
+ *
+ * 🔴 WHY THIS EXISTS HERE (to-do item 4.34, 2026-08-22). Every other model in this folder
+ * carries its own defaults and answers a request with an empty body by computing the
+ * sample scenario. This one did not: its defaults lived only in
+ * `components/MarginBreakevenReport.vue`, so anything asking the backend what this model
+ * shows got a page of zeros. That is why the Model Guide could not quote its reading.
+ *
+ * ⚠ THE ROUTE IS DELIBERATELY NOT CHANGED to fall back on these. `POST /api/report/
+ * margin-breakeven` reads `+i.overheads || 0`, and its overheads and drawings sliders both
+ * start at zero — so "missing" and "the user dragged it to nothing" are the same value on
+ * the wire, and defaulting there would silently overwrite a real choice. The screen always
+ * sends every field. These are for readers that have no inputs to send at all.
+ *
+ * `tests/unit/reportModelFigures.test.js` holds them to the component's own DEFAULTS line,
+ * so the two copies cannot drift.
+ */
+const DEFAULTS = { price: 250, cost: 82.5, overheads: 11500, ownerDrawings: 8600, priceChangePct: 0 }
+
+module.exports = { computeMarginMarkup, priceFromMarkup, requiredSales, whatIfPrice, DEFAULTS }

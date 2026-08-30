@@ -115,6 +115,8 @@ const reportRoute = require('./routes/report')
 const currencyRoute = require('./routes/currency')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
 const aiPromptsRoute = require('./routes/aiPrompts')
+const promptCheckRoute = require('./routes/promptCheck')
+const promptContributionsRoute = require('./routes/promptContributions')
 const staircaseRoute = require('./routes/staircase')
 const { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 // Collaborate — the people layer and its template catalogue. Merged in from what
@@ -203,6 +205,9 @@ server.post('/api/report/loan-estimator', reportRoute.loanEstimator)
 server.post('/api/report/lease-vs-buy', reportRoute.leaseVsBuy)
 server.post('/api/report/cost-of-capital', reportRoute.costOfCapital)
 server.post('/api/report/multiple-property', reportRoute.multipleProperty)
+// The Model Guide screen. Same records the AI is given, from the same file — see the
+// route's own note. Platform content, no client data, so no firmAuth (as above).
+server.get('/api/report/model-guide', reportRoute.modelGuide)
 // firmAuth deliberately ON for the intake (unlike the calc-only report routes): it accepts file uploads
 server.post('/api/report/quick-position/intake', firmAuth, reportRoute.quickPositionIntake)
 server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfIntake)
@@ -308,6 +313,22 @@ server.get('/api/firm-manager/ai-prompts', ...fmGuard, aiPromptsRoute.getForMana
 server.post('/api/firm-manager/ai-prompts', ...fmGuard, aiPromptsRoute.save)
 server.get('/api/firm-manager/ai-prompts/history', ...fmGuard, aiPromptsRoute.history)
 server.post('/api/firm-manager/ai-prompts/restore', ...fmGuard, aiPromptsRoute.restore)
+
+// Share a prompt — Lane A (item 4.31, steps 1–3). Checks a pasted prompt and stores
+// nothing. That route is deliberately incapable of writing anywhere; Lane B below is a
+// separate file so this one's promise stays true.
+server.post('/api/firm-manager/prompt-check', ...fmGuard, promptCheckRoute.check)
+
+// Lane B (item 4.31) — a level's own material. Pushed down and in force at the levels
+// below, where it may be edited, switched off, or held against a later change from above.
+server.get('/api/firm-manager/prompt-contributions', ...fmGuard, promptContributionsRoute.list)
+server.post('/api/firm-manager/prompt-contributions', ...fmGuard, promptContributionsRoute.add)
+server.get('/api/firm-manager/prompt-contributions/history', ...fmGuard, promptContributionsRoute.history)
+server.post('/api/firm-manager/prompt-contributions/restore', ...fmGuard, promptContributionsRoute.restore)
+server.put('/api/firm-manager/prompt-contributions/:id', ...fmGuard, promptContributionsRoute.update)
+server.post('/api/firm-manager/prompt-contributions/:id/off', ...fmGuard, promptContributionsRoute.setOff)
+server.post('/api/firm-manager/prompt-contributions/:id/adopt', ...fmGuard, promptContributionsRoute.adopt)
+server.post('/api/firm-manager/prompt-contributions/:id/keep-mine', ...fmGuard, promptContributionsRoute.keepMine)
 server.get('/api/firm-manager/staircase', ...fmGuard, fm.getStaircase)
 server.post('/api/firm-manager/staircase', ...fmGuard, fm.saveStaircase)
 // The staircase cascade — one decision per request, mirroring the distinction routes

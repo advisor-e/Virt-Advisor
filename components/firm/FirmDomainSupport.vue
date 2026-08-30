@@ -48,9 +48,9 @@ section.firm-domain-support
             :key="g.id"
             :class="{ 'is-current': openGuideId === g.id && !current }"
           )
+            //- No tag on this row (Mike, 2026-08-22).
             button.ds-rail-select(type="button" @click="selectStandingGuide(g)")
               span.ds-rail-name {{ g.label }}
-              b-tag(:type="g.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small" rounded) {{ $t('firmDomainSupport.guideTag') }}
 
         .ds-rail-empty(v-if="!groups.length")
           span.has-text-grey.is-size-7 {{ query ? $t('firmDomainSupport.noMatchHere') : $t('firmDomainSupport.emptyLibrary') }}
@@ -72,13 +72,10 @@ section.firm-domain-support
             @dragend="onDragEnd"
           )
             button.ds-rail-select(type="button" @click="select(item)")
-              span.ds-rail-name(:class="{ 'is-empty': !item.count && !guideCountFor(item.id) }") {{ item.label }}
-              //- A domain with a method guide behind one of its rows says so here,
-              //- per the approved mockup — otherwise the rail gives no sign that
-              //- 15,000 characters of coaching sit one click inside it.
-              span.ds-rail-guidemark(v-if="guideCountFor(item.id)")
-                | {{ guideCountFor(item.id) > 1 ? $t('firmDomainSupport.guideTagMany', { n: guideCountFor(item.id) }) : $t('firmDomainSupport.guideTag') }}
-              b-tag(v-else-if="item.count" :type="item.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small" rounded) {{ item.count }}
+              span.ds-rail-name(:class="{ 'is-empty': !item.count }") {{ item.label }}
+              //- The count is never replaced by anything (Mike, 2026-08-22). A guide
+              //- mark stood here and, as a v-else-if, hid the number on ten domains.
+              b-tag(v-if="item.count" :type="item.origin === 'firm' ? 'is-warning is-light' : 'is-light'" size="is-small" rounded) {{ item.count }}
               span.ds-rail-notset(v-else) {{ $t('firmDomainSupport.notSetUp') }}
             b-dropdown.ds-rail-move(aria-role="menu" position="is-bottom-left" :mobile-modal="false")
               template(#trigger)
@@ -644,17 +641,6 @@ export default {
     },
 
     /**
-     * How many method guides sit behind a domain's framework rows, for the rail
-     * mark. Derived from the guide list the server already sent, not counted a
-     * second way — the mapping has one home.
-     * @param {string} domainId
-     * @returns {number}
-     */
-    guideCountFor (domainId) {
-      return this.allGuides.filter(g => (g.rows || []).some(r => r.domain === domainId)).length
-    },
-
-    /**
      * The guide that opens from a given framework row, or null.
      * @param {string} name - the material's name as it stands on screen
      * @returns {Object|null}
@@ -1027,13 +1013,6 @@ export default {
 }
 .ds-rail-name { flex: 1; min-width: 0; }
 .ds-rail-name.is-empty { color: #9aa4b2; }
-.ds-rail-guidemark {
-  flex: 0 0 auto;
-  font-size: 0.66rem;
-  font-weight: 700;
-  color: #1f9d76;
-  white-space: nowrap;
-}
 .ds-rail-notset {
   flex: 0 0 auto;
   font-size: 0.66rem;

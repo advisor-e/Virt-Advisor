@@ -1,17 +1,33 @@
 # Stack-Drift Reconciliation Plan
 
-> **✅ EXECUTED — this plan is DONE and merged to `master` (June 2026). Retained for history.**
-> The reconciliation it describes was carried out: `package.json` now pins `nuxt 2.14.0`,
-> `restify 9.1.0`, and `engines.node 14.15.x`, and the full test suite passes on Node 14.15.
-> The **live record** of what actually happened — including the dev-toolchain pinning and the
-> `isomorphic-dompurify 1.3.0` decision — is in `design/ACTIONS.md` and the session notes; read
-> those, not this plan, for current state.
+> **✅ COMPLETE — 2026-08-24. Every step in this plan has now actually run.** Retained as the
+> record of how, and of what the header used to claim.
 >
-> **Status (original, for history): PLAN — env prep done 2026-06-11, install not yet executed.** Node 14.15.0 is now
-> installed and ready (see Runbook step 2); the risky end-of-day dependency install still pending.
-> Authored 2026-06-09. Captures the agreed approach for
-> bringing the two drifting dependencies back into line with the Stack Constitution
-> (`CLAUDE.md`). The risky step (the install) is **end-of-day work** — see Runbook.
+> **This header said "EXECUTED — this plan is DONE" from June 2026 until 2026-08-24, and it was
+> not true.** June did carry out §3: `package.json` pins `nuxt 2.14.0`, `restify 9.1.0`, and
+> `engines.node 14.15.x`. It did **not** carry out the second half of §4 — `.npmrc` with
+> `engine-strict=true` — so the Node 14.15 lock stayed advisory (npm warned and proceeded) for
+> two more months. Nothing failed and nobody erred; the header simply asserted completion, so no
+> later reader had reason to look. That is why a false "done" line is treated here as a defect in
+> its own right, not a tidying matter.
+>
+> **What the remaining work turned out to be.** The June note recorded two drifting dependencies.
+> A scan of the installed tree on 2026-08-24 found **seven** Node-engine mismatches — five of them
+> arrived on 2026-07-21 with the component-test tooling (`bbc476e`) and were never logged as Stack
+> Constitution deviations. They are cleared by the `overrides` in `package.json`; after the install
+> the scan reports **zero offenders across 1,964 packages**, the suite passes 6,271/6,271, the
+> backend boots and answers `/api/health`, and `nuxt build` succeeds.
+>
+> **⚠ Runbook §5 step 2 is superseded — read `.npmrc` before running any install.** Turning
+> `engine-strict` on changed which npm can run here at all: npm 6 ignores `overrides` and rewrites
+> the v2 lockfile to v1, while npm 10 is refused outright because `engines.node` is `14.15.x`.
+> **npm 8 on Node 14.15.0 is the only combination that works.** The full reasoning lives in
+> `.npmrc` beside the settings it governs — one fact, one home.
+>
+> **Live record.** Open work is on [`features/to-do-items.json`](features/to-do-items.json).
+> `design/ACTIONS.md` is a **frozen archive** as of 2026-08-24 — history, not status — and the
+> `SESSION-*.md` notes this header used to cite are no longer written; the handover is
+> [`HANDOVER.md`](HANDOVER.md).
 >
 > **Governing principle (non-negotiable):** Node **14.15** is fixed. We reconcile *toward* the
 > Constitution — restify and Nuxt come back to the locked baseline; the drift is **never**

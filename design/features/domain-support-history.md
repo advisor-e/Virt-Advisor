@@ -94,6 +94,38 @@ twice in a live thread and both detections were correct.
 | How do overrides merge? | **Sparse, per field** — except arrays, which replace wholesale. |
 | Can one firm's edits reach another? | **Never.** Only the base is cached. |
 | What about rows with no source? | **Open** — keep or delete is the owner's call, not a tidy-up. |
+| How often does Learning Psychology reach the AI? | **On the learn path only** — Mike, 2026-08-25 (4.38). |
+| Which copy of the five drivers is the source? | **Learning Psychology** — Mike, 2026-08-25 (4.37). |
+
+---
+
+## 5b. What the Brief said before 2026-08-25, and why it no longer says it
+
+Both passages below were **warnings that a decision had not been taken**. Both decisions were
+taken on 2026-08-25, so the warnings became false and were replaced in the Brief rather than
+left standing beneath the new text. They are kept here because a warning that was true for a
+year explains why the code looks as it does.
+
+**On how far Learning Psychology reaches** — the Brief carried:
+
+> ⚠ **Where else it should go is an open decision for Mike**, recorded rather than defaulted.
+
+Ruled 2026-08-25: leave it on the learn path. It had been left off the default when the page
+shipped on 2026-08-23 **without anyone choosing it** — an accidental setting, not a decision,
+which is the only reason it was ever an item.
+
+**On the five drivers being written down twice** — the Brief carried:
+
+> ⚠ **Known duplication, recorded so it cannot drift quietly.** Learning Psychology’s five
+> drivers are also defined in `data/staff-domain-support.json`, in the *"5 Drivers of Human
+> Output — Performance Diagnosis"* row, where they serve a diagnosis of which driver is failing.
+> Learning Psychology carries the source definitions that row paraphrases. Reconciling the two is
+> its own change and needs Mike’s call.
+
+That is a fair description of the fault: two copies, different words, different names
+(`Mindset` against `Mind Set (mental state / attitude)`), both reaching the AI on different
+occasions. Recording it stopped it being forgotten but did not stop it being possible. It is now
+one copy, read from the guide at prompt-build time — see the Brief.
 
 ---
 

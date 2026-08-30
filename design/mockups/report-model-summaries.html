@@ -1,0 +1,533 @@
+<title>Model Purpose &amp; Key Calculations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+
+<style>
+/* ---------------------------------------------------------------------------
+   MOCKUP — design/mockups/report-model-summaries.html
+   Proposed page: what each report model is for and what it calculates.
+   Reached from the Model Library.
+
+   SECOND DRAFT (Mike, 2026-08-22): the first draft was built only from
+   data/report-model-summaries.json and was therefore incomplete — it missed
+   the Coach panel and the secondary figures on every screen. This draft MERGES
+   two sources:
+     1. data/report-model-summaries.json — purpose, when to use, inputs, limits
+     2. the screens themselves — the headline figures (HeroStrip) with their
+        real labels, and the Coach / verdict panel wording, read from
+        locales/en.json report.* and each report component.
+
+   Palette, face, radius and column width are lifted from ModelLibrary.vue so
+   this page sits beside it. Single light theme, matching the in-app screen.
+   --------------------------------------------------------------------------- */
+:root {
+  --mlb-bg:#eef3f8;
+  --mlb-panel:#ffffff;
+  --mlb-ink:#002b64;
+  --mlb-muted:#5b6f8a;
+  --mlb-line:#d5e1ee;
+  --mlb-accent:#0070c0;
+  --mlb-accent-bright:#00b1e0;
+  --mlb-good:#4ca52d;
+  --mlb-warn:#ff9900;
+  --mlb-shadow:0 1px 2px #002b6410, 0 8px 22px -14px #002b6433;
+  --mlb-r:14px;
+}
+
+body {
+  margin:0;
+  background:var(--mlb-bg);
+  color:var(--mlb-ink);
+  font-family:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight:300;
+  -webkit-font-smoothing:antialiased;
+}
+
+.mk-flag {
+  background:#002b64; color:#fff; font-size:12px;
+  padding:9px 22px; display:flex; gap:14px; flex-wrap:wrap; align-items:baseline;
+}
+.mk-flag strong { font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
+.mk-flag span { color:#b7d3ee; font-weight:300; }
+
+.wrap { max-width:1080px; margin:0 auto; padding:34px 22px 20px; }
+
+.backlink {
+  display:inline-block; margin:0 0 14px; font-size:12.5px;
+  color:var(--mlb-muted); text-decoration:none;
+}
+.backlink:hover, .backlink:focus-visible { color:var(--mlb-accent-bright); }
+
+.eyebrow {
+  font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--mlb-accent-bright); font-weight:600;
+}
+h1 { margin:4px 0 3px; font-size:29px; font-weight:300; letter-spacing:-.01em; text-wrap:balance; }
+.lede { font-size:13.5px; color:var(--mlb-muted); margin:0 0 26px; max-width:72ch; }
+
+.shelf { margin:0 0 30px; }
+.shelf-head { display:flex; align-items:baseline; gap:10px; margin:0 0 10px; }
+.shelf-title { font-size:15px; font-weight:600; margin:0; letter-spacing:.01em; }
+.shelf-count { font-size:11.5px; color:var(--mlb-muted); }
+.shelf-rule { height:2px; border-radius:2px; margin:0 0 14px; }
+
+.card {
+  background:var(--mlb-panel); border:1px solid var(--mlb-line);
+  border-radius:var(--mlb-r); box-shadow:var(--mlb-shadow);
+  padding:20px 22px; margin:0 0 12px;
+}
+
+.chead { display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin:0 0 3px; }
+.ctag { font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--mlb-muted); font-weight:600; }
+.cls { font-size:10.5px; font-weight:600; border-radius:999px; padding:2px 9px; border:1px solid; }
+.is-education { color:#0070c0; background:#0070c014; border-color:#0070c033; }
+.is-decision  { color:#ff9900; background:#ff990014; border-color:#ff990033; }
+.is-report    { color:#4ca52d; background:#4ca52d14; border-color:#4ca52d33; }
+
+h2 { font-size:19px; font-weight:400; margin:0 0 10px; letter-spacing:-.005em; }
+
+.answers { font-size:14px; line-height:1.6; margin:0 0 18px; max-width:72ch; }
+
+.body-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:20px 28px; }
+@media (max-width:820px) { .body-grid { grid-template-columns:1fr; } }
+.block { min-width:0; }
+
+.label {
+  font-size:10.5px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--mlb-muted); font-weight:600; margin:0 0 6px;
+}
+.label + .label { margin-top:14px; }
+
+/* Key calculations — the screen's headline figures, in the screen's own words.
+   Each carries the sub-label the HeroStrip shows beneath it, because that is
+   where the meaning of the number actually lives. */
+.calcs { background:#0070c00d; border:1px solid #0070c022; border-radius:10px; padding:12px 14px; }
+.calcs dl { margin:0; }
+.calcs dt { font-size:13.5px; font-weight:600; line-height:1.5; }
+.calcs dd { margin:0 0 9px; font-size:12px; line-height:1.5; color:var(--mlb-muted); }
+.calcs dd:last-child { margin-bottom:0; }
+
+/* The Coach panel. Quoted from the screen, with the live figures shown as
+   [placeholders] because they change with the client's inputs. */
+.coach {
+  background:#00b1e00f; border:1px solid #00b1e02b; border-radius:10px;
+  padding:12px 14px; margin:0 0 14px;
+}
+.coach p { margin:0 0 8px; font-size:13px; line-height:1.62; }
+.coach p:last-child { margin-bottom:0; }
+.fig {
+  font-weight:600; color:var(--mlb-accent);
+  font-variant-numeric:tabular-nums;
+}
+.nocoach {
+  font-size:12.5px; line-height:1.55; color:var(--mlb-muted);
+  border:1px dashed var(--mlb-line); border-radius:10px; padding:10px 13px; margin:0 0 14px;
+}
+
+.prose { font-size:13px; line-height:1.62; color:#2c4a70; margin:0 0 4px; max-width:66ch; }
+
+.limits {
+  border-left:3px solid var(--mlb-warn); padding:2px 0 2px 12px;
+  font-size:13px; line-height:1.62; color:#2c4a70; max-width:66ch; margin:0;
+}
+
+.open { display:inline-block; margin:16px 0 0; font-size:12.5px; font-weight:600; color:var(--mlb-accent); text-decoration:none; }
+.open:hover, .open:focus-visible { color:var(--mlb-accent-bright); }
+.route { font-size:11.5px; color:var(--mlb-muted); font-weight:300; }
+
+a:focus-visible { outline:2px solid var(--mlb-accent-bright); outline-offset:3px; border-radius:3px; }
+
+.asks { margin:34px auto 0; max-width:1080px; padding:0 22px 60px; }
+.asks-inner { background:#002b64; color:#dce9f6; border-radius:var(--mlb-r); padding:24px 26px; }
+.asks h3 { margin:0 0 4px; font-size:16px; font-weight:600; color:#fff; }
+.asks p.sub { margin:0 0 18px; font-size:12.5px; color:#9fc2e2; }
+.asks ol { margin:0; padding:0 0 0 20px; }
+.asks li { font-size:13.5px; line-height:1.65; margin:0 0 12px; }
+.asks li:last-child { margin-bottom:0; }
+.asks b { color:#fff; font-weight:600; }
+</style>
+
+<div class="mk-flag">
+  <strong>Mockup — draft 2</strong>
+  <span>Merged from <code>data/report-model-summaries.json</code> <em>and</em> the screens themselves — headline figures and Coach wording read from the live components. Nothing invented.</span>
+</div>
+
+<div class="wrap">
+
+  <a class="backlink" href="#">← Back to Model Library</a>
+
+  <div class="eyebrow">Advisor-e · Business Performance</div>
+  <h1>What each model is for</h1>
+  <p class="lede">The ten built models: what each one answers, the figures it puts on the screen, and the reading it gives you in plain English. Written so you can choose the right model before you open it — and know what it will not tell you.</p>
+
+  <!-- ══════════════ Cash Flow ══════════════ -->
+  <section class="shelf">
+    <div class="shelf-head">
+      <span class="shelf-title">Cash Flow</span>
+      <span class="shelf-count">2 models</span>
+    </div>
+    <div class="shelf-rule" style="background:#0070c0;"></div>
+
+    <article class="card">
+      <div class="chead"><span class="ctag">Cash Flow</span><span class="cls is-education">Teaching aid</span></div>
+      <h2>Working Capital Cycle</h2>
+      <p class="answers">How fast a fixed pot of cash recycles through stock and debtors, and what speeding that cycle up is worth in revenue and profit.</p>
+      <div class="body-grid">
+        <div class="block">
+          <p class="label">Key calculations</p>
+          <div class="calcs"><dl>
+            <dt>Working-capital cycle</dt><dd>days — cash tied up before you can trade again</dd>
+            <dt>Cycle factor</dt><dd>× per year</dd>
+            <dt>Annual revenue</dt><dd>from the capital employed</dd>
+            <dt>Net profit · monthly</dt><dd></dd>
+          </dl></div>
+          <p class="label">Also on the screen</p>
+          <p class="prose">Working capital, monthly cash sales, total units, contribution margin, cash reserve required, return on working capital, the annual cycle factor, and the difference against a saved scenario in both dollars and per cent.</p>
+        </div>
+        <div class="block">
+          <p class="label">What the Coach tells you</p>
+          <div class="coach">
+            <p>Watch the wheel: your <span class="fig">[working capital]</span> of working capital flows Cash → Stock → Sale → Debtors and back. Right now that takes <span class="fig">[n] days</span>, so it turns about <span class="fig">[n]×</span> a month. Fixed costs sit <em>outside</em> the wheel — paid whether it turns or not.</p>
+            <p>If you cut it to <span class="fig">[n − 10] days</span>, the wheel would turn <span class="fig">[n]×</span> a month — about <span class="fig">[amount]</span> more revenue a year, at the same price.</p>
+          </div>
+          <p class="label">Reach for it when</p>
+          <p class="prose">The client is profitable on paper but short of cash. Stock sits too long, customers pay slowly, or the owner asks where the money has gone. Also when they want to know what tightening terms is actually worth.</p>
+          <p class="label">What you need</p>
+          <p class="prose">Initial investment and the share of it spent on plant and equipment; unit cost, mark-up and discount; days deliverable, days on hand, days receivable, days payable; monthly fixed costs.</p>
+          <p class="label">What it does not cover</p>
+          <p class="limits">Illustrative teaching figures — no client data goes into it. It shows the mechanics of a cycle, not this client's cycle.</p>
+        </div>
+      </div>
+      <a class="open" href="#">Open the model → <span class="route">/business-performance-report</span></a>
+    </article>
+
+    <article class="card">
+      <div class="chead"><span class="ctag">Cash Flow</span><span class="cls is-education">Teaching aid</span></div>
+      <h2>Debtor Business Drag</h2>
+      <p class="answers">How much of a year's sales is not lost but merely delayed into next year because customers pay slowly — the drag — and how much two different collection profiles change it, month by month, including the deepest overdraft.</p>
+      <div class="body-grid">
+        <div class="block">
+          <p class="label">Key calculations</p>
+          <div class="calcs"><dl>
+            <dt>Deepest cash low — your plan</dt><dd>the worst month under the profile you set</dd>
+            <dt>Deepest cash low — Before</dt><dd>the same month on the frozen comparison</dd>
+            <dt>Effect of your decisions</dt><dd>better or worse at the worst month</dd>
+          </dl></div>
+          <p class="label">Also on the screen</p>
+          <p class="prose">Both collection profiles in full (same month, one, two, three and four months, write-off), the drag difference between them, monthly stock paid, months in overdraft, and the year-end balance.</p>
+        </div>
+        <div class="block">
+          <p class="label">What the Coach tells you</p>
+          <div class="coach">
+            <p>Cash arrives late — customers pay across the months after the sale — but suppliers, wages and GST don't wait. Your bank dips to <span class="fig">[amount]</span> in <span class="fig">[month]</span>, into overdraft, and you're in the red <span class="fig">[n] months</span>.</p>
+            <p>Collect earlier or pay suppliers slower and the blue line lifts; let collection drift later and you're forced to stretch suppliers, choking stock — the working capital cycle running backwards.</p>
+          </div>
+          <p class="label">Reach for it when</p>
+          <p class="prose">Overdraft pressure, slow payers, or the question of whether to chase debtors harder or simply arrange a bigger overdraft. It puts a number on the choice.</p>
+          <p class="label">What you need</p>
+          <p class="prose">Twelve months of sales, and two collection profiles: the share collected in the same month, at one, two, three and four months, and the share written off.</p>
+          <p class="label">What it does not cover</p>
+          <p class="limits">Illustrative teaching figures — no client data goes into it. It models a collection profile, not this client's ledger.</p>
+        </div>
+      </div>
+      <a class="open" href="#">Open the model → <span class="route">/debtor-drag</span></a>
+    </article>
+  </section>
+
+  <!-- ══════════════ Profitability ══════════════ -->
+  <section class="shelf">
+    <div class="shelf-head">
+      <span class="shelf-title">Profitability</span>
+      <span class="shelf-count">3 models</span>
+    </div>
+    <div class="shelf-rule" style="background:#4ca52d;"></div>
+
+    <article class="card">
+      <div class="chead"><span class="ctag">Profitability</span><span class="cls is-report">Client report</span></div>
+      <h2>EBITDA &amp; Discounted Cash Flow</h2>
+      <p class="answers">What the business is worth — normalised earnings before interest, tax and depreciation, and what its future cash is worth in today's money.</p>
+      <div class="body-grid">
+        <div class="block">
+          <p class="label">Key calculations</p>
+          <div class="calcs"><dl>
+            <dt>Enterprise Value</dt><dd>5-yr discounted cash flow + terminal</dd>
+            <dt>Normalised EBITDA (latest year)</dt><dd>after owner-pay normalisation</dd>
+            <dt>Discounted 5-yr cash flow</dt><dd>across the projected years</dd>
+            <dt>Terminal value</dt><dd>final year × exit multiple</dd>
+          </dl></div>
+          <p class="label">Also on the screen</p>
+          <p class="prose">Actual growth year by year and the average of it, the projected EBITDA series, and the sum of the discounted years. An optional listed-company block compares an assessed share price against the market price.</p>
+        </div>
+        <div class="block">
+          <p class="label">What the Coach tells you</p>
+          <div class="coach">
+            <p><span class="fig">[n]</span> years of accounts show normalised earnings moving from <span class="fig">[from]</span> to <span class="fig">[to]</span> — average actual growth <span class="fig">[avg]</span>. On your projected growth and discount rates, the business supports an enterprise value of <span class="fig">[EV]</span>.</p>
+            <p>Note the <span class="fig">[year]</span> dip (<span class="fig">[growth]</span>) — growth is not a straight line, and a buyer will ask about that year.</p>
+            <p>The valuation is sensitive to the exit multiple: at <span class="fig">[multiple]</span> the terminal value is <span class="fig">[share]</span> of the total — test it either side before quoting a range.</p>
+            <p><em>And where the numbers don't support a price, it says so:</em> “On these figures the valuation is not positive — the projected cash flows do not support a price. That is the honest read: the conversation is about restoring earnings before it can be about value.”</p>
+          </div>
+          <p class="label">Reach for it when</p>
+          <p class="prose">A sale, a purchase, a succession plan, a shareholder buy-out, or simply the owner asking what the business is worth.</p>
+          <p class="label">What you need</p>
+          <p class="prose">Several years of profit and loss, the normalisation add-backs, and the discount rate for each projected year.</p>
+          <p class="label">What it does not cover</p>
+          <p class="limits">Two parts of the source workbook do <b>not</b> port and are not in this model: the interest calculations, and the margin-of-error and capitalised-earnings workings. Each projected year is discounted once at that year's rate rather than compounded — the source's own convention. It takes the client's real accounts, so it is never illustrative.</p>
+        </div>
+      </div>
+      <a class="open" href="#">Open the model → <span class="route">/ebitda-dcf</span></a>
+    </article>
+
+    <article class="card">
+      <div class="chead"><span class="ctag">Profitability</span><span class="cls is-education">Teaching aid</span></div>
+      <h2>Margin · Mark-up · Break-even</h2>
+      <p class="answers">The pricing trio every quote depends on: the difference between margin and mark-up, the sales needed to break even, and what a price change does to the volume required to hold the same profit. The whole model rests on one rule — required sales = (overheads + the owner's drawings) ÷ margin.</p>
+      <div class="body-grid">
+        <div class="block">
+          <p class="label">Key calculations</p>
+          <div class="calcs"><dl>
+            <dt>Margin</dt><dd>of the sale price</dd>
+            <dt>Mark-up</dt><dd>of the cost price</dd>
+            <dt>Cost of sales</dt><dd>of each sale dollar</dd>
+            <dt>Break-even · monthly</dt><dd>units to cover it</dd>
+          </dl></div>
+        </div>
+        <div class="block">
+          <p class="label">What the Coach tells you</p>
+          <div class="coach">
+            <p>Same deal, two numbers: your margin is <span class="fig">[margin]</span> (of the sale) but your mark-up is <span class="fig">[mark-up]</span> (of the cost) — don't confuse them when you quote.</p>
+            <p>To cover <span class="fig">[overheads]</span> overheads and take <span class="fig">[drawings]</span> in drawings, you must sell <span class="fig">[amount]</span> a month. Cut the price and that work climbs fast; raise it and it drops away. Price and drawings decide how hard the business has to run.</p>
+          </div>
+          <p class="label">Reach for it when</p>
+          <p class="prose">Any pricing conversation. Discounting, quoting, a proposed price rise, or the classic question — if I drop the price ten per cent, how much more do I have to sell?</p>
+          <p class="label">What you need</p>
+          <p class="prose">Selling price and unit cost; overheads; the owner's target drawings; and the price change to test.</p>
+          <p class="label">What it does not cover</p>
+          <p class="limits">Illustrative teaching figures — no client data goes into it. It is a calculator for the arithmetic of pricing, not a costing system.</p>
+        </div>
+      </div>
+      <a class="open" href="#">Open the model → <span class="route">/margin-breakeven</span></a>
+    </article>
+
+    <article class="card">
+      <div class="chead"><span class="ctag">Profitability</span><span class="cls is-education">Teaching aid</span></div>
+      <h2>8 Levers Model</h2>
+      <p class="answers">Which of the eight levers moves profit most, and which to pull first. The chain runs market size, foot traffic, prospects, customers, average spend, average frequency, revenue, margin, activity costs, fixed costs, profit — and the teaching point is that small nudges compound.</p>
+      <div class="body-grid">
+        <div class="block">
+          <p class="label">Key calculations</p>
+          <div class="calcs"><dl>
+            <dt>Revenue</dt><dd></dd>
+            <dt>Profit</dt><dd></dd>
+            <dt>Profit margin</dt><dd></dd>
+            <dt>Customers</dt><dd></dd>
+          </dl></div>
+          <p class="label">Also on the screen</p>
+          <p class="prose">The full lever chain with each step's contribution, options B and C side by side against the current position, the profit increase in dollars and per cent, and a labour panel comparing charge-out rate against true cost per hour.</p>
+        </div>
+        <div class="block">
+          <p class="label">What the screen tells you</p>
+          <div class="coach">
+            <p><strong>On the chain:</strong> “Every customer is won through this chain. Each step multiplies the last — which is why a small gain early compounds all the way to revenue.”</p>
+            <p><strong>On the comparison:</strong> “Look at Option C: it earns LESS revenue than Option B, yet makes MORE profit — because the margin lever outweighs the volume lever. That is the whole lesson.”</p>
+            <p><strong>On labour:</strong> “What the business charges per hour against what it actually pays per hour — once leave, sick days and non-chargeable time are taken out. The labour lines look far more profitable on paper than they are in practice.”</p>
+          </div>
+          <p class="label">Reach for it when</p>
+          <p class="prose">Growth planning, and the question of where to start. It is strongest when an owner believes only one lever matters — usually more sales — and needs to see the others.</p>
+          <p class="label">What you need</p>
+          <p class="prose">Either a trading position (a five-line product and labour mix, activity costs, fixed costs) or a set of funnel assumptions. It runs both ways.</p>
+          <p class="label">What it does not cover</p>
+          <p class="limits"><b>Every figure in it is illustrative teaching data, including the 880,000 trading income.</b> It is never a description of a real business. One known oddity is reproduced from the source rather than repaired: on the Scenarios sheet the current column is anchored to trading revenue while options B and C are built forward from the funnel, so the sheet's own profit increase reads as a large negative. That is the workbook's, not a fault in the client's numbers, and it should not be explained to a client as a finding.</p>
+        </div>
+      </div>
+      <a class="open" href="#">Open the model → <span class="route">/eight-levers</span></a>
+    </article>
+  </section>
+
+  <!-- ══════════════ Valuation ══════════════ -->
+  <section class="shelf">
+    <div class="shelf-head">
+      <span class="shelf-title">Valuation</span>
+      <span class="shelf-count">5 models</span>
+    </div>
+    <div class="shelf-rule" style="background:#002b64;"></div>
+
+    <article class="card">
+      <div class="chead"><span class="ctag">Valuation</span><span class="cls is-decision">Decision tool</span></div>
+      <h2>Cost of Capital (WACC)</h2>
+      <p class="answers">What the money funding this business actually costs, blending what the owners expect on their equity with what the bank charges on debt. The result is the hurdle an investment has to clear to be worth doing.</p>
+      <div class="body-grid">
+        <div class="block">
+          <p class="label">Key calculations</p>
+          <div class="calcs"><dl>
+            <dt>Weighted average cost of capital</dt><dd>the hurdle an investment must clear</dd>
+            <dt>Cost of equity</dt><dd>what the owners' money expects to earn</dd>
+            <dt>Cost of debt (after tax)</dt><dd>the borrowing rate, less the tax saved</dd>
+            <dt>Funded by equity</dt><dd>and the balance funded by debt</dd>
+          </dl></div>
+          <p class="label">Also on the screen</p>
+          <p class="prose">A beta helper deriving a growth rate, two candidate betas, average, standard deviation and volatility from a pasted index series — and a <b>Test an investment</b> panel that judges a specific investment against the hurdle.</p>
+        </div>
+        <div class="block">
+          <p class="label">What the screen tells you</p>
+          <div class="coach">
+            <p><strong>Test an investment</strong> takes what the investment costs and what it should earn each year, and returns one of three verdicts: “Clears your cost of capital by <span class="fig">[n]</span> percentage points”, “Exactly meets your cost of capital”, or “Falls short of your cost of capital by <span class="fig">[n]</span> percentage points”.</p>
+            <p>It states its own strictness: “The bar is your cost of capital exactly as calculated above, with no safety margin added.”</p>
+            <p>It also warns when it cannot be trusted — too few periods to measure a spread, a beta outside the usual 0.3–2.5 range, or an index that does not move.</p>
+          </div>
+          <p class="label">Reach for it when</p>
+          <p class="prose">Is this investment worth doing? Setting a hurdle rate, weighing a capital-structure change, or testing whether a project clears the cost of the money behind it.</p>
+          <p class="label">What you need</p>
+          <p class="prose">Equity and debt amounts and rates, the tax rate, and a beta — or a pasted series of index values and shareholders' equity for the helper to work from.</p>
+          <p class="label">What it does not cover</p>
+          <p class="limits">The beta helper <b>offers</b> a beta; the person using the model decides whether to take it. That relationship is deliberate and comes from the source workbook. It takes the client's real numbers, so it is never illustrative and the privacy boundary applies.</p>
+        </div>
+      </div>
+      <a class="open" href="#">Open the model → <span class="route">/cost-of-capital</span></a>
+    </article>
+
+    <article class="card">
+      <div class="chead"><span class="ctag">Valuation</span><span class="cls is-decision">Decision tool</span></div>
+      <h2>Lease vs Buy</h2>
+      <p class="answers">Whether leasing or buying an asset — a vehicle in the source model — costs less over its whole life, and which of the two to recommend.</p>
+      <div class="body-grid">
+        <div class="block">
+          <p class="label">Key calculations</p>
+          <div class="calcs"><dl>
+            <dt>Total cost to buy</dt><dd>over the whole term, after resale</dd>
+            <dt>Total cost to lease</dt><dd>over the whole term, after residual</dd>
+            <dt>You save</dt><dd>by choosing the cheaper option</dd>
+          </dl></div>
+        </div>
+        <div class="block">
+          <p class="label">What the screen tells you</p>
+          <div class="coach">
+            <p>The model does not leave the choice open. It returns a one-word verdict — <strong>“Lease!”</strong> or <strong>“Buy!”</strong> — with the line: “That's the cheaper option — <span class="fig">[amount]</span> less over the term.”</p>
+          </div>
+          <p class="label">Reach for it when</p>
+          <p class="prose">Funding a vehicle or a piece of equipment, and the client is weighing a lease against a loan.</p>
+          <p class="label">What you need</p>
+          <p class="prose">Asset price; loan amount, rate, term and amortisation method; depreciation method and rate; running costs; the lease term, payments and lease-end costs; and the tax rate.</p>
+          <p class="label">What it does not cover</p>
+          <p class="limits">The workbook's separate FBT-versus-reimbursement sheet is <b>not</b> part of the verdict and is not built — if the question is really about fringe benefit tax, this model does not answer it. It takes the client's real numbers, so it is never illustrative.</p>
+        </div>
+      </div>
+      <a class="open" href="#">Open the model → <span class="route">/lease-vs-buy</span></a>
+    </article>
+
+    <article class="card">
+      <div class="chead"><span class="ctag">Valuation</span><span class="cls is-decision">Decision tool</span></div>
+      <h2>The Loan Estimator</h2>
+      <p class="answers">What lenders would lend against the security the client owns, whether the household can service it, and what the repayments would be.</p>
+      <div class="body-grid">
+        <div class="block">
+          <p class="label">Key calculations</p>
+          <div class="calcs"><dl>
+            <dt>Maximum business loan</dt><dd>against the business, on its EBIT — an indication only</dd>
+            <dt>Monthly surplus</dt><dd>the number the affordability test is judged on</dd>
+            <dt>Available security</dt><dd>across all assets, after existing debt</dd>
+            <dt>Monthly repayment</dt><dd>on the proposed loan from the quick calculator</dd>
+            <dt>Estimated maximum borrowing</dt><dd>with everything else as entered — an indication only</dd>
+          </dl></div>
+          <p class="label">Also on the screen</p>
+          <p class="prose">Current equity, the stressed deposit required and the stress payment gap, debt-to-value / equity-to-value / loan-limit-to-value ratios, a household serviceability breakdown with the tax bands used, and a ten-year overdraft interest and closing-balance table.</p>
+        </div>
+        <div class="block">
+          <p class="label">What the screen tells you</p>
+          <div class="coach">
+            <p>It reaches a verdict on affordability — <strong>“Meets the affordability test”</strong> or <strong>“Falls short of the affordability test”</strong> — immediately qualified: “An indication of affordability only — not a lending decision.”</p>
+            <p>The serviceability panel shows its working: total net monthly income, minimum monthly loan payments, and the monthly expenses used — “the greater of actual expenses and the bank's minimum allowances”.</p>
+          </div>
+          <p class="label">Reach for it when</p>
+          <p class="prose">Borrowing capacity, refinancing, or a client asking whether the bank will lend for a purchase and whether they can afford it.</p>
+          <p class="label">What you need</p>
+          <p class="prose">Each security item the client owns — its class, market value, current debt, growth prospects and any value adjustment — plus household income and existing commitments.</p>
+          <p class="label">What it does not cover</p>
+          <p class="limits">The stress-tested payment is the <b>bank's</b> worst-case figure — the full lending limit at the assessment rate over the maximum term — not the client's actual loan terms, and it should never be described as their repayment. The lending rules themselves come from a configuration file rather than from any one bank. It takes the client's real numbers, so it is never illustrative.</p>
+        </div>
+      </div>
+      <a class="open" href="#">Open the model → <span class="route">/loan-estimator</span></a>
+    </article>
+
+    <article class="card">
+      <div class="chead"><span class="ctag">Valuation</span><span class="cls is-decision">Decision tool</span></div>
+      <h2>Multiple Property Assessment</h2>
+      <p class="answers">Whether a rental property is worth buying, and whether a household's portfolio of up to five works — ten years of cash flow, tax with ring-fenced losses carried forward, both loans amortised, and the equity position.</p>
+      <div class="body-grid">
+        <div class="block">
+          <p class="label">Key calculations</p>
+          <div class="calcs"><dl>
+            <dt>Weekly cash position</dt><dd>year 1 — one property, or all of them</dd>
+            <dt>Total debt</dt><dd>year 1</dd>
+            <dt>Net equity</dt><dd>year 10</dd>
+            <dt>Return on investor funds</dt><dd>year 10</dd>
+          </dl></div>
+          <p class="label">Also on the screen</p>
+          <p class="prose">A ten-year investment summary: assumed property value, total debt position, net equity, cash deposit, annual cash top-up, capital introduced, cumulative investor funds, and the weekly cash profit or loss. Plus the loan apportionment across properties and the household's consolidated servicing.</p>
+        </div>
+        <div class="block">
+          <p class="label">What the Coach tells you</p>
+          <div class="coach">
+            <p><strong>Per property:</strong> “This property costs the client <span class="fig">[amount]</span> a week for the first <span class="fig">[n]</span> years… It turns cash-positive in year <span class="fig">[n]</span>… Over ten years it builds <span class="fig">[equity]</span> of equity against <span class="fig">[funds]</span> of money put in — a return of <span class="fig">[rate]</span>.” Where it never turns, it says so.</p>
+            <p><strong>On tax:</strong> either “No tax is payable across the ten years” or “Tax first becomes payable in year <span class="fig">[n]</span>” — and whether losses are ring-fenced against the property's own future income or offset against the client's other income.</p>
+            <p><strong>Across the portfolio:</strong> whether the deposit stretches to every property, the combined loan-to-value against the ceiling, the ten-year cash demand on top of the deposit — closing on the question it is built to ask: “The question is not whether the portfolio grows. It is whether the family can carry <span class="fig">[amount]</span> a week in the hardest year while it does.”</p>
+          </div>
+          <p class="label">Reach for it when</p>
+          <p class="prose">A client is buying a rental, or already owns several and wants to know whether the portfolio holds together over ten years rather than in the first month.</p>
+          <p class="label">What you need</p>
+          <p class="prose">Per property: purchase price, rent, operating costs and loan structure. For the portfolio: the family home and the loan apportionment across the properties.</p>
+          <p class="label">What it does not cover</p>
+          <p class="limits">Its tax treatment follows the firm's own Property Tax Rules settings — what may be depreciated, whether rental losses ring-fence, interest deductibility — which a group or firm manager sets. It is therefore the firm's stated position, not universal tax advice, and it is not a substitute for a tax opinion. It takes the client's real numbers, so it is never illustrative.</p>
+        </div>
+      </div>
+      <a class="open" href="#">Open the model → <span class="route">/multiple-property</span></a>
+    </article>
+
+    <article class="card">
+      <div class="chead"><span class="ctag">Valuation</span><span class="cls is-report">Client report</span></div>
+      <h2>Quick Position</h2>
+      <p class="answers">A fast read on where the business stands right now — how much cash it can actually reach, how long that lasts if sales stop, and what it must sell to break even.</p>
+      <div class="body-grid">
+        <div class="block">
+          <p class="label">Key calculations</p>
+          <div class="calcs"><dl>
+            <dt>Quick cash available</dt><dd>realisable now, after immediate debts</dd>
+            <dt>Cover at zero sales</dt><dd>months on the business's own resources</dd>
+            <dt>With life-line capital</dt><dd>months, adding outside support</dd>
+            <dt>Break-even sales</dt><dd>needed per month to stand still</dd>
+          </dl></div>
+        </div>
+        <div class="block">
+          <p class="label">What the Coach tells you</p>
+          <div class="coach">
+            <p>“If sales stopped today, the business could cover its outgoings for <span class="fig">[n]</span> months from its own quick cash — <span class="fig">[n]</span> months with the life-line capital. To stand still it needs <span class="fig">[amount]</span> of sales a month at the current margin.”</p>
+            <p><strong>The discount trap:</strong> “a <span class="fig">[n]%</span> discount means selling <span class="fig">[n]%</span> more just to keep the same gross profit.”</p>
+            <p><em>Where the position is already negative it changes tone entirely:</em> “Immediate debts exceed what the business can realise quickly. This is a <em>now</em> conversation: which creditors can wait, what can be turned to cash this week, and what outside support exists.”</p>
+          </div>
+          <p class="label">Reach for it when</p>
+          <p class="prose">Distress, a sudden stop in trading, a lost major customer, or the owner asking how long they have. It is the model for the first conversation, not the detailed one.</p>
+          <p class="label">What you need</p>
+          <p class="prose">Current cash, debtors, stock and creditors; monthly fixed costs; gross profit percentage; and any life-line capital the owner could call on.</p>
+          <p class="label">What it does not cover</p>
+          <p class="limits">A service business with no stock removes the stock line from the model entirely rather than showing a misleading zero — set that, or the reading is wrong. Where a figure would divide by zero it returns nothing rather than a fabricated zero, so an unlimited runway shows as unlimited. The New Zealand COVID wage-subsidy block of the source workbook does not port. It takes the client's real numbers, so it is never illustrative.</p>
+        </div>
+      </div>
+      <a class="open" href="#">Open the model → <span class="route">/quick-position</span></a>
+    </article>
+  </section>
+
+</div>
+
+<div class="asks">
+  <div class="asks-inner">
+    <h3>What changed since draft 1, and what I still need from you</h3>
+    <p class="sub">You found the gap: the Coach panel and the secondary figures were missing from every model.</p>
+    <ol>
+      <li><b>Added to all ten:</b> a <b>What the Coach tells you</b> block, quoted from each screen's own wording, with the live figures shown as <span class="fig">[placeholders]</span> because they move with the client's inputs. Two models — 8 Levers and Cost of Capital — have no Coach panel as such, so their explanatory notes and verdict rules are shown instead, labelled <b>What the screen tells you</b>.</li>
+      <li><b>Added where it exists:</b> an <b>Also on the screen</b> line listing the figures below the headline four, which the old note ignored entirely.</li>
+      <li><b>Still your call — the page name.</b> The heading reads <b>“What each model is for”</b>. The link on the Model Library would use the same words.</li>
+      <li><b>Still your call — where the link sits</b> on the Model Library: one line under the lede, above the search box; or a card in the grid beside the ten models.</li>
+      <li><b>Still your call — the block headings:</b> Key calculations · Also on the screen · What the Coach tells you · Reach for it when · What you need · What it does not cover.</li>
+    </ol>
+  </div>
+</div>

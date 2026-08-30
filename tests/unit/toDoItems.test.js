@@ -31,6 +31,13 @@ const items = data.items
 /** Who an item may be waiting on. A free-text value here hides a blocker. */
 const WAITING = ['Mike', 'Us', 'Outside']
 
+/**
+ * What an item IS. A `defect` is something that already exists being wrong, missing,
+ * unverified or unmaintainable. A `feature` is a new capability, page, screen or
+ * behaviour. Two values only — a third would give the gate below somewhere to hide.
+ */
+const KINDS = ['defect', 'feature']
+
 /** Refs quoted in the order Mike set, so a silent re-sort by a script is visible. */
 const refs = items.map(i => i.ref)
 
@@ -77,6 +84,74 @@ describe('the to-do data carries what the list\'s own rules demand', () => {
     }
   })
 
+  test.each(refs)('%s says whether it is a defect or a feature', (ref) => {
+    const item = items.find(i => i.ref === ref)
+    expect(KINDS).toContain(item.kind)
+  })
+})
+
+// 🔴 THE GATE. Mike, 2026-08-26: "ONLY the features and ideas I specifically request.
+// From now on I will push back on every new feature suggestion from AI."
+//
+// WHY A TEST AND NOT A RULE. There were already two written warnings against exactly this
+// — the header of `design/ACTIONS.md` ("a claim to check against the code, never a
+// status") and the comment at the top of THIS FILE, which describes the same failure
+// happening twice before. On 2026-08-26 a session read both, quoted the second one back
+// to Mike in its own report, and then did it again: it found a P3 line in the frozen
+// ACTIONS.md written by an earlier AI session, filed it here at score 5, and built the
+// backend for a screen nobody had asked for. Its `askedBy.ours` said `true`, so the
+// record admitted nobody asked and the item was filed anyway. The old assertion above
+// permitted that: it demanded an EXPLANATION for `ours: true`, never refused it.
+//
+// A third written warning would be the same kind of object as the two that failed. This
+// is the control that has teeth, because it stops the build.
+//
+// ⚠ IT IS DELIBERATELY NARROW, AND THE LINE IS *NEW THING* vs *BROKEN THING*. Mike did
+// not ask anyone to stop reporting bugs — two items on the list today are `ours: true`
+// and both are defects he is glad to have (4.33, a video attached to the wrong
+// calculator; 4.42, this page's prose disagreeing with its own data). What he stopped was
+// work being INVENTED. So a defect we found ourselves still files; a feature we thought
+// of does not.
+//
+// ⚠ WHAT THIS CANNOT DO, said plainly rather than left to be discovered: nothing stops a
+// session labelling a feature `defect` to get past it. The gate does not make that
+// impossible — it makes it a deliberate false statement in a committed file, rather than
+// a drift nobody notices. That is the whole of what a test can offer here.
+describe('a feature nobody asked for cannot be filed at all', () => {
+  test.each(refs)('%s is not an AI-invented feature', (ref) => {
+    const item = items.find(i => i.ref === ref)
+    const invented = item.kind === 'feature' && item.askedBy.ours === true
+
+    // Reported with the item's own name, because the failure message IS the explanation
+    // the next session will read at the moment it is blocked.
+    expect(invented ? `${ref} "${item.name}" is a FEATURE that nobody outside asked for` : 'ok')
+      .toBe('ok')
+  })
+
+  test('the gate would actually have caught the item that caused it', () => {
+    // A guard nobody has seen fire is a guard nobody knows works. This is the shape of
+    // the real item, reverted on 2026-08-26.
+    const reverted = {
+      ref: '4.48',
+      name: 'An adviser can promote text into the AI that no human can ever see or delete',
+      kind: 'feature',
+      askedBy: { who: 'us', ours: true, detail: 'found in the frozen ACTIONS.md' }
+    }
+    expect(reverted.kind === 'feature' && reverted.askedBy.ours === true).toBe(true)
+  })
+
+  test('a defect we found ourselves is still allowed', () => {
+    const ourDefect = { kind: 'defect', askedBy: { who: 'us', ours: true, detail: 'found in testing' } }
+    expect(ourDefect.kind === 'feature' && ourDefect.askedBy.ours === true).toBe(false)
+  })
+
+  test('a feature MIKE asked for is still allowed', () => {
+    const hisFeature = { kind: 'feature', askedBy: { who: 'Mike', ours: false, detail: 'asked 2026-08-26' } }
+    expect(hisFeature.kind === 'feature' && hisFeature.askedBy.ours === true).toBe(false)
+  })
+})
+
+describe('the to-do data carries what the list\'s own rules demand (cont.)', () => {
   test.each(refs)('%s waits on a known party, and a blocker says what it blocks', (ref) => {
     const item = items.find(i => i.ref === ref)
     expect(WAITING).toContain(item.waitingOn)
@@ -115,6 +190,52 @@ describe('the data and the page a human reads hold the same items', () => {
 // feature, in two files edited in one sitting, that the guard test sat beside
 // and never looked at. An item that tracks its own phases has two copies of that
 // progress until Phase 3 generates one from the other, and two copies drift.
+// 🔴 ITEM 4.42. `to-do.md` is a generated ranked table wrapped in HAND-WRITTEN per-item
+// detail. Only the table is regenerated by `npm run to-do`; the prose is edited by hand
+// and drifted. On 2026-08-24 it carried detail blocks for SIX items that were no longer
+// live and none at all for ten that were.
+//
+// That is not a tidiness problem. 2.9's own closure records the mechanism: the generated
+// table said one thing, the prose said another, and a session read the wrong one and
+// advised Mike to pick an item on a false basis. Nothing compared the two, so the drift
+// was silent and grew every session.
+//
+// ⚠ THE RULE IS "LABELLED OR LIVE", NOT "LIVE ONLY", and that is a deliberate decision
+// rather than an oversight. Four blocks — 3.1, 3.2, 3.3 and 4.8 — describe work that is
+// DONE or PARKED and are kept on purpose, because a reader who proposes one of them needs
+// to find the answer here. They earn their place by saying so in their own first line.
+// A block that is neither live nor labelled is the failure this guards.
+describe('every detail block on to-do.md is either live or labelled', () => {
+  const md = readFileSync(LIST_FILE, 'utf8')
+
+  // A block opens `**4.17 · Some name.** **SCORE 2 · robustness**` at the start of a line.
+  // The ref and the whole first line are captured: the label, when there is one, is in it.
+  const BLOCK = /^\*\*(\d+\.\d+) · (.*)$/gm
+  const blocks = []
+  let m
+  while ((m = BLOCK.exec(md)) !== null) { blocks.push({ ref: m[1], line: m[2] }) }
+
+  // DONE / PARKED, as those four blocks write it — in the first line, not buried below.
+  const LABELLED = /\b(DONE|PARKED)\b/
+
+  test('to-do.md still has detail blocks to check', () => {
+    expect(blocks.length).toBeGreaterThan(0)
+  })
+
+  test.each(blocks.map(b => [b.ref, b]))('the %s block is live or says it is closed', (ref, block) => {
+    const live = refs.includes(ref)
+    const labelled = LABELLED.test(block.line)
+
+    // The message is the instruction: whoever hits this needs to know both ways out.
+    expect(live || labelled
+      ? 'ok'
+      : `${ref} has a detail block on to-do.md but is not on the live list, and its first ` +
+        'line does not say DONE or PARKED. Either delete the block (its closure belongs on ' +
+        'to-do-done-and-parked.md) or label it.')
+      .toBe('ok')
+  })
+})
+
 describe('an item\'s phases say the same thing in both files', () => {
   const md = readFileSync(LIST_FILE, 'utf8')
 

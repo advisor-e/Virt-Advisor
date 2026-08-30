@@ -1184,6 +1184,24 @@ fix, and a screen without it puts the model back where it started.
 
 ---
 
+### The TAX RULES CARD — a promise the drawing made and the drawing never showed
+
+The Tax rules card carried the note *"A single property may still differ — that override lives
+on the property itself, below."* **No such control was drawn anywhere on that page, and none
+was built.** The tax rules sit at portfolio level and apply to all five properties.
+
+That is the artefact disagreeing with the build, which is the exact thing this section exists to
+catch — and it could not be settled by a developer. Building the override unasked would have
+shipped something Mike never saw; deleting the sentence quietly would have hidden a promise he
+may have meant. The case FOR an override is a firm advising across a border; the case AGAINST is
+a family whose properties are all in one country, which is the reasoning §11 Q11 is built on.
+
+✅ **RULED BY MIKE, 2026-08-25 (item 4.27): strike the sentence.** The tax rules stay at
+portfolio level. The card now says so outright rather than by omission, and the promise is
+recorded here as withdrawn deliberately — not vanished.
+
+---
+
 ## 11. The Phase 2 screen — the portfolio
 
 > **The drawing is

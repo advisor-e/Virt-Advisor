@@ -14,6 +14,7 @@ const { readFileSync, readdirSync } = require('fs')
 const { resolve } = require('path')
 const { mergeEntry } = require('./firmContent')
 const { fenceUntrusted } = require('./promptSafety')
+const { loadGuideBase, GUIDE_BY_ID } = require('./methodGuides')
 
 const _cache = {}
 let _domainFiles = null
@@ -99,12 +100,58 @@ function resolveDomainSupport (domainId, firmSupport) {
  * @param {{name?: string, summary?: string, who_when?: string, steps?: Array<string>}} material
  * @returns {Array<string>}
  */
+/**
+ * Renders a definitions block that is HELD SOMEWHERE ELSE, so the same authored
+ * content is never written down twice.
+ *
+ * 🔴 WHY THIS EXISTS. The five drivers of human output were defined in two files —
+ * transcribed from the master app’s own template in data/productive-habits.json
+ * (the Learning Psychology page), and paraphrased again inside this domain’s
+ * diagnosis row. Both reached the AI. Correct one and not the other and the model
+ * holds two different definitions of the same five things, with no way to tell
+ * which was meant, and nobody notices because the copies sit in separate files.
+ * That is how content drifted apart here before (the 4.16 sweep). Mike ruled on
+ * 2026-08-25 that Learning Psychology is the source; this is the wire that makes
+ * it so, rather than a second copy kept honest by hand.
+ *
+ * ⚠ PLATFORM BASE ONLY. A firm can override a guide’s wording on its own page;
+ * this reads the committed base. Threading firm context through here means
+ * changing several signatures, so it is deliberately left for the day a firm
+ * actually needs it rather than smuggled in with this change.
+ *
+ * @param {string} spec - "<guideId>.<topLevelKey>", e.g.
+ *   "productive_habits.five_drivers_of_human_output"
+ * @returns {Array<string>} prompt lines, or [] when the reference resolves to nothing
+ */
+function formatDefinitionsFrom (spec) {
+  const lines = []
+  if (typeof spec !== 'string') { return lines }
+  const dot = spec.indexOf('.')
+  if (dot === -1) { return lines }
+  const guideId = spec.slice(0, dot)
+  const base = loadGuideBase(guideId)
+  const block = base ? base[spec.slice(dot + 1)] : null
+  if (!block || typeof block !== 'object') { return lines }
+  // The named/defined list inside that block, whatever the file calls it.
+  const list = Object.keys(block)
+    .map(k => block[k])
+    .filter(v => Array.isArray(v) && v.length > 0 &&
+      v.every(e => e && typeof e.name === 'string' && typeof e.definition === 'string'))[0]
+  if (!list) { return lines }
+  const guide = GUIDE_BY_ID[guideId]
+  const label = (guide && guide.label) || guideId
+  lines.push(`**Definitions — held once, on the ${label} page:**`)
+  list.forEach(d => lines.push(`- **${d.name}** — ${d.definition}`))
+  return lines
+}
+
 function formatMaterialLines (material) {
   const lines = []
   if (!material || typeof material !== 'object') { return lines }
   lines.push(`### ${material.name}`)
   if (material.summary) { lines.push(material.summary) }
   if (material.who_when) { lines.push(`**Who & when it suits:** ${material.who_when}`) }
+  formatDefinitionsFrom(material.definitions_from).forEach(l => lines.push(l))
   if (Array.isArray(material.steps) && material.steps.length > 0) {
     lines.push('**How to use it:**')
     material.steps.forEach((step, i) => lines.push(`${i + 1}. ${step}`))
@@ -468,4 +515,4 @@ function detectDomainsForDesign (query, firmSupport) {
     .map(s => s.domainId)
 }
 
-module.exports = { resolveDomainSupport, formatDomainSupportForPrompt, supportIdForLearnTree, detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign, formatDiagnosticEntryLines, humaniseSituation }
+module.exports = { formatDefinitionsFrom, resolveDomainSupport, formatDomainSupportForPrompt, supportIdForLearnTree, detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign, formatDiagnosticEntryLines, humaniseSituation }

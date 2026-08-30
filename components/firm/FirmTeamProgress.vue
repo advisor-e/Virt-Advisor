@@ -302,4 +302,9 @@ export default {
 .total-cell { display: flex; flex-direction: column; line-height: 1.2; }
 .unlevelled { margin-top: 1px; white-space: nowrap; }
 .advisor-id { line-height: 1.2; }
+
+/* The fixed column widths total slightly more than the hub panel at 1440px, and the
+   5px overflow made the whole PAGE scroll sideways. The table scrolls inside itself
+   instead. Found by `npm run visual` (Rule 3). */
+.firm-team-progress >>> .table-wrapper { overflow-x: auto; }
 </style>

@@ -48,10 +48,12 @@ tables only** — a client-delivery table is walked to a recommendation, not ope
 edit and the other 29 offer nothing. Wording approved by Mike, 2026-08-16; artefact
 [`../LEARN-TREE-OPENING-QUESTION-FIELD.md`](../LEARN-TREE-OPENING-QUESTION-FIELD.md).
 
-**P2b · A nodes table may also carry STANDING RULES, in a third array.** Rules that hold whichever
+**P2b · A table may also carry STANDING RULES, in a third array.** Rules that hold whichever
 stage the advisor is in live in `flat_branches`, outside the walked graph. They show as ordinary
-rows tagged **Always applies**, and they can be reworded but not added to — the set is the
-platform's. A row saved back into the staged list would join the walk.
+rows tagged **Always applies**, and a level may **reword, delete and add** them on any table —
+"+ Add rule that always applies" sits beside "+ Add branch". A row saved back into the staged
+list would join the walk instead, which is a different thing: it would fire at one step rather
+than at every step.
 
 **P2c · Thirteen learn tables carry a companion METHOD GUIDE, formatted here and screened
 elsewhere.** `LEARN_REFERENCE_FORMATTERS` attaches a deep guide — 155,000 characters across the
@@ -85,6 +87,14 @@ wholesale, so it cannot cascade without one level blanking another's set.
 fast as the library changes; signals do not. The build emits names today. **Do not re-specify the
 intent downward to match the build** — but do not add more name-emitting trees on the assumption
 that it is the target either.
+
+**P9 · Every learn tree states its subject to the model.** Four of the twenty-one carried no
+`description` — the four financial ones, the only four whose vocabulary genuinely overlaps — so
+their prompt header emitted a **blank line** where every other tree says what it is, and the AI
+picker chose between bare labels. A tree with none now falls back to its companion guide's own
+authored summary. **The sentence is read, never copied:** a second copy in `logic_trees.json`
+would be two things to keep level by hand, and the one nobody edits is the one the AI reads. A
+tree's own `description` always wins, so authoring one later needs no code change.
 
 ---
 

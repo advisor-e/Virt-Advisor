@@ -20,6 +20,7 @@ const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
 const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
 const { computeMultiplePropertyAssessment, computeMultiplePropertyPortfolio } = require('../report/multiplePropertyModel')
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
+const { listReportModels } = require('../utils/reportModels')
 const { parseUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
@@ -531,4 +532,34 @@ function multipleProperty (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty }
+/**
+ * GET /api/report/model-guide
+ *
+ * The Model Guide screen's whole content: what each live model is for, the figures it
+ * calculates, the reading its Coach panel gives, and what it does not cover.
+ *
+ * 🔴 IT SERVES THE SAME RECORDS THE AI IS GIVEN, from the same file, deliberately. Ruled by
+ * Mike, 2026-08-22: the page is for a firm manager choosing a model *as well as* for the AI
+ * guiding an advisor. Two readers, one source — so the screen can never describe a model
+ * differently from the way the AI describes it, and neither can go stale while the other
+ * moves. `data/report-model-summaries.json` is tied to the catalogue in both directions by
+ * `tests/unit/reportModelSummaries.test.js`, which is what makes a NEW model appear here
+ * automatically: the build fails until the new model has an entry.
+ *
+ * No firmAuth, matching the calculation routes above — this is platform content describing
+ * the app's own screens. It contains no client data and nothing firm-specific.
+ *
+ * @returns {object} { success, data: { models }, timestamp } — every live model, in catalogue order.
+ */
+function modelGuide (req, res, next) {
+  try {
+    const models = listReportModels()
+    res.send(200, { success: true, data: { models }, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] model-guide read failed:', err)
+    res.send(500, { success: false, error: { code: 'MODEL_GUIDE_UNAVAILABLE', message: 'Could not load the model guide.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, modelGuide }

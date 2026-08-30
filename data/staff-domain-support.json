@@ -23,14 +23,15 @@
       "summary": "Moves a manager from a generalised complaint — \"my staff are driving me nuts\" — to a specific root cause. Performance breaks into five drivers: Knowledge, Skill, Resource and planning, Environment, and Mindset, shortened for speed to Know, Do, Care. Which driver is failing decides everything that follows, because an attitude problem and a competency problem need opposite responses.",
       "who_when": "Managers venting broad frustration about their team, before any performance conversation, plan or training is committed to.",
       "steps": [
-        "Refuse the generalised complaint and diagnose against the five drivers — Knowledge (the information and past experience needed to comprehend the task), Skill (practical application built through practised action), Resource and planning (the tools and prioritisation to execute), Environment (the organisational structure supporting the person), and Mindset (their mental state, dominant thought patterns and attitude).",
+        "Refuse the generalised complaint and diagnose against the five drivers defined above — Knowledge, Skill, Resource and planning, Environment, and Mindset.",
         "Use the shortcut to move fast — Know: does the team know what is expected? Do: do they have the skills and tools? Care: do they feel valued and understand the impact of their role?",
         "Split the finding into Engagement (Care and Mindset) or Effectiveness (Knowledge and Skill) before choosing any action.",
         "For an engagement problem, work the 80/20 of motivation — Security (the job is safe, well managed, with a visible learning path), Autonomy and Contribution (freedom to decide, being trusted, work that matters), and Fair Rewards (pay that is equitable against peers).",
         "Warn the client off the bonus reflex — financial bonuses reliably lift performance only on highly repeatable, low-skill tasks, not on complex ones.",
         "For an effectiveness problem, set the expectation about learning — it is not a linear adjustment. People pass through Shock and Avoidance when attempting a new skill before reaching Acceptance, Testing and finally Implementation.",
         "Read a dip in performance after training as a stage of that curve rather than as proof the training failed."
-      ]
+      ],
+      "definitions_from": "productive_habits.five_drivers_of_human_output"
     },
     {
       "id": "staff-performance-framework-diagnosis-and-resolution",

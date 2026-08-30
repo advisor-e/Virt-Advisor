@@ -224,13 +224,16 @@ describe('the standing entry above the domains', () => {
     expect(wrapper.text()).toContain('Facilitation 101')
   })
 
-  test('a domain with guides is marked in the rail, per the approved mockup', async () => {
+  // No guide tag anywhere in the rail, and a domain's count is never replaced
+  // (Mike, 2026-08-22). `profit` has guides here and must still show its number.
+  test('the rail shows counts and carries no guide tag', async () => {
     const wrapper = await mountTab()
-    // Otherwise the rail gives no sign that 15,000 characters of coaching sit one
-    // click inside that domain.
-    expect(wrapper.vm.guideCountFor('profit')).toBe(1)
-    expect(wrapper.vm.guideCountFor('governance')).toBe(0)
-    expect(wrapper.text()).toContain('firmDomainSupport.guideTag')
+    const rail = wrapper.find('.ds-rail')
+    expect(rail.text()).toContain('2')
+    expect(rail.text()).toContain('1')
+    expect(rail.text()).not.toContain('firmDomainSupport.guideTag')
+    expect(rail.findAll('.ds-rail-guidemark').length).toBe(0)
+    expect(wrapper.vm.guideCountFor).toBeUndefined()
   })
 
   test('opening it clears the domain panel, because it belongs to no domain', async () => {

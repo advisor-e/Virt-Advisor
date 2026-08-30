@@ -214,6 +214,7 @@ section.firm-logic-tables
           //- (server/utils/logicTrees.formatLogicTreeForPrompt).
           .lt-actionbar(v-if="hasBranches")
             b-button(type="is-light" @click="addBranch") {{ $t('firmLogicTables.addBranch') }}
+            b-button(type="is-light" @click="addStandingRule") {{ $t('firmLogicTables.addStanding') }}
             b-button(
               type="is-text"
               :disabled="!canReset || saving"
@@ -639,13 +640,24 @@ export default {
     /**
      * Add a blank firm-authored branch (appended; no flow wiring).
      *
-     * Always an ordinary staged branch, never a standing rule: the standing set
-     * is the platform's and can be reworded, not added to (approved artefact
-     * §3c). The route enforces the same rule, so this is convenience, not the
-     * guard.
+     * An ordinary staged branch — one step of the sequence. A rule that holds at
+     * every step is added by `addStandingRule` instead.
      */
     addBranch () {
       this.form.branches.push({ branch_name: '', condition: '', action: '', notes: '', kind: 'branch', origin: 'firm' })
+    },
+
+    /**
+     * Add a blank standing rule — one that holds whichever stage the advisor is
+     * in, rather than firing at one step of the sequence.
+     *
+     * Available on every table. Two shipped with the platform, both on Public
+     * Speaking; until now they were the only two that could ever exist, because a
+     * new one was saved as an ordinary branch and the standing block was only
+     * stored where the platform had already written one.
+     */
+    addStandingRule () {
+      this.form.branches.push({ branch_name: '', condition: '', action: '', notes: '', kind: 'standing', origin: 'firm' })
     },
 
     /** Remove a branch from the on-screen table. */

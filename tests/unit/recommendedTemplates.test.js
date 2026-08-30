@@ -2,6 +2,7 @@
 
 const {
   resolveRecommendedTemplates,
+  resolveRecommendedTemplatesWithSource,
   extractDeclaredTemplates,
   extractTemplatesFromText,
   stripTemplateMarker,
@@ -59,6 +60,53 @@ describe('the AI declares what it recommended', () => {
 
   it('returns null when there is no marker, so the caller can tell the difference', () => {
     expect(extractDeclaredTemplates('No marker here.')).toBeNull()
+  })
+})
+
+/**
+ * Item 4.53. The AI writes the marker only SOMETIMES — confirmed by three real
+ * conversations on 2026-08-26: one wrote it, one did not, one could not be told apart.
+ * When it does not, the prose fallback runs, and that fallback is the defect the marker
+ * was built to replace. Both paths return a plausible list, so a tester in UAT cannot
+ * see which ran. Reporting the source is what makes the fallback countable.
+ */
+describe('which path produced the list is recorded', () => {
+  it('reports "declared" when the AI wrote a marker', () => {
+    const out = resolveRecommendedTemplatesWithSource('Some prose.\n\n[[TEMPLATES: Retail]]')
+    expect(out.source).toBe('declared')
+    expect(out.templates).toEqual(['retail'])
+  })
+
+  it('reports "declared" for an explicitly empty marker, not "prose"', () => {
+    // The distinction that matters most: the AI saying "I recommended nothing" is an
+    // answer it gave, not a failure to answer. Scoring it as a fallback would count a
+    // working session as a broken one.
+    const out = resolveRecommendedTemplatesWithSource('Guidance about retail.\n\n[[TEMPLATES: ]]')
+    expect(out.source).toBe('declared')
+    expect(out.templates).toEqual([])
+  })
+
+  it('reports "prose" when there is no marker at all', () => {
+    const out = resolveRecommendedTemplatesWithSource('I suggest the **Retail** template.')
+    expect(out.source).toBe('prose')
+  })
+
+  it('reports "prose" even when the fallback finds nothing', () => {
+    // An empty list is not evidence a marker was present — the two must stay separable.
+    const out = resolveRecommendedTemplatesWithSource('No tools named anywhere in this answer.')
+    expect(out.source).toBe('prose')
+    expect(out.templates).toEqual([])
+  })
+
+  it('returns the same templates as the plain resolver, whichever path ran', () => {
+    for (const text of [
+      'Prose.\n\n[[TEMPLATES: Retail]]',
+      'I suggest the **Retail** template.',
+      'Nothing named here.'
+    ]) {
+      expect(resolveRecommendedTemplatesWithSource(text).templates)
+        .toEqual(resolveRecommendedTemplates(text))
+    }
   })
 })
 
@@ -167,5 +215,56 @@ describe('the streaming hold-back', () => {
 
   it('handles a marker that arrives in one piece', () => {
     expect(streamOut(['Done.\n\n[[TEMPLATES: Retail]]'])).toBe('Done.')
+  })
+})
+
+/**
+ * The three places the engine emits AI-written text, and why only one of them used to
+ * be protected.
+ *
+ * Phase 3 streams token by token, so it needs the hold-back above. The other two —
+ * the ordinary conversational reply (advisorEngine.js, `_mainBuffer`) and the
+ * follow-up an advisor asks after a recommendation (`_postBuffer`) — buffer the whole
+ * answer and emit it in one piece. That difference is why they were missed: there is
+ * no streaming tail to get wrong, so neither looked like it needed anything.
+ *
+ * But both carry client.txt as their system prompt, SECTION 11 included, so the marker
+ * can arrive in either. Nothing stripped it, and because these paths emit once and
+ * whole, the marker would not have flashed — it would have been printed and stayed.
+ *
+ * Found 2026-08-26 while running the first live conversations against the marker
+ * (4.50). It was never seen to fire: three real conversations produced a marker in
+ * one Phase 3 answer and none in two follow-ups. It is a hole proven from the code,
+ * not an observed leak — which is exactly the kind a person in UAT cannot be relied
+ * on to catch, because it depends on a model obeying an instruction erratically.
+ */
+describe('the buffered paths strip it too', () => {
+  /** Mirrors what both buffered paths now do: strip once, before display. */
+  const emitBuffered = buffer => stripTemplateMarker(buffer)
+
+  it('removes a marker from a whole buffered reply', () => {
+    const reply = 'Start with the Working Capital Cycle.\n\n[[TEMPLATES: Working Capital Cycle]]'
+    expect(emitBuffered(reply)).toBe('Start with the Working Capital Cycle.')
+  })
+
+  it('leaves a reply that has no marker exactly as it was', () => {
+    const reply = 'Because the cycle explains where the cash actually goes.'
+    expect(emitBuffered(reply)).toBe(reply)
+  })
+
+  it('takes the blank line before the marker with it', () => {
+    // Otherwise the answer ends in a gap where the marker used to be.
+    expect(emitBuffered('Answer.\n\n[[TEMPLATES: Retail]]')).not.toMatch(/\s$/)
+  })
+
+  it('removes a marker even when the AI wrote it mid-answer rather than last', () => {
+    // SECTION 11 says "on the last line". A model that ignores half an instruction is
+    // the reason this defect exists, so do not assume it obeys the other half either.
+    const reply = 'First point.\n\n[[TEMPLATES: Retail]]\n\nSecond point.'
+    expect(emitBuffered(reply)).not.toContain('[[')
+  })
+
+  it('still removes it when the marker is the entire reply', () => {
+    expect(emitBuffered('[[TEMPLATES: Retail]]')).toBe('')
   })
 })

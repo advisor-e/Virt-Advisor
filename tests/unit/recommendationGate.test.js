@@ -180,7 +180,7 @@ describe('the corpus — what the real trees emit today', () => {
     expect(leaks).toEqual([])
   })
 
-  it('delivers 34 branches whole and 8 in part, and withholds 13 entirely', () => {
+  it('delivers 36 branches whole and 6 in part, and withholds 13 entirely', () => {
     // A SNAPSHOT, AND IT IS MEANT TO MOVE. Every withheld branch is waiting on a
     // name being settled on the Template Check screen and applied to the tables.
     // When that happens this test fails and the number it names is the number of
@@ -191,8 +191,14 @@ describe('the corpus — what the real trees emit today', () => {
     // Mike named the page behind the seven Get-the-Job Seminar branches —
     // "Design & Deliver" — and they went from 1 withheld + 6 partial to 7 whole:
     //   27 / 14 / 14  →  34 / 8 / 13
-    // Seven instructions started reaching advisors that day. **21 branches still
-    // lose text and nobody has ruled on them yet.**
+    // Seven instructions started reaching advisors that day.
+    //
+    // MOVED AGAIN 2026-08-25, and this one needed no ruling. `COI Development pt1`
+    // and `pt2` are published under exactly those titles; the name scanner stopped
+    // at the lowercase `pt` and looked up "COI Development", which does not exist.
+    // Two branches went from partial to whole:
+    //   34 / 8 / 13  →  36 / 6 / 13
+    // **19 branches still lose text and are waiting on a real page name.**
     let full = 0
     let partial = 0
     let withheld = 0
@@ -201,7 +207,7 @@ describe('the corpus — what the real trees emit today', () => {
       if (!out) { withheld++ } else if (out === node.recommendation.trim()) { full++ } else { partial++ }
     }
     expect(recommendationNodes.length).toBe(55)
-    expect({ full, partial, withheld }).toEqual({ full: 34, partial: 8, withheld: 13 })
+    expect({ full, partial, withheld }).toEqual({ full: 36, partial: 6, withheld: 13 })
   })
 })
 

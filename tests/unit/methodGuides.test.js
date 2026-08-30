@@ -32,19 +32,34 @@ const {
   guidesForDomain,
   sparseOverride,
   validateGuideOverride,
-  loadGuideBase
+  loadGuideBase,
+  formatEngagementTypeForPrompt
 } = require('../../server/utils/methodGuides')
 
 const { OPEN, CLOSE } = require('../../server/utils/promptSafety')
 
-/** Every authored string in a guide worth checking: over 25 characters, excluding housekeeping. */
-function authoredStrings (value, out, key) {
+/**
+ * Every authored string in a guide worth checking: over 25 characters, excluding
+ * housekeeping.
+ *
+ * `hide` is the guide's own machine-key list (the registry's `hide` field) and is
+ * passed in rather than hardcoded, so this stays a measurement of AUTHORED content.
+ * A key on that list names the record for the engine — `designNote.id` is
+ * `domain-heuristic-vs-client-readiness`, long enough to look like prose and not a
+ * line anybody wrote for an advisor to read. The list is asserted separately, below,
+ * so nothing can be hidden quietly to make this test pass.
+ */
+function authoredStrings (value, out, key, hide) {
+  const hidden = hide || []
   if (typeof value === 'string') {
-    if (key !== 'version' && value.trim().length > 25) { out.push(value.trim()) }
+    if (key !== 'version' && !hidden.includes(key) && value.trim().length > 25) { out.push(value.trim()) }
   } else if (Array.isArray(value)) {
-    for (const v of value) { authoredStrings(v, out, key) }
+    for (const v of value) { authoredStrings(v, out, key, hidden) }
   } else if (value && typeof value === 'object') {
-    for (const k of Object.keys(value)) { authoredStrings(value[k], out, k) }
+    for (const k of Object.keys(value)) {
+      if (hidden.includes(k)) { continue }
+      authoredStrings(value[k], out, k, hidden)
+    }
   }
   return out
 }
@@ -59,7 +74,7 @@ describe.each(GUIDES)('method guide — $id', (guide) => {
   })
 
   test('EVERY authored line reaches the prompt — the 116 that did not, and the next one', () => {
-    const authored = authoredStrings(readGuideFile(guide), [])
+    const authored = authoredStrings(readGuideFile(guide), [], undefined, guide.hide)
     const rendered = formatGuideForPrompt(guide.id)
     const missing = authored.filter(s => !rendered.includes(s))
     // Named in the failure message so a break says WHICH line went quiet, not just
@@ -99,22 +114,27 @@ describe.each(GUIDES)('method guide — $id', (guide) => {
   })
 })
 
-describe('the thirteen as a whole', () => {
-  test('there are thirteen, not twelve', () => {
+describe('the fifteen as a whole', () => {
+  test('there are fifteen, not twelve', () => {
     // The build spec said twelve: `powerful-seminars.json` is not named
     // `*-reference.json`, so a file-pattern sweep missed it. A count taken from a
     // filename pattern is a count of filenames.
-    expect(GUIDES).toHaveLength(13)
+    // The fourteenth is The 3 Engagement Types (item 4.16 D) and the fifteenth is
+    // Productive Habits (item 4.35), both 2026-08-23.
+    expect(GUIDES).toHaveLength(15)
     expect(GUIDE_BY_ID.public_speaking.file).toBe('powerful-seminars.json')
   })
 
-  test('exactly one is standing, and it is Facilitation 101', () => {
+  test('three are standing, in the order Mike asked for them', () => {
     const standing = GUIDES.filter(g => g.standing)
-    expect(standing.map(g => g.id)).toEqual(['facilitation_101'])
-    // Ruled by Mike 2026-08-17 (§6d option A): its own entry above the domains. It
-    // has no material row anywhere, and inventing one would file it where nobody
-    // would look.
-    expect(standing[0].rows).toEqual([])
+    // 🔴 ORDER IS THE RULING. Mike, 2026-08-23: the engagement types are their OWN
+    // page listed UNDER Facilitation 101 — not something reached by opening it — and
+    // Productive Habits is a separate page again, under both. The rail renders
+    // standing guides in this order, so this array IS the on-screen order.
+    expect(standing.map(g => g.id)).toEqual(['facilitation_101', 'engagement_types', 'productive_habits'])
+    // None has a material row anywhere, and inventing one would file it under a
+    // single domain when it is true of all of them.
+    for (const g of standing) { expect(g.rows).toEqual([]) }
   })
 
   test('every non-standing guide has at least one row, and no guide is placed by guesswork', () => {
@@ -309,5 +329,162 @@ describe('a guide whose file cannot be read', () => {
     // "no base to render" branch, and a mocked fs here would test the mock.
     expect(formatGuideForPrompt('facilitation_101', { facilitation_101: { objective: 'x' } })).not.toBe('')
     expect(formatGuideForPrompt('not_a_guide', {})).toBe('')
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// THE 3 ENGAGEMENT TYPES — item 4.16 D, built 2026-08-23.
+//
+// The sweep of 2026-08-16 called this "the only one with no page" and "genuinely
+// homeless": three types x six authored fields that reached NO screen at any tier
+// and NO prompt at all, because advisorEngine emitted a hardcoded three-line
+// paraphrase in their place. Mike ruled the placement on 2026-08-23 — its OWN page,
+// listed under Facilitation 101, not opened from it.
+//
+// These tests hold the two halves that made it a fix rather than half a fix: the
+// page exists AND what a firm edits on it is what the model reads.
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('The 3 Engagement Types', () => {
+  const ENGINE_KEYS = ['id', 'type', 'defaultEngagement']
+
+  test('the machine keys are hidden from the screen and the prompt alike', () => {
+    // Hidden in ONE place (loadGuideBase), so the screen and the prompt cannot
+    // disagree about what the document contains — the guarantee this module exists
+    // for. strategyResolver still reads the raw file, so the engine is unaffected.
+    const content = loadGuideBase('engagement_types')
+    for (const k of ENGINE_KEYS) { expect(Object.prototype.hasOwnProperty.call(content, k)).toBe(false) }
+    for (const t of content.types) { expect(Object.prototype.hasOwnProperty.call(t, 'id')).toBe(false) }
+    expect(formatGuideForPrompt('engagement_types')).not.toContain('domain-heuristic-vs-client-readiness')
+  })
+
+  test('all three types survive the hiding, with their six authored fields', () => {
+    const content = loadGuideBase('engagement_types')
+    expect(content.types).toHaveLength(3)
+    for (const t of content.types) {
+      for (const f of ['advisorDefinition', 'deliveryGuidance', 'driver', 'clientRequirement', 'advisorPosition', 'deliveryImperative']) {
+        expect(typeof t[f]).toBe('string')
+        expect(t[f].trim().length).toBeGreaterThan(0)
+      }
+    }
+  })
+
+  test('the prompt carries the authored wording, not the paraphrase it replaced', () => {
+    // The exact sentence the hardcoded map used to send, so this fails if anybody
+    // reinstates it, and the authored line that now goes in its place.
+    const block = formatEngagementTypeForPrompt('education')
+    expect(block).not.toContain('client lacks knowledge — teach and build up sequentially')
+    expect(block).toContain('Client lacks the knowledge to make informed decisions.')
+    expect(block).toContain('Sequential, foundational, build-up logic.')
+    // camelCase keys read as words rather than as field names.
+    expect(block).toContain('**Advisor definition:**')
+    expect(block).not.toContain('AdvisorDefinition')
+  })
+
+  test('each type gets its OWN wording — the block is not the same for all three', () => {
+    const e = formatEngagementTypeForPrompt('education')
+    const f = formatEngagementTypeForPrompt('facilitation')
+    const a = formatEngagementTypeForPrompt('advice')
+    expect(new Set([e, f, a]).size).toBe(3)
+    expect(f).toContain('Pace the reveal.')
+    expect(a).toContain('Advice')
+  })
+
+  test("a firm's reworded wording reaches the model, fenced as data", () => {
+    // The whole point of the page. A firm rewords delivery guidance; the model is
+    // told the firm's sentence, inside the untrusted fence every overridden guide
+    // gets — never as instructions it might follow.
+    const overrides = { engagement_types: { types: [{ deliveryGuidance: 'Our firm teaches in ten-minute blocks.' }, {}, {}] } }
+    const block = formatEngagementTypeForPrompt('education', overrides)
+    expect(block).toContain('Our firm teaches in ten-minute blocks.')
+    expect(block).toContain(OPEN)
+    expect(block).toContain(CLOSE)
+  })
+
+  test('an unknown engagement type invents nothing', () => {
+    expect(formatEngagementTypeForPrompt('nonsense')).toBe('')
+    expect(formatEngagementTypeForPrompt('')).toBe('')
+    expect(formatEngagementTypeForPrompt(undefined)).toBe('')
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LEARNING PSYCHOLOGY — item 4.35, built and named 2026-08-23.
+//
+// Mike: "the drivers of human performance, reaction to learning and 5 steps in
+// making a new habit ... as a separate editable page ... showing under the
+// facilitation 101 page and the engagement types pages." Named by him the same day.
+//
+// ⚠ THE PAGE IS "Learning Psychology"; THE RECORD IS STILL `productive_habits`.
+// The id is the storage key a firm's saved wording is filed under, so it is not
+// renamed with the page — doing so would orphan every override saved before the
+// rename, silently. Same for data/productive-habits.json.
+//
+// 🔴 THE CONTENT IS TRANSCRIBED, NOT AUTHORED. The item says so in terms: these are
+// the master app's own frameworks with their own wording, from 'Productive
+// Habits.pdf'. These tests pin the exact source sentences, so a later edit that
+// quietly rewrites the master template into something more fluent fails.
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Learning Psychology', () => {
+  const content = loadGuideBase('productive_habits')
+
+  test('the five drivers are the template five, with the template definitions', () => {
+    const drivers = content.five_drivers_of_human_output.drivers
+    expect(drivers.map(d => d.name)).toEqual([
+      'Knowledge',
+      'Skill',
+      'Resource (and Planning)',
+      'Environment (internal / external)',
+      'Mind Set (mental state / attitude)'
+    ])
+    // Verbatim from the source. Not a summary of it.
+    expect(drivers[0].definition).toBe(
+      'New Information that is mixed with past experience to create Self Relevance, Recognition and Comprehension.'
+    )
+    expect(drivers[4].definition).toContain('(self talk) dialogue')
+  })
+
+  test('the five habit steps are in order, each with the worked example', () => {
+    const steps = content.five_steps_to_building_new_habits.steps
+    expect(steps.map(s => s.name)).toEqual([
+      'Reason', 'Trigger', 'Micro Habit', 'Effective Practice', 'Plan'
+    ])
+    expect(steps.map(s => s.step)).toEqual([1, 2, 3, 4, 5])
+    for (const s of steps) {
+      expect(typeof s.perspective).toBe('string')
+      expect(s.example.trim().length).toBeGreaterThan(20)
+    }
+    expect(steps[2].example).toContain('2 packets per day')
+  })
+
+  test('the emotional reaction to learning keeps the line the whole idea rests on', () => {
+    const e = content.emotional_reaction_to_learning
+    expect(e.what_actually_happens).toContain('EMOTIONAL REACTION')
+    expect(e.what_actually_happens).toContain('single biggest obstacle')
+  })
+
+  test('the learning path keeps all eleven stages, in order', () => {
+    const path = content.progressive_learning_path.the_path_in_order
+    expect(path).toHaveLength(11)
+    expect(path[0]).toBe('Information')
+    expect(path[path.length - 1]).toContain('Wisdom')
+  })
+
+  test('the ligatures the PDF font dropped are repaired, not left as holes', () => {
+    // The source renders "e ectiveness", "Re ections", "sta ", " nish". A
+    // transcription that shipped those would read as typos in front of a client.
+    const all = JSON.stringify(content)
+    for (const hole of ['e ectiveness', 'Re ection', 'sta  member', ' nish line', 'speci c']) {
+      expect(all).not.toContain(hole)
+    }
+    expect(all).toContain('effectiveness')
+    expect(all).toContain('Reflections')
+  })
+
+  test('every authored line reaches the prompt', () => {
+    const rendered = formatGuideForPrompt('productive_habits')
+    const authored = authoredStrings(content, [])
+    expect(authored.filter(x => !rendered.includes(x))).toEqual([])
   })
 })

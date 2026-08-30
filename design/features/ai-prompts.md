@@ -3,8 +3,9 @@
 > **The prompt templates a manager can tune — locked method, declared variables.** Current rules
 > only; the history is in [`ai-prompts-history.md`](ai-prompts-history.md).
 >
-> **Covers:** the two shipped prompts, what is editable and what is not, how the platform
-> protocols are enforced, how a tier's settings cascade, and the hub tab that renders it.
+> **Covers:** the three shipped prompts, what is editable and what is not, how the platform
+> protocols are enforced, how a tier's settings cascade, the hub tab that renders it, and the
+> Share-a-prompt panel a firm manager pastes their own prompt into.
 > **Does not cover:** the report models' own key-calculation summaries, which are item 4.29 and a
 > separate thing.
 
@@ -152,6 +153,71 @@ ruled that one *"for AI - not the advisor or manager"*.
 
 ---
 
+## 3a. Share a prompt — a manager's own words, checked
+
+A firm manager pastes a prompt they believe in and asks whether it is any good. **Nothing is
+stored and nothing changes** — not this app, not their firm, not the advising AI. The panel sits
+on this same tab at all four tiers, below the settings and above the method.
+
+**Three things happen, in this order.**
+
+1. **Deterministic checks.** Six of them, worst first: the fence markers, invisible characters,
+   anything shaped like a key, web and email addresses, real client details, and a 6,000-character
+   limit checked before any of the others so a huge paste is never scanned. One refusal is shown
+   at a time, in three parts — what we found, why it matters to their clients, what to do now —
+   and every refusal offers a mail link to a person.
+2. **The review.** The model reads the prompt, fenced, and reports what is good, what is missing
+   and what conflicts. Each finding is theirs to take or leave, and taking one edits **the box on
+   their screen** and nothing else.
+3. **Putting it in force (Lane B).** A level saves material under its own name on the same tab. It
+   applies to that level immediately, with nobody above signing it off, and reaches every
+   conversation that level's advisors have — **fenced**, beside the firm's coaching notes, as a
+   quotation the model is told to read and never obey. The panel shows what is in force, where
+   each piece came from, what has been switched off, and any row the level above has rewritten
+   under an edit — offering Use theirs or Keep mine, and taking neither on its own.
+
+### The cascade
+
+Material a level writes is **pushed down and is in force immediately** at the levels below. Once
+it is in place, the level below may **edit it, switch it off, and refuse a later change** to it —
+the level above keeps its own version either way. It runs on `resolveInheritedRows`, the one
+mechanism every firm-editable block resolves through ([`tier-cascade.md`](tier-cascade.md) §3 and
+P11), with the four keys every other block uses.
+
+⚠ **A firm chains straight to the mentor today.** A firm with no recorded membership has the
+platform as its parent, because the two middle tiers ship fail-closed. The cascade is correct for
+four levels and exercisable on two — stated rather than implied.
+
+⚠ **Three pieces of material in force at once, and never a silent trim.** Every one joins every
+conversation that level's advisors have, so the cap is a real cost in tokens and attention rather
+than tidiness. When it bites it says so in the server log — the only way anyone learns a level's
+later material stopped reaching the AI.
+
+🔴 **The review is an advisor and never a gate.** It cannot admit anything. The deterministic
+checks ran before it and do not consult it, and a review that fails is reported as a failure —
+never as an empty report, because on screen those are the same picture and the silent one tells an
+accountant their prompt is fine on the strength of a call that never came back.
+
+🔴 **The model's own output goes back through the checks.** A finding carrying a web address, a key
+or a hidden character is discarded whole before it reaches the screen. This closes the loophole the
+design names: accepting a suggestion must never become a way to write unchecked text into a prompt.
+
+🔴 **The words the reviewer is given are a document on this tab** (`prompt-review`, mentor only),
+not a string in the code — so a mentor can read every one of them. It is the first production
+caller of `assemblePrompt()`, which until now was built, tested and wired to nothing.
+
+⚠ **What the checks cannot do.** A bare personal name is not detectable — "Margaret Whitfield" and
+"Working Capital Cycle" are the same shape to a pattern. Addresses, tax numbers and titled names
+are caught; a bare name reaches the model inside the fence, which is what makes it survivable.
+Phone numbers are deliberately not matched: in an application full of figures that pattern catches
+columns of them.
+
+⚠ **The support address is one line in [`../../data/support-contact.json`](../../data/support-contact.json).**
+Edit it, save it, done — no restart and no rebuild. A blanked or broken file falls back rather than
+leaving an accountant with a dead button.
+
+---
+
 ## 4. For the coder
 
 | Piece | Path |
@@ -165,6 +231,19 @@ ruled that one *"for AI - not the advisor or manager"*.
 | The design and its build order | [`../AI-PROMPTS-PAGE.md`](../AI-PROMPTS-PAGE.md) |
 | The approved drawing | [`../mockups/ai-prompts-tab.html`](../mockups/ai-prompts-tab.html) — **second** drawing; §3 names every difference |
 | The source documents, verbatim | [`../prompt-sources/`](../prompt-sources/) |
+| Share a prompt — the checks | [`../../server/utils/promptContribution.js`](../../server/utils/promptContribution.js) |
+| Share a prompt — the review | [`../../server/utils/promptReview.js`](../../server/utils/promptReview.js) |
+| Share a prompt — the route (Lane A, stores nothing) | [`../../server/routes/promptCheck.js`](../../server/routes/promptCheck.js) |
+| Lane B — storage, cascade, the fenced block | [`../../server/utils/promptContributions.js`](../../server/utils/promptContributions.js) |
+| Lane B — the routes | [`../../server/routes/promptContributions.js`](../../server/routes/promptContributions.js) |
+| Lane B — the panel | [`../../components/firm/FirmPromptMaterial.vue`](../../components/firm/FirmPromptMaterial.vue) |
+| The refusal wording, shared by both panels | [`../../mixins/promptRefusal.js`](../../mixins/promptRefusal.js) |
+| Where it reaches the AI | `server/advisorEngine.js` — `buildClientContext` and the generic context message, beside the firm coaching notes |
+| Its overlay keys | `prompt-contributions-own` · `-declines` · `-overrides` · `-override-baselines` |
+| Share a prompt — the panel | [`../../components/firm/FirmPromptCheck.vue`](../../components/firm/FirmPromptCheck.vue) |
+| Its wording, approved before it was built | [`../PROMPT-CONTRIBUTION-WORDING.md`](../PROMPT-CONTRIBUTION-WORDING.md) · locale keys under `promptCheck` |
+| Its design and build order | [`../PROMPT-CONTRIBUTION-SAFETY.md`](../PROMPT-CONTRIBUTION-SAFETY.md) |
+| The support address | [`../../data/support-contact.json`](../../data/support-contact.json) |
 | Tests | [`aiPrompts.test.js`](../../tests/unit/aiPrompts.test.js) · [`aiPrompts.routes.test.js`](../../tests/unit/aiPrompts.routes.test.js) · [`firmAiPrompts.component.test.js`](../../tests/unit/firmAiPrompts.component.test.js) · [`promptSafety.test.js`](../../tests/unit/promptSafety.test.js) |
 | Override storage | `firmOverlay`, `config_key: 'ai-prompts'` |
 
@@ -182,13 +261,17 @@ ruled that one *"for AI - not the advisor or manager"*.
 **Known state.**
 - ✅ **Built and tested:** the data, the protocol block, the validator, the cascade, assembly,
   `stripInvisible`, the tier filter, the four Restify routes, and **the hub tab**. 47 tests on the
-  engine, 22 on the routes, 24 on the screen, 11 more on the stripper.
+  engine, 22 on the routes, 24 on the screen, 11 more on the stripper, 5 on the client door
+  that applies it.
 - ✅ **The screen exists** — *AI Prompts*, last under *Your AI coach*, at all four manager tiers.
   Item **4.28**, closed 2026-08-22.
-- ⚠ **`stripInvisible` is not applied to the live advisor output path** — `advisorEngine.js` is
-  untouched. Item **4.30**. 🔴 The protection panel's third line — *"Invisible characters are
-  stripped from the AI's answer"* — is true of **this** prompt path and not yet of the advisor
-  screen. Closing 4.30 is what makes that sentence true everywhere a manager would assume it is.
+- ✅ **`stripInvisible` runs on every AI path.** Applied at `server/utils/openaiClient.js` — the
+  one function every OpenAI reply in this app passes through — rather than at each engine, so the
+  advisor screen, the course screen, the case routes and the anonymiser are all covered by one
+  change. Item **4.30**, closed 2026-08-25. The protection panel's third line — *"Invisible
+  characters are stripped from the AI's answer"* — is now true on every screen a manager would
+  assume it is, not only this one. A character arriving split across two streamed chunks is
+  rejoined before it is tested, so the streaming case is closed too.
 - ⚠ **The tab has been proven by tests, not by a person opening it at every tier.** Nothing in
   this project checks that a screen LOOKS right (item **4.25**), and the two defects this feature
   has had were both found by Mike looking at a picture.
