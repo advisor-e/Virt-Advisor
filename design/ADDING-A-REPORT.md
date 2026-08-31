@@ -15,8 +15,9 @@
 > the rule covers **every step of a model, entry and intake screens included**, not just
 > the result screen. A new model's look is *read off the existing live screens* — the
 > dark `HeroStrip` band on every step (entry steps carry it with live **display-only**
-> running totals), the same card language (white card, `#d5e1ee` border, 3px `#00b1e0`
-> top edge, navy uppercase titles), the same sizes, the same colours, the same failure
+> running totals), the same card language (white card, `#d5e1ee` border, **no
+> top edge** — corrected 2026-08-31, see step 7 — navy uppercase titles), the same sizes,
+> the same colours, the same failure
 > and stale behaviour. **Do not ask the owner how a model should look, and do not
 > propose a new or bolder look — open the finished models, copy their structure and
 > format exactly.** A screen that would look out of place beside Quick Position or
@@ -199,8 +200,12 @@ methods: {
   an accounting fact from a typed one.
 - **Declare no frame, palette, colour, card, button or font of your own — read the shell's
   `--rs-*` tokens.** A card is `background: var(--rs-card-bg); border: 1px solid
-  var(--rs-card-border); border-top: 3px solid var(--rs-card-top); border-radius:
-  var(--rs-card-radius); padding: var(--rs-card-pad)`; a two-column layout is
+  var(--rs-card-border); border-radius: var(--rs-card-radius); padding: var(--rs-card-pad)`
+  — **and no top edge.** (This line used to add `border-top: 3px solid var(--rs-card-top)`.
+  No shipped screen has ever drawn one, so a new report that followed it would have looked
+  unlike the other eight. Corrected 2026-08-31 on Mike's ruling that consistency wins; see
+  the note under *Cards* in [`REPORT-VISUAL-STANDARD.md`](REPORT-VISUAL-STANDARD.md).)
+  A two-column layout is
   `grid-template-columns: var(--rs-col-input) 1fr; gap: var(--rs-col-gap)` (collapsing at
   `@media (max-width: 860px)`); text is `var(--rs-ink)` / `var(--rs-muted)`, accents
   `var(--rs-accent)` / `var(--rs-accent-bright)`. The full token list and the ruled numbers

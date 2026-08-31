@@ -42,6 +42,7 @@ const { computeDebtorCashflow } = require('../report/debtorDragModel')
 const { computeEbitdaDcf } = require('../report/ebitdaDcfModel')
 const { computeQuickPosition } = require('../report/quickPositionModel')
 const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
+const { computeVolatility, DEFAULT_INPUTS: VOL_DEFAULTS } = require('../report/volatilityModel')
 const {
   computeMarginMarkup,
   requiredSales,
@@ -158,6 +159,16 @@ function computeCoachFigures () {
   const lvb = computeLeaseVsBuy({})
   out['/lease-vs-buy'] = {
     saving: fig(lvb.verdict.saving, 'money')
+  }
+
+  // ── Volatility Report ──────────────────────────────────────────────────────────────
+  // The screen's own default: the workbook's 24 months, measured over the most recent 12.
+  const vol = computeVolatility({ sales: VOL_DEFAULTS.sales, window: 12 })
+  out['/volatility'] = {
+    n: fig(vol.insideFirstBand, 'plain'),
+    of: fig(vol.monthsUsed, 'plain'),
+    // The screen prints the share as a whole number beside the model's expected 68%.
+    pct: fig(Math.round(vol.insideFirstBandPct), 'plain')
   }
 
   return out

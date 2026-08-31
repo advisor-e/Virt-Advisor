@@ -66,7 +66,8 @@ describe('report model catalogue', () => {
         '/loan-estimator',
         '/margin-breakeven',
         '/multiple-property',
-        '/quick-position'
+        '/quick-position',
+        '/volatility'
       ])
     })
 
@@ -112,7 +113,7 @@ describe('report model catalogue', () => {
       expect(by(CLASS_REPORT)).toHaveLength(9)
     })
 
-    it('classes the built models correctly — 4 Education + 2 Report-class + 4 Decision-class builds', () => {
+    it('classes the built models correctly — 4 Education + 3 Report-class + 4 Decision-class builds', () => {
       // The four education models are badged "Illustrative" and take no client data.
       // Quick Position (built 2026-07-16) and EBITDA & DCF (built 2026-07-17) are
       // deliberately DIFFERENT: Report-class — real client numbers via file intake,
@@ -122,7 +123,11 @@ describe('report model catalogue', () => {
       // numbers by keyboard, no file intake — and no badge either. The Multiple Property
       // Assessment (Phase 1, built 2026-08-17) joins them: somebody may BUY A PROPERTY on
       // its output, which is why it carries no Illustrative badge.
-      const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow']
+      // The Volatility Report (built 2026-08-31) is the third Report-class build:
+      // MODEL-CLASSIFICATION.md lists it under Report (9), "variance analysis on real
+      // figures". Entry is typed until the by-month accounts upload lands — that changes
+      // where the figures come from, not whose they are, and neither class carries a badge.
+      const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow', 'Volatility Report']
       const DECISION_BUILDS = [
         'The Loan Estimator',
         'Lease vs Buy',
@@ -130,7 +135,7 @@ describe('report model catalogue', () => {
         'Multiple Property Assessment'
       ]
       const built = MODELS.filter(m => m.status === STATUS_READY)
-      expect(built).toHaveLength(10)
+      expect(built).toHaveLength(11)
       built.forEach((m) => {
         if (REPORT_BUILDS.includes(m.name)) {
           expect(m.modelClass).toBe(CLASS_REPORT)
@@ -282,7 +287,7 @@ describe('report model catalogue', () => {
 
   describe('readyCount', () => {
     it('counts only the models with a built report', () => {
-      expect(readyCount(MODELS)).toBe(10)
+      expect(readyCount(MODELS)).toBe(11)
       expect(readyCount([])).toBe(0)
       expect(readyCount(null)).toBe(0)
     })
