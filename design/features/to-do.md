@@ -38,9 +38,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | **Mike** |
 | 2 | **4.50** Nobody has seen a real conversation's recommendations reach the Team tab | 2 | — | Outside |
 | 3 | **4.54** An adviser types two years of figures into the Volatility Report by hand | 3 | — | Us |
-| 4 | **4.55** Wire the uploaded template library into the engine (Cascade Phases 2–3) | 3 | — | **Mike** |
+| 4 | **4.55** The firm's own template-upload screen (Cascade Phase 3) | 3 | — | **Mike** |
+| 5 | **4.56** Rule whether a firm's replaced library changes what CPD its advisors claim | 2 | — | **Mike** |
 
-**Four live items. Two need Mike.** If this list passes about twenty, something is wrong.
+**Five live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

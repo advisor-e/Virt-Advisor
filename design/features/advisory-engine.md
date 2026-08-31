@@ -147,7 +147,7 @@ platform default. Nothing is single-tenant, and nothing new should be.
 | Domains — keywords, disambiguation, questions | `data/domains.json` |
 | Decision trees | `data/logic_trees.json`, read by `server/utils/logicTrees.js` |
 | Signal vocabulary | `data/signal-dictionary.json` |
-| Template library | `data/templates.json`, `server/utils/templates.js` |
+| Template library | resolved by `server/utils/templateLibrary.js` — the nearest tier's upload (firm → group → global → platform), whole; `data/templates.json` (via `server/utils/templates.js`) is the seed when no tier has uploaded |
 | Signal weights per template | `data/semantic-profiles.json` |
 | Rich template content | `data/content-summaries.json` |
 | Domain briefing material | `data/*-domain-support.json`, `server/utils/domainSupport.js` |
