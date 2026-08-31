@@ -12,32 +12,33 @@
 
 ## 2026-09-01 · Laptop · branch `feat/advisor-progress`
 
-Suite **6,633 green** (355 suites), nothing uncommitted, everything pushed. **PR #51 open,
-`MERGEABLE`/`CLEAN`.** One commit today: the merge.
+Suite **6,635 green** (355 suites). Started 5 ahead / 0 behind `master`, ended 7 ahead / 0
+behind. Nothing uncommitted.
 
-### Your Phase 1 is in, and the Handbook is finally trimmed
+### One thing happened: Meeting Review was designed
 
-Merged `origin/master` (PR #49, 9 commits) — the ring-fence trim and Cascade Phase 1.
-Every code file merged cleanly.
+Mike asked for a new feature in his own words — record a client meeting, transcribe it, and
+produce two reports: a client-facing summary, and an advisor-only review checked against
+observation points the advisor sets *before* the meeting and a manager can edit. **The design is
+written and committed (`7f5ced1`); nothing is built** — no route, no screen, no data file, no
+test, and the Brief opens with a banner saying so.
 
-**The Handbook is republished WITH your trim** — 840 KB against 985 KB. Yesterday's note
-withheld it because the trim was not on `master`; that is now cleared, and any session can
-rebuild and publish safely again.
+Four rulings from him, so nobody re-asks: **the advisor alone owns their review** and chooses to
+share it; **capture is live in-app** (upload was recommended and overruled — the residual risk is
+a suspended browser tab, and there is no second take with a real client); **audio is deleted once
+a transcript exists**, transcript on a firm-set clock; it is called **Meeting Review**.
 
-### The live-list conflict, and how it was settled
-
-Both branches edited the list. Your note said *"4.15 / 4.50 / 4.54 unchanged"* — correct
-when you wrote it, but this branch had closed **4.54** hours earlier. Resolved to **4.15,
-4.50, 4.55**, with 4.54 out. That was the list's own rule, not a judgement: an item may
-only leave once its closure is on `to-do-done-and-parked.md`, and 4.54's was.
-`to-do.md` was regenerated with `npm run to-do`, never hand-edited.
+**Filed as 4.56.** Three of its eight open decisions block any build and all three are Mike's:
+the consent wording, a written exception to `CLAUDE.md`'s "strip PII before sending anything to an
+LLM" (a transcript cannot satisfy it), and how the advisor's voice is separated from the client's.
+**It is deliberately NOT in `ARTEFACTS.md`** — he approved writing the design, not the design.
 
 ### 🖥 Desktop
 
-**Nothing of yours is stranded** — Phase 1 is on `master` and in this branch. **4.55 still
-waits on Mike's go.** Your own note flagged one residual and it stands: the Template
-Library screen has **not** been eyeballed in a production build.
+**Nothing of yours was touched** — no code files, only `design/`. **4.55 still waits on Mike's
+go**, and your residual stands: the Template Library screen has **not** been eyeballed in a
+production build.
 
-**Housekeeping:** `chore/i18n-jsdoc-cleanup` is deleted — Mike's decision. It survives as
-tag `archive/i18n-jsdoc-cleanup-2026-07-01`; the reasoning is in the tag message. Its one
-live residual (thin JSDoc on 3 mixins + 2 proxies) was deliberately **not** filed.
+**One thing to expect:** this session's auto-approver blocked publishing the Handbook and any `gh`
+lookup until Mike asked directly. Not a fault and not fixable from inside a session — an agent
+widening its own permissions is exactly what that gate stops. Ask him, or use `/permissions`.

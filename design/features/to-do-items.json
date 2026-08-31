@@ -100,6 +100,26 @@
       },
       "touches": "server/utils/templates.js (the loader Phase 2 rewires), server/advisorEngine.js (reads through it), server/routes/firmManager.js importTemplates + FirmManagerHub.vue (Phase 3 screen).",
       "comment": "2026-08-31 — filed at the close of the session that built Phase 1. Phase 4 (Advisor-e pushes the export directly, no download at all) is deliberately NOT on this item: it is the master team's, recorded in the plan and for the cascade handover doc."
+    },
+    {
+      "ref": "4.56",
+      "name": "Meeting Review — the design is written; the decisions before it can be built are Mike's",
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Designed and committed 2026-09-01 (7f5ced1) on Mike's own request: record a client meeting, transcribe it, and produce two reports — a client-facing summary, and an advisor-only review checked against observation points the advisor sets before the meeting and a manager can edit. Four rulings were taken the same day: the advisor alone owns their review and chooses to share it; capture is live in-app; the audio is deleted once a transcript exists, with the transcript on a firm-set clock; and it is called Meeting Review. NOTHING IS BUILT — no route, no screen, no data file, no test — and the Brief says so in a banner. Eight decisions are open (Brief §6); three of them block any build and all three are Mike's: the consent wording, spoken and on screen; a written exception to CLAUDE.md's 'strip PII before sending anything to an LLM', which a meeting transcript cannot satisfy; and how the advisor's voice is separated from the client's, which about half the observation checks depend on.",
+      "risk": "None while it stays on paper — no code, no behaviour change, nothing an advisor or client can reach. The risk is entirely in building before the three blockers are settled: recording identifiable third parties without consent wording Mike has approved, sending a transcript that is personal data end to end to a third-party model against a rule this repository still states absolutely, and shipping attribution checks that cannot reliably tell who spoke while still reading as confident. Brief §4 lists four further things that are nobody's coding task — an impact assessment, staff consultation, the transcription provider's written terms, and the position in each jurisdiction — which is exactly why they are the ones that get discovered late.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-01 — \"i want you to design a new feature ... records the voices and transcribes the meeting, then generates two reports\", quoted in full in meeting-review-history.md §1. He named the Handbook page himself, so the page is not an inference either."
+      },
+      "touches": "design/features/meeting-review.md (the Brief, with the eight open decisions in §6), meeting-review-history.md, and the one index line in design/features/README.md. Nothing in server/, components/ or data/ — by design.",
+      "note": "DELIBERATELY NOT IN design/ARTEFACTS.md. That register records what Mike has actually approved, and he has approved the *writing* of the design, not the design itself. A row goes in when he approves it — adding one now would make the register say something untrue, which is the one thing it exists to prevent. ⚠ THE SECOND REPORT IS THE PRODUCT, AND THE PRE-SET IS WHY IT CAN WORK. Recording and summarising is a commodity; an advisor declaring in advance what the meeting is for is not, and it is also the mechanism that makes the advisor report technically reliable — an open request to grade a person produces confident invention, while a request to find a named thing and quote it or answer NOT FOUND is retrieval with a citation. Any later change that weakens the pre-set (a 'just summarise how it went' mode, say) takes the reliability with it. ⚠ ONE RECOMMENDATION WAS OVERRULED AND THE RESIDUAL RISK IS REAL: upload-a-recording was recommended over live in-app capture and Mike chose live. The failure it does not solve is that an operating system may suspend a backgrounded browser tab, and there is no second take with a real client. Brief P10/P11 contain it; neither eliminates it.",
+      "comment": "2026-09-01 — filed at the close of the session that wrote the design, because the eight open decisions are questions for Mike and this list is where those live. Nothing to do here until he rules on the three blockers; the other five can be settled alongside a build. Placed last at his direction — the score is 3 rather than 5 because the score says what an item WINS, and the privacy work is part of building this rather than the point of it."
     }
   ]
 }
