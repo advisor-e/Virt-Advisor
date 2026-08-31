@@ -28,6 +28,7 @@ const { PLATFORM_SCOPE } = require('../utils/platformScope')
 // Validation shared with the firm's own import (firmManager.js importTemplates),
 // so the two upload doorways can never drift apart.
 const { validateTemplateImport, TEMPLATE_IMPORT_MAX_BYTES } = require('../utils/templateImport')
+const { clearTemplateCache } = require('../utils/templateLibrary')
 const DOMAINS = require('../../data/domains.json')
 const firmManager = require('./firmManager')
 
@@ -599,10 +600,11 @@ async function getAdoption (req, res) {
 // data/templates.json by hand. Stored under the reserved platform scope in the
 // one versioned store, so history and restore come free.
 //
-// ⚠ INERT BY DESIGN until Phase 2: 'templates' is NOT a cascading config key, and
-// the engine's loader still reads data/templates.json (via server/utils/templates.js)
-// plus the firm's own 'templates' overlay. Nothing an advisor sees changes when the
-// mentor uploads — Phase 2 rewires the read side, separately approved.
+// LIVE since Phase 2 (approved 2026-09-01): the engine reads the library through
+// server/utils/templateLibrary.js — firm → group → global → platform, nearest
+// upload wins whole — so this upload IS the platform library for every firm
+// without its own, live within a minute (immediately on this instance). The
+// committed data/templates.json remains the seed when no tier has uploaded.
 //
 // The file's CONTENT is never edited here — IDs and content are Advisor-e's alone
 // (CLAUDE.md). This route receives, validates and stores; that is the whole job.
@@ -702,6 +704,8 @@ async function importPlatformTemplates (req, res) {
       firmManager._devWriteTemplates(PLATFORM_SCOPE, parsed) // DEV/TEST-ONLY (see firmManager.js banner)
       version = null
     }
+    // The new library is live on the next request here, not after the TTL.
+    clearTemplateCache()
     res.send(201, { success: true, imported: true, templateCount: parsed.length, version })
   } catch (err) {
     console.error('[mentor] importPlatformTemplates failed:', err.message)
@@ -722,6 +726,7 @@ async function restorePlatformTemplates (req, res) {
   }
   try {
     const version = await overlay.restoreVersion(PLATFORM_SCOPE, 'templates', versionId)
+    clearTemplateCache()
     res.send(200, { success: true, restored: true, version })
   } catch (err) {
     console.error('[mentor] restorePlatformTemplates failed:', err.message)

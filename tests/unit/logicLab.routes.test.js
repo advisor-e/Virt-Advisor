@@ -39,6 +39,7 @@ jest.mock('../../server/utils/firmDistinctions', () => {
 })
 
 const overlay = require('../../server/utils/firmOverlay')
+const { clearTemplateCache } = require('../../server/utils/templateLibrary')
 const caseStore = require('../../server/utils/caseStore')
 const decisionScore = require('../../server/utils/decisionScore')
 const firmDistinctions = require('../../server/utils/firmDistinctions')
@@ -82,6 +83,9 @@ beforeEach(() => {
   // which is the shape a brand-new firm actually has.
   overlay.loadFirmConfig.mockResolvedValue(null)
   caseStore.listSharedForFirm.mockResolvedValue([])
+  // The template library's ~60s cache outlives a test; without this, one test's
+  // "no upload" read is served to the next test's "firm has imported" scenario.
+  clearTemplateCache()
 })
 
 describe('GET /api/firm-manager/logic-lab/summary', () => {
