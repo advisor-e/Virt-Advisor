@@ -55,21 +55,6 @@ cross-domain cases at 90% reachability. This is the conscious, documented liftin
 constraint, and it kept the boundary intact: the AI still cannot invent a domain or pick a
 template. → Brief **P3**.
 
-### Learn mode was "built and working" and was masking a gap · 2026-06-23
-
-True for the original coaching trees — but seven "Get the Job" advisor-development trees, a
-second schema imported seven weeks earlier, were **loaded but reached no consumer** and had been
-mis-counted as empty. Now wired, and gated so they can never leak into a client session.
-
-**The transferable part: "built and working" was accurate about the part that was looked at.**
-Coverage claims need to name what they cover.
-
-### The invisible swap gained a reverse · 2026-06-23
-
-When an advisor in Learn mode describes a live client situation, the Learn prompt now names the
-cross-over transparently and offers to expand in place — rather than bouncing them into the
-client tool and losing their context.
-
 ---
 
 ## 3. Decisions taken and closed — do not reopen
@@ -87,23 +72,9 @@ client tool and losing their context.
 
 ## 4. Where the earlier record is wrong
 
-Read 2026-08-13. **Left in place** — records of their own date:
-
-- `virt-advisor-system-design.md` (v2.0, 2026-06-04) calls itself *"Authoritative. Supersedes all
-  prior design documents"* and its §13b build-status table is now well out of date — it predates
-  the tier cascade, the merged Collaborate app, the report models and the mentor authoring
-  surface. **Its pipeline design is still the best account of the engine; its build status is
-  not.**
-- The same document says `templates.json` holds **278** templates. It holds **291** records.
-- Its §11.3 says Advisory Distinctions is *"Designed 2026-06-04. Not yet built."* It has been
-  built, cascaded and given a mentor authoring screen since — see
-  [`advisory-distinctions-history.md`](advisory-distinctions-history.md).
-- It lists two numbered principles as "5" and two as "6", and its §11.1 describes Firm Manager
-  auth as reading role from `localStorage`, which the JWT work superseded.
-
-**None of this is a criticism of the document.** It is the single best explanation of how the
-engine reasons, and it was accurate when written. It is listed here because a coder reading it
-cold would take its build status as current.
+`virt-advisor-system-design.md` is still the single best account of how the engine reasons, but
+its build-status table, template count and "not yet built" entries are stale — it is left in
+place as a record of its own date. **Read it for the pipeline design, never for build status.**
 
 ---
 

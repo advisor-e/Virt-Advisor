@@ -39,14 +39,6 @@ it.
 **Nothing in the code could have noticed, and no test could have failed.** A rule copied from
 one context into another that resembled it. → Brief **P4**.
 
-### "Content flows down freely; people never flow up" · 2026-08-10
-
-The first version of the cascade map said exactly that, and listed four reports as confined to
-a single tier. It was wrong, and it contradicted a ruling already recorded ten days earlier.
-The original wording was **deliberately not preserved** in that document, on the grounds that a
-wrong sentence left on a page gets quoted. It is named here only so the correction is
-traceable.
-
 ### A screen designed for data Advisor-e owns · 2026-08-10
 
 A "Global Groups" membership screen was designed and approved, then withdrawn within the hour.
@@ -110,20 +102,13 @@ their work.
 
 ## 4. Where the earlier record is wrong
 
-Read 2026-08-13. **Left in place** — these are records of their own date. Listed so nobody
-quotes them as current:
+**Left in place** — these are records of their own date. Listed so nobody quotes them as
+current:
 
-- `COLLABORATE-MERGE-PLAN.md` §4 describes documents that *"clone down through each level"*, and
-  §4.4 describes the merge as *"a fold over the chain"*. **Those are different architectures**,
-  the contradiction was live, and §4.4 carries its own correction box saying so. Neither is the
-  ruled model — see above.
-- The same plan's §4.4 table says `firm_framework_versions` **becomes** keyed
-  `(scope_level, scope_id, config_key)` with the FK dropped. That is not what happened: the
-  reserved-scope-id ruling of 2026-08-09 kept the existing `firm_id` column and needed no schema
-  change at all.
-- `MENTOR-TIER-CHAIN-PLAN.md` and the mockups at `mockups/tier-hub-pages.html` describe tabs the
-  build does not yet have. The gap is real and is tracked in `ACTIONS.md`, but the mockup is not
-  a description of the build.
+- `COLLABORATE-MERGE-PLAN.md` §4/§4.4 — describes *"clone down"* and *"a fold over the chain"*;
+  the ruled model is neither, it is the delta / offered-update mechanism above.
+- The same plan's §4.4 table — says `firm_framework_versions` is re-keyed with the FK dropped;
+  the reserved-scope-id ruling kept the existing `firm_id` column with no schema change.
 
 ---
 
@@ -139,7 +124,4 @@ handover) · [`../COLLABORATE-MERGE-PLAN.md`](../COLLABORATE-MERGE-PLAN.md) §4�
 2026-07-30 rulings, with the corrections noted above).
 
 **Artefacts — keep on file:** `mockups/tier-hub-pages.html` (the two middle-tier hubs, approved
-2026-08-10, unbuilt) · `mockups/mentor-adoption-view.html` · `mockups/case-origin.html`.
-
-**Session notes:** `SESSION-2026-08-10-NOTES.md` (the session that built the chain) ·
-`08-09` · `08-11` · `08-12` series · `08-13`.
+2026-08-10) · `mockups/mentor-adoption-view.html` · `mockups/case-origin.html`.

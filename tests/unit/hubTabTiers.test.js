@@ -70,8 +70,11 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts']
  * than a historical record being quietly rewritten.
  *
  * - `aiPrompts` — the same ruling as the firm's, which named the mentor first.
+ * - `templateLibrary` — Mike, 2026-08-31 (`SEARCH-CONTENT-CASCADE-PLAN.md` Phase 1,
+ *   approved in session): the master export upload, mentor-only, placed beside
+ *   Template Check. Stored inert until Phase 2 rewires the loader.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {

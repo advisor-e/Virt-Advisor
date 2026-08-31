@@ -7,12 +7,9 @@
 
 ## 1. The improvement pass that produced most of the rules
 
-A logic review on 2026-07-15 found twenty-four items. All five phases were built, tested and
-pushed **the same day the plan was approved**, each fix following the same discipline: show the
+A logic review found twenty-four items, and every fix followed the same discipline: show the
 broken behaviour, propose the exact change, wait for the owner's yes, fix, test, run the full
 suite, commit.
-
-The engine had **zero tests** that morning and finished with 76.
 
 **The four that mattered most, and why each was ranked first:**
 
@@ -78,9 +75,8 @@ end to end, complete a session and quiz, interrupt a streaming reply with Start-
 and confirm the course survives in the server store, then reload to confirm the legacy migration
 ran. Three separate tracked items close only on that session.
 
-**Coverage note recorded at the time, not hidden:** the full coverage run fails the repository's
-global threshold — 51.3% against 80 — which was pre-existing and not caused by the course work.
-It was logged as evidence rather than left to be discovered.
+**Coverage note:** the full coverage run fails the repository's global threshold — 51.3%
+against 80 — pre-existing, and not caused by the course work.
 
 ---
 

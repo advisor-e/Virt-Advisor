@@ -201,9 +201,6 @@ there is genuinely nothing), and `coach` (the reading the screen gives in plain 
   different things about the same screen — `tests/unit/modelGuideRoute.test.js` compares the
   served records against the prompt block, **after each reader has filled the gaps**, so it
   proves they get the same sentence *and* the same figures.
-  ⚠ **That test compared the two "word for word" until 2026-08-22.** Once the sentences
-  carried gaps, comparing them raw would have proved only that both readers were handed the
-  same holes — which is precisely the state item 4.34 was raised to end.
 - **The build stops a half-described model.** `tests/unit/reportModelSummaries.test.js` ties
   the file to the catalogue in both directions and requires all three fields. A new model
   going live without them fails there, which is what makes the Model Guide keep itself
@@ -212,11 +209,8 @@ there is genuinely nothing), and `coach` (the reading the screen gives in plain 
   8 Levers, Cost of Capital, **Lease vs Buy** and the Loan Estimator — carry explanatory
   notes and verdict rules instead, and the screen heads them differently. Claiming a Coach
   panel that is not there describes a screen the reader will not find.
-  ⚠ *This listed three and omitted Lease vs Buy from the day it was written (2026-08-22,
-  `68f5fae`); corrected the same day in session 81, and
-  [`reportModelSummaries.test.js`](../../tests/unit/reportModelSummaries.test.js) now reads
-  this very sentence and fails if it stops matching the data. Mutation-verified: reverted to
-  the old wording, the test fails.*
+  ⚠ *[`reportModelSummaries.test.js`](../../tests/unit/reportModelSummaries.test.js) reads
+  this very sentence and fails if it stops matching the data.*
 
 **P21 · A Coach reading carries its FIGURES, and a figure has ONE home.** `coach` lines are
 written with `{named}` gaps — `{cycleDays}`, `{fasterExtra}` — and both readers fill them
@@ -318,38 +312,17 @@ models have a 'key calculation output' page or section, so that the AI can read 
 model serves"*, and *"place it wherever you want, it's for AI - not the advisor or
 manager"*.
 
-Until then, [`../../utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js)
-was read by **one file** — `components/ModelLibrary.vue`. Nothing on the backend read it,
-and the only mention of a model's name in `server/` was a JSDoc comment inside the model
-itself. **Ten built models that answer real client questions were invisible to the one part
-of the app an advisor actually asks for help.**
-
 **Where it lives.** [`../../data/report-model-summaries.json`](../../data/report-model-summaries.json)
 holds one entry per live model — what it answers, its **key calculation output** (the
 screen's real hero figures), what the advisor must be able to supply, when to reach for it,
 and **what it does not cover**. [`../../server/utils/reportModels.js`](../../server/utils/reportModels.js)
 renders it into the client-mode prompt.
 
-🔴 **IT HAS A SCREEN NOW — `/model-guide`, built 2026-08-22 (`68f5fae`).** See **P20** above
-for what it is and what holds it current.
+🔴 **It has a screen — the Model Guide at `/model-guide`.** See **P20** above for what it
+is and what holds it current.
 
-> ⚠ **This paragraph said the opposite until 2026-08-22, and the correction is recorded
-> rather than quietly applied.** It read *"THIS ONE HAS NO SCREEN, AND THAT IS A STATED
-> EXCEPTION"* — true when Mike ruled it on 2026-08-21 (*"it's for AI - not the advisor or
-> manager"*), and **left standing when the screen was built the next day**. P20, higher up
-> this same page, described the screen correctly throughout, so the Brief told a reader both
-> things at once. Found on 2026-08-22 (session 81) while closing item 4.34. The identical
-> sentence in `data/report-model-summaries.json`'s own header was corrected in the same
-> change.
->
-> **Why this is worth the space rather than a silent edit.** Session 80 made the same finding
-> about this file the day before — §5 claimed no browser driver was installed when
-> `playwright` had landed — and recorded that *a Brief which understates what works costs as
-> much as one that overstates it*. This is that fault again, one section along and in the
-> other direction: a document that had gone **false about the app's own capability** while
-> every test stayed green, because no test reads prose.
-
-**The exception it stated is still the live ruling on WHO MAY EDIT THIS CONTENT.** A
+**Mike's ruling above — *"it's for AI - not the advisor or manager"* — is still the live
+ruling on WHO MAY EDIT THIS CONTENT.** A
 description of what a calculation does is **a fact about the maths, not authored advisory
 judgement** — nobody at any tier gets to decide that Lease vs Buy answers a different
 question than it answers. So the screen that was built is a **reader, not an editor**:
@@ -361,17 +334,15 @@ describing the app's own screens, and holds no client or firm data.
 authored judgement and needs an editable screen at the mentor tier first. Do not widen the
 JSON to hold it.
 
-**THE SEARCH MEETS THE ADVISOR'S WORDS, NOT THE PAGE'S.** Item 4.36, reported by Mike
-2026-08-23: *"Investing in houses"* found nothing while the property model sat in the
-library. It matched the query as one whole phrase against one joined string, so it needed a
-run of words that appeared verbatim, and it knew only the vocabulary the page happens to use
-— *property*, never *houses*. It now takes each word separately, drops filler (`SEARCH_NOISE`
-in `ModelGuide.vue` — *should*, *my*, *more*), and trims common endings so *paying* reaches
-*pay*. Every word must still appear, so more words always narrow. Each model also carries a
-`searchWords` list in `data/report-model-summaries.json` — the everyday words an advisor
-types. **That field is read by this screen alone and never reaches the AI**
-(`formatReportModelsForPrompt` reads named fields), so it is not content shaping advice and
-needs no manager screen; if a firm ever wants its own vocabulary, that judgement changes.
+**THE SEARCH MEETS THE ADVISOR'S WORDS, NOT THE PAGE'S.** The search takes each word
+separately, drops filler (`SEARCH_NOISE` in `ModelGuide.vue` — *should*, *my*, *more*), and
+trims common endings so *paying* reaches *pay*. Every word must still appear, so more words
+always narrow. Each model also carries a `searchWords` list in
+`data/report-model-summaries.json` — the everyday words an advisor types (*houses*, where
+the page only ever says *property*). **That field is read by this screen alone and never
+reaches the AI** (`formatReportModelsForPrompt` reads named fields), so it is not content
+shaping advice and needs no manager screen; if a firm ever wants its own vocabulary, that
+judgement changes.
 ⚠ Deliberately NOT fuzzy matching or an embedding search: with ten models a confident wrong
 match is worse than a miss, because the advisor takes the suggestion into a client meeting.
 The cost is that an unanticipated word still misses — the fix is a word on the model's list.
@@ -404,15 +375,13 @@ a template and never joins, replaces or reorders it. R18 says so in terms, becau
 rules that appear to contradict each other are two hard rules the model gets to choose
 between.
 
-**A model that shares a name with a template no longer gets that template's tutorial video
-attached to it** — fixed 2026-08-26, item **4.33**. `videoInjector` matches bold text after
-the AI has finished writing, so it could not tell a calculator reference from a template
-recommendation. It now stays quiet when the bolded name is a known model **and** the text
-sends the advisor to a calculator route — both conditions, so a genuine recommendation keeps
-its video. Two names collide today, *Working Capital Cycle* and *Quick Position*, and only the
-first has a video; the guard is built from `report-model-summaries.json` rather than that pair,
-so cataloguing another colliding model cannot reopen it silently. It could not be fixed in the
-prompt: an attempt to do so stripped the bold off template names and was reverted.
+**A model that shares a name with a template does not get that template's tutorial video
+attached to it.** `videoInjector` matches bold text after the AI has finished writing, so it
+cannot tell a calculator reference from a template recommendation. It stays quiet when the
+bolded name is a known model **and** the text sends the advisor to a calculator route —
+both conditions, so a genuine recommendation keeps its video. The guard is built from
+`report-model-summaries.json` rather than the names that collide today, so cataloguing
+another colliding model cannot reopen it silently.
 
 ---
 
@@ -496,30 +465,21 @@ say so *before* building.
 rendered text end to end, as an advisor would.** It costs one throwaway file and it is not
 optional.
 
-*Why it is a step and not a nicety:* on 2026-08-21 this found **two defects with 5,885
-tests green**, in a screen whose own suite had just been rewritten to 26 tests. A scalar
-was indexed as if it were a ten-year series, so the client's cash deposit rendered as a row
-of dashes — the money missing from the one table that exists to show it, on a screen where
-*every other row genuinely is a series*. And an input bound to what the user typed sat
-blank beside a total that had plainly had that very figure deducted from it. **Neither is a
-maths error and neither is a layout error, so neither the golden tests nor a mockup could
-see them.** They are the screen quietly saying something untrue, and only reading it finds
-that.
+*Why it is a step and not a nicety:* reading once found two defects with the whole suite
+green — a cash deposit rendered as a row of dashes because a scalar was indexed as a
+ten-year series, and an input sitting blank beside a total that had plainly had that very
+figure deducted from it. Neither is a maths error and neither is a layout error, so
+**neither the golden tests nor a mockup can see a screen quietly saying something untrue** —
+only reading it finds that.
 
 ⚠ **Reading rendered text is still NOT seeing a laid-out page.** §3's rule stands: jsdom has
 no layout engine, so no test in the suite can see a shrunk header or a box too small to read
 its own digits.
 
-🔴 **CORRECTED 2026-08-22: THIS PARAGRAPH USED TO SAY "no browser driver is installed in
-this repository". That stopped being true the day after it was written.** `playwright` is a
-declared devDependency at exact `1.34.3` (landed 2026-08-21, `7fa5e9a`), with an
-`npm run visual:setup` script that installs Chromium for it. It was used on 2026-08-22 to
-drive the AI Prompts tab at two tiers and read back what the page actually rendered.
-**What is missing is a TEST that uses it — not the dependency.**
-⚠ To-do item **4.25** already says exactly that; this page did not, and a Brief that
-understates what works costs as much as one that overstates it. Layout is still unverified
-by anything in `tests/`, so keep saying so — but "we have no way to look" is no longer the
-reason.
+🔴 **A browser driver IS installed — what is missing is a TEST that uses it.** `playwright`
+is a declared devDependency at exact `1.34.3`, with an `npm run visual:setup` script that
+installs Chromium for it. Layout is still unverified by anything in `tests/`, so keep
+saying so — but "we have no way to look" is no longer the reason.
 
 ---
 

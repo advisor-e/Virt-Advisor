@@ -101,6 +101,25 @@
       "touches": "a new by-month parser beside server/report/intake/xeroReportParser.js (the annual refusal stays for the annual models), a firmAuth-carrying intake route, and the left column of components/VolatilityReport.vue — where the approved mockup’s original upload card and step chips can come back.",
       "note": "⚠ IT ACCEPTS UNTRUSTED UPLOADS, so it carries the project’s 100% test bar (CLAUDE.md → Testing) and the hardening the existing reader already documents at the top of xlsxReader.js — bounds-checked offsets, inflate caps, prototype-less lookups. That is why it is its own change and not a tail on the report: it is comparable in size to the whole model + route + screen built on 2026-08-31. The approved artefact already shows the destination — design/mockups/volatility-report.html carried the upload card and the four step chips before it was realigned to the typed build, and both are in git history at ddeffcf.",
       "comment": "2026-08-31 — filed at the close of the session that built the report. NOT a blocker: /volatility is live, correct against the workbook and in the Model Library today."
+    },
+    {
+      "ref": "4.55",
+      "name": "Wire the uploaded template library into the engine (Cascade Phases 2–3)",
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Phase 1 of design/SEARCH-CONTENT-CASCADE-PLAN.md shipped 2026-08-31 (5cf3743 backend, 6ba5dd7 screen): the mentor can upload the Advisor-e master export on the new Template Library tab, with validation, version history and restore. But the store is deliberately INERT — server/utils/templates.js still reads data/templates.json, so an upload changes nothing an advisor sees. Phase 2 rewires that loader (uploaded platform library first, then a firm's own, wholesale-replace per Mike's ruling of the same day, loud file fallback, ~60s cache). Phase 3 puts the firm's own upload screen live in front of the already-built importTemplates route.",
+      "risk": "Low while open: today's behaviour is exactly yesterday's. The cost is the feature not existing — content changes still need a developer, a commit and a redeploy. One residual worth naming: the Template Library screen passed its 12 component tests but has NOT been eyeballed in a production build (nuxt build + start, per the 2026-08-02 ruling — never dev mode).",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-08-31 — \"plan/design how to convert the manual download and upload of a json script (the search contents script) into a cascading - dynamic - database\"; the plan and Phase 1 were approved and built the same day, phase by phase. This item is Phases 2–3, awaiting his go."
+      },
+      "touches": "server/utils/templates.js (the loader Phase 2 rewires), server/advisorEngine.js (reads through it), server/routes/firmManager.js importTemplates + FirmManagerHub.vue (Phase 3 screen).",
+      "comment": "2026-08-31 — filed at the close of the session that built Phase 1. Phase 4 (Advisor-e pushes the export directly, no download at all) is deliberately NOT on this item: it is the master team's, recorded in the plan and for the cascade handover doc."
     }
   ]
 }

@@ -114,9 +114,6 @@ the return shape identical — the create-guard and the tool picker then need no
 2. **A wording-file section name collided on merge.** Exactly one section clashed between the two
    apps. It is handled by a merge that refuses a collision loudly — do not replace it with a
    silent overwrite.
-3. **An alias in the import paths failed silently** during the code move, so files resolved to
-   nothing without an error. Namespacing everything under its own directory is what kept the merge
-   to zero edits in this app's files.
 
 ### Known state
 

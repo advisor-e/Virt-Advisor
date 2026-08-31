@@ -88,11 +88,9 @@ fast as the library changes; signals do not. The build emits names today. **Do n
 intent downward to match the build** — but do not add more name-emitting trees on the assumption
 that it is the target either.
 
-**P9 · Every learn tree states its subject to the model.** Four of the twenty-one carried no
-`description` — the four financial ones, the only four whose vocabulary genuinely overlaps — so
-their prompt header emitted a **blank line** where every other tree says what it is, and the AI
-picker chose between bare labels. A tree with none now falls back to its companion guide's own
-authored summary. **The sentence is read, never copied:** a second copy in `logic_trees.json`
+**P9 · Every learn tree states its subject to the model.** A tree without a `description` used
+to emit a **blank line** in its prompt header, leaving the AI picker choosing between bare
+labels; a tree with none now falls back to its companion guide's own authored summary. **The sentence is read, never copied:** a second copy in `logic_trees.json`
 would be two things to keep level by hand, and the one nobody edits is the one the AI reads. A
 tree's own `description` always wins, so authoring one later needs no code change.
 
@@ -166,30 +164,23 @@ affect a screen you were not thinking about.
 4. **The generated routing report must not be hand-edited** — regenerate it. Its rules live in
    code that the build guard also reads, so the report and the tests cannot disagree.
 5. 🔴 **The prompt formatter reads flat rules from `tree.branches` — which is EMPTY on a nodes
-   table.** That is why `public_speaking`'s two standing rules reached neither the prompt nor any
-   screen for as long as they existed: they sat in `flat_branches`, a third array nothing looked
-   at, and no test could name a field nothing named. Fixed 2026-08-16. **A field that appears in
-   only one file in the repository — the one that authors it — is unreachable by definition; grep
-   for it before assuming it is wired.**
-6. 🔴 **"The file reaches the AI" does not mean its contents do.** The thirteen method-guide
-   formatters in this file each name their fields by hand, so **116 of 954 authored lines across
-   them arrive nowhere** — a field added to a guide after its formatter was written is simply never
-   mentioned again. A 4.16-era sweep counted all thirteen as *reaching the prompt* on the strength
-   of the formatter existing. **Render the prompt and search it for each authored string**; the
-   measurement is at [`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md) §2. The fix is one
-   walker over each guide's own shape, feeding screen and prompt from the same read.
+   table.** Standing rules once sat in `flat_branches`, a third array nothing looked at, and no
+   test could name a field nothing named. **A field that appears in only one file in the
+   repository — the one that authors it — is unreachable by definition; grep for it before
+   assuming it is wired.**
+6. 🔴 **"The file reaches the AI" does not mean its contents do.** Hand-written formatters drop
+   any field added after they were written. **Render the prompt and search it for each authored
+   string.** The full fault and its measurement live in `domain-support.md` trap 5 and
+   [`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md) §2; the fix is one walker over each
+   guide's own shape, feeding screen and prompt from the same read.
 7. 🔴 **A NOTE ONLY REACHES THE MODEL ONCE THE TREE IS ALREADY OPEN. A TRIGGER IS WHAT OPENS IT.**
    Content moved *into* a tree is not thereby reachable: `notes`, `condition` and `question` are
    read only after the tree has been selected, and selection happens on `entry_triggers`. So
    guidance whose whole value is recognising a situation must be authored in **both** places — the
-   explanation in the node, and the words a client would actually say in the triggers.
-   **Found when item 4.24 folded the Coaching Reference in (2026-08-20.)** Two of the seven pieces
-   were symptom-recognition rather than method: the client's own sentence *"how come I have a big
-   tax bill but nothing in the bank?"*, and a pointer to the **7 Cash Drivers** template, which no
-   tree named at all. Written as notes alone, the tax-bill sentence would have sat inside
-   `working_capital_cycle` and never once caused that tree to open for the conversation it
-   describes — content that is live, correct, and unreachable. Both went into
-   `entry_triggers` as well.
+   explanation in the node, and the words a client would actually say in the triggers. Written
+   as a note alone, a symptom sentence like *"how come I have a big tax bill but nothing in the
+   bank?"* would sit inside its tree and never once cause it to open for the conversation it
+   describes — content that is live, correct, and unreachable.
    **Ask of any content being moved into a tree: does this tell an advisor how to run something
    (a note), or does it tell you that you are IN a situation (a trigger)? If the second, it needs
    both.**

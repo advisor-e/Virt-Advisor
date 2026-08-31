@@ -1,5 +1,8 @@
 'use strict'
 
+const fs = require('fs')
+// formidable is pinned to v2.1.2 (Node 14.15 — see the note in firmManager.js).
+const { formidable } = require('formidable')
 const { sendError } = require('../utils/sendError')
 const caseStore = require('../utils/caseStore')
 const overlay = require('../utils/firmOverlay')
@@ -20,6 +23,11 @@ const { buildAdoptionView, mergeActivityRows } = require('../utils/mentorAdoptio
 const { loadRulings, saveRulings, normaliseRuling } = require('../utils/templateCheckRulings')
 const { isWithinScope, isAwaitingFirms } = require('../utils/tierChain')
 const { withOrigin } = require('../utils/caseRollup')
+const { devFallbackAllowed } = require('../utils/dbFailure')
+const { PLATFORM_SCOPE } = require('../utils/platformScope')
+// Validation shared with the firm's own import (firmManager.js importTemplates),
+// so the two upload doorways can never drift apart.
+const { validateTemplateImport, TEMPLATE_IMPORT_MAX_BYTES } = require('../utils/templateImport')
 const DOMAINS = require('../../data/domains.json')
 const firmManager = require('./firmManager')
 
@@ -585,6 +593,142 @@ async function getAdoption (req, res) {
   }
 }
 
+// ── Master template library (mentor upload) ───────────────────────────────────
+// SEARCH-CONTENT-CASCADE-PLAN.md Phase 1: the mentor uploads the Advisor-e master
+// export (search_content_*.json) here instead of a developer mirroring it into
+// data/templates.json by hand. Stored under the reserved platform scope in the
+// one versioned store, so history and restore come free.
+//
+// ⚠ INERT BY DESIGN until Phase 2: 'templates' is NOT a cascading config key, and
+// the engine's loader still reads data/templates.json (via server/utils/templates.js)
+// plus the firm's own 'templates' overlay. Nothing an advisor sees changes when the
+// mentor uploads — Phase 2 rewires the read side, separately approved.
+//
+// The file's CONTENT is never edited here — IDs and content are Advisor-e's alone
+// (CLAUDE.md). This route receives, validates and stores; that is the whole job.
+
+/** formidable v2's parse() is callback-style; wrap for await (as firmManager does). */
+function _parseUpload (form, req) {
+  return new Promise((resolve, reject) => {
+    form.parse(req, (err, fields, files) => {
+      if (err) { reject(err) } else { resolve(files) }
+    })
+  })
+}
+
+/**
+ * GET /api/mentor/templates — the platform upload's current state.
+ * @route GET /api/mentor/templates
+ * @returns {200} { success: true, hasUpload: boolean, templateCount: number,
+ *   history: {id, version, is_active, saved_by, created_at}[] }
+ *   hasUpload=false means the app is still on the committed data/templates.json seed.
+ */
+async function getPlatformTemplates (req, res) {
+  try {
+    const [config, history] = await Promise.all([
+      overlay.loadFirmConfig(PLATFORM_SCOPE, 'templates'),
+      overlay.getVersionHistory(PLATFORM_SCOPE, 'templates')
+    ])
+    res.send(200, {
+      success: true,
+      hasUpload: Array.isArray(config) && config.length > 0,
+      templateCount: Array.isArray(config) ? config.length : 0,
+      history: history || []
+    })
+  } catch (err) {
+    // DEV/TEST-ONLY fallback — same single dev file as the firm route (no history).
+    if (devFallbackAllowed(err)) {
+      const dev = firmManager._devReadTemplates(PLATFORM_SCOPE)
+      res.send(200, {
+        success: true,
+        hasUpload: Array.isArray(dev) && dev.length > 0,
+        templateCount: Array.isArray(dev) ? dev.length : 0,
+        history: []
+      })
+      return
+    }
+    console.error('[mentor] getPlatformTemplates failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not load the template upload state')
+  }
+}
+
+/**
+ * POST /api/mentor/templates/import — upload the master export.
+ *
+ * Validation order per .claude/skills/master-export-upload: size cap (formidable
+ * refuses an oversized body before it is read) → JSON parse in try/catch → shape
+ * check (shared validateTemplateImport). On any failure the current version is
+ * untouched — a bad upload can never take the platform offline.
+ *
+ * @route POST /api/mentor/templates/import
+ * @param {file} file - multipart field holding the search_content_*.json export
+ * @returns {201} { success: true, imported: true, templateCount, version }
+ *   version is null when the DEV/TEST file fallback took the write (no MySQL).
+ */
+async function importPlatformTemplates (req, res) {
+  const form = formidable({ maxFileSize: TEMPLATE_IMPORT_MAX_BYTES })
+  let files
+  try {
+    files = await _parseUpload(form, req)
+  } catch (err) {
+    console.error('[mentor] importPlatformTemplates parse failed:', err.message)
+    return sendError(res, 400, 'PARSE_ERROR', 'Could not read the uploaded file')
+  }
+
+  const uploadedFile = files.file
+    ? (Array.isArray(files.file) ? files.file[0] : files.file)
+    : null
+  if (!uploadedFile) { return sendError(res, 400, 'NO_FILE', 'A file field named "file" is required') }
+
+  // Clean up the temp file formidable wrote, whichever exit path we take.
+  res.once('finish', () => { fs.unlink(uploadedFile.filepath, () => {}) })
+
+  let parsed
+  try {
+    parsed = JSON.parse(fs.readFileSync(uploadedFile.filepath, 'utf8'))
+  } catch {
+    return sendError(res, 400, 'INVALID_JSON', 'File must contain valid JSON')
+  }
+
+  const verdict = validateTemplateImport(parsed)
+  if (!verdict.ok) { return sendError(res, 400, verdict.code, verdict.message) }
+
+  try {
+    let version
+    try {
+      version = await overlay.saveFirmConfig(PLATFORM_SCOPE, 'templates', parsed, req.userEmail)
+    } catch (err) {
+      if (!devFallbackAllowed(err)) { throw err }
+      firmManager._devWriteTemplates(PLATFORM_SCOPE, parsed) // DEV/TEST-ONLY (see firmManager.js banner)
+      version = null
+    }
+    res.send(201, { success: true, imported: true, templateCount: parsed.length, version })
+  } catch (err) {
+    console.error('[mentor] importPlatformTemplates failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not save the template upload')
+  }
+}
+
+/**
+ * POST /api/mentor/templates/restore — roll back to an earlier uploaded version.
+ * @route POST /api/mentor/templates/restore
+ * @param {object} req.body - { versionId: number } a row id from the history list
+ * @returns {200} { success: true, restored: true, version: number }
+ */
+async function restorePlatformTemplates (req, res) {
+  const versionId = req.body ? req.body.versionId : undefined
+  if (!Number.isInteger(versionId) || versionId <= 0) {
+    return sendError(res, 400, 'INVALID_VERSION', 'versionId must be a positive integer')
+  }
+  try {
+    const version = await overlay.restoreVersion(PLATFORM_SCOPE, 'templates', versionId)
+    res.send(200, { success: true, restored: true, version })
+  } catch (err) {
+    console.error('[mentor] restorePlatformTemplates failed:', err.message)
+    sendError(res, 500, 'DB_ERROR', 'Could not restore that version')
+  }
+}
+
 module.exports = {
   listMentorCases,
   getAdoption,
@@ -596,5 +740,8 @@ module.exports = {
   getTemplateCheckPatch,
   saveTemplateCheckRuling,
   deleteTemplateCheckRuling,
-  getLogicLabReport
+  getLogicLabReport,
+  getPlatformTemplates,
+  importPlatformTemplates,
+  restorePlatformTemplates
 }

@@ -23,16 +23,11 @@ than reinvent.
 
 ## 2. The confusion this had to survive twice
 
-**Naming a firm to the manager above it is not a disclosure.** That had to be settled explicitly,
-because the instinct runs the other way and the app already has genuine privacy boundaries.
-
-The distinction: the platform owner seeing a *customer's staff* is an outside party seeing named
-people. A group manager seeing *their own firms* is the customer's own senior person looking at
-their own organisation. **What stays hidden in either case is the adviser and the client.**
-
-The same confusion had already produced a tab matrix that left this report out of both middle
-tiers, generalising a ruling about an outside party into a rule about internal managers.
-**Nothing in the code could have noticed, and no test could have failed.**
+**Naming a firm to the manager above it is not a disclosure.** The distinction: an outside party
+seeing a customer's staff is not a customer's own senior person looking at their own
+organisation — and **what stays hidden in either case is the adviser and the client.** The full
+telling, including the tab matrix the same confusion once broke, is in
+[`tier-cascade-history.md`](tier-cascade-history.md) §2.
 
 ---
 

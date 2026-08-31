@@ -531,9 +531,9 @@ async function getStorageUsage (req, res) {
 
 // ── Template Library Import ───────────────────────────────────────────────────
 
-const TEMPLATE_REQUIRED_FIELDS = ['page', 'title', 'section']
-const TEMPLATE_MAX_COUNT = 2000
-const TEMPLATE_IMPORT_MAX_BYTES = 10 * 1024 * 1024 // 10 MB
+// Validation rules shared with the mentor's platform upload (mentor.js), so the
+// two doorways can never drift apart — SEARCH-CONTENT-CASCADE-PLAN.md Phase 1.
+const { validateTemplateImport, TEMPLATE_IMPORT_MAX_BYTES } = require('../utils/templateImport')
 
 // ⚠⚠ DEV/TEST-ONLY persistence fallback — NOT production storage. ⚠⚠
 // When MySQL is unavailable on a local dev machine, template imports fall back to
@@ -622,20 +622,8 @@ async function importTemplates (req, res) {
     return sendError(res, 400, 'INVALID_JSON', 'File must contain valid JSON')
   }
 
-  if (!Array.isArray(parsed) || parsed.length === 0) {
-    return sendError(res, 400, 'INVALID_FORMAT', 'Template JSON must be a non-empty array')
-  }
-  if (parsed.length > TEMPLATE_MAX_COUNT) {
-    return sendError(res, 400, 'TOO_MANY_TEMPLATES',
-      `Template JSON must not exceed ${TEMPLATE_MAX_COUNT} entries`)
-  }
-  const badEntry = parsed.find(t =>
-    !t || typeof t !== 'object' || TEMPLATE_REQUIRED_FIELDS.some(f => !t[f])
-  )
-  if (badEntry) {
-    return sendError(res, 400, 'INVALID_FORMAT',
-      `Each template must have: ${TEMPLATE_REQUIRED_FIELDS.join(', ')}`)
-  }
+  const verdict = validateTemplateImport(parsed)
+  if (!verdict.ok) { return sendError(res, 400, verdict.code, verdict.message) }
 
   try {
     let version
@@ -4474,6 +4462,12 @@ module.exports = {
   getTemplateImport,
   importTemplates,
   resetTemplateImport,
+  // DEV/TEST-ONLY template-store fallbacks, exported so the mentor's platform
+  // upload (mentor.js) shares the ONE dev file rather than inventing a second —
+  // a write side and a read side on different paths would look exactly like a
+  // save that vanished. Same one-way dependency as promoteOverridesForDeletedRow.
+  _devReadTemplates,
+  _devWriteTemplates,
   listDistinctions,
   createDistinction,
   updateDistinction,

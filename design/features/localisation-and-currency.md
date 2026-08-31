@@ -103,13 +103,10 @@ does not already exist on the other side.
    **folded together** rather than one being picked, because each held something the other did
    not — chunking from one side, sanitisation, validation and the source-language option from the
    other. If you find two implementations of the same thing, read both before choosing.
-3. **The hardcoded-English breach is CLOSED (2026-08-14) — and the item that described it was
-   wrong in a way worth remembering.** It said "the report screens and parts of the advisor
-   screen". **The report screens never had the problem**: every apparent hit was inside a JSDoc
-   comment, and `BusinessPerformanceReport.vue` already does the right thing — the backend returns
-   the workbook's own value (`'Cashflow Negative'`, cell J3) and the screen maps it through `$t()`.
-   The whole item was one file, and **87 strings** moved out of `VirtualAdvisor.vue` into
-   `advisor.*`. **Measure before believing a backlog title.**
+3. **The hardcoded-English breach is CLOSED (2026-08-14)** — and the item that described it was
+   wrong: it named the report screens, which never had the problem. The whole item was one file,
+   and **87 strings** moved out of `VirtualAdvisor.vue` into `advisor.*`. **Measure before
+   believing a backlog title.**
 4. **🔴 An unresolved wording key does NOT throw — vue-i18n renders the key itself.** So a button
    reads `advisor.save.confirm` on screen while every test passes. This is the one failure mode in
    this area that no ordinary test can see, and the only guard is a test that walks the component's

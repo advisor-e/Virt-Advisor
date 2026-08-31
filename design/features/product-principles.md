@@ -73,10 +73,8 @@ been used in anger.
 reversible, which makes it safe to apply firmly rather than tentatively. But a hidden mechanism is
 still in the codebase, still in the tests, still in the backlog, and still an invitation to finish
 it. 🔴 **When the answer to all three questions is no, the thing comes out — code, documents and
-tasks together.** Ruled by Mike on 2026-08-15, in the case that produced this page: the note that
-was hidden a day earlier was deleted entirely once he asked who had requested it and the answer was
-nobody. *"That would mean they're still in the system — keep only the work that makes a difference
-and get rid of all the other shit."* Full record:
+tasks together.** Mike's ruling: *"That would mean they're still in the system — keep only the work
+that makes a difference and get rid of all the other shit."* Full record:
 [`../ACTIONS.md`](../ACTIONS.md) §authored-commentary-sweep-deleted.
 
 **Beware "it needs to be discoverable".** Discoverability is a reason to place a *useful* thing
@@ -92,19 +90,15 @@ test — `canSeeX () { return this.scope === 'mentor' }`, never `!== 'firm'`. A 
 
 **A cut made for clutter is pinned by a test, and the test carries the trigger.** Not a comment,
 not a to-do — a case that fails if someone widens the gate without meaning to, whose comment says
-in plain words what would have to change for widening to be right. ⚠ **This page's worked example
-no longer exists**: it was `tests/unit/authoredCommentaryScreen.test.js`, deleted on 2026-08-15
-along with the feature it guarded. The rule stands; the next cut of this kind supplies the example.
+in plain words what would have to change for widening to be right.
 
 **Do not fold two questions into one flag** because they happen to have the same answer today. Who
 may *see* and who may *do* diverge later, and merging them means the divergence is a rewrite rather
 than an edit.
 
-### Applying it — the worked examples so far
+### Applying it — the record so far
 
-| Thing | Verdict | Why |
-|---|---|---|
-| Commentary marks, mentor screen | **Keep** | The sweep is done here; the mentor acts on them |
-| Commentary marks, three manager hubs | **Cut** | Nothing in the app writes into their material, so there is nothing to act on |
-| Telling the AI which words were ours | **Keep — plumbing** | No surface; prevents the AI presenting our words as the firm's |
-| The guard test on platform marks | **Keep — plumbing** | No surface; fails the build on an orphaned mark |
+The test's first application was to the commentary-marks feature — and a day later the test
+deleted that feature entirely, working tested code included
+([`product-principles-history.md`](product-principles-history.md)). No shipped worked example
+survives; the next cut of this kind supplies one.

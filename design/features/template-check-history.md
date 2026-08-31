@@ -28,14 +28,11 @@ this one is safe to keep: it does not need a judgement call about who deserves t
 
 ---
 
-## 2. What it cost, and the count that was wrong for eight sessions
+## 2. What it cost, and the count that outlived its truth
 
-Narrowing it made each middle-tier hub **twelve tabs, not the thirteen first drawn**.
-
-A carried backlog item read *"mentor +2 / firm +3"* tabs missing against the approved mockup. It
-is **+2 / +2**. The third firm tab was Template Check, narrowed *after* the "+3" was written —
-and the line was carried unchanged through eight sets of session notes before anyone opened the
-artefact and put it beside the code.
+Narrowing it made each middle-tier hub **twelve tabs, not the thirteen first drawn**. A carried
+backlog note kept the superseded count long after this ruling, and was corrected only when the
+artefact was opened and put beside the code.
 
 **A number in a note is not evidence.** It was correct when written, and nothing marked it as
 having expired.

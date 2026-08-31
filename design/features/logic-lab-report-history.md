@@ -7,14 +7,10 @@
 
 ## 1. The sentence the screen was built around
 
-From the approved artefact:
-
-> *"Counting configuration tells you WHAT FIRMS HAVE. A pushed edit tells you WHAT A FIRM WAS
-> TRYING TO ACHIEVE and what they had to do to get there."*
-
-That is why the feed leads and the counts support it. A screen that opens on totals tells you how
-much configuration exists, which nobody needs to know. A screen that opens on what firms
-*changed* tells you which of your defaults is wrong.
+The artefact sentence the screen was built around is quoted in the Brief (§1). It is why the
+feed leads and the counts support it: a screen that opens on totals tells you how much
+configuration exists, which nobody needs to know; a screen that opens on what firms *changed*
+tells you which of your defaults is wrong.
 
 **One firm pushing a fix is that firm's preference. Several firms pushing the same fix is a
 default that needed fixing.**
@@ -46,9 +42,6 @@ stay hidden.
 | Does it show people? | **Never.** Configuration only, enforced by a throwing guard. | locked |
 | Does it roll up the tiers? | **Yes** — mentor and both middle tiers, each reading the level below. | 2026-08-10 |
 | Do rows name their firm? | **Yes** — not a disclosure. | 2026-08-11 |
-
-The owner's response to the artefact — *"i love it, it looks great"* — approved the shape on
-2026-08-04.
 
 ---
 

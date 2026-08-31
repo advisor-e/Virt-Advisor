@@ -101,11 +101,10 @@ they replace), own steps (added by that level), and the original file — **unch
 of the two settings that are not rows: the **default ceiling** and the **question the advisor is
 asked**.
 
-**The question comes from the data, and every level may write its own** (2026-08-16). It is
+**The question comes from the data, and every level may write its own.** It is
 `selectorPrompt`, edited on the tab as *"The question your advisors are asked"*, and it inherits
 exactly as the steps do — a level that has written none gets the level above's, down to the shipped
-file. It was authored from the start and read by nothing until that date; the engine asked a
-hardcoded copy, so no level's edit ever reached an advisor. Capped at 500 characters, because the
+file. Capped at 500 characters, because the
 value travels into the advisor prompt. Approved wording:
 [`../STAIRCASE-SELECTOR-PROMPT-FIELD.md`](../STAIRCASE-SELECTOR-PROMPT-FIELD.md).
 

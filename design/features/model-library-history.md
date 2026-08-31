@@ -21,13 +21,11 @@ an advisor choosing from nineteen knows whether they are opening a teaching aid,
 or a client report *before* they open it. It was proposed as a build change and it is now how the
 screen works.
 
-⚠ **"Nineteen" is correct for its date and is now stale.** The catalogue holds **eighteen** —
-9 ready, 9 coming. Break-Even was removed as a separate entry on 2026-07-13 with the owner's
-approval, because its source workbook is one of the two already ported into
-*Margin · Mark-up · Break-even*, and listing it separately advertised a built model as "coming
-soon". `MODEL-CLASSIFICATION.md` still lists it and so still shows nineteen — that document is an
-accurate record of its own date. **The Brief said nineteen until 2026-08-15**, when it was checked
-against `utils/reportModelCatalogue.js` and corrected. Quote the catalogue, never a document.
+⚠ **"Nineteen" is correct only for its date — the catalogue holds eighteen** (9 ready,
+9 coming). Break-Even was removed as a separate entry with the owner's approval, because its
+source workbook is one of the two already ported into *Margin · Mark-up · Break-even*, and
+listing it separately advertised a built model as "coming soon". Quote
+`utils/reportModelCatalogue.js`, never a document.
 
 **The trap it guards against, in the owner's framing:** a model must not serve as a teaching aid
 one minute and be mistaken for the client's real position the next. That is exactly how an
