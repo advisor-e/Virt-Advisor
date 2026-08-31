@@ -451,6 +451,15 @@ server.post('/api/mentor/distinctions', ...mentorGuard, mentorRoute.createMentor
 server.put('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.updateMentorDistinction)
 server.del('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.deleteMentorDistinction)
 
+// ── Master template library (MENTOR ONLY — the upload doorway) ──
+// SEARCH-CONTENT-CASCADE-PLAN.md Phase 1: the mentor uploads the Advisor-e master
+// export here instead of a developer mirroring it into data/templates.json by hand.
+// Stored INERT under the reserved platform scope — nothing reads it until Phase 2
+// rewires the loader, so these routes change nothing an advisor sees today.
+server.get('/api/mentor/templates', ...mentorGuard, mentorRoute.getPlatformTemplates)
+server.post('/api/mentor/templates/import', ...mentorGuard, mentorRoute.importPlatformTemplates)
+server.post('/api/mentor/templates/restore', ...mentorGuard, mentorRoute.restorePlatformTemplates)
+
 // ── Template Check (MENTOR ONLY — and it stays that way) ──
 // Every tool a logic table names, checked against the templates the app can open.
 // Read-only scan + the mentor's rulings; applying a ruling to a logic table is a
