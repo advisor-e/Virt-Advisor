@@ -12,58 +12,34 @@
 
 ## 2026-08-31 · Laptop · branch `feat/advisor-progress`
 
-Suite **6,482 green**, lint 0 errors, nothing uncommitted. **Five commits, all pushed.**
+Suite **6,574 green**, lint 0 errors, nothing uncommitted. **Two commits, pushed. PR #51 open.**
 
-### 1. The handover file you are reading was split in two — and it is on `master`
+### The Volatility accounts upload is built — item 4.54 CLOSED
 
-`design/HANDOVER.md` became `HANDOVER-laptop.md` + `HANDOVER-desktop.md` (PR #48, merged).
-It was "one file, replaced each session", which silently overwrote one machine's note when
-both worked the same day. Each machine now writes only its own and reads both at startup.
-**All five reference sites moved in the same commit**, so no session can follow a stale
-pointer. `HANDOVER-desktop.md` is still awaiting its first real entry.
+Two real Xero exports driven end to end through the running app. Two shapes are read: the
+by-month P&L, and an **Account Transactions** listing (one row per invoice, the date an
+Excel serial), which is the better source — one file fills the whole 24-month window.
 
-### 2. The Volatility Report is built and live at `/volatility`
+> 🔴 **A `0` means the OPPOSITE thing in each shape, and both readings are correct.** In a
+> by-month P&L it is a month the year has not reached — missing data, poison to the maths.
+> In a transaction listing it is a month nothing was invoiced — real, and the lumpiness the
+> report measures.
 
-Eleventh model in the Model Library, 17th screen in `npm run visual`. Four commits:
-mockup → model+test → screen → month picker. Ported from
-`design/report-source-models/Volatility Report.xlsx`; **every golden expectation cites its
-cell**, and all three dial scores match exactly (77.73 / 85.12 / 95.13).
+### 🔴 A RULE FOR ANY REPORT SCREEN, not just this one
 
-> 🔴 **Three findings pinned in the code — do not "tidy" any of them away.**
-> **(a)** The workbook uses the **POPULATION** standard deviation (`STDEV.P`, ÷n). Sample
-> would give 23,052 against 22,071 and put every band ~£1,000 out while looking perfectly
-> plausible. **(b)** A window is the **most recent** n months, not the first n. **(c)** The
-> rev counter is `(2 × SD) ÷ average × 100`; its green/orange/red boundaries (**50** and
-> **75**) were **measured** by decoding the arc of the three gauge PNGs embedded in the
-> workbook — they are recoverable from nothing else, so the test that pins them is load-bearing.
+**A workbook sample figure may only ever be on screen while the sample notice is showing.**
+This screen could put £125,463 of demo data into a client's report with the notice switched
+off — widening the window padded from `SAMPLE_SALES`, and the notice was a flag cleared by
+the first keystroke. Now structural: a 24-month buffer records each month's source and the
+window cannot widen over a `sample` month. **If you copy this screen, copy that.**
 
-**Mutation testing earned its place.** Breaking the model five ways outside the repo caught
-three; **two passed everything** — a month sitting exactly on a band boundary, and a month
-beyond the third deviation (the sample never produces one). Both now covered.
+Real data found **seven** defects the repo's sample data could not — it starts on a clean
+month, fills a window exactly, and scores in the red band. One was in shared code:
+`HeroFigure` had no `warn` tone, so any model scoring mid-band rendered its headline plain
+white. Fixed, with a guard test.
 
-### 3. ⚠ The file intake cannot feed a monthly model — I got this wrong first
+### 🖥 Desktop
 
-I told Mike the existing Xero/CSV/XLSX intake would serve this report. **It will not.** It
-reads **annual** figures and *deliberately refuses* a by-month export (`MULTI_PERIOD_COLUMNS`,
-`xeroReportParser.js`). Hence typed entry, and hence **item 4.54** for the upload — its own
-change, at the 100% bar, because it takes untrusted files. Recorded in the Report Models Brief
-so nobody else discovers it the hard way.
-
-### 4. Two documents were corrected on Mike's ruling
-
-`REPORT-VISUAL-STANDARD.md` and `ADDING-A-REPORT.md` (three places) claimed a card carries a
-**3px cyan top edge**. **No shipped screen has ever drawn one.** Mike ruled consistency wins —
-the documents were wrong, not the nine screens. The `--rs-card-top` token remains, read by nothing.
-
-### Open, and none of it blocks you
-
-**4.15** (Mike — 23 template names) · **4.50** (needs a database, so UAT) · **4.54** (the
-by-month upload, ours, unstarted). Nothing here touches Course Builder.
-
-### 🖥 If you are the desktop
-
-`data/course-quizzes.json` is **shared** — `courseEngine.js` reads it and so does the hub's
-Quizzes tab via `firmManager.js`. Whichever machine is in Course Builder, the other should
-stay off that tab. Everything else in the two areas is cleanly separated. Also: all four
-manager tiers render **one** 2,202-line `FirmManagerHub.vue`, so "the hubs" is one machine's
-job — individual tab components are safely separable, the tier matrix is not.
+**Your ring-fence trim is still not on `master`.** Until it is, any session rebuilding the
+Handbook from `master` publishes it UNTRIMMED — I withheld mine today for that reason.
+Nothing here touches Course Builder. Open: **4.15** (Mike) · **4.50** (needs a database).
