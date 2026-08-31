@@ -572,6 +572,58 @@
         "cash left",
         "in trouble"
       ]
+    },
+    {
+      "route": "/volatility",
+      "name": "Volatility Report",
+      "category": "Risk",
+      "modelClass": "report",
+      "answers": "How much a business swings from month to month, and whether those swings are its ordinary rhythm or something worth asking about. It draws the average through the monthly sales and puts bands at one, two and three standard deviations either side.",
+      "keyOutputs": [
+        "Average monthly swing — the dial, 0 to 100",
+        "Average monthly sales",
+        "The normal range (one deviation either side)",
+        "How many months fall inside that range"
+      ],
+      "inputsNeeded": "Monthly sales, oldest first, over the most recent 12, 18 or 24 months. Nothing else — no costs, no balance sheet.",
+      "useWhen": "The owner is reacting to every monthly figure, treating a good month as success and a bad one as failure. Also when someone asks whether a particular month was really a problem, or before setting a target off a single month.",
+      "limits": "It says WHERE a month sits, never WHY. No statistic can separate a seasonal dip from a special cause from the business tampering with itself — that diagnosis is the adviser’s and the client’s. It uses the population standard deviation, describing the months in hand rather than estimating a wider population. The widest lower band can compute below zero; sales cannot be negative, so it stops at zero. It takes the client’s real numbers, so it is never illustrative.",
+      "heroFigures": [
+        {
+          "label": "Average monthly swing",
+          "sub": "the dial: green under 50, red over 75"
+        },
+        {
+          "label": "Average monthly sales",
+          "sub": "the total over the months measured"
+        },
+        {
+          "label": "Normal range",
+          "sub": "one deviation either side"
+        },
+        {
+          "label": "Months in range",
+          "sub": "against the 68% the model expects"
+        }
+      ],
+      "alsoOnScreen": "The rev-counter dial, the monthly sales plotted against the bands, a table of the months that fall outside, and the highest and lowest month with their distance from the average.",
+      "coach": [
+        "{n} of {of} months land inside the normal range — {pct}%, against the 68% the model predicts. Going up and down is normal. An owner who reacts to every month above or below the average is permanently passing or failing against a line that was never a target.",
+        "The report shows where a month sits. Whether it is seasonal, a one-off, or something the business did to itself is a judgement for the adviser and the client — not for the arithmetic."
+      ],
+      "coachIsNotAPanel": false,
+      "searchWords": [
+        "volatility",
+        "variation",
+        "swing",
+        "erratic",
+        "up and down",
+        "inconsistent",
+        "deming",
+        "standard deviation",
+        "tampering",
+        "seasonal"
+      ]
     }
   ]
 }
