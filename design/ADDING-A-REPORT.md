@@ -15,8 +15,9 @@
 > the rule covers **every step of a model, entry and intake screens included**, not just
 > the result screen. A new model's look is *read off the existing live screens* — the
 > dark `HeroStrip` band on every step (entry steps carry it with live **display-only**
-> running totals), the same card language (white card, `#d5e1ee` border, 3px `#00b1e0`
-> top edge, navy uppercase titles), the same sizes, the same colours, the same failure
+> running totals), the same card language (white card, `#d5e1ee` border, **no
+> top edge** — corrected 2026-08-31, see step 7 — navy uppercase titles), the same sizes,
+> the same colours, the same failure
 > and stale behaviour. **Do not ask the owner how a model should look, and do not
 > propose a new or bolder look — open the finished models, copy their structure and
 > format exactly.** A screen that would look out of place beside Quick Position or

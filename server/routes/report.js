@@ -20,6 +20,7 @@ const { computeLoanEstimatorReport } = require('../report/loanEstimatorModel')
 const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
 const { computeMultiplePropertyAssessment, computeMultiplePropertyPortfolio } = require('../report/multiplePropertyModel')
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
+const { computeVolatility } = require('../report/volatilityModel')
 const { listReportModels } = require('../utils/reportModels')
 const { parseUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
@@ -562,4 +563,31 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, modelGuide }
+/**
+ * POST /api/report/volatility
+ *
+ * @param {object} req.body - `{ sales: number[], window: 12|18|24 }`. `sales` is monthly
+ *   figures oldest-first, as read from the firm's accounts export; `window` is how many of
+ *   the MOST RECENT months to measure. An unrecognised window falls back to 12, and an
+ *   unreadable cell counts as zero rather than blanking every figure on the screen.
+ * @returns {object} `{ success, data, timestamp }` — the average, the population standard
+ *   deviation, the three bands (with `lower` floored at zero per Mike's ruling of
+ *   2026-08-31 and the workbook's own value kept beside it as `lowerUnfloored`), the dial
+ *   score and its colour, each month's band, and the two years for Year on Year.
+ *
+ * Anonymous by design: numbers in, numbers out. Only the file-intake routes carry
+ * `firmAuth`, because those accept uploads.
+ */
+function volatility (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeVolatility(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] volatility compute failed:', err)
+    res.send(400, { success: false, error: { code: 'VOLATILITY_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, modelGuide }
