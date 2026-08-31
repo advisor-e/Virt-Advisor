@@ -10,36 +10,34 @@
 
 ---
 
-## 2026-08-31 · Laptop · branch `feat/advisor-progress`
+## 2026-09-01 · Laptop · branch `feat/advisor-progress`
 
-Suite **6,574 green**, lint 0 errors, nothing uncommitted. **Two commits, pushed. PR #51 open.**
+Suite **6,633 green** (355 suites), nothing uncommitted, everything pushed. **PR #51 open,
+`MERGEABLE`/`CLEAN`.** One commit today: the merge.
 
-### The Volatility accounts upload is built — item 4.54 CLOSED
+### Your Phase 1 is in, and the Handbook is finally trimmed
 
-Two real Xero exports driven end to end through the running app. Two shapes are read: the
-by-month P&L, and an **Account Transactions** listing (one row per invoice, the date an
-Excel serial), which is the better source — one file fills the whole 24-month window.
+Merged `origin/master` (PR #49, 9 commits) — the ring-fence trim and Cascade Phase 1.
+Every code file merged cleanly.
 
-> 🔴 **A `0` means the OPPOSITE thing in each shape, and both readings are correct.** In a
-> by-month P&L it is a month the year has not reached — missing data, poison to the maths.
-> In a transaction listing it is a month nothing was invoiced — real, and the lumpiness the
-> report measures.
+**The Handbook is republished WITH your trim** — 840 KB against 985 KB. Yesterday's note
+withheld it because the trim was not on `master`; that is now cleared, and any session can
+rebuild and publish safely again.
 
-### 🔴 A RULE FOR ANY REPORT SCREEN, not just this one
+### The live-list conflict, and how it was settled
 
-**A workbook sample figure may only ever be on screen while the sample notice is showing.**
-This screen could put £125,463 of demo data into a client's report with the notice switched
-off — widening the window padded from `SAMPLE_SALES`, and the notice was a flag cleared by
-the first keystroke. Now structural: a 24-month buffer records each month's source and the
-window cannot widen over a `sample` month. **If you copy this screen, copy that.**
-
-Real data found **seven** defects the repo's sample data could not — it starts on a clean
-month, fills a window exactly, and scores in the red band. One was in shared code:
-`HeroFigure` had no `warn` tone, so any model scoring mid-band rendered its headline plain
-white. Fixed, with a guard test.
+Both branches edited the list. Your note said *"4.15 / 4.50 / 4.54 unchanged"* — correct
+when you wrote it, but this branch had closed **4.54** hours earlier. Resolved to **4.15,
+4.50, 4.55**, with 4.54 out. That was the list's own rule, not a judgement: an item may
+only leave once its closure is on `to-do-done-and-parked.md`, and 4.54's was.
+`to-do.md` was regenerated with `npm run to-do`, never hand-edited.
 
 ### 🖥 Desktop
 
-**Your ring-fence trim is still not on `master`.** Until it is, any session rebuilding the
-Handbook from `master` publishes it UNTRIMMED — I withheld mine today for that reason.
-Nothing here touches Course Builder. Open: **4.15** (Mike) · **4.50** (needs a database).
+**Nothing of yours is stranded** — Phase 1 is on `master` and in this branch. **4.55 still
+waits on Mike's go.** Your own note flagged one residual and it stands: the Template
+Library screen has **not** been eyeballed in a production build.
+
+**Housekeeping:** `chore/i18n-jsdoc-cleanup` is deleted — Mike's decision. It survives as
+tag `archive/i18n-jsdoc-cleanup-2026-07-01`; the reasoning is in the tag message. Its one
+live residual (thin JSDoc on 3 mixins + 2 proxies) was deliberately **not** filed.
