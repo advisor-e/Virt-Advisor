@@ -91,26 +91,25 @@ here.
 **P3e · What each of the three sends to the AI, which is not the same for all three.**
 
 - **Facilitation 101** — reaches the prompt through its own learn tree, as every row-attached guide does.
-- **The 3 Engagement Types** — reaches the CLIENT-mode situation brief, replacing a hardcoded
-  three-line paraphrase that had stood in for the authored fields (item 4.16 D). Only the type the
+- **The 3 Engagement Types** — reaches the CLIENT-mode situation brief. Only the type the
   engine selected is sent, not all three.
 - **Learning Psychology** — reaches the prompt **only** alongside Facilitation 101's learn
   reference. It is ~6,000 characters; attaching it to every learn tree would spend that on guides it
   has nothing to do with, and attaching it to every client recommendation would spend it on every
-  answer the product gives. ✅ **Ruled by Mike 2026-08-25 (item 4.38): leave it there.** The learn
+  answer the product gives. ✅ **Ruled by Mike: leave it there.** The learn
   path is where how a person reacts to learning actually bears on how advice is delivered. Changing
   the reach is a decision to put to him, not a tune.
 
 ✅ **The five drivers are defined once, and code enforces it.** Learning Psychology holds the source
 definitions, transcribed from the master app's own template. The *"5 Drivers of Human Output —
 Performance Diagnosis"* row in
-[`../../data/staff-domain-support.json`](../../data/staff-domain-support.json) used to paraphrase
-them in its own words; it now declares `definitions_from` and `domainSupport.formatDefinitionsFrom`
-renders the block from the guide at prompt-build time. **Any material may name a guide block this
-way** — it is the general mechanism, not a one-off, and it lives in `formatMaterialLines`, the one
-point every material passes through. Ruled by Mike 2026-08-25 (item 4.37). A test pins every
-definition the AI receives to the source character for character, so editing either file alone goes
-red. ⚠ It reads the **platform base**: a firm override of a guide does not flow through here yet.
+[`../../data/staff-domain-support.json`](../../data/staff-domain-support.json) declares
+`definitions_from`, and `domainSupport.formatDefinitionsFrom` renders the block from the guide at
+prompt-build time. **Any material may name a guide block this way** — it is the general mechanism,
+not a one-off, and it lives in `formatMaterialLines`, the one point every material passes through.
+Ruled by Mike. A test pins every definition the AI receives to the source character for character,
+so editing either file alone goes red. ⚠ It reads the **platform base**: a firm override of a
+guide does not flow through here yet.
 
 **P4 · Overrides are sparse and merge per field.** A level stores only what it changed, and the
 rest keeps tracking the platform. **Arrays are the exception — they replace wholesale**, so
@@ -187,21 +186,19 @@ across the board — 29 assets, none of them selecting a template.
    material.** One confirmed instance, corrected. ⚠ **The blast radius has never been
    measured** — no sweep has checked the other rows for the same class of invention. That is the
    open task, and it is a verification pass, not a fix.
-2. **The confirmed instance was reported as the app's top open defect three days after it had
-   been fixed.** Check the data before repeating a backlog entry.
-3. **Overriding an array is all-or-nothing.** A level that edits one item in a list now owns the
+2. **Overriding an array is all-or-nothing.** A level that edits one item in a list now owns the
    whole list and stops receiving improvements to any of it.
-4. **Adding an area touches more than its file** — several code paths carry hardcoded lists, and
+3. **Adding an area touches more than its file** — several code paths carry hardcoded lists, and
    a write once landed in the gap between two of them. There is now a test so that gap cannot
    silently reopen.
-5. 🔴 **There are THREE prompt formatters in this file and they had drifted apart.** Two emitted
+4. 🔴 **There are THREE prompt formatters in this file and they had drifted apart.** Two emitted
    the entry question and stopped; the **advisor path — the one an adviser's own session reads —
    emitted neither the question nor the 65 situation branches.** So the largest loss was on the
    path that mattered most, and no test noticed, because every test asked whether a field was
    *saved* and none asked whether it was *used*. Fixed 2026-08-16 by one shared formatter called
    from all three. **When adding a field here, change the shared formatter, never one caller.**
-6. 🔴 **A formatter that lists the fields it emits BY HAND goes quiet on every field authored
-   afterwards.** Trap 5 above is one instance; the thirteen method guides are the same fault at
+5. 🔴 **A formatter that lists the fields it emits BY HAND goes quiet on every field authored
+   afterwards.** Trap 4 above is one instance; the thirteen method guides are the same fault at
    scale. Each has a hand-written formatter naming its fields one by one, and **116 of the 954
    authored lines across them reach no prompt** — 62 in Dashboard Discussions, 29 in Working
    Capital Cycle, 20 in Ratio Analysis, including the discussion questions authored against every
@@ -209,11 +206,11 @@ across the board — 29 assets, none of them selecting a template.
    about. **The test is not "does the file reach the AI" but "does every line in it".** Render the
    prompt and search it for each authored string; measured at
    [`../METHOD-GUIDES-SCREEN.md`](../METHOD-GUIDES-SCREEN.md) §2.
-7. 🔴 **"It duplicates the logic table" is a claim to test, not to accept.** A committed spec said
-   ~55 of the 65 branches duplicated tree routing and proposed deleting them. Tested text by text,
-   the claim failed: the tree says *which* conversation this is, the branch says *what to do* once
-   you are in it, and their words overlap only because they share a subject. **The comparison had
-   been made on node NAMES.** One genuine duplicate existed in the whole sweep. Evidence:
+6. 🔴 **"It duplicates the logic table" is a claim to test, not to accept.** A committed spec
+   proposed deleting ~55 branches as duplicates of tree routing; tested text by text, the claim
+   failed — the tree says *which* conversation this is, the branch says *what to do* once you are
+   in it, and the comparison had been made on node NAMES. One genuine duplicate existed in the
+   whole sweep. Evidence:
    [`../DOMAIN-DIAGNOSTIC-BRANCHES.md`](../DOMAIN-DIAGNOSTIC-BRANCHES.md) §1.
 
 ---

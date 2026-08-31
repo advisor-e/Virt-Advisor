@@ -24,8 +24,8 @@ Collaborate arrived with **its own identical database pool**. Two pools onto the
 a latent fault — connection limits, transaction confusion, and two places to configure — and it
 would have surfaced not at merge time but on the day somebody uncommented the line to go live.
 
-Deleted 2026-08-02, leaving one pool for the whole application. The commented-out require left in
-the data layer points at the surviving one, with a note explaining exactly this.
+It was deleted, leaving one pool for the whole application; the commented-out require left in the
+data layer points at the surviving one, with a note explaining exactly this.
 
 **The shape of the fault is the useful part:** nothing was broken, no test failed, and the
 damage was reserved for a future stranger doing the obvious thing.
@@ -51,11 +51,7 @@ damage was reserved for a future stranger doing the obvious thing.
 people layer is in memory. Neither has a real database. It was written down as its own slice
 precisely so it would be done deliberately rather than by accident.
 
-**One handover story for the master team.** The standalone application's own handover documents
-still describe a separate app. After the merge they describe a section of this one — including
-the widened scope model, so the master team builds the tiers above onto it rather than around it.
-
-Neither is approved or started.
+It is not approved or started.
 
 ---
 

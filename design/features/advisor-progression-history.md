@@ -47,13 +47,10 @@ the codebase entirely. → Brief **P5**.
 
 ## 3. The evening that proved the database has never worked
 
-On 2026-07-28 the owner completed two full course sessions in the running app and scored 70 and
-73. Both writes failed. The backend log carried an access-denied error for the placeholder
-database user.
-
-That is the clearest evidence in the whole record that this feature has never once run end to
-end — and it is recorded because it is *evidence*, not an assumption. Everything real in this
-feature is behind provisioning MySQL, and no amount of frontend work can be proven without it.
+On 2026-07-28 the owner completed two full course sessions in the running app and both writes
+failed — the backend log carried an access-denied error for the placeholder database user.
+Everything real in this feature is behind provisioning MySQL, and no amount of frontend work
+can be proven without it.
 
 ---
 
@@ -71,16 +68,9 @@ feature is behind provisioning MySQL, and no amount of frontend work can be prov
 
 ## 5. Faults worth remembering
 
-**A third copy of a list, drifted.** The mode selector held its own copy of the panel-mode list,
-so opening My Progress asked for a translation key that had never existed. Two copies had been
-kept in step; the third was forgotten.
-
-**No screen's request had a timeout**, so an unanswered call left the spinner running for ever.
-
-**Six browser tabs cost an afternoon.** Chrome allows six connections per host and each open
-development tab permanently holds one for hot-reload. With all six taken the request is queued in
-the browser and never sent — nothing red in the console, nothing in the backend log at all.
-Opening a fresh tab makes it worse.
+**Six browser tabs cost an afternoon** — Chrome allows six connections per host and each open
+development tab permanently holds one for hot-reload, so a queued request shows nothing red in
+the console and nothing in the backend log. The actionable rule is the Brief's trap 4.
 
 ---
 

@@ -15,20 +15,11 @@ Its own code has always been clear. [`../../server/utils/coaching.js`](../../ser
 a template FROM"*. Its screen lede is clear too: *"The guidance the AI works to when it decides
 which template to put in front of a client."* **The only thing that says "coaching" is the tab.**
 
-**How the gap surfaced.** [`../HUB-PAGE-PURPOSES.md`](../HUB-PAGE-PURPOSES.md) — twelve tabs, one
-question each — was written to answer *where does this piece of content belong*, and checked each
-row against the code rather than against a Brief. It could give this page a question (*"which tool
-fits this client?"*) and had to add a column saying what the page is **not**: *"Not coaching,
-despite the name."* It then recorded, as a finding of its own, that the purpose *"needs settling as
-its own piece of work"*.
-
-**What finally forced it.** On 2026-08-19 Mike asked why **Facilitation 101** sits under Domain
-Support rather than here. The answer was sound — it is a how-to, and this page is a menu; it is one
-of thirteen method guides and the other twelve already sit behind Domain Support rows; and he had
-ruled its placement himself on 2026-08-17. But the *question* was the right one to ask, and it was
-the name that invited it. A tab called *Coaching Reference* reads like the home of anything that
-coaches. §5 of the Brief now carries the boundary as a table, and the naming decision is recorded
-as open at §6.
+**How the gap surfaced.** Only a placement question exposed it:
+[`../HUB-PAGE-PURPOSES.md`](../HUB-PAGE-PURPOSES.md) could say what the page is **not** (*"Not
+coaching, despite the name"*), and when Mike asked why **Facilitation 101** sits under Domain
+Support rather than here, the answer was sound — but it was the name that had invited the
+question. §5 of the Brief now carries the boundary as a table.
 
 **The lesson worth keeping: a missing Brief does not announce itself.** Nothing failed for months.
 The page worked, its code was well documented, and the drift only showed when somebody tried to

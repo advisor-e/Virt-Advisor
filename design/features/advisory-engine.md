@@ -87,10 +87,8 @@ guide also carries a generated statement of which guides it holds and which it d
 the instruction to decline rather than fill a gap — naming the guide that does cover it.
 Routing will still sometimes pick the wrong guide and always will; what changed is that a
 wrong pick is now **visible** instead of **invented**. **The offer to switch that ends that
-sentence works**: the guide it names is carried into the topic pickers, so "yes" loads it
-(`offeredGuideFromLastAnswer`, item 4.46 — the pickers read only the advisor's own words, and
-the guide's name is in the answer that made the offer). Built and
-verified against the live model 2026-08-25 (item 4.18); see
+sentence works**: the guide it names is carried into the topic pickers, so "yes" loads it.
+Verified against the live model; see
 [`../LEARN-SCOPE-HONESTY.md`](../LEARN-SCOPE-HONESTY.md).
 
 ---
@@ -105,8 +103,8 @@ field, and routing groups as a pre-filter. Do not read the design document as a 
 the code, and do not "correct" the design down to what exists.
 
 **Content filed into the wrong lane is invisible.** It renders, it saves, it passes tests, and
-it silently never reaches the decision it was written for. Three assets were found in the wrong
-lane in one week, every one by a person reading code. Three lanes exist: content that influences
+it silently never reaches the decision it was written for — and every case found so far was
+found by a person reading code, not by automation. Three lanes exist: content that influences
 which templates a client is recommended; content that briefs the AI on the path but selects
 nothing; and content only ever read by an advisor. **A lane is not a quality mark** — briefing
 content is doing its job by not selecting templates.
@@ -180,20 +178,17 @@ unknown**.
    would have nothing to check and would switch itself off.
 5. **Strip internal ids and personal detail before anything reaches the AI**, and never trust its
    output as structured data — parse and validate the shape first.
-6. 🔴 **A field the prompt builder does not read is invisible, and nothing fails.** Three instances
-   now: `recommendation` on 55 branches (unread for about a year), `howItHelps` and `deliveryNotes`
-   on the coaching reference (authored, stored, firm-editable, rendered into no prompt at all), and
-   `advisor_note` on `pf_awareness`. Every one looked complete on screen and passed every test,
-   **because every test asked whether the field was SAVED and none asked whether it was USED.** The
-   only method that has ever caught it is **rendering the real prompt and reading it** — never
-   inspecting the store. Write the test that way, or it will pass while the content goes nowhere.
-   A firm or the mentor edits carefully and believes the advice changed; nothing on screen can tell
-   them otherwise.
+6. 🔴 **A field the prompt builder does not read is invisible, and nothing fails.** It has happened
+   more than once — `recommendation` on 55 branches sat unread for about a year: authored, stored,
+   looking complete on screen and passing every test, **because every test asked whether the field
+   was SAVED and none asked whether it was USED.** The only method that has ever caught it is
+   **rendering the real prompt and reading it** — never inspecting the store. Write the test that
+   way, or it will pass while the content goes nowhere. A firm or the mentor edits carefully and
+   believes the advice changed; nothing on screen can tell them otherwise.
 7. **A gate built for tool names will eat prose that merely looks like one.** The availability gate
-   reduced `advisor_note` to its first sentence, because it read "use Trial Fit" and "use Cautious
-   Reveal" as templates it could not serve when they are delivery *approaches*. Gating that field
-   would have shipped as a fix while deleting the instruction. Before putting a new field through
-   the gate, **run it through and read what survives.**
+   once reduced a coaching note to its first sentence by reading named delivery *approaches* as
+   templates it could not serve — a "fix" that would have shipped while deleting the instruction.
+   Before putting a new field through the gate, **run it through and read what survives.**
 
 ### Known gaps, honestly
 

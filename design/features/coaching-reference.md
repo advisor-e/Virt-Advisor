@@ -36,9 +36,6 @@
 > chosen template is then run ([`domain-support.md`](domain-support.md)), or which template a
 > scenario routes to ([`logic-tables.md`](logic-tables.md)) — which is now where this went too.
 >
-> ⚠ **This Brief was written on 2026-08-19, later than the feature.** Until then it was the only
-> content page in the hub with none — see §6.
->
 > ⚠ **§1's "design philosophy" is the code's sentence, not a decision anyone took.** The 15 rows
 > are a PowerPoint converted to JSON in the repository's first commit and never reviewed. Seven of
 > them name no template that exists.
@@ -112,15 +109,11 @@ editing the prompt top to bottom. Changing one without the other breaks the only
 screen offers.
 
 **P8 · Every authored field reaches the prompt.** Two of the six did not until 2026-08-16 — see
-§6 — and this is now the standing rule for any field added here.
+the History §3 — and this is now the standing rule for any field added here.
 
 ---
 
 ## 3. Design considerations
-
-**Its name is the weakest thing about it.** *Coaching Reference* promises coaching and delivers a
-selection menu, and that has already sent content to the wrong page in conversation. The naming
-decision is open and is Mike's — recorded at §6 rather than settled here.
 
 **Fifteen entries is small, and that is a feature.** The model reads all of them every time. A menu
 that grows without limit stops being a menu; P5's exemption from capping is affordable precisely
@@ -181,28 +174,7 @@ the home of anything that coaches. The question to ask instead is P1's.
 
 ---
 
-## 6. 🔴 Open — the name, and what it cost to have no Brief
-
-**This was the only content page in the hub with no Brief.** Nobody ever wrote down what it was
-for, and the likeliest consequence is the one visible in its own title: **the name promises coaching
-and the code calls it a selection menu.**
-
-**The naming decision is Mike's and is NOT settled here.** The options, recorded so they exist
-before anyone chooses:
-
-| | Option | What it costs |
-|---|---|---|
-| **A** | **Keep "Coaching Reference"** and let §5's table carry the boundary | Nothing to change; the name keeps misdirecting, and §5 has to be found |
-| **B** | **"Template Selection"** — what the code calls it | Truest to the content; loses the word Mike's advisors may already use |
-| **C** | **"Which Tool Fits This Client"** — the question, as the heading | Self-explaining, needs no Brief to decode; longest, and unlike its neighbours |
-| **D** | **"Choosing a Template"** | Short, plainly about choosing, sits naturally beside *Logic Tables* |
-
-⚠ **Renaming touches the tab label, the screen heading, its lede and seven route paths** — the
-routes are internal and need not follow the label. It is a wording decision, not a technical one.
-
----
-
-## 7. Related briefs
+## 6. Related briefs
 
 [`domain-support.md`](domain-support.md) — how to run what was chosen ·
 [`logic-tables.md`](logic-tables.md) — which template a scenario routes to ·

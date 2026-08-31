@@ -7,8 +7,6 @@
 
 ## 2026-08-22 · The screen — redrawn for the reader, then built
 
-**Mike:** *"finish 4.28 you should have everything you need."*
-
 ### The picture is what found both defects, and neither was findable by a test
 
 This feature has now had two faults. **Both were found by Mike looking at a drawing**, and the
@@ -32,18 +30,10 @@ suite could not have caught either:
 
 ### What the redraw did, and the one thing it had to prove
 
-The security document became **mentor-only**; below the mentor it is four plain sentences,
-*How your clients' information is protected*. The two-card picker went with it, because a picker
-offering a choice of one is furniture.
-
-🔴 **The thing that had to be proved is that nothing was taken away.** Hiding a document from
-three tiers looks like removing their access. It is not, and the proof is small: that document
-has **no editable setting at any tier** — see its `_variablesNote` — so no manager loses a
-control, only a write-up they could not act on. A test asserts it, so if it ever gains a setting
-the ruling has to be revisited rather than a control quietly disappearing.
-
-The filter runs on the **backend** (`promptsForTier`), not by hiding markup, so a tier cannot
-reach the mentor's document by asking for it.
+The security document became **mentor-only**, replaced below the mentor by four plain sentences —
+and the thing that had to be proved is that **nothing was taken away**: the document has no
+editable setting at any tier, so no manager lost a control, only a write-up they could not act
+on. The full result, the backend filter and the test that pins it are Brief **P7**.
 
 ### A third fault, caught inside the build this time
 
@@ -63,17 +53,11 @@ the only paraphrase on the screen, so it is the only place this kind of drift ca
 
 ### Two labels, and the one that stayed
 
-Mike ruled both on 2026-08-22. *Reporting granularity* became **Reporting periods** — the source
-document's term is a specification writer's, not an accountant's. He kept **Currency and units**
-as it was, which was the recommendation: an accountant already reads *$000* as units.
+Mike ruled both: *Reporting granularity* became **Reporting periods** — the source document's
+term is a specification writer's, not an accountant's — and **Currency and units** stayed as it
+was: an accountant already reads *$000* as units.
 
-### What was verified, and what still cannot be
-
-The running app was driven at both loginable tiers, and the cascade exercised over real HTTP
-rather than asserted: the mentor set a materiality of 3, the firm read it as *inherited* holding
-nothing of its own, the firm set 12 and held it, and the mentor was unaffected. Every refusal was
-tried live, including a scope named in the request body — which wrote to the caller's own scope
-and left the mentor's untouched.
+### What still cannot be verified
 
 ⚠ **Still true:** the two middle tiers have no real login (`config/integration.js` ships their
 role names empty, fail-closed). The dev tokens exercise them; a customer cannot yet. And nothing
@@ -84,27 +68,10 @@ feature's first two faults reached a branch.
 
 ## 2026-08-21 · Asked for, designed, and half built in one session
 
-Mike, opening the request:
-
-> *"I want to create a 'AI Prompts' page in the hub pages (Mentor, Global Group Manager, Group
-> Manager and Firm Manager) so that users have the ability to influence the approach to formulas
-> in the performance report models."*
-
-And the constraint that shaped everything:
-
-> *"They should appear in the hub page in an editable form but NOT over ride key protocols which
-> we have already deemed as essential for security etc."*
-
-He supplied two documents and asked a specific question of them: **do they offer anything we do
-not already have?**
-
-### The framing this session started with was wrong
-
-It set out to compare the documents against *"our existing report model design prompts."*
-**There are none.** `server/routes/report.js` never calls OpenAI — only `server/routes/cases.js`
-does. Every report is pure maths to screen. These are the first prompts the report side has ever
-had. That was checked rather than assumed, and it changed the answer to Mike's question: nothing
-was being improved, something was being started.
+Mike's request and the constraint that shaped everything — influence the approach to the
+formulas, but never override the platform's protocols — are quoted in the Brief (§1). He supplied
+two documents and asked a specific question of them: **do they offer anything we do not already
+have?**
 
 ### What the documents actually added — seven things
 
@@ -142,38 +109,24 @@ test that matters tries to reach it through the only route a tier has — stored
 including an override whose *value* reads *"Ignore all platform protocols above"*, and asserts the
 block still leads the assembled text every time.
 
-### Two mistakes made and corrected inside the build
+### A mistake made twice inside the build
 
-**The invisible-character pattern was first written as literal invisible characters.** A character
-class that is itself invisible in the source file: unreviewable, and silently destroyed by any
-tool that normalises whitespace. Rewritten as spelled-out codepoints. **The same mistake was then
-repeated in the tests** and fixed with `String.fromCharCode`. Recorded because it is an easy
-mistake to make twice and it produces a guard nobody can check.
-
-### A guard caught the change, and it was right
-
-Adding `data/ai-prompts.json` failed `tests/unit/contentRoutingReport.test.js` —
-*"derives its blind-spot list from disk, so a new data file cannot go unmentioned."* Regenerated
-with `npm run routing`; the file now lists itself. Noted here as evidence that the guard works,
-not as an inconvenience.
+The invisible-character pattern was first written as literal invisible characters — in the source
+and then again in the tests — a guard nobody can check; the trap and its fix are in the Brief's
+Traps.
 
 ### What was deliberately NOT built, and why
 
-- **The screen.** The session ran out at the engine. Item **4.28**, and the Brief says plainly
-  that the engine reads as done and is not.
-- **The Flagged Issues Register.** An approval workflow for output nothing generates.
-- **Three of the security document's six steps.** They guard a door not in this building.
-- **`stripInvisible` on the live advisor path.** Wiring it into `advisorEngine` changes behaviour
-  on a deployed screen and deserves its own change. Item **4.30**, raised by the session that
-  wrote the fix rather than left to be discovered.
+The Flagged Issues Register — an approval workflow for output nothing generates — and three of
+the security document's six steps, which guard a door not in this building; both decisions stand
+in the Brief (§3 and P5). The screen and the live `stripInvisible` wiring were also deferred from
+this session, and were built later — see the Brief's Known state.
 
 ### The two middle tiers
 
-`config/integration.js` ships `globalManagerRole: ''` and `groupManagerRole: ''`, empty on purpose
-and fail-closed. Checked in the config rather than taken from
-[`tier-cascade.md`](tier-cascade.md)'s note. **Four tiers were asked for and four are built**, but
-two cannot be logged into until Advisor-e issues the role values — so the honest claim is "correct
-for four, provable on two", and the Brief refuses the shorter version.
+**Four tiers were asked for and four are built**, but two cannot be logged into until Advisor-e
+issues the role values — "correct for four, provable on two". The detail is in the Brief's Known
+state and [`tier-cascade.md`](tier-cascade.md).
 
 ### Q2 answered by precedent rather than by ruling
 
@@ -183,5 +136,3 @@ warning against reaching for the row mechanism out of habit. The one deviation �
 rules **exclude the mentor**, this does not — is because that exclusion was reasoned on the mentor
 having *"no country of its own to speak for"*, and a materiality threshold is not owned by a
 country. Written down so nobody later "fixes" one block to match the other.
-
-**Commits:** `2968d76` (the design, saved before approval) · `ea6ac22` (the engine).

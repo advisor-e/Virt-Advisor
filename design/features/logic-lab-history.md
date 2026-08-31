@@ -19,13 +19,6 @@ that holds it opens by explaining why it exists at all:
 So **the conversation is recorded verbatim first, and the analysis after it** — the original can
 always be read back rather than somebody's later summary of it.
 
-That is the Save-the-Artefact rule doing its job, and this document is the clearest example of it
-in the project. It exists because of an earlier failure: a screen design was rendered in chat,
-approved, never saved, and the build drifted from it — a day later the only surviving trace was a
-paraphrase, and the screen that shipped bore little resemblance to what had been signed off.
-**Every gate passed throughout**, because every gate compares the code to the written note and
-nothing compares the build to an artefact that does not exist.
-
 ---
 
 ## 2. The finding that stopped it being one button

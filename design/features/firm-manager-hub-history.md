@@ -65,10 +65,8 @@ tab that is *missing* — visible — rather than one that appears uninvited. �
 
 ### The "+3" that was a "+2"
 
-A carried item read *"mentor +2 / firm +3"* tabs missing against the approved mockup. It is
-**+2 / +2**. The third firm tab was Template Check, which the owner had narrowed to mentor-only
-*after* the "+3" was written — and the line was carried unchanged through eight session notes.
-Corrected only when someone opened the artefact and put it beside the code.
+A wrong tab-count was carried unchanged through session notes and corrected only when someone
+opened the approved mockup and put it beside the code — the Save-the-Artefact rule doing its job.
 
 ---
 
@@ -83,8 +81,6 @@ Read 2026-08-13. **Left in place** — records of their own date:
   `localStorage`. Identity now comes from a verified JWT, and the routes take it from there.
 - `ADVISOR-E-DESIGN-LOGIC.md` §7 lists *"the two middle-tier hub pages are designed and approved
   but not built"* and *"the tab gates must be rewritten"*. **Both are now done.**
-- `DISTINCTIONS-CASCADE-PLAN.md` §2 says advisors don't receive firm distinctions at all, from
-  the URL-query era. That was closed when the advisor route moved behind token auth.
 
 ---
 

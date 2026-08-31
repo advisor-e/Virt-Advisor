@@ -58,8 +58,7 @@ text into a prompt, which is a new attack surface dressed as a feature.
 `unsetRule` is the pattern, taken from the cash flow document and absent everywhere else here:
 `announce` uses the default **and tells the model to state that a default was applied**; `ask`
 refuses to proceed. `assemblePrompt()` returns `blocked: true` for an unset `ask` variable.
-🔴 *Why:* `yearOneAddBack` in the property model defaults **silently**, and that is precisely how
-to-do item 4.22 sat open for five days on a question that had stopped being the right question.
+🔴 *Why:* `yearOneAddBack` in the property model defaults **silently**, and it cost real time.
 A default nobody is told about is indistinguishable from a decision nobody made.
 *If ignored:* the output looks authoritative and rests on values nobody chose.
 
@@ -112,11 +111,10 @@ The panel's own lede says *"applied by the system every time"*. So each line dec
 that performs it (`backedBy`) and the exact export or call that proves it (`provenBy`), and a test
 reads the file to check. A line describing an **instruction to the model** would be a claim the
 app is not keeping.
-🔴 *Why, and it is not hypothetical:* the fourth line was *"Nothing is treated as final until a
-person has approved it"* when the tab was drawn. It is enforced nowhere — it restates the prompt's
-own Draft and Publish section, which is advice to a model. It was replaced before shipping. **This
-is the same fault Mike caught in the two fetch-burst boxes on 2026-08-22, in prose instead of in a
-control**, and it is the reason P1's distinction is not academic.
+🔴 *Why, and it is not hypothetical:* the panel once carried a line the app enforced nowhere — a
+restated prompt instruction, the fetch-burst fault in prose instead of in a control — replaced
+before shipping. The full telling is in the History, and it is the reason P1's distinction is not
+academic.
 *If ignored:* a manager reads a reassurance the app does not deliver, and no test can tell.
 
 ---
@@ -131,11 +129,6 @@ locked, so a section becoming editable requires somebody to argue for it rather 
 **The security prompt has NO editable surface at all, and that is a correct result.** Its content
 is entirely protocol. A prompt with nothing to tune is not a defect — it is a prompt that is all
 method, and the tab says *"Nothing here is yours to set"* rather than showing an empty box.
-⚠ **This paragraph said "almost none … the numeric thresholds where one does" until 2026-08-22.**
-It was already wrong when written: the only two thresholds it could have meant belonged to step 3,
-*Cap outbound fetch bursts*, which is marked **does not apply here**. Mike found the two boxes by
-looking at a picture and removed them (`28cb249`); the wording is corrected here rather than
-quietly, because a Brief that overstates an editable surface teaches the next session to build one.
 
 **Deferred on purpose: the Flagged Issues Register.** The cash flow document's register — every
 assumption listed with a status of *open / accountant-accepted / resolved* — is the single most
@@ -264,14 +257,13 @@ leaving an accountant with a dead button.
   engine, 22 on the routes, 24 on the screen, 11 more on the stripper, 5 on the client door
   that applies it.
 - ✅ **The screen exists** — *AI Prompts*, last under *Your AI coach*, at all four manager tiers.
-  Item **4.28**, closed 2026-08-22.
 - ✅ **`stripInvisible` runs on every AI path.** Applied at `server/utils/openaiClient.js` — the
   one function every OpenAI reply in this app passes through — rather than at each engine, so the
   advisor screen, the course screen, the case routes and the anonymiser are all covered by one
-  change. Item **4.30**, closed 2026-08-25. The protection panel's third line — *"Invisible
-  characters are stripped from the AI's answer"* — is now true on every screen a manager would
-  assume it is, not only this one. A character arriving split across two streamed chunks is
-  rejoined before it is tested, so the streaming case is closed too.
+  change. The protection panel's third line — *"Invisible characters are stripped from the AI's
+  answer"* — is true on every screen a manager would assume it is, not only this one. A character
+  arriving split across two streamed chunks is rejoined before it is tested, so the streaming
+  case is closed too.
 - ⚠ **The tab has been proven by tests, not by a person opening it at every tier.** Nothing in
   this project checks that a screen LOOKS right (item **4.25**), and the two defects this feature
   has had were both found by Mike looking at a picture.

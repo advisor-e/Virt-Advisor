@@ -81,6 +81,25 @@
       "touches": "nothing — this is a live observation, not a code change. server/utils/activityLogger.js (logVASession) and server/routes/activity.js (/api/activity/team) hold the path if it fails.",
       "note": "⚠ ITS ORIGINAL BLOCKER WAS WRONG, AND THE REAL ONE IS DIFFERENT. This item said for a month that it could not be done here because \"this machine has no OPENAI_API_KEY and every advisor request fails at startup\". That was false: .env on the laptop has held a live key since 30 July, dotenv loads it at server/restify-server.js L50, and the backend logs \"[advisor] OPENAI_API_KEY present=true\" on boot. The key was never the obstacle. THE REAL OBSTACLE IS MYSQL. The capability record is written by logVASession into the activity store, and on this machine that store logs \"database unavailable (connect ECONNREFUSED 127.0.0.1:3306) — using the dev file\". All three conversations completed and NONE was recorded: the Team tab still reads 2026-08-14 and data/dev-activity.json still ends at 2026-08-10. No error was logged — the write simply did not happen. So (c) needs any environment with a database, which means UAT rather than a developer machine, and it is a two-minute look: open the Team tab as a firm manager after a real session and check the templates and the tier are the ones the conversation actually produced. ⚠ \"Team Dashboard\", the name this item used to carry, IS NOT A SCREEN — the words appear nowhere in any page or component, only in a JSDoc comment at tierLookup.js L88. The screen is the Team tab, fed by /api/activity/team.",
       "comment": "2026-08-26 — checks (a) and (b) run live and passed; see 4.53 for what the same exercise turned up, which is that the AI writes the marker only sometimes and nothing records when it did not."
+    },
+    {
+      "ref": "4.55",
+      "name": "Wire the uploaded template library into the engine (Cascade Phases 2–3)",
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Phase 1 of design/SEARCH-CONTENT-CASCADE-PLAN.md shipped 2026-08-31 (5cf3743 backend, 6ba5dd7 screen): the mentor can upload the Advisor-e master export on the new Template Library tab, with validation, version history and restore. But the store is deliberately INERT — server/utils/templates.js still reads data/templates.json, so an upload changes nothing an advisor sees. Phase 2 rewires that loader (uploaded platform library first, then a firm's own, wholesale-replace per Mike's ruling of the same day, loud file fallback, ~60s cache). Phase 3 puts the firm's own upload screen live in front of the already-built importTemplates route.",
+      "risk": "Low while open: today's behaviour is exactly yesterday's. The cost is the feature not existing — content changes still need a developer, a commit and a redeploy. One residual worth naming: the Template Library screen passed its 12 component tests but has NOT been eyeballed in a production build (nuxt build + start, per the 2026-08-02 ruling — never dev mode).",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-08-31 — \"plan/design how to convert the manual download and upload of a json script (the search contents script) into a cascading - dynamic - database\"; the plan and Phase 1 were approved and built the same day, phase by phase. This item is Phases 2–3, awaiting his go."
+      },
+      "touches": "server/utils/templates.js (the loader Phase 2 rewires), server/advisorEngine.js (reads through it), server/routes/firmManager.js importTemplates + FirmManagerHub.vue (Phase 3 screen).",
+      "comment": "2026-08-31 — filed at the close of the session that built Phase 1. Phase 4 (Advisor-e pushes the export directly, no download at all) is deliberately NOT on this item: it is the master team's, recorded in the plan and for the cascade handover doc."
     }
   ]
 }

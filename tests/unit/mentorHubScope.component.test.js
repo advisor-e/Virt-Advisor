@@ -240,7 +240,9 @@ describe('the two tiers are recognisably the same screen', () => {
   // to LAST of the three — it is the whole of "Model Inputs", which sits after "Your Team
   // In Action". Nothing about the ruling changed; only where the name is drawn.
   const FIRM_ONLY = ['firmTeamProgress.tab', 'Team Case Studies', 'Property Tax Rules']
-  const MENTOR_ONLY = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab']
+  // `templateLibrary.tab` — Mike, 2026-08-31 (SEARCH-CONTENT-CASCADE-PLAN.md Phase 1):
+  // the master export upload, mentor-only beside Template Check, drawn last in the menu.
+  const MENTOR_ONLY = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab', 'templateLibrary.tab']
 
   /**
    * A selector that matches nothing makes every comparison below succeed against an
@@ -278,10 +280,12 @@ describe('the two tiers are recognisably the same screen', () => {
   })
 
   it('adds the mentor-only tabs at the end, so the shared run is uninterrupted', async () => {
-    // All four are now "Rolled up from below", the last heading — so the mentor-only run
-    // is the tail of the menu rather than three names scattered through a band of twelve.
+    // All of them sit under "Rolled up from below", the last heading — so the mentor-only
+    // run is the tail of the menu rather than names scattered through a band of twelve.
+    // (Sliced by the list's own length: the hardcoded -4 turned this into a count
+    // pin that broke the day a fifth mentor-only tab was ruled on.)
     const mentor = tabLabels(await mountHub({ scope: 'mentor', firmId: '' }))
-    expect(mentor.slice(-4)).toEqual(MENTOR_ONLY)
+    expect(mentor.slice(-MENTOR_ONLY.length)).toEqual(MENTOR_ONLY)
   })
 })
 

@@ -15,30 +15,15 @@ It landed under its own directory rather than merged into this app's folders bec
 paths collided and four of those differed**. Namespacing meant **zero edits to this app's
 files** — one line in the ignore rules was the entire footprint.
 
-Their pages landed as **components, not pages**, so no new URL became reachable in this app. The
-wording clash that had been flagged as a risk never arose: their file landed whole in its own
-directory.
-
-**The scope was wider than the plan assumed** — getting 431 tests green also required their
-pages, both mixins, the integration config, a middleware and two scripts. Recorded because the
-plan's estimate for that slice was the one thing it got wrong.
+Their pages landed as **components, not pages**, so no new URL became reachable in this app.
 
 ---
 
-## 2. The traps found on the way in
+## 2. The trap found on the way in
 
-**A silent alias failure.** During the move, an import alias resolved to nothing without raising
-an error — files simply weren't there, and nothing said so. Found by hand.
-
-**A forked translation route.** The two apps had each grown their own version of the same route.
-Reconciling them was part of the merge rather than a discovery afterwards.
-
-**Two database pools onto one database.** Collaborate brought its own identical connection pool.
-It was deleted, leaving one for the whole app — a latent bug waiting for whoever uncommented the
-wrong line.
-
-**Two integration configs and two schema files**, both authentication and security surfaces.
-Slow, careful work, explicitly not a copy-paste.
+**Two database pools onto one database.** Collaborate brought its own identical connection pool;
+it was deleted, leaving one for the whole app. Told in full in
+[`collaborate-data-layer-history.md`](collaborate-data-layer-history.md) §2 and the Brief's P1.
 
 ---
 
@@ -57,30 +42,16 @@ Slow, careful work, explicitly not a copy-paste.
 
 ## 4. The risk that was named up front
 
-**The merge cut across an in-flight handover.** Collaborate's last commits were a master-team
-handover checklist and pre-handover security fixes — that repository was being packaged, right
-then, as a standalone deliverable with isolated integration seams. Merging changed what the
-master team had been promised.
-
-The owner's ruling was that one neat pull is the goal, **so the handover documents had to be
-rewritten as part of the merge rather than left to contradict it.**
-
-Also stated plainly at the time: **nothing in the early slices was provable by eye.** They were
-provable only by the test suites, and were reported that way rather than as a working screen.
+**The merge cut across an in-flight handover** — Collaborate was being packaged, right then, as
+a standalone deliverable. The owner's ruling was that one neat pull is the goal, **so the
+handover documents had to be rewritten as part of the merge rather than left to contradict it.**
 
 ---
 
 ## 5. Where the earlier record is wrong
 
-Read 2026-08-13. [`../COLLABORATE-MERGE-PLAN.md`](../COLLABORATE-MERGE-PLAN.md):
-
-- Its §1 gives the standalone repository's local path, GitHub name and branch state. **That is
-  no longer where this code is maintained.**
-- Its §5 lists slices 3, 5 and 6 as unbuilt. Slice 3 was overtaken by the reserved-scope-id
-  ruling; slice 5 (reconciling the two data layers) and slice 6 (one handover story) remain open.
-- Its §4 and §4.4 contradict each other on clone-versus-layer; neither is the ruled model.
-
-**Left in place** as a record of its own date.
+[`../COLLABORATE-MERGE-PLAN.md`](../COLLABORATE-MERGE-PLAN.md) §1 and §4 are stale; slices 5
+(reconciling the two data layers) and 6 (one handover story) remain open.
 
 ---
 

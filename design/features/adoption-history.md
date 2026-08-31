@@ -7,33 +7,18 @@
 
 ## 1. Why this screen exists instead of a wider Team Progress
 
-The obvious design was to take the firm manager's Team Progress view and show it one level up.
-That was rejected, and the reasoning is the useful part.
-
-**Team Progress lists a firm's advisers by name.** At the firm level that is correct — a manager
-looking at their own people. One level up it becomes the platform owner looking at a customer's
-staff, which crosses a boundary this codebase already enforces in code: the accuracy reports
-throw on personal fields, and the case feed is double opt-in.
-
-So the screen counts **the same activity, one level up, stripped of who did it.** It answers the
-question a mentor actually has — *which firms have gone quiet* — and crosses nothing.
-
-**Recorded because the rejected design was cheaper**, and taking it would have created a privacy
-problem that no test could have caught.
+The rejected design — Team Progress shown one level up — and the reasoning are in the Brief
+(§1). **Recorded here because the rejected design was cheaper**, and taking it would have
+created a privacy problem that no test could have caught.
 
 ---
 
 ## 2. The related error, in the opposite direction
 
-The privacy reasoning above was later **over-applied**. A tab matrix left several reports out of
-both middle tiers, generalising from a ruling that had kept a report away from the mentor.
-
-**That ruling was about an outside party** — the platform owner — seeing a customer's staff. A
-global group is a **brand**, so a global or group manager is the customer's own senior person
-looking at their own firms. Applying an external-party boundary to internal managers inverts it.
-
-Both errors are worth holding together: **do not widen a named-person view upward, and do not
-treat an internal manager as an outside party.**
+The privacy reasoning above was later **over-applied**, treating an internal manager as an
+outside party — told in full in [`tier-cascade-history.md`](tier-cascade-history.md) §2. Both
+errors are worth holding together: **do not widen a named-person view upward, and do not treat
+an internal manager as an outside party.**
 
 ---
 
