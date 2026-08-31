@@ -56,7 +56,12 @@
         .vol-glabel
           span.vol-dot
           h2.vol-h2 {{ $t('report.volatility.window.title') }}
-        label.vol-fieldlab(:for="'vol-window'") {{ $t('report.volatility.window.label') }}
+        label.vol-fieldlab(for="vol-start") {{ $t('report.volatility.start.label') }}
+        b-select#vol-start(v-model="startMonth" expanded)
+          option(v-for="k in monthKeys" :key="k" :value="k") {{ $t('report.volatility.monthLong.' + k) }}
+        p.vol-note {{ $t('report.volatility.start.help') }}
+
+        label.vol-fieldlab.is-spaced(for="vol-window") {{ $t('report.volatility.window.label') }}
         .vol-seg(role="group" :aria-label="$t('report.volatility.window.label')")
           button.vol-segbtn(
             v-for="w in windows" :key="w"
@@ -74,7 +79,7 @@
         p.vol-note {{ $t('report.volatility.entry.help') }}
         .vol-months
           .vol-month(v-for="(v, i) in form.sales" :key="i")
-            label(:for="'vol-m' + i") {{ i + 1 }}
+            label(:for="'vol-m' + i") {{ monthLabel(i) }}
             input(
               :id="'vol-m' + i"
               type="number"
@@ -117,11 +122,11 @@
         .vol-tile(v-if="data.highest")
           .vol-k {{ $t('report.volatility.tile.highest') }}
           .vol-v {{ money(data.highest.value) }}
-          .vol-sub {{ $t('report.volatility.tile.month', { n: data.highest.index + 1 }) }} · {{ signedMoney(data.months[data.highest.index].deviation) }}
+          .vol-sub {{ monthLabel(data.highest.index) }} · {{ signedMoney(data.months[data.highest.index].deviation) }}
         .vol-tile(v-if="data.lowest")
           .vol-k {{ $t('report.volatility.tile.lowest') }}
           .vol-v {{ money(data.lowest.value) }}
-          .vol-sub {{ $t('report.volatility.tile.month', { n: data.lowest.index + 1 }) }} · {{ signedMoney(data.months[data.lowest.index].deviation) }}
+          .vol-sub {{ monthLabel(data.lowest.index) }} · {{ signedMoney(data.months[data.lowest.index].deviation) }}
 
       //- [D2b] the signature diagram — the workbook's rev counter
       .vol-card
@@ -179,7 +184,7 @@
                 :stroke-width="p.outside ? 1.5 : 0"
               )
               g(font-size="9.5" fill="#5b6f8a" text-anchor="middle")
-                text(v-for="p in chart.dots" :key="'l' + p.i" :x="p.x" y="315") {{ p.i + 1 }}
+                text(v-for="p in chart.dots" :key="'l' + p.i" :x="p.x" y="315") {{ monthLabel(p.i) }}
 
       //- [D2b] the months outside the range
       .vol-card(v-if="outsideMonths.length")
@@ -196,7 +201,7 @@
                 th {{ $t('report.volatility.outside.band') }}
             tbody
               tr(v-for="m in outsideMonths" :key="'o' + m.index")
-                td {{ $t('report.volatility.tile.month', { n: m.index + 1 }) }}
+                td {{ monthLabel(m.index) }}
                 td.is-out {{ money(m.value) }}
                 td.is-out {{ signedMoney(m.deviation) }}
                 td {{ $t('report.volatility.outside.band' + m.band, { above: m.deviation > 0 ? 1 : 0 }) }}
@@ -214,7 +219,7 @@
               thead
                 tr
                   th {{ $t('report.volatility.yoy.month') }}
-                  th(v-for="(v, i) in data.yearOnYear.lastYear" :key="'yh' + i") {{ i + 1 }}
+                  th(v-for="(v, i) in data.yearOnYear.lastYear" :key="'yh' + i") {{ monthLabel(i + 12) }}
               tbody
                 tr
                   td {{ $t('report.volatility.yoy.lastYear') }}
@@ -269,6 +274,14 @@ const SAMPLE_SALES = [
   69472, 85631, 62478, 36251, 45326, 65324
 ]
 
+/**
+ * The twelve month slugs, in calendar order. These are KEYS, not user-facing text — the
+ * names themselves live in `locales/report.volatility.monthLong/monthShort` so they can
+ * be translated. Pinned against the backend's own MONTHS order by
+ * tests/unit/volatilityReport.component.test.js.
+ */
+const MONTH_KEYS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+
 /** Chart geometry, in the SVG's own units. */
 const CHART = { left: 70, right: 690, top: 20, bottom: 300, headroom: 1.08 }
 
@@ -282,6 +295,18 @@ export default {
   data () {
     return {
       windows: [12, 18, 24],
+      monthKeys: MONTH_KEYS,
+      /**
+       * The month the first typed figure belongs to; every later month follows on from
+       * it, wrapping into the next year. Defaults to September because that is where the
+       * workbook's own 24-month series begins (`Data Input!E5` = Excel serial 44440,
+       * 1 September 2021) — so the sample data is labelled as the workbook labels it.
+       *
+       * 🔴 DELIBERATELY OUTSIDE `form`. The deep watcher on `form` queues a backend
+       * recompute on every change, and a month NAME changes no figure — it is a label.
+       * Inside `form` this control would fire a pointless request on every selection.
+       */
+      startMonth: 'sep',
       /** Typed inputs. `sales` is oldest-first and exactly `window` long. */
       form: { window: 12, sales: SAMPLE_SALES.slice(SAMPLE_SALES.length - 12) },
       /** True until the advisor edits a figure — drives the sample notice. */
@@ -308,6 +333,18 @@ export default {
       if (!this.data) { return '' }
       const b = this.data.bands[0]
       return this.money(b.lower) + ' – ' + this.money(b.upper)
+    },
+
+    /** The month names for the window on screen, in order, wrapping past December. */
+    monthLabels () {
+      const from = MONTH_KEYS.indexOf(this.startMonth)
+      const start = from === -1 ? 0 : from
+      const n = this.form.sales.length
+      const out = []
+      for (let i = 0; i < n; i++) {
+        out.push(this.$t('report.volatility.monthShort.' + MONTH_KEYS[(start + i) % 12]))
+      }
+      return out
     },
 
     outsideMonths () {
@@ -452,6 +489,20 @@ export default {
       this.isSample = false
     },
 
+    /**
+     * The name of the nth month of the window. Indexes past the window's end wrap the same
+     * way, which is what the Year on Year header needs — its twelve columns are the second
+     * year of a 24-month series.
+     *
+     * @param {number} i - 0-based month index.
+     * @returns {string}
+     */
+    monthLabel (i) {
+      const from = MONTH_KEYS.indexOf(this.startMonth)
+      const start = from === -1 ? 0 : from
+      return this.$t('report.volatility.monthShort.' + MONTH_KEYS[(((start + i) % 12) + 12) % 12])
+    },
+
     resetToSample () {
       this.form.sales = SAMPLE_SALES.slice(SAMPLE_SALES.length - this.form.window)
       this.isSample = true
@@ -507,6 +558,9 @@ export default {
 .vol-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--rs-accent-bright); }
 .vol-note { font-size: 12px; color: var(--rs-muted); line-height: 1.5; margin: 10px 0 0; }
 .vol-fieldlab { display: block; font-size: 12.5px; color: var(--rs-ink); margin-bottom: 6px; }
+/* The second label in the group sits under the first control's help text, which would
+   otherwise run straight into it. */
+.vol-fieldlab.is-spaced { margin-top: 16px; }
 
 .vol-results { display: flex; flex-direction: column; gap: 16px; min-height: 200px; }
 .vol-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }

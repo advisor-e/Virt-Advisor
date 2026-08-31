@@ -124,6 +124,51 @@ describe('Volatility Report screen', () => {
     expect(wrapper.vm.flooredBand.k).toBe(3)
   })
 
+  it('names the months from the chosen start, wrapping past December', async () => {
+    // Mike, 2026-08-31: "the advisor enters the name of the month and it fills the
+    // remaining months selected thereafter". The wrap is the part worth testing — it is
+    // right for most start months and wrong only for the late ones, which is exactly the
+    // shape of bug that survives a look at the screen.
+    const wrapper = await mountWith(sample(12))
+
+    // The default is September, where the workbook's own series begins.
+    expect(wrapper.vm.startMonth).toBe('sep')
+    expect(wrapper.vm.monthLabels).toEqual([
+      'report.volatility.monthShort.sep', 'report.volatility.monthShort.oct',
+      'report.volatility.monthShort.nov', 'report.volatility.monthShort.dec',
+      'report.volatility.monthShort.jan', 'report.volatility.monthShort.feb',
+      'report.volatility.monthShort.mar', 'report.volatility.monthShort.apr',
+      'report.volatility.monthShort.may', 'report.volatility.monthShort.jun',
+      'report.volatility.monthShort.jul', 'report.volatility.monthShort.aug'
+    ])
+
+    wrapper.setData({ startMonth: 'jan' })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.monthLabels[0]).toBe('report.volatility.monthShort.jan')
+    expect(wrapper.vm.monthLabels[11]).toBe('report.volatility.monthShort.dec')
+
+    // Year on Year's header is the SECOND year of a 24-month series, so it indexes past
+    // the end of the window and must wrap the same way.
+    expect(wrapper.vm.monthLabel(12)).toBe('report.volatility.monthShort.jan')
+    expect(wrapper.vm.monthLabel(25)).toBe('report.volatility.monthShort.feb')
+  })
+
+  it('does not call the backend when only the month NAME changes', async () => {
+    // A label change moves no figure. If startMonth were inside `form`, the deep watcher
+    // would queue a recompute on every selection — a request for nothing, and one nobody
+    // would ever notice was happening.
+    const wrapper = await mountWith(sample(12))
+    const before = global.fetch.mock.calls.length
+
+    wrapper.setData({ startMonth: 'mar' })
+    await wrapper.vm.$nextTick()
+    await Promise.resolve()
+    await wrapper.vm.$nextTick()
+
+    expect(global.fetch.mock.calls.length).toBe(before)
+    expect(wrapper.vm.monthLabels[0]).toBe('report.volatility.monthShort.mar')
+  })
+
   it('renders nothing rather than crashing before the first result lands', () => {
     global.fetch = jest.fn(() => new Promise(() => {}))
     const wrapper = mountWithBuefy(VolatilityReport, { propsData: {} })

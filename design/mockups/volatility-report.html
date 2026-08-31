@@ -204,13 +204,6 @@ td.out{color:var(--rs-warn);font-weight:600}
     </div>
   </header>
 
-  <div class="chips">
-    <span class="chip done"><span class="n">✓</span> Accounts file uploaded</span>
-    <span class="chip done"><span class="n">✓</span> Sales rows matched</span>
-    <span class="chip now"><span class="n">3</span> Review volatility</span>
-    <span class="chip todo"><span class="n">4</span> Discuss with client</span>
-  </div>
-
   <!-- [C] HeroStrip — full-width band, direct child of the root, above the layout -->
   <div class="herostrip tag" data-tag="C">
     <div class="hs">
@@ -242,18 +235,24 @@ td.out{color:var(--rs-warn);font-weight:600}
     <aside class="vol-card tag" data-tag="D1">
       <div class="vol-group">
         <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">Window</h2></div>
-        <label class="fieldlab">How many months to measure</label>
+        <label class="fieldlab">Starting month</label>
+        <select style="width:100%;font:inherit;font-size:13px;padding:8px 9px;border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink)">
+          <option>September</option>
+        </select>
+        <p class="vol-sub" style="margin:6px 0 0">The first month you are entering. The rest follow on from it.</p>
+        <label class="fieldlab" style="margin-top:16px">How many months to measure</label>
         <div class="seg"><button class="on">12</button><button>18</button><button>24</button></div>
       </div>
       <div class="vol-group">
-        <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">Source</h2></div>
-        <div class="srcbox">
-          <span>📄</span>
-          <div>
-            <div class="nm">Northgate_ProfitAndLoss_2023.xlsx</div>
-            <div class="mt">Xero P&amp;L export · 12 monthly sales rows read</div>
-          </div>
+        <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">Monthly sales</h2></div>
+        <p class="vol-sub" style="margin:0 0 10px">Oldest month first. An accounts upload is coming; for now these are typed.</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <div style="display:flex;align-items:center;gap:6px"><span style="width:22px;font-size:11px;color:var(--rs-muted);text-align:right">Sep</span><input value="16892" style="width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;border:1px solid var(--rs-line);border-radius:7px"></div>
+          <div style="display:flex;align-items:center;gap:6px"><span style="width:22px;font-size:11px;color:var(--rs-muted);text-align:right">Oct</span><input value="78123" style="width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;border:1px solid var(--rs-line);border-radius:7px"></div>
+          <div style="display:flex;align-items:center;gap:6px"><span style="width:22px;font-size:11px;color:var(--rs-muted);text-align:right">Nov</span><input value="56894" style="width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;border:1px solid var(--rs-line);border-radius:7px"></div>
         </div>
+        <p class="vol-sub" style="margin-top:8px">…twelve in all, three to a row.</p>
+        <button class="vol-cta vol-ghost" style="margin-top:10px">Reset to defaults</button>
       </div>
       <div class="vol-group">
         <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">The bands</h2></div>
@@ -277,7 +276,7 @@ td.out{color:var(--rs-warn);font-weight:600}
       <div class="vol-tiles tag" data-tag="D2a">
         <div class="vol-tile">
           <div class="vol-k">Total sales</div>
-          <div class="vol-v">£681,486<span class="src src-file">from file</span></div>
+          <div class="vol-v">£681,486</div>
           <div class="vol-sub">12 months to December</div>
         </div>
         <div class="vol-tile">
@@ -287,13 +286,13 @@ td.out{color:var(--rs-warn);font-weight:600}
         </div>
         <div class="vol-tile">
           <div class="vol-k">Highest month</div>
-          <div class="vol-v">£85,743<span class="src src-file">from file</span></div>
-          <div class="vol-sub">June · +£28,953 on the average</div>
+          <div class="vol-v">£85,743</div>
+          <div class="vol-sub">Apr · +£28,953 on the average</div>
         </div>
         <div class="vol-tile">
           <div class="vol-k">Lowest month</div>
-          <div class="vol-v">£16,892<span class="src src-file">from file</span></div>
-          <div class="vol-sub">January · −£39,899 on the average</div>
+          <div class="vol-v">£16,892</div>
+          <div class="vol-sub">Nov · −£39,899 on the average</div>
         </div>
       </div>
 
@@ -420,10 +419,10 @@ td.out{color:var(--rs-warn);font-weight:600}
           <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">The four months outside the range</h2></div>
           <table>
             <tr><th>Month</th><th>Sales</th><th>Distance from average</th><th>Band</th></tr>
-            <tr><td>January</td><td class="out">£16,892</td><td class="out">−£39,899</td><td>Below 1st</td></tr>
-            <tr><td>April</td><td class="out">£20,659</td><td class="out">−£36,132</td><td>Below 1st</td></tr>
-            <tr><td>June</td><td class="out">£85,743</td><td class="out">+£28,953</td><td>Above 1st</td></tr>
-            <tr><td>August</td><td class="out">£85,631</td><td class="out">+£28,841</td><td>Above 1st</td></tr>
+            <tr><td>Sep</td><td class="out">£16,892</td><td class="out">−£39,899</td><td>Below 1st</td></tr>
+            <tr><td>Feb</td><td class="out">£20,659</td><td class="out">−£36,132</td><td>Below 1st</td></tr>
+            <tr><td>Apr</td><td class="out">£85,743</td><td class="out">+£28,953</td><td>Above 1st</td></tr>
+            <tr><td>Jun</td><td class="out">£85,631</td><td class="out">+£28,841</td><td>Above 1st</td></tr>
           </table>
         </div>
         <div class="vol-group">
@@ -455,8 +454,7 @@ td.out{color:var(--rs-warn);font-weight:600}
       <!-- [D2d] actions -->
       <div class="vol-actions tag" data-tag="D2d">
         <button class="vol-cta">Download PDF</button>
-        <button class="vol-cta vol-ghost">Replace accounts file</button>
-        <span class="vol-foot">Figures tagged “from file” came from the upload; the rest are calculated.</span>
+        <span class="vol-foot">All figures are calculated from the monthly sales entered on the left.</span>
       </div>
 
     </section>
@@ -479,31 +477,14 @@ td.out{color:var(--rs-warn);font-weight:600}
     <div class="hs"><div class="hk">One deviation</div><div class="hv">£22,071</div><div class="hs2">stale</div></div>
   </div>
 
-  <div class="q">
-    <h2>Wording to settle before this is built</h2>
-    <ol>
-      <li><strong>“Average monthly swing”</strong> for the dial — your words. The workbook
-        prints the bare number with no label at all. Confirm, or name it differently?</li>
-      <li><strong>The three band descriptions</strong> under the dial — “a steady business” /
-        “noticeable swing” / “a wide swing month to month”. Mine, and the dial is yours, so
-        these especially need your eye. The <span class="from">50</span> and
-        <span class="from">75</span> boundaries are measured from your own gauge images, not
-        chosen.</li>
-      <li><strong>“Normal range”</strong> — my phrase for the band one deviation either side.
-        Your workbook says <span class="from">“1st Deviation – Upper/Lower Range”</span>.
-        Which goes in front of a client?</li>
-      <li><strong>“Average monthly sales”</strong> — the workbook’s graph says
-        <span class="from">“Average Mthly Sales”</span>. I spelled it out. Confirm?</li>
-      <li><strong>The coach panel text.</strong> Drawn from your own
-        <span class="from">demings-volatility-reference.json</span> — the pass/fail trap and
-        “going up and down is normal”. Does it say what you want an adviser to say?</li>
-      <li><strong>The negative third band.</strong> The maths gives −£9,422. Sales cannot be
-        negative. Left off the chart and noted in the table — or floor it at £0, or plot it as
-        your workbook does?</li>
-      <li><strong>“Outside the 1st deviation”</strong> for the four ringed months. Alternatives:
-        <span class="from">“outside the expected range”</span>, or
-        <span class="from">“worth a conversation”</span>.</li>
-    </ol>
+  <div class="mock">
+    <strong>Wording approved by Mike, 2026-08-31</strong>, and the screen was BUILT from this
+    file the same day (<em>components/VolatilityReport.vue</em>). Updated after the build to
+    match it: the four upload step chips, the source-file card and the “from file” badges are
+    gone — entry is typed until the by-month accounts upload lands (“typed now, upload next”) —
+    and a <strong>Starting month</strong> picker was added at Mike’s request, so the months read
+    by name and fill forward from the one chosen. The negative third band stops at zero, also
+    his ruling. The dial’s 50/75 boundaries were measured from the workbook’s own gauge images.
   </div>
 
 </div>
