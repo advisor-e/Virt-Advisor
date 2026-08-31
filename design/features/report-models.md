@@ -465,11 +465,22 @@ All five are mutation-verified.
 5. **Assemble the payload in the model, not the route.** One model does it in the route and
    its test has to mirror the route by hand.
 
-### Known open gap
+### Known open gaps
 
-User-facing strings on the existing report screens are hardcoded English rather than going
-through `$t()`. This breaches the Stack Constitution, is a logged P1, and **must not be
-copied** into a new screen.
+**Hardcoded English on the older screens.** User-facing strings on the report screens built
+before 2026-08-31 are hardcoded rather than going through `$t()`. This breaches the Stack
+Constitution, is a logged P1, and **must not be copied** into a new screen. The **Volatility
+Report** is the worked example of the compliant pattern — every string on it is a key in
+`locales/en.json`, month names included — so copy that screen, not its neighbours. A string
+hardcoded in a template stays English for ever; one in `en.json` can become any language.
+
+**The file intake reads ANNUAL figures only.** `server/report/intake/xeroReportParser.js`
+takes one figure per period and **deliberately refuses** a by-month or by-quarter export
+(`MULTI_PERIOD_COLUMNS`, at 5+ figure columns) — reading only the first column silently lost
+the rest of the year, which is the fault that refusal exists to prevent. **A model needing a
+monthly series therefore has no intake path today.** The Volatility Report takes its months
+typed for exactly this reason. Building that path is item 4.54; until it lands, do not assume
+"it has intake" of any model whose inputs are monthly.
 
 ---
 
