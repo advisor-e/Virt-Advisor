@@ -722,6 +722,12 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('templateCheck')" v-show="activeTab === 'templateCheck'")
         mentor-template-check(:api-token="apiToken")
 
+      //- ── Tab (mentor only): Template Library ────────────────────────
+      //- The master export upload (SEARCH-CONTENT-CASCADE-PLAN.md Phase 1; wording
+      //- approved by Mike 2026-08-31). Stored inert until Phase 2 rewires the loader.
+      div.hub-panel(v-if="showsTab('templateLibrary')" v-show="activeTab === 'templateLibrary'")
+        mentor-template-library(:api-token="apiToken")
+
       //- ── Tab (mentor only): Case Reviews ────────────────────────────
       //- Not a cascade function — it is the one read that travels UP, and it
       //- exists at no other tier. Last, so the tabs the firm also has keep the
@@ -751,6 +757,7 @@ import MentorReview from '~/components/MentorReview.vue'
 import MentorAdoption from '~/components/mentor/MentorAdoption.vue'
 import MentorDistinctions from '~/components/MentorDistinctions.vue'
 import MentorTemplateCheck from '~/components/mentor/MentorTemplateCheck.vue'
+import MentorTemplateLibrary from '~/components/mentor/MentorTemplateLibrary.vue'
 import MentorLogicLabReport from '~/components/mentor/MentorLogicLabReport.vue'
 import TierNotConnected from '~/components/base/TierNotConnected.vue'
 import traceReasonMixin from '~/mixins/traceReasonMixin'
@@ -896,6 +903,12 @@ const TAB_TIERS = {
   // Coaching Reference tab has gone (item 4.24, Mike 2026-08-20): 6 unconditional
   // tabs plus 6 conditional. Counted against the template, not against this comment.
   templateCheck: ['mentor'],
+
+  // The master export upload (SEARCH-CONTENT-CASCADE-PLAN.md Phase 1, Mike
+  // 2026-08-31). Mentor-only for the same reason as templateCheck: it maintains
+  // the shared platform library. A firm's own upload has its own doorway
+  // (importTemplates); the middle tiers get theirs only when a real need names it.
+  templateLibrary: ['mentor'],
 
   // The property model's tax rules (Mike, 2026-08-17, §8 Q6). Every tier that has a
   // LAYER ABOVE IT — the same shape as distinctionsFirm, and for the same reason: the
@@ -1044,7 +1057,11 @@ const NAV_GROUPS = [
       { key: 'adoption', i18n: 'mentorAdoption.tab' },
       { key: 'logicLabReport', i18n: 'logicLabReport.tab' },
       { key: 'caseReviews', label: 'Case Reviews' },
-      { key: 'templateCheck', i18n: 'templateCheck.tab' }
+      { key: 'templateCheck', i18n: 'templateCheck.tab' },
+      // Placed beside Template Check as approved (Mike, 2026-08-31): both are
+      // mentor-only maintenance of the one shared template catalogue, even though
+      // an upload is not itself a roll-up. Named to Mike at approval time.
+      { key: 'templateLibrary', i18n: 'templateLibrary.tab' }
     ]
   }
 ]
@@ -1078,7 +1095,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmAiPrompts, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmAiPrompts, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

@@ -2079,6 +2079,30 @@
       "load": "The report could not be built. Nothing has changed — if this keeps happening the backend may not be running."
     }
   },
+  "templateLibrary": {
+    "tab": "Template Library",
+    "heading": "Master template export",
+    "intro": "Upload the search-content export from Advisor-e. It becomes the platform's template library — firms that upload their own keep theirs.",
+    "stateNone": "No export uploaded — the app is using the built-in library.",
+    "stateUploaded": "{n} templates · uploaded {date} by {who}",
+    "chooseFile": "Choose a file",
+    "uploadButton": "Upload export",
+    "historyHeading": "Previous versions",
+    "colVersion": "Version",
+    "colUploaded": "Uploaded",
+    "colBy": "By",
+    "current": "Current",
+    "restore": "Restore",
+    "uploadSuccess": "Export uploaded — {n} templates stored.",
+    "uploadFailed": "That file couldn't be accepted — the current library is untouched.",
+    "reasonNotJson": "It isn't valid JSON.",
+    "reasonWrongShape": "Some entries are missing required fields.",
+    "reasonTooLarge": "It is too large.",
+    "reasonGeneric": "The upload didn't complete — try again.",
+    "loadFailed": "The upload state couldn't be loaded — try again shortly.",
+    "restoreSuccess": "Version restored — the library is back to that upload.",
+    "restoreFailed": "That version couldn't be restored."
+  },
   "templateCheck": {
     "tab": "Template Check",
     "title": "Template Check",
