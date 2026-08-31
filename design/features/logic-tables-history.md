@@ -25,19 +25,11 @@ catches up, the name starts flowing with no edit to the tree and no edit to the 
 ## 2. The gate was raised as a live fault, and it is not one
 
 The gate validates against the project's mirror of the catalogue rather than the raw export, and
-that difference was reported as a defect.
-
-**It was measured on 2026-08-13 and found inert.** Of the titles present in the mirror but not
-the export, **zero** are named by any branch of any tree, and **zero** are produced by running the
-app's own name-extraction over every recommendation, action, note, condition and question.
-
-**The raw substring counts looked alarming and were worthless** — one name appeared thirty times,
-all of them inside longer names or ordinary prose.
-
-So it is a latent weakness, not a defect: it would only bite if one of those names were written
-into a tree. And the mirror is used for a real reason — **the export is not committed to the
-project**, so on a fresh clone or in a build the gate would have nothing to check against and
-would switch itself off.
+that difference was reported as a defect. **Measured, it proved inert**: of the titles present in
+the mirror but not the export, **zero** are named by any branch of any tree, and **zero** are
+produced by running the app's own name-extraction over every field. A latent weakness, not a
+defect — it would only bite if one of those names were written into a tree. The ruling and the
+mirror rationale are Brief **P5** and trap 3.
 
 > The owner's response when it was raised — *"prove to me its not working first"* — is the
 > correct default, and the measurement is recorded so nobody re-derives it.
@@ -59,13 +51,10 @@ coverage claim needs to name what it covers.
 
 ## 4. Content filed into the wrong lane is invisible
 
-It renders, it saves, it passes tests, and it silently never reaches the decision it was written
-for. That happened **three times in one week**, and every one was found by a person reading code
-rather than by anything automated.
-
-The routing report exists so the next one is noticed instead. It is **generated**, its rules live
-in code that the build guard also reads, and it currently classifies 491 content assets with
-**zero unknown**.
+Told in full in [`advisory-engine.md`](advisory-engine.md) §3 and the Brief's trap 1. The
+routing report exists so the next case is noticed by automation instead of by a person reading
+code: it is **generated**, its rules live in code that the build guard also reads, and it
+currently classifies 491 content assets with **zero unknown**.
 
 **A lane is not a quality mark.** Briefing content is doing its job by not selecting templates.
 

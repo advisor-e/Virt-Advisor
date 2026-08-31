@@ -52,22 +52,7 @@ real bug fix or three real security properties.
 
 ---
 
-## 4. The open breach, stated plainly
-
-**Hardcoded English is still present** on the report model screens and parts of the advisor
-screen. It breaches the stack requirement that every user-facing string goes through the wording
-layer, and it is logged as a critical reconcile item rather than accepted as how things are done
-here.
-
-It matters more than it sounds. The whole point of the wording layer is that the people who own
-the words can change them without a developer, and that a second language is a data problem
-rather than a code change. Every hardcoded string is a small hole in both.
-
-**Do not copy the pattern into new work**, and do not treat its presence as precedent.
-
----
-
-## 5. Where the raw material is
+## 4. Where the raw material is
 
 **The authority is in the code:** the header block of `server/routes/translate.js` explains why
 one route serves both halves of the app and what each side contributed. `server/routes/currency.js`

@@ -61,59 +61,22 @@ not, because that manager could do nothing with it.
 
 ---
 
-## 4. What it cost to apply it late
-
-The marks shipped on 2026-08-14 and the display came off the manager tiers the same day, after the
-owner asked. Roughly an hour of build, a Brief paragraph, a mockup section and four tests were
-written for a display that was then hidden.
-
-**Nothing was wasted in the data layer** — the marks are still stored, still saved and still sent
-to the AI, which is exactly the property that made the cut safe. But the screen work was avoidable,
-and it was avoidable by asking one question at design time: *who reads this, and what do they do
-differently because they read it?*
-
-That is why §3 of the Brief says to ask it before building. It is not a general exhortation; it is
-the specific lesson of this one exchange.
-
----
-
-## 5. The first recommendation was wrong, and how
+## 4. The first recommendation was wrong, and how
 
 Asked whether to hide the note, the initial answer was **keep it** — on the strength of a sentence
-in the feature's own Brief: *"A firm manager reviewing the material has no way to tell which
-sentences are theirs to change."*
-
-**The Brief said it; the code did not support it.** The sentence assumed an ongoing hazard — AI
-adding words to a firm's material that the firm would want to clean off. There is no such path.
-`formatMaterialLines` reads the material into a prompt and nothing writes back; the clauses came
-from our own transcription sessions and stop when transcription stops.
-
-The recommendation was withdrawn within the hour, once the owner asked the question that tested the
-premise rather than the conclusion: *is it because AI will add stuff to their words going forward?*
-
-**The lesson is not "the Brief was wrong".** It is that a justification written when a feature is
-designed can survive into a state of the world where it is no longer true, and the only defence is
-to check it against the code when it is used to defend something. Compare the same failure family
-in [`domain-support-history.md`](domain-support-history.md), where a correction was applied to the
-data and the document it had been copied to stayed wrong for a fortnight.
+in the feature's own Brief that the code did not support. It was withdrawn within the hour, once
+the owner asked the question that tested the premise rather than the conclusion: *is it because AI
+will add stuff to their words going forward?* **The lesson:** a justification written when a
+feature is designed can survive into a state of the world where it is no longer true — check it
+against the code whenever it is used to defend something.
 
 ---
 
-## 6. Where this page's own sources are
-
-The exchange is in the session record for 2026-08-14 (laptop, session 54). ⚠ **The decision it
-produced no longer exists** — the Brief, the mechanism and its test were all deleted on 2026-08-15.
-
----
-
-## 7. The day after: the test deleted the feature that produced it
+## 5. The day after: the test deleted the feature that produced it
 
 **2026-08-15.** Asked why a Client Survey item was on his list, Mike asked the question nobody had
 asked in a fortnight: *who requested this feature?* Traced through `ACTIONS.md`, the answer was
-**nobody**. The real defect — an acronym expansion invented as *"Conviction, Response"* — was his own
-find, corrected by him on 2026-07-31, with the follow-up **deferred in writing**. The line that
-spawned everything after it, *"the blast radius was never measured"*, was written by an AI session.
-When it was measured, the fact-level result was **clean**.
+**nobody** — and the Brief, the mechanism and its test were all deleted that day.
 
 His ruling, verbatim:
 
@@ -126,10 +89,8 @@ And on the offer to park it rather than delete it:
 > makes a difference and get rid of all the other shit — just wastes my time and causes more
 > confusion."*
 
-**Two things this page now records that it could not before.** First, the test has teeth: it
-deleted the feature it was born from, one day later, including working tested code. Second,
-**hiding was the wrong answer on 2026-08-14** — not wrong on its own terms, but too small. The note
-came off three screens and everything behind it stayed: the data, the mechanism, the tests, a Brief,
-a mockup and five backlog items, all of which then generated more work. That correction is now in
+Two facts follow. First, the test has teeth: it deleted the feature it was born from, one day
+later, including working tested code. Second, **hiding was the wrong answer on 2026-08-14** — too
+small; everything behind the hidden note stayed and generated more work. That correction is now in
 [`product-principles.md`](product-principles.md) §3. Full record:
 [`../ACTIONS.md`](../ACTIONS.md) §authored-commentary-sweep-deleted.

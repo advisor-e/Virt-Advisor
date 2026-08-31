@@ -49,21 +49,12 @@ returned three templates and no model, exactly as its own rules require.
 
 🔴 **That is the half-a-fix shape in its quietest form**, and it is worth naming precisely
 because everything looks finished: the content is authored, the wiring is proven against the
-assembled prompt string, twenty-seven tests are green, and **the advisor is no better off
-than before.** It became item **4.32** rather than a quiet widening of this change, because
-editing a mode prompt alters what a deployed screen says to real advisors — the same
-reasoning that put 4.30 on the list instead of folding it into the work that found it.
+assembled prompt string, the tests are green, and **the advisor is no better off than
+before.** It was raised as its own item rather than quietly widened into this change,
+because editing a mode prompt alters what a deployed screen says to real advisors.
 
-### And then it was answered the same afternoon
-
-Mike: *"yes and both if its appropriate"*. `discover.txt` gained a **"A calculator that
-fits"** block inside its format; `client.txt` gained hard rule **R18**.
-
-**The closing rule was not loosened, and that was the whole design of the change.** The
-block sits *above* the "End there. Full stop." line rather than that line being relaxed. A
-test asserts both — the rule is still present, and the block precedes it. A rule that exists
-to make the AI stop talking is not collateral in a feature that wants it to say one more
-thing.
+Mike answered the same afternoon, and the invitation — with its brake, and the unloosened
+closing rule — is a current rule in the Brief's §3a.
 
 ### The reverted attempt, kept because it is the transferable part
 
@@ -78,11 +69,6 @@ finished writing and matches on bold text alone. Nothing said to the AI can reac
 rounds of prompt wording were spent before that was checked; reading `videoInjector.js`
 first would have cost two minutes and saved all of it. It is now item **4.33**, and the item
 says in terms that the prompt cannot fix it.
-
-⚠ **One claim was wrong and is corrected here rather than quietly dropped.** The video
-sentence was first reported as the AI inventing a tutorial video. It was not — the app
-appends it, from real template data. The video is real; what is wrong is which line it lands
-on.
 
 ---
 
@@ -186,34 +172,23 @@ despite importing nothing. → Brief **P6**.
   badges and a dynamic ceiling so a touch can never snap a real figure down to a cap;
   EBITDA/DCF has no sliders. The exclusion is structural, not laziness.
 
-  ⚠ **It was called `SliderGroup` in three documents until 2026-08-15, and no such component
-  has ever existed.** The name came from `REPORT-SCAFFOLDING-PLAN.md`, which proposed it; what
-  was built is `components/base/SliderField.vue`, used by MarginBreakeven, LoanEstimator,
-  DebtorDrag and BusinessPerformanceReport — so the *"four screens"* was right and only the name
-  was wrong. The Brief carried both names, twenty lines apart, and contradicted itself for two
-  days. Corrected in the Brief, this page and `ADDING-A-REPORT.md`; the plan and the July session
-  notes keep the old name as accurate records of their own date. **A proposed name is not a
-  built component — check `components/` before quoting one.**
+  ⚠ **It was once called `SliderGroup`, and no such component has ever existed.** The name
+  came from `REPORT-SCAFFOLDING-PLAN.md`, which proposed it; what was built is
+  `components/base/SliderField.vue`. The plan and the July session notes keep the old name
+  as accurate records of their own date. **A proposed name is not a built component — check
+  `components/` before quoting one.**
 - **Flattening gradients on data marks.** The cash-runway bar, the EBITDA bars and the
   slider tracks keep theirs. Readability decision, not tidying.
 - **A per-model look, ever.** Raised more than once. Settled permanently 2026-07-23.
 
 ---
 
-## 4. The migration that made the rules structural · 2026-07-27
+## 4. The migration that made the rules structural
 
-Six steps, each its own approved change, tests green throughout:
-
-1. `ReportShell.vue` + tokens added, no screen changed — `20be0e2`
-2. All screens moved onto the shell, one per commit, each deleting its copy-pasted frame —
-   through `9d41582`, `ebd6ab8`, `b927395`
-3. Numbers standardised through the tokens — `ff549b6`
-4. Dark mode: all-light (no code change needed; the blocks came out during step 2)
-5. The frame guard added, mutation-verified — `264bdb9`
-6. `ADDING-A-REPORT.md` rewritten to teach shell-first — `29fac32`
-
-The approach was proven before it was trusted: the banner and header had already been shared
-for a week, and they were the only two things that had never drifted.
+The shell, the tokens and the frame guard landed as a sequence of small approved changes,
+tests green throughout. The approach was proven before it was trusted: the banner and header
+had already been shared for a week, and they were the only two things that had never
+drifted.
 
 ---
 

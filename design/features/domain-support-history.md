@@ -99,50 +99,15 @@ twice in a live thread and both detections were correct.
 
 ---
 
-## 5b. What the Brief said before 2026-08-25, and why it no longer says it
-
-Both passages below were **warnings that a decision had not been taken**. Both decisions were
-taken on 2026-08-25, so the warnings became false and were replaced in the Brief rather than
-left standing beneath the new text. They are kept here because a warning that was true for a
-year explains why the code looks as it does.
-
-**On how far Learning Psychology reaches** — the Brief carried:
-
-> ⚠ **Where else it should go is an open decision for Mike**, recorded rather than defaulted.
-
-Ruled 2026-08-25: leave it on the learn path. It had been left off the default when the page
-shipped on 2026-08-23 **without anyone choosing it** — an accidental setting, not a decision,
-which is the only reason it was ever an item.
-
-**On the five drivers being written down twice** — the Brief carried:
-
-> ⚠ **Known duplication, recorded so it cannot drift quietly.** Learning Psychology’s five
-> drivers are also defined in `data/staff-domain-support.json`, in the *"5 Drivers of Human
-> Output — Performance Diagnosis"* row, where they serve a diagnosis of which driver is failing.
-> Learning Psychology carries the source definitions that row paraphrases. Reconciling the two is
-> its own change and needs Mike’s call.
-
-That is a fair description of the fault: two copies, different words, different names
-(`Mindset` against `Mind Set (mental state / attitude)`), both reaching the AI on different
-occasions. Recording it stopped it being forgotten but did not stop it being possible. It is now
-one copy, read from the guide at prompt-build time — see the Brief.
-
----
-
 ## 6. Where the earlier record is wrong
 
 Read 2026-08-13:
 
-- ✅ **`DOMAIN-SUPPORT-REVIEW-CHECKLIST.md` carried the fabricated acronym expansion until
-  2026-08-13** — see §1; corrected in place, with the old wording named so the change is
-  checkable. It is otherwise the best account of exactly which rows need attention, and it was
-  derived from the data files rather than from anyone's notes, which is why its counts can be
-  trusted.
+- ✅ **`DOMAIN-SUPPORT-REVIEW-CHECKLIST.md` outlived the fabrication fix** — told in §1. It is
+  otherwise the best account of exactly which rows need attention, and it was derived from the
+  data files rather than from anyone's notes, which is why its counts can be trusted.
 - `virt-advisor-system-design.md` §2.4 describes these files accurately but its build-status
   table predates several features.
-- `ACTIONS.md` carries the fabrication entry with its own correction stacked on top — the
-  original wording is preserved beneath a note saying the confirmed instance is fixed. Read the
-  top of the entry, not the bottom.
 
 ---
 

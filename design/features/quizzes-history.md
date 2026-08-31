@@ -68,12 +68,6 @@ statement of the model and its status line is now wrong:
 - Its §7 lists four open decisions. **Two are answered:** quizzes *do* cascade, and a firm edits
   the platform set as an overlay with the base restorable. The template-picker source remains a
   real open dependency on the master app.
-- Its §5 describes the overlay pattern as something to reuse "don't reinvent". That is exactly
-  what happened, and it is now the pattern for every cascading block rather than a
-  quiz-specific choice.
-
-**Left in place** — it is a record of its own date, and §2's description of the model is still
-the clearest account of why a quiz is always bound to a real template.
 
 ---
 

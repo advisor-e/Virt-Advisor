@@ -106,13 +106,8 @@ are candidates for decomposition, and both are load-bearing. A split needs tests
 ### The tab matrix, as built
 
 Unconditional at every tier: **Domain Support · Logic Tables · Logic-Lab · Advisory Staircase ·
-Quizzes · Adviser Network**. *(**Six since 2026-08-20.** It was seven from 2026-08-15, when
-Coaching Reference was added — the fifth and last block to join the row-inheritance mechanism, and
-the only one whose engine shipped before its screen. **That tab and the feature behind it were
-removed on 2026-08-20** (item 4.24, Mike: "remove the tab"): the fifteen rows it edited were
-measured against the logic trees that had superseded them, the seven pieces worth keeping were
-folded into those trees, and the rest went. See
-[`coaching-reference.md`](coaching-reference.md).)*
+Quizzes · Adviser Network**. *(Six — a seventh, Coaching Reference, was removed along with the
+feature behind it; the story is in [`coaching-reference.md`](coaching-reference.md).)*
 
 | Tab | Tiers |
 |---|---|
@@ -149,34 +144,26 @@ behalf of every country.
 own advisers by name".** Both earlier exceptions shared that reason; this one does not, which is
 why it is written out here rather than added to their sentence.
 
-### ✅ A duplicate at the group and global tiers — found 2026-08-19, FIXED the same day
+### 🔴 Team Case Studies is firm-only
 
-**Team Case Studies and Case Reviews return the identical list above the firm.** Both call
-`caseStore.listSharedWithMentor` with the same scope and the same `withOrigin` decoration —
-`cases.js` `listFirmCases` for any non-firm tier, and `mentor.js` `listMentorCases`. A group
-manager and a global group manager therefore open two differently-named tabs and find the same
-cases in both. **Only the firm manager's version is genuinely different**: theirs reads
-`listSharedForFirm` — their own advisers' cases in full, un-anonymised.
-
-⚠ **This is not a regression.** `listFirmCases` was deliberately widened above the firm on
-2026-08-12 to stop a middle tier being shown an empty list; that fix was correct. What it created,
-unnoticed, was an overlap with a tab that already did the job at those tiers.
-
-✅ **Fixed 2026-08-19, session 73.** `teamCaseStudies` is now `['firm']` — the third tier-limited
-tab, carrying its own written reason in `TAB_TIERS` and a named entry **in menu order** in
-`mentorHubScope.component.test.js`. The reasoning is in
+**`teamCaseStudies` is `['firm']`** — the third tier-limited tab, carrying its own written reason
+in `TAB_TIERS` and a named entry **in menu order** in `mentorHubScope.component.test.js`. Above
+the firm it duplicated Case Reviews — both returned the identical anonymised list — while **only
+the firm manager's version is genuinely different**: theirs reads `listSharedForFirm`, their own
+advisers' cases in full, un-anonymised. The reasoning is in
 [`../HUB-NAVIGATION-GROUPING.md`](../HUB-NAVIGATION-GROUPING.md) §5.
 
 🔴 **Anyone tempted to widen it back must read the reason first.** Narrowing it is **not** a
-revert of the 2026-08-12 widening, which was correct, and it is **not** a breach of "every report
-rolls up" (2026-08-10): those cases still reach every tier above the firm through Case Reviews.
-One door closed, not the room. `hubTabTiers.test.js` asserts it explicitly rather than dropping it
-from the roll-up loop, because an exception quietly removed from a list looks identical to one
-never considered.
+revert of the earlier deliberate widening of `listFirmCases` above the firm (which was correct —
+it stopped a middle tier being shown an empty list), and it is **not** a breach of "every report
+rolls up": those cases still reach every tier above the firm through Case Reviews. One door
+closed, not the room. `hubTabTiers.test.js` asserts it explicitly rather than dropping it from
+the roll-up loop, because an exception quietly removed from a list looks identical to one never
+considered.
 
-⚠ **`listFirmCases`'s non-firm branch now has no caller from the hub**, and is deliberately left
-alone. It returns the same anonymised list Case Reviews returns, so nothing is exposed; narrowing
-a live route is a separate decision from removing a tab.
+⚠ `listFirmCases`'s non-firm branch now has no caller from the hub and is deliberately left alone
+— it returns the same anonymised list Case Reviews returns, and narrowing a live route is a
+separate decision from removing a tab.
 
 ### ✅ The navigation grouping — approved AND built 2026-08-19
 
@@ -200,31 +187,23 @@ Two rules the build holds, and any change here must keep holding:
   `advisorEngine.js` loads domain support, distinctions, logic trees *and* the staircase. A heading
   implying the logic tables or the staircase sit outside the AI's reach would teach every new
   manager something untrue from the navigation itself. Mike rejected exactly that split on sight.
-  Do not reintroduce it. *(**Five since 2026-08-20**, six before it — the rule is about the group,
-  not the count, and the count follows whatever is in the group.)*
+  Do not reintroduce it.
 
-**Counts as built, measured 2026-08-20 off the rendered screen:** firm 3 headings / **10** items ·
-mentor 3 / **11** · group and global 4 / **12**. *(11 / 12 / 13 until the Coaching Reference tab was
-removed that day; the approved design's counts and this change are recorded together at
-[`../HUB-NAVIGATION-GROUPING.md`](../HUB-NAVIGATION-GROUPING.md) §2.)* Asserted off the rendered
-screen rather than off `TAB_TIERS`, because the matrix is what the design predicted and the screen
-is what a manager gets.
+**Counts as built, measured off the rendered screen:** firm 3 headings / **10** items ·
+mentor 3 / **11** · group and global 4 / **12**. Asserted off the rendered screen rather than off
+`TAB_TIERS`, because the matrix is what the design predicted and the screen is what a manager
+gets.
 
-### 🔴 Which tabs can hide their own list — two, not four
+### 🔴 Which tabs can hide their own list — three, not four
 
-**Domain Support and Logic Tables. That is the whole list.**
+**Domain Support, Logic Tables and Quizzes** — same words (**Hide list / Show list**), same
+remembered choice. Quizzes joined at Mike's request off the running screen: *"you have a show
+menu/hide menu for all but only domain support and logic tables have an additional 'hide list'.
+Please add the same feature to Quizzes page."* 🔴 **Each screen keeps its OWN localStorage key**
+— `ds:`, `lt:`, `fq:` — and `firmQuizzes.component.test.js` fails if they are ever shared. One
+screen tidying another's list away is the same fault as the menu collapsing itself.
 
-⚠ `HUB-NAVIGATION-GROUPING.md` §3 named **four** — adding Quizzes and Advisory Distinctions —
-and it was wrong. Both have a rail; neither had a control to collapse it. Mike found it on the
-running screen on 2026-08-19: *"you have a show menu/hide menu for all but only domain support and
-logic tables have an additional 'hide list'. Please add the same feature to Quizzes page."*
-
-✅ **Quizzes now has it**, built the same day, same words (**Hide list / Show list**), same
-remembered choice. 🔴 **Each screen keeps its OWN localStorage key** — `ds:`, `lt:`, `fq:` — and
-`firmQuizzes.component.test.js` fails if they are ever shared. One screen tidying another's list
-away is the same fault as the menu collapsing itself.
-
-🔴 **Advisory Distinctions deliberately does NOT get one**, ruled the same day: *"the others don't
+🔴 **Advisory Distinctions deliberately does NOT get one**, ruled by Mike: *"the others don't
 need it due to layout"*. That is a decision, not an omission — do not "finish" it later.
 
 ### Traps that have actually bitten

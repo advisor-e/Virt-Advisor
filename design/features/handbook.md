@@ -59,17 +59,12 @@ begins as a page in it before any code is written.
    ⚠ **A comment on an item he SETTLES is different and already worked:** `closureBlock()` carries
    it onto [`to-do-done-and-parked.md`](to-do-done-and-parked.md) under *"Mike's own words"*, so
    it survives the item.
-   **Why this is a rule and not an implementation note (2026-08-21).** Discarding a live item's
-   comment was deliberate, and a test named *"strips his call and comment — they are decisions,
-   not schema"* defended it. That reasoning is right for a settled item and was never right for
-   an open one: a live item's comment is the only thing on the whole round trip that says what he
-   wants done. On 2026-08-15 he wrote *"get this done, it doesn't rely on me and should never
-   have been parked"* on 4.7, *"if this is just a handover note - get it done"* on 4.12, and
-   *"draft the email you want me to send Carl"* on 3.5. All three were applied, all three sets of
-   words discarded, and **six days later all three items were still open and still reading
-   "waiting on Us"** — because no session after that one could see he had said anything. Nothing
-   went red: every gate compares generated prose to the data, and nothing compared the data to
-   what he actually said. Fixed in `838f3a0`; guarded by a round-trip test in
+   **Why this is a rule and not an implementation note.** A live item's comment is the only thing
+   on the whole round trip that says what he wants done. He once wrote *"get this done, it doesn't
+   rely on me and should never have been parked"*, *"if this is just a handover note - get it
+   done"* and *"draft the email you want me to send Carl"* on three open items; all three were
+   applied, the words discarded, and the items sat open reading "waiting on Us" because no later
+   session could see he had said anything. Guarded by a round-trip test in
    [`applyToDo.test.js`](../../tests/unit/applyToDo.test.js) that applies a comment, feeds the
    list back through the way the control does, and proves the words are still there.
 10. **A document a generator writes or a test guards is listed with a `../` row, never moved
@@ -78,8 +73,6 @@ begins as a page in it before any code is written.
    commands, a skill and a script. A documentation tidy-up does not get to put those at risk.
    **And this folder holds feature Briefs only** — every page in it must have a History behind
    the gate (rule 4), so a reference table belongs in `design/` and is listed from there.
-   `HUB-PAGE-PURPOSES.md` was moved in on 2026-08-16 and
-   [`tests/unit/newFeature.test.js`](../../tests/unit/newFeature.test.js) caught it; it went back.
 
 ## 3. Reading and editing it
 

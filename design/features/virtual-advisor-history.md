@@ -33,32 +33,12 @@ in the locked block for the same reason: it looks removable and is not.
 
 ## 2. The other faults worth remembering
 
-### The literal word "true" in front of advisors
+All four live as traps in the Brief's §4. What that list does not say:
 
-The recompute error flag is a boolean. It was rendered as a message on a sibling screen, so
-advisors saw `true` where an explanation should have been, for a day. The lesson generalises
-across the app: **a flag is not a message.**
-
-### A third copy of the mode list
-
-`selectMode()` held its own drifted copy of the panel-mode list, so opening My Progress asked
-for a translation key that **had never existed**. Two copies had been kept in step; the third
-was forgotten. One list, or it drifts.
-
-### No request had a timeout
-
-An unanswered request left the spinner running for ever, on every screen that fetched. All of
-them now use a shared fetch-with-timeout helper.
-
-### Six browser tabs cost an afternoon
-
-Chrome allows six simultaneous connections per host, and in development each open
-`localhost:3000` tab permanently holds one for hot-reload. With all six taken, a screen's
-request is **queued in the browser and never sent**: endless spinner, nothing red in the
-console, nothing in the backend log at all. Opening a fresh tab makes it worse.
-
-Recorded because everything about it points at a broken feature, and nothing points at the
-browser. It cannot happen in production.
+- **A flag is not a message.** The `true`-on-screen fault generalises across the app — any
+  boolean rendered where prose belongs will do the same.
+- The drifted mode list was a **third** copy, inside `selectMode()`. Two copies had been kept
+  in step; the third was forgotten. One list, or it drifts.
 
 ---
 
@@ -74,13 +54,10 @@ browser. It cannot happen in production.
 
 ### The OpenAI boundary, and how it was closed
 
-The stack originally specified the OpenAI SDK. That contradicted the locked Node 14.15 runtime —
-no version of the SDK runs on it. The coding team's ruling superseded the SDK wording in favour
-of calling the REST API directly from the backend, leaving the Node lock untouched.
-
-**That migration is complete.** The SDK dependency is gone, all OpenAI logic and the key live on
-the Restify backend, and `server-middleware/advisor.js` is now a thin SSE proxy. The former
-boundary violation is closed — and the Brief's P3 exists so it stays closed.
+The stack's original "OpenAI SDK" wording contradicted the locked Node 14.15 runtime — no
+version of the SDK runs on it — so the coding team superseded it in favour of calling the REST
+API directly from the backend, leaving the Node lock untouched. The migration is complete; the
+Brief's **P3** and CLAUDE.md Req 7 exist so the boundary stays closed.
 
 ---
 

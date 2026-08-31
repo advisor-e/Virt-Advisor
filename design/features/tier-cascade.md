@@ -75,8 +75,7 @@ circumstance can a lower level push something up or enforce changes upward eithe
   their own token, never a parent and never an id taken from the request body. There is no route
   a firm could use to write into its group, so there is nothing to enforce in code.
 
-🔴 **WHAT P11 DOES NOT TOUCH, and this boundary is the whole point of it.** Corrected by Mike
-within the hour of it being written, because the first version got it wrong:
+🔴 **WHAT P11 DOES NOT TOUCH, and this boundary is the whole point of it.** Ruled by Mike:
 
 > *"the Staircase, Distinctions, Quizzes and Domain Support are software features and ai
 > guidance tools to enable software execution — they are not templates like a word doc or excel
@@ -93,17 +92,8 @@ Mike ruled out, applied to every firm rather than only new ones.
 P11 governs **content a level authors and offers to other levels** — a contributed prompt, a
 resource, material meant to be worked with. It does **not** govern the engine's configuration.
 
-⚠ **DO NOT open a reconciliation of `resolveInheritedRows`, `resolveDistinctions`,
-`staircaseConfig`, `quizConfig`, `firmDistinctions`, `firmStaircase`, `firmQuizzes`,
-`firmManager` or `advisorEngine` on the strength of P11.** An earlier revision of this very
-principle named those nine files as an unreconciled gap. **That was wrong and it was dangerous
-— it would have broken working software across four features to satisfy a rule that was never
-aimed at them.** It is recorded here rather than quietly deleted so that nobody re-derives it:
-the mechanism is right, and P11 is not about it.
-
-⚠ **P3 stands unchanged.** An untouched row keeps receiving the level above's improvements
-automatically, and that is correct for the tools. The earlier claim that P3 was
-"underspecified" was part of the same error.
+⚠ **Do not open a reconciliation of `resolveInheritedRows`, the tool blocks or the engines on
+the strength of P11 — the mechanism is right, and P11 is not about it.** P3 stands unchanged.
 
 **P4 · Every report rolls up, to the level immediately below, summarised.** No per-report
 exceptions, ever. Firm manager → its advisers. Group manager → its firms. Global group manager
@@ -138,16 +128,11 @@ escape, carrying a named reason. **Wiring content into the prompt without a scre
 fix** — it makes the content live and still untouchable. The rule is in
 [`../../CLAUDE.md`](../../CLAUDE.md); the evidence that forced it is below.
 
-⚠ **The evidence, and it is the twin of the warning in §4.** The 4.16 sweep of 2026-08-16
-found **102 pieces of authored content reaching no prompt at all** — 71 in domain support
-(65 `diagnostic_entry` routing branches across 20 files, 6 `if_then_logic` rules), 15 in the
-logic trees (13 `stage_entry_question`, 2 `flat_branches`), plus the engagement types and the
-staircase `selectorPrompt`. **No screen renders any of them** — and note the trap: the
-**Domain Support** and **Logic Tables** tabs are ungated in `TAB_TIERS`, so every tier from
-the mentor down already has both pages. The Domain Support tab edits the materials table
-only; the Logic Tables tab edits the branch rows only. **The pages were there all along; the
-fields were never put on them** — which is why "does this block have a screen?" is the wrong
-question and "does *this field* have one?" is the right one.
+⚠ **The evidence, and it is the twin of the warning in §4.** A sweep found **102 pieces of
+authored content reaching no prompt at all**, and no screen rendered any of them — even though
+the Domain Support and Logic Tables tabs already existed at every tier. **The pages were there
+all along; the fields were never put on them** — which is why "does this block have a screen?"
+is the wrong question and "does *this field* have one?" is the right one.
 So §4's warning — *a field can be authored, stored, made firm-editable and still reach
 nothing* — has a worse sibling: **a field can be authored and reach neither a prompt nor a
 screen**, and then no test, no tab and no person can find it.
@@ -211,18 +196,12 @@ Double underscores make a collision with a real Advisor-e firm id impossible.
 ### Traps that have actually bitten
 
 1. 🔴 **A new tier scope needs its reserved row in `firms` seeded**, or its saves are
-   foreign-key refused. This used to be silent — the dev fallback reported success while
-   nothing was written. That specific fault is now fixed (`dbFailure.js` discriminates on
-   `sqlState`), but seeding the row is still required.
+   foreign-key refused — loudly, because `dbFailure.js` discriminates on `sqlState`.
 2. ✅ **The negative tab gates are FIXED — keep them that way.** `TAB_TIERS` in
-   `FirmManagerHub.vue` is now the whole matrix in one place, and **every entry names its tiers
-   positively**. That was done because three tabs had been gated on `scope !== 'mentor'`: the
-   moment a third scope existed, Team Progress and Team Case Studies would have switched
-   themselves on at the new tiers while Advisory Distinctions vanished from them — nothing
-   erroring, no test failing. Adding a fifth scope now shows up as a **missing** tab, which is
-   visible, rather than one that appears uninvited. `hubTabTiers.test.js` pins the firm and
-   mentor columns to what they showed before the middle tiers existed. **Do not reintroduce a
-   `v-if` gate on a negative.**
+   `FirmManagerHub.vue` is the whole matrix in one place, **every entry names its tiers
+   positively**, and `hubTabTiers.test.js` pins the firm and mentor columns. Adding a new scope
+   shows up as a **missing** tab, which is visible, rather than one that appears uninvited.
+   **Do not reintroduce a `v-if` gate on a negative** — P5 carries the rule and the reason.
 3. ⚠ **`config/db-schema.sql` has a `group` table and it is NOT a management tier.** It is a
    Collaborate Special Interest Group — social. Reading it as a tier would be a correctness bug.
 4. **`assertNoPersonalFields` throws rather than filters.** Leave it that way. A silent filter
@@ -279,13 +258,6 @@ production, so they cannot exist in a deployed environment. Each attaches the **
 via the same `tierChain` helpers a real token will use, so what a developer exercises is the
 genuine storage path rather than a special case.
 
-⚠ **This paragraph replaced one that said the opposite** — *"cannot be demonstrated by logging
-in as a group manager, because no such login exists"* — which was written before the dev tokens
-landed and then stayed. It was not merely stale: it taught every session that read it to write a
-weaker caveat than the truth into whatever it was building, and at least three documents in this
-folder carry that caveat because of it. **A Brief that understates what works costs as much as
-one that overstates it.**
-
 ⚠ **What the dev tokens do NOT prove.** They borrow `platform_admin` to get past
 `requireManagerRole`, because the real role values do not exist yet. So the *scope* behaviour is
 genuinely exercised and the *role gate* is not. When Advisor-e supplies the two values, the gate
@@ -293,15 +265,10 @@ is the one thing still to be tested — and it is the thing the trap below is ab
 
 ### The coaching reference — the fifth block, and the last to join
 
-**It inherits, at every tier, and it has a screen.** Its 15 rows carry stable `cr-` ids; the engine
-half joined `resolveInheritedRows` on 2026-08-15 (`869909c`) and the Firm Manager tab followed the
-same day. A firm can switch an entry off, edit one, reset it, or add its own, exactly as it can the
-Advisory Staircase — `server/utils/coachingConfig.js`, `server/utils/firmCoachingReference.js`,
-`components/firm/FirmCoachingReference.vue`.
-
-*(Superseded 2026-08-15. This section previously read "The coaching reference does not inherit …
-its firm side is append-only", which was true until the day it wasn't. Recorded rather than quietly
-overwritten, because that sentence is the reason it went on the list.)*
+**It inherits, at every tier, and it has a screen.** Its 15 rows carry stable `cr-` ids and it
+resolves through `resolveInheritedRows`. A firm can switch an entry off, edit one, reset it, or
+add its own, exactly as it can the Advisory Staircase — `server/utils/coachingConfig.js`,
+`server/utils/firmCoachingReference.js`, `components/firm/FirmCoachingReference.vue`.
 
 🔴 **TWO KINDS OF COACHING ROW LIVE UNDER SIMILAR NAMES AND MUST NEVER BE FOLDED TOGETHER.** The
 obvious wiring was to inherit through the existing `coaching-reference` key. That key does not hold
@@ -328,7 +295,7 @@ mechanism, check its fields against the prompt builder, not against the store.**
 
 ### Property tax rules — the sixth block, and the first that is SETTINGS rather than ROWS
 
-**Built 2026-08-18** (`1feefa2`). The tax settings behind the Multiple Property Assessment cascade
+The tax settings behind the Multiple Property Assessment cascade
 group → firm, and the advisor types over them on the report. Ruled by Mike 2026-08-17
 ([`../MULTIPLE-PROPERTY-ASSESSMENT.md`](../MULTIPLE-PROPERTY-ASSESSMENT.md) §8 Q6) —
 `server/utils/propertyTaxRules.js`, `server/routes/propertyTaxRules.js`,

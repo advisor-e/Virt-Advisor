@@ -56,7 +56,8 @@ proxy** to Restify and nothing more. Business logic in the proxy is a boundary v
 must never land in a fresh conversation.
 
 **P5 · No hardcoded English.** Every user-facing string goes through `$t()` and lives in the
-locale files. **True of this screen as of 2026-08-14** — 87 strings moved into `advisor.*`.
+locale files. The bulk of this screen's strings live in `advisor.*`, but a handful are still
+hardcoded — see the known open gap in §4.
 ⚠ **A wrong key does not throw; vue-i18n prints the key on screen.** So this principle is held by
 a test that walks every `$t()` in the component against the real locale file
 (`tests/unit/i18nMessages.test.js`), not by the suite passing. Add to that walk in the same change
@@ -64,11 +65,8 @@ as any new screen.
 
 **P9 · 🔴 The advisor must be able to correct the AI's read in their own words, and the matching
 must be forgiving.** The engine asks *"I'm reading this as a **X** situation — have I got that
-right?"*, and that answer re-routes the entire recommendation. Until 2026-08-14 it only moved if
-the reply contained the **whole** label, so *"no, it's really about staff"* did nothing while
-*"you've got it wrong"* triggered a full reset — **the engine answered annoyance and ignored a calm,
-specific correction.** This fails silently, which is what makes it serious: the advisor believes
-they were understood and the advice stays wrong.
+right?"*, and that answer re-routes the entire recommendation. A correction that fails to register
+fails silently — the advisor believes they were understood and the advice stays wrong.
 
 **The counter-rule, and it is not optional: a WRONG switch is worse than no switch.** So
 `resolveDomainCorrection` moves only on an unambiguous signal — exactly one *other* area named and

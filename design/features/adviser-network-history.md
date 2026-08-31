@@ -40,17 +40,10 @@ was not an argument against doing it — it was the honest scope, stated before 
 
 ## 3. The recommendation that was inverted
 
-The first recommendation was to *confine Collaborate's tier levels to its own tab*.
-
-**That was wrong, and reading the code is what showed it.** Collaborate already modelled the
-whole chain — the owner's list exactly. Its cross-organisation posture was a working cascade
-already. Meanwhile *this* app implemented a truncated two-level version, with the middle tiers
-having nowhere to exist: the role config declared only two roles, and the override table was
-keyed on a firm id with a foreign key to firms, so there was **no column a group-level override
-could be written to**.
-
-Confining Collaborate's levels would have entrenched a model already missing two of the five
-authoring levels, in exactly the screens the cascade was meant to feed.
+The first recommendation — *confine Collaborate's tier levels to its own tab* — was wrong, and
+reading the code is what showed it: Collaborate already modelled the whole chain, while this app's
+truncated two-level version left the middle tiers nowhere to exist. Confining Collaborate's levels
+would have entrenched the missing layers in exactly the screens the cascade was meant to feed.
 
 **The revised recommendation — and the owner's ruling on it:**
 
@@ -65,15 +58,11 @@ withdrawn and is not to be re-proposed.
 
 ## 4. Why the tab shipped out of order
 
-Slice 4 (the tab) was taken **ahead** of slice 3 (the storage re-key), on a finding read rather
-than assumed: the console fetches only the people routes, served from Collaborate's own store,
-and **never touches the override table** — so the storage change could not make it need rework.
+Slice 4 (the tab) was taken **ahead** of slice 3 (the storage re-key): the console fetches only
+the people routes, served from Collaborate's own store, and **never touches the override table**
+— the thing that settled it was reading the fetch calls, not the plan's sequence.
 
-The stated reason for waiting did not hold, and doing it early **ended four sessions of
-invisible work**. Recorded because the instinct to sequence strictly was wrong here, and the
-thing that settled it was reading the fetch calls.
-
-✅ **Live-verified by the owner on the running app**, 2026-08-01 — *"collab firm manager page is
+✅ **Live-verified by the owner on the running app** — *"collab firm manager page is
 in and works great"* — with the single backend confirmed answering both apps' routes from one
 process. That is a claim the mocked wiring test could not make.
 

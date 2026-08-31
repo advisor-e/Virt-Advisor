@@ -10,9 +10,8 @@
 It was designed as a table in a hub — and it ended up defining how the whole platform inherits.
 
 The question the platform was stuck on was whether a level **clones** the level above's
-configuration or **layers** on top of it. A plan built on the word *fold* was put to the owner
-and he caught the difference: those are different architectures, and the document arguing for it
-contradicted itself between two sections.
+configuration or **layers** on top of it — different architectures hiding behind one loose word,
+and the owner caught the difference.
 
 **The ruled answer was neither, and it already existed here.** A row nobody has touched stays
 current with the level above's edits automatically; any row a level *has* edited is protected,
@@ -56,16 +55,6 @@ feature's own tests could see that.
 | Adopt: whole-row or field-by-field? | **Whole-row first.** Cherry-picking is a later refinement. | 2026-06-27 |
 | Does the mentor get a screen, or keep editing a file by hand? | **A screen** — the firm's screen, one level up, in plain-CRUD mode. | 2026-06-27 |
 | Where do mentor rows live? | **The shared overlay store** under a reserved scope — version history and restore for free, no new table. | 2026-06-27 |
-
-### The build, stage by stage
-
-Storage and a single-source loader first, with **byte-identical behaviour** as the acceptance
-test — with nothing stored, the app behaves exactly as before. Then the mentor routes, then the
-mentor screen, then delete semantics, then the update-review flow. The delete stage was brought
-forward at the owner's request.
-
-**The promotion runs before the master row is removed** — deliberately fail-safe. If it throws,
-the row is not deleted and nothing is lost.
 
 ---
 

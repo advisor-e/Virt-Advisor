@@ -53,9 +53,9 @@ is not a one-click.
 **P4 · What a firm changed feeds the roll-up.** The value of a pushed edit is that several firms
 making the same one reveals a platform default that needs fixing.
 
-**P5 · The artefact is the record.** This feature exists partly *because* a design was agreed in
-conversation and nearly lost — the conversation is recorded verbatim, with the analysis after it,
-so the original can be read back rather than somebody's later summary.
+**P5 · The artefact is the record.** The design conversation is recorded verbatim, with the
+analysis after it, so the original can be read back rather than somebody's later summary — the
+Save-the-Artefact rule (see the History §1 and `CLAUDE.md`).
 
 ---
 

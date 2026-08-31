@@ -60,8 +60,7 @@ judgement this screen exists to collect.
 ## 3. Design considerations
 
 **The number of tabs it changes.** Because Template Check is mentor-only, each middle-tier hub
-has **twelve** tabs rather than the thirteen first drawn. That correction was made after the
-count had been carried in notes for several sessions.
+has **twelve** tabs rather than the thirteen first drawn.
 
 **This was the first evidence the mentor-overlay pattern generalises.** It is the same mechanism
 as the mentor's distinctions, applied to a second kind of mentor-authored content — which is what
@@ -84,8 +83,8 @@ parked.
 | The queue | `design/TEMPLATE-CHECK-ALREADY-ANSWERED.md`, `-REMAINING-58.md`, `-THE-LAST-12.md` |
 
 **Traps.** Do not "fix" the guard to match the other reports — the exception is deliberate and
-documented in the code. And a save here can be refused by the database while the screen reports
-success; that fault is fixed, and the mentor scope still needs its reserved row seeded.
+documented in the code. And the mentor scope still needs its reserved row seeded before a ruling
+can land in the database.
 
 **Known state.** Runs on the development file fallback. The queue is parked until after UAT.
 

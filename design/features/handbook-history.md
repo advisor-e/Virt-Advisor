@@ -2,10 +2,9 @@
 
 ## Why it exists at all
 
-`design/` had grown to 120 files and over 25,000 lines, more than half of it dated session notes.
-Answering *"how is a report model built and formatted?"* meant reading across **22 files** and
-discarding most of what you read — and the current rule and the historical argument that produced
-it sat on the page with equal weight. That is how drift kept winning: they looked the same.
+The current rule and the historical argument that produced it used to sit on the page with equal
+weight — that is how drift kept winning: they looked the same. The full case is in
+[`README.md`](README.md), *Why this exists*.
 
 The split into a **Brief** (current rules) and a **History** (everything else) was made on
 2026-08-13, 24 pages in one session. Six of the eleven Mentor Hub tabs had never had a page of
@@ -28,22 +27,18 @@ at all — nothing referenced it, so nothing could notice it was missing.
 Mike's reaction is the rule in §2.1: *"no point us going to all the work to develop a mockup if
 you make up your own [design] anyway when it comes time to finish the task."*
 
-**What was done instead of arguing:** the shell was restored byte-for-byte (matching MD5), and
-the rebuild's value was kept where it was real — the index-driven navigation, the guards, the
-tests. The restored build was then proven against the original's own output: identical 24 page
-ids, identical 24 gates, byte-identical stylesheet.
+**What was done instead of arguing:** the shell was restored and proven identical to the
+original's output, and the rebuild's value was kept where it was real — the index-driven
+navigation, the guards, the tests.
 
-## Three faults in the original generator, fixed rather than preserved
+## Faults in the original generator, fixed rather than preserved
 
 1. **It typed its 24 pages and their groups into the script by hand.** A new Brief stayed
-   invisible until somebody remembered it — and the groups had *already* drifted from the index,
-   showing "The tier model" and "Collaborate" where `README.md` said "Management" and "The adviser
-   network". Hence rule 3: the index is the single source.
-2. **It hardcoded `c:/Users/mb/Projects/Virt Advisor`.** It ran on the laptop and nowhere else.
-3. **It substituted its slots with `String.replace`**, which fills the first match only. The
-   rebuild put the placeholder names in the shell's own comment, so every article was substituted
-   *into the comment*: a 412 KB page, no error, and nothing on screen. `substitute()` now counts
-   occurrences and refuses to build otherwise.
+   invisible until somebody remembered it — and the groups had *already* drifted from the index.
+   Hence rule 3: the index is the single source.
+2. **It substituted its slots with `String.replace`**, which fills the first match only — a
+   412 KB page, no error, and nothing on screen. `substitute()` now counts occurrences and
+   refuses to build otherwise.
 
 ## What was tried and rejected
 
@@ -68,15 +63,6 @@ ids, identical 24 gates, byte-identical stylesheet.
 stays a dead relative link, because the rewrite needs at least one character after `../`.
 Identical in the original. Pinned as a ⚠ CURRENT BEHAVIOUR test rather than quietly changed.
 
-## Where the older records went stale
-
-- [`SESSION-2026-08-13-B-NOTES.md`](../SESSION-2026-08-13-B-NOTES.md) and `to-do.md` §4.0 both
-  stated the generator was gone. **It was not.** Accurate records of what was believed on their
-  own date; not descriptions of what was true.
-- The claim that the scratchpad "is deleted when a session ends" was never tested. It was not.
-
----
-
 ## 2026-08-15 — the To-Do page becomes a control, and Mike breaks it three times in an afternoon
 
 The list stopped being a table you read and became a screen you use. It took three rebuilds in one
@@ -91,23 +77,9 @@ The generator refuses to ship both: two copies of Mike's own ranking with nothin
 which is stale is precisely what the item existed to end. **Save** writes the list back as data,
 and `npm run to-do -- <file>` applies it.
 
-Built in the three phases Mike asked for so it could not be lost again, all in one day:
-the items as data with a guard on the five fields; the control; the round trip home.
+### The row that vanished, and the rule it produced
 
-### Fault one — a UTC date, found in the first minute
-
-His very first save came back stamped `2026-08-14`. He saved it at 11:36 on the 15th. `today()` was
-built from `toISOString()`, which is UTC, and **he is twelve hours ahead of it** — so every save he
-made before midday recorded yesterday. On a project where half the arguments are settled by which
-day a thing was decided, that is not cosmetic.
-
-Thirteen tests over the control, a syntax check and a full build all passed. **No test could have
-caught it. It needed a person, in a timezone, pressing a button.**
-
-### Fault two — the row that vanished, and the rule it produced
-
-He marked the release item **Park**. The row sank to the bottom of the table before he could type
-the reason, and he could not find it again.
+He marked an item **Park**; the row sank out of sight before he could type the reason.
 
 > *"The handbook is clunky and confusing — I see the chances of a fuck-up occurring… this is very
 > poor design."*
@@ -115,9 +87,9 @@ the reason, and he could not find it again.
 He was right, and **both faults were ours, not the mockup's.**
 
 - **Settled rows sank to the bottom.** Taken faithfully from
-  [`../mockups/to-do-list-table.html`](../mockups/to-do-list-table.html), where every call had
-  already been made before anybody looked at the screen. In use it is exactly backwards: the moment
-  you settle an item is the moment you need to write *why*, and the box has just left the screen.
+  [`../mockups/to-do-list-table.html`](../mockups/to-do-list-table.html). In use it is exactly
+  backwards: the moment you settle an item is the moment you need to write *why*, and the box has
+  just left the screen.
   🔴 **An approved artefact is approved for how it looks, not for how its logic behaves against
   real data.** Check the behaviour too.
 - **A two-button choice — "use the project's list" or "keep mine" — with no way to compare them.**
@@ -131,15 +103,14 @@ The two-button choice was replaced by a merge that discards nothing and reports 
 
 The guard is mutation-verified: reintroducing the exact `renderAll()` he hit turns the suite red.
 
-### Fault three — the thing the control was for
+### The thing the control was for
 
 Its first real use closed three items and produced the day's most useful finding. `npm run to-do`
 **refused to apply anything** — not the order, not the scores — because two items were leaving with
 no closure recorded, and printed the blocks that needed writing. That refusal is the feature.
 
-It also settled item **2.3** in one message after four sessions, by a route that had nothing to do
-with the Handbook: Mike was shown the seven actual sentences instead of being asked about
-*"Seminar's seven lines"* again. 🔴 **The label was the blocker, not the decision.**
+It also settled a four-session-old item in one message, by showing Mike the actual sentences
+instead of asking him about a label again. 🔴 **The label was the blocker, not the decision.**
 
 ---
 
