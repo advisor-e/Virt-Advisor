@@ -12,7 +12,7 @@
  * Approved artefact: design/mockups/volatility-report.html (wording approved 2026-08-31).
  */
 
-const { parseMonthlyUpload, extractMonthlySales } = require('../../server/report/intake/monthlySalesParser')
+const { parseMonthlyUpload, extractMonthlySales, extractTransactionMonths } = require('../../server/report/intake/monthlySalesParser')
 const { assembleMonthlySeries, ordinalLabel } = require('../../server/report/intake/monthlySeriesAssembler')
 const { makeXlsx } = require('./xlsxFixture')
 
@@ -207,6 +207,219 @@ describe('monthlySalesParser — reading one by-month export', () => {
     const r = extractMonthlySales(byMonthGrid({ sales: CLOSED_YEAR, startYear: 2025 }))
     // Total Income is 1040 above sales each month; if it were counted the figures would double.
     expect(r.months[0].value).toBe(CLOSED_YEAR[0])
+  })
+})
+
+describe('monthlySalesParser — the Account Transactions export', () => {
+  /**
+   * The real shape, from Mike's own export on 2026-08-31: title, company, period line,
+   * a Date/Gross header, an account section, then one row per invoice with the date as
+   * an Excel serial. It was refused before this shape was supported.
+   */
+  function txGrid (opts) {
+    const o = opts || {}
+    const rows = [
+      ['Consultancy Fees Transactions'],
+      [o.company || 'Kinetic Test Ltd'],
+      [o.period === undefined ? 'For the period 1 January 2025 to 31 December 2025' : o.period],
+      [],
+      [o.dateHeader || 'Date', o.amountHeader || 'Gross'],
+      [],
+      ['Consultancy Fees']
+    ]
+    for (const t of (o.rows || [])) { rows.push(t) }
+    rows.push(['Total Consultancy Fees', 0], [], ['Total', 0])
+    return rows
+  }
+
+  /** 1 Jan 2025 is Excel serial 45658. */
+  const JAN_2025 = 45658
+  /** Serial for the 1st of the nth month after January 2025. */
+  function firstOf (monthOffset) {
+    return Math.round((Date.UTC(2025, monthOffset, 1) - Date.UTC(1899, 11, 30)) / 86400000)
+  }
+
+  test('sums transactions into months, oldest-first', () => {
+    const r = extractTransactionMonths(txGrid({
+      rows: [[JAN_2025, 11000], [JAN_2025 + 2, 500], [firstOf(1), 9500], [firstOf(2), 11500]]
+    }))
+    expect(r.recognised).toBe(true)
+    expect(r.kind).toBe('accountTransactions')
+    expect(r.months[0].label).toBe('Jan 2025')
+    expect(r.months[0].value).toBe(11500) // two invoices in January, added together
+    expect(r.months[1].value).toBe(9500)
+    expect(r.months[2].value).toBe(11500)
+  })
+
+  test('a month with no transactions is a REAL zero, not missing data', () => {
+    // The opposite reading from the by-month P&L, and deliberately so: in a transaction
+    // listing, nothing invoiced IS nothing sold — and that lumpiness is the whole subject
+    // of this report. Reading it as missing would delete the quiet months and flatter the
+    // business.
+    const r = extractTransactionMonths(txGrid({
+      period: 'For the period 1 January 2025 to 31 March 2025',
+      rows: [[JAN_2025, 10000], [firstOf(2), 10000]]
+    }))
+    expect(r.months.map(m => m.value)).toEqual([10000, 0, 10000])
+    expect(r.months[1].complete).toBe(true)
+    expect(r.warnings.join(' ')).toMatch(/1 month has no transactions .* is counted as zero sales/)
+  })
+
+  test('a period starting mid-month makes that month partial', () => {
+    const r = extractTransactionMonths(txGrid({
+      period: 'For the period 20 August 2024 to 31 August 2026',
+      rows: [[firstOf(-4), 5000], [firstOf(0), 5000]]
+    }))
+    expect(r.months[0].reason).toBe('partial')
+    expect(r.months[0].complete).toBe(false)
+  })
+
+  test('a period ending mid-month makes that month partial', () => {
+    const r = extractTransactionMonths(txGrid({
+      period: 'For the period 1 January 2025 to 15 March 2025',
+      rows: [[JAN_2025, 5000], [firstOf(2), 5000]]
+    }))
+    const last = r.months[r.months.length - 1]
+    expect(last.label).toBe('Mar 2025')
+    expect(last.reason).toBe('partial')
+  })
+
+  test('a period ending on the last day of the month is NOT partial', () => {
+    const r = extractTransactionMonths(txGrid({
+      period: 'For the period 1 January 2025 to 28 February 2025',
+      rows: [[JAN_2025, 5000], [firstOf(1), 5000]]
+    }))
+    expect(r.months[r.months.length - 1].complete).toBe(true)
+  })
+
+  test('section headers and "Total …" rows are never transactions', () => {
+    const r = extractTransactionMonths(txGrid({ period: 'For the period 1 January 2025 to 31 January 2025', rows: [[JAN_2025, 7000]] }))
+    // The grid carries "Total Consultancy Fees" 0 and "Total" 0 — neither may become a month.
+    expect(r.months).toHaveLength(1)
+    expect(r.months[0].value).toBe(7000)
+  })
+
+  test('credit notes net off within their month', () => {
+    const r = extractTransactionMonths(txGrid({ rows: [[JAN_2025, 10000], [JAN_2025 + 5, -2500]] }))
+    expect(r.months[0].value).toBe(7500)
+  })
+
+  test('the amount column is chosen by name, Gross before Net', () => {
+    const grid = txGrid({ rows: [[JAN_2025, 1000, 800]] })
+    grid[4] = ['Date', 'Net', 'Gross']
+    const r = extractTransactionMonths(grid)
+    expect(r.months[0].value).toBe(800) // the Gross column, not the first numeric one
+  })
+
+  test('no Date column, or no amount column → not recognised', () => {
+    const noDate = txGrid({ dateHeader: 'When', rows: [[JAN_2025, 100]] })
+    expect(extractTransactionMonths(noDate).recognised).toBe(false)
+    const noAmount = txGrid({ amountHeader: 'Reference', rows: [[JAN_2025, 100]] })
+    expect(extractTransactionMonths(noAmount).recognised).toBe(false)
+  })
+
+  test('a header with no transactions under it is not recognised', () => {
+    expect(extractTransactionMonths(txGrid({ rows: [] })).recognised).toBe(false)
+  })
+
+  test('an unreadable date serial is ignored rather than dated to 1899', () => {
+    const r = extractTransactionMonths(txGrid({ period: 'For the period 1 January 2025 to 31 January 2025', rows: [[5, 9999], [JAN_2025, 1000]] }))
+    expect(r.months).toHaveLength(1)
+    expect(r.months[0].value).toBe(1000)
+  })
+
+  test('without a period line the transactions themselves set the span', () => {
+    const r = extractTransactionMonths(txGrid({
+      period: 'Consultancy Fees',
+      rows: [[JAN_2025, 1000], [firstOf(2), 2000]]
+    }))
+    expect(r.months).toHaveLength(3)
+    expect(r.months.every(m => m.complete)).toBe(true)
+  })
+
+  test('an unreadable period line falls back to the transactions themselves', () => {
+    const r = extractTransactionMonths(txGrid({
+      period: 'For the period sometime to whenever',
+      rows: [[JAN_2025, 1000], [firstOf(1), 2000]]
+    }))
+    expect(r.months).toHaveLength(2)
+    expect(r.reportDate).toBeNull()
+    expect(r.months.every(m => m.complete)).toBe(true)
+  })
+
+  test('a period naming a month that does not exist falls back too', () => {
+    const r = extractTransactionMonths(txGrid({
+      period: 'For the period 20 Smarch 2024 to 31 Smarch 2026',
+      rows: [[JAN_2025, 1000], [firstOf(1), 2000]]
+    }))
+    expect(r.months).toHaveLength(2)
+    expect(r.reportDate).toBeNull()
+  })
+
+  test('two partial months inside the run read in the plural', () => {
+    const first = extractTransactionMonths(txGrid({
+      period: 'For the period 1 January 2025 to 15 February 2025',
+      rows: [[JAN_2025, 10000], [firstOf(1), 4000]]
+    }))
+    const second = extractTransactionMonths(txGrid({
+      period: 'For the period 20 March 2025 to 31 May 2025',
+      rows: [[firstOf(2) + 20, 3000], [firstOf(3), 9500], [firstOf(4), 9200]]
+    }))
+    const a = assembleMonthlySeries([first, second])
+    expect(a.warnings.join(' ')).toMatch(/2 months inside the series \(Feb 2025, Mar 2025\) cover/)
+  })
+
+  test('a ragged transactions grid is read without crashing', () => {
+    const grid = txGrid({
+      period: 'For the period 1 January 2025 to 28 February 2025',
+      rows: [[JAN_2025, 1000], [firstOf(1), 2000]]
+    })
+    grid.splice(1, 0, undefined, ['', '']) // absent and unlabelled rows above the header
+    grid.splice(9, 0, undefined) // and one among the transactions
+    const r = extractTransactionMonths(grid)
+    expect(r.recognised).toBe(true)
+    expect(r.months.map(m => m.value)).toEqual([1000, 2000])
+  })
+
+  test('parseMonthlyUpload recognises a transactions export from raw bytes', () => {
+    const grid = txGrid({
+      period: 'For the period 1 January 2025 to 28 February 2025',
+      rows: [[JAN_2025, 1000], [firstOf(1), 2000]]
+    })
+    const r = parseMonthlyUpload(makeXlsx(grid))
+    expect(r.kind).toBe('accountTransactions')
+    expect(r.months.map(m => m.value)).toEqual([1000, 2000])
+  })
+
+  test('a partial month left INSIDE the joined run is named, not silently kept', () => {
+    // One file ends mid-February; the next starts in March. February is then no longer at
+    // an edge, so it cannot be trimmed — it has to be pointed at instead.
+    const first = extractTransactionMonths(txGrid({
+      period: 'For the period 1 January 2025 to 15 February 2025',
+      rows: [[JAN_2025, 10000], [firstOf(1), 4000]]
+    }))
+    const second = extractTransactionMonths(txGrid({
+      period: 'For the period 1 March 2025 to 31 May 2025',
+      rows: [[firstOf(2), 9000], [firstOf(3), 9500], [firstOf(4), 9200]]
+    }))
+    const a = assembleMonthlySeries([first, second])
+    expect(a.usable.map(m => m.label)).toEqual(['Jan 2025', 'Feb 2025', 'Mar 2025', 'Apr 2025', 'May 2025'])
+    expect(a.warnings.join(' ')).toMatch(/1 month inside the series \(Feb 2025\) cover/)
+  })
+
+  test('the whole file joins into one series through the assembler', () => {
+    const r = extractTransactionMonths(txGrid({
+      period: 'For the period 20 December 2024 to 31 December 2025',
+      rows: [[firstOf(-1) + 25, 4000]].concat(
+        Array.from({ length: 12 }, (_, i) => [firstOf(i), 10000 + i * 100])
+      )
+    }))
+    const a = assembleMonthlySeries([r])
+    // December 2024 opened mid-month, so it is dropped from the front, not measured.
+    expect(a.dropped.map(m => m.label)).toEqual(['Dec 2024'])
+    expect(a.usable).toHaveLength(12)
+    expect(a.usable[0].label).toBe('Jan 2025')
+    expect(a.warnings.join(' ')).toMatch(/begins part-way through Dec 2024/)
   })
 })
 

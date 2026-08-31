@@ -478,12 +478,25 @@ Position and EBITDA & DCF. It **deliberately refuses** a by-month or by-quarter 
 (`MULTI_PERIOD_COLUMNS`, at 5+ figure columns): reading only the first column silently lost
 the rest of the year, which is the fault that refusal exists to prevent. That refusal stays.
 
-**By-month — twelve figures per file.** `monthlySalesParser.js` (`parseMonthlyUpload`) plus
+**By-month — a monthly series.** `monthlySalesParser.js` (`parseMonthlyUpload`) plus
 `monthlySeriesAssembler.js`, used by the Volatility Report via
-`POST /api/report/volatility/intake` (firmAuth — uploads are never anonymous). It reads
-Xero's *"Current financial year by month"* P&L **across** its columns. Up to **two** files
-join into one run, because one export covers a single financial year and the 18 and
-24-month windows need more (Mike's ruling, 2026-08-31).
+`POST /api/report/volatility/intake` (firmAuth — uploads are never anonymous). Up to **two**
+files join into one run. It reads **two shapes**:
+
+1. **The by-month P&L** — Xero's *"Current financial year by month"* layout, read **across**
+   its columns. One export = one financial year, so the 18 and 24-month windows need two.
+2. **The Account Transactions export** — one row per invoice, the date an Excel serial, summed
+   into months. Added 2026-08-31 when Mike's own export was refused; he was right that the file
+   was fine and the reader was not. **This is the better source**: it spans as many years as the
+   advisor asks for, so one file can fill the whole 24-month window.
+
+> 🔴 **The two shapes read a `0` OPPOSITELY, and both readings are correct.** In a by-month P&L
+> a zero means the year has not reached that month — it is missing data, and it is poison to
+> this model. In a transaction listing it means nothing was invoiced, which is real, and is the
+> lumpiness the report exists to measure. Get this backwards and you either wreck the numbers or
+> quietly delete the quiet months and flatter the business. A transactions export also takes its
+> **partial** months from its own period line (`For the period 20 August 2024 to …`), at BOTH
+> ends — a leading part-month is trimmed exactly as a trailing one is.
 
 > 🔴 **Three findings that a by-month export will hand you, each producing a number that is
 > wrong and completely believable.** Verified against a real client export

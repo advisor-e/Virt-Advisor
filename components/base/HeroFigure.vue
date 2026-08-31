@@ -33,13 +33,20 @@ export default {
     /** Small trailing unit rendered after the value, e.g. "days", "months". */
     unit: { type: String, default: '' },
     /**
-     * Colour of the figure: 'default' white, 'crit' red (a bad number), 'good' green,
-     * 'muted' for a figure that is not yet meaningful.
+     * Colour of the figure: 'default' white, 'crit' red (a bad number), 'warn' amber
+     * (a middling one), 'good' green, 'muted' for a figure that is not yet meaningful.
+     *
+     * 🔴 'warn' WAS MISSING UNTIL 2026-08-31, and nothing on any screen showed it. The
+     * Volatility model has always returned good / warn / crit — the workbook's own three
+     * gauge bands — but this validator knew only two of them, so a business scoring
+     * between 50 and 75 logged a Vue warning nobody reads and rendered its headline
+     * figure PLAIN WHITE. It survived because every sample figure in the repo scores in
+     * the red band; it took a real client export (67.96) to land in the middle one.
      */
     tone: {
       type: String,
       default: 'default',
-      validator: t => ['default', 'crit', 'good', 'muted'].includes(t)
+      validator: t => ['default', 'crit', 'warn', 'good', 'muted'].includes(t)
     }
   }
 }
@@ -54,6 +61,9 @@ export default {
 }
 .hv .u { font-size: .5em; font-weight: 400; opacity: .85; }
 .hv.crit { color: #ff8f8f; }
+/* The workbook's own amber (#ff9900), lightened for legibility on the navy band —
+   the same relationship the red and green tones already have to their source colours. */
+.hv.warn { color: #ffc266; }
 .hv.good { color: #7dffa6; }
 .hv.muted { color: #c7e6fb; }
 .hs2 { font-size: 12px; color: #c7e6fb; margin-top: 6px; }

@@ -259,23 +259,37 @@ td.out{color:var(--rs-warn);font-weight:600}
     <!-- [D1] inputs -->
     <aside class="vol-card tag" data-tag="D1">
       <div class="vol-group">
-        <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">Accounts</h2></div>
+        <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">Accounts</h2>
+          <button class="vol-cta vol-ghost" style="margin-left:auto;padding:6px 11px;font-size:12.5px">Reset to defaults</button>
+        </div>
         <p class="vol-sub" style="margin:0 0 10px">In Xero: <b>Profit and Loss → Current financial year by month</b>, exported as Excel or CSV.
-          One export covers one financial year. Add last year’s as well for the 18 and 24-month windows.</p>
-        <div class="slots">
+          One export covers one financial year. Add last year’s as well for the 18 and 24-month windows.
+          <b>One load box, not two</b> — Mike, 2026-08-31: <em>“you should be able to make it 1 and figure it
+          out internally by the number of data periods.”</em> Every month is already dated by the parser and
+          the assembler orders the files by their own first month, so which export is which year was never a
+          question worth putting to the advisor. The screen reports the period it found; it does not ask.</p>
+        <div class="slot empty">
+          <span>📄</span>
+          <div style="flex:1">
+            <div class="nm" style="font-weight:400;color:var(--rs-muted)">Your by-month exports</div>
+            <div class="mt">One file, or up to 2 for the 18 and 24-month windows</div>
+          </div>
+          <button class="vol-cta vol-ghost" style="padding:6px 11px;font-size:12.5px">Choose files</button>
+        </div>
+        <div class="slots" style="margin-top:8px">
           <div class="slot">
-            <span>📄</span>
-            <div>
-              <div class="nm">Northgate_PandL_by_month_this_year.xlsx</div>
-              <div class="mt">This year · 12 monthly columns read · 10 complete</div>
+            <div style="flex:1">
+              <div class="nm">Northgate_PandL_by_month_2027.xlsx</div>
+              <div class="mt">12 monthly columns read · 9 complete · Apr 2026 – Mar 2027</div>
             </div>
+            <button class="vol-cta vol-ghost" style="padding:6px 11px;font-size:12.5px">Remove</button>
           </div>
           <div class="slot">
-            <span>📄</span>
-            <div>
-              <div class="nm">Northgate_PandL_by_month_last_year.xlsx</div>
-              <div class="mt">Last year · 12 monthly columns read · 12 complete</div>
+            <div style="flex:1">
+              <div class="nm">Northgate_PandL_by_month_2026.xlsx</div>
+              <div class="mt">12 monthly columns read · 12 complete · Apr 2025 – Mar 2026</div>
             </div>
+            <button class="vol-cta vol-ghost" style="padding:6px 11px;font-size:12.5px">Remove</button>
           </div>
         </div>
         <p class="vol-sub" style="margin-top:8px">The file is read on our server and deleted straight afterwards. Only the monthly
@@ -287,7 +301,13 @@ td.out{color:var(--rs-warn);font-weight:600}
         <select style="width:100%;font:inherit;font-size:13px;padding:8px 9px;border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink)">
           <option>September</option>
         </select>
-        <p class="vol-sub" style="margin:6px 0 0">The first month you are entering. The rest follow on from it.</p>
+        <p class="vol-sub" style="margin:6px 0 0"><b>Locked while the months come from a file</b> — “Set from your
+          accounts file — every month is dated from the transactions in it. Reset to enter the months by hand.”
+          The picker only RENAMES the boxes; it never moves a figure, so while the file supplies the dates a
+          change here can only make the labels disagree with the data beside them. Mike hit exactly that on
+          2026-08-31: his export’s period opens on 20 August, so setting the picker to August looked right, and
+          it shifted all 24 labels back a month — £21,000 read as September instead of October. For typed entry
+          the picker is unchanged: “The first month you are entering. The rest follow on from it.”</p>
         <label class="fieldlab" style="margin-top:16px">How many months to measure</label>
         <div class="seg"><button class="on">12</button><button>18</button><button>24</button></div>
       </div>
@@ -301,7 +321,9 @@ td.out{color:var(--rs-warn);font-weight:600}
           <div class="m"><span class="lbl">Oct</span><input value="78123"></div>
           <div class="m"><span class="lbl">Nov</span><input value="56894"></div>
         </div>
-        <p class="vol-sub" style="margin-top:8px">…twelve in all, three to a row.</p>
+        <p class="vol-sub" style="margin-top:8px">…twelve in all, three to a row. (“Reset to defaults”
+          moved up to the Accounts heading on 2026-08-31 — it now clears the files too, and at the foot of
+          this column it sat below the fold.)</p>
         <div class="joinwarn">
           <span>⚠</span>
           <div><b>Two months were set aside.</b> The most recent month in the export is <b>empty</b> — it reads as
@@ -314,7 +336,6 @@ td.out{color:var(--rs-warn);font-weight:600}
           <div class="m needs"><span class="lbl">Jul</span><input value="31402"></div>
           <div class="m needs"><span class="lbl">Aug</span><input value="0"></div>
         </div>
-        <button class="vol-cta vol-ghost" style="margin-top:10px">Reset to defaults</button>
       </div>
       <div class="vol-group">
         <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">The bands</h2></div>

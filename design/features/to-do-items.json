@@ -81,26 +81,6 @@
       "touches": "nothing — this is a live observation, not a code change. server/utils/activityLogger.js (logVASession) and server/routes/activity.js (/api/activity/team) hold the path if it fails.",
       "note": "⚠ ITS ORIGINAL BLOCKER WAS WRONG, AND THE REAL ONE IS DIFFERENT. This item said for a month that it could not be done here because \"this machine has no OPENAI_API_KEY and every advisor request fails at startup\". That was false: .env on the laptop has held a live key since 30 July, dotenv loads it at server/restify-server.js L50, and the backend logs \"[advisor] OPENAI_API_KEY present=true\" on boot. The key was never the obstacle. THE REAL OBSTACLE IS MYSQL. The capability record is written by logVASession into the activity store, and on this machine that store logs \"database unavailable (connect ECONNREFUSED 127.0.0.1:3306) — using the dev file\". All three conversations completed and NONE was recorded: the Team tab still reads 2026-08-14 and data/dev-activity.json still ends at 2026-08-10. No error was logged — the write simply did not happen. So (c) needs any environment with a database, which means UAT rather than a developer machine, and it is a two-minute look: open the Team tab as a firm manager after a real session and check the templates and the tier are the ones the conversation actually produced. ⚠ \"Team Dashboard\", the name this item used to carry, IS NOT A SCREEN — the words appear nowhere in any page or component, only in a JSDoc comment at tierLookup.js L88. The screen is the Team tab, fed by /api/activity/team.",
       "comment": "2026-08-26 — checks (a) and (b) run live and passed; see 4.53 for what the same exercise turned up, which is that the AI writes the marker only sometimes and nothing records when it did not."
-    },
-    {
-      "ref": "4.54",
-      "name": "An adviser types two years of figures into the Volatility Report by hand",
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The Volatility Report went live 2026-08-31 taking its monthly sales TYPED — 12, 18 or 24 boxes filled in by hand. That was Mike’s choice on the day (“typed now, upload next”) once the intake was checked properly. The existing file intake cannot feed it: server/report/intake/xeroReportParser.js reads one figure per period and DELIBERATELY REFUSES a by-month or by-quarter export (MULTI_PERIOD_COLUMNS, at 5+ figure columns), a refusal added 2026-07-19 because reading only the first column silently lost the rest of the year. So the two existing report intakes give one number per year, and this model needs twelve.",
-      "risk": "Low, and it is friction rather than a fault: the report is correct and usable today. But its class says “from your accounts” and it cannot yet read them, and an adviser keying 24 figures in front of a client is both slow and a transcription risk on numbers the client will act on.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-08-31 — asked for the report, then chose “Both — typed now, upload next” when told the existing intake could not supply monthly figures. This item is the “next” half, in his words."
-      },
-      "touches": "a new by-month parser beside server/report/intake/xeroReportParser.js (the annual refusal stays for the annual models), a firmAuth-carrying intake route, and the left column of components/VolatilityReport.vue — where the approved mockup’s original upload card and step chips can come back.",
-      "note": "⚠ IT ACCEPTS UNTRUSTED UPLOADS, so it carries the project’s 100% test bar (CLAUDE.md → Testing) and the hardening the existing reader already documents at the top of xlsxReader.js — bounds-checked offsets, inflate caps, prototype-less lookups. That is why it is its own change and not a tail on the report: it is comparable in size to the whole model + route + screen built on 2026-08-31. The approved artefact already shows the destination — design/mockups/volatility-report.html carried the upload card and the four step chips before it was realigned to the typed build, and both are in git history at ddeffcf.",
-      "comment": "2026-08-31 — filed at the close of the session that built the report. NOT a blocker: /volatility is live, correct against the workbook and in the Model Library today."
     }
   ]
 }

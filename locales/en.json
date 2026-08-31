@@ -1436,7 +1436,8 @@
       "window": {
         "title": "Window",
         "label": "How many months to measure",
-        "help": "The most recent months. Changing the window recalculates the average and the bands."
+        "help": "The most recent months. Changing the window recalculates the average and the bands.",
+        "needMore": "A wider window needs more months than you have. Add another accounts export, or reset to the sample figures."
       },
       "provenance": {
         "fromFile": "from file",
@@ -1452,17 +1453,18 @@
       "accounts": {
         "title": "Accounts",
         "help": "In Xero: Profit and Loss → Current financial year by month, exported as Excel or CSV. One export covers one financial year. Add last year's as well for the 18 and 24-month windows.",
-        "choose": "Choose file",
-        "replace": "Replace",
-        "thisYearEmpty": "This year",
-        "lastYearEmpty": "Last year",
-        "thisYearHint": "The current financial year, by month",
-        "lastYearHint": "Optional — needed for 18 and 24 months",
+        "choose": "Choose files",
+        "remove": "Remove",
+        "dropTitle": "Your by-month exports",
+        "dropHint": "One file, or up to {max} for the 18 and 24-month windows",
+        "reading": "Reading…",
+        "notRead": "Not read — see the message below",
+        "tooMany": "This report reads up to {max} accounts files — {n} were chosen. Remove one and try again.",
         "read": "{read} monthly columns read · {complete} complete · {range}",
         "privacy": "The file is read on our server and deleted straight afterwards. Only the monthly sales figures are kept — no account names, no customer names, nothing else from the file.",
         "failed": "The accounts file could not be read. Please try again.",
         "noMonths": "No complete months could be read from that export. Check that it is a Profit and Loss with its income broken out by month.",
-        "short": "Only {n} complete months were read, so the remaining {window} were left as they were. Add last year's export, or type the earlier months in."
+        "short": "Only {n} complete months were read. This report measures at least {min} months, so nothing on screen was changed — add another export, or type the figures in."
       },
       "entry": {
         "title": "Monthly sales",
@@ -1563,7 +1565,8 @@
       },
       "start": {
         "label": "Starting month",
-        "help": "The first month you are entering. The rest follow on from it."
+        "help": "The first month you are entering. The rest follow on from it.",
+        "fromFile": "Set from your accounts file — every month is dated from the transactions in it. Reset to enter the months by hand."
       }
     }
   },

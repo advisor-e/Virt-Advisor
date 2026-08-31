@@ -290,6 +290,188 @@ function extractMonthlySales (grid) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// The SECOND shape: a Xero Account Transactions export.
+//
+// Added 2026-08-31, when Mike dropped his own export in and it was refused. It was not
+// the wrong file — it was a shape nobody had described to us:
+//
+//   Consultancy Fees Transactions
+//   Kinetic Planning (2007) Limited
+//   For the period 20 August 2024 to 31 August 2026
+//   Date | Gross
+//   Consultancy Fees
+//   45525 | 11000        ← one row per invoice, the date an Excel serial
+//   …
+//   Total Consultancy Fees | 0
+//
+// It is a BETTER source for this model than the by-month P&L: it spans as many years as
+// the advisor asks for, so one file can fill the 24-month window that otherwise needs two.
+// The months are summed from the transactions rather than read from columns.
+//
+// TWO THINGS ARE READ DIFFERENTLY HERE, and both are deliberate:
+//  - **A month with no transaction is a REAL zero**, not missing data. In a by-month P&L
+//    a 0 means "the year has not reached this month"; in a transaction listing it means
+//    "nothing was invoiced", which is exactly the lumpiness this report measures. Reading
+//    it as missing would quietly delete the quiet months and flatter the business.
+//  - **The report's own period line decides what is partial**, not the presence of later
+//    months. A period starting 20 August covers only part of that August, and one ending
+//    mid-month likewise — both are set aside on the same rule as the P&L's cut-off month.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Xero writes the amount column under one of these; first match wins. */
+const AMOUNT_HEADERS = ['gross', 'amount', 'total', 'net']
+const DATE_HEADER_RE = /^date$/i
+/** "For the period 20 August 2024 to 31 August 2026" */
+const PERIOD_RE = /^for the period\s+(.+?)\s+to\s+(.+)$/i
+const MONTH_NAME_RE = /^(\d{1,2})\s+([a-z]+)\s+((?:19|20)\d{2})$/i
+
+/**
+ * An Excel date serial as a UTC calendar date. Serial 1 is 1 Jan 1900, and the epoch is
+ * offset by two days for Lotus's 1900 leap-year bug — the standard 1899-12-30 anchor,
+ * correct for every serial above 60, which is every date a Xero export can carry.
+ * @param {number} serial
+ * @returns {{year:number, month:number, day:number}|null}
+ */
+function fromExcelSerial (serial) {
+  if (!Number.isFinite(serial) || serial < 61 || serial > 2958465) { return null }
+  const d = new Date(Date.UTC(1899, 11, 30) + Math.floor(serial) * 86400000)
+  return { year: d.getUTCFullYear(), month: d.getUTCMonth(), day: d.getUTCDate() }
+}
+
+/** "20 August 2024" → {year, month, day}. @param {string} text */
+function parseDayMonthYear (text) {
+  const m = MONTH_NAME_RE.exec(String(text).trim())
+  if (!m) { return null }
+  const month = MONTHS.indexOf(m[2].slice(0, 3).toLowerCase())
+  if (month === -1) { return null }
+  return { year: parseInt(m[3], 10), month, day: parseInt(m[1], 10) }
+}
+
+/** Days in a month, so a period end mid-month can be spotted. */
+/** "20 August 2024" from a parsed date. @param {{year:number,month:number,day:number}} d */
+function dayLabel (d) {
+  return d.day + ' ' + MONTHS[d.month].charAt(0).toUpperCase() + MONTHS[d.month].slice(1) + ' ' + d.year
+}
+
+function daysInMonth (year, month) {
+  return new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
+}
+
+/**
+ * Extract monthly sales from a Xero Account Transactions grid.
+ *
+ * @param {Array<Array<string|number|null>>} grid
+ * @returns {object} { recognised:false } when this is not a transactions export, else the
+ *   same shape extractMonthlySales returns, with kind 'accountTransactions'.
+ */
+function extractTransactionMonths (grid) {
+  // The column header row: a cell that says "Date", plus a named amount column.
+  let headerRow = -1
+  let dateCol = -1
+  let amountCol = -1
+  const limit = Math.min(grid.length, 15)
+  for (let r = 0; r < limit && headerRow === -1; r++) {
+    const cells = grid[r] || []
+    let d = -1
+    let a = -1
+    let best = AMOUNT_HEADERS.length
+    for (let c = 0; c < cells.length; c++) {
+      const v = cells[c]
+      if (typeof v !== 'string') { continue }
+      const text = v.trim()
+      if (d === -1 && DATE_HEADER_RE.test(text)) { d = c; continue }
+      const rank = AMOUNT_HEADERS.indexOf(text.toLowerCase())
+      if (rank !== -1 && rank < best) { best = rank; a = c }
+    }
+    if (d !== -1 && a !== -1) { headerRow = r; dateCol = d; amountCol = a }
+  }
+  if (headerRow === -1) { return { recognised: false } }
+
+  // Company and period from the rows above the header.
+  let companyName = null
+  let periodStart = null
+  let periodEnd = null
+  for (let r = 0; r < headerRow; r++) {
+    const cells = grid[r] || []
+    let label = null
+    for (let c = 0; c < cells.length; c++) {
+      const v = cells[c]
+      if (typeof v === 'string' && v.trim() !== '') { label = v.trim(); break }
+    }
+    if (!label) { continue }
+    const period = PERIOD_RE.exec(label)
+    if (period) {
+      periodStart = parseDayMonthYear(period[1])
+      periodEnd = parseDayMonthYear(period[2])
+      continue
+    }
+    // The first line is the report's own title ("… Transactions"); the next is the company.
+    if (r > 0 && companyName === null) { companyName = label }
+  }
+
+  // One row per transaction: a date SERIAL in the date column. Section headers and
+  // "Total …" rows carry text there instead, so they exclude themselves.
+  const byOrdinal = new Map()
+  let counted = 0
+  let earliest = null
+  let latest = null
+  for (let r = headerRow + 1; r < grid.length; r++) {
+    const cells = grid[r] || []
+    const when = fromExcelSerial(typeof cells[dateCol] === 'number' ? cells[dateCol] : NaN)
+    const amount = cells[amountCol]
+    if (!when || typeof amount !== 'number') { continue }
+    const ordinal = when.year * 12 + when.month
+    byOrdinal.set(ordinal, (byOrdinal.get(ordinal) || 0) + amount)
+    counted++
+    if (earliest === null || ordinal < earliest) { earliest = ordinal }
+    if (latest === null || ordinal > latest) { latest = ordinal }
+  }
+  if (!counted) { return { recognised: false } }
+
+  // The period line is authoritative for the span; the transactions themselves are the
+  // fallback when it is absent or unreadable.
+  const from = periodStart ? periodStart.year * 12 + periodStart.month : earliest
+  const to = periodEnd ? periodEnd.year * 12 + periodEnd.month : latest
+
+  const warnings = []
+  const months = []
+  for (let ordinal = Math.min(from, earliest); ordinal <= Math.max(to, latest); ordinal++) {
+    const year = Math.floor(ordinal / 12)
+    const month = ordinal % 12
+    let complete = true
+    let reason = null
+    // A period that begins or ends mid-month covers only part of it.
+    if (periodStart && ordinal === from && periodStart.day > 1) { complete = false; reason = 'partial' }
+    if (periodEnd && ordinal === to && periodEnd.day < daysInMonth(year, month)) { complete = false; reason = 'partial' }
+    months.push({
+      label: MONTHS[month].charAt(0).toUpperCase() + MONTHS[month].slice(1) + ' ' + year,
+      month,
+      year,
+      ordinal,
+      value: byOrdinal.get(ordinal) || 0,
+      complete,
+      reason
+    })
+  }
+
+  const quiet = months.filter(m => m.complete && m.value === 0).length
+  if (quiet) {
+    warnings.push(quiet === 1
+      ? '1 month has no transactions in this export and is counted as zero sales — which is what a transaction listing means. If that month had sales recorded elsewhere, type it in.'
+      : quiet + ' months have no transactions in this export and are counted as zero sales — which is what a transaction listing means. If those months had sales recorded elsewhere, type them in.')
+  }
+
+  return {
+    recognised: true,
+    kind: 'accountTransactions',
+    companyName,
+    reportDate: periodStart && periodEnd ? (dayLabel(periodStart) + ' to ' + dayLabel(periodEnd)) : null,
+    months,
+    warnings
+  }
+}
+
 /**
  * Sniff an uploaded buffer and extract its monthly sales series. The single entry point
  * the Volatility intake route calls.
@@ -302,16 +484,19 @@ function extractMonthlySales (grid) {
 function parseMonthlyUpload (buf) {
   const grids = gridsFromBuffer(buf)
   for (let g = 0; g < grids.length; g++) {
-    const result = extractMonthlySales(grids[g])
-    if (result.recognised) { return result }
+    const byMonth = extractMonthlySales(grids[g])
+    if (byMonth.recognised) { return byMonth }
+    const transactions = extractTransactionMonths(grids[g])
+    if (transactions.recognised) { return transactions }
   }
-  const e = new Error('That export has one column, not twelve. This looks like a whole-year Profit and Loss. This report needs "Current financial year by month" — in Xero, choose that layout before exporting.')
+  const e = new Error('This export does not carry monthly figures. Two Xero reports do: Profit and Loss with the "Current financial year by month" layout, or an Account Transactions export for your sales account (Reports → Account Transactions), which can cover more than one year.')
   e.code = 'NOT_BY_MONTH'
   throw e
 }
 
 module.exports = {
   parseMonthlyUpload,
+  extractTransactionMonths,
   extractMonthlySales,
   MIN_MONTH_COLUMNS
 }

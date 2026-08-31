@@ -28,6 +28,9 @@
 
 const MAX_FILES = 2
 
+/** The parser's two monthly shapes: a by-month P&L, and an account-transactions export. */
+const MONTHLY_KINDS = ['profitLossByMonth', 'accountTransactions']
+
 /** Month names for a human-readable range ("Sep 2023 – Aug 2024"). */
 const MONTH_LABELS = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December']
@@ -60,7 +63,7 @@ function assembleMonthlySeries (parsed) {
 
   const wrongKind = []
   list.forEach((p, idx) => {
-    if (!p || p.kind !== 'profitLossByMonth') { wrongKind.push(idx + 1) }
+    if (!p || !MONTHLY_KINDS.includes(p.kind)) { wrongKind.push(idx + 1) }
   })
   if (wrongKind.length) {
     const e = new Error('File ' + wrongKind.join(', file ') + ' is not a by-month Profit and Loss export. No figures were read.')
@@ -132,18 +135,36 @@ function assembleMonthlySeries (parsed) {
   // can still show a set-aside month in its own box for the advisor to overtype.
   let end = series.length
   while (end > 0 && !series[end - 1].complete) { end-- }
-  const usable = series.slice(0, end).map(m => ({ label: m.label, ordinal: m.ordinal, value: m.value }))
+  // …and off the FRONT too. A transactions export beginning mid-month ("for the period
+  // 20 August…") opens with a part-month exactly as a mid-year P&L closes with one. Only
+  // trailing months were trimmed until 2026-08-31, so a leading part-month sat in the
+  // series reading as a bad month when it was really three weeks short.
+  let start = 0
+  while (start < end && !series[start].complete) { start++ }
+
+  const usable = series.slice(start, end).map(m => ({ label: m.label, ordinal: m.ordinal, value: m.value }))
+  // Trailing months are offered back on the screen — typing over one makes it the newest
+  // month. A LEADING month cannot be restored that way (it would have to extend the
+  // series backwards), so it is reported and not offered.
   const setAside = series.slice(end).map(m => ({ label: m.label, ordinal: m.ordinal, value: m.value, reason: m.reason }))
+  const dropped = series.slice(0, start).map(m => ({ label: m.label, ordinal: m.ordinal, value: m.value, reason: m.reason }))
+  if (dropped.length) {
+    warnings.push('The export begins part-way through ' + dropped.map(m => ordinalLabel(m.ordinal)).join(', ') + ', so that month is not a full month\'s sales and was left out. Export from the first of the month to include it.')
+  }
 
   // An incomplete month INSIDE the run is NOT dropped. Removing it would splice two
   // non-adjacent months together — the same fault as reading across a gap, and invisible
   // once done. It is named instead and left in place for the advisor to overtype.
-  const inside = series.slice(0, end).filter(m => !m.complete)
-  if (inside.length) {
-    warnings.push(inside.length + ' month' + (inside.length === 1 ? '' : 's') + ' inside the series (' + inside.map(m => ordinalLabel(m.ordinal)).join(', ') + ') read as zero in the export. They have been left in place, because a month with no sales and a month with no data look identical here — please check them and type the real figures over any that are wrong.')
+  const insideEmpty = series.slice(start, end).filter(m => !m.complete && m.value === 0)
+  const insidePartial = series.slice(start, end).filter(m => !m.complete && m.value !== 0)
+  if (insideEmpty.length) {
+    warnings.push(insideEmpty.length + ' month' + (insideEmpty.length === 1 ? '' : 's') + ' inside the series (' + insideEmpty.map(m => ordinalLabel(m.ordinal)).join(', ') + ') read as zero in the export. They have been left in place, because a month with no sales and a month with no data look identical here — please check them and type the real figures over any that are wrong.')
+  }
+  if (insidePartial.length) {
+    warnings.push(insidePartial.length + ' month' + (insidePartial.length === 1 ? '' : 's') + ' inside the series (' + insidePartial.map(m => ordinalLabel(m.ordinal)).join(', ') + ') cover only part of the month. They have been left in place — check them and type the full figures over any that matter.')
   }
 
-  return { files, series, usable, setAside, warnings }
+  return { files, series, usable, setAside, dropped, warnings }
 }
 
 module.exports = { assembleMonthlySeries, MAX_FILES, ordinalLabel }
