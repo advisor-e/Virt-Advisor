@@ -31,11 +31,21 @@
       "landedWell": "Landed well",
       "didntLand": "Didn't land"
     },
-    "growthCurve": { "title": "Where would you place them on the Growth Curve?" },
-    "staircase": { "title": "Where would you say your current engagement with this client sits on the Advisory Staircase?" },
-    "finMgt": { "title": "Where is your client starting from? Select the theme that best reflects their current relationship with financial management." },
-    "sessionLength": { "title": "How long can you allow per meeting?" },
-    "domainSelector": { "title": "Which area best describes the primary focus for this client?" },
+    "growthCurve": {
+      "title": "Where would you place them on the Growth Curve?"
+    },
+    "staircase": {
+      "title": "Where would you say your current engagement with this client sits on the Advisory Staircase?"
+    },
+    "finMgt": {
+      "title": "Where is your client starting from? Select the theme that best reflects their current relationship with financial management."
+    },
+    "sessionLength": {
+      "title": "How long can you allow per meeting?"
+    },
+    "domainSelector": {
+      "title": "Which area best describes the primary focus for this client?"
+    },
     "sellSwitch": {
       "yes": "Yes, help me sell",
       "no": "No, stay on this",
@@ -1405,6 +1415,90 @@
         "MARKET_RETURN_ZERO": "The average share index return is zero, so Beta from growth cannot be worked out.",
         "MARKET_VOLATILITY_ZERO": "The share index does not move across these periods, so Beta from volatility cannot be worked out."
       }
+    },
+    "volatility": {
+      "title": "Volatility Report",
+      "hero": {
+        "swing": "Average monthly swing",
+        "average": "Average monthly sales",
+        "averageSub": "{total} over {months} months",
+        "range": "Normal range",
+        "rangeSub": "one deviation either side",
+        "inRange": "Months in range",
+        "inRangeValue": "{n} of {of}",
+        "inRangeSub": "{pct}% — the model expects 68%"
+      },
+      "band": {
+        "good": "Steady",
+        "warn": "Noticeable swing",
+        "crit": "Wide swing"
+      },
+      "window": {
+        "title": "Window",
+        "label": "How many months to measure",
+        "help": "The most recent months. Changing the window recalculates the average and the bands."
+      },
+      "entry": {
+        "title": "Monthly sales",
+        "help": "Oldest month first. An accounts upload is coming; for now these are typed.",
+        "monthLabel": "Month {n}"
+      },
+      "bands": {
+        "title": "The bands",
+        "band": "Band",
+        "lower": "Lower",
+        "upper": "Upper",
+        "nth1": "1st deviation",
+        "nth2": "2nd deviation",
+        "nth3": "3rd deviation",
+        "floored": "The lower edge of the widest band computes to {value}. Sales cannot be negative, so it stops at zero."
+      },
+      "tile": {
+        "total": "Total sales",
+        "totalSub": "over {months} months",
+        "outside": "Months outside the range",
+        "outsideSub": "against the first deviation",
+        "highest": "Highest month",
+        "lowest": "Lowest month",
+        "month": "Month {n}"
+      },
+      "dial": {
+        "title": "Average monthly swing",
+        "alt": "Dial showing an average monthly swing of {score} out of 100.",
+        "explain": "The dial is the width of the normal range as a share of an average month. The higher it reads, the further a typical month travels from the average.",
+        "keyGood": "Under 50 — a steady business",
+        "keyWarn": "50 to 75 — noticeable swing",
+        "keyCrit": "Over 75 — a wide swing month to month"
+      },
+      "chart": {
+        "title": "Monthly sales against the normal range",
+        "alt": "Monthly sales plotted against bands at one, two and three standard deviations from the average.",
+        "average": "Average {value}",
+        "band": "{k} dev {value}"
+      },
+      "outside": {
+        "title": "The {n} months outside the range",
+        "month": "Month",
+        "sales": "Sales",
+        "distance": "Distance from average",
+        "band": "Band",
+        "band1": "Outside the 1st deviation",
+        "band2": "Outside the 2nd deviation",
+        "band3": "Outside the 3rd deviation"
+      },
+      "coach": {
+        "tag": "COACH",
+        "title": "What to say about this",
+        "normal": "{n} of {of} months land inside the normal range — {pct}%, against the 68% the model predicts. Going up and down is normal. An owner who reacts to every month above or below the average is permanently passing or failing against a line that was never a target.",
+        "cause": "The report shows where a month sits. Whether it is seasonal, a one-off, or something the business did to itself is a judgement for you and the client — not for the arithmetic."
+      },
+      "footnote": "All figures are calculated from the monthly sales entered on the left.",
+      "yoy": {
+        "title": "This year against last",
+        "month": "Month",
+        "lastYear": "Last year",
+        "yearBefore": "Year before"
+      }
     }
   },
   "modelGuide": {
@@ -1693,7 +1787,6 @@
   "firmLogicLab": {
     "heading": "Logic-Lab",
     "lede": "See what the AI does with an advisor's words, and what would change before you change it. Nothing here is saved.",
-
     "probeHeading": "Try a sentence",
     "probeHint": "Type what an advisor might say.",
     "probePlaceholder": "nobody knows who reports to whom and the org chart is a mess",
@@ -1715,7 +1808,6 @@
     "matchedOn": "matched on",
     "truncated": "Long text — only the first {count} characters were checked.",
     "notIncludedLabel": "Not included here:",
-
     "previewHeading": "Try a wording change",
     "previewHint": "Add or remove trigger phrases for the open table, and see what moves before you save anything.",
     "previewNeedsTable": "Open a logic table on the left to try a change to its trigger phrases.",
@@ -1727,7 +1819,6 @@
     "previewRunning": "Working it out…",
     "previewNeedsPhrases": "Add or remove at least one phrase first.",
     "phraseCount": "This table has {before} trigger phrases now, and would have {after}.",
-
     "gainedHeading": "Would now reach this table",
     "gainedNone": "No conversation would newly reach this table.",
     "takenFrom": "was reaching",
@@ -1739,7 +1830,6 @@
     "otherHeading": "Moved between other tables",
     "unchangedLine": "{count} sentences were unaffected.",
     "phrasesIgnored": "{count} phrase(s) were ignored — blank, too long, repeated, or past the limit of {max}.",
-
     "limitsHeading": "What this does not tell you",
     "corpusLabel": "About the sentences tested:",
     "pickTable": "Logic table",
@@ -2443,7 +2533,8 @@
     "dxChipNoDistinction": "no distinction of yours matched it  +0",
     "dxOutsideSheet": "It scored {score}, which placed it below the {shown} templates this sheet shows.",
     "dxUnscored": "It scored nothing at all for these words — no part of the engine reached it.",
-    "dxNotInLibrary": "There is no template with that name in your library.",    "dxNoScoring": "No area was recognised from these words, so there is no ranking to explain. Start with the trigger phrases — the words above reached nothing.",
+    "dxNotInLibrary": "There is no template with that name in your library.",
+    "dxNoScoring": "No area was recognised from these words, so there is no ranking to explain. Start with the trigger phrases — the words above reached nothing.",
     "dxGapHead": "The gap is {points} points.",
     "dxGapNoneA": "Every point your levers contributed to ",
     "dxGapNoneB": " came from the logic table. ",
@@ -2524,7 +2615,6 @@
     "llDeliverImpossible": "It could not be made to come first — {top} still wins even at the strongest setting. Nothing has been changed.",
     "llDeliverFailed": "That could not be saved. Nothing has changed."
   },
-
   "firmAiPrompts": {
     "intro": "These are the instructions the AI is given when it builds a cash flow model for your clients. The method is fixed — it is what makes the output auditable, and it is shown in full below so you can see the standard your firm is held to. The highlighted boxes are yours to set.",
     "pickerLabel": "Choose a document",
@@ -2564,7 +2654,6 @@
     "resetBody": "This level will stop holding its own AI prompt settings and will take them from the level above again.",
     "loadFailed": "The AI prompt settings could not be loaded."
   },
-
   "promptMaterial": {
     "heading": "Your firm's own method",
     "intro": "Material saved here is used by your advisers on every conversation, and is passed on to any firm below you — who can change it, switch it off, or keep their own version when you change yours.",

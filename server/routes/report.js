@@ -534,6 +534,33 @@ function multipleProperty (req, res, next) {
 }
 
 /**
+ * POST /api/report/volatility
+ *
+ * @param {object} req.body - `{ sales: number[], window: 12|18|24 }`. `sales` is monthly
+ *   figures oldest-first, as read from the firm's accounts export; `window` is how many of
+ *   the MOST RECENT months to measure. An unrecognised window falls back to 12, and an
+ *   unreadable cell counts as zero rather than blanking every figure on the screen.
+ * @returns {object} `{ success, data, timestamp }` — the average, the population standard
+ *   deviation, the three bands (with `lower` floored at zero per Mike's ruling of
+ *   2026-08-31 and the workbook's own value kept beside it as `lowerUnfloored`), the dial
+ *   score and its colour, each month's band, and the two years for Year on Year.
+ *
+ * Anonymous by design: numbers in, numbers out. Only the file-intake routes carry
+ * `firmAuth`, because those accept uploads.
+ */
+function volatility (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeVolatility(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] volatility compute failed:', err)
+    res.send(400, { success: false, error: { code: 'VOLATILITY_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
  * GET /api/report/model-guide
  *
  * The Model Guide screen's whole content: what each live model is for, the figures it
@@ -559,33 +586,6 @@ function modelGuide (req, res, next) {
   } catch (err) {
     console.error('[report] model-guide read failed:', err)
     res.send(500, { success: false, error: { code: 'MODEL_GUIDE_UNAVAILABLE', message: 'Could not load the model guide.' }, timestamp: new Date().toISOString() })
-  }
-  return next()
-}
-
-/**
- * POST /api/report/volatility
- *
- * @param {object} req.body - `{ sales: number[], window: 12|18|24 }`. `sales` is monthly
- *   figures oldest-first, as read from the firm's accounts export; `window` is how many of
- *   the MOST RECENT months to measure. An unrecognised window falls back to 12, and an
- *   unreadable cell counts as zero rather than blanking every figure on the screen.
- * @returns {object} `{ success, data, timestamp }` — the average, the population standard
- *   deviation, the three bands (with `lower` floored at zero per Mike's ruling of
- *   2026-08-31 and the workbook's own value kept beside it as `lowerUnfloored`), the dial
- *   score and its colour, each month's band, and the two years for Year on Year.
- *
- * Anonymous by design: numbers in, numbers out. Only the file-intake routes carry
- * `firmAuth`, because those accept uploads.
- */
-function volatility (req, res, next) {
-  try {
-    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
-    const data = computeVolatility(inputs)
-    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
-  } catch (err) {
-    console.error('[report] volatility compute failed:', err)
-    res.send(400, { success: false, error: { code: 'VOLATILITY_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
   }
   return next()
 }

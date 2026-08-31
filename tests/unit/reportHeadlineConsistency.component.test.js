@@ -15,6 +15,7 @@ const LoanEstimatorReport = require('~/components/LoanEstimatorReport.vue').defa
 const LeaseVsBuy = require('~/components/LeaseVsBuy.vue').default
 const CostOfCapital = require('~/components/CostOfCapital.vue').default
 const MultiplePropertyAssessment = require('~/components/MultiplePropertyAssessment.vue').default
+const VolatilityReport = require('~/components/VolatilityReport.vue').default
 
 const { computeDebtorCashflow } = require('~/server/report/debtorDragModel')
 const { computeWorkingCapitalCycle, DEFAULT_INPUTS: WCC_DEFAULTS } = require('~/server/report/workingCapitalCycleModel')
@@ -26,6 +27,7 @@ const { computeLoanEstimatorReport } = require('~/server/report/loanEstimatorMod
 const { computeLeaseVsBuy } = require('~/server/report/leaseVsBuyModel')
 const { computeCostOfCapital } = require('~/server/report/costOfCapitalModel')
 const { computeMultiplePropertyPortfolio } = require('~/server/report/multiplePropertyModel')
+const { computeVolatility, DEFAULT_INPUTS: VOL_DEFAULTS } = require('~/server/report/volatilityModel')
 
 /**
  * CONSISTENCY GUARD — every report in this section presents its headline figures the
@@ -79,7 +81,9 @@ const SCREENS = [
   // An empty body computes the workbook sample through the assembler's own default path.
   { name: 'Cost of Capital (WACC)', component: CostOfCapital, result: () => computeCostOfCapital({}) },
   // Phase 1 — one property, ten years. An empty body computes the workbook's sample.
-  { name: 'Multiple Property Assessment', component: MultiplePropertyAssessment, result: () => computeMultiplePropertyPortfolio({}) }
+  { name: 'Multiple Property Assessment', component: MultiplePropertyAssessment, result: () => computeMultiplePropertyPortfolio({}) },
+  // Typed entry seeded with the workbook's own 24 months; 12 is the screen's default window.
+  { name: 'Volatility Report', component: VolatilityReport, result: () => computeVolatility({ sales: VOL_DEFAULTS.sales, window: 12 }) }
 ]
 
 /** Mount with the backend answering successfully, and let the first result land. */

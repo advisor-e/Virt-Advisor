@@ -34,6 +34,7 @@ const SCREENS = [
   { name: 'Loan Estimator', path: '/loan-estimator', tabs: false },
   { name: 'Margin Breakeven', path: '/margin-breakeven', tabs: false },
   { name: 'Quick Position', path: '/quick-position', tabs: false },
+  { name: 'Volatility Report', path: '/volatility', tabs: false },
 
   // ── The manager hubs, every panel each one shows ──────────────────────────────────
   { name: 'Firm Manager', path: '/firm-manager', tabs: true },

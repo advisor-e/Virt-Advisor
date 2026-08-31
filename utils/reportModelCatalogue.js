@@ -99,7 +99,11 @@ export const MODELS = [
   { name: 'Quick Position', category: 'Valuation', summary: 'A fast read on where the business stands right now.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/quick-position' },
   { name: 'High-Level Budget', category: 'Budgeting', summary: 'A top-down budget with actuals and cash-flow variances.', status: STATUS_SOON, modelClass: CLASS_REPORT },
   { name: 'Mid-Level Budget', category: 'Budgeting', summary: 'A more detailed budget with assumptions and monthly tracking.', status: STATUS_SOON, modelClass: CLASS_REPORT },
-  { name: 'Volatility Report', category: 'Risk', summary: 'How bumpy the numbers are — common, seasonal or special-cause.', status: STATUS_SOON, modelClass: CLASS_REPORT }
+  // CLASS_REPORT stands per design/MODEL-CLASSIFICATION.md, which lists this model under
+  // Report (9) — "variance analysis on real figures". Entry is typed until the by-month
+  // accounts upload lands (Mike, 2026-08-31: "typed now, upload next"); that changes where
+  // the figures come from, not whose they are, and neither class carries the badge.
+  { name: 'Volatility Report', category: 'Risk', summary: 'How bumpy the numbers are — common, seasonal or special-cause.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/volatility' }
 ]
 
 /**
