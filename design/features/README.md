@@ -80,6 +80,7 @@ Templates & Videos is dormant — templates are Advisor-e's.*
 | [Course Builder](course-builder.md) | [history](course-builder-history.md) |
 | [Quizzes](quizzes.md) | [history](quizzes-history.md) |
 | [Advisor Progress & CPD](advisor-progression.md) | [history](advisor-progression-history.md) |
+| [Meeting Review](meeting-review.md) — recording a client meeting, and the two reports that come out of it. ⚠ **Design for approval — nothing built.** | [history](meeting-review-history.md) |
 
 ## Management
 
