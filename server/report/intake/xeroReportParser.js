@@ -256,6 +256,11 @@ const BAD_DEBTS_RECOVERED_RE = /bad\s*debts?\s*recovered/i
 const INTEREST_PAID_RE = /interest\s+(paid|expense)|loan\s+interest/i
 const OTHER_INCOME_SECTION_RE = /other\s+income|non-?operating\s+income/i
 const COST_OF_SALES_SECTION_RE = /cost\s+of\s+(sales|goods)/i
+// R18 again: anchored so "Non-Trading Income" can never classify as sales. Named here
+// rather than written inline because the by-month parser (monthlySalesParser.js) must
+// decide "is this row sales?" by exactly THIS rule — two copies would drift, and the
+// drift would be a different revenue figure from the same file depending on the export.
+const INCOME_SECTION_RE = /^income$|^revenue$|^trading income$|^sales$/i
 
 /** Package a candidate list as a file-sourced proposal, or undefined when none found. */
 function proposalOf (candidates) {
@@ -300,7 +305,7 @@ function extractProfitLoss (grid) {
 
   // R18: "trading income" is anchored — "Non-Trading Income" must never classify as sales
   const expenseItems = items.filter(it => inSection(it, /operating expenses|^expenses$|overheads/i))
-  const incomeItems = items.filter(it => inSection(it, /^income$|^revenue$|^trading income$|^sales$/i))
+  const incomeItems = items.filter(it => inSection(it, INCOME_SECTION_RE))
   const otherIncomeItems = items.filter(it => inSection(it, OTHER_INCOME_SECTION_RE))
   const costOfSalesItems = items.filter(it => inSection(it, COST_OF_SALES_SECTION_RE))
 
@@ -354,15 +359,17 @@ function extractProfitLoss (grid) {
 }
 
 /**
- * Sniff an uploaded buffer, read it (xlsx or csv), detect which Xero report it is,
- * and extract the intake proposal. The single entry point the route calls.
+ * Sniff an uploaded buffer and read it into cell grids — the file-type half of
+ * parseUpload, split out so the by-month parser (monthlySalesParser.js) reads files
+ * by exactly the same rules: same PDF refusal, same binary sniff, same hardened
+ * xlsx reader. This is the ONLY place an uploaded buffer becomes cells.
  *
  * @param {Buffer} buf - the uploaded file's bytes.
- * @returns {object} on success: the extract result above.
+ * @returns {Array<Array<Array<string|number|null>>>} one grid per worksheet (CSV gives one).
  * @throws {XlsxReadError|Error} err.code ∈ NOT_XLSX | CORRUPT_FILE | FILE_TOO_LARGE |
- *   TOO_MANY_PARTS | PDF_REJECTED | UNRECOGNISED_FILE | UNRECOGNISED_REPORT | MULTI_PERIOD_COLUMNS
+ *   TOO_MANY_PARTS | PDF_REJECTED | UNRECOGNISED_FILE
  */
-function parseUpload (buf) {
+function gridsFromBuffer (buf) {
   if (!Buffer.isBuffer(buf) || buf.length === 0) {
     const e = new Error('The upload was empty'); e.code = 'UNRECOGNISED_FILE'; throw e
   }
@@ -386,6 +393,20 @@ function parseUpload (buf) {
     }
     grids = [parseCsv(text)]
   }
+  return grids
+}
+
+/**
+ * Sniff an uploaded buffer, read it (xlsx or csv), detect which Xero report it is,
+ * and extract the intake proposal. The single entry point the annual routes call.
+ *
+ * @param {Buffer} buf - the uploaded file's bytes.
+ * @returns {object} on success: the extract result above.
+ * @throws {XlsxReadError|Error} err.code ∈ NOT_XLSX | CORRUPT_FILE | FILE_TOO_LARGE |
+ *   TOO_MANY_PARTS | PDF_REJECTED | UNRECOGNISED_FILE | UNRECOGNISED_REPORT | MULTI_PERIOD_COLUMNS
+ */
+function parseUpload (buf) {
+  const grids = gridsFromBuffer(buf)
 
   for (let g = 0; g < grids.length; g++) {
     const bs = extractBalanceSheet(grids[g])
@@ -398,4 +419,24 @@ function parseUpload (buf) {
   throw e
 }
 
-module.exports = { parseUpload, extractBalanceSheet, extractProfitLoss, XlsxReadError }
+module.exports = {
+  parseUpload,
+  gridsFromBuffer,
+  extractBalanceSheet,
+  extractProfitLoss,
+  XlsxReadError,
+  // Shared with monthlySalesParser: the report-title test, the header reader and the
+  // period-year reader. One definition each — a by-month export is the same document
+  // with more columns, so it must be recognised and dated by the same rules.
+  PL_TITLE,
+  headerMeta,
+  yearOf,
+  // Shared with monthlySalesParser so "which rows are sales?" has ONE definition.
+  INCOME_RULES: Object.freeze({
+    INCOME_SECTION_RE,
+    OTHER_INCOME_SECTION_RE,
+    INTEREST_RECEIVED_RE,
+    DIVIDENDS_RE,
+    BAD_DEBTS_RECOVERED_RE
+  })
+}

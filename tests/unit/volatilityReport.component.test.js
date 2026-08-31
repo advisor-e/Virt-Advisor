@@ -186,3 +186,159 @@ describe('Volatility Report screen', () => {
     expect(wrapper.vm.chart.points).toBe('')
   })
 })
+
+/**
+ * The accounts upload (item 4.54).
+ *
+ * Again only the wiring that could be wrong invisibly. The three that matter: the window
+ * must never be set wider than the months actually read (that would pad a client's report
+ * with workbook sample figures under a "from file" heading); a month the advisor overtypes
+ * must stop claiming it came from the file; and restoring a set-aside month must shift the
+ * whole window by one rather than splicing a hole into the series.
+ */
+describe('Volatility Report — the accounts upload', () => {
+  /** An intake payload: `n` usable months ending at Nov 2026, plus what was set aside. */
+  function intake (n, setAside) {
+    const base = 2026 * 12 + 10 - (n - 1) // Nov 2026 back n months
+    return {
+      files: [{ companyName: 'Kinetic Test Ltd', reportDate: null, monthsRead: 12, monthsComplete: n, range: 'Apr 2025 – Mar 2026', warnings: [] }],
+      series: [],
+      usable: Array.from({ length: n }, (_, i) => ({ label: 'M' + i, ordinal: base + i, value: 40000 + i * 100 })),
+      setAside: setAside || [],
+      warnings: []
+    }
+  }
+
+  it('takes the widest window the complete months can fill, and never wider', async () => {
+    const wrapper = await mountWith(sample(12))
+
+    wrapper.vm.applyIntake(intake(24))
+    expect(wrapper.vm.form.window).toBe(24)
+
+    wrapper.vm.applyIntake(intake(20))
+    expect(wrapper.vm.form.window).toBe(18) // 20 months cannot honestly fill 24
+
+    wrapper.vm.applyIntake(intake(13))
+    expect(wrapper.vm.form.window).toBe(12)
+  })
+
+  it('fills every measured month from the file and marks it so', async () => {
+    const wrapper = await mountWith(sample(12))
+    wrapper.vm.applyIntake(intake(12))
+
+    expect(wrapper.vm.form.sales).toEqual(intake(12).usable.map(m => m.value))
+    expect(wrapper.vm.sources).toEqual(new Array(12).fill('file'))
+    expect(wrapper.vm.fromFileCount).toBe(12)
+    expect(wrapper.vm.isSample).toBe(false)
+  })
+
+  it('short of a full window, the months that came leave the rest tagged as entered', async () => {
+    const wrapper = await mountWith(sample(12))
+    wrapper.vm.applyIntake(intake(8))
+
+    expect(wrapper.vm.form.window).toBe(12)
+    expect(wrapper.vm.sources.slice(0, 4)).toEqual(new Array(4).fill('entered'))
+    expect(wrapper.vm.sources.slice(4)).toEqual(new Array(8).fill('file'))
+    // The eight real months are the most RECENT ones, not the oldest.
+    expect(wrapper.vm.form.sales.slice(4)).toEqual(intake(8).usable.map(m => m.value))
+  })
+
+  it('an overtyped month stops crediting the accounts file', async () => {
+    const wrapper = await mountWith(sample(12))
+    wrapper.vm.applyIntake(intake(12))
+    wrapper.vm.setMonth(3, '99999')
+
+    expect(wrapper.vm.sources[3]).toBe('entered')
+    expect(wrapper.vm.fromFileCount).toBe(11)
+  })
+
+  it('restoring the oldest set-aside month shifts the window by exactly one', async () => {
+    const wrapper = await mountWith(sample(12))
+    wrapper.vm.applyIntake(intake(12, [
+      { label: 'Dec 2026', ordinal: 2026 * 12 + 11, value: 31000, reason: 'partial' },
+      { label: 'Jan 2027', ordinal: 2027 * 12, value: 0, reason: 'empty' }
+    ]))
+    const before = wrapper.vm.form.sales.slice()
+
+    wrapper.vm.restoreSetAside(0, '52000')
+
+    expect(wrapper.vm.form.sales).toHaveLength(12) // still twelve — one in, one out
+    expect(wrapper.vm.form.sales[11]).toBe(52000) // the restored month is now the newest
+    expect(wrapper.vm.form.sales.slice(0, 11)).toEqual(before.slice(1)) // the oldest dropped
+    expect(wrapper.vm.setAside).toHaveLength(1) // and it is no longer set aside
+  })
+
+  it('a later set-aside month cannot jump the queue and leave a hole', async () => {
+    const wrapper = await mountWith(sample(12))
+    wrapper.vm.applyIntake(intake(12, [
+      { label: 'Dec 2026', ordinal: 2026 * 12 + 11, value: 31000, reason: 'partial' },
+      { label: 'Jan 2027', ordinal: 2027 * 12, value: 0, reason: 'empty' }
+    ]))
+    const before = wrapper.vm.form.sales.slice()
+
+    wrapper.vm.restoreSetAside(1, '48000') // the SECOND one — December is still missing
+
+    expect(wrapper.vm.form.sales).toEqual(before) // series untouched
+    expect(wrapper.vm.setAside).toHaveLength(2)
+    expect(wrapper.vm.setAside[1].value).toBe(48000) // the typed figure is kept, just not applied
+  })
+
+  it('an intake with no usable months changes no figure', async () => {
+    const wrapper = await mountWith(sample(12))
+    const before = wrapper.vm.form.sales.slice()
+    wrapper.vm.applyIntake(intake(0))
+
+    expect(wrapper.vm.form.sales).toEqual(before)
+    expect(wrapper.vm.uploadError).toBe('report.volatility.accounts.noMonths')
+  })
+
+  it('reset clears the accounts as well as the figures', async () => {
+    const wrapper = await mountWith(sample(12))
+    wrapper.vm.applyIntake(intake(12, [{ label: 'Dec 2026', ordinal: 2026 * 12 + 11, value: 0, reason: 'empty' }]))
+    wrapper.vm.files.thisYear = { name: 'export.xlsx' }
+
+    wrapper.vm.resetToSample()
+
+    // Leaving a filename above sample figures would credit that client's accounts for
+    // numbers that came from the workbook.
+    expect(wrapper.vm.files.thisYear).toBeNull()
+    expect(wrapper.vm.sources).toEqual([])
+    expect(wrapper.vm.setAside).toEqual([])
+    expect(wrapper.vm.isSample).toBe(true)
+  })
+
+  it('the checklist never reads finished while a month is still set aside', async () => {
+    const wrapper = await mountWith(sample(12))
+    wrapper.vm.files.thisYear = { name: 'export.xlsx' }
+    wrapper.vm.applyIntake(intake(12, [
+      { label: 'Dec 2026', ordinal: 2026 * 12 + 11, value: 0, reason: 'empty' }
+    ]))
+
+    const state = k => wrapper.vm.steps.find(s => s.key === k).state
+    expect(state('uploaded')).toBe('done')
+    expect(state('matched')).toBe('done')
+    expect(state('checked')).toBe('now') // a month is still waiting to be looked at
+    expect(state('review')).toBe('todo')
+
+    wrapper.vm.restoreSetAside(0, '52000')
+    expect(state('checked')).toBe('done')
+    expect(state('review')).toBe('now')
+  })
+
+  it('the checklist stays hidden on the typed path', async () => {
+    const wrapper = await mountWith(sample(12))
+    expect(wrapper.vm.hasAccountsFile).toBe(false)
+  })
+
+  it('narrowing the window keeps provenance aligned with the months it keeps', async () => {
+    const wrapper = await mountWith(sample(12))
+    wrapper.vm.applyIntake(intake(24))
+    wrapper.vm.setMonth(0, '1') // the oldest month becomes hand-entered
+    expect(wrapper.vm.sources[0]).toBe('entered')
+
+    wrapper.vm.setWindow(12) // drops the oldest twelve, including that one
+
+    expect(wrapper.vm.sources).toHaveLength(12)
+    expect(wrapper.vm.sources).toEqual(new Array(12).fill('file'))
+  })
+})

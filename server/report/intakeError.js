@@ -24,7 +24,10 @@ const INTAKE_STATUS = Object.assign(Object.create(null), {
   UNRECOGNISED_FILE: 415,
   UNRECOGNISED_REPORT: 422,
   MULTI_PERIOD_COLUMNS: 422,
-  // annualAssembler
+  // monthlySalesParser — the mirror of MULTI_PERIOD_COLUMNS: that one refuses a by-month
+  // export to an annual model, this one refuses an annual export to the by-month model.
+  NOT_BY_MONTH: 422,
+  // annualAssembler + monthlySeriesAssembler (same codes, same authored shape)
   TOO_MANY_FILES: 400,
   WRONG_REPORT_KIND: 422
 })

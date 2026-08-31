@@ -24,6 +24,8 @@ const { computeVolatility } = require('../report/volatilityModel')
 const { listReportModels } = require('../utils/reportModels')
 const { parseUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
+const { parseMonthlyUpload } = require('../report/intake/monthlySalesParser')
+const { assembleMonthlySeries, MAX_FILES: MAX_MONTHLY_FILES } = require('../report/intake/monthlySeriesAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
 
 // formidable pinned to v2.1.2 repo-wide (Node 14.15 — see firmManager.js); same
@@ -327,6 +329,75 @@ async function ebitdaDcfIntake (req, res) {
 }
 
 /**
+ * POST /api/report/volatility/intake  (firmAuth — uploads are never anonymous)
+ *
+ * Multipart upload of 1..2 Xero "Current financial year by month" P&L exports (.xlsx or
+ * .csv, max 5 MB per request) in repeated `file` fields — this year's, and optionally
+ * last year's for the 18 and 24-month windows (Mike's ruling, 2026-08-31). Each is read
+ * across its month columns for trading-income line items, then the two are joined into
+ * one oldest-first run.
+ *
+ * The response separates `usable` from `setAside` on purpose: months after the data
+ * cut-off read as a genuine 0 and the cut-off month itself is usually partial, and both
+ * would produce a wrong volatility score that looks entirely plausible (REPORT-DATA-MODEL
+ * §3.9). The screen shows what came off and why, so a person decides rather than the
+ * arithmetic deciding silently.
+ *
+ * Parse-and-discard, as the other two intakes: temp files are deleted in `finally`,
+ * nothing is stored, and no client-identifying content — filenames, account row labels,
+ * company names — is ever logged. Only stable error codes.
+ *
+ * @param {object} req - multipart request; req.firmId set by firmAuth.
+ * @returns {object} { success, data: { files, series, usable, setAside, warnings }, timestamp }
+ */
+async function volatilityIntake (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — a by-month Xero export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No files were attached. Send each by-month export in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    // Same shape as the EBITDA route's R15: refuse an over-count BEFORE any file is
+    // parsed. The assembler's own check stays as the backstop, with the same message.
+    if (uploaded.length > MAX_MONTHLY_FILES) {
+      const e = new Error('This report reads up to ' + MAX_MONTHLY_FILES + ' accounts files — ' + uploaded.length + ' were sent. Please drop this year\'s by-month export and, if you want more than twelve months, last year\'s.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    const parsed = uploaded.map(f => parseMonthlyUpload(fs.readFileSync(f.filepath)))
+    const data = assembleMonthlySeries(parsed)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, labels or content (identity stays local)
+    console.error('[report] volatility intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'The file could not be read as a by-month Xero export.')
+    res.send(safe.status, safe.body)
+  } finally {
+    // Parse-and-discard: always remove every temp file formidable wrote
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
+}
+
+/**
  * POST /api/report/lease-vs-buy
  * @param {object} req.body - partial Lease vs Buy inputs (merged over the workbook
  *   sample): the loan block (loanType 'T'/'R', deposit, interestRate, termMonths,
@@ -590,4 +661,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, modelGuide }

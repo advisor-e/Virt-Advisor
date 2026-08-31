@@ -465,6 +465,49 @@ All five are mutation-verified.
 5. **Assemble the payload in the model, not the route.** One model does it in the route and
    its test has to mirror the route by hand.
 
+## 4b. The two intakes — annual, and by-month
+
+There are **two** file readers, and which one a model uses follows from the shape of its
+inputs. Both read `.xlsx` and `.csv`, both refuse a PDF by name, both share one hardened
+buffer reader (`gridsFromBuffer` in `xeroReportParser.js`), and both are parse-and-discard:
+the upload is deleted the moment it has been read, nothing is stored, and no filename,
+account label or company name is ever logged.
+
+**Annual — one figure per period.** `xeroReportParser.js` (`parseUpload`), used by Quick
+Position and EBITDA & DCF. It **deliberately refuses** a by-month or by-quarter export
+(`MULTI_PERIOD_COLUMNS`, at 5+ figure columns): reading only the first column silently lost
+the rest of the year, which is the fault that refusal exists to prevent. That refusal stays.
+
+**By-month — twelve figures per file.** `monthlySalesParser.js` (`parseMonthlyUpload`) plus
+`monthlySeriesAssembler.js`, used by the Volatility Report via
+`POST /api/report/volatility/intake` (firmAuth — uploads are never anonymous). It reads
+Xero's *"Current financial year by month"* P&L **across** its columns. Up to **two** files
+join into one run, because one export covers a single financial year and the 18 and
+24-month windows need more (Mike's ruling, 2026-08-31).
+
+> 🔴 **Three findings that a by-month export will hand you, each producing a number that is
+> wrong and completely believable.** Verified against a real client export
+> (`../REPORT-DATA-MODEL.md` §3.9) — do not "simplify" any of them away.
+> **(a)** Months after the data cut-off read as a genuine **0**. Averaged in they drag the
+> mean down and widen the standard deviation. **(b)** The month at the cut-off is usually
+> **partial**, because the export was taken mid-month; it reads as a collapse and lands
+> outside the third deviation. It cannot be detected from the cells, so it is *inferred* —
+> a month is partial only when empty months follow it, which is what proves the export is
+> mid-year. A fully populated file is a closed year and has no partial month. **(c)** The
+> **year-to-date column is not a month**.
+>
+> All three are handled by *showing the advisor*, never by deciding silently: the months
+> come off the end of the window, the window slides back over the earlier complete months,
+> and each one appears in its own box to be overtyped. A month restored this way rejoins as
+> the newest month and the window shifts by one — a month cannot be spliced out of the
+> middle of a series, on the screen or in the assembler.
+
+**"Which rows are sales?" has exactly one definition** — `INCOME_RULES`, exported from
+`xeroReportParser.js` and used by both readers: trading-income line items only, with Other
+Income, interest, dividends and bad debts recovered excluded, and never a `Total` row. Two
+copies of that rule would mean the same client file yielding two different revenue figures
+depending on which export was dropped.
+
 ### Known open gaps
 
 **Hardcoded English on the older screens.** User-facing strings on the report screens built
@@ -474,13 +517,11 @@ Report** is the worked example of the compliant pattern — every string on it i
 `locales/en.json`, month names included — so copy that screen, not its neighbours. A string
 hardcoded in a template stays English for ever; one in `en.json` can become any language.
 
-**The file intake reads ANNUAL figures only.** `server/report/intake/xeroReportParser.js`
-takes one figure per period and **deliberately refuses** a by-month or by-quarter export
-(`MULTI_PERIOD_COLUMNS`, at 5+ figure columns) — reading only the first column silently lost
-the rest of the year, which is the fault that refusal exists to prevent. **A model needing a
-monthly series therefore has no intake path today.** The Volatility Report takes its months
-typed for exactly this reason. Building that path is item 4.54; until it lands, do not assume
-"it has intake" of any model whose inputs are monthly.
+**Only the Volatility Report reads a monthly series.** The by-month intake exists and is
+proven, but no other model consumes it yet. A new model taking monthly inputs should reuse
+`parseMonthlyUpload` + `assembleMonthlySeries` rather than growing a third reader — and
+should expect the same three findings above, because they are properties of the export, not
+of this report.
 
 ---
 

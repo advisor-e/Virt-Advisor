@@ -1438,10 +1438,44 @@
         "label": "How many months to measure",
         "help": "The most recent months. Changing the window recalculates the average and the bands."
       },
+      "provenance": {
+        "fromFile": "from file",
+        "entered": "entered"
+      },
+      "steps": {
+        "uploaded": "Accounts files uploaded",
+        "matched": "Sales rows matched",
+        "checked": "Check the months",
+        "review": "Review volatility",
+        "discuss": "Discuss with client"
+      },
+      "accounts": {
+        "title": "Accounts",
+        "help": "In Xero: Profit and Loss → Current financial year by month, exported as Excel or CSV. One export covers one financial year. Add last year's as well for the 18 and 24-month windows.",
+        "choose": "Choose file",
+        "replace": "Replace",
+        "thisYearEmpty": "This year",
+        "lastYearEmpty": "Last year",
+        "thisYearHint": "The current financial year, by month",
+        "lastYearHint": "Optional — needed for 18 and 24 months",
+        "read": "{read} monthly columns read · {complete} complete · {range}",
+        "privacy": "The file is read on our server and deleted straight afterwards. Only the monthly sales figures are kept — no account names, no customer names, nothing else from the file.",
+        "failed": "The accounts file could not be read. Please try again.",
+        "noMonths": "No complete months could be read from that export. Check that it is a Profit and Loss with its income broken out by month.",
+        "short": "Only {n} complete months were read, so the remaining {window} were left as they were. Add last year's export, or type the earlier months in."
+      },
       "entry": {
         "title": "Monthly sales",
-        "help": "Oldest month first. An accounts upload is coming; for now these are typed.",
-        "monthLabel": "Month {n}"
+        "help": "Oldest month first. Type the figures in, or read them from the accounts above.",
+        "monthLabel": "Month {n}",
+        "fromFile": "{n} of these came from the accounts file. Overtype any figure that is wrong."
+      },
+      "setAside": {
+        "title": "Months set aside",
+        "monthLabel": "{month} — set aside",
+        "empty": "{months} is empty in the export, which is a month with no data rather than a month with no sales. | {months} are empty in the export, which are months with no data rather than months with no sales.",
+        "partial": "{months} looks part-finished, because the export was taken mid-month. | {months} look part-finished, because the export was taken mid-month.",
+        "moved": "Counting them would drag the average down and widen the swing, so the window has moved back to the most recent {n} complete months. Type a figure over the oldest one to bring it back in."
       },
       "bands": {
         "title": "The bands",

@@ -10,6 +10,15 @@
   //- Seeded with the workbook sample until the advisor types their own.
   sample-notice(v-if="isSample" :text="$t('report.sampleFigures')")
 
+  //- The approved five steps. Shown only once an accounts file is chosen: on the typed
+  //- path steps 1 and 2 can never complete, and a permanently unfinished checklist would
+  //- tell an advisor who typed their figures that they had not finished. Deviation from
+  //- the artefact, which draws them unconditionally — recorded in the Brief.
+  .vol-chips(v-if="hasAccountsFile")
+    span.vol-chip(v-for="s in steps" :key="s.key" :class="'is-' + s.state")
+      span.vol-chip-n {{ s.state === 'done' ? '✓' : s.n }}
+      | {{ $t('report.volatility.steps.' + s.key) }}
+
   //- Full-width headline band (owner ruling 2026-07-27): a direct child of the root,
   //- above the two-column layout — never inside the results column.
   template(v-if="data")
@@ -48,10 +57,42 @@
       )
 
   .vol-layout
-    //- [D1] inputs — typed entry. The by-month accounts upload is a later change
-    //- (Mike, 2026-08-31: "typed now, upload next"); the existing intake reads annual
-    //- figures only and deliberately refuses a by-month export.
+    //- [D1] inputs — the accounts upload seeds the months, and every figure stays
+    //- editable. Approved artefact: design/mockups/volatility-report.html.
     aside.vol-card
+      .vol-group
+        .vol-glabel
+          span.vol-dot
+          h2.vol-h2 {{ $t('report.volatility.accounts.title') }}
+        p.vol-note {{ $t('report.volatility.accounts.help') }}
+        .vol-slots
+          .vol-slot(v-for="slot in slots" :key="slot.key" :class="{ 'is-empty': !files[slot.key] }")
+            span.vol-slot-icon 📄
+            .vol-slot-body
+              .vol-slot-name(v-if="files[slot.key]") {{ files[slot.key].name }}
+              .vol-slot-name(v-else) {{ $t('report.volatility.accounts.' + slot.key + 'Empty') }}
+              .vol-slot-meta {{ slotMeta(slot.key) }}
+            button.vol-slot-btn(
+              type="button"
+              :disabled="uploading"
+              @click="pickFile(slot.key)"
+            ) {{ files[slot.key] ? $t('report.volatility.accounts.replace') : $t('report.volatility.accounts.choose') }}
+            input(
+              :ref="slot.key + 'File'"
+              type="file"
+              accept=".xlsx,.csv"
+              hidden
+              @change="onFileChosen(slot.key, $event)"
+            )
+        p.vol-note.is-error(v-if="uploadError") {{ uploadError }}
+        .vol-warn(v-for="(w, i) in intakeWarnings" :key="'w' + i")
+          span ⚠
+          div {{ w }}
+        .vol-warn(v-if="setAside.length")
+          span ⚠
+          div {{ setAsideMessage }}
+        p.vol-note {{ $t('report.volatility.accounts.privacy') }}
+
       .vol-group
         .vol-glabel
           span.vol-dot
@@ -78,7 +119,7 @@
           h2.vol-h2 {{ $t('report.volatility.entry.title') }}
         p.vol-note {{ $t('report.volatility.entry.help') }}
         .vol-months
-          .vol-month(v-for="(v, i) in form.sales" :key="i")
+          .vol-month(v-for="(v, i) in form.sales" :key="i" :class="{ 'is-file': sources[i] === 'file' }")
             label(:for="'vol-m' + i") {{ monthLabel(i) }}
             input(
               :id="'vol-m' + i"
@@ -88,6 +129,25 @@
               :aria-label="$t('report.volatility.entry.monthLabel', { n: i + 1 })"
               @input="setMonth(i, $event.target.value)"
             )
+        p.vol-note(v-if="fromFileCount") {{ $t('report.volatility.entry.fromFile', { n: fromFileCount }) }}
+
+        //- Months the accounts file could not vouch for. They sit OUTSIDE the measured
+        //- window — typing a figure over one brings it back in, which is the only way a
+        //- part-finished or empty month can enter the maths.
+        template(v-if="setAside.length")
+          label.vol-fieldlab.is-spaced {{ $t('report.volatility.setAside.title') }}
+          .vol-months
+            .vol-month.is-needs(v-for="(m, i) in setAside" :key="'sa' + i")
+              label(:for="'vol-sa' + i") {{ shortMonth(m.label) }}
+              input(
+                :id="'vol-sa' + i"
+                type="number"
+                inputmode="decimal"
+                :value="m.value"
+                :aria-label="$t('report.volatility.setAside.monthLabel', { month: m.label })"
+                @input="restoreSetAside(i, $event.target.value)"
+              )
+
         button.vol-cta.vol-ghost(type="button" @click="resetToSample") {{ $t('report.reset') }}
 
       .vol-group(v-if="data")
@@ -113,7 +173,18 @@
       .vol-tiles
         .vol-tile
           .vol-k {{ $t('report.volatility.tile.total') }}
-          .vol-v {{ money(data.total) }}
+          .vol-v
+            | {{ money(data.total) }}
+            //- Tagged only when EVERY measured month came from the accounts. One
+            //- overtyped month and this is a mixed figure, and calling it "from file"
+            //- would credit the accounts for a number the advisor changed.
+            provenance-badge(
+              v-if="allFromFile"
+              source="file"
+              :file-label="$t('report.volatility.provenance.fromFile')"
+              :entered-label="$t('report.volatility.provenance.entered')"
+              spaced
+            )
           .vol-sub {{ $t('report.volatility.tile.totalSub', { months: data.monthsUsed }) }}
         .vol-tile
           .vol-k {{ $t('report.volatility.tile.outside') }}
@@ -121,11 +192,28 @@
           .vol-sub {{ $t('report.volatility.tile.outsideSub') }}
         .vol-tile(v-if="data.highest")
           .vol-k {{ $t('report.volatility.tile.highest') }}
-          .vol-v {{ money(data.highest.value) }}
+          .vol-v
+            | {{ money(data.highest.value) }}
+            //- Per-month, so it follows THAT month's provenance rather than the whole set.
+            provenance-badge(
+              v-if="sources[data.highest.index] === 'file'"
+              source="file"
+              :file-label="$t('report.volatility.provenance.fromFile')"
+              :entered-label="$t('report.volatility.provenance.entered')"
+              spaced
+            )
           .vol-sub {{ monthLabel(data.highest.index) }} · {{ signedMoney(data.months[data.highest.index].deviation) }}
         .vol-tile(v-if="data.lowest")
           .vol-k {{ $t('report.volatility.tile.lowest') }}
-          .vol-v {{ money(data.lowest.value) }}
+          .vol-v
+            | {{ money(data.lowest.value) }}
+            provenance-badge(
+              v-if="sources[data.lowest.index] === 'file'"
+              source="file"
+              :file-label="$t('report.volatility.provenance.fromFile')"
+              :entered-label="$t('report.volatility.provenance.entered')"
+              spaced
+            )
           .vol-sub {{ monthLabel(data.lowest.index) }} · {{ signedMoney(data.months[data.lowest.index].deviation) }}
 
       //- [D2b] the signature diagram — the workbook's rev counter
@@ -263,6 +351,7 @@ import HeroStrip from '~/components/base/HeroStrip.vue'
 import HeroFigure from '~/components/base/HeroFigure.vue'
 import StaleBanner from '~/components/base/StaleBanner.vue'
 import SampleNotice from '~/components/base/SampleNotice.vue'
+import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -288,14 +377,36 @@ const CHART = { left: 70, right: 690, top: 20, bottom: 300, headroom: 1.08 }
 export default {
   name: 'VolatilityReport',
 
-  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice },
+  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice, ProvenanceBadge },
 
   mixins: [currencyMixin, reportRecompute],
+
+  props: {
+    /**
+     * Bearer token for the accounts-upload route, which is firmAuth (uploads are never
+     * anonymous). The calculation route stays anonymous, as on every other report.
+     */
+    apiToken: { type: String, default: 'dev-local-bypass' }
+  },
 
   data () {
     return {
       windows: [12, 18, 24],
       monthKeys: MONTH_KEYS,
+      /** The two accounts slots, newest first — the order they read down the card. */
+      slots: [{ key: 'thisYear' }, { key: 'lastYear' }],
+      /** The chosen File objects, by slot. Both are re-sent together on any change. */
+      files: { thisYear: null, lastYear: null },
+      uploading: false,
+      uploadError: null,
+      /** Warnings the backend raised about the files (gap, overlap, different companies). */
+      intakeWarnings: [],
+      /** Months the intake could not vouch for: empty, or the part-finished cut-off month. */
+      setAside: [],
+      /** Per-month provenance, index-aligned with form.sales: 'file' | 'entered'. */
+      sources: [],
+      /** What the last upload read, for the slot subtitles. */
+      fileSummaries: { thisYear: null, lastYear: null },
       /**
        * The month the first typed figure belongs to; every later month follows on from
        * it, wrapping into the next year. Defaults to September because that is where the
@@ -316,6 +427,64 @@ export default {
   },
 
   computed: {
+    /** How many of the measured months came from an accounts file. */
+    fromFileCount () {
+      return this.sources.filter(s => s === 'file').length
+    },
+
+    /** True once either slot holds a file — the chips describe the file path only. */
+    hasAccountsFile () {
+      return !!(this.files.thisYear || this.files.lastYear)
+    },
+
+    /**
+     * Every measured month came from the accounts, so a figure derived from them can
+     * honestly carry the "from file" tag. One overtyped month makes the total a mixed
+     * figure and the tag comes off.
+     */
+    allFromFile () {
+      return this.sources.length === this.form.sales.length && this.fromFileCount === this.form.sales.length
+    },
+
+    /**
+     * The five approved steps, each `done` / `now` / `todo`. "Check the months" is `now`
+     * for as long as anything is set aside, because that is the step where a believable
+     * wrong number gets caught — it must not read as finished while a month is still
+     * waiting to be looked at.
+     */
+    steps () {
+      const uploaded = this.hasAccountsFile
+      const matched = uploaded && this.fromFileCount > 0
+      const checked = matched && !this.setAside.length
+      const state = (done, now) => (done ? 'done' : (now ? 'now' : 'todo'))
+      return [
+        { key: 'uploaded', n: 1, state: state(uploaded, !uploaded) },
+        { key: 'matched', n: 2, state: state(matched, uploaded && !matched) },
+        { key: 'checked', n: 3, state: state(checked, matched && !checked) },
+        { key: 'review', n: 4, state: state(false, checked) },
+        { key: 'discuss', n: 5, state: 'todo' }
+      ]
+    },
+
+    /**
+     * One sentence naming every month left out and why. Deliberately one block rather
+     * than a marker per box: the advisor has to read WHY before deciding, and a small
+     * icon beside a figure invites a glance, not a decision.
+     */
+    setAsideMessage () {
+      const empty = this.setAside.filter(m => m.reason === 'empty').map(m => m.label)
+      const partial = this.setAside.filter(m => m.reason === 'partial').map(m => m.label)
+      const parts = []
+      if (empty.length) {
+        parts.push(this.$tc('report.volatility.setAside.empty', empty.length, { months: empty.join(', ') }))
+      }
+      if (partial.length) {
+        parts.push(this.$tc('report.volatility.setAside.partial', partial.length, { months: partial.join(', ') }))
+      }
+      parts.push(this.$t('report.volatility.setAside.moved', { n: this.form.window }))
+      return parts.join(' ')
+    },
+
     /** Bands widest-first, the way the table reads down the page. */
     reversedBands () {
       return this.data ? this.data.bands.slice().reverse() : []
@@ -462,6 +631,172 @@ export default {
   },
 
   methods: {
+    /** The subtitle under a slot: what that file turned out to hold. @param {string} key */
+    slotMeta (key) {
+      const s = this.fileSummaries[key]
+      if (!s) { return this.$t('report.volatility.accounts.' + key + 'Hint') }
+      return this.$t('report.volatility.accounts.read', {
+        read: s.monthsRead,
+        complete: s.monthsComplete,
+        range: s.range || ''
+      })
+    },
+
+    /** "Aug 2024" → "Aug". @param {string} label */
+    shortMonth (label) {
+      return String(label || '').split(' ')[0]
+    },
+
+    /** @param {string} key */
+    pickFile (key) {
+      const input = this.$refs[key + 'File']
+      // v-for refs come back as an array even when the loop yields one element.
+      const el = Array.isArray(input) ? input[0] : input
+      if (el) { el.click() }
+    },
+
+    /** @param {string} key @param {Event} event */
+    onFileChosen (key, event) {
+      const file = event.target.files && event.target.files[0]
+      event.target.value = ''
+      if (!file) { return }
+      const err = this.fileCheckError(file)
+      if (err) { this.uploadError = err; return }
+      this.$set(this.files, key, file)
+      this.uploadAccounts()
+    },
+
+    /**
+     * Pre-upload sanity check — UX only. The backend's magic-byte and size checks remain
+     * the real boundary; this just saves a round trip on an obvious mistake.
+     * @param {File} file @returns {string|null}
+     */
+    fileCheckError (file) {
+      if (!/\.(xlsx|csv)$/i.test(file.name)) { return this.$t('report.fileCheck.wrongType') }
+      if (file.size > 5 * 1024 * 1024) { return this.$t('report.fileCheck.tooBig') }
+      return null
+    },
+
+    /**
+     * Send every chosen file together and apply what comes back.
+     *
+     * Both files go in ONE request on purpose: the gap and overlap checks compare the two
+     * exports against each other, so sending them separately would mean neither request
+     * could see the join. Nothing is parsed here — the file never leaves the browser
+     * except as a POST body, and the backend deletes it as soon as it is read.
+     */
+    async uploadAccounts () {
+      const chosen = this.slots.map(s => this.files[s.key]).filter(Boolean)
+      if (!chosen.length) { return }
+      this.uploading = true
+      this.uploadError = null
+      try {
+        const body = new FormData()
+        for (const f of chosen) { body.append('file', f) }
+        const res = await fetch('/api/report/volatility/intake', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${this.apiToken}` },
+          body
+        })
+        const json = await res.json()
+        if (!json.success) {
+          this.uploadError = (json.error && json.error.message) || this.$t('report.volatility.accounts.failed')
+          return
+        }
+        this.applyIntake(json.data)
+      } catch (e) {
+        this.uploadError = this.$t('report.volatility.accounts.failed')
+      } finally {
+        this.uploading = false
+      }
+    },
+
+    /**
+     * Apply an intake result to the form.
+     *
+     * The window becomes the largest of 12/18/24 the COMPLETE months can fill — never
+     * larger, because padding a short series with sample figures would put invented
+     * numbers in front of a client under a "from file" heading. When fewer than twelve
+     * complete months came back, the months that did arrive fill the most recent slots
+     * and the rest keep their typed values, each tagged accordingly.
+     *
+     * @param {object} data - { files, series, usable, setAside, warnings } from the route.
+     */
+    applyIntake (data) {
+      const usable = data.usable || []
+      this.intakeWarnings = data.warnings || []
+      this.setAside = (data.setAside || []).slice()
+
+      const summaries = data.files || []
+      const order = usable.length || summaries.length
+        ? summaries.slice().sort((a, b) => String(b.range || '').localeCompare(String(a.range || '')))
+        : []
+      this.$set(this.fileSummaries, 'thisYear', order[0] || null)
+      this.$set(this.fileSummaries, 'lastYear', order[1] || null)
+
+      if (!usable.length) {
+        this.uploadError = this.$t('report.volatility.accounts.noMonths')
+        return
+      }
+
+      const window = this.windows.filter(w => w <= usable.length).pop() || 12
+      const taken = usable.slice(usable.length - Math.min(window, usable.length))
+      const sales = this.form.sales.slice()
+      const next = window <= sales.length ? sales.slice(sales.length - window) : this.padTo(sales, window)
+      const sources = new Array(window).fill('entered')
+      for (let i = 0; i < taken.length; i++) {
+        next[window - taken.length + i] = taken[i].value
+        sources[window - taken.length + i] = 'file'
+      }
+
+      this.form.window = window
+      this.form.sales = next
+      this.sources = sources
+      this.startMonth = MONTH_KEYS[this.monthIndexOf(taken[0].label)] || this.startMonth
+      this.isSample = false
+      if (taken.length < window) {
+        this.uploadError = this.$t('report.volatility.accounts.short', { n: taken.length, window })
+      }
+    },
+
+    /** Grow a series to `n` from the workbook sample, oldest-first. @param {number[]} sales @param {number} n */
+    padTo (sales, n) {
+      const need = n - sales.length
+      return SAMPLE_SALES.slice(SAMPLE_SALES.length - n, SAMPLE_SALES.length - n + need).concat(sales)
+    },
+
+    /** "Aug 2024" → 7. @param {string} label @returns {number} */
+    monthIndexOf (label) {
+      const key = String(label || '').slice(0, 3).toLowerCase()
+      return MONTH_KEYS.indexOf(key)
+    },
+
+    /**
+     * Type a figure over a set-aside month and it rejoins the series as the newest month.
+     * Only the OLDEST set-aside month can rejoin at a time — taking a later one first
+     * would splice a hole into the middle of the run, which is the same fault the
+     * assembler refuses to commit on the backend.
+     *
+     * @param {number} i - index within setAside.
+     * @param {string} raw - the typed value.
+     */
+    restoreSetAside (i, raw) {
+      const n = parseFloat(raw)
+      this.$set(this.setAside[i], 'value', Number.isFinite(n) ? n : 0)
+      if (i !== 0 || !Number.isFinite(n) || n === 0) { return }
+      const month = this.setAside.shift()
+      const sales = this.form.sales.slice()
+      sales.push(month.value)
+      sales.shift()
+      const sources = this.sources.slice()
+      sources.push('entered')
+      sources.shift()
+      this.form.sales = sales
+      this.sources = sources
+      this.startMonth = MONTH_KEYS[(MONTH_KEYS.indexOf(this.startMonth) + 1) % 12]
+      this.isSample = false
+    },
+
     /**
      * Switch the measured window, resizing the typed months to match. Growing pulls the
      * extra months from the workbook sample rather than leaving blanks, so the screen never
@@ -476,6 +811,14 @@ export default {
         const pad = SAMPLE_SALES.slice(SAMPLE_SALES.length - w, SAMPLE_SALES.length - w + need)
         this.form.sales = pad.concat(sales)
       }
+      // Keep provenance aligned with the resized series: months pulled in from the sample
+      // to grow the window were never in the file, so they are 'entered'.
+      if (this.sources.length) {
+        const src = this.sources.slice()
+        this.sources = w < src.length
+          ? src.slice(src.length - w)
+          : new Array(w - src.length).fill('entered').concat(src)
+      }
       this.form.window = w
     },
 
@@ -487,6 +830,9 @@ export default {
       const n = parseFloat(raw)
       this.$set(this.form.sales, i, Number.isFinite(n) ? n : 0)
       this.isSample = false
+      // An overtyped month is the advisor's figure now, not the file's — the badge has
+      // to follow the edit or the screen credits the accounts for a hand-keyed number.
+      if (this.sources.length) { this.$set(this.sources, i, 'entered') }
     },
 
     /**
@@ -506,6 +852,14 @@ export default {
     resetToSample () {
       this.form.sales = SAMPLE_SALES.slice(SAMPLE_SALES.length - this.form.window)
       this.isSample = true
+      // Reset clears the accounts too. Leaving a filename on screen above sample figures
+      // would say the numbers came from that client's accounts when they did not.
+      this.files = { thisYear: null, lastYear: null }
+      this.fileSummaries = { thisYear: null, lastYear: null }
+      this.sources = []
+      this.setAside = []
+      this.intakeWarnings = []
+      this.uploadError = null
     },
 
     /** @returns {{url: string, body: object}} the backend call this screen makes. */
@@ -602,6 +956,57 @@ export default {
   font-variant-numeric: tabular-nums;
 }
 .vol-month input:focus { outline: 2px solid var(--rs-accent); outline-offset: 1px; }
+/* A month read from the accounts, and one the file could not vouch for. The set-aside
+   colour is the standard's warn tone — the same one the stale banner uses — because it
+   means the same thing in both places: do not trust this until you have looked. */
+.vol-month.is-file input { border-color: var(--rs-accent); background: var(--rs-accent-soft); }
+.vol-month.is-needs input { border-color: var(--rs-warn); background: var(--rs-warn-soft); }
+.vol-month.is-needs label { color: var(--rs-warn); font-weight: 600; }
+
+/* the five step chips — file path only */
+.vol-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.vol-chip {
+  display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600;
+  background: var(--rs-panel); border: 1px solid var(--rs-line);
+  border-radius: 999px; padding: 7px 13px;
+}
+.vol-chip-n {
+  width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 10.5px; background: var(--rs-line); color: var(--rs-ink);
+}
+.vol-chip.is-done { border-color: #4ca52d55; background: var(--rs-good-soft); }
+.vol-chip.is-done .vol-chip-n { background: var(--rs-good); color: #fff; }
+.vol-chip.is-now { border-color: #0070c055; background: var(--rs-accent-soft); }
+.vol-chip.is-now .vol-chip-n { background: var(--rs-accent); color: #fff; }
+.vol-chip.is-todo { color: var(--rs-muted); }
+
+/* the two accounts slots */
+.vol-slots { display: grid; gap: 8px; }
+.vol-slot {
+  display: flex; gap: 10px; align-items: center;
+  background: var(--rs-panel-2); border: 1px solid var(--rs-line);
+  border-radius: 10px; padding: 10px 11px;
+}
+.vol-slot.is-empty { border-style: dashed; }
+.vol-slot-icon { flex: none; }
+.vol-slot-body { flex: 1; min-width: 0; }
+.vol-slot-name { font-size: 12.5px; font-weight: 600; word-break: break-all; }
+.vol-slot.is-empty .vol-slot-name { font-weight: 400; color: var(--rs-muted); }
+.vol-slot-meta { font-size: 11.5px; color: var(--rs-muted); margin-top: 2px; }
+.vol-slot-btn {
+  flex: none; font: inherit; font-size: 12.5px; font-weight: 600;
+  color: var(--rs-ink); background: transparent;
+  border: 1px solid var(--rs-line); border-radius: 8px; padding: 6px 11px; cursor: pointer;
+}
+.vol-slot-btn[disabled] { opacity: .5; cursor: default; }
+
+.vol-warn {
+  display: flex; gap: 9px; align-items: flex-start;
+  font-size: 12px; line-height: 1.45; margin-top: 10px;
+  border: 1px solid #ff990059; background: var(--rs-warn-soft);
+  border-radius: 9px; padding: 9px 11px;
+}
+.vol-note.is-error { color: var(--rs-crit); }
 
 .vol-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .vol-table th, .vol-table td {
