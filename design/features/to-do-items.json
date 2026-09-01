@@ -84,22 +84,41 @@
     },
     {
       "ref": "4.55",
-      "name": "Wire the uploaded template library into the engine (Cascade Phases 2–3)",
+      "name": "The firm's own template-upload screen (Cascade Phase 3)",
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
-      "why": "Phase 1 of design/SEARCH-CONTENT-CASCADE-PLAN.md shipped 2026-08-31 (5cf3743 backend, 6ba5dd7 screen): the mentor can upload the Advisor-e master export on the new Template Library tab, with validation, version history and restore. But the store is deliberately INERT — server/utils/templates.js still reads data/templates.json, so an upload changes nothing an advisor sees. Phase 2 rewires that loader (uploaded platform library first, then a firm's own, wholesale-replace per Mike's ruling of the same day, loud file fallback, ~60s cache). Phase 3 puts the firm's own upload screen live in front of the already-built importTemplates route.",
-      "risk": "Low while open: today's behaviour is exactly yesterday's. The cost is the feature not existing — content changes still need a developer, a commit and a redeploy. One residual worth naming: the Template Library screen passed its 12 component tests but has NOT been eyeballed in a production build (nuxt build + start, per the 2026-08-02 ruling — never dev mode).",
+      "why": "Phases 1 AND 2 of design/SEARCH-CONTENT-CASCADE-PLAN.md are now live: the mentor uploads on the Template Library tab (5cf3743/6ba5dd7, 2026-08-31), and since c3f2ee9 (2026-09-01) the engine actually reads through the cascade — server/utils/templateLibrary.js resolves the nearest tier's upload, whole, with data/templates.json as the seed and a ~60s cache. What remains is Phase 3: a screen in front of the already-built, already-validated importTemplates route so a FIRM can upload its own library, plus the restore button its stored history already supports.",
+      "risk": "Low while open: a firm's upload already works at the API and already wins the cascade — only the screen is missing, so today a firm needs a developer to exercise it. Two loose ends ride along: (1) the Template Library tab's status line reads \"291 templates · uploaded by\" with nothing after it when history is empty (dev machines today; UAT if a row ever lacks a name) — drop the phrase when there is no name, wording to be Mike's; (2) the tab has now been eyeballed in a production build (2026-09-01) — that residual is closed.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
-        "detail": "2026-08-31 — \"plan/design how to convert the manual download and upload of a json script (the search contents script) into a cascading - dynamic - database\"; the plan and Phase 1 were approved and built the same day, phase by phase. This item is Phases 2–3, awaiting his go."
+        "detail": "2026-08-31 — \"plan/design how to convert the manual download and upload of a json script (the search contents script) into a cascading - dynamic - database\"; the plan and Phase 1 were approved and built the same day, Phase 2 approved and built 2026-09-01. This item is Phase 3, awaiting his go."
       },
-      "touches": "server/utils/templates.js (the loader Phase 2 rewires), server/advisorEngine.js (reads through it), server/routes/firmManager.js importTemplates + FirmManagerHub.vue (Phase 3 screen).",
-      "comment": "2026-08-31 — filed at the close of the session that built Phase 1. Phase 4 (Advisor-e pushes the export directly, no download at all) is deliberately NOT on this item: it is the master team's, recorded in the plan and for the cascade handover doc."
+      "touches": "server/routes/firmManager.js importTemplates (exists, screenless) + FirmManagerHub.vue (the Phase 3 screen), components/mentor/MentorTemplateLibrary.vue (the dangling-wording fix), locales/en.json.",
+      "comment": "2026-09-01 — Phase 2 shipped (c3f2ee9): proven live on the desktop — a firm with no upload received the mentor's 291-template upload; suite 6,560 green. Phase 4 (Advisor-e pushes the export directly) remains the master team's, recorded in the plan and the cascade handover doc."
+    },
+    {
+      "ref": "4.57",
+      "name": "Rule whether a firm's replaced library changes what CPD its advisors claim",
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Since Cascade Phase 2 (c3f2ee9, 2026-09-01) the AI recommends from whichever library is in force — a firm that uploads its own set replaces the platform's wholesale. But the CPD catalogue (server/utils/cpdCatalogue.js) DELIBERATELY still reads the committed data/templates.json: CPD minutes are regulated claims, and whether a firm's replacement library should change what an advisor may claim is a policy ruling, not a wiring decision. Until ruled, advisors at a firm with its own library are recommended one set of pages while their claimable CPD is still defined by the platform's.",
+      "risk": "Contained: today's behaviour is exactly the pre-Phase-2 behaviour, which is the safe default. The mismatch only bites a firm that actually uploads its own library AND whose pages carry different CPD values — no such firm exists yet. The wrong answer either way is quiet, which is why this is filed rather than noted.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": true,
+        "detail": "Found 2026-09-01 while building Phase 2; named in commit c3f2ee9 as deliberately left for Mike's ruling. Nobody outside asked — it is filed because an open question for Mike must be an item, not a line in a note."
+      },
+      "touches": "nothing until ruled. If CPD follows the firm's library: server/utils/cpdCatalogue.js buildIndex and its callers in server/routes/activity.js and server/utils/courseEffort.js.",
+      "comment": "2026-09-01 — filed at the close of the session that shipped Phase 2. RENUMBERED 4.56 → 4.57 on 2026-09-01 by the laptop: both machines filed a new item as 4.56 within seven minutes of each other, on branches neither of which had reached master. Meeting Review (0f53b8f, 11:31) was first, this one (d78941c, 11:38) second, so this is the one that moved. Nothing else about it was touched — the text is the desktop's own, byte for byte. THE DESKTOP BRANCH STILL CALLS IT 4.56 and must adopt this number when it merges master."
     },
     {
       "ref": "4.56",
