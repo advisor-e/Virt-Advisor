@@ -60,6 +60,9 @@ const {
   DIARIZING_MODEL,
   createTranscriptionClient
 } = require('../utils/transcriptionClient')
+const obs = require('../utils/meetingObservations')
+const { computeMetrics } = require('../utils/meetingMetrics')
+const { generateSummary, generateCoachingNotes } = require('../utils/meetingReports')
 
 // formidable v2's parse() is callback-style, matching the wrapper in firmManager.js. The
 // same pinned 2.1.2 — see that file's note on why the version is held there.
@@ -534,6 +537,310 @@ function deleteRecording (req, res) {
   }
 }
 
+// ── The two reports ──────────────────────────────────────────────────────────────────
+
+/**
+ * Report generation in flight, keyed by meeting id. Separate from `jobs` above because a
+ * meeting can be transcribed once and have its reports regenerated after, and one map would
+ * make the second overwrite the record of the first.
+ * @type {Map<string, {state: string, startedAt: number, error: (string|null)}>}
+ */
+const reportJobs = new Map()
+
+/**
+ * The advisor's pre-set for this meeting, resolved through the tier cascade.
+ *
+ * ⚠ The observations reader is borrowed from `meetingObservations.js` rather than rebuilt:
+ * the dev-fallback rules for those three config keys live there, and a second copy here would
+ * be one more thing to keep in step with them. That module does not require this one, so
+ * there is no cycle.
+ *
+ * @param {object} req
+ * @param {string|null} scenarioId
+ * @returns {Promise<{points: Array<object>, scenarioName: (string|null)}>}
+ */
+async function presetFor (req, scenarioId) {
+  if (!scenarioId) { return { points: [], scenarioName: null } }
+  const observationRoutes = require('./meetingObservations')
+  const resolved = await obs.loadResolvedObservations(req.firmId, observationRoutes.readScopeConfig)
+  const scenario = resolved && resolved[scenarioId] ? resolved[scenarioId] : null
+  if (!scenario) { return { points: [], scenarioName: null } }
+  return { points: obs.asAdvisorPreset(scenario), scenarioName: scenario.name || null }
+}
+
+/**
+ * Generate both reports. The job behind `POST .../reports`.
+ *
+ * 🔴 TWO CALLS, IN SEQUENCE, AND A FAILURE OF ONE DOES NOT DISCARD THE OTHER. P6 keeps the
+ * client's copy and the coaching notes apart so coaching language cannot leak into what a
+ * client reads. Storing each as it succeeds means a failed coaching call still leaves the
+ * advisor their client summary, and the screen says plainly which one is missing — P11.
+ *
+ * @param {string} meetingId
+ * @param {object} ctx - `{ points, scenarioName }`
+ * @returns {Promise<void>}
+ */
+async function runReports (meetingId, ctx) {
+  reportJobs.set(meetingId, { state: 'generating', startedAt: Date.now(), error: null })
+
+  const transcript = store.readTranscript(meetingId)
+  const metrics = computeMetrics(transcript)
+  const failures = []
+
+  try {
+    const summary = await generateSummary({
+      transcript,
+      scenarioName: ctx.scenarioName,
+      apiKey: process.env.OPENAI_API_KEY
+    })
+    store.writeReport(meetingId, 'summary', summary)
+  } catch (err) {
+    console.error('[meeting-review] summary generation failed:', err.message)
+    failures.push('summary')
+  }
+
+  try {
+    const coaching = await generateCoachingNotes({
+      transcript,
+      points: ctx.points,
+      metrics,
+      apiKey: process.env.OPENAI_API_KEY
+    })
+    store.writeReport(meetingId, 'coaching', coaching)
+  } catch (err) {
+    console.error('[meeting-review] coaching generation failed:', err.message)
+    failures.push('coaching')
+  }
+
+  if (failures.length === 2) {
+    reportJobs.set(meetingId, { state: 'failed', startedAt: Date.now(), error: 'both reports failed' })
+  } else if (failures.length === 1) {
+    reportJobs.set(meetingId, { state: 'partial', startedAt: Date.now(), error: failures[0] + ' failed' })
+  } else {
+    reportJobs.set(meetingId, { state: 'done', startedAt: Date.now(), error: null })
+  }
+}
+
+/**
+ * POST /api/meeting/recordings/:meetingId/reports  (advisor)
+ *
+ * Start generating both reports. Returns a job to poll, for the same reason `finish` does:
+ * two model calls over an hour of transcript is far past the 2000 ms page-render rule.
+ *
+ * @route POST /api/meeting/recordings/:meetingId/reports
+ * @returns {{started: true, meetingId: string}}
+ */
+async function generateReports (req, res) {
+  const meta = ownedMeeting(req, res)
+  if (!meta) { return }
+
+  if (!store.readTranscript(meta.meetingId)) {
+    return sendError(res, 409, 'NO_TRANSCRIPT',
+      'This meeting has no transcript, so there is nothing to write a report from.')
+  }
+
+  const existing = reportJobs.get(meta.meetingId)
+  if (existing && existing.state === 'generating') {
+    return res.send(202, { started: true, meetingId: meta.meetingId })
+  }
+
+  let ctx
+  try {
+    ctx = await presetFor(req, meta.scenarioId)
+  } catch (err) {
+    return serverError(res, err, 'read the observation points')
+  }
+
+  // Not awaited: the reply goes back now and the advisor polls. The job records its own
+  // failures rather than rejecting into the process.
+  runReports(meta.meetingId, ctx)
+  res.send(202, { started: true, meetingId: meta.meetingId })
+}
+
+/**
+ * GET /api/meeting/recordings/:meetingId/reports  (advisor)
+ *
+ * Both reports and where generation has got to.
+ *
+ * 🔴 P2 IS ENFORCED BY `ownedMeeting`, WHICH CHECKS THE ADVISOR AND NOT ONLY THE FIRM. My
+ * Coaching Notes belong to the advisor who made the recording; a colleague at the same firm is
+ * as much a stranger to it as another firm is.
+ *
+ * ⚠ `attributionConfident: false` is passed straight out. §5 trap 1: degraded speaker
+ * separation must fail visibly, and the screen says so above the figures that depend on it.
+ *
+ * @route GET /api/meeting/recordings/:meetingId/reports
+ * @returns {{state: string, error: (string|null), summary: (object|null),
+ *   coaching: (object|null), attributionConfident: (boolean|null)}}
+ */
+function getReports (req, res) {
+  const meta = ownedMeeting(req, res)
+  if (!meta) { return }
+
+  const transcript = store.readTranscript(meta.meetingId)
+  const job = reportJobs.get(meta.meetingId)
+  const summary = store.readReport(meta.meetingId, 'summary')
+  const coaching = store.readReport(meta.meetingId, 'coaching')
+
+  res.send(200, {
+    meetingId: meta.meetingId,
+    state: job ? job.state : (summary || coaching ? 'done' : 'none'),
+    error: job ? job.error : null,
+    hasTranscript: Boolean(transcript),
+    attributionConfident: transcript ? Boolean(transcript.attributionConfident) : null,
+    summary,
+    coaching
+  })
+}
+
+/** The stored report, or an error already sent. */
+function reportOr404 (req, res, meta, kind) {
+  const report = store.readReport(meta.meetingId, kind)
+  if (!report) {
+    sendError(res, 404, 'NO_REPORT', 'That report has not been generated yet')
+    return null
+  }
+  return report
+}
+
+/**
+ * PUT /api/meeting/recordings/:meetingId/reports/summary  (advisor)
+ *
+ * The advisor's edit of the client summary. P7 — the app writes, the advisor publishes.
+ *
+ * ⚠ AN EDIT CLEARS ANY EXISTING APPROVAL. Approving text and then changing it must not leave
+ * the record saying the new words were approved.
+ *
+ * @route PUT /api/meeting/recordings/:meetingId/reports/summary
+ * @param {object} req.body - `{ text: string }`
+ * @returns {{saved: true}}
+ */
+function saveSummaryEdit (req, res) {
+  const meta = ownedMeeting(req, res)
+  if (!meta) { return }
+  const report = reportOr404(req, res, meta, 'summary')
+  if (!report) { return }
+
+  const text = (req.body || {}).text
+  if (typeof text !== 'string' || text.trim() === '') {
+    return sendError(res, 400, 'EMPTY_SUMMARY', 'A summary cannot be saved empty')
+  }
+
+  try {
+    report.editedText = text
+    report.editedAt = new Date().toISOString()
+    report.approvedAt = null
+    store.writeReport(meta.meetingId, 'summary', report)
+    res.send(200, { saved: true })
+  } catch (err) {
+    return serverError(res, err, 'save that summary')
+  }
+}
+
+/**
+ * POST /api/meeting/recordings/:meetingId/reports/summary/approve  (advisor)
+ *
+ * The advisor signs the summary off. There is deliberately no send: this application has no
+ * mail channel, and adding one would put a named client's financial affairs through a company
+ * nobody has assessed — the same argument that kept the audio off Google Drive. Mike's ruling,
+ * 2026-09-02: the advisor approves here and sends it from their own email.
+ *
+ * @route POST /api/meeting/recordings/:meetingId/reports/summary/approve
+ * @returns {{approved: true, at: string}}
+ */
+function approveSummary (req, res) {
+  const meta = ownedMeeting(req, res)
+  if (!meta) { return }
+  const report = reportOr404(req, res, meta, 'summary')
+  if (!report) { return }
+
+  try {
+    const at = new Date().toISOString()
+    report.approvedAt = at
+    store.writeReport(meta.meetingId, 'summary', report)
+    res.send(200, { approved: true, at })
+  } catch (err) {
+    return serverError(res, err, 'approve that summary')
+  }
+}
+
+/**
+ * POST /api/meeting/recordings/:meetingId/reports/coaching/dispute  (advisor)
+ *
+ * 🔴 P5 — THE DISPUTE STAYS IN THE RECORD, AND IT DOES NOT DELETE THE FINDING. This is the
+ * line between coaching and surveillance: the advisor can say the software got it wrong, that
+ * disagreement is kept beside the finding rather than instead of it, and it is the only honest
+ * source of data for improving the observation points themselves.
+ *
+ * @route POST /api/meeting/recordings/:meetingId/reports/coaching/dispute
+ * @param {object} req.body - `{ pointId: string, note?: string }`
+ * @returns {{recorded: true}}
+ */
+function disputeFinding (req, res) {
+  const meta = ownedMeeting(req, res)
+  if (!meta) { return }
+  const report = reportOr404(req, res, meta, 'coaching')
+  if (!report) { return }
+
+  const body = req.body || {}
+  const pointId = typeof body.pointId === 'string' ? body.pointId.trim() : ''
+  const known = (report.findings || []).some(f => f.pointId === pointId)
+  if (!pointId || !known) {
+    return sendError(res, 400, 'UNKNOWN_POINT', 'That observation is not in this report')
+  }
+
+  const note = typeof body.note === 'string' ? body.note.trim().slice(0, 1000) : ''
+
+  try {
+    report.disputes = report.disputes || {}
+    report.disputes[pointId] = { at: new Date().toISOString(), note }
+    store.writeReport(meta.meetingId, 'coaching', report)
+    res.send(200, { recorded: true })
+  } catch (err) {
+    return serverError(res, err, 'record that disagreement')
+  }
+}
+
+/**
+ * POST /api/meeting/recordings/:meetingId/reports/coaching/heard  (advisor)
+ *
+ * The advisor settles a point a recording cannot hear.
+ *
+ * 🔴 WHAT IS STORED IS THE ADVISOR'S ANSWER, NEVER THE GUESS. Mike's ruling, 2026-09-01. The
+ * hint words may have raised the question; they never answer it, or a maybe hardens into a
+ * fact on its way to a manager's figures.
+ *
+ * @route POST /api/meeting/recordings/:meetingId/reports/coaching/heard
+ * @param {object} req.body - `{ pointId: string, answer: boolean }`
+ * @returns {{recorded: true, answer: boolean}}
+ */
+function answerCannotHear (req, res) {
+  const meta = ownedMeeting(req, res)
+  if (!meta) { return }
+  const report = reportOr404(req, res, meta, 'coaching')
+  if (!report) { return }
+
+  const body = req.body || {}
+  const pointId = typeof body.pointId === 'string' ? body.pointId.trim() : ''
+  if (typeof body.answer !== 'boolean') {
+    return sendError(res, 400, 'ANSWER_REQUIRED', 'Answer yes or no')
+  }
+
+  const finding = (report.findings || []).find(f => f.pointId === pointId && f.state === 'cannot_hear')
+  if (!finding) {
+    return sendError(res, 400, 'UNKNOWN_POINT', 'That observation is not one this recording could not hear')
+  }
+
+  try {
+    finding.advisorAnswer = body.answer
+    finding.answeredAt = new Date().toISOString()
+    store.writeReport(meta.meetingId, 'coaching', report)
+    res.send(200, { recorded: true, answer: body.answer })
+  } catch (err) {
+    return serverError(res, err, 'record that answer')
+  }
+}
+
 module.exports = {
   DIARIZING_MODEL,
   getRetention,
@@ -548,5 +855,14 @@ module.exports = {
   deleteRecording,
   runTranscription,
   readScopeConfig,
-  jobs
+  jobs,
+  generateReports,
+  getReports,
+  saveSummaryEdit,
+  approveSummary,
+  disputeFinding,
+  answerCannotHear,
+  runReports,
+  presetFor,
+  reportJobs
 }

@@ -378,6 +378,16 @@ server.post('/api/meeting/recordings/:meetingId/finish', firmAuth, mr.finishReco
 server.get('/api/meeting/recordings/:meetingId', firmAuth, mr.getRecording)
 server.del('/api/meeting/recordings/:meetingId', firmAuth, mr.deleteRecording)
 
+// Slice 3 — the two reports. `firmAuth` only, like the recording routes above: each of these
+// guards on the ADVISOR as well as the firm inside `ownedMeeting`, because Brief P2 gives a
+// recording and its coaching notes to the advisor who made it, not to their colleagues.
+server.post('/api/meeting/recordings/:meetingId/reports', firmAuth, mr.generateReports)
+server.get('/api/meeting/recordings/:meetingId/reports', firmAuth, mr.getReports)
+server.put('/api/meeting/recordings/:meetingId/reports/summary', firmAuth, mr.saveSummaryEdit)
+server.post('/api/meeting/recordings/:meetingId/reports/summary/approve', firmAuth, mr.approveSummary)
+server.post('/api/meeting/recordings/:meetingId/reports/coaching/dispute', firmAuth, mr.disputeFinding)
+server.post('/api/meeting/recordings/:meetingId/reports/coaching/heard', firmAuth, mr.answerCannotHear)
+
 // Share a prompt — Lane A (item 4.31, steps 1–3). Checks a pasted prompt and stores
 // nothing. That route is deliberately incapable of writing anywhere; Lane B below is a
 // separate file so this one's promise stays true.

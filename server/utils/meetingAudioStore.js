@@ -398,6 +398,42 @@ function readTranscript (meetingId) {
   }
 }
 
+/**
+ * The two reports, kept in this same directory.
+ *
+ * 🔴 THEY LIVE HERE SO "STOP AND DELETE" TAKES THEM. `destroyMeeting` removes every file in
+ * the meeting's directory, so a report written here is destroyed with the transcript and the
+ * audio by the same single act — no second store to remember, nothing to fall out of step.
+ * `MEETING-CONSENT-WORDING.md` §4 says a meeting the client withdrew consent to must not
+ * survive as text, and a coaching note quoting that meeting is exactly that text.
+ *
+ * @param {'summary'|'coaching'} kind
+ * @returns {string}
+ */
+function _reportName (kind) {
+  if (kind !== 'summary' && kind !== 'coaching') {
+    throw new Error('meetingAudioStore: unknown report kind')
+  }
+  return 'report-' + kind + '.json'
+}
+
+/** Store one report beside the meeting record. */
+function writeReport (meetingId, kind, report) {
+  fs.writeFileSync(
+    path.join(_meetingDir(meetingId), _reportName(kind)),
+    JSON.stringify(report, null, 2)
+  )
+}
+
+/** One stored report, or null when it has not been generated. */
+function readReport (meetingId, kind) {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(_meetingDir(meetingId), _reportName(kind)), 'utf8'))
+  } catch (_e) {
+    return null
+  }
+}
+
 module.exports = {
   MEETING_ID_PATTERN,
   CHUNK_PREFIX,
@@ -418,5 +454,7 @@ module.exports = {
   destroyAudio,
   destroyMeeting,
   writeTranscript,
-  readTranscript
+  readTranscript,
+  writeReport,
+  readReport
 }

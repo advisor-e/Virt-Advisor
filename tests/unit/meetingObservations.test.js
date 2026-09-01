@@ -292,6 +292,47 @@ describe('validating what a manager submits', () => {
   test('a non-string is refused', () => {
     expect(mo.validatePointFields({ text: 42 }).ok).toBe(false)
   })
+
+  // ── Slice 3: marking a point that a recording cannot hear ──────────────────────────
+
+  test('a point can be marked un-hearable, with optional words that hint at it', () => {
+    const { ok, value } = mo.validatePointFields({
+      text: 'I drew the numbers out.',
+      cannotHear: true,
+      hintWords: ['let me sketch this out', '  draw this for you  ']
+    })
+    expect(ok).toBe(true)
+    expect(value.cannotHear).toBe(true)
+    expect(value.hintWords).toEqual(['let me sketch this out', 'draw this for you'])
+  })
+
+  test('🔴 an explicit false is STORED, not dropped as empty', () => {
+    // An override exists so a tier can switch off what it inherited. A false treated as
+    // "nothing submitted" leaves the inherited true standing while the box shows unticked —
+    // and the advisor is then asked to confirm something the model could have found.
+    const { ok, value } = mo.validatePointFields({ cannotHear: false })
+    expect(ok).toBe(true)
+    expect(value.cannotHear).toBe(false)
+  })
+
+  test('cannotHear must be a boolean, not a string a form happened to send', () => {
+    expect(mo.validatePointFields({ cannotHear: 'true' }).ok).toBe(false)
+    expect(mo.validatePointFields({ cannotHear: 1 }).ok).toBe(false)
+  })
+
+  test('hint words must be a list of text, within sane limits', () => {
+    expect(mo.validatePointFields({ hintWords: 'let me sketch this out' }).ok).toBe(false)
+    expect(mo.validatePointFields({ hintWords: [42] }).ok).toBe(false)
+    expect(mo.validatePointFields({ hintWords: ['x'.repeat(mo.MAX_HINT_LENGTH + 1)] }).ok).toBe(false)
+    const tooMany = new Array(mo.MAX_HINT_WORDS + 1).fill('a phrase')
+    expect(mo.validatePointFields({ hintWords: tooMany }).ok).toBe(false)
+  })
+
+  test('blank hint phrases are dropped rather than stored as empty needles', () => {
+    // An empty phrase would match every segment and raise a hint on every meeting.
+    const { value } = mo.validatePointFields({ hintWords: ['   ', 'let me sketch this out'] })
+    expect(value.hintWords).toEqual(['let me sketch this out'])
+  })
 })
 
 describe('the advisor reads the points in their own voice', () => {

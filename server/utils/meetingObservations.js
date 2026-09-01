@@ -77,10 +77,30 @@ const DEV_FILES = {
  * and an editable id would let a tier's edit silently re-file itself against another point.
  * @type {string[]}
  */
-const EDITABLE_POINT_FIELDS = ['text', 'advisorText']
+const EDITABLE_POINT_FIELDS = ['text', 'advisorText', 'cannotHear', 'hintWords']
 
 /** Longest a point may be. Long enough for the approved four; short enough to stay a check. */
 const MAX_POINT_LENGTH = 300
+
+/**
+ * `cannotHear` and `hintWords` — the two fields slice 3 added, and why they are here rather
+ * than in the report generator.
+ *
+ * 🔴 WHETHER A POINT CAN BE HEARD IS A PROPERTY OF THE POINT, NOT OF A MEETING. *"I drew the
+ * numbers out for the client"* is un-hearable in every meeting that will ever happen, so it is
+ * marked once by whoever wrote the point and never re-decided. Mike's ruling, 2026-09-02, on
+ * the alternative of letting the model classify it: that would turn a stable fact into a fresh
+ * guess each month, answered inconsistently, with nothing to inspect when somebody asks why.
+ *
+ * ⚠ AND LEAVING IT OUT WAS WORSE THAN EITHER. Without this flag a drawing point comes back
+ * "Not found" — telling an advisor they failed to do something when the truth is the software
+ * could not tell. That is the confident-and-wrong failure the Brief names as most likely.
+ *
+ * `hintWords` are optional. When the author supplies none, the card simply says the thing
+ * cannot be heard and asks the advisor, with no guess at all — which is the honest floor.
+ */
+const MAX_HINT_WORDS = 10
+const MAX_HINT_LENGTH = 120
 
 /**
  * Own-row prefixes, one per tier.
@@ -197,6 +217,46 @@ function validatePointFields (value, opts) {
     }
     const raw = value[field]
     if (raw === null || raw === undefined) { return }
+
+    // A boolean is stored as given, INCLUDING false — an override exists precisely so a tier
+    // can switch off something it inherited, and a false that is dropped as "empty" would
+    // leave the inherited true standing while the screen showed the box unticked.
+    if (field === 'cannotHear') {
+      if (typeof raw !== 'boolean') {
+        errors.push('cannotHear must be true or false')
+        return
+      }
+      out.cannotHear = raw
+      return
+    }
+
+    if (field === 'hintWords') {
+      if (!Array.isArray(raw)) {
+        errors.push('hintWords must be a list')
+        return
+      }
+      if (raw.length > MAX_HINT_WORDS) {
+        errors.push('hintWords must be ' + MAX_HINT_WORDS + ' phrases or fewer')
+        return
+      }
+      const phrases = []
+      let bad = false
+      raw.forEach((p) => {
+        if (bad) { return }
+        if (typeof p !== 'string') { errors.push('each hint phrase must be text'); bad = true; return }
+        const trimmedPhrase = p.trim()
+        if (!trimmedPhrase) { return }
+        if (trimmedPhrase.length > MAX_HINT_LENGTH) {
+          errors.push('each hint phrase must be ' + MAX_HINT_LENGTH + ' characters or fewer')
+          bad = true
+          return
+        }
+        phrases.push(trimmedPhrase)
+      })
+      if (!bad) { out.hintWords = phrases }
+      return
+    }
+
     if (typeof raw !== 'string') {
       errors.push(field + ' must be text')
       return
@@ -426,7 +486,12 @@ function asAdvisorPreset (scenario) {
   return points.map(p => ({
     id: p.id,
     text: (typeof p.advisorText === 'string' && p.advisorText) ? p.advisorText : p.text,
-    source: p.source
+    source: p.source,
+    // Carried through for slice 3: the report generator holds an un-hearable point back from
+    // the model entirely and asks the advisor instead, so it has to know which those are
+    // before it builds a prompt.
+    cannotHear: Boolean(p.cannotHear),
+    hintWords: Array.isArray(p.hintWords) ? p.hintWords : []
   }))
 }
 
@@ -457,6 +522,8 @@ module.exports = {
   DEV_FILES,
   EDITABLE_POINT_FIELDS,
   MAX_POINT_LENGTH,
+  MAX_HINT_WORDS,
+  MAX_HINT_LENGTH,
   POINT_PREFIX_BY_TIER,
   PLATFORM_POINT_PREFIX,
   OBSERVATION_SOURCE_LABELS,
