@@ -9,39 +9,28 @@
 
 ---
 
-## 2026-09-01 (later session) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-02 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Suite **6,609 green** (356 suites), lint 0 errors, **`nuxt build` green**, everything
-committed and pushed.
+Suite **6,610 green** (356 suites), lint 0 errors, everything committed, pushed and
+**merged to master** (PRs #52, #53).
 
-**What shipped: the Collaborate front door (Mike's request, in his own words).** The
-adviser-facing Collaborate screens — in the repo since merge slice 1 but wired to no
-URL — are now reachable. `/collaborate` is the ONE address the master app's banner
-button opens; every other screen keeps the absolute URL it shipped with (`/discover`,
-`/connecting`, `/marketplace`, `/profile`, `/messages`, `/connections`, `/audit`,
-`/firm`, `/groups/new`, `/groups/:id`) because the screens link to each other by those
-paths. Eleven thin wrapper pages + `layouts/collaborate.vue`. Two named one-liners: the
-Collaborate navbar brand now links to `/collaborate` (in the merged app `/` is the VA
-home), and the Open Sans **300** weight was added to the font link in `nuxt.config.js`.
+**Morning finding:** yesterday's 7 commits had never been shared into master — the
+laptop flagged it; PR #52 merged them.
 
-**🔴 FOUND AND FIXED: Collaborate's theme never came across in slice 1.** Tests don't
-check looks, so nobody noticed the standalone's `assets/css/theme.css` was missing.
-Ported as `assets/css/collaborate-theme.css` with EVERY rule prefixed `.collab-scope`
-(the layout's wrapper div) so Collaborate's global restyling of body/.button/.box
-cannot touch any Virt Advisor screen. Known cosmetic limit: programmatic `$buefy`
-dialogs append to `<body>`, outside the scope, and render app-default.
+**The Collaborate eyeball happened** (first ever). Screens fine EXCEPT every label
+rendered as a raw wording key — only 3 of 19 Collaborate locale sections were merged.
+Fixed (`575befe`, PR #53): all 19 merge; the predicted `profile` clash settled by
+renaming Collaborate's section `collabProfile`; two guard tests pin the settlement so
+it cannot recur. Verified on screen by Mike. "Icons missing" resolved with the labels.
 
-**NOT eyeballed.** Build + tests prove it compiles and behaves; no screen has been
-looked at in a browser this session (Mike had to finish before the viewing run). First
-job next session: `npm run serve`, open `http://localhost:3000/collaborate`, click
-through. The URL table is in `features/collaborate-groups.md` §4 and on the Handbook.
+**🔴 STILL RULED, STILL UNBUILT: 4.56** (CPD follows the library in force) — deferred a
+second session by the day's firefighting; remains the top open build item.
 
-**🔴 STILL RULED, STILL UNBUILT: 4.56** (CPD follows the library in force) — was queued
-as this session's build; the front door took priority on Mike's request. It remains the
-top open item for whichever machine takes it.
+**Machine note:** node work spawned from AI-session background shells can crawl or
+stall silently on this desktop (build, lint). Never trust a quiet log — arm an active
+health check (Mike's ruling 2026-09-02, in session memory). Build via Git Bash
+unsandboxed worked.
 
-**LAPTOP:** ten new root-level page routes now exist (`/discover`, `/profile`,
-`/messages`, …) — if you add any page, check the name isn't one of Collaborate's. The
-standalone `Advisor Collaborate` repo/folder is confirmed fully superseded (its last
-commit 2026-07-20 predates the merge snapshot); marking it archived is proposed to Mike
-but not yet ruled.
+**LAPTOP:** master moved twice today (now `8c2db0a`) — merge from master before
+working. All Collaborate wording sections merge now; Collaborate's profile section is
+`collabProfile`.
