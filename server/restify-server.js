@@ -119,6 +119,7 @@ const promptCheckRoute = require('./routes/promptCheck')
 const promptContributionsRoute = require('./routes/promptContributions')
 const staircaseRoute = require('./routes/staircase')
 const meetingObservationsRoute = require('./routes/meetingObservations')
+const meetingReviewRoute = require('./routes/meetingReview')
 const { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 // Collaborate — the people layer and its template catalogue. Merged in from what
 // was a separate application with its own Restify server on this same port; see
@@ -346,6 +347,34 @@ server.del('/api/firm-manager/meeting-observations/:scenarioId/own/:pointId', ..
 // advisor adds belongs to one meeting, not to the standing list every advisor in the firm
 // is checked on. See getForAdvisor's JSDoc.
 server.get('/api/meeting/observations', firmAuth, mo.getForAdvisor)
+
+// ── Meeting Review — consent, capture, transcription and deletion (slice 2) ──
+// Asked for by Mike 2026-09-01 ("4.56 - slice 2"). Design design/features/meeting-review.md;
+// wording design/MEETING-CONSENT-WORDING.md; screens design/mockups/meeting-review.html
+// Stage B2–B4, approved 2026-09-01.
+//
+// 🔴 THE RETENTION DIAL IS A MANAGER ROUTE AND THE CONSENT FIGURE IS AN ADVISOR ONE, and
+// they must stay that way. A firm sets how long transcripts live (P8); every advisor has to
+// READ that figure because the approved consent wording quotes it aloud to the client. If
+// the advisor's read were behind the manager guard, the consent screen would fail for
+// exactly the people who need it.
+//
+// 🔴 THE RECORDING ROUTES ARE `firmAuth` ONLY, AND THEY GUARD THEMSELVES ON THE ADVISOR.
+// Brief P2: a recording belongs to the advisor who made it, so a colleague at the same firm
+// must not reach it. `req.firmId` alone cannot express that, so every handler checks the
+// meeting's stored owner against `req.advisorId` as well — see `ownedMeeting`.
+const mr = meetingReviewRoute
+server.get('/api/firm-manager/meeting-retention', ...fmGuard, mr.getRetention)
+server.put('/api/firm-manager/meeting-retention', ...fmGuard, mr.setRetention)
+server.del('/api/firm-manager/meeting-retention', ...fmGuard, mr.resetRetention)
+
+server.get('/api/meeting/consent', firmAuth, mr.getConsentContext)
+server.post('/api/meeting/recordings', firmAuth, mr.startRecording)
+server.post('/api/meeting/recordings/:meetingId/consent', firmAuth, mr.confirmConsent)
+server.post('/api/meeting/recordings/:meetingId/chunk', firmAuth, mr.uploadChunk)
+server.post('/api/meeting/recordings/:meetingId/finish', firmAuth, mr.finishRecording)
+server.get('/api/meeting/recordings/:meetingId', firmAuth, mr.getRecording)
+server.del('/api/meeting/recordings/:meetingId', firmAuth, mr.deleteRecording)
 
 // Share a prompt — Lane A (item 4.31, steps 1–3). Checks a pasted prompt and stores
 // nothing. That route is deliberately incapable of writing anywhere; Lane B below is a

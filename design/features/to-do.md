@@ -39,7 +39,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 2 | **4.50** Nobody has seen a real conversation's recommendations reach the Team tab | 2 | — | Outside |
 | 3 | **4.55** The firm's own template-upload screen (Cascade Phase 3) | 3 | — | **Mike** |
 | 4 | **4.57** Rule whether a firm's replaced library changes what CPD its advisors claim | 2 | — | **Mike** |
-| 5 | **4.56** Meeting Review — the design is written; the decisions before it can be built are Mike's | 3 | — | **Mike** |
+| 5 | **4.56** Meeting Review — slices 1 and 2 are built; the two reports are next, and §4 gates a real recording | 3 | — | **Mike** |
 
 **Five live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->

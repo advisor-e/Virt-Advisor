@@ -1,21 +1,28 @@
 # Meeting Review — the Brief
 
-> ## ⚠ ONE SLICE OF THIS IS BUILT. THE REST IS STILL A DESIGN.
+> ## ⚠ TWO SLICES OF THIS ARE BUILT. THE REPORTS ARE STILL A DESIGN.
 >
-> **Built and live (slice 1, 2026-09-01) — the observation points, and nothing else.** The
-> mentor authors the platform list, a firm may edit / switch off / add to it, and an advisor
-> reads their own list before a meeting. Paths are marked **BUILT** in §5.
+> **Slice 1 (2026-09-01) — the observation points.** The mentor authors the platform list, a
+> firm may edit / switch off / add to it, and an advisor reads their own list before a meeting.
 >
-> **NOT built: everything that touches a client.** No recording, no audio, no transcript, no
-> transcription client, no report of either kind, no manager aggregate, no deletion job — and
-> **no consent string anywhere in the code**. Sections 1–4 and the unmarked rows of §5 still
-> describe what is *intended*, not what runs. Do not cite an unmarked sentence as a
-> description of the app.
+> **Slice 2 (2026-09-01) — consent, capture, transcription and deletion.** An advisor can open
+> the consent screen in the approved words, start recording, speak the consent line into the
+> running recording, confirm agreement, run the meeting, and finish — at which point the audio
+> is assembled, transcribed with the speakers separated, and **destroyed**. "Stop and delete"
+> is available throughout and takes any transcript with it. A firm sets its own retention
+> period and the consent screen renders that figure rather than a constant. Paths are marked
+> **BUILT** in §5.
 >
-> ⚠ **A REAL CLIENT MUST NOT BE RECORDED UNTIL §4 IS DONE.** Slice 1 cannot record anything,
-> so nothing is at stake today — but the four items in §4 are not coding tasks, they gate a
-> first recording rather than a first commit, and they are exactly the kind that get
-> discovered late.
+> **NOT built: the two reports.** No Meeting Summary, no My Coaching Notes, no manager
+> aggregate, no follow-through check, and no transcript-purge job (deferred deliberately —
+> Mike, 2026-09-01; destroying the AUDIO is the promise the consent line makes and it is
+> built, expiring the TRANSCRIPT is its own piece of work). The unmarked rows of §5 still
+> describe what is *intended*, not what runs.
+>
+> ⚠ **A REAL CLIENT MUST NOT BE RECORDED UNTIL §4 IS DONE — AND NOW THE CODE CAN.** That
+> changed on 2026-09-01: until slice 2 there was nothing to misuse. The four items in §4 are
+> not coding tasks and they gate a first recording rather than a first commit. `/meeting-record`
+> carries a banner saying so, which is a warning and not a control.
 >
 > **The screens are drawn in [`../mockups/meeting-review.html`](../mockups/meeting-review.html)**
 > — seven of them, from the pre-set through to the manager's aggregate, registered in
@@ -145,8 +152,21 @@ for its diarized response format, returns each segment with a speaker, a start a
 matters well beyond convenience: OpenAI is already this app's contracted sub-processor and
 `server/utils/openaiClient.js` already calls that host on Node 14, so **no second company is
 introduced to hold an hour of a client's private affairs** — which is why §4 item 5 is smaller than
-it looks. The model name is pinned like every other version in this repository, and must be
-confirmed as enabled on the account before build; OpenAI retires audio models on a schedule.
+it looks.
+
+✅ **CHECKED AND PROVEN END TO END, 2026-09-01, before slice 2 was written.** `gpt-4o-transcribe-diarize`
+is enabled on the account, and a real call was made: two synthetic voices stitched into one recording,
+sent with `response_format=diarized_json`, came back as **8 segments across 2 correctly separated
+speakers**, the first being the one who read the consent line. So the anchor below is not a hope. The
+call took under 9 seconds for 23 seconds of audio.
+
+⚠ **BUT THE MODEL NAME CANNOT BE PINNED TO A DATED SNAPSHOT, AND THAT IS NOT AN OVERSIGHT.** Every
+other transcription model on the account ships dated variants (`gpt-4o-mini-transcribe-2025-12-15`
+and so on); this one is published as an **undated name only**. OpenAI can therefore change what sits
+behind it without the name changing, and this repository's habit of pinning every version cannot be
+followed here. The name is written in exactly one place — `DIARIZING_MODEL` in
+`server/utils/transcriptionClient.js` — and the shape of every reply is validated rather than
+trusted, which is the only defence available while no dated pin exists. **Re-check periodically.**
 
 **Which speaker is the advisor is answered by P1, not by a voice sample.** The model will accept
 short reference recordings and name speakers from them. **This design deliberately does not use
@@ -259,12 +279,17 @@ is *intended* to live, chosen to match the existing architecture rather than inv
 | Manager routes | `server/routes/meetingObservations.js` | ✅ **BUILT** — 9 routes, all scoped to `req.firmId` |
 | Mentor / firm editing | `components/firm/FirmMeetingObservations.vue`, a Hub tab per §3 | ✅ **BUILT** — mentor + firm; the two middle tiers deliberately absent |
 | The advisor's pre-set | `components/MeetingPreset.vue`, `pages/meeting-preset.vue` | ✅ **BUILT** — read-only by construction; there is no advisor write route at all |
-| Chunk intake, assembly, deletion | `server/routes/meetingReview.js` (Restify) | proposed |
-| Transcription client | `server/utils/transcriptionClient.js`, beside `openaiClient.js` | proposed. ⚠ `openaiClient.js` speaks only to `/v1/chat/completions`; audio is a different endpoint **and a multipart upload**, so this is new work rather than a call added to the existing client |
+| Chunk intake, assembly, deletion | `server/routes/meetingReview.js` (Restify) | ✅ **BUILT** — 10 routes. The recording ones are `firmAuth` only and guard themselves on `req.advisorId` as well as `req.firmId`, because P2 gives a recording to the advisor who made it |
+| The audio itself, while it exists | `server/utils/meetingAudioStore.js`, under `MEETING_AUDIO_DIR` | ✅ **BUILT** — **this server's own disk** (Mike's ruling, 2026-09-01), never the database and never the Google Drive pipeline the document library uses. `destroyAudio` and `destroyMeeting` **return a count of what they removed and re-read the directory to check** — trap 4 says deletion must be provable, and a function that answers quietly cannot be |
+| Transcription client | `server/utils/transcriptionClient.js`, beside `openaiClient.js` | ✅ **BUILT** — multipart on Node 14 with no new dependency. ⚠ As predicted, this was new work rather than a call added to `openaiClient.js`, which speaks only to `/v1/chat/completions` |
+| The retention dial | `server/utils/meetingRetention.js`, `firmOverlay` key `meeting-retention` | ✅ **BUILT** — P8's clock, cascading through the tier chain, surfaced on the existing Meeting Observations tab. ⚠ **The consent screen RENDERS this figure**; 18 months is where the cascade ends, not a constant |
+| Consent screens | `components/MeetingConsentPanel.vue`, wording in `locales/en.json` | ✅ **BUILT** — English only. The other seven locales are deliberately empty: §5 of the wording artefact requires a translator competent in the local law, not a machine translation |
+| Recording screen | `components/MeetingRecorder.vue` — `MediaRecorder` inside `mounted()` only | ✅ **BUILT** — with the wake-lock and the loud alarm of P10/P11 |
+| The advisor's page | `pages/meeting-record.vue` | ✅ **BUILT** — carries the §4 warning banner |
 | Mechanical measures | `server/utils/meetingMetrics.js` — no AI | proposed |
 | The two report generators | `server/utils/meetingReports.js` — separate prompts | proposed |
-| Recording screen | `components/MeetingRecorder.vue` — `MediaRecorder` inside `mounted()` only | proposed |
 | The reports screen | `components/MeetingReview.vue` | proposed |
+| Transcript expiry | a scheduled purge over `MEETING_AUDIO_DIR` | proposed — **deliberately not in slice 2** (Mike, 2026-09-01). Destroying the audio is the promise the consent line makes; expiring the transcript is its own piece of work |
 
 **One thing slice 1 deliberately did NOT decide, and slice 4 must.** A point such as *"I drew the
 numbers out for the client"* cannot be heard on audio (§3), and the drawing's coaching notes show it
@@ -311,20 +336,38 @@ drop is logged.
 
 ### Known state
 
-**Slice 1 is built (2026-09-01) and nothing else is.** What runs: the observation points, their
-four-tier cascade, the mentor and firm editing screen, and the advisor's pre-set — 57 tests, and the
-suite green at 6,707. It rides `firmOverlay`, which already provides storage, version history and
-restore for Advisory Distinctions, the Staircase, quizzes and currency, so none of that was built
-twice.
+**Slices 1 and 2 are built (both 2026-09-01).** Slice 1: the observation points, their four-tier
+cascade, the mentor and firm editing screen, and the advisor's pre-set. Slice 2: the retention dial,
+the two consent screens, live capture, chunk intake, the whole-recording transcription pass, and the
+deletion of the audio. **170 tests for slice 2**, suite green at **6,880** (362 suites), lint 0
+errors. Both ride `firmOverlay`, which already provides storage, version history and restore for
+Advisory Distinctions, the Staircase, quizzes and currency, so none of that was built twice.
 
-**What is not built is everything that touches a client**: no recording, no audio, no transcript, no
-transcription client, no report of either kind, no manager aggregate, no deletion job. **No consent
-string exists in the code** — the approved wording is still a document only, which is correct while
-there is nothing to consent to.
+**What is not built is the two reports** — Meeting Summary, My Coaching Notes, the mechanical
+measures, the manager aggregate, the follow-through check, and the transcript-expiry job.
 
-⚠ **The pre-build check in §3 is still outstanding**: the diarizing transcription model must be
-confirmed as enabled on the account before slice 2, because OpenAI retires audio models on a
-schedule. It blocks recording, not the points.
+⚠ **THE PRE-BUILD CHECK IS DONE AND IT PASSED** — §3 carries the result, including the one thing it
+turned up: the diarizing model has no dated snapshot to pin.
+
+🔴 **THREE THINGS SLICE 2 DECIDED THAT THE DESIGN HAD LEFT OPEN**, recorded so nobody re-argues them:
+
+1. **The audio lives on this server's own disk.** *(Mike's ruling, 2026-09-01.)* Reusing the Google
+   Drive pipeline that `firmManager.uploadDocument` already uses would have been much the cheapest
+   route and was rejected: the consent line says *"nothing is shared outside our firm"* out loud, and
+   the argument that made OpenAI acceptable — already this app's contracted processor — does not
+   cover Google. It also makes P8's deletion provable, because there is exactly one place to look.
+2. **The transcript is a file beside the meeting record, not a database table.** No schema change was
+   asked for and none is needed for this slice to be honest; keeping the transcript where the audio
+   was is what makes "stop and delete" one provable act rather than two systems that must agree.
+   ⚠ A later slice that needs to query transcripts across meetings should revisit this.
+3. **A meeting with no confirmed consent cannot be transcribed.** `finish` returns 409. The tick
+   records that the advisor *claims* consent; the audio records that it was *given*, and a transcript
+   made without the first is one nobody ever said was allowed.
+
+⚠ **AND ONE THING THE BUILD GOT RIGHT ONLY BECAUSE IT WAS WRITTEN DOWN FIRST: the audio is destroyed
+in a `finally`.** It goes whether or not transcription succeeded. P8 is a promise about the recording,
+not a reward for a clean run, and a failed transcription that left an hour of a client's meeting on
+disk is exactly the lingering §1 calls a design failure. It has its own test.
 
 **The two reports are named.** *(Mike's ruling, 2026-09-01.)* The client's is **Meeting Summary**;
 the advisor's is **My Coaching Notes**. *Advisor Review* was rejected: inside a firm the word
@@ -346,6 +389,10 @@ report belongs to the advisor and the name should say so before they open it.
 | Minimum cohort size for manager aggregates | Ours to propose | ✅ **Settled 2026-09-01** — **5 advisors and 20 meetings**, never lowered to populate a screen; §5 trap 2 records the accepted cost |
 | Default transcript retention period | Mike | ✅ **Settled 2026-09-01** — **18 months**, as the platform default. It is spoken aloud to the client, so the line renders the firm's current figure and never a hardcoded one — [`../MEETING-CONSENT-WORDING.md`](../MEETING-CONSENT-WORDING.md) banner |
 | Whether a firm may edit the consent wording | Mike | ✅ **Settled 2026-09-01** — **no**. One lawyer-checked version per market; the retention figure is the only value that varies |
+| Where the audio lives while a meeting runs | Mike | ✅ **Settled 2026-09-01** — **this server's own disk**, never the database and never the Google Drive pipeline; §5 Known state 1 |
+| Whether slice 2 also transcribes | Mike | ✅ **Settled 2026-09-01** — **yes.** Capture without transcription would leave audio with no deletion trigger, which is the one shape this feature must never take, even briefly |
+| Whether the transcript-expiry job ships with slice 2 | Mike | ✅ **Settled 2026-09-01** — **no**, it is its own piece of work. Destroying the audio is the promise the consent line makes and that is built |
+| The retention dial's own wording | Mike | ✅ **Approved 2026-09-01** — it is not in the drawing, so its labels were written for the build and put to him: "How long transcripts are kept", "Save this period", "Use the inherited period", "Set here" / "Inherited — …" |
 | Which Handbook group this page belongs in | Mike | Provisionally **Learning**, beside Advisor Progress |
 
 ---

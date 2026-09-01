@@ -2928,5 +2928,21 @@
       "boostLabel": "Boost",
       "boostBody": "How hard to push those templates up the list when this situation is recognised. Leave it at the default for a gentle nudge; raise it when you want this situation to strongly steer the recommendation."
     }
+  },
+  "meetingConsent": {
+    "_note": "THE APPROVED CONSENT WORDING. design/MEETING-CONSENT-WORDING.md is the artefact; these strings are copied from it and must not be edited here. A firm may NOT override them (Mike, 2026-09-01) and they are NOT machine-translated into the other seven locales - section 5 of that page requires a translator competent in the local law, because the law on recording a private conversation is not uniform and Germany treats it under criminal law. {months} is substituted from the firm retention dial and is never typed into a string.",
+    "spokenLine": "Before we begin — I'd like to record our meeting. The recording is turned into a written transcript by AI, and the recording itself is deleted as soon as that's done. It gives you a written summary of what we agree today, and it helps me review how I did. Nothing is shared outside our firm. Is everyone here happy for me to record?",
+    "step1Heading": "Before you record",
+    "step1Lede": "Read these words aloud as soon as recording starts. The recording is your evidence that you asked.",
+    "step1Retention": "The audio is transcribed and then deleted. The transcript is kept for {months} and is visible to you and your firm — never to Advisor-e.",
+    "step1Start": "Start recording",
+    "step1Cancel": "Cancel",
+    "step2Heading": "Read the words aloud now",
+    "step2Bar": "Recording. The consent you are about to hear is being captured.",
+    "step2Question": "Did everyone agree to be recorded?",
+    "step2Yes": "Yes — continue",
+    "step2No": "No — stop and delete",
+    "approvedNote": "Approved wording — read aloud, by you, first",
+    "repeatNote": "Repeated so you read rather than remember"
   }
 }

@@ -109,6 +109,12 @@ data/dev-meeting-observation-declines.json
 data/dev-meeting-observation-overrides.json
 data/dev-meeting-observation-own.json
 
+# Meeting Review's retention dial (2026-09-01, slice 2) — how long ONE firm keeps its
+# transcripts. Ignored for the same reason as the three above, and for one of its own: the
+# figure is spoken aloud to that firm's clients, so it is a statement that firm makes, not a
+# platform default to be carried around in the repository.
+data/dev-meeting-retention.json
+
 # Dev-only firm content overlays — domain support + logic trees (created locally when MySQL is unavailable)
 data/dev-firm-domain-support.json
 data/dev-firm-logic-trees.json

@@ -102,6 +102,42 @@
         b-button(type="is-light" @click="startAdd") Add a point
         b-button(type="is-text" @click="toggleHistory") {{ showHistory ? 'Hide change history' : 'Change history' }}
 
+    //- ── The retention dial (slice 2) ──────────────────────────────────
+    //- ⚠ THE FIGURE HERE IS SPOKEN ALOUD TO A CLIENT. The consent wording is fixed and a
+    //- firm may not edit it, but it quotes this number back — so a change here alters a
+    //- sentence an advisor says in a real meeting tomorrow. That is why the warning is on
+    //- the screen and not only in the code.
+    .box
+      h4.title.is-6.mb-1 How long transcripts are kept
+      p.is-size-7.has-text-grey.mb-4
+        | The recording is always deleted as soon as it becomes a transcript. This sets how
+        |  long the transcript itself is kept.
+        |  #[b Your advisors say this figure out loud to the client]
+        |  when they ask permission to record, so it changes what they promise.
+
+      b-message(v-if="retentionError" type="is-danger" size="is-small") {{ retentionError }}
+
+      b-field(grouped)
+        b-field(label="Months" label-position="on-border")
+          b-input(
+            v-model.number="retentionDraft"
+            type="number"
+            :min="retentionMin"
+            :max="retentionMax"
+            size="is-small"
+            style="max-width: 8rem")
+        b-field
+          b-tag(:type="retentionSetHere ? 'is-info is-light' : 'is-light'" size="is-medium")
+            | {{ retentionSetHere ? 'Set here' : 'Inherited — ' + retentionPhrase }}
+
+      .buttons.are-small.mt-2
+        b-button(type="is-primary" :loading="savingRetention" @click="saveRetention") Save this period
+        b-button(
+          v-if="retentionSetHere"
+          type="is-light"
+          :loading="savingRetention"
+          @click="resetRetention") Use the inherited period
+
     .box(v-if="showHistory")
       p.has-text-weight-semibold.mb-2 Change history
       p.is-size-7.has-text-grey(v-if="!historyRows.length") Nothing has been saved at this level yet.
@@ -186,7 +222,19 @@ export default {
       /** The point being edited, or '' when none is. */
       editingId: '',
       adding: false,
-      draft: ''
+      draft: '',
+      /**
+       * The retention dial (slice 2). Held separately from the points because it is a
+       * different storage key and a different kind of decision — a scalar this level either
+       * sets or inherits, not a list of rows.
+       */
+      savingRetention: false,
+      retentionError: '',
+      retentionDraft: 18,
+      retentionPhrase: '',
+      retentionSetHere: false,
+      retentionMin: 1,
+      retentionMax: 120
     }
   },
 
@@ -232,9 +280,66 @@ export default {
 
   mounted () {
     this.load()
+    this.loadRetention()
   },
 
   methods: {
+    /**
+     * Read the retention period in force here, and what this level set itself.
+     *
+     * Loaded separately from the points so a fault in one does not blank the other: a
+     * manager who cannot read the retention period can still edit their observation points,
+     * and the reverse.
+     */
+    async loadRetention () {
+      this.retentionError = ''
+      try {
+        const data = await this.api('GET', '/api/firm-manager/meeting-retention')
+        this.retentionDraft = data.resolved.months
+        this.retentionPhrase = data.phrase
+        this.retentionSetHere = data.ownMonths !== null
+        this.retentionMin = data.min
+        this.retentionMax = data.max
+      } catch (err) {
+        this.retentionError = 'The retention period could not be read: ' + err.message
+      }
+    },
+
+    /**
+     * Save this level's retention period.
+     *
+     * ⚠ It changes what advisors say aloud to clients from the moment it is saved — see the
+     * note on this control in the template.
+     */
+    async saveRetention () {
+      this.savingRetention = true
+      this.retentionError = ''
+      try {
+        await this.api('PUT', '/api/firm-manager/meeting-retention', {
+          months: Number(this.retentionDraft)
+        })
+        await this.loadRetention()
+      } catch (err) {
+        this.retentionError = err.message
+      } finally {
+        this.savingRetention = false
+      }
+    },
+
+    /** Drop this level's figure so the level above applies again, and keeps applying. */
+    async resetRetention () {
+      this.savingRetention = true
+      this.retentionError = ''
+      try {
+        await this.api('DELETE', '/api/firm-manager/meeting-retention')
+        await this.loadRetention()
+      } catch (err) {
+        this.retentionError = err.message
+      } finally {
+        this.savingRetention = false
+      }
+    },
+
     /** Read the scenarios, what this level inherits, and what it has changed. */
     async load () {
       this.loading = true
