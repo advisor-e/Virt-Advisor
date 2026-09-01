@@ -1,0 +1,258 @@
+/* =====================================================================
+   Collaborate — visual theme, SCOPED to the Collaborate section.
+
+   Ported from the standalone app's assets/css/theme.css (last standalone
+   commit 2b64b5e), which styled global selectors (body, .button, .box…).
+   In the merged app that would restyle every Virt Advisor screen, so every
+   rule here is prefixed with .collab-scope — the wrapper div rendered by
+   layouts/collaborate.vue. The :root variables become .collab-scope
+   variables (CSS custom properties inherit down the tree).
+
+   One deliberate omission: programmatic Buefy dialogs ($buefy.dialog)
+   append to <body>, outside .collab-scope, and render in the app's
+   default style. Cosmetic only.
+   ===================================================================== */
+
+.collab-scope {
+  --brand:      #6C5CE7;   /* indigo-violet — primary */
+  --brand-2:    #8B7BF0;
+  --brand-dark: #5849C9;
+  --teal:       #00C2A8;   /* available / success */
+  --cyan:       #14B8D8;   /* discover */
+  --pink:       #FF6B9D;   /* messages / highlight */
+  --coral:      #FF7A59;
+  --amber:      #FFB020;   /* groups / attention */
+  --ink:        #2A2C42;
+  --muted:      #6B6E85;
+  --bg:         #F4F5FB;
+  --surface:    #FFFFFF;
+  --ring:       rgba(108, 92, 231, 0.25);
+  --shadow-sm:  0 2px 10px rgba(36, 33, 69, 0.07);
+  --shadow:     0 12px 32px rgba(36, 33, 69, 0.10);
+  --shadow-lg:  0 20px 48px rgba(36, 33, 69, 0.18);
+  --radius:     16px;
+  --radius-sm:  10px;
+
+  /* The standalone applied these to html/body; here the section wrapper
+     carries them so the page reads the same without touching the app. */
+  background: var(--bg);
+  min-height: 100vh;
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--ink);
+}
+
+/* Form controls don't inherit the font by default — make them match. */
+.collab-scope button, .collab-scope input, .collab-scope optgroup,
+.collab-scope select, .collab-scope textarea { font-family: inherit; }
+.collab-scope h1, .collab-scope h2, .collab-scope h3, .collab-scope h4,
+.collab-scope h5, .collab-scope .title, .collab-scope .subtitle,
+.collab-scope .hero-title, .collab-scope .pillar h3 {
+  font-family: 'Open Sans', sans-serif;
+}
+/* ── Global type: Open Sans Light everywhere (owner requirement, 2026-07-02) ──
+   Only the typeface + weight are unified to Light (300); font sizes and layout
+   are unchanged. !important is required to override Bulma/Buefy's own bold
+   utilities (.title, .has-text-weight-*, strong, table headers), which ship with
+   !important themselves. */
+.collab-scope h1, .collab-scope h2, .collab-scope h3, .collab-scope h4,
+.collab-scope h5, .collab-scope h6,
+.collab-scope .title, .collab-scope .subtitle, .collab-scope strong,
+.collab-scope b, .collab-scope th, .collab-scope label, .collab-scope .label,
+.collab-scope .has-text-weight-bold, .collab-scope .has-text-weight-semibold,
+.collab-scope .has-text-weight-medium {
+  font-weight: 300 !important;
+}
+.collab-scope .title { color: var(--ink); font-weight: 300; letter-spacing: -0.02em; }
+.collab-scope .subtitle { color: var(--muted); }
+.collab-scope .section { padding: 2.5rem 1.5rem; }
+.collab-scope a { color: var(--brand); }
+
+/* page heading with a little gradient dot */
+.collab-scope .page-title { display: flex; align-items: center; gap: .65rem; }
+.collab-scope .page-title::before {
+  content: ""; width: 14px; height: 14px; border-radius: 50%;
+  background: linear-gradient(120deg, var(--brand), var(--pink));
+  box-shadow: 0 2px 8px rgba(108,92,231,.4);
+}
+
+/* ===== Navbar — white with section-coloured nav pills ===== */
+.collab-scope .navbar.is-light {
+  background: #ffffff !important;
+  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid rgba(108, 92, 231, 0.08);
+}
+.collab-scope .navbar.is-light .navbar-brand .navbar-item.has-text-weight-bold {
+  font-family: 'Open Sans'; font-size: 1.2rem;
+  background: linear-gradient(120deg, var(--brand), var(--pink));
+  -webkit-background-clip: text; background-clip: text; color: transparent !important;
+}
+.collab-scope .navbar.is-light .nav-link {
+  font-weight: 300; border-radius: 10px; margin: 0 .15rem;
+  transition: background .15s ease, color .15s ease;
+}
+/* idle colour = the section's colour */
+.collab-scope .navbar.is-light .nav--discover { color: #00b1e0  !important; }
+.collab-scope .navbar.is-light .nav--profile  { color: #7fd3ff !important; }
+.collab-scope .navbar.is-light .nav--messages { color: #002b64  !important; }
+/* hover / active = filled with the section's colour */
+.collab-scope .navbar.is-light a.nav--discover:hover, .collab-scope .navbar.is-light a.nav--discover.nuxt-link-active { background: #00b1e0  !important; color:#fff !important; }
+.collab-scope .navbar.is-light a.nav--profile:hover,  .collab-scope .navbar.is-light a.nav--profile.nuxt-link-active  { background: #7fd3ff !important; color:#002b64 !important; }
+.collab-scope .navbar.is-light a.nav--messages:hover, .collab-scope .navbar.is-light a.nav--messages.nuxt-link-active { background: #002b64  !important; color:#fff !important; }
+.collab-scope .navbar.is-light .nav--connections { color: var(--teal) !important; }
+.collab-scope .navbar.is-light a.nav--connections:hover, .collab-scope .navbar.is-light a.nav--connections.nuxt-link-active { background: var(--teal) !important; color:#fff !important; }
+.collab-scope .navbar.is-light .nav--connecting { color: #002b64 !important; }
+.collab-scope .navbar.is-light a.nav--connecting:hover, .collab-scope .navbar.is-light a.nav--connecting.nuxt-link-active { background: #002b64 !important; color:#fff !important; }
+.collab-scope .navbar.is-light .nav--market { color: #0000FF !important; }
+.collab-scope .navbar.is-light a.nav--market:hover, .collab-scope .navbar.is-light a.nav--market.nuxt-link-active { background: #0000FF !important; color:#fff !important; }
+.collab-scope .navbar.is-light .nav--firm { color: #123a76 !important; }
+.collab-scope .navbar.is-light a.nav--firm:hover, .collab-scope .navbar.is-light a.nav--firm.nuxt-link-active { background: #123a76 !important; color:#fff !important; }
+
+/* ===== Buttons ===== */
+.collab-scope .button {
+  border-radius: var(--radius-sm);
+  font-weight: 300;
+  border-width: 1.5px;
+  transition: transform .12s ease, box-shadow .15s ease, background .2s ease;
+}
+.collab-scope .button:hover { transform: translateY(-2px); }
+.collab-scope .button.is-primary {
+  background-image: linear-gradient(120deg, var(--brand), var(--brand-2));
+  border-color: transparent; color: #fff;
+  box-shadow: 0 6px 16px rgba(108,92,231,0.35);
+}
+.collab-scope .button.is-primary:hover {
+  background-image: linear-gradient(120deg, var(--brand-dark), var(--brand));
+  box-shadow: 0 10px 24px rgba(108,92,231,0.45);
+}
+.collab-scope .button.is-success { background-image: linear-gradient(120deg, #00C2A8, #1ad3b2); border-color: transparent; color:#fff; box-shadow: 0 6px 16px rgba(0,194,168,.3); }
+.collab-scope .button.is-info    { background-image: linear-gradient(120deg, #14B8D8, #2bc9e8); border-color: transparent; color:#fff; }
+.collab-scope .button.is-warning { background-image: linear-gradient(120deg, #FFB020, #ffc24f); border-color: transparent; color:#5a3d00; }
+.collab-scope .button.is-danger  { background-image: linear-gradient(120deg, #FF6B9D, #ff8bb0); border-color: transparent; color:#fff; }
+.collab-scope .button.is-light   { background:#fff; border-color:#e7e7f3; color:var(--ink); box-shadow: var(--shadow-sm); }
+.collab-scope .button.is-light:hover { border-color: var(--brand); color: var(--brand); }
+
+/* ===== Cards / boxes ===== */
+.collab-scope .box {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(108,92,231,0.06);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.collab-scope .box:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+
+/* ===== Tags ===== */
+.collab-scope .tag { border-radius: 999px !important; font-weight: 300; }
+.collab-scope .tag.is-success { background: #d7f7ef !important; color:#067a68 !important; }
+.collab-scope .taginput .tag { background:#efeefe !important; color: var(--brand-dark) !important; }
+
+/* ===== Inputs ===== */
+.collab-scope .input, .collab-scope .textarea,
+.collab-scope .taginput .taginput-container { border-radius: var(--radius-sm); border-color: #e4e5f1; }
+.collab-scope .input:focus, .collab-scope .textarea:focus,
+.collab-scope .taginput .taginput-container.is-focused {
+  border-color: var(--brand); box-shadow: 0 0 0 3px var(--ring);
+}
+
+/* ===== Tabs ===== */
+.collab-scope .b-tabs .tabs li.is-active a { border-bottom-color: var(--brand); color: var(--brand); font-weight: 300; }
+.collab-scope .b-tabs .tabs a { border-bottom-width: 2px; }
+.collab-scope .b-tabs .tabs a:hover { border-bottom-color: var(--brand-2); color: var(--brand); }
+
+/* available switch */
+.collab-scope .switch input[type=checkbox]:checked + .check { background: var(--teal) !important; }
+
+/* messages */
+.collab-scope .b-message.is-info { background:#eef0ff; border-color: var(--brand); }
+
+/* ===== Home hero ===== */
+.collab-scope .hero-wrap { padding: 3rem 1.5rem 2rem; }
+.collab-scope .hero-card {
+  position: relative; overflow: hidden;
+  border-radius: 28px;
+  padding: 3.5rem 2.5rem;
+  background:
+    radial-gradient(1100px 380px at 8% -25%, rgba(255,107,157,.18), transparent 60%),
+    radial-gradient(900px 480px at 112% 125%, rgba(20,184,216,.22), transparent 55%),
+    linear-gradient(120deg, #efeafe, #f6f3ff);
+  box-shadow: var(--shadow);
+}
+.collab-scope .hero-title {
+  font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 500 !important;
+  letter-spacing: -0.03em; line-height: 1.05; margin-bottom: .75rem;
+  background: linear-gradient(120deg, var(--brand), var(--pink) 75%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.collab-scope .hero-sub { font-size: 1.2rem; color: var(--muted); max-width: 42rem; margin-bottom: 2.25rem; }
+
+.collab-scope .pillar-grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.collab-scope .pillar {
+  display: block; padding: 1.6rem; border-radius: 18px;
+  background: var(--surface); color: var(--ink);
+  box-shadow: var(--shadow-sm); border: 1px solid rgba(108,92,231,.06);
+  border-top: 4px solid var(--brand);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.collab-scope .pillar:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); color: var(--ink); }
+.collab-scope .pillar__icon {
+  width: 54px; height: 54px; border-radius: 15px; margin-bottom: .9rem;
+  display: flex; align-items: center; justify-content: center; font-size: 1.7rem; background: #f0eefe;
+}
+.collab-scope .pillar h3 { font-size: 1.25rem; font-weight: 300; margin-bottom: .35rem; }
+.collab-scope .pillar p  { color: var(--muted); font-size: .95rem; }
+.collab-scope .pillar--discover { border-top-color: #00b1e0; }
+.collab-scope .pillar--discover .pillar__icon { background: #e2f6fb; }
+.collab-scope .pillar--messages { border-top-color: #002b64; }
+.collab-scope .pillar--messages .pillar__icon { background: #ffe9f1; }
+.collab-scope .pillar--groups   { border-top-color: var(--amber); }
+.collab-scope .pillar--groups .pillar__icon { background: #fff3da; }
+.collab-scope .pillar--connections { border-top-color: #002b64; }
+.collab-scope .pillar--connections .pillar__icon { background: #dbe6f5; }
+.collab-scope .pillar--profile { border-top-color: #7fd3ff; }
+.collab-scope .pillar--market { border-top-color: #0000FF; }
+.collab-scope .pillar--market .pillar__icon { background: #ffe8e0; }
+
+/* ===== Discover avatars + group badge ===== */
+.collab-scope .avatar {
+  width: 48px; height: 48px; border-radius: 14px; flex: none; margin-right: .9rem;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Open Sans'; font-weight: 300; color: #fff; font-size: 1rem;
+}
+.collab-scope .group-badge {
+  width: 48px; height: 48px; border-radius: 14px; flex: none; margin-right: .8rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; background: #f0eefe;
+}
+
+/* ===== Section banners (match the nav pill colour of each page) ===== */
+.collab-scope .section-banner {
+  display: flex; align-items: center; gap: .85rem;
+  border-radius: 20px; padding: 1.4rem 1.75rem; margin-bottom: 1.75rem;
+  color: #fff; box-shadow: var(--shadow);
+}
+.collab-scope .section-banner .ico { font-size: 1.8rem; line-height: 1; }
+.collab-scope .section-banner h1 {
+  color: #fff; margin: 0; font-family: 'Open Sans';
+  font-size: 1.8rem; font-weight: 500 !important; letter-spacing: -0.02em;
+}
+.collab-scope .section-banner--profile  { background: #7fd3ff; }
+.collab-scope .section-banner--profile h1 { color: #002b64; }
+.collab-scope .section-banner--discover { background: #00b1e0; }
+.collab-scope .section-banner--messages { background: #002b64; }
+.collab-scope .section-banner--groups   { background: linear-gradient(120deg, var(--amber), #ffc24f); }
+.collab-scope .section-banner--groups h1 { color: #4a3200; }
+.collab-scope .section-banner--connections { background: linear-gradient(120deg, var(--teal), #1ad3b2); }
+.collab-scope .section-banner--connecting { background: #002b64; }
+.collab-scope .section-banner--market { background: #0000FF; }
+
+/* ===== Group detail ===== */
+.collab-scope .back-link { display: inline-block; color: var(--muted); font-weight: 300; margin-bottom: 1rem; cursor: pointer; }
+.collab-scope .back-link:hover { color: var(--brand); }
+.collab-scope .members { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: .5rem; }
+.collab-scope .member {
+  display: flex; align-items: center; gap: .55rem;
+  background: #faf9ff; border: 1px solid rgba(108,92,231,.08);
+  border-radius: 999px; padding: .3rem .9rem .3rem .3rem; font-weight: 300;
+}
+.collab-scope .member .avatar { width: 34px; height: 34px; border-radius: 10px; margin: 0; font-size: .8rem; }
+.collab-scope .group-head { color: inherit; }
+.collab-scope .group-head:hover .has-text-dark { color: var(--brand) !important; }

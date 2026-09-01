@@ -13,7 +13,7 @@
     .box
       p.mb-4(v-if="!state.hasUpload") {{ $t('templateLibrary.stateNone') }}
       p.mb-4(v-else)
-        strong {{ $t('templateLibrary.stateUploaded', { n: state.templateCount, date: latestDate, who: latestBy }) }}
+        strong {{ stateLine }}
 
       //- A rejected file leaves the library untouched — say so beside the reason,
       //- so a failure never reads as damage done.
@@ -99,6 +99,20 @@ export default {
     /** @returns {string} who uploaded the live version. */
     latestBy () {
       return this.latestRow ? this.latestRow.saved_by : ''
+    },
+
+    /**
+     * The state line, degrading honestly as fields go missing: full line with a
+     * name, date-only without one, count-only with no history row at all (the
+     * dev fallback returns none) — never trailing off after "uploaded by".
+     * Wording approved by Mike 2026-09-01 (SEARCH-CONTENT-CASCADE-PLAN.md §7).
+     * @returns {string}
+     */
+    stateLine () {
+      const params = { n: this.state.templateCount, date: this.latestDate, who: this.latestBy }
+      if (!this.latestRow || !this.latestDate) { return this.$t('templateLibrary.stateUploadedBare', params) }
+      if (!this.latestBy) { return this.$t('templateLibrary.stateUploadedNoName', params) }
+      return this.$t('templateLibrary.stateUploaded', params)
     }
   },
 

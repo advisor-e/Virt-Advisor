@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Firm Template Library — mockup for approval</title>
+<style>
+  /* Approximates the app's Bulma/Buefy look — headings #002b64, boxes, tags. */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f5f5f5; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #363636; }
+  .page { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  .mock-note { background: #fffbeb; border: 1px solid #f5d780; border-radius: 6px; padding: .6rem .9rem; font-size: .85rem; color: #7a5d00; margin-bottom: 1.5rem; }
+  h1 { color: #002b64; font-size: 1.35rem; margin: 0 0 .25rem; }
+  .intro { color: #7a7a7a; font-size: .95rem; margin: 0 0 1.5rem; }
+
+  /* ── The differentiator: whose library is in force ── */
+  .cascade { display: flex; gap: 1rem; align-items: stretch; margin-bottom: 1.75rem; flex-wrap: wrap; }
+  .lib-card { flex: 1 1 260px; background: #fff; border: 2px solid #e5e5e5; border-radius: 8px; padding: 1rem 1.25rem; position: relative; }
+  .lib-card .who { font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: #7a7a7a; margin-bottom: .35rem; }
+  .lib-card .count { font-size: 1.6rem; font-weight: 700; color: #002b64; }
+  .lib-card .meta { font-size: .85rem; color: #7a7a7a; margin-top: .25rem; }
+  .lib-card.in-force { border-color: #257953; background: #f2faf6; }
+  .lib-card.replaced { opacity: .62; }
+  .badge { position: absolute; top: -.7rem; right: .9rem; font-size: .72rem; font-weight: 700; padding: .18rem .6rem; border-radius: 999px; letter-spacing: .04em; }
+  .badge.green { background: #257953; color: #fff; }
+  .badge.grey { background: #e5e5e5; color: #555; }
+  .cascade-arrow { align-self: center; color: #b5b5b5; font-size: 1.4rem; }
+
+  .box { background: #fff; border-radius: 6px; box-shadow: 0 .5em 1em -.125em rgba(10,10,10,.1); padding: 1.25rem; margin-bottom: 1.5rem; }
+  .controls { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+  .btn { display: inline-block; border-radius: 4px; padding: .5rem 1rem; font-size: .9rem; border: 1px solid #dbdbdb; background: #fff; cursor: pointer; }
+  .btn.primary { background: #002b64; border-color: #002b64; color: #fff; }
+  .btn.danger-light { background: #feecf0; border-color: #feecf0; color: #cc0f35; margin-left: auto; }
+  .btn.small { font-size: .78rem; padding: .3rem .7rem; }
+  .hint { font-size: .8rem; color: #7a7a7a; margin-top: .6rem; }
+
+  .band-title { font-weight: 700; color: #002b64; font-size: 1.05rem; margin: 1.6rem 0 .6rem; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 6px; overflow: hidden; box-shadow: 0 .5em 1em -.125em rgba(10,10,10,.1); }
+  th, td { text-align: left; padding: .55rem .8rem; font-size: .88rem; border-bottom: 1px solid #f0f0f0; }
+  th { color: #363636; font-size: .8rem; }
+  .tag-current { background: #effaf5; color: #257953; font-size: .72rem; font-weight: 600; padding: .15rem .55rem; border-radius: 4px; margin-left: .5rem; }
+
+  /* Empty-state inset */
+  .empty-inset { border: 1px dashed #cfcfcf; border-radius: 8px; padding: 1rem 1.25rem; background: #fafafa; margin-top: 2.5rem; }
+  .empty-inset .label { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: #9a9a9a; margin-bottom: .6rem; }
+
+  /* ── The library contents table ── */
+  .contents-head { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin: 0 0 .6rem; }
+  .contents-head .band-title { margin: 0; }
+  .search { flex: 1 1 220px; max-width: 320px; padding: .45rem .7rem; font-size: .88rem; border: 1px solid #dbdbdb; border-radius: 4px; }
+  .readonly-note { font-size: .8rem; color: #7a7a7a; background: #f0f4fa; border: 1px solid #dce6f5; border-radius: 4px; padding: .4rem .7rem; margin-bottom: .8rem; }
+  td.pos { color: #9a9a9a; width: 2.2rem; }
+  .purpose { color: #7a7a7a; font-size: .8rem; }
+  .chev { color: #b5b5b5; cursor: pointer; }
+  tr.detail td { background: #fafcff; border-bottom: 2px solid #dce6f5; }
+  .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .6rem 1.4rem; padding: .4rem 0 .6rem; }
+  .detail-grid .f .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .04em; color: #9a9a9a; }
+  .detail-grid .f .v { font-size: .84rem; }
+  .detail-wide { grid-column: 1 / -1; }
+  .pill { display: inline-block; background: #eef1f5; border-radius: 999px; padding: .08rem .55rem; font-size: .74rem; color: #555; margin: 0 .25rem .25rem 0; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="mock-note">MOCKUP for Mike's approval — design/mockups/firm-template-library.html · 2026-09-01.
+  Shows the firm manager's Template Library tab in its finished form. State shown: the firm HAS uploaded its own library. The empty state is inset at the bottom.</div>
+
+  <h1>Your firm's template library</h1>
+  <p class="intro">Upload your firm's search-content export from Advisor-e. Your advisors will see this library instead of the platform's.</p>
+
+  <!-- THE NEW ELEMENT: whose library is in force, at a glance.
+       This is what makes the firm screen unmistakably NOT the mentor screen. -->
+  <div class="cascade">
+    <div class="lib-card replaced">
+      <span class="badge grey">Replaced</span>
+      <div class="who">Platform library</div>
+      <div class="count">291 templates</div>
+      <div class="meta">Maintained by Advisor-e</div>
+    </div>
+    <div class="cascade-arrow">→</div>
+    <div class="lib-card in-force">
+      <span class="badge green">In force for your advisors</span>
+      <div class="who">Your firm's library</div>
+      <div class="count">250 templates</div>
+      <div class="meta">Uploaded 1 Sep 2026 by mgr@yourfirm.com</div>
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="controls">
+      <button class="btn">📎 Choose a file</button>
+      <button class="btn primary">Upload export</button>
+      <button class="btn danger-light">Remove upload</button>
+    </div>
+    <p class="hint">A new upload replaces your current library for every advisor within a minute. Remove upload returns your advisors to the platform's library.</p>
+  </div>
+
+  <p class="band-title">Previous versions</p>
+  <table>
+    <tr><th>Version</th><th>Uploaded</th><th>By</th><th></th></tr>
+    <tr><td>v3 <span class="tag-current">Current</span></td><td>1 Sep 2026</td><td>mgr@yourfirm.com</td><td></td></tr>
+    <tr><td>v2</td><td>20 Aug 2026</td><td>mgr@yourfirm.com</td><td><button class="btn small">Restore</button></td></tr>
+    <tr><td>v1</td><td>12 Aug 2026</td><td>mgr@yourfirm.com</td><td><button class="btn small">Restore</button></td></tr>
+  </table>
+
+  <!-- THE LIBRARY CONTENTS — read-only view of the library in force.
+       No Edit / Remove per row, deliberately: content and IDs are edited ONLY in
+       Advisor-e (CLAUDE.md rule). This screen shows; the master app changes. -->
+  <div class="contents-head">
+    <p class="band-title">What's in this library</p>
+    <input class="search" type="text" placeholder="Search title, topic, section…">
+    <span class="purpose">250 templates · showing your firm's library (in force)</span>
+  </div>
+  <div class="readonly-note">Read-only. Template content is edited in Advisor-e and re-uploaded here — this is exactly what your advisors' AI recommends from.</div>
+  <table>
+    <tr><th></th><th>#</th><th>Section</th><th>Sub Section</th><th>Topic</th><th>Title</th><th>CPD</th></tr>
+    <tr><td class="chev">▸</td><td class="pos">1</td><td>Do the Job</td><td>Reporting</td><td>Management Reporting</td><td>Dashboard Report</td><td>Yes</td></tr>
+    <tr><td class="chev">▾</td><td class="pos">2</td><td>Do the Job</td><td>EOY Notes &amp; Docs</td><td>Client Meetings</td><td>E.O.Y Meeting</td><td>Yes</td></tr>
+    <tr class="detail"><td></td><td colspan="6">
+      <div class="detail-grid">
+        <div class="f detail-wide"><div class="k">Purpose</div><div class="v">This framework is an excellent way to provide your clients with an 'experience' of facilitation. This enables them to understand the additional value you can provide, over core compliance services.</div></div>
+        <div class="f detail-wide"><div class="k">Learning objectives</div><div class="v">How to frame the EOY meeting to act as a 'springboard' into advisory services, without giving away all the 'gold' advice for free.</div></div>
+        <div class="f detail-wide"><div class="k">Meta tags</div><div class="v"><span class="pill">Start</span><span class="pill">Stop</span><span class="pill">Keep</span><span class="pill">Financial Accounts Agenda</span><span class="pill">End of Year Meeting</span><span class="pill">Volatility</span></div></div>
+        <div class="f"><div class="k">Link id</div><div class="v">id-7154906006</div></div>
+        <div class="f"><div class="k">Watched video</div><div class="v">9 mins</div></div>
+        <div class="f"><div class="k">Review template</div><div class="v">60 mins</div></div>
+        <div class="f"><div class="k">Rehearsed template</div><div class="v">30 mins</div></div>
+        <div class="f"><div class="k">Growth stage</div><div class="v">Breakeven</div></div>
+        <div class="f"><div class="k">Include in client</div><div class="v">Yes</div></div>
+        <div class="f detail-wide"><div class="k">Business fundamental</div><div class="v">This model makes it easy for you and your client to calculate the Financial Capacity of their business and to explore their business assumptions.</div></div>
+      </div>
+    </td></tr>
+    <tr><td class="chev">▸</td><td class="pos">3</td><td>Do the Job</td><td>General Tools</td><td>Client Meetings</td><td>General Meeting Agenda</td><td>—</td></tr>
+    <tr><td class="chev">▸</td><td class="pos">4</td><td>Do the Job</td><td>EOY Notes &amp; Docs</td><td>PDF Storage</td><td>PDF Storage</td><td>—</td></tr>
+    <tr><td class="chev">▸</td><td class="pos">5</td><td>Do the Job</td><td>EOY Notes &amp; Docs</td><td>FBT Questionnaire</td><td>FBT Questionnaire</td><td>—</td></tr>
+    <tr><td class="chev">▸</td><td class="pos">6</td><td>Do the Job</td><td>Growth Framework</td><td>Growth Fundamentals Framework</td><td>Growth Curve</td><td>Yes</td></tr>
+    <tr><td class="chev">▸</td><td class="pos">7</td><td>Do the Job</td><td>Specialist Tools</td><td>Personality Traits</td><td>Coping With Adversity</td><td>Yes</td></tr>
+  </table>
+  <p class="hint" style="margin-top:.5rem;">Each row opens to show the full record — purpose, learning objectives, meta tags, link id, minutes, growth stage. Row 2 is shown open.</p>
+
+  <!-- The same screen before any upload exists -->
+  <div class="empty-inset">
+    <div class="label">The same screen when the firm has NOT uploaded (first visit)</div>
+    <div class="cascade">
+      <div class="lib-card in-force">
+        <span class="badge green">In force for your advisors</span>
+        <div class="who">Platform library</div>
+        <div class="count">291 templates</div>
+        <div class="meta">Maintained by Advisor-e</div>
+      </div>
+      <div class="cascade-arrow">→</div>
+      <div class="lib-card">
+        <div class="who">Your firm's library</div>
+        <div class="count" style="color:#9a9a9a;">None uploaded</div>
+        <div class="meta">Upload one below to replace the platform's for your advisors</div>
+      </div>
+    </div>
+    <div class="box" style="margin-bottom:0;">
+      <div class="controls">
+        <button class="btn">📎 Choose a file</button>
+        <button class="btn primary">Upload export</button>
+      </div>
+      <p class="hint">No Remove button and no history yet — there is nothing to remove or restore.</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

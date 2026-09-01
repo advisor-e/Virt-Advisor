@@ -16,6 +16,11 @@ approval individually (CLAUDE.md → LIVE-APP rule).**
 >   `firm_framework_versions` — so the storage re-key cannot make it need rework, and the
 >   workstream stops being invisible. **View-as is deliberately withheld here** — see ACTIONS.
 >
+> - **The front door** (2026-09-01, Mike's request) — the adviser-facing screens are
+>   reachable: `/collaborate` is the entry the master app's banner button opens, and each
+>   screen keeps its original URL. The screen list and URLs live in
+>   [`features/collaborate-groups.md`](features/collaborate-groups.md) §4.
+>
 > Suites **212 / 3,486 green**, lint 0 errors, `nuxt build` green. ✅ **LIVE-VERIFIED by Mike
 > 2026-08-01 on the running app** — *"collab firm manager page is in and works great"*. The
 > backend was also confirmed answering both apps' routes from one process (`/api/health` and

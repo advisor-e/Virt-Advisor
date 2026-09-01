@@ -728,6 +728,13 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('templateLibrary')" v-show="activeTab === 'templateLibrary'")
         mentor-template-library(:api-token="apiToken")
 
+      //- ── Tab (firm only): Template Library — the firm's OWN upload ──
+      //- SEARCH-CONTENT-CASCADE-PLAN.md Phase 3 (wording + Remove button approved
+      //- by Mike 2026-09-01, §7 of the plan). The firm's upload replaces the
+      //- platform's library wholesale for its advisors; Remove returns them.
+      div.hub-panel(v-if="showsTab('templateLibraryFirm')" v-show="activeTab === 'templateLibraryFirm'")
+        firm-template-library(:api-token="apiToken")
+
       //- ── Tab (mentor only): Case Reviews ────────────────────────────
       //- Not a cascade function — it is the one read that travels UP, and it
       //- exists at no other tier. Last, so the tabs the firm also has keep the
@@ -751,6 +758,7 @@ import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
 import FirmDecisionLogic from '~/components/firm/FirmDecisionLogic.vue'
+import FirmTemplateLibrary from '~/components/firm/FirmTemplateLibrary.vue'
 // Mentor-scope tab bodies. Both are inert at firm scope (their tabs are v-if'd
 // off) — the server role-gates every /api/mentor call regardless.
 import MentorReview from '~/components/MentorReview.vue'
@@ -910,6 +918,12 @@ const TAB_TIERS = {
   // (importTemplates); the middle tiers get theirs only when a real need names it.
   templateLibrary: ['mentor'],
 
+  // The firm's OWN template upload (SEARCH-CONTENT-CASCADE-PLAN.md Phase 3, Mike
+  // 2026-09-01). Firm only: since Phase 2 the nearest tier's upload wins the whole
+  // library, and a firm is the tier with a real reason to hold a different set. The
+  // middle tiers get theirs only when a real need names it (same line as above).
+  templateLibraryFirm: ['firm'],
+
   // The property model's tax rules (Mike, 2026-08-17, §8 Q6). Every tier that has a
   // LAYER ABOVE IT — the same shape as distinctionsFirm, and for the same reason: the
   // decline / override / inherit language only means something when something sits
@@ -1023,7 +1037,12 @@ const NAV_GROUPS = [
       // 🔴 THE LABEL IS MIKE'S OWN WORD, 2026-08-21 — "a 'AI Prompts' page" — and was
       // confirmed as the tab label rather than a working title. Added at the END of the
       // group on purpose: appending moves nothing that is already on a manager's screen.
-      { key: 'aiPrompts', label: 'AI Prompts' }
+      { key: 'aiPrompts', label: 'AI Prompts' },
+      // The firm's own template upload (Phase 3, Mike 2026-09-01) — in THIS group
+      // because it decides which library the AI recommends from. At the END, as
+      // aiPrompts was: appending moves nothing already on a manager's screen. The
+      // mentor's twin lives under "Rolled up from below"; no tier ever sees both.
+      { key: 'templateLibraryFirm', i18n: 'firmTemplateLibrary.tab' }
     ]
   },
   {
@@ -1095,7 +1114,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmAiPrompts, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmAiPrompts, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

@@ -1,9 +1,11 @@
 # Search-Content Cascade Plan — the master library moves into the database
 
-**Status:** Plan for approval. Authored 2026-08-31 at Mike's request (*"plan/design how to
-convert the manual download and upload of a json script (the search contents script) into a
-cascading - dynamic - database so that future changes to content can be more easily shared
-and maintained"*). Nothing here is built; nothing is built until each phase is approved.
+**Status:** Phases 1–3 approved and built (Phase 1 `5cf3743`/`6ba5dd7` 2026-08-31;
+Phase 2 `c3f2ee9` 2026-09-01; Phase 3 approved by Mike 2026-09-01 — wording in §7 — and
+built the same day). Phase 4 remains the master team's. Authored 2026-08-31 at Mike's
+request (*"plan/design how to convert the manual download and upload of a json script
+(the search contents script) into a cascading - dynamic - database so that future changes
+to content can be more easily shared and maintained"*).
 
 **Asked by:** Mike, 2026-08-31, in his own words above. This document is the committed
 artefact the Save-the-Artefact rule requires before approval.
@@ -133,7 +135,53 @@ the same validated store — same validation, same versioning, same loader.
 - The `Central Frameworks/` folder and the dev-time scripts that read it.
 - Authentication — it stays entirely Advisor-e's, as it always has been.
 
-## 7. References
+## 7. Phase 3 — the screen, as approved (Mike, 2026-09-01)
+
+The firm's Template Library tab on the Firm Manager Hub, firm tier only (the middle
+tiers get theirs only when a real need names it — recorded at `TAB_TIERS.templateLibrary`).
+Menu placement: end of the **"Your AI coach"** group, since this decides which library
+the AI recommends from. Upload + version history/restore + a **Remove upload** button
+(Mike's yes, 2026-09-01: without it, restore alone can never take a firm back to the
+platform's library). Removal uses the existing delete route, which also clears the
+firm's upload history — the confirm dialog says so honestly rather than hiding it.
+
+**Approved wording (Save-the-Artefact record):**
+
+| Where | Text |
+| --- | --- |
+| Tab label | Template Library |
+| Heading | Your firm's template library |
+| Intro | Upload your firm's search-content export from Advisor-e. Your advisors will see this library instead of the platform's. |
+| No upload yet | No upload — your advisors see the platform's library. |
+| With an upload | {n} templates · uploaded {date} by {who} |
+| …no uploader name recorded | {n} templates · uploaded {date} |
+| …no history row at all (dev fallback) | {n} templates |
+| Remove button | Remove upload |
+| Remove confirm — title | Remove your firm's library? |
+| Remove confirm — body | Your advisors will see the platform's library again, and your upload history here will be cleared. You can upload a new export at any time. |
+| After removal (toast) | Upload removed — your advisors see the platform's library again. |
+| Removal failed (toast) | The upload couldn't be removed — try again. |
+
+Everything else (Choose a file, Upload export, Previous versions, Restore, the
+rejection reasons) reuses the mentor tab's approved `templateLibrary.*` strings
+unchanged — one fact, one home.
+
+**The mentor tab's dangling line, fixed the same way** (the other half of item 4.55):
+when no uploader name is recorded the line reads *"{n} templates · uploaded {date}"*,
+and with no history row at all simply *"{n} templates"* — it never trails off after "by".
+
+**Extended the same day (Mike, 2026-09-01), artefact
+`design/mockups/firm-template-library.html`:** the screen also carries (a) a two-card
+"whose library is in force" panel — platform vs the firm's own, the green badge following
+the cascade; and (b) a **read-only, searchable contents table** of the library in force,
+each row opening to the full record (purpose, learning objectives, meta tags, link id,
+CPD minutes, growth stage, include-in-client, business fundamental — the master app's
+Edit Content field set, shown not editable). **View-only by ruling:** *"view only for
+now with potential to become the master doc source in future — depending on feedback
+from the master coding team."* Editing stays in Advisor-e; one page, not two (contents
+below the controls — same question, one screen).
+
+## 8. References
 
 - `.claude/skills/master-export-upload/SKILL.md` — the secure-upload procedure
 - `design/USER-LEVEL-CASCADE-HANDOVER.md` — tier scopes, seam files, reserved rows
