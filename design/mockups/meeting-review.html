@@ -4,673 +4,865 @@
 /* ============================================================================
    Meeting Review — screen mockup for approval. NOTHING HERE IS BUILT.
 
-   Sources every word and rule below is taken from — nothing invented:
-     - design/features/meeting-review.md        the Brief: P1-P13, §3, §5 traps
-     - design/MEETING-CONSENT-WORDING.md        the APPROVED spoken line + 2-step screen
-     - design/REPORT-VISUAL-STANDARD.md         the --rs-* tokens reused below
-     - data/logic_trees.json                    the scenario names (P12)
+   Sources — nothing on this page is invented:
+     design/features/meeting-review.md       the Brief: P1–P13, §3, §5 traps
+     design/MEETING-CONSENT-WORDING.md       the APPROVED spoken line + 2 steps
+     server/routes/firmManager.js:247        uploadDocument — the real upload
+     config/integration.js:110               the real categories + storage limits
+     data/logic_trees.json                   the scenario names (P12)
 
-   WORDING RULE FOR THIS PAGE. Two kinds of text appear, and they are marked
-   differently on purpose:
-     .approved  ✅ Mike approved these exact words on 2026-09-01. Copied
-                verbatim from MEETING-CONSENT-WORDING.md. Do not edit here —
-                edit that page, then re-copy.
-     .proposed  ✎ Drafted for this mockup and NOT approved. Every label,
-                button and heading not marked approved is a proposal awaiting
-                Mike's ruling, per CLAUDE.md ("always ask for clarification on
-                wording for labels/buttons").
+   🔴 NOT A REPORT SCREEN, AND STILL ON BRAND. Two rulings by Mike, 2026-09-01,
+   and BOTH have to hold at once:
+     "this is NOT a financial performance report - it does NOT need to look
+      identical to those reports. It needs to be easy to follow and colourful
+      and engaging."
+     "colours can still be consistent - they should be listed in the design
+      handbook."
+   So the --rs-* report tokens are NOT used here — report screens stay on
+   REPORT-VISUAL-STANDARD.md — but EVERY colour below comes from
+   design/BRAND-TOKENS.md. Nothing on this page is an invented hue.
 
-   No dark mode: one light look, RULED 2026-07-27.
+   THE COLOUR CARRIES MEANING, it is not decoration. Three stages, three hues,
+   registered in BRAND-TOKENS.md § Journey stages:
+     navy   #002B64 — setup: the firm sets its standard (brand Navy, reused)
+     teal   #00857A — live: the advisor's meeting
+     violet #5B4B9E — afterwards: the two reports and the manager's patterns
+   Controls stay brand Blue/Cyan — a stage hue colours the BAND and the RAIL
+   that say where you are, never the button that says what you can do.
+   Recording uses brand Danger #FF0000 and nothing else on the page does, so it
+   never becomes decorative.
+
+   TYPOGRAPHY IS BRAND TOO: Open Sans, Light 300 as the default weight, 600
+   only where legibility needs it. No second typeface.
+
+   WORDING IS MARKED IN TWO KINDS:
+     .approved  ✅ Mike's exact words, 2026-09-01, copied character for
+                character from MEETING-CONSENT-WORDING.md.
+     .proposed  ✎ Drafted here and NOT approved.
+
+   One light look, painted explicitly — it holds on any host background.
    ========================================================================= */
+
 :root{
-  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
-  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
-  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
-  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
-  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
-  --rs-crit-soft:#ff00000f;
-  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
-  --rs-radius:14px;
-  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  /* neutrals — biased toward navy, as BRAND-TOKENS.md requires (never pure grey) */
+  --bg:#eef3f8; --panel:#ffffff; --panel-2:#f4f8fb; --panel-3:#e6edf4;
+  --ink:#002b64; --ink-2:#33455e; --muted:#5b6f8a; --line:#d5e1ee;
+
+  /* the three journey stages — BRAND-TOKENS.md § Journey stages */
+  --navy:#002b64;   --navy-soft:#002b6412;  --navy-line:#002b6440;
+  --teal:#00857a;   --teal-soft:#00857a14;  --teal-line:#00857a44;
+  --violet:#5b4b9e; --violet-soft:#5b4b9e14;--violet-line:#5b4b9e44;
+
+  /* brand interactive — controls stay these, never a stage hue */
+  --blue:#0070c0;   --cyan:#00b1e0;         --sky:#7fd3f1;
+
+  /* brand semantic — outrank a stage hue; recording uses Danger and nothing else does */
+  --good:#4ca52d;   --good-soft:#4ca52d1a;  --good-line:#4ca52d55;
+  --warn:#ff9900;   --warn-soft:#ff99001a;  --warn-line:#ff990059;
+  --rec:#ff0000;    --rec-soft:#ff00000d;   --rec-line:#ff000040;
+
+  /* the two voices — brand navy and cyan, used wherever speech is shown */
+  --voice-advisor:#002b64; --voice-client:#00b1e0;
+
+  /* Open Sans, Light 300 default — BRAND-TOKENS.md § Typography */
+  --sans:'Open Sans', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+
+  --r:14px; --r-sm:9px;
+  --shadow:0 1px 2px #002b6414, 0 10px 28px -16px #002b6440;
 }
+
 *{box-sizing:border-box}
-body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
-     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
-.shell{max-width:1080px;margin:0 auto;padding:28px 22px 72px;display:flex;
-       flex-direction:column;gap:34px}
-strong,b{font-weight:600}
-h2,h3,h4{text-wrap:balance}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+     font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:30px 20px 80px}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0;max-width:68ch}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
-/* ── page header ─────────────────────────────────────────────────────── */
-.top{padding:24px 26px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
-     box-shadow:var(--rs-shadow)}
-.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
-.top h1{margin:5px 0 8px;font-size:28px;font-weight:300;letter-spacing:-.01em}
-.top p{margin:0;font-size:13px;opacity:.88;max-width:68ch}
+/* ── masthead ─────────────────────────────────────────────────────────── */
+/* the three stage hues, left to right, so the masthead states the journey */
+.mast{background:linear-gradient(120deg,var(--navy) 0%,var(--navy) 34%,var(--teal) 67%,var(--violet) 100%);
+  color:#fff;border-radius:var(--r);padding:34px 32px;box-shadow:var(--shadow)}
+.mast .kicker{font-size:11px;font-weight:600;letter-spacing:.19em;text-transform:uppercase;
+  color:var(--sky)}
+.mast h1{font-size:44px;font-weight:300;letter-spacing:-.015em;
+  margin:9px 0 12px;line-height:1.05}
+.mast p{font-size:15.5px;color:#dbeaf5;max-width:60ch}
 
-/* the banner the Brief itself opens with — repeated so the page cannot be
-   mistaken for a description of the app */
-.notbuilt{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn);
-  border-radius:10px;padding:13px 15px;font-size:13px;line-height:1.55}
-.notbuilt b{display:block;margin-bottom:3px}
+/* ── banners ──────────────────────────────────────────────────────────── */
+.banner{border-radius:var(--r-sm);padding:15px 17px;font-size:14px;line-height:1.6;
+  border:1px solid;margin-top:16px}
+.banner b{display:block;margin-bottom:3px;font-size:14.5px}
+.banner.warn{background:var(--warn-soft);border-color:var(--warn-line);color:#5c4405}
+.banner.info{background:var(--teal-soft);border-color:var(--teal-line);color:#0d4a45}
 
-/* ── legend ──────────────────────────────────────────────────────────── */
-.legend{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (max-width:720px){.legend{grid-template-columns:1fr}}
-.leg{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:10px;
-     padding:11px 13px;font-size:12.5px;line-height:1.5}
-.leg .k{font-weight:600;display:block;margin-bottom:2px}
+/* ── legend ───────────────────────────────────────────────────────────── */
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:22px}
+@media (max-width:760px){.legend{grid-template-columns:1fr}}
+.leg{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-sm);
+  padding:15px 16px;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+.leg h3{font-family:var(--sans);font-size:13.5px;font-weight:600;color:var(--ink);
+  margin-bottom:6px;display:flex;align-items:center;gap:8px}
 
-.chip{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;
-  letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:5px;
-  vertical-align:middle}
-.chip.ok{background:var(--rs-good-soft);color:#2f6d1a;border:1px solid #4ca52d55}
-.chip.prop{background:var(--rs-warn-soft);color:#8a5200;border:1px solid #ff990059}
-.chip.open{background:var(--rs-accent-soft);color:#004e87;border:1px solid #0070c055}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:20px;
+  border:1px solid;white-space:nowrap;font-family:var(--sans)}
+.pill.ok{background:var(--good-soft);border-color:var(--good-line);color:#2c6641}
+.pill.prop{background:var(--warn-soft);border-color:var(--warn-line);color:#8a6508}
+.pill.next{background:var(--violet-soft);border-color:var(--violet-line);color:#54397a}
 
-/* ── a screen ────────────────────────────────────────────────────────── */
+/* ── stage headers ────────────────────────────────────────────────────── */
+.stage{margin:52px 0 4px;display:flex;align-items:center;gap:14px}
+.stage .num{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  font-size:15px;font-weight:600;color:#fff;flex:0 0 auto}
+.stage h2{font-size:29px;font-weight:300;letter-spacing:-.01em}
+.stage .sub{font-size:13.5px;color:var(--muted);margin-top:1px}
+.s-a .num{background:var(--navy)}   .s-a h2{color:var(--navy)}
+.s-b .num{background:var(--teal)}   .s-b h2{color:#00655d}
+.s-c .num{background:var(--violet)} .s-c h2{color:var(--violet)}
+
+/* the coloured rail that runs down each stage */
+.rail{border-left:3px solid;padding-left:22px;margin-left:18px;margin-top:18px;
+  display:flex;flex-direction:column;gap:26px}
+@media (max-width:640px){.rail{padding-left:14px;margin-left:6px}}
+.s-a .rail{border-color:var(--navy-line)}
+.s-b .rail{border-color:var(--teal-line)}
+.s-c .rail{border-color:var(--violet-line)}
+
+/* ── a screen ─────────────────────────────────────────────────────────── */
 .screen{display:flex;flex-direction:column;gap:11px}
-.screen > h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--rs-muted);font-weight:600;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-.screen > h2 .n{width:21px;height:21px;border-radius:50%;background:var(--rs-ink);color:#fff;
-  display:grid;place-items:center;font-size:11px;font-weight:700;letter-spacing:0}
-.frame{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
-  box-shadow:var(--rs-shadow);overflow:hidden}
-.bar{background:var(--rs-panel-2);border-bottom:1px solid var(--rs-line);padding:10px 16px;
-  font-size:12px;color:var(--rs-muted);display:flex;justify-content:space-between;
-  align-items:center;gap:12px}
-.body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:15px}
-.body h3{margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em}
-.body h4{margin:0;font-size:12px;letter-spacing:.09em;text-transform:uppercase;
-  color:var(--rs-muted);font-weight:600}
-.body p{margin:0;font-size:13.5px;max-width:70ch}
-.lede{color:var(--rs-muted)}
+.screen > .cap{font-size:13px;font-weight:600;color:var(--muted);display:flex;
+  align-items:center;gap:9px;flex-wrap:wrap;letter-spacing:.01em}
+.frame{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden}
+.chrome{padding:11px 17px;font-size:12.5px;display:flex;justify-content:space-between;
+  align-items:center;gap:12px;color:#fff;font-weight:500}
+.s-a .chrome{background:var(--navy)}
+.s-b .chrome{background:var(--teal)}
+.s-c .chrome{background:var(--violet)}
+.chrome.recording{background:var(--rec)}
+.chrome .r{opacity:.88;font-family:var(--sans);font-size:11.5px}
+.pane{padding:22px 22px 24px;display:flex;flex-direction:column;gap:17px}
+.pane h3{font-family:var(--sans);font-size:24px;font-weight:500;letter-spacing:-.01em}
+.pane .lede{color:var(--muted);font-size:14px}
+.pane h4{font-family:var(--sans);font-size:11.5px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted)}
 
-/* mockup-only annotation, house convention */
-.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:11px 13px;
-  font-size:12.5px;color:#614700;line-height:1.55}
-.mock b{color:#4a3600}
-.mock ul{margin:6px 0 0;padding-left:17px}
-.mock li{margin:3px 0}
+/* ── the annotation voice — clearly not part of the screen ─────────────── */
+.note{background:var(--panel-3);border-radius:var(--r-sm);padding:15px 17px;
+  font-size:13.5px;line-height:1.65;color:var(--ink-2);border:1px solid var(--line)}
+.note b{color:var(--ink)}
+.note > :first-child{margin-top:0}
+.note ul{margin:9px 0 0;padding-left:19px}
+.note li{margin:5px 0}
 
-/* the approved spoken line — visually distinct so it is never edited casually */
-.spoken{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good);
-  border-radius:10px;padding:14px 16px;font-size:14.5px;font-style:italic;line-height:1.6;
-  max-width:66ch}
-.spoken .who{display:block;font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.08em;
-  text-transform:uppercase;color:#2f6d1a;margin-bottom:7px}
+/* ── the approved spoken line ─────────────────────────────────────────── */
+.spoken{background:var(--good-soft);border:1px solid var(--good-line);
+  border-left:4px solid var(--good);border-radius:var(--r-sm);padding:17px 19px}
+.spoken .who{display:block;font-size:10.5px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:#2c6641;margin-bottom:9px}
+.spoken q{font-family:var(--sans);font-size:18px;font-style:italic;line-height:1.65;
+  color:var(--ink);display:block;max-width:60ch}
 
-/* buttons */
-.btns{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
-.btn{font:inherit;font-size:13px;font-weight:600;padding:9px 17px;border-radius:8px;
-  border:1px solid var(--rs-accent);background:var(--rs-accent);color:#fff;cursor:default}
-.btn.ghost{background:var(--rs-panel);color:var(--rs-ink);border-color:var(--rs-line)}
-.btn.danger{background:var(--rs-panel);color:#a30000;border-color:#ff000055}
-.btn.go{background:var(--rs-good);border-color:var(--rs-good)}
+/* ── buttons ──────────────────────────────────────────────────────────── */
+.btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-family:var(--sans);font-size:13.5px;font-weight:600;
+  padding:10px 19px;border-radius:8px;border:1.5px solid;cursor:default;
+  background:var(--teal);border-color:var(--teal);color:#fff}
+.s-a .btn{background:var(--navy);border-color:var(--navy)}
+.s-c .btn{background:var(--violet);border-color:var(--violet)}
+.btn.ghost{background:var(--panel);border-color:var(--line);color:var(--ink)}
+.btn.stop{background:var(--panel);border-color:var(--rec-line);color:var(--rec)}
+.btn.go{background:var(--good);border-color:var(--good);color:#fff}
 
-/* observation-point list (the pre-set) */
-.pts{display:flex;flex-direction:column;gap:7px}
-.pt{display:flex;gap:10px;align-items:flex-start;background:var(--rs-panel-2);
-  border:1px solid var(--rs-line);border-radius:9px;padding:10px 12px;font-size:13px}
-.pt .tick{width:16px;height:16px;border-radius:4px;background:var(--rs-accent);flex:0 0 auto;
-  margin-top:2px;position:relative}
-.pt .tick::after{content:"";position:absolute;left:5px;top:1.5px;width:4px;height:9px;
+/* ── observation points ───────────────────────────────────────────────── */
+.pts{display:flex;flex-direction:column;gap:8px}
+.pt{display:flex;gap:12px;align-items:flex-start;background:var(--panel-2);
+  border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 14px;font-size:14px}
+.pt .box{width:17px;height:17px;border-radius:5px;flex:0 0 auto;margin-top:2px;
+  background:var(--teal);position:relative}
+.s-a .pt .box{background:var(--navy)}
+.pt.own .box{background:var(--voice-client)}
+.pt .box::after{content:"";position:absolute;left:5.5px;top:2px;width:4px;height:9px;
   border:solid #fff;border-width:0 2px 2px 0;transform:rotate(43deg)}
-.pt.own .tick{background:var(--rs-accent-bright)}
-.pt .txt{flex:1}
-.pt .src{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--rs-muted);
-  font-weight:600;margin-top:3px}
-.sel{display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-size:13px}
-.sel select{font:inherit;font-size:13px;padding:8px 11px;border:1px solid var(--rs-line);
-  border-radius:8px;background:var(--rs-panel);color:var(--rs-ink)}
+.pt .who{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  font-weight:600;margin-top:4px}
 
-/* recording state */
-.recbar{display:flex;align-items:center;gap:12px;background:#fff5f5;border:1px solid #ff000033;
-  border-radius:10px;padding:12px 14px;flex-wrap:wrap}
-.dot{width:11px;height:11px;border-radius:50%;background:var(--rs-crit);flex:0 0 auto;
-  box-shadow:0 0 0 0 #ff000055;animation:pulse 2s infinite}
-@keyframes pulse{70%{box-shadow:0 0 0 9px #ff000000}100%{box-shadow:0 0 0 0 #ff000000}}
-@media (prefers-reduced-motion:reduce){.dot{animation:none}}
-.recbar .t{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em}
-.recbar .lbl{font-size:12px;color:var(--rs-muted);flex:1;min-width:120px}
+/* ── the firm's reference material ────────────────────────────────────── */
+.docs{display:flex;flex-direction:column;gap:9px}
+.doc{display:flex;gap:13px;align-items:center;background:var(--panel);
+  border:1px solid var(--line);border-radius:var(--r-sm);padding:13px 15px}
+.doc .ic{width:36px;height:44px;border-radius:4px;flex:0 0 auto;position:relative;
+  background:var(--navy-soft);border:1.5px solid var(--navy-line)}
+.doc .ic::after{content:"PDF";position:absolute;bottom:5px;left:0;right:0;text-align:center;
+  font-family:var(--sans);font-size:8.5px;font-weight:600;color:var(--navy)}
+.doc .nm{font-size:14px;font-weight:600}
+.doc .meta{font-size:12px;color:var(--muted);margin-top:2px;font-family:var(--sans)}
+.doc .act{margin-left:auto;font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap}
+.drop{border:2px dashed var(--navy-line);border-radius:var(--r-sm);padding:20px;
+  text-align:center;background:var(--navy-soft);font-size:13.5px;color:var(--navy)}
+.drop b{display:block;font-size:14.5px;margin-bottom:3px}
+.drop .lim{font-family:var(--sans);font-size:11.5px;color:var(--muted);margin-top:7px}
 
-/* failure state — P11 */
-.fail{background:var(--rs-crit-soft);border:1px solid #ff000055;border-left:3px solid var(--rs-crit);
-  border-radius:10px;padding:13px 15px;font-size:13px;line-height:1.55}
-.fail b{display:block;font-size:14px;margin-bottom:3px;color:#a30000}
+/* ── recording ────────────────────────────────────────────────────────── */
+.recbar{display:flex;align-items:center;gap:14px;background:var(--rec-soft);
+  border:1px solid var(--rec-line);border-radius:var(--r-sm);padding:14px 16px;flex-wrap:wrap}
+.blip{width:12px;height:12px;border-radius:50%;background:var(--rec);flex:0 0 auto;
+  animation:pulse 2.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #ff000059}70%{box-shadow:0 0 0 10px #ff000000}
+  100%{box-shadow:0 0 0 0 #ff000000}}
+.recbar .clock{font-size:23px;font-weight:600;color:var(--rec);font-variant-numeric:tabular-nums}
+.recbar .say{font-size:13px;color:var(--ink-2);flex:1;min-width:130px}
+.alarm{background:var(--rec-soft);border:1px solid var(--rec-line);border-left:4px solid var(--rec);
+  border-radius:var(--r-sm);padding:16px 18px;font-size:13.5px;line-height:1.6}
+.alarm b{display:block;font-size:15px;color:var(--rec);margin-bottom:4px;font-family:var(--sans);
+  font-weight:600}
 
-/* mechanical measures — P9, arithmetic only */
-.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-@media (max-width:700px){.mgrid{grid-template-columns:1fr 1fr}}
-.metric{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;padding:12px}
-.metric .k{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--rs-muted);
-  font-weight:700}
-.metric .v{font-size:22px;font-weight:700;margin-top:5px;font-variant-numeric:tabular-nums;
-  line-height:1.1}
-.metric .s{font-size:11.5px;color:var(--rs-muted);margin-top:4px}
-.metric.flag{border-color:#ff990059;background:var(--rs-warn-soft)}
-.metric.flag .v{color:#8a5200}
+/* ── measured figures ─────────────────────────────────────────────────── */
+.figs{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+@media (max-width:680px){.figs{grid-template-columns:1fr 1fr}}
+.fig{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:14px}
+.fig .k{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);
+  font-weight:600}
+.fig .v{font-variant-numeric:tabular-nums;font-size:26px;font-weight:600;margin-top:6px;line-height:1.05;
+  color:var(--violet)}
+.fig .s{font-size:12px;color:var(--muted);margin-top:5px}
+.fig.flag{background:var(--warn-soft);border-color:var(--warn-line)}
+.fig.flag .v{color:#8a6508}
 
-/* observations — P4 cite or NOT FOUND, P5 disputable */
-.obs{display:flex;flex-direction:column;gap:10px}
-.ob{border:1px solid var(--rs-line);border-radius:10px;padding:13px 14px;background:var(--rs-panel)}
-.ob .hd{display:flex;gap:9px;align-items:baseline;justify-content:space-between;flex-wrap:wrap}
-.ob .nm{font-size:13.5px;font-weight:600}
-.ob .st{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
-  padding:2px 7px;border-radius:5px;white-space:nowrap}
-.ob.met{border-left:3px solid var(--rs-good)}
-.ob.met .st{background:var(--rs-good-soft);color:#2f6d1a}
-.ob.missed{border-left:3px solid var(--rs-warn)}
-.ob.missed .st{background:var(--rs-warn-soft);color:#8a5200}
-.ob.blind{border-left:3px solid var(--rs-muted)}
-.ob.blind .st{background:#5b6f8a1a;color:var(--rs-muted)}
-.quote{margin:9px 0 0;padding:9px 12px;background:var(--rs-panel-2);border-left:2px solid var(--rs-line);
-  border-radius:0 7px 7px 0;font-size:12.5px;font-style:italic;color:#33455e}
-.quote .ts{font-style:normal;font-weight:600;color:var(--rs-muted);font-size:11px;
-  font-variant-numeric:tabular-nums;margin-right:7px}
-.nf{margin:9px 0 0;font-size:12.5px;color:var(--rs-muted)}
-.nf code{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:4px;
-  padding:1px 5px;font-size:11.5px;font-weight:600;color:#8a5200}
-.oblink{margin-top:10px;display:flex;gap:14px;font-size:12px;font-weight:600;color:var(--rs-accent)}
+/* talk-time split — the two voices, shown as themselves */
+.split{display:flex;height:34px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.split div{display:grid;place-items:center;font-size:12px;font-weight:600;color:#fff;
+  font-family:var(--sans)}
+.split .adv{background:var(--voice-advisor);flex:78}
+/* cyan is a light ground — navy text, not white, or the label fails contrast */
+.split .cli{background:var(--voice-client);color:var(--navy);flex:22}
+.splitkey{display:flex;gap:18px;font-size:12px;color:var(--muted);margin-top:7px}
+.splitkey i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
 
-/* editable client summary */
-.draft{border:1px dashed var(--rs-accent);border-radius:10px;background:#fbfdff;padding:15px 16px;
-  font-size:13.5px;line-height:1.65}
-.draft h5{margin:0 0 7px;font-size:14px;font-weight:600}
-.draft ul{margin:0 0 12px;padding-left:19px}
-.draft li{margin:4px 0}
-.draft p{margin:0 0 12px;max-width:68ch}
+/* ── observations ─────────────────────────────────────────────────────── */
+.obs{display:flex;flex-direction:column;gap:11px}
+.ob{border:1px solid var(--line);border-radius:var(--r-sm);padding:15px 16px;
+  background:var(--panel);border-left:4px solid}
+.ob .hd{display:flex;gap:10px;align-items:baseline;justify-content:space-between;flex-wrap:wrap}
+.ob .nm{font-size:14.5px;font-weight:600;flex:1;min-width:180px}
+.ob.found{border-left-color:var(--good)}
+.ob.absent{border-left-color:var(--warn)}
+.ob.deaf{border-left-color:var(--muted)}
+.ob.found .pill{background:var(--good-soft);border-color:var(--good-line);color:#2c6641}
+.ob.absent .pill{background:var(--warn-soft);border-color:var(--warn-line);color:#8a6508}
+.ob.deaf .pill{background:var(--panel-3);border-color:var(--line);color:var(--muted)}
+.quote{margin:11px 0 0;padding:12px 15px;background:var(--panel-2);border-radius:var(--r-sm);
+  border-left:3px solid var(--voice-advisor)}
+.quote q{font-family:var(--sans);font-style:italic;font-size:15.5px;line-height:1.6;
+  display:block;color:var(--ink)}
+.quote .ts{font-family:var(--sans);font-size:11px;font-weight:600;color:var(--voice-advisor);
+  display:block;margin-bottom:5px;letter-spacing:.04em}
+.absentnote{margin-top:11px;font-size:13.5px;color:var(--ink-2)}
+.absentnote code{font-family:var(--sans);font-size:12px;font-weight:600;color:#8a6508;
+  background:var(--warn-soft);border:1px solid var(--warn-line);border-radius:4px;padding:1px 6px}
+.oblinks{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.oblink{font-size:12.5px;font-weight:600;color:var(--violet);border:1px solid var(--violet-line);
+  background:var(--violet-soft);border-radius:7px;padding:6px 12px}
+
+/* ── the client's draft ───────────────────────────────────────────────── */
+.draft{border:2px dashed var(--violet-line);border-radius:var(--r-sm);
+  background:#fcfbfe;padding:19px 20px;font-size:14.5px;line-height:1.7}
+.draft h5{font-family:var(--sans);font-size:17px;font-weight:600;margin:0 0 8px;color:var(--violet)}
+.draft ul{margin:0 0 15px;padding-left:20px}
+.draft li{margin:5px 0}
+.draft p{margin:0 0 15px}
 .draft > :last-child{margin-bottom:0}
 
-/* manager aggregate — P3 */
-.pattern{display:flex;flex-direction:column;gap:8px}
-.prow{display:grid;grid-template-columns:1fr 88px 120px;gap:12px;align-items:center;
-  font-size:13px;padding:9px 0;border-bottom:1px solid var(--rs-line)}
+/* ── manager patterns ─────────────────────────────────────────────────── */
+.prow{display:grid;grid-template-columns:1fr 76px 130px;gap:14px;align-items:center;
+  font-size:14px;padding:11px 0;border-bottom:1px solid var(--line)}
 .prow:last-child{border-bottom:0}
-@media (max-width:640px){.prow{grid-template-columns:1fr 70px;}.prow .bar2{display:none}}
+@media (max-width:640px){.prow{grid-template-columns:1fr 76px}.prow .track{display:none}}
 .prow .cnt{font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
-.bar2{height:7px;border-radius:4px;background:var(--rs-line);overflow:hidden}
-.bar2 i{display:block;height:100%;background:var(--rs-accent);border-radius:4px}
-.bar2.warn i{background:var(--rs-warn)}
+.track{height:9px;border-radius:5px;background:var(--panel-3);overflow:hidden}
+.track i{display:block;height:100%;background:var(--violet);border-radius:5px}
+.track.low i{background:var(--warn)}
 
-/* open-questions table */
-table{border-collapse:collapse;width:100%;font-size:13px}
-th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--rs-line);vertical-align:top}
-th{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--rs-muted);font-weight:700}
+/* ── the rulings table ────────────────────────────────────────────────── */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:600px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  font-weight:600;background:var(--panel-2)}
 tr:last-child td{border-bottom:0}
-.tblwrap{overflow-x:auto}
-.foot{font-size:12px;color:var(--rs-muted);line-height:1.6;max-width:78ch}
-.foot a{color:var(--rs-accent)}
+
+.close{margin-top:44px;font-size:13px;color:var(--muted);line-height:1.7;max-width:80ch;
+  border-top:1px solid var(--line);padding-top:20px}
 </style>
 
-<div class="shell">
+<div class="wrap">
 
-  <header class="top">
-    <div class="eyebrow">Design for approval · 2026-09-01</div>
+  <header class="mast">
+    <div class="kicker">Design for approval · 2026-09-01</div>
     <h1>Meeting Review</h1>
-    <p>The advisor's journey end to end — the pre-set before the meeting, the two-step consent that
-       keeps the client's agreement inside the recording, capture, and the two reports that come out.
-       Built strictly from the Brief and the approved consent wording.</p>
+    <p>Record a client meeting, turn it into a written summary they can keep, and give the advisor
+       private coaching notes checked against what they said the meeting was for.</p>
   </header>
 
-  <div class="notbuilt">
-    <b>⚠ Nothing here is built.</b>
-    No route, no screen, no data file and no test for this feature exists in the repository. This is a
-    proposal to be marked up, exactly like the Brief it is drawn from. It is not a description of the app.
+  <div class="banner warn">
+    <b>Nothing here is built.</b>
+    No route, no screen, no data file, no test. Every screen below is a proposal to be marked up —
+    it is not a description of the app.
   </div>
 
   <div class="legend">
     <div class="leg">
-      <span class="k"><span class="chip ok">✅ Approved</span> — your words, verbatim</span>
-      Text on a green panel is the consent wording you approved on 2026-09-01. It is copied from
-      <b>design/MEETING-CONSENT-WORDING.md</b> character for character.
+      <h3><span class="pill ok">✅ Approved</span> your exact words</h3>
+      Green panels are the consent wording you approved on 2026-09-01, copied character for character
+      from <b>MEETING-CONSENT-WORDING.md</b>.
       <br><br>
-      <b>It is a script, not a field.</b> Nothing is typed into it — these are the words the advisor
-      <i>says out loud</i> so the client's agreement is captured inside the recording itself. You ruled
-      on 2026-09-01 that a firm cannot edit it: one lawyer-checked version per market. The single value
-      that varies is the retention period, which renders the firm's own setting.
+      <b>It is a script, not a form.</b> Nothing is typed into it — these are words the advisor
+      <i>says out loud</i>, so the client's agreement is captured inside the recording itself. You
+      ruled that a firm cannot edit it: one lawyer-checked version per market.
     </div>
     <div class="leg">
-      <span class="k"><span class="chip prop">✎ Proposed</span> — my draft, awaiting your ruling</span>
-      Every other label, heading and button on this page is a proposal. Nothing here has been approved,
-      including the names of the two reports — those are explicitly still open.
+      <h3><span class="pill prop">✎ Proposed</span> my draft, not approved</h3>
+      Every other label, heading and button is a proposal. Where you have already ruled — the report
+      names, the retention period, the drawing check, the manager threshold — the ruling is applied
+      and noted underneath the screen it affects.
     </div>
   </div>
 
-  <!-- ══ 1 · the pre-set ═══════════════════════════════════════════════ -->
-  <section class="screen">
-    <h2><span class="n">1</span> Before the meeting — the pre-set <span class="chip prop">✎ Proposed</span></h2>
-    <div class="frame">
-      <div class="bar"><span>Meeting Review</span><span>Sarah Whitfield · Advisor</span></div>
-      <div class="body">
-        <h3>What is this meeting for?</h3>
-        <p class="lede">Confirm what you want to be checked on. You will see this list again just before
-           you walk in.</p>
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STAGE A — the firm sets the standard
+       ══════════════════════════════════════════════════════════════════ -->
+  <section class="s-a">
+    <div class="stage">
+      <span class="num">A</span>
+      <div><h2>The firm sets the standard</h2>
+           <div class="sub">Done once, by a manager. Everything after this follows from it.</div></div>
+    </div>
 
-        <div class="sel">
-          <label for="sc"><b>Meeting type</b></label>
-          <select id="sc"><option>End of year meeting</option></select>
-          <span style="font-size:12px;color:var(--rs-muted)">from the firm's existing scenarios</span>
-        </div>
+    <div class="rail">
 
-        <div>
-          <h4 style="margin-bottom:9px">Observation points</h4>
-          <div class="pts">
-            <div class="pt"><span class="tick"></span><span class="txt">I framed the meeting — said what
-              we would cover and why, in the first two minutes.<span class="src">Firm's list</span></span></div>
-            <div class="pt"><span class="tick"></span><span class="txt">I used a metaphor or an analogy to
-              explain a financial idea.<span class="src">Firm's list</span></span></div>
-            <div class="pt"><span class="tick"></span><span class="txt">I checked understanding before
-              moving on from the figures.<span class="src">Firm's list</span></span></div>
-            <div class="pt"><span class="tick"></span><span class="txt">We agreed named actions, with an
-              owner and a date, before the time ran out.<span class="src">Firm's list</span></span></div>
-            <div class="pt own"><span class="tick"></span><span class="txt">I raised the succession
-              conversation the client has deferred twice.<span class="src">Added by me, this meeting</span></span></div>
+      <div class="screen">
+        <div class="cap">Observation points and reference material
+          <span class="pill prop">✎ Proposed</span><span class="pill ok">✅ You asked for this</span></div>
+        <div class="frame">
+          <div class="chrome"><span>Firm Manager · Whitfield &amp; Co</span>
+            <span class="r">Meeting Review · Setup</span></div>
+          <div class="pane">
+            <h3>End of year meeting</h3>
+            <p class="lede">What your advisors are checked on in this kind of meeting, and the material
+               that tells them how your firm does it.</p>
+
+            <div>
+              <h4 style="margin-bottom:10px">What we check</h4>
+              <div class="pts">
+                <div class="pt"><span class="box"></span><span>The meeting was framed — what we would
+                  cover and why, in the first two minutes.</span></div>
+                <div class="pt"><span class="box"></span><span>A metaphor or analogy was used to explain
+                  a financial idea.</span></div>
+                <div class="pt"><span class="box"></span><span>Understanding was checked before moving on
+                  from the figures.</span></div>
+                <div class="pt"><span class="box"></span><span>Named actions were agreed, with an owner
+                  and a date, before the time ran out.</span></div>
+              </div>
+              <div class="btns" style="margin-top:11px">
+                <button class="btn ghost">Add a point</button>
+              </div>
+            </div>
+
+            <div>
+              <h4 style="margin-bottom:10px">How we do it here — reference material</h4>
+              <div class="docs">
+                <div class="doc"><span class="ic"></span>
+                  <span><span class="nm">End of Year Meeting Script v3</span>
+                    <span class="meta">1.8 MB · added 14 Aug by Helen Rourke</span></span>
+                  <span class="act">Replace</span></div>
+                <div class="doc"><span class="ic"></span>
+                  <span><span class="nm">Discovery Questions — house style</span>
+                    <span class="meta">640 KB · added 2 Jul by Helen Rourke</span></span>
+                  <span class="act">Replace</span></div>
+              </div>
+              <div class="drop" style="margin-top:11px">
+                <b>Drop a PDF here, or choose a file</b>
+                Your advisors can open this before a meeting of this type.
+                <div class="lim">PDF · up to 20 MB each · 12.4 MB of 500 MB used</div>
+              </div>
+            </div>
+
+            <div class="btns"><button class="btn">Save</button>
+              <button class="btn ghost">Cancel</button></div>
           </div>
         </div>
-
-        <div class="btns">
-          <button class="btn">Save and continue</button>
-          <button class="btn ghost">Add an objective</button>
-        </div>
-      </div>
-    </div>
-    <div class="mock">
-      <b>Why this screen exists at all.</b> The Brief §3: the pre-set is what converts an unreliable
-      judgement into a checkable one. Asking a model <i>"how did this advisor do?"</i> produces fluent
-      invention; asking it <i>"find where they framed the meeting, quote it, or answer NOT FOUND"</i> is
-      a search with a citation. It also pays before a word is recorded — the advisor walks in holding
-      the list. The firm's points come from the mentor's list via the existing overlay mechanism; the
-      advisor may add their own but not delete the firm's.
-    </div>
-  </section>
-
-  <!-- ══ 2 · consent step 1 ════════════════════════════════════════════ -->
-  <section class="screen">
-    <h2><span class="n">2</span> Consent, step one — before recording starts <span class="chip ok">✅ Approved wording</span></h2>
-    <div class="frame">
-      <div class="bar"><span>End of year meeting · Whitfield &amp; Co</span><span>Not recording</span></div>
-      <div class="body">
-        <h3>Before you record</h3>
-        <p>Read these words aloud as soon as recording starts. The recording is your evidence that you asked.</p>
-
-        <div class="spoken">
-          <span class="who">✅ Approved 2026-09-01 · read aloud, by you, first</span>
-          "Before we begin — I'd like to record our meeting. The recording is turned into a written
-          transcript by AI, and the recording itself is deleted as soon as that's done. It gives you a
-          written summary of what we agree today, and it helps me review how I did. Nothing is shared
-          outside our firm. Is everyone here happy for me to record?"
-        </div>
-
-        <p>The audio is transcribed and then deleted. The transcript is kept for
-           <b>18 months</b> and is visible to you and your firm — never to Advisor-e.</p>
-
-        <div class="btns">
-          <button class="btn">Start recording</button>
-          <button class="btn ghost">Cancel</button>
-        </div>
-      </div>
-    </div>
-    <div class="mock">
-      <b>18 months — your ruling of 2026-09-01.</b> Long enough to clear an annual meeting cycle with
-      six months to spare, so year-on-year follow-through works; short enough that a client hearing it
-      spoken does not pause.
-      <br><br>
-      ⚠ <b>The number must not be typed into the sentence when this is built.</b> A firm can move its own
-      retention dial, and this line quotes that figure back to a client out loud. 18 months is the
-      platform default, not a constant — a build that hardcodes it has advisors saying something untrue
-      the day a firm changes the setting, and nothing on screen would say so.
-    </div>
-  </section>
-
-  <!-- ══ 3 · consent step 2 ════════════════════════════════════════════ -->
-  <section class="screen">
-    <h2><span class="n">3</span> Consent, step two — recording is already running <span class="chip ok">✅ Approved wording</span></h2>
-    <div class="frame">
-      <div class="bar"><span>End of year meeting · Whitfield &amp; Co</span><span style="color:#a30000;font-weight:600">● Recording</span></div>
-      <div class="body">
-        <div class="recbar">
-          <span class="dot"></span><span class="t">00:07</span>
-          <span class="lbl">Recording. The consent you are about to hear is being captured.</span>
-        </div>
-
-        <h3>Recording — read the words aloud now</h3>
-
-        <div class="spoken">
-          <span class="who">✅ Approved 2026-09-01 · repeated here so you read rather than remember</span>
-          "Before we begin — I'd like to record our meeting. The recording is turned into a written
-          transcript by AI, and the recording itself is deleted as soon as that's done. It gives you a
-          written summary of what we agree today, and it helps me review how I did. Nothing is shared
-          outside our firm. Is everyone here happy for me to record?"
-        </div>
-
-        <h4>Did everyone agree to be recorded?</h4>
-        <div class="btns">
-          <button class="btn go">Yes — continue</button>
-          <button class="btn danger">No — stop and delete</button>
-        </div>
-      </div>
-    </div>
-    <div class="mock">
-      <b>This is the correction you caught, drawn as a screen.</b> The order is <b>record, then speak,
-      then confirm</b>. An earlier draft ticked "I have read the consent line aloud" <i>before</i>
-      recording began — past tense, which puts the client's agreement outside the audio and defeats the
-      whole point of it. The tick is your undertaking; the audio is the evidence. They are not
-      interchangeable.
-      <ul>
-        <li><b>Repeating the line is deliberate</b> — it stops an advisor paraphrasing from memory and
-            paraphrasing the AI clause out of existence.</li>
-        <li><b>It also anchors who is who.</b> You speak first, so the software knows which voice is the
-            advisor's — no stored voice sample, so no biometric data.</li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- ══ 4 · recording ═════════════════════════════════════════════════ -->
-  <section class="screen">
-    <h2><span class="n">4</span> During the meeting <span class="chip prop">✎ Proposed</span></h2>
-    <div class="frame">
-      <div class="bar"><span>End of year meeting · Whitfield &amp; Co</span><span style="color:#a30000;font-weight:600">● Recording</span></div>
-      <div class="body">
-        <div class="recbar">
-          <span class="dot"></span><span class="t">42:19</span>
-          <span class="lbl">Saved to this point. Your screen will not sleep while recording.</span>
-          <button class="btn danger">Stop and delete</button>
-        </div>
-
-        <h4>Your observation points</h4>
-        <div class="pts">
-          <div class="pt"><span class="tick"></span><span class="txt">I framed the meeting — said what we
-            would cover and why, in the first two minutes.</span></div>
-          <div class="pt"><span class="tick"></span><span class="txt">I used a metaphor or an analogy to
-            explain a financial idea.</span></div>
-          <div class="pt"><span class="tick"></span><span class="txt">I checked understanding before moving
-            on from the figures.</span></div>
-          <div class="pt"><span class="tick"></span><span class="txt">We agreed named actions, with an owner
-            and a date, before the time ran out.</span></div>
-          <div class="pt own"><span class="tick"></span><span class="txt">I raised the succession
-            conversation the client has deferred twice.</span></div>
-        </div>
-
-        <div class="btns"><button class="btn">Finish meeting</button></div>
-      </div>
-    </div>
-    <div class="mock">
-      <b>Three things this screen is carrying.</b>
-      <ul>
-        <li><b>"Stop and delete" never leaves the screen.</b> It is the answer to a client who says
-            "actually, can you turn that off?" — and it destroys the audio <i>and</i> any transcript
-            already made from it.</li>
-        <li><b>Audio is sent away in short pieces as it is captured</b>, so a crash costs seconds rather
-            than the meeting. There is no second take with a real client.</li>
-        <li><b>The list stays visible</b> — you chose live capture over uploading a file, and this is part
-            of what that buys.</li>
-      </ul>
-    </div>
-    <div class="fail">
-      <b>Recording stopped unexpectedly at 42:19</b>
-      Your screen locked or the browser tab was suspended. 42 minutes were saved and can still be
-      transcribed. <b>Nothing after 42:19 was captured.</b>
-      <div class="btns" style="margin-top:10px">
-        <button class="btn">Resume recording</button>
-        <button class="btn ghost">Use what was captured</button>
-      </div>
-    </div>
-    <div class="mock">
-      <b>The alarm above is the honest half of your live-capture ruling.</b> Uploading a file was the safer
-      recommendation and you chose live capture, which is the right call for consent and speed — but an
-      operating system can suspend a backgrounded tab, and a mid-meeting screen lock is not rare. The rule
-      is that this <b>fails loudly</b>: a tidy page of "no observations" must never be what a total
-      failure looks like.
-    </div>
-  </section>
-
-  <!-- ══ 5 · client summary ════════════════════════════════════════════ -->
-  <section class="screen">
-    <h2><span class="n">5</span> Meeting Summary — the client's copy <span class="chip ok">✅ Name approved</span></h2>
-    <div class="frame">
-      <div class="bar"><span>Draft — not sent</span><span>Ready 40 seconds after the meeting ended</span></div>
-      <div class="body">
-        <h3>Meeting Summary — Whitfield &amp; Co</h3>
-        <p class="lede">Yours to edit. Nothing is sent until you send it.</p>
-
-        <div class="draft">
-          <h5>What we covered</h5>
-          <p>We reviewed the year to 31 March: turnover of £1.42m, up 9% on last year, with margin
-             slipping from 22% to 18.5% on the back of subcontractor costs.</p>
-          <h5>What we agreed</h5>
+        <div class="note">
+          <b>This is the screen you asked for, and the upload half already exists.</b> A firm document
+          library is built and working today — <b>uploadDocument</b> in
+          <b>server/routes/firmManager.js</b>, PDFs only, 20 MB a file and 500 MB a firm, with the
+          limits set in <b>config/integration.js</b>. The figures on this screen are those real limits,
+          not invented ones.
           <ul>
-            <li><b>James</b> — send the subcontractor schedule by <b>12 September</b>.</li>
-            <li><b>Sarah</b> — model two pricing options for the March renewals, for our next meeting.</li>
-            <li><b>Both</b> — revisit the succession timetable in November, not next year.</li>
+            <li><b>What does not exist is the join.</b> Nothing today connects a document to a set of
+                observation points. That link is the actual new work; the storage, quota and
+                permissions all come free.</li>
+            <li><b>Phase 1 is the advisor reading it</b> — your ruling of 2026-09-01. The script informs
+                the person, and nothing goes near the model.</li>
+            <li><b>Phase 2 is the AI checking against it</b>, decided once you have seen what real
+                scripts look like. Two pages of prose and twelve pages of tables are very different
+                engineering, and guessing now would be guessing.
+                <span class="pill next">Phase 2 — later</span></li>
           </ul>
-          <h5>What happens next</h5>
-          <p>We meet again on 14 November. I will send the pricing models a week beforehand.</p>
-        </div>
-
-        <div class="btns">
-          <button class="btn">Send to client</button>
-          <button class="btn ghost">Edit</button>
-          <button class="btn ghost">Discard</button>
         </div>
       </div>
-    </div>
-    <div class="mock">
-      <b>The app writes; the advisor publishes.</b> This is a draft until you edit and approve it — it is
-      never sent automatically. It is also generated by a <b>separate call from your review</b>, so that
-      coaching language cannot leak into the client's copy. One call producing both would eventually tell
-      a client that their advisor should have used a metaphor.
-      <br><br>
-      <b>Named "Meeting Summary" by your ruling of 2026-09-01</b> — the client's copy says plainly what
-      it is, and nothing more.
+
     </div>
   </section>
 
-  <!-- ══ 6 · advisor review ════════════════════════════════════════════ -->
-  <section class="screen">
-    <h2><span class="n">6</span> My Coaching Notes — yours alone <span class="chip ok">✅ Name approved</span></h2>
-    <div class="frame">
-      <div class="bar"><span>Private to you</span><span>Ready 4 minutes after the meeting ended</span></div>
-      <div class="body">
-        <h3>My Coaching Notes</h3>
-        <p class="lede">Only you can see this. Share it with your manager if you want to — nobody else can
-           open it.</p>
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STAGE B — the advisor's meeting
+       ══════════════════════════════════════════════════════════════════ -->
+  <section class="s-b">
+    <div class="stage">
+      <span class="num">B</span>
+      <div><h2>The advisor's meeting</h2>
+           <div class="sub">Before they walk in, the consent, and the recording itself.</div></div>
+    </div>
 
-        <h4>Measured, not judged</h4>
-        <div class="mgrid">
-          <div class="metric flag"><div class="k">Your talk time</div><div class="v">78%</div>
-            <div class="s">of 47 minutes</div></div>
-          <div class="metric"><div class="k">Longest stretch</div><div class="v">4:12</div>
-            <div class="s">without a pause for the client</div></div>
-          <div class="metric"><div class="k">Open questions</div><div class="v">9</div>
-            <div class="s">against 23 closed</div></div>
-          <div class="metric"><div class="k">Pause after asking</div><div class="v">0.8s</div>
-            <div class="s">average before you spoke again</div></div>
-          <div class="metric"><div class="k">Jargon</div><div class="v">14</div>
-            <div class="s">terms from the firm's glossary</div></div>
-          <div class="metric"><div class="k">Actions agreed</div><div class="v">Yes</div>
-            <div class="s">6 minutes before the end</div></div>
+    <div class="rail">
+
+      <!-- B1 — the pre-set -->
+      <div class="screen">
+        <div class="cap">Before the meeting — the pre-set <span class="pill prop">✎ Proposed</span></div>
+        <div class="frame">
+          <div class="chrome"><span>Sarah Whitfield · Advisor</span><span class="r">Not recording</span></div>
+          <div class="pane">
+            <h3>What is this meeting for?</h3>
+            <p class="lede">Confirm what you want to be checked on. You will see this again just before
+               you walk in.</p>
+
+            <div class="pts">
+              <div class="pt"><span class="box"></span><span>I framed the meeting — said what we would
+                cover and why, in the first two minutes.<span class="who">Firm's list</span></span></div>
+              <div class="pt"><span class="box"></span><span>I used a metaphor or an analogy to explain a
+                financial idea.<span class="who">Firm's list</span></span></div>
+              <div class="pt"><span class="box"></span><span>I checked understanding before moving on
+                from the figures.<span class="who">Firm's list</span></span></div>
+              <div class="pt"><span class="box"></span><span>We agreed named actions, with an owner and a
+                date, before the time ran out.<span class="who">Firm's list</span></span></div>
+              <div class="pt own"><span class="box"></span><span>I raised the succession conversation the
+                client has deferred twice.<span class="who">Added by me, this meeting</span></span></div>
+            </div>
+
+            <div class="doc" style="border-color:var(--navy-line);background:var(--navy-soft)">
+              <span class="ic"></span>
+              <span><span class="nm">End of Year Meeting Script v3</span>
+                <span class="meta">your firm's reference material</span></span>
+              <span class="act">Open</span></div>
+
+            <div class="btns"><button class="btn">Start the meeting</button>
+              <button class="btn ghost">Add an objective</button></div>
+          </div>
         </div>
-        <p style="font-size:12px;color:var(--rs-muted)">These are counted from the transcript by
-           arithmetic. No AI is involved and none of them can be wrong.</p>
-
-        <h4>Your observation points</h4>
-        <div class="obs">
-
-          <div class="ob met">
-            <div class="hd"><span class="nm">I framed the meeting in the first two minutes</span>
-              <span class="st">Found</span></div>
-            <blockquote class="quote"><span class="ts">01:12</span>"So what I want to do today is walk
-              through the year, look at where the margin went, and then agree what we're doing about the
-              March renewals. That work for you?"</blockquote>
-            <div class="oblink"><span>Play this moment</span><span>I disagree with this</span></div>
-          </div>
-
-          <div class="ob missed">
-            <div class="hd"><span class="nm">I checked understanding before moving on from the figures</span>
-              <span class="st">Not found</span></div>
-            <div class="nf">The model was asked to quote where this happened and answered
-              <code>NOT FOUND</code>. The margin discussion runs from 14:30 to 22:05 and moves to the
-              renewals without a check.</div>
-            <div class="oblink"><span>Play 14:30–22:05</span><span>I disagree with this</span></div>
-          </div>
-
-          <div class="ob met">
-            <div class="hd"><span class="nm">I used a metaphor to explain a financial idea</span>
-              <span class="st">Found</span></div>
-            <blockquote class="quote"><span class="ts">18:44</span>"Think of the margin like a bucket with
-              a slow leak — the turnover's filling it faster, but you're still losing at the bottom."</blockquote>
-            <div class="oblink"><span>Play this moment</span><span>I disagree with this</span></div>
-          </div>
-
-          <div class="ob blind">
-            <div class="hd"><span class="nm">I drew the numbers out for the client</span>
-              <span class="st">Cannot be heard</span></div>
-            <div class="nf">A recording cannot see a drawing. You said <i>"let me sketch this out"</i> at
-              21:03, which usually means one was drawn — but the software is guessing, and says so.</div>
-            <div class="oblink"><span>Yes, I drew it</span><span>No, I didn't</span></div>
-          </div>
-
-        </div>
-
-        <div class="btns" style="margin-top:4px">
-          <button class="btn ghost">Share with my manager</button>
+        <div class="note">
+          <b>The pre-set is what makes the coaching notes trustworthy.</b> Asking a model "how did this
+          advisor do?" produces fluent invention. Asking it "find where they framed the meeting, quote
+          it, or answer NOT FOUND" is a search with a citation — something models are dependable at.
+          <br><br>
+          <b>It also pays before a word is recorded:</b> the advisor walks in holding the list, with the
+          firm's script one tap away.
         </div>
       </div>
-    </div>
-    <div class="mock">
-      <b>Four rules are visible on this screen, and each one is load-bearing.</b>
-      <ul>
-        <li><b>Every finding quotes the transcript or declares the thing absent.</b> An observation with no
-            citation is thrown away rather than shown. "NOT FOUND" has to be as easy for the model to
-            answer as a quote, or it will invent evidence to be helpful.</li>
-        <li><b>You can disagree with any of it, and the disagreement stays in the record.</b> This is the
-            line between coaching and surveillance — and it is the only honest source of data for
-            improving the observation points themselves.</li>
-        <li><b>The report admits what it cannot know.</b> The grey card is the drawing check, ruled on
-            2026-09-01: your words raise it, the card says out loud that it is guessing, and you settle it
-            in one tap. <b>What gets stored is your answer, never the guess</b> — otherwise a maybe would
-            harden into a fact on its way to the manager's figures.</li>
-        <li><b>It is yours.</b> No manager at any tier reads this unless you send it.</li>
-      </ul>
+
+      <!-- B2 — consent step 1 -->
+      <div class="screen">
+        <div class="cap">Consent, step one — before recording starts
+          <span class="pill ok">✅ Approved wording</span></div>
+        <div class="frame">
+          <div class="chrome"><span>End of year meeting · Whitfield &amp; Co</span>
+            <span class="r">Not recording</span></div>
+          <div class="pane">
+            <h3>Before you record</h3>
+            <p>Read these words aloud as soon as recording starts. The recording is your evidence that
+               you asked.</p>
+            <div class="spoken">
+              <span class="who">✅ Approved 2026-09-01 · read aloud, by you, first</span>
+              <q>Before we begin — I'd like to record our meeting. The recording is turned into a written
+                 transcript by AI, and the recording itself is deleted as soon as that's done. It gives
+                 you a written summary of what we agree today, and it helps me review how I did. Nothing
+                 is shared outside our firm. Is everyone here happy for me to record?</q>
+            </div>
+            <p>The audio is transcribed and then deleted. The transcript is kept for <b>18 months</b> and
+               is visible to you and your firm — never to Advisor-e.</p>
+            <div class="btns"><button class="btn">Start recording</button>
+              <button class="btn ghost">Cancel</button></div>
+          </div>
+        </div>
+        <div class="note">
+          <b>18 months — your ruling of 2026-09-01.</b> Long enough to clear an annual meeting cycle with
+          six months to spare, so year-on-year follow-through works; short enough that a client hearing
+          it does not pause.
+          <br><br>
+          ⚠ <b>That number must not be typed into the sentence when this is built.</b> A firm can move
+          its own retention dial, and this line quotes the figure back to a client out loud. 18 months is
+          the platform default, not a constant — hardcode it and advisors are saying something untrue the
+          day a firm changes the setting, with nothing on screen to show it.
+        </div>
+      </div>
+
+      <!-- B3 — consent step 2 -->
+      <div class="screen">
+        <div class="cap">Consent, step two — recording is already running
+          <span class="pill ok">✅ Approved wording</span></div>
+        <div class="frame">
+          <div class="chrome recording"><span>End of year meeting · Whitfield &amp; Co</span>
+            <span class="r">● RECORDING</span></div>
+          <div class="pane">
+            <div class="recbar"><span class="blip"></span><span class="clock">00:07</span>
+              <span class="say">Recording. The consent you are about to hear is being captured.</span></div>
+            <h3>Read the words aloud now</h3>
+            <div class="spoken">
+              <span class="who">✅ Approved 2026-09-01 · repeated so you read rather than remember</span>
+              <q>Before we begin — I'd like to record our meeting. The recording is turned into a written
+                 transcript by AI, and the recording itself is deleted as soon as that's done. It gives
+                 you a written summary of what we agree today, and it helps me review how I did. Nothing
+                 is shared outside our firm. Is everyone here happy for me to record?</q>
+            </div>
+            <h4>Did everyone agree to be recorded?</h4>
+            <div class="btns"><button class="btn go">Yes — continue</button>
+              <button class="btn stop">No — stop and delete</button></div>
+          </div>
+        </div>
+        <div class="note">
+          <b>This is the correction you caught, drawn as a screen.</b> The order is <b>record, then
+          speak, then confirm</b>. An earlier draft ticked "I have read the consent line aloud"
+          <i>before</i> recording began — past tense, which puts the client's agreement outside the audio
+          and defeats the point of having it.
+          <ul>
+            <li><b>Repeating the line is deliberate</b> — it stops an advisor paraphrasing from memory,
+                and paraphrasing the AI clause out of existence.</li>
+            <li><b>It also anchors who is who.</b> You speak first, so the software knows which voice is
+                the advisor's. No stored voice sample, so no biometric data.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- B4 — during -->
+      <div class="screen">
+        <div class="cap">During the meeting <span class="pill prop">✎ Proposed</span></div>
+        <div class="frame">
+          <div class="chrome recording"><span>End of year meeting · Whitfield &amp; Co</span>
+            <span class="r">● RECORDING</span></div>
+          <div class="pane">
+            <div class="recbar"><span class="blip"></span><span class="clock">42:19</span>
+              <span class="say">Saved to this point. Your screen will not sleep while recording.</span>
+              <button class="btn stop">Stop and delete</button></div>
+            <h4>Your observation points</h4>
+            <div class="pts">
+              <div class="pt"><span class="box"></span><span>I framed the meeting in the first two
+                minutes.</span></div>
+              <div class="pt"><span class="box"></span><span>I used a metaphor or an analogy.</span></div>
+              <div class="pt"><span class="box"></span><span>I checked understanding before moving on
+                from the figures.</span></div>
+              <div class="pt"><span class="box"></span><span>We agreed named actions before the time ran
+                out.</span></div>
+              <div class="pt own"><span class="box"></span><span>I raised the succession
+                conversation.</span></div>
+            </div>
+            <div class="btns"><button class="btn">Finish meeting</button></div>
+          </div>
+        </div>
+        <div class="alarm">
+          <b>Recording stopped unexpectedly at 42:19</b>
+          Your screen locked or the browser tab was suspended. 42 minutes were saved and can still be
+          transcribed. <b>Nothing after 42:19 was captured.</b>
+          <div class="btns" style="margin-top:12px">
+            <button class="btn">Resume recording</button>
+            <button class="btn ghost">Use what was captured</button>
+          </div>
+        </div>
+        <div class="note">
+          <b>Three things these screens carry.</b>
+          <ul>
+            <li><b>"Stop and delete" never leaves the screen.</b> It answers a client who says "actually,
+                can you turn that off?" — and it destroys the audio <i>and</i> any transcript already
+                made from it.</li>
+            <li><b>Audio leaves in short pieces as it is captured</b>, so a crash costs seconds rather
+                than the meeting. There is no second take with a real client.</li>
+            <li><b>The alarm is the honest half of choosing live capture.</b> Uploading a file was the
+                safer recommendation and you chose live, which is right for consent and speed — but an
+                operating system can suspend a background tab. So it fails loudly: a tidy page of "no
+                observations" must never be what total failure looks like.</li>
+          </ul>
+        </div>
+      </div>
+
     </div>
   </section>
 
-  <!-- ══ 7 · manager view ══════════════════════════════════════════════ -->
-  <section class="screen">
-    <h2><span class="n">7</span> What a manager sees <span class="chip prop">✎ Proposed</span></h2>
-    <div class="frame">
-      <div class="bar"><span>Firm Manager · Whitfield &amp; Co</span><span>August 2026 · 28 meetings · 9 advisors</span></div>
-      <div class="body">
-        <h3>Are the observation points landing?</h3>
-        <p class="lede">Counts across the firm. No advisor is named, and no figure here can be traced back
-           to a person.</p>
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STAGE C — afterwards
+       ══════════════════════════════════════════════════════════════════ -->
+  <section class="s-c">
+    <div class="stage">
+      <span class="num">C</span>
+      <div><h2>Afterwards</h2>
+           <div class="sub">Two reports, generated separately, and what a manager may see.</div></div>
+    </div>
 
-        <div class="pattern">
-          <div class="prow"><span>Meeting framed in the first two minutes</span>
-            <span class="cnt">24 / 28</span><span class="bar2"><i style="width:86%"></i></span></div>
-          <div class="prow"><span>Understanding checked before moving on</span>
-            <span class="cnt">17 / 28</span><span class="bar2 warn"><i style="width:61%"></i></span></div>
-          <div class="prow"><span>A metaphor or analogy used</span>
-            <span class="cnt">21 / 28</span><span class="bar2"><i style="width:75%"></i></span></div>
-          <div class="prow"><span>Named actions agreed before time ran out</span>
-            <span class="cnt">26 / 28</span><span class="bar2"><i style="width:93%"></i></span></div>
+    <div class="rail">
+
+      <!-- C1 — client summary -->
+      <div class="screen">
+        <div class="cap">Meeting Summary — the client's copy
+          <span class="pill ok">✅ Name approved</span></div>
+        <div class="frame">
+          <div class="chrome"><span>Draft — not sent</span>
+            <span class="r">ready 40s after the meeting</span></div>
+          <div class="pane">
+            <h3>Meeting Summary — Whitfield &amp; Co</h3>
+            <p class="lede">Yours to edit. Nothing is sent until you send it.</p>
+            <div class="draft">
+              <h5>What we covered</h5>
+              <p>We reviewed the year to 31 March: turnover of £1.42m, up 9% on last year, with margin
+                 slipping from 22% to 18.5% on the back of subcontractor costs.</p>
+              <h5>What we agreed</h5>
+              <ul>
+                <li><b>James</b> — send the subcontractor schedule by <b>12 September</b>.</li>
+                <li><b>Sarah</b> — model two pricing options for the March renewals.</li>
+                <li><b>Both</b> — revisit the succession timetable in November, not next year.</li>
+              </ul>
+              <h5>What happens next</h5>
+              <p>We meet again on 14 November. I will send the pricing models a week beforehand.</p>
+            </div>
+            <div class="btns"><button class="btn">Send to client</button>
+              <button class="btn ghost">Edit</button><button class="btn ghost">Discard</button></div>
+          </div>
         </div>
-
-        <div class="btns" style="margin-top:6px">
-          <button class="btn ghost">Edit the firm's observation points</button>
+        <div class="note">
+          <b>The app writes; the advisor publishes.</b> A draft until you edit and approve it — never
+          sent automatically. It is also generated by a <b>separate call</b> from the coaching notes, so
+          coaching language cannot leak into the client's copy. One call producing both would eventually
+          tell a client their advisor should have used a metaphor.
         </div>
       </div>
-    </div>
-    <div class="mock">
-      <b>Managers set the points, so they must learn whether the points are landing</b> — but never who
-      missed one. The figure that matters here is "17 of 28", not a name.
-    </div>
 
-    <h2 style="margin-top:6px"><span class="n">7b</span> The same screen at a smaller firm
-        <span class="chip ok">✅ Threshold approved</span></h2>
-    <div class="frame">
-      <div class="bar"><span>Firm Manager · Hale &amp; Partners</span><span>August 2026 · 14 meetings · 4 advisors</span></div>
-      <div class="body">
-        <h3>Are the observation points landing?</h3>
-        <div class="notbuilt" style="background:var(--rs-accent-soft);border-color:#0070c055;border-left-color:var(--rs-accent)">
-          <b>Not enough meetings yet to show patterns safely.</b>
-          Figures appear once at least <b>5 advisors</b> and <b>20 meetings</b> have contributed. Below
-          that, a count can be worked backwards to an individual — and no manager sees an individual's
-          notes unless that advisor sends them.
+      <!-- C2 — coaching notes -->
+      <div class="screen">
+        <div class="cap">My Coaching Notes — yours alone
+          <span class="pill ok">✅ Name approved</span></div>
+        <div class="frame">
+          <div class="chrome"><span>Private to you</span>
+            <span class="r">ready 4 min after the meeting</span></div>
+          <div class="pane">
+            <h3>My Coaching Notes</h3>
+            <p class="lede">Only you can see this. Share it with your manager if you want to — nobody
+               else can open it.</p>
+
+            <div>
+              <h4 style="margin-bottom:10px">Who spoke, across 47 minutes</h4>
+              <div class="split"><div class="adv">You · 78%</div><div class="cli">Client · 22%</div></div>
+              <div class="splitkey">
+                <span><i style="background:var(--voice-advisor)"></i>You</span>
+                <span><i style="background:var(--voice-client)"></i>Your client</span>
+              </div>
+            </div>
+
+            <div>
+              <h4 style="margin-bottom:10px">Measured, not judged</h4>
+              <div class="figs">
+                <div class="fig flag"><div class="k">Longest stretch</div><div class="v">4:12</div>
+                  <div class="s">without a pause for the client</div></div>
+                <div class="fig"><div class="k">Open questions</div><div class="v">9</div>
+                  <div class="s">against 23 closed</div></div>
+                <div class="fig flag"><div class="k">Pause after asking</div><div class="v">0.8s</div>
+                  <div class="s">before you spoke again</div></div>
+                <div class="fig"><div class="k">Jargon</div><div class="v">14</div>
+                  <div class="s">terms from the firm's glossary</div></div>
+                <div class="fig"><div class="k">Actions agreed</div><div class="v">Yes</div>
+                  <div class="s">6 minutes before the end</div></div>
+                <div class="fig"><div class="k">Meeting length</div><div class="v">47:03</div>
+                  <div class="s">scheduled for 45</div></div>
+              </div>
+              <p style="font-size:12.5px;color:var(--muted);margin-top:9px">Counted from the transcript
+                 by arithmetic. No AI is involved, and none of these can be wrong.</p>
+            </div>
+
+            <div>
+              <h4 style="margin-bottom:10px">Your observation points</h4>
+              <div class="obs">
+
+                <div class="ob found">
+                  <div class="hd"><span class="nm">I framed the meeting in the first two minutes</span>
+                    <span class="pill">Found</span></div>
+                  <div class="quote"><span class="ts">01:12 · you</span>
+                    <q>So what I want to do today is walk through the year, look at where the margin
+                       went, and then agree what we're doing about the March renewals. That work for
+                       you?</q></div>
+                  <div class="oblinks"><span class="oblink">Play this moment</span>
+                    <span class="oblink">I disagree with this</span></div>
+                </div>
+
+                <div class="ob absent">
+                  <div class="hd"><span class="nm">I checked understanding before moving on from the
+                    figures</span><span class="pill">Not found</span></div>
+                  <div class="absentnote">The model was asked to quote where this happened and answered
+                    <code>NOT FOUND</code>. The margin discussion runs 14:30–22:05 and moves to the
+                    renewals without a check.</div>
+                  <div class="oblinks"><span class="oblink">Play 14:30–22:05</span>
+                    <span class="oblink">I disagree with this</span></div>
+                </div>
+
+                <div class="ob found">
+                  <div class="hd"><span class="nm">I used a metaphor to explain a financial idea</span>
+                    <span class="pill">Found</span></div>
+                  <div class="quote"><span class="ts">18:44 · you</span>
+                    <q>Think of the margin like a bucket with a slow leak — the turnover's filling it
+                       faster, but you're still losing at the bottom.</q></div>
+                  <div class="oblinks"><span class="oblink">Play this moment</span>
+                    <span class="oblink">I disagree with this</span></div>
+                </div>
+
+                <div class="ob deaf">
+                  <div class="hd"><span class="nm">I drew the numbers out for the client</span>
+                    <span class="pill">Cannot be heard</span></div>
+                  <div class="absentnote">A recording cannot see a drawing. You said <i>"let me sketch
+                    this out"</i> at 21:03, which usually means one was drawn — but the software is
+                    guessing, and says so.</div>
+                  <div class="oblinks"><span class="oblink">Yes, I drew it</span>
+                    <span class="oblink">No, I didn't</span></div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="btns"><button class="btn ghost">Share with my manager</button></div>
+          </div>
         </div>
-        <div class="btns">
-          <button class="btn ghost">Edit the firm's observation points</button>
+        <div class="note">
+          <b>Four rules are visible here, and each is load-bearing.</b>
+          <ul>
+            <li><b>Every finding quotes the transcript or declares the thing absent.</b> An observation
+                with no citation is thrown away rather than shown — "NOT FOUND" must be as easy for the
+                model to answer as a quote, or it invents evidence to be helpful.</li>
+            <li><b>You can disagree with any of it, and the disagreement stays.</b> That is the line
+                between coaching and surveillance, and the only honest source of data for improving the
+                observation points.</li>
+            <li><b>The drawing check is your ruling of 2026-09-01</b> — your words raise it, the card
+                says out loud that it is guessing, and you settle it in one tap. <b>What gets stored is
+                your answer, never the guess</b>, or a maybe hardens into a fact on its way to the
+                manager's figures.</li>
+            <li><b>It is yours.</b> No manager at any tier reads this unless you send it.</li>
+          </ul>
         </div>
       </div>
-    </div>
-    <div class="mock">
-      <b>This second screen is the one most firms will actually meet, which is why it is drawn.</b>
-      Your ruling of 2026-09-01: <b>5 advisors and 20 meetings</b> before any figure appears.
-      <ul>
-        <li><b>The cost is real and you accepted it.</b> A four-advisor firm sees no manager figures,
-            ever. They still set the observation points, and their advisors still get their own notes —
-            only this one panel stays empty.</li>
-        <li><b>The empty state has to explain itself.</b> If it just shows nothing, the first manager to
-            open it reports a bug, and the honest answer is that the software is protecting their
-            people.</li>
-        <li><b>It is not a tuning constant.</b> Lowering it to make a screen look populated would undo
-            the promise, quietly, and no test would catch it.</li>
-      </ul>
+
+      <!-- C3 — manager -->
+      <div class="screen">
+        <div class="cap">What a manager sees <span class="pill prop">✎ Proposed</span></div>
+        <div class="frame">
+          <div class="chrome"><span>Firm Manager · Whitfield &amp; Co</span>
+            <span class="r">Aug 2026 · 28 meetings · 9 advisors</span></div>
+          <div class="pane">
+            <h3>Are the observation points landing?</h3>
+            <p class="lede">Counts across the firm. No advisor is named, and no figure can be traced back
+               to a person.</p>
+            <div>
+              <div class="prow"><span>Meeting framed in the first two minutes</span>
+                <span class="cnt">24 / 28</span><span class="track"><i style="width:86%"></i></span></div>
+              <div class="prow"><span>Understanding checked before moving on</span>
+                <span class="cnt">17 / 28</span>
+                <span class="track low"><i style="width:61%"></i></span></div>
+              <div class="prow"><span>A metaphor or analogy used</span>
+                <span class="cnt">21 / 28</span><span class="track"><i style="width:75%"></i></span></div>
+              <div class="prow"><span>Named actions agreed before time ran out</span>
+                <span class="cnt">26 / 28</span><span class="track"><i style="width:93%"></i></span></div>
+            </div>
+            <div class="btns"><button class="btn ghost">Edit the firm's observation points</button></div>
+          </div>
+        </div>
+        <div class="note">
+          <b>Managers set the points, so they must learn whether the points land</b> — but never who
+          missed one. The figure that matters is "17 of 28", not a name.
+        </div>
+      </div>
+
+      <!-- C4 — the empty state -->
+      <div class="screen">
+        <div class="cap">The same screen at a smaller firm
+          <span class="pill ok">✅ Threshold approved</span></div>
+        <div class="frame">
+          <div class="chrome"><span>Firm Manager · Hale &amp; Partners</span>
+            <span class="r">Aug 2026 · 14 meetings · 4 advisors</span></div>
+          <div class="pane">
+            <h3>Are the observation points landing?</h3>
+            <div class="banner info" style="margin-top:0">
+              <b>Not enough meetings yet to show patterns safely.</b>
+              Figures appear once at least <b>5 advisors</b> and <b>20 meetings</b> have contributed.
+              Below that, a count can be worked backwards to an individual — and no manager sees an
+              individual's notes unless that advisor sends them.
+            </div>
+            <div class="btns"><button class="btn ghost">Edit the firm's observation points</button></div>
+          </div>
+        </div>
+        <div class="note">
+          <b>This is the screen most firms will actually meet, which is why it is drawn.</b> Your ruling
+          of 2026-09-01: 5 advisors and 20 meetings before any figure appears.
+          <ul>
+            <li><b>The cost is real and you accepted it.</b> A four-advisor firm sees no manager figures,
+                ever. They still set the points, and their advisors still get their own notes.</li>
+            <li><b>The empty state must explain itself</b>, or the first manager to open it reports a
+                bug — when the honest answer is that the software is protecting their people.</li>
+            <li><b>It is not a tuning constant.</b> Lowering it to populate a screen would undo the
+                promise quietly, and no test would catch it.</li>
+          </ul>
+        </div>
+      </div>
+
     </div>
   </section>
 
-  <!-- ══ open questions ════════════════════════════════════════════════ -->
-  <section class="screen">
-    <h2>What you ruled on 2026-09-01</h2>
-    <div class="frame">
-      <div class="body">
-        <div class="tblwrap">
-          <table>
-            <thead><tr><th>Question</th><th>Your ruling</th><th>Where it shows</th></tr></thead>
-            <tbody>
-              <tr><td><b>Names for the two reports</b></td>
-                  <td><b>Meeting Summary</b> for the client, <b>My Coaching Notes</b> for the advisor.
-                      "Review" rejected — inside a firm it reads as an appraisal</td>
-                  <td>Screens 5, 6</td></tr>
-              <tr><td><b>How long a transcript is kept</b></td>
-                  <td><b>18 months.</b> Clears an annual cycle with six months to spare; still a number a
-                      client accepts hearing aloud</td>
-                  <td>Screen 2</td></tr>
-              <tr><td><b>The drawing check</b></td>
-                  <td><b>Both.</b> The words raise it and it says it is guessing; you confirm in one tap;
-                      your answer is what gets stored</td>
-                  <td>Screen 6, grey card</td></tr>
-              <tr><td><b>Before a manager sees a figure</b></td>
-                  <td><b>5 advisors and 20 meetings.</b> Below that, nothing — and the screen says why</td>
-                  <td>Screens 7, 7b</td></tr>
-              <tr><td><b>Can a firm edit the consent wording?</b></td>
-                  <td><b>No.</b> One lawyer-checked version per market. Only the retention figure varies</td>
-                  <td>Screens 2, 3</td></tr>
-              <tr><td>The spoken consent line and the two consent screens</td>
-                  <td>Approved earlier the same day, unchanged here</td>
-                  <td>Screens 2, 3</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="mock" style="margin-top:14px">
-          <b>Still open, and none of it is a coding task.</b> A lawyer reads the consent wording in each
-          market; the impact assessment; staff consultation; the provider's written terms for submitted
-          audio; and an answer for a client who asks for their data or its deletion. <b>The screens
-          themselves are still awaiting your approval</b> — you have ruled on what goes in them, which is
-          not the same as saying the screens are right.
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- ══ rulings ═══════════════════════════════════════════════════════ -->
+  <div class="stage" style="margin-top:56px">
+    <span class="num" style="background:var(--ink)">✓</span>
+    <div><h2 style="color:var(--ink)">What you have ruled</h2>
+         <div class="sub">All on 2026-09-01, and all applied to the screens above.</div></div>
+  </div>
 
-  <p class="foot">
-    Drawn from <b>design/features/meeting-review.md</b> (the Brief) and
-    <b>design/MEETING-CONSENT-WORDING.md</b> (the approved wording). Where the two disagree with this
-    page, they win — this is a picture of them, not a source in its own right. Four things the Brief
-    lists as non-coding work still stand before a first recording: a lawyer's reading of the wording in
-    each market, an impact assessment, staff consultation, and the provider's written terms for
-    submitted audio.
+  <div class="tw" style="margin-top:18px">
+    <table>
+      <thead><tr><th>Question</th><th>Your ruling</th><th>Where</th></tr></thead>
+      <tbody>
+        <tr><td><b>Names for the two reports</b></td>
+            <td><b>Meeting Summary</b> for the client, <b>My Coaching Notes</b> for the advisor.
+                "Review" rejected — inside a firm it reads as an appraisal</td><td>C1, C2</td></tr>
+        <tr><td><b>How long a transcript is kept</b></td>
+            <td><b>18 months</b>, as the platform default. The spoken line renders the firm's own figure
+                and never a hardcoded one</td><td>B2</td></tr>
+        <tr><td><b>The drawing check</b></td>
+            <td><b>Both.</b> The words raise it and it says it is guessing; the advisor confirms in one
+                tap; the confirmation is what is stored</td><td>C2</td></tr>
+        <tr><td><b>Before a manager sees a figure</b></td>
+            <td><b>5 advisors and 20 meetings.</b> Below that, nothing — and the screen says why</td>
+            <td>C3, C4</td></tr>
+        <tr><td><b>Can a firm edit the consent wording?</b></td>
+            <td><b>No.</b> One lawyer-checked version per market. Only the retention figure varies</td>
+            <td>B2, B3</td></tr>
+        <tr><td><b>Reference material — who is it for?</b></td>
+            <td><b>Both, advisor first.</b> Phase 1 the advisor opens the script; Phase 2 the AI checks
+                against it, once real scripts exist</td><td>A</td></tr>
+        <tr><td>The spoken consent line and both consent screens</td>
+            <td>Approved earlier the same day, unchanged here</td><td>B2, B3</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="close">
+    Drawn from <b>design/features/meeting-review.md</b> and
+    <b>design/MEETING-CONSENT-WORDING.md</b>. Where those pages and this drawing disagree, they win —
+    this is a picture of them, not a source in its own right.
+    <br><br>
+    <b>Still open, and none of it is a coding task:</b> a lawyer reads the consent wording in each market
+    it is sold into; the data protection impact assessment; staff consultation; the provider's written
+    terms for submitted audio specifically; and an answer for a client who asks for their data or its
+    deletion.
   </p>
 
 </div>
