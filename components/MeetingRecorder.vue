@@ -71,10 +71,11 @@
       b-message.mt-3(v-if="attributionConfident === false" type="is-warning" size="is-small")
         | Only one voice could be told apart in this recording, so who said what is not
         |  reliable. Your coaching notes will say so rather than guess.
-      p.is-size-7.has-text-grey.mt-3
-        | #[b The two reports are not built yet.] This slice records the meeting, makes the
-        |  transcript and destroys the audio. The written summary for your client and your own
-        |  coaching notes are still to come.
+      //- Slice 3 replaced the "not built yet" note that stood here. This is the only route
+      //- to the reports, so without it the screen they live on is unreachable.
+      .buttons.mt-3
+        b-button(type="is-primary" tag="a" :href="`/meeting-review?meeting=${meetingId}`")
+          | Read my reports
 
     .box(v-else-if="stage === 'deleted'")
       p.has-text-weight-semibold The recording has been deleted.

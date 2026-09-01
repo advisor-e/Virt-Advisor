@@ -40,12 +40,28 @@
               rows="2"
               :maxlength="maxPointLength"
               size="is-small")
+            //- Marked by whoever writes the point, never judged per meeting by the model.
+            //- Mike's ruling 2026-09-02 — see the component note.
+            b-checkbox.mt-2(v-model="draftCannotHear" size="is-small")
+              | This cannot be heard on a recording
+            b-field.mt-2(
+              v-if="draftCannotHear"
+              label="Words that hint it happened (optional)"
+              label-position="on-border")
+              b-taginput(
+                v-model="draftHints"
+                :maxtags="maxHintWords"
+                :maxlength="maxHintLength"
+                size="is-small"
+                ellipsis)
             .buttons.are-small.mt-2
               b-button(type="is-primary" :loading="saving" @click="saveEdit(p)") Save
               b-button(type="is-light" @click="cancelEdit") Cancel
           template(v-else)
             p {{ p.text }}
             p.is-size-7.has-text-grey(v-if="p.advisorText") Advisor sees: {{ p.advisorText }}
+            b-tag.mt-1(v-if="p.cannotHear" type="is-warning" size="is-small")
+              | Cannot be heard on a recording
         .mobs-source
           b-tag(:type="sourceTag(p.source)" size="is-small") {{ sourceLabel(p.source) }}
         .mobs-acts(v-if="editingId !== p.id")
@@ -94,7 +110,19 @@
             :maxlength="maxPointLength"
             placeholder="Understanding was checked before moving on from the figures."
             size="is-small")
-        .buttons.are-small
+        b-checkbox(v-model="draftCannotHear" size="is-small")
+          | This cannot be heard on a recording
+        b-field.mt-2(
+          v-if="draftCannotHear"
+          label="Words that hint it happened (optional)"
+          label-position="on-border")
+          b-taginput(
+            v-model="draftHints"
+            :maxtags="maxHintWords"
+            :maxlength="maxHintLength"
+            size="is-small"
+            ellipsis)
+        .buttons.are-small.mt-3
           b-button(type="is-primary" :loading="saving" @click="addPoint") Add this point
           b-button(type="is-light" @click="cancelAdd") Cancel
 
@@ -223,6 +251,20 @@ export default {
       editingId: '',
       adding: false,
       draft: '',
+      /**
+       * Whether the point being written is one a recording cannot hear, and the optional
+       * phrases that hint it happened (slice 3).
+       *
+       * 🔴 THIS IS A PROPERTY OF THE POINT, NOT OF A MEETING. *"I drew the numbers out"* is
+       * un-hearable in every meeting that will ever happen, so it is marked once here rather
+       * than guessed afresh each month by a model that would answer inconsistently. Mike's
+       * ruling, 2026-09-02. Without it a drawing point comes back "Not found", telling an
+       * advisor they failed at something the software merely could not hear.
+       */
+      draftCannotHear: false,
+      draftHints: [],
+      maxHintWords: 10,
+      maxHintLength: 120,
       /**
        * The retention dial (slice 2). Held separately from the points because it is a
        * different storage key and a different kind of decision — a scalar this level either
@@ -390,6 +432,8 @@ export default {
     startEdit (point) {
       this.editingId = point.id
       this.draft = point.text
+      this.draftCannotHear = Boolean(point.cannotHear)
+      this.draftHints = Array.isArray(point.hintWords) ? point.hintWords.slice() : []
       this.adding = false
       this.saveError = ''
     },
@@ -397,18 +441,24 @@ export default {
     cancelEdit () {
       this.editingId = ''
       this.draft = ''
+      this.draftCannotHear = false
+      this.draftHints = []
     },
 
     startAdd () {
       this.adding = true
       this.editingId = ''
       this.draft = ''
+      this.draftCannotHear = false
+      this.draftHints = []
       this.saveError = ''
     },
 
     cancelAdd () {
       this.adding = false
       this.draft = ''
+      this.draftCannotHear = false
+      this.draftHints = []
     },
 
     /**
@@ -424,14 +474,37 @@ export default {
       const path = point.source === 'added-here'
         ? `${base}/own/${point.id}`
         : `${base}/point/${point.id}`
-      await this.mutate('PUT', path, { text })
+      await this.mutate('PUT', path, this.withHearability({ text }))
       this.cancelEdit()
+    },
+
+    /**
+     * Add the two hearability fields to a submission.
+     *
+     * ⚠ `cannotHear` IS ALWAYS SENT, INCLUDING `false`. An override exists so a tier can switch
+     * off something it inherited; omitting a false would leave the inherited true standing
+     * while this screen showed the box unticked, and the advisor would then be asked to
+     * confirm something the model could have found for them.
+     *
+     * @param {object} body
+     * @returns {object}
+     */
+    withHearability (body) {
+      return {
+        ...body,
+        cannotHear: this.draftCannotHear,
+        hintWords: this.draftCannotHear ? this.draftHints : []
+      }
     },
 
     async addPoint () {
       const text = String(this.draft || '').trim()
       if (!text) { this.saveError = 'A point needs some words.'; return }
-      await this.mutate('POST', `/api/firm-manager/meeting-observations/${this.scenarioId}/own`, { text })
+      await this.mutate(
+        'POST',
+        `/api/firm-manager/meeting-observations/${this.scenarioId}/own`,
+        this.withHearability({ text })
+      )
       this.cancelAdd()
     },
 

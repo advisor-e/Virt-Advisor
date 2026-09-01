@@ -1,10 +1,9 @@
 <template lang="pug">
 .mpre
-  .notification.is-warning.is-light.mb-4
-    p.is-size-7
-      | #[b Recording is not built yet.] This page shows what you will be checked on in each
-      |  kind of meeting, so you can read it before you walk in. Recording a meeting, the
-      |  written summary for your client, and your own coaching notes are still to come.
+  //- The "not built yet" banner that stood here was REMOVED in slice 3, because every one of
+  //- the three things it named as still to come is now built: recording (slice 2), the client
+  //- summary and the coaching notes (slice 3). A banner that is no longer true is worse than
+  //- no banner — it tells an advisor a working feature is missing.
 
   .has-text-centered.py-5(v-if="loading")
     b-loading(:is-full-page="false" :active="true")
@@ -52,8 +51,11 @@
  * ⚠ THREE DELIBERATE DIFFERENCES FROM THE APPROVED DRAWING, named rather than left to be
  * discovered (`CLAUDE.md`, Save the Artefact):
  *
- *   1. **No "Start the meeting" button.** There is no recording, no transcript and no
- *      report in this repository. A button that started nothing would be worse than none.
+ *   1. **No "Start the meeting" button.** ⚠ SUPERSEDED IN PART: when this was written there
+ *      was no recording, transcript or report in the repository, so a button would have
+ *      started nothing. All three now exist (slices 2 and 3). The button is still absent
+ *      because recording begins on `/meeting-record`, where the consent screen is — starting
+ *      a recording from a page that does not show the consent wording would defeat P1.
  *   2. **No "Add an objective", and no tick boxes that record anything.** An objective an
  *      advisor adds belongs to ONE MEETING, and meetings do not exist yet — storing it
  *      against the firm's standing list would change what every advisor here is checked

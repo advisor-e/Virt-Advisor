@@ -38,7 +38,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | **Mike** |
 | 2 | **4.50** Nobody has seen a real conversation's recommendations reach the Team tab | 2 | — | Outside |
 | 3 | **4.56** CPD follows the library in force — ruled; wire the catalogue through the cascade | 2 | — | Us |
-| 4 | **4.58** Meeting Review — slices 1 and 2 are built; the two reports are next, and §4 gates a real recording | 3 | — | **Mike** |
+| 4 | **4.58** Meeting Review — slices 1–3 are built; the manager's half remains, and §4 still gates a real recording | 3 | — | **Mike** |
 
 **Four live items. Two need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->

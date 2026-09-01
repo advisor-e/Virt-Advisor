@@ -688,6 +688,14 @@ function getReports (req, res) {
     error: job ? job.error : null,
     hasTranscript: Boolean(transcript),
     attributionConfident: transcript ? Boolean(transcript.attributionConfident) : null,
+    // 🔴 THE TRANSCRIPT COMES BACK HERE, AND ONLY HERE. `getRecording` deliberately refuses to
+    // hand out transcript text; slice 2's note says reading it back is the reports' job. This
+    // is that job: Mike's ruling of 2026-09-02 replaced the drawing's "Play this moment" with
+    // showing the surrounding lines, because P8 has already destroyed the audio and there is
+    // nothing to play. Checking a citation in context is the whole purpose of that control, so
+    // the words have to reach the screen. It stays inside the firm (P13) and inside the one
+    // advisor (P2) — `ownedMeeting` above is what makes both true.
+    transcript: transcript ? { segments: transcript.segments || [] } : null,
     summary,
     coaching
   })

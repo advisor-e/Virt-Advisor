@@ -1,6 +1,6 @@
 # Meeting Review — the Brief
 
-> ## ⚠ TWO SLICES OF THIS ARE BUILT. THE REPORTS ARE STILL A DESIGN.
+> ## ⚠ THREE SLICES ARE BUILT. THE MANAGER'S HALF IS STILL A DESIGN.
 >
 > **Slice 1 (2026-09-01) — the observation points.** The mentor authors the platform list, a
 > firm may edit / switch off / add to it, and an advisor reads their own list before a meeting.
@@ -13,11 +13,20 @@
 > period and the consent screen renders that figure rather than a constant. Paths are marked
 > **BUILT** in §5.
 >
-> **NOT built: the two reports.** No Meeting Summary, no My Coaching Notes, no manager
-> aggregate, no follow-through check, and no transcript-purge job (deferred deliberately —
-> Mike, 2026-09-01; destroying the AUDIO is the promise the consent line makes and it is
-> built, expiring the TRANSCRIPT is its own piece of work). The unmarked rows of §5 still
-> describe what is *intended*, not what runs.
+> **Slice 3 (2026-09-02) — the two reports.** After the meeting the advisor asks for their
+> reports and gets both: the client's **Meeting Summary**, a draft they edit, approve and copy
+> into their own email; and **My Coaching Notes**, private to them, carrying four measured
+> figures computed in code and one finding per observation point — each quoting the transcript,
+> declaring the thing NOT FOUND, or asking the advisor about something a recording cannot hear.
+> Any quote the transcript does not contain is dropped before it can be shown. Paths are marked
+> **BUILT** in §5.
+>
+> **NOT built: the manager's half.** No manager aggregate, no follow-through check across
+> meetings, and no transcript-purge job (deferred deliberately — Mike, 2026-09-01; destroying
+> the AUDIO is the promise the consent line makes and it is built, expiring the TRANSCRIPT is
+> its own piece of work). Nor is the **firm glossary** the drawing's jargon count needs — that
+> tile is absent by Mike's ruling of 2026-09-02, because a default word-list would be inventing
+> his advisory content. The unmarked rows of §5 still describe what is *intended*, not what runs.
 >
 > ⚠ **A REAL CLIENT MUST NOT BE RECORDED UNTIL §4 IS DONE — AND NOW THE CODE CAN.** That
 > changed on 2026-09-01: until slice 2 there was nothing to misuse. The four items in §4 are
@@ -286,18 +295,25 @@ is *intended* to live, chosen to match the existing architecture rather than inv
 | Consent screens | `components/MeetingConsentPanel.vue`, wording in `locales/en.json` | ✅ **BUILT** — English only. The other seven locales are deliberately empty: §5 of the wording artefact requires a translator competent in the local law, not a machine translation |
 | Recording screen | `components/MeetingRecorder.vue` — `MediaRecorder` inside `mounted()` only | ✅ **BUILT** — with the wake-lock and the loud alarm of P10/P11 |
 | The advisor's page | `pages/meeting-record.vue` | ✅ **BUILT** — carries the §4 warning banner |
-| Mechanical measures | `server/utils/meetingMetrics.js` — no AI | proposed |
-| The two report generators | `server/utils/meetingReports.js` — separate prompts | proposed |
-| The reports screen | `components/MeetingReview.vue` | proposed |
+| Mechanical measures | `server/utils/meetingMetrics.js` — no AI | ✅ **BUILT** — four figures, not the drawing's six. **Jargon** needs a firm glossary that does not exist (Mike's ruling 2026-09-02: absent, not empty). **Actions agreed** cannot be counted, only understood, so it comes from the summary generator with a citation and renders with the summary — leaving it here would print *"no AI is involved"* above a figure an AI produced |
+| The two report generators | `server/utils/meetingReports.js` — separate prompts | ✅ **BUILT** — two prompts, two calls, two stores. Every quote is verified against the transcript before storage; an uncited one, or one the CLIENT said, is dropped and the point reports not found. The transcript is wrapped in delimiters and the model told it is not instructions |
+| The reports screen | `components/MeetingReview.vue`, `pages/meeting-review.vue` | ✅ **BUILT** — reached from the recorder's finished state, which is its only route in. Four named differences from the drawing (below) |
+| Hearability of a point | `cannotHear` + `hintWords` on an observation point | ✅ **BUILT** — the two fields slice 1 deliberately left out, now settled: the AUTHOR marks a point un-hearable, never the model. Schema only; no content was written |
 | Transcript expiry | a scheduled purge over `MEETING_AUDIO_DIR` | proposed — **deliberately not in slice 2** (Mike, 2026-09-01). Destroying the audio is the promise the consent line makes; expiring the transcript is its own piece of work |
 
-**One thing slice 1 deliberately did NOT decide, and slice 4 must.** A point such as *"I drew the
-numbers out for the client"* cannot be heard on audio (§3), and the drawing's coaching notes show it
-as a third state beside Found and Not found. Slice 1 stores a point as words alone — no
-evidence-type field — because adding a control the approved drawing does not show would have been
-drift, and because *how* that class is determined is a real question rather than a storage one.
-Whatever slice 4 decides, the stored finding is **the advisor's confirmation, never the guess**
-(Mike, 2026-09-01).
+**✅ SETTLED IN SLICE 3 — the question slice 1 deliberately left open.** A point such as *"I drew
+the numbers out for the client"* cannot be heard on audio (§3), and the drawing shows it as a third
+state beside Found and Not found. Slice 1 stored a point as words alone, because *how* that class is
+determined is a real question rather than a storage one. **Mike ruled on 2026-09-02: whoever writes
+the point marks it**, with optional words that hint it happened. It is a property of the point —
+*"I drew the numbers out"* is un-hearable in every meeting that will ever happen — so it is decided
+once on the authoring screen and never guessed afresh by a model that would answer inconsistently
+month to month with nothing to inspect. The two rejected options are recorded because they are the
+ones a later session would reach for: letting the model classify it, and leaving the state out
+altogether — the second is the worse of the two, because a drawing point then returns **Not found**,
+telling an advisor they failed at something the software merely could not hear. The stored finding
+remains **the advisor's confirmation, never the guess** (Mike, 2026-09-01), and the hint words only
+ever raise the question.
 
 **The route shape follows the rules already in force.** All third-party calls and all secrets are
 backend-only; `server-middleware/` stays a thin proxy. Transcription and generation exceed the
@@ -343,8 +359,30 @@ deletion of the audio. **170 tests for slice 2**, suite green at **6,880** (362 
 errors. Both ride `firmOverlay`, which already provides storage, version history and restore for
 Advisory Distinctions, the Staircase, quizzes and currency, so none of that was built twice.
 
-**What is not built is the two reports** — Meeting Summary, My Coaching Notes, the mechanical
-measures, the manager aggregate, the follow-through check, and the transcript-expiry job.
+**Slice 3 is built (2026-09-02).** Meeting Summary, My Coaching Notes, the mechanical measures, the
+citation check, the dispute, and the advisor's answer on a point a recording cannot hear. **135 new
+tests**, suite green at **7,071** (371 suites), lint 0 errors.
+
+**What is not built is the manager's half** — the aggregate above the 5-advisor / 20-meeting
+threshold, the follow-through check across meetings, the transcript-expiry job, and the firm
+glossary the jargon tile would need.
+
+🔴 **FOUR THINGS SLICE 3 DECIDED, ALL RULED BY MIKE ON 2026-09-02 after being put to him one at a
+time.** Each was a place the approved drawing asked for something the code cannot do — found by
+putting the drawing beside the build *before* writing any of it, which is what the Save-the-Artefact
+rule is for:
+
+1. **"Play this moment" cannot exist.** P8 destroys the audio the instant a transcript exists, so by
+   the time any report is generated there is nothing to play — the drawing and the feature's own
+   non-negotiable contradicted each other. Replaced by **"Show this in the transcript"**, which
+   expands the surrounding lines and serves what that control was for: checking evidence in context.
+2. **"Send to client" cannot send.** This application has no mail channel and no such dependency.
+   Adding one would put a named client's financial affairs through a company nobody has assessed —
+   the same argument that kept the audio off Google Drive. Replaced by **"Approve this summary"** and
+   **"Copy for the client"**; the advisor sends it from their own email, which is P7 exactly.
+3. **The jargon tile is removed**, not left empty — see above.
+4. **"Yes, I drew it" reads "Yes, I did"**, because the drawing's wording only works for the
+   drawing's example and these buttons appear on any un-hearable point.
 
 ⚠ **THE PRE-BUILD CHECK IS DONE AND IT PASSED** — §3 carries the result, including the one thing it
 turned up: the diarizing model has no dated snapshot to pin.
