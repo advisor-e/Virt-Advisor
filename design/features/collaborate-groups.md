@@ -82,6 +82,31 @@ Advisor-e and are read from there.
 
 ## 4. For the coder
 
+### How to view and test it (the front door, 2026-09-01)
+
+The adviser-facing screens are live behind a front-door page. With the app running
+(`npm run build` + `npm run start`, port 3000), open:
+
+| Screen | URL |
+|---|---|
+| **Collaborate home — the front door** | `http://localhost:3000/collaborate` |
+| Discover (advisers + groups) | `http://localhost:3000/discover` |
+| Connecting (outreach) | `http://localhost:3000/connecting` |
+| Connections | `http://localhost:3000/connections` |
+| Messages | `http://localhost:3000/messages` |
+| Marketplace | `http://localhost:3000/marketplace` |
+| My profile | `http://localhost:3000/profile` |
+| Create a group / group detail | `http://localhost:3000/groups/new` · `/groups/<id>` |
+| Manager console (role-gated) | `http://localhost:3000/firm` — also the Hub's Adviser Network tab |
+| Network audit log (admin-gated) | `http://localhost:3000/audit` |
+
+`/collaborate` is the ONE address the Advisor-e master app's banner button opens; every
+other screen keeps the absolute URL it shipped with, because the screens link to each
+other by those paths. Each URL is a thin wrapper page in `pages/` rendering its screen
+from `components/collaborate/screens/` under `layouts/collaborate.vue`, whose
+`.collab-scope` wrapper confines Collaborate's theme
+(`assets/css/collaborate-theme.css`) so it cannot restyle the rest of the app.
+
 ### Where things live
 
 | Piece | Path |

@@ -1,7 +1,9 @@
 <template lang="pug">
   header.navbar.is-light(role="navigation" aria-label="main navigation")
     .navbar-brand
-      nuxt-link.navbar-item.has-text-weight-bold(to="/") {{ $t('app.name') }}
+      //- "/collaborate", not "/": in the merged app "/" is the Virtual Advisor
+      //- home — Collaborate's own home lives behind the front-door page.
+      nuxt-link.navbar-item.has-text-weight-bold(to="/collaborate") {{ $t('app.name') }}
     .navbar-menu.is-active
       .navbar-start
         nuxt-link.navbar-item.nav-link.nav--discover(to="/discover") {{ $t('nav.discover') }}
