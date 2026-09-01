@@ -58,13 +58,15 @@ const MENTOR_BEFORE = [
  * - `aiPrompts` — Mike, 2026-08-21 (`AI-PROMPTS-PAGE.md`, item 4.28), naming all four
  *   manager tiers himself: *"a 'AI Prompts' page in the hub pages (Mentor, Global Group
  *   Manager, Group Manager and Firm Manager)"*.
+ * - `templateLibraryFirm` — Mike, 2026-09-01 (`SEARCH-CONTENT-CASCADE-PLAN.md` Phase 3,
+ *   item 4.55): the firm's own template-export upload, firm tier only.
  * - `meetingObservations` — Mike, 2026-09-01, who asked for Meeting Review itself and
  *   approved its drawing (`design/mockups/meeting-review.html` Stage A). The firm gets it
  *   because `meeting-review.md` §3 names a firm's own scripts and standards as the whole
  *   of the request; the two middle tiers deliberately do not, per the mentor-alone default
  *   of 2026-08-24.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'meetingObservations']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and

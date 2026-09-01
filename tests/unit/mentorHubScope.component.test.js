@@ -239,7 +239,14 @@ describe('the two tiers are recognisably the same screen', () => {
   // about (HUB-NAVIGATION-GROUPING.md §6). Grouping moved Property Tax Rules from third
   // to LAST of the three — it is the whole of "Model Inputs", which sits after "Your Team
   // In Action". Nothing about the ruling changed; only where the name is drawn.
-  const FIRM_ONLY = ['firmTeamProgress.tab', 'Team Case Studies', 'Property Tax Rules']
+  //
+  // ⚠ AMENDED 2026-09-01, and the list is now FOUR. `firmTemplateLibrary.tab` is the
+  // firm's OWN template upload (SEARCH-CONTENT-CASCADE-PLAN.md Phase 3 §7, Mike's yes
+  // 2026-09-01, item 4.55) — firm-only because since Phase 2 the nearest tier's upload
+  // wins the whole library, and a firm is the tier with a real reason to hold its own
+  // set. It sits FIRST here because it is drawn in "Your AI coach", the first group,
+  // while the other three sit in later groups — menu order, per the note above.
+  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'firmTeamProgress.tab', 'Team Case Studies', 'Property Tax Rules']
   // `templateLibrary.tab` — Mike, 2026-08-31 (SEARCH-CONTENT-CASCADE-PLAN.md Phase 1):
   // the master export upload, mentor-only beside Template Check, drawn last in the menu.
   const MENTOR_ONLY = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab', 'templateLibrary.tab']
@@ -298,21 +305,24 @@ describe('the hub menu — the sidebar itself', () => {
     return wrapper.findAll('.hub-menu .menu-label').wrappers.map(p => p.text().trim())
   }
 
-  it('groups the firm manager’s twelve tabs under three headings', async () => {
+  it('groups the firm manager’s thirteen tabs under three headings', async () => {
     // Was eleven until 2026-08-20, when the Coaching Reference tab was removed with the
     // fifteen platform rows behind it (item 4.24, Mike: "remove the tab") — ten. Back to
     // eleven on 2026-08-22, when AI Prompts joined "Your AI coach" (item 4.28, Mike
-    // 2026-08-21, naming all four manager tiers). Twelve on 2026-09-01, when Meeting
-    // Review joined the same group — the observation points are literally the questions
-    // the model is asked to find in a transcript (Mike asked for the feature and approved
-    // its drawing that day).
+    // 2026-08-21, naming all four manager tiers). THIRTEEN on 2026-09-01, when the two
+    // machines each appended one to that same group on the same day: the firm's own
+    // Template Library (item 4.55, Phase 3 §7) and Meeting Review's observation points
+    // (Mike asked for the feature and approved its drawing that day). Template Library
+    // reached master first, so it holds index 6 and Meeting Review follows at 7.
     const wrapper = await mountHub()
     expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs'])
-    expect(tabLabels(wrapper)).toHaveLength(12)
+    expect(tabLabels(wrapper)).toHaveLength(13)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
-    // Both additions are checked, because "appended" is only true of the LAST one added
-    // unless the one before it is still where it was.
+    // Each addition is checked in place, because "appended" is only true of the LAST one
+    // added unless every one before it is still where it was.
     expect(tabLabels(wrapper)[5]).toBe('AI Prompts')
+    expect(tabLabels(wrapper)[6]).toBe('firmTemplateLibrary.tab')
+    expect(tabLabels(wrapper)[7]).toBe('Meeting Review')
   })
 
   it('gives the mentor NO Model Inputs heading rather than an empty one', async () => {

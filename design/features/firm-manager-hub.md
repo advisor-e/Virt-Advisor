@@ -118,11 +118,23 @@ feature behind it; the story is in [`coaching-reference.md`](coaching-reference.
 | Logic-Lab Report · Case Reviews | mentor, global, group |
 | Template Check | **mentor only** — the one named exception |
 | Property Tax Rules | firm, global, group — **not the mentor** |
+| AI Prompts | mentor, global, group, firm |
+| Template Library (mentor — the master export upload) | **mentor only** |
+| Template Library (firm — its own upload; contents view-only) | **firm only** |
 | Templates & Videos | dormant everywhere |
 
 `hubTabTiers.test.js` pins the firm and mentor columns to what they showed *before* the middle
 tiers existed — the proof that adding them was behaviour-preserving rather than a claim that it
 was.
+
+**The firm's Template Library (2026-09-01)** is where a firm uploads its own search-content
+export, replacing the platform's library for its advisors (Cascade Phase 3, item 4.55): the two
+"whose library is in force" cards, upload/restore, a confirm-gated Remove, and a searchable
+contents table showing every template's full record — **view-only by Mike's ruling** ("view only
+for now, with potential to become the master doc source in future — depending on feedback from
+the master coding team"). Artefact:
+[`../mockups/firm-template-library.html`](../mockups/firm-template-library.html); wording and
+rulings in [`../SEARCH-CONTENT-CASCADE-PLAN.md`](../SEARCH-CONTENT-CASCADE-PLAN.md) §7.
 
 **Property Tax Rules (2026-08-18)** carries the settings the Multiple Property Assessment is
 built on: what may be depreciated and how, whether rental losses ring-fence, the GST inside the

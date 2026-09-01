@@ -105,8 +105,15 @@ function videoMinutesOf (template) {
   return whole
 }
 
-function injectVideoInfo (responseText, orgTemplateIds) {
-  const templates = getOrgTemplates(orgTemplateIds || null)
+/**
+ * @param {string} responseText - the AI reply to annotate
+ * @param {Array<string>|null} orgTemplateIds - the org's allowed page ids
+ * @param {Array|null} [libraryPool] - the library in force for this scope
+ *   (templateLibrary.loadEffectiveTemplates); omitted/null reads the committed
+ *   seed, exactly as before Cascade Phase 2.
+ */
+function injectVideoInfo (responseText, orgTemplateIds, libraryPool) {
+  const templates = getOrgTemplates(orgTemplateIds || null, libraryPool || null)
 
   // Build lookup: normalised title → minutes (only templates with a video)
   // Normalise strips apostrophes/curly quotes so "Deming's" matches "Demings" etc.

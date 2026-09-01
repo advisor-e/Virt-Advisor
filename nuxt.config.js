@@ -92,7 +92,10 @@ export default {
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
       { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: true },
-      { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap' }
+      // 300 (Light) is Collaborate's unified weight (owner requirement,
+      // 2026-07-02) — without it the collaborate-theme's font-weight:300
+      // rules render as faux-light. Nothing outside .collab-scope uses it.
+      { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap' }
     ]
   },
 

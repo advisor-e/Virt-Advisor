@@ -15,6 +15,7 @@ const fs = require('fs')
 const path = require('path')
 const { createOpenAIClient } = require('../server/utils/openaiClient')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
+const { loadEffectiveTemplates } = require('../server/utils/templateLibrary')
 const { filterSummariesByQuery, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { detectDomainForSession, formatDomainContextForSession, formatDomainSummaryForDesign, detectDomainsForDesign } = require('../server/utils/domainSupport')
 const { detectLogicTree, buildLearnReferenceText } = require('../server/utils/logicTrees')
@@ -131,7 +132,9 @@ function outsideCount (asked, delivered) {
   return delivered < asked.min || delivered > asked.max
 }
 
-function handleDesign (req, body, res) {
+// async since Cascade Phase 2 (the fit-answer branch awaits the effective
+// library); the dispatcher already awaited it, so nothing observable changed.
+async function handleDesign (req, body, res) {
   const { query, advisorProfile, orgTemplateIds, courseState = {}, fitChoice } = body
   if (!query) { return sendError(res, 400, 'QUERY_REQUIRED', 'query is required') }
 
@@ -180,7 +183,10 @@ function handleDesign (req, body, res) {
       state.sessionDetails
     ].filter(Boolean).join(' ').slice(0, 3000)
 
-    const templates = getOrgTemplates(orgTemplateIds || null)
+    // Cascade Phase 2: the library in force for this scope (nearest tier's
+    // upload, whole), falling back to the committed seed when none exists.
+    // The loader never rejects (its own contract), so no .catch here.
+    const templates = getOrgTemplates(orgTemplateIds || null, await loadEffectiveTemplates(req.firmId))
     const filtered = filterTemplatesByQuery(templates, allUserText)
     const templateContext = formatTemplatesForPrompt(filtered)
 
@@ -426,7 +432,7 @@ function handleDesign (req, body, res) {
     // that honours what they typed most literally) and SAY SO — never a silent
     // pick. Mike's ruling 2026-08-03.
     const chosen = picked || options[0] || null
-    const templates = getOrgTemplates(orgTemplateIds || null)
+    const templates = getOrgTemplates(orgTemplateIds || null, await loadEffectiveTemplates(req.firmId))
     const revalidated = chosen ? validateCourseOutline(fit.outline) : { valid: false, errors: ['no option'], data: null }
 
     if (!revalidated.valid) {
@@ -567,7 +573,7 @@ async function handleSession (req, body, res) {
 
   const openai = getOpenAI()
 
-  const templates = getOrgTemplates(orgTemplateIds || null)
+  const templates = getOrgTemplates(orgTemplateIds || null, await loadEffectiveTemplates(req.firmId))
   const focusQuery = [sessionContext?.focus, sessionContext?.title, ...(sessionContext?.resources || [])].filter(Boolean).join(' ') || query
   const filtered = filterTemplatesByQuery(templates, focusQuery)
   const templateContext = formatTemplatesForPrompt(filtered)

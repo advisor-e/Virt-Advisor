@@ -185,6 +185,29 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.55 · The firm's own template-upload screen (Cascade Phase 3).** ✅ Closed 2026-09-01,
+eyeballed and approved by Mike in a production build the same day ("looks great"). The Firm
+Manager Hub gained a firm-only Template Library tab (end of "Your AI coach"): the two "whose
+library is in force" cards, upload with plain-English rejections, version history with Restore,
+a confirm-gated **Remove upload** (Mike's yes — restore alone can never return a firm to the
+platform's library; removal also clears history and the dialog says so), and a **read-only,
+searchable contents table** — every template's full record, the master app's Edit Content field
+set shown not editable. 🔴 **View-only by ruling** (Mike, 2026-09-01): *"view only for now with
+potential to become the master doc source in future — depending on feedback from the master
+coding team."* One page, not two, on his question and my recommendation. Backend gained the firm
+restore route and the read-only library view route; the mentor tab's dangling "uploaded by" line
+was fixed in the same change (its named residual). Artefact:
+[`design/mockups/firm-template-library.html`](../mockups/firm-template-library.html), registered
+in `ARTEFACTS.md`; rulings recorded in `SEARCH-CONTENT-CASCADE-PLAN.md` §7. **What proves it:**
+[`tests/unit/firmTemplates.routes.test.js`](../../tests/unit/firmTemplates.routes.test.js) (firm
+scoping, cache clearing, safe 500s),
+[`tests/unit/firmTemplateLibrary.component.test.js`](../../tests/unit/firmTemplateLibrary.component.test.js)
+(Remove never fires unconfirmed, restore sends the row id),
+[`tests/unit/firmTemplateContents.component.test.js`](../../tests/unit/firmTemplateContents.component.test.js)
+(search haystack, **zero buttons in the contents table** — the view-only ruling as an assertion).
+Suite 6,615 green. ⚠ **Phase 4 (Advisor-e pushes the export directly) remains the master team's**,
+recorded in the plan and the cascade handover doc — not this item's residual.
+
 **4.54 · An adviser types two years of figures into the Volatility Report by hand.** ✅
 Closed 2026-08-31. The accounts upload is built, and — the thing the item was actually waiting
 on — it has been driven end to end through the running app with **real Xero exports**, twice.
@@ -231,8 +254,6 @@ on — it has been driven end to end through the running app with **real Xero ex
   across five volatility levels so a new band fails the test rather than silently losing its colour.
 - **Approved artefact:** [`../mockups/volatility-report.html`](../mockups/volatility-report.html),
   which carries the wording Mike approved and every departure of the build from it.
-
-
 
 **4.33 · A template's tutorial video was attached to a calculator that shares its name.** ✅
 Closed 2026-08-26. The injector now recognises a calculator reference and stays quiet — the guard

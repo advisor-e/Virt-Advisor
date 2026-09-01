@@ -137,8 +137,15 @@ describe('advisor /query — firm scoping uses the verified identity (IDOR close
     advisorMiddleware(req, res, () => {})
     await flush()
 
-    // firmId resolves to null, so the firm-scoped reads are skipped entirely —
-    // the body value is ignored, not used as a fallback.
-    expect(loadFirmConfig).not.toHaveBeenCalled()
+    // firmId resolves to null, so FIRM-scoped reads are skipped. Since Cascade
+    // Phase 2 (2026-09-01) the engine still resolves the template library at the
+    // reserved platform scope — the mentor's content, which every caller may read
+    // (same reasoning as the first test). The property this test exists for is
+    // unchanged: the body value is ignored, not used as a fallback, so no read
+    // may carry ANY scope but the platform's.
+    for (const call of loadFirmConfig.mock.calls) {
+      expect(call[0]).toBe(PLATFORM_SCOPE)
+    }
+    expect(loadFirmConfig.mock.calls.map(c => c[0])).not.toContain('ATTACKER-spoofed-firm')
   })
 })

@@ -393,6 +393,14 @@ function loadFirmConfig (...args) {
   return _loadFirmConfig(...args)
 }
 
+// Lazy for the same reason as loadFirmConfig above: keeps the MySQL pool out of
+// module load for tests that never touch a session.
+let _loadEffectiveTemplates = null
+function loadEffectiveTemplates (...args) {
+  if (!_loadEffectiveTemplates) { _loadEffectiveTemplates = require('../server/utils/templateLibrary').loadEffectiveTemplates }
+  return _loadEffectiveTemplates(...args)
+}
+
 // ── Startup checks ──
 // Validate critical env vars and required files before any request arrives.
 ;(function startupCheck () {
@@ -1754,10 +1762,11 @@ async function handleQuery (rawBody, res, identity) {
     return
   }
 
-  // Load firm-specific template override once per request — null if none saved
-  const firmTemplates = firmId
-    ? await loadFirmConfig(firmId, 'templates').catch(() => null)
-    : null
+  // The template library in force for this scope, once per request — the nearest
+  // tier's upload (firm → group → global → platform), whole, or null for the
+  // committed seed. Cascade Phase 2: the mentor's upload now reaches every firm
+  // without its own. The loader never rejects (its own contract), so no .catch.
+  const firmTemplates = await loadEffectiveTemplates(firmId)
 
   // The firm's promoted coaching entries (firm-scoped — one firm's promoted
   // case observations never reach another firm's prompt). Coaching must never
@@ -2652,7 +2661,7 @@ async function handleQuery (rawBody, res, identity) {
             // Phase 3 this path buffers the whole reply and emits it once, so there is
             // no streaming tail to hold back. One strip before display is the whole fix.
             const visible = stripTemplateMarker(_postBuffer)
-            const processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds), _postFlagged, _postBuffer, _postMessages)
+            const processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds, firmTemplates), _postFlagged, _postBuffer, _postMessages)
             res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
             if (sessionId) { sessionSave(sessionId, state) }
             res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
@@ -3425,7 +3434,7 @@ async function handleQuery (rawBody, res, identity) {
           }
           const normalised = normaliseHeadings(visible)
           const scrubbed = scrubAdvisorHallucinations(normalised)
-          const processed = appendCorrectionNote(injectVideoInfo(scrubbed, orgTemplateIds), _p3Flagged, _p3Buffer, _p3Messages)
+          const processed = appendCorrectionNote(injectVideoInfo(scrubbed, orgTemplateIds, firmTemplates), _p3Flagged, _p3Buffer, _p3Messages)
           if (processed !== visible) {
             res.write('data: ' + JSON.stringify({ type: 'replace', text: processed }) + '\n\n')
           }
@@ -3718,7 +3727,7 @@ async function handleQuery (rawBody, res, identity) {
         // Same reason as the post-recommendation path: this prompt is client.txt too,
         // so the marker can arrive here. Buffered, so one strip covers it.
         const visible = stripTemplateMarker(_mainBuffer)
-        const processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds), _mainFlagged, _mainBuffer, _mainMessages)
+        const processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds, firmTemplates), _mainFlagged, _mainBuffer, _mainMessages)
         res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
         res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
       }

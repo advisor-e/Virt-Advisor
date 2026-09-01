@@ -37,11 +37,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | --- | --- | --- | --- | --- |
 | 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | **Mike** |
 | 2 | **4.50** Nobody has seen a real conversation's recommendations reach the Team tab | 2 | — | Outside |
-| 3 | **4.55** The firm's own template-upload screen (Cascade Phase 3) | 3 | — | **Mike** |
-| 4 | **4.57** Rule whether a firm's replaced library changes what CPD its advisors claim | 2 | — | **Mike** |
-| 5 | **4.56** Meeting Review — slices 1 and 2 are built; the two reports are next, and §4 gates a real recording | 3 | — | **Mike** |
+| 3 | **4.56** CPD follows the library in force — ruled; wire the catalogue through the cascade | 2 | — | Us |
+| 4 | **4.58** Meeting Review — slices 1 and 2 are built; the two reports are next, and §4 gates a real recording | 3 | — | **Mike** |
 
-**Five live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Four live items. Two need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
