@@ -1,0 +1,473 @@
+'use strict'
+
+/**
+ * @file The observation points a scope actually works to — the platform's shipped points
+ *   for each meeting scenario, resolved through every tier's own decisions.
+ * @module server/utils/meetingObservations
+ *
+ * Design: `design/features/meeting-review.md` §3. Artefact:
+ * `design/mockups/meeting-review.html` Stage A (the firm's screen) and Stage B1 (the
+ * advisor's pre-set), approved by Mike 2026-09-01.
+ *
+ * 🔴 WHAT THESE ARE FOR, because it decides how carefully they are treated. The Brief's
+ * §1 argument is that asking a model "how did this advisor perform?" produces fluent
+ * invention, while asking it "quote where they framed the meeting, or answer NOT FOUND"
+ * is a search with a citation. These points ARE that question. Everything the coaching
+ * notes can honestly say is a consequence of what is stored here, which is why they get a
+ * screen (the hub-page rule) rather than living inside a prompt builder.
+ *
+ * ⚠ THE MECHANISM IS `resolveInheritedRows`, NOT `deepMerge` — the same choice the
+ * Advisory Staircase, Quizzes and Distinctions made. These are LISTS OF ROWS inherited
+ * from above, where "switch this one off" and "add my own" both mean something. Map-shaped
+ * settings (`aiPrompts`, `propertyTaxRules`) use deepMerge instead. Picking the wrong one
+ * is how a firm holding a one-item list blanks the mentor's whole set for itself.
+ *
+ * ⚠ WHICH TIERS EDIT THESE, stated rather than assumed (`CLAUDE.md`, Mike 2026-08-16 and
+ * the default-is-mentor-alone ruling of 2026-08-24). The MENTOR authors the platform list.
+ * The FIRM gets its own editing view as well, because Brief §3 names a firm's own scripts
+ * and standards as the whole of the request — "a firm gets its own editing view because a
+ * firm's scripts and standards genuinely differ from the platform's". The two middle tiers
+ * are wired by the same recursion and cost nothing, but nothing is claimed about them: they
+ * cannot be logged into today (`config/integration.js` ships both roles empty, fail-closed).
+ *
+ * Node 14, CommonJS.
+ */
+
+const fs = require('fs')
+const path = require('path')
+const BASE_FILE = require('../../data/meeting-observations.json')
+const LOGIC_TREES = require('../../data/logic_trees.json')
+const { resolveInheritedRows } = require('./resolveInheritedRows')
+const { parentScopeOf, tierOfScope } = require('./tierChain')
+const { devFallbackAllowed: IS_DEV } = require('./dbFailure')
+
+/**
+ * The overlay addresses these decisions are stored under, at every tier.
+ *
+ * SEPARATE AND ADDITIVE, mirroring `firmStaircase.CONFIG_KEYS` exactly. Three keys rather
+ * than one whole-config blob, so a tier's stored decisions are never rewritten wholesale
+ * and a shape change never has to migrate what a firm already saved.
+ *
+ * Each is keyed by SCENARIO ID first, because a firm edits the end-of-year list without
+ * touching the conflict-meeting list.
+ *
+ *   - meeting-observation-declines  -> { scenarioId: [pointId] }        inherited points off
+ *   - meeting-observation-overrides -> { scenarioId: { pointId: {…} } } edited fields
+ *   - meeting-observation-own       -> { scenarioId: [ {id, text} ] }   points added here
+ *
+ * @type {Object.<string, string>}
+ */
+const CONFIG_KEYS = {
+  declines: 'meeting-observation-declines',
+  overrides: 'meeting-observation-overrides',
+  own: 'meeting-observation-own'
+}
+
+/** Dev-only stand-ins, used when there is no MySQL. See `_load` for why they are dev-only. */
+const DEV_FILES = {
+  declines: 'data/dev-meeting-observation-declines.json',
+  overrides: 'data/dev-meeting-observation-overrides.json',
+  own: 'data/dev-meeting-observation-own.json'
+}
+
+/**
+ * The fields a tier may edit on a point it inherited.
+ *
+ * `id` is deliberately absent: it is identity, every decline and override is keyed to it,
+ * and an editable id would let a tier's edit silently re-file itself against another point.
+ * @type {string[]}
+ */
+const EDITABLE_POINT_FIELDS = ['text', 'advisorText']
+
+/** Longest a point may be. Long enough for the approved four; short enough to stay a check. */
+const MAX_POINT_LENGTH = 300
+
+/**
+ * Own-row prefixes, one per tier.
+ *
+ * ⚠ NOT A STYLE CHOICE. Own-row ids are minted per scope from the rows that scope already
+ * holds, so without distinct prefixes the mentor's first added point and a firm's first
+ * added point would both be `1`. They meet the moment the mentor's point arrives at a firm
+ * as an inherited row with the firm's own appended beside it — one resolved list, two
+ * different points, one identity, and the firm switching off "its" point drops the
+ * mentor's. This is `firmStaircase.js`'s Phase 5 defect, avoided rather than repeated.
+ *
+ * `xm-` for the global tier rather than `gm-`: a near-miss between two ADJACENT tiers is
+ * worse than an unmemorable letter, and those two are exactly the ones whose rows sit
+ * beside each other in a group manager's resolved list.
+ * @type {Object.<string, string>}
+ */
+const POINT_PREFIX_BY_TIER = {
+  mentor: 'mm-',
+  global_group_manager: 'xm-',
+  group_manager: 'gm-',
+  firm_manager: 'fm-'
+}
+
+/** Prefix marking a point shipped by the platform in `data/meeting-observations.json`. */
+const PLATFORM_POINT_PREFIX = 'mo-'
+
+/** How a resolved point is badged for the screen. */
+const OBSERVATION_SOURCE_LABELS = {
+  inherited: 'inherited',
+  override: 'edited-here',
+  own: 'added-here'
+}
+
+/**
+ * The own-row prefix a scope mints under.
+ * @param {string|null} scopeId - a firm id, or a reserved tier scope id
+ * @returns {string}
+ */
+function ownPointPrefix (scopeId) {
+  return POINT_PREFIX_BY_TIER[tierOfScope(scopeId)] || POINT_PREFIX_BY_TIER.firm_manager
+}
+
+// ── The scenarios ────────────────────────────────────────────────────────────────────
+
+/**
+ * Tree id → the name an advisor reads, taken from `data/logic_trees.json`.
+ *
+ * 🔴 THE NAME IS NEVER COPIED INTO `data/meeting-observations.json`. Brief P12: the meeting
+ * types come from the scenarios that already exist, and a second list beside them "would
+ * drift within a month". So this file registers ids and the logic trees own the words.
+ */
+const TREE_NAME_BY_ID = (Array.isArray(LOGIC_TREES.trees) ? LOGIC_TREES.trees : [])
+  .reduce((out, t) => {
+    if (t && typeof t.id === 'string') { out[t.id] = t.name }
+    return out
+  }, {})
+
+/**
+ * The meeting scenarios, in the order `data/meeting-observations.json` declares them.
+ *
+ * A registered id that resolves to no logic tree is DROPPED rather than shown under its own
+ * id — a scenario with no name is not something to put in front of an advisor. The drop is
+ * a build failure in `tests/unit/meetingObservations.test.js`, so it cannot go unnoticed
+ * here and quiet on screen.
+ *
+ * @returns {Array.<{id: string, name: string}>}
+ */
+function meetingScenarios () {
+  return (BASE_FILE.scenarios || [])
+    .filter(s => s && typeof s.id === 'string' && typeof TREE_NAME_BY_ID[s.id] === 'string')
+    .map(s => ({ id: s.id, name: TREE_NAME_BY_ID[s.id] }))
+}
+
+/** Registered scenario ids, including any that fail to resolve — the test reads this. */
+function registeredScenarioIds () {
+  return (BASE_FILE.scenarios || []).filter(s => s && typeof s.id === 'string').map(s => s.id)
+}
+
+/**
+ * The platform's shipped points for one scenario.
+ * @param {string} scenarioId
+ * @returns {Array.<object>} a copy, so a caller cannot mutate the shipped file
+ */
+function basePointsFor (scenarioId) {
+  const found = (BASE_FILE.scenarios || []).find(s => s && s.id === scenarioId)
+  return (found && Array.isArray(found.points)) ? found.points.map(p => ({ ...p })) : []
+}
+
+// ── Validation ───────────────────────────────────────────────────────────────────────
+
+/**
+ * Checks one point's editable fields.
+ *
+ * Fails closed: an unknown field is an error rather than a value quietly kept. A point the
+ * store accepts and nothing renders is a check a manager believes their advisors are held
+ * to and they are not — the same reasoning as `aiPrompts.validateAiPromptOverrides`.
+ *
+ * @param {*} value - the submitted `{ text?, advisorText? }`
+ * @param {object} [opts]
+ * @param {boolean} [opts.requireText] - true when creating a point, which must have words
+ * @returns {{ok: boolean, errors: string[], value: object}}
+ */
+function validatePointFields (value, opts) {
+  const errors = []
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return { ok: false, errors: ['a point must be a JSON object'], value: {} }
+  }
+
+  const out = {}
+  Object.keys(value).forEach((field) => {
+    if (!EDITABLE_POINT_FIELDS.includes(field)) {
+      errors.push('unknown field: ' + field)
+      return
+    }
+    const raw = value[field]
+    if (raw === null || raw === undefined) { return }
+    if (typeof raw !== 'string') {
+      errors.push(field + ' must be text')
+      return
+    }
+    const trimmed = raw.trim()
+    if (trimmed.length > MAX_POINT_LENGTH) {
+      errors.push(field + ' must be ' + MAX_POINT_LENGTH + ' characters or fewer')
+      return
+    }
+    // Whitespace-only is stored as absent rather than as an empty check: a blank point
+    // would render as an empty row the advisor cannot act on and the model cannot look for.
+    if (trimmed) { out[field] = trimmed }
+  })
+
+  if (opts && opts.requireText && !out.text) {
+    errors.push('text is required')
+  }
+
+  return { ok: errors.length === 0, errors, value: out }
+}
+
+/**
+ * Validates a whole stored decision map, keeping only what is well-formed.
+ *
+ * NEVER THROWS AND NEVER REJECTS A WHOLE SCOPE FOR ONE BAD ROW. Malformed storage for one
+ * scenario must not stop a manager opening the screen or an advisor seeing the other ten
+ * lists — the recovery is to show what is readable, not to fail the page.
+ *
+ * @param {*} stored - whatever came back from the overlay
+ * @param {'declines'|'overrides'|'own'} kind
+ * @returns {object} `{ scenarioId: <shape for that kind> }`, always an object
+ */
+function readDecisionMap (stored, kind) {
+  if (!stored || typeof stored !== 'object' || Array.isArray(stored)) { return {} }
+
+  const out = {}
+  Object.keys(stored).forEach((scenarioId) => {
+    const entry = stored[scenarioId]
+
+    if (kind === 'declines') {
+      if (Array.isArray(entry)) {
+        const ids = entry.filter(id => typeof id === 'string' && id)
+        if (ids.length) { out[scenarioId] = ids }
+      }
+      return
+    }
+
+    if (kind === 'own') {
+      if (!Array.isArray(entry)) { return }
+      const rows = entry
+        .filter(r => r && typeof r === 'object' && typeof r.id === 'string' && r.id)
+        .map((r) => {
+          const { value } = validatePointFields(
+            { text: r.text, advisorText: r.advisorText }, { requireText: false }
+          )
+          return { id: r.id, ...value }
+        })
+        .filter(r => typeof r.text === 'string' && r.text)
+      if (rows.length) { out[scenarioId] = rows }
+      return
+    }
+
+    // overrides
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) { return }
+    const kept = {}
+    Object.keys(entry).forEach((pointId) => {
+      const { value } = validatePointFields(entry[pointId], { requireText: false })
+      if (Object.keys(value).length) { kept[pointId] = value }
+    })
+    if (Object.keys(kept).length) { out[scenarioId] = kept }
+  })
+
+  return out
+}
+
+// ── Reading a scope's stored decisions ───────────────────────────────────────────────
+
+function _readDevMap (file) {
+  try {
+    return JSON.parse(fs.readFileSync(path.resolve(process.cwd(), file), 'utf8'))
+  } catch (_e) {
+    return {}
+  }
+}
+
+/**
+ * Load one config value, preferring the injected loader and falling back to the dev-JSON
+ * map keyed by scope id.
+ *
+ * THE FALLBACK IS DEV-ONLY, DELIBERATELY — `dbFailure.devFallbackAllowed` refuses it when a
+ * live server REFUSED the statement. Dressing a production outage up as "this firm has no
+ * override" hides the outage behind wording that looks deliberate, and a false pass gets
+ * signed off where a failure gets fixed.
+ *
+ * @param {Function} loadFirmConfig - async (scopeId, key) => stored value
+ * @param {string} scopeId
+ * @param {string} key
+ * @param {string} devFile
+ * @returns {Promise<*>} the stored value, or `{}` when nothing is stored
+ * @throws in production, when the store cannot be read
+ */
+async function _load (loadFirmConfig, scopeId, key, devFile) {
+  try {
+    const value = await loadFirmConfig(scopeId, key)
+    return (value === null || value === undefined) ? {} : value
+  } catch (err) {
+    if (!IS_DEV(err)) { throw err }
+    const map = _readDevMap(devFile)
+    return Object.prototype.hasOwnProperty.call(map, scopeId) ? map[scopeId] : {}
+  }
+}
+
+/**
+ * One scope's own decisions across every scenario. No cascade — the raw read.
+ *
+ * @param {string|null} scopeId - the authenticated scope, never client-supplied (a
+ *   body-supplied id would let one firm read another's configuration — IDOR)
+ * @param {Function} loadFirmConfig - async (scopeId, key) => stored value
+ * @returns {Promise<{declines: object, overrides: object, own: object}>}
+ */
+async function loadScopeObservationState (scopeId, loadFirmConfig) {
+  const none = { declines: {}, overrides: {}, own: {} }
+  if (!scopeId) { return none }
+
+  const declines = await _load(loadFirmConfig, scopeId, CONFIG_KEYS.declines, DEV_FILES.declines)
+  const overrides = await _load(loadFirmConfig, scopeId, CONFIG_KEYS.overrides, DEV_FILES.overrides)
+  const own = await _load(loadFirmConfig, scopeId, CONFIG_KEYS.own, DEV_FILES.own)
+
+  return {
+    declines: readDecisionMap(declines, 'declines'),
+    overrides: readDecisionMap(overrides, 'overrides'),
+    own: readDecisionMap(own, 'own')
+  }
+}
+
+/** True when a scope has decided anything at all — used to return the layer above by identity. */
+function hasAnyDecision (state) {
+  return Object.keys(state.declines).length > 0 ||
+    Object.keys(state.overrides).length > 0 ||
+    Object.keys(state.own).length > 0
+}
+
+// ── Resolution ───────────────────────────────────────────────────────────────────────
+
+/**
+ * The observation points in force at a scope, per scenario.
+ *
+ * Recurses up the tier chain exactly as `staircaseConfig.loadBlendedStaircase` does: the
+ * base a firm resolves against is the MENTOR'S RESOLVED LIST, which is the shipped file
+ * resolved through the mentor's own decisions. Same mechanism applied twice, rather than a
+ * second rule for the tier above.
+ *
+ * NEVER REJECTS. A storage fault falls back to the layer above and logs — an advisor must
+ * not be left with no list to walk in holding, and Brief §3 makes the point that the list
+ * pays before a word is recorded.
+ *
+ * @param {string|null} scopeId
+ * @param {Function} loadFirmConfig - async (scopeId, key) => stored value
+ * @returns {Promise<Object.<string, {id: string, name: string, points: Array<object>}>>}
+ *   keyed by scenario id
+ */
+async function loadResolvedObservations (scopeId, loadFirmConfig) {
+  const scenarios = meetingScenarios()
+
+  const shipped = () => scenarios.reduce((out, s) => {
+    out[s.id] = { id: s.id, name: s.name, points: basePointsFor(s.id) }
+    return out
+  }, {})
+
+  if (!scopeId) { return shipped() }
+
+  const parent = parentScopeOf(scopeId)
+  const base = parent === null
+    ? shipped()
+    : await loadResolvedObservations(parent, loadFirmConfig)
+
+  let state
+  try {
+    state = await loadScopeObservationState(scopeId, loadFirmConfig)
+  } catch (err) {
+    console.error('[meeting-observations] scope read failed:', err.message)
+    return base
+  }
+
+  // A scope that has decided nothing returns the layer above UNCHANGED — the same object,
+  // not a rebuilt copy of it. So "this firm has customised nothing" is a passthrough rather
+  // than a second list that happens to look alike and can drift from it.
+  if (!hasAnyDecision(state)) { return base }
+
+  const out = {}
+  scenarios.forEach((s) => {
+    const inherited = (base[s.id] && base[s.id].points) || []
+    out[s.id] = {
+      id: s.id,
+      // The name always comes from the logic trees, never from a stored decision — no tier
+      // may rename a scenario, because the name is the join to the tree the meeting uses.
+      name: s.name,
+      points: resolveInheritedRows(
+        inherited,
+        {
+          declinedIds: state.declines[s.id] || [],
+          overrides: state.overrides[s.id] || {},
+          ownRows: state.own[s.id] || []
+        },
+        { sourceLabels: OBSERVATION_SOURCE_LABELS }
+      )
+    }
+  })
+
+  return out
+}
+
+/**
+ * One scenario's points as the ADVISOR reads them — first person where the author wrote a
+ * first-person form, and the manager's wording verbatim where they did not.
+ *
+ * 🔴 THE FALLBACK IS HONEST BY DESIGN. Stage A and Stage B1 of the approved drawing show
+ * the same points in two voices, so both are stored. A point added by a manager carries one
+ * form; showing those words unchanged is right, and rewriting them into "I …" by rule would
+ * be the app putting words in a manager's mouth.
+ *
+ * @param {object} scenario - a resolved entry from `loadResolvedObservations`
+ * @returns {Array.<{id: string, text: string, source: string}>}
+ */
+function asAdvisorPreset (scenario) {
+  const points = (scenario && Array.isArray(scenario.points)) ? scenario.points : []
+  return points.map(p => ({
+    id: p.id,
+    text: (typeof p.advisorText === 'string' && p.advisorText) ? p.advisorText : p.text,
+    source: p.source
+  }))
+}
+
+/**
+ * Mint the next own-point id for a scope within one scenario.
+ *
+ * Counts from the ids ALREADY HELD at this scope for this scenario rather than from the
+ * list length, so deleting a point never hands its id to the next one added — a reused id
+ * would inherit the deleted point's declines and overrides.
+ *
+ * @param {string} scopeId
+ * @param {Array<object>} existingOwnRows - this scope's own rows for the scenario
+ * @returns {string}
+ */
+function nextOwnPointId (scopeId, existingOwnRows) {
+  const prefix = ownPointPrefix(scopeId)
+  const used = (Array.isArray(existingOwnRows) ? existingOwnRows : [])
+    .map(r => (r && typeof r.id === 'string' && r.id.indexOf(prefix) === 0)
+      ? parseInt(r.id.slice(prefix.length), 10)
+      : NaN)
+    .filter(n => Number.isInteger(n) && n > 0)
+  const highest = used.length ? Math.max(...used) : 0
+  return prefix + (highest + 1)
+}
+
+module.exports = {
+  CONFIG_KEYS,
+  DEV_FILES,
+  EDITABLE_POINT_FIELDS,
+  MAX_POINT_LENGTH,
+  POINT_PREFIX_BY_TIER,
+  PLATFORM_POINT_PREFIX,
+  OBSERVATION_SOURCE_LABELS,
+  ownPointPrefix,
+  meetingScenarios,
+  registeredScenarioIds,
+  basePointsFor,
+  validatePointFields,
+  readDecisionMap,
+  loadScopeObservationState,
+  loadResolvedObservations,
+  asAdvisorPreset,
+  nextOwnPointId
+}

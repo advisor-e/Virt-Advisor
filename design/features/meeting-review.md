@@ -1,19 +1,30 @@
 # Meeting Review — the Brief
 
-> ## ⚠ NOTHING HERE IS BUILT. THIS IS A DESIGN FOR APPROVAL.
+> ## ⚠ ONE SLICE OF THIS IS BUILT. THE REST IS STILL A DESIGN.
 >
-> **No code, no route, no screen and no data file for this feature exists in the repository.**
-> Every section below describes what is *intended*, not what runs. Read it as a proposal to be
-> marked up, and do not cite any sentence in it as a description of the app.
+> **Built and live (slice 1, 2026-09-01) — the observation points, and nothing else.** The
+> mentor authors the platform list, a firm may edit / switch off / add to it, and an advisor
+> reads their own list before a meeting. Paths are marked **BUILT** in §5.
 >
-> It is written in the Brief's shape deliberately: the arguments are cheap to have on paper and
-> expensive to have in code. When it is approved and built, the tense changes and this banner
-> comes off. **The history is in [`meeting-review-history.md`](meeting-review-history.md).**
+> **NOT built: everything that touches a client.** No recording, no audio, no transcript, no
+> transcription client, no report of either kind, no manager aggregate, no deletion job — and
+> **no consent string anywhere in the code**. Sections 1–4 and the unmarked rows of §5 still
+> describe what is *intended*, not what runs. Do not cite an unmarked sentence as a
+> description of the app.
+>
+> ⚠ **A REAL CLIENT MUST NOT BE RECORDED UNTIL §4 IS DONE.** Slice 1 cannot record anything,
+> so nothing is at stake today — but the four items in §4 are not coding tasks, they gate a
+> first recording rather than a first commit, and they are exactly the kind that get
+> discovered late.
 >
 > **The screens are drawn in [`../mockups/meeting-review.html`](../mockups/meeting-review.html)**
 > — seven of them, from the pre-set through to the manager's aggregate, registered in
-> [`../ARTEFACTS.md`](../ARTEFACTS.md) and ☐ **awaiting approval**. Where that drawing and this
-> page disagree, **this page wins**: the drawing is a picture of the Brief, not a source.
+> [`../ARTEFACTS.md`](../ARTEFACTS.md) and ☑ **approved by Mike 2026-09-01**. Slice 1 departs
+> from it in **five named ways**, listed in that register row and in the head of the two
+> components. Where that drawing and this page disagree, **this page wins**: the drawing is a
+> picture of the Brief, not a source.
+>
+> **The history is in [`meeting-review-history.md`](meeting-review-history.md).**
 
 > **Covers:** recording a client meeting, transcribing it, and producing the two reports that
 > come out of it — the client-facing summary and the advisor's own review — plus the pre-set
@@ -237,20 +248,31 @@ their own client. It is worth building as a visible setting rather than a buried
 
 ## 5. For the coder
 
-⚠ **None of the paths below exist yet.** They are where the pieces are *proposed* to live, chosen
-to match the existing architecture rather than invent a shape.
+⚠ **A row marked BUILT exists and runs. Every other row is still a proposal** — where the piece
+is *intended* to live, chosen to match the existing architecture rather than invent a shape.
 
-| Piece | Proposed path |
-|---|---|
-| Chunk intake, assembly, deletion | `server/routes/meetingReview.js` (Restify) |
-| Transcription client | `server/utils/transcriptionClient.js`, beside `openaiClient.js` |
-| Mechanical measures | `server/utils/meetingMetrics.js` — no AI |
-| The two report generators | `server/utils/meetingReports.js` — separate prompts |
-| Observation points, platform defaults | `data/meeting-observations.json` |
-| Firm's edited points | `firmOverlay`, `config_key='meeting-observations'` |
-| Recording screen | `components/MeetingRecorder.vue` — `MediaRecorder` inside `mounted()` only |
-| The reports screen | `components/MeetingReview.vue` |
-| Mentor / firm editing | a Hub tab, per §3 |
+| Piece | Path | State |
+|---|---|---|
+| Observation points, platform defaults | `data/meeting-observations.json` | ✅ **BUILT** — `eoy_meeting` seeded with Mike's four approved points; the other ten meeting scenarios registered and **empty**, for the mentor to author |
+| The cascade and the validator | `server/utils/meetingObservations.js` | ✅ **BUILT** — `resolveInheritedRows`, mirroring the Advisory Staircase |
+| Each tier's own decisions | `firmOverlay`, `config_key` ×3: `meeting-observation-declines` · `-overrides` · `-own` | ✅ **BUILT** — separate and additive, mirroring `firmStaircase.CONFIG_KEYS`. ⚠ **NOT one `meeting-observations` key**, as this table proposed: a single blob cannot express "switch this one off" and would freeze a firm's list against the mentor's later corrections |
+| Manager routes | `server/routes/meetingObservations.js` | ✅ **BUILT** — 9 routes, all scoped to `req.firmId` |
+| Mentor / firm editing | `components/firm/FirmMeetingObservations.vue`, a Hub tab per §3 | ✅ **BUILT** — mentor + firm; the two middle tiers deliberately absent |
+| The advisor's pre-set | `components/MeetingPreset.vue`, `pages/meeting-preset.vue` | ✅ **BUILT** — read-only by construction; there is no advisor write route at all |
+| Chunk intake, assembly, deletion | `server/routes/meetingReview.js` (Restify) | proposed |
+| Transcription client | `server/utils/transcriptionClient.js`, beside `openaiClient.js` | proposed. ⚠ `openaiClient.js` speaks only to `/v1/chat/completions`; audio is a different endpoint **and a multipart upload**, so this is new work rather than a call added to the existing client |
+| Mechanical measures | `server/utils/meetingMetrics.js` — no AI | proposed |
+| The two report generators | `server/utils/meetingReports.js` — separate prompts | proposed |
+| Recording screen | `components/MeetingRecorder.vue` — `MediaRecorder` inside `mounted()` only | proposed |
+| The reports screen | `components/MeetingReview.vue` | proposed |
+
+**One thing slice 1 deliberately did NOT decide, and slice 4 must.** A point such as *"I drew the
+numbers out for the client"* cannot be heard on audio (§3), and the drawing's coaching notes show it
+as a third state beside Found and Not found. Slice 1 stores a point as words alone — no
+evidence-type field — because adding a control the approved drawing does not show would have been
+drift, and because *how* that class is determined is a real question rather than a storage one.
+Whatever slice 4 decides, the stored finding is **the advisor's confirmation, never the guess**
+(Mike, 2026-09-01).
 
 **The route shape follows the rules already in force.** All third-party calls and all secrets are
 backend-only; `server-middleware/` stays a thin proxy. Transcription and generation exceed the
@@ -289,9 +311,20 @@ drop is logged.
 
 ### Known state
 
-**Nothing is built.** No route, no screen, no data file, no test. The manager-editable half is the
-only part with existing machinery behind it — `firmOverlay` already provides storage, version
-history and restore, and is used by Advisory Distinctions, the Staircase, quizzes and currency.
+**Slice 1 is built (2026-09-01) and nothing else is.** What runs: the observation points, their
+four-tier cascade, the mentor and firm editing screen, and the advisor's pre-set — 57 tests, and the
+suite green at 6,707. It rides `firmOverlay`, which already provides storage, version history and
+restore for Advisory Distinctions, the Staircase, quizzes and currency, so none of that was built
+twice.
+
+**What is not built is everything that touches a client**: no recording, no audio, no transcript, no
+transcription client, no report of either kind, no manager aggregate, no deletion job. **No consent
+string exists in the code** — the approved wording is still a document only, which is correct while
+there is nothing to consent to.
+
+⚠ **The pre-build check in §3 is still outstanding**: the diarizing transcription model must be
+confirmed as enabled on the account before slice 2, because OpenAI retires audio models on a
+schedule. It blocks recording, not the points.
 
 **The two reports are named.** *(Mike's ruling, 2026-09-01.)* The client's is **Meeting Summary**;
 the advisor's is **My Coaching Notes**. *Advisor Review* was rejected: inside a firm the word

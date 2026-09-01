@@ -118,6 +118,7 @@ const aiPromptsRoute = require('./routes/aiPrompts')
 const promptCheckRoute = require('./routes/promptCheck')
 const promptContributionsRoute = require('./routes/promptContributions')
 const staircaseRoute = require('./routes/staircase')
+const meetingObservationsRoute = require('./routes/meetingObservations')
 const { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 // Collaborate — the people layer and its template catalogue. Merged in from what
 // was a separate application with its own Restify server on this same port; see
@@ -315,6 +316,36 @@ server.get('/api/firm-manager/ai-prompts', ...fmGuard, aiPromptsRoute.getForMana
 server.post('/api/firm-manager/ai-prompts', ...fmGuard, aiPromptsRoute.save)
 server.get('/api/firm-manager/ai-prompts/history', ...fmGuard, aiPromptsRoute.history)
 server.post('/api/firm-manager/ai-prompts/restore', ...fmGuard, aiPromptsRoute.restore)
+
+// ── Meeting Review — the observation points (slice 1) ──
+// What an advisor is checked on in a meeting of each kind. The mentor authors the
+// platform list; a firm inherits it and may edit, switch off, or add its own beside it.
+// Design design/features/meeting-review.md §3; artefact design/mockups/meeting-review.html
+// Stage A, approved by Mike 2026-09-01.
+//
+// ⚠ NOTHING ELSE OF MEETING REVIEW IS BUILT — no recording, no transcript, no report, no
+// audio anywhere in this repository. These points stand on their own: Brief §3 makes the
+// point that the list pays before a word is recorded.
+//
+// `history` and `restore` are literal segments in the same position as a :scenarioId
+// would be, but no `GET /:scenarioId` route exists, so neither can be shadowed by a
+// scenario. Registered first anyway, matching the logic-trees `probe` precedent above.
+const mo = meetingObservationsRoute
+server.get('/api/firm-manager/meeting-observations/history', ...fmGuard, mo.history)
+server.post('/api/firm-manager/meeting-observations/restore', ...fmGuard, mo.restore)
+server.get('/api/firm-manager/meeting-observations', ...fmGuard, mo.getForManager)
+server.put('/api/firm-manager/meeting-observations/:scenarioId/point/:pointId', ...fmGuard, mo.setPointOverride)
+server.del('/api/firm-manager/meeting-observations/:scenarioId/point/:pointId', ...fmGuard, mo.resetPointOverride)
+server.put('/api/firm-manager/meeting-observations/:scenarioId/point/:pointId/decline', ...fmGuard, mo.setPointDecline)
+server.post('/api/firm-manager/meeting-observations/:scenarioId/own', ...fmGuard, mo.addOwnPoint)
+server.put('/api/firm-manager/meeting-observations/:scenarioId/own/:pointId', ...fmGuard, mo.updateOwnPoint)
+server.del('/api/firm-manager/meeting-observations/:scenarioId/own/:pointId', ...fmGuard, mo.deleteOwnPoint)
+
+// The advisor's own read — their pre-set, in the first person. firmAuth ONLY (every
+// advisor needs it), and there is deliberately no advisor WRITE route: an objective an
+// advisor adds belongs to one meeting, not to the standing list every advisor in the firm
+// is checked on. See getForAdvisor's JSDoc.
+server.get('/api/meeting/observations', firmAuth, mo.getForAdvisor)
 
 // Share a prompt — Lane A (item 4.31, steps 1–3). Checks a pasted prompt and stores
 // nothing. That route is deliberately incapable of writing anywhere; Lane B below is a

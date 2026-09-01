@@ -58,8 +58,13 @@ const MENTOR_BEFORE = [
  * - `aiPrompts` — Mike, 2026-08-21 (`AI-PROMPTS-PAGE.md`, item 4.28), naming all four
  *   manager tiers himself: *"a 'AI Prompts' page in the hub pages (Mentor, Global Group
  *   Manager, Group Manager and Firm Manager)"*.
+ * - `meetingObservations` — Mike, 2026-09-01, who asked for Meeting Review itself and
+ *   approved its drawing (`design/mockups/meeting-review.html` Stage A). The firm gets it
+ *   because `meeting-review.md` §3 names a firm's own scripts and standards as the whole
+ *   of the request; the two middle tiers deliberately do not, per the mentor-alone default
+ *   of 2026-08-24.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'meetingObservations']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
@@ -73,8 +78,10 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts']
  * - `templateLibrary` — Mike, 2026-08-31 (`SEARCH-CONTENT-CASCADE-PLAN.md` Phase 1,
  *   approved in session): the master export upload, mentor-only, placed beside
  *   Template Check. Stored inert until Phase 2 rewires the loader.
+ * - `meetingObservations` — Mike, 2026-09-01. The mentor authors the platform list, which
+ *   is where the cascade starts; the firm's copy is the same ruling's other half.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {

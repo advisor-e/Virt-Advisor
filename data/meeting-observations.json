@@ -1,0 +1,75 @@
+{
+  "_readme": [
+    "MEETING REVIEW — THE PLATFORM'S OBSERVATION POINTS, per meeting scenario.",
+    "",
+    "What an advisor is checked on in a meeting of each kind. The mentor authors these;",
+    "a firm inherits them and may edit, switch off, or add its own beside them. Design:",
+    "design/features/meeting-review.md §3 ('Where the observation points are edited'), and",
+    "the approved drawing design/mockups/meeting-review.html Stage A.",
+    "",
+    "🔴 THE SCENARIO LIST IS NOT AUTHORED HERE. Every `id` below must be a tree id in",
+    "data/logic_trees.json — Brief P12: 'The meeting type comes from the scenarios that",
+    "already exist … A second list of meeting types beside them would drift within a month.'",
+    "The NAME an advisor reads comes from that file too, never from this one, so a scenario",
+    "renamed there is renamed everywhere. tests/unit/meetingObservations.test.js fails the",
+    "build on an id that no longer resolves.",
+    "",
+    "TWO VOICES PER POINT, AND BOTH ARE IN THE APPROVED DRAWING. `text` is how the FIRM",
+    "states the point on the manager's screen ('The meeting was framed…'); `advisorText` is",
+    "how the ADVISOR reads the same point on their own pre-set and coaching notes ('I framed",
+    "the meeting…'). Stage A and Stage B1 of the mockup show the same four points in those",
+    "two voices, so they are stored rather than derived — no rule turns one into the other.",
+    "`advisorText` is OPTIONAL: a point added by a manager carries one form and the advisor",
+    "sees it verbatim, which is honest rather than guessing at a first-person rewrite.",
+    "",
+    "IDS ARE IDENTITY. `mo-` marks a point shipped by the platform. A point ADDED at a tier",
+    "is minted under that tier's own prefix (mm- mentor, xm- global, gm- group, fm- firm) —",
+    "see server/utils/meetingObservations.js for why sibling id systems must not collide.",
+    "Never renumber or reuse one: every decline and every override is keyed to it.",
+    "",
+    "ONLY ONE SCENARIO SHIPS WITH POINTS, DELIBERATELY. `eoy_meeting`'s four are the ones",
+    "Mike approved in the drawing, character for character. The other ten meeting scenarios",
+    "are REGISTERED AND EMPTY — writing points for them would be inventing advisory content",
+    "nobody asked for (CLAUDE.md: wording is asked for, never assumed). The mentor authors",
+    "them on screen, which is what the hub-page rule exists to make possible."
+  ],
+  "version": "1.0.0",
+  "lastUpdated": "2026-09-01",
+  "scenarios": [
+    {
+      "id": "eoy_meeting",
+      "points": [
+        {
+          "id": "mo-eoy-1",
+          "text": "The meeting was framed — what we would cover and why, in the first two minutes.",
+          "advisorText": "I framed the meeting — said what we would cover and why, in the first two minutes."
+        },
+        {
+          "id": "mo-eoy-2",
+          "text": "A metaphor or analogy was used to explain a financial idea.",
+          "advisorText": "I used a metaphor or an analogy to explain a financial idea."
+        },
+        {
+          "id": "mo-eoy-3",
+          "text": "Understanding was checked before moving on from the figures.",
+          "advisorText": "I checked understanding before moving on from the figures."
+        },
+        {
+          "id": "mo-eoy-4",
+          "text": "Named actions were agreed, with an owner and a date, before the time ran out.",
+          "advisorText": "We agreed named actions, with an owner and a date, before the time ran out."
+        }
+      ]
+    },
+    { "id": "client_sales", "points": [] },
+    { "id": "client_planning", "points": [] },
+    { "id": "conflict_meeting", "points": [] },
+    { "id": "trial_fit", "points": [] },
+    { "id": "cautious_reveal", "points": [] },
+    { "id": "reveal_growth_curve", "points": [] },
+    { "id": "dashboard_discussions", "points": [] },
+    { "id": "sales_process", "points": [] },
+    { "id": "facilitation_101", "points": [] },
+    { "id": "public_speaking", "points": [] }
+  ]
+}

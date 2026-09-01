@@ -143,6 +143,13 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('aiPrompts')" v-show="activeTab === 'aiPrompts'")
         firm-ai-prompts(:api-token="apiToken")
 
+      //- Meeting Review — the observation points (slice 1, Mike 2026-09-01). What an
+      //- advisor is checked on in each kind of meeting; the mentor authors the list and a
+      //- firm may edit it. Nothing else of Meeting Review is built — no recording, no
+      //- transcript, no report. The list is useful on its own (Brief §3).
+      div.hub-panel(v-if="showsTab('meetingObservations')" v-show="activeTab === 'meetingObservations'")
+        firm-meeting-observations(:api-token="apiToken")
+
       //- ── Templates & Videos — HIDDEN 2026-07-27 (owner decision) ──────
       //- Not wired to anything usable in UAT (needs Firm-Manager MySQL); shown
       //- as a dead tab was misleading. Kept dormant (v-if="false") rather than
@@ -747,6 +754,7 @@ import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 import FirmStaircase from '~/components/firm/FirmStaircase.vue'
 import FirmPropertyTaxRules from '~/components/firm/FirmPropertyTaxRules.vue'
 import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
+import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
@@ -941,7 +949,31 @@ const TAB_TIERS = {
   // listed anyway, because excluding them would bake in a limit that is wrong the day
   // Advisor-e issues the roles. "It works" means the mentor and firm hubs proven, the
   // middle two correct-by-construction and unexercised.
-  aiPrompts: ['mentor', 'global', 'group', 'firm']
+  aiPrompts: ['mentor', 'global', 'group', 'firm'],
+
+  // 🔴 THE MENTOR AND THE FIRM, AND THE JUDGEMENT IS STATED RATHER THAN ASSUMED — "as
+  // appropriate" is a judgement to make out loud (Mike's hub-page ruling, 2026-08-16), and
+  // the default since 2026-08-24 is the mentor tier ALONE unless a lower tier has a real
+  // reason to hold a different value.
+  //
+  // The MENTOR authors the platform list: this is platform content and the cascade starts
+  // there. The FIRM is included because the Brief names a firm's own standards as the whole
+  // of the request — meeting-review.md §3, "a firm gets its own editing view because a
+  // firm's scripts and standards genuinely differ from the platform's". An end-of-year
+  // meeting at one firm is not run the way it is run at another, and these points are the
+  // firm's own house standard.
+  //
+  // The two MIDDLE TIERS are deliberately absent. Nothing has yet named a reason for a
+  // country or a brand to hold a different list from the platform's, and the cascade
+  // resolves through them either way the day one does — they cost nothing to add later and
+  // would cost four screens, four sets of tests and four records to add now.
+  //
+  // ⚠ ADVISORS ARE EXCLUDED, and that is the point of the feature rather than an omission.
+  // An advisor may add an objective for ONE meeting; letting them edit this list would let
+  // one person quietly change what every advisor in the firm is measured against. The
+  // backend has no advisor write route at all — read-only by construction, not by a role
+  // check that could be loosened.
+  meetingObservations: ['mentor', 'firm']
 
   // 🔴 ALL FOUR MANAGER TIERS, AND THE REASON IS STATED RATHER THAN ASSUMED — "as
   // appropriate" is a judgement to make out loud (Mike's hub-page ruling, 2026-08-16).
@@ -1023,7 +1055,12 @@ const NAV_GROUPS = [
       // 🔴 THE LABEL IS MIKE'S OWN WORD, 2026-08-21 — "a 'AI Prompts' page" — and was
       // confirmed as the tab label rather than a working title. Added at the END of the
       // group on purpose: appending moves nothing that is already on a manager's screen.
-      { key: 'aiPrompts', label: 'AI Prompts' }
+      { key: 'aiPrompts', label: 'AI Prompts' },
+      // Meeting Review's observation points (Mike, 2026-09-01). Filed under "Your AI
+      // coach" because that is exactly what they are: the questions the model is asked to
+      // find and quote in a meeting transcript. Appended at the END of the group for the
+      // same reason AI Prompts was — appending moves nothing already on a manager's screen.
+      { key: 'meetingObservations', label: 'Meeting Review' }
     ]
   },
   {
@@ -1095,7 +1132,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmAiPrompts, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmAiPrompts, FirmMeetingObservations, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

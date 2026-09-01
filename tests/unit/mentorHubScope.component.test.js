@@ -298,14 +298,17 @@ describe('the hub menu — the sidebar itself', () => {
     return wrapper.findAll('.hub-menu .menu-label').wrappers.map(p => p.text().trim())
   }
 
-  it('groups the firm manager’s eleven tabs under three headings', async () => {
+  it('groups the firm manager’s twelve tabs under three headings', async () => {
     // Was eleven until 2026-08-20, when the Coaching Reference tab was removed with the
     // fifteen platform rows behind it (item 4.24, Mike: "remove the tab") — ten. Back to
     // eleven on 2026-08-22, when AI Prompts joined "Your AI coach" (item 4.28, Mike
-    // 2026-08-21, naming all four manager tiers).
+    // 2026-08-21, naming all four manager tiers). Twelve on 2026-09-01, when Meeting
+    // Review joined the same group — the observation points are literally the questions
+    // the model is asked to find in a transcript (Mike asked for the feature and approved
+    // its drawing that day).
     const wrapper = await mountHub()
     expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs'])
-    expect(tabLabels(wrapper)).toHaveLength(11)
+    expect(tabLabels(wrapper)).toHaveLength(12)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Both additions are checked, because "appended" is only true of the LAST one added
     // unless the one before it is still where it was.
