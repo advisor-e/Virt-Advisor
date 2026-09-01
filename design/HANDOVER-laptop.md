@@ -10,48 +10,44 @@
 
 ---
 
-## 2026-09-01 · Laptop · branch `feat/advisor-progress`
+## 2026-09-02 · Laptop · branch `feat/advisor-progress`
 
-Suite **6,880 green** (362 suites), lint 0 errors. Started 14 ahead / 0 behind `master`, ended
-**15 ahead / 0 behind**, pushed (`17117d8`). Nothing uncommitted.
+Suite **7,072 green** (371 suites), lint 0 errors. Started 16 ahead / 8 behind `master`, ended
+**20 ahead / 0 behind**, pushed (`669af7c`). Nothing uncommitted.
 
-### What shipped: Meeting Review slice 2 — consent, capture, transcript, deletion
+### What shipped: Meeting Review slice 3 — the two reports
 
-An advisor can now record a meeting. Consent is spoken **into** the running recording, the audio
-is transcribed with the speakers separated, and then **destroyed** — in a `finally`, so it goes
-whether or not transcription succeeded. "Stop and delete" is available throughout and takes any
-transcript with it. Firms set their own retention period and the consent screen renders that
-figure. Details in [`features/meeting-review.md`](features/meeting-review.md) §5.
+Meeting Summary (the client's draft: edit, approve, copy) and My Coaching Notes (private to the
+advisor; four measured figures, one card per observation point — quoted, not found, or asked).
+Every quote is verified against the transcript before it can be shown; an invented one, or one
+the CLIENT said, is dropped and the point reports not found. Details in
+[`features/meeting-review.md`](features/meeting-review.md) §5.
 
-### 🖥 DESKTOP — three things, and the first one is aimed at you
+### 🖥 DESKTOP — three things
 
-**1. 🔴 THE MEETING AUDIO DOES NOT GO TO GOOGLE DRIVE, AND THAT WAS A RULING.** You built the
-Drive pipeline (`uploadDocument` in `server/routes/firmManager.js`), and it is the obvious thing
-to reach for here. Mike ruled against it on 2026-09-01: the consent line promises a client out
-loud that *"nothing is shared outside our firm"*, and the argument that makes OpenAI acceptable —
-already our contracted processor — does not cover Google. Meeting audio lives on **our own
-server's disk** under `MEETING_AUDIO_DIR` (`server/utils/meetingAudioStore.js`). It also makes P8
-deletion provable, because there is one place to look. Do not "simplify" this later.
+**1. THE TO-DO NUMBERING IS SETTLED — take it, don't redo it.** Your CPD item keeps **4.56**.
+Meeting Review became **4.58**. **4.57 is deliberately dead** — it briefly named your CPD item on
+this branch (`94b344d`), and reusing it would make one number mean two things in the history.
+Both 4.54 and 4.55 are closed on the done page.
 
-**2. `gpt-4o-transcribe-diarize` has NO dated snapshot to pin.** Every other transcription model
-on the account ships dated variants; this one is an undated name only, so OpenAI can change what
-sits behind it silently. The name is written once (`DIARIZING_MODEL`) and every reply is
-validated rather than trusted. Worth re-checking now and then. The model IS enabled and was
-proven end to end — two synthetic voices, 8 segments, 2 speakers correctly separated.
+**2. The Firm Manager Hub now has 13 tabs.** We both appended to "Your AI coach" on 2026-09-01;
+yours holds position 6, ours 7. If you add another, append — `hubTabTiers.test.js` and
+`mentorHubScope.component.test.js` both pin the order.
 
-**3. ⚠ YOUR HANDOVER IS BEHIND YOUR COMMITS.** `HANDOVER-desktop.md` is dated 2026-08-31, but
-`feat/firm-quiz-builder-ui` has moved from 3 ahead to **4 ahead** of `master` since this morning.
-Two commits are unrecorded. Also still outstanding from this morning: **your 4.56 is now 4.57** —
-take the renumber when you next merge `master`.
+**3. `validatePointFields` in `server/utils/meetingObservations.js` now takes a boolean and an
+array**, not only strings. If you touch it, the type rules are in that function — and an explicit
+`false` must survive, because an override exists precisely to switch off what a tier inherited.
 
-### ⚠ The one thing that is not a coding task
+### ⚠ Two things that are NOT done, and neither is a coding task
 
-Until today nothing here could record anyone; now it can. The four items in Brief §4 — impact
-assessment, staff consultation, OpenAI's written terms for submitted **audio**, and a lawyer per
-market — gate a first real recording. `/meeting-record` carries a banner saying so, and **a
-banner is a warning, not a control.**
+**Nothing has been opened in a browser** — the tests prove behaviour, not appearance. And **report
+generation has never run against the real OpenAI model**; both generators are tested against a
+stub. Slice 2 had a live end-to-end check before it shipped and slice 3 has not.
+
+One label is not Mike's: **"Read my reports"** on the recorder's finished screen. It had to exist
+for the reports page to be reachable at all.
 
 ### Next
 
-The two reports (Meeting Summary, My Coaching Notes) — slice 3. The transcript-expiry job is
-deliberately separate work (Mike's ruling); destroying the audio was the promise and it is built.
+The live model check, ahead of more building. Then either **4.56** (CPD, ruled and ours) or
+Meeting Review's manager half — neither started, and the manager half has not been asked for.
