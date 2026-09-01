@@ -49,7 +49,11 @@ failure, however convenient.
 **P1 · No recording without consent captured inside the recording.** A tick-box records that the
 advisor claims consent. The spoken consent line at the top of the audio records that the client
 gave it. The second is what survives a dispute, and it is the reason live capture earns its extra
-cost.
+cost. **The wording is approved and lives in
+[`../MEETING-CONSENT-WORDING.md`](../MEETING-CONSENT-WORDING.md)** — the spoken line, the two-step
+screen that keeps the consent inside the audio, and what happens when someone declines. It is not
+repeated here: one copy of those words exists in this repository, and a build is checked against
+that page rather than against a paraphrase.
 
 **P2 · The advisor's review belongs to the advisor.** *(Mike's ruling, 2026-09-01.)* It is
 generated for them, visible to them, and shared upward only by their own act. No manager, at any
@@ -97,6 +101,17 @@ holds 42 named scenarios, of which roughly a dozen are meetings — `eoy_meeting
 `cautious_reveal`, `reveal_growth_curve`, `facilitation_101`, `public_speaking`. A second list of
 meeting types beside them would drift within a month.
 
+**P13 · Nothing leaves the firm.** *(Mike's ruling, 2026-09-01 — "yes, nothing is shared outside our
+firm".)* The approved consent line says this out loud to the client, so it is a constraint on the
+code and not a form of words. **No transcript, observation, quotation or figure derived from a
+recorded meeting travels beyond the firm** — not to Advisor-e, not to another firm, not into any
+aggregate that leaves the tenancy. This is stricter than the rest of the app on purpose:
+[`case-reviews.md`](case-reviews.md) *does* send anonymised cases upward, under its own separate
+double consent, and a reader who assumes Meeting Review works the same way would break a promise a
+named person heard spoken. **Anything that would change this needs new consent wording first, and
+the two must ship together** — the sentence is the only one in this feature that a later change can
+silently falsify.
+
 ---
 
 ## 3. Design considerations
@@ -106,13 +121,33 @@ or edits the observation points attached to it — the firm's list, not a blank 
 objectives of their own for this meeting. **The list is then shown to them before they walk in**,
 which is the first place this feature pays, before a word is recorded.
 
-**Knowing who spoke is the hard part, and half the checks depend on it.** "Did the advisor use a
-metaphor" is unanswerable without separating the advisor's speech from the client's. Speaker
-separation from a single room microphone is genuinely difficult and is the largest technical
-unknown in the feature. Options, in increasing order of cost: a transcription service that returns
-speaker labels; a short voice sample from the advisor at the top of the recording; per-speaker
-microphones for in-person meetings; or accepting a merged transcript and restricting the first
-version to checks that do not need attribution. **This must be settled before build, not during.**
+**Knowing who spoke is settled, and it costs less than this design first assumed.** *(Mike's
+ruling, 2026-09-01.)* "Did the advisor use a metaphor" is unanswerable without separating the
+advisor's speech from the client's, and roughly half the checks are of that shape. **The transcript
+and the speaker turns come from the same OpenAI call** — the diarizing transcription model, asked
+for its diarized response format, returns each segment with a speaker, a start and an end. That
+matters well beyond convenience: OpenAI is already this app's contracted sub-processor and
+`server/utils/openaiClient.js` already calls that host on Node 14, so **no second company is
+introduced to hold an hour of a client's private affairs** — which is why §4 item 5 is smaller than
+it looks. The model name is pinned like every other version in this repository, and must be
+confirmed as enabled on the account before build; OpenAI retires audio models on a schedule.
+
+**Which speaker is the advisor is answered by P1, not by a voice sample.** The model will accept
+short reference recordings and name speakers from them. **This design deliberately does not use
+that.** A stored sample of an advisor's voice, held so that software can recognise them, is
+biometric data — special-category under UK and EU law, in the same tier as health records, and one
+more thing to guard and to destroy. It is also unnecessary, because **the advisor is the one who
+speaks the consent line and it is the first thing on the recording**. The legal foundation and the
+technical anchor are the same sentence. Per-speaker microphones were rejected separately: they work
+only for in-person meetings and make the feature depend on hardware a firm must buy.
+
+**The consequence, and it constrains the consent wording.** Speaker labels are assigned per
+request, so "speaker 1" in one chunk is not "speaker 1" in the next. Chunked capture still buys
+crash-safety and an early transcript, but **reliable attribution needs one pass over the assembled
+recording once the meeting ends** — so the client summary can be ready almost immediately and the
+advisor's review arrives a few minutes later. And because the anchor is the consent line, that line
+**must be spoken by the advisor, and spoken first**. Shortening it, moving it, or letting the client
+read it breaks attribution silently, which is trap 1 in §5.
 
 **What cannot be observed, stated plainly.** Audio hears a metaphor — *"it's like a leaking
 bucket"*. It cannot see a drawing. For the drawing check the honest options are to detect its
@@ -135,14 +170,16 @@ place, which is another reason P4 is load-bearing.
 **Live capture was chosen over file upload, and the cost is recorded.** *(Mike's ruling,
 2026-09-01, against the recommendation on the day.)* Upload would have been materially simpler and
 robust to a sleeping laptop. Live capture was chosen and brings two things upload could not: the
-spoken consent of P1, and a transcript that is ready when the meeting ends, because the pieces are
-transcribed as they arrive. **The residual risk is the browser tab** — an operating system may
+spoken consent of P1, and transcript text that is ready when the meeting ends, because the pieces
+are transcribed as they arrive — the text at once, though its speaker labels follow the final pass
+described above. **The residual risk is the browser tab** — an operating system may
 throttle or suspend a backgrounded tab, and a screen lock mid-meeting is not a rare event. Hold a
 wake-lock, and treat "recording stopped unexpectedly" as an alarm, never a silent state.
 
 **Chunking solves two problems at once.** The transcription API rejects large files, so an hour of
 audio must be split however it arrives. Splitting it at capture time therefore costs nothing extra
-and buys the crash-safety of P10 and the near-instant transcript above.
+and buys the crash-safety of P10 and the near-instant transcript text above — not its speaker
+labels, which are taken from the whole-recording pass instead.
 
 **Where the observation points are edited, and at which tiers.** They are content that shapes AI
 output, so the hub-page rule in `CLAUDE.md` applies: **the mentor tier gets the screen, and gets it
@@ -162,20 +199,30 @@ their own client. It is worth building as a visible setting rather than a buried
 
 **None of these is a coding task, and none can be discovered late.**
 
-1. **An explicit ruling on the PII rule.** `CLAUDE.md` says *"Strip internal DB IDs and PII before
-   sending anything to an LLM."* A meeting transcript cannot comply. This feature needs a written,
-   scoped exception recorded in `CLAUDE.md` itself — not an assumption that the rule was not meant
-   literally.
-2. **Consent wording, written and approved by Mike**, for the spoken line and the screen. It is the
-   feature's legal foundation and is not a developer's to draft.
+1. ✅ **The PII rule — settled 2026-09-01.** `CLAUDE.md` says *"Strip internal DB IDs and PII before
+   sending anything to an LLM."* A meeting transcript cannot comply, so Mike granted a written,
+   scoped exception, and it is **in `CLAUDE.md` itself** under Security & data integrity — not an
+   assumption that the rule was not meant literally. **Read its four conditions before writing a
+   prompt**: they are the exception, not a preamble to it. Two matter most here — internal DB IDs
+   and firm/advisor identifiers are **still stripped**, because the exception covers the spoken
+   content alone; and it is **named to this feature and sets no precedent**.
+2. ✅ **Consent wording — settled 2026-09-01.** The spoken line, the two-step screen, and the
+   handling of a refusal or a withdrawal are approved and recorded in
+   [`../MEETING-CONSENT-WORDING.md`](../MEETING-CONSENT-WORDING.md), registered in
+   [`../ARTEFACTS.md`](../ARTEFACTS.md). **What remains is not drafting but review: a lawyer reads
+   it in each market the feature is sold into**, and the eight locales are translated by someone
+   competent in the local law rather than machine-translated — see that page §5, and item 6 below.
 3. **A data protection impact assessment.** Recording identifiable third parties and processing
    what will sometimes be special-category data (health, family, bereavement) requires one.
 4. **Staff consultation.** Recording employees and generating performance findings about them is
    monitoring in employment-law terms, whoever owns the report. P2 makes the position defensible;
    it does not remove the obligation.
-5. **The transcription provider's terms**, in writing: no training on submitted audio, a stated
-   retention period, and a data-processing agreement. The provider becomes a sub-processor of every
-   client's confidential affairs.
+5. **The transcription terms, for audio specifically.** Smaller than this list first assumed: the
+   provider is OpenAI, already this app's contracted sub-processor (§3), so no new company and no
+   new data-processing agreement are introduced. What is still needed **in writing** is that the
+   existing terms cover *submitted audio* — no training on it, and a stated retention period —
+   because a text prompt and an hour of a named client's financial affairs are not the same
+   undertaking.
 6. **Jurisdiction.** The app is already localised for more than one country, and the law on
    recording a conversation is not the same in all of them.
 7. **The client's rights.** A named individual may ask for a copy of what was recorded about them,
@@ -206,8 +253,9 @@ backend-only; `server-middleware/` stays a thin proxy. Transcription and generat
 wrapped and returns `{ success: false, error: { code, message }, timestamp }`.
 
 **Node 14.15 applies unchanged.** No `Array.at()`, no `Object.hasOwn()`, no top-level await;
-CommonJS on the backend. A multipart upload handler must be checked for Node 14 support before it
-is chosen, not after.
+CommonJS on the backend. The multipart question is already answered and needs no research:
+`formidable` 2.1.2 is a pinned dependency and `server/routes/firmManager.js` already parses uploads
+with it — follow that route's pattern rather than choosing a handler.
 
 **The AI output is parsed and validated before anything is stored**, and the validator is tested
 against valid, malformed, missing-field and wrong-type responses — the 100% target in `CLAUDE.md`
@@ -216,8 +264,11 @@ drop is logged.
 
 **Traps to expect** — none has bitten yet, because nothing is built:
 
-1. **A silently merged transcript.** If speaker separation degrades, every attribution check
-   becomes a coin toss while still looking confident. It must fail visibly, not blur.
+1. **Attribution that looks confident and is wrong.** Two ways in. If speaker separation degrades,
+   every attribution check becomes a coin toss while still reading as certain. And because labels
+   are assigned per request, stitching chunk-level labels into a whole-meeting transcript will
+   quietly swap the two people over — which is why attribution comes from one pass over the
+   assembled audio (§3) and never from the chunks. Either way it must fail visibly, not blur.
 2. **Aggregates that resolve to one person.** A firm with three advisors makes P3's "patterns, not
    names" arithmetic trivially reversible. A minimum cohort size is required, and it is a design
    decision, not a tuning constant.
@@ -243,9 +294,9 @@ from them.
 | Question | Whose | Status |
 |---|---|---|
 | Names for the two reports | Mike | Open — placeholders in use |
-| Consent wording, spoken and on screen | Mike | Open — blocks build |
-| The exception to the PII-to-LLM rule | Mike | Open — blocks build |
-| Speaker separation approach | Ours to propose, Mike to choose | Open — blocks build |
+| Consent wording, spoken and on screen | Mike | ✅ **Settled 2026-09-01** — spoken line, two-step screen, and the refusal path, in [`../MEETING-CONSENT-WORDING.md`](../MEETING-CONSENT-WORDING.md). A lawyer's review per market remains (§4 item 2) |
+| The exception to the PII-to-LLM rule | Mike | ✅ **Settled 2026-09-01** — written into `CLAUDE.md`, named to this feature, four conditions, no precedent (§4 item 1) |
+| Speaker separation approach | Ours to propose, Mike to choose | ✅ **Settled 2026-09-01** — provider diarization, advisor anchored to the consent line, no voice sample (§3) |
 | Drawing check: verbal signature, or advisor confirms | Mike | Open |
 | Minimum cohort size for manager aggregates | Ours to propose | Open |
 | Default transcript retention period | Mike | Open |

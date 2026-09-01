@@ -92,6 +92,15 @@ but the same rule: he cannot say yes to something that exists only in a chat win
 | The Diagnostic Entry block | [DIAGNOSTIC-ENTRY-BLOCK.md](DIAGNOSTIC-ENTRY-BLOCK.md) · screen: [mockups/domain-support-diagnostic-entry.html](mockups/domain-support-diagnostic-entry.html) | The 65 authored "where to start when the client presents like this" branches across 20 domains — today on no screen and in no prompt. ☐ awaiting approval — item 4.16 Phase 1, features/to-do.md. |
 | The method guides | [METHOD-GUIDES-SCREEN.md](METHOD-GUIDES-SCREEN.md) · screen: [mockups/method-guides.html](mockups/method-guides.html) | The 13 deep method guides — 155,000 characters reaching the AI and no screen at any tier — and the 116 authored lines inside them that reach neither. ☐ awaiting wording, §6 a–d — item 4.16 F, features/to-do.md. |
 
+**Words a client is told** — wording spoken or shown to someone *outside* the firm. The same rule as
+the two blocks above, with the stakes raised: these are the only strings in the app whose accuracy
+is a **promise made to a named third party**, not a description of a screen. A paraphrase here is
+not a drift, it is a misrepresentation.
+
+| Artefact | File | What it governs |
+|---|---|---|
+| Meeting Review consent | [MEETING-CONSENT-WORDING.md](MEETING-CONSENT-WORDING.md) | The line an advisor speaks aloud before recording a client meeting, the two-step screen around it, and what happens when someone declines. ✅ approved by Mike 2026-09-01, **not built** — no screen, no route, no locale string. Its promise *"nothing is shared outside our firm"* binds the code as **P13** of features/meeting-review.md. A lawyer's review in each market, and legally competent translation into the eight locales, are still outstanding — that page §5 and §6. |
+
 ### Orphans
 
 Two mockups are listed above but referenced by no document:

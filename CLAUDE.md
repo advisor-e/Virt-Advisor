@@ -221,6 +221,20 @@ await, or any Node 16/18/20 built-in. Backend files are CommonJS (`require`/
   bump. See `design/ACTIONS.md` and `design/SECURITY-AUDIT-NOTES.md`.
 - Strip internal DB IDs and PII before sending anything to an LLM. Never trust LLM output
   as structured data — parse and validate its shape before saving to state or the database.
+- **One scoped exception to the line above, and only one: Meeting Review.** *(Mike's ruling,
+  2026-09-01.)* A meeting transcript is personal data end to end and cannot be stripped without
+  destroying the thing being built, so **Meeting Review — and no other feature — may send a
+  consented meeting transcript to the model.** The conditions are not decoration; they are the
+  exception: **(a)** the client gave the recorded spoken consent in
+  [`design/MEETING-CONSENT-WORDING.md`](design/MEETING-CONSENT-WORDING.md), which names AI
+  transcription explicitly; **(b)** internal DB IDs and firm/advisor identifiers are **still
+  stripped** — the exception covers the *spoken content only*, so the other half of the rule above
+  is untouched; **(c)** nothing derived from it leaves the firm
+  ([`design/features/meeting-review.md`](design/features/meeting-review.md) P13); **(d)** the audio
+  is destroyed once transcribed. **This does not generalise, and it is not precedent.** Another
+  feature wanting to send personal data to a model is a fresh decision for Mike, not an inference
+  from this one. *(Granted ahead of the build: as of 2026-09-01 nothing in the repository sends
+  anything, and this exists so the rule is not re-argued at build time.)*
 - Treat user input in prompts as hostile: wrap it in explicit delimiters on the backend;
   never concatenate raw user input into a prompt string.
 - Every AI-driven data transformation logs Original Value | AI Suggestion | Final Approved
