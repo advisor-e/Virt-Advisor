@@ -9,6 +9,11 @@
 > It is written in the Brief's shape deliberately: the arguments are cheap to have on paper and
 > expensive to have in code. When it is approved and built, the tense changes and this banner
 > comes off. **The history is in [`meeting-review-history.md`](meeting-review-history.md).**
+>
+> **The screens are drawn in [`../mockups/meeting-review.html`](../mockups/meeting-review.html)**
+> — seven of them, from the pre-set through to the manager's aggregate, registered in
+> [`../ARTEFACTS.md`](../ARTEFACTS.md) and ☐ **awaiting approval**. Where that drawing and this
+> page disagree, **this page wins**: the drawing is a picture of the Brief, not a source.
 
 > **Covers:** recording a client meeting, transcribing it, and producing the two reports that
 > come out of it — the client-facing summary and the advisor's own review — plus the pre-set

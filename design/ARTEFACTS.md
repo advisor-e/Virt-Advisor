@@ -52,6 +52,7 @@ approved, never saved, and gone a day later.
 | Logic table — Template Check | [logic-table-template-check.html](mockups/logic-table-template-check.html) | MENTOR-HUB-CONSOLIDATED-NOTES.md, TREE-RECOMMENDATION-REVIEW.md |
 | Logic tables — rule in place | [logic-tables-rule-in-place.html](mockups/logic-tables-rule-in-place.html) | ACTIONS.md, 2026-08-12 notes |
 | Margin Breakeven | [margin-breakeven-mockup.html](mockups/margin-breakeven-mockup.html) | ⚠ nothing — see *Orphans* below |
+| Meeting Review — the seven screens | [meeting-review.html](mockups/meeting-review.html) | ☐ **awaiting approval**, drawn 2026-09-01, **nothing built**. features/meeting-review.md. Screens 2 and 3 reproduce [MEETING-CONSENT-WORDING.md](MEETING-CONSENT-WORDING.md) verbatim and are the only approved words on the page; every other label is marked as a proposal on the page itself. Item 4.56. |
 | Mentor adoption view | [mentor-adoption-view.html](mockups/mentor-adoption-view.html) | Adoption, Firm Manager Hub, Tier Cascade |
 | Mentor Logic-Lab report | [mentor-logic-lab-report-mockup.html](mockups/mentor-logic-lab-report-mockup.html) | Logic-Lab Report, MENTOR-AI-HUB-STUB.md |
 | Model Library launcher | [model-library-launcher.html](mockups/model-library-launcher.html) | BUSINESS-PERFORMANCE-REPORT-PLAN.md |

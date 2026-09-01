@@ -1,0 +1,631 @@
+<title>Meeting Review</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Meeting Review — screen mockup for approval. NOTHING HERE IS BUILT.
+
+   Sources every word and rule below is taken from — nothing invented:
+     - design/features/meeting-review.md        the Brief: P1-P13, §3, §5 traps
+     - design/MEETING-CONSENT-WORDING.md        the APPROVED spoken line + 2-step screen
+     - design/REPORT-VISUAL-STANDARD.md         the --rs-* tokens reused below
+     - data/logic_trees.json                    the scenario names (P12)
+
+   WORDING RULE FOR THIS PAGE. Two kinds of text appear, and they are marked
+   differently on purpose:
+     .approved  ✅ Mike approved these exact words on 2026-09-01. Copied
+                verbatim from MEETING-CONSENT-WORDING.md. Do not edit here —
+                edit that page, then re-copy.
+     .proposed  ✎ Drafted for this mockup and NOT approved. Every label,
+                button and heading not marked approved is a proposal awaiting
+                Mike's ruling, per CLAUDE.md ("always ask for clarification on
+                wording for labels/buttons").
+
+   No dark mode: one light look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#ff00000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1080px;margin:0 auto;padding:28px 22px 72px;display:flex;
+       flex-direction:column;gap:34px}
+strong,b{font-weight:600}
+h2,h3,h4{text-wrap:balance}
+
+/* ── page header ─────────────────────────────────────────────────────── */
+.top{padding:24px 26px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+     box-shadow:var(--rs-shadow)}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.top h1{margin:5px 0 8px;font-size:28px;font-weight:300;letter-spacing:-.01em}
+.top p{margin:0;font-size:13px;opacity:.88;max-width:68ch}
+
+/* the banner the Brief itself opens with — repeated so the page cannot be
+   mistaken for a description of the app */
+.notbuilt{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:13px 15px;font-size:13px;line-height:1.55}
+.notbuilt b{display:block;margin-bottom:3px}
+
+/* ── legend ──────────────────────────────────────────────────────────── */
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:720px){.legend{grid-template-columns:1fr}}
+.leg{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:10px;
+     padding:11px 13px;font-size:12.5px;line-height:1.5}
+.leg .k{font-weight:600;display:block;margin-bottom:2px}
+
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  vertical-align:middle}
+.chip.ok{background:var(--rs-good-soft);color:#2f6d1a;border:1px solid #4ca52d55}
+.chip.prop{background:var(--rs-warn-soft);color:#8a5200;border:1px solid #ff990059}
+.chip.open{background:var(--rs-accent-soft);color:#004e87;border:1px solid #0070c055}
+
+/* ── a screen ────────────────────────────────────────────────────────── */
+.screen{display:flex;flex-direction:column;gap:11px}
+.screen > h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.screen > h2 .n{width:21px;height:21px;border-radius:50%;background:var(--rs-ink);color:#fff;
+  display:grid;place-items:center;font-size:11px;font-weight:700;letter-spacing:0}
+.frame{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);overflow:hidden}
+.bar{background:var(--rs-panel-2);border-bottom:1px solid var(--rs-line);padding:10px 16px;
+  font-size:12px;color:var(--rs-muted);display:flex;justify-content:space-between;
+  align-items:center;gap:12px}
+.body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:15px}
+.body h3{margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em}
+.body h4{margin:0;font-size:12px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.body p{margin:0;font-size:13.5px;max-width:70ch}
+.lede{color:var(--rs-muted)}
+
+/* mockup-only annotation, house convention */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:11px 13px;
+  font-size:12.5px;color:#614700;line-height:1.55}
+.mock b{color:#4a3600}
+.mock ul{margin:6px 0 0;padding-left:17px}
+.mock li{margin:3px 0}
+
+/* the approved spoken line — visually distinct so it is never edited casually */
+.spoken{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good);
+  border-radius:10px;padding:14px 16px;font-size:14.5px;font-style:italic;line-height:1.6;
+  max-width:66ch}
+.spoken .who{display:block;font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:#2f6d1a;margin-bottom:7px}
+
+/* buttons */
+.btns{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-size:13px;font-weight:600;padding:9px 17px;border-radius:8px;
+  border:1px solid var(--rs-accent);background:var(--rs-accent);color:#fff;cursor:default}
+.btn.ghost{background:var(--rs-panel);color:var(--rs-ink);border-color:var(--rs-line)}
+.btn.danger{background:var(--rs-panel);color:#a30000;border-color:#ff000055}
+.btn.go{background:var(--rs-good);border-color:var(--rs-good)}
+
+/* observation-point list (the pre-set) */
+.pts{display:flex;flex-direction:column;gap:7px}
+.pt{display:flex;gap:10px;align-items:flex-start;background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);border-radius:9px;padding:10px 12px;font-size:13px}
+.pt .tick{width:16px;height:16px;border-radius:4px;background:var(--rs-accent);flex:0 0 auto;
+  margin-top:2px;position:relative}
+.pt .tick::after{content:"";position:absolute;left:5px;top:1.5px;width:4px;height:9px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(43deg)}
+.pt.own .tick{background:var(--rs-accent-bright)}
+.pt .txt{flex:1}
+.pt .src{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:600;margin-top:3px}
+.sel{display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-size:13px}
+.sel select{font:inherit;font-size:13px;padding:8px 11px;border:1px solid var(--rs-line);
+  border-radius:8px;background:var(--rs-panel);color:var(--rs-ink)}
+
+/* recording state */
+.recbar{display:flex;align-items:center;gap:12px;background:#fff5f5;border:1px solid #ff000033;
+  border-radius:10px;padding:12px 14px;flex-wrap:wrap}
+.dot{width:11px;height:11px;border-radius:50%;background:var(--rs-crit);flex:0 0 auto;
+  box-shadow:0 0 0 0 #ff000055;animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px #ff000000}100%{box-shadow:0 0 0 0 #ff000000}}
+@media (prefers-reduced-motion:reduce){.dot{animation:none}}
+.recbar .t{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.recbar .lbl{font-size:12px;color:var(--rs-muted);flex:1;min-width:120px}
+
+/* failure state — P11 */
+.fail{background:var(--rs-crit-soft);border:1px solid #ff000055;border-left:3px solid var(--rs-crit);
+  border-radius:10px;padding:13px 15px;font-size:13px;line-height:1.55}
+.fail b{display:block;font-size:14px;margin-bottom:3px;color:#a30000}
+
+/* mechanical measures — P9, arithmetic only */
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:700px){.mgrid{grid-template-columns:1fr 1fr}}
+.metric{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;padding:12px}
+.metric .k{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700}
+.metric .v{font-size:22px;font-weight:700;margin-top:5px;font-variant-numeric:tabular-nums;
+  line-height:1.1}
+.metric .s{font-size:11.5px;color:var(--rs-muted);margin-top:4px}
+.metric.flag{border-color:#ff990059;background:var(--rs-warn-soft)}
+.metric.flag .v{color:#8a5200}
+
+/* observations — P4 cite or NOT FOUND, P5 disputable */
+.obs{display:flex;flex-direction:column;gap:10px}
+.ob{border:1px solid var(--rs-line);border-radius:10px;padding:13px 14px;background:var(--rs-panel)}
+.ob .hd{display:flex;gap:9px;align-items:baseline;justify-content:space-between;flex-wrap:wrap}
+.ob .nm{font-size:13.5px;font-weight:600}
+.ob .st{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  padding:2px 7px;border-radius:5px;white-space:nowrap}
+.ob.met{border-left:3px solid var(--rs-good)}
+.ob.met .st{background:var(--rs-good-soft);color:#2f6d1a}
+.ob.missed{border-left:3px solid var(--rs-warn)}
+.ob.missed .st{background:var(--rs-warn-soft);color:#8a5200}
+.ob.blind{border-left:3px solid var(--rs-muted)}
+.ob.blind .st{background:#5b6f8a1a;color:var(--rs-muted)}
+.quote{margin:9px 0 0;padding:9px 12px;background:var(--rs-panel-2);border-left:2px solid var(--rs-line);
+  border-radius:0 7px 7px 0;font-size:12.5px;font-style:italic;color:#33455e}
+.quote .ts{font-style:normal;font-weight:600;color:var(--rs-muted);font-size:11px;
+  font-variant-numeric:tabular-nums;margin-right:7px}
+.nf{margin:9px 0 0;font-size:12.5px;color:var(--rs-muted)}
+.nf code{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:4px;
+  padding:1px 5px;font-size:11.5px;font-weight:600;color:#8a5200}
+.oblink{margin-top:10px;display:flex;gap:14px;font-size:12px;font-weight:600;color:var(--rs-accent)}
+
+/* editable client summary */
+.draft{border:1px dashed var(--rs-accent);border-radius:10px;background:#fbfdff;padding:15px 16px;
+  font-size:13.5px;line-height:1.65}
+.draft h5{margin:0 0 7px;font-size:14px;font-weight:600}
+.draft ul{margin:0 0 12px;padding-left:19px}
+.draft li{margin:4px 0}
+.draft p{margin:0 0 12px;max-width:68ch}
+.draft > :last-child{margin-bottom:0}
+
+/* manager aggregate — P3 */
+.pattern{display:flex;flex-direction:column;gap:8px}
+.prow{display:grid;grid-template-columns:1fr 88px 120px;gap:12px;align-items:center;
+  font-size:13px;padding:9px 0;border-bottom:1px solid var(--rs-line)}
+.prow:last-child{border-bottom:0}
+@media (max-width:640px){.prow{grid-template-columns:1fr 70px;}.prow .bar2{display:none}}
+.prow .cnt{font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+.bar2{height:7px;border-radius:4px;background:var(--rs-line);overflow:hidden}
+.bar2 i{display:block;height:100%;background:var(--rs-accent);border-radius:4px}
+.bar2.warn i{background:var(--rs-warn)}
+
+/* open-questions table */
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--rs-line);vertical-align:top}
+th{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--rs-muted);font-weight:700}
+tr:last-child td{border-bottom:0}
+.tblwrap{overflow-x:auto}
+.foot{font-size:12px;color:var(--rs-muted);line-height:1.6;max-width:78ch}
+.foot a{color:var(--rs-accent)}
+</style>
+
+<div class="shell">
+
+  <header class="top">
+    <div class="eyebrow">Design for approval · 2026-09-01</div>
+    <h1>Meeting Review</h1>
+    <p>The advisor's journey end to end — the pre-set before the meeting, the two-step consent that
+       keeps the client's agreement inside the recording, capture, and the two reports that come out.
+       Built strictly from the Brief and the approved consent wording.</p>
+  </header>
+
+  <div class="notbuilt">
+    <b>⚠ Nothing here is built.</b>
+    No route, no screen, no data file and no test for this feature exists in the repository. This is a
+    proposal to be marked up, exactly like the Brief it is drawn from. It is not a description of the app.
+  </div>
+
+  <div class="legend">
+    <div class="leg">
+      <span class="k"><span class="chip ok">✅ Approved</span> — your words, verbatim</span>
+      Text on a green panel is the consent wording you approved on 2026-09-01. It is copied from
+      <b>design/MEETING-CONSENT-WORDING.md</b> character for character. If it needs to change, that page
+      changes first.
+    </div>
+    <div class="leg">
+      <span class="k"><span class="chip prop">✎ Proposed</span> — my draft, awaiting your ruling</span>
+      Every other label, heading and button on this page is a proposal. Nothing here has been approved,
+      including the names of the two reports — those are explicitly still open.
+    </div>
+  </div>
+
+  <!-- ══ 1 · the pre-set ═══════════════════════════════════════════════ -->
+  <section class="screen">
+    <h2><span class="n">1</span> Before the meeting — the pre-set <span class="chip prop">✎ Proposed</span></h2>
+    <div class="frame">
+      <div class="bar"><span>Meeting Review</span><span>Sarah Whitfield · Advisor</span></div>
+      <div class="body">
+        <h3>What is this meeting for?</h3>
+        <p class="lede">Confirm what you want to be checked on. You will see this list again just before
+           you walk in.</p>
+
+        <div class="sel">
+          <label for="sc"><b>Meeting type</b></label>
+          <select id="sc"><option>End of year meeting</option></select>
+          <span style="font-size:12px;color:var(--rs-muted)">from the firm's existing scenarios</span>
+        </div>
+
+        <div>
+          <h4 style="margin-bottom:9px">Observation points</h4>
+          <div class="pts">
+            <div class="pt"><span class="tick"></span><span class="txt">I framed the meeting — said what
+              we would cover and why, in the first two minutes.<span class="src">Firm's list</span></span></div>
+            <div class="pt"><span class="tick"></span><span class="txt">I used a metaphor or an analogy to
+              explain a financial idea.<span class="src">Firm's list</span></span></div>
+            <div class="pt"><span class="tick"></span><span class="txt">I checked understanding before
+              moving on from the figures.<span class="src">Firm's list</span></span></div>
+            <div class="pt"><span class="tick"></span><span class="txt">We agreed named actions, with an
+              owner and a date, before the time ran out.<span class="src">Firm's list</span></span></div>
+            <div class="pt own"><span class="tick"></span><span class="txt">I raised the succession
+              conversation the client has deferred twice.<span class="src">Added by me, this meeting</span></span></div>
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="btn">Save and continue</button>
+          <button class="btn ghost">Add an objective</button>
+        </div>
+      </div>
+    </div>
+    <div class="mock">
+      <b>Why this screen exists at all.</b> The Brief §3: the pre-set is what converts an unreliable
+      judgement into a checkable one. Asking a model <i>"how did this advisor do?"</i> produces fluent
+      invention; asking it <i>"find where they framed the meeting, quote it, or answer NOT FOUND"</i> is
+      a search with a citation. It also pays before a word is recorded — the advisor walks in holding
+      the list. The firm's points come from the mentor's list via the existing overlay mechanism; the
+      advisor may add their own but not delete the firm's.
+    </div>
+  </section>
+
+  <!-- ══ 2 · consent step 1 ════════════════════════════════════════════ -->
+  <section class="screen">
+    <h2><span class="n">2</span> Consent, step one — before recording starts <span class="chip ok">✅ Approved wording</span></h2>
+    <div class="frame">
+      <div class="bar"><span>End of year meeting · Whitfield &amp; Co</span><span>Not recording</span></div>
+      <div class="body">
+        <h3>Before you record</h3>
+        <p>Read these words aloud as soon as recording starts. The recording is your evidence that you asked.</p>
+
+        <div class="spoken">
+          <span class="who">✅ Approved 2026-09-01 · read aloud, by you, first</span>
+          "Before we begin — I'd like to record our meeting. The recording is turned into a written
+          transcript by AI, and the recording itself is deleted as soon as that's done. It gives you a
+          written summary of what we agree today, and it helps me review how I did. Nothing is shared
+          outside our firm. Is everyone here happy for me to record?"
+        </div>
+
+        <p>The audio is transcribed and then deleted. The transcript is kept for
+           <b>[period]</b> and is visible to you and your firm — never to Advisor-e.</p>
+
+        <div class="btns">
+          <button class="btn">Start recording</button>
+          <button class="btn ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div class="mock">
+      <b>[period] is a real gap, not a typo.</b> The default transcript retention period is still open on
+      the Brief §6 and is yours to set. It appears on a screen a client's advisor reads aloud from, so it
+      cannot ship as a guess. <b>Everything else on this screen is your approved wording, unchanged.</b>
+    </div>
+  </section>
+
+  <!-- ══ 3 · consent step 2 ════════════════════════════════════════════ -->
+  <section class="screen">
+    <h2><span class="n">3</span> Consent, step two — recording is already running <span class="chip ok">✅ Approved wording</span></h2>
+    <div class="frame">
+      <div class="bar"><span>End of year meeting · Whitfield &amp; Co</span><span style="color:#a30000;font-weight:600">● Recording</span></div>
+      <div class="body">
+        <div class="recbar">
+          <span class="dot"></span><span class="t">00:07</span>
+          <span class="lbl">Recording. The consent you are about to hear is being captured.</span>
+        </div>
+
+        <h3>Recording — read the words aloud now</h3>
+
+        <div class="spoken">
+          <span class="who">✅ Approved 2026-09-01 · repeated here so you read rather than remember</span>
+          "Before we begin — I'd like to record our meeting. The recording is turned into a written
+          transcript by AI, and the recording itself is deleted as soon as that's done. It gives you a
+          written summary of what we agree today, and it helps me review how I did. Nothing is shared
+          outside our firm. Is everyone here happy for me to record?"
+        </div>
+
+        <h4>Did everyone agree to be recorded?</h4>
+        <div class="btns">
+          <button class="btn go">Yes — continue</button>
+          <button class="btn danger">No — stop and delete</button>
+        </div>
+      </div>
+    </div>
+    <div class="mock">
+      <b>This is the correction you caught, drawn as a screen.</b> The order is <b>record, then speak,
+      then confirm</b>. An earlier draft ticked "I have read the consent line aloud" <i>before</i>
+      recording began — past tense, which puts the client's agreement outside the audio and defeats the
+      whole point of it. The tick is your undertaking; the audio is the evidence. They are not
+      interchangeable.
+      <ul>
+        <li><b>Repeating the line is deliberate</b> — it stops an advisor paraphrasing from memory and
+            paraphrasing the AI clause out of existence.</li>
+        <li><b>It also anchors who is who.</b> You speak first, so the software knows which voice is the
+            advisor's — no stored voice sample, so no biometric data.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 4 · recording ═════════════════════════════════════════════════ -->
+  <section class="screen">
+    <h2><span class="n">4</span> During the meeting <span class="chip prop">✎ Proposed</span></h2>
+    <div class="frame">
+      <div class="bar"><span>End of year meeting · Whitfield &amp; Co</span><span style="color:#a30000;font-weight:600">● Recording</span></div>
+      <div class="body">
+        <div class="recbar">
+          <span class="dot"></span><span class="t">42:19</span>
+          <span class="lbl">Saved to this point. Your screen will not sleep while recording.</span>
+          <button class="btn danger">Stop and delete</button>
+        </div>
+
+        <h4>Your observation points</h4>
+        <div class="pts">
+          <div class="pt"><span class="tick"></span><span class="txt">I framed the meeting — said what we
+            would cover and why, in the first two minutes.</span></div>
+          <div class="pt"><span class="tick"></span><span class="txt">I used a metaphor or an analogy to
+            explain a financial idea.</span></div>
+          <div class="pt"><span class="tick"></span><span class="txt">I checked understanding before moving
+            on from the figures.</span></div>
+          <div class="pt"><span class="tick"></span><span class="txt">We agreed named actions, with an owner
+            and a date, before the time ran out.</span></div>
+          <div class="pt own"><span class="tick"></span><span class="txt">I raised the succession
+            conversation the client has deferred twice.</span></div>
+        </div>
+
+        <div class="btns"><button class="btn">Finish meeting</button></div>
+      </div>
+    </div>
+    <div class="mock">
+      <b>Three things this screen is carrying.</b>
+      <ul>
+        <li><b>"Stop and delete" never leaves the screen.</b> It is the answer to a client who says
+            "actually, can you turn that off?" — and it destroys the audio <i>and</i> any transcript
+            already made from it.</li>
+        <li><b>Audio is sent away in short pieces as it is captured</b>, so a crash costs seconds rather
+            than the meeting. There is no second take with a real client.</li>
+        <li><b>The list stays visible</b> — you chose live capture over uploading a file, and this is part
+            of what that buys.</li>
+      </ul>
+    </div>
+    <div class="fail">
+      <b>Recording stopped unexpectedly at 42:19</b>
+      Your screen locked or the browser tab was suspended. 42 minutes were saved and can still be
+      transcribed. <b>Nothing after 42:19 was captured.</b>
+      <div class="btns" style="margin-top:10px">
+        <button class="btn">Resume recording</button>
+        <button class="btn ghost">Use what was captured</button>
+      </div>
+    </div>
+    <div class="mock">
+      <b>The alarm above is the honest half of your live-capture ruling.</b> Uploading a file was the safer
+      recommendation and you chose live capture, which is the right call for consent and speed — but an
+      operating system can suspend a backgrounded tab, and a mid-meeting screen lock is not rare. The rule
+      is that this <b>fails loudly</b>: a tidy page of "no observations" must never be what a total
+      failure looks like.
+    </div>
+  </section>
+
+  <!-- ══ 5 · client summary ════════════════════════════════════════════ -->
+  <section class="screen">
+    <h2><span class="n">5</span> The client's summary <span class="chip prop">✎ Proposed</span>
+        <span class="chip open">Name not approved</span></h2>
+    <div class="frame">
+      <div class="bar"><span>Draft — not sent</span><span>Ready 40 seconds after the meeting ended</span></div>
+      <div class="body">
+        <h3>Summary for Whitfield &amp; Co</h3>
+        <p class="lede">Yours to edit. Nothing is sent until you send it.</p>
+
+        <div class="draft">
+          <h5>What we covered</h5>
+          <p>We reviewed the year to 31 March: turnover of £1.42m, up 9% on last year, with margin
+             slipping from 22% to 18.5% on the back of subcontractor costs.</p>
+          <h5>What we agreed</h5>
+          <ul>
+            <li><b>James</b> — send the subcontractor schedule by <b>12 September</b>.</li>
+            <li><b>Sarah</b> — model two pricing options for the March renewals, for our next meeting.</li>
+            <li><b>Both</b> — revisit the succession timetable in November, not next year.</li>
+          </ul>
+          <h5>What happens next</h5>
+          <p>We meet again on 14 November. I will send the pricing models a week beforehand.</p>
+        </div>
+
+        <div class="btns">
+          <button class="btn">Send to client</button>
+          <button class="btn ghost">Edit</button>
+          <button class="btn ghost">Discard</button>
+        </div>
+      </div>
+    </div>
+    <div class="mock">
+      <b>The app writes; the advisor publishes.</b> This is a draft until you edit and approve it — it is
+      never sent automatically. It is also generated by a <b>separate call from your review</b>, so that
+      coaching language cannot leak into the client's copy. One call producing both would eventually tell
+      a client that their advisor should have used a metaphor.
+      <br><br>
+      <b>The name "Summary" is a placeholder.</b> Both report names are explicitly unapproved and need
+      your ruling.
+    </div>
+  </section>
+
+  <!-- ══ 6 · advisor review ════════════════════════════════════════════ -->
+  <section class="screen">
+    <h2><span class="n">6</span> Your own review <span class="chip prop">✎ Proposed</span>
+        <span class="chip open">Name not approved</span></h2>
+    <div class="frame">
+      <div class="bar"><span>Private to you</span><span>Ready 4 minutes after the meeting ended</span></div>
+      <div class="body">
+        <h3>How the meeting went</h3>
+        <p class="lede">Only you can see this. Share it with your manager if you want to — nobody else can
+           open it.</p>
+
+        <h4>Measured, not judged</h4>
+        <div class="mgrid">
+          <div class="metric flag"><div class="k">Your talk time</div><div class="v">78%</div>
+            <div class="s">of 47 minutes</div></div>
+          <div class="metric"><div class="k">Longest stretch</div><div class="v">4:12</div>
+            <div class="s">without a pause for the client</div></div>
+          <div class="metric"><div class="k">Open questions</div><div class="v">9</div>
+            <div class="s">against 23 closed</div></div>
+          <div class="metric"><div class="k">Pause after asking</div><div class="v">0.8s</div>
+            <div class="s">average before you spoke again</div></div>
+          <div class="metric"><div class="k">Jargon</div><div class="v">14</div>
+            <div class="s">terms from the firm's glossary</div></div>
+          <div class="metric"><div class="k">Actions agreed</div><div class="v">Yes</div>
+            <div class="s">6 minutes before the end</div></div>
+        </div>
+        <p style="font-size:12px;color:var(--rs-muted)">These are counted from the transcript by
+           arithmetic. No AI is involved and none of them can be wrong.</p>
+
+        <h4>Your observation points</h4>
+        <div class="obs">
+
+          <div class="ob met">
+            <div class="hd"><span class="nm">I framed the meeting in the first two minutes</span>
+              <span class="st">Found</span></div>
+            <blockquote class="quote"><span class="ts">01:12</span>"So what I want to do today is walk
+              through the year, look at where the margin went, and then agree what we're doing about the
+              March renewals. That work for you?"</blockquote>
+            <div class="oblink"><span>Play this moment</span><span>I disagree with this</span></div>
+          </div>
+
+          <div class="ob missed">
+            <div class="hd"><span class="nm">I checked understanding before moving on from the figures</span>
+              <span class="st">Not found</span></div>
+            <div class="nf">The model was asked to quote where this happened and answered
+              <code>NOT FOUND</code>. The margin discussion runs from 14:30 to 22:05 and moves to the
+              renewals without a check.</div>
+            <div class="oblink"><span>Play 14:30–22:05</span><span>I disagree with this</span></div>
+          </div>
+
+          <div class="ob met">
+            <div class="hd"><span class="nm">I used a metaphor to explain a financial idea</span>
+              <span class="st">Found</span></div>
+            <blockquote class="quote"><span class="ts">18:44</span>"Think of the margin like a bucket with
+              a slow leak — the turnover's filling it faster, but you're still losing at the bottom."</blockquote>
+            <div class="oblink"><span>Play this moment</span><span>I disagree with this</span></div>
+          </div>
+
+          <div class="ob blind">
+            <div class="hd"><span class="nm">I drew the numbers out for the client</span>
+              <span class="st">Cannot be heard</span></div>
+            <div class="nf">A recording cannot see a drawing. You said <i>"let me sketch this out"</i> at
+              21:03, which usually means one was drawn — but the software is guessing, and says so.</div>
+            <div class="oblink"><span>Yes, I drew it</span><span>No, I didn't</span></div>
+          </div>
+
+        </div>
+
+        <div class="btns" style="margin-top:4px">
+          <button class="btn ghost">Share with my manager</button>
+        </div>
+      </div>
+    </div>
+    <div class="mock">
+      <b>Four rules are visible on this screen, and each one is load-bearing.</b>
+      <ul>
+        <li><b>Every finding quotes the transcript or declares the thing absent.</b> An observation with no
+            citation is thrown away rather than shown. "NOT FOUND" has to be as easy for the model to
+            answer as a quote, or it will invent evidence to be helpful.</li>
+        <li><b>You can disagree with any of it, and the disagreement stays in the record.</b> This is the
+            line between coaching and surveillance — and it is the only honest source of data for
+            improving the observation points themselves.</li>
+        <li><b>The report admits what it cannot know.</b> The grey card is the honest answer to the drawing
+            check, and how to handle it is still an open question for you: guess from the words, or ask
+            you afterwards.</li>
+        <li><b>It is yours.</b> No manager at any tier reads this unless you send it.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ 7 · manager view ══════════════════════════════════════════════ -->
+  <section class="screen">
+    <h2><span class="n">7</span> What a manager sees <span class="chip prop">✎ Proposed</span></h2>
+    <div class="frame">
+      <div class="bar"><span>Firm Manager · Whitfield &amp; Co</span><span>August 2026 · 28 meetings</span></div>
+      <div class="body">
+        <h3>Are the observation points landing?</h3>
+        <p class="lede">Counts across the firm. No advisor is named, and no figure here can be traced back
+           to a person.</p>
+
+        <div class="pattern">
+          <div class="prow"><span>Meeting framed in the first two minutes</span>
+            <span class="cnt">24 / 28</span><span class="bar2"><i style="width:86%"></i></span></div>
+          <div class="prow"><span>Understanding checked before moving on</span>
+            <span class="cnt">17 / 28</span><span class="bar2 warn"><i style="width:61%"></i></span></div>
+          <div class="prow"><span>A metaphor or analogy used</span>
+            <span class="cnt">21 / 28</span><span class="bar2"><i style="width:75%"></i></span></div>
+          <div class="prow"><span>Named actions agreed before time ran out</span>
+            <span class="cnt">26 / 28</span><span class="bar2"><i style="width:93%"></i></span></div>
+        </div>
+
+        <div class="btns" style="margin-top:6px">
+          <button class="btn ghost">Edit the firm's observation points</button>
+        </div>
+      </div>
+    </div>
+    <div class="mock">
+      <b>Managers set the points, so they must learn whether the points are landing</b> — but never who
+      missed one. The figure that matters here is "17 of 28", not a name.
+      <br><br>
+      <b>⚠ The unsolved part is arithmetic, and it is a decision for you.</b> In a firm with three
+      advisors, "17 of 28" is trivially reversible into who did what — a named report wearing a disguise.
+      A minimum number of meetings before any figure appears at all is required, and what that number
+      should be is an open question, not something to tune quietly later.
+    </div>
+  </section>
+
+  <!-- ══ open questions ════════════════════════════════════════════════ -->
+  <section class="screen">
+    <h2>What this mockup still needs from you</h2>
+    <div class="frame">
+      <div class="body">
+        <div class="tblwrap">
+          <table>
+            <thead><tr><th>Question</th><th>Where it shows up</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><b>Names for the two reports</b></td>
+                  <td>Screens 5 and 6 — "Summary" and "How the meeting went" are placeholders</td>
+                  <td><span class="chip open">Open</span></td></tr>
+              <tr><td><b>How long a transcript is kept</b></td>
+                  <td>Screen 2 — the <b>[period]</b> an advisor reads to a client</td>
+                  <td><span class="chip open">Open</span></td></tr>
+              <tr><td><b>The drawing check</b> — guess from the words, or ask the advisor afterwards</td>
+                  <td>Screen 6, the grey card</td>
+                  <td><span class="chip open">Open</span></td></tr>
+              <tr><td><b>Minimum meetings before a manager sees a figure</b></td>
+                  <td>Screen 7 — stops a count resolving to one person</td>
+                  <td><span class="chip open">Open</span></td></tr>
+              <tr><td>Every other label and button on this page</td>
+                  <td>Everywhere marked <span class="chip prop">✎ Proposed</span></td>
+                  <td><span class="chip open">Yours to approve or change</span></td></tr>
+              <tr><td>The spoken consent line and the two consent screens</td>
+                  <td>Screens 2 and 3</td>
+                  <td><span class="chip ok">✅ Approved 2026-09-01</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="foot">
+    Drawn from <b>design/features/meeting-review.md</b> (the Brief) and
+    <b>design/MEETING-CONSENT-WORDING.md</b> (the approved wording). Where the two disagree with this
+    page, they win — this is a picture of them, not a source in its own right. Four things the Brief
+    lists as non-coding work still stand before a first recording: a lawyer's reading of the wording in
+    each market, an impact assessment, staff consultation, and the provider's written terms for
+    submitted audio.
+  </p>
+
+</div>
