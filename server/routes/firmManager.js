@@ -195,6 +195,8 @@ const { loadFirmDistinctionState, CONFIG_KEYS } = require('../utils/firmDistinct
 const { loadPlatformDistinctions } = require('../utils/platformDistinctions')
 const { devFallbackAllowed } = require('../utils/dbFailure')
 const { loadEffectiveTemplates, clearTemplateCache } = require('../utils/templateLibrary')
+// The committed seed — the library in force when NO tier has uploaded one.
+const SEED_TEMPLATES = require('../../data/templates.json')
 
 // Every `catch` below asks this instead of a bare NODE_ENV check. It answers NO
 // when a live MySQL REFUSED the statement, so a rejected save can no longer be
@@ -638,6 +640,73 @@ async function importTemplates (req, res) {
     // The new library is live on the next request here, not after the TTL.
     clearTemplateCache()
     res.send(201, { imported: true, templateCount: parsed.length, version })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * GET /api/firm-manager/templates/library — the library IN FORCE for this firm,
+ * whole, plus what the screen's "whose library" cards need (approved mockup,
+ * design/mockups/firm-template-library.html, Mike 2026-09-01).
+ *
+ * READ-ONLY BY RULING: view-only for now, with the potential to become the
+ * master doc source later depending on master-team feedback (Mike, 2026-09-01).
+ * Template content and IDs are edited only in Advisor-e (CLAUDE.md).
+ *
+ * `source` is 'firm' when this firm's own upload is winning the cascade,
+ * otherwise 'platform' — which also covers an inherited middle-tier upload
+ * (impossible today: the middle-tier roles ship empty, fail-closed).
+ *
+ * @route GET /api/firm-manager/templates/library
+ * @returns {200} { source: 'firm'|'platform', platformCount: number, templates: object[] }
+ */
+async function getTemplateLibraryView (req, res) {
+  try {
+    let own = null
+    try {
+      own = await overlay.loadFirmConfig(req.firmId, 'templates')
+    } catch (err) {
+      if (!devFallbackOk(err)) { throw err }
+      own = _devReadTemplates(req.firmId) // DEV/TEST-ONLY fallback (see banner above)
+    }
+    // loadEffectiveTemplates never rejects (its own contract); null means no
+    // tier has uploaded and the committed seed is the library in force.
+    const [effective, platform] = await Promise.all([
+      loadEffectiveTemplates(req.firmId),
+      loadEffectiveTemplates(null)
+    ])
+    res.send(200, {
+      source: Array.isArray(own) && own.length > 0 ? 'firm' : 'platform',
+      platformCount: (platform || SEED_TEMPLATES).length,
+      templates: effective || SEED_TEMPLATES
+    })
+  } catch (err) {
+    return serverError(res, 500, 'DB_ERROR', err)
+  }
+}
+
+/**
+ * POST /api/firm-manager/templates/restore — roll back to an earlier upload.
+ *
+ * The firm twin of the mentor's restorePlatformTemplates (SEARCH-CONTENT-CASCADE-PLAN
+ * §7): scoped to req.firmId from the verified token, never a body field. No dev-file
+ * fallback — the dev file keeps no history, so there is never a version to restore to.
+ *
+ * @route POST /api/firm-manager/templates/restore
+ * @param {object} req.body - { versionId: number } a row id from the history list
+ * @returns {200} { restored: true, version: number }
+ */
+async function restoreTemplateImport (req, res) {
+  const versionId = req.body ? req.body.versionId : undefined
+  if (!Number.isInteger(versionId) || versionId <= 0) {
+    return sendError(res, 400, 'INVALID_VERSION', 'versionId must be a positive integer')
+  }
+  try {
+    const version = await overlay.restoreVersion(req.firmId, 'templates', versionId)
+    // The restored library is live on the next request here, not after the TTL.
+    clearTemplateCache()
+    res.send(200, { restored: true, version })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
   }
@@ -4460,7 +4529,9 @@ module.exports = {
   deleteVideo,
   getStorageUsage,
   getTemplateImport,
+  getTemplateLibraryView,
   importTemplates,
+  restoreTemplateImport,
   resetTemplateImport,
   // DEV/TEST-ONLY template-store fallbacks, exported so the mentor's platform
   // upload (mentor.js) shares the ONE dev file rather than inventing a second —

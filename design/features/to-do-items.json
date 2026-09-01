@@ -103,25 +103,6 @@
       "comment": "2026-08-31 — filed at the close of the session that built the report. NOT a blocker: /volatility is live, correct against the workbook and in the Model Library today."
     },
     {
-      "ref": "4.55",
-      "name": "The firm's own template-upload screen (Cascade Phase 3)",
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Phases 1 AND 2 of design/SEARCH-CONTENT-CASCADE-PLAN.md are now live: the mentor uploads on the Template Library tab (5cf3743/6ba5dd7, 2026-08-31), and since c3f2ee9 (2026-09-01) the engine actually reads through the cascade — server/utils/templateLibrary.js resolves the nearest tier's upload, whole, with data/templates.json as the seed and a ~60s cache. What remains is Phase 3: a screen in front of the already-built, already-validated importTemplates route so a FIRM can upload its own library, plus the restore button its stored history already supports.",
-      "risk": "Low while open: a firm's upload already works at the API and already wins the cascade — only the screen is missing, so today a firm needs a developer to exercise it. Two loose ends ride along: (1) the Template Library tab's status line reads \"291 templates · uploaded by\" with nothing after it when history is empty (dev machines today; UAT if a row ever lacks a name) — drop the phrase when there is no name, wording to be Mike's; (2) the tab has now been eyeballed in a production build (2026-09-01) — that residual is closed.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-08-31 — \"plan/design how to convert the manual download and upload of a json script (the search contents script) into a cascading - dynamic - database\"; the plan and Phase 1 were approved and built the same day, Phase 2 approved and built 2026-09-01. This item is Phase 3, awaiting his go."
-      },
-      "touches": "server/routes/firmManager.js importTemplates (exists, screenless) + FirmManagerHub.vue (the Phase 3 screen), components/mentor/MentorTemplateLibrary.vue (the dangling-wording fix), locales/en.json.",
-      "comment": "2026-09-01 — Phase 2 shipped (c3f2ee9): proven live on the desktop — a firm with no upload received the mentor's 291-template upload; suite 6,560 green. Phase 4 (Advisor-e pushes the export directly) remains the master team's, recorded in the plan and the cascade handover doc."
-    },
-    {
       "ref": "4.56",
       "name": "Rule whether a firm's replaced library changes what CPD its advisors claim",
       "kind": "defect",

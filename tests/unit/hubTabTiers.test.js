@@ -58,8 +58,10 @@ const MENTOR_BEFORE = [
  * - `aiPrompts` — Mike, 2026-08-21 (`AI-PROMPTS-PAGE.md`, item 4.28), naming all four
  *   manager tiers himself: *"a 'AI Prompts' page in the hub pages (Mentor, Global Group
  *   Manager, Group Manager and Firm Manager)"*.
+ * - `templateLibraryFirm` — Mike, 2026-09-01 (`SEARCH-CONTENT-CASCADE-PLAN.md` Phase 3,
+ *   item 4.55): the firm's own template-export upload, firm tier only.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
