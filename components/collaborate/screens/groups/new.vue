@@ -26,7 +26,7 @@
           title="Voice input"
         ) 🎤
         b-field(:label="$t('group.tags')")
-          b-taginput(v-model="form.tags" ellipsis :placeholder="$t('profile.addTag')")
+          b-taginput(v-model="form.tags" ellipsis :placeholder="$t('collabProfile.addTag')")
         b-field(:label="$t('group.visibility')")
           b-select(v-model="form.visibility" expanded)
             option(value="listed") {{ $t('group.listed') }}

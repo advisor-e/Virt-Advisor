@@ -50,9 +50,14 @@ export function mergeSections (base, extra, sections) {
 /**
  * The Collaborate sections this app currently surfaces.
  *
- * `common`, `console` and `firm` are what the Adviser Network tab renders
- * (components/collaborate/shared/ManagerConsole.vue + ConsoleNode.vue). Add to
- * this list as more Collaborate screens are surfaced — and expect mergeSections()
- * to stop you the day `profile` is one of them.
+ * Since the front door (2026-09-01) every Collaborate screen is reachable, so all
+ * of its sections merge. The predicted `profile` collision arrived and was settled
+ * the required way (2026-09-02): Collaborate's section is renamed `collabProfile`
+ * in its own locale file and components — neither app's wording overwrote the
+ * other's.
  */
-export const COLLABORATE_SECTIONS = ['common', 'console', 'firm']
+export const COLLABORATE_SECTIONS = [
+  'app', 'nav', 'firm', 'console', 'audit', 'home', 'common', 'collabProfile',
+  'discover', 'outreach', 'messages', 'invite', 'group', 'connections',
+  'connecting', 'market', 'notif', 'toast', 'help'
+]
