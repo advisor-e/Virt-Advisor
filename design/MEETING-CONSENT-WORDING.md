@@ -7,8 +7,22 @@
 > [`ARTEFACTS.md`](ARTEFACTS.md). Anything built from them is checked against **this page**, never
 > against a paraphrase of it.
 >
-> **What is NOT settled:** the retention period, written as `[period]` throughout; the legal work in
-> §6; and the build itself — there is no screen, no route and no locale string for any of this.
+> **What is NOT settled:** the legal work in §6, and the build itself — there is no screen, no route
+> and no locale string for any of this. **The retention period is settled at 18 months** (Mike's
+> ruling, 2026-09-01); `[period]` now survives only inside candidate C, which was not chosen.
+>
+> **The wording is fixed and a firm cannot edit it.** *(Mike's ruling, 2026-09-01.)* These are the
+> only words in the app that are a promise made aloud to someone outside the firm, and they need a
+> lawyer's reading per market — so there is no firm-level override, and the clause most likely to be
+> trimmed for being awkward (the AI sentence) is the one that must never be.
+>
+> ⚠ **ONE VALUE INSIDE THE FIXED WORDING IS NOT FIXED, AND A BUILD MUST NOT HARDCODE IT.** P8 lets a
+> firm set its own retention clock, and the screen quotes that figure back to the client. **18 months
+> is the platform default, not a constant** — the sentence must render the firm's current setting. A
+> build that types "18 months" into the string has advisors telling clients something untrue the day
+> a firm changes the dial, and nothing on screen would ever say so. *(Found while recording the
+> 2026-09-01 rulings: the fixed-wording ruling and the firm-set clock are both correct and they meet
+> in this one number.)*
 >
 > **None of this text is in a locale file yet.** When it is built it goes through `$t()` into all
 > eight locales like every other string — but read §5 first. These are not ordinary strings to
@@ -124,8 +138,8 @@ audio is the evidence. They are not interchangeable.
 > > written summary of what we agree today, and it helps me review how I did. Nothing is shared
 > > outside our firm. Is everyone here happy for me to record?"*
 >
-> The audio is transcribed and then deleted. The transcript is kept for `[period]` and is visible to
-> you and your firm — never to Advisor-e.
+> The audio is transcribed and then deleted. The transcript is kept for **18 months** and is visible
+> to you and your firm — never to Advisor-e.
 >
 > `[ Start recording ]`  `[ Cancel ]`
 
@@ -207,7 +221,8 @@ The wording is settled. These are not, and none is a coding task:
 | The screen | ✅ **Candidate 1's wording, in two steps** — corrected from one panel so consent is spoken inside the recording | 2026-09-01 |
 | Consent refused at the start | ✅ **Stop and delete; meeting proceeds unrecorded, pre-set list still shown** | 2026-09-01 |
 | Consent withdrawn mid-meeting | ✅ **Same control, available throughout; audio and any derived transcript destroyed** | 2026-09-01 |
-| Transcript retention — the `[period]` above | ☐ **Open** — carried on the Brief §6 | — |
+| Transcript retention — the `[period]` above | ✅ **18 months**, as the platform default. The firm's dial (P8) still moves it, and the spoken line renders the firm's current figure rather than a hardcoded one | 2026-09-01 |
+| Whether a firm may edit this wording | ✅ **No.** One lawyer-checked version per market; no firm-level override. The retention figure above is the single value that varies | 2026-09-01 |
 
 **Related:** [`features/meeting-review.md`](features/meeting-review.md) §2 P1 and P13, §4 ·
 [`features/meeting-review-history.md`](features/meeting-review-history.md) §2 ·

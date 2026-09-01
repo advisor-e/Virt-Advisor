@@ -223,8 +223,12 @@ tr:last-child td{border-bottom:0}
     <div class="leg">
       <span class="k"><span class="chip ok">✅ Approved</span> — your words, verbatim</span>
       Text on a green panel is the consent wording you approved on 2026-09-01. It is copied from
-      <b>design/MEETING-CONSENT-WORDING.md</b> character for character. If it needs to change, that page
-      changes first.
+      <b>design/MEETING-CONSENT-WORDING.md</b> character for character.
+      <br><br>
+      <b>It is a script, not a field.</b> Nothing is typed into it — these are the words the advisor
+      <i>says out loud</i> so the client's agreement is captured inside the recording itself. You ruled
+      on 2026-09-01 that a firm cannot edit it: one lawyer-checked version per market. The single value
+      that varies is the retention period, which renders the firm's own setting.
     </div>
     <div class="leg">
       <span class="k"><span class="chip prop">✎ Proposed</span> — my draft, awaiting your ruling</span>
@@ -299,7 +303,7 @@ tr:last-child td{border-bottom:0}
         </div>
 
         <p>The audio is transcribed and then deleted. The transcript is kept for
-           <b>[period]</b> and is visible to you and your firm — never to Advisor-e.</p>
+           <b>18 months</b> and is visible to you and your firm — never to Advisor-e.</p>
 
         <div class="btns">
           <button class="btn">Start recording</button>
@@ -308,9 +312,14 @@ tr:last-child td{border-bottom:0}
       </div>
     </div>
     <div class="mock">
-      <b>[period] is a real gap, not a typo.</b> The default transcript retention period is still open on
-      the Brief §6 and is yours to set. It appears on a screen a client's advisor reads aloud from, so it
-      cannot ship as a guess. <b>Everything else on this screen is your approved wording, unchanged.</b>
+      <b>18 months — your ruling of 2026-09-01.</b> Long enough to clear an annual meeting cycle with
+      six months to spare, so year-on-year follow-through works; short enough that a client hearing it
+      spoken does not pause.
+      <br><br>
+      ⚠ <b>The number must not be typed into the sentence when this is built.</b> A firm can move its own
+      retention dial, and this line quotes that figure back to a client out loud. 18 months is the
+      platform default, not a constant — a build that hardcodes it has advisors saying something untrue
+      the day a firm changes the setting, and nothing on screen would say so.
     </div>
   </section>
 
@@ -418,12 +427,11 @@ tr:last-child td{border-bottom:0}
 
   <!-- ══ 5 · client summary ════════════════════════════════════════════ -->
   <section class="screen">
-    <h2><span class="n">5</span> The client's summary <span class="chip prop">✎ Proposed</span>
-        <span class="chip open">Name not approved</span></h2>
+    <h2><span class="n">5</span> Meeting Summary — the client's copy <span class="chip ok">✅ Name approved</span></h2>
     <div class="frame">
       <div class="bar"><span>Draft — not sent</span><span>Ready 40 seconds after the meeting ended</span></div>
       <div class="body">
-        <h3>Summary for Whitfield &amp; Co</h3>
+        <h3>Meeting Summary — Whitfield &amp; Co</h3>
         <p class="lede">Yours to edit. Nothing is sent until you send it.</p>
 
         <div class="draft">
@@ -453,19 +461,18 @@ tr:last-child td{border-bottom:0}
       coaching language cannot leak into the client's copy. One call producing both would eventually tell
       a client that their advisor should have used a metaphor.
       <br><br>
-      <b>The name "Summary" is a placeholder.</b> Both report names are explicitly unapproved and need
-      your ruling.
+      <b>Named "Meeting Summary" by your ruling of 2026-09-01</b> — the client's copy says plainly what
+      it is, and nothing more.
     </div>
   </section>
 
   <!-- ══ 6 · advisor review ════════════════════════════════════════════ -->
   <section class="screen">
-    <h2><span class="n">6</span> Your own review <span class="chip prop">✎ Proposed</span>
-        <span class="chip open">Name not approved</span></h2>
+    <h2><span class="n">6</span> My Coaching Notes — yours alone <span class="chip ok">✅ Name approved</span></h2>
     <div class="frame">
       <div class="bar"><span>Private to you</span><span>Ready 4 minutes after the meeting ended</span></div>
       <div class="body">
-        <h3>How the meeting went</h3>
+        <h3>My Coaching Notes</h3>
         <p class="lede">Only you can see this. Share it with your manager if you want to — nobody else can
            open it.</p>
 
@@ -540,9 +547,10 @@ tr:last-child td{border-bottom:0}
         <li><b>You can disagree with any of it, and the disagreement stays in the record.</b> This is the
             line between coaching and surveillance — and it is the only honest source of data for
             improving the observation points themselves.</li>
-        <li><b>The report admits what it cannot know.</b> The grey card is the honest answer to the drawing
-            check, and how to handle it is still an open question for you: guess from the words, or ask
-            you afterwards.</li>
+        <li><b>The report admits what it cannot know.</b> The grey card is the drawing check, ruled on
+            2026-09-01: your words raise it, the card says out loud that it is guessing, and you settle it
+            in one tap. <b>What gets stored is your answer, never the guess</b> — otherwise a maybe would
+            harden into a fact on its way to the manager's figures.</li>
         <li><b>It is yours.</b> No manager at any tier reads this unless you send it.</li>
       </ul>
     </div>
@@ -552,7 +560,7 @@ tr:last-child td{border-bottom:0}
   <section class="screen">
     <h2><span class="n">7</span> What a manager sees <span class="chip prop">✎ Proposed</span></h2>
     <div class="frame">
-      <div class="bar"><span>Firm Manager · Whitfield &amp; Co</span><span>August 2026 · 28 meetings</span></div>
+      <div class="bar"><span>Firm Manager · Whitfield &amp; Co</span><span>August 2026 · 28 meetings · 9 advisors</span></div>
       <div class="body">
         <h3>Are the observation points landing?</h3>
         <p class="lede">Counts across the firm. No advisor is named, and no figure here can be traced back
@@ -577,43 +585,80 @@ tr:last-child td{border-bottom:0}
     <div class="mock">
       <b>Managers set the points, so they must learn whether the points are landing</b> — but never who
       missed one. The figure that matters here is "17 of 28", not a name.
-      <br><br>
-      <b>⚠ The unsolved part is arithmetic, and it is a decision for you.</b> In a firm with three
-      advisors, "17 of 28" is trivially reversible into who did what — a named report wearing a disguise.
-      A minimum number of meetings before any figure appears at all is required, and what that number
-      should be is an open question, not something to tune quietly later.
+    </div>
+
+    <h2 style="margin-top:6px"><span class="n">7b</span> The same screen at a smaller firm
+        <span class="chip ok">✅ Threshold approved</span></h2>
+    <div class="frame">
+      <div class="bar"><span>Firm Manager · Hale &amp; Partners</span><span>August 2026 · 14 meetings · 4 advisors</span></div>
+      <div class="body">
+        <h3>Are the observation points landing?</h3>
+        <div class="notbuilt" style="background:var(--rs-accent-soft);border-color:#0070c055;border-left-color:var(--rs-accent)">
+          <b>Not enough meetings yet to show patterns safely.</b>
+          Figures appear once at least <b>5 advisors</b> and <b>20 meetings</b> have contributed. Below
+          that, a count can be worked backwards to an individual — and no manager sees an individual's
+          notes unless that advisor sends them.
+        </div>
+        <div class="btns">
+          <button class="btn ghost">Edit the firm's observation points</button>
+        </div>
+      </div>
+    </div>
+    <div class="mock">
+      <b>This second screen is the one most firms will actually meet, which is why it is drawn.</b>
+      Your ruling of 2026-09-01: <b>5 advisors and 20 meetings</b> before any figure appears.
+      <ul>
+        <li><b>The cost is real and you accepted it.</b> A four-advisor firm sees no manager figures,
+            ever. They still set the observation points, and their advisors still get their own notes —
+            only this one panel stays empty.</li>
+        <li><b>The empty state has to explain itself.</b> If it just shows nothing, the first manager to
+            open it reports a bug, and the honest answer is that the software is protecting their
+            people.</li>
+        <li><b>It is not a tuning constant.</b> Lowering it to make a screen look populated would undo
+            the promise, quietly, and no test would catch it.</li>
+      </ul>
     </div>
   </section>
 
   <!-- ══ open questions ════════════════════════════════════════════════ -->
   <section class="screen">
-    <h2>What this mockup still needs from you</h2>
+    <h2>What you ruled on 2026-09-01</h2>
     <div class="frame">
       <div class="body">
         <div class="tblwrap">
           <table>
-            <thead><tr><th>Question</th><th>Where it shows up</th><th>Status</th></tr></thead>
+            <thead><tr><th>Question</th><th>Your ruling</th><th>Where it shows</th></tr></thead>
             <tbody>
               <tr><td><b>Names for the two reports</b></td>
-                  <td>Screens 5 and 6 — "Summary" and "How the meeting went" are placeholders</td>
-                  <td><span class="chip open">Open</span></td></tr>
+                  <td><b>Meeting Summary</b> for the client, <b>My Coaching Notes</b> for the advisor.
+                      "Review" rejected — inside a firm it reads as an appraisal</td>
+                  <td>Screens 5, 6</td></tr>
               <tr><td><b>How long a transcript is kept</b></td>
-                  <td>Screen 2 — the <b>[period]</b> an advisor reads to a client</td>
-                  <td><span class="chip open">Open</span></td></tr>
-              <tr><td><b>The drawing check</b> — guess from the words, or ask the advisor afterwards</td>
-                  <td>Screen 6, the grey card</td>
-                  <td><span class="chip open">Open</span></td></tr>
-              <tr><td><b>Minimum meetings before a manager sees a figure</b></td>
-                  <td>Screen 7 — stops a count resolving to one person</td>
-                  <td><span class="chip open">Open</span></td></tr>
-              <tr><td>Every other label and button on this page</td>
-                  <td>Everywhere marked <span class="chip prop">✎ Proposed</span></td>
-                  <td><span class="chip open">Yours to approve or change</span></td></tr>
+                  <td><b>18 months.</b> Clears an annual cycle with six months to spare; still a number a
+                      client accepts hearing aloud</td>
+                  <td>Screen 2</td></tr>
+              <tr><td><b>The drawing check</b></td>
+                  <td><b>Both.</b> The words raise it and it says it is guessing; you confirm in one tap;
+                      your answer is what gets stored</td>
+                  <td>Screen 6, grey card</td></tr>
+              <tr><td><b>Before a manager sees a figure</b></td>
+                  <td><b>5 advisors and 20 meetings.</b> Below that, nothing — and the screen says why</td>
+                  <td>Screens 7, 7b</td></tr>
+              <tr><td><b>Can a firm edit the consent wording?</b></td>
+                  <td><b>No.</b> One lawyer-checked version per market. Only the retention figure varies</td>
+                  <td>Screens 2, 3</td></tr>
               <tr><td>The spoken consent line and the two consent screens</td>
-                  <td>Screens 2 and 3</td>
-                  <td><span class="chip ok">✅ Approved 2026-09-01</span></td></tr>
+                  <td>Approved earlier the same day, unchanged here</td>
+                  <td>Screens 2, 3</td></tr>
             </tbody>
           </table>
+        </div>
+        <div class="mock" style="margin-top:14px">
+          <b>Still open, and none of it is a coding task.</b> A lawyer reads the consent wording in each
+          market; the impact assessment; staff consultation; the provider's written terms for submitted
+          audio; and an answer for a client who asks for their data or its deletion. <b>The screens
+          themselves are still awaiting your approval</b> — you have ruled on what goes in them, which is
+          not the same as saying the screens are right.
         </div>
       </div>
     </div>

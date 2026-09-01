@@ -275,8 +275,13 @@ drop is logged.
    quietly swap the two people over — which is why attribution comes from one pass over the
    assembled audio (§3) and never from the chunks. Either way it must fail visibly, not blur.
 2. **Aggregates that resolve to one person.** A firm with three advisors makes P3's "patterns, not
-   names" arithmetic trivially reversible. A minimum cohort size is required, and it is a design
-   decision, not a tuning constant.
+   names" arithmetic trivially reversible. **The threshold is set: no figure appears at all until at
+   least 5 advisors and 20 meetings have contributed** *(Mike's ruling, 2026-09-01)*. It is a design
+   decision, not a tuning constant, and it is **not** to be lowered to make a screen look populated.
+   ⚠ **The accepted cost, recorded so nobody "fixes" it later:** a firm with four advisors sees no
+   manager figures ever. That is the correct outcome — they still set the observation points and
+   their advisors still get their own reports. The empty state must say why it is empty, or the
+   first person to meet it will read it as a bug and file one.
 3. **The client summary inheriting coaching language.** The reason for P6, and it will only be
    noticed when a client reads it.
 4. **Deletion that is best-effort.** P8 is a promise made to a firm's clients. If a chunk fails to
@@ -288,9 +293,11 @@ drop is logged.
 only part with existing machinery behind it — `firmOverlay` already provides storage, version
 history and restore, and is used by Advisory Distinctions, the Staircase, quizzes and currency.
 
-**Also unresolved:** the names of the two reports. *Meeting Summary* and *Advisor Review* are
-placeholders used throughout this page and **have not been approved**. Nothing should be labelled
-from them.
+**The two reports are named.** *(Mike's ruling, 2026-09-01.)* The client's is **Meeting Summary**;
+the advisor's is **My Coaching Notes**. *Advisor Review* was rejected: inside a firm the word
+"review" reads as an appraisal — something done *to* someone by a manager — which is the exact
+reading P2 and the inherited tone rule exist to prevent. **"My" is load-bearing too**, because the
+report belongs to the advisor and the name should say so before they open it.
 
 ---
 
@@ -298,13 +305,14 @@ from them.
 
 | Question | Whose | Status |
 |---|---|---|
-| Names for the two reports | Mike | Open — placeholders in use |
+| Names for the two reports | Mike | ✅ **Settled 2026-09-01** — **Meeting Summary** (client) and **My Coaching Notes** (advisor); *Advisor Review* rejected, §5 Known state |
 | Consent wording, spoken and on screen | Mike | ✅ **Settled 2026-09-01** — spoken line, two-step screen, and the refusal path, in [`../MEETING-CONSENT-WORDING.md`](../MEETING-CONSENT-WORDING.md). A lawyer's review per market remains (§4 item 2) |
 | The exception to the PII-to-LLM rule | Mike | ✅ **Settled 2026-09-01** — written into `CLAUDE.md`, named to this feature, four conditions, no precedent (§4 item 1) |
 | Speaker separation approach | Ours to propose, Mike to choose | ✅ **Settled 2026-09-01** — provider diarization, advisor anchored to the consent line, no voice sample (§3) |
-| Drawing check: verbal signature, or advisor confirms | Mike | Open |
-| Minimum cohort size for manager aggregates | Ours to propose | Open |
-| Default transcript retention period | Mike | Open |
+| Drawing check: verbal signature, or advisor confirms | Mike | ✅ **Settled 2026-09-01** — **both**: the verbal signature raises it and says it is guessing, the advisor confirms in one tap, and the stored finding is the confirmation, never the guess |
+| Minimum cohort size for manager aggregates | Ours to propose | ✅ **Settled 2026-09-01** — **5 advisors and 20 meetings**, never lowered to populate a screen; §5 trap 2 records the accepted cost |
+| Default transcript retention period | Mike | ✅ **Settled 2026-09-01** — **18 months**, as the platform default. It is spoken aloud to the client, so the line renders the firm's current figure and never a hardcoded one — [`../MEETING-CONSENT-WORDING.md`](../MEETING-CONSENT-WORDING.md) banner |
+| Whether a firm may edit the consent wording | Mike | ✅ **Settled 2026-09-01** — **no**. One lawyer-checked version per market; the retention figure is the only value that varies |
 | Which Handbook group this page belongs in | Mike | Provisionally **Learning**, beside Advisor Progress |
 
 ---
