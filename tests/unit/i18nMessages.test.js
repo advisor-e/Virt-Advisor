@@ -47,12 +47,25 @@ describe('the real locale files', () => {
     expect(() => mergeSections(ourEn, collaborateEn, COLLABORATE_SECTIONS)).not.toThrow()
   })
 
-  test('`profile` is the known clash and is deliberately NOT merged', () => {
-    // Both files define it. It stays out until it is renamed — this test is what
-    // stops someone "fixing" the omission by adding it to the list.
+  test('the `profile` clash is settled: Collaborate\'s section is renamed and merged', () => {
+    // The clash predicted when the front door surfaced every screen (2026-09-01)
+    // arrived and was settled the required way (2026-09-02): Collaborate's section
+    // is `collabProfile` in its own file and components. This pins the settlement —
+    // the app keeps `profile`, Collaborate must never reintroduce one, and the
+    // renamed section actually merges (a rename that fell out of the list would
+    // render raw keys on /profile with no error anywhere).
     expect(Object.prototype.hasOwnProperty.call(ourEn, 'profile')).toBe(true)
-    expect(Object.prototype.hasOwnProperty.call(collaborateEn, 'profile')).toBe(true)
+    expect(Object.prototype.hasOwnProperty.call(collaborateEn, 'profile')).toBe(false)
+    expect(Object.prototype.hasOwnProperty.call(collaborateEn, 'collabProfile')).toBe(true)
     expect(COLLABORATE_SECTIONS).not.toContain('profile')
+    expect(COLLABORATE_SECTIONS).toContain('collabProfile')
+  })
+
+  test('every section in Collaborate\'s locale file is merged — none left behind', () => {
+    // Since the front door, every Collaborate screen is reachable, so a section
+    // missing from the list means raw keys on a live screen (the 2026-09-02 bug:
+    // only 3 of 19 sections were merged and every header showed `nav.*`).
+    expect([...COLLABORATE_SECTIONS].sort()).toEqual(Object.keys(collaborateEn).sort())
   })
 
   test('every key the Adviser Network tab renders actually resolves', () => {

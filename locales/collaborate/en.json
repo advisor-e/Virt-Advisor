@@ -174,7 +174,7 @@
     "inviteToGroup": "Invite to group",
     "message": "Message"
   },
-  "profile": {
+  "collabProfile": {
     "title": "My Profile",
     "fromAdvisory": "From Advisory (read-only)",
     "availability": "Availability",
