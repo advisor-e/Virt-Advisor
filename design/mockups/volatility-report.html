@@ -204,6 +204,13 @@ td.out{color:var(--rs-warn);font-weight:600}
     </div>
   </header>
 
+  <div class="chips">
+    <span class="chip done"><span class="n">✓</span> Accounts file uploaded</span>
+    <span class="chip done"><span class="n">✓</span> Sales rows matched</span>
+    <span class="chip now"><span class="n">3</span> Review volatility</span>
+    <span class="chip todo"><span class="n">4</span> Discuss with client</span>
+  </div>
+
   <!-- [C] HeroStrip — full-width band, direct child of the root, above the layout -->
   <div class="herostrip tag" data-tag="C">
     <div class="hs">
@@ -244,8 +251,23 @@ td.out{color:var(--rs-warn);font-weight:600}
         <div class="seg"><button class="on">12</button><button>18</button><button>24</button></div>
       </div>
       <div class="vol-group">
+        <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">Source</h2></div>
+        <div class="srcbox">
+          <span>📄</span>
+          <div>
+            <div class="nm">Northgate_ProfitAndLoss_2023.xlsx</div>
+            <div class="mt">Profit and Loss export · 12 monthly sales rows read</div>
+          </div>
+        </div>
+        <button class="vol-cta vol-ghost" style="margin-top:10px">Replace accounts file</button>
+        <p class="vol-sub" style="margin:8px 0 0">Before a file is dropped this group is the upload card:
+          <b>Drop the by-month Profit and Loss export</b> · From your accounting software: Profit and
+          Loss → set the period to monthly → export as Excel or CSV · <b>Choose the file…</b> ·
+          Or type the months in below.</p>
+      </div>
+      <div class="vol-group">
         <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">Monthly sales</h2></div>
-        <p class="vol-sub" style="margin:0 0 10px">Oldest month first. An accounts upload is coming; for now these are typed.</p>
+        <p class="vol-sub" style="margin:0 0 10px">Oldest month first. Filled by the accounts upload above, or typed by hand.</p>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
           <div style="display:flex;align-items:center;gap:6px"><span style="width:22px;font-size:11px;color:var(--rs-muted);text-align:right">Sep</span><input value="16892" style="width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;border:1px solid var(--rs-line);border-radius:7px"></div>
           <div style="display:flex;align-items:center;gap:6px"><span style="width:22px;font-size:11px;color:var(--rs-muted);text-align:right">Oct</span><input value="78123" style="width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;border:1px solid var(--rs-line);border-radius:7px"></div>
@@ -454,7 +476,7 @@ td.out{color:var(--rs-warn);font-weight:600}
       <!-- [D2d] actions -->
       <div class="vol-actions tag" data-tag="D2d">
         <button class="vol-cta">Download PDF</button>
-        <span class="vol-foot">All figures are calculated from the monthly sales entered on the left.</span>
+        <span class="vol-foot">Figures tagged “from file” came from the upload; the rest are calculated.</span>
       </div>
 
     </section>
@@ -479,12 +501,14 @@ td.out{color:var(--rs-warn);font-weight:600}
 
   <div class="mock">
     <strong>Wording approved by Mike, 2026-08-31</strong>, and the screen was BUILT from this
-    file the same day (<em>components/VolatilityReport.vue</em>). Updated after the build to
-    match it: the four upload step chips, the source-file card and the “from file” badges are
-    gone — entry is typed until the by-month accounts upload lands (“typed now, upload next”) —
-    and a <strong>Starting month</strong> picker was added at Mike’s request, so the months read
-    by name and fill forward from the one chosen. The negative third band stops at zero, also
-    his ruling. The dial’s 50/75 boundaries were measured from the workbook’s own gauge images.
+    file the same day (<em>components/VolatilityReport.vue</em>). Updated 2026-09-02 when the
+    by-month accounts upload landed (item 4.54, the “upload next” half of his ruling): the four
+    step chips, the source-file card and the “from file” badges are back, the upload-card and
+    refusal wording approved the same day — <strong>no product names; “your accounting
+    software”</strong>, his amendment. The <strong>Starting month</strong> picker (his request)
+    stays for typed entry and is disabled when a file names the months itself. The negative
+    third band stops at zero, also his ruling. The dial’s 50/75 boundaries were measured from
+    the workbook’s own gauge images.
   </div>
 
 </div>

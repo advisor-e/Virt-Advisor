@@ -256,6 +256,11 @@ const BAD_DEBTS_RECOVERED_RE = /bad\s*debts?\s*recovered/i
 const INTEREST_PAID_RE = /interest\s+(paid|expense)|loan\s+interest/i
 const OTHER_INCOME_SECTION_RE = /other\s+income|non-?operating\s+income/i
 const COST_OF_SALES_SECTION_RE = /cost\s+of\s+(sales|goods)/i
+// R18 anchoring lives in this pattern: "trading income" is exact, so
+// "Non-Trading Income" can never classify as sales. Shared with the
+// monthly-sales parser (item 4.54) so the two can never disagree about
+// what counts as sales.
+const INCOME_SECTION_RE = /^income$|^revenue$|^trading income$|^sales$/i
 
 /** Package a candidate list as a file-sourced proposal, or undefined when none found. */
 function proposalOf (candidates) {
@@ -300,7 +305,7 @@ function extractProfitLoss (grid) {
 
   // R18: "trading income" is anchored — "Non-Trading Income" must never classify as sales
   const expenseItems = items.filter(it => inSection(it, /operating expenses|^expenses$|overheads/i))
-  const incomeItems = items.filter(it => inSection(it, /^income$|^revenue$|^trading income$|^sales$/i))
+  const incomeItems = items.filter(it => inSection(it, INCOME_SECTION_RE))
   const otherIncomeItems = items.filter(it => inSection(it, OTHER_INCOME_SECTION_RE))
   const costOfSalesItems = items.filter(it => inSection(it, COST_OF_SALES_SECTION_RE))
 
@@ -354,15 +359,16 @@ function extractProfitLoss (grid) {
 }
 
 /**
- * Sniff an uploaded buffer, read it (xlsx or csv), detect which Xero report it is,
- * and extract the intake proposal. The single entry point the route calls.
+ * Sniff an uploaded buffer and read it into cell grids — the shared front half of
+ * every intake parser (extracted for the monthly-sales parser, item 4.54; the
+ * behaviour is byte-for-byte parseUpload's own).
  *
  * @param {Buffer} buf - the uploaded file's bytes.
- * @returns {object} on success: the extract result above.
+ * @returns {Array<Array<Array<string|number|null>>>} one grid per sheet.
  * @throws {XlsxReadError|Error} err.code ∈ NOT_XLSX | CORRUPT_FILE | FILE_TOO_LARGE |
- *   TOO_MANY_PARTS | PDF_REJECTED | UNRECOGNISED_FILE | UNRECOGNISED_REPORT | MULTI_PERIOD_COLUMNS
+ *   TOO_MANY_PARTS | PDF_REJECTED | UNRECOGNISED_FILE
  */
-function parseUpload (buf) {
+function readUploadGrids (buf) {
   if (!Buffer.isBuffer(buf) || buf.length === 0) {
     const e = new Error('The upload was empty'); e.code = 'UNRECOGNISED_FILE'; throw e
   }
@@ -386,6 +392,20 @@ function parseUpload (buf) {
     }
     grids = [parseCsv(text)]
   }
+  return grids
+}
+
+/**
+ * Sniff an uploaded buffer, read it (xlsx or csv), detect which Xero report it is,
+ * and extract the intake proposal. The single entry point the route calls.
+ *
+ * @param {Buffer} buf - the uploaded file's bytes.
+ * @returns {object} on success: the extract result above.
+ * @throws {XlsxReadError|Error} err.code ∈ NOT_XLSX | CORRUPT_FILE | FILE_TOO_LARGE |
+ *   TOO_MANY_PARTS | PDF_REJECTED | UNRECOGNISED_FILE | UNRECOGNISED_REPORT | MULTI_PERIOD_COLUMNS
+ */
+function parseUpload (buf) {
+  const grids = readUploadGrids(buf)
 
   for (let g = 0; g < grids.length; g++) {
     const bs = extractBalanceSheet(grids[g])
@@ -398,4 +418,22 @@ function parseUpload (buf) {
   throw e
 }
 
-module.exports = { parseUpload, extractBalanceSheet, extractProfitLoss, XlsxReadError }
+module.exports = {
+  parseUpload,
+  extractBalanceSheet,
+  extractProfitLoss,
+  XlsxReadError,
+  // Shared with the monthly-sales parser (item 4.54) — one definition of "what is
+  // sales", one title test, one grid-reading front half, so the two parsers can
+  // never drift apart.
+  readUploadGrids,
+  shapeRows,
+  headerMeta,
+  sectionName,
+  PL_TITLE,
+  TOTAL_RE,
+  INCOME_SECTION_RE,
+  INTEREST_RECEIVED_RE,
+  DIVIDENDS_RE,
+  BAD_DEBTS_RECOVERED_RE
+}

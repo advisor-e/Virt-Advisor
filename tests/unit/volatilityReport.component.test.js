@@ -186,3 +186,134 @@ describe('Volatility Report screen', () => {
     expect(wrapper.vm.chart.points).toBe('')
   })
 })
+
+// ── The accounts upload (item 4.54) — behaviour only, wording is UAT's ────────
+
+describe('the by-month accounts upload', () => {
+  const KEYS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+
+  /** A parsed intake response: n months ending December 2025, sales 100, 101, … */
+  function fileMonths (n) {
+    const out = []
+    for (let i = 0; i < n; i++) {
+      const idx = (12 - n + i + 120) % 12
+      out.push({ key: KEYS[idx], year: 2025, sales: 100 + i })
+    }
+    return out
+  }
+
+  it('a read file fills the months, names them from the file, and tags the figures', async () => {
+    const wrapper = await mountWith(sample(12))
+
+    wrapper.vm.applyFile('Client_PL_2025.xlsx', { months: fileMonths(12), warnings: [] })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.form.window).toBe(12)
+    expect(wrapper.vm.form.sales).toEqual(fileMonths(12).map(m => m.sales))
+    expect(wrapper.vm.startMonth).toBe('jan') // the file's own first month
+    expect(wrapper.vm.isSample).toBe(false)
+    expect(wrapper.vm.fromFile).toBe(true)
+  })
+
+  it('a window the file cannot fill is not offered — real accounts are never padded with sample months', async () => {
+    const wrapper = await mountWith(sample(12))
+    wrapper.vm.setWindow(24)
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.form.window).toBe(24)
+
+    // An 18-month file arrives while the 24 window is chosen: 24 no longer fits,
+    // so the screen falls to the longest window the file covers.
+    wrapper.vm.applyFile('Client_PL.xlsx', { months: fileMonths(18), warnings: [] })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.form.window).toBe(18)
+    expect(wrapper.vm.windowAvailable(24)).toBe(false)
+
+    // Asking for 24 anyway changes nothing…
+    wrapper.vm.setWindow(24)
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.form.window).toBe(18)
+
+    // …and dropping to 12 re-slices the FILE's most recent twelve, relabelled.
+    wrapper.vm.setWindow(12)
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.form.sales).toEqual(fileMonths(18).slice(6).map(m => m.sales))
+    expect(wrapper.vm.startMonth).toBe(fileMonths(18)[6].key)
+  })
+
+  it('editing a figure after an upload makes it the advisor\'s — the "from file" tags come off', async () => {
+    const wrapper = await mountWith(sample(12))
+    wrapper.vm.applyFile('Client_PL.xlsx', { months: fileMonths(12), warnings: [] })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.fromFile).toBe(true)
+
+    wrapper.vm.setMonth(3, '5000')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.fromFile).toBe(false)
+    expect(wrapper.vm.form.sales[3]).toBe(5000)
+  })
+
+  it('a refused upload shows the backend\'s own sentence and leaves the figures untouched', async () => {
+    const wrapper = await mountWith(sample(12))
+    const before = wrapper.vm.form.sales.slice()
+    global.fetch = jest.fn(() => Promise.resolve({
+      json: () => Promise.resolve({ success: false, error: { code: 'MONTHS_INSUFFICIENT', message: 'authored refusal sentence' } })
+    }))
+
+    await wrapper.vm.upload({ name: 'annual.xlsx', size: 100 })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.uploadError).toBe('authored refusal sentence')
+    expect(wrapper.vm.fileData).toBeNull()
+    expect(wrapper.vm.form.sales).toEqual(before)
+  })
+
+  it('a network failure is reported, never silent', async () => {
+    const wrapper = await mountWith(sample(12))
+    global.fetch = jest.fn(() => Promise.reject(new Error('offline')))
+
+    await wrapper.vm.upload({ name: 'file.xlsx', size: 100 })
+
+    expect(wrapper.vm.uploadError).toBe('report.volatility.source.uploadFailed')
+    expect(wrapper.vm.uploading).toBe(false)
+  })
+
+  it('the pre-upload check refuses a wrong type or oversize file without calling the backend', async () => {
+    const wrapper = await mountWith(sample(12))
+    const calls = global.fetch.mock.calls.length
+
+    wrapper.vm.receive({ name: 'report.pdf', size: 100 })
+    expect(wrapper.vm.uploadError).toBe('report.volatility.source.wrongType')
+
+    wrapper.vm.receive({ name: 'huge.xlsx', size: 6 * 1024 * 1024 })
+    expect(wrapper.vm.uploadError).toBe('report.fileCheck.tooBig')
+
+    expect(global.fetch.mock.calls.length).toBe(calls)
+  })
+
+  it('the upload goes to the volatility intake with the bearer pass', async () => {
+    const wrapper = await mountWith(sample(12))
+    global.fetch = jest.fn(() => Promise.resolve({
+      json: () => Promise.resolve({ success: true, data: { months: fileMonths(12), warnings: [] } })
+    }))
+
+    await wrapper.vm.upload({ name: 'ok.xlsx', size: 100 })
+
+    const [url, opts] = global.fetch.mock.calls[0]
+    expect(url).toBe('/api/report/volatility/intake')
+    expect(opts.headers.Authorization).toBe('Bearer dev-local-bypass')
+    expect(wrapper.vm.fileData.name).toBe('ok.xlsx')
+  })
+
+  it('the parser\'s warnings ride along and reset clears the whole file state', async () => {
+    const wrapper = await mountWith(sample(12))
+    wrapper.vm.applyFile('f.xlsx', { months: fileMonths(12), warnings: ['a warning sentence'] })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.fileWarnings).toEqual(['a warning sentence'])
+
+    wrapper.vm.resetToSample()
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.fileData).toBeNull()
+    expect(wrapper.vm.fromFile).toBe(false)
+    expect(wrapper.vm.isSample).toBe(true)
+  })
+})

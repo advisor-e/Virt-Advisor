@@ -23,6 +23,7 @@ const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { computeVolatility } = require('../report/volatilityModel')
 const { listReportModels } = require('../utils/reportModels')
 const { parseUpload } = require('../report/intake/xeroReportParser')
+const { parseMonthlyUpload } = require('../report/intake/monthlySalesParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
 
@@ -327,6 +328,61 @@ async function ebitdaDcfIntake (req, res) {
 }
 
 /**
+ * POST /api/report/volatility/intake  (firmAuth — uploads are never anonymous)
+ *
+ * Multipart upload of ONE by-month Profit and Loss export (.xlsx or .csv, max
+ * 5 MB) in the `file` field. Parses on the backend per the intake contract: sums
+ * the income line items per month (never Total rows), refuses a whole-period or
+ * under-12-month export with a plain sentence, and returns the monthly sales
+ * series oldest-first with each month's name, the report's own date, and any
+ * cross-check warnings. Parse-and-discard: the temp file is deleted in `finally`,
+ * nothing is stored, and no client-identifying content (names, labels, filenames)
+ * is ever logged — only stable error codes.
+ *
+ * @param {object} req - multipart request; req.firmId set by firmAuth.
+ * @returns {object} { success, data: { kind, companyName, reportDate, months,
+ *   monthsRead, warnings }, timestamp }
+ */
+async function volatilityIntake (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: false })
+  let uploadedFile = null
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The file is larger than 5 MB — a report export should be well under that.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    uploadedFile = files && (Array.isArray(files.file) ? files.file[0] : files.file)
+    if (!uploadedFile || !uploadedFile.filepath) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No file was attached. Send the export in the "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+
+    const buffer = fs.readFileSync(uploadedFile.filepath)
+    const data = parseMonthlyUpload(buffer)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, labels or content (identity stays local)
+    console.error('[report] volatility intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'The file could not be read as a by-month Profit and Loss export.')
+    res.send(safe.status, safe.body)
+  } finally {
+    // Parse-and-discard: always remove formidable's temp file
+    if (uploadedFile && uploadedFile.filepath) {
+      fs.unlink(uploadedFile.filepath, () => {})
+    }
+  }
+}
+
+/**
  * POST /api/report/lease-vs-buy
  * @param {object} req.body - partial Lease vs Buy inputs (merged over the workbook
  *   sample): the loan block (loanType 'T'/'R', deposit, interestRate, termMonths,
@@ -590,4 +646,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, modelGuide }

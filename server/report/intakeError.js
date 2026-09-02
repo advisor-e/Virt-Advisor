@@ -26,7 +26,10 @@ const INTAKE_STATUS = Object.assign(Object.create(null), {
   MULTI_PERIOD_COLUMNS: 422,
   // annualAssembler
   TOO_MANY_FILES: 400,
-  WRONG_REPORT_KIND: 422
+  WRONG_REPORT_KIND: 422,
+  // monthlySalesParser (item 4.54)
+  MONTHS_INSUFFICIENT: 422,
+  MONTHS_UNREADABLE: 422
 })
 
 /**

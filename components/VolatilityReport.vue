@@ -6,6 +6,13 @@
     :title="$t('report.volatility.title')"
     :client="$t('report.preparedFor')"
   )
+  //- The approved mockup's step chips (ddeffcf), back with the upload (item 4.54):
+  //- the first two track the accounts file, the last stays ahead of the advisor.
+  .vol-chips
+    span.vol-chip(v-for="(c, i) in chips" :key="c.key" :class="'is-' + c.state")
+      span.vol-chip-n {{ c.state === 'done' ? '✓' : (i + 1) }}
+      | {{ $t('report.volatility.chips.' + c.key) }}
+
   //- Report class: no "Illustrative" badge — these become the client's real figures.
   //- Seeded with the workbook sample until the advisor types their own.
   sample-notice(v-if="isSample" :text="$t('report.sampleFigures')")
@@ -48,16 +55,16 @@
       )
 
   .vol-layout
-    //- [D1] inputs — typed entry. The by-month accounts upload is a later change
-    //- (Mike, 2026-08-31: "typed now, upload next"); the existing intake reads annual
-    //- figures only and deliberately refuses a by-month export.
+    //- [D1] inputs — the by-month accounts upload (item 4.54, "upload next"), with
+    //- typed entry kept as the fallback (Mike's original "typed now" choice stands).
     aside.vol-card
       .vol-group
         .vol-glabel
           span.vol-dot
           h2.vol-h2 {{ $t('report.volatility.window.title') }}
         label.vol-fieldlab(for="vol-start") {{ $t('report.volatility.start.label') }}
-        b-select#vol-start(v-model="startMonth" expanded)
+        //- With a file loaded the month names come from the file — not a choice.
+        b-select#vol-start(v-model="startMonth" expanded :disabled="!!fileData")
           option(v-for="k in monthKeys" :key="k" :value="k") {{ $t('report.volatility.monthLong.' + k) }}
         p.vol-note {{ $t('report.volatility.start.help') }}
 
@@ -68,9 +75,35 @@
             type="button"
             :class="{ 'is-on': form.window === w }"
             :aria-pressed="String(form.window === w)"
+            :disabled="!windowAvailable(w)"
             @click="setWindow(w)"
           ) {{ w }}
         p.vol-note {{ $t('report.volatility.window.help') }}
+        p.vol-note(v-if="fileData && fileData.months.length < 24") {{ $t('report.volatility.source.windowShort', { n: fileData.months.length }) }}
+
+      //- The upload card from the approved mockup (ddeffcf). Parsing is backend-only
+      //- (POST /api/report/volatility/intake, firmAuth) — this component uploads the
+      //- file and applies the returned months; it never reads the file itself.
+      .vol-group
+        .vol-glabel
+          span.vol-dot
+          h2.vol-h2 {{ $t('report.volatility.source.title') }}
+        template(v-if="!fileData")
+          .vol-drop(@dragover.prevent @drop.prevent="onDrop")
+            .vol-drop-title {{ $t('report.volatility.source.dropTitle') }}
+            .vol-drop-how {{ $t('report.volatility.source.how') }}
+            button.vol-cta(type="button" :disabled="uploading" @click="pickFile") {{ $t('report.volatility.source.choose') }}
+            p.vol-note {{ $t('report.volatility.source.orType') }}
+        template(v-else)
+          .vol-srcbox
+            span.vol-src-ico 📄
+            div
+              .vol-src-nm {{ fileData.name }}
+              .vol-src-mt {{ $t('report.volatility.source.readNote', { n: fileData.months.length }) }}
+          button.vol-cta.vol-ghost(type="button" :disabled="uploading" @click="pickFile") {{ $t('report.volatility.source.replace') }}
+        input(ref="volFile" type="file" accept=".xlsx,.csv" hidden @change="onFileChosen")
+        p.vol-fileerr(v-if="uploadError") {{ uploadError }}
+        p.vol-filewarn(v-for="(w, i) in fileWarnings" :key="'fw' + i") ⚠ {{ w }}
 
       .vol-group
         .vol-glabel
@@ -113,7 +146,9 @@
       .vol-tiles
         .vol-tile
           .vol-k {{ $t('report.volatility.tile.total') }}
-          .vol-v {{ money(data.total) }}
+          .vol-v
+            | {{ money(data.total) }}
+            span.vol-srctag(v-if="fromFile") {{ $t('report.volatility.fromFile') }}
           .vol-sub {{ $t('report.volatility.tile.totalSub', { months: data.monthsUsed }) }}
         .vol-tile
           .vol-k {{ $t('report.volatility.tile.outside') }}
@@ -121,11 +156,15 @@
           .vol-sub {{ $t('report.volatility.tile.outsideSub') }}
         .vol-tile(v-if="data.highest")
           .vol-k {{ $t('report.volatility.tile.highest') }}
-          .vol-v {{ money(data.highest.value) }}
+          .vol-v
+            | {{ money(data.highest.value) }}
+            span.vol-srctag(v-if="fromFile") {{ $t('report.volatility.fromFile') }}
           .vol-sub {{ monthLabel(data.highest.index) }} · {{ signedMoney(data.months[data.highest.index].deviation) }}
         .vol-tile(v-if="data.lowest")
           .vol-k {{ $t('report.volatility.tile.lowest') }}
-          .vol-v {{ money(data.lowest.value) }}
+          .vol-v
+            | {{ money(data.lowest.value) }}
+            span.vol-srctag(v-if="fromFile") {{ $t('report.volatility.fromFile') }}
           .vol-sub {{ monthLabel(data.lowest.index) }} · {{ signedMoney(data.months[data.lowest.index].deviation) }}
 
       //- [D2b] the signature diagram — the workbook's rev counter
@@ -238,7 +277,7 @@
 
       //- [D2d] actions
       .vol-actions
-        span.vol-foot {{ $t('report.volatility.footnote') }}
+        span.vol-foot {{ $t(fromFile ? 'report.volatility.footnoteFile' : 'report.volatility.footnote') }}
 </template>
 
 <script>
@@ -254,9 +293,11 @@
  * dip from a special cause from tampering, and asserting one in front of a client would be a
  * claim the maths cannot support (Mike's scope ruling, 2026-08-31).
  *
- * Entry is typed for now. The by-month accounts upload is a later change of its own: the
- * existing intake reads ANNUAL figures and deliberately refuses a by-month export
- * (`MULTI_PERIOD_COLUMNS` in `server/report/intake/xeroReportParser.js`).
+ * Entry is filled by the by-month accounts upload (item 4.54; parsed backend-only by
+ * `server/report/intake/monthlySalesParser.js` behind firmAuth) or typed by hand — the
+ * typed path stays as the fallback, Mike's original "typed now" choice. The ANNUAL
+ * intake still deliberately refuses a by-month export (`MULTI_PERIOD_COLUMNS`); this
+ * screen's route is the by-month reader.
  */
 import ReportHeader from '~/components/base/ReportHeader.vue'
 import HeroStrip from '~/components/base/HeroStrip.vue'
@@ -292,6 +333,11 @@ export default {
 
   mixins: [currencyMixin, reportRecompute],
 
+  props: {
+    // Verified login pass (JWT); the intake route is firmAuth-guarded.
+    apiToken: { type: String, default: 'dev-local-bypass' }
+  },
+
   data () {
     return {
       windows: [12, 18, 24],
@@ -311,11 +357,44 @@ export default {
       form: { window: 12, sales: SAMPLE_SALES.slice(SAMPLE_SALES.length - 12) },
       /** True until the advisor edits a figure — drives the sample notice. */
       isSample: true,
+      /**
+       * The read accounts file: { name, months: [{key, year, sales}] oldest-first,
+       * warnings }. Null until an upload succeeds; replaced whole on the next one.
+       */
+      fileData: null,
+      /** True once the advisor edits a figure AFTER an upload — the "from file" tags drop. */
+      edited: false,
+      uploading: false,
+      uploadError: null,
       data: null
     }
   },
 
   computed: {
+    /** The figures currently on screen came from the upload, untouched since. */
+    fromFile () {
+      return !!this.fileData && !this.edited
+    },
+
+    /** Warnings the parser sent back with the file — always rendered, never dropped. */
+    fileWarnings () {
+      return this.fileData ? this.fileData.warnings : []
+    },
+
+    /**
+     * The step chips from the approved mockup: the first two track the accounts
+     * file; "Discuss with client" is the advisor's own step and never completes here.
+     */
+    chips () {
+      const done = !!this.fileData
+      return [
+        { key: 'upload', state: done ? 'done' : 'now' },
+        { key: 'matched', state: done ? 'done' : 'todo' },
+        { key: 'review', state: done ? 'now' : 'todo' },
+        { key: 'discuss', state: 'todo' }
+      ]
+    },
+
     /** Bands widest-first, the way the table reads down the page. */
     reversedBands () {
       return this.data ? this.data.bands.slice().reverse() : []
@@ -468,6 +547,9 @@ export default {
      * shows a half-empty form.
      */
     setWindow (w) {
+      if (!this.windowAvailable(w)) { return }
+      // With a file loaded the window is a re-slice of the file's own months.
+      if (this.fileData) { this.syncFromFile(w); return }
       const sales = this.form.sales.slice()
       if (w < sales.length) {
         this.form.sales = sales.slice(sales.length - w)
@@ -480,6 +562,108 @@ export default {
     },
 
     /**
+     * A window the loaded file cannot fill is not offered — growing an 18-month
+     * upload to 24 would pad a client's real accounts with workbook sample months.
+     * @param {number} w
+     * @returns {boolean}
+     */
+    windowAvailable (w) {
+      return !this.fileData || w <= this.fileData.months.length
+    },
+
+    pickFile () {
+      this.$refs.volFile.click()
+    },
+
+    /** @param {Event} event */
+    onFileChosen (event) {
+      const file = event.target.files && event.target.files[0]
+      if (file) { this.receive(file) }
+      event.target.value = ''
+    },
+
+    /** @param {DragEvent} event */
+    onDrop (event) {
+      const files = (event.dataTransfer && event.dataTransfer.files) || []
+      if (files.length > 1) {
+        this.uploadError = this.$t('report.volatility.source.multiDrop')
+        return
+      }
+      if (files[0]) { this.receive(files[0]) }
+    },
+
+    /**
+     * Pre-upload sanity check — UX only; the backend's magic-byte and size checks
+     * remain the real boundary. @param {File} file @returns {string|null}
+     */
+    fileCheckError (file) {
+      if (!/\.(xlsx|csv)$/i.test(file.name)) { return this.$t('report.volatility.source.wrongType') }
+      if (file.size > 5 * 1024 * 1024) { return this.$t('report.fileCheck.tooBig') }
+      return null
+    },
+
+    /** Route a chosen/dropped file through the pre-upload check. @param {File} file */
+    receive (file) {
+      const err = this.fileCheckError(file)
+      if (err) { this.uploadError = err } else { this.upload(file) }
+    },
+
+    /**
+     * Upload the export to the backend parser and apply the months it returns.
+     * The file itself is parsed and discarded server-side; nothing is stored.
+     * @param {File} file
+     */
+    async upload (file) {
+      this.uploadError = null
+      this.uploading = true
+      try {
+        const body = new FormData()
+        body.append('file', file)
+        const res = await fetch('/api/report/volatility/intake', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${this.apiToken}` },
+          body
+        })
+        const json = await res.json()
+        if (!json.success) {
+          this.uploadError = (json.error && json.error.message) || this.$t('report.volatility.source.uploadFailed')
+          return
+        }
+        this.applyFile(file.name, json.data)
+      } catch (e) {
+        this.uploadError = this.$t('report.volatility.source.uploadFailed')
+      } finally {
+        this.uploading = false
+      }
+    },
+
+    /**
+     * Apply a parsed upload: keep the current window when the file covers it,
+     * otherwise the longest one it does.
+     * @param {string} name - the file's own name, shown locally only.
+     * @param {object} data - the intake response ({ months, warnings, ... }).
+     */
+    applyFile (name, data) {
+      this.fileData = { name, months: data.months, warnings: data.warnings || [] }
+      const fits = this.windows.filter(w => w <= data.months.length)
+      this.syncFromFile(fits.includes(this.form.window) ? this.form.window : fits[fits.length - 1])
+    },
+
+    /**
+     * Fill the form from the loaded file for one window: the most recent `w`
+     * months, with the start-month label taken from the file rather than chosen.
+     * @param {number} w
+     */
+    syncFromFile (w) {
+      const months = this.fileData.months
+      const slice = months.slice(months.length - w)
+      this.startMonth = slice[0].key
+      this.edited = false
+      this.isSample = false
+      this.form = { window: w, sales: slice.map(m => m.sales) }
+    },
+
+    /**
      * Set one month. An emptied box is zero rather than NaN — one NaN would blank the
      * average, every band and the dial at once.
      */
@@ -487,6 +671,8 @@ export default {
       const n = parseFloat(raw)
       this.$set(this.form.sales, i, Number.isFinite(n) ? n : 0)
       this.isSample = false
+      // An edited figure is the advisor's, so the "from file" tags come off.
+      this.edited = true
     },
 
     /**
@@ -504,6 +690,9 @@ export default {
     },
 
     resetToSample () {
+      this.fileData = null
+      this.edited = false
+      this.uploadError = null
       this.form.sales = SAMPLE_SALES.slice(SAMPLE_SALES.length - this.form.window)
       this.isSample = true
     },
@@ -645,6 +834,50 @@ export default {
   background: var(--rs-accent); color: var(--rs-accent-contrast); font-size: 10px;
   font-weight: 600; letter-spacing: .08em; padding: 3px 7px; border-radius: 5px;
 }
+
+/* Step chips — the approved mockup's own styling (ddeffcf), on the shared tokens. */
+.vol-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.vol-chip {
+  display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600;
+  background: var(--rs-panel); border: 1px solid var(--rs-line); border-radius: 999px;
+  padding: 7px 13px;
+}
+.vol-chip-n {
+  width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 10.5px; background: var(--rs-line); color: var(--rs-ink);
+}
+.vol-chip.is-done { border-color: #4ca52d55; background: var(--rs-good-soft); }
+.vol-chip.is-done .vol-chip-n { background: var(--rs-good); color: #fff; }
+.vol-chip.is-now { border-color: #0070c055; background: var(--rs-accent-soft); }
+.vol-chip.is-now .vol-chip-n { background: var(--rs-accent); color: #fff; }
+.vol-chip.is-todo { color: var(--rs-muted); }
+
+/* The upload card — same dashed drop zone as the other intakes. */
+.vol-drop {
+  border: 2px dashed #7fd3f1; border-radius: var(--rs-card-radius); background: var(--rs-panel);
+  padding: 18px 16px; text-align: center; transition: border-color .15s;
+}
+.vol-drop:hover { border-color: var(--rs-accent); }
+.vol-drop-title { font-weight: 600; font-size: 13.5px; color: var(--rs-ink); }
+.vol-drop-how { font-size: 12px; color: var(--rs-muted); margin: 4px 0 10px; }
+.vol-srcbox {
+  display: flex; align-items: center; gap: 10px; border: 1px solid var(--rs-good);
+  background: #4ca52d12; border-radius: 9px; padding: 10px 12px;
+}
+.vol-src-ico { flex: none; }
+.vol-src-nm { font-size: 12.5px; font-weight: 600; color: var(--rs-ink); word-break: break-all; }
+.vol-src-mt { font-size: 11.5px; color: var(--rs-muted); margin-top: 2px; }
+.vol-fileerr { font-size: 12.5px; color: var(--rs-crit); margin: 8px 0 0; }
+.vol-filewarn {
+  font-size: 12.5px; color: #b36b00; background: var(--rs-warn-soft);
+  border-radius: 9px; padding: 8px 12px; margin: 8px 0 0;
+}
+.vol-srctag {
+  font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--rs-good); background: var(--rs-good-soft); border-radius: 5px;
+  padding: 3px 6px; margin-left: 8px; vertical-align: middle;
+}
+.vol-segbtn:disabled { opacity: .45; cursor: not-allowed; }
 
 .vol-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .vol-cta {

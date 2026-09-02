@@ -83,24 +83,23 @@
       "comment": "2026-08-26 — checks (a) and (b) run live and passed; see 4.53 for what the same exercise turned up, which is that the AI writes the marker only sometimes and nothing records when it did not."
     },
     {
-      "ref": "4.54",
-      "name": "An adviser types two years of figures into the Volatility Report by hand",
-      "kind": "feature",
+      "ref": "4.57",
+      "name": "The older report screens still name Xero where the rule is now \"your accounting software\"",
+      "kind": "defect",
       "score": 3,
       "scoreReason": "helps sell the package",
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "The Volatility Report went live 2026-08-31 taking its monthly sales TYPED — 12, 18 or 24 boxes filled in by hand. That was Mike’s choice on the day (“typed now, upload next”) once the intake was checked properly. The existing file intake cannot feed it: server/report/intake/xeroReportParser.js reads one figure per period and DELIBERATELY REFUSES a by-month or by-quarter export (MULTI_PERIOD_COLUMNS, at 5+ figure columns), a refusal added 2026-07-19 because reading only the first column silently lost the rest of the year. So the two existing report intakes give one number per year, and this model needs twelve.",
-      "risk": "Low, and it is friction rather than a fault: the report is correct and usable today. But its class says “from your accounts” and it cannot yet read them, and an adviser keying 24 figures in front of a client is both slow and a transcription risk on numbers the client will act on.",
+      "why": "Mike ruled on 2026-09-02, while approving the Volatility upload wording, that intake wording names no accounting product — \"your accounting software\", never a vendor — and chose option A: the ruling extends to the screens built before it. The Volatility Report complies and pins the rule in one test; the older intake surfaces do not: the Quick Position drop cards (\"Xero → Reports → Balance Sheet → Export as Excel\"), the shared file-check message (\"That doesn't look like a Xero export\"), the annual parser's own refusal sentences (server/report/intake/xeroReportParser.js), and the intake routes' size-cap messages in server/routes/report.js.",
+      "risk": "Low and cosmetic-but-commercial: a firm running any other package reads instructions for software it does not own, on screens meant to sell the platform. Nothing miscalculates.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
-        "detail": "2026-08-31 — asked for the report, then chose “Both — typed now, upload next” when told the existing intake could not supply monthly figures. This item is the “next” half, in his words."
+        "detail": "2026-09-02 — \"Remove references to 'Xero' - replace with 'your accounting software'\", then chose A when asked whether the ruling covers the older screens too."
       },
-      "touches": "a new by-month parser beside server/report/intake/xeroReportParser.js (the annual refusal stays for the annual models), a firmAuth-carrying intake route, and the left column of components/VolatilityReport.vue — where the approved mockup’s original upload card and step chips can come back.",
-      "note": "⚠ IT ACCEPTS UNTRUSTED UPLOADS, so it carries the project’s 100% test bar (CLAUDE.md → Testing) and the hardening the existing reader already documents at the top of xlsxReader.js — bounds-checked offsets, inflate caps, prototype-less lookups. That is why it is its own change and not a tail on the report: it is comparable in size to the whole model + route + screen built on 2026-08-31. The approved artefact already shows the destination — design/mockups/volatility-report.html carried the upload card and the four step chips before it was realigned to the typed build, and both are in git history at ddeffcf.",
-      "comment": "2026-08-31 — filed at the close of the session that built the report. NOT a blocker: /volatility is live, correct against the workbook and in the Model Library today."
+      "touches": "locales/en.json (report.quickPosition.drop, report.fileCheck), the authored refusal messages in server/report/intake/xeroReportParser.js and the size-cap messages in server/routes/report.js, plus the tests that pin those sentences (intakeMessages.test.js, reportIntakeRoute.test.js). Code comments and file names stay — the ruling is about what a user reads.",
+      "note": "The wording pin pattern is already set: one deliberate test in monthlySalesParser.test.js asserts no product name appears in an authored refusal. Extend that pattern rather than pinning each sentence."
     }
   ]
 }

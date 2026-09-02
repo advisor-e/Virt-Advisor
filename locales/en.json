@@ -1440,9 +1440,30 @@
       },
       "entry": {
         "title": "Monthly sales",
-        "help": "Oldest month first. An accounts upload is coming; for now these are typed.",
+        "help": "Oldest month first. Filled by the accounts upload above, or typed by hand.",
         "monthLabel": "Month {n}"
       },
+      "source": {
+        "title": "Source",
+        "dropTitle": "Drop the by-month Profit and Loss export",
+        "how": "From your accounting software: Profit and Loss → set the period to monthly → export as Excel or CSV",
+        "choose": "Choose the file…",
+        "orType": "Or type the months in below",
+        "wrongType": "That doesn't look like a report export — please drop an .xlsx or .csv file.",
+        "uploadFailed": "The file could not be read. Please try again.",
+        "multiDrop": "One file at a time — drop the by-month Profit and Loss export on its own.",
+        "readNote": "Profit and Loss export · {n} monthly sales rows read",
+        "replace": "Replace accounts file",
+        "windowShort": "The file holds {n} months, so the longer windows are unavailable."
+      },
+      "chips": {
+        "upload": "Accounts file uploaded",
+        "matched": "Sales rows matched",
+        "review": "Review volatility",
+        "discuss": "Discuss with client"
+      },
+      "fromFile": "from file",
+      "footnoteFile": "Figures tagged “from file” came from the upload; the rest are calculated.",
       "bands": {
         "title": "The bands",
         "band": "Band",

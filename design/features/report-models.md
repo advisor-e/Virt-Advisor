@@ -443,13 +443,19 @@ Report** is the worked example of the compliant pattern — every string on it i
 `locales/en.json`, month names included — so copy that screen, not its neighbours. A string
 hardcoded in a template stays English for ever; one in `en.json` can become any language.
 
-**The file intake reads ANNUAL figures only.** `server/report/intake/xeroReportParser.js`
-takes one figure per period and **deliberately refuses** a by-month or by-quarter export
+**Two intake parsers, one report shape each.** `server/report/intake/xeroReportParser.js`
+reads ANNUAL figures and **deliberately refuses** a by-month or by-quarter export
 (`MULTI_PERIOD_COLUMNS`, at 5+ figure columns) — reading only the first column silently lost
-the rest of the year, which is the fault that refusal exists to prevent. **A model needing a
-monthly series therefore has no intake path today.** The Volatility Report takes its months
-typed for exactly this reason. Building that path is item 4.54; until it lands, do not assume
-"it has intake" of any model whose inputs are monthly.
+the rest of the year, which is the fault that refusal exists to prevent. Since item 4.54
+(2026-09-02) its mirror image, `server/report/intake/monthlySalesParser.js`, reads the
+BY-MONTH Profit and Loss export for the Volatility Report (`POST
+/api/report/volatility/intake`, firmAuth) and refuses a whole-period or under-12-month file
+for the mirrored reason. The two share one grid reader, one title test and one definition of
+"what is sales", exported from the annual parser — never copied. Typed entry stays on the
+Volatility screen as the fallback. A future model needing a monthly series extends the
+monthly parser; an annual one extends the annual parser — neither refusal is a defect.
+**No product names in intake wording** (Mike's ruling 2026-09-02): the sentences say "your
+accounting software", pinned once in `monthlySalesParser.test.js`.
 
 ---
 
