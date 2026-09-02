@@ -246,7 +246,7 @@
     "retry": "Try again",
     "calcUnreachable": "Could not reach the calculation service.",
     "fileCheck": {
-      "wrongType": "That doesn't look like a Xero export — please drop an .xlsx or .csv file.",
+      "wrongType": "That doesn't look like an accounting export — please drop an .xlsx or .csv file.",
       "tooBig": "That file is over 5 MB — export the report again without extra tabs or images, then try again.",
       "tooBigTotal": "Together the files are over 5 MB — export each report again without extra tabs or images."
     },
@@ -329,11 +329,11 @@
       "step3": "Quick Position report",
       "drop": {
         "bsTitle": "Balance Sheet",
-        "bsHow": "Xero → Reports → Balance Sheet → Export as Excel",
+        "bsHow": "Your accounting software: Reports → Balance Sheet → Export as Excel",
         "bsSeeds": "Seeds: cash, debtors, stock, creditors",
         "plTitle": "Profit & Loss",
         "optional": "optional",
-        "plHow": "Xero → Reports → Profit and Loss → Export as Excel",
+        "plHow": "Your accounting software: Reports → Profit and Loss → Export as Excel",
         "plSeeds": "Seeds: the operating-expense review → monthly outgoings",
         "choose": "Choose the file…",
         "bsRead": "Balance Sheet read — {n} figures proposed",
@@ -446,7 +446,7 @@
       "back": "← Back",
       "drop": {
         "title": "Up to five years of Profit & Loss exports",
-        "how": "Xero → Reports → Profit and Loss → Export as Excel — one file per year",
+        "how": "Your accounting software: Reports → Profit and Loss → Export as Excel — one file per year",
         "seeds": "Seeds: sales, cost of sales, operating expenses, other income, interest",
         "choose": "Choose the files…",
         "read": "Read the files ({n}) →",
@@ -1452,7 +1452,7 @@
       },
       "accounts": {
         "title": "Accounts",
-        "help": "In Xero: Profit and Loss → Current financial year by month, exported as Excel or CSV. One export covers one financial year. Add last year's as well for the 18 and 24-month windows.",
+        "help": "Your accounting software: Profit and Loss → Current financial year by month, exported as Excel or CSV. One export covers one financial year. Add last year's as well for the 18 and 24-month windows.",
         "choose": "Choose files",
         "remove": "Remove",
         "dropTitle": "Your by-month exports",

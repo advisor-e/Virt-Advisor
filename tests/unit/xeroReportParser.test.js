@@ -159,7 +159,10 @@ describe('parseUpload — sniffing and dispatch', () => {
       throw new Error('should have thrown')
     } catch (e) {
       expect(e.code).toBe('PDF_REJECTED')
-      expect(e.message).toMatch(/export the report from Xero as Excel/i)
+      // Contract rule 1 is that the refusal tells the advisor what to do instead, not
+      // just that it failed. The guidance is the guard; the vendor named in it is not.
+      expect(e.message).toMatch(/\.xlsx\)? or CSV/i)
+      expect(e.message).toMatch(/export/i)
     }
   })
 

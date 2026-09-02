@@ -69,7 +69,7 @@ function figureColumnCount (grid) {
 function guardFigureColumns (grid, warnings) {
   const cols = figureColumnCount(grid)
   if (cols >= REFUSE_FIGURE_COLUMNS) {
-    const e = new Error('This export splits the year across many columns (a by-month or by-quarter report). Please export the whole-period report from Xero and drop that instead.')
+    const e = new Error('This export splits the year across many columns (a by-month or by-quarter report). Please export the whole-period report from your accounting software and drop that instead.')
     e.code = 'MULTI_PERIOD_COLUMNS'
     throw e
   }
@@ -510,7 +510,7 @@ function gridsFromBuffer (buf) {
     const e = new Error('The upload was empty'); e.code = 'UNRECOGNISED_FILE'; throw e
   }
   if (buf.length >= 4 && buf.toString('latin1', 0, 4) === '%PDF') {
-    const e = new Error('PDF files cannot be read reliably — please export the report from Xero as Excel (.xlsx) or CSV and drop that instead')
+    const e = new Error('PDF files cannot be read reliably — please export the report from your accounting software as Excel (.xlsx) or CSV and drop that instead')
     e.code = 'PDF_REJECTED'
     throw e
   }
@@ -523,7 +523,7 @@ function gridsFromBuffer (buf) {
     const text = buf.toString('utf8')
     // eslint-disable-next-line no-control-regex -- deliberately detecting binary bytes
     if (/[\u0000-\u0008\u000E-\u001F]/.test(text.slice(0, 2000))) {
-      const e = new Error('Unrecognised file type — please drop a Xero report exported as Excel (.xlsx) or CSV')
+      const e = new Error('Unrecognised file type — please drop a report exported from your accounting software as Excel (.xlsx) or CSV')
       e.code = 'UNRECOGNISED_FILE'
       throw e
     }
@@ -550,7 +550,7 @@ function parseUpload (buf) {
     const pl = extractProfitLoss(grids[g])
     if (pl.recognised) { return pl }
   }
-  const e = new Error('This does not look like a Xero Balance Sheet or Profit and Loss export — expected the report title in the first rows')
+  const e = new Error('This does not look like a Balance Sheet or Profit and Loss export from your accounting software — expected the report title in the first rows')
   e.code = 'UNRECOGNISED_REPORT'
   throw e
 }
@@ -573,7 +573,7 @@ function parseForecastUpload (buf) {
     const pl = extractProfitLoss(grids[g])
     if (pl.recognised) { return pl }
   }
-  const e = new Error('This does not look like a Xero Balance Sheet or Profit and Loss export — expected the report title in the first rows')
+  const e = new Error('This does not look like a Balance Sheet or Profit and Loss export from your accounting software — expected the report title in the first rows')
   e.code = 'UNRECOGNISED_REPORT'
   throw e
 }

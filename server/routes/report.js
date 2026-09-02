@@ -240,7 +240,7 @@ async function quickPositionIntake (req, res) {
       const tooBig = err && /maxFileSize/i.test(err.message || '')
       res.send(tooBig ? 413 : 400, {
         success: false,
-        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The file is larger than 5 MB — a Xero report export should be well under that.' : 'The upload could not be read. Please try again.' },
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The file is larger than 5 MB — an accounting export should be well under that.' : 'The upload could not be read. Please try again.' },
         timestamp: new Date().toISOString()
       })
       return
@@ -258,7 +258,7 @@ async function quickPositionIntake (req, res) {
   } catch (err) {
     // Log the stable code only — never the filename, labels or content (identity stays local)
     console.error('[report] quick-position intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
-    const safe = intakeErrorResponse(err, 'The file could not be read as a Xero report export.')
+    const safe = intakeErrorResponse(err, 'The file could not be read as an accounting export.')
     res.send(safe.status, safe.body)
   } finally {
     // Parse-and-discard: always remove formidable's temp file
@@ -294,7 +294,7 @@ async function ebitdaDcfIntake (req, res) {
       const tooBig = err && /maxFileSize/i.test(err.message || '')
       res.send(tooBig ? 413 : 400, {
         success: false,
-        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — a Xero report export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — an accounting export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
         timestamp: new Date().toISOString()
       })
       return
@@ -320,7 +320,7 @@ async function ebitdaDcfIntake (req, res) {
   } catch (err) {
     // Log the stable code only — never the filename, labels or content (identity stays local)
     console.error('[report] ebitda-dcf intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
-    const safe = intakeErrorResponse(err, 'A file could not be read as a Xero report export.')
+    const safe = intakeErrorResponse(err, 'A file could not be read as an accounting export.')
     res.send(safe.status, safe.body)
   } finally {
     // Parse-and-discard: always remove every temp file formidable wrote
@@ -363,7 +363,7 @@ async function volatilityIntake (req, res) {
       const tooBig = err && /maxFileSize/i.test(err.message || '')
       res.send(tooBig ? 413 : 400, {
         success: false,
-        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — a by-month Xero export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — a by-month accounting export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
         timestamp: new Date().toISOString()
       })
       return
@@ -389,7 +389,7 @@ async function volatilityIntake (req, res) {
   } catch (err) {
     // Log the stable code only — never the filename, labels or content (identity stays local)
     console.error('[report] volatility intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
-    const safe = intakeErrorResponse(err, 'The file could not be read as a by-month Xero export.')
+    const safe = intakeErrorResponse(err, 'The file could not be read as a by-month accounting export.')
     res.send(safe.status, safe.body)
   } finally {
     // Parse-and-discard: always remove every temp file formidable wrote
@@ -699,7 +699,7 @@ async function threeWayForecastIntake (req, res) {
       const tooBig = err && /maxFileSize/i.test(err.message || '')
       res.send(tooBig ? 413 : 400, {
         success: false,
-        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — a Xero report export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — an accounting export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
         timestamp: new Date().toISOString()
       })
       return
@@ -725,7 +725,7 @@ async function threeWayForecastIntake (req, res) {
   } catch (err) {
     // Log the stable code only — never the filename, labels or content (identity stays local)
     console.error('[report] three-way-forecast intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
-    const safe = intakeErrorResponse(err, 'A file could not be read as a Xero report export.')
+    const safe = intakeErrorResponse(err, 'A file could not be read as an accounting export.')
     res.send(safe.status, safe.body)
   } finally {
     // Parse-and-discard: always remove every temp file formidable wrote

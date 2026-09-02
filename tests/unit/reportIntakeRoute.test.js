@@ -62,7 +62,10 @@ describe('intake size-cap messages — R14 (option B: cap unchanged, words hones
     await ebitdaDcfIntake({}, res)
     expect(res.status).toBe(413)
     expect(res.body.error.code).toBe('FILE_TOO_LARGE')
-    expect(res.body.error.message).toBe('The files together are larger than 5 MB — a Xero report export should be well under 1 MB each. Please export again without extra tabs or images.')
+    // R14 option B is about ONE word: the cap is per REQUEST, so the message must say
+    // the files "together" exceed it, never imply a per-file limit. That word is what
+    // is load-bearing here — the rest of the sentence is free to change.
+    expect(res.body.error.message).toMatch(/files together are larger than 5 MB/)
   })
 
   test('Quick Position (single file) keeps its per-file 413 wording', async () => {

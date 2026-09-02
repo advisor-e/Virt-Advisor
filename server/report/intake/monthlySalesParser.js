@@ -489,7 +489,7 @@ function parseMonthlyUpload (buf) {
     const transactions = extractTransactionMonths(grids[g])
     if (transactions.recognised) { return transactions }
   }
-  const e = new Error('This export does not carry monthly figures. Two Xero reports do: Profit and Loss with the "Current financial year by month" layout, or an Account Transactions export for your sales account (Reports → Account Transactions), which can cover more than one year.')
+  const e = new Error('This export does not carry monthly figures. Two reports do: Profit and Loss with the "Current financial year by month" layout, or an Account Transactions export for your sales account (Reports → Account Transactions), which can cover more than one year.')
   e.code = 'NOT_BY_MONTH'
   throw e
 }

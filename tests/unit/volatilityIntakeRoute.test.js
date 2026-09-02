@@ -147,9 +147,14 @@ describe('volatility intake — refusals stay safe', () => {
     await volatilityIntake({}, res)
     expect(res.status).toBe(400)
     expect(res.body.error.code).toBe('INTAKE_PARSE_FAILED')
-    expect(res.body.error.message).toBe('The file could not be read as a by-month Xero export.')
+    // What this guards is the SHAPE, not the sentence: one generic line that names the
+    // file rather than the failure. Pinning the whole sentence made it break on a
+    // wording change (Mike's "your accounting software" ruling, 2026-09-02) without
+    // anything being wrong.
+    expect(res.body.error.message).toMatch(/could not be read/i)
     // The ENOENT message carries the path; it must not survive into the response.
     expect(JSON.stringify(res.body)).not.toMatch(/nonexistent/)
+    expect(JSON.stringify(res.body)).not.toMatch(/ENOENT/)
   })
 
   test('an oversize batch → 413 saying the files TOGETHER exceed the cap', async () => {
