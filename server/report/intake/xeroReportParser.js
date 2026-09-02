@@ -246,6 +246,142 @@ function extractBalanceSheet (grid) {
   }
 }
 
+/* ------------------------------------------- Three-Way Forecast opening position -- */
+
+/**
+ * The Three-Way Forecast needs a whole OPENING BALANCE SHEET, not the five figures
+ * Quick Position takes. Its own function rather than more keys on `extractBalanceSheet`,
+ * because that contract is Quick Position's and stays untouched.
+ *
+ * Two rules from §3A of the forecast prompt specification (Mike's standard, 2026-09-02)
+ * shape what comes back:
+ *  - SHAREHOLDER CURRENT ACCOUNTS ARE POSITIONAL AND UNNAMED. They are natural persons'
+ *    balances; the forecast needs the numbers and never the names, so the names are not
+ *    read at all rather than read and then stripped.
+ *  - TERM LOANS ARE ALSO POSITIONAL. Their labels are lenders rather than people, but
+ *    the model does not need them either — the advisor names them on screen.
+ */
+const NCA_CATEGORY_TESTS = [
+  { key: 'vehicles', re: /vehicle|motor\s*veh|^car\b|truck/i },
+  { key: 'leaseholdImprovements', re: /leasehold|building|premises|land\b|property/i },
+  { key: 'plantEquipment', re: /plant|machinery|^equipment\b|tools/i },
+  { key: 'officeEquipment', re: /office\s*(equip|furn)|furniture|fixtures|fittings/i },
+  { key: 'computerHardware', re: /computer|hardware|^it\b|laptop|server/i }
+]
+const SHAREHOLDER_RE = /shareholder|director|beneficiar(?:y|ies)|current\s+account/i
+const LOAN_RE = /\bloan\b|hire\s*purchase|\bhp\b|finance\s+lease|mortgage|term\s+debt/i
+const GST_RE = /\bgst\b|\bvat\b|goods\s+and\s+services/i
+const INCOME_TAX_RE = /income\s*tax|provision\s+for\s+tax|\btax\s+(payable|refund)/i
+const PREPAYMENT_RE = /prepay|prepaid/i
+const ACCRUAL_RE = /accrual|accrued/i
+const SHARE_CAPITAL_RE = /share\s*capital|paid[-\s]?up\s+capital|authorised\s+capital|owner'?s?\s+capital/i
+const RETAINED_RE = /retained\s+(earnings|profit)|accumulated\s+(profit|losses|funds)|current\s+year\s+earnings/i
+const OVERDRAFT_RE = /overdraft/i
+
+/**
+ * Extract a Three-Way Forecast opening balance sheet from a Balance Sheet grid.
+ *
+ * @param {Array<Array<string|number|null>>} grid
+ * @returns {object} { recognised, kind, companyName, reportDate, figures, assets,
+ *   loanBalances, shareholderBalances, warnings }.
+ *   `figures` keys (each {value, source:'file', candidates}, present only when the file
+ *   carries them): cashAtBank, bankOverdraft, accountsReceivable, inventory,
+ *   gstRefund, gstPayable, incomeTaxRefundDue, incomeTaxPayable, prepayments,
+ *   accountsPayable, accruedExpenses, authorisedCapital, retainedEarnings.
+ *   `assets` is the five recognisable fixed-asset categories plus `other` for the rest.
+ *   `loanBalances` and `shareholderBalances` are plain number arrays — POSITIONAL, and
+ *   deliberately carrying no labels at all.
+ */
+function extractForecastBalanceSheet (grid) {
+  const rows = shapeRows(grid)
+  const meta = headerMeta(rows, BS_TITLE)
+  if (meta.titleRow === -1) { return { recognised: false } }
+
+  const items = lineItems(rows)
+  const warnings = totalCrossChecks(rows)
+  guardFigureColumns(grid, warnings)
+
+  // 🔴 THE THREE SIDES ARE SPLIT BY EXCLUSION, NOT BY NESTING. An export that carries no
+  // "Total Assets" row never closes its Assets section, so Liabilities and Equity nest
+  // INSIDE it and every liability then satisfies `inSection(/asset/i)`. Found live on
+  // 2026-09-02: a 249,000 bank overdraft was read as cash and a bank loan as a fixed
+  // asset. Both unit-test grids carried the Total row, so neither caught it. Asking
+  // what a row is NOT is robust however the sections happen to nest.
+  const isLiability = it => inSection(it, /liabilit/i)
+  const isEquity = it => inSection(it, /equity|capital\s+and\s+reserves/i)
+  const assetItems = items.filter(it => inSection(it, /asset/i) && !isLiability(it) && !isEquity(it))
+  const liabItems = items.filter(it => isLiability(it) && !isEquity(it))
+  const equityItems = items.filter(isEquity)
+  const currentAssets = assetItems.filter(it => !inSection(it, /non-?current|fixed/i))
+  const nonCurrentAssets = assetItems.filter(it => inSection(it, /non-?current|fixed/i))
+
+  const figures = Object.create(null)
+  const put = (key, candidates) => {
+    const p = proposalOf(candidates)
+    if (p) { figures[key] = p }
+  }
+
+  // Bank. Xero may show an overdrawn account as a negative asset OR as a liability;
+  // both are read, and the sign decides which side of the forecast it opens on.
+  const bankRows = currentAssets.filter(it => inSection(it, /^bank$|bank accounts/i) || OVERDRAFT_RE.test(it.label))
+  const overdraftLiabRows = liabItems.filter(it => OVERDRAFT_RE.test(it.label))
+  put('cashAtBank', bankRows.filter(it => it.value > 0))
+  const overdrawn = bankRows.filter(it => it.value < 0).map(it => ({ label: it.label, value: -it.value, section: it.section }))
+  put('bankOverdraft', overdrawn.concat(overdraftLiabRows))
+
+  put('accountsReceivable', currentAssets.filter(it => /accounts?\s+receivable|trade\s+(receivable|debtor)|^debtors\b/i.test(it.label)))
+  put('inventory', currentAssets.filter(it => /stock|inventor/i.test(it.label)))
+  put('prepayments', currentAssets.filter(it => PREPAYMENT_RE.test(it.label)))
+  put('gstRefund', currentAssets.filter(it => GST_RE.test(it.label)))
+  put('incomeTaxRefundDue', currentAssets.filter(it => INCOME_TAX_RE.test(it.label)))
+
+  put('accountsPayable', liabItems.filter(it => /accounts?\s+payable|trade\s+(payable|creditor)|^creditors\b/i.test(it.label)))
+  put('accruedExpenses', liabItems.filter(it => ACCRUAL_RE.test(it.label)))
+  put('gstPayable', liabItems.filter(it => GST_RE.test(it.label)))
+  put('incomeTaxPayable', liabItems.filter(it => INCOME_TAX_RE.test(it.label)))
+
+  put('authorisedCapital', equityItems.filter(it => SHARE_CAPITAL_RE.test(it.label)))
+  put('retainedEarnings', equityItems.filter(it => RETAINED_RE.test(it.label)))
+
+  // The six fixed-asset categories. Anything non-current that matches none of the five
+  // named tests falls into `other` — never dropped, because a dropped asset is a
+  // balance sheet that will not tie and an advisor with no idea why.
+  const assets = Object.create(null)
+  const claimedAsset = new Set()
+  for (let i = 0; i < NCA_CATEGORY_TESTS.length; i++) {
+    const t = NCA_CATEGORY_TESTS[i]
+    const hits = nonCurrentAssets.filter(it => t.re.test(it.label) && !claimedAsset.has(it))
+    hits.forEach(h => claimedAsset.add(h))
+    const p = proposalOf(hits)
+    if (p) { assets[t.key] = p }
+  }
+  const leftoverAssets = nonCurrentAssets.filter(it => !claimedAsset.has(it) && !SHAREHOLDER_RE.test(it.label))
+  const otherAsset = proposalOf(leftoverAssets)
+  if (otherAsset) { assets.other = otherAsset }
+
+  // Positional, unnamed — see the block comment above.
+  const loanBalances = liabItems.filter(it => LOAN_RE.test(it.label)).map(it => it.value)
+  const shareholderBalances = items
+    .filter(it => SHAREHOLDER_RE.test(it.label))
+    .map(it => (inSection(it, /liabilit/i) ? it.value : -it.value))
+
+  // The over-count warning belongs to the assembler, which is what actually folds the
+  // surplus into the last slot — a warning where no folding happens is a warning that
+  // can go out of step with the thing it describes.
+
+  return {
+    recognised: true,
+    kind: 'forecastBalanceSheet',
+    companyName: meta.companyName,
+    reportDate: meta.reportDate,
+    figures,
+    assets,
+    loanBalances,
+    shareholderBalances,
+    warnings
+  }
+}
+
 // EBITDA & DCF line classification (2026-07-17). Each income item lands in exactly ONE
 // bucket — interest/dividends/bad-debts match by label first, the remainder splits by
 // section (trading income -> sales, other income -> otherIncome) — so seeding both
@@ -419,10 +555,35 @@ function parseUpload (buf) {
   throw e
 }
 
+/**
+ * As `parseUpload`, but a Balance Sheet is read for the Three-Way Forecast's whole
+ * opening position rather than Quick Position's five figures. Its own entry point so
+ * that `parseUpload` — which Quick Position and EBITDA both call — is untouched.
+ *
+ * @param {Buffer} buf - the uploaded file's bytes.
+ * @returns {object} a `forecastBalanceSheet` or `profitLoss` extract.
+ * @throws {XlsxReadError|Error} the same error codes as `parseUpload`.
+ */
+function parseForecastUpload (buf) {
+  const grids = gridsFromBuffer(buf)
+
+  for (let g = 0; g < grids.length; g++) {
+    const bs = extractForecastBalanceSheet(grids[g])
+    if (bs.recognised) { return bs }
+    const pl = extractProfitLoss(grids[g])
+    if (pl.recognised) { return pl }
+  }
+  const e = new Error('This does not look like a Xero Balance Sheet or Profit and Loss export — expected the report title in the first rows')
+  e.code = 'UNRECOGNISED_REPORT'
+  throw e
+}
+
 module.exports = {
   parseUpload,
+  parseForecastUpload,
   gridsFromBuffer,
   extractBalanceSheet,
+  extractForecastBalanceSheet,
   extractProfitLoss,
   XlsxReadError,
   // Shared with monthlySalesParser: the report-title test, the header reader and the

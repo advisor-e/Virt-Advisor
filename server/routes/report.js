@@ -22,8 +22,9 @@ const { computeMultiplePropertyAssessment, computeMultiplePropertyPortfolio } = 
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { computeVolatility } = require('../report/volatilityModel')
 const { computeThreeWayForecast } = require('../report/threeWayForecastModel')
+const { assembleForecastIntake, MAX_FILES: MAX_FORECAST_FILES } = require('../report/intake/threeWayForecastAssembler')
 const { listReportModels } = require('../utils/reportModels')
-const { parseUpload } = require('../report/intake/xeroReportParser')
+const { parseUpload, parseForecastUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
 const { parseMonthlyUpload } = require('../report/intake/monthlySalesParser')
 const { assembleMonthlySeries, MAX_FILES: MAX_MONTHLY_FILES } = require('../report/intake/monthlySeriesAssembler')
@@ -665,6 +666,76 @@ function threeWayForecast (req, res, next) {
 }
 
 /**
+ * POST /api/report/three-way-forecast/intake  (firmAuth — uploads are never anonymous)
+ *
+ * Multipart upload of up to three Xero exports (.xlsx or .csv, 5 MB per request) in
+ * repeated `file` fields: a Balance Sheet (required — it is what the forecast opens
+ * from), a Profit and Loss (optional, seeding the annual cost base), and optionally
+ * last year's by-month P&L, whose monthly sales are offered as a STARTING POINT for the
+ * forecast rather than as the forecast itself.
+ *
+ * The distinction matters and the response carries it: `provenance` marks each figure
+ * `file`, `seeded` or `entered`. Everything forward-looking — forecast sales and
+ * purchases, the mark-up, the collection profiles, depreciation rates, loan terms,
+ * capital expenditure — is `entered`, because no accounting export contains a future.
+ *
+ * Privacy (§3A of the forecast prompt specification, Mike's standard 2026-09-02):
+ * shareholder current accounts and term loans come back POSITIONAL AND UNNAMED — the
+ * parser never reads those names. Parse-and-discard: temp files are always deleted,
+ * nothing is stored, and only the stable error code is ever logged.
+ *
+ * @returns {object} { success, data: { files, proposal, provenance, blocked, warnings },
+ *   timestamp } — `blocked` is a sentence saying why nothing assembled, never a partial
+ *   proposal the advisor could mistake for a whole one.
+ */
+async function threeWayForecastIntake (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — a Xero report export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No files were attached. Send the Balance Sheet export in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    // Refuse an over-count BEFORE any file is parsed, as the EBITDA intake does; the
+    // assembler's own count check stays as the backstop.
+    if (uploaded.length > MAX_FORECAST_FILES) {
+      const e = new Error('This model reads up to ' + MAX_FORECAST_FILES + ' files — ' + uploaded.length + ' were sent. Please drop a Balance Sheet, a Profit and Loss, and at most one by-month Profit and Loss.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    const parsed = uploaded.map(f => parseForecastUpload(fs.readFileSync(f.filepath)))
+    const data = assembleForecastIntake(parsed)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, labels or content (identity stays local)
+    console.error('[report] three-way-forecast intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'A file could not be read as a Xero report export.')
+    res.send(safe.status, safe.body)
+  } finally {
+    // Parse-and-discard: always remove every temp file formidable wrote
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
+}
+
+/**
  * GET /api/report/model-guide
  *
  * The Model Guide screen's whole content: what each live model is for, the figures it
@@ -694,4 +765,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, threeWayForecast, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, threeWayForecast, threeWayForecastIntake, modelGuide }

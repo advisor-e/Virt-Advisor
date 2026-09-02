@@ -216,6 +216,7 @@ server.get('/api/report/model-guide', reportRoute.modelGuide)
 server.post('/api/report/quick-position/intake', firmAuth, reportRoute.quickPositionIntake)
 server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfIntake)
 server.post('/api/report/volatility/intake', firmAuth, reportRoute.volatilityIntake)
+server.post('/api/report/three-way-forecast/intake', firmAuth, reportRoute.threeWayForecastIntake)
 // Firm preferred currency: READ open to any firm user (reports render for advisors);
 // WRITE managers only (account-wide setting). Persistence via firmOverlay (config_key 'currency').
 server.get('/api/report/currency', firmAuth, currencyRoute.get)
