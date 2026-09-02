@@ -71,6 +71,8 @@
           //- down an 1,874px page, below the fold on a laptop.
           button.vol-cta.vol-ghost.vol-reset(type="button" @click="resetToSample") {{ $t('report.reset') }}
         p.vol-note {{ $t('report.volatility.accounts.help') }}
+        //- The shared supported-software line — one string across every intake screen.
+        p.vol-note {{ $t('report.supportedSoftware') }}
         //- ONE load box, however many years are dropped on it. Which export is which
         //- year is not a question to put to the advisor: every month is already dated
         //- by the parser, and the assembler orders the files by their own first month.

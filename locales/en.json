@@ -245,6 +245,7 @@
     "staleTitle": "These figures are out of date — the last calculation failed",
     "retry": "Try again",
     "calcUnreachable": "Could not reach the calculation service.",
+    "supportedSoftware": "Reports exported from Xero, QuickBooks Online and MYOB can be read. Xero is confirmed against real exports; QuickBooks Online and MYOB are supported from their published layout, so check the figures on the next step.",
     "fileCheck": {
       "wrongType": "That doesn't look like an accounting export — please drop an .xlsx or .csv file.",
       "tooBig": "That file is over 5 MB — export the report again without extra tabs or images, then try again.",

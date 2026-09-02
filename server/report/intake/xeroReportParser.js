@@ -19,6 +19,7 @@
 
 const { readXlsx, XlsxReadError } = require('./xlsxReader')
 const { parseCsv } = require('./csvReader')
+const { supportedList } = require('./supportedPackages')
 
 /** A grid row reduced to its first text cell + first numeric cell. */
 function rowShape (cells) {
@@ -179,19 +180,41 @@ function totalCrossChecks (rows) {
   return warnings
 }
 
-/** Find the report's own date/period line in the header rows. */
+/**
+ * Find the report's own date/period line in the header rows.
+ *
+ * `bodyFrom` is the first row BELOW the header block. It matters because a header row
+ * carries a label and no figure, which is exactly how `lineItems` recognises a section
+ * heading — so without it a period line like "January - December 2026" opens a section
+ * that wraps the whole report. Found 2026-09-02 probing QuickBooks and MYOB layouts,
+ * where the effect was visible: rows outside a known section were declared unrecognised,
+ * naming the date line as though it were a heading.
+ *
+ * Date lines seen across packages: "As at …" (Xero), "As of …" (QuickBooks, MYOB),
+ * "For the …" (Xero), and a bare "1 April 2025 to 31 March 2026" range.
+ */
 function headerMeta (rows, titleRe) {
-  const meta = { companyName: null, reportDate: null, titleRow: -1 }
+  const meta = { companyName: null, reportDate: null, titleRow: -1, bodyFrom: 0 }
   const limit = Math.min(rows.length, 8)
   for (let i = 0; i < limit; i++) {
     const label = rows[i].label
     if (!label) { continue }
-    if (meta.titleRow === -1 && titleRe.test(label)) { meta.titleRow = i; continue }
-    const asAt = /^as at\s+(.+)$/i.exec(label)
-    const period = /^for the\s+(.+)$/i.exec(label) || /^(\d{1,2}\s+\w+\s+\d{4})\s*(?:to|[-–])\s*(.+)$/i.exec(label)
-    if (asAt) { meta.reportDate = asAt[1].trim(); continue }
-    if (period) { meta.reportDate = label.trim(); continue }
-    if (meta.companyName === null && meta.titleRow !== -1) { meta.companyName = label } else if (meta.companyName === null && i > 0) { meta.companyName = label }
+    if (meta.titleRow === -1 && titleRe.test(label)) { meta.titleRow = i; meta.bodyFrom = i + 1; continue }
+    const asAt = /^as (?:at|of)\s+(.+)$/i.exec(label)
+    const period = /^for the\s+(.+)$/i.exec(label) ||
+      /^(\d{1,2}\s+\w+\s+\d{4})\s*(?:to|[-–])\s*(.+)$/i.exec(label) ||
+      /^\w+\s*(?:to|[-–])\s*\w+\s+(?:19|20)\d{2}$/i.exec(label)
+    // The date line is always the last of the header rows, so finding it ends the scan.
+    // Without that stop, a report with no date line would keep looking and take the
+    // first section heading as the company name.
+    if (asAt) { meta.reportDate = asAt[1].trim(); meta.bodyFrom = i + 1; break }
+    if (period) { meta.reportDate = label.trim(); meta.bodyFrom = i + 1; break }
+    // The company name sits BELOW the title in Xero and ABOVE it in QuickBooks and
+    // MYOB, so row 0 has to be eligible. It was excluded, which meant that on those
+    // layouts the name was never found and the first section heading was taken instead
+    // — "Income" became the company, and its whole section vanished from the parse.
+    // (Found 2026-09-02.)
+    if (meta.companyName === null) { meta.companyName = label; meta.bodyFrom = i + 1 }
   }
   return meta
 }
@@ -209,8 +232,11 @@ function extractBalanceSheet (grid) {
   const meta = headerMeta(rows, BS_TITLE)
   if (meta.titleRow === -1) { return { recognised: false } }
 
-  const items = lineItems(rows)
-  const warnings = totalCrossChecks(rows)
+  // Skip the header block: a title, company or date row is a label with no figure,
+  // which lineItems would otherwise read as a section heading.
+  const body = rows.slice(meta.bodyFrom)
+  const items = lineItems(body)
+  const warnings = totalCrossChecks(body)
   guardFigureColumns(grid, warnings)
 
   const bankRows = items.filter(it => inSection(it, /^bank$|bank accounts/i))
@@ -274,9 +300,12 @@ const GST_RE = /\bgst\b|\bvat\b|goods\s+and\s+services/i
 const INCOME_TAX_RE = /income\s*tax|provision\s+for\s+tax|\btax\s+(payable|refund)/i
 const PREPAYMENT_RE = /prepay|prepaid/i
 const ACCRUAL_RE = /accrual|accrued/i
-const SHARE_CAPITAL_RE = /share\s*capital|paid[-\s]?up\s+capital|authorised\s+capital|owner'?s?\s+capital/i
+// "Common Stock" is QuickBooks' wording for the same line; "Capital Account" is MYOB's.
+const SHARE_CAPITAL_RE = /share\s*capital|paid[-\s]?up\s+capital|authorised\s+capital|owner'?s?\s+capital|common\s+stock|capital\s+account/i
 const RETAINED_RE = /retained\s+(earnings|profit)|accumulated\s+(profit|losses|funds)|current\s+year\s+earnings/i
 const OVERDRAFT_RE = /overdraft/i
+/** A bank account by its own name, for charts of accounts with no "Bank" heading. */
+const BANK_ACCOUNT_RE = /bank\s+account|cheque\s+account|checking\s+account|savings\s+account|cash\s+at\s+bank|petty\s+cash|^cash$/i
 
 /**
  * Extract a Three-Way Forecast opening balance sheet from a Balance Sheet grid.
@@ -297,8 +326,11 @@ function extractForecastBalanceSheet (grid) {
   const meta = headerMeta(rows, BS_TITLE)
   if (meta.titleRow === -1) { return { recognised: false } }
 
-  const items = lineItems(rows)
-  const warnings = totalCrossChecks(rows)
+  // Skip the header block: a title, company or date row is a label with no figure,
+  // which lineItems would otherwise read as a section heading.
+  const body = rows.slice(meta.bodyFrom)
+  const items = lineItems(body)
+  const warnings = totalCrossChecks(body)
   guardFigureColumns(grid, warnings)
 
   // 🔴 THE THREE SIDES ARE SPLIT BY EXCLUSION, NOT BY NESTING. An export that carries no
@@ -307,10 +339,19 @@ function extractForecastBalanceSheet (grid) {
   // 2026-09-02: a 249,000 bank overdraft was read as cash and a bank loan as a fixed
   // asset. Both unit-test grids carried the Total row, so neither caught it. Asking
   // what a row is NOT is robust however the sections happen to nest.
+  // A section must BE equity, not merely mention it. QuickBooks heads its whole
+  // second half "LIABILITIES AND EQUITY", so a loose /equity/ test excluded every
+  // liability under it — accounts payable, GST, accruals and the loans all vanished.
+  // (Found 2026-09-02 probing QuickBooks; the loose test was written earlier the same
+  // day for the missing-Total-Assets fix, and this is the other half of that story.)
   const isLiability = it => inSection(it, /liabilit/i)
-  const isEquity = it => inSection(it, /equity|capital\s+and\s+reserves/i)
+  const isEquity = it => it.section.some(s => /^(?:total\s+)?(?:owners?'?\s+|shareholders?'?\s+)?equity$|^capital\s+and\s+reserves$/i.test(String(s).trim()))
   const assetItems = items.filter(it => inSection(it, /asset/i) && !isLiability(it) && !isEquity(it))
   const liabItems = items.filter(it => isLiability(it) && !isEquity(it))
+  // No asset exclusion here: `isEquity` now requires a section named exactly "Equity"
+  // (or "Capital and Reserves"), which an asset row can never sit under. Adding one
+  // broke the no-"Total Assets" layout, where Equity nests inside the open Assets
+  // section and every equity line was excluded.
   const equityItems = items.filter(isEquity)
   const currentAssets = assetItems.filter(it => !inSection(it, /non-?current|fixed/i))
   const nonCurrentAssets = assetItems.filter(it => inSection(it, /non-?current|fixed/i))
@@ -323,7 +364,11 @@ function extractForecastBalanceSheet (grid) {
 
   // Bank. Xero may show an overdrawn account as a negative asset OR as a liability;
   // both are read, and the sign decides which side of the forecast it opens on.
-  const bankRows = currentAssets.filter(it => inSection(it, /^bank$|bank accounts/i) || OVERDRAFT_RE.test(it.label))
+  // Xero and QuickBooks group the accounts under a "Bank" / "Bank Accounts" heading;
+  // MYOB lists them straight under Current Assets, so the label has to be readable too.
+  // Deliberately narrow — a wide test would sweep in "Bank Loan" and "Bank Charges".
+  const bankRows = currentAssets.filter(it =>
+    inSection(it, /^bank$|bank accounts/i) || BANK_ACCOUNT_RE.test(it.label) || OVERDRAFT_RE.test(it.label))
   const overdraftLiabRows = liabItems.filter(it => OVERDRAFT_RE.test(it.label))
   put('cashAtBank', bankRows.filter(it => it.value > 0))
   const overdrawn = bankRows.filter(it => it.value < 0).map(it => ({ label: it.label, value: -it.value, section: it.section }))
@@ -435,8 +480,11 @@ function extractProfitLoss (grid) {
   const meta = headerMeta(rows, PL_TITLE)
   if (meta.titleRow === -1) { return { recognised: false } }
 
-  const items = lineItems(rows)
-  const warnings = totalCrossChecks(rows)
+  // Skip the header block: a title, company or date row is a label with no figure,
+  // which lineItems would otherwise read as a section heading.
+  const body = rows.slice(meta.bodyFrom)
+  const items = lineItems(body)
+  const warnings = totalCrossChecks(body)
   guardFigureColumns(grid, warnings)
 
   // R18: "trading income" is anchored — "Non-Trading Income" must never classify as sales
@@ -523,7 +571,7 @@ function gridsFromBuffer (buf) {
     const text = buf.toString('utf8')
     // eslint-disable-next-line no-control-regex -- deliberately detecting binary bytes
     if (/[\u0000-\u0008\u000E-\u001F]/.test(text.slice(0, 2000))) {
-      const e = new Error('Unrecognised file type — please drop a report exported from your accounting software as Excel (.xlsx) or CSV')
+      const e = new Error('Unrecognised file type — please drop a report exported as Excel (.xlsx) or CSV from ' + supportedList())
       e.code = 'UNRECOGNISED_FILE'
       throw e
     }
@@ -550,7 +598,7 @@ function parseUpload (buf) {
     const pl = extractProfitLoss(grids[g])
     if (pl.recognised) { return pl }
   }
-  const e = new Error('This does not look like a Balance Sheet or Profit and Loss export from your accounting software — expected the report title in the first rows')
+  const e = new Error('This does not look like a Balance Sheet or Profit and Loss export — expected the report title in the first rows. Reports from ' + supportedList() + ' can be read.')
   e.code = 'UNRECOGNISED_REPORT'
   throw e
 }
@@ -573,7 +621,7 @@ function parseForecastUpload (buf) {
     const pl = extractProfitLoss(grids[g])
     if (pl.recognised) { return pl }
   }
-  const e = new Error('This does not look like a Balance Sheet or Profit and Loss export from your accounting software — expected the report title in the first rows')
+  const e = new Error('This does not look like a Balance Sheet or Profit and Loss export — expected the report title in the first rows. Reports from ' + supportedList() + ' can be read.')
   e.code = 'UNRECOGNISED_REPORT'
   throw e
 }
