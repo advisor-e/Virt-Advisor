@@ -11,44 +11,42 @@
 
 ## 2026-09-03 · Laptop · branch `feat/advisor-progress`
 
-Suite **7,355 green** (380 suites), lint 0 errors. Started 43 ahead / 0 behind, ended
-**45 ahead / 0 behind**, everything pushed. Nothing uncommitted.
+Suite **7,375 green** (380 suites), lint 0 errors. Started 45 ahead / 1 behind, ended
+**8 ahead / 0 behind**, everything pushed. Nothing uncommitted.
 
-### The Three-Way Forecast is complete, end to end
+### Built — 4.61 phase (a): two by-month exports
 
-Steps 1–3 shipped (`a085f72`), so all four screens of the approved drawing now exist.
-Mike ruled the last two open questions today: negative stock **stays flagged**, and an
-unbalanced opening **warns** — promoted to a full-width band so it survives the print.
-Nothing on that drawing is unruled any more.
+Step 1 has four slots. The reason is sharper than "more months": a current-year export
+stops part-way through a month, those months are stripped as incomplete, so **one file can
+yield five usable months and no seed at all** — the advisor then types twelve by hand.
+Pinned by a test running the same mid-year export alone and with last year's beside it.
+Also closed a pre-existing defect on Mike's approval: `TOO_MANY_MONTHLY_FILES` was never on
+the `intakeError` allowlist, so that refusal's own words had never reached anyone.
 
-### 🔴 THE FINDING THAT MATTERS TO EVERY MODEL, NOT JUST THIS ONE
+### Drawn, NOT yet approved
 
-`resolveInputs` merges what a screen sends over the workbook's own sample, so **an input
-the screen does not collect keeps the sample's value, invisibly**. Built as drawn, the
-intake would have put Big Bird's 10% commission, 3% freight, 7% overdraft interest and
-15,000 of overheads into a real client's forecast. Mike's ruling: every figure the engine
-takes goes on a screen. `buildInputs()` now sends every key explicitly, and a test compares
-it against the model's own key list. **Any new model with a defaults-merge needs the same
-guard.** Recorded in the Report Models Brief.
+`design/mockups/three-way-forecast-capital.html` — buying and selling capital assets on
+step 3. **All six questions ruled by Mike**; the drawing shows every one. The engine
+already takes `additions`/`disposals` and the screen sends hardcoded zeroes, so R3/R4 are
+built and unreachable. ☐ in `ARTEFACTS.md` — he has **not** said "approved". "Everything
+looks great" was deliberately not recorded as approval; the build waits on that sentence.
 
-### Three defects found by opening the drawing beside the code
+### Filed
 
-The result screen reset the advisor's mark-up to 68% after step 3; the third file slot was
-drawn and never wired; the overheads had the same leak as the rates. All fixed. **Running
-the app found nothing the suite had missed this time — but only because the app was run.**
+**4.62** economic analysis (would be the first report to call the AI) · **4.63** overseas
+stock, `Import & Retail.xlsx` now in the repo and read · **4.64** international vs local,
+placed **ahead of 4.63** because it builds the place 4.63 lands. It carries a GST finding:
+the engine charges GST on every sale and claims it on every purchase, so exports and
+imports are both wrong today.
 
-### 🖥 DESKTOP — three things
+### 🖥 DESKTOP — one thing, and it will bite
 
-1. **PR #55 is waiting on Mike's eyeball** (Volatility upload, production build).
-2. **🔴 Numbering collision, second time.** You filed the Xero sweep as **4.57**; this
-   branch skipped 4.57 deliberately AND had already done that sweep (`2f3f8a2`).
-   `to-do-items.json` will conflict when #55 merges — settle it then.
-3. `ProvenanceBadge` gained a third state (`seeded`, green) and the forecast assembler now
-   returns `candidates`. Both additive — extend, don't copy.
+Your `a27f825` rewrites 4.61's PR #55 note. So does my `0eefc23`. Same conclusion,
+different words — **`to-do-items.json` will conflict when you merge.** Third collision in
+that file.
 
 ### Next
 
-**4.61** — two years of accounts and a volatility read. Volatility needs 24 **months**, not
-two annual reports, and the two-file monthly join is already built, so phase (a) is a
-connection rather than new arithmetic. Phase (b), the comparative-column parser, needs its
-own drawing. **Both must follow PR #55** — same intake files.
+Mike's approval of the capital drawing, then build it. Then the volatility read (approved,
+undrawn). Handbook Brief §4/§5 corrected: `/shutdown` writes to three targets, `ACTIONS.md`
+is frozen.
