@@ -344,10 +344,25 @@ server.post('/api/firm-manager/meeting-observations/:scenarioId/own', ...fmGuard
 server.put('/api/firm-manager/meeting-observations/:scenarioId/own/:pointId', ...fmGuard, mo.updateOwnPoint)
 server.del('/api/firm-manager/meeting-observations/:scenarioId/own/:pointId', ...fmGuard, mo.deleteOwnPoint)
 
+// The KINDS of meeting — create, rename, reorder, switch off (MEETING-TYPES-CASCADE.md
+// §7 slice 2, approved by Mike 2026-09-02). Manager-guarded and scoped to req.firmId, so a
+// scope can only ever write its own row — the mechanical half of P14, "NOBODY can edit a
+// level ABOVE their own".
+const mt = require('./routes/meetingTypes')
+server.get('/api/firm-manager/meeting-types', ...fmGuard, mt.getTypes)
+server.post('/api/firm-manager/meeting-types', ...fmGuard, mt.addType)
+server.put('/api/firm-manager/meeting-types/order', ...fmGuard, mt.saveOrder)
+server.put('/api/firm-manager/meeting-types/own/:typeId', ...fmGuard, mt.editOwnType)
+server.del('/api/firm-manager/meeting-types/own/:typeId', ...fmGuard, mt.removeOwnType)
+server.put('/api/firm-manager/meeting-types/:typeId', ...fmGuard, mt.overrideType)
+server.del('/api/firm-manager/meeting-types/:typeId/override', ...fmGuard, mt.resetType)
+server.put('/api/firm-manager/meeting-types/:typeId/declined', ...fmGuard, mt.declineType)
+
 // The advisor's own read — their pre-set, in the first person. firmAuth ONLY (every
-// advisor needs it), and there is deliberately no advisor WRITE route: an objective an
-// advisor adds belongs to one meeting, not to the standing list every advisor in the firm
-// is checked on. See getForAdvisor's JSDoc.
+// advisor needs it). There is no advisor WRITE route YET: the advisor and business-entity
+// levels are slice 4 of MEETING-TYPES-CASCADE.md, unbuilt rather than disallowed — Mike,
+// 2026-09-02, "NOBODY can edit a level ABOVE their own", which leaves an advisor free at
+// their own level and below. See getForAdvisor's JSDoc.
 server.get('/api/meeting/observations', firmAuth, mo.getForAdvisor)
 
 // ── Meeting Review — consent, capture, transcription and deletion (slice 2) ──

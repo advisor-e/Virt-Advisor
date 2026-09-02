@@ -7,6 +7,12 @@
       |  afterwards — every finding quoting what was said, or saying plainly that it did
       |  not happen.
 
+  //- The KINDS of meeting, above the points inside them (MEETING-TYPES-CASCADE.md slice 2).
+  //- It renders itself only at the mentor tier for now and decides that from its own
+  //- backend read, so nothing here has to know which tier it is on. When a type is added,
+  //- renamed or switched off, the list below has to be re-read — hence the event.
+  firm-meeting-types(:api-token="apiToken" @types-changed="load")
+
   .has-text-centered.py-5(v-if="loading")
     b-loading(:is-full-page="false" :active="true")
 
@@ -223,8 +229,12 @@
  *
  * Vue 2 Options API, Pug, Buefy — no exceptions to the house rules.
  */
+import FirmMeetingTypes from '~/components/firm/FirmMeetingTypes.vue'
+
 export default {
   name: 'FirmMeetingObservations',
+
+  components: { FirmMeetingTypes },
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */

@@ -108,6 +108,10 @@ data/dev-firm-quiz-override-baselines.json
 data/dev-meeting-observation-declines.json
 data/dev-meeting-observation-overrides.json
 data/dev-meeting-observation-own.json
+data/dev-meeting-type-declines.json
+data/dev-meeting-type-overrides.json
+data/dev-meeting-type-own.json
+data/dev-meeting-type-order.json
 
 # Meeting Review's retention dial (2026-09-01, slice 2) — how long ONE firm keeps its
 # transcripts. Ignored for the same reason as the three above, and for one of its own: the
