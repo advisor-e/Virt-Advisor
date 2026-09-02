@@ -233,9 +233,9 @@ const DEFAULTS = {
  * Merge supplied inputs over the workbook's sample figures.
  * @param {object} raw @returns {object}
  */
-function resolveInputs (raw) {
+function resolveInputs (raw, fallback) {
   const i = (raw && typeof raw === 'object') ? raw : {}
-  const d = DEFAULTS
+  const d = (fallback && typeof fallback === 'object') ? fallback : DEFAULTS
   const ob = (i.openingBalanceSheet && typeof i.openingBalanceSheet === 'object') ? i.openingBalanceSheet : {}
   const dr = (i.directCostRates && typeof i.directCostRates === 'object') ? i.directCostRates : {}
   const ov = (i.overheads && typeof i.overheads === 'object') ? i.overheads : {}
@@ -506,6 +506,17 @@ function computeThreeWayForecast (rawInputs, options) {
   const I = resolveInputs(rawInputs)
   const asWritten = !!(options && options.sourceFidelity === true)
   const corrected = !asWritten
+  // Which of the three year sheets this is (0-based). It matters ONLY in
+  // source-fidelity mode, because the workbook is not consistent between its own
+  // years — see the two flags below. In corrected mode every year behaves the same.
+  const yearIndex = (options && Number(options.yearIndex)) > 0 ? Number(options.yearIndex) : 0
+  // 🔴 THE WORKBOOK'S OWN YEARS 2 AND 3 ALREADY TOTAL ALL SIX ASSET CATEGORIES
+  // (`SUM(D99:D104)`); only year 1 stops at four (`SUM(D99:D102)`). So R1 is not our
+  // judgement imposed on the model — it is what the author already does in the later
+  // sheets, and year 1 is the outlier. It also explains a 91,218 jump in the workbook's
+  // own year-2 balance check: year 1 hands over a four-of-six total to a sheet that
+  // totals six. Applying R1 removes it. (Found 2026-09-02 scouting years 2 and 3.)
+  const totalsAllSixAssets = corrected || yearIndex > 0
   const gst = I.gstRate
   const ob = I.openingBalanceSheet
   const headers = monthHeaders(I.startDateSerial)
@@ -546,7 +557,7 @@ function computeThreeWayForecast (rawInputs, options) {
   for (let k = 0; k < ASSET_KEYS.length; k++) { opening.nonCurrentAssets[ASSET_KEYS[k]] = I.assets[k].opening }
   // R1: all six categories, not the four the sheet totals.
   opening.totalNonCurrentAssets = I.assets.reduce(function (a, x, n) {
-    return (corrected || n < 4) ? a + x.opening : a
+    return (totalsAllSixAssets || n < 4) ? a + x.opening : a
   }, 0)
   opening.nonCurrentLiabilities = I.loans.map(function (l) { return { name: l.name, balance: l.opening } })
   opening.totalNonCurrentLiabilities = I.loans.reduce(function (a, l) { return a + l.opening }, 0) + opening.otherNonCurrentLiability
@@ -631,7 +642,12 @@ function computeThreeWayForecast (rawInputs, options) {
     // The workbook's row 201: "Other 5" in month 1, then a mis-fill that repeats
     // "Other 4" for months 2-12. Reproduced only to prove the port.
     const strayRow = zeroes()
-    for (let m = 0; m < MONTHS; m++) { strayRow[m] = m === 0 ? overhead.otherFive[m] : overhead.otherFour[m] }
+    // The duplicate itself is in all three years; the MIS-FILL is year 1's alone.
+    // Year 1's row reads Other 5 in month 1 and then Other 4 for the rest; years 2 and
+    // 3 read Other 5 throughout. Either way the cost is settled twice, which is R6.
+    for (let m = 0; m < MONTHS; m++) {
+      strayRow[m] = (m === 0 || yearIndex > 0) ? overhead.otherFive[m] : overhead.otherFour[m]
+    }
     blockOneParts.push(strayRow)
   }
   const blockOneNet = addSeries.apply(null, blockOneParts)
@@ -898,7 +914,7 @@ function computeThreeWayForecast (rawInputs, options) {
     // R1: every category counted. The workbook stopped at the fourth.
     let nca = 0
     for (let k = 0; k < ASSET_KEYS.length; k++) {
-      if (corrected || k < 4) { nca += bs.nonCurrentAssets[ASSET_KEYS[k]][m] }
+      if (totalsAllSixAssets || k < 4) { nca += bs.nonCurrentAssets[ASSET_KEYS[k]][m] }
     }
     bs.totalNonCurrentAssets[m] = nca
 
@@ -1068,4 +1084,172 @@ function computeThreeWayForecast (rawInputs, options) {
   }
 }
 
-module.exports = { computeThreeWayForecast, DEFAULTS, ASSET_KEYS, OVERHEAD_KEYS, excelRound }
+/* ------------------------------------------------------- the year-to-year handover -- */
+
+/** Split a net balance onto the asset side. @param {number} net */
+function assetSide (net) { return net > 0 ? net : 0 }
+/** Split a net balance onto the liability side. @param {number} net */
+function liabilitySide (net) { return net < 0 ? -net : 0 }
+
+/**
+ * Build the opening position of the NEXT year from the closing position of this one.
+ *
+ * The workbook states this itself, and states it cleanly: year 2's opening column is
+ * year 1's month-12 balance sheet, row for row (`'Yr 1. Projections'!O70` … `O116`).
+ * So the handover is the whole closing balance sheet, plus each schedule's own closing
+ * value — which the balance sheet already carries per category for assets (rows 99-104)
+ * and per lender for loans (109-111).
+ *
+ * 🔴 R8 — THE SHAREHOLDER CURRENT ACCOUNTS CARRY FORWARD. Ruled by Mike 2026-09-02.
+ * The workbook opens them from `'Data Input'!E68`…`E71` in EVERY year — the original
+ * year-1 figures — so a year's interest, advances and drawings are wiped at each year
+ * boundary and the schedule then disagrees with the balance sheet, which does carry the
+ * correct closing figure. The loans were wired up properly (`M347 = 'Yr 1
+ * Projections'!O109`), so this was an omission rather than an intention. On the sample
+ * it loses 2,916 a year, and it compounds.
+ *
+ * @param {object} previousYear a `computeThreeWayForecast` result
+ * @param {object} nextYearInputs the next year's own inputs (its own trading, rates and
+ *   terms are untouched — only the OPENING figures are replaced)
+ * @param {Array<object>|null} resetShareholdersTo reproduce the workbook's reset instead
+ *   of carrying forward — the value is YEAR ONE's shareholder openings, because that is
+ *   what the workbook resets to every year (`'Data Input'!E68`…`E71`, the year-1 column,
+ *   in year 2 AND year 3). Used only by source-fidelity mode; null means carry forward.
+ * @returns {object} the next year's inputs with its opening position filled in
+ */
+function carryForward (previousYear, nextYearInputs, resetShareholdersTo) {
+  const bs = previousYear.balanceSheet.months
+  const s = previousYear.schedules
+  const last = MONTHS - 1
+  const next = Object.assign({}, nextYearInputs)
+
+  const taxNet = s.tax.closingBalance[last]
+  const gstNet = s.gst.balanceClosing[last]
+  const accrualNet = s.accruals.closingBalance[last]
+
+  next.openingBalanceSheet = Object.assign({}, nextYearInputs.openingBalanceSheet, {
+    authorisedCapital: bs.authorisedCapital[last],
+    capitalGain: bs.capitalGain[last],
+    retainedEarnings: bs.retainedEarnings[last],
+    cashAtBank: bs.cashAtBank[last],
+    bankOverdraft: bs.bankOverdraft[last],
+    accountsReceivable: bs.accountsReceivable[last],
+    inventory: bs.inventory[last],
+    accountsPayable: bs.accountsPayable[last],
+    // Each of these is held as a pair of one-sided figures, so a net balance is split
+    // back onto the side it falls on — exactly as the opening screen asks for it.
+    incomeTaxRefundDue: assetSide(taxNet),
+    incomeTaxPayable: liabilitySide(taxNet),
+    gstRefund: liabilitySide(gstNet),
+    gstPayable: assetSide(gstNet),
+    prepayments: assetSide(accrualNet),
+    accruedExpenses: liabilitySide(accrualNet),
+    otherCurrentAsset: bs.otherCurrentAsset[last],
+    otherCurrentLiability: bs.otherCurrentLiability[last],
+    otherNonCurrentLiability: bs.otherNonCurrentLiability[last]
+  })
+
+  next.assets = (nextYearInputs.assets || DEFAULTS.assets).map(function (a, n) {
+    return Object.assign({}, a, { opening: s.assets[n].closingValue[last] })
+  })
+  next.loans = (nextYearInputs.loans || DEFAULTS.loans).map(function (l, n) {
+    return Object.assign({}, l, { opening: s.loans[n].closingBalance[last] })
+  })
+  next.shareholders = (nextYearInputs.shareholders || DEFAULTS.shareholders).map(function (sh, n) {
+    if (resetShareholdersTo) {
+      const reset = resetShareholdersTo[n]
+      return Object.assign({}, sh, { opening: reset ? pick(reset.opening, 0) : 0 })
+    }
+    return Object.assign({}, sh, { opening: s.shareholders[n].closingBalance[last] })
+  })
+
+  // The workbook steps the year on the same way it steps a month: the next year's first
+  // header is the last month of this one plus 31 days (`'Yr 1. Projections'!O1+31`).
+  next.startDateSerial = previousYear.months.serials[last] + 31
+
+  return next
+}
+
+/**
+ * Compute all three years, chained.
+ *
+ * Every input is per-year in the workbook — its Data Input sheet holds three sets of
+ * columns (E/G, M/O, U/W) for sales, purchases, mark-up, overheads, rates, terms and
+ * capital plans — so this takes three complete input sets rather than a growth rate.
+ * Only the OPENING position of years 2 and 3 is derived; everything else is theirs.
+ *
+ * @param {object} rawInputs `{ years: [year1, year2, year3] }`. A bare single-year
+ *   object is accepted and used for year 1. **An omitted or partial later year inherits
+ *   the year before it**, so leaving years 2 and 3 empty forecasts "the same again"
+ *   rather than dropping the sample workbook's figures into a real client's later years.
+ * @param {object} [options] `sourceFidelity: true` reproduces the workbook including
+ *   its defects — including the shareholder reset at each year boundary. Test-only, and
+ *   a separate parameter so no request body can reach it.
+ * @returns {object} { years: [y1, y2, y3], summary } — `summary` totals the three years
+ *   and carries the closing position of the third.
+ */
+function computeThreeYearForecast (rawInputs, options) {
+  const asWritten = !!(options && options.sourceFidelity === true)
+  const supplied = (rawInputs && typeof rawInputs === 'object') ? rawInputs : {}
+  const perYear = Array.isArray(supplied.years) ? supplied.years : [supplied, {}, {}]
+
+  // Year one's shareholder openings, resolved once: source-fidelity mode resets to them
+  // in every later year, which is what the workbook does.
+  const yearOneShareholders = resolveInputs(perYear[0] && typeof perYear[0] === 'object' ? perYear[0] : {}).shareholders
+
+  const years = []
+  let previousResolved = null
+  for (let y = 0; y < 3; y++) {
+    const own = (perYear[y] && typeof perYear[y] === 'object') ? perYear[y] : {}
+    // 🔴 AN OMITTED LATER YEAR REPEATS THE YEAR BEFORE IT — NEVER THE SAMPLE WORKBOOK.
+    // Falling back to DEFAULTS here would drop the source workbook's own trading
+    // figures ("Big Bird Grass Seed", 890,000 of sales) into years 2 and 3 of a REAL
+    // client's forecast, silently, because an advisor filled in year 1 and left the
+    // rest alone. Inheriting the previous year instead makes an omitted year mean
+    // "the same again", which is both the safe reading and the useful one.
+    const resolved = resolveInputs(own, previousResolved)
+    const inputs = y === 0 ? resolved : carryForward(years[y - 1], resolved, asWritten ? yearOneShareholders : null)
+    years.push(computeThreeWayForecast(inputs, { sourceFidelity: asWritten, yearIndex: y }))
+    previousResolved = resolved
+  }
+
+  const sumOf = path => years.reduce(function (a, yr) {
+    const series = path.split('.').reduce(function (n, k) { return n ? n[k] : undefined }, yr)
+    return a + (Array.isArray(series) ? series.reduce(function (x, v) { return x + v }, 0) : 0)
+  }, 0)
+  const lastYear = years[2]
+  const last = MONTHS - 1
+
+  return {
+    years,
+    summary: {
+      revenue: sumOf('profitAndLoss.revenue'),
+      grossSurplus: sumOf('profitAndLoss.grossSurplus'),
+      totalOverheads: sumOf('profitAndLoss.totalOverheads'),
+      netSurplusBeforeTax: sumOf('profitAndLoss.netSurplusBeforeTax'),
+      taxProvision: sumOf('profitAndLoss.taxProvision'),
+      netSurplusAfterTax: sumOf('profitAndLoss.netSurplusAfterTax'),
+      // The closing position after three years — what a financier reads first.
+      closingCash: lastYear.cashFlow.closingBalance[last],
+      closingNetAssets: lastYear.balanceSheet.months.netAssets[last],
+      balanceCheck: lastYear.balanceSheet.months.balanceCheck[last],
+      // The lowest the bank goes at any point across the whole 36 months, and when.
+      lowestCash: years.reduce(function (lo, yr, yi) {
+        yr.cashFlow.closingBalance.forEach(function (v, m) {
+          if (v < lo.value) { lo = { value: v, year: yi + 1, month: m + 1, date: yr.months.isoDates[m] } }
+        })
+        return lo
+      }, { value: Infinity, year: 0, month: 0, date: null })
+    }
+  }
+}
+
+module.exports = {
+  computeThreeWayForecast,
+  computeThreeYearForecast,
+  carryForward,
+  DEFAULTS,
+  ASSET_KEYS,
+  OVERHEAD_KEYS,
+  excelRound
+}

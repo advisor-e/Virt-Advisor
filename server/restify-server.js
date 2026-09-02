@@ -209,6 +209,7 @@ server.post('/api/report/cost-of-capital', reportRoute.costOfCapital)
 server.post('/api/report/multiple-property', reportRoute.multipleProperty)
 server.post('/api/report/volatility', reportRoute.volatility)
 server.post('/api/report/three-way-forecast', reportRoute.threeWayForecast)
+server.post('/api/report/three-way-forecast/three-years', reportRoute.threeYearForecast)
 // The Model Guide screen. Same records the AI is given, from the same file — see the
 // route's own note. Platform content, no client data, so no firmAuth (as above).
 server.get('/api/report/model-guide', reportRoute.modelGuide)

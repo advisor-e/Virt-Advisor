@@ -188,6 +188,54 @@ position needs to see a non-zero check and fix their own figures.
 `tests/unit/threeWayForecastModel.test.js` pins both halves — the flat 164,000 on the
 sample, and a clean zero all year when a balanced opening position is supplied.
 
+### R8 — the shareholder current accounts reset at every year boundary
+
+**Ruled by Mike 2026-09-02, when years 2 and 3 were built.**
+
+Every year of the workbook opens its four shareholder current accounts from
+`'Data Input'!E68`…`E71` — the **year-one** column — in year 2 *and* year 3. So a year's
+interest, advances and drawings are wiped at each boundary and the account starts again
+from where it began.
+
+**Proof that it is an omission rather than an intention: the loans were wired up.**
+`'Data Input'!M347 = 'Yr 1. Projections'!O109` carries loan 1's closing balance into year
+2, and the same for the other two. The current accounts never got the equivalent. The
+balance sheet meanwhile *does* carry the correct closing figure (`C82`/`C92` read year
+1's `O82`/`O92`), so the schedule and the balance sheet disagree with each other.
+
+**Effect.** 2,916 a year on the sample — the interest accrued on the two overdrawn
+accounts — and it compounds.
+
+**Ruling — corrected.** Each account opens where it closed, exactly as the loans do.
+
+---
+
+## What years 2 and 3 proved about R1 and R2
+
+Scouting the later sheets on 2026-09-02 turned up the strongest evidence in this
+document, and it did not come from us:
+
+**The workbook's own years 2 and 3 already total all six asset categories.**
+
+| Total Non-Current Assets | Formula |
+|---|---|
+| Year 1 (row 106) | `SUM(D99:D102)` — four of six |
+| Year 2 (row 105) | `SUM(D99:D104)` — **all six** |
+| Year 3 (row 105) | `SUM(D99:D104)` — **all six** |
+
+So **R1 is the author's own intent**, applied in the later sheets and missed in the
+first. Year 1 is the outlier, not our correction.
+
+It also explains something that looked alarming at first. The workbook's own year-2
+balance check **jumps 91,218 in its first month** — because year 1 hands a four-of-six
+total to a sheet that totals six. **Applying R1 removes the jump entirely.**
+
+**R2 is different: depreciation charges three of six in all three years** (`D306+D316+D326`
+in year 1, `D305+D315+D325` at the later sheets' offsets). That one is consistently wrong
+throughout, so the correction applies across the board.
+
+---
+
 ### The month stepping quirk is ported as written and is NOT yet ruled on
 
 The workbook advances its month headers by adding **31 days**, not one calendar month
@@ -200,6 +248,11 @@ The workbook advances its month headers by adding **31 days**, not one calendar 
 
 Ported faithfully, and the model reports it: `startsSkipACalendarMonth` in the returned
 payload is `true` when the stepping has skipped a month, so nothing hides.
+
+**Over three years the drift is no longer subtle.** A forecast opening 1 April 2024 has
+its final month beginning **22 March 2027** — three weeks adrift of the 1 March a
+calendar-month step would give, and drifting further with every year added. On one year
+it is a curiosity; on three it is visible on the screen.
 
 **Raised for Mike 2026-09-02, not yet ruled on. Do not "fix" it without his ruling.**
 

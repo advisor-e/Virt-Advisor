@@ -21,7 +21,7 @@ const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
 const { computeMultiplePropertyAssessment, computeMultiplePropertyPortfolio } = require('../report/multiplePropertyModel')
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { computeVolatility } = require('../report/volatilityModel')
-const { computeThreeWayForecast } = require('../report/threeWayForecastModel')
+const { computeThreeWayForecast, computeThreeYearForecast } = require('../report/threeWayForecastModel')
 const { assembleForecastIntake, MAX_FILES: MAX_FORECAST_FILES } = require('../report/intake/threeWayForecastAssembler')
 const { listReportModels } = require('../utils/reportModels')
 const { parseUpload, parseForecastUpload } = require('../report/intake/xeroReportParser')
@@ -666,6 +666,33 @@ function threeWayForecast (req, res, next) {
 }
 
 /**
+ * POST /api/report/three-way-forecast/three-years
+ *
+ * @param {object} req.body - `{ years: [year1, year2, year3] }`, each the same shape the
+ *   single-year route takes. Every input is per-year in the source workbook, so all
+ *   three are supplied rather than a growth rate. **An omitted or partial later year
+ *   inherits the year before it** — leaving years 2 and 3 empty forecasts "the same
+ *   again" rather than dropping sample figures into a real client's later years.
+ * @returns {object} { success, data: { years, summary }, timestamp } — three linked
+ *   twelve-month years, plus `summary` with the three-year totals, the closing position
+ *   and the lowest cash point across all 36 months with its date.
+ *
+ * Anonymous by design, like the other calculation routes; only file intake carries
+ * `firmAuth`. The model's second parameter is deliberately NOT forwarded.
+ */
+function threeYearForecast (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeThreeYearForecast(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] three-year-forecast compute failed:', err)
+    res.send(400, { success: false, error: { code: 'THREE_YEAR_FORECAST_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
  * POST /api/report/three-way-forecast/intake  (firmAuth — uploads are never anonymous)
  *
  * Multipart upload of up to three Xero exports (.xlsx or .csv, 5 MB per request) in
@@ -765,4 +792,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, threeWayForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
