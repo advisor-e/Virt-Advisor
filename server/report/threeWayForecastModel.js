@@ -1,0 +1,1071 @@
+'use strict'
+
+/**
+ * Three-Way Forecast — calculation engine (Year 1).
+ *
+ * Faithful port of Year 1 of `design/report-source-models/3 way Filter.xlsx` — an
+ * integrated monthly profit & loss, balance sheet and cash flow, with the working
+ * schedules that drive them (debtor collection, creditor payment, inventory, three
+ * term loans, six fixed-asset categories, GST, income tax and four shareholder
+ * current accounts).
+ *
+ * PROVEN AGAINST THE WORKBOOK: an independent re-implementation reproduces all 3,397
+ * calculated cells of the "Yr 1. Projections" sheet exactly (see
+ * `tests/unit/threeWayForecastModel.test.js` and its generated fixture). Only row 1,
+ * the month-header dates, is excluded — it is a label, not a calculation.
+ *
+ * SEVEN CORRECTIONS, EACH RULED BY MIKE ON 2026-09-02. The workbook was extended over
+ * time from three fixed-asset categories to six, and several aggregation formulas were
+ * never updated. The full evidence for each is in
+ * `design/THREE-WAY-FORECAST-DEVIATIONS.md`; in short:
+ *
+ *   R1  Total Non-Current Assets summed four of six categories (sheet row 106).
+ *   R2  The P&L depreciation charge summed three of six schedules (row 28) — the
+ *       largest of the seven: it overstated year-1 profit by 55,654 on the sample.
+ *   R3  Cash-flow asset sales covered three of six (row 130).
+ *   R4  Cash-flow capital expenditure covered three of six (row 142), while the GST on
+ *       all six was still paid — so a client bought equipment and paid only its GST.
+ *   R5  The six-monthly GST cell was #REF! in the first month of each year (row 411);
+ *       the six-column window now clamps to the start of the year, which is what the
+ *       intact columns already do.
+ *   R6  "Other 5" was paid twice in month 1, and a mis-filled formula paid "Other 4"
+ *       twice from month 2 (row 201). Each overhead is now paid exactly once.
+ *   R7  "Other Direct Expenses (GST Exempt)" was charged to the P&L and paid by
+ *       nothing at all — 17,800 of year-1 cash that never left the bank. It now pays
+ *       in the GST-free current-month block, beside the other percentage-of-revenue
+ *       direct costs, as its own name ("GST Exempt") indicates.
+ *
+ * With all seven applied the three statements ARTICULATE EXACTLY: the balance check
+ * holds flat across all twelve months instead of eroding. Any residual is the opening
+ * balance sheet the advisor entered, which is the honest place for it to show.
+ *
+ * ONE KNOWN QUIRK IS PORTED AS WRITTEN AND IS NOT YET RULED ON: the workbook advances
+ * its month headers by adding 31 DAYS, not one calendar month (sheet `Data Input` C105
+ * = C104+31). Those dates decide which months a GST return falls due. On a first-of-
+ * month start — the normal case, and the sample — the sequence is correct. On a start
+ * late in a month it can skip a calendar month and misfire the filing schedule. See
+ * `startsSkipACalendarMonth` in the returned payload, which says so rather than hiding
+ * it. Raised for Mike 2026-09-02; do not "fix" it without his ruling.
+ *
+ * Pure, side-effect free, backend-only per the Stack Constitution. CommonJS for
+ * Node 14.15.
+ */
+
+const MONTHS = 12
+
+/* ------------------------------------------------------------------ arithmetic -- */
+
+/**
+ * Excel's ROUND(x, 0), which JavaScript's Math.round does not give for free.
+ *
+ * Two differences bite, and both were found by the port disagreeing with the workbook:
+ *  - Excel rounds half AWAY FROM ZERO; Math.round rounds half UP, so they differ on
+ *    every negative half.
+ *  - Excel carries 15 significant decimal digits, so `0.15 * 6783.333333333333` is
+ *    1017.5 to Excel and 1017.4999999999999 in IEEE-754 — a whole unit apart once
+ *    rounded, and it cascades through every GST and cash figure downstream.
+ *
+ * @param {number} x @returns {number}
+ */
+function excelRound (x) {
+  if (!isFinite(x)) { return x }
+  const v = x === 0 ? 0 : Number(x.toPrecision(15))
+  const r = v < 0 ? -Math.floor(-v + 0.5) : Math.floor(v + 0.5)
+  // Normalise negative zero. A balance check that reads "-0" on screen is a defect,
+  // and JavaScript produces one from any small negative rounded to nothing.
+  return r === 0 ? 0 : r
+}
+
+/** Can this value be used as a figure? @param {*} v @returns {boolean} */
+function usable (v) {
+  if (v === null || v === undefined || v === '') { return false }
+  const n = typeof v === 'number' ? v : parseFloat(v)
+  return typeof n === 'number' && isFinite(n)
+}
+
+/**
+ * Coerce to a finite number; junk or absent falls back to the default.
+ * @param {*} v @param {number} def @returns {number}
+ */
+function pick (v, def) {
+  if (!usable(v)) { return def }
+  return typeof v === 'number' ? v : parseFloat(v)
+}
+
+/**
+ * Coerce a 12-element monthly series, element by element, so one bad month cannot
+ * discard the other eleven.
+ * @param {*} v @param {Array<number>} def @returns {Array<number>}
+ */
+function pickSeries (v, def) {
+  const out = []
+  for (let m = 0; m < MONTHS; m++) {
+    const supplied = Array.isArray(v) ? v[m] : undefined
+    out.push(pick(supplied, def && usable(def[m]) ? def[m] : 0))
+  }
+  return out
+}
+
+/** A fresh 12-month array of zeroes. @returns {Array<number>} */
+function zeroes () { return new Array(MONTHS).fill(0) }
+
+/** Sum a set of monthly series into one. @param {...Array<number>} series */
+function addSeries () {
+  const out = zeroes()
+  for (let i = 0; i < arguments.length; i++) {
+    const s = arguments[i]
+    for (let m = 0; m < MONTHS; m++) { out[m] += s[m] }
+  }
+  return out
+}
+
+/* --------------------------------------------------------------------- defaults -- */
+
+/** The six fixed-asset categories, in the workbook's own order. */
+const ASSET_KEYS = ['vehicles', 'leaseholdImprovements', 'plantEquipment', 'officeEquipment', 'computerHardware', 'other']
+
+/** The overhead lines, in P&L order. Each is entered as an ANNUAL figure and spread /12. */
+const OVERHEAD_KEYS = [
+  'accLevies', 'accountancy', 'advertising', 'bankCharges', 'computerExpenses',
+  'generalExpenses', 'insurance', 'interestIrd', 'occupancy', 'power', 'printing',
+  'rent', 'repairs', 'shareholderSalaries', 'subscriptions', 'telephone', 'vehicle',
+  'wages', 'otherOne', 'otherTwo', 'otherThree', 'otherFour', 'otherFive'
+]
+
+/**
+ * The workbook's own sample figures ("Big Bird Grass Seed", forecast starting 1 April).
+ * These are what the golden test computes on, so they are the model's contract with
+ * the spreadsheet and must not be tuned.
+ */
+const DEFAULTS = {
+  startDateSerial: 45383, // Excel serial for 2024-04-01 — `Data Input` E12
+  sales: [85000, 70000, 75000, 80000, 60000, 65000, 70000, 70000, 80000, 95000, 70000, 70000],
+  purchases: [3500, 2000, 50000, 90000, 40000, 50000, 30000, 80000, 60000, 70000, 60000, 50000],
+  markup: 0.68,
+  // Direct costs, each a fraction of revenue.
+  directCostRates: { freight: 0.03, otherDirectExempt: 0.02, otherTwo: 0.01, commissions: 0.1 },
+  // Overheads, ANNUAL.
+  overheads: {
+    accLevies: 15000,
+    accountancy: 8500,
+    advertising: 11000,
+    bankCharges: 650,
+    computerExpenses: 2500,
+    generalExpenses: 2000,
+    insurance: 4500,
+    interestIrd: 0,
+    occupancy: 2500,
+    power: 1500,
+    printing: 500,
+    rent: 8500,
+    repairs: 0,
+    shareholderSalaries: 0,
+    subscriptions: 500,
+    telephone: 3500,
+    vehicle: 9700,
+    wages: 85000,
+    otherOne: 1000,
+    otherTwo: 2000,
+    otherThree: 3000,
+    otherFour: 4000,
+    otherFive: 5000
+  },
+  otherIncomeGstInclusive: 0, // ANNUAL
+  otherIncomeGstExempt: 0, // ANNUAL
+  taxRate: 0.28,
+  lossesAvailable: 0,
+  taxPayments: zeroes(),
+  taxRefunds: zeroes(),
+  accLeviesPaid: zeroes(),
+  insurancePaid: zeroes(),
+  openingBalanceSheet: {
+    authorisedCapital: 200000,
+    capitalGain: 42000,
+    retainedEarnings: 7000,
+    cashAtBank: 71000,
+    accountsReceivable: 52000,
+    inventory: 65000,
+    incomeTaxRefundDue: 0,
+    gstRefund: 4000,
+    prepayments: 0,
+    otherCurrentAsset: 0,
+    bankOverdraft: 249000,
+    accountsPayable: 58000,
+    incomeTaxPayable: 13500,
+    gstPayable: 5500,
+    accruedExpenses: 5000,
+    otherCurrentLiability: 0,
+    otherNonCurrentLiability: 0
+  },
+  assets: [
+    { key: 'vehicles', opening: 80000, depreciationRate: 0.2, additions: zeroes(), disposals: zeroes() },
+    { key: 'leaseholdImprovements', opening: 1000000, depreciationRate: 0.15, additions: zeroes(), disposals: zeroes() },
+    { key: 'plantEquipment', opening: 50000, depreciationRate: 0.22, additions: zeroes(), disposals: zeroes() },
+    { key: 'officeEquipment', opening: 60000, depreciationRate: 0.25, additions: zeroes(), disposals: zeroes() },
+    { key: 'computerHardware', opening: 70000, depreciationRate: 0.3, additions: zeroes(), disposals: zeroes() },
+    { key: 'other', opening: 80000, depreciationRate: 0.35, additions: zeroes(), disposals: zeroes() }
+  ],
+  loans: [
+    { name: 'ABC Bank', opening: 80000, monthlyRepayment: 2450, interestRate: 0.07, drawdowns: zeroes(), lumpSumRepayments: zeroes() },
+    { name: 'XYZ Bank', opening: 1000000, monthlyRepayment: 10650, interestRate: 0.05, drawdowns: zeroes(), lumpSumRepayments: zeroes() },
+    { name: 'DEF Finance', opening: 50000, monthlyRepayment: 1590, interestRate: 0.09, drawdowns: zeroes(), lumpSumRepayments: zeroes() }
+  ],
+  overdraftInterestRate: 0.07,
+  inFundsInterestRate: 0.02,
+  // [same month, +1, +2, +3, +4] — the workbook validates these to 100%.
+  debtorCollection: [0.1, 0.55, 0.3, 0.05, 0],
+  creditorPayment: [0, 0.9, 0.1, 0, 0],
+  gstRate: 0.15,
+  gstPeriod: 'Two Monthly', // 'One Monthly' | 'Two Monthly' | 'Six Monthly'
+  gstBasis: 'Invoice', // 'Invoice' | 'Cash'
+  shareholderInterestRate: 0.05,
+  shareholders: [
+    { name: 'Bob', opening: 25000, advances: zeroes(), drawings: zeroes() },
+    { name: 'Mary', opening: -32000, advances: zeroes(), drawings: zeroes() },
+    { name: 'John', opening: 18000, advances: zeroes(), drawings: zeroes() },
+    { name: 'Joan', opening: -25000, advances: zeroes(), drawings: zeroes() }
+  ]
+}
+
+/* ------------------------------------------------------------------- the inputs -- */
+
+/**
+ * Merge supplied inputs over the workbook's sample figures.
+ * @param {object} raw @returns {object}
+ */
+function resolveInputs (raw) {
+  const i = (raw && typeof raw === 'object') ? raw : {}
+  const d = DEFAULTS
+  const ob = (i.openingBalanceSheet && typeof i.openingBalanceSheet === 'object') ? i.openingBalanceSheet : {}
+  const dr = (i.directCostRates && typeof i.directCostRates === 'object') ? i.directCostRates : {}
+  const ov = (i.overheads && typeof i.overheads === 'object') ? i.overheads : {}
+
+  const overheads = {}
+  for (let k = 0; k < OVERHEAD_KEYS.length; k++) {
+    const key = OVERHEAD_KEYS[k]
+    overheads[key] = pick(ov[key], d.overheads[key])
+  }
+
+  const openingBalanceSheet = {}
+  const obKeys = Object.keys(d.openingBalanceSheet)
+  for (let k = 0; k < obKeys.length; k++) {
+    openingBalanceSheet[obKeys[k]] = pick(ob[obKeys[k]], d.openingBalanceSheet[obKeys[k]])
+  }
+
+  const assets = d.assets.map(function (def, n) {
+    const a = (Array.isArray(i.assets) && i.assets[n] && typeof i.assets[n] === 'object') ? i.assets[n] : {}
+    return {
+      key: def.key,
+      opening: pick(a.opening, def.opening),
+      depreciationRate: pick(a.depreciationRate, def.depreciationRate),
+      additions: pickSeries(a.additions, def.additions),
+      disposals: pickSeries(a.disposals, def.disposals)
+    }
+  })
+
+  const loans = d.loans.map(function (def, n) {
+    const l = (Array.isArray(i.loans) && i.loans[n] && typeof i.loans[n] === 'object') ? i.loans[n] : {}
+    return {
+      name: typeof l.name === 'string' && l.name ? l.name : def.name,
+      opening: pick(l.opening, def.opening),
+      monthlyRepayment: pick(l.monthlyRepayment, def.monthlyRepayment),
+      interestRate: pick(l.interestRate, def.interestRate),
+      drawdowns: pickSeries(l.drawdowns, def.drawdowns),
+      lumpSumRepayments: pickSeries(l.lumpSumRepayments, def.lumpSumRepayments)
+    }
+  })
+
+  const shareholders = d.shareholders.map(function (def, n) {
+    const s = (Array.isArray(i.shareholders) && i.shareholders[n] && typeof i.shareholders[n] === 'object') ? i.shareholders[n] : {}
+    return {
+      name: typeof s.name === 'string' && s.name ? s.name : def.name,
+      opening: pick(s.opening, def.opening),
+      advances: pickSeries(s.advances, def.advances),
+      drawings: pickSeries(s.drawings, def.drawings)
+    }
+  })
+
+  const bucket = function (supplied, def) {
+    const out = []
+    for (let n = 0; n < 5; n++) { out.push(pick(Array.isArray(supplied) ? supplied[n] : undefined, def[n])) }
+    return out
+  }
+
+  return {
+    startDateSerial: pick(i.startDateSerial, d.startDateSerial),
+    sales: pickSeries(i.sales, d.sales),
+    purchases: pickSeries(i.purchases, d.purchases),
+    markup: pick(i.markup, d.markup),
+    directCostRates: {
+      freight: pick(dr.freight, d.directCostRates.freight),
+      otherDirectExempt: pick(dr.otherDirectExempt, d.directCostRates.otherDirectExempt),
+      otherTwo: pick(dr.otherTwo, d.directCostRates.otherTwo),
+      commissions: pick(dr.commissions, d.directCostRates.commissions)
+    },
+    overheads,
+    otherIncomeGstInclusive: pick(i.otherIncomeGstInclusive, d.otherIncomeGstInclusive),
+    otherIncomeGstExempt: pick(i.otherIncomeGstExempt, d.otherIncomeGstExempt),
+    taxRate: pick(i.taxRate, d.taxRate),
+    lossesAvailable: pick(i.lossesAvailable, d.lossesAvailable),
+    taxPayments: pickSeries(i.taxPayments, d.taxPayments),
+    taxRefunds: pickSeries(i.taxRefunds, d.taxRefunds),
+    accLeviesPaid: pickSeries(i.accLeviesPaid, d.accLeviesPaid),
+    insurancePaid: pickSeries(i.insurancePaid, d.insurancePaid),
+    openingBalanceSheet,
+    assets,
+    loans,
+    shareholders,
+    overdraftInterestRate: pick(i.overdraftInterestRate, d.overdraftInterestRate),
+    inFundsInterestRate: pick(i.inFundsInterestRate, d.inFundsInterestRate),
+    debtorCollection: bucket(i.debtorCollection, d.debtorCollection),
+    creditorPayment: bucket(i.creditorPayment, d.creditorPayment),
+    gstRate: pick(i.gstRate, d.gstRate),
+    gstPeriod: i.gstPeriod === 'One Monthly' || i.gstPeriod === 'Six Monthly' ? i.gstPeriod : (i.gstPeriod === 'Two Monthly' ? 'Two Monthly' : d.gstPeriod),
+    gstBasis: i.gstBasis === 'Cash' ? 'Cash' : (i.gstBasis === 'Invoice' ? 'Invoice' : d.gstBasis),
+    shareholderInterestRate: pick(i.shareholderInterestRate, d.shareholderInterestRate)
+  }
+}
+
+/* ------------------------------------------------------------- the month headers -- */
+
+/**
+ * The twelve month-start dates, and the calendar month each falls in.
+ *
+ * PORTED AS WRITTEN: the workbook advances by 31 DAYS, not one calendar month. The
+ * calendar month drives the GST filing schedule, so the sequence is reported alongside
+ * a flag saying whether it skipped a calendar month — the condition under which the
+ * workbook's own filing logic misfires. See the header note; not yet ruled on.
+ *
+ * @param {number} startSerial Excel date serial of the first month
+ * @returns {{serials: Array<number>, calendarMonths: Array<number>, isoDates: Array<string>, skipsACalendarMonth: boolean}}
+ */
+function monthHeaders (startSerial) {
+  const serials = []
+  for (let m = 0; m < MONTHS; m++) { serials.push(startSerial + 31 * m) }
+  const calendarMonths = []
+  const isoDates = []
+  for (let m = 0; m < MONTHS; m++) {
+    // Excel's 1900 date system, with its deliberate leap-year bug: serial 1 is
+    // 1900-01-01 and serial 60 is the non-existent 1900-02-29. Every forecast date is
+    // far beyond that, so the constant epoch below is exact for our range.
+    const d = new Date(Date.UTC(1899, 11, 30) + serials[m] * 86400000)
+    calendarMonths.push(d.getUTCMonth() + 1)
+    isoDates.push(d.toISOString().slice(0, 10))
+  }
+  let skips = false
+  for (let m = 1; m < MONTHS; m++) {
+    const step = ((calendarMonths[m] - calendarMonths[m - 1]) + 12) % 12
+    if (step !== 1) { skips = true }
+  }
+  return { serials, calendarMonths, isoDates, skipsACalendarMonth: skips }
+}
+
+/* ------------------------------------------------------------------ the schedules -- */
+
+/**
+ * One fixed-asset category's twelve-month schedule (sheet rows 302-307 and its siblings).
+ * @param {object} asset @returns {object}
+ */
+function assetSchedule (asset) {
+  const bookValue = zeroes()
+  const subtotal = zeroes()
+  const depreciation = zeroes()
+  const closingValue = zeroes()
+  for (let m = 0; m < MONTHS; m++) {
+    bookValue[m] = m === 0 ? asset.opening : closingValue[m - 1]
+    subtotal[m] = bookValue[m] + asset.additions[m] - asset.disposals[m]
+    depreciation[m] = excelRound((subtotal[m] * asset.depreciationRate) / 12)
+    closingValue[m] = subtotal[m] - depreciation[m]
+  }
+  return {
+    key: asset.key,
+    depreciationRate: asset.depreciationRate,
+    bookValue,
+    additions: asset.additions.slice(),
+    disposals: asset.disposals.slice(),
+    subtotal,
+    depreciation,
+    closingValue
+  }
+}
+
+/**
+ * One term loan's twelve-month schedule (sheet rows 263-269 and its siblings).
+ *
+ * The source's own convention, ported exactly: a monthly repayment covers the interest
+ * first and the remainder reduces capital; when the balance is smaller than the
+ * repayment the whole balance is repaid. Interest is charged on the OPENING balance.
+ *
+ * @param {object} loan @returns {object}
+ */
+function loanSchedule (loan) {
+  const openingBalance = zeroes()
+  const capitalRepaid = zeroes()
+  const interest = zeroes()
+  const closingBalance = zeroes()
+  for (let m = 0; m < MONTHS; m++) {
+    openingBalance[m] = m === 0 ? loan.opening : closingBalance[m - 1]
+    interest[m] = excelRound(openingBalance[m] * loan.interestRate / 12)
+    capitalRepaid[m] = openingBalance[m] > loan.monthlyRepayment
+      ? loan.monthlyRepayment - interest[m]
+      : openingBalance[m]
+    closingBalance[m] = openingBalance[m] + loan.drawdowns[m] - capitalRepaid[m] - loan.lumpSumRepayments[m]
+  }
+  return {
+    name: loan.name,
+    interestRate: loan.interestRate,
+    monthlyRepayment: loan.monthlyRepayment,
+    openingBalance,
+    drawdowns: loan.drawdowns.slice(),
+    capitalRepaid,
+    lumpSumRepayments: loan.lumpSumRepayments.slice(),
+    closingBalance,
+    interest
+  }
+}
+
+/**
+ * One shareholder current account (sheet rows 363-367 and its siblings).
+ *
+ * Interest is charged only on an OVERDRAWN (negative) balance, and it both reduces the
+ * account and is booked as income to the company — the source's own treatment.
+ *
+ * @param {object} sh @param {number} rate @returns {object}
+ */
+function shareholderSchedule (sh, rate) {
+  const openingBalance = zeroes()
+  const interestOnOverdrawn = zeroes()
+  const closingBalance = zeroes()
+  for (let m = 0; m < MONTHS; m++) {
+    openingBalance[m] = m === 0 ? sh.opening : closingBalance[m - 1]
+    interestOnOverdrawn[m] = openingBalance[m] > 0 ? 0 : (-openingBalance[m] * rate) / 12
+    closingBalance[m] = openingBalance[m] + sh.advances[m] - sh.drawings[m] - interestOnOverdrawn[m]
+  }
+  return {
+    name: sh.name,
+    openingBalance,
+    advances: sh.advances.slice(),
+    drawings: sh.drawings.slice(),
+    interestOnOverdrawn,
+    closingBalance
+  }
+}
+
+/**
+ * A five-bucket lag schedule — used for both debtor collection and creditor payment.
+ * Each month's gross amount is settled across the current month and the four following
+ * it, every slice rounded to whole currency as the sheet does.
+ *
+ * @param {Array<number>} gross the GST-inclusive amount arising each month
+ * @param {Array<number>} buckets [same month, +1, +2, +3, +4]
+ * @returns {{slices: Array<Array<number>>, total: Array<number>}}
+ */
+function lagSchedule (gross, buckets) {
+  const slices = []
+  for (let lag = 0; lag <= 4; lag++) {
+    const row = zeroes()
+    for (let m = 0; m < MONTHS; m++) {
+      row[m] = (m - lag >= 0) ? excelRound(buckets[lag] * gross[m - lag]) : 0
+    }
+    slices.push(row)
+  }
+  return { slices, total: addSeries.apply(null, slices) }
+}
+
+/**
+ * The run-off of an OPENING receivable or payable balance across the first four months,
+ * split in proportion to the lag buckets that follow the current month.
+ *
+ * @param {number} openingBalance @param {Array<number>} buckets @returns {Array<number>}
+ */
+function openingRunOff (openingBalance, buckets) {
+  const out = zeroes()
+  const tail = buckets[1] + buckets[2] + buckets[3] + buckets[4]
+  if (buckets[0] === 1 || tail === 0) { return out }
+  for (let m = 0; m < 4; m++) { out[m] = (buckets[m + 1] / tail) * openingBalance }
+  return out
+}
+
+/* ------------------------------------------------------------------- the compute -- */
+
+/**
+ * Compute Year 1 of the three-way forecast.
+ *
+ * @param {object} rawInputs partial inputs; anything absent falls back to the source
+ *   workbook's own sample figures (`DEFAULTS`), so the model always returns a complete
+ *   forecast rather than a half-empty one.
+ * @param {object} [options] test-only switches. `sourceFidelity: true` reproduces the
+ *   workbook INCLUDING its seven defects, and exists solely so the golden test can
+ *   prove the port cell for cell. It is a SEPARATE parameter from `rawInputs` so that
+ *   no request body can ever reach it, and no route passes it — see
+ *   `tests/unit/threeWayForecastModel.test.js`, which fails the build if one does.
+ * @returns {object} months, profitAndLoss, balanceSheet, cashFlow, schedules and the
+ *   `corrections` register naming each departure from the workbook.
+ */
+function computeThreeWayForecast (rawInputs, options) {
+  const I = resolveInputs(rawInputs)
+  const asWritten = !!(options && options.sourceFidelity === true)
+  const corrected = !asWritten
+  const gst = I.gstRate
+  const ob = I.openingBalanceSheet
+  const headers = monthHeaders(I.startDateSerial)
+
+  /* -- opening balance sheet (the sheet's column C) -------------------------------- */
+  const shOpeningTotal = I.shareholders.reduce(function (a, s) { return a + s.opening }, 0)
+  const opening = {
+    authorisedCapital: ob.authorisedCapital,
+    capitalGain: ob.capitalGain,
+    retainedEarnings: ob.retainedEarnings,
+    cashAtBank: ob.cashAtBank,
+    accountsReceivable: ob.accountsReceivable,
+    inventory: ob.inventory,
+    // The sheet nets the tax refund against the tax payable and shows whichever side wins.
+    incomeTaxAsset: Math.max(0, ob.incomeTaxRefundDue - ob.incomeTaxPayable),
+    gstRefund: ob.gstRefund,
+    prepayments: Math.max(0, ob.prepayments - ob.accruedExpenses),
+    shareholderCurrentAssets: shOpeningTotal > 0 ? 0 : -shOpeningTotal,
+    otherCurrentAsset: ob.otherCurrentAsset,
+    bankOverdraft: ob.bankOverdraft,
+    accountsPayable: ob.accountsPayable,
+    incomeTaxLiability: Math.max(0, -(ob.incomeTaxRefundDue - ob.incomeTaxPayable)),
+    gstPayable: ob.gstPayable,
+    accruedExpenses: Math.max(0, -(ob.prepayments - ob.accruedExpenses)),
+    shareholderCurrentLiabilities: shOpeningTotal < 0 ? 0 : shOpeningTotal,
+    otherCurrentLiability: ob.otherCurrentLiability,
+    otherNonCurrentLiability: ob.otherNonCurrentLiability
+  }
+  opening.totalEquity = opening.authorisedCapital + opening.capitalGain + opening.retainedEarnings
+  opening.totalCurrentAssets = opening.cashAtBank + opening.accountsReceivable + opening.inventory +
+    opening.incomeTaxAsset + opening.gstRefund + opening.prepayments +
+    opening.shareholderCurrentAssets + opening.otherCurrentAsset
+  opening.totalCurrentLiabilities = opening.bankOverdraft + opening.accountsPayable +
+    opening.incomeTaxLiability + opening.gstPayable + opening.accruedExpenses +
+    opening.shareholderCurrentLiabilities + opening.otherCurrentLiability
+  opening.workingCapital = opening.totalCurrentAssets - opening.totalCurrentLiabilities
+  opening.nonCurrentAssets = {}
+  for (let k = 0; k < ASSET_KEYS.length; k++) { opening.nonCurrentAssets[ASSET_KEYS[k]] = I.assets[k].opening }
+  // R1: all six categories, not the four the sheet totals.
+  opening.totalNonCurrentAssets = I.assets.reduce(function (a, x, n) {
+    return (corrected || n < 4) ? a + x.opening : a
+  }, 0)
+  opening.nonCurrentLiabilities = I.loans.map(function (l) { return { name: l.name, balance: l.opening } })
+  opening.totalNonCurrentLiabilities = I.loans.reduce(function (a, l) { return a + l.opening }, 0) + opening.otherNonCurrentLiability
+  opening.netAssets = opening.workingCapital - opening.totalNonCurrentLiabilities + opening.totalNonCurrentAssets
+  opening.balanceCheck = excelRound(opening.totalEquity - opening.netAssets)
+
+  /* -- schedules that do not depend on the month loop ------------------------------ */
+  const assets = I.assets.map(assetSchedule)
+  const loans = I.loans.map(loanSchedule)
+  const shareholders = I.shareholders.map(function (s) { return shareholderSchedule(s, I.shareholderInterestRate) })
+
+  const depreciationAll = addSeries.apply(null, assets.map(function (a) { return a.depreciation }))
+  // R2: the P&L charges every schedule, not the first three.
+  const depreciationCharged = corrected
+    ? depreciationAll
+    : addSeries(assets[0].depreciation, assets[1].depreciation, assets[2].depreciation)
+  const loanInterest = addSeries.apply(null, loans.map(function (l) { return l.interest }))
+  const shareholderInterest = addSeries.apply(null, shareholders.map(function (s) { return s.interestOnOverdrawn }))
+  const additionsAll = addSeries.apply(null, assets.map(function (a) { return a.additions }))
+  const disposalsAll = addSeries.apply(null, assets.map(function (a) { return a.disposals }))
+  const additionsCharged = corrected ? additionsAll : addSeries(assets[0].additions, assets[1].additions, assets[2].additions)
+  const disposalsCharged = corrected ? disposalsAll : addSeries(assets[0].disposals, assets[1].disposals, assets[2].disposals)
+
+  /* -- the P&L lines that depend only on revenue ----------------------------------- */
+  const revenue = I.sales.slice()
+  const freight = revenue.map(function (r) { return r * I.directCostRates.freight })
+  const otherDirectExempt = revenue.map(function (r) { return r * I.directCostRates.otherDirectExempt })
+  const otherDirectTwo = revenue.map(function (r) { return r * I.directCostRates.otherTwo })
+  const commissions = revenue.map(function (r) { return r * I.directCostRates.commissions })
+
+  const overhead = {}
+  for (let k = 0; k < OVERHEAD_KEYS.length; k++) {
+    const key = OVERHEAD_KEYS[k]
+    overhead[key] = revenue.map(function () { return I.overheads[key] / 12 })
+  }
+  const otherIncomeGstInclusive = revenue.map(function () { return I.otherIncomeGstInclusive / 12 })
+  const otherIncomeGstExempt = revenue.map(function () { return I.otherIncomeGstExempt / 12 })
+
+  /* -- inventory (rows 250-254) ---------------------------------------------------- */
+  const invOpening = zeroes(); const invSubtotal = zeroes()
+  const costOfSalesCharge = zeroes(); const invClosing = zeroes()
+  const costRatio = 1 / (1 + I.markup)
+  for (let m = 0; m < MONTHS; m++) {
+    invOpening[m] = m === 0 ? ob.inventory : invClosing[m - 1]
+    invSubtotal[m] = invOpening[m] + I.purchases[m]
+    costOfSalesCharge[m] = excelRound(revenue[m] * costRatio)
+    invClosing[m] = invSubtotal[m] - costOfSalesCharge[m]
+  }
+
+  /* -- debtors (rows 157-177) ------------------------------------------------------ */
+  const salesGst = revenue.map(function (r) { return excelRound(gst * r) })
+  const salesInclusive = addSeries(revenue, salesGst)
+  const collection = lagSchedule(salesInclusive, I.debtorCollection)
+  const openingDebtorRunOff = openingRunOff(opening.accountsReceivable, I.debtorCollection)
+  const cashFromDebtors = addSeries(collection.total, openingDebtorRunOff)
+  const debtorOpening = zeroes(); const debtorSubtotal = zeroes(); const debtorClosing = zeroes()
+  for (let m = 0; m < MONTHS; m++) {
+    debtorOpening[m] = m === 0 ? opening.accountsReceivable : debtorClosing[m - 1]
+    debtorSubtotal[m] = debtorOpening[m] + salesInclusive[m]
+    debtorClosing[m] = debtorSubtotal[m] - cashFromDebtors[m]
+  }
+
+  /* -- expense payment blocks (rows 183-221) --------------------------------------- */
+  // Block 1 — GST-inclusive, settled the FOLLOWING month. ACC Levies and Insurance
+  // enter through the accrual schedule below, so they appear here as amounts PAID.
+  // R6: "Other 5" is not here; it belongs to block 3 and was being paid twice.
+  const accrualOpening = zeroes(); const accrualSubtotal = zeroes(); const accrualClosing = zeroes()
+  for (let m = 0; m < MONTHS; m++) {
+    accrualOpening[m] = m === 0 ? (opening.prepayments - opening.accruedExpenses) : accrualClosing[m - 1]
+    accrualSubtotal[m] = accrualOpening[m] - overhead.accLevies[m] - overhead.insurance[m]
+    accrualClosing[m] = accrualSubtotal[m] + I.accLeviesPaid[m] + I.insurancePaid[m]
+  }
+
+  const blockOneParts = [
+    I.accLeviesPaid, overhead.accountancy, overhead.advertising, overhead.computerExpenses,
+    freight, overhead.generalExpenses, I.insurancePaid, overhead.occupancy, overhead.power,
+    overhead.printing, overhead.repairs, overhead.subscriptions, overhead.telephone,
+    overhead.vehicle, overhead.otherOne, overhead.otherTwo, overhead.otherThree,
+    overhead.otherFour
+  ]
+  if (asWritten) {
+    // The workbook's row 201: "Other 5" in month 1, then a mis-fill that repeats
+    // "Other 4" for months 2-12. Reproduced only to prove the port.
+    const strayRow = zeroes()
+    for (let m = 0; m < MONTHS; m++) { strayRow[m] = m === 0 ? overhead.otherFive[m] : overhead.otherFour[m] }
+    blockOneParts.push(strayRow)
+  }
+  const blockOneNet = addSeries.apply(null, blockOneParts)
+  const blockOneGst = blockOneNet.map(function (v) { return excelRound(gst * v) })
+  const blockOneGross = addSeries(blockOneNet, blockOneGst)
+
+  // Block 2 — GST-inclusive, settled in the CURRENT month (Rent).
+  const blockTwoNet = overhead.rent.slice()
+  const blockTwoGst = blockTwoNet.map(function (v) { return excelRound(gst * v) })
+  const blockTwoGross = addSeries(blockTwoNet, blockTwoGst)
+
+  // Block 3 — GST-free, settled in the CURRENT month.
+  // R7: "Other Direct Expenses (GST Exempt)" joins this block. In the workbook it is
+  // charged to the P&L and paid by nothing at all.
+  const blockThreeParts = [
+    overhead.bankCharges, commissions, overhead.otherFive, otherDirectTwo,
+    overhead.shareholderSalaries, overhead.wages
+  ]
+  if (corrected) { blockThreeParts.push(otherDirectExempt) }
+  const blockThreeTotal = addSeries.apply(null, blockThreeParts)
+
+  /* -- inventory purchases and creditors (rows 225-245) ---------------------------- */
+  const purchaseGst = I.purchases.map(function (p) { return excelRound(gst * p) })
+  const purchasesInclusive = addSeries(I.purchases, purchaseGst)
+  const payment = lagSchedule(purchasesInclusive, I.creditorPayment)
+  const payableOpening = zeroes(); const payableSubtotal = zeroes()
+  const overheadsPaid = zeroes(); const payableClosing = zeroes()
+  const openingPayableRunOff = zeroes()
+  {
+    const b = I.creditorPayment
+    const tail = b[1] + b[2] + b[3] + b[4]
+    if (!(b[0] === 1 || tail === 0)) {
+      // The sheet settles the opening payable across months 1-4, the first month also
+      // clearing that month's own overhead accrual and the fourth taking the residual.
+      openingPayableRunOff[0] = blockOneGross[0] + ((opening.accountsPayable - blockOneGross[0]) * (b[1] / tail))
+      openingPayableRunOff[1] = (opening.accountsPayable - blockOneGross[0]) * (b[2] / tail)
+      openingPayableRunOff[2] = (opening.accountsPayable - blockOneGross[0]) * (b[3] / tail)
+      openingPayableRunOff[3] = opening.accountsPayable - openingPayableRunOff[0] - openingPayableRunOff[1] - openingPayableRunOff[2]
+    }
+  }
+  for (let m = 0; m < MONTHS; m++) {
+    payableOpening[m] = m === 0 ? opening.accountsPayable : payableClosing[m - 1]
+    payableSubtotal[m] = payableOpening[m] + purchasesInclusive[m] + blockOneGross[m]
+    overheadsPaid[m] = m === 0 ? 0 : blockOneGross[m - 1]
+    payableClosing[m] = payableSubtotal[m] - payment.total[m] - overheadsPaid[m] - openingPayableRunOff[m]
+  }
+
+  /* -- the month loop: everything that feeds back through the bank ----------------- */
+  const bankOpening = zeroes(); const bankClosing = zeroes()
+  const overdraftInterest = zeroes(); const inFundsInterest = zeroes()
+  const totalOverheads = zeroes(); const operatingSurplus = zeroes()
+  const totalOtherIncome = zeroes(); const netSurplusBeforeTax = zeroes()
+  const taxProvision = zeroes(); const netSurplusAfterTax = zeroes(); const netMargin = zeroes()
+  const lossesBroughtForward = zeroes(); const taxOnMonthProfit = zeroes()
+  const lossesUtilised = zeroes(); const lossesCarriedForward = zeroes()
+  const taxOpening = zeroes(); const taxClosing = zeroes()
+  const gstOnIncome = zeroes(); const gstOnOtherIncome = zeroes(); const gstOnAssetSales = zeroes()
+  const gstOutputs = zeroes(); const gstOnExpenses = zeroes(); const gstOnAssetPurchases = zeroes()
+  const gstInputs = zeroes(); const gstForMonth = zeroes()
+  const gstFileOneMonthly = zeroes()
+  const gstFileTwoMonthly = new Array(MONTHS).fill(null)
+  const gstFileSixMonthly = new Array(MONTHS).fill(null)
+  const gstAmountToFile = new Array(MONTHS).fill(null)
+  const gstBalanceOpening = zeroes(); const gstBalanceSubtotal = zeroes()
+  const gstOnPayables = zeroes()
+  const gstPaymentsMade = zeroes(); const gstBalanceClosing = zeroes()
+  const receipts = { fromDebtors: cashFromDebtors, interestReceived: zeroes(), loanDrawdowns: zeroes(), gstRefunds: zeroes(), taxRefunds: I.taxRefunds.slice(), otherIncomeGstInclusive: zeroes(), otherIncomeGstExempt: otherIncomeGstExempt.slice(), shareholderAdvances: zeroes(), assetSales: zeroes() }
+  const payments = { accountsPayable: zeroes(), currentMonthGstInclusive: blockTwoGross, currentMonthGstFree: blockThreeTotal, interestPaid: zeroes(), loanPrincipal: zeroes(), gstPaid: zeroes(), taxPaid: I.taxPayments.slice(), shareholderDrawings: zeroes(), capitalExpenditure: zeroes() }
+  const totalReceipts = zeroes(); const totalPayments = zeroes(); const netMovement = zeroes()
+
+  const loanDrawdownsAll = addSeries.apply(null, loans.map(function (l) { return l.drawdowns }))
+  const loanPrincipalAll = addSeries.apply(null, loans.map(function (l) { return addSeries(l.capitalRepaid, l.lumpSumRepayments) }))
+  const shareholderAdvancesAll = addSeries.apply(null, shareholders.map(function (s) { return s.advances }))
+  const shareholderDrawingsAll = addSeries.apply(null, shareholders.map(function (s) { return s.drawings }))
+
+  const grossSurplus = zeroes(); const grossMargin = zeroes()
+  const costOfSalesSubtotal = zeroes(); const costOfSales = zeroes()
+
+  for (let m = 0; m < MONTHS; m++) {
+    costOfSalesSubtotal[m] = invOpening[m] + freight[m] + otherDirectExempt[m] +
+      otherDirectTwo[m] + commissions[m] + I.purchases[m]
+    costOfSales[m] = costOfSalesSubtotal[m] - invClosing[m]
+    grossSurplus[m] = revenue[m] - costOfSales[m]
+    grossMargin[m] = revenue[m] === 0 ? 0 : grossSurplus[m] / revenue[m]
+
+    // Bank interest is charged on the balance brought forward, so it is known before
+    // this month's own cash movements are computed — no circularity.
+    bankOpening[m] = m === 0 ? (opening.cashAtBank - opening.bankOverdraft) : bankClosing[m - 1]
+    overdraftInterest[m] = bankOpening[m] < 0 ? -I.overdraftInterestRate * bankOpening[m] / 12 : 0
+    inFundsInterest[m] = bankOpening[m] > 0 ? I.inFundsInterestRate * bankOpening[m] / 12 : 0
+
+    let oh = 0
+    for (let k = 0; k < OVERHEAD_KEYS.length; k++) { oh += overhead[OVERHEAD_KEYS[k]][m] }
+    totalOverheads[m] = oh + depreciationCharged[m] + overdraftInterest[m] + loanInterest[m]
+    operatingSurplus[m] = grossSurplus[m] - totalOverheads[m]
+
+    totalOtherIncome[m] = inFundsInterest[m] + shareholderInterest[m] +
+      otherIncomeGstInclusive[m] + otherIncomeGstExempt[m]
+    netSurplusBeforeTax[m] = operatingSurplus[m] + totalOtherIncome[m]
+
+    // Tax: a month's loss adds to the pool carried forward; a month's profit is
+    // relieved by whatever pool exists before any provision is made.
+    lossesBroughtForward[m] = m === 0 ? -I.lossesAvailable : lossesCarriedForward[m - 1]
+    taxOnMonthProfit[m] = netSurplusBeforeTax[m] * I.taxRate
+    lossesUtilised[m] = taxOnMonthProfit[m] < 0
+      ? 0
+      : (lossesBroughtForward[m] > -taxOnMonthProfit[m] ? -lossesBroughtForward[m] : taxOnMonthProfit[m])
+    lossesCarriedForward[m] = lossesBroughtForward[m] +
+      (taxOnMonthProfit[m] < 0 ? taxOnMonthProfit[m] : 0) + lossesUtilised[m]
+    taxOpening[m] = m === 0 ? (opening.incomeTaxAsset - opening.incomeTaxLiability) : taxClosing[m - 1]
+    taxProvision[m] = taxOnMonthProfit[m] < 0 ? 0 : taxOnMonthProfit[m] - lossesUtilised[m]
+    taxClosing[m] = taxOpening[m] - taxProvision[m] + I.taxPayments[m] - I.taxRefunds[m]
+
+    netSurplusAfterTax[m] = netSurplusBeforeTax[m] - taxProvision[m]
+    netMargin[m] = revenue[m] === 0 ? 0 : netSurplusAfterTax[m] / revenue[m]
+
+    /* -- GST ---------------------------------------------------------------------- */
+    gstOnIncome[m] = I.gstBasis === 'Cash'
+      ? (cashFromDebtors[m] / ((100 + gst * 100) / (gst * 100)))
+      : salesGst[m]
+    gstOnOtherIncome[m] = otherIncomeGstInclusive[m] * gst
+    // R3/R4 do not apply here: the sheet's own GST rows already cover all six categories.
+    gstOnAssetSales[m] = disposalsAll[m] * gst
+    gstOutputs[m] = gstOnIncome[m] + gstOnOtherIncome[m] + gstOnAssetSales[m]
+    gstOnExpenses[m] = I.gstBasis === 'Cash'
+      ? (((overheadsPaid[m] + openingPayableRunOff[m] + payment.total[m]) / ((1 + gst) / gst)) + blockTwoGst[m])
+      : (blockOneGst[m] + blockTwoGst[m] + purchaseGst[m])
+    gstOnAssetPurchases[m] = additionsAll[m] * gst
+    gstInputs[m] = gstOnExpenses[m] + gstOnAssetPurchases[m]
+    gstForMonth[m] = gstOutputs[m] - gstInputs[m]
+
+    gstFileOneMonthly[m] = gstForMonth[m]
+    const cal = headers.calendarMonths[m]
+    const twoMonthlyDue = (cal === 1 || cal === 3 || cal === 5 || cal === 7 || cal === 9 || cal === 11)
+    gstFileTwoMonthly[m] = twoMonthlyDue ? gstForMonth[m] + (m > 0 ? gstForMonth[m - 1] : 0) : null
+    if (cal === 3 || cal === 9) {
+      // R5: a six-month window. The workbook's first month reads #REF! because six
+      // columns back falls off the sheet; the window now clamps to the start of the year,
+      // which is exactly what the intact columns already do.
+      const from = corrected ? Math.max(0, m - 5) : (m - 5)
+      if (from < 0) {
+        gstFileSixMonthly[m] = null // the workbook's #REF!
+      } else {
+        let s = 0
+        for (let i = from; i <= m; i++) { s += gstForMonth[i] }
+        gstFileSixMonthly[m] = s
+      }
+    }
+    gstAmountToFile[m] = I.gstPeriod === 'One Monthly'
+      ? gstFileOneMonthly[m]
+      : (I.gstPeriod === 'Two Monthly' ? gstFileTwoMonthly[m] : gstFileSixMonthly[m])
+
+    gstBalanceOpening[m] = m === 0 ? (opening.gstPayable - opening.gstRefund) : gstBalanceClosing[m - 1]
+    // Month 1 settles the opening GST balance; later months settle what the previous
+    // month's return said. A month with no return due settles nothing — the workbook
+    // leaves that cell empty and its own cached figures treat the blank as zero.
+    gstPaymentsMade[m] = m === 0
+      ? gstBalanceOpening[0]
+      : (typeof gstAmountToFile[m - 1] === 'number' ? gstAmountToFile[m - 1] : 0)
+    gstBalanceSubtotal[m] = gstBalanceOpening[m] + salesGst[m] + gstOnOtherIncome[m] + gstOnAssetSales[m]
+    // Always the accrued (invoice-basis) GST on payables, whatever the accounting basis
+    // — the balance-sheet movement is what has been INVOICED, not what has been paid.
+    gstOnPayables[m] = blockOneGst[m] + blockTwoGst[m] + purchaseGst[m]
+    gstBalanceClosing[m] = gstBalanceSubtotal[m] - gstOnPayables[m] -
+      gstOnAssetPurchases[m] - gstPaymentsMade[m]
+
+    /* -- cash flow ---------------------------------------------------------------- */
+    receipts.interestReceived[m] = inFundsInterest[m]
+    receipts.loanDrawdowns[m] = loanDrawdownsAll[m]
+    receipts.gstRefunds[m] = gstPaymentsMade[m] < 0 ? -gstPaymentsMade[m] : 0
+    receipts.otherIncomeGstInclusive[m] = otherIncomeGstInclusive[m] * (1 + gst)
+    receipts.shareholderAdvances[m] = shareholderAdvancesAll[m]
+    // R3: the sale proceeds of all six categories, not three — while the GST on all six
+    // was already being received.
+    receipts.assetSales[m] = gstOnAssetSales[m] + disposalsCharged[m]
+    totalReceipts[m] = receipts.fromDebtors[m] + receipts.interestReceived[m] +
+      receipts.loanDrawdowns[m] + receipts.gstRefunds[m] + receipts.taxRefunds[m] +
+      receipts.otherIncomeGstInclusive[m] + receipts.otherIncomeGstExempt[m] +
+      receipts.shareholderAdvances[m] + receipts.assetSales[m]
+
+    payments.accountsPayable[m] = payment.total[m] + overheadsPaid[m] + openingPayableRunOff[m]
+    payments.interestPaid[m] = overdraftInterest[m] + loanInterest[m] + overhead.interestIrd[m]
+    payments.loanPrincipal[m] = loanPrincipalAll[m]
+    payments.gstPaid[m] = gstPaymentsMade[m] > 0 ? gstPaymentsMade[m] : 0
+    payments.shareholderDrawings[m] = shareholderDrawingsAll[m]
+    // R4: the cost of all six categories, not three — while the GST on all six was
+    // already being paid.
+    payments.capitalExpenditure[m] = gstOnAssetPurchases[m] + additionsCharged[m]
+    totalPayments[m] = payments.accountsPayable[m] + payments.currentMonthGstInclusive[m] +
+      payments.currentMonthGstFree[m] + payments.interestPaid[m] + payments.loanPrincipal[m] +
+      payments.gstPaid[m] + payments.taxPaid[m] + payments.shareholderDrawings[m] +
+      payments.capitalExpenditure[m]
+
+    netMovement[m] = totalReceipts[m] - totalPayments[m]
+    bankClosing[m] = netMovement[m] + bankOpening[m]
+  }
+
+  /* -- the monthly balance sheet --------------------------------------------------- */
+  const bs = {
+    authorisedCapital: zeroes(),
+    capitalGain: zeroes(),
+    retainedEarnings: zeroes(),
+    totalEquity: zeroes(),
+    cashAtBank: zeroes(),
+    accountsReceivable: debtorClosing,
+    inventory: invClosing,
+    incomeTaxAsset: zeroes(),
+    gstRefund: zeroes(),
+    prepayments: zeroes(),
+    shareholderCurrentAssets: zeroes(),
+    otherCurrentAsset: zeroes(),
+    totalCurrentAssets: zeroes(),
+    bankOverdraft: zeroes(),
+    accountsPayable: payableClosing,
+    incomeTaxLiability: zeroes(),
+    gstPayable: zeroes(),
+    accruedExpenses: zeroes(),
+    shareholderCurrentLiabilities: zeroes(),
+    otherCurrentLiability: zeroes(),
+    totalCurrentLiabilities: zeroes(),
+    workingCapital: zeroes(),
+    nonCurrentAssets: {},
+    totalNonCurrentAssets: zeroes(),
+    nonCurrentLiabilities: [],
+    otherNonCurrentLiability: zeroes(),
+    totalNonCurrentLiabilities: zeroes(),
+    netAssets: zeroes(),
+    balanceCheck: zeroes()
+  }
+  for (let k = 0; k < ASSET_KEYS.length; k++) { bs.nonCurrentAssets[ASSET_KEYS[k]] = assets[k].closingValue }
+  bs.nonCurrentLiabilities = loans.map(function (l) { return { name: l.name, balance: l.closingBalance } })
+
+  for (let m = 0; m < MONTHS; m++) {
+    bs.authorisedCapital[m] = m === 0 ? opening.authorisedCapital : bs.authorisedCapital[m - 1]
+    bs.capitalGain[m] = m === 0 ? opening.capitalGain : bs.capitalGain[m - 1]
+    bs.retainedEarnings[m] = netSurplusAfterTax[m] + (m === 0 ? opening.retainedEarnings : bs.retainedEarnings[m - 1])
+    bs.totalEquity[m] = bs.authorisedCapital[m] + bs.capitalGain[m] + bs.retainedEarnings[m]
+
+    bs.cashAtBank[m] = bankClosing[m] > 0 ? bankClosing[m] : 0
+    bs.bankOverdraft[m] = bankClosing[m] < 0 ? -bankClosing[m] : 0
+    bs.incomeTaxAsset[m] = taxClosing[m] > 0 ? taxClosing[m] : 0
+    bs.incomeTaxLiability[m] = taxClosing[m] < 0 ? -taxClosing[m] : 0
+    bs.gstRefund[m] = gstBalanceClosing[m] < 0 ? -gstBalanceClosing[m] : 0
+    bs.gstPayable[m] = gstBalanceClosing[m] > 0 ? gstBalanceClosing[m] : 0
+    bs.prepayments[m] = accrualClosing[m] > 0 ? accrualClosing[m] : 0
+    bs.accruedExpenses[m] = accrualClosing[m] < 0 ? -accrualClosing[m] : 0
+
+    let shClose = 0
+    for (let k = 0; k < shareholders.length; k++) { shClose += shareholders[k].closingBalance[m] }
+    bs.shareholderCurrentAssets[m] = shClose > 0 ? 0 : -shClose
+    bs.shareholderCurrentLiabilities[m] = shClose < 0 ? 0 : shClose
+
+    bs.otherCurrentAsset[m] = m === 0 ? opening.otherCurrentAsset : bs.otherCurrentAsset[m - 1]
+    bs.otherCurrentLiability[m] = m === 0 ? opening.otherCurrentLiability : bs.otherCurrentLiability[m - 1]
+
+    bs.totalCurrentAssets[m] = bs.cashAtBank[m] + bs.accountsReceivable[m] + bs.inventory[m] +
+      bs.incomeTaxAsset[m] + bs.gstRefund[m] + bs.prepayments[m] +
+      bs.shareholderCurrentAssets[m] + bs.otherCurrentAsset[m]
+    bs.totalCurrentLiabilities[m] = bs.bankOverdraft[m] + bs.accountsPayable[m] +
+      bs.incomeTaxLiability[m] + bs.gstPayable[m] + bs.accruedExpenses[m] +
+      bs.shareholderCurrentLiabilities[m] + bs.otherCurrentLiability[m]
+    bs.workingCapital[m] = bs.totalCurrentAssets[m] - bs.totalCurrentLiabilities[m]
+
+    // R1: every category counted. The workbook stopped at the fourth.
+    let nca = 0
+    for (let k = 0; k < ASSET_KEYS.length; k++) {
+      if (corrected || k < 4) { nca += bs.nonCurrentAssets[ASSET_KEYS[k]][m] }
+    }
+    bs.totalNonCurrentAssets[m] = nca
+
+    let ncl = 0
+    for (let k = 0; k < bs.nonCurrentLiabilities.length; k++) { ncl += bs.nonCurrentLiabilities[k].balance[m] }
+    bs.otherNonCurrentLiability[m] = m === 0 ? opening.otherNonCurrentLiability : bs.otherNonCurrentLiability[m - 1]
+    bs.totalNonCurrentLiabilities[m] = ncl + bs.otherNonCurrentLiability[m]
+
+    bs.netAssets[m] = bs.workingCapital[m] - bs.totalNonCurrentLiabilities[m] + bs.totalNonCurrentAssets[m]
+    bs.balanceCheck[m] = excelRound(bs.totalEquity[m] - bs.netAssets[m])
+  }
+
+  /* -- the corrections register ---------------------------------------------------- */
+  const corrections = corrected
+? [
+    { ref: 'R1', where: 'Balance sheet — Total Non-Current Assets', wasCounting: 4, nowCounting: 6, sheetRow: 106 },
+    { ref: 'R2', where: 'Profit & loss — Depreciation', wasCounting: 3, nowCounting: 6, sheetRow: 28 },
+    { ref: 'R3', where: 'Cash flow — Asset sales received', wasCounting: 3, nowCounting: 6, sheetRow: 130 },
+    { ref: 'R4', where: 'Cash flow — Capital expenditure paid', wasCounting: 3, nowCounting: 6, sheetRow: 142 },
+    { ref: 'R5', where: 'GST — six-monthly return, first month of the year', wasCounting: null, nowCounting: null, sheetRow: 411 },
+    { ref: 'R6', where: 'Payables — an overhead settled twice each month', wasCounting: null, nowCounting: null, sheetRow: 201 },
+    { ref: 'R7', where: 'Payables — Other Direct Expenses (GST Exempt) settled by nothing', wasCounting: null, nowCounting: null, sheetRow: 11 }
+  ]
+: []
+
+  return {
+    monthCount: MONTHS,
+    months: {
+      serials: headers.serials,
+      isoDates: headers.isoDates,
+      calendarMonths: headers.calendarMonths
+    },
+    // True when the workbook's add-31-days month stepping skips a calendar month, which
+    // is the condition under which its GST filing schedule misfires. Reported, not hidden.
+    startsSkipACalendarMonth: headers.skipsACalendarMonth,
+    sourceFidelity: asWritten,
+    corrections,
+    profitAndLoss: {
+      revenue,
+      openingInventory: invOpening,
+      freight,
+      otherDirectExpensesExempt: otherDirectExempt,
+      otherDirectTwo,
+      commissions,
+      purchases: I.purchases.slice(),
+      costOfSalesSubtotal,
+      closingInventory: invClosing,
+      costOfSales,
+      grossSurplus,
+      grossMargin,
+      overheads: overhead,
+      depreciation: depreciationCharged,
+      interestBankOverdraft: overdraftInterest,
+      interestTermLoans: loanInterest,
+      totalOverheads,
+      operatingSurplus,
+      interestIncomeBank: inFundsInterest,
+      interestIncomeShareholders: shareholderInterest,
+      otherIncomeGstInclusive,
+      otherIncomeGstExempt,
+      totalOtherIncome,
+      netSurplusBeforeTax,
+      taxProvision,
+      netSurplusAfterTax,
+      netMargin
+    },
+    balanceSheet: { opening, months: bs },
+    cashFlow: {
+      receipts,
+      totalReceipts,
+      payments,
+      totalPayments,
+      netMovement,
+      openingBalance: bankOpening,
+      closingBalance: bankClosing,
+      overdraftInterest,
+      inFundsInterest
+    },
+    schedules: {
+      debtors: {
+        sales: revenue,
+        gst: salesGst,
+        inclusive: salesInclusive,
+        collectionSlices: collection.slices,
+        openingBalanceRunOff: openingDebtorRunOff,
+        cashReceived: cashFromDebtors,
+        openingBalance: debtorOpening,
+        subtotal: debtorSubtotal,
+        closingBalance: debtorClosing
+      },
+      expensePayments: {
+        blockOneNet,
+        blockOneGst,
+        blockOneGross,
+        blockTwoNet,
+        blockTwoGst,
+        blockTwoGross,
+        blockThreeTotal
+      },
+      inventory: {
+        openingInventory: invOpening,
+        purchases: I.purchases.slice(),
+        subtotal: invSubtotal,
+        costOfSales: costOfSalesCharge,
+        closingInventory: invClosing,
+        costRatio
+      },
+      creditors: {
+        purchases: I.purchases.slice(),
+        gst: purchaseGst,
+        inclusive: purchasesInclusive,
+        paymentSlices: payment.slices,
+        paid: payment.total,
+        openingBalance: payableOpening,
+        subtotal: payableSubtotal,
+        overheadsPaid,
+        openingBalanceRunOff: openingPayableRunOff,
+        closingBalance: payableClosing
+      },
+      loans,
+      assets,
+      shareholders,
+      gst: {
+        basis: I.gstBasis,
+        period: I.gstPeriod,
+        rate: gst,
+        onIncome: gstOnIncome,
+        onOtherIncome: gstOnOtherIncome,
+        onAssetSales: gstOnAssetSales,
+        outputs: gstOutputs,
+        onExpenses: gstOnExpenses,
+        onAssetPurchases: gstOnAssetPurchases,
+        inputs: gstInputs,
+        forMonth: gstForMonth,
+        fileOneMonthly: gstFileOneMonthly,
+        fileTwoMonthly: gstFileTwoMonthly,
+        fileSixMonthly: gstFileSixMonthly,
+        amountToFile: gstAmountToFile,
+        balanceOpening: gstBalanceOpening,
+        balanceSubtotal: gstBalanceSubtotal,
+        onPayables: gstOnPayables,
+        paymentsMade: gstPaymentsMade,
+        balanceClosing: gstBalanceClosing
+      },
+      accruals: {
+        openingBalance: accrualOpening,
+        accLevies: overhead.accLevies,
+        insurance: overhead.insurance,
+        subtotal: accrualSubtotal,
+        accLeviesPaid: I.accLeviesPaid.slice(),
+        insurancePaid: I.insurancePaid.slice(),
+        closingBalance: accrualClosing
+      },
+      tax: {
+        rate: I.taxRate,
+        lossesBroughtForward,
+        taxOnMonthProfit,
+        lossesUtilised,
+        lossesCarriedForward,
+        openingBalance: taxOpening,
+        provision: taxProvision,
+        payments: I.taxPayments.slice(),
+        refunds: I.taxRefunds.slice(),
+        closingBalance: taxClosing
+      }
+    }
+  }
+}
+
+module.exports = { computeThreeWayForecast, DEFAULTS, ASSET_KEYS, OVERHEAD_KEYS, excelRound }

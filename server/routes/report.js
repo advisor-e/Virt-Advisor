@@ -21,6 +21,7 @@ const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
 const { computeMultiplePropertyAssessment, computeMultiplePropertyPortfolio } = require('../report/multiplePropertyModel')
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { computeVolatility } = require('../report/volatilityModel')
+const { computeThreeWayForecast } = require('../report/threeWayForecastModel')
 const { listReportModels } = require('../utils/reportModels')
 const { parseUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
@@ -632,6 +633,38 @@ function volatility (req, res, next) {
 }
 
 /**
+ * POST /api/report/three-way-forecast
+ *
+ * @param {object} req.body - partial Three-Way Forecast inputs (see the model's
+ *   `DEFAULTS`): the opening balance sheet, twelve months of sales and purchases, the
+ *   overhead set, three term loans, six fixed-asset categories, the debtor and creditor
+ *   collection profiles, the GST regime and four shareholder current accounts. Anything
+ *   absent computes on the source workbook's own sample figures.
+ * @returns {object} { success, data, timestamp } — twelve months of linked profit &
+ *   loss, balance sheet and cash flow, with the working schedules behind them,
+ *   `balanceSheet.months.balanceCheck` (zero when the statements tie) and the
+ *   `corrections` register naming each departure from the source workbook.
+ *
+ * Anonymous by design: numbers in, numbers out. Only the file-intake routes carry
+ * `firmAuth`, because those accept uploads.
+ *
+ * The model's second parameter is deliberately NOT forwarded — it reproduces the source
+ * workbook including its seven known defects and exists only for the golden test.
+ * `tests/unit/threeWayForecastModel.test.js` fails the build if that changes.
+ */
+function threeWayForecast (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeThreeWayForecast(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] three-way-forecast compute failed:', err)
+    res.send(400, { success: false, error: { code: 'THREE_WAY_FORECAST_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
  * GET /api/report/model-guide
  *
  * The Model Guide screen's whole content: what each live model is for, the figures it
@@ -661,4 +694,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, threeWayForecast, modelGuide }
