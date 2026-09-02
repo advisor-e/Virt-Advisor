@@ -43,22 +43,72 @@ function readerFor (store) {
 /** No scope has decided anything. */
 const NOTHING = readerFor({})
 
-describe('the scenarios come from the logic trees, not from a second list', () => {
-  test('every registered scenario id resolves to a real logic tree', () => {
-    // Brief P12. A registered id that no longer names a tree is dropped by
-    // meetingScenarios(), which is right on screen and silent — so it fails here instead.
+describe('a meeting type carries its own name', () => {
+  // 🔴 REWRITTEN IN SLICE 1 (2026-09-02, MEETING-TYPES-CASCADE.md, approved by Mike). These
+  // two tests used to enforce the DELETED P12 — that every type must be an id in
+  // data/logic_trees.json, and that its name must be the tree's. Mike had never asked for
+  // that rule, and it made the coaching trees the gatekeeper of what meetings can exist.
+  test('every registered type reaches the screen — the trees no longer gate the list', () => {
     const registered = mo.registeredScenarioIds()
     const resolved = mo.meetingScenarios().map(s => s.id)
     expect(registered.length).toBeGreaterThan(0)
     expect(resolved).toEqual(registered)
   })
 
-  test('the name is the logic tree\'s, never a copy stored beside it', () => {
+  test('every type has a name of its own, stored beside it', () => {
+    mo.meetingScenarios().forEach((s) => {
+      expect(typeof s.name).toBe('string')
+      expect(s.name.length).toBeGreaterThan(0)
+    })
+  })
+
+  test('🔴 slice 1 changed nothing an advisor reads — the names still match the trees', () => {
+    // The one thing that proves a change of foundation was safe: the eleven names were
+    // copied character for character, so the day the source moved, nothing on screen did.
+    // ⚠ This pins the MIGRATION, not a rule. When Mike renames a type in mentor mode the
+    // names diverge by design, and this test is then wrong and goes — it is not a licence
+    // to keep them in step.
     const trees = require('../../data/logic_trees.json').trees
     mo.meetingScenarios().forEach((s) => {
-      const tree = trees.filter(t => t.id === s.id)[0]
+      const tree = trees.filter(t => t.id === s.treeId)[0]
+      expect(tree).toBeDefined()
       expect(s.name).toBe(tree.name)
     })
+  })
+
+  test('🔴 a type that names NO logic tree still reaches the screen', () => {
+    // The single behaviour slice 1 exists to deliver, and the deleted rule made it
+    // impossible. Exercised against a stand-in data file rather than asserted about a
+    // literal, because the claim is about what the module does.
+    jest.isolateModules(() => {
+      jest.doMock('../../data/meeting-observations.json', () => ({
+        scenarios: [
+          { id: 'bad_news', name: 'Bad news conversation', points: [] },
+          { id: 'eoy_meeting', name: 'End of year', treeId: 'eoy_meeting', points: [] }
+        ]
+      }), { virtual: false })
+      const fresh = require('../../server/utils/meetingObservations')
+      const types = fresh.meetingScenarios()
+      expect(types.map(t => t.id)).toEqual(['bad_news', 'eoy_meeting'])
+      expect(types[0].name).toBe('Bad news conversation')
+      expect(types[0].treeId).toBeNull()
+    })
+    jest.dontMock('../../data/meeting-observations.json')
+  })
+
+  test('a type with no name at all is dropped — a nameless row helps nobody', () => {
+    jest.isolateModules(() => {
+      jest.doMock('../../data/meeting-observations.json', () => ({
+        scenarios: [
+          { id: 'nameless_xyz', points: [] },
+          { id: 'blank_name_xyz', name: '   ', points: [] },
+          { id: 'eoy_meeting', name: 'End of year', points: [] }
+        ]
+      }), { virtual: false })
+      const fresh = require('../../server/utils/meetingObservations')
+      expect(fresh.meetingScenarios().map(t => t.id)).toEqual(['eoy_meeting'])
+    })
+    jest.dontMock('../../data/meeting-observations.json')
   })
 
   test('the end-of-year meeting is one of them', () => {

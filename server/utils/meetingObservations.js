@@ -151,11 +151,11 @@ function ownPointPrefix (scopeId) {
 // ── The scenarios ────────────────────────────────────────────────────────────────────
 
 /**
- * Tree id → the name an advisor reads, taken from `data/logic_trees.json`.
+ * Tree id → its name, from `data/logic_trees.json`.
  *
- * 🔴 THE NAME IS NEVER COPIED INTO `data/meeting-observations.json`. Brief P12: the meeting
- * types come from the scenarios that already exist, and a second list beside them "would
- * drift within a month". So this file registers ids and the logic trees own the words.
+ * ⚠ A FALLBACK ONLY, since slice 1. A type carries its own `name`; this covers a type
+ * written before names existed, so an old stored list cannot lose its words. Nothing
+ * authored from now on relies on it.
  */
 const TREE_NAME_BY_ID = (Array.isArray(LOGIC_TREES.trees) ? LOGIC_TREES.trees : [])
   .reduce((out, t) => {
@@ -166,17 +166,29 @@ const TREE_NAME_BY_ID = (Array.isArray(LOGIC_TREES.trees) ? LOGIC_TREES.trees : 
 /**
  * The meeting scenarios, in the order `data/meeting-observations.json` declares them.
  *
- * A registered id that resolves to no logic tree is DROPPED rather than shown under its own
- * id — a scenario with no name is not something to put in front of an advisor. The drop is
- * a build failure in `tests/unit/meetingObservations.test.js`, so it cannot go unnoticed
- * here and quiet on screen.
+ * 🔴 THE NAME IS THE TYPE'S OWN (slice 1, 2026-09-02, `design/MEETING-TYPES-CASCADE.md`,
+ * approved by Mike). It used to be looked up from the logic trees, and a type whose id
+ * named no tree was DROPPED — which made the trees the gatekeeper of what meetings exist.
+ * That was the deleted P12, a rule nobody had asked for. A type now exists because it is
+ * registered here, and its words are its own.
  *
- * @returns {Array.<{id: string, name: string}>}
+ * ⚠ `treeId` IS AN OPTIONAL COACHING LINK, NEVER IDENTITY AND NEVER A NAME SOURCE. It is
+ * carried through untouched for whatever wants it later; nothing in this module reads it.
+ *
+ * A type with no usable name at all is still dropped — a nameless row is not something to
+ * put in front of an advisor — but that is now the only way to fall out of this list.
+ *
+ * @returns {Array.<{id: string, name: string, treeId: (string|null)}>}
  */
 function meetingScenarios () {
   return (BASE_FILE.scenarios || [])
-    .filter(s => s && typeof s.id === 'string' && typeof TREE_NAME_BY_ID[s.id] === 'string')
-    .map(s => ({ id: s.id, name: TREE_NAME_BY_ID[s.id] }))
+    .filter(s => s && typeof s.id === 'string')
+    .map(s => ({
+      id: s.id,
+      name: (typeof s.name === 'string' && s.name.trim()) ? s.name : TREE_NAME_BY_ID[s.id],
+      treeId: (typeof s.treeId === 'string' && s.treeId) ? s.treeId : null
+    }))
+    .filter(s => typeof s.name === 'string' && s.name)
 }
 
 /** Registered scenario ids, including any that fail to resolve — the test reads this. */
@@ -427,7 +439,7 @@ async function loadResolvedObservations (scopeId, loadFirmConfig) {
   const scenarios = meetingScenarios()
 
   const shipped = () => scenarios.reduce((out, s) => {
-    out[s.id] = { id: s.id, name: s.name, points: basePointsFor(s.id) }
+    out[s.id] = { id: s.id, name: s.name, treeId: s.treeId || null, points: basePointsFor(s.id) }
     return out
   }, {})
 
@@ -456,9 +468,13 @@ async function loadResolvedObservations (scopeId, loadFirmConfig) {
     const inherited = (base[s.id] && base[s.id].points) || []
     out[s.id] = {
       id: s.id,
-      // The name always comes from the logic trees, never from a stored decision — no tier
-      // may rename a scenario, because the name is the join to the tree the meeting uses.
+      // The name is the type's own (slice 1). No tier can rename one YET — that is slice 2
+      // for the mentor and slice 3 for the tiers below, per MEETING-TYPES-CASCADE.md §7.
+      // When they can, the rename is a stored decision resolved here exactly as a point is;
+      // the ID stays fixed, because every decline, override and recorded meeting keys to it.
       name: s.name,
+      // Carried through, never read here — the optional coaching link.
+      treeId: s.treeId || null,
       points: resolveInheritedRows(
         inherited,
         {

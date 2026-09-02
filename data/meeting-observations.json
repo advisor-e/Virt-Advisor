@@ -15,11 +15,17 @@
     "business entity — so these are to keep, rename or replace, and the ids here are still",
     "tree ids only because that is where they came from and nothing has replaced them yet.",
     "",
-    "TODAY the id must still resolve to a tree, because that is where the NAME an advisor",
-    "reads comes from and tests/unit/meetingObservations.test.js fails the build on an id",
-    "that does not. ⚠ That is a CURRENT IMPLEMENTATION DETAIL awaiting the authored-types",
-    "build, never a principle — no report, prompt or recorder walks a coaching tree from a",
-    "meeting type, which was checked across every use of scenarioId on 2026-09-02.",
+    "EACH TYPE NOW CARRIES ITS OWN `name` (slice 1, 2026-09-02). It is no longer borrowed",
+    "from data/logic_trees.json, so a type may be renamed here — or, once slice 2 ships, on",
+    "the mentor's screen — without touching the coaching trees. The eleven names shipped in",
+    "slice 1 were copied from the trees CHARACTER FOR CHARACTER, so nothing an advisor reads",
+    "changed on the day the foundation moved. That is the point of the slice.",
+    "",
+    "`treeId` IS THE OPTIONAL COACHING LINK and it is not identity. Where a type names a",
+    "tree, the app can later offer that coaching material beside the meeting; where it is",
+    "absent, the type still works completely. It ships equal to `id` on all eleven only",
+    "because that is where they came from. ⚠ NEVER use it to look up a name, and never make",
+    "a type's existence depend on it — that was the deleted P12, which nobody had asked for.",
     "",
     "TWO VOICES PER POINT, AND BOTH ARE IN THE APPROVED DRAWING. `text` is how the FIRM",
     "states the point on the manager's screen ('The meeting was framed…'); `advisorText` is",
@@ -40,11 +46,13 @@
     "nobody asked for (CLAUDE.md: wording is asked for, never assumed). The mentor authors",
     "them on screen, which is what the hub-page rule exists to make possible."
   ],
-  "version": "1.0.0",
-  "lastUpdated": "2026-09-01",
+  "version": "2.0.0",
+  "lastUpdated": "2026-09-02",
   "scenarios": [
     {
       "id": "eoy_meeting",
+      "name": "End of Year Meeting — Planning and Delivery",
+      "treeId": "eoy_meeting",
       "points": [
         {
           "id": "mo-eoy-1",
@@ -68,15 +76,65 @@
         }
       ]
     },
-    { "id": "client_sales", "points": [] },
-    { "id": "client_planning", "points": [] },
-    { "id": "conflict_meeting", "points": [] },
-    { "id": "trial_fit", "points": [] },
-    { "id": "cautious_reveal", "points": [] },
-    { "id": "reveal_growth_curve", "points": [] },
-    { "id": "dashboard_discussions", "points": [] },
-    { "id": "sales_process", "points": [] },
-    { "id": "facilitation_101", "points": [] },
-    { "id": "public_speaking", "points": [] }
+    {
+      "id": "client_sales",
+      "name": "Client Sales Logic",
+      "treeId": "client_sales",
+      "points": []
+    },
+    {
+      "id": "client_planning",
+      "name": "Client Planning Logic",
+      "treeId": "client_planning",
+      "points": []
+    },
+    {
+      "id": "conflict_meeting",
+      "name": "Framing a Conflict Meeting",
+      "treeId": "conflict_meeting",
+      "points": []
+    },
+    {
+      "id": "trial_fit",
+      "name": "Trial Fit Method — Revenue Model Presentation",
+      "treeId": "trial_fit",
+      "points": []
+    },
+    {
+      "id": "cautious_reveal",
+      "name": "Cautious Reveal Method — Introducing Revenue Models to Resistant Clients",
+      "treeId": "cautious_reveal",
+      "points": []
+    },
+    {
+      "id": "reveal_growth_curve",
+      "name": "Revealing the Growth Curve",
+      "treeId": "reveal_growth_curve",
+      "points": []
+    },
+    {
+      "id": "dashboard_discussions",
+      "name": "Dashboard Discussions",
+      "treeId": "dashboard_discussions",
+      "points": []
+    },
+    {
+      "id": "sales_process",
+      "name": "Get the Job - Sales Process Decision Tree",
+      "treeId": "sales_process",
+      "points": []
+    },
+    {
+      "id": "facilitation_101",
+      "name": "Facilitation 101 — Framing, Story, and Relevance",
+      "treeId": "facilitation_101",
+      "points": []
+    },
+    {
+      "id": "public_speaking",
+      "name": "Get the Job - Public Speaking & Seminar Delivery",
+      "treeId": "public_speaking",
+      "points": []
+    }
   ]
 }
