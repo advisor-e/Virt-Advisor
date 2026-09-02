@@ -3079,7 +3079,7 @@ that the warning is not being followed by default.
       (`platform_admin`), because Advisor-e issues no mentor role and the mentor borrows the admin
       one — so that guard could not tell a mentor from a middle tier holding it, and the dev
       sign-ins for the two new hubs hold exactly it. **Opening a Group Manager Hub returned every
-      brand's cases, activity and configuration into one country manager's screen.** Nothing
+      brand's cases, activity and configuration into one group manager's screen.** Nothing
       errored and no test failed: every existing test called those handlers **as the mentor**, for
       whom "everything" is the right answer. The fault lived entirely in the question nobody had
       asked yet. Dev-reachable only today — and it is the path that goes live.
