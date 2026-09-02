@@ -436,6 +436,28 @@ All five are mutation-verified.
 
 ## 4b. The two intakes — annual, and by-month
 
+> **Which accounting packages they read (2026-09-02).** Xero, QuickBooks Online and MYOB.
+> The list is one fact stated once, in
+> [`server/report/intake/supportedPackages.js`](../../server/report/intake/supportedPackages.js);
+> every screen line and refusal message is built from it, and a test fails the build if the
+> locale string and the module ever name different packages.
+>
+> **Only Xero is `verified`** — read from real exports the firm supplied on 2026-07-13 and
+> 2026-07-15, which refuted three assumptions in the process. QuickBooks Online and MYOB are
+> `expected`: the readers handle their published layouts, checked against reconstructions in
+> [`tests/unit/accountingPackages.test.js`](../../tests/unit/accountingPackages.test.js), and
+> **no real export from either has been read**. Every intake screen says so, and item 4.60
+> holds the four files that would close it. **Do not promote a package on more
+> reconstructions** — the guard refuses `verified` unless the evidence names a real export.
+>
+> Pointing the reader at those two layouts on 2026-09-02 found five real defects, all fixed:
+> the `"As of"` date line was never read; header rows were walked as body rows; the company
+> name sits *above* the title in both packages and *below* it in Xero, so the scan took the
+> first section heading as the company and lost that whole section; QuickBooks' single
+> `LIABILITIES AND EQUITY` heading made every liability beneath it read as equity; and MYOB
+> lists bank accounts with no `Bank` heading above them. Assume the next package will break
+> something too, and probe it the same way.
+
 There are **two** file readers, and which one a model uses follows from the shape of its
 inputs. Both read `.xlsx` and `.csv`, both refuse a PDF by name, both share one hardened
 buffer reader (`gridsFromBuffer` in `xeroReportParser.js`), and both are parse-and-discard:
@@ -498,6 +520,29 @@ Constitution, is a logged P1, and **must not be copied** into a new screen. The 
 Report** is the worked example of the compliant pattern — every string on it is a key in
 `locales/en.json`, month names included — so copy that screen, not its neighbours. A string
 hardcoded in a template stays English for ever; one in `en.json` can become any language.
+
+**The Three-Way Forecast has an engine and an intake, and no screen.** Stages A and B are
+built and pushed (`f42c74e`, `659706d`): a full twelve-month linked profit & loss, balance
+sheet and cash flow ported from `3 way Filter.xlsx` — **3,385 of its 3,409 calculated cells
+reproduced exactly** — plus a third intake that seeds the opening position and the overhead
+cost base. **Seven corrections to the source workbook were each ruled by Mike**; the evidence
+for every one is in
+[`../THREE-WAY-FORECAST-DEVIATIONS.md`](../THREE-WAY-FORECAST-DEVIATIONS.md), and the
+largest overstated year-one profit by 55,654. The screens are drawn
+([`../mockups/three-way-forecast.html`](../mockups/three-way-forecast.html)) and **await
+Mike's approval with eight open questions**, so the catalogue row stays `soon` and the card
+stays inert. Two things also wait on his word: the workbook's **31-day month stepping**
+(it advances months by adding 31 days, so a forecast starting late in a month can skip one
+and misfire the GST filing schedule — ported as written and reported by
+`startsSkipACalendarMonth`), and the supported-software wording.
+
+**This model is the only one that reads a FORECAST rather than history.** Every other
+Report-class model reads what has happened; this one is about what will. No accounting
+export contains a future, so the intake seeds the starting position and the cost base only,
+and its `provenance` map carries a third value beside `file` and `entered` — `seeded`, for
+figures taken from last year's actuals as a starting point. A screen that showed `file` and
+`seeded` identically would tell an advisor that a judgement about next year is a fact about
+this one.
 
 **Only the Volatility Report reads a monthly series.** The by-month intake exists and is
 proven, but no other model consumes it yet. A new model taking monthly inputs should reuse

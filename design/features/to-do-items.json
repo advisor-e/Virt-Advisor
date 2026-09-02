@@ -120,6 +120,25 @@
       },
       "touches": "server/utils/meetingObservations.js (the no-decisions passthrough in loadResolvedObservations) and tests/unit/meetingObservations.test.js. The fix is the one already made in server/utils/meetingTypes.js: restamp the inherited list from the viewer's point of view. Both paths — passthrough and full resolve — must agree, or the badge flickers with unrelated edits.",
       "comment": "2026-09-02 — one line plus two assertions, and the fix is already written and proven in the sibling module. Left undone only to keep slice 2 of the types cascade to its approved scope."
+    },
+    {
+      "ref": "4.60",
+      "name": "QuickBooks and MYOB are supported on paper, not against a real file",
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "On 2026-09-02 Mike ruled \"Xero\" out of every user-facing string in favour of \"your accounting software\", then asked for the reader to be tested against QuickBooks and MYOB. It was — against RECONSTRUCTIONS of each package's published report layout, because no real export from either exists on this machine. That found five genuine defects, all fixed: the \"As of\" date line was never read; header rows were walked as body rows; the company name sits ABOVE the title in both packages and below it in Xero, so the scan took the first section heading as the company and lost that whole section; QuickBooks' \"LIABILITIES AND EQUITY\" heading made every liability under it read as equity (a defect introduced the same morning in 659706d); and MYOB lists bank accounts with no \"Bank\" heading. server/report/intake/supportedPackages.js now marks Xero `verified` and the other two `expected`, and every screen says which is which. WHAT REMAINS IS FOUR FILES: a real Balance Sheet and a real Profit and Loss exported from QuickBooks Online, and the same two from MYOB.",
+      "risk": "The app now names three packages it can read, and two of them have never had a real file put through them. A reconstruction proves the reader copes with the layout as documented; it cannot prove the layout is right, and a real chart of accounts is the thing that surprises you — reading the real Xero exports on 2026-07-13 and 2026-07-15 refuted three assumptions outright. The exposure is contained rather than absent: every intake screen says the two are not yet confirmed and asks the advisor to check the figures, and every seeded figure is tagged by its source. But a wrong opening balance that looks plausible is exactly what a person in UAT cannot catch, and it would reach a client's forecast.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-02 — \"keep it as a job for future - keep moving forward\", after being told that four real exports are what would move the two packages from `expected` to `verified`."
+      },
+      "touches": "Nothing until the files arrive. Then: tests/unit/accountingPackages.test.js (the reconstructions become real-shaped fixtures), server/report/intake/xeroReportParser.js if the real layouts differ, and server/report/intake/supportedPackages.js to flip each `confidence` to `verified` — which its own guard will not allow until the evidence line says a real export was read.",
+      "comment": "2026-09-02 — filed on Mike's instruction. NOTHING IS BLOCKED: the reader handles both layouts today and the screens are honest about the difference. DO NOT PROMOTE ON MORE RECONSTRUCTIONS — the guard in accountingPackages.test.js fails the build if a package is marked `verified` without evidence naming a real export, and that is deliberate."
     }
   ]
 }
