@@ -609,3 +609,47 @@ describe('the authored objective travels with the template', () => {
     expect(effort.templateEffort('E.O.Y Meeting', lib).objective).toBe('')
   })
 })
+
+// ── CPD follows the library in force — item 4.56, Mike's ruling 2026-09-01 ────
+
+describe('minutes come from the library the course was built from', () => {
+  test('a firm library\'s authored times price the course, not the platform seed\'s', () => {
+    // The platform seed says 99 minutes for this template…
+    library([record()])
+    cpd.lookupTemplate('E.O.Y Meeting') // …and the seed index is built and cached.
+
+    // …but the course was built from the firm's library, where it carries 24.
+    const firmLibrary = [record({
+      page: 'firm-1',
+      cpd: { isHidden: false, watchedVideo: 4, reviewTemplate: 20, reheasedTemplate: 0 }
+    })]
+
+    const e = effort.templateEffort('E.O.Y Meeting', firmLibrary)
+    expect(e.minutes).toBe(24)
+    expect(e.source).toBe(effort.SOURCE_AUTHORED)
+    expect({ video: e.video, reading: e.reading, rehearsal: e.rehearsal })
+      .toEqual({ video: 4, reading: 20, rehearsal: 0 })
+  })
+
+  test('the firm catalogue rides on the index, so a prebuilt index prices the same', () => {
+    library([record()])
+    const firmLibrary = [record({
+      page: 'firm-1',
+      cpd: { isHidden: false, watchedVideo: 4, reviewTemplate: 20, reheasedTemplate: 0 }
+    })]
+
+    const index = effort.indexByTitle(firmLibrary)
+
+    expect(effort.templateEffort('E.O.Y Meeting', index).minutes).toBe(24)
+  })
+
+  test('a bare Map handed in from outside falls back to the platform catalogue', () => {
+    // Nothing in the app builds one, but the signature allows it — the fallback is
+    // the pre-4.56 behaviour, never a crash.
+    const lib = library([record()])
+    const bare = new Map()
+    for (const t of lib) { bare.set(cpd.normaliseTitle(t.title), t) }
+
+    expect(effort.templateEffort('E.O.Y Meeting', bare).minutes).toBe(99)
+  })
+})

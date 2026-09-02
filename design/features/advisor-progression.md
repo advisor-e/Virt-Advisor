@@ -63,6 +63,12 @@ it does not, the app falls back to reading its prose, which has previously read 
 sentences as recommendations. Every recommendation records which of the two produced it, so a
 fallback can be counted rather than assumed away.
 
+**P9 · CPD follows the library in force.** (Mike's ruling 2026-09-01, item 4.56.) Claimable
+activities and their minutes are priced from whichever template library the firm's tier chain
+has uploaded — the same library the AI recommends from — falling back to the platform's
+committed set when none is. Three protections are unchanged: minutes freeze into the claim row
+at claim time, the lower figure wins a collision, and a hidden record is never claimable.
+
 ---
 
 ## 3. Design considerations

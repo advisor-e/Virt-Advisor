@@ -716,9 +716,12 @@ async function getCpd (req, res) {
   }
 
   try {
-    const [{ vaSessions, courseSessions }, claimRows] = await Promise.all([
+    // CPD follows the library in force (Mike's ruling 2026-09-01, item 4.56):
+    // claimable items are priced from the same library the AI recommends from.
+    const [{ vaSessions, courseSessions }, claimRows, catalogue] = await Promise.all([
       activityStore.readAdvisorSessions(advisorId, firmId),
-      activityStore.readAdvisorClaims(advisorId, firmId)
+      activityStore.readAdvisorClaims(advisorId, firmId),
+      cpdCatalogue.catalogueFor(firmId)
     ])
 
     const use = collectTemplateUse(vaSessions, courseSessions)
@@ -734,7 +737,7 @@ async function getCpd (req, res) {
 
     for (const key of keys) {
       const used = use.get(key)
-      const entry = cpdCatalogue.lookupTemplate(used ? used.name : key)
+      const entry = catalogue.lookupTemplate(used ? used.name : key)
       const held = claims.get(key)
       const claimedHere = held ? held.byActivity : null
       if (!entry && !claimedHere) { continue }
@@ -819,9 +822,11 @@ async function getCpd (req, res) {
  *
  * NOTHING THAT GIVES THE CLAIM ITS VALUE COMES FROM THE REQUEST. The body names a
  * template and one of three activities; the minutes, the template's real title and
- * page, and the wording of the pledge are all resolved server-side from the master
- * export (cpdCatalogue). A claim is a professional declaration, so a client that
- * could name its own figure could inflate a regulated record.
+ * page, and the wording of the pledge are all resolved server-side from the library
+ * in force for the firm (cpdCatalogue.catalogueFor — item 4.56: claimable minutes
+ * follow the same library the AI recommends from). A claim is a professional
+ * declaration, so a client that could name its own figure could inflate a regulated
+ * record.
  *
  * @route POST /api/activity/cpd/record
  * @param {object} req.body - { templateTitle, activity } — 'video' | 'reading' | 'rehearsal'
@@ -850,14 +855,17 @@ async function recordCpd (req, res) {
   try {
     // An advisor may only claim against templates their own work has used. Checked
     // against their stored sessions, not against anything the request asserts.
-    const { vaSessions, courseSessions } = await activityStore.readAdvisorSessions(advisorId, firmId)
+    const [{ vaSessions, courseSessions }, catalogue] = await Promise.all([
+      activityStore.readAdvisorSessions(advisorId, firmId),
+      cpdCatalogue.catalogueFor(firmId)
+    ])
     const use = collectTemplateUse(vaSessions, courseSessions)
     if (!use.has(cpdCatalogue.normaliseTitle(request.templateTitle))) {
       sendError(res, 400, 'NOT_CLAIMABLE', 'You can only record CPD for a template your own work has used')
       return
     }
 
-    const resolved = cpdCatalogue.resolveClaim(request.templateTitle, request.activity)
+    const resolved = catalogue.resolveClaim(request.templateTitle, request.activity)
     if (!resolved) {
       sendError(res, 400, 'NOT_CLAIMABLE', 'That template carries no CPD time for that activity')
       return
