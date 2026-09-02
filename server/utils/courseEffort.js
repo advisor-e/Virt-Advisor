@@ -16,7 +16,10 @@
  * regulated CPD claim. A second, independent sum living here would drift from
  * it, and an advisor would eventually see a course state one length while
  * their CPD record stated another. So this module ASKS cpdCatalogue, and adds
- * exactly one rule of its own.
+ * exactly one rule of its own. Since item 4.56 (Mike's ruling 2026-09-01) it
+ * asks the catalogue OF THE LIBRARY IT IS GIVEN — the callers already pass the
+ * library in force (courseEngine reads it through templateLibrary), so a
+ * firm's course lengths and its CPD record state the same figures.
  *
  * THE ONE RULE OF ITS OWN — the revenue models. The library holds 89 revenue
  * and feasibility models (Cafe, Break-Even, Labour Only, Car Importer…), and
@@ -130,6 +133,10 @@ function indexByTitle (templates) {
     // duplicate only displaces the held one by carrying a LOWER time.
     if (key && !byTitle.has(key)) { byTitle.set(key, t) }
   }
+  // The CPD catalogue of THIS library rides on the index (item 4.56), so every
+  // caller that passes the index around carries the right price list with it.
+  // A bare Map handed in from outside falls back to the platform catalogue.
+  byTitle.catalogue = cpdCatalogue.catalogueForLibrary(templates)
   return byTitle
 }
 
@@ -176,8 +183,9 @@ function templateEffort (name, templates) {
 
   const base = { title, minutes: 0, source: SOURCE_UNKNOWN, video: 0, reading: 0, rehearsal: 0, objective }
 
-  // 1. Authored time, straight from the CPD catalogue — one source, one answer.
-  const entry = cpdCatalogue.lookupTemplate(key)
+  // 1. Authored time, straight from the CPD catalogue OF THIS LIBRARY — one
+  // source, one answer, and the same one the advisor's CPD record is priced by.
+  const entry = (index.catalogue || cpdCatalogue).lookupTemplate(key)
   if (entry && entry.totalMinutes > 0) {
     const byActivity = { video: 0, reading: 0, rehearsal: 0 }
     for (const a of entry.activities) { byActivity[a.activity] = a.minutes }

@@ -13,8 +13,14 @@
 jest.mock('../../server/utils/templates', () => ({
   getOrgTemplates: jest.fn(() => [])
 }))
+// The cascade seam (item 4.56): what library is in force for a scope. Mocked so no
+// test here touches the store stack; null means "no tier has uploaded" — the seed.
+jest.mock('../../server/utils/templateLibrary', () => ({
+  loadEffectiveTemplates: jest.fn(() => Promise.resolve(null))
+}))
 
 const { getOrgTemplates } = require('../../server/utils/templates')
+const { loadEffectiveTemplates } = require('../../server/utils/templateLibrary')
 const cpd = require('../../server/utils/cpdCatalogue')
 
 /** A template record in the shape the master export actually produces. */
@@ -33,6 +39,7 @@ function library (records) {
 let warn
 beforeEach(() => {
   jest.clearAllMocks()
+  loadEffectiveTemplates.mockResolvedValue(null)
   warn = jest.spyOn(console, 'warn').mockImplementation(() => {})
 })
 afterEach(() => warn.mockRestore())
@@ -419,5 +426,155 @@ describe('normaliseClaimRequest', () => {
     ['a non-string activity', { templateTitle: 'E.O.Y Meeting', activity: 3 }]
   ])('refuses %s', (_label, body) => {
     expect(cpd.normaliseClaimRequest(body)).toBeNull()
+  })
+})
+
+// ── CPD follows the library in force — item 4.56, Mike's ruling 2026-09-01 ────
+// Recommendations come from whichever library a firm's tier chain has uploaded, so
+// claimable CPD must be priced from the SAME library. Every rule above — hidden
+// records, the lower-figure collision rule, rounding — applies to a firm's library
+// identically, because the same index build runs over it.
+
+describe('catalogueForLibrary — a firm library replaces the seed wholesale', () => {
+  const firmRecord = over => Object.assign({
+    page: 'firm-1',
+    title: 'E.O.Y Meeting',
+    cpd: { isHidden: false, watchedVideo: 4, reviewTemplate: 20, reheasedTemplate: 0 }
+  }, over)
+
+  test('the firm\'s minutes win for a title both libraries carry', () => {
+    library([record()]) // seed: 99 minutes
+
+    const firm = cpd.catalogueForLibrary([firmRecord()])
+
+    expect(firm.lookupTemplate('E.O.Y Meeting').totalMinutes).toBe(24)
+    expect(firm.lookupTemplate('E.O.Y Meeting').page).toBe('firm-1')
+  })
+
+  test('a seed-only title is NOT claimable under a firm library — wholesale, never merged', () => {
+    library([record(), record({ page: 'id-2', title: 'Loan Estimator' })])
+
+    const firm = cpd.catalogueForLibrary([firmRecord()])
+
+    expect(firm.lookupTemplate('Loan Estimator')).toBeNull()
+    // The module-level lookup is still the platform view, untouched by the firm's.
+    expect(cpd.lookupTemplate('Loan Estimator').totalMinutes).toBe(99)
+  })
+
+  test('a firm-only title IS claimable under the firm library', () => {
+    library([record()])
+
+    const firm = cpd.catalogueForLibrary([firmRecord({ title: 'Firm Special' })])
+
+    expect(firm.lookupTemplate('Firm Special').totalMinutes).toBe(24)
+    expect(cpd.lookupTemplate('Firm Special')).toBeNull()
+  })
+
+  test('the hidden-record rule applies to a firm library exactly as the seed', () => {
+    library([record()])
+
+    const firm = cpd.catalogueForLibrary([
+      firmRecord({ cpd: { isHidden: true, watchedVideo: 4, reviewTemplate: 20, reheasedTemplate: 0 } })
+    ])
+
+    expect(firm.lookupTemplate('E.O.Y Meeting')).toBeNull()
+  })
+
+  test('the never-over-claim collision rule applies within a firm library, and is logged', () => {
+    library([record()])
+
+    const firm = cpd.catalogueForLibrary([
+      firmRecord({ cpd: { isHidden: false, watchedVideo: 24, reviewTemplate: 30, reheasedTemplate: 30 } }),
+      firmRecord({ page: 'firm-2', cpd: { isHidden: false, watchedVideo: 30, reviewTemplate: 90, reheasedTemplate: 0 } })
+    ])
+
+    expect(firm.lookupTemplate('E.O.Y Meeting').totalMinutes).toBe(84)
+    expect(warn).toHaveBeenCalledTimes(1)
+  })
+
+  test.each([
+    ['null', null],
+    ['undefined', undefined],
+    ['an empty array', []],
+    ['a non-array', 'not a library']
+  ])('%s binds to the platform seed — no library in force', (_label, value) => {
+    library([record()])
+
+    expect(cpd.catalogueForLibrary(value).lookupTemplate('E.O.Y Meeting').totalMinutes).toBe(99)
+  })
+
+  test('resolveClaim through the firm catalogue returns the firm\'s stored values', () => {
+    library([record()])
+
+    const firm = cpd.catalogueForLibrary([firmRecord()])
+
+    expect(firm.resolveClaim('e.o.y meeting', 'video')).toEqual({
+      title: 'E.O.Y Meeting',
+      page: 'firm-1',
+      activity: 'video',
+      minutes: 4,
+      pledgeKey: 'cpd.pledge.video',
+      pledgeVersion: 1
+    })
+    // The seed still offers rehearsal; the firm's library does not.
+    expect(firm.resolveClaim('E.O.Y Meeting', 'rehearsal')).toBeNull()
+  })
+
+  test('claimableFor through the firm catalogue prices from the firm library', () => {
+    library([record()])
+
+    const firm = cpd.catalogueForLibrary([firmRecord()])
+    const out = firm.claimableFor(['E.O.Y Meeting', 'Not A Template'])
+
+    expect(out).toHaveLength(1)
+    expect(out[0].totalMinutes).toBe(24)
+  })
+
+  test('one index per library array — cached by the array itself, dropped on resetCache', () => {
+    library([record()])
+    const firmLibrary = [firmRecord()]
+
+    expect(cpd.catalogueForLibrary(firmLibrary).lookupTemplate('E.O.Y Meeting').totalMinutes).toBe(24)
+
+    // A mutation after the first build is not seen — the index is cached against
+    // this array, the way templateLibrary hands the same array back until its TTL.
+    firmLibrary.push(firmRecord({ page: 'firm-2', title: 'Firm Special' }))
+    expect(cpd.catalogueForLibrary(firmLibrary).lookupTemplate('Firm Special')).toBeNull()
+
+    // resetCache drops it, as it does the seed index.
+    cpd.resetCache()
+    expect(cpd.catalogueForLibrary(firmLibrary).lookupTemplate('Firm Special').totalMinutes).toBe(24)
+  })
+})
+
+describe('catalogueFor — the scoped entry point the CPD routes use', () => {
+  test('asks templateLibrary which library is in force for the scope', async () => {
+    library([record()])
+
+    await cpd.catalogueFor('firm-123')
+
+    expect(loadEffectiveTemplates).toHaveBeenCalledWith('firm-123')
+  })
+
+  test('prices from the resolved library', async () => {
+    library([record()])
+    loadEffectiveTemplates.mockResolvedValue([{
+      page: 'firm-1',
+      title: 'E.O.Y Meeting',
+      cpd: { isHidden: false, watchedVideo: 4, reviewTemplate: 20, reheasedTemplate: 0 }
+    }])
+
+    const firm = await cpd.catalogueFor('firm-123')
+
+    expect(firm.lookupTemplate('E.O.Y Meeting').totalMinutes).toBe(24)
+  })
+
+  test('null — no tier has uploaded — is exactly the platform seed', async () => {
+    library([record()])
+    loadEffectiveTemplates.mockResolvedValue(null)
+
+    const scoped = await cpd.catalogueFor('firm-123')
+
+    expect(scoped.lookupTemplate('E.O.Y Meeting').totalMinutes).toBe(99)
   })
 })

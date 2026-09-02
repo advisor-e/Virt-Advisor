@@ -26,9 +26,17 @@ jest.mock('../../server/utils/activityStore', () => ({
   withdrawCpdClaim: jest.fn()
 }))
 jest.mock('../../server/utils/templates', () => ({ getOrgTemplates: jest.fn(() => []) }))
+// CPD follows the library in force (item 4.56). Resolved to null here — "no tier has
+// uploaded" — so the catalogue prices from the mocked seed; the firm-library tests
+// below override it. Without this mock the routes would walk the REAL store path and
+// price the tests' claims from whatever library this machine's dev file holds.
+jest.mock('../../server/utils/templateLibrary', () => ({
+  loadEffectiveTemplates: jest.fn(() => Promise.resolve(null))
+}))
 
 const activityStore = require('../../server/utils/activityStore')
 const { getOrgTemplates } = require('../../server/utils/templates')
+const { loadEffectiveTemplates } = require('../../server/utils/templateLibrary')
 const cpdCatalogue = require('../../server/utils/cpdCatalogue')
 const { getCpd, recordCpd, withdrawCpd } = require('../../server/routes/activity')
 
@@ -98,6 +106,7 @@ let errorLog
 beforeEach(() => {
   jest.clearAllMocks()
   getOrgTemplates.mockReturnValue([EOY, LOAN, NO_CPD])
+  loadEffectiveTemplates.mockResolvedValue(null)
   cpdCatalogue.resetCache()
   activityStore.readAdvisorClaims.mockResolvedValue([])
   sessions()
@@ -619,5 +628,113 @@ describe('withdrawCpd', () => {
     await withdrawCpd(makeReq({ body: undefined }), res)
 
     expect(res._status).toBe(400)
+  })
+})
+
+// ── CPD follows the library in force — item 4.56, Mike's ruling 2026-09-01 ────
+// A firm that uploads its own library is recommended from it, so what its advisors
+// may claim must be priced from the SAME library — never the platform's.
+
+describe('the library in force', () => {
+  // The firm's own version of E.O.Y Meeting: different page, different minutes.
+  const FIRM_EOY = {
+    page: 'firm-eoy',
+    title: 'E.O.Y Meeting',
+    cpd: { isHidden: false, watchedVideo: 4, reviewTemplate: 20, reheasedTemplate: 0 }
+  }
+
+  test('getCpd asks for the library in force for the firm on the TOKEN', async () => {
+    await getCpd(makeReq(), makeMockRes())
+
+    expect(loadEffectiveTemplates).toHaveBeenCalledWith('firm-from-jwt')
+  })
+
+  test('getCpd prices claimable activities from the firm library, not the seed', async () => {
+    loadEffectiveTemplates.mockResolvedValue([FIRM_EOY])
+    sessions({ va: [{ recommended_templates: ['e.o.y meeting'], completed_at: '2026-07-28 09:00:00' }] })
+    const res = makeMockRes()
+
+    await getCpd(makeReq(), res)
+
+    const t = res._body.templates[0]
+    expect(t.page).toBe('firm-eoy')
+    // Rehearsal carries no time in the firm's library, so it is not offered — even
+    // though the platform seed offers 30 minutes for it.
+    expect(t.activities.map(a => [a.activity, a.minutes]))
+      .toEqual([['video', 4], ['reading', 20]])
+  })
+
+  test('a firm library replaces the seed WHOLESALE — a seed-only template is not claimable', async () => {
+    loadEffectiveTemplates.mockResolvedValue([FIRM_EOY])
+    // Loan Estimator exists only in the platform seed.
+    sessions({ course: [{ session_resources: ['Loan Estimator'], completed_at: '2026-07-02 09:00:00' }] })
+    const res = makeMockRes()
+
+    await getCpd(makeReq(), res)
+
+    expect(res._body.templates).toEqual([])
+  })
+
+  test('a standing claim survives a library swap as history, minutes frozen', async () => {
+    // The claim was recorded under the platform seed (9 minutes of video). The firm
+    // then uploads a library with no video time for that template. The claim must
+    // stay on the record at its FROZEN figure — never repriced, never dropped.
+    loadEffectiveTemplates.mockResolvedValue([{
+      page: 'firm-eoy',
+      title: 'E.O.Y Meeting',
+      cpd: { isHidden: false, watchedVideo: 0, reviewTemplate: 20, reheasedTemplate: 0 }
+    }])
+    sessions({ va: [{ recommended_templates: ['e.o.y meeting'], completed_at: '2026-07-28 09:00:00' }] })
+    activityStore.readAdvisorClaims.mockResolvedValue([claimRow()])
+    const res = makeMockRes()
+
+    await getCpd(makeReq(), res)
+
+    const video = res._body.templates[0].activities.find(a => a.activity === 'video')
+    // No longer offered by the library in force…
+    expect(video.minutes).toBeNull()
+    // …but the claim stands at the minutes it was recorded with.
+    expect(video.claimedMinutes).toBe(9)
+    expect(res._body.totalMinutes).toBe(9)
+  })
+
+  test('recordCpd stores the FIRM library\'s minutes, not the seed\'s', async () => {
+    loadEffectiveTemplates.mockResolvedValue([FIRM_EOY])
+    sessions({ va: [{ recommended_templates: ['e.o.y meeting'], completed_at: '2026-07-28 09:00:00' }] })
+    activityStore.recordCpdClaim.mockResolvedValue({ id: 1 })
+    const res = makeMockRes()
+
+    await recordCpd(makeReq({ body: { templateTitle: 'E.O.Y Meeting', activity: 'video' } }), res)
+
+    expect(res._status).toBe(200)
+    expect(activityStore.recordCpdClaim).toHaveBeenCalledWith(
+      expect.objectContaining({ minutes: 4, templatePage: 'firm-eoy' })
+    )
+  })
+
+  test('recordCpd refuses an activity the library in force does not offer, even though the seed does', async () => {
+    loadEffectiveTemplates.mockResolvedValue([FIRM_EOY])
+    sessions({ va: [{ recommended_templates: ['e.o.y meeting'], completed_at: '2026-07-28 09:00:00' }] })
+    const res = makeMockRes()
+
+    // The seed offers 30 minutes of rehearsal; the firm's library offers none.
+    await recordCpd(makeReq({ body: { templateTitle: 'E.O.Y Meeting', activity: 'rehearsal' } }), res)
+
+    expect(res._status).toBe(400)
+    expect(res._body.error.code).toBe('NOT_CLAIMABLE')
+    expect(activityStore.recordCpdClaim).not.toHaveBeenCalled()
+  })
+
+  test('when no tier has uploaded, behaviour is exactly the platform seed', async () => {
+    loadEffectiveTemplates.mockResolvedValue(null)
+    sessions({ va: [{ recommended_templates: ['e.o.y meeting'], completed_at: '2026-07-28 09:00:00' }] })
+    activityStore.recordCpdClaim.mockResolvedValue({ id: 1 })
+    const res = makeMockRes()
+
+    await recordCpd(makeReq({ body: { templateTitle: 'E.O.Y Meeting', activity: 'video' } }), res)
+
+    expect(activityStore.recordCpdClaim).toHaveBeenCalledWith(
+      expect.objectContaining({ minutes: 9, templatePage: 'id-eoy' })
+    )
   })
 })

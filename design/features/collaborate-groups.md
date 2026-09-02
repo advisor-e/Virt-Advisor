@@ -137,8 +137,8 @@ the return shape identical — the create-guard and the tool picker then need no
 1. **"Group" means two different things in this codebase.** Social group, and management tier.
    The schema has a table for the first. Never wire the second to it.
 2. **A wording-file section name collided on merge.** Exactly one section clashed between the two
-   apps. It is handled by a merge that refuses a collision loudly — do not replace it with a
-   silent overwrite.
+   apps — settled 2026-09-02 by renaming Collaborate's section `collabProfile`. The merge still
+   refuses any new collision loudly — do not replace it with a silent overwrite.
 
 ### Known state
 

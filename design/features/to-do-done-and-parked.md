@@ -185,6 +185,28 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.56 · CPD follows the library in force — ruled; wire the catalogue through the cascade.** ✅
+Closed 2026-09-02. Since Cascade Phase 2 the AI recommended from the library in force while
+claimable CPD was still priced from the committed platform seed — advisors at a firm with its own
+library were recommended one set of pages while their claimable minutes were defined by another.
+🔴 **Ruled by Mike 2026-09-01: recommendations and claimable minutes must always agree.** The
+catalogue now builds its index from whichever library the firm's tier chain has uploaded
+(`cpdCatalogue.catalogueFor`, resolved through `templateLibrary`); both CPD routes price through
+it, and `courseEffort` prices course lengths from the catalogue of the library it is given, so a
+firm's course lengths and its CPD record state the same figures. **All three protections carried
+over unchanged and are pinned by tests:** minutes freeze into the claim row at claim time — a
+standing claim survives a library swap as history at its frozen figure — and the never-over-claim
+lower-figure rule and the hidden-record rule apply to a firm's library exactly as the platform's,
+because the same index build runs over it. When no tier has uploaded, behaviour is byte-for-byte
+the platform seed. Recorded as P9 in [`advisor-progression.md`](advisor-progression.md). **What
+proves it:** 25 new assertions across
+[`tests/unit/cpdCatalogue.test.js`](../../tests/unit/cpdCatalogue.test.js) (the wholesale-replace,
+hidden and collision rules over a firm library),
+[`tests/unit/activity.cpd.routes.test.js`](../../tests/unit/activity.cpd.routes.test.js) (the
+"library in force" block — firm minutes stored, seed-only templates refused, frozen claims) and
+[`tests/unit/courseEffort.test.js`](../../tests/unit/courseEffort.test.js);
+`cpdCatalogue.js` at 100% statements/functions/lines. Suite 6,635 green.
+
 **4.55 · The firm's own template-upload screen (Cascade Phase 3).** ✅ Closed 2026-09-01,
 eyeballed and approved by Mike in a production build the same day ("looks great"). The Firm
 Manager Hub gained a firm-only Template Library tab (end of "Your AI coach"): the two "whose
