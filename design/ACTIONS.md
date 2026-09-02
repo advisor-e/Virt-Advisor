@@ -544,11 +544,12 @@
 > `resolveInheritedRows`; [`features/firm-manager-hub.md`](features/firm-manager-hub.md) §4 — the
 > tab matrix, the mentor's exclusion and the tab-order trap.
 >
-> 🔴 **THE GROUP TIER STILL CANNOT BE EXERCISED BY A REAL LOGIN**, and this block is where that
-> limit bites hardest — a group is normally a country, and country is what the chain cannot resolve.
-> No role value produces `group_manager`; `firms` has no country column. It falls back to the
-> platform scope and the shipped New Zealand defaults — today's behaviour, never a guess. Evidence
-> is tests against a seeded membership map, which is a weaker claim than a live screen.
+> ⚠ **CORRECTED 2026-09-02 — this said the group tier "cannot be exercised by a real login".
+> That was wrong** (Mike: those managers log into Advisor-e and have for 18 months). The real
+> limit is narrower: without a firm-to-country map the chain falls back to the platform scope
+> and the shipped New Zealand defaults — today's behaviour, never a guess. Evidence is tests
+> against a seeded membership map, a weaker claim than a live screen. The map is PARKED by Mike;
+> see `CLAUDE.md` § "The four tiers are settled and built".
 >
 > ---
 >
@@ -662,9 +663,10 @@
 > *originate*. Mike ruled group-sets, firm **and** advisor may override. ⚠ **This is the third time
 > a Brief has caught a wrong premise before it reached him**, which is what they are for.
 >
-> ⚠ **The group tier cannot be exercised by a real login** — no role produces `group_manager` and
-> the `firms` table has no country column, so `parentScopeOf` returns the mentor scope. Advisor-e's
-> to supply; already question 5 of [`MASTER-TEAM-INTEGRATION-EMAIL.md`](MASTER-TEAM-INTEGRATION-EMAIL.md).
+> ⚠ **CORRECTED 2026-09-02** — this claimed the group tier "cannot be exercised by a real login",
+> which is wrong. Without a firm-to-country map `parentScopeOf` returns the mentor scope; that map
+> is Advisor-e's, is PARKED by Mike, and is question 5 of
+> [`MASTER-TEAM-INTEGRATION-EMAIL.md`](MASTER-TEAM-INTEGRATION-EMAIL.md).
 >
 > ### One fault of ours, found because the workbook would not reconcile
 >
@@ -3417,9 +3419,11 @@ that the warning is not being followed by default.
     for global because `g` reads as group, and those two tiers are **adjacent**.
   - 🔴 **☐ BLOCKED ON THE MASTER TEAM — TWO THINGS, and neither is ours to build.** The machinery is
     finished and holds nothing until both arrive:
-    1. **The role values.** `server/collaborate/data/roles.js` `tierFromRoleClaim` maps only
-       `platform_admin` → mentor and `firm_manager` → firm_manager. **No role value produces
-       `global_group_manager` or `group_manager`**, the override table is an in-memory object that empties
+    1. **The role values.** *(⚠ CORRECTED 2026-09-02 — read as "this app has not been told which
+       role values those tokens carry", NOT as "these managers cannot log in": they log into
+       Advisor-e and have for 18 months.)* `server/collaborate/data/roles.js` `tierFromRoleClaim`
+       maps only `platform_admin` → mentor and `firm_manager` → firm_manager,
+       the override table is an in-memory object that empties
        on restart, and the file says outright it is *"NOT a substitute for the real Advisory JWT role
        the master team still wires"*. Advisor-e's login issues roles; we do not. (Same gap as the
        mentor role, still borrowing `platform_admin`.)

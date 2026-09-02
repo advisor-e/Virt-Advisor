@@ -642,9 +642,9 @@ above is offered rather than forced.
   the risk Mike accepted is that an advisor can get one client's tax wrong on one
   property. **The screen must therefore state the rules in force** — the model already
   returns `taxRules` for exactly this.
-- 🔴 **The group tier cannot be exercised by a real login today** — see the honest limit
-  below. It falls back to the platform scope, which is today's behaviour and today's New
-  Zealand defaults. It fails toward what already works, never toward a guess.
+- ⚠ **Without the firm-to-country map the group tier falls back to the platform scope** —
+  see the evidential limit below. That is today's behaviour and today's New Zealand
+  defaults: it fails toward what already works, never toward a guess.
 
 *The options turned down: firm-only override (tax stops being a per-client question,
 which for most firms it is not — rejected because a firm advising across a border could
@@ -682,14 +682,12 @@ decides where they are set.
 | **(b)** | Group (the country) | Firm only | Tax stops being a per-client question, which for most firms it is not. A firm advising across a border cannot vary it per client |
 | **(c)** | Mentor (the platform seeds New Zealand), then group | Firm and advisor | Mentor-first, as P10 has it for AI content. One more tier to build, and the mentor has no country of its own to speak for |
 
-🔴 **The honest limit, and it applies to every option above.** The Brief's own §4 says the
-two middle-tier hubs are **built and hold no real data**: no role value produces
-`group_manager`, and the `firms` table has no country or parent column, so `parentScopeOf`
-returns the mentor scope for every firm. **A group-tier setting cannot be exercised by a
-real login today** — it would be evidenced by tests against a seeded membership map, which
-is a weaker claim than a live screen and must be stated as one. That is Advisor-e's to
-supply, not ours, and it is already question 5 of
-[`MASTER-TEAM-INTEGRATION-EMAIL.md`](MASTER-TEAM-INTEGRATION-EMAIL.md).
+⚠ **One evidential limit applies to every option above.** The two middle-tier hubs are built
+and approved, and they hold no real firm data until Advisor-e supplies the firm-to-country
+map — Mike has PARKED that ([`features/to-do.md`](features/to-do.md) 3.3), and it is question 5
+of [`MASTER-TEAM-INTEGRATION-EMAIL.md`](MASTER-TEAM-INTEGRATION-EMAIL.md). So a group-tier
+setting is evidenced by tests against a seeded membership map, which is a weaker claim than a
+live screen and must be stated as one. It is not a reason to prefer one option over another.
 
 **It does not block the build:** the model takes these as inputs whatever tier eventually
 supplies them, and the fallback is what it already does — the New Zealand defaults.

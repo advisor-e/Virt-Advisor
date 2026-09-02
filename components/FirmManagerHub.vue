@@ -958,11 +958,10 @@ const TAB_TIERS = {
   // decided on the backend — the security prompt is mentor-only and is filtered out of
   // the API response, never merely hidden here.
   //
-  // ⚠ Two of the four cannot be logged into today: config/integration.js ships
-  // globalManagerRole and groupManagerRole EMPTY on purpose, fail-closed. All four are
-  // listed anyway, because excluding them would bake in a limit that is wrong the day
-  // Advisor-e issues the roles. "It works" means the mentor and firm hubs proven, the
-  // middle two correct-by-construction and unexercised.
+  // All four tiers are built and their hubs exist (CLAUDE.md § "The four tiers are
+  // settled"); the middle two open in development and fail closed in production by
+  // Mike's ruling of 2026-08-10. Listing four is therefore the accurate list, not an
+  // aspirational one.
   aiPrompts: ['mentor', 'global', 'group', 'firm'],
 
   // 🔴 THE MENTOR AND THE FIRM, AND THE JUDGEMENT IS STATED RATHER THAN ASSUMED — "as
@@ -1000,9 +999,7 @@ const TAB_TIERS = {
   // platform decision about how advice is pitched, not a per-case one, and an advisor who
   // could reword the question could quietly switch the gate off for themselves.
   //
-  // ⚠ Two of the four cannot be logged into today: config/integration.js ships
-  // globalManagerRole and groupManagerRole EMPTY on purpose, fail-closed. All four are
-  // listed anyway, for the reason given on aiPrompts above.
+  // All four tiers, for the reason given on aiPrompts above.
 }
 
 /**

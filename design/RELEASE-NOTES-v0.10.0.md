@@ -134,10 +134,12 @@ an unbuilt model fails the build, and a built model with no summary fails it too
 
 ## 7. What is NOT in this release, said plainly
 
-- 🔴 **Two of the four manager tiers still cannot be logged into.** `config/integration.js`
-  ships `globalManagerRole` and `groupManagerRole` **empty on purpose**, fail-closed. Every
-  cascading feature here is correct for four tiers and exercisable on two. **That is
-  Advisor-e's data to supply, not something this repository can finish.**
+- ⚠ **This app has not been told which role values the two middle-tier managers' tokens carry**,
+  so `config/integration.js` ships `globalManagerRole` and `groupManagerRole` **empty on purpose**,
+  fail-closed, and their hubs are exercised in development rather than on a production login.
+  Every cascading feature here is correct for four tiers. **That value is Advisor-e's to supply.**
+  *(Corrected 2026-09-02 — this bullet used to say those managers "cannot be logged into", which
+  is wrong: they log into Advisor-e and have for 18 months.)*
 - **No prompt on the AI Prompts tab has ever been sent to a model.** No report model calls
   the AI, so assembly is proven against its own output — a weaker claim than a live screen,
   and stated as one.

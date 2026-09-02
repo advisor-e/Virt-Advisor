@@ -26,9 +26,14 @@
  * the default-is-mentor-alone ruling of 2026-08-24). The MENTOR authors the platform list.
  * The FIRM gets its own editing view as well, because Brief §3 names a firm's own scripts
  * and standards as the whole of the request — "a firm gets its own editing view because a
- * firm's scripts and standards genuinely differ from the platform's". The two middle tiers
- * are wired by the same recursion and cost nothing, but nothing is claimed about them: they
- * cannot be logged into today (`config/integration.js` ships both roles empty, fail-closed).
+ * firm's scripts and standards genuinely differ from the platform's".
+ *
+ * ⚠ THE TWO MIDDLE TIERS ARE EXCLUDED BY THAT JUDGEMENT ALONE — NOT BY ANY LIMIT OF THE
+ * PLATFORM. `loadResolvedObservations` already resolves through all four, their hub pages
+ * exist and are approved (CLAUDE.md § "The four tiers are settled"), and other tabs list
+ * all four (`aiPrompts`, in Mike's own words). Giving this feature the middle tiers is ONE
+ * LINE — `meetingObservations` in `TAB_TIERS`, components/FirmManagerHub.vue — and it is
+ * Mike's call, not a build blocked on anything.
  *
  * Node 14, CommonJS.
  */

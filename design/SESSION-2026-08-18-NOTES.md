@@ -154,9 +154,10 @@ working session.
 - **The tab-count claim in `firm-manager-hub.md` was NOT updated to "13 tabs".** The tab is
   conditional on tier, so no single number is now true for every hub, and inventing one
   would be worse than the matrix that is there.
-- 🔴 **The group tier still cannot be exercised by a real login**, and this feature is where
-  that bites hardest: a group is normally a country, and country is exactly what the chain
-  cannot resolve. No role value produces `group_manager`; `firms` has no country column. It
+- ⚠ *(Corrected 2026-09-02 — this said the group tier "cannot be exercised by a real login",
+  which is wrong: those managers log into Advisor-e and have for 18 months.)* **The chain
+  cannot yet resolve a firm's country**, and this feature is where that bites hardest, a group
+  normally being a country. `firms` has no country column, so it
   falls back to the platform scope and the shipped New Zealand defaults — today's behaviour,
   never a guess. **The evidence behind the group tier is tests against a seeded membership
   map, which is weaker than a live screen and is stated as one** in the module header.
