@@ -698,11 +698,19 @@ function threeYearForecast (req, res, next) {
 /**
  * POST /api/report/three-way-forecast/intake  (firmAuth — uploads are never anonymous)
  *
- * Multipart upload of up to three Xero exports (.xlsx or .csv, 5 MB per request) in
+ * Multipart upload of up to four Xero exports (.xlsx or .csv, 5 MB per request) in
  * repeated `file` fields: a Balance Sheet (required — it is what the forecast opens
- * from), a Profit and Loss (optional, seeding the annual cost base), and optionally
- * last year's by-month P&L, whose monthly sales are offered as a STARTING POINT for the
- * forecast rather than as the forecast itself.
+ * from), a Profit and Loss (optional, seeding the annual cost base), and up to TWO
+ * by-month P&Ls — this year's and last year's — whose most recent twelve complete months
+ * are offered as a STARTING POINT for the forecast rather than as the forecast itself.
+ *
+ * WHY THE SECOND BY-MONTH FILE EARNS ITS SLOT (item 4.61a, 2026-09-03). A current-year
+ * export almost always ends in a partial month, and `assembleMonthlySeries` strips those
+ * from the end — so one file can yield eleven usable months and no seed at all, leaving
+ * the advisor to type twelve by hand. With last year's alongside it there are 24 months in
+ * hand and the twelve are always there. The join is NOT done here: two exports read
+ * separately are two correct halves, and joined wrongly they are one confident wrong
+ * series, so the one module that owns that risk does it.
  *
  * The distinction matters and the response carries it: `provenance` marks each figure
  * `file`, `seeded` or `entered`. Everything forward-looking — forecast sales and
@@ -744,7 +752,7 @@ async function threeWayForecastIntake (req, res) {
     // Refuse an over-count BEFORE any file is parsed, as the EBITDA intake does; the
     // assembler's own count check stays as the backstop.
     if (uploaded.length > MAX_FORECAST_FILES) {
-      const e = new Error('This model reads up to ' + MAX_FORECAST_FILES + ' files — ' + uploaded.length + ' were sent. Please drop a Balance Sheet, a Profit and Loss, and at most one by-month Profit and Loss.')
+      const e = new Error('This model reads up to ' + MAX_FORECAST_FILES + ' files — ' + uploaded.length + ' were sent. Please drop a Balance Sheet, a Profit and Loss, and up to two by-month Profit and Loss reports.')
       e.code = 'TOO_MANY_FILES'
       throw e
     }
@@ -758,7 +766,7 @@ async function threeWayForecastIntake (req, res) {
     // `guardFigureColumns`, which THROWS `MULTI_PERIOD_COLUMNS` rather than declining. Try
     // the annual reader first and the third slot could never work at all.
     const annual = []
-    let monthly = null
+    const monthly = []
     for (let u = 0; u < uploaded.length; u++) {
       const buf = fs.readFileSync(uploaded[u].filepath)
       let byMonth = null
@@ -768,31 +776,33 @@ async function threeWayForecastIntake (req, res) {
         byMonth = null // not a by-month export; read it as an annual report below
       }
       if (byMonth && byMonth.recognised) {
-        if (monthly) {
-          const e = new Error('Two by-month Profit and Loss reports were dropped together. This model reads last year\'s twelve months — please drop the one the forecast should start from.')
+        if (monthly.length >= MAX_MONTHLY_FILES) {
+          const e = new Error('More than two by-month Profit and Loss reports were dropped together. This model reads two — this year\'s and last year\'s. Please drop the two the forecast should start from.')
           e.code = 'TOO_MANY_MONTHLY_FILES'
           throw e
         }
-        monthly = byMonth
+        monthly.push(byMonth)
         continue
       }
       annual.push(parseForecastUpload(buf))
     }
 
-    // The assembler takes twelve monthly sales figures. `assembleMonthlySeries` returns the
-    // joined run with its incomplete trailing months already stripped (`usable`), so the
-    // last twelve of those are last year's — and anything short of twelve is NOT padded:
-    // a seeded series with a made-up month in it is worse than no seed at all.
+    // The assembler takes twelve monthly sales figures. `assembleMonthlySeries` joins the
+    // one or two exports and returns the run with its incomplete trailing months already
+    // stripped (`usable`), so the last twelve of those are the most recent complete year —
+    // and anything short of twelve is NOT padded: a seeded series with a made-up month in
+    // it is worse than no seed at all.
     let monthlySales = null
     const monthlyWarnings = []
-    if (monthly) {
-      const joined = assembleMonthlySeries([monthly])
+    if (monthly.length) {
+      const joined = assembleMonthlySeries(monthly)
       for (let w = 0; w < joined.warnings.length; w++) { monthlyWarnings.push(joined.warnings[w]) }
       if (joined.usable.length >= MONTHS_IN_YEAR) {
         monthlySales = { sales: joined.usable.slice(-MONTHS_IN_YEAR).map(m => m.value) }
       } else {
-        monthlyWarnings.push('The by-month report gave ' + joined.usable.length +
-          ' complete months, and the forecast needs twelve. Last year\'s sales have not been used as a starting point — enter the twelve months yourself.')
+        monthlyWarnings.push('The by-month ' + (monthly.length === 1 ? 'report gave ' : 'reports gave ') + joined.usable.length +
+          ' complete months, and the forecast needs twelve. The monthly sales have not been used as a starting point — enter the twelve months yourself' +
+          (monthly.length === 1 ? ', or drop last year\'s by-month report as well.' : '.'))
       }
     }
 

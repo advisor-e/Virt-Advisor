@@ -29,7 +29,13 @@ const INTAKE_STATUS = Object.assign(Object.create(null), {
   NOT_BY_MONTH: 422,
   // annualAssembler + monthlySeriesAssembler (same codes, same authored shape)
   TOO_MANY_FILES: 400,
-  WRONG_REPORT_KIND: 422
+  WRONG_REPORT_KIND: 422,
+  // The forecast intake's own count of BY-MONTH files, which is separate from the drop's
+  // total. Added 2026-09-03: the message had been raised since the third slot was built and
+  // never reached anyone, because a code missing from this map has its sentence replaced by
+  // the route's generic one. It names no path, filename or internals — same shape as the
+  // two above.
+  TOO_MANY_MONTHLY_FILES: 400
 })
 
 /**

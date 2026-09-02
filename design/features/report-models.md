@@ -545,9 +545,15 @@ advanced by 31 days, so its third year ran three weeks adrift — **ruled and fi
 > model's own key list — so an input added to the engine later fails a test instead of leaking.
 > **Any new model with a defaults-merge takes the same guard.**
 
-The by-month slot of step 1 is wired: last year's twelve monthly sales arrive tagged
-`seeded` — a starting point, never a forecast, and its own third badge state on
-`ProvenanceBadge`.
+**Step 1 takes TWO by-month exports, this year's and last year's** (2026-09-03, item 4.61a).
+The most recent twelve complete months arrive tagged `seeded` — a starting point, never a
+forecast, and its own third badge state on `ProvenanceBadge`. The second file is not a
+convenience: a current-year export almost always stops part-way through a month, and
+`assembleMonthlySeries` strips incomplete trailing months, so **one file can yield eleven
+usable months and no seed at all**, leaving the advisor to type twelve by hand. With 24
+months in hand the twelve are always there. Where the two files overlap, the **older**
+file's figures win — a closed financial year has been reconciled and a still-open one is
+restating itself — and the advisor is told on screen when it happens.
 
 **Both of the screen's judgement calls are ruled (Mike, 2026-09-03).** Stock below zero is
 **named in a red band**, not left as a figure among figures: it is impossible rather than
@@ -568,11 +574,12 @@ figures taken from last year's actuals as a starting point. A screen that showed
 `seeded` identically would tell an advisor that a judgement about next year is a fact about
 this one.
 
-**Only the Volatility Report reads a monthly series.** The by-month intake exists and is
-proven, but no other model consumes it yet. A new model taking monthly inputs should reuse
-`parseMonthlyUpload` + `assembleMonthlySeries` rather than growing a third reader — and
-should expect the same three findings above, because they are properties of the export, not
-of this report.
+**Two models read a monthly series — Volatility and the Three-Way Forecast** — and both go
+through the same pair, `parseMonthlyUpload` + `assembleMonthlySeries`. A new model taking
+monthly inputs reuses them rather than growing a third reader, and should expect the same
+three findings above, because they are properties of the export, not of any one report.
+The forecast shows how a model borrows the series without owning it: it does the join in
+its own route, then keeps only the last twelve values.
 
 ---
 

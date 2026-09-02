@@ -327,10 +327,12 @@ describe('Forecast intake — it blocks rather than proposing half a forecast', 
   })
 
   test('too many files, or none, block', () => {
-    expect(assembleForecastIntake([bs, pl, pl, pl]).blocked).toBeTruthy()
+    expect(assembleForecastIntake([bs, pl, pl, pl, pl]).blocked).toBeTruthy()
     expect(assembleForecastIntake([]).blocked).toBeTruthy()
     expect(assembleForecastIntake(null).blocked).toBeTruthy()
-    expect(MAX_FILES).toBe(3)
+    // Four: a Balance Sheet, a Profit and Loss, and up to two by-month exports. The route
+    // reads this as the whole drop's limit, so raising it here raises it there.
+    expect(MAX_FILES).toBe(4)
   })
 
   test('a Balance Sheet with no P&L assembles, and says the cost base is not seeded', () => {

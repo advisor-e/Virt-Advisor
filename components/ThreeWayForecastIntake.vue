@@ -430,7 +430,8 @@ const OVERHEAD_KEYS = [
 const MONTHS = 12
 const LOAN_COUNT = 3
 const SHAREHOLDER_COUNT = 4
-const MAX_UPLOAD_FILES = 3
+/** A Balance Sheet, a Profit and Loss, and up to two by-month P&Ls — the route's own limit. */
+const MAX_UPLOAD_FILES = 4
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 
 /** Short month names for the twelve-month grids — the result screen uses the same list. */
@@ -485,12 +486,18 @@ export default {
     openingKeys () { return OPENING_KEYS },
     overheadKeys () { return OVERHEAD_KEYS },
 
-    /** The three file slots, as the approved drawing names them. */
+    /**
+     * The file slots. The approved drawing names three; the fourth — last year's by-month
+     * export — is the ninth recorded difference from it (Mike's word, 2026-09-03), and it
+     * is a slot of its own rather than a sentence on the third because an advisor has to
+     * see that two may be dropped.
+     */
     slotSpecs () {
       return [
         { key: 'bs', required: true, titleKey: 'report.threeWayForecast.drop.bsTitle', whyKey: 'report.threeWayForecast.drop.bsWhy' },
         { key: 'pl', required: false, titleKey: 'report.threeWayForecast.drop.plTitle', whyKey: 'report.threeWayForecast.drop.plWhy' },
-        { key: 'monthly', required: false, titleKey: 'report.threeWayForecast.drop.monthlyTitle', whyKey: 'report.threeWayForecast.drop.monthlyWhy' }
+        { key: 'monthly', required: false, titleKey: 'report.threeWayForecast.drop.monthlyTitle', whyKey: 'report.threeWayForecast.drop.monthlyWhy' },
+        { key: 'monthlyPrior', required: false, titleKey: 'report.threeWayForecast.drop.monthlyPriorTitle', whyKey: 'report.threeWayForecast.drop.monthlyPriorWhy' }
       ]
     },
 

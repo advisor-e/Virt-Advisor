@@ -6,14 +6,19 @@
  * Same harness as volatilityIntakeRoute.test.js: formidable is mocked at the module
  * boundary so the handler runs without real multipart plumbing.
  *
- * 🔴 WHAT THIS FILE IS REALLY FOR. The route reads up to three files and one of them —
- * last year's by-month Profit and Loss — is told apart from the other two by SNIFFING,
- * and the order of the sniff is load-bearing. A single-period Balance Sheet cannot look
- * like a by-month report, but a twelve-column P&L IS a P&L, and the annual reader reaches
- * it through `guardFigureColumns`, which THROWS rather than declining. Sniff the annual
- * reader first and the third slot silently never works: the advisor drops the file, sees
- * no error, and gets no starting point. That is invisible in UAT — an empty sales grid
- * looks exactly like a file nobody dropped.
+ * 🔴 WHAT THIS FILE IS REALLY FOR. The route reads up to four files and two of them — the
+ * by-month Profit and Loss exports — are told apart from the annual pair by SNIFFING, and
+ * the order of the sniff is load-bearing. A single-period Balance Sheet cannot look like a
+ * by-month report, but a twelve-column P&L IS a P&L, and the annual reader reaches it
+ * through `guardFigureColumns`, which THROWS rather than declining. Sniff the annual
+ * reader first and the by-month slots silently never work: the advisor drops the file,
+ * sees no error, and gets no starting point. That is invisible in UAT — an empty sales
+ * grid looks exactly like a file nobody dropped.
+ *
+ * The second by-month slot (item 4.61a, 2026-09-03) is here for one measurable reason, and
+ * `a mid-year export alone…` below is the test that states it: a current-year export
+ * usually stops part-way through a month, its trailing months are stripped, and one file
+ * can then yield eleven usable months and no seed at all.
  */
 
 jest.mock('formidable', () => ({ formidable: jest.fn() }))
@@ -116,6 +121,36 @@ function byMonthCsv (n) {
   ].join('\n')
 }
 
+const MONTH_NAMES = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+
+/**
+ * A full twelve-column by-month P&L for the April–March year beginning `startYear`, with
+ * only the first `populated` months carrying figures.
+ *
+ * That is the shape of a real mid-year export, and the parser reads it as one: a zero
+ * month is "no data" rather than "no sales", and the last populated month is partial
+ * because empty months follow it. So `byMonthYear(2025, 6)` offers twelve columns and
+ * yields FIVE usable months — which is the whole reason the second slot exists.
+ *
+ * @param {number} startYear - the calendar year the April sits in
+ * @param {number} populated - how many of the twelve months carry a figure
+ */
+function byMonthYear (startYear, populated) {
+  const cols = MONTH_NAMES.map((m, i) => m + ' ' + (i < 9 ? startYear : startYear + 1))
+  const values = []
+  for (let i = 0; i < 12; i++) { values.push(i < populated ? 40000 + (i * 1000) : 0) }
+  return [
+    'Profit and Loss',
+    'Kinetic Test Ltd',
+    'For the year ended 31 March ' + (startYear + 1),
+    '',
+    'Account,' + cols.join(','),
+    'Income',
+    'Sales,' + values.join(','),
+    'Total Income,' + values.join(',')
+  ].join('\n')
+}
+
 /** Run the handler over a set of temp file paths. @param {Array<string>} paths */
 async function run (paths) {
   nextParse(null, { file: paths.map(p => ({ filepath: p })) })
@@ -166,15 +201,51 @@ describe('the by-month file reaches the forecast', () => {
     expect(res.body.data.warnings.join(' ')).toMatch(/twelve/i)
   })
 
-  test('two by-month reports are refused rather than silently merged', async () => {
-    const bs = tempFile(makeXlsx(BS_GRID), '.xlsx')
-    const a = tempFile(byMonthCsv(12))
-    const b = tempFile(byMonthCsv(12))
+  test('🔴 a mid-year export alone gives no seed; last year’s alongside it gives a full twelve', async () => {
+    // This year stops after September, so the parser marks Sep partial and Oct–Mar empty:
+    // five usable months, and the forecast needs twelve.
+    const bs1 = tempFile(makeXlsx(BS_GRID), '.xlsx')
+    const alone = await run([bs1, tempFile(byMonthYear(2025, 6))])
 
-    const res = await run([bs, a, b])
+    expect(alone.status).toBe(200)
+    expect(alone.body.data.proposal.sales).toBeUndefined()
+    expect(alone.body.data.provenance.sales).toBe('entered')
+
+    // Drop last year's as well and the twelve are there — Sep 2024 to Aug 2025, taken off
+    // the end of a 17-month run. This is the failure the second slot exists to fix.
+    const bs2 = tempFile(makeXlsx(BS_GRID), '.xlsx')
+    const both = await run([bs2, tempFile(byMonthYear(2025, 6)), tempFile(byMonthYear(2024, 12))])
+
+    expect(both.status).toBe(200)
+    expect(both.body.data.blocked).toBeNull()
+    expect(both.body.data.proposal.sales).toHaveLength(12)
+    expect(both.body.data.provenance.sales).toBe('seeded')
+    // The newest usable month is August 2025 — the fifth of this year's file, 44,000 —
+    // so the run ends on this year's figures and not last year's.
+    expect(both.body.data.proposal.sales[11]).toBe(44000)
+  })
+
+  test('two whole by-month years join into one run, newest twelve seeding the forecast', async () => {
+    const bs = tempFile(makeXlsx(BS_GRID), '.xlsx')
+    const res = await run([bs, tempFile(byMonthYear(2025, 12)), tempFile(byMonthYear(2024, 12))])
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.proposal.sales).toHaveLength(12)
+    // 24 months in hand, so the twelve taken are this year's whole April–March.
+    expect(res.body.data.proposal.sales[0]).toBe(40000)
+    expect(res.body.data.proposal.sales[11]).toBe(51000)
+  })
+
+  test('a third by-month report is refused rather than silently dropped', async () => {
+    const res = await run([
+      tempFile(byMonthYear(2025, 12)),
+      tempFile(byMonthYear(2024, 12)),
+      tempFile(byMonthYear(2023, 12))
+    ])
 
     expect(res.status).toBeGreaterThanOrEqual(400)
     expect(res.body.success).toBe(false)
+    expect(res.body.error.code).toBe('TOO_MANY_MONTHLY_FILES')
   })
 })
 
@@ -201,7 +272,7 @@ describe('the route still keeps its promises', () => {
   test('an over-count is refused BEFORE any file is read', async () => {
     // These paths do not exist: reading one would ENOENT into the generic parse failure,
     // so a clean TOO_MANY_FILES proves the count was checked first.
-    const res = await run(['/no/such/a.xlsx', '/no/such/b.xlsx', '/no/such/c.xlsx', '/no/such/d.xlsx'])
+    const res = await run(['/no/such/a.xlsx', '/no/such/b.xlsx', '/no/such/c.xlsx', '/no/such/d.xlsx', '/no/such/e.xlsx'])
 
     expect(res.status).toBeGreaterThanOrEqual(400)
     expect(res.body.error.code).toBe('TOO_MANY_FILES')

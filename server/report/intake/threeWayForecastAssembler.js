@@ -12,8 +12,11 @@
  *                            GST, tax, prepayments, accruals, equity, the six
  *                            fixed-asset categories, the loans, the current accounts.
  *   From the P&L             the overhead cost base — the 23 annual expense lines.
- *   From a by-month P&L      last year's monthly sales, offered as a STARTING POINT for
- *                            the forecast and tagged as such, never as the forecast.
+ *   From a by-month P&L      the most recent twelve complete months of sales, offered as
+ *                            a STARTING POINT for the forecast and tagged as such, never
+ *                            as the forecast. Two by-month exports may be dropped — this
+ *                            year's and last year's — and `assembleMonthlySeries` joins
+ *                            them before the twelve are taken off the end.
  *   From the advisor         everything forward-looking: forecast sales and purchases,
  *                            the mark-up, the debtor and creditor collection profiles,
  *                            depreciation rates, loan terms, capital expenditure plans,
@@ -38,7 +41,13 @@
  * is a thin wrapper around `parseForecastUpload` + this.
  */
 
-const MAX_FILES = 3
+/**
+ * A Balance Sheet, a Profit and Loss, and up to TWO by-month Profit and Loss exports.
+ * The second by-month file is what makes the seed survive a mid-year export: this year's
+ * usually ends in a partial month, which is stripped, so last year's is what keeps a full
+ * twelve complete months in hand. Raised from 3 on 2026-09-03 (item 4.61a).
+ */
+const MAX_FILES = 4
 const MONTHS = 12
 /** The forecast carries three term loans and four shareholder current accounts. */
 const MAX_LOANS = 3
@@ -90,8 +99,10 @@ function foldTo (balances, max) {
  * Assemble a proposed input set from the parsed uploads.
  *
  * @param {Array<object>} parsed - `parseForecastUpload` results, in upload order.
- * @param {object} [monthlySales] - an optional `assembleMonthlySeries` result carrying
- *   last year's by-month sales, offered as a starting point for the forecast.
+ * @param {object} [monthlySales] - an optional `{ sales: number[12] }` carrying the most
+ *   recent twelve complete months, offered as a starting point for the forecast. The
+ *   route builds it from `assembleMonthlySeries`, so one by-month file or two arrive here
+ *   in exactly the same shape.
  * @returns {object} {
  *   files: [{ kind, companyName, reportDate, warnings }],   // upload order
  *   proposal: { … the model's input shape, values only … }, // ready to POST
@@ -122,7 +133,7 @@ function assembleForecastIntake (parsed, monthlySales) {
       proposal,
       provenance,
       candidates,
-      blocked: 'Please drop at most ' + MAX_FILES + ' files together: a Balance Sheet, a Profit and Loss, and optionally last year\'s by-month Profit and Loss.',
+      blocked: 'Please drop at most ' + MAX_FILES + ' files together: a Balance Sheet, a Profit and Loss, and up to two by-month Profit and Loss reports.',
       warnings
     }
   }
