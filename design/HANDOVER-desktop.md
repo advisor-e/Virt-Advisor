@@ -9,28 +9,23 @@
 
 ---
 
-## 2026-09-02 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-02 (evening) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Suite **6,610 green** (356 suites), lint 0 errors, everything committed, pushed and
-**merged to master** (PRs #52, #53).
+Suite **6,689 green** (357 suites), lint 0 errors, everything committed and pushed.
 
-**Morning finding:** yesterday's 7 commits had never been shared into master — the
-laptop flagged it; PR #52 merged them.
+**4.56 CPD-follows-the-library: BUILT, MERGED to master (PR #54) and closed** —
+recommendations and claimable CPD minutes now always price from the same library.
 
-**The Collaborate eyeball happened** (first ever). Screens fine EXCEPT every label
-rendered as a raw wording key — only 3 of 19 Collaborate locale sections were merged.
-Fixed (`575befe`, PR #53): all 19 merge; the predicted `profile` clash settled by
-renaming Collaborate's section `collabProfile`; two guard tests pin the settlement so
-it cannot recur. Verified on screen by Mike. "Icons missing" resolved with the labels.
+**4.54 Volatility by-month upload: BUILT, pushed, PR #55 OPEN (not merged)** —
+new parser + firmAuth route + the mockup's upload card/chips back on the screen.
+🔴 Mike has NOT yet eyeballed the screen — that look (production build, never
+`nuxt dev`) is the one open step before merging #55.
 
-**🔴 STILL RULED, STILL UNBUILT: 4.56** (CPD follows the library in force) — deferred a
-second session by the day's firefighting; remains the top open build item.
+**New ruling (Mike): intake wording names no accounting product** — "your
+accounting software". New wording complies, pinned once; the sweep of the older
+screens' Xero strings is item 4.57 on the live list (his option A).
 
-**Machine note:** node work spawned from AI-session background shells can crawl or
-stall silently on this desktop (build, lint). Never trust a quiet log — arm an active
-health check (Mike's ruling 2026-09-02, in session memory). Build via Git Bash
-unsandboxed worked.
-
-**LAPTOP:** master moved twice today (now `8c2db0a`) — merge from master before
-working. All Collaborate wording sections merge now; Collaborate's profile section is
-`collabProfile`.
+**LAPTOP:** master moved once today (PR #54, `ae56333`) — merge from master
+before working. PR #55 will move it again when merged. The two new intake
+files (monthlySalesParser + its test) live beside your xeroReportParser —
+shared helpers are now EXPORTED from it; extend, don't copy.
