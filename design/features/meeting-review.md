@@ -228,11 +228,16 @@ labels, which are taken from the whole-recording pass instead.
 
 **Where the observation points are edited, and at which tiers.** They are content that shapes AI
 output, so the hub-page rule in `CLAUDE.md` applies: **the mentor tier gets the screen, and gets it
-first.** Per Mike's ruling of 2026-08-24 the default is the mentor tier alone; a firm gets its own
-editing view because a firm's scripts and standards genuinely differ from the platform's — that is
-the whole of the request — so this feature cascades to the firm. The two middle tiers get nothing
-until one of them has a real reason to hold a different list. The mechanism is the existing
-`firmOverlay` store under its own `config_key`, which brings version history and restore with it.
+first.** A firm gets its own editing view because a firm's scripts and standards genuinely differ
+from the platform's — that is the whole of the request.
+
+🔴 **ALL FOUR MANAGER TIERS EDIT THEM, ruled by Mike 2026-09-02** in his own words: the points are
+*"editable and creatable by firm managers also — obviously, we start several as a mentor, they
+cascade down to global group and group manager before firm manager, they accept or edit"*. The
+mentor-alone default of 2026-08-24 holds until a tier has a real reason to differ, and he has given
+it. The mechanism is the existing `firmOverlay` store under its own `config_key`, which brings
+version history and restore with it; `loadResolvedObservations` already resolved through all four,
+so the widening was one line in `TAB_TIERS` and no backend change at all.
 
 **The retention dial is a selling point, not just a safeguard.** "We destroy the recording as soon
 as it is text, and you choose how long the text lives" is a sentence a firm owner will repeat to
@@ -286,7 +291,7 @@ is *intended* to live, chosen to match the existing architecture rather than inv
 | The cascade and the validator | `server/utils/meetingObservations.js` | ✅ **BUILT** — `resolveInheritedRows`, mirroring the Advisory Staircase |
 | Each tier's own decisions | `firmOverlay`, `config_key` ×3: `meeting-observation-declines` · `-overrides` · `-own` | ✅ **BUILT** — separate and additive, mirroring `firmStaircase.CONFIG_KEYS`. ⚠ **NOT one `meeting-observations` key**, as this table proposed: a single blob cannot express "switch this one off" and would freeze a firm's list against the mentor's later corrections |
 | Manager routes | `server/routes/meetingObservations.js` | ✅ **BUILT** — 9 routes, all scoped to `req.firmId` |
-| Mentor / firm editing | `components/firm/FirmMeetingObservations.vue`, a Hub tab per §3 | ✅ **BUILT** — mentor + firm; the two middle tiers deliberately absent |
+| Manager editing, every tier | `components/firm/FirmMeetingObservations.vue`, a Hub tab per §3 | ✅ **BUILT** — all four manager tiers since 2026-09-02 (Mike's ruling, §3); advisors deliberately excluded, and there is no advisor write route |
 | The advisor's pre-set | `components/MeetingPreset.vue`, `pages/meeting-preset.vue` | ✅ **BUILT** — read-only by construction; there is no advisor write route at all |
 | Chunk intake, assembly, deletion | `server/routes/meetingReview.js` (Restify) | ✅ **BUILT** — 10 routes. The recording ones are `firmAuth` only and guard themselves on `req.advisorId` as well as `req.firmId`, because P2 gives a recording to the advisor who made it |
 | The audio itself, while it exists | `server/utils/meetingAudioStore.js`, under `MEETING_AUDIO_DIR` | ✅ **BUILT** — **this server's own disk** (Mike's ruling, 2026-09-01), never the database and never the Google Drive pipeline the document library uses. `destroyAudio` and `destroyMeeting` **return a count of what they removed and re-read the directory to check** — trap 4 says deletion must be provable, and a function that answers quietly cannot be |

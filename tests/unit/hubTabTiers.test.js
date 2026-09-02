@@ -63,8 +63,10 @@ const MENTOR_BEFORE = [
  * - `meetingObservations` — Mike, 2026-09-01, who asked for Meeting Review itself and
  *   approved its drawing (`design/mockups/meeting-review.html` Stage A). The firm gets it
  *   because `meeting-review.md` §3 names a firm's own scripts and standards as the whole
- *   of the request; the two middle tiers deliberately do not, per the mentor-alone default
- *   of 2026-08-24.
+ *   of the request. ⚠ **WIDENED TO ALL FOUR MANAGER TIERS 2026-09-02**, on his instruction
+ *   that the points "cascade down to global group and group manager before firm manager,
+ *   they accept or edit" — the mentor-alone default of 2026-08-24 holds until a tier has a
+ *   real reason, and he gave it.
  */
 const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations']
 
@@ -149,9 +151,14 @@ describe('hub tab matrix — the two new tiers', () => {
     // this test's prose was never updated. So a middle tier shows 13, not 14: six
     // unconditional plus seven conditional. Recorded rather than silently corrected,
     // exactly as the 13-to-14 drift above was.
-    expect(conditional).toHaveLength(7)
+    //
+    // 🔴 EIGHT SINCE 2026-09-02, NOT SEVEN. Meeting Review's observation points were widened
+    // from ['mentor', 'firm'] to all four manager tiers on Mike's instruction that day — the
+    // points "cascade down to global group and group manager before firm manager, they accept
+    // or edit". So a middle tier now shows 14: six unconditional plus eight conditional.
+    expect(conditional).toHaveLength(8)
     expect(unconditional).toHaveLength(6)
-    expect(unconditional.concat(conditional)).toHaveLength(13)
+    expect(unconditional.concat(conditional)).toHaveLength(14)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {

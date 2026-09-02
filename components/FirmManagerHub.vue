@@ -964,29 +964,26 @@ const TAB_TIERS = {
   // aspirational one.
   aiPrompts: ['mentor', 'global', 'group', 'firm'],
 
-  // 🔴 THE MENTOR AND THE FIRM, AND THE JUDGEMENT IS STATED RATHER THAN ASSUMED — "as
-  // appropriate" is a judgement to make out loud (Mike's hub-page ruling, 2026-08-16), and
-  // the default since 2026-08-24 is the mentor tier ALONE unless a lower tier has a real
-  // reason to hold a different value.
+  // 🔴 ALL FOUR MANAGER TIERS, WIDENED FROM TWO ON MIKE'S INSTRUCTION, 2026-09-02, in his
+  // own words: the observation points are "editable and creatable by firm managers also —
+  // obviously, we start several as a mentor, they cascade down to global group and group
+  // manager before firm manager, they accept or edit". That is the cascade this app already
+  // runs, so the middle tiers are named rather than left to the mentor-alone default of
+  // 2026-08-24 — the default holds until a tier has a real reason, and he has now given it.
   //
   // The MENTOR authors the platform list: this is platform content and the cascade starts
-  // there. The FIRM is included because the Brief names a firm's own standards as the whole
-  // of the request — meeting-review.md §3, "a firm gets its own editing view because a
-  // firm's scripts and standards genuinely differ from the platform's". An end-of-year
-  // meeting at one firm is not run the way it is run at another, and these points are the
-  // firm's own house standard.
-  //
-  // The two MIDDLE TIERS are deliberately absent. Nothing has yet named a reason for a
-  // country or a brand to hold a different list from the platform's, and the cascade
-  // resolves through them either way the day one does — they cost nothing to add later and
-  // would cost four screens, four sets of tests and four records to add now.
+  // there. The FIRM is where it lands, because the Brief names a firm's own standards as the
+  // whole of the request — meeting-review.md §3. The two MIDDLE TIERS accept or edit on the
+  // way down, which is the same shape as aiPrompts above; `loadResolvedObservations` already
+  // resolves through all four and mints own-row ids under each tier's own prefix, so nothing
+  // on the backend changes.
   //
   // ⚠ ADVISORS ARE EXCLUDED, and that is the point of the feature rather than an omission.
   // An advisor may add an objective for ONE meeting; letting them edit this list would let
   // one person quietly change what every advisor in the firm is measured against. The
   // backend has no advisor write route at all — read-only by construction, not by a role
   // check that could be loosened.
-  meetingObservations: ['mentor', 'firm']
+  meetingObservations: ['mentor', 'global', 'group', 'firm']
 
   // 🔴 ALL FOUR MANAGER TIERS, AND THE REASON IS STATED RATHER THAN ASSUMED — "as
   // appropriate" is a judgement to make out loud (Mike's hub-page ruling, 2026-08-16).

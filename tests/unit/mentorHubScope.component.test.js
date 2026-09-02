@@ -376,11 +376,17 @@ describe('the hub menu — the sidebar itself', () => {
     // 4.24), and back to the design's 13 on 2026-08-22, when AI Prompts joined (item
     // 4.28) — the same number by a different route, as has now happened twice here.
     // The headings are unchanged throughout; only entries within them have moved.
+    //
+    // ⚠ AND TO 14 ON 2026-09-02, when Meeting Review's observation points were widened
+    // to all four manager tiers on Mike's instruction — the points "cascade down to
+    // global group and group manager before firm manager, they accept or edit". This
+    // is the first entry to exceed the approved design's 13, and it is a ruling of his
+    // rather than drift, which is why the number moves rather than the tab.
     const wrapper = await mountHub({ scope: 'group' })
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Rolled up from below'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(13)
+    expect(tabLabels(wrapper)).toHaveLength(14)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')
   })
