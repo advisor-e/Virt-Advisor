@@ -222,3 +222,61 @@ describe('Three-Way Forecast screen — the levers', () => {
     w.destroy()
   })
 })
+
+describe('the out-of-balance warning rests on an EXACT zero', () => {
+  /**
+   * Mike ruled 2026-09-03 that an unbalanced opening warns rather than blocking, and that
+   * the warning is a full-width band so it survives into the print. The band fires on
+   * `balanceCheck !== 0`, so a balanced book must produce a clean zero and not a floating
+   * -point speck — otherwise every client gets a red band announcing a gap "of 0", which
+   * is worse than no band at all. The arithmetic cancels identically today; this is what
+   * fails if that ever stops being true.
+   */
+  const zeroes = () => new Array(12).fill(0)
+
+  /** A balanced opening, with the awkward fractions a real chart of accounts carries. */
+  function balancedInputs () {
+    return {
+      sales: [33333.33, 71428.57, 12345.67, 98765.43, 55555.55, 11111.11,
+        22222.22, 44444.44, 66666.66, 88888.88, 99999.99, 10101.01],
+      purchases: [1111.11, 2222.22, 3333.33, 4444.44, 5555.55, 6666.66,
+        7777.77, 8888.88, 9999.99, 1010.10, 2020.20, 3030.30],
+      markup: 0.6789,
+      openingBalanceSheet: {
+        authorisedCapital: 123456.78,
+        capitalGain: 0,
+        retainedEarnings: 0,
+        cashAtBank: 123456.78,
+        accountsReceivable: 0,
+        inventory: 0,
+        incomeTaxRefundDue: 0,
+        gstRefund: 0,
+        prepayments: 0,
+        otherCurrentAsset: 0,
+        bankOverdraft: 0,
+        accountsPayable: 0,
+        incomeTaxPayable: 0,
+        gstPayable: 0,
+        accruedExpenses: 0,
+        otherCurrentLiability: 0,
+        otherNonCurrentLiability: 0
+      },
+      assets: [0, 1, 2, 3, 4, 5].map(() => ({ opening: 0, depreciationRate: 0.1234, additions: zeroes(), disposals: zeroes() })),
+      loans: [1, 2, 3].map(() => ({ opening: 0, monthlyRepayment: 0, interestRate: 0.0725, drawdowns: zeroes(), lumpSumRepayments: zeroes() })),
+      shareholders: [1, 2, 3, 4].map(() => ({ opening: 0, advances: zeroes(), drawings: zeroes() }))
+    }
+  }
+
+  test('🔴 a balanced book checks to exactly zero, fractions and all', () => {
+    const checks = computeThreeWayForecast(balancedInputs()).balanceSheet.months.balanceCheck
+    checks.forEach(v => expect(v).toBe(0))
+  })
+
+  test('the screen reads the last month’s check, and the sample is genuinely out', async () => {
+    const w = await mountWithResult(SAMPLE)
+    const checks = SAMPLE.balanceSheet.months.balanceCheck
+    expect(w.vm.balanceCheck).toBe(checks[checks.length - 1])
+    expect(w.vm.balanceCheck).not.toBe(0)
+    w.destroy()
+  })
+})

@@ -547,8 +547,18 @@ advanced by 31 days, so its third year ran three weeks adrift — **ruled and fi
 
 The by-month slot of step 1 is wired: last year's twelve monthly sales arrive tagged
 `seeded` — a starting point, never a forecast, and its own third badge state on
-`ProvenanceBadge`. Two behaviours remain **built as drawn and unruled**: whether negative
-stock is flagged, and whether an out-of-balance opening blocks or only warns.
+`ProvenanceBadge`.
+
+**Both of the screen's judgement calls are ruled (Mike, 2026-09-03).** Stock below zero is
+**named in a red band**, not left as a figure among figures: it is impossible rather than
+merely bad, and an advisor scanning twelve columns reads past a minus sign. An opening
+balance sheet that does not balance **warns rather than blocking** — it is the advisor's
+own figures that are out, and refusing to compute would hide the forecast that tells them
+so — **and the warning is a full-width band, not only the sidebar tile, so it survives into
+the print.** A gap in a sidebar is easy to hand a client without noticing; the band cannot
+be. Both bands rest on `balanceCheck !== 0`, which is safe because the check cancels to an
+**exact** zero even on fractional figures — pinned by a test, because a speck of floating
+point would put a red band announcing a gap "of 0" in front of every client.
 
 **This model is the only one that reads a FORECAST rather than history.** Every other
 Report-class model reads what has happened; this one is about what will. No accounting

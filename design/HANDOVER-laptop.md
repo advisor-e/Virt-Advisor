@@ -9,43 +9,46 @@
 
 ---
 
-## 2026-09-02 · Laptop · branch `feat/advisor-progress`
+## 2026-09-03 · Laptop · branch `feat/advisor-progress`
 
-Suite **7,315 green** (378 suites), lint 0 errors. Started 33 ahead / 0 behind, ended
-**42 ahead / 0 behind**, everything pushed (`3b301ed`). Nothing uncommitted.
+Suite **7,355 green** (380 suites), lint 0 errors. Started 43 ahead / 0 behind, ended
+**45 ahead / 0 behind**, everything pushed. Nothing uncommitted.
 
-### The Three-Way Forecast — engine, intake and result screen all shipped
+### The Three-Way Forecast is complete, end to end
 
-Mike asked for it and ruled every decision. Ported from `3 way Filter.xlsx`:
-**10,155 of its 10,227 calculated cells reproduced exactly**, across all three years —
-the largest golden set in this repo by a wide margin (EBITDA's was 96). Live at
-`/three-way-forecast`; the Model Library card reads **12 ready**.
+Steps 1–3 shipped (`a085f72`), so all four screens of the approved drawing now exist.
+Mike ruled the last two open questions today: negative stock **stays flagged**, and an
+unbalanced opening **warns** — promoted to a full-width band so it survives the print.
+Nothing on that drawing is unruled any more.
 
-### 🔴 Nine defects found in Mike's source workbook, all ruled by him
+### 🔴 THE FINDING THAT MATTERS TO EVERY MODEL, NOT JUST THIS ONE
 
-Full evidence in [`../THREE-WAY-FORECAST-DEVIATIONS.md`](THREE-WAY-FORECAST-DEVIATIONS.md).
-The largest overstated year-one profit by **55,654**; another charged a cost to profit
-that nothing ever paid (17,800 a year). **His own years 2 and 3 proved R1 was his
-intent** — they total all six asset categories where year 1 totals four.
+`resolveInputs` merges what a screen sends over the workbook's own sample, so **an input
+the screen does not collect keeps the sample's value, invisibly**. Built as drawn, the
+intake would have put Big Bird's 10% commission, 3% freight, 7% overdraft interest and
+15,000 of overheads into a real client's forecast. Mike's ruling: every figure the engine
+takes goes on a screen. `buildInputs()` now sends every key explicitly, and a test compares
+it against the model's own key list. **Any new model with a defaults-merge needs the same
+guard.** Recorded in the Report Models Brief.
 
-### ⚠ TWICE TODAY, RUNNING THE APP CAUGHT WHAT 7,000 PASSING TESTS DID NOT
+### Three defects found by opening the drawing beside the code
 
-An intake reading a **249,000 overdraft as cash** (no "Total Assets" row, so liabilities
-nested inside assets), and **every forecast year showing year one's dates** (a field
-computed and never exposed). Both suites were green. **Probe live output; green is not
-evidence.**
+The result screen reset the advisor's mark-up to 68% after step 3; the third file slot was
+drawn and never wired; the overheads had the same leak as the rates. All fixed. **Running
+the app found nothing the suite had missed this time — but only because the app was run.**
 
-### 🖥 DESKTOP — two things
+### 🖥 DESKTOP — three things
 
-1. **`xeroReportParser.js` changed materially.** The assets/liabilities/equity split is
-   now by **exclusion, not nesting**, and `headerMeta` returns `bodyFrom`. Quick Position
-   and EBITDA contracts are untouched and regression-pinned.
-2. **"Xero" is gone from all user-facing wording** (Mike's ruling) — use the shared
-   `report.supportedSoftware` key on any new intake screen.
+1. **PR #55 is waiting on Mike's eyeball** (Volatility upload, production build).
+2. **🔴 Numbering collision, second time.** You filed the Xero sweep as **4.57**; this
+   branch skipped 4.57 deliberately AND had already done that sweep (`2f3f8a2`).
+   `to-do-items.json` will conflict when #55 merges — settle it then.
+3. `ProvenanceBadge` gained a third state (`seeded`, green) and the forecast assembler now
+   returns `candidates`. Both additive — extend, don't copy.
 
 ### Next
 
-The intake's **three screens** (steps 1–3 of the approved drawing) — the backend is built
-and probed. Two **behaviour** questions stay open in `ARTEFACTS.md`: flagging negative
-stock, and whether an unbalanced opening blocks or only warns. **4.60** needs four real
-QuickBooks/MYOB exports; do not promote a package on more reconstructions.
+**4.61** — two years of accounts and a volatility read. Volatility needs 24 **months**, not
+two annual reports, and the two-file monthly join is already built, so phase (a) is a
+connection rather than new arithmetic. Phase (b), the comparative-column parser, needs its
+own drawing. **Both must follow PR #55** — same intake files.

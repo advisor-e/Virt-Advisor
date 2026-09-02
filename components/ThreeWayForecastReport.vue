@@ -47,6 +47,17 @@
         b {{ $t('report.threeWayForecast.report.stockOutTitle', { months: stockOutMonths.join(', ') }) }}
         span {{ $t('report.threeWayForecast.report.stockOutBody') }}
 
+    //- An out-of-balance opening WARNS rather than blocking (Mike's ruling 2026-09-03), so
+    //- the advisor still sees the forecast that tells them their opening figures are out.
+    //- It is a full-width band rather than only the sidebar tile so that it survives into
+    //- the print, where a sidebar figure is easy to hand a client without noticing.
+    //- Its OWN class, not the stock band's: the two say different things, and a shared
+    //- class left the stock tests unable to tell which band they had found.
+    .tw-unbalanced(v-if="balanceCheck !== 0")
+      div
+        b {{ $t('report.threeWayForecast.report.balanceOffTitle', { amount: money(balanceCheck) }) }}
+        span {{ $t('report.threeWayForecast.report.balanceOffBody') }}
+
   .tw-layout
     //- [D1] The levers.
     aside.tw-card
@@ -459,13 +470,14 @@ export default {
 .tw-sub { font-size: 12.5px; color: var(--rs-muted); margin-top: 6px; }
 .tw-note { font-size: 11.5px; color: var(--rs-muted); margin: 10px 0 0; }
 
-/* Stock below zero: named, not left as a figure among figures. */
-.tw-impossible {
+/* Stock below zero: named, not left as a figure among figures. The opening that does not
+   balance gets the same band — one look, two different things it can be telling you. */
+.tw-impossible, .tw-unbalanced {
   background: var(--rs-crit-soft); border: 1px solid #ff000045; border-left: 3px solid var(--rs-crit);
   border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 14px;
 }
-.tw-impossible b { display: block; font-size: 13px; }
-.tw-impossible span { font-size: 12.5px; color: var(--rs-muted); }
+.tw-impossible b, .tw-unbalanced b { display: block; font-size: 13px; }
+.tw-impossible span, .tw-unbalanced span { font-size: 12.5px; color: var(--rs-muted); }
 
 /* Tabs over the three statements. */
 .tw-tabs { display: flex; gap: 6px; padding: 14px 16px 0; }

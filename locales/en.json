@@ -1745,6 +1745,8 @@
         "balanceCheck": "Balance check",
         "balanceTies": "The three statements tie in every month.",
         "balanceOff": "The opening balance sheet does not balance by this much. Every month carries the same gap, so it is the opening figures — not the forecast.",
+        "balanceOffTitle": "The opening balance sheet does not balance by {amount}",
+        "balanceOffBody": "Every month carries the same gap, so it is the opening figures — not the forecast.",
         "tabCash": "Cash flow",
         "tabProfit": "Profit & loss",
         "tabBalance": "Balance sheet",
