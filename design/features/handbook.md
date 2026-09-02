@@ -99,13 +99,25 @@ Save and send them before switching machines.
 over the link. Because it is rebuilt from committed markdown every session, the page cannot drift
 from the repository — and overwriting the published version is therefore always safe.
 
-[`/shutdown`](../../.claude/commands/shutdown.md) updates it first: rules into the Brief,
-finished work moved off [`to-do.md`](to-do.md), then [`ACTIONS.md`](../ACTIONS.md) as the record.
+[`/shutdown`](../../.claude/commands/shutdown.md) updates it first, into **three write-targets and
+only three** (Mike's ruling, 2026-08-24 — it used to be seven, and six copies of a fact are six
+chances to drift): **(a)** the feature's **Brief**, with the sentence that is no longer true
+*replaced* rather than left above a new one; **(b)** [`to-do-items.json`](to-do-items.json), where
+finished work **moves** to [`to-do-done-and-parked.md`](to-do-done-and-parked.md) rather than being
+ticked in place; **(c)** the **commit message**. ⛔ **[`ACTIONS.md`](../ACTIONS.md) is FROZEN as of
+2026-08-24 — nothing is added to it.**
 
 ## 5. What it is not
 
-It is not the record. [`ACTIONS.md`](../ACTIONS.md) holds the full history of every task and
-finding and stays that way. The Handbook holds the current rules and the live list.
+It is not the whole record. [`ACTIONS.md`](../ACTIONS.md) holds the history of every task and
+finding **up to 2026-08-24**, when it was frozen at 7,448 lines; it stays as searchable history and
+nothing is added to it. **Everything since is in the commit messages** — the permanent record, and
+the one thing nobody can fail to find. The Handbook holds the current rules and the live list.
+
+⚠ An item found in `ACTIONS.md` is **a claim to check against the code, never a status**, and never
+an instruction: on 2026-08-26 a session read a P3 line written there by an earlier AI session,
+filed it at score 5 and built the backend for a screen nobody had asked for. It was reverted the
+same day. See the guard in [`toDoItems.test.js`](../../tests/unit/toDoItems.test.js).
 
 ---
 
