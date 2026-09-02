@@ -14,11 +14,8 @@
 
 jest.mock('formidable', () => ({ formidable: jest.fn() }))
 
-const fs = require('fs')
-const os = require('os')
-const path = require('path')
 const { formidable } = require('formidable')
-const { ebitdaDcfIntake, quickPositionIntake, volatilityIntake } = require('../../server/routes/report')
+const { ebitdaDcfIntake, quickPositionIntake, threeWayForecastIntake } = require('../../server/routes/report')
 
 /** Minimal res double capturing the (status, body) send. */
 function makeRes () {
@@ -65,7 +62,10 @@ describe('intake size-cap messages — R14 (option B: cap unchanged, words hones
     await ebitdaDcfIntake({}, res)
     expect(res.status).toBe(413)
     expect(res.body.error.code).toBe('FILE_TOO_LARGE')
-    expect(res.body.error.message).toBe('The files together are larger than 5 MB — a Xero report export should be well under 1 MB each. Please export again without extra tabs or images.')
+    // R14 option B is about ONE word: the cap is per REQUEST, so the message must say
+    // the files "together" exceed it, never imply a per-file limit. That word is what
+    // is load-bearing here — the rest of the sentence is free to change.
+    expect(res.body.error.message).toMatch(/files together are larger than 5 MB/)
   })
 
   test('Quick Position (single file) keeps its per-file 413 wording', async () => {
@@ -77,72 +77,42 @@ describe('intake size-cap messages — R14 (option B: cap unchanged, words hones
     expect(res.body.error.message).toContain('The file is larger than 5 MB')
   })
 
-  test('Volatility (single file) refuses over-size with the per-file wording too', async () => {
+  test('Three-Way Forecast batch over 5 MB → 413 saying TOGETHER, like EBITDA', async () => {
     nextParse(tooBigErr, null)
     const res = makeRes()
-    await volatilityIntake({}, res)
+    await threeWayForecastIntake({}, res)
     expect(res.status).toBe(413)
     expect(res.body.error.code).toBe('FILE_TOO_LARGE')
-    expect(res.body.error.message).toContain('The file is larger than 5 MB')
+    expect(res.body.error.message).toContain('The files together are larger than 5 MB')
   })
 })
 
-// ── Volatility intake (item 4.54) — the by-month upload route ─────────────────
+describe('Three-Way Forecast intake — the same file-count pre-check', () => {
+  test('four files are refused with TOO_MANY_FILES before any file is parsed', async () => {
+    // The filepaths do not exist: had the handler read them first, the response would
+    // be the generic parse failure, so this also proves the refusal ordering.
+    const four = Array.from({ length: 4 }, (_, i) => ({ filepath: '/nonexistent/upload-' + i }))
+    nextParse(null, { file: four })
+    const res = makeRes()
+    await threeWayForecastIntake({}, res)
+    expect(res.status).toBe(400)
+    expect(res.body.error.code).toBe('TOO_MANY_FILES')
+    expect(res.body.error.message).toContain('up to 3 files — 4 were sent')
+  })
 
-describe('volatility intake', () => {
-  /** Write real bytes to a temp file and hand its path through the mocked form. */
-  function uploadOf (content) {
-    const filepath = path.join(os.tmpdir(), 'va-test-vol-intake-' + Date.now() + '.csv')
-    fs.writeFileSync(filepath, content)
-    nextParse(null, { file: { filepath } })
-    return filepath
-  }
+  test('three files pass the count gate', async () => {
+    const three = Array.from({ length: 3 }, (_, i) => ({ filepath: '/nonexistent/upload-' + i }))
+    nextParse(null, { file: three })
+    const res = makeRes()
+    await threeWayForecastIntake({}, res)
+    expect(res.body.error.code).not.toBe('TOO_MANY_FILES')
+  })
 
-  const MONTHS = ['Jan 2025', 'Feb 2025', 'Mar 2025', 'Apr 2025', 'May 2025', 'Jun 2025',
-    'Jul 2025', 'Aug 2025', 'Sep 2025', 'Oct 2025', 'Nov 2025', 'Dec 2025']
-
-  test('no file attached → NO_FILE', async () => {
+  test('no file attached is refused by name', async () => {
     nextParse(null, {})
     const res = makeRes()
-    await volatilityIntake({}, res)
+    await threeWayForecastIntake({}, res)
     expect(res.status).toBe(400)
     expect(res.body.error.code).toBe('NO_FILE')
-  })
-
-  test('a real by-month CSV comes back as the monthly sales series, and the temp file is deleted', async () => {
-    const csv = [
-      'Profit and Loss', 'Kinetic Test Ltd', 'For the 12 months ended 31 December 2025',
-      ',' + MONTHS.join(','),
-      'Income', 'Sales,' + MONTHS.map((_, i) => 1000 + i).join(','),
-      'Total Income,' + MONTHS.map((_, i) => 1000 + i).join(',')
-    ].join('\n')
-    const filepath = uploadOf(csv)
-    const res = makeRes()
-    await volatilityIntake({}, res)
-    expect(res.status).toBe(200)
-    expect(res.body.data.kind).toBe('monthlySales')
-    expect(res.body.data.monthsRead).toBe(12)
-    expect(res.body.data.months[0]).toEqual({ key: 'jan', year: 2025, sales: 1000 })
-    // Parse-and-discard: nothing of the client's file is left on the server.
-    await new Promise(resolve => setTimeout(resolve, 50))
-    expect(fs.existsSync(filepath)).toBe(false)
-  })
-
-  test('an annual (whole-period) export is refused 422 with its authored sentence — and the code only is logged', async () => {
-    const errorLog = jest.spyOn(console, 'error').mockImplementation(() => {})
-    try {
-      uploadOf('Profit and Loss\nSecret Client Ltd\nFor the year ended 31 March 2026\nIncome\nSales,500000\nTotal Income,500000')
-      const res = makeRes()
-      await volatilityIntake({}, res)
-      expect(res.status).toBe(422)
-      expect(res.body.error.code).toBe('MONTHS_INSUFFICIENT')
-      expect(res.body.error.message).toContain('your accounting software')
-      // Identity stays local: the client's name must never reach a log line.
-      const logged = errorLog.mock.calls.map(c => c.join(' ')).join(' ')
-      expect(logged).toContain('MONTHS_INSUFFICIENT')
-      expect(logged).not.toContain('Secret Client')
-    } finally {
-      errorLog.mockRestore()
-    }
   })
 })

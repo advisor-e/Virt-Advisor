@@ -67,6 +67,7 @@ describe('report model catalogue', () => {
         '/margin-breakeven',
         '/multiple-property',
         '/quick-position',
+        '/three-way-forecast',
         '/volatility'
       ])
     })
@@ -113,7 +114,7 @@ describe('report model catalogue', () => {
       expect(by(CLASS_REPORT)).toHaveLength(9)
     })
 
-    it('classes the built models correctly — 4 Education + 3 Report-class + 4 Decision-class builds', () => {
+    it('classes the built models correctly — 4 Education + 4 Report-class + 4 Decision-class builds', () => {
       // The four education models are badged "Illustrative" and take no client data.
       // Quick Position (built 2026-07-16) and EBITDA & DCF (built 2026-07-17) are
       // deliberately DIFFERENT: Report-class — real client numbers via file intake,
@@ -127,7 +128,7 @@ describe('report model catalogue', () => {
       // MODEL-CLASSIFICATION.md lists it under Report (9), "variance analysis on real
       // figures". Entry is typed until the by-month accounts upload lands — that changes
       // where the figures come from, not whose they are, and neither class carries a badge.
-      const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow', 'Volatility Report']
+      const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow', 'Volatility Report', '3-Way Forecast Filter']
       const DECISION_BUILDS = [
         'The Loan Estimator',
         'Lease vs Buy',
@@ -135,7 +136,7 @@ describe('report model catalogue', () => {
         'Multiple Property Assessment'
       ]
       const built = MODELS.filter(m => m.status === STATUS_READY)
-      expect(built).toHaveLength(11)
+      expect(built).toHaveLength(12)
       built.forEach((m) => {
         if (REPORT_BUILDS.includes(m.name)) {
           expect(m.modelClass).toBe(CLASS_REPORT)
@@ -287,7 +288,7 @@ describe('report model catalogue', () => {
 
   describe('readyCount', () => {
     it('counts only the models with a built report', () => {
-      expect(readyCount(MODELS)).toBe(11)
+      expect(readyCount(MODELS)).toBe(12)
       expect(readyCount([])).toBe(0)
       expect(readyCount(null)).toBe(0)
     })

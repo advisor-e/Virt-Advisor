@@ -20,7 +20,7 @@
  *     gate already uses (the button is never the gate).
  *   • The override table is INTERIM and admin-only: it must never let a user
  *     promote themselves. Only the Mentor/super-admin writes it (enforced where it
- *     is set, not here). In the mock it is seeded with one demo country manager.
+ *     is set, not here). In the mock it is seeded with one demo group manager.
  *   • This is a SEAM: demonstrable on mock data, NOT a substitute for the real
  *     Advisory JWT role the master team still wires (Q-ROLES "still master-team").
  */

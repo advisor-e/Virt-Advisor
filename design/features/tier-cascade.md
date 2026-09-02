@@ -237,13 +237,15 @@ mode is not hypothetical: see *Traps that have actually bitten*.
 
 ### The honest limit
 
-**The middle-tier hubs are built** — `pages/global-group-manager.vue` and
-`pages/group-manager.vue` render the same hub at the new scopes — **and they hold no real data.**
-Both reasons belong to Advisor-e, per the ruling above: no role value produces
-`global_group_manager` or `group_manager` (and `mentor` still borrows `platform_admin`), and the
-`firms` table has no country, group or parent column. Without a membership map, `parentScopeOf`
-returns the mentor scope for every firm and the chain runs mentor → firm, exactly as it did
-before the chain existed.
+**The middle-tier hubs are built and approved** — `pages/global-group-manager.vue` and
+`pages/group-manager.vue` render the same hub at the new scopes (Mike, 2026-08-10) — **and they
+hold no real firm data yet.** The two things that would fill them are Advisor-e's and Mike has
+PARKED both ([`to-do.md`](to-do.md) 3.2 and 3.3: *"already provided for by the master app"*). Until
+they arrive `parentScopeOf` returns the mentor scope for every firm and the chain runs mentor →
+firm, exactly as it did before the chain existed — the safe direction to fail.
+
+⚠ **This is not a gap in our work and must never be reported as one.** See `CLAUDE.md` § "The four
+tiers are settled and built".
 
 ⚠ **In development the two middle hubs show INVENTED firms.** Membership is seeded from
 `data/dev-firm-membership.json` — 27 invented firms across 3 brands and 5 countries — and the
@@ -317,12 +319,12 @@ authority has ever written.
 the option turned down. **The advisor is still a pass-through**: their override is the report's own
 card and is never stored, so §3 above stands unamended.
 
-🔴 **The group tier cannot be exercised by a real login today**, and this block is where that limit
-bites first — a group is normally a country, and country is exactly what the chain cannot yet
-resolve. No role value produces `group_manager` and `firms` has no country column, so
-`parentScopeOf` returns the platform scope and the chain runs mentor → firm as before. **It fails
-toward the shipped New Zealand defaults, never toward a guess.** The evidence is tests against a
-seeded membership map, which is a weaker claim than a live screen and is stated as one.
+⚠ **This block is where the missing firm-to-country map bites first** — a group is normally a
+country, and country is exactly what the chain cannot yet resolve, so `parentScopeOf` returns the
+platform scope and the chain runs mentor → firm. **It fails toward the shipped New Zealand
+defaults, never toward a guess.** The map is Advisor-e's and Mike has PARKED it
+([`to-do.md`](to-do.md) 3.3); the evidence here is tests against a seeded membership map, which is
+a weaker claim than a live screen and is stated as one.
 
 ---
 

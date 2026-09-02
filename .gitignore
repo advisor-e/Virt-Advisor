@@ -100,6 +100,25 @@ data/dev-firm-quiz-own.json
 # Phase 4 drift baselines (2026-08-01) — added with the key, per the rule above.
 data/dev-firm-quiz-override-baselines.json
 
+# Meeting Review's observation points — a level's per-scenario decisions (2026-09-01,
+# slice 1). Listed WITH the three config keys that create them, per the rule at the quiz
+# block above. Same reason as dev-firm-coaching.json: these are a firm's OWN words about
+# how it runs a meeting — its house standard, not platform content — and a firm's standards
+# have no business reaching this repository from a developer's laptop.
+data/dev-meeting-observation-declines.json
+data/dev-meeting-observation-overrides.json
+data/dev-meeting-observation-own.json
+data/dev-meeting-type-declines.json
+data/dev-meeting-type-overrides.json
+data/dev-meeting-type-own.json
+data/dev-meeting-type-order.json
+
+# Meeting Review's retention dial (2026-09-01, slice 2) — how long ONE firm keeps its
+# transcripts. Ignored for the same reason as the three above, and for one of its own: the
+# figure is spoken aloud to that firm's clients, so it is a statement that firm makes, not a
+# platform default to be carried around in the repository.
+data/dev-meeting-retention.json
+
 # Dev-only firm content overlays — domain support + logic trees (created locally when MySQL is unavailable)
 data/dev-firm-domain-support.json
 data/dev-firm-logic-trees.json

@@ -434,6 +434,84 @@ All five are mutation-verified.
 5. **Assemble the payload in the model, not the route.** One model does it in the route and
    its test has to mirror the route by hand.
 
+## 4b. The two intakes — annual, and by-month
+
+> **Which accounting packages they read (2026-09-02).** Xero, QuickBooks Online and MYOB.
+> The list is one fact stated once, in
+> [`server/report/intake/supportedPackages.js`](../../server/report/intake/supportedPackages.js);
+> every screen line and refusal message is built from it, and a test fails the build if the
+> locale string and the module ever name different packages.
+>
+> **Only Xero is `verified`** — read from real exports the firm supplied on 2026-07-13 and
+> 2026-07-15, which refuted three assumptions in the process. QuickBooks Online and MYOB are
+> `expected`: the readers handle their published layouts, checked against reconstructions in
+> [`tests/unit/accountingPackages.test.js`](../../tests/unit/accountingPackages.test.js), and
+> **no real export from either has been read**. Every intake screen says so, and item 4.60
+> holds the four files that would close it. **Do not promote a package on more
+> reconstructions** — the guard refuses `verified` unless the evidence names a real export.
+>
+> Pointing the reader at those two layouts on 2026-09-02 found five real defects, all fixed:
+> the `"As of"` date line was never read; header rows were walked as body rows; the company
+> name sits *above* the title in both packages and *below* it in Xero, so the scan took the
+> first section heading as the company and lost that whole section; QuickBooks' single
+> `LIABILITIES AND EQUITY` heading made every liability beneath it read as equity; and MYOB
+> lists bank accounts with no `Bank` heading above them. Assume the next package will break
+> something too, and probe it the same way.
+
+There are **two** file readers, and which one a model uses follows from the shape of its
+inputs. Both read `.xlsx` and `.csv`, both refuse a PDF by name, both share one hardened
+buffer reader (`gridsFromBuffer` in `xeroReportParser.js`), and both are parse-and-discard:
+the upload is deleted the moment it has been read, nothing is stored, and no filename,
+account label or company name is ever logged.
+
+**Annual — one figure per period.** `xeroReportParser.js` (`parseUpload`), used by Quick
+Position and EBITDA & DCF. It **deliberately refuses** a by-month or by-quarter export
+(`MULTI_PERIOD_COLUMNS`, at 5+ figure columns): reading only the first column silently lost
+the rest of the year, which is the fault that refusal exists to prevent. That refusal stays.
+
+**By-month — a monthly series.** `monthlySalesParser.js` (`parseMonthlyUpload`) plus
+`monthlySeriesAssembler.js`, used by the Volatility Report via
+`POST /api/report/volatility/intake` (firmAuth — uploads are never anonymous). Up to **two**
+files join into one run. It reads **two shapes**:
+
+1. **The by-month P&L** — Xero's *"Current financial year by month"* layout, read **across**
+   its columns. One export = one financial year, so the 18 and 24-month windows need two.
+2. **The Account Transactions export** — one row per invoice, the date an Excel serial, summed
+   into months. Added 2026-08-31 when Mike's own export was refused; he was right that the file
+   was fine and the reader was not. **This is the better source**: it spans as many years as the
+   advisor asks for, so one file can fill the whole 24-month window.
+
+> 🔴 **The two shapes read a `0` OPPOSITELY, and both readings are correct.** In a by-month P&L
+> a zero means the year has not reached that month — it is missing data, and it is poison to
+> this model. In a transaction listing it means nothing was invoiced, which is real, and is the
+> lumpiness the report exists to measure. Get this backwards and you either wreck the numbers or
+> quietly delete the quiet months and flatter the business. A transactions export also takes its
+> **partial** months from its own period line (`For the period 20 August 2024 to …`), at BOTH
+> ends — a leading part-month is trimmed exactly as a trailing one is.
+
+> 🔴 **Three findings that a by-month export will hand you, each producing a number that is
+> wrong and completely believable.** Verified against a real client export
+> (`../REPORT-DATA-MODEL.md` §3.9) — do not "simplify" any of them away.
+> **(a)** Months after the data cut-off read as a genuine **0**. Averaged in they drag the
+> mean down and widen the standard deviation. **(b)** The month at the cut-off is usually
+> **partial**, because the export was taken mid-month; it reads as a collapse and lands
+> outside the third deviation. It cannot be detected from the cells, so it is *inferred* —
+> a month is partial only when empty months follow it, which is what proves the export is
+> mid-year. A fully populated file is a closed year and has no partial month. **(c)** The
+> **year-to-date column is not a month**.
+>
+> All three are handled by *showing the advisor*, never by deciding silently: the months
+> come off the end of the window, the window slides back over the earlier complete months,
+> and each one appears in its own box to be overtyped. A month restored this way rejoins as
+> the newest month and the window shifts by one — a month cannot be spliced out of the
+> middle of a series, on the screen or in the assembler.
+
+**"Which rows are sales?" has exactly one definition** — `INCOME_RULES`, exported from
+`xeroReportParser.js` and used by both readers: trading-income line items only, with Other
+Income, interest, dividends and bad debts recovered excluded, and never a `Total` row. Two
+copies of that rule would mean the same client file yielding two different revenue figures
+depending on which export was dropped.
+
 ### Known open gaps
 
 **Hardcoded English on the older screens.** User-facing strings on the report screens built
@@ -443,19 +521,58 @@ Report** is the worked example of the compliant pattern — every string on it i
 `locales/en.json`, month names included — so copy that screen, not its neighbours. A string
 hardcoded in a template stays English for ever; one in `en.json` can become any language.
 
-**Two intake parsers, one report shape each.** `server/report/intake/xeroReportParser.js`
-reads ANNUAL figures and **deliberately refuses** a by-month or by-quarter export
-(`MULTI_PERIOD_COLUMNS`, at 5+ figure columns) — reading only the first column silently lost
-the rest of the year, which is the fault that refusal exists to prevent. Since item 4.54
-(2026-09-02) its mirror image, `server/report/intake/monthlySalesParser.js`, reads the
-BY-MONTH Profit and Loss export for the Volatility Report (`POST
-/api/report/volatility/intake`, firmAuth) and refuses a whole-period or under-12-month file
-for the mirrored reason. The two share one grid reader, one title test and one definition of
-"what is sales", exported from the annual parser — never copied. Typed entry stays on the
-Volatility screen as the fallback. A future model needing a monthly series extends the
-monthly parser; an annual one extends the annual parser — neither refusal is a defect.
-**No product names in intake wording** (Mike's ruling 2026-09-02): the sentences say "your
-accounting software", pinned once in `monthlySalesParser.test.js`.
+**The Three-Way Forecast is complete, end to end.** A full twelve-month linked profit &
+loss, balance sheet and cash flow ported from `3 way Filter.xlsx` — **10,155 of its 10,227
+calculated cells reproduced exactly across all three years**, the largest golden set in this
+repo — behind all four screens of the approved drawing
+([`../mockups/three-way-forecast.html`](../mockups/three-way-forecast.html)): drop the
+exports, confirm the opening position, set the assumptions, the forecast. **Nine corrections
+to the source workbook were each ruled by Mike**; the evidence for every one is in
+[`../THREE-WAY-FORECAST-DEVIATIONS.md`](../THREE-WAY-FORECAST-DEVIATIONS.md), and the
+largest overstated year-one profit by 55,654. Month stepping was one of them: the workbook
+advanced by 31 days, so its third year ran three weeks adrift — **ruled and fixed 2026-09-02
+("obviously, it needs to be per calendar month")**.
+
+> 🔴 **The lesson this build is worth remembering for, and it applies to every model here.**
+> `resolveInputs` merges what a screen sends over the workbook's own sample, so **an input the
+> screen does not collect keeps the sample's value and nothing on the page says so**. Built
+> exactly as drawn, the intake would have put a 10% sales commission, 3% freight, 7% overdraft
+> interest and 15,000 a year of Big Bird Grass Seed's overheads into a real client's forecast,
+> invisibly. Mike ruled 2026-09-03 that every figure the engine takes goes on a screen, which
+> is why the opening table carries 17 lines rather than 10 and the overheads 23 rather than 14.
+> **`buildInputs()` therefore sends every key the model takes, explicitly**, and
+> `tests/unit/threeWayForecastIntake.component.test.js` compares what it sends against the
+> model's own key list — so an input added to the engine later fails a test instead of leaking.
+> **Any new model with a defaults-merge takes the same guard.**
+
+The by-month slot of step 1 is wired: last year's twelve monthly sales arrive tagged
+`seeded` — a starting point, never a forecast, and its own third badge state on
+`ProvenanceBadge`.
+
+**Both of the screen's judgement calls are ruled (Mike, 2026-09-03).** Stock below zero is
+**named in a red band**, not left as a figure among figures: it is impossible rather than
+merely bad, and an advisor scanning twelve columns reads past a minus sign. An opening
+balance sheet that does not balance **warns rather than blocking** — it is the advisor's
+own figures that are out, and refusing to compute would hide the forecast that tells them
+so — **and the warning is a full-width band, not only the sidebar tile, so it survives into
+the print.** A gap in a sidebar is easy to hand a client without noticing; the band cannot
+be. Both bands rest on `balanceCheck !== 0`, which is safe because the check cancels to an
+**exact** zero even on fractional figures — pinned by a test, because a speck of floating
+point would put a red band announcing a gap "of 0" in front of every client.
+
+**This model is the only one that reads a FORECAST rather than history.** Every other
+Report-class model reads what has happened; this one is about what will. No accounting
+export contains a future, so the intake seeds the starting position and the cost base only,
+and its `provenance` map carries a third value beside `file` and `entered` — `seeded`, for
+figures taken from last year's actuals as a starting point. A screen that showed `file` and
+`seeded` identically would tell an advisor that a judgement about next year is a fact about
+this one.
+
+**Only the Volatility Report reads a monthly series.** The by-month intake exists and is
+proven, but no other model consumes it yet. A new model taking monthly inputs should reuse
+`parseMonthlyUpload` + `assembleMonthlySeries` rather than growing a third reader — and
+should expect the same three findings above, because they are properties of the export, not
+of this report.
 
 ---
 

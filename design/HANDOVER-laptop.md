@@ -5,65 +5,50 @@
 > [`HANDOVER-desktop.md`](HANDOVER-desktop.md), and a session reads BOTH at startup.
 > Anything worth keeping beyond tomorrow belongs in the feature's Brief or on
 > [`features/to-do-items.json`](features/to-do-items.json). Earlier handovers are in git
-> history. This replaces the 85 `SESSION-*.md` files written before 2026-08-24; those stay
-> as history and none is written now. See [`WORKING-AGREEMENT.md`](WORKING-AGREEMENT.md).
+> history. See [`WORKING-AGREEMENT.md`](WORKING-AGREEMENT.md).
 
 ---
 
-## 2026-08-31 · Laptop · branch `feat/advisor-progress`
+## 2026-09-03 · Laptop · branch `feat/advisor-progress`
 
-Suite **6,482 green**, lint 0 errors, nothing uncommitted. **Five commits, all pushed.**
+Suite **7,355 green** (380 suites), lint 0 errors. Started 43 ahead / 0 behind, ended
+**45 ahead / 0 behind**, everything pushed. Nothing uncommitted.
 
-### 1. The handover file you are reading was split in two — and it is on `master`
+### The Three-Way Forecast is complete, end to end
 
-`design/HANDOVER.md` became `HANDOVER-laptop.md` + `HANDOVER-desktop.md` (PR #48, merged).
-It was "one file, replaced each session", which silently overwrote one machine's note when
-both worked the same day. Each machine now writes only its own and reads both at startup.
-**All five reference sites moved in the same commit**, so no session can follow a stale
-pointer. `HANDOVER-desktop.md` is still awaiting its first real entry.
+Steps 1–3 shipped (`a085f72`), so all four screens of the approved drawing now exist.
+Mike ruled the last two open questions today: negative stock **stays flagged**, and an
+unbalanced opening **warns** — promoted to a full-width band so it survives the print.
+Nothing on that drawing is unruled any more.
 
-### 2. The Volatility Report is built and live at `/volatility`
+### 🔴 THE FINDING THAT MATTERS TO EVERY MODEL, NOT JUST THIS ONE
 
-Eleventh model in the Model Library, 17th screen in `npm run visual`. Four commits:
-mockup → model+test → screen → month picker. Ported from
-`design/report-source-models/Volatility Report.xlsx`; **every golden expectation cites its
-cell**, and all three dial scores match exactly (77.73 / 85.12 / 95.13).
+`resolveInputs` merges what a screen sends over the workbook's own sample, so **an input
+the screen does not collect keeps the sample's value, invisibly**. Built as drawn, the
+intake would have put Big Bird's 10% commission, 3% freight, 7% overdraft interest and
+15,000 of overheads into a real client's forecast. Mike's ruling: every figure the engine
+takes goes on a screen. `buildInputs()` now sends every key explicitly, and a test compares
+it against the model's own key list. **Any new model with a defaults-merge needs the same
+guard.** Recorded in the Report Models Brief.
 
-> 🔴 **Three findings pinned in the code — do not "tidy" any of them away.**
-> **(a)** The workbook uses the **POPULATION** standard deviation (`STDEV.P`, ÷n). Sample
-> would give 23,052 against 22,071 and put every band ~£1,000 out while looking perfectly
-> plausible. **(b)** A window is the **most recent** n months, not the first n. **(c)** The
-> rev counter is `(2 × SD) ÷ average × 100`; its green/orange/red boundaries (**50** and
-> **75**) were **measured** by decoding the arc of the three gauge PNGs embedded in the
-> workbook — they are recoverable from nothing else, so the test that pins them is load-bearing.
+### Three defects found by opening the drawing beside the code
 
-**Mutation testing earned its place.** Breaking the model five ways outside the repo caught
-three; **two passed everything** — a month sitting exactly on a band boundary, and a month
-beyond the third deviation (the sample never produces one). Both now covered.
+The result screen reset the advisor's mark-up to 68% after step 3; the third file slot was
+drawn and never wired; the overheads had the same leak as the rates. All fixed. **Running
+the app found nothing the suite had missed this time — but only because the app was run.**
 
-### 3. ⚠ The file intake cannot feed a monthly model — I got this wrong first
+### 🖥 DESKTOP — three things
 
-I told Mike the existing Xero/CSV/XLSX intake would serve this report. **It will not.** It
-reads **annual** figures and *deliberately refuses* a by-month export (`MULTI_PERIOD_COLUMNS`,
-`xeroReportParser.js`). Hence typed entry, and hence **item 4.54** for the upload — its own
-change, at the 100% bar, because it takes untrusted files. Recorded in the Report Models Brief
-so nobody else discovers it the hard way.
+1. **PR #55 is waiting on Mike's eyeball** (Volatility upload, production build).
+2. **🔴 Numbering collision, second time.** You filed the Xero sweep as **4.57**; this
+   branch skipped 4.57 deliberately AND had already done that sweep (`2f3f8a2`).
+   `to-do-items.json` will conflict when #55 merges — settle it then.
+3. `ProvenanceBadge` gained a third state (`seeded`, green) and the forecast assembler now
+   returns `candidates`. Both additive — extend, don't copy.
 
-### 4. Two documents were corrected on Mike's ruling
+### Next
 
-`REPORT-VISUAL-STANDARD.md` and `ADDING-A-REPORT.md` (three places) claimed a card carries a
-**3px cyan top edge**. **No shipped screen has ever drawn one.** Mike ruled consistency wins —
-the documents were wrong, not the nine screens. The `--rs-card-top` token remains, read by nothing.
-
-### Open, and none of it blocks you
-
-**4.15** (Mike — 23 template names) · **4.50** (needs a database, so UAT) · **4.54** (the
-by-month upload, ours, unstarted). Nothing here touches Course Builder.
-
-### 🖥 If you are the desktop
-
-`data/course-quizzes.json` is **shared** — `courseEngine.js` reads it and so does the hub's
-Quizzes tab via `firmManager.js`. Whichever machine is in Course Builder, the other should
-stay off that tab. Everything else in the two areas is cleanly separated. Also: all four
-manager tiers render **one** 2,202-line `FirmManagerHub.vue`, so "the hubs" is one machine's
-job — individual tab components are safely separable, the tier matrix is not.
+**4.61** — two years of accounts and a volatility read. Volatility needs 24 **months**, not
+two annual reports, and the two-file monthly join is already built, so phase (a) is a
+connection rather than new arithmetic. Phase (b), the comparative-column parser, needs its
+own drawing. **Both must follow PR #55** — same intake files.

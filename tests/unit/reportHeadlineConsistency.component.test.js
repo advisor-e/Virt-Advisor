@@ -16,6 +16,7 @@ const LeaseVsBuy = require('~/components/LeaseVsBuy.vue').default
 const CostOfCapital = require('~/components/CostOfCapital.vue').default
 const MultiplePropertyAssessment = require('~/components/MultiplePropertyAssessment.vue').default
 const VolatilityReport = require('~/components/VolatilityReport.vue').default
+const ThreeWayForecastReport = require('~/components/ThreeWayForecastReport.vue').default
 
 const { computeDebtorCashflow } = require('~/server/report/debtorDragModel')
 const { computeWorkingCapitalCycle, DEFAULT_INPUTS: WCC_DEFAULTS } = require('~/server/report/workingCapitalCycleModel')
@@ -28,6 +29,7 @@ const { computeLeaseVsBuy } = require('~/server/report/leaseVsBuyModel')
 const { computeCostOfCapital } = require('~/server/report/costOfCapitalModel')
 const { computeMultiplePropertyPortfolio } = require('~/server/report/multiplePropertyModel')
 const { computeVolatility, DEFAULT_INPUTS: VOL_DEFAULTS } = require('~/server/report/volatilityModel')
+const { computeThreeWayForecast } = require('~/server/report/threeWayForecastModel')
 
 /**
  * CONSISTENCY GUARD — every report in this section presents its headline figures the
@@ -83,7 +85,9 @@ const SCREENS = [
   // Phase 1 — one property, ten years. An empty body computes the workbook's sample.
   { name: 'Multiple Property Assessment', component: MultiplePropertyAssessment, result: () => computeMultiplePropertyPortfolio({}) },
   // Typed entry seeded with the workbook's own 24 months; 12 is the screen's default window.
-  { name: 'Volatility Report', component: VolatilityReport, result: () => computeVolatility({ sales: VOL_DEFAULTS.sales, window: 12 }) }
+  { name: 'Volatility Report', component: VolatilityReport, result: () => computeVolatility({ sales: VOL_DEFAULTS.sales, window: 12 }) },
+  // An empty body computes the source workbook's own sample — the model's default path.
+  { name: 'Three-Way Forecast', component: ThreeWayForecastReport, result: () => computeThreeWayForecast({}) }
 ]
 
 /** Mount with the backend answering successfully, and let the first result land. */

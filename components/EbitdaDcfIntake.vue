@@ -14,6 +14,9 @@
           a.remove(href="#" @click.prevent="removeStaged(i)") ✕
       p.file-error(v-if="dropError") {{ dropError }}
     .drop-rules
+      //- The shared supported-software line — see QuickPositionIntake for why it is one
+      //- string rather than one per screen.
+      p.drop-supported {{ $t('report.supportedSoftware') }}
       p {{ $t('report.ebitdaDcf.drop.rules') }}
       a(href="#" @click.prevent="skipManual") {{ $t('report.ebitdaDcf.drop.skip') }}
     .drop-actions

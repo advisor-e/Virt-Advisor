@@ -43,9 +43,10 @@ are **not repeated here**. Read [`RELEASE-NOTES-v0.8.0.md`](RELEASE-NOTES-v0.8.0
 
 1. **Nothing in the app links to the hub screens — type the addresses.** `/mentor`,
    `/global-group-manager`, `/group-manager`, `/firm-manager`.
-2. **The two middle tiers cannot be logged into**, and that is not a bug — Advisor-e
-   issues no role value for them. Use `ALLOW_DEV_AUTH=true` in a non-production
-   environment with the dev bearer tokens.
+2. **The two middle-tier hubs fail closed here**, and that is not a bug — this app has not
+   been told which role values those managers' tokens carry. Use `ALLOW_DEV_AUTH=true` in a
+   non-production environment with the dev bearer tokens. *(Corrected 2026-09-02 — this said
+   the managers "cannot be logged into"; they log into Advisor-e and have for 18 months.)*
 3. **Seed the reserved `firms` row for every tier BEFORE testing a save**, or MySQL
    rejects the write with a foreign-key error.
 

@@ -185,35 +185,6 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
-**4.54 · An adviser types two years of figures into the Volatility Report by hand.** ✅ Closed
-2026-09-02 — the "upload next" half of Mike's 2026-08-31 ruling ("typed now, upload next"),
-built at the 100% bar it was filed under. A new by-month parser
-(`server/report/intake/monthlySalesParser.js`) sits beside the annual one as its mirror image:
-the annual parser still refuses a by-month export (`MULTI_PERIOD_COLUMNS`), and this one
-refuses a whole-period or under-12-month file for the mirrored reason — each report shape has
-exactly one reader. It shares the hardened grid readers, the P&L title test and the "what is
-sales" rules by import from the annual parser, sums income line items per month (never Total
-rows, cached totals cross-checked with a warning), and refuses gappy, duplicated or
-unorderable months rather than guessing. The upload lands at `POST
-/api/report/volatility/intake` — firmAuth, 5 MB cap, parse-and-discard, error codes only in
-the log (a test proves a client's company name never reaches a log line). The screen regained
-the approved mockup's upload card, four step chips, source box and "from file" tags
-(`ddeffcf`); typed entry stays as the fallback; a file names its own months (the start-month
-picker disables) and a window the file cannot fill is never offered, so real accounts are
-never padded with sample months. 🔴 **Wording ruled by Mike 2026-09-02: no product names —
-"your accounting software"** — pinned once in the parser tests; the sweep of the OLDER
-screens' Xero strings is item 4.57. **Named differences from the artefact:** "Xero P&L
-export" became "Profit and Loss export" (his ruling), and the mockup's "Download PDF" button
-was already absent from the 2026-08-31 build (pre-existing, not this change). ⚠ **Not yet
-eyeballed by Mike** — the build matches the artefact and the tests, but nobody has looked at
-the screen; that look is his, on a production build. **What proves it:**
-[`tests/unit/monthlySalesParser.test.js`](../../tests/unit/monthlySalesParser.test.js) (48 —
-100% of lines, hostile shapes included),
-[`tests/unit/reportIntakeRoute.test.js`](../../tests/unit/reportIntakeRoute.test.js) (the
-refusal wording, the temp-file deletion, the identity-free log) and
-[`tests/unit/volatilityReport.component.test.js`](../../tests/unit/volatilityReport.component.test.js)
-(fill-from-file, window limits, tags off on edit). Suite 6,689 green.
-
 **4.56 · CPD follows the library in force — ruled; wire the catalogue through the cascade.** ✅
 Closed 2026-09-02. Since Cascade Phase 2 the AI recommended from the library in force while
 claimable CPD was still priced from the committed platform seed — advisors at a firm with its own
@@ -258,6 +229,53 @@ scoping, cache clearing, safe 500s),
 (search haystack, **zero buttons in the contents table** — the view-only ruling as an assertion).
 Suite 6,615 green. ⚠ **Phase 4 (Advisor-e pushes the export directly) remains the master team's**,
 recorded in the plan and the cascade handover doc — not this item's residual.
+
+**4.54 · An adviser types two years of figures into the Volatility Report by hand.** ✅
+Closed 2026-08-31. The accounts upload is built, and — the thing the item was actually waiting
+on — it has been driven end to end through the running app with **real Xero exports**, twice.
+
+- **Two export shapes are read, not one.** The by-month P&L (`Current financial year by month`)
+  was the shape we planned for. Mike's own export turned out to be a Xero **Account Transactions**
+  listing — one row per invoice, the date an Excel serial — and the reader refused it. He was
+  right that the file was fine and the reader was not. It reads both now, and the transactions
+  shape is the better source: it spans as many years as asked for, so **one file filled the full
+  24-month window** (his did: Sep 2024 – Aug 2026) where the by-month P&L needs two.
+- **The two shapes read a zero OPPOSITELY, and both readings are correct.** In a by-month P&L a
+  `0` means the year has not reached that month yet — poison to the maths. In a transaction
+  listing it means nothing was invoiced, which is real, and is the lumpiness this report exists to
+  measure. Getting this backwards would either wreck the numbers or quietly delete the quiet
+  months and flatter the business.
+- 🔴 **SEVEN DEFECTS CAME OUT OF ONE REAL FILE**, and the sample data in this repo could not have
+  exposed any of them — it starts on a clean month boundary, fills a window exactly, and scores in
+  the red band:
+  1. Widening the window **padded a client's report with workbook sample figures** while the
+     sample notice switched itself off. Mike saw £125,463 of demo data as his client's best month.
+  2. A file short of twelve complete months **half-filled the screen** the same way.
+  3. A refused file's row said **"Reading…" for ever**, so the screen looked busy over a file it
+     had already thrown out.
+  4. The **Account Transactions shape** was not read at all.
+  5. A **leading** part-month was never trimmed — only trailing ones were.
+  6. `HeroFigure` had no **`warn`** tone, so a business in the middle band rendered its headline
+     figure plain white and logged a Vue warning nobody reads. Live since the report shipped.
+  7. The **Starting month picker** silently relabelled file-dated months. Mike set it to August —
+     correctly, his period opens 20 August — and all 24 labels shifted back a month.
+- **The rule that came out of (1) and (2), and it is now structural.** A workbook sample figure may
+  only ever be on screen while the sample notice is showing. The window is backed by a 24-month
+  buffer recording where each month came from, and it cannot widen over a month whose source is
+  `sample`. The notice itself is now a statement about what is visible, not a flag cleared by the
+  first keystroke.
+- **What proves it:**
+  [`tests/unit/monthlySalesIntake.test.js`](../../tests/unit/monthlySalesIntake.test.js) (60,
+  both intake modules at **100%** statements/branches/functions/lines — it reads untrusted
+  uploads), [`volatilityIntakeRoute.test.js`](../../tests/unit/volatilityIntakeRoute.test.js)
+  (11 — auth, the count gate, parse-and-discard, and that no server path or client name survives
+  into a response or a log),
+  [`volatilityReport.component.test.js`](../../tests/unit/volatilityReport.component.test.js)
+  (including *"THE INVARIANT: a workbook figure is never on screen without the sample notice"*),
+  and [`heroFigureTone.test.js`](../../tests/unit/heroFigureTone.test.js), which drives the model
+  across five volatility levels so a new band fails the test rather than silently losing its colour.
+- **Approved artefact:** [`../mockups/volatility-report.html`](../mockups/volatility-report.html),
+  which carries the wording Mike approved and every departure of the build from it.
 
 **4.33 · A template's tutorial video was attached to a calculator that shares its name.** ✅
 Closed 2026-08-26. The injector now recognises a calculator reference and stays quiet — the guard

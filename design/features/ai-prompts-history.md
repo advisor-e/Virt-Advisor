@@ -124,9 +124,9 @@ this session, and were built later — see the Brief's Known state.
 
 ### The two middle tiers
 
-**Four tiers were asked for and four are built**, but two cannot be logged into until Advisor-e
-issues the role values — "correct for four, provable on two". The detail is in the Brief's Known
-state and [`tier-cascade.md`](tier-cascade.md).
+**Four tiers were asked for and four are built.** The middle two were proven by tests and in
+development rather than on a production login — "correct for four, provable on two". The detail
+is in the Brief's Known state and [`tier-cascade.md`](tier-cascade.md).
 
 ### Q2 answered by precedent rather than by ruling
 

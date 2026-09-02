@@ -143,6 +143,13 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('aiPrompts')" v-show="activeTab === 'aiPrompts'")
         firm-ai-prompts(:api-token="apiToken")
 
+      //- Meeting Review — the observation points (slice 1, Mike 2026-09-01). What an
+      //- advisor is checked on in each kind of meeting; the mentor authors the list and a
+      //- firm may edit it. Nothing else of Meeting Review is built — no recording, no
+      //- transcript, no report. The list is useful on its own (Brief §3).
+      div.hub-panel(v-if="showsTab('meetingObservations')" v-show="activeTab === 'meetingObservations'")
+        firm-meeting-observations(:api-token="apiToken")
+
       //- ── Templates & Videos — HIDDEN 2026-07-27 (owner decision) ──────
       //- Not wired to anything usable in UAT (needs Firm-Manager MySQL); shown
       //- as a dead tab was misleading. Kept dormant (v-if="false") rather than
@@ -754,6 +761,7 @@ import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 import FirmStaircase from '~/components/firm/FirmStaircase.vue'
 import FirmPropertyTaxRules from '~/components/firm/FirmPropertyTaxRules.vue'
 import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
+import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
 import FirmDistinctionForm from '~/components/firm/FirmDistinctionForm.vue'
 import FirmAdviserNetwork from '~/components/firm/FirmAdviserNetwork.vue'
@@ -950,12 +958,39 @@ const TAB_TIERS = {
   // decided on the backend — the security prompt is mentor-only and is filtered out of
   // the API response, never merely hidden here.
   //
-  // ⚠ Two of the four cannot be logged into today: config/integration.js ships
-  // globalManagerRole and groupManagerRole EMPTY on purpose, fail-closed. All four are
-  // listed anyway, because excluding them would bake in a limit that is wrong the day
-  // Advisor-e issues the roles. "It works" means the mentor and firm hubs proven, the
-  // middle two correct-by-construction and unexercised.
-  aiPrompts: ['mentor', 'global', 'group', 'firm']
+  // All four tiers are built and their hubs exist (CLAUDE.md § "The four tiers are
+  // settled"); the middle two open in development and fail closed in production by
+  // Mike's ruling of 2026-08-10. Listing four is therefore the accurate list, not an
+  // aspirational one.
+  aiPrompts: ['mentor', 'global', 'group', 'firm'],
+
+  // 🔴 ALL FOUR MANAGER TIERS, WIDENED FROM TWO ON MIKE'S INSTRUCTION, 2026-09-02, in his
+  // own words: the observation points are "editable and creatable by firm managers also —
+  // obviously, we start several as a mentor, they cascade down to global group and group
+  // manager before firm manager, they accept or edit". That is the cascade this app already
+  // runs, so the middle tiers are named rather than left to the mentor-alone default of
+  // 2026-08-24 — the default holds until a tier has a real reason, and he has now given it.
+  //
+  // The MENTOR authors the platform list: this is platform content and the cascade starts
+  // there. The FIRM is where it lands, because the Brief names a firm's own standards as the
+  // whole of the request — meeting-review.md §3. The two MIDDLE TIERS accept or edit on the
+  // way down, which is the same shape as aiPrompts above; `loadResolvedObservations` already
+  // resolves through all four and mints own-row ids under each tier's own prefix, so nothing
+  // on the backend changes.
+  //
+  // ⚠ THIS LIST IS THE MANAGER HUB'S TABS AND NOTHING MORE. An advisor has no tab here
+  // because they have no hub, not because they may not edit their own level.
+  //
+  // 🔴 THE RULE, IN MIKE'S WORDS (2026-09-02): "NOBODY can edit a level ABOVE their own."
+  // That is the whole of it, and it matches what the cascade already enforces — every
+  // route is scoped to the caller's own verified scope, so no tier can reach upward. An
+  // advisor editing at ADVISOR or BUSINESS-ENTITY level breaks nothing: it is below them,
+  // not above. He corrected an earlier claim here that advisors were excluded on principle;
+  // he had never said that, and the sentence was ours.
+  //
+  // Per-advisor and per-entity editing is simply NOT BUILT YET — the cascade currently
+  // ends at the firm. Its absence is an unfinished feature, never a permission decision.
+  meetingObservations: ['mentor', 'global', 'group', 'firm']
 
   // 🔴 ALL FOUR MANAGER TIERS, AND THE REASON IS STATED RATHER THAN ASSUMED — "as
   // appropriate" is a judgement to make out loud (Mike's hub-page ruling, 2026-08-16).
@@ -968,9 +1003,7 @@ const TAB_TIERS = {
   // platform decision about how advice is pitched, not a per-case one, and an advisor who
   // could reword the question could quietly switch the gate off for themselves.
   //
-  // ⚠ Two of the four cannot be logged into today: config/integration.js ships
-  // globalManagerRole and groupManagerRole EMPTY on purpose, fail-closed. All four are
-  // listed anyway, for the reason given on aiPrompts above.
+  // All four tiers, for the reason given on aiPrompts above.
 }
 
 /**
@@ -1042,7 +1075,13 @@ const NAV_GROUPS = [
       // because it decides which library the AI recommends from. At the END, as
       // aiPrompts was: appending moves nothing already on a manager's screen. The
       // mentor's twin lives under "Rolled up from below"; no tier ever sees both.
-      { key: 'templateLibraryFirm', i18n: 'firmTemplateLibrary.tab' }
+      { key: 'templateLibraryFirm', i18n: 'firmTemplateLibrary.tab' },
+      // Meeting Review's observation points (Mike, 2026-09-01). Filed under "Your AI
+      // coach" because that is exactly what they are: the questions the model is asked to
+      // find and quote in a meeting transcript. Both machines appended to this group on
+      // the same day; the firm's Template Library reached master first, so it keeps its
+      // place and this one follows it — appending still moves nothing already on screen.
+      { key: 'meetingObservations', label: 'Meeting Review' }
     ]
   },
   {
@@ -1114,7 +1153,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmAiPrompts, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmAiPrompts, FirmMeetingObservations, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

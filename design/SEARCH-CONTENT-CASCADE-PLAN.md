@@ -51,9 +51,10 @@ Every firm sees the same library; the only variation is a firm upload route
 > past 18 months. ALL login and authentication is handled by the master app, Advisor-e —
 > never by this app.** (Mike, 2026-08-31.)
 >
-> The phrase "no middle-tier login exists" (`design/USER-LEVEL-CASCADE-HANDOVER.md`
-> Part 3) is misleading shorthand for a much narrower gap **on this app's side**: this
-> app has not been told what role values those managers' tokens carry.
+> The old shorthand "no middle-tier login exists" was misleading and has been **deleted
+> from every live document** (2026-09-02, on Mike's instruction). The gap it pointed at is
+> much narrower and sits **on this app's side**: this app has not been told what role
+> values those managers' tokens carry.
 > `server/collaborate/data/roles.js` maps only `platform_admin` and `firm_manager`;
 > `globalManagerRole` / `groupManagerRole` in `config/integration.js` are deliberately
 > empty strings, so an unrecognised role safely resolves to `advisor`.
@@ -185,7 +186,7 @@ below the controls — same question, one screen).
 
 - `.claude/skills/master-export-upload/SKILL.md` — the secure-upload procedure
 - `design/USER-LEVEL-CASCADE-HANDOVER.md` — tier scopes, seam files, reserved rows
-  *(its "no middle-tier login exists" line is corrected by §3 above)*
+  *(its old "no middle-tier login exists" line was deleted 2026-09-02 — see §3 above)*
 - `server/utils/tierChain.js` · `server/utils/firmOverlay.js` — the cascade engine
 - `server/routes/firmManager.js` `importTemplates` — the existing validated upload
 - `server/utils/templates.js` — the loader Phase 2 rewires

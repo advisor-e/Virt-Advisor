@@ -37,19 +37,21 @@ anyone up. Please confirm the field names in the payload:
 **2 · How the token is signed.** HS256 with a shared secret, or RS256? If RS256, we need the
 public key. This changes one line in one file either way.
 
-**3 · The two management role values.** We support four tiers — mentor, global group (brand)
-manager, country group manager, firm manager. The first and last work today. The two middle ones
+**3 · The two management role values.** We support four tiers — mentor, global group manager,
+group manager, firm manager. (A global group is a brand; a group is normally a country. Those
+describe what each level covers — the roles are named as above.) The first and last work today.
+The two middle ones
 are **deliberately switched off and fail closed** until you give us the real role strings, so no
 token can accidentally resolve to a tier that does not exist yet. Please send the two values.
 
-**4 · Two extra claims for those managers.** A brand manager's token needs to name the brand they
-manage, and a country manager's needs the brand and the country. We understand you already hold
+**4 · Two extra claims for those managers.** A global group manager's token needs to name the
+brand they manage, and a group manager's needs the brand and the country. We understand you already hold
 both on the user record — the branch and the country address — so this is a pass-through, not new
 data. We currently expect them as `globalGroup` (e.g. `BDO`) and `country` (e.g. `DE`). Please
 confirm the names.
 
 **5 · How we learn which group a firm belongs to.** This is the one we cannot derive from a token.
-When a brand manager opens a report, we roll up the firms beneath them — so we need to know, for
+When a global group manager opens a report, we roll up the firms beneath them — so we need to know, for
 any given firm, which brand and country it sits under. **Any of these works, whichever is least
 work for you:** a column on the firms table, a small read-only endpoint, or a lookup we query
 once and cache. Until it exists, our reports fall back to a flat structure — they do not guess.

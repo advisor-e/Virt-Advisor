@@ -11,7 +11,7 @@
  * one. So the guard could not tell a mentor from anyone else carrying that value,
  * and the developer sign-ins for the two new middle hubs carry exactly it. Opening
  * a Group Manager Hub returned EVERY brand's cases, activity and configuration into
- * one country manager's screen.
+ * one group manager's screen. (`design/SESSION-2026-08-11-B-NOTES.md`.)
  *
  * Nothing errored, and no test failed, because every existing test called those
  * handlers AS the mentor — for whom the answer "everything" is correct. The bug
@@ -86,14 +86,14 @@ describe('isWithinScope — once the master team supplies membership', () => {
     'firm-leeds': { globalGroup: OTHER_BRAND, country: 'UK' }
   }))
 
-  test('a country manager sees their own country, and not the neighbouring one', () => {
+  test('a group manager sees their own country, and not the neighbouring one', () => {
     const de = groupScopeId(BRAND, 'DE')
     expect(isWithinScope('firm-berlin', de)).toBe(true)
     expect(isWithinScope('firm-munich', de)).toBe(true)
     expect(isWithinScope('firm-dublin', de)).toBe(false)
   })
 
-  test('a brand manager sees every country in their brand', () => {
+  test('a global group manager sees every country in their brand', () => {
     const brand = globalScopeId(BRAND)
     expect(isWithinScope('firm-berlin', brand)).toBe(true)
     expect(isWithinScope('firm-dublin', brand)).toBe(true)
@@ -107,8 +107,8 @@ describe('isWithinScope — once the master team supplies membership', () => {
     expect(isWithinScope('firm-berlin', globalScopeId(OTHER_BRAND))).toBe(false)
   })
 
-  test('a country manager does NOT see up into their own brand', () => {
-    // Authority runs downward. A country manager is not a brand manager.
+  test('a group manager does NOT see up into their own brand', () => {
+    // Authority runs downward. A group manager is not a global group manager.
     expect(isWithinScope('firm-dublin', groupScopeId(BRAND, 'DE'))).toBe(false)
   })
 

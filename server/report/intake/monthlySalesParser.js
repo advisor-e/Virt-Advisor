@@ -1,310 +1,502 @@
 'use strict'
 
 /**
- * Monthly-sales parser — turns a BY-MONTH Profit and Loss export into the monthly
- * sales series the Volatility Report measures (item 4.54, Mike's "upload next" half
- * of the 2026-08-31 ruling).
+ * By-month Xero P&L parser — reads the "Current financial year by month" export into
+ * a series of monthly SALES figures, which is what the Volatility Report takes.
  *
- * This is the mirror image of the annual parser beside it: `xeroReportParser`
- * DELIBERATELY refuses a by-month export (`MULTI_PERIOD_COLUMNS`, 2026-07-19),
- * because reading only its first column silently lost the rest of the year — and
- * this parser refuses a whole-period export for the mirrored reason: one figure
- * column cannot say how twelve months varied. Neither refusal is a defect; each
- * report shape has exactly one reader.
+ * WHY THIS EXISTS SEPARATELY FROM xeroReportParser. That parser reads ONE figure per
+ * period and deliberately REFUSES a by-month export (MULTI_PERIOD_COLUMNS, added
+ * 2026-07-19) because reading only its first column silently lost the rest of the year.
+ * That refusal is correct and stays: the annual models want a year, not a January. This
+ * module is the other half — the same document, read across its columns on purpose.
  *
- * What is shared is shared FROM the annual parser, never copied: the hardened
- * grid readers (`readUploadGrids` — bounds-checked xlsx, capped CSV), the report
- * title test, the "what counts as sales" section and label rules (R18 anchoring
- * included), and the Total-row name matching. One definition each, so the two
- * parsers can never disagree about what a P&L is.
+ * WHAT THE FILE ACTUALLY LOOKS LIKE (verified against a real client export, 2026-07-15 —
+ * REPORT-DATA-MODEL §3.9): a column per month plus a year-to-date column, income broken
+ * out by line item, covering ONE financial year.
  *
- * Contract rules carried over from REPORT-DATA-MODEL §4:
- *  - NEVER read a "Total …" row as a line item — sum the line items per month;
- *    the file's own cached income totals are only a cross-check, warned on mismatch.
- *  - Never silently guess: months that cannot be put in consecutive order are a
- *    refusal, not a reordering; a gap in the months is a refusal, not a zero.
- *  - Wrong file → a plain authored sentence with a stable code; no partial parse.
- *  - Identity stays local: company name and report date go back to the advisor's
- *    own screen; callers must never log them (see the route).
+ * THREE FINDINGS FROM THAT FILE THAT THIS CODE EXISTS TO HANDLE. Each one produces a
+ * number that is wrong and completely believable, which is the worst kind:
+ *
+ *  1. **Months after the data cut-off read as a genuine 0.** A year ending 31 Mar 2027
+ *     had real figures only through July 2026 — eight zeros that are "no data", not "no
+ *     sales". Averaged in, they drag the mean down and widen the standard deviation, and
+ *     the volatility score that comes out looks perfectly plausible. They are marked
+ *     `complete: false, reason: 'empty'` and the assembler drops them.
+ *  2. **The last populated month is usually partial**, because the export was taken
+ *     mid-month. A half month reads as a collapse and lands outside the third deviation —
+ *     a "finding" that is really an artefact of when the file was made. It cannot be
+ *     detected from the cells, so it is INFERRED: a month is partial only when empty
+ *     months follow it, which is what proves the export is mid-year. A completed
+ *     historical year (all twelve populated) therefore has no partial month, which is
+ *     the correct reading of last year's export.
+ *  3. **The year-to-date column is not a month.** It is excluded by never matching the
+ *     month-header pattern, and the count check below would catch it if it ever did.
+ *
+ * IDENTITY. §3.9 item 7: account row labels carry bank-card suffixes and people's names.
+ * This module returns month labels and figures only — never a row label — so nothing
+ * identifying can reach a log or the client payload by way of this path.
  */
 
 const {
-  readUploadGrids,
-  shapeRows,
-  headerMeta,
-  sectionName,
+  gridsFromBuffer,
   PL_TITLE,
-  TOTAL_RE,
-  INCOME_SECTION_RE,
-  INTEREST_RECEIVED_RE,
-  DIVIDENDS_RE,
-  BAD_DEBTS_RECOVERED_RE
+  headerMeta,
+  yearOf,
+  INCOME_RULES
 } = require('./xeroReportParser')
 
-/** The month keys the screen's own selector uses, calendar order. */
-const MONTH_KEYS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+/** Month names in calendar order; the index IS the month number (0 = January). */
+const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
-/** The volatility model measures 12, 18 or 24 months; below 12 no window exists. */
-const MIN_MONTHS = 12
-/** The model's longest window — extra history beyond it is dropped with a warning. */
-const MAX_MONTHS = 24
+/** A month column header: "Apr", "April", "Apr 2026", "Apr-26", "Apr/26". */
+const MONTH_HEADER_RE = /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s*[-–/]?\s*((?:19|20)?\d{2})?$/i
 
-/** How far down the grid a month header row may sit (title + company + date + blanks). */
-const HEADER_SCAN_ROWS = 20
+const TOTAL_RE = /^total\b/i
 
 /**
- * "Jan", "Jan 2024", "Jan-24", "January 2024", "31 Jan 2024" — or an Excel date
- * serial. Anything else is not a month column header.
+ * Fewer than this many month columns and it is not a by-month export. Six rather than
+ * twelve on purpose: a part-year export (a company in its first months of trading) is
+ * still a by-month file and must be read, not refused. The Volatility model needs twelve
+ * for its shortest window, but that is the ASSEMBLER's judgement to make once the months
+ * are in hand — refusing here would give the advisor "wrong export" for a right one.
  */
-const MONTH_TEXT_RE = /^(?:\d{1,2}\s+)?(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*(?:[\s\-./,']+(\d{2}|\d{4}))?$/i
+const MIN_MONTH_COLUMNS = 6
 
-/** Excel date serials for 1990-01-01 .. 2069-12-31 — the range a real header can hold. */
-const SERIAL_MIN = 32874
-const SERIAL_MAX = 62000
-
-/**
- * Read one header cell as a month.
- *
- * @param {*} cell - a grid cell (string or number).
- * @returns {{ m: number, y: number|null }|null} m is 0-based; y is null when the
- *   header names no year ("Jan"), which is common on narrow exports.
- */
-function monthOf (cell) {
-  if (typeof cell === 'number') {
-    if (!Number.isInteger(cell) || cell < SERIAL_MIN || cell > SERIAL_MAX) { return null }
-    // Excel's day 0 is 1899-12-30 (the 1900 leap-year bug means serials after
-    // Feb 1900 — every real report date — convert exactly with this epoch).
-    const d = new Date(Date.UTC(1899, 11, 30) + cell * 86400000)
-    return { m: d.getUTCMonth(), y: d.getUTCFullYear() }
-  }
-  if (typeof cell !== 'string') { return null }
-  const hit = MONTH_TEXT_RE.exec(cell.trim())
-  if (!hit) { return null }
-  const m = MONTH_KEYS.indexOf(hit[1].slice(0, 3).toLowerCase())
-  // Unreachable while MONTH_TEXT_RE and MONTH_KEYS agree — kept so a later edit
-  // to either cannot quietly index a month at -1 (same pattern as cpdCatalogue's
-  // deliberate defence-in-depth branch).
-  if (m === -1) { return null }
-  let y = null
-  if (hit[2]) {
-    y = parseInt(hit[2], 10)
-    if (hit[2].length === 2) { y += 2000 }
-    if (y < 1990 || y > 2069) { return null }
-  }
-  return { m, y }
-}
-
-/** An intake refusal with its stable code. @param {string} code @param {string} message */
-function refuse (code, message) {
-  const e = new Error(message)
-  e.code = code
-  throw e
-}
-
-/** The authored under-12 refusal — one wording, used by both short and whole-period files. */
-function refuseInsufficient (n) {
-  refuse('MONTHS_INSUFFICIENT', n === 0
-    ? 'This looks like a whole-period export with no monthly columns. In your accounting software, set the Profit and Loss to monthly for the last 12, 18 or 24 months and export again.'
-    : 'This export holds only ' + n + ' monthly columns — the report needs at least 12. In your accounting software, set the Profit and Loss to monthly for the last 12, 18 or 24 months and export again.')
+/** Strip the Less/Plus/Add prefix Xero opens sections with (mirrors sectionName in the annual parser). */
+function sectionName (label) {
+  return label.replace(/^(?:less|plus|add)\s+/i, '')
 }
 
 /**
- * Find the month header row: the first row where three or more cells read as
- * months. (A "Total" column, or an empty label cell, simply isn't one of them.)
- *
+ * Locate the month-header row and its columns.
  * @param {Array<Array<string|number|null>>} grid
- * @returns {{ row: number, cols: Array<{col: number, m: number, y: number|null}> }|null}
+ * @returns {{row:number, cols:Array<{col:number, month:number, year:number|null, label:string}>}|null}
  */
 function findMonthHeader (grid) {
-  const limit = Math.min(grid.length, HEADER_SCAN_ROWS)
+  const limit = Math.min(grid.length, 15)
   for (let r = 0; r < limit; r++) {
     const cells = grid[r] || []
     const cols = []
     for (let c = 0; c < cells.length; c++) {
-      const hit = monthOf(cells[c])
-      if (hit) { cols.push({ col: c, m: hit.m, y: hit.y }) }
+      const v = cells[c]
+      if (typeof v !== 'string') { continue }
+      const m = MONTH_HEADER_RE.exec(v.trim())
+      if (!m) { continue }
+      let year = null
+      if (m[2]) {
+        const n = parseInt(m[2], 10)
+        // "26" means 2026; a bare two-digit year is always this century in a Xero export.
+        year = m[2].length === 2 ? 2000 + n : n
+      }
+      cols.push({ col: c, month: MONTHS.indexOf(m[1].slice(0, 3).toLowerCase()), year, label: v.trim() })
     }
-    if (cols.length >= 3) { return { row: r, cols } }
+    if (cols.length >= MIN_MONTH_COLUMNS) { return { row: r, cols } }
   }
   return null
 }
 
 /**
- * Put the month columns oldest-first, refusing anything ambiguous.
+ * Give every month column a year, so two files can be joined without guessing.
  *
- * With years on every header the order is computed and checked; without them the
- * file's own left-to-right order must already be consecutive (ascending or
- * descending) or there is no honest way to know which January is which. A gap or
- * a duplicate is refused either way: volatility statistics over non-consecutive
- * months would be a plausible wrong answer, the exact failure this intake family
- * exists to prevent.
+ * Three cases, in order: the header already says (Apr 2026); one header says and the
+ * rest follow it, walking forward and rolling the year at each January; nothing says, so
+ * the report's own period-end year anchors the LAST column and we walk backwards. A
+ * financial year that straddles the calendar (Apr → Mar, the NZ default) is exactly why
+ * the roll is at January and not at the first column.
  *
- * @param {Array<{col: number, m: number, y: number|null}>} cols - in file order.
- * @returns {Array<{col: number, m: number, y: number|null}>} oldest first.
+ * @param {Array<{col:number, month:number, year:number|null, label:string}>} cols
+ * @param {number|null} periodEndYear - from the report's own date line.
+ * @returns {boolean} true when every column ended up with a year.
  */
-function orderMonths (cols) {
-  const allYeared = cols.every(c => c.y !== null)
-  if (allYeared) {
-    const sorted = cols.slice().sort((a, b) => (a.y * 12 + a.m) - (b.y * 12 + b.m))
-    for (let i = 1; i < sorted.length; i++) {
-      if ((sorted[i].y * 12 + sorted[i].m) !== (sorted[i - 1].y * 12 + sorted[i - 1].m) + 1) {
-        refuse('MONTHS_UNREADABLE', 'The export\'s months are not consecutive — the report needs an unbroken run of monthly columns. Please export the Profit and Loss again with one column per month.')
-      }
+function fillYears (cols, periodEndYear) {
+  let anchorAt = -1
+  for (let i = 0; i < cols.length; i++) { if (cols[i].year !== null) { anchorAt = i; break } }
+
+  if (anchorAt === -1) {
+    if (periodEndYear === null || periodEndYear === undefined) { return false }
+    cols[cols.length - 1].year = periodEndYear
+    anchorAt = cols.length - 1
+  }
+
+  for (let i = anchorAt + 1; i < cols.length; i++) {
+    const prev = cols[i - 1]
+    if (cols[i].year === null) {
+      cols[i].year = cols[i].month <= prev.month ? prev.year + 1 : prev.year
     }
-    return sorted
   }
-  // No (or partial) years: the printed order itself must be consecutive.
-  let ascending = true
-  let descending = true
-  for (let i = 1; i < cols.length; i++) {
-    const step = ((cols[i].m - cols[i - 1].m) % 12 + 12) % 12
-    if (step !== 1) { ascending = false }
-    if (step !== 11) { descending = false }
+  // No guard here, unlike the forward walk: `anchorAt` is the FIRST dated column, so every
+  // column below it is undated by construction. A `year === null` check would be dead.
+  for (let i = anchorAt - 1; i >= 0; i--) {
+    const next = cols[i + 1]
+    cols[i].year = cols[i].month >= next.month ? next.year - 1 : next.year
   }
-  if (ascending) { return cols.slice() }
-  if (descending) { return cols.slice().reverse() }
-  refuse('MONTHS_UNREADABLE', 'The month columns could not be read in a consecutive order — please export the Profit and Loss again with one column per month.')
+  return cols.every(c => c.year !== null)
 }
 
 /**
- * Extract the monthly sales series from one recognised P&L grid.
- *
+ * Reduce each body row to its label and its figure at each month column.
  * @param {Array<Array<string|number|null>>} grid
- * @param {{companyName: string|null, reportDate: string|null}} meta
- * @returns {object} the parseMonthlyUpload result shape.
+ * @param {number} headerRow
+ * @param {Array<{col:number}>} cols
+ * @returns {Array<{label:string|null, values:Array<number|null>, hasValue:boolean}>}
  */
-function extractMonthlySales (grid, meta) {
-  const header = findMonthHeader(grid)
-  if (!header) { refuseInsufficient(0) }
-  if (header.cols.length < MIN_MONTHS) { refuseInsufficient(header.cols.length) }
-
-  const warnings = []
-  let months = orderMonths(header.cols)
-  if (months.length > MAX_MONTHS) {
-    warnings.push('The export holds ' + months.length + ' months — the most recent ' + MAX_MONTHS + ' were read.')
-    months = months.slice(months.length - MAX_MONTHS)
-  }
-
-  // Walk the body: label-only rows open sections, "Total X" rows close them and
-  // carry the cached totals for the cross-check. Only income-section line items
-  // (minus the shared non-sales labels) feed the sales series; ALL income items
-  // feed the cross-check, because the file's own "Total Income" includes interest
-  // and the like — comparing it against the sales subset would warn on every
-  // ordinary export.
-  const salesByCol = Object.create(null)
-  const incomeByCol = Object.create(null)
-  months.forEach((mc) => { salesByCol[mc.col] = 0; incomeByCol[mc.col] = 0 })
-
-  /** @type {Array<{name: string, sum: number}>} open sections; sum spans month columns. */
-  const stack = []
-  let sawIncomeSection = false
-  let cachedIncomeTotals = null
-
-  const monthValues = cells => months.map(mc => (typeof cells[mc.col] === 'number' ? cells[mc.col] : null))
-  const inIncome = () => stack.some(s => INCOME_SECTION_RE.test(s.name))
-  const isSalesLabel = label =>
-    !INTEREST_RECEIVED_RE.test(label) && !DIVIDENDS_RE.test(label) && !BAD_DEBTS_RECOVERED_RE.test(label)
-
-  const addItem = (label, values) => {
-    let rowTotal = 0
-    for (let i = 0; i < values.length; i++) { rowTotal += values[i] || 0 }
-    for (let s = 0; s < stack.length; s++) { stack[s].sum += rowTotal }
-    if (inIncome()) {
-      months.forEach((mc, i) => { incomeByCol[mc.col] += values[i] || 0 })
-      if (isSalesLabel(label)) {
-        months.forEach((mc, i) => { salesByCol[mc.col] += values[i] || 0 })
-      }
-    }
-  }
-
-  for (let r = header.row + 1; r < grid.length; r++) {
+function shapeMonthRows (grid, headerRow, cols) {
+  const out = []
+  const firstMonthCol = cols[0].col
+  for (let r = headerRow + 1; r < grid.length; r++) {
     const cells = grid[r] || []
     let label = null
-    for (let c = 0; c < cells.length; c++) {
-      if (typeof cells[c] === 'string' && cells[c].trim()) { label = cells[c].trim(); break }
+    for (let c = 0; c < cells.length && c < firstMonthCol; c++) {
+      const v = cells[c]
+      if (typeof v === 'string' && v.trim() !== '') { label = v.trim(); break }
     }
-    if (!label) { continue }
-    const values = monthValues(cells)
-    const hasValues = values.some(v => v !== null)
-
-    if (TOTAL_RE.test(label)) {
-      const closes = label.replace(TOTAL_RE, '').trim().toLowerCase()
-      let matched = false
-      for (let s = stack.length - 1; s >= 0; s--) {
-        if (stack[s].name.toLowerCase() === closes) {
-          if (INCOME_SECTION_RE.test(stack[s].name)) { cachedIncomeTotals = values }
-          stack.length = s
-          matched = true
-          break
-        }
-      }
-      // R17, carried over: a "Total X" row that closes nothing, sits inside an
-      // open section and does not look like any open section's own sum is a real
-      // account (e.g. "Total Oil purchases") — kept, never dropped or doubled.
-      if (!matched && stack.length && hasValues) {
-        let rowTotal = 0
-        for (let i = 0; i < values.length; i++) { rowTotal += values[i] || 0 }
-        if (!stack.some(s => Math.abs(s.sum - rowTotal) <= 0.01)) { addItem(label, values) }
-      }
-      continue
-    }
-
-    if (!hasValues) {
-      const name = sectionName(label)
-      if (INCOME_SECTION_RE.test(name)) { sawIncomeSection = true }
-      stack.push({ name, sum: 0 })
-      continue
-    }
-    addItem(label, values)
-  }
-
-  if (!sawIncomeSection) {
-    refuse('UNRECOGNISED_REPORT', 'The export has no income section to read monthly sales from — please check it is a standard Profit and Loss export.')
-  }
-
-  // Cross-check the file's own cached income totals, month by month (§3.1: the
-  // line-item sums are the answer; the cached row only ever raises a warning).
-  if (cachedIncomeTotals) {
-    let mismatches = 0
-    months.forEach((mc, i) => {
-      const cached = cachedIncomeTotals[i]
-      if (typeof cached === 'number' && Math.abs(cached - incomeByCol[mc.col]) > 0.01) { mismatches++ }
+    const values = cols.map((mc) => {
+      const v = cells[mc.col]
+      return typeof v === 'number' ? v : null
     })
-    if (mismatches) {
-      warnings.push('The file\'s own income totals do not match the sum of its line items for ' + mismatches + ' month(s) — the line-item sums were used. Please check the export.')
+    out.push({ label, values, hasValue: values.some(v => v !== null) })
+  }
+  return out
+}
+
+/**
+ * Walk the body into line items carrying their section path — the by-month twin of
+ * lineItems() in the annual parser. A labelled row with no figures at all opens a
+ * section; a "Total X" row closes it and is never itself a line item.
+ *
+ * The annual parser's R17 rescue (a real account literally named "Total Oil purchases")
+ * is deliberately NOT reproduced here. It discriminates by comparing a row against a
+ * running section sum, which has no single answer across twelve columns; and its whole
+ * purpose is to protect an EXPENSE total, whereas this module reads income only. A
+ * "Total …" row inside Income is a total here, always.
+ *
+ * @param {Array<{label:string|null, values:Array<number|null>, hasValue:boolean}>} rows
+ * @returns {Array<{section:string[], label:string, values:Array<number|null>}>}
+ */
+function monthlyLineItems (rows) {
+  const items = []
+  const stack = []
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i]
+    if (!r.label) { continue }
+    if (TOTAL_RE.test(r.label)) {
+      const closes = r.label.replace(TOTAL_RE, '').trim().toLowerCase()
+      for (let s = stack.length - 1; s >= 0; s--) {
+        if (stack[s].toLowerCase() === closes) { stack.length = s; break }
+      }
+      continue
     }
+    if (!r.hasValue) { stack.push(sectionName(r.label)); continue }
+    items.push({ section: stack.slice(), label: r.label, values: r.values })
+  }
+  return items
+}
+
+/** Does any section on the item's path match the pattern? */
+function inSection (item, re) {
+  return item.section.some(s => re.test(s))
+}
+
+/**
+ * Extract the monthly sales series from a by-month P&L grid.
+ *
+ * Sales is decided by exactly the rule the annual parser uses (INCOME_RULES, shared from
+ * xeroReportParser): trading-income line items only, with Other Income, interest,
+ * dividends and bad debts recovered excluded. Two copies of that rule would mean the same
+ * client file yielding two different revenue figures depending on which export was dropped.
+ *
+ * @param {Array<Array<string|number|null>>} grid
+ * @returns {object} { recognised:false } when this is not a by-month P&L, else
+ *   { recognised:true, kind:'profitLossByMonth', companyName, reportDate,
+ *     months: Array<{ label, month, year, ordinal, value, complete, reason }>,
+ *     warnings: string[] } — months are oldest-first, `ordinal` is year*12+month so the
+ *   assembler can join two files by arithmetic rather than by parsing labels again.
+ */
+function extractMonthlySales (grid) {
+  const header = findMonthHeader(grid)
+  if (!header) { return { recognised: false } }
+
+  // The report title is checked on the rows ABOVE the month header — same first-8-rows
+  // rule as the annual parser, which is where Xero puts the title, company and period.
+  const headRows = grid.slice(0, header.row).map((cells) => {
+    let label = null
+    for (let c = 0; c < (cells || []).length; c++) {
+      const v = cells[c]
+      if (typeof v === 'string' && v.trim() !== '') { label = v.trim(); break }
+    }
+    return { label, value: null }
+  })
+  const meta = headerMeta(headRows, PL_TITLE)
+  if (meta.titleRow === -1) { return { recognised: false } }
+
+  const warnings = []
+  const cols = header.cols.slice()
+  if (!fillYears(cols, yearOf(meta.reportDate))) {
+    warnings.push('The export does not date its month columns and its own period line carries no year, so the months could not be placed on a calendar. Check the export, or enter the figures by hand.')
+    return { recognised: true, kind: 'profitLossByMonth', companyName: meta.companyName, reportDate: meta.reportDate, months: [], warnings }
+  }
+
+  const items = monthlyLineItems(shapeMonthRows(grid, header.row, cols))
+  const incomeItems = items.filter(it => inSection(it, INCOME_RULES.INCOME_SECTION_RE))
+  const excluded = new Set(
+    incomeItems.filter(it =>
+      INCOME_RULES.INTEREST_RECEIVED_RE.test(it.label) ||
+      INCOME_RULES.DIVIDENDS_RE.test(it.label) ||
+      INCOME_RULES.BAD_DEBTS_RECOVERED_RE.test(it.label)
+    )
+  )
+  const salesItems = incomeItems.filter(it => !excluded.has(it))
+
+  if (!salesItems.length) {
+    warnings.push('No trading-income rows were found in this export, so no monthly sales could be read. Check that the export is a Profit and Loss with its income broken out by line item.')
+  }
+
+  const months = cols.map((c, i) => {
+    let total = 0
+    for (const it of salesItems) { if (typeof it.values[i] === 'number') { total += it.values[i] } }
+    return {
+      label: c.label,
+      month: c.month,
+      year: c.year,
+      ordinal: c.year * 12 + c.month,
+      value: total,
+      complete: true,
+      reason: null
+    }
+  })
+  months.sort((a, b) => a.ordinal - b.ordinal)
+
+  // Finding 1: a zero month is "no data", not "no sales".
+  for (const m of months) {
+    if (m.value === 0) { m.complete = false; m.reason = 'empty' }
+  }
+  // Finding 2: the cut-off month is partial — but ONLY when empty months follow it,
+  // which is what shows the export was taken mid-year. A fully populated file is a
+  // closed year and every month in it is real.
+  let lastPopulated = -1
+  for (let i = 0; i < months.length; i++) { if (months[i].value !== 0) { lastPopulated = i } }
+  if (lastPopulated !== -1 && lastPopulated < months.length - 1) {
+    months[lastPopulated].complete = false
+    months[lastPopulated].reason = 'partial'
   }
 
   return {
     recognised: true,
-    kind: 'monthlySales',
+    kind: 'profitLossByMonth',
     companyName: meta.companyName,
     reportDate: meta.reportDate,
-    months: months.map(mc => ({ key: MONTH_KEYS[mc.m], year: mc.y, sales: salesByCol[mc.col] })),
-    monthsRead: months.length,
+    months,
+    warnings
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// The SECOND shape: a Xero Account Transactions export.
+//
+// Added 2026-08-31, when Mike dropped his own export in and it was refused. It was not
+// the wrong file — it was a shape nobody had described to us:
+//
+//   Consultancy Fees Transactions
+//   Kinetic Planning (2007) Limited
+//   For the period 20 August 2024 to 31 August 2026
+//   Date | Gross
+//   Consultancy Fees
+//   45525 | 11000        ← one row per invoice, the date an Excel serial
+//   …
+//   Total Consultancy Fees | 0
+//
+// It is a BETTER source for this model than the by-month P&L: it spans as many years as
+// the advisor asks for, so one file can fill the 24-month window that otherwise needs two.
+// The months are summed from the transactions rather than read from columns.
+//
+// TWO THINGS ARE READ DIFFERENTLY HERE, and both are deliberate:
+//  - **A month with no transaction is a REAL zero**, not missing data. In a by-month P&L
+//    a 0 means "the year has not reached this month"; in a transaction listing it means
+//    "nothing was invoiced", which is exactly the lumpiness this report measures. Reading
+//    it as missing would quietly delete the quiet months and flatter the business.
+//  - **The report's own period line decides what is partial**, not the presence of later
+//    months. A period starting 20 August covers only part of that August, and one ending
+//    mid-month likewise — both are set aside on the same rule as the P&L's cut-off month.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Xero writes the amount column under one of these; first match wins. */
+const AMOUNT_HEADERS = ['gross', 'amount', 'total', 'net']
+const DATE_HEADER_RE = /^date$/i
+/** "For the period 20 August 2024 to 31 August 2026" */
+const PERIOD_RE = /^for the period\s+(.+?)\s+to\s+(.+)$/i
+const MONTH_NAME_RE = /^(\d{1,2})\s+([a-z]+)\s+((?:19|20)\d{2})$/i
+
+/**
+ * An Excel date serial as a UTC calendar date. Serial 1 is 1 Jan 1900, and the epoch is
+ * offset by two days for Lotus's 1900 leap-year bug — the standard 1899-12-30 anchor,
+ * correct for every serial above 60, which is every date a Xero export can carry.
+ * @param {number} serial
+ * @returns {{year:number, month:number, day:number}|null}
+ */
+function fromExcelSerial (serial) {
+  if (!Number.isFinite(serial) || serial < 61 || serial > 2958465) { return null }
+  const d = new Date(Date.UTC(1899, 11, 30) + Math.floor(serial) * 86400000)
+  return { year: d.getUTCFullYear(), month: d.getUTCMonth(), day: d.getUTCDate() }
+}
+
+/** "20 August 2024" → {year, month, day}. @param {string} text */
+function parseDayMonthYear (text) {
+  const m = MONTH_NAME_RE.exec(String(text).trim())
+  if (!m) { return null }
+  const month = MONTHS.indexOf(m[2].slice(0, 3).toLowerCase())
+  if (month === -1) { return null }
+  return { year: parseInt(m[3], 10), month, day: parseInt(m[1], 10) }
+}
+
+/** Days in a month, so a period end mid-month can be spotted. */
+/** "20 August 2024" from a parsed date. @param {{year:number,month:number,day:number}} d */
+function dayLabel (d) {
+  return d.day + ' ' + MONTHS[d.month].charAt(0).toUpperCase() + MONTHS[d.month].slice(1) + ' ' + d.year
+}
+
+function daysInMonth (year, month) {
+  return new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
+}
+
+/**
+ * Extract monthly sales from a Xero Account Transactions grid.
+ *
+ * @param {Array<Array<string|number|null>>} grid
+ * @returns {object} { recognised:false } when this is not a transactions export, else the
+ *   same shape extractMonthlySales returns, with kind 'accountTransactions'.
+ */
+function extractTransactionMonths (grid) {
+  // The column header row: a cell that says "Date", plus a named amount column.
+  let headerRow = -1
+  let dateCol = -1
+  let amountCol = -1
+  const limit = Math.min(grid.length, 15)
+  for (let r = 0; r < limit && headerRow === -1; r++) {
+    const cells = grid[r] || []
+    let d = -1
+    let a = -1
+    let best = AMOUNT_HEADERS.length
+    for (let c = 0; c < cells.length; c++) {
+      const v = cells[c]
+      if (typeof v !== 'string') { continue }
+      const text = v.trim()
+      if (d === -1 && DATE_HEADER_RE.test(text)) { d = c; continue }
+      const rank = AMOUNT_HEADERS.indexOf(text.toLowerCase())
+      if (rank !== -1 && rank < best) { best = rank; a = c }
+    }
+    if (d !== -1 && a !== -1) { headerRow = r; dateCol = d; amountCol = a }
+  }
+  if (headerRow === -1) { return { recognised: false } }
+
+  // Company and period from the rows above the header.
+  let companyName = null
+  let periodStart = null
+  let periodEnd = null
+  for (let r = 0; r < headerRow; r++) {
+    const cells = grid[r] || []
+    let label = null
+    for (let c = 0; c < cells.length; c++) {
+      const v = cells[c]
+      if (typeof v === 'string' && v.trim() !== '') { label = v.trim(); break }
+    }
+    if (!label) { continue }
+    const period = PERIOD_RE.exec(label)
+    if (period) {
+      periodStart = parseDayMonthYear(period[1])
+      periodEnd = parseDayMonthYear(period[2])
+      continue
+    }
+    // The first line is the report's own title ("… Transactions"); the next is the company.
+    if (r > 0 && companyName === null) { companyName = label }
+  }
+
+  // One row per transaction: a date SERIAL in the date column. Section headers and
+  // "Total …" rows carry text there instead, so they exclude themselves.
+  const byOrdinal = new Map()
+  let counted = 0
+  let earliest = null
+  let latest = null
+  for (let r = headerRow + 1; r < grid.length; r++) {
+    const cells = grid[r] || []
+    const when = fromExcelSerial(typeof cells[dateCol] === 'number' ? cells[dateCol] : NaN)
+    const amount = cells[amountCol]
+    if (!when || typeof amount !== 'number') { continue }
+    const ordinal = when.year * 12 + when.month
+    byOrdinal.set(ordinal, (byOrdinal.get(ordinal) || 0) + amount)
+    counted++
+    if (earliest === null || ordinal < earliest) { earliest = ordinal }
+    if (latest === null || ordinal > latest) { latest = ordinal }
+  }
+  if (!counted) { return { recognised: false } }
+
+  // The period line is authoritative for the span; the transactions themselves are the
+  // fallback when it is absent or unreadable.
+  const from = periodStart ? periodStart.year * 12 + periodStart.month : earliest
+  const to = periodEnd ? periodEnd.year * 12 + periodEnd.month : latest
+
+  const warnings = []
+  const months = []
+  for (let ordinal = Math.min(from, earliest); ordinal <= Math.max(to, latest); ordinal++) {
+    const year = Math.floor(ordinal / 12)
+    const month = ordinal % 12
+    let complete = true
+    let reason = null
+    // A period that begins or ends mid-month covers only part of it.
+    if (periodStart && ordinal === from && periodStart.day > 1) { complete = false; reason = 'partial' }
+    if (periodEnd && ordinal === to && periodEnd.day < daysInMonth(year, month)) { complete = false; reason = 'partial' }
+    months.push({
+      label: MONTHS[month].charAt(0).toUpperCase() + MONTHS[month].slice(1) + ' ' + year,
+      month,
+      year,
+      ordinal,
+      value: byOrdinal.get(ordinal) || 0,
+      complete,
+      reason
+    })
+  }
+
+  const quiet = months.filter(m => m.complete && m.value === 0).length
+  if (quiet) {
+    warnings.push(quiet === 1
+      ? '1 month has no transactions in this export and is counted as zero sales — which is what a transaction listing means. If that month had sales recorded elsewhere, type it in.'
+      : quiet + ' months have no transactions in this export and are counted as zero sales — which is what a transaction listing means. If those months had sales recorded elsewhere, type them in.')
+  }
+
+  return {
+    recognised: true,
+    kind: 'accountTransactions',
+    companyName,
+    reportDate: periodStart && periodEnd ? (dayLabel(periodStart) + ' to ' + dayLabel(periodEnd)) : null,
+    months,
     warnings
   }
 }
 
 /**
- * Sniff an uploaded buffer, read it, find the by-month P&L sheet and extract the
- * monthly sales series. The single entry point the volatility intake route calls.
+ * Sniff an uploaded buffer and extract its monthly sales series. The single entry point
+ * the Volatility intake route calls.
  *
  * @param {Buffer} buf - the uploaded file's bytes.
- * @returns {object} { recognised: true, kind: 'monthlySales', companyName,
- *   reportDate, months: [{key, year, sales}] oldest-first, monthsRead, warnings }.
- * @throws {Error} err.code ∈ NOT_XLSX | CORRUPT_FILE | FILE_TOO_LARGE |
- *   TOO_MANY_PARTS | PDF_REJECTED | UNRECOGNISED_FILE | UNRECOGNISED_REPORT |
- *   MONTHS_INSUFFICIENT | MONTHS_UNREADABLE
+ * @returns {object} the extractMonthlySales result.
+ * @throws {Error} err.code ∈ NOT_XLSX | CORRUPT_FILE | FILE_TOO_LARGE | TOO_MANY_PARTS |
+ *   PDF_REJECTED | UNRECOGNISED_FILE | NOT_BY_MONTH
  */
 function parseMonthlyUpload (buf) {
-  const grids = readUploadGrids(buf)
+  const grids = gridsFromBuffer(buf)
   for (let g = 0; g < grids.length; g++) {
-    const meta = headerMeta(shapeRows(grids[g]), PL_TITLE)
-    if (meta.titleRow === -1) { continue }
-    return extractMonthlySales(grids[g], meta)
+    const byMonth = extractMonthlySales(grids[g])
+    if (byMonth.recognised) { return byMonth }
+    const transactions = extractTransactionMonths(grids[g])
+    if (transactions.recognised) { return transactions }
   }
-  refuse('UNRECOGNISED_REPORT', 'This does not look like a Profit and Loss export — expected the report title in the first rows.')
+  const e = new Error('This export does not carry monthly figures. Two reports do: Profit and Loss with the "Current financial year by month" layout, or an Account Transactions export for your sales account (Reports → Account Transactions), which can cover more than one year.')
+  e.code = 'NOT_BY_MONTH'
+  throw e
 }
 
-module.exports = { parseMonthlyUpload, extractMonthlySales, monthOf, MIN_MONTHS, MAX_MONTHS, MONTH_KEYS }
+module.exports = {
+  parseMonthlyUpload,
+  extractTransactionMonths,
+  extractMonthlySales,
+  MIN_MONTH_COLUMNS
+}

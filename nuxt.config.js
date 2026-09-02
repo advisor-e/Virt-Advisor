@@ -146,7 +146,21 @@ export default {
     // (server-middleware/collaborate/api.js); ours is used because it also aborts
     // the upstream request when the client disconnects.
     { path: '/api/people', handler: '~/server-middleware/apiProxy.js' },
-    { path: '/api/templates', handler: '~/server-middleware/apiProxy.js' }
+    { path: '/api/templates', handler: '~/server-middleware/apiProxy.js' },
+    // 🔴 MEETING REVIEW — ADDED 2026-09-02, AND WITHOUT IT NONE OF THE FEATURE WORKS.
+    // Found by opening the app for the first time: the advisor's pre-set answered
+    // "Your meeting checklist could not be loaded: Not Found". The backend was serving
+    // /api/meeting/observations with a 200 the whole time; the browser was never allowed
+    // to ask for it, because this list is what decides that and no slice added the line.
+    //
+    // ⚠ IT BLOCKED ALL THREE SLICES, not one screen. Every Meeting Review call comes
+    // through here: the observation points, the consent context, start / chunk / finish,
+    // the transcript, both reports, the dispute and the delete.
+    //
+    // The prefix covers every sub-path — connect mounts on a '/' boundary — and
+    // apiProxy.js is the same forwarder '/api/firm-manager' already uses for uploads,
+    // so the multipart audio chunks need nothing of their own.
+    { path: '/api/meeting', handler: '~/server-middleware/apiProxy.js' }
   ],
 
   // API_BASE_URL should point to the Restify backend server

@@ -83,7 +83,7 @@ describe('a cascading key folds every tier, lowest wins', () => {
       .mockResolvedValueOnce(noRow())
       .mockResolvedValueOnce(row({ tax: { summary: 'mentor' } }))
 
-    // This is the whole point of the middle tiers: a country manager's wording
+    // This is the whole point of the middle tiers: a group manager's wording
     // reaches their firms without the mentor or the firm doing anything.
     await expect(loadFirmConfig(FIRM, CASCADING))
       .resolves.toEqual({ tax: { summary: 'the German group' } })

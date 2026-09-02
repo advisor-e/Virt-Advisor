@@ -21,6 +21,10 @@
         p.file-note(v-if="plResult") ✓ {{ $t('report.quickPosition.drop.plRead', { n: plResult.expenseLines.length }) }}
         p.file-error(v-if="errors.pl") {{ errors.pl }}
     .drop-rules
+      //- Which packages the reader handles, and which are not yet confirmed against a
+      //- real export. One shared string: the list is a single fact and must read the
+      //- same on every intake screen.
+      p.drop-supported {{ $t('report.supportedSoftware') }}
       p {{ $t('report.quickPosition.drop.rules') }}
       a(href="#" @click.prevent="skipManual") {{ $t('report.quickPosition.drop.skip') }}
     .drop-actions

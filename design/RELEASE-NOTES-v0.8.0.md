@@ -36,12 +36,16 @@ Inside Advisor-e this repo surfaces at three places — firm manager → *Manage
 adviser → *AI help*; adviser → *Performance Reports*. The three hubs above are **not** among
 them yet, which is why the addresses matter.
 
-### 2. The two middle tiers CANNOT be logged into, and that is not a bug in this release.
+### 2. The two middle-tier hubs fail closed here, and that is not a bug in this release.
 
-Advisor-e issues no role value for a global group manager or a group manager.
-`server/collaborate/data/roles.js` maps only `platform_admin` → mentor and `firm_manager` →
-firm manager; `globalManagerRole` and `groupManagerRole` in `config/integration.js` are
-deliberately **empty strings**, because this repo never invents a role-value name.
+*(Corrected 2026-09-02 — this heading said those managers "CANNOT be logged into". They log
+into Advisor-e and have for 18 months; what is missing is narrower and sits on our side.)*
+
+This app has not been told which role values a global group manager's or a group manager's
+token carries. `server/collaborate/data/roles.js` maps only `platform_admin` → mentor and
+`firm_manager` → firm manager; `globalManagerRole` and `groupManagerRole` in
+`config/integration.js` are deliberately **empty strings**, because this repo never invents a
+role-value name.
 (⚠ `mentor` was never added either — it still borrows `platform_admin`.)
 
 **To exercise either middle tier, run with `ALLOW_DEV_AUTH=true` in a NON-production

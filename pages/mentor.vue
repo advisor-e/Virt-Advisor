@@ -51,6 +51,7 @@
  */
 
 import FirmManagerHub from '~/components/FirmManagerHub.vue'
+import { isDevHost } from '~/utils/devHost'
 
 // TODO: update these keys to match how Advisor-e stores auth in localStorage
 const AUTH_STORAGE = {
@@ -83,8 +84,8 @@ export default {
 
   methods: {
     checkAuth () {
-      // Dev auto-login as the mentor — localhost only, never in production.
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      // Dev auto-login as the mentor — this machine only (utils/devHost.js), never in production.
+      if (isDevHost()) {
         this.apiToken = 'dev-local-mentor'
         // Matches the dev bypass token's identity on the backend, so the hub's
         // admin-only tab gating behaves the same locally as it will signed in.

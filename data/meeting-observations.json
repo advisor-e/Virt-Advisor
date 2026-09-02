@@ -1,0 +1,140 @@
+{
+  "_readme": [
+    "MEETING REVIEW — THE PLATFORM'S OBSERVATION POINTS, per meeting scenario.",
+    "",
+    "What an advisor is checked on in a meeting of each kind. The mentor authors these;",
+    "a firm inherits them and may edit, switch off, or add its own beside them. Design:",
+    "design/features/meeting-review.md §3 ('Where the observation points are edited'), and",
+    "the approved drawing design/mockups/meeting-review.html Stage A.",
+    "",
+    "🔴 THE ELEVEN TYPES BELOW ARE A SUGGESTION, NOT MIKE'S LIST. They were picked from",
+    "data/logic_trees.json by the session that drafted the design on 2026-09-01, under a",
+    "rule (the old P12) that nobody had asked for. His words on being shown it, 2026-09-02:",
+    "'i have ZERO idea where the meeting types being linked to logic trees came from'. He",
+    "has since ruled that meeting types are AUTHORED and CASCADE — mentor down to the",
+    "business entity — so these are to keep, rename or replace, and the ids here are still",
+    "tree ids only because that is where they came from and nothing has replaced them yet.",
+    "",
+    "EACH TYPE NOW CARRIES ITS OWN `name` (slice 1, 2026-09-02). It is no longer borrowed",
+    "from data/logic_trees.json, so a type may be renamed here — or, once slice 2 ships, on",
+    "the mentor's screen — without touching the coaching trees. The eleven names shipped in",
+    "slice 1 were copied from the trees CHARACTER FOR CHARACTER, so nothing an advisor reads",
+    "changed on the day the foundation moved. That is the point of the slice.",
+    "",
+    "`treeId` IS THE OPTIONAL COACHING LINK and it is not identity. Where a type names a",
+    "tree, the app can later offer that coaching material beside the meeting; where it is",
+    "absent, the type still works completely. It ships equal to `id` on all eleven only",
+    "because that is where they came from. ⚠ NEVER use it to look up a name, and never make",
+    "a type's existence depend on it — that was the deleted P12, which nobody had asked for.",
+    "",
+    "TWO VOICES PER POINT, AND BOTH ARE IN THE APPROVED DRAWING. `text` is how the FIRM",
+    "states the point on the manager's screen ('The meeting was framed…'); `advisorText` is",
+    "how the ADVISOR reads the same point on their own pre-set and coaching notes ('I framed",
+    "the meeting…'). Stage A and Stage B1 of the mockup show the same four points in those",
+    "two voices, so they are stored rather than derived — no rule turns one into the other.",
+    "`advisorText` is OPTIONAL: a point added by a manager carries one form and the advisor",
+    "sees it verbatim, which is honest rather than guessing at a first-person rewrite.",
+    "",
+    "IDS ARE IDENTITY. `mo-` marks a point shipped by the platform. A point ADDED at a tier",
+    "is minted under that tier's own prefix (mm- mentor, xm- global, gm- group, fm- firm) —",
+    "see server/utils/meetingObservations.js for why sibling id systems must not collide.",
+    "Never renumber or reuse one: every decline and every override is keyed to it.",
+    "",
+    "ONLY ONE SCENARIO SHIPS WITH POINTS, DELIBERATELY. `eoy_meeting`'s four are the ones",
+    "Mike approved in the drawing, character for character. The other ten meeting scenarios",
+    "are REGISTERED AND EMPTY — writing points for them would be inventing advisory content",
+    "nobody asked for (CLAUDE.md: wording is asked for, never assumed). The mentor authors",
+    "them on screen, which is what the hub-page rule exists to make possible."
+  ],
+  "version": "2.0.0",
+  "lastUpdated": "2026-09-02",
+  "scenarios": [
+    {
+      "id": "eoy_meeting",
+      "name": "End of Year Meeting — Planning and Delivery",
+      "treeId": "eoy_meeting",
+      "points": [
+        {
+          "id": "mo-eoy-1",
+          "text": "The meeting was framed — what we would cover and why, in the first two minutes.",
+          "advisorText": "I framed the meeting — said what we would cover and why, in the first two minutes."
+        },
+        {
+          "id": "mo-eoy-2",
+          "text": "A metaphor or analogy was used to explain a financial idea.",
+          "advisorText": "I used a metaphor or an analogy to explain a financial idea."
+        },
+        {
+          "id": "mo-eoy-3",
+          "text": "Understanding was checked before moving on from the figures.",
+          "advisorText": "I checked understanding before moving on from the figures."
+        },
+        {
+          "id": "mo-eoy-4",
+          "text": "Named actions were agreed, with an owner and a date, before the time ran out.",
+          "advisorText": "We agreed named actions, with an owner and a date, before the time ran out."
+        }
+      ]
+    },
+    {
+      "id": "client_sales",
+      "name": "Client Sales Logic",
+      "treeId": "client_sales",
+      "points": []
+    },
+    {
+      "id": "client_planning",
+      "name": "Client Planning Logic",
+      "treeId": "client_planning",
+      "points": []
+    },
+    {
+      "id": "conflict_meeting",
+      "name": "Framing a Conflict Meeting",
+      "treeId": "conflict_meeting",
+      "points": []
+    },
+    {
+      "id": "trial_fit",
+      "name": "Trial Fit Method — Revenue Model Presentation",
+      "treeId": "trial_fit",
+      "points": []
+    },
+    {
+      "id": "cautious_reveal",
+      "name": "Cautious Reveal Method — Introducing Revenue Models to Resistant Clients",
+      "treeId": "cautious_reveal",
+      "points": []
+    },
+    {
+      "id": "reveal_growth_curve",
+      "name": "Revealing the Growth Curve",
+      "treeId": "reveal_growth_curve",
+      "points": []
+    },
+    {
+      "id": "dashboard_discussions",
+      "name": "Dashboard Discussions",
+      "treeId": "dashboard_discussions",
+      "points": []
+    },
+    {
+      "id": "sales_process",
+      "name": "Get the Job - Sales Process Decision Tree",
+      "treeId": "sales_process",
+      "points": []
+    },
+    {
+      "id": "facilitation_101",
+      "name": "Facilitation 101 — Framing, Story, and Relevance",
+      "treeId": "facilitation_101",
+      "points": []
+    },
+    {
+      "id": "public_speaking",
+      "name": "Get the Job - Public Speaking & Seminar Delivery",
+      "treeId": "public_speaking",
+      "points": []
+    }
+  ]
+}

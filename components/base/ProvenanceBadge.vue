@@ -35,16 +35,24 @@ export default {
   name: 'ProvenanceBadge',
 
   props: {
-    /** Where the figure came from. 'file' = the accounting export; 'entered' = a person. */
+    /**
+     * Where the figure came from. 'file' = the accounting export; 'entered' = a person;
+     * 'seeded' = last year's actual, offered as a starting point for a judgement about
+     * next year. The third state is deliberately NOT the same as 'file': a seeded figure
+     * is a fact about the past standing in for a forecast nobody has made yet, and a
+     * screen that showed the two alike would let one pass as the other.
+     */
     source: {
       type: String,
       required: true,
-      validator: s => ['file', 'entered'].includes(s)
+      validator: s => ['file', 'entered', 'seeded'].includes(s)
     },
     /** Text for the 'file' state — supplied by the caller so wording stays the screen's. */
     fileLabel: { type: String, required: true },
     /** Text for the 'entered' state. */
     enteredLabel: { type: String, required: true },
+    /** Text for the 'seeded' state. Only needed by a screen that uses it. */
+    seededLabel: { type: String, default: '' },
     /**
      * 'md' — the intake confirm tables (the original 9.5px badge).
      * 'sm' — the report screens, where the badge sits inside a dense control label.
@@ -59,13 +67,21 @@ export default {
   },
 
   computed: {
-    /** The visible text for the current source. */
+    /**
+     * The visible text for the current source. A 'seeded' badge with no label of its own
+     * falls back to the entered wording rather than rendering an empty tag — a blank
+     * badge would read as no provenance at all, which is the one thing it must never say.
+     */
     text () {
-      return this.source === 'file' ? this.fileLabel : this.enteredLabel
+      if (this.source === 'file') { return this.fileLabel }
+      if (this.source === 'seeded') { return this.seededLabel || this.enteredLabel }
+      return this.enteredLabel
     },
     /** Colour class — kept as the original `src-file` / `src-hand` names. */
     sourceClass () {
-      return this.source === 'file' ? 'src-file' : 'src-hand'
+      if (this.source === 'file') { return 'src-file' }
+      if (this.source === 'seeded') { return 'src-seed' }
+      return 'src-hand'
     },
     sizeClass () {
       return 'is-' + this.size
@@ -91,5 +107,12 @@ export default {
   color: var(--pb-hand, #b36b00);
   background: var(--pb-hand-bg, #ff99001a);
   border: 1px solid var(--pb-hand-border, #ff990059);
+}
+/* Green, as drawn in design/mockups/three-way-forecast.html — a third colour so a
+   starting point is never mistaken for a figure read out of the file. */
+.src-seed {
+  color: var(--pb-seed, #4a7c1f);
+  background: var(--pb-seed-bg, #4ca52d1a);
+  border: 1px solid var(--pb-seed-border, #4ca52d59);
 }
 </style>

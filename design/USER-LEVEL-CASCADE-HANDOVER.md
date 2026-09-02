@@ -243,15 +243,20 @@ insert instructions sit in [`config/db-schema.sql`](../config/db-schema.sql), be
 Interest Group** (`group_member` / `group_tag` / `marketplace_listing`) — a social group.
 Reading it as a management tier would be a correctness bug.
 
-### What IS still open, and it is genuinely Advisor-e's
+### The two values the master team plugs in — PARKED by Mike, and not a gap on our side
 
-Two things, and this app cannot supply either:
+Everything on this side is built: the four tiers, both middle-tier hub pages (approved
+2026-08-10), the scope ids and the cascade. Two values arrive from Advisor-e's own login and
+data, and Mike has parked both — *"already provided for by the master app… you just need to
+create stubs or make provision"* ([`features/to-do.md`](features/to-do.md) 3.2 / 3.3). **Neither
+is a defect here and neither blocks any feature** — see `CLAUDE.md` § "The four tiers are settled
+and built".
 
-1. **No middle-tier login exists.** [`roles.js`](../server/collaborate/data/roles.js) maps
-   only `platform_admin` → mentor and `firm_manager` → firm manager. No role value produces
-   `global_group_manager` or `group_manager`, and `globalManagerRole` / `groupManagerRole`
-   in [`config/integration.js`](../config/integration.js) are deliberately empty strings.
-   ⚠ **`mentor` was never added either** — it still borrows `platform_admin`.
+1. **The two middle-tier role values.** The provision is already in place and **deliberately
+   fails closed**: `globalManagerRole` / `groupManagerRole` in
+   [`config/integration.js`](../config/integration.js) are empty strings that match no role, so
+   no token can resolve to a tier before its role exists. Point them at the real values and both
+   hubs come alive with no other change. ⚠ **`mentor` likewise still borrows `platform_admin`.**
 2. **Nothing in our data says which firms sit in which group.** The `firms` table has no
    country, group or parent column. Advisor-e already holds both facts (firm as the
    Advisory `branch`, country as `country-address`), so this is **a claim to pass through
