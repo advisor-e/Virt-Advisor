@@ -80,7 +80,7 @@ export const CLASS_ALL = 'All'
 export const MODELS = [
   { name: 'Working Capital Cycle', category: 'Cash Flow', summary: 'How fast a fixed pot of cash recycles through stock and debtors — speed it up to earn more.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/business-performance-report' },
   { name: 'Debtor Business Drag', category: 'Cash Flow', summary: 'How slow-paying customers push your bank balance into overdraft, month by month.', status: STATUS_READY, modelClass: CLASS_EDUCATION, route: '/debtor-drag' },
-  { name: '3-Way Forecast Filter', category: 'Cash Flow', summary: 'Linked P&L, balance sheet and cash-flow projections over three years.', status: STATUS_SOON, modelClass: CLASS_REPORT },
+  { name: '3-Way Forecast Filter', category: 'Cash Flow', summary: 'Linked P&L, balance sheet and cash-flow projections over three years.', scope: 'The result screen is live on the workbook sample; the file intake is built on the backend and its screens are the next step.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/three-way-forecast' },
   { name: 'Dashboard Reports', category: 'Cash Flow', summary: 'Monthly and yearly performance dashboards from your accounting data.', status: STATUS_SOON, modelClass: CLASS_REPORT },
   { name: 'EBITDA & Discounted Cash Flow', category: 'Profitability', summary: 'Earnings before interest/tax/depreciation, and what future cash is worth today.', status: STATUS_READY, modelClass: CLASS_REPORT, route: '/ebitda-dcf' },
   // NB: there is deliberately no separate "Break-Even" entry. Its source workbook

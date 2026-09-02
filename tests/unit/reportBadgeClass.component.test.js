@@ -42,6 +42,7 @@ const RENDERED_BY = {
   '/cost-of-capital': { component: 'components/CostOfCapital.vue' },
   '/multiple-property': { component: 'components/MultiplePropertyAssessment.vue' },
   '/volatility': { component: 'components/VolatilityReport.vue' },
+  '/three-way-forecast': { component: 'components/ThreeWayForecastReport.vue' },
   // Pages need Nuxt context to mount, so these are asserted at source.
   '/quick-position': { source: 'pages/quick-position.vue' },
   '/ebitda-dcf': { source: 'pages/ebitda-dcf.vue' },
