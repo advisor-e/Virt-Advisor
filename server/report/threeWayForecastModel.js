@@ -9,12 +9,14 @@
  * term loans, six fixed-asset categories, GST, income tax and four shareholder
  * current accounts).
  *
- * PROVEN AGAINST THE WORKBOOK: an independent re-implementation reproduces all 3,397
- * calculated cells of the "Yr 1. Projections" sheet exactly (see
- * `tests/unit/threeWayForecastModel.test.js` and its generated fixture). Only row 1,
- * the month-header dates, is excluded — it is a label, not a calculation.
+ * PROVEN AGAINST THE WORKBOOK: an independent re-implementation reproduces 10,155 of the
+ * 10,227 calculated cells across all three projection sheets exactly — 3,385 per year
+ * (see `tests/unit/threeWayForecastModel.test.js`, `threeWayForecastYears.test.js` and
+ * their generated fixtures). The 72 not covered are row 1 on each sheet, the month-header
+ * dates, which are labels rather than calculations, and year 1's row 201, the mis-filled
+ * duplicate that R6 removes and which therefore cannot map to a single series.
  *
- * SEVEN CORRECTIONS, EACH RULED BY MIKE ON 2026-09-02. The workbook was extended over
+ * NINE CORRECTIONS, EACH RULED BY MIKE ON 2026-09-02. The workbook was extended over
  * time from three fixed-asset categories to six, and several aggregation formulas were
  * never updated. The full evidence for each is in
  * `design/THREE-WAY-FORECAST-DEVIATIONS.md`; in short:
@@ -39,13 +41,23 @@
  * holds flat across all twelve months instead of eroding. Any residual is the opening
  * balance sheet the advisor entered, which is the honest place for it to show.
  *
- * ONE KNOWN QUIRK IS PORTED AS WRITTEN AND IS NOT YET RULED ON: the workbook advances
- * its month headers by adding 31 DAYS, not one calendar month (sheet `Data Input` C105
- * = C104+31). Those dates decide which months a GST return falls due. On a first-of-
- * month start — the normal case, and the sample — the sequence is correct. On a start
- * late in a month it can skip a calendar month and misfire the filing schedule. See
- * `startsSkipACalendarMonth` in the returned payload, which says so rather than hiding
- * it. Raised for Mike 2026-09-02; do not "fix" it without his ruling.
+ *   R8  The four shareholder current accounts reset to their year-one opening at EVERY
+ *       year boundary, wiping that year's interest, advances and drawings — while the
+ *       balance sheet carried the correct closing figure, so the two disagreed. The
+ *       loans were wired up properly, which is how we know this was an omission. They
+ *       now open where they closed.
+ *   R9  Months advanced by 31 DAYS rather than one calendar month, so a three-year
+ *       forecast ended three weeks adrift and a start late in a month could skip a
+ *       calendar month outright — misfiling the GST schedule, which those dates drive.
+ *       Months now advance by the calendar, clamping to a short month's last day.
+ *
+ * `computeThreeYearForecast` chains all three years: each year's closing balance sheet
+ * becomes the next year's opening, which is what the workbook itself does
+ * (`'Yr 1. Projections'!O70`…`O116`). The chain is proved by the balance check not
+ * moving across all 36 months — if any closing figure failed to reach the next year it
+ * would. AN OMITTED LATER YEAR INHERITS THE YEAR BEFORE IT, never the sample workbook,
+ * so leaving years 2 and 3 empty forecasts "the same again" rather than dropping
+ * "Big Bird Grass Seed" into a real client's accounts.
  *
  * Pure, side-effect free, backend-only per the Stack Constitution. CommonJS for
  * Node 14.15.
@@ -328,36 +340,85 @@ function resolveInputs (raw, fallback) {
 
 /* ------------------------------------------------------------- the month headers -- */
 
+/*
+ * Excel's 1900 date system, with its deliberate leap-year bug: serial 1 is 1900-01-01
+ * and serial 60 is the non-existent 1900-02-29. Every forecast date is far beyond that,
+ * so this constant epoch is exact for our range.
+ */
+const EXCEL_EPOCH_MS = Date.UTC(1899, 11, 30)
+const MS_PER_DAY = 86400000
+
+/** @param {number} serial @returns {Date} */
+function dateOfSerial (serial) { return new Date(EXCEL_EPOCH_MS + serial * MS_PER_DAY) }
+/** @param {Date} date @returns {number} */
+function serialOfDate (date) { return Math.round((date.getTime() - EXCEL_EPOCH_MS) / MS_PER_DAY) }
+
+/**
+ * Advance a date by whole calendar months, keeping the day of the month where the
+ * target month has one — 31 January plus a month is the 28th or 29th of February, not
+ * the 2nd or 3rd of March.
+ * @param {Date} from @param {number} months @returns {Date}
+ */
+function addCalendarMonths (from, months) {
+  const y = from.getUTCFullYear()
+  const m = from.getUTCMonth() + months
+  const day = from.getUTCDate()
+  const lastDayOfTarget = new Date(Date.UTC(y, m + 1, 0)).getUTCDate()
+  return new Date(Date.UTC(y, m, Math.min(day, lastDayOfTarget)))
+}
+
 /**
  * The twelve month-start dates, and the calendar month each falls in.
  *
- * PORTED AS WRITTEN: the workbook advances by 31 DAYS, not one calendar month. The
- * calendar month drives the GST filing schedule, so the sequence is reported alongside
- * a flag saying whether it skipped a calendar month — the condition under which the
- * workbook's own filing logic misfires. See the header note; not yet ruled on.
+ * 🔴 R9 — MONTHS ADVANCE BY THE CALENDAR. Ruled by Mike, 2026-09-02: "obviously, it
+ * needs to be per calendar month."
+ *
+ * The workbook adds **31 DAYS** at a time (`Data Input` C105 = C104+31), which drifts.
+ * Over one year that is a curiosity — a forecast opening 1 April ends its final month on
+ * 8 March. Over the three years the model now covers it reaches **three weeks**: the last
+ * month began 22 March 2027 instead of 1 March. Worse, these dates decide which months a
+ * GST return falls due, so a forecast starting late in a month could skip a calendar
+ * month entirely — 30 January stepped to 2 March, and February never happened — and
+ * misfile the whole schedule.
+ *
+ * The 31-day stepping is kept for `sourceFidelity` alone, because the golden test proves
+ * the port against a workbook that steps that way and those dates move real figures.
  *
  * @param {number} startSerial Excel date serial of the first month
- * @returns {{serials: Array<number>, calendarMonths: Array<number>, isoDates: Array<string>, skipsACalendarMonth: boolean}}
+ * @param {boolean} byCalendar advance a calendar month at a time (R9) rather than 31 days
+ * @returns {{serials: Array<number>, calendarMonths: Array<number>, isoDates: Array<string>, skipsACalendarMonth: boolean, nextYearStartSerial: number}}
  */
-function monthHeaders (startSerial) {
+function monthHeaders (startSerial, byCalendar) {
+  const first = dateOfSerial(startSerial)
   const serials = []
-  for (let m = 0; m < MONTHS; m++) { serials.push(startSerial + 31 * m) }
+  for (let m = 0; m < MONTHS; m++) {
+    serials.push(byCalendar ? serialOfDate(addCalendarMonths(first, m)) : startSerial + 31 * m)
+  }
   const calendarMonths = []
   const isoDates = []
   for (let m = 0; m < MONTHS; m++) {
-    // Excel's 1900 date system, with its deliberate leap-year bug: serial 1 is
-    // 1900-01-01 and serial 60 is the non-existent 1900-02-29. Every forecast date is
-    // far beyond that, so the constant epoch below is exact for our range.
-    const d = new Date(Date.UTC(1899, 11, 30) + serials[m] * 86400000)
+    const d = dateOfSerial(serials[m])
     calendarMonths.push(d.getUTCMonth() + 1)
     isoDates.push(d.toISOString().slice(0, 10))
   }
+  // True only under the workbook's own stepping. With R9 applied it can never be true,
+  // and the flag stays so a source-fidelity run can still report the fault it describes.
   let skips = false
   for (let m = 1; m < MONTHS; m++) {
     const step = ((calendarMonths[m] - calendarMonths[m - 1]) + 12) % 12
     if (step !== 1) { skips = true }
   }
-  return { serials, calendarMonths, isoDates, skipsACalendarMonth: skips }
+  return {
+    serials,
+    calendarMonths,
+    isoDates,
+    skipsACalendarMonth: skips,
+    // Where the NEXT year begins, by whichever rule this year used — so the chain never
+    // has to re-derive it and the two can never disagree.
+    nextYearStartSerial: byCalendar
+      ? serialOfDate(addCalendarMonths(first, MONTHS))
+      : serials[MONTHS - 1] + 31
+  }
 }
 
 /* ------------------------------------------------------------------ the schedules -- */
@@ -519,7 +580,9 @@ function computeThreeWayForecast (rawInputs, options) {
   const totalsAllSixAssets = corrected || yearIndex > 0
   const gst = I.gstRate
   const ob = I.openingBalanceSheet
-  const headers = monthHeaders(I.startDateSerial)
+  // R9: calendar months, except in source-fidelity mode, which must keep the workbook's
+  // 31-day stepping because those dates decide when a GST return falls due.
+  const headers = monthHeaders(I.startDateSerial, corrected)
 
   /* -- opening balance sheet (the sheet's column C) -------------------------------- */
   const shOpeningTotal = I.shareholders.reduce(function (a, s) { return a + s.opening }, 0)
@@ -945,7 +1008,10 @@ function computeThreeWayForecast (rawInputs, options) {
     months: {
       serials: headers.serials,
       isoDates: headers.isoDates,
-      calendarMonths: headers.calendarMonths
+      calendarMonths: headers.calendarMonths,
+      // Where the next year begins, by whichever stepping rule this year used. The
+      // chain reads it rather than re-deriving it, so the two can never disagree.
+      nextYearStartSerial: headers.nextYearStartSerial
     },
     // True when the workbook's add-31-days month stepping skips a calendar month, which
     // is the condition under which its GST filing schedule misfires. Reported, not hidden.
@@ -1163,9 +1229,11 @@ function carryForward (previousYear, nextYearInputs, resetShareholdersTo) {
     return Object.assign({}, sh, { opening: s.shareholders[n].closingBalance[last] })
   })
 
-  // The workbook steps the year on the same way it steps a month: the next year's first
-  // header is the last month of this one plus 31 days (`'Yr 1. Projections'!O1+31`).
-  next.startDateSerial = previousYear.months.serials[last] + 31
+  // A year steps on the same way its months do — one calendar month after the last
+  // (R9), or, in source-fidelity mode, the workbook's 31 days
+  // (`'Yr 1. Projections'!O1+31`). The year that just ran reports which, so the two can
+  // never disagree.
+  next.startDateSerial = previousYear.months.nextYearStartSerial
 
   return next
 }

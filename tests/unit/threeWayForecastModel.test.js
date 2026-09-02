@@ -290,21 +290,47 @@ describe('Three-Way Forecast — honesty and robustness', () => {
   })
 })
 
-describe('Three-Way Forecast — the month stepping quirk is reported, not hidden', () => {
-  test('a first-of-month start walks the calendar correctly', () => {
+describe('R9 — months advance by the calendar (Mike, 2026-09-02)', () => {
+  test('a first-of-month start runs April to March, on the first of each', () => {
     const f = computeThreeWayForecast({})
     expect(f.months.calendarMonths).toEqual([4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3])
+    expect(f.months.isoDates[0]).toBe('2024-04-01')
+    expect(f.months.isoDates[11]).toBe('2025-03-01')
     expect(f.startsSkipACalendarMonth).toBe(false)
   })
 
-  test('a start late in a month skips one, and the model says so', () => {
-    // The workbook advances by 31 DAYS, so 30 January steps to 2 March and February
-    // never appears. Those dates drive the GST filing schedule. Ported as written and
-    // flagged, pending Mike's ruling — see the model header.
+  test('🔴 a start late in a month no longer skips one', () => {
+    // The workbook adds 31 DAYS, so 30 January stepped to 2 March and February never
+    // happened — and these dates decide when a GST return falls due, so the whole
+    // filing schedule misfired. Mike's ruling: "obviously, it needs to be per calendar
+    // month."
     const lateStart = computeThreeWayForecast({ startDateSerial: 45687 }) // 2025-01-30
-    expect(lateStart.months.calendarMonths[0]).toBe(1)
-    expect(lateStart.months.calendarMonths[1]).toBe(3)
-    expect(lateStart.startsSkipACalendarMonth).toBe(true)
+    expect(lateStart.months.calendarMonths).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+    expect(lateStart.startsSkipACalendarMonth).toBe(false)
+  })
+
+  test('a 31st clamps to the last day of a shorter month rather than overflowing', () => {
+    // 31 January plus a month is the 28th (or 29th) of February, never the 2nd or 3rd
+    // of March — which is exactly the overflow that produced the skip above.
+    const jan31 = computeThreeWayForecast({ startDateSerial: 45688 }) // 2025-01-31
+    expect(jan31.months.isoDates[0]).toBe('2025-01-31')
+    expect(jan31.months.isoDates[1]).toBe('2025-02-28')
+    expect(jan31.months.isoDates[2]).toBe('2025-03-31')
+    expect(jan31.months.calendarMonths).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+  })
+
+  test('February is dated correctly in a leap year', () => {
+    const jan31Leap = computeThreeWayForecast({ startDateSerial: 45322 }) // 2024-01-31
+    expect(jan31Leap.months.isoDates[1]).toBe('2024-02-29')
+  })
+
+  test('source-fidelity mode keeps the workbook\'s 31-day stepping', () => {
+    // It must: those dates move real figures through the GST filing schedule, and the
+    // golden set is proved against a workbook that steps that way.
+    const asWritten = computeThreeWayForecast({}, { sourceFidelity: true })
+    expect(asWritten.months.isoDates[11]).toBe('2025-03-08')
+    const corrected = computeThreeWayForecast({})
+    expect(corrected.months.isoDates[11]).toBe('2025-03-01')
   })
 })
 

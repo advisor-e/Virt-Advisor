@@ -211,10 +211,36 @@ describe('The handover between years is complete', () => {
     }
   })
 
-  test('year 2 starts where year 1 finished', () => {
+  test('R9 — each year starts one calendar month after the last one ended', () => {
+    // Three years is 36 consecutive calendar months and nothing else. Under the
+    // workbook's 31-day stepping the third year ended 22 March instead of 1 March —
+    // three weeks adrift, and growing with every year added.
+    expect(fixed.years[0].months.isoDates[0]).toBe('2024-04-01')
+    expect(fixed.years[1].months.isoDates[0]).toBe('2025-04-01')
+    expect(fixed.years[2].months.isoDates[0]).toBe('2026-04-01')
+    expect(fixed.years[2].months.isoDates[11]).toBe('2027-03-01')
     for (let y = 1; y < 3; y++) {
-      expect(fixed.years[y].months.serials[0]).toBe(fixed.years[y - 1].months.serials[11] + 31)
+      expect(fixed.years[y].months.serials[0]).toBe(fixed.years[y - 1].months.nextYearStartSerial)
+      expect(fixed.years[y].months.calendarMonths).toEqual(fixed.years[y - 1].months.calendarMonths)
     }
+  })
+
+  test('the 36 months are consecutive, with no month repeated or missed', () => {
+    const all = []
+    fixed.years.forEach(yr => yr.months.isoDates.forEach(d => all.push(d)))
+    expect(all).toHaveLength(36)
+    expect(new Set(all).size).toBe(36)
+    for (let i = 1; i < all.length; i++) {
+      const prev = new Date(all[i - 1] + 'T00:00:00Z')
+      const now = new Date(all[i] + 'T00:00:00Z')
+      const step = (now.getUTCFullYear() - prev.getUTCFullYear()) * 12 + (now.getUTCMonth() - prev.getUTCMonth())
+      expect(step).toBe(1)
+    }
+  })
+
+  test('source-fidelity mode still drifts, because the workbook does', () => {
+    const written = workbookRun({ sourceFidelity: true })
+    expect(written.years[2].months.isoDates[11]).toBe('2027-03-22')
   })
 })
 

@@ -236,25 +236,45 @@ throughout, so the correction applies across the board.
 
 ---
 
-### The month stepping quirk is ported as written and is NOT yet ruled on
+### R9 — months advance by the calendar
 
-The workbook advances its month headers by adding **31 days**, not one calendar month
-(`Data Input` C105 = C104+31). Those dates decide which months a GST return falls due.
+**Ruled by Mike 2026-09-02: _"obviously, it needs to be per calendar month."_**
 
-- On a **first-of-month start** — the normal case, and the sample — the sequence is
-  correct: April, May, June … March.
-- On a start **late in a month** it can skip one. From 30 January it steps to 2 March,
-  and February never appears, which misfires the two-monthly filing schedule.
+The workbook advances its month headers by adding **31 days** (`Data Input` C105 =
+C104+31). Over one year that reads as a curiosity — a forecast opening 1 April ends its
+final month on 8 March. Over the three years the model now covers it reaches **three
+weeks**: the last month began 22 March 2027 instead of 1 March, and it grows with every
+year added.
 
-Ported faithfully, and the model reports it: `startsSkipACalendarMonth` in the returned
-payload is `true` when the stepping has skipped a month, so nothing hides.
+**It was never only cosmetic.** Those dates decide which months a GST return falls due.
+A forecast starting late in a month could skip a calendar month outright — 30 January
+stepped to 2 March and February never happened — which misfiles the whole schedule.
 
-**Over three years the drift is no longer subtle.** A forecast opening 1 April 2024 has
-its final month beginning **22 March 2027** — three weeks adrift of the 1 March a
-calendar-month step would give, and drifting further with every year added. On one year
-it is a curiosity; on three it is visible on the screen.
+**Corrected.** Months advance one calendar month at a time, and a day that does not exist
+in the target month clamps to that month's last day: 31 January plus a month is the 28th
+of February (the 29th in a leap year), never the 2nd of March. A year begins one calendar
+month after the previous year's last, so three years is 36 consecutive months and nothing
+else.
 
-**Raised for Mike 2026-09-02, not yet ruled on. Do not "fix" it without his ruling.**
+**The 31-day stepping is kept in `sourceFidelity` mode alone**, because the golden set is
+proved against a workbook that steps that way and those dates move real figures through
+the GST schedule. `startsSkipACalendarMonth` remains in the payload for the same reason:
+under R9 it can never be true, and a source-fidelity run can still report the fault.
+
+---
+
+### What is left for Mike on this feature
+
+**Nothing on the maths.** All nine corrections are ruled and built, and the engine
+reproduces the workbook across all three years.
+
+What remains is the **screens**:
+[`mockups/three-way-forecast.html`](mockups/three-way-forecast.html), registered in
+[`ARTEFACTS.md`](ARTEFACTS.md) as ☐ awaiting approval, with eight open questions at its
+foot — the four headline figures, plain-English row labels against the workbook's own
+accounting terms, the "starting point" tag, whether to flag negative stock, whether an
+out-of-balance opening should block or only warn, the step names, and the
+supported-software line. Nothing is built from it until he approves it.
 
 ---
 
