@@ -36,6 +36,7 @@ import EbitdaDcfIntake from '~/components/EbitdaDcfIntake.vue'
 import ReportHeader from '~/components/base/ReportHeader.vue'
 import ReportShell from '~/components/base/ReportShell.vue'
 import EbitdaDcfReport from '~/components/EbitdaDcfReport.vue'
+import { isDevHost } from '~/utils/devHost'
 
 const TOKEN_KEY = 'advisor_e_token'
 
@@ -73,7 +74,7 @@ export default {
      * @returns {string} the token to send as `Bearer <token>`
      */
     resolveApiToken () {
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      if (isDevHost()) {
         return 'dev-local-bypass'
       }
       return window.localStorage.getItem(TOKEN_KEY) || 'dev-local-bypass'

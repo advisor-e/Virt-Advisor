@@ -849,6 +849,42 @@ function answerCannotHear (req, res) {
   }
 }
 
+/**
+ * Make a SYNCHRONOUS handler mountable on Restify 9.
+ *
+ * 🔴 WITHOUT THIS THE SERVER DOES NOT START AT ALL, and it did not — found 2026-09-02 by
+ * running the app for the first time. Restify asserts on every handler as it is mounted:
+ * an async handler may take `(req, res)`, but a CALLBACK handler must take
+ * `(req, res, next)`. Nine handlers here are synchronous — the meeting store is plain
+ * `fs` — so all nine failed that assertion and `npm run backend` died on the first one,
+ * taking every Meeting Review route with it.
+ *
+ * ⚠ WHY A WRAPPER RATHER THAN A THIRD ARGUMENT ON EACH FUNCTION. Two reasons, and both
+ * were found the hard way:
+ *   - `async` was tried first and ESLint's `require-await` refused all nine — correctly,
+ *     since none of them awaits anything.
+ *   - Adding `next` to each body means covering every early return in nine functions,
+ *     and the unit tests call these handlers directly with TWO arguments, so a bare
+ *     `next()` would throw in the suite. A default parameter cannot fix that either:
+ *     it would make `fn.length` 2 again and Restify would reject the handler afresh.
+ *
+ * So the shape is asserted once, here, and the bodies stay as they are. `next` is called
+ * only when Restify supplied one, which is what lets the same export serve both the
+ * router and a direct call in a test.
+ *
+ * ⚠ NOT FOR ASYNC HANDLERS. They already satisfy Restify with two arguments, and calling
+ * `next()` the moment they return would advance the chain before they had answered.
+ *
+ * @param {Function} fn - a synchronous `(req, res)` handler that always sends a response
+ * @returns {Function} the same handler, shaped `(req, res, next)`
+ */
+function mountable (fn) {
+  return function (req, res, next) {
+    fn(req, res)
+    if (typeof next === 'function') { next() }
+  }
+}
+
 module.exports = {
   DIARIZING_MODEL,
   getRetention,
@@ -856,20 +892,20 @@ module.exports = {
   resetRetention,
   getConsentContext,
   startRecording,
-  confirmConsent,
+  confirmConsent: mountable(confirmConsent),
   uploadChunk,
-  finishRecording,
-  getRecording,
-  deleteRecording,
+  finishRecording: mountable(finishRecording),
+  getRecording: mountable(getRecording),
+  deleteRecording: mountable(deleteRecording),
   runTranscription,
   readScopeConfig,
   jobs,
   generateReports,
-  getReports,
-  saveSummaryEdit,
-  approveSummary,
-  disputeFinding,
-  answerCannotHear,
+  getReports: mountable(getReports),
+  saveSummaryEdit: mountable(saveSummaryEdit),
+  approveSummary: mountable(approveSummary),
+  disputeFinding: mountable(disputeFinding),
+  answerCannotHear: mountable(answerCannotHear),
   runReports,
   presetFor,
   reportJobs
