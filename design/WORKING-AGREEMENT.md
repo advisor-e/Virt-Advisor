@@ -195,8 +195,8 @@ Documentation gets ignored. These do not:
 | Layer | Where | What it does |
 |---|---|---|
 | `/startup`, `/shutdown` | `.claude/commands/` | The checklists run as commands, not from memory. Committed to the repo, so both machines get them. |
-| **pre-push hook** | `.husky/pre-push` → `scripts/check-branch-state.js` | **Refuses** a push that is behind `origin/master`, and **refuses** a direct push to `master`. |
-| pre-commit hook | `.husky/pre-commit` | Lint, full test suite, critical-severity audit gate. |
+| **pre-push hook** | `.husky/pre-push` → `scripts/check-branch-state.js`, then the full gate | **Refuses** a push that is behind `origin/master`, and **refuses** a direct push to `master`. Then full lint, the full suite with coverage, and the critical-severity audit gate — once, before anything leaves the machine (moved here 2026-09-03). |
+| pre-commit hook | `.husky/pre-commit` → `scripts/quick-gate.js` | Lint on the staged files and the tests that reach them, coverage off. Seconds, not eight minutes. |
 
 Two honest limits on the hook: `git push --no-verify` bypasses it, and if the machine is
 offline it cannot check, so it warns loudly and allows the push rather than blocking on a
