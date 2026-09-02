@@ -978,11 +978,18 @@ const TAB_TIERS = {
   // resolves through all four and mints own-row ids under each tier's own prefix, so nothing
   // on the backend changes.
   //
-  // ⚠ ADVISORS ARE EXCLUDED, and that is the point of the feature rather than an omission.
-  // An advisor may add an objective for ONE meeting; letting them edit this list would let
-  // one person quietly change what every advisor in the firm is measured against. The
-  // backend has no advisor write route at all — read-only by construction, not by a role
-  // check that could be loosened.
+  // ⚠ THIS LIST IS THE MANAGER HUB'S TABS AND NOTHING MORE. An advisor has no tab here
+  // because they have no hub, not because they may not edit their own level.
+  //
+  // 🔴 THE RULE, IN MIKE'S WORDS (2026-09-02): "NOBODY can edit a level ABOVE their own."
+  // That is the whole of it, and it matches what the cascade already enforces — every
+  // route is scoped to the caller's own verified scope, so no tier can reach upward. An
+  // advisor editing at ADVISOR or BUSINESS-ENTITY level breaks nothing: it is below them,
+  // not above. He corrected an earlier claim here that advisors were excluded on principle;
+  // he had never said that, and the sentence was ours.
+  //
+  // Per-advisor and per-entity editing is simply NOT BUILT YET — the cascade currently
+  // ends at the firm. Its absence is an unfinished feature, never a permission decision.
   meetingObservations: ['mentor', 'global', 'group', 'firm']
 
   // 🔴 ALL FOUR MANAGER TIERS, AND THE REASON IS STATED RATHER THAN ASSUMED — "as

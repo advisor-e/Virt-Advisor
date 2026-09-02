@@ -56,10 +56,13 @@
  *      started nothing. All three now exist (slices 2 and 3). The button is still absent
  *      because recording begins on `/meeting-record`, where the consent screen is — starting
  *      a recording from a page that does not show the consent wording would defeat P1.
- *   2. **No "Add an objective", and no tick boxes that record anything.** An objective an
- *      advisor adds belongs to ONE MEETING, and meetings do not exist yet — storing it
- *      against the firm's standing list would change what every advisor here is checked
- *      on. The squares are list markers, as they are in the drawing.
+ *   2. **No "Add an objective", and no tick boxes that record anything.** ⚠ THE REASON
+ *      RECORDED HERE HAS EXPIRED TWICE OVER. It said an objective "belongs to ONE MEETING,
+ *      and meetings do not exist yet" — meetings have existed since slice 2 — and it went
+ *      on to imply an advisor must not edit, which Mike corrected on 2026-09-02: the rule
+ *      is only that NOBODY edits a level ABOVE their own. So this is simply unbuilt, and it
+ *      is waiting on the advisor and business-entity levels of the cascade. The squares are
+ *      list markers, as they are in the drawing.
  *   3. **No firm reference material.** The drawing puts the firm's script one tap away.
  *      The upload exists (`uploadDocument`); the join between a document and a set of
  *      observation points does not, and the drawing's own note calls that join the actual
@@ -68,8 +71,12 @@
  * The banner at the top says all of this in an advisor's language, because a screen that
  * quietly shows half a feature is how somebody concludes the feature is broken.
  *
- * READ-ONLY BY CONSTRUCTION. The backend has no advisor write route at all — one advisor
- * editing this list would change what every advisor in the firm is measured against.
+ * READ-ONLY TODAY BECAUSE THE LEVELS BELOW THE FIRM ARE NOT BUILT — not because an advisor
+ * may not edit. 🔴 Mike's rule, 2026-09-02: "NOBODY can edit a level ABOVE their own", which
+ * leaves an advisor free at their own level and at the business entity's. An earlier note
+ * here claimed advisors were excluded on principle; he never said that, and it was ours.
+ * What an advisor changes at their own level must bind THAT level only, never the firm's
+ * standing list — that is the same directional rule, not a second one.
  *
  * Vue 2 Options API, Pug, Buefy.
  */

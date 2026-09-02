@@ -127,11 +127,47 @@ design that holds an hour in browser memory will eventually lose one.
 §1: a tidy page of "no observations" must never be what a total failure looks like. If capture,
 transcription or generation failed, the screen says so in those words.
 
-**P12 · The meeting type comes from the scenarios that already exist.** `data/logic_trees.json`
-holds 42 named scenarios, of which roughly a dozen are meetings — `eoy_meeting`, `client_sales`,
-`conflict_meeting`, `client_planning`, `trial_fit`, `dashboard_discussions`, `sales_process`,
-`cautious_reveal`, `reveal_growth_curve`, `facilitation_101`, `public_speaking`. A second list of
-meeting types beside them would drift within a month.
+**P12 · Meeting types are authored and they cascade.** *(Mike's ruling, 2026-09-02: "the creation
+of meeting types must be dynamic, editable and cascading from mentor — all down thru the layers
+until reaching the business entity level".)* The mentor creates them, every level below may accept,
+edit, switch off or add its own, and the chain ends at the business entity the meeting is with.
+
+> 🔴 **THIS REPLACES A RULE MIKE NEVER MADE, AND THE REPLACEMENT MATTERS MORE THAN THE RULE.**
+> P12 used to require that every meeting type be an existing id in `data/logic_trees.json`.
+> **Nobody asked for that.** It was written by the session that drafted this design on
+> 2026-09-01 and carried no attribution, unlike P2, P8 and P13, which carry his name. His words
+> on being shown it: *"i have ZERO idea where the meeting types being linked to logic trees came
+> from"*. The old wording is not reproduced here — a superseded rule quoted in full is the next
+> session's instruction.
+>
+> ⚠ **AND IT HAD ALREADY COST SOMETHING.** The eleven meeting types shipped in
+> `data/meeting-observations.json` were chosen by that session from the logic trees — not by
+> Mike — and he was twice told to go and author observation points for "the ten empty ones".
+> That would have been him writing content into categories he never picked. **The eleven are a
+> suggestion to keep, rename or replace, and nothing more.**
+>
+> ⚠ **NOTHING IN THE CODE EVER DEPENDED ON IT.** Traced 2026-09-02 across every use of
+> `scenarioId`: it is a key for the observation points and a name looked up from the trees.
+> **No report, prompt or recorder walks a coaching tree from a meeting type.** The coupling
+> bought a label and cost a constraint.
+
+**P14 · Nobody edits a level ABOVE their own — and that is the whole rule.** *(Mike's ruling,
+2026-09-02, correcting us: "I NEVER said advisor cant edit at business entity level or advisor
+level — I said NOBODY can edit a level ABOVE their own".)* It matches what the cascade already
+enforces: every route is scoped to the caller's own verified scope, so no tier can reach upward,
+and `USER-LEVEL-CASCADE-HANDOVER.md` states the same thing as *"authority over content is total
+within their firm, zero outside it"*.
+
+> ⚠ **SO AN ADVISOR EDITING AT THEIR OWN LEVEL, OR AT A BUSINESS ENTITY'S, BREAKS NOTHING.**
+> Those levels are below them. Earlier notes in this repository claimed advisors were excluded on
+> principle, in four places, and **he never said it**; those sentences were ours and are deleted
+> rather than corrected in place, so none of them survives to be read again. What is true is
+> narrower and duller: **the levels below the firm are not built yet.** That is unfinished work,
+> never a permission decision, and any note that reads otherwise is a defect to correct on sight.
+>
+> The directional half still binds: what a level changes binds **that level and below**, never
+> above. An advisor tailoring a point for one client changes that client's meetings and nothing
+> else — which is the same rule, not a second one.
 
 **P13 · Nothing leaves the firm.** *(Mike's ruling, 2026-09-01 — "yes, nothing is shared outside our
 firm".)* The approved consent line says this out loud to the client, so it is a constraint on the
@@ -235,7 +271,15 @@ from the platform's — that is the whole of the request.
 *"editable and creatable by firm managers also — obviously, we start several as a mentor, they
 cascade down to global group and group manager before firm manager, they accept or edit"*. The
 mentor-alone default of 2026-08-24 holds until a tier has a real reason to differ, and he has given
-it. The mechanism is the existing `firmOverlay` store under its own `config_key`, which brings
+it. **BUILT** for those four the same day (one line in `TAB_TIERS`).
+
+🔴 **AND IT DOES NOT STOP AT THE FIRM — it runs to the business entity** (his later ruling the same
+day, P12). Two lists cascade, not one: the meeting **types**, and the observation **points** within
+each type. The two levels below the firm — the advisor, and the business entity the meeting is with
+— are **NOT BUILT**, and there is no storage for them: the overlay is keyed to a firm id with a
+database row behind it, so a per-entity scope needs its own shape. The client register already
+exists (`/api/clients`, "Who is this session for?"), so the entity is a real record to hang it on.
+See P14 for who may edit what — the answer is everyone, at their own level and below. The mechanism is the existing `firmOverlay` store under its own `config_key`, which brings
 version history and restore with it; `loadResolvedObservations` already resolved through all four,
 so the widening was one line in `TAB_TIERS` and no backend change at all.
 
@@ -291,8 +335,8 @@ is *intended* to live, chosen to match the existing architecture rather than inv
 | The cascade and the validator | `server/utils/meetingObservations.js` | ✅ **BUILT** — `resolveInheritedRows`, mirroring the Advisory Staircase |
 | Each tier's own decisions | `firmOverlay`, `config_key` ×3: `meeting-observation-declines` · `-overrides` · `-own` | ✅ **BUILT** — separate and additive, mirroring `firmStaircase.CONFIG_KEYS`. ⚠ **NOT one `meeting-observations` key**, as this table proposed: a single blob cannot express "switch this one off" and would freeze a firm's list against the mentor's later corrections |
 | Manager routes | `server/routes/meetingObservations.js` | ✅ **BUILT** — 9 routes, all scoped to `req.firmId` |
-| Manager editing, every tier | `components/firm/FirmMeetingObservations.vue`, a Hub tab per §3 | ✅ **BUILT** — all four manager tiers since 2026-09-02 (Mike's ruling, §3); advisors deliberately excluded, and there is no advisor write route |
-| The advisor's pre-set | `components/MeetingPreset.vue`, `pages/meeting-preset.vue` | ✅ **BUILT** — read-only by construction; there is no advisor write route at all |
+| Manager editing, every tier | `components/firm/FirmMeetingObservations.vue`, a Hub tab per §3 | ✅ **BUILT** — all four manager tiers since 2026-09-02 (Mike's ruling, §3). The levels below the firm are **not built**, which is unfinished work and not a permission decision |
+| The advisor's pre-set | `components/MeetingPreset.vue`, `pages/meeting-preset.vue` | ✅ **BUILT** — read-only **today**, because the advisor and business-entity levels do not exist yet. Not a rule about advisors: see P14 |
 | Chunk intake, assembly, deletion | `server/routes/meetingReview.js` (Restify) | ✅ **BUILT** — 10 routes. The recording ones are `firmAuth` only and guard themselves on `req.advisorId` as well as `req.firmId`, because P2 gives a recording to the advisor who made it |
 | The audio itself, while it exists | `server/utils/meetingAudioStore.js`, under `MEETING_AUDIO_DIR` | ✅ **BUILT** — **this server's own disk** (Mike's ruling, 2026-09-01), never the database and never the Google Drive pipeline the document library uses. `destroyAudio` and `destroyMeeting` **return a count of what they removed and re-read the directory to check** — trap 4 says deletion must be provable, and a function that answers quietly cannot be |
 | Transcription client | `server/utils/transcriptionClient.js`, beside `openaiClient.js` | ✅ **BUILT** — multipart on Node 14 with no new dependency. ⚠ As predicted, this was new work rather than a call added to `openaiClient.js`, which speaks only to `/v1/chat/completions` |

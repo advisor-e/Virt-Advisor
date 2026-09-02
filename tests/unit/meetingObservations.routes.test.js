@@ -15,9 +15,11 @@
  *      reads a scope from a body or a query, so one tier cannot touch another's points
  *      even if it asks to. `tier-cascade.md` P6.
  *
- *   3. AN ADVISOR CANNOT WRITE. The advisor route is read-only by construction — there is
- *      no write handler for them to reach — because one advisor editing the standing list
- *      would change what every advisor in the firm is checked on.
+ *   3. THE ADVISOR ROUTE IS READ-ONLY TODAY, because the levels below the firm are not
+ *      built yet — not because an advisor may not edit. 🔴 Mike's rule, 2026-09-02:
+ *      "NOBODY can edit a level ABOVE their own." An advisor writing at their own level or
+ *      the business entity's is below them and breaks nothing; what theme 2 protects is the
+ *      upward direction, which is the rule that actually exists.
  *
  * The fourth theme is the storage discipline the house already has: a live MySQL REFUSAL
  * must surface as a 500 and never fall through to the dev JSON, or an outage gets signed
