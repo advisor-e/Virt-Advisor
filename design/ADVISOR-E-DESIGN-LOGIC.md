@@ -341,10 +341,10 @@ worked. Written down three times now.
 
 | Gap | Whose |
 |---|---|
-| **No middle-tier login exists.** `roles.js` maps only `platform_admin` → mentor and `firm_manager` → firm_manager. No role value produces `global_group_manager` or `group_manager`. ⚠ `mentor` was never added either | **Advisor-e** |
-| **No membership data.** The `firms` table has no country, group or parent column, so `parentScopeOf` returns the mentor scope for every firm and the chain runs mentor → firm, exactly as before | **Advisor-e** |
-| **The two middle-tier hub pages** are designed and approved but not built | Ours |
-| **The tab gates** (§5.1) must be rewritten to name their tiers — **first**, not last | Ours |
+| **The middle-tier role values**, so a real login resolves to those tiers. The provision is built and fails closed until they arrive. **PARKED by Mike** — *"already provided for by the master app"* (`features/to-do.md` 3.2) | **Advisor-e** |
+| **The firm-to-brand/country map.** Until it arrives `parentScopeOf` returns the mentor scope for every firm and the chain runs mentor → firm, exactly as before. **PARKED by Mike** (`features/to-do.md` 3.3) | **Advisor-e** |
+| ~~The two middle-tier hub pages~~ — ✅ **BUILT and approved 2026-08-10**: `pages/global-group-manager.vue`, `pages/group-manager.vue` | Done |
+| ~~The tab gates (§5.1) must name their tiers~~ — ✅ **DONE**: `TAB_TIERS` in `components/FirmManagerHub.vue`, pinned by `tests/unit/hubTabTiers.test.js` | Done |
 | **The coaching reference does not inherit.** Its 15 rows carry stable `cr-` ids; it simply never joined `resolveInheritedRows`, and its firm side is append-only | Ours |
 | **Logic-Lab does not cascade** — firm-local by nature, array-shaped accepted list | Ours (by design) |
 

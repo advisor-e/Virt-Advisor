@@ -9,9 +9,16 @@
  *
  * Two renames were made that day:
  *   • `global_manager`  → `global_group_manager` — the level runs a GLOBAL GROUP,
- *     and the short form had already produced a coined job title ("brand manager")
- *     twice in one session, because a global group is a brand and the shortened
- *     value invited the shortcut.
+ *     and the short form had already produced a coined job title twice in one
+ *     session, because a global group is a brand and the shortened value invited
+ *     the shortcut.
+ *
+ * 🔴 THE RENAME DID NOT STOP THE COINED TITLES, AND THAT IS WHY THIS FILE SCANS FOR
+ * THEM TOO (Mike, 2026-09-02). Both invented titles kept reappearing long after the
+ * values were correct — including in a document addressed to the master coding team,
+ * which asked them to wire two roles nobody has. They are written out ONLY in the
+ * FORBIDDEN list below, which this file is exempt from, so there is exactly one place
+ * in the repository where the wrong words exist and it is the place that bans them.
  *   • `client`          → `business_entity` — a business entity may have MORE THAN
  *     ONE person, so "client" cannot express the normal case. The advisor advises an
  *     entity; the entity has people.
@@ -123,7 +130,24 @@ describe('🔴 no superseded spelling survives anywhere in the source', () => {
    */
   const FORBIDDEN = [
     { pattern: /\bglobal_manager\b/, why: 'superseded by global_group_manager' },
-    { pattern: /["']Global Manager["']/, why: 'display name is "Global Group Manager"' }
+    { pattern: /["']Global Manager["']/, why: 'display name is "Global Group Manager"' },
+
+    // 🔴 THE TWO COINED JOB TITLES, BANNED BY MIKE ON 2026-09-02: "any mention of brand
+    // manager or country manager needs to be deleted AS A ROLE… delete the wrong terms
+    // throughout so you never get confused again".
+    //
+    // ⚠ THE SPELLINGS WERE ALREADY FIXED IN 2026-08-11 AND THE TITLES CAME BACK ANYWAY,
+    // which is why this pattern exists and the rename alone did not. A global group IS a
+    // brand and a group is normally a country, so those words sit legitimately in the
+    // prose all around these files — and every few sessions someone welds one to the word
+    // "manager" and produces a role that does not exist. It reads as authoritative, and
+    // nobody downstream can tell it was invented. It reached a document addressed to the
+    // master coding team, asking them to wire two roles nobody has.
+    //
+    // The words themselves are fine. "the brand a manager runs", "grouped by country" —
+    // untouched. Only the two-word title is refused.
+    { pattern: /\bbrand manager\b/i, why: 'a coined job title — the role is "global group manager"' },
+    { pattern: /\bcountry manager\b/i, why: 'a coined job title — the role is "group manager"' }
   ]
 
   test('the pattern does not match the NEW name — otherwise this whole file is noise', () => {

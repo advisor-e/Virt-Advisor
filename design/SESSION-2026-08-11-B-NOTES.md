@@ -20,7 +20,7 @@ So that guard could not tell a mentor apart from anything else carrying that val
 sign-ins for the two new middle hubs carry exactly it.
 
 **Opening a Group Manager Hub returned every brand's cases, activity and configuration into one
-country manager's screen.**
+group manager's screen.**
 
 Nothing errored. No test failed — because **every existing test called those handlers as the
 mentor**, for whom "everything" is the correct answer. The fault lived entirely in the question

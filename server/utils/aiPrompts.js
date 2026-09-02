@@ -27,11 +27,12 @@
  * This module deliberately mirrors `propertyTaxRules.loadResolvedPropertyTaxRules` line
  * for line: a second way of doing inheritance is how two ways drift apart.
  *
- * 🔴 THE TWO MIDDLE TIERS CANNOT BE EXERCISED BY A REAL LOGIN TODAY. `config/integration.js`
- * ships `globalManagerRole: ''` and `groupManagerRole: ''`, empty on purpose and
- * fail-closed, so `parentScopeOf` runs mentor → firm. This module is correct for four
- * tiers and provable on two. That is stated rather than implied, and it is Advisor-e's
- * data to supply.
+ * ⚠ CORRECT FOR FOUR TIERS, PROVEN LIVE ON TWO. `config/integration.js` ships
+ * `globalManagerRole: ''` and `groupManagerRole: ''`, empty on purpose and fail-closed
+ * until Advisor-e supplies its own role values, so `parentScopeOf` runs mentor → firm
+ * here. The middle tiers' hubs are built and exercised in development; the outstanding
+ * values are PARKED by Mike and block nothing (CLAUDE.md § "The four tiers are settled").
+ * The evidence limit is stated rather than implied.
  *
  * Node 14, CommonJS.
  */

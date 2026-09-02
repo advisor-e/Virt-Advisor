@@ -21,9 +21,13 @@ const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
 const { computeMultiplePropertyAssessment, computeMultiplePropertyPortfolio } = require('../report/multiplePropertyModel')
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { computeVolatility } = require('../report/volatilityModel')
+const { computeThreeWayForecast, computeThreeYearForecast } = require('../report/threeWayForecastModel')
+const { assembleForecastIntake, MAX_FILES: MAX_FORECAST_FILES } = require('../report/intake/threeWayForecastAssembler')
 const { listReportModels } = require('../utils/reportModels')
-const { parseUpload } = require('../report/intake/xeroReportParser')
+const { parseUpload, parseForecastUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
+const { parseMonthlyUpload } = require('../report/intake/monthlySalesParser')
+const { assembleMonthlySeries, MAX_FILES: MAX_MONTHLY_FILES } = require('../report/intake/monthlySeriesAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
 
 // formidable pinned to v2.1.2 repo-wide (Node 14.15 — see firmManager.js); same
@@ -34,6 +38,9 @@ const { intakeErrorResponse } = require('../report/intakeError')
 // option B 2026-07-20: the cap stays; the messages say "together"). A Xero report
 // export is well under 1 MB, so five years fit with huge headroom.
 const INTAKE_MAX_BYTES = 5 * 1024 * 1024
+
+/** A forecast year, in months — how many the by-month seed must supply to be used at all. */
+const MONTHS_IN_YEAR = 12
 
 /** Wrap formidable v2's callback parse() for await use. @param {object} form @param {object} req */
 function parseForm (form, req) {
@@ -236,7 +243,7 @@ async function quickPositionIntake (req, res) {
       const tooBig = err && /maxFileSize/i.test(err.message || '')
       res.send(tooBig ? 413 : 400, {
         success: false,
-        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The file is larger than 5 MB — a Xero report export should be well under that.' : 'The upload could not be read. Please try again.' },
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The file is larger than 5 MB — an accounting export should be well under that.' : 'The upload could not be read. Please try again.' },
         timestamp: new Date().toISOString()
       })
       return
@@ -254,7 +261,7 @@ async function quickPositionIntake (req, res) {
   } catch (err) {
     // Log the stable code only — never the filename, labels or content (identity stays local)
     console.error('[report] quick-position intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
-    const safe = intakeErrorResponse(err, 'The file could not be read as a Xero report export.')
+    const safe = intakeErrorResponse(err, 'The file could not be read as an accounting export.')
     res.send(safe.status, safe.body)
   } finally {
     // Parse-and-discard: always remove formidable's temp file
@@ -290,7 +297,7 @@ async function ebitdaDcfIntake (req, res) {
       const tooBig = err && /maxFileSize/i.test(err.message || '')
       res.send(tooBig ? 413 : 400, {
         success: false,
-        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — a Xero report export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — an accounting export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
         timestamp: new Date().toISOString()
       })
       return
@@ -316,7 +323,76 @@ async function ebitdaDcfIntake (req, res) {
   } catch (err) {
     // Log the stable code only — never the filename, labels or content (identity stays local)
     console.error('[report] ebitda-dcf intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
-    const safe = intakeErrorResponse(err, 'A file could not be read as a Xero report export.')
+    const safe = intakeErrorResponse(err, 'A file could not be read as an accounting export.')
+    res.send(safe.status, safe.body)
+  } finally {
+    // Parse-and-discard: always remove every temp file formidable wrote
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
+}
+
+/**
+ * POST /api/report/volatility/intake  (firmAuth — uploads are never anonymous)
+ *
+ * Multipart upload of 1..2 Xero "Current financial year by month" P&L exports (.xlsx or
+ * .csv, max 5 MB per request) in repeated `file` fields — this year's, and optionally
+ * last year's for the 18 and 24-month windows (Mike's ruling, 2026-08-31). Each is read
+ * across its month columns for trading-income line items, then the two are joined into
+ * one oldest-first run.
+ *
+ * The response separates `usable` from `setAside` on purpose: months after the data
+ * cut-off read as a genuine 0 and the cut-off month itself is usually partial, and both
+ * would produce a wrong volatility score that looks entirely plausible (REPORT-DATA-MODEL
+ * §3.9). The screen shows what came off and why, so a person decides rather than the
+ * arithmetic deciding silently.
+ *
+ * Parse-and-discard, as the other two intakes: temp files are deleted in `finally`,
+ * nothing is stored, and no client-identifying content — filenames, account row labels,
+ * company names — is ever logged. Only stable error codes.
+ *
+ * @param {object} req - multipart request; req.firmId set by firmAuth.
+ * @returns {object} { success, data: { files, series, usable, setAside, warnings }, timestamp }
+ */
+async function volatilityIntake (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — a by-month accounting export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No files were attached. Send each by-month export in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    // Same shape as the EBITDA route's R15: refuse an over-count BEFORE any file is
+    // parsed. The assembler's own check stays as the backstop, with the same message.
+    if (uploaded.length > MAX_MONTHLY_FILES) {
+      const e = new Error('This report reads up to ' + MAX_MONTHLY_FILES + ' accounts files — ' + uploaded.length + ' were sent. Please drop this year\'s by-month export and, if you want more than twelve months, last year\'s.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    const parsed = uploaded.map(f => parseMonthlyUpload(fs.readFileSync(f.filepath)))
+    const data = assembleMonthlySeries(parsed)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, labels or content (identity stays local)
+    console.error('[report] volatility intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'The file could not be read as a by-month accounting export.')
     res.send(safe.status, safe.body)
   } finally {
     // Parse-and-discard: always remove every temp file formidable wrote
@@ -561,6 +637,182 @@ function volatility (req, res, next) {
 }
 
 /**
+ * POST /api/report/three-way-forecast
+ *
+ * @param {object} req.body - partial Three-Way Forecast inputs (see the model's
+ *   `DEFAULTS`): the opening balance sheet, twelve months of sales and purchases, the
+ *   overhead set, three term loans, six fixed-asset categories, the debtor and creditor
+ *   collection profiles, the GST regime and four shareholder current accounts. Anything
+ *   absent computes on the source workbook's own sample figures.
+ * @returns {object} { success, data, timestamp } — twelve months of linked profit &
+ *   loss, balance sheet and cash flow, with the working schedules behind them,
+ *   `balanceSheet.months.balanceCheck` (zero when the statements tie) and the
+ *   `corrections` register naming each departure from the source workbook.
+ *
+ * Anonymous by design: numbers in, numbers out. Only the file-intake routes carry
+ * `firmAuth`, because those accept uploads.
+ *
+ * The model's second parameter is deliberately NOT forwarded — it reproduces the source
+ * workbook including its seven known defects and exists only for the golden test.
+ * `tests/unit/threeWayForecastModel.test.js` fails the build if that changes.
+ */
+function threeWayForecast (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeThreeWayForecast(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] three-way-forecast compute failed:', err)
+    res.send(400, { success: false, error: { code: 'THREE_WAY_FORECAST_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/three-way-forecast/three-years
+ *
+ * @param {object} req.body - `{ years: [year1, year2, year3] }`, each the same shape the
+ *   single-year route takes. Every input is per-year in the source workbook, so all
+ *   three are supplied rather than a growth rate. **An omitted or partial later year
+ *   inherits the year before it** — leaving years 2 and 3 empty forecasts "the same
+ *   again" rather than dropping sample figures into a real client's later years.
+ * @returns {object} { success, data: { years, summary }, timestamp } — three linked
+ *   twelve-month years, plus `summary` with the three-year totals, the closing position
+ *   and the lowest cash point across all 36 months with its date.
+ *
+ * Anonymous by design, like the other calculation routes; only file intake carries
+ * `firmAuth`. The model's second parameter is deliberately NOT forwarded.
+ */
+function threeYearForecast (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeThreeYearForecast(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] three-year-forecast compute failed:', err)
+    res.send(400, { success: false, error: { code: 'THREE_YEAR_FORECAST_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/three-way-forecast/intake  (firmAuth — uploads are never anonymous)
+ *
+ * Multipart upload of up to three Xero exports (.xlsx or .csv, 5 MB per request) in
+ * repeated `file` fields: a Balance Sheet (required — it is what the forecast opens
+ * from), a Profit and Loss (optional, seeding the annual cost base), and optionally
+ * last year's by-month P&L, whose monthly sales are offered as a STARTING POINT for the
+ * forecast rather than as the forecast itself.
+ *
+ * The distinction matters and the response carries it: `provenance` marks each figure
+ * `file`, `seeded` or `entered`. Everything forward-looking — forecast sales and
+ * purchases, the mark-up, the collection profiles, depreciation rates, loan terms,
+ * capital expenditure — is `entered`, because no accounting export contains a future.
+ *
+ * Privacy (§3A of the forecast prompt specification, Mike's standard 2026-09-02):
+ * shareholder current accounts and term loans come back POSITIONAL AND UNNAMED — the
+ * parser never reads those names. Parse-and-discard: temp files are always deleted,
+ * nothing is stored, and only the stable error code is ever logged.
+ *
+ * @returns {object} { success, data: { files, proposal, provenance, blocked, warnings },
+ *   timestamp } — `blocked` is a sentence saying why nothing assembled, never a partial
+ *   proposal the advisor could mistake for a whole one.
+ */
+async function threeWayForecastIntake (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — an accounting export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No files were attached. Send the Balance Sheet export in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    // Refuse an over-count BEFORE any file is parsed, as the EBITDA intake does; the
+    // assembler's own count check stays as the backstop.
+    if (uploaded.length > MAX_FORECAST_FILES) {
+      const e = new Error('This model reads up to ' + MAX_FORECAST_FILES + ' files — ' + uploaded.length + ' were sent. Please drop a Balance Sheet, a Profit and Loss, and at most one by-month Profit and Loss.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    // Split the drop into the two annual reports and the optional by-month one.
+    //
+    // 🔴 THE BY-MONTH FILE IS SNIFFED FIRST, AND THE ORDER IS LOAD-BEARING. A single-period
+    // Balance Sheet or P&L carries one figure column, so it can never satisfy the by-month
+    // reader's month-header row — sniffing it costs nothing. The reverse is NOT true: a
+    // twelve-column P&L is still a P&L, and `parseForecastUpload` reaches it through
+    // `guardFigureColumns`, which THROWS `MULTI_PERIOD_COLUMNS` rather than declining. Try
+    // the annual reader first and the third slot could never work at all.
+    const annual = []
+    let monthly = null
+    for (let u = 0; u < uploaded.length; u++) {
+      const buf = fs.readFileSync(uploaded[u].filepath)
+      let byMonth = null
+      try {
+        byMonth = parseMonthlyUpload(buf)
+      } catch (sniffErr) {
+        byMonth = null // not a by-month export; read it as an annual report below
+      }
+      if (byMonth && byMonth.recognised) {
+        if (monthly) {
+          const e = new Error('Two by-month Profit and Loss reports were dropped together. This model reads last year\'s twelve months — please drop the one the forecast should start from.')
+          e.code = 'TOO_MANY_MONTHLY_FILES'
+          throw e
+        }
+        monthly = byMonth
+        continue
+      }
+      annual.push(parseForecastUpload(buf))
+    }
+
+    // The assembler takes twelve monthly sales figures. `assembleMonthlySeries` returns the
+    // joined run with its incomplete trailing months already stripped (`usable`), so the
+    // last twelve of those are last year's — and anything short of twelve is NOT padded:
+    // a seeded series with a made-up month in it is worse than no seed at all.
+    let monthlySales = null
+    const monthlyWarnings = []
+    if (monthly) {
+      const joined = assembleMonthlySeries([monthly])
+      for (let w = 0; w < joined.warnings.length; w++) { monthlyWarnings.push(joined.warnings[w]) }
+      if (joined.usable.length >= MONTHS_IN_YEAR) {
+        monthlySales = { sales: joined.usable.slice(-MONTHS_IN_YEAR).map(m => m.value) }
+      } else {
+        monthlyWarnings.push('The by-month report gave ' + joined.usable.length +
+          ' complete months, and the forecast needs twelve. Last year\'s sales have not been used as a starting point — enter the twelve months yourself.')
+      }
+    }
+
+    const data = assembleForecastIntake(annual, monthlySales)
+    for (let w = 0; w < monthlyWarnings.length; w++) { data.warnings.push(monthlyWarnings[w]) }
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, labels or content (identity stays local)
+    console.error('[report] three-way-forecast intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'A file could not be read as an accounting export.')
+    res.send(safe.status, safe.body)
+  } finally {
+    // Parse-and-discard: always remove every temp file formidable wrote
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
+}
+
+/**
  * GET /api/report/model-guide
  *
  * The Model Guide screen's whole content: what each live model is for, the figures it
@@ -590,4 +842,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }

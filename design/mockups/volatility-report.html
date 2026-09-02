@@ -67,6 +67,22 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
 .chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
 .chip.now .n{background:var(--rs-accent);color:#fff}
 .chip.todo{color:var(--rs-muted)}
+/* by-month accounts intake — 2026-08-31 revision (item 4.54) */
+.slots{display:grid;gap:8px}
+.slot{display:flex;gap:10px;align-items:flex-start;background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);border-radius:10px;padding:10px 11px}
+.slot.empty{border-style:dashed;color:var(--rs-muted)}
+.slot .nm{font-size:12.5px;font-weight:600;word-break:break-all}
+.slot .mt{font-size:11.5px;color:var(--rs-muted);margin-top:2px}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.m{display:flex;align-items:center;gap:6px}
+.m .lbl{width:22px;font-size:11px;color:var(--rs-muted);text-align:right}
+.m input{width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;
+  border:1px solid var(--rs-line);border-radius:7px;background:var(--rs-panel);color:var(--rs-ink)}
+.m.needs input{border-color:var(--rs-warn);background:#ff99000f}
+.m.needs .lbl{color:var(--rs-warn);font-weight:700}
+.joinwarn{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.45;
+  border:1px solid #ff990059;background:#ff99001a;border-radius:9px;padding:9px 11px;margin-top:10px}
 
 /* [C] HeroStrip + HeroFigure — locked, do not change */
 .herostrip{background:#002b64;border-radius:14px;padding:20px;display:grid;gap:0;
@@ -187,11 +203,12 @@ td.out{color:var(--rs-warn);font-weight:600}
 <div class="vol-root">
 
   <div class="mock">
-    <strong>Mockup for approval — not built.</strong> Rebuilt 2026-08-31 against
-    <em>REPORT-VISUAL-STANDARD.md</em> and the labelled <em>REPORT-LAYOUT-REFERENCE.html</em>,
-    which the standard says to match exactly. Sections are tagged <b>[B]–[D2d]</b> to the same
-    anatomy. Every figure is the real output of the Volatility workbook’s “12 Volatility Calcs”
-    sheet. Wording still to settle is listed at the foot.
+    <strong>Two things at once, so read the labels.</strong> The screen itself <b>is built and live</b>
+    at <em>/volatility</em> — drawn here 2026-08-31 against <em>REPORT-VISUAL-STANDARD.md</em> and the
+    labelled <em>REPORT-LAYOUT-REFERENCE.html</em>, which the standard says to match exactly. Sections are
+    tagged <b>[B]–[D2d]</b> to the same anatomy, and every figure is the real output of the Volatility
+    workbook’s “12 Volatility Calcs” sheet. <b>The Accounts card and the warning states are NOT built</b> —
+    they are item 4.54, awaiting Mike’s approval. Wording still to settle is listed at the foot.
   </div>
 
   <!-- [B] ReportHeader — no badge: this is CLASS_REPORT, the client's own accounts -->
@@ -203,6 +220,14 @@ td.out{color:var(--rs-warn);font-weight:600}
       <div class="rs-client">Prepared for Northgate Joinery Ltd · 12 months to Dec 2023</div>
     </div>
   </header>
+
+  <div class="chips">
+    <span class="chip done"><span class="n">✓</span> Accounts files uploaded</span>
+    <span class="chip done"><span class="n">✓</span> Sales rows matched</span>
+    <span class="chip now"><span class="n">3</span> Check the months</span>
+    <span class="chip todo"><span class="n">4</span> Review volatility</span>
+    <span class="chip todo"><span class="n">5</span> Discuss with client</span>
+  </div>
 
   <!-- [C] HeroStrip — full-width band, direct child of the root, above the layout -->
   <div class="herostrip tag" data-tag="C">
@@ -234,25 +259,83 @@ td.out{color:var(--rs-warn);font-weight:600}
     <!-- [D1] inputs -->
     <aside class="vol-card tag" data-tag="D1">
       <div class="vol-group">
+        <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">Accounts</h2>
+          <button class="vol-cta vol-ghost" style="margin-left:auto;padding:6px 11px;font-size:12.5px">Reset to defaults</button>
+        </div>
+        <p class="vol-sub" style="margin:0 0 10px">Your accounting software: <b>Profit and Loss → Current financial year by month</b>, exported as Excel or CSV.
+          One export covers one financial year. Add last year’s as well for the 18 and 24-month windows.
+          <b>One load box, not two</b> — Mike, 2026-08-31: <em>“you should be able to make it 1 and figure it
+          out internally by the number of data periods.”</em> Every month is already dated by the parser and
+          the assembler orders the files by their own first month, so which export is which year was never a
+          question worth putting to the advisor. The screen reports the period it found; it does not ask.</p>
+        <div class="slot empty">
+          <span>📄</span>
+          <div style="flex:1">
+            <div class="nm" style="font-weight:400;color:var(--rs-muted)">Your by-month exports</div>
+            <div class="mt">One file, or up to 2 for the 18 and 24-month windows</div>
+          </div>
+          <button class="vol-cta vol-ghost" style="padding:6px 11px;font-size:12.5px">Choose files</button>
+        </div>
+        <div class="slots" style="margin-top:8px">
+          <div class="slot">
+            <div style="flex:1">
+              <div class="nm">Northgate_PandL_by_month_2027.xlsx</div>
+              <div class="mt">12 monthly columns read · 9 complete · Apr 2026 – Mar 2027</div>
+            </div>
+            <button class="vol-cta vol-ghost" style="padding:6px 11px;font-size:12.5px">Remove</button>
+          </div>
+          <div class="slot">
+            <div style="flex:1">
+              <div class="nm">Northgate_PandL_by_month_2026.xlsx</div>
+              <div class="mt">12 monthly columns read · 12 complete · Apr 2025 – Mar 2026</div>
+            </div>
+            <button class="vol-cta vol-ghost" style="padding:6px 11px;font-size:12.5px">Remove</button>
+          </div>
+        </div>
+        <p class="vol-sub" style="margin-top:8px">The file is read on our server and deleted straight afterwards. Only the monthly
+          sales figures are kept — no account names, no customer names, nothing else from the file.</p>
+      </div>
+      <div class="vol-group">
         <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">Window</h2></div>
         <label class="fieldlab">Starting month</label>
         <select style="width:100%;font:inherit;font-size:13px;padding:8px 9px;border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink)">
           <option>September</option>
         </select>
-        <p class="vol-sub" style="margin:6px 0 0">The first month you are entering. The rest follow on from it.</p>
+        <p class="vol-sub" style="margin:6px 0 0"><b>Locked while the months come from a file</b> — “Set from your
+          accounts file — every month is dated from the transactions in it. Reset to enter the months by hand.”
+          The picker only RENAMES the boxes; it never moves a figure, so while the file supplies the dates a
+          change here can only make the labels disagree with the data beside them. Mike hit exactly that on
+          2026-08-31: his export’s period opens on 20 August, so setting the picker to August looked right, and
+          it shifted all 24 labels back a month — £21,000 read as September instead of October. For typed entry
+          the picker is unchanged: “The first month you are entering. The rest follow on from it.”</p>
         <label class="fieldlab" style="margin-top:16px">How many months to measure</label>
         <div class="seg"><button class="on">12</button><button>18</button><button>24</button></div>
       </div>
       <div class="vol-group">
         <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">Monthly sales</h2></div>
-        <p class="vol-sub" style="margin:0 0 10px">Oldest month first. An accounts upload is coming; for now these are typed.</p>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-          <div style="display:flex;align-items:center;gap:6px"><span style="width:22px;font-size:11px;color:var(--rs-muted);text-align:right">Sep</span><input value="16892" style="width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;border:1px solid var(--rs-line);border-radius:7px"></div>
-          <div style="display:flex;align-items:center;gap:6px"><span style="width:22px;font-size:11px;color:var(--rs-muted);text-align:right">Oct</span><input value="78123" style="width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;border:1px solid var(--rs-line);border-radius:7px"></div>
-          <div style="display:flex;align-items:center;gap:6px"><span style="width:22px;font-size:11px;color:var(--rs-muted);text-align:right">Nov</span><input value="56894" style="width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;border:1px solid var(--rs-line);border-radius:7px"></div>
+        <p class="vol-sub" style="margin:0 0 10px">Oldest month first, read from the accounts
+          <span class="src src-file">from file</span>. Overtype any figure that is wrong — an edited month
+          re-tags itself <span class="src src-hand">entered</span>.</p>
+        <div class="mgrid">
+          <div class="m"><span class="lbl">Sep</span><input value="16892"></div>
+          <div class="m"><span class="lbl">Oct</span><input value="78123"></div>
+          <div class="m"><span class="lbl">Nov</span><input value="56894"></div>
         </div>
-        <p class="vol-sub" style="margin-top:8px">…twelve in all, three to a row.</p>
-        <button class="vol-cta vol-ghost" style="margin-top:10px">Reset to defaults</button>
+        <p class="vol-sub" style="margin-top:8px">…twelve in all, three to a row. (“Reset to defaults”
+          moved up to the Accounts heading on 2026-08-31 — it now clears the files too, and at the foot of
+          this column it sat below the fold.)</p>
+        <div class="joinwarn">
+          <span>⚠</span>
+          <div><b>Two months were set aside.</b> The most recent month in the export is <b>empty</b> — it reads as
+            £0, which is a month with no data rather than a month with no sales. The one before it looks
+            <b>part-finished</b>, because the export was taken mid-month. Counting either would drag the average
+            down and widen the swing. The window has moved back to the most recent <b>twelve complete months</b>,
+            drawing the earliest ones from last year’s file. Type a figure over either month to bring it back in.</div>
+        </div>
+        <div class="mgrid" style="margin-top:10px">
+          <div class="m needs"><span class="lbl">Jul</span><input value="31402"></div>
+          <div class="m needs"><span class="lbl">Aug</span><input value="0"></div>
+        </div>
       </div>
       <div class="vol-group">
         <div class="vol-glabel"><span class="vol-dot"></span><h2 class="vol-h2">The bands</h2></div>
@@ -276,7 +359,7 @@ td.out{color:var(--rs-warn);font-weight:600}
       <div class="vol-tiles tag" data-tag="D2a">
         <div class="vol-tile">
           <div class="vol-k">Total sales</div>
-          <div class="vol-v">£681,486</div>
+          <div class="vol-v">£681,486<span class="src src-file">from file</span></div>
           <div class="vol-sub">12 months to December</div>
         </div>
         <div class="vol-tile">
@@ -286,12 +369,12 @@ td.out{color:var(--rs-warn);font-weight:600}
         </div>
         <div class="vol-tile">
           <div class="vol-k">Highest month</div>
-          <div class="vol-v">£85,743</div>
+          <div class="vol-v">£85,743<span class="src src-file">from file</span></div>
           <div class="vol-sub">Apr · +£28,953 on the average</div>
         </div>
         <div class="vol-tile">
           <div class="vol-k">Lowest month</div>
-          <div class="vol-v">£16,892</div>
+          <div class="vol-v">£16,892<span class="src src-file">from file</span></div>
           <div class="vol-sub">Nov · −£39,899 on the average</div>
         </div>
       </div>
@@ -454,13 +537,42 @@ td.out{color:var(--rs-warn);font-weight:600}
       <!-- [D2d] actions -->
       <div class="vol-actions tag" data-tag="D2d">
         <button class="vol-cta">Download PDF</button>
-        <span class="vol-foot">All figures are calculated from the monthly sales entered on the left.</span>
+        <button class="vol-cta vol-ghost">Replace accounts files</button>
+        <span class="vol-foot">Figures tagged “from file” came from the upload; the rest are calculated.</span>
       </div>
 
     </section>
   </div>
 
   <!-- states + questions: mockup only -->
+  <div class="mock" style="margin-top:8px">
+    <strong>Two upload states that must be seen, because both produce a believable wrong answer if they
+    are not.</strong> The first is the join: two exports that do not meet leave a hole in the middle of the
+    series, and a gap read as continuous months is a volatility figure that is simply false.
+  </div>
+  <div class="joinwarn">
+    <span>⚠</span>
+    <div><b>The two files do not meet.</b> This year’s export starts in September; last year’s ends in March.
+      Five months are missing between them, so a 24-month window cannot be built from these two files.
+      Export the missing year, or measure 12 months instead.</div>
+  </div>
+  <div class="joinwarn">
+    <span>⚠</span>
+    <div><b>The two files overlap.</b> Both exports cover January to March. Last year’s figures were used for
+      those three months and this year’s ignored. If that is the wrong way round, replace the older file.</div>
+  </div>
+
+  <div class="mock" style="margin-top:8px">
+    <strong>And the wrong export.</strong> The whole-year Profit and Loss — the one the other reports take —
+    holds a single column, not twelve, so it cannot feed this model. It is refused by name rather than
+    read as one month:
+  </div>
+  <div class="joinwarn">
+    <span>⚠</span>
+    <div><b>That export has one column, not twelve.</b> This looks like a whole-year Profit and Loss. This
+      report needs <b>Current financial year by month</b> — choose that layout in your accounting software before exporting.</div>
+  </div>
+
   <div class="mock" style="margin-top:8px">
     <strong>The failure state, which the recipe requires.</strong> If a recalculation cannot reach
     the backend, the <em>StaleBanner</em> appears above the band and the figures grey out, so a
@@ -477,14 +589,74 @@ td.out{color:var(--rs-warn);font-weight:600}
     <div class="hs"><div class="hk">One deviation</div><div class="hv">£22,071</div><div class="hs2">stale</div></div>
   </div>
 
+  <div class="q">
+    <h2>Wording to settle before the upload is built</h2>
+    <ol>
+      <li><strong>A fifth step chip.</strong> The approved four were
+        <span class="from">Accounts file uploaded · Sales rows matched · Review volatility · Discuss with
+        client</span>. Checking the months is now its own step, because it is where a wrong number gets
+        caught, so there are five. Keep the fifth, or fold it into “Sales rows matched”?</li>
+      <li><strong>“Check the months”</strong> for that step. Alternatives:
+        <span class="from">“Confirm the months”</span>, <span class="from">“Check the figures”</span>.</li>
+      <li><strong>“Accounts”</strong> as the heading over the two files. Alternatives:
+        <span class="from">“Your accounts”</span>, <span class="from">“Accounts files”</span>,
+        <span class="from">“Where the figures come from”</span>.</li>
+      <li><strong>“This year” and “Last year”</strong> for the two slots. Alternatives:
+        <span class="from">“Most recent year” / “The year before”</span>. Note these are <em>financial</em>
+        years, not calendar ones — worth saying so on screen, or not?</li>
+      <li><strong>“Set aside”</strong> for a month left out of the maths. Alternatives:
+        <span class="from">“not counted”</span>, <span class="from">“left out”</span>,
+        <span class="from">“ignored”</span>. This one matters most — it is the sentence that stops a
+        believable wrong answer, so it has to be read and understood, not skimmed.</li>
+      <li><strong>“Part-finished”</strong> for the mid-month export. Alternatives:
+        <span class="from">“incomplete”</span>, <span class="from">“still in progress”</span>,
+        <span class="from">“not a full month”</span>.</li>
+      <li><strong>The privacy sentence</strong> under the files — “The file is read on our server and
+        deleted straight afterwards. Only the monthly sales figures are kept — no account names, no
+        customer names, nothing else from the file.” Is that the promise you want to make in writing?
+        It is accurate as designed, and it is a commitment the build then has to honour.</li>
+    </ol>
+  </div>
+
   <div class="mock">
     <strong>Wording approved by Mike, 2026-08-31</strong>, and the screen was BUILT from this
-    file the same day (<em>components/VolatilityReport.vue</em>). Updated after the build to
-    match it: the four upload step chips, the source-file card and the “from file” badges are
-    gone — entry is typed until the by-month accounts upload lands (“typed now, upload next”) —
-    and a <strong>Starting month</strong> picker was added at Mike’s request, so the months read
-    by name and fill forward from the one chosen. The negative third band stops at zero, also
-    his ruling. The dial’s 50/75 boundaries were measured from the workbook’s own gauge images.
+    file the same day (<em>components/VolatilityReport.vue</em>). A <strong>Starting month</strong> picker
+    was added at his request, so the months read by name and fill forward from the one chosen. The negative
+    third band stops at zero, also his ruling. The dial’s 50/75 boundaries were measured from the workbook’s
+    own gauge images.
+  </div>
+
+  <div class="mock">
+    <strong>✅ WORDING APPROVED BY MIKE, 2026-08-31, AND BUILT THE SAME DAY</strong> — <em>to-do item
+    4.54</em>. The Accounts card, the five step chips, the set-aside notice and the warning states are in
+    <em>components/VolatilityReport.vue</em>, reading
+    <em>server/report/intake/monthlySalesParser.js</em> + <em>monthlySeriesAssembler.js</em> through
+    <em>POST /api/report/volatility/intake</em>.
+    <br><br>
+    <strong>Three deliberate departures from the approved original</strong> (the pre-upload mockup at
+    <em>ddeffcf</em>), named here rather than discovered later. (1) The original showed <em>one</em> source
+    file; this shows <em>two</em> — Mike ruled on 2026-08-31 for “two files, up to 24 months”, because a Xero
+    by-month export covers a single financial year and the 18 and 24-month windows need more than one.
+    (2) Four step chips became five. (3) The original tagged only the result tiles “from file”; the month
+    boxes are now tagged too, since that is where a figure can be seen and corrected.
+    <br><br>
+    <strong>And four departures of the BUILD from this page</strong>, which is the comparison the rule
+    actually asks for. (a) <b>The step chips appear only once an accounts file is chosen.</b> This page draws
+    them unconditionally, but on the typed path steps 1 and 2 can never complete, and a permanently
+    unfinished checklist would tell an advisor who typed their figures that they had not finished.
+    (b) <b>“Replace” sits on each file row</b> rather than as one “Replace accounts files” button in the
+    actions row — with two slots the button has to say <em>which</em> file. (c) <b>The set-aside months carry
+    a heading</b>, “Months set aside”; this page shows them as two amber boxes with no label, which reads as
+    part of the series above them. (d) <b>The “from file” tag is conditional.</b> On Total sales it appears
+    only when EVERY measured month came from the accounts, and on the highest/lowest tiles only when that
+    particular month did — this page shows all three unconditionally. One overtyped figure and the tag would
+    otherwise credit the accounts for a hand-keyed number.
+    <br><br>
+    <strong>Why the set-aside notice exists at all.</strong> <em>design/REPORT-DATA-MODEL.md</em> §3.9 records
+    a real client export checked on 2026-07-15: months after the data cut-off read as a genuine <b>0</b>, and
+    the last populated month is usually partial. Fed straight into this model, those months lower the average
+    and widen the standard deviation, producing a volatility score that is wrong and entirely plausible. The
+    screen is where a person catches that, which is why the months are shown rather than silently consumed.
   </div>
 
 </div>

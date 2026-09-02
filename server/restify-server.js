@@ -118,6 +118,8 @@ const aiPromptsRoute = require('./routes/aiPrompts')
 const promptCheckRoute = require('./routes/promptCheck')
 const promptContributionsRoute = require('./routes/promptContributions')
 const staircaseRoute = require('./routes/staircase')
+const meetingObservationsRoute = require('./routes/meetingObservations')
+const meetingReviewRoute = require('./routes/meetingReview')
 const { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 // Collaborate — the people layer and its template catalogue. Merged in from what
 // was a separate application with its own Restify server on this same port; see
@@ -206,12 +208,16 @@ server.post('/api/report/lease-vs-buy', reportRoute.leaseVsBuy)
 server.post('/api/report/cost-of-capital', reportRoute.costOfCapital)
 server.post('/api/report/multiple-property', reportRoute.multipleProperty)
 server.post('/api/report/volatility', reportRoute.volatility)
+server.post('/api/report/three-way-forecast', reportRoute.threeWayForecast)
+server.post('/api/report/three-way-forecast/three-years', reportRoute.threeYearForecast)
 // The Model Guide screen. Same records the AI is given, from the same file — see the
 // route's own note. Platform content, no client data, so no firmAuth (as above).
 server.get('/api/report/model-guide', reportRoute.modelGuide)
 // firmAuth deliberately ON for the intake (unlike the calc-only report routes): it accepts file uploads
 server.post('/api/report/quick-position/intake', firmAuth, reportRoute.quickPositionIntake)
 server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfIntake)
+server.post('/api/report/volatility/intake', firmAuth, reportRoute.volatilityIntake)
+server.post('/api/report/three-way-forecast/intake', firmAuth, reportRoute.threeWayForecastIntake)
 // Firm preferred currency: READ open to any firm user (reports render for advisors);
 // WRITE managers only (account-wide setting). Persistence via firmOverlay (config_key 'currency').
 server.get('/api/report/currency', firmAuth, currencyRoute.get)
@@ -316,6 +322,89 @@ server.get('/api/firm-manager/ai-prompts', ...fmGuard, aiPromptsRoute.getForMana
 server.post('/api/firm-manager/ai-prompts', ...fmGuard, aiPromptsRoute.save)
 server.get('/api/firm-manager/ai-prompts/history', ...fmGuard, aiPromptsRoute.history)
 server.post('/api/firm-manager/ai-prompts/restore', ...fmGuard, aiPromptsRoute.restore)
+
+// ── Meeting Review — the observation points (slice 1) ──
+// What an advisor is checked on in a meeting of each kind. The mentor authors the
+// platform list; a firm inherits it and may edit, switch off, or add its own beside it.
+// Design design/features/meeting-review.md §3; artefact design/mockups/meeting-review.html
+// Stage A, approved by Mike 2026-09-01.
+//
+// ⚠ NOTHING ELSE OF MEETING REVIEW IS BUILT — no recording, no transcript, no report, no
+// audio anywhere in this repository. These points stand on their own: Brief §3 makes the
+// point that the list pays before a word is recorded.
+//
+// `history` and `restore` are literal segments in the same position as a :scenarioId
+// would be, but no `GET /:scenarioId` route exists, so neither can be shadowed by a
+// scenario. Registered first anyway, matching the logic-trees `probe` precedent above.
+const mo = meetingObservationsRoute
+server.get('/api/firm-manager/meeting-observations/history', ...fmGuard, mo.history)
+server.post('/api/firm-manager/meeting-observations/restore', ...fmGuard, mo.restore)
+server.get('/api/firm-manager/meeting-observations', ...fmGuard, mo.getForManager)
+server.put('/api/firm-manager/meeting-observations/:scenarioId/point/:pointId', ...fmGuard, mo.setPointOverride)
+server.del('/api/firm-manager/meeting-observations/:scenarioId/point/:pointId', ...fmGuard, mo.resetPointOverride)
+server.put('/api/firm-manager/meeting-observations/:scenarioId/point/:pointId/decline', ...fmGuard, mo.setPointDecline)
+server.post('/api/firm-manager/meeting-observations/:scenarioId/own', ...fmGuard, mo.addOwnPoint)
+server.put('/api/firm-manager/meeting-observations/:scenarioId/own/:pointId', ...fmGuard, mo.updateOwnPoint)
+server.del('/api/firm-manager/meeting-observations/:scenarioId/own/:pointId', ...fmGuard, mo.deleteOwnPoint)
+
+// The KINDS of meeting — create, rename, reorder, switch off (MEETING-TYPES-CASCADE.md
+// §7 slice 2, approved by Mike 2026-09-02). Manager-guarded and scoped to req.firmId, so a
+// scope can only ever write its own row — the mechanical half of P14, "NOBODY can edit a
+// level ABOVE their own".
+const mt = require('./routes/meetingTypes')
+server.get('/api/firm-manager/meeting-types', ...fmGuard, mt.getTypes)
+server.post('/api/firm-manager/meeting-types', ...fmGuard, mt.addType)
+server.put('/api/firm-manager/meeting-types/order', ...fmGuard, mt.saveOrder)
+server.put('/api/firm-manager/meeting-types/own/:typeId', ...fmGuard, mt.editOwnType)
+server.del('/api/firm-manager/meeting-types/own/:typeId', ...fmGuard, mt.removeOwnType)
+server.put('/api/firm-manager/meeting-types/:typeId', ...fmGuard, mt.overrideType)
+server.del('/api/firm-manager/meeting-types/:typeId/override', ...fmGuard, mt.resetType)
+server.put('/api/firm-manager/meeting-types/:typeId/declined', ...fmGuard, mt.declineType)
+
+// The advisor's own read — their pre-set, in the first person. firmAuth ONLY (every
+// advisor needs it). There is no advisor WRITE route YET: the advisor and business-entity
+// levels are slice 4 of MEETING-TYPES-CASCADE.md, unbuilt rather than disallowed — Mike,
+// 2026-09-02, "NOBODY can edit a level ABOVE their own", which leaves an advisor free at
+// their own level and below. See getForAdvisor's JSDoc.
+server.get('/api/meeting/observations', firmAuth, mo.getForAdvisor)
+
+// ── Meeting Review — consent, capture, transcription and deletion (slice 2) ──
+// Asked for by Mike 2026-09-01 ("4.56 - slice 2"). Design design/features/meeting-review.md;
+// wording design/MEETING-CONSENT-WORDING.md; screens design/mockups/meeting-review.html
+// Stage B2–B4, approved 2026-09-01.
+//
+// 🔴 THE RETENTION DIAL IS A MANAGER ROUTE AND THE CONSENT FIGURE IS AN ADVISOR ONE, and
+// they must stay that way. A firm sets how long transcripts live (P8); every advisor has to
+// READ that figure because the approved consent wording quotes it aloud to the client. If
+// the advisor's read were behind the manager guard, the consent screen would fail for
+// exactly the people who need it.
+//
+// 🔴 THE RECORDING ROUTES ARE `firmAuth` ONLY, AND THEY GUARD THEMSELVES ON THE ADVISOR.
+// Brief P2: a recording belongs to the advisor who made it, so a colleague at the same firm
+// must not reach it. `req.firmId` alone cannot express that, so every handler checks the
+// meeting's stored owner against `req.advisorId` as well — see `ownedMeeting`.
+const mr = meetingReviewRoute
+server.get('/api/firm-manager/meeting-retention', ...fmGuard, mr.getRetention)
+server.put('/api/firm-manager/meeting-retention', ...fmGuard, mr.setRetention)
+server.del('/api/firm-manager/meeting-retention', ...fmGuard, mr.resetRetention)
+
+server.get('/api/meeting/consent', firmAuth, mr.getConsentContext)
+server.post('/api/meeting/recordings', firmAuth, mr.startRecording)
+server.post('/api/meeting/recordings/:meetingId/consent', firmAuth, mr.confirmConsent)
+server.post('/api/meeting/recordings/:meetingId/chunk', firmAuth, mr.uploadChunk)
+server.post('/api/meeting/recordings/:meetingId/finish', firmAuth, mr.finishRecording)
+server.get('/api/meeting/recordings/:meetingId', firmAuth, mr.getRecording)
+server.del('/api/meeting/recordings/:meetingId', firmAuth, mr.deleteRecording)
+
+// Slice 3 — the two reports. `firmAuth` only, like the recording routes above: each of these
+// guards on the ADVISOR as well as the firm inside `ownedMeeting`, because Brief P2 gives a
+// recording and its coaching notes to the advisor who made it, not to their colleagues.
+server.post('/api/meeting/recordings/:meetingId/reports', firmAuth, mr.generateReports)
+server.get('/api/meeting/recordings/:meetingId/reports', firmAuth, mr.getReports)
+server.put('/api/meeting/recordings/:meetingId/reports/summary', firmAuth, mr.saveSummaryEdit)
+server.post('/api/meeting/recordings/:meetingId/reports/summary/approve', firmAuth, mr.approveSummary)
+server.post('/api/meeting/recordings/:meetingId/reports/coaching/dispute', firmAuth, mr.disputeFinding)
+server.post('/api/meeting/recordings/:meetingId/reports/coaching/heard', firmAuth, mr.answerCannotHear)
 
 // Share a prompt — Lane A (item 4.31, steps 1–3). Checks a pasted prompt and stores
 // nothing. That route is deliberately incapable of writing anywhere; Lane B below is a

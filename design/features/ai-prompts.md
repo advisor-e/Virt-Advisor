@@ -267,9 +267,9 @@ leaving an accountant with a dead button.
 - ⚠ **The tab has been proven by tests, not by a person opening it at every tier.** Nothing in
   this project checks that a screen LOOKS right (item **4.25**), and the two defects this feature
   has had were both found by Mike looking at a picture.
-- 🔴 **Two of the four tiers cannot be logged into.** `config/integration.js` ships
-  `globalManagerRole` and `groupManagerRole` **empty on purpose**, fail-closed. The cascade is
-  correct for four tiers and exercisable on two. **Never report this as working at four tiers.**
+- ⚠ **Exercised live at the mentor and the firm; correct-by-construction at the middle two**,
+  which open in development and fail closed in production by Mike's ruling of 2026-08-10. The
+  cascade itself is built for all four — see `CLAUDE.md` § "The four tiers are settled".
 - ⚠ **No prompt here has ever been sent to a model.** Assembly is proven by tests against its own
   output, which is a weaker claim than a live screen and is stated as one.
 

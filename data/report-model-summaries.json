@@ -173,6 +173,64 @@
       ]
     },
     {
+      "route": "/three-way-forecast",
+      "name": "3-Way Forecast Filter",
+      "category": "Cash Flow",
+      "modelClass": "report",
+      "answers": "What the next twelve months do to the bank account, with the profit & loss, the balance sheet and the cash flow all linked so they agree with each other. Sales and buying drive stock, debtors and creditors; those drive cash; cash drives the overdraft interest, which lands back in the profit. The engine runs three years, each opening where the last one closed.",
+      "keyOutputs": [
+        "Cash at the year end, and the lowest point it reaches",
+        "The result for the year after tax",
+        "Gross margin, and the overheads it has to cover",
+        "A balance check that shows whether the three statements tie"
+      ],
+      "inputsNeeded": "The opening balance sheet, twelve months of forecast sales and stock purchases, the mark-up, the annual overheads, when customers pay and when suppliers are paid, GST rate and filing period, the company tax rate, and the terms of any loans. A Balance Sheet and Profit and Loss export seeds the opening position and the cost base; everything forward-looking is the adviser’s judgement.",
+      "useWhen": "The client needs to show a bank or a funder what the year ahead looks like, or wants to test whether a plan is fundable before committing to it. Also when the question is not “will we be profitable” but “will we run out of money on the way” — which a profit figure alone cannot answer.",
+      "limits": "IT IS A FORECAST, SO NO FILE CAN SUPPLY MOST OF IT. An accounting export records what has happened; the sales, the buying and the terms are the adviser’s judgement about what will, and the screen tags every figure as coming from a file, seeded from last year, or entered. It shows a stock balance below zero rather than hiding it at nothing — selling stock you never bought cannot happen, and the forecast says so instead of smoothing it. If the opening balance sheet does not balance, the check shows that gap in every month; the gap is in the figures entered, not in the forecast. Nine corrections were made to the source workbook where its own arithmetic was wrong — see design/THREE-WAY-FORECAST-DEVIATIONS.md — so its figures and this model’s deliberately differ. It takes the client’s real numbers, so it is never illustrative.",
+      "heroFigures": [
+        {
+          "label": "Cash at year end",
+          "sub": "where the bank account finishes"
+        },
+        {
+          "label": "Lowest point",
+          "sub": "the worst month, and when"
+        },
+        {
+          "label": "Result for the year",
+          "sub": "after tax, against the sales"
+        },
+        {
+          "label": "Gross margin",
+          "sub": "and the gross surplus behind it"
+        }
+      ],
+      "alsoOnScreen": "Below the headline band: a card of live levers (sales across all months, the mark-up, when customers pay, overheads across all lines), each rebuilding all three statements; the balance check with what it means; the three statements themselves behind Cash flow / Profit & loss / Balance sheet tabs, all twelve months in each; a working-capital table showing what is owed to the business, what stock it holds and what it owes; and, when the forecast sells stock it never bought, a red band naming the months in which that happens.",
+      "coach": [
+        "Whether the business finishes the year in funds or overdrawn, and whether the position is still falling at the end rather than recovering.",
+        "The gross margin set against what the overheads cost each month — the gap between those two is the shape of the whole problem, or the whole opportunity.",
+        "When the forecast sells stock it never bought, that the purchases or the sales need changing before this goes in front of a client. The model shows the negative rather than hiding it at zero."
+      ],
+      "coachIsNotAPanel": false,
+      "searchWords": [
+        "three way",
+        "3 way",
+        "forecast",
+        "cash flow forecast",
+        "projection",
+        "budget",
+        "funding",
+        "bank",
+        "overdraft",
+        "runway",
+        "balance sheet",
+        "profit and loss",
+        "working capital",
+        "gst",
+        "three year"
+      ]
+    },
+    {
       "route": "/ebitda-dcf",
       "name": "EBITDA & Discounted Cash Flow",
       "category": "Profitability",

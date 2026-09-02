@@ -29,9 +29,10 @@
  * the AI at all (`AI-PROMPTS-PAGE.md` §2) — so an unguarded read route would exist for no
  * caller. It gets added the day something needs it, not in advance.
  *
- * ⚠ THE TWO MIDDLE TIERS CANNOT BE EXERCISED BY A REAL LOGIN TODAY. `config/integration.js`
- * ships `globalManagerRole` and `groupManagerRole` empty on purpose, fail-closed. These
- * routes are correct for four tiers and provable on two. Stated rather than implied.
+ * ⚠ CORRECT FOR FOUR TIERS, PROVEN LIVE ON TWO. `config/integration.js` ships
+ * `globalManagerRole` and `groupManagerRole` empty on purpose, fail-closed until Advisor-e
+ * supplies its own role values — PARKED by Mike, and no blocker here (CLAUDE.md § "The
+ * four tiers are settled"). The evidence limit is stated rather than implied.
  *
  * Node 14, CommonJS.
  */

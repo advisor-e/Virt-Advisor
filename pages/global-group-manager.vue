@@ -61,6 +61,7 @@
  */
 
 import FirmManagerHub from '~/components/FirmManagerHub.vue'
+import { isDevHost } from '~/utils/devHost'
 
 // Matches pages/mentor.vue and pages/firm-manager.vue — the keys Advisor-e stores
 // auth under after login.
@@ -100,12 +101,12 @@ export default {
 
   methods: {
     checkAuth () {
-      // Dev auto-login — localhost only, never in production. This is the ONLY
+      // Dev auto-login — this machine only (see utils/devHost.js), never in production. This is the ONLY
       // way the hub can be opened today (artefact §6: "openable locally in
       // development — but not by the person they are for"). The token matches
       // DEV_GLOBAL_TOKEN in server/middleware/firmAuth.js, which resolves the
       // storage scope through the same tierChain helpers a real token will use.
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      if (isDevHost()) {
         this.apiToken = 'dev-local-global'
         this.userRole = 'platform_admin'
         this.authorised = true

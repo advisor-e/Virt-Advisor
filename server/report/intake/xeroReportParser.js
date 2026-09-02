@@ -19,6 +19,7 @@
 
 const { readXlsx, XlsxReadError } = require('./xlsxReader')
 const { parseCsv } = require('./csvReader')
+const { supportedList } = require('./supportedPackages')
 
 /** A grid row reduced to its first text cell + first numeric cell. */
 function rowShape (cells) {
@@ -69,7 +70,7 @@ function figureColumnCount (grid) {
 function guardFigureColumns (grid, warnings) {
   const cols = figureColumnCount(grid)
   if (cols >= REFUSE_FIGURE_COLUMNS) {
-    const e = new Error('This export splits the year across many columns (a by-month or by-quarter report). Please export the whole-period report from Xero and drop that instead.')
+    const e = new Error('This export splits the year across many columns (a by-month or by-quarter report). Please export the whole-period report from your accounting software and drop that instead.')
     e.code = 'MULTI_PERIOD_COLUMNS'
     throw e
   }
@@ -179,19 +180,41 @@ function totalCrossChecks (rows) {
   return warnings
 }
 
-/** Find the report's own date/period line in the header rows. */
+/**
+ * Find the report's own date/period line in the header rows.
+ *
+ * `bodyFrom` is the first row BELOW the header block. It matters because a header row
+ * carries a label and no figure, which is exactly how `lineItems` recognises a section
+ * heading — so without it a period line like "January - December 2026" opens a section
+ * that wraps the whole report. Found 2026-09-02 probing QuickBooks and MYOB layouts,
+ * where the effect was visible: rows outside a known section were declared unrecognised,
+ * naming the date line as though it were a heading.
+ *
+ * Date lines seen across packages: "As at …" (Xero), "As of …" (QuickBooks, MYOB),
+ * "For the …" (Xero), and a bare "1 April 2025 to 31 March 2026" range.
+ */
 function headerMeta (rows, titleRe) {
-  const meta = { companyName: null, reportDate: null, titleRow: -1 }
+  const meta = { companyName: null, reportDate: null, titleRow: -1, bodyFrom: 0 }
   const limit = Math.min(rows.length, 8)
   for (let i = 0; i < limit; i++) {
     const label = rows[i].label
     if (!label) { continue }
-    if (meta.titleRow === -1 && titleRe.test(label)) { meta.titleRow = i; continue }
-    const asAt = /^as at\s+(.+)$/i.exec(label)
-    const period = /^for the\s+(.+)$/i.exec(label) || /^(\d{1,2}\s+\w+\s+\d{4})\s*(?:to|[-–])\s*(.+)$/i.exec(label)
-    if (asAt) { meta.reportDate = asAt[1].trim(); continue }
-    if (period) { meta.reportDate = label.trim(); continue }
-    if (meta.companyName === null && meta.titleRow !== -1) { meta.companyName = label } else if (meta.companyName === null && i > 0) { meta.companyName = label }
+    if (meta.titleRow === -1 && titleRe.test(label)) { meta.titleRow = i; meta.bodyFrom = i + 1; continue }
+    const asAt = /^as (?:at|of)\s+(.+)$/i.exec(label)
+    const period = /^for the\s+(.+)$/i.exec(label) ||
+      /^(\d{1,2}\s+\w+\s+\d{4})\s*(?:to|[-–])\s*(.+)$/i.exec(label) ||
+      /^\w+\s*(?:to|[-–])\s*\w+\s+(?:19|20)\d{2}$/i.exec(label)
+    // The date line is always the last of the header rows, so finding it ends the scan.
+    // Without that stop, a report with no date line would keep looking and take the
+    // first section heading as the company name.
+    if (asAt) { meta.reportDate = asAt[1].trim(); meta.bodyFrom = i + 1; break }
+    if (period) { meta.reportDate = label.trim(); meta.bodyFrom = i + 1; break }
+    // The company name sits BELOW the title in Xero and ABOVE it in QuickBooks and
+    // MYOB, so row 0 has to be eligible. It was excluded, which meant that on those
+    // layouts the name was never found and the first section heading was taken instead
+    // — "Income" became the company, and its whole section vanished from the parse.
+    // (Found 2026-09-02.)
+    if (meta.companyName === null) { meta.companyName = label; meta.bodyFrom = i + 1 }
   }
   return meta
 }
@@ -209,8 +232,11 @@ function extractBalanceSheet (grid) {
   const meta = headerMeta(rows, BS_TITLE)
   if (meta.titleRow === -1) { return { recognised: false } }
 
-  const items = lineItems(rows)
-  const warnings = totalCrossChecks(rows)
+  // Skip the header block: a title, company or date row is a label with no figure,
+  // which lineItems would otherwise read as a section heading.
+  const body = rows.slice(meta.bodyFrom)
+  const items = lineItems(body)
+  const warnings = totalCrossChecks(body)
   guardFigureColumns(grid, warnings)
 
   const bankRows = items.filter(it => inSection(it, /^bank$|bank accounts/i))
@@ -246,6 +272,161 @@ function extractBalanceSheet (grid) {
   }
 }
 
+/* ------------------------------------------- Three-Way Forecast opening position -- */
+
+/**
+ * The Three-Way Forecast needs a whole OPENING BALANCE SHEET, not the five figures
+ * Quick Position takes. Its own function rather than more keys on `extractBalanceSheet`,
+ * because that contract is Quick Position's and stays untouched.
+ *
+ * Two rules from §3A of the forecast prompt specification (Mike's standard, 2026-09-02)
+ * shape what comes back:
+ *  - SHAREHOLDER CURRENT ACCOUNTS ARE POSITIONAL AND UNNAMED. They are natural persons'
+ *    balances; the forecast needs the numbers and never the names, so the names are not
+ *    read at all rather than read and then stripped.
+ *  - TERM LOANS ARE ALSO POSITIONAL. Their labels are lenders rather than people, but
+ *    the model does not need them either — the advisor names them on screen.
+ */
+const NCA_CATEGORY_TESTS = [
+  { key: 'vehicles', re: /vehicle|motor\s*veh|^car\b|truck/i },
+  { key: 'leaseholdImprovements', re: /leasehold|building|premises|land\b|property/i },
+  { key: 'plantEquipment', re: /plant|machinery|^equipment\b|tools/i },
+  { key: 'officeEquipment', re: /office\s*(equip|furn)|furniture|fixtures|fittings/i },
+  { key: 'computerHardware', re: /computer|hardware|^it\b|laptop|server/i }
+]
+const SHAREHOLDER_RE = /shareholder|director|beneficiar(?:y|ies)|current\s+account/i
+const LOAN_RE = /\bloan\b|hire\s*purchase|\bhp\b|finance\s+lease|mortgage|term\s+debt/i
+const GST_RE = /\bgst\b|\bvat\b|goods\s+and\s+services/i
+const INCOME_TAX_RE = /income\s*tax|provision\s+for\s+tax|\btax\s+(payable|refund)/i
+const PREPAYMENT_RE = /prepay|prepaid/i
+const ACCRUAL_RE = /accrual|accrued/i
+// "Common Stock" is QuickBooks' wording for the same line; "Capital Account" is MYOB's.
+const SHARE_CAPITAL_RE = /share\s*capital|paid[-\s]?up\s+capital|authorised\s+capital|owner'?s?\s+capital|common\s+stock|capital\s+account/i
+const RETAINED_RE = /retained\s+(earnings|profit)|accumulated\s+(profit|losses|funds)|current\s+year\s+earnings/i
+const OVERDRAFT_RE = /overdraft/i
+/** A bank account by its own name, for charts of accounts with no "Bank" heading. */
+const BANK_ACCOUNT_RE = /bank\s+account|cheque\s+account|checking\s+account|savings\s+account|cash\s+at\s+bank|petty\s+cash|^cash$/i
+
+/**
+ * Extract a Three-Way Forecast opening balance sheet from a Balance Sheet grid.
+ *
+ * @param {Array<Array<string|number|null>>} grid
+ * @returns {object} { recognised, kind, companyName, reportDate, figures, assets,
+ *   loanBalances, shareholderBalances, warnings }.
+ *   `figures` keys (each {value, source:'file', candidates}, present only when the file
+ *   carries them): cashAtBank, bankOverdraft, accountsReceivable, inventory,
+ *   gstRefund, gstPayable, incomeTaxRefundDue, incomeTaxPayable, prepayments,
+ *   accountsPayable, accruedExpenses, authorisedCapital, retainedEarnings.
+ *   `assets` is the five recognisable fixed-asset categories plus `other` for the rest.
+ *   `loanBalances` and `shareholderBalances` are plain number arrays — POSITIONAL, and
+ *   deliberately carrying no labels at all.
+ */
+function extractForecastBalanceSheet (grid) {
+  const rows = shapeRows(grid)
+  const meta = headerMeta(rows, BS_TITLE)
+  if (meta.titleRow === -1) { return { recognised: false } }
+
+  // Skip the header block: a title, company or date row is a label with no figure,
+  // which lineItems would otherwise read as a section heading.
+  const body = rows.slice(meta.bodyFrom)
+  const items = lineItems(body)
+  const warnings = totalCrossChecks(body)
+  guardFigureColumns(grid, warnings)
+
+  // 🔴 THE THREE SIDES ARE SPLIT BY EXCLUSION, NOT BY NESTING. An export that carries no
+  // "Total Assets" row never closes its Assets section, so Liabilities and Equity nest
+  // INSIDE it and every liability then satisfies `inSection(/asset/i)`. Found live on
+  // 2026-09-02: a 249,000 bank overdraft was read as cash and a bank loan as a fixed
+  // asset. Both unit-test grids carried the Total row, so neither caught it. Asking
+  // what a row is NOT is robust however the sections happen to nest.
+  // A section must BE equity, not merely mention it. QuickBooks heads its whole
+  // second half "LIABILITIES AND EQUITY", so a loose /equity/ test excluded every
+  // liability under it — accounts payable, GST, accruals and the loans all vanished.
+  // (Found 2026-09-02 probing QuickBooks; the loose test was written earlier the same
+  // day for the missing-Total-Assets fix, and this is the other half of that story.)
+  const isLiability = it => inSection(it, /liabilit/i)
+  const isEquity = it => it.section.some(s => /^(?:total\s+)?(?:owners?'?\s+|shareholders?'?\s+)?equity$|^capital\s+and\s+reserves$/i.test(String(s).trim()))
+  const assetItems = items.filter(it => inSection(it, /asset/i) && !isLiability(it) && !isEquity(it))
+  const liabItems = items.filter(it => isLiability(it) && !isEquity(it))
+  // No asset exclusion here: `isEquity` now requires a section named exactly "Equity"
+  // (or "Capital and Reserves"), which an asset row can never sit under. Adding one
+  // broke the no-"Total Assets" layout, where Equity nests inside the open Assets
+  // section and every equity line was excluded.
+  const equityItems = items.filter(isEquity)
+  const currentAssets = assetItems.filter(it => !inSection(it, /non-?current|fixed/i))
+  const nonCurrentAssets = assetItems.filter(it => inSection(it, /non-?current|fixed/i))
+
+  const figures = Object.create(null)
+  const put = (key, candidates) => {
+    const p = proposalOf(candidates)
+    if (p) { figures[key] = p }
+  }
+
+  // Bank. Xero may show an overdrawn account as a negative asset OR as a liability;
+  // both are read, and the sign decides which side of the forecast it opens on.
+  // Xero and QuickBooks group the accounts under a "Bank" / "Bank Accounts" heading;
+  // MYOB lists them straight under Current Assets, so the label has to be readable too.
+  // Deliberately narrow — a wide test would sweep in "Bank Loan" and "Bank Charges".
+  const bankRows = currentAssets.filter(it =>
+    inSection(it, /^bank$|bank accounts/i) || BANK_ACCOUNT_RE.test(it.label) || OVERDRAFT_RE.test(it.label))
+  const overdraftLiabRows = liabItems.filter(it => OVERDRAFT_RE.test(it.label))
+  put('cashAtBank', bankRows.filter(it => it.value > 0))
+  const overdrawn = bankRows.filter(it => it.value < 0).map(it => ({ label: it.label, value: -it.value, section: it.section }))
+  put('bankOverdraft', overdrawn.concat(overdraftLiabRows))
+
+  put('accountsReceivable', currentAssets.filter(it => /accounts?\s+receivable|trade\s+(receivable|debtor)|^debtors\b/i.test(it.label)))
+  put('inventory', currentAssets.filter(it => /stock|inventor/i.test(it.label)))
+  put('prepayments', currentAssets.filter(it => PREPAYMENT_RE.test(it.label)))
+  put('gstRefund', currentAssets.filter(it => GST_RE.test(it.label)))
+  put('incomeTaxRefundDue', currentAssets.filter(it => INCOME_TAX_RE.test(it.label)))
+
+  put('accountsPayable', liabItems.filter(it => /accounts?\s+payable|trade\s+(payable|creditor)|^creditors\b/i.test(it.label)))
+  put('accruedExpenses', liabItems.filter(it => ACCRUAL_RE.test(it.label)))
+  put('gstPayable', liabItems.filter(it => GST_RE.test(it.label)))
+  put('incomeTaxPayable', liabItems.filter(it => INCOME_TAX_RE.test(it.label)))
+
+  put('authorisedCapital', equityItems.filter(it => SHARE_CAPITAL_RE.test(it.label)))
+  put('retainedEarnings', equityItems.filter(it => RETAINED_RE.test(it.label)))
+
+  // The six fixed-asset categories. Anything non-current that matches none of the five
+  // named tests falls into `other` — never dropped, because a dropped asset is a
+  // balance sheet that will not tie and an advisor with no idea why.
+  const assets = Object.create(null)
+  const claimedAsset = new Set()
+  for (let i = 0; i < NCA_CATEGORY_TESTS.length; i++) {
+    const t = NCA_CATEGORY_TESTS[i]
+    const hits = nonCurrentAssets.filter(it => t.re.test(it.label) && !claimedAsset.has(it))
+    hits.forEach(h => claimedAsset.add(h))
+    const p = proposalOf(hits)
+    if (p) { assets[t.key] = p }
+  }
+  const leftoverAssets = nonCurrentAssets.filter(it => !claimedAsset.has(it) && !SHAREHOLDER_RE.test(it.label))
+  const otherAsset = proposalOf(leftoverAssets)
+  if (otherAsset) { assets.other = otherAsset }
+
+  // Positional, unnamed — see the block comment above.
+  const loanBalances = liabItems.filter(it => LOAN_RE.test(it.label)).map(it => it.value)
+  const shareholderBalances = items
+    .filter(it => SHAREHOLDER_RE.test(it.label))
+    .map(it => (inSection(it, /liabilit/i) ? it.value : -it.value))
+
+  // The over-count warning belongs to the assembler, which is what actually folds the
+  // surplus into the last slot — a warning where no folding happens is a warning that
+  // can go out of step with the thing it describes.
+
+  return {
+    recognised: true,
+    kind: 'forecastBalanceSheet',
+    companyName: meta.companyName,
+    reportDate: meta.reportDate,
+    figures,
+    assets,
+    loanBalances,
+    shareholderBalances,
+    warnings
+  }
+}
+
 // EBITDA & DCF line classification (2026-07-17). Each income item lands in exactly ONE
 // bucket — interest/dividends/bad-debts match by label first, the remainder splits by
 // section (trading income -> sales, other income -> otherIncome) — so seeding both
@@ -256,6 +437,11 @@ const BAD_DEBTS_RECOVERED_RE = /bad\s*debts?\s*recovered/i
 const INTEREST_PAID_RE = /interest\s+(paid|expense)|loan\s+interest/i
 const OTHER_INCOME_SECTION_RE = /other\s+income|non-?operating\s+income/i
 const COST_OF_SALES_SECTION_RE = /cost\s+of\s+(sales|goods)/i
+// R18 again: anchored so "Non-Trading Income" can never classify as sales. Named here
+// rather than written inline because the by-month parser (monthlySalesParser.js) must
+// decide "is this row sales?" by exactly THIS rule — two copies would drift, and the
+// drift would be a different revenue figure from the same file depending on the export.
+const INCOME_SECTION_RE = /^income$|^revenue$|^trading income$|^sales$/i
 
 /** Package a candidate list as a file-sourced proposal, or undefined when none found. */
 function proposalOf (candidates) {
@@ -294,13 +480,16 @@ function extractProfitLoss (grid) {
   const meta = headerMeta(rows, PL_TITLE)
   if (meta.titleRow === -1) { return { recognised: false } }
 
-  const items = lineItems(rows)
-  const warnings = totalCrossChecks(rows)
+  // Skip the header block: a title, company or date row is a label with no figure,
+  // which lineItems would otherwise read as a section heading.
+  const body = rows.slice(meta.bodyFrom)
+  const items = lineItems(body)
+  const warnings = totalCrossChecks(body)
   guardFigureColumns(grid, warnings)
 
   // R18: "trading income" is anchored — "Non-Trading Income" must never classify as sales
   const expenseItems = items.filter(it => inSection(it, /operating expenses|^expenses$|overheads/i))
-  const incomeItems = items.filter(it => inSection(it, /^income$|^revenue$|^trading income$|^sales$/i))
+  const incomeItems = items.filter(it => inSection(it, INCOME_SECTION_RE))
   const otherIncomeItems = items.filter(it => inSection(it, OTHER_INCOME_SECTION_RE))
   const costOfSalesItems = items.filter(it => inSection(it, COST_OF_SALES_SECTION_RE))
 
@@ -354,20 +543,22 @@ function extractProfitLoss (grid) {
 }
 
 /**
- * Sniff an uploaded buffer, read it (xlsx or csv), detect which Xero report it is,
- * and extract the intake proposal. The single entry point the route calls.
+ * Sniff an uploaded buffer and read it into cell grids — the file-type half of
+ * parseUpload, split out so the by-month parser (monthlySalesParser.js) reads files
+ * by exactly the same rules: same PDF refusal, same binary sniff, same hardened
+ * xlsx reader. This is the ONLY place an uploaded buffer becomes cells.
  *
  * @param {Buffer} buf - the uploaded file's bytes.
- * @returns {object} on success: the extract result above.
+ * @returns {Array<Array<Array<string|number|null>>>} one grid per worksheet (CSV gives one).
  * @throws {XlsxReadError|Error} err.code ∈ NOT_XLSX | CORRUPT_FILE | FILE_TOO_LARGE |
- *   TOO_MANY_PARTS | PDF_REJECTED | UNRECOGNISED_FILE | UNRECOGNISED_REPORT | MULTI_PERIOD_COLUMNS
+ *   TOO_MANY_PARTS | PDF_REJECTED | UNRECOGNISED_FILE
  */
-function parseUpload (buf) {
+function gridsFromBuffer (buf) {
   if (!Buffer.isBuffer(buf) || buf.length === 0) {
     const e = new Error('The upload was empty'); e.code = 'UNRECOGNISED_FILE'; throw e
   }
   if (buf.length >= 4 && buf.toString('latin1', 0, 4) === '%PDF') {
-    const e = new Error('PDF files cannot be read reliably — please export the report from Xero as Excel (.xlsx) or CSV and drop that instead')
+    const e = new Error('PDF files cannot be read reliably — please export the report from your accounting software as Excel (.xlsx) or CSV and drop that instead')
     e.code = 'PDF_REJECTED'
     throw e
   }
@@ -380,12 +571,26 @@ function parseUpload (buf) {
     const text = buf.toString('utf8')
     // eslint-disable-next-line no-control-regex -- deliberately detecting binary bytes
     if (/[\u0000-\u0008\u000E-\u001F]/.test(text.slice(0, 2000))) {
-      const e = new Error('Unrecognised file type — please drop a Xero report exported as Excel (.xlsx) or CSV')
+      const e = new Error('Unrecognised file type — please drop a report exported as Excel (.xlsx) or CSV from ' + supportedList())
       e.code = 'UNRECOGNISED_FILE'
       throw e
     }
     grids = [parseCsv(text)]
   }
+  return grids
+}
+
+/**
+ * Sniff an uploaded buffer, read it (xlsx or csv), detect which Xero report it is,
+ * and extract the intake proposal. The single entry point the annual routes call.
+ *
+ * @param {Buffer} buf - the uploaded file's bytes.
+ * @returns {object} on success: the extract result above.
+ * @throws {XlsxReadError|Error} err.code ∈ NOT_XLSX | CORRUPT_FILE | FILE_TOO_LARGE |
+ *   TOO_MANY_PARTS | PDF_REJECTED | UNRECOGNISED_FILE | UNRECOGNISED_REPORT | MULTI_PERIOD_COLUMNS
+ */
+function parseUpload (buf) {
+  const grids = gridsFromBuffer(buf)
 
   for (let g = 0; g < grids.length; g++) {
     const bs = extractBalanceSheet(grids[g])
@@ -393,9 +598,54 @@ function parseUpload (buf) {
     const pl = extractProfitLoss(grids[g])
     if (pl.recognised) { return pl }
   }
-  const e = new Error('This does not look like a Xero Balance Sheet or Profit and Loss export — expected the report title in the first rows')
+  const e = new Error('This does not look like a Balance Sheet or Profit and Loss export — expected the report title in the first rows. Reports from ' + supportedList() + ' can be read.')
   e.code = 'UNRECOGNISED_REPORT'
   throw e
 }
 
-module.exports = { parseUpload, extractBalanceSheet, extractProfitLoss, XlsxReadError }
+/**
+ * As `parseUpload`, but a Balance Sheet is read for the Three-Way Forecast's whole
+ * opening position rather than Quick Position's five figures. Its own entry point so
+ * that `parseUpload` — which Quick Position and EBITDA both call — is untouched.
+ *
+ * @param {Buffer} buf - the uploaded file's bytes.
+ * @returns {object} a `forecastBalanceSheet` or `profitLoss` extract.
+ * @throws {XlsxReadError|Error} the same error codes as `parseUpload`.
+ */
+function parseForecastUpload (buf) {
+  const grids = gridsFromBuffer(buf)
+
+  for (let g = 0; g < grids.length; g++) {
+    const bs = extractForecastBalanceSheet(grids[g])
+    if (bs.recognised) { return bs }
+    const pl = extractProfitLoss(grids[g])
+    if (pl.recognised) { return pl }
+  }
+  const e = new Error('This does not look like a Balance Sheet or Profit and Loss export — expected the report title in the first rows. Reports from ' + supportedList() + ' can be read.')
+  e.code = 'UNRECOGNISED_REPORT'
+  throw e
+}
+
+module.exports = {
+  parseUpload,
+  parseForecastUpload,
+  gridsFromBuffer,
+  extractBalanceSheet,
+  extractForecastBalanceSheet,
+  extractProfitLoss,
+  XlsxReadError,
+  // Shared with monthlySalesParser: the report-title test, the header reader and the
+  // period-year reader. One definition each — a by-month export is the same document
+  // with more columns, so it must be recognised and dated by the same rules.
+  PL_TITLE,
+  headerMeta,
+  yearOf,
+  // Shared with monthlySalesParser so "which rows are sales?" has ONE definition.
+  INCOME_RULES: Object.freeze({
+    INCOME_SECTION_RE,
+    OTHER_INCOME_SECTION_RE,
+    INTEREST_RECEIVED_RE,
+    DIVIDENDS_RE,
+    BAD_DEBTS_RECOVERED_RE
+  })
+}

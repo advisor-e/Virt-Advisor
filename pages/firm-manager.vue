@@ -35,6 +35,7 @@
  */
 
 import FirmManagerHub from '~/components/FirmManagerHub.vue'
+import { isDevHost } from '~/utils/devHost'
 
 // TODO: update these keys to match how Advisor-e stores auth in localStorage
 const AUTH_STORAGE = {
@@ -67,8 +68,8 @@ export default {
 
   methods: {
     checkAuth () {
-      // Dev auto-login — localhost only, never runs in production
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      // Dev auto-login — this machine only (see utils/devHost.js), never in production
+      if (isDevHost()) {
         this.apiToken = 'dev-local-bypass'
         this.firmId = 'dev-firm-001'
         this.userEmail = 'dev@local'

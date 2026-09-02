@@ -305,20 +305,24 @@ describe('the hub menu — the sidebar itself', () => {
     return wrapper.findAll('.hub-menu .menu-label').wrappers.map(p => p.text().trim())
   }
 
-  it('groups the firm manager’s twelve tabs under three headings', async () => {
+  it('groups the firm manager’s thirteen tabs under three headings', async () => {
     // Was eleven until 2026-08-20, when the Coaching Reference tab was removed with the
     // fifteen platform rows behind it (item 4.24, Mike: "remove the tab") — ten. Back to
     // eleven on 2026-08-22, when AI Prompts joined "Your AI coach" (item 4.28, Mike
-    // 2026-08-21, naming all four manager tiers). Twelve on 2026-09-01, when the firm's
-    // own Template Library joined the end of "Your AI coach" (item 4.55, Phase 3 §7).
+    // 2026-08-21, naming all four manager tiers). THIRTEEN on 2026-09-01, when the two
+    // machines each appended one to that same group on the same day: the firm's own
+    // Template Library (item 4.55, Phase 3 §7) and Meeting Review's observation points
+    // (Mike asked for the feature and approved its drawing that day). Template Library
+    // reached master first, so it holds index 6 and Meeting Review follows at 7.
     const wrapper = await mountHub()
     expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs'])
-    expect(tabLabels(wrapper)).toHaveLength(12)
+    expect(tabLabels(wrapper)).toHaveLength(13)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
     expect(tabLabels(wrapper)[5]).toBe('AI Prompts')
     expect(tabLabels(wrapper)[6]).toBe('firmTemplateLibrary.tab')
+    expect(tabLabels(wrapper)[7]).toBe('Meeting Review')
   })
 
   it('gives the mentor NO Model Inputs heading rather than an empty one', async () => {
@@ -372,11 +376,17 @@ describe('the hub menu — the sidebar itself', () => {
     // 4.24), and back to the design's 13 on 2026-08-22, when AI Prompts joined (item
     // 4.28) — the same number by a different route, as has now happened twice here.
     // The headings are unchanged throughout; only entries within them have moved.
+    //
+    // ⚠ AND TO 14 ON 2026-09-02, when Meeting Review's observation points were widened
+    // to all four manager tiers on Mike's instruction — the points "cascade down to
+    // global group and group manager before firm manager, they accept or edit". This
+    // is the first entry to exceed the approved design's 13, and it is a ruling of his
+    // rather than drift, which is why the number moves rather than the tab.
     const wrapper = await mountHub({ scope: 'group' })
     expect(groupHeadings(wrapper)).toEqual([
       'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Rolled up from below'
     ])
-    expect(tabLabels(wrapper)).toHaveLength(13)
+    expect(tabLabels(wrapper)).toHaveLength(14)
     expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
     expect(tabLabels(wrapper)).toContain('Case Reviews')
   })

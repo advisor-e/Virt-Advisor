@@ -175,7 +175,8 @@ session.
 - **The artefact register caught a real gap.** `designArtefacts.test.js` failed the first commit
   because the new mockup had no row in [`ARTEFACTS.md`](ARTEFACTS.md). That ratchet exists
   because the Logic-Lab design went missing, and it worked exactly as intended.
-- 🔴 **The group tier still cannot be exercised by a real login.** Unchanged from session 71, and
+- ⚠ **The group tier is still evidenced by tests, not by a live screen** *(corrected 2026-09-02 —
+  this said it "cannot be exercised by a real login", which is wrong)*. Unchanged from session 71, and
   it matters to 4.23: the duplicate being fixed is a *group and global* tier behaviour, so the
   fix will be proven by tests against a seeded membership map, not by a live screen. **Say so
   rather than reporting it as done.**

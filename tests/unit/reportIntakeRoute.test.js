@@ -15,7 +15,7 @@
 jest.mock('formidable', () => ({ formidable: jest.fn() }))
 
 const { formidable } = require('formidable')
-const { ebitdaDcfIntake, quickPositionIntake } = require('../../server/routes/report')
+const { ebitdaDcfIntake, quickPositionIntake, threeWayForecastIntake } = require('../../server/routes/report')
 
 /** Minimal res double capturing the (status, body) send. */
 function makeRes () {
@@ -62,7 +62,10 @@ describe('intake size-cap messages — R14 (option B: cap unchanged, words hones
     await ebitdaDcfIntake({}, res)
     expect(res.status).toBe(413)
     expect(res.body.error.code).toBe('FILE_TOO_LARGE')
-    expect(res.body.error.message).toBe('The files together are larger than 5 MB — a Xero report export should be well under 1 MB each. Please export again without extra tabs or images.')
+    // R14 option B is about ONE word: the cap is per REQUEST, so the message must say
+    // the files "together" exceed it, never imply a per-file limit. That word is what
+    // is load-bearing here — the rest of the sentence is free to change.
+    expect(res.body.error.message).toMatch(/files together are larger than 5 MB/)
   })
 
   test('Quick Position (single file) keeps its per-file 413 wording', async () => {
@@ -72,5 +75,44 @@ describe('intake size-cap messages — R14 (option B: cap unchanged, words hones
     expect(res.status).toBe(413)
     expect(res.body.error.code).toBe('FILE_TOO_LARGE')
     expect(res.body.error.message).toContain('The file is larger than 5 MB')
+  })
+
+  test('Three-Way Forecast batch over 5 MB → 413 saying TOGETHER, like EBITDA', async () => {
+    nextParse(tooBigErr, null)
+    const res = makeRes()
+    await threeWayForecastIntake({}, res)
+    expect(res.status).toBe(413)
+    expect(res.body.error.code).toBe('FILE_TOO_LARGE')
+    expect(res.body.error.message).toContain('The files together are larger than 5 MB')
+  })
+})
+
+describe('Three-Way Forecast intake — the same file-count pre-check', () => {
+  test('four files are refused with TOO_MANY_FILES before any file is parsed', async () => {
+    // The filepaths do not exist: had the handler read them first, the response would
+    // be the generic parse failure, so this also proves the refusal ordering.
+    const four = Array.from({ length: 4 }, (_, i) => ({ filepath: '/nonexistent/upload-' + i }))
+    nextParse(null, { file: four })
+    const res = makeRes()
+    await threeWayForecastIntake({}, res)
+    expect(res.status).toBe(400)
+    expect(res.body.error.code).toBe('TOO_MANY_FILES')
+    expect(res.body.error.message).toContain('up to 3 files — 4 were sent')
+  })
+
+  test('three files pass the count gate', async () => {
+    const three = Array.from({ length: 3 }, (_, i) => ({ filepath: '/nonexistent/upload-' + i }))
+    nextParse(null, { file: three })
+    const res = makeRes()
+    await threeWayForecastIntake({}, res)
+    expect(res.body.error.code).not.toBe('TOO_MANY_FILES')
+  })
+
+  test('no file attached is refused by name', async () => {
+    nextParse(null, {})
+    const res = makeRes()
+    await threeWayForecastIntake({}, res)
+    expect(res.status).toBe(400)
+    expect(res.body.error.code).toBe('NO_FILE')
   })
 })

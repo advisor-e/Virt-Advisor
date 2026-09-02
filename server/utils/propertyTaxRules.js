@@ -33,13 +33,12 @@
  * is the right one here — a phasing schedule half from one country and half from another
  * would be a schedule no tax authority has ever written.
  *
- * 🔴 THE GROUP TIER CANNOT BE EXERCISED BY A REAL LOGIN TODAY. No role value produces
- * `group_manager` and the `firms` table has no country column, so `parentScopeOf` returns
- * the platform scope for every firm and the chain runs mentor → firm exactly as it did
- * before. It fails toward the New Zealand defaults — today's behaviour — never toward a
- * guess. That data is Advisor-e's to supply (`MASTER-TEAM-INTEGRATION-EMAIL.md` q5), and
- * this module is evidenced by tests against a seeded membership map, which is a weaker
- * claim than a live screen and is stated as one.
+ * ⚠ WITHOUT A FIRM-TO-COUNTRY MAP, `parentScopeOf` returns the platform scope and the
+ * chain runs mentor → firm. It fails toward the New Zealand defaults — today's behaviour —
+ * never toward a guess. That map is Advisor-e's to supply and Mike has PARKED it
+ * (`design/features/to-do.md` 3.3, "all of this will be provided by master coding team");
+ * it is not a gap in this module. Evidence here is tests against a seeded membership map,
+ * which is a weaker claim than a live screen and is stated as one.
  */
 
 const BASE_FILE = require('../../data/property-tax-rules.json')

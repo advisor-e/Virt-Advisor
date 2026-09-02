@@ -221,6 +221,20 @@ await, or any Node 16/18/20 built-in. Backend files are CommonJS (`require`/
   bump. See `design/ACTIONS.md` and `design/SECURITY-AUDIT-NOTES.md`.
 - Strip internal DB IDs and PII before sending anything to an LLM. Never trust LLM output
   as structured data — parse and validate its shape before saving to state or the database.
+- **One scoped exception to the line above, and only one: Meeting Review.** *(Mike's ruling,
+  2026-09-01.)* A meeting transcript is personal data end to end and cannot be stripped without
+  destroying the thing being built, so **Meeting Review — and no other feature — may send a
+  consented meeting transcript to the model.** The conditions are not decoration; they are the
+  exception: **(a)** the client gave the recorded spoken consent in
+  [`design/MEETING-CONSENT-WORDING.md`](design/MEETING-CONSENT-WORDING.md), which names AI
+  transcription explicitly; **(b)** internal DB IDs and firm/advisor identifiers are **still
+  stripped** — the exception covers the *spoken content only*, so the other half of the rule above
+  is untouched; **(c)** nothing derived from it leaves the firm
+  ([`design/features/meeting-review.md`](design/features/meeting-review.md) P13); **(d)** the audio
+  is destroyed once transcribed. **This does not generalise, and it is not precedent.** Another
+  feature wanting to send personal data to a model is a fresh decision for Mike, not an inference
+  from this one. *(Granted ahead of the build: as of 2026-09-01 nothing in the repository sends
+  anything, and this exists so the rule is not re-argued at build time.)*
 - Treat user input in prompts as hostile: wrap it in explicit delimiters on the backend;
   never concatenate raw user input into a prompt string.
 - Every AI-driven data transformation logs Original Value | AI Suggestion | Final Approved
@@ -439,6 +453,60 @@ would have left it driving advice that nobody could inspect or correct.
 
 Related: [`design/features/tier-cascade.md`](design/features/tier-cascade.md) §2 P10 ·
 [`design/features/firm-manager-hub.md`](design/features/firm-manager-hub.md).
+
+## 🔴 THE FOUR TIERS ARE SETTLED AND BUILT — STOP RE-RAISING THEM (binding)
+
+**Mike, 2026-09-02, after being told a fourth time that the middle tiers "have no screen"
+and "nobody can log in":** the answer has been given many times and it must never be
+presented as news, as a gap, as a blocker, or as a reason a feature cannot cascade.
+
+**The settled facts. Do not re-derive them — they are all provable in the code today:**
+
+1. **All four managing tiers exist and are wired**: mentor → global group manager → group
+   manager → firm manager (`server/utils/tierChain.js`, `TIERS`). `parentScopeOf` /
+   `scopeChain` are the single seam and every cascading block recurses through them.
+2. **The two middle tiers HAVE HUB PAGES, built and approved.**
+   [`pages/global-group-manager.vue`](pages/global-group-manager.vue) and
+   [`pages/group-manager.vue`](pages/group-manager.vue), built from
+   `design/mockups/tier-hub-pages.html`, **approved by Mike 2026-08-10**. They render
+   `FirmManagerHub` at `scope="global"` / `scope="group"` — his ruling of 2026-07-30:
+   *"all of the functionality that you see at firm manager is simply repeated at group
+   manager or global manager… there's no new functionality."*
+3. **Storage was ruled 2026-08-09 and is built**: reserved scope ids (`__global__:<brand>`,
+   `__group__:<brand>:<country>`) ride the existing `firm_id` column. No schema change.
+   `design/USER-LEVEL-CASCADE-HANDOVER.md` Part 3.
+4. 🔴 **THEY CAN LOG IN, AND THEY HAVE FOR YEARS — Mike, 2026-08-31:** *"Global group
+   managers AND group managers log into Advisor-e today, and have for the past 18 months.
+   ALL login and authentication is handled by the master app, Advisor-e — never by this
+   app."* **Never write or say that these managers cannot log in.** The narrow truth on our
+   side is only that this app has not yet been told which role values their tokens carry;
+   `globalManagerRole` / `groupManagerRole` are empty strings so an unrecognised role
+   resolves safely to `advisor`. Fail-closed is Mike's own ruling (2026-08-10), not a
+   defect — and never "temporarily" admit `platform_admin` to a middle tier.
+5. **Both hubs open in development today** — `dev-local-global` / `dev-local-group` on
+   localhost, with `server/utils/devFirmMembership.js` seeding membership behind the same
+   double gate. "Cannot be reviewed" is false.
+
+**The two genuinely outstanding items are Advisor-e's, they are Mike's lane, and they block
+nothing here:** the middle-tier role value, and which firm sits under which brand/country.
+Both are documented in `design/USER-LEVEL-CASCADE-HANDOVER.md` Part 3 and
+`design/MASTER-TEAM-INTEGRATION-EMAIL.md`. Until they arrive `parentScopeOf` returns the
+mentor scope for every firm — **the safe direction to fail, by design**. Do not report this,
+do not file it, do not offer to fix it, and never let it stand as the reason a feature's
+cascade is incomplete.
+
+**Where a tier is genuinely missing from a FEATURE, it is one line and it says so.**
+`TAB_TIERS` in [`components/FirmManagerHub.vue`](components/FirmManagerHub.vue) names the
+tiers per tab, pinned by `tests/unit/hubTabTiers.test.js`. A tab reading `['mentor', 'firm']`
+excludes the middle tiers **as a stated judgement** (the default-is-mentor-alone ruling of
+2026-08-24), not because the platform cannot carry them. Compare `aiPrompts`, which is all
+four in Mike's own words. **The fix is that list, never the tier machinery.**
+
+**Why this is binding.** The wrong conclusion is manufactured by true sentences in the code's
+own comments — *"a real group or global manager cannot log in"* — which read as *"this is not
+built"* to a session arriving fresh. Those comments now carry the ruling beside the fact. If
+you find yourself about to tell Mike the middle tiers are missing, you have read half a
+comment: open the two pages above first.
 
 ## Working With the Product Owner & When Blocked
 

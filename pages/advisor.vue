@@ -8,6 +8,8 @@ VirtualAdvisor(
 </template>
 
 <script>
+
+import { isDevHost } from '~/utils/devHost'
 // localStorage key Advisor-e stores the firmId under after login — same key the
 // Firm Manager page uses, so an advisor and their firm manager share one firm
 // identity (and the advisor session loads that firm's distinctions/overrides).
@@ -55,7 +57,7 @@ export default {
       if (fromUrl) { return fromUrl }
       const fromStorage = window.localStorage.getItem(FIRM_ID_KEY)
       if (fromStorage) { return fromStorage }
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      if (isDevHost()) {
         return 'dev-firm-001'
       }
       return null
@@ -71,7 +73,7 @@ export default {
       // On localhost use the dev bypass directly (same as the Firm Manager page) so a
       // stale advisor_e_token left in the browser can't override it and 401 the
       // case-study reads — which looked like saved cases being "wiped" on refresh.
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      if (isDevHost()) {
         return 'dev-local-bypass'
       }
       return window.localStorage.getItem(TOKEN_KEY) || 'dev-local-bypass'

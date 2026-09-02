@@ -26,11 +26,21 @@
  * not know inherits the mentor's content, which is what it does now. It never
  * invents a middle tier to slot the firm into.
  *
- * ⚠ WHAT IS STILL MISSING, AND WHOSE IT IS. A real group or global manager cannot
- * log in: roles.js maps only `platform_admin` -> mentor and `firm_manager` ->
- * firm_manager, so no role value produces `global_group_manager` or `group_manager`. That
- * role is issued by Advisor-e's login, not by us. This module is ready for it; it
- * cannot supply it. See the plan §2.
+ * 🔴 READ THIS WHOLE NOTE BEFORE CONCLUDING THE MIDDLE TIERS ARE UNBUILT. They are
+ * built. `pages/global-group-manager.vue` and `pages/group-manager.vue` exist, render
+ * the same hub at scope="global" / "group", and were approved by Mike on 2026-08-10;
+ * their storage was ruled by him on 2026-08-09 and is the reserved scope ids above.
+ * Both open in development (`dev-local-global` / `dev-local-group`, with
+ * `devFirmMembership` seeding membership behind the same double gate).
+ *
+ * ⚠ WHAT IS OUTSTANDING IS ADVISOR-E'S, IT IS MIKE'S LANE, AND IT BLOCKS NOTHING HERE.
+ * roles.js maps only `platform_admin` -> mentor and `firm_manager` -> firm_manager, so
+ * no role value yet produces `global_group_manager` or `group_manager`, and both hubs
+ * FAIL CLOSED in production — Mike's own ruling of 2026-08-10, a deliberate design and
+ * not a defect. That role is issued by Advisor-e's login, not by us; this module is
+ * ready for it and cannot supply it. See the plan §2 and CLAUDE.md § "The four tiers
+ * are settled". Do not report it as a gap, file it, or offer to fix it — it has been
+ * raised with Mike four times and the answer has not changed.
  *
  * ⚠ NOT THE `group` TABLE. config/db-schema.sql has a `group` table — it is a
  * Special Interest Group (group_member, group_tag, marketplace_listing), a social
