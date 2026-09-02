@@ -41,8 +41,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 4 | **4.59** A point the mentor adds tells a firm manager THEY wrote it | 2 | — | Us |
 | 5 | **4.60** QuickBooks and MYOB are supported on paper, not against a real file | 4 | — | **Mike** |
 | 6 | **4.61** The forecast reads one year and one file — two years of accounts, and a volatility read, are the next phase | 3 | — | Us |
+| 7 | **4.62** Economic analysis — the forecast asks the AI for market research, because the forecasts support funding requests | 3 | — | **Mike** |
+| 8 | **4.63** Overseas stock purchases — the Import & Retail model feeds the forecast | 3 | — | Us |
 
-**Six live items. Three need Mike.** If this list passes about twenty, something is wrong.
+**Eight live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
