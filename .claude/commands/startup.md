@@ -55,6 +55,14 @@ it, do not perform it unasked.
    Report the two or three things most likely to be today's work, saying for each whether
    it waits on Mike, on us, or on someone outside. Do not start any of them.
 
+   **An item whose `activeOn` names the other machine is off limits.** Say which item and
+   which files, and do not touch them this session. That field exists because item 4.54 was
+   built on both machines in one week (Mike, 2026-09-03). Step 2's `npm run check:branch`
+   prints an **ACTIVE ITEMS** box for this: the other machine's items with their files, and
+   any item marked active on THIS machine that a later handover never mentioned — a session
+   ended without saying whether it was still in hand. Put that one to Mike before anything
+   else, and clear or keep the field on his word.
+
    **Say so if the other machine's note is stale.** Its date against today's is the only
    signal that the other division has been idle, or ended a session without writing one.
 

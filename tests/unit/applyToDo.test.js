@@ -152,11 +152,30 @@ describe('the ranked table is generated, not maintained', () => {
   })
 
   it('marks a blocker and says what it blocks', () => {
-    expect(apply.renderTable(list)).toContain('| 2 | 🔒 **2.1** A blocker | 3 | The UAT round | **Mike** |')
+    expect(apply.renderTable(list)).toContain('| 2 | 🔒 **2.1** A blocker | 3 | The UAT round | **Mike** | — |')
   })
 
-  it('puts a dash where nothing is blocked', () => {
-    expect(apply.renderTable(list)).toContain('| 1 | **4.14** First by his call | 1 | — | Us |')
+  it('puts a dash where nothing is blocked, and where nobody is on it', () => {
+    expect(apply.renderTable(list)).toContain('| 1 | **4.14** First by his call | 1 | — | Us | — |')
+  })
+
+  it('says when an item sits in filing order because Mike has not ranked it yet', () => {
+    const filed = [item({ ref: '9.9', name: 'Filed yesterday', rankedByMike: false })]
+    expect(apply.renderTable(filed)).toContain('**9.9** Filed yesterday ⚠ *not yet ranked by Mike* |')
+    expect(apply.validate(filed)).toEqual([])
+    // The flag is only ever false; `true` is a claim the data cannot make.
+    expect(apply.validate([item({ rankedByMike: true })]).join(' ')).toContain('rankedByMike=true')
+  })
+
+  it('says which computer is on an item, and refuses a third machine or a fake date', () => {
+    // Mike, 2026-09-03: 4.54 was built on both machines in one week. The list names who is on what.
+    const busy = [item({ ref: '9.8', name: 'In hand', activeOn: { machine: 'laptop', since: '2026-09-03' } })]
+    expect(apply.renderTable(busy)).toContain('| 1 | **9.8** In hand | 3 | — | Us | **laptop**, since 2026-09-03 |')
+    expect(apply.validate(busy)).toEqual([])
+    expect(apply.validate([item({ activeOn: { machine: 'tablet', since: '2026-09-03' } })]).join(' '))
+      .toContain('active on "tablet"')
+    expect(apply.validate([item({ activeOn: { machine: 'desktop', since: '2026-13-40' } })]).join(' '))
+      .toContain('real date')
   })
 
   it('counts in words, in the list\'s own voice, and counts Mike\'s separately', () => {

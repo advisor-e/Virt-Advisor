@@ -195,3 +195,52 @@ mechanism that makes the advisor report trustworthy at all**, and any later chan
 - **Everything in the Brief is untested against code**, because there is no code. The first build
   will contradict some of it, and when it does, the Brief is corrected and the contradiction is
   recorded here.
+
+## 8. The build record, 2026-09-01 to 2026-09-02
+
+Moved here from the live list on 2026-09-03, when item 4.58's comment — 1,388 words, appended by
+seven sessions — was cut to the list's word caps. What the Brief already states as current fact is
+not repeated; this is the sequence, and the things found on the way.
+
+- **2026-09-01, the design sessions.** Filed with eight open decisions. Speaker separation ruled
+  (§2). The consent wording approved and registered; Mike caught the past-tense tick that would have
+  put the client's consent outside the recording. Five more rulings, each put to him alone: the two
+  reports are *Meeting Summary* and *My Coaching Notes* ("Review" rejected as reading like an
+  appraisal); retention default 18 months; the drawing check is the words raising it plus a one-tap
+  confirmation, the advisor's answer stored and never the guess; manager figures only above 5
+  advisors AND 20 meetings, never lowered to populate a screen; a firm may not edit the consent
+  wording. **Build trap**, recorded in `MEETING-CONSENT-WORDING.md`: the wording quotes the
+  retention period aloud, and P8 lets a firm move that dial, so a build must never hardcode 18
+  months into the sentence.
+- **2026-09-01, slice 1** — the observation points, chosen first from five proposed slices because
+  they carry no audio, no AI and no privacy exposure. Five deliberate differences from the drawing
+  are in the ARTEFACTS row; the two that matter: Stage A's reference-material half (the
+  document-to-points join) is not built, and only `eoy_meeting` ships with points — the other ten
+  scenarios are registered and empty, because writing them would invent Mike's content.
+- **2026-09-01, slice 2** — consent, capture, transcription, deletion. Three rulings: audio on this
+  server's own disk, never the database or the Google Drive pipeline; slice 2 transcribes as well
+  as captures, because audio without a transcript has no deletion trigger; transcript expiry is its
+  own later piece. Found: `gpt-4o-transcribe-diarize` is published as an undated name only (Brief
+  §3); the retention dial's labels were not in the drawing and were put to Mike rather than
+  invented.
+- **2026-09-02, slice 3** — the two reports. Four rulings, all found by opening the drawing beside
+  the code before a line was written: no "Play this moment" (P8 has destroyed the audio; the
+  surrounding transcript is shown instead); no "Send to client" (no mail channel, and adding one
+  would route client financial content through an unassessed third party; approve-then-copy
+  instead); the jargon count removed (it needs a firm glossary that does not exist); hearability
+  marked by a point's author, never judged by the model. Three absences: "Actions agreed" moved out
+  of the "no AI" block; no "Discard" (stop-and-delete removes the whole meeting); no "Share with my
+  manager" until the aggregate exists. Two stale banners removed ("Recording is not built yet",
+  "The two reports are not built yet"). **One label is not Mike's:** "Read my reports" on the
+  recorder's finished state — written so the reports screen was reachable, still waiting on his
+  word.
+- **2026-09-02, renumbered 4.56 → 4.58** by the laptop on Mike's ruling; both machines had filed a
+  4.56 and the desktop's CPD item reached master first. 4.57 was skipped, not reused.
+- **2026-09-02, the meeting types cascade.** Mike ruled that types themselves cascade ("dynamic,
+  editable and cascading from mentor … until reaching the business entity level"); the design is
+  `MEETING-TYPES-CASCADE.md`, slices 1–2 built. Two rules deleted because he never made them: that a
+  type must be an id in the logic trees (old P12), and that advisors may not edit — his correction
+  is P14. The eleven shipped types are marked as a suggestion, not his list. **The app ran for the
+  first time that day** and three defects stopped it dead (the backend would not boot,
+  `/api/meeting` was missing from the Nuxt proxy list, no management sign-in on that machine); all
+  fixed, none findable by a test in this repository.

@@ -426,6 +426,10 @@
 
   .queue .zero-warn { color: var(--s5); font-weight: 600; font-size: 12.5px; margin-top: 4px; display: none; }
   .queue tr.main[data-score="0"] .zero-warn { display: block; }
+  .queue .unranked { color: var(--accent); font-weight: 600; font-size: 12.5px; margin-top: 4px; }
+  .queue .activecell { white-space: nowrap; font-size: 13px; }
+  .queue .activeon { color: var(--s3); font-weight: 600; }
+  .queue .activecell .muted { color: var(--muted); }
   .queue tr.main[data-score="0"] .name { text-decoration: line-through; opacity: .65; }
 
   .railtoggle { display: none; }
@@ -1014,6 +1018,7 @@
       '<th class="sortable" data-sort="score">Score<span class="arrow"></span></th>' +
       '<th>Your call</th>' +
       '<th>Waiting on</th>' +
+      '<th title="Which computer is working it right now">Active on</th>' +
       '<th class="sortable" data-sort="asked">Asked by<span class="arrow"></span></th>' +
       '<th></th>' +
       '</tr></thead>'
@@ -1041,11 +1046,26 @@
         function () { return item.name },
         function (v) { item.name = v }, 'name'))
       tdName.appendChild(el('span', 'ref', 'item ' + item.ref))
+      // Filed since Mike last saved the list. Saving clears it: the export below does
+      // not carry the field, so the applied list comes back without it.
+      if (item.rankedByMike === false) {
+        tdName.appendChild(el('div', 'unranked',
+          'Filed since you last ranked the list — drag it where it belongs, then Save.'))
+      }
       tdName.appendChild(el('div', 'zero-warn', 'Scores 0 — this is deleted, not filed.'))
       var reasonWarn = el('div', 'needs-reason',
         'Say why, below — it cannot come off the list without a reason.')
       tdName.appendChild(reasonWarn)
       tr.appendChild(tdName)
+
+      // Which computer is on it right now — a column, as Mike asked (2026-09-03). Read
+      // only here; a session sets and clears it, and Save carries it through (see the export).
+      var tdActive = el('td', 'activecell')
+      tdActive.appendChild(el('span', item.activeOn && item.activeOn.machine ? 'activeon' : 'muted',
+        item.activeOn && item.activeOn.machine
+          ? item.activeOn.machine + ', since ' + item.activeOn.since
+          : '—'))
+      tdActive.dataset.slot = 'active'
 
       var tdScore = el('td', 'scorecell')
       var sel = el('select', 'score')
@@ -1076,6 +1096,7 @@
         function () { return item.waitingOn },
         function (v) { item.waitingOn = v }, 'who'))
       tr.appendChild(tdWho)
+      tr.appendChild(tdActive)
 
       var tdAsk = el('td')
       tdAsk.appendChild(editable(
@@ -1093,7 +1114,7 @@
 
       // ── the expanded row ──
       var dtd = el('td')
-      dtd.colSpan = 8
+      dtd.colSpan = 9
       var facts = el('div', 'facts')
 
       facts.appendChild(fact('Why it matters',
@@ -1346,6 +1367,7 @@
             touches: o.touches,
             note: o.note || null,
             phases: o.phases,
+            activeOn: o.activeOn || null,
             yourCall: o.status || LIVE,
             yourComment: o.comment || ''
           }

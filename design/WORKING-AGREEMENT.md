@@ -87,6 +87,8 @@ Type **`/startup`** and the checklist runs itself. What it does, and why:
    explanation around a generated ten-row table, and is rebuilt from the JSON anyway.
    **Not `ACTIONS.md`** — frozen as an archive on 2026-08-24. **And there are no session
    notes to read**: the 85 files written before that date stay as history, none is written now.
+   **An item whose `activeOn` names the other machine is off limits** — say so, and do not
+   touch the files it names.
 5. **Catch up if behind** — merge `origin/master`, run the tests, prove nothing broke.
 
 ## End of session — either machine
@@ -102,7 +104,9 @@ Type **`/shutdown`**. What it does, and why:
    above a new one. **(b)** [`to-do-items.json`](features/to-do-items.json) — finished work
    **moves** to the done-and-parked page rather than being ticked in place, anything
    discovered is written as *something a person does*, and an open question for Mike is an
-   item on this list, never a line in a note. **(c)** The **commit message**.
+   item on this list, never a line in a note. An item this machine picked up carries
+   `activeOn` — kept if it is still in hand, cleared if it is finished or dropped.
+   **(c)** The **commit message**.
 4. **Commit** — message shown and approved first.
 5. **Push this machine's own branch only.**
 6. **Leave the handover** — in this machine's own file,

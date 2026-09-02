@@ -33,14 +33,14 @@ it, mark **Proceed / Done / Park / Delete**, comment on any row, and **Save the 
 repository sees; the two never both appear, and the build stops if they would.
 
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
-| # | Item | Score | Blocks | Waiting on |
-| --- | --- | --- | --- | --- |
-| 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | **Mike** |
-| 2 | **4.50** Nobody has seen a real conversation's recommendations reach the Team tab | 2 | — | Outside |
-| 3 | **4.58** Meeting Review — slices 1–3 are built; the manager's half remains, and §4 still gates a real recording | 3 | — | **Mike** |
-| 4 | **4.59** A point the mentor adds tells a firm manager THEY wrote it | 2 | — | Us |
-| 5 | **4.60** QuickBooks and MYOB are supported on paper, not against a real file | 4 | — | **Mike** |
-| 6 | **4.61** The forecast reads one year and one file — two years of accounts, and a volatility read, are the next phase | 3 | — | Us |
+| # | Item | Score | Blocks | Waiting on | Active on |
+| --- | --- | --- | --- | --- | --- |
+| 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | **Mike** | — |
+| 2 | **4.50** Nobody has seen a real conversation's recommendations reach the Team tab | 2 | — | Outside | — |
+| 3 | **4.58** Meeting Review — three slices built; the manager's half and §4 remain ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 4 | **4.59** A point the mentor adds tells a firm manager THEY wrote it ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 5 | **4.60** QuickBooks and MYOB are supported on paper, not against a real file ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 6 | **4.61** Two years of accounts, and a volatility read, for the forecast ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-03 |
 
 **Six live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
@@ -105,6 +105,12 @@ justifying it, on a duplicate ref, and on a blocker that does not say what it bl
 mutation-verified — dropping a `risk` line, claiming *ours* with no reason, and filing a 0 instead
 of deleting were each confirmed to fail it.
 
+🔴 **Every field has a word cap, enforced by the same test since 2026-09-03** — name 16, why 40,
+risk 80, touches 80, note 120, comment 120, asked-by detail 80. Mike opened his list that day and
+found one item's comment at 1,388 words: seven sessions had each appended an "UPDATED …" paragraph
+beneath the last. The list is for reading; the record lives in the feature's Brief and history
+file, linked from the note. *One fact, one home* — replace the stale sentence, never append.
+
 1. **Score** — from the table above.
 2. **Why** — why it matters, in one sentence.
 3. **Risk** — what we actually lose by not doing it. If nothing is lost, the score is 0.
@@ -118,6 +124,15 @@ of deleting were each confirmed to fail it.
 **Blockers first, then score.** An item that holds up other people beats a higher-scoring item that
 holds up nobody — a 3 that unblocks a whole team is worth more this week than a 4 that waits
 comfortably. 🔒 marks a blocker.
+
+**An item filed since Mike last saved the list sits in filing order, not his**, and the table says
+so: *not yet ranked by Mike*. The Handbook control shows the same flag on the row. It clears itself
+the next time he places the item and saves.
+
+**The "Active on" column names the computer working an item right now**, and the date it started
+— Mike's instruction of 2026-09-03, after item 4.54 was built on both machines in the same week
+without either knowing. Only *laptop* and *desktop* are accepted. A session sets it when it picks
+an item up, shutdown clears it or keeps it, and startup reads the other machine's as off limits.
 
 ---
 
