@@ -521,20 +521,34 @@ Report** is the worked example of the compliant pattern — every string on it i
 `locales/en.json`, month names included — so copy that screen, not its neighbours. A string
 hardcoded in a template stays English for ever; one in `en.json` can become any language.
 
-**The Three-Way Forecast has an engine and an intake, and no screen.** Stages A and B are
-built and pushed (`f42c74e`, `659706d`): a full twelve-month linked profit & loss, balance
-sheet and cash flow ported from `3 way Filter.xlsx` — **3,385 of its 3,409 calculated cells
-reproduced exactly** — plus a third intake that seeds the opening position and the overhead
-cost base. **Seven corrections to the source workbook were each ruled by Mike**; the evidence
-for every one is in
+**The Three-Way Forecast is complete, end to end.** A full twelve-month linked profit &
+loss, balance sheet and cash flow ported from `3 way Filter.xlsx` — **10,155 of its 10,227
+calculated cells reproduced exactly across all three years**, the largest golden set in this
+repo — behind all four screens of the approved drawing
+([`../mockups/three-way-forecast.html`](../mockups/three-way-forecast.html)): drop the
+exports, confirm the opening position, set the assumptions, the forecast. **Nine corrections
+to the source workbook were each ruled by Mike**; the evidence for every one is in
 [`../THREE-WAY-FORECAST-DEVIATIONS.md`](../THREE-WAY-FORECAST-DEVIATIONS.md), and the
-largest overstated year-one profit by 55,654. The screens are drawn
-([`../mockups/three-way-forecast.html`](../mockups/three-way-forecast.html)) and **await
-Mike's approval with eight open questions**, so the catalogue row stays `soon` and the card
-stays inert. Two things also wait on his word: the workbook's **31-day month stepping**
-(it advances months by adding 31 days, so a forecast starting late in a month can skip one
-and misfire the GST filing schedule — ported as written and reported by
-`startsSkipACalendarMonth`), and the supported-software wording.
+largest overstated year-one profit by 55,654. Month stepping was one of them: the workbook
+advanced by 31 days, so its third year ran three weeks adrift — **ruled and fixed 2026-09-02
+("obviously, it needs to be per calendar month")**.
+
+> 🔴 **The lesson this build is worth remembering for, and it applies to every model here.**
+> `resolveInputs` merges what a screen sends over the workbook's own sample, so **an input the
+> screen does not collect keeps the sample's value and nothing on the page says so**. Built
+> exactly as drawn, the intake would have put a 10% sales commission, 3% freight, 7% overdraft
+> interest and 15,000 a year of Big Bird Grass Seed's overheads into a real client's forecast,
+> invisibly. Mike ruled 2026-09-03 that every figure the engine takes goes on a screen, which
+> is why the opening table carries 17 lines rather than 10 and the overheads 23 rather than 14.
+> **`buildInputs()` therefore sends every key the model takes, explicitly**, and
+> `tests/unit/threeWayForecastIntake.component.test.js` compares what it sends against the
+> model's own key list — so an input added to the engine later fails a test instead of leaking.
+> **Any new model with a defaults-merge takes the same guard.**
+
+The by-month slot of step 1 is wired: last year's twelve monthly sales arrive tagged
+`seeded` — a starting point, never a forecast, and its own third badge state on
+`ProvenanceBadge`. Two behaviours remain **built as drawn and unruled**: whether negative
+stock is flagged, and whether an out-of-balance opening blocks or only warns.
 
 **This model is the only one that reads a FORECAST rather than history.** Every other
 Report-class model reads what has happened; this one is about what will. No accounting

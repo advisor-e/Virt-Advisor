@@ -39,6 +39,9 @@ const { intakeErrorResponse } = require('../report/intakeError')
 // export is well under 1 MB, so five years fit with huge headroom.
 const INTAKE_MAX_BYTES = 5 * 1024 * 1024
 
+/** A forecast year, in months — how many the by-month seed must supply to be used at all. */
+const MONTHS_IN_YEAR = 12
+
 /** Wrap formidable v2's callback parse() for await use. @param {object} form @param {object} req */
 function parseForm (form, req) {
   return new Promise((resolve, reject) => {
@@ -746,8 +749,55 @@ async function threeWayForecastIntake (req, res) {
       throw e
     }
 
-    const parsed = uploaded.map(f => parseForecastUpload(fs.readFileSync(f.filepath)))
-    const data = assembleForecastIntake(parsed)
+    // Split the drop into the two annual reports and the optional by-month one.
+    //
+    // 🔴 THE BY-MONTH FILE IS SNIFFED FIRST, AND THE ORDER IS LOAD-BEARING. A single-period
+    // Balance Sheet or P&L carries one figure column, so it can never satisfy the by-month
+    // reader's month-header row — sniffing it costs nothing. The reverse is NOT true: a
+    // twelve-column P&L is still a P&L, and `parseForecastUpload` reaches it through
+    // `guardFigureColumns`, which THROWS `MULTI_PERIOD_COLUMNS` rather than declining. Try
+    // the annual reader first and the third slot could never work at all.
+    const annual = []
+    let monthly = null
+    for (let u = 0; u < uploaded.length; u++) {
+      const buf = fs.readFileSync(uploaded[u].filepath)
+      let byMonth = null
+      try {
+        byMonth = parseMonthlyUpload(buf)
+      } catch (sniffErr) {
+        byMonth = null // not a by-month export; read it as an annual report below
+      }
+      if (byMonth && byMonth.recognised) {
+        if (monthly) {
+          const e = new Error('Two by-month Profit and Loss reports were dropped together. This model reads last year\'s twelve months — please drop the one the forecast should start from.')
+          e.code = 'TOO_MANY_MONTHLY_FILES'
+          throw e
+        }
+        monthly = byMonth
+        continue
+      }
+      annual.push(parseForecastUpload(buf))
+    }
+
+    // The assembler takes twelve monthly sales figures. `assembleMonthlySeries` returns the
+    // joined run with its incomplete trailing months already stripped (`usable`), so the
+    // last twelve of those are last year's — and anything short of twelve is NOT padded:
+    // a seeded series with a made-up month in it is worse than no seed at all.
+    let monthlySales = null
+    const monthlyWarnings = []
+    if (monthly) {
+      const joined = assembleMonthlySeries([monthly])
+      for (let w = 0; w < joined.warnings.length; w++) { monthlyWarnings.push(joined.warnings[w]) }
+      if (joined.usable.length >= MONTHS_IN_YEAR) {
+        monthlySales = { sales: joined.usable.slice(-MONTHS_IN_YEAR).map(m => m.value) }
+      } else {
+        monthlyWarnings.push('The by-month report gave ' + joined.usable.length +
+          ' complete months, and the forecast needs twelve. Last year\'s sales have not been used as a starting point — enter the twelve months yourself.')
+      }
+    }
+
+    const data = assembleForecastIntake(annual, monthlySales)
+    for (let w = 0; w < monthlyWarnings.length; w++) { data.warnings.push(monthlyWarnings[w]) }
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
     // Log the stable code only — never the filename, labels or content (identity stays local)

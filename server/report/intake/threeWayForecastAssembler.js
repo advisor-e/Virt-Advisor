@@ -96,6 +96,8 @@ function foldTo (balances, max) {
  *   files: [{ kind, companyName, reportDate, warnings }],   // upload order
  *   proposal: { … the model's input shape, values only … }, // ready to POST
  *   provenance: { <path>: 'file' | 'seeded' | 'entered' },  // what each figure is
+ *   candidates: { <openingBalanceSheet key>: [{label, value}] }, // only where >1 account
+ *                                                            // was summed into a figure
  *   blocked: string|null,                                   // why nothing assembled
  *   warnings: string[]
  * }
@@ -109,15 +111,17 @@ function assembleForecastIntake (parsed, monthlySales) {
   const warnings = []
   const provenance = Object.create(null)
   const proposal = Object.create(null)
+  const candidates = Object.create(null)
 
   if (!Array.isArray(parsed) || parsed.length === 0) {
-    return { files, proposal, provenance, blocked: 'No file was read.', warnings }
+    return { files, proposal, provenance, candidates, blocked: 'No file was read.', warnings }
   }
   if (parsed.length > MAX_FILES) {
     return {
       files,
       proposal,
       provenance,
+      candidates,
       blocked: 'Please drop at most ' + MAX_FILES + ' files together: a Balance Sheet, a Profit and Loss, and optionally last year\'s by-month Profit and Loss.',
       warnings
     }
@@ -140,13 +144,13 @@ function assembleForecastIntake (parsed, monthlySales) {
   // No-partial-assembly rule: say what is wrong loudly rather than proposing half a
   // forecast the advisor cannot tell from a whole one.
   if (balanceSheets.length === 0) {
-    return { files, proposal, provenance, blocked: 'A Balance Sheet is needed — it is what the forecast opens from. Please drop one.', warnings }
+    return { files, proposal, provenance, candidates, blocked: 'A Balance Sheet is needed — it is what the forecast opens from. Please drop one.', warnings }
   }
   if (balanceSheets.length > 1) {
-    return { files, proposal, provenance, blocked: 'Two Balance Sheets were dropped together. The forecast opens from one position — please drop the one it should start from.', warnings }
+    return { files, proposal, provenance, candidates, blocked: 'Two Balance Sheets were dropped together. The forecast opens from one position — please drop the one it should start from.', warnings }
   }
   if (profitLosses.length > 1) {
-    return { files, proposal, provenance, blocked: 'Two Profit and Loss reports were dropped together. Please drop the one whose costs the forecast should start from.', warnings }
+    return { files, proposal, provenance, candidates, blocked: 'Two Profit and Loss reports were dropped together. Please drop the one whose costs the forecast should start from.', warnings }
   }
 
   const bs = balanceSheets[0]
@@ -164,6 +168,15 @@ function assembleForecastIntake (parsed, monthlySales) {
     const k = figureKeys[i]
     openingBalanceSheet[k] = bs.figures[k].value
     provenance['openingBalanceSheet.' + k] = 'file'
+    // Where a figure was summed from more than one account, the screen shows the rows so
+    // the advisor can untick one — a chart of accounts that splits stock across
+    // "Inventory" and "Raw Materials" is the ordinary case, not the exception, and the
+    // total is only right if the advisor agrees both belong. Labels are the client's own
+    // account names, shown on the advisor's own screen and sent to no model.
+    const cands = bs.figures[k].candidates
+    if (Array.isArray(cands) && cands.length > 1) {
+      candidates[k] = cands.map(c => ({ label: c.label, value: c.value }))
+    }
   }
   proposal.openingBalanceSheet = openingBalanceSheet
 
@@ -236,7 +249,7 @@ function assembleForecastIntake (parsed, monthlySales) {
     }
     proposal.overheads = overheads
   } else {
-    warnings.push('No Profit and Loss was dropped, so the forecast starts with the sample cost base. Drop one, or enter the annual figures yourself.')
+    warnings.push('No Profit and Loss was dropped, so the overhead figures all start at zero. Drop one, or enter the annual figures yourself.')
   }
 
   /* -- last year's monthly sales, as a starting point ONLY ------------------------ */
@@ -257,7 +270,7 @@ function assembleForecastIntake (parsed, monthlySales) {
   provenance.debtorCollection = 'entered'
   provenance.creditorPayment = 'entered'
 
-  return { files, proposal, provenance, blocked: null, warnings }
+  return { files, proposal, provenance, candidates, blocked: null, warnings }
 }
 
 module.exports = { assembleForecastIntake, MAX_FILES, MAX_LOANS, MAX_SHAREHOLDERS, OVERHEAD_TESTS }

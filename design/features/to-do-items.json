@@ -139,6 +139,26 @@
       },
       "touches": "Nothing until the files arrive. Then: tests/unit/accountingPackages.test.js (the reconstructions become real-shaped fixtures), server/report/intake/xeroReportParser.js if the real layouts differ, and server/report/intake/supportedPackages.js to flip each `confidence` to `verified` — which its own guard will not allow until the evidence line says a real export was read.",
       "comment": "2026-09-02 — filed on Mike's instruction. NOTHING IS BLOCKED: the reader handles both layouts today and the screens are honest about the difference. DO NOT PROMOTE ON MORE RECONSTRUCTIONS — the guard in accountingPackages.test.js fails the build if a package is marked `verified` without evidence naming a real export, and that is deliberate."
+    },
+    {
+      "ref": "4.61",
+      "name": "The forecast reads one year and one file — two years of accounts, and a volatility read, are the next phase",
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Mike's request, 2026-09-03: drop the last two years of Profit and Loss and Balance Sheet so basic trend analysis can be performed, including volatility. IT IS TWO SEPARATE PIECES AND ONE OF THEM IS ALREADY BUILT. (a) VOLATILITY NEEDS MONTHS, NOT YEARS — server/report/volatilityModel.js takes 24 MONTHLY sales figures, so two annual P&Ls give it two data points and no variation can be measured from two points. What feeds it is the by-month export, and Mike's own ruling of 2026-08-31 (\"two files, up to 24 months\") is built as server/report/intake/monthlySeriesAssembler.js, which joins this year's and last year's by-month exports, warns on gaps and overlaps, and strips the incomplete trailing months. The Volatility model, page, report component and intake route are all live. What is missing is only the CONNECTION: the Three-Way Forecast's step 1 draws a third slot for ONE by-month file, so raising it to two would seed the forecast's monthly sales from 24 months instead of 12 AND hand the same series to the volatility engine — no new arithmetic. (b) THE TREND READ IS GENUINELY NEW WORK. Two years of ANNUAL accounts gives what volatility cannot: growth, margin movement, and whether debtor, creditor and stock days are improving. It is blocked on one specific thing — xeroReportParser.js L70-79 REFUSES a multi-column export outright (MULTI_PERIOD_COLUMNS) and, where the columns are few, reads only the first and warns. A comparative Balance Sheet with this year beside last year is exactly that shape, so today it either bounces or silently reads one year. That guard is deliberate and must not be weakened; the fix is to teach the parser to read columns as periods when it is asked to.",
+      "risk": "Nothing is broken while this is undone, and that is the point — the forecast is honest about reading one period. The risk is in the doing. The comparative-column work touches the guard that stops a two-year file being read as one, and that guard exists because a figure from the wrong year is completely believable; weakening it to accept two years would be the single easiest way to produce a confident wrong opening position. The volatility connection carries the join risk the assembler already names: two by-month exports read separately are two correct halves, joined wrongly they are one confident wrong series.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-03 — \"i also think we need the ability to drop the last 2 years worth of p&l and balance sheet so some basic trend analysis can be performed - including volatility analysis - for which we have calcs model already - perhaps in next phase of this build?\" Asked while approving the forecast's three data-entry screens."
+      },
+      "touches": "For (a): server/routes/report.js (the forecast intake route), server/report/intake/threeWayForecastAssembler.js (MAX_FILES, and the monthlySales argument it already accepts), components/ThreeWayForecastIntake.vue and its test. For (b): server/report/intake/xeroReportParser.js (the figure-column guard and the extractors), and a drawing of its own before any of it. NOTHING YET — no line of either has been written.",
+      "note": "⚠ SEQUENCING, AND IT IS NOT OPTIONAL. The by-month upload is the DESKTOP's work — item 4.54, sitting unmerged on PR #55 and waiting on Mike's eyeball of the screen. This item edits the same intake files, so it starts after #55 merges or the two machines collide. Do (a) before (b): it is small, reuses built work, and produces something a client can see; (b) needs its own approved drawing because a comparative parser is real work and the guard it touches is load-bearing.",
+      "comment": "2026-09-03 — filed on Mike's instruction (\"yes\") the moment he asked, so the request is not carried only in a conversation. He framed it himself as \"the next phase of this build\", which is where it sits: after the three data-entry screens land."
     }
   ]
 }

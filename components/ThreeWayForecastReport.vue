@@ -199,12 +199,7 @@ export default {
       data: null,
       tab: 'cash',
       // The four live levers. Percentages are whole numbers for the sliders.
-      f: {
-        salesShift: 0,
-        markup: 68,
-        debtorMonthAfter: 55,
-        overheadShift: 0
-      }
+      f: this.leversFor(this.seed)
     }
   },
 
@@ -334,7 +329,18 @@ export default {
 
   watch: {
     f: { deep: true, handler () { this.queueRecompute() } },
-    seed: { handler () { this.recompute() } }
+    /**
+     * A new intake replaces the levers as well as the figures. Without this the two
+     * absolute levers — mark-up and the month-after collection — would keep their opening
+     * values and silently overwrite what the advisor confirmed on step 3, because
+     * `payload()` writes both into every request.
+     */
+    seed: {
+      handler (next) {
+        this.f = this.leversFor(next)
+        this.recompute()
+      }
+    }
   },
 
   mounted () {
@@ -342,6 +348,25 @@ export default {
   },
 
   methods: {
+    /**
+     * The four levers' opening positions. The two RELATIVE ones (sales and overheads)
+     * always start at no change; the two ABSOLUTE ones read the confirmed intake, falling
+     * back to the source workbook's own sample when the screen is computing that sample.
+     * @param {object|null} seed - the confirmed intake inputs.
+     * @returns {{salesShift:number, markup:number, debtorMonthAfter:number, overheadShift:number}}
+     */
+    leversFor (seed) {
+      const markup = seed && typeof seed.markup === 'number' ? seed.markup * 100 : 68
+      const profile = seed && Array.isArray(seed.debtorCollection) ? seed.debtorCollection : null
+      const monthAfter = profile && typeof profile[1] === 'number' ? profile[1] * 100 : 55
+      return {
+        salesShift: 0,
+        markup: Math.round(markup),
+        debtorMonthAfter: Math.round(monthAfter),
+        overheadShift: 0
+      }
+    },
+
     /** A whole-number percentage, in the reader's language. */
     pct (v) { return this.num(v, 1) + '%' },
     /** The same, with an explicit sign — a lever reads as a change, not a level. */
