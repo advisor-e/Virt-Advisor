@@ -68,8 +68,10 @@ describe('firmAuth', () => {
 
     firmAuth(req, makeMockRes(), jest.fn())
 
+    // businessEntityId is null for anyone who is not a client (business-entity-reports,
+    // 2026-09-03): the field is always present so a route can test it without guarding.
     expect(req.identity).toEqual({
-      advisorId: 'adv-9', firmId: 'firm-1', role: 'firm_manager', email: 'm@acme.com'
+      advisorId: 'adv-9', firmId: 'firm-1', role: 'firm_manager', email: 'm@acme.com', businessEntityId: null
     })
   })
 

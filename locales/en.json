@@ -1805,6 +1805,30 @@
       "report": "Client report"
     }
   },
+  "clientReports": {
+    "library": {
+      "eyebrow": "Advisor-e · Your Business",
+      "title": "Your reports",
+      "lede": "The reports your advisor has opened to you. Anything greyed out, your advisor will open with you.",
+      "openLabel": "Open with your advisor's figures",
+      "lockedLabel": "Your advisor will open this with you.",
+      "sampleNote": "Figures shown are illustrative until your advisor saves yours.",
+      "signIn": "Sign in to see your reports.",
+      "notEntity": "This page is for a business signed in through its advisor's firm.",
+      "loadFailed": "Your reports could not be loaded. Please try again."
+    },
+    "switch": {
+      "label": "Client access",
+      "chooseClient": "Choose a client",
+      "hidden": "Hidden",
+      "open": "Open",
+      "hintNoClient": "Choose the client this report is for to open it to them.",
+      "hintHidden": "Hidden for this client. Open it once terms are agreed.",
+      "hintOpen": "This client can open this report and change its figures.",
+      "clientsFailed": "The client list could not be loaded.",
+      "saveFailed": "The change could not be saved. Please try again."
+    }
+  },
   "modelLibrary": {
     "eyebrow": "Advisor-e · Business Performance",
     "title": "Model Library",

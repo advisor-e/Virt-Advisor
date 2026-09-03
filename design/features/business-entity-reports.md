@@ -1,7 +1,7 @@
 # Business Entity Reports — the Brief
 
-> **Status: ☐ DESIGN FOR APPROVAL. Nothing here is built.** Written 2026-09-03 on Mike's
-> instruction, in his words:
+> **Status: ☑ PART 1 (THE STUB) IS BUILT — 2026-09-03. Part 2 (saved reports) is item 4.62
+> on the live list.** Designed and approved the same day on Mike's instruction, in his words:
 >
 > > *"we have a performance report feature — these reports/models are editable and viewable at
 > > the business entity level (or at least they should be). Your job is in 2 parts. 1, make sure
@@ -59,32 +59,59 @@ already working in front of that client: a control in the report header, *Client
 hidden / open*, active only once a client is chosen for the report. The client's record
 shows the list of what is open to them, read-only.
 
-## 3. Decisions for Mike — each with a recommendation
-
-Put one at a time. Nothing below is ruled.
+## 3. Decisions — put to Mike one at a time
 
 | # | Decision | Recommendation, and why |
 |---|---|---|
-| D1 | **Default state of a model for a new client** | **Hidden.** Fail closed: a client sees nothing they have not been walked through. The forecast example in the request is exactly this case. |
-| D2 | **What a client sees of a hidden model** | **A greyed card that cannot open**, with *"Your advisor will open this with you."* It sells the service without letting anyone start. The alternative — not listed at all — hides what the firm offers. |
-| D3 | **Where the advisor flips the switch** | **On the report screen's header**, for the client the report is for. That is where the advisor is when terms are agreed. The client record lists the result read-only. |
-| D4 | **How a client edit is made clear** | **Three ways at once:** a `client` provenance badge on each figure they changed, a banner on the report naming who and when, and the advisor's last version kept beside it with *Restore*. |
-| D5 | **Can the client close the switch themselves?** | **No.** Only the advisor opens or hides; the client edits inside what is open. Nobody edits a level above their own (P14). |
-| D6 | **Scope of "edit"** | **Inputs only.** A client changes figures and sliders; they cannot change which model, the client it is for, or the advisor's notes. |
+| D1 | **Default state of a model for a new client** | ☑ **RULED BY MIKE 2026-09-03: hidden** — *"yes - hidden by default"*. Fail closed: a client sees nothing they have not been walked through. |
+| D2 | **What a client sees of a hidden model** | ☑ **RULED BY MIKE 2026-09-03: a greyed card that cannot open**, with *"Your advisor will open this with you."* It sells the service without letting anyone start. |
+| D3 | **Where the advisor flips the switch** | ☑ **RULED BY MIKE 2026-09-03: on the report screen's header**, for the client the report is for. That is where the advisor is when terms are agreed. The client record lists the result read-only. |
+| D4 | **How a client edit is made clear** | ☑ **RULED BY MIKE 2026-09-03: three ways at once** — a `client` provenance badge on each figure they changed, a banner on the report naming who and when, and the advisor's last version kept beside it with *Restore*. |
+| D5 | **Can the client close the switch themselves?** | ☑ **RULED BY MIKE 2026-09-03: no — "advisor only".** Only the advisor opens or hides; the client edits inside what is open. Nobody edits a level above their own (P14). |
+| D6 | **Scope of "edit"** | ☑ **RULED BY MIKE 2026-09-03: inputs only.** A client changes figures and sliders; they cannot change which model, the client it is for, or the advisor's notes. |
 
-## 4. What the stub is — part 1, buildable now
+All six ruled on 2026-09-03, each as recommended, one at a time.
 
-1. **Role wiring, fail-closed**, exactly as the middle tiers: `businessEntityRole: ''` and a
-   `businessEntityIdClaim` in `config/integration.js`; empty until the master team supplies
-   the value. A dev token `dev-local-entity` so the screen can be seen on a developer machine.
-2. **A page, `/my-reports`**, the client's view of the Model Library: every catalogued model
-   as a card, open or greyed per D2, driven by the per-client switch table.
-3. **The switch table** — a new per-firm config key read through the existing `firmOverlay`
-   helpers (version history and restore for free), keyed `client id → model name → state`.
-4. **The advisor's control** on the report header, and the read-only list on the client record.
+## 4. What the stub is — part 1, BUILT 2026-09-03
+
+1. **Role wiring, fail-closed**, exactly as the middle tiers: `businessEntityRole: ''` and
+   `businessEntityIdClaim` in `config/integration.js`, empty until the master team supplies
+   the value. `server/middleware/firmAuth.js` now refuses a client token by name on every
+   advisor route (`BUSINESS_ENTITY_NOT_ALLOWED`), and a new `entityAuth` admits only a client
+   whose token names its firm and its register id. Dev token `dev-local-entity` (client
+   `dev-client-001` of `dev-firm-001`), honoured on the same terms as every dev token.
+2. **A page, `/my-reports`** (`components/ClientReportLibrary.vue`): every routed catalogue
+   model as a card; open ones link to the report, the rest are greyed and carry no link at
+   all (D2). A 403 is a message, never an empty list. A foot note says figures are
+   illustrative until part 2.
+3. **The switch table** — `server/utils/clientReportAccess.js`, one firm-scoped config key
+   (`client-report-access`) through `firmOverlay`, so version history and restore are free.
+   Hidden is the ABSENCE of a row (D1): hiding deletes, and a fresh client is closed by
+   construction. Routes in `server/routes/clientReports.js`: the advisor reads and flips
+   (`firmAuth`; a client of another firm is 404, as if absent), the client reads its own row
+   (`entityAuth`; firm and client id from the token, nothing from the request).
+4. **The advisor's control** — `components/base/ClientAccessSwitch.vue`, rendered by
+   `ReportHeader` on every report: choose the client, then *Hidden / Open* (D3, D5). It
+   renders nothing without an advisor sign-in or off a catalogue route, so no report page
+   changed — including the Three-Way Forecast, which is the laptop's under 4.61.
+
+**Three named deviations from the artefact.** *(a)* **The read-only list on the client record
+is not built, because no client record screen exists** — the register is a picker at session
+start, not a page. It comes with the first client screen, or with part 2. *(b)* The model is
+keyed by its **route** (`/volatility`), not its name: the catalogue is an ES module the Node
+14 backend cannot read, and the route is the identity both sides share. *(c)* The header
+control offers a client **picker**, which the drawing assumed was already chosen — no report
+knows its client today.
 
 **What the stub does NOT do:** save a report. Until §5 exists, an open model shows the client
-the calculator with sample figures, same as an advisor sees it today. The card says so.
+the calculator with sample figures, same as an advisor sees it today. The page says so.
+
+**What proves it:** `tests/unit/clientReportAccess.test.js` (the table — hidden by absence,
+refusals, no cross-client writes), `clientReports.routes.test.js` (identity from the token,
+404 across firms, 403 for a non-client read), `entityAuth.test.js` (the client sign-in fails
+closed; a client token never passes `firmAuth`), `clientReportsProxyWiring.test.js`,
+`clientReportLibrary.component.test.js` (no link on a hidden card) and
+`clientAccessSwitch.component.test.js` (advisor only; the flip sends `{ route, state }`).
 
 ## 5. Saved reports — part 2, the prerequisite for "edit thereafter"
 

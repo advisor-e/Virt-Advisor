@@ -182,6 +182,27 @@
       "touches": "For (a): server/routes/report.js, server/report/intake/threeWayForecastAssembler.js, components/ThreeWayForecastIntake.vue and its test. For (b): server/report/intake/xeroReportParser.js, and a drawing of its own first.",
       "note": "Two pieces. (a) Volatility needs 24 months, not two years, and the two-file monthly join is already built (monthlySeriesAssembler), so this is a connection from the forecast's step 1 to it, with no new arithmetic. (b) The annual trend read is new work and needs its own approved drawing before the parser's multi-column guard is touched. Do (a) first. Not gated on anything since PR #55 closed on 2026-09-03. Nothing written yet. Detail in report-models.md §4b.",
       "comment": "2026-09-03 — filed on Mike's instruction (\"yes\") while he approved the forecast's intake screens; he framed it as the next phase."
+    },
+    {
+      "ref": "4.62",
+      "name": "Saved reports per client — so a client can edit what the advisor opened",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Mike's request of 2026-09-03: once an advisor opens a model to a client, the client edits it and every edit is made clear. Nothing can be edited until a report is saved per client per model, which nothing does today.",
+      "risk": "Without it the stub shows a client an open model with sample figures only. With it, a client's figure reaches an advisor's screen; the badge, banner and Restore (D4) are what stop a client edit passing as the advisor's.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-03 — \"once advisor has been involved and secured terms, we DO want them to be involved and can edit thereafter - so long as any changes are made clear they are edited by the client\". Part 2 of the request that built the stub the same day."
+      },
+      "touches": "A saved-report store through firmOverlay ({ firm, client, model, inputs, savedBy: { tier, name }, savedAt }), a Save on the report header, a `client` state on ProvenanceBadge, the banner and Restore on the report screens, and the client's page. Not the forecast intake files (4.61, laptop).",
+      "note": "Part 1, the stub, is built (business-entity-reports.md §4): role wiring fail-closed, /my-reports, the switch table, the header control. This is §5 of the same Brief. The client edits inputs only (D6).",
+      "comment": "2026-09-03 — filed the day the stub was built, so part 2 is not carried only in a conversation."
     }
   ]
 }

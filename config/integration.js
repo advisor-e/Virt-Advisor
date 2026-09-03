@@ -70,6 +70,19 @@ const AUTH = {
   globalGroupClaim: 'globalGroup', // JWT claim carrying the brand, e.g. 'BDO'
   countryClaim: 'country', // JWT claim carrying the country, e.g. 'DE'
 
+  // ── The BUSINESS ENTITY — the client being advised ──────────────────────────
+  // 🔴 EMPTY ON PURPOSE, the same fail-closed state as the two tiers above. Advisor-e
+  // issues no role value for a client yet. An empty string matches no role, so no
+  // token can be taken for a client, and a client token can never pass firmAuth into
+  // an advisor's routes (server/middleware/firmAuth.js refuses it by name).
+  //
+  // INTEGRATION NOTE (for the Advisor-e team): set the role value and the claim that
+  // carries the client's id — it must equal the id in this app's client register
+  // (va_clients.id), which is the key the advisor's per-client switches are stored
+  // under. design/features/business-entity-reports.md.
+  businessEntityRole: '', // role value for a business entity (client) login
+  businessEntityIdClaim: 'businessEntityId', // JWT claim carrying the client's id
+
   // Signing secret used to verify tokens.
   // If Advisor-e uses RS256 (asymmetric), replace this with the public key
   // string and update the jwt.verify() call in server/middleware/firmAuth.js.

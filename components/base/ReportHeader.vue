@@ -5,7 +5,12 @@ header.rs-top
     .rs-eyebrow(v-if="eyebrow") {{ eyebrow }}
     h1.rs-h1 {{ title }}
     .rs-client(v-if="client") {{ client }}
-  .rs-badge(v-if="badge") {{ badge }}
+  .rs-right
+    .rs-badge(v-if="badge") {{ badge }}
+    //- The advisor's per-client "Client access" switch (business-entity-reports, D3).
+    //- Client-only, and it renders nothing unless an advisor is signed in and this route
+    //- is a catalogue model — so every report gains it without its page changing.
+    client-access-switch(v-if="routePath" :model-route="routePath")
 </template>
 
 <script>
@@ -38,8 +43,12 @@ header.rs-top
  *     :client="$t('report.preparedFor')"
  *     :badge="$t('report.illustrative')")
  */
+import ClientAccessSwitch from '~/components/base/ClientAccessSwitch.vue'
+
 export default {
   name: 'ReportHeader',
+
+  components: { ClientAccessSwitch },
 
   props: {
     /** The report's name — the only part every screen must supply. */
@@ -57,6 +66,13 @@ export default {
      * figures — see the note above; this is a correctness matter, not a style one.
      */
     badge: { type: String, default: '' }
+  },
+
+  computed: {
+    /** This report's route, for the switch to match against the catalogue. Empty outside a router. */
+    routePath () {
+      return this.$route && typeof this.$route.path === 'string' ? this.$route.path : ''
+    }
   }
 }
 </script>
@@ -80,6 +96,7 @@ export default {
 .rs-eyebrow { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #00b1e0; font-weight: 600; }
 .rs-h1 { margin: 4px 0 3px; font-size: 27px; font-weight: 300; letter-spacing: -.01em; }
 .rs-client { font-size: 12.5px; opacity: .85; }
+.rs-right { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 .rs-badge {
   flex: none; font-size: 10.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
   padding: 5px 10px; border-radius: 999px;
