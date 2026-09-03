@@ -33,6 +33,12 @@ describe('business entity reports — reaching the backend', () => {
     expect(server).toMatch(/server\.get\('\/api\/client-reports\/mine', entityAuth/)
     expect(server).toMatch(/server\.get\('\/api\/client-reports\/access\/:clientId', firmAuth/)
     expect(server).toMatch(/server\.put\('\/api\/client-reports\/access\/:clientId', firmAuth/)
+    // Part 2 (item 4.62): the saved figures. The client's two are entityAuth, the advisor's three firmAuth.
+    expect(server).toMatch(/server\.get\('\/api\/client-reports\/mine\/saved', entityAuth/)
+    expect(server).toMatch(/server\.put\('\/api\/client-reports\/mine\/saved', entityAuth/)
+    expect(server).toMatch(/server\.get\('\/api\/client-reports\/saved\/:clientId', firmAuth/)
+    expect(server).toMatch(/server\.put\('\/api\/client-reports\/saved\/:clientId', firmAuth/)
+    expect(server).toMatch(/server\.post\('\/api\/client-reports\/saved\/:clientId\/restore', firmAuth/)
     // routes/report.js is the laptop's under item 4.61; this feature keeps out of it.
     expect(read('server/routes/report.js')).not.toMatch(/client-reports|clientReportAccess/)
   })

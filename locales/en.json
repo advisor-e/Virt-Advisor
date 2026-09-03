@@ -1827,6 +1827,26 @@
       "hintOpen": "This client can open this report and change its figures.",
       "clientsFailed": "The client list could not be loaded.",
       "saveFailed": "The change could not be saved. Please try again."
+    },
+    "saved": {
+      "saveAdvisor": "Save for client",
+      "saveClient": "Save my changes",
+      "notSaved": "Not saved for this client yet.",
+      "noneForYou": "Your advisor has not saved figures for you yet.",
+      "savedBy": "Saved by {name} on {date}",
+      "lastSavedByClient": "Last saved by the client, {date}",
+      "advisorFigures": "Your advisor's figures, saved {date}.",
+      "yourChanges": "Your changes, saved {date}. The figures you changed are marked.",
+      "editedBy": "Edited by {name} on {date}.",
+      "changedCount": "One figure changed since your version of {date}. | {n} figures changed since your version of {date}.",
+      "changedNoVersion": "One figure changed. You have not saved a version of your own yet. | {n} figures changed. You have not saved a version of your own yet.",
+      "restore": "Restore my version",
+      "badge": "client",
+      "saved": "Saved.",
+      "restored": "Your version is back.",
+      "saveFailed": "The report could not be saved. Please try again.",
+      "notOpen": "Your advisor has not opened this report to you.",
+      "loadFailed": "The saved figures could not be loaded."
     }
   },
   "modelLibrary": {

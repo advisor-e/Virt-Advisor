@@ -15,8 +15,17 @@ jest.mock('../../server/utils/clientReportAccess', () => ({
   setState: jest.fn()
 }))
 
+jest.mock('../../server/utils/savedReports', () => ({
+  load: jest.fn(),
+  changedKeys: jest.fn(() => []),
+  saveAsAdvisor: jest.fn(),
+  saveAsClient: jest.fn(),
+  restoreAdvisorVersion: jest.fn()
+}))
+
 const clientStore = require('../../server/utils/clientStore')
 const access = require('../../server/utils/clientReportAccess')
+const saved = require('../../server/utils/savedReports')
 const routes = require('../../server/routes/clientReports')
 
 function makeMockRes () {
@@ -128,5 +137,117 @@ describe('GET /api/client-reports/mine (business entity)', () => {
     expect(res._status).toBe(403)
     expect(res._body.error.code).toBe('NO_ENTITY_IDENTITY')
     expect(access.listForClient).not.toHaveBeenCalled()
+  })
+})
+
+// ── Saved reports (part 2, item 4.62) ────────────────────────────────────────
+
+describe('saved reports — the advisor side (firmAuth)', () => {
+  beforeEach(() => {
+    saved.load.mockReset(); saved.saveAsAdvisor.mockReset(); saved.restoreAdvisorVersion.mockReset()
+    saved.changedKeys.mockReset().mockReturnValue([])
+  })
+
+  it('GET reads the row for a client of the token\'s firm, with the client-changed keys', async () => {
+    clientStore.getById.mockResolvedValue({ id: 'c-1', name: 'Big Bird Bakery' })
+    const row = { inputs: { sales: 1 }, savedBy: { tier: 'business_entity', name: 'BB' } }
+    saved.load.mockResolvedValue(row)
+    saved.changedKeys.mockReturnValue(['sales'])
+    const res = makeMockRes()
+    await routes.getSaved(advisorReq({ params: { clientId: 'c-1' }, query: { route: '/debtor-drag' } }), res)
+    expect(res._status).toBe(200)
+    expect(res._body).toMatchObject({ clientId: 'c-1', clientName: 'Big Bird Bakery', route: '/debtor-drag', report: row, clientChanges: ['sales'] })
+    expect(saved.load).toHaveBeenCalledWith('firm-from-jwt', 'c-1', '/debtor-drag')
+  })
+
+  it('a client of another firm looks absent on every saved-report route', async () => {
+    clientStore.getById.mockResolvedValue(null)
+    for (const fn of ['getSaved', 'putSaved', 'restoreSaved']) {
+      const res = makeMockRes()
+      await routes[fn](advisorReq({ params: { clientId: 'c-other' }, query: {}, body: { route: '/debtor-drag', inputs: { a: 1 } } }), res)
+      expect(res._status).toBe(404)
+    }
+    expect(saved.saveAsAdvisor).not.toHaveBeenCalled()
+    expect(saved.restoreAdvisorVersion).not.toHaveBeenCalled()
+  })
+
+  it('PUT saves as the advisor named in the token, never a name from the body', async () => {
+    clientStore.getById.mockResolvedValue({ id: 'c-1', name: 'x' })
+    saved.saveAsAdvisor.mockResolvedValue({ inputs: { a: 1 } })
+    const res = makeMockRes()
+    await routes.putSaved(advisorReq({ advisorName: 'Pat', params: { clientId: 'c-1' }, body: { route: '/debtor-drag', inputs: { a: 1 }, savedBy: { name: 'Mallory' } } }), res)
+    expect(res._status).toBe(200)
+    expect(saved.saveAsAdvisor).toHaveBeenCalledWith('firm-from-jwt', 'c-1', '/debtor-drag', { a: 1 }, { name: 'Pat', email: 'adv@firm' })
+  })
+
+  it.each([['BAD_ROUTE', 400], ['BAD_INPUTS', 400], ['NO_ADVISOR_VERSION', 409]])('a %s from the store is a %i carrying that code', async (code, status) => {
+    clientStore.getById.mockResolvedValue({ id: 'c-1', name: 'x' })
+    const err = new Error('nope'); err.code = code
+    saved.saveAsAdvisor.mockRejectedValue(err)
+    saved.restoreAdvisorVersion.mockRejectedValue(err)
+    const res = makeMockRes()
+    await routes.putSaved(advisorReq({ params: { clientId: 'c-1' }, body: { route: '/debtor-drag', inputs: {} } }), res)
+    expect(res._status).toBe(status)
+    expect(res._body.error.code).toBe(code)
+    const res2 = makeMockRes()
+    await routes.restoreSaved(advisorReq({ params: { clientId: 'c-1' }, body: { route: '/debtor-drag' } }), res2)
+    expect(res2._status).toBe(status)
+  })
+
+  it('an unknown failure is a 500 with a safe message, not the error', async () => {
+    clientStore.getById.mockResolvedValue({ id: 'c-1', name: 'x' })
+    saved.saveAsAdvisor.mockRejectedValue(new Error('ER_NO_SUCH_TABLE at /srv/db.js:12'))
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const res = makeMockRes()
+    await routes.putSaved(advisorReq({ params: { clientId: 'c-1' }, body: { route: '/debtor-drag', inputs: { a: 1 } } }), res)
+    spy.mockRestore()
+    expect(res._status).toBe(500)
+    expect(res._body.error.code).toBe('DB_ERROR')
+    expect(JSON.stringify(res._body)).not.toMatch(/ER_NO_SUCH_TABLE|\/srv/)
+  })
+})
+
+describe('saved reports — the business entity side (entityAuth)', () => {
+  beforeEach(() => {
+    saved.load.mockReset(); saved.saveAsClient.mockReset()
+    saved.changedKeys.mockReset().mockReturnValue([])
+  })
+
+  it('GET reads firm and client from the token, only the route from the request', async () => {
+    saved.load.mockResolvedValue(null)
+    const res = makeMockRes()
+    await routes.getMineSaved({ firmId: 'firm-from-jwt', businessEntityId: 'c-1', params: { clientId: 'c-OTHER' }, query: { route: '/debtor-drag', clientId: 'c-OTHER' } }, res)
+    expect(res._status).toBe(200)
+    expect(res._body).toMatchObject({ route: '/debtor-drag', report: null, clientChanges: [] })
+    expect(saved.load).toHaveBeenCalledWith('firm-from-jwt', 'c-1', '/debtor-drag')
+  })
+
+  it('PUT saves as the client in the token, named from the register, and NOT_OPEN is a 403', async () => {
+    clientStore.getById.mockResolvedValue({ id: 'c-1', name: 'Big Bird Bakery' })
+    saved.saveAsClient.mockResolvedValue({ inputs: { a: 2 } })
+    saved.changedKeys.mockReturnValue(['a'])
+    const res = makeMockRes()
+    await routes.putMineSaved({ firmId: 'firm-from-jwt', businessEntityId: 'c-1', userEmail: 'dev-client@local', body: { route: '/debtor-drag', inputs: { a: 2 }, clientId: 'c-OTHER' } }, res)
+    expect(res._status).toBe(200)
+    expect(res._body.clientChanges).toEqual(['a'])
+    expect(saved.saveAsClient).toHaveBeenCalledWith('firm-from-jwt', 'c-1', '/debtor-drag', { a: 2 }, { name: 'Big Bird Bakery', email: 'dev-client@local' })
+
+    const err = new Error('closed'); err.code = 'NOT_OPEN'
+    saved.saveAsClient.mockRejectedValue(err)
+    const res2 = makeMockRes()
+    await routes.putMineSaved({ firmId: 'firm-from-jwt', businessEntityId: 'c-1', body: { route: '/debtor-drag', inputs: { a: 2 } } }, res2)
+    expect(res2._status).toBe(403)
+    expect(res2._body.error.code).toBe('NOT_OPEN')
+  })
+
+  it('refuses a session that does not identify a business entity, on both routes', async () => {
+    for (const fn of ['getMineSaved', 'putMineSaved']) {
+      const res = makeMockRes()
+      await routes[fn]({ firmId: 'firm-from-jwt', businessEntityId: null, query: {}, body: {} }, res)
+      expect(res._status).toBe(403)
+      expect(res._body.error.code).toBe('NO_ENTITY_IDENTITY')
+    }
+    expect(saved.load).not.toHaveBeenCalled()
+    expect(saved.saveAsClient).not.toHaveBeenCalled()
   })
 })

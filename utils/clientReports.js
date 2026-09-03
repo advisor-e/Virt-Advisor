@@ -39,6 +39,73 @@ export async function setClientAccess (clientId, route, state, token) {
   return await res.json()
 }
 
+async function parse (res, what) {
+  if (!res.ok) {
+    const err = new Error(`${what} (${res.status})`)
+    err.status = res.status
+    try { err.code = (await res.json()).error.code } catch (e) { /* no body */ }
+    throw err
+  }
+  return await res.json()
+}
+
+/**
+ * The advisor's read of a client's saved figures for one model (part 2, item 4.62).
+ * @param {string} clientId @param {string} route @param {string} token
+ * @returns {Promise<{clientId: string, clientName: string, report: object|null, clientChanges: string[]}>}
+ */
+export async function getSavedReport (clientId, route, token) {
+  const res = await fetch(`/api/client-reports/saved/${encodeURIComponent(clientId)}?route=${encodeURIComponent(route)}`, { headers: authHeaders(token) })
+  return parse(res, 'Failed to load the saved report')
+}
+
+/**
+ * The advisor saves a client's figures for one model. Becomes the advisor's version.
+ * @param {string} clientId @param {string} route @param {object} inputs @param {string} token
+ * @returns {Promise<{report: object, clientChanges: string[]}>}
+ */
+export async function saveReportForClient (clientId, route, inputs, token) {
+  const res = await fetch(`/api/client-reports/saved/${encodeURIComponent(clientId)}`, {
+    method: 'PUT', headers: authHeaders(token), body: JSON.stringify({ route, inputs })
+  })
+  return parse(res, 'Failed to save the report')
+}
+
+/**
+ * Put the advisor's last version back after a client edit (D4).
+ * @param {string} clientId @param {string} route @param {string} token
+ * @returns {Promise<{report: object, clientChanges: string[]}>}
+ */
+export async function restoreReportForClient (clientId, route, token) {
+  const res = await fetch(`/api/client-reports/saved/${encodeURIComponent(clientId)}/restore`, {
+    method: 'POST', headers: authHeaders(token), body: JSON.stringify({ route })
+  })
+  return parse(res, 'Failed to restore the report')
+}
+
+/**
+ * The business entity's own saved copy of one model. Identity from the token.
+ * @param {string} route @param {string} token
+ * @returns {Promise<{report: object|null, clientChanges: string[]}>}
+ */
+export async function getMySavedReport (route, token) {
+  const res = await fetch(`/api/client-reports/mine/saved?route=${encodeURIComponent(route)}`, { headers: authHeaders(token) })
+  return parse(res, 'Failed to load your report')
+}
+
+/**
+ * The business entity saves its own edits. A 403 with code NOT_OPEN means the advisor
+ * has not opened this model to them.
+ * @param {string} route @param {object} inputs @param {string} token
+ * @returns {Promise<{report: object, clientChanges: string[]}>}
+ */
+export async function saveMyReport (route, inputs, token) {
+  const res = await fetch('/api/client-reports/mine/saved', {
+    method: 'PUT', headers: authHeaders(token), body: JSON.stringify({ route, inputs })
+  })
+  return parse(res, 'Failed to save your changes')
+}
+
 /**
  * The client's own read: which models are open to them. The firm and client come from
  * the token. A 403 means the sign-in is not a business entity's.

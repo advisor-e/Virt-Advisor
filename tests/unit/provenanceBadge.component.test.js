@@ -45,6 +45,16 @@ describe('ProvenanceBadge', () => {
     expect(validator('unknown')).toBe(false)
   })
 
+  it('a client edit has its own colour and never borrows the entered wording', () => {
+    // business-entity-reports D4: a figure the client changed must not pass as the
+    // advisor's. With no client label the badge is blank rather than saying "entered".
+    const withLabel = mount({ source: 'client', clientLabel: 'client' })
+    expect(withLabel.text()).toBe('client')
+    expect(withLabel.classes()).toContain('src-client')
+    expect(withLabel.classes()).not.toContain('src-hand')
+    expect(mount({ source: 'client' }).text()).toBe('')
+  })
+
   it('defaults to the intake size, and takes the smaller report size on request', () => {
     expect(mount({ source: 'file' }).classes()).toContain('is-md')
     expect(mount({ source: 'file', size: 'sm' }).classes()).toContain('is-sm')

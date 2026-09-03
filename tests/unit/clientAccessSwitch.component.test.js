@@ -100,6 +100,8 @@ describe('ClientAccessSwitch — flipping it', () => {
     expect(put[1].headers.Authorization).toBe('Bearer tok')
     expect(wrapper.text()).toContain('clientReports.switch.hintOpen')
     expect(wrapper.emitted('change')[0][0]).toEqual({ clientId: 'c-1', route: '/volatility', state: 'open' })
+    // Choosing the client also tells the report whose figures to load (savedReport mixin).
+    expect(wrapper.emitted('client-change')[0][0]).toEqual({ clientId: 'c-1', clientName: 'Big Bird Bakery' })
     expect(window.localStorage.getItem('advisor_e_report_client')).toBe('c-1')
   })
 

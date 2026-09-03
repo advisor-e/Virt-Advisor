@@ -41,7 +41,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 4 | **4.59** A point the mentor adds tells a firm manager THEY wrote it ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 5 | **4.60** QuickBooks and MYOB are supported on paper, not against a real file ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 6 | **4.61** Two years of accounts, and a volatility read, for the forecast ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-03 |
-| 7 | **4.62** Saved reports per client — so a client can edit what the advisor opened ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 7 | **4.62** Saved reports per client — so a client can edit what the advisor opened ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-09-03 |
 
 **Seven live items. Three need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->

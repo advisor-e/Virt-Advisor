@@ -114,6 +114,9 @@ export default {
       this.clientId = id
       this.error = ''
       try { window.localStorage.setItem(CLIENT_KEY, id) } catch (e) { /* convenience only */ }
+      const chosen = this.clients.find(c => c.id === id)
+      // payload: { clientId, clientName } — the report this header sits on is now for this client
+      this.$emit('client-change', { clientId: id, clientName: chosen ? chosen.name : '' })
       try {
         const data = await getClientAccess(id, this.token)
         this.state = data.open && data.open[this.modelRoute] ? 'open' : 'hidden'

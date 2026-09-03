@@ -187,6 +187,7 @@
       "ref": "4.62",
       "name": "Saved reports per client — so a client can edit what the advisor opened",
       "rankedByMike": false,
+      "activeOn": { "machine": "desktop", "since": "2026-09-03" },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",

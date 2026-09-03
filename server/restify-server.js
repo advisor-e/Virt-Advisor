@@ -273,6 +273,14 @@ server.put('/api/clients/:id', firmAuth, clientsRoute.renameClient)
 server.get('/api/client-reports/mine', entityAuth, clientReportsRoute.getMine)
 server.get('/api/client-reports/access/:clientId', firmAuth, clientReportsRoute.getAccessForClient)
 server.put('/api/client-reports/access/:clientId', firmAuth, clientReportsRoute.setAccess)
+// Saved reports (part 2, item 4.62): the figures kept per client per model. The advisor
+// reads, saves and restores for a client of the firm; the client reads and saves its own,
+// and its save is refused in the store unless the advisor opened that model to it.
+server.get('/api/client-reports/mine/saved', entityAuth, clientReportsRoute.getMineSaved)
+server.put('/api/client-reports/mine/saved', entityAuth, clientReportsRoute.putMineSaved)
+server.get('/api/client-reports/saved/:clientId', firmAuth, clientReportsRoute.getSaved)
+server.put('/api/client-reports/saved/:clientId', firmAuth, clientReportsRoute.putSaved)
+server.post('/api/client-reports/saved/:clientId/restore', firmAuth, clientReportsRoute.restoreSaved)
 
 // ── Courses (CB-16/17): the course DOCUMENT, owner-scoped ──
 // All firmAuth-guarded; identity from the verified JWT, never the body. An

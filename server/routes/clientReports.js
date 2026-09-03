@@ -3,6 +3,7 @@
 const { sendError } = require('../utils/sendError')
 const clientStore = require('../utils/clientStore')
 const access = require('../utils/clientReportAccess')
+const saved = require('../utils/savedReports')
 
 /**
  * /api/client-reports — which report models a client may open.
@@ -86,4 +87,129 @@ async function getMine (req, res) {
   }
 }
 
-module.exports = { getAccessForClient, setAccess, getMine }
+// ── Saved reports (part 2, item 4.62) — the figures kept per client per model ──
+
+function storeError (res, err, fallbackMessage) {
+  const known = {
+    BAD_ROUTE: 400, BAD_CLIENT: 400, BAD_INPUTS: 400, NOT_OPEN: 403, NO_ADVISOR_VERSION: 409
+  }
+  if (known[err.code]) { return sendError(res, known[err.code], err.code, err.message) }
+  console.error('[client-reports] saved-report call failed:', err.message)
+  return sendError(res, 500, 'DB_ERROR', fallbackMessage)
+}
+
+function advisorWho (req) {
+  return { name: req.advisorName || req.userEmail, email: req.userEmail }
+}
+
+/**
+ * GET /api/client-reports/saved/:clientId?route=/x — the advisor reads the saved figures.
+ * @route GET /api/client-reports/saved/:clientId
+ * @param {string} req.query.route - the model's catalogue route
+ * @returns {200} { success: true, clientId, clientName, route, report: row|null, clientChanges: string[] }
+ * @returns {400} BAD_ROUTE · {403} NO_FIRM_IDENTITY · {404} NOT_FOUND · {500} DB_ERROR
+ */
+async function getSaved (req, res) {
+  const firmId = req.firmId
+  if (!firmId) { return sendError(res, 403, 'NO_FIRM_IDENTITY', 'Your session does not identify a firm') }
+  const route = (req.query && req.query.route) || ''
+  try {
+    const client = await clientStore.getById(req.params.clientId, firmId)
+    if (!client) { return sendError(res, 404, 'NOT_FOUND', 'Client not found') }
+    const report = await saved.load(firmId, client.id, route)
+    res.send(200, { success: true, clientId: client.id, clientName: client.name, route, report, clientChanges: saved.changedKeys(report) })
+  } catch (err) {
+    storeError(res, err, 'Could not load the saved report')
+  }
+}
+
+/**
+ * PUT /api/client-reports/saved/:clientId — the advisor saves the figures for a client.
+ * @route PUT /api/client-reports/saved/:clientId
+ * @param {string} req.body.route @param {object} req.body.inputs
+ * @returns {200} { success: true, clientId, route, report, clientChanges: [] }
+ * @returns {400} BAD_ROUTE | BAD_INPUTS · {403} NO_FIRM_IDENTITY · {404} NOT_FOUND · {500} DB_ERROR
+ */
+async function putSaved (req, res) {
+  const firmId = req.firmId
+  if (!firmId) { return sendError(res, 403, 'NO_FIRM_IDENTITY', 'Your session does not identify a firm') }
+  const body = req.body || {}
+  try {
+    const client = await clientStore.getById(req.params.clientId, firmId)
+    if (!client) { return sendError(res, 404, 'NOT_FOUND', 'Client not found') }
+    const report = await saved.saveAsAdvisor(firmId, client.id, body.route, body.inputs, advisorWho(req))
+    res.send(200, { success: true, clientId: client.id, route: body.route, report, clientChanges: [] })
+  } catch (err) {
+    storeError(res, err, 'Could not save the report')
+  }
+}
+
+/**
+ * POST /api/client-reports/saved/:clientId/restore — put the advisor's version back (D4).
+ * @route POST /api/client-reports/saved/:clientId/restore
+ * @param {string} req.body.route
+ * @returns {200} { success: true, clientId, route, report, clientChanges: [] }
+ * @returns {409} NO_ADVISOR_VERSION · {403} NO_FIRM_IDENTITY · {404} NOT_FOUND · {500} DB_ERROR
+ */
+async function restoreSaved (req, res) {
+  const firmId = req.firmId
+  if (!firmId) { return sendError(res, 403, 'NO_FIRM_IDENTITY', 'Your session does not identify a firm') }
+  const body = req.body || {}
+  try {
+    const client = await clientStore.getById(req.params.clientId, firmId)
+    if (!client) { return sendError(res, 404, 'NOT_FOUND', 'Client not found') }
+    const report = await saved.restoreAdvisorVersion(firmId, client.id, body.route, advisorWho(req))
+    res.send(200, { success: true, clientId: client.id, route: body.route, report, clientChanges: [] })
+  } catch (err) {
+    storeError(res, err, 'Could not restore the report')
+  }
+}
+
+/**
+ * GET /api/client-reports/mine/saved?route=/x — the business entity reads its own copy.
+ * Firm and client id from the token (entityAuth); only the route is read from the request.
+ * @route GET /api/client-reports/mine/saved
+ * @returns {200} { success: true, route, report: row|null, clientChanges: string[] }
+ * @returns {400} BAD_ROUTE · {403} NO_ENTITY_IDENTITY · {500} DB_ERROR
+ */
+async function getMineSaved (req, res) {
+  const firmId = req.firmId
+  const clientId = req.businessEntityId
+  if (!firmId || !clientId) {
+    return sendError(res, 403, 'NO_ENTITY_IDENTITY', 'Your session does not identify a business entity')
+  }
+  const route = (req.query && req.query.route) || ''
+  try {
+    const report = await saved.load(firmId, clientId, route)
+    res.send(200, { success: true, route, report, clientChanges: saved.changedKeys(report) })
+  } catch (err) {
+    storeError(res, err, 'Could not load your report')
+  }
+}
+
+/**
+ * PUT /api/client-reports/mine/saved — the business entity saves its edits. Refused with
+ * NOT_OPEN unless the advisor has opened this model to it (D1/D5, enforced in the store).
+ * @route PUT /api/client-reports/mine/saved
+ * @param {string} req.body.route @param {object} req.body.inputs
+ * @returns {200} { success: true, route, report, clientChanges: string[] }
+ * @returns {400} BAD_ROUTE | BAD_INPUTS · {403} NO_ENTITY_IDENTITY | NOT_OPEN · {500} DB_ERROR
+ */
+async function putMineSaved (req, res) {
+  const firmId = req.firmId
+  const clientId = req.businessEntityId
+  if (!firmId || !clientId) {
+    return sendError(res, 403, 'NO_ENTITY_IDENTITY', 'Your session does not identify a business entity')
+  }
+  const body = req.body || {}
+  try {
+    const client = await clientStore.getById(clientId, firmId)
+    const who = { name: client ? client.name : 'the client', email: req.userEmail }
+    const report = await saved.saveAsClient(firmId, clientId, body.route, body.inputs, who)
+    res.send(200, { success: true, route: body.route, report, clientChanges: saved.changedKeys(report) })
+  } catch (err) {
+    storeError(res, err, 'Could not save your changes')
+  }
+}
+
+module.exports = { getAccessForClient, setAccess, getMine, getSaved, putSaved, restoreSaved, getMineSaved, putMineSaved }
