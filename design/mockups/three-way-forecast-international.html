@@ -264,12 +264,23 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
     Drawn against the approved <em>mockups/three-way-forecast.html</em>, whose entire style block is
     reused here unchanged.
     <br><br>
-    🔴 <b>FIVE THINGS ARE RULED (2026-09-04) and the drawing shows every one.</b> Stock is recorded
+    🔴 <b>SIX THINGS ARE RULED (2026-09-04) and the drawing shows every one.</b> Stock is recorded
     in the month it <b>lands</b>, with the deposit paid ahead of it; the advisor types twelve monthly
     landing figures plus the terms; overseas sales are <b>zero-rated by default</b> with a tick to
     charge GST; the exchange movement is <b>its own direct-cost line</b>, with border GST still
-    calculated on the exchange-adjusted value; and overseas sales carry <b>their own mark-up</b>,
-    defaulted to the local one.
+    calculated on the exchange-adjusted value; overseas sales carry <b>their own mark-up</b>,
+    defaulted to the local one; and 🔴 <b>the revenue imported stock produces is WORKED OUT, not
+    typed</b> &mdash; priced new, then standard, then runout as it sells down, and seeded into the
+    sales row where the advisor can still override it.
+    <br><br>
+    🔴 <b>THE SIXTH RULING CAME FROM MIKE AFTER THE FIRST DRAWING, AND IT CORRECTED A REAL FAULT
+    IN IT.</b> In his words: <em>&ldquo;a key component is the forecasted discount sale price on new
+    stock arrivals. Often, new stock command a higher initial price if its new to the market but over
+    time, importers need to offload at a discount - this should be forecasted so all revenue isnt
+    calculated on an inflated sale price - as per my models&rdquo;</em>. The first drawing gave
+    overseas sales <b>one</b> mark-up for the year, which is the same fault as a single blended
+    collection profile one level up. <b>The ladder below is read out of his own workbook</b>
+    (<em>Import &amp; Retail.xlsx</em>, <em>Supplier 1 Inputs</em> row 19), not invented here.
     <br><br>
     ⚠ <b>EVERY LABEL BELOW IS A PROPOSAL, NOT MIKE'S WORD.</b> The four questions at the foot of this
     page are open, and the wording is the first of them.
@@ -429,6 +440,71 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
                   </div>
                 </div>
               </div>
+
+              <div class="termhead" style="margin-top:18px">How it sells down</div>
+              <div class="termgrid">
+                <div>
+                  <div class="field">
+                    <span class="fieldlab">New to the market <span class="src src-seed">mentor</span></span>
+                    <input value="+185% on cost, up to 60 days">
+                  </div>
+                  <div class="field">
+                    <span class="fieldlab">Standard price <span class="src src-seed">mentor</span></span>
+                    <input value="+152% on cost, up to 90 days">
+                  </div>
+                  <div class="field">
+                    <span class="fieldlab">Runout price <span class="src src-seed">mentor</span></span>
+                    <input value="+122% on cost, up to 120 days">
+                  </div>
+                </div>
+                <div>
+                  <div class="field">
+                    <span class="fieldlab">How fast it sells</span>
+                    <select><option>Steady Eddy</option><option>SkyRockets</option><option>Slow Burn</option></select>
+                  </div>
+                  <div class="tw-foot" style="margin-bottom:11px">
+                    Steady Eddy sells <b>20%</b> in the first 30 days, then <b>30%</b>, <b>20%</b>
+                    and <b>30%</b> &mdash; so half of it goes at the new price, a fifth at standard
+                    and three tenths at runout.
+                  </div>
+                  <div class="field">
+                    <span class="fieldlab">Ready to sell after it lands</span>
+                    <select><option>Same month</option></select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="termhead" style="margin-top:16px">
+                The revenue this stock produces <span class="src src-seed" style="margin-left:0">worked out</span>
+              </div>
+              <div class="mgrid">
+                <div class="m seeded"><span class="lbl">Apr</span><input value="0"></div>
+                <div class="m seeded"><span class="lbl">May</span><input value="0"></div>
+                <div class="m seeded"><span class="lbl">Jun</span><input value="0"></div>
+                <div class="m seeded"><span class="lbl">Jul</span><input value="0"></div>
+                <div class="m seeded"><span class="lbl">Aug</span><input value="0"></div>
+                <div class="m seeded"><span class="lbl">Sep</span><input value="0"></div>
+                <div class="m seeded"><span class="lbl">Oct</span><input value="51,300"></div>
+                <div class="m seeded"><span class="lbl">Nov</span><input value="76,950"></div>
+                <div class="m seeded"><span class="lbl">Dec</span><input value="45,360"></div>
+                <div class="m seeded"><span class="lbl">Jan</span><input value="59,940"></div>
+                <div class="m seeded"><span class="lbl">Feb</span><input value="34,200"></div>
+                <div class="m seeded"><span class="lbl">Mar</span><input value="51,300"></div>
+              </div>
+
+              <div class="note-why">
+                <b>Worked out, not typed &mdash; and still yours to change.</b> September's 90,000 of
+                stock sells across Oct&ndash;Jan on the Steady Eddy curve: 20% and 30% at the new
+                price, 20% at standard, 30% at runout. That is <b>233,550</b>, where pricing every
+                unit as new would have said <b>256,500</b>. The boxes are green because the model
+                filled them; type over any of them and the figure is yours.
+                <br><br>
+                <b>Two things this makes visible that a typed figure hides.</b> The January container
+                only reaches its second month of selling by March, so <b>70,200 of its revenue falls
+                into next year</b> and is not in this forecast at all. And across this year the
+                ladder is the difference between <b>319,050</b> and <b>342,000</b> &mdash; 7% of the
+                imported-stock revenue, and 10% over the September container's whole life.
+              </div>
             </div>
 
             <!-- ---------------------------------------------- OVERSEAS SALES -->
@@ -534,7 +610,7 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
   <!-- ============================================================ THE CASH -->
   <div class="stepmark">What it does to the cash flow &mdash; the point of the whole section</div>
 
-  <div class="tw-tiles" style="grid-template-columns:repeat(3,1fr)">
+  <div class="tw-tiles" style="grid-template-columns:repeat(4,1fr)">
     <div class="tw-tile">
       <div class="tw-k">Out before the first sale</div>
       <div class="tw-v is-crit num">131,445</div>
@@ -549,6 +625,11 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
       <div class="tw-k">Exchange-rate movement</div>
       <div class="tw-v num">15,000</div>
       <div class="tw-sub">A 10% allowance on 150,000 of imported stock, shown as its own direct cost.</div>
+    </div>
+    <div class="tw-tile">
+      <div class="tw-k">Overstated if all priced new</div>
+      <div class="tw-v is-crit num">22,950</div>
+      <div class="tw-sub">7% of this year's imported-stock revenue, and 10% over the September container's whole life.</div>
     </div>
   </div>
 
@@ -667,7 +748,24 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
   </div>
 
   <!-- ============================================================ QUESTIONS -->
-  <div class="stepmark">Open &mdash; four questions for Mike</div>
+  <div class="stepmark">Where the price ladder is set</div>
+
+  <div class="tw-card">
+    <div class="tw-group">
+      <div class="note-why" style="margin-top:0">
+        <b>The three mark-ups, the three day-bands and the three demand patterns are advisory
+        content, so they go on a screen &mdash; the MENTOR tier alone</b>, a Model Inputs tab beside
+        Forecast Trend Thresholds, exactly as the trend read's thresholds did. That is the stated
+        judgement the cascade rule asks for: it is platform content, and a firm gets its own copy the
+        first time one has a real reason to price differently, which is one entry in `TAB_TIERS`.
+        <b>It ships with Mike's own numbers</b> &mdash; 185/152/122 against 60/90/120 days, and the
+        SkyRockets, Steady Eddy and Slow Burn curves &mdash; read out of <em>Import &amp;
+        Retail.xlsx</em> rather than chosen here. The advisor picks a pattern; they do not invent one.
+      </div>
+    </div>
+  </div>
+
+  <div class="stepmark">Open &mdash; five questions for Mike</div>
 
   <div class="q">
     <h2>Not decided, and not to be decided by a developer</h2>
@@ -691,6 +789,14 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
         purchases only. Applied to sales it would reduce what is banked, with the shortfall joining
         the same direct-cost line. <span class="from">Symmetrical and arguably more honest &mdash;
         but it is a second place a single percentage moves the numbers, so it is your call.</span>
+      </li>
+      <li>
+        <b>Does the revenue from imported stock count as local sales or overseas sales?</b> The
+        drawing treats it as <b>local</b>, on the reading that an importer usually sells at home
+        &mdash; so it is charged GST and collected on the local profile. A business that imports and
+        then re-exports would need it the other way.
+        <span class="from">Follows from the sixth ruling rather than being part of it; drawn one way
+        so the question is concrete.</span>
       </li>
       <li>
         <b>Slice 2's two rulings</b>, which do not block approval of this drawing but do block that
