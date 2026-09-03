@@ -309,7 +309,12 @@ describe('the route still keeps its promises', () => {
   test('an over-count is refused BEFORE any file is read', async () => {
     // These paths do not exist: reading one would ENOENT into the generic parse failure,
     // so a clean TOO_MANY_FILES proves the count was checked first.
-    const res = await run(['/no/such/a.xlsx', '/no/such/b.xlsx', '/no/such/c.xlsx', '/no/such/d.xlsx', '/no/such/e.xlsx'])
+    // Seven, because the ceiling rose from four to six on 2026-09-03 (item 4.61b) when
+    // last year's Balance Sheet and Profit and Loss became droppable for the trend read.
+    const res = await run([
+      '/no/such/a.xlsx', '/no/such/b.xlsx', '/no/such/c.xlsx', '/no/such/d.xlsx',
+      '/no/such/e.xlsx', '/no/such/f.xlsx', '/no/such/g.xlsx'
+    ])
 
     expect(res.status).toBeGreaterThanOrEqual(400)
     expect(res.body.error.code).toBe('TOO_MANY_FILES')

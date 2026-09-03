@@ -23,12 +23,18 @@ const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { computeVolatility } = require('../report/volatilityModel')
 const { computeThreeWayForecast, computeThreeYearForecast } = require('../report/threeWayForecastModel')
 const { assembleForecastIntake, MAX_FILES: MAX_FORECAST_FILES } = require('../report/intake/threeWayForecastAssembler')
+const { computeTrend } = require('../report/trendModel')
+const { loadResolvedTrendThresholds } = require('../utils/forecastTrendThresholds')
 const { listReportModels } = require('../utils/reportModels')
 const { parseUpload, parseForecastUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
 const { parseMonthlyUpload } = require('../report/intake/monthlySalesParser')
 const { assembleMonthlySeries, MAX_FILES: MAX_MONTHLY_FILES } = require('../report/intake/monthlySeriesAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
+// The overlay reader with its dev-JSON fallback, taken from the thresholds route rather
+// than rebuilt — one definition of "how a scope's stored config is read", so the trend
+// block on step 3 and the manager screen that edits it can never disagree about it.
+const { readScopeConfig: readTrendScopeConfig } = require('./forecastTrendThresholds')
 
 // formidable pinned to v2.1.2 repo-wide (Node 14.15 — see firmManager.js); same
 // named-export + callback-wrap pattern as the firm-manager uploads.
@@ -755,7 +761,7 @@ async function threeWayForecastIntake (req, res) {
     // Refuse an over-count BEFORE any file is parsed, as the EBITDA intake does; the
     // assembler's own count check stays as the backstop.
     if (uploaded.length > MAX_FORECAST_FILES) {
-      const e = new Error('This model reads up to ' + MAX_FORECAST_FILES + ' files — ' + uploaded.length + ' were sent. Please drop a Balance Sheet, a Profit and Loss, and up to two by-month Profit and Loss reports.')
+      const e = new Error('This model reads up to ' + MAX_FORECAST_FILES + ' files — ' + uploaded.length + ' were sent. Please drop a Balance Sheet, a Profit and Loss, up to two by-month Profit and Loss reports, and last year\'s Balance Sheet and Profit and Loss.')
       e.code = 'TOO_MANY_FILES'
       throw e
     }
@@ -820,6 +826,27 @@ async function threeWayForecastIntake (req, res) {
     const data = assembleForecastIntake(annual, monthlySales)
     for (let w = 0; w < monthlyWarnings.length; w++) { data.warnings.push(monthlyWarnings[w]) }
     data.history = history
+
+    // The two-year trend READ (item 4.61b). Banded here rather than in the browser because
+    // the thresholds are a firm's advisory judgement and the banding is business logic —
+    // both belong on this side of the boundary. It changes no figure in `data.proposal`:
+    // `trendInputs` is consumed here and dropped, so nothing last year's files carried can
+    // reach the forecast the advisor builds.
+    //
+    // A thresholds failure must never cost the advisor their upload, so the read degrades
+    // to the platform set inside the resolver and, if even that fails, to an unbanded
+    // block — never to a failed intake.
+    data.trend = { available: false, blocked: 'NO_PRIOR_YEAR', needsBalanceSheet: false, periodsCertain: true, measures: [], counts: { good: 0, warn: 0, crit: 0, unbanded: 0 } }
+    if (data.trendInputs) {
+      const thresholds = await loadResolvedTrendThresholds(req.firmId, readTrendScopeConfig)
+      data.trend = computeTrend({
+        current: data.trendInputs.current,
+        prior: data.trendInputs.prior,
+        thresholds
+      })
+    }
+    delete data.trendInputs
+
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
     // Log the stable code only — never the filename, labels or content (identity stays local)

@@ -330,9 +330,10 @@ describe('Forecast intake — it blocks rather than proposing half a forecast', 
     expect(assembleForecastIntake([bs, pl, pl, pl, pl]).blocked).toBeTruthy()
     expect(assembleForecastIntake([]).blocked).toBeTruthy()
     expect(assembleForecastIntake(null).blocked).toBeTruthy()
-    // Four: a Balance Sheet, a Profit and Loss, and up to two by-month exports. The route
-    // reads this as the whole drop's limit, so raising it here raises it there.
-    expect(MAX_FILES).toBe(4)
+    // Six: a Balance Sheet, a Profit and Loss, up to two by-month exports, and last year's
+    // Balance Sheet and Profit and Loss. The route reads this as the whole drop's limit, so
+    // raising it here raises it there. Was four until 2026-09-03 (item 4.61b).
+    expect(MAX_FILES).toBe(6)
   })
 
   test('a Balance Sheet with no P&L assembles, and says the cost base is not seeded', () => {
@@ -346,6 +347,118 @@ describe('Forecast intake — it blocks rather than proposing half a forecast', 
     const otherCo = Object.assign({}, pl, { companyName: 'Somebody Else Ltd' })
     const r = assembleForecastIntake([bs, otherCo])
     expect(r.warnings.join(' ')).toMatch(/different organisations/i)
+  })
+})
+
+describe('Forecast intake — last year, for the two-year trend read (item 4.61b)', () => {
+  /** Last year's Balance Sheet — same client, a year earlier, different figures. */
+  const PRIOR_BS_GRID = [
+    ['Balance Sheet'],
+    ['Kinetic Test Ltd'],
+    ['As at 31 March 2025'],
+    [],
+    ['Assets'],
+    ['Current Assets'],
+    ['Bank'],
+    ['Cheque Account', 40000],
+    ['Total Bank', 40000],
+    ['Accounts Receivable', 44000],
+    ['Inventory', 30000],
+    ['Total Current Assets', 114000],
+    ['Total Assets', 114000],
+    ['Liabilities'],
+    ['Current Liabilities'],
+    ['Accounts Payable', 41000],
+    ['Total Current Liabilities', 41000],
+    ['Total Liabilities', 41000],
+    ['Equity'],
+    ['Share Capital', 50000],
+    ['Total Equity', 50000]
+  ]
+  const PRIOR_PL_GRID = [
+    ['Profit and Loss'],
+    ['Kinetic Test Ltd'],
+    ['For the year ended 31 March 2025'],
+    [],
+    ['Income'],
+    ['Sales', 824000],
+    ['Total Income', 824000],
+    ['Less Operating Expenses'],
+    ['Wages and Salaries', 120000],
+    ['Rent', 20000],
+    ['Total Operating Expenses', 140000]
+  ]
+
+  const bs = extractForecastBalanceSheet(BS_GRID)
+  const pl = extractProfitLoss(PL_GRID)
+  const priorBs = extractForecastBalanceSheet(PRIOR_BS_GRID)
+  const priorPl = extractProfitLoss(PRIOR_PL_GRID)
+
+  test('all four annual reports assemble, with each year’s figures on its own side', () => {
+    const r = assembleForecastIntake([bs, pl, priorBs, priorPl])
+    expect(r.blocked).toBeNull()
+    expect(r.trendInputs.current.sales).toBe(890000)
+    expect(r.trendInputs.prior.sales).toBe(824000)
+    expect(r.trendInputs.current.accountsReceivable).toBe(52000)
+    expect(r.trendInputs.prior.accountsReceivable).toBe(44000)
+    expect(r.trendInputs.prior.accountsPayable).toBe(41000)
+  })
+
+  // 🔴 THE ONE THAT MATTERS MOST. Getting the two years the wrong way round would open the
+  // forecast from LAST year's position: every figure plausible, every figure a year stale,
+  // and nothing on screen to notice it by. The files are dropped OLDEST FIRST here on
+  // purpose — a file picker returns whatever order the operating system gives it, so
+  // upload order must not be what decides this.
+  test('the forecast still opens from THIS year when last year’s files are dropped first', () => {
+    const r = assembleForecastIntake([priorBs, priorPl, bs, pl])
+    expect(r.blocked).toBeNull()
+    expect(r.proposal.openingBalanceSheet.accountsReceivable).toBe(52000)
+    expect(r.proposal.openingBalanceSheet.inventory).toBe(65000)
+    expect(r.trendInputs.current.sales).toBe(890000)
+    expect(r.trendInputs.prior.sales).toBe(824000)
+  })
+
+  test('this year’s overheads are still the ones seeded, not last year’s', () => {
+    const r = assembleForecastIntake([priorBs, priorPl, bs, pl])
+    expect(r.proposal.overheads.wages).toBe(85000)
+    expect(r.proposal.overheads.rent).toBe(8500)
+  })
+
+  // Nothing last year carried may reach a figure the advisor forecasts with.
+  test('last year feeds the read and nothing else — no provenance names it', () => {
+    const r = assembleForecastIntake([bs, pl, priorBs, priorPl])
+    const withPrior = assembleForecastIntake([bs, pl])
+    expect(r.proposal).toEqual(withPrior.proposal)
+    expect(r.provenance).toEqual(withPrior.provenance)
+  })
+
+  test('two reports that cannot be told apart by date are refused, never ordered by upload', () => {
+    expect(assembleForecastIntake([bs, bs]).blocked).toBeTruthy()
+    expect(assembleForecastIntake([bs, pl, pl]).blocked).toBeTruthy()
+  })
+
+  test('last year’s Balance Sheet without its Profit and Loss says so and reads nothing', () => {
+    const r = assembleForecastIntake([bs, pl, priorBs])
+    expect(r.blocked).toBeNull()
+    expect(r.trendInputs).toBeNull()
+    expect(r.warnings.join(' ')).toMatch(/without last year's Profit and Loss/i)
+  })
+
+  test('last year’s Profit and Loss alone still reads — the day-counts simply cannot', () => {
+    const r = assembleForecastIntake([bs, pl, priorPl])
+    expect(r.trendInputs.prior.sales).toBe(824000)
+    expect(r.trendInputs.prior.accountsReceivable).toBeUndefined()
+    expect(r.trendInputs.current.accountsReceivable).toBe(52000)
+  })
+
+  test('a different organisation in last year’s files is warned about, not compared silently', () => {
+    const otherCo = Object.assign({}, priorPl, { companyName: 'Somebody Else Ltd' })
+    const r = assembleForecastIntake([bs, pl, otherCo])
+    expect(r.warnings.join(' ')).toMatch(/different organisation/i)
+  })
+
+  test('no last-year files at all leaves the read off entirely', () => {
+    expect(assembleForecastIntake([bs, pl]).trendInputs).toBeNull()
   })
 })
 

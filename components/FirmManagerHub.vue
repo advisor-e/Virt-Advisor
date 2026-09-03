@@ -130,6 +130,16 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('propertyTaxRules')" v-show="activeTab === 'propertyTaxRules'")
         firm-property-tax-rules(:api-token="apiToken")
 
+      //- ── Tab: Forecast Trend Thresholds (item 4.61b) ─────────────────────
+      //- The bands the Three-Way Forecast's two-year trend read draws. Ruled by
+      //- Mike 2026-09-03, against the recommendation of a plain read with no
+      //- judgement: the bands go in, and the numbers behind them are his. This
+      //- screen is what makes that safe — the thresholds are visible and
+      //- changeable rather than buried in a constant. Mentor only, stated in
+      //- TAB_TIERS. design/mockups/three-way-forecast-trend.html.
+      div.hub-panel(v-if="showsTab('trendThresholds')" v-show="activeTab === 'trendThresholds'")
+        firm-forecast-trend-thresholds(:api-token="apiToken")
+
       //- ── Tab: AI Prompts (item 4.28) ────────────────────────────────────
       //- The instructions the AI is given when it builds a model, and the three
       //- settings a manager may change on them. Asked for by Mike 2026-08-21,
@@ -760,6 +770,7 @@ import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
 import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 import FirmStaircase from '~/components/firm/FirmStaircase.vue'
 import FirmPropertyTaxRules from '~/components/firm/FirmPropertyTaxRules.vue'
+import FirmForecastTrendThresholds from '~/components/firm/FirmForecastTrendThresholds.vue'
 import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
 import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
@@ -948,6 +959,20 @@ const TAB_TIERS = {
   // never happen. A global group that sets nothing changes nothing.
   propertyTaxRules: ['global', 'group', 'firm'],
 
+  // 🔴 THE MENTOR ALONE, AND THIS IS A STATED JUDGEMENT RATHER THAN AN OVERSIGHT.
+  // The bands the Three-Way Forecast's two-year trend read draws (Mike, 2026-09-03,
+  // item 4.61b). They are PLATFORM advisory thresholds — his own debtor-day figures are
+  // the only ones set today — and the default-is-mentor-alone ruling of 2026-08-24 says
+  // build the mentor's view, say in one line why the other three are not needed, and
+  // cascade the moment a firm has a real reason to hold different numbers.
+  //
+  // That reason is easy to imagine (stock days mean different things to a baker and a
+  // boat builder) and it has not been asked for. Nothing below the mentor is blocked by
+  // this line: `server/utils/forecastTrendThresholds.js` already walks the whole tier
+  // chain and the routes are already scoped per tier, so adding a tier here is the whole
+  // of the change — no storage, no resolver, no new screen.
+  trendThresholds: ['mentor'],
+
   // 🔴 ALL FOUR MANAGER TIERS, NAMED BY MIKE HIMSELF (2026-08-21): "a 'AI Prompts' page
   // in the hub pages (Mentor, Global Group Manager, Group Manager and Firm Manager)".
   // Advisors and clients are excluded — they consume the output, they do not set the
@@ -1103,7 +1128,10 @@ const NAV_GROUPS = [
     // Mike's own words for this heading (2026-08-19), kept verbatim.
     heading: 'Model Inputs',
     items: [
-      { key: 'propertyTaxRules', label: 'Property Tax Rules' }
+      { key: 'propertyTaxRules', label: 'Property Tax Rules' },
+      // Added at the END of the group on purpose: appending moves nothing that is
+      // already on a manager's screen. Mentor-only — see TAB_TIERS.trendThresholds.
+      { key: 'trendThresholds', label: 'Forecast Trend Thresholds' }
     ]
   },
   {
@@ -1153,7 +1181,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmAiPrompts, FirmMeetingObservations, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmAiPrompts, FirmMeetingObservations, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

@@ -477,6 +477,76 @@
                 br
                 b-button(size="is-small" @click="refreshVolatility") {{ $t('report.threeWayForecast.assume.volatility.retry') }}
 
+          //- The two-year trend read. Built from the approved drawing
+          //- design/mockups/three-way-forecast-trend.html (approved 2026-09-03, item
+          //- 4.61b), and placed directly under the volatility read: both lay the client's
+          //- own history against what is being forecast, and they read as one pair.
+          //-
+          //- 🔴 IT IS NOT DRAWN AT ALL WITHOUT LAST YEAR. No empty frame, no greyed table,
+          //- no "no data" where a reading should be — one line saying what to drop.
+          .tw-group(v-if="trend")
+            .trendblock(v-if="trend.available")
+              .tw-glabel
+                span.tw-dot
+                h2.tw-h2 {{ $t('report.threeWayForecast.assume.trend.heading') }}
+              p.trendsub {{ $t('report.threeWayForecast.assume.trend.sub') }}
+
+              .trendtbl
+                .tblwrap
+                  table
+                    thead
+                      tr
+                        th {{ $t('report.threeWayForecast.assume.trend.measure') }}
+                        th {{ $t('report.threeWayForecast.assume.trend.lastYear') }}
+                        th {{ $t('report.threeWayForecast.assume.trend.thisYear') }}
+                        th {{ $t('report.threeWayForecast.assume.trend.movement') }}
+                        th &nbsp;
+                    tbody
+                      tr(
+                        v-for="m in trend.measures"
+                        :key="m.key"
+                        :class="trendRowClass(m)")
+                        td.meas
+                          | {{ $t('report.threeWayForecast.assume.trend.name.' + m.key) }}
+                          small {{ $t('report.threeWayForecast.assume.trend.about.' + m.key) }}
+                        td {{ trendValue(m, m.prior) }}
+                        td {{ trendValue(m, m.current) }}
+                        td.mv(:class="trendMoveClass(m)") {{ trendMovement(m) }}
+                        td
+                          span.band(:class="'band-' + (m.band || 'none')")
+                            | {{ $t('report.threeWayForecast.assume.trend.band.' + (m.band || 'none')) }}
+
+              //- One red note naming the worst measure, then one amber note gathering the
+              //- rest — the register Mike ruled for the volatility block, for the same
+              //- reason: a lender reads this document.
+              .crit-note(v-if="trendWorst")
+                strong {{ trendWorstTitle }}
+                br
+                | {{ $t('report.threeWayForecast.assume.trend.critBody') }}
+              .warn-note(v-if="trendWarned.length")
+                strong
+                  | {{ $tc('report.threeWayForecast.assume.trend.warnTitle', trendWarned.length, { n: trendWarned.length }) }}
+                br
+                | {{ $t('report.threeWayForecast.assume.trend.warnBody') }}
+
+              p.volwhy(v-if="!trend.periodsCertain") {{ $t('report.threeWayForecast.assume.trend.periodsUnchecked') }}
+              //- A row that is absent says why, once, beneath the table. Without this a
+              //- client with no stock simply gets a shorter table than the next one and
+              //- nothing accounts for the difference.
+              p.volwhy(v-if="trend.needsBalanceSheet") {{ $t('report.threeWayForecast.assume.trend.needBalanceSheet') }}
+              p.volwhy(v-else-if="trendOmittedSentence") {{ trendOmittedSentence }}
+              p.volwhy {{ $t('report.threeWayForecast.assume.trend.whereFrom') }}
+
+            //- Two years that are not a like-for-like year apart are refused outright: a
+            //- nine-month period against a twelve-month one gives a growth figure that is
+            //- completely believable and completely wrong.
+            .warn-note(v-else-if="trend.blocked === 'PERIODS_NOT_COMPARABLE'")
+              strong {{ $t('report.threeWayForecast.assume.trend.notComparableTitle') }}
+              br
+              | {{ $t('report.threeWayForecast.assume.trend.notComparableBody') }}
+
+            p.volwhy(v-else) {{ $t('report.threeWayForecast.assume.trend.dropToSee') }}
+
           .tw-group
             .tw-glabel
               span.tw-dot
@@ -735,14 +805,79 @@ export default {
      * export — is the ninth recorded difference from it (Mike's word, 2026-09-03), and it
      * is a slot of its own rather than a sentence on the third because an advisor has to
      * see that two may be dropped.
+     *
+     * The fifth and sixth — last year's ANNUAL Balance Sheet and Profit and Loss — are the
+     * two-year trend read (item 4.61b, drawing approved 2026-09-03). Mike chose slots over
+     * a comparative-column export: a comparative file would need the parser taught to read
+     * a second figure column as a prior period, which means going near the guard that stops
+     * a two-year export being read as one year. Both are OPTIONAL, and that is the point of
+     * the design — an advisor who drops the first four gets exactly the screen they had.
      */
     slotSpecs () {
       return [
         { key: 'bs', required: true, titleKey: 'report.threeWayForecast.drop.bsTitle', whyKey: 'report.threeWayForecast.drop.bsWhy' },
         { key: 'pl', required: false, titleKey: 'report.threeWayForecast.drop.plTitle', whyKey: 'report.threeWayForecast.drop.plWhy' },
         { key: 'monthly', required: false, titleKey: 'report.threeWayForecast.drop.monthlyTitle', whyKey: 'report.threeWayForecast.drop.monthlyWhy' },
-        { key: 'monthlyPrior', required: false, titleKey: 'report.threeWayForecast.drop.monthlyPriorTitle', whyKey: 'report.threeWayForecast.drop.monthlyPriorWhy' }
+        { key: 'monthlyPrior', required: false, titleKey: 'report.threeWayForecast.drop.monthlyPriorTitle', whyKey: 'report.threeWayForecast.drop.monthlyPriorWhy' },
+        { key: 'bsPrior', required: false, titleKey: 'report.threeWayForecast.drop.bsPriorTitle', whyKey: 'report.threeWayForecast.drop.bsPriorWhy' },
+        { key: 'plPrior', required: false, titleKey: 'report.threeWayForecast.drop.plPriorTitle', whyKey: 'report.threeWayForecast.drop.plPriorWhy' }
       ]
+    },
+
+    /**
+     * The two-year trend read as the backend banded it, or null when there is nothing to
+     * show. Read-only throughout — see the note on `form.trend`.
+     * @returns {object|null}
+     */
+    trend () {
+      return this.form.trend || null
+    },
+
+    /**
+     * The single worst measure, for the red note. ONE only, deliberately: three red
+     * paragraphs is a screen nobody finishes, and the table above already names them all.
+     * The worst is the first red in screen order, which is Mike's own ordering.
+     * @returns {object|null}
+     */
+    trendWorst () {
+      if (!this.trend || !this.trend.available) { return null }
+      return this.trend.measures.filter(m => m.band === 'crit')[0] || null
+    },
+
+    /** The red note's opening sentence, naming the measure and both its years. */
+    trendWorstTitle () {
+      const m = this.trendWorst
+      if (!m) { return '' }
+      return this.$t('report.threeWayForecast.assume.trend.critTitle', {
+        name: this.$t('report.threeWayForecast.assume.trend.name.' + m.key),
+        current: this.trendValue(m, m.current),
+        prior: this.trendValue(m, m.prior)
+      })
+    },
+
+    /**
+     * One sentence naming the rows that are not on the table and the figure each wanted.
+     *
+     * '' when nothing was left out, and '' as well when the whole day-count set is missing
+     * for want of last year's Balance Sheet — that case has its own line, which tells the
+     * advisor what to do about it rather than merely what is absent.
+     * @returns {string}
+     */
+    trendOmittedSentence () {
+      if (!this.trend || !this.trend.available) { return '' }
+      const rows = this.trend.omitted || []
+      if (!rows.length) { return '' }
+      const named = rows.map(r => this.$t('report.threeWayForecast.assume.trend.omittedOne', {
+        name: this.$t('report.threeWayForecast.assume.trend.name.' + r.key),
+        figure: this.$t('report.threeWayForecast.assume.trend.figure.' + (r.missing || 'unknown'))
+      }))
+      return this.$t('report.threeWayForecast.assume.trend.omitted', { rows: named.join('; ') })
+    },
+
+    /** Every amber measure, gathered into one note rather than one note each. */
+    trendWarned () {
+      if (!this.trend || !this.trend.available) { return [] }
+      return this.trend.measures.filter(m => m.band === 'warn')
     },
 
     /** The five collection buckets, both profiles reading the same labels. */
@@ -1058,6 +1193,10 @@ export default {
       // undefined list would break the group rather than show its "nothing to measure"
       // state — the same normalisation the capital rows get, for the same reason.
       if (!Array.isArray(form.history)) { form.history = [] }
+      // Same normalisation for the trend read, and for the same reason: a form saved before
+      // it existed carries no `trend`, and `undefined` would make the block's own v-if
+      // ambiguous — null means "nothing to show", which is a state it draws properly.
+      if (!form.trend || typeof form.trend !== 'object') { form.trend = null }
       return form
     },
 
@@ -1110,7 +1249,12 @@ export default {
         // The complete run of usable months the by-month exports gave — up to 24, not the
         // twelve that seed the sales boxes. It lives on the form so stepping back and
         // forward keeps it, exactly as every other confirmed figure does.
-        history: []
+        history: [],
+        // The two-year trend read, as the backend banded it (item 4.61b). On the form for
+        // the same reason as `history` — stepping back and forward must not lose it — and
+        // READ-ONLY: nothing on this screen writes to it and nothing computed from it
+        // reaches a forecast figure.
+        trend: null
       }
     },
 
@@ -1329,6 +1473,11 @@ export default {
       // The whole run, which is what the volatility read measures. Up to 24 months; the
       // twelve above are only the most recent of them.
       this.form.history = Array.isArray(data.history) ? data.history.slice() : []
+
+      // The two-year trend read, already banded by the backend against this firm's own
+      // thresholds. Taken as given: the banding is advisory judgement and business logic,
+      // and neither belongs in the browser.
+      this.form.trend = (data.trend && typeof data.trend === 'object') ? data.trend : null
     },
 
     /**
@@ -1374,6 +1523,69 @@ export default {
      * the same three letters as the forecast grid beside it.
      * @param {number} index @returns {string}
      */
+    /**
+     * One year's figure, in the units that measure is actually read in.
+     *
+     * Sales is the odd one out and it is not an inconsistency: its two YEARS are money and
+     * its MOVEMENT is a growth percentage, which is how anyone reads a sales trend. The
+     * other five read in the same unit both ways.
+     *
+     * @param {object} m - a measure from the backend.
+     * @param {number|null} v - the year's value.
+     * @returns {string}
+     */
+    trendValue (m, v) {
+      if (typeof v !== 'number' || !isFinite(v)) { return '—' }
+      if (m.unit === 'days') {
+        return this.$t('report.threeWayForecast.assume.trend.daysValue', { n: Math.round(v) })
+      }
+      if (m.unit === 'points') { return v.toFixed(1) + '%' }
+      return this.money(v)
+    },
+
+    /**
+     * The movement between the two years, signed, in its own unit.
+     * @param {object} m - a measure from the backend.
+     * @returns {string}
+     */
+    trendMovement (m) {
+      const v = m.movement
+      if (typeof v !== 'number' || !isFinite(v)) { return '—' }
+      // A true minus sign, not a hyphen: these sit in a column of figures.
+      const sign = v > 0 ? '+' : (v < 0 ? '−' : '')
+      const size = Math.abs(v)
+      if (m.unit === 'days') {
+        return sign + this.$t('report.threeWayForecast.assume.trend.daysValue', { n: Math.round(size) })
+      }
+      if (m.unit === 'points') {
+        return sign + this.$t('report.threeWayForecast.assume.trend.pointsValue', { n: size.toFixed(1) })
+      }
+      return sign + size.toFixed(1) + '%'
+    },
+
+    /**
+     * The row's band tint. Green is a state of its own here — Mike's word, 2026-09-03 —
+     * but only the two warning levels tint the whole row: tinting every good row green as
+     * well makes a six-row table shout, and the chip already carries the verdict.
+     * @param {object} m @returns {object}
+     */
+    trendRowClass (m) {
+      return { 'is-warn': m.band === 'warn', 'is-crit': m.band === 'crit' }
+    },
+
+    /**
+     * Colour the movement by whether it went the way that is worse for this measure —
+     * which the backend decides and sends, so the colour can never disagree with the
+     * arithmetic that produced the band.
+     * @param {object} m @returns {object}
+     */
+    trendMoveClass (m) {
+      const v = m.movement
+      if (typeof v !== 'number' || !isFinite(v) || v === 0) { return { flat: true } }
+      const worse = m.worseWhen === 'up' ? v > 0 : v < 0
+      return { bad: worse, ok: !worse }
+    },
+
     historyMonthName (index) {
       const measured = this.historyMonths.slice(-this.volatilityWindow)
       const month = measured[index]
@@ -1787,4 +1999,32 @@ export default {
 .volwhy { background: var(--rs-panel-2, #f1f6fb); border: 1px solid var(--rs-line); border-radius: 10px; padding: 12px 14px; font-size: 12.5px; color: var(--rs-muted); margin-top: 12px; }
 @media (max-width: 720px) { .volfigs { grid-template-columns: repeat(2, 1fr); } }
 .tw-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* The two-year trend read (item 4.61b). Its frame is the volatility block's, unchanged,
+   so the two read as one pair rather than two visitors — and it introduces no colour,
+   radius or weight that is not already on this screen. */
+.trendblock { border: 1px solid #0070c055; border-radius: 12px; padding: 14px; background: var(--rs-accent-soft); }
+.trendsub { font-size: 12.5px; color: var(--rs-muted); margin: -4px 0 13px; }
+.trendtbl { background: var(--rs-card-bg); border: 1px solid var(--rs-line); border-radius: 10px; padding: 4px 12px 6px; }
+.trendtbl table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.trendtbl th, .trendtbl td { text-align: right; padding: 9px 8px; border-bottom: 1px solid var(--rs-line); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.trendtbl th:first-child, .trendtbl td:first-child, .trendtbl th:last-child, .trendtbl td:last-child { text-align: left; }
+.trendtbl th { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--rs-muted); font-weight: 600; }
+.trendtbl tr:last-child td { border-bottom: 0; }
+.trendtbl td.meas { font-weight: 600; white-space: normal; }
+.trendtbl td.meas small { display: block; font-weight: 400; font-size: 11px; color: var(--rs-muted); letter-spacing: 0; text-transform: none; margin-top: 2px; }
+.trendtbl tr.is-warn { background: var(--rs-warn-soft, #ff99001a); }
+.trendtbl tr.is-crit { background: var(--rs-crit-soft, #ff00000f); }
+.trendtbl td.mv { font-weight: 600; }
+.trendtbl td.mv.bad { color: var(--rs-crit, #ff0000); }
+.trendtbl td.mv.ok { color: var(--rs-good, #4ca52d); }
+.trendtbl td.mv.flat { color: var(--rs-muted); }
+.band { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; border-radius: 999px; padding: 2.5px 8px; }
+.band-none { color: var(--rs-muted); background: var(--rs-panel-2, #f1f6fb); border: 1px solid var(--rs-line); }
+.band-good { color: #3d7d22; background: #4ca52d1a; border: 1px solid #4ca52d59; }
+.band-warn { color: #b36b00; background: #ff99001a; border: 1px solid #ff990059; }
+.band-crit { color: #c00000; background: #ff00000f; border: 1px solid #ff000045; }
+/* The table is the widest thing on this screen at six columns, so it scrolls in its own
+   container rather than pushing the page sideways. */
+.trendtbl .tblwrap { overflow-x: auto; }
 </style>

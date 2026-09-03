@@ -114,6 +114,7 @@ const mentorRoute = require('./routes/mentor')
 const reportRoute = require('./routes/report')
 const currencyRoute = require('./routes/currency')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
+const trendThresholdsRoute = require('./routes/forecastTrendThresholds')
 const aiPromptsRoute = require('./routes/aiPrompts')
 const promptCheckRoute = require('./routes/promptCheck')
 const promptContributionsRoute = require('./routes/promptContributions')
@@ -227,6 +228,10 @@ server.post('/api/report/currency', firmAuth, requireManagerRole, currencyRoute.
 // they may type over any of it for the client in front of them (Mike, 2026-08-17). The
 // WRITE lives on the manager-only /api/firm-manager route below.
 server.get('/api/report/property-tax-rules', firmAuth, propertyTaxRulesRoute.get)
+// The bands the Three-Way Forecast's two-year trend read draws (Mike, 2026-09-03, item
+// 4.61b). Same asymmetry and same reason as the tax rules above: every advisor building a
+// forecast needs to READ them, and the write is manager-only on /api/firm-manager below.
+server.get('/api/report/trend-thresholds', firmAuth, trendThresholdsRoute.get)
 // /api/firm/advisors and /api/firm/insights were removed 2026-07-29 with the
 // FirmDashboard mock they existed for. Both were stubs returning empty data, and
 // proposed a three-table schema (advisors/courses/course_sessions) that was never
@@ -314,6 +319,15 @@ server.get('/api/firm-manager/property-tax-rules', ...fmGuard, propertyTaxRulesR
 server.post('/api/firm-manager/property-tax-rules', ...fmGuard, propertyTaxRulesRoute.save)
 server.get('/api/firm-manager/property-tax-rules/history', ...fmGuard, propertyTaxRulesRoute.history)
 server.post('/api/firm-manager/property-tax-rules/restore', ...fmGuard, propertyTaxRulesRoute.restore)
+// The forecast's trend thresholds (Mike, 2026-09-03). Same shape and same guard as the tax
+// rules above — one set of routes for every tier, scoped to `req.firmId` from the verified
+// JWT. Only the MENTOR's screen is switched on today (TAB_TIERS), per the
+// default-is-mentor-alone ruling of 2026-08-24; the routes carry every tier already so
+// that switching one on later is a line in that matrix and nothing here.
+server.get('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.getForManager)
+server.post('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.save)
+server.get('/api/firm-manager/trend-thresholds/history', ...fmGuard, trendThresholdsRoute.history)
+server.post('/api/firm-manager/trend-thresholds/restore', ...fmGuard, trendThresholdsRoute.restore)
 // The instructions the AI is given when it builds a model, and the three settings a
 // manager may change on them (Mike, 2026-08-21). Same shape and same guard as the tax
 // rules above: one set of routes for every tier, scoped to `req.firmId` from the verified

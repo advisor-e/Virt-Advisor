@@ -1,0 +1,50 @@
+{
+  "_readme": [
+    "THE PLATFORM'S FORECAST TREND THRESHOLDS — the bands the Three-Way Forecast's",
+    "two-year trend read draws (item 4.61 phase (b)).",
+    "",
+    "🔴 EVERY NUMBER IN HERE IS MIKE'S, AND AN EMPTY ONE STAYS EMPTY. He ruled on",
+    "2026-09-03 that the bands fire on thresholds HE sets, against a recommendation of a",
+    "plain read with no judgement — and the reason that ruling is safe is precisely that",
+    "the numbers are his. A plausible-looking default invented by a developer would put",
+    "advisory judgement into a funding document with nobody's name on it, which is the",
+    "one thing this file must never do. DO NOT FILL A NULL IN. An absent threshold is a",
+    "supported setting: the measure is shown in full with both years and its movement,",
+    "and simply is not banded.",
+    "",
+    "TWO BASES, AND THE SPLIT IS RULED (2026-09-03, rulings 6 and 7).",
+    "  levels    — the three day-counts band on THIS YEAR'S LEVEL. A level is what an",
+    "              accountant reads on a day-count and it travels across trades.",
+    "              Each carries its OWN numbers: 46 days means a quite different thing",
+    "              about a customer, a supplier and a shelf. Sharing one set turned a",
+    "              worked example red on all three, two of them for figures nobody would",
+    "              blink at.",
+    "  movements — the three percentage measures band on the MOVEMENT between the two",
+    "              years. A level would not travel: a gross margin that is alarming for a",
+    "              retailer is routine for a builder, whereas a margin that fell three",
+    "              points is worth a look in any trade.",
+    "",
+    "DEBTOR DAYS CARRIES MIKE'S OWN NUMBERS, given 2026-09-03 in his words —",
+    "\"0-35 = green - 36 - 45 - orange - 46 + = red\". They are the classic debtor-day",
+    "figures: 30-day terms, 45 slipping, 46+ genuinely late. `green` and `amber` are the",
+    "TOP of each band, so red is anything above `amber`.",
+    "",
+    "WHAT IS STILL AWAITED FROM HIM: creditorDays and stockDays (a green and an amber",
+    "each), and all six movement figures. Ten numbers. None of them blocks anything.",
+    "",
+    "THIS FILE IS THE MENTOR TIER'S. A firm gets its own copy only if one ever has a real",
+    "reason to differ — the default-is-mentor-alone ruling of 2026-08-24. The resolver",
+    "(server/utils/forecastTrendThresholds.js) already walks the tier chain, so that day",
+    "costs one line in TAB_TIERS and nothing here."
+  ],
+  "levels": {
+    "debtorDays": { "green": 35, "amber": 45 },
+    "creditorDays": { "green": null, "amber": null },
+    "stockDays": { "green": null, "amber": null }
+  },
+  "movements": {
+    "salesGrowth": { "warn": null, "crit": null },
+    "grossMargin": { "warn": null, "crit": null },
+    "overheadRatio": { "warn": null, "crit": null }
+  }
+}

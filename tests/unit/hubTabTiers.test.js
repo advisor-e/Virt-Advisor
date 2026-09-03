@@ -84,8 +84,16 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  *   Template Check. Stored inert until Phase 2 rewires the loader.
  * - `meetingObservations` — Mike, 2026-09-01. The mentor authors the platform list, which
  *   is where the cascade starts; the firm's copy is the same ruling's other half.
+ * - `trendThresholds` — Mike, 2026-09-03 (item 4.61b, `design/mockups/three-way-forecast-trend.html`):
+ *   the bands the Three-Way Forecast's two-year trend read draws. He was offered a plain
+ *   read with no judgement and chose warning bands **on thresholds he sets** — so the
+ *   screen is not an extra, it is what that ruling requires: content that shapes what an
+ *   advisor is told cannot live only in a constant. ⚠ MENTOR ALONE, per the
+ *   default-is-mentor-alone ruling of 2026-08-24 and stated in `TAB_TIERS`; the resolver
+ *   and routes already carry every tier, so a firm that one day needs its own numbers
+ *   costs one line there.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {

@@ -64,6 +64,12 @@ data/dev-property-tax-rules.json
 # above, and ignored for the same reason.
 data/dev-ai-prompts.json
 
+# Dev-only forecast trend thresholds — the bands the Three-Way Forecast's two-year trend
+# read draws (item 4.61 phase (b)). Keyed by SCOPE, ignored for the same reason as the two
+# above. The PLATFORM set is data/forecast-trend-thresholds.json and IS committed: those
+# are Mike's own numbers and a screen that shapes advice must be readable in the repo.
+data/dev-forecast-trend-thresholds.json
+
 # Dev-only firm staircase override (created locally when MySQL is unavailable)
 data/dev-firm-staircase.json
 # The four cascade keys, added when the staircase joined the one firm-editable

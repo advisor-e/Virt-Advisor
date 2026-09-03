@@ -40,13 +40,13 @@ repository sees; the two never both appear, and the build stops if they would.
 | 3 | **4.58** Meeting Review — slices 1–3 are built; the manager's half remains, and §4 still gates a real recording | 3 | — | **Mike** |
 | 4 | **4.59** A point the mentor adds tells a firm manager THEY wrote it | 2 | — | Us |
 | 5 | **4.60** QuickBooks and MYOB are supported on paper, not against a real file | 4 | — | **Mike** |
-| 6 | **4.61** The forecast reads one year and one file — the volatility read and the two-year trend remain | 3 | — | Us |
+| 6 | **4.61** The forecast reads one year and one file — the volatility read and the two-year trend remain | 3 | — | **Mike** |
 | 7 | **4.62** Economic analysis — the forecast asks the AI for market research, because the forecasts support funding requests | 3 | — | **Mike** |
 | 8 | **4.64** International vs local — the forecast treats every sale and every purchase as domestic | 3 | — | Us |
 | 9 | **4.63** Overseas stock purchases — the Import & Retail model feeds the forecast | 3 | — | Us |
 | 10 | **4.65** The book value of one asset is typed, because no screen ever asks for the Fixed Asset Schedule | 2 | — | **Mike** |
 
-**Ten live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Ten live items. Six need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

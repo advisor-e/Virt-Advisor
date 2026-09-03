@@ -43,6 +43,159 @@ function intakeResponse (over) {
   }, over || {})
 }
 
+describe('the two-year trend read on step 3 (item 4.61b)', () => {
+  /** A banded trend, as the backend sends it. */
+  function trend (over) {
+    return Object.assign({
+      available: true,
+      blocked: null,
+      needsBalanceSheet: false,
+      periodsCertain: true,
+      measures: [
+        { key: 'salesGrowth', basis: 'movement', unit: 'percent', worseWhen: 'down', prior: 824000, current: 890000, movement: 8.0097, band: 'good', computable: true },
+        { key: 'debtorDays', basis: 'level', unit: 'days', worseWhen: 'up', prior: 44.96, current: 58.24, movement: 13.28, band: 'crit', computable: true },
+        { key: 'creditorDays', basis: 'level', unit: 'days', worseWhen: 'up', prior: 42.0, current: 47.2, movement: 5.2, band: null, computable: true }
+      ],
+      counts: { good: 1, warn: 0, crit: 1, unbanded: 1 }
+    }, over || {})
+  }
+
+  test('the backend’s banding is taken as given, never recomputed in the browser', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({ trend: trend() }))
+    expect(w.vm.trend.measures).toHaveLength(3)
+    expect(w.vm.trendWorst.key).toBe('debtorDays')
+    expect(w.vm.trendWarned).toEqual([])
+    w.destroy()
+  })
+
+  // 🔴 THE READ MUST NEVER REACH THE FORECAST. Every one of these figures is last year's,
+  // and a forecast that quietly opened from them would be plausible and a year stale.
+  // The control is the SAME intake without a trend, not the untouched form: applying an
+  // intake legitimately seeds the start date from the balance sheet's own "as at" line,
+  // and comparing against a blank form would credit that to this block.
+  test('nothing from the trend read reaches the inputs the engine is given', () => {
+    const withTrend = mountIntake()
+    withTrend.vm.applyIntake(intakeResponse({ trend: trend() }))
+
+    const without = mountIntake()
+    without.vm.applyIntake(intakeResponse())
+
+    expect(JSON.stringify(withTrend.vm.buildInputs())).toBe(JSON.stringify(without.vm.buildInputs()))
+    withTrend.destroy()
+    without.destroy()
+  })
+
+  test('a value is shown in the unit its measure is actually read in', () => {
+    const w = mountIntake()
+    const [growth, debtors] = trend().measures
+    // Sales is the odd one out on purpose: its YEARS are money, its MOVEMENT is a percentage.
+    expect(w.vm.trendValue(growth, growth.current)).toBe(w.vm.money(890000))
+    expect(w.vm.trendMovement(growth)).toBe('+8.0%')
+    expect(w.vm.trendValue(debtors, debtors.current)).toContain('58')
+    expect(w.vm.trendMovement(debtors)).toContain('13')
+    w.destroy()
+  })
+
+  test('a percentage-point measure reads to one decimal, signed', () => {
+    const w = mountIntake()
+    const m = { key: 'grossMargin', basis: 'movement', unit: 'points', worseWhen: 'down', prior: 41.99, current: 40.48, movement: -1.5141, band: 'warn' }
+    expect(w.vm.trendValue(m, m.current)).toBe('40.5%')
+    expect(w.vm.trendMovement(m)).toContain('1.5')
+    w.destroy()
+  })
+
+  test('an absent figure shows as absent rather than as zero', () => {
+    const w = mountIntake()
+    const m = { key: 'stockDays', basis: 'level', unit: 'days', worseWhen: 'up', prior: null, current: null, movement: null, band: null }
+    expect(w.vm.trendValue(m, m.prior)).toBe('—')
+    expect(w.vm.trendMovement(m)).toBe('—')
+    w.destroy()
+  })
+
+  // The colour of a movement follows the direction the BACKEND says is worse for that
+  // measure, so the colour and the band can never disagree about the same number.
+  test('a movement is coloured by the direction that is worse for that measure', () => {
+    const w = mountIntake()
+    const up = { movement: 5, worseWhen: 'up' }
+    const down = { movement: -5, worseWhen: 'down' }
+    expect(w.vm.trendMoveClass(up).bad).toBe(true)
+    expect(w.vm.trendMoveClass(down).bad).toBe(true)
+    expect(w.vm.trendMoveClass({ movement: -5, worseWhen: 'up' }).ok).toBe(true)
+    expect(w.vm.trendMoveClass({ movement: 0, worseWhen: 'up' }).flat).toBe(true)
+    w.destroy()
+  })
+
+  test('every amber measure is gathered into one note, not one note each', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({
+      trend: trend({
+        measures: [
+          { key: 'grossMargin', basis: 'movement', unit: 'points', worseWhen: 'down', prior: 42, current: 40.5, movement: -1.5, band: 'warn' },
+          { key: 'overheadRatio', basis: 'movement', unit: 'points', worseWhen: 'up', prior: 32.5, current: 33.9, movement: 1.4, band: 'warn' }
+        ]
+      })
+    }))
+    expect(w.vm.trendWarned.map(m => m.key)).toEqual(['grossMargin', 'overheadRatio'])
+    expect(w.vm.trendWorst).toBeNull()
+    w.destroy()
+  })
+
+  // The approved drawing's rule: a row that cannot be worked out is left out AND the
+  // reason is given once. A shorter table with nothing accounting for it is the failure.
+  test('a row that could not be worked out is named, with the figure it wanted', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({
+      trend: trend({ omitted: [{ key: 'stockDays', missing: 'inventory' }] })
+    }))
+    expect(w.vm.trendOmittedSentence).toContain('stockDays')
+    expect(w.vm.trendOmittedSentence).toContain('inventory')
+    w.destroy()
+  })
+
+  test('the missing-balance-sheet line wins over the generic one, never both', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({
+      trend: trend({
+        needsBalanceSheet: true,
+        omitted: [
+          { key: 'debtorDays', missing: 'accountsReceivable' },
+          { key: 'creditorDays', missing: 'accountsPayable' },
+          { key: 'stockDays', missing: 'inventory' }
+        ]
+      })
+    }))
+    // Its own line tells the advisor what to DO about it; the generic one only says what
+    // is absent, so showing both would be saying the weaker thing twice.
+    expect(w.vm.trend.needsBalanceSheet).toBe(true)
+    w.destroy()
+  })
+
+  test('nothing left out means no sentence at all', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({ trend: trend({ omitted: [] }) }))
+    expect(w.vm.trendOmittedSentence).toBe('')
+    w.destroy()
+  })
+
+  test('an intake with no last-year files leaves the block with nothing to draw', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({ trend: { available: false, blocked: 'NO_PRIOR_YEAR', measures: [] } }))
+    expect(w.vm.trend.available).toBe(false)
+    expect(w.vm.trendWorst).toBeNull()
+    expect(w.vm.trendWarned).toEqual([])
+    w.destroy()
+  })
+
+  // A forecast saved before this block existed carries no `trend` at all.
+  test('an older saved forecast restores without a trend rather than breaking', () => {
+    const w = mountWithBuefy(ThreeWayForecastIntake, { propsData: { restore: { sales: [], capital: [] } } })
+    expect(w.vm.trend).toBeNull()
+    expect(w.vm.trendWarned).toEqual([])
+    w.destroy()
+  })
+})
+
 describe('the intake sends every figure the engine takes', () => {
   test('🔴 every top-level input the model defaults is sent explicitly', () => {
     const w = mountIntake()
