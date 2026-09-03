@@ -1689,7 +1689,8 @@
         "seededNote": "These are last year’s actual sales, offered as a starting point. They are not a forecast until you have changed them. Year total {total}.",
         "volatility": {
           "heading": "Your forecast against the normal range",
-          "measuredOver": "Measured over the last {n} complete months, read from your by-month export. Drop last year’s export as well and this reads up to 24.",
+          "measuredOver": "Measured over the last {n} complete months, read from your by-month export.",
+          "measuredMore": "Drop last year’s export as well and this reads up to 24.",
           "averageMonth": "Average month",
           "averageMonthSub": "{total} over {n} months",
           "normalRange": "Normal range",

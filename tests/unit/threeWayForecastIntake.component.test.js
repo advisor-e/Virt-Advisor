@@ -461,6 +461,21 @@ describe('the volatility read', () => {
     w.destroy()
   })
 
+  test('🔴 stops inviting a second export once there is nothing left to gain', () => {
+    // Found by opening the built screen, not by a test: with both exports already dropped
+    // the block still said "drop last year's export as well and this reads up to 24" while
+    // it was already reading 24. 24 is the engine's longest window, so the invitation has
+    // to go at that point.
+    const w = mountIntake({ step: 3 })
+    w.vm.form.history = history(12)
+    expect(w.vm.canReadMoreMonths).toBe(true)
+    w.vm.form.history = history(18)
+    expect(w.vm.canReadMoreMonths).toBe(true)
+    w.vm.form.history = history(24)
+    expect(w.vm.canReadMoreMonths).toBe(false)
+    w.destroy()
+  })
+
   test('eleven complete months measure nothing rather than measuring something shorter', () => {
     const w = mountIntake({ step: 3 })
     w.vm.form.history = history(11)

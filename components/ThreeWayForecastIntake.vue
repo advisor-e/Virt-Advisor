@@ -338,7 +338,12 @@
                 | {{ $t('report.threeWayForecast.assume.volatility.notEnoughBody', { n: historyMonths.length }) }}
 
               template(v-else-if="volatility && volatility.forecast")
-                p.volsub {{ $t('report.threeWayForecast.assume.volatility.measuredOver', { n: volatility.monthsUsed }) }}
+                p.volsub
+                  | {{ $t('report.threeWayForecast.assume.volatility.measuredOver', { n: volatility.monthsUsed }) }}
+                  //- Only where there is something to gain. Found by opening the built
+                  //- screen on 2026-09-03: with both exports already dropped it was
+                  //- telling the advisor to do the thing they had just done.
+                  span(v-if="canReadMoreMonths")  {{ $t('report.threeWayForecast.assume.volatility.measuredMore') }}
 
                 .volfigs
                   .volfig
@@ -851,6 +856,18 @@ export default {
         if (have >= VOLATILITY_WINDOWS[i]) { return VOLATILITY_WINDOWS[i] }
       }
       return 0
+    },
+
+    /**
+     * Whether dropping another by-month export could still lengthen the read.
+     *
+     * 24 is the engine's longest window, so at 24 months in hand there is nothing left to
+     * gain and the invitation must not be shown — it would be telling the advisor to do
+     * something they have already done. Found by opening the built screen, which is the
+     * only place it was visible: every test passed with the sentence always showing.
+     */
+    canReadMoreMonths () {
+      return this.historyMonths.length < 24
     },
 
     /** How many of the measured ACTUAL months sat outside the normal range. */
