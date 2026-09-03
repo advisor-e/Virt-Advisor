@@ -9,23 +9,35 @@
 
 ---
 
-## 2026-09-02 (evening) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-03 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Suite **6,689 green** (357 suites), lint 0 errors, everything committed and pushed.
+Suite **7,470 green** (388 suites), lint 0 errors, every coverage threshold met.
+Five commits this session; pushed only if the push step below was approved — check
+`git status -sb` before trusting this line.
 
-**4.56 CPD-follows-the-library: BUILT, MERGED to master (PR #54) and closed** —
-recommendations and claimable CPD minutes now always price from the same library.
+**Merged master** (was 46 behind). Both machines had built item 4.54 in the same week;
+Mike ruled to keep master's, PR #55 closed. What PR #55 had beyond it is in merge
+commit `f503e70` for a later decision.
 
-**4.54 Volatility by-month upload: BUILT, pushed, PR #55 OPEN (not merged)** —
-new parser + firmAuth route + the mockup's upload card/chips back on the screen.
-🔴 Mike has NOT yet eyeballed the screen — that look (production build, never
-`nuxt dev`) is the one open step before merging #55.
+**The list is readable again** (Mike: *"thrown out the window"*): six items cut to word
+caps the guard test now enforces; `rankedByMike: false` on the four items he never
+ranked; `activeOn: { machine, since }` and an "Active on" column on page and control;
+`npm run check:branch` prints an ACTIVE ITEMS box (the other machine's items are off
+limits, a stale claim on this machine is flagged).
 
-**New ruling (Mike): intake wording names no accounting product** — "your
-accounting software". New wording complies, pinned once; the sweep of the older
-screens' Xero strings is item 4.57 on the live list (his option A).
+**Hooks changed**: pre-commit is `scripts/quick-gate.js` (staged-file lint + related
+tests, seconds); the full gate moved to pre-push (~9 min, once). Commit from
+PowerShell, never the Bash tool — its sandbox throttles Node file I/O to nothing.
 
-**LAPTOP:** master moved once today (PR #54, `ae56333`) — merge from master
-before working. PR #55 will move it again when merged. The two new intake
-files (monthlySalesParser + its test) live beside your xeroReportParser —
-shared helpers are now EXPORTED from it; extend, don't copy.
+**Business Entity Reports**: designed, six rulings, screens approved, **stub BUILT**
+(`design/features/business-entity-reports.md` §4): client sign-in fail-closed until the
+master team supplies a role value (dev token `dev-local-entity`), `/my-reports`, the
+"Client access" switch on every report header. 🔴 **Not yet eyeballed by Mike** — a
+production build, signed in as the dev client. Part 2 (saved reports) is **4.62**, not
+started, no `activeOn`.
+
+**LAPTOP:** 4.61 is yours and marked active; the desktop touched none of its files.
+`firmAuth` gained `entityAuth` and now REFUSES a business-entity token by name — merge
+master before touching auth. The Handbook is republished by both machines at startup and
+the tool refuses the second publisher; it shows whichever branch published last until
+both meet on master.

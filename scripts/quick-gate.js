@@ -27,7 +27,11 @@ var path = require('path')
 /** Tests that read a file with `fs` rather than `require`, so the module graph cannot see the link. */
 var DATA_TESTS = [
   { when: /^design\/features\/to-do(-items\.json|\.md|-done-and-parked\.md)$/, run: ['tests/unit/toDoItems.test.js', 'tests/unit/applyToDo.test.js'] },
-  { when: /^design\/(HANDOVER-[a-z]+\.md)$/, run: ['tests/unit/activeItems.test.js'] }
+  { when: /^design\/(HANDOVER-[a-z]+\.md)$/, run: ['tests/unit/activeItems.test.js'] },
+  // A Brief, its History, the index or a mockup: the folder rules (every Brief has a
+  // companion and a row; every mockup is registered) and the Handbook build. Found
+  // 2026-09-03 when a new Brief shipped without its History and only the push gate saw it.
+  { when: /^design\/(features\/.*\.md|mockups\/.*\.html|ARTEFACTS\.md)$/, run: ['tests/unit/newFeature.test.js', 'tests/unit/designArtefacts.test.js', 'tests/unit/buildHandbook.test.js'] }
 ]
 // Data under data/ and locales/ is `require`d by the tests that read it, so the module
 // graph already links those; they need no row here. Add a row only for an `fs` read.

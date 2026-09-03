@@ -122,6 +122,70 @@ describe('entityAuth — real tokens, fail closed', () => {
     expect(res._status).toBe(401)
     expect(next).not.toHaveBeenCalled()
   })
+
+  it('refuses a token signed with the wrong secret, and an expired one by name', () => {
+    const { entityAuth } = authWithEnv({ allowDevAuth: 'true', nodeEnv: 'development' })
+    const forged = jwt.sign({ firmId: 'firm-1', role: 'business_entity', businessEntityId: 'c-1' }, 'not-the-secret')
+    const res = makeMockRes(); const next = jest.fn()
+    entityAuth({ headers: { authorization: `Bearer ${forged}` } }, res, next)
+    expect(next).not.toHaveBeenCalled()
+    expect(res._status).toBe(401)
+    expect(res._body.error.code).toBe('INVALID_TOKEN')
+
+    const expired = jwt.sign({ firmId: 'firm-1', role: 'business_entity', businessEntityId: 'c-1' }, AUTH.secret, { expiresIn: -10 })
+    const res2 = makeMockRes(); const next2 = jest.fn()
+    entityAuth({ headers: { authorization: `Bearer ${expired}` } }, res2, next2)
+    expect(next2).not.toHaveBeenCalled()
+    expect(res2._body.error.code).toBe('TOKEN_EXPIRED')
+  })
+
+  it('a client token with no email is still a client — email reads "unknown"', () => {
+    const { entityAuth } = authWithEnv({ allowDevAuth: 'true', nodeEnv: 'development' })
+    const token = sign({ firmId: 'firm-1', role: 'business_entity', businessEntityId: 'c-1' })
+    const req = { headers: { authorization: `Bearer ${token}` } }
+    const res = makeMockRes(); const next = jest.fn()
+    entityAuth(req, res, next)
+    expect(next).toHaveBeenCalledTimes(1)
+    expect(req.userEmail).toBe('unknown')
+  })
+})
+
+describe('entityAuth — the day the master team supplies the role value', () => {
+  // The production path: AUTH.businessEntityRole set to a real value. Pinned with the
+  // config mocked, so it is exercised before it is ever true — the same reason the
+  // middle tiers' real-token path was tested before Advisor-e issued their roles.
+  function authWithRole (roleValue) {
+    let mod
+    jest.isolateModules(() => {
+      jest.doMock('../../config/integration', () => {
+        const real = jest.requireActual('../../config/integration')
+        return Object.assign({}, real, { AUTH: Object.assign({}, real.AUTH, { businessEntityRole: roleValue }) })
+      })
+      mod = require('../../server/middleware/firmAuth')
+    })
+    jest.dontMock('../../config/integration')
+    return mod
+  }
+
+  it('admits a real token carrying that role, its firm and its client id — no dev auth needed', () => {
+    const prevAllow = process.env.ALLOW_DEV_AUTH; const prevNode = process.env.NODE_ENV
+    setEnv('ALLOW_DEV_AUTH', undefined); setEnv('NODE_ENV', 'production')
+    const { entityAuth, firmAuth } = authWithRole('client')
+    setEnv('ALLOW_DEV_AUTH', prevAllow); setEnv('NODE_ENV', prevNode)
+
+    const token = sign({ firmId: 'firm-1', role: 'client', businessEntityId: 'c-7', email: 'c@x' })
+    const req = { headers: { authorization: `Bearer ${token}` } }
+    const res = makeMockRes(); const next = jest.fn()
+    entityAuth(req, res, next)
+    expect(next).toHaveBeenCalledTimes(1)
+    expect(req.businessEntityId).toBe('c-7')
+
+    // …and firmAuth refuses that same token by name.
+    const res2 = makeMockRes(); const next2 = jest.fn()
+    firmAuth({ headers: { authorization: `Bearer ${token}` } }, res2, next2)
+    expect(next2).not.toHaveBeenCalled()
+    expect(res2._body.error.code).toBe('BUSINESS_ENTITY_NOT_ALLOWED')
+  })
 })
 
 describe('firmAuth — a client token never reaches an advisor route', () => {

@@ -144,7 +144,7 @@ function identityFromPayload (payload) {
  * @returns {boolean}
  */
 function isBusinessEntity (identity) {
-  return !!(ENTITY_ROLE && identity && identity.role === ENTITY_ROLE)
+  return !!(ENTITY_ROLE && identity.role === ENTITY_ROLE)
 }
 
 /**

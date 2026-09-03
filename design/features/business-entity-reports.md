@@ -15,6 +15,8 @@
 >
 > The screens: [`../mockups/business-entity-reports.html`](../mockups/business-entity-reports.html),
 > registered in [`../ARTEFACTS.md`](../ARTEFACTS.md).
+> **History:** [`business-entity-reports-history.md`](business-entity-reports-history.md) — the
+> alternatives rejected behind each ruling, and how the day went.
 
 ---
 
