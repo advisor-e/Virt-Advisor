@@ -42,7 +42,9 @@ describe('savedReports — the storage key', () => {
 
 describe('savedReports — validateInputs (hostile by default)', () => {
   it('admits numbers, booleans, short strings and number arrays, as a fresh copy', () => {
-    const src = { sales: 100, flag: true, note: 'x', months: [1, 2] }
+    // A blank (null) is a figure's honest empty state — an optional input not yet typed,
+    // or an empty month in a series — and must round-trip as a blank, never become 0.
+    const src = { sales: 100, flag: true, note: 'x', months: [1, null, 2], hurdle: null }
     const out = saved.validateInputs(src)
     expect(out).toEqual(src)
     expect(out).not.toBe(src)
@@ -53,7 +55,7 @@ describe('savedReports — validateInputs (hostile by default)', () => {
     ['not an object', 'x'], ['an array', [1]], ['empty', {}],
     ['a nested object', { a: { b: 1 } }], ['NaN', { a: NaN }], ['Infinity', { a: Infinity }],
     ['a bad key', { 'a b': 1 }], ['a long string', { a: 'x'.repeat(201) }],
-    ['a string array', { a: ['x'] }], ['null', { a: null }]
+    ['a string array', { a: ['x'] }], ['undefined', { a: undefined }], ['an object in a list', { a: [{}] }]
   ])('refuses %s as BAD_INPUTS', (_, inputs) => {
     expect(() => saved.validateInputs(inputs)).toThrow(expect.objectContaining({ code: 'BAD_INPUTS' }))
   })

@@ -131,7 +131,8 @@ Restore writes the advisor's version back as a fresh advisor save.
 client, **only for a model the advisor has opened to it** — checked in the store against the
 switch table, not only on the screen, so a client whose access was hidden again cannot keep
 saving. A client's figures are hostile: `validateInputs` admits a flat object of finite
-numbers, booleans, short strings or number arrays under a size cap, and refuses anything else
+numbers, booleans, short strings or number arrays under a size cap, with `null` as a blank
+(an optional figure not yet typed, or an empty month in a series), and refuses anything else
 rather than trimming it.
 
 **Routes**, all in `server/routes/clientReports.js`: the advisor reads, saves and restores for
@@ -147,8 +148,9 @@ client-edited banner with *Restore my version* (D4), so no report page changes b
 four attributes. `ProvenanceBadge` gained the `client` state; `SliderField` a badge slot.
 
 **Wired so far:** Debtor Business Drag, Margin, Mark-up & Break-even, Working Capital Cycle,
-and Eight Levers. **Not yet wired:** the other seven routed screens; the Three-Way Forecast
-last, after the laptop's 4.61 lands. Until a screen is wired, an open
+Eight Levers, and Cost of Capital. **Not yet wired:** the other six routed screens; the
+Three-Way Forecast last, after the laptop's 4.61 lands. Screens without SliderField show the
+badge in the label through `components/base/ClientChangedBadge.vue`. Until a screen is wired, an open
 model still shows the client its sample figures, exactly as §4 says.
 
 **Wording proposed and not yet ruled** (`locales/en.json`, `clientReports.saved.*`): the

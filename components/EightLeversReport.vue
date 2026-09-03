@@ -211,22 +211,8 @@ import reportRecompute from '~/mixins/reportRecompute'
 import StaleBanner from '~/components/base/StaleBanner.vue'
 import HeroStrip from '~/components/base/HeroStrip.vue'
 import HeroFigure from '~/components/base/HeroFigure.vue'
-import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import savedReport from '~/mixins/savedReport'
-
-/**
- * The client badge beside a plain range control. This screen predates SliderField and
- * keeps its own range inputs, so the badge sits in the label rather than a slot; one
- * local wrapper keeps the eleven call sites to a single line each.
- */
-const ClientChangedBadge = {
-  name: 'ClientChangedBadge',
-  components: { ProvenanceBadge },
-  props: { label: { type: String, required: true } },
-  render (h) {
-    return h(ProvenanceBadge, { props: { source: 'client', size: 'sm', spaced: true, fileLabel: '', enteredLabel: '', clientLabel: this.label } })
-  }
-}
 
 const DEFAULTS = {
   // The lever chain (Broad Scenarios, current column)
