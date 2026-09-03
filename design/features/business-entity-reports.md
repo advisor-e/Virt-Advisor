@@ -148,8 +148,8 @@ client-edited banner with *Restore my version* (D4), so no report page changes b
 four attributes. `ProvenanceBadge` gained the `client` state; `SliderField` a badge slot.
 
 **Wired so far:** Debtor Business Drag, Margin, Mark-up & Break-even, Working Capital Cycle,
-Eight Levers, and Cost of Capital. **Not yet wired:** the other six routed screens; the
-Three-Way Forecast last, after the laptop's 4.61 lands. Screens without SliderField show the
+Eight Levers, Cost of Capital, and Lease vs Buy. **Not yet wired:** the other five routed
+screens; the Three-Way Forecast last, after the laptop's 4.61 lands. Screens without SliderField show the
 badge in the label through `components/base/ClientChangedBadge.vue`. Until a screen is wired, an open
 model still shows the client its sample figures, exactly as §4 says.
 
