@@ -9,28 +9,23 @@
 
 ---
 
-## 2026-09-02 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-03 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Suite **6,610 green** (356 suites), lint 0 errors, everything committed, pushed and
-**merged to master** (PRs #52, #53).
+Suite **7,517 green** (390 suites), lint 0 errors, production build succeeds. Two
+commits: `d507588` (slice 1 code, made under a power cut) and `460b65e` (the Brief as
+built). Pushed if the push step was approved — check `git status -sb`.
 
-**Morning finding:** yesterday's 7 commits had never been shared into master — the
-laptop flagged it; PR #52 merged them.
+**4.62 saved reports — slice 1 BUILT, active on the desktop.** The seam: a per-client
+per-model store through firmOverlay, five routes in `server/routes/clientReports.js`,
+`mixins/savedReport.js`, the header's Save / client-edited banner / Restore, the
+`client` badge state. Proven on Debtor Drag only. Slice 2 wires the other ten screens,
+the forecast last. Brief §5 says how it works; wording in `clientReports.saved.*` is
+proposed, not ruled.
 
-**The Collaborate eyeball happened** (first ever). Screens fine EXCEPT every label
-rendered as a raw wording key — only 3 of 19 Collaborate locale sections were merged.
-Fixed (`575befe`, PR #53): all 19 merge; the predicted `profile` clash settled by
-renaming Collaborate's section `collabProfile`; two guard tests pin the settlement so
-it cannot recur. Verified on screen by Mike. "Icons missing" resolved with the labels.
+🔴 **Not eyeballed, and cannot be on this desktop yet:** MySQL refuses the placeholder
+password, and the dev-fallback rule rightly refuses to swap a refusal for a scratch
+file. Needs `MYSQL_PASSWORD` in `.env`. Yesterday's stub eyeball is blocked the same way.
 
-**🔴 STILL RULED, STILL UNBUILT: 4.56** (CPD follows the library in force) — deferred a
-second session by the day's firefighting; remains the top open build item.
-
-**Machine note:** node work spawned from AI-session background shells can crawl or
-stall silently on this desktop (build, lint). Never trust a quiet log — arm an active
-health check (Mike's ruling 2026-09-02, in session memory). Build via Git Bash
-unsandboxed worked.
-
-**LAPTOP:** master moved twice today (now `8c2db0a`) — merge from master before
-working. All Collaborate wording sections merge now; Collaborate's profile section is
-`collabProfile`.
+**LAPTOP:** 4.61 is still yours; none of its files were touched. `ReportHeader`,
+`SliderField` and `ProvenanceBadge` changed (additive: a `saved` prop, a badge slot,
+a `client` state). Merge master before touching the forecast's header or badges.

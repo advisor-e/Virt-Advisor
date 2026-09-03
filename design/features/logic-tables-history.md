@@ -103,3 +103,30 @@ tools) · [`../TREE-PDF-FIDELITY-SWEEP-2026-06-23.md`](../TREE-PDF-FIDELITY-SWEE
 **The source documents themselves** — the `Logic Tables/` PDFs — are the authority on what a
 table should say. The Read tool renders them, so they can be checked directly rather than through
 a derivative.
+
+## 8. Item 4.15 — what was found while it waited (2026-08-25 and 26)
+
+Moved here from the live list on 2026-09-03, when the item's note and comment were cut to the
+list's word caps.
+
+- **The list of missing names is [`../LOGIC-TABLE-TEMPLATES-NEEDED.md`](../LOGIC-TABLE-TEMPLATES-NEEDED.md):**
+  19 branches across three tables (CA Firm Strategy 5, Firm Board Pack 7, Leadership & Partner
+  Development 7) naming 23 documents `data/templates.json` does not hold. Mike says the documents
+  exist and will update the search content, then pick this up. It was 21: COI Development pt1 and
+  pt2 were published all along and the name scanner cut the title at the lowercase "pt" (fixed
+  2026-08-25, `48265ac`).
+- **Matching ignores case and punctuation**, so some may already resolve ("Demings Volatility"
+  matches "Deming's Theory of Volatility"; "6 Hats" matches "De Bono's 6 Hats"). A sentence is
+  withheld if ANY name in it is missing, and four branches name two. "Psyche Errors" and "Team AI"
+  may be concepts rather than documents; if so the fix is to reword the sentence and no page is
+  needed.
+- **The second step, found 2026-08-26 while measuring the empty `templates[]` arrays (item 4.51):**
+  22 branches with an empty array name their template only in the recommendation prose ("Use
+  Design & Deliver template"). `walkLogicTree` in `server/utils/logicTrees.js` reads only
+  `node.templates`, never the prose, so the tree's choice of tool reaches the adviser as a sentence
+  and never reaches the ranking engine, where it is meant to be the tie-breaker. Once the names
+  resolve, those arrays must be populated — and not before: `validateLogicTreeReferences`
+  hard-fails under `VA_STRICT_CONTENT` on a name the library does not hold, so writing it early
+  turns a silent gap into a broken build.
+- **The gate's count today is 36 whole / 6 partial / 13 withheld**, pinned in
+  `tests/unit/recommendationGate.test.js`; the re-run command is in the reference file above.

@@ -141,9 +141,14 @@ screen**, and then no test, no tab and no person can find it.
 
 ## 3. Design considerations
 
-**The advisor is a pass-through and the business entity is a recipient.** Neither authors
-anything here, so neither gets override storage. The business entity is an *entity*, not a
-person — it may have several people, which is why the tier is not named after one.
+**The advisor is a pass-through and the business entity is a recipient — of the CONTENT
+that cascades here.** Neither authors distinctions, trees or staircase wording, so neither gets
+override storage for them. The business entity is an *entity*, not a person — it may have
+several people, which is why the tier is not named after one. *(Since 2026-09-03 the entity
+does hold one kind of storage of its own — its edits to a report an advisor has opened to it,
+[Business Entity Reports](business-entity-reports.md). That is a report's figures, not this
+cascade's content; the sentence above used to say "nothing", and was overtaken by Mike's
+request.)*
 
 **Arrays deliberately cannot cascade.** An array replaces wholesale, so a level holding a
 one-item array would blank the level above's entire set for itself. That is why `templates` and

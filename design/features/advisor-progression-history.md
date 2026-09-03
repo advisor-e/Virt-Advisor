@@ -103,3 +103,26 @@ first) · [`../virt-advisor-system-design.md`](../virt-advisor-system-design.md)
 capability levels and the two views) ·
 [`../COLLABORATE-MERGE-PLAN.md`](../COLLABORATE-MERGE-PLAN.md) §7 (the CPD export ruling and the
 print-to-PDF groundwork) · [`../COVERAGE-DEBT.md`](../COVERAGE-DEBT.md).
+
+## 8. Item 4.50 — the live check of 2026-08-26, and what it corrected
+
+Moved here from the live list on 2026-09-03, when the item was cut to the list's word caps.
+
+- **The marker check was run live on the laptop** against a real OpenAI key: three complete
+  client conversations to a Phase 3 recommendation, 17 API calls, 77,605 tokens on gpt-4o-mini.
+  (a) The reply streams normally — 435, 1,094 and 792 chunks. (b) No marker text is ever visible —
+  not one bracket in 2,321 recorded chunks, tested against every partial prefix of the sentinel,
+  the chunks joined, and the final text. Not a vacuous pass: in the succession run the AI
+  demonstrably wrote a marker (its declared order differs from the prose-scan order) and none of it
+  escaped. Item 4.53 holds the other finding — the AI writes the marker only sometimes, and nothing
+  records when it did not.
+- **The item's original blocker was wrong.** For a month it said this machine had no
+  `OPENAI_API_KEY`. `.env` on the laptop has held a live key since 30 July, `dotenv` loads it in
+  `server/restify-server.js`, and the backend logs `OPENAI_API_KEY present=true` on boot.
+- **The real blocker is MySQL.** `logVASession` writes the capability record to the activity
+  store; on a developer machine that store logs `database unavailable (ECONNREFUSED
+  127.0.0.1:3306) — using the dev file`, and all three conversations completed with none recorded —
+  no error, the write simply did not happen. Check (c) therefore needs an environment with a
+  database, which means UAT.
+- **"Team Dashboard" is not a screen.** The words appear only in a JSDoc comment in
+  `tierLookup.js`. The screen is the Team tab, fed by `/api/activity/team`.

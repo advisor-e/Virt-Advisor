@@ -66,6 +66,18 @@ const DEV_GLOBAL_GROUP = 'Advisor-e'
 const DEV_COUNTRY = 'DE'
 const DEV_FIRM_ID = 'dev-firm-001'
 const DEV_ADVISOR_ID = 'dev-advisor-001'
+// dev-only: a BUSINESS ENTITY (client) sign-in. Advisor-e issues no role for a client
+// yet (AUTH.businessEntityRole is empty), so without this the client's own screen
+// could not be opened by anyone. The client id is a register id the developer seeds.
+// design/features/business-entity-reports.md.
+const DEV_ENTITY_TOKEN = 'dev-local-entity'
+const DEV_ENTITY_ROLE = 'business_entity'
+const DEV_ENTITY_ID = 'dev-client-001'
+// The role value that means "a client". Empty in config is the fail-closed state: it
+// matches nothing, so no real token is ever taken for a client until the master team
+// supplies the value. In dev the literal tier name stands in, so the code path a real
+// token will take is the one a developer exercises.
+const ENTITY_ROLE = AUTH.businessEntityRole || (DEV_AUTH_ENABLED ? DEV_ENTITY_ROLE : null)
 
 // Identity used by collaborateAuth in dev when no valid token is present. The ids
 // are the ones Collaborate's in-memory repository seeds its demo data against, so
@@ -121,8 +133,18 @@ function identityFromPayload (payload) {
     advisorId: payload[AUTH.advisorIdClaim],
     firmId: payload[AUTH.firmIdClaim],
     role: payload[AUTH.roleClaim],
-    email: payload[AUTH.emailClaim] || payload.sub
+    email: payload[AUTH.emailClaim] || payload.sub,
+    businessEntityId: payload[AUTH.businessEntityIdClaim] || null
   }
+}
+
+/**
+ * Is this identity a business entity (a client), by the fail-closed rule above?
+ * @param {{ role: ?string }} identity
+ * @returns {boolean}
+ */
+function isBusinessEntity (identity) {
+  return !!(ENTITY_ROLE && identity.role === ENTITY_ROLE)
 }
 
 /**
@@ -142,6 +164,7 @@ function attachIdentity (req, identity, name) {
   req.userRole = identity.role
   req.userEmail = identity.email
   req.advisorName = name || null
+  req.businessEntityId = identity.businessEntityId || null
 }
 
 /**
@@ -215,6 +238,14 @@ function firmAuth (req, res, next) {
       `JWT is missing the '${AUTH.firmIdClaim}' claim — check AUTH.firmIdClaim in config/integration.js`)
   }
 
+  // A client's token carries a firm id too — it has to, the switch table is the firm's —
+  // so without this line it would walk into every advisor route that asks only for a
+  // firm: the client register, the cases, the activity. Clients use entityAuth, below.
+  if (isBusinessEntity(identity)) {
+    return sendError(res, 403, 'BUSINESS_ENTITY_NOT_ALLOWED',
+      'A business entity sign-in cannot use an advisor route')
+  }
+
   // Advisor ID is read where present (falling back to the JWT 'sub' subject claim).
   // It is NOT required here — the team-overview route needs only firmId; the routes
   // that key on an individual advisor enforce its presence themselves.
@@ -230,6 +261,52 @@ function firmAuth (req, res, next) {
     return sendError(res, 403, scoped.code, scoped.message)
   }
 
+  return next()
+}
+
+/**
+ * entityAuth — the BUSINESS ENTITY's own routes (/api/client-reports/mine).
+ *
+ * The mirror of the refusal inside firmAuth: this admits ONLY a client, and a client's
+ * token must carry both its firm and its own register id, because every read is scoped
+ * to `req.firmId` + `req.businessEntityId` and nothing in the request is trusted. Bearer
+ * only, like firmAuth. Fails closed while AUTH.businessEntityRole is empty: no real
+ * token can be a client until the master team supplies the value. In dev, the magic
+ * token stands in — and only in dev, on the same terms as every other dev token.
+ * design/features/business-entity-reports.md.
+ */
+function entityAuth (req, res, next) {
+  const token = extractToken(req, false)
+  if (!token) {
+    return sendError(res, 401, 'MISSING_TOKEN', 'Authorization Bearer token required')
+  }
+  if (DEV_AUTH_ENABLED && token === DEV_ENTITY_TOKEN) {
+    attachIdentity(req, {
+      advisorId: null,
+      firmId: DEV_FIRM_ID,
+      role: DEV_ENTITY_ROLE,
+      email: 'dev-client@local',
+      businessEntityId: DEV_ENTITY_ID
+    }, 'Dev Client')
+    return next()
+  }
+  let payload
+  try {
+    payload = verifyToken(token)
+  } catch (err) {
+    const code = err.name === 'TokenExpiredError' ? 'TOKEN_EXPIRED' : 'INVALID_TOKEN'
+    return sendError(res, 401, code, err.message)
+  }
+  const identity = identityFromPayload(payload)
+  if (!isBusinessEntity(identity)) {
+    return sendError(res, 403, 'NOT_A_BUSINESS_ENTITY', 'This route is for a business entity sign-in')
+  }
+  if (!identity.firmId || !identity.businessEntityId) {
+    return sendError(res, 403, 'MISSING_ENTITY_CLAIMS',
+      `A business entity token must carry '${AUTH.firmIdClaim}' and '${AUTH.businessEntityIdClaim}'`)
+  }
+  identity.email = identity.email || 'unknown'
+  attachIdentity(req, identity, payload[AUTH.nameClaim])
   return next()
 }
 
@@ -434,4 +511,4 @@ function requireManagingTier (req, res, next) {
   return next()
 }
 
-module.exports = { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier, DEV_IDENTITY }
+module.exports = { firmAuth, entityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier, DEV_IDENTITY }

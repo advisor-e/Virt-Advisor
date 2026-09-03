@@ -1805,6 +1805,50 @@
       "report": "Client report"
     }
   },
+  "clientReports": {
+    "library": {
+      "eyebrow": "Advisor-e · Your Business",
+      "title": "Your reports",
+      "lede": "The reports your advisor has opened to you. Anything greyed out, your advisor will open with you.",
+      "openLabel": "Open with your advisor's figures",
+      "lockedLabel": "Your advisor will open this with you.",
+      "sampleNote": "Figures shown are illustrative until your advisor saves yours.",
+      "signIn": "Sign in to see your reports.",
+      "notEntity": "This page is for a business signed in through its advisor's firm.",
+      "loadFailed": "Your reports could not be loaded. Please try again."
+    },
+    "switch": {
+      "label": "Client access",
+      "chooseClient": "Choose a client",
+      "hidden": "Hidden",
+      "open": "Open",
+      "hintNoClient": "Choose the client this report is for to open it to them.",
+      "hintHidden": "Hidden for this client. Open it once terms are agreed.",
+      "hintOpen": "This client can open this report and change its figures.",
+      "clientsFailed": "The client list could not be loaded.",
+      "saveFailed": "The change could not be saved. Please try again."
+    },
+    "saved": {
+      "saveAdvisor": "Save for client",
+      "saveClient": "Save my changes",
+      "notSaved": "Not saved for this client yet.",
+      "noneForYou": "Your advisor has not saved figures for you yet.",
+      "savedBy": "Saved by {name} on {date}",
+      "lastSavedByClient": "Last saved by the client, {date}",
+      "advisorFigures": "Your advisor's figures, saved {date}.",
+      "yourChanges": "Your changes, saved {date}. The figures you changed are marked.",
+      "editedBy": "Edited by {name} on {date}.",
+      "changedCount": "One figure changed since your version of {date}. | {n} figures changed since your version of {date}.",
+      "changedNoVersion": "One figure changed. You have not saved a version of your own yet. | {n} figures changed. You have not saved a version of your own yet.",
+      "restore": "Restore my version",
+      "badge": "client",
+      "saved": "Saved.",
+      "restored": "Your version is back.",
+      "saveFailed": "The report could not be saved. Please try again.",
+      "notOpen": "Your advisor has not opened this report to you.",
+      "loadFailed": "The saved figures could not be loaded."
+    }
+  },
   "modelLibrary": {
     "eyebrow": "Advisor-e · Business Performance",
     "title": "Model Library",

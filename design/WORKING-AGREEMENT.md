@@ -87,6 +87,8 @@ Type **`/startup`** and the checklist runs itself. What it does, and why:
    explanation around a generated ten-row table, and is rebuilt from the JSON anyway.
    **Not `ACTIONS.md`** — frozen as an archive on 2026-08-24. **And there are no session
    notes to read**: the 85 files written before that date stay as history, none is written now.
+   **An item whose `activeOn` names the other machine is off limits** — say so, and do not
+   touch the files it names.
 5. **Catch up if behind** — merge `origin/master`, run the tests, prove nothing broke.
 
 ## End of session — either machine
@@ -102,7 +104,9 @@ Type **`/shutdown`**. What it does, and why:
    above a new one. **(b)** [`to-do-items.json`](features/to-do-items.json) — finished work
    **moves** to the done-and-parked page rather than being ticked in place, anything
    discovered is written as *something a person does*, and an open question for Mike is an
-   item on this list, never a line in a note. **(c)** The **commit message**.
+   item on this list, never a line in a note. An item this machine picked up carries
+   `activeOn` — kept if it is still in hand, cleared if it is finished or dropped.
+   **(c)** The **commit message**.
 4. **Commit** — message shown and approved first.
 5. **Push this machine's own branch only.**
 6. **Leave the handover** — in this machine's own file,
@@ -191,8 +195,8 @@ Documentation gets ignored. These do not:
 | Layer | Where | What it does |
 |---|---|---|
 | `/startup`, `/shutdown` | `.claude/commands/` | The checklists run as commands, not from memory. Committed to the repo, so both machines get them. |
-| **pre-push hook** | `.husky/pre-push` → `scripts/check-branch-state.js` | **Refuses** a push that is behind `origin/master`, and **refuses** a direct push to `master`. |
-| pre-commit hook | `.husky/pre-commit` | Lint, full test suite, critical-severity audit gate. |
+| **pre-push hook** | `.husky/pre-push` → `scripts/check-branch-state.js`, then the full gate | **Refuses** a push that is behind `origin/master`, and **refuses** a direct push to `master`. Then full lint, the full suite with coverage, and the critical-severity audit gate — once, before anything leaves the machine (moved here 2026-09-03). |
+| pre-commit hook | `.husky/pre-commit` → `scripts/quick-gate.js` | Lint on the staged files and the tests that reach them, coverage off. Seconds, not eight minutes. |
 
 Two honest limits on the hook: `git push --no-verify` bypasses it, and if the machine is
 offline it cannot check, so it warns loudly and allows the push rather than blocking on a

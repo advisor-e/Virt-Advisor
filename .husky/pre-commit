@@ -4,23 +4,15 @@
 # nvm-windows: NVM_SYMLINK holds the active node path as a Windows path — convert it for bash
 [ -n "$NVM_SYMLINK" ] && export PATH="$(cygpath -u "$NVM_SYMLINK"):$PATH"
 
-# Gate 0, and it runs FIRST for a reason: the three gates below all read the working
-# tree, not the index. If those differ, their green ticks describe code that is not
-# being committed (see `hook-tests-worktree-not-commit` in design/ACTIONS.md). Failing
-# here costs a second; failing after the suite costs two minutes.
+# Gate 0, and it runs FIRST for a reason: the gate below reads the working tree, not
+# the index. If those differ, its green tick describes code that is not being committed
+# (see `hook-tests-worktree-not-commit` in design/ACTIONS.md).
 node scripts/check-staged-tree.js
 
-# Run via node directly — bypasses .bin shims which can break on Windows after partial npm installs.
-# Lint RE-ENABLED 2026-06-12 (eslint restored by the full stack-reconciliation install;
-# the 44 dormant errors were cleared the same day). Errors block; warnings (no-console
-# etc.) pass — per SECURITY-AUDIT-NOTES.md policy.
-node node_modules/eslint/bin/eslint.js --ext .js,.vue .
-
-node node_modules/jest/bin/jest.js
-
-# Critical-only audit gate. High-severity findings are risk-accepted in
-# SECURITY-AUDIT-NOTES.md (Nuxt 2 build toolchain). The gate script blocks on any NEW
-# critical advisory but allows the specific documented, build-time-only, unfixable-within-
-# the-locked-stack advisories listed in scripts/audit-gate.js ALLOWLIST (each one
-# cross-documented in SECURITY-AUDIT-NOTES.md). It does NOT blanket-disable the check.
-NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem node scripts/audit-gate.js
+# The quick gate — sized to the commit (Mike, 2026-09-03). Lint on the staged files and
+# the tests that reach them, coverage off. Until today this hook ran full lint, the full
+# suite WITH coverage and the audit gate on every commit: eight minutes on the desktop,
+# five times a day. Those three now run ONCE, in .husky/pre-push, before anything leaves
+# the machine. Nothing reaches master tested less than before; a local commit that turns
+# out red at push is fixed forward.
+node scripts/quick-gate.js

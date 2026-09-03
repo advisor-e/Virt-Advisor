@@ -67,6 +67,50 @@ describe('the to-do data carries what the list\'s own rules demand', () => {
     })
   })
 
+  // 🔴 THE CAPS. Mike, 2026-09-03, on opening his list and finding item 4.58's comment
+  // at 1,388 words: seven sessions had each appended an "UPDATED …" paragraph beneath
+  // the last, and nothing here objected because this file checked that a field EXISTS
+  // and never what was in it. The list is for reading; the feature's Brief and history
+  // file are the record. "One fact, one home" — replace the stale sentence, never
+  // append. A session with more to say than the cap links the Brief.
+  const CAPS = { name: 16, why: 40, risk: 80, touches: 80, note: 120, comment: 120, 'askedBy.detail': 80 }
+  const words = s => String(s || '').trim().split(/\s+/).filter(Boolean).length
+
+  test.each(refs)('%s keeps every field under its word cap — the rest belongs in the Brief', (ref) => {
+    const item = items.find(i => i.ref === ref)
+    const over = {}
+    Object.keys(CAPS).forEach((field) => {
+      const value = field === 'askedBy.detail' ? item.askedBy.detail : item[field]
+      if (words(value) > CAPS[field]) { over[field] = words(value) + ' words, cap ' + CAPS[field] }
+    })
+    expect(over).toEqual({})
+  })
+
+  test.each(refs)('%s is not carrying appended session updates', (ref) => {
+    const item = items.find(i => i.ref === ref)
+    expect(String(item.note || '')).not.toMatch(/UPDATED \d{4}-\d{2}-\d{2}/)
+    expect(String(item.comment || '')).not.toMatch(/UPDATED \d{4}-\d{2}-\d{2}/)
+  })
+
+  // Which computer is working an item. Mike, 2026-09-03, after 4.54 was built on both
+  // machines in one week without either knowing: the list itself names who is on what.
+  const MACHINES = ['laptop', 'desktop']
+
+  test.each(refs)('%s names a real machine and a real date if it is active anywhere', (ref) => {
+    const item = items.find(i => i.ref === ref)
+    if (item.activeOn === null || item.activeOn === undefined) { return }
+    expect(MACHINES).toContain(item.activeOn.machine)
+    expect(item.activeOn.since).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    expect(Number.isNaN(Date.parse(item.activeOn.since))).toBe(false)
+  })
+
+  // `rankedByMike` is only ever `false`, on an item filed since he last saved the list.
+  // A ranked item does not carry the field — the control's export drops it.
+  test.each(refs)('%s says honestly whether Mike has ranked it', (ref) => {
+    const item = items.find(i => i.ref === ref)
+    if ('rankedByMike' in item) { expect(item.rankedByMike).toBe(false) }
+  })
+
   test.each(refs)('%s scores 1-5 — a 0 is deleted with its code, never filed', (ref) => {
     const item = items.find(i => i.ref === ref)
     expect(item.score).toBeGreaterThanOrEqual(1)
