@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Two-Year Trend Read</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Three-Way Forecast — the two-year trend read. Screen mockup for approval
+   (drawn 2026-09-03). NOTHING HERE IS BUILT.
+
+   Item 4.61 phase (b). Phase (a) — the by-month file connection and the
+   volatility read — shipped 2026-09-03 and is complete.
+
+   EVERY style value below is copied from the project's own locked sources.
+   Nothing is invented and nothing is approximated:
+     - design/mockups/three-way-forecast.html            the approved screen this joins
+     - design/mockups/three-way-forecast-volatility.html the approved sibling block,
+                                                         whose style block this reuses verbatim
+     - design/mockups/three-way-forecast-capital.html    the approved sibling block
+     - design/REPORT-VISUAL-STANDARD.md                  the ruled numbers + anatomy
+     - components/base/ProvenanceBadge.vue               the from-file / entered tag
+
+   The owner ruling of 2026-07-23 is followed exactly: the look is READ OFF the
+   finished screens, not proposed afresh. No dark mode: one light look, RULED
+   2026-07-27.
+
+   🔴 FIGURES — READ THIS BEFORE CHECKING ANY NUMBER.
+   Unlike the volatility drawing, the figures here CANNOT all be real, and the
+   reason is the subject itself: this block reads TWO years, and the approved
+   forecast mockup carries only one. So:
+     - THIS YEAR's sales (890,000) and the mark-up (68%) are the approved
+       mockup's own figures.
+     - THIS YEAR's cost of sales (529,762) is 890,000 / 1.68 — arithmetic on
+       those two, not a new figure.
+     - EVERYTHING ELSE — this year's debtors, creditors, stock and overheads,
+       and the WHOLE of last year — is CONSTRUCTED, to show the block in each of
+       its states. It is labelled as constructed everywhere it appears.
+       The constructed inputs, in full, so any figure below can be checked:
+         Last year  sales 824,000 · cost of sales 478,000 · overheads 268,000
+                    debtors 101,500 · creditors 55,000 · stock 92,000
+         This year  overheads 302,000
+                    debtors 142,000 · creditors 68,500 · stock 148,000
+     - The DEBTOR-DAY thresholds are REAL — Mike's own numbers of 2026-09-03,
+       0-35 green / 36-45 amber / 46+ red. Every other threshold is still his to
+       give and is deliberately left EMPTY on the mentor screen below; the three
+       percentage measures carry illustrative bands on the block so it can be
+       seen working, and creditor days and stock days are drawn in the
+       no-threshold-set state, which is a real state and not a placeholder.
+   Every derived figure IS correctly derived from the constructed inputs, so the
+   arithmetic on the page can be checked even though the inputs are invented.
+   ========================================================================= */
+:root{
+  --rs-col-input:360px; --rs-col-gap:16px; --rs-content-width:1120px;
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0; --rs-accent-contrast:#ffffff;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#ff00000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:var(--rs-content-width);margin:0 auto;padding:28px 22px 64px}
+
+/* [A] screen root — ONE gap value */
+.tw-root{display:flex;flex-direction:column;gap:16px}
+.tw-root strong,.tw-root b{font-weight:600}
+.tw-root .rs-top{margin:0}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55}
+.tag{position:relative}
+.tag::after{content:attr(data-tag);position:absolute;top:-9px;left:10px;background:#614700;
+  color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;padding:1px 6px;border-radius:4px}
+.stepmark{margin:34px 0 2px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+
+/* [B] ReportHeader */
+.rs-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  margin:0 auto 22px;padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);
+  color:#fff;box-shadow:var(--rs-shadow)}
+.rs-backlink{display:inline-block;margin-bottom:10px;font-size:12px;font-weight:600;
+  letter-spacing:.04em;color:#7fd3f1;text-decoration:none;opacity:.9}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+
+/* step chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+/* StaleBanner + the warning band */
+.stale{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;
+  align-items:center;gap:14px}
+.stale b{display:block;font-size:13px}
+.stale span{font-size:12.5px;color:var(--rs-muted)}
+.stale.is-crit{background:var(--rs-crit-soft);border-color:#ff000045;border-left-color:var(--rs-crit)}
+
+/* [D] two-column body */
+.tw-layout{display:grid;grid-template-columns:var(--rs-col-input) 1fr;gap:var(--rs-col-gap);
+  align-items:start}
+@media (max-width:860px){.tw-layout{grid-template-columns:1fr}}
+
+/* cards — no top edge: the shipped screens define none */
+.tw-card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow)}
+.tw-h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.tw-group{padding:15px 16px;border-bottom:1px solid var(--rs-line)}
+.tw-group:last-child{border-bottom:0}
+.tw-glabel{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tw-dot{width:7px;height:7px;border-radius:50%;background:var(--rs-accent-bright)}
+
+/* [D2] results column — same 16px rhythm */
+.tw-results{display:flex;flex-direction:column;gap:16px;min-height:200px}
+.tw-k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.tw-sub{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+.tw-foot{font-size:12px;color:var(--rs-muted)}
+.tw-cta{font:inherit;font-weight:600;font-size:13.5px;color:var(--rs-accent-contrast);
+  background:var(--rs-accent);border:0;padding:11px 18px;border-radius:10px;cursor:pointer}
+.tw-ghost{background:transparent;color:var(--rs-ink);border:1px solid var(--rs-line)}
+
+/* provenance tags — ProvenanceBadge */
+.src{letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:999px;
+  white-space:nowrap;font-size:9.5px;padding:2.5px 7px;margin-left:7px}
+.src-file{color:#0070c0;background:#0070c018;border:1px solid #0070c04d}
+.src-hand{color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.src-seed{color:#4a7c1f;background:#4ca52d1a;border:1px solid #4ca52d59}
+
+/* inputs */
+.field{margin-bottom:11px}
+.fieldlab{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;
+  color:var(--rs-ink);margin-bottom:6px}
+.field input,.field select{width:100%;font:inherit;font-size:13px;padding:8px 9px;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+
+/* tables */
+.tblwrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{text-align:right;padding:6px 7px;border-bottom:1px solid var(--rs-line);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--rs-muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+tr.rule td{border-top:2px solid var(--rs-line);font-weight:600}
+td.out{color:var(--rs-warn);font-weight:600}
+td.far{color:var(--rs-crit);font-weight:600}
+.tblnote{font-size:11.5px;color:var(--rs-muted);padding:0 16px 14px}
+
+/* the ruled block — mockup only */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-good);
+  border-radius:10px;padding:14px 16px;font-size:13px}
+.q h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;margin:0 0 10px;color:var(--rs-muted)}
+.q ol{margin:0;padding-left:20px}.q li{margin-bottom:9px}
+.q .from{color:var(--rs-muted);font-size:12px}
+.q.open{border-left-color:var(--rs-warn)}
+.num{font-variant-numeric:tabular-nums}
+</style>
+<style>
+/* ============================================================================
+   ADDITIONS FOR THIS DRAWING ONLY — everything above is the approved mockup's
+   own style block, copied verbatim from three-way-forecast-volatility.html so
+   the look is READ OFF the approved screens, never proposed afresh (the owner
+   ruling of 2026-07-23). The rules below add NO new colour, radius, weight or
+   font — they lay out a table of five measures and a file-slot row using the
+   tokens already defined above. The block's own frame (.trendblock) is the
+   volatility block's frame, unchanged, so the two read as a pair.
+   ========================================================================= */
+.trendblock{border:1px solid #0070c055;border-radius:12px;padding:14px;background:var(--rs-accent-soft)}
+.trendsub{font-size:12.5px;color:var(--rs-muted);margin:-6px 0 13px}
+
+/* the five measures */
+.trendtbl{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:10px;
+  padding:4px 12px 6px}
+.trendtbl table{font-size:12.5px}
+.trendtbl th,.trendtbl td{padding:9px 8px}
+.trendtbl td.meas{font-weight:600}
+.trendtbl td.meas small{display:block;font-weight:300;font-size:11px;color:var(--rs-muted);
+  letter-spacing:0;text-transform:none;margin-top:2px}
+.trendtbl tr.is-warn{background:var(--rs-warn-soft)}
+.trendtbl tr.is-crit{background:var(--rs-crit-soft)}
+.mv{font-weight:600}
+.mv.up-bad{color:var(--rs-crit)}
+.mv.up-ok{color:var(--rs-good)}
+.mv.down-bad{color:var(--rs-crit)}
+.mv.flat{color:var(--rs-muted)}
+.band{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;border-radius:999px;padding:2.5px 8px}
+.band-none{color:var(--rs-muted);background:var(--rs-panel-2);border:1px solid var(--rs-line)}
+.band-good{color:#3d7d22;background:#4ca52d1a;border:1px solid #4ca52d59}
+.band-warn{color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.band-crit{color:#c00000;background:#ff00000f;border:1px solid #ff000045}
+.trendtbl tr.is-good{background:var(--rs-good-soft)}
+/* the two threshold groups on the mentor screen */
+.tgroup{margin-top:16px}
+.tgroup:first-of-type{margin-top:0}
+.tgh{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:600;margin:0 0 3px}
+.tgs{font-size:12px;color:var(--rs-muted);margin:0 0 9px}
+.thresh input.g{border-color:#4ca52d59;background:#4ca52d0d}
+.mineflag{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#3d7d22;
+  background:#4ca52d1a;border:1px solid #4ca52d59;border-radius:999px;padding:2px 7px;margin-left:6px}
+.waitflag{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#b36b00;
+  background:#ff99001a;border:1px solid #ff990059;border-radius:999px;padding:2px 7px;margin-left:6px}
+
+/* the two warning notes, in this screen's own language — matches the volatility block */
+.warn-note{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:11px 13px;font-size:12.5px;margin-top:12px;line-height:1.55}
+.crit-note{background:var(--rs-crit-soft);border:1px solid #ff000045;border-left:3px solid var(--rs-crit);
+  border-radius:10px;padding:11px 13px;font-size:12.5px;margin-top:10px;line-height:1.55}
+.warn-note b,.crit-note b{color:var(--rs-ink)}
+.plain{font-size:13px;line-height:1.6;margin:12px 0 0}
+.note-why{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:12px 14px;font-size:12.5px;color:var(--rs-muted);margin-top:12px}
+.note-why b{color:var(--rs-ink)}
+
+/* step 1 file slots */
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:820px){.slots{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.slots{grid-template-columns:1fr}}
+.slot{background:var(--rs-panel);border:1px dashed var(--rs-line);border-radius:10px;
+  padding:13px 13px;min-height:104px;display:flex;flex-direction:column;gap:5px}
+.slot .sk{font-size:12.5px;font-weight:600;line-height:1.35}
+.slot .ss{font-size:11.5px;color:var(--rs-muted);line-height:1.45}
+.slot.filled{border-style:solid;border-color:#0070c055;background:#0070c00a}
+.slot.isnew{border-color:#4ca52d80;background:#4ca52d0d}
+.slot .newtag{align-self:flex-start;font-size:9px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:#4a7c1f;background:#4ca52d1a;border:1px solid #4ca52d59;
+  border-radius:999px;padding:2px 7px}
+.slot .opt{align-self:flex-start;font-size:9px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--rs-muted);background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);border-radius:999px;padding:2px 7px}
+
+/* the mentor threshold screen */
+.hubwrap{display:grid;grid-template-columns:212px 1fr;gap:16px;align-items:start}
+@media (max-width:760px){.hubwrap{grid-template-columns:1fr}}
+.hubnav{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:12px 0;box-shadow:var(--rs-shadow)}
+.hubnav .hh{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;padding:10px 14px 5px}
+.hubnav a{display:block;padding:6px 14px;font-size:12.5px;color:var(--rs-ink);text-decoration:none}
+.hubnav a.on{background:var(--rs-accent-soft);color:var(--rs-accent);font-weight:600;
+  border-left:3px solid var(--rs-accent);padding-left:11px}
+.thresh input{width:92px;font:inherit;font-size:12.5px;padding:6px 8px;border:1px solid var(--rs-line);
+  border-radius:7px;background:var(--rs-panel);color:var(--rs-ink);text-align:right;
+  font-variant-numeric:tabular-nums}
+.thresh input.a{border-color:#ff990059;background:#ff99000d}
+.thresh input.c{border-color:#ff000045;background:#ff00000d}
+.thresh td.unit{color:var(--rs-muted);font-size:11.5px;text-align:left}
+.emptynote{background:var(--rs-warn-soft);border:1px solid #ff990059;border-radius:10px;
+  padding:11px 13px;font-size:12.5px;color:#614700;line-height:1.55;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="tw-root">
+
+  <div class="mock">
+    <strong>One new block plus one mentor screen, drawn for approval &mdash; nothing here is built.</strong>
+    It adds <b>the two-year trend read</b> to <b>step 3, Set the assumptions</b> of the Three-Way
+    Forecast: how this client's five key measures moved between last year and this one, and where a
+    movement crosses a threshold you have set. This is <b>item 4.61 phase (b)</b> &mdash; the remaining
+    half of Mike's request of 2026-09-03,
+    <em>&ldquo;drop the last 2 years worth of p&amp;l and balance sheet so some basic trend analysis
+    can be performed&rdquo;</em>. Phase (a) &mdash; the by-month file connection and the volatility
+    read &mdash; shipped the same day and is complete.
+    Drawn against the approved <em>mockups/three-way-forecast.html</em> and its approved sibling
+    <em>mockups/three-way-forecast-volatility.html</em>, whose style block is reused here unchanged.
+    This is the same screen with one group added &mdash; not a new look.
+    🔴 <b>EIGHT RULINGS, ALL 2026-09-03, AND NOTHING IS OPEN.</b> Six questions were put to Mike one at
+    a time; he added a measure himself and supplied his first set of real threshold numbers. The drawing
+    shows every ruling and they are listed at the foot &mdash; <b>including one that was superseded
+    within the hour</b>, kept there rather than quietly rewritten, because the correction is the useful
+    part. <b>He approved this drawing on 2026-09-03</b> (&ldquo;drawing looks good&rdquo;), before
+    rulings 6&ndash;8 were taken; it has been revised to carry them.
+    <b>Ten threshold numbers are still needed</b> and are named at the foot, but they do not block a
+    build: a measure with no threshold is shown in full and simply not banded.
+  </div>
+
+  <div class="mock">
+    <strong>What this costs, so the size of it is honest.</strong>
+    <b>The parser is not touched at all.</b> The earlier note on item 4.61 assumed this needed the
+    comparative-column parser &mdash; teaching <em>xeroReportParser.js</em> to read a second figure
+    column as a prior period. Mike ruled on 2026-09-03 for <b>two more file slots</b> instead, and
+    that route needs <b>no parser change whatsoever</b>: the parser already reads a Balance Sheet and
+    a P&amp;L correctly, and already records each report's own year (<em>yearOf</em>,
+    xeroReportParser.js). The <em>MULTI_PERIOD_COLUMNS</em> guard &mdash; the one the item's own risk
+    note calls load-bearing &mdash; is <b>never approached</b>.
+    What does change: two slots on step 1, two lines in
+    <em>threeWayForecastAssembler.js</em> that today <b>refuse</b> a second Balance Sheet (they become
+    &ldquo;the older one is last year&rdquo;), a small ratios module with its own tests, the block
+    below, and the mentor threshold screen. <b>No forecast figure changes.</b> This is a read.
+  </div>
+
+  <!-- ============================================================ STEP 1 -->
+  <div class="stepmark">Step 1 of 4 &mdash; drop the exports, now six slots</div>
+
+  <div class="chips">
+    <div class="chip now"><span class="n">1</span> Drop the exports</div>
+    <div class="chip todo"><span class="n">2</span> Confirm the opening position</div>
+    <div class="chip todo"><span class="n">3</span> Set the assumptions</div>
+    <div class="chip todo"><span class="n">4</span> The forecast</div>
+  </div>
+
+  <div class="tw-card">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Drop your accounting exports</h2></div>
+      <div class="slots">
+        <div class="slot filled">
+          <div class="sk">Balance Sheet <span class="src src-file">from file</span></div>
+          <div class="ss">This year. The position the forecast opens from.</div>
+          <div class="ss"><b>Balance Sheet 31 Mar 2026.xlsx</b></div>
+        </div>
+        <div class="slot filled">
+          <div class="sk">Profit and Loss <span class="src src-file">from file</span></div>
+          <div class="ss">This year. Seeds the 23 overhead lines.</div>
+          <div class="ss"><b>Profit and Loss YE 2026.xlsx</b></div>
+        </div>
+        <div class="slot filled">
+          <div class="sk">Profit and Loss, by month <span class="src src-file">from file</span></div>
+          <div class="ss">This year. Seeds twelve months of sales.</div>
+          <div class="ss"><b>P&amp;L by month 2026.xlsx</b></div>
+        </div>
+        <div class="slot filled">
+          <div class="sk">Profit and Loss, by month <span class="opt">optional</span></div>
+          <div class="ss">Last year. Extends the volatility read to 24 months.</div>
+          <div class="ss"><b>P&amp;L by month 2025.xlsx</b></div>
+        </div>
+        <div class="slot isnew">
+          <span class="newtag">New</span>
+          <div class="sk">Balance Sheet &mdash; last year <span class="opt">optional</span></div>
+          <div class="ss">Adds debtor, creditor and stock days to the trend read.</div>
+        </div>
+        <div class="slot isnew">
+          <span class="newtag">New</span>
+          <div class="sk">Profit and Loss &mdash; last year <span class="opt">optional</span></div>
+          <div class="ss">Adds sales growth and gross margin to the trend read.</div>
+        </div>
+      </div>
+      <p class="tblnote" style="padding:12px 0 0">
+        Both new slots are <b>optional</b>, and that is the whole shape of the decision: an advisor who
+        drops the four they drop today gets exactly the screen they get today, and the trend block
+        simply is not there. Nothing about the forecast changes; nothing is withheld from them.
+      </p>
+    </div>
+  </div>
+
+  <div class="mock">
+    <strong>Why two slots and not one comparative file.</strong> Both were put to Mike and he chose
+    slots. A comparative export needs the advisor to remember a tick in their accounting software; if
+    they forget, there is no trend and the screen has to explain why. Slots use exports the app already
+    reads, and has verified against <b>real</b> Xero files. It also keeps the whole thing away from the
+    multi-column guard, which exists because a figure from the wrong year is completely believable.
+    The cost he accepted: step 1 goes from four boxes to six.
+  </div>
+
+  <!-- ============================================================ STEP 3 -->
+  <div class="stepmark">Where the read sits &mdash; step 3 of 4, set the assumptions</div>
+
+  <div class="chips">
+    <div class="chip done"><span class="n">&#10003;</span> Drop the exports</div>
+    <div class="chip done"><span class="n">&#10003;</span> Confirm the opening position</div>
+    <div class="chip now"><span class="n">3</span> Set the assumptions</div>
+    <div class="chip todo"><span class="n">4</span> The forecast</div>
+  </div>
+
+  <div class="tw-layout">
+    <aside class="tw-card">
+      <div class="tw-group">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">The trade</h2></div>
+        <div class="field">
+          <span class="fieldlab">Mark-up on cost <span class="src src-hand">entered</span></span>
+          <input value="68%">
+        </div>
+        <div class="field">
+          <span class="fieldlab">Forecast starts</span>
+          <input value="1 April 2026">
+        </div>
+      </div>
+      <div class="tw-group">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">When customers pay</h2></div>
+        <div class="field"><span class="fieldlab">Same month</span><input value="10%"></div>
+        <div class="field"><span class="fieldlab">Month after</span><input value="55%"></div>
+        <div class="field"><span class="fieldlab">Two months after</span><input value="30%"></div>
+        <div class="tw-foot" style="color:var(--rs-good);font-weight:600">Adds to 100% &#10003;</div>
+      </div>
+    </aside>
+
+    <section class="tw-results">
+      <div class="tw-card">
+
+        <div class="tw-group">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Forecast sales, month by month</h2></div>
+          <p class="tw-foot" style="margin:0">
+            &hellip; the twelve sales boxes, unchanged &hellip;
+          </p>
+        </div>
+
+        <div class="tw-group">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Your forecast against the normal range</h2></div>
+          <p class="tw-foot" style="margin:0">
+            &hellip; the volatility read, <b>built 2026-09-03</b>, unchanged &hellip;
+          </p>
+        </div>
+
+        <!-- ===================================================== THE NEW BLOCK -->
+        <div class="tw-group">
+          <div class="trendblock">
+            <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">How last year compared with this year</h2></div>
+            <p class="trendsub">
+              Read from the two Balance Sheets and the two Profit and Loss reports you dropped
+              <span class="src src-file">from file</span>. Nothing here changes your forecast &mdash;
+              it is the ground the forecast starts from.
+            </p>
+
+            <div class="trendtbl">
+              <div class="tblwrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Measure</th>
+                      <th>Year to Mar 2025</th>
+                      <th>Year to Mar 2026</th>
+                      <th>Movement</th>
+                      <th style="text-align:left">&nbsp;</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="meas">Sales<small>Total income for the year &middot; banded on the movement</small></td>
+                      <td class="num">824,000</td>
+                      <td class="num">890,000</td>
+                      <td class="num mv up-ok">+8.0%</td>
+                      <td style="text-align:left"><span class="band band-good">within range</span></td>
+                    </tr>
+                    <tr class="is-warn">
+                      <td class="meas">Gross margin<small>What is left after the cost of what you sell &middot; banded on the movement</small></td>
+                      <td class="num">42.0%</td>
+                      <td class="num">40.5%</td>
+                      <td class="num mv down-bad">&minus;1.5 pts</td>
+                      <td style="text-align:left"><span class="band band-warn">worth a look</span></td>
+                    </tr>
+                    <tr class="is-warn">
+                      <td class="meas">Overheads against sales<small>What your running costs take of every dollar sold &middot; banded on the movement</small></td>
+                      <td class="num">32.5%</td>
+                      <td class="num">33.9%</td>
+                      <td class="num mv up-bad">+1.4 pts</td>
+                      <td style="text-align:left"><span class="band band-warn">worth a look</span></td>
+                    </tr>
+                    <tr class="is-crit">
+                      <td class="meas">Debtor days<small>How long customers take to pay you &middot; banded on this year's level</small></td>
+                      <td class="num">45 days</td>
+                      <td class="num">58 days</td>
+                      <td class="num mv up-bad">+13 days</td>
+                      <td style="text-align:left"><span class="band band-crit">needs an explanation</span></td>
+                    </tr>
+                    <tr>
+                      <td class="meas">Creditor days<small>How long you take to pay suppliers &middot; banded on this year's level</small></td>
+                      <td class="num">42 days</td>
+                      <td class="num">47 days</td>
+                      <td class="num mv flat">+5 days</td>
+                      <td style="text-align:left"><span class="band band-none">no threshold set</span></td>
+                    </tr>
+                    <tr>
+                      <td class="meas">Stock days<small>How long stock sits before it sells &middot; banded on this year's level</small></td>
+                      <td class="num">70 days</td>
+                      <td class="num">102 days</td>
+                      <td class="num mv up-bad">+32 days</td>
+                      <td style="text-align:left"><span class="band band-none">no threshold set</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="tblnote" style="padding:10px 2px 4px">
+                <b>Debtor days is banded with Mike's real numbers</b> &mdash; 0&ndash;35 green, 36&ndash;45
+                amber, 46+ red, given 2026-09-03 &mdash; so 58 days is red. <b>Creditor days and stock
+                days are waiting for his</b>, and are drawn here in the state that produces: shown in
+                full, banded not at all. The three percentage measures carry illustrative thresholds
+                until his arrive.
+              </p>
+            </div>
+
+            <div class="crit-note">
+              <b>Customers are taking 58 days to pay, and took 45 last year.</b> Anything past 45 days
+              is money the business has earned and cannot use, and the forecast below assumes it comes
+              in. If the terms have changed, or one large customer is running late, say so in your
+              notes &mdash; a lender reading this forecast will go straight to this number.
+            </div>
+
+            <div class="warn-note">
+              <b>Two measures moved further than your firm's threshold.</b> Gross margin fell 1.5
+              points and overheads took 1.4 points more of every dollar sold. Neither is a problem on
+              its own, and both may be explained by the same thing. They are named here because the
+              forecast below assumes they do not get worse.
+            </div>
+
+            <p class="plain">
+              Sales grew <b class="num">8.0%</b> and overheads grew <b class="num">12.7%</b>, so the
+              business sold more and kept less of it: profit before tax fell from
+              <b class="num">78,000</b> to <b class="num">58,238</b> on a bigger year. The forecast on
+              this screen has sales growing again. Read alongside the volatility block above, the
+              picture is a business selling more, spending more to do it, and collecting more slowly
+              &mdash; which is the ordinary shape of a growing business, and also the ordinary shape of
+              one about to run short of cash.
+            </p>
+
+            <div class="note-why">
+              <b>Where these come from.</b> Sales, gross margin and overheads are read from the two
+              Profit and Loss reports. Debtor, creditor and stock days are the Balance Sheet figure
+              measured against a year of trading &mdash; debtors against sales, creditors and stock
+              against the cost of sales, times 365. <b>They are averages for the year, not a record of
+              when money actually moved</b>: an export does not carry payment dates, which is why these
+              are shown here and are never used to fill in when your customers pay.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================================================ THE OTHER STATES -->
+  <div class="stepmark">The states that are not the happy one</div>
+
+  <div class="tw-card">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Nothing from last year was dropped</h2></div>
+      <p class="tw-foot" style="margin:0 0 10px">
+        <b>The block is not drawn at all.</b> No empty frame, no greyed-out table, no &ldquo;no data&rdquo;
+        message where a reading should be. In its place, one line under the volatility block:
+      </p>
+      <div class="note-why" style="margin-top:0">
+        Drop last year's Balance Sheet and Profit and Loss on step 1 and this screen will also show how
+        your key measures moved between the two years.
+      </div>
+    </div>
+
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Only last year's Profit and Loss was dropped</h2></div>
+      <p class="tw-foot" style="margin:0 0 10px">
+        Sales, gross margin and overheads can be read; the three day-counts cannot, because they need
+        last year's Balance Sheet. The block appears with <b>three rows, not six</b> &mdash; and says
+        why, rather than showing three empty rows the advisor has to work out for themselves.
+      </p>
+      <div class="trendtbl">
+        <div class="tblwrap">
+          <table>
+            <thead>
+              <tr><th>Measure</th><th>Year to Mar 2025</th><th>Year to Mar 2026</th><th>Movement</th><th style="text-align:left">&nbsp;</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="meas">Sales</td><td class="num">824,000</td><td class="num">890,000</td>
+                <td class="num mv up-ok">+8.0%</td>
+                <td style="text-align:left"><span class="band band-good">within range</span></td>
+              </tr>
+              <tr class="is-warn">
+                <td class="meas">Gross margin</td><td class="num">42.0%</td><td class="num">40.5%</td>
+                <td class="num mv down-bad">&minus;1.5 pts</td>
+                <td style="text-align:left"><span class="band band-warn">worth a look</span></td>
+              </tr>
+              <tr class="is-warn">
+                <td class="meas">Overheads against sales</td><td class="num">32.5%</td><td class="num">33.9%</td>
+                <td class="num mv up-bad">+1.4 pts</td>
+                <td style="text-align:left"><span class="band band-warn">worth a look</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="note-why">
+        Debtor, creditor and stock days need <b>last year's Balance Sheet</b> as well. Drop it on step 1
+        and they will appear here.
+      </div>
+    </div>
+
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">The two years are not the same length, or not consecutive</h2></div>
+      <p class="tw-foot" style="margin:0 0 10px">
+        Each report carries its own date line, and the app already reads it. If the two periods are not
+        twelve months apart, the comparison is not made &mdash; because a nine-month period against a
+        twelve-month one produces a growth figure that is completely believable and completely wrong.
+      </p>
+      <div class="stale">
+        <div>
+          <b>These two Profit and Loss reports do not cover comparable periods.</b>
+          <span>One covers 12 months to 31 March 2026, the other 9 months to 31 December 2024. Please
+          drop last year's full-year reports, or leave the last-year slots empty.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">A measure cannot be worked out</h2></div>
+      <p class="tw-foot" style="margin:0 0 10px">
+        A client with no stock has no stock days, and a client whose export carries no cost-of-sales
+        section has neither stock days nor gross margin. That row is <b>left out</b>, and the reason is
+        given once beneath the table &mdash; never shown as a zero, and never shown as a dash the
+        advisor has to interpret.
+      </p>
+      <div class="note-why" style="margin-top:0">
+        Stock days are not shown: this Balance Sheet carries no stock.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ THE MENTOR SCREEN -->
+  <div class="stepmark">The thresholds &mdash; a mentor screen, in Model Inputs</div>
+
+  <div class="mock">
+    <strong>This screen exists because of Mike's ruling of 2026-09-03.</strong> He was offered a plain
+    read with no judgement &mdash; direction and size only &mdash; and chose <b>warning bands on
+    thresholds he sets</b>. That decision is what turns this from a table into content, and content that
+    shapes what an advisor is told <b>must live on a screen somebody can change</b>, never hardcoded.
+    It goes in the hub's <b>Model Inputs</b> group, Mike's own heading, beside Property Tax Rules.
+    <b>Mentor tier alone</b>, per the default of 2026-08-24: these are platform advisory thresholds, and
+    a firm gets its own copy only when one has a real reason to differ &mdash; which is one computed
+    property away in <em>TAB_TIERS</em> if that day comes.
+  </div>
+
+  <div class="hubwrap">
+    <nav class="hubnav">
+      <div class="hh">Your AI coach</div>
+      <a href="#">Domain Support</a>
+      <a href="#">Advisory Distinctions</a>
+      <a href="#">Logic Tables</a>
+      <a href="#">AI Prompts</a>
+      <div class="hh">Model Inputs</div>
+      <a href="#">Property Tax Rules</a>
+      <a href="#" class="on">Forecast Trend Thresholds</a>
+      <div class="hh">Rolled up from below</div>
+      <a href="#">Case Reviews</a>
+      <a href="#">Template Check</a>
+    </nav>
+
+    <div class="tw-card">
+      <div class="tw-group">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Forecast Trend Thresholds</h2></div>
+
+        <div class="emptynote">
+          <b>Every box on this screen is typed by you, and most are still empty on this drawing.</b>
+          Debtor days carries your real numbers, given 2026-09-03. Filling the rest in here with
+          plausible-looking defaults is exactly how invented advisory content gets shipped as though it
+          were approved &mdash; so they are left blank. <b>Ten numbers are still needed:</b> four for
+          creditor days and stock days, and six for the three percentage measures.
+        </div>
+
+        <div class="tgroup">
+          <p class="tgh">Where the figure stands</p>
+          <p class="tgs">
+            These three band on <b>this year's level</b>, not on how far they moved &mdash; ruled
+            2026-09-03. Each has its own numbers, because 46 days means a quite different thing about a
+            customer, a supplier and a shelf.
+          </p>
+          <div class="thresh tblwrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Measure</th>
+                  <th>Green up to</th>
+                  <th>Amber up to</th>
+                  <th style="text-align:left">Red</th>
+                  <th style="text-align:left">Unit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="meas">Debtor days <span class="mineflag">Mike's</span></td>
+                  <td><input class="g" value="35"></td>
+                  <td><input class="a" value="45"></td>
+                  <td class="unit">anything above 45</td>
+                  <td class="unit">days</td>
+                </tr>
+                <tr>
+                  <td class="meas">Creditor days <span class="waitflag">awaiting</span></td>
+                  <td><input class="g" value=""></td>
+                  <td><input class="a" value=""></td>
+                  <td class="unit">anything above the amber figure</td>
+                  <td class="unit">days</td>
+                </tr>
+                <tr>
+                  <td class="meas">Stock days <span class="waitflag">awaiting</span></td>
+                  <td><input class="g" value=""></td>
+                  <td><input class="a" value=""></td>
+                  <td class="unit">anything above the amber figure</td>
+                  <td class="unit">days</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tgroup">
+          <p class="tgh">How far it moved</p>
+          <p class="tgs">
+            These three band on <b>the movement between the two years</b>, in the direction that is
+            worse for the business. A level would not travel: a margin that is alarming for a retailer
+            is routine for a builder, whereas a margin that fell three points is worth a look in any
+            trade.
+          </p>
+          <div class="thresh tblwrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Measure</th>
+                  <th style="text-align:left">Worse means</th>
+                  <th>Worth a look</th>
+                  <th>Needs an explanation</th>
+                  <th style="text-align:left">Unit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="meas">Sales <span class="waitflag">awaiting</span></td>
+                  <td class="unit">Growth falls below</td>
+                  <td><input class="a" value=""></td>
+                  <td><input class="c" value=""></td>
+                  <td class="unit">% growth</td>
+                </tr>
+                <tr>
+                  <td class="meas">Gross margin <span class="waitflag">awaiting</span></td>
+                  <td class="unit">Falls by more than</td>
+                  <td><input class="a" value=""></td>
+                  <td><input class="c" value=""></td>
+                  <td class="unit">percentage points</td>
+                </tr>
+                <tr>
+                  <td class="meas">Overheads against sales <span class="waitflag">awaiting</span></td>
+                  <td class="unit">Rises by more than</td>
+                  <td><input class="a" value=""></td>
+                  <td><input class="c" value=""></td>
+                  <td class="unit">percentage points</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <p class="tblnote" style="padding:14px 0 0">
+          A measure left <b>empty</b> is shown in full with its two years and its movement, and never
+          banded &mdash; which is exactly how creditor days and stock days appear on the block above
+          today. That is a legitimate setting rather than an unfinished one: it is how a measure you
+          would rather simply report gets reported. The screen says so beneath the tables.
+        </p>
+
+        <div style="display:flex;gap:12px;margin-top:14px">
+          <button class="tw-cta">Save thresholds</button>
+          <button class="tw-cta tw-ghost">Version history</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ THE RULINGS -->
+  <div class="stepmark">Ruled by Mike, 2026-09-03 &mdash; all eight</div>
+
+  <div class="q">
+    <h2>Settled &mdash; four before the drawing, four after he read it</h2>
+    <ol>
+      <li>
+        <b>Last year arrives as two more file slots</b>, not as extra columns in one comparative file
+        and not as both. Step 1 goes from four slots to six, and both new ones are optional.
+        <span class="from">Recommended, and chosen. The deciding reason: it needs no parser change at
+        all, so the multi-column guard &mdash; which stops a figure from the wrong year being read as
+        this year's &mdash; is never touched.</span>
+      </li>
+      <li>
+        <b>The block sits on step 3, beside the volatility read</b>, so the history sits next to the
+        assumptions it bears on rather than two steps away from them.
+        <span class="from">Recommended, and chosen. The alternatives were step 1 as the files land, and
+        a step of its own.</span>
+      </li>
+      <li>
+        🔴 <b>Warning bands, on thresholds Mike sets &mdash; AGAINST THE RECOMMENDATION</b>, which was
+        direction and size only, with no judgement. The recommendation's reason was that any threshold
+        we chose would be invented advisory content, and a red flag on a funding document that turns
+        out to be routine for that industry is expensive. His choice removes that objection rather than
+        overriding it: the numbers are his, so nothing is invented.
+        <span class="from">The consequence, recorded rather than discovered later: this is what creates
+        the mentor screen above, and roughly doubles the work. It also cannot be built until the ten
+        numbers arrive.</span>
+      </li>
+      <li>
+        🔴 <b>SUPERSEDED THE SAME DAY, AND THE ORIGINAL IS KEPT HERE BECAUSE THE CORRECTION IS THE
+        USEFUL PART.</b> This ruling read: <em>bands fire on the movement between the two years, not on
+        the level a measure has reached</em> &mdash; recommended, and chosen. It was <b>reversed within
+        the hour by Mike's own numbers</b>: he gave <em>&ldquo;0-35 = green, 36-45 = orange, 46+ =
+        red&rdquo;</em>, which run continuously from zero upwards and are therefore a <b>level</b>. Read
+        as a movement, 46 would have meant debtor days must worsen by forty-six days in one year before
+        turning red, which would never have fired.
+        <span class="from">The correction matters more than the ruling: the question was put as an
+        abstraction (&ldquo;movement or level?&rdquo;) and answered as one, and the mistake only
+        surfaced when real numbers were laid against a real example. <b>Ask for the numbers earlier
+        next time</b> &mdash; they carry the answer the abstraction hid. See rulings 6 and 7 for what
+        now stands.</span>
+      </li>
+      <li>
+        <b>Overheads against sales is the sixth measure</b>, added on Mike's own word while this was
+        being drawn &mdash; <em>&ldquo;you can add overheads to sales if you like&rdquo;</em>.
+        <span class="from">It was drawn without it and named as deliberately absent, because his
+        request of 2026-09-03 lists five measures and inventing a sixth would have been putting our
+        content in his screen. It is in now because he asked for it, which is the only reason that
+        counts. It costs nothing extra: both figures are already read from the two P&amp;Ls, so it
+        needs no new file and no new parsing &mdash; only its own two thresholds.</span>
+      </li>
+      <li>
+        <b>The three day-counts band on THIS YEAR'S LEVEL, in three colours</b> &mdash; green, amber,
+        red &mdash; and Mike's own numbers for <b>debtor days</b> are <b>0&ndash;35 green, 36&ndash;45
+        amber, 46+ red</b>. The three percentage measures keep the movement reading of the superseded
+        ruling 4.
+        <span class="from">His numbers, given 2026-09-03 and written into the screen above exactly as
+        given. Green is his word and is now a state of its own rather than the neutral grey the first
+        draft used. The split is not a compromise: a level is what an accountant reads on a day-count
+        and travels across trades, whereas a gross-margin level does not &mdash; alarming for a
+        retailer, routine for a builder.</span>
+      </li>
+      <li>
+        <b>Each day-count carries its OWN numbers</b>, rather than the three sharing one set.
+        <span class="from">Recommended, and chosen &mdash; and the recommendation came from testing his
+        numbers against the worked example rather than from theory. Shared, the constructed client turns
+        <b>red on all three</b>: debtor days 58, creditor days 47 and stock days 102. Two of those are
+        figures an accountant would not blink at &mdash; 47 days to pay a supplier is an ordinary cycle,
+        and 102 days of stock is normal for anyone holding three months &mdash; and a screen that is
+        permanently red stops being read. <b>0&ndash;35 / 36&ndash;45 / 46+ are the classic DEBTOR-day
+        numbers</b>: 30-day terms, 45 slipping, 46+ genuinely late.</span>
+      </li>
+      <li>
+        <b>High creditor days is the bad direction</b> &mdash; the question that was open on the first
+        draft of this drawing, and it is closed.
+        <span class="from">Settled by ruling 6 rather than answered separately: on a level scale where
+        the high end is red, stretching suppliers is what the red end means. The recommendation had been
+        to band rising only, for the same reason &mdash; a lender reads this document, and a business
+        paying its suppliers later is the signal they are hunting for. A firm that reads it differently
+        leaves the two boxes empty, which turns the row into a plain report.</span>
+      </li>
+    </ol>
+  </div>
+
+  <div class="q open">
+    <h2>Nothing is open &mdash; but ten numbers are still needed</h2>
+    <ol>
+      <li>
+        <b>Creditor days and stock days</b> need a green boundary and an amber boundary each &mdash;
+        four numbers. Debtor days is done.
+      </li>
+      <li>
+        <b>Sales growth, gross margin and overheads against sales</b> need a &ldquo;worth a look&rdquo;
+        and a &ldquo;needs an explanation&rdquo; each &mdash; six numbers, in percent for sales growth
+        and in percentage points for the other two.
+        <span class="from">Until they arrive, those measures appear on the block with their two years
+        and their movement and no band, which is the empty-threshold state shown above &mdash; so the
+        build is not blocked by their absence, only quieter without them.</span>
+      </li>
+    </ol>
+  </div>
+
+  <div class="mock">
+    <strong>One thing deliberately NOT in this drawing.</strong>
+    <b>Nothing here reaches the printed forecast.</b> Whether the trend read joins the output a lender
+    actually receives is a funding-pack decision, and it belongs with item 4.62 (economic analysis)
+    rather than being settled quietly here &mdash; the same call that was made for the volatility read
+    on 2026-09-03, ruling 6.
+    <br><br>
+    <em>This box named two things when the drawing was first written. The other was overheads against
+    sales, left out because Mike's request named five measures; he added it himself the same hour, so
+    it is now the sixth row and ruling 5.</em>
+  </div>
+
+  <div class="mock">
+    <strong>A separate file by design.</strong> <em>three-way-forecast.html</em>,
+    <em>three-way-forecast-capital.html</em> and <em>three-way-forecast-volatility.html</em> are
+    untouched, so the record of what Mike approved on 2026-09-02 and 2026-09-03 is not overwritten by
+    this drawing.
+  </div>
+
+</div>
+</div>
+</body>
+</html>
