@@ -556,6 +556,149 @@
                 span.lbl {{ label }}
                 b-input(v-model.number="form.purchases[i]" type="number" step="any" size="is-small")
 
+          //- Buying and selling overseas. Built from the approved drawing
+          //- design/mockups/three-way-forecast-international.html (approved 2026-09-04).
+          //- Everything below the tick is hidden until it is ticked, so a business that
+          //- trades only at home sees exactly the screen it saw before.
+          .tw-group
+            .tickrow
+              b-checkbox(v-model="form.overseas.enabled") {{ $t('report.threeWayForecast.assume.overseas.tick') }}
+            .tw-foot(v-if="!form.overseas.enabled") {{ $t('report.threeWayForecast.assume.overseas.tickHint') }}
+
+            .sectionbox(v-if="form.overseas.enabled")
+              //- ── Stock arriving from overseas ──
+              .subgroup
+                h3.subh {{ $t('report.threeWayForecast.assume.overseas.importHeading') }}
+                .termhead {{ $t('report.threeWayForecast.assume.overseas.landingLabel') }}
+                .mgrid
+                  .m(v-for="(label, i) in monthLabels" :key="'ip' + i")
+                    span.lbl {{ label }}
+                    b-input(
+                      v-model.number="form.overseas.importedPurchases[i]"
+                      type="number" step="any" size="is-small")
+
+                p.tblnote {{ $t('report.threeWayForecast.assume.overseas.landingNote') }}
+
+                //- The deposit that fell before the forecast began. Mike's ruling of
+                //- 2026-09-04: warn, and leave the cash out. It moves no figure.
+                .warn-note(v-if="depositsBeforeStart.length")
+                  strong {{ $t('report.threeWayForecast.assume.overseas.earlyDepositHeading') }}
+                  |  {{ earlyDepositSentence }}
+
+                .termgrid
+                  div
+                    .termhead {{ $t('report.threeWayForecast.assume.overseas.payingHeading') }}
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.overseas.deposit') }}
+                      b-input(v-model.number="form.overseas.depositPct" type="number" step="any" size="is-small")
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.overseas.depositLead') }}
+                      b-select(v-model.number="form.overseas.depositLeadMonths" size="is-small" expanded)
+                        option(v-for="n in leadMonthOptions" :key="'dl' + n" :value="n") {{ $tc('report.threeWayForecast.assume.overseas.monthsBefore', n, { count: n }) }}
+                    .termhead {{ $t('report.threeWayForecast.assume.overseas.balanceHeading') }}
+                    .field(v-for="(bucketLabel, i) in landingBucketLabels" :key="'bp' + i")
+                      .fieldlab
+                        span {{ $t(bucketLabel) }}
+                      b-input(v-model.number="form.overseas.balancePayment[i]" type="number" step="any" size="is-small")
+                    .tw-foot(:class="balanceTotal === 100 ? 'is-good' : 'is-crit'")
+                      | {{ balanceTotal === 100 ? $t('report.threeWayForecast.assume.addsUp') : $t('report.threeWayForecast.assume.doesNotAddUp', { total: pct(balanceTotal) }) }}
+                  div
+                    .termhead {{ $t('report.threeWayForecast.assume.overseas.gettingHereHeading') }}
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.overseas.freight') }}
+                      b-input(v-model.number="form.overseas.freightPct" type="number" step="any" size="is-small")
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.overseas.duty') }}
+                      b-input(v-model.number="form.overseas.dutyPct" type="number" step="any" size="is-small")
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.overseas.fxAllowance') }}
+                      b-input(v-model.number="form.overseas.fxAllowancePct" type="number" step="any" size="is-small")
+                    .tw-foot {{ $t('report.threeWayForecast.assume.overseas.gettingHereNote') }}
+
+                //- How it sells down. The ladder is the mentor's content, shown so the
+                //- advisor can see what is being applied to their client's stock.
+                .termhead {{ $t('report.threeWayForecast.assume.overseas.sellDownHeading') }}
+                .termgrid
+                  div
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.overseas.newPrice') }}
+                        provenance-badge(
+                          source="seeded"
+                          :seeded-label="$t('report.threeWayForecast.assume.overseas.fromMentor')"
+                          size="sm")
+                      b-input(v-model.number="form.overseas.sellDown.newMarkup" type="number" step="any" size="is-small")
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.overseas.standardPrice') }}
+                      b-input(v-model.number="form.overseas.sellDown.standardMarkup" type="number" step="any" size="is-small")
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.overseas.runoutPrice') }}
+                      b-input(v-model.number="form.overseas.sellDown.runoutMarkup" type="number" step="any" size="is-small")
+                  div
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.overseas.howFast') }}
+                      b-select(v-model="form.overseas.sellDown.pattern" size="is-small" expanded)
+                        option(v-for="p in sellDownPatterns" :key="p.name" :value="p.name") {{ p.name }}
+                    .tw-foot {{ patternSentence }}
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.overseas.readyAfter') }}
+                      b-select(v-model.number="form.overseas.readyAfterMonths" size="is-small" expanded)
+                        option(:value="0") {{ $t('report.threeWayForecast.assume.overseas.readySameMonth') }}
+                        option(:value="1") {{ $t('report.threeWayForecast.assume.overseas.readyMonthAfter') }}
+
+              //- ── Sales to overseas customers ──
+              .subgroup
+                h3.subh {{ $t('report.threeWayForecast.assume.overseas.exportHeading') }}
+                .termhead {{ $t('report.threeWayForecast.assume.overseas.exportLabel') }}
+                .mgrid
+                  .m(v-for="(label, i) in monthLabels" :key="'os' + i")
+                    span.lbl {{ label }}
+                    b-input(
+                      v-model.number="form.overseas.overseasSales[i]"
+                      type="number" step="any" size="is-small")
+
+                .termgrid
+                  div
+                    .termhead {{ $t('report.threeWayForecast.assume.overseas.gettingThereHeading') }}
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.overseas.deliveryLag') }}
+                      b-select(v-model.number="form.overseas.deliveryLagMonths" size="is-small" expanded)
+                        option(v-for="n in deliveryLagOptions" :key="'dg' + n" :value="n") {{ $tc('report.threeWayForecast.assume.overseas.monthsAfter', n, { count: n }) }}
+                    .tickrow
+                      b-checkbox(v-model="form.overseas.zeroRated") {{ $t('report.threeWayForecast.assume.overseas.zeroRated') }}
+                    .tw-foot {{ $t('report.threeWayForecast.assume.overseas.zeroRatedHint') }}
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.overseas.salesFxAllowance') }}
+                      b-input(v-model.number="form.overseas.salesFxAllowancePct" type="number" step="any" size="is-small")
+                    .tw-foot {{ $t('report.threeWayForecast.assume.overseas.salesFxHint') }}
+                  div
+                    .termhead {{ $t('report.threeWayForecast.assume.overseas.thenTheyPayHeading') }}
+                    .field(v-for="(bucketLabel, i) in deliveryBucketLabels" :key="'oc' + i")
+                      .fieldlab
+                        span {{ $t(bucketLabel) }}
+                      b-input(v-model.number="form.overseas.overseasCollection[i]" type="number" step="any" size="is-small")
+                    .tw-foot(:class="overseasCollectionTotal === 100 ? 'is-good' : 'is-crit'")
+                      | {{ overseasCollectionTotal === 100 ? $t('report.threeWayForecast.assume.addsUp') : $t('report.threeWayForecast.assume.doesNotAddUp', { total: pct(overseasCollectionTotal) }) }}
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.overseas.overseasMarkup') }}
+                      b-input(
+                        v-model.number="form.overseas.overseasMarkup"
+                        type="number" step="any" size="is-small"
+                        :placeholder="String(form.markup)")
+                    .tw-foot {{ $t('report.threeWayForecast.assume.overseas.overseasMarkupHint') }}
+
           //- Buying and selling capital assets. Built from the approved drawing
           //- design/mockups/three-way-forecast-capital.html (approved 2026-09-03).
           .tw-group
@@ -693,6 +836,7 @@
  * tagged for the advisor to change. That is the drawing's own rule for depreciation
  * ("all six start on the platform defaults for you to change"), applied consistently.
  */
+import SELL_DOWN from '~/data/forecast-sell-down.json'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import VolatilityDial from '~/components/base/VolatilityDial.vue'
 import currencyMixin from '~/mixins/currencyMixin'
@@ -931,6 +1075,78 @@ export default {
 
     debtorTotal () { return this.sumOf(this.form.debtor) },
     creditorTotal () { return this.sumOf(this.form.creditor) },
+
+    /* -- buying and selling overseas (4.64) ---------------------------------------- */
+
+    /** The two profiles the overseas section adds, each validated to 100% like the rest. */
+    balanceTotal () { return this.sumOf(this.form.overseas.balancePayment) },
+    overseasCollectionTotal () { return this.sumOf(this.form.overseas.overseasCollection) },
+
+    /** The demand patterns the mentor holds, for the chooser. */
+    sellDownPatterns () { return SELL_DOWN.patterns },
+
+    /** How far ahead a deposit may be paid. It reaches NINE months, because Mike's own
+     *  Import & Retail workbook pays roughly 220 days before the first sale — capping it
+     *  at something tidier would hide the very gap this section exists to show. */
+    leadMonthOptions () { return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
+    deliveryLagOptions () { return [0, 1, 2, 3, 4] },
+
+    /** The payment buckets, counted from the month the goods LAND. */
+    landingBucketLabels () { return this.bucketLabels },
+
+    /** The collection buckets, counted from DELIVERY rather than from the invoice. */
+    deliveryBucketLabels () {
+      return [
+        'report.threeWayForecast.assume.overseas.onDelivery',
+        'report.threeWayForecast.assume.overseas.afterDeliveryOne',
+        'report.threeWayForecast.assume.overseas.afterDeliveryTwo',
+        'report.threeWayForecast.assume.overseas.afterDeliveryThree',
+        'report.threeWayForecast.assume.overseas.afterDeliveryFour'
+      ]
+    },
+
+    /** The chosen pattern's four bands, said in words rather than left as a code. */
+    patternSentence () {
+      const p = SELL_DOWN.patterns.find(x => x.name === this.form.overseas.sellDown.pattern)
+      if (!p) { return '' }
+      return this.$t('report.threeWayForecast.assume.overseas.patternSentence', {
+        name: p.name,
+        bands: p.curve.map(v => Math.round(v * 100) + '%').join(' / ')
+      })
+    },
+
+    /**
+     * Deposits whose lead time reaches back past the start of the forecast. Worked out on
+     * the screen so the advisor is told BEFORE they build, not after — the cash is already
+     * in their opening bank balance and is not counted again.
+     */
+    depositsBeforeStart () {
+      const o = this.form.overseas
+      if (!o.enabled) { return [] }
+      const lead = Number(o.depositLeadMonths) || 0
+      const out = []
+      for (let m = 0; m < 12; m++) {
+        const landed = Number(o.importedPurchases[m]) || 0
+        if (landed && m - lead < 0) {
+          out.push({
+            month: this.monthLabels[m],
+            amount: landed * (Number(o.depositPct) / 100) * (1 + Number(o.fxAllowancePct) / 100)
+          })
+        }
+      }
+      return out
+    },
+
+    /** The warning in one sentence, naming every month it applies to. */
+    earlyDepositSentence () {
+      const rows = this.depositsBeforeStart
+      if (!rows.length) { return '' }
+      const total = rows.reduce((a, r) => a + r.amount, 0)
+      return this.$t('report.threeWayForecast.assume.overseas.earlyDepositBody', {
+        amount: Math.round(total).toLocaleString(),
+        months: rows.map(r => r.month).join(', ')
+      })
+    },
     salesTotal () { return this.sumOf(this.form.sales) },
 
     /**
@@ -1241,6 +1457,40 @@ export default {
         sales: zeroes(),
         salesSource: 'entered',
         purchases: zeroes(),
+        // Buying and selling overseas (item 4.64, drawing approved by Mike 2026-09-04).
+        // Everything here is inert until `enabled` is ticked AND a figure is entered:
+        // the engine's own guard proves that an untouched forecast is unchanged to the
+        // cent. Percentages are held as whole numbers on the screen, as every other rate
+        // on this form is, and divided on the way out.
+        overseas: {
+          enabled: false,
+          importedPurchases: zeroes(),
+          depositPct: 60,
+          depositLeadMonths: 4,
+          balancePayment: [0, 100, 0, 0, 0],
+          freightPct: 12,
+          dutyPct: 5,
+          fxAllowancePct: 10,
+          readyAfterMonths: 1,
+          // The ladder and the pattern are the mentor's content, seeded from
+          // data/forecast-sell-down.json and shown so the advisor can see what is being
+          // applied to their client's stock.
+          sellDown: {
+            newMarkup: 185,
+            standardMarkup: 152,
+            runoutMarkup: 122,
+            newUpToDays: 60,
+            standardUpToDays: 90,
+            runoutUpToDays: 120,
+            pattern: 'Steady Eddy'
+          },
+          overseasSales: zeroes(),
+          deliveryLagMonths: 2,
+          overseasCollection: [0, 50, 50, 0, 0],
+          zeroRated: true,
+          salesFxAllowancePct: 10,
+          overseasMarkup: null
+        },
         // Buying and selling capital assets. A ROW LIST, not the engine's 6 x 12 grid:
         // 72 boxes of which 70 are zero is a screen an advisor scrolls past, and the two
         // that matter are lost in it. `capitalSeries()` writes the rows into that grid,
@@ -1781,6 +2031,7 @@ export default {
         sales: this.form.sales.map(v => Number(v) || 0),
         purchases: this.form.purchases.map(v => Number(v) || 0),
         markup: Number(this.form.markup) / 100,
+        overseas: this.overseasInputs(),
         directCostRates: {
           freight: Number(this.form.direct.freight) / 100,
           otherDirectExempt: Number(this.form.direct.otherDirectExempt) / 100,
@@ -1830,6 +2081,53 @@ export default {
           advances: zeroes(),
           drawings: zeroes()
         }))
+      }
+    },
+
+    /**
+     * Buying and selling overseas, in the shape the engine takes (item 4.64).
+     *
+     * The screen holds percentages as whole numbers, as every other rate on this form
+     * does; they are divided here. A forecast with the tick off sends empty series, and
+     * the engine's own guard proves that produces figures identical to a forecast that
+     * never mentioned overseas trade at all.
+     *
+     * @returns {object} the `overseas` block: series, terms, the sell-down ladder
+     */
+    overseasInputs () {
+      const o = this.form.overseas
+      const on = o.enabled === true
+      const pct = v => Number(v) / 100
+      return {
+        enabled: on,
+        // With the tick off nothing is sent, so an advisor who fills the section in and
+        // then unticks it gets today's forecast back rather than a half-applied one.
+        importedPurchases: on ? o.importedPurchases.map(v => Number(v) || 0) : zeroes(),
+        depositPct: pct(o.depositPct),
+        depositLeadMonths: Number(o.depositLeadMonths) || 0,
+        balancePayment: o.balancePayment.map(pct),
+        freightPct: pct(o.freightPct),
+        dutyPct: pct(o.dutyPct),
+        fxAllowancePct: pct(o.fxAllowancePct),
+        readyAfterMonths: Number(o.readyAfterMonths) || 0,
+        sellDown: {
+          newMarkup: pct(o.sellDown.newMarkup),
+          standardMarkup: pct(o.sellDown.standardMarkup),
+          runoutMarkup: pct(o.sellDown.runoutMarkup),
+          newUpToDays: Number(o.sellDown.newUpToDays) || 0,
+          standardUpToDays: Number(o.sellDown.standardUpToDays) || 0,
+          runoutUpToDays: Number(o.sellDown.runoutUpToDays) || 0,
+          pattern: o.sellDown.pattern
+        },
+        overseasSales: on ? o.overseasSales.map(v => Number(v) || 0) : zeroes(),
+        deliveryLagMonths: Number(o.deliveryLagMonths) || 0,
+        overseasCollection: o.overseasCollection.map(pct),
+        zeroRated: o.zeroRated !== false,
+        salesFxAllowancePct: pct(o.salesFxAllowancePct),
+        // Null follows the local mark-up, which is the ruled default.
+        overseasMarkup: o.overseasMarkup === null || o.overseasMarkup === ''
+          ? null
+          : pct(o.overseasMarkup)
       }
     },
 

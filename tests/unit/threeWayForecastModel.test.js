@@ -457,3 +457,323 @@ describe('Three-Way Forecast — the source-fidelity switch cannot be reached fr
     expect(f.corrections).toHaveLength(8)
   })
 })
+
+/**
+ * 🔴 THE GUARD FOR ITEM 4.64 — buying and selling overseas.
+ *
+ * WRITTEN BEFORE THE FEATURE, on Mike's approval of the drawing
+ * (design/mockups/three-way-forecast-international.html, approved 2026-09-04). The
+ * split adds a second sales series, a second purchase series, two more payment profiles
+ * and a sell-down price ladder, and it reaches into the GST computation — which the
+ * golden set covers cell by cell.
+ *
+ * THE PROMISE IT HOLDS THE ENGINE TO: with the tick off, nothing moves. A business that
+ * does no overseas trade must get the identical figure in every cell it gets today,
+ * whether the caller says nothing about overseas trade at all or hands over an
+ * explicitly empty block.
+ *
+ * It also PINS THE INPUT SHAPE. The block below is the contract the screen must send;
+ * its figures are the drawing's own, read out of `Import & Retail.xlsx`.
+ */
+describe('4.64 — with the tick off, the overseas split moves nothing', () => {
+  /** The shape the screen sends, with every series empty and the terms at their defaults. */
+  const EMPTY_OVERSEAS = {
+    enabled: false,
+    importedPurchases: new Array(12).fill(0),
+    depositPct: 0.6,
+    depositLeadMonths: 4,
+    balancePayment: [0, 1, 0, 0, 0],
+    freightPct: 0.12,
+    dutyPct: 0.05,
+    fxAllowancePct: 0.1,
+    sellDown: {
+      newMarkup: 1.85,
+      standardMarkup: 1.52,
+      runoutMarkup: 1.22,
+      newUpToDays: 60,
+      standardUpToDays: 90,
+      runoutUpToDays: 120,
+      pattern: 'Steady Eddy'
+    },
+    readyAfterMonths: 1,
+    overseasSales: new Array(12).fill(0),
+    deliveryLagMonths: 2,
+    overseasCollection: [0, 0.5, 0.5, 0, 0],
+    zeroRated: true,
+    salesFxAllowancePct: 0.1,
+    overseasMarkup: null
+  }
+
+  const silent = computeThreeWayForecast({})
+
+  /**
+   * THE THREE STATEMENTS — what the client is actually shown, and where any real drift
+   * would appear. The comparison deliberately excludes `schedules`, because the block
+   * ECHOES the terms it was handed (the pattern, the mark-ups, the cost ratio) and a
+   * forecast that repeats its own settings has not changed anybody's numbers. The
+   * schedules are proved separately, cell by cell, by the golden test below.
+   */
+  const statementsOf = f => JSON.stringify({
+    profitAndLoss: f.profitAndLoss,
+    balanceSheet: f.balanceSheet,
+    cashFlow: f.cashFlow
+  })
+
+  /** Every monthly series the overseas block produces, which must be flat zero. */
+  const overseasIsSilent = (f) => {
+    const os = f.schedules.overseas
+    const series = ['deposits', 'freight', 'duty', 'borderGst', 'supplierBalance',
+      'fxOnPurchases', 'importedRevenue', 'importedCostOfSales', 'overseasRevenue',
+      'overseasGst', 'overseasCollections', 'fxOnSales', 'exchangeMovement']
+    series.forEach((k) => {
+      os[k].forEach((v) => { expect(v).toBe(0) })
+    })
+    expect(os.depositsBeforeStart).toEqual([])
+    expect(os.revenueBeyondYear).toBe(0)
+  }
+
+  test('an explicitly empty overseas block is identical to saying nothing at all', () => {
+    const f = computeThreeWayForecast({ overseas: EMPTY_OVERSEAS })
+    expect(statementsOf(f)).toBe(statementsOf(silent))
+    overseasIsSilent(f)
+  })
+
+  test('the terms are ignored while both series are empty', () => {
+    // Every dial moved to something unusual, both series still zero. A forecast with no
+    // overseas trade cannot be moved by a percentage that applies to none of it.
+    const fiddled = JSON.parse(JSON.stringify(EMPTY_OVERSEAS))
+    fiddled.depositPct = 0.9
+    fiddled.depositLeadMonths = 9
+    fiddled.freightPct = 0.4
+    fiddled.dutyPct = 0.25
+    fiddled.fxAllowancePct = 0.35
+    fiddled.salesFxAllowancePct = 0.35
+    fiddled.zeroRated = false
+    fiddled.deliveryLagMonths = 4
+    fiddled.overseasMarkup = 3.2
+    fiddled.sellDown.newMarkup = 4.5
+    fiddled.sellDown.pattern = 'Slow Burn'
+    const f = computeThreeWayForecast({ overseas: fiddled })
+    expect(statementsOf(f)).toBe(statementsOf(silent))
+    overseasIsSilent(f)
+  })
+
+  test('the tick being ON with nothing entered still moves nothing', () => {
+    // Ticking the box is not the same as trading overseas. An advisor who opens the
+    // section, looks at it and enters nothing must be exactly where they started.
+    const opened = JSON.parse(JSON.stringify(EMPTY_OVERSEAS))
+    opened.enabled = true
+    const f = computeThreeWayForecast({ overseas: opened })
+    expect(statementsOf(f)).toBe(statementsOf(silent))
+    overseasIsSilent(f)
+  })
+
+  test('all 3,385 golden cells still match the workbook with the block present', () => {
+    // The golden proof itself, re-run through the new input path.
+    const asWritten = computeThreeWayForecast({ overseas: EMPTY_OVERSEAS }, { sourceFidelity: true })
+    let compared = 0
+    const failures = []
+    Object.keys(golden.rows).forEach((row) => {
+      const series = read(asWritten, SOURCE_ROWS[row])
+      golden.rows[row].months.forEach((want, m) => {
+        if (want === null) { return }
+        compared++
+        const got = series[m]
+        const ok = typeof got === 'number' && isFinite(got) &&
+          Math.abs(got - want) / Math.max(1, Math.abs(want)) < TOLERANCE
+        if (!ok) {
+          failures.push(COLUMNS[m] + row + ' (' + golden.rows[row].label + '): workbook ' + want + ', ours ' + got)
+        }
+      })
+    })
+    expect(failures).toEqual([])
+    expect(compared).toBe(3385)
+  })
+
+  /**
+   * The drawing's own worked example, whose arithmetic is printed beneath its table so it
+   * can be checked by hand. A container of 90,000 landing in September and one of 60,000
+   * landing in January: 60% deposit paid four months ahead, balance the month after
+   * landing, freight 12%, duty 5%, exchange allowance 10%, Steady Eddy.
+   *
+   * Month 0 is April, because the forecast opens 1 April.
+   */
+  const WORKED = (function () {
+    const o = JSON.parse(JSON.stringify(EMPTY_OVERSEAS))
+    o.enabled = true
+    o.importedPurchases = [0, 0, 0, 0, 0, 90000, 0, 0, 0, 60000, 0, 0]
+    return o
+  })()
+
+  describe('the worked example comes out as drawn', () => {
+    const f = computeThreeWayForecast({ overseas: WORKED })
+    const os = f.schedules.overseas
+
+    test('the deposit leaves four months before the stock lands', () => {
+      expect(os.deposits[1]).toBeCloseTo(59400, 6) // 90,000 x 60% x 1.10, in May
+      expect(os.deposits[5]).toBeCloseTo(39600, 6) // for January's container
+      expect(os.deposits[0]).toBe(0)
+    })
+
+    test('freight, duty and border GST all fall in the landing month', () => {
+      expect(os.freight[5]).toBeCloseTo(10800, 6) // 12% of 90,000
+      expect(os.duty[5]).toBeCloseTo(4500, 6) // 5% of 90,000
+      // The landed value is the exchange-adjusted stock cost plus freight and duty:
+      // (99,000 + 10,800 + 4,500) x 15% = 17,145.
+      expect(os.borderGst[5]).toBeCloseTo(17145, 6)
+      expect(os.borderGst[9]).toBeCloseTo(11430, 6)
+    })
+
+    test('the balance follows a month after landing', () => {
+      expect(os.supplierBalance[6]).toBeCloseTo(39600, 6)
+      expect(os.supplierBalance[10]).toBeCloseTo(26400, 6)
+    })
+
+    test('the stock sells DOWN the ladder, not all at the launch price', () => {
+      // Steady Eddy is 20/30/20/30. The first two bands are inside 60 days and go at the
+      // new price; the third at standard, the fourth at runout.
+      expect(os.importedRevenue[6]).toBeCloseTo(51300, 6) // 0.2 x 90,000 x 2.85
+      expect(os.importedRevenue[7]).toBeCloseTo(76950, 6) // 0.3 x 90,000 x 2.85
+      expect(os.importedRevenue[8]).toBeCloseTo(45360, 6) // 0.2 x 90,000 x 2.52
+      expect(os.importedRevenue[9]).toBeCloseTo(59940, 6) // 0.3 x 90,000 x 2.22
+
+      // 🔴 THE WHOLE POINT OF THE LADDER, and the reason Mike asked for it: September's
+      // container brings in 233,550, where pricing every unit as new claims 256,500.
+      expect(51300 + 76950 + 45360 + 59940).toBeCloseTo(233550, 6)
+      expect(90000 * 2.85).toBeCloseTo(256500, 6)
+    })
+
+    test('revenue that lands beyond the twelve months is reported, not dropped', () => {
+      // January's container only reaches its second selling month by March, so two bands
+      // fall into next year. The advisor has to know it is there.
+      expect(os.revenueBeyondYear).toBeCloseTo(70200, 6)
+    })
+
+    test('the real stock cost reaches cost of sales, not revenue over a mark-up', () => {
+      // Mike's ruling: unit costs govern imported stock. 20% of 90,000 is 18,000 of stock
+      // consumed in October, whatever it sold for.
+      expect(os.importedCostOfSales[6]).toBeCloseTo(18000, 6)
+      expect(os.importedCostOfSales[7]).toBeCloseTo(27000, 6)
+    })
+
+    test('the exchange movement is its own cost, on the stock cost', () => {
+      expect(os.fxOnPurchases[5]).toBeCloseTo(9000, 6) // 10% of 90,000
+      expect(os.fxOnPurchases[9]).toBeCloseTo(6000, 6)
+    })
+  })
+
+  describe('the five cash rows are rows of their own', () => {
+    const f = computeThreeWayForecast({ overseas: WORKED })
+    const base = computeThreeWayForecast({})
+
+    test('each is separately visible, not rolled into accounts payable', () => {
+      // The reason the section exists, in Mike's words: "the whole point of this section
+      // is to show when deposits are due, freight is paid, border gst etc - BEFORE the
+      // business can even start selling them".
+      const p = f.cashFlow.payments
+      expect(p.overseasDeposits[1]).toBeCloseTo(59400, 6)
+      expect(p.overseasFreight[5]).toBeCloseTo(10800, 6)
+      expect(p.overseasDuty[5]).toBeCloseTo(4500, 6)
+      expect(p.overseasBorderGst[5]).toBeCloseTo(17145, 6)
+      expect(p.overseasSupplierBalance[6]).toBeCloseTo(39600, 6)
+      // And none of it touched the domestic creditors ledger.
+      expect(p.accountsPayable[5]).toBeCloseTo(base.cashFlow.payments.accountsPayable[5], 6)
+    })
+
+    test('131,445 leaves the business by the end of September, on stock costing 90,000', () => {
+      // The drawing's headline figure — the working-capital hole a funding request exists
+      // to cover — and not one dollar of this stock has been sold by then.
+      const p = f.cashFlow.payments
+      let out = 0
+      for (let m = 0; m <= 5; m++) {
+        out += p.overseasDeposits[m] + p.overseasFreight[m] + p.overseasDuty[m] +
+          p.overseasBorderGst[m] + p.overseasSupplierBalance[m]
+      }
+      expect(out).toBeCloseTo(131445, 6)
+      expect(f.schedules.overseas.importedRevenue.slice(0, 6).every(v => v === 0)).toBe(true)
+    })
+  })
+
+  describe('the three statements still articulate with overseas trade on', () => {
+    /**
+     * 🔴 THE TEST THAT MATTERS MOST. Everything else here checks a figure; this checks
+     * that the figures still form a coherent set of accounts. Cash out, stock in, the
+     * exchange loss through the P&L and off the debtor, border GST paid and claimed back
+     * — get one half of any of those wrong and the balance sheet stops articulating,
+     * which no amount of eyeballing a cash-flow row would catch.
+     *
+     * The workbook's own sample does not balance (its opening position is out by 164,000,
+     * which is what the screen's out-of-balance banner exists to say). So the assertion
+     * is not that the check is zero — it is that overseas trade does not MOVE it.
+     */
+    const base = computeThreeWayForecast({})
+
+    test('the balance check is unmoved by importing and exporting', () => {
+      const both = JSON.parse(JSON.stringify(WORKED))
+      both.overseasSales = [0, 0, 0, 0, 0, 0, 0, 40000, 55000, 35000, 0, 0]
+      const f = computeThreeWayForecast({ overseas: both })
+      f.balanceSheet.months.balanceCheck.forEach((v, m) => {
+        expect(v).toBeCloseTo(base.balanceSheet.months.balanceCheck[m], 6)
+      })
+    })
+
+    test('it is also unmoved when the exports are NOT zero-rated', () => {
+      const taxed = JSON.parse(JSON.stringify(WORKED))
+      taxed.overseasSales = [0, 0, 0, 0, 0, 0, 0, 40000, 55000, 35000, 0, 0]
+      taxed.zeroRated = false
+      const f = computeThreeWayForecast({ overseas: taxed })
+      f.balanceSheet.months.balanceCheck.forEach((v, m) => {
+        expect(v).toBeCloseTo(base.balanceSheet.months.balanceCheck[m], 6)
+      })
+    })
+  })
+
+  describe('GST is right in both directions', () => {
+    const base = computeThreeWayForecast({})
+    const exporting = (function () {
+      const o = JSON.parse(JSON.stringify(EMPTY_OVERSEAS))
+      o.enabled = true
+      o.overseasSales = [0, 0, 0, 100000, 0, 0, 0, 0, 0, 0, 0, 0]
+      return o
+    })()
+
+    test('a zero-rated export raises no GST output at all', () => {
+      const f = computeThreeWayForecast({ overseas: exporting })
+      expect(f.schedules.overseas.overseasGst[3]).toBe(0)
+      // Revenue rose by 100,000 and the GST on income did not move.
+      expect(f.profitAndLoss.revenue[3] - base.profitAndLoss.revenue[3]).toBeCloseTo(100000, 6)
+      expect(f.schedules.gst.onIncome[3]).toBeCloseTo(base.schedules.gst.onIncome[3], 6)
+    })
+
+    test('untick zero-rating and the same sale is charged at the domestic rate', () => {
+      const taxed = JSON.parse(JSON.stringify(exporting))
+      taxed.zeroRated = false
+      const f = computeThreeWayForecast({ overseas: taxed })
+      expect(f.schedules.overseas.overseasGst[3]).toBeCloseTo(15000, 6)
+      expect(f.schedules.gst.onIncome[3] - base.schedules.gst.onIncome[3]).toBeCloseTo(15000, 6)
+    })
+
+    test('border GST is claimed back as an input — a timing cost, not a lost one', () => {
+      const f = computeThreeWayForecast({ overseas: WORKED })
+      expect(f.cashFlow.payments.overseasBorderGst[5]).toBeCloseTo(17145, 6)
+      expect(f.schedules.gst.inputs[5] - base.schedules.gst.inputs[5])
+        .toBeGreaterThanOrEqual(17145 - 0.000001)
+    })
+  })
+
+  describe('what the twelve months cannot show is said, not hidden', () => {
+    test('a deposit falling before the forecast starts is reported and not counted', () => {
+      // Stock landing in June (month 2) on a four-month lead was paid for in February,
+      // before a forecast opening 1 April. Mike's ruling of 2026-09-04: warn, and leave
+      // the cash out — it is already in the opening bank balance.
+      const early = JSON.parse(JSON.stringify(EMPTY_OVERSEAS))
+      early.enabled = true
+      early.importedPurchases = [0, 0, 90000, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      const os = computeThreeWayForecast({ overseas: early }).schedules.overseas
+      expect(os.depositsBeforeStart).toHaveLength(1)
+      expect(os.depositsBeforeStart[0].landsInMonth).toBe(2)
+      expect(os.depositsBeforeStart[0].amount).toBeCloseTo(59400, 6)
+      os.deposits.forEach((v) => { expect(v).toBe(0) })
+    })
+  })
+})
