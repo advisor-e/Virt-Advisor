@@ -202,8 +202,8 @@
         "detail": "2026-09-03 — \"once advisor has been involved and secured terms, we DO want them to be involved and can edit thereafter - so long as any changes are made clear they are edited by the client\". Part 2 of the request that built the stub the same day."
       },
       "touches": "A saved-report store through firmOverlay ({ firm, client, model, inputs, savedBy: { tier, name }, savedAt }), a Save on the report header, a `client` state on ProvenanceBadge, the banner and Restore on the report screens, and the client's page. Not the forecast intake files (4.61, laptop).",
-      "note": "Part 1, the stub, is built (business-entity-reports.md §4): role wiring fail-closed, /my-reports, the switch table, the header control. This is §5 of the same Brief. The client edits inputs only (D6).",
-      "comment": "2026-09-03 — filed the day the stub was built, so part 2 is not carried only in a conversation."
+      "note": "Slice 1 built (business-entity-reports.md §5): the store, five routes, the savedReport mixin, the header's Save / banner / Restore, the client badge — proven on Debtor Drag. Slice 2 wires the other ten screens; the forecast last, after 4.61. Not yet eyeballed. Wording in clientReports.saved.* proposed, not ruled.",
+      "comment": "2026-09-03 — filed the day the stub was built. Same day, desktop: slice 1 built and committed locally under a power cut; labels \"Save for client\" / \"Save my changes\" ruled by Mike."
     }
   ]
 }

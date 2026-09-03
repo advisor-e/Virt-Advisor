@@ -1,7 +1,8 @@
 # Business Entity Reports — the Brief
 
-> **Status: ☑ PART 1 (THE STUB) IS BUILT — 2026-09-03. Part 2 (saved reports) is item 4.62
-> on the live list.** Designed and approved the same day on Mike's instruction, in his words:
+> **Status: ☑ PART 1 (THE STUB) IS BUILT — 2026-09-03. Part 2 (saved reports, item 4.62) is
+> built as a seam and proven on one screen — §5; ten screens remain.** Designed and approved
+> the same day on Mike's instruction, in his words:
 >
 > > *"we have a performance report feature — these reports/models are editable and viewable at
 > > the business entity level (or at least they should be). Your job is in 2 parts. 1, make sure
@@ -115,19 +116,54 @@ closed; a client token never passes `firmAuth`), `clientReportsProxyWiring.test.
 `clientReportLibrary.component.test.js` (no link on a hidden card) and
 `clientAccessSwitch.component.test.js` (advisor only; the flip sends `{ route, state }`).
 
-## 5. Saved reports — part 2, the prerequisite for "edit thereafter"
+## 5. Saved reports — part 2, BUILT as a seam 2026-09-03 (slice 1); ten screens still to wire
 
-A **saved report** is `{ firm, client, model, inputs, savedBy: { tier, name }, savedAt }`, one
-current row per client per model plus its history, through `firmOverlay` so nothing new is
-invented for storage. The advisor saves from the report header; the client's edits save the
-same way with `tier: 'business_entity'`. The report screen loads the current row when a client
-is chosen and stamps provenance per figure: `file`, `entered`, `seeded` today, plus `client`.
+A **saved report** is one `firmOverlay` key per client per model —
+`client-report:<clientId>:<route>` — holding
+`{ inputs, savedBy: { tier, name }, savedAt, advisorVersion }`, so version history and restore
+ride the store every firm setting uses (`server/utils/savedReports.js`). `advisorVersion` is
+the advisor's **last** save, carried forward untouched through every client save. That is what
+makes D4 possible without stamping a figure at a time: a figure the client changed is one whose
+value **differs from the advisor's version** (`changedKeys`), the banner reads `savedBy`, and
+Restore writes the advisor's version back as a fresh advisor save.
 
-**Off limits while it is built:** the Three-Way Forecast intake files, active on the laptop
-under item 4.61 (`server/routes/report.js`, `threeWayForecastAssembler.js`,
-`ThreeWayForecastIntake.vue`, `xeroReportParser.js`). This feature's routes live in their own
-file, `server/routes/clientReports.js`, and the header control is a shared component, so the
-forecast picks it up without its own files changing.
+**Who may write.** An advisor of the firm, for a client the route checks belongs to it. A
+client, **only for a model the advisor has opened to it** — checked in the store against the
+switch table, not only on the screen, so a client whose access was hidden again cannot keep
+saving. A client's figures are hostile: `validateInputs` admits a flat object of finite
+numbers, booleans, short strings or number arrays under a size cap, and refuses anything else
+rather than trimming it.
+
+**Routes**, all in `server/routes/clientReports.js`: the advisor reads, saves and restores for
+a client (`GET`/`PUT /api/client-reports/saved/:clientId`, `POST …/restore`, `firmAuth`); the
+client reads and saves its own (`GET`/`PUT /api/client-reports/mine/saved`, `entityAuth`,
+identity from the token). `NOT_OPEN` is a 403; `NO_ADVISOR_VERSION` a 409.
+
+**The seam a screen adopts** is `mixins/savedReport.js`: the screen supplies `reportInputs()`
+and `applyReportInputs(inputs)`, passes `savedReport` to `ReportHeader` and listens for its
+`save`, `restore` and `client-change` events. The header renders the Save control (*Save for
+client* / *Save my changes* — labels ruled by Mike 2026-09-03), the "saved by" line, and the
+client-edited banner with *Restore my version* (D4), so no report page changes beyond those
+four attributes. `ProvenanceBadge` gained the `client` state; `SliderField` a badge slot.
+
+**Wired so far:** Debtor Business Drag only. **Not yet wired:** the other ten routed screens;
+the Three-Way Forecast last, after the laptop's 4.61 lands. Until a screen is wired, an open
+model still shows the client its sample figures, exactly as §4 says.
+
+**Wording proposed and not yet ruled** (`locales/en.json`, `clientReports.saved.*`): the
+"saved by" lines, the banner sentence, the badge word `client`, and the four failure messages.
+
+**Off limits while the rest is wired:** the Three-Way Forecast intake files, active on the
+laptop under item 4.61 (`server/routes/report.js`, `threeWayForecastAssembler.js`,
+`ThreeWayForecastIntake.vue`, `xeroReportParser.js`). None was touched.
+
+**What proves it:** `tests/unit/savedReports.test.js` (the store — refused when not open, the
+advisor version untouched by a client save, the badge list as a comparison, hostile inputs),
+`clientReports.routes.test.js` (identity from the token, 404 across firms, NOT_OPEN as 403, a
+safe 500), `savedReport.mixin.test.js` (mode from the sign-in, load on mount for a client and
+on client-pick for an advisor, the right route with the token, restore advisor-only),
+`reportHeader.component.test.js` (Save only with someone to save as; the banner and Restore
+only on a client edit, never for the client's own sign-in).
 
 ## 6. What is deliberately not in this design
 

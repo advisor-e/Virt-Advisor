@@ -47,6 +47,15 @@ the client-record list is not built because no client record screen exists; the 
 keyed by its route because the catalogue is an ES module the Node 14 backend cannot read; and
 the header control carries a client picker, because no report knew its client before.
 
+**Part 2, slice 1 — the seam, built 2026-09-03 on the desktop.** Mike: *"saved reports work"*,
+then *"yes"* to the two-slice plan and the two labels *Save for client* / *Save my changes*.
+Two choices made in the building, both recorded in the Brief §5: the advisor's version is
+carried forward through every client save so the `client` badge is a **comparison**, not a
+per-figure stamp (twelve screens hold their figures twelve ways; a stamp would have to be
+built twelve times); and the client's save is refused **in the store** against the switch
+table, so a hidden-again model cannot keep being written to from a stale screen. The session
+was cut short by a power failure; the commit says so and what was left undone.
+
 ## 3. Where the raw material is
 
 The drawing: [`../mockups/business-entity-reports.html`](../mockups/business-entity-reports.html),
