@@ -9,23 +9,27 @@
 
 ---
 
-## 2026-09-03 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-04 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Suite **7,517 green** (390 suites), lint 0 errors, production build succeeds. Two
-commits: `d507588` (slice 1 code, made under a power cut) and `460b65e` (the Brief as
-built). Pushed if the push step was approved — check `git status -sb`.
+Suite 7,532 green (396 suites) on the second run; the first run had four course-engine
+tests time out under load and all pass alone — not touched today, not filed. Started
+12 ahead / 0 behind; PR #56 merged at the start so the laptop could see yesterday's note.
 
-**4.62 saved reports — slice 1 BUILT, active on the desktop.** The seam: a per-client
-per-model store through firmOverlay, five routes in `server/routes/clientReports.js`,
-`mixins/savedReport.js`, the header's Save / client-edited banner / Restore, the
-`client` badge state. Proven on Debtor Drag only. Slice 2 wires the other ten screens,
-the forecast last. Brief §5 says how it works; wording in `clientReports.saved.*` is
-proposed, not ruled.
+**4.62 slice 2 — six of ten wired, still active on the desktop.** Margin, Working
+Capital, Eight Levers, Cost of Capital, Lease vs Buy, Multiple Property, one commit each.
+Two seam changes: `validateInputs` admits `null` as a blank (alone or in a list), and
+`components/base/ClientChangedBadge.vue` puts the client badge in a label where there is
+no SliderField slot. Multiple Property flattens its three blocks and five property
+records under dotted names with `propertyCount`, and a saved report now stops the firm
+tax-rule seed overwriting it. Brief §5 says all of this.
 
-🔴 **Not eyeballed, and cannot be on this desktop yet:** MySQL refuses the placeholder
-password, and the dev-fallback rule rightly refuses to swap a refusal for a scratch
-file. Needs `MYSQL_PASSWORD` in `.env`. Yesterday's stub eyeball is blocked the same way.
+**Next:** the four stepped or file-fed screens — Loan Estimator, Quick Position, EBITDA/DCF,
+Volatility. Each needs its confirmed seed flattened the same way plus a rule for a client
+editing a figure that came from a file. The forecast waits for 4.61.
 
-**LAPTOP:** 4.61 is still yours; none of its files were touched. `ReportHeader`,
-`SliderField` and `ProvenanceBadge` changed (additive: a `saved` prop, a badge slot,
-a `client` state). Merge master before touching the forecast's header or badges.
+🔴 Still not eyeballed: MySQL refuses the placeholder password; needs MYSQL_PASSWORD in .env.
+
+Governance: CLAUDE.md and both command files now carry the one-recommendation,
+one-yes/no rule (`f3655fb`).
+
+**LAPTOP:** 4.61 untouched. ReportHeader, SliderField, ProvenanceBadge unchanged today.
