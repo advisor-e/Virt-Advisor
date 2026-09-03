@@ -9,35 +9,23 @@
 
 ---
 
-## 2026-09-03 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-03 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Suite **7,470 green** (388 suites), lint 0 errors, every coverage threshold met.
-Five commits this session; pushed only if the push step below was approved — check
-`git status -sb` before trusting this line.
+Suite **7,517 green** (390 suites), lint 0 errors, production build succeeds. Two
+commits: `d507588` (slice 1 code, made under a power cut) and `460b65e` (the Brief as
+built). Pushed if the push step was approved — check `git status -sb`.
 
-**Merged master** (was 46 behind). Both machines had built item 4.54 in the same week;
-Mike ruled to keep master's, PR #55 closed. What PR #55 had beyond it is in merge
-commit `f503e70` for a later decision.
+**4.62 saved reports — slice 1 BUILT, active on the desktop.** The seam: a per-client
+per-model store through firmOverlay, five routes in `server/routes/clientReports.js`,
+`mixins/savedReport.js`, the header's Save / client-edited banner / Restore, the
+`client` badge state. Proven on Debtor Drag only. Slice 2 wires the other ten screens,
+the forecast last. Brief §5 says how it works; wording in `clientReports.saved.*` is
+proposed, not ruled.
 
-**The list is readable again** (Mike: *"thrown out the window"*): six items cut to word
-caps the guard test now enforces; `rankedByMike: false` on the four items he never
-ranked; `activeOn: { machine, since }` and an "Active on" column on page and control;
-`npm run check:branch` prints an ACTIVE ITEMS box (the other machine's items are off
-limits, a stale claim on this machine is flagged).
+🔴 **Not eyeballed, and cannot be on this desktop yet:** MySQL refuses the placeholder
+password, and the dev-fallback rule rightly refuses to swap a refusal for a scratch
+file. Needs `MYSQL_PASSWORD` in `.env`. Yesterday's stub eyeball is blocked the same way.
 
-**Hooks changed**: pre-commit is `scripts/quick-gate.js` (staged-file lint + related
-tests, seconds); the full gate moved to pre-push (~9 min, once). Commit from
-PowerShell, never the Bash tool — its sandbox throttles Node file I/O to nothing.
-
-**Business Entity Reports**: designed, six rulings, screens approved, **stub BUILT**
-(`design/features/business-entity-reports.md` §4): client sign-in fail-closed until the
-master team supplies a role value (dev token `dev-local-entity`), `/my-reports`, the
-"Client access" switch on every report header. 🔴 **Not yet eyeballed by Mike** — a
-production build, signed in as the dev client. Part 2 (saved reports) is **4.62**, not
-started, no `activeOn`.
-
-**LAPTOP:** 4.61 is yours and marked active; the desktop touched none of its files.
-`firmAuth` gained `entityAuth` and now REFUSES a business-entity token by name — merge
-master before touching auth. The Handbook is republished by both machines at startup and
-the tool refuses the second publisher; it shows whichever branch published last until
-both meet on master.
+**LAPTOP:** 4.61 is still yours; none of its files were touched. `ReportHeader`,
+`SliderField` and `ProvenanceBadge` changed (additive: a `saved` prop, a badge slot,
+a `client` state). Merge master before touching the forecast's header or badges.
