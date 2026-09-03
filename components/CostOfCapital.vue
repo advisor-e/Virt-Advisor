@@ -5,6 +5,10 @@
     :eyebrow="$t('report.eyebrow')"
     :title="$t('report.costOfCapital.title')"
     :client="$t('report.preparedFor')"
+    :saved="savedReport"
+    @save="saveReport"
+    @restore="restoreReport"
+    @client-change="onReportClient"
   )
   //- Decision class: seeded with the workbook sample until the advisor types the
   //- client's own figures. No "Illustrative" badge — these become real numbers.
@@ -54,14 +58,20 @@
       .coc-card
         h2 {{ $t('report.costOfCapital.market.title') }}
         .coc-field
-          label {{ $t('report.costOfCapital.market.riskFree') }}
+          label
+            | {{ $t('report.costOfCapital.market.riskFree') }}
+            client-changed-badge(v-if="isClientChanged('riskFreeRatePct')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="form.riskFreeRatePct" type="number" step="any" size="is-small")
         .coc-field
-          label {{ $t('report.costOfCapital.market.marketReturn') }}
+          label
+            | {{ $t('report.costOfCapital.market.marketReturn') }}
+            client-changed-badge(v-if="isClientChanged('marketRatePct')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="form.marketRatePct" type="number" step="any" size="is-small")
         .coc-field
           .coc-labels
-            label {{ $t('report.costOfCapital.market.beta') }}
+            label
+              | {{ $t('report.costOfCapital.market.beta') }}
+              client-changed-badge(v-if="isClientChanged('beta')" :label="$t('clientReports.saved.badge')")
             p.coc-help {{ $t('report.costOfCapital.market.betaHelp') }}
             //- Provenance: shown only while the figure IS the adopted one. Typing over
             //- it clears the note, so it can never credit a suggestion for a number the
@@ -72,19 +82,27 @@
       .coc-card
         h2 {{ $t('report.costOfCapital.company.title') }}
         .coc-field
-          label {{ $t('report.costOfCapital.company.tax') }}
+          label
+            | {{ $t('report.costOfCapital.company.tax') }}
+            client-changed-badge(v-if="isClientChanged('taxRatePct')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="form.taxRatePct" type="number" step="any" size="is-small")
 
       .coc-card
         h2 {{ $t('report.costOfCapital.funding.title') }}
         .coc-field
-          label {{ $t('report.costOfCapital.funding.equity') }}
+          label
+            | {{ $t('report.costOfCapital.funding.equity') }}
+            client-changed-badge(v-if="isClientChanged('equity')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="form.equity" type="number" step="any" size="is-small")
         .coc-field
-          label {{ $t('report.costOfCapital.funding.debt') }}
+          label
+            | {{ $t('report.costOfCapital.funding.debt') }}
+            client-changed-badge(v-if="isClientChanged('debt')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="form.debt" type="number" step="any" size="is-small")
         .coc-field
-          label {{ $t('report.costOfCapital.funding.borrowRate') }}
+          label
+            | {{ $t('report.costOfCapital.funding.borrowRate') }}
+            client-changed-badge(v-if="isClientChanged('borrowRatePct')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="form.borrowRatePct" type="number" step="any" size="is-small")
 
       //- The hurdle test. Both fields start EMPTY, not seeded from the sample: the
@@ -93,7 +111,9 @@
       .coc-card
         h2 {{ $t('report.costOfCapital.hurdle.title') }}
         .coc-field
-          label {{ $t('report.costOfCapital.hurdle.investmentCost') }}
+          label
+            | {{ $t('report.costOfCapital.hurdle.investmentCost') }}
+            client-changed-badge(v-if="isClientChanged('investmentCost')" :label="$t('clientReports.saved.badge')")
           b-input(
             :value="form.investmentCost"
             type="number"
@@ -102,7 +122,9 @@
             @input="v => onMoneyInput('investmentCost', v)"
           )
         .coc-field
-          label {{ $t('report.costOfCapital.hurdle.annualReturn') }}
+          label
+            | {{ $t('report.costOfCapital.hurdle.annualReturn') }}
+            client-changed-badge(v-if="isClientChanged('annualReturn')" :label="$t('clientReports.saved.badge')")
           b-input(
             :value="form.annualReturn"
             type="number"
@@ -198,9 +220,16 @@
               thead
                 tr
                   th {{ $t('report.costOfCapital.helper.period') }}
-                  th {{ $t('report.costOfCapital.helper.indexValue') }}
-                  th {{ $t('report.costOfCapital.helper.shareholdersEquity') }}
-                  th {{ $t('report.costOfCapital.helper.sharesIssued') }}
+                  //- A series is one figure to the saved row: the badge marks the column.
+                  th
+                    | {{ $t('report.costOfCapital.helper.indexValue') }}
+                    client-changed-badge(v-if="isClientChanged('indexValues')" :label="$t('clientReports.saved.badge')")
+                  th
+                    | {{ $t('report.costOfCapital.helper.shareholdersEquity') }}
+                    client-changed-badge(v-if="isClientChanged('equityValues')" :label="$t('clientReports.saved.badge')")
+                  th
+                    | {{ $t('report.costOfCapital.helper.sharesIssued') }}
+                    client-changed-badge(v-if="isClientChanged('sharesIssued')" :label="$t('clientReports.saved.badge')")
               tbody
                 tr(v-for="i in periods" :key="'period-' + i")
                   td.coc-series-n {{ i + 1 }}
@@ -265,8 +294,10 @@ import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import StaleBanner from '~/components/base/StaleBanner'
 import SampleNotice from '~/components/base/SampleNotice.vue'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
+import savedReport from '~/mixins/savedReport'
 
 /**
  * CostOfCapital — the Cost of Capital (WACC) model screen (Valuation · Decision class).
@@ -318,9 +349,9 @@ const VERDICT_TONE = {
 export default {
   name: 'CostOfCapital',
 
-  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice },
+  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice, ClientChangedBadge },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportRecompute, savedReport],
 
   data () {
     return {
@@ -550,6 +581,43 @@ export default {
       const n = Number(raw)
       const blank = (raw === '' || raw === null || raw === undefined || !Number.isFinite(n))
       this.form[key] = blank ? null : n
+    },
+
+    /**
+     * The figures saved per client — consumed by the savedReport mixin. The form is the
+     * whole of this screen's inputs, in display units; a blank hurdle figure and a blank
+     * month in a series are saved as `null`, never as 0.
+     * @returns {object}
+     */
+    reportInputs () {
+      const out = {}
+      Object.keys(this.form).forEach((k) => {
+        const v = this.form[k]
+        out[k] = Array.isArray(v) ? v.slice() : v
+      })
+      return out
+    },
+    /**
+     * Load a saved set back — consumed by the savedReport mixin. Only the keys this
+     * screen knows, and only in their own shape: a number where the form holds a number,
+     * a number or a blank for the two hurdle figures, and a twelve-long list of numbers
+     * or blanks for a series. Recompute follows from the deep watcher on `form`.
+     * @param {object} inputs
+     */
+    applyReportInputs (inputs) {
+      if (!inputs || typeof inputs !== 'object') { return }
+      const next = Object.assign({}, this.form)
+      const isBlankable = k => k === 'investmentCost' || k === 'annualReturn'
+      const isFigure = v => typeof v === 'number' && Number.isFinite(v)
+      Object.keys(next).forEach((k) => {
+        const v = inputs[k]
+        if (Array.isArray(next[k])) {
+          if (Array.isArray(v) && v.length === next[k].length && v.every(x => x === null || isFigure(x))) { next[k] = v.slice() }
+        } else if (isFigure(v) || (isBlankable(k) && v === null)) {
+          next[k] = v
+        }
+      })
+      this.form = next
     },
 
     /**

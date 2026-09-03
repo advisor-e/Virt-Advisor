@@ -22,6 +22,10 @@ screen is work we do twice.
 product works *now* — when something changes, replace the old sentence rather than adding
 a new one beneath it.
 
+**Every decision point is one recommendation and one yes/no question** (Mike's ruling,
+2026-09-04). Say what you recommend, say why, ask one question a bare yes or no answers.
+Never two options. No exceptions.
+
 ---
 
 **The LIVE-APP / repo-change rule in `CLAUDE.md` still applies throughout.** Steps 1, 2 and

@@ -70,9 +70,13 @@ function configKey (clientId, route) {
 
 function isFiniteNumber (v) { return typeof v === 'number' && Number.isFinite(v) }
 
+/** A figure, or a blank: a control the advisor has not filled holds `null`, never 0. */
+function isFigureOrBlank (v) { return v === null || isFiniteNumber(v) }
+
 /**
  * Admit only what a report's controls can produce. Returns a fresh copy so a caller
- * cannot smuggle a prototype or a getter through.
+ * cannot smuggle a prototype or a getter through. `null` is admitted as a blank, alone
+ * or inside a list — an optional figure not yet typed, or an empty month in a series.
  * @param {*} inputs
  * @returns {object}
  * @throws {Error} err.code 'BAD_INPUTS'
@@ -89,14 +93,14 @@ function validateInputs (inputs) {
   keys.forEach((k) => {
     if (!KEY_SHAPE.test(k)) { throw fail('BAD_INPUTS', `"${k}" is not a figure name.`) }
     const v = inputs[k]
-    if (isFiniteNumber(v) || typeof v === 'boolean') { out[k] = v; return }
+    if (isFigureOrBlank(v) || typeof v === 'boolean') { out[k] = v; return }
     if (typeof v === 'string') {
       if (v.length > MAX_STRING) { throw fail('BAD_INPUTS', `"${k}" is too long.`) }
       out[k] = v; return
     }
     if (Array.isArray(v)) {
-      if (v.length > MAX_ARRAY || !v.every(isFiniteNumber)) {
-        throw fail('BAD_INPUTS', `"${k}" must be a list of up to ${MAX_ARRAY} numbers.`)
+      if (v.length > MAX_ARRAY || !v.every(isFigureOrBlank)) {
+        throw fail('BAD_INPUTS', `"${k}" must be a list of up to ${MAX_ARRAY} numbers or blanks.`)
       }
       out[k] = v.slice(); return
     }

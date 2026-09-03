@@ -6,6 +6,10 @@
     :eyebrow="$t('report.eyebrow')"
     :title="$t('report.multipleProperty.title')"
     :client="$t('report.preparedFor')"
+    :saved="savedReport"
+    @save="saveReport"
+    @restore="restoreReport"
+    @client-change="onReportClient"
   )
   //- The Phase 1 scope line ("Property 1 of 5 · the remaining four arrive in the next
   //- release") is GONE — build step P2-5. It was written to be deleted the day the other
@@ -57,16 +61,24 @@
       .mpa-card
         h2 {{ $t('report.multipleProperty.household.title') }}
         .mpa-field
-          label {{ $t('report.multipleProperty.household.residenceValue') }}
+          label
+            | {{ $t('report.multipleProperty.household.residenceValue') }}
+            client-changed-badge(v-if="isClientChanged('household.residenceValue')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="household.residenceValue" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.household.homeMortgage') }}
+          label
+            | {{ $t('report.multipleProperty.household.homeMortgage') }}
+            client-changed-badge(v-if="isClientChanged('household.homeMortgage')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="household.homeMortgage" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.household.totalSavings') }}
+          label
+            | {{ $t('report.multipleProperty.household.totalSavings') }}
+            client-changed-badge(v-if="isClientChanged('household.totalSavings')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="household.totalSavings" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.household.residenceShare') }}
+          label
+            | {{ $t('report.multipleProperty.household.residenceShare') }}
+            client-changed-badge(v-if="isClientChanged('household.residenceSharePct')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="household.residenceSharePct" type="number" step="any" size="is-small")
         //- Resolved by the tier cascade, never typed here (§8 Q10, §8 Q6's mechanism).
         //- Shown so the reader knows what the ratios are judged against — or that
@@ -111,39 +123,55 @@
           | {{ $t('report.multipleProperty.tax.title') }}
           span.mpa-h2sub {{ $t('report.multipleProperty.tax.sub') }}
         .mpa-field
-          label {{ $t('report.multipleProperty.tax.addBack') }}
+          label
+            | {{ $t('report.multipleProperty.tax.addBack') }}
+            client-changed-badge(v-if="isClientChanged('taxRules.yearOneAddBack')" :label="$t('clientReports.saved.badge')")
           b-select(v-model="taxRules.yearOneAddBack" size="is-small")
             option(value="setup") {{ $t('report.multipleProperty.tax.addBackSetup') }}
             option(value="setupAndPurchase") {{ $t('report.multipleProperty.tax.addBackSetupAndPurchase') }}
             option(value="none") {{ $t('report.multipleProperty.tax.addBackNone') }}
         .mpa-field
-          label {{ $t('report.multipleProperty.tax.gst') }}
+          label
+            | {{ $t('report.multipleProperty.tax.gst') }}
+            client-changed-badge(v-if="isClientChanged('taxRules.managementFeeGstPct')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="taxRules.managementFeeGstPct" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.tax.depreciable') }}
+          label
+            | {{ $t('report.multipleProperty.tax.depreciable') }}
+            client-changed-badge(v-if="isClientChanged('taxRules.depreciableAssets')" :label="$t('clientReports.saved.badge')")
           b-select(v-model="taxRules.depreciableAssets" size="is-small")
             option(value="chattels") {{ $t('report.multipleProperty.tax.depreciableChattels') }}
             option(value="chattelsAndBuilding") {{ $t('report.multipleProperty.tax.depreciableChattelsAndBuilding') }}
         .mpa-field
-          label {{ $t('report.multipleProperty.tax.method') }}
+          label
+            | {{ $t('report.multipleProperty.tax.method') }}
+            client-changed-badge(v-if="isClientChanged('taxRules.depreciationMethod')" :label="$t('clientReports.saved.badge')")
           b-select(v-model="taxRules.depreciationMethod" size="is-small")
             option(value="dv") {{ $t('report.multipleProperty.tax.methodDv') }}
             option(value="sl") {{ $t('report.multipleProperty.tax.methodSl') }}
         .mpa-field
-          label {{ $t('report.multipleProperty.tax.rateChattels') }}
+          label
+            | {{ $t('report.multipleProperty.tax.rateChattels') }}
+            client-changed-badge(v-if="isClientChanged('taxRules.depreciationRateChattelsPct')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="taxRules.depreciationRateChattelsPct" type="number" step="any" size="is-small")
         //- Ruled: a building rate appears only where the building may be depreciated
         //- (§8 Q5d). There is no honest default for it — it differs by country.
         .mpa-field(v-if="taxRules.depreciableAssets === 'chattelsAndBuilding'")
-          label {{ $t('report.multipleProperty.tax.rateBuilding') }}
+          label
+            | {{ $t('report.multipleProperty.tax.rateBuilding') }}
+            client-changed-badge(v-if="isClientChanged('taxRules.buildingDepreciationRatePct')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="taxRules.buildingDepreciationRatePct" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.tax.losses') }}
+          label
+            | {{ $t('report.multipleProperty.tax.losses') }}
+            client-changed-badge(v-if="isClientChanged('taxRules.lossTreatment')" :label="$t('clientReports.saved.badge')")
           b-select(v-model="taxRules.lossTreatment" size="is-small")
             option(value="ringFenced") {{ $t('report.multipleProperty.tax.lossesRingFenced') }}
             option(value="offset") {{ $t('report.multipleProperty.tax.lossesOffset') }}
         .mpa-field
-          label {{ $t('report.multipleProperty.tax.deductibility') }}
+          label
+            | {{ $t('report.multipleProperty.tax.deductibility') }}
+            client-changed-badge(v-if="isClientChanged('taxRules.interestDeductibility')" :label="$t('clientReports.saved.badge')")
           b-select(v-model="taxRules.interestDeductibility" size="is-small")
             option(value="Yes") {{ $t('report.multipleProperty.tax.deductibilityYes') }}
             option(value="No") {{ $t('report.multipleProperty.tax.deductibilityNo') }}
@@ -157,7 +185,9 @@
           | {{ showPhasing ? '▾' : '▸' }} {{ $t('report.multipleProperty.tax.phasingToggle', { summary: phasingSummary }) }}
         template(v-if="showPhasing && taxRules.interestDeductibility === 'Phasing'")
           .mpa-field(v-for="(v, i) in taxRules.phasingPct" :key="'ph' + i")
-            label {{ $t('report.multipleProperty.tax.phasingYear', { year: i + 1 }) }}
+            label
+              | {{ $t('report.multipleProperty.tax.phasingYear', { year: i + 1 }) }}
+              client-changed-badge(v-if="isClientChanged('taxRules.phasingPct')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="taxRules.phasingPct[i]" type="number" step="any" size="is-small")
         p.mpa-note {{ $t('report.multipleProperty.tax.note') }}
 
@@ -165,19 +195,29 @@
       .mpa-card
         h2 {{ cardTitle('property') }}
         .mpa-field
-          label {{ $t('report.multipleProperty.property.address') }}
+          label
+            | {{ $t('report.multipleProperty.property.address') }}
+            client-changed-badge(v-if="isClientChanged(propKey('address'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model="sel.address" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.property.purchasePrice') }}
+          label
+            | {{ $t('report.multipleProperty.property.purchasePrice') }}
+            client-changed-badge(v-if="isClientChanged(propKey('purchasePrice'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.purchasePrice" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.property.land') }}
+          label
+            | {{ $t('report.multipleProperty.property.land') }}
+            client-changed-badge(v-if="isClientChanged(propKey('land'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.land" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.property.building') }}
+          label
+            | {{ $t('report.multipleProperty.property.building') }}
+            client-changed-badge(v-if="isClientChanged(propKey('building'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.building" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.property.chattels') }}
+          label
+            | {{ $t('report.multipleProperty.property.chattels') }}
+            client-changed-badge(v-if="isClientChanged(propKey('chattels'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.chattels" type="number" step="any" size="is-small")
         //- The workbook checks this itself (INPUTS G32, expected 0). A split that does
         //- not reconcile is stated, never silently absorbed into the maths.
@@ -186,62 +226,94 @@
           | ? $t('report.multipleProperty.property.reconciles')
           | : $t('report.multipleProperty.property.doesNotReconcile', { amount: money(selResult.purchasePriceSplit.difference) }) }}
         .mpa-field
-          label {{ $t('report.multipleProperty.property.rentPerWeek') }}
+          label
+            | {{ $t('report.multipleProperty.property.rentPerWeek') }}
+            client-changed-badge(v-if="isClientChanged(propKey('rentPerWeek'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.rentPerWeek" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.property.vacancy') }}
+          label
+            | {{ $t('report.multipleProperty.property.vacancy') }}
+            client-changed-badge(v-if="isClientChanged(propKey('vacancyWeeks'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.vacancyWeeks" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.property.taxRate') }}
+          label
+            | {{ $t('report.multipleProperty.property.taxRate') }}
+            client-changed-badge(v-if="isClientChanged(propKey('taxRatePct'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.taxRatePct" type="number" step="any" size="is-small")
 
       .mpa-card
         h2 {{ cardTitle('costs') }}
         .mpa-field
-          label {{ $t('report.multipleProperty.costs.accounting') }}
+          label
+            | {{ $t('report.multipleProperty.costs.accounting') }}
+            client-changed-badge(v-if="isClientChanged(propKey('accountingFees'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.accountingFees" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.costs.managementFee') }}
+          label
+            | {{ $t('report.multipleProperty.costs.managementFee') }}
+            client-changed-badge(v-if="isClientChanged(propKey('managementFeePct'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.managementFeePct" type="number" step="any" size="is-small")
         //- The visible half of §6 rule 10: the fee no longer says "(plus GST)" and leaves
         //- the reader to guess. 7.5% with 15% GST is charged at 8.625%, and the model
         //- returns that figure precisely so the screen can show it.
         p.mpa-help(v-if="selResult") {{ $t('report.multipleProperty.costs.effectiveFee', { rate: pct(selResult.taxRules.effectiveManagementFeePct, 3) }) }}
         .mpa-field
-          label {{ $t('report.multipleProperty.costs.insurance') }}
+          label
+            | {{ $t('report.multipleProperty.costs.insurance') }}
+            client-changed-badge(v-if="isClientChanged(propKey('insurance'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.insurance" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.costs.rates') }}
+          label
+            | {{ $t('report.multipleProperty.costs.rates') }}
+            client-changed-badge(v-if="isClientChanged(propKey('rates'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.rates" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.costs.bodyCorp') }}
+          label
+            | {{ $t('report.multipleProperty.costs.bodyCorp') }}
+            client-changed-badge(v-if="isClientChanged(propKey('bodyCorp'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.bodyCorp" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.costs.repairs') }}
+          label
+            | {{ $t('report.multipleProperty.costs.repairs') }}
+            client-changed-badge(v-if="isClientChanged(propKey('repairs'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.repairs" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.costs.other') }}
+          label
+            | {{ $t('report.multipleProperty.costs.other') }}
+            client-changed-badge(v-if="isClientChanged(propKey('other'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.other" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.costs.purchaseCosts') }}
+          label
+            | {{ $t('report.multipleProperty.costs.purchaseCosts') }}
+            client-changed-badge(v-if="isClientChanged(propKey('purchaseCosts'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.purchaseCosts" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.costs.setupCosts') }}
+          label
+            | {{ $t('report.multipleProperty.costs.setupCosts') }}
+            client-changed-badge(v-if="isClientChanged(propKey('setupCosts'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.setupCosts" type="number" step="any" size="is-small")
 
       .mpa-card
         h2 {{ cardTitle('assumptions') }}
         .mpa-field
-          label {{ $t('report.multipleProperty.assumptions.rentalGrowth') }}
+          label
+            | {{ $t('report.multipleProperty.assumptions.rentalGrowth') }}
+            client-changed-badge(v-if="isClientChanged(propKey('rentalGrowthPct'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.rentalGrowthPct" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.assumptions.capitalGrowth') }}
+          label
+            | {{ $t('report.multipleProperty.assumptions.capitalGrowth') }}
+            client-changed-badge(v-if="isClientChanged(propKey('capitalGrowthPct'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.capitalGrowthPct" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.assumptions.expenseInflation') }}
+          label
+            | {{ $t('report.multipleProperty.assumptions.expenseInflation') }}
+            client-changed-badge(v-if="isClientChanged(propKey('expenseInflationPct'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.expenseInflationPct" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.assumptions.interestRateInflation') }}
+          label
+            | {{ $t('report.multipleProperty.assumptions.interestRateInflation') }}
+            client-changed-badge(v-if="isClientChanged(propKey('interestRateInflationPct'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.interestRateInflationPct" type="number" step="any" size="is-small")
         p.mpa-note {{ $t('report.multipleProperty.assumptions.note') }}
 
@@ -253,7 +325,9 @@
         //- of their cash goes into each property. Blank means "take what is left of the
         //- pool, in order" — which is what the table did before there was a choice.
         .mpa-field
-          label {{ $t('report.multipleProperty.funding.depositApplied') }}
+          label
+            | {{ $t('report.multipleProperty.funding.depositApplied') }}
+            client-changed-badge(v-if="isClientChanged(propKey('depositApplied'))" :label="$t('clientReports.saved.badge')")
           b-input(
             v-model="sel.depositApplied"
             :placeholder="selSlot ? num(selSlot.depositApplied, 0) : ''"
@@ -267,33 +341,47 @@
           label {{ $t('report.multipleProperty.funding.required') }}
           span.mpa-derived {{ selSlot ? num(selSlot.loanApportioned, 0) : '—' }}
         .mpa-field
-          label {{ $t('report.multipleProperty.funding.interestOnly') }}
+          label
+            | {{ $t('report.multipleProperty.funding.interestOnly') }}
+            client-changed-badge(v-if="isClientChanged(propKey('interestOnlyLoan'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.interestOnlyLoan" type="number" step="any" size="is-small")
         //- Derived, never typed: INPUTS E69 = E65 − E68.
         .mpa-field
           label {{ $t('report.multipleProperty.funding.principalAndInterest') }}
           span.mpa-derived {{ selResult ? num(selResult.loans.principalAndInterest.openingBalance[0], 0) : '—' }}
         .mpa-field
-          label {{ $t('report.multipleProperty.funding.ioTerm') }}
+          label
+            | {{ $t('report.multipleProperty.funding.ioTerm') }}
+            client-changed-badge(v-if="isClientChanged(propKey('interestOnlyTermYears'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.interestOnlyTermYears" type="number" step="any" size="is-small")
         //- §6 rule 9, ruled by Mike: the advisor chooses what happens when the
         //- interest-only period ends, because the client decides it, not the model.
         .mpa-field.mpa-field-wide
-          label {{ $t('report.multipleProperty.funding.ending') }}
+          label
+            | {{ $t('report.multipleProperty.funding.ending') }}
+            client-changed-badge(v-if="isClientChanged(propKey('endOfInterestOnly'))" :label="$t('clientReports.saved.badge')")
           b-select(v-model="sel.endOfInterestOnly" size="is-small")
             option(value="convert") {{ $t('report.multipleProperty.funding.endingConvert') }}
             option(value="repay") {{ $t('report.multipleProperty.funding.endingRepay') }}
         .mpa-field
-          label {{ $t('report.multipleProperty.funding.ioTotalTerm') }}
+          label
+            | {{ $t('report.multipleProperty.funding.ioTotalTerm') }}
+            client-changed-badge(v-if="isClientChanged(propKey('interestOnlyTotalTermYears'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.interestOnlyTotalTermYears" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.funding.piTerm') }}
+          label
+            | {{ $t('report.multipleProperty.funding.piTerm') }}
+            client-changed-badge(v-if="isClientChanged(propKey('piTermYears'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.piTermYears" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.funding.ioRate') }}
+          label
+            | {{ $t('report.multipleProperty.funding.ioRate') }}
+            client-changed-badge(v-if="isClientChanged(propKey('interestOnlyRatePct'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.interestOnlyRatePct" type="number" step="any" size="is-small")
         .mpa-field
-          label {{ $t('report.multipleProperty.funding.piRate') }}
+          label
+            | {{ $t('report.multipleProperty.funding.piRate') }}
+            client-changed-badge(v-if="isClientChanged(propKey('piRatePct'))" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="sel.piRatePct" type="number" step="any" size="is-small")
         p.mpa-note {{ $t('report.multipleProperty.funding.readOnlyNote') }}
 
@@ -489,11 +577,33 @@ import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import StaleBanner from '~/components/base/StaleBanner'
 import SampleNotice from '~/components/base/SampleNotice.vue'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
+import savedReport from '~/mixins/savedReport'
 
 /** The most properties the model takes — `MAX_PROPERTIES` in the maths module. */
 const MAX_PROPERTIES = 5
+
+/**
+ * The saved row (item 4.62, Brief §5) is flat, and this screen is not: a household
+ * block, a tax-rules block and up to five property records. Each field is saved under a
+ * dotted name — `household.homeMortgage`, `taxRules.phasingPct`, `p2.rentPerWeek` — with
+ * `propertyCount` so a saved portfolio of three loads as three. Every field is taken back
+ * only in its own shape: a select only from its own codes, a blank (`''` on screen) only
+ * where the screen allows one, an address as short text, everything else a finite number.
+ */
+const CHOICES = {
+  'taxRules.yearOneAddBack': ['setup', 'setupAndPurchase', 'none'],
+  'taxRules.depreciableAssets': ['chattels', 'chattelsAndBuilding'],
+  'taxRules.depreciationMethod': ['dv', 'sl'],
+  'taxRules.lossTreatment': ['ringFenced', 'offset'],
+  'taxRules.interestDeductibility': ['Yes', 'No', 'Phasing'],
+  'p.endOfInterestOnly': ['convert', 'repay']
+}
+const BLANKABLE = ['household.maxLvrPct', 'p.depositApplied']
+const TEXT = ['p.address']
+const MAX_TEXT = 200
 
 /**
  * The workbook's own sample for ONE property, rates in display form (7.5, not 0.075).
@@ -636,9 +746,9 @@ function sampleProperties () {
 export default {
   name: 'MultiplePropertyAssessment',
 
-  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice },
+  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice, ClientChangedBadge },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportRecompute, savedReport],
 
   data () {
     return {
@@ -666,6 +776,9 @@ export default {
       properties: sampleProperties(),
       selected: 0,
       showPhasing: false,
+      // Once a saved report has been applied, the firm's tax-rule seed (which arrives
+      // later, asynchronously) must not overwrite the rules the advisor chose for this client.
+      savedRulesApplied: false,
       data: null
       // `error` (stale flag) is provided by the reportRecompute mixin.
     }
@@ -1214,6 +1327,7 @@ export default {
      * @param {object} rules
      */
     applyTaxRuleDefaults (rules) {
+      if (this.savedRulesApplied) { return }
       const pct = v => Math.round(Number(v || 0) * 1000000) / 10000 //  0.08625 → 8.625
       const r = this.taxRules
       if (rules.yearOneAddBack) { r.yearOneAddBack = rules.yearOneAddBack }
@@ -1228,6 +1342,78 @@ export default {
       if (rules.maxLvr !== undefined && rules.maxLvr !== null) {
         this.household.maxLvrPct = pct(rules.maxLvr)
       }
+    },
+
+    /** The saved-row name of the open property's field, for its badge. @param {string} k */
+    propKey (k) {
+      return 'p' + (this.selected + 1) + '.' + k
+    },
+
+    /**
+     * The figures saved per client — consumed by the savedReport mixin. The three
+     * blocks flattened under dotted names (see CHOICES above), in display units; a blank
+     * box is saved as `null`, never as 0 or ''.
+     * @returns {object}
+     */
+    reportInputs () {
+      const out = {}
+      const put = (name, v) => { out[name] = v === '' ? null : v }
+      Object.keys(this.household).forEach((k) => { put('household.' + k, this.household[k]) })
+      Object.keys(this.taxRules).forEach((k) => {
+        put('taxRules.' + k, Array.isArray(this.taxRules[k]) ? this.taxRules[k].slice() : this.taxRules[k])
+      })
+      out.propertyCount = this.properties.length
+      this.properties.forEach((p, i) => {
+        Object.keys(p).forEach((k) => { put('p' + (i + 1) + '.' + k, p[k]) })
+      })
+      return out
+    },
+
+    /**
+     * Load a saved set back — consumed by the savedReport mixin. Only the names this
+     * screen knows, each in its own shape; a property count outside 1..5 keeps the
+     * portfolio as it is. Marks the saved rules applied so the firm seed cannot undo
+     * them. Recompute follows from the deep watchers.
+     * @param {object} inputs
+     */
+    applyReportInputs (inputs) {
+      if (!inputs || typeof inputs !== 'object') { return }
+      const isFigure = v => typeof v === 'number' && Number.isFinite(v)
+      // `name` is the saved-row name; `shape` the generic one ('p.x' for any property).
+      const take = (name, shape, current, v) => {
+        if (CHOICES[shape]) { return CHOICES[shape].includes(v) ? v : current }
+        if (TEXT.includes(shape)) { return typeof v === 'string' && v.length <= MAX_TEXT ? v : current }
+        if (Array.isArray(current)) {
+          return Array.isArray(v) && v.length === current.length && v.every(isFigure) ? v.slice() : current
+        }
+        if (isFigure(v)) { return v }
+        if (v === null && BLANKABLE.includes(shape)) { return '' }
+        return current
+      }
+      const household = Object.assign({}, this.household)
+      Object.keys(household).forEach((k) => {
+        household[k] = take('household.' + k, 'household.' + k, household[k], inputs['household.' + k])
+      })
+      const taxRules = Object.assign({}, this.taxRules)
+      Object.keys(taxRules).forEach((k) => {
+        taxRules[k] = take('taxRules.' + k, 'taxRules.' + k, taxRules[k], inputs['taxRules.' + k])
+      })
+      const n = inputs.propertyCount
+      const count = isFigure(n) && n >= 1 && n <= MAX_PROPERTIES && n === Math.floor(n) ? n : this.properties.length
+      const properties = []
+      for (let i = 0; i < count; i++) {
+        const p = Object.assign({}, this.properties[i] || samplePropertyBase())
+        Object.keys(p).forEach((k) => {
+          const name = 'p' + (i + 1) + '.' + k
+          p[k] = take(name, 'p.' + k, p[k], inputs[name])
+        })
+        properties.push(p)
+      }
+      this.household = household
+      this.taxRules = taxRules
+      this.properties = properties
+      if (this.selected >= count) { this.selected = count - 1 }
+      this.savedRulesApplied = true
     },
 
     /**
