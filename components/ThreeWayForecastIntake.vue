@@ -329,6 +329,74 @@
                 span.lbl {{ label }}
                 b-input(v-model.number="form.purchases[i]" type="number" step="any" size="is-small")
 
+          //- Buying and selling capital assets. Built from the approved drawing
+          //- design/mockups/three-way-forecast-capital.html (approved 2026-09-03).
+          .tw-group
+            .tw-glabel
+              span.tw-dot
+              h2.tw-h2 {{ $t('report.threeWayForecast.assume.capital.heading') }}
+
+            .caprow.head(v-if="form.capital.length")
+              span {{ $t('report.threeWayForecast.assume.capital.what') }}
+              span {{ $t('report.threeWayForecast.assume.capital.category') }}
+              span {{ $t('report.threeWayForecast.assume.capital.month') }}
+              span {{ $t('report.threeWayForecast.assume.capital.direction') }}
+              span {{ $t('report.threeWayForecast.assume.capital.price') }}
+              span {{ $t('report.threeWayForecast.assume.capital.bookValue') }}
+              span
+
+            .caprow(
+              v-for="(row, i) in form.capital"
+              :key="'cap' + i"
+              :class="{ 'row-invalid': capitalNegativeRows.indexOf(i + 1) !== -1 }")
+              b-input(
+                v-model="row.what"
+                size="is-small"
+                :placeholder="$t('report.threeWayForecast.assume.capital.whatPlaceholder')")
+              b-select(v-model.number="row.category" size="is-small" expanded)
+                option(v-for="c in capitalCategories" :key="c.index" :value="c.index") {{ c.label }}
+              b-select(v-model.number="row.month" size="is-small" expanded)
+                option(v-for="(label, m) in monthLabels" :key="'cm' + m" :value="m") {{ label }}
+              .seg.seg-sm
+                button(
+                  type="button"
+                  :class="{ on: row.direction === 'buy' }"
+                  @click="row.direction = 'buy'") {{ $t('report.threeWayForecast.assume.capital.buy') }}
+                button(
+                  type="button"
+                  :class="{ on: row.direction === 'sell' }"
+                  @click="row.direction = 'sell'") {{ $t('report.threeWayForecast.assume.capital.sell') }}
+              b-input(v-model.number="row.price" type="number" step="any" size="is-small")
+              .capbook
+                b-input(
+                  v-if="row.direction === 'sell'"
+                  v-model.number="row.bookValue"
+                  type="number"
+                  step="any"
+                  size="is-small")
+                span.capcarried(v-if="row.direction === 'sell'")
+                  | {{ $t('report.threeWayForecast.assume.capital.carriedAt', { category: $t('report.threeWayForecast.confirm.assets.' + form.assets[row.category].key), amount: money(categoryOpening(row.category)) }) }}
+              b-button(
+                size="is-small"
+                type="is-text"
+                :aria-label="$t('report.threeWayForecast.assume.capital.remove')"
+                :title="$t('report.threeWayForecast.assume.capital.remove')"
+                @click="removeCapitalRow(i)") ✕
+
+            p.capempty(v-if="!form.capital.length") {{ $t('report.threeWayForecast.assume.capital.nothingPlanned') }}
+
+            b-button.capadd(size="is-small" @click="addCapitalRow") {{ $t('report.threeWayForecast.assume.capital.add') }}
+
+            template(v-if="form.capital.length")
+              .captot
+                span {{ $t('report.threeWayForecast.assume.capital.buyingThisYear') }}
+                span {{ money(capitalBuyTotal) }}
+              .captot.captot-second
+                span {{ $t('report.threeWayForecast.assume.capital.sellingThisYear') }}
+                span {{ money(capitalSellTotal) }}
+              p.tw-note {{ $t('report.threeWayForecast.assume.capital.everyAmountPositive') }}
+              p.tw-note {{ $t('report.threeWayForecast.assume.capital.gainOrLoss') }}
+
           .tw-group
             .tw-glabel
               span.tw-dot
@@ -478,7 +546,10 @@ export default {
       buildError: null,
       warnings: [],
       invalid: [],
-      form: this.restore ? JSON.parse(JSON.stringify(this.restore)) : this.blankForm()
+      // A restored form is this component's own state coming back from the page, but it
+      // is normalised anyway: a form saved before the capital block existed has no rows,
+      // and an undefined list would break the group rather than show it empty.
+      form: this.restoredForm()
     }
   },
 
@@ -552,7 +623,44 @@ export default {
 
     debtorTotal () { return this.sumOf(this.form.debtor) },
     creditorTotal () { return this.sumOf(this.form.creditor) },
-    salesTotal () { return this.sumOf(this.form.sales) }
+    salesTotal () { return this.sumOf(this.form.sales) },
+
+    /**
+     * The category dropdown, each showing the depreciation rate IN FORCE for this
+     * forecast — Mike's ruling of 2026-09-03. Step 2 lets an advisor change all six, so
+     * a list hardcoded to the platform's 20% would contradict the rate they had just set.
+     */
+    capitalCategories () {
+      return this.form.assets.map((asset, i) => ({
+        index: i,
+        label: this.$t('report.threeWayForecast.confirm.assets.' + asset.key) +
+          ' — ' + this.pct(Number(asset.rate) || 0)
+      }))
+    },
+
+    capitalBuyTotal () {
+      return this.sumOf(this.form.capital.filter(r => r.direction === 'buy').map(r => r.price))
+    },
+
+    capitalSellTotal () {
+      return this.sumOf(this.form.capital.filter(r => r.direction === 'sell').map(r => r.price))
+    },
+
+    /**
+     * Rows carrying a negative figure. The drawing's own rule: the Buy/Sell tick carries
+     * the direction, so a minus sign is refused rather than guessed at — a negative price
+     * ticked as a sale has two readings and the screen would have to pick one.
+     * @returns {Array<number>} row positions, for the message and the row highlight
+     */
+    capitalNegativeRows () {
+      const bad = []
+      this.form.capital.forEach((row, i) => {
+        const price = Number(row.price)
+        const book = Number(row.bookValue)
+        if (price < 0 || (row.direction === 'sell' && book < 0)) { bad.push(i + 1) }
+      })
+      return bad
+    }
   },
 
   watch: {
@@ -587,6 +695,17 @@ export default {
         if (isFinite(v)) { total += v }
       }
       return Math.round(total * 1000) / 1000
+    },
+
+    /**
+     * The working state to open with: what the page handed back, or a blank form.
+     * @returns {object}
+     */
+    restoredForm () {
+      if (!this.restore) { return this.blankForm() }
+      const form = JSON.parse(JSON.stringify(this.restore))
+      if (!Array.isArray(form.capital)) { form.capital = [] }
+      return form
     },
 
     /**
@@ -629,8 +748,22 @@ export default {
         shareholderRate: 5,
         sales: zeroes(),
         salesSource: 'entered',
-        purchases: zeroes()
+        purchases: zeroes(),
+        // Buying and selling capital assets. A ROW LIST, not the engine's 6 x 12 grid:
+        // 72 boxes of which 70 are zero is a screen an advisor scrolls past, and the two
+        // that matter are lost in it. `capitalSeries()` writes the rows into that grid,
+        // so nothing is given up. Empty by default — most businesses plan neither.
+        capital: []
       }
+    },
+
+    /**
+     * A new row. `month` is the FORECAST month (0-11), not the calendar month, so a row
+     * moves with the start date exactly as the sales and purchases boxes above it do.
+     * @returns {object}
+     */
+    blankCapitalRow () {
+      return { what: '', category: 0, month: 0, direction: 'buy', price: 0, bookValue: 0 }
     },
 
     /** The first of next month, as `YYYY-MM-DD`. @returns {string} */
@@ -879,6 +1012,52 @@ export default {
       this.$emit('step', 2)
     },
 
+    /** Add a row to the capital block. */
+    addCapitalRow () { this.form.capital.push(this.blankCapitalRow()) },
+
+    /** Remove one. @param {number} i the row's position */
+    removeCapitalRow (i) { this.form.capital.splice(i, 1) },
+
+    /** The category's book value today, shown beside a Sell row's own figure so an
+     *  advisor can see what the whole category is carried at while they enter one
+     *  asset's share of it. Context only — the app holds six category totals and never
+     *  knows which van is which.
+     *  @param {number} categoryIndex @returns {number} */
+    categoryOpening (categoryIndex) {
+      const asset = this.form.assets[categoryIndex]
+      return asset ? (Number(asset.opening.value) || 0) : 0
+    },
+
+    /**
+     * Fold the row list into the engine's 6 x 12 grid. Two rows in the same category and
+     * month simply add together.
+     *
+     * A BUY writes its price to `additions`. A SELL writes the BOOK VALUE to `disposals`
+     * — what leaves the asset register — and the PRICE to `proceeds`, which the bank and
+     * the GST return follow. That split is correction R10 (Mike, 2026-09-03): until it
+     * existed a sale had one figure and an asset could only ever sell for exactly its
+     * written-down value.
+     *
+     * @returns {Array<object>} one `{ additions, disposals, proceeds }` per category
+     */
+    capitalSeries () {
+      const out = ASSET_SPECS.map(() => ({ additions: zeroes(), disposals: zeroes(), proceeds: zeroes() }))
+      for (let i = 0; i < this.form.capital.length; i++) {
+        const row = this.form.capital[i]
+        const cat = out[Number(row.category)]
+        const month = Number(row.month)
+        if (!cat || !(month >= 0 && month < MONTHS)) { continue }
+        const price = Number(row.price) || 0
+        if (row.direction === 'sell') {
+          cat.disposals[month] += Number(row.bookValue) || 0
+          cat.proceeds[month] += price
+        } else {
+          cat.additions[month] += price
+        }
+      }
+      return out
+    },
+
     /**
      * Every figure the model takes, explicitly — nothing omitted, so no sample value can
      * fall through `resolveInputs`. Percentages are held whole on screen and divided here.
@@ -893,6 +1072,7 @@ export default {
       for (let i = 0; i < OVERHEAD_KEYS.length; i++) {
         overheads[OVERHEAD_KEYS[i]] = Number(this.form.overheads[OVERHEAD_KEYS[i]].value) || 0
       }
+      const capital = this.capitalSeries()
       return {
         startDateSerial: this.serialOf(this.form.startDate),
         sales: this.form.sales.map(v => Number(v) || 0),
@@ -916,11 +1096,12 @@ export default {
         accLeviesPaid: zeroes(),
         insurancePaid: zeroes(),
         openingBalanceSheet: opening,
-        assets: this.form.assets.map(a => ({
+        assets: this.form.assets.map((a, i) => ({
           opening: Number(a.opening.value) || 0,
           depreciationRate: Number(a.rate) / 100,
-          additions: zeroes(),
-          disposals: zeroes()
+          additions: capital[i].additions,
+          disposals: capital[i].disposals,
+          proceeds: capital[i].proceeds
         })),
         // Names are the advisor's own or a neutral position label — never the sample's
         // "ABC Bank", and never read from the client's file.
@@ -963,6 +1144,14 @@ export default {
       }
       if (this.creditorTotal !== 100) {
         this.buildError = this.$t('report.threeWayForecast.assume.doesNotAddUp', { total: this.pct(this.creditorTotal) })
+        return
+      }
+      // Refused, not corrected: the Buy/Sell tick already carries the direction, so a
+      // minus sign here means the advisor meant something the screen cannot know.
+      if (this.capitalNegativeRows.length) {
+        this.buildError = this.$t('report.threeWayForecast.assume.capital.noNegatives', {
+          rows: this.capitalNegativeRows.join(', ')
+        })
         return
       }
       // confirmed: { inputs, state, companyName } — `state` comes back as `restore` so a
@@ -1056,6 +1245,23 @@ export default {
 .m .lbl { width: 26px; font-size: 11px; color: var(--rs-muted); text-align: right; }
 .m ::v-deep .control { flex: 1; min-width: 0; }
 .m.seeded ::v-deep .input { border-color: #4ca52d59; background: #4ca52d0d; }
+
+/* Buying and selling capital assets — the row list. Every value is a --rs-* token or a
+   measurement copied from design/mockups/three-way-forecast-capital.html; the block adds
+   no colour, radius, weight or font of its own. */
+.caprow { display: grid; grid-template-columns: 1fr 168px 88px 118px 108px 132px 40px; gap: 8px; align-items: start; padding: 8px 0; border-bottom: 1px solid var(--rs-line); }
+.caprow:last-of-type { border-bottom: 0; }
+.caprow.head { padding-bottom: 6px; }
+.caprow.head span { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; font-weight: 700; color: var(--rs-muted); }
+.caprow.row-invalid { background: #ff00000a; }
+@media (max-width: 860px) { .caprow { grid-template-columns: 1fr; } .caprow.head { display: none; } }
+.capbook { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.capcarried { font-size: 11px; color: var(--rs-muted); line-height: 1.35; }
+.capempty { font-size: 12.5px; color: var(--rs-muted); padding: 14px 0 2px; }
+.capadd { margin-top: 12px; }
+.captot { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; padding: 11px 0 0; margin-top: 9px; border-top: 1px solid var(--rs-line); }
+.captot.captot-second { border-top: 0; padding-top: 4px; margin-top: 0; }
+.seg-sm button { flex: none; padding: 7px 10px; font-size: 12px; }
 
 .warn-note { font-size: 12.5px; color: #b36b00; background: var(--rs-warn-soft); border-radius: 9px; padding: 10px 14px; margin-top: 8px; }
 .tw-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }

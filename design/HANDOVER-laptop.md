@@ -11,42 +11,52 @@
 
 ## 2026-09-03 · Laptop · branch `feat/advisor-progress`
 
-Suite **7,375 green** (380 suites), lint 0 errors. Started 45 ahead / 1 behind, ended
-**8 ahead / 0 behind**, everything pushed. Nothing uncommitted.
+Suite **7,396 green** (380 suites), lint 0 errors. Started 8 ahead / 0 behind.
 
-### Built — 4.61 phase (a): two by-month exports
+### Built — buying and selling capital assets (4.61)
 
-Step 1 has four slots. The reason is sharper than "more months": a current-year export
-stops part-way through a month, those months are stripped as incomplete, so **one file can
-yield five usable months and no seed at all** — the advisor then types twelve by hand.
-Pinned by a test running the same mid-year export alone and with last year's beside it.
-Also closed a pre-existing defect on Mike's approval: `TOO_MANY_MONTHLY_FILES` was never on
-the `intakeError` allowlist, so that refusal's own words had never reached anyone.
+Mike approved the drawing, and step 3 of the Three-Way Forecast now has the block. The
+engine has always taken `additions` and `disposals`; the screen sent hardcoded zeroes, so
+his own R3 and R4 corrections were built and unreachable. They are reachable now.
 
-### Drawn, NOT yet approved
+### 🔴 He reversed one of the drawing's six rulings, and he was right
 
-`design/mockups/three-way-forecast-capital.html` — buying and selling capital assets on
-step 3. **All six questions ruled by Mike**; the drawing shows every one. The engine
-already takes `additions`/`disposals` and the screen sends hardcoded zeroes, so R3/R4 are
-built and unreachable. ☐ in `ARTEFACTS.md` — he has **not** said "approved". "Everything
-looks great" was deliberately not recorded as approval; the build waits on that sentence.
+The drawing said a sale has ONE figure — the sale price — and that no gain would be shown.
+He ruled: *"there are legitimate times that an asset sells for more than book value - such
+as a used vehicle - this should be able to be included and calculated."*
+
+So a Sell row carries **two** figures. `disposals` is now the book value leaving the
+register, `proceeds` is the price; the bank and the GST return follow the price, the
+register follows the book value, and the difference is a gain or loss in the month of the
+sale. **Correction R10**, written up in `THREE-WAY-FORECAST-DEVIATIONS.md`.
+
+**The drawing's costing of this was wrong and the record now says so.** It rejected the
+two-field shape as needing a new monthly P&L row that would change the 10,155-cell golden
+set. It doesn't — the gain joins the existing Other Income total and reaches profit, tax
+and retained earnings with no new plumbing. The golden set is untouched, pinned by a guard
+written and proved passing **before** the engine was changed.
+
+### The thing that would have shipped quietly
+
+Before R10, selling from a category for more than it carried drove book value negative and
+charged **negative depreciation**, which *adds* to profit and compounds for the rest of the
+year. Opening asset values default to zero — no export carries them — so it would have
+fired for most advisors. Unreachable until this block existed. R10 dissolves it.
 
 ### Filed
 
-**4.62** economic analysis (would be the first report to call the AI) · **4.63** overseas
-stock, `Import & Retail.xlsx` now in the repo and read · **4.64** international vs local,
-placed **ahead of 4.63** because it builds the place 4.63 lands. It carries a GST finding:
-the engine charges GST on every sale and claims it on every purchase, so exports and
-imports are both wrong today.
-
-### 🖥 DESKTOP — one thing, and it will bite
-
-Your `a27f825` rewrites 4.61's PR #55 note. So does my `0eefc23`. Same conclusion,
-different words — **`to-do-items.json` will conflict when you merge.** Third collision in
-that file.
+**4.65** — read the Fixed Asset Schedule, so the book value is picked rather than typed.
+Mike's challenge (*"cant see why you cant pull the book value from that?"*) was correct: the
+figure exists, on a report step 1 has never asked for. He chose "typing it for now".
+Placed **last** — he has not ranked it. Couple it to 4.60: same person, same request.
 
 ### Next
 
-Mike's approval of the capital drawing, then build it. Then the volatility read (approved,
-undrawn). Handbook Brief §4/§5 corrected: `/shutdown` writes to three targets, `ACTIONS.md`
-is frozen.
+The volatility read (approved, undrawn) — draw it first. Then 4.64, which builds the place
+4.63 lands.
+
+### 🖥 DESKTOP
+
+Your branch is 4 ahead of master, last commit **2026-09-03** — but your handover is dated
+**2026-09-02**, so a session's work has no note. Also: `to-do-items.json` has changed again
+here (4.61 reworded, 4.65 added, table regenerated) — expect the usual conflict.

@@ -51,6 +51,19 @@
  *       calendar month outright — misfiling the GST schedule, which those dates drive.
  *       Months now advance by the calendar, clamping to a short month's last day.
  *
+ * A TENTH, RULED BY MIKE ON 2026-09-03, and the only one that is not an aggregation
+ * repair:
+ *
+ *   R10 A sale had ONE figure. It came off the asset register and it was banked, so the
+ *       two agreed only when an asset sold for exactly its written-down value — and, in
+ *       Mike's words, "there are legitimate times that an asset sells for more than book
+ *       value - such as a used vehicle". `disposals` is now the book value leaving the
+ *       register and `proceeds` is the sale price: the bank and the GST return follow
+ *       the price, the register follows the book value, and the difference is a gain or
+ *       loss in the month of the sale. Omitting `proceeds` means it sold for its book
+ *       value, which is the only case the workbook could express — so every forecast
+ *       built before this change reads identically.
+ *
  * `computeThreeYearForecast` chains all three years: each year's closing balance sheet
  * becomes the next year's opening, which is what the workbook itself does
  * (`'Yr 1. Projections'!O70`…`O116`). The chain is proved by the balance check not
@@ -266,12 +279,19 @@ function resolveInputs (raw, fallback) {
 
   const assets = d.assets.map(function (def, n) {
     const a = (Array.isArray(i.assets) && i.assets[n] && typeof i.assets[n] === 'object') ? i.assets[n] : {}
+    const disposals = pickSeries(a.disposals, def.disposals)
     return {
       key: def.key,
       opening: pick(a.opening, def.opening),
       depreciationRate: pick(a.depreciationRate, def.depreciationRate),
       additions: pickSeries(a.additions, def.additions),
-      disposals: pickSeries(a.disposals, def.disposals)
+      // What comes OFF the asset register — the book value of whatever was sold.
+      disposals,
+      // R10: what it SOLD FOR. The fallback is the resolved disposals rather than a
+      // default series, so omitting it means "it sold for exactly its book value" —
+      // which is the only case the workbook could express, and therefore the only
+      // reading that leaves an existing forecast unchanged.
+      proceeds: pickSeries(a.proceeds, disposals)
     }
   })
 
@@ -443,7 +463,10 @@ function assetSchedule (asset) {
     depreciationRate: asset.depreciationRate,
     bookValue,
     additions: asset.additions.slice(),
+    // The book value leaving the register, and (R10) what it sold for. The register
+    // itself moves on the book value alone — the price never touches depreciation.
     disposals: asset.disposals.slice(),
+    proceeds: asset.proceeds.slice(),
     subtotal,
     depreciation,
     closingValue
@@ -643,6 +666,22 @@ function computeThreeWayForecast (rawInputs, options) {
   const disposalsAll = addSeries.apply(null, assets.map(function (a) { return a.disposals }))
   const additionsCharged = corrected ? additionsAll : addSeries(assets[0].additions, assets[1].additions, assets[2].additions)
   const disposalsCharged = corrected ? disposalsAll : addSeries(assets[0].disposals, assets[1].disposals, assets[2].disposals)
+  // R10: the sale price, which the bank and the GST return both follow. As written the
+  // workbook has no such figure — it banks the book value — so source-fidelity mode
+  // ignores `proceeds` outright rather than relying on its default. The golden set is
+  // then immune to this correction even if a caller supplies a price.
+  const proceedsAll = corrected
+    ? addSeries.apply(null, assets.map(function (a) { return a.proceeds }))
+    : disposalsAll
+  const proceedsCharged = corrected
+    ? proceedsAll
+    : disposalsCharged
+  // The gain (or loss) on sale: what it fetched, less what it was carried at. Zero
+  // whenever an asset sells for its book value, which is every forecast built before
+  // 2026-09-03 and every one where the advisor leaves the price alone.
+  const gainOnAssetSales = corrected
+    ? proceedsCharged.map(function (p, m) { return p - disposalsCharged[m] })
+    : zeroes()
 
   /* -- the P&L lines that depend only on revenue ----------------------------------- */
   const revenue = I.sales.slice()
@@ -807,8 +846,11 @@ function computeThreeWayForecast (rawInputs, options) {
     totalOverheads[m] = oh + depreciationCharged[m] + overdraftInterest[m] + loanInterest[m]
     operatingSurplus[m] = grossSurplus[m] - totalOverheads[m]
 
+    // R10: a gain or loss on sale is other income in the month of the sale — not spread,
+    // which is what the two existing Other Income lines do to an annual figure. From
+    // here it reaches profit, tax and retained earnings with no further plumbing.
     totalOtherIncome[m] = inFundsInterest[m] + shareholderInterest[m] +
-      otherIncomeGstInclusive[m] + otherIncomeGstExempt[m]
+      otherIncomeGstInclusive[m] + otherIncomeGstExempt[m] + gainOnAssetSales[m]
     netSurplusBeforeTax[m] = operatingSurplus[m] + totalOtherIncome[m]
 
     // Tax: a month's loss adds to the pool carried forward; a month's profit is
@@ -833,7 +875,9 @@ function computeThreeWayForecast (rawInputs, options) {
       : salesGst[m]
     gstOnOtherIncome[m] = otherIncomeGstInclusive[m] * gst
     // R3/R4 do not apply here: the sheet's own GST rows already cover all six categories.
-    gstOnAssetSales[m] = disposalsAll[m] * gst
+    // R10: GST follows the invoice, so it is charged on what the asset sold for — not on
+    // what the books happened to carry it at.
+    gstOnAssetSales[m] = proceedsAll[m] * gst
     gstOutputs[m] = gstOnIncome[m] + gstOnOtherIncome[m] + gstOnAssetSales[m]
     gstOnExpenses[m] = I.gstBasis === 'Cash'
       ? (((overheadsPaid[m] + openingPayableRunOff[m] + payment.total[m]) / ((1 + gst) / gst)) + blockTwoGst[m])
@@ -884,8 +928,9 @@ function computeThreeWayForecast (rawInputs, options) {
     receipts.otherIncomeGstInclusive[m] = otherIncomeGstInclusive[m] * (1 + gst)
     receipts.shareholderAdvances[m] = shareholderAdvancesAll[m]
     // R3: the sale proceeds of all six categories, not three — while the GST on all six
-    // was already being received.
-    receipts.assetSales[m] = gstOnAssetSales[m] + disposalsCharged[m]
+    // was already being received. R10: and the proceeds are the sale price, so a van
+    // carried at 8,000 and sold for 12,000 banks 12,000 plus its GST.
+    receipts.assetSales[m] = gstOnAssetSales[m] + proceedsCharged[m]
     totalReceipts[m] = receipts.fromDebtors[m] + receipts.interestReceived[m] +
       receipts.loanDrawdowns[m] + receipts.gstRefunds[m] + receipts.taxRefunds[m] +
       receipts.otherIncomeGstInclusive[m] + receipts.otherIncomeGstExempt[m] +
@@ -999,7 +1044,8 @@ function computeThreeWayForecast (rawInputs, options) {
     { ref: 'R4', where: 'Cash flow — Capital expenditure paid', wasCounting: 3, nowCounting: 6, sheetRow: 142 },
     { ref: 'R5', where: 'GST — six-monthly return, first month of the year', wasCounting: null, nowCounting: null, sheetRow: 411 },
     { ref: 'R6', where: 'Payables — an overhead settled twice each month', wasCounting: null, nowCounting: null, sheetRow: 201 },
-    { ref: 'R7', where: 'Payables — Other Direct Expenses (GST Exempt) settled by nothing', wasCounting: null, nowCounting: null, sheetRow: 11 }
+    { ref: 'R7', where: 'Payables — Other Direct Expenses (GST Exempt) settled by nothing', wasCounting: null, nowCounting: null, sheetRow: 11 },
+    { ref: 'R10', where: 'Asset sales — the sale price, and the gain or loss it makes', wasCounting: null, nowCounting: null, sheetRow: 130 }
   ]
 : []
 
@@ -1041,6 +1087,7 @@ function computeThreeWayForecast (rawInputs, options) {
       interestIncomeShareholders: shareholderInterest,
       otherIncomeGstInclusive,
       otherIncomeGstExempt,
+      gainOnAssetSales,
       totalOtherIncome,
       netSurplusBeforeTax,
       taxProvision,

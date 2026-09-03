@@ -1725,6 +1725,27 @@
           "otherThree": "Other 3",
           "otherFour": "Other 4",
           "otherFive": "Other 5"
+        },
+        "capital": {
+          "heading": "Buying and selling capital assets",
+          "what": "What",
+          "whatPlaceholder": "Delivery van",
+          "category": "Category",
+          "month": "Month",
+          "direction": "Buying or selling",
+          "price": "Price",
+          "bookValue": "Book value",
+          "buy": "Buy",
+          "sell": "Sell",
+          "add": "+ Add a purchase or sale",
+          "remove": "Remove",
+          "buyingThisYear": "Buying this year",
+          "sellingThisYear": "Selling this year",
+          "carriedAt": "{category} is carried at {amount}",
+          "nothingPlanned": "Nothing planned. If the business is buying or selling equipment, vehicles or fit-out this year, add it here — it changes the cash position in the month it happens.",
+          "everyAmountPositive": "Every amount is positive — whether the money goes out or comes in is the Buy / Sell tick’s job, never the figure’s. Enter prices before GST and the forecast adds it. Buy is money out in the month you name, and the asset starts depreciating at its category’s rate. Sell is money in, and the book value is what comes off the asset register.",
+          "gainOrLoss": "The difference between the price and the book value is shown as a gain or loss in the month of the sale.",
+          "noNegatives": "Every amount here is positive — the Buy / Sell tick carries the direction. Check row {rows}."
         }
       },
       "report": {

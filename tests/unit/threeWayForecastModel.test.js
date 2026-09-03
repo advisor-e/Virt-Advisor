@@ -176,8 +176,11 @@ describe('Three-Way Forecast — the seven corrections (Mike, 2026-09-02)', () =
       .toEqual(written.profitAndLoss.otherDirectExpensesExempt)
   })
 
-  test('the corrections register names all seven, and is empty in source-fidelity mode', () => {
-    expect(fixed.corrections.map(c => c.ref)).toEqual(['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7'])
+  test('the corrections register names all eight, and is empty in source-fidelity mode', () => {
+    // Seven aggregation repairs ruled 2026-09-02, plus R10 — the sale price — ruled
+    // 2026-09-03. R8 and R9 are not in this register: one is a carry-forward rule and
+    // the other is the calendar, and neither changes a figure inside a single year.
+    expect(fixed.corrections.map(c => c.ref)).toEqual(['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R10'])
     expect(written.corrections).toEqual([])
   })
 })
@@ -334,6 +337,110 @@ describe('R9 — months advance by the calendar (Mike, 2026-09-02)', () => {
   })
 })
 
+describe('Three-Way Forecast — a sale carries its own price (R10, Mike 2026-09-03)', () => {
+  /**
+   * The guard, and it was written and proved passing BEFORE the engine was touched.
+   *
+   * Until this change a sale had one figure. It came off the asset register AND it was
+   * banked, so the two agreed only when an asset sold for exactly its written-down
+   * value. Mike's ruling: "there are legitimate times that an asset sells for more than
+   * book value - such as a used vehicle - this should be able to be included and
+   * calculated."
+   *
+   * So `disposals` now means the book value coming off the register and `proceeds` is
+   * what it sold for. THE WHOLE RISK OF THE CHANGE IS THAT IT REACHES THE GST
+   * COMPUTATION AND THE P&L, both of which the golden set covers cell by cell. The
+   * figures below are the engine's own output from BEFORE the change, captured on a
+   * scenario that exercises every path it touches — a purchase, a sale, and a second
+   * purchase in another category. Omitting `proceeds` must reproduce them exactly.
+   */
+  const z = () => new Array(12).fill(0)
+  const scenario = () => {
+    const assets = DEFAULTS.assets.map(a => ({ ...a, additions: z(), disposals: z() }))
+    assets[0].additions[2] = 45000 // vehicles, bought in month 3
+    assets[0].disposals[2] = 12000 // vehicles, sold in month 3
+    assets[2].additions[5] = 18000 // plant & equipment, bought in month 6
+    return { assets }
+  }
+
+  test('with no price given, every figure is what it was before R10', () => {
+    const f = computeThreeWayForecast(scenario())
+    // Cash: the sale banked with its GST, the purchases paid with theirs.
+    expect(f.cashFlow.receipts.assetSales[2]).toBe(13800)
+    expect(f.cashFlow.payments.capitalExpenditure[2]).toBe(51750)
+    expect(f.cashFlow.payments.capitalExpenditure[5]).toBe(20700)
+    // The asset register, month by month — the depreciation path.
+    expect(f.schedules.assets[0].closingValue.map(v => Math.round(v)))
+      .toEqual([78667, 77356, 108517, 106708, 104930, 103181, 101461, 99770, 98107, 96472, 94864, 93283])
+    // The P&L: no gain arises, so Other Income is untouched.
+    expect(f.profitAndLoss.totalOtherIncome[2]).toBeCloseTo(239.48329, 5)
+    expect(f.profitAndLoss.netSurplusBeforeTax[2]).toBeCloseTo(-21675.084597, 5)
+  })
+
+  test('a van carried at 8,000 and sold for 12,000 banks the price and books the gain', () => {
+    // Mike's own example. The three statements have to disagree in exactly the right
+    // places: the bank follows the price, the register follows the book value, and the
+    // 4,000 between them is profit in the month of the sale.
+    const inputs = { assets: [{ opening: 80000, disposals: [0, 0, 8000, 0, 0, 0, 0, 0, 0, 0, 0, 0], proceeds: [0, 0, 12000, 0, 0, 0, 0, 0, 0, 0, 0, 0] }, {}, {}, {}, {}, {}] }
+    const f = computeThreeWayForecast(inputs)
+    expect(f.cashFlow.receipts.assetSales[2]).toBe(13800) // 12,000 + GST on 12,000
+    expect(f.schedules.gst.onAssetSales[2]).toBe(1800) // GST follows the invoice
+    expect(f.profitAndLoss.gainOnAssetSales[2]).toBe(4000) // 12,000 - 8,000
+    // Only 8,000 leaves the register — the gain is profit, never a write-off.
+    const noSale = computeThreeWayForecast({ assets: [{ opening: 80000 }, {}, {}, {}, {}, {}] })
+    // 8,000 off the register, less the month's depreciation no longer charged on it —
+    // ROUND(8000 * 0.2 / 12) = 133, Excel's rounding, which the port keeps.
+    expect(noSale.schedules.assets[0].closingValue[2] - f.schedules.assets[0].closingValue[2])
+      .toBe(7867)
+  })
+
+  test('selling below book value is a loss, and it reduces profit', () => {
+    // The same arithmetic in the other direction — a loss is not a special case, and a
+    // model that only handled gains would look right on every example anyone tried.
+    const inputs = { assets: [{ opening: 80000, disposals: [0, 0, 8000, 0, 0, 0, 0, 0, 0, 0, 0, 0], proceeds: [0, 0, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0] }, {}, {}, {}, {}, {}] }
+    const f = computeThreeWayForecast(inputs)
+    expect(f.profitAndLoss.gainOnAssetSales[2]).toBe(-3000)
+    expect(f.cashFlow.receipts.assetSales[2]).toBe(5750) // 5,000 + GST on 5,000
+  })
+
+  test('the gain reaches profit, tax and retained earnings — not just the P&L line', () => {
+    // The whole reason the gain joins Other Income rather than sitting beside it: a
+    // figure that stopped at the P&L would leave the balance sheet out by the gain, and
+    // the three statements would stop articulating. The balance check is what proves it.
+    const base = { assets: [{ opening: 80000, disposals: [0, 0, 8000, 0, 0, 0, 0, 0, 0, 0, 0, 0] }, {}, {}, {}, {}, {}] }
+    const gained = JSON.parse(JSON.stringify(base))
+    gained.assets[0].proceeds = [0, 0, 12000, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    const flat = computeThreeWayForecast(base)
+    const f = computeThreeWayForecast(gained)
+    expect(f.profitAndLoss.netSurplusBeforeTax[2] - flat.profitAndLoss.netSurplusBeforeTax[2])
+      .toBeCloseTo(4000, 6)
+    expect(f.balanceSheet.months.retainedEarnings[11])
+      .toBeGreaterThan(flat.balanceSheet.months.retainedEarnings[11])
+    // Still balancing: no correction is worth anything if it breaks the articulation.
+    expect(f.balanceSheet.months.balanceCheck[11])
+      .toBeCloseTo(flat.balanceSheet.months.balanceCheck[11], 6)
+  })
+
+  test('source-fidelity mode ignores the price outright', () => {
+    // The workbook has no such figure. If a price could reach it, the golden set would
+    // be measuring something the spreadsheet never did.
+    const inputs = { assets: [{ opening: 80000, disposals: [0, 0, 8000, 0, 0, 0, 0, 0, 0, 0, 0, 0], proceeds: [0, 0, 12000, 0, 0, 0, 0, 0, 0, 0, 0, 0] }, {}, {}, {}, {}, {}] }
+    const w = computeThreeWayForecast(inputs, { sourceFidelity: true })
+    expect(w.cashFlow.receipts.assetSales[2]).toBe(9200) // book value + its GST
+    expect(w.profitAndLoss.gainOnAssetSales.every(v => v === 0)).toBe(true)
+  })
+
+  test('a price equal to the book value is the same forecast as no price at all', () => {
+    // The default made explicit. If these two ever diverge, the default has drifted and
+    // every forecast built before today would read differently on the same figures.
+    const without = scenario()
+    const withEqual = scenario()
+    withEqual.assets[0].proceeds = withEqual.assets[0].disposals.slice()
+    expect(JSON.stringify(computeThreeWayForecast(withEqual)))
+      .toBe(JSON.stringify(computeThreeWayForecast(without)))
+  })
+})
+
 describe('Three-Way Forecast — the source-fidelity switch cannot be reached from a request', () => {
   test('no route passes options to the model', () => {
     // `sourceFidelity` reproduces the workbook INCLUDING its seven defects. It is a
@@ -347,6 +454,6 @@ describe('Three-Way Forecast — the source-fidelity switch cannot be reached fr
   test('inputs named sourceFidelity are treated as data, not as a switch', () => {
     const f = computeThreeWayForecast({ sourceFidelity: true })
     expect(f.sourceFidelity).toBe(false)
-    expect(f.corrections).toHaveLength(7)
+    expect(f.corrections).toHaveLength(8)
   })
 })

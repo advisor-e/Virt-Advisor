@@ -292,3 +292,117 @@ describe('the manual path claims nothing from a file', () => {
     w.destroy()
   })
 })
+
+describe('buying and selling capital assets', () => {
+  /**
+   * The block Mike approved on 2026-09-03. Its whole job is to reach `additions`,
+   * `disposals` and `proceeds` — three series the engine has always taken and the screen
+   * sent as hardcoded zeroes, so R3, R4 and R10 were built and unreachable.
+   *
+   * What is tested here is the FOLD from a row list into the engine's 6 x 12 grid, which
+   * is the part a person in UAT cannot check: a row landing in the wrong month or the
+   * wrong category still produces a forecast that looks entirely normal.
+   */
+  const rowsOf = (w, list) => { w.vm.form.capital = list; return w.vm.buildInputs().assets }
+
+  test('a purchase lands on its own category and month, as an addition', () => {
+    const w = mountIntake({ step: 3 })
+    const assets = rowsOf(w, [{ what: 'Delivery van', category: 0, month: 2, direction: 'buy', price: 45000, bookValue: 0 }])
+    expect(assets[0].additions[2]).toBe(45000)
+    expect(assets[0].additions.filter(v => v !== 0)).toHaveLength(1)
+    expect(assets[0].disposals.every(v => v === 0)).toBe(true)
+    // No other category is touched.
+    expect(assets.slice(1).every(a => a.additions.every(v => v === 0))).toBe(true)
+    w.destroy()
+  })
+
+  test('🔴 a sale sends the book value as the disposal and the price as the proceeds', () => {
+    // The split is the whole of R10. Sending the price as the disposal — which is what
+    // the screen would do if these two were ever crossed — writes the sale price off the
+    // asset register and loses the gain, silently.
+    const w = mountIntake({ step: 3 })
+    const assets = rowsOf(w, [{ what: 'Old van', category: 0, month: 5, direction: 'sell', price: 12000, bookValue: 8000 }])
+    expect(assets[0].disposals[5]).toBe(8000)
+    expect(assets[0].proceeds[5]).toBe(12000)
+    expect(assets[0].additions.every(v => v === 0)).toBe(true)
+    w.destroy()
+  })
+
+  test('two rows in the same category and month add together', () => {
+    const w = mountIntake({ step: 3 })
+    const assets = rowsOf(w, [
+      { what: 'Racking', category: 2, month: 8, direction: 'buy', price: 18000, bookValue: 0 },
+      { what: 'Forklift', category: 2, month: 8, direction: 'buy', price: 22000, bookValue: 0 }
+    ])
+    expect(assets[2].additions[8]).toBe(40000)
+    w.destroy()
+  })
+
+  test('no rows sends twelve zeroes, exactly as before the block existed', () => {
+    const w = mountIntake({ step: 3 })
+    const assets = w.vm.buildInputs().assets
+    assets.forEach((a) => {
+      expect(a.additions).toEqual(new Array(12).fill(0))
+      expect(a.disposals).toEqual(new Array(12).fill(0))
+      expect(a.proceeds).toEqual(new Array(12).fill(0))
+    })
+    w.destroy()
+  })
+
+  test('a negative figure is refused rather than guessed at', () => {
+    // The drawing's own rule: the Buy/Sell tick carries the direction, so a minus sign
+    // means something the screen cannot know. It must not silently become a purchase.
+    const w = mountIntake({ step: 3 })
+    w.vm.form.capital = [{ what: 'Old van', category: 0, month: 1, direction: 'sell', price: -12000, bookValue: 8000 }]
+    w.vm.buildForecast()
+    expect(w.vm.capitalNegativeRows).toEqual([1])
+    expect(w.emitted().confirmed).toBeUndefined()
+    w.destroy()
+  })
+
+  test('the category list carries the rate in force, not the platform default', () => {
+    // Mike's ruling: step 2 lets an advisor change all six, so a list hardcoded to 20%
+    // would contradict the rate they had just set two groups above.
+    const w = mountIntake({ step: 3 })
+    w.vm.form.assets[0].rate = 33
+    expect(w.vm.capitalCategories[0].label).toContain('33')
+    expect(w.vm.capitalCategories[0].label).not.toContain('20')
+    w.destroy()
+  })
+
+  test('the rows survive a step back and forward', () => {
+    // They live in `form`, which the page hands back as `restore` — a row list wiped by
+    // checking something on the previous screen is a re-typing job, not a bug report.
+    const w = mountIntake({ step: 3 })
+    w.vm.form.capital = [{ what: 'Delivery van', category: 0, month: 2, direction: 'buy', price: 45000, bookValue: 0 }]
+    w.vm.buildForecast()
+    const state = w.emitted().confirmed[0][0].state
+    const back = mountIntake({ step: 3, restore: state })
+    expect(back.vm.form.capital).toHaveLength(1)
+    expect(back.vm.form.capital[0].price).toBe(45000)
+    back.destroy()
+    w.destroy()
+  })
+
+  test('a form restored from before the block existed opens with an empty list', () => {
+    const w = mountIntake({ step: 3 })
+    const old = JSON.parse(JSON.stringify(w.vm.form))
+    delete old.capital
+    const back = mountIntake({ step: 3, restore: old })
+    expect(back.vm.form.capital).toEqual([])
+    back.destroy()
+    w.destroy()
+  })
+
+  test('the two totals count each direction, and only its own', () => {
+    const w = mountIntake({ step: 3 })
+    w.vm.form.capital = [
+      { what: 'Delivery van', category: 0, month: 2, direction: 'buy', price: 45000, bookValue: 0 },
+      { what: 'Racking', category: 2, month: 5, direction: 'buy', price: 18000, bookValue: 0 },
+      { what: 'Old van', category: 0, month: 2, direction: 'sell', price: 12000, bookValue: 8000 }
+    ]
+    expect(w.vm.capitalBuyTotal).toBe(63000)
+    expect(w.vm.capitalSellTotal).toBe(12000)
+    w.destroy()
+  })
+})
