@@ -11,52 +11,49 @@
 
 ## 2026-09-03 · Laptop · branch `feat/advisor-progress`
 
-Suite **7,396 green** (380 suites), lint 0 errors. Started 8 ahead / 0 behind.
+Suite **7,416 green** (381 suites), lint 0 errors, everything committed and pushed.
+Started 10 ahead / 0 behind, ended **14 ahead / 0 behind**.
 
-### Built — buying and selling capital assets (4.61)
+### Built — the volatility read (4.61 phase (a) is COMPLETE)
 
-Mike approved the drawing, and step 3 of the Three-Way Forecast now has the block. The
-engine has always taken `additions` and `disposals`; the screen sent hardcoded zeroes, so
-his own R3 and R4 corrections were built and unreachable. They are reachable now.
+Drawn, approved, built and looked at on screen in one session. Nine questions went to Mike
+one at a time and he ruled all nine — **three against the recommendation**: the dial goes
+IN, a **warning band** rather than plain sentences, and **two** band levels (amber beyond
+the second deviation, red beyond the third) rather than one. He was right about the
+register: a three-way forecast is read by a lender, and a quiet observational note is the
+wrong tone for a document somebody else interrogates.
 
-### 🔴 He reversed one of the drawing's six rulings, and he was right
+**It was small because the months were already there.** The forecast intake had been
+joining up to 24 months into `joined.usable` and discarding everything but the last twelve,
+one line later. That was the whole obstacle.
 
-The drawing said a sale has ONE figure — the sale price — and that no gain would be shown.
-He ruled: *"there are legitimate times that an asset sells for more than book value - such
-as a used vehicle - this should be able to be included and calculated."*
+### 🔴 Looking at the screen caught a defect every test passed on
 
-So a Sell row carries **two** figures. `disposals` is now the book value leaving the
-register, `proceeds` is the price; the bank and the GST return follow the price, the
-register follows the book value, and the difference is a gain or loss in the month of the
-sale. **Correction R10**, written up in `THREE-WAY-FORECAST-DEVIATIONS.md`.
+The block told the advisor to *"drop last year's export as well"* while last year's export
+was already loaded and it was already reading 24 months. Fixed (`59241e0`). Nothing asserts
+wording and nothing should — which is exactly why the build has to be opened, not just made
+green. Second time this week the artefact-versus-build comparison has earned its keep.
 
-**The drawing's costing of this was wrong and the record now says so.** It rejected the
-two-field shape as needing a new monthly P&L row that would change the 10,155-cell golden
-set. It doesn't — the gain joins the existing Other Income total and reaches profit, tax
-and retained earnings with no new plumbing. The golden set is untouched, pinned by a guard
-written and proved passing **before** the engine was changed.
+### The dial is now shared, and that touched an approved screen
 
-### The thing that would have shipped quietly
-
-Before R10, selling from a category for more than it carried drove book value negative and
-charged **negative depreciation**, which *adds* to profit and compounds for the rest of the
-year. Opening asset values default to zero — no export carries them — so it would have
-fired for most advisors. Unreachable until this block existed. R10 dissolves it.
-
-### Filed
-
-**4.65** — read the Fixed Asset Schedule, so the book value is picked rather than typed.
-Mike's challenge (*"cant see why you cant pull the book value from that?"*) was correct: the
-figure exists, on a report step 1 has never asked for. He chose "typing it for now".
-Placed **last** — he has not ranked it. Couple it to 4.60: same person, same request.
+`components/base/VolatilityDial.vue`, used by the Volatility Report as well — its geometry
+and 50/75 boundaries are measured from the workbook's gauge images and two copies would
+drift. Its two needle-geometry tests moved with it and now guard both screens. Named as a
+deliberate difference in the `ARTEFACTS.md` row.
 
 ### Next
 
-The volatility read (approved, undrawn) — draw it first. Then 4.64, which builds the place
-4.63 lands.
+**4.61 phase (b)** — the two-year trend read. Needs the comparative-column parser
+(`xeroReportParser.js` refuses multi-column exports today, deliberately) and its own
+drawing. Then **4.64**, which builds the place 4.63 lands.
+
+⚠ The published Handbook is one edit stale: `report-models.md` changed after it was last
+built. `/startup` rebuilds it.
 
 ### 🖥 DESKTOP
 
-Your branch is 4 ahead of master, last commit **2026-09-03** — but your handover is dated
-**2026-09-02**, so a session's work has no note. Also: `to-do-items.json` has changed again
-here (4.61 reworded, 4.65 added, table regenerated) — expect the usual conflict.
+You went **4 → 9 ahead of master** today and touched `CLAUDE.md`, both husky hooks and
+`WORKING-AGREEMENT.md` — rules and gates, not just your feature. We share four files:
+`ARTEFACTS.md`, `features/to-do-items.json`, `features/to-do.md`, `locales/en.json`. Expect
+the usual conflict, and **keep both sides' items in the JSON** rather than taking one side.
+Nothing of ours touches your screens — our work is the forecast's step 3 only.
