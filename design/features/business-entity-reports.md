@@ -146,9 +146,9 @@ client* / *Save my changes* — labels ruled by Mike 2026-09-03), the "saved by"
 client-edited banner with *Restore my version* (D4), so no report page changes beyond those
 four attributes. `ProvenanceBadge` gained the `client` state; `SliderField` a badge slot.
 
-**Wired so far:** Debtor Business Drag, Margin, Mark-up & Break-even, and Working Capital
-Cycle. **Not yet wired:** the other eight routed screens; the Three-Way Forecast last, after
-the laptop's 4.61 lands. Until a screen is wired, an open
+**Wired so far:** Debtor Business Drag, Margin, Mark-up & Break-even, Working Capital Cycle,
+and Eight Levers. **Not yet wired:** the other seven routed screens; the Three-Way Forecast
+last, after the laptop's 4.61 lands. Until a screen is wired, an open
 model still shows the client its sample figures, exactly as §4 says.
 
 **Wording proposed and not yet ruled** (`locales/en.json`, `clientReports.saved.*`): the
