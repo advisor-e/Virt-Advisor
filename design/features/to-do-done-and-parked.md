@@ -185,6 +185,65 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.61 · The forecast reads one year and one file — the volatility read and the two-year trend.**
+✅ Closed 2026-09-03, both phases built the same day. Mike's request: *"drop the last 2 years worth
+of p&l and balance sheet so some basic trend analysis can be performed — including volatility
+analysis"*. **Phase (a)** connected the files and built the volatility read: step 1 takes two
+by-month exports, and step 3 lays the twelve forecast months against bands measured from the last
+12–24 actual months. **Phase (b)** added the two-year trend read: six measures against last year —
+sales growth, gross margin, overheads against sales, debtor days, creditor days, stock days — each
+with both years, the movement and a green/amber/red band, plus the mentor's *Forecast Trend
+Thresholds* tab that the bands are set on. Drawings approved before either build
+([`../mockups/three-way-forecast-volatility.html`](../mockups/three-way-forecast-volatility.html),
+[`../mockups/three-way-forecast-trend.html`](../mockups/three-way-forecast-trend.html)), with
+seventeen rulings between them.
+
+🔴 **The item's own premise was wrong, and finding that out was the most valuable part of the
+job.** Phase (b) was filed as blocked on teaching `xeroReportParser` to read a comparative export's
+second figure column as a prior period, and its `risk` named `MULTI_PERIOD_COLUMNS` — the guard
+that stops a two-year export being read as one year — as the load-bearing thing not to weaken.
+It needed neither. The parser already reads both reports correctly and already records each
+report's own year (`yearOf`), so Mike chose **two more optional file slots** and the guard was
+never approached. **The blocker had been written from the outside without reading the intake path;
+one read of it removed the whole hazard.**
+
+🔴 **One ruling was superseded within the hour, and the correction is the lesson.** Asked
+"movement or level?" as an abstraction, Mike answered movement. His actual numbers — *"0-35 =
+green - 36 - 45 - orange - 46 + = red"* — run continuously from zero and are a **level**; read as
+a movement, 46 would have required debtor days to worsen by forty-six days in a year to turn red,
+a band that could never have fired. **Ask for the numbers earlier: they carried the answer the
+abstraction hid.** His figures then caught a second thing when laid against a worked example —
+shared across all three day-counts they turned it red on every one, two of them for figures no
+accountant would blink at, which produced the own-numbers-per-measure ruling. ⚠ **And the ten
+threshold numbers were first put to him as a table of all ten at once**, which `CLAUDE.md` forbids
+in terms. Asked one pair at a time they took four exchanges, he ruled every one, and twice added a
+condition ("also editable") a batch would have buried.
+
+⚠ **The Save-the-Artefact comparison earned its keep twice in two days.** On phase (a) it caught a
+block telling the advisor to drop an export that was already loaded; on phase (b) it caught a rule
+the build had missed — a measure that cannot be worked out must **say why**, not merely vanish.
+Neither was catchable by any test in this suite.
+
+**What proves it:** [`tests/unit/trendModel.test.js`](../../tests/unit/trendModel.test.js) — the
+six measures against the drawing's own worked example (the divisor for each day-count, which is the
+believable-but-wrong failure this guards), every band boundary, the refusals, **and both ends of
+Mike's scale: the deteriorating example returns 1 green / 2 amber / 3 red and a healthy client
+returns 6 green, which is the only thing that proves the scale is a scale rather than a screen
+that is permanently red**;
+[`tests/unit/forecastTrendThresholds.test.js`](../../tests/unit/forecastTrendThresholds.test.js) —
+his twelve figures pinned beside the data that holds them, and the ordering rules that stop a red
+less severe than its amber making amber unreachable;
+[`tests/unit/threeWayForecastIntake.test.js`](../../tests/unit/threeWayForecastIntake.test.js) —
+**that the forecast still opens from THIS year when last year's files are dropped first**, and
+that a pair which cannot be dated apart is refused rather than ordered by upload sequence. Suite
+green at 7,492 (383 suites), lint 0 errors. Recorded in
+[`report-models.md`](report-models.md) and [`../ARTEFACTS.md`](../ARTEFACTS.md).
+
+**What is NOT in this item, and is on the live list as its own:** 4.62 (economic analysis), 4.63
+(the Import & Retail model), 4.64 (international vs local) and 4.65 (the Fixed Asset Schedule).
+
+---
+
 **4.56 · CPD follows the library in force — ruled; wire the catalogue through the cascade.** ✅
 Closed 2026-09-02. Since Cascade Phase 2 the AI recommended from the library in force while
 claimable CPD was still priced from the committed platform seed — advisors at a firm with its own

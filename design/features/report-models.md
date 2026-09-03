@@ -548,7 +548,13 @@ advanced by 31 days, so its third year ran three weeks adrift — **ruled and fi
 > model's own key list — so an input added to the engine later fails a test instead of leaking.
 > **Any new model with a defaults-merge takes the same guard.**
 
-**Step 1 takes TWO by-month exports, this year's and last year's** (2026-09-03, item 4.61a).
+**Step 1 takes SIX files, four of them optional** (2026-09-03, items 4.61a and 4.61b): this
+year's Balance Sheet and Profit and Loss, **two by-month exports** — this year's and last
+year's — and **last year's Balance Sheet and Profit and Loss**, which are what the two-year
+trend read below is built from. An advisor who drops only the first two gets the screen they
+had before either was added; nothing is withheld and no figure changes.
+
+**The two by-month exports, this year's and last year's** (item 4.61a).
 The most recent twelve complete months arrive tagged `seeded` — a starting point, never a
 forecast, and its own third badge state on `ProvenanceBadge`. The second file is not a
 convenience: a current-year export almost always stops part-way through a month, and
@@ -589,6 +595,48 @@ used. The dial is shared with the Volatility Report
 ([`VolatilityDial.vue`](../../components/base/VolatilityDial.vue)): its geometry and its
 50/75 boundaries are measured from the workbook's own gauge images, and two copies would
 drift into a needle pointing at different places on two screens showing the same client.
+
+**Step 3 also shows the two-year trend read** (2026-09-03, its own approved drawing
+[`../mockups/three-way-forecast-trend.html`](../mockups/three-way-forecast-trend.html), item
+4.61b). Under the volatility block, six measures against last year: sales growth, gross
+margin, overheads against sales, debtor days, creditor days and stock days — each showing
+both years, the movement, and a green / amber / red band. **It changes no forecast figure**,
+and that is enforced rather than intended: the assembler returns `trendInputs`, the route
+consumes it and deletes it, and a test asserts the engine payload is byte-identical with and
+without it. The day-counts in particular never seed a collection profile — an export records
+no money-received dates, so a debtor-day average describes a year rather than saying when
+money moved.
+
+**Two bases, and the split is a ruling rather than a convenience.** The three day-counts band
+on **this year's level**, each with its own numbers; the three percentage measures band on the
+**movement between the two years**. A level is what an accountant reads on a day-count and it
+travels across trades, whereas a gross-margin level does not — alarming for a retailer,
+routine for a builder — while a margin that fell three points is worth a look in any trade.
+Mike's own figures are debtor days 35/45, creditor days 35/45, stock days 30/60, sales growth
+amber below 0% and red below −5%, and gross margin and overheads 1 and 3 percentage points.
+The last pair share their numbers because a point of margin lost and a point of overheads
+gained cost exactly the same money — both are a point of sales. **A measure with no threshold
+is shown in full and never banded**, which is a supported setting rather than a gap.
+
+**The thresholds live on a screen, not in a constant** — the mentor's *Forecast Trend
+Thresholds* tab under Model Inputs, beside Property Tax Rules, with version history and
+restore. That is what makes banding safe: the numbers are the firm's advisory judgement, so
+they have to be visible and changeable. Mentor tier alone for now; the resolver and routes
+carry every tier already, so a firm that needs its own numbers costs one line in `TAB_TIERS`.
+
+**The parser was never touched, and the item's own premise was wrong.** 4.61(b) was filed as
+needing `xeroReportParser` taught to read a comparative export's second figure column as a
+prior period, naming `MULTI_PERIOD_COLUMNS` as the guard not to weaken. It needed neither: the
+parser already reads both reports and already records each report's own year, so last year
+arrives as two more file slots and the guard is never approached. 🔴 **Which of two files is
+this year is decided by the reports' own date lines, never by upload order, and a pair that
+cannot be dated apart is REFUSED.** Getting it backwards would open the forecast from last
+year's position — every figure plausible, every figure a year stale, nothing on screen to
+notice it by — and a file picker returns whatever order the operating system gives it. Two
+periods that are not a like-for-like year apart are refused for the same reason: a nine-month
+period against a twelve-month one gives a growth figure that looks right and is not. A measure
+that cannot be worked out is **left out and the reason given once** — never a zero, never a
+dash to interpret.
 
 **Both of the screen's judgement calls are ruled (Mike, 2026-09-03).** Stock below zero is
 **named in a red band**, not left as a figure among figures: it is impossible rather than
