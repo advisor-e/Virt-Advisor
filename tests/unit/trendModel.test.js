@@ -46,19 +46,13 @@ const CURRENT = {
   inventory: 148000
 }
 
-/** The platform file as it ships: Mike's debtor-day numbers, nothing else set. */
-const MIKES_THRESHOLDS = {
-  levels: {
-    debtorDays: { green: 35, amber: 45 },
-    creditorDays: { green: null, amber: null },
-    stockDays: { green: null, amber: null }
-  },
-  movements: {
-    salesGrowth: { warn: null, crit: null },
-    grossMargin: { warn: null, crit: null },
-    overheadRatio: { warn: null, crit: null }
-  }
-}
+/**
+ * The platform file as it ships — Mike's own twelve figures, given 2026-09-03 one pair at
+ * a time. Taken from the real file rather than restated, so this suite can never be green
+ * against numbers the app does not actually use. `forecastTrendThresholds.test.js` pins
+ * the file's contents; this proves what they DO.
+ */
+const MIKES_THRESHOLDS = require('../../data/forecast-trend-thresholds.json')
 
 /** Pull one measure out of a result by key. */
 function measure (result, key) {
@@ -112,13 +106,34 @@ describe('trendModel — the approved drawing’s worked example', () => {
     expect(m.movement).toBeCloseTo(13.2754, 3)
   })
 
-  // This is the sentence the drawing makes on screen, pinned to the arithmetic.
-  test('on Mike’s numbers debtor days is the only banded measure, and it is red', () => {
+  // 🔴 WHAT MIKE'S OWN NUMBERS ACTUALLY DO TO A REAL SET OF FIGURES. This is the whole
+  // point of pinning them: a threshold is an abstraction until it meets a client, and the
+  // only way to know a scale is not permanently red is to run one through it.
+  //
+  // This client is deteriorating on purpose — the drawing constructed it to exercise every
+  // state — so three reds is the example working, not the scale misfiring. Two of them are
+  // worth naming: creditor days at 47 is an ordinary payment cycle and stock days at 102 is
+  // three and a half months on the shelf. Mike was shown both figures before he set the
+  // scales and chose these numbers as "a place to start".
+  test('the platform scale, run against a real set of figures', () => {
+    expect(measure(result, 'salesGrowth').band).toBe('good')
+    expect(measure(result, 'grossMargin').band).toBe('warn')
+    expect(measure(result, 'overheadRatio').band).toBe('warn')
     expect(measure(result, 'debtorDays').band).toBe('crit')
-    expect(measure(result, 'creditorDays').band).toBeNull()
-    expect(measure(result, 'stockDays').band).toBeNull()
-    expect(measure(result, 'salesGrowth').band).toBeNull()
-    expect(result.counts).toEqual({ good: 0, warn: 0, crit: 1, unbanded: 5 })
+    expect(measure(result, 'creditorDays').band).toBe('crit')
+    expect(measure(result, 'stockDays').band).toBe('crit')
+    expect(result.counts).toEqual({ good: 1, warn: 2, crit: 3, unbanded: 0 })
+  })
+
+  // The other half of the same guarantee: a healthy client must come back green, or the
+  // scale is not a scale. Same shape of business, figures an accountant would not question.
+  test('a client in good order comes back green on the same scale', () => {
+    const healthy = computeTrend({
+      thresholds: MIKES_THRESHOLDS,
+      prior: { reportDate: '1 April 2024 to 31 March 2025', sales: 800000, costOfSales: 460000, operatingExpenses: 250000, accountsReceivable: 60000, accountsPayable: 40000, inventory: 30000 },
+      current: { reportDate: '1 April 2025 to 31 March 2026', sales: 880000, costOfSales: 500000, operatingExpenses: 272000, accountsReceivable: 68000, accountsPayable: 44000, inventory: 33000 }
+    })
+    expect(healthy.counts).toEqual({ good: 6, warn: 0, crit: 0, unbanded: 0 })
   })
 })
 

@@ -24,13 +24,27 @@
     "              retailer is routine for a builder, whereas a margin that fell three",
     "              points is worth a look in any trade.",
     "",
-    "DEBTOR DAYS CARRIES MIKE'S OWN NUMBERS, given 2026-09-03 in his words —",
-    "\"0-35 = green - 36 - 45 - orange - 46 + = red\". They are the classic debtor-day",
-    "figures: 30-day terms, 45 slipping, 46+ genuinely late. `green` and `amber` are the",
-    "TOP of each band, so red is anything above `amber`.",
+    "EVERY NUMBER BELOW IS MIKE'S, GIVEN 2026-09-03, ONE PAIR AT A TIME. `green` and",
+    "`amber` are the TOP of each band, so red is anything above `amber`.",
+    "  debtorDays    35 / 45 — his own words, \"0-35 = green - 36 - 45 - orange - 46 + =",
+    "                red\". The classic figures: 30-day terms, 45 slipping, 46+ late.",
+    "  creditorDays  35 / 45 — \"same as debtor is fine\".",
+    "  stockDays     30 / 60 — \"0-30 is green - 31-60 is orange - 61+ is red\". Deliberately",
+    "                wider than the other two: stock days measure how long goods sit on a",
+    "                shelf, and a business holding three months is at 90 and may be trading",
+    "                perfectly normally.",
+    "  salesGrowth   amber below 0%, red below -5% — accepted as a starting point. It reads",
+    "                DOWNWARDS, so the red figure is the LOWER one.",
+    "  grossMargin   amber 1 pt, red 3 pts of fall — accepted.",
+    "  overheadRatio amber 1 pt, red 3 pts of rise — accepted. The same pair as gross",
+    "                margin, and not merely for symmetry: a point of margin lost and a point",
+    "                of overheads gained cost exactly the same money, because both are a",
+    "                point of sales.",
     "",
-    "WHAT IS STILL AWAITED FROM HIM: creditorDays and stockDays (a green and an amber",
-    "each), and all six movement figures. Ten numbers. None of them blocks anything.",
+    "HE CALLED THESE \"a place to start\" AND ASKED TWICE THAT THEY BE EDITABLE. They are —",
+    "the mentor's Forecast Trend Thresholds tab under Model Inputs, with version history and",
+    "restore. Changing one there does NOT change this file; it stores the mentor's own",
+    "overlay over it, which is how every other cascading setting in this app works.",
     "",
     "THIS FILE IS THE MENTOR TIER'S. A firm gets its own copy only if one ever has a real",
     "reason to differ — the default-is-mentor-alone ruling of 2026-08-24. The resolver",
@@ -39,12 +53,12 @@
   ],
   "levels": {
     "debtorDays": { "green": 35, "amber": 45 },
-    "creditorDays": { "green": null, "amber": null },
-    "stockDays": { "green": null, "amber": null }
+    "creditorDays": { "green": 35, "amber": 45 },
+    "stockDays": { "green": 30, "amber": 60 }
   },
   "movements": {
-    "salesGrowth": { "warn": null, "crit": null },
-    "grossMargin": { "warn": null, "crit": null },
-    "overheadRatio": { "warn": null, "crit": null }
+    "salesGrowth": { "warn": 0, "crit": -5 },
+    "grossMargin": { "warn": 1, "crit": 3 },
+    "overheadRatio": { "warn": 1, "crit": 3 }
   }
 }

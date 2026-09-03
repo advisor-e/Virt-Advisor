@@ -28,17 +28,30 @@ function loaderFor (map) {
 }
 
 describe('the platform thresholds as shipped', () => {
-  // 🔴 A DELIBERATE PIN, AND THE ONLY ONE IN THIS FILE. These three numbers are Mike's own
-  // words of 2026-09-03 — "0-35 = green - 36 - 45 - orange - 46 + = red" — and they are
-  // load-bearing: they are the only banding any client gets today, and the approved
-  // drawing and `trendModel.test.js` both state results computed against them. A silent
-  // edit here would change what every advisor is told with nothing on screen to notice by.
-  test('debtor days carries Mike’s numbers and nothing else is banded', () => {
+  // 🔴 A DELIBERATE PIN, AND THE ONLY ONE IN THIS FILE. All twelve figures are Mike's own,
+  // given 2026-09-03 one pair at a time, and they are load-bearing: they are the banding
+  // every client gets, and `trendModel.test.js` states results computed against them. A
+  // silent edit here would change what every advisor is told about every client, with
+  // nothing on screen to notice it by — which is precisely what UAT cannot catch.
+  test('the platform set is Mike’s twelve figures, exactly as he gave them', () => {
     expect(BASE_TREND_THRESHOLDS.levels.debtorDays).toEqual({ green: 35, amber: 45 })
-    expect(BASE_TREND_THRESHOLDS.levels.creditorDays).toEqual({ green: null, amber: null })
-    expect(BASE_TREND_THRESHOLDS.levels.stockDays).toEqual({ green: null, amber: null })
-    MOVEMENT_KEYS.forEach((k) => {
-      expect(BASE_TREND_THRESHOLDS.movements[k]).toEqual({ warn: null, crit: null })
+    expect(BASE_TREND_THRESHOLDS.levels.creditorDays).toEqual({ green: 35, amber: 45 })
+    // Deliberately wider: stock days measure how long goods sit on a shelf, and three
+    // months of stock is 90 days on a business that may be trading perfectly normally.
+    expect(BASE_TREND_THRESHOLDS.levels.stockDays).toEqual({ green: 30, amber: 60 })
+    // Sales growth reads DOWNWARDS, so its red figure is the lower of the two.
+    expect(BASE_TREND_THRESHOLDS.movements.salesGrowth).toEqual({ warn: 0, crit: -5 })
+    expect(BASE_TREND_THRESHOLDS.movements.grossMargin).toEqual({ warn: 1, crit: 3 })
+    expect(BASE_TREND_THRESHOLDS.movements.overheadRatio).toEqual({ warn: 1, crit: 3 })
+  })
+
+  // The shipped set has to survive its own validator, or a firm could never save a change
+  // on top of it — and the ordering rules are exactly where a hand-edit would trip.
+  test('the shipped set is one the validator would accept', () => {
+    expect(validateTrendThresholds(BASE_TREND_THRESHOLDS).ok).toBe(true)
+    MOVEMENT_KEYS.concat(LEVEL_KEYS).forEach((k) => {
+      const group = LEVEL_KEYS.includes(k) ? 'levels' : 'movements'
+      expect(BASE_TREND_THRESHOLDS[group][k]).toBeDefined()
     })
   })
 
@@ -149,7 +162,7 @@ describe('resolving what a scope actually works to', () => {
     }))
     expect(got.levels.stockDays).toEqual({ green: 60, amber: 90 })
     expect(got.levels.debtorDays).toEqual({ green: 35, amber: 45 })
-    expect(got.movements.grossMargin).toEqual({ warn: null, crit: null })
+    expect(got.movements.grossMargin).toEqual({ warn: 1, crit: 3 })
   })
 
   test('a scope may clear an inherited threshold, which unbands that measure', async () => {
