@@ -6,6 +6,10 @@
     :title="$t('report.workingCapital.title')"
     :client="$t('report.preparedFor')"
     :badge="$t('report.illustrative')"
+    :saved="savedReport"
+    @save="saveReport"
+    @restore="restoreReport"
+    @client-change="onReportClient"
   )
 
   //- Full-width headline band (owner ruling 2026-07-27): the HeroStrip spans the page
@@ -60,6 +64,17 @@
           :step="fld.step"
           @input="v => setField(fld.key, v)"
         )
+          //- A figure the client changed since the advisor's version (§5, D4).
+          template(v-slot:badge)
+            provenance-badge(
+              v-if="isClientChanged(fld.key)"
+              source="client"
+              size="sm"
+              spaced
+              file-label=""
+              entered-label=""
+              :client-label="$t('clientReports.saved.badge')"
+            )
 
     //- RESULTS
     section.bpr-results(v-if="out")
@@ -150,8 +165,10 @@ import StaleBanner from '~/components/base/StaleBanner.vue'
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import SliderField from '~/components/base/SliderField'
+import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
+import savedReport from '~/mixins/savedReport'
 
 const DEFAULTS = {
   initialInvestment: 200,
@@ -171,9 +188,9 @@ const DEFAULTS = {
 export default {
   name: 'BusinessPerformanceReport',
 
-  components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure, SliderField },
+  components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure, SliderField, ProvenanceBadge },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportRecompute, savedReport],
 
   data () {
     return {
@@ -335,6 +352,27 @@ fields: [
     /** Backend request — consumed by the reportRecompute mixin (debounce + race guard). */
     recomputeRequest () {
       return { url: '/api/report/working-capital-cycle', body: this.inputs }
+    },
+    /**
+     * The figures saved per client — consumed by the savedReport mixin. The sliders
+     * are the whole of this screen's inputs, so `inputs` is the saved shape.
+     * @returns {object}
+     */
+    reportInputs () {
+      return Object.assign({}, this.inputs)
+    },
+    /**
+     * Load a saved set back — consumed by the savedReport mixin. Only the keys this
+     * screen knows, and only numbers: a saved row is never trusted for its shape.
+     * @param {object} inputs
+     */
+    applyReportInputs (inputs) {
+      const next = Object.assign({}, this.inputs)
+      Object.keys(next).forEach((k) => {
+        if (inputs && typeof inputs[k] === 'number' && Number.isFinite(inputs[k])) { next[k] = inputs[k] }
+      })
+      this.inputs = next
+      this.recompute()
     },
     /** Apply a successful recompute — consumed by the reportRecompute mixin. */
     applyResult (data) {
