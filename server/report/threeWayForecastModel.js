@@ -384,9 +384,15 @@ function resolveInputs (raw, fallback) {
     const curve = Array.isArray(sd.curve) && sd.curve.length
       ? sd.curve.map(function (n) { return pick(n, 0) })
       : (curveOfPattern(pattern) || curveOfPattern(def.sellDown.pattern))
+    const enabled = o.enabled === true
+    // 🔴 THE TICK IS LOAD-BEARING HERE, NOT ONLY ON THE SCREEN. With it off the two series
+    // are dropped whatever was entered, so an advisor who fills the section in and then
+    // unticks it gets today's forecast back rather than a half-applied one — and no later
+    // caller can send figures with the tick off and be surprised by them landing.
+    const seriesIf = (v, d) => (enabled ? pickSeries(v, d) : zeroes())
     return {
-      enabled: o.enabled === true,
-      importedPurchases: pickSeries(o.importedPurchases, def.importedPurchases),
+      enabled,
+      importedPurchases: seriesIf(o.importedPurchases, def.importedPurchases),
       depositPct: pick(o.depositPct, def.depositPct),
       depositLeadMonths: Math.round(pick(o.depositLeadMonths, def.depositLeadMonths)),
       balancePayment: bucket(o.balancePayment, def.balancePayment),
@@ -404,7 +410,7 @@ function resolveInputs (raw, fallback) {
         curve
       },
       readyAfterMonths: Math.round(pick(o.readyAfterMonths, def.readyAfterMonths)),
-      overseasSales: pickSeries(o.overseasSales, def.overseasSales),
+      overseasSales: seriesIf(o.overseasSales, def.overseasSales),
       deliveryLagMonths: Math.round(pick(o.deliveryLagMonths, def.deliveryLagMonths)),
       overseasCollection: bucket(o.overseasCollection, def.overseasCollection),
       zeroRated: o.zeroRated !== false,

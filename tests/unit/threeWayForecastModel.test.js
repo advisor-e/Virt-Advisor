@@ -761,6 +761,19 @@ describe('4.64 — with the tick off, the overseas split moves nothing', () => {
     })
   })
 
+  describe('the tick is load-bearing in the engine, not only on the screen', () => {
+    test('figures sent with the tick OFF are dropped, not half-applied', () => {
+      // An advisor who fills the section in and then unticks it gets today's forecast
+      // back. The screen zeroes the series too, but a flag that only the screen honours
+      // is a trap for the next caller — slice 2 among them.
+      const unticked = JSON.parse(JSON.stringify(WORKED))
+      unticked.enabled = false
+      const f = computeThreeWayForecast({ overseas: unticked })
+      expect(statementsOf(f)).toBe(statementsOf(silent))
+      overseasIsSilent(f)
+    })
+  })
+
   describe('what the twelve months cannot show is said, not hidden', () => {
     test('a deposit falling before the forecast starts is reported and not counted', () => {
       // Stock landing in June (month 2) on a four-month lead was paid for in February,

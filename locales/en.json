@@ -1937,7 +1937,12 @@
         "print": "Print or save as PDF",
         "changeAssumptions": "Change the assumptions",
         "startAgain": "Start again",
-        "privacy": "Nothing is saved. Nothing about this client leaves the app."
+        "privacy": "Nothing is saved. Nothing about this client leaves the app.",
+        "overseasDeposits": "Deposits paid overseas",
+        "overseasFreight": "Freight and shipping",
+        "overseasDuty": "Duty and clearance",
+        "overseasBorderGst": "GST paid at the border",
+        "overseasSupplierBalance": "Balance paid to supplier"
       }
     }
   },
