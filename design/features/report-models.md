@@ -571,6 +571,25 @@ app cannot derive that book value and this is structural rather than an omission
 80,000" and can never know which van is which. Reading the Fixed Asset Schedule instead is
 item 4.65.
 
+**Step 3 shows the volatility read** (2026-09-03, its own approved drawing
+[`../mockups/three-way-forecast-volatility.html`](../mockups/three-way-forecast-volatility.html)).
+Under the sales boxes: the average month, the normal range, the biggest month on record, how
+many forecast months fall outside it, the workbook's rev-counter dial, and a chart carrying
+the actual months and the twelve forecast months against the same bands. **The bands are
+measured from the actual months alone** — measure both together and an optimistic forecast
+widens its own normal range and then sits inside it, which is a block that agrees with
+whatever it is shown. All of it is `compareForecast` in `volatilityModel.js`; the screen
+places dots and decides nothing, because two implementations of a standard deviation is how
+a screen and a report start disagreeing. Two bands name a month and ask for the reason —
+**amber beyond the second deviation, red beyond the third** — while a month merely outside
+the first is drawn hollow, and one that the forecast has not changed is named as the
+client's own seasonality rather than warned about. The engine measures 12, 18 or 24 months,
+so the block takes the **largest of those the months in hand support** and says which it
+used. The dial is shared with the Volatility Report
+([`VolatilityDial.vue`](../../components/base/VolatilityDial.vue)): its geometry and its
+50/75 boundaries are measured from the workbook's own gauge images, and two copies would
+drift into a needle pointing at different places on two screens showing the same client.
+
 **Both of the screen's judgement calls are ruled (Mike, 2026-09-03).** Stock below zero is
 **named in a red band**, not left as a figure among figures: it is impossible rather than
 merely bad, and an advisor scanning twelve columns reads past a minus sign. An opening
@@ -595,7 +614,8 @@ through the same pair, `parseMonthlyUpload` + `assembleMonthlySeries`. A new mod
 monthly inputs reuses them rather than growing a third reader, and should expect the same
 three findings above, because they are properties of the export, not of any one report.
 The forecast shows how a model borrows the series without owning it: it does the join in
-its own route, then keeps only the last twelve values.
+its own route, seeds the sales boxes from the last twelve values, and keeps the **whole
+run** — up to 24 months — for the volatility read on step 3.
 
 ---
 
