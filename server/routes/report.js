@@ -612,10 +612,13 @@ function multipleProperty (req, res, next) {
 /**
  * POST /api/report/volatility
  *
- * @param {object} req.body - `{ sales: number[], window: 12|18|24 }`. `sales` is monthly
- *   figures oldest-first, as read from the firm's accounts export; `window` is how many of
- *   the MOST RECENT months to measure. An unrecognised window falls back to 12, and an
- *   unreadable cell counts as zero rather than blanking every figure on the screen.
+ * @param {object} req.body - `{ sales: number[], window: 12|18|24, forecast?: number[] }`.
+ *   `sales` is monthly figures oldest-first, as read from the firm's accounts export;
+ *   `window` is how many of the MOST RECENT months to measure. An unrecognised window falls
+ *   back to 12, and an unreadable cell counts as zero rather than blanking every figure on
+ *   the screen. `forecast` is optional and is what the Three-Way Forecast's step 3 sends —
+ *   twelve forecast months to be placed against bands measured from `sales` alone. The
+ *   Volatility Report itself never sends one, so its response shape is unchanged.
  * @returns {object} `{ success, data, timestamp }` — the average, the population standard
  *   deviation, the three bands (with `lower` floored at zero per Mike's ruling of
  *   2026-08-31 and the workbook's own value kept beside it as `lowerUnfloored`), the dial
@@ -793,10 +796,18 @@ async function threeWayForecastIntake (req, res) {
     // and anything short of twelve is NOT padded: a seeded series with a made-up month in
     // it is worse than no seed at all.
     let monthlySales = null
+    // 🔴 THE WHOLE RUN IS KEPT, NOT ONLY THE TWELVE. Until 2026-09-03 everything but the
+    // last twelve was discarded here, which is why the volatility read could not exist:
+    // the months were read, joined, and then thrown away one line later. `history` carries
+    // the complete usable run — up to 24 months — so step 3 can measure the swing the
+    // forecast is being written against. Labels and figures only; no account names ever
+    // reach this object, and none is logged.
+    let history = []
     const monthlyWarnings = []
     if (monthly.length) {
       const joined = assembleMonthlySeries(monthly)
       for (let w = 0; w < joined.warnings.length; w++) { monthlyWarnings.push(joined.warnings[w]) }
+      history = joined.usable.map(m => ({ label: m.label, ordinal: m.ordinal, value: m.value }))
       if (joined.usable.length >= MONTHS_IN_YEAR) {
         monthlySales = { sales: joined.usable.slice(-MONTHS_IN_YEAR).map(m => m.value) }
       } else {
@@ -808,6 +819,7 @@ async function threeWayForecastIntake (req, res) {
 
     const data = assembleForecastIntake(annual, monthlySales)
     for (let w = 0; w < monthlyWarnings.length; w++) { data.warnings.push(monthlyWarnings[w]) }
+    data.history = history
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
     // Log the stable code only — never the filename, labels or content (identity stays local)

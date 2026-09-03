@@ -236,6 +236,43 @@ describe('the by-month file reaches the forecast', () => {
     expect(res.body.data.proposal.sales[11]).toBe(51000)
   })
 
+  /**
+   * The volatility read needs the WHOLE run, not the twelve that seed the sales boxes.
+   * Until 2026-09-03 everything else was discarded one line after being joined, so these
+   * assertions are the ones that stop that quietly coming back — and a truncated history
+   * would not look wrong on screen, it would just measure a shorter period than the
+   * advisor was told.
+   */
+  test('🔴 the whole usable run reaches the screen, not only the twelve that seed the sales', async () => {
+    const bs = tempFile(makeXlsx(BS_GRID), '.xlsx')
+    const res = await run([bs, tempFile(byMonthYear(2025, 12)), tempFile(byMonthYear(2024, 12))])
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.history).toHaveLength(24)
+    // Oldest first, and it ends where the seed ends.
+    expect(res.body.data.history[23].value).toBe(res.body.data.proposal.sales[11])
+    // Each month carries its own date, so the screen names it rather than guessing.
+    expect(typeof res.body.data.history[0].ordinal).toBe('number')
+  })
+
+  test('the run keeps the months a mid-year export cannot seed a year from', async () => {
+    // Five usable months this year plus twelve last year is a 17-month run: too few to
+    // seed twelve, but more than enough for the swing. The two must not be conflated.
+    const bs = tempFile(makeXlsx(BS_GRID), '.xlsx')
+    const res = await run([bs, tempFile(byMonthYear(2025, 6)), tempFile(byMonthYear(2024, 12))])
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.history.length).toBeGreaterThan(12)
+  })
+
+  test('no by-month export means an empty run, never a partial one', async () => {
+    const bs = tempFile(makeXlsx(BS_GRID), '.xlsx')
+    const res = await run([bs])
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.history).toEqual([])
+  })
+
   test('a third by-month report is refused rather than silently dropped', async () => {
     const res = await run([
       tempFile(byMonthYear(2025, 12)),

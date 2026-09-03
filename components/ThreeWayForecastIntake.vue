@@ -320,6 +320,158 @@
               span(v-if="form.salesSource === 'seeded'")  {{ $t('report.threeWayForecast.assume.seededNote', { total: money(salesTotal) }) }}
               span(v-else) {{ money(salesTotal) }}
 
+          //- The volatility read. Built from the approved drawing
+          //- design/mockups/three-way-forecast-volatility.html (approved 2026-09-03),
+          //- and placed directly under the sales boxes because that is the only moment
+          //- its answer can change anything.
+          .tw-group
+            .volblock
+              .tw-glabel
+                span.tw-dot
+                h2.tw-h2 {{ $t('report.threeWayForecast.assume.volatility.heading') }}
+
+              //- Nothing to measure: no by-month export, or too few complete months.
+              p.volsub(v-if="!historyMonths.length") {{ $t('report.threeWayForecast.assume.volatility.noHistory') }}
+              .warn-note(v-else-if="!volatilityWindow")
+                strong {{ $t('report.threeWayForecast.assume.volatility.notEnough') }}
+                br
+                | {{ $t('report.threeWayForecast.assume.volatility.notEnoughBody', { n: historyMonths.length }) }}
+
+              template(v-else-if="volatility && volatility.forecast")
+                p.volsub {{ $t('report.threeWayForecast.assume.volatility.measuredOver', { n: volatility.monthsUsed }) }}
+
+                .volfigs
+                  .volfig
+                    .k {{ $t('report.threeWayForecast.assume.volatility.averageMonth') }}
+                    .v {{ money(volatility.average) }}
+                    .s {{ $t('report.threeWayForecast.assume.volatility.averageMonthSub', { total: money(volatility.total), n: volatility.monthsUsed }) }}
+                  .volfig
+                    .k {{ $t('report.threeWayForecast.assume.volatility.normalRange') }}
+                    .v.is-small {{ money(volatility.bands[0].lower) }} – {{ money(volatility.bands[0].upper) }}
+                    .s {{ $t('report.threeWayForecast.assume.volatility.normalRangeSub') }}
+                  .volfig(v-if="volatility.highest")
+                    .k {{ $t('report.threeWayForecast.assume.volatility.biggestMonth') }}
+                    .v {{ money(volatility.highest.value) }}
+                    .s {{ $t('report.threeWayForecast.assume.volatility.biggestMonthSub', { month: historyMonthName(volatility.highest.index) }) }}
+                  .volfig
+                    .k {{ $t('report.threeWayForecast.assume.volatility.outsideCount') }}
+                    .v
+                      | {{ volatility.forecast.outsideCount }}
+                      span.volof  {{ $t('report.threeWayForecast.assume.volatility.outsideOf') }}
+                    .s {{ $t('report.threeWayForecast.assume.volatility.outsideSubHistory', { n: historyOutsideCount }) }}
+
+                //- The dial — Mike's ruling of 2026-09-03. It measures the HISTORY, and
+                //- says so, because its own green/amber/red is a different judgement from
+                //- the two bands below.
+                .volpanel
+                  .volpanel-h {{ $t('report.volatility.dial.title') }}
+                  p.volpanel-s {{ $t('report.threeWayForecast.assume.volatility.dialAbout', { n: volatility.monthsUsed }) }}
+                  volatility-dial(:score="volatility.score")
+
+                .volchart(v-if="volatilityChart")
+                  svg(
+                    viewBox="0 0 760 420"
+                    width="100%"
+                    height="420"
+                    role="img"
+                    :aria-label="$t('report.threeWayForecast.assume.volatility.chartAlt', { n: volatility.monthsUsed })")
+                    rect(
+                      v-for="(r, i) in volatilityChart.bandRects"
+                      :key="'br' + i"
+                      x="60"
+                      :y="r.y"
+                      width="600"
+                      :height="r.height"
+                      :fill="r.fill")
+                    line(
+                      v-for="(l, i) in volatilityChart.bandLines"
+                      :key="'bl' + i"
+                      x1="60"
+                      :y1="l.y"
+                      x2="660"
+                      :y2="l.y"
+                      :stroke="l.stroke"
+                      :stroke-width="l.width"
+                      :stroke-dasharray="l.dash")
+                    text.volaxis(
+                      v-for="(l, i) in volatilityChart.bandLines"
+                      :key="'bt' + i"
+                      x="756"
+                      :y="l.y + 3"
+                      text-anchor="end"
+                      :fill="l.stroke") {{ l.label }}
+                    line(x1="60" y1="380" x2="660" y2="380" stroke="#d5e1ee" stroke-width="1")
+                    line(
+                      :x1="volatilityChart.dividerX"
+                      y1="40"
+                      :x2="volatilityChart.dividerX"
+                      y2="380"
+                      stroke="#5b6f8a"
+                      stroke-width="1"
+                      stroke-dasharray="3 4")
+                    text.volhead(:x="volatilityChart.actualLabelX" y="32" text-anchor="middle" fill="#5b6f8a") {{ $t('report.threeWayForecast.assume.volatility.chartActual', { n: volatility.monthsUsed }) }}
+                    text.volhead(:x="volatilityChart.forecastLabelX" y="32" text-anchor="middle" fill="#002b64") {{ $t('report.threeWayForecast.assume.volatility.chartForecast') }}
+                    polyline(fill="none" stroke="#002b64" stroke-width="2" stroke-linejoin="round" :points="volatilityChart.actualLine")
+                    polyline(fill="none" stroke="#0070c0" stroke-width="2" stroke-linejoin="round" stroke-dasharray="6 4" :points="volatilityChart.forecastLine")
+                    circle(
+                      v-for="(p, i) in volatilityChart.points"
+                      :key="'pt' + i"
+                      :cx="p.x"
+                      :cy="p.y"
+                      :r="p.r"
+                      :fill="p.fill"
+                      :stroke="p.stroke"
+                      :stroke-width="p.strokeWidth")
+                    text.volaxis(
+                      v-for="(t, i) in volatilityChart.monthLabels"
+                      :key="'ml' + i"
+                      :x="t.x"
+                      y="398"
+                      text-anchor="middle"
+                      fill="#5b6f8a") {{ t.label }}
+                .vollegend
+                  span
+                    i.volline(style="border-color:#002b64")
+                    | {{ $t('report.threeWayForecast.assume.volatility.legendActual') }}
+                  span
+                    i.volline.is-dashed(style="border-color:#0070c0")
+                    | {{ $t('report.threeWayForecast.assume.volatility.legendForecast') }}
+                  span
+                    span.voldot.is-ring
+                    | {{ $t('report.threeWayForecast.assume.volatility.legendOutside') }}
+                  span
+                    span.voldot(style="background:#ff9900")
+                    | {{ $t('report.threeWayForecast.assume.volatility.legendSecond') }}
+                  span
+                    span.voldot(style="background:#ff0000")
+                    | {{ $t('report.threeWayForecast.assume.volatility.legendThird') }}
+
+                //- The two bands, Mike's ruling of 2026-09-03: amber beyond the second
+                //- deviation, red beyond the third, and the red one sits ABOVE the amber
+                //- so the stronger statement is never buried under the milder one.
+                .crit-note(v-if="redBand")
+                  strong {{ redBand.title }}
+                  br
+                  | {{ redBand.body }}
+                .warn-note(v-if="amberBand")
+                  strong {{ amberBand.title }}
+                  br
+                  | {{ amberBand.body }}
+
+                p.volplain(v-if="seasonalSentence") {{ seasonalSentence }}
+
+                a.vollink(href="/volatility" target="_blank" rel="noopener") {{ $t('report.threeWayForecast.assume.volatility.openReport') }} ›
+
+                p.volwhy {{ $t('report.threeWayForecast.assume.volatility.bandsAreHistory') }}
+
+              //- A failed recompute must never leave figures on screen looking live.
+              .crit-note(v-else-if="volatilityStale")
+                strong {{ $t('report.threeWayForecast.assume.volatility.staleTitle') }}
+                br
+                | {{ $t('report.threeWayForecast.assume.volatility.staleBody') }}
+                br
+                b-button(size="is-small" @click="refreshVolatility") {{ $t('report.threeWayForecast.assume.volatility.retry') }}
+
           .tw-group
             .tw-glabel
               span.tw-dot
@@ -467,6 +619,7 @@
  * ("all six start on the platform defaults for you to change"), applied consistently.
  */
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
+import VolatilityDial from '~/components/base/VolatilityDial.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 
 /** Every opening balance-sheet line the model takes, in the order the screen shows them. */
@@ -496,6 +649,15 @@ const OVERHEAD_KEYS = [
 ]
 
 const MONTHS = 12
+/**
+ * The windows `volatilityModel.js` measures. The block takes the LARGEST that the months
+ * in hand support — see `volatilityWindow`.
+ */
+const VOLATILITY_WINDOWS = [24, 18, 12]
+/** How long the block waits after a keystroke before asking the backend again. */
+const VOLATILITY_DEBOUNCE_MS = 400
+/** The chart's drawing box, matching the approved drawing's own SVG. */
+const CHART = { left: 70, right: 640, top: 40, bottom: 380 }
 const LOAN_COUNT = 3
 const SHAREHOLDER_COUNT = 4
 /** A Balance Sheet, a Profit and Loss, and up to two by-month P&Ls — the route's own limit. */
@@ -520,7 +682,7 @@ function tagged (value, source) {
 export default {
   name: 'ThreeWayForecastIntake',
 
-  components: { ProvenanceBadge },
+  components: { ProvenanceBadge, VolatilityDial },
 
   mixins: [currencyMixin],
 
@@ -546,6 +708,12 @@ export default {
       buildError: null,
       warnings: [],
       invalid: [],
+      // The volatility read. `null` until the backend answers; `volatilityStale` is the
+      // failure state, because figures describing the previous inputs while looking live
+      // are worse than no figures at all.
+      volatility: null,
+      volatilityStale: false,
+      volatilityTimer: null,
       // A restored form is this component's own state coming back from the page, but it
       // is normalised anyway: a form saved before the capital block existed has no rows,
       // and an undefined list would break the group rather than show it empty.
@@ -660,6 +828,152 @@ export default {
         if (price < 0 || (row.direction === 'sell' && book < 0)) { bad.push(i + 1) }
       })
       return bad
+    },
+
+    /** The complete run of usable months the exports gave, oldest first. */
+    historyMonths () {
+      return Array.isArray(this.form.history) ? this.form.history : []
+    },
+
+    /**
+     * How many months to measure: the LARGEST window the engine offers that the months in
+     * hand support, and 0 when twelve complete months are not there.
+     *
+     * ⚠ A DIFFERENCE FROM THE DRAWING, which says the block "uses every complete month
+     * available". The engine measures 12, 18 or 24 — the three the workbook has sheets for
+     * — so twenty months in hand are measured over eighteen, not twenty. The screen says
+     * which number it used, so nothing is hidden; widening the engine to arbitrary windows
+     * would be a change to Mike's workbook port and is not this block's to make.
+     */
+    volatilityWindow () {
+      const have = this.historyMonths.length
+      for (let i = 0; i < VOLATILITY_WINDOWS.length; i++) {
+        if (have >= VOLATILITY_WINDOWS[i]) { return VOLATILITY_WINDOWS[i] }
+      }
+      return 0
+    },
+
+    /** How many of the measured ACTUAL months sat outside the normal range. */
+    historyOutsideCount () {
+      if (!this.volatility) { return 0 }
+      return this.volatility.months.filter(m => m.outside).length
+    },
+
+    /**
+     * The red band — beyond the THIRD deviation. Shown above the amber one so the stronger
+     * statement is never buried under the milder one.
+     * @returns {{ title: string, body: string }|null}
+     */
+    redBand () {
+      const f = this.volatility && this.volatility.forecast
+      if (!f || !f.beyondThird.length) { return null }
+      return this.bandMessage(f.beyondThird, f, 'red')
+    },
+
+    /** The amber band — beyond the SECOND deviation but within the third. */
+    amberBand () {
+      const f = this.volatility && this.volatility.forecast
+      if (!f || !f.beyondSecond.length) { return null }
+      return this.bandMessage(f.beyondSecond, f, 'amber')
+    },
+
+    /**
+     * The plain sentence about months that are outside the range and were outside it last
+     * year too. Not a warning, so not a band: it is the reading that stops an advisor
+     * worrying about the client's own seasonality.
+     * @returns {string|null}
+     */
+    seasonalSentence () {
+      const f = this.volatility && this.volatility.forecast
+      if (!f || !f.seasonal.length) { return null }
+      const names = f.seasonal.map(i => this.monthLabels[i])
+      const key = names.length === 1 ? 'seasonalOne' : 'seasonalMany'
+      return this.$t('report.threeWayForecast.assume.volatility.' + key, { months: this.listText(names) })
+    },
+
+    /**
+     * The chart: the measured actual months, the twelve forecast months, and the bands
+     * measured from the actual months alone carried across both halves.
+     *
+     * Placement only — every band, every figure and every month's severity arrives already
+     * decided by `volatilityModel.js`. Nothing here recomputes an average or a deviation.
+     */
+    volatilityChart () {
+      const v = this.volatility
+      if (!v || !v.forecast) { return null }
+      const actual = v.sales
+      const forecast = v.forecast.months
+      const count = actual.length + forecast.length
+      if (count < 2) { return null }
+
+      let top = v.bands[2].upper
+      for (let i = 0; i < actual.length; i++) { if (actual[i] > top) { top = actual[i] } }
+      for (let i = 0; i < forecast.length; i++) { if (forecast[i].value > top) { top = forecast[i].value } }
+      const ceiling = Math.max(1, top * 1.06)
+
+      const x = i => CHART.left + (i * (CHART.right - CHART.left)) / (count - 1)
+      const y = value => CHART.bottom - (value / ceiling) * (CHART.bottom - CHART.top)
+
+      const b = v.bands
+      const bandRects = [
+        { y: y(b[2].upper), height: y(b[1].upper) - y(b[2].upper), fill: '#ff990010' },
+        { y: y(b[1].upper), height: y(b[0].upper) - y(b[1].upper), fill: '#0070c00f' },
+        { y: y(b[0].upper), height: y(b[0].lower) - y(b[0].upper), fill: '#0070c01c' },
+        { y: y(b[0].lower), height: y(b[1].lower) - y(b[0].lower), fill: '#0070c00f' },
+        { y: y(b[1].lower), height: y(b[2].lower) - y(b[1].lower), fill: '#ff990010' }
+      ].filter(r => r.height > 0)
+
+      // The same band label the Volatility Report prints, from the same key.
+      const label = (k, value) => this.$t('report.volatility.chart.band', { k, value: this.money(value) })
+      const bandLines = [
+        { y: y(b[2].upper), stroke: '#ff9900', width: 1, dash: '2 4', label: label(3, b[2].upper) },
+        { y: y(b[1].upper), stroke: '#5b6f8a', width: 1, dash: '4 4', label: label(2, b[1].upper) },
+        { y: y(b[0].upper), stroke: '#0070c0', width: 1.5, dash: '6 4', label: label(1, b[0].upper) },
+        { y: y(v.average), stroke: '#002b64', width: 2, dash: '0', label: this.$t('report.volatility.chart.average', { value: this.money(v.average) }) },
+        { y: y(b[0].lower), stroke: '#0070c0', width: 1.5, dash: '6 4', label: label(1, b[0].lower) },
+        { y: y(b[1].lower), stroke: '#5b6f8a', width: 1, dash: '4 4', label: label(2, b[1].lower) },
+        { y: y(b[2].lower), stroke: '#ff9900', width: 1, dash: '2 4', label: label(3, b[2].lower) }
+      ]
+
+      const points = []
+      const actualParts = []
+      const forecastParts = []
+      for (let i = 0; i < actual.length; i++) {
+        const px = x(i)
+        const py = y(actual[i])
+        actualParts.push(px.toFixed(1) + ',' + py.toFixed(1))
+        points.push(this.chartPoint(px, py, v.months[i].band, '#002b64'))
+      }
+      for (let j = 0; j < forecast.length; j++) {
+        const px = x(actual.length + j)
+        const py = y(forecast[j].value)
+        forecastParts.push(px.toFixed(1) + ',' + py.toFixed(1))
+        points.push(this.chartPoint(px, py, forecast[j].band, '#0070c0'))
+      }
+
+      // Every month is labelled while they still fit; beyond that every other one, so the
+      // names never collide into an unreadable smear.
+      const stride = count > 26 ? 2 : 1
+      const monthLabels = []
+      for (let i = 0; i < count; i++) {
+        if (i % stride !== 0) { continue }
+        monthLabels.push({
+          x: x(i),
+          label: i < actual.length ? this.historyMonthName(i) : this.monthLabels[i - actual.length]
+        })
+      }
+
+      return {
+        bandRects,
+        bandLines,
+        points,
+        monthLabels,
+        actualLine: actualParts.join(' '),
+        forecastLine: forecastParts.join(' '),
+        dividerX: (x(actual.length - 1) + x(actual.length)) / 2,
+        actualLabelX: (x(0) + x(actual.length - 1)) / 2,
+        forecastLabelX: (x(actual.length) + x(count - 1)) / 2
+      }
     }
   },
 
@@ -667,6 +981,18 @@ export default {
     /** Chip navigation from the page — one-way flow, no $refs reach-in. */
     step (n) {
       this.phase = this.phaseFor(n)
+      if (this.phase === 'assume') { this.refreshVolatility() }
+    },
+
+    /**
+     * The bands are fixed once the files are read, but the forecast months change as the
+     * advisor types, so the comparison is re-asked. Debounced, because it is a keystroke.
+     */
+    'form.sales': {
+      deep: true,
+      handler () {
+        if (this.phase === 'assume') { this.scheduleVolatility() }
+      }
     }
   },
 
@@ -674,6 +1000,12 @@ export default {
     // Resolved after mount: a date derived from "today" during SSR and again in the
     // browser can differ across a midnight boundary, which is a hydration mismatch.
     if (!this.form.startDate) { this.form.startDate = this.defaultStartDate() }
+    // A restored session can open straight on step 3, so the read is asked for here too.
+    if (this.phase === 'assume') { this.refreshVolatility() }
+  },
+
+  beforeDestroy () {
+    if (this.volatilityTimer) { clearTimeout(this.volatilityTimer) }
   },
 
   methods: {
@@ -705,6 +1037,10 @@ export default {
       if (!this.restore) { return this.blankForm() }
       const form = JSON.parse(JSON.stringify(this.restore))
       if (!Array.isArray(form.capital)) { form.capital = [] }
+      // A form saved before the volatility block existed carries no history, and an
+      // undefined list would break the group rather than show its "nothing to measure"
+      // state — the same normalisation the capital rows get, for the same reason.
+      if (!Array.isArray(form.history)) { form.history = [] }
       return form
     },
 
@@ -753,7 +1089,11 @@ export default {
         // 72 boxes of which 70 are zero is a screen an advisor scrolls past, and the two
         // that matter are lost in it. `capitalSeries()` writes the rows into that grid,
         // so nothing is given up. Empty by default — most businesses plan neither.
-        capital: []
+        capital: [],
+        // The complete run of usable months the by-month exports gave — up to 24, not the
+        // twelve that seed the sales boxes. It lives on the form so stepping back and
+        // forward keeps it, exactly as every other confirmed figure does.
+        history: []
       }
     },
 
@@ -968,6 +1308,10 @@ export default {
         this.form.sales = p.sales.slice()
         this.form.salesSource = prov.sales === 'seeded' ? 'seeded' : 'entered'
       }
+
+      // The whole run, which is what the volatility read measures. Up to 24 months; the
+      // twelve above are only the most recent of them.
+      this.form.history = Array.isArray(data.history) ? data.history.slice() : []
     },
 
     /**
@@ -1004,6 +1348,136 @@ export default {
       this.phase = 'assume'
       // step: which intake step is showing (1 drop, 2 confirm, 3 assumptions)
       this.$emit('step', 3)
+      this.refreshVolatility()
+    },
+
+    /**
+     * The short month name of an ACTUAL month, by its position in the measured window.
+     * Derived from the month's own ordinal rather than the parser's label, so it reads in
+     * the same three letters as the forecast grid beside it.
+     * @param {number} index @returns {string}
+     */
+    historyMonthName (index) {
+      const measured = this.historyMonths.slice(-this.volatilityWindow)
+      const month = measured[index]
+      if (!month || typeof month.ordinal !== 'number') { return '' }
+      return MONTH_SHORT[month.ordinal % 12]
+    },
+
+    /**
+     * One chart dot. The colours are Mike's ruling of 2026-09-03: amber beyond the second
+     * deviation, red beyond the third, matching the two bands exactly.
+     *
+     * ⚠ A month merely OUTSIDE the first deviation is drawn hollow. That follows from the
+     * same ruling rather than being a separate choice: with amber and red reserved for the
+     * two band thresholds, an ordinary month outside the range would otherwise have no
+     * marker at all, and the seasonality sentence under the chart depends on being able to
+     * see those months. Named on the approved drawing.
+     * @param {number} x @param {number} y @param {number} band @param {string} seriesColour
+     */
+    chartPoint (x, y, band, seriesColour) {
+      if (band === 3) { return { x, y, r: 6, fill: '#ff0000', stroke: '#ffffff', strokeWidth: 1.5 } }
+      if (band === 2) { return { x, y, r: 5, fill: '#ff9900', stroke: '#ffffff', strokeWidth: 1.5 } }
+      if (band === 1) { return { x, y, r: 4.5, fill: '#ffffff', stroke: seriesColour, strokeWidth: 2 } }
+      return { x, y, r: 3.5, fill: seriesColour, stroke: 'none', strokeWidth: 0 }
+    },
+
+    /**
+     * A band's two lines. Both levels take a plural form, and the red one quotes the
+     * furthest month because a list of three tells an advisor nothing about which to look
+     * at first.
+     * @param {Array<number>} indices - forecast months at this level
+     * @param {object} forecast - the model's forecast block
+     * @param {'red'|'amber'} level
+     * @returns {{ title: string, body: string }}
+     */
+    bandMessage (indices, forecast, level) {
+      const base = 'report.threeWayForecast.assume.volatility.'
+      const names = indices.map(i => this.monthLabels[i])
+      const many = names.length > 1
+      const months = this.listText(names)
+      const n = this.volatility.monthsUsed
+      if (level === 'red') {
+        const worst = forecast.months[indices[0]]
+        let furthest = worst
+        for (let i = 1; i < indices.length; i++) {
+          if (forecast.months[indices[i]].deviations > furthest.deviations) { furthest = forecast.months[indices[i]] }
+        }
+        const values = {
+          months,
+          month: this.monthLabels[furthest.index],
+          value: this.money(furthest.value),
+          deviations: this.num(furthest.deviations, 1),
+          n,
+          highest: this.money(this.volatility.highest ? this.volatility.highest.value : 0)
+        }
+        return {
+          title: this.$t(base + (many ? 'redMany' : 'redOne'), values),
+          body: this.$t(base + (many ? 'redBodyMany' : 'redBody'), values)
+        }
+      }
+      return {
+        title: this.$t(base + (many ? 'amberMany' : 'amberOne'), { months, month: months, n }),
+        body: this.$t(base + (many ? 'amberBodyMany' : 'amberBody'))
+      }
+    },
+
+    /**
+     * "Jan", "Jan and Jul", "Jan, Jul and Sep" — a readable list rather than a comma run.
+     * @param {Array<string>} names @returns {string}
+     */
+    listText (names) {
+      if (names.length <= 1) { return names[0] || '' }
+      return names.slice(0, -1).join(', ') + ' ' + this.$t('report.threeWayForecast.assume.volatility.and') + ' ' + names[names.length - 1]
+    },
+
+    /** Re-ask after a keystroke settles, rather than on every digit. */
+    scheduleVolatility () {
+      if (this.volatilityTimer) { clearTimeout(this.volatilityTimer) }
+      this.volatilityTimer = setTimeout(() => {
+        this.volatilityTimer = null
+        this.refreshVolatility()
+      }, VOLATILITY_DEBOUNCE_MS)
+    },
+
+    /**
+     * Ask the backend where the forecast sits against the history.
+     *
+     * 🔴 EVERY FIGURE IN THE BLOCK COMES FROM HERE. The average, the deviation, the bands,
+     * the dial and each month's severity are all `volatilityModel.js`'s, exactly as the
+     * approved drawing requires — two implementations of a standard deviation is how a
+     * screen and a report start disagreeing. This component places dots; it decides
+     * nothing.
+     *
+     * The route is anonymous by design (numbers in, numbers out): only the file-intake
+     * routes carry firmAuth, because those accept uploads.
+     */
+    async refreshVolatility () {
+      if (!this.volatilityWindow) {
+        this.volatility = null
+        this.volatilityStale = false
+        return
+      }
+      try {
+        const res = await fetch('/api/report/volatility', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sales: this.historyMonths.map(m => Number(m.value) || 0),
+            window: this.volatilityWindow,
+            forecast: this.form.sales.map(v => Number(v) || 0)
+          })
+        })
+        const json = await res.json()
+        if (!json.success || !json.data) {
+          this.volatilityStale = true
+          return
+        }
+        this.volatility = json.data
+        this.volatilityStale = false
+      } catch (e) {
+        this.volatilityStale = true
+      }
     },
 
     backToConfirm () {
@@ -1264,5 +1738,36 @@ export default {
 .seg-sm button { flex: none; padding: 7px 10px; font-size: 12px; }
 
 .warn-note { font-size: 12.5px; color: #b36b00; background: var(--rs-warn-soft); border-radius: 9px; padding: 10px 14px; margin-top: 8px; }
+/* The red band. Same shape as .warn-note above — this screen's own warning language —
+   rather than a second component, so the two levels read as one pair. */
+.crit-note { font-size: 12.5px; color: var(--rs-crit); background: var(--rs-crit-soft); border-radius: 9px; padding: 10px 14px; margin-top: 8px; }
+.crit-note strong, .warn-note strong { font-size: 13px; }
+
+/* The volatility read — built from design/mockups/three-way-forecast-volatility.html */
+.volblock { border: 1px solid #0070c055; border-radius: 12px; padding: 14px; background: var(--rs-accent-soft); }
+.volsub { font-size: 12.5px; color: var(--rs-muted); margin: -4px 0 13px; }
+.volfigs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
+.volfig { background: var(--rs-card-bg); border: 1px solid var(--rs-line); border-radius: 10px; padding: 11px 12px; }
+.volfig .k { font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: var(--rs-muted); font-weight: 700; line-height: 1.35; }
+.volfig .v { font-size: 20px; font-weight: 600; margin-top: 5px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.volfig .v.is-small { font-size: 15px; }
+.volfig .s { font-size: 11.5px; color: var(--rs-muted); margin-top: 4px; line-height: 1.4; }
+.volof { font-size: .6em; font-weight: 400; color: var(--rs-muted); }
+.volpanel { background: var(--rs-card-bg); border: 1px solid var(--rs-line); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; }
+.volpanel-h { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--rs-muted); font-weight: 600; }
+.volpanel-s { font-size: 12px; color: var(--rs-muted); margin: 4px 0 10px; }
+.volchart { overflow-x: auto; background: var(--rs-card-bg); border: 1px solid var(--rs-line); border-radius: 10px; padding: 10px 6px; }
+.volchart svg { display: block; min-width: 700px; }
+.volaxis { font-size: 9px; }
+.volhead { font-size: 10.5px; font-weight: 600; }
+.vollegend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 11.5px; color: var(--rs-muted); }
+.volline { display: inline-block; width: 22px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 6px; }
+.volline.is-dashed { border-top-style: dashed; }
+.voldot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.voldot.is-ring { background: var(--rs-card-bg); border: 2px solid var(--rs-ink); }
+.volplain { font-size: 13px; line-height: 1.6; margin: 12px 0 0; }
+.vollink { display: inline-block; margin-top: 12px; font-size: 12.5px; font-weight: 600; color: var(--rs-accent); }
+.volwhy { background: var(--rs-panel-2, #f1f6fb); border: 1px solid var(--rs-line); border-radius: 10px; padding: 12px 14px; font-size: 12.5px; color: var(--rs-muted); margin-top: 12px; }
+@media (max-width: 720px) { .volfigs { grid-template-columns: repeat(2, 1fr); } }
 .tw-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 </style>

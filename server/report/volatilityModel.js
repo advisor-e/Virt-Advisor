@@ -51,6 +51,9 @@ const SCORE_CRIT = 75
 /** The windows the workbook provides a sheet for. */
 const WINDOWS = [12, 18, 24]
 
+/** A forecast is twelve months, and it aligns with the last twelve months of history. */
+const MONTHS_IN_YEAR = 12
+
 /**
  * The workbook's own 24 monthly sales figures, oldest first — `Data Input!E7:AB7`.
  * @type {{ sales: number[], window: number }}
@@ -144,9 +147,77 @@ function scoreBand (score) {
 }
 
 /**
+ * Where a set of FORECAST months sits against bands measured from the history.
+ *
+ * Built for the Three-Way Forecast's step 3 (approved drawing
+ * `design/mockups/three-way-forecast-volatility.html`, 2026-09-03). It lives here, and
+ * not in the screen, for the reason the drawing states: two implementations of a standard
+ * deviation is how a screen and a report start disagreeing.
+ *
+ * 🔴 THE BANDS ARE THE HISTORY'S, NEVER THE FORECAST'S, and that is the whole design.
+ * `mean` and `sd` arrive already measured from the actual months alone. Measuring both
+ * together would let an optimistic forecast widen its own normal range and then sit inside
+ * it — a block that agrees with whatever it is shown.
+ *
+ * `unchanged` pairs forecast month j with the j-th of the most recent twelve ACTUAL months,
+ * which is the alignment the forecast itself uses: the seed is those twelve months and the
+ * forecast opens the month after they end. It is what lets the screen separate a month that
+ * is outside the range because the business is seasonal from one that is outside it because
+ * the advisor typed something.
+ *
+ * @param {Array<number|string>} forecast - the forecast months, oldest first.
+ * @param {number[]} sales - the measured window, oldest first.
+ * @param {number} mean
+ * @param {number} sd
+ * @returns {{
+ *   months: Array<{ index: number, value: number, deviation: number, deviations: number,
+ *                   band: number, outside: boolean, unchanged: boolean }>,
+ *   outsideCount: number, beyondSecond: number[], beyondThird: number[],
+ *   seasonal: number[], worst: object|null
+ * }}
+ */
+function compareForecast (forecast, sales, mean, sd) {
+  const offset = sales.length - MONTHS_IN_YEAR
+  const months = forecast.map((raw, index) => {
+    const value = toNumber(raw)
+    const aligned = (offset >= 0 && index < MONTHS_IN_YEAR) ? sales[offset + index] : null
+    return {
+      index,
+      value,
+      deviation: value - mean,
+      // How many deviations out, which is the figure the screen quotes ("7.2 deviations
+      // above the average"). Zero variation means nothing is measurably out.
+      deviations: sd === 0 ? 0 : Math.abs(value - mean) / sd,
+      band: bandOf(value, mean, sd),
+      outside: bandOf(value, mean, sd) > 0,
+      unchanged: aligned !== null && aligned === value
+    }
+  })
+
+  const beyondSecond = []
+  const beyondThird = []
+  const seasonal = []
+  let outsideCount = 0
+  let worst = null
+  for (let i = 0; i < months.length; i++) {
+    const m = months[i]
+    if (m.outside) { outsideCount++ }
+    // Amber is band 2 — beyond the second deviation but within the third. Red is band 3.
+    // Mike's ruling of 2026-09-03: two levels, and a band at the FIRST deviation was never
+    // a candidate because it would be permanently lit.
+    if (m.band === 2) { beyondSecond.push(i) }
+    if (m.band === 3) { beyondThird.push(i) }
+    if (m.outside && m.unchanged) { seasonal.push(i) }
+    if (m.band >= 2 && (worst === null || m.deviations > worst.deviations)) { worst = m }
+  }
+
+  return { months, outsideCount, beyondSecond, beyondThird, seasonal, worst }
+}
+
+/**
  * Compute the Volatility Report.
  *
- * @param {{ sales?: Array<number|string>, window?: number }} inputs
+ * @param {{ sales?: Array<number|string>, window?: number, forecast?: Array<number|string> }} inputs
  *   `sales` is monthly figures oldest-first — the whole history available. `window` is how many
  *   of the most recent months to measure (12, 18 or 24; anything else falls back to 12).
  * @returns {{
@@ -157,8 +228,12 @@ function scoreBand (score) {
  *   months: Array<{ index: number, value: number, deviation: number, band: number, outside: boolean }>,
  *   insideFirstBand: number, insideFirstBandPct: number,
  *   highest: { index: number, value: number }|null, lowest: { index: number, value: number }|null,
- *   yearOnYear: { lastYear: number[], yearBefore: number[] }|null
+ *   yearOnYear: { lastYear: number[], yearBefore: number[] }|null,
+ *   forecast: object|null
  * }}
+ *
+ * `forecast` is null unless `inputs.forecast` was supplied — the Volatility Report itself
+ * never sends one, so its response is unchanged. See `compareForecast`.
  */
 function computeVolatility (inputs) {
   const src = (inputs && typeof inputs === 'object') ? inputs : {}
@@ -236,7 +311,10 @@ function computeVolatility (inputs) {
     insideFirstBandPct: monthsUsed === 0 ? 0 : (insideFirstBand / monthsUsed) * 100,
     highest,
     lowest,
-    yearOnYear
+    yearOnYear,
+    forecast: Array.isArray(src.forecast)
+      ? compareForecast(src.forecast, sales, average, standardDeviation)
+      : null
   }
 }
 
@@ -248,5 +326,6 @@ module.exports = {
   populationStandardDeviation,
   volatilityScore,
   scoreBand,
+  compareForecast,
   computeVolatility
 }

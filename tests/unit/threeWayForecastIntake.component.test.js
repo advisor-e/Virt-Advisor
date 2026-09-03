@@ -406,3 +406,128 @@ describe('buying and selling capital assets', () => {
     w.destroy()
   })
 })
+
+/**
+ * The volatility read on step 3.
+ *
+ * Approved artefact: design/mockups/three-way-forecast-volatility.html (approved by Mike
+ * 2026-09-03, all nine of its questions ruled first).
+ *
+ * The arithmetic is volatilityModel.test.js's and is not repeated here. What is tested is
+ * the wiring only this screen has, and only where it could be wrong invisibly: which
+ * months are sent, that the forecast is sent alongside them, that a failed recompute never
+ * leaves a live-looking comparison on screen, and that too few months produce a stated
+ * reason rather than a missing block.
+ */
+describe('the volatility read', () => {
+  /** Twelve months with the shape the approved drawing uses. */
+  function history (n) {
+    const out = []
+    // Deliberately nowhere near the forecast figure used below, so "the forecast is not in
+    // the measured series" is a real assertion rather than a coincidence of values.
+    for (let i = 0; i < n; i++) { out.push({ label: 'M' + i, ordinal: 24000 + i, value: 70000 + (i % 3) * 1000 }) }
+    return out
+  }
+
+  afterEach(() => { delete global.fetch; jest.clearAllMocks() })
+
+  test('🔴 sends the WHOLE run and the forecast beside it, so the bands are the history’s', () => {
+    // The bands must be measured from the actual months alone. If the forecast were sent
+    // as part of `sales`, an optimistic year would widen its own normal range and then sit
+    // inside it — a block that agrees with whatever it is shown.
+    global.fetch = jest.fn(() => Promise.resolve({ json: () => Promise.resolve({ success: false }) }))
+    const w = mountIntake({ step: 3 })
+    w.vm.form.history = history(24)
+    w.vm.form.sales = new Array(12).fill(450000)
+    w.vm.refreshVolatility()
+
+    const body = JSON.parse(global.fetch.mock.calls[0][1].body)
+    expect(body.sales).toHaveLength(24)
+    expect(body.forecast).toHaveLength(12)
+    expect(body.sales).not.toContain(450000)
+    w.destroy()
+  })
+
+  test('measures the largest window the months support, never more', () => {
+    // The engine offers 12, 18 and 24. Twenty months in hand is measured over eighteen —
+    // asking for twenty would silently fall back to twelve.
+    const w = mountIntake({ step: 3 })
+    w.vm.form.history = history(20)
+    expect(w.vm.volatilityWindow).toBe(18)
+    w.vm.form.history = history(24)
+    expect(w.vm.volatilityWindow).toBe(24)
+    w.vm.form.history = history(12)
+    expect(w.vm.volatilityWindow).toBe(12)
+    w.destroy()
+  })
+
+  test('eleven complete months measure nothing rather than measuring something shorter', () => {
+    const w = mountIntake({ step: 3 })
+    w.vm.form.history = history(11)
+    expect(w.vm.volatilityWindow).toBe(0)
+    w.destroy()
+  })
+
+  test('a failed recompute is declared, never left looking live', () => {
+    global.fetch = jest.fn(() => Promise.reject(new Error('offline')))
+    const w = mountIntake({ step: 3 })
+    w.vm.form.history = history(12)
+    return w.vm.refreshVolatility().then(() => {
+      expect(w.vm.volatilityStale).toBe(true)
+      w.destroy()
+    })
+  })
+
+  test('the run survives stepping back and forward, and an old form opens without it', () => {
+    const w = mountIntake({ step: 3 })
+    w.vm.form.history = history(24)
+    const saved = JSON.parse(JSON.stringify(w.vm.form))
+    expect(mountIntake({ step: 3, restore: saved }).vm.form.history).toHaveLength(24)
+
+    delete saved.history
+    expect(mountIntake({ step: 3, restore: saved }).vm.form.history).toEqual([])
+    w.destroy()
+  })
+})
+
+describe('the volatility read renders', () => {
+  const { computeVolatility } = require('~/server/report/volatilityModel')
+
+  /**
+   * The drawing's own example: eleven seeded months with January raised to 140,000. A
+   * template or binding fault here would break the WHOLE of step 3, not just this block,
+   * so one render of the real engine's output is worth its place — it is the failure a
+   * unit test catches and a person only meets by opening the screen.
+   */
+  test('builds the chart from the engine’s own output without falling over', async () => {
+    const HISTORY = [85000, 70000, 75000, 80000, 60000, 65000, 70000, 70000, 80000, 95000, 70000, 70000]
+    const forecast = HISTORY.slice()
+    forecast[9] = 140000
+    const data = computeVolatility({ sales: HISTORY, window: 12, forecast })
+
+    global.fetch = jest.fn(() => Promise.resolve({ json: () => Promise.resolve({ success: true, data }) }))
+    const w = mountIntake({ step: 3 })
+    w.vm.phase = 'assume'
+    w.vm.form.history = HISTORY.map((value, i) => ({ label: 'M' + i, ordinal: 24290 + i, value }))
+    w.vm.form.sales = forecast.slice()
+    await w.vm.refreshVolatility()
+    await w.vm.$nextTick()
+
+    // One dot per month across both halves, and the two lines joining them.
+    const chart = w.vm.volatilityChart
+    expect(chart.points).toHaveLength(24)
+    expect(chart.actualLine.split(' ')).toHaveLength(12)
+    expect(chart.forecastLine.split(' ')).toHaveLength(12)
+    // January is the red one; nothing else is.
+    expect(chart.points.filter(p => p.fill === '#ff0000')).toHaveLength(1)
+    // The red band fires and the amber one does not, and the seasonality sentence exists.
+    expect(w.vm.redBand).not.toBeNull()
+    expect(w.vm.amberBand).toBeNull()
+    expect(w.vm.seasonalSentence).toBeTruthy()
+    // …and it actually paints: 24 month dots plus the dial's own two hub circles. A
+    // binding fault would leave the SVG empty while every computed above still passed.
+    expect(w.findAll('circle').length).toBeGreaterThanOrEqual(24)
+    delete global.fetch
+    w.destroy()
+  })
+})
