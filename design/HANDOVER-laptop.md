@@ -11,49 +11,43 @@
 
 ## 2026-09-03 · Laptop · branch `feat/advisor-progress`
 
-Suite **7,416 green** (381 suites), lint 0 errors, everything committed and pushed.
-Started 10 ahead / 0 behind, ended **14 ahead / 0 behind**.
+Suite **7,486 green** (383 suites), lint 0 errors, everything committed and pushed.
+Started 16 ahead / 0 behind, ended **20 ahead / 0 behind**.
 
-### Built — the volatility read (4.61 phase (a) is COMPLETE)
+### Built — the two-year trend read. 4.61 is CLOSED, both phases.
 
-Drawn, approved, built and looked at on screen in one session. Nine questions went to Mike
-one at a time and he ruled all nine — **three against the recommendation**: the dial goes
-IN, a **warning band** rather than plain sentences, and **two** band levels (amber beyond
-the second deviation, red beyond the third) rather than one. He was right about the
-register: a three-way forecast is read by a lender, and a quiet observational note is the
-wrong tone for a document somebody else interrogates.
+Six measures on step 3 under the volatility read, banded on Mike's own twelve figures, set
+on a new mentor tab (Model Inputs → Forecast Trend Thresholds). Step 1 now takes **six
+files**, the last two optional. **The read changes no forecast figure** and a test enforces
+it.
 
-**It was small because the months were already there.** The forecast intake had been
-joining up to 24 months into `joined.usable` and discarding everything but the last twelve,
-one line later. That was the whole obstacle.
+### Three things worth more than the item
 
-### 🔴 Looking at the screen caught a defect every test passed on
+**The item's own premise was wrong.** 4.61(b) was filed as blocked on teaching the parser to
+read a comparative export, naming `MULTI_PERIOD_COLUMNS` as the guard not to weaken. It
+needed neither — two optional file slots did it. The blocker had been written without
+reading the intake path.
 
-The block told the advisor to *"drop last year's export as well"* while last year's export
-was already loaded and it was already reading 24 months. Fixed (`59241e0`). Nothing asserts
-wording and nothing should — which is exactly why the build has to be opened, not just made
-green. Second time this week the artefact-versus-build comparison has earned its keep.
+**A ruling was superseded within the hour.** "Movement or level?" asked as an abstraction got
+the wrong answer; Mike's real numbers got the right one. **Ask for the numbers earlier.**
 
-### The dial is now shared, and that touched an approved screen
-
-`components/base/VolatilityDial.vue`, used by the Volatility Report as well — its geometry
-and 50/75 boundaries are measured from the workbook's gauge images and two copies would
-drift. Its two needle-geometry tests moved with it and now guard both screens. Named as a
-deliberate difference in the `ARTEFACTS.md` row.
+**Ten thresholds were put to him as one table** — CLAUDE.md forbids it and he said so. One
+pair at a time: four exchanges, all ruled, and twice he added a condition a batch would have
+buried.
 
 ### Next
 
-**4.61 phase (b)** — the two-year trend read. Needs the comparative-column parser
-(`xeroReportParser.js` refuses multi-column exports today, deliberately) and its own
-drawing. Then **4.64**, which builds the place 4.63 lands.
+**4.64** (international vs local — it builds the place 4.63 lands), then **4.63**. Both need
+a drawing and his approval first.
 
-⚠ The published Handbook is one edit stale: `report-models.md` changed after it was last
-built. `/startup` rebuilds it.
+### 🖥 DESKTOP — one real collision risk
 
-### 🖥 DESKTOP
+We edited **`components/FirmManagerHub.vue`** (imports, `TAB_TIERS`, `NAV_GROUPS`, one panel)
+to add a mentor-only tab. Your branch is the quiz builder, which is a hub tab, so expect a
+conflict there and **keep both sides' entries** rather than taking one.
+🔴 The mentor now has a **Model Inputs** heading for the first time; two tests that asserted
+it had none are updated with the reason, not deleted.
+Also shared: `ARTEFACTS.md`, `features/to-do-items.json`, `to-do.md`, `locales/en.json`.
 
-You went **4 → 9 ahead of master** today and touched `CLAUDE.md`, both husky hooks and
-`WORKING-AGREEMENT.md` — rules and gates, not just your feature. We share four files:
-`ARTEFACTS.md`, `features/to-do-items.json`, `features/to-do.md`, `locales/en.json`. Expect
-the usual conflict, and **keep both sides' items in the JSON** rather than taking one side.
-Nothing of ours touches your screens — our work is the forecast's step 3 only.
+⚠ Your handover is dated **2026-09-02** but your branch has commits from **today** — we
+cannot see what you did.
