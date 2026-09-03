@@ -6,6 +6,10 @@
     :title="$t('report.debtorDrag.title')"
     :client="$t('report.preparedFor')"
     :badge="$t('report.illustrative')"
+    :saved="savedReport"
+    @save="saveReport"
+    @restore="restoreReport"
+    @client-change="onReportClient"
   )
 
   //- Full-width headline band (owner ruling 2026-07-27): the HeroStrip spans the page
@@ -58,6 +62,17 @@
           :step="fld.step"
           @input="v => setField(fld.k, v)"
         )
+          //- A figure the client changed since the advisor's saved version (D4).
+          template(v-slot:badge)
+            provenance-badge(
+              v-if="isClientChanged(fld.k)"
+              source="client"
+              size="sm"
+              spaced
+              file-label=""
+              entered-label=""
+              :client-label="$t('clientReports.saved.badge')"
+            )
       .ddg-group
         button.ddg-setbtn(@click="freeze") {{ $t('report.debtorDrag.freezeBtn') }}
 
@@ -119,8 +134,10 @@ import StaleBanner from '~/components/base/StaleBanner.vue'
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import SliderField from '~/components/base/SliderField'
+import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
+import savedReport from '~/mixins/savedReport'
 
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const SHAPE = [100000, 137850, 207563, 215000, 232000, 347000, 356000, 432000, 318000, 323000, 365000, 324000]
@@ -129,9 +146,9 @@ const BASE = SHAPE.reduce(function (a, b) { return a + b }, 0)
 export default {
   name: 'DebtorDragReport',
 
-  components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure, SliderField },
+  components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure, SliderField, ProvenanceBadge },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportRecompute, savedReport],
 
   data () {
     return {
@@ -287,6 +304,27 @@ lowY: y(plan[lowIdx])
         netProfitPct: this.f.np / 100,
         gstRate: this.f.gst / 100
       }
+    },
+    /**
+     * The figures saved per client — consumed by the savedReport mixin. The sliders
+     * are the whole of this screen's inputs, so `f` is the saved shape.
+     * @returns {object}
+     */
+    reportInputs () {
+      return Object.assign({}, this.f)
+    },
+    /**
+     * Load a saved set back — consumed by the savedReport mixin. Only the keys this
+     * screen knows, and only numbers: a saved row is never trusted for its shape.
+     * @param {object} inputs
+     */
+    applyReportInputs (inputs) {
+      const next = Object.assign({}, this.f)
+      Object.keys(next).forEach((k) => {
+        if (inputs && typeof inputs[k] === 'number' && Number.isFinite(inputs[k])) { next[k] = inputs[k] }
+      })
+      this.f = next
+      this.recompute()
     },
     /** Backend request — consumed by the reportRecompute mixin (debounce + race guard). */
     recomputeRequest () {

@@ -55,6 +55,9 @@ const WAITING = ['Mike', 'Us', 'Outside']
 // behaviour. Two values only — a third gives the gate below somewhere to hide.
 const KINDS = ['defect', 'feature']
 
+/** The two computers that work this repository. A third name here is a typo, not a machine. */
+const MACHINES = ['laptop', 'desktop']
+
 /** The calls the control offers. Anything but `proceed` takes an item off the list. */
 const SETTLED = { done: 'Done', park: 'Park', delete: 'Delete' }
 
@@ -143,6 +146,26 @@ function validate (items) {
     if (item.blocker && !String(item.blocks || '').trim()) {
       problems.push(ref + ' is marked as blocking and does not say what it blocks.')
     }
+    // The flag is only ever `false`. An item Mike has ranked does not carry it at all —
+    // the control's export drops the field, so his next saved list clears it by itself.
+    // Which computer is on it. Mike, 2026-09-03, after 4.54 was built on both machines in
+    // one week: the list itself says who is working what. Two machines, real dates only.
+    if (item.activeOn !== null && item.activeOn !== undefined) {
+      const a = item.activeOn
+      if (typeof a !== 'object' || MACHINES.indexOf(a.machine) === -1) {
+        problems.push(ref + ' is active on ' + JSON.stringify(a && a.machine) +
+          '. It must be one of: ' + MACHINES.join(', ') + '.')
+      }
+      if (typeof a !== 'object' || !/^\d{4}-\d{2}-\d{2}$/.test(String(a.since || '')) ||
+          isNaN(Date.parse(a.since))) {
+        problems.push(ref + ' is active since ' + JSON.stringify(a && a.since) +
+          '. That must be a real date, YYYY-MM-DD.')
+      }
+    }
+    if ('rankedByMike' in item && item.rankedByMike !== false) {
+      problems.push(ref + ' carries rankedByMike=' + JSON.stringify(item.rankedByMike) +
+        '. The flag is only ever false; an item Mike has ranked simply does not carry it.')
+    }
     if (item.yourCall && item.yourCall !== 'proceed' && !SETTLED[item.yourCall]) {
       problems.push(ref + ' carries an unknown call, "' + item.yourCall + '".')
     }
@@ -163,16 +186,19 @@ function validate (items) {
  */
 function renderTable (items) {
   const head = [
-    '| # | Item | Score | Blocks | Waiting on |',
-    '| --- | --- | --- | --- | --- |'
+    '| # | Item | Score | Blocks | Waiting on | Active on |',
+    '| --- | --- | --- | --- | --- | --- |'
   ]
 
   const rows = items.map((item, i) =>
     '| ' + (i + 1) +
     ' | ' + (item.blocker ? '🔒 ' : '') + '**' + item.ref + '** ' + item.name +
+    // Filed since Mike last saved the list, so its position is filing order, not his.
+    (item.rankedByMike === false ? ' ⚠ *not yet ranked by Mike*' : '') +
     ' | ' + item.score +
     ' | ' + (item.blocker ? item.blocks : '—') +
-    ' | ' + (item.waitingOn === 'Mike' ? '**Mike**' : item.waitingOn) + ' |')
+    ' | ' + (item.waitingOn === 'Mike' ? '**Mike**' : item.waitingOn) +
+    ' | ' + (item.activeOn ? '**' + item.activeOn.machine + '**, since ' + item.activeOn.since : '—') + ' |')
 
   const mike = items.filter(item => item.waitingOn === 'Mike').length
 

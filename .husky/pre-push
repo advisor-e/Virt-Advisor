@@ -9,3 +9,19 @@
 # This is the layer that works when nobody reads the documentation — it exists
 # because the 97-commit UAT drift found 2026-07-21 was a warning nobody acted on.
 node scripts/check-branch-state.js
+
+# The full gate — moved here from pre-commit on 2026-09-03 (Mike: five commits a day at
+# eight minutes each was nearly an hour of waiting). It runs once, before anything leaves
+# this machine. Run via node directly — bypasses .bin shims which can break on Windows.
+# Lint: errors block; warnings (no-console etc.) pass — per SECURITY-AUDIT-NOTES.md.
+node node_modules/eslint/bin/eslint.js --ext .js,.vue .
+
+# The whole suite, with coverage and its thresholds — jest.config.js turns coverage on.
+node node_modules/jest/bin/jest.js
+
+# Critical-only audit gate. High-severity findings are risk-accepted in
+# SECURITY-AUDIT-NOTES.md (Nuxt 2 build toolchain). The gate script blocks on any NEW
+# critical advisory but allows the specific documented, build-time-only, unfixable-within-
+# the-locked-stack advisories listed in scripts/audit-gate.js ALLOWLIST (each one
+# cross-documented in SECURITY-AUDIT-NOTES.md). It does NOT blanket-disable the check.
+NODE_EXTRA_CA_CERTS=./certs/digicert-bundle.pem node scripts/audit-gate.js

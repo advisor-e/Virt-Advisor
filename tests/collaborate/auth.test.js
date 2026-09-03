@@ -73,7 +73,9 @@ describe('auth middleware (login seam)', () => {
 
     expect(next).toHaveBeenCalledTimes(1)
     expect(res.send).not.toHaveBeenCalled()
-    expect(req.identity).toEqual({ advisorId: 'a1', firmId: 'f1', role: 'advisor', email: 'a@b.com' })
+    // businessEntityId is always present, null for anyone who is not a client
+    // (business-entity-reports, 2026-09-03).
+    expect(req.identity).toEqual({ advisorId: 'a1', firmId: 'f1', role: 'advisor', email: 'a@b.com', businessEntityId: null })
   })
 
   test('reads the token from a `token` cookie when there is no Bearer header', () => {
@@ -176,7 +178,7 @@ describe('auth middleware (login seam)', () => {
 
     auth(req, mockRes(), jest.fn())
 
-    expect(req.identity).toEqual({ advisorId: 'a9', firmId: 'f9', role: 'firm_manager', email: 'e@f.com' })
+    expect(req.identity).toEqual({ advisorId: 'a9', firmId: 'f9', role: 'firm_manager', email: 'e@f.com', businessEntityId: null })
     expect(req.firmId).toBe('f9')
     expect(req.advisorId).toBe('a9')
     expect(req.userRole).toBe('firm_manager')

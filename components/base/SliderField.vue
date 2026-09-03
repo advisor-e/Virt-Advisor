@@ -1,7 +1,10 @@
 <template lang="pug">
 .sl-field
   .sl-row
-    label {{ label }}
+    label
+      | {{ label }}
+      //- A provenance badge beside the label, where a screen has one to show.
+      slot(name="badge")
     output {{ display }}
   input(
     type="range"

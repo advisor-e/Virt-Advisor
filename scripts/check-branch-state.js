@@ -21,7 +21,10 @@
 'use strict'
 
 var execFileSync = require('child_process').execFileSync
+var fs = require('fs')
+var path = require('path')
 var branchSurvey = require('./branch-survey')
+var activeItems = require('./active-items')
 
 var REPORT_ONLY = process.argv.indexOf('--report') !== -1
 var PROTECTED_BRANCH = 'master'
@@ -105,6 +108,42 @@ function survey (currentBranch) {
   bar()
 }
 
+/**
+ * Rule 4 (report only) — which to-do items are in hand, and on which computer.
+ *
+ * Mike, 2026-09-03, after item 4.54 was built on both machines in the same week: the list
+ * carries `activeOn` on any item a session picked up. This prints the other machine's
+ * items as off limits, and flags an item marked active HERE whose handover was written
+ * later without mentioning it — a session that ended without saying whether it was still
+ * in hand. Report only, same as the survey: it can never block a push, including by
+ * throwing.
+ *
+ * @param {string} currentBranch the branch we are standing on
+ */
+function activeReport (currentBranch) {
+  var lines = null
+  try {
+    var root = path.resolve(__dirname, '..')
+    var data = JSON.parse(fs.readFileSync(path.join(root, 'design', 'features', 'to-do-items.json'), 'utf8'))
+    var machine = activeItems.machineFor(currentBranch)
+    var handover = ''
+    if (machine) {
+      handover = fs.readFileSync(path.join(root, 'design', 'HANDOVER-' + machine + '.md'), 'utf8')
+    }
+    var verdicts = activeItems.assess(data.items, machine, activeItems.handoverDate(handover), handover)
+    lines = activeItems.reportLines(verdicts, machine)
+  } catch (err) {
+    return
+  }
+  if (!lines) { return }
+
+  bar()
+  line('🔒 ACTIVE ITEMS — who is on what (design/features/to-do-items.json, `activeOn`)')
+  bar()
+  lines.forEach(line)
+  bar()
+}
+
 var branch = gitSafe(['rev-parse', '--abbrev-ref', 'HEAD'])
 
 if (!branch || branch === 'HEAD') {
@@ -180,10 +219,12 @@ if (behind > 0) {
   // behind master does not make the other machine's work less relevant — at session
   // start it is exactly when you want the whole picture, not half of it.
   survey(branch)
+  activeReport(branch)
   process.exit(0)
 }
 
 // Clean.
 line('✔ Branch `' + branch + '`: ' + ahead + ' ahead, 0 behind origin/' + PROTECTED_BRANCH + '.')
 survey(branch)
+activeReport(branch)
 process.exit(0)

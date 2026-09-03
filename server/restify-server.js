@@ -121,7 +121,8 @@ const promptContributionsRoute = require('./routes/promptContributions')
 const staircaseRoute = require('./routes/staircase')
 const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
-const { firmAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
+const { firmAuth, entityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
+const clientReportsRoute = require('./routes/clientReports')
 // Collaborate — the people layer and its template catalogue. Merged in from what
 // was a separate application with its own Restify server on this same port; see
 // design/COLLABORATE-MERGE-PLAN.md. Its routes are registered below, under
@@ -268,6 +269,23 @@ server.post('/api/cases/promote', firmAuth, requireManagerRole, casesRoute.promo
 server.get('/api/clients', firmAuth, clientsRoute.listClients)
 server.post('/api/clients', firmAuth, clientsRoute.createClient)
 server.put('/api/clients/:id', firmAuth, clientsRoute.renameClient)
+
+// ── Business Entity Reports — which models a client may open (stub, part 1) ──
+// design/features/business-entity-reports.md, approved by Mike 2026-09-03. The advisor's
+// two routes are firmAuth (a client token is refused there by name); the client's own
+// read is entityAuth, which admits ONLY a client and scopes it to the firm and client id
+// in its verified token. Not in routes/report.js — that file is the laptop's under 4.61.
+server.get('/api/client-reports/mine', entityAuth, clientReportsRoute.getMine)
+server.get('/api/client-reports/access/:clientId', firmAuth, clientReportsRoute.getAccessForClient)
+server.put('/api/client-reports/access/:clientId', firmAuth, clientReportsRoute.setAccess)
+// Saved reports (part 2, item 4.62): the figures kept per client per model. The advisor
+// reads, saves and restores for a client of the firm; the client reads and saves its own,
+// and its save is refused in the store unless the advisor opened that model to it.
+server.get('/api/client-reports/mine/saved', entityAuth, clientReportsRoute.getMineSaved)
+server.put('/api/client-reports/mine/saved', entityAuth, clientReportsRoute.putMineSaved)
+server.get('/api/client-reports/saved/:clientId', firmAuth, clientReportsRoute.getSaved)
+server.put('/api/client-reports/saved/:clientId', firmAuth, clientReportsRoute.putSaved)
+server.post('/api/client-reports/saved/:clientId/restore', firmAuth, clientReportsRoute.restoreSaved)
 
 // ── Courses (CB-16/17): the course DOCUMENT, owner-scoped ──
 // All firmAuth-guarded; identity from the verified JWT, never the body. An

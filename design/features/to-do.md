@@ -33,19 +33,20 @@ it, mark **Proceed / Done / Park / Delete**, comment on any row, and **Save the 
 repository sees; the two never both appear, and the build stops if they would.
 
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
-| # | Item | Score | Blocks | Waiting on |
-| --- | --- | --- | --- | --- |
-| 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | **Mike** |
-| 2 | **4.50** Nobody has seen a real conversation's recommendations reach the Team tab | 2 | — | Outside |
-| 3 | **4.58** Meeting Review — slices 1–3 are built; the manager's half remains, and §4 still gates a real recording | 3 | — | **Mike** |
-| 4 | **4.59** A point the mentor adds tells a firm manager THEY wrote it | 2 | — | Us |
-| 5 | **4.60** QuickBooks and MYOB are supported on paper, not against a real file | 4 | — | **Mike** |
-| 6 | **4.62** Economic analysis — the forecast asks the AI for market research, because the forecasts support funding requests | 3 | — | **Mike** |
-| 7 | **4.64** International vs local — the forecast treats every sale and every purchase as domestic | 3 | — | Us |
-| 8 | **4.63** Overseas stock purchases — the Import & Retail model feeds the forecast | 3 | — | Us |
-| 9 | **4.65** The book value of one asset is typed, because no screen ever asks for the Fixed Asset Schedule | 2 | — | **Mike** |
+| # | Item | Score | Blocks | Waiting on | Active on |
+| --- | --- | --- | --- | --- | --- |
+| 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | **Mike** | — |
+| 2 | **4.50** Nobody has seen a real conversation's recommendations reach the Team tab | 2 | — | Outside | — |
+| 3 | **4.58** Meeting Review — three slices built; the manager's half and §4 remain ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 4 | **4.59** A point the mentor adds tells a firm manager THEY wrote it ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 5 | **4.60** QuickBooks and MYOB are supported on paper, not against a real file ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 6 | **4.62** Saved reports per client — so a client can edit what the advisor opened ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-09-03 |
+| 7 | **4.66** Economic analysis — the forecast asks the AI for market research ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 8 | **4.64** International versus local — the forecast treats every sale and purchase as domestic ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-04 |
+| 9 | **4.63** Overseas stock purchases — the Import & Retail model feeds the forecast ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 10 | **4.65** The book value of one asset is typed, because no screen asks for the asset schedule ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 
-**Nine live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Ten live items. Seven need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

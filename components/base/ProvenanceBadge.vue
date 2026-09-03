@@ -41,11 +41,14 @@ export default {
      * next year. The third state is deliberately NOT the same as 'file': a seeded figure
      * is a fact about the past standing in for a forecast nobody has made yet, and a
      * screen that showed the two alike would let one pass as the other.
+     * 'client' = the business entity changed it since the advisor's saved version
+     * (business-entity-reports D4) — the fourth state, and the one that must never be
+     * mistaken for the advisor's own entry.
      */
     source: {
       type: String,
       required: true,
-      validator: s => ['file', 'entered', 'seeded'].includes(s)
+      validator: s => ['file', 'entered', 'seeded', 'client'].includes(s)
     },
     /** Text for the 'file' state — supplied by the caller so wording stays the screen's. */
     fileLabel: { type: String, required: true },
@@ -53,6 +56,8 @@ export default {
     enteredLabel: { type: String, required: true },
     /** Text for the 'seeded' state. Only needed by a screen that uses it. */
     seededLabel: { type: String, default: '' },
+    /** Text for the 'client' state. Only needed by a screen that saves per client. */
+    clientLabel: { type: String, default: '' },
     /**
      * 'md' — the intake confirm tables (the original 9.5px badge).
      * 'sm' — the report screens, where the badge sits inside a dense control label.
@@ -75,12 +80,16 @@ export default {
     text () {
       if (this.source === 'file') { return this.fileLabel }
       if (this.source === 'seeded') { return this.seededLabel || this.enteredLabel }
+      // A client badge never falls back to the entered wording: that would present a
+      // client's edit as the advisor's. The screen supplies the label.
+      if (this.source === 'client') { return this.clientLabel }
       return this.enteredLabel
     },
     /** Colour class — kept as the original `src-file` / `src-hand` names. */
     sourceClass () {
       if (this.source === 'file') { return 'src-file' }
       if (this.source === 'seeded') { return 'src-seed' }
+      if (this.source === 'client') { return 'src-client' }
       return 'src-hand'
     },
     sizeClass () {
@@ -114,5 +123,12 @@ export default {
   color: var(--pb-seed, #4a7c1f);
   background: var(--pb-seed-bg, #4ca52d1a);
   border: 1px solid var(--pb-seed-border, #4ca52d59);
+}
+/* Amber on a warm ground, as drawn in design/mockups/business-entity-reports.html
+   (screen 3): a client's edit stands apart from both the file and the advisor. */
+.src-client {
+  color: var(--pb-client, #b45f00);
+  background: var(--pb-client-bg, #ff99002e);
+  border: 1px solid var(--pb-client-border, #ff9900);
 }
 </style>

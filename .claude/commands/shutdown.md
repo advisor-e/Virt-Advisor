@@ -56,6 +56,9 @@ a time and wait for the answer.
       is written as *something a person does* — a hazard recorded as a warning is not a
       task, and that is how one fault survived being described five times.
       **An open question for Mike is an item on this list**, never a line in a note.
+      **`activeOn` says which machine is on an item.** Any item this machine picked up
+      today carries `{ machine, since }`; keep it if the work is still in hand, clear it if
+      the item is finished or dropped. Never set it for the other machine.
    c. **The commit message — what happened today.** That is the permanent record, and
       unlike a note nobody can fail to find it.
 

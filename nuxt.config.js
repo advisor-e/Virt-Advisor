@@ -134,6 +134,10 @@ export default {
     { path: '/api/report', handler: '~/server-middleware/report.js' },
     { path: '/api/cases', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/clients', handler: '~/server-middleware/apiProxy.js' },
+    // Which report models a client may open — the advisor's switch and the client's own
+    // read (design/features/business-entity-reports.md). Added with the feature, because
+    // /api/meeting below shows what happens when a slice forgets this line.
+    { path: '/api/client-reports', handler: '~/server-middleware/apiProxy.js' },
     // NB '/api/course' (singular, the SSE engine) never prefix-matches
     // '/api/courses' — connect only mounts on a '/' boundary.
     { path: '/api/courses', handler: '~/server-middleware/apiProxy.js' },
