@@ -526,8 +526,11 @@ loss, balance sheet and cash flow ported from `3 way Filter.xlsx` — **10,155 o
 calculated cells reproduced exactly across all three years**, the largest golden set in this
 repo — behind all four screens of the approved drawing
 ([`../mockups/three-way-forecast.html`](../mockups/three-way-forecast.html)): drop the
-exports, confirm the opening position, set the assumptions, the forecast. **Nine corrections
-to the source workbook were each ruled by Mike**; the evidence for every one is in
+exports, confirm the opening position, set the assumptions, the forecast. **Ten corrections
+to the source workbook were each ruled by Mike** — nine on 2026-09-02, and R10 on
+2026-09-03, which is the only one that is not an aggregation repair: the workbook holds one
+figure per asset sale, so an asset could only ever sell for exactly its written-down value.
+The evidence for every one is in
 [`../THREE-WAY-FORECAST-DEVIATIONS.md`](../THREE-WAY-FORECAST-DEVIATIONS.md), and the
 largest overstated year-one profit by 55,654. Month stepping was one of them: the workbook
 advanced by 31 days, so its third year ran three weeks adrift — **ruled and fixed 2026-09-02
@@ -554,6 +557,19 @@ usable months and no seed at all**, leaving the advisor to type twelve by hand. 
 months in hand the twelve are always there. Where the two files overlap, the **older**
 file's figures win — a closed financial year has been reconciled and a still-open one is
 restating itself — and the advisor is told on screen when it happens.
+
+**Step 3 takes planned capital purchases and sales** (2026-09-03, its own approved drawing
+[`../mockups/three-way-forecast-capital.html`](../mockups/three-way-forecast-capital.html)).
+A row list — what, category, month, a Buy/Sell tick and the price — folded into the engine's
+six-category grid, because 72 boxes of which 70 are zero is a screen an advisor scrolls past
+and the two that matter are lost in it. Every amount is positive; the tick carries the
+direction, so a minus sign is refused rather than guessed at. **A sale carries TWO figures**:
+the price, which the bank and the GST return follow, and the book value, which is what leaves
+the asset register — the difference being a gain or loss in the month of the sale (R10). The
+app cannot derive that book value and this is structural rather than an omission: it holds
+**six category totals**, seeded from Balance Sheet line names, so it knows "Motor Vehicles
+80,000" and can never know which van is which. Reading the Fixed Asset Schedule instead is
+item 4.65.
 
 **Both of the screen's judgement calls are ruled (Mike, 2026-09-03).** Stock below zero is
 **named in a red band**, not left as a figure among figures: it is impossible rather than
