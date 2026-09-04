@@ -149,8 +149,8 @@ four attributes. `ProvenanceBadge` gained the `client` state; `SliderField` a ba
 
 **Wired so far:** Debtor Business Drag, Margin, Mark-up & Break-even, Working Capital Cycle,
 Eight Levers, Cost of Capital, Lease vs Buy, Multiple Property (its three blocks and up
-to five property records flattened under dotted names with a `propertyCount`), and the Loan
-Estimator. **Not yet wired:** Quick Position, EBITDA/DCF and Volatility; the Three-Way
+to five property records flattened under dotted names with a `propertyCount`), the Loan
+Estimator, and Quick Position. **Not yet wired:** EBITDA/DCF and Volatility; the Three-Way
 Forecast last, after the laptop's 4.61 lands. Screens without SliderField show the
 badge in the label through `components/base/ClientChangedBadge.vue`. Until a screen is wired, an open
 model still shows the client its sample figures, exactly as §4 says.
@@ -167,6 +167,19 @@ opens on the report. The business step is optional (a personal-only enquiry) but
 one is re-entered, never dropped. In the two grids, whose cells have no labels, the badge
 sits on the row name when any figure in the row changed.
 
+**A file-fed screen saves each figure's provenance beside it** (Quick Position;
+`utils/quickPositionSavedShape.js`). The row holds every input, `source.<figure>` for
+each balance-sheet figure and the fixed-costs figure, the service-business switch, and
+the Profit and Loss expense lines as two lists (`expenseNames`, `expenseAmounts`) — the
+store admits a list of short names for this. **A file-sourced figure the client changed
+shows `client` in place of `from file`, never beside it** (ruled by Mike 2026-09-04): the
+number is no longer the file's. The saved source is untouched, so Restore brings the
+advisor's version back with its file tags. Where the client can change only a factor
+against a file figure (the asset rows), the value keeps its file tag and the factor is
+badged on its own. **A client never sees the upload steps**: the upload needs the
+advisor's sign-in, so the client's page is the report alone, and a saved row opens on it.
+Nothing a file alone knows (the company name, the income total) is in a saved row.
+
 **Wording proposed and not yet ruled** (`locales/en.json`, `clientReports.saved.*`): the
 "saved by" lines, the banner sentence, the badge word `client`, and the four failure messages.
 
@@ -182,7 +195,10 @@ on client-pick for an advisor, the right route with the token, restore advisor-o
 `reportHeader.component.test.js` (Save only with someone to save as; the banner and Restore
 only on a client edit, never for the client's own sign-in), `loanEstimatorSavedShape.test.js`
 (a full row round-trips figure for figure and sits under the cap; one malformed figure
-drops its step and lands the page on it; nothing is filled from the sample).
+drops its step and lands the page on it; nothing is filled from the sample),
+`quickPositionSavedShape.test.js` (a row carries every source and the expense lines and
+the store admits it; a bad figure keeps what the screen held; a restored state drives the
+request; a client-changed file figure shows `client` in place of `from file`).
 
 ## 6. What is deliberately not in this design
 

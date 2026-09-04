@@ -44,18 +44,23 @@ describe('savedReports — validateInputs (hostile by default)', () => {
   it('admits numbers, booleans, short strings and number arrays, as a fresh copy', () => {
     // A blank (null) is a figure's honest empty state — an optional input not yet typed,
     // or an empty month in a series — and must round-trip as a blank, never become 0.
-    const src = { sales: 100, flag: true, note: 'x', months: [1, null, 2], hurdle: null }
+    // A list of short names is the expense lines a file supplied (Quick Position), kept
+    // beside their amounts so a reloaded report still names them.
+    const src = { sales: 100, flag: true, note: 'x', months: [1, null, 2], hurdle: null, names: ['Rent', 'Power'] }
     const out = saved.validateInputs(src)
     expect(out).toEqual(src)
     expect(out).not.toBe(src)
     expect(out.months).not.toBe(src.months)
+    expect(out.names).not.toBe(src.names)
   })
 
   it.each([
     ['not an object', 'x'], ['an array', [1]], ['empty', {}],
     ['a nested object', { a: { b: 1 } }], ['NaN', { a: NaN }], ['Infinity', { a: Infinity }],
     ['a bad key', { 'a b': 1 }], ['a long string', { a: 'x'.repeat(201) }],
-    ['a string array', { a: ['x'] }], ['undefined', { a: undefined }], ['an object in a list', { a: [{}] }]
+    ['a mixed list', { a: ['x', 1] }], ['a long name in a list', { a: ['x'.repeat(201)] }],
+    ['a list of blanks and names', { a: [null, 'x'] }], ['a long list', { a: new Array(121).fill(1) }],
+    ['undefined', { a: undefined }], ['an object in a list', { a: [{}] }]
   ])('refuses %s as BAD_INPUTS', (_, inputs) => {
     expect(() => saved.validateInputs(inputs)).toThrow(expect.objectContaining({ code: 'BAD_INPUTS' }))
   })
