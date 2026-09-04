@@ -135,6 +135,75 @@ function pickSeries (v, def) {
 function zeroes () { return new Array(MONTHS).fill(0) }
 
 /**
+ * Every landing this forecast has to account for, each carrying the months ITS OWN deposit
+ * and balance fall in.
+ *
+ * 🔴 THIS IS THE SEAM SLICE 2 NEEDED, AND IT IS THE WHOLE OF THE ENGINE CHANGE. Everything
+ * downstream of it — the deposit, the prepayment, the balance, freight, duty, border GST
+ * and the sell-down — was already worked out one landing at a time. It was simply looping
+ * over the twelve months and deriving each landing's dates from ONE deposit lead and ONE
+ * balance profile shared by all of them.
+ *
+ * WITHOUT A CALCULATOR (every forecast today) the list is built from exactly those uniform
+ * terms, so the arithmetic is unchanged to the cent — which the 3,385-cell golden guard
+ * proves rather than this comment asserting it.
+ *
+ * WITH ONE, each shipment brings its own real dates (Mike's ruling, 2026-09-04: the
+ * calculator writes all three series). Two containers ordered eighteen days apart have
+ * balances due on 1 and 19 August; a single averaged lead would replace both with one
+ * month, which is the averaging the "dates, not bands" ruling exists to stop.
+ *
+ * ⚠ A SHIPMENT'S BALANCE IS ONE DATED PAYMENT, NOT A PROFILE. The supplier's terms say when
+ * the balance is due; there is nothing to spread. The shape is kept common so the loop
+ * below has one path rather than two — two paths through a balance-sheet movement is how
+ * the prepayment and the liability start disagreeing.
+ *
+ * @param {object} O - the normalised `overseas` block.
+ * @returns {Array<{value:number, landsInMonth:number, depositPct:number, depositMonth:number,
+ *   balance:Array<{month:number, share:number}>}>}
+ */
+function landingsOf (O) {
+  const out = []
+
+  if (Array.isArray(O.landings) && O.landings.length) {
+    for (let i = 0; i < O.landings.length; i++) {
+      const L = O.landings[i]
+      const value = pick(L && L.value, 0)
+      const m = Math.round(pick(L && L.landsInMonth, -1))
+      // A landing outside the twelve months is not this forecast's stock and neither is its
+      // cash. `importShipmentModel` reports those separately; this is the belt to its
+      // braces, because a caller is not obliged to have used it.
+      if (!value || m < 0 || m >= MONTHS) { continue }
+      out.push({
+        value,
+        landsInMonth: m,
+        depositPct: Math.min(1, Math.max(0, pick(L.depositPct, O.depositPct))),
+        depositMonth: Math.round(pick(L.depositMonth, m - O.depositLeadMonths)),
+        balance: [{ month: Math.round(pick(L.balanceMonth, m)), share: 1 }]
+      })
+    }
+    return out
+  }
+
+  for (let m = 0; m < MONTHS; m++) {
+    const value = O.importedPurchases[m]
+    if (!value) { continue }
+    const balance = []
+    for (let lag = 0; lag < 5; lag++) {
+      if (O.balancePayment[lag]) { balance.push({ month: m + lag, share: O.balancePayment[lag] }) }
+    }
+    out.push({
+      value,
+      landsInMonth: m,
+      depositPct: O.depositPct,
+      depositMonth: m - O.depositLeadMonths,
+      balance
+    })
+  }
+  return out
+}
+
+/**
  * The price ladder and the demand patterns for imported stock — Mike's own figures,
  * held as data rather than as constants because they are advisory content that moves a
  * client's numbers. See the file's own header. Item 4.64.
@@ -262,6 +331,9 @@ const DEFAULTS = {
     enabled: false,
     // Buying: what LANDS each month, ex GST, and the terms it lands on.
     importedPurchases: zeroes(),
+    // The shipment calculator's resolved landings (item 4.64 slice 2). Empty means "there
+    // is no calculator on this forecast", which is every forecast today.
+    landings: [],
     depositPct: 0.6,
     depositLeadMonths: 4, // reaches 9 — his workbook pays ~220 days before the first sale
     balancePayment: [0, 1, 0, 0, 0], // from the landing month: [same, +1, +2, +3, +4]
@@ -393,6 +465,17 @@ function resolveInputs (raw, fallback) {
     return {
       enabled,
       importedPurchases: seriesIf(o.importedPurchases, def.importedPurchases),
+      // The shipment calculator's resolved landings, each with its own deposit and balance
+      // month (item 4.64 slice 2). Absent for every forecast that types its twelve landing
+      // figures by hand, which is all of them today — `landingsOf` then builds the list
+      // from the uniform terms below and the arithmetic is unchanged to the cent.
+      //
+      // 🔴 THE TICK GOVERNS THESE TOO. Dropping them with it off is what stops an advisor
+      // who fills in shipments and then unticks the section keeping half a forecast, and it
+      // is the same reason the two series above are dropped. Without this line the golden
+      // guard would still pass — nothing sends landings today — and the trap would sit
+      // there until the screen was built.
+      landings: enabled && Array.isArray(o.landings) ? o.landings : [],
       depositPct: pick(o.depositPct, def.depositPct),
       depositLeadMonths: Math.round(pick(o.depositLeadMonths, def.depositLeadMonths)),
       balancePayment: bucket(o.balancePayment, def.balancePayment),
@@ -699,41 +782,42 @@ function overseasSchedule (O, gst) {
   }
   const fx = 1 + O.fxAllowancePct
   const curve = O.sellDown.curve || []
+  const landings = landingsOf(O)
   // Movements, gathered first and rolled forward once at the end.
   const prepaidIn = zeroes(); const prepaidReleased = zeroes()
   const owingAdded = zeroes(); const owingPaid = zeroes()
 
-  for (let m = 0; m < MONTHS; m++) {
-    const landed = O.importedPurchases[m]
-    if (!landed) { continue }
+  for (let i = 0; i < landings.length; i++) {
+    const L = landings[i]
+    const m = L.landsInMonth
+    const landed = L.value
 
     // The deposit, paid AHEAD of the landing. A lead that reaches back past the start of
     // the forecast is not counted — that cash went before this year began. Mike's ruling
     // of 2026-09-04: warn, and leave it out.
-    const deposit = landed * O.depositPct * fx
-    const depositMonth = m - O.depositLeadMonths
-    if (depositMonth >= 0) {
-      out.deposits[depositMonth] += deposit
+    const deposit = landed * L.depositPct * fx
+    if (L.depositMonth >= 0) {
+      out.deposits[L.depositMonth] += deposit
       // It is a prepayment from the day it is paid until the day the container lands.
-      prepaidIn[depositMonth] += deposit
+      prepaidIn[L.depositMonth] += deposit
       prepaidReleased[m] += deposit
     } else {
       // Paid before this forecast began, so it is already in the opening position and is
       // not counted again (Mike's ruling, 2026-09-04). Reported so the advisor can see it.
       out.depositsBeforeStart.push({
-        landsInMonth: m, monthsBefore: O.depositLeadMonths, amount: deposit
+        landsInMonth: m, monthsBefore: m - L.depositMonth, amount: deposit
       })
     }
 
-    // The balance, on its own profile, counted from the landing month. It is owed from
-    // the moment the goods land, whenever it is actually settled.
-    const balance = landed * (1 - O.depositPct) * fx
+    // The balance, on its own schedule. It is owed from the moment the goods land,
+    // whenever it is actually settled.
+    const balance = landed * (1 - L.depositPct) * fx
     owingAdded[m] += balance
-    for (let lag = 0; lag < 5; lag++) {
-      const t = m + lag
-      if (t < MONTHS) {
-        out.supplierBalance[t] += balance * O.balancePayment[lag]
-        owingPaid[t] += balance * O.balancePayment[lag]
+    for (let j = 0; j < L.balance.length; j++) {
+      const t = L.balance[j].month
+      if (t >= 0 && t < MONTHS) {
+        out.supplierBalance[t] += balance * L.balance[j].share
+        owingPaid[t] += balance * L.balance[j].share
       }
     }
 

@@ -632,6 +632,37 @@ any month.
 > that field says), and the shapes' own curves belong to slice 2's calculator. The validator
 > refuses a new-stock boundary set past the standard one, because that leaves the middle
 > rung of the ladder priced at nothing with nothing on screen to notice it by.
+>
+> **Slice 2 — the shipment calculator (`server/report/importShipmentModel.js`), engine half
+> built 2026-09-04.** An advisor enters shipments — description, cost, order date, deposit %,
+> shipping speed — and the calculator dates every event from the order date using Mike's own
+> supplier terms (manufacture 120, balance due 91, prep 9; sea 25 / air 20 / express 15,
+> summing to his workbook's stated 154 / 149 / 144 days). **It writes all three series —
+> deposits, balances and landings — each from its own real date**, his ruling of 2026-09-04:
+> writing only the landings would compute the real dates and then let one averaged lead
+> replace them, which is the averaging the *dates, not bands* ruling exists to stop.
+>
+> **The engine change is one function, `landingsOf`.** Everything downstream was already
+> worked out one landing at a time; the loop simply derived every landing's dates from one
+> shared deposit lead and one shared balance profile. It now iterates a list of landings,
+> and a forecast with no calculator builds that list from exactly those uniform terms — so
+> the arithmetic is unchanged to the cent, which the 3,385-cell golden guard proves.
+>
+> **What that buys, on the drawing's own example:** two containers ordered in the same May,
+> eighteen days apart, land in **September and October** — band-mapping knows only "ordered
+> in May" and files both together. Their balances are really due in **August**, where the
+> uniform profile said October and November: two and three months earlier, on a document
+> whose whole purpose is showing when money is needed.
+>
+> ⚠ **ONE THING IN THE WORKBOOK IS NOT MODELLED AND IT IS NOT AN OVERSIGHT.** His sheet adds
+> **6% interest cover** to the deferred balance, pro-rated over 91/360 — 43,057.20 becomes
+> 44,798.62. The 10% currency movement beside it *is* modelled (the forecast's own exchange
+> allowance). There is no line for interest cover on the approved screen and no ruling asking
+> for one, so it is **reported rather than invented**; a test in
+> `importShipmentModel.test.js` states the gap so it cannot be forgotten.
+>
+> **Not yet built: the screen.** The shipment table on the step-3 panel is drawn and ruled,
+> not wired.
 
 Because revenue is then *cost × the ladder*, **real unit costs govern imported
 stock** and the mark-up governs local: recovering a known cost from revenue would be
