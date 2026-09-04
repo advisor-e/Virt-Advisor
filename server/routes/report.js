@@ -21,14 +21,21 @@ const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
 const { computeMultiplePropertyAssessment, computeMultiplePropertyPortfolio } = require('../report/multiplePropertyModel')
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { computeVolatility } = require('../report/volatilityModel')
+const { computeImportShipments } = require('../report/importShipmentModel')
 const { computeThreeWayForecast, computeThreeYearForecast } = require('../report/threeWayForecastModel')
 const { assembleForecastIntake, MAX_FILES: MAX_FORECAST_FILES } = require('../report/intake/threeWayForecastAssembler')
+const { computeTrend } = require('../report/trendModel')
+const { loadResolvedTrendThresholds } = require('../utils/forecastTrendThresholds')
 const { listReportModels } = require('../utils/reportModels')
 const { parseUpload, parseForecastUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
 const { parseMonthlyUpload } = require('../report/intake/monthlySalesParser')
 const { assembleMonthlySeries, MAX_FILES: MAX_MONTHLY_FILES } = require('../report/intake/monthlySeriesAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
+// The overlay reader with its dev-JSON fallback, taken from the thresholds route rather
+// than rebuilt — one definition of "how a scope's stored config is read", so the trend
+// block on step 3 and the manager screen that edits it can never disagree about it.
+const { readScopeConfig: readTrendScopeConfig } = require('./forecastTrendThresholds')
 
 // formidable pinned to v2.1.2 repo-wide (Node 14.15 — see firmManager.js); same
 // named-export + callback-wrap pattern as the firm-manager uploads.
@@ -612,10 +619,13 @@ function multipleProperty (req, res, next) {
 /**
  * POST /api/report/volatility
  *
- * @param {object} req.body - `{ sales: number[], window: 12|18|24 }`. `sales` is monthly
- *   figures oldest-first, as read from the firm's accounts export; `window` is how many of
- *   the MOST RECENT months to measure. An unrecognised window falls back to 12, and an
- *   unreadable cell counts as zero rather than blanking every figure on the screen.
+ * @param {object} req.body - `{ sales: number[], window: 12|18|24, forecast?: number[] }`.
+ *   `sales` is monthly figures oldest-first, as read from the firm's accounts export;
+ *   `window` is how many of the MOST RECENT months to measure. An unrecognised window falls
+ *   back to 12, and an unreadable cell counts as zero rather than blanking every figure on
+ *   the screen. `forecast` is optional and is what the Three-Way Forecast's step 3 sends —
+ *   twelve forecast months to be placed against bands measured from `sales` alone. The
+ *   Volatility Report itself never sends one, so its response shape is unchanged.
  * @returns {object} `{ success, data, timestamp }` — the average, the population standard
  *   deviation, the three bands (with `lower` floored at zero per Mike's ruling of
  *   2026-08-31 and the workbook's own value kept beside it as `lowerUnfloored`), the dial
@@ -632,6 +642,45 @@ function volatility (req, res, next) {
   } catch (err) {
     console.error('[report] volatility compute failed:', err)
     res.send(400, { success: false, error: { code: 'VOLATILITY_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/import-shipments
+ *
+ * The Import & Retail shipment calculator (item 4.64 slice 2). Step 3 of the Three-Way
+ * Forecast sends the shipments an advisor has entered and gets back the months each one's
+ * deposit, balance and landing really fall in, worked out from the order date.
+ *
+ * 🔴 IT IS A ROUTE BECAUSE THE ARITHMETIC IS BUSINESS LOGIC, and business logic does not
+ * live in Nuxt. The screen shows the answer; it does not work it out. That also means one
+ * implementation of the date rules rather than a backend one and a browser one drifting
+ * apart — the same reason the volatility block above is a route rather than a computed
+ * property.
+ *
+ * @param {object} req.body - `{ startDate, terms, shipments }`.
+ *   `startDate` is the forecast's first day (`YYYY-MM-DD`); without it nothing can be filed
+ *   in a month and an empty result comes back rather than a guess. `terms` are the
+ *   supplier's, defaulting to the workbook's own (manufacture 120, balance due 91, prep 9,
+ *   sea 25 / air 20 / express 15, interest cover 6%). `shipments` each carry
+ *   `{ description, cost, orderDate, depositPct, speed }`.
+ * @returns {object} `{ success, data, timestamp }` — `rows` (each with its worked-out dates
+ *   and months), the `importedPurchases`, `deposits`, `balances` and `interest` series,
+ *   the `landings` the forecast engine consumes, and `beyondYear` for shipments that land
+ *   after the twelfth month.
+ *
+ * Anonymous by design: dates and numbers in, dates and numbers out. Only the file-intake
+ * routes carry `firmAuth`, because those accept uploads.
+ */
+function importShipments (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeImportShipments(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] import-shipments compute failed:', err)
+    res.send(400, { success: false, error: { code: 'IMPORT_SHIPMENTS_COMPUTE_FAILED', message: 'Could not work out the shipment dates from the supplied terms.' }, timestamp: new Date().toISOString() })
   }
   return next()
 }
@@ -698,11 +747,19 @@ function threeYearForecast (req, res, next) {
 /**
  * POST /api/report/three-way-forecast/intake  (firmAuth — uploads are never anonymous)
  *
- * Multipart upload of up to three Xero exports (.xlsx or .csv, 5 MB per request) in
+ * Multipart upload of up to four Xero exports (.xlsx or .csv, 5 MB per request) in
  * repeated `file` fields: a Balance Sheet (required — it is what the forecast opens
- * from), a Profit and Loss (optional, seeding the annual cost base), and optionally
- * last year's by-month P&L, whose monthly sales are offered as a STARTING POINT for the
- * forecast rather than as the forecast itself.
+ * from), a Profit and Loss (optional, seeding the annual cost base), and up to TWO
+ * by-month P&Ls — this year's and last year's — whose most recent twelve complete months
+ * are offered as a STARTING POINT for the forecast rather than as the forecast itself.
+ *
+ * WHY THE SECOND BY-MONTH FILE EARNS ITS SLOT (item 4.61a, 2026-09-03). A current-year
+ * export almost always ends in a partial month, and `assembleMonthlySeries` strips those
+ * from the end — so one file can yield eleven usable months and no seed at all, leaving
+ * the advisor to type twelve by hand. With last year's alongside it there are 24 months in
+ * hand and the twelve are always there. The join is NOT done here: two exports read
+ * separately are two correct halves, and joined wrongly they are one confident wrong
+ * series, so the one module that owns that risk does it.
  *
  * The distinction matters and the response carries it: `provenance` marks each figure
  * `file`, `seeded` or `entered`. Everything forward-looking — forecast sales and
@@ -744,7 +801,7 @@ async function threeWayForecastIntake (req, res) {
     // Refuse an over-count BEFORE any file is parsed, as the EBITDA intake does; the
     // assembler's own count check stays as the backstop.
     if (uploaded.length > MAX_FORECAST_FILES) {
-      const e = new Error('This model reads up to ' + MAX_FORECAST_FILES + ' files — ' + uploaded.length + ' were sent. Please drop a Balance Sheet, a Profit and Loss, and at most one by-month Profit and Loss.')
+      const e = new Error('This model reads up to ' + MAX_FORECAST_FILES + ' files — ' + uploaded.length + ' were sent. Please drop a Balance Sheet, a Profit and Loss, up to two by-month Profit and Loss reports, and last year\'s Balance Sheet and Profit and Loss.')
       e.code = 'TOO_MANY_FILES'
       throw e
     }
@@ -758,7 +815,7 @@ async function threeWayForecastIntake (req, res) {
     // `guardFigureColumns`, which THROWS `MULTI_PERIOD_COLUMNS` rather than declining. Try
     // the annual reader first and the third slot could never work at all.
     const annual = []
-    let monthly = null
+    const monthly = []
     for (let u = 0; u < uploaded.length; u++) {
       const buf = fs.readFileSync(uploaded[u].filepath)
       let byMonth = null
@@ -768,36 +825,68 @@ async function threeWayForecastIntake (req, res) {
         byMonth = null // not a by-month export; read it as an annual report below
       }
       if (byMonth && byMonth.recognised) {
-        if (monthly) {
-          const e = new Error('Two by-month Profit and Loss reports were dropped together. This model reads last year\'s twelve months — please drop the one the forecast should start from.')
+        if (monthly.length >= MAX_MONTHLY_FILES) {
+          const e = new Error('More than two by-month Profit and Loss reports were dropped together. This model reads two — this year\'s and last year\'s. Please drop the two the forecast should start from.')
           e.code = 'TOO_MANY_MONTHLY_FILES'
           throw e
         }
-        monthly = byMonth
+        monthly.push(byMonth)
         continue
       }
       annual.push(parseForecastUpload(buf))
     }
 
-    // The assembler takes twelve monthly sales figures. `assembleMonthlySeries` returns the
-    // joined run with its incomplete trailing months already stripped (`usable`), so the
-    // last twelve of those are last year's — and anything short of twelve is NOT padded:
-    // a seeded series with a made-up month in it is worse than no seed at all.
+    // The assembler takes twelve monthly sales figures. `assembleMonthlySeries` joins the
+    // one or two exports and returns the run with its incomplete trailing months already
+    // stripped (`usable`), so the last twelve of those are the most recent complete year —
+    // and anything short of twelve is NOT padded: a seeded series with a made-up month in
+    // it is worse than no seed at all.
     let monthlySales = null
+    // 🔴 THE WHOLE RUN IS KEPT, NOT ONLY THE TWELVE. Until 2026-09-03 everything but the
+    // last twelve was discarded here, which is why the volatility read could not exist:
+    // the months were read, joined, and then thrown away one line later. `history` carries
+    // the complete usable run — up to 24 months — so step 3 can measure the swing the
+    // forecast is being written against. Labels and figures only; no account names ever
+    // reach this object, and none is logged.
+    let history = []
     const monthlyWarnings = []
-    if (monthly) {
-      const joined = assembleMonthlySeries([monthly])
+    if (monthly.length) {
+      const joined = assembleMonthlySeries(monthly)
       for (let w = 0; w < joined.warnings.length; w++) { monthlyWarnings.push(joined.warnings[w]) }
+      history = joined.usable.map(m => ({ label: m.label, ordinal: m.ordinal, value: m.value }))
       if (joined.usable.length >= MONTHS_IN_YEAR) {
         monthlySales = { sales: joined.usable.slice(-MONTHS_IN_YEAR).map(m => m.value) }
       } else {
-        monthlyWarnings.push('The by-month report gave ' + joined.usable.length +
-          ' complete months, and the forecast needs twelve. Last year\'s sales have not been used as a starting point — enter the twelve months yourself.')
+        monthlyWarnings.push('The by-month ' + (monthly.length === 1 ? 'report gave ' : 'reports gave ') + joined.usable.length +
+          ' complete months, and the forecast needs twelve. The monthly sales have not been used as a starting point — enter the twelve months yourself' +
+          (monthly.length === 1 ? ', or drop last year\'s by-month report as well.' : '.'))
       }
     }
 
     const data = assembleForecastIntake(annual, monthlySales)
     for (let w = 0; w < monthlyWarnings.length; w++) { data.warnings.push(monthlyWarnings[w]) }
+    data.history = history
+
+    // The two-year trend READ (item 4.61b). Banded here rather than in the browser because
+    // the thresholds are a firm's advisory judgement and the banding is business logic —
+    // both belong on this side of the boundary. It changes no figure in `data.proposal`:
+    // `trendInputs` is consumed here and dropped, so nothing last year's files carried can
+    // reach the forecast the advisor builds.
+    //
+    // A thresholds failure must never cost the advisor their upload, so the read degrades
+    // to the platform set inside the resolver and, if even that fails, to an unbanded
+    // block — never to a failed intake.
+    data.trend = { available: false, blocked: 'NO_PRIOR_YEAR', needsBalanceSheet: false, periodsCertain: true, measures: [], counts: { good: 0, warn: 0, crit: 0, unbanded: 0 } }
+    if (data.trendInputs) {
+      const thresholds = await loadResolvedTrendThresholds(req.firmId, readTrendScopeConfig)
+      data.trend = computeTrend({
+        current: data.trendInputs.current,
+        prior: data.trendInputs.prior,
+        thresholds
+      })
+    }
+    delete data.trendInputs
+
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
     // Log the stable code only — never the filename, labels or content (identity stays local)
@@ -842,4 +931,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }

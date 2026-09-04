@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buying and Selling Overseas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Three-Way Forecast — screen mockup for approval (drawn 2026-09-04).
+
+   The style block below is copied VERBATIM from design/mockups/
+   three-way-forecast.html lines 30-217, the approved screen, exactly as
+   three-way-forecast-capital.html does. The look is READ OFF the finished
+   screens, never proposed afresh (the owner ruling of 2026-07-23). Nothing
+   here adds a new colour, radius, weight or font.
+   No dark mode: one light look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-col-input:360px; --rs-col-gap:16px; --rs-content-width:1120px;
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0; --rs-accent-contrast:#ffffff;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#ff00000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:var(--rs-content-width);margin:0 auto;padding:28px 22px 64px}
+
+/* [A] screen root — ONE gap value */
+.tw-root{display:flex;flex-direction:column;gap:16px}
+.tw-root strong,.tw-root b{font-weight:600}
+/* [A] resets the shared header's own margin (mandatory; guarded) */
+.tw-root .rs-top{margin:0}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55}
+.tag{position:relative}
+.tag::after{content:attr(data-tag);position:absolute;top:-9px;left:10px;background:#614700;
+  color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;padding:1px 6px;border-radius:4px}
+.stepmark{margin:34px 0 2px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+
+/* [B] ReportHeader */
+.rs-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  margin:0 auto 22px;padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);
+  color:#fff;box-shadow:var(--rs-shadow)}
+.rs-backlink{display:inline-block;margin-bottom:10px;font-size:12px;font-weight:600;
+  letter-spacing:.04em;color:#7fd3f1;text-decoration:none;opacity:.9}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+
+/* step chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+/* [C] HeroStrip + HeroFigure — locked, do not change */
+.herostrip{background:#002b64;border-radius:14px;padding:20px;display:grid;gap:0;
+  box-shadow:0 12px 32px -12px #002b6466;grid-template-columns:repeat(4,1fr)}
+@media (max-width:700px){.herostrip{grid-template-columns:1fr 1fr;gap:14px 0}}
+.herostrip > *:first-child{border-left:0;padding-left:2px}
+.hs{padding:2px 16px;border-left:1px solid #ffffff30}
+.hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
+.hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;
+  font-variant-numeric:tabular-nums}
+.hv .u{font-size:.5em;font-weight:400;opacity:.85}
+.hv.is-crit{color:#ff8f8f}
+.hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+
+/* StaleBanner + the warning band */
+.stale{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;
+  align-items:center;gap:14px}
+.stale b{display:block;font-size:13px}
+.stale span{font-size:12.5px;color:var(--rs-muted)}
+.stale.is-crit{background:var(--rs-crit-soft);border-color:#ff000045;border-left-color:var(--rs-crit)}
+
+/* [D] two-column body */
+.tw-layout{display:grid;grid-template-columns:var(--rs-col-input) 1fr;gap:var(--rs-col-gap);
+  align-items:start}
+@media (max-width:860px){.tw-layout{grid-template-columns:1fr}}
+
+/* cards — no top edge: the shipped screens define none */
+.tw-card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow)}
+.tw-h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.tw-group{padding:15px 16px;border-bottom:1px solid var(--rs-line)}
+.tw-group:last-child{border-bottom:0}
+.tw-glabel{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tw-dot{width:7px;height:7px;border-radius:50%;background:var(--rs-accent-bright)}
+
+/* [D2] results column — same 16px rhythm */
+.tw-results{display:flex;flex-direction:column;gap:16px;min-height:200px}
+/* [D2a] tiles */
+.tw-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:560px){.tw-tiles{grid-template-columns:1fr}}
+.tw-tile{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:16px 17px;box-shadow:var(--rs-shadow);overflow:hidden}
+.tw-k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.tw-v{font-size:30px;font-weight:600;letter-spacing:-.01em;margin-top:6px;line-height:1;
+  font-variant-numeric:tabular-nums}
+.tw-v.is-crit{color:var(--rs-crit)}
+.tw-v.is-good{color:var(--rs-good)}
+.tw-sub{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+/* [D2c] coach panel */
+.tw-edu{border-left:3px solid var(--rs-accent-bright);background:var(--rs-accent-soft);
+  border-radius:0 9px 9px 0;padding:15px 17px}
+.tw-edu-h{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600;color:var(--rs-accent);margin-bottom:8px}
+.tw-edu-p{margin:0 0 8px;font-size:14px;line-height:1.6}
+.tw-edu-p:last-child{margin-bottom:0}
+.tw-lead{background:var(--rs-accent);color:var(--rs-accent-contrast);font-size:10px;font-weight:600;
+  letter-spacing:.08em;padding:3px 7px;border-radius:5px}
+/* [D2d] actions */
+.tw-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tw-cta{font:inherit;font-weight:600;font-size:13.5px;color:var(--rs-accent-contrast);
+  background:var(--rs-accent);border:0;padding:11px 18px;border-radius:10px;cursor:pointer}
+.tw-ghost{background:transparent;color:var(--rs-ink);border:1px solid var(--rs-line)}
+.tw-foot{font-size:12px;color:var(--rs-muted)}
+
+/* provenance tags — ProvenanceBadge */
+.src{letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:999px;
+  white-space:nowrap;font-size:9.5px;padding:2.5px 7px;margin-left:7px}
+.src-file{color:#0070c0;background:#0070c018;border:1px solid #0070c04d}
+.src-hand{color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.src-seed{color:#4a7c1f;background:#4ca52d1a;border:1px solid #4ca52d59}
+
+/* drop zone + file slots */
+.drop{border:2px dashed #9dbdd8;border-radius:var(--rs-radius);background:var(--rs-panel-2);
+  padding:26px 20px;text-align:center}
+.drop .big{font-size:15px;font-weight:600}
+.drop .sm{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+.slots{display:grid;gap:8px;margin-top:14px}
+.slot{display:flex;gap:10px;align-items:flex-start;background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);border-radius:10px;padding:10px 11px;text-align:left}
+.slot.empty{border-style:dashed;color:var(--rs-muted)}
+.slot .nm{font-size:12.5px;font-weight:600;word-break:break-all}
+.slot .mt{font-size:11.5px;color:var(--rs-muted);margin-top:2px}
+.req{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:999px;padding:2.5px 7px;color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.opt{color:var(--rs-muted);background:var(--rs-panel);border:1px solid var(--rs-line)}
+
+/* inputs */
+.field{margin-bottom:11px}
+.fieldlab{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;
+  color:var(--rs-ink);margin-bottom:6px}
+.field input,.field select{width:100%;font:inherit;font-size:13px;padding:8px 9px;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.field input.file{border-color:#0070c04d;background:#0070c00a}
+.seg{display:flex;border:1px solid var(--rs-line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:var(--rs-panel);padding:9px 0;font:inherit;font-size:13px;
+  font-weight:600;color:var(--rs-muted);cursor:pointer}
+.seg button.on{background:var(--rs-accent);color:#fff}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.m{display:flex;align-items:center;gap:6px}
+.m .lbl{width:26px;font-size:11px;color:var(--rs-muted);text-align:right}
+.m input{width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;
+  border:1px solid var(--rs-line);border-radius:7px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.m.seeded input{border-color:#4ca52d59;background:#4ca52d0d}
+
+/* tables */
+.tblwrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px}
+th,td{text-align:right;padding:6px 7px;border-bottom:1px solid var(--rs-line);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--rs-panel);
+  min-width:190px;white-space:normal}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--rs-muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+tr.rule td{border-top:2px solid var(--rs-line);font-weight:600}
+td.neg{color:var(--rs-crit)}
+td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:600}
+.tblnote{font-size:11.5px;color:var(--rs-muted);padding:0 16px 14px}
+.tabs{display:flex;gap:6px;padding:14px 16px 0}
+.tabs button{font:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--rs-line);
+  border-bottom:0;background:var(--rs-panel-2);color:var(--rs-muted);padding:8px 14px;
+  border-radius:9px 9px 0 0;cursor:pointer}
+.tabs button.on{background:var(--rs-panel);color:var(--rs-ink)}
+
+/* the questions block — mockup only */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:14px 16px;font-size:13px}
+.q h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;margin:0 0 10px;color:var(--rs-muted)}
+.q ol{margin:0;padding-left:20px}.q li{margin-bottom:9px}
+.q .from{color:var(--rs-muted);font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+</style>
+<style>
+/* ============================================================================
+   ADDITIONS FOR THIS DRAWING ONLY — everything above is the approved mockup's
+   own style block. The rules below add no new colour, radius, weight or font;
+   they lay out a tick, a pair of terms columns and a cash preview using the
+   tokens already defined above.
+   ========================================================================= */
+.tickrow{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--rs-ink)}
+.tickbox{width:19px;height:19px;border-radius:5px;display:grid;place-items:center;flex:none;
+  font-size:12px;font-weight:700;background:var(--rs-accent);border:2px solid var(--rs-accent);
+  color:var(--rs-accent-contrast)}
+.tickbox.off{background:var(--rs-panel);border-color:var(--rs-line);color:transparent}
+.tickhint{font-size:12.5px;color:var(--rs-muted);font-weight:400;margin-left:29px;margin-top:4px}
+.subgroup{border:1px solid var(--rs-line);border-radius:12px;background:var(--rs-panel);
+  padding:14px;margin-top:12px}
+.subh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;
+  font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.pill{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:999px;padding:2.5px 7px;white-space:nowrap}
+.pill-local{color:var(--rs-muted);background:var(--rs-panel-2);border:1px solid var(--rs-line)}
+.pill-intl{color:#0070c0;background:#0070c018;border:1px solid #0070c04d}
+.termgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+@media (max-width:760px){.termgrid{grid-template-columns:1fr}}
+.termhead{font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;
+  color:var(--rs-muted);margin:2px 0 10px}
+.sectionbox{border:1px solid #0070c055;border-radius:12px;background:var(--rs-accent-soft);padding:14px}
+.note-why{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:12px 14px;font-size:12.5px;color:var(--rs-muted);margin-top:12px}
+.note-why b{color:var(--rs-ink)}
+.newrow td{background:#0070c00f}
+.newrow td:first-child{background:#eaf3fb}
+.newtag{font-size:9px;font-weight:700;letter-spacing:.08em;color:#0070c0;margin-left:6px}
+.slice2{border:1px dashed #9dbdd8;border-radius:12px;background:var(--rs-panel-2);padding:14px;margin-top:12px}
+.shiprow{display:grid;grid-template-columns:1fr 86px 96px 72px 92px 150px;gap:8px;align-items:center;
+  padding:7px 0;border-bottom:1px solid var(--rs-line)}
+.shiprow:last-of-type{border-bottom:0}
+.shiprow.head span{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-muted)}
+.shiprow input,.shiprow select{width:100%;font:inherit;font-size:12.5px;padding:7px 8px;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+/* A derived cell is deliberately NOT a control. Corrected 2026-09-04: the landing month was
+   drawn as a dropdown the advisor picks, which contradicted this panel's own ruling that
+   every event is dated from the order date. It is worked out and shown. */
+.shipderived{font-size:12px;color:var(--rs-ink);background:#eaf3fb;border:1px solid #cfe3f7;
+  border-radius:8px;padding:6px 8px;font-variant-numeric:tabular-nums}
+.shipderived small{display:block;color:var(--rs-muted);font-size:10.5px}
+.shipterms{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 14px;
+  padding:12px;border:1px solid var(--rs-line);border-radius:10px;background:var(--rs-panel)}
+.shipterms .fieldlab{margin-bottom:4px}
+.shipterms input,.shipterms select{width:100%;font:inherit;font-size:12.5px;padding:7px 8px;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.openq{border:1px solid #d98c00;background:#fff6e8;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:var(--rs-ink);margin-top:12px}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="tw-root">
+
+  <div class="mock">
+    <strong>One new section, drawn for approval &mdash; nothing here is built.</strong>
+    It adds <b>buying and selling overseas</b> to <b>step 3, Set the assumptions</b> of the
+    Three-Way Forecast. Asked for by Mike on 2026-09-03: <em>&ldquo;shouldn't the assumptions page
+    have a &lsquo;international&rsquo; vs &lsquo;Local&rsquo; purchases and sales box? this is where
+    imported stock purchases that take longer to arrive and require deposits etc can be entered, as
+    can oversaes sales that rely on delivery before payment can be entered - to allow for shipping
+    and fx&rdquo;</em> &mdash; and merged with the Import &amp; Retail model (was item 4.63) on his
+    instruction of 2026-09-04: <em>&ldquo;you can merge the 4.63 into this task to make one clean
+    data entry and reporting section&rdquo;</em>.
+    Drawn against the approved <em>mockups/three-way-forecast.html</em>, whose entire style block is
+    reused here unchanged.
+    <br><br>
+    🔴 <b>SIX THINGS ARE RULED (2026-09-04) and the drawing shows every one.</b> Stock is recorded
+    in the month it <b>lands</b>, with the deposit paid ahead of it; the advisor types twelve monthly
+    landing figures plus the terms; overseas sales are <b>zero-rated by default</b> with a tick to
+    charge GST; the exchange movement is <b>its own direct-cost line</b>, with border GST still
+    calculated on the exchange-adjusted value; overseas sales carry <b>their own mark-up</b>,
+    defaulted to the local one; and 🔴 <b>the revenue imported stock produces is WORKED OUT, not
+    typed</b> &mdash; priced new, then standard, then runout as it sells down, and seeded into the
+    sales row where the advisor can still override it.
+    <br><br>
+    🔴 <b>THE SIXTH RULING CAME FROM MIKE AFTER THE FIRST DRAWING, AND IT CORRECTED A REAL FAULT
+    IN IT.</b> In his words: <em>&ldquo;a key component is the forecasted discount sale price on new
+    stock arrivals. Often, new stock command a higher initial price if its new to the market but over
+    time, importers need to offload at a discount - this should be forecasted so all revenue isnt
+    calculated on an inflated sale price - as per my models&rdquo;</em>. The first drawing gave
+    overseas sales <b>one</b> mark-up for the year, which is the same fault as a single blended
+    collection profile one level up. <b>The ladder below is read out of his own workbook</b>
+    (<em>Import &amp; Retail.xlsx</em>, <em>Supplier 1 Inputs</em> row 19), not invented here.
+    <br><br>
+    🔴 <b>AND FIVE MORE WERE RULED LATER THE SAME DAY, SO NOTHING ON THIS PAGE IS OPEN.</b> The
+    labels are approved as drawn and are now the built wording; a deposit falling before the forecast
+    starts <b>warns</b> and its cash stays out; overseas sales carry <b>their own</b> exchange
+    allowance; revenue from imported stock counts as <b>local</b> sales; and slice 2's two are taken
+    &mdash; every event is dated from the order date and filed in the calendar month it really falls
+    in, and <b>real unit costs govern imported stock</b> while the mark-up governs local. All five
+    are recorded at the foot of this page.
+    <br><br>
+    ✅ <b>APPROVED BY MIKE ON 2026-09-04</b> &mdash; the drawing itself, which is a separate act from
+    ruling on what goes in it. It is now the thing the build is checked against: open it beside the
+    code and name every difference.
+    <br>
+    ⚠ <b>THE FIGURES IN THE OVERSEAS COLUMNS ARE ILLUSTRATIVE, NOT COMPUTED.</b> The local figures
+    are the workbook's own sample (&ldquo;Big Bird Grass Seed&rdquo;, opening 1 April). The overseas
+    ones cannot be real, because the model that would produce them is not built &mdash; but every
+    figure in the cash preview is arithmetic done by hand from the terms shown, and the working is
+    printed beneath it so it can be checked.
+  </div>
+
+  <!-- ============================================================ WHERE IT SITS -->
+  <div class="stepmark">Where it sits &mdash; step 3 of 4, set the assumptions</div>
+
+  <div class="chips">
+    <div class="chip done"><span class="n">&#10003;</span> Drop the exports</div>
+    <div class="chip done"><span class="n">&#10003;</span> Confirm the opening position</div>
+    <div class="chip now"><span class="n">3</span> Set the assumptions</div>
+    <div class="chip todo"><span class="n">4</span> The forecast</div>
+  </div>
+
+  <!-- ============================================================ THE TICK, OFF -->
+  <div class="stepmark">The tick, turned off &mdash; which is every forecast that exists today</div>
+
+  <div class="tw-card">
+    <div class="tw-group">
+      <div class="tickrow"><span class="tickbox off">&#10003;</span> This business buys or sells overseas</div>
+      <div class="tickhint">
+        Leave it unticked and step 3 is exactly the screen it is today &mdash; one sales row, one
+        stock row, one mark-up, one set of collection terms. Nothing is added, nothing is hidden,
+        and every figure the forecast produces is unchanged to the cent.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ THE TICK, ON -->
+  <div class="stepmark">The tick, turned on &mdash; the new section</div>
+
+  <div class="tw-layout">
+    <aside class="tw-card">
+      <div class="tw-group">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">The trade</h2></div>
+        <div class="field">
+          <span class="fieldlab">Mark-up on local sales <span class="src src-hand">entered</span></span>
+          <input value="68%">
+        </div>
+        <div class="field">
+          <span class="fieldlab">Mark-up on overseas sales <span class="src src-hand">entered</span></span>
+          <input value="68%">
+        </div>
+        <div class="tw-foot">Starts equal to the local mark-up. Change it only if the export margin really differs.</div>
+        <div class="field" style="margin-top:11px">
+          <span class="fieldlab">Forecast starts</span>
+          <input value="1 April 2026">
+        </div>
+      </div>
+      <div class="tw-group">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">When local customers pay</h2></div>
+        <div class="field"><span class="fieldlab">Same month</span><input value="10%"></div>
+        <div class="field"><span class="fieldlab">Month after</span><input value="55%"></div>
+        <div class="field"><span class="fieldlab">Two months after</span><input value="30%"></div>
+        <div class="field"><span class="fieldlab">Three months after</span><input value="5%"></div>
+        <div class="field"><span class="fieldlab">Four months after</span><input value="0%"></div>
+        <div class="tw-foot" style="color:var(--rs-good);font-weight:600">Adds to 100% &#10003;</div>
+      </div>
+      <div class="tw-group">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">When local suppliers are paid</h2></div>
+        <div class="field"><span class="fieldlab">Same month</span><input value="0%"></div>
+        <div class="field"><span class="fieldlab">Month after</span><input value="90%"></div>
+        <div class="field"><span class="fieldlab">Two months after</span><input value="10%"></div>
+        <div class="field"><span class="fieldlab">Three months after</span><input value="0%"></div>
+        <div class="field"><span class="fieldlab">Four months after</span><input value="0%"></div>
+        <div class="tw-foot" style="color:var(--rs-good);font-weight:600">Adds to 100% &#10003;</div>
+      </div>
+      <div class="tw-group">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">GST and tax</h2></div>
+        <div class="field"><span class="fieldlab">GST rate</span><input value="15%"></div>
+        <div class="field" style="margin-top:11px"><span class="fieldlab">Company tax rate</span><input value="28%"></div>
+      </div>
+    </aside>
+
+    <section class="tw-results">
+      <div class="tw-card">
+        <div class="tw-group">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Forecast sales, month by month</h2></div>
+          <p class="tblnote" style="padding:2px 0 0">&hellip; unchanged, twelve boxes, now labelled <b>local sales</b> &hellip;</p>
+        </div>
+        <div class="tw-group">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Stock purchases, month by month</h2></div>
+          <p class="tblnote" style="padding:2px 0 0">&hellip; unchanged, twelve boxes, now labelled <b>local stock</b> &hellip;</p>
+        </div>
+
+        <!-- ================================================== THE NEW SECTION -->
+        <div class="tw-group">
+          <div class="sectionbox">
+            <div class="tickrow" style="margin-bottom:4px">
+              <span class="tickbox">&#10003;</span> This business buys or sells overseas
+            </div>
+            <div class="tickhint" style="margin-bottom:14px">
+              Everything below appears only while this is ticked.
+            </div>
+
+            <!-- ---------------------------------------------- IMPORTED STOCK -->
+            <div class="subgroup">
+              <div class="subh">
+                <span>Stock arriving from overseas</span>
+                <span class="pill pill-intl">Imported</span>
+              </div>
+
+              <div class="termhead">The value of stock landing each month, before GST</div>
+              <div class="mgrid">
+                <div class="m"><span class="lbl">Apr</span><input value="0"></div>
+                <div class="m"><span class="lbl">May</span><input value="0"></div>
+                <div class="m"><span class="lbl">Jun</span><input value="0"></div>
+                <div class="m"><span class="lbl">Jul</span><input value="0"></div>
+                <div class="m"><span class="lbl">Aug</span><input value="0"></div>
+                <div class="m"><span class="lbl">Sep</span><input value="90,000"></div>
+                <div class="m"><span class="lbl">Oct</span><input value="0"></div>
+                <div class="m"><span class="lbl">Nov</span><input value="0"></div>
+                <div class="m"><span class="lbl">Dec</span><input value="0"></div>
+                <div class="m"><span class="lbl">Jan</span><input value="60,000"></div>
+                <div class="m"><span class="lbl">Feb</span><input value="0"></div>
+                <div class="m"><span class="lbl">Mar</span><input value="0"></div>
+              </div>
+
+              <div class="note-why" style="margin-bottom:14px">
+                <b>The month the goods land.</b> Not the month you order and not the month you pay
+                &mdash; the month the container clears customs and the stock is yours to sell. Every
+                other date on this card is worked out from it, which is why it is the one you enter.
+              </div>
+
+              <div class="stale" style="margin-bottom:14px">
+                <div>
+                  <b>One deposit falls before this forecast starts.</b>
+                  <span>
+                    59,400 was due in February for stock landing in June. Your forecast opens on
+                    1 April, so that payment is already in your opening bank balance and is not
+                    counted again below.
+                  </span>
+                </div>
+              </div>
+              <p class="tblnote" style="padding:0 0 14px">
+                Shown only when a lead time reaches back past the start date. It changes no figure
+                &mdash; it exists so an advisor can tell a correct lead time from a mistyped one,
+                rather than seeing a container arrive with no deposit anywhere and nothing saying why.
+              </p>
+
+              <div class="termgrid">
+                <div>
+                  <div class="termhead">Paying for it</div>
+                  <div class="field"><span class="fieldlab">Deposit</span><input value="60%"></div>
+                  <div class="field">
+                    <span class="fieldlab">Deposit paid, before it lands</span>
+                    <select><option>4 months before</option></select>
+                  </div>
+                  <div class="field">
+                    <span class="fieldlab">Balance paid</span>
+                    <select><option>Month after it lands</option></select>
+                  </div>
+                  <div class="tw-foot">
+                    The deposit can be set as far ahead as <b>nine months</b>, because that is what
+                    long-lead manufacturing really costs in cash.
+                  </div>
+                </div>
+                <div>
+                  <div class="termhead">Getting it here</div>
+                  <div class="field"><span class="fieldlab">Freight and shipping</span><input value="12% of stock cost"></div>
+                  <div class="field"><span class="fieldlab">Duty and clearance</span><input value="5% of stock cost"></div>
+                  <div class="field"><span class="fieldlab">Exchange-rate allowance</span><input value="10%"></div>
+                  <div class="tw-foot">
+                    Freight, duty and GST are all paid in the month it lands. The exchange allowance
+                    is added to what you actually pay the supplier.
+                  </div>
+                </div>
+              </div>
+
+              <div class="termhead" style="margin-top:18px">How it sells down</div>
+              <div class="termgrid">
+                <div>
+                  <div class="field">
+                    <span class="fieldlab">New to the market <span class="src src-seed">mentor</span></span>
+                    <input value="+185% on cost, up to 60 days">
+                  </div>
+                  <div class="field">
+                    <span class="fieldlab">Standard price <span class="src src-seed">mentor</span></span>
+                    <input value="+152% on cost, up to 90 days">
+                  </div>
+                  <div class="field">
+                    <span class="fieldlab">Runout price <span class="src src-seed">mentor</span></span>
+                    <input value="+122% on cost, up to 120 days">
+                  </div>
+                </div>
+                <div>
+                  <div class="field">
+                    <span class="fieldlab">How fast it sells</span>
+                    <select><option>Steady Eddy</option><option>SkyRockets</option><option>Slow Burn</option></select>
+                  </div>
+                  <div class="tw-foot" style="margin-bottom:11px">
+                    Steady Eddy sells <b>20%</b> in the first 30 days, then <b>30%</b>, <b>20%</b>
+                    and <b>30%</b> &mdash; so half of it goes at the new price, a fifth at standard
+                    and three tenths at runout.
+                  </div>
+                  <div class="field">
+                    <span class="fieldlab">Ready to sell after it lands</span>
+                    <select><option>The month after</option><option>The same month</option></select>
+                  </div>
+                  <div class="tw-foot">
+                    ⚠ <b>CORRECTED 2026-09-04, DURING THE BUILD.</b> This control read
+                    &ldquo;Same month&rdquo; while the revenue table beside it, the cash tiles and
+                    the working underneath all had September's container first selling in
+                    <b>October</b> &mdash; the drawing contradicted itself. The month after is the
+                    honest default and the one built: Mike's own workbook allows <b>9 pre-retail prep
+                    days</b>, so stock landing mid-month is rarely on a shelf before the next one.
+                    Both options are offered.
+                  </div>
+                </div>
+              </div>
+
+              <div class="termhead" style="margin-top:16px">
+                The revenue this stock produces <span class="src src-seed" style="margin-left:0">worked out</span>
+              </div>
+              <div class="mgrid">
+                <div class="m seeded"><span class="lbl">Apr</span><input value="0"></div>
+                <div class="m seeded"><span class="lbl">May</span><input value="0"></div>
+                <div class="m seeded"><span class="lbl">Jun</span><input value="0"></div>
+                <div class="m seeded"><span class="lbl">Jul</span><input value="0"></div>
+                <div class="m seeded"><span class="lbl">Aug</span><input value="0"></div>
+                <div class="m seeded"><span class="lbl">Sep</span><input value="0"></div>
+                <div class="m seeded"><span class="lbl">Oct</span><input value="51,300"></div>
+                <div class="m seeded"><span class="lbl">Nov</span><input value="76,950"></div>
+                <div class="m seeded"><span class="lbl">Dec</span><input value="45,360"></div>
+                <div class="m seeded"><span class="lbl">Jan</span><input value="59,940"></div>
+                <div class="m seeded"><span class="lbl">Feb</span><input value="34,200"></div>
+                <div class="m seeded"><span class="lbl">Mar</span><input value="51,300"></div>
+              </div>
+
+              <div class="note-why">
+                <b>Worked out, not typed &mdash; and still yours to change.</b> September's 90,000 of
+                stock sells across Oct&ndash;Jan on the Steady Eddy curve: 20% and 30% at the new
+                price, 20% at standard, 30% at runout. That is <b>233,550</b>, where pricing every
+                unit as new would have said <b>256,500</b>. The boxes are green because the model
+                filled them; type over any of them and the figure is yours.
+                <br><br>
+                <b>Two things this makes visible that a typed figure hides.</b> The January container
+                only reaches its second month of selling by March, so <b>70,200 of its revenue falls
+                into next year</b> and is not in this forecast at all. And across this year the
+                ladder is the difference between <b>319,050</b> and <b>342,000</b> &mdash; 7% of the
+                imported-stock revenue, and 10% over the September container's whole life.
+              </div>
+            </div>
+
+            <!-- ---------------------------------------------- OVERSEAS SALES -->
+            <div class="subgroup">
+              <div class="subh">
+                <span>Sales to overseas customers</span>
+                <span class="pill pill-intl">Overseas</span>
+              </div>
+
+              <div class="termhead">Overseas sales invoiced each month, before GST</div>
+              <div class="mgrid">
+                <div class="m"><span class="lbl">Apr</span><input value="0"></div>
+                <div class="m"><span class="lbl">May</span><input value="0"></div>
+                <div class="m"><span class="lbl">Jun</span><input value="0"></div>
+                <div class="m"><span class="lbl">Jul</span><input value="0"></div>
+                <div class="m"><span class="lbl">Aug</span><input value="0"></div>
+                <div class="m"><span class="lbl">Sep</span><input value="0"></div>
+                <div class="m"><span class="lbl">Oct</span><input value="0"></div>
+                <div class="m"><span class="lbl">Nov</span><input value="40,000"></div>
+                <div class="m"><span class="lbl">Dec</span><input value="55,000"></div>
+                <div class="m"><span class="lbl">Jan</span><input value="35,000"></div>
+                <div class="m"><span class="lbl">Feb</span><input value="0"></div>
+                <div class="m"><span class="lbl">Mar</span><input value="0"></div>
+              </div>
+
+              <div class="termgrid" style="margin-top:14px">
+                <div>
+                  <div class="termhead">Getting it there</div>
+                  <div class="field">
+                    <span class="fieldlab">Goods reach the customer</span>
+                    <select><option>2 months after despatch</option></select>
+                  </div>
+                  <div class="tickrow" style="font-size:13px;margin-top:14px">
+                    <span class="tickbox">&#10003;</span> These sales are zero-rated for GST
+                  </div>
+                  <div class="tickhint" style="font-size:12px">
+                    Untick it and overseas sales are charged GST at the same rate as local ones.
+                  </div>
+                  <div class="field" style="margin-top:16px">
+                    <span class="fieldlab">Exchange-rate allowance</span>
+                    <input value="10%">
+                  </div>
+                  <div class="tw-foot">
+                    Its <b>own</b> percentage, not the one on the stock card. A business that buys
+                    and sells in the same currency can set this low or to zero, because the two
+                    movements partly cancel. What is not banked joins the same
+                    <b>Exchange-rate movement</b> line.
+                  </div>
+                </div>
+                <div>
+                  <div class="termhead">Then they pay</div>
+                  <div class="field"><span class="fieldlab">On delivery</span><input value="0%"></div>
+                  <div class="field"><span class="fieldlab">Month after delivery</span><input value="50%"></div>
+                  <div class="field"><span class="fieldlab">Two months after</span><input value="50%"></div>
+                  <div class="field"><span class="fieldlab">Three months after</span><input value="0%"></div>
+                  <div class="tw-foot" style="color:var(--rs-good);font-weight:600">Adds to 100% &#10003;</div>
+                </div>
+              </div>
+
+              <div class="note-why">
+                <b>The clock starts at delivery, not at the invoice.</b> A sale despatched in November,
+                arriving in January, half paid in February and half in March is cash in February and
+                March &mdash; which today's single collection profile cannot say, because it only
+                reaches four months and it starts at the invoice.
+              </div>
+            </div>
+
+            <!-- ---------------------------------------------- SLICE 2 -->
+            <div class="slice2">
+              <div class="subh" style="margin-bottom:10px">
+                <span>Fill these from actual shipments</span>
+                <span class="pill pill-local">Drawn, not built &mdash; slice 2</span>
+              </div>
+              <p class="tw-foot" style="margin:0 0 12px">
+                This is the Import &amp; Retail workbook, brought in as a calculator rather than a
+                second screen. Enter the shipments and it writes the twelve monthly figures above
+                for you, instead of the advisor estimating them.
+              </p>
+
+              <div class="termhead" style="margin-top:2px">Your supplier's terms &mdash; entered once, not per shipment</div>
+              <div class="shipterms">
+                <div>
+                  <div class="fieldlab"><span>Manufacture days</span></div>
+                  <input value="120">
+                </div>
+                <div>
+                  <div class="fieldlab"><span>Balance due, days from order</span></div>
+                  <input value="91">
+                </div>
+                <div>
+                  <div class="fieldlab"><span>Pre-retail prep days</span></div>
+                  <input value="9">
+                </div>
+                <div>
+                  <div class="fieldlab"><span>Shipping days</span></div>
+                  <select><option>Sea 25 &middot; Air 20 &middot; Express 15</option></select>
+                </div>
+                <div>
+                  <div class="fieldlab"><span>Interest cover</span></div>
+                  <input value="6%">
+                </div>
+              </div>
+              <p class="tw-foot" style="margin:-4px 0 14px">
+                All five are Mike's own, out of <i>Import &amp; Retail.xlsx</i> &mdash; manufacture 120,
+                balance due 91, prep 9, the three shipping speeds, and interest cover 6%. They are the
+                numbers that turn an order date into a landing date, which is why they are entered once
+                at the top rather than typed again on every row.
+              </p>
+
+              <div class="note-why" style="margin-top:0;margin-bottom:14px">
+                <b>&#9989; INTEREST COVER &mdash; ADDED 2026-09-04 ON MIKE'S INSTRUCTION</b>
+                (<em>&ldquo;can you fix the 6% interest issue&rdquo;</em>), after the build reported it
+                as a gap rather than inventing a charge he had not asked for.
+                <br><br>
+                <b>What his sheet does, and the forecast did not.</b> Two charges are added to the
+                deferred balance before it is paid, both pro-rated over a <b>360-day</b> year:
+                January's container carries a balance of <b>43,057.20</b>, plus interest cover
+                43,057.20 &times; 6% &times; 91/360 = <b>653.03</b>, plus currency
+                43,057.20 &times; 10% &times; 91/360 = <b>1,088.39</b>, giving his own
+                <b>44,798.62</b>. The currency half was already modelled as the exchange allowance;
+                the 6% was modelled nowhere. On the two rows below it is <b>910</b> &mdash; 546 and
+                364.
+                <br><br>
+                <b>It is NOT a direct cost, and that was the decision.</b> Freight, duty and the
+                exchange movement sit above the gross margin because they are the cost of getting
+                goods here. Interest cover is what the supplier charges for waiting to be paid, so it
+                goes where the forecast already puts <b>overdraft and loan interest</b> &mdash; in
+                overheads, below the margin. Putting it with freight and duty would quietly understate
+                gross margin on every container, which is one of the first numbers an advisor reads.
+                <br><br>
+                <b>It applies only where the calculator is in use.</b> A forecast that types twelve
+                landing figures by hand has no order date and no credit period, so there is nothing to
+                charge interest over; inventing a day count there is the guesswork the
+                &ldquo;dates, not bands&rdquo; ruling exists to stop. It is <b>paid with the
+                balance</b>, as one payment, exactly as his sheet pays it.
+              </div>
+
+              <div class="shiprow head">
+                <span>Description</span><span>Cost</span><span>Ordered</span><span>Deposit</span>
+                <span>Speed</span><span>Worked out from the order date</span>
+              </div>
+              <div class="shiprow">
+                <input value="Container 1 &mdash; 20 lines"><input value="90,000">
+                <input value="2 May"><input value="60%">
+                <select><option>Sea</option></select>
+                <div class="shipderived">Lands <b>24 Sep</b>
+                  <small>deposit May &middot; balance 1 Aug + 546 interest &middot; sellable 3 Oct</small></div>
+              </div>
+              <div class="shiprow">
+                <input value="Container 2 &mdash; 14 lines"><input value="60,000">
+                <input value="20 May"><input value="60%">
+                <select><option>Sea</option></select>
+                <div class="shipderived">Lands <b>12 Oct</b>
+                  <small>deposit May &middot; balance 19 Aug + 364 interest &middot; sellable 21 Oct</small></div>
+              </div>
+
+              <div class="note-why" style="margin-top:12px">
+                <b>Both of its rulings were taken on 2026-09-04, and neither is open.</b>
+                <br><br>
+                <b>Dates, not bands.</b> Every event gets a real date &mdash; the order date plus
+                your manufacture, balance-due and prep days &mdash; and the cash lands in whichever
+                calendar month that date falls in.
+                <br><br>
+                <b>The two rows above are the whole argument, and the working is printed so it can
+                be checked.</b> Both are ordered in <b>May</b>, eighteen days apart, both by sea.
+                Container 1: 2 May + 120 manufacture + 25 shipping = <b>24 September</b>; + 9 prep
+                days = sellable 3 October. Container 2: 20 May + 145 = <b>12 October</b>; sellable
+                21 October. <b>They land in different months, and one of them is sellable a month
+                after it lands.</b> Band-mapping knows only &ldquo;ordered in May&rdquo; and would
+                put both in the same month &mdash; which is Mike's own R9 failure, and the reason
+                this ruling exists.
+                <br><br>
+                <b>Real unit costs win for imported stock; the mark-up governs local.</b> Cost of
+                sales on imported stock is what the stock actually cost, and the ladder sets the
+                selling price only. Local stock is untouched and still works cost back from the
+                single mark-up, so nothing about today's forecast changes.
+              </div>
+
+              <div class="note-why">
+                <b>&#128308; THIS PANEL WAS CORRECTED ON 2026-09-04, AND THE CORRECTION IS THE
+                SECOND OF ITS KIND ON THIS PAGE.</b> The landing month was drawn as a
+                <b>dropdown the advisor picks</b>, directly above a ruling saying every event is
+                <b>dated from the order date</b>. Both could not be true: if the month is chosen,
+                no date is ever computed, the ruling does nothing, and the &ldquo;calculator&rdquo;
+                asks the advisor for the same estimate they already make on the twelve landing
+                figures &mdash; once per container instead of once. <b>The ruling won and the
+                drawing was corrected</b>, exactly as the &ldquo;Ready to sell after it lands&rdquo;
+                control was corrected on this page a few hours earlier. The landing month, the
+                balance date and the sellable date are now <b>worked out and shown, never typed</b>,
+                and the three day-terms that make that possible have been added above. Found by
+                opening the drawing beside the build plan, which is the third time that ritual has
+                paid on this feature.
+                <br><br>
+                <b>One thing from the workbook deliberately does NOT come across, and this records
+                why.</b> <i>Import &amp; Retail.xlsx</i> prices freight per container &mdash; size,
+                speed, and a refrigerated surcharge. This screen prices freight as a
+                <b>percentage of landed stock value</b> (12%, in the card above), which Mike
+                approved. So container sizes and the surcharge table are not built. <b>Reading the
+                surcharge did turn up a fault in the workbook, recorded here so it is not lost:</b>
+                in 4 of its 12 months the shipping cost disagrees with the shipment terms written
+                beside it &mdash; April and August are missing their refrigerated surcharge, July
+                and September are charged one when marked not refrigerated &mdash; identically on
+                <b>both</b> supplier sheets, so it is a formula that did not copy rather than a
+                typo. Net 1,375 a year per supplier, but up to 6,000 in a single month. <b>Mike
+                ruled 2026-09-04 that the stated rule wins over the four figures</b>: the surcharge
+                applies whenever a shipment is marked refrigerated. Nothing here depends on it
+                today; it is written down for the day container-level freight is wanted.
+              </div>
+
+              <div class="note-why">
+                <b>&#9989; RULED 2026-09-04: THE CALCULATOR WRITES ALL THREE SERIES &mdash; deposits,
+                balance payments and landings &mdash; each from its own real date.</b> The single
+                deposit lead and balance profile on the card above are then shown as <b>set by the
+                shipments</b> rather than edited, and they stay exactly as they are for any forecast
+                that does not use the calculator, which is every forecast today.
+                <br><br>
+                <b>Why it was put to Mike rather than assumed.</b> The panel had said the calculator
+                writes <i>the twelve landing figures</i>, while the card above holds <b>one</b>
+                deposit lead for every import &mdash; and the two rows here have balances due on
+                <b>1 August and 19 August</b>, from orders eighteen days apart. Writing only the
+                landings would have computed those dates and then thrown them away, replacing them
+                with a single average: the same averaging the &ldquo;dates, not bands&rdquo; ruling
+                exists to stop, moved off the landing and onto the deposit. Recommended and chosen.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tw-group">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Annual overheads, seeded from the Profit and Loss</h2></div>
+          <p class="tblnote" style="padding:2px 0 0">&hellip; unchanged, all 23 lines &hellip;</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================================================ THE CASH -->
+  <div class="stepmark">What it does to the cash flow &mdash; the point of the whole section</div>
+
+  <div class="tw-tiles" style="grid-template-columns:repeat(4,1fr)">
+    <div class="tw-tile">
+      <div class="tw-k">Out before the first sale</div>
+      <div class="tw-v is-crit num">131,445</div>
+      <div class="tw-sub">Paid between May and September on stock costing 90,000, none of which has been sold.</div>
+    </div>
+    <div class="tw-tile">
+      <div class="tw-k">GST paid at the border</div>
+      <div class="tw-v num">28,575</div>
+      <div class="tw-sub">Cash out on the day the goods clear &mdash; reclaimed on the next return, so it is a timing cost, not a lost one.</div>
+    </div>
+    <div class="tw-tile">
+      <div class="tw-k">Exchange-rate movement</div>
+      <div class="tw-v num">15,000</div>
+      <div class="tw-sub">A 10% allowance on 150,000 of imported stock, shown as its own direct cost.</div>
+    </div>
+    <div class="tw-tile">
+      <div class="tw-k">Overstated if all priced new</div>
+      <div class="tw-v is-crit num">22,950</div>
+      <div class="tw-sub">7% of this year's imported-stock revenue, and 10% over the September container's whole life.</div>
+    </div>
+  </div>
+
+  <div class="tw-card">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">The five new rows on the cash flow</h2></div>
+      <div class="tblwrap">
+        <table>
+          <tr>
+            <th>Payments</th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th>
+            <th>Oct</th><th>Nov</th><th>Dec</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Year</th>
+          </tr>
+          <tr class="newrow">
+            <td>Deposits paid overseas<span class="newtag">NEW</span></td>
+            <td>&mdash;</td><td>59,400</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>39,600</td>
+            <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>99,000</td>
+          </tr>
+          <tr class="newrow">
+            <td>Freight and shipping<span class="newtag">NEW</span></td>
+            <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>10,800</td>
+            <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>7,200</td><td>&mdash;</td><td>&mdash;</td><td>18,000</td>
+          </tr>
+          <tr class="newrow">
+            <td>Duty and clearance<span class="newtag">NEW</span></td>
+            <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>4,500</td>
+            <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>3,000</td><td>&mdash;</td><td>&mdash;</td><td>7,500</td>
+          </tr>
+          <tr class="newrow">
+            <td>GST paid at the border<span class="newtag">NEW</span></td>
+            <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>17,145</td>
+            <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>11,430</td><td>&mdash;</td><td>&mdash;</td><td>28,575</td>
+          </tr>
+          <tr class="newrow">
+            <td>Balance paid to supplier<span class="newtag">NEW</span></td>
+            <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+            <td>39,600</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>26,400</td><td>&mdash;</td><td>66,000</td>
+          </tr>
+          <tr class="rule">
+            <td>Total paid on overseas stock</td>
+            <td>&mdash;</td><td>59,400</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>72,045</td>
+            <td>39,600</td><td>&mdash;</td><td>&mdash;</td><td>21,630</td><td>26,400</td><td>&mdash;</td><td>219,075</td>
+          </tr>
+          <tr>
+            <td style="color:var(--rs-muted)">Memo &mdash; stock lands</td>
+            <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>90,000</td>
+            <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>60,000</td><td>&mdash;</td><td>&mdash;</td><td>150,000</td>
+          </tr>
+        </table>
+      </div>
+      <p class="tblnote">
+        <b>The working, so it can be checked.</b> September's container costs 90,000. The deposit is
+        60% &mdash; 54,000 &mdash; plus the 10% exchange allowance, so 59,400 leaves in May, four
+        months ahead. In September freight is 12% of 90,000 (10,800) and duty is 5% (4,500). Border
+        GST is 15% of the landed value, which is the exchange-adjusted stock cost (99,000) plus
+        freight and duty: 114,300 &times; 15% = 17,145. The 40% balance, 36,000 plus the allowance,
+        is 39,600 in October. January's container of 60,000 runs the same way, its deposit falling in
+        September. <b>131,445 has left the business by the end of September</b> against stock that
+        cost 90,000 and has not yet been sold.
+      </p>
+    </div>
+  </div>
+
+  <div class="tw-edu">
+    <div class="tw-edu-h"><span class="tw-lead">WHY</span> this is the section a bank reads first</div>
+    <p class="tw-edu-p">
+      Today all of this would appear as one line called <em>paid to creditors</em>, in the month the
+      supplier was settled. The deposit four months earlier, the freight, the duty and the GST at the
+      border would all be invisible &mdash; and they are the reason the business needs the money.
+    </p>
+    <p class="tw-edu-p">
+      Two of these five rows come back: the border GST is reclaimed on the next return, and the stock
+      eventually sells. A funding request is about the months in between, and that is exactly what
+      these rows draw.
+    </p>
+  </div>
+
+  <!-- ============================================================ GST -->
+  <div class="stepmark">What changes in the GST return</div>
+
+  <div class="tw-card">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Three corrections, all of them cash</h2></div>
+      <div class="note-why" style="margin-top:0">
+        <b>1. Overseas sales stop being charged GST.</b> Today every sale is charged, so an exporter's
+        return is overstated every filing period. With the tick set, no GST arises on them at all.
+        <br><br>
+        <b>2. GST on imported stock moves to the border.</b> Today it would fall when the supplier is
+        paid. It really falls when the goods clear customs, and it is charged on the landed value
+        &mdash; stock plus freight plus duty &mdash; not on the supplier's invoice alone.
+        <br><br>
+        <b>3. It is still claimed back.</b> Border GST is an input credit on the same return as
+        everything else, so the forecast shows the payment and the credit in their real months rather
+        than netting them into one figure.
+      </div>
+      <p class="tblnote" style="padding-top:12px">
+        There is also one piece of plumbing with no decision in it: on the <b>Cash</b> GST basis the
+        return is currently worked backwards from total money received. Once some receipts are
+        zero-rated that sum is wrong, so the two streams' collections have to be counted separately.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================ THE GUARD -->
+  <div class="stepmark">The guard that gets written first</div>
+
+  <div class="tw-card">
+    <div class="tw-group">
+      <div class="note-why" style="margin-top:0">
+        <b>Before any of this is built, one test is written and seen to pass:</b> with the tick off
+        and both overseas series empty, the forecast must produce <b>byte-identical output across all
+        10,155 cells</b> of the golden set. It is the only thing that proves Mike's workbook port is
+        undisturbed &mdash; and this change reaches into the GST computation, which the golden set
+        covers cell by cell.
+        <br><br>
+        <b>&#9989; IT WAS WRITTEN FIRST, IT PASSED, AND IT STILL PASSES.</b> All <b>3,385 year-one
+        golden cells</b> are unmoved with the tick off and the three statements are byte-identical
+        &mdash; proved before a line of the feature existed. It also pins the input shape, so the
+        engine cannot quietly default a figure the screen never sends. <b>It is the same guard slice 2
+        must clear</b>: a calculator that writes the series must leave a forecast that does not use it
+        untouched to the cent.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ QUESTIONS -->
+  <div class="stepmark">Where the price ladder is set</div>
+
+  <div class="tw-card">
+    <div class="tw-group">
+      <div class="note-why" style="margin-top:0">
+        <b>The three mark-ups, the three day-bands and the three demand patterns are advisory
+        content, so they go on a screen &mdash; the MENTOR tier alone</b>, a Model Inputs tab beside
+        Forecast Trend Thresholds, exactly as the trend read's thresholds did. That is the stated
+        judgement the cascade rule asks for: it is platform content, and a firm gets its own copy the
+        first time one has a real reason to price differently, which is one entry in `TAB_TIERS`.
+        <b>It ships with Mike's own numbers</b> &mdash; 185/152/122 against 60/90/120 days, and the
+        SkyRockets, Steady Eddy and Slow Burn curves &mdash; read out of <em>Import &amp;
+        Retail.xlsx</em> rather than chosen here. The advisor picks a pattern; they do not invent one.
+        <br><br>
+        <b>&#9989; BUILT 2026-09-04 as &ldquo;Imported Stock Prices&rdquo;</b> (the tab's name is
+        Mike's), beside Forecast Trend Thresholds under Model Inputs, mentor tier alone as drawn.
+        Two things came out of building it. <b>The six figures had been restated as literals inside
+        the intake screen as well as living in the data file</b> &mdash; two homes for one fact,
+        agreeing by luck; the screen now takes them from the file and then reads the mentor's
+        current ladder, so there is one source. And <b>the runout day-band turned out to be
+        inert</b>: the engine prices runout as the <i>else</i> branch, so everything past the
+        standard boundary is runout whatever that figure says. It has no box on the mentor's screen,
+        because a control that silently does nothing is worse than none, and a test now fails the
+        day it becomes live.
+      </div>
+    </div>
+  </div>
+
+  <div class="stepmark">Ruled &mdash; nothing on this drawing is open</div>
+
+  <div class="q" style="border-left-color:var(--rs-good)">
+    <h2>All eight settled by Mike on 2026-09-04, one at a time</h2>
+    <ol>
+      <li>
+        <b>The labels are his now.</b> &ldquo;This business buys or sells overseas&rdquo;,
+        &ldquo;Stock arriving from overseas&rdquo;, &ldquo;Sales to overseas customers&rdquo;,
+        &ldquo;Deposits paid overseas&rdquo;, &ldquo;Freight and shipping&rdquo;, &ldquo;Duty and
+        clearance&rdquo;, &ldquo;GST paid at the border&rdquo;, &ldquo;Balance paid to
+        supplier&rdquo;, &ldquo;Exchange-rate movement&rdquo;, &ldquo;How it sells down&rdquo; with
+        New to the market / Standard price / Runout price, and &ldquo;How fast it sells&rdquo;
+        keeping his own SkyRockets, Steady Eddy and Slow Burn.
+        <span class="from">Put to him as the list above and approved as drawn: these are the built
+        words, and they go to locales/en.json unchanged.</span>
+      </li>
+      <li>
+        <b>A deposit falling before the forecast starts WARNS, and the cash stays out.</b> The band
+        is drawn on the stock card above. <span class="from">Recommended and chosen over saying
+        nothing. It changes no figure; it exists so a correct lead time can be told from a mistyped
+        one. Found while drawing this rather than asked for.</span>
+      </li>
+      <li>
+        <b>Overseas sales carry an exchange allowance too &mdash; its OWN percentage</b>, separate
+        from the stock card's, with the shortfall joining the same Exchange-rate movement line.
+        <span class="from">Recommended and chosen. The separate figure is the point: a business
+        buying and selling in the same currency partly cancels its own exposure and can set this to
+        zero, where one shared percentage would charge it twice.</span>
+      </li>
+      <li>
+        <b>Revenue from imported stock counts as LOCAL sales</b> &mdash; charged GST, collected on
+        the local profile. <span class="from">His ruling. An importer usually sells at home.</span>
+      </li>
+      <li>
+        <b>Slice 2's two rulings are taken</b> and are written on the calculator panel above: every
+        event is dated from the order date and filed in the calendar month it really falls in, and
+        real unit costs govern imported stock while the mark-up governs local.
+        <span class="from">Both were recommended and both chosen. They were the two that change the
+        numbers rather than the screen.</span>
+      </li>
+      <li>
+        <b>The refrigerated surcharge follows the workbook's RULE, not its four odd figures.</b>
+        In 4 of 12 months <em>Import &amp; Retail.xlsx</em> charges shipping that disagrees with the
+        shipment terms written beside it &mdash; identically on both supplier sheets, so a formula
+        that did not copy rather than a typo. <span class="from">Recommended and chosen 2026-09-04.
+        A port that deliberately reproduces a formula fault is one nobody can later correct without
+        breaking its own test. Nothing depends on it today: this screen prices freight as a
+        percentage, so container sizes never come across.</span>
+      </li>
+      <li>
+        <b>The calculator writes all THREE series &mdash; deposits, balances and landings</b> &mdash;
+        each from its own real date, and the single deposit lead and balance profile are then shown
+        as set by the shipments rather than edited. <span class="from">Recommended and chosen
+        2026-09-04. Writing only the landings would have computed two real balance dates eighteen
+        days apart and then replaced them with one average &mdash; the same averaging the
+        &ldquo;dates, not bands&rdquo; ruling exists to stop.</span>
+      </li>
+      <li>
+        <b>Interest cover is modelled, and it goes with the OTHER INTEREST rather than into
+        direct costs.</b> His sheet charges 6% on the deferred balance over 91/360; the forecast
+        charged nothing. <span class="from">His instruction, 2026-09-04: &ldquo;can you fix the 6%
+        interest issue&rdquo;. The build had reported it as a gap rather than inventing a charge.
+        Recommended into overheads beside overdraft and loan interest and chosen: it is what the
+        supplier charges for waiting to be paid, not a cost of getting goods here, and putting it
+        with freight and duty would understate gross margin on every container.</span>
+      </li>
+    </ol>
+  </div>
+
+  <div class="mock" style="margin-top:16px">
+    <b>SLICE 1 IS BUILT; SLICE 2 IS NOT.</b> This page was approved by Mike on 2026-09-04 and the
+    engine, the step-3 section, the five cash rows and the mentor's Imported Stock Prices tab were
+    all built the same day. <b>The guard went first, as this page required, and it holds</b> &mdash;
+    with the tick off and both overseas series empty, all 3,385 year-one golden cells are unmoved
+    and the three statements byte-identical, proved before the feature existed.
+    <br><br>
+    <b>Fourteen decisions are ruled and nothing on this page is open.</b> The eleven of 2026-09-04
+    stand, and three more were taken the same day as slice 2 was started: the <b>refrigerated
+    surcharge</b> (the workbook's stated rule wins over its four odd figures), <b>the calculator
+    writes all three series</b> &mdash; deposits, balances and landings, each from its own real date,
+    rather than writing only the landings and letting one average lead replace them, and
+    <b>interest cover is modelled, in overheads with the other interest</b> rather than in direct
+    costs. The last of the three came from Mike after the build REPORTED the 6% as a gap instead of
+    quietly inventing a charge, which is the outcome that rule exists for.
+    <br><br>
+    <b>The panel above was CORRECTED before anything was built from it</b>, and the correction is
+    recorded on the panel itself rather than here.</div>
+
+</div>
+</div>
+</body>
+</html>

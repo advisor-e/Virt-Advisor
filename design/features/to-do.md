@@ -40,10 +40,13 @@ repository sees; the two never both appear, and the build stops if they would.
 | 3 | **4.58** Meeting Review — three slices built; the manager's half and §4 remain ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 4 | **4.59** A point the mentor adds tells a firm manager THEY wrote it ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 5 | **4.60** QuickBooks and MYOB are supported on paper, not against a real file ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 6 | **4.61** Two years of accounts, and a volatility read, for the forecast ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-03 |
-| 7 | **4.62** Saved reports per client — so a client can edit what the advisor opened ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-09-03 |
+| 6 | **4.62** Saved reports per client — so a client can edit what the advisor opened ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-09-03 |
+| 7 | **4.66** Economic analysis — the forecast asks the AI for market research ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 8 | **4.64** International versus local — the forecast treats every sale and purchase as domestic ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-04 |
+| 9 | **4.63** Overseas stock purchases — the Import & Retail model feeds the forecast ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 10 | **4.65** The book value of one asset is typed, because no screen asks for the asset schedule ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 
-**Seven live items. Three need Mike.** If this list passes about twenty, something is wrong.
+**Ten live items. Six need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
@@ -106,12 +109,6 @@ justifying it, on a duplicate ref, and on a blocker that does not say what it bl
 mutation-verified — dropping a `risk` line, claiming *ours* with no reason, and filing a 0 instead
 of deleting were each confirmed to fail it.
 
-🔴 **Every field has a word cap, enforced by the same test since 2026-09-03** — name 16, why 40,
-risk 80, touches 80, note 120, comment 120, asked-by detail 80. Mike opened his list that day and
-found one item's comment at 1,388 words: seven sessions had each appended an "UPDATED …" paragraph
-beneath the last. The list is for reading; the record lives in the feature's Brief and history
-file, linked from the note. *One fact, one home* — replace the stale sentence, never append.
-
 1. **Score** — from the table above.
 2. **Why** — why it matters, in one sentence.
 3. **Risk** — what we actually lose by not doing it. If nothing is lost, the score is 0.
@@ -125,15 +122,6 @@ file, linked from the note. *One fact, one home* — replace the stale sentence,
 **Blockers first, then score.** An item that holds up other people beats a higher-scoring item that
 holds up nobody — a 3 that unblocks a whole team is worth more this week than a 4 that waits
 comfortably. 🔒 marks a blocker.
-
-**An item filed since Mike last saved the list sits in filing order, not his**, and the table says
-so: *not yet ranked by Mike*. The Handbook control shows the same flag on the row. It clears itself
-the next time he places the item and saves.
-
-**The "Active on" column names the computer working an item right now**, and the date it started
-— Mike's instruction of 2026-09-03, after item 4.54 was built on both machines in the same week
-without either knowing. Only *laptop* and *desktop* are accepted. A session sets it when it picks
-an item up, shutdown clears it or keeps it, and startup reads the other machine's as off limits.
 
 ---
 

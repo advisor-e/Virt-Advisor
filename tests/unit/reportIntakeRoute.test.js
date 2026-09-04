@@ -88,21 +88,23 @@ describe('intake size-cap messages — R14 (option B: cap unchanged, words hones
 })
 
 describe('Three-Way Forecast intake — the same file-count pre-check', () => {
-  test('four files are refused with TOO_MANY_FILES before any file is parsed', async () => {
+  // Seven, because the ceiling rose from four to six on 2026-09-03 (item 4.61b) when last
+  // year's Balance Sheet and Profit and Loss became droppable for the two-year trend read.
+  test('seven files are refused with TOO_MANY_FILES before any file is parsed', async () => {
     // The filepaths do not exist: had the handler read them first, the response would
     // be the generic parse failure, so this also proves the refusal ordering.
-    const four = Array.from({ length: 4 }, (_, i) => ({ filepath: '/nonexistent/upload-' + i }))
-    nextParse(null, { file: four })
+    const seven = Array.from({ length: 7 }, (_, i) => ({ filepath: '/nonexistent/upload-' + i }))
+    nextParse(null, { file: seven })
     const res = makeRes()
     await threeWayForecastIntake({}, res)
     expect(res.status).toBe(400)
     expect(res.body.error.code).toBe('TOO_MANY_FILES')
-    expect(res.body.error.message).toContain('up to 3 files — 4 were sent')
+    expect(res.body.error.message).toContain('up to 6 files — 7 were sent')
   })
 
-  test('three files pass the count gate', async () => {
-    const three = Array.from({ length: 3 }, (_, i) => ({ filepath: '/nonexistent/upload-' + i }))
-    nextParse(null, { file: three })
+  test('four files pass the count gate — two annual reports and two by-month', async () => {
+    const four = Array.from({ length: 4 }, (_, i) => ({ filepath: '/nonexistent/upload-' + i }))
+    nextParse(null, { file: four })
     const res = makeRes()
     await threeWayForecastIntake({}, res)
     expect(res.body.error.code).not.toBe('TOO_MANY_FILES')

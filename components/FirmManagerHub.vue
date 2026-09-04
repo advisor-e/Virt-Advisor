@@ -130,6 +130,25 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('propertyTaxRules')" v-show="activeTab === 'propertyTaxRules'")
         firm-property-tax-rules(:api-token="apiToken")
 
+      //- ── Tab: Forecast Trend Thresholds (item 4.61b) ─────────────────────
+      //- The bands the Three-Way Forecast's two-year trend read draws. Ruled by
+      //- Mike 2026-09-03, against the recommendation of a plain read with no
+      //- judgement: the bands go in, and the numbers behind them are his. This
+      //- screen is what makes that safe — the thresholds are visible and
+      //- changeable rather than buried in a constant. Mentor only, stated in
+      //- TAB_TIERS. design/mockups/three-way-forecast-trend.html.
+      div.hub-panel(v-if="showsTab('trendThresholds')" v-show="activeTab === 'trendThresholds'")
+        firm-forecast-trend-thresholds(:api-token="apiToken")
+
+      //- ── Tab: Imported Stock Prices (item 4.64) ─────────────────────────
+      //- The price ladder imported stock sells down at as it ages — Mike's own
+      //- figures from his Import & Retail workbook. They move a client's revenue,
+      //- so the hub-page rule puts them on a screen rather than in a data file
+      //- nobody can open. Mentor only, stated in TAB_TIERS. The overseas section
+      //- they feed is design/mockups/three-way-forecast-international.html.
+      div.hub-panel(v-if="showsTab('sellDownLadder')" v-show="activeTab === 'sellDownLadder'")
+        firm-sell-down-ladder(:api-token="apiToken")
+
       //- ── Tab: AI Prompts (item 4.28) ────────────────────────────────────
       //- The instructions the AI is given when it builds a model, and the three
       //- settings a manager may change on them. Asked for by Mike 2026-08-21,
@@ -760,6 +779,8 @@ import FirmDomainSupport from '~/components/firm/FirmDomainSupport.vue'
 import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 import FirmStaircase from '~/components/firm/FirmStaircase.vue'
 import FirmPropertyTaxRules from '~/components/firm/FirmPropertyTaxRules.vue'
+import FirmForecastTrendThresholds from '~/components/firm/FirmForecastTrendThresholds.vue'
+import FirmSellDownLadder from '~/components/firm/FirmSellDownLadder.vue'
 import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
 import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
 import FirmTeamProgress from '~/components/firm/FirmTeamProgress.vue'
@@ -948,6 +969,29 @@ const TAB_TIERS = {
   // never happen. A global group that sets nothing changes nothing.
   propertyTaxRules: ['global', 'group', 'firm'],
 
+  // 🔴 THE MENTOR ALONE, AND THIS IS A STATED JUDGEMENT RATHER THAN AN OVERSIGHT.
+  // The bands the Three-Way Forecast's two-year trend read draws (Mike, 2026-09-03,
+  // item 4.61b). They are PLATFORM advisory thresholds — his own debtor-day figures are
+  // the only ones set today — and the default-is-mentor-alone ruling of 2026-08-24 says
+  // build the mentor's view, say in one line why the other three are not needed, and
+  // cascade the moment a firm has a real reason to hold different numbers.
+  //
+  // That reason is easy to imagine (stock days mean different things to a baker and a
+  // boat builder) and it has not been asked for. Nothing below the mentor is blocked by
+  // this line: `server/utils/forecastTrendThresholds.js` already walks the whole tier
+  // chain and the routes are already scoped per tier, so adding a tier here is the whole
+  // of the change — no storage, no resolver, no new screen.
+  trendThresholds: ['mentor'],
+
+  // MENTOR ALONE, and for the same reason as the thresholds above: the sell-down ladder is
+  // platform advisory content — Mike's own figures out of his Import & Retail workbook —
+  // and no firm has yet had a real reason to price imported stock differently. That reason
+  // is easy to imagine (a marine dealer clears runout stock harder than a jeweller) and it
+  // has not been asked for. Nothing below the mentor is blocked by this line:
+  // `server/utils/forecastSellDown.js` already walks the whole tier chain and the routes
+  // are already scoped per tier, so adding a tier here is the whole of the change.
+  sellDownLadder: ['mentor'],
+
   // 🔴 ALL FOUR MANAGER TIERS, NAMED BY MIKE HIMSELF (2026-08-21): "a 'AI Prompts' page
   // in the hub pages (Mentor, Global Group Manager, Group Manager and Firm Manager)".
   // Advisors and clients are excluded — they consume the output, they do not set the
@@ -1103,7 +1147,13 @@ const NAV_GROUPS = [
     // Mike's own words for this heading (2026-08-19), kept verbatim.
     heading: 'Model Inputs',
     items: [
-      { key: 'propertyTaxRules', label: 'Property Tax Rules' }
+      { key: 'propertyTaxRules', label: 'Property Tax Rules' },
+      // Added at the END of the group on purpose: appending moves nothing that is
+      // already on a manager's screen. Mentor-only — see TAB_TIERS.trendThresholds.
+      { key: 'trendThresholds', label: 'Forecast Trend Thresholds' },
+      // Appended for the same reason as the line above, and the label is Mike's own —
+      // approved 2026-09-04. Mentor-only; see TAB_TIERS.sellDownLadder.
+      { key: 'sellDownLadder', label: 'Imported Stock Prices' }
     ]
   },
   {
@@ -1153,7 +1203,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmAiPrompts, FirmMeetingObservations, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmAiPrompts, FirmMeetingObservations, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

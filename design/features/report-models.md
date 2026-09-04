@@ -526,8 +526,11 @@ loss, balance sheet and cash flow ported from `3 way Filter.xlsx` — **10,155 o
 calculated cells reproduced exactly across all three years**, the largest golden set in this
 repo — behind all four screens of the approved drawing
 ([`../mockups/three-way-forecast.html`](../mockups/three-way-forecast.html)): drop the
-exports, confirm the opening position, set the assumptions, the forecast. **Nine corrections
-to the source workbook were each ruled by Mike**; the evidence for every one is in
+exports, confirm the opening position, set the assumptions, the forecast. **Ten corrections
+to the source workbook were each ruled by Mike** — nine on 2026-09-02, and R10 on
+2026-09-03, which is the only one that is not an aggregation repair: the workbook holds one
+figure per asset sale, so an asset could only ever sell for exactly its written-down value.
+The evidence for every one is in
 [`../THREE-WAY-FORECAST-DEVIATIONS.md`](../THREE-WAY-FORECAST-DEVIATIONS.md), and the
 largest overstated year-one profit by 55,654. Month stepping was one of them: the workbook
 advanced by 31 days, so its third year ran three weeks adrift — **ruled and fixed 2026-09-02
@@ -545,9 +548,247 @@ advanced by 31 days, so its third year ran three weeks adrift — **ruled and fi
 > model's own key list — so an input added to the engine later fails a test instead of leaking.
 > **Any new model with a defaults-merge takes the same guard.**
 
-The by-month slot of step 1 is wired: last year's twelve monthly sales arrive tagged
-`seeded` — a starting point, never a forecast, and its own third badge state on
-`ProvenanceBadge`.
+**Step 1 takes SIX files, four of them optional** (2026-09-03, items 4.61a and 4.61b): this
+year's Balance Sheet and Profit and Loss, **two by-month exports** — this year's and last
+year's — and **last year's Balance Sheet and Profit and Loss**, which are what the two-year
+trend read below is built from. An advisor who drops only the first two gets the screen they
+had before either was added; nothing is withheld and no figure changes.
+
+**The two by-month exports, this year's and last year's** (item 4.61a).
+The most recent twelve complete months arrive tagged `seeded` — a starting point, never a
+forecast, and its own third badge state on `ProvenanceBadge`. The second file is not a
+convenience: a current-year export almost always stops part-way through a month, and
+`assembleMonthlySeries` strips incomplete trailing months, so **one file can yield eleven
+usable months and no seed at all**, leaving the advisor to type twelve by hand. With 24
+months in hand the twelve are always there. Where the two files overlap, the **older**
+file's figures win — a closed financial year has been reconciled and a still-open one is
+restating itself — and the advisor is told on screen when it happens.
+
+**Step 3 takes planned capital purchases and sales** (2026-09-03, its own approved drawing
+[`../mockups/three-way-forecast-capital.html`](../mockups/three-way-forecast-capital.html)).
+A row list — what, category, month, a Buy/Sell tick and the price — folded into the engine's
+six-category grid, because 72 boxes of which 70 are zero is a screen an advisor scrolls past
+and the two that matter are lost in it. Every amount is positive; the tick carries the
+direction, so a minus sign is refused rather than guessed at. **A sale carries TWO figures**:
+the price, which the bank and the GST return follow, and the book value, which is what leaves
+the asset register — the difference being a gain or loss in the month of the sale (R10). The
+app cannot derive that book value and this is structural rather than an omission: it holds
+**six category totals**, seeded from Balance Sheet line names, so it knows "Motor Vehicles
+80,000" and can never know which van is which. Reading the Fixed Asset Schedule instead is
+item 4.65.
+
+**Step 3 takes buying and selling overseas** (2026-09-04, item 4.64, its own approved drawing
+[`../mockups/three-way-forecast-international.html`](../mockups/three-way-forecast-international.html)).
+Behind one tick — *This business buys or sells overseas* — so a business trading only at home
+sees the screen it has always seen. It exists because Mike's own framing of the section was
+about **visibility**, not timing: *"the whole point of this section is to show when deposits
+are due, freight is paid, border gst etc — BEFORE the business can even start selling them"*.
+Rolled into one creditors figure, all of that appears in the month the supplier was settled
+and the months that matter are invisible, so the cash flow grows **five rows of its own**:
+deposits paid overseas, freight and shipping, duty and clearance, GST paid at the border, and
+the balance paid to the supplier. They show only when a forecast actually trades overseas.
+
+**Stock is recorded in the month it LANDS**, not when it is ordered and not when it is paid
+for — that is when it becomes stock and when GST falls due at the border, and every other date
+is worked out from it. The deposit is therefore paid *ahead* of the purchase month, which the
+five-bucket lag schedule could not express at all: it reaches **nine months**, because the
+Import & Retail workbook pays roughly 220 days before the first sale, and that gap **is** the
+working-capital hole a funding request exists to cover. Border GST is charged on the landed
+value — exchange-adjusted stock cost plus freight and duty — and claimed back on the same
+return, so it is a timing cost rather than a lost one.
+
+**GST was wrong in both directions before this, and that is the half nobody would have seen.**
+Every sale was charged and every purchase credited when the supplier was paid. Exports are
+normally **zero-rated** (a tick, defaulted on, since a firm whose overseas sales are genuinely
+taxable must be able to say so), and imports pay **at the border**. On the *Cash* basis the
+return is worked backwards from money received, so once some receipts are zero-rated the two
+streams' collections have to be counted apart or the model invents an output tax nobody
+charged.
+
+**Revenue from imported stock is worked out, not typed** — Mike's correction of the first
+drawing: *"new stock command a higher initial price if its new to the market but over time,
+importers need to offload at a discount - this should be forecasted so all revenue isnt
+calculated on an inflated sale price"*. The ladder is his own, read out of `Import &
+Retail.xlsx` (`Supplier 1 Inputs` row 19) into
+[`../../data/forecast-sell-down.json`](../../data/forecast-sell-down.json): **New +185% /
+Standard +152% / Runout +122%** on cost, switching at 60/90/120 stock-turn days, with a demand
+pattern saying how much sells in each 30-day band. Pricing it all at the launch figure reads
+**6% high for a fast seller and 10% for a slow one** — the wrong percentages to be wrong by in
+a document a bank reads. The figures are seeded onto the screen and the advisor can overtype
+any month.
+
+> **The mentor owns the ladder, on the Imported Stock Prices tab** (Model Inputs, built
+> 2026-09-04; the tab's name is Mike's). Until then his six figures lived only in the data
+> file and were **restated as literals inside the intake screen** — two homes for one fact,
+> agreeing by luck: a change to the file would have priced a forecast one way while the
+> advisor's boxes still showed the other. The screen now takes the ladder from the file and
+> then asks the backend for the mentor's current one, so there is a single source at every
+> step. Mentor tier alone, per the default of 2026-08-24 — `server/utils/forecastSellDown.js`
+> walks the whole tier chain already, so a firm that one day prices differently costs one
+> line in `TAB_TIERS`. A restored forecast is never re-seeded: it keeps the figures it was
+> saved with. **What a tier may change is five figures and the demand shape**, not the whole
+> file — `runoutUpToDays` is deliberately not editable because the engine never reads it
+> (runout is the *else* branch, so everything past the standard boundary is runout whatever
+> that field says), and the shapes' own curves belong to slice 2's calculator. The validator
+> refuses a new-stock boundary set past the standard one, because that leaves the middle
+> rung of the ladder priced at nothing with nothing on screen to notice it by.
+>
+> **Slice 2 — the shipment calculator (`server/report/importShipmentModel.js`), engine half
+> built 2026-09-04.** An advisor enters shipments — description, cost, order date, deposit %,
+> shipping speed — and the calculator dates every event from the order date using Mike's own
+> supplier terms (manufacture 120, balance due 91, prep 9; sea 25 / air 20 / express 15,
+> summing to his workbook's stated 154 / 149 / 144 days). **It writes all three series —
+> deposits, balances and landings — each from its own real date**, his ruling of 2026-09-04:
+> writing only the landings would compute the real dates and then let one averaged lead
+> replace them, which is the averaging the *dates, not bands* ruling exists to stop.
+>
+> **The engine change is one function, `landingsOf`.** Everything downstream was already
+> worked out one landing at a time; the loop simply derived every landing's dates from one
+> shared deposit lead and one shared balance profile. It now iterates a list of landings,
+> and a forecast with no calculator builds that list from exactly those uniform terms — so
+> the arithmetic is unchanged to the cent, which the 3,385-cell golden guard proves.
+>
+> **What that buys, on the drawing's own example:** two containers ordered in the same May,
+> eighteen days apart, land in **September and October** — band-mapping knows only "ordered
+> in May" and files both together. Their balances are really due in **August**, where the
+> uniform profile said October and November: two and three months earlier, on a document
+> whose whole purpose is showing when money is needed.
+>
+> **Interest cover is modelled, and it is charged with the other interest.** His sheet adds
+> two things to the deferred balance, both pro-rated over a **360-day** year: 6% interest
+> cover and a 10% currency movement. 43,057.20 becomes **44,798.62** — his own figure, and
+> the test reproduces it. The currency half is the forecast's exchange allowance; the 6% was
+> modelled nowhere until Mike's instruction of 2026-09-04 (*"can you fix the 6% interest
+> issue"*), given after the build **reported** it as a gap rather than inventing a charge.
+> **The 360-day year is not a rounding choice** — on 365 the currency charge is 1,073.48 and
+> the workbook stops agreeing.
+>
+> 🔴 **It goes in OVERHEADS with the overdraft and loan interest, never in direct costs.**
+> Freight, duty and the exchange movement sit above the gross margin because they are the
+> cost of getting goods here; interest cover is what the supplier charges for waiting to be
+> paid. In direct costs it would understate the margin on every container — one of the first
+> figures an advisor reads. A test asserts the direct costs are exactly the other three.
+>
+> ⚠ **The first attempt broke the balance sheet and a test caught it, not an eyeball.** It
+> accrued the interest into the supplier liability at the landing while expensing it at the
+> payment, leaving every month out by exactly the interest — and on these terms the balance
+> is settled *before* the goods land (91 days against 145), so it was not even a short
+> window. It is now expensed and paid in the same month and never accrued: cash down by
+> balance + interest, liability down by the balance, equity down by the interest.
+> **This is the second time on this feature that a balance-check caught what nothing else
+> would have.**
+>
+> **Interest cover applies only where the calculator is in use.** Twelve typed landing
+> figures carry no order date and no credit period, so there is no span to charge it over;
+> inventing one is the guesswork the *dates, not bands* ruling exists to stop.
+>
+> **The screen is built too.** *Fill these from actual shipments* sits at the foot of the
+> overseas section: the five supplier terms entered once, then a row per shipment
+> (description, cost, order date, deposit %, speed) with a **worked-out** blue cell beside
+> it — *Lands 24 Sep · deposit 2026-05-02 · balance 2026-08-01 + 546 interest · sellable
+> 3 Oct*. Nothing about a date is typed.
+>
+> 🔴 **The arithmetic is a Restify route, `POST /api/report/import-shipments`, not a computed
+> property.** Dating an event from an order date is business logic, and a browser copy of it
+> would be a second implementation of *when does this container land* — one the advisor
+> reads, one the forecast uses. The screen shows the answer and decides nothing. It posts
+> debounced as the advisor types, exactly as the volatility block beside it does.
+>
+> **Once one shipment resolves, the calculator owns the twelve landing boxes** and the panel
+> says so on screen. A shipment landing past the twelfth month is named in a warning band
+> rather than dropped in silence, and a backend failure leaves the advisor finishing by hand
+> — which is what they did before this existed.
+
+Because revenue is then *cost × the ladder*, **real unit costs govern imported
+stock** and the mark-up governs local: recovering a known cost from revenue would be
+arithmetic run backwards to a worse number. Imported stock sold at home counts as a **local**
+sale, so it carries GST and collects on the local profile.
+
+> 🔴 **Two balance-sheet positions the drawing never mentioned, and without them the three
+> statements stop articulating.** Caught by the balance-check test, not by eye. A deposit paid
+> before the goods land is a **prepayment** — the supplier owes you goods — until the container
+> arrives; a landed-but-unpaid container is a **liability**. Cash leaves in one month and stock
+> arrives in another, and something has to hold the difference. They are `importPrepayments`
+> and `importSupplierBalance`. For the same reason the exchange movement on sales comes off the
+> **debtor** as well as through the P&L, and freight, duty and both exchange movements are
+> expensed in the month they arise. **Any addition that moves cash and stock in different
+> months takes the same care.**
+
+**The guard was written before the feature and it is the reason this was safe.** With the tick
+off and both series empty, all 3,385 year-one golden cells still match the workbook and the
+three statements are byte-identical. It passed trivially the day it was written, which is the
+point: it is what refuses a silent change to the port now, and it pins the input shape as a
+test rather than a note. **The tick is load-bearing in the engine, not only on the screen** —
+figures sent with it off are dropped, so no later caller can bypass the intake and be
+surprised.
+
+**What is not built:** the mentor Model Inputs tab that would let the price ladder be edited
+(the figures live in the data file and are shown with a *From your platform settings* badge),
+and slice 2 — the Import & Retail shipment calculator, absorbed from item 4.63, which will
+fill the twelve landing figures from real containers. Its two rulings are already taken: every
+event is dated from its order date and filed in the calendar month it really falls in, and
+real unit costs govern imported stock.
+
+**Step 3 shows the volatility read** (2026-09-03, its own approved drawing
+[`../mockups/three-way-forecast-volatility.html`](../mockups/three-way-forecast-volatility.html)).
+Under the sales boxes: the average month, the normal range, the biggest month on record, how
+many forecast months fall outside it, the workbook's rev-counter dial, and a chart carrying
+the actual months and the twelve forecast months against the same bands. **The bands are
+measured from the actual months alone** — measure both together and an optimistic forecast
+widens its own normal range and then sits inside it, which is a block that agrees with
+whatever it is shown. All of it is `compareForecast` in `volatilityModel.js`; the screen
+places dots and decides nothing, because two implementations of a standard deviation is how
+a screen and a report start disagreeing. Two bands name a month and ask for the reason —
+**amber beyond the second deviation, red beyond the third** — while a month merely outside
+the first is drawn hollow, and one that the forecast has not changed is named as the
+client's own seasonality rather than warned about. The engine measures 12, 18 or 24 months,
+so the block takes the **largest of those the months in hand support** and says which it
+used. The dial is shared with the Volatility Report
+([`VolatilityDial.vue`](../../components/base/VolatilityDial.vue)): its geometry and its
+50/75 boundaries are measured from the workbook's own gauge images, and two copies would
+drift into a needle pointing at different places on two screens showing the same client.
+
+**Step 3 also shows the two-year trend read** (2026-09-03, its own approved drawing
+[`../mockups/three-way-forecast-trend.html`](../mockups/three-way-forecast-trend.html), item
+4.61b). Under the volatility block, six measures against last year: sales growth, gross
+margin, overheads against sales, debtor days, creditor days and stock days — each showing
+both years, the movement, and a green / amber / red band. **It changes no forecast figure**,
+and that is enforced rather than intended: the assembler returns `trendInputs`, the route
+consumes it and deletes it, and a test asserts the engine payload is byte-identical with and
+without it. The day-counts in particular never seed a collection profile — an export records
+no money-received dates, so a debtor-day average describes a year rather than saying when
+money moved.
+
+**Two bases, and the split is a ruling rather than a convenience.** The three day-counts band
+on **this year's level**, each with its own numbers; the three percentage measures band on the
+**movement between the two years**. A level is what an accountant reads on a day-count and it
+travels across trades, whereas a gross-margin level does not — alarming for a retailer,
+routine for a builder — while a margin that fell three points is worth a look in any trade.
+Mike's own figures are debtor days 35/45, creditor days 35/45, stock days 30/60, sales growth
+amber below 0% and red below −5%, and gross margin and overheads 1 and 3 percentage points.
+The last pair share their numbers because a point of margin lost and a point of overheads
+gained cost exactly the same money — both are a point of sales. **A measure with no threshold
+is shown in full and never banded**, which is a supported setting rather than a gap.
+
+**The thresholds live on a screen, not in a constant** — the mentor's *Forecast Trend
+Thresholds* tab under Model Inputs, beside Property Tax Rules, with version history and
+restore. That is what makes banding safe: the numbers are the firm's advisory judgement, so
+they have to be visible and changeable. Mentor tier alone for now; the resolver and routes
+carry every tier already, so a firm that needs its own numbers costs one line in `TAB_TIERS`.
+
+**The parser was never touched, and the item's own premise was wrong.** 4.61(b) was filed as
+needing `xeroReportParser` taught to read a comparative export's second figure column as a
+prior period, naming `MULTI_PERIOD_COLUMNS` as the guard not to weaken. It needed neither: the
+parser already reads both reports and already records each report's own year, so last year
+arrives as two more file slots and the guard is never approached. 🔴 **Which of two files is
+this year is decided by the reports' own date lines, never by upload order, and a pair that
+cannot be dated apart is REFUSED.** Getting it backwards would open the forecast from last
+year's position — every figure plausible, every figure a year stale, nothing on screen to
+notice it by — and a file picker returns whatever order the operating system gives it. Two
+periods that are not a like-for-like year apart are refused for the same reason: a nine-month
+period against a twelve-month one gives a growth figure that looks right and is not. A measure
+that cannot be worked out is **left out and the reason given once** — never a zero, never a
+dash to interpret.
 
 **Both of the screen's judgement calls are ruled (Mike, 2026-09-03).** Stock below zero is
 **named in a red band**, not left as a figure among figures: it is impossible rather than
@@ -568,11 +809,13 @@ figures taken from last year's actuals as a starting point. A screen that showed
 `seeded` identically would tell an advisor that a judgement about next year is a fact about
 this one.
 
-**Only the Volatility Report reads a monthly series.** The by-month intake exists and is
-proven, but no other model consumes it yet. A new model taking monthly inputs should reuse
-`parseMonthlyUpload` + `assembleMonthlySeries` rather than growing a third reader — and
-should expect the same three findings above, because they are properties of the export, not
-of this report.
+**Two models read a monthly series — Volatility and the Three-Way Forecast** — and both go
+through the same pair, `parseMonthlyUpload` + `assembleMonthlySeries`. A new model taking
+monthly inputs reuses them rather than growing a third reader, and should expect the same
+three findings above, because they are properties of the export, not of any one report.
+The forecast shows how a model borrows the series without owning it: it does the join in
+its own route, seeds the sales boxes from the last twelve values, and keeps the **whole
+run** — up to 24 months — for the volatility read on step 3.
 
 ---
 

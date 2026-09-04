@@ -9,46 +9,60 @@
 
 ---
 
-## 2026-09-03 · Laptop · branch `feat/advisor-progress`
+## 2026-09-04 · Laptop · branch `feat/advisor-progress`
 
-Suite **7,355 green** (380 suites), lint 0 errors. Started 43 ahead / 0 behind, ended
-**45 ahead / 0 behind**, everything pushed. Nothing uncommitted.
+Suite **7,700 green** (399 suites), lint 0 errors, everything committed and pushed.
+Started 21 ahead / 0 behind; **merged `master` twice** (13 commits, then 9).
 
-### The Three-Way Forecast is complete, end to end
+### Built — 4.64, buying and selling overseas. Drawn, approved and built in one day.
 
-Steps 1–3 shipped (`a085f72`), so all four screens of the approved drawing now exist.
-Mike ruled the last two open questions today: negative stock **stays flagged**, and an
-unbalanced opening **warns** — promoted to a full-width band so it survives the print.
-Nothing on that drawing is unruled any more.
+Step 3 gains a whole section behind one tick: imported stock with its terms, the sell-down
+price ladder, overseas sales with their own delivery lag, collection profile, zero-rating
+and FX allowance, and their own mark-up. The cash flow grows **five rows of its own** —
+deposits, freight, duty, border GST, supplier balance — visible on the report screen.
 
-### 🔴 THE FINDING THAT MATTERS TO EVERY MODEL, NOT JUST THIS ONE
+**Item 4.63 was absorbed into 4.64 as slice 2** on Mike's instruction. Not built.
 
-`resolveInputs` merges what a screen sends over the workbook's own sample, so **an input
-the screen does not collect keeps the sample's value, invisibly**. Built as drawn, the
-intake would have put Big Bird's 10% commission, 3% freight, 7% overdraft interest and
-15,000 of overheads into a real client's forecast. Mike's ruling: every figure the engine
-takes goes on a screen. `buildInputs()` now sends every key explicitly, and a test compares
-it against the model's own key list. **Any new model with a defaults-merge needs the same
-guard.** Recorded in the Report Models Brief.
+### Four things worth more than the item
 
-### Three defects found by opening the drawing beside the code
+**The guard went first and it is why this was safe.** Tick off, series empty → all 3,385
+year-one golden cells unmoved and the three statements byte-identical, written and passing
+*before* the feature existed. It also pins the input shape as a test rather than a note.
 
-The result screen reset the advisor's mark-up to 68% after step 3; the third file slot was
-drawn and never wired; the overheads had the same leak as the rates. All fixed. **Running
-the app found nothing the suite had missed this time — but only because the app was run.**
+**The balance sheet broke, and a test caught it — not an eyeball.** A deposit paid before
+the goods land had nowhere to sit. It is a **prepayment**; a landed-but-unpaid container is
+a **liability**. Both are new balance-sheet lines. 🔴 **Any addition that moves cash and
+stock in different months needs the same check.**
 
-### 🖥 DESKTOP — three things
+**The approved drawing contradicted itself, and the DRAWING was corrected.** Its "Ready to
+sell after it lands" control said *Same month* while its own revenue table, tiles and
+printed working all had the container first selling the month after. Found only by opening
+the drawing beside the code, which is the third time that ritual has paid.
 
-1. **PR #55 is waiting on Mike's eyeball** (Volatility upload, production build).
-2. **🔴 Numbering collision, second time.** You filed the Xero sweep as **4.57**; this
-   branch skipped 4.57 deliberately AND had already done that sweep (`2f3f8a2`).
-   `to-do-items.json` will conflict when #55 merges — settle it then.
-3. `ProvenanceBadge` gained a third state (`seeded`, green) and the forecast assembler now
-   returns `candidates`. Both additive — extend, don't copy.
+**A gap named honestly came back the same day.** The engine computed the five cash rows
+correctly, and the report screen showed one "Money out" total — the exact concealment Mike
+had objected to. Saying so plainly rather than glossing it got a "yes" and it shipped.
 
 ### Next
 
-**4.61** — two years of accounts and a volatility read. Volatility needs 24 **months**, not
-two annual reports, and the two-file monthly join is already built, so phase (a) is a
-connection rather than new arithmetic. Phase (b), the comparative-column parser, needs its
-own drawing. **Both must follow PR #55** — same intake files.
+**The mentor Model Inputs tab for the price ladder** (figures are in
+`data/forecast-sell-down.json`, shown but not editable), then **slice 2** — the Import &
+Retail shipment calculator. Both of slice 2's rulings are already taken.
+
+### 🖥 DESKTOP — read this before you touch the forecast
+
+🔴 **Your slice 2 has four screens left and your own note puts the FORECAST last. We
+rewrote it today.** `ThreeWayForecastReport.vue` gained `hasOverseasTrade`,
+`overseasCashRows`, a rebuilt `cashRows`, an `is-sub` row style and five locale keys.
+`ThreeWayForecastIntake.vue` gained a large step-3 section, `overseasInputs()`, eight
+computed properties and 44 locale keys. Expect conflicts in both and **keep both sides**.
+
+Also shared: `server/report/threeWayForecastModel.js` (new `overseas` block, two new
+balance-sheet lines), `locales/en.json`, `ARTEFACTS.md`, `features/to-do-items.json`,
+`features/report-models.md`, and a new `data/forecast-sell-down.json`.
+
+⚠ **We took YOUR 4.62 whole at the merge** — your slice-2 text is newer than ours, and a
+sentence this branch had added to your comment was dropped. Your item is yours to write.
+
+✅ Your 2026-09-04 handover was current when we merged. Thank you — it made the collision
+call easy.

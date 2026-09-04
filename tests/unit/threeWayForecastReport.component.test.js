@@ -31,6 +31,71 @@ async function mountWithResult (data, propsData) {
 
 const SAMPLE = computeThreeWayForecast({})
 
+/** The drawing's worked example: a container landing in September, one in January. */
+const IMPORTING = computeThreeWayForecast({
+  overseas: {
+    enabled: true,
+    importedPurchases: [0, 0, 0, 0, 0, 90000, 0, 0, 0, 60000, 0, 0]
+  }
+})
+
+/**
+ * 🔴 THE FIVE ROWS ARE THE POINT OF THE SECTION. Mike, 2026-09-04: "the whole point of
+ * this section is to show when deposits are due, freight is paid, border gst etc -
+ * BEFORE the business can even start selling them". The engine computed them correctly
+ * from the first commit and the screen showed a single "Money out" total, which is
+ * precisely the concealment he was describing — so this guards the SCREEN, not the maths.
+ */
+describe('Three-Way Forecast screen — the five overseas cash rows (4.64)', () => {
+  test('a domestic forecast keeps the compact four-row cash tab', async () => {
+    const w = await mountWithResult(SAMPLE)
+    expect(w.vm.hasOverseasTrade).toBe(false)
+    expect(w.vm.overseasCashRows).toEqual([])
+    expect(w.vm.cashRows.map(r => r.key)).toEqual(['in', 'out', 'move', 'close'])
+  })
+
+  test('an importing forecast shows all five, under Money out', async () => {
+    const w = await mountWithResult(IMPORTING)
+    expect(w.vm.hasOverseasTrade).toBe(true)
+    expect(w.vm.cashRows.map(r => r.key)).toEqual([
+      'in', 'out', 'os-dep', 'os-frt', 'os-duty', 'os-gst', 'os-bal', 'move', 'close'
+    ])
+  })
+
+  test('each row carries the engine\'s own series, not the screen\'s arithmetic', async () => {
+    const w = await mountWithResult(IMPORTING)
+    const by = {}
+    w.vm.cashRows.forEach((r) => { by[r.key] = r.values })
+    const p = IMPORTING.cashFlow.payments
+    expect(by['os-dep']).toBe(p.overseasDeposits)
+    expect(by['os-frt']).toBe(p.overseasFreight)
+    expect(by['os-duty']).toBe(p.overseasDuty)
+    expect(by['os-gst']).toBe(p.overseasBorderGst)
+    expect(by['os-bal']).toBe(p.overseasSupplierBalance)
+  })
+
+  test('the deposit is visible in MAY, four months before the stock lands', async () => {
+    // The whole reason the rows exist. Inside Money out this figure is invisible.
+    const w = await mountWithResult(IMPORTING)
+    const deposits = w.vm.cashRows.find(r => r.key === 'os-dep').values
+    expect(deposits[1]).toBeCloseTo(59400, 6)
+    expect(IMPORTING.schedules.overseas.importedRevenue[1]).toBe(0)
+  })
+
+  test('a section filled in and then unticked shows nothing', async () => {
+    // Asked of the figures rather than of the tick, which is also what the engine does.
+    const unticked = computeThreeWayForecast({
+      overseas: {
+        enabled: false,
+        importedPurchases: [0, 0, 0, 0, 0, 90000, 0, 0, 0, 60000, 0, 0]
+      }
+    })
+    const w = await mountWithResult(unticked)
+    expect(w.vm.hasOverseasTrade).toBe(false)
+    expect(w.vm.cashRows.map(r => r.key)).toEqual(['in', 'out', 'move', 'close'])
+  })
+})
+
 describe('Three-Way Forecast screen — the headline', () => {
   test('reads the four figures from the model, not from its own arithmetic', async () => {
     const w = await mountWithResult(SAMPLE)

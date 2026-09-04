@@ -43,6 +43,159 @@ function intakeResponse (over) {
   }, over || {})
 }
 
+describe('the two-year trend read on step 3 (item 4.61b)', () => {
+  /** A banded trend, as the backend sends it. */
+  function trend (over) {
+    return Object.assign({
+      available: true,
+      blocked: null,
+      needsBalanceSheet: false,
+      periodsCertain: true,
+      measures: [
+        { key: 'salesGrowth', basis: 'movement', unit: 'percent', worseWhen: 'down', prior: 824000, current: 890000, movement: 8.0097, band: 'good', computable: true },
+        { key: 'debtorDays', basis: 'level', unit: 'days', worseWhen: 'up', prior: 44.96, current: 58.24, movement: 13.28, band: 'crit', computable: true },
+        { key: 'creditorDays', basis: 'level', unit: 'days', worseWhen: 'up', prior: 42.0, current: 47.2, movement: 5.2, band: null, computable: true }
+      ],
+      counts: { good: 1, warn: 0, crit: 1, unbanded: 1 }
+    }, over || {})
+  }
+
+  test('the backend’s banding is taken as given, never recomputed in the browser', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({ trend: trend() }))
+    expect(w.vm.trend.measures).toHaveLength(3)
+    expect(w.vm.trendWorst.key).toBe('debtorDays')
+    expect(w.vm.trendWarned).toEqual([])
+    w.destroy()
+  })
+
+  // 🔴 THE READ MUST NEVER REACH THE FORECAST. Every one of these figures is last year's,
+  // and a forecast that quietly opened from them would be plausible and a year stale.
+  // The control is the SAME intake without a trend, not the untouched form: applying an
+  // intake legitimately seeds the start date from the balance sheet's own "as at" line,
+  // and comparing against a blank form would credit that to this block.
+  test('nothing from the trend read reaches the inputs the engine is given', () => {
+    const withTrend = mountIntake()
+    withTrend.vm.applyIntake(intakeResponse({ trend: trend() }))
+
+    const without = mountIntake()
+    without.vm.applyIntake(intakeResponse())
+
+    expect(JSON.stringify(withTrend.vm.buildInputs())).toBe(JSON.stringify(without.vm.buildInputs()))
+    withTrend.destroy()
+    without.destroy()
+  })
+
+  test('a value is shown in the unit its measure is actually read in', () => {
+    const w = mountIntake()
+    const [growth, debtors] = trend().measures
+    // Sales is the odd one out on purpose: its YEARS are money, its MOVEMENT is a percentage.
+    expect(w.vm.trendValue(growth, growth.current)).toBe(w.vm.money(890000))
+    expect(w.vm.trendMovement(growth)).toBe('+8.0%')
+    expect(w.vm.trendValue(debtors, debtors.current)).toContain('58')
+    expect(w.vm.trendMovement(debtors)).toContain('13')
+    w.destroy()
+  })
+
+  test('a percentage-point measure reads to one decimal, signed', () => {
+    const w = mountIntake()
+    const m = { key: 'grossMargin', basis: 'movement', unit: 'points', worseWhen: 'down', prior: 41.99, current: 40.48, movement: -1.5141, band: 'warn' }
+    expect(w.vm.trendValue(m, m.current)).toBe('40.5%')
+    expect(w.vm.trendMovement(m)).toContain('1.5')
+    w.destroy()
+  })
+
+  test('an absent figure shows as absent rather than as zero', () => {
+    const w = mountIntake()
+    const m = { key: 'stockDays', basis: 'level', unit: 'days', worseWhen: 'up', prior: null, current: null, movement: null, band: null }
+    expect(w.vm.trendValue(m, m.prior)).toBe('—')
+    expect(w.vm.trendMovement(m)).toBe('—')
+    w.destroy()
+  })
+
+  // The colour of a movement follows the direction the BACKEND says is worse for that
+  // measure, so the colour and the band can never disagree about the same number.
+  test('a movement is coloured by the direction that is worse for that measure', () => {
+    const w = mountIntake()
+    const up = { movement: 5, worseWhen: 'up' }
+    const down = { movement: -5, worseWhen: 'down' }
+    expect(w.vm.trendMoveClass(up).bad).toBe(true)
+    expect(w.vm.trendMoveClass(down).bad).toBe(true)
+    expect(w.vm.trendMoveClass({ movement: -5, worseWhen: 'up' }).ok).toBe(true)
+    expect(w.vm.trendMoveClass({ movement: 0, worseWhen: 'up' }).flat).toBe(true)
+    w.destroy()
+  })
+
+  test('every amber measure is gathered into one note, not one note each', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({
+      trend: trend({
+        measures: [
+          { key: 'grossMargin', basis: 'movement', unit: 'points', worseWhen: 'down', prior: 42, current: 40.5, movement: -1.5, band: 'warn' },
+          { key: 'overheadRatio', basis: 'movement', unit: 'points', worseWhen: 'up', prior: 32.5, current: 33.9, movement: 1.4, band: 'warn' }
+        ]
+      })
+    }))
+    expect(w.vm.trendWarned.map(m => m.key)).toEqual(['grossMargin', 'overheadRatio'])
+    expect(w.vm.trendWorst).toBeNull()
+    w.destroy()
+  })
+
+  // The approved drawing's rule: a row that cannot be worked out is left out AND the
+  // reason is given once. A shorter table with nothing accounting for it is the failure.
+  test('a row that could not be worked out is named, with the figure it wanted', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({
+      trend: trend({ omitted: [{ key: 'stockDays', missing: 'inventory' }] })
+    }))
+    expect(w.vm.trendOmittedSentence).toContain('stockDays')
+    expect(w.vm.trendOmittedSentence).toContain('inventory')
+    w.destroy()
+  })
+
+  test('the missing-balance-sheet line wins over the generic one, never both', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({
+      trend: trend({
+        needsBalanceSheet: true,
+        omitted: [
+          { key: 'debtorDays', missing: 'accountsReceivable' },
+          { key: 'creditorDays', missing: 'accountsPayable' },
+          { key: 'stockDays', missing: 'inventory' }
+        ]
+      })
+    }))
+    // Its own line tells the advisor what to DO about it; the generic one only says what
+    // is absent, so showing both would be saying the weaker thing twice.
+    expect(w.vm.trend.needsBalanceSheet).toBe(true)
+    w.destroy()
+  })
+
+  test('nothing left out means no sentence at all', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({ trend: trend({ omitted: [] }) }))
+    expect(w.vm.trendOmittedSentence).toBe('')
+    w.destroy()
+  })
+
+  test('an intake with no last-year files leaves the block with nothing to draw', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({ trend: { available: false, blocked: 'NO_PRIOR_YEAR', measures: [] } }))
+    expect(w.vm.trend.available).toBe(false)
+    expect(w.vm.trendWorst).toBeNull()
+    expect(w.vm.trendWarned).toEqual([])
+    w.destroy()
+  })
+
+  // A forecast saved before this block existed carries no `trend` at all.
+  test('an older saved forecast restores without a trend rather than breaking', () => {
+    const w = mountWithBuefy(ThreeWayForecastIntake, { propsData: { restore: { sales: [], capital: [] } } })
+    expect(w.vm.trend).toBeNull()
+    expect(w.vm.trendWarned).toEqual([])
+    w.destroy()
+  })
+})
+
 describe('the intake sends every figure the engine takes', () => {
   test('🔴 every top-level input the model defaults is sent explicitly', () => {
     const w = mountIntake()
@@ -289,6 +442,364 @@ describe('the manual path claims nothing from a file', () => {
     const sources = Object.keys(w.vm.form.opening).map(k => w.vm.form.opening[k].source)
     expect(sources).not.toContain('file')
     expect(w.vm.form.salesSource).toBe('entered')
+    w.destroy()
+  })
+})
+
+describe('buying and selling capital assets', () => {
+  /**
+   * The block Mike approved on 2026-09-03. Its whole job is to reach `additions`,
+   * `disposals` and `proceeds` — three series the engine has always taken and the screen
+   * sent as hardcoded zeroes, so R3, R4 and R10 were built and unreachable.
+   *
+   * What is tested here is the FOLD from a row list into the engine's 6 x 12 grid, which
+   * is the part a person in UAT cannot check: a row landing in the wrong month or the
+   * wrong category still produces a forecast that looks entirely normal.
+   */
+  const rowsOf = (w, list) => { w.vm.form.capital = list; return w.vm.buildInputs().assets }
+
+  test('a purchase lands on its own category and month, as an addition', () => {
+    const w = mountIntake({ step: 3 })
+    const assets = rowsOf(w, [{ what: 'Delivery van', category: 0, month: 2, direction: 'buy', price: 45000, bookValue: 0 }])
+    expect(assets[0].additions[2]).toBe(45000)
+    expect(assets[0].additions.filter(v => v !== 0)).toHaveLength(1)
+    expect(assets[0].disposals.every(v => v === 0)).toBe(true)
+    // No other category is touched.
+    expect(assets.slice(1).every(a => a.additions.every(v => v === 0))).toBe(true)
+    w.destroy()
+  })
+
+  test('🔴 a sale sends the book value as the disposal and the price as the proceeds', () => {
+    // The split is the whole of R10. Sending the price as the disposal — which is what
+    // the screen would do if these two were ever crossed — writes the sale price off the
+    // asset register and loses the gain, silently.
+    const w = mountIntake({ step: 3 })
+    const assets = rowsOf(w, [{ what: 'Old van', category: 0, month: 5, direction: 'sell', price: 12000, bookValue: 8000 }])
+    expect(assets[0].disposals[5]).toBe(8000)
+    expect(assets[0].proceeds[5]).toBe(12000)
+    expect(assets[0].additions.every(v => v === 0)).toBe(true)
+    w.destroy()
+  })
+
+  test('two rows in the same category and month add together', () => {
+    const w = mountIntake({ step: 3 })
+    const assets = rowsOf(w, [
+      { what: 'Racking', category: 2, month: 8, direction: 'buy', price: 18000, bookValue: 0 },
+      { what: 'Forklift', category: 2, month: 8, direction: 'buy', price: 22000, bookValue: 0 }
+    ])
+    expect(assets[2].additions[8]).toBe(40000)
+    w.destroy()
+  })
+
+  test('no rows sends twelve zeroes, exactly as before the block existed', () => {
+    const w = mountIntake({ step: 3 })
+    const assets = w.vm.buildInputs().assets
+    assets.forEach((a) => {
+      expect(a.additions).toEqual(new Array(12).fill(0))
+      expect(a.disposals).toEqual(new Array(12).fill(0))
+      expect(a.proceeds).toEqual(new Array(12).fill(0))
+    })
+    w.destroy()
+  })
+
+  test('a negative figure is refused rather than guessed at', () => {
+    // The drawing's own rule: the Buy/Sell tick carries the direction, so a minus sign
+    // means something the screen cannot know. It must not silently become a purchase.
+    const w = mountIntake({ step: 3 })
+    w.vm.form.capital = [{ what: 'Old van', category: 0, month: 1, direction: 'sell', price: -12000, bookValue: 8000 }]
+    w.vm.buildForecast()
+    expect(w.vm.capitalNegativeRows).toEqual([1])
+    expect(w.emitted().confirmed).toBeUndefined()
+    w.destroy()
+  })
+
+  test('the category list carries the rate in force, not the platform default', () => {
+    // Mike's ruling: step 2 lets an advisor change all six, so a list hardcoded to 20%
+    // would contradict the rate they had just set two groups above.
+    const w = mountIntake({ step: 3 })
+    w.vm.form.assets[0].rate = 33
+    expect(w.vm.capitalCategories[0].label).toContain('33')
+    expect(w.vm.capitalCategories[0].label).not.toContain('20')
+    w.destroy()
+  })
+
+  test('the rows survive a step back and forward', () => {
+    // They live in `form`, which the page hands back as `restore` — a row list wiped by
+    // checking something on the previous screen is a re-typing job, not a bug report.
+    const w = mountIntake({ step: 3 })
+    w.vm.form.capital = [{ what: 'Delivery van', category: 0, month: 2, direction: 'buy', price: 45000, bookValue: 0 }]
+    w.vm.buildForecast()
+    const state = w.emitted().confirmed[0][0].state
+    const back = mountIntake({ step: 3, restore: state })
+    expect(back.vm.form.capital).toHaveLength(1)
+    expect(back.vm.form.capital[0].price).toBe(45000)
+    back.destroy()
+    w.destroy()
+  })
+
+  test('a form restored from before the block existed opens with an empty list', () => {
+    const w = mountIntake({ step: 3 })
+    const old = JSON.parse(JSON.stringify(w.vm.form))
+    delete old.capital
+    const back = mountIntake({ step: 3, restore: old })
+    expect(back.vm.form.capital).toEqual([])
+    back.destroy()
+    w.destroy()
+  })
+
+  test('the two totals count each direction, and only its own', () => {
+    const w = mountIntake({ step: 3 })
+    w.vm.form.capital = [
+      { what: 'Delivery van', category: 0, month: 2, direction: 'buy', price: 45000, bookValue: 0 },
+      { what: 'Racking', category: 2, month: 5, direction: 'buy', price: 18000, bookValue: 0 },
+      { what: 'Old van', category: 0, month: 2, direction: 'sell', price: 12000, bookValue: 8000 }
+    ]
+    expect(w.vm.capitalBuyTotal).toBe(63000)
+    expect(w.vm.capitalSellTotal).toBe(12000)
+    w.destroy()
+  })
+})
+
+/**
+ * The volatility read on step 3.
+ *
+ * Approved artefact: design/mockups/three-way-forecast-volatility.html (approved by Mike
+ * 2026-09-03, all nine of its questions ruled first).
+ *
+ * The arithmetic is volatilityModel.test.js's and is not repeated here. What is tested is
+ * the wiring only this screen has, and only where it could be wrong invisibly: which
+ * months are sent, that the forecast is sent alongside them, that a failed recompute never
+ * leaves a live-looking comparison on screen, and that too few months produce a stated
+ * reason rather than a missing block.
+ */
+describe('the volatility read', () => {
+  /** Twelve months with the shape the approved drawing uses. */
+  function history (n) {
+    const out = []
+    // Deliberately nowhere near the forecast figure used below, so "the forecast is not in
+    // the measured series" is a real assertion rather than a coincidence of values.
+    for (let i = 0; i < n; i++) { out.push({ label: 'M' + i, ordinal: 24000 + i, value: 70000 + (i % 3) * 1000 }) }
+    return out
+  }
+
+  afterEach(() => { delete global.fetch; jest.clearAllMocks() })
+
+  test('🔴 sends the WHOLE run and the forecast beside it, so the bands are the history’s', () => {
+    // The bands must be measured from the actual months alone. If the forecast were sent
+    // as part of `sales`, an optimistic year would widen its own normal range and then sit
+    // inside it — a block that agrees with whatever it is shown.
+    global.fetch = jest.fn(() => Promise.resolve({ json: () => Promise.resolve({ success: false }) }))
+    const w = mountIntake({ step: 3 })
+    w.vm.form.history = history(24)
+    w.vm.form.sales = new Array(12).fill(450000)
+    w.vm.refreshVolatility()
+
+    // Found BY URL, not by position. The screen also reads the mentor's sell-down ladder on
+    // mount (item 4.64), so the volatility POST is no longer the first call — and a screen
+    // that grows another read must not be able to break an assertion about this one.
+    const call = global.fetch.mock.calls.filter(c => c[0] === '/api/report/volatility')[0]
+    const body = JSON.parse(call[1].body)
+    expect(body.sales).toHaveLength(24)
+    expect(body.forecast).toHaveLength(12)
+    expect(body.sales).not.toContain(450000)
+    w.destroy()
+  })
+
+  test('measures the largest window the months support, never more', () => {
+    // The engine offers 12, 18 and 24. Twenty months in hand is measured over eighteen —
+    // asking for twenty would silently fall back to twelve.
+    const w = mountIntake({ step: 3 })
+    w.vm.form.history = history(20)
+    expect(w.vm.volatilityWindow).toBe(18)
+    w.vm.form.history = history(24)
+    expect(w.vm.volatilityWindow).toBe(24)
+    w.vm.form.history = history(12)
+    expect(w.vm.volatilityWindow).toBe(12)
+    w.destroy()
+  })
+
+  test('🔴 stops inviting a second export once there is nothing left to gain', () => {
+    // Found by opening the built screen, not by a test: with both exports already dropped
+    // the block still said "drop last year's export as well and this reads up to 24" while
+    // it was already reading 24. 24 is the engine's longest window, so the invitation has
+    // to go at that point.
+    const w = mountIntake({ step: 3 })
+    w.vm.form.history = history(12)
+    expect(w.vm.canReadMoreMonths).toBe(true)
+    w.vm.form.history = history(18)
+    expect(w.vm.canReadMoreMonths).toBe(true)
+    w.vm.form.history = history(24)
+    expect(w.vm.canReadMoreMonths).toBe(false)
+    w.destroy()
+  })
+
+  test('eleven complete months measure nothing rather than measuring something shorter', () => {
+    const w = mountIntake({ step: 3 })
+    w.vm.form.history = history(11)
+    expect(w.vm.volatilityWindow).toBe(0)
+    w.destroy()
+  })
+
+  test('a failed recompute is declared, never left looking live', () => {
+    global.fetch = jest.fn(() => Promise.reject(new Error('offline')))
+    const w = mountIntake({ step: 3 })
+    w.vm.form.history = history(12)
+    return w.vm.refreshVolatility().then(() => {
+      expect(w.vm.volatilityStale).toBe(true)
+      w.destroy()
+    })
+  })
+
+  test('the run survives stepping back and forward, and an old form opens without it', () => {
+    const w = mountIntake({ step: 3 })
+    w.vm.form.history = history(24)
+    const saved = JSON.parse(JSON.stringify(w.vm.form))
+    expect(mountIntake({ step: 3, restore: saved }).vm.form.history).toHaveLength(24)
+
+    delete saved.history
+    expect(mountIntake({ step: 3, restore: saved }).vm.form.history).toEqual([])
+    w.destroy()
+  })
+})
+
+describe('the volatility read renders', () => {
+  const { computeVolatility } = require('~/server/report/volatilityModel')
+
+  /**
+   * The drawing's own example: eleven seeded months with January raised to 140,000. A
+   * template or binding fault here would break the WHOLE of step 3, not just this block,
+   * so one render of the real engine's output is worth its place — it is the failure a
+   * unit test catches and a person only meets by opening the screen.
+   */
+  test('builds the chart from the engine’s own output without falling over', async () => {
+    const HISTORY = [85000, 70000, 75000, 80000, 60000, 65000, 70000, 70000, 80000, 95000, 70000, 70000]
+    const forecast = HISTORY.slice()
+    forecast[9] = 140000
+    const data = computeVolatility({ sales: HISTORY, window: 12, forecast })
+
+    global.fetch = jest.fn(() => Promise.resolve({ json: () => Promise.resolve({ success: true, data }) }))
+    const w = mountIntake({ step: 3 })
+    w.vm.phase = 'assume'
+    w.vm.form.history = HISTORY.map((value, i) => ({ label: 'M' + i, ordinal: 24290 + i, value }))
+    w.vm.form.sales = forecast.slice()
+    await w.vm.refreshVolatility()
+    await w.vm.$nextTick()
+
+    // One dot per month across both halves, and the two lines joining them.
+    const chart = w.vm.volatilityChart
+    expect(chart.points).toHaveLength(24)
+    expect(chart.actualLine.split(' ')).toHaveLength(12)
+    expect(chart.forecastLine.split(' ')).toHaveLength(12)
+    // January is the red one; nothing else is.
+    expect(chart.points.filter(p => p.fill === '#ff0000')).toHaveLength(1)
+    // The red band fires and the amber one does not, and the seasonality sentence exists.
+    expect(w.vm.redBand).not.toBeNull()
+    expect(w.vm.amberBand).toBeNull()
+    expect(w.vm.seasonalSentence).toBeTruthy()
+    // …and it actually paints: 24 month dots plus the dial's own two hub circles. A
+    // binding fault would leave the SVG empty while every computed above still passed.
+    expect(w.findAll('circle').length).toBeGreaterThanOrEqual(24)
+    delete global.fetch
+    w.destroy()
+  })
+})
+
+/**
+ * The shipment calculator panel (item 4.64 slice 2).
+ *
+ * The dates themselves are the backend's and are pinned in importShipmentModel.test.js.
+ * What is tested here is the wiring only this screen has, and only where it could be wrong
+ * invisibly: that the resolved landings actually reach the payload, that the tick governs
+ * them, and that a forecast saved before the panel existed still opens.
+ */
+describe('the shipment calculator panel', () => {
+  afterEach(() => { delete global.fetch; jest.clearAllMocks() })
+
+  /** What the backend answers with, shaped as the route sends it. */
+  const RESOLVED = {
+    rows: [{ description: 'C1', cost: 90000, orderDate: '2026-05-02', landsOn: '2026-09-24', balanceDueOn: '2026-08-01', sellableOn: '2026-10-03', landsInMonth: 5, depositMonth: 1, balanceMonth: 4, deposit: 54000, balance: 36000, interest: 546, depositPct: 0.6, speed: 'Sea', sellableInMonth: 6 }],
+    importedPurchases: [0, 0, 0, 0, 0, 90000, 0, 0, 0, 0, 0, 0],
+    deposits: [0, 54000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    balances: [0, 0, 0, 0, 36000, 0, 0, 0, 0, 0, 0, 0],
+    interest: [0, 0, 0, 0, 546, 0, 0, 0, 0, 0, 0, 0],
+    landings: [{ value: 90000, landsInMonth: 5, depositPct: 0.6, depositMonth: 1, balanceMonth: 4, interest: 546 }],
+    beyondYear: []
+  }
+
+  // 🔴 THE LANDINGS MUST REACH THE ENGINE. Without them the engine falls back to one
+  // averaged deposit lead and one balance profile — the screen would show real dates while
+  // the forecast used approximated ones, and nothing would look wrong.
+  test('the resolved landings are sent with the forecast', () => {
+    const w = mountIntake({ step: 3 })
+    w.vm.form.overseas.enabled = true
+    w.vm.shipmentResult = RESOLVED
+    const sent = w.vm.overseasInputs()
+    expect(sent.landings).toHaveLength(1)
+    expect(sent.landings[0].balanceMonth).toBe(4)
+    expect(sent.landings[0].interest).toBe(546)
+    w.destroy()
+  })
+
+  // The same trap `enabled` was fixed for in the engine: an advisor who enters containers
+  // and then unticks the section must get today's forecast back, not half of one.
+  test('with the tick off no landings are sent, whatever was entered', () => {
+    const w = mountIntake({ step: 3 })
+    w.vm.form.overseas.enabled = false
+    w.vm.shipmentResult = RESOLVED
+    expect(w.vm.overseasInputs().landings).toEqual([])
+    w.destroy()
+  })
+
+  test('a forecast saved before this panel existed still opens', () => {
+    const w = mountIntake({ step: 3 })
+    const old = JSON.parse(JSON.stringify(w.vm.form))
+    delete old.overseas.shipments
+    delete old.overseas.shipmentTerms
+    const back = mountIntake({ step: 3, restore: old })
+    expect(back.vm.form.overseas.shipments).toEqual([])
+    expect(back.vm.form.overseas.shipmentTerms.manufactureDays).toBe(120)
+    back.destroy()
+    w.destroy()
+  })
+
+  test('the twelve landing figures are filled once a shipment resolves', async () => {
+    global.fetch = jest.fn(() => Promise.resolve({
+      json: () => Promise.resolve({ success: true, data: RESOLVED })
+    }))
+    const w = mountIntake({ step: 3 })
+    w.vm.form.startDate = '2026-04-01'
+    w.vm.form.overseas.shipments = [{ description: 'C1', cost: 90000, orderDate: '2026-05-02', depositPct: 60, speed: 'Sea' }]
+    await w.vm.refreshShipments()
+    expect(w.vm.form.overseas.importedPurchases[5]).toBe(90000)
+    expect(w.vm.shipmentsDrive).toBe(true)
+    w.destroy()
+  })
+
+  // A half-typed row is the normal state of this panel, not an error — it must not post.
+  test('a row with no order date is not sent, and clears nothing', () => {
+    global.fetch = jest.fn()
+    const w = mountIntake({ step: 3 })
+    w.vm.form.startDate = '2026-04-01'
+    w.vm.form.overseas.shipments = [{ description: '', cost: 0, orderDate: '', depositPct: 60, speed: 'Sea' }]
+    w.vm.refreshShipments()
+    // Checked BY URL: mounting the screen legitimately reads the mentor's ladder, so
+    // "fetch was never called" would be asserting something else entirely.
+    const posted = global.fetch.mock.calls.filter(c => c[0] === '/api/report/import-shipments')
+    expect(posted).toHaveLength(0)
+    expect(w.vm.shipmentsDrive).toBe(false)
+    w.destroy()
+  })
+
+  test('a backend failure leaves the advisor able to finish by hand', async () => {
+    global.fetch = jest.fn(() => Promise.reject(new Error('offline')))
+    const w = mountIntake({ step: 3 })
+    w.vm.form.startDate = '2026-04-01'
+    w.vm.form.overseas.importedPurchases = [0, 0, 0, 0, 0, 12345, 0, 0, 0, 0, 0, 0]
+    w.vm.form.overseas.shipments = [{ description: 'C1', cost: 90000, orderDate: '2026-05-02', depositPct: 60, speed: 'Sea' }]
+    await w.vm.refreshShipments()
+    // Nothing was overwritten and nothing threw.
+    expect(w.vm.form.overseas.importedPurchases[5]).toBe(12345)
+    expect(w.vm.shipmentsDrive).toBe(false)
     w.destroy()
   })
 })

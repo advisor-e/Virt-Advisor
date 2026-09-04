@@ -16,15 +16,16 @@ const { computeVolatility, DEFAULT_INPUTS } = require('~/server/report/volatilit
  * guards, and the arithmetic by volatilityModel.test.js. What is tested HERE is the wiring
  * only this screen has, and only where it could be wrong without anybody seeing it:
  *
- *   1. The needle's ANGLE. A dial pointing at the wrong number is the single most visible
- *      thing on the screen and the easiest to get silently wrong — it is trigonometry, not
- *      a figure passed through. Nothing else in the suite touches it.
- *   2. The window control resizes the typed months and asks the backend for the new window.
+ *   1. The window control resizes the typed months and asks the backend for the new window.
  *      Getting this wrong would measure twelve months while the screen says twenty-four.
- *   3. An emptied input becomes zero, never NaN. One NaN blanks the average, every band and
+ *   2. An emptied input becomes zero, never NaN. One NaN blanks the average, every band and
  *      the dial at once, and the screen would simply go empty.
- *   4. A floored band is not drawn as a line on the chart, because at zero it would sit on
+ *   3. A floored band is not drawn as a line on the chart, because at zero it would sit on
  *      the baseline and assert a boundary that is not real.
+ *
+ * The NEEDLE'S ANGLE moved to volatilityDial.component.test.js on 2026-09-03, with the dial
+ * itself — it is now a shared component, because Mike ruled it onto the Three-Way Forecast's
+ * step 3 as well. The guard did not go away; it follows the code it guards.
  *
  * Deliberately NOT tested: labels, headings, CSS classes and the presence of files — a
  * person in UAT sees all of those in five seconds (CLAUDE.md, "What a test must earn").
@@ -49,31 +50,6 @@ const sample = window => computeVolatility({ sales: DEFAULT_INPUTS.sales, window
 afterEach(() => { delete global.fetch; jest.clearAllMocks() })
 
 describe('Volatility Report screen', () => {
-  it('points the needle at the score, on the workbook geometry', async () => {
-    const wrapper = await mountWith(sample(12))
-    const { needle } = wrapper.vm
-
-    // 0 sits at 225 degrees and 100 at -45, sweeping 270 clockwise. A score of 77.7268
-    // is therefore 225 - 209.86 = 15.13 degrees, up and to the right of centre.
-    const angle = Math.atan2(110 - needle.tipY, needle.tipX - 110) * 180 / Math.PI
-    expect(angle).toBeCloseTo(15.13, 1)
-    // …and the tip is out near the rim, not sitting on the hub.
-    const r = Math.hypot(needle.tipX - 110, 110 - needle.tipY)
-    expect(r).toBeCloseTo(64, 6)
-  })
-
-  it('pegs a score over 100 at the end stop rather than swinging back round', async () => {
-    // A wildly volatile business can score past 100. Left unclamped the needle would wrap
-    // past the bottom-right and point back into the green, reading as calm.
-    const wrapper = await mountWith(sample(12))
-    wrapper.setData({ data: Object.assign({}, sample(12), { score: 260 }) })
-    await wrapper.vm.$nextTick()
-
-    const { needle } = wrapper.vm
-    const angle = Math.atan2(110 - needle.tipY, needle.tipX - 110) * 180 / Math.PI
-    expect(angle).toBeCloseTo(-45, 1) // the 100 end stop
-  })
-
   it('resizes the typed months and asks the backend for the new window', async () => {
     const wrapper = await mountWith(sample(12))
     expect(wrapper.vm.form.sales).toHaveLength(12)

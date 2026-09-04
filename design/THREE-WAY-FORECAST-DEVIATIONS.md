@@ -3,9 +3,10 @@
 > **What this document is.** The Three-Way Forecast is a port of
 > `design/report-source-models/3 way Filter.xlsx`. The port reproduces that workbook
 > **exactly** — 3,385 of its 3,409 calculated Year 1 cells, proven cell by cell — with
-> **seven deliberate corrections**, each ruled by Mike on 2026-09-02.
+> **ten deliberate corrections**: R1–R9 ruled by Mike on 2026-09-02, and R10 on
+> 2026-09-03.
 >
-> This is the record of those seven. Open it beside
+> This is the record of those ten. Open it beside
 > [`server/report/threeWayForecastModel.js`](../server/report/threeWayForecastModel.js)
 > and [`tests/unit/threeWayForecastModel.test.js`](../tests/unit/threeWayForecastModel.test.js)
 > — every correction has a test that pins the workbook's figure beside ours, so no
@@ -260,6 +261,59 @@ else.
 proved against a workbook that steps that way and those dates move real figures through
 the GST schedule. `startsSkipACalendarMonth` remains in the payload for the same reason:
 under R9 it can never be true, and a source-fidelity run can still report the fault.
+
+---
+
+### R10 — a sale carries its own price, and the difference is a gain or loss
+
+**Ruled by Mike 2026-09-03: _"there are legitimate times that an asset sells for more
+than book value - such as a used vehicle - this should be able to be included and
+calculated."_**
+
+**The only one of the ten that is not an aggregation repair.** The other nine are errors
+of the kind a spreadsheet accumulates as it is extended; this one is a limit of the
+method itself.
+
+The workbook holds **one figure per sale**. It comes off the asset register *and* it is
+banked, so the two agree only when an asset sells for exactly its written-down value.
+Anything else is inexpressible: sell a van carried at 8,000 for 12,000 and the workbook
+banks 12,000 and writes 12,000 off the books, so no gain appears anywhere and the
+register is 4,000 light.
+
+**It also could not be left alone once the screen existed.** Until 2026-09-03 the intake
+sent hardcoded zeroes for every asset movement, so nothing could reach this. The block
+Mike approved that day makes it reachable, and a category sold down past zero returns a
+**negative book value and negative depreciation** — which *adds* to profit, every month,
+compounding.
+
+**Corrected.** `disposals` is now the book value leaving the register, and `proceeds` is
+what the asset sold for:
+
+| | follows |
+|---|---|
+| The bank | the **price** — 12,000 plus its GST |
+| The GST return | the **price**, because that is what the invoice says |
+| The asset register | the **book value** — 8,000, and the depreciation that stops with it |
+| The P&L | the **difference** — a 4,000 gain in the month of the sale |
+
+The gain joins the existing **Other Income** total as its own monthly series, so it
+reaches profit, tax and retained earnings with no new plumbing. It is deliberately *not*
+folded into either of the two Other Income lines, which hold an ANNUAL figure spread
+evenly over twelve months — a June gain would smear across the year.
+
+**Omitting `proceeds` means the asset sold for its book value**, which is the only case
+the workbook could express. So every forecast built before this change reads identically,
+and that is pinned by a test written and proved passing *before* the engine was touched
+([`threeWayForecastModel.test.js`](../tests/unit/threeWayForecastModel.test.js), "with no
+price given, every figure is what it was before R10"). **The golden set is untouched:**
+3,385 cells still match, and `sourceFidelity` mode ignores `proceeds` outright rather
+than relying on its default, so a price can never reach the figures the workbook is
+measured against.
+
+**What it does not do.** The gain is not shown as its own line on the forecast screen —
+that screen carries a four-row summary (revenue, gross surplus, overheads, after tax) and
+the gain flows correctly into the last of them. A bank reading a funding pack might want
+it broken out; nobody has asked for that, so it is not built.
 
 ---
 

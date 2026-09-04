@@ -257,4 +257,117 @@ describe('Volatility — golden values from Volatility Report.xlsx', () => {
       expect(volatilityScore(0, 1000)).toBe(0)
     })
   })
+
+  /**
+   * The forecast comparison — the Three-Way Forecast's step 3 (approved drawing
+   * design/mockups/three-way-forecast-volatility.html, 2026-09-03).
+   *
+   * These are the assertions UAT cannot make. A band edge, a severity level and an
+   * alignment between two series all look completely normal on screen while being wrong,
+   * and the sentence the screen prints — "7.2 deviations above the average" — is a number
+   * a client may act on.
+   */
+  describe('a forecast placed against the history', () => {
+    // The twelve months the approved forecast mockup seeds into step 3 (Big Bird Grass
+    // Seed, 890,000). Average 74,166.67, population deviation 9,090.59.
+    const HISTORY = [85000, 70000, 75000, 80000, 60000, 65000, 70000, 70000, 80000, 95000, 70000, 70000]
+    const AVERAGE = 74166.6667
+    const DEVIATION = 9090.5934
+
+    it('leaves the report untouched when no forecast is sent', () => {
+      // The Volatility Report never sends one, so its response shape must not change.
+      expect(computeVolatility({ sales: HISTORY, window: 12 }).forecast).toBeNull()
+    })
+
+    it('🔴 measures the bands from the ACTUAL months, never from the forecast', () => {
+      // The whole design. An optimistic forecast must not be able to widen its own normal
+      // range and then sit comfortably inside it.
+      const wild = HISTORY.slice()
+      wild[9] = 400000
+      const out = computeVolatility({ sales: HISTORY, window: 12, forecast: wild })
+
+      expect(out.average).toBeCloseTo(AVERAGE, 3)
+      expect(out.standardDeviation).toBeCloseTo(DEVIATION, 3)
+      // …and the wild month is duly reported as far out, rather than absorbed.
+      expect(out.forecast.months[9].band).toBe(3)
+    })
+
+    it('puts a month 7.2 deviations out beyond the third band, and quotes that figure', () => {
+      // The drawing's own example: January raised from 95,000 to 140,000.
+      const forecast = HISTORY.slice()
+      forecast[9] = 140000
+      const { forecast: read } = computeVolatility({ sales: HISTORY, window: 12, forecast })
+
+      expect(read.months[9].band).toBe(3)
+      expect(read.months[9].deviations).toBeCloseTo(7.2419, 3)
+      expect(read.beyondThird).toEqual([9])
+      expect(read.beyondSecond).toEqual([])
+      expect(read.worst.index).toBe(9)
+    })
+
+    it('separates the amber level from the red one at the third deviation', () => {
+      // 2.4 deviations up is amber; 3.5 is red. Getting these the wrong way round would
+      // put the milder wording on the worse month.
+      const forecast = HISTORY.slice()
+      forecast[1] = AVERAGE + 2.4 * DEVIATION
+      forecast[2] = AVERAGE + 3.5 * DEVIATION
+      // January's own 95,000 is 2.29 deviations out in this client's history, so it is
+      // levelled to the average here — otherwise the test would be asserting two things.
+      forecast[9] = AVERAGE
+      const { forecast: read } = computeVolatility({ sales: HISTORY, window: 12, forecast })
+
+      expect(read.beyondSecond).toEqual([1])
+      expect(read.beyondThird).toEqual([2])
+      // The furthest is the one the red band quotes, not simply the first.
+      expect(read.worst.index).toBe(2)
+    })
+
+    it('🔴 marks a month the advisor never touched, so seasonality is not read as a mistake', () => {
+      // Forecast month j pairs with the j-th of the most recent twelve actual months. April,
+      // August and September are outside the range in this client's own history; leaving
+      // them alone must not produce the same warning as typing a new figure.
+      const forecast = HISTORY.slice()
+      forecast[9] = 140000
+      const { forecast: read } = computeVolatility({ sales: HISTORY, window: 12, forecast })
+
+      expect(read.seasonal).toEqual([0, 4, 5])
+      expect(read.months[0].unchanged).toBe(true)
+      expect(read.months[9].unchanged).toBe(false)
+      expect(read.outsideCount).toBe(4)
+    })
+
+    it('pairs against the most recent twelve when a longer window is measured', () => {
+      // 24 months in hand, measured over 24 — the forecast still lines up with the last
+      // twelve, because that is where the forecast starts. Reading from the front of the
+      // window would compare next April with a month two years ago.
+      const older = new Array(12).fill(50000)
+      const { forecast: read } = computeVolatility({
+        sales: older.concat(HISTORY),
+        window: 24,
+        forecast: HISTORY.slice()
+      })
+
+      expect(read.months.every(m => m.unchanged)).toBe(true)
+    })
+
+    it('claims no month is out when the history never varied', () => {
+      // Zero deviation divides by zero. It must report nothing out rather than everything.
+      const flat = new Array(12).fill(5000)
+      const { forecast: read } = computeVolatility({ sales: flat, window: 12, forecast: new Array(12).fill(99999) })
+
+      expect(read.outsideCount).toBe(0)
+      expect(read.beyondThird).toEqual([])
+      expect(read.months[0].deviations).toBe(0)
+    })
+
+    it('treats an unreadable forecast cell as zero rather than poisoning the read', () => {
+      // An emptied input arrives as '' or null. One NaN would blank every verdict at once.
+      const forecast = HISTORY.slice()
+      forecast[3] = ''
+      const { forecast: read } = computeVolatility({ sales: HISTORY, window: 12, forecast })
+
+      expect(read.months[3].value).toBe(0)
+      expect(Number.isFinite(read.months[3].deviations)).toBe(true)
+    })
+  })
 })
