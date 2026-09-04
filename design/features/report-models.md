@@ -615,7 +615,25 @@ Standard +152% / Runout +122%** on cost, switching at 60/90/120 stock-turn days,
 pattern saying how much sells in each 30-day band. Pricing it all at the launch figure reads
 **6% high for a fast seller and 10% for a slow one** — the wrong percentages to be wrong by in
 a document a bank reads. The figures are seeded onto the screen and the advisor can overtype
-any month. Because revenue is then *cost × the ladder*, **real unit costs govern imported
+any month.
+
+> **The mentor owns the ladder, on the Imported Stock Prices tab** (Model Inputs, built
+> 2026-09-04; the tab's name is Mike's). Until then his six figures lived only in the data
+> file and were **restated as literals inside the intake screen** — two homes for one fact,
+> agreeing by luck: a change to the file would have priced a forecast one way while the
+> advisor's boxes still showed the other. The screen now takes the ladder from the file and
+> then asks the backend for the mentor's current one, so there is a single source at every
+> step. Mentor tier alone, per the default of 2026-08-24 — `server/utils/forecastSellDown.js`
+> walks the whole tier chain already, so a firm that one day prices differently costs one
+> line in `TAB_TIERS`. A restored forecast is never re-seeded: it keeps the figures it was
+> saved with. **What a tier may change is five figures and the demand shape**, not the whole
+> file — `runoutUpToDays` is deliberately not editable because the engine never reads it
+> (runout is the *else* branch, so everything past the standard boundary is runout whatever
+> that field says), and the shapes' own curves belong to slice 2's calculator. The validator
+> refuses a new-stock boundary set past the standard one, because that leaves the middle
+> rung of the ladder priced at nothing with nothing on screen to notice it by.
+
+Because revenue is then *cost × the ladder*, **real unit costs govern imported
 stock** and the mark-up governs local: recovering a known cost from revenue would be
 arithmetic run backwards to a worse number. Imported stock sold at home counts as a **local**
 sale, so it carries GST and collects on the local profile.

@@ -841,6 +841,39 @@ import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import VolatilityDial from '~/components/base/VolatilityDial.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 
+/**
+ * The mentor's price ladder as THIS SCREEN holds it — percentages, because every other rate
+ * on this form is a whole number and is divided on the way out.
+ *
+ * 🔴 IT TAKES THE FIGURES FROM THE DATA FILE RATHER THAN RESTATING THEM. Until 2026-09-04
+ * the six numbers were typed here as literals as well as living in
+ * `data/forecast-sell-down.json`, which the engine reads — two homes for one fact, agreeing
+ * only by luck. Change one and a forecast would price stock at the mentor's figure while
+ * this screen still showed the stale one.
+ *
+ * The rounding is not decoration: 1.85 x 100 is 185.00000000000003 in floating point, and
+ * that is what would have appeared in the advisor's box.
+ *
+ * @param {object} src - a `{ladder, defaultPattern}` shape: the shipped file, or the
+ *   resolved ladder the backend returned for this scope.
+ * @returns {object} the form's `overseas.sellDown` block.
+ */
+function sellDownForm (src) {
+  const base = SELL_DOWN.ladder
+  const l = (src && src.ladder) || base
+  const pct = (v, d) => Math.round((typeof v === 'number' ? v : d) * 10000) / 100
+  const day = (v, d) => (typeof v === 'number' ? v : d)
+  return {
+    newMarkup: pct(l.newMarkup, base.newMarkup),
+    standardMarkup: pct(l.standardMarkup, base.standardMarkup),
+    runoutMarkup: pct(l.runoutMarkup, base.runoutMarkup),
+    newUpToDays: day(l.newUpToDays, base.newUpToDays),
+    standardUpToDays: day(l.standardUpToDays, base.standardUpToDays),
+    runoutUpToDays: day(l.runoutUpToDays, base.runoutUpToDays),
+    pattern: (src && src.defaultPattern) || SELL_DOWN.defaultPattern
+  }
+}
+
 /** Every opening balance-sheet line the model takes, in the order the screen shows them. */
 const OPENING_KEYS = [
   'cashAtBank', 'bankOverdraft', 'accountsReceivable', 'inventory', 'prepayments',
@@ -1370,6 +1403,11 @@ export default {
     if (!this.form.startDate) { this.form.startDate = this.defaultStartDate() }
     // A restored session can open straight on step 3, so the read is asked for here too.
     if (this.phase === 'assume') { this.refreshVolatility() }
+    // The mentor's own price ladder, which they may have changed on the Imported Stock
+    // Prices tab since this build shipped (item 4.64). A RESTORED form is left alone: it
+    // already carries whatever the advisor set for this client, and re-seeding would
+    // overwrite a decision with a default.
+    if (!this.restore) { this.refreshSellDown() }
   },
 
   beforeDestroy () {
@@ -1472,18 +1510,12 @@ export default {
           dutyPct: 5,
           fxAllowancePct: 10,
           readyAfterMonths: 1,
-          // The ladder and the pattern are the mentor's content, seeded from
-          // data/forecast-sell-down.json and shown so the advisor can see what is being
-          // applied to their client's stock.
-          sellDown: {
-            newMarkup: 185,
-            standardMarkup: 152,
-            runoutMarkup: 122,
-            newUpToDays: 60,
-            standardUpToDays: 90,
-            runoutUpToDays: 120,
-            pattern: 'Steady Eddy'
-          },
+          // The ladder and the pattern are the mentor's content, taken from
+          // data/forecast-sell-down.json — never restated here — and shown so the advisor
+          // can see what is being applied to their client's stock. `mounted()` then asks
+          // the backend for the mentor's CURRENT ladder, which may have moved since this
+          // build. See `sellDownForm`.
+          sellDown: sellDownForm(SELL_DOWN),
           overseasSales: zeroes(),
           deliveryLagMonths: 2,
           overseasCollection: [0, 50, 50, 0, 0],
@@ -1917,6 +1949,36 @@ export default {
         this.volatilityTimer = null
         this.refreshVolatility()
       }, VOLATILITY_DEBOUNCE_MS)
+    },
+
+    /**
+     * Ask the backend for the price ladder this scope works to — the mentor's figures, with
+     * any tier below them applied (item 4.64).
+     *
+     * WHY IT IS READ RATHER THAN IMPORTED. The bundled `data/forecast-sell-down.json` is
+     * the ladder as it shipped. A mentor who changes it on their Imported Stock Prices tab
+     * changes what every new forecast should open on, and a screen that only ever read the
+     * bundled copy would go on offering the old prices until the next deploy.
+     *
+     * ⚠ IT IS SILENT ON FAILURE, AND THAT IS DELIBERATE. The shipped ladder is already on
+     * the form and is what every firm gets today, so a failed read costs the advisor
+     * nothing — where an error message would tell them about a screen they have never seen
+     * and cannot act on. Nothing here can leave the form in a half-applied state: the whole
+     * block is replaced or none of it is.
+     */
+    async refreshSellDown () {
+      try {
+        const res = await fetch('/api/report/sell-down', {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) { return }
+        const json = await res.json()
+        if (!json || !json.sellDown || !json.sellDown.ladder) { return }
+        this.form.overseas.sellDown = sellDownForm(json.sellDown)
+      } catch (e) {
+        // See the note above: the shipped ladder stands, and the advisor is not told about
+        // a manager's screen they cannot reach.
+      }
     },
 
     /**

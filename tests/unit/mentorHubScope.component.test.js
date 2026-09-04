@@ -256,8 +256,13 @@ describe('the two tiers are recognisably the same screen', () => {
   // comes before it (Mike, 2026-09-03, item 4.61b — the bands the forecast's two-year
   // trend read draws, mentor-only per the default of 2026-08-24). The old single list
   // conflated "mentor-only" with "at the end of the menu", which was true until today.
+  //
+  // ⚠ AMENDED 2026-09-04: `Imported Stock Prices` joins it, for the same structural reason.
+  // It is the price ladder imported stock sells down at as it ages (Mike, 2026-09-04, item
+  // 4.64 — the tab's name is his), and it sits beside `Forecast Trend Thresholds` under
+  // "Model Inputs", not in the tail. Mentor-only per the same default of 2026-08-24.
   const MENTOR_ONLY_TAIL = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab', 'templateLibrary.tab']
-  const MENTOR_ONLY = ['Forecast Trend Thresholds'].concat(MENTOR_ONLY_TAIL)
+  const MENTOR_ONLY = ['Forecast Trend Thresholds', 'Imported Stock Prices'].concat(MENTOR_ONLY_TAIL)
 
   /**
    * A selector that matches nothing makes every comparison below succeed against an

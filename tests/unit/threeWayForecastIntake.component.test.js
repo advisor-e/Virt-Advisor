@@ -594,7 +594,11 @@ describe('the volatility read', () => {
     w.vm.form.sales = new Array(12).fill(450000)
     w.vm.refreshVolatility()
 
-    const body = JSON.parse(global.fetch.mock.calls[0][1].body)
+    // Found BY URL, not by position. The screen also reads the mentor's sell-down ladder on
+    // mount (item 4.64), so the volatility POST is no longer the first call — and a screen
+    // that grows another read must not be able to break an assertion about this one.
+    const call = global.fetch.mock.calls.filter(c => c[0] === '/api/report/volatility')[0]
+    const body = JSON.parse(call[1].body)
     expect(body.sales).toHaveLength(24)
     expect(body.forecast).toHaveLength(12)
     expect(body.sales).not.toContain(450000)

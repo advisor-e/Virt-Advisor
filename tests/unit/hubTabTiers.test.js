@@ -92,8 +92,13 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  *   default-is-mentor-alone ruling of 2026-08-24 and stated in `TAB_TIERS`; the resolver
  *   and routes already carry every tier, so a firm that one day needs its own numbers
  *   costs one line there.
+ * - `sellDownLadder` — Mike, 2026-09-04 (item 4.64): the price ladder imported stock sells
+ *   down at as it ages, and the tab's name is his. It is the other half of the overseas
+ *   section he approved and built the same day — his figures were driving a client's
+ *   revenue from a data file no screen rendered, which the hub-page rule does not allow.
+ *   ⚠ MENTOR ALONE, same default and same statement in `TAB_TIERS` as `trendThresholds`.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds', 'sellDownLadder']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {

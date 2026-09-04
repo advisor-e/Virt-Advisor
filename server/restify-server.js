@@ -115,6 +115,7 @@ const reportRoute = require('./routes/report')
 const currencyRoute = require('./routes/currency')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
 const trendThresholdsRoute = require('./routes/forecastTrendThresholds')
+const sellDownRoute = require('./routes/forecastSellDown')
 const aiPromptsRoute = require('./routes/aiPrompts')
 const promptCheckRoute = require('./routes/promptCheck')
 const promptContributionsRoute = require('./routes/promptContributions')
@@ -233,6 +234,10 @@ server.get('/api/report/property-tax-rules', firmAuth, propertyTaxRulesRoute.get
 // 4.61b). Same asymmetry and same reason as the tax rules above: every advisor building a
 // forecast needs to READ them, and the write is manager-only on /api/firm-manager below.
 server.get('/api/report/trend-thresholds', firmAuth, trendThresholdsRoute.get)
+// The prices imported stock sells down at as it ages (item 4.64). Same asymmetry and same
+// reason again: the advisor's step 3 seeds its ladder from this, so the read must never
+// require a manager role, and the write is manager-only on /api/firm-manager below.
+server.get('/api/report/sell-down', firmAuth, sellDownRoute.get)
 // /api/firm/advisors and /api/firm/insights were removed 2026-07-29 with the
 // FirmDashboard mock they existed for. Both were stubs returning empty data, and
 // proposed a three-table schema (advisors/courses/course_sessions) that was never
@@ -346,6 +351,13 @@ server.get('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRout
 server.post('/api/firm-manager/trend-thresholds', ...fmGuard, trendThresholdsRoute.save)
 server.get('/api/firm-manager/trend-thresholds/history', ...fmGuard, trendThresholdsRoute.history)
 server.post('/api/firm-manager/trend-thresholds/restore', ...fmGuard, trendThresholdsRoute.restore)
+// The sell-down ladder (item 4.64). Same shape, same guard and same reasoning as the trend
+// thresholds directly above — one set of routes for every tier, scoped to `req.firmId` from
+// the verified JWT, with only the MENTOR's screen switched on today (TAB_TIERS).
+server.get('/api/firm-manager/sell-down', ...fmGuard, sellDownRoute.getForManager)
+server.post('/api/firm-manager/sell-down', ...fmGuard, sellDownRoute.save)
+server.get('/api/firm-manager/sell-down/history', ...fmGuard, sellDownRoute.history)
+server.post('/api/firm-manager/sell-down/restore', ...fmGuard, sellDownRoute.restore)
 // The instructions the AI is given when it builds a model, and the three settings a
 // manager may change on them (Mike, 2026-08-21). Same shape and same guard as the tax
 // rules above: one set of routes for every tier, scoped to `req.firmId` from the verified
