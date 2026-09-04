@@ -171,12 +171,18 @@ async function saveFirmConfig (firmId, configKey, configJson, savedBy) {
     )
     const pruneCount = rowCount - FRAMEWORK.maxVersionHistory
     if (pruneCount > 0) {
+      // 🔴 LIMIT IS BOUND AS A STRING, DELIBERATELY. mysql2's execute() sends a JS number
+      // as a DOUBLE in the binary protocol, and MySQL 8.0.22+ refuses a non-integer
+      // LIMIT in a prepared statement — ER_WRONG_ARGUMENTS, "Incorrect arguments to
+      // mysqld_stmt_execute". Found live 2026-09-04 on MySQL 8.4: the ELEVENTH save of
+      // any key hit this line, the transaction rolled back, and the route returned 500.
+      // A string is coerced to an integer server-side and works on every version.
       await conn.execute(
         `DELETE FROM firm_framework_versions
          WHERE firm_id = ? AND config_key = ? AND is_active = 0
          ORDER BY version ASC
          LIMIT ?`,
-        [firmId, configKey, pruneCount]
+        [firmId, configKey, String(pruneCount)]
       )
     }
 
@@ -229,7 +235,9 @@ async function getVersionHistory (firmId, configKey) {
      WHERE firm_id = ? AND config_key = ?
      ORDER BY version DESC
      LIMIT ?`,
-    [firmId, configKey, FRAMEWORK.maxVersionHistory]
+    // A string for the same reason as the prune in saveFirmConfig: a number here fails
+    // on MySQL 8.0.22+, which made every version-history screen fail to load.
+    [firmId, configKey, String(FRAMEWORK.maxVersionHistory)]
   )
   return rows
 }

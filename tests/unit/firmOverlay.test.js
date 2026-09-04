@@ -147,6 +147,18 @@ describe('getVersionHistory', () => {
     expect(params).toContain('firm-xyz')
     expect(params).toContain('capability-tiers')
   })
+
+  test('🔴 binds the LIMIT as a string — a number is refused by MySQL 8.0.22+', async () => {
+    // mysql2 sends a JS number as a DOUBLE; a prepared LIMIT must be an integer, so the
+    // server answers ER_WRONG_ARGUMENTS and the history never loads. Found live 2026-09-04
+    // on MySQL 8.4. The mocked driver cannot see the server refuse, so the type is pinned.
+    db.execute.mockResolvedValue([[]])
+    await getVersionHistory('firm-xyz', 'capability-tiers')
+    const [sql, params] = db.execute.mock.calls[0]
+    expect(sql).toContain('LIMIT ?')
+    expect(typeof params[params.length - 1]).toBe('string')
+    expect(Number(params[params.length - 1])).toBe(10)
+  })
 })
 
 // ── saveFirmConfig (DB-mocked with transaction) ────────────────────────────────
@@ -232,7 +244,9 @@ describe('saveFirmConfig', () => {
     const deleteCall = mockConn.execute.mock.calls[4]
     expect(deleteCall[0]).toContain('DELETE')
     expect(deleteCall[0]).toContain('is_active = 0')
-    expect(deleteCall[1]).toEqual(['firm-1', 'key', 2]) // exactly 2, not 39
+    // Exactly 2, not 39 — and bound as a STRING: MySQL 8.0.22+ refuses a numeric
+    // prepared LIMIT (ER_WRONG_ARGUMENTS), which failed every eleventh save live.
+    expect(deleteCall[1]).toEqual(['firm-1', 'key', '2'])
   })
 
   test('never prunes when row count is within the limit, even at a huge version number', async () => {
