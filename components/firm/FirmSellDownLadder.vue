@@ -59,6 +59,38 @@
       p.is-size-7.has-text-danger.mt-2(v-if="deadRung")
         | Nothing is priced at the #[b {{ deadRung }}] rung. Every band falls either side of it.
 
+    //- The supplier's terms. Editable from 2026-09-04 on Mike's instruction: the forecast
+    //- screen carried a "From your platform settings" badge against these figures while
+    //- they were hardcoded in the intake component and no screen could change them.
+    .box
+      p.has-text-weight-semibold.mb-1 The supplier's terms
+      p.is-size-7.has-text-grey.mb-3
+        | These turn an #[b order date] into a landing date, and they decide which month
+        |  every deposit and balance falls in. Interest cover is what the supplier charges
+        |  for waiting to be paid; it is expensed in overheads, not against gross margin.
+
+      .fsd-row.fsd-head
+        span Term
+        span.has-text-right Figure
+        span
+        span
+        span
+
+      .fsd-row(v-for="t in termRows" :key="t.key")
+        .fsd-label
+          label.label.is-small {{ t.label }}
+          p.is-size-7.has-text-grey {{ t.help }}
+        b-input(v-model="form.terms[t.key]" :type="'number'" :step="t.step" size="is-small")
+        span.is-size-7.has-text-grey {{ t.unit }}
+        span
+        .fsd-source
+          b-tag(v-if="isOwnTerm(t.key)" type="is-info is-light" size="is-small") set here
+          b-tag(v-else type="is-light" size="is-small") inherited
+
+      p.is-size-7.has-text-grey.mt-2
+        | A container ordered today lands after its manufacture days plus its shipping days,
+        |  and is on the shelf after the prep days on top of that.
+
     .box
       p.has-text-weight-semibold.mb-1 How fast it sells
       p.is-size-7.has-text-grey.mb-3
@@ -164,6 +196,15 @@ export default {
        */
       form: {
         ladder: { newMarkup: '', standardMarkup: '', runoutMarkup: '', newUpToDays: '', standardUpToDays: '' },
+        terms: {
+          manufactureDays: '',
+          balanceDueDays: '',
+          prepDays: '',
+          interestCoverPct: '',
+          seaDays: '',
+          airDays: '',
+          expressDays: ''
+        },
         defaultPattern: ''
       }
     }
@@ -189,6 +230,22 @@ export default {
         { key: 'new', label: 'New stock', markupKey: 'newMarkup', dayKey: 'newUpToDays', help: 'The launch price, while the stock is still new.' },
         { key: 'standard', label: 'Standard retail', markupKey: 'standardMarkup', dayKey: 'standardUpToDays', help: 'The everyday price once the launch window has passed.' },
         { key: 'runout', label: 'Runout', markupKey: 'runoutMarkup', dayKey: null, help: 'What is left is cleared at this price. It has no boundary of its own.' }
+      ]
+    },
+
+    /**
+     * The supplier's terms, in the order they happen to a container: it is made, it is
+     * shipped, the balance falls due, it is prepared for sale.
+     */
+    termRows () {
+      return [
+        { key: 'manufactureDays', label: 'Manufacture days', step: '1', unit: 'days', help: 'From placing the order to the goods leaving the supplier.' },
+        { key: 'seaDays', label: 'Shipping — sea', step: '1', unit: 'days', help: 'Added to the manufacture days for a container sent by sea.' },
+        { key: 'airDays', label: 'Shipping — air', step: '1', unit: 'days', help: 'The same, for air freight.' },
+        { key: 'expressDays', label: 'Shipping — express', step: '1', unit: 'days', help: 'The same, for an express service.' },
+        { key: 'balanceDueDays', label: 'Balance due, days from order', step: '1', unit: 'days', help: 'When the rest of the invoice falls due — often before the goods land.' },
+        { key: 'prepDays', label: 'Pre-retail prep days', step: '1', unit: 'days', help: 'From landing to being on the shelf. It is why stock is usually sellable the month after it arrives.' },
+        { key: 'interestCoverPct', label: 'Interest cover', step: 'any', unit: '% a year', help: 'What the supplier charges on the deferred balance, pro-rated over a 360-day year.' }
       ]
     },
 
@@ -280,7 +337,27 @@ export default {
         newUpToDays: whole(ladder.newUpToDays),
         standardUpToDays: whole(ladder.standardUpToDays)
       })
+      const terms = sellDown.terms || {}
+      this.$set(this.form, 'terms', {
+        manufactureDays: whole(terms.manufactureDays),
+        balanceDueDays: whole(terms.balanceDueDays),
+        prepDays: whole(terms.prepDays),
+        // Stored as a decimal, like the markups, and shown as a percentage.
+        interestCoverPct: pct(terms.interestCoverPct),
+        seaDays: whole(terms.seaDays),
+        airDays: whole(terms.airDays),
+        expressDays: whole(terms.expressDays)
+      })
       this.$set(this.form, 'defaultPattern', sellDown.defaultPattern || '')
+    },
+
+    /**
+     * Is this supplier term one THIS level changed?
+     * @param {string} key - a term key
+     * @returns {boolean}
+     */
+    isOwnTerm (key) {
+      return Boolean(this.own.terms && Object.prototype.hasOwnProperty.call(this.own.terms, key))
     },
 
     /**
@@ -332,6 +409,16 @@ export default {
           runoutMarkup: num(this.form.ladder.runoutMarkup) / 100,
           newUpToDays: num(this.form.ladder.newUpToDays),
           standardUpToDays: num(this.form.ladder.standardUpToDays)
+        },
+        terms: {
+          manufactureDays: num(this.form.terms.manufactureDays),
+          balanceDueDays: num(this.form.terms.balanceDueDays),
+          prepDays: num(this.form.terms.prepDays),
+          // Back to a decimal — the units the calculator charges interest in.
+          interestCoverPct: num(this.form.terms.interestCoverPct) / 100,
+          seaDays: num(this.form.terms.seaDays),
+          airDays: num(this.form.terms.airDays),
+          expressDays: num(this.form.terms.expressDays)
         },
         defaultPattern: this.form.defaultPattern
       }

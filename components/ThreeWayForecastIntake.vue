@@ -630,16 +630,32 @@
                         span {{ $t('report.threeWayForecast.assume.overseas.newPrice') }}
                         provenance-badge(
                           source="seeded"
+                          :file-label="$t('report.threeWayForecast.confirm.fromFile')"
+                          :entered-label="$t('report.threeWayForecast.confirm.entered')"
                           :seeded-label="$t('report.threeWayForecast.assume.overseas.fromMentor')"
                           size="sm")
                       b-input(v-model.number="form.overseas.sellDown.newMarkup" type="number" step="any" size="is-small")
                     .field
                       .fieldlab
                         span {{ $t('report.threeWayForecast.assume.overseas.standardPrice') }}
+                        //- All three rungs come from the same tab, so all three say so. The
+                        //- drawing tags each of them; only the first was built.
+                        provenance-badge(
+                          source="seeded"
+                          :file-label="$t('report.threeWayForecast.confirm.fromFile')"
+                          :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                          :seeded-label="$t('report.threeWayForecast.assume.overseas.fromMentor')"
+                          size="sm")
                       b-input(v-model.number="form.overseas.sellDown.standardMarkup" type="number" step="any" size="is-small")
                     .field
                       .fieldlab
                         span {{ $t('report.threeWayForecast.assume.overseas.runoutPrice') }}
+                        provenance-badge(
+                          source="seeded"
+                          :file-label="$t('report.threeWayForecast.confirm.fromFile')"
+                          :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                          :seeded-label="$t('report.threeWayForecast.assume.overseas.fromMentor')"
+                          size="sm")
                       b-input(v-model.number="form.overseas.sellDown.runoutMarkup" type="number" step="any" size="is-small")
                   div
                     .field
@@ -735,16 +751,22 @@
                     span {{ $t('report.threeWayForecast.assume.shipments.heading') }}
                   .tw-foot(style="margin-bottom:10px") {{ $t('report.threeWayForecast.assume.shipments.intro') }}
 
-                  .termhead {{ $t('report.threeWayForecast.assume.shipments.termsHeading') }}
+                  //- The badge belongs to the WHOLE terms block, not to its first field. It
+                  //- was on `manufactureDays` alone, where it both implied the other three
+                  //- were the advisor's and — in a four-column grid — overflowed its cell
+                  //- onto the next label. All seven come from the mentor's tab together.
+                  .fieldlab.shipterms-head
+                    span.termhead {{ $t('report.threeWayForecast.assume.shipments.termsHeading') }}
+                    provenance-badge(
+                      source="seeded"
+                      :file-label="$t('report.threeWayForecast.confirm.fromFile')"
+                      :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                      :seeded-label="$t('report.threeWayForecast.assume.overseas.fromMentor')"
+                      size="sm")
                   .shipterms
                     .field
                       .fieldlab
                         span {{ $t('report.threeWayForecast.assume.shipments.manufactureDays') }}
-                        provenance-badge(
-                          source="seeded"
-                          :entered-label="$t('report.threeWayForecast.confirm.entered')"
-                          :seeded-label="$t('report.threeWayForecast.assume.overseas.fromMentor')"
-                          size="sm")
                       b-input(v-model.number="form.overseas.shipmentTerms.manufactureDays" type="number" step="1" size="is-small")
                     .field
                       .fieldlab
@@ -968,6 +990,36 @@ function sellDownForm (src) {
     standardUpToDays: day(l.standardUpToDays, base.standardUpToDays),
     runoutUpToDays: day(l.runoutUpToDays, base.runoutUpToDays),
     pattern: (src && src.defaultPattern) || SELL_DOWN.defaultPattern
+  }
+}
+
+/**
+ * The supplier's terms as the form holds them — the mentor's figures, or the shipped ones.
+ *
+ * 🔴 THESE USED TO BE HARDCODED HERE, under a badge on screen saying they came from platform
+ * settings. Nothing could edit them and no screen held them, so the badge was untrue. Made
+ * editable on Mike's instruction of 2026-09-04; they now live in `data/forecast-sell-down.json`
+ * beside the ladder and reach this form the same way it does.
+ *
+ * Days pass through; interest cover is stored as a decimal and shown as a percentage, the
+ * same convention as the markups and as every other rate on this form.
+ *
+ * @param {object} src - the resolved sell-down block the backend returned, or the shipped file.
+ * @returns {object} the form's `overseas.shipmentTerms` block.
+ */
+function shipmentTermsForm (src) {
+  const base = SELL_DOWN.terms
+  const t = (src && src.terms) || base
+  const day = (v, d) => (typeof v === 'number' ? v : d)
+  const pct = (v, d) => Math.round((typeof v === 'number' ? v : d) * 10000) / 100
+  return {
+    manufactureDays: day(t.manufactureDays, base.manufactureDays),
+    balanceDueDays: day(t.balanceDueDays, base.balanceDueDays),
+    prepDays: day(t.prepDays, base.prepDays),
+    interestCoverPct: pct(t.interestCoverPct, base.interestCoverPct),
+    seaDays: day(t.seaDays, base.seaDays),
+    airDays: day(t.airDays, base.airDays),
+    expressDays: day(t.expressDays, base.expressDays)
   }
 }
 
@@ -1739,17 +1791,9 @@ export default {
           overseasMarkup: null,
           // The shipment calculator (item 4.64 slice 2). Empty by default, so a forecast
           // that never opens this panel is byte-identical to one built before it existed.
-          // The terms are the workbook's own, held as whole numbers like every other rate
-          // on this form and divided on the way out.
-          shipmentTerms: {
-            manufactureDays: 120,
-            balanceDueDays: 91,
-            prepDays: 9,
-            interestCoverPct: 6,
-            seaDays: 25,
-            airDays: 20,
-            expressDays: 15
-          },
+          // The terms are the shipped file's, replaced by the mentor's own the moment
+          // `refreshSellDown` answers — never restated here, exactly as the ladder is not.
+          shipmentTerms: shipmentTermsForm(SELL_DOWN),
           shipments: []
         },
         // Buying and selling capital assets. A ROW LIST, not the engine's 6 x 12 grid:
@@ -2387,6 +2431,8 @@ export default {
         const json = await res.json()
         if (!json || !json.sellDown || !json.sellDown.ladder) { return }
         this.form.overseas.sellDown = sellDownForm(json.sellDown)
+        // The supplier terms travel with the ladder — one tab sets both, one read seeds both.
+        this.form.overseas.shipmentTerms = shipmentTermsForm(json.sellDown)
       } catch (e) {
         // See the note above: the shipped ladder stands, and the advisor is not told about
         // a manager's screen they cannot reach.
@@ -2728,6 +2774,10 @@ export default {
 /* The revenue block's heading row. `.fieldlab` already lays the label and its badge out;
    this only gives the block the breathing space the sections around it have. */
 .orev-head { margin-top: 16px; }
+/* The supplier-terms heading and its badge on one row. `.fieldlab` already spaces them
+   apart; this only stops the heading's own bottom margin doubling up inside the flex row. */
+.shipterms-head { align-items: baseline; }
+.shipterms-head .termhead { margin-bottom: 0; }
 .mgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 @media (max-width: 560px) { .mgrid { grid-template-columns: repeat(2, 1fr); } }
 .m { display: flex; align-items: center; gap: 6px; }
