@@ -179,7 +179,10 @@ function landingsOf (O) {
         landsInMonth: m,
         depositPct: Math.min(1, Math.max(0, pick(L.depositPct, O.depositPct))),
         depositMonth: Math.round(pick(L.depositMonth, m - O.depositLeadMonths)),
-        balance: [{ month: Math.round(pick(L.balanceMonth, m)), share: 1 }]
+        balance: [{ month: Math.round(pick(L.balanceMonth, m)), share: 1 }],
+        // Interest cover, computed by the calculator over the real days the supplier waits.
+        // Only a dated shipment can carry one — see `landingsOf`'s uniform branch.
+        interest: Math.max(0, pick(L.interest, 0))
       })
     }
     return out
@@ -197,7 +200,13 @@ function landingsOf (O) {
       landsInMonth: m,
       depositPct: O.depositPct,
       depositMonth: m - O.depositLeadMonths,
-      balance
+      balance,
+      // 🔴 NO INTEREST COVER WITHOUT A CALCULATOR, and that is Mike's ruling rather than an
+      // omission. Twelve typed landing figures carry no order date and no credit period, so
+      // there is no number of days to charge interest over. Inventing one is exactly the
+      // band-mapping guesswork the "dates, not bands" ruling exists to stop — and it would
+      // move every existing forecast, which the golden guard would rightly refuse.
+      interest: 0
     })
   }
   return out
@@ -776,6 +785,10 @@ function overseasSchedule (O, gst) {
     // something has to hold the difference in between.
     prepaymentClosing: zeroes(),
     balanceOwingClosing: zeroes(),
+    // What the supplier charges for waiting to be paid, in the month the balance is settled.
+    // Inside `supplierBalance` for cash; charged to overheads in the P&L. Item 4.64 slice 2,
+    // Mike's instruction of 2026-09-04.
+    supplierInterest: zeroes(),
     // What the twelve months cannot show, reported rather than dropped.
     depositsBeforeStart: [],
     revenueBeyondYear: 0
@@ -811,13 +824,33 @@ function overseasSchedule (O, gst) {
 
     // The balance, on its own schedule. It is owed from the moment the goods land,
     // whenever it is actually settled.
+    //
+    // ⚠ INTEREST COVER RIDES OUT WITH IT AS CASH, BUT IT IS NOT PART OF THE LIABILITY.
+    // His sheet pays balance + interest + currency as ONE payment, and the forecast already
+    // folds the exchange allowance into this line the same way — so the cash row carries it.
+    // What is owed for the STOCK is the balance alone, and the interest is expensed in the
+    // month it is settled, never accrued before it.
+    //
+    // 🔴 THE FIRST ATTEMPT PUT THE INTEREST INTO `owingAdded` TOO, AND THE BALANCE-SHEET
+    // TEST CAUGHT IT — every month out by exactly the interest. Recognising a liability at
+    // the landing and the expense at the payment leaves the two in different months, and on
+    // these very terms the balance is settled BEFORE the goods land (91 days against 145),
+    // so it was not even a short window. Cash down by balance + interest, liability down by
+    // the balance, equity down by the interest: that articulates, and nothing else does.
+    //
+    // 🔴 IT IS EXPENSED IN OVERHEADS, NOT IN DIRECT COSTS — Mike's ruling of 2026-09-04.
+    // Interest cover is what a supplier charges for waiting to be paid, not a cost of
+    // getting goods here, and putting it above the gross margin would understate the margin
+    // on every container. `supplierInterest` is what the P&L charges.
     const balance = landed * (1 - L.depositPct) * fx
     owingAdded[m] += balance
     for (let j = 0; j < L.balance.length; j++) {
       const t = L.balance[j].month
       if (t >= 0 && t < MONTHS) {
-        out.supplierBalance[t] += balance * L.balance[j].share
-        owingPaid[t] += balance * L.balance[j].share
+        const share = L.balance[j].share
+        out.supplierBalance[t] += (balance + L.interest) * share
+        out.supplierInterest[t] += L.interest * share
+        owingPaid[t] += balance * share
       }
     }
 
@@ -1216,7 +1249,11 @@ function computeThreeWayForecast (rawInputs, options) {
 
     let oh = 0
     for (let k = 0; k < OVERHEAD_KEYS.length; k++) { oh += overhead[OVERHEAD_KEYS[k]][m] }
-    totalOverheads[m] = oh + depreciationCharged[m] + overdraftInterest[m] + loanInterest[m]
+    // Supplier interest cover joins the other two interest charges rather than the direct
+    // costs above the gross margin — Mike's ruling, 2026-09-04. It is what a supplier
+    // charges for waiting to be paid, not a cost of getting the goods here.
+    totalOverheads[m] = oh + depreciationCharged[m] + overdraftInterest[m] + loanInterest[m] +
+      OS.supplierInterest[m]
     operatingSurplus[m] = grossSurplus[m] - totalOverheads[m]
 
     // R10: a gain or loss on sale is other income in the month of the sale — not spread,
@@ -1539,6 +1576,7 @@ function computeThreeWayForecast (rawInputs, options) {
         duty: OS.duty,
         borderGst: OS.borderGst,
         supplierBalance: OS.supplierBalance,
+        supplierInterest: OS.supplierInterest,
         fxOnPurchases: OS.fxOnPurchases,
         importedRevenue: OS.importedRevenue,
         importedCostOfSales: OS.importedCostOfSales,

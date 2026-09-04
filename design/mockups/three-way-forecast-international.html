@@ -650,13 +650,45 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
                   <div class="fieldlab"><span>Shipping days</span></div>
                   <select><option>Sea 25 &middot; Air 20 &middot; Express 15</option></select>
                 </div>
+                <div>
+                  <div class="fieldlab"><span>Interest cover</span></div>
+                  <input value="6%">
+                </div>
               </div>
               <p class="tw-foot" style="margin:-4px 0 14px">
-                All four are Mike's own, out of <i>Import &amp; Retail.xlsx</i> &mdash; manufacture 120,
-                balance due 91, prep 9, and the three shipping speeds. They are the numbers that turn
-                an order date into a landing date, which is why they are entered once at the top
-                rather than typed again on every row.
+                All five are Mike's own, out of <i>Import &amp; Retail.xlsx</i> &mdash; manufacture 120,
+                balance due 91, prep 9, the three shipping speeds, and interest cover 6%. They are the
+                numbers that turn an order date into a landing date, which is why they are entered once
+                at the top rather than typed again on every row.
               </p>
+
+              <div class="note-why" style="margin-top:0;margin-bottom:14px">
+                <b>&#9989; INTEREST COVER &mdash; ADDED 2026-09-04 ON MIKE'S INSTRUCTION</b>
+                (<em>&ldquo;can you fix the 6% interest issue&rdquo;</em>), after the build reported it
+                as a gap rather than inventing a charge he had not asked for.
+                <br><br>
+                <b>What his sheet does, and the forecast did not.</b> Two charges are added to the
+                deferred balance before it is paid, both pro-rated over a <b>360-day</b> year:
+                January's container carries a balance of <b>43,057.20</b>, plus interest cover
+                43,057.20 &times; 6% &times; 91/360 = <b>653.03</b>, plus currency
+                43,057.20 &times; 10% &times; 91/360 = <b>1,088.39</b>, giving his own
+                <b>44,798.62</b>. The currency half was already modelled as the exchange allowance;
+                the 6% was modelled nowhere. On the two rows below it is <b>910</b> &mdash; 546 and
+                364.
+                <br><br>
+                <b>It is NOT a direct cost, and that was the decision.</b> Freight, duty and the
+                exchange movement sit above the gross margin because they are the cost of getting
+                goods here. Interest cover is what the supplier charges for waiting to be paid, so it
+                goes where the forecast already puts <b>overdraft and loan interest</b> &mdash; in
+                overheads, below the margin. Putting it with freight and duty would quietly understate
+                gross margin on every container, which is one of the first numbers an advisor reads.
+                <br><br>
+                <b>It applies only where the calculator is in use.</b> A forecast that types twelve
+                landing figures by hand has no order date and no credit period, so there is nothing to
+                charge interest over; inventing a day count there is the guesswork the
+                &ldquo;dates, not bands&rdquo; ruling exists to stop. It is <b>paid with the
+                balance</b>, as one payment, exactly as his sheet pays it.
+              </div>
 
               <div class="shiprow head">
                 <span>Description</span><span>Cost</span><span>Ordered</span><span>Deposit</span>
@@ -667,14 +699,14 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
                 <input value="2 May"><input value="60%">
                 <select><option>Sea</option></select>
                 <div class="shipderived">Lands <b>24 Sep</b>
-                  <small>deposit May &middot; balance 1 Aug &middot; sellable 3 Oct</small></div>
+                  <small>deposit May &middot; balance 1 Aug + 546 interest &middot; sellable 3 Oct</small></div>
               </div>
               <div class="shiprow">
                 <input value="Container 2 &mdash; 14 lines"><input value="60,000">
                 <input value="20 May"><input value="60%">
                 <select><option>Sea</option></select>
                 <div class="shipderived">Lands <b>12 Oct</b>
-                  <small>deposit May &middot; balance 19 Aug &middot; sellable 21 Oct</small></div>
+                  <small>deposit May &middot; balance 19 Aug + 364 interest &middot; sellable 21 Oct</small></div>
               </div>
 
               <div class="note-why" style="margin-top:12px">
@@ -936,7 +968,7 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
   <div class="stepmark">Ruled &mdash; nothing on this drawing is open</div>
 
   <div class="q" style="border-left-color:var(--rs-good)">
-    <h2>All seven settled by Mike on 2026-09-04, one at a time</h2>
+    <h2>All eight settled by Mike on 2026-09-04, one at a time</h2>
     <ol>
       <li>
         <b>The labels are his now.</b> &ldquo;This business buys or sells overseas&rdquo;,
@@ -990,6 +1022,15 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
         days apart and then replaced them with one average &mdash; the same averaging the
         &ldquo;dates, not bands&rdquo; ruling exists to stop.</span>
       </li>
+      <li>
+        <b>Interest cover is modelled, and it goes with the OTHER INTEREST rather than into
+        direct costs.</b> His sheet charges 6% on the deferred balance over 91/360; the forecast
+        charged nothing. <span class="from">His instruction, 2026-09-04: &ldquo;can you fix the 6%
+        interest issue&rdquo;. The build had reported it as a gap rather than inventing a charge.
+        Recommended into overheads beside overdraft and loan interest and chosen: it is what the
+        supplier charges for waiting to be paid, not a cost of getting goods here, and putting it
+        with freight and duty would understate gross margin on every container.</span>
+      </li>
     </ol>
   </div>
 
@@ -1000,11 +1041,14 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
     with the tick off and both overseas series empty, all 3,385 year-one golden cells are unmoved
     and the three statements byte-identical, proved before the feature existed.
     <br><br>
-    <b>Thirteen decisions are ruled and nothing on this page is open.</b> The eleven of 2026-09-04
-    stand, and two more were taken the same day as slice 2 was started: the <b>refrigerated
-    surcharge</b> (the workbook's stated rule wins over its four odd figures), and <b>the calculator
+    <b>Fourteen decisions are ruled and nothing on this page is open.</b> The eleven of 2026-09-04
+    stand, and three more were taken the same day as slice 2 was started: the <b>refrigerated
+    surcharge</b> (the workbook's stated rule wins over its four odd figures), <b>the calculator
     writes all three series</b> &mdash; deposits, balances and landings, each from its own real date,
-    rather than writing only the landings and letting one average lead replace them.
+    rather than writing only the landings and letting one average lead replace them, and
+    <b>interest cover is modelled, in overheads with the other interest</b> rather than in direct
+    costs. The last of the three came from Mike after the build REPORTED the 6% as a gap instead of
+    quietly inventing a charge, which is the outcome that rule exists for.
     <br><br>
     <b>The panel above was CORRECTED before anything was built from it</b>, and the correction is
     recorded on the panel itself rather than here.</div>

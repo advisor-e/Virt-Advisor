@@ -654,12 +654,33 @@ any month.
 > uniform profile said October and November: two and three months earlier, on a document
 > whose whole purpose is showing when money is needed.
 >
-> ⚠ **ONE THING IN THE WORKBOOK IS NOT MODELLED AND IT IS NOT AN OVERSIGHT.** His sheet adds
-> **6% interest cover** to the deferred balance, pro-rated over 91/360 — 43,057.20 becomes
-> 44,798.62. The 10% currency movement beside it *is* modelled (the forecast's own exchange
-> allowance). There is no line for interest cover on the approved screen and no ruling asking
-> for one, so it is **reported rather than invented**; a test in
-> `importShipmentModel.test.js` states the gap so it cannot be forgotten.
+> **Interest cover is modelled, and it is charged with the other interest.** His sheet adds
+> two things to the deferred balance, both pro-rated over a **360-day** year: 6% interest
+> cover and a 10% currency movement. 43,057.20 becomes **44,798.62** — his own figure, and
+> the test reproduces it. The currency half is the forecast's exchange allowance; the 6% was
+> modelled nowhere until Mike's instruction of 2026-09-04 (*"can you fix the 6% interest
+> issue"*), given after the build **reported** it as a gap rather than inventing a charge.
+> **The 360-day year is not a rounding choice** — on 365 the currency charge is 1,073.48 and
+> the workbook stops agreeing.
+>
+> 🔴 **It goes in OVERHEADS with the overdraft and loan interest, never in direct costs.**
+> Freight, duty and the exchange movement sit above the gross margin because they are the
+> cost of getting goods here; interest cover is what the supplier charges for waiting to be
+> paid. In direct costs it would understate the margin on every container — one of the first
+> figures an advisor reads. A test asserts the direct costs are exactly the other three.
+>
+> ⚠ **The first attempt broke the balance sheet and a test caught it, not an eyeball.** It
+> accrued the interest into the supplier liability at the landing while expensing it at the
+> payment, leaving every month out by exactly the interest — and on these terms the balance
+> is settled *before* the goods land (91 days against 145), so it was not even a short
+> window. It is now expensed and paid in the same month and never accrued: cash down by
+> balance + interest, liability down by the balance, equity down by the interest.
+> **This is the second time on this feature that a balance-check caught what nothing else
+> would have.**
+>
+> **Interest cover applies only where the calculator is in use.** Twelve typed landing
+> figures carry no order date and no credit period, so there is no span to charge it over;
+> inventing one is the guesswork the *dates, not bands* ruling exists to stop.
 >
 > **Not yet built: the screen.** The shipment table on the step-3 panel is drawn and ruled,
 > not wired.

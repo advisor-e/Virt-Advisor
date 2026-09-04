@@ -62,8 +62,19 @@ const DEFAULT_TERMS = {
   manufactureDays: 120,
   balanceDueDays: 91,
   prepDays: 9,
-  shippingDays: SHIPPING_DAYS
+  shippingDays: SHIPPING_DAYS,
+  // What the supplier charges for waiting to be paid. `Supplier 1 Inputs` F8.
+  interestCoverPct: 0.06
 }
+
+/**
+ * The workbook's own day-count convention for both charges it puts on the deferred balance.
+ *
+ * 🔴 360, NOT 365, AND IT IS NOT A ROUNDING CHOICE. It is what reproduces his figures: the
+ * currency charge on January's balance is 43,057.20 x 10% x 91/360 = 1,088.39 exactly, and
+ * the interest is 0.6 of that. A 365-day year gives 1,073.49 and his sheet stops agreeing.
+ */
+const DAYS_IN_YEAR = 360
 
 /** A finite number, or the fallback. @param {*} v @param {number} d @returns {number} */
 function num (v, d) {
@@ -170,7 +181,13 @@ function resolveShipment (s, terms, start) {
     balanceMonth: monthIndex(balanceDueOn, start),
     sellableInMonth: monthIndex(sellableOn, start),
     deposit: cost * depositPct,
-    balance: cost * (1 - depositPct)
+    balance: cost * (1 - depositPct),
+    // What the supplier charges for waiting, over the real days it waits. Mike's
+    // instruction of 2026-09-04 after the build reported it as a gap. It is paid WITH the
+    // balance, as one payment, exactly as his sheet pays it — and it is expensed with the
+    // other interest rather than as a direct cost, because it is not a cost of getting the
+    // goods here. See the drawing's ruling.
+    interest: cost * (1 - depositPct) * terms.interestCoverPct * terms.balanceDueDays / DAYS_IN_YEAR
   }
 }
 
@@ -186,6 +203,7 @@ function resolveShipment (s, terms, start) {
  *   importedPurchases: Array<number>,
  *   deposits: Array<number>,
  *   balances: Array<number>,
+ *   interest: Array<number>,
  *   landings: Array<object>,
  *   beyondYear: Array<object>,
  *   terms: object
@@ -203,6 +221,10 @@ function computeImportShipments (input) {
     manufactureDays: Math.max(0, num(t.manufactureDays, DEFAULT_TERMS.manufactureDays)),
     balanceDueDays: Math.max(0, num(t.balanceDueDays, DEFAULT_TERMS.balanceDueDays)),
     prepDays: Math.max(0, num(t.prepDays, DEFAULT_TERMS.prepDays)),
+    // A share, not percentage points: 0.06, never 6. Negative is refused rather than
+    // clamped upward — a supplier paying the buyer to defer is not a term, it is a typo,
+    // and it would show as a credit nobody can explain.
+    interestCoverPct: Math.max(0, num(t.interestCoverPct, DEFAULT_TERMS.interestCoverPct)),
     shippingDays: {
       Sea: Math.max(0, num(sd.Sea, SHIPPING_DAYS.Sea)),
       Air: Math.max(0, num(sd.Air, SHIPPING_DAYS.Air)),
@@ -215,6 +237,7 @@ function computeImportShipments (input) {
     importedPurchases: new Array(MONTHS).fill(0),
     deposits: new Array(MONTHS).fill(0),
     balances: new Array(MONTHS).fill(0),
+    interest: new Array(MONTHS).fill(0),
     landings: [],
     beyondYear: [],
     terms
@@ -233,6 +256,7 @@ function computeImportShipments (input) {
   const importedPurchases = new Array(MONTHS).fill(0)
   const deposits = new Array(MONTHS).fill(0)
   const balances = new Array(MONTHS).fill(0)
+  const interest = new Array(MONTHS).fill(0)
   const landings = []
   const beyondYear = []
 
@@ -247,7 +271,10 @@ function computeImportShipments (input) {
     }
     importedPurchases[r.landsInMonth] += r.cost
     if (r.depositMonth >= 0 && r.depositMonth < MONTHS) { deposits[r.depositMonth] += r.deposit }
-    if (r.balanceMonth >= 0 && r.balanceMonth < MONTHS) { balances[r.balanceMonth] += r.balance }
+    if (r.balanceMonth >= 0 && r.balanceMonth < MONTHS) {
+      balances[r.balanceMonth] += r.balance
+      interest[r.balanceMonth] += r.interest
+    }
     // What the engine needs, and nothing else: the value, and the three months it moves in.
     // The engine applies the exchange allowance, freight, duty, border GST and the price
     // ladder itself — see this file's own note on what it deliberately does not do.
@@ -256,17 +283,19 @@ function computeImportShipments (input) {
       landsInMonth: r.landsInMonth,
       depositPct: r.depositPct,
       depositMonth: r.depositMonth,
-      balanceMonth: r.balanceMonth
+      balanceMonth: r.balanceMonth,
+      interest: r.interest
     })
   }
 
-  return { rows, importedPurchases, deposits, balances, landings, beyondYear, terms }
+  return { rows, importedPurchases, deposits, balances, interest, landings, beyondYear, terms }
 }
 
 module.exports = {
   MONTHS,
   SHIPPING_DAYS,
   DEFAULT_TERMS,
+  DAYS_IN_YEAR,
   toUtcDate,
   addDays,
   monthIndex,

@@ -143,22 +143,27 @@ describe('the workbook’s own payment split', () => {
   })
 
   /**
-   * ⚠ A KNOWN AND DELIBERATE DIFFERENCE FROM THE WORKBOOK, RECORDED RATHER THAN HIDDEN.
+   * 🔴 INTEREST COVER, ADDED ON MIKE'S INSTRUCTION OF 2026-09-04 ("can you fix the 6%
+   * interest issue") after the build reported it as a gap rather than inventing a charge.
    *
-   * His sheet then adds two charges to the balance before paying it — 6% interest cover and
-   * a 10% currency movement, both pro-rated over 91/360 — giving 44,798.62 where this model
-   * hands the engine 43,057.20.
-   *
-   * The 10% IS modelled: the forecast applies its own exchange allowance to both the deposit
-   * and the balance, which is slice 1's approved behaviour and is why this module
-   * deliberately does not touch it. THE 6% INTEREST COVER IS NOT MODELLED ANYWHERE. There is
-   * no line for it on the approved screen and no ruling asking for one, so it is reported to
-   * Mike rather than invented here. This test states the gap so it cannot be forgotten.
+   * His sheet adds two things to the balance before paying it, both pro-rated over a
+   * 360-day year: 6% interest cover and a 10% currency movement. 43,057.20 becomes
+   * 44,798.62. The currency half is the forecast's own exchange allowance, applied by the
+   * engine — which is why this module computes the interest and deliberately not the rest.
    */
-  test('interest cover is NOT applied — the workbook charges 6%, and nothing here does', () => {
-    const workbookPaid = 43057.2 * (1 + 0.06 * 91 / 360 + 0.10 * 91 / 360)
-    expect(workbookPaid).toBeCloseTo(44798.62, 2)
-    expect(out.rows[0].balance).toBeCloseTo(43057.2, 6)
+  test('interest cover reproduces his own 653.03 on January’s balance', () => {
+    expect(out.rows[0].interest).toBeCloseTo(653.03, 2)
+    expect(out.rows[0].interest).toBeCloseTo(43057.2 * 0.06 * 91 / 360, 6)
+  })
+
+  // 🔴 360, NOT 365, AND IT IS WHAT MAKES HIS FIGURES COME OUT. On a 365-day year the
+  // currency charge is 1,073.49 and the workbook's 44,798.62 stops agreeing.
+  test('together with the exchange allowance it reaches his 44,798.62', () => {
+    const currency = 43057.2 * 0.10 * 91 / 360
+    expect(currency).toBeCloseTo(1088.39, 2)
+    expect(43057.2 + out.rows[0].interest + currency).toBeCloseTo(44798.62, 2)
+    // The 365-day year the convention could have been, stated so the choice is provable.
+    expect(43057.2 * 0.10 * 91 / 365).toBeCloseTo(1073.48, 1)
   })
 })
 
@@ -336,7 +341,9 @@ describe('the calculator drives the forecast', () => {
   // in August, two and three months earlier.
   test('the balances fall in August, where the uniform profile said October and November', () => {
     const os = computeThreeWayForecast({ overseas: withCalculator }).schedules.overseas
-    expect(os.supplierBalance[4]).toBeCloseTo((90000 + 60000) * 0.4 * 1.1, 6)
+    // The cash row carries the interest cover out with the balance, as one payment — which
+    // is how his own sheet pays it. 910 across the two containers.
+    expect(os.supplierBalance[4]).toBeCloseTo((90000 + 60000) * 0.4 * 1.1 + 910, 6)
     expect(os.supplierBalance[6]).toBe(0)
     expect(os.supplierBalance[7]).toBe(0)
 
@@ -347,6 +354,37 @@ describe('the calculator drives the forecast', () => {
     expect(flat.supplierBalance[6]).toBeCloseTo(90000 * 0.4 * 1.1, 6) // October
     expect(flat.supplierBalance[7]).toBeCloseTo(60000 * 0.4 * 1.1, 6) // November
     expect(flat.supplierBalance[4]).toBe(0)
+  })
+
+  // 🔴 WHERE THE INTEREST IS CHARGED, WHICH WAS THE DECISION. Mike ruled it into overheads
+  // with the overdraft and loan interest, not into the direct costs beside freight and duty.
+  // If it ever moves above the gross margin, this fails — and so does every gross margin an
+  // advisor reads off an imported container.
+  describe('interest cover is charged with the other interest, not as a direct cost', () => {
+    const f = computeThreeWayForecast({ overseas: withCalculator })
+    const os = f.schedules.overseas
+
+    test('it is expensed in the month the balance is settled', () => {
+      expect(os.supplierInterest[4]).toBeCloseTo(910, 6)
+      expect(os.supplierInterest.reduce((a, b) => a + b, 0)).toBeCloseTo(910, 6)
+    })
+
+    test('the direct costs are freight, duty and exchange movement — and nothing else', () => {
+      // Direct costs must be exactly the three that belong there. If the interest had been
+      // added to them, this sum would be 910 higher.
+      const direct = os.freight.reduce((a, b) => a + b, 0) +
+        os.duty.reduce((a, b) => a + b, 0) +
+        os.exchangeMovement.reduce((a, b) => a + b, 0)
+      expect(direct).toBeCloseTo(150000 * 0.12 + 150000 * 0.05 + 150000 * 0.1, 6)
+    })
+
+    test('a forecast with no calculator is charged no interest cover at all', () => {
+      const uniform = Object.assign({}, OVERSEAS, {
+        importedPurchases: computeImportShipments(TWO_CONTAINERS).importedPurchases
+      })
+      const flat = computeThreeWayForecast({ overseas: uniform }).schedules.overseas
+      expect(flat.supplierInterest.every(v => v === 0)).toBe(true)
+    })
   })
 
   test('freight, duty and border GST still fall in the landing months', () => {
