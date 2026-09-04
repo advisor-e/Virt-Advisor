@@ -28,8 +28,9 @@
  *
  * INPUTS ARE HOSTILE. A client's figures are stored and later rendered on an advisor's
  * screen, so `validateInputs` admits only what a report's controls can produce: a flat
- * object of finite numbers, booleans, short strings, or arrays of finite numbers, under
- * a size cap. Anything else is refused, never trimmed into shape.
+ * object of finite numbers, booleans, short strings, arrays of finite numbers or blanks,
+ * or arrays of short strings, under a size cap. Anything else is refused, never trimmed
+ * into shape.
  */
 
 const overlay = require('./firmOverlay')
@@ -77,6 +78,7 @@ function isFigureOrBlank (v) { return v === null || isFiniteNumber(v) }
  * Admit only what a report's controls can produce. Returns a fresh copy so a caller
  * cannot smuggle a prototype or a getter through. `null` is admitted as a blank, alone
  * or inside a list — an optional figure not yet typed, or an empty month in a series.
+ * A list of short strings is admitted for the names a file supplied (expense lines).
  * @param {*} inputs
  * @returns {object}
  * @throws {Error} err.code 'BAD_INPUTS'
@@ -99,8 +101,13 @@ function validateInputs (inputs) {
       out[k] = v; return
     }
     if (Array.isArray(v)) {
-      if (v.length > MAX_ARRAY || !v.every(isFigureOrBlank)) {
-        throw fail('BAD_INPUTS', `"${k}" must be a list of up to ${MAX_ARRAY} numbers or blanks.`)
+      // A list is numbers-or-blanks (a series) OR short names (the expense lines a file
+      // supplied, kept beside their amounts so a reloaded report still names them).
+      // Never a mix, and never anything else.
+      const isSeries = v.every(isFigureOrBlank)
+      const isNames = v.every(x => typeof x === 'string' && x.length <= MAX_STRING)
+      if (v.length > MAX_ARRAY || !(isSeries || isNames)) {
+        throw fail('BAD_INPUTS', `"${k}" must be a list of up to ${MAX_ARRAY} numbers or blanks, or of short names.`)
       }
       out[k] = v.slice(); return
     }

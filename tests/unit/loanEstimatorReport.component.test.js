@@ -166,4 +166,22 @@ describe('LoanEstimatorReport', () => {
     await wrapper.vm.$nextTick()
     expect(wrapper.vm.calc.term).toBe(36)
   })
+
+  // A saved report (4.62, Brief §5) restores the calculator through the page. What UAT
+  // cannot see: a restored calculator that the request silently ignores would show the
+  // client's saved loan on the sliders over a repayment computed from the sample.
+  it('a restored calculator drives the request, and the page is told what the calculator holds', async () => {
+    const props = stepPayloads()
+    props.restore = { purchasePrice: 900000, deposit: 100000, ratePct: 6.25, term: 25, termUnit: 'Years', basis: 'Reducing' }
+    const wrapper = await mountScreen(props)
+    expect(lastBody.repayment).toEqual({
+      purchasePrice: 900000, deposit: 100000, annualRate: 0.0625, term: 25, termUnit: 'Years', basis: 'Reducing'
+    })
+    const emitted = wrapper.emitted('calc-change')
+    expect(emitted[0][0]).toEqual(props.restore)
+    expect(emitted[0][0]).not.toBe(wrapper.vm.calc) // a copy, never the live object
+    wrapper.vm.calc.deposit = 150000
+    await wrapper.vm.$nextTick()
+    expect(emitted[emitted.length - 1][0].deposit).toBe(150000)
+  })
 })
