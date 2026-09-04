@@ -9,45 +9,60 @@
 
 ---
 
-## 2026-09-03 · Laptop · branch `feat/advisor-progress`
+## 2026-09-04 · Laptop · branch `feat/advisor-progress`
 
-Suite **7,486 green** (383 suites), lint 0 errors, everything committed and pushed.
-Started 16 ahead / 0 behind, ended **20 ahead / 0 behind**.
+Suite **7,700 green** (399 suites), lint 0 errors, everything committed and pushed.
+Started 21 ahead / 0 behind; **merged `master` twice** (13 commits, then 9).
 
-### Built — the two-year trend read. 4.61 is CLOSED, both phases.
+### Built — 4.64, buying and selling overseas. Drawn, approved and built in one day.
 
-Six measures on step 3 under the volatility read, banded on Mike's own twelve figures, set
-on a new mentor tab (Model Inputs → Forecast Trend Thresholds). Step 1 now takes **six
-files**, the last two optional. **The read changes no forecast figure** and a test enforces
-it.
+Step 3 gains a whole section behind one tick: imported stock with its terms, the sell-down
+price ladder, overseas sales with their own delivery lag, collection profile, zero-rating
+and FX allowance, and their own mark-up. The cash flow grows **five rows of its own** —
+deposits, freight, duty, border GST, supplier balance — visible on the report screen.
 
-### Three things worth more than the item
+**Item 4.63 was absorbed into 4.64 as slice 2** on Mike's instruction. Not built.
 
-**The item's own premise was wrong.** 4.61(b) was filed as blocked on teaching the parser to
-read a comparative export, naming `MULTI_PERIOD_COLUMNS` as the guard not to weaken. It
-needed neither — two optional file slots did it. The blocker had been written without
-reading the intake path.
+### Four things worth more than the item
 
-**A ruling was superseded within the hour.** "Movement or level?" asked as an abstraction got
-the wrong answer; Mike's real numbers got the right one. **Ask for the numbers earlier.**
+**The guard went first and it is why this was safe.** Tick off, series empty → all 3,385
+year-one golden cells unmoved and the three statements byte-identical, written and passing
+*before* the feature existed. It also pins the input shape as a test rather than a note.
 
-**Ten thresholds were put to him as one table** — CLAUDE.md forbids it and he said so. One
-pair at a time: four exchanges, all ruled, and twice he added a condition a batch would have
-buried.
+**The balance sheet broke, and a test caught it — not an eyeball.** A deposit paid before
+the goods land had nowhere to sit. It is a **prepayment**; a landed-but-unpaid container is
+a **liability**. Both are new balance-sheet lines. 🔴 **Any addition that moves cash and
+stock in different months needs the same check.**
+
+**The approved drawing contradicted itself, and the DRAWING was corrected.** Its "Ready to
+sell after it lands" control said *Same month* while its own revenue table, tiles and
+printed working all had the container first selling the month after. Found only by opening
+the drawing beside the code, which is the third time that ritual has paid.
+
+**A gap named honestly came back the same day.** The engine computed the five cash rows
+correctly, and the report screen showed one "Money out" total — the exact concealment Mike
+had objected to. Saying so plainly rather than glossing it got a "yes" and it shipped.
 
 ### Next
 
-**4.64** (international vs local — it builds the place 4.63 lands), then **4.63**. Both need
-a drawing and his approval first.
+**The mentor Model Inputs tab for the price ladder** (figures are in
+`data/forecast-sell-down.json`, shown but not editable), then **slice 2** — the Import &
+Retail shipment calculator. Both of slice 2's rulings are already taken.
 
-### 🖥 DESKTOP — one real collision risk
+### 🖥 DESKTOP — read this before you touch the forecast
 
-We edited **`components/FirmManagerHub.vue`** (imports, `TAB_TIERS`, `NAV_GROUPS`, one panel)
-to add a mentor-only tab. Your branch is the quiz builder, which is a hub tab, so expect a
-conflict there and **keep both sides' entries** rather than taking one.
-🔴 The mentor now has a **Model Inputs** heading for the first time; two tests that asserted
-it had none are updated with the reason, not deleted.
-Also shared: `ARTEFACTS.md`, `features/to-do-items.json`, `to-do.md`, `locales/en.json`.
+🔴 **Your slice 2 has four screens left and your own note puts the FORECAST last. We
+rewrote it today.** `ThreeWayForecastReport.vue` gained `hasOverseasTrade`,
+`overseasCashRows`, a rebuilt `cashRows`, an `is-sub` row style and five locale keys.
+`ThreeWayForecastIntake.vue` gained a large step-3 section, `overseasInputs()`, eight
+computed properties and 44 locale keys. Expect conflicts in both and **keep both sides**.
 
-⚠ Your handover is dated **2026-09-02** but your branch has commits from **today** — we
-cannot see what you did.
+Also shared: `server/report/threeWayForecastModel.js` (new `overseas` block, two new
+balance-sheet lines), `locales/en.json`, `ARTEFACTS.md`, `features/to-do-items.json`,
+`features/report-models.md`, and a new `data/forecast-sell-down.json`.
+
+⚠ **We took YOUR 4.62 whole at the merge** — your slice-2 text is newer than ours, and a
+sentence this branch had added to your comment was dropped. Your item is yours to write.
+
+✅ Your 2026-09-04 handover was current when we merged. Thank you — it made the collision
+call easy.

@@ -577,6 +577,74 @@ app cannot derive that book value and this is structural rather than an omission
 80,000" and can never know which van is which. Reading the Fixed Asset Schedule instead is
 item 4.65.
 
+**Step 3 takes buying and selling overseas** (2026-09-04, item 4.64, its own approved drawing
+[`../mockups/three-way-forecast-international.html`](../mockups/three-way-forecast-international.html)).
+Behind one tick — *This business buys or sells overseas* — so a business trading only at home
+sees the screen it has always seen. It exists because Mike's own framing of the section was
+about **visibility**, not timing: *"the whole point of this section is to show when deposits
+are due, freight is paid, border gst etc — BEFORE the business can even start selling them"*.
+Rolled into one creditors figure, all of that appears in the month the supplier was settled
+and the months that matter are invisible, so the cash flow grows **five rows of its own**:
+deposits paid overseas, freight and shipping, duty and clearance, GST paid at the border, and
+the balance paid to the supplier. They show only when a forecast actually trades overseas.
+
+**Stock is recorded in the month it LANDS**, not when it is ordered and not when it is paid
+for — that is when it becomes stock and when GST falls due at the border, and every other date
+is worked out from it. The deposit is therefore paid *ahead* of the purchase month, which the
+five-bucket lag schedule could not express at all: it reaches **nine months**, because the
+Import & Retail workbook pays roughly 220 days before the first sale, and that gap **is** the
+working-capital hole a funding request exists to cover. Border GST is charged on the landed
+value — exchange-adjusted stock cost plus freight and duty — and claimed back on the same
+return, so it is a timing cost rather than a lost one.
+
+**GST was wrong in both directions before this, and that is the half nobody would have seen.**
+Every sale was charged and every purchase credited when the supplier was paid. Exports are
+normally **zero-rated** (a tick, defaulted on, since a firm whose overseas sales are genuinely
+taxable must be able to say so), and imports pay **at the border**. On the *Cash* basis the
+return is worked backwards from money received, so once some receipts are zero-rated the two
+streams' collections have to be counted apart or the model invents an output tax nobody
+charged.
+
+**Revenue from imported stock is worked out, not typed** — Mike's correction of the first
+drawing: *"new stock command a higher initial price if its new to the market but over time,
+importers need to offload at a discount - this should be forecasted so all revenue isnt
+calculated on an inflated sale price"*. The ladder is his own, read out of `Import &
+Retail.xlsx` (`Supplier 1 Inputs` row 19) into
+[`../../data/forecast-sell-down.json`](../../data/forecast-sell-down.json): **New +185% /
+Standard +152% / Runout +122%** on cost, switching at 60/90/120 stock-turn days, with a demand
+pattern saying how much sells in each 30-day band. Pricing it all at the launch figure reads
+**6% high for a fast seller and 10% for a slow one** — the wrong percentages to be wrong by in
+a document a bank reads. The figures are seeded onto the screen and the advisor can overtype
+any month. Because revenue is then *cost × the ladder*, **real unit costs govern imported
+stock** and the mark-up governs local: recovering a known cost from revenue would be
+arithmetic run backwards to a worse number. Imported stock sold at home counts as a **local**
+sale, so it carries GST and collects on the local profile.
+
+> 🔴 **Two balance-sheet positions the drawing never mentioned, and without them the three
+> statements stop articulating.** Caught by the balance-check test, not by eye. A deposit paid
+> before the goods land is a **prepayment** — the supplier owes you goods — until the container
+> arrives; a landed-but-unpaid container is a **liability**. Cash leaves in one month and stock
+> arrives in another, and something has to hold the difference. They are `importPrepayments`
+> and `importSupplierBalance`. For the same reason the exchange movement on sales comes off the
+> **debtor** as well as through the P&L, and freight, duty and both exchange movements are
+> expensed in the month they arise. **Any addition that moves cash and stock in different
+> months takes the same care.**
+
+**The guard was written before the feature and it is the reason this was safe.** With the tick
+off and both series empty, all 3,385 year-one golden cells still match the workbook and the
+three statements are byte-identical. It passed trivially the day it was written, which is the
+point: it is what refuses a silent change to the port now, and it pins the input shape as a
+test rather than a note. **The tick is load-bearing in the engine, not only on the screen** —
+figures sent with it off are dropped, so no later caller can bypass the intake and be
+surprised.
+
+**What is not built:** the mentor Model Inputs tab that would let the price ladder be edited
+(the figures live in the data file and are shown with a *From your platform settings* badge),
+and slice 2 — the Import & Retail shipment calculator, absorbed from item 4.63, which will
+fill the twelve landing figures from real containers. Its two rulings are already taken: every
+event is dated from its order date and filed in the calendar month it really falls in, and
+real unit costs govern imported stock.
+
 **Step 3 shows the volatility read** (2026-09-03, its own approved drawing
 [`../mockups/three-way-forecast-volatility.html`](../mockups/three-way-forecast-volatility.html)).
 Under the sales boxes: the average month, the normal range, the biggest month on record, how
