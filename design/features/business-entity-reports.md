@@ -150,7 +150,7 @@ four attributes. `ProvenanceBadge` gained the `client` state; `SliderField` a ba
 **Wired so far:** Debtor Business Drag, Margin, Mark-up & Break-even, Working Capital Cycle,
 Eight Levers, Cost of Capital, Lease vs Buy, Multiple Property (its three blocks and up
 to five property records flattened under dotted names with a `propertyCount`), the Loan
-Estimator, and Quick Position. **Not yet wired:** EBITDA/DCF and Volatility; the Three-Way
+Estimator, Quick Position, and EBITDA/DCF. **Not yet wired:** Volatility; the Three-Way
 Forecast last, after the laptop's 4.61 lands. Screens without SliderField show the
 badge in the label through `components/base/ClientChangedBadge.vue`. Until a screen is wired, an open
 model still shows the client its sample figures, exactly as §4 says.
@@ -180,6 +180,15 @@ badged on its own. **A client never sees the upload steps**: the upload needs th
 advisor's sign-in, so the client's page is the report alone, and a saved row opens on it.
 Nothing a file alone knows (the company name, the income total) is in a saved row.
 
+**EBITDA/DCF saves its figures as one block** (`utils/ebitdaDcfSavedShape.js`): the years,
+and for each of the twenty-four rows two lists of the same length, `fig.<row>` and
+`src.<row>`. Loading takes that block **whole or not at all** — one bad cell refuses it and
+the page keeps what it held — because a partial set would put saved years beside sample
+ones with nothing on screen to say so. The dials (`dcf.*`, `listed.*`) are taken one at a
+time, each in its own shape, with the listed history always one cell per year. No file
+figure is editable after the intake on this screen, so the file-badge rule has no site
+here; a client change is badged on the dial, or on the dial row.
+
 **Wording proposed and not yet ruled** (`locales/en.json`, `clientReports.saved.*`): the
 "saved by" lines, the banner sentence, the badge word `client`, and the four failure messages.
 
@@ -198,7 +207,10 @@ only on a client edit, never for the client's own sign-in), `loanEstimatorSavedS
 drops its step and lands the page on it; nothing is filled from the sample),
 `quickPositionSavedShape.test.js` (a row carries every source and the expense lines and
 the store admits it; a bad figure keeps what the screen held; a restored state drives the
-request; a client-changed file figure shows `client` in place of `from file`).
+request; a client-changed file figure shows `client` in place of `from file`),
+`ebitdaDcfSavedShape.test.js` (the row list is pinned to the intake's rows; the figures
+block round-trips whole and one bad cell refuses it; a dial is its own shape; restored
+dials drive the request).
 
 ## 6. What is deliberately not in this design
 
