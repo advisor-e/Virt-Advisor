@@ -2,7 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const { computeThreeWayForecast, DEFAULTS } = require('../../server/report/threeWayForecastModel')
+const { computeThreeWayForecast, importedRevenuePreview, DEFAULTS } = require('../../server/report/threeWayForecastModel')
 const golden = require('../fixtures/threeWayForecastYear1.golden.json')
 const { SOURCE_ROWS } = require('./threeWayForecastRows')
 
@@ -725,6 +725,111 @@ describe('4.64 — with the tick off, the overseas split moves nothing', () => {
       f.balanceSheet.months.balanceCheck.forEach((v, m) => {
         expect(v).toBeCloseTo(base.balanceSheet.months.balanceCheck[m], 6)
       })
+    })
+  })
+
+  /**
+   * The advisor's own figure for a month's imported-stock revenue (item 4.64).
+   *
+   * Mike ruled on 2026-09-04 that this revenue is worked out and then seeded "where the
+   * advisor can override it", chosen over a locked figure. These hold the two halves of
+   * that: the override must reach the forecast, and it must not drag anything else with it.
+   */
+  describe('an advisor can type over the worked-out revenue', () => {
+    const worked = computeThreeWayForecast({ overseas: WORKED })
+
+    /** WORKED with October's revenue typed over. October is the first selling month. */
+    const overridden = (function () {
+      const o = JSON.parse(JSON.stringify(WORKED))
+      o.importedRevenueOverride = new Array(12).fill(null)
+      o.importedRevenueOverride[6] = 80000
+      return o
+    })()
+
+    test('the typed figure is the revenue that month, and the ladder keeps the rest', () => {
+      const f = computeThreeWayForecast({ overseas: overridden })
+      const os = f.schedules.overseas
+      expect(os.importedRevenue[6]).toBe(80000)
+      // Every other month is still the ladder's own figure, untouched.
+      os.importedRevenue.forEach((v, m) => {
+        if (m !== 6) { expect(v).toBeCloseTo(worked.schedules.overseas.importedRevenue[m], 6) }
+      })
+    })
+
+    test('the COST of that stock does not follow the typed revenue', () => {
+      // His ruling of the same day: real unit costs govern imported stock. Moving the cost
+      // with an override would be revenue run backwards through a mark-up, which is the
+      // arithmetic that ruling forbids — and it would hide the margin the override creates.
+      const f = computeThreeWayForecast({ overseas: overridden })
+      f.schedules.overseas.importedCostOfSales.forEach((v, m) => {
+        expect(v).toBeCloseTo(worked.schedules.overseas.importedCostOfSales[m], 6)
+      })
+    })
+
+    test('a blank month is the worked-out figure, not zero', () => {
+      // The whole reason the override is a blank series rather than a zeroed one: clearing
+      // a box has to restore the ladder, and zero is a figure an advisor can legitimately
+      // mean. All-blank must therefore be identical to sending no overrides at all.
+      const blanked = JSON.parse(JSON.stringify(WORKED))
+      blanked.importedRevenueOverride = new Array(12).fill(null)
+      const f = computeThreeWayForecast({ overseas: blanked })
+      f.schedules.overseas.importedRevenue.forEach((v, m) => {
+        expect(v).toBeCloseTo(worked.schedules.overseas.importedRevenue[m], 6)
+      })
+    })
+
+    test('a typed ZERO is honoured, and is not read as a blank', () => {
+      const none = JSON.parse(JSON.stringify(WORKED))
+      none.importedRevenueOverride = new Array(12).fill(null)
+      none.importedRevenueOverride[6] = 0
+      const f = computeThreeWayForecast({ overseas: none })
+      expect(f.schedules.overseas.importedRevenue[6]).toBe(0)
+      expect(worked.schedules.overseas.importedRevenue[6]).toBeGreaterThan(0)
+    })
+
+    test('an override with the tick OFF changes nothing at all', () => {
+      // The tick is load-bearing everywhere else in this block, and it has to be here too:
+      // an advisor who fills the section in, types over a month and then unticks it must
+      // get today's forecast back, not one carrying a single typed revenue figure.
+      const off = JSON.parse(JSON.stringify(WORKED))
+      off.enabled = false
+      off.importedRevenueOverride = new Array(12).fill(null)
+      off.importedRevenueOverride[6] = 80000
+      const f = computeThreeWayForecast({ overseas: off })
+      expect(statementsOf(f)).toBe(statementsOf(silent))
+      overseasIsSilent(f)
+    })
+
+    test('the statements still articulate with a figure typed over', () => {
+      // The check that caught two real faults while this feature was built. An override
+      // moves revenue without moving cash, so it lands in the debtor and in equity — and
+      // if only one of those happens the balance sheet stops tying.
+      const base = computeThreeWayForecast({})
+      const f = computeThreeWayForecast({ overseas: overridden })
+      f.balanceSheet.months.balanceCheck.forEach((v, m) => {
+        expect(v).toBeCloseTo(base.balanceSheet.months.balanceCheck[m], 6)
+      })
+    })
+
+    test('the preview the screen seeds from ignores the overrides', () => {
+      // Otherwise the screen would seed from its own typed figures: they would look worked
+      // out, and clearing a box would restore the advisor's number instead of the ladder's,
+      // so the restore would silently do nothing.
+      const preview = importedRevenuePreview({ overseas: overridden })
+      preview.importedRevenue.forEach((v, m) => {
+        expect(v).toBeCloseTo(worked.schedules.overseas.importedRevenue[m], 6)
+      })
+      expect(preview.importedRevenue[6]).not.toBe(80000)
+    })
+
+    test('the preview is what the forecast itself works out', () => {
+      // One implementation, proved rather than asserted: the screen and the forecast must
+      // never be able to show different figures for the same stock.
+      const preview = importedRevenuePreview({ overseas: WORKED })
+      preview.importedRevenue.forEach((v, m) => {
+        expect(v).toBeCloseTo(worked.schedules.overseas.importedRevenue[m], 6)
+      })
+      expect(preview.revenueBeyondYear).toBeCloseTo(worked.schedules.overseas.revenueBeyondYear, 6)
     })
   })
 

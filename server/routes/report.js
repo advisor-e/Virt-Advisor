@@ -22,7 +22,7 @@ const { computeMultiplePropertyAssessment, computeMultiplePropertyPortfolio } = 
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { computeVolatility } = require('../report/volatilityModel')
 const { computeImportShipments } = require('../report/importShipmentModel')
-const { computeThreeWayForecast, computeThreeYearForecast } = require('../report/threeWayForecastModel')
+const { computeThreeWayForecast, computeThreeYearForecast, importedRevenuePreview } = require('../report/threeWayForecastModel')
 const { assembleForecastIntake, MAX_FILES: MAX_FORECAST_FILES } = require('../report/intake/threeWayForecastAssembler')
 const { computeTrend } = require('../report/trendModel')
 const { loadResolvedTrendThresholds } = require('../utils/forecastTrendThresholds')
@@ -686,6 +686,42 @@ function importShipments (req, res, next) {
 }
 
 /**
+ * POST /api/report/imported-revenue
+ *
+ * What the imported stock on step 3 will actually sell for, month by month, priced down the
+ * ladder as it ages (item 4.64). The assumptions screen seeds its twelve boxes from this and
+ * the advisor may type over any of them.
+ *
+ * 🔴 IT IS A ROUTE FOR THE SAME REASON `import-shipments` ABOVE IS: the ladder is business
+ * logic and business logic does not live in Nuxt. It calls the forecast engine's own
+ * schedule, so the figure the screen shows and the figure the forecast uses cannot diverge.
+ *
+ * ⚠ THE ANSWER IGNORES ANY OVERRIDE THE BODY CARRIES, deliberately — see
+ * `importedRevenuePreview`. The screen needs the ladder's own figure to seed from and to
+ * restore to when a box is cleared, which is precisely the number an override hides.
+ *
+ * @param {object} req.body - partial Three-Way Forecast inputs; only the `overseas` block and
+ *   `gstRate` are read. Anything absent falls back to the model's defaults, so a body with
+ *   the tick off correctly answers with twelve zeroes.
+ * @returns {object} `{ success, data, timestamp }` — `importedRevenue` (twelve months) and
+ *   `revenueBeyondYear`, the revenue from stock that only finishes selling after month twelve.
+ *
+ * Anonymous by design: numbers in, numbers out. Only the file-intake routes carry `firmAuth`,
+ * because those accept uploads.
+ */
+function importedRevenue (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = importedRevenuePreview(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] imported-revenue compute failed:', err)
+    res.send(400, { success: false, error: { code: 'IMPORTED_REVENUE_COMPUTE_FAILED', message: 'Could not work out what the imported stock will sell for.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
  * POST /api/report/three-way-forecast
  *
  * @param {object} req.body - partial Three-Way Forecast inputs (see the model's
@@ -931,4 +967,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }

@@ -655,6 +655,30 @@
                         option(:value="0") {{ $t('report.threeWayForecast.assume.overseas.readySameMonth') }}
                         option(:value="1") {{ $t('report.threeWayForecast.assume.overseas.readyMonthAfter') }}
 
+                //- ── What that stock will sell for ──
+                //- Mike's ruling of 2026-09-04: the revenue is WORKED OUT, never typed —
+                //- and seeded where the advisor can override it, which was chosen over a
+                //- locked figure so a signed order at a known price has somewhere to go.
+                //- Clearing a box puts the worked-out figure back, so there is no undo to find.
+                .fieldlab.orev-head
+                  span {{ $t('report.threeWayForecast.assume.overseas.revenueHeading') }}
+                  provenance-badge(
+                    :source="importedRevenueSource"
+                    :file-label="$t('report.threeWayForecast.confirm.fromFile')"
+                    :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                    :seeded-label="$t('report.threeWayForecast.assume.overseas.revenueWorkedOut')"
+                    size="sm")
+                .mgrid
+                  .m(v-for="(label, i) in monthLabels" :key="'orev' + i")
+                    span.lbl {{ label }}
+                    b-input(
+                      :value="importedRevenueShown[i]"
+                      @input="setImportedRevenue(i, $event)"
+                      type="number" step="any" size="is-small")
+                .tw-foot {{ $t('report.threeWayForecast.assume.overseas.revenueNote') }}
+                .tw-foot.is-crit(v-if="revenueBeyondYear > 0")
+                  | {{ $t('report.threeWayForecast.assume.overseas.revenueBeyondYear', { amount: money(revenueBeyondYear) }) }}
+
               //- ── Sales to overseas customers ──
               .subgroup
                 h3.subh {{ $t('report.threeWayForecast.assume.overseas.exportHeading') }}
@@ -1047,6 +1071,17 @@ export default {
        */
       shipmentResult: { rows: [], importedPurchases: [], deposits: [], balances: [], interest: [], landings: [], beyondYear: [] },
       shipmentTimer: null,
+      /**
+       * What the price ladder makes of the stock landing each month, from the backend. NOT
+       * on the form, for the same reason `shipmentResult` is not: it is derived from the
+       * landings and the ladder, and a derived value stored beside its inputs is one that
+       * can disagree with them. What the advisor TYPES over it lives on the form, because
+       * that is a decision rather than a derivation.
+       */
+      importedRevenueWorked: new Array(12).fill(0),
+      /** Revenue from stock that only finishes selling after the twelfth month. */
+      revenueBeyondYear: 0,
+      revenueTimer: null,
       // A restored form is this component's own state coming back from the page, but it
       // is normalised anyway: a form saved before the capital block existed has no rows,
       // and an undefined list would break the group rather than show it empty.
@@ -1240,6 +1275,36 @@ export default {
         name: p.name,
         bands: p.curve.map(v => Math.round(v * 100) + '%').join(' / ')
       })
+    },
+
+    /**
+     * What each of the twelve revenue boxes shows: the advisor's figure where they have
+     * typed one, otherwise the ladder's.
+     *
+     * ⚠ THE WORKED-OUT FIGURE IS DISPLAYED ROUNDED AND SENT UNROUNDED. Only an override
+     * ever travels, and an override is what the advisor typed — so the sub-cent difference
+     * between the number on screen and the number in the forecast can never be an input.
+     * @returns {Array<number>}
+     */
+    importedRevenueShown () {
+      return this.form.overseas.importedRevenueOverride.map((typed, i) => {
+        if (typed !== null && typed !== '' && typed !== undefined) { return Number(typed) }
+        return Math.round((this.importedRevenueWorked[i] || 0) * 100) / 100
+      })
+    },
+
+    /**
+     * How the block is badged: the ladder's own figures until the advisor changes one.
+     *
+     * It is deliberately one badge for the block rather than twelve, because the drawing
+     * carries one tag on the heading. It says "somebody has typed here", not which month —
+     * and the note beneath says how to put a month back.
+     * @returns {string} 'seeded' | 'entered'
+     */
+    importedRevenueSource () {
+      const typed = this.form.overseas.importedRevenueOverride
+        .some(v => v !== null && v !== '' && v !== undefined)
+      return typed ? 'entered' : 'seeded'
     },
 
     /**
@@ -1504,7 +1569,28 @@ export default {
       handler () { this.scheduleShipments() }
     },
     // A forecast that starts in a different month files every event in a different column.
-    'form.startDate' () { this.scheduleShipments() }
+    'form.startDate' () { this.scheduleShipments() },
+
+    /**
+     * Everything the price ladder reads. The landing figures are what the stock IS; the
+     * ladder, the pattern and the ready-after month are what happens to it. Deep on the
+     * landings because the calculator rewrites that array in place, and debounced because
+     * a landing figure is typed a digit at a time.
+     *
+     * ⚠ THE OVERRIDES ARE DELIBERATELY NOT WATCHED. They are the answer, not a question:
+     * asking the backend again because the advisor typed over March would return the same
+     * worked-out figures and achieve nothing but a round trip per keystroke.
+     */
+    'form.overseas.importedPurchases': {
+      deep: true,
+      handler () { this.scheduleImportedRevenue() }
+    },
+    'form.overseas.sellDown': {
+      deep: true,
+      handler () { this.scheduleImportedRevenue() }
+    },
+    'form.overseas.readyAfterMonths' () { this.scheduleImportedRevenue() },
+    'form.overseas.enabled' () { this.scheduleImportedRevenue() }
   },
 
   mounted () {
@@ -1521,10 +1607,14 @@ export default {
     // A restored session carries its shipments but not their dates — those are derived, and
     // a derived value stored beside its inputs is one that can disagree with them. Recompute.
     if (this.form.overseas.shipments.length) { this.refreshShipments() }
+    // A restored session can open straight on step 3 with landings already entered, and the
+    // twelve revenue boxes are derived — so they are asked for rather than restored.
+    if (this.form.overseas.enabled) { this.refreshImportedRevenue() }
   },
 
   beforeDestroy () {
     if (this.volatilityTimer) { clearTimeout(this.volatilityTimer) }
+    if (this.revenueTimer) { clearTimeout(this.revenueTimer) }
   },
 
   methods: {
@@ -1632,6 +1722,9 @@ export default {
           dutyPct: 5,
           fxAllowancePct: 10,
           readyAfterMonths: 1,
+          // What the advisor has typed over the worked-out revenue. All blank means the
+          // ladder governs every month, which is where every forecast starts.
+          importedRevenueOverride: new Array(12).fill(null),
           // The ladder and the pattern are the mentor's content, taken from
           // data/forecast-sell-down.json — never restated here — and shown so the advisor
           // can see what is being applied to their client's stock. `mounted()` then asks
@@ -2139,6 +2232,67 @@ export default {
       })
     },
 
+    /** Debounced, for the same reason the two reads above are — a figure typed a digit at a time. */
+    scheduleImportedRevenue () {
+      if (this.revenueTimer) { clearTimeout(this.revenueTimer) }
+      this.revenueTimer = setTimeout(() => {
+        this.revenueTimer = null
+        this.refreshImportedRevenue()
+      }, VOLATILITY_DEBOUNCE_MS)
+    },
+
+    /**
+     * Ask the backend what the imported stock will sell for as it ages down the price
+     * ladder (item 4.64, Mike's ruling of 2026-09-04 that this revenue is worked out).
+     *
+     * 🔴 IT IS ASKED FOR RATHER THAN WORKED OUT HERE. The ladder is business logic, which
+     * does not live in Nuxt, and one implementation cannot drift from another — the same
+     * reasoning as the shipment calculator and the volatility read above it.
+     *
+     * ⚠ IT SENDS `overseasInputs()`, WHICH CARRIES THE OVERRIDES, AND THAT IS SAFE: the
+     * route computes the ladder with them cleared, precisely so the screen can seed from
+     * the ladder's own figure and restore to it when a box is emptied.
+     */
+    async refreshImportedRevenue () {
+      if (!this.form.overseas.enabled) {
+        this.importedRevenueWorked = new Array(12).fill(0)
+        this.revenueBeyondYear = 0
+        return
+      }
+      try {
+        const res = await fetch('/api/report/imported-revenue', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            gstRate: Number(this.form.gstRate) / 100,
+            overseas: this.overseasInputs()
+          })
+        })
+        const json = await res.json()
+        if (!json || !json.success || !json.data) { return }
+        this.importedRevenueWorked = json.data.importedRevenue.slice()
+        this.revenueBeyondYear = json.data.revenueBeyondYear || 0
+      } catch (e) {
+        // The boxes simply keep their last figures. A failed read must never stop an advisor
+        // finishing a forecast, exactly as the shipment panel below decides it.
+      }
+    },
+
+    /**
+     * Record what the advisor typed over one month's worked-out revenue.
+     *
+     * AN EMPTY BOX MEANS "USE THE WORKED-OUT FIGURE" — which is why clearing one restores it
+     * and there is no separate undo control. `$set` because Vue 2 does not see an index
+     * assignment on an array.
+     *
+     * @param {number} i the month, 0-11
+     * @param {string|number} v what is now in the box
+     */
+    setImportedRevenue (i, v) {
+      const blank = v === '' || v === null || v === undefined
+      this.$set(this.form.overseas.importedRevenueOverride, i, blank ? null : Number(v))
+    },
+
     /** Debounced, exactly as the volatility read is — a date typed a digit at a time. */
     scheduleShipments () {
       if (this.shipmentTimer) { clearTimeout(this.shipmentTimer) }
@@ -2430,6 +2584,12 @@ export default {
         dutyPct: pct(o.dutyPct),
         fxAllowancePct: pct(o.fxAllowancePct),
         readyAfterMonths: Number(o.readyAfterMonths) || 0,
+        // A month the advisor typed over, or null to let the ladder work it out. Dropped
+        // with the tick off like the two series above, so unticking cannot leave a single
+        // typed revenue figure standing in an otherwise domestic forecast.
+        importedRevenueOverride: on
+          ? o.importedRevenueOverride.map(v => (v === null || v === '' || v === undefined ? null : Number(v)))
+          : new Array(12).fill(null),
         sellDown: {
           newMarkup: pct(o.sellDown.newMarkup),
           standardMarkup: pct(o.sellDown.standardMarkup),
@@ -2565,6 +2725,9 @@ export default {
 .seg button.on { background: var(--rs-accent); color: var(--rs-accent-contrast); }
 
 /* The twelve-month grids. */
+/* The revenue block's heading row. `.fieldlab` already lays the label and its badge out;
+   this only gives the block the breathing space the sections around it have. */
+.orev-head { margin-top: 16px; }
 .mgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 @media (max-width: 560px) { .mgrid { grid-template-columns: repeat(2, 1fr); } }
 .m { display: flex; align-items: center; gap: 6px; }

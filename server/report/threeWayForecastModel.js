@@ -135,6 +135,32 @@ function pickSeries (v, def) {
 function zeroes () { return new Array(MONTHS).fill(0) }
 
 /**
+ * A 12-element series of blanks, where a blank means "nothing was said about this month".
+ *
+ * ⚠ NOT `zeroes()`, AND THE DIFFERENCE IS THE WHOLE POINT. Zero is a figure an advisor can
+ * legitimately mean — no revenue that month — so a series that cannot tell zero from silence
+ * would make "I sell nothing in March" indistinguishable from "work March out for me".
+ * @returns {Array<null>}
+ */
+function blanks () { return new Array(MONTHS).fill(null) }
+
+/**
+ * Coerce a 12-element series that may be blank month by month, KEEPING the blanks.
+ *
+ * `pickSeries` fills a blank with a default, which is right for every other series here and
+ * wrong for an override: the absence is the instruction.
+ * @param {*} v @returns {Array<number|null>}
+ */
+function pickOverrideSeries (v) {
+  const out = []
+  for (let m = 0; m < MONTHS; m++) {
+    const supplied = Array.isArray(v) ? v[m] : undefined
+    out.push(usable(supplied) ? pick(supplied, 0) : null)
+  }
+  return out
+}
+
+/**
  * Every landing this forecast has to account for, each carrying the months ITS OWN deposit
  * and balance fall in.
  *
@@ -355,6 +381,9 @@ const DEFAULTS = {
       curve: null // resolved from `pattern` when not given outright
     }),
     readyAfterMonths: 1,
+    // What the advisor has typed over the worked-out revenue, month by month. All blank by
+    // default, so the ladder governs every month unless somebody says otherwise (item 4.64).
+    importedRevenueOverride: blanks(),
     // Selling overseas.
     overseasSales: zeroes(),
     deliveryLagMonths: 2,
@@ -502,6 +531,10 @@ function resolveInputs (raw, fallback) {
         curve
       },
       readyAfterMonths: Math.round(pick(o.readyAfterMonths, def.readyAfterMonths)),
+      // 🔴 THE TICK GOVERNS THIS TOO, for the same reason it governs the two series above:
+      // an advisor who fills the section in, overrides a month and then unticks it must get
+      // today's forecast back, not a forecast carrying one typed revenue figure.
+      importedRevenueOverride: enabled ? pickOverrideSeries(o.importedRevenueOverride) : blanks(),
       overseasSales: seriesIf(o.overseasSales, def.overseasSales),
       deliveryLagMonths: Math.round(pick(o.deliveryLagMonths, def.deliveryLagMonths)),
       overseasCollection: bucket(o.overseasCollection, def.overseasCollection),
@@ -885,6 +918,25 @@ function overseasSchedule (O, gst) {
         out.revenueBeyondYear += revenue
       }
     }
+  }
+
+  // The advisor's own figure for a month wins over the worked-out one — Mike's ruling of
+  // 2026-09-04 that the revenue is seeded "where the advisor can override it", chosen over a
+  // locked figure precisely so a signed order at a known price has somewhere to go.
+  //
+  // A BLANK MEANS "USE THE WORKED-OUT FIGURE", so clearing the box restores it and there is
+  // no separate undo control to find or to name.
+  //
+  // 🔴 COST OF SALES DOES NOT FOLLOW IT. Imported stock is governed by its real unit cost
+  // (his ruling of the same day), so an override moves revenue and the gross margin and
+  // never the cost. Moving the cost with it would be revenue run backwards through a
+  // mark-up, which is the arithmetic that ruling exists to forbid.
+  //
+  // `revenueBeyondYear` is deliberately untouched: it is what falls OUTSIDE these twelve
+  // months, and there is no box on the screen for a month that is not on the screen.
+  for (let m = 0; m < MONTHS; m++) {
+    const typed = O.importedRevenueOverride[m]
+    if (typed !== null && typed !== undefined) { out.importedRevenue[m] = typed }
   }
 
   // Selling overseas. The clock starts at DELIVERY, not at the invoice.
@@ -1820,9 +1872,43 @@ function computeThreeYearForecast (rawInputs, options) {
   }
 }
 
+/**
+ * The revenue imported stock produces, month by month, WITHOUT any override applied.
+ *
+ * WHY IT EXISTS. Mike's ruling of 2026-09-04 is that this revenue is worked out and then
+ * "seeded into the sales row where the advisor can override it", and the approved drawing
+ * (`design/mockups/three-way-forecast-international.html`) shows the twelve figures on the
+ * assumptions screen. A screen cannot show them without asking for them, and the ladder is
+ * business logic, so it is asked for over HTTP rather than repeated in the browser.
+ *
+ * 🔴 IT CALLS THE ENGINE'S OWN `overseasSchedule`, NEVER A SECOND IMPLEMENTATION. A copy of
+ * the ladder written for the screen would drift from the one that produces the forecast, and
+ * the advisor would be shown one number and given another.
+ *
+ * 🔴 THE OVERRIDE IS CLEARED BEFORE COMPUTING, WHICH IS THE POINT OF THE FUNCTION. Seeding
+ * from a result that already has the advisor's figures in it would make a typed number look
+ * like a worked-out one, and clearing a box would then restore the advisor's own value
+ * instead of the ladder's — the restore would silently do nothing.
+ *
+ * @param {object} rawInputs the same shape `computeThreeWayForecast` takes
+ * @returns {{importedRevenue: Array<number>, revenueBeyondYear: number}}
+ */
+function importedRevenuePreview (rawInputs) {
+  const I = resolveInputs(rawInputs)
+  const worked = overseasSchedule(
+    Object.assign({}, I.overseas, { importedRevenueOverride: blanks() }),
+    I.gstRate
+  )
+  return {
+    importedRevenue: worked.importedRevenue.slice(),
+    revenueBeyondYear: worked.revenueBeyondYear
+  }
+}
+
 module.exports = {
   computeThreeWayForecast,
   computeThreeYearForecast,
+  importedRevenuePreview,
   carryForward,
   DEFAULTS,
   ASSET_KEYS,
