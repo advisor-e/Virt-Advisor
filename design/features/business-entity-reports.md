@@ -1,7 +1,7 @@
 # Business Entity Reports — the Brief
 
 > **Status: ☑ PART 1 (THE STUB) IS BUILT — 2026-09-03. Part 2 (saved reports, item 4.62) is
-> built as a seam and proven on one screen — §5; ten screens remain.** Designed and approved
+> built and wired on every routed screen — §5; the Three-Way Forecast follows 4.61.** Designed and approved
 > the same day on Mike's instruction, in his words:
 >
 > > *"we have a performance report feature — these reports/models are editable and viewable at
@@ -116,7 +116,7 @@ closed; a client token never passes `firmAuth`), `clientReportsProxyWiring.test.
 `clientReportLibrary.component.test.js` (no link on a hidden card) and
 `clientAccessSwitch.component.test.js` (advisor only; the flip sends `{ route, state }`).
 
-## 5. Saved reports — part 2, BUILT as a seam 2026-09-03 (slice 1); ten screens still to wire
+## 5. Saved reports — part 2, BUILT 2026-09-03/04; every routed screen wired, the forecast to follow
 
 A **saved report** is one `firmOverlay` key per client per model —
 `client-report:<clientId>:<route>` — holding
@@ -150,8 +150,8 @@ four attributes. `ProvenanceBadge` gained the `client` state; `SliderField` a ba
 **Wired so far:** Debtor Business Drag, Margin, Mark-up & Break-even, Working Capital Cycle,
 Eight Levers, Cost of Capital, Lease vs Buy, Multiple Property (its three blocks and up
 to five property records flattened under dotted names with a `propertyCount`), the Loan
-Estimator, Quick Position, and EBITDA/DCF. **Not yet wired:** Volatility; the Three-Way
-Forecast last, after the laptop's 4.61 lands. Screens without SliderField show the
+Estimator, Quick Position, EBITDA/DCF, and Volatility. **Not yet wired:** the Three-Way
+Forecast alone, last, after the laptop's 4.61 lands. Screens without SliderField show the
 badge in the label through `components/base/ClientChangedBadge.vue`. Until a screen is wired, an open
 model still shows the client its sample figures, exactly as §4 says.
 
@@ -189,6 +189,15 @@ time, each in its own shape, with the listed history always one cell per year. N
 figure is editable after the intake on this screen, so the file-badge rule has no site
 here; a client change is badged on the dial, or on the dial row.
 
+**Volatility saves its 24-month buffer month by month with its source** (`month.<i>`,
+`source.<i>` — sample, file or entered — plus `window`, `startMonth`, `startYear`), because
+the screen's one structural invariant, *a workbook figure is on screen only with the sample
+notice*, is only true if the sources travel with the figures. Loading takes the 24 months
+as **one block or not at all**, takes a window only where the loaded sources allow it, and
+clears the accounts files on screen so nothing credits a file that did not supply the
+figures. A client changing a file month makes it `entered`, as the advisor's own edit does,
+and the month is badged on its label. The accounts upload is hidden from a client.
+
 **Wording proposed and not yet ruled** (`locales/en.json`, `clientReports.saved.*`): the
 "saved by" lines, the banner sentence, the badge word `client`, and the four failure messages.
 
@@ -210,7 +219,9 @@ the store admits it; a bad figure keeps what the screen held; a restored state d
 request; a client-changed file figure shows `client` in place of `from file`),
 `ebitdaDcfSavedShape.test.js` (the row list is pinned to the intake's rows; the figures
 block round-trips whole and one bad cell refuses it; a dial is its own shape; restored
-dials drive the request).
+dials drive the request), `volatilitySavedReport.test.js` (the buffer round-trips with its
+sources; one bad month refuses the series; the invariant holds on load; a loaded row clears
+the files; the badge sits on the changed month alone).
 
 ## 6. What is deliberately not in this design
 
