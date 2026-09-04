@@ -458,10 +458,25 @@ async function loadResolvedObservations (scopeId, loadFirmConfig) {
     return base
   }
 
-  // A scope that has decided nothing returns the layer above UNCHANGED — the same object,
-  // not a rebuilt copy of it. So "this firm has customised nothing" is a passthrough rather
-  // than a second list that happens to look alike and can drift from it.
-  if (!hasAnyDecision(state)) { return base }
+  // A scope that has decided nothing sees the layer above — but the BADGE is relative to
+  // the viewer, so every point is restamped as inherited (item 4.59, fixed 2026-09-04).
+  //
+  // 🔴 WHY THIS IS NOT A PLAIN PASSTHROUGH. `source` is stamped by whichever level applied
+  // decisions, so a point the MENTOR added arrived here still marked `added-here`, and a
+  // firm manager who had customised nothing read "Added here" against something the
+  // mentor wrote — told they authored a point they cannot even edit. A level that has
+  // decided nothing has, by definition, inherited everything it can see. The same fix,
+  // for the same fault, is in meetingTypes.loadResolvedTypes.
+  if (!hasAnyDecision(state)) {
+    const out = {}
+    Object.keys(base).forEach((id) => {
+      out[id] = {
+        ...base[id],
+        points: (base[id].points || []).map(p => ({ ...p, source: OBSERVATION_SOURCE_LABELS.inherited }))
+      }
+    })
+    return out
+  }
 
   const out = {}
   scenarios.forEach((s) => {

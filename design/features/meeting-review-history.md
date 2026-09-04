@@ -244,3 +244,8 @@ not repeated; this is the sequence, and the things found on the way.
   first time that day** and three defects stopped it dead (the backend would not boot,
   `/api/meeting` was missing from the Nuxt proxy list, no management sign-in on that machine); all
   fixed, none findable by a test in this repository.
+- **2026-09-04, item 4.59 closed.** The observation points' resolver had the same badge fault the
+  types resolver was fixed for on 2026-09-02 — a mentor-added point read "Added here" to a firm
+  manager — and was left alone then to keep that slice to its scope. The no-decisions branch now
+  restamps as inherited; two tests pin it, and it was proved on the running app against a real
+  MySQL by adding a point as the mentor and reading it back as a firm manager.

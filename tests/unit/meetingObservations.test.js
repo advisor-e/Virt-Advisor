@@ -266,6 +266,34 @@ describe('resolving through the tier chain', () => {
     expect(firm[EOY].points.map(p => p.id)).not.toContain('mo-eoy-2')
   })
 
+  test('🔴 a point added at the mentor reads as INHERITED at a firm, not "added here"', async () => {
+    // Item 4.59. The badge is relative to the viewer. `source` is stamped by whichever level
+    // applied decisions, so without the restamp the mentor's `added-here` travelled down and
+    // a firm manager was told they wrote a point they cannot edit. Looks normal on screen.
+    const read = readerFor({
+      [PLATFORM_SCOPE]: { [mo.CONFIG_KEYS.own]: { [EOY]: [{ id: 'mp-1', text: 'Mentor wrote this.' }] } }
+    })
+    const atMentor = await mo.loadResolvedObservations(PLATFORM_SCOPE, read)
+    expect(atMentor[EOY].points.filter(p => p.id === 'mp-1')[0].source).toBe('added-here')
+
+    const atFirm = await mo.loadResolvedObservations(FIRM, read)
+    const row = atFirm[EOY].points.filter(p => p.id === 'mp-1')[0]
+    expect(row.text).toBe('Mentor wrote this.')
+    expect(row.source).toBe('inherited')
+  })
+
+  test('a firm that HAS decided something still reads the mentor\'s additions as inherited', async () => {
+    // The other half: the restamp covers the passthrough and resolveInheritedRows covers
+    // this path. Both have to agree or the badge flickers with unrelated edits.
+    const read = readerFor({
+      [PLATFORM_SCOPE]: { [mo.CONFIG_KEYS.own]: { [EOY]: [{ id: 'mp-1', text: 'Mentor wrote this.' }] } },
+      [FIRM]: { [mo.CONFIG_KEYS.own]: { [EOY]: [{ id: 'fp-1', text: 'Ours.' }] } }
+    })
+    const atFirm = await mo.loadResolvedObservations(FIRM, read)
+    expect(atFirm[EOY].points.filter(p => p.id === 'mp-1')[0].source).toBe('inherited')
+    expect(atFirm[EOY].points.filter(p => p.id === 'fp-1')[0].source).toBe('added-here')
+  })
+
   test('a scenario is never renamed by a stored decision', async () => {
     const read = readerFor({
       [FIRM]: { [mo.CONFIG_KEYS.own]: { [EOY]: [{ id: 'fm-1', text: 'x' }] } }

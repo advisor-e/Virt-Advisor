@@ -185,6 +185,15 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.59 · A point the mentor adds tells a firm manager THEY wrote it.** ✅ Closed 2026-09-04. A
+scope that had decided nothing was handed the layer above untouched, so the badge kept the stamp of
+whichever level applied decisions, and a firm manager read "Added here" against a point the mentor
+wrote. The no-decisions branch of `loadResolvedObservations` now restamps every point as inherited
+from the viewer's point of view — the fix already made in `meetingTypes.loadResolvedTypes` on
+2026-09-02 and deliberately not applied here then. Proved by two tests copied from the types
+module's pattern (`tests/unit/meetingObservations.test.js`), and live on the running app: a point
+added as the mentor read *added-here* to the mentor and *inherited* to the firm manager.
+
 **4.61 · The forecast reads one year and one file — the volatility read and the two-year trend.**
 ✅ Closed 2026-09-03, both phases built the same day. Mike's request: *"drop the last 2 years worth
 of p&l and balance sheet so some basic trend analysis can be performed — including volatility
