@@ -699,6 +699,79 @@
                         :placeholder="String(form.markup)")
                     .tw-foot {{ $t('report.threeWayForecast.assume.overseas.overseasMarkupHint') }}
 
+                //- ── Fill these from actual shipments (item 4.64 slice 2) ───────
+                //- The Import & Retail workbook as a CALCULATOR, not a second screen.
+                //- Every date is worked out from the order date on the supplier's own
+                //- terms and shown, never picked — Mike's ruling of 2026-09-04, and the
+                //- correction that ruling made to the drawing is recorded on the drawing.
+                //- The arithmetic is the backend's (`/api/report/import-shipments`);
+                //- this panel renders the answer and decides nothing.
+                .subgroup.ship-panel
+                  .subh
+                    span {{ $t('report.threeWayForecast.assume.shipments.heading') }}
+                  .tw-foot(style="margin-bottom:10px") {{ $t('report.threeWayForecast.assume.shipments.intro') }}
+
+                  .termhead {{ $t('report.threeWayForecast.assume.shipments.termsHeading') }}
+                  .shipterms
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.shipments.manufactureDays') }}
+                        provenance-badge(
+                          source="seeded"
+                          :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                          :seeded-label="$t('report.threeWayForecast.assume.overseas.fromMentor')"
+                          size="sm")
+                      b-input(v-model.number="form.overseas.shipmentTerms.manufactureDays" type="number" step="1" size="is-small")
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.shipments.balanceDueDays') }}
+                      b-input(v-model.number="form.overseas.shipmentTerms.balanceDueDays" type="number" step="1" size="is-small")
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.shipments.prepDays') }}
+                      b-input(v-model.number="form.overseas.shipmentTerms.prepDays" type="number" step="1" size="is-small")
+                    .field
+                      .fieldlab
+                        span {{ $t('report.threeWayForecast.assume.shipments.interestCover') }}
+                      b-input(v-model.number="form.overseas.shipmentTerms.interestCoverPct" type="number" step="any" size="is-small")
+                  .tw-foot(style="margin-bottom:12px") {{ $t('report.threeWayForecast.assume.shipments.termsNote', { sea: form.overseas.shipmentTerms.seaDays, air: form.overseas.shipmentTerms.airDays, express: form.overseas.shipmentTerms.expressDays }) }}
+
+                  .shiprow.head(v-if="form.overseas.shipments.length")
+                    span {{ $t('report.threeWayForecast.assume.shipments.description') }}
+                    span {{ $t('report.threeWayForecast.assume.shipments.cost') }}
+                    span {{ $t('report.threeWayForecast.assume.shipments.ordered') }}
+                    span {{ $t('report.threeWayForecast.assume.shipments.deposit') }}
+                    span {{ $t('report.threeWayForecast.assume.shipments.speed') }}
+                    span {{ $t('report.threeWayForecast.assume.shipments.workedOut') }}
+                    span
+
+                  .shiprow(v-for="(s, i) in form.overseas.shipments" :key="'ship' + i")
+                    b-input(v-model="s.description" size="is-small" :placeholder="$t('report.threeWayForecast.assume.shipments.descriptionPlaceholder')")
+                    b-input(v-model.number="s.cost" type="number" step="any" size="is-small")
+                    b-input(v-model="s.orderDate" type="date" size="is-small")
+                    b-input(v-model.number="s.depositPct" type="number" step="any" size="is-small")
+                    b-select(v-model="s.speed" size="is-small" expanded)
+                      option(v-for="sp in shipmentSpeeds" :key="sp" :value="sp") {{ $t('report.threeWayForecast.assume.shipments.speed' + sp) }}
+                    .ship-derived(v-if="shipmentRow(i)")
+                      | {{ $t('report.threeWayForecast.assume.shipments.lands', { date: shipmentRow(i).landsOn }) }}
+                      small {{ shipmentWorking(i) }}
+                    .ship-derived.is-empty(v-else) {{ $t('report.threeWayForecast.assume.shipments.needsADate') }}
+                    b-button(
+                      size="is-small" type="is-text"
+                      @click="removeShipment(i)") {{ $t('report.threeWayForecast.assume.shipments.remove') }}
+
+                  .tw-foot(v-if="!form.overseas.shipments.length" style="margin-bottom:10px") {{ $t('report.threeWayForecast.assume.shipments.none') }}
+
+                  b-button(size="is-small" type="is-light" @click="addShipment") {{ $t('report.threeWayForecast.assume.shipments.add') }}
+
+                  //- A container landing after the twelfth month is not this forecast's
+                  //- stock and neither is its cash. Said in words rather than dropped —
+                  //- otherwise an advisor enters a shipment and nothing at all happens.
+                  b-message.mt-3(v-if="shipmentsBeyondYear.length" type="is-warning" size="is-small")
+                    | {{ $t('report.threeWayForecast.assume.shipments.beyondYear', { count: shipmentsBeyondYear.length }) }}
+
+                  .tw-foot(v-if="shipmentsDrive" style="margin-top:10px") {{ $t('report.threeWayForecast.assume.shipments.driving') }}
+
           //- Buying and selling capital assets. Built from the approved drawing
           //- design/mockups/three-way-forecast-capital.html (approved 2026-09-03).
           .tw-group
@@ -966,6 +1039,14 @@ export default {
       volatility: null,
       volatilityStale: false,
       volatilityTimer: null,
+      /**
+       * What the shipment calculator last returned (item 4.64 slice 2). It is NOT on the
+       * form: every figure in it is derived from the shipments and the terms, and a derived
+       * value stored beside its inputs is a value that can disagree with them. A restored
+       * session recomputes from the shipments it was saved with.
+       */
+      shipmentResult: { rows: [], importedPurchases: [], deposits: [], balances: [], interest: [], landings: [], beyondYear: [] },
+      shipmentTimer: null,
       // A restored form is this component's own state coming back from the page, but it
       // is normalised anyway: a form saved before the capital block existed has no rows,
       // and an undefined list would break the group rather than show it empty.
@@ -1117,6 +1198,19 @@ export default {
 
     /** The demand patterns the mentor holds, for the chooser. */
     sellDownPatterns () { return SELL_DOWN.patterns },
+
+    /** The three shipping speeds, in the workbook's own order — slowest first. */
+    shipmentSpeeds () { return ['Sea', 'Air', 'Express'] },
+
+    /**
+     * Is the calculator actually driving this forecast? True the moment one shipment
+     * resolves, which is also when the twelve landing boxes stop being the advisor's to
+     * type — said on screen rather than left to be discovered.
+     */
+    shipmentsDrive () { return this.shipmentResult.landings.length > 0 },
+
+    /** Shipments that land after the twelfth month, for the warning band. */
+    shipmentsBeyondYear () { return this.shipmentResult.beyondYear },
 
     /** How far ahead a deposit may be paid. It reaches NINE months, because Mike's own
      *  Import & Retail workbook pays roughly 220 days before the first sale — capping it
@@ -1394,7 +1488,23 @@ export default {
       handler () {
         if (this.phase === 'assume') { this.scheduleVolatility() }
       }
-    }
+    },
+
+    /**
+     * The shipments and the terms that date them. Deep, because a row's own fields are
+     * what change — and debounced, because an order date is typed a digit at a time and
+     * each keystroke would otherwise be a round trip.
+     */
+    'form.overseas.shipments': {
+      deep: true,
+      handler () { this.scheduleShipments() }
+    },
+    'form.overseas.shipmentTerms': {
+      deep: true,
+      handler () { this.scheduleShipments() }
+    },
+    // A forecast that starts in a different month files every event in a different column.
+    'form.startDate' () { this.scheduleShipments() }
   },
 
   mounted () {
@@ -1408,6 +1518,9 @@ export default {
     // already carries whatever the advisor set for this client, and re-seeding would
     // overwrite a decision with a default.
     if (!this.restore) { this.refreshSellDown() }
+    // A restored session carries its shipments but not their dates — those are derived, and
+    // a derived value stored beside its inputs is one that can disagree with them. Recompute.
+    if (this.form.overseas.shipments.length) { this.refreshShipments() }
   },
 
   beforeDestroy () {
@@ -1451,6 +1564,15 @@ export default {
       // it existed carries no `trend`, and `undefined` would make the block's own v-if
       // ambiguous — null means "nothing to show", which is a state it draws properly.
       if (!form.trend || typeof form.trend !== 'object') { form.trend = null }
+      // Same normalisation for the shipment calculator, and for the same reason: a form
+      // saved before it existed carries neither, and an undefined list would break the
+      // panel's v-for rather than draw its "nothing entered yet" state.
+      const blankOverseas = this.blankForm().overseas
+      if (!form.overseas || typeof form.overseas !== 'object') { form.overseas = blankOverseas }
+      if (!Array.isArray(form.overseas.shipments)) { form.overseas.shipments = [] }
+      if (!form.overseas.shipmentTerms || typeof form.overseas.shipmentTerms !== 'object') {
+        form.overseas.shipmentTerms = blankOverseas.shipmentTerms
+      }
       return form
     },
 
@@ -1521,7 +1643,21 @@ export default {
           overseasCollection: [0, 50, 50, 0, 0],
           zeroRated: true,
           salesFxAllowancePct: 10,
-          overseasMarkup: null
+          overseasMarkup: null,
+          // The shipment calculator (item 4.64 slice 2). Empty by default, so a forecast
+          // that never opens this panel is byte-identical to one built before it existed.
+          // The terms are the workbook's own, held as whole numbers like every other rate
+          // on this form and divided on the way out.
+          shipmentTerms: {
+            manufactureDays: 120,
+            balanceDueDays: 91,
+            prepDays: 9,
+            interestCoverPct: 6,
+            seaDays: 25,
+            airDays: 20,
+            expressDays: 15
+          },
+          shipments: []
         },
         // Buying and selling capital assets. A ROW LIST, not the engine's 6 x 12 grid:
         // 72 boxes of which 70 are zero is a screen an advisor scrolls past, and the two
@@ -1951,6 +2087,128 @@ export default {
       }, VOLATILITY_DEBOUNCE_MS)
     },
 
+    /** A new shipment row, on the terms the panel already shows. */
+    addShipment () {
+      this.form.overseas.shipments.push({
+        description: '', cost: 0, orderDate: '', depositPct: 60, speed: 'Sea'
+      })
+    },
+
+    /** @param {number} i - the row to drop. */
+    removeShipment (i) {
+      this.form.overseas.shipments.splice(i, 1)
+      this.scheduleShipments()
+    },
+
+    /**
+     * The backend's resolved row for one shipment, or null while it has no usable order
+     * date. Matched BY INDEX because the backend keeps the order it was sent and drops
+     * only rows it cannot read — so a dropped row must not silently shift the dates shown
+     * beside the rows after it.
+     *
+     * @param {number} i @returns {object|null}
+     */
+    shipmentRow (i) {
+      const s = this.form.overseas.shipments[i]
+      if (!s || !s.orderDate || !(Number(s.cost) > 0)) { return null }
+      const rows = this.shipmentResult.rows
+      for (let r = 0; r < rows.length; r++) {
+        if (rows[r].orderDate === s.orderDate && rows[r].cost === Number(s.cost)) { return rows[r] }
+      }
+      return null
+    },
+
+    /**
+     * The working printed under a resolved row — the deposit month, the balance date with
+     * its interest cover, and the month the stock is actually sellable.
+     *
+     * It is spelled out because the three dates are the whole point of the panel: a
+     * container landing on the 24th of a month is not on a shelf that month, and a balance
+     * due on the supplier's 91-day terms can fall BEFORE the goods arrive.
+     *
+     * @param {number} i @returns {string}
+     */
+    shipmentWorking (i) {
+      const r = this.shipmentRow(i)
+      if (!r) { return '' }
+      return this.$t('report.threeWayForecast.assume.shipments.working', {
+        deposit: r.orderDate,
+        balance: r.balanceDueOn,
+        interest: this.money(r.interest),
+        sellable: r.sellableOn
+      })
+    },
+
+    /** Debounced, exactly as the volatility read is — a date typed a digit at a time. */
+    scheduleShipments () {
+      if (this.shipmentTimer) { clearTimeout(this.shipmentTimer) }
+      this.shipmentTimer = setTimeout(() => {
+        this.shipmentTimer = null
+        this.refreshShipments()
+      }, VOLATILITY_DEBOUNCE_MS)
+    },
+
+    /**
+     * Ask the backend to date the shipments (item 4.64 slice 2).
+     *
+     * 🔴 THE ARITHMETIC IS THE BACKEND'S AND THIS SCREEN DECIDES NOTHING. Dating an event
+     * from an order date is business logic, so it lives on Restify — and one implementation
+     * cannot drift from another, which two would.
+     *
+     * ⚠ IT WRITES THE TWELVE LANDING BOXES. The moment one shipment resolves, the
+     * `importedPurchases` row above stops being typed and starts being filled — which is
+     * what the panel says on screen, because a box that silently overwrites what an advisor
+     * typed is worse than one that cannot be typed in at all.
+     */
+    async refreshShipments () {
+      const o = this.form.overseas
+      // Percentages are whole numbers on this form and divided on the way out, exactly as
+      // `overseasInputs` does it — the same convention as every other rate on the screen.
+      const pct = v => Number(v) / 100
+      const list = o.shipments.filter(s => s.orderDate && Number(s.cost) > 0)
+      if (!list.length || !this.form.startDate) {
+        this.shipmentResult = { rows: [], importedPurchases: [], deposits: [], balances: [], interest: [], landings: [], beyondYear: [] }
+        return
+      }
+      try {
+        const res = await fetch('/api/report/import-shipments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            startDate: this.form.startDate,
+            terms: {
+              manufactureDays: Number(o.shipmentTerms.manufactureDays) || 0,
+              balanceDueDays: Number(o.shipmentTerms.balanceDueDays) || 0,
+              prepDays: Number(o.shipmentTerms.prepDays) || 0,
+              interestCoverPct: pct(o.shipmentTerms.interestCoverPct),
+              shippingDays: {
+                Sea: Number(o.shipmentTerms.seaDays) || 0,
+                Air: Number(o.shipmentTerms.airDays) || 0,
+                Express: Number(o.shipmentTerms.expressDays) || 0
+              }
+            },
+            shipments: list.map(s => ({
+              description: s.description,
+              cost: Number(s.cost) || 0,
+              orderDate: s.orderDate,
+              depositPct: pct(s.depositPct),
+              speed: s.speed
+            }))
+          })
+        })
+        const json = await res.json()
+        if (!json || !json.success || !json.data) { return }
+        this.shipmentResult = json.data
+        // The calculator owns the landing row once it has anything to say.
+        if (json.data.landings.length) {
+          this.form.overseas.importedPurchases = json.data.importedPurchases.slice()
+        }
+      } catch (e) {
+        // The panel simply shows no dates. A failed read must never stop an advisor
+        // finishing a forecast by hand, which is exactly what they did before this existed.
+      }
+    },
+
     /**
      * Ask the backend for the price ladder this scope works to — the mentor's figures, with
      * any tier below them applied (item 4.64).
@@ -2189,7 +2447,12 @@ export default {
         // Null follows the local mark-up, which is the ruled default.
         overseasMarkup: o.overseasMarkup === null || o.overseasMarkup === ''
           ? null
-          : pct(o.overseasMarkup)
+          : pct(o.overseasMarkup),
+        // The calculator's resolved landings, each with its OWN deposit and balance month
+        // and its own interest cover (item 4.64 slice 2). Empty means the twelve landing
+        // figures above were typed by hand, which is every forecast that never opens the
+        // shipments panel — and the engine then works exactly as it did before.
+        landings: on ? this.shipmentResult.landings : []
       }
     },
 
@@ -2318,6 +2581,22 @@ export default {
 .caprow.head span { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; font-weight: 700; color: var(--rs-muted); }
 .caprow.row-invalid { background: #ff00000a; }
 @media (max-width: 860px) { .caprow { grid-template-columns: 1fr; } .caprow.head { display: none; } }
+/* The shipment calculator (item 4.64 slice 2). Laid out like `.caprow` above rather than
+   afresh — same grid, same uppercase header, same collapse at 860px, so the two row lists
+   on this screen read as one pattern. */
+.ship-panel { margin-top: 14px; border-style: dashed; }
+.shipterms { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 4px; }
+@media (max-width: 860px) { .shipterms { grid-template-columns: 1fr 1fr; } }
+.shiprow { display: grid; grid-template-columns: 1fr 96px 148px 82px 104px 190px 76px; gap: 8px; align-items: start; padding: 8px 0; border-bottom: 1px solid var(--rs-line); }
+.shiprow:last-of-type { border-bottom: 0; }
+.shiprow.head { padding-bottom: 6px; }
+.shiprow.head span { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; font-weight: 700; color: var(--rs-muted); }
+@media (max-width: 860px) { .shiprow { grid-template-columns: 1fr; } .shiprow.head { display: none; } }
+/* A worked-out value is deliberately NOT a control — it is not the advisor's to type, and
+   it must not look as though it is. */
+.ship-derived { font-size: 12px; background: #eaf3fb; border: 1px solid #cfe3f7; border-radius: 6px; padding: 6px 8px; line-height: 1.35; }
+.ship-derived small { display: block; color: var(--rs-muted); font-size: 10.5px; margin-top: 2px; }
+.ship-derived.is-empty { background: transparent; border-style: dashed; color: var(--rs-muted); }
 .capbook { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .capcarried { font-size: 11px; color: var(--rs-muted); line-height: 1.35; }
 .capempty { font-size: 12.5px; color: var(--rs-muted); padding: 14px 0 2px; }

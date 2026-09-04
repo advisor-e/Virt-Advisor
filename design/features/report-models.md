@@ -682,8 +682,22 @@ any month.
 > figures carry no order date and no credit period, so there is no span to charge it over;
 > inventing one is the guesswork the *dates, not bands* ruling exists to stop.
 >
-> **Not yet built: the screen.** The shipment table on the step-3 panel is drawn and ruled,
-> not wired.
+> **The screen is built too.** *Fill these from actual shipments* sits at the foot of the
+> overseas section: the five supplier terms entered once, then a row per shipment
+> (description, cost, order date, deposit %, speed) with a **worked-out** blue cell beside
+> it — *Lands 24 Sep · deposit 2026-05-02 · balance 2026-08-01 + 546 interest · sellable
+> 3 Oct*. Nothing about a date is typed.
+>
+> 🔴 **The arithmetic is a Restify route, `POST /api/report/import-shipments`, not a computed
+> property.** Dating an event from an order date is business logic, and a browser copy of it
+> would be a second implementation of *when does this container land* — one the advisor
+> reads, one the forecast uses. The screen shows the answer and decides nothing. It posts
+> debounced as the advisor types, exactly as the volatility block beside it does.
+>
+> **Once one shipment resolves, the calculator owns the twelve landing boxes** and the panel
+> says so on screen. A shipment landing past the twelfth month is named in a warning band
+> rather than dropped in silence, and a backend failure leaves the advisor finishing by hand
+> — which is what they did before this existed.
 
 Because revenue is then *cost × the ladder*, **real unit costs govern imported
 stock** and the mark-up governs local: recovering a known cost from revenue would be

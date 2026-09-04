@@ -21,6 +21,7 @@ const { computeLeaseVsBuy } = require('../report/leaseVsBuyModel')
 const { computeMultiplePropertyAssessment, computeMultiplePropertyPortfolio } = require('../report/multiplePropertyModel')
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { computeVolatility } = require('../report/volatilityModel')
+const { computeImportShipments } = require('../report/importShipmentModel')
 const { computeThreeWayForecast, computeThreeYearForecast } = require('../report/threeWayForecastModel')
 const { assembleForecastIntake, MAX_FILES: MAX_FORECAST_FILES } = require('../report/intake/threeWayForecastAssembler')
 const { computeTrend } = require('../report/trendModel')
@@ -646,6 +647,45 @@ function volatility (req, res, next) {
 }
 
 /**
+ * POST /api/report/import-shipments
+ *
+ * The Import & Retail shipment calculator (item 4.64 slice 2). Step 3 of the Three-Way
+ * Forecast sends the shipments an advisor has entered and gets back the months each one's
+ * deposit, balance and landing really fall in, worked out from the order date.
+ *
+ * 🔴 IT IS A ROUTE BECAUSE THE ARITHMETIC IS BUSINESS LOGIC, and business logic does not
+ * live in Nuxt. The screen shows the answer; it does not work it out. That also means one
+ * implementation of the date rules rather than a backend one and a browser one drifting
+ * apart — the same reason the volatility block above is a route rather than a computed
+ * property.
+ *
+ * @param {object} req.body - `{ startDate, terms, shipments }`.
+ *   `startDate` is the forecast's first day (`YYYY-MM-DD`); without it nothing can be filed
+ *   in a month and an empty result comes back rather than a guess. `terms` are the
+ *   supplier's, defaulting to the workbook's own (manufacture 120, balance due 91, prep 9,
+ *   sea 25 / air 20 / express 15, interest cover 6%). `shipments` each carry
+ *   `{ description, cost, orderDate, depositPct, speed }`.
+ * @returns {object} `{ success, data, timestamp }` — `rows` (each with its worked-out dates
+ *   and months), the `importedPurchases`, `deposits`, `balances` and `interest` series,
+ *   the `landings` the forecast engine consumes, and `beyondYear` for shipments that land
+ *   after the twelfth month.
+ *
+ * Anonymous by design: dates and numbers in, dates and numbers out. Only the file-intake
+ * routes carry `firmAuth`, because those accept uploads.
+ */
+function importShipments (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeImportShipments(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] import-shipments compute failed:', err)
+    res.send(400, { success: false, error: { code: 'IMPORT_SHIPMENTS_COMPUTE_FAILED', message: 'Could not work out the shipment dates from the supplied terms.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
  * POST /api/report/three-way-forecast
  *
  * @param {object} req.body - partial Three-Way Forecast inputs (see the model's
@@ -891,4 +931,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }

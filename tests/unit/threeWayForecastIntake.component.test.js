@@ -703,3 +703,103 @@ describe('the volatility read renders', () => {
     w.destroy()
   })
 })
+
+/**
+ * The shipment calculator panel (item 4.64 slice 2).
+ *
+ * The dates themselves are the backend's and are pinned in importShipmentModel.test.js.
+ * What is tested here is the wiring only this screen has, and only where it could be wrong
+ * invisibly: that the resolved landings actually reach the payload, that the tick governs
+ * them, and that a forecast saved before the panel existed still opens.
+ */
+describe('the shipment calculator panel', () => {
+  afterEach(() => { delete global.fetch; jest.clearAllMocks() })
+
+  /** What the backend answers with, shaped as the route sends it. */
+  const RESOLVED = {
+    rows: [{ description: 'C1', cost: 90000, orderDate: '2026-05-02', landsOn: '2026-09-24', balanceDueOn: '2026-08-01', sellableOn: '2026-10-03', landsInMonth: 5, depositMonth: 1, balanceMonth: 4, deposit: 54000, balance: 36000, interest: 546, depositPct: 0.6, speed: 'Sea', sellableInMonth: 6 }],
+    importedPurchases: [0, 0, 0, 0, 0, 90000, 0, 0, 0, 0, 0, 0],
+    deposits: [0, 54000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    balances: [0, 0, 0, 0, 36000, 0, 0, 0, 0, 0, 0, 0],
+    interest: [0, 0, 0, 0, 546, 0, 0, 0, 0, 0, 0, 0],
+    landings: [{ value: 90000, landsInMonth: 5, depositPct: 0.6, depositMonth: 1, balanceMonth: 4, interest: 546 }],
+    beyondYear: []
+  }
+
+  // 🔴 THE LANDINGS MUST REACH THE ENGINE. Without them the engine falls back to one
+  // averaged deposit lead and one balance profile — the screen would show real dates while
+  // the forecast used approximated ones, and nothing would look wrong.
+  test('the resolved landings are sent with the forecast', () => {
+    const w = mountIntake({ step: 3 })
+    w.vm.form.overseas.enabled = true
+    w.vm.shipmentResult = RESOLVED
+    const sent = w.vm.overseasInputs()
+    expect(sent.landings).toHaveLength(1)
+    expect(sent.landings[0].balanceMonth).toBe(4)
+    expect(sent.landings[0].interest).toBe(546)
+    w.destroy()
+  })
+
+  // The same trap `enabled` was fixed for in the engine: an advisor who enters containers
+  // and then unticks the section must get today's forecast back, not half of one.
+  test('with the tick off no landings are sent, whatever was entered', () => {
+    const w = mountIntake({ step: 3 })
+    w.vm.form.overseas.enabled = false
+    w.vm.shipmentResult = RESOLVED
+    expect(w.vm.overseasInputs().landings).toEqual([])
+    w.destroy()
+  })
+
+  test('a forecast saved before this panel existed still opens', () => {
+    const w = mountIntake({ step: 3 })
+    const old = JSON.parse(JSON.stringify(w.vm.form))
+    delete old.overseas.shipments
+    delete old.overseas.shipmentTerms
+    const back = mountIntake({ step: 3, restore: old })
+    expect(back.vm.form.overseas.shipments).toEqual([])
+    expect(back.vm.form.overseas.shipmentTerms.manufactureDays).toBe(120)
+    back.destroy()
+    w.destroy()
+  })
+
+  test('the twelve landing figures are filled once a shipment resolves', async () => {
+    global.fetch = jest.fn(() => Promise.resolve({
+      json: () => Promise.resolve({ success: true, data: RESOLVED })
+    }))
+    const w = mountIntake({ step: 3 })
+    w.vm.form.startDate = '2026-04-01'
+    w.vm.form.overseas.shipments = [{ description: 'C1', cost: 90000, orderDate: '2026-05-02', depositPct: 60, speed: 'Sea' }]
+    await w.vm.refreshShipments()
+    expect(w.vm.form.overseas.importedPurchases[5]).toBe(90000)
+    expect(w.vm.shipmentsDrive).toBe(true)
+    w.destroy()
+  })
+
+  // A half-typed row is the normal state of this panel, not an error — it must not post.
+  test('a row with no order date is not sent, and clears nothing', () => {
+    global.fetch = jest.fn()
+    const w = mountIntake({ step: 3 })
+    w.vm.form.startDate = '2026-04-01'
+    w.vm.form.overseas.shipments = [{ description: '', cost: 0, orderDate: '', depositPct: 60, speed: 'Sea' }]
+    w.vm.refreshShipments()
+    // Checked BY URL: mounting the screen legitimately reads the mentor's ladder, so
+    // "fetch was never called" would be asserting something else entirely.
+    const posted = global.fetch.mock.calls.filter(c => c[0] === '/api/report/import-shipments')
+    expect(posted).toHaveLength(0)
+    expect(w.vm.shipmentsDrive).toBe(false)
+    w.destroy()
+  })
+
+  test('a backend failure leaves the advisor able to finish by hand', async () => {
+    global.fetch = jest.fn(() => Promise.reject(new Error('offline')))
+    const w = mountIntake({ step: 3 })
+    w.vm.form.startDate = '2026-04-01'
+    w.vm.form.overseas.importedPurchases = [0, 0, 0, 0, 0, 12345, 0, 0, 0, 0, 0, 0]
+    w.vm.form.overseas.shipments = [{ description: 'C1', cost: 90000, orderDate: '2026-05-02', depositPct: 60, speed: 'Sea' }]
+    await w.vm.refreshShipments()
+    // Nothing was overwritten and nothing threw.
+    expect(w.vm.form.overseas.importedPurchases[5]).toBe(12345)
+    expect(w.vm.shipmentsDrive).toBe(false)
+    w.destroy()
+  })
+})

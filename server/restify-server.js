@@ -211,6 +211,11 @@ server.post('/api/report/lease-vs-buy', reportRoute.leaseVsBuy)
 server.post('/api/report/cost-of-capital', reportRoute.costOfCapital)
 server.post('/api/report/multiple-property', reportRoute.multipleProperty)
 server.post('/api/report/volatility', reportRoute.volatility)
+// The Import & Retail shipment calculator (item 4.64 slice 2). Anonymous like the
+// volatility read beside it — dates and numbers in, dates and numbers out. It is a route
+// rather than a computed property because the date rules are business logic, and one
+// implementation cannot drift from another.
+server.post('/api/report/import-shipments', reportRoute.importShipments)
 server.post('/api/report/three-way-forecast', reportRoute.threeWayForecast)
 server.post('/api/report/three-way-forecast/three-years', reportRoute.threeYearForecast)
 // The Model Guide screen. Same records the AI is given, from the same file — see the
