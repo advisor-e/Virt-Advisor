@@ -185,6 +185,48 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.63 · Overseas stock purchases — the Import & Retail model feeds the forecast.**
+✅ Closed 2026-09-04. Mike's request of 2026-09-03: *"I also want you to read the 'import and
+retail' excel model i loaded to see how future overseas stock purchases could be included in this
+forecast"*. It has **no screen and no number of its own**, because on 2026-09-04 he merged it into
+4.64 — *"you can merge the 4.63 into this task to make one clean data entry and reporting
+section"* — and it was built there as **slice 2**: an upstream calculator
+([`../../server/report/importShipmentModel.js`](../../server/report/importShipmentModel.js)) that
+turns real orders into the months the forecast works in.
+
+🔴 **The port reproduces his workbook, and that is the whole of what closes this.** Deposit 60%,
+balance at order + 91 days, both charges pro-rated over a **360-day** year:
+`43,057.20 + 653.03 interest + 1,088.39 currency = 44,798.62` — his own figure, to the cent. The
+supplier terms are his (manufacture 120, balance due 91, prep 9), and they sum to the
+**154 / 149 / 144 days** his sheet states for sea, air and express.
+
+🔴 **Reading the sheet corrected the earlier summary twice, and both corrections were only
+available by opening it.** The curves the supplier sheets actually consume are the **four-band**
+table (each pattern totalling 100%), not the seven-band area on Index Tables. And the shipping-cost
+row **cannot be reproduced from the sheet's own shipment terms in 4 of its 12 months** — April and
+August missing their refrigerated surcharge, July and September charged one when marked not
+refrigerated, identically on **both** supplier sheets, so a formula that did not copy rather than a
+typo. Mike ruled the stated rule wins over the four figures. ⚠ **Nothing depends on that ruling
+today**: the approved screen prices freight as a percentage of landed value, so container sizes and
+the surcharge table never come across — only the shipping *days*, which are what turn an order date
+into a landing date. It is written down so the finding is not lost.
+
+⚠ **The 6% interest cover was REPORTED as a gap, not invented.** The first build said plainly that
+his sheet charges it and the forecast did not; he then asked for it (*"can you fix the 6% interest
+issue"*) and ruled where it goes. That is the reporting rule working as intended, and it is worth
+recording that it did.
+
+**What proves it:**
+[`tests/unit/importShipmentModel.test.js`](../../tests/unit/importShipmentModel.test.js) — his
+payment split and day counts against the workbook, the 360-day convention pinned against the 365
+it could have been, and the two containers ordered eighteen days apart in one May landing in
+**different months**, which is the failure band-mapping produces and his own R9 ruling forbids;
+[`tests/unit/importShipmentsRoute.test.js`](../../tests/unit/importShipmentsRoute.test.js) — the
+HTTP envelope, the safe failure shape, and that the route is actually registered. Suite green at
+7,776 (402 suites), lint 0 errors, `npm run build` succeeds. Recorded in
+[`report-models.md`](report-models.md) and on
+[`../mockups/three-way-forecast-international.html`](../mockups/three-way-forecast-international.html).
+
 **4.61 · The forecast reads one year and one file — the volatility read and the two-year trend.**
 ✅ Closed 2026-09-03, both phases built the same day. Mike's request: *"drop the last 2 years worth
 of p&l and balance sheet so some basic trend analysis can be performed — including volatility

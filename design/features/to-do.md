@@ -42,11 +42,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 5 | **4.60** QuickBooks and MYOB are supported on paper, not against a real file ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 6 | **4.62** Saved reports per client — so a client can edit what the advisor opened ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-09-03 |
 | 7 | **4.66** Economic analysis — the forecast asks the AI for market research ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 8 | **4.64** International versus local — the forecast treats every sale and purchase as domestic ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-04 |
-| 9 | **4.63** Overseas stock purchases — the Import & Retail model feeds the forecast ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 10 | **4.65** The book value of one asset is typed, because no screen asks for the asset schedule ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 8 | **4.64** International versus local — the forecast treats every sale and purchase as domestic ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 9 | **4.65** The book value of one asset is typed, because no screen asks for the asset schedule ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 
-**Ten live items. Six need Mike.** If this list passes about twenty, something is wrong.
+**Nine live items. Six need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

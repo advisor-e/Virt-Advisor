@@ -211,16 +211,12 @@
       "ref": "4.64",
       "name": "International versus local — the forecast treats every sale and purchase as domestic",
       "rankedByMike": false,
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-04"
-      },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "Mike's request, 2026-09-03: an international-versus-local split for purchases and sales on step 3, allowing for shipping and FX. Drawn, approved and built 2026-09-04; the drawing and its six rulings are recorded in ARTEFACTS.md.",
       "risk": "🔴 THE GUARD THIS MUST NOT BE BUILT WITHOUT: with the tick off and both overseas series empty, the 10,155-cell golden test must produce byte-identical output, and it is written first — this change reaches into the GST computation, which the golden set covers cell by cell. GST is wrong in both directions today: every sale is charged, and every purchase credited when the supplier is paid, where exports are zero-rated and imports pay at the border.",
       "askedBy": {
@@ -229,29 +225,8 @@
         "detail": "2026-09-03 — \"shouldn't the assumptions page have a 'international' vs 'Local' purchases and sales box? this is where imported stock purchases that take longer to arrive and require deposits etc can be entered, as can oversaes sales that rely on delivery before payment can be entered - to allow for shipping and fx\". Filed on his instruction (\"file it\")."
       },
       "touches": "Built: server/report/threeWayForecastModel.js, tests/unit/threeWayForecastModel.test.js, components/ThreeWayForecastIntake.vue, ThreeWayForecastReport.vue, locales/en.json. The mentor tab added server/utils/forecastSellDown.js, server/routes/forecastSellDown.js, four manager routes plus a read in restify-server.js, components/firm/FirmSellDownLadder.vue and its tab in FirmManagerHub.vue, with tests/unit/forecastSellDown.test.js. Slice 2 adds an upstream calculator under server/report/ with a golden test against the workbook.",
-      "note": "🔴 IT ABSORBS 4.63 AS SLICE 2, on Mike's instruction of 2026-09-04 — one section, one set of cash rows, so the Import & Retail workbook becomes a calculator rather than a second screen. BOTH SLICES ARE NOW BUILT — slice 1 with the mentor's ladder tab, slice 2 with its calculator, its Restify route and its screen. Nothing on the drawing is open. The cash flow grows five rows of its own — deposits, freight, duty, border GST, supplier balance — because his ruling was about visibility rather than timing. Detail: design/mockups/three-way-forecast-international.html and the ARTEFACTS.md row.",
-      "comment": "2026-09-04 — drawn, approved and BUILT the same day: the engine, the intake section, the five cash rows, and the mentor's Imported Stock Prices tab. The guard was written FIRST and holds — 3,385 golden cells unmoved with the tick off. SLICE 2 IS BUILT END TO END: the calculator dates every event from the order date on his own terms, the landingsOf seam lets a shipment carry its own deposit and balance month, a Restify route does the arithmetic and the screen shows it. Three more rulings taken, the last after the build REPORTED his workbook's 6% interest cover as a gap rather than inventing it. Suite 7,776 green. Ready to eyeball."
-    },
-    {
-      "ref": "4.63",
-      "name": "Overseas stock purchases — the Import & Retail model feeds the forecast",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Mike's request, 2026-09-03: read the Import & Retail workbook and see how overseas stock purchases could feed the forecast. Now slice 2 of 4.64 on his instruction of 2026-09-04. It is an upstream calculator, not a new section.",
-      "risk": "Both rulings are taken (2026-09-04) and they were the dangerous ones. Events are dated from the order date and filed in the calendar month they fall in — band-mapping ignores the order date, so containers ordered three weeks apart would land in the same month, which is his own R9 failure. Real unit costs govern imported stock; the mark-up governs local. What remains is the golden test against his workbook, without which a ported model proves nothing.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-03 — \"I also want you to read the 'import and retail' excel model i loaded to see how future overseas stock purchases could be included in this forecast - as future building phases - thought you should know in advance before building\". Filed on his instruction (\"yes\")."
-      },
-      "touches": "NOTHING YET. When it starts: a new upstream model under server/report/ with its own golden test against design/report-source-models/Import & Retail.xlsx, writing into the twelve landing figures and the sales series that 4.64's screen already exposes — so the forecast engine itself needs no new arithmetic.",
-      "note": "Five sheets, read end to end: two supplier input sheets, an Index Tables lookup and Financial Projections. A supplier sheet turns a short input set into a payment schedule — 4,469 units, 693,271 of unit cost, a 415,963 deposit and 255,650 balance due across twelve 30-day bands, with balance interest and FX loss computed separately. ⚠ A CORRECTION MADE BY READING THE SHEET: the curves the supplier sheets actually consume are the FOUR-band table, each pattern totalling 100%; the seven-band area on Index Tables does not. Detail in the commit message of 8b550fe.",
-      "comment": "2026-09-03 — filed on Mike's instruction. Absorbed into 4.64 as slice 2 on 2026-09-04 and drawn there, so it keeps its number but not a screen of its own. Its price ladder — New +185%, Standard +152%, Runout +122% at 60/90/120 stock-turn days — is now on 4.64's drawing, because Mike ruled that revenue must not all be priced at the launch figure. Both of its own rulings were taken the same day, so what is left is the build and its golden test."
+      "note": "🔴 IT ABSORBED 4.63 AS SLICE 2, on Mike's instruction of 2026-09-04, and 4.63 is now CLOSED on to-do-done-and-parked.md. BOTH SLICES ARE BUILT: the engine, the step-3 section, the five cash rows, the mentor's Imported Stock Prices tab, the shipment calculator, its Restify route and its screen. Nothing on the drawing is open — fourteen decisions ruled. WHAT REMAINS IS THE EYEBALL: no screen built for this item has been opened in the running app, because MySQL refuses the placeholder password on the laptop. Detail: design/mockups/three-way-forecast-international.html.",
+      "comment": "2026-09-04 — drawn, approved and BUILT the same day, both slices. The guard went FIRST and holds: 3,385 golden cells unmoved with the tick off. Fourteen rulings, three taken after the build reported gaps rather than inventing answers — the refrigerated surcharge, the calculator writing all three series, and his workbook's 6% interest cover. A balance check caught what nothing else would have TWICE: the prepayment and supplier liability, then interest accrued in a different month from where it was expensed. Suite 7,776 green, build succeeds, first-load 239 KB gzipped. Merged to master as PR #58."
     },
     {
       "ref": "4.65",
