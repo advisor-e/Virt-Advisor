@@ -5,6 +5,10 @@
     :eyebrow="$t('report.eyebrow')"
     :title="$t('report.leaseVsBuy.title')"
     :client="$t('report.preparedFor')"
+    :saved="savedReport"
+    @save="saveReport"
+    @restore="restoreReport"
+    @client-change="onReportClient"
   )
   //- Decision class: seeded with the workbook sample until the advisor types the
   //- client's own figures. No "Illustrative" badge — these become real numbers.
@@ -53,99 +57,149 @@
       .lvb-card
         h2 {{ $t('report.leaseVsBuy.loan.title') }}
         .lvb-field
-          label {{ $t('report.leaseVsBuy.loan.loanType') }}
+          label
+            | {{ $t('report.leaseVsBuy.loan.loanType') }}
+            client-changed-badge(v-if="isClientChanged('loanType')" :label="$t('clientReports.saved.badge')")
           b-select(v-model="form.loanType" size="is-small")
             option(value="T") {{ $t('report.leaseVsBuy.loan.typeTable') }}
             option(value="R") {{ $t('report.leaseVsBuy.loan.typeReducing') }}
         .lvb-field
-          label {{ $t('report.leaseVsBuy.loan.purchasePrice') }}
+          label
+            | {{ $t('report.leaseVsBuy.loan.purchasePrice') }}
+            client-changed-badge(v-if="isClientChanged('purchasePrice')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="form.purchasePrice" type="number" step="any" size="is-small")
         .lvb-field
-          label {{ $t('report.leaseVsBuy.loan.deposit') }}
+          label
+            | {{ $t('report.leaseVsBuy.loan.deposit') }}
+            client-changed-badge(v-if="isClientChanged('deposit')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="form.deposit" type="number" step="any" size="is-small")
         .lvb-field
-          label {{ $t('report.leaseVsBuy.loan.interestRate') }}
+          label
+            | {{ $t('report.leaseVsBuy.loan.interestRate') }}
+            client-changed-badge(v-if="isClientChanged('interestRatePct')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="form.interestRatePct" type="number" step="any" size="is-small")
         .lvb-field
-          label {{ $t('report.leaseVsBuy.loan.term') }}
+          label
+            | {{ $t('report.leaseVsBuy.loan.term') }}
+            client-changed-badge(v-if="isClientChanged('termMonths')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="form.termMonths" type="number" step="any" size="is-small")
 
       .lvb-card
         h2 {{ $t('report.leaseVsBuy.dep.title') }}
         .lvb-field
-          label {{ $t('report.leaseVsBuy.dep.method') }}
+          label
+            | {{ $t('report.leaseVsBuy.dep.method') }}
+            client-changed-badge(v-if="isClientChanged('depreciationMethod')" :label="$t('clientReports.saved.badge')")
           b-select(v-model="form.depreciationMethod" size="is-small")
             option(value="sl") {{ $t('report.leaseVsBuy.dep.straightLine') }}
             option(value="dv") {{ $t('report.leaseVsBuy.dep.diminishing') }}
         .lvb-field
-          label {{ $t('report.leaseVsBuy.dep.rate') }}
+          label
+            | {{ $t('report.leaseVsBuy.dep.rate') }}
+            client-changed-badge(v-if="isClientChanged('depreciationRatePct')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="form.depreciationRatePct" type="number" step="any" size="is-small")
 
       .lvb-card
         h2 {{ $t('report.leaseVsBuy.costs.title') }}
         .lvb-grid2
           .lvb-field
-            label {{ $t('report.leaseVsBuy.costs.companyTax') }}
+            label
+              | {{ $t('report.leaseVsBuy.costs.companyTax') }}
+              client-changed-badge(v-if="isClientChanged('companyTaxRatePct')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.companyTaxRatePct" type="number" step="any" size="is-small")
           .lvb-field
-            label {{ $t('report.leaseVsBuy.costs.gst') }}
+            label
+              | {{ $t('report.leaseVsBuy.costs.gst') }}
+              client-changed-badge(v-if="isClientChanged('gstRatePct')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.gstRatePct" type="number" step="any" size="is-small")
           .lvb-field
-            label {{ $t('report.leaseVsBuy.costs.kmPerMonth') }}
+            label
+              | {{ $t('report.leaseVsBuy.costs.kmPerMonth') }}
+              client-changed-badge(v-if="isClientChanged('kmPerMonth')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.kmPerMonth" type="number" step="any" size="is-small")
           .lvb-field
-            label {{ $t('report.leaseVsBuy.costs.inflation') }}
+            label
+              | {{ $t('report.leaseVsBuy.costs.inflation') }}
+              client-changed-badge(v-if="isClientChanged('inflationRatePct')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.inflationRatePct" type="number" step="any" size="is-small")
           .lvb-field
-            label {{ $t('report.leaseVsBuy.costs.servicePeriodKm') }}
+            label
+              | {{ $t('report.leaseVsBuy.costs.servicePeriodKm') }}
+              client-changed-badge(v-if="isClientChanged('servicePeriodKm')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.servicePeriodKm" type="number" step="any" size="is-small")
           .lvb-field
-            label {{ $t('report.leaseVsBuy.costs.serviceCost') }}
+            label
+              | {{ $t('report.leaseVsBuy.costs.serviceCost') }}
+              client-changed-badge(v-if="isClientChanged('warrantyServiceCost')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.warrantyServiceCost" type="number" step="any" size="is-small")
           .lvb-field
-            label {{ $t('report.leaseVsBuy.costs.insurance') }}
+            label
+              | {{ $t('report.leaseVsBuy.costs.insurance') }}
+              client-changed-badge(v-if="isClientChanged('insurancePerYear')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.insurancePerYear" type="number" step="any" size="is-small")
           .lvb-field
-            label {{ $t('report.leaseVsBuy.costs.tyres') }}
+            label
+              | {{ $t('report.leaseVsBuy.costs.tyres') }}
+              client-changed-badge(v-if="isClientChanged('tyresCost')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.tyresCost" type="number" step="any" size="is-small")
           .lvb-field
-            label {{ $t('report.leaseVsBuy.costs.tyreLifeKm') }}
+            label
+              | {{ $t('report.leaseVsBuy.costs.tyreLifeKm') }}
+              client-changed-badge(v-if="isClientChanged('tyreLifeKm')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.tyreLifeKm" type="number" step="any" size="is-small")
 
       .lvb-card
         h2 {{ $t('report.leaseVsBuy.lease.title') }}
         .lvb-grid2
           .lvb-field
-            label {{ $t('report.leaseVsBuy.lease.term') }}
+            label
+              | {{ $t('report.leaseVsBuy.lease.term') }}
+              client-changed-badge(v-if="isClientChanged('leaseTermMonths')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.leaseTermMonths" type="number" step="any" size="is-small")
           .lvb-field
-            label {{ $t('report.leaseVsBuy.lease.monthly') }}
+            label
+              | {{ $t('report.leaseVsBuy.lease.monthly') }}
+              client-changed-badge(v-if="isClientChanged('monthlyLeasePayment')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.monthlyLeasePayment" type="number" step="any" size="is-small")
           .lvb-field
-            label {{ $t('report.leaseVsBuy.lease.annualKm') }}
+            label
+              | {{ $t('report.leaseVsBuy.lease.annualKm') }}
+              client-changed-badge(v-if="isClientChanged('annualLeaseKm')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.annualLeaseKm" type="number" step="any" size="is-small")
           .lvb-field
-            label {{ $t('report.leaseVsBuy.lease.costPerKmOver') }}
+            label
+              | {{ $t('report.leaseVsBuy.lease.costPerKmOver') }}
+              client-changed-badge(v-if="isClientChanged('costPerKmOver')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.costPerKmOver" type="number" step="any" size="is-small")
           .lvb-field
-            label {{ $t('report.leaseVsBuy.lease.costPerPanel') }}
+            label
+              | {{ $t('report.leaseVsBuy.lease.costPerPanel') }}
+              client-changed-badge(v-if="isClientChanged('costPerPanel')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.costPerPanel" type="number" step="any" size="is-small")
           .lvb-field
-            label {{ $t('report.leaseVsBuy.lease.numPanels') }}
+            label
+              | {{ $t('report.leaseVsBuy.lease.numPanels') }}
+              client-changed-badge(v-if="isClientChanged('numPanels')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="form.numPanels" type="number" step="any" size="is-small")
         .lvb-includes
           .lvb-field
-            label {{ $t('report.leaseVsBuy.lease.includesServicing') }}
+            label
+              | {{ $t('report.leaseVsBuy.lease.includesServicing') }}
+              client-changed-badge(v-if="isClientChanged('includesServicing')" :label="$t('clientReports.saved.badge')")
             b-select(v-model="form.includesServicing" size="is-small")
               option(value="yes") {{ $t('report.leaseVsBuy.yes') }}
               option(value="no") {{ $t('report.leaseVsBuy.no') }}
           .lvb-field
-            label {{ $t('report.leaseVsBuy.lease.includesInsurance') }}
+            label
+              | {{ $t('report.leaseVsBuy.lease.includesInsurance') }}
+              client-changed-badge(v-if="isClientChanged('includesInsurance')" :label="$t('clientReports.saved.badge')")
             b-select(v-model="form.includesInsurance" size="is-small")
               option(value="yes") {{ $t('report.leaseVsBuy.yes') }}
               option(value="no") {{ $t('report.leaseVsBuy.no') }}
           .lvb-field
-            label {{ $t('report.leaseVsBuy.lease.includesTyres') }}
+            label
+              | {{ $t('report.leaseVsBuy.lease.includesTyres') }}
+              client-changed-badge(v-if="isClientChanged('includesTyres')" :label="$t('clientReports.saved.badge')")
             b-select(v-model="form.includesTyres" size="is-small")
               option(value="yes") {{ $t('report.leaseVsBuy.yes') }}
               option(value="no") {{ $t('report.leaseVsBuy.no') }}
@@ -154,11 +208,15 @@
         h2 {{ $t('report.leaseVsBuy.end.title') }}
         .lvb-field
           .lvb-labels
-            label {{ $t('report.leaseVsBuy.end.resale') }}
+            label
+              | {{ $t('report.leaseVsBuy.end.resale') }}
+              client-changed-badge(v-if="isClientChanged('assetResaleValue')" :label="$t('clientReports.saved.badge')")
             p.lvb-help {{ $t('report.leaseVsBuy.end.resaleHelp') }}
           b-input(v-model.number="form.assetResaleValue" type="number" step="any" size="is-small")
         .lvb-field
-          label {{ $t('report.leaseVsBuy.end.residual') }}
+          label
+            | {{ $t('report.leaseVsBuy.end.residual') }}
+            client-changed-badge(v-if="isClientChanged('leaseResidual')" :label="$t('clientReports.saved.badge')")
           b-input(v-model.number="form.leaseResidual" type="number" step="any" size="is-small")
 
     section.lvb-results
@@ -201,8 +259,24 @@ import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import StaleBanner from '~/components/base/StaleBanner'
 import SampleNotice from '~/components/base/SampleNotice.vue'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
+import savedReport from '~/mixins/savedReport'
+
+/**
+ * The drop-downs' own option codes. A saved code outside its set is refused, so a saved
+ * row can never put a value in a select that the select does not offer.
+ */
+const CHOICES = {
+  loanType: ['T', 'R'],
+  depreciationMethod: ['sl', 'dv'],
+  includesServicing: ['yes', 'no'],
+  includesInsurance: ['yes', 'no'],
+  includesTyres: ['yes', 'no']
+}
+/** Carried in the form but never shown on screen, so never part of the saved row. */
+const NOT_ON_SCREEN = ['buyRepairs']
 
 /**
  * LeaseVsBuy — the Lease vs Buy model screen (Valuation · Decision class).
@@ -225,9 +299,9 @@ import reportRecompute from '~/mixins/reportRecompute'
 export default {
   name: 'LeaseVsBuy',
 
-  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice },
+  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice, ClientChangedBadge },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportRecompute, savedReport],
 
   data () {
     return {
@@ -281,6 +355,39 @@ export default {
   },
 
   methods: {
+    /**
+     * The figures saved per client — consumed by the savedReport mixin. Every field on
+     * screen, in display units; the repair assumptions the screen never shows stay out.
+     * @returns {object}
+     */
+    reportInputs () {
+      const out = {}
+      Object.keys(this.form).forEach((k) => {
+        if (!NOT_ON_SCREEN.includes(k)) { out[k] = this.form[k] }
+      })
+      return out
+    },
+    /**
+     * Load a saved set back — consumed by the savedReport mixin. Only the keys on screen,
+     * and only in their own shape: a finite number for a typed field, one of the
+     * drop-down's own codes for a select. Recompute follows from the deep watcher.
+     * @param {object} inputs
+     */
+    applyReportInputs (inputs) {
+      if (!inputs || typeof inputs !== 'object') { return }
+      const next = Object.assign({}, this.form)
+      Object.keys(next).forEach((k) => {
+        if (NOT_ON_SCREEN.includes(k)) { return }
+        const v = inputs[k]
+        if (CHOICES[k]) {
+          if (CHOICES[k].includes(v)) { next[k] = v }
+        } else if (typeof v === 'number' && Number.isFinite(v)) {
+          next[k] = v
+        }
+      })
+      this.form = next
+    },
+
     /**
      * The backend request — consumed by the reportRecompute mixin (debounce, race
      * guard, stale flag). Display percentages are converted to decimals here.

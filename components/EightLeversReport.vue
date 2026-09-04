@@ -6,6 +6,10 @@
     :title="$t('report.eightLevers.title')"
     :client="$t('report.preparedFor')"
     :badge="$t('report.illustrative')"
+    :saved="savedReport"
+    @save="saveReport"
+    @restore="restoreReport"
+    @client-change="onReportClient"
   )
 
   //- Full-width headline band (owner ruling 2026-07-27): the HeroStrip spans the page
@@ -48,7 +52,9 @@
             span.lev-dot
             h2.lev-h2 {{ $t('report.eightLevers.market') }}
         .lev-entry
-          label.lev-elabel {{ $t('report.eightLevers.lever.marketSize') }}
+          label.lev-elabel
+            | {{ $t('report.eightLevers.lever.marketSize') }}
+            client-changed-badge(v-if="isClientChanged('marketSize')" :label="$t('clientReports.saved.badge')")
           b-input(
             v-model.number="f.marketSize"
             type="number"
@@ -65,7 +71,9 @@
             h2.lev-h2 {{ $t('report.eightLevers.funnel') }}
         .lev-field(v-for="fld in funnelFields" :key="fld.k")
           .lev-frow
-            label {{ $t('report.eightLevers.lever.' + fld.k) }}
+            label
+              | {{ $t('report.eightLevers.lever.' + fld.k) }}
+              client-changed-badge(v-if="isClientChanged(fld.k)" :label="$t('clientReports.saved.badge')")
             output {{ fmtField(fld) }}
           input(
             type="range"
@@ -82,7 +90,9 @@
             h2.lev-h2 {{ $t('report.eightLevers.value') }}
         .lev-field(v-for="fld in valueFields" :key="fld.k")
           .lev-frow
-            label {{ $t('report.eightLevers.lever.' + fld.k) }}
+            label
+              | {{ $t('report.eightLevers.lever.' + fld.k) }}
+              client-changed-badge(v-if="isClientChanged(fld.k)" :label="$t('clientReports.saved.badge')")
             output {{ fmtField(fld) }}
           input(
             type="range"
@@ -99,7 +109,9 @@
             h2.lev-h2 {{ $t('report.eightLevers.labourInputs') }}
         .lev-field(v-for="fld in labourFields" :key="fld.k")
           .lev-frow
-            label {{ $t('report.eightLevers.labourInput.' + fld.k) }}
+            label
+              | {{ $t('report.eightLevers.labourInput.' + fld.k) }}
+              client-changed-badge(v-if="isClientChanged(fld.k)" :label="$t('clientReports.saved.badge')")
             output {{ fmtField(fld) }}
           input(
             type="range"
@@ -199,6 +211,8 @@ import reportRecompute from '~/mixins/reportRecompute'
 import StaleBanner from '~/components/base/StaleBanner.vue'
 import HeroStrip from '~/components/base/HeroStrip.vue'
 import HeroFigure from '~/components/base/HeroFigure.vue'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
+import savedReport from '~/mixins/savedReport'
 
 const DEFAULTS = {
   // The lever chain (Broad Scenarios, current column)
@@ -225,9 +239,9 @@ const DEFAULTS = {
 export default {
   name: 'EightLeversReport',
 
-  components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure },
+  components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure, ClientChangedBadge },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportRecompute, savedReport],
 
   data () {
     return {
@@ -390,6 +404,27 @@ export default {
     /** Backend request — consumed by the reportRecompute mixin (debounce + race guard). */
     recomputeRequest () {
       return { url: '/api/report/eight-levers', body: this.payload() }
+    },
+    /**
+     * The figures saved per client — consumed by the savedReport mixin. Saved as shown
+     * on screen (whole-number percentages), not as the fractions sent to the backend.
+     * @returns {object}
+     */
+    reportInputs () {
+      return Object.assign({}, this.f)
+    },
+    /**
+     * Load a saved set back — consumed by the savedReport mixin. Only the keys this
+     * screen knows, and only numbers: a saved row is never trusted for its shape.
+     * @param {object} inputs
+     */
+    applyReportInputs (inputs) {
+      const next = Object.assign({}, this.f)
+      Object.keys(next).forEach((k) => {
+        if (inputs && typeof inputs[k] === 'number' && Number.isFinite(inputs[k])) { next[k] = inputs[k] }
+      })
+      this.f = next
+      this.recompute()
     },
     /** Apply a successful recompute — consumed by the reportRecompute mixin. */
     applyResult (data) {
