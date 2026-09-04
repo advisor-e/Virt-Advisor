@@ -51,6 +51,19 @@
  *       calendar month outright — misfiling the GST schedule, which those dates drive.
  *       Months now advance by the calendar, clamping to a short month's last day.
  *
+ * A TENTH, RULED BY MIKE ON 2026-09-03, and the only one that is not an aggregation
+ * repair:
+ *
+ *   R10 A sale had ONE figure. It came off the asset register and it was banked, so the
+ *       two agreed only when an asset sold for exactly its written-down value — and, in
+ *       Mike's words, "there are legitimate times that an asset sells for more than book
+ *       value - such as a used vehicle". `disposals` is now the book value leaving the
+ *       register and `proceeds` is the sale price: the bank and the GST return follow
+ *       the price, the register follows the book value, and the difference is a gain or
+ *       loss in the month of the sale. Omitting `proceeds` means it sold for its book
+ *       value, which is the only case the workbook could express — so every forecast
+ *       built before this change reads identically.
+ *
  * `computeThreeYearForecast` chains all three years: each year's closing balance sheet
  * becomes the next year's opening, which is what the workbook itself does
  * (`'Yr 1. Projections'!O70`…`O116`). The chain is proved by the balance check not
@@ -120,6 +133,99 @@ function pickSeries (v, def) {
 
 /** A fresh 12-month array of zeroes. @returns {Array<number>} */
 function zeroes () { return new Array(MONTHS).fill(0) }
+
+/**
+ * Every landing this forecast has to account for, each carrying the months ITS OWN deposit
+ * and balance fall in.
+ *
+ * 🔴 THIS IS THE SEAM SLICE 2 NEEDED, AND IT IS THE WHOLE OF THE ENGINE CHANGE. Everything
+ * downstream of it — the deposit, the prepayment, the balance, freight, duty, border GST
+ * and the sell-down — was already worked out one landing at a time. It was simply looping
+ * over the twelve months and deriving each landing's dates from ONE deposit lead and ONE
+ * balance profile shared by all of them.
+ *
+ * WITHOUT A CALCULATOR (every forecast today) the list is built from exactly those uniform
+ * terms, so the arithmetic is unchanged to the cent — which the 3,385-cell golden guard
+ * proves rather than this comment asserting it.
+ *
+ * WITH ONE, each shipment brings its own real dates (Mike's ruling, 2026-09-04: the
+ * calculator writes all three series). Two containers ordered eighteen days apart have
+ * balances due on 1 and 19 August; a single averaged lead would replace both with one
+ * month, which is the averaging the "dates, not bands" ruling exists to stop.
+ *
+ * ⚠ A SHIPMENT'S BALANCE IS ONE DATED PAYMENT, NOT A PROFILE. The supplier's terms say when
+ * the balance is due; there is nothing to spread. The shape is kept common so the loop
+ * below has one path rather than two — two paths through a balance-sheet movement is how
+ * the prepayment and the liability start disagreeing.
+ *
+ * @param {object} O - the normalised `overseas` block.
+ * @returns {Array<{value:number, landsInMonth:number, depositPct:number, depositMonth:number,
+ *   balance:Array<{month:number, share:number}>}>}
+ */
+function landingsOf (O) {
+  const out = []
+
+  if (Array.isArray(O.landings) && O.landings.length) {
+    for (let i = 0; i < O.landings.length; i++) {
+      const L = O.landings[i]
+      const value = pick(L && L.value, 0)
+      const m = Math.round(pick(L && L.landsInMonth, -1))
+      // A landing outside the twelve months is not this forecast's stock and neither is its
+      // cash. `importShipmentModel` reports those separately; this is the belt to its
+      // braces, because a caller is not obliged to have used it.
+      if (!value || m < 0 || m >= MONTHS) { continue }
+      out.push({
+        value,
+        landsInMonth: m,
+        depositPct: Math.min(1, Math.max(0, pick(L.depositPct, O.depositPct))),
+        depositMonth: Math.round(pick(L.depositMonth, m - O.depositLeadMonths)),
+        balance: [{ month: Math.round(pick(L.balanceMonth, m)), share: 1 }],
+        // Interest cover, computed by the calculator over the real days the supplier waits.
+        // Only a dated shipment can carry one — see `landingsOf`'s uniform branch.
+        interest: Math.max(0, pick(L.interest, 0))
+      })
+    }
+    return out
+  }
+
+  for (let m = 0; m < MONTHS; m++) {
+    const value = O.importedPurchases[m]
+    if (!value) { continue }
+    const balance = []
+    for (let lag = 0; lag < 5; lag++) {
+      if (O.balancePayment[lag]) { balance.push({ month: m + lag, share: O.balancePayment[lag] }) }
+    }
+    out.push({
+      value,
+      landsInMonth: m,
+      depositPct: O.depositPct,
+      depositMonth: m - O.depositLeadMonths,
+      balance,
+      // 🔴 NO INTEREST COVER WITHOUT A CALCULATOR, and that is Mike's ruling rather than an
+      // omission. Twelve typed landing figures carry no order date and no credit period, so
+      // there is no number of days to charge interest over. Inventing one is exactly the
+      // band-mapping guesswork the "dates, not bands" ruling exists to stop — and it would
+      // move every existing forecast, which the golden guard would rightly refuse.
+      interest: 0
+    })
+  }
+  return out
+}
+
+/**
+ * The price ladder and the demand patterns for imported stock — Mike's own figures,
+ * held as data rather than as constants because they are advisory content that moves a
+ * client's numbers. See the file's own header. Item 4.64.
+ */
+const SELL_DOWN = require('../../data/forecast-sell-down.json')
+
+/** A demand pattern's four 30-day bands. @param {string} name @returns {Array<number>|null} */
+function curveOfPattern (name) {
+  for (let i = 0; i < SELL_DOWN.patterns.length; i++) {
+    if (SELL_DOWN.patterns[i].name === name) { return SELL_DOWN.patterns[i].curve.slice() }
+  }
+  return null
+}
 
 /** Sum a set of monthly series into one. @param {...Array<number>} series */
 function addSeries () {
@@ -224,6 +330,39 @@ const DEFAULTS = {
   ],
   overdraftInterestRate: 0.07,
   inFundsInterestRate: 0.02,
+  /**
+   * Buying and selling overseas — item 4.64, drawing approved by Mike 2026-09-04.
+   * ALL ZERO BY DEFAULT, which is what makes the addition provable: a forecast that
+   * says nothing about overseas trade gets the identical figure in every cell, and
+   * tests/unit/threeWayForecastModel.test.js holds the engine to that.
+   */
+  overseas: {
+    enabled: false,
+    // Buying: what LANDS each month, ex GST, and the terms it lands on.
+    importedPurchases: zeroes(),
+    // The shipment calculator's resolved landings (item 4.64 slice 2). Empty means "there
+    // is no calculator on this forecast", which is every forecast today.
+    landings: [],
+    depositPct: 0.6,
+    depositLeadMonths: 4, // reaches 9 — his workbook pays ~220 days before the first sale
+    balancePayment: [0, 1, 0, 0, 0], // from the landing month: [same, +1, +2, +3, +4]
+    freightPct: 0.12,
+    dutyPct: 0.05,
+    fxAllowancePct: 0.1,
+    // How it sells down. The ladder and the curve are Mike's, from data/forecast-sell-down.json.
+    sellDown: Object.assign({}, SELL_DOWN.ladder, {
+      pattern: SELL_DOWN.defaultPattern,
+      curve: null // resolved from `pattern` when not given outright
+    }),
+    readyAfterMonths: 1,
+    // Selling overseas.
+    overseasSales: zeroes(),
+    deliveryLagMonths: 2,
+    overseasCollection: [0, 0.5, 0.5, 0, 0], // from the DELIVERY month, not the invoice
+    zeroRated: true,
+    salesFxAllowancePct: 0.1,
+    overseasMarkup: null // null follows the local mark-up, which is the ruled default
+  },
   // [same month, +1, +2, +3, +4] — the workbook validates these to 100%.
   debtorCollection: [0.1, 0.55, 0.3, 0.05, 0],
   creditorPayment: [0, 0.9, 0.1, 0, 0],
@@ -266,12 +405,19 @@ function resolveInputs (raw, fallback) {
 
   const assets = d.assets.map(function (def, n) {
     const a = (Array.isArray(i.assets) && i.assets[n] && typeof i.assets[n] === 'object') ? i.assets[n] : {}
+    const disposals = pickSeries(a.disposals, def.disposals)
     return {
       key: def.key,
       opening: pick(a.opening, def.opening),
       depreciationRate: pick(a.depreciationRate, def.depreciationRate),
       additions: pickSeries(a.additions, def.additions),
-      disposals: pickSeries(a.disposals, def.disposals)
+      // What comes OFF the asset register — the book value of whatever was sold.
+      disposals,
+      // R10: what it SOLD FOR. The fallback is the resolved disposals rather than a
+      // default series, so omitting it means "it sold for exactly its book value" —
+      // which is the only case the workbook could express, and therefore the only
+      // reading that leaves an existing forecast unchanged.
+      proceeds: pickSeries(a.proceeds, disposals)
     }
   })
 
@@ -303,8 +449,73 @@ function resolveInputs (raw, fallback) {
     return out
   }
 
+  /**
+   * Buying and selling overseas (4.64). Every field falls back to the default block, so
+   * a caller that says nothing gets zeroed series and the engine's behaviour is
+   * unchanged — the property the golden guard exists to hold.
+   * @param {*} v @param {object} def @returns {object}
+   */
+  const overseas = (function (v, def) {
+    const o = (v && typeof v === 'object') ? v : {}
+    const sd = (o.sellDown && typeof o.sellDown === 'object') ? o.sellDown : {}
+    const pattern = typeof sd.pattern === 'string' && sd.pattern ? sd.pattern : def.sellDown.pattern
+    // An explicit curve wins over the named pattern; an unknown name falls back to the
+    // default pattern's curve rather than to nothing, so a typo cannot silently stop
+    // imported stock ever being sold.
+    const curve = Array.isArray(sd.curve) && sd.curve.length
+      ? sd.curve.map(function (n) { return pick(n, 0) })
+      : (curveOfPattern(pattern) || curveOfPattern(def.sellDown.pattern))
+    const enabled = o.enabled === true
+    // 🔴 THE TICK IS LOAD-BEARING HERE, NOT ONLY ON THE SCREEN. With it off the two series
+    // are dropped whatever was entered, so an advisor who fills the section in and then
+    // unticks it gets today's forecast back rather than a half-applied one — and no later
+    // caller can send figures with the tick off and be surprised by them landing.
+    const seriesIf = (v, d) => (enabled ? pickSeries(v, d) : zeroes())
+    return {
+      enabled,
+      importedPurchases: seriesIf(o.importedPurchases, def.importedPurchases),
+      // The shipment calculator's resolved landings, each with its own deposit and balance
+      // month (item 4.64 slice 2). Absent for every forecast that types its twelve landing
+      // figures by hand, which is all of them today — `landingsOf` then builds the list
+      // from the uniform terms below and the arithmetic is unchanged to the cent.
+      //
+      // 🔴 THE TICK GOVERNS THESE TOO. Dropping them with it off is what stops an advisor
+      // who fills in shipments and then unticks the section keeping half a forecast, and it
+      // is the same reason the two series above are dropped. Without this line the golden
+      // guard would still pass — nothing sends landings today — and the trap would sit
+      // there until the screen was built.
+      landings: enabled && Array.isArray(o.landings) ? o.landings : [],
+      depositPct: pick(o.depositPct, def.depositPct),
+      depositLeadMonths: Math.round(pick(o.depositLeadMonths, def.depositLeadMonths)),
+      balancePayment: bucket(o.balancePayment, def.balancePayment),
+      freightPct: pick(o.freightPct, def.freightPct),
+      dutyPct: pick(o.dutyPct, def.dutyPct),
+      fxAllowancePct: pick(o.fxAllowancePct, def.fxAllowancePct),
+      sellDown: {
+        newMarkup: pick(sd.newMarkup, def.sellDown.newMarkup),
+        standardMarkup: pick(sd.standardMarkup, def.sellDown.standardMarkup),
+        runoutMarkup: pick(sd.runoutMarkup, def.sellDown.runoutMarkup),
+        newUpToDays: pick(sd.newUpToDays, def.sellDown.newUpToDays),
+        standardUpToDays: pick(sd.standardUpToDays, def.sellDown.standardUpToDays),
+        runoutUpToDays: pick(sd.runoutUpToDays, def.sellDown.runoutUpToDays),
+        pattern,
+        curve
+      },
+      readyAfterMonths: Math.round(pick(o.readyAfterMonths, def.readyAfterMonths)),
+      overseasSales: seriesIf(o.overseasSales, def.overseasSales),
+      deliveryLagMonths: Math.round(pick(o.deliveryLagMonths, def.deliveryLagMonths)),
+      overseasCollection: bucket(o.overseasCollection, def.overseasCollection),
+      zeroRated: o.zeroRated !== false,
+      salesFxAllowancePct: pick(o.salesFxAllowancePct, def.salesFxAllowancePct),
+      // Mike's ruling: the overseas mark-up starts equal to the local one, so a forecast
+      // that never touches it produces today's figures.
+      overseasMarkup: usable(o.overseasMarkup) ? Number(o.overseasMarkup) : null
+    }
+  })(i.overseas, d.overseas)
+
   return {
     startDateSerial: pick(i.startDateSerial, d.startDateSerial),
+    overseas,
     sales: pickSeries(i.sales, d.sales),
     purchases: pickSeries(i.purchases, d.purchases),
     markup: pick(i.markup, d.markup),
@@ -443,7 +654,10 @@ function assetSchedule (asset) {
     depreciationRate: asset.depreciationRate,
     bookValue,
     additions: asset.additions.slice(),
+    // The book value leaving the register, and (R10) what it sold for. The register
+    // itself moves on the book value alone — the price never touches depreciation.
     disposals: asset.disposals.slice(),
+    proceeds: asset.proceeds.slice(),
     subtotal,
     depreciation,
     closingValue
@@ -531,6 +745,183 @@ function lagSchedule (gross, buckets) {
     slices.push(row)
   }
   return { slices, total: addSeries.apply(null, slices) }
+}
+
+/**
+ * Buying and selling overseas — every series the split produces, in one place (4.64).
+ *
+ * The shape of the thing: a container is recorded in the month it LANDS, because that
+ * is when it becomes stock and when GST falls due at the border. Everything else is
+ * dated from there — the deposit backwards, the balance forwards, freight and duty on
+ * the day, and the selling across four 30-day bands at three descending prices.
+ *
+ * 🔴 THE ONE PROPERTY EVERYTHING ELSE DEPENDS ON: with both series empty, every array
+ * this returns is zeroes, so no caller can move a figure. That is what lets the split
+ * sit inside a workbook port proved cell by cell.
+ *
+ * @param {object} O the resolved `overseas` block
+ * @param {number} gst the GST rate
+ * @returns {object} the monthly series, plus what fell outside the twelve months
+ */
+function overseasSchedule (O, gst) {
+  const out = {
+    deposits: zeroes(),
+    freight: zeroes(),
+    duty: zeroes(),
+    borderGst: zeroes(),
+    supplierBalance: zeroes(),
+    fxOnPurchases: zeroes(),
+    importedRevenue: zeroes(),
+    importedCostOfSales: zeroes(),
+    overseasRevenue: zeroes(),
+    overseasGst: zeroes(),
+    overseasCollections: zeroes(),
+    fxOnSales: zeroes(),
+    // 🔴 THE TWO BALANCE-SHEET POSITIONS THE CASH ROWS IMPLY, and without which the three
+    // statements stop articulating. A deposit paid before the goods land is money owed TO
+    // the business by its supplier — a prepayment, an asset — until the container
+    // arrives; a container that has landed and not been paid for in full is a liability.
+    // Neither is optional: cash leaves in one month and stock arrives in another, and
+    // something has to hold the difference in between.
+    prepaymentClosing: zeroes(),
+    balanceOwingClosing: zeroes(),
+    // What the supplier charges for waiting to be paid, in the month the balance is settled.
+    // Inside `supplierBalance` for cash; charged to overheads in the P&L. Item 4.64 slice 2,
+    // Mike's instruction of 2026-09-04.
+    supplierInterest: zeroes(),
+    // What the twelve months cannot show, reported rather than dropped.
+    depositsBeforeStart: [],
+    revenueBeyondYear: 0
+  }
+  const fx = 1 + O.fxAllowancePct
+  const curve = O.sellDown.curve || []
+  const landings = landingsOf(O)
+  // Movements, gathered first and rolled forward once at the end.
+  const prepaidIn = zeroes(); const prepaidReleased = zeroes()
+  const owingAdded = zeroes(); const owingPaid = zeroes()
+
+  for (let i = 0; i < landings.length; i++) {
+    const L = landings[i]
+    const m = L.landsInMonth
+    const landed = L.value
+
+    // The deposit, paid AHEAD of the landing. A lead that reaches back past the start of
+    // the forecast is not counted — that cash went before this year began. Mike's ruling
+    // of 2026-09-04: warn, and leave it out.
+    const deposit = landed * L.depositPct * fx
+    if (L.depositMonth >= 0) {
+      out.deposits[L.depositMonth] += deposit
+      // It is a prepayment from the day it is paid until the day the container lands.
+      prepaidIn[L.depositMonth] += deposit
+      prepaidReleased[m] += deposit
+    } else {
+      // Paid before this forecast began, so it is already in the opening position and is
+      // not counted again (Mike's ruling, 2026-09-04). Reported so the advisor can see it.
+      out.depositsBeforeStart.push({
+        landsInMonth: m, monthsBefore: m - L.depositMonth, amount: deposit
+      })
+    }
+
+    // The balance, on its own schedule. It is owed from the moment the goods land,
+    // whenever it is actually settled.
+    //
+    // ⚠ INTEREST COVER RIDES OUT WITH IT AS CASH, BUT IT IS NOT PART OF THE LIABILITY.
+    // His sheet pays balance + interest + currency as ONE payment, and the forecast already
+    // folds the exchange allowance into this line the same way — so the cash row carries it.
+    // What is owed for the STOCK is the balance alone, and the interest is expensed in the
+    // month it is settled, never accrued before it.
+    //
+    // 🔴 THE FIRST ATTEMPT PUT THE INTEREST INTO `owingAdded` TOO, AND THE BALANCE-SHEET
+    // TEST CAUGHT IT — every month out by exactly the interest. Recognising a liability at
+    // the landing and the expense at the payment leaves the two in different months, and on
+    // these very terms the balance is settled BEFORE the goods land (91 days against 145),
+    // so it was not even a short window. Cash down by balance + interest, liability down by
+    // the balance, equity down by the interest: that articulates, and nothing else does.
+    //
+    // 🔴 IT IS EXPENSED IN OVERHEADS, NOT IN DIRECT COSTS — Mike's ruling of 2026-09-04.
+    // Interest cover is what a supplier charges for waiting to be paid, not a cost of
+    // getting goods here, and putting it above the gross margin would understate the margin
+    // on every container. `supplierInterest` is what the P&L charges.
+    const balance = landed * (1 - L.depositPct) * fx
+    owingAdded[m] += balance
+    for (let j = 0; j < L.balance.length; j++) {
+      const t = L.balance[j].month
+      if (t >= 0 && t < MONTHS) {
+        const share = L.balance[j].share
+        out.supplierBalance[t] += (balance + L.interest) * share
+        out.supplierInterest[t] += L.interest * share
+        owingPaid[t] += balance * share
+      }
+    }
+
+    // Getting it here, and clearing customs. All three fall in the landing month.
+    const freight = landed * O.freightPct
+    const duty = landed * O.dutyPct
+    out.freight[m] += freight
+    out.duty[m] += duty
+    out.fxOnPurchases[m] += landed * O.fxAllowancePct
+    // GST at the border is charged on the LANDED value — the exchange-adjusted stock
+    // cost plus freight and duty — not on the supplier's invoice alone.
+    out.borderGst[m] += (landed * fx + freight + duty) * gst
+
+    // How it sells down: band by band, at whichever price that band's stock-turn day
+    // count still commands. Mike's ruling of 2026-09-04 — revenue is worked out, never
+    // all priced at the launch figure.
+    for (let b = 0; b < curve.length; b++) {
+      const days = (b + 1) * 30
+      const markup = days <= O.sellDown.newUpToDays
+        ? O.sellDown.newMarkup
+        : (days <= O.sellDown.standardUpToDays ? O.sellDown.standardMarkup : O.sellDown.runoutMarkup)
+      const t = m + O.readyAfterMonths + b
+      // Real unit costs govern imported stock (his ruling): the cost of sales is what
+      // this slice of stock actually cost, never revenue worked backwards through a
+      // mark-up.
+      const cost = landed * curve[b]
+      const revenue = cost * (1 + markup)
+      if (t < MONTHS) {
+        out.importedRevenue[t] += revenue
+        out.importedCostOfSales[t] += cost
+      } else {
+        out.revenueBeyondYear += revenue
+      }
+    }
+  }
+
+  // Selling overseas. The clock starts at DELIVERY, not at the invoice.
+  const banked = 1 - O.salesFxAllowancePct
+  for (let m = 0; m < MONTHS; m++) {
+    const sale = O.overseasSales[m]
+    if (!sale) { continue }
+    out.overseasRevenue[m] += sale
+    // Zero-rated by default; the tick charges GST at the domestic rate instead.
+    const g = O.zeroRated ? 0 : excelRound(gst * sale)
+    out.overseasGst[m] += g
+    const gross = sale + g
+    const delivered = m + O.deliveryLagMonths
+    for (let lag = 0; lag < 5; lag++) {
+      const t = delivered + lag
+      if (t < MONTHS) {
+        const due = gross * O.overseasCollection[lag]
+        out.overseasCollections[t] += due * banked
+        // What the exchange rate takes on the way in. It joins the same direct-cost line
+        // as the purchase side, and it comes off the debtor too — otherwise the balance
+        // sheet would carry a receivable that is never going to arrive.
+        out.fxOnSales[t] += due * O.salesFxAllowancePct
+      }
+    }
+  }
+
+  // Roll the two positions forward. The exchange allowance sits inside the prepayment
+  // while it is one, and is expensed in the landing month along with the rest of it —
+  // which is why the release is the full amount paid, not the stock cost alone.
+  for (let m = 0; m < MONTHS; m++) {
+    const prevPrepaid = m === 0 ? 0 : out.prepaymentClosing[m - 1]
+    out.prepaymentClosing[m] = prevPrepaid + prepaidIn[m] - prepaidReleased[m]
+    const prevOwing = m === 0 ? 0 : out.balanceOwingClosing[m - 1]
+    out.balanceOwingClosing[m] = prevOwing + owingAdded[m] - owingPaid[m]
+  }
+
+  return out
 }
 
 /**
@@ -643,9 +1034,39 @@ function computeThreeWayForecast (rawInputs, options) {
   const disposalsAll = addSeries.apply(null, assets.map(function (a) { return a.disposals }))
   const additionsCharged = corrected ? additionsAll : addSeries(assets[0].additions, assets[1].additions, assets[2].additions)
   const disposalsCharged = corrected ? disposalsAll : addSeries(assets[0].disposals, assets[1].disposals, assets[2].disposals)
+  // R10: the sale price, which the bank and the GST return both follow. As written the
+  // workbook has no such figure — it banks the book value — so source-fidelity mode
+  // ignores `proceeds` outright rather than relying on its default. The golden set is
+  // then immune to this correction even if a caller supplies a price.
+  const proceedsAll = corrected
+    ? addSeries.apply(null, assets.map(function (a) { return a.proceeds }))
+    : disposalsAll
+  const proceedsCharged = corrected
+    ? proceedsAll
+    : disposalsCharged
+  // The gain (or loss) on sale: what it fetched, less what it was carried at. Zero
+  // whenever an asset sells for its book value, which is every forecast built before
+  // 2026-09-03 and every one where the advisor leaves the price alone.
+  const gainOnAssetSales = corrected
+    ? proceedsCharged.map(function (p, m) { return p - disposalsCharged[m] })
+    : zeroes()
+
+  /* -- buying and selling overseas (4.64) ------------------------------------------ */
+  // Every series below is zeroes unless the advisor entered overseas trade, so nothing
+  // from here can move a figure in a domestic forecast.
+  const OS = overseasSchedule(I.overseas, gst)
+  const importedPurchases = I.overseas.importedPurchases
+  // Imported stock is sold at HOME — Mike's ruling of 2026-09-04 — so its revenue joins
+  // the domestic stream for GST and for collection.
+  const domesticRevenue = addSeries(I.sales, OS.importedRevenue)
+  const overseasGross = addSeries(OS.overseasRevenue, OS.overseasGst)
+  // Freight, duty and both exchange movements are direct costs in the month they arise.
+  // Expensing them is also what keeps the three statements articulating: the cash goes
+  // out, and the same figure goes through the P&L.
+  const importedDirectCosts = addSeries(OS.freight, OS.duty, OS.fxOnPurchases, OS.fxOnSales)
 
   /* -- the P&L lines that depend only on revenue ----------------------------------- */
-  const revenue = I.sales.slice()
+  const revenue = addSeries(domesticRevenue, OS.overseasRevenue)
   const freight = revenue.map(function (r) { return r * I.directCostRates.freight })
   const otherDirectExempt = revenue.map(function (r) { return r * I.directCostRates.otherDirectExempt })
   const otherDirectTwo = revenue.map(function (r) { return r * I.directCostRates.otherTwo })
@@ -663,24 +1084,43 @@ function computeThreeWayForecast (rawInputs, options) {
   const invOpening = zeroes(); const invSubtotal = zeroes()
   const costOfSalesCharge = zeroes(); const invClosing = zeroes()
   const costRatio = 1 / (1 + I.markup)
+  // The overseas mark-up starts equal to the local one, so a forecast that never touches
+  // it produces today's figures (Mike's ruling, 2026-09-04).
+  const overseasCostRatio = 1 / (1 + (I.overseas.overseasMarkup === null ? I.markup : I.overseas.overseasMarkup))
+  const allPurchases = addSeries(I.purchases, importedPurchases)
   for (let m = 0; m < MONTHS; m++) {
     invOpening[m] = m === 0 ? ob.inventory : invClosing[m - 1]
-    invSubtotal[m] = invOpening[m] + I.purchases[m]
-    costOfSalesCharge[m] = excelRound(revenue[m] * costRatio)
+    invSubtotal[m] = invOpening[m] + allPurchases[m]
+    // Three streams, each costed the way its own figures allow. Local sales work cost
+    // back from the mark-up as they always have; IMPORTED STOCK USES ITS REAL COST, his
+    // ruling of 2026-09-04, because once revenue is cost times the ladder the cost is
+    // already known and recovering it from revenue would be arithmetic run backwards;
+    // overseas sales use their own mark-up.
+    costOfSalesCharge[m] = excelRound(I.sales[m] * costRatio) +
+      OS.importedCostOfSales[m] +
+      excelRound(OS.overseasRevenue[m] * overseasCostRatio)
     invClosing[m] = invSubtotal[m] - costOfSalesCharge[m]
   }
 
   /* -- debtors (rows 157-177) ------------------------------------------------------ */
-  const salesGst = revenue.map(function (r) { return excelRound(gst * r) })
-  const salesInclusive = addSeries(revenue, salesGst)
-  const collection = lagSchedule(salesInclusive, I.debtorCollection)
+  // Domestic sales carry GST and collect on the advisor's own profile. Overseas sales
+  // are zero-rated unless the tick says otherwise, and collect on THEIR profile, counted
+  // from delivery rather than from the invoice.
+  const domesticGst = domesticRevenue.map(function (r) { return excelRound(gst * r) })
+  const salesGst = addSeries(domesticGst, OS.overseasGst)
+  const domesticInclusive = addSeries(domesticRevenue, domesticGst)
+  const salesInclusive = addSeries(domesticInclusive, overseasGross)
+  const collection = lagSchedule(domesticInclusive, I.debtorCollection)
   const openingDebtorRunOff = openingRunOff(opening.accountsReceivable, I.debtorCollection)
-  const cashFromDebtors = addSeries(collection.total, openingDebtorRunOff)
+  const domesticCash = addSeries(collection.total, openingDebtorRunOff)
+  const cashFromDebtors = addSeries(domesticCash, OS.overseasCollections)
   const debtorOpening = zeroes(); const debtorSubtotal = zeroes(); const debtorClosing = zeroes()
   for (let m = 0; m < MONTHS; m++) {
     debtorOpening[m] = m === 0 ? opening.accountsReceivable : debtorClosing[m - 1]
     debtorSubtotal[m] = debtorOpening[m] + salesInclusive[m]
-    debtorClosing[m] = debtorSubtotal[m] - cashFromDebtors[m]
+    // The exchange movement comes off the debtor as well as through the P&L. Without it
+    // the balance sheet would carry a receivable that is never going to arrive.
+    debtorClosing[m] = debtorSubtotal[m] - cashFromDebtors[m] - OS.fxOnSales[m]
   }
 
   /* -- expense payment blocks (rows 183-221) --------------------------------------- */
@@ -778,7 +1218,12 @@ function computeThreeWayForecast (rawInputs, options) {
   const gstOnPayables = zeroes()
   const gstPaymentsMade = zeroes(); const gstBalanceClosing = zeroes()
   const receipts = { fromDebtors: cashFromDebtors, interestReceived: zeroes(), loanDrawdowns: zeroes(), gstRefunds: zeroes(), taxRefunds: I.taxRefunds.slice(), otherIncomeGstInclusive: zeroes(), otherIncomeGstExempt: otherIncomeGstExempt.slice(), shareholderAdvances: zeroes(), assetSales: zeroes() }
-  const payments = { accountsPayable: zeroes(), currentMonthGstInclusive: blockTwoGross, currentMonthGstFree: blockThreeTotal, interestPaid: zeroes(), loanPrincipal: zeroes(), gstPaid: zeroes(), taxPaid: I.taxPayments.slice(), shareholderDrawings: zeroes(), capitalExpenditure: zeroes() }
+  // 🔴 THE FIVE OVERSEAS ROWS ARE ROWS OF THEIR OWN, and that is the point of the whole
+  // section (Mike, 2026-09-04): "the whole point of this section is to show when deposits
+  // are due, freight is paid, border gst etc - BEFORE the business can even start selling
+  // them". Rolled into accountsPayable they would appear as one figure in the month the
+  // supplier was settled, and the months that matter would be invisible.
+  const payments = { accountsPayable: zeroes(), currentMonthGstInclusive: blockTwoGross, currentMonthGstFree: blockThreeTotal, interestPaid: zeroes(), loanPrincipal: zeroes(), gstPaid: zeroes(), taxPaid: I.taxPayments.slice(), shareholderDrawings: zeroes(), capitalExpenditure: zeroes(), overseasDeposits: OS.deposits, overseasFreight: OS.freight, overseasDuty: OS.duty, overseasBorderGst: OS.borderGst, overseasSupplierBalance: OS.supplierBalance }
   const totalReceipts = zeroes(); const totalPayments = zeroes(); const netMovement = zeroes()
 
   const loanDrawdownsAll = addSeries.apply(null, loans.map(function (l) { return l.drawdowns }))
@@ -791,7 +1236,7 @@ function computeThreeWayForecast (rawInputs, options) {
 
   for (let m = 0; m < MONTHS; m++) {
     costOfSalesSubtotal[m] = invOpening[m] + freight[m] + otherDirectExempt[m] +
-      otherDirectTwo[m] + commissions[m] + I.purchases[m]
+      otherDirectTwo[m] + commissions[m] + allPurchases[m] + importedDirectCosts[m]
     costOfSales[m] = costOfSalesSubtotal[m] - invClosing[m]
     grossSurplus[m] = revenue[m] - costOfSales[m]
     grossMargin[m] = revenue[m] === 0 ? 0 : grossSurplus[m] / revenue[m]
@@ -804,11 +1249,18 @@ function computeThreeWayForecast (rawInputs, options) {
 
     let oh = 0
     for (let k = 0; k < OVERHEAD_KEYS.length; k++) { oh += overhead[OVERHEAD_KEYS[k]][m] }
-    totalOverheads[m] = oh + depreciationCharged[m] + overdraftInterest[m] + loanInterest[m]
+    // Supplier interest cover joins the other two interest charges rather than the direct
+    // costs above the gross margin — Mike's ruling, 2026-09-04. It is what a supplier
+    // charges for waiting to be paid, not a cost of getting the goods here.
+    totalOverheads[m] = oh + depreciationCharged[m] + overdraftInterest[m] + loanInterest[m] +
+      OS.supplierInterest[m]
     operatingSurplus[m] = grossSurplus[m] - totalOverheads[m]
 
+    // R10: a gain or loss on sale is other income in the month of the sale — not spread,
+    // which is what the two existing Other Income lines do to an annual figure. From
+    // here it reaches profit, tax and retained earnings with no further plumbing.
     totalOtherIncome[m] = inFundsInterest[m] + shareholderInterest[m] +
-      otherIncomeGstInclusive[m] + otherIncomeGstExempt[m]
+      otherIncomeGstInclusive[m] + otherIncomeGstExempt[m] + gainOnAssetSales[m]
     netSurplusBeforeTax[m] = operatingSurplus[m] + totalOtherIncome[m]
 
     // Tax: a month's loss adds to the pool carried forward; a month's profit is
@@ -828,18 +1280,27 @@ function computeThreeWayForecast (rawInputs, options) {
     netMargin[m] = revenue[m] === 0 ? 0 : netSurplusAfterTax[m] / revenue[m]
 
     /* -- GST ---------------------------------------------------------------------- */
+    // On the Cash basis the return is worked backwards from money received, so it must
+    // see DOMESTIC receipts only: a zero-rated export banks cash that carries no GST,
+    // and including it would invent an output tax that was never charged.
     gstOnIncome[m] = I.gstBasis === 'Cash'
-      ? (cashFromDebtors[m] / ((100 + gst * 100) / (gst * 100)))
+      ? ((domesticCash[m] + (I.overseas.zeroRated ? 0 : OS.overseasCollections[m])) /
+         ((100 + gst * 100) / (gst * 100)))
       : salesGst[m]
     gstOnOtherIncome[m] = otherIncomeGstInclusive[m] * gst
     // R3/R4 do not apply here: the sheet's own GST rows already cover all six categories.
-    gstOnAssetSales[m] = disposalsAll[m] * gst
+    // R10: GST follows the invoice, so it is charged on what the asset sold for — not on
+    // what the books happened to carry it at.
+    gstOnAssetSales[m] = proceedsAll[m] * gst
     gstOutputs[m] = gstOnIncome[m] + gstOnOtherIncome[m] + gstOnAssetSales[m]
     gstOnExpenses[m] = I.gstBasis === 'Cash'
       ? (((overheadsPaid[m] + openingPayableRunOff[m] + payment.total[m]) / ((1 + gst) / gst)) + blockTwoGst[m])
       : (blockOneGst[m] + blockTwoGst[m] + purchaseGst[m])
     gstOnAssetPurchases[m] = additionsAll[m] * gst
-    gstInputs[m] = gstOnExpenses[m] + gstOnAssetPurchases[m]
+    // GST paid at the border is an input credit on the same return as everything else —
+    // paid on the day the goods clear, claimed back at the next filing. Showing both in
+    // their real months is the point: it is a timing cost, not a lost one.
+    gstInputs[m] = gstOnExpenses[m] + gstOnAssetPurchases[m] + OS.borderGst[m]
     gstForMonth[m] = gstOutputs[m] - gstInputs[m]
 
     gstFileOneMonthly[m] = gstForMonth[m]
@@ -875,7 +1336,7 @@ function computeThreeWayForecast (rawInputs, options) {
     // — the balance-sheet movement is what has been INVOICED, not what has been paid.
     gstOnPayables[m] = blockOneGst[m] + blockTwoGst[m] + purchaseGst[m]
     gstBalanceClosing[m] = gstBalanceSubtotal[m] - gstOnPayables[m] -
-      gstOnAssetPurchases[m] - gstPaymentsMade[m]
+      gstOnAssetPurchases[m] - OS.borderGst[m] - gstPaymentsMade[m]
 
     /* -- cash flow ---------------------------------------------------------------- */
     receipts.interestReceived[m] = inFundsInterest[m]
@@ -884,8 +1345,9 @@ function computeThreeWayForecast (rawInputs, options) {
     receipts.otherIncomeGstInclusive[m] = otherIncomeGstInclusive[m] * (1 + gst)
     receipts.shareholderAdvances[m] = shareholderAdvancesAll[m]
     // R3: the sale proceeds of all six categories, not three — while the GST on all six
-    // was already being received.
-    receipts.assetSales[m] = gstOnAssetSales[m] + disposalsCharged[m]
+    // was already being received. R10: and the proceeds are the sale price, so a van
+    // carried at 8,000 and sold for 12,000 banks 12,000 plus its GST.
+    receipts.assetSales[m] = gstOnAssetSales[m] + proceedsCharged[m]
     totalReceipts[m] = receipts.fromDebtors[m] + receipts.interestReceived[m] +
       receipts.loanDrawdowns[m] + receipts.gstRefunds[m] + receipts.taxRefunds[m] +
       receipts.otherIncomeGstInclusive[m] + receipts.otherIncomeGstExempt[m] +
@@ -902,7 +1364,9 @@ function computeThreeWayForecast (rawInputs, options) {
     totalPayments[m] = payments.accountsPayable[m] + payments.currentMonthGstInclusive[m] +
       payments.currentMonthGstFree[m] + payments.interestPaid[m] + payments.loanPrincipal[m] +
       payments.gstPaid[m] + payments.taxPaid[m] + payments.shareholderDrawings[m] +
-      payments.capitalExpenditure[m]
+      payments.capitalExpenditure[m] + payments.overseasDeposits[m] +
+      payments.overseasFreight[m] + payments.overseasDuty[m] +
+      payments.overseasBorderGst[m] + payments.overseasSupplierBalance[m]
 
     netMovement[m] = totalReceipts[m] - totalPayments[m]
     bankClosing[m] = netMovement[m] + bankOpening[m]
@@ -920,6 +1384,10 @@ function computeThreeWayForecast (rawInputs, options) {
     incomeTaxAsset: zeroes(),
     gstRefund: zeroes(),
     prepayments: zeroes(),
+    // 4.64 — deposits paid on stock still at sea, and landed stock not yet paid for.
+    // Zero throughout unless the advisor imports.
+    importPrepayments: OS.prepaymentClosing,
+    importSupplierBalance: OS.balanceOwingClosing,
     shareholderCurrentAssets: zeroes(),
     otherCurrentAsset: zeroes(),
     totalCurrentAssets: zeroes(),
@@ -968,9 +1436,11 @@ function computeThreeWayForecast (rawInputs, options) {
 
     bs.totalCurrentAssets[m] = bs.cashAtBank[m] + bs.accountsReceivable[m] + bs.inventory[m] +
       bs.incomeTaxAsset[m] + bs.gstRefund[m] + bs.prepayments[m] +
+      bs.importPrepayments[m] +
       bs.shareholderCurrentAssets[m] + bs.otherCurrentAsset[m]
     bs.totalCurrentLiabilities[m] = bs.bankOverdraft[m] + bs.accountsPayable[m] +
       bs.incomeTaxLiability[m] + bs.gstPayable[m] + bs.accruedExpenses[m] +
+      bs.importSupplierBalance[m] +
       bs.shareholderCurrentLiabilities[m] + bs.otherCurrentLiability[m]
     bs.workingCapital[m] = bs.totalCurrentAssets[m] - bs.totalCurrentLiabilities[m]
 
@@ -999,7 +1469,8 @@ function computeThreeWayForecast (rawInputs, options) {
     { ref: 'R4', where: 'Cash flow — Capital expenditure paid', wasCounting: 3, nowCounting: 6, sheetRow: 142 },
     { ref: 'R5', where: 'GST — six-monthly return, first month of the year', wasCounting: null, nowCounting: null, sheetRow: 411 },
     { ref: 'R6', where: 'Payables — an overhead settled twice each month', wasCounting: null, nowCounting: null, sheetRow: 201 },
-    { ref: 'R7', where: 'Payables — Other Direct Expenses (GST Exempt) settled by nothing', wasCounting: null, nowCounting: null, sheetRow: 11 }
+    { ref: 'R7', where: 'Payables — Other Direct Expenses (GST Exempt) settled by nothing', wasCounting: null, nowCounting: null, sheetRow: 11 },
+    { ref: 'R10', where: 'Asset sales — the sale price, and the gain or loss it makes', wasCounting: null, nowCounting: null, sheetRow: 130 }
   ]
 : []
 
@@ -1041,6 +1512,7 @@ function computeThreeWayForecast (rawInputs, options) {
       interestIncomeShareholders: shareholderInterest,
       otherIncomeGstInclusive,
       otherIncomeGstExempt,
+      gainOnAssetSales,
       totalOtherIncome,
       netSurplusBeforeTax,
       taxProvision,
@@ -1082,11 +1554,47 @@ function computeThreeWayForecast (rawInputs, options) {
       },
       inventory: {
         openingInventory: invOpening,
-        purchases: I.purchases.slice(),
+        purchases: allPurchases,
+        localPurchases: I.purchases.slice(),
+        importedPurchases: importedPurchases.slice(),
         subtotal: invSubtotal,
         costOfSales: costOfSalesCharge,
         closingInventory: invClosing,
-        costRatio
+        costRatio,
+        overseasCostRatio
+      },
+      /**
+       * Buying and selling overseas (4.64). Zeroes throughout unless the advisor entered
+       * overseas trade. `depositsBeforeStart` and `revenueBeyondYear` are what the twelve
+       * months cannot show, reported rather than dropped.
+       */
+      overseas: {
+        enabled: I.overseas.enabled,
+        importedPurchases: importedPurchases.slice(),
+        deposits: OS.deposits,
+        freight: OS.freight,
+        duty: OS.duty,
+        borderGst: OS.borderGst,
+        supplierBalance: OS.supplierBalance,
+        supplierInterest: OS.supplierInterest,
+        fxOnPurchases: OS.fxOnPurchases,
+        importedRevenue: OS.importedRevenue,
+        importedCostOfSales: OS.importedCostOfSales,
+        overseasSales: I.overseas.overseasSales.slice(),
+        overseasRevenue: OS.overseasRevenue,
+        overseasGst: OS.overseasGst,
+        overseasCollections: OS.overseasCollections,
+        fxOnSales: OS.fxOnSales,
+        exchangeMovement: addSeries(OS.fxOnPurchases, OS.fxOnSales),
+        depositsBeforeStart: OS.depositsBeforeStart,
+        revenueBeyondYear: OS.revenueBeyondYear,
+        sellDown: {
+          pattern: I.overseas.sellDown.pattern,
+          curve: (I.overseas.sellDown.curve || []).slice(),
+          newMarkup: I.overseas.sellDown.newMarkup,
+          standardMarkup: I.overseas.sellDown.standardMarkup,
+          runoutMarkup: I.overseas.sellDown.runoutMarkup
+        }
       },
       creditors: {
         purchases: I.purchases.slice(),

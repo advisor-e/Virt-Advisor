@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volatility on the Forecast</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Three-Way Forecast — the volatility read. Screen mockup for approval
+   (drawn 2026-09-03, REVISED the same day to carry Mike's nine rulings).
+   NOTHING HERE IS BUILT.
+
+   EVERY value below is copied from the project's own locked sources. Nothing is
+   invented and nothing is approximated:
+     - design/REPORT-VISUAL-STANDARD.md      the ruled numbers + [A]-[D2d] anatomy
+     - design/REPORT-LAYOUT-REFERENCE.html   the labelled reference to "match exactly"
+     - components/base/ReportShell.vue       the --rs-* tokens
+     - components/base/HeroStrip.vue         solid #002b64, 20px, 14px radius
+     - components/base/ProvenanceBadge.vue   the from-file / entered / starting-point tag
+     - design/mockups/three-way-forecast.html          the approved screen this joins
+     - design/mockups/three-way-forecast-capital.html  the approved sibling block
+     - design/mockups/volatility-report.html           the built Volatility Report
+
+   The owner ruling of 2026-07-23 is followed exactly: the look is READ OFF the
+   finished screens, not proposed afresh. Nothing here is a new or bolder look.
+   No dark mode: one light look, RULED 2026-07-27.
+
+   FIGURES ARE REAL. The volatility figures are the actual output of
+   server/report/volatilityModel.js on the twelve months the approved forecast
+   mockup already seeds into step 3 (Big Bird Grass Seed, Apr-Mar, 890,000).
+   Average 74,166.67 · deviation 9,090.59 · dial 24.51 · 8 of 12 in range.
+   The ONE figure that is not engine output is named as such wherever it appears:
+   January raised from 95,000 to 140,000, an illustrative advisor edit, so the
+   block has something to say. Its verdict is computed against the real bands.
+   ========================================================================= */
+:root{
+  --rs-col-input:360px; --rs-col-gap:16px; --rs-content-width:1120px;
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0; --rs-accent-contrast:#ffffff;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#ff00000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:var(--rs-content-width);margin:0 auto;padding:28px 22px 64px}
+
+/* [A] screen root — ONE gap value */
+.tw-root{display:flex;flex-direction:column;gap:16px}
+.tw-root strong,.tw-root b{font-weight:600}
+/* [A] resets the shared header's own margin (mandatory; guarded) */
+.tw-root .rs-top{margin:0}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55}
+.tag{position:relative}
+.tag::after{content:attr(data-tag);position:absolute;top:-9px;left:10px;background:#614700;
+  color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;padding:1px 6px;border-radius:4px}
+.stepmark{margin:34px 0 2px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+
+/* [B] ReportHeader */
+.rs-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  margin:0 auto 22px;padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);
+  color:#fff;box-shadow:var(--rs-shadow)}
+.rs-backlink{display:inline-block;margin-bottom:10px;font-size:12px;font-weight:600;
+  letter-spacing:.04em;color:#7fd3f1;text-decoration:none;opacity:.9}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+
+/* step chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+/* [C] HeroStrip + HeroFigure — locked, do not change */
+.herostrip{background:#002b64;border-radius:14px;padding:20px;display:grid;gap:0;
+  box-shadow:0 12px 32px -12px #002b6466;grid-template-columns:repeat(4,1fr)}
+@media (max-width:700px){.herostrip{grid-template-columns:1fr 1fr;gap:14px 0}}
+.herostrip > *:first-child{border-left:0;padding-left:2px}
+.hs{padding:2px 16px;border-left:1px solid #ffffff30}
+.hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
+.hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;
+  font-variant-numeric:tabular-nums}
+.hv .u{font-size:.5em;font-weight:400;opacity:.85}
+.hv.is-crit{color:#ff8f8f}
+.hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+
+/* StaleBanner + the warning band */
+.stale{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;
+  align-items:center;gap:14px}
+.stale b{display:block;font-size:13px}
+.stale span{font-size:12.5px;color:var(--rs-muted)}
+.stale.is-crit{background:var(--rs-crit-soft);border-color:#ff000045;border-left-color:var(--rs-crit)}
+
+/* [D] two-column body */
+.tw-layout{display:grid;grid-template-columns:var(--rs-col-input) 1fr;gap:var(--rs-col-gap);
+  align-items:start}
+@media (max-width:860px){.tw-layout{grid-template-columns:1fr}}
+
+/* cards — no top edge: the shipped screens define none */
+.tw-card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow)}
+.tw-h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.tw-group{padding:15px 16px;border-bottom:1px solid var(--rs-line)}
+.tw-group:last-child{border-bottom:0}
+.tw-glabel{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tw-dot{width:7px;height:7px;border-radius:50%;background:var(--rs-accent-bright)}
+
+/* [D2] results column — same 16px rhythm */
+.tw-results{display:flex;flex-direction:column;gap:16px;min-height:200px}
+/* [D2a] tiles */
+.tw-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:560px){.tw-tiles{grid-template-columns:1fr}}
+.tw-tile{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:16px 17px;box-shadow:var(--rs-shadow);overflow:hidden}
+.tw-k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.tw-v{font-size:30px;font-weight:600;letter-spacing:-.01em;margin-top:6px;line-height:1;
+  font-variant-numeric:tabular-nums}
+.tw-v.is-crit{color:var(--rs-crit)}
+.tw-v.is-good{color:var(--rs-good)}
+.tw-sub{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+/* [D2c] coach panel */
+.tw-edu{border-left:3px solid var(--rs-accent-bright);background:var(--rs-accent-soft);
+  border-radius:0 9px 9px 0;padding:15px 17px}
+.tw-edu-h{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600;color:var(--rs-accent);margin-bottom:8px}
+.tw-edu-p{margin:0 0 8px;font-size:14px;line-height:1.6}
+.tw-edu-p:last-child{margin-bottom:0}
+.tw-lead{background:var(--rs-accent);color:var(--rs-accent-contrast);font-size:10px;font-weight:600;
+  letter-spacing:.08em;padding:3px 7px;border-radius:5px}
+/* [D2d] actions */
+.tw-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tw-cta{font:inherit;font-weight:600;font-size:13.5px;color:var(--rs-accent-contrast);
+  background:var(--rs-accent);border:0;padding:11px 18px;border-radius:10px;cursor:pointer}
+.tw-ghost{background:transparent;color:var(--rs-ink);border:1px solid var(--rs-line)}
+.tw-foot{font-size:12px;color:var(--rs-muted)}
+
+/* provenance tags — ProvenanceBadge */
+.src{letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:999px;
+  white-space:nowrap;font-size:9.5px;padding:2.5px 7px;margin-left:7px}
+.src-file{color:#0070c0;background:#0070c018;border:1px solid #0070c04d}
+.src-hand{color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.src-seed{color:#4a7c1f;background:#4ca52d1a;border:1px solid #4ca52d59}
+
+/* inputs */
+.field{margin-bottom:11px}
+.fieldlab{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;
+  color:var(--rs-ink);margin-bottom:6px}
+.field input,.field select{width:100%;font:inherit;font-size:13px;padding:8px 9px;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.seg{display:flex;border:1px solid var(--rs-line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:var(--rs-panel);padding:9px 0;font:inherit;font-size:13px;
+  font-weight:600;color:var(--rs-muted);cursor:pointer}
+.seg button.on{background:var(--rs-accent);color:#fff}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.m{display:flex;align-items:center;gap:6px}
+.m .lbl{width:26px;font-size:11px;color:var(--rs-muted);text-align:right}
+.m input{width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;
+  border:1px solid var(--rs-line);border-radius:7px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.m.seeded input{border-color:#4ca52d59;background:#4ca52d0d}
+.m.edited input{border-color:#ff990059;background:#ff99000d}
+
+/* tables */
+.tblwrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{text-align:right;padding:6px 7px;border-bottom:1px solid var(--rs-line);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--rs-muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+tr.rule td{border-top:2px solid var(--rs-line);font-weight:600}
+td.out{color:var(--rs-warn);font-weight:600}
+td.far{color:var(--rs-crit);font-weight:600}
+.tblnote{font-size:11.5px;color:var(--rs-muted);padding:0 16px 14px}
+
+/* the ruled block — mockup only */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-good);
+  border-radius:10px;padding:14px 16px;font-size:13px}
+.q h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;margin:0 0 10px;color:var(--rs-muted)}
+.q ol{margin:0;padding-left:20px}.q li{margin-bottom:9px}
+.q .from{color:var(--rs-muted);font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+</style>
+<style>
+/* ============================================================================
+   ADDITIONS FOR THIS DRAWING ONLY — everything above is the approved mockup's
+   own style block, copied verbatim from design/mockups/three-way-forecast.html
+   so the look is READ OFF the approved screens, never proposed afresh (the
+   owner ruling of 2026-07-23). The rules below add no new colour, radius,
+   weight or font — they lay out four figures, a dial and a chart using the
+   tokens already defined above.
+   ========================================================================= */
+.volblock{border:1px solid #0070c055;border-radius:12px;padding:14px;background:var(--rs-accent-soft)}
+.volsub{font-size:12.5px;color:var(--rs-muted);margin:-6px 0 13px}
+.volfigs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+@media (max-width:720px){.volfigs{grid-template-columns:repeat(2,1fr)}}
+.volfig{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:10px;padding:11px 12px}
+.volfig .k{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;line-height:1.35}
+.volfig .v{font-size:20px;font-weight:600;margin-top:5px;line-height:1.1;
+  font-variant-numeric:tabular-nums}
+.volfig .v.small{font-size:15px}
+.volfig .s{font-size:11.5px;color:var(--rs-muted);margin-top:4px;line-height:1.4}
+.volpanel{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:10px;
+  padding:12px 14px;margin-bottom:14px}
+.volpanel .ph{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:600}
+.volpanel .ps{font-size:12px;color:var(--rs-muted);margin:4px 0 10px}
+.chartwrap{overflow-x:auto;background:var(--rs-panel);border:1px solid var(--rs-line);
+  border-radius:10px;padding:10px 6px}
+.chartwrap svg{display:block;min-width:700px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:11.5px;color:var(--rs-muted)}
+.legend i{display:inline-block;width:22px;height:0;border-top:2px solid;vertical-align:middle;margin-right:6px}
+.legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;
+  vertical-align:middle}
+.legend .ring{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;
+  vertical-align:middle;background:#ffffff;border:2px solid #002b64}
+.plain{font-size:13px;line-height:1.6;margin:12px 0 0}
+.note-why{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:12px 14px;font-size:12.5px;color:var(--rs-muted);margin-top:12px}
+.note-why b{color:var(--rs-ink)}
+.throughlink{display:inline-flex;align-items:center;gap:7px;margin-top:12px;font-size:12.5px;
+  font-weight:600;color:var(--rs-accent);text-decoration:none}
+.gaugewrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.gaugewrap svg{flex:none;min-width:0}
+.gaugekey{flex:1;min-width:240px}
+.keyrow{display:flex;align-items:center;gap:9px;font-size:12.5px;margin-top:6px}
+.keyrow .sw{width:14px;height:8px;border-radius:3px;flex:none}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="tw-root">
+
+  <div class="mock">
+    <strong>One new block, drawn for approval &mdash; nothing here is built.</strong>
+    It adds <b>the volatility read</b> to <b>step 3, Set the assumptions</b> of the Three-Way Forecast:
+    how much this client's sales actually move month to month, and where the twelve forecast months
+    sit against that. This is the remaining half of Mike's request of 2026-09-03 &mdash;
+    <em>&ldquo;drop the last 2 years worth of p&amp;l and balance sheet so some basic trend analysis
+    can be performed &mdash; including volatility analysis &mdash; for which we have calcs model
+    already&rdquo;</em> (to-do item <b>4.61</b>, phase (a)). The file half shipped the same day: step 1
+    now takes two by-month exports and joins them.
+    Drawn against the approved <em>mockups/three-way-forecast.html</em>, whose entire style block is
+    reused here unchanged, so this is the same screen with one group added &mdash; not a new look.
+    🔴 <b>ALL NINE QUESTIONS ARE RULED (2026-09-03) and the drawing above shows every ruling.</b>
+    Three of the nine went AGAINST the recommendation put to Mike, and those three are marked below so
+    the disagreement is on the page rather than lost. Nothing on this drawing is open. What remains is
+    his approval of the drawing itself, which is not the same as ruling on what goes in it.
+  </div>
+
+  <div class="mock">
+    <strong>What is already built, so the size of this is honest.</strong>
+    The engine is <em>server/report/volatilityModel.js</em>, ported from your own Volatility Report
+    workbook and live at <em>/volatility</em>. The months are <b>already in hand</b>: the forecast's
+    intake route joins your one or two by-month exports and holds up to 24 months in
+    <em>joined.usable</em> &mdash; then keeps only the last twelve for the sales seed and discards the
+    rest (<em>server/routes/report.js</em>, the forecast intake handler). <em>computeVolatility</em> is
+    <b>already imported at the top of that same file</b> for the Volatility Report's own route. So this
+    block asks for <b>no new upload, no new file slot and no new arithmetic</b> &mdash; it stops
+    throwing away figures the app has already read, and shows them.
+  </div>
+
+  <!-- ============================================================ WHERE IT SITS -->
+  <div class="stepmark">Where it sits &mdash; step 3 of 4, set the assumptions</div>
+
+  <div class="chips">
+    <div class="chip done"><span class="n">&#10003;</span> Drop the exports</div>
+    <div class="chip done"><span class="n">&#10003;</span> Confirm the opening position</div>
+    <div class="chip now"><span class="n">3</span> Set the assumptions</div>
+    <div class="chip todo"><span class="n">4</span> The forecast</div>
+  </div>
+
+  <div class="tw-layout">
+    <aside class="tw-card">
+      <div class="tw-group">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">The trade</h2></div>
+        <div class="field">
+          <span class="fieldlab">Mark-up on cost <span class="src src-hand">entered</span></span>
+          <input value="68%">
+        </div>
+        <div class="field">
+          <span class="fieldlab">Forecast starts</span>
+          <input value="1 April 2026">
+        </div>
+      </div>
+      <div class="tw-group">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">When customers pay</h2></div>
+        <div class="field"><span class="fieldlab">Same month</span><input value="10%"></div>
+        <div class="field"><span class="fieldlab">Month after</span><input value="55%"></div>
+        <div class="field"><span class="fieldlab">Two months after</span><input value="30%"></div>
+        <div class="tw-foot" style="color:var(--rs-good);font-weight:600">Adds to 100% &#10003;</div>
+      </div>
+      <div class="tw-group">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">GST and tax</h2></div>
+        <div class="field"><span class="fieldlab">GST rate</span><input value="15%"></div>
+        <div class="field" style="margin-top:11px"><span class="fieldlab">Company tax rate</span><input value="28%"></div>
+      </div>
+    </aside>
+
+    <section class="tw-results">
+      <div class="tw-card">
+
+        <!-- the sales boxes, unchanged, with ONE month edited so the block has something to say -->
+        <div class="tw-group">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Forecast sales, month by month</h2></div>
+          <div class="mgrid">
+            <div class="m seeded"><span class="lbl">Apr</span><input value="85,000"></div>
+            <div class="m seeded"><span class="lbl">May</span><input value="70,000"></div>
+            <div class="m seeded"><span class="lbl">Jun</span><input value="75,000"></div>
+            <div class="m seeded"><span class="lbl">Jul</span><input value="80,000"></div>
+            <div class="m seeded"><span class="lbl">Aug</span><input value="60,000"></div>
+            <div class="m seeded"><span class="lbl">Sep</span><input value="65,000"></div>
+            <div class="m seeded"><span class="lbl">Oct</span><input value="70,000"></div>
+            <div class="m seeded"><span class="lbl">Nov</span><input value="70,000"></div>
+            <div class="m seeded"><span class="lbl">Dec</span><input value="80,000"></div>
+            <div class="m edited"><span class="lbl">Jan</span><input value="140,000"></div>
+            <div class="m seeded"><span class="lbl">Feb</span><input value="70,000"></div>
+            <div class="m seeded"><span class="lbl">Mar</span><input value="70,000"></div>
+          </div>
+          <p class="tblnote" style="padding:10px 0 0">
+            <span class="src src-seed">starting point</span>
+            Eleven are <b>last year's actual sales</b>. <span class="src src-hand">entered</span>
+            January has been raised from 95,000 to <b class="num">140,000</b> &mdash; the advisor is
+            forecasting a big month. Year total <b class="num">935,000</b>.</p>
+        </div>
+
+        <!-- ===================================================== THE NEW BLOCK -->
+        <div class="tw-group">
+          <div class="volblock">
+            <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Your forecast against the normal range</h2></div>
+            <p class="volsub">
+              Measured over the <b>last 12 complete months</b>, read from your by-month export
+              <span class="src src-file">from file</span>. Drop last year's export as well and this
+              reads up to 24.
+            </p>
+
+            <div class="volfigs">
+              <div class="volfig">
+                <div class="k">Average month</div>
+                <div class="v num">74,167</div>
+                <div class="s">890,000 over 12 months</div>
+              </div>
+              <div class="volfig">
+                <div class="k">Normal range</div>
+                <div class="v small num">65,076 &ndash; 83,257</div>
+                <div class="s">one deviation either side</div>
+              </div>
+              <div class="volfig">
+                <div class="k">Biggest month on record</div>
+                <div class="v num">95,000</div>
+                <div class="s">January last year</div>
+              </div>
+              <div class="volfig">
+                <div class="k">Forecast months outside the range</div>
+                <div class="v num">4 <span style="font-size:.6em;font-weight:400;color:var(--rs-muted)">of 12</span></div>
+                <div class="s">last year also had 4</div>
+              </div>
+            </div>
+
+            <!-- the dial — RULED IN by Mike, 2026-09-03 (ruling 3), against the recommendation -->
+            <div class="volpanel">
+              <div class="ph">Average monthly swing</div>
+              <p class="ps"><b>This measures the last twelve months, not the forecast.</b> It says how
+                variable this business has always been &mdash; the green, amber and red here are about
+                its history, and are a different judgement from the bands below.</p>
+              <div class="gaugewrap">
+                <svg viewBox="0 0 220 210" width="220" height="210" role="img"
+                     aria-label="Dial showing an average monthly swing of 24.51 out of 100, in the green band below 50.">
+                  <path d="M 59.09 160.91 A 72 72 0 0 1 110 38"    fill="none" stroke="#4ca52d" stroke-width="18"/>
+                  <path d="M 110 38 A 72 72 0 0 1 176.52 82.45"    fill="none" stroke="#ff9900" stroke-width="18"/>
+                  <path d="M 176.52 82.45 A 72 72 0 0 1 160.91 160.91" fill="none" stroke="#ff0000" stroke-width="18"/>
+
+                  <line x1="110"    y1="29"     x2="110"    y2="47"     stroke="#002b64" stroke-width="2"/>
+                  <line x1="184.8"  y1="78.1"   x2="168.3"  y2="86.8"   stroke="#002b64" stroke-width="2"/>
+                  <line x1="52.7"   y1="167.3"  x2="65.5"   y2="154.5"  stroke="#002b64" stroke-width="2"/>
+                  <line x1="167.3"  y1="167.3"  x2="154.5"  y2="154.5"  stroke="#002b64" stroke-width="2"/>
+
+                  <text x="47"  y="181" font-size="10" fill="#5b6f8a" text-anchor="middle">0</text>
+                  <text x="110" y="24"  font-size="10" fill="#5b6f8a" text-anchor="middle">50</text>
+                  <text x="196" y="74"  font-size="10" fill="#5b6f8a" text-anchor="middle">75</text>
+                  <text x="173" y="181" font-size="10" fill="#5b6f8a" text-anchor="middle">100</text>
+
+                  <!-- needle at 24.51 -->
+                  <line x1="123.05" y1="115.06" x2="50.32" y2="86.88" stroke="#002b64"
+                        stroke-width="3.5" stroke-linecap="round"/>
+                  <circle cx="110" cy="110" r="8" fill="#002b64"/>
+                  <circle cx="110" cy="110" r="3.5" fill="#ffffff"/>
+
+                  <text x="110" y="200" font-size="26" font-weight="600" fill="#002b64"
+                        text-anchor="middle" style="font-variant-numeric:tabular-nums">24.51</text>
+                </svg>
+                <div class="gaugekey">
+                  <p class="tw-edu-p" style="font-size:13.5px;margin-bottom:8px">
+                    The dial is <b>the width of the normal range as a share of an average month</b>
+                    &mdash; <span class="num">(2 &times; deviation) &divide; average</span>. At 24.51,
+                    this client's ordinary swing is about a quarter of a typical month.
+                  </p>
+                  <div class="keyrow"><span class="sw" style="background:#4ca52d"></span> Under 50 &mdash; a steady business</div>
+                  <div class="keyrow"><span class="sw" style="background:#ff9900"></span> 50 to 75 &mdash; noticeable swing</div>
+                  <div class="keyrow"><span class="sw" style="background:#ff0000"></span> Over 75 &mdash; a wide swing month to month</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chartwrap">
+              <svg viewBox="0 0 760 420" width="100%" height="420" role="img"
+                   aria-label="Twenty-four months plotted against bands at one, two and three deviations from the average of the last twelve months. The first twelve are last year's actual sales; the next twelve are the forecast. January's forecast of 140,000 sits beyond the third deviation.">
+                <!-- bands, computed from the twelve actual months and carried across both halves -->
+                <rect x="60" y="150.07" width="600" height="20.61" fill="#ff990010"/>
+                <rect x="60" y="170.68" width="600" height="20.60" fill="#0070c00f"/>
+                <rect x="60" y="191.28" width="600" height="41.22" fill="#0070c01c"/>
+                <rect x="60" y="232.50" width="600" height="20.60" fill="#0070c00f"/>
+                <rect x="60" y="253.10" width="600" height="20.61" fill="#ff990010"/>
+
+                <line x1="60" y1="150.07" x2="660" y2="150.07" stroke="#ff9900" stroke-width="1" stroke-dasharray="2 4"/>
+                <line x1="60" y1="170.68" x2="660" y2="170.68" stroke="#5b6f8a" stroke-width="1" stroke-dasharray="4 4"/>
+                <line x1="60" y1="191.28" x2="660" y2="191.28" stroke="#0070c0" stroke-width="1.5" stroke-dasharray="6 4"/>
+                <line x1="60" y1="211.89" x2="660" y2="211.89" stroke="#002b64" stroke-width="2"/>
+                <line x1="60" y1="232.50" x2="660" y2="232.50" stroke="#0070c0" stroke-width="1.5" stroke-dasharray="6 4"/>
+                <line x1="60" y1="253.10" x2="660" y2="253.10" stroke="#5b6f8a" stroke-width="1" stroke-dasharray="4 4"/>
+                <line x1="60" y1="273.71" x2="660" y2="273.71" stroke="#ff9900" stroke-width="1" stroke-dasharray="2 4"/>
+
+                <g font-size="9.5" text-anchor="end" fill="#5b6f8a">
+                  <text x="756" y="153" fill="#ff9900">3rd dev 101,438</text>
+                  <text x="756" y="174">2nd dev 92,348</text>
+                  <text x="756" y="194" fill="#0070c0">1st dev 83,257</text>
+                  <text x="756" y="215" font-size="10" font-weight="600" fill="#002b64">Average 74,167</text>
+                  <text x="756" y="236" fill="#0070c0">1st dev 65,076</text>
+                  <text x="756" y="256">2nd dev 55,985</text>
+                  <text x="756" y="277" fill="#ff9900">3rd dev 46,895</text>
+                </g>
+
+                <!-- baseline -->
+                <line x1="60" y1="380" x2="660" y2="380" stroke="#d5e1ee" stroke-width="1"/>
+                <text x="52" y="383" text-anchor="end" font-size="9.5" fill="#5b6f8a">0</text>
+
+                <!-- the divide between what happened and what is being claimed -->
+                <line x1="355" y1="40" x2="355" y2="380" stroke="#5b6f8a" stroke-width="1" stroke-dasharray="3 4"/>
+                <text x="206" y="32" text-anchor="middle" font-size="10.5" font-weight="600" fill="#5b6f8a">Last twelve months &mdash; actual</text>
+                <text x="503" y="32" text-anchor="middle" font-size="10.5" font-weight="600" fill="#002b64">The forecast</text>
+
+                <!-- last year, solid -->
+                <polyline fill="none" stroke="#002b64" stroke-width="2" stroke-linejoin="round"
+                  points="70,187.3 94.8,221.3 119.6,210 144.3,198.7 169.1,244 193.9,232.7 218.7,221.3 243.5,221.3 268.3,198.7 293,164.7 317.8,221.3 342.6,221.3"/>
+                <!-- the forecast, dashed: it has not happened -->
+                <polyline fill="none" stroke="#0070c0" stroke-width="2" stroke-linejoin="round" stroke-dasharray="6 4"
+                  points="367.4,187.3 392.2,221.3 417,210 441.7,198.7 466.5,244 491.3,232.7 516.1,221.3 540.9,221.3 565.6,198.7 590.4,62.7 615.2,221.3 640,221.3"/>
+
+                <!-- last year's points. Hollow = outside the 1st deviation, amber = beyond the 2nd -->
+                <circle cx="70"    cy="187.3" r="4.5" fill="#ffffff" stroke="#002b64" stroke-width="2"/>
+                <circle cx="94.8"  cy="221.3" r="3.5" fill="#002b64"/>
+                <circle cx="119.6" cy="210"   r="3.5" fill="#002b64"/>
+                <circle cx="144.3" cy="198.7" r="3.5" fill="#002b64"/>
+                <circle cx="169.1" cy="244"   r="4.5" fill="#ffffff" stroke="#002b64" stroke-width="2"/>
+                <circle cx="193.9" cy="232.7" r="4.5" fill="#ffffff" stroke="#002b64" stroke-width="2"/>
+                <circle cx="218.7" cy="221.3" r="3.5" fill="#002b64"/>
+                <circle cx="243.5" cy="221.3" r="3.5" fill="#002b64"/>
+                <circle cx="268.3" cy="198.7" r="3.5" fill="#002b64"/>
+                <circle cx="293"   cy="164.7" r="5"   fill="#ff9900" stroke="#ffffff" stroke-width="1.5"/>
+                <circle cx="317.8" cy="221.3" r="3.5" fill="#002b64"/>
+                <circle cx="342.6" cy="221.3" r="3.5" fill="#002b64"/>
+
+                <!-- the forecast's points -->
+                <circle cx="367.4" cy="187.3" r="4.5" fill="#ffffff" stroke="#0070c0" stroke-width="2"/>
+                <circle cx="392.2" cy="221.3" r="3.5" fill="#0070c0"/>
+                <circle cx="417"   cy="210"   r="3.5" fill="#0070c0"/>
+                <circle cx="441.7" cy="198.7" r="3.5" fill="#0070c0"/>
+                <circle cx="466.5" cy="244"   r="4.5" fill="#ffffff" stroke="#0070c0" stroke-width="2"/>
+                <circle cx="491.3" cy="232.7" r="4.5" fill="#ffffff" stroke="#0070c0" stroke-width="2"/>
+                <circle cx="516.1" cy="221.3" r="3.5" fill="#0070c0"/>
+                <circle cx="540.9" cy="221.3" r="3.5" fill="#0070c0"/>
+                <circle cx="565.6" cy="198.7" r="3.5" fill="#0070c0"/>
+                <circle cx="590.4" cy="62.7"  r="6"   fill="#ff0000" stroke="#ffffff" stroke-width="1.5"/>
+                <circle cx="615.2" cy="221.3" r="3.5" fill="#0070c0"/>
+                <circle cx="640"   cy="221.3" r="3.5" fill="#0070c0"/>
+
+                <text x="590.4" y="52" text-anchor="middle" font-size="10" font-weight="600" fill="#ff0000">140,000</text>
+
+                <g font-size="8.5" fill="#5b6f8a" text-anchor="middle">
+                  <text x="70" y="398">Apr</text><text x="94.8" y="398">May</text><text x="119.6" y="398">Jun</text>
+                  <text x="144.3" y="398">Jul</text><text x="169.1" y="398">Aug</text><text x="193.9" y="398">Sep</text>
+                  <text x="218.7" y="398">Oct</text><text x="243.5" y="398">Nov</text><text x="268.3" y="398">Dec</text>
+                  <text x="293" y="398">Jan</text><text x="317.8" y="398">Feb</text><text x="342.6" y="398">Mar</text>
+                  <text x="367.4" y="398">Apr</text><text x="392.2" y="398">May</text><text x="417" y="398">Jun</text>
+                  <text x="441.7" y="398">Jul</text><text x="466.5" y="398">Aug</text><text x="491.3" y="398">Sep</text>
+                  <text x="516.1" y="398">Oct</text><text x="540.9" y="398">Nov</text><text x="565.6" y="398">Dec</text>
+                  <text x="590.4" y="398">Jan</text><text x="615.2" y="398">Feb</text><text x="640" y="398">Mar</text>
+                </g>
+              </svg>
+            </div>
+            <div class="legend">
+              <span><i style="border-color:#002b64"></i>Last year, actual</span>
+              <span><i style="border-color:#0070c0;border-top-style:dashed"></i>The forecast</span>
+              <span><span class="ring"></span>Outside the normal range</span>
+              <span><span class="dot" style="background:#ff9900"></span>Beyond the 2nd deviation</span>
+              <span><span class="dot" style="background:#ff0000"></span>Beyond the 3rd deviation</span>
+            </div>
+
+            <!-- the RED band — fires beyond the 3rd deviation. Wording A, ruled 2026-09-03 -->
+            <div class="stale is-crit" style="margin-top:14px">
+              <div><b>January is beyond anything this business has done</b>
+                <span>At 140,000 it is 7.2 deviations above the average month, and the biggest month in
+                the last 24 was 95,000. Check the figure, or record why it is right.</span></div>
+              <button class="tw-cta tw-ghost">Show me</button>
+            </div>
+
+            <p class="plain">
+              The other three months outside the range &mdash; <b>April, August and September</b> &mdash;
+              were outside it last year too, and the forecast has not changed them. That is this
+              business's own seasonality repeating.
+            </p>
+
+            <a class="throughlink" href="#">Open the full Volatility Report for this client &rsaquo;</a>
+
+            <div class="note-why">
+              <b>The bands are last year's, not the forecast's.</b> The average and the deviations are
+              measured from the actual months only, and the forecast is then laid against them. Measuring
+              both together would let an optimistic forecast widen its own normal range and then sit
+              inside it &mdash; which would make the block agree with whatever it was shown.
+              <b>Nothing here blocks anything</b>: the band names where a month sits and asks for the
+              reason. Whether that reason is a contract, a seasonal push or wishful thinking is a
+              judgement for you and the client, never for the arithmetic.
+            </div>
+          </div>
+        </div>
+
+        <div class="tw-group">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Stock purchases, month by month</h2></div>
+          <p class="tblnote" style="padding:2px 0 0">&hellip; unchanged, twelve boxes &hellip;</p>
+        </div>
+        <div class="tw-group">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Buying and selling capital assets</h2></div>
+          <p class="tblnote" style="padding:2px 0 0">&hellip; unchanged, the block approved and built on 2026-09-03 &hellip;</p>
+        </div>
+        <div class="tw-group">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Annual overheads, seeded from the Profit and Loss</h2></div>
+          <p class="tblnote" style="padding:2px 0 0">&hellip; unchanged, all 23 lines &hellip;</p>
+        </div>
+      </div>
+      <div class="tw-actions">
+        <button class="tw-cta">Build the forecast</button>
+        <button class="tw-cta tw-ghost">Back</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================================================ THE AMBER BAND -->
+  <div class="stepmark">The amber band &mdash; the level that does not fire on this client</div>
+
+  <div class="mock">
+    <strong>Two levels were ruled, and only the red one fires on the sample above.</strong> January is
+    7.2 deviations out, so it trips the stronger of the two. The amber band is what an advisor sees for a
+    month that is unusual but not extraordinary &mdash; drawn here with the same client's figures and a
+    smaller January, <b class="num">96,000</b>, which is 2.4 deviations above the average.
+  </div>
+
+  <div class="stale" style="margin-top:8px">
+    <div><b>January is well outside the last 12 months</b>
+      <span>It sits more than two deviations above the average month. If there is a reason &mdash; a
+      contract, a new product, a seasonal push &mdash; record it. It is the first thing anyone reading
+      this forecast will ask about.</span></div>
+    <button class="tw-cta tw-ghost">Show me</button>
+  </div>
+
+  <div class="note-why" style="max-width:760px">
+    <b>Both bands take a plural form</b> when more than one month trips the same level &mdash;
+    &ldquo;January and July are well outside the last 12 months&rdquo; &mdash; and the red band is shown
+    above the amber one when both fire at once, so the more serious statement is never buried under the
+    milder one.
+  </div>
+
+  <!-- ============================================================ THE MONTH TABLE -->
+  <div class="stepmark">The four months named, for the advisor who wants the figures</div>
+
+  <div class="tw-card" style="max-width:760px">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Forecast months outside the normal range</h2></div>
+      <div class="tblwrap">
+        <table>
+          <tr><th>Month</th><th>Forecast</th><th>Same month last year</th><th>Distance from average</th><th>Band</th></tr>
+          <tr><td>Apr</td><td>85,000</td><td>85,000</td><td>+10,833</td><td>Above 1st</td></tr>
+          <tr><td>Aug</td><td>60,000</td><td>60,000</td><td>&minus;14,167</td><td>Below 1st</td></tr>
+          <tr><td>Sep</td><td>65,000</td><td>65,000</td><td>&minus;9,167</td><td>Below 1st</td></tr>
+          <tr class="rule"><td>Jan</td><td class="far">140,000</td><td>95,000</td><td class="far">+65,833</td><td>Beyond 3rd</td></tr>
+        </table>
+      </div>
+      <p class="tblnote" style="padding:10px 0 0">
+        The middle column is what makes the first three readable at a glance: the forecast has not moved
+        them at all. Only January has been changed, and it is the only one that trips a band.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================ STATES -->
+  <div class="stepmark">The three states that are not the happy one</div>
+
+  <div class="mock">
+    <strong>All three must be drawn, because an absent block and a broken block look identical.</strong>
+    The block needs at least twelve complete months to measure anything &mdash; the same floor the
+    Volatility Report already uses for its shortest window.
+  </div>
+
+  <div class="tw-card" style="max-width:760px;margin-top:12px">
+    <div class="tw-group">
+      <div class="volblock">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Your forecast against the normal range</h2></div>
+        <div class="stale">
+          <div><b>Not enough months to measure the swing</b>
+            <span>Your by-month export gave <b>eleven</b> complete months &mdash; the most recent one was
+            still part-way through, so it was set aside. Drop last year's by-month export as well and
+            this will read up to 24 months.</span></div>
+          <button class="tw-cta tw-ghost">Add last year's export</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tw-card" style="max-width:760px;margin-top:12px">
+    <div class="tw-group">
+      <div class="volblock">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Your forecast against the normal range</h2></div>
+        <p class="tw-sub" style="margin:0">
+          No by-month Profit and Loss was dropped, so there is no month-by-month history to compare the
+          forecast with. The forecast itself is unaffected. Go back to step 1 and add one if you want
+          this read.
+        </p>
+        <a class="throughlink" href="#">&lsaquo; Back to step 1</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mock" style="margin-top:12px">
+    <strong>And the failure state the recipe requires.</strong> If a recalculation cannot reach the
+    backend, the figures must never sit on screen looking live:
+  </div>
+  <div class="stale" style="margin-top:8px">
+    <div><b>This comparison may be out of date</b><span>The calculation could not be reached.</span></div>
+    <button class="tw-cta">Retry</button>
+  </div>
+
+  <!-- ============================================================ RULED -->
+  <div class="stepmark">Ruled by Mike, 2026-09-03 &mdash; all nine</div>
+
+  <div class="q">
+    <h2>Wording and behaviour</h2>
+    <ol>
+      <li>&#10003; <b>The block COMPARES the forecast to the history &mdash; RULED, and drawn above.</b>
+        <span class="from">A history-only block would have been an accurate copy of a report the advisor
+        can already open in one click, and a second copy of a live screen is how two screens start
+        disagreeing. The comparison exists only here, because only this screen holds a forecast.</span></li>
+
+      <li>&#10003; <b>The heading &mdash; RULED: <em>Your forecast against the normal range</em>.</b> The
+        month count sits in the line beneath it.
+        <span class="from">Chosen over &ldquo;Your forecast against the last twelve months&rdquo;, which
+        was the first drawing's wording, because two by-month exports make the read 24 months and a
+        heading naming twelve would then be wrong on screen. The count moves to the sub-line, where it can
+        say what was actually measured.</span></li>
+
+      <li>&#10003; <b>The dial &mdash; RULED IN. 🔴 Against the recommendation.</b> The recommendation was
+        the number alone, on density grounds: step 3 is the longest of the four screens and the dial adds
+        roughly 210px for a figure the block already prints.
+        <span class="from">Mike ruled the picture travels with the number. <b>One consequence was
+        recorded rather than discovered later:</b> the dial's own green/amber/red is about the HISTORY's
+        variability, and the two bands below are about the FORECAST. Those are different judgements and
+        the same three colours now carry both, so the dial sits in its own panel with a line saying in
+        terms that it measures the last twelve months and not the forecast.</span></li>
+
+      <li>&#10003; <b>A WARNING BAND, not a plain statement &mdash; RULED. 🔴 Against the
+        recommendation.</b> The recommendation was two plain sentences and no banner, on the grounds that
+        the Volatility Report's own coach panel says the arithmetic shows where a month sits and the
+        advisor judges why.
+        <span class="from">Mike ruled a band, like the negative-stock one on step 4. On reflection the
+        ruling is the better one and the reason is in his own framing of this feature: a three-way
+        forecast is read by a lender, and a quiet observational note is the wrong register for a document
+        somebody else interrogates. The band reuses the component step 4 already has, so it is no new
+        work. The ordinary observation &mdash; three months simply repeating last year's seasonality
+        &mdash; stays plain text, because it is not a warning.</span></li>
+
+      <li>&#10003; <b>No window switch &mdash; RULED.</b> The block measures every complete month the
+        exports gave, up to 24, and states the count.
+        <span class="from">The 12 / 18 / 24 control stays on the full Volatility Report, where a window
+        is meant to be changed. Here it would have been a fifth control on the densest screen, and
+        nothing is hidden because the count is on the page.</span></li>
+
+      <li>&#10003; <b>Step 3 only, for now &mdash; RULED.</b> The read does not appear on step 4 with the
+        finished forecast.
+        <span class="from">It does its job where the sales figures are typed, which is the only moment
+        its answer can change anything. Whether it joins the printed output is a decision about the
+        funding pack as a whole, and it belongs with item 4.62 rather than being taken twice.</span></li>
+
+      <li>&#10003; <b>TWO band levels &mdash; RULED. 🔴 Against the recommendation.</b> Amber beyond the
+        second deviation, red beyond the third. The recommendation was one level at the third, for one
+        threshold and one meaning.
+        <span class="from">Mike ruled two. Note what was NOT chosen and why it matters: a band at the
+        FIRST deviation would be permanently lit &mdash; four of the twelve forecast months above sit
+        outside it, and three of those the advisor never touched. On this client both ruled levels happen
+        to fire on January alone; they diverge on other clients' figures.</span></li>
+
+      <li>&#10003; <b>The chart's dots follow the bands &mdash; RULED.</b> Amber = beyond the second,
+        red = beyond the third.
+        <span class="from">Without this, amber would have meant &ldquo;outside the first
+        deviation&rdquo; on the dots and &ldquo;beyond the second&rdquo; on the band &mdash; the same
+        colour carrying two meanings inside one block. The full Volatility Report keeps its own scheme,
+        so the two screens differ; that was the stated cost and it was accepted.
+        <b>⚠ ONE ADDITION FOLLOWS FROM THIS RULING and it was not put to Mike, because it is what the
+        ruling requires rather than a fresh choice:</b> a month merely outside the first deviation now has
+        no marker left, which would have lost the &ldquo;three of these are just last year's
+        seasonality&rdquo; reading that the paragraph under the chart depends on. Those months are drawn
+        as a HOLLOW dot in their own series colour &mdash; visible, but not a severity colour. If the
+        preference is that they carry no marker at all, it is one line.</span></li>
+
+      <li>&#10003; <b>The band wording &mdash; RULED: version A, which names the month and asks for the
+        reason.</b> Both bands are drawn above in their approved words.
+        <span class="from">Chosen over a shorter, purely observational version. It follows the house
+        style set by the negative-stock band on step 4 &mdash; state the fact, then point at the action
+        &mdash; and its closing line ties to the purpose Mike gave this report: the majority of
+        three-way forecasts support funding requests.</span></li>
+    </ol>
+  </div>
+
+  <div class="mock" style="margin-top:18px">
+    <strong>Not drawn, deliberately.</strong> No change to step 1, step 2 or step 4. No change to the
+    approved <em>three-way-forecast.html</em> or <em>three-way-forecast-capital.html</em>, which stay
+    exactly as you approved them &mdash; this is a separate file so the record of what you signed off is
+    not overwritten. No new upload slot: this reads the by-month exports step 1 already takes. No change
+    to the built Volatility Report at <em>/volatility</em>, and no second copy of it. And no two-year
+    trend read &mdash; growth, margin movement, debtor and creditor days &mdash; which is phase (b) of
+    item 4.61, needs the comparative-column parser, and gets its own drawing.
+  </div>
+
+  <div class="mock">
+    <strong>One build consequence, recorded now so it is not discovered half-way.</strong> The bands are
+    fixed once the files are read, but the forecast months change as the advisor types, so the comparison
+    has to re-run on every edit. It is a comparison against figures the backend has already returned, not
+    a second model &mdash; but the four figures, the dial, the bands and the month verdicts must all come
+    from <em>volatilityModel.js</em> through the intake route, never be recomputed in the Vue component.
+    The Stack Constitution is explicit that calculation does not happen in the frontend, and two
+    implementations of a standard deviation is exactly how a screen and a report start disagreeing.
+  </div>
+
+</div>
+</div>
+</body>
+</html>

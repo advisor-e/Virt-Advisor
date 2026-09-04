@@ -249,7 +249,20 @@ describe('the two tiers are recognisably the same screen', () => {
   const FIRM_ONLY = ['firmTemplateLibrary.tab', 'firmTeamProgress.tab', 'Team Case Studies', 'Property Tax Rules']
   // `templateLibrary.tab` — Mike, 2026-08-31 (SEARCH-CONTENT-CASCADE-PLAN.md Phase 1):
   // the master export upload, mentor-only beside Template Check, drawn last in the menu.
-  const MENTOR_ONLY = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab', 'templateLibrary.tab']
+  //
+  // ⚠ `Forecast Trend Thresholds` IS MENTOR-ONLY BUT IS **NOT** IN THE TAIL, and that is
+  // why there are two lists below rather than one. Every other mentor-only tab sits under
+  // "Rolled up from below", the last heading; this one sits under "Model Inputs", which
+  // comes before it (Mike, 2026-09-03, item 4.61b — the bands the forecast's two-year
+  // trend read draws, mentor-only per the default of 2026-08-24). The old single list
+  // conflated "mentor-only" with "at the end of the menu", which was true until today.
+  //
+  // ⚠ AMENDED 2026-09-04: `Imported Stock Prices` joins it, for the same structural reason.
+  // It is the price ladder imported stock sells down at as it ages (Mike, 2026-09-04, item
+  // 4.64 — the tab's name is his), and it sits beside `Forecast Trend Thresholds` under
+  // "Model Inputs", not in the tail. Mentor-only per the same default of 2026-08-24.
+  const MENTOR_ONLY_TAIL = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab', 'templateLibrary.tab']
+  const MENTOR_ONLY = ['Forecast Trend Thresholds', 'Imported Stock Prices'].concat(MENTOR_ONLY_TAIL)
 
   /**
    * A selector that matches nothing makes every comparison below succeed against an
@@ -286,13 +299,13 @@ describe('the two tiers are recognisably the same screen', () => {
     expect(mentor.filter(l => !firm.includes(l)).sort()).toEqual([...MENTOR_ONLY].sort())
   })
 
-  it('adds the mentor-only tabs at the end, so the shared run is uninterrupted', async () => {
-    // All of them sit under "Rolled up from below", the last heading — so the mentor-only
+  it('adds the rolled-up mentor-only tabs at the end, so the shared run is uninterrupted', async () => {
+    // The roll-up tabs all sit under "Rolled up from below", the last heading — so that
     // run is the tail of the menu rather than names scattered through a band of twelve.
     // (Sliced by the list's own length: the hardcoded -4 turned this into a count
     // pin that broke the day a fifth mentor-only tab was ruled on.)
     const mentor = tabLabels(await mountHub({ scope: 'mentor', firmId: '' }))
-    expect(mentor.slice(-MENTOR_ONLY.length)).toEqual(MENTOR_ONLY)
+    expect(mentor.slice(-MENTOR_ONLY_TAIL.length)).toEqual(MENTOR_ONLY_TAIL)
   })
 })
 
@@ -325,12 +338,23 @@ describe('the hub menu — the sidebar itself', () => {
     expect(tabLabels(wrapper)[7]).toBe('Meeting Review')
   })
 
-  it('gives the mentor NO Model Inputs heading rather than an empty one', async () => {
-    // A whole heading being absent reads as intentional. One gap in a list of twelve
-    // reads as a bug, which is why empty groups are dropped and not merely emptied.
+  it('gives the mentor a Model Inputs heading holding only what it is entitled to', async () => {
+    // ⚠ THIS TEST SAID THE OPPOSITE UNTIL 2026-09-03, and the change is a ruling rather
+    // than a regression. The mentor had NO Model Inputs heading because the only thing in
+    // that group — Property Tax Rules — is gated to the tiers with a layer above them.
+    // Forecast Trend Thresholds joined the group that day (Mike, item 4.61b) and is
+    // mentor-only, so the heading now appears for the mentor and holds exactly that one
+    // entry, while Property Tax Rules stays absent.
+    //
+    // The rule the old test was really protecting — an empty group is DROPPED, not drawn
+    // empty, because one gap in a list of twelve reads as a bug — is unchanged and is
+    // still covered: the firm sees no "Rolled up from below" heading at all (asserted in
+    // the test above), which is the same mechanism from the other side.
     const wrapper = await mountHub({ scope: 'mentor', firmId: '' })
-    expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Rolled up from below'])
-    expect(groupHeadings(wrapper)).not.toContain('Model Inputs')
+    expect(groupHeadings(wrapper)).toEqual(['Your AI coach', 'Your Team In Action', 'Model Inputs', 'Rolled up from below'])
+    const names = tabLabels(wrapper)
+    expect(names).toContain('Forecast Trend Thresholds')
+    expect(names).not.toContain('Property Tax Rules')
   })
 
   it('🔴 keeps the five that teach the AI in ONE group', async () => {

@@ -1,0 +1,37 @@
+{
+  "_readme": [
+    "HOW IMPORTED STOCK SELLS DOWN — the price ladder and the demand patterns.",
+    "",
+    "EVERY FIGURE HERE IS MIKE'S, read out of design/report-source-models/Import &",
+    "Retail.xlsx on 2026-09-04. The ladder is `Supplier 1 Inputs` row 19 (New Stock /",
+    "Std Retail / Runout markups, with their stock-turn day bands beside them); the",
+    "patterns are the four-band sell-through table the supplier sheets consume. Nothing",
+    "here was chosen by a developer, and nothing should be.",
+    "",
+    "WHY IT IS A FILE AND NOT A CONSTANT: it is advisory content that moves the numbers",
+    "on a client's forecast, so somebody must be able to see it and change it. It is",
+    "MENTOR-TIER content — the stated judgement of the drawing, following the default of",
+    "2026-08-24 — and cascades to a firm the first time one has a real reason to price",
+    "differently.",
+    "",
+    "A pattern's four bands are 30 days each and MUST total 1. The ladder's markups are",
+    "on COST, so a price is cost x (1 + markup): 145 x 2.85 = 413.25, which is the",
+    "workbook's own New Stock Retail Price for Stock 1.",
+    "",
+    "Item 4.64. Drawing: design/mockups/three-way-forecast-international.html."
+  ],
+  "ladder": {
+    "newMarkup": 1.85,
+    "standardMarkup": 1.52,
+    "runoutMarkup": 1.22,
+    "newUpToDays": 60,
+    "standardUpToDays": 90,
+    "runoutUpToDays": 120
+  },
+  "defaultPattern": "Steady Eddy",
+  "patterns": [
+    { "name": "SkyRockets", "curve": [0.4, 0.25, 0.2, 0.15] },
+    { "name": "Steady Eddy", "curve": [0.2, 0.3, 0.2, 0.3] },
+    { "name": "Slow Burn", "curve": [0.1, 0.3, 0.4, 0.2] }
+  ]
+}

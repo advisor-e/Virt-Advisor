@@ -250,34 +250,11 @@
           .vol-glabel
             span.vol-dot
             h2.vol-h2 {{ $t('report.volatility.dial.title') }}
-          .vol-gauge
-            svg(viewBox="0 0 220 210" width="220" height="210" role="img" :aria-label="$t('report.volatility.dial.alt', { score: num(data.score, 2) })")
-              path(d="M 59.09 160.91 A 72 72 0 0 1 110 38" fill="none" stroke="#4ca52d" stroke-width="18")
-              path(d="M 110 38 A 72 72 0 0 1 176.52 82.45" fill="none" stroke="#ff9900" stroke-width="18")
-              path(d="M 176.52 82.45 A 72 72 0 0 1 160.91 160.91" fill="none" stroke="#ff0000" stroke-width="18")
-              line(x1="110" y1="29" x2="110" y2="47" stroke="#002b64" stroke-width="2")
-              line(x1="184.8" y1="78.1" x2="168.3" y2="86.8" stroke="#002b64" stroke-width="2")
-              line(x1="52.7" y1="167.3" x2="65.5" y2="154.5" stroke="#002b64" stroke-width="2")
-              line(x1="167.3" y1="167.3" x2="154.5" y2="154.5" stroke="#002b64" stroke-width="2")
-              text(x="47" y="181" font-size="10" fill="#5b6f8a" text-anchor="middle") 0
-              text(x="110" y="24" font-size="10" fill="#5b6f8a" text-anchor="middle") 50
-              text(x="196" y="74" font-size="10" fill="#5b6f8a" text-anchor="middle") 75
-              text(x="173" y="181" font-size="10" fill="#5b6f8a" text-anchor="middle") 100
-              line(:x1="needle.tailX" :y1="needle.tailY" :x2="needle.tipX" :y2="needle.tipY" stroke="#002b64" stroke-width="3.5" stroke-linecap="round")
-              circle(cx="110" cy="110" r="8" fill="#002b64")
-              circle(cx="110" cy="110" r="3.5" fill="#ffffff")
-              text.vol-gauge-v(x="110" y="200" text-anchor="middle") {{ num(data.score, 2) }}
-            .vol-gaugekey
-              p.vol-edu-p {{ $t('report.volatility.dial.explain') }}
-              .vol-keyrow
-                span.vol-sw(style="background:#4ca52d")
-                | {{ $t('report.volatility.dial.keyGood') }}
-              .vol-keyrow
-                span.vol-sw(style="background:#ff9900")
-                | {{ $t('report.volatility.dial.keyWarn') }}
-              .vol-keyrow
-                span.vol-sw(style="background:#ff0000")
-                | {{ $t('report.volatility.dial.keyCrit') }}
+          //- The dial moved to components/base/VolatilityDial.vue on 2026-09-03, when
+          //- Mike ruled it onto the Three-Way Forecast's step 3 as well. Its geometry and
+          //- its 50/75 boundaries are measured from the workbook's own gauge images, so a
+          //- second copy would drift — see that component's own note.
+          volatility-dial(:score="data.score")
 
       //- [D2b] the band chart
       .vol-card
@@ -380,6 +357,7 @@ import HeroFigure from '~/components/base/HeroFigure.vue'
 import StaleBanner from '~/components/base/StaleBanner.vue'
 import SampleNotice from '~/components/base/SampleNotice.vue'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
+import VolatilityDial from '~/components/base/VolatilityDial.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -408,7 +386,7 @@ const CHART = { left: 70, right: 690, top: 20, bottom: 300, headroom: 1.08 }
 export default {
   name: 'VolatilityReport',
 
-  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice, ProvenanceBadge },
+  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice, ProvenanceBadge, VolatilityDial },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -593,24 +571,6 @@ export default {
 
     outsideCount () {
       return this.outsideMonths.length
-    },
-
-    /**
-     * The needle, as two points. 0 sits at 225° and 100 at −45°, sweeping 270° clockwise —
-     * the geometry of the workbook's own gauge. Scores above 100 peg at the end stop rather
-     * than swinging back round, which would read as a low score.
-     */
-    needle () {
-      const score = this.data ? Math.max(0, Math.min(100, this.data.score)) : 0
-      const rad = (225 - (score / 100) * 270) * Math.PI / 180
-      const cos = Math.cos(rad)
-      const sin = Math.sin(rad)
-      return {
-        tipX: 110 + 64 * cos,
-        tipY: 110 - 64 * sin,
-        tailX: 110 - 14 * cos,
-        tailY: 110 + 14 * sin
-      }
     },
 
     /**
@@ -1155,15 +1115,6 @@ export default {
 .vol-table td.is-out { color: var(--rs-warn); font-weight: 600; }
 
 /* The dial */
-.vol-gauge { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
-.vol-gauge svg { flex: none; }
-.vol-gauge-v {
-  font-size: 26px; font-weight: 600; fill: var(--rs-ink);
-  font-variant-numeric: tabular-nums;
-}
-.vol-gaugekey { flex: 1; min-width: 240px; }
-.vol-keyrow { display: flex; align-items: center; gap: 9px; font-size: 12.5px; margin-top: 6px; }
-.vol-sw { width: 14px; height: 8px; border-radius: 3px; flex: none; }
 
 .vol-chartwrap { overflow-x: auto; }
 .vol-chartwrap svg { display: block; min-width: 660px; }

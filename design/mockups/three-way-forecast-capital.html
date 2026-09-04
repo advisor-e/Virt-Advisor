@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buying and Selling Capital Assets</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Three-Way Forecast — screen mockup for approval (drawn 2026-09-02).
+
+   EVERY value below is copied from the project's own locked sources. Nothing is
+   invented and nothing is approximated:
+     - design/REPORT-VISUAL-STANDARD.md      the ruled numbers + [A]-[D2d] anatomy
+     - design/REPORT-LAYOUT-REFERENCE.html   the labelled reference to "match exactly"
+     - components/base/ReportShell.vue       the --rs-* tokens
+     - components/base/HeroStrip.vue         solid #002b64, 20px, 14px radius
+     - components/base/HeroFigure.vue        .hk/.hv/.hs2 sizes and colours
+     - components/base/ProvenanceBadge.vue   the from-file / entered tag
+     - design/mockups/volatility-report.html the most recent screen drawn to the standard
+
+   The owner ruling of 2026-07-23 is followed exactly: the look is READ OFF the
+   finished screens, not proposed afresh. Nothing here is a new or bolder look.
+
+   FIGURES ARE REAL. Every number is the actual output of server/report/
+   threeWayForecastModel.js on the source workbook's own sample ("3 way Filter.xlsx",
+   Big Bird Grass Seed, forecast opening 1 April) — not placeholders.
+   No dark mode: one light look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-col-input:360px; --rs-col-gap:16px; --rs-content-width:1120px;
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0; --rs-accent-contrast:#ffffff;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#ff00000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:var(--rs-content-width);margin:0 auto;padding:28px 22px 64px}
+
+/* [A] screen root — ONE gap value */
+.tw-root{display:flex;flex-direction:column;gap:16px}
+.tw-root strong,.tw-root b{font-weight:600}
+/* [A] resets the shared header's own margin (mandatory; guarded) */
+.tw-root .rs-top{margin:0}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55}
+.tag{position:relative}
+.tag::after{content:attr(data-tag);position:absolute;top:-9px;left:10px;background:#614700;
+  color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;padding:1px 6px;border-radius:4px}
+.stepmark{margin:34px 0 2px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+
+/* [B] ReportHeader */
+.rs-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  margin:0 auto 22px;padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);
+  color:#fff;box-shadow:var(--rs-shadow)}
+.rs-backlink{display:inline-block;margin-bottom:10px;font-size:12px;font-weight:600;
+  letter-spacing:.04em;color:#7fd3f1;text-decoration:none;opacity:.9}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+
+/* step chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+/* [C] HeroStrip + HeroFigure — locked, do not change */
+.herostrip{background:#002b64;border-radius:14px;padding:20px;display:grid;gap:0;
+  box-shadow:0 12px 32px -12px #002b6466;grid-template-columns:repeat(4,1fr)}
+@media (max-width:700px){.herostrip{grid-template-columns:1fr 1fr;gap:14px 0}}
+.herostrip > *:first-child{border-left:0;padding-left:2px}
+.hs{padding:2px 16px;border-left:1px solid #ffffff30}
+.hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
+.hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;
+  font-variant-numeric:tabular-nums}
+.hv .u{font-size:.5em;font-weight:400;opacity:.85}
+.hv.is-crit{color:#ff8f8f}
+.hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+
+/* StaleBanner + the warning band */
+.stale{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;
+  align-items:center;gap:14px}
+.stale b{display:block;font-size:13px}
+.stale span{font-size:12.5px;color:var(--rs-muted)}
+.stale.is-crit{background:var(--rs-crit-soft);border-color:#ff000045;border-left-color:var(--rs-crit)}
+
+/* [D] two-column body */
+.tw-layout{display:grid;grid-template-columns:var(--rs-col-input) 1fr;gap:var(--rs-col-gap);
+  align-items:start}
+@media (max-width:860px){.tw-layout{grid-template-columns:1fr}}
+
+/* cards — no top edge: the shipped screens define none */
+.tw-card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow)}
+.tw-h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.tw-group{padding:15px 16px;border-bottom:1px solid var(--rs-line)}
+.tw-group:last-child{border-bottom:0}
+.tw-glabel{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tw-dot{width:7px;height:7px;border-radius:50%;background:var(--rs-accent-bright)}
+
+/* [D2] results column — same 16px rhythm */
+.tw-results{display:flex;flex-direction:column;gap:16px;min-height:200px}
+/* [D2a] tiles */
+.tw-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:560px){.tw-tiles{grid-template-columns:1fr}}
+.tw-tile{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:16px 17px;box-shadow:var(--rs-shadow);overflow:hidden}
+.tw-k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.tw-v{font-size:30px;font-weight:600;letter-spacing:-.01em;margin-top:6px;line-height:1;
+  font-variant-numeric:tabular-nums}
+.tw-v.is-crit{color:var(--rs-crit)}
+.tw-v.is-good{color:var(--rs-good)}
+.tw-sub{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+/* [D2c] coach panel */
+.tw-edu{border-left:3px solid var(--rs-accent-bright);background:var(--rs-accent-soft);
+  border-radius:0 9px 9px 0;padding:15px 17px}
+.tw-edu-h{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600;color:var(--rs-accent);margin-bottom:8px}
+.tw-edu-p{margin:0 0 8px;font-size:14px;line-height:1.6}
+.tw-edu-p:last-child{margin-bottom:0}
+.tw-lead{background:var(--rs-accent);color:var(--rs-accent-contrast);font-size:10px;font-weight:600;
+  letter-spacing:.08em;padding:3px 7px;border-radius:5px}
+/* [D2d] actions */
+.tw-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tw-cta{font:inherit;font-weight:600;font-size:13.5px;color:var(--rs-accent-contrast);
+  background:var(--rs-accent);border:0;padding:11px 18px;border-radius:10px;cursor:pointer}
+.tw-ghost{background:transparent;color:var(--rs-ink);border:1px solid var(--rs-line)}
+.tw-foot{font-size:12px;color:var(--rs-muted)}
+
+/* provenance tags — ProvenanceBadge */
+.src{letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:999px;
+  white-space:nowrap;font-size:9.5px;padding:2.5px 7px;margin-left:7px}
+.src-file{color:#0070c0;background:#0070c018;border:1px solid #0070c04d}
+.src-hand{color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.src-seed{color:#4a7c1f;background:#4ca52d1a;border:1px solid #4ca52d59}
+
+/* drop zone + file slots */
+.drop{border:2px dashed #9dbdd8;border-radius:var(--rs-radius);background:var(--rs-panel-2);
+  padding:26px 20px;text-align:center}
+.drop .big{font-size:15px;font-weight:600}
+.drop .sm{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+.slots{display:grid;gap:8px;margin-top:14px}
+.slot{display:flex;gap:10px;align-items:flex-start;background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);border-radius:10px;padding:10px 11px;text-align:left}
+.slot.empty{border-style:dashed;color:var(--rs-muted)}
+.slot .nm{font-size:12.5px;font-weight:600;word-break:break-all}
+.slot .mt{font-size:11.5px;color:var(--rs-muted);margin-top:2px}
+.req{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:999px;padding:2.5px 7px;color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.opt{color:var(--rs-muted);background:var(--rs-panel);border:1px solid var(--rs-line)}
+
+/* inputs */
+.field{margin-bottom:11px}
+.fieldlab{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;
+  color:var(--rs-ink);margin-bottom:6px}
+.field input,.field select{width:100%;font:inherit;font-size:13px;padding:8px 9px;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.field input.file{border-color:#0070c04d;background:#0070c00a}
+.seg{display:flex;border:1px solid var(--rs-line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:var(--rs-panel);padding:9px 0;font:inherit;font-size:13px;
+  font-weight:600;color:var(--rs-muted);cursor:pointer}
+.seg button.on{background:var(--rs-accent);color:#fff}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.m{display:flex;align-items:center;gap:6px}
+.m .lbl{width:26px;font-size:11px;color:var(--rs-muted);text-align:right}
+.m input{width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;
+  border:1px solid var(--rs-line);border-radius:7px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.m.seeded input{border-color:#4ca52d59;background:#4ca52d0d}
+
+/* tables */
+.tblwrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px}
+th,td{text-align:right;padding:6px 7px;border-bottom:1px solid var(--rs-line);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--rs-panel);
+  min-width:190px;white-space:normal}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--rs-muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+tr.rule td{border-top:2px solid var(--rs-line);font-weight:600}
+td.neg{color:var(--rs-crit)}
+td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:600}
+.tblnote{font-size:11.5px;color:var(--rs-muted);padding:0 16px 14px}
+.tabs{display:flex;gap:6px;padding:14px 16px 0}
+.tabs button{font:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--rs-line);
+  border-bottom:0;background:var(--rs-panel-2);color:var(--rs-muted);padding:8px 14px;
+  border-radius:9px 9px 0 0;cursor:pointer}
+.tabs button.on{background:var(--rs-panel);color:var(--rs-ink)}
+
+/* the questions block — mockup only */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:14px 16px;font-size:13px}
+.q h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;margin:0 0 10px;color:var(--rs-muted)}
+.q ol{margin:0;padding-left:20px}.q li{margin-bottom:9px}
+.q .from{color:var(--rs-muted);font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+</style>
+<style>
+/* ============================================================================
+   ADDITIONS FOR THIS DRAWING ONLY — everything above is the approved mockup's
+   own style block, copied verbatim from design/mockups/three-way-forecast.html
+   lines 8-217 so the look is READ OFF the approved screens, never proposed
+   afresh (the owner ruling of 2026-07-23). The rules below add no new colour,
+   radius, weight or font — they lay out a row list using the tokens already
+   defined above.
+   ========================================================================= */
+.caprow{display:grid;grid-template-columns:1fr 148px 76px 106px 112px 34px;gap:8px;align-items:center;
+  padding:8px 0;border-bottom:1px solid var(--rs-line)}
+.caprow:last-of-type{border-bottom:0}
+.caprow.head{border-bottom:1px solid var(--rs-line);padding-bottom:6px}
+.caprow.head span{font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-muted)}
+.caprow input,.caprow select{width:100%;font:inherit;font-size:13px;padding:8px 9px;
+  border:1px solid var(--rs-line);border-radius:9px;background:var(--rs-panel);color:var(--rs-ink)}
+.caprow .num input{text-align:right}
+.caprow .del{font:inherit;font-size:15px;line-height:1;color:var(--rs-muted);background:none;
+  border:0;cursor:pointer;padding:4px}
+.capadd{font:inherit;font-size:13px;font-weight:600;color:var(--rs-accent);background:none;
+  border:1px dashed #0070c055;border-radius:9px;padding:9px 13px;cursor:pointer;margin-top:12px}
+.capempty{font-size:12.5px;color:var(--rs-muted);padding:14px 0 2px}
+.captot{display:flex;justify-content:space-between;font-size:13px;font-weight:600;
+  padding:11px 0 0;margin-top:9px;border-top:1px solid var(--rs-line)}
+.seg-sm button{font:inherit;font-size:12px;font-weight:600;border:1px solid var(--rs-line);
+  background:var(--rs-panel);color:var(--rs-muted);padding:7px 10px;cursor:pointer}
+.seg-sm button:first-child{border-radius:9px 0 0 9px}
+.seg-sm button:last-child{border-radius:0 9px 9px 0;border-left:0}
+.seg-sm button.on{background:var(--rs-accent);color:var(--rs-accent-contrast);border-color:var(--rs-accent)}
+.note-why{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:12px 14px;font-size:12.5px;color:var(--rs-muted);margin-top:12px}
+.note-why b{color:var(--rs-ink)}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="tw-root">
+
+  <div class="mock">
+    <strong>One new block, drawn for approval &mdash; nothing here is built.</strong>
+    It adds <b>planned capital purchases and asset sales</b> to <b>step 3, Set the assumptions</b>
+    of the Three-Way Forecast. Asked for by Mike on 2026-09-03: <em>&ldquo;we need a box for
+    planned capital purchases &hellip; asset sales and purchases please&rdquo;</em>.
+    Drawn against the approved <em>mockups/three-way-forecast.html</em>, whose entire style block
+    is reused here unchanged, so this is the same screen with one group added &mdash; not a new look.
+    <b>The engine already takes these figures.</b> Every asset category carries twelve months of
+    <em>additions</em> and <em>disposals</em>, and today the screen sends zeroes for all of them.
+    🔴 <b>ALL SIX QUESTIONS ARE RULED (2026-09-03) and the drawing above shows every ruling.</b>
+    The block is called <em>Buying and selling capital assets</em>, in Mike's own words; a
+    <em>Buy / Sell</em> tick carries the direction so every figure is positive, his preference over
+    negative numbers; the money column is the <em>sale price</em>, with one line under the list
+    saying a gain or loss on sale is therefore not shown; prices are entered <em>before GST</em>;
+    each category shows its depreciation rate; and both totals stay. Nothing on this drawing is
+    open. What remains is Mike's approval of the drawing itself, which is not the same as ruling on
+    what goes in it.
+  </div>
+
+  <!-- ============================================================ WHERE IT SITS -->
+  <div class="stepmark">Where it sits &mdash; step 3 of 4, set the assumptions</div>
+
+  <div class="chips">
+    <div class="chip done"><span class="n">&#10003;</span> Drop the exports</div>
+    <div class="chip done"><span class="n">&#10003;</span> Confirm the opening position</div>
+    <div class="chip now"><span class="n">3</span> Set the assumptions</div>
+    <div class="chip todo"><span class="n">4</span> The forecast</div>
+  </div>
+
+  <div class="tw-layout">
+    <aside class="tw-card">
+      <div class="tw-group">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">The trade</h2></div>
+        <div class="field">
+          <span class="fieldlab">Mark-up on cost <span class="src src-hand">entered</span></span>
+          <input value="68%">
+        </div>
+        <div class="field">
+          <span class="fieldlab">Forecast starts</span>
+          <input value="1 April 2026">
+        </div>
+      </div>
+      <div class="tw-group">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">When customers pay</h2></div>
+        <div class="field"><span class="fieldlab">Same month</span><input value="10%"></div>
+        <div class="field"><span class="fieldlab">Month after</span><input value="55%"></div>
+        <div class="field"><span class="fieldlab">Two months after</span><input value="30%"></div>
+        <div class="field"><span class="fieldlab">Three months after</span><input value="5%"></div>
+        <div class="field"><span class="fieldlab">Four months after</span><input value="0%"></div>
+        <div class="tw-foot" style="color:var(--rs-good);font-weight:600">Adds to 100% &#10003;</div>
+      </div>
+      <div class="tw-group">
+        <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">GST and tax</h2></div>
+        <div class="field"><span class="fieldlab">GST rate</span><input value="15%"></div>
+        <div class="field" style="margin-top:11px"><span class="fieldlab">Company tax rate</span><input value="28%"></div>
+      </div>
+    </aside>
+
+    <section class="tw-results">
+      <div class="tw-card">
+        <div class="tw-group">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Forecast sales, month by month</h2></div>
+          <p class="tblnote" style="padding:2px 0 0">&hellip; unchanged, twelve boxes &hellip;</p>
+        </div>
+        <div class="tw-group">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Stock purchases, month by month</h2></div>
+          <p class="tblnote" style="padding:2px 0 0">&hellip; unchanged, twelve boxes &hellip;</p>
+        </div>
+
+        <!-- ===================================================== THE NEW GROUP -->
+        <div class="tw-group" style="border:1px solid #0070c055;border-radius:12px;padding:14px;background:var(--rs-accent-soft)">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Buying and selling capital assets</h2></div>
+
+          <div class="caprow head">
+            <span>What</span><span>Category</span><span>Month</span><span>Buying or selling</span><span>Price</span><span></span>
+          </div>
+
+          <div class="caprow">
+            <input value="Delivery van">
+            <select><option>Vehicles &mdash; 20%</option></select>
+            <select><option>Jun</option></select>
+            <div class="seg seg-sm"><button class="on">Buy</button><button>Sell</button></div>
+            <div class="num"><input value="45,000"></div>
+            <button class="del" title="Remove">&#10005;</button>
+          </div>
+          <div class="caprow">
+            <input value="Warehouse racking">
+            <select><option>Plant &amp; equipment &mdash; 22%</option></select>
+            <select><option>Sep</option></select>
+            <div class="seg seg-sm"><button class="on">Buy</button><button>Sell</button></div>
+            <div class="num"><input value="18,000"></div>
+            <button class="del" title="Remove">&#10005;</button>
+          </div>
+          <div class="caprow">
+            <input value="Old van">
+            <select><option>Vehicles &mdash; 20%</option></select>
+            <select><option>Jun</option></select>
+            <div class="seg seg-sm"><button>Buy</button><button class="on">Sell</button></div>
+            <div class="num"><input value="12,000"></div>
+            <button class="del" title="Remove">&#10005;</button>
+          </div>
+
+          <button class="capadd">+ Add a purchase or sale</button>
+
+          <div class="captot">
+            <span>Buying this year</span><span class="num">63,000</span>
+          </div>
+          <div class="captot" style="border-top:0;padding-top:4px">
+            <span>Selling this year</span><span class="num">12,000</span>
+          </div>
+
+          <div class="note-why">
+            <b>Every amount is positive.</b> Whether the money goes out or comes in is the
+            <em>Buy / Sell</em> tick's job, never the figure's &mdash; so a minus sign is refused
+            rather than guessed at.
+            <b>Buy</b> is money out in the month you name, plus GST; enter the price
+            <b>before GST</b> and the forecast adds it. The asset joins its category that month and
+            starts depreciating at that category's rate. <b>Sell</b> is the sale price, money in
+            plus GST, and the same figure comes off the asset's book value.
+          </div>
+
+          <p class="tblnote" style="padding:10px 0 0">
+            The forecast assumes an asset sells for its book value, so a gain or loss on sale is
+            not shown.
+          </p>
+        </div>
+
+        <div class="tw-group">
+          <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Annual overheads, seeded from the Profit and Loss</h2></div>
+          <p class="tblnote" style="padding:2px 0 0">&hellip; unchanged, all 23 lines &hellip;</p>
+        </div>
+      </div>
+      <div class="tw-actions">
+        <button class="tw-cta">Build the forecast</button>
+        <button class="tw-cta tw-ghost">Back</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================================================ EMPTY STATE -->
+  <div class="stepmark">The block before anything is added</div>
+
+  <div class="tw-card" style="max-width:760px">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Buying and selling capital assets</h2></div>
+      <p class="capempty">
+        Nothing planned. If the business is buying or selling equipment, vehicles or fit-out
+        this year, add it here &mdash; it changes the cash position in the month it happens.
+      </p>
+      <button class="capadd">+ Add a purchase or sale</button>
+    </div>
+  </div>
+
+  <!-- ============================================================ THE ALTERNATIVE -->
+  <div class="stepmark">The shape that was rejected, shown so the choice is on the page</div>
+
+  <div class="tw-card" style="max-width:760px">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Six categories &times; twelve months = 72 boxes</h2></div>
+      <div class="tblwrap">
+        <table style="min-width:0">
+          <tr><th>Category</th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>&hellip;</th></tr>
+          <tr><td>Vehicles</td><td class="num">0</td><td class="num">0</td><td class="num">45,000</td><td class="num">0</td><td class="num">0</td><td>&hellip;</td></tr>
+          <tr><td>Leasehold improvements</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td>&hellip;</td></tr>
+          <tr><td>Plant &amp; equipment</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td>&hellip;</td></tr>
+          <tr><td>Office equipment</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td>&hellip;</td></tr>
+          <tr><td>Computer hardware</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td>&hellip;</td></tr>
+          <tr><td>Other</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td>&hellip;</td></tr>
+        </table>
+      </div>
+      <div class="note-why">
+        This is what the engine holds underneath, and it is accurate. It is drawn here only to
+        show why the row list above is recommended instead: <b>72 boxes of which 70 are zero</b>
+        is a screen an advisor scrolls past, and the two that matter are lost in it. The row list
+        writes into exactly this grid &mdash; nothing is given up.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ WHAT IT CHANGES -->
+  <div class="stepmark">What the three rows above do to the forecast</div>
+
+  <div class="tw-card" style="max-width:760px">
+    <div class="tw-group">
+      <div class="tblwrap">
+        <table style="min-width:0">
+          <tr><th>&nbsp;</th><th>June</th><th>September</th><th>Year</th></tr>
+          <tr><td>Money out &mdash; capital purchases</td><td class="num">51,750</td><td class="num">20,700</td><td class="num">72,450</td></tr>
+          <tr><td>Money in &mdash; asset sales</td><td class="num">13,800</td><td class="num">0</td><td class="num">13,800</td></tr>
+          <tr><td>Depreciation charged, from that month on</td><td class="num">550</td><td class="num">330</td><td class="num">4,235</td></tr>
+        </table>
+      </div>
+      <div class="note-why">
+        <b>The GST is the forecast's, not the advisor's.</b> 45,000 of van becomes 51,750 out of
+        the bank at 15%; 12,000 of old van becomes 13,800 in. This is the arithmetic your R3 and
+        R4 rulings of 2026-09-02 corrected &mdash; the workbook was moving the GST and leaving the
+        asset behind. It is built and tested, and today nothing can reach it.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ QUESTIONS -->
+  <div class="stepmark">Needing Mike's word</div>
+
+  <div class="q">
+    <h2>Wording and behaviour</h2>
+    <ol>
+      <li>&#10003; <b>The group's name &mdash; RULED 2026-09-03, and it is Mike's own wording:
+        <em>Buying and selling capital assets</em>.</b> The button below it reads
+        <em>+ Add a purchase or sale</em>.
+        <span class="from">Chosen over &ldquo;Planned capital purchases and sales&rdquo; (drawn
+        first) and two shorter alternatives. It keeps the word <em>capital</em>, which is what
+        separates this block from the stock purchases sitting two groups above it, and it matches
+        the Buy / Sell tick inside it.</span></li>
+
+      <li>&#10003; <b>How a sale is entered &mdash; RULED 2026-09-03, and drawn above.</b> Mike:
+        <em>&ldquo;i would prefer to list the asset, (what) and price etc but then tick sell or
+        purchase next to them, instead of entering negative financial figures&rdquo;</em>. So every
+        amount is positive and a <em>Buy / Sell</em> tick carries the direction.
+        <span class="from">The reason it is the safer shape, not merely the nicer one: a minus sign
+        puts the direction inside the value, so &minus;12,000 ticked as a sale has two possible
+        readings and the screen has to guess. With the tick there is nothing to guess &mdash; money
+        cannot silently flow the wrong way in the cash forecast, and a negative figure is now always
+        a mistake, so it can simply be refused. It also makes the two totals sums of a flag rather
+        than of a sign. <b>One deviation from your words:</b> you said the tick sits next to the
+        asset; it is drawn one column further along, beside the Amount, so the direction is read at
+        the moment the figure is typed rather than three columns earlier. One line to move back if
+        you would rather it sat where you said.</span></li>
+
+      <li>&#10003; <b>What the sale figure means &mdash; RULED 2026-09-03: it is the SALE PRICE,
+        and the screen says what that costs.</b> Your workbook takes the sale figure off the
+        asset's book value <em>and</em> banks it as the money received, so the two agree only when
+        an asset sells for exactly its written-down value. Sell a van worth 8,000 for 12,000 and it
+        books 12,000 in and 12,000 off the books &mdash; no gain on sale appears anywhere. That is
+        your model's own method and it is unchanged. The column is headed <em>Price</em> and one
+        line sits under the list: <em>&ldquo;The forecast assumes an asset sells for its book
+        value, so a gain or loss on sale is not shown.&rdquo;</em>
+        <span class="from">Chosen because sale price is the figure an advisor actually has &mdash;
+        nobody knows a written-down value without looking it up, and a field that cannot be filled
+        accurately gets filled inaccurately &mdash; and because the cash line is what a three-way
+        forecast exists for. The cost is confined to depreciation on an asset already sold; it
+        never touches cash. <b>The accountant-correct alternative was two fields, proceeds and book
+        value, and it was rejected as too large a change to your model rather than as wrong:</b>
+        the P&amp;L's two Other Income lines are ANNUAL and spread evenly over twelve months, so a
+        June gain would smear across the year. It would need a new month-by-month P&amp;L row,
+        which flows into retained earnings and changes the shape of the 10,155-cell golden set
+        &mdash; a tenth deviation, and structurally larger than any of the nine, which were all
+        repairs to arithmetic already written. Available as its own decision later if you want it.
+        <b>One word taken from your own sentence:</b> the column is headed <em>Price</em> because
+        you wrote &ldquo;list the asset, (what) and price etc&rdquo;.</span></li>
+
+      <li>&#10003; <b>Before or after GST &mdash; RULED 2026-09-03: BEFORE.</b> The engine applies
+        GST itself, which is the R4 arithmetic corrected on 2026-09-02, and the note under the list
+        says so.
+        <span class="from">It also keeps step 3 behaving one way throughout: stock purchases and
+        all 23 overheads are already entered GST-exclusive, so a single GST-inclusive box here
+        would be the one figure on the screen that worked differently. The cost is real and
+        accepted &mdash; an advisor reading an invoice sees 51,750 and must enter 45,000.</span></li>
+
+      <li>&#10003; <b>The category list &mdash; RULED 2026-09-03: the six names stand, and each
+        SHOWS ITS DEPRECIATION RATE.</b> The dropdown reads <em>Vehicles &mdash; 20%</em>,
+        <em>Leasehold improvements &mdash; 15%</em>, <em>Plant &amp; equipment &mdash; 22%</em>,
+        <em>Office equipment &mdash; 25%</em>, <em>Computer hardware &mdash; 30%</em>,
+        <em>Other &mdash; 35%</em>.
+        <span class="from">It makes visible something that was invisible at the moment of choosing:
+        picking a category is picking a depreciation rate, and the six differ by 20 points end to
+        end. <b>One consequence for the build:</b> the rate shown must be the rate IN FORCE for
+        this forecast, not the platform default &mdash; step 3 already lets an advisor change any
+        of the six, so a dropdown hardcoded to 20% would contradict the rate they had just set two
+        groups above.</span></li>
+
+      <li>&#10003; <b>The two totals &mdash; RULED 2026-09-03: BOTH STAY.</b> <em>Buying this
+        year</em> and <em>Selling this year</em>, under the list.
+        <span class="from">They are the only figures on the block that are not typed in, so an
+        advisor can check a year's capital spend without adding the rows up themselves.</span></li>
+    </ol>
+  </div>
+
+  <div class="mock" style="margin-top:18px">
+    <strong>Not drawn, deliberately.</strong> No second block for the volatility read &mdash;
+    that is its own drawing and its own approval. No change to any screen above or below step 3.
+    No change to the approved <em>three-way-forecast.html</em>, which stays exactly as you
+    approved it: this is a separate file so the record of what you signed off is not overwritten.
+  </div>
+
+</div>
+</div>
+</body>
+</html>

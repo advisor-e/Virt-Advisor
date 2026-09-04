@@ -117,7 +117,7 @@
                   th
                   th(v-for="(m, i) in monthLabels" :key="i") {{ m }}
               tbody
-                tr(v-for="row in visibleRows" :key="row.key" :class="{ rule: row.rule }")
+                tr(v-for="row in visibleRows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub }")
                   td {{ $t(row.label) }}
                   td(
                     v-for="(v, i) in row.values" :key="i"
@@ -269,14 +269,52 @@ export default {
       return out
     },
 
+    /**
+     * Does this forecast trade overseas at all? Asked of the FIGURES rather than of the
+     * tick, so a section filled in and then unticked reports nothing — which is what the
+     * engine computes in that case too.
+     * @returns {boolean}
+     */
+    hasOverseasTrade () {
+      if (!this.data || !this.data.schedules || !this.data.schedules.overseas) { return false }
+      const os = this.data.schedules.overseas
+      const any = s => Array.isArray(s) && s.some(v => v !== 0)
+      return any(os.deposits) || any(os.freight) || any(os.duty) || any(os.borderGst) ||
+        any(os.supplierBalance) || any(os.importedRevenue) || any(os.overseasRevenue)
+    },
+
+    /**
+     * 🔴 THE FIVE OVERSEAS ROWS, and the reason the section exists at all. Mike, 2026-09-04:
+     * "the whole point of this section is to show when deposits are due, freight is paid,
+     * border gst etc - BEFORE the business can even start selling them". Inside Money out
+     * they are one figure in the month the supplier was settled, and the months that
+     * matter are invisible.
+     *
+     * They appear ONLY when the forecast actually trades overseas, so a domestic forecast
+     * keeps the compact four-row screen it has always had.
+     * @returns {Array<object>}
+     */
+    overseasCashRows () {
+      if (!this.hasOverseasTrade) { return [] }
+      const p = this.data.cashFlow.payments
+      return [
+        { key: 'os-dep', label: 'report.threeWayForecast.report.overseasDeposits', values: p.overseasDeposits, sub: true },
+        { key: 'os-frt', label: 'report.threeWayForecast.report.overseasFreight', values: p.overseasFreight, sub: true },
+        { key: 'os-duty', label: 'report.threeWayForecast.report.overseasDuty', values: p.overseasDuty, sub: true },
+        { key: 'os-gst', label: 'report.threeWayForecast.report.overseasBorderGst', values: p.overseasBorderGst, sub: true },
+        { key: 'os-bal', label: 'report.threeWayForecast.report.overseasSupplierBalance', values: p.overseasSupplierBalance, sub: true }
+      ]
+    },
+
     cashRows () {
       const c = this.data.cashFlow
       return [
         { key: 'in', label: 'report.threeWayForecast.report.moneyIn', values: c.totalReceipts },
-        { key: 'out', label: 'report.threeWayForecast.report.moneyOut', values: c.totalPayments },
+        { key: 'out', label: 'report.threeWayForecast.report.moneyOut', values: c.totalPayments }
+      ].concat(this.overseasCashRows).concat([
         { key: 'move', label: 'report.threeWayForecast.report.movement', values: c.netMovement, rule: true, signed: true },
         { key: 'close', label: 'report.threeWayForecast.report.cashAtMonthEnd', values: c.closingBalance, rule: true, signed: true }
-      ]
+      ])
     },
 
     profitRows () {
@@ -497,6 +535,10 @@ th:first-child, td:first-child { text-align: left; position: sticky; left: 0; ba
 th { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--rs-muted); font-weight: 600; }
 tbody tr:last-child td { border-bottom: 0; }
 tr.rule td { border-top: 2px solid var(--rs-line); font-weight: 600; }
+/* The five overseas rows sit UNDER Money out, indented, because they are part of it
+   rather than beside it. Item 4.64. */
+tr.is-sub td { color: var(--rs-muted); }
+tr.is-sub td:first-child { padding-left: 22px; }
 td.neg { color: var(--rs-crit); }
 td.impossible { color: var(--rs-crit); background: var(--rs-crit-soft); font-weight: 600; }
 

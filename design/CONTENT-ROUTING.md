@@ -588,7 +588,7 @@ Required only by courseEngine.js. No require chain reaches them from the advisor
 Stated rather than left to be inferred — an audit that hides its own edges is worse than
 no audit, because it reads as complete.
 
-- **37 data files are not classified.** They are listed below by name.
+- **39 data files are not classified.** They are listed below by name.
   This list is DERIVED from what is on disk, not typed out, so a new data file appears
   here by itself rather than waiting for someone to remember it.
 
@@ -607,6 +607,8 @@ no audit, because it reads as complete.
   - `data/eoy-reference.json`
   - `data/facilitation-reference.json`
   - `data/fin-mgt-table.json`
+  - `data/forecast-sell-down.json`
+  - `data/forecast-trend-thresholds.json`
   - `data/growth-curve-reveal-reference.json`
   - `data/growth-fundamentals.json`
   - `data/heald-matrix-reference.json`
