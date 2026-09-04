@@ -9,27 +9,27 @@
 
 ---
 
-## 2026-09-04 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-04 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Suite 7,532 green (396 suites) on the second run; the first run had four course-engine
-tests time out under load and all pass alone — not touched today, not filed. Started
-12 ahead / 0 behind; PR #56 merged at the start so the laptop could see yesterday's note.
+Suite 7,809 green (406 suites) at the push gate. Started 0/0 against master; ended
+5 ahead / 0 behind after merging PR #58's 36 commits in. Everything pushed.
 
-**4.62 slice 2 — six of ten wired, still active on the desktop.** Margin, Working
-Capital, Eight Levers, Cost of Capital, Lease vs Buy, Multiple Property, one commit each.
-Two seam changes: `validateInputs` admits `null` as a blank (alone or in a list), and
-`components/base/ClientChangedBadge.vue` puts the client badge in a label where there is
-no SliderField slot. Multiple Property flattens its three blocks and five property
-records under dotted names with `propertyCount`, and a saved report now stops the firm
-tax-rule seed overwriting it. Brief §5 says all of this.
+**4.62 slice 2 is COMPLETE — all ten routed screens save per client.** Loan Estimator,
+Quick Position, EBITDA/DCF and Volatility today, one commit each. Three new utilities hold
+the awkward shapes (`utils/*SavedShape.js`). Brief §5 says how each behaves.
 
-**Next:** the four stepped or file-fed screens — Loan Estimator, Quick Position, EBITDA/DCF,
-Volatility. Each needs its confirmed seed flattened the same way plus a rule for a client
-editing a figure that came from a file. The forecast waits for 4.61.
+**Mike's ruling, 2026-09-04:** a file-sourced figure the client changed shows `client` IN
+PLACE of `from file`, never beside it; Restore brings the file tags back. Built on Quick
+Position; EBITDA/DCF and Volatility have no editable file figure after intake, so the rule
+is stated there, not built. Clients never see an upload step on any of the four.
 
-🔴 Still not eyeballed: MySQL refuses the placeholder password; needs MYSQL_PASSWORD in .env.
+**Merge notes:** `VolatilityReport.vue` took both sides (your VolatilityDial + my seam);
+`to-do-items.json` kept my 4.62 note and every item you filed (4.63–4.66).
 
-Governance: CLAUDE.md and both command files now carry the one-recommendation,
-one-yes/no rule (`f3655fb`).
+**Next:** the Three-Way Forecast is the last screen for 4.62. It waits on 4.64 (active on
+the laptop, same intake and report files) — do not start it while that flag stands.
+4.59 (the "Added here" badge) is a one-line fix, still open. 🔴 Still not eyeballed:
+MySQL needs `MYSQL_PASSWORD` in `.env`.
 
-**LAPTOP:** 4.61 untouched. ReportHeader, SliderField, ProvenanceBadge unchanged today.
+**LAPTOP:** none of your forecast files were touched today. `server/utils/savedReports.js`
+changed (string lists admitted) — additive.
