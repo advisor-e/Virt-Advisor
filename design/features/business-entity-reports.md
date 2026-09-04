@@ -148,12 +148,24 @@ client-edited banner with *Restore my version* (D4), so no report page changes b
 four attributes. `ProvenanceBadge` gained the `client` state; `SliderField` a badge slot.
 
 **Wired so far:** Debtor Business Drag, Margin, Mark-up & Break-even, Working Capital Cycle,
-Eight Levers, Cost of Capital, Lease vs Buy, and Multiple Property (its three blocks and up
-to five property records flattened under dotted names with a `propertyCount`). **Not yet
-wired:** the other four routed screens; the Three-Way Forecast last, after the laptop's
-4.61 lands. Screens without SliderField show the
+Eight Levers, Cost of Capital, Lease vs Buy, Multiple Property (its three blocks and up
+to five property records flattened under dotted names with a `propertyCount`), and the Loan
+Estimator. **Not yet wired:** Quick Position, EBITDA/DCF and Volatility; the Three-Way
+Forecast last, after the laptop's 4.61 lands. Screens without SliderField show the
 badge in the label through `components/base/ClientChangedBadge.vue`. Until a screen is wired, an open
 model still shows the client its sample figures, exactly as §4 says.
+
+**A stepped screen saves from its page.** The Loan Estimator is four steps whose figures
+meet only on `pages/loan-estimator.vue`, so the page adopts the mixin and
+`utils/loanEstimatorSavedShape.js` holds the two rules. A save carries the steps the
+advisor has **confirmed with Continue** plus the calculator, each figure under a dotted
+name in the model's own shape (`security.boat.value`, `serviceability.loans.newPropertyLoans.balance`,
+`repayment.ratePct`); a step still being typed is not in it. Loading rebuilds each step
+**whole or not at all** — one missing or malformed figure leaves that step unconfirmed and
+the page lands on it, so nothing is ever filled in from the sample — and a complete row
+opens on the report. The business step is optional (a personal-only enquiry) but a broken
+one is re-entered, never dropped. In the two grids, whose cells have no labels, the badge
+sits on the row name when any figure in the row changed.
 
 **Wording proposed and not yet ruled** (`locales/en.json`, `clientReports.saved.*`): the
 "saved by" lines, the banner sentence, the badge word `client`, and the four failure messages.
@@ -168,7 +180,9 @@ advisor version untouched by a client save, the badge list as a comparison, host
 safe 500), `savedReport.mixin.test.js` (mode from the sign-in, load on mount for a client and
 on client-pick for an advisor, the right route with the token, restore advisor-only),
 `reportHeader.component.test.js` (Save only with someone to save as; the banner and Restore
-only on a client edit, never for the client's own sign-in).
+only on a client edit, never for the client's own sign-in), `loanEstimatorSavedShape.test.js`
+(a full row round-trips figure for figure and sits under the cap; one malformed figure
+drops its step and lands the page on it; nothing is filled from the sample).
 
 ## 6. What is deliberately not in this design
 

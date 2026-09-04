@@ -9,21 +9,31 @@
     hero-figure(:label="$t('report.loanEstimator.serviceability.totalBalances')" :value="money(loanBalanceTotal)")
     hero-figure(:label="$t('report.loanEstimator.serviceability.totalWeeklyLiving')" :value="money(weeklyLivingTotal)")
 
+  //- A figure the client changed since the advisor's version (§5, D4) is badged in its
+  //- label; a loan-grid row, whose cells have no label, carries it on the row name.
   .lesv-card
     h3.lesv-title {{ $t('report.loanEstimator.serviceability.householdTitle') }}
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.jointApplication') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.jointApplication') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.jointApplication')" :label="$t('clientReports.saved.badge')")
       b-select(v-model="joint" size="is-small")
         option(value="Yes") {{ $t('report.loanEstimator.serviceability.yes') }}
         option(value="No") {{ $t('report.loanEstimator.serviceability.no') }}
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.dependantsUnder18') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.dependantsUnder18') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.dependantsUnder18')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="household.dependantsUnder18" type="number" step="any" size="is-small")
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.dependantsOver18') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.dependantsOver18') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.dependantsOver18')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="household.dependantsOver18" type="number" step="any" size="is-small")
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.numberOfVehicles') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.numberOfVehicles') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.numberOfVehicles')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="household.numberOfVehicles" type="number" step="any" size="is-small")
 
   .lesv-card
@@ -36,7 +46,9 @@
         span {{ $t('report.loanEstimator.serviceability.loanCol.assessmentTerm') }}
         span {{ $t('report.loanEstimator.serviceability.loanCol.actualTerm') }}
       .lesv-row(v-for="key in loanKeys" :key="key")
-        span.lesv-label {{ $t('report.loanEstimator.serviceability.loanRow.' + key) }}
+        span.lesv-label
+          | {{ $t('report.loanEstimator.serviceability.loanRow.' + key) }}
+          client-changed-badge(v-if="isRowChanged('serviceability.loans.' + key)" :label="$t('clientReports.saved.badge')")
         b-input(v-model.number="loans[key].balance" type="number" step="any" size="is-small")
         b-input(v-model.number="loans[key].ratePct" type="number" step="any" size="is-small")
         b-input(v-model.number="loans[key].assessmentTermYears" type="number" step="any" size="is-small")
@@ -45,44 +57,64 @@
     //- serviceability assessment. The client only ever sees their own rate.
     .lesv-field.lesv-stress
       .lesv-labels
-        label {{ $t('report.loanEstimator.serviceability.stressMargin') }}
+        label
+          | {{ $t('report.loanEstimator.serviceability.stressMargin') }}
+          client-changed-badge(v-if="isClientChanged('serviceability.stressMargin')" :label="$t('clientReports.saved.badge')")
         p.lesv-help {{ $t('report.loanEstimator.serviceability.stressMarginHelp') }}
       b-input(v-model.number="stressMarginPct" type="number" step="any" size="is-small")
 
   .lesv-card
     h3.lesv-title {{ $t('report.loanEstimator.serviceability.incomeTitle') }}
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.customer1Gross') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.customer1Gross') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.customer1GrossIncome')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="income.customer1Gross" type="number" step="any" size="is-small")
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.customer2Gross') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.customer2Gross') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.customer2GrossIncome')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="income.customer2Gross" type="number" step="any" size="is-small")
     .lesv-field
       .lesv-labels
-        label {{ $t('report.loanEstimator.serviceability.otherMonthly') }}
+        label
+          | {{ $t('report.loanEstimator.serviceability.otherMonthly') }}
+          client-changed-badge(v-if="isClientChanged('serviceability.otherMonthlyTaxPaidIncome')" :label="$t('clientReports.saved.badge')")
         p.lesv-help {{ $t('report.loanEstimator.serviceability.otherMonthlyHelp') }}
       b-input(v-model.number="income.otherMonthly" type="number" step="any" size="is-small")
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.currentRental') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.currentRental') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.currentRentalWeekly')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="income.currentRentalWeekly" type="number" step="any" size="is-small")
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.newRental') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.newRental') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.newRentalWeekly')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="income.newRentalWeekly" type="number" step="any" size="is-small")
     h4.lesv-subtitle {{ $t('report.loanEstimator.serviceability.boardersTitle') }}
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.boardersNumber') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.boardersNumber') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.boarders.number')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="boarders.number" type="number" step="any" size="is-small")
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.boardersCharge') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.boardersCharge') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.boarders.weeklyCharge')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="boarders.weeklyCharge" type="number" step="any" size="is-small")
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.boardersTerm') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.boardersTerm') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.boarders.termWeeks')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="boarders.termWeeks" type="number" step="any" size="is-small")
 
   .lesv-card
     h3.lesv-title {{ $t('report.loanEstimator.serviceability.expensesTitle') }}
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.studentLoan1') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.studentLoan1') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.studentLoan1Monthly')" :label="$t('clientReports.saved.badge')")
       .lesv-pair
         b-select(v-model="studentLoan1" size="is-small")
           option(value="Yes") {{ $t('report.loanEstimator.serviceability.yes') }}
@@ -94,7 +126,9 @@
           :placeholder="$t('report.loanEstimator.serviceability.monthly')"
         )
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.studentLoan2') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.studentLoan2') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.studentLoan2Monthly')" :label="$t('clientReports.saved.badge')")
       .lesv-pair
         b-select(v-model="studentLoan2" size="is-small")
           option(value="Yes") {{ $t('report.loanEstimator.serviceability.yes') }}
@@ -106,24 +140,34 @@
           :placeholder="$t('report.loanEstimator.serviceability.monthly')"
         )
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.overdraftLimits') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.overdraftLimits') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.overdraftLimits')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="expenses.overdraftLimits" type="number" step="any" size="is-small")
     .lesv-field
-      label {{ $t('report.loanEstimator.serviceability.creditCardLimits') }}
+      label
+        | {{ $t('report.loanEstimator.serviceability.creditCardLimits') }}
+        client-changed-badge(v-if="isClientChanged('serviceability.creditCardLimits')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="expenses.creditCardLimits" type="number" step="any" size="is-small")
     .lesv-field
       .lesv-labels
-        label {{ $t('report.loanEstimator.serviceability.rentPaid') }}
+        label
+          | {{ $t('report.loanEstimator.serviceability.rentPaid') }}
+          client-changed-badge(v-if="isClientChanged('serviceability.rentPaidWeekly')" :label="$t('clientReports.saved.badge')")
         p.lesv-help {{ $t('report.loanEstimator.serviceability.rentPaidHelp') }}
       b-input(v-model.number="expenses.rentWeekly" type="number" step="any" size="is-small")
     .lesv-field
       .lesv-labels
-        label {{ $t('report.loanEstimator.serviceability.generalLiving') }}
+        label
+          | {{ $t('report.loanEstimator.serviceability.generalLiving') }}
+          client-changed-badge(v-if="isClientChanged('serviceability.generalLivingWeekly')" :label="$t('clientReports.saved.badge')")
         p.lesv-help {{ $t('report.loanEstimator.serviceability.generalLivingHelp') }}
       b-input(v-model.number="expenses.generalWeekly" type="number" step="any" size="is-small")
     .lesv-field
       .lesv-labels
-        label {{ $t('report.loanEstimator.serviceability.additionalLiving') }}
+        label
+          | {{ $t('report.loanEstimator.serviceability.additionalLiving') }}
+          client-changed-badge(v-if="isClientChanged('serviceability.additionalLivingWeekly')" :label="$t('clientReports.saved.badge')")
         p.lesv-help {{ $t('report.loanEstimator.serviceability.additionalLivingHelp') }}
       b-input(v-model.number="expenses.additionalWeekly" type="number" step="any" size="is-small")
 
@@ -162,7 +206,9 @@
 import SampleNotice from '~/components/base/SampleNotice.vue'
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+const { rowChanged } = require('~/utils/loanEstimatorSavedShape')
 
 /** Loan rows in the sheet's own order (rows 12/14/16/20). */
 const LOAN_KEYS = ['revolvingCredit', 'currentPropertyLoans', 'newPropertyLoans', 'personalTermLoans']
@@ -207,13 +253,15 @@ function sampleFigures () {
 export default {
   name: 'LoanEstimatorServiceability',
 
-  components: { SampleNotice, HeroStrip, HeroFigure },
+  components: { SampleNotice, HeroStrip, HeroFigure, ClientChangedBadge },
 
   mixins: [currencyMixin],
 
   props: {
     /** A previously confirmed payload (stepping back from chip 3); null on first entry. */
-    restore: { type: Object, default: null }
+    restore: { type: Object, default: null },
+    /** Saved-row names the client changed since the advisor's version (utils/loanEstimatorSavedShape). */
+    clientChanges: { type: Array, default: () => [] }
   },
 
   data () {
@@ -252,6 +300,21 @@ export default {
   },
 
   methods: {
+    /**
+     * @param {string} name a saved-row name, e.g. 'serviceability.stressMargin'
+     * @returns {boolean} whether the client changed that figure
+     */
+    isClientChanged (name) {
+      return this.clientChanges.includes(name)
+    },
+    /**
+     * @param {string} prefix a loan row's saved-row prefix, e.g. 'serviceability.loans.newPropertyLoans'
+     * @returns {boolean} whether the client changed any figure in that row
+     */
+    isRowChanged (prefix) {
+      return rowChanged(this.clientChanges, prefix)
+    },
+
     /**
      * Rebuild every field from a confirmed payload, decimals back to display
      * percents (rounded to 2 dp so 0.1395 restores as 13.95, not 13.950000...01).

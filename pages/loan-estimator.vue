@@ -4,6 +4,11 @@ report-shell
     :back-label="$t('modelLibrary.backToLibrary')"
     :eyebrow="$t('report.eyebrow') + ' · ' + $t('report.loanEstimator.eyebrowClass')"
     :title="$t('report.loanEstimator.title')"
+    :client="$t('report.preparedFor')"
+    :saved="savedReport"
+    @save="saveReport"
+    @restore="restoreReport"
+    @client-change="onReportClient"
   )
   .steps
     .step(:class="{ active: step === 1, done: step > 1 }" @click="goTo(1)")
@@ -18,10 +23,18 @@ report-shell
     .step(:class="{ active: step === 4 }")
       span.n 4
       | {{ $t('report.loanEstimator.step4') }}
-  loan-estimator-security(v-if="step === 1" :restore="security" @confirmed="onSecurityConfirmed")
-  loan-estimator-business(v-else-if="step === 2" :security="security" :restore="business" @confirmed="onBusinessConfirmed")
-  loan-estimator-serviceability(v-else-if="step === 3" :restore="serviceability" @confirmed="onServiceabilityConfirmed")
-  loan-estimator-report(v-else :security="security" :business="business" :serviceability="serviceability")
+  loan-estimator-security(v-if="step === 1" :restore="security" :client-changes="savedReport.clientChanges" @confirmed="onSecurityConfirmed")
+  loan-estimator-business(v-else-if="step === 2" :security="security" :restore="business" :client-changes="savedReport.clientChanges" @confirmed="onBusinessConfirmed")
+  loan-estimator-serviceability(v-else-if="step === 3" :restore="serviceability" :client-changes="savedReport.clientChanges" @confirmed="onServiceabilityConfirmed")
+  loan-estimator-report(
+    v-else
+    :security="security"
+    :business="business"
+    :serviceability="serviceability"
+    :restore="repayment"
+    :client-changes="savedReport.clientChanges"
+    @calc-change="onCalcChange"
+  )
 </template>
 
 <script>
@@ -34,9 +47,12 @@ report-shell
  * intake and the compute route is anonymous (numbers in, numbers out), so no
  * Bearer-token plumbing is needed.
  *
- * The Model Library row stays "Coming soon" until the final commit of
- * Phase 4b (catalogue flip lands last, with the guard entries — see
- * SESSION-2026-07-23-C-NOTES.md).
+ * Saved per client (item 4.62, Brief §5) through the savedReport mixin. This page,
+ * not a step, is what saves: it is the only place the four steps' figures meet. A
+ * save carries the steps the advisor has CONFIRMED with Continue plus the
+ * calculator; a step still being typed is not in it. Loading rebuilds each step
+ * whole or not at all and lands on the first step that needs re-entering
+ * (utils/loanEstimatorSavedShape.js holds both rules).
  */
 import ReportHeader from '~/components/base/ReportHeader.vue'
 import ReportShell from '~/components/base/ReportShell.vue'
@@ -44,11 +60,15 @@ import LoanEstimatorSecurity from '~/components/LoanEstimatorSecurity.vue'
 import LoanEstimatorBusiness from '~/components/LoanEstimatorBusiness.vue'
 import LoanEstimatorServiceability from '~/components/LoanEstimatorServiceability.vue'
 import LoanEstimatorReport from '~/components/LoanEstimatorReport.vue'
+import savedReport from '~/mixins/savedReport'
+const { flattenLoanEstimator, rebuildLoanEstimator } = require('~/utils/loanEstimatorSavedShape')
 
 export default {
   name: 'LoanEstimatorPage',
 
   components: { ReportShell, ReportHeader, LoanEstimatorSecurity, LoanEstimatorBusiness, LoanEstimatorServiceability, LoanEstimatorReport },
+
+  mixins: [savedReport],
 
   data () {
     return {
@@ -60,11 +80,47 @@ export default {
       // the securities from step 1, not the household serviceability step.
       security: null,
       business: null,
-      serviceability: null
+      serviceability: null,
+      // The report's calculator as it last reported itself; null until the report
+      // has been shown once (the report then starts from its own sample).
+      repayment: null
     }
   },
 
   methods: {
+    /**
+     * The figures saved per client — consumed by the savedReport mixin.
+     * @returns {object} the flat row (utils/loanEstimatorSavedShape)
+     */
+    reportInputs () {
+      return flattenLoanEstimator({
+        security: this.security,
+        business: this.business,
+        serviceability: this.serviceability,
+        repayment: this.repayment
+      })
+    },
+    /**
+     * Load a saved row back — consumed by the savedReport mixin. Each step is taken
+     * whole or left unconfirmed; the page lands where the row says.
+     * @param {object} inputs
+     */
+    applyReportInputs (inputs) {
+      const back = rebuildLoanEstimator(inputs)
+      this.security = back.security
+      this.business = back.business
+      this.serviceability = back.serviceability
+      if (back.repayment) { this.repayment = back.repayment }
+      this.step = back.step
+    },
+    /**
+     * The report's calculator changed (or first showed); remembered so a save
+     * carries it and a return to step 4 restores it.
+     * @param {object} calc the six controls in display form
+     */
+    onCalcChange (calc) {
+      this.repayment = calc
+    },
     /**
      * Stepper navigation. Backwards always; forward only when the target step
      * has the content it depends on (chip 2 needs security; chip 3 needs
