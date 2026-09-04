@@ -626,8 +626,9 @@ any month.
 > step. Mentor tier alone, per the default of 2026-08-24 — `server/utils/forecastSellDown.js`
 > walks the whole tier chain already, so a firm that one day prices differently costs one
 > line in `TAB_TIERS`. A restored forecast is never re-seeded: it keeps the figures it was
-> saved with. **What a tier may change is five figures and the demand shape**, not the whole
-> file — `runoutUpToDays` is deliberately not editable because the engine never reads it
+> saved with. **What a tier may change is twelve figures and the demand shape** — the five on
+> the ladder and the seven supplier terms below — not the whole
+> file. `runoutUpToDays` is deliberately not editable because the engine never reads it
 > (runout is the *else* branch, so everything past the standard boundary is runout whatever
 > that field says), and the shapes' own curves belong to slice 2's calculator. The validator
 > refuses a new-stock boundary set past the standard one, because that leaves the middle
@@ -683,7 +684,7 @@ any month.
 > inventing one is the guesswork the *dates, not bands* ruling exists to stop.
 >
 > **The screen is built too.** *Fill these from actual shipments* sits at the foot of the
-> overseas section: the five supplier terms entered once, then a row per shipment
+> overseas section: the seven supplier terms entered once, then a row per shipment
 > (description, cost, order date, deposit %, speed) with a **worked-out** blue cell beside
 > it — *Lands 24 Sep · deposit 2026-05-02 · balance 2026-08-01 + 546 interest · sellable
 > 3 Oct*. Nothing about a date is typed.
@@ -722,12 +723,17 @@ test rather than a note. **The tick is load-bearing in the engine, not only on t
 figures sent with it off are dropped, so no later caller can bypass the intake and be
 surprised.
 
-**What is not built:** the mentor Model Inputs tab that would let the price ladder be edited
-(the figures live in the data file and are shown with a *From your platform settings* badge),
-and slice 2 — the Import & Retail shipment calculator, absorbed from item 4.63, which will
-fill the twelve landing figures from real containers. Its two rulings are already taken: every
-event is dated from its order date and filed in the calendar month it really falls in, and
-real unit costs govern imported stock.
+**The supplier's terms are the mentor's too** (2026-09-04, Mike: *"make it editable"*). All
+seven — manufacture days, sea/air/express shipping, balance due, prep days and interest cover
+— sit in `forecast-sell-down.json` beside the ladder and are set on the same Imported Stock
+Prices tab, with the same cascade, history and restore. They were hardcoded in the intake
+screen until then, under a *From your platform settings* badge that pointed at settings which
+did not exist. A day count must be whole and at least 1; interest cover may be nil but never
+negative.
+
+**What is not built:** nothing on the drawing. Both slices are complete and every screen has
+been opened in a running app (2026-09-04). Five differences between the drawing and the build
+are named in [`../ARTEFACTS.md`](../ARTEFACTS.md).
 
 **Step 3 shows the volatility read** (2026-09-03, its own approved drawing
 [`../mockups/three-way-forecast-volatility.html`](../mockups/three-way-forecast-volatility.html)).
