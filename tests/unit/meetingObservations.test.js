@@ -255,6 +255,31 @@ describe('resolving through the tier chain', () => {
     expect(points[points.length - 1].source).toBe(mo.OBSERVATION_SOURCE_LABELS.own)
   })
 
+  test('a point the MENTOR added is badged inherited at a firm that has decided nothing', async () => {
+    // Item 4.59. `source` is stamped by whichever level applied decisions, so without the
+    // restamp the mentor's own point reaches a firm still marked `added-here` — telling a
+    // manager they wrote it, and sending their edit to the own-row route, which 404s.
+    const read = readerFor({
+      [PLATFORM_SCOPE]: { [mo.CONFIG_KEYS.own]: { [EOY]: [{ id: 'mm-1', text: 'The mentor wrote this.' }] } }
+    })
+    const firm = await mo.loadResolvedObservations(FIRM, read)
+    const mentorPoint = firm[EOY].points.filter(p => p.id === 'mm-1')[0]
+    expect(mentorPoint.source).toBe(mo.OBSERVATION_SOURCE_LABELS.inherited)
+  })
+
+  test('that badge does not change when the firm decides something unrelated', async () => {
+    // The two paths — the passthrough above and resolveInheritedRows below — must agree, or
+    // the badge on the mentor's point flips because of an edit somewhere else entirely.
+    const mentorAdded = { [PLATFORM_SCOPE]: { [mo.CONFIG_KEYS.own]: { [EOY]: [{ id: 'mm-1', text: 'The mentor wrote this.' }] } } }
+    const quiet = await mo.loadResolvedObservations(FIRM, readerFor(mentorAdded))
+    const busy = await mo.loadResolvedObservations(FIRM, readerFor({
+      ...mentorAdded,
+      [FIRM]: { [mo.CONFIG_KEYS.declines]: { [EOY]: ['mo-eoy-2'] } }
+    }))
+    const sourceOf = resolved => resolved[EOY].points.filter(p => p.id === 'mm-1')[0].source
+    expect(sourceOf(busy)).toBe(sourceOf(quiet))
+  })
+
   test('a decline beats a stale override of the same point', async () => {
     const read = readerFor({
       [FIRM]: {

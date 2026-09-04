@@ -185,6 +185,33 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.59 · A point the mentor adds tells a firm manager THEY wrote it.**
+✅ Closed 2026-09-04. A firm manager who had customised nothing saw *"Added here"* against every
+observation point the mentor wrote, because
+[`loadResolvedObservations`](../../server/utils/meetingObservations.js) returned the layer above
+untouched — and `source` is stamped by whichever level applied decisions, so the mentor's own badge
+came down with the point. Fixed by restamping the inherited list from the viewer's point of view,
+which is the fix [`meetingTypes.js`](../../server/utils/meetingTypes.js) already carried; found
+there on 2026-09-02 and deliberately left here to keep that slice to its approved scope.
+
+🔴 **It was worse than the mislabel, and that was not known when it was filed.**
+[`FirmMeetingObservations.vue`](../../components/firm/FirmMeetingObservations.vue) reads the badge to decide
+between *Switch off* and *Remove*, and to route an edit. So a firm manager was offered **Remove**
+on a point they cannot remove, and both that and any edit were sent to the own-row endpoint, which
+answers `404 No point of your own with that id` — a failure with nothing on screen to explain it.
+
+⚠ **The badge also moved on unrelated edits.** The full-resolve path already stamped correctly, so
+a scope deciding anything at all — switching off one shipped point — flipped the mentor's point
+from *added here* to *inherited*. Proved by running the real resolver before the fix, and pinned
+afterwards.
+
+**What proves it:** two assertions in
+[`tests/unit/meetingObservations.test.js`](../../tests/unit/meetingObservations.test.js) — the
+mentor's added point is badged `inherited` at a firm that has decided nothing, and that badge does
+not change when the firm decides something unrelated, which holds the two paths together. Suite
+green at 7,768 (402 suites), lint 0 errors. Recorded in
+[`meeting-review-history.md`](meeting-review-history.md) §8.
+
 **4.63 · Overseas stock purchases — the Import & Retail model feeds the forecast.**
 ✅ Closed 2026-09-04. Mike's request of 2026-09-03: *"I also want you to read the 'import and
 retail' excel model i loaded to see how future overseas stock purchases could be included in this

@@ -458,10 +458,34 @@ async function loadResolvedObservations (scopeId, loadFirmConfig) {
     return base
   }
 
-  // A scope that has decided nothing returns the layer above UNCHANGED — the same object,
-  // not a rebuilt copy of it. So "this firm has customised nothing" is a passthrough rather
-  // than a second list that happens to look alike and can drift from it.
-  if (!hasAnyDecision(state)) { return base }
+  // A scope that has decided nothing sees the layer above — but the BADGE is relative to the
+  // viewer, so it is restamped.
+  //
+  // 🔴 WHY THIS IS NOT A PLAIN PASSTHROUGH. `source` is stamped by whichever level applied
+  // decisions, so a point the MENTOR added arrives here still marked `added-here`. On a firm
+  // manager's screen that reads "Added here" against something the mentor wrote — and the
+  // badge is not decoration: FirmMeetingObservations.vue reads it to choose between "Switch
+  // off" and "Remove", and to route an edit to the own-row endpoint, which answers 404 for a
+  // point the firm does not own. A level that has decided nothing has, by definition,
+  // inherited everything it can see.
+  //
+  // ⚠ THE OTHER PATH ALREADY AGREES: below, `resolveInheritedRows` stamps every row it did
+  // not itself override or add as inherited. Without this the badge FLIPPED when the scope
+  // made any unrelated decision, because that switched it from this branch to that one.
+  //
+  // Fixed 2026-09-04 (item 4.59). This is the fix meetingTypes.js already carries.
+  if (!hasAnyDecision(state)) {
+    const stamped = {}
+    Object.keys(base).forEach((scenarioId) => {
+      const s = base[scenarioId]
+      stamped[scenarioId] = {
+        ...s,
+        points: (Array.isArray(s.points) ? s.points : [])
+          .map(p => ({ ...p, source: OBSERVATION_SOURCE_LABELS.inherited }))
+      }
+    })
+    return stamped
+  }
 
   const out = {}
   scenarios.forEach((s) => {
