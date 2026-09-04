@@ -23,8 +23,12 @@
         span {{ $t('report.loanEstimator.security.col.prospects') }}
         span {{ $t('report.loanEstimator.security.col.debt') }}
         span {{ $t('report.loanEstimator.security.col.payments') }}
+      //- A grid cell has no label of its own, so a row any of whose figures the client
+      //- changed since the advisor's version carries the badge on its name (§5, D4).
       .les-row(v-for="cls in grp.classes" :key="cls.key")
-        span.les-label {{ cls.label }}
+        span.les-label
+          | {{ cls.label }}
+          client-changed-badge(v-if="isRowChanged('security.' + cls.key)" :label="$t('clientReports.saved.badge')")
         span.les-derived(
           v-if="derivedKeys.indexOf(cls.key) !== -1"
           :title="$t('report.loanEstimator.security.computedFromSide')"
@@ -45,24 +49,36 @@
     .les-card
       h3.les-title {{ $t('report.loanEstimator.security.subTitle') }}
       .les-field
-        label {{ $t('report.loanEstimator.security.rentalIncome') }}
+        label
+          | {{ $t('report.loanEstimator.security.rentalIncome') }}
+          client-changed-badge(v-if="isClientChanged('security.subCalculations.commercialPropertyRentalIncome')" :label="$t('clientReports.saved.badge')")
         b-input(v-model.number="sub.rentalIncome" type="number" step="any" size="is-small")
       .les-field
-        label {{ $t('report.loanEstimator.security.capRate') }}
+        label
+          | {{ $t('report.loanEstimator.security.capRate') }}
+          client-changed-badge(v-if="isClientChanged('security.subCalculations.propertyCapRate')" :label="$t('clientReports.saved.badge')")
         b-input(v-model.number="sub.capRatePct" type="number" step="any" size="is-small")
       .les-field
-        label {{ $t('report.loanEstimator.security.fonterraShares') }}
+        label
+          | {{ $t('report.loanEstimator.security.fonterraShares') }}
+          client-changed-badge(v-if="isClientChanged('security.subCalculations.fonterraShares')" :label="$t('clientReports.saved.badge')")
         b-input(v-model.number="sub.fonterraShares" type="number" step="any" size="is-small")
       .les-field
-        label {{ $t('report.loanEstimator.security.fonterraTradingValue') }}
+        label
+          | {{ $t('report.loanEstimator.security.fonterraTradingValue') }}
+          client-changed-badge(v-if="isClientChanged('security.subCalculations.fonterraTradingValue')" :label="$t('clientReports.saved.badge')")
         b-input(v-model.number="sub.fonterraTradingValue" type="number" step="any" size="is-small")
     .les-card
       h3.les-title {{ $t('report.loanEstimator.security.overdraftTitle') }}
       .les-field
-        label {{ $t('report.loanEstimator.security.fundsDrawn') }}
+        label
+          | {{ $t('report.loanEstimator.security.fundsDrawn') }}
+          client-changed-badge(v-if="isClientChanged('security.overdraft.fundsDrawn')" :label="$t('clientReports.saved.badge')")
         b-input(v-model.number="overdraft.fundsDrawn" type="number" step="any" size="is-small")
       .les-field
-        label {{ $t('report.loanEstimator.security.securedLabel') }}
+        label
+          | {{ $t('report.loanEstimator.security.securedLabel') }}
+          client-changed-badge(v-if="isClientChanged('security.overdraft.secured')" :label="$t('clientReports.saved.badge')")
         b-select(v-model="overdraft.secured" size="is-small")
           option(value="Secured") {{ $t('report.loanEstimator.security.secured') }}
           option(value="Unsecured") {{ $t('report.loanEstimator.security.unsecured') }}
@@ -97,7 +113,9 @@ import loanCriteria from '~/data/loan-criteria.json'
 import SampleNotice from '~/components/base/SampleNotice.vue'
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+const { rowChanged } = require('~/utils/loanEstimatorSavedShape')
 
 /** The two grid rows whose value is computed from the side calculations. */
 const DERIVED_KEYS = ['commercialProperty', 'fonterraShares']
@@ -129,13 +147,15 @@ function sampleRows () {
 export default {
   name: 'LoanEstimatorSecurity',
 
-  components: { SampleNotice, HeroStrip, HeroFigure },
+  components: { SampleNotice, HeroStrip, HeroFigure, ClientChangedBadge },
 
   mixins: [currencyMixin],
 
   props: {
     /** A previously confirmed payload (stepping back from chip 2/3); null on first entry. */
-    restore: { type: Object, default: null }
+    restore: { type: Object, default: null },
+    /** Saved-row names the client changed since the advisor's version (utils/loanEstimatorSavedShape). */
+    clientChanges: { type: Array, default: () => [] }
   },
 
   data () {
@@ -192,6 +212,21 @@ export default {
   },
 
   methods: {
+    /**
+     * @param {string} name a saved-row name, e.g. 'security.overdraft.fundsDrawn'
+     * @returns {boolean} whether the client changed that figure
+     */
+    isClientChanged (name) {
+      return this.clientChanges.includes(name)
+    },
+    /**
+     * @param {string} prefix a grid row's saved-row prefix, e.g. 'security.boat'
+     * @returns {boolean} whether the client changed any figure in that row
+     */
+    isRowChanged (prefix) {
+      return rowChanged(this.clientChanges, prefix)
+    },
+
     /**
      * The sheet's own sub-calculation wiring, shown in the grid read-only:
      * G21 = D26 (rental ÷ cap rate) · G39 = D31 (shares × trading value).

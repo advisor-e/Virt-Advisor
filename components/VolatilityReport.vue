@@ -5,6 +5,10 @@
     :eyebrow="$t('report.eyebrow')"
     :title="$t('report.volatility.title')"
     :client="$t('report.preparedFor')"
+    :saved="savedReport"
+    @save="saveReport"
+    @restore="restoreReport"
+    @client-change="onReportClient"
   )
   //- Report class: no "Illustrative" badge — these become the client's real figures.
   //- Seeded with the workbook sample until the advisor types their own.
@@ -60,7 +64,8 @@
     //- [D1] inputs — the accounts upload seeds the months, and every figure stays
     //- editable. Approved artefact: design/mockups/volatility-report.html.
     aside.vol-card
-      .vol-group
+      //- A client never sees the accounts upload: it needs the advisor's sign-in (§5).
+      .vol-group(v-if="savedReport.mode !== 'client'")
         .vol-glabel
           span.vol-dot
           h2.vol-h2 {{ $t('report.volatility.accounts.title') }}
@@ -149,8 +154,12 @@
           h2.vol-h2 {{ $t('report.volatility.entry.title') }}
         p.vol-note {{ $t('report.volatility.entry.help') }}
         .vol-months
+          //- A month the client changed since the advisor's version is badged on its label
+          //- (§5, D4); the saved row names months by their place in the 24-month buffer.
           .vol-month(v-for="(v, i) in form.sales" :key="i" :class="{ 'is-file': sources[i] === 'file' }")
-            label(:for="'vol-m' + i") {{ monthLabel(i) }}
+            label(:for="'vol-m' + i")
+              | {{ monthLabel(i) }}
+              client-changed-badge(v-if="isClientChanged('month.' + bufferIndex(i))" :label="$t('clientReports.saved.badge')")
             input(
               :id="'vol-m' + i"
               type="number"
@@ -357,9 +366,11 @@ import HeroFigure from '~/components/base/HeroFigure.vue'
 import StaleBanner from '~/components/base/StaleBanner.vue'
 import SampleNotice from '~/components/base/SampleNotice.vue'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import VolatilityDial from '~/components/base/VolatilityDial.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
+import savedReport from '~/mixins/savedReport'
 
 /** The workbook's own 24 months — `Data Input!E7:AB7`. Mirrors the model's DEFAULT_INPUTS. */
 /** The widest window, and so the length of the month buffer behind it. */
@@ -380,15 +391,18 @@ const SAMPLE_SALES = [
  */
 const MONTH_KEYS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
+/** The three things a buffer month can be. A saved row may carry no other word. */
+const BUFFER_SOURCES = ['sample', 'file', 'entered']
+
 /** Chart geometry, in the SVG's own units. */
 const CHART = { left: 70, right: 690, top: 20, bottom: 300, headroom: 1.08 }
 
 export default {
   name: 'VolatilityReport',
 
-  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice, ProvenanceBadge, VolatilityDial },
+  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice, ProvenanceBadge, ClientChangedBadge, VolatilityDial },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportRecompute, savedReport],
 
   props: {
     /**
@@ -945,6 +959,65 @@ export default {
       this.setAside = []
       this.intakeWarnings = []
       this.uploadError = null
+    },
+
+    /** The buffer slot behind the nth visible month. @param {number} i @returns {number} */
+    bufferIndex (i) {
+      return WINDOW_MAX - this.form.window + i
+    },
+
+    /**
+     * The figures saved per client — consumed by the savedReport mixin (item 4.62, Brief
+     * §5). The whole 24-month buffer, month by month WITH its source — a saved row must
+     * keep the invariant above: a workbook figure is on screen only with the notice, and
+     * that is only true if the sources travel with the figures. `startYear` is a blank
+     * when no file ever dated the months.
+     * @returns {object}
+     */
+    reportInputs () {
+      const out = {}
+      for (let i = 0; i < WINDOW_MAX; i++) {
+        out['month.' + i] = this.buffer[i]
+        out['source.' + i] = this.bufSources[i]
+      }
+      out.window = this.form.window
+      out.startMonth = this.startMonth
+      out.startYear = this.startYear
+      return out
+    },
+
+    /**
+     * Load a saved row back — consumed by the savedReport mixin. The 24 months are taken
+     * as ONE BLOCK, each figure with a source, or not at all: a partial series would put
+     * saved months beside whatever was on screen with the wrong badge on both. The window,
+     * start month and year each in their own shape, and a window is taken only where the
+     * loaded sources allow it. The accounts files on screen are cleared: the figures are
+     * the row's now, and nothing may credit a file that did not supply them.
+     * @param {object} inputs - hostile
+     */
+    applyReportInputs (inputs) {
+      const src = inputs && typeof inputs === 'object' && !Array.isArray(inputs) ? inputs : {}
+      const buffer = []
+      const bufSources = []
+      for (let i = 0; i < WINDOW_MAX; i++) {
+        const v = src['month.' + i]
+        const s = src['source.' + i]
+        if (typeof v !== 'number' || !Number.isFinite(v) || !BUFFER_SOURCES.includes(s)) { return }
+        buffer.push(v)
+        bufSources.push(s)
+      }
+      this.buffer = buffer
+      this.bufSources = bufSources
+      this.files = []
+      this.fileSummaries = []
+      this.setAside = []
+      this.intakeWarnings = []
+      this.uploadError = null
+      if (MONTH_KEYS.includes(src.startMonth)) { this.startMonth = src.startMonth }
+      this.startYear = Number.isInteger(src.startYear) ? src.startYear : null
+      const w = this.windows.includes(src.window) && this.windowAllowed(src.window) ? src.window : this.form.window
+      this.form.window = w
+      this.form.sales = buffer.slice(WINDOW_MAX - w)
     },
 
     /** @returns {{url: string, body: object}} the backend call this screen makes. */

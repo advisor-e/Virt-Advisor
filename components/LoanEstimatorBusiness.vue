@@ -12,24 +12,35 @@
 
   .leb-card
     h3.leb-title {{ $t('report.loanEstimator.business.cardTitle') }}
+    //- A figure the client changed since the advisor's version (§5, D4) is badged in its label.
     .leb-field
       .leb-labels
-        label {{ $t('report.loanEstimator.business.ebit') }}
+        label
+          | {{ $t('report.loanEstimator.business.ebit') }}
+          client-changed-badge(v-if="isClientChanged('business.ebit')" :label="$t('clientReports.saved.badge')")
         p.leb-help {{ $t('report.loanEstimator.business.ebitHelp') }}
       b-input(v-model.number="ebit" type="number" step="any" size="is-small")
     .leb-field
-      label {{ $t('report.loanEstimator.business.businessType') }}
+      label
+        | {{ $t('report.loanEstimator.business.businessType') }}
+        client-changed-badge(v-if="isClientChanged('business.businessType')" :label="$t('clientReports.saved.badge')")
       b-select(v-model="businessType" size="is-small")
         option(value="Commercial Business") {{ $t('report.loanEstimator.business.commercialBusiness') }}
         option(value="Farm") {{ $t('report.loanEstimator.business.farm') }}
     .leb-field
-      label {{ $t('report.loanEstimator.business.fullTimeStaff') }}
+      label
+        | {{ $t('report.loanEstimator.business.fullTimeStaff') }}
+        client-changed-badge(v-if="isClientChanged('business.fullTimeStaff')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="fullTimeStaff" type="number" step="any" size="is-small")
     .leb-field
-      label {{ $t('report.loanEstimator.business.partTimeStaff') }}
+      label
+        | {{ $t('report.loanEstimator.business.partTimeStaff') }}
+        client-changed-badge(v-if="isClientChanged('business.partTimeStaff')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="partTimeStaff" type="number" step="any" size="is-small")
     .leb-field
-      label {{ $t('report.loanEstimator.business.currentTaxDue') }}
+      label
+        | {{ $t('report.loanEstimator.business.currentTaxDue') }}
+        client-changed-badge(v-if="isClientChanged('business.currentTaxDue')" :label="$t('clientReports.saved.badge')")
       b-input(v-model.number="currentTaxDue" type="number" step="any" size="is-small")
 
   .leb-actions
@@ -64,6 +75,7 @@
 import SampleNotice from '~/components/base/SampleNotice.vue'
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 
 /**
@@ -84,7 +96,7 @@ function sampleFigures () {
 export default {
   name: 'LoanEstimatorBusiness',
 
-  components: { SampleNotice, HeroStrip, HeroFigure },
+  components: { SampleNotice, HeroStrip, HeroFigure, ClientChangedBadge },
 
   mixins: [currencyMixin],
 
@@ -95,7 +107,9 @@ export default {
      */
     security: { type: Object, default: null },
     /** A previously confirmed payload (stepping back from chip 3/4); null on first entry. */
-    restore: { type: Object, default: null }
+    restore: { type: Object, default: null },
+    /** Saved-row names the client changed since the advisor's version (utils/loanEstimatorSavedShape). */
+    clientChanges: { type: Array, default: () => [] }
   },
 
   data () {
@@ -129,6 +143,14 @@ export default {
   },
 
   methods: {
+    /**
+     * @param {string} name a saved-row name, e.g. 'business.ebit'
+     * @returns {boolean} whether the client changed that figure
+     */
+    isClientChanged (name) {
+      return this.clientChanges.includes(name)
+    },
+
     /**
      * Rebuild the five business fields from a confirmed payload (securities are
      * not restored here — they always come from the step 1 prop).

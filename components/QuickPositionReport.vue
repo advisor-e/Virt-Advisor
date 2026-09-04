@@ -42,6 +42,8 @@
     aside.controls
       .group
         h2 {{ $t('report.quickPosition.aside.assets') }}
+        //- The provenance badge is the VALUE's (which nobody edits here); the factor is
+        //- the client's own figure, so a client change to it is badged separately (§5, D4).
         .field(v-for="f in visibleFactorFields" :key="f.key")
           .row
             label
@@ -52,6 +54,7 @@
                 :file-label="$t('report.quickPosition.confirm.fromFile')"
                 :entered-label="$t('report.quickPosition.confirm.entered')"
               )
+              client-changed-badge(v-if="isClientChanged(f.key + 'Factor')" :label="$t('clientReports.saved.badge')")
             output {{ money(inputs[f.key]) }} × {{ inputs[f.key + 'Factor'] }}%
           input(type="range" min="0" max="100" step="5" v-model.number="inputs[f.key + 'Factor']")
       //- R11: creditors/wagesDue shape the result but had no on-screen presence — shown
@@ -71,26 +74,33 @@
             output {{ money(inputs[k]) }}
       .group
         h2 {{ $t('report.quickPosition.aside.outgoings') }}
+        //- A file-sourced figure the client changed shows `client` IN PLACE of `from file`
+        //- (Mike, 2026-09-04): the number is no longer the file's. Restore brings the tag back.
         .field
           .row
             label
               | {{ $t('report.quickPosition.aside.fixedCosts') }}
               provenance-badge(
                 size="sm"
-                :source="sources.monthlyFixedCosts"
+                :source="isClientChanged('monthlyFixedCosts') ? 'client' : sources.monthlyFixedCosts"
                 :file-label="$t('report.quickPosition.confirm.fromFile')"
                 :entered-label="$t('report.quickPosition.confirm.entered')"
+                :client-label="$t('clientReports.saved.badge')"
               )
             output {{ money(inputs.monthlyFixedCosts) }}
           input(type="range" min="0" :max="moneyMax('monthlyFixedCosts', 60000, 500)" step="500" v-model.number="inputs.monthlyFixedCosts" @input="fixedCostsEntered")
         .field
           .row
-            label {{ $t('report.quickPosition.aside.drawings') }}
+            label
+              | {{ $t('report.quickPosition.aside.drawings') }}
+              client-changed-badge(v-if="isClientChanged('monthlyDrawings')" :label="$t('clientReports.saved.badge')")
             output {{ money(inputs.monthlyDrawings) }}
           input(type="range" min="0" :max="moneyMax('monthlyDrawings', 30000, 500)" step="500" v-model.number="inputs.monthlyDrawings")
         .field
           .row
-            label {{ $t('report.quickPosition.aside.loanRepayments') }}
+            label
+              | {{ $t('report.quickPosition.aside.loanRepayments') }}
+              client-changed-badge(v-if="isClientChanged('monthlyLoanRepayments')" :label="$t('clientReports.saved.badge')")
             output {{ money(inputs.monthlyLoanRepayments) }}
           input(type="range" min="0" :max="moneyMax('monthlyLoanRepayments', 30000, 500)" step="500" v-model.number="inputs.monthlyLoanRepayments")
       .group
@@ -98,29 +108,39 @@
           span.note  {{ $t('report.quickPosition.aside.lifelineNote') }}
         .field
           .row
-            label {{ $t('report.quickPosition.aside.savings') }}
+            label
+              | {{ $t('report.quickPosition.aside.savings') }}
+              client-changed-badge(v-if="isClientChanged('personalSavings')" :label="$t('clientReports.saved.badge')")
             output {{ money(inputs.personalSavings) }}
           input(type="range" min="0" :max="moneyMax('personalSavings', 150000, 1000)" step="1000" v-model.number="inputs.personalSavings")
         .field
           .row
-            label {{ $t('report.quickPosition.aside.investments') }}
+            label
+              | {{ $t('report.quickPosition.aside.investments') }}
+              client-changed-badge(v-if="isClientChanged('quickInvestments')" :label="$t('clientReports.saved.badge')")
             output {{ money(inputs.quickInvestments) }}
           input(type="range" min="0" :max="moneyMax('quickInvestments', 150000, 1000)" step="1000" v-model.number="inputs.quickInvestments")
         .field
           .row
-            label {{ $t('report.quickPosition.aside.raised') }}
+            label
+              | {{ $t('report.quickPosition.aside.raised') }}
+              client-changed-badge(v-if="isClientChanged('raisedCapital')" :label="$t('clientReports.saved.badge')")
             output {{ money(inputs.raisedCapital) }}
           input(type="range" min="0" :max="moneyMax('raisedCapital', 300000, 5000)" step="5000" v-model.number="inputs.raisedCapital")
       .group
         h2 {{ $t('report.quickPosition.aside.margin') }}
         .field
           .row
-            label {{ $t('report.quickPosition.aside.grossMargin') }}
+            label
+              | {{ $t('report.quickPosition.aside.grossMargin') }}
+              client-changed-badge(v-if="isClientChanged('grossMarginPct')" :label="$t('clientReports.saved.badge')")
             output {{ inputs.grossMarginPct }}%
           input(type="range" min="5" max="80" step="1" v-model.number="inputs.grossMarginPct")
         .field
           .row
-            label {{ $t('report.quickPosition.aside.discount') }}
+            label
+              | {{ $t('report.quickPosition.aside.discount') }}
+              client-changed-badge(v-if="isClientChanged('discountPct')" :label="$t('clientReports.saved.badge')")
             output {{ inputs.discountPct }}%
           input(type="range" min="0" max="30" step="1" v-model.number="inputs.discountPct")
 
@@ -206,10 +226,12 @@
 import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import SampleNotice from '~/components/base/SampleNotice.vue'
 import StaleBanner from '~/components/base/StaleBanner'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
+const { SAMPLE_FIGURES, initialState } = require('~/utils/quickPositionSavedShape')
 
 /**
  * QuickPositionReport — step 3 of the Quick Position report: the live survival
@@ -220,26 +242,16 @@ import reportRecompute from '~/mixins/reportRecompute'
  *
  * The red-under-3-months / amber-under-6 runway thresholds were accepted by the
  * owner with the mockup (plan decision log 2026-07-16).
+ *
+ * The opening state — the sample company, or the intake's confirmed figures — is
+ * built by utils/quickPositionSavedShape.js, which also holds the saved-report shape
+ * (item 4.62, Brief §5). The page saves; this screen reports every change of its state
+ * upward (`state-change`) and takes a loaded state back through `restore`.
  */
-/**
- * The source model's sample company — the figures the report opens on before any of the
- * client's own numbers arrive. Named rather than inline so the screen can tell a figure
- * that is STILL a sample from one the advisor has typed; both are tagged `entered`, so
- * provenance alone cannot distinguish them.
- */
-const SAMPLE_FIGURES = {
-  cash: 296155,
-  debtors: 154906,
-  stock: 25847,
-  fixedAssets: 30000,
-  creditors: 63000,
-  wagesDue: 32000
-}
-
 export default {
   name: 'QuickPositionReport',
 
-  components: { HeroStrip, HeroFigure, ProvenanceBadge, StaleBanner, SampleNotice },
+  components: { HeroStrip, HeroFigure, ProvenanceBadge, ClientChangedBadge, StaleBanner, SampleNotice },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -249,47 +261,23 @@ export default {
      * { figures: {cash:{value,source},…}, serviceBusiness, expenseLines, companyName }.
      * Null = straight to the report on the model defaults, everything tagged *entered*.
      */
-    seed: { type: Object, default: null }
+    seed: { type: Object, default: null },
+    /**
+     * A state loaded from a saved report — { inputs, sources, serviceBusiness,
+     * expenseLines } — which takes the place of the seed, on mount or later.
+     */
+    restore: { type: Object, default: null },
+    /** Saved-row names the client changed since the advisor's version (mixins/savedReport). */
+    clientChanges: { type: Array, default: () => [] }
   },
 
   data () {
-    const seed = this.seed || {}
-    const fig = seed.figures || {}
-    const val = (key, def) => (fig[key] && typeof fig[key].value === 'number' ? fig[key].value : def)
-    const src = key => (fig[key] ? fig[key].source : 'entered')
+    const s = this.restore ? this.copyState(this.restore) : initialState(this.seed)
     return {
-      inputs: {
-        cash: val('cash', SAMPLE_FIGURES.cash),
-        cashFactor: 100,
-        debtors: val('debtors', SAMPLE_FIGURES.debtors),
-        debtorsFactor: 80,
-        stock: val('stock', SAMPLE_FIGURES.stock),
-        stockFactor: 0,
-        fixedAssets: val('fixedAssets', SAMPLE_FIGURES.fixedAssets),
-        fixedAssetsFactor: 100,
-        creditors: val('creditors', SAMPLE_FIGURES.creditors),
-        wagesDue: val('wagesDue', SAMPLE_FIGURES.wagesDue),
-        monthlyFixedCosts: 20000,
-        monthlyDrawings: 0,
-        monthlyLoanRepayments: 0,
-        personalSavings: 38000,
-        quickInvestments: 12000,
-        raisedCapital: 0,
-        grossMarginPct: 23,
-        discountPct: 5
-      },
-      sources: {
-        cash: src('cash'),
-        debtors: src('debtors'),
-        stock: src('stock'),
-        fixedAssets: src('fixedAssets'),
-        creditors: src('creditors'),
-        wagesDue: src('wagesDue'),
-        // R11: tracks the "use this figure" button — a file-derived average must keep its tag
-        monthlyFixedCosts: 'entered'
-      },
-      serviceBusiness: !!seed.serviceBusiness,
-      expenseLines: seed.expenseLines || null,
+      inputs: s.inputs,
+      sources: s.sources,
+      serviceBusiness: s.serviceBusiness,
+      expenseLines: s.expenseLines,
       result: null
       // `error` (stale flag) is provided by the reportRecompute mixin.
     }
@@ -367,16 +355,54 @@ export default {
   watch: {
     inputs: {
       deep: true,
-      handler () { this.queueRecompute() }
+      handler () {
+        this.queueRecompute()
+        this.emitState()
+      }
+    },
+    sources: {
+      deep: true,
+      handler () { this.emitState() }
+    },
+    /** A saved report loaded while this screen is showing (the advisor picked a client). */
+    restore (next) {
+      if (!next) { return }
+      const s = this.copyState(next)
+      this.inputs = s.inputs
+      this.sources = s.sources
+      this.serviceBusiness = s.serviceBusiness
+      this.expenseLines = s.expenseLines
     }
   },
 
   mounted () {
+    this.emitState()
     this.recompute()
   },
 
   methods: {
     // money() comes from currencyMixin (firm currency + locale).
+    /**
+     * @param {string} name a saved-row name, e.g. 'monthlyFixedCosts' or 'cashFactor'
+     * @returns {boolean} whether the client changed that figure
+     */
+    isClientChanged (name) {
+      return this.clientChanges.includes(name)
+    },
+    /** A fresh copy of a state, so neither the page's object nor this screen's is shared. */
+    copyState (s) {
+      return {
+        inputs: Object.assign({}, s.inputs),
+        sources: Object.assign({}, s.sources),
+        serviceBusiness: !!s.serviceBusiness,
+        expenseLines: Array.isArray(s.expenseLines) ? s.expenseLines.map(l => ({ name: l.name, amount: l.amount })) : null
+      }
+    },
+    /** Tell the page what this screen holds, so a save carries it. */
+    emitState () {
+      // state-change: { inputs, sources, serviceBusiness, expenseLines } — a copy, never the live objects
+      this.$emit('state-change', this.copyState(this))
+    },
     /** @param {number} f - fraction @returns {string} e.g. "27.8%" */
     pct (f) {
       return (Math.round(f * 1000) / 10).toFixed(1) + '%'

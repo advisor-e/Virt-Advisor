@@ -38,6 +38,8 @@
         template(#sub)
           | {{ $t('report.ebitdaDcf.hero.terminalSub') }}
           input.mult(type="number" step="0.1" min="0" v-model.number="dcf.exitMultiple" @input="dialsTouched = true")
+          //- A dial the client changed since the advisor's version (§5, D4).
+          client-changed-badge(v-if="isClientChanged('dcf.exitMultiple')" :label="$t('clientReports.saved.badge')")
 
     .card
       h2 {{ $t('report.ebitdaDcf.bars.title') }}
@@ -134,9 +136,11 @@
               th {{ $t('report.ebitdaDcf.workings.projection') }}
               th(v-for="y in futureYears" :key="'fy' + y") {{ y }}
           tbody
+            //- A dial row is one figure to the saved row: the badge marks the row.
             tr
               td
                 | {{ $t('report.ebitdaDcf.workings.growth') }}
+                client-changed-badge(v-if="isClientChanged('dcf.growthPct')" :label="$t('clientReports.saved.badge')")
                 span.pctnote  {{ $t('report.ebitdaDcf.workings.actualAvg', { avg: avgGrowthText }) }}
               td(v-for="(y, i) in futureYears" :key="'gr' + y")
                 input.cell(type="number" step="0.5" v-model.number="dcf.growthPct[i]" @input="dialsTouched = true")
@@ -144,7 +148,9 @@
               td {{ $t('report.ebitdaDcf.workings.projected') }}
               td(v-for="(y, i) in futureYears" :key="'pj' + y") {{ money(result.valuation.projectedEbitda[i]) }}
             tr
-              td {{ $t('report.ebitdaDcf.workings.discount') }}
+              td
+                | {{ $t('report.ebitdaDcf.workings.discount') }}
+                client-changed-badge(v-if="isClientChanged('dcf.discountPct')" :label="$t('clientReports.saved.badge')")
               td(v-for="(y, i) in futureYears" :key="'dr' + y")
                 input.cell(type="number" step="0.5" v-model.number="dcf.discountPct[i]" @input="dialsTouched = true")
             tr.total
@@ -159,13 +165,19 @@
       template(v-if="listedOpen")
         .listed-inputs
           .li-field
-            label {{ $t('report.ebitdaDcf.listed.shares') }}
+            label
+              | {{ $t('report.ebitdaDcf.listed.shares') }}
+              client-changed-badge(v-if="isClientChanged('listed.sharesIssued')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="listed.sharesIssued" type="number" step="any" size="is-small")
           .li-field
-            label {{ $t('report.ebitdaDcf.listed.price') }}
+            label
+              | {{ $t('report.ebitdaDcf.listed.price') }}
+              client-changed-badge(v-if="isClientChanged('listed.sharePrice')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="listed.sharePrice" type="number" step="0.01" size="is-small")
           .li-field
-            label {{ $t('report.ebitdaDcf.listed.multiple') }}
+            label
+              | {{ $t('report.ebitdaDcf.listed.multiple') }}
+              client-changed-badge(v-if="isClientChanged('listed.exitMultiple')" :label="$t('clientReports.saved.badge')")
             b-input(v-model.number="listed.exitMultiple" type="number" step="0.05" size="is-small")
         .tscroll
           table.mini
@@ -175,7 +187,9 @@
                 th(v-for="(y, i) in years" :key="'ly' + y") {{ y }}
             tbody
               tr
-                td {{ $t('report.ebitdaDcf.listed.ebitdaM') }}
+                td
+                  | {{ $t('report.ebitdaDcf.listed.ebitdaM') }}
+                  client-changed-badge(v-if="isClientChanged('listed.ebitdaHistory')" :label="$t('clientReports.saved.badge')")
                 td(v-for="(y, i) in years" :key="'lh' + y")
                   input.cell(type="number" step="any" v-model.number="listed.ebitdaHistory[i]")
         .cmp
@@ -221,9 +235,11 @@ import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import SampleNotice from '~/components/base/SampleNotice.vue'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import StaleBanner from '~/components/base/StaleBanner'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
+const { initialDials, copyDials } = require('~/utils/ebitdaDcfSavedShape')
 
 /**
  * EbitdaDcfReport — step 3 of the EBITDA & DCF valuation (owner-approved mockup,
@@ -234,6 +250,10 @@ import reportRecompute from '~/mixins/reportRecompute'
  * All calculation is backend-only (POST /api/report/ebitda-dcf —
  * server/report/ebitdaDcfModel.js, 96 golden cells); this screen edits inputs and
  * renders the returned figures. Every edit recomputes via a debounced backend call.
+ *
+ * The dials' sample settings live in utils/ebitdaDcfSavedShape.js with the saved-report
+ * shape (item 4.62, Brief §5). The page saves; this screen reports every change of its
+ * dials upward (`state-change`) and takes a loaded set back through `restore`.
  */
 
 // The intake rows that build each engine group (oldest-first arrays throughout)
@@ -244,7 +264,7 @@ const FAIRMARKET_ROWS = { fmSalaries: 'salaries', fmInsuranceRetirement: 'insura
 export default {
   name: 'EbitdaDcfReport',
 
-  components: { HeroStrip, HeroFigure, ProvenanceBadge, StaleBanner, SampleNotice },
+  components: { HeroStrip, HeroFigure, ProvenanceBadge, ClientChangedBadge, StaleBanner, SampleNotice },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -254,28 +274,25 @@ export default {
      * { years: number[], figures: {row: [{value, source}] oldest-first}, companyName }.
      * Null = straight to the report on the model defaults, everything tagged *entered*.
      */
-    seed: { type: Object, default: null }
+    seed: { type: Object, default: null },
+    /** Dials loaded from a saved report — { dcf, listed } — taking the sample's place, on mount or later. */
+    restore: { type: Object, default: null },
+    /** Saved-row names the client changed since the advisor's version (mixins/savedReport). */
+    clientChanges: { type: Array, default: () => [] }
   },
 
   data () {
     // R23 residual: the listed history table renders one cell per year — the array must
     // be exactly that long, or invisible sample slots reach the calc as if typed.
     const yearCount = (this.seed && this.seed.years && this.seed.years.length) || 5
+    const dials = this.restore ? copyDials(this.restore) : initialDials(yearCount)
     return {
       // Cleared the moment the advisor touches a projection dial — the notice is about
-      // the DEFAULTS being the sample's, not about the dials being editable.
-      dialsTouched: false,
-      dcf: {
-        growthPct: [4, 6, 5, 3, 4],
-        discountPct: [6, 7, 5, 5, 6],
-        exitMultiple: 2
-      },
-      listed: {
-        sharesIssued: 3234978616,
-        sharePrice: 0.59,
-        ebitdaHistory: [-37.3, -307.6, 861.7, 548.9, 0].slice(0, yearCount),
-        exitMultiple: 0.25
-      },
+      // the DEFAULTS being the sample's, not about the dials being editable. A saved
+      // report's dials are somebody's, so the notice is not shown over them.
+      dialsTouched: !!this.restore,
+      dcf: dials.dcf,
+      listed: dials.listed,
       listedOpen: false,
       expanded: false,
       result: null
@@ -374,15 +391,36 @@ export default {
   },
 
   watch: {
-    dcf: { deep: true, handler () { this.queueRecompute() } },
-    listed: { deep: true, handler () { this.queueRecompute() } }
+    dcf: { deep: true, handler () { this.queueRecompute(); this.emitState() } },
+    listed: { deep: true, handler () { this.queueRecompute(); this.emitState() } },
+    /** A saved report loaded while this screen is showing (the advisor picked a client). */
+    restore (next) {
+      if (!next) { return }
+      const dials = copyDials(next)
+      this.dcf = dials.dcf
+      this.listed = dials.listed
+      this.dialsTouched = true
+    }
   },
 
   mounted () {
+    this.emitState()
     this.recompute()
   },
 
   methods: {
+    /**
+     * @param {string} name a saved-row name, e.g. 'dcf.exitMultiple'
+     * @returns {boolean} whether the client changed that dial
+     */
+    isClientChanged (name) {
+      return this.clientChanges.includes(name)
+    },
+    /** Tell the page what the dials hold, so a save carries them. */
+    emitState () {
+      // state-change: { dcf, listed } — a copy, never the live objects
+      this.$emit('state-change', copyDials(this))
+    },
     /** Display column c → oldest-first index. @param {number} c */
     di (c) {
       return this.years.length - 1 - c

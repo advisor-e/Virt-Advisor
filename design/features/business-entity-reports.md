@@ -1,7 +1,7 @@
 # Business Entity Reports — the Brief
 
 > **Status: ☑ PART 1 (THE STUB) IS BUILT — 2026-09-03. Part 2 (saved reports, item 4.62) is
-> built as a seam and proven on one screen — §5; ten screens remain.** Designed and approved
+> built and wired on every routed screen — §5; the Three-Way Forecast follows 4.61.** Designed and approved
 > the same day on Mike's instruction, in his words:
 >
 > > *"we have a performance report feature — these reports/models are editable and viewable at
@@ -116,7 +116,7 @@ closed; a client token never passes `firmAuth`), `clientReportsProxyWiring.test.
 `clientReportLibrary.component.test.js` (no link on a hidden card) and
 `clientAccessSwitch.component.test.js` (advisor only; the flip sends `{ route, state }`).
 
-## 5. Saved reports — part 2, BUILT as a seam 2026-09-03 (slice 1); ten screens still to wire
+## 5. Saved reports — part 2, BUILT 2026-09-03/04; every routed screen wired, the forecast to follow
 
 A **saved report** is one `firmOverlay` key per client per model —
 `client-report:<clientId>:<route>` — holding
@@ -148,12 +148,55 @@ client-edited banner with *Restore my version* (D4), so no report page changes b
 four attributes. `ProvenanceBadge` gained the `client` state; `SliderField` a badge slot.
 
 **Wired so far:** Debtor Business Drag, Margin, Mark-up & Break-even, Working Capital Cycle,
-Eight Levers, Cost of Capital, Lease vs Buy, and Multiple Property (its three blocks and up
-to five property records flattened under dotted names with a `propertyCount`). **Not yet
-wired:** the other four routed screens; the Three-Way Forecast last, after the laptop's
-4.61 lands. Screens without SliderField show the
+Eight Levers, Cost of Capital, Lease vs Buy, Multiple Property (its three blocks and up
+to five property records flattened under dotted names with a `propertyCount`), the Loan
+Estimator, Quick Position, EBITDA/DCF, and Volatility. **Not yet wired:** the Three-Way
+Forecast alone, last, after the laptop's 4.61 lands. Screens without SliderField show the
 badge in the label through `components/base/ClientChangedBadge.vue`. Until a screen is wired, an open
 model still shows the client its sample figures, exactly as §4 says.
+
+**A stepped screen saves from its page.** The Loan Estimator is four steps whose figures
+meet only on `pages/loan-estimator.vue`, so the page adopts the mixin and
+`utils/loanEstimatorSavedShape.js` holds the two rules. A save carries the steps the
+advisor has **confirmed with Continue** plus the calculator, each figure under a dotted
+name in the model's own shape (`security.boat.value`, `serviceability.loans.newPropertyLoans.balance`,
+`repayment.ratePct`); a step still being typed is not in it. Loading rebuilds each step
+**whole or not at all** — one missing or malformed figure leaves that step unconfirmed and
+the page lands on it, so nothing is ever filled in from the sample — and a complete row
+opens on the report. The business step is optional (a personal-only enquiry) but a broken
+one is re-entered, never dropped. In the two grids, whose cells have no labels, the badge
+sits on the row name when any figure in the row changed.
+
+**A file-fed screen saves each figure's provenance beside it** (Quick Position;
+`utils/quickPositionSavedShape.js`). The row holds every input, `source.<figure>` for
+each balance-sheet figure and the fixed-costs figure, the service-business switch, and
+the Profit and Loss expense lines as two lists (`expenseNames`, `expenseAmounts`) — the
+store admits a list of short names for this. **A file-sourced figure the client changed
+shows `client` in place of `from file`, never beside it** (ruled by Mike 2026-09-04): the
+number is no longer the file's. The saved source is untouched, so Restore brings the
+advisor's version back with its file tags. Where the client can change only a factor
+against a file figure (the asset rows), the value keeps its file tag and the factor is
+badged on its own. **A client never sees the upload steps**: the upload needs the
+advisor's sign-in, so the client's page is the report alone, and a saved row opens on it.
+Nothing a file alone knows (the company name, the income total) is in a saved row.
+
+**EBITDA/DCF saves its figures as one block** (`utils/ebitdaDcfSavedShape.js`): the years,
+and for each of the twenty-four rows two lists of the same length, `fig.<row>` and
+`src.<row>`. Loading takes that block **whole or not at all** — one bad cell refuses it and
+the page keeps what it held — because a partial set would put saved years beside sample
+ones with nothing on screen to say so. The dials (`dcf.*`, `listed.*`) are taken one at a
+time, each in its own shape, with the listed history always one cell per year. No file
+figure is editable after the intake on this screen, so the file-badge rule has no site
+here; a client change is badged on the dial, or on the dial row.
+
+**Volatility saves its 24-month buffer month by month with its source** (`month.<i>`,
+`source.<i>` — sample, file or entered — plus `window`, `startMonth`, `startYear`), because
+the screen's one structural invariant, *a workbook figure is on screen only with the sample
+notice*, is only true if the sources travel with the figures. Loading takes the 24 months
+as **one block or not at all**, takes a window only where the loaded sources allow it, and
+clears the accounts files on screen so nothing credits a file that did not supply the
+figures. A client changing a file month makes it `entered`, as the advisor's own edit does,
+and the month is badged on its label. The accounts upload is hidden from a client.
 
 **Wording proposed and not yet ruled** (`locales/en.json`, `clientReports.saved.*`): the
 "saved by" lines, the banner sentence, the badge word `client`, and the four failure messages.
@@ -168,7 +211,17 @@ advisor version untouched by a client save, the badge list as a comparison, host
 safe 500), `savedReport.mixin.test.js` (mode from the sign-in, load on mount for a client and
 on client-pick for an advisor, the right route with the token, restore advisor-only),
 `reportHeader.component.test.js` (Save only with someone to save as; the banner and Restore
-only on a client edit, never for the client's own sign-in).
+only on a client edit, never for the client's own sign-in), `loanEstimatorSavedShape.test.js`
+(a full row round-trips figure for figure and sits under the cap; one malformed figure
+drops its step and lands the page on it; nothing is filled from the sample),
+`quickPositionSavedShape.test.js` (a row carries every source and the expense lines and
+the store admits it; a bad figure keeps what the screen held; a restored state drives the
+request; a client-changed file figure shows `client` in place of `from file`),
+`ebitdaDcfSavedShape.test.js` (the row list is pinned to the intake's rows; the figures
+block round-trips whole and one bad cell refuses it; a dial is its own shape; restored
+dials drive the request), `volatilitySavedReport.test.js` (the buffer round-trips with its
+sources; one bad month refuses the series; the invariant holds on load; a loaded row clears
+the files; the badge sits on the changed month alone).
 
 ## 6. What is deliberately not in this design
 

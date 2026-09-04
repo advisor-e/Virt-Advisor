@@ -127,6 +127,8 @@
     .ler-card
       h2 {{ $t('report.loanEstimator.result.calc.title') }}
       .ler-calc
+        //- A figure the client changed since the advisor's version (§5, D4) is badged
+        //- through the slider's slot, or in the label for the two selects.
         .ler-controls
           slider-field(
             :label="$t('report.loanEstimator.result.calc.purchasePrice')"
@@ -135,6 +137,8 @@
             :min="0" :max="priceMax" :step="10000"
             @input="v => { calc.purchasePrice = v }"
           )
+            template(v-slot:badge)
+              client-changed-badge(v-if="isClientChanged('repayment.purchasePrice')" :label="$t('clientReports.saved.badge')")
           slider-field(
             :label="$t('report.loanEstimator.result.calc.deposit')"
             :display="money(calc.deposit)"
@@ -142,6 +146,8 @@
             :min="0" :max="calc.purchasePrice" :step="5000"
             @input="v => { calc.deposit = v }"
           )
+            template(v-slot:badge)
+              client-changed-badge(v-if="isClientChanged('repayment.deposit')" :label="$t('clientReports.saved.badge')")
           slider-field(
             :label="$t('report.loanEstimator.result.calc.rate')"
             :display="num(calc.ratePct, 2) + '%'"
@@ -149,6 +155,8 @@
             :min="0.5" :max="15" :step="0.05"
             @input="v => { calc.ratePct = v }"
           )
+            template(v-slot:badge)
+              client-changed-badge(v-if="isClientChanged('repayment.ratePct')" :label="$t('clientReports.saved.badge')")
           slider-field(
             :label="$t('report.loanEstimator.result.calc.term')"
             :display="calc.term + ' ' + (calc.termUnit === 'Years' ? $t('report.loanEstimator.result.calc.years') : $t('report.loanEstimator.result.calc.months'))"
@@ -156,14 +164,20 @@
             :min="1" :max="calc.termUnit === 'Years' ? 40 : 480" :step="1"
             @input="v => { calc.term = v }"
           )
+            template(v-slot:badge)
+              client-changed-badge(v-if="isClientChanged('repayment.term')" :label="$t('clientReports.saved.badge')")
           .ler-selects
             .ler-select
-              label {{ $t('report.loanEstimator.result.calc.termUnitLabel') }}
+              label
+                | {{ $t('report.loanEstimator.result.calc.termUnitLabel') }}
+                client-changed-badge(v-if="isClientChanged('repayment.termUnit')" :label="$t('clientReports.saved.badge')")
               b-select(v-model="calc.termUnit" size="is-small")
                 option(value="Years") {{ $t('report.loanEstimator.result.calc.years') }}
                 option(value="Months") {{ $t('report.loanEstimator.result.calc.months') }}
             .ler-select
-              label {{ $t('report.loanEstimator.result.calc.basisLabel') }}
+              label
+                | {{ $t('report.loanEstimator.result.calc.basisLabel') }}
+                client-changed-badge(v-if="isClientChanged('repayment.basis')" :label="$t('clientReports.saved.badge')")
               b-select(v-model="calc.basis" size="is-small")
                 option(value="Table") {{ $t('report.loanEstimator.result.calc.basisTable') }}
                 option(value="Reducing") {{ $t('report.loanEstimator.result.calc.basisReducing') }}
@@ -205,8 +219,25 @@ import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import SliderField from '~/components/base/SliderField'
 import StaleBanner from '~/components/base/StaleBanner'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
+
+/**
+ * The Quick Calculator's sample loan (`Capital Input` D6–D16), rate in display
+ * form — the backend's DEFAULT_LOAN_INPUTS cell-for-cell.
+ * @returns {object}
+ */
+function sampleCalc () {
+  return {
+    purchasePrice: 1350000, // D16
+    deposit: 270000, //        D8
+    ratePct: 5.5, //           D10
+    term: 36, //               D12
+    termUnit: 'Years', //      D13
+    basis: 'Table' //          D6
+  }
+}
 
 /**
  * LoanEstimatorReport — step 4 of the Loan Estimator: the ruled verdict, the
@@ -227,7 +258,7 @@ import reportRecompute from '~/mixins/reportRecompute'
 export default {
   name: 'LoanEstimatorReport',
 
-  components: { HeroStrip, HeroFigure, SliderField, StaleBanner },
+  components: { HeroStrip, HeroFigure, SliderField, StaleBanner, ClientChangedBadge },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -237,21 +268,19 @@ export default {
     /** Step 2's confirmed business-loan payload (model-shaped); null for a personal-only enquiry. */
     business: { type: Object, default: null },
     /** Step 3's confirmed serviceability payload (model-shaped). */
-    serviceability: { type: Object, default: null }
+    serviceability: { type: Object, default: null },
+    /**
+     * The calculator's six controls as last held by the page (a saved report, or an
+     * earlier visit to this step), in display form; null starts from the sample.
+     */
+    restore: { type: Object, default: null },
+    /** Saved-row names the client changed since the advisor's version (utils/loanEstimatorSavedShape). */
+    clientChanges: { type: Array, default: () => [] }
   },
 
   data () {
     return {
-      // The Quick Calculator's sample loan (`Capital Input` D6–D16), rate in
-      // display form — the backend's DEFAULT_LOAN_INPUTS cell-for-cell.
-      calc: {
-        purchasePrice: 1350000, // D16
-        deposit: 270000, //        D8
-        ratePct: 5.5, //           D10
-        term: 36, //               D12
-        termUnit: 'Years', //      D13
-        basis: 'Table' //          D6
-      },
+      calc: Object.assign(sampleCalc(), this.restore || {}),
       data: null
       // `error` (stale flag) is provided by the reportRecompute mixin.
     }
@@ -293,7 +322,10 @@ export default {
   watch: {
     calc: {
       deep: true,
-      handler () { this.queueRecompute() }
+      handler () {
+        this.queueRecompute()
+        this.emitCalc()
+      }
     },
     /** Years ↔ Months keeps the same duration, so the repayment doesn't jump. */
     'calc.termUnit' (unit, prev) {
@@ -305,10 +337,23 @@ export default {
   },
 
   mounted () {
+    this.emitCalc()
     this.recompute()
   },
 
   methods: {
+    /**
+     * @param {string} name a saved-row name, e.g. 'repayment.deposit'
+     * @returns {boolean} whether the client changed that figure
+     */
+    isClientChanged (name) {
+      return this.clientChanges.includes(name)
+    },
+    /** Tell the page what the calculator holds, so a save carries it and a later visit restores it. */
+    emitCalc () {
+      // calc-change: the six calculator controls in display form { purchasePrice, deposit, ratePct, term, termUnit, basis }
+      this.$emit('calc-change', Object.assign({}, this.calc))
+    },
     /**
      * The backend request — consumed by the reportRecompute mixin (debounce,
      * race guard, stale flag). The step payloads pass through untouched.
