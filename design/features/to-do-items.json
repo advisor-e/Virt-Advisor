@@ -166,6 +166,7 @@
       "ref": "4.66",
       "name": "Economic analysis — the forecast asks the AI for market research",
       "rankedByMike": false,
+      "activeOn": { "machine": "laptop", "since": "2026-09-06" },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",
@@ -179,9 +180,9 @@
         "ours": false,
         "detail": "2026-09-03 — \"i want to include an option to tick 'economic analysis' which then charges AI to conduct global and local market research (i will give detailed instructions and prompt in future) such that they can be included in an overall report - since the majority of 3 way forecasts are used to support funding requests\". Filed on his instruction (\"yes\")."
       },
-      "touches": "NOTHING YET — none until Mike supplies the prompt and the screen is drawn. Then: data/ai-prompts.json (the prompt's home, per the hub-page rule), server/routes/report.js (its first ever AI call), server/utils/openaiClient.js, components/ThreeWayForecastIntake.vue, components/ThreeWayForecastReport.vue, components/base/ProvenanceBadge.vue (a fourth state for AI-sourced text).",
-      "note": "Four consequences: the prompt belongs on the AI Prompts hub page rather than hardcoded in a builder; the Flagged Issues register, deferred because no report called the AI, comes back; it cannot run inline under the 2000 ms cap, so it needs a job id and polling; and provenance needs a fifth state (file, entered, seeded, client already exist), so a model's claim about a market is never mistaken for a figure read from the client's accounts. Needs its own drawing and his prompt first. Nothing is blocked — the forecast is complete and honest without it.",
-      "comment": "2026-09-03 — filed on Mike's instruction the moment he raised it; he framed it himself as a future phase. RENUMBERED 4.62 → 4.66 on 2026-09-04 when master was merged in: both machines filed a new 4.62 on 2026-09-03, the desktop's saved-reports item reached master first and keeps the number, which is the rule that moved 4.56 → 4.58. 4.62 is not reused here. See also 4.64 and 4.63, the other future phase he named in the same message. 2026-09-06 — privacy ruled by Mike; the advisor writes and sees exactly what is sent."
+      "touches": "Three design files now exist: ECONOMIC-ANALYSIS-PROMPT.md, ECONOMIC-ANALYSIS-TEST-RUNS.md and mockups/three-way-forecast-economic-analysis.html. A build would then touch data/ai-prompts.json (a fourth prompt, all four manager tiers), server/routes/report.js (its first ever AI call), server/utils/openaiClient.js (a /v1/responses path beside the chat one), components/ThreeWayForecastIntake.vue (step 5) and components/base/ProvenanceBadge.vue (a fifth state).",
+      "note": "THE PROMPT AND THE SCREENS BOTH EXIST AND BOTH AWAIT MIKE'S APPROVAL — the only thing between here and a build. Four live runs on fictional businesses settled what argument could not: 83-102 seconds so it returns a job and polls, about 30p a run, deep research not needed, and a citation fault fixed by forbidding section 4 to restate any figure. All four screen questions ruled 2026-09-06, step 5 against the recommendation. Nothing is blocked — the forecast is complete and honest without it.",
+      "comment": "2026-09-03 — filed on Mike's instruction the moment he raised it; he framed it himself as a future phase. RENUMBERED 4.62 → 4.66 on 2026-09-04 when master was merged in: both machines filed a new 4.62 on 2026-09-03, the desktop's saved-reports item reached master first and keeps the number, which is the rule that moved 4.56 → 4.58. 4.62 is not reused here. See also 4.64 and 4.63, the other future phase he named in the same message. 2026-09-06 — privacy ruled; the prompt drafted, tested live four times and revised; the screens drawn; all four screen questions ruled."
     },
     {
       "ref": "4.65",
