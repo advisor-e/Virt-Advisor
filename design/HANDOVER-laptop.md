@@ -41,6 +41,9 @@ Detail is in `features/report-models.md`; closures in `to-do-done-and-parked.md`
 
 ### Next
 
+**4.62's last screen is now this machine's** — see the box below. Quick Position is the
+template; `mixins/savedReport.js` is the shared half.
+
 **4.67 is narrowed and is nobody's yet:** the report screen has been eyeballed, **step 2 has
 not** — the Type column, the stock-in-transit block and the glossary marks. ⚠ The API does not
 hot-reload; restart `npm run backend`.
@@ -50,9 +53,19 @@ hot-reload; restart `npm run backend`.
 ⚠ One push was refused by the pre-push hook with the whole suite green, and the identical
 retry passed — most likely `npm audit` failing to reach the network. Not chased.
 
-### DESKTOP
+### 🔴 DESKTOP — 4.62'S LAST SCREEN IS NO LONGER YOURS
 
-4.62's last screen — the Three-Way Forecast — is yours and unblocked. Take its intake, model
-and report files from this branch, **not from `master`**, until `d453327` lands.
+**Mike moved it to the laptop on 2026-09-05, and `activeOn` on 4.62 now says `laptop`.** This
+breaks the machine-that-started-it convention on purpose: you built all ten other screens, but
+the forecast's three files are the laptop's entire recent work and the seam changed under them
+today. **Do not start it.** Nothing else about 4.62 moves — slices 1 and 2 are yours and stay
+closed.
+
+**Why it changed hands, and the trap in it either way:** the saved-report wiring follows the
+header. Screens whose header is in the PAGE — Quick Position, EBITDA-DCF, Loan Estimator —
+wire it at the page; the rest wire it in the component. The forecast **joined the page group
+today** (`d453327`), and the `client` prop went with it. So **Quick Position is the template,
+not the other ten**, and anyone looking for the seam where the ten have it will not find it.
+
 `shipmentTimer` in `ThreeWayForecastIntake.vue` is still never cleared on destroy, still
 deliberately not filed.
