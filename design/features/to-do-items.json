@@ -207,6 +207,27 @@
       "touches": "NOTHING YET, and it needs its own drawing and Mike's approval before any of it. Then: server/report/intake/xeroReportParser.js (a fifth report kind), server/report/intake/supportedPackages.js, server/routes/report.js and components/ThreeWayForecastIntake.vue (a fifth slot, and the Sell row becoming a chooser rather than two typed figures).",
       "note": "⚠ COUPLED TO 4.60 AND SHOULD FOLLOW IT. 4.60 waits on four real exports from QuickBooks Online and MYOB to move those two packages from `expected` to `verified`, and whoever collects them should be asked for the Fixed Asset Schedule at the same time. It is the same request to the same person, and doing it separately means asking twice.",
       "comment": "2026-09-03 — filed at the moment Mike ruled \"typing it for now\", so the version he would rather have is on the list rather than in a conversation. Nothing is blocked: the capital block is built, tested and honest, and the advisor types one number they can read straight off their own asset schedule. Appended rather than slotted beside the work it relates to, because the array order is Mike's ranking and inserting it mid-list would be a ranking decision taken on his behalf."
+    },
+    {
+      "ref": "4.67",
+      "name": "Nothing built on 2026-09-05 has been opened in the running app",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Four screens changed that day — the funding Type column, the stock-in-transit block, the glossary marks and the report's Summary / Every line setting — and not one has been seen in a browser.",
+      "risk": "Low: the maths is proved by the golden set and 7,878 tests. What is unseen is layout — a table that shears, a tooltip that clips, a setting that reads wrongly. Yesterday's 1,559,449.79 balance fault was found exactly this way, and every test had passed.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": true,
+        "detail": "Proposed at the 2026-09-05 shutdown and filed on his yes. Found by us: no screen changed that day was opened in a browser."
+      },
+      "touches": "Nothing until somebody looks. Then whichever of ThreeWayForecastIntake.vue, ThreeWayForecastReport.vue or base/GlossaryTerm.vue is wrong.",
+      "note": "⚠ THE API DOES NOT HOT-RELOAD. `npm run backend` is a plain node process, so the parser and engine changes are invisible until it is restarted — and it needed a force-kill on port 4000 last time. Nuxt does reload. Four things to look at: the Type column and the disabled \"No set repayment\" box on step 2; the stock-in-transit block, which appears only when the opening carries a deposit; the ? marks beside the headings; and Summary / Every line on all three report tabs.",
+      "comment": "2026-09-05 — filed at shutdown on Mike's yes, after a day that changed four screens and shipped every one of them past tests alone."
     }
   ]
 }
