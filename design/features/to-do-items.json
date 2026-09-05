@@ -188,27 +188,6 @@
       "comment": "2026-09-03 — filed on Mike's instruction the moment he raised it; he framed it himself as a future phase. RENUMBERED 4.62 → 4.66 on 2026-09-04 when master was merged in: both machines filed a new 4.62 on 2026-09-03, the desktop's saved-reports item reached master first and keeps the number, which is the rule that moved 4.56 → 4.58. 4.62 is not reused here. See also 4.64 and 4.63, the other future phase he named in the same message."
     },
     {
-      "ref": "4.64",
-      "name": "International versus local — the forecast treats every sale and purchase as domestic",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Mike's request, 2026-09-03: an international-versus-local split for purchases and sales on step 3, allowing for shipping and FX. Drawn, approved and built 2026-09-04; the drawing and its six rulings are recorded in ARTEFACTS.md.",
-      "risk": "🔴 THE GUARD THIS MUST NOT BE BUILT WITHOUT: with the tick off and both overseas series empty, the 10,155-cell golden test must produce byte-identical output, and it is written first — this change reaches into the GST computation, which the golden set covers cell by cell. GST is wrong in both directions today: every sale is charged, and every purchase credited when the supplier is paid, where exports are zero-rated and imports pay at the border.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-03 — \"shouldn't the assumptions page have a 'international' vs 'Local' purchases and sales box? this is where imported stock purchases that take longer to arrive and require deposits etc can be entered, as can oversaes sales that rely on delivery before payment can be entered - to allow for shipping and fx\". Filed on his instruction (\"file it\")."
-      },
-      "touches": "Built: server/report/threeWayForecastModel.js, tests/unit/threeWayForecastModel.test.js, components/ThreeWayForecastIntake.vue, ThreeWayForecastReport.vue, locales/en.json. The mentor tab added server/utils/forecastSellDown.js, server/routes/forecastSellDown.js, four manager routes plus a read in restify-server.js, components/firm/FirmSellDownLadder.vue and its tab in FirmManagerHub.vue, with tests/unit/forecastSellDown.test.js. Slice 2 adds an upstream calculator under server/report/ with a golden test against the workbook.",
-      "note": "🔴 IT ABSORBED 4.63 AS SLICE 2, and 4.63 is CLOSED on to-do-done-and-parked.md. BOTH SLICES ARE BUILT AND EYEBALLED: every screen was opened in the running app on 2026-09-04. The eyeball found four faults, all fixed the same day — the drawing's revenue block was never built, a badge overlapped two labels, a second was on one of three fields, and ProvenanceBadge was missing required props. Supplier terms made editable on Mike's instruction. OPEN FOR ONE REASON: five differences from the drawing are recorded in ARTEFACTS.md (f)-(o) and none has his ruling. None changes a figure.",
-      "comment": "2026-09-04 — drawn, approved and BUILT the same day, both slices; the guard went FIRST and holds, 3,385 golden cells unmoved. Fourteen rulings. A balance check caught twice what nothing else would have. Merged as PR #58. LATER THE SAME DAY, EYEBALLED: the running app found four faults no test could — the missing revenue block, a badge overlapping two labels, a badge on one of three fields, and two Vue warnings. All fixed; supplier terms made editable on his instruction. Suite 7,812 green (407 suites)."
-    },
-    {
       "ref": "4.65",
       "name": "The book value of one asset is typed, because no screen asks for the asset schedule",
       "rankedByMike": false,

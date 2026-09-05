@@ -185,6 +185,39 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.64 · International versus local — the forecast treats every sale and purchase as domestic.**
+✅ Closed 2026-09-05. Mike's request of 2026-09-03: *"shouldn't the assumptions page have a
+'international' vs 'Local' purchases and sales box? … to allow for shipping and fx"*. Drawn,
+approved and built on 2026-09-04, both slices — it **absorbed 4.63 as slice 2** on his instruction
+— and eyeballed in the running app the same day. It stayed open afterwards for **one** reason:
+five differences between the built screens and the approved drawing had no ruling from him.
+
+🔴 **The guard is what the build order was for, and it held.** With the tick off and both overseas
+series empty, all **3,385 golden cells** still match the workbook and the three statements are
+byte-identical — written and passing before a line of the feature existed, because this change
+reaches into the GST computation the golden set covers cell by cell.
+
+🔴 **What closes it: the five differences were ruled on 2026-09-05, one at a time on his
+instruction, and in every one the build was kept and the DRAWING corrected.** (k) the balance to
+the supplier is a five-bucket percentage profile, not one dropdown; (l) the overseas mark-up sits
+at the foot of the overseas sales card, not beside the local one; (m) the three shipping speeds are
+a sentence, not a picker; (n) the sales-side allowance reads *Exchange-rate allowance on receipts*;
+(o) the IMPORTED / OVERSEAS pills stay unrendered. **None of the five changes a figure.** Each is
+now marked in red where it sits on
+[`three-way-forecast-international.html`](../mockups/three-way-forecast-international.html) with his
+reason, and the drawing's opening sentence — which still read *"nothing here is built"* — was
+corrected with them.
+
+⚠ **One thing was noticed and is deliberately NOT carried here:** `shipmentTimer` in
+[`ThreeWayForecastIntake.vue`](../../components/ThreeWayForecastIntake.vue) is never cleared on
+destroy. It was seen on 2026-09-04, is not filed, and is not part of this item.
+
+**What proves it:** [`tests/unit/threeWayForecastModel.test.js`](../../tests/unit/threeWayForecastModel.test.js)
+(the golden set, unmoved), [`tests/unit/forecastSellDown.test.js`](../../tests/unit/forecastSellDown.test.js),
+and the intake-component guard that fails the build if the engine defaults an input the screen does
+not send. Recorded in [`report-models.md`](report-models.md) and
+[`ARTEFACTS.md`](../ARTEFACTS.md).
+
 **4.59 · A point the mentor adds tells a firm manager THEY wrote it.**
 ✅ Closed 2026-09-04. A firm manager who had customised nothing saw *"Added here"* against every
 observation point the mentor wrote, because
