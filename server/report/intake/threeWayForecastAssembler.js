@@ -45,6 +45,7 @@
 // these two reports is this year?" has ONE definition — the assembler's ordering and the
 // model's comparability check must agree, or a pair ordered here would be refused there.
 const { periodEndOf } = require('../trendModel')
+const { redactLabel } = require('./xeroReportParser')
 
 /**
  * A Balance Sheet, a Profit and Loss, up to TWO by-month Profit and Loss exports, and —
@@ -322,7 +323,9 @@ function assembleForecastIntake (parsed, monthlySales) {
       warnings.push(unmatched.length + ' expense ' + (unmatched.length === 1 ? 'line was' : 'lines were') +
         ' not recognised and ' + (unmatched.length === 1 ? 'has' : 'have') +
         ' been added to "Other 5" so nothing is lost: ' +
-        unmatched.map(u => u.name).join(', ') + '. Please move them to the right lines.')
+        // The SECOND path a client's own account name reaches the screen by, and it goes
+        // through the same redaction as the candidate rows — one definition, no drift.
+        unmatched.map(u => redactLabel(u.name)).join(', ') + '. Please move them to the right lines.')
     }
     const matchedKeys = Object.keys(overheads)
     for (let i = 0; i < matchedKeys.length; i++) { provenance['overheads.' + matchedKeys[i]] = 'file' }

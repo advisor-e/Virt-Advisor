@@ -803,3 +803,89 @@ describe('the shipment calculator panel', () => {
     w.destroy()
   })
 })
+
+/**
+ * 🔴 THE OPENING-BALANCE BAND ON STEP 2 (2026-09-05).
+ *
+ * The band exists because the engine has always worked this figure out and nothing showed
+ * it until step 4. Its own first outing on the running app reported a real client's
+ * balance sheet as 2,502,897 out when the engine ties it to nil, because every opening
+ * figure on this form is a `{value, source}` pair and the computed read `.opening`
+ * directly — NaN, hidden by `|| 0`, so the fixed assets, the loans and the shareholder
+ * accounts silently counted as nothing.
+ *
+ * A NUMBER AN ADVISOR ACTS ON, WITH NOTHING BEHIND IT. That is what earns these tests:
+ * the band is either right or it sends someone hunting a hole in accounts that balance.
+ */
+describe('the opening balance check on step 2', () => {
+  /** One opening slot, in the shape the form actually holds. */
+  const slot = value => ({ value, source: 'file' })
+
+  /**
+   * A form whose opening position ties: assets 585,000 = liabilities 267,500 +
+   * equity 317,500 — the same shape as the intake suite's sweep fixture.
+   */
+  function tieing (w) {
+    Object.keys(w.vm.form.opening).forEach((k) => { w.vm.form.opening[k] = slot(0) })
+    w.vm.form.opening.cashAtBank = slot(120000)
+    w.vm.form.opening.accountsReceivable = slot(80000)
+    w.vm.form.opening.inventory = slot(30000)
+    w.vm.form.opening.otherCurrentAsset = slot(225000)
+    w.vm.form.opening.accountsPayable = slot(40000)
+    w.vm.form.opening.otherCurrentLiability = slot(158500)
+    w.vm.form.opening.otherNonCurrentLiability = slot(9000)
+    w.vm.form.opening.authorisedCapital = slot(100)
+    w.vm.form.opening.retainedEarnings = slot(367400)
+    w.vm.form.opening.otherEquity = slot(-50000)
+    w.vm.form.assets.forEach((a) => { a.opening = slot(0) })
+    w.vm.form.assets[0].opening = slot(30000) // vehicles, net of depreciation
+    w.vm.form.assets[5].opening = slot(100000) // goodwill, in the Other category
+    w.vm.form.loans.forEach((l) => { l.opening = slot(0) })
+    w.vm.form.loans[0].opening = slot(60000)
+    w.vm.form.shareholders.forEach((s) => { s.opening = slot(0) })
+  }
+
+  test('a position that ties reports nil, and the band stays away', () => {
+    const w = mountIntake({ step: 2 })
+    tieing(w)
+    expect(w.vm.openingBalanceCheck).toBe(0)
+    expect(w.vm.openingOutOfBalance).toBe(false)
+    w.destroy()
+  })
+
+  test('🔴 the fixed assets, the loans and the shareholders are COUNTED', () => {
+    // The regression itself. Each of the three was read as a bare number, gave NaN, and
+    // fell to 0 — so removing any one of them must move the check by its own amount.
+    const w = mountIntake({ step: 2 })
+    tieing(w)
+    w.vm.form.assets[5].opening = { value: 0, source: 'file' }
+    expect(w.vm.openingBalanceCheck).toBe(100000) // the goodwill, not silently ignored
+    tieing(w)
+    w.vm.form.loans[0].opening = { value: 0, source: 'file' }
+    expect(w.vm.openingBalanceCheck).toBe(-60000) // the loan, not silently ignored
+    tieing(w)
+    w.vm.form.shareholders[0].opening = { value: 25000, source: 'file' }
+    expect(w.vm.openingBalanceCheck).toBe(25000) // in credit: the company owes it
+    w.destroy()
+  })
+
+  test('a real gap is reported as the amount it is, on the right side', () => {
+    const w = mountIntake({ step: 2 })
+    tieing(w)
+    w.vm.form.opening.inventory = slot(35000) // 5,000 of stock that is not funded
+    expect(w.vm.openingBalanceCheck).toBe(-5000)
+    expect(w.vm.openingOutOfBalance).toBe(true)
+    w.destroy()
+  })
+
+  test('only catch-all lines a FILE filled are offered back for moving', () => {
+    const w = mountIntake({ step: 2 })
+    tieing(w)
+    expect(w.vm.sweptLines.map(s => s.key)).toEqual(
+      ['otherCurrentAsset', 'otherCurrentLiability', 'otherNonCurrentLiability', 'otherEquity'])
+    // A figure the advisor typed there needs no explaining back to them.
+    w.vm.form.opening.otherCurrentAsset = { value: 225000, source: 'entered' }
+    expect(w.vm.sweptLines.map(s => s.key)).not.toContain('otherCurrentAsset')
+    w.destroy()
+  })
+})

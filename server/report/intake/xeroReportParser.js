@@ -356,9 +356,44 @@ function extractForecastBalanceSheet (grid) {
   const currentAssets = assetItems.filter(it => !inSection(it, /non-?current|fixed/i))
   const nonCurrentAssets = assetItems.filter(it => inSection(it, /non-?current|fixed/i))
 
+  const currentLiabItems = liabItems.filter(it => !inSection(it, /non-?current|long[-\s]?term/i))
+  const nonCurrentLiabItems = liabItems.filter(it => inSection(it, /non-?current|long[-\s]?term/i))
+
   const figures = Object.create(null)
-  const put = (key, candidates) => {
+  // 🔴 EVERY ROW IS CLAIMED OR SWEPT — NOTHING IS DROPPED. Each named test below records
+  // the rows it consumed, and whatever is left over goes to its own section's catch-all.
+  // Until 2026-09-05 only non-current assets swept, and the comment on `leftoverAssets`
+  // stated the reason — "a dropped asset is a balance sheet that will not tie and an
+  // advisor with no idea why" — while current assets, liabilities and equity did exactly
+  // that. A real Xero export put through it that day lost 1,039,910.17 of current assets,
+  // 3,090,713.29 of current liabilities, 8,546.67 of non-current liabilities and
+  // 499,900.00 of equity, in silence, and reported the opening as 1,559,449.79 out of
+  // balance on a file that ties to the cent in Xero. This is the rest of the balance
+  // sheet obeying the rule that section already followed.
+  const claimed = new Set()
+  /**
+   * Fill one opening slot and mark the rows it consumed.
+   *
+   * @param {string} key the opening-balance-sheet key to fill.
+   * @param {Array<object>} candidates the rows offered to it.
+   * @param {Array<object>} [origin] the FILE's own rows, where they differ from the
+   *   candidates — an overdrawn bank account is re-signed before it is offered, so the
+   *   candidate objects are copies and marking those would leave the originals unclaimed.
+   */
+  const put = (key, candidates, origin) => {
+    const consumed = origin || candidates
+    for (let i = 0; i < consumed.length; i++) { claimed.add(consumed[i]) }
     const p = proposalOf(candidates)
+    if (p) { figures[key] = p }
+  }
+  /**
+   * Everything in `pool` that no named test took, into one catch-all slot.
+   *
+   * @param {string} key the catch-all key.
+   * @param {Array<object>} pool the section's rows.
+   */
+  const sweep = (key, pool) => {
+    const p = proposalOf(pool.filter(it => !claimed.has(it)))
     if (p) { figures[key] = p }
   }
 
@@ -371,8 +406,9 @@ function extractForecastBalanceSheet (grid) {
     inSection(it, /^bank$|bank accounts/i) || BANK_ACCOUNT_RE.test(it.label) || OVERDRAFT_RE.test(it.label))
   const overdraftLiabRows = liabItems.filter(it => OVERDRAFT_RE.test(it.label))
   put('cashAtBank', bankRows.filter(it => it.value > 0))
-  const overdrawn = bankRows.filter(it => it.value < 0).map(it => ({ label: it.label, value: -it.value, section: it.section }))
-  put('bankOverdraft', overdrawn.concat(overdraftLiabRows))
+  const overdrawnRows = bankRows.filter(it => it.value < 0)
+  const overdrawn = overdrawnRows.map(it => ({ label: it.label, value: -it.value, section: it.section }))
+  put('bankOverdraft', overdrawn.concat(overdraftLiabRows), overdrawnRows.concat(overdraftLiabRows))
 
   put('accountsReceivable', currentAssets.filter(it => /accounts?\s+receivable|trade\s+(receivable|debtor)|^debtors\b/i.test(it.label)))
   put('inventory', currentAssets.filter(it => /stock|inventor/i.test(it.label)))
@@ -405,10 +441,24 @@ function extractForecastBalanceSheet (grid) {
   if (otherAsset) { assets.other = otherAsset }
 
   // Positional, unnamed — see the block comment above.
-  const loanBalances = liabItems.filter(it => LOAN_RE.test(it.label)).map(it => it.value)
-  const shareholderBalances = items
-    .filter(it => SHAREHOLDER_RE.test(it.label))
+  const loanRows = liabItems.filter(it => LOAN_RE.test(it.label))
+  const shareholderRows = items.filter(it => SHAREHOLDER_RE.test(it.label))
+  const loanBalances = loanRows.map(it => it.value)
+  const shareholderBalances = shareholderRows
     .map(it => (inSection(it, /liabilit/i) ? it.value : -it.value))
+
+  // The loans and the shareholder accounts have their own slots on the screen, so they
+  // are claimed here and must not also fall into a catch-all — that would count them
+  // twice. Claimed AFTER the named puts and BEFORE the sweeps, which is the only order
+  // that gives each row exactly one home.
+  for (let i = 0; i < loanRows.length; i++) { claimed.add(loanRows[i]) }
+  for (let i = 0; i < shareholderRows.length; i++) { claimed.add(shareholderRows[i]) }
+
+  // The three sweeps that were missing. Non-current assets already had theirs, above.
+  sweep('otherCurrentAsset', currentAssets)
+  sweep('otherCurrentLiability', currentLiabItems)
+  sweep('otherNonCurrentLiability', nonCurrentLiabItems)
+  sweep('otherEquity', equityItems)
 
   // The over-count warning belongs to the assembler, which is what actually folds the
   // surplus into the last slot — a warning where no folding happens is a warning that
@@ -449,8 +499,93 @@ function proposalOf (candidates) {
   return {
     value: sumCandidates(candidates),
     source: 'file',
-    candidates: candidates.map(c => ({ label: c.label, value: c.value }))
+    // REDACTED HERE, at the one seam every displayed label passes through. Matching above
+    // still uses the file's own text — redacting before the tests ran would change which
+    // box a row lands in, which is a correctness change and not what this is for.
+    candidates: candidates.map(c => ({ label: redactLabel(c.label), value: c.value }))
   }
+}
+
+/** A personal title, and the initials or single letters that stand in for a name. */
+const TITLE_RE = /\b(?:mr|mrs|ms|miss|mx|dr|sir|lady)\b\.?/i
+/**
+ * The same titles WRITTEN AS TITLES — exact case, so `Ms` is a person and `MS` is
+ * Microsoft. It is the only thing that separates "Ms Patel Loan Account" from
+ * "MS Office Subscription", and without it the second becomes "Office Subscription".
+ * Used only by the two rules that have no name or initial beside them to go on.
+ */
+const TITLE_EXACT_RE = /^(?:Mr|Mrs|Ms|Miss|Mx|Dr|Sir|Lady)\.?$/
+/** Ltd, Trust, Investments … — the words that mark a counterparty rather than an account. */
+const COMPANY_MARKER_RE = /\b(?:ltd|limited|inc|llc|plc|pty|trust|trustees?|investments?|holdings?|partners?|nominees?|enterprises?|group|& ?co)\b/i
+
+/**
+ * Strip the identifying detail out of a client's own account name, keeping enough of it
+ * that an advisor can still tell which account a row is.
+ *
+ * 🔴 WHY THIS EXISTS (Mike, 2026-09-05, on seeing a real export on screen): a chart of
+ * accounts carries people's names and card numbers. That one file put `BNZ Mr y business
+ * card -4702`, `Equity Mr x` and `Trade Finance Loans - NMK Investments` on the screen.
+ * Those labels reach the browser and nowhere else — never a log, never storage, never a
+ * model, and `buildInputs()` sends amounts only — but that was true by accident, and item
+ * 4.66 will be the first report model to call the AI. Redacting at the source means a
+ * screenshot, a screen-share with the client, or a future feature cannot carry a person's
+ * name or a card number even by mistake.
+ *
+ * THREE DETERMINISTIC RULES, and no guessing:
+ *   1. any run of three or more digits, with an attached dash — `-4702`, `- 000`;
+ *   2. a personal title with the initials that follow it, and a trailing title-and-name;
+ *   3. a counterparty after a dash, but ONLY where it is an all-caps acronym or carries a
+ *      company marker — so `- Foreign Exchange` and `- Payroll` survive untouched.
+ *
+ * ⚠ TWO SHAPES SURVIVE ON PURPOSE, and Mike ruled that the right trade on 2026-09-05.
+ * A bare initialism at the START (`XYZ Funds Introduced`) cannot be told apart from `GST
+ * Payable`, `PAYE Payable` or `OEM Bike Parts`, and a place name (`Hamilton P&A Stock`)
+ * is how an advisor tells four stock locations apart. Removing either would mean showing
+ * no labels at all, which is the one thing that makes the tick-boxes useless.
+ *
+ * @param {string} label the account name as the file wrote it.
+ * @returns {string} the name with its identifying detail removed.
+ */
+function redactLabel (label) {
+  let s = (label === null || label === undefined) ? '' : String(label)
+  const T = TITLE_RE.source
+  // (1) account and card numbers, with any dash that introduces them.
+  s = s.replace(/[-–—]?\s*\b\d{3,}\b/g, ' ')
+  // (2a) A NAME AFTER A SEPARATOR IS A COUNTERPARTY, and the whole of it goes:
+  // "Loan - Mrs J Patel", "Current Account: Dr Smith". The separator is what makes this
+  // safe — the same words WITHOUT one are usually an account description, which is why
+  // the rules below are far more cautious.
+  s = s.replace(new RegExp('\\s*[-–—:,]\\s*' + T + '(?:\\s+\\S+)*\\s*$', 'i'), ' ')
+  // (2b) A title with the initials standing in for a name — "Mr y", "Mrs J", "Dr J.M."
+  // Only single letters follow, so "Mr y business card" gives up "y" and keeps the
+  // account, and "Mr y Funds Introduced" keeps the account too.
+  s = s.replace(new RegExp(T + '(?:\\s+[A-Za-z]\\.?(?=\\s|$))+', 'gi'), ' ')
+  // (2c) A title and one capitalised name, where the title OPENS the label — the shape a
+  // person's account takes when it is named after them: "Mrs Patel Loan Account". The
+  // title is tested case-insensitively and the name case-SENSITIVELY, which is why this
+  // is a callback: one /i regex would let [A-Z] match lowercase and eat the account word.
+  s = s.replace(/^\s*(\S+)\s+([A-Z][A-Za-z'-]*)/, function (whole, first) {
+    return TITLE_EXACT_RE.test(first) ? ' ' : whole
+  })
+  // NO FOURTH RULE FOR A BARE TITLE. One was written and removed the same hour: a title
+  // with no name or initial beside it is usually not a title at all — "Dr and Cr
+  // Clearing" is debit and credit, and stripping it gave "and Cr Clearing". Every shape
+  // it would have caught, (2b) already catches from the initial that follows.
+  // (3) A counterparty after a dash: an acronym, a company, or a person written as an
+  // initial and a surname ("- R Patel"). Anything else after a dash is an account
+  // description and is left alone — "- Foreign Exchange", "- Payroll" — which is why this
+  // asks for a positive signal rather than taking whatever follows a dash.
+  s = s.replace(/\s*[-–—]\s*([^-–—]+)$/, function (whole, tail) {
+    const t = tail.trim()
+    const isAcronym = /^[A-Z][A-Z&.\s]*$/.test(t) && /[A-Z]{2,}/.test(t)
+    const isPersonName = /^[A-Z]\.?\s+[A-Z][A-Za-z'-]+$/.test(t)
+    return (isAcronym || isPersonName || COMPANY_MARKER_RE.test(t)) ? ' ' : whole
+  })
+  // Tidy: collapse the gaps the rules left, and drop punctuation left stranded at either
+  // end. A label redacted down to nothing is still a row the advisor must place, so it
+  // keeps a neutral name rather than an empty cell.
+  s = s.replace(/\s+/g, ' ').replace(/^[\s,:;/&-]+|[\s,:;/&-]+$/g, '').trim()
+  return s || 'Account'
 }
 
 /** The report's year: the LAST 4-digit year in its own date line ("1 April 2024 to 31 March 2025" -> 2025). */
@@ -629,6 +764,10 @@ function parseForecastUpload (buf) {
 module.exports = {
   parseUpload,
   parseForecastUpload,
+  // Shared with the assembler so a client's account name has ONE definition of what is
+  // stripped out of it, whether it reaches the screen as a candidate row or inside the
+  // unrecognised-expenses warning. Two copies would drift and one would leak.
+  redactLabel,
   gridsFromBuffer,
   extractBalanceSheet,
   extractForecastBalanceSheet,

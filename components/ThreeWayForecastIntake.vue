@@ -188,6 +188,33 @@
                   | {{ sh.opening.value < 0 ? $t('report.threeWayForecast.confirm.overdrawn', { rate: pct(form.shareholderRate) }) : $t('report.threeWayForecast.confirm.inCredit') }}
         p.tw-note {{ $t('report.threeWayForecast.confirm.namesNote') }}
 
+    //- The opening does not tie. Said HERE, on the screen that holds the figures, rather
+    //- than on step 4 after three screens of assumptions — the engine has always worked
+    //- this number out, and until 2026-09-05 nothing showed it until the forecast ran.
+    //- It WARNS and never blocks: an advisor mid-way through a real client's accounts is
+    //- entitled to keep going, and step 4's own band still catches it if they do.
+    .crit-note(v-if="openingOutOfBalance")
+      //- money2, not money: whole dollars turned a 90-cent residual into "$1" and sent
+      //- Mike hunting a dollar that was not there (2026-09-05). A balance check is
+      //- exactly the figure that has to show its cents.
+      strong {{ $t('report.threeWayForecast.confirm.outOfBalanceTitle', { amount: money2(openingBalanceCheck) }) }}
+      p.obl-body {{ $t('report.threeWayForecast.confirm.outOfBalanceBody') }}
+      ul.obl-list
+        li {{ $t('report.threeWayForecast.confirm.causeLines') }}
+        li {{ $t('report.threeWayForecast.confirm.causeAssets') }}
+        li {{ $t('report.threeWayForecast.confirm.causeSign') }}
+        li {{ $t('report.threeWayForecast.confirm.causeSplit') }}
+
+    //- Where the rows the parser could not name actually landed. Shown whether or not the
+    //- opening ties, because a figure swept into a catch-all is one the advisor should
+    //- move to its proper line even when the totals happen to agree.
+    .warn-note(v-if="sweptLines.length")
+      strong {{ $t('report.threeWayForecast.confirm.sweptTitle') }}
+      p.obl-body {{ $t('report.threeWayForecast.confirm.sweptBody') }}
+      ul.obl-list
+        li(v-for="s in sweptLines" :key="'sw' + s.key")
+          | {{ $t('report.threeWayForecast.confirm.figures.' + s.key) }} — {{ money(s.value) }}
+
     .warn-note(v-for="(w, i) in warnings" :key="'cw' + i") ⚠ {{ w }}
     .tw-actions
       b-button(type="is-primary" @click="toAssume") {{ $t('report.threeWayForecast.confirm.next') }}
@@ -1028,8 +1055,44 @@ const OPENING_KEYS = [
   'cashAtBank', 'bankOverdraft', 'accountsReceivable', 'inventory', 'prepayments',
   'gstRefund', 'incomeTaxRefundDue', 'otherCurrentAsset', 'accountsPayable',
   'accruedExpenses', 'gstPayable', 'incomeTaxPayable', 'otherCurrentLiability',
-  'otherNonCurrentLiability', 'authorisedCapital', 'retainedEarnings', 'capitalGain'
+  'otherNonCurrentLiability', 'authorisedCapital', 'retainedEarnings', 'capitalGain',
+  // The equity catch-all, added 2026-09-05. Its three sibling sections each had one;
+  // equity did not, so a dividend or a share-capital row the parser could not name was
+  // dropped and the opening could not tie. See the model's own note on the field.
+  'otherEquity'
 ]
+
+/**
+ * Which side of the opening balance sheet each line sits on, so the screen can work out
+ * the same balance check the engine does — WITHOUT a round trip. The advisor is editing
+ * these figures; a check that needed the backend would lag every keystroke.
+ *
+ * ONE SOURCE, ONE MEANING: this mirrors `threeWayForecastModel.js` opening block. The
+ * netting pairs are deliberately NOT modelled here (prepayments against accruals, tax
+ * refund against tax payable) — netting moves a figure between two sides that both count,
+ * so it cannot change the check, and reproducing it would be a second copy of the engine's
+ * arithmetic that could drift from it.
+ */
+const OPENING_SIDES = {
+  cashAtBank: 'asset',
+  accountsReceivable: 'asset',
+  inventory: 'asset',
+  prepayments: 'asset',
+  gstRefund: 'asset',
+  incomeTaxRefundDue: 'asset',
+  otherCurrentAsset: 'asset',
+  bankOverdraft: 'liability',
+  accountsPayable: 'liability',
+  accruedExpenses: 'liability',
+  gstPayable: 'liability',
+  incomeTaxPayable: 'liability',
+  otherCurrentLiability: 'liability',
+  otherNonCurrentLiability: 'liability',
+  authorisedCapital: 'equity',
+  retainedEarnings: 'equity',
+  capitalGain: 'equity',
+  otherEquity: 'equity'
+}
 
 /** The six fixed-asset categories, and the platform depreciation rate for each (%). */
 const ASSET_SPECS = [
@@ -1276,6 +1339,69 @@ export default {
 
     debtorTotal () { return this.sumOf(this.form.debtor) },
     creditorTotal () { return this.sumOf(this.form.creditor) },
+
+    /* -- does the opening position balance? (step 2) -------------------------------- */
+
+    /**
+     * Equity minus net assets, the SAME check `threeWayForecastModel.js` runs on the
+     * opening — worked out here so step 2 can say it, rather than the advisor learning
+     * it on step 4 after three screens of assumptions.
+     *
+     * @returns {number} 0 when the opening ties; the amount it is out by otherwise.
+     */
+    openingBalanceCheck () {
+      // EVERY opening figure on this form is a {value, source} pair, not a bare number —
+      // the row's provenance badge reads the `source`. Reading `.opening` directly gives
+      // NaN, which `|| 0` then hides, so the fixed assets, the loans and the shareholder
+      // accounts all count as nothing and the band reports a gap that is not there.
+      // Found on the running app, 2026-09-05, the first time this band was opened: it
+      // said 2,502,897 on a file the engine ties to nil. Pinned by
+      // tests/unit/threeWayForecastIntake.component.test.js.
+      const amount = slot => Number(slot && typeof slot === 'object' ? slot.value : slot) || 0
+      let equity = 0
+      let net = 0
+      const keys = OPENING_KEYS
+      for (let i = 0; i < keys.length; i++) {
+        const v = amount(this.form.opening[keys[i]])
+        const side = OPENING_SIDES[keys[i]]
+        if (side === 'equity') { equity += v } else if (side === 'asset') { net += v } else { net -= v }
+      }
+      for (let a = 0; a < this.form.assets.length; a++) { net += amount(this.form.assets[a].opening) }
+      for (let l = 0; l < this.form.loans.length; l++) { net -= amount(this.form.loans[l].opening) }
+      // A shareholder account nets to whichever side its total falls on, exactly as the
+      // engine does — in credit it is money the company owes, overdrawn it is owed to it.
+      let sh = 0
+      for (let s = 0; s < this.form.shareholders.length; s++) { sh += amount(this.form.shareholders[s].opening) }
+      net -= sh
+      // A HALF-CENT FLOOR, because floating point is not money. Summing twenty-odd
+      // figures leaves dust — this file's real opening comes out at -4.66e-10 — and
+      // without the floor the band fires on an amount no accounting system would call a
+      // difference. Anything a client could actually be out by survives it.
+      const raw = equity - net
+      return Math.abs(raw) < 0.005 ? 0 : Math.round(raw * 100) / 100
+    },
+
+    /** True while the opening does not tie. Drives the band and nothing else. */
+    openingOutOfBalance () { return this.openingBalanceCheck !== 0 },
+
+    /**
+     * The catch-all lines the file filled, for the band's "here is where the odd rows
+     * went" sentence. Only the four `other*` slots, and only when a file supplied them —
+     * a figure the advisor typed there needs no explaining back to them.
+     *
+     * @returns {Array<{key: string, value: number}>} possibly empty.
+     */
+    sweptLines () {
+      const out = []
+      const keys = ['otherCurrentAsset', 'otherCurrentLiability', 'otherNonCurrentLiability', 'otherEquity']
+      for (let i = 0; i < keys.length; i++) {
+        const slot = this.form.opening[keys[i]]
+        if (slot && slot.source === 'file' && Number(slot.value)) {
+          out.push({ key: keys[i], value: Number(slot.value) })
+        }
+      }
+      return out
+    },
 
     /* -- buying and selling overseas (4.64) ---------------------------------------- */
 
@@ -2823,6 +2949,11 @@ export default {
    rather than a second component, so the two levels read as one pair. */
 .crit-note { font-size: 12.5px; color: var(--rs-crit); background: var(--rs-crit-soft); border-radius: 9px; padding: 10px 14px; margin-top: 8px; }
 .crit-note strong, .warn-note strong { font-size: 13px; }
+/* The opening-balance band's body and its list of likely causes. Inside the two bands
+   above rather than a third colour: this is the same warning language, saying more. */
+.obl-body { margin: 5px 0 0; }
+.obl-list { margin: 5px 0 0; padding-left: 18px; list-style: disc; }
+.obl-list li { margin-top: 2px; }
 
 /* The volatility read — built from design/mockups/three-way-forecast-volatility.html */
 .volblock { border: 1px solid #0070c055; border-radius: 12px; padding: 14px; background: var(--rs-accent-soft); }

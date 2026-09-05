@@ -548,6 +548,39 @@ advanced by 31 days, so its third year ran three weeks adrift — **ruled and fi
 > model's own key list — so an input added to the engine later fails a test instead of leaking.
 > **Any new model with a defaults-merge takes the same guard.**
 
+🔴 **NOTHING ON A BALANCE SHEET IS DROPPED, and step 2 says so the moment it does not tie**
+(2026-09-05). Only non-current assets had a catch-all; current assets, current liabilities
+and equity discarded any row the parser could not name, and equity had no catch-all slot to
+sweep into at all. Found by putting a real Xero export through the running app: the file tied
+to the cent in Xero — net assets and total equity both −635,494.05 — and the forecast opened
+from it **1,559,449.79 out of balance**, having silently lost 18 rows worth 1,039,910.17 of
+current assets, 3,090,713.29 of current liabilities, 8,546.67 of long-term liabilities and
+499,900.00 of equity. **Every section now sweeps its unrecognised rows into its own `Other`
+slot** — including a new eighteenth opening line, **Other equity** — and the screen names
+what landed there so the advisor can move it. **The opening balance check is now shown on
+step 2**, where the figures are, rather than on step 4 after three screens of assumptions; it
+warns and never blocks, and lists the four things that actually cause it.
+
+> ⚠ **The test that was already there did not catch it, and that is the part worth keeping.**
+> It asserted the monthly balance check equals the OPENING one — that the gap does not *grow*.
+> A gap of 1.5 million that stays exactly 1.5 million passed it every time. What nobody had
+> asserted is that **a balance sheet which balances in the accounting package balances here**.
+> That assertion now exists.
+
+🔒 **A client's own account names are redacted before they leave the backend** (Mike,
+2026-09-05: *"the names tied to bank, stock, assets and liabilities snuk through"*). A real
+chart of accounts carries people's names and card numbers — that export put `BNZ Mr y business
+card -4702`, `Equity Mr x` and `Trade Finance Loans - NMK Investments` on screen. `redactLabel`
+in [`xeroReportParser.js`](../../server/report/intake/xeroReportParser.js) strips three things
+and no more: runs of three or more digits with the dash that introduces them; a personal title
+with the name or initials beside it; and a counterparty after a dash where it is an acronym, a
+company, or an initial-and-surname. Matching still reads the file's own text, so no row changes
+box. **Two shapes survive on Mike's ruling**: a bare initialism at the start (`XYZ Funds
+Introduced`, indistinguishable from `GST Payable`) and a place name (`Hamilton P&A Stock`,
+which is how four stock locations are told apart). Labels reach the browser and nowhere else —
+`buildInputs()` sends amounts only, and a test now enforces that boundary so **item 4.66's
+first AI call cannot carry a client's account names with it**.
+
 **Step 1 takes SIX files, four of them optional** (2026-09-03, items 4.61a and 4.61b): this
 year's Balance Sheet and Profit and Loss, **two by-month exports** — this year's and last
 year's — and **last year's Balance Sheet and Profit and Loss**, which are what the two-year

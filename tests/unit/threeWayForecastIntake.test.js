@@ -489,6 +489,142 @@ describe('Forecast intake — the proposal actually drives the model', () => {
   })
 })
 
+/**
+ * 🔴 NOTHING ON A BALANCE SHEET IS DROPPED.
+ *
+ * Found 2026-09-05 by putting a real Xero export through the app. The file tied to the
+ * cent in Xero — net assets and total equity both -635,494.05 — and the app opened from
+ * it 1,559,449.79 out of balance, because 18 rows it could not name reached no slot at
+ * all: 1,039,910.17 of current assets, 3,090,713.29 of current liabilities, 8,546.67 of
+ * non-current liabilities and 499,900.00 of equity, in silence. Only non-current assets
+ * had a catch-all; the other three sections discarded what they did not recognise, and
+ * equity had no catch-all slot to sweep into even if it had swept.
+ *
+ * THE TEST ABOVE DID NOT CATCH IT, AND THAT IS THE INSTRUCTIVE PART. It asserts the
+ * monthly check equals the OPENING check — that the gap does not grow. A gap of
+ * 1.5 million that stays exactly 1.5 million passes it. What was never asserted is that
+ * a balance sheet which balances in the accounting package balances here, which is the
+ * assertion below.
+ *
+ * The fixture is invented, deliberately: it reproduces the SHAPE and every failure mode
+ * of the real file — unnamed rows in all four sections, a plural "Loans" that is not a
+ * term loan, gross cost against accumulated depreciation, goodwill — without putting a
+ * real client's balance sheet in the repository.
+ */
+describe('🔴 a balance sheet that ties in the accounting package ties here', () => {
+  // Assets 585,000 = liabilities 267,500 + equity 317,500. Four of its rows match no
+  // named test in the parser, one per section.
+  const UNNAMED_BS = [
+    ['Balance Sheet'],
+    ['Sweep Test Ltd'],
+    ['As at 31 March 2026'],
+    [],
+    ['Assets'],
+    ['Bank'],
+    ['Cheque Account', 120000],
+    ['Total Bank', 120000],
+    ['Current Assets'],
+    ['Accounts Receivable', 80000],
+    ['Inventory', 30000],
+    ['Deposits paid to Suppliers', 200000], // unnamed — the real file's largest asset loss
+    ['Clearing Account - Foreign Exchange', 25000], // unnamed
+    ['Total Current Assets', 335000],
+    ['Fixed Assets'],
+    ['Vehicles', 40000],
+    ['Accumulated Depreciation on Vehicles', -10000],
+    ['Total Fixed Assets', 30000],
+    ['Non-current Assets'],
+    ['Goodwill', 100000],
+    ['Total Non-current Assets', 100000],
+    ['Total Assets', 585000],
+    ['Liabilities'],
+    ['Current Liabilities'],
+    ['Accounts Payable', 40000],
+    ['PAYE Payable', 8000], // unnamed
+    ['Trade Finance Loans', 150000], // unnamed: plural "Loans" is not a term loan
+    ['Short-term Loan', 60000], // a real term loan, and it must not be counted twice
+    ['Suspense', 500], // unnamed
+    ['Total Current Liabilities', 258500],
+    ['Non-current Liabilities'],
+    ['Licence Fees prepaid', 9000], // unnamed, and "prepaid" must not make it an asset
+    ['Total Non-current Liabilities', 9000],
+    ['Total Liabilities', 267500],
+    ['Net Assets', 317500],
+    ['Equity'],
+    ['Share Capital', 100],
+    ['Dividends Paid', -50000], // unnamed — equity had no catch-all at all before this
+    ['Retained Earnings', 367400],
+    ['Total Equity', 317500]
+  ]
+
+  const bs = extractForecastBalanceSheet(UNNAMED_BS)
+  const assembled = assembleForecastIntake([bs])
+
+  /**
+   * What the SCREEN sends, which is not what the assembler alone produces. A money line
+   * the file did not supply is genuinely absent, so the screen starts it at 0 and sends
+   * it — "MONEY DEFAULTS TO ZERO", the component's own rule. The engine's own DEFAULTS
+   * are a sample company (a 249,000 overdraft, 200,000 of share capital) and would apply
+   * only to a caller that omits the key, which the screen never does.
+   *
+   * @returns {object} the proposal with every opening line present.
+   */
+  const asTheScreenSends = () => {
+    const keys = ['cashAtBank', 'bankOverdraft', 'accountsReceivable', 'inventory', 'prepayments',
+      'gstRefund', 'incomeTaxRefundDue', 'otherCurrentAsset', 'accountsPayable', 'accruedExpenses',
+      'gstPayable', 'incomeTaxPayable', 'otherCurrentLiability', 'otherNonCurrentLiability',
+      'authorisedCapital', 'retainedEarnings', 'capitalGain', 'otherEquity']
+    const ob = Object.assign({}, assembled.proposal.openingBalanceSheet)
+    for (let i = 0; i < keys.length; i++) { if (ob[keys[i]] === undefined) { ob[keys[i]] = 0 } }
+    return Object.assign({}, assembled.proposal, { openingBalanceSheet: ob })
+  }
+
+  test('the opening balance check is NIL, not merely constant', () => {
+    const f = computeThreeWayForecast(asTheScreenSends())
+    expect(f.balanceSheet.opening.balanceCheck).toBe(0)
+    expect(f.balanceSheet.opening.totalEquity).toBe(317500)
+    expect(f.balanceSheet.opening.netAssets).toBe(317500)
+  })
+
+  test('and it stays nil across all twelve months', () => {
+    const f = computeThreeWayForecast(asTheScreenSends())
+    f.balanceSheet.months.balanceCheck.forEach(v => expect(v).toBe(0))
+  })
+
+  test('each unnamed row lands in its own section’s catch-all, and only there', () => {
+    const o = assembled.proposal.openingBalanceSheet
+    expect(o.otherCurrentAsset).toBe(225000) // 200,000 + 25,000
+    expect(o.otherCurrentLiability).toBe(158500) // 8,000 + 150,000 + 500 — NOT the loan
+    expect(o.otherNonCurrentLiability).toBe(9000)
+    expect(o.otherEquity).toBe(-50000)
+  })
+
+  test('a row a named test claimed is never swept up a second time', () => {
+    const o = assembled.proposal.openingBalanceSheet
+    // The 60,000 term loan has its own slot. Double-counting it would move net assets by
+    // 60,000 and the opening would no longer tie — which the first test also proves, but
+    // this says which row it is.
+    expect(assembled.proposal.loans[0].opening).toBe(60000)
+    expect(o.accountsPayable).toBe(40000)
+    expect(o.prepayments).toBeUndefined() // "Licence Fees prepaid" is a liability, not one
+  })
+
+  test('an overdrawn bank account still opens as an overdraft, not as a swept asset', () => {
+    const overdrawn = UNNAMED_BS.map(r => (r[0] === 'Cheque Account' ? ['Cheque Account', -15000] : r))
+    const r = extractForecastBalanceSheet(overdrawn)
+    expect(r.figures.bankOverdraft.value).toBe(15000)
+    expect(r.figures.cashAtBank).toBeUndefined()
+    // The row was consumed by the overdraft, so the sweep must not see it again.
+    expect(r.figures.otherCurrentAsset.value).toBe(225000)
+  })
+
+  test('a fully-recognised balance sheet fills no catch-all at all', () => {
+    const clean = extractForecastBalanceSheet(BS_GRID)
+    expect(clean.figures.otherCurrentAsset).toBeUndefined()
+    expect(clean.figures.otherEquity).toBeUndefined()
+  })
+})
+
 describe('Forecast intake — hostile and malformed uploads', () => {
   test('a real .xlsx Balance Sheet round-trips through the reader', () => {
     const buf = makeXlsx(BS_GRID, 'Balance Sheet')
@@ -548,5 +684,111 @@ describe('Forecast intake — hostile and malformed uploads', () => {
     const a = assembleForecastIntake([r])
     expect(a.blocked).toBeNull()
     expect(a.proposal.openingBalanceSheet.cashAtBank).toBeUndefined()
+  })
+})
+
+/**
+ * 🔴 A CLIENT'S OWN ACCOUNT NAMES ARE REDACTED BEFORE THEY LEAVE THE BACKEND.
+ *
+ * Mike, 2026-09-05, on opening a real Xero export: "the names tied to bank, stock, assets
+ * and liabilities snuk through". That one file carried a person's name three times and
+ * three partial card numbers — `BNZ Mr y business card -4702`, `Equity Mr x`, `Trade
+ * Finance Loans - NMK Investments`.
+ *
+ * The labels reach the browser and nowhere else — never a log, never storage, never a
+ * model — but that was TRUE BY ACCIDENT, and item 4.66 will be the first report model to
+ * call the AI. These tests are the rule that replaces the accident.
+ *
+ * They pin BEHAVIOUR, not wording: what survives is an account an advisor can still
+ * recognise, and what goes is the part that identifies a person, a card or a counterparty.
+ */
+describe('🔴 account names are redacted at the source', () => {
+  const { redactLabel } = require('../../server/report/intake/xeroReportParser')
+
+  test('card and account numbers go, with the dash that introduced them', () => {
+    expect(redactLabel('BNZ Mr y business card -4702')).toBe('BNZ business card')
+    expect(redactLabel('BNZ Business First Transact - 000')).toBe('BNZ Business First Transact')
+    expect(redactLabel('BNZ Vic Park Shop credit card -9084')).toBe('BNZ Vic Park Shop credit card')
+  })
+
+  test('a personal name goes; the account it describes stays', () => {
+    expect(redactLabel('Mr y Funds Introduced')).toBe('Funds Introduced')
+    expect(redactLabel('Equity Mr x')).toBe('Equity')
+    expect(redactLabel('Loan - Mrs J Patel')).toBe('Loan')
+    expect(redactLabel('Current Account - Dr Smith')).toBe('Current Account')
+    expect(redactLabel('Mrs Patel Loan Account')).toBe('Loan Account')
+    expect(redactLabel('Deposit held - R Patel')).toBe('Deposit held')
+  })
+
+  test('an abbreviation that only LOOKS like a title survives', () => {
+    // Both were live false positives while this was being written, and both are ordinary
+    // account names. `MS` in capitals is Microsoft; `Dr` beside `Cr` is debit and credit.
+    expect(redactLabel('MS Office Subscription')).toBe('MS Office Subscription')
+    expect(redactLabel('Dr and Cr Clearing')).toBe('Dr and Cr Clearing')
+    expect(redactLabel('Missions Fund')).toBe('Missions Fund')
+    expect(redactLabel('Drawings')).toBe('Drawings')
+  })
+
+  test('a counterparty after a dash goes ONLY when it names a company', () => {
+    expect(redactLabel('Trade Finance Loans - NMK Investments')).toBe('Trade Finance Loans')
+    expect(redactLabel('Trade Finance Loans -FGT')).toBe('Trade Finance Loans')
+    // …and an ordinary account description after a dash is left alone, which is the
+    // whole reason this rule needs a company marker rather than "anything after a dash".
+    expect(redactLabel('Holding / Clearing Account - Foreign Exchange'))
+      .toBe('Holding / Clearing Account - Foreign Exchange')
+    expect(redactLabel('Wages Payable - Payroll')).toBe('Wages Payable - Payroll')
+  })
+
+  test('the ordinary chart of accounts is untouched', () => {
+    ['Accounts Receivable', 'GST', 'PAYE Payable', 'RWT on Interest', 'Retained Earnings',
+      'Inventory (Unleashed)', 'Deposits paid to Suppliers', 'Suspense', 'Rounding']
+      .forEach(n => expect(redactLabel(n)).toBe(n))
+  })
+
+  test('⚠ the two shapes Mike accepted would survive, still survive', () => {
+    // A bare initialism at the START cannot be told from GST/PAYE/OEM, and a place name
+    // is how an advisor tells four stock locations apart. Ruled 2026-09-05. If a later
+    // rule starts eating these, that is a regression in usefulness and this catches it.
+    expect(redactLabel('XYZ Funds Introduced')).toBe('XYZ Funds Introduced')
+    expect(redactLabel('Hamilton P&A Stock')).toBe('Hamilton P&A Stock')
+  })
+
+  test('a label redacted to nothing still names a row the advisor must place', () => {
+    expect(redactLabel('Mr x')).toBe('Account')
+    expect(redactLabel('')).toBe('Account')
+    expect(redactLabel(null)).toBe('Account')
+  })
+
+  test('redaction reaches BOTH paths a name travels by, from one definition', () => {
+    const bs = extractForecastBalanceSheet([
+      ['Balance Sheet'], ['Acme Ltd'], ['As at 31 March 2026'], [],
+      ['Assets'], ['Bank'],
+      ['Cheque Account -4702', 60000],
+      ['Mr y Savings Account', 40000],
+      ['Total Bank', 100000]
+    ])
+    expect(bs.figures.cashAtBank.candidates.map(c => c.label))
+      .toEqual(['Cheque Account', 'Savings Account'])
+
+    // The unrecognised-expenses warning names accounts too, and it is the path that would
+    // have been missed by redacting the candidate rows alone.
+    const pl = extractProfitLoss([
+      ['Profit and Loss'], ['Acme Ltd'], ['For the year ended 31 March 2026'],
+      ['Less Operating Expenses'],
+      ['Consulting - Mr y', 5000],
+      ['Total Operating Expenses', 5000]
+    ])
+    const warned = assembleForecastIntake([bs, pl]).warnings.find(w => /not recognised/.test(w))
+    expect(warned).toContain('Consulting')
+    expect(warned).not.toContain('Mr y')
+  })
+
+  test('🔴 no label ever leaves the browser — the boundary 4.66 must not break', () => {
+    // What the screen sends back is amounts. A regression here would put a client's
+    // account names into a request body, and from there into an AI prompt.
+    const bs = extractForecastBalanceSheet(BS_GRID)
+    const sent = JSON.stringify(assembleForecastIntake([bs]).proposal)
+    expect(sent).not.toMatch(/label/i)
+    expect(sent).not.toMatch(/Cheque Account|Savings Account|Inventory \(Unleashed\)/)
   })
 })

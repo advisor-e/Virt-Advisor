@@ -339,7 +339,15 @@ const DEFAULTS = {
     gstPayable: 5500,
     accruedExpenses: 5000,
     otherCurrentLiability: 0,
-    otherNonCurrentLiability: 0
+    otherNonCurrentLiability: 0,
+    // The equity catch-all. Current assets, current liabilities and non-current
+    // liabilities each had one; equity did not, so any equity line that was neither
+    // share capital nor retained earnings had nowhere to land and was dropped. On a real
+    // Xero export (2026-09-05) that silently lost a 500,000 dividend and the share
+    // capital, and it is half of why the opening did not tie. Carried forward unchanged
+    // month to month, exactly as capitalGain is. Defaults to 0, so the golden set cannot
+    // move.
+    otherEquity: 0
   },
   assets: [
     { key: 'vehicles', opening: 80000, depreciationRate: 0.2, additions: zeroes(), disposals: zeroes() },
@@ -1032,6 +1040,7 @@ function computeThreeWayForecast (rawInputs, options) {
   const opening = {
     authorisedCapital: ob.authorisedCapital,
     capitalGain: ob.capitalGain,
+    otherEquity: ob.otherEquity,
     retainedEarnings: ob.retainedEarnings,
     cashAtBank: ob.cashAtBank,
     accountsReceivable: ob.accountsReceivable,
@@ -1051,7 +1060,8 @@ function computeThreeWayForecast (rawInputs, options) {
     otherCurrentLiability: ob.otherCurrentLiability,
     otherNonCurrentLiability: ob.otherNonCurrentLiability
   }
-  opening.totalEquity = opening.authorisedCapital + opening.capitalGain + opening.retainedEarnings
+  opening.totalEquity = opening.authorisedCapital + opening.capitalGain + opening.otherEquity +
+    opening.retainedEarnings
   opening.totalCurrentAssets = opening.cashAtBank + opening.accountsReceivable + opening.inventory +
     opening.incomeTaxAsset + opening.gstRefund + opening.prepayments +
     opening.shareholderCurrentAssets + opening.otherCurrentAsset
@@ -1428,6 +1438,7 @@ function computeThreeWayForecast (rawInputs, options) {
   const bs = {
     authorisedCapital: zeroes(),
     capitalGain: zeroes(),
+    otherEquity: zeroes(),
     retainedEarnings: zeroes(),
     totalEquity: zeroes(),
     cashAtBank: zeroes(),
@@ -1466,8 +1477,9 @@ function computeThreeWayForecast (rawInputs, options) {
   for (let m = 0; m < MONTHS; m++) {
     bs.authorisedCapital[m] = m === 0 ? opening.authorisedCapital : bs.authorisedCapital[m - 1]
     bs.capitalGain[m] = m === 0 ? opening.capitalGain : bs.capitalGain[m - 1]
+    bs.otherEquity[m] = m === 0 ? opening.otherEquity : bs.otherEquity[m - 1]
     bs.retainedEarnings[m] = netSurplusAfterTax[m] + (m === 0 ? opening.retainedEarnings : bs.retainedEarnings[m - 1])
-    bs.totalEquity[m] = bs.authorisedCapital[m] + bs.capitalGain[m] + bs.retainedEarnings[m]
+    bs.totalEquity[m] = bs.authorisedCapital[m] + bs.capitalGain[m] + bs.otherEquity[m] + bs.retainedEarnings[m]
 
     bs.cashAtBank[m] = bankClosing[m] > 0 ? bankClosing[m] : 0
     bs.bankOverdraft[m] = bankClosing[m] < 0 ? -bankClosing[m] : 0
@@ -1756,6 +1768,7 @@ function carryForward (previousYear, nextYearInputs, resetShareholdersTo) {
   next.openingBalanceSheet = Object.assign({}, nextYearInputs.openingBalanceSheet, {
     authorisedCapital: bs.authorisedCapital[last],
     capitalGain: bs.capitalGain[last],
+    otherEquity: bs.otherEquity[last],
     retainedEarnings: bs.retainedEarnings[last],
     cashAtBank: bs.cashAtBank[last],
     bankOverdraft: bs.bankOverdraft[last],

@@ -1651,8 +1651,17 @@
           "otherNonCurrentLiability": "Other long-term liability",
           "authorisedCapital": "Share capital",
           "retainedEarnings": "Retained earnings",
-          "capitalGain": "Capital gain on sale"
+          "capitalGain": "Capital gain on sale",
+          "otherEquity": "Other equity"
         },
+        "outOfBalanceTitle": "The opening position does not balance, by {amount}",
+        "outOfBalanceBody": "Every month of the forecast will carry the same gap, so it is these opening figures rather than anything you set later. You can carry on — the forecast still runs — but the balance sheet it produces will not tie until this is nil.",
+        "causeLines": "A line from your balance sheet that has no box here. Anything the export carried that could not be named is shown below, under “Other”. Check the amounts look right and move them to their proper line where one exists.",
+        "causeAssets": "A fixed asset entered at what it cost rather than what it is now worth. The balance sheet carries book value — cost less the depreciation charged to date — and there is no box for accumulated depreciation.",
+        "causeSign": "A liability typed as a negative. Overdrafts, creditors and loans are all entered as positive figures and subtracted for you, so a minus sign doubles the error rather than correcting it.",
+        "causeSplit": "Retained earnings split across two rows in the export — brought forward and this year's — where there is one box. Add them together.",
+        "sweptTitle": "Some rows could not be matched to a line, and were put under “Other”",
+        "sweptBody": "Nothing from your file is discarded. These are the amounts that reached no named box, kept so the balance sheet still ties. Move any of them to their proper line if one fits.",
         "assets": {
           "vehicles": "Vehicles",
           "leaseholdImprovements": "Leasehold improvements",
