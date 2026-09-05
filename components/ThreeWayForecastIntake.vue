@@ -89,10 +89,14 @@
                       | {{ c.label }} — {{ money(c.value) }}
                     .cand-note {{ $t('report.threeWayForecast.confirm.splitAcross', { n: form.opening[key].candidates.length }) }}
                   span(v-else-if="form.opening[key].source !== 'file'") {{ $t('report.threeWayForecast.confirm.notInExport') }}
+                  //- A figure the client changed shows `client` IN PLACE of its own tag,
+                  //- never beside it (Mike's ruling, 2026-09-04): the number is no longer
+                  //- the file's. Restore brings the advisor's version back with its tags.
                   provenance-badge(
-                    :source="form.opening[key].source"
+                    :source="isClientChanged('opening.' + key) ? 'client' : form.opening[key].source"
                     :file-label="$t('report.threeWayForecast.confirm.fromFile')"
                     :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                    :client-label="$t('clientReports.saved.badge')"
                     spaced)
         p.tw-note {{ $t('report.threeWayForecast.confirm.sumNote') }}
 
@@ -187,9 +191,10 @@
                       size="is-small"
                       @input="markEntered('assets.' + i + '.opening')")
                     provenance-badge(
-                      :source="asset.opening.source"
+                      :source="isClientChanged('assets.' + asset.key + '.opening') ? 'client' : asset.opening.source"
                       :file-label="$t('report.threeWayForecast.confirm.fromFile')"
                       :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                      :client-label="$t('clientReports.saved.badge')"
                       size="sm"
                       spaced)
                 td.num
@@ -235,9 +240,10 @@
                       size="is-small"
                       @input="markEntered('loans.' + i + '.opening')")
                     provenance-badge(
-                      :source="loan.opening.source"
+                      :source="isClientChanged('loans.' + i + '.opening') ? 'client' : loan.opening.source"
                       :file-label="$t('report.threeWayForecast.confirm.fromFile')"
                       :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                      :client-label="$t('clientReports.saved.badge')"
                       size="sm"
                       spaced)
                 td.num
@@ -267,9 +273,10 @@
                       size="is-small"
                       @input="markEntered('shareholders.' + i + '.opening')")
                     provenance-badge(
-                      :source="sh.opening.source"
+                      :source="isClientChanged('shareholders.' + i + '.opening') ? 'client' : sh.opening.source"
                       :file-label="$t('report.threeWayForecast.confirm.fromFile')"
                       :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                      :client-label="$t('clientReports.saved.badge')"
                       size="sm"
                       spaced)
                 td.muted(colspan="2")
@@ -1043,9 +1050,10 @@
                           size="is-small"
                           @input="markEntered('overheads.' + key)")
                         provenance-badge(
-                          :source="form.overheads[key].source"
+                          :source="isClientChanged('overheads.' + key) ? 'client' : form.overheads[key].source"
                           :file-label="$t('report.threeWayForecast.confirm.fromFile')"
                           :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                          :client-label="$t('clientReports.saved.badge')"
                           size="sm"
                           spaced)
             .warn-note(v-for="(w, i) in warnings" :key="'aw' + i") ⚠ {{ w }}
@@ -1281,7 +1289,14 @@ export default {
      * The working state from a previous pass. Stepping back must never wipe what the
      * advisor confirmed, so the page hands the whole form back rather than the payload.
      */
-    restore: { type: Object, default: null }
+    restore: { type: Object, default: null },
+    /**
+     * Saved-row names the client changed since the advisor's version (item 4.62, Brief §5,
+     * D4) — `opening.cashAtBank`, `overheads.rent`, `loans.1.opening`. Worked out on the
+     * page by `utils/threeWayForecastSavedShape.changedFigures`, because the store compares
+     * whole lists and a badge belongs on the one figure that moved.
+     */
+    clientChanges: { type: Array, default: () => [] }
   },
 
   data () {
@@ -1937,6 +1952,30 @@ export default {
     },
 
     /**
+     * Report the working state upward so a Save carries what is on screen NOW, not only
+     * what was confirmed with the Build button (item 4.62).
+     *
+     * 🔴 WHY THIS EXISTS AT ALL. The page only ever saw this form when the advisor built
+     * the forecast, so a Save taken on step 2 or 3 would have stored the previous build —
+     * or, before the first one, nothing. An advisor who opens a model to a client mid-way
+     * through would have saved a forecast they were not looking at.
+     *
+     * One-way, like `step` above: the page keeps this as `liveState` and never hands it
+     * back as `restore`, so this cannot loop.
+     */
+    form: {
+      deep: true,
+      immediate: true,
+      handler () {
+        // state: { state, inputs } — the whole working form, and the payload it builds.
+        // `immediate` so a restored form reports itself the moment it is on screen: that
+        // first report is what re-seeds the forecast after a saved row is loaded, and it
+        // is the only way the page can have a payload without the advisor pressing Build.
+        this.$emit('state', { state: JSON.parse(JSON.stringify(this.form)), inputs: this.buildInputs() })
+      }
+    },
+
+    /**
      * The bands are fixed once the files are read, but the forecast months change as the
      * advisor types, so the comparison is re-asked. Debounced, because it is a keystroke.
      */
@@ -2036,7 +2075,32 @@ export default {
      */
     restoredForm () {
       if (!this.restore) { return this.blankForm() }
-      const form = JSON.parse(JSON.stringify(this.restore))
+      const blank = this.blankForm()
+      // 🔴 EVERY FIGURE THE MODEL TAKES MUST BE PRESENT, whatever the restored form
+      // carried, so the restore is laid OVER a blank form rather than used as one.
+      // `buildInputs()` reads all of them by name and a missing one is a crash, not a
+      // default — and since 2026-09-05 it is called as soon as the form is on screen, so
+      // the page can seed the forecast without the advisor pressing Build. An absent line
+      // restores at zero, or at the platform's rate, exactly as a fresh form starts.
+      // Two blank forms, not one: the overlay consumes its base, and `blank` is still
+      // needed afterwards as the pristine set of names to fill from.
+      const form = Object.assign(this.blankForm(), JSON.parse(JSON.stringify(this.restore)))
+      // The nested blocks need the same treatment one level down, and each carries its own
+      // reason below. These two are keyed rather than positional, so they are filled by
+      // name: a line the saved form did not hold comes back at zero rather than absent.
+      const fill = (into, from) => {
+        const out = into && typeof into === 'object' ? into : {}
+        Object.keys(from).forEach((k) => {
+          if (!out[k] || typeof out[k] !== 'object') { out[k] = from[k] }
+        })
+        return out
+      }
+      form.opening = fill(form.opening, blank.opening)
+      form.overheads = fill(form.overheads, blank.overheads)
+      // The six asset categories are a fixed set the engine knows, so a form carrying none
+      // of them gets the platform's own rates rather than an empty table.
+      if (!Array.isArray(form.assets) || !form.assets.length) { form.assets = blank.assets }
+      if (!Array.isArray(form.shareholders) || !form.shareholders.length) { form.shareholders = blank.shareholders }
       if (!Array.isArray(form.capital)) { form.capital = [] }
       // A form saved before the volatility block existed carries no history, and an
       // undefined list would break the group rather than show its "nothing to measure"
@@ -2180,6 +2244,14 @@ export default {
      */
     blankFundingLine () {
       return { name: '', type: 'term', opening: tagged(0, 'entered'), repayment: 0, rate: 0 }
+    },
+
+    /**
+     * @param {string} name a saved-row name, e.g. 'opening.cashAtBank' or 'loans.1.opening'
+     * @returns {boolean} whether the client changed that figure since the advisor's version
+     */
+    isClientChanged (name) {
+      return this.clientChanges.includes(name)
     },
 
     /** Add a funding line, up to the cap. @returns {void} */

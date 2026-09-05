@@ -69,30 +69,51 @@
         .tw-glabel
           span.tw-dot
           h2.tw-h2 {{ $t('report.threeWayForecast.report.tryHeading') }}
+        //- Each lever carries the `client` badge when the client moved it (§5, D4).
         slider-field(
           :label="$t('report.threeWayForecast.report.salesAll')"
           :display="signedPct(f.salesShift)"
           :value="f.salesShift"
           :min="-50" :max="50" :step="1"
-          @input="v => setField('salesShift', v)")
+          @input="v => setField('salesShift', v)"
+        )
+          template(v-slot:badge)
+            client-changed-badge(
+              v-if="isClientChanged('lever.salesShift')"
+              :label="$t('clientReports.saved.badge')")
         slider-field(
           :label="$t('report.threeWayForecast.assume.markup')"
           :display="pct(f.markup)"
           :value="f.markup"
           :min="0" :max="200" :step="1"
-          @input="v => setField('markup', v)")
+          @input="v => setField('markup', v)"
+        )
+          template(v-slot:badge)
+            client-changed-badge(
+              v-if="isClientChanged('lever.markup')"
+              :label="$t('clientReports.saved.badge')")
         slider-field(
           :label="$t('report.threeWayForecast.assume.monthAfter')"
           :display="pct(f.debtorMonthAfter)"
           :value="f.debtorMonthAfter"
           :min="0" :max="100" :step="1"
-          @input="v => setField('debtorMonthAfter', v)")
+          @input="v => setField('debtorMonthAfter', v)"
+        )
+          template(v-slot:badge)
+            client-changed-badge(
+              v-if="isClientChanged('lever.debtorMonthAfter')"
+              :label="$t('clientReports.saved.badge')")
         slider-field(
           :label="$t('report.threeWayForecast.report.overheadsAll')"
           :display="signedPct(f.overheadShift)"
           :value="f.overheadShift"
           :min="-50" :max="50" :step="1"
-          @input="v => setField('overheadShift', v)")
+          @input="v => setField('overheadShift', v)"
+        )
+          template(v-slot:badge)
+            client-changed-badge(
+              v-if="isClientChanged('lever.overheadShift')"
+              :label="$t('clientReports.saved.badge')")
         p.tw-note {{ $t('report.threeWayForecast.report.rebuildNote') }}
 
       .tw-group(v-if="data")
@@ -203,6 +224,7 @@ import HeroStrip from '~/components/base/HeroStrip.vue'
 import HeroFigure from '~/components/base/HeroFigure.vue'
 import StaleBanner from '~/components/base/StaleBanner.vue'
 import SliderField from '~/components/base/SliderField.vue'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -212,15 +234,23 @@ const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 export default {
   name: 'ThreeWayForecastReport',
 
-  components: { HeroStrip, HeroFigure, StaleBanner, SliderField },
+  components: { HeroStrip, HeroFigure, StaleBanner, SliderField, ClientChangedBadge },
 
   mixins: [currencyMixin, reportRecompute],
 
   props: {
     /** The confirmed inputs from the intake, or null to compute on the sample. */
-    seed: { type: Object, default: null }
+    seed: { type: Object, default: null },
     // No `client` prop: the only thing that read it was the duplicate header removed on
     // 2026-09-05. The page holds the client's name and puts it on the header it owns.
+    /**
+     * What a saved report puts back on this screen — `{ levers, detail }` (item 4.62,
+     * Brief §5). The page saves, because the header is the page's; this screen reports
+     * its own settings upward and takes a loaded pair back.
+     */
+    restore: { type: Object, default: null },
+    /** Saved-row names the client changed since the advisor's version (§5, D4). */
+    clientChanges: { type: Array, default: () => [] }
   },
 
   data () {
@@ -236,9 +266,12 @@ export default {
        * rather than a redesign. It governs all three tabs together, because an advisor who
        * finds the setting on one will look for it on the others.
        */
-      detail: 'summary',
-      // The four live levers. Percentages are whole numbers for the sliders.
-      f: this.leversFor(this.seed)
+      detail: (this.restore && this.restore.detail) || 'summary',
+      // The four live levers. Percentages are whole numbers for the sliders. A saved
+      // report's levers take the place of the ones worked out from the seed.
+      f: this.restore && this.restore.levers
+        ? Object.assign(this.leversFor(this.seed), this.restore.levers)
+        : this.leversFor(this.seed)
     }
   },
 
@@ -596,26 +629,64 @@ export default {
   },
 
   watch: {
-    f: { deep: true, handler () { this.queueRecompute() } },
+    f: {
+      deep: true,
+      handler () {
+        this.queueRecompute()
+        this.emitState()
+      }
+    },
+    detail () { this.emitState() },
     /**
      * A new intake replaces the levers as well as the figures. Without this the two
      * absolute levers — mark-up and the month-after collection — would keep their opening
      * values and silently overwrite what the advisor confirmed on step 3, because
      * `payload()` writes both into every request.
+     *
+     * 🔴 A SAVED REPORT IS THE EXCEPTION. Loading one sets the seed and the levers in the
+     * same tick, so without this guard the seed's own defaults would land on top of the
+     * levers the advisor saved — a forecast that reopens on a mark-up nobody chose.
      */
     seed: {
       handler (next) {
-        this.f = this.leversFor(next)
+        this.f = this.restore && this.restore.levers
+          ? Object.assign(this.leversFor(next), this.restore.levers)
+          : this.leversFor(next)
         this.recompute()
       }
+    },
+    /** A saved report loaded while this screen is showing (the advisor picked a client). */
+    restore (next) {
+      if (!next) { return }
+      if (next.levers) { this.f = Object.assign({}, this.f, next.levers) }
+      if (next.detail) { this.detail = next.detail }
     }
   },
 
   mounted () {
     this.recompute()
+    this.emitState()
   },
 
   methods: {
+    /**
+     * Tell the page what this screen holds, so a Save carries it. The page owns the
+     * header and therefore the saving; this screen owns the levers.
+     * @returns {void}
+     */
+    emitState () {
+      // state-change: { levers: {salesShift, markup, debtorMonthAfter, overheadShift}, detail }
+      this.$emit('state-change', { levers: Object.assign({}, this.f), detail: this.detail })
+    },
+
+    /**
+     * @param {string} name a saved-row name, e.g. 'lever.markup'
+     * @returns {boolean} whether the client changed that figure since the advisor's version
+     */
+    isClientChanged (name) {
+      return this.clientChanges.includes(name)
+    },
+
     /**
      * The four levers' opening positions. The two RELATIVE ones (sales and overheads)
      * always start at no change; the two ABSOLUTE ones read the confirmed intake, falling
