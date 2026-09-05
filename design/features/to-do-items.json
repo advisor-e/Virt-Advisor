@@ -210,7 +210,7 @@
     },
     {
       "ref": "4.67",
-      "name": "Nothing built on 2026-09-05 has been opened in the running app",
+      "name": "Step 2 of the forecast has not been opened in the running app",
       "rankedByMike": false,
       "kind": "defect",
       "score": 2,
@@ -218,16 +218,16 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "Four screens changed that day — the funding Type column, the stock-in-transit block, the glossary marks and the report's Summary / Every line setting — and not one has been seen in a browser.",
-      "risk": "Low: the maths is proved by the golden set and 7,878 tests. What is unseen is layout — a table that shears, a tooltip that clips, a setting that reads wrongly. Yesterday's 1,559,449.79 balance fault was found exactly this way, and every test had passed.",
+      "why": "Three things built on 2026-09-05 have never been seen in a browser: the funding Type column, the stock-in-transit block and the glossary marks. All three are on step 2 of the forecast intake.",
+      "risk": "Proved on the report screen, which WAS opened: it found two layout faults no test could see — the page ran off the right, and the title banner drew twice. Step 2 has had no such look, and it is the screen where a wrong figure is typed.",
       "askedBy": {
         "who": "Mike",
         "ours": true,
-        "detail": "Proposed at the 2026-09-05 shutdown and filed on his yes. Found by us: no screen changed that day was opened in a browser."
+        "detail": "Proposed at the 2026-09-05 shutdown and filed on his yes. Narrowed the same evening once the report screen had actually been opened."
       },
-      "touches": "Nothing until somebody looks. Then whichever of ThreeWayForecastIntake.vue, ThreeWayForecastReport.vue or base/GlossaryTerm.vue is wrong.",
-      "note": "⚠ THE API DOES NOT HOT-RELOAD. `npm run backend` is a plain node process, so the parser and engine changes are invisible until it is restarted — and it needed a force-kill on port 4000 last time. Nuxt does reload. Four things to look at: the Type column and the disabled \"No set repayment\" box on step 2; the stock-in-transit block, which appears only when the opening carries a deposit; the ? marks beside the headings; and Summary / Every line on all three report tabs.",
-      "comment": "2026-09-05 — filed at shutdown on Mike's yes, after a day that changed four screens and shipped every one of them past tests alone."
+      "touches": "Nothing until somebody looks. Then ThreeWayForecastIntake.vue or base/GlossaryTerm.vue.",
+      "note": "⚠ THE API DOES NOT HOT-RELOAD. `npm run backend` is a plain node process, so parser and engine changes are invisible until it is restarted; it needed a force-kill on port 4000 once. Nuxt does reload. Three things: the Type column and its disabled \"No set repayment\" box; the stock-in-transit block, which appears only when the opening carries a deposit, so it needs a file that has one; and the ? marks beside the headings. The report screen (Summary / Every line) is done and needs no second look.",
+      "comment": "2026-09-05 — filed at shutdown, then narrowed the same evening: the report screen was opened, two layout faults were found and fixed, and only step 2 is still unseen."
     }
   ]
 }
