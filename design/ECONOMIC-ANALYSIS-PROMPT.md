@@ -38,7 +38,7 @@ the borrower), two spellings, and the sentence order tightened. His list of sour
 untouched — it is the best thing in the draft, because it tells the model what *"public
 domain"* concretely means instead of leaving it to guess.
 
-## 2. The two decisions already taken
+## 2. The decisions already taken
 
 **🔴 PRIVACY — ruled by Mike, 2026-09-06.** *The advisor writes the research brief and sees
 the exact words that will be sent. The app sends nothing about the client on its own.*
@@ -57,6 +57,30 @@ it needs no SDK and touches no locked version. It returns **`url_citation` annot
 URL, title and location as structured data — which is what makes §4 below enforceable in code
 rather than a request the model may ignore. Deep research remains one model name and
 `background=true` away if the output proves too thin.
+
+**WHO MAY EDIT IT — ruled by Mike, 2026-09-06.** Firm managers, not advisors:
+`tiers: ["mentor", "global", "group", "firm"]`, the same four the Three-Way Cash Flow
+Forecast prompt already carries. **The mentor is in that list by necessity, not preference**
+— it holds the platform default, and a firm's edit is an override of something that must
+first exist.
+
+**Advisors are not a tier here and never have been.** Their control is `{{advisorBrief}}`,
+unlimited free text that steers what gets researched. The split is the point: *an advisor
+decides what is researched; nobody below a manager decides whether the answer has to be
+sourced.* §2, §4 and §5 are the guardrails — an advisor able to edit them could delete them,
+and the output would still reach a lender under the firm's name, looking identical.
+
+**TWO SEPARATE TICKS — ruled by Mike, 2026-09-06.** One to run the research; a second to
+include it in the report. **This answers what
+[`mockups/three-way-forecast-trend.html`](mockups/three-way-forecast-trend.html) deferred to
+this item** — it called the question *"a funding-pack decision"*, and the decision is that
+the advisor takes it, each time, rather than us taking it once.
+
+🔒 **The second tick IS the approval gate.** The standards require `isApproved: true` before
+AI output is committed for financial work. An advisor reading the research and choosing to
+put it in front of a lender **is** that approval, so there is no separate approve button to
+build — but the tick, who set it and when must be **recorded**, or the requirement is
+decoration.
 
 ---
 
@@ -80,6 +104,9 @@ three existing prompts, so this becomes the fourth and is editable there without
 
 ### §2 · What you have been given
 
+> Today's date is `{{today}}`. Use it as the start of the assessment period and when judging
+> how current a figure is. Do not infer the date from anything else.
+>
 > You have been given one thing: a research brief written by the advisor, supplied below
 > between the marked delimiters. **It is the only information you hold about this business.**
 >
@@ -139,7 +166,7 @@ three existing prompts, so this becomes the fourth and is editable there without
 > 5. **What could not be sourced** — every figure you sought and could not find, and what you
 >    would have used it for.
 >
-> Aim for 800–1,200 words across sections 1 to 4. Section 5 is as long as it needs to be.
+> Aim for 1,200–1,600 words across sections 1 to 4. Section 5 is as long as it needs to be.
 > Citations appear inline, in the section where the figure is used.
 
 ### §7 · Tone
@@ -157,6 +184,7 @@ three existing prompts, so this becomes the fourth and is editable there without
 | Variable | What it holds | Where it comes from |
 |---|---|---|
 | `{{advisorBrief}}` | The research brief, verbatim | **The advisor types it and sees it before sending.** The only client-derived content in this prompt, and the whole of Mike's 2026-09-06 ruling |
+| `{{today}}` | Today's date | The server. **Not client data.** Added after run 1, where the model wrote *"the undated advisor brief"* and had to infer the date it was assessing from |
 
 **One variable, deliberately.** Country, region, sector and period could each have been their
 own field, collected and assembled by the app. Under the ruling they are not: the advisor
@@ -176,6 +204,8 @@ The standards say never to trust LLM output as structured data. These are checks
 | Rule | How it is held |
 |---|---|
 | §4 — no figure without a citation | `url_citation` annotations come back as structured fields; a claimed figure with no annotation behind it is rejected before it reaches the screen |
+| 🔴 **A citation can be right and still be MISFILED — and we do not catch that** | **Twice in two runs**, in the same shape: a paragraph carrying two figures from two sources takes one citation, and the wrong one sticks. Run 1 credited the statistics agency for a central-bank exchange rate; run 2 credited an earnings release for a rent index figure. **Both numbers were correct and both sources beside them were wrong.** Our check tests that a citation **exists** and cannot test that it is the **right** one, so it does not catch this. **Never claim the machine guarantees attribution.** The mitigations are human and partial: citations are clickable, and §6's second tick is an advisor reading it before a lender does. Evidence: [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md) |
+| ⚠ Length is a steer, not a contract | Both runs overshot their target, and raising the target raised the output with it. Output length tracks how much the model **finds**, not the number it is given. A screen must not assume a predictable length |
 | Approval before it reaches a lender | An advisor must accept the research explicitly (`isApproved: true`) before it can join a funding pack — the standards' rule for financial output |
 | It is AI text, and says so | `ProvenanceBadge` gains a **fifth** state. It already has four — `file`, `entered`, `seeded`, `client` |
 | It cannot run inline | Far past the 2000 ms page-render rule, so it returns a job and the screen polls — the pattern Meeting Review already uses twice, at `server/routes/meetingReview.js` |
@@ -184,13 +214,14 @@ The standards say never to trust LLM output as structured data. These are checks
 
 ## 6. Open — Mike's calls, not settled here
 
-1. 🔴 **Does the research join the printed document the lender receives, or sit beside it on
-   screen?** This was deferred *to this item* by an approved drawing —
-   [`mockups/three-way-forecast-trend.html`](mockups/three-way-forecast-trend.html) calls it
-   *"a funding-pack decision"*. It shapes §6's format and cannot be settled by us.
-2. **Is 800–1,200 words right** for a funding pack, or is this a two-page annex?
-3. **The tick's label.** The item calls it *"economic analysis"*, which is Mike's own phrase
-   and reads well; it has not been ruled as the on-screen wording.
+1. **Is 800–1,200 words right** for a funding pack, or is this a two-page annex?
+   **A live test answers this better than an opinion can** — Mike's own instruction,
+   2026-09-06: *"doing a couple of test examples will give us some ideas i suspect."*
+2. **The two ticks' labels.** The item calls the first *"economic analysis"* — Mike's own
+   phrase, and it reads well — but neither tick's on-screen wording has been ruled.
+
+*Settled 2026-09-06 and moved up to §2: whether the research joins the printed pack (it is
+the second tick's job, taken per report), and who may edit the prompt (firm managers).*
 
 ---
 
