@@ -261,8 +261,42 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
 <div class="shell">
 <div class="tw-root">
 
+  <div class="mock" style="background:#eaf7ea;border-color:#4ca52d">
+    <strong>&#9989; BOTH FIXES ARE NOW BUILT &mdash; 2026-09-05, on Mike's own words:
+    <em>&ldquo;build the forecast fixes&rdquo;</em>.</strong>
+    Closure, the evidence and the deviations are in <em>features/to-do-done-and-parked.md</em> §2;
+    how it works is in <em>features/report-models.md</em>.
+    <br><br>
+    🔴 <b>THIS DRAWING WAS RIGHT ABOUT THE ENGINE AND WRONG BY OMISSION ABOUT THE TAX.</b> Its
+    four workaround figures reproduced <b>exactly</b> on the first run of the new test, which is
+    the strongest evidence they were engine output rather than reasoning. But it described a
+    landing as three movements and said nothing about GST. Mike's instruction was
+    <em>&ldquo;research the tax rules rather than guessing&rdquo;</em>, and the rules are
+    unambiguous: <b>GST is triggered by the goods ARRIVING, not by paying for them</b>, so a
+    container whose deposit was paid in a previous financial year still attracts the full border
+    GST when it lands &mdash; roughly <b>124,000</b> on this client, omitted in the direction that
+    flatters a funding request. He then ruled it charged on the goods alone (deposit plus balance),
+    since this page carries no field for duty or freight, and the screen says so in terms. The
+    rules and their sources are written down once, in <em>TAX-RULES-IMPORT-GST.md</em>.
+    <br><br>
+    ⚠ <b>TWO DEVIATIONS FROM THIS PAGE, named rather than absorbed.</b> <b>(1)</b> the cash tab
+    gained <b>two sub-rows</b> for the balance and its border GST, which this page never drew
+    &mdash; the same argument that gave the five overseas rows their own lines, since money leaving
+    the bank in one month should not be a lump inside a total. <b>(2)</b> the landing grid is
+    headed <b>&ldquo;When it lands&rdquo;</b>, this page's own rendered wording, where its question
+    list paraphrases the label as <em>&ldquo;Arriving in&rdquo;</em> &mdash; the page disagrees with
+    itself and the rendered version is the one Mike looked at. Either is his to strike.
+    <br><br>
+    <b>One thing was found in the code that this page did not know about, and it was a live trap.</b>
+    <em>resolveInputs</em> mapped over the three DEFAULT loans, so a caller sending FEWER than three
+    silently inherited the sample company's <em>XYZ Bank</em> at 1,000,000 in the slots it did not
+    fill. It never bit because the screen always sent exactly three; the moment rows became variable
+    it would have. Fixed and pinned.
+  </div>
+
   <div class="mock">
-    <strong>Two fixes, drawn for approval &mdash; NOTHING HERE IS BUILT.</strong>
+    <strong>THE RECORD OF WHAT THIS PAGE WAS BEFORE IT WAS BUILT, unchanged below.</strong>
+    Two fixes, drawn for approval.
     They are the two residuals Mike ruled on 2026-09-05 when the balance-sheet sweep put a
     real client's rows into catch-alls. He accepted both placements on the understanding
     that each left something wrong, and then asked for the proper fix to be designed:
@@ -702,9 +736,12 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
   </div>
 
   <div class="mock" style="margin-top:16px">
-    <b>NEITHER FIX IS ON THE LIVE LIST, AND THAT IS DELIBERATE.</b> Both are new capability.
-    Mike asked for this drawing, and then ruled its ten questions &mdash; <b>neither of which is a
-    request to build.</b> If he wants either, it is filed then and not before.
+    <b>&#9989; NEITHER FIX EVER REACHED THE LIVE LIST, AND THAT IS CORRECT.</b> Mike asked for this
+    drawing, ruled its ten questions, and then asked for the build &mdash; all on 2026-09-05. The
+    work was finished in the session that started it, so the record went straight to
+    <em>to-do-done-and-parked.md</em> §2: an item that is open for no minutes belongs in the record,
+    not on a live list. <b>The sentence this replaced was right when it was written</b> &mdash; a
+    request to design is not a request to build, and the build waited for him to ask.
     <br><br>
     <b>A separate file by design.</b> <em>three-way-forecast.html</em>,
     <em>-capital.html</em>, <em>-volatility.html</em>, <em>-trend.html</em> and

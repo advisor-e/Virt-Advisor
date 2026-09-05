@@ -306,12 +306,37 @@ export default {
       ]
     },
 
+    /**
+     * Stock already paid for at the opening date, landing during the year (Fix 2).
+     *
+     * ⚠ NOT ON THE APPROVED DRAWING, and named as an addition rather than slipped in. The
+     * drawing described what the landing does to the three statements and drew no cash
+     * rows. But it moves real money — the balance settled with the supplier, and the GST
+     * Customs charges on arrival — and rolled into "Money out" it would appear as one lump
+     * in a month with no explanation. That is the same argument that gave the five overseas
+     * rows above their own lines, in Mike's own words: the point is to show WHEN the money
+     * goes, before the business can sell any of it.
+     *
+     * Absent unless the block is in use, so no existing forecast gains a row.
+     *
+     * @returns {Array<object>} zero or two sub-rows under Money out.
+     */
+    stockInTransitCashRows () {
+      const t = this.data.schedules && this.data.schedules.stockInTransit
+      if (!t || !t.landedValue.some(v => v > 0)) { return [] }
+      const p = this.data.cashFlow.payments
+      return [
+        { key: 'tr-bal', label: 'report.threeWayForecast.report.transitBalance', values: p.stockInTransitBalance, sub: true },
+        { key: 'tr-gst', label: 'report.threeWayForecast.report.transitGst', values: p.stockInTransitGst, sub: true }
+      ]
+    },
+
     cashRows () {
       const c = this.data.cashFlow
       return [
         { key: 'in', label: 'report.threeWayForecast.report.moneyIn', values: c.totalReceipts },
         { key: 'out', label: 'report.threeWayForecast.report.moneyOut', values: c.totalPayments }
-      ].concat(this.overseasCashRows).concat([
+      ].concat(this.overseasCashRows).concat(this.stockInTransitCashRows).concat([
         { key: 'move', label: 'report.threeWayForecast.report.movement', values: c.netMovement, rule: true, signed: true },
         { key: 'close', label: 'report.threeWayForecast.report.cashAtMonthEnd', values: c.closingBalance, rule: true, signed: true }
       ])

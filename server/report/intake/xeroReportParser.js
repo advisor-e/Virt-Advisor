@@ -306,6 +306,19 @@ const GST_RE = /\bgst\b|\bvat\b|goods\s+and\s+services/i
 const INCOME_TAX_RE = /income\s*tax|provision\s+for\s+tax|\btax\s+(payable|refund)/i
 const PREPAYMENT_RE = /prepay|prepaid/i
 const ACCRUAL_RE = /accrual|accrued/i
+/**
+ * Money already paid to an overseas supplier for stock that has not arrived (Fix 2,
+ * 2026-09-05). Its own opening line rather than the Other-current-asset catch-all it fell
+ * into before, so it can be released into inventory in the month the container lands.
+ *
+ * ⚠ TESTED BEFORE `PREPAYMENT_RE` AND DELIBERATELY SO. "Prepaid stock" matches both, and
+ * `prepayments` is the wrong home: that line is driven by a live accrual schedule that
+ * would release it to the P&L as an EXPENSE, and this is stock, not a cost.
+ *
+ * Deliberately narrow. "Deposit" alone would sweep in a rental bond and a term deposit, so
+ * a deposit has to be paired with goods, stock, a supplier or an import to be claimed here.
+ */
+const IN_TRANSIT_RE = /(?:goods|stock|inventory)\s+(?:in\s+)?transit|(?:in\s+)?transit\s+(?:goods|stock|inventory)|(?:deposits?|prepaid|prepayments?)\s+(?:on|for)\s+(?:goods|stock|inventory|import)|(?:supplier|import|shipment|overseas)\s+deposits?|deposits?\s+paid\s+(?:to\s+)?(?:supplier|overseas)|prepaid\s+(?:stock|inventory)/i
 // "Common Stock" is QuickBooks' wording for the same line; "Capital Account" is MYOB's.
 const SHARE_CAPITAL_RE = /share\s*capital|paid[-\s]?up\s+capital|authorised\s+capital|owner'?s?\s+capital|common\s+stock|capital\s+account/i
 const RETAINED_RE = /retained\s+(earnings|profit)|accumulated\s+(profit|losses|funds)|current\s+year\s+earnings/i
@@ -418,7 +431,9 @@ function extractForecastBalanceSheet (grid) {
 
   put('accountsReceivable', currentAssets.filter(it => /accounts?\s+receivable|trade\s+(receivable|debtor)|^debtors\b/i.test(it.label)))
   put('inventory', currentAssets.filter(it => /stock|inventor/i.test(it.label)))
-  put('prepayments', currentAssets.filter(it => PREPAYMENT_RE.test(it.label)))
+  // Before prepayments, and the comment on IN_TRANSIT_RE says why.
+  put('stockInTransitDeposits', currentAssets.filter(it => IN_TRANSIT_RE.test(it.label)))
+  put('prepayments', currentAssets.filter(it => PREPAYMENT_RE.test(it.label) && !IN_TRANSIT_RE.test(it.label)))
   put('gstRefund', currentAssets.filter(it => GST_RE.test(it.label)))
   put('incomeTaxRefundDue', currentAssets.filter(it => INCOME_TAX_RE.test(it.label)))
 

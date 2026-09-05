@@ -185,6 +185,72 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**Facilities and stock in transit — the two proper fixes to the forecast's opening position.**
+✅ Built and closed 2026-09-05. **Neither was ever on the live list, and that is correct rather
+than an omission:** the drawing was made on Mike's request (*"you mention 'fixing them properly' -
+design the proper fix and let me know what is needed"*), its ten questions were ruled the same day,
+and he then asked for the build in his own words — *"build the forecast fixes"*. Filed straight to
+this page because the work was finished in the session that started it; an item that is open for no
+minutes belongs in the record, not on a live list.
+
+They are **two independent fixes**, drawn together only because both concern what the opening
+position carries into the forecast. Artefact:
+[`three-way-forecast-facilities-and-transit.html`](../mockups/three-way-forecast-facilities-and-transit.html).
+
+**Fix 1 — a facility carries its balance instead of paying it off.** Revolving finance had no home
+and sat in Other current liability, carried forward unchanged and charged nothing: on the client it
+was found with, 2,450,000, or 42% of total liabilities, costing the forecast nothing at all. The
+funding table now has a **Type** column (Mike's word), a facility is `loanSchedule` with the
+amortisation line removed, and rows **appear as they are needed** with an Add button capped at eight
+— it was fixed at three, so a client with six loans had three folded together before the engine saw
+them. A facility's interest is **its own figure and engine-only**, exactly as he amended the ruling:
+the report's profit tab shows no interest at all, so a third line has nowhere to appear.
+
+🔴 **The drawing's claim that the obvious workaround is worse is now a test.** A term loan with a
+zero repayment computes capital repaid as *repayment − interest*, so the debt GROWS by its own
+interest while the interest is also paid in cash. The figures on the drawing —
+capital repaid **−16,333** in month 1, closing **2,653,348** after twelve months — reproduced
+exactly on the first run of the new test, which is the strongest evidence the drawing was built
+from the engine and not from reasoning.
+
+🔴 **One thing was found in the code that the drawing did not know about, and it was a live trap.**
+`resolveInputs` mapped over the three DEFAULT loans, so a caller sending FEWER than three silently
+inherited the sample company's own *XYZ Bank* at 1,000,000 and *DEF Finance* at 50,000 in the slots
+it did not fill. It never bit because the screen always sent exactly three; the moment rows became
+variable it would have. Fixed and pinned.
+
+**Fix 2 — deposits already paid on stock that has not arrived.** 825,628.98 on the same client sat
+in Other current asset and never became stock: the containers landed during the year and the balance
+sheet still showed the money as a deposit at the end of it. It now has **its own opening line**
+(parsed from the file, so the money moves out of the catch-all and the opening still ties to the
+cent), a **balance still owing** the advisor types, and twelve landing months. A landing releases the
+prepayment, settles the balance pro rata, and the full landed cost joins purchases. **Both seams,
+not one** — the drawing's own sizing was corrected before the build for exactly this reason.
+
+🔴 **GST: the drawing was wrong by omission, and Mike's instruction was to research rather than
+guess.** It described a landing as three movements and said nothing about tax. The rules are
+unambiguous: **GST is triggered by the goods arriving, not by paying for them**, so a container
+whose deposit was paid in a previous financial year still attracts the full border GST in the month
+it lands — roughly 124,000 on that client, in the direction that flatters a funding application.
+Built as he then ruled: charged on the goods alone (deposit plus balance), claimed back on the next
+return, with the screen saying in terms that duty and freight are excluded. The rules and their
+sources are written down once, in [`TAX-RULES-IMPORT-GST.md`](../TAX-RULES-IMPORT-GST.md), so the
+next session does not re-derive them.
+
+⚠ **Two deviations from the approved artefact, named rather than absorbed.** (1) The cash tab gained
+**two sub-rows** for the balance and its border GST, which the drawing did not draw — the same
+argument that gave the five overseas rows their own lines, since money leaving the bank in one month
+should not be a lump inside a total. (2) The landing grid is headed **"When it lands"**, the drawing's
+own rendered wording, where its question list paraphrased the label as *"Arriving in"*; the artefact
+disagrees with itself and the rendered version is the one he looked at. Either is his to strike.
+
+**What proves it:** [`tests/unit/forecastFacilitiesAndTransit.test.js`](../../tests/unit/forecastFacilitiesAndTransit.test.js)
+— 23 tests, and **the guard was written and seen passing first**, as the drawing demanded: with the
+new fields empty the three statements are byte-identical and all 3,385 golden cells still match.
+Screen behaviour in `threeWayForecastIntake.component.test.js` and
+`threeWayForecastReport.component.test.js`. **Suite 7,864 green** (408 suites, 38 new tests),
+lint 0 errors.
+
 **4.64 · International versus local — the forecast treats every sale and purchase as domestic.**
 ✅ Closed 2026-09-05. Mike's request of 2026-09-03: *"shouldn't the assumptions page have a
 'international' vs 'Local' purchases and sales box? … to allow for shipping and fx"*. Drawn,

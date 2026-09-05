@@ -92,6 +92,69 @@
                     spaced)
         p.tw-note {{ $t('report.threeWayForecast.confirm.sumNote') }}
 
+      //- ── Stock already paid for, not yet arrived ──────────────────────────────────
+      //- Built from design/mockups/three-way-forecast-facilities-and-transit.html, Fix 2,
+      //- whose five questions Mike ruled on 2026-09-05.
+      //-
+      //- It sits on STEP 2 and not on step 3's overseas card, and that is a ruling rather
+      //- than a layout choice: step 3's section only exists when "this business buys or
+      //- sells overseas" is ticked, and that tick is about the forecast YEAR. A business
+      //- winding its importing down would leave it unticked and this money — already spent
+      //- — would be invisible behind a decision about next year.
+      //-
+      //- Shown only when the opening balance sheet carries such a deposit. Leave the months
+      //- empty and nothing changes: the figure stays exactly where it is today.
+      .tw-group(v-if="hasStockInTransit")
+        .tw-glabel
+          span.tw-dot
+          h2.tw-h2 {{ $t('report.threeWayForecast.confirm.transitHeading') }}
+        p.tw-note.transit-lede {{ $t('report.threeWayForecast.confirm.transitLede') }}
+        .termgrid
+          div
+            .termhead {{ $t('report.threeWayForecast.confirm.transitPaidHeading') }}
+            .field
+              .fieldlab
+                span {{ $t('report.threeWayForecast.confirm.transitDeposits') }}
+                provenance-badge(
+                  :source="form.opening.stockInTransitDeposits.source"
+                  :file-label="$t('report.threeWayForecast.confirm.fromFile')"
+                  :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                  size="sm")
+              b-input(
+                v-model.number="form.opening.stockInTransitDeposits.value"
+                type="number"
+                step="any"
+                size="is-small"
+                @input="markEntered('opening.stockInTransitDeposits')")
+            .field
+              .fieldlab
+                span {{ $t('report.threeWayForecast.confirm.transitBalanceOwing') }}
+                provenance-badge(
+                  source="entered"
+                  :file-label="$t('report.threeWayForecast.confirm.fromFile')"
+                  :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                  size="sm")
+              b-input(
+                v-model.number="form.stockInTransit.balanceOwing"
+                type="number" step="any" size="is-small")
+            .tw-foot {{ $t('report.threeWayForecast.confirm.transitBalanceWhy') }}
+          div
+            .termhead {{ $t('report.threeWayForecast.confirm.transitLandsHeading') }}
+            .mgrid
+              .m(v-for="(label, i) in monthLabels" :key="'tr' + i")
+                span.lbl {{ label }}
+                b-input(
+                  v-model.number="form.stockInTransit.landing[i]"
+                  type="number" step="any" size="is-small")
+            .tw-foot(:class="transitFullyLanded ? 'is-good' : ''")
+              | {{ transitLandingSentence }}
+            .tw-foot {{ $t('report.threeWayForecast.confirm.transitWhenNote') }}
+            //- What the GST figure does and does not cover. The statutory base includes
+            //- duty, freight and insurance; Mike ruled the goods alone on 2026-09-05 with
+            //- the research in front of him, so this says so rather than letting the figure
+            //- read as a complete Customs assessment. design/TAX-RULES-IMPORT-GST.md.
+            .tw-foot {{ $t('report.threeWayForecast.confirm.transitGstNote') }}
+
       //- Fixed assets: an opening value a file can carry, and a rate it never can.
       .tw-group
         .tw-glabel
@@ -141,6 +204,7 @@
             thead
               tr
                 th {{ $t('report.threeWayForecast.confirm.nameIt') }}
+                th {{ $t('report.threeWayForecast.confirm.fundingType') }}
                 th.num {{ $t('report.threeWayForecast.confirm.openingBalance') }}
                 th.num {{ $t('report.threeWayForecast.confirm.monthlyRepayment') }}
                 th.num {{ $t('report.threeWayForecast.confirm.interestRate') }}
@@ -148,6 +212,10 @@
               tr(v-for="(loan, i) in form.loans" :key="'loan' + i")
                 td
                   b-input(v-model="loan.name" size="is-small")
+                td
+                  b-select(v-model="loan.type" size="is-small")
+                    option(value="term") {{ $t('report.threeWayForecast.confirm.typeTerm') }}
+                    option(value="facility") {{ $t('report.threeWayForecast.confirm.typeFacility') }}
                 td.num
                   .cell
                     b-input(
@@ -163,13 +231,23 @@
                       size="sm"
                       spaced)
                 td.num
-                  b-input(v-model.number="loan.repayment" type="number" step="any" size="is-small")
+                  //- A facility does not amortise, so the box is not a box — it says why.
+                  //- "No set repayment" and NOT "not repaid": a facility very much is
+                  //- repaid, continuously, as stock sells. Mike's wording, 2026-09-05.
+                  b-input(
+                    v-if="loan.type === 'facility'"
+                    :value="$t('report.threeWayForecast.confirm.noSetRepayment')"
+                    size="is-small"
+                    disabled)
+                  b-input(v-else v-model.number="loan.repayment" type="number" step="any" size="is-small")
                 td.num
                   .cell
                     b-input(v-model.number="loan.rate" type="number" step="any" size="is-small")
                     span.pctmark %
               tr(v-for="(sh, i) in form.shareholders" :key="'sh' + i" :class="{ rule: i === 0 }")
-                td {{ $t('report.threeWayForecast.confirm.shareholder', { n: i + 1 }) }}
+                //- Two columns: a current account has no Type. The funding rows above gained
+                //- one on 2026-09-05 and this row has to keep step or the table shears.
+                td(colspan="2") {{ $t('report.threeWayForecast.confirm.shareholder', { n: i + 1 }) }}
                 td.num
                   .cell
                     b-input(
@@ -186,7 +264,16 @@
                       spaced)
                 td.muted(colspan="2")
                   | {{ sh.opening.value < 0 ? $t('report.threeWayForecast.confirm.overdrawn', { rate: pct(form.shareholderRate) }) : $t('report.threeWayForecast.confirm.inCredit') }}
+        //- Rows as they are needed, never a fixed number (Mike, 2026-09-05).
+        .tw-actions.add-funding
+          b-button(
+            size="is-small"
+            :disabled="form.loans.length >= maxLoanRows"
+            @click="addFundingLine") {{ $t('report.threeWayForecast.confirm.addFunding') }}
+          span.tw-foot(v-if="form.loans.length >= maxLoanRows")
+            | {{ $t('report.threeWayForecast.confirm.fundingCapped', { n: maxLoanRows }) }}
         p.tw-note {{ $t('report.threeWayForecast.confirm.namesNote') }}
+        p.tw-note {{ $t('report.threeWayForecast.confirm.facilityNote') }}
 
     //- The opening does not tie. Said HERE, on the screen that holds the figures, rather
     //- than on step 4 after three screens of assumptions — the engine has always worked
@@ -1059,7 +1146,11 @@ const OPENING_KEYS = [
   // The equity catch-all, added 2026-09-05. Its three sibling sections each had one;
   // equity did not, so a dividend or a share-capital row the parser could not name was
   // dropped and the opening could not tie. See the model's own note on the field.
-  'otherEquity'
+  'otherEquity',
+  // Money already paid for stock that has not arrived (Fix 2, 2026-09-05). Its own line
+  // rather than a lump in Other current asset, so it can be released into inventory in the
+  // month the container lands. A figure here is what makes the transit block below appear.
+  'stockInTransitDeposits'
 ]
 
 /**
@@ -1081,6 +1172,8 @@ const OPENING_SIDES = {
   gstRefund: 'asset',
   incomeTaxRefundDue: 'asset',
   otherCurrentAsset: 'asset',
+  // Money already paid for stock on the water is an asset until the container lands.
+  stockInTransitDeposits: 'asset',
   bankOverdraft: 'liability',
   accountsPayable: 'liability',
   accruedExpenses: 'liability',
@@ -1122,7 +1215,14 @@ const VOLATILITY_WINDOWS = [24, 18, 12]
 const VOLATILITY_DEBOUNCE_MS = 400
 /** The chart's drawing box, matching the approved drawing's own SVG. */
 const CHART = { left: 70, right: 640, top: 40, bottom: 380 }
-const LOAN_COUNT = 3
+/**
+ * Funding lines. Rows appear AS THEY ARE NEEDED (Mike's ruling, 2026-09-05) — the file's
+ * own count, or one to start with when nothing was dropped, plus an Add button up to the
+ * cap. The cap is a safety limit against a malformed file, never a judgement about how much
+ * debt a business may carry, and it matches `MAX_FUNDING_LINES` in the engine.
+ */
+const LOAN_COUNT = 1
+const MAX_LOAN_ROWS = 8
 const SHAREHOLDER_COUNT = 4
 /** A Balance Sheet, a Profit and Loss, and up to two by-month P&Ls — the route's own limit. */
 const MAX_UPLOAD_FILES = 4
@@ -1401,6 +1501,54 @@ export default {
         }
       }
       return out
+    },
+
+    /* -- stock already paid for, not yet arrived (Fix 2, 2026-09-05) ---------------- */
+
+    /** The cap on funding rows, for the Add button's disabled state. @returns {number} */
+    maxLoanRows () { return MAX_LOAN_ROWS },
+
+    /**
+     * Whether to draw the transit block at all. Shown only when the opening position
+     * carries such a deposit — a business with no stock on the water has nothing to say
+     * here, and an empty block on every forecast is a screen to scroll past.
+     * @returns {boolean}
+     */
+    hasStockInTransit () {
+      return Number(this.form.opening.stockInTransitDeposits.value) > 0
+    },
+
+    /** What the twelve landing boxes add up to. @returns {number} */
+    transitLandedTotal () {
+      return this.form.stockInTransit.landing.reduce((a, v) => a + (Number(v) || 0), 0)
+    },
+
+    /** True when every cent of the deposit has a landing month. @returns {boolean} */
+    transitFullyLanded () {
+      const deposits = Number(this.form.opening.stockInTransitDeposits.value) || 0
+      return Math.abs(this.transitLandedTotal - deposits) < 0.005
+    },
+
+    /**
+     * 🔴 A SHORTFALL SAYS WHAT THE REMAINDER MEANS, and never blocks — Mike's ruling of
+     * 2026-09-05, deliberately unlike the collection and payment profiles one level up,
+     * which DO block. Those are percentages, where anything but 100 is an error. These are
+     * amounts, and a shortfall has a true meaning: a container landing after the forecast
+     * year ends, which an importer on a nine-month lead has routinely. Blocking would
+     * refuse a fact about the business.
+     *
+     * @returns {string} the sentence under the landing grid.
+     */
+    transitLandingSentence () {
+      const deposits = Number(this.form.opening.stockInTransitDeposits.value) || 0
+      const short = deposits - this.transitLandedTotal
+      if (this.transitFullyLanded) {
+        return this.$t('report.threeWayForecast.confirm.transitAddsUp', { amount: this.money(deposits) })
+      }
+      if (short > 0) {
+        return this.$t('report.threeWayForecast.confirm.transitRemainder', { amount: this.money(short) })
+      }
+      return this.$t('report.threeWayForecast.confirm.transitOver', { amount: this.money(-short) })
     },
 
     /* -- buying and selling overseas (4.64) ---------------------------------------- */
@@ -1841,6 +1989,21 @@ export default {
       if (!form.overseas.shipmentTerms || typeof form.overseas.shipmentTerms !== 'object') {
         form.overseas.shipmentTerms = blankOverseas.shipmentTerms
       }
+      // Same normalisation for stock in transit, and for the same reason: a form saved
+      // before the block existed carries neither the figures nor the twelve landing boxes,
+      // and an undefined series would break the v-for rather than draw an empty grid.
+      if (!form.stockInTransit || typeof form.stockInTransit !== 'object') {
+        form.stockInTransit = { balanceOwing: 0, landing: zeroes() }
+      }
+      if (!Array.isArray(form.stockInTransit.landing) || form.stockInTransit.landing.length !== MONTHS) {
+        form.stockInTransit.landing = zeroes()
+      }
+      // A funding line saved before the Type column existed is a term loan, which is what
+      // it was computed as. Reading it as anything else would change a saved forecast.
+      if (!Array.isArray(form.loans)) { form.loans = this.blankForm().loans }
+      for (let i = 0; i < form.loans.length; i++) {
+        if (form.loans[i].type !== 'facility') { form.loans[i].type = 'term' }
+      }
       return form
     },
 
@@ -1857,9 +2020,7 @@ export default {
       for (let i = 0; i < OVERHEAD_KEYS.length; i++) { overheads[OVERHEAD_KEYS[i]] = tagged(0, 'entered') }
       const assets = ASSET_SPECS.map(spec => ({ key: spec.key, opening: tagged(0, 'entered'), rate: spec.rate }))
       const loans = []
-      for (let i = 0; i < LOAN_COUNT; i++) {
-        loans.push({ name: '', opening: tagged(0, 'entered'), repayment: 0, rate: 0 })
-      }
+      for (let i = 0; i < LOAN_COUNT; i++) { loans.push(this.blankFundingLine()) }
       const shareholders = []
       for (let i = 0; i < SHAREHOLDER_COUNT; i++) { shareholders.push({ opening: tagged(0, 'entered') }) }
       return {
@@ -1885,6 +2046,13 @@ export default {
         sales: zeroes(),
         salesSource: 'entered',
         purchases: zeroes(),
+        // Stock already paid for at the opening date and not yet arrived (Fix 2, drawing
+        // ruled by Mike 2026-09-05). The DEPOSIT itself is an opening balance-sheet line
+        // and lives in `opening.stockInTransitDeposits` with the other seventeen; only the
+        // two things no balance sheet can carry are here — what is still owed, and when the
+        // containers land. Empty means nothing changes: the deposit sits as an asset
+        // exactly as it does today.
+        stockInTransit: { balanceOwing: 0, landing: zeroes() },
         // Buying and selling overseas (item 4.64, drawing approved by Mike 2026-09-04).
         // Everything here is inert until `enabled` is ticked AND a figure is entered:
         // the engine's own guard proves that an untouched forecast is unchanged to the
@@ -1937,6 +2105,21 @@ export default {
         // reaches a forecast figure.
         trend: null
       }
+    },
+
+    /**
+     * One empty funding line. A TERM LOAN by default — that is what every forecast built
+     * before 2026-09-05 assumed silently, so an unset row behaves exactly as it always has.
+     * @returns {object}
+     */
+    blankFundingLine () {
+      return { name: '', type: 'term', opening: tagged(0, 'entered'), repayment: 0, rate: 0 }
+    },
+
+    /** Add a funding line, up to the cap. @returns {void} */
+    addFundingLine () {
+      if (this.form.loans.length >= MAX_LOAN_ROWS) { return }
+      this.form.loans.push(this.blankFundingLine())
     },
 
     /**
@@ -2119,12 +2302,22 @@ export default {
           }
         }
       }
+      // 🔴 THE FILE'S OWN COUNT OF FUNDING LINES, not this form's (Mike, 2026-09-05). Until
+      // then this stopped at whatever rows the blank form happened to hold, so a client
+      // with six loans lost three of them on the way to the screen. Rows are grown to meet
+      // the proposal, up to the cap the assembler already folds at.
       if (Array.isArray(p.loans)) {
-        for (let i = 0; i < this.form.loans.length && i < p.loans.length; i++) {
+        const rows = Math.min(p.loans.length, MAX_LOAN_ROWS)
+        while (this.form.loans.length < rows) { this.form.loans.push(this.blankFundingLine()) }
+        for (let i = 0; i < rows; i++) {
           if (p.loans[i] && typeof p.loans[i].opening === 'number') {
             this.form.loans[i].opening.value = p.loans[i].opening
             this.form.loans[i].opening.source = prov['loans.' + i + '.opening'] || 'entered'
           }
+          // A balance sheet never says whether finance revolves, so the assembler sends
+          // every row as a term loan and the advisor sets Type. Read rather than assumed,
+          // so the day a file can say, this needs no change.
+          this.form.loans[i].type = (p.loans[i] && p.loans[i].type === 'facility') ? 'facility' : 'term'
         }
       }
       if (Array.isArray(p.shareholders)) {
@@ -2707,12 +2900,24 @@ export default {
         // "ABC Bank", and never read from the client's file.
         loans: this.form.loans.map((l, i) => ({
           name: l.name || this.$t('report.threeWayForecast.confirm.loanName', { n: i + 1 }),
+          // Term loan or facility — the difference is whether the balance amortises.
+          type: l.type === 'facility' ? 'facility' : 'term',
           opening: Number(l.opening.value) || 0,
-          monthlyRepayment: Number(l.repayment) || 0,
+          // A facility has no monthly repayment. Sent as zero rather than as whatever the
+          // box held before the Type was switched, so a stale figure cannot amortise a
+          // facility behind the disabled box that says it has no set repayment.
+          monthlyRepayment: l.type === 'facility' ? 0 : (Number(l.repayment) || 0),
           interestRate: Number(l.rate) / 100,
           drawdowns: zeroes(),
           lumpSumRepayments: zeroes()
         })),
+        // Stock already paid for and not yet arrived (Fix 2). The deposit itself rides in
+        // `openingBalanceSheet` with the other opening lines; these are the two things no
+        // balance sheet carries.
+        stockInTransit: {
+          balanceOwing: Number(this.form.stockInTransit.balanceOwing) || 0,
+          landing: this.form.stockInTransit.landing.map(v => Number(v) || 0)
+        },
         overdraftInterestRate: Number(this.form.overdraftRate) / 100,
         inFundsInterestRate: Number(this.form.inFundsRate) / 100,
         debtorCollection: this.form.debtor.map(v => Number(v) / 100),

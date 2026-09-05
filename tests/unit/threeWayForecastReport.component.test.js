@@ -345,3 +345,39 @@ describe('the out-of-balance warning rests on an EXACT zero', () => {
     w.destroy()
   })
 })
+
+/**
+ * Fix 2 — stock already paid for at the opening date. Same argument as the five rows
+ * above and the same guard: the engine moves real cash in the landing month (the balance
+ * to the supplier, and the GST Customs charges on arrival), and rolled into one "Money
+ * out" total it would be a lump in a month with nothing accounting for it.
+ *
+ * ⚠ These two rows are an ADDITION to the approved drawing, which drew no cash rows for
+ * this fix. Named here as well as in the code so the deviation is on the record.
+ */
+describe('Three-Way Forecast screen — stock in transit lands in the cash tab', () => {
+  const IN_TRANSIT = computeThreeWayForecast({
+    openingBalanceSheet: { stockInTransitDeposits: 825629 },
+    stockInTransit: { balanceOwing: 550419, landing: [0, 825629, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+  })
+
+  test('a forecast with nothing on the water gains no rows at all', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.tab = 'cash'
+    expect(w.vm.stockInTransitCashRows).toEqual([])
+    w.destroy()
+  })
+
+  test('a landing shows the balance and its border GST as their own lines', async () => {
+    const w = await mountWithResult(IN_TRANSIT)
+    w.vm.tab = 'cash'
+    const rows = w.vm.stockInTransitCashRows
+    expect(rows.map(r => r.key)).toEqual(['tr-bal', 'tr-gst'])
+    // Each reads the series the engine actually filled, in the month it filled it.
+    expect(rows[0].values[1]).toBeCloseTo(550419, 6)
+    expect(rows[1].values[1]).toBeCloseTo((825629 + 550419) * 0.15, 6)
+    // And both are inside the Money out total rather than beside it — they are part of it.
+    expect(w.vm.cashRows.map(r => r.key)).toContain('tr-bal')
+    w.destroy()
+  })
+})

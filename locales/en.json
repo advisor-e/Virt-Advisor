@@ -1620,6 +1620,13 @@
         "assetsNote": "A depreciation rate is never in a balance sheet, so all six start on the platform defaults for you to change.",
         "fundingHeading": "Loans and shareholder accounts",
         "nameIt": "Name it",
+        "fundingType": "Type",
+        "typeTerm": "Term loan",
+        "typeFacility": "Facility",
+        "noSetRepayment": "No set repayment",
+        "addFunding": "Add a funding line",
+        "fundingCapped": "{n} funding lines is the most a forecast carries.",
+        "facilityNote": "A facility — revolving trade finance, a stock facility, invoice finance — carries its balance and is charged interest on it. It does not pay itself down on a schedule, so it has no monthly repayment. A term loan does, and reduces month by month.",
         "openingBalance": "Opening balance",
         "monthlyRepayment": "Monthly repayment",
         "interestRate": "Interest rate",
@@ -1652,8 +1659,21 @@
           "authorisedCapital": "Share capital",
           "retainedEarnings": "Retained earnings",
           "capitalGain": "Capital gain on sale",
-          "otherEquity": "Other equity"
+          "otherEquity": "Other equity",
+          "stockInTransitDeposits": "Deposits on stock not yet arrived"
         },
+        "transitHeading": "Stock already paid for, not yet arrived",
+        "transitLede": "Your balance sheet carries money already paid to suppliers for stock still on its way. Say when it lands and it becomes stock in that month. Leave the months empty and nothing changes.",
+        "transitPaidHeading": "What was paid",
+        "transitDeposits": "Deposits paid, goods not yet landed",
+        "transitBalanceOwing": "Still owed to the supplier on landing",
+        "transitBalanceWhy": "A deposit implies a balance. If only the deposit comes across, the stock lands with part of its cost missing and the cash flow understates what leaves.",
+        "transitLandsHeading": "When it lands",
+        "transitAddsUp": "Adds to {amount} ✓",
+        "transitRemainder": "{amount} has no landing month, so it stays as a deposit at the end of the year.",
+        "transitOver": "The landing months come to {amount} more than was paid. The extra is ignored — stock cannot arrive that was never bought.",
+        "transitWhenNote": "A balance sheet says how much was paid. It never says when it arrives, so you have to.",
+        "transitGstNote": "GST is charged at the border in the month the goods land, and claimed back on the next return. It is worked out on what was paid for the goods — the deposit and the balance — and does not include duty, freight or insurance, which Customs also charges GST on.",
         "outOfBalanceTitle": "The opening position does not balance, by {amount}",
         "outOfBalanceBody": "Every month of the forecast will carry the same gap, so it is these opening figures rather than anything you set later. You can carry on — the forecast still runs — but the balance sheet it produces will not tie until this is nil.",
         "causeLines": "A line from your balance sheet that has no box here. Anything the export carried that could not be named is shown below, under “Other”. Check the amounts look right and move them to their proper line where one exists.",
@@ -1983,7 +2003,9 @@
         "overseasFreight": "Freight and shipping",
         "overseasDuty": "Duty and clearance",
         "overseasBorderGst": "GST paid at the border",
-        "overseasSupplierBalance": "Balance paid to supplier"
+        "overseasSupplierBalance": "Balance paid to supplier",
+        "transitBalance": "Balance on stock already paid for",
+        "transitGst": "GST at the border on that stock"
       }
     }
   },

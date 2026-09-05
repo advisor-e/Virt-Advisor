@@ -295,16 +295,48 @@ describe('Forecast intake assembly', () => {
     expect(assembleForecastIntake([bs, pl], null).proposal.sales).toBeUndefined()
   })
 
-  test('more than three loans or four shareholders fold into the last, with a warning', () => {
+  // 🔴 Rows appear AS THEY ARE NEEDED, capped at eight — Mike's ruling, 2026-09-05. Until
+  // then the file's loans were folded down to three before the engine saw them, and the
+  // real client that prompted the change has six. Five loans are now five rows.
+  test('the file’s own loan count comes through, up to the cap of eight', () => {
     const many = Object.assign({}, bs, {
       loanBalances: [10, 20, 30, 40, 50],
       shareholderBalances: [1, 2, 3, 4, 5, 6]
     })
     const r = assembleForecastIntake([many, pl])
-    expect(r.proposal.loans.map(l => l.opening)).toEqual([10, 20, 120]) // 30+40+50
+    expect(r.proposal.loans.map(l => l.opening)).toEqual([10, 20, 30, 40, 50])
+    // Nothing was folded, so nothing is warned about — a warning that named a folding
+    // which did not happen would send the advisor looking for a combined figure.
+    expect(r.warnings.join(' ')).not.toMatch(/combined into the last[\s\S]*loans/i)
     expect(r.proposal.shareholders.map(s => s.opening)).toEqual([1, 2, 3, 15]) // 4+5+6
-    expect(r.warnings.join(' ')).toMatch(/term loans/i)
     expect(r.warnings.join(' ')).toMatch(/shareholder current accounts/i)
+  })
+
+  test('past eight, the surplus still folds into the last and says so', () => {
+    const tooMany = Object.assign({}, bs, {
+      loanBalances: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    })
+    const r = assembleForecastIntake([tooMany, pl])
+    expect(r.proposal.loans).toHaveLength(8)
+    expect(r.proposal.loans.map(l => l.opening)).toEqual([1, 2, 3, 4, 5, 6, 7, 27]) // 8+9+10
+    expect(r.warnings.join(' ')).toMatch(/combined into the last/i)
+  })
+
+  test('a file with no loans at all still offers one row to fill in', () => {
+    const none = Object.assign({}, bs, { loanBalances: [] })
+    const r = assembleForecastIntake([none, pl])
+    expect(r.proposal.loans).toHaveLength(1)
+    expect(r.proposal.loans[0].opening).toBe(0)
+  })
+
+  // A balance sheet never says whether finance revolves, so nothing read from a file may
+  // arrive as a facility — that is the advisor's to set, and an amortisation schedule
+  // guessed from an account name would move a client's cash flow on a word.
+  test('every row read from a file is a term loan, never a facility', () => {
+    const many = Object.assign({}, bs, { loanBalances: [10, 20] })
+    const r = assembleForecastIntake([many, pl])
+    r.proposal.loans.forEach((l) => { expect(l.type).toBe('term') })
+    expect(r.provenance['loans.0.type']).toBe('entered')
   })
 })
 
@@ -573,7 +605,8 @@ describe('🔴 a balance sheet that ties in the accounting package ties here', (
     const keys = ['cashAtBank', 'bankOverdraft', 'accountsReceivable', 'inventory', 'prepayments',
       'gstRefund', 'incomeTaxRefundDue', 'otherCurrentAsset', 'accountsPayable', 'accruedExpenses',
       'gstPayable', 'incomeTaxPayable', 'otherCurrentLiability', 'otherNonCurrentLiability',
-      'authorisedCapital', 'retainedEarnings', 'capitalGain', 'otherEquity']
+      'authorisedCapital', 'retainedEarnings', 'capitalGain', 'otherEquity',
+      'stockInTransitDeposits']
     const ob = Object.assign({}, assembled.proposal.openingBalanceSheet)
     for (let i = 0; i < keys.length; i++) { if (ob[keys[i]] === undefined) { ob[keys[i]] = 0 } }
     return Object.assign({}, assembled.proposal, { openingBalanceSheet: ob })
@@ -593,10 +626,27 @@ describe('🔴 a balance sheet that ties in the accounting package ties here', (
 
   test('each unnamed row lands in its own section’s catch-all, and only there', () => {
     const o = assembled.proposal.openingBalanceSheet
-    expect(o.otherCurrentAsset).toBe(225000) // 200,000 + 25,000
+    // 🔴 25,000, not the 225,000 this asserted until 2026-09-05. "Deposits paid to
+    // Suppliers" is no longer unnamed: Fix 2 gave it its own opening line so it can be
+    // released into stock when the container lands, instead of sitting frozen in a
+    // catch-all for the whole forecast. The foreign-exchange clearing account is still
+    // genuinely unnamed and still sweeps here.
+    expect(o.otherCurrentAsset).toBe(25000)
+    expect(o.stockInTransitDeposits).toBe(200000)
     expect(o.otherCurrentLiability).toBe(158500) // 8,000 + 150,000 + 500 — NOT the loan
     expect(o.otherNonCurrentLiability).toBe(9000)
     expect(o.otherEquity).toBe(-50000)
+  })
+
+  // Both are current assets, so moving the deposit out of the catch-all and into its own
+  // line must not move the opening by a cent. This is the assertion that would catch it
+  // being counted in both places, which is the way this kind of change goes wrong.
+  test('naming the deposit moves it, and moves no total', () => {
+    const o = assembled.proposal.openingBalanceSheet
+    expect(o.otherCurrentAsset + o.stockInTransitDeposits).toBe(225000)
+    const f = computeThreeWayForecast(asTheScreenSends())
+    expect(f.balanceSheet.opening.balanceCheck).toBe(0)
+    expect(f.balanceSheet.opening.totalCurrentAssets).toBe(455000) // 120+80+30+225 thousand
   })
 
   test('a row a named test claimed is never swept up a second time', () => {
@@ -614,8 +664,10 @@ describe('🔴 a balance sheet that ties in the accounting package ties here', (
     const r = extractForecastBalanceSheet(overdrawn)
     expect(r.figures.bankOverdraft.value).toBe(15000)
     expect(r.figures.cashAtBank).toBeUndefined()
-    // The row was consumed by the overdraft, so the sweep must not see it again.
-    expect(r.figures.otherCurrentAsset.value).toBe(225000)
+    // The row was consumed by the overdraft, so the sweep must not see it again. 25,000
+    // rather than 225,000 since the supplier deposit got its own line — see the catch-all
+    // test above; what this one proves is that the bank row is not swept, and it is not.
+    expect(r.figures.otherCurrentAsset.value).toBe(25000)
   })
 
   test('a fully-recognised balance sheet fills no catch-all at all', () => {
@@ -835,7 +887,8 @@ describe('funds introduced are read as a shareholder current account', () => {
     const keys = ['cashAtBank', 'bankOverdraft', 'accountsReceivable', 'inventory', 'prepayments',
       'gstRefund', 'incomeTaxRefundDue', 'otherCurrentAsset', 'accountsPayable', 'accruedExpenses',
       'gstPayable', 'incomeTaxPayable', 'otherCurrentLiability', 'otherNonCurrentLiability',
-      'authorisedCapital', 'retainedEarnings', 'capitalGain', 'otherEquity']
+      'authorisedCapital', 'retainedEarnings', 'capitalGain', 'otherEquity',
+      'stockInTransitDeposits']
     for (let i = 0; i < keys.length; i++) { if (ob[keys[i]] === undefined) { ob[keys[i]] = 0 } }
     const f = computeThreeWayForecast(Object.assign({}, assembled.proposal, { openingBalanceSheet: ob }))
     expect(f.balanceSheet.opening.balanceCheck).toBe(0)

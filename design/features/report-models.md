@@ -571,16 +571,72 @@ warns and never blocks, and lists the four things that actually cause it.
 *Funds introduced* and *capital introduced* are now read as **shareholder current accounts**:
 they are what Xero and MYOB call owner money in credit, the balance sheet ties either way,
 but a catch-all is a frozen lump where a shareholder row carries advances and drawings — and
-is positional, so it holds no name. **Revolving trade finance stays in Other current
-liability**: a term-loan slot would charge interest but also *amortise* it, showing millions
-of cash leaving that never will, and the overdraft line is derived from the bank balance
-rather than entered. ⚠ Its consequence is stated rather than hidden — that line carries no
-interest, so a facility's interest must be typed onto an overhead line or the profit is
-overstated. **Supplier deposits stay in Other current asset**: *Prepayments* is driven by a
-live schedule that would release them to the P&L as an expense, and they are stock, not a
-cost. Their own consequence: they never convert to inventory when the containers land, so
-the closing balance sheet shows the money in the wrong place — no cash or profit figure is
-affected. **Neither residual is filed as work; both are Mike's to raise if he wants them.**
+is positional, so it holds no name. The other two rulings accepted a placement that each left
+something wrong, and **both have since been fixed properly** — see the next section.
+
+### Facilities and stock in transit — the two proper fixes (built 2026-09-05)
+
+Mike asked for the two residuals above to be designed properly (*"you mention 'fixing them
+properly' - design the proper fix and let me know what is needed"*), ruled the drawing's ten
+questions one at a time, and then asked for the build. Artefact:
+[`three-way-forecast-facilities-and-transit.html`](../mockups/three-way-forecast-facilities-and-transit.html).
+Closure and the two named deviations are in
+[`to-do-done-and-parked.md`](to-do-done-and-parked.md) §2. **They are independent of each
+other.**
+
+**A funding line now has a Type — term loan or facility.** A **facility** (revolving trade
+finance, a stock facility, invoice finance) carries its balance and is charged interest on it;
+it does not amortise, so its repayment box is disabled and reads *No set repayment* — a
+facility very much is repaid, continuously as stock sells, it simply has no fixed monthly
+figure. Drawdowns and repayments are typed, never worked out from the stock: a facility that
+redrew itself would be deciding how much a client borrows, invisibly, inside a document a
+lender reads. In the engine it is `loanSchedule` with the amortisation line removed.
+
+> 🔴 **Why a schedule and not "a loan row with a zero repayment".** That workaround is worse
+> than the problem. Capital repaid is computed as *repayment − interest*, so a zero repayment
+> makes it negative and **the debt grows by its own interest** — while the interest is also
+> paid in cash. The charge lands twice and the balance sheet still ties, so nothing complains.
+> On the real client: 2,450,000 becomes **2,653,348** in twelve months. Pinned by test.
+
+**A facility is a CURRENT liability**, with the overdraft, not with the term loans — it is
+repayable on demand, and filing it as long-term debt would overstate that client's working
+capital by 2,450,000. **Its interest is its own figure and ENGINE-ONLY**: the report's profit
+tab carries four rows and shows no interest at all, so there is nowhere for a third line to
+appear, and expanding that tab is a design change with its own drawing.
+
+**Funding rows appear as they are needed, capped at eight** — the file's own count plus an
+*Add a funding line* button. It was fixed at three, so a client with six had three folded
+together with a warning the advisor then had to unpick by hand. The cap is ours: a safety
+limit against a malformed file, not a judgement about how much debt a business may carry.
+⚠ Every row read from a file is a **term loan** — a balance sheet never says whether finance
+revolves, and guessing it from an account name would set an amortisation schedule on a
+client's debt from a word.
+
+**Deposits on stock not yet arrived have their own opening line.** The money moves out of the
+Other-current-asset catch-all — the opening still ties to the cent, because both are current
+assets — and it opens the import prepayment position rather than `prepayments`, which is
+driven by a live accrual schedule that would release it to the P&L as an *expense*. It is
+stock, not a cost. The advisor adds **what is still owed on landing** and the months the
+containers arrive. ⚠ The balance owing is deliberately **not** an opening liability: goods not
+yet received are a commitment, not a debt. It is cash leaving in the landing month.
+
+**A landing does four things**: releases the deposit from prepayments, settles the balance pro
+rata, joins the full landed cost to purchases — **two seams, not one**, because releasing the
+prepayment alone would lose the goods between two balance-sheet lines — and pays GST at the
+border. **A shortfall warns and explains its remainder; it never blocks**, deliberately unlike
+the collection profiles one level up: those are percentages where anything but 100 is an
+error, these are amounts, and a container landing after the year ends is a true fact about an
+importer on a nine-month lead.
+
+> 🔴 **GST: the drawing omitted it, and the omission mattered.** Mike's instruction was to
+> *"research the tax rules rather than guessing"*. **GST is triggered by the goods arriving,
+> not by paying for them**, so a container whose deposit was paid in a previous financial year
+> still attracts the full border GST when it lands — roughly 124,000 on that client, in the
+> direction that flatters a funding application. It is charged on the goods alone (deposit plus
+> balance) on his ruling, because the drawing has no field for duty or freight, and the screen
+> says so in terms. Claimed back on the next return, so it shows as the timing cost it is. The
+> rules and their sources are written down once, in
+> [`TAX-RULES-IMPORT-GST.md`](../TAX-RULES-IMPORT-GST.md).
 
 🔒 **A client's own account names are redacted before they leave the backend** (Mike,
 2026-09-05: *"the names tied to bank, stock, assets and liabilities snuk through"*). A real
