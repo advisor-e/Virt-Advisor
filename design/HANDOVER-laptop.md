@@ -9,41 +9,40 @@
 
 ---
 
-## 2026-09-05 (second session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-06 · Laptop · branch `feat/advisor-progress`
 
-Suite **7,903 green** (410 suites), lint clean. **PR #61 IS MERGED** — `master` is `c8d965a`
-and this branch is **0 ahead / 0 behind**. Nothing is uncommitted anywhere.
+Suite **7,893 green** (410 suites), lint clean, audit gate clean. Branch is **9 ahead /
+0 behind** master, everything pushed. Nothing is uncommitted.
 
-### 🔴 DESKTOP — MERGE `master` BEFORE YOU TOUCH ANYTHING
+### 🔴 4.66 IS ACTIVE ON THE LAPTOP — `activeOn` is set
 
-`feat/firm-quiz-builder-ui` is **25 behind / 2 ahead**. Master now holds the forecast's two
-layout fixes AND the whole business-entity wiring, which changed
-`ThreeWayForecastIntake.vue`, `ThreeWayForecastReport.vue` and `pages/three-way-forecast.vue`.
-**4.62 is no longer active on either machine** — its `activeOn` is cleared, and its build is
-finished, so nothing there is reserved.
+A build touches `ThreeWayForecastIntake.vue`, which you are already in. Do not start it.
+Everything else on the list is free.
 
-### What changed today
+### What today produced — design only, no app code
 
-**4.62 IS BUILT OUT — all twelve models now open at business entity level.** Mike's ruling:
-*"anything an advisor can edit, the client can edit."* The forecast's saved row is the whole
-intake plus the report's four levers (`utils/threeWayForecastSavedShape.js`, 86 keys, 14
-tests). Only step 1, the upload, stays the advisor's. Detail in `business-entity-reports.md` §5.
+**4.66 has a prompt and screens, and both wait on Mike.** Nothing else stands between it
+and a build.
 
-**The glossary "?" marks were completely dead and looked finished.** `b-tooltip` was never
-registered in `plugins/buefy.js`. **The tests could not catch it and still cannot catch the
-next one:** `tests/helpers/mountComponent.js` registers the WHOLE Buefy library while the app
-registers 22 by hand, so a component test always sees a control the app may not have. Nothing
-covers `plugins/buefy.js`. Recorded, not filed — closure in `to-do-done-and-parked.md` §2.
+- `design/ECONOMIC-ANALYSIS-PROMPT.md` — seven sections, Mike's paragraph as §1.
+- `design/ECONOMIC-ANALYSIS-TEST-RUNS.md` — four live API runs, two fictional businesses,
+  ~£1.10 all in.
+- `design/mockups/three-way-forecast-economic-analysis.html` — six screens, showing run 4's
+  real output rather than invented text.
+
+**Three rulings worth knowing before you touch anything near this.** Privacy: the advisor
+writes the brief and sees the exact words sent; the app sends nothing about the client on
+its own — so no new PII exception. Editing: firm managers, not advisors. Two ticks: run it,
+and include it — the second **is** the approval gate, so there is no separate Approve button.
+
+🔴 **The citation fault, because it will look like tidiness and is not.** Runs 1–3 each put
+a correct figure beside the *wrong* source, always in a restatement. Three instruction-level
+fixes failed. Run 4 fixed it by forbidding §4 of the output to restate any figure at all.
+**Do not "improve" §4 by putting the numbers back.** It rests on one clean run and needs
+re-checking when built.
 
 ### Next
 
-**Nothing is half-finished.** 4.62 waits on Mike for the `clientReports.saved.*` wording and
-on UAT for the one thing untestable here: **no saved report has ever reached the real store**,
-because the client picker is empty without MySQL. Same blocker as **4.50**.
+Mike's approval of the prompt and the drawing. Both are in the Handbook.
 
-**4.15, 4.58, 4.60, 4.65, 4.66 wait on Mike.** Seven items live.
-
-⚠ The suite failed twice on `EPERM` writing a temp file in `activityStore` dev-fallback tests,
-a different test each time, then passed clean three times running. Windows, not the code.
-`shipmentTimer` in `ThreeWayForecastIntake.vue` is still never cleared on destroy, still
-deliberately not filed.
+**4.15, 4.50, 4.58, 4.60, 4.65 unchanged and untouched today.** Seven items live.
