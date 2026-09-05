@@ -224,7 +224,8 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
     <div class="chip done"><span class="n">1</span> Exports</div>
     <div class="chip done"><span class="n">2</span> Opening</div>
     <div class="chip done"><span class="n">3</span> Assumptions</div>
-    <div class="chip now"><span class="n">4</span> Forecast</div>
+    <div class="chip done"><span class="n">4</span> Forecast</div>
+    <div class="chip now"><span class="n">5</span> Economic analysis <span class="opt2">optional</span></div>
   </div>
 </div>
 
@@ -235,13 +236,20 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
   screen drawn around a wish, and the whole point of testing the prompt first was to avoid
   that.
   <br><br>
-  <b>Where this sits:</b> beneath the forecast on step 4, full width. It is not a fifth step.
-  The forecast is complete and printable without it, which is why the panel is closed by
-  default and says <i>optional</i> in the one place an advisor will look.
+  🔴 <b>Where this sits — RULED BY MIKE, 2026-09-06: "make it step 5."</b> It is a step of its
+  own, and the drawing was redrawn to carry that. The recommendation had been a folded panel
+  beneath the forecast, on the argument that a fifth chip makes an optional thing look
+  required; <b>his ruling stands and that objection is answered on the screen instead of by
+  hiding the feature</b> — the chip itself carries the word <i>optional</i>, and
+  <b>the forecast is complete, printable and saveable at step 4</b>. Step 5 can be walked past.
+  <br><br>
+  <b>What the ruling buys, and it is the better trade:</b> a folded line under a long forecast
+  is the single easiest thing on the page to never notice. A step is where an advisor building
+  a funding pack will actually see that market research is available to them.
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════════════ -->
-<div class="stepmark">Screen 1 — closed. What an advisor sees who does not want this</div>
+<div class="stepmark">Screen 1 — step 5 as it opens. Untouched, and skippable</div>
 
 <div class="tw-card">
   <div class="ticker">
@@ -255,9 +263,13 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
 </div>
 
 <div class="mock">
-  <b>One line, closed, and nothing else.</b> Most forecasts will not use this. An advisor who
-  does not tick it sees no brief box, no button and no explanation — the forecast above is
-  finished and this is an addition to it, not a step in it.
+  <b>The step opens on one unticked line and nothing else.</b> No brief box, no button, no
+  explanation until it is wanted. Most forecasts will not use this, and an advisor who walks
+  past it has lost nothing — <b>their forecast was finished at step 4</b>.
+  <br><br>
+  <b>The two words doing the work are <i>optional</i> on the chip.</b> Without them a fifth
+  numbered step is an instruction, and an advisor who does not need market research would sit
+  wondering what they had failed to fill in.
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════════════ -->
@@ -355,8 +367,8 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
   <div class="tw-group" style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap">
     <div>
       <h2 class="tw-h2">Economic analysis</h2>
-      <div class="tw-sub" style="margin-top:5px">Researched 6 September 2026 &middot; 30 sources
-        &middot; 2,276 words <span class="src src-ai">AI research</span></div>
+      <div class="tw-sub" style="margin-top:5px">Run 1 &middot; researched 6 September 2026
+        &middot; 30 sources &middot; 2,276 words <span class="src src-ai">AI research</span></div>
     </div>
     <div class="tw-actions">
       <button class="tw-cta tw-ghost">Research again</button>
@@ -453,7 +465,7 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
     <div>
       <div class="tl">Include in the report the client receives</div>
       <div class="ts">Adds the economic analysis to the printed forecast pack, after the cash
-        flow. Your name and today's date are recorded against it.</div>
+        flow. Your name, today's date and which run this is are recorded against it.</div>
     </div>
   </div>
 </div>
@@ -471,6 +483,20 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
   <br><br>
   <b>What it cannot do is silently include unread research.</b> The tick is disabled until the
   research has been generated, and re-running the research clears it.
+  <br><br>
+  🔴 <b>EVERY RUN IS COUNTED, AND THE APPROVAL NAMES WHICH ONE WENT IN — ruled 2026-09-06.</b>
+  The question put to Mike was whether <i>Research again</i> should exist at all, since
+  re-rolling until the answer flatters the client is the one habit this feature must not
+  encourage. <b>It stays, because the commonest reason to re-run is a BAD BRIEF, not a
+  disliked answer</b> — an advisor who forgets to say they import from Europe gets research
+  with no freight in it, and a feature with no way to correct its own input is worse than one
+  that can be misused.
+  <br><br>
+  <b>So the risk is made visible instead of impossible.</b> What is stored when the tick is
+  set is <i>"run 4 of 4, included by [advisor], 6 September 2026"</i>. One run looks like what
+  it is; seven runs and the friendliest chosen is on the record and readable by the firm
+  manager. This is the standards' own Original / AI Suggestion / Final Approved discipline
+  applied to a re-run, not a new rule invented for this screen.
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════════════ -->
@@ -498,26 +524,36 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
 <div class="q">
   <h2>Open — none of this is settled</h2>
   <ol>
-    <li><b>The two labels.</b> Drawn as <i>"Economic analysis"</i> — your own phrase — and
-      <i>"Include in the report the client receives"</i>.
-      <span class="from">Neither has been ruled. The second is deliberately long: "Include in
-      report" would not tell an advisor that this is the moment they take responsibility for
-      it.</span></li>
-    <li><b>Where it sits.</b> Drawn beneath the forecast on step 4, closed by default, rather
-      than as a fifth step.
-      <span class="from">A fifth step would make an optional thing look required, and the
-      forecast is complete without it.</span></li>
-    <li><b>A fifth provenance colour.</b> <span class="src src-ai">AI research</span> in purple,
-      beside the four that exist — <span class="src src-file">from file</span>
-      <span class="src src-hand">entered</span> <span class="src src-seed">seeded</span> and
-      client.
-      <span class="from">The only genuinely new token in this drawing. Everything else is read
-      off the approved screens.</span></li>
-    <li><b>Whether "Research again" should exist at all.</b> Drawn as a quiet button.
-      <span class="from">It costs about 30p a time and re-running clears the include tick.
-      The argument against is that it invites an advisor to keep going until they like the
-      answer, which is the one habit this feature must not encourage.</span></li>
+    <li>✅ <b>The two labels — RULED 2026-09-06.</b> <i>"Economic analysis"</i>, his own
+      phrase, and <i>"Include in the report the client receives"</i>, approved as drawn.
+      <span class="from">The second is deliberately long: "Include in report" would not tell
+      an advisor that this is the moment they take responsibility for it.</span></li>
+    <li>✅ <b>Where it sits — RULED 2026-09-06: "make it step 5."</b> Against the
+      recommendation, which was a folded panel under the forecast.
+      <span class="from">The objection — that a fifth chip makes an optional thing look
+      required — is answered on the screen rather than by hiding the feature: the chip says
+      <i>optional</i> and the forecast completes at step 4. His ruling also buys the thing the
+      recommendation gave away, which is that a folded line under a long forecast is the
+      easiest thing on the page to never notice.</span></li>
+    <li>✅ <b>A fifth provenance colour — RULED 2026-09-06.</b>
+      <span class="src src-ai">AI research</span> joins the four that exist —
+      <span class="src src-file">from file</span> <span class="src src-hand">entered</span>
+      <span class="src src-seed">seeded</span> and client.
+      <span class="from">The only genuinely new token in this drawing; everything else is read
+      off the approved screens. It exists so that nobody reading the pack in six months
+      mistakes a claim found on the internet for a figure taken from the client's own
+      accounts.</span></li>
+    <li>✅ <b>"Research again" stays, and every run is counted — RULED 2026-09-06.</b> The
+      approval records which run was included.
+      <span class="from">Removing the button was considered and rejected: the commonest reason
+      to re-run is a bad brief, not a disliked answer, and a feature that cannot correct its
+      own input is worse than one that can be misused. Re-rolling until the answer flatters
+      the client is made VISIBLE rather than impossible.</span></li>
   </ol>
+  <p style="margin:12px 0 0;font-size:12.5px" class="from"><b>All four are now ruled and
+    nothing on this drawing is open</b> — but ruling the questions is a separate act from
+    approving the drawing, and that has not happened. The prompt it displays,
+    <code>ECONOMIC-ANALYSIS-PROMPT.md</code>, is also still unapproved.</p>
 </div>
 
 <div class="mock" style="margin-top:16px">
