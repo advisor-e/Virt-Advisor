@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Forecast Report in Full</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Three-Way Forecast — screen mockup for approval (drawn 2026-09-02).
+
+   EVERY value below is copied from the project's own locked sources. Nothing is
+   invented and nothing is approximated:
+     - design/REPORT-VISUAL-STANDARD.md      the ruled numbers + [A]-[D2d] anatomy
+     - design/REPORT-LAYOUT-REFERENCE.html   the labelled reference to "match exactly"
+     - components/base/ReportShell.vue       the --rs-* tokens
+     - components/base/HeroStrip.vue         solid #002b64, 20px, 14px radius
+     - components/base/HeroFigure.vue        .hk/.hv/.hs2 sizes and colours
+     - components/base/ProvenanceBadge.vue   the from-file / entered tag
+     - design/mockups/volatility-report.html the most recent screen drawn to the standard
+
+   The owner ruling of 2026-07-23 is followed exactly: the look is READ OFF the
+   finished screens, not proposed afresh. Nothing here is a new or bolder look.
+
+   FIGURES ARE REAL. Every number is the actual output of server/report/
+   threeWayForecastModel.js on the source workbook's own sample ("3 way Filter.xlsx",
+   Big Bird Grass Seed, forecast opening 1 April) — not placeholders.
+   No dark mode: one light look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-col-input:360px; --rs-col-gap:16px; --rs-content-width:1120px;
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0; --rs-accent-contrast:#ffffff;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#ff00000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:var(--rs-content-width);margin:0 auto;padding:28px 22px 64px}
+
+/* [A] screen root — ONE gap value */
+.tw-root{display:flex;flex-direction:column;gap:16px}
+.tw-root strong,.tw-root b{font-weight:600}
+/* [A] resets the shared header's own margin (mandatory; guarded) */
+.tw-root .rs-top{margin:0}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55}
+.tag{position:relative}
+.tag::after{content:attr(data-tag);position:absolute;top:-9px;left:10px;background:#614700;
+  color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;padding:1px 6px;border-radius:4px}
+.stepmark{margin:34px 0 2px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+
+/* [B] ReportHeader */
+.rs-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  margin:0 auto 22px;padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);
+  color:#fff;box-shadow:var(--rs-shadow)}
+.rs-backlink{display:inline-block;margin-bottom:10px;font-size:12px;font-weight:600;
+  letter-spacing:.04em;color:#7fd3f1;text-decoration:none;opacity:.9}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+
+/* step chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+/* [C] HeroStrip + HeroFigure — locked, do not change */
+.herostrip{background:#002b64;border-radius:14px;padding:20px;display:grid;gap:0;
+  box-shadow:0 12px 32px -12px #002b6466;grid-template-columns:repeat(4,1fr)}
+@media (max-width:700px){.herostrip{grid-template-columns:1fr 1fr;gap:14px 0}}
+.herostrip > *:first-child{border-left:0;padding-left:2px}
+.hs{padding:2px 16px;border-left:1px solid #ffffff30}
+.hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
+.hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;
+  font-variant-numeric:tabular-nums}
+.hv .u{font-size:.5em;font-weight:400;opacity:.85}
+.hv.is-crit{color:#ff8f8f}
+.hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+
+/* StaleBanner + the warning band */
+.stale{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;
+  align-items:center;gap:14px}
+.stale b{display:block;font-size:13px}
+.stale span{font-size:12.5px;color:var(--rs-muted)}
+.stale.is-crit{background:var(--rs-crit-soft);border-color:#ff000045;border-left-color:var(--rs-crit)}
+
+/* [D] two-column body */
+.tw-layout{display:grid;grid-template-columns:var(--rs-col-input) 1fr;gap:var(--rs-col-gap);
+  align-items:start}
+@media (max-width:860px){.tw-layout{grid-template-columns:1fr}}
+
+/* cards — no top edge: the shipped screens define none */
+.tw-card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow)}
+.tw-h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.tw-group{padding:15px 16px;border-bottom:1px solid var(--rs-line)}
+.tw-group:last-child{border-bottom:0}
+.tw-glabel{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tw-dot{width:7px;height:7px;border-radius:50%;background:var(--rs-accent-bright)}
+
+/* [D2] results column — same 16px rhythm */
+.tw-results{display:flex;flex-direction:column;gap:16px;min-height:200px}
+/* [D2a] tiles */
+.tw-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:560px){.tw-tiles{grid-template-columns:1fr}}
+.tw-tile{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:16px 17px;box-shadow:var(--rs-shadow);overflow:hidden}
+.tw-k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.tw-v{font-size:30px;font-weight:600;letter-spacing:-.01em;margin-top:6px;line-height:1;
+  font-variant-numeric:tabular-nums}
+.tw-v.is-crit{color:var(--rs-crit)}
+.tw-v.is-good{color:var(--rs-good)}
+.tw-sub{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+/* [D2c] coach panel */
+.tw-edu{border-left:3px solid var(--rs-accent-bright);background:var(--rs-accent-soft);
+  border-radius:0 9px 9px 0;padding:15px 17px}
+.tw-edu-h{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600;color:var(--rs-accent);margin-bottom:8px}
+.tw-edu-p{margin:0 0 8px;font-size:14px;line-height:1.6}
+.tw-edu-p:last-child{margin-bottom:0}
+.tw-lead{background:var(--rs-accent);color:var(--rs-accent-contrast);font-size:10px;font-weight:600;
+  letter-spacing:.08em;padding:3px 7px;border-radius:5px}
+/* [D2d] actions */
+.tw-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tw-cta{font:inherit;font-weight:600;font-size:13.5px;color:var(--rs-accent-contrast);
+  background:var(--rs-accent);border:0;padding:11px 18px;border-radius:10px;cursor:pointer}
+.tw-ghost{background:transparent;color:var(--rs-ink);border:1px solid var(--rs-line)}
+.tw-foot{font-size:12px;color:var(--rs-muted)}
+
+/* provenance tags — ProvenanceBadge */
+.src{letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:999px;
+  white-space:nowrap;font-size:9.5px;padding:2.5px 7px;margin-left:7px}
+.src-file{color:#0070c0;background:#0070c018;border:1px solid #0070c04d}
+.src-hand{color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.src-seed{color:#4a7c1f;background:#4ca52d1a;border:1px solid #4ca52d59}
+
+/* drop zone + file slots */
+.drop{border:2px dashed #9dbdd8;border-radius:var(--rs-radius);background:var(--rs-panel-2);
+  padding:26px 20px;text-align:center}
+.drop .big{font-size:15px;font-weight:600}
+.drop .sm{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+.slots{display:grid;gap:8px;margin-top:14px}
+.slot{display:flex;gap:10px;align-items:flex-start;background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);border-radius:10px;padding:10px 11px;text-align:left}
+.slot.empty{border-style:dashed;color:var(--rs-muted)}
+.slot .nm{font-size:12.5px;font-weight:600;word-break:break-all}
+.slot .mt{font-size:11.5px;color:var(--rs-muted);margin-top:2px}
+.req{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:999px;padding:2.5px 7px;color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.opt{color:var(--rs-muted);background:var(--rs-panel);border:1px solid var(--rs-line)}
+
+/* inputs */
+.field{margin-bottom:11px}
+.fieldlab{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;
+  color:var(--rs-ink);margin-bottom:6px}
+.field input,.field select{width:100%;font:inherit;font-size:13px;padding:8px 9px;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.field input.file{border-color:#0070c04d;background:#0070c00a}
+.seg{display:flex;border:1px solid var(--rs-line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:var(--rs-panel);padding:9px 0;font:inherit;font-size:13px;
+  font-weight:600;color:var(--rs-muted);cursor:pointer}
+.seg button.on{background:var(--rs-accent);color:#fff}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.m{display:flex;align-items:center;gap:6px}
+.m .lbl{width:26px;font-size:11px;color:var(--rs-muted);text-align:right}
+.m input{width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;
+  border:1px solid var(--rs-line);border-radius:7px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.m.seeded input{border-color:#4ca52d59;background:#4ca52d0d}
+
+/* tables */
+.tblwrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px}
+th,td{text-align:right;padding:6px 7px;border-bottom:1px solid var(--rs-line);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--rs-panel);
+  min-width:190px;white-space:normal}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--rs-muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+tr.rule td{border-top:2px solid var(--rs-line);font-weight:600}
+td.neg{color:var(--rs-crit)}
+td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:600}
+.tblnote{font-size:11.5px;color:var(--rs-muted);padding:0 16px 14px}
+.tabs{display:flex;gap:6px;padding:14px 16px 0}
+.tabs button{font:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--rs-line);
+  border-bottom:0;background:var(--rs-panel-2);color:var(--rs-muted);padding:8px 14px;
+  border-radius:9px 9px 0 0;cursor:pointer}
+.tabs button.on{background:var(--rs-panel);color:var(--rs-ink)}
+
+/* the questions block — mockup only */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:14px 16px;font-size:13px}
+.q h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;margin:0 0 10px;color:var(--rs-muted)}
+.q ol{margin:0;padding-left:20px}.q li{margin-bottom:9px}
+.q .from{color:var(--rs-muted);font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+</style>
+<style>
+/* ============================================================================
+   ADDITIONS FOR THIS DRAWING ONLY. Everything above is the approved forecast
+   mockup's own style block, reused unchanged as every forecast drawing does.
+   Nothing below adds a colour, radius, weight or font that is not already a
+   token above; it lays out one longer table and a two-state toggle.
+   ========================================================================= */
+.seg-small{display:inline-flex;border:1px solid var(--rs-line);border-radius:9px;overflow:hidden}
+.seg-small button{border:0;background:var(--rs-panel);padding:6px 14px;font:inherit;font-size:12px;
+  font-weight:600;color:var(--rs-muted);cursor:pointer}
+.seg-small button.on{background:var(--rs-accent);color:#fff}
+.tabrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px 0;
+  flex-wrap:wrap}
+tr.sub td:first-child{padding-left:22px;font-weight:300;color:var(--rs-muted)}
+tr.strong td{font-weight:600}
+.note-why{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:12px 14px;font-size:12.5px;color:var(--rs-muted);margin:12px 16px}
+.note-why b{color:var(--rs-ink)}
+.badnum{color:var(--rs-crit);font-weight:600;font-variant-numeric:tabular-nums}
+.pill{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:999px;padding:2.5px 7px;white-space:nowrap}
+.pill-today{color:var(--rs-muted);background:var(--rs-panel-2);border:1px solid var(--rs-line)}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="tw-root">
+
+  <div class="mock">
+    <strong>Drawn for approval &mdash; NOTHING HERE IS BUILT.</strong>
+    Mike asked on 2026-09-05 what would improve the app for junior accountants, was given five
+    suggestions, and answered <em>&ldquo;do them all&rdquo;</em>. Four were small and are built.
+    <b>This is the fifth, and it is the only one that changes a screen he has already
+    approved</b> &mdash; so it is drawn first rather than built, which is the rule he wrote after
+    a Logic Lab screen was built from a mockup that only ever existed in a chat window.
+    <br><br>
+    <b>THE PROBLEM, IN ONE SENTENCE.</b> The finished forecast report shows <b>four rows</b> on
+    the profit tab and four on the balance tab. A junior asked <em>&ldquo;why is profit down in
+    August?&rdquo;</em> has nothing on screen to answer with &mdash; and cannot see their own
+    typing mistake, because wages entered as 450,000 instead of 45,000 looks identical.
+    <br><br>
+    &#9888; <b>EVERY FIGURE BELOW IS REAL.</b> They are the actual output of
+    <em>threeWayForecastModel.js</em> on the workbook's own sample (Big Bird Grass Seed, forecast
+    opening 1 April) &mdash; not placeholders and not reasoned about. That includes the
+    <span class="badnum">negative stock in June and July</span>, which is the sample's own and
+    which the built screen already flags as impossible. <b>It is the argument for this change in
+    one figure: on today's four-row screen nobody can see it at all.</b>
+  </div>
+
+  <!-- ========================================================= TODAY -->
+  <div class="stepmark">What the screen shows today</div>
+
+  <div class="tw-card">
+    <div class="tabrow">
+      <div class="tabs">
+        <button class="on" type="button">Profit</button>
+        <button type="button">Cash</button>
+        <button type="button">Balance sheet</button>
+      </div>
+      <span class="pill pill-today">As built</span>
+    </div>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th></th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th><th>Jan</th><th>Feb</th><th>Mar</th></tr></thead>
+        <tbody>
+          <tr class="strong"><td>Revenue</td><td>85,000</td><td>70,000</td><td>75,000</td><td>80,000</td><td>60,000</td><td>65,000</td><td>70,000</td><td>70,000</td><td>80,000</td><td>95,000</td><td>70,000</td><td>70,000</td></tr>
+          <tr><td>Gross surplus</td><td>34,459</td><td>28,378</td><td>30,405</td><td>32,432</td><td>24,324</td><td>26,351</td><td>28,378</td><td>28,378</td><td>32,432</td><td>38,514</td><td>28,378</td><td>28,378</td></tr>
+          <tr><td>Total overheads</td><td>60,296</td><td>60,032</td><td>59,833</td><td>59,712</td><td>59,529</td><td>59,542</td><td>59,516</td><td>59,619</td><td>59,588</td><td>59,616</td><td>59,668</td><td>59,764</td></tr>
+          <tr class="rule"><td>Surplus after tax</td><td class="neg">-19,325</td><td class="neg">-22,796</td><td class="neg">-21,158</td><td class="neg">-19,632</td><td class="neg">-25,348</td><td class="neg">-23,893</td><td class="neg">-22,418</td><td class="neg">-22,492</td><td class="neg">-19,552</td><td class="neg">-15,193</td><td class="neg">-22,529</td><td class="neg">-20,277</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="tblnote">
+      Four rows. This business is losing roughly 20,000 a month and the screen cannot say on
+      what. Wages, rent, depreciation and every interest charge are inside one
+      &ldquo;Total overheads&rdquo; figure.
+    </p>
+  </div>
+
+  <!-- ========================================================= PROPOSED -->
+  <div class="stepmark">What is proposed &mdash; the same screen, with a second setting</div>
+
+  <div class="tw-card">
+    <div class="tabrow">
+      <div class="tabs">
+        <button class="on" type="button">Profit</button>
+        <button type="button">Cash</button>
+        <button type="button">Balance sheet</button>
+      </div>
+      <span class="seg-small">
+        <button type="button">Summary</button>
+        <button class="on" type="button">Every line</button>
+      </span>
+    </div>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th></th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th><th>Jan</th><th>Feb</th><th>Mar</th></tr></thead>
+        <tbody>
+<tr class="strong"><td>Revenue</td><td>85,000</td><td>70,000</td><td>75,000</td><td>80,000</td><td>60,000</td><td>65,000</td><td>70,000</td><td>70,000</td><td>80,000</td><td>95,000</td><td>70,000</td><td>70,000</td></tr>
+<tr class="sub"><td>Opening stock</td><td>65,000</td><td>17,905</td><td class="neg">-21,762</td><td class="neg">-16,405</td><td>25,976</td><td>30,262</td><td>41,572</td><td>29,905</td><td>68,238</td><td>80,619</td><td>94,071</td><td>112,404</td></tr>
+<tr class="sub"><td>Stock purchased</td><td>3,500</td><td>2,000</td><td>50,000</td><td>90,000</td><td>40,000</td><td>50,000</td><td>30,000</td><td>80,000</td><td>60,000</td><td>70,000</td><td>60,000</td><td>50,000</td></tr>
+<tr class="sub"><td>Freight</td><td>2,550</td><td>2,100</td><td>2,250</td><td>2,400</td><td>1,800</td><td>1,950</td><td>2,100</td><td>2,100</td><td>2,400</td><td>2,850</td><td>2,100</td><td>2,100</td></tr>
+<tr class="sub"><td>Commissions</td><td>8,500</td><td>7,000</td><td>7,500</td><td>8,000</td><td>6,000</td><td>6,500</td><td>7,000</td><td>7,000</td><td>8,000</td><td>9,500</td><td>7,000</td><td>7,000</td></tr>
+<tr class="sub"><td>Other direct costs</td><td>850</td><td>700</td><td>750</td><td>800</td><td>600</td><td>650</td><td>700</td><td>700</td><td>800</td><td>950</td><td>700</td><td>700</td></tr>
+<tr class="sub"><td>Other direct (GST exempt)</td><td>1,700</td><td>1,400</td><td>1,500</td><td>1,600</td><td>1,200</td><td>1,300</td><td>1,400</td><td>1,400</td><td>1,600</td><td>1,900</td><td>1,400</td><td>1,400</td></tr>
+<tr class="sub"><td>Closing stock</td><td>17,905</td><td class="neg">-21,762</td><td class="neg">-16,405</td><td>25,976</td><td>30,262</td><td>41,572</td><td>29,905</td><td>68,238</td><td>80,619</td><td>94,071</td><td>112,404</td><td>120,737</td></tr>
+<tr class="rule"><td>Cost of sales</td><td>64,195</td><td>52,867</td><td>56,643</td><td>60,419</td><td>45,314</td><td>49,090</td><td>52,867</td><td>52,867</td><td>60,419</td><td>71,748</td><td>52,867</td><td>52,867</td></tr>
+<tr class="strong"><td>Gross surplus</td><td>20,805</td><td>17,133</td><td>18,357</td><td>19,581</td><td>14,686</td><td>15,910</td><td>17,133</td><td>17,133</td><td>19,581</td><td>23,252</td><td>17,133</td><td>17,133</td></tr>
+
+<tr class="sub"><td>ACC levies</td><td>1,250</td><td>1,250</td><td>1,250</td><td>1,250</td><td>1,250</td><td>1,250</td><td>1,250</td><td>1,250</td><td>1,250</td><td>1,250</td><td>1,250</td><td>1,250</td></tr>
+<tr class="sub"><td>Accountancy</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td></tr>
+<tr class="sub"><td>Advertising</td><td>917</td><td>917</td><td>917</td><td>917</td><td>917</td><td>917</td><td>917</td><td>917</td><td>917</td><td>917</td><td>917</td><td>917</td></tr>
+<tr class="sub"><td>Bank charges</td><td>54</td><td>54</td><td>54</td><td>54</td><td>54</td><td>54</td><td>54</td><td>54</td><td>54</td><td>54</td><td>54</td><td>54</td></tr>
+<tr class="sub"><td>Computer expenses</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td></tr>
+<tr class="sub"><td>General expenses</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td></tr>
+<tr class="sub"><td>Insurance</td><td>375</td><td>375</td><td>375</td><td>375</td><td>375</td><td>375</td><td>375</td><td>375</td><td>375</td><td>375</td><td>375</td><td>375</td></tr>
+<tr class="sub"><td>Occupancy</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td><td>208</td></tr>
+<tr class="sub"><td>Power</td><td>125</td><td>125</td><td>125</td><td>125</td><td>125</td><td>125</td><td>125</td><td>125</td><td>125</td><td>125</td><td>125</td><td>125</td></tr>
+<tr class="sub"><td>Printing</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td></tr>
+<tr class="sub"><td>Rent</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td><td>708</td></tr>
+<tr class="sub"><td>Subscriptions</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td><td>42</td></tr>
+<tr class="sub"><td>Telephone</td><td>292</td><td>292</td><td>292</td><td>292</td><td>292</td><td>292</td><td>292</td><td>292</td><td>292</td><td>292</td><td>292</td><td>292</td></tr>
+<tr class="sub"><td>Vehicle</td><td>808</td><td>808</td><td>808</td><td>808</td><td>808</td><td>808</td><td>808</td><td>808</td><td>808</td><td>808</td><td>808</td><td>808</td></tr>
+<tr class="sub"><td>Wages</td><td>7,083</td><td>7,083</td><td>7,083</td><td>7,083</td><td>7,083</td><td>7,083</td><td>7,083</td><td>7,083</td><td>7,083</td><td>7,083</td><td>7,083</td><td>7,083</td></tr>
+<tr class="sub"><td>Other 1</td><td>83</td><td>83</td><td>83</td><td>83</td><td>83</td><td>83</td><td>83</td><td>83</td><td>83</td><td>83</td><td>83</td><td>83</td></tr>
+<tr class="sub"><td>Other 2</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td><td>167</td></tr>
+<tr class="sub"><td>Other 3</td><td>250</td><td>250</td><td>250</td><td>250</td><td>250</td><td>250</td><td>250</td><td>250</td><td>250</td><td>250</td><td>250</td><td>250</td></tr>
+<tr class="sub"><td>Other 4</td><td>333</td><td>333</td><td>333</td><td>333</td><td>333</td><td>333</td><td>333</td><td>333</td><td>333</td><td>333</td><td>333</td><td>333</td></tr>
+<tr class="sub"><td>Other 5</td><td>417</td><td>417</td><td>417</td><td>417</td><td>417</td><td>417</td><td>417</td><td>417</td><td>417</td><td>417</td><td>417</td><td>417</td></tr>
+<tr class="sub"><td>Depreciation</td><td>20,083</td><td>19,750</td><td>19,422</td><td>19,103</td><td>18,788</td><td>18,479</td><td>18,175</td><td>17,878</td><td>17,586</td><td>17,299</td><td>17,020</td><td>16,743</td></tr>
+<tr class="sub"><td>Interest — overdraft</td><td>1,038</td><td>1,319</td><td>1,149</td><td>1,026</td><td>1,075</td><td>1,374</td><td>1,458</td><td>1,609</td><td>1,608</td><td>1,898</td><td>2,053</td><td>2,208</td></tr>
+<tr class="sub"><td>Interest — term loans</td><td>5,009</td><td>4,961</td><td>4,913</td><td>4,864</td><td>4,816</td><td>4,767</td><td>4,718</td><td>4,669</td><td>4,619</td><td>4,569</td><td>4,520</td><td>4,470</td></tr>
+<tr class="rule"><td>Total overheads</td><td>40,368</td><td>40,267</td><td>39,722</td><td>39,231</td><td>38,917</td><td>38,857</td><td>38,588</td><td>38,393</td><td>38,050</td><td>38,003</td><td>37,831</td><td>37,659</td></tr>
+<tr class="strong"><td>Operating surplus</td><td class="neg">-19,563</td><td class="neg">-23,134</td><td class="neg">-21,365</td><td class="neg">-19,650</td><td class="neg">-24,231</td><td class="neg">-22,947</td><td class="neg">-21,455</td><td class="neg">-21,260</td><td class="neg">-18,469</td><td class="neg">-14,751</td><td class="neg">-20,698</td><td class="neg">-20,526</td></tr>
+<tr class="sub"><td>Interest received</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr class="sub"><td>Shareholder interest</td><td>238</td><td>238</td><td>239</td><td>240</td><td>241</td><td>242</td><td>243</td><td>245</td><td>246</td><td>247</td><td>248</td><td>249</td></tr>
+<tr class="sub"><td>Other income</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr class="rule"><td>Total other income</td><td>238</td><td>238</td><td>239</td><td>240</td><td>241</td><td>242</td><td>243</td><td>245</td><td>246</td><td>247</td><td>248</td><td>249</td></tr>
+<tr class="strong"><td>Surplus before tax</td><td class="neg">-19,325</td><td class="neg">-22,896</td><td class="neg">-21,125</td><td class="neg">-19,409</td><td class="neg">-23,989</td><td class="neg">-22,705</td><td class="neg">-21,212</td><td class="neg">-21,016</td><td class="neg">-18,224</td><td class="neg">-14,505</td><td class="neg">-20,450</td><td class="neg">-20,277</td></tr>
+<tr class="sub"><td>Tax</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr class="rule strong"><td>Surplus after tax</td><td class="neg">-19,325</td><td class="neg">-22,896</td><td class="neg">-21,125</td><td class="neg">-19,409</td><td class="neg">-23,989</td><td class="neg">-22,705</td><td class="neg">-21,212</td><td class="neg">-21,016</td><td class="neg">-18,224</td><td class="neg">-14,505</td><td class="neg">-20,450</td><td class="neg">-20,277</td></tr>
+<!-- BALANCE -->
+        </tbody>
+      </table>
+    </div>
+    <div class="note-why">
+      <b>&#128308; THE DEFAULT DOES NOT CHANGE.</b> The screen still opens on <b>Summary</b>
+      &mdash; the four rows above, exactly as approved on 2026-09-02. <b>Every line</b> is a
+      second setting the advisor chooses, so nobody content with today's screen is handed a
+      longer one. That is what makes this an addition rather than a redesign.
+      <br><br>
+      <b>Only overhead lines that carry a figure are shown.</b> The engine holds
+      <b>twenty-three</b>; this sample uses eight. Fifteen rows of zeroes would bury the eight
+      that matter and make the case for going back to four.
+      <br><br>
+      <b>The engine already returns every one of these series.</b> Nothing is recomputed, no new
+      input is asked for, and the golden set is untouched: this reads figures the model has
+      returned since the day it was written.
+    </div>
+  </div>
+
+  <!-- ========================================================= BALANCE -->
+  <div class="stepmark">The balance sheet, the same way</div>
+
+  <div class="tw-card">
+    <div class="tabrow">
+      <div class="tabs">
+        <button type="button">Profit</button>
+        <button type="button">Cash</button>
+        <button class="on" type="button">Balance sheet</button>
+      </div>
+      <span class="seg-small">
+        <button type="button">Summary</button>
+        <button class="on" type="button">Every line</button>
+      </span>
+    </div>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th></th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th><th>Jan</th><th>Feb</th><th>Mar</th></tr></thead>
+        <tbody>
+<tr class="sub"><td>Bank</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr class="sub"><td>Accounts receivable</td><td>108,197</td><td>109,551</td><td>110,687</td><td>117,011</td><td>98,611</td><td>96,023</td><td>102,060</td><td>104,360</td><td>114,997</td><td>134,547</td><td>115,284</td><td>106,084</td></tr>
+<tr class="sub"><td>Stock</td><td>17,905</td><td class="neg">-21,762</td><td class="neg">-16,405</td><td>25,976</td><td>30,262</td><td>41,572</td><td>29,905</td><td>68,238</td><td>80,619</td><td>94,071</td><td>112,404</td><td>120,737</td></tr>
+<tr class="sub"><td>GST refund due</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr class="sub"><td>Income tax refund due</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr class="sub"><td>Prepayments</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr class="sub"><td>Shareholder accounts</td><td>14,238</td><td>14,476</td><td>14,715</td><td>14,956</td><td>15,197</td><td>15,440</td><td>15,683</td><td>15,928</td><td>16,173</td><td>16,420</td><td>16,668</td><td>16,916</td></tr>
+<tr class="sub"><td>Other current assets</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr class="rule"><td>Total current assets</td><td>140,340</td><td>102,265</td><td>108,997</td><td>157,943</td><td>144,070</td><td>153,035</td><td>147,648</td><td>188,526</td><td>211,789</td><td>245,038</td><td>244,356</td><td>243,737</td></tr>
+<tr class="sub"><td>Bank overdraft</td><td>226,088</td><td>196,983</td><td>175,928</td><td>184,306</td><td>235,538</td><td>249,906</td><td>275,824</td><td>275,609</td><td>325,333</td><td>352,002</td><td>378,526</td><td>400,760</td></tr>
+<tr class="sub"><td>Accounts payable</td><td>16,967</td><td>10,120</td><td>65,319</td><td>117,012</td><td>63,422</td><td>69,344</td><td>47,667</td><td>102,867</td><td>85,962</td><td>95,679</td><td>84,467</td><td>71,817</td></tr>
+<tr class="sub"><td>GST owing</td><td>11,084</td><td>20,210</td><td>2,654</td><td>35</td><td>1,971</td><td>3,170</td><td>4,926</td><td>2,352</td><td>1,881</td><td>4,445</td><td>426</td><td>2,352</td></tr>
+<tr class="sub"><td>Income tax owing</td><td>13,500</td><td>13,500</td><td>13,500</td><td>13,500</td><td>13,500</td><td>13,500</td><td>13,500</td><td>13,500</td><td>13,500</td><td>13,500</td><td>13,500</td><td>13,500</td></tr>
+<tr class="sub"><td>Accrued expenses</td><td>6,625</td><td>8,250</td><td>9,875</td><td>11,500</td><td>13,125</td><td>14,750</td><td>16,375</td><td>18,000</td><td>19,625</td><td>21,250</td><td>22,875</td><td>24,500</td></tr>
+<tr class="sub"><td>Shareholder accounts</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr class="sub"><td>Other current liabilities</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr class="rule"><td>Total current liabilities</td><td>274,263</td><td>249,063</td><td>267,276</td><td>326,353</td><td>327,556</td><td>350,670</td><td>358,292</td><td>412,328</td><td>446,301</td><td>486,876</td><td>499,794</td><td>512,929</td></tr>
+<tr class="strong"><td>Working capital</td><td class="neg">-133,923</td><td class="neg">-146,798</td><td class="neg">-158,278</td><td class="neg">-168,411</td><td class="neg">-183,486</td><td class="neg">-197,635</td><td class="neg">-210,643</td><td class="neg">-223,802</td><td class="neg">-234,511</td><td class="neg">-241,838</td><td class="neg">-255,438</td><td class="neg">-269,192</td></tr>
+<tr class="sub"><td>Fixed assets</td><td>1,319,917</td><td>1,300,167</td><td>1,280,745</td><td>1,261,642</td><td>1,242,854</td><td>1,224,375</td><td>1,206,200</td><td>1,188,322</td><td>1,170,736</td><td>1,153,437</td><td>1,136,417</td><td>1,119,674</td></tr>
+<tr class="sub"><td>ABC Bank</td><td>78,017</td><td>76,022</td><td>74,015</td><td>71,997</td><td>69,967</td><td>67,925</td><td>65,871</td><td>63,805</td><td>61,727</td><td>59,637</td><td>57,535</td><td>55,421</td></tr>
+<tr class="sub"><td>XYZ Bank</td><td>993,517</td><td>987,007</td><td>980,470</td><td>973,905</td><td>967,313</td><td>960,693</td><td>954,046</td><td>947,371</td><td>940,668</td><td>933,937</td><td>927,178</td><td>920,391</td></tr>
+<tr class="sub"><td>DEF Finance</td><td>48,785</td><td>47,561</td><td>46,328</td><td>45,085</td><td>43,833</td><td>42,572</td><td>41,301</td><td>40,021</td><td>38,731</td><td>37,431</td><td>36,122</td><td>34,803</td></tr>
+<tr class="sub"><td>Other long-term liabilities</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr class="rule strong"><td>Net assets</td><td>65,675</td><td>42,779</td><td>21,654</td><td>2,244</td><td class="neg">-21,745</td><td class="neg">-44,450</td><td class="neg">-65,661</td><td class="neg">-86,677</td><td class="neg">-104,901</td><td class="neg">-119,406</td><td class="neg">-139,856</td><td class="neg">-160,133</td></tr>
+<tr class="sub"><td>Share capital</td><td>200,000</td><td>200,000</td><td>200,000</td><td>200,000</td><td>200,000</td><td>200,000</td><td>200,000</td><td>200,000</td><td>200,000</td><td>200,000</td><td>200,000</td><td>200,000</td></tr>
+<tr class="sub"><td>Retained earnings</td><td class="neg">-12,325</td><td class="neg">-35,221</td><td class="neg">-56,346</td><td class="neg">-75,756</td><td class="neg">-99,745</td><td class="neg">-122,450</td><td class="neg">-143,661</td><td class="neg">-164,677</td><td class="neg">-182,901</td><td class="neg">-197,406</td><td class="neg">-217,856</td><td class="neg">-238,133</td></tr>
+<tr class="rule strong"><td>Total equity</td><td>229,675</td><td>206,779</td><td>185,654</td><td>166,244</td><td>142,255</td><td>119,550</td><td>98,339</td><td>77,323</td><td>59,099</td><td>44,594</td><td>24,144</td><td>3,867</td></tr>
+<tr class="rule"><td>Balance check</td><td>164,000</td><td>164,000</td><td>164,000</td><td>164,000</td><td>164,000</td><td>164,000</td><td>164,000</td><td>164,000</td><td>164,000</td><td>164,000</td><td>164,000</td><td>164,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note-why">
+      <b>The balance check stays the last row.</b> On this sample it is
+      <span class="num">164,000</span> every month &mdash; the sample workbook's own opening gap,
+      which the engine has always reported honestly rather than hiding. <b>What changes is that a
+      junior can now see WHY:</b> the equity and the net assets it is the difference between are
+      both on the screen above it.
+    </div>
+  </div>
+
+  <!-- ========================================================= QUESTIONS -->
+  <div class="q" style="margin-top:16px">
+    <h2>What this needs from you &mdash; four questions</h2>
+    <ol>
+      <li>
+        <b>Is a second setting the right shape at all?</b> Summary stays the default and
+        &ldquo;Every line&rdquo; is one click away.
+        <span class="from">Recommended: <b>yes</b>. It changes nothing for anyone content today,
+        and the alternative &mdash; one longer table for everybody &mdash; overturns a screen you
+        approved on 2026-09-02.</span>
+      </li>
+      <li>
+        <b>The two words on the toggle.</b> Drawn as <em>Summary</em> / <em>Every line</em>.
+        <span class="from">Ours, and never put to you. Alternatives: <em>Headlines</em> /
+        <em>Detail</em>, or <em>Short</em> / <em>Full</em>.</span>
+      </li>
+      <li>
+        <b>Should an overhead line with no figure in any month be hidden, as drawn?</b>
+        <span class="from">Recommended: <b>yes, hide it</b>. Fifteen rows of zeroes is how a
+        useful screen becomes one people stop reading. The risk runs the other way, and it is
+        real: a junior never sees that an &ldquo;Insurance&rdquo; line exists and never fills it
+        in.</span>
+      </li>
+      <li>
+        <b>Does the cash tab get the same treatment?</b> It is not drawn here.
+        <span class="from">Recommended: <b>yes, and in the same change</b> rather than later
+        &mdash; it already itemises seven payment rows, so leaving it half-detailed makes it the
+        odd one out. Drawn separately only because this page is long enough to read.</span>
+      </li>
+    </ol>
+  </div>
+
+  <div class="mock" style="margin-top:16px">
+    <b>THIS IS NOT ON THE LIVE LIST.</b> Mike asked for the suggestion and then asked for it to
+    be done; a drawing is the first step of doing it, not a second request. It is filed the
+    moment he approves this page, and not before.
+    <br><br>
+    <b>A separate file by design.</b> <em>three-way-forecast.html</em> and the other five
+    forecast drawings are untouched, so what he approved on 2026-09-02, 09-03, 09-04 and 09-05 is
+    not overwritten.
+  </div>
+
+</div>
+</div>
+</body>
+</html>

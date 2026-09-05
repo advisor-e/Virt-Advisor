@@ -55,7 +55,11 @@
           span.tw-dot
           h2.tw-h2
             | {{ $t('report.threeWayForecast.confirm.heading') }}
+            glossary-term(term="openingPosition")
             span(v-if="form.reportDate")  — {{ $t('report.threeWayForecast.confirm.asAt', { date: form.reportDate }) }}
+        //- How many of the figures below are the file's and how many are somebody's
+        //- judgement. Read off the same `source` the badges use, so the two cannot disagree.
+        p.tw-note.sourcecount {{ $t('report.threeWayForecast.confirm.sourceCount', openingSourceCounts) }}
         .tw-tblwrap
           table.confirm-table
             thead
@@ -107,7 +111,9 @@
       .tw-group(v-if="hasStockInTransit")
         .tw-glabel
           span.tw-dot
-          h2.tw-h2 {{ $t('report.threeWayForecast.confirm.transitHeading') }}
+          h2.tw-h2
+            | {{ $t('report.threeWayForecast.confirm.transitHeading') }}
+            glossary-term(term="stockInTransit")
         p.tw-note.transit-lede {{ $t('report.threeWayForecast.confirm.transitLede') }}
         .termgrid
           div
@@ -159,7 +165,9 @@
       .tw-group
         .tw-glabel
           span.tw-dot
-          h2.tw-h2 {{ $t('report.threeWayForecast.confirm.assetsHeading') }}
+          h2.tw-h2
+            | {{ $t('report.threeWayForecast.confirm.assetsHeading') }}
+            glossary-term(term="bookValue")
         .tw-tblwrap
           table.confirm-table
             thead
@@ -198,7 +206,9 @@
       .tw-group
         .tw-glabel
           span.tw-dot
-          h2.tw-h2 {{ $t('report.threeWayForecast.confirm.fundingHeading') }}
+          h2.tw-h2
+            | {{ $t('report.threeWayForecast.confirm.fundingHeading') }}
+            glossary-term(term="facility")
         .tw-tblwrap
           table.confirm-table
             thead
@@ -284,7 +294,9 @@
       //- money2, not money: whole dollars turned a 90-cent residual into "$1" and sent
       //- Mike hunting a dollar that was not there (2026-09-05). A balance check is
       //- exactly the figure that has to show its cents.
-      strong {{ $t('report.threeWayForecast.confirm.outOfBalanceTitle', { amount: money2(openingBalanceCheck) }) }}
+      strong
+        | {{ $t('report.threeWayForecast.confirm.outOfBalanceTitle', { amount: money2(openingBalanceCheck) }) }}
+        glossary-term(term="balanceCheck")
       p.obl-body {{ $t('report.threeWayForecast.confirm.outOfBalanceBody') }}
       ul.obl-list
         li {{ $t('report.threeWayForecast.confirm.causeLines') }}
@@ -317,7 +329,9 @@
             h2.tw-h2 {{ $t('report.threeWayForecast.assume.tradeHeading') }}
           .field
             .fieldlab
-              span {{ $t('report.threeWayForecast.assume.markup') }}
+              span
+                | {{ $t('report.threeWayForecast.assume.markup') }}
+                glossary-term(term="markup")
               provenance-badge(
                 source="entered"
                 :file-label="$t('report.threeWayForecast.confirm.fromFile')"
@@ -332,24 +346,26 @@
         .tw-group
           .tw-glabel
             span.tw-dot
-            h2.tw-h2 {{ $t('report.threeWayForecast.assume.debtorsHeading') }}
+            h2.tw-h2
+              | {{ $t('report.threeWayForecast.assume.debtorsHeading') }}
+              glossary-term(term="collectionProfile")
           .field(v-for="(bucketLabel, i) in bucketLabels" :key="'d' + i")
             .fieldlab
               span {{ $t(bucketLabel) }}
             b-input(v-model.number="form.debtor[i]" type="number" step="any" size="is-small")
-          .tw-foot(:class="debtorTotal === 100 ? 'is-good' : 'is-crit'")
-            | {{ debtorTotal === 100 ? $t('report.threeWayForecast.assume.addsUp') : $t('report.threeWayForecast.assume.doesNotAddUp', { total: pct(debtorTotal) }) }}
+          .tw-foot(:class="debtorTotal === 100 ? 'is-good' : 'is-crit'") {{ debtorMessage }}
 
         .tw-group
           .tw-glabel
             span.tw-dot
-            h2.tw-h2 {{ $t('report.threeWayForecast.assume.creditorsHeading') }}
+            h2.tw-h2
+              | {{ $t('report.threeWayForecast.assume.creditorsHeading') }}
+              glossary-term(term="creditorProfile")
           .field(v-for="(bucketLabel, i) in bucketLabels" :key="'c' + i")
             .fieldlab
               span {{ $t(bucketLabel) }}
             b-input(v-model.number="form.creditor[i]" type="number" step="any" size="is-small")
-          .tw-foot(:class="creditorTotal === 100 ? 'is-good' : 'is-crit'")
-            | {{ creditorTotal === 100 ? $t('report.threeWayForecast.assume.addsUp') : $t('report.threeWayForecast.assume.doesNotAddUp', { total: pct(creditorTotal) }) }}
+          .tw-foot(:class="creditorTotal === 100 ? 'is-good' : 'is-crit'") {{ creditorMessage }}
 
         .tw-group
           .tw-glabel
@@ -371,7 +387,9 @@
                 @click="form.gstPeriod = opt.value") {{ $t(opt.label) }}
           .field
             .fieldlab
-              span {{ $t('report.threeWayForecast.assume.gstBasis') }}
+              span
+                | {{ $t('report.threeWayForecast.assume.gstBasis') }}
+                glossary-term(term="gstBasis")
             .seg
               button(
                 v-for="opt in gstBasisOptions"
@@ -669,6 +687,9 @@
               .m(v-for="(label, i) in monthLabels" :key="'p' + i")
                 span.lbl {{ label }}
                 b-input(v-model.number="form.purchases[i]" type="number" step="any" size="is-small")
+            //- The year total, as the sales grid above has had all along. Twelve boxes with
+            //- no total is twelve chances to fat-finger one and nothing to notice it by.
+            p.tw-note {{ money(purchasesTotal) }}
 
           //- Buying and selling overseas. Built from the approved drawing
           //- design/mockups/three-way-forecast-international.html (approved 2026-09-04).
@@ -1071,6 +1092,7 @@
  */
 import SELL_DOWN from '~/data/forecast-sell-down.json'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
+import GlossaryTerm from '~/components/base/GlossaryTerm.vue'
 import VolatilityDial from '~/components/base/VolatilityDial.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 
@@ -1246,7 +1268,7 @@ function tagged (value, source) {
 export default {
   name: 'ThreeWayForecastIntake',
 
-  components: { ProvenanceBadge, VolatilityDial },
+  components: { ProvenanceBadge, VolatilityDial, GlossaryTerm },
 
   mixins: [currencyMixin],
 
@@ -1440,6 +1462,22 @@ export default {
     debtorTotal () { return this.sumOf(this.form.debtor) },
     creditorTotal () { return this.sumOf(this.form.creditor) },
 
+    /**
+     * What a collection profile that does not total 100% actually MEANS, rather than that
+     * the sum is wrong.
+     *
+     * The block itself is right and stays: a profile summing to 87 quietly means a
+     * thirteenth of the sales are never collected, and the cash flow is then wrong in a way
+     * that looks entirely plausible. What it did not say is WHICH WAY it is wrong or what to
+     * do about it — obvious to somebody who has built a cash flow before, and a dead end to
+     * somebody who has not. The two profiles need different sentences because a shortfall
+     * means opposite things: money you never collect, against money you never pay.
+     *
+     * @returns {string}
+     */
+    debtorMessage () { return this.profileMessage(this.debtorTotal, 'debtor') },
+    creditorMessage () { return this.profileMessage(this.creditorTotal, 'creditor') },
+
     /* -- does the opening position balance? (step 2) -------------------------------- */
 
     /**
@@ -1483,6 +1521,33 @@ export default {
 
     /** True while the opening does not tie. Drives the band and nothing else. */
     openingOutOfBalance () { return this.openingBalanceCheck !== 0 },
+
+    /**
+     * How many opening figures came from the file, and how many are still somebody's
+     * judgement — counted off the same `source` the badges read, so the line and the badges
+     * can never disagree.
+     *
+     * Every figure already SAYS where it came from. What the screen did not say is how many
+     * there are: forty-odd badges is a page to audit, and an advisor who has never built one
+     * of these has no way to know they have left six figures at zero because no file carried
+     * them. This orients them before they scroll, and it is a reading of data already on the
+     * form rather than a new judgement about it.
+     *
+     * @returns {{fromFile: number, yours: number, total: number}}
+     */
+    openingSourceCounts () {
+      let fromFile = 0
+      let yours = 0
+      const count = (slot) => {
+        if (!slot || typeof slot !== 'object') { return }
+        if (slot.source === 'file') { fromFile += 1 } else { yours += 1 }
+      }
+      for (let i = 0; i < OPENING_KEYS.length; i++) { count(this.form.opening[OPENING_KEYS[i]]) }
+      for (let i = 0; i < this.form.assets.length; i++) { count(this.form.assets[i].opening) }
+      for (let i = 0; i < this.form.loans.length; i++) { count(this.form.loans[i].opening) }
+      for (let i = 0; i < this.form.shareholders.length; i++) { count(this.form.shareholders[i].opening) }
+      return { fromFile, yours, total: fromFile + yours }
+    },
 
     /**
      * The catch-all lines the file filled, for the band's "here is where the odd rows
@@ -1666,6 +1731,7 @@ export default {
       })
     },
     salesTotal () { return this.sumOf(this.form.sales) },
+    purchasesTotal () { return this.sumOf(this.form.purchases) },
 
     /**
      * The category dropdown, each showing the depreciation rate IN FORCE for this
@@ -2149,6 +2215,22 @@ export default {
       if (!m) { return 0 }
       const days = Date.UTC(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10)) - Date.UTC(1899, 11, 30)
       return Math.round(days / 86400000)
+    },
+
+    /**
+     * One collection profile's line, in plain English. See `debtorMessage`.
+     *
+     * @param {number} total the profile's five buckets, summed, as whole percent.
+     * @param {string} which 'debtor' or 'creditor' — they mean opposite things.
+     * @returns {string}
+     */
+    profileMessage (total, which) {
+      if (total === 100) { return this.$t('report.threeWayForecast.assume.addsUp') }
+      const gap = this.pct(Math.abs(100 - total))
+      const suffix = total < 100 ? 'Short' : 'Over'
+      return this.$t('report.threeWayForecast.assume.' + which + suffix, {
+        total: this.pct(total), gap
+      })
     },
 
     /** @param {string} key @returns {boolean} */
@@ -3001,12 +3083,19 @@ export default {
      */
     buildForecast () {
       this.buildError = null
+      // The refusal names WHICH block is wrong and repeats what the block itself says. The
+      // button sits at the foot of a long screen and the two profiles are far up it, so
+      // "these must add to 100%" left the advisor hunting for which "these".
       if (this.debtorTotal !== 100) {
-        this.buildError = this.$t('report.threeWayForecast.assume.doesNotAddUp', { total: this.pct(this.debtorTotal) })
+        this.buildError = this.$t('report.threeWayForecast.assume.blockedBy', {
+          block: this.$t('report.threeWayForecast.assume.debtorsHeading'), reason: this.debtorMessage
+        })
         return
       }
       if (this.creditorTotal !== 100) {
-        this.buildError = this.$t('report.threeWayForecast.assume.doesNotAddUp', { total: this.pct(this.creditorTotal) })
+        this.buildError = this.$t('report.threeWayForecast.assume.blockedBy', {
+          block: this.$t('report.threeWayForecast.assume.creditorsHeading'), reason: this.creditorMessage
+        })
         return
       }
       // Refused, not corrected: the Buy/Sell tick already carries the direction, so a

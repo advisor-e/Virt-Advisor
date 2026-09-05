@@ -574,6 +574,38 @@ but a catch-all is a frozen lump where a shareholder row carries advances and dr
 is positional, so it holds no name. The other two rulings accepted a placement that each left
 something wrong, and **both have since been fixed properly** — see the next section.
 
+### Built for junior advisors (2026-09-05)
+
+Mike's request: *"most of the accountants using this will be junior in terms of experience"*.
+Five improvements were proposed and he answered **"do them all"**. Four are built and are
+below; the fifth changes a screen he has already approved, so it is **drawn and waiting** —
+[`three-way-forecast-report-detail.html`](../mockups/three-way-forecast-report-detail.html),
+four questions open.
+
+**A glossary, in one place.** [`data/glossary.json`](../../data/glossary.json) holds sixteen
+plain-English definitions and [`GlossaryTerm.vue`](../../components/base/GlossaryTerm.vue)
+renders a small **?** beside a heading. It **adds to a heading and never rewrites one** —
+Mike's labels are ruled screen by screen and explaining a term must not quietly reword it. An
+unknown key renders **nothing**: a missing definition is invisible to an advisor and caught by
+a test, which is the point of the test. *Tier judgement, stated not assumed: this is mentor
+content in `data/` with no hub screen, because the rule requiring a screen covers content that
+reaches an AI prompt and none of this does.*
+
+**A collection profile that does not total 100% now says what it MEANS.** It still blocks —
+a profile summing to 87 quietly means a seventh of the sales are never collected — but it now
+says which way it is wrong and what to do: *"The missing 13% is money you invoice and never
+collect — put it in one of the months above."* The two profiles get **different sentences**,
+because a shortfall means opposite things on each. The refusal at the button also names which
+block is at fault; it sits at the foot of a long screen and the profiles are far up it.
+
+**Step 2 says how many figures are the file's and how many are yours.** One line above the
+opening table, counted off the same `source` the badges read so the two cannot disagree.
+Forty-odd badges is a page to audit, and an advisor who has not built one of these has no way
+to know they have left six figures at zero because no file carried them.
+
+**The purchases grid shows its year total**, as the sales grid always has. Twelve boxes with no
+total is twelve chances to mistype one and nothing to notice it by.
+
 ### Facilities and stock in transit — the two proper fixes (built 2026-09-05)
 
 Mike asked for the two residuals above to be designed properly (*"you mention 'fixing them
