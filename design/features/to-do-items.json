@@ -121,26 +121,6 @@
       "comment": "2026-09-01 — filed; screens approved; slices 1–2 built. 2026-09-02 — slice 3 built; the types cascade ruled and its slices 1–2 built; renumbered 4.56 → 4.58 by the laptop on Mike's ruling; two rules he never made deleted (Brief P14)."
     },
     {
-      "ref": "4.59",
-      "name": "A point the mentor adds tells a firm manager THEY wrote it",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "A firm manager who has customised nothing sees \"Added here\" against every observation point the mentor wrote, because the resolver returns the layer above untouched.",
-      "risk": "It reads as authorship. A firm manager is told they added a point they cannot edit and did not write, which is the opposite of what the badge exists to say — and the badge is what tells them whether a correction of theirs is safe from the mentor's later changes. It looks completely normal on screen, which is why nobody has reported it.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": true,
-        "detail": "Found 2026-09-02 while building the meeting TYPES cascade, whose resolver had the identical fault — fixed there, and deliberately NOT patched here, because the points are a shipped screen and their own change. Nobody outside asked; it is filed because a defect we find is still a defect."
-      },
-      "touches": "server/utils/meetingObservations.js (the no-decisions passthrough in loadResolvedObservations) and tests/unit/meetingObservations.test.js. The fix is the one already made in server/utils/meetingTypes.js: restamp the inherited list from the viewer's point of view. Both paths — passthrough and full resolve — must agree, or the badge flickers with unrelated edits.",
-      "comment": "2026-09-02 — one line plus two assertions, and the fix is already written and proven in the sibling module. Left undone only to keep slice 2 of the types cascade to its approved scope."
-    },
-    {
       "ref": "4.60",
       "name": "QuickBooks and MYOB are supported on paper, not against a real file",
       "rankedByMike": false,
@@ -206,52 +186,6 @@
       "touches": "NOTHING YET — none until Mike supplies the prompt and the screen is drawn. Then: data/ai-prompts.json (the prompt's home, per the hub-page rule), server/routes/report.js (its first ever AI call), server/utils/openaiClient.js, components/ThreeWayForecastIntake.vue, components/ThreeWayForecastReport.vue, components/base/ProvenanceBadge.vue (a fourth state for AI-sourced text).",
       "note": "Four consequences, all in report-models.md: the prompt belongs on the AI Prompts hub page rather than hardcoded in a builder; the Flagged Issues register, deferred because no report called the AI, comes back; it cannot run inline under the 2000 ms cap, so it needs a job id and polling; and provenance needs a fourth state, so a model's claim about a market is never mistaken for a figure read from the client's accounts. Needs its own drawing and his prompt first. Nothing is blocked — the forecast is complete and honest without it.",
       "comment": "2026-09-03 — filed on Mike's instruction the moment he raised it; he framed it himself as a future phase. RENUMBERED 4.62 → 4.66 on 2026-09-04 when master was merged in: both machines filed a new 4.62 on 2026-09-03, the desktop's saved-reports item reached master first and keeps the number, which is the rule that moved 4.56 → 4.58. 4.62 is not reused here. See also 4.64 and 4.63, the other future phase he named in the same message."
-    },
-    {
-      "ref": "4.64",
-      "name": "International versus local — the forecast treats every sale and purchase as domestic",
-      "rankedByMike": false,
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-04"
-      },
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Mike's request, 2026-09-03: an international-versus-local split for purchases and sales on step 3, allowing for shipping and FX. Drawn, approved and built 2026-09-04; the drawing and its six rulings are recorded in ARTEFACTS.md.",
-      "risk": "🔴 THE GUARD THIS MUST NOT BE BUILT WITHOUT: with the tick off and both overseas series empty, the 10,155-cell golden test must produce byte-identical output, and it is written first — this change reaches into the GST computation, which the golden set covers cell by cell. GST is wrong in both directions today: every sale is charged, and every purchase credited when the supplier is paid, where exports are zero-rated and imports pay at the border.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-03 — \"shouldn't the assumptions page have a 'international' vs 'Local' purchases and sales box? this is where imported stock purchases that take longer to arrive and require deposits etc can be entered, as can oversaes sales that rely on delivery before payment can be entered - to allow for shipping and fx\". Filed on his instruction (\"file it\")."
-      },
-      "touches": "Built: server/report/threeWayForecastModel.js, tests/unit/threeWayForecastModel.test.js, components/ThreeWayForecastIntake.vue, ThreeWayForecastReport.vue, locales/en.json. The mentor tab added server/utils/forecastSellDown.js, server/routes/forecastSellDown.js, four manager routes plus a read in restify-server.js, components/firm/FirmSellDownLadder.vue and its tab in FirmManagerHub.vue, with tests/unit/forecastSellDown.test.js. Slice 2 adds an upstream calculator under server/report/ with a golden test against the workbook.",
-      "note": "🔴 IT ABSORBS 4.63 AS SLICE 2, on Mike's instruction of 2026-09-04 — one section, one set of cash rows, so the Import & Retail workbook becomes a calculator rather than a second screen. BOTH SLICES ARE NOW BUILT — slice 1 with the mentor's ladder tab, slice 2 with its calculator, its Restify route and its screen. Nothing on the drawing is open. The cash flow grows five rows of its own — deposits, freight, duty, border GST, supplier balance — because his ruling was about visibility rather than timing. Detail: design/mockups/three-way-forecast-international.html and the ARTEFACTS.md row.",
-      "comment": "2026-09-04 — drawn, approved and BUILT the same day: the engine, the intake section, the five cash rows, and the mentor's Imported Stock Prices tab. The guard was written FIRST and holds — 3,385 golden cells unmoved with the tick off. SLICE 2 IS BUILT END TO END: the calculator dates every event from the order date on his own terms, the landingsOf seam lets a shipment carry its own deposit and balance month, a Restify route does the arithmetic and the screen shows it. Three more rulings taken, the last after the build REPORTED his workbook's 6% interest cover as a gap rather than inventing it. Suite 7,776 green. Ready to eyeball."
-    },
-    {
-      "ref": "4.63",
-      "name": "Overseas stock purchases — the Import & Retail model feeds the forecast",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Mike's request, 2026-09-03: read the Import & Retail workbook and see how overseas stock purchases could feed the forecast. Now slice 2 of 4.64 on his instruction of 2026-09-04. It is an upstream calculator, not a new section.",
-      "risk": "Both rulings are taken (2026-09-04) and they were the dangerous ones. Events are dated from the order date and filed in the calendar month they fall in — band-mapping ignores the order date, so containers ordered three weeks apart would land in the same month, which is his own R9 failure. Real unit costs govern imported stock; the mark-up governs local. What remains is the golden test against his workbook, without which a ported model proves nothing.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-03 — \"I also want you to read the 'import and retail' excel model i loaded to see how future overseas stock purchases could be included in this forecast - as future building phases - thought you should know in advance before building\". Filed on his instruction (\"yes\")."
-      },
-      "touches": "NOTHING YET. When it starts: a new upstream model under server/report/ with its own golden test against design/report-source-models/Import & Retail.xlsx, writing into the twelve landing figures and the sales series that 4.64's screen already exposes — so the forecast engine itself needs no new arithmetic.",
-      "note": "Five sheets, read end to end: two supplier input sheets, an Index Tables lookup and Financial Projections. A supplier sheet turns a short input set into a payment schedule — 4,469 units, 693,271 of unit cost, a 415,963 deposit and 255,650 balance due across twelve 30-day bands, with balance interest and FX loss computed separately. ⚠ A CORRECTION MADE BY READING THE SHEET: the curves the supplier sheets actually consume are the FOUR-band table, each pattern totalling 100%; the seven-band area on Index Tables does not. Detail in the commit message of 8b550fe.",
-      "comment": "2026-09-03 — filed on Mike's instruction. Absorbed into 4.64 as slice 2 on 2026-09-04 and drawn there, so it keeps its number but not a screen of its own. Its price ladder — New +185%, Standard +152%, Runout +122% at 60/90/120 stock-turn days — is now on 4.64's drawing, because Mike ruled that revenue must not all be priced at the launch figure. Both of its own rulings were taken the same day, so what is left is the build and its golden test."
     },
     {
       "ref": "4.65",

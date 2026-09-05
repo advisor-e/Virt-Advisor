@@ -55,7 +55,11 @@
           span.tw-dot
           h2.tw-h2
             | {{ $t('report.threeWayForecast.confirm.heading') }}
+            glossary-term(term="openingPosition")
             span(v-if="form.reportDate")  — {{ $t('report.threeWayForecast.confirm.asAt', { date: form.reportDate }) }}
+        //- How many of the figures below are the file's and how many are somebody's
+        //- judgement. Read off the same `source` the badges use, so the two cannot disagree.
+        p.tw-note.sourcecount {{ $t('report.threeWayForecast.confirm.sourceCount', openingSourceCounts) }}
         .tw-tblwrap
           table.confirm-table
             thead
@@ -92,11 +96,78 @@
                     spaced)
         p.tw-note {{ $t('report.threeWayForecast.confirm.sumNote') }}
 
+      //- ── Stock already paid for, not yet arrived ──────────────────────────────────
+      //- Built from design/mockups/three-way-forecast-facilities-and-transit.html, Fix 2,
+      //- whose five questions Mike ruled on 2026-09-05.
+      //-
+      //- It sits on STEP 2 and not on step 3's overseas card, and that is a ruling rather
+      //- than a layout choice: step 3's section only exists when "this business buys or
+      //- sells overseas" is ticked, and that tick is about the forecast YEAR. A business
+      //- winding its importing down would leave it unticked and this money — already spent
+      //- — would be invisible behind a decision about next year.
+      //-
+      //- Shown only when the opening balance sheet carries such a deposit. Leave the months
+      //- empty and nothing changes: the figure stays exactly where it is today.
+      .tw-group(v-if="hasStockInTransit")
+        .tw-glabel
+          span.tw-dot
+          h2.tw-h2
+            | {{ $t('report.threeWayForecast.confirm.transitHeading') }}
+            glossary-term(term="stockInTransit")
+        p.tw-note.transit-lede {{ $t('report.threeWayForecast.confirm.transitLede') }}
+        .termgrid
+          div
+            .termhead {{ $t('report.threeWayForecast.confirm.transitPaidHeading') }}
+            .field
+              .fieldlab
+                span {{ $t('report.threeWayForecast.confirm.transitDeposits') }}
+                provenance-badge(
+                  :source="form.opening.stockInTransitDeposits.source"
+                  :file-label="$t('report.threeWayForecast.confirm.fromFile')"
+                  :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                  size="sm")
+              b-input(
+                v-model.number="form.opening.stockInTransitDeposits.value"
+                type="number"
+                step="any"
+                size="is-small"
+                @input="markEntered('opening.stockInTransitDeposits')")
+            .field
+              .fieldlab
+                span {{ $t('report.threeWayForecast.confirm.transitBalanceOwing') }}
+                provenance-badge(
+                  source="entered"
+                  :file-label="$t('report.threeWayForecast.confirm.fromFile')"
+                  :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                  size="sm")
+              b-input(
+                v-model.number="form.stockInTransit.balanceOwing"
+                type="number" step="any" size="is-small")
+            .tw-foot {{ $t('report.threeWayForecast.confirm.transitBalanceWhy') }}
+          div
+            .termhead {{ $t('report.threeWayForecast.confirm.transitLandsHeading') }}
+            .mgrid
+              .m(v-for="(label, i) in monthLabels" :key="'tr' + i")
+                span.lbl {{ label }}
+                b-input(
+                  v-model.number="form.stockInTransit.landing[i]"
+                  type="number" step="any" size="is-small")
+            .tw-foot(:class="transitFullyLanded ? 'is-good' : ''")
+              | {{ transitLandingSentence }}
+            .tw-foot {{ $t('report.threeWayForecast.confirm.transitWhenNote') }}
+            //- What the GST figure does and does not cover. The statutory base includes
+            //- duty, freight and insurance; Mike ruled the goods alone on 2026-09-05 with
+            //- the research in front of him, so this says so rather than letting the figure
+            //- read as a complete Customs assessment. design/TAX-RULES-IMPORT-GST.md.
+            .tw-foot {{ $t('report.threeWayForecast.confirm.transitGstNote') }}
+
       //- Fixed assets: an opening value a file can carry, and a rate it never can.
       .tw-group
         .tw-glabel
           span.tw-dot
-          h2.tw-h2 {{ $t('report.threeWayForecast.confirm.assetsHeading') }}
+          h2.tw-h2
+            | {{ $t('report.threeWayForecast.confirm.assetsHeading') }}
+            glossary-term(term="bookValue")
         .tw-tblwrap
           table.confirm-table
             thead
@@ -135,12 +206,15 @@
       .tw-group
         .tw-glabel
           span.tw-dot
-          h2.tw-h2 {{ $t('report.threeWayForecast.confirm.fundingHeading') }}
+          h2.tw-h2
+            | {{ $t('report.threeWayForecast.confirm.fundingHeading') }}
+            glossary-term(term="facility")
         .tw-tblwrap
           table.confirm-table
             thead
               tr
                 th {{ $t('report.threeWayForecast.confirm.nameIt') }}
+                th {{ $t('report.threeWayForecast.confirm.fundingType') }}
                 th.num {{ $t('report.threeWayForecast.confirm.openingBalance') }}
                 th.num {{ $t('report.threeWayForecast.confirm.monthlyRepayment') }}
                 th.num {{ $t('report.threeWayForecast.confirm.interestRate') }}
@@ -148,6 +222,10 @@
               tr(v-for="(loan, i) in form.loans" :key="'loan' + i")
                 td
                   b-input(v-model="loan.name" size="is-small")
+                td
+                  b-select(v-model="loan.type" size="is-small")
+                    option(value="term") {{ $t('report.threeWayForecast.confirm.typeTerm') }}
+                    option(value="facility") {{ $t('report.threeWayForecast.confirm.typeFacility') }}
                 td.num
                   .cell
                     b-input(
@@ -163,13 +241,23 @@
                       size="sm"
                       spaced)
                 td.num
-                  b-input(v-model.number="loan.repayment" type="number" step="any" size="is-small")
+                  //- A facility does not amortise, so the box is not a box — it says why.
+                  //- "No set repayment" and NOT "not repaid": a facility very much is
+                  //- repaid, continuously, as stock sells. Mike's wording, 2026-09-05.
+                  b-input(
+                    v-if="loan.type === 'facility'"
+                    :value="$t('report.threeWayForecast.confirm.noSetRepayment')"
+                    size="is-small"
+                    disabled)
+                  b-input(v-else v-model.number="loan.repayment" type="number" step="any" size="is-small")
                 td.num
                   .cell
                     b-input(v-model.number="loan.rate" type="number" step="any" size="is-small")
                     span.pctmark %
               tr(v-for="(sh, i) in form.shareholders" :key="'sh' + i" :class="{ rule: i === 0 }")
-                td {{ $t('report.threeWayForecast.confirm.shareholder', { n: i + 1 }) }}
+                //- Two columns: a current account has no Type. The funding rows above gained
+                //- one on 2026-09-05 and this row has to keep step or the table shears.
+                td(colspan="2") {{ $t('report.threeWayForecast.confirm.shareholder', { n: i + 1 }) }}
                 td.num
                   .cell
                     b-input(
@@ -186,7 +274,45 @@
                       spaced)
                 td.muted(colspan="2")
                   | {{ sh.opening.value < 0 ? $t('report.threeWayForecast.confirm.overdrawn', { rate: pct(form.shareholderRate) }) : $t('report.threeWayForecast.confirm.inCredit') }}
+        //- Rows as they are needed, never a fixed number (Mike, 2026-09-05).
+        .tw-actions.add-funding
+          b-button(
+            size="is-small"
+            :disabled="form.loans.length >= maxLoanRows"
+            @click="addFundingLine") {{ $t('report.threeWayForecast.confirm.addFunding') }}
+          span.tw-foot(v-if="form.loans.length >= maxLoanRows")
+            | {{ $t('report.threeWayForecast.confirm.fundingCapped', { n: maxLoanRows }) }}
         p.tw-note {{ $t('report.threeWayForecast.confirm.namesNote') }}
+        p.tw-note {{ $t('report.threeWayForecast.confirm.facilityNote') }}
+
+    //- The opening does not tie. Said HERE, on the screen that holds the figures, rather
+    //- than on step 4 after three screens of assumptions — the engine has always worked
+    //- this number out, and until 2026-09-05 nothing showed it until the forecast ran.
+    //- It WARNS and never blocks: an advisor mid-way through a real client's accounts is
+    //- entitled to keep going, and step 4's own band still catches it if they do.
+    .crit-note(v-if="openingOutOfBalance")
+      //- money2, not money: whole dollars turned a 90-cent residual into "$1" and sent
+      //- Mike hunting a dollar that was not there (2026-09-05). A balance check is
+      //- exactly the figure that has to show its cents.
+      strong
+        | {{ $t('report.threeWayForecast.confirm.outOfBalanceTitle', { amount: money2(openingBalanceCheck) }) }}
+        glossary-term(term="balanceCheck")
+      p.obl-body {{ $t('report.threeWayForecast.confirm.outOfBalanceBody') }}
+      ul.obl-list
+        li {{ $t('report.threeWayForecast.confirm.causeLines') }}
+        li {{ $t('report.threeWayForecast.confirm.causeAssets') }}
+        li {{ $t('report.threeWayForecast.confirm.causeSign') }}
+        li {{ $t('report.threeWayForecast.confirm.causeSplit') }}
+
+    //- Where the rows the parser could not name actually landed. Shown whether or not the
+    //- opening ties, because a figure swept into a catch-all is one the advisor should
+    //- move to its proper line even when the totals happen to agree.
+    .warn-note(v-if="sweptLines.length")
+      strong {{ $t('report.threeWayForecast.confirm.sweptTitle') }}
+      p.obl-body {{ $t('report.threeWayForecast.confirm.sweptBody') }}
+      ul.obl-list
+        li(v-for="s in sweptLines" :key="'sw' + s.key")
+          | {{ $t('report.threeWayForecast.confirm.figures.' + s.key) }} — {{ money(s.value) }}
 
     .warn-note(v-for="(w, i) in warnings" :key="'cw' + i") ⚠ {{ w }}
     .tw-actions
@@ -203,7 +329,9 @@
             h2.tw-h2 {{ $t('report.threeWayForecast.assume.tradeHeading') }}
           .field
             .fieldlab
-              span {{ $t('report.threeWayForecast.assume.markup') }}
+              span
+                | {{ $t('report.threeWayForecast.assume.markup') }}
+                glossary-term(term="markup")
               provenance-badge(
                 source="entered"
                 :file-label="$t('report.threeWayForecast.confirm.fromFile')"
@@ -218,24 +346,26 @@
         .tw-group
           .tw-glabel
             span.tw-dot
-            h2.tw-h2 {{ $t('report.threeWayForecast.assume.debtorsHeading') }}
+            h2.tw-h2
+              | {{ $t('report.threeWayForecast.assume.debtorsHeading') }}
+              glossary-term(term="collectionProfile")
           .field(v-for="(bucketLabel, i) in bucketLabels" :key="'d' + i")
             .fieldlab
               span {{ $t(bucketLabel) }}
             b-input(v-model.number="form.debtor[i]" type="number" step="any" size="is-small")
-          .tw-foot(:class="debtorTotal === 100 ? 'is-good' : 'is-crit'")
-            | {{ debtorTotal === 100 ? $t('report.threeWayForecast.assume.addsUp') : $t('report.threeWayForecast.assume.doesNotAddUp', { total: pct(debtorTotal) }) }}
+          .tw-foot(:class="debtorTotal === 100 ? 'is-good' : 'is-crit'") {{ debtorMessage }}
 
         .tw-group
           .tw-glabel
             span.tw-dot
-            h2.tw-h2 {{ $t('report.threeWayForecast.assume.creditorsHeading') }}
+            h2.tw-h2
+              | {{ $t('report.threeWayForecast.assume.creditorsHeading') }}
+              glossary-term(term="creditorProfile")
           .field(v-for="(bucketLabel, i) in bucketLabels" :key="'c' + i")
             .fieldlab
               span {{ $t(bucketLabel) }}
             b-input(v-model.number="form.creditor[i]" type="number" step="any" size="is-small")
-          .tw-foot(:class="creditorTotal === 100 ? 'is-good' : 'is-crit'")
-            | {{ creditorTotal === 100 ? $t('report.threeWayForecast.assume.addsUp') : $t('report.threeWayForecast.assume.doesNotAddUp', { total: pct(creditorTotal) }) }}
+          .tw-foot(:class="creditorTotal === 100 ? 'is-good' : 'is-crit'") {{ creditorMessage }}
 
         .tw-group
           .tw-glabel
@@ -257,7 +387,9 @@
                 @click="form.gstPeriod = opt.value") {{ $t(opt.label) }}
           .field
             .fieldlab
-              span {{ $t('report.threeWayForecast.assume.gstBasis') }}
+              span
+                | {{ $t('report.threeWayForecast.assume.gstBasis') }}
+                glossary-term(term="gstBasis")
             .seg
               button(
                 v-for="opt in gstBasisOptions"
@@ -555,6 +687,9 @@
               .m(v-for="(label, i) in monthLabels" :key="'p' + i")
                 span.lbl {{ label }}
                 b-input(v-model.number="form.purchases[i]" type="number" step="any" size="is-small")
+            //- The year total, as the sales grid above has had all along. Twelve boxes with
+            //- no total is twelve chances to fat-finger one and nothing to notice it by.
+            p.tw-note {{ money(purchasesTotal) }}
 
           //- Buying and selling overseas. Built from the approved drawing
           //- design/mockups/three-way-forecast-international.html (approved 2026-09-04).
@@ -630,16 +765,32 @@
                         span {{ $t('report.threeWayForecast.assume.overseas.newPrice') }}
                         provenance-badge(
                           source="seeded"
+                          :file-label="$t('report.threeWayForecast.confirm.fromFile')"
+                          :entered-label="$t('report.threeWayForecast.confirm.entered')"
                           :seeded-label="$t('report.threeWayForecast.assume.overseas.fromMentor')"
                           size="sm")
                       b-input(v-model.number="form.overseas.sellDown.newMarkup" type="number" step="any" size="is-small")
                     .field
                       .fieldlab
                         span {{ $t('report.threeWayForecast.assume.overseas.standardPrice') }}
+                        //- All three rungs come from the same tab, so all three say so. The
+                        //- drawing tags each of them; only the first was built.
+                        provenance-badge(
+                          source="seeded"
+                          :file-label="$t('report.threeWayForecast.confirm.fromFile')"
+                          :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                          :seeded-label="$t('report.threeWayForecast.assume.overseas.fromMentor')"
+                          size="sm")
                       b-input(v-model.number="form.overseas.sellDown.standardMarkup" type="number" step="any" size="is-small")
                     .field
                       .fieldlab
                         span {{ $t('report.threeWayForecast.assume.overseas.runoutPrice') }}
+                        provenance-badge(
+                          source="seeded"
+                          :file-label="$t('report.threeWayForecast.confirm.fromFile')"
+                          :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                          :seeded-label="$t('report.threeWayForecast.assume.overseas.fromMentor')"
+                          size="sm")
                       b-input(v-model.number="form.overseas.sellDown.runoutMarkup" type="number" step="any" size="is-small")
                   div
                     .field
@@ -654,6 +805,30 @@
                       b-select(v-model.number="form.overseas.readyAfterMonths" size="is-small" expanded)
                         option(:value="0") {{ $t('report.threeWayForecast.assume.overseas.readySameMonth') }}
                         option(:value="1") {{ $t('report.threeWayForecast.assume.overseas.readyMonthAfter') }}
+
+                //- ── What that stock will sell for ──
+                //- Mike's ruling of 2026-09-04: the revenue is WORKED OUT, never typed —
+                //- and seeded where the advisor can override it, which was chosen over a
+                //- locked figure so a signed order at a known price has somewhere to go.
+                //- Clearing a box puts the worked-out figure back, so there is no undo to find.
+                .fieldlab.orev-head
+                  span {{ $t('report.threeWayForecast.assume.overseas.revenueHeading') }}
+                  provenance-badge(
+                    :source="importedRevenueSource"
+                    :file-label="$t('report.threeWayForecast.confirm.fromFile')"
+                    :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                    :seeded-label="$t('report.threeWayForecast.assume.overseas.revenueWorkedOut')"
+                    size="sm")
+                .mgrid
+                  .m(v-for="(label, i) in monthLabels" :key="'orev' + i")
+                    span.lbl {{ label }}
+                    b-input(
+                      :value="importedRevenueShown[i]"
+                      @input="setImportedRevenue(i, $event)"
+                      type="number" step="any" size="is-small")
+                .tw-foot {{ $t('report.threeWayForecast.assume.overseas.revenueNote') }}
+                .tw-foot.is-crit(v-if="revenueBeyondYear > 0")
+                  | {{ $t('report.threeWayForecast.assume.overseas.revenueBeyondYear', { amount: money(revenueBeyondYear) }) }}
 
               //- ── Sales to overseas customers ──
               .subgroup
@@ -711,16 +886,22 @@
                     span {{ $t('report.threeWayForecast.assume.shipments.heading') }}
                   .tw-foot(style="margin-bottom:10px") {{ $t('report.threeWayForecast.assume.shipments.intro') }}
 
-                  .termhead {{ $t('report.threeWayForecast.assume.shipments.termsHeading') }}
+                  //- The badge belongs to the WHOLE terms block, not to its first field. It
+                  //- was on `manufactureDays` alone, where it both implied the other three
+                  //- were the advisor's and — in a four-column grid — overflowed its cell
+                  //- onto the next label. All seven come from the mentor's tab together.
+                  .fieldlab.shipterms-head
+                    span.termhead {{ $t('report.threeWayForecast.assume.shipments.termsHeading') }}
+                    provenance-badge(
+                      source="seeded"
+                      :file-label="$t('report.threeWayForecast.confirm.fromFile')"
+                      :entered-label="$t('report.threeWayForecast.confirm.entered')"
+                      :seeded-label="$t('report.threeWayForecast.assume.overseas.fromMentor')"
+                      size="sm")
                   .shipterms
                     .field
                       .fieldlab
                         span {{ $t('report.threeWayForecast.assume.shipments.manufactureDays') }}
-                        provenance-badge(
-                          source="seeded"
-                          :entered-label="$t('report.threeWayForecast.confirm.entered')"
-                          :seeded-label="$t('report.threeWayForecast.assume.overseas.fromMentor')"
-                          size="sm")
                       b-input(v-model.number="form.overseas.shipmentTerms.manufactureDays" type="number" step="1" size="is-small")
                     .field
                       .fieldlab
@@ -911,6 +1092,7 @@
  */
 import SELL_DOWN from '~/data/forecast-sell-down.json'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
+import GlossaryTerm from '~/components/base/GlossaryTerm.vue'
 import VolatilityDial from '~/components/base/VolatilityDial.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 
@@ -947,13 +1129,85 @@ function sellDownForm (src) {
   }
 }
 
+/**
+ * The supplier's terms as the form holds them — the mentor's figures, or the shipped ones.
+ *
+ * 🔴 THESE USED TO BE HARDCODED HERE, under a badge on screen saying they came from platform
+ * settings. Nothing could edit them and no screen held them, so the badge was untrue. Made
+ * editable on Mike's instruction of 2026-09-04; they now live in `data/forecast-sell-down.json`
+ * beside the ladder and reach this form the same way it does.
+ *
+ * Days pass through; interest cover is stored as a decimal and shown as a percentage, the
+ * same convention as the markups and as every other rate on this form.
+ *
+ * @param {object} src - the resolved sell-down block the backend returned, or the shipped file.
+ * @returns {object} the form's `overseas.shipmentTerms` block.
+ */
+function shipmentTermsForm (src) {
+  const base = SELL_DOWN.terms
+  const t = (src && src.terms) || base
+  const day = (v, d) => (typeof v === 'number' ? v : d)
+  const pct = (v, d) => Math.round((typeof v === 'number' ? v : d) * 10000) / 100
+  return {
+    manufactureDays: day(t.manufactureDays, base.manufactureDays),
+    balanceDueDays: day(t.balanceDueDays, base.balanceDueDays),
+    prepDays: day(t.prepDays, base.prepDays),
+    interestCoverPct: pct(t.interestCoverPct, base.interestCoverPct),
+    seaDays: day(t.seaDays, base.seaDays),
+    airDays: day(t.airDays, base.airDays),
+    expressDays: day(t.expressDays, base.expressDays)
+  }
+}
+
 /** Every opening balance-sheet line the model takes, in the order the screen shows them. */
 const OPENING_KEYS = [
   'cashAtBank', 'bankOverdraft', 'accountsReceivable', 'inventory', 'prepayments',
   'gstRefund', 'incomeTaxRefundDue', 'otherCurrentAsset', 'accountsPayable',
   'accruedExpenses', 'gstPayable', 'incomeTaxPayable', 'otherCurrentLiability',
-  'otherNonCurrentLiability', 'authorisedCapital', 'retainedEarnings', 'capitalGain'
+  'otherNonCurrentLiability', 'authorisedCapital', 'retainedEarnings', 'capitalGain',
+  // The equity catch-all, added 2026-09-05. Its three sibling sections each had one;
+  // equity did not, so a dividend or a share-capital row the parser could not name was
+  // dropped and the opening could not tie. See the model's own note on the field.
+  'otherEquity',
+  // Money already paid for stock that has not arrived (Fix 2, 2026-09-05). Its own line
+  // rather than a lump in Other current asset, so it can be released into inventory in the
+  // month the container lands. A figure here is what makes the transit block below appear.
+  'stockInTransitDeposits'
 ]
+
+/**
+ * Which side of the opening balance sheet each line sits on, so the screen can work out
+ * the same balance check the engine does — WITHOUT a round trip. The advisor is editing
+ * these figures; a check that needed the backend would lag every keystroke.
+ *
+ * ONE SOURCE, ONE MEANING: this mirrors `threeWayForecastModel.js` opening block. The
+ * netting pairs are deliberately NOT modelled here (prepayments against accruals, tax
+ * refund against tax payable) — netting moves a figure between two sides that both count,
+ * so it cannot change the check, and reproducing it would be a second copy of the engine's
+ * arithmetic that could drift from it.
+ */
+const OPENING_SIDES = {
+  cashAtBank: 'asset',
+  accountsReceivable: 'asset',
+  inventory: 'asset',
+  prepayments: 'asset',
+  gstRefund: 'asset',
+  incomeTaxRefundDue: 'asset',
+  otherCurrentAsset: 'asset',
+  // Money already paid for stock on the water is an asset until the container lands.
+  stockInTransitDeposits: 'asset',
+  bankOverdraft: 'liability',
+  accountsPayable: 'liability',
+  accruedExpenses: 'liability',
+  gstPayable: 'liability',
+  incomeTaxPayable: 'liability',
+  otherCurrentLiability: 'liability',
+  otherNonCurrentLiability: 'liability',
+  authorisedCapital: 'equity',
+  retainedEarnings: 'equity',
+  capitalGain: 'equity',
+  otherEquity: 'equity'
+}
 
 /** The six fixed-asset categories, and the platform depreciation rate for each (%). */
 const ASSET_SPECS = [
@@ -983,7 +1237,14 @@ const VOLATILITY_WINDOWS = [24, 18, 12]
 const VOLATILITY_DEBOUNCE_MS = 400
 /** The chart's drawing box, matching the approved drawing's own SVG. */
 const CHART = { left: 70, right: 640, top: 40, bottom: 380 }
-const LOAN_COUNT = 3
+/**
+ * Funding lines. Rows appear AS THEY ARE NEEDED (Mike's ruling, 2026-09-05) — the file's
+ * own count, or one to start with when nothing was dropped, plus an Add button up to the
+ * cap. The cap is a safety limit against a malformed file, never a judgement about how much
+ * debt a business may carry, and it matches `MAX_FUNDING_LINES` in the engine.
+ */
+const LOAN_COUNT = 1
+const MAX_LOAN_ROWS = 8
 const SHAREHOLDER_COUNT = 4
 /** A Balance Sheet, a Profit and Loss, and up to two by-month P&Ls — the route's own limit. */
 const MAX_UPLOAD_FILES = 4
@@ -1007,7 +1268,7 @@ function tagged (value, source) {
 export default {
   name: 'ThreeWayForecastIntake',
 
-  components: { ProvenanceBadge, VolatilityDial },
+  components: { ProvenanceBadge, VolatilityDial, GlossaryTerm },
 
   mixins: [currencyMixin],
 
@@ -1047,6 +1308,17 @@ export default {
        */
       shipmentResult: { rows: [], importedPurchases: [], deposits: [], balances: [], interest: [], landings: [], beyondYear: [] },
       shipmentTimer: null,
+      /**
+       * What the price ladder makes of the stock landing each month, from the backend. NOT
+       * on the form, for the same reason `shipmentResult` is not: it is derived from the
+       * landings and the ladder, and a derived value stored beside its inputs is one that
+       * can disagree with them. What the advisor TYPES over it lives on the form, because
+       * that is a decision rather than a derivation.
+       */
+      importedRevenueWorked: new Array(12).fill(0),
+      /** Revenue from stock that only finishes selling after the twelfth month. */
+      revenueBeyondYear: 0,
+      revenueTimer: null,
       // A restored form is this component's own state coming back from the page, but it
       // is normalised anyway: a form saved before the capital block existed has no rows,
       // and an undefined list would break the group rather than show it empty.
@@ -1190,6 +1462,160 @@ export default {
     debtorTotal () { return this.sumOf(this.form.debtor) },
     creditorTotal () { return this.sumOf(this.form.creditor) },
 
+    /**
+     * What a collection profile that does not total 100% actually MEANS, rather than that
+     * the sum is wrong.
+     *
+     * The block itself is right and stays: a profile summing to 87 quietly means a
+     * thirteenth of the sales are never collected, and the cash flow is then wrong in a way
+     * that looks entirely plausible. What it did not say is WHICH WAY it is wrong or what to
+     * do about it — obvious to somebody who has built a cash flow before, and a dead end to
+     * somebody who has not. The two profiles need different sentences because a shortfall
+     * means opposite things: money you never collect, against money you never pay.
+     *
+     * @returns {string}
+     */
+    debtorMessage () { return this.profileMessage(this.debtorTotal, 'debtor') },
+    creditorMessage () { return this.profileMessage(this.creditorTotal, 'creditor') },
+
+    /* -- does the opening position balance? (step 2) -------------------------------- */
+
+    /**
+     * Equity minus net assets, the SAME check `threeWayForecastModel.js` runs on the
+     * opening — worked out here so step 2 can say it, rather than the advisor learning
+     * it on step 4 after three screens of assumptions.
+     *
+     * @returns {number} 0 when the opening ties; the amount it is out by otherwise.
+     */
+    openingBalanceCheck () {
+      // EVERY opening figure on this form is a {value, source} pair, not a bare number —
+      // the row's provenance badge reads the `source`. Reading `.opening` directly gives
+      // NaN, which `|| 0` then hides, so the fixed assets, the loans and the shareholder
+      // accounts all count as nothing and the band reports a gap that is not there.
+      // Found on the running app, 2026-09-05, the first time this band was opened: it
+      // said 2,502,897 on a file the engine ties to nil. Pinned by
+      // tests/unit/threeWayForecastIntake.component.test.js.
+      const amount = slot => Number(slot && typeof slot === 'object' ? slot.value : slot) || 0
+      let equity = 0
+      let net = 0
+      const keys = OPENING_KEYS
+      for (let i = 0; i < keys.length; i++) {
+        const v = amount(this.form.opening[keys[i]])
+        const side = OPENING_SIDES[keys[i]]
+        if (side === 'equity') { equity += v } else if (side === 'asset') { net += v } else { net -= v }
+      }
+      for (let a = 0; a < this.form.assets.length; a++) { net += amount(this.form.assets[a].opening) }
+      for (let l = 0; l < this.form.loans.length; l++) { net -= amount(this.form.loans[l].opening) }
+      // A shareholder account nets to whichever side its total falls on, exactly as the
+      // engine does — in credit it is money the company owes, overdrawn it is owed to it.
+      let sh = 0
+      for (let s = 0; s < this.form.shareholders.length; s++) { sh += amount(this.form.shareholders[s].opening) }
+      net -= sh
+      // A HALF-CENT FLOOR, because floating point is not money. Summing twenty-odd
+      // figures leaves dust — this file's real opening comes out at -4.66e-10 — and
+      // without the floor the band fires on an amount no accounting system would call a
+      // difference. Anything a client could actually be out by survives it.
+      const raw = equity - net
+      return Math.abs(raw) < 0.005 ? 0 : Math.round(raw * 100) / 100
+    },
+
+    /** True while the opening does not tie. Drives the band and nothing else. */
+    openingOutOfBalance () { return this.openingBalanceCheck !== 0 },
+
+    /**
+     * How many opening figures came from the file, and how many are still somebody's
+     * judgement — counted off the same `source` the badges read, so the line and the badges
+     * can never disagree.
+     *
+     * Every figure already SAYS where it came from. What the screen did not say is how many
+     * there are: forty-odd badges is a page to audit, and an advisor who has never built one
+     * of these has no way to know they have left six figures at zero because no file carried
+     * them. This orients them before they scroll, and it is a reading of data already on the
+     * form rather than a new judgement about it.
+     *
+     * @returns {{fromFile: number, yours: number, total: number}}
+     */
+    openingSourceCounts () {
+      let fromFile = 0
+      let yours = 0
+      const count = (slot) => {
+        if (!slot || typeof slot !== 'object') { return }
+        if (slot.source === 'file') { fromFile += 1 } else { yours += 1 }
+      }
+      for (let i = 0; i < OPENING_KEYS.length; i++) { count(this.form.opening[OPENING_KEYS[i]]) }
+      for (let i = 0; i < this.form.assets.length; i++) { count(this.form.assets[i].opening) }
+      for (let i = 0; i < this.form.loans.length; i++) { count(this.form.loans[i].opening) }
+      for (let i = 0; i < this.form.shareholders.length; i++) { count(this.form.shareholders[i].opening) }
+      return { fromFile, yours, total: fromFile + yours }
+    },
+
+    /**
+     * The catch-all lines the file filled, for the band's "here is where the odd rows
+     * went" sentence. Only the four `other*` slots, and only when a file supplied them —
+     * a figure the advisor typed there needs no explaining back to them.
+     *
+     * @returns {Array<{key: string, value: number}>} possibly empty.
+     */
+    sweptLines () {
+      const out = []
+      const keys = ['otherCurrentAsset', 'otherCurrentLiability', 'otherNonCurrentLiability', 'otherEquity']
+      for (let i = 0; i < keys.length; i++) {
+        const slot = this.form.opening[keys[i]]
+        if (slot && slot.source === 'file' && Number(slot.value)) {
+          out.push({ key: keys[i], value: Number(slot.value) })
+        }
+      }
+      return out
+    },
+
+    /* -- stock already paid for, not yet arrived (Fix 2, 2026-09-05) ---------------- */
+
+    /** The cap on funding rows, for the Add button's disabled state. @returns {number} */
+    maxLoanRows () { return MAX_LOAN_ROWS },
+
+    /**
+     * Whether to draw the transit block at all. Shown only when the opening position
+     * carries such a deposit — a business with no stock on the water has nothing to say
+     * here, and an empty block on every forecast is a screen to scroll past.
+     * @returns {boolean}
+     */
+    hasStockInTransit () {
+      return Number(this.form.opening.stockInTransitDeposits.value) > 0
+    },
+
+    /** What the twelve landing boxes add up to. @returns {number} */
+    transitLandedTotal () {
+      return this.form.stockInTransit.landing.reduce((a, v) => a + (Number(v) || 0), 0)
+    },
+
+    /** True when every cent of the deposit has a landing month. @returns {boolean} */
+    transitFullyLanded () {
+      const deposits = Number(this.form.opening.stockInTransitDeposits.value) || 0
+      return Math.abs(this.transitLandedTotal - deposits) < 0.005
+    },
+
+    /**
+     * 🔴 A SHORTFALL SAYS WHAT THE REMAINDER MEANS, and never blocks — Mike's ruling of
+     * 2026-09-05, deliberately unlike the collection and payment profiles one level up,
+     * which DO block. Those are percentages, where anything but 100 is an error. These are
+     * amounts, and a shortfall has a true meaning: a container landing after the forecast
+     * year ends, which an importer on a nine-month lead has routinely. Blocking would
+     * refuse a fact about the business.
+     *
+     * @returns {string} the sentence under the landing grid.
+     */
+    transitLandingSentence () {
+      const deposits = Number(this.form.opening.stockInTransitDeposits.value) || 0
+      const short = deposits - this.transitLandedTotal
+      if (this.transitFullyLanded) {
+        return this.$t('report.threeWayForecast.confirm.transitAddsUp', { amount: this.money(deposits) })
+      }
+      if (short > 0) {
+        return this.$t('report.threeWayForecast.confirm.transitRemainder', { amount: this.money(short) })
+      }
+      return this.$t('report.threeWayForecast.confirm.transitOver', { amount: this.money(-short) })
+    },
+
     /* -- buying and selling overseas (4.64) ---------------------------------------- */
 
     /** The two profiles the overseas section adds, each validated to 100% like the rest. */
@@ -1243,6 +1669,36 @@ export default {
     },
 
     /**
+     * What each of the twelve revenue boxes shows: the advisor's figure where they have
+     * typed one, otherwise the ladder's.
+     *
+     * ⚠ THE WORKED-OUT FIGURE IS DISPLAYED ROUNDED AND SENT UNROUNDED. Only an override
+     * ever travels, and an override is what the advisor typed — so the sub-cent difference
+     * between the number on screen and the number in the forecast can never be an input.
+     * @returns {Array<number>}
+     */
+    importedRevenueShown () {
+      return this.form.overseas.importedRevenueOverride.map((typed, i) => {
+        if (typed !== null && typed !== '' && typed !== undefined) { return Number(typed) }
+        return Math.round((this.importedRevenueWorked[i] || 0) * 100) / 100
+      })
+    },
+
+    /**
+     * How the block is badged: the ladder's own figures until the advisor changes one.
+     *
+     * It is deliberately one badge for the block rather than twelve, because the drawing
+     * carries one tag on the heading. It says "somebody has typed here", not which month —
+     * and the note beneath says how to put a month back.
+     * @returns {string} 'seeded' | 'entered'
+     */
+    importedRevenueSource () {
+      const typed = this.form.overseas.importedRevenueOverride
+        .some(v => v !== null && v !== '' && v !== undefined)
+      return typed ? 'entered' : 'seeded'
+    },
+
+    /**
      * Deposits whose lead time reaches back past the start of the forecast. Worked out on
      * the screen so the advisor is told BEFORE they build, not after — the cash is already
      * in their opening bank balance and is not counted again.
@@ -1275,6 +1731,7 @@ export default {
       })
     },
     salesTotal () { return this.sumOf(this.form.sales) },
+    purchasesTotal () { return this.sumOf(this.form.purchases) },
 
     /**
      * The category dropdown, each showing the depreciation rate IN FORCE for this
@@ -1504,7 +1961,28 @@ export default {
       handler () { this.scheduleShipments() }
     },
     // A forecast that starts in a different month files every event in a different column.
-    'form.startDate' () { this.scheduleShipments() }
+    'form.startDate' () { this.scheduleShipments() },
+
+    /**
+     * Everything the price ladder reads. The landing figures are what the stock IS; the
+     * ladder, the pattern and the ready-after month are what happens to it. Deep on the
+     * landings because the calculator rewrites that array in place, and debounced because
+     * a landing figure is typed a digit at a time.
+     *
+     * ⚠ THE OVERRIDES ARE DELIBERATELY NOT WATCHED. They are the answer, not a question:
+     * asking the backend again because the advisor typed over March would return the same
+     * worked-out figures and achieve nothing but a round trip per keystroke.
+     */
+    'form.overseas.importedPurchases': {
+      deep: true,
+      handler () { this.scheduleImportedRevenue() }
+    },
+    'form.overseas.sellDown': {
+      deep: true,
+      handler () { this.scheduleImportedRevenue() }
+    },
+    'form.overseas.readyAfterMonths' () { this.scheduleImportedRevenue() },
+    'form.overseas.enabled' () { this.scheduleImportedRevenue() }
   },
 
   mounted () {
@@ -1521,10 +1999,14 @@ export default {
     // A restored session carries its shipments but not their dates — those are derived, and
     // a derived value stored beside its inputs is one that can disagree with them. Recompute.
     if (this.form.overseas.shipments.length) { this.refreshShipments() }
+    // A restored session can open straight on step 3 with landings already entered, and the
+    // twelve revenue boxes are derived — so they are asked for rather than restored.
+    if (this.form.overseas.enabled) { this.refreshImportedRevenue() }
   },
 
   beforeDestroy () {
     if (this.volatilityTimer) { clearTimeout(this.volatilityTimer) }
+    if (this.revenueTimer) { clearTimeout(this.revenueTimer) }
   },
 
   methods: {
@@ -1573,6 +2055,21 @@ export default {
       if (!form.overseas.shipmentTerms || typeof form.overseas.shipmentTerms !== 'object') {
         form.overseas.shipmentTerms = blankOverseas.shipmentTerms
       }
+      // Same normalisation for stock in transit, and for the same reason: a form saved
+      // before the block existed carries neither the figures nor the twelve landing boxes,
+      // and an undefined series would break the v-for rather than draw an empty grid.
+      if (!form.stockInTransit || typeof form.stockInTransit !== 'object') {
+        form.stockInTransit = { balanceOwing: 0, landing: zeroes() }
+      }
+      if (!Array.isArray(form.stockInTransit.landing) || form.stockInTransit.landing.length !== MONTHS) {
+        form.stockInTransit.landing = zeroes()
+      }
+      // A funding line saved before the Type column existed is a term loan, which is what
+      // it was computed as. Reading it as anything else would change a saved forecast.
+      if (!Array.isArray(form.loans)) { form.loans = this.blankForm().loans }
+      for (let i = 0; i < form.loans.length; i++) {
+        if (form.loans[i].type !== 'facility') { form.loans[i].type = 'term' }
+      }
       return form
     },
 
@@ -1589,9 +2086,7 @@ export default {
       for (let i = 0; i < OVERHEAD_KEYS.length; i++) { overheads[OVERHEAD_KEYS[i]] = tagged(0, 'entered') }
       const assets = ASSET_SPECS.map(spec => ({ key: spec.key, opening: tagged(0, 'entered'), rate: spec.rate }))
       const loans = []
-      for (let i = 0; i < LOAN_COUNT; i++) {
-        loans.push({ name: '', opening: tagged(0, 'entered'), repayment: 0, rate: 0 })
-      }
+      for (let i = 0; i < LOAN_COUNT; i++) { loans.push(this.blankFundingLine()) }
       const shareholders = []
       for (let i = 0; i < SHAREHOLDER_COUNT; i++) { shareholders.push({ opening: tagged(0, 'entered') }) }
       return {
@@ -1617,6 +2112,13 @@ export default {
         sales: zeroes(),
         salesSource: 'entered',
         purchases: zeroes(),
+        // Stock already paid for at the opening date and not yet arrived (Fix 2, drawing
+        // ruled by Mike 2026-09-05). The DEPOSIT itself is an opening balance-sheet line
+        // and lives in `opening.stockInTransitDeposits` with the other seventeen; only the
+        // two things no balance sheet can carry are here — what is still owed, and when the
+        // containers land. Empty means nothing changes: the deposit sits as an asset
+        // exactly as it does today.
+        stockInTransit: { balanceOwing: 0, landing: zeroes() },
         // Buying and selling overseas (item 4.64, drawing approved by Mike 2026-09-04).
         // Everything here is inert until `enabled` is ticked AND a figure is entered:
         // the engine's own guard proves that an untouched forecast is unchanged to the
@@ -1632,6 +2134,9 @@ export default {
           dutyPct: 5,
           fxAllowancePct: 10,
           readyAfterMonths: 1,
+          // What the advisor has typed over the worked-out revenue. All blank means the
+          // ladder governs every month, which is where every forecast starts.
+          importedRevenueOverride: new Array(12).fill(null),
           // The ladder and the pattern are the mentor's content, taken from
           // data/forecast-sell-down.json — never restated here — and shown so the advisor
           // can see what is being applied to their client's stock. `mounted()` then asks
@@ -1646,17 +2151,9 @@ export default {
           overseasMarkup: null,
           // The shipment calculator (item 4.64 slice 2). Empty by default, so a forecast
           // that never opens this panel is byte-identical to one built before it existed.
-          // The terms are the workbook's own, held as whole numbers like every other rate
-          // on this form and divided on the way out.
-          shipmentTerms: {
-            manufactureDays: 120,
-            balanceDueDays: 91,
-            prepDays: 9,
-            interestCoverPct: 6,
-            seaDays: 25,
-            airDays: 20,
-            expressDays: 15
-          },
+          // The terms are the shipped file's, replaced by the mentor's own the moment
+          // `refreshSellDown` answers — never restated here, exactly as the ladder is not.
+          shipmentTerms: shipmentTermsForm(SELL_DOWN),
           shipments: []
         },
         // Buying and selling capital assets. A ROW LIST, not the engine's 6 x 12 grid:
@@ -1674,6 +2171,21 @@ export default {
         // reaches a forecast figure.
         trend: null
       }
+    },
+
+    /**
+     * One empty funding line. A TERM LOAN by default — that is what every forecast built
+     * before 2026-09-05 assumed silently, so an unset row behaves exactly as it always has.
+     * @returns {object}
+     */
+    blankFundingLine () {
+      return { name: '', type: 'term', opening: tagged(0, 'entered'), repayment: 0, rate: 0 }
+    },
+
+    /** Add a funding line, up to the cap. @returns {void} */
+    addFundingLine () {
+      if (this.form.loans.length >= MAX_LOAN_ROWS) { return }
+      this.form.loans.push(this.blankFundingLine())
     },
 
     /**
@@ -1703,6 +2215,22 @@ export default {
       if (!m) { return 0 }
       const days = Date.UTC(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10)) - Date.UTC(1899, 11, 30)
       return Math.round(days / 86400000)
+    },
+
+    /**
+     * One collection profile's line, in plain English. See `debtorMessage`.
+     *
+     * @param {number} total the profile's five buckets, summed, as whole percent.
+     * @param {string} which 'debtor' or 'creditor' — they mean opposite things.
+     * @returns {string}
+     */
+    profileMessage (total, which) {
+      if (total === 100) { return this.$t('report.threeWayForecast.assume.addsUp') }
+      const gap = this.pct(Math.abs(100 - total))
+      const suffix = total < 100 ? 'Short' : 'Over'
+      return this.$t('report.threeWayForecast.assume.' + which + suffix, {
+        total: this.pct(total), gap
+      })
     },
 
     /** @param {string} key @returns {boolean} */
@@ -1856,12 +2384,22 @@ export default {
           }
         }
       }
+      // 🔴 THE FILE'S OWN COUNT OF FUNDING LINES, not this form's (Mike, 2026-09-05). Until
+      // then this stopped at whatever rows the blank form happened to hold, so a client
+      // with six loans lost three of them on the way to the screen. Rows are grown to meet
+      // the proposal, up to the cap the assembler already folds at.
       if (Array.isArray(p.loans)) {
-        for (let i = 0; i < this.form.loans.length && i < p.loans.length; i++) {
+        const rows = Math.min(p.loans.length, MAX_LOAN_ROWS)
+        while (this.form.loans.length < rows) { this.form.loans.push(this.blankFundingLine()) }
+        for (let i = 0; i < rows; i++) {
           if (p.loans[i] && typeof p.loans[i].opening === 'number') {
             this.form.loans[i].opening.value = p.loans[i].opening
             this.form.loans[i].opening.source = prov['loans.' + i + '.opening'] || 'entered'
           }
+          // A balance sheet never says whether finance revolves, so the assembler sends
+          // every row as a term loan and the advisor sets Type. Read rather than assumed,
+          // so the day a file can say, this needs no change.
+          this.form.loans[i].type = (p.loans[i] && p.loans[i].type === 'facility') ? 'facility' : 'term'
         }
       }
       if (Array.isArray(p.shareholders)) {
@@ -2139,6 +2677,67 @@ export default {
       })
     },
 
+    /** Debounced, for the same reason the two reads above are — a figure typed a digit at a time. */
+    scheduleImportedRevenue () {
+      if (this.revenueTimer) { clearTimeout(this.revenueTimer) }
+      this.revenueTimer = setTimeout(() => {
+        this.revenueTimer = null
+        this.refreshImportedRevenue()
+      }, VOLATILITY_DEBOUNCE_MS)
+    },
+
+    /**
+     * Ask the backend what the imported stock will sell for as it ages down the price
+     * ladder (item 4.64, Mike's ruling of 2026-09-04 that this revenue is worked out).
+     *
+     * 🔴 IT IS ASKED FOR RATHER THAN WORKED OUT HERE. The ladder is business logic, which
+     * does not live in Nuxt, and one implementation cannot drift from another — the same
+     * reasoning as the shipment calculator and the volatility read above it.
+     *
+     * ⚠ IT SENDS `overseasInputs()`, WHICH CARRIES THE OVERRIDES, AND THAT IS SAFE: the
+     * route computes the ladder with them cleared, precisely so the screen can seed from
+     * the ladder's own figure and restore to it when a box is emptied.
+     */
+    async refreshImportedRevenue () {
+      if (!this.form.overseas.enabled) {
+        this.importedRevenueWorked = new Array(12).fill(0)
+        this.revenueBeyondYear = 0
+        return
+      }
+      try {
+        const res = await fetch('/api/report/imported-revenue', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            gstRate: Number(this.form.gstRate) / 100,
+            overseas: this.overseasInputs()
+          })
+        })
+        const json = await res.json()
+        if (!json || !json.success || !json.data) { return }
+        this.importedRevenueWorked = json.data.importedRevenue.slice()
+        this.revenueBeyondYear = json.data.revenueBeyondYear || 0
+      } catch (e) {
+        // The boxes simply keep their last figures. A failed read must never stop an advisor
+        // finishing a forecast, exactly as the shipment panel below decides it.
+      }
+    },
+
+    /**
+     * Record what the advisor typed over one month's worked-out revenue.
+     *
+     * AN EMPTY BOX MEANS "USE THE WORKED-OUT FIGURE" — which is why clearing one restores it
+     * and there is no separate undo control. `$set` because Vue 2 does not see an index
+     * assignment on an array.
+     *
+     * @param {number} i the month, 0-11
+     * @param {string|number} v what is now in the box
+     */
+    setImportedRevenue (i, v) {
+      const blank = v === '' || v === null || v === undefined
+      this.$set(this.form.overseas.importedRevenueOverride, i, blank ? null : Number(v))
+    },
+
     /** Debounced, exactly as the volatility read is — a date typed a digit at a time. */
     scheduleShipments () {
       if (this.shipmentTimer) { clearTimeout(this.shipmentTimer) }
@@ -2233,6 +2832,8 @@ export default {
         const json = await res.json()
         if (!json || !json.sellDown || !json.sellDown.ladder) { return }
         this.form.overseas.sellDown = sellDownForm(json.sellDown)
+        // The supplier terms travel with the ladder — one tab sets both, one read seeds both.
+        this.form.overseas.shipmentTerms = shipmentTermsForm(json.sellDown)
       } catch (e) {
         // See the note above: the shipped ladder stands, and the advisor is not told about
         // a manager's screen they cannot reach.
@@ -2381,12 +2982,24 @@ export default {
         // "ABC Bank", and never read from the client's file.
         loans: this.form.loans.map((l, i) => ({
           name: l.name || this.$t('report.threeWayForecast.confirm.loanName', { n: i + 1 }),
+          // Term loan or facility — the difference is whether the balance amortises.
+          type: l.type === 'facility' ? 'facility' : 'term',
           opening: Number(l.opening.value) || 0,
-          monthlyRepayment: Number(l.repayment) || 0,
+          // A facility has no monthly repayment. Sent as zero rather than as whatever the
+          // box held before the Type was switched, so a stale figure cannot amortise a
+          // facility behind the disabled box that says it has no set repayment.
+          monthlyRepayment: l.type === 'facility' ? 0 : (Number(l.repayment) || 0),
           interestRate: Number(l.rate) / 100,
           drawdowns: zeroes(),
           lumpSumRepayments: zeroes()
         })),
+        // Stock already paid for and not yet arrived (Fix 2). The deposit itself rides in
+        // `openingBalanceSheet` with the other opening lines; these are the two things no
+        // balance sheet carries.
+        stockInTransit: {
+          balanceOwing: Number(this.form.stockInTransit.balanceOwing) || 0,
+          landing: this.form.stockInTransit.landing.map(v => Number(v) || 0)
+        },
         overdraftInterestRate: Number(this.form.overdraftRate) / 100,
         inFundsInterestRate: Number(this.form.inFundsRate) / 100,
         debtorCollection: this.form.debtor.map(v => Number(v) / 100),
@@ -2430,6 +3043,12 @@ export default {
         dutyPct: pct(o.dutyPct),
         fxAllowancePct: pct(o.fxAllowancePct),
         readyAfterMonths: Number(o.readyAfterMonths) || 0,
+        // A month the advisor typed over, or null to let the ladder work it out. Dropped
+        // with the tick off like the two series above, so unticking cannot leave a single
+        // typed revenue figure standing in an otherwise domestic forecast.
+        importedRevenueOverride: on
+          ? o.importedRevenueOverride.map(v => (v === null || v === '' || v === undefined ? null : Number(v)))
+          : new Array(12).fill(null),
         sellDown: {
           newMarkup: pct(o.sellDown.newMarkup),
           standardMarkup: pct(o.sellDown.standardMarkup),
@@ -2464,12 +3083,19 @@ export default {
      */
     buildForecast () {
       this.buildError = null
+      // The refusal names WHICH block is wrong and repeats what the block itself says. The
+      // button sits at the foot of a long screen and the two profiles are far up it, so
+      // "these must add to 100%" left the advisor hunting for which "these".
       if (this.debtorTotal !== 100) {
-        this.buildError = this.$t('report.threeWayForecast.assume.doesNotAddUp', { total: this.pct(this.debtorTotal) })
+        this.buildError = this.$t('report.threeWayForecast.assume.blockedBy', {
+          block: this.$t('report.threeWayForecast.assume.debtorsHeading'), reason: this.debtorMessage
+        })
         return
       }
       if (this.creditorTotal !== 100) {
-        this.buildError = this.$t('report.threeWayForecast.assume.doesNotAddUp', { total: this.pct(this.creditorTotal) })
+        this.buildError = this.$t('report.threeWayForecast.assume.blockedBy', {
+          block: this.$t('report.threeWayForecast.assume.creditorsHeading'), reason: this.creditorMessage
+        })
         return
       }
       // Refused, not corrected: the Buy/Sell tick already carries the direction, so a
@@ -2565,6 +3191,13 @@ export default {
 .seg button.on { background: var(--rs-accent); color: var(--rs-accent-contrast); }
 
 /* The twelve-month grids. */
+/* The revenue block's heading row. `.fieldlab` already lays the label and its badge out;
+   this only gives the block the breathing space the sections around it have. */
+.orev-head { margin-top: 16px; }
+/* The supplier-terms heading and its badge on one row. `.fieldlab` already spaces them
+   apart; this only stops the heading's own bottom margin doubling up inside the flex row. */
+.shipterms-head { align-items: baseline; }
+.shipterms-head .termhead { margin-bottom: 0; }
 .mgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 @media (max-width: 560px) { .mgrid { grid-template-columns: repeat(2, 1fr); } }
 .m { display: flex; align-items: center; gap: 6px; }
@@ -2610,6 +3243,11 @@ export default {
    rather than a second component, so the two levels read as one pair. */
 .crit-note { font-size: 12.5px; color: var(--rs-crit); background: var(--rs-crit-soft); border-radius: 9px; padding: 10px 14px; margin-top: 8px; }
 .crit-note strong, .warn-note strong { font-size: 13px; }
+/* The opening-balance band's body and its list of likely causes. Inside the two bands
+   above rather than a third colour: this is the same warning language, saying more. */
+.obl-body { margin: 5px 0 0; }
+.obl-list { margin: 5px 0 0; padding-left: 18px; list-style: disc; }
+.obl-list li { margin-top: 2px; }
 
 /* The volatility read — built from design/mockups/three-way-forecast-volatility.html */
 .volblock { border: 1px solid #0070c055; border-radius: 12px; padding: 14px; background: var(--rs-accent-soft); }

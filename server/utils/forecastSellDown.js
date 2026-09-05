@@ -21,8 +21,9 @@
  * that has decided nothing gets the layer above untouched", same refusal to let a storage
  * fault stop an advisor. A second way of doing inheritance is how two of them drift apart.
  *
- * ⚠ WHAT A TIER MAY CHANGE IS FIVE FIGURES AND A PATTERN NAME, NOT THE WHOLE FILE.
+ * ⚠ WHAT A TIER MAY CHANGE IS TWELVE FIGURES AND A PATTERN NAME, NOT THE WHOLE FILE.
  *   - the three markups, and the two day boundaries that separate them;
+ *   - the seven supplier terms — see `TERM_KEYS`, added 2026-09-04 on Mike's instruction;
  *   - `defaultPattern`, the demand shape a new forecast opens on.
  * The `patterns` themselves are NOT editable here. Their curves each have to total 1 and
  * they are consumed by an upstream calculator that does not exist yet (4.64 slice 2), so
@@ -65,6 +66,26 @@ const DAY_KEYS = ['newUpToDays', 'standardUpToDays']
 /** Every ladder key a tier may change. */
 const LADDER_KEYS = MARKUP_KEYS.concat(DAY_KEYS)
 
+/**
+ * The supplier terms a tier may set — the figures that turn an ORDER DATE into a landing
+ * date, and the interest the supplier charges for waiting to be paid.
+ *
+ * 🔴 THEY BECAME EDITABLE ON MIKE'S INSTRUCTION OF 2026-09-04 ("make it editable"), after
+ * the screen was found carrying a *From your platform settings* badge against figures that
+ * were hardcoded in the intake component and that no screen anywhere could change. The
+ * badge was the only thing claiming otherwise, and it was wrong — the hub-page rule says
+ * content that moves a client's numbers gets a screen, and these move every one of them.
+ *
+ * They are here rather than in a file of their own because a manager setting a supplier's
+ * terms and a manager setting the price ladder are the same person doing the same job on
+ * the same tab, and one stored object means one version history over the pair.
+ * @type {string[]}
+ */
+const DAY_TERM_KEYS = ['manufactureDays', 'balanceDueDays', 'prepDays', 'seaDays', 'airDays', 'expressDays']
+
+/** Every supplier-term key a tier may change. */
+const TERM_KEYS = DAY_TERM_KEYS.concat(['interestCoverPct'])
+
 /** The demand patterns as shipped — read-only here, and the set `defaultPattern` must name. */
 const PATTERN_NAMES = (BASE_SELL_DOWN.patterns || []).map(p => p.name)
 
@@ -106,6 +127,7 @@ function validateSellDown (value) {
 
   Object.keys(value).forEach((key) => {
     if (key === 'ladder') { return }
+    if (key === 'terms') { return }
     if (key === 'defaultPattern') { return }
     if (key === 'patterns') {
       errors.push('patterns are not editable here — their curves must each total 1, and they are the shipment calculator\'s own change')
@@ -159,6 +181,42 @@ function validateSellDown (value) {
       }
 
       if (Object.keys(out).length) { clean.ladder = out }
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(value, 'terms')) {
+    const body = value.terms
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      errors.push('terms must be a non-array JSON object')
+    } else {
+      const out = {}
+      Object.keys(body).forEach((key) => {
+        if (!TERM_KEYS.includes(key)) {
+          errors.push(`${key} is not one of the supplier's terms`)
+          return
+        }
+        const n = num(body[key])
+        if (n === null) {
+          errors.push(`${key} must be a number — a supplier term has no blank`)
+          return
+        }
+        // A day count is whole and at least one. Zero manufacture days would land a
+        // container on the day it was ordered, which is not a term any supplier offers and
+        // would quietly file the cash in the wrong month rather than fail.
+        if (DAY_TERM_KEYS.includes(key) && (n < 1 || Math.round(n) !== n)) {
+          errors.push(`${key} must be a whole number of days, and at least 1`)
+          return
+        }
+        // Interest cover may legitimately be nil — a supplier that charges nothing for the
+        // credit period is a real arrangement, unlike a rung of the ladder priced at cost.
+        // Negative is a typo every time, and it would pay the client to defer.
+        if (key === 'interestCoverPct' && n < 0) {
+          errors.push('interestCoverPct cannot be negative — that would pay the client to defer')
+          return
+        }
+        out[key] = n
+      })
+      if (Object.keys(out).length) { clean.terms = out }
     }
   }
 
@@ -221,6 +279,8 @@ module.exports = {
   MARKUP_KEYS,
   DAY_KEYS,
   LADDER_KEYS,
+  DAY_TERM_KEYS,
+  TERM_KEYS,
   PATTERN_NAMES,
   validateSellDown,
   loadResolvedSellDown

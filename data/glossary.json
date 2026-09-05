@@ -1,0 +1,91 @@
+{
+  "_readme": [
+    "PLAIN-ENGLISH DEFINITIONS OF THE TERMS ON THE REPORT SCREENS, for advisors who have",
+    "not built one of these before. Mike's request, 2026-09-05: 'most of the accountants",
+    "using this will be junior in terms of experience'.",
+    "",
+    "ONE DEFINITION, ONE HOME. A term is defined here and nowhere else, so the wording",
+    "cannot drift between the screens that use it. components/base/GlossaryTerm.vue reads",
+    "this file; nothing else does.",
+    "",
+    "TIER JUDGEMENT, STATED RATHER THAN ASSUMED (the default-is-mentor-alone ruling of",
+    "2026-08-24): this is MENTOR-TIER content and it has no hub screen. The rule that",
+    "requires a screen covers content that reaches an AI PROMPT, and none of this does —",
+    "it is help text rendered to a person. If a firm ever needs its own wording for a term,",
+    "that is a fresh request and this file is already the single source it would cascade",
+    "from.",
+    "",
+    "WHAT A DEFINITION IS FOR. It answers 'what is this?' for somebody looking at the box",
+    "right now. It is not a training course: two sentences, no jargon inside the",
+    "definition, and where a figure is commonly got wrong, say how.",
+    "",
+    "`term` is what the reader sees as the heading of the tooltip. `plain` is the",
+    "definition. Both are user-facing and both were put to Mike before they shipped."
+  ],
+  "terms": {
+    "collectionProfile": {
+      "term": "When customers pay",
+      "plain": "Of everything you invoice in a month, how much of it actually reaches the bank that month, and how much arrives in each of the four months after. It must add to 100%: anything less is money you invoice and never collect."
+    },
+    "creditorProfile": {
+      "term": "When you pay suppliers",
+      "plain": "Of everything your suppliers bill you in a month, how much you pay that month and how much in each of the four months after. It must add to 100%, for the same reason as the collection profile above it."
+    },
+    "openingPosition": {
+      "term": "The opening position",
+      "plain": "The balance sheet the forecast starts from — what the business owns and owes on the day before month one. Every month of the forecast is built on it, so an error here runs through the whole year."
+    },
+    "balanceCheck": {
+      "term": "The balance check",
+      "plain": "Total equity less net assets. It should be nil: a balance sheet that balances has no gap. Anything else means a figure is missing, on the wrong side, or entered as a negative."
+    },
+    "grossSurplus": {
+      "term": "Gross surplus",
+      "plain": "Sales less what the goods themselves cost — stock, freight in, commissions. It is the money left to pay the overheads with, before rent, wages or anything else."
+    },
+    "overheads": {
+      "term": "Overheads",
+      "plain": "The costs of running the business rather than of the goods sold — wages, rent, power, insurance, depreciation and interest. They are entered as an annual figure and spread evenly across the twelve months."
+    },
+    "markup": {
+      "term": "Mark-up",
+      "plain": "How much is added to what stock cost to reach the selling price. A 68% mark-up means stock that cost 100 sells for 168. It is not the same as margin, which measures the same gap as a share of the selling price."
+    },
+    "bookValue": {
+      "term": "Book value",
+      "plain": "What an asset is carried at in the accounts today — what it cost, less all the depreciation charged since. It is usually not what the asset would sell for, which is why selling one makes a gain or a loss."
+    },
+    "depreciationRate": {
+      "term": "Depreciation rate",
+      "plain": "How much of an asset's value is written off each year. No balance sheet carries it, so it is always yours to set — these start on the platform's own figures and are not the client's."
+    },
+    "termLoan": {
+      "term": "Term loan",
+      "plain": "Borrowing repaid on a schedule. Each monthly repayment covers the interest first, and what is left reduces the debt, so the balance falls month by month."
+    },
+    "facility": {
+      "term": "Facility",
+      "plain": "Revolving finance — trade finance, a stock facility, invoice finance. It carries its balance and is charged interest on it, but has no fixed monthly repayment: it is repaid continuously as stock sells, and redrawn as more is bought."
+    },
+    "shareholderAccount": {
+      "term": "Shareholder current account",
+      "plain": "Money owed between the company and its owners. In credit, the company owes the shareholder; overdrawn, the shareholder owes the company and is charged interest on it."
+    },
+    "workingCapital": {
+      "term": "Working capital",
+      "plain": "Current assets less current liabilities — the cash, stock and debtors a business has to fund its day-to-day trading, after what it owes within the year. Growth consumes it, which is why a profitable business can still run out of money."
+    },
+    "gstBasis": {
+      "term": "GST basis",
+      "plain": "Whether the return follows invoices or cash. On the invoice basis GST falls due when you bill; on the cash basis, when the money moves. It changes when GST is paid, never how much."
+    },
+    "stockInTransit": {
+      "term": "Stock already paid for, not yet arrived",
+      "plain": "Money paid to an overseas supplier for goods still on the water. It is an asset — not yet stock and not yet a cost — until the container lands, and it carries no GST until it does."
+    },
+    "provenance": {
+      "term": "Where a figure came from",
+      "plain": "Every figure is tagged: read from the file you dropped, entered by a person, or seeded from last year's actuals as a starting point. A seeded figure is a starting point for a judgement, never a forecast."
+    }
+  }
+}

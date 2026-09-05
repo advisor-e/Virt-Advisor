@@ -135,6 +135,32 @@ function pickSeries (v, def) {
 function zeroes () { return new Array(MONTHS).fill(0) }
 
 /**
+ * A 12-element series of blanks, where a blank means "nothing was said about this month".
+ *
+ * ⚠ NOT `zeroes()`, AND THE DIFFERENCE IS THE WHOLE POINT. Zero is a figure an advisor can
+ * legitimately mean — no revenue that month — so a series that cannot tell zero from silence
+ * would make "I sell nothing in March" indistinguishable from "work March out for me".
+ * @returns {Array<null>}
+ */
+function blanks () { return new Array(MONTHS).fill(null) }
+
+/**
+ * Coerce a 12-element series that may be blank month by month, KEEPING the blanks.
+ *
+ * `pickSeries` fills a blank with a default, which is right for every other series here and
+ * wrong for an override: the absence is the instruction.
+ * @param {*} v @returns {Array<number|null>}
+ */
+function pickOverrideSeries (v) {
+  const out = []
+  for (let m = 0; m < MONTHS; m++) {
+    const supplied = Array.isArray(v) ? v[m] : undefined
+    out.push(usable(supplied) ? pick(supplied, 0) : null)
+  }
+  return out
+}
+
+/**
  * Every landing this forecast has to account for, each carrying the months ITS OWN deposit
  * and balance fall in.
  *
@@ -242,6 +268,15 @@ function addSeries () {
 /** The six fixed-asset categories, in the workbook's own order. */
 const ASSET_KEYS = ['vehicles', 'leaseholdImprovements', 'plantEquipment', 'officeEquipment', 'computerHardware', 'other']
 
+/**
+ * The most funding lines one forecast may carry — Mike's ruling of 2026-09-05, and the cap
+ * is OURS: a safety limit against a malformed file, never a judgement about how much debt a
+ * business may carry. The workbook had three; the real client that prompted this has six.
+ * Rows appear as they are needed rather than being a fixed number, so the majority with one
+ * loan and an overdraft are not shown five empty rows.
+ */
+const MAX_FUNDING_LINES = 8
+
 /** The overhead lines, in P&L order. Each is entered as an ANNUAL figure and spread /12. */
 const OVERHEAD_KEYS = [
   'accLevies', 'accountancy', 'advertising', 'bankCharges', 'computerExpenses',
@@ -313,7 +348,25 @@ const DEFAULTS = {
     gstPayable: 5500,
     accruedExpenses: 5000,
     otherCurrentLiability: 0,
-    otherNonCurrentLiability: 0
+    otherNonCurrentLiability: 0,
+    // The equity catch-all. Current assets, current liabilities and non-current
+    // liabilities each had one; equity did not, so any equity line that was neither
+    // share capital nor retained earnings had nowhere to land and was dropped. On a real
+    // Xero export (2026-09-05) that silently lost a 500,000 dividend and the share
+    // capital, and it is half of why the opening did not tie. Carried forward unchanged
+    // month to month, exactly as capitalGain is. Defaults to 0, so the golden set cannot
+    // move.
+    otherEquity: 0,
+    /**
+     * Money already paid to overseas suppliers for stock that has not arrived — its own
+     * opening line rather than a lump in `otherCurrentAsset` (Fix 2, 2026-09-05).
+     *
+     * It is NOT `prepayments`: that line is driven by a live accrual schedule which would
+     * release it to the P&L as an expense, and this is stock, not a cost. It opens the
+     * import prepayment position instead, and is released into inventory in the month the
+     * advisor says the container lands. Defaults to 0, so the golden set cannot move.
+     */
+    stockInTransitDeposits: 0
   },
   assets: [
     { key: 'vehicles', opening: 80000, depreciationRate: 0.2, additions: zeroes(), disposals: zeroes() },
@@ -323,10 +376,15 @@ const DEFAULTS = {
     { key: 'computerHardware', opening: 70000, depreciationRate: 0.3, additions: zeroes(), disposals: zeroes() },
     { key: 'other', opening: 80000, depreciationRate: 0.35, additions: zeroes(), disposals: zeroes() }
   ],
+  /**
+   * How the business is funded. `type` is 'term' or 'facility' — Mike's own word for the
+   * column, ruled 2026-09-05. The workbook knew only term loans, so every default is one
+   * and a caller that says nothing gets exactly the workbook's three.
+   */
   loans: [
-    { name: 'ABC Bank', opening: 80000, monthlyRepayment: 2450, interestRate: 0.07, drawdowns: zeroes(), lumpSumRepayments: zeroes() },
-    { name: 'XYZ Bank', opening: 1000000, monthlyRepayment: 10650, interestRate: 0.05, drawdowns: zeroes(), lumpSumRepayments: zeroes() },
-    { name: 'DEF Finance', opening: 50000, monthlyRepayment: 1590, interestRate: 0.09, drawdowns: zeroes(), lumpSumRepayments: zeroes() }
+    { name: 'ABC Bank', type: 'term', opening: 80000, monthlyRepayment: 2450, interestRate: 0.07, drawdowns: zeroes(), lumpSumRepayments: zeroes() },
+    { name: 'XYZ Bank', type: 'term', opening: 1000000, monthlyRepayment: 10650, interestRate: 0.05, drawdowns: zeroes(), lumpSumRepayments: zeroes() },
+    { name: 'DEF Finance', type: 'term', opening: 50000, monthlyRepayment: 1590, interestRate: 0.09, drawdowns: zeroes(), lumpSumRepayments: zeroes() }
   ],
   overdraftInterestRate: 0.07,
   inFundsInterestRate: 0.02,
@@ -355,6 +413,9 @@ const DEFAULTS = {
       curve: null // resolved from `pattern` when not given outright
     }),
     readyAfterMonths: 1,
+    // What the advisor has typed over the worked-out revenue, month by month. All blank by
+    // default, so the ladder governs every month unless somebody says otherwise (item 4.64).
+    importedRevenueOverride: blanks(),
     // Selling overseas.
     overseasSales: zeroes(),
     deliveryLagMonths: 2,
@@ -362,6 +423,30 @@ const DEFAULTS = {
     zeroRated: true,
     salesFxAllowancePct: 0.1,
     overseasMarkup: null // null follows the local mark-up, which is the ruled default
+  },
+  /**
+   * Stock already paid for at the opening date, and not yet arrived (Fix 2, drawing
+   * approved and its five questions ruled by Mike 2026-09-05).
+   *
+   * 🔴 DELIBERATELY NOT INSIDE `overseas`, AND THE REASON IS A RULING. That block is
+   * governed by a tick meaning "this business buys or sells overseas THIS YEAR"; a business
+   * winding its importing down would leave it unticked and this money — already spent —
+   * would be invisible behind a decision about next year. It sits on step 2 with the
+   * opening position instead, and nothing here is gated by that tick.
+   *
+   * ALL ZERO BY DEFAULT, which is what makes the addition provable: with `landing` empty
+   * the deposits simply sit as an asset exactly as they do today.
+   */
+  stockInTransit: {
+    // What is still owed to the supplier, payable when the goods land. NOT an opening
+    // liability: goods not yet received are a commitment, not a debt, so this never
+    // touches the opening balance sheet — it is cash leaving in the landing month.
+    balanceOwing: 0,
+    // How much of the opening deposit lands in each of the twelve months. Amounts, not
+    // percentages — which is why a shortfall WARNS rather than blocks (Mike, 2026-09-05):
+    // a container landing after the forecast year ends is a true fact about an importer on
+    // a nine-month lead, and whatever is not landed simply stays a deposit at the year end.
+    landing: zeroes()
   },
   // [same month, +1, +2, +3, +4] — the workbook validates these to 100%.
   debtorCollection: [0.1, 0.55, 0.3, 0.05, 0],
@@ -421,17 +506,38 @@ function resolveInputs (raw, fallback) {
     }
   })
 
-  const loans = d.loans.map(function (def, n) {
-    const l = (Array.isArray(i.loans) && i.loans[n] && typeof i.loans[n] === 'object') ? i.loans[n] : {}
-    return {
+  /**
+   * The funding lines — term loans and revolving facilities, in the caller's own order.
+   *
+   * 🔴 THE COUNT IS THE CALLER'S, NOT THE WORKBOOK'S (Mike's ruling, 2026-09-05). Until
+   * then this mapped over the three DEFAULT loans, which had two consequences: a client
+   * with six loans had three of them folded together before the engine ever saw them, and
+   * a caller sending FEWER than three silently inherited the sample's own "XYZ Bank"
+   * 1,000,000 in the slots it did not fill. Sending nothing still gets exactly the
+   * workbook's three, which is what leaves the golden set untouched.
+   *
+   * A blank line beyond the defaults falls back to zeroes rather than to a sample figure —
+   * an unfilled row must never introduce money.
+   */
+  const blankLoan = { name: '', type: 'term', opening: 0, monthlyRepayment: 0, interestRate: 0, drawdowns: zeroes(), lumpSumRepayments: zeroes() }
+  const suppliedLoans = Array.isArray(i.loans) ? i.loans.slice(0, MAX_FUNDING_LINES) : null
+  const loanCount = suppliedLoans ? suppliedLoans.length : d.loans.length
+  const loans = []
+  for (let n = 0; n < loanCount; n++) {
+    const def = d.loans[n] || blankLoan
+    const l = (suppliedLoans && suppliedLoans[n] && typeof suppliedLoans[n] === 'object') ? suppliedLoans[n] : {}
+    loans.push({
       name: typeof l.name === 'string' && l.name ? l.name : def.name,
+      // 'facility' has to be asked for by name. Anything else — absent, misspelt, a number
+      // — is a term loan, which is what every forecast built before 2026-09-05 is.
+      type: l.type === 'facility' ? 'facility' : (l.type === undefined && def.type === 'facility' ? 'facility' : 'term'),
       opening: pick(l.opening, def.opening),
       monthlyRepayment: pick(l.monthlyRepayment, def.monthlyRepayment),
       interestRate: pick(l.interestRate, def.interestRate),
       drawdowns: pickSeries(l.drawdowns, def.drawdowns),
       lumpSumRepayments: pickSeries(l.lumpSumRepayments, def.lumpSumRepayments)
-    }
-  })
+    })
+  }
 
   const shareholders = d.shareholders.map(function (def, n) {
     const s = (Array.isArray(i.shareholders) && i.shareholders[n] && typeof i.shareholders[n] === 'object') ? i.shareholders[n] : {}
@@ -502,6 +608,10 @@ function resolveInputs (raw, fallback) {
         curve
       },
       readyAfterMonths: Math.round(pick(o.readyAfterMonths, def.readyAfterMonths)),
+      // 🔴 THE TICK GOVERNS THIS TOO, for the same reason it governs the two series above:
+      // an advisor who fills the section in, overrides a month and then unticks it must get
+      // today's forecast back, not a forecast carrying one typed revenue figure.
+      importedRevenueOverride: enabled ? pickOverrideSeries(o.importedRevenueOverride) : blanks(),
       overseasSales: seriesIf(o.overseasSales, def.overseasSales),
       deliveryLagMonths: Math.round(pick(o.deliveryLagMonths, def.deliveryLagMonths)),
       overseasCollection: bucket(o.overseasCollection, def.overseasCollection),
@@ -513,9 +623,29 @@ function resolveInputs (raw, fallback) {
     }
   })(i.overseas, d.overseas)
 
+  /**
+   * Stock already paid for and not yet arrived. The landing months are clamped to the
+   * opening deposit: an advisor who types more than was paid cannot release stock the
+   * business never bought, and the surplus is dropped rather than invented.
+   * @param {*} v @param {object} def @param {number} deposits @returns {object}
+   */
+  const stockInTransit = (function (v, def, deposits) {
+    const t = (v && typeof v === 'object') ? v : {}
+    const landing = pickSeries(t.landing, def.landing)
+    let running = 0
+    for (let m = 0; m < MONTHS; m++) {
+      const room = deposits - running
+      const want = landing[m] > 0 ? landing[m] : 0
+      landing[m] = want > room ? (room > 0 ? room : 0) : want
+      running += landing[m]
+    }
+    return { balanceOwing: pick(t.balanceOwing, def.balanceOwing), landing }
+  })(i.stockInTransit, d.stockInTransit, openingBalanceSheet.stockInTransitDeposits)
+
   return {
     startDateSerial: pick(i.startDateSerial, d.startDateSerial),
     overseas,
+    stockInTransit,
     sales: pickSeries(i.sales, d.sales),
     purchases: pickSeries(i.purchases, d.purchases),
     markup: pick(i.markup, d.markup),
@@ -665,15 +795,30 @@ function assetSchedule (asset) {
 }
 
 /**
- * One term loan's twelve-month schedule (sheet rows 263-269 and its siblings).
+ * One funding line's twelve-month schedule (sheet rows 263-269 and its siblings).
  *
- * The source's own convention, ported exactly: a monthly repayment covers the interest
- * first and the remainder reduces capital; when the balance is smaller than the
- * repayment the whole balance is repaid. Interest is charged on the OPENING balance.
+ * A TERM LOAN follows the source's own convention, ported exactly: a monthly repayment
+ * covers the interest first and the remainder reduces capital; when the balance is smaller
+ * than the repayment the whole balance is repaid. Interest is charged on the OPENING
+ * balance.
+ *
+ * A FACILITY — revolving trade finance, a stock facility, invoice finance — is the same
+ * loop WITH THE AMORTISATION LINE REMOVED (Mike's ruling, 2026-09-05). It carries its
+ * balance and charges interest on it; it does not pay itself down on a schedule, so
+ * `capitalRepaid` is zero and the balance moves only on the drawdowns and repayments the
+ * advisor types.
+ *
+ * 🔴 WHY THIS EXISTS RATHER THAN "A LOAN WITH A ZERO REPAYMENT", which is the obvious
+ * workaround and is worse. Capital repaid is worked out as `repayment − interest`, so a zero
+ * repayment makes it NEGATIVE: the debt grows by its own interest while the interest is also
+ * paid in cash, and the balance sheet still ties, so nothing complains. On the real client
+ * that prompted this — 2,450,000 at 8% — twelve months took the balance to 2,653,348 and
+ * charged the year's interest twice.
  *
  * @param {object} loan @returns {object}
  */
 function loanSchedule (loan) {
+  const isFacility = loan.type === 'facility'
   const openingBalance = zeroes()
   const capitalRepaid = zeroes()
   const interest = zeroes()
@@ -681,15 +826,20 @@ function loanSchedule (loan) {
   for (let m = 0; m < MONTHS; m++) {
     openingBalance[m] = m === 0 ? loan.opening : closingBalance[m - 1]
     interest[m] = excelRound(openingBalance[m] * loan.interestRate / 12)
-    capitalRepaid[m] = openingBalance[m] > loan.monthlyRepayment
-      ? loan.monthlyRepayment - interest[m]
-      : openingBalance[m]
+    capitalRepaid[m] = isFacility
+      ? 0
+      : (openingBalance[m] > loan.monthlyRepayment
+          ? loan.monthlyRepayment - interest[m]
+          : openingBalance[m])
     closingBalance[m] = openingBalance[m] + loan.drawdowns[m] - capitalRepaid[m] - loan.lumpSumRepayments[m]
   }
   return {
     name: loan.name,
+    type: isFacility ? 'facility' : 'term',
     interestRate: loan.interestRate,
-    monthlyRepayment: loan.monthlyRepayment,
+    // A facility has no monthly repayment, and reporting the number the caller happened to
+    // send would put a figure on a screen that nothing acts on.
+    monthlyRepayment: isFacility ? 0 : loan.monthlyRepayment,
     openingBalance,
     drawdowns: loan.drawdowns.slice(),
     capitalRepaid,
@@ -761,9 +911,14 @@ function lagSchedule (gross, buckets) {
  *
  * @param {object} O the resolved `overseas` block
  * @param {number} gst the GST rate
+ * @param {object} T the resolved `stockInTransit` block — stock already paid for at the
+ *   opening date. Handled HERE rather than in its own function because it moves the same
+ *   two positions this already rolls forward, and two functions writing one balance-sheet
+ *   line is how a prepayment and its release start disagreeing.
+ * @param {number} openingDeposits the opening deposit balance those landings release from
  * @returns {object} the monthly series, plus what fell outside the twelve months
  */
-function overseasSchedule (O, gst) {
+function overseasSchedule (O, gst, T, openingDeposits) {
   const out = {
     deposits: zeroes(),
     freight: zeroes(),
@@ -789,6 +944,13 @@ function overseasSchedule (O, gst) {
     // Inside `supplierBalance` for cash; charged to overheads in the P&L. Item 4.64 slice 2,
     // Mike's instruction of 2026-09-04.
     supplierInterest: zeroes(),
+    // ── Stock already paid for at the opening date (Fix 2, 2026-09-05) ──────────────
+    // The landed cost joining inventory, the balance settled with the supplier, and the
+    // GST Customs charges on arrival. All zeroes unless the opening balance sheet carried
+    // a deposit AND the advisor said which months the containers land.
+    transitLanded: zeroes(),
+    transitBalancePaid: zeroes(),
+    transitBorderGst: zeroes(),
     // What the twelve months cannot show, reported rather than dropped.
     depositsBeforeStart: [],
     revenueBeyondYear: 0
@@ -887,6 +1049,25 @@ function overseasSchedule (O, gst) {
     }
   }
 
+  // The advisor's own figure for a month wins over the worked-out one — Mike's ruling of
+  // 2026-09-04 that the revenue is seeded "where the advisor can override it", chosen over a
+  // locked figure precisely so a signed order at a known price has somewhere to go.
+  //
+  // A BLANK MEANS "USE THE WORKED-OUT FIGURE", so clearing the box restores it and there is
+  // no separate undo control to find or to name.
+  //
+  // 🔴 COST OF SALES DOES NOT FOLLOW IT. Imported stock is governed by its real unit cost
+  // (his ruling of the same day), so an override moves revenue and the gross margin and
+  // never the cost. Moving the cost with it would be revenue run backwards through a
+  // mark-up, which is the arithmetic that ruling exists to forbid.
+  //
+  // `revenueBeyondYear` is deliberately untouched: it is what falls OUTSIDE these twelve
+  // months, and there is no box on the screen for a month that is not on the screen.
+  for (let m = 0; m < MONTHS; m++) {
+    const typed = O.importedRevenueOverride[m]
+    if (typed !== null && typed !== undefined) { out.importedRevenue[m] = typed }
+  }
+
   // Selling overseas. The clock starts at DELIVERY, not at the invoice.
   const banked = 1 - O.salesFxAllowancePct
   for (let m = 0; m < MONTHS; m++) {
@@ -911,11 +1092,48 @@ function overseasSchedule (O, gst) {
     }
   }
 
+  /* -- stock already paid for at the opening date (Fix 2) --------------------------- */
+  // The deposit is ALREADY an asset when the forecast opens — that cash left before this
+  // year began and the forecast has never counted it. What a landing month does is stop it
+  // being a deposit and make it stock.
+  for (let m = 0; m < MONTHS; m++) {
+    const released = T.landing[m]
+    if (!released) { continue }
+    // The balance still owing follows the goods PRO RATA: half the deposit landing means
+    // half the balance falls due. Mike's ruling of 2026-09-05, and the load-bearing one —
+    // without it the stock lands carrying only its deposit, no cash ever leaves to pay the
+    // rest, and the cost of sales is too low when it sells. A profit overstated by figures
+    // that all look perfectly reasonable on screen.
+    const share = openingDeposits > 0 ? released / openingDeposits : 0
+    const balance = T.balanceOwing * share
+    prepaidReleased[m] += released
+    out.transitBalancePaid[m] += balance
+    // What joins inventory: everything paid for the goods, deposit and balance together.
+    out.transitLanded[m] += released + balance
+    // 🔴 GST IS TRIGGERED BY THE GOODS ARRIVING, NOT BY PAYING FOR THEM. A container whose
+    // deposit was paid in a previous financial year still attracts the full border GST in
+    // the month it lands. Charged here, and claimed back on the next return through the
+    // same machinery as everything else — so it shows as the timing cost it is.
+    //
+    // ⚠ CHARGED ON THE GOODS ALONE. The statutory base is the Customs value PLUS duty,
+    // freight and insurance; the approved drawing carries no field for any of them, freight
+    // on goods already on the water is commonly prepaid, and duty varies by product. Mike
+    // ruled on the goods alone (2026-09-05) with the research in front of him, and the
+    // intake screen says so in terms rather than letting the figure read as a complete
+    // Customs assessment. Rules and sources: design/TAX-RULES-IMPORT-GST.md.
+    out.transitBorderGst[m] += (released + balance) * gst
+  }
+
   // Roll the two positions forward. The exchange allowance sits inside the prepayment
   // while it is one, and is expensed in the landing month along with the rest of it —
   // which is why the release is the full amount paid, not the stock cost alone.
+  //
+  // 🔴 MONTH ZERO OPENS AT THE DEPOSITS ALREADY PAID, not at zero. That `0` was the whole
+  // of the engine gap Fix 2 closes: the position only ever handled shipments the forecast
+  // created itself, so a real client's 825,628.98 of stock on the water sat in a catch-all
+  // and never became stock at all.
   for (let m = 0; m < MONTHS; m++) {
-    const prevPrepaid = m === 0 ? 0 : out.prepaymentClosing[m - 1]
+    const prevPrepaid = m === 0 ? openingDeposits : out.prepaymentClosing[m - 1]
     out.prepaymentClosing[m] = prevPrepaid + prepaidIn[m] - prepaidReleased[m]
     const prevOwing = m === 0 ? 0 : out.balanceOwingClosing[m - 1]
     out.balanceOwingClosing[m] = prevOwing + owingAdded[m] - owingPaid[m]
@@ -980,6 +1198,7 @@ function computeThreeWayForecast (rawInputs, options) {
   const opening = {
     authorisedCapital: ob.authorisedCapital,
     capitalGain: ob.capitalGain,
+    otherEquity: ob.otherEquity,
     retainedEarnings: ob.retainedEarnings,
     cashAtBank: ob.cashAtBank,
     accountsReceivable: ob.accountsReceivable,
@@ -988,6 +1207,7 @@ function computeThreeWayForecast (rawInputs, options) {
     incomeTaxAsset: Math.max(0, ob.incomeTaxRefundDue - ob.incomeTaxPayable),
     gstRefund: ob.gstRefund,
     prepayments: Math.max(0, ob.prepayments - ob.accruedExpenses),
+    stockInTransitDeposits: ob.stockInTransitDeposits,
     shareholderCurrentAssets: shOpeningTotal > 0 ? 0 : -shOpeningTotal,
     otherCurrentAsset: ob.otherCurrentAsset,
     bankOverdraft: ob.bankOverdraft,
@@ -999,12 +1219,30 @@ function computeThreeWayForecast (rawInputs, options) {
     otherCurrentLiability: ob.otherCurrentLiability,
     otherNonCurrentLiability: ob.otherNonCurrentLiability
   }
-  opening.totalEquity = opening.authorisedCapital + opening.capitalGain + opening.retainedEarnings
+  // 🔴 A FACILITY IS A CURRENT LIABILITY, a term loan a non-current one. Mike ruled on
+  // 2026-09-05 that revolving trade finance belongs in Other current liability, and a
+  // funding row must land where the same money lands when the parser cannot name it —
+  // otherwise giving a facility its own row would quietly move millions out of working
+  // capital, which is the figure the change exists to get right.
+  opening.nonCurrentLiabilities = I.loans
+    .filter(function (l) { return l.type !== 'facility' })
+    .map(function (l) { return { name: l.name, balance: l.opening } })
+  opening.facilities = I.loans
+    .filter(function (l) { return l.type === 'facility' })
+    .map(function (l) { return { name: l.name, balance: l.opening } })
+  opening.totalFacilities = opening.facilities.reduce(function (a, f) { return a + f.balance }, 0)
+
+  opening.totalEquity = opening.authorisedCapital + opening.capitalGain + opening.otherEquity +
+    opening.retainedEarnings
   opening.totalCurrentAssets = opening.cashAtBank + opening.accountsReceivable + opening.inventory +
     opening.incomeTaxAsset + opening.gstRefund + opening.prepayments +
+    // Money already paid for stock still on the water. A named line rather than a lump in
+    // Other current asset, so it can be released into inventory when the goods land.
+    opening.stockInTransitDeposits +
     opening.shareholderCurrentAssets + opening.otherCurrentAsset
   opening.totalCurrentLiabilities = opening.bankOverdraft + opening.accountsPayable +
     opening.incomeTaxLiability + opening.gstPayable + opening.accruedExpenses +
+    opening.totalFacilities +
     opening.shareholderCurrentLiabilities + opening.otherCurrentLiability
   opening.workingCapital = opening.totalCurrentAssets - opening.totalCurrentLiabilities
   opening.nonCurrentAssets = {}
@@ -1013,8 +1251,8 @@ function computeThreeWayForecast (rawInputs, options) {
   opening.totalNonCurrentAssets = I.assets.reduce(function (a, x, n) {
     return (totalsAllSixAssets || n < 4) ? a + x.opening : a
   }, 0)
-  opening.nonCurrentLiabilities = I.loans.map(function (l) { return { name: l.name, balance: l.opening } })
-  opening.totalNonCurrentLiabilities = I.loans.reduce(function (a, l) { return a + l.opening }, 0) + opening.otherNonCurrentLiability
+  opening.totalNonCurrentLiabilities = opening.nonCurrentLiabilities
+    .reduce(function (a, l) { return a + l.balance }, 0) + opening.otherNonCurrentLiability
   opening.netAssets = opening.workingCapital - opening.totalNonCurrentLiabilities + opening.totalNonCurrentAssets
   opening.balanceCheck = excelRound(opening.totalEquity - opening.netAssets)
 
@@ -1028,7 +1266,26 @@ function computeThreeWayForecast (rawInputs, options) {
   const depreciationCharged = corrected
     ? depreciationAll
     : addSeries(assets[0].depreciation, assets[1].depreciation, assets[2].depreciation)
-  const loanInterest = addSeries.apply(null, loans.map(function (l) { return l.interest }))
+  // 🔴 A FACILITY'S INTEREST IS ITS OWN FIGURE, never merged into the term-loan line —
+  // Mike's ruling of 2026-09-05. What it costs to carry stock and debtors is a different
+  // question from what it costs to own the trucks, and merged, neither is answerable.
+  //
+  // ⚠ ENGINE-ONLY FOR NOW, and this says so rather than leaving it to be found. The report's
+  // profit tab carries four rows and shows no interest at all — overdraft and term-loan
+  // interest are already swallowed inside total overheads — so there is nowhere for a third
+  // interest line to appear. Expanding that tab is a design change with its own drawing, and
+  // the ruling was amended the same day rather than let that happen inside a build. Both
+  // series below still reach the P&L and the cash flow through `totalOverheads` and
+  // `interestPaid`; only their SEPARATE display is outstanding.
+  const termLoanInterest = addSeries.apply(null, loans.map(function (l) {
+    return l.type === 'facility' ? zeroes() : l.interest
+  }))
+  const facilityInterest = addSeries.apply(null, loans.map(function (l) {
+    return l.type === 'facility' ? l.interest : zeroes()
+  }))
+  // What the P&L and the cash flow charge: both, together. With no facility entered the
+  // second is zeroes and this is the figure it has always been.
+  const loanInterest = addSeries(termLoanInterest, facilityInterest)
   const shareholderInterest = addSeries.apply(null, shareholders.map(function (s) { return s.interestOnOverdrawn }))
   const additionsAll = addSeries.apply(null, assets.map(function (a) { return a.additions }))
   const disposalsAll = addSeries.apply(null, assets.map(function (a) { return a.disposals }))
@@ -1054,7 +1311,7 @@ function computeThreeWayForecast (rawInputs, options) {
   /* -- buying and selling overseas (4.64) ------------------------------------------ */
   // Every series below is zeroes unless the advisor entered overseas trade, so nothing
   // from here can move a figure in a domestic forecast.
-  const OS = overseasSchedule(I.overseas, gst)
+  const OS = overseasSchedule(I.overseas, gst, I.stockInTransit, opening.stockInTransitDeposits)
   const importedPurchases = I.overseas.importedPurchases
   // Imported stock is sold at HOME — Mike's ruling of 2026-09-04 — so its revenue joins
   // the domestic stream for GST and for collection.
@@ -1087,7 +1344,12 @@ function computeThreeWayForecast (rawInputs, options) {
   // The overseas mark-up starts equal to the local one, so a forecast that never touches
   // it produces today's figures (Mike's ruling, 2026-09-04).
   const overseasCostRatio = 1 / (1 + (I.overseas.overseasMarkup === null ? I.markup : I.overseas.overseasMarkup))
-  const allPurchases = addSeries(I.purchases, importedPurchases)
+  // 🔴 THE SECOND SEAM OF FIX 2, and the one the drawing's own sizing missed until it was
+  // checked against the code. Releasing the prepayment says the money stopped being a
+  // deposit; it does not make the stock ARRIVE. Inventory is driven by purchases, so the
+  // landed value has to join them in the landing month or the goods vanish between the two
+  // balance-sheet lines.
+  const allPurchases = addSeries(I.purchases, importedPurchases, OS.transitLanded)
   for (let m = 0; m < MONTHS; m++) {
     invOpening[m] = m === 0 ? ob.inventory : invClosing[m - 1]
     invSubtotal[m] = invOpening[m] + allPurchases[m]
@@ -1223,7 +1485,7 @@ function computeThreeWayForecast (rawInputs, options) {
   // are due, freight is paid, border gst etc - BEFORE the business can even start selling
   // them". Rolled into accountsPayable they would appear as one figure in the month the
   // supplier was settled, and the months that matter would be invisible.
-  const payments = { accountsPayable: zeroes(), currentMonthGstInclusive: blockTwoGross, currentMonthGstFree: blockThreeTotal, interestPaid: zeroes(), loanPrincipal: zeroes(), gstPaid: zeroes(), taxPaid: I.taxPayments.slice(), shareholderDrawings: zeroes(), capitalExpenditure: zeroes(), overseasDeposits: OS.deposits, overseasFreight: OS.freight, overseasDuty: OS.duty, overseasBorderGst: OS.borderGst, overseasSupplierBalance: OS.supplierBalance }
+  const payments = { accountsPayable: zeroes(), currentMonthGstInclusive: blockTwoGross, currentMonthGstFree: blockThreeTotal, interestPaid: zeroes(), loanPrincipal: zeroes(), gstPaid: zeroes(), taxPaid: I.taxPayments.slice(), shareholderDrawings: zeroes(), capitalExpenditure: zeroes(), overseasDeposits: OS.deposits, overseasFreight: OS.freight, overseasDuty: OS.duty, overseasBorderGst: OS.borderGst, overseasSupplierBalance: OS.supplierBalance, stockInTransitBalance: OS.transitBalancePaid, stockInTransitGst: OS.transitBorderGst }
   const totalReceipts = zeroes(); const totalPayments = zeroes(); const netMovement = zeroes()
 
   const loanDrawdownsAll = addSeries.apply(null, loans.map(function (l) { return l.drawdowns }))
@@ -1300,7 +1562,7 @@ function computeThreeWayForecast (rawInputs, options) {
     // GST paid at the border is an input credit on the same return as everything else —
     // paid on the day the goods clear, claimed back at the next filing. Showing both in
     // their real months is the point: it is a timing cost, not a lost one.
-    gstInputs[m] = gstOnExpenses[m] + gstOnAssetPurchases[m] + OS.borderGst[m]
+    gstInputs[m] = gstOnExpenses[m] + gstOnAssetPurchases[m] + OS.borderGst[m] + OS.transitBorderGst[m]
     gstForMonth[m] = gstOutputs[m] - gstInputs[m]
 
     gstFileOneMonthly[m] = gstForMonth[m]
@@ -1336,7 +1598,7 @@ function computeThreeWayForecast (rawInputs, options) {
     // — the balance-sheet movement is what has been INVOICED, not what has been paid.
     gstOnPayables[m] = blockOneGst[m] + blockTwoGst[m] + purchaseGst[m]
     gstBalanceClosing[m] = gstBalanceSubtotal[m] - gstOnPayables[m] -
-      gstOnAssetPurchases[m] - OS.borderGst[m] - gstPaymentsMade[m]
+      gstOnAssetPurchases[m] - OS.borderGst[m] - OS.transitBorderGst[m] - gstPaymentsMade[m]
 
     /* -- cash flow ---------------------------------------------------------------- */
     receipts.interestReceived[m] = inFundsInterest[m]
@@ -1366,7 +1628,10 @@ function computeThreeWayForecast (rawInputs, options) {
       payments.gstPaid[m] + payments.taxPaid[m] + payments.shareholderDrawings[m] +
       payments.capitalExpenditure[m] + payments.overseasDeposits[m] +
       payments.overseasFreight[m] + payments.overseasDuty[m] +
-      payments.overseasBorderGst[m] + payments.overseasSupplierBalance[m]
+      payments.overseasBorderGst[m] + payments.overseasSupplierBalance[m] +
+      // Fix 2: the balance settled on stock already paid for, and the GST Customs charges
+      // when it lands. Zero unless the opening position carried a deposit.
+      payments.stockInTransitBalance[m] + payments.stockInTransitGst[m]
 
     netMovement[m] = totalReceipts[m] - totalPayments[m]
     bankClosing[m] = netMovement[m] + bankOpening[m]
@@ -1376,6 +1641,7 @@ function computeThreeWayForecast (rawInputs, options) {
   const bs = {
     authorisedCapital: zeroes(),
     capitalGain: zeroes(),
+    otherEquity: zeroes(),
     retainedEarnings: zeroes(),
     totalEquity: zeroes(),
     cashAtBank: zeroes(),
@@ -1400,6 +1666,10 @@ function computeThreeWayForecast (rawInputs, options) {
     otherCurrentLiability: zeroes(),
     totalCurrentLiabilities: zeroes(),
     workingCapital: zeroes(),
+    // A facility revolves and is repayable on demand, so it belongs among the short-term
+    // debt beside the overdraft — never with the term loans below (Mike, 2026-09-05).
+    facilities: [],
+    totalFacilities: zeroes(),
     nonCurrentAssets: {},
     totalNonCurrentAssets: zeroes(),
     nonCurrentLiabilities: [],
@@ -1409,13 +1679,19 @@ function computeThreeWayForecast (rawInputs, options) {
     balanceCheck: zeroes()
   }
   for (let k = 0; k < ASSET_KEYS.length; k++) { bs.nonCurrentAssets[ASSET_KEYS[k]] = assets[k].closingValue }
-  bs.nonCurrentLiabilities = loans.map(function (l) { return { name: l.name, balance: l.closingBalance } })
+  bs.nonCurrentLiabilities = loans
+    .filter(function (l) { return l.type !== 'facility' })
+    .map(function (l) { return { name: l.name, balance: l.closingBalance } })
+  bs.facilities = loans
+    .filter(function (l) { return l.type === 'facility' })
+    .map(function (l) { return { name: l.name, balance: l.closingBalance } })
 
   for (let m = 0; m < MONTHS; m++) {
     bs.authorisedCapital[m] = m === 0 ? opening.authorisedCapital : bs.authorisedCapital[m - 1]
     bs.capitalGain[m] = m === 0 ? opening.capitalGain : bs.capitalGain[m - 1]
+    bs.otherEquity[m] = m === 0 ? opening.otherEquity : bs.otherEquity[m - 1]
     bs.retainedEarnings[m] = netSurplusAfterTax[m] + (m === 0 ? opening.retainedEarnings : bs.retainedEarnings[m - 1])
-    bs.totalEquity[m] = bs.authorisedCapital[m] + bs.capitalGain[m] + bs.retainedEarnings[m]
+    bs.totalEquity[m] = bs.authorisedCapital[m] + bs.capitalGain[m] + bs.otherEquity[m] + bs.retainedEarnings[m]
 
     bs.cashAtBank[m] = bankClosing[m] > 0 ? bankClosing[m] : 0
     bs.bankOverdraft[m] = bankClosing[m] < 0 ? -bankClosing[m] : 0
@@ -1438,9 +1714,12 @@ function computeThreeWayForecast (rawInputs, options) {
       bs.incomeTaxAsset[m] + bs.gstRefund[m] + bs.prepayments[m] +
       bs.importPrepayments[m] +
       bs.shareholderCurrentAssets[m] + bs.otherCurrentAsset[m]
+    let fac = 0
+    for (let k = 0; k < bs.facilities.length; k++) { fac += bs.facilities[k].balance[m] }
+    bs.totalFacilities[m] = fac
     bs.totalCurrentLiabilities[m] = bs.bankOverdraft[m] + bs.accountsPayable[m] +
       bs.incomeTaxLiability[m] + bs.gstPayable[m] + bs.accruedExpenses[m] +
-      bs.importSupplierBalance[m] +
+      bs.importSupplierBalance[m] + bs.totalFacilities[m] +
       bs.shareholderCurrentLiabilities[m] + bs.otherCurrentLiability[m]
     bs.workingCapital[m] = bs.totalCurrentAssets[m] - bs.totalCurrentLiabilities[m]
 
@@ -1505,7 +1784,11 @@ function computeThreeWayForecast (rawInputs, options) {
       overheads: overhead,
       depreciation: depreciationCharged,
       interestBankOverdraft: overdraftInterest,
-      interestTermLoans: loanInterest,
+      // Term loans and facilities are two figures, never one — see the ruling at
+      // `termLoanInterest`. Both are inside `totalOverheads`; with no facility entered the
+      // second is zeroes and the first is the figure this line has always carried.
+      interestTermLoans: termLoanInterest,
+      interestFacilities: facilityInterest,
       totalOverheads,
       operatingSurplus,
       interestIncomeBank: inFundsInterest,
@@ -1609,6 +1892,22 @@ function computeThreeWayForecast (rawInputs, options) {
         closingBalance: payableClosing
       },
       loans,
+      /**
+       * Stock already paid for at the opening date (Fix 2). Zeroes throughout unless the
+       * opening balance sheet carried a deposit AND the advisor said when it lands.
+       * `notLanded` is what has no landing month, which is not an error: it stays a
+       * deposit at the year end, and the screen explains it rather than blocking.
+       */
+      stockInTransit: {
+        openingDeposits: opening.stockInTransitDeposits,
+        balanceOwing: I.stockInTransit.balanceOwing,
+        landing: I.stockInTransit.landing.slice(),
+        landedValue: OS.transitLanded,
+        balancePaid: OS.transitBalancePaid,
+        borderGst: OS.transitBorderGst,
+        notLanded: excelRound(opening.stockInTransitDeposits -
+          I.stockInTransit.landing.reduce(function (a, v) { return a + v }, 0))
+      },
       assets,
       shareholders,
       gst: {
@@ -1704,6 +2003,7 @@ function carryForward (previousYear, nextYearInputs, resetShareholdersTo) {
   next.openingBalanceSheet = Object.assign({}, nextYearInputs.openingBalanceSheet, {
     authorisedCapital: bs.authorisedCapital[last],
     capitalGain: bs.capitalGain[last],
+    otherEquity: bs.otherEquity[last],
     retainedEarnings: bs.retainedEarnings[last],
     cashAtBank: bs.cashAtBank[last],
     bankOverdraft: bs.bankOverdraft[last],
@@ -1720,14 +2020,25 @@ function carryForward (previousYear, nextYearInputs, resetShareholdersTo) {
     accruedExpenses: liabilitySide(accrualNet),
     otherCurrentAsset: bs.otherCurrentAsset[last],
     otherCurrentLiability: bs.otherCurrentLiability[last],
-    otherNonCurrentLiability: bs.otherNonCurrentLiability[last]
+    otherNonCurrentLiability: bs.otherNonCurrentLiability[last],
+    // Deposits on stock that had still not landed by the year end open the next year as
+    // deposits — which is exactly what they are. The next year's own landing months are
+    // its own to set, and default to none, so nothing lands by accident.
+    stockInTransitDeposits: bs.importPrepayments[last]
   })
 
   next.assets = (nextYearInputs.assets || DEFAULTS.assets).map(function (a, n) {
     return Object.assign({}, a, { opening: s.assets[n].closingValue[last] })
   })
+  // A later year may name a different number of funding lines from the year before it —
+  // rows appear as they are needed (2026-09-05), so the counts are no longer guaranteed to
+  // match. A line with no predecessor opens at its OWN figure rather than reaching past the
+  // end of last year's schedules, which is what used to throw.
   next.loans = (nextYearInputs.loans || DEFAULTS.loans).map(function (l, n) {
-    return Object.assign({}, l, { opening: s.loans[n].closingBalance[last] })
+    const previous = s.loans[n]
+    return Object.assign({}, l, {
+      opening: previous ? previous.closingBalance[last] : pick(l.opening, 0)
+    })
   })
   next.shareholders = (nextYearInputs.shareholders || DEFAULTS.shareholders).map(function (sh, n) {
     if (resetShareholdersTo) {
@@ -1820,9 +2131,48 @@ function computeThreeYearForecast (rawInputs, options) {
   }
 }
 
+/**
+ * The revenue imported stock produces, month by month, WITHOUT any override applied.
+ *
+ * WHY IT EXISTS. Mike's ruling of 2026-09-04 is that this revenue is worked out and then
+ * "seeded into the sales row where the advisor can override it", and the approved drawing
+ * (`design/mockups/three-way-forecast-international.html`) shows the twelve figures on the
+ * assumptions screen. A screen cannot show them without asking for them, and the ladder is
+ * business logic, so it is asked for over HTTP rather than repeated in the browser.
+ *
+ * 🔴 IT CALLS THE ENGINE'S OWN `overseasSchedule`, NEVER A SECOND IMPLEMENTATION. A copy of
+ * the ladder written for the screen would drift from the one that produces the forecast, and
+ * the advisor would be shown one number and given another.
+ *
+ * 🔴 THE OVERRIDE IS CLEARED BEFORE COMPUTING, WHICH IS THE POINT OF THE FUNCTION. Seeding
+ * from a result that already has the advisor's figures in it would make a typed number look
+ * like a worked-out one, and clearing a box would then restore the advisor's own value
+ * instead of the ladder's — the restore would silently do nothing.
+ *
+ * @param {object} rawInputs the same shape `computeThreeWayForecast` takes
+ * @returns {{importedRevenue: Array<number>, revenueBeyondYear: number}}
+ */
+function importedRevenuePreview (rawInputs) {
+  const I = resolveInputs(rawInputs)
+  // The preview is about IMPORTED REVENUE and nothing else, so the stock-in-transit block
+  // is passed empty: opening deposits release into stock, never into a sale, and letting
+  // them through here would put a figure in a preview that the ladder did not work out.
+  const worked = overseasSchedule(
+    Object.assign({}, I.overseas, { importedRevenueOverride: blanks() }),
+    I.gstRate,
+    { balanceOwing: 0, landing: zeroes() },
+    0
+  )
+  return {
+    importedRevenue: worked.importedRevenue.slice(),
+    revenueBeyondYear: worked.revenueBeyondYear
+  }
+}
+
 module.exports = {
   computeThreeWayForecast,
   computeThreeYearForecast,
+  importedRevenuePreview,
   carryForward,
   DEFAULTS,
   ASSET_KEYS,

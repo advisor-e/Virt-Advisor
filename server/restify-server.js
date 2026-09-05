@@ -216,6 +216,9 @@ server.post('/api/report/volatility', reportRoute.volatility)
 // rather than a computed property because the date rules are business logic, and one
 // implementation cannot drift from another.
 server.post('/api/report/import-shipments', reportRoute.importShipments)
+// What the imported stock will sell for as it ages down the price ladder (item 4.64). Step 3
+// seeds its twelve revenue boxes from this. Anonymous and calculation-only, like the two above.
+server.post('/api/report/imported-revenue', reportRoute.importedRevenue)
 server.post('/api/report/three-way-forecast', reportRoute.threeWayForecast)
 server.post('/api/report/three-way-forecast/three-years', reportRoute.threeYearForecast)
 // The Model Guide screen. Same records the AI is given, from the same file — see the

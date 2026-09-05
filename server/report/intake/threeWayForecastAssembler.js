@@ -45,6 +45,7 @@
 // these two reports is this year?" has ONE definition — the assembler's ordering and the
 // model's comparability check must agree, or a pair ordered here would be refused there.
 const { periodEndOf } = require('../trendModel')
+const { redactLabel } = require('./xeroReportParser')
 
 /**
  * A Balance Sheet, a Profit and Loss, up to TWO by-month Profit and Loss exports, and —
@@ -63,8 +64,16 @@ const { periodEndOf } = require('../trendModel')
  */
 const MAX_FILES = 6
 const MONTHS = 12
-/** The forecast carries three term loans and four shareholder current accounts. */
-const MAX_LOANS = 3
+/**
+ * The most funding lines a forecast may carry, and four shareholder current accounts.
+ *
+ * 🔴 RAISED FROM THREE TO EIGHT ON MIKE'S RULING, 2026-09-05, and rows now appear AS THEY
+ * ARE NEEDED rather than being a fixed number. Three was the workbook's count; the real
+ * client that prompted the change has four term loans plus two facilities, and the app told
+ * the advisor it had combined two of them. The cap is OURS — a safety limit against a
+ * malformed file, never a judgement about how much debt a business may carry.
+ */
+const MAX_LOANS = 8
 const MAX_SHAREHOLDERS = 4
 
 /**
@@ -276,7 +285,7 @@ function assembleForecastIntake (parsed, monthlySales) {
   const rawLoans = bs.loanBalances || []
   const rawShareholders = bs.shareholderBalances || []
   if (rawLoans.length > MAX_LOANS) {
-    warnings.push('The file holds ' + rawLoans.length + ' term loans or hire-purchase agreements; the forecast carries ' +
+    warnings.push('The file holds ' + rawLoans.length + ' loans or hire-purchase agreements; the forecast carries ' +
       MAX_LOANS + ', so the surplus has been combined into the last. Please check it.')
   }
   if (rawShareholders.length > MAX_SHAREHOLDERS) {
@@ -284,13 +293,22 @@ function assembleForecastIntake (parsed, monthlySales) {
       MAX_SHAREHOLDERS + ', so the surplus has been combined into the last. Please check it.')
   }
   const loans = foldTo(rawLoans, MAX_LOANS)
+  // As many rows as the file actually holds, and one when it holds none — never a fixed
+  // count. Showing five empty rows to a business with one loan and an overdraft is the
+  // screen this ruling exists to prevent; the advisor adds a line when they need one.
+  const loanRowCount = Math.max(1, loans.length)
   proposal.loans = []
-  for (let i = 0; i < MAX_LOANS; i++) {
-    proposal.loans.push({ opening: i < loans.length ? loans[i] : 0 })
+  for (let i = 0; i < loanRowCount; i++) {
+    // Every file-sourced row is a TERM LOAN. A balance sheet never says whether finance
+    // revolves, and guessing it from an account name would set an amortisation schedule on
+    // a client's debt from a word. The advisor sets Type; the screen shows it unset to
+    // "Term loan", which is what every forecast built before 2026-09-05 assumed silently.
+    proposal.loans.push({ opening: i < loans.length ? loans[i] : 0, type: 'term' })
     if (i < loans.length) { provenance['loans.' + i + '.opening'] = 'file' }
     // Rate, term and repayment are contractual facts no balance sheet carries.
     provenance['loans.' + i + '.interestRate'] = 'entered'
     provenance['loans.' + i + '.monthlyRepayment'] = 'entered'
+    provenance['loans.' + i + '.type'] = 'entered'
   }
   const shareholders = foldTo(rawShareholders, MAX_SHAREHOLDERS)
   proposal.shareholders = []
@@ -322,7 +340,9 @@ function assembleForecastIntake (parsed, monthlySales) {
       warnings.push(unmatched.length + ' expense ' + (unmatched.length === 1 ? 'line was' : 'lines were') +
         ' not recognised and ' + (unmatched.length === 1 ? 'has' : 'have') +
         ' been added to "Other 5" so nothing is lost: ' +
-        unmatched.map(u => u.name).join(', ') + '. Please move them to the right lines.')
+        // The SECOND path a client's own account name reaches the screen by, and it goes
+        // through the same redaction as the candidate rows — one definition, no drift.
+        unmatched.map(u => redactLabel(u.name)).join(', ') + '. Please move them to the right lines.')
     }
     const matchedKeys = Object.keys(overheads)
     for (let i = 0; i < matchedKeys.length; i++) { provenance['overheads.' + matchedKeys[i]] = 'file' }

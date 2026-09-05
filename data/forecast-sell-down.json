@@ -18,6 +18,21 @@
     "on COST, so a price is cost x (1 + markup): 145 x 2.85 = 413.25, which is the",
     "workbook's own New Stock Retail Price for Stock 1.",
     "",
+    "TERMS — the supplier's, and they are what turn an ORDER DATE into a landing date.",
+    "Manufacture 120, balance due 91 days from order, 9 pre-retail prep days, interest",
+    "cover 6%, and the three shipping speeds: all Mike's, same workbook. They summed to",
+    "the 154 / 149 / 144 day totals his sheet states for sea, air and express.",
+    "",
+    "THEY MOVE MONEY, WHICH IS WHY THEY ARE HERE. Interest cover is charged on the",
+    "deferred balance and expensed in overheads; the day counts decide which calendar",
+    "month every deposit, balance and landing falls in. Until 2026-09-04 all seven were",
+    "hardcoded in components/ThreeWayForecastIntake.vue with a badge on screen claiming",
+    "they came from platform settings, which was untrue — nothing could edit them. Mike's",
+    "instruction that day: 'make it editable'.",
+    "",
+    "UNITS ARE THE ENGINE'S, as with the markups: interestCoverPct is a DECIMAL (0.06 =",
+    "6%). The screen shows a percentage and converts on both edges.",
+    "",
     "Item 4.64. Drawing: design/mockups/three-way-forecast-international.html."
   ],
   "ladder": {
@@ -27,6 +42,15 @@
     "newUpToDays": 60,
     "standardUpToDays": 90,
     "runoutUpToDays": 120
+  },
+  "terms": {
+    "manufactureDays": 120,
+    "balanceDueDays": 91,
+    "prepDays": 9,
+    "interestCoverPct": 0.06,
+    "seaDays": 25,
+    "airDays": 20,
+    "expressDays": 15
   },
   "defaultPattern": "Steady Eddy",
   "patterns": [
