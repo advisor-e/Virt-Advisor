@@ -229,6 +229,75 @@ about. Mike's source list named feedback forums; this is what good use of one lo
 
 ---
 
+## Run 4 — 2026-09-06 · the fix that worked
+
+**Same Galway brief again, run 3's per-figure rule kept, one change added:** §4 of the
+output may no longer restate a figure given in §§1–3 — refer in words to what those sections
+established, and introduce a genuinely new figure with its own source like any other.
+
+**Removing the surface rather than policing it.** Three attempts had told the model to cite
+restatements properly. This one stops the restatement.
+
+| Measure | Run 3 | Run 4 |
+|---|---|---|
+| Wall-clock | 82.5 s | 102.0 s |
+| Web searches | 9 | 12 |
+| Unique sources | 20 | **30** |
+| Words | 2,070 | 2,276 |
+| Cost | ≈ US$0.31 | ≈ US$0.40 |
+
+### 🔴 It worked. Section 4 came back with ZERO figures and ZERO citations
+
+Nothing restated, therefore nothing to misattribute. **The fault has no surface left.** And
+the section did not become vague — it reads as an economist's summary rather than a table:
+
+> *"The planned third site would open during a period of positive domestic demand but
+> persistent cost pressure… The finance requirement has two separate economic exposures: a
+> one-off fit-out and equipment purchase, and an ongoing lease commitment… Actual supplier
+> quotations, lease terms and lender pricing are not known."*
+
+It still refuses the lending question, and still separates public evidence from the business.
+
+### Sections 1–3 did not degrade — they improved
+
+**30 unique sources**, the most of any run, with a citation per figure throughout. Where a
+paragraph draws on two releases, both are cited separately — the insurance paragraph cites two
+HIA bulletins, the public-capacity paragraph two gov.ie releases, the workforce paragraph CORU
+and a Department release.
+
+**It also handled a genuine source disagreement exactly as §3 asks.** Two HIA bulletins gave
+different average adult premiums (€1,902 and €1,960); it reported both and explained the
+difference as *"a later reporting point and premium measure"* rather than silently choosing.
+
+**And its forum handling produced the one commercially useful judgement in the document**:
+after reading two Galway threads and labelling them *"self-selected anecdotes"* that cannot
+establish quality or market share, it concluded they *"do indicate that patients can identify
+several alternative providers and that local competition should not be assumed to be
+limited."* That is a real finding for a lender, drawn honestly from a weak source.
+
+### What run 4 settles, and the one caveat
+
+**Settled:** the no-restatement rule in §6 is **load-bearing and must not be relaxed** to let
+§4 quote numbers again. Every figure now lives exactly once, beside the source it came from.
+
+⚠ **It rests on a single run.** Runs 1–3 established the fault across three; one clean result
+is strong evidence the fix works, not proof. **Re-check it when the feature is built.**
+
+### Length, across all four runs
+
+| | Target | Actual (all sections) |
+|---|---|---|
+| Run 1 | 800–1,200 | 1,602 |
+| Run 2 | 1,200–1,600 | 2,301 |
+| Run 3 | 1,200–1,600 | 2,070 |
+| Run 4 | 1,200–1,600 | 2,276 |
+
+**The number in the prompt does not control the length.** Four runs, four overshoots, and
+raising the target raised the output. A screen must accommodate roughly 1,500–2,500 words and
+must not assume otherwise.
+
+---
+
 ## Run 1 in full — the model's own words
 
 > Reproduced verbatim, headings demoted so they sit inside this page. **Bold figures, inline

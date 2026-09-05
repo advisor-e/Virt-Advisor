@@ -167,7 +167,10 @@ three existing prompts, so this becomes the fourth and is editable there without
 > 3. **Sector outlook** — the industry this business operates in.
 > 4. **What this means for the business under review** — how the above bears on a business of
 >    this type, in this place, over the period the brief gives. Conditions and their
->    implications only; no figures of the business's own.
+>    implications only; no figures of the business's own. **Do not restate any figure already
+>    given in sections 1 to 3** — refer in words to what those sections established, without
+>    repeating the number. If a figure has not appeared before and genuinely belongs here,
+>    introduce it with its own source and date like any other.
 > 5. **What could not be sourced** — every figure you sought and could not find, and what you
 >    would have used it for.
 >
@@ -209,7 +212,7 @@ The standards say never to trust LLM output as structured data. These are checks
 | Rule | How it is held |
 |---|---|
 | §4 — no figure without a citation | `url_citation` annotations come back as structured fields; a claimed figure with no annotation behind it is rejected before it reaches the screen |
-| 🔴 **SECTIONS 1–3 CAN BE RELIED ON FOR ATTRIBUTION. SECTION 4 CANNOT.** | Three runs, and the pattern is precise: **a citation is reliable where a figure is first introduced, and unreliable where it is restated.** §§1–3 introduce; §4 recalls, and bundles two or three figures from different releases under one source. Run 1 credited the statistics agency for a central-bank exchange rate; run 2 credited an earnings release for a rent index; run 3 did it twice more in §4 while getting §§1–3 right. **The numbers were correct every time; the source beside them was not.** Our check tests that a citation **exists** and cannot test that it belongs, and `url_citation` records where the model *put* it — so a misplacement arrives inside the annotation and cannot be caught downstream. **Never claim the machine guarantees attribution.** Three instruction-level attempts have failed; **do not make a fourth on the same lines.** Evidence: [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md) |
+| ✅ **EVERY FIGURE LIVES ONCE, BESIDE ITS OWN SOURCE — and that is why §6's no-restatement rule is load-bearing, not tidiness** | Runs 1–3 each put a correct figure beside the wrong source. The pattern was precise: **attribution was reliable where a figure was first introduced and unreliable where it was RESTATED** — §§1–3 introduce, §4 recalled and bundled two or three figures under one citation. Three instruction-level attempts to make it re-cite on restatement failed. **Run 4 removed the surface instead of policing it**: §4 may no longer repeat a figure at all, and it came back with **zero figures and zero citations**, still substantive, while §§1–3 kept a source per figure and cited two-source paragraphs separately. **Do not relax that rule to let §4 quote numbers again** — it is the whole fix. ⚠ **It rests on one run and must be re-checked when the feature is built.** `url_citation` records where the model *put* a citation, so a misplacement arrives inside the annotation and no downstream check can catch it. Evidence: [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md) |
 | ⚠ Length is a steer, not a contract | Both runs overshot their target, and raising the target raised the output with it. Output length tracks how much the model **finds**, not the number it is given. A screen must not assume a predictable length |
 | Approval before it reaches a lender | An advisor must accept the research explicitly (`isApproved: true`) before it can join a funding pack — the standards' rule for financial output |
 | It is AI text, and says so | `ProvenanceBadge` gains a **fifth** state. It already has four — `file`, `entered`, `seeded`, `client` |
