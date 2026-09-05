@@ -207,11 +207,22 @@ describe('Three-Way Forecast screen — the balance check is shown plainly', () 
 })
 
 describe('Three-Way Forecast screen — the shared blocks do the work', () => {
-  test('it composes the shared header, banner and figures rather than its own', async () => {
+  test('it composes the shared banner and figures rather than its own', async () => {
     const w = await mountWithResult(SAMPLE)
-    expect(w.findComponent({ name: 'ReportHeader' }).exists()).toBe(true)
     expect(w.findComponent({ name: 'HeroStrip' }).exists()).toBe(true)
     expect(w.findAllComponents({ name: 'HeroFigure' })).toHaveLength(4)
+    w.destroy()
+  })
+
+  // 🔴 This asserted the OPPOSITE until 2026-09-05, and the assertion was the bug's alibi.
+  // pages/three-way-forecast.vue renders the shared ReportHeader over all four steps, so a
+  // second one here drew the title banner twice on step 4, one under the other. No mount
+  // test could see it — both headers rendered perfectly, there were simply two — and it
+  // took a screenshot of the running app to find. Quick Position, EBITDA-DCF and the Loan
+  // Estimator all put the header in the page, which is the pattern this now follows.
+  test('🔴 it does NOT render a second header — the page owns that', async () => {
+    const w = await mountWithResult(SAMPLE)
+    expect(w.findComponent({ name: 'ReportHeader' }).exists()).toBe(false)
     w.destroy()
   })
 

@@ -2,13 +2,17 @@
 //- [A] Screen root — a flex column with ONE gap value, so header→banner→body all
 //- space identically. See design/REPORT-VISUAL-STANDARD.md.
 .tw-root
-  //- [B] No badge: CLASS_REPORT, built from the client's own accounts.
-  report-header(
-    :back-label="$t('modelLibrary.backToLibrary')"
-    :eyebrow="$t('report.eyebrow') + ' · ' + $t('report.threeWayForecast.eyebrowClass')"
-    :title="$t('report.threeWayForecast.title')"
-    :client="client || $t('report.preparedFor')")
-
+  //- [B] 🔴 NO HEADER HERE — THE PAGE OWNS IT. pages/three-way-forecast.vue renders the
+  //- shared ReportHeader above the step chips, so it stands over all four steps. This
+  //- component rendered a SECOND one, and on step 4 the screen showed the title banner
+  //- twice, one under the other (found 2026-09-05 by screenshotting the running app).
+  //-
+  //- The page is the right owner, and not merely the incumbent: Quick Position,
+  //- EBITDA-DCF and the Loan Estimator all put the header in the page — the pattern
+  //- tests/unit/reportHeaderFullWidth.test.js names in its own comment — and Quick
+  //- Position's page header is where its save / restore / client-access handlers hang.
+  //- The forecast is the last screen item 4.62 has to wire, so its per-client controls
+  //- will need exactly that seam.
   template(v-if="data")
     //- A failed recompute must never sit silently behind live-looking figures.
     stale-banner(
@@ -195,7 +199,6 @@
  *     opening figures that are out, and refusing to compute would hide the forecast that
  *     tells them so.
  */
-import ReportHeader from '~/components/base/ReportHeader.vue'
 import HeroStrip from '~/components/base/HeroStrip.vue'
 import HeroFigure from '~/components/base/HeroFigure.vue'
 import StaleBanner from '~/components/base/StaleBanner.vue'
@@ -209,15 +212,15 @@ const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 export default {
   name: 'ThreeWayForecastReport',
 
-  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SliderField },
+  components: { HeroStrip, HeroFigure, StaleBanner, SliderField },
 
   mixins: [currencyMixin, reportRecompute],
 
   props: {
     /** The confirmed inputs from the intake, or null to compute on the sample. */
-    seed: { type: Object, default: null },
-    /** The client's own name, held locally and never sent anywhere. */
-    client: { type: String, default: '' }
+    seed: { type: Object, default: null }
+    // No `client` prop: the only thing that read it was the duplicate header removed on
+    // 2026-09-05. The page holds the client's name and puts it on the header it owns.
   },
 
   data () {
@@ -710,9 +713,9 @@ export default {
 /* Every value reads a --rs-* token from the shared ReportShell; nothing here declares a
    frame, palette, card or font of its own. See design/REPORT-VISUAL-STANDARD.md. */
 
-/* [A] Root: ONE gap value, and the mandatory header-margin reset. */
+/* [A] Root: ONE gap value. No `.rs-top` margin reset, because no header is rendered
+   inside this root — the page owns it. See the note at the top of the template. */
 .tw-root { display: flex; flex-direction: column; gap: 16px; }
-.tw-root ::v-deep .rs-top { margin: 0; }
 
 /* [D] Two-column body. */
 .tw-layout { display: grid; grid-template-columns: var(--rs-col-input) 1fr; gap: var(--rs-col-gap); align-items: start; }
@@ -726,8 +729,15 @@ export default {
 .tw-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--rs-accent-bright); }
 .tw-h2 { margin: 0; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--rs-muted); font-weight: 600; }
 
-/* [D2] Results column keeps the same 16px rhythm. */
-.tw-results { display: flex; flex-direction: column; gap: 16px; min-height: 200px; }
+/* [D2] Results column keeps the same 16px rhythm.
+   🔴 `min-width: 0` IS LOAD-BEARING, not tidiness. This is a GRID ITEM, and a grid item's
+   automatic minimum size is its content's min-content width — so without this it refuses to
+   shrink below the 900px table inside it, the `overflow-x: auto` below never engages, and
+   the table drags the whole PAGE sideways instead of scrolling in its own card. Measured at
+   1366px before the fix: a 934px column in a 700px track, the document 1455px wide, and the
+   table's right edge 217px past its own card. The house pattern — `.coc-results` and
+   `.lvb-results` have carried it all along; this screen was the one that did not. */
+.tw-results { display: flex; flex-direction: column; gap: 16px; min-height: 200px; min-width: 0; }
 
 .tw-tile { background: var(--rs-card-bg); border: 1px solid var(--rs-card-border); border-radius: var(--rs-card-radius); padding: 13px 14px; }
 .tw-k { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--rs-muted); font-weight: 600; }

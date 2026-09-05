@@ -42,8 +42,12 @@ const RENDERED_BY = {
   '/cost-of-capital': { component: 'components/CostOfCapital.vue' },
   '/multiple-property': { component: 'components/MultiplePropertyAssessment.vue' },
   '/volatility': { component: 'components/VolatilityReport.vue' },
-  '/three-way-forecast': { component: 'components/ThreeWayForecastReport.vue' },
   // Pages need Nuxt context to mount, so these are asserted at source.
+  // 🔴 The Three-Way Forecast MOVED into this group on 2026-09-05. Its component had been
+  // rendering a second ReportHeader under the page's own, so the screen drew its title
+  // banner twice; the component's was removed and the page's is now the only one. This
+  // guard caught the move on the first run, which is what it is for.
+  '/three-way-forecast': { source: 'pages/three-way-forecast.vue' },
   '/quick-position': { source: 'pages/quick-position.vue' },
   '/ebitda-dcf': { source: 'pages/ebitda-dcf.vue' },
   '/loan-estimator': { source: 'pages/loan-estimator.vue' }

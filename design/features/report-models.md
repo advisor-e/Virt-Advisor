@@ -597,6 +597,19 @@ the forecast and the note appears only when something is hidden.
 one the engine has returned since it was written. **Facility interest finally has a row of its
 own** — it was ruled engine-only earlier the same day purely for want of anywhere to put it.
 
+**Two layout faults found by opening the app, both older than the work above.**
+The report's results column is a grid item and had no `min-width: 0`, so it refused to shrink
+below the 900px table inside it: the table's `overflow-x: auto` never engaged and it dragged
+the whole page sideways instead of scrolling in its own card. Measured at 1366px — a 934px
+column in a 700px track, the document 1455px wide. Five of the eight report screens already
+carried the guard; this one did not. **And the page and the component each rendered a
+ReportHeader**, so step 4 drew the title banner twice. The component's was removed: Quick
+Position, EBITDA-DCF and the Loan Estimator all put the header in the page, and Quick
+Position's page header is where its save and restore handlers hang — which is the seam the
+forecast needs when 4.62 reaches it. **Neither is testable by mounting**: both headers
+rendered perfectly, there were simply two, and jsdom has no layout engine. They were found by
+screenshotting the running app.
+
 **A glossary, in one place.** [`data/glossary.json`](../../data/glossary.json) holds sixteen
 plain-English definitions and [`GlossaryTerm.vue`](../../components/base/GlossaryTerm.vue)
 renders a small **?** beside a heading. It **adds to a heading and never rewrites one** —

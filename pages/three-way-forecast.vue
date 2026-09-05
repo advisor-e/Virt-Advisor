@@ -20,10 +20,11 @@ report-shell
     :step="step"
     @step="step = $event"
     @confirmed="onConfirmed")
+  //- No `client` here: the header above is the only place the name is shown, and it is
+  //- this page's. The report component stopped rendering a second header on 2026-09-05.
   three-way-forecast-report(
     v-else
     :seed="confirmed && confirmed.inputs"
-    :client="companyName"
     @change-assumptions="goTo(3)"
     @start-again="startAgain")
 </template>
