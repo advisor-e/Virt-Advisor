@@ -402,8 +402,17 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
         and now reads <b>&ldquo;No set repayment&rdquo;</b> — recommended AGAINST this drawing,
         because a facility very much is repaid, continuously, as stock sells; it simply has no fixed
         monthly figure, and the old wording put an untrue sentence on a screen a lender may see.
-        <b>(5)</b> a facility's interest takes <b>its own line in the P&amp;L</b>, not the
-        term-loan line — what it costs to carry stock and debtors is a different question from what
+        <b>(5) &#128308; AMENDED 2026-09-05, AFTER READING THE SCREEN RATHER THAN ASSUMING IT:
+        ENGINE-ONLY FOR NOW.</b> The ruling stands — a facility's interest is <b>its own figure</b>,
+        never merged into the term-loan line — but <b>it does not appear on a screen yet, and this
+        says so rather than leaving it to be discovered.</b> The report's profit tab carries four
+        rows (revenue, gross surplus, total overheads, after tax) and shows <b>no interest at all</b>:
+        overdraft and term-loan interest are already swallowed inside total overheads. So there is
+        nowhere for a third interest line to appear. Wiring it to the maths and not to a screen is
+        precisely the fault the 4.16 sweep found at scale, which is why it is named here. Expanding
+        the profit tab is a design change that is NOT on this page and would need its own drawing;
+        Mike ruled engine-only rather than let that happen inside a build. The reason the ruling
+        holds regardless — what it costs to carry stock and debtors is a different question from what
         it costs to own the trucks, and merged, neither is answerable. With no facility entered the
         row does not appear, which is also what leaves the golden set untouched.
         <br><br>
@@ -450,9 +459,11 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
           <li>
             <b>Does a facility's interest join the term-loan interest line in the P&amp;L, or get
             its own?</b>
-            <span class="rec">Recommended: <b>its own line</b>. A funding request is read by the
-            lender being asked, and the cost of working-capital finance is the number they look
-            for.</span>
+            <span class="rec">Recommended: <b>its own line</b>, and chosen. A funding request is read
+            by the lender being asked, and the cost of working-capital finance is the number they
+            look for. &#128308; <b>Amended the same day to ENGINE-ONLY</b> once the report screen was
+            read: its profit tab has four rows and shows no interest at all, so the line has nowhere
+            to go. See the red note above.</span>
           </li>
         </ol>
         <p class="tw-foot" style="margin:10px 0 0">
@@ -665,8 +676,11 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
       <div class="tw-k">Fix 2 &mdash; stock in transit</div>
       <div class="tw-v">Smaller</div>
       <div class="tw-sub">
-        One seam in the engine that already exists, a release profile, and one screen block.
-        Five questions, and the first of them decides whether it stays small.
+        &#128308; <b>TWO seams, not one &mdash; corrected 2026-09-05.</b> The
+        <em>m === 0 ? 0</em> line is the PREPAYMENT seam; making the stock actually arrive needs the
+        landed value joining <em>allPurchases</em> in the landing month too, because that is what
+        drives inventory. The drawing always said the stock arrives; which code path does it was
+        verified afterwards, and the honest size went up.
       </div>
     </div>
   </div>
@@ -678,7 +692,7 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
       <li>&#9989; &#128308; <b>Rows as needed, an Add button, capped at eight</b> — not the fixed number drawn. <span class="from">The cap is ours: a safety limit, not a judgement about how much debt is allowed.</span></li>
       <li>&#9989; &#128308; <b>The column is TYPE</b>, Mike’s own word, over our <em>Kind</em>. <span class="from">Term loan / Facility stand as drawn.</span></li>
       <li>&#9989; &#128308; <b>&ldquo;No set repayment&rdquo;</b>, not the <em>&ldquo;not repaid&rdquo;</em> drawn. <span class="from">Recommended against this drawing: a facility IS repaid, just not on a schedule.</span></li>
-      <li>&#9989; <b>Its own line.</b> <span class="from">The cost of carrying stock is a different question from the cost of owning trucks.</span></li>
+      <li>&#9989; &#128308; <b>Its own figure, ENGINE-ONLY for now.</b> <span class="from">The cost of carrying stock is a different question from the cost of owning trucks — but the report’s profit tab shows no interest at all, so there is nowhere for the line to appear. Amended 2026-09-05 after reading the screen. Putting it on one is a design change not on this page.</span></li>
       <li>&#9989; &#128308; <b>Yes, the balance comes across.</b> <span class="from">The load-bearing one. Without it the stock lands too cheap and the profit is overstated by figures that look fine.</span></li>
       <li>&#9989; &#128308; <b>Always the twelve boxes; the chooser is deleted.</b> <span class="from">Recommended against this drawing — one shipment is one box, and the chooser saved nobody anything.</span></li>
       <li>&#9989; <b>Step 2.</b> <span class="from">Step 3 hides behind the overseas tick, and a business winding importing down would leave that unticked — hiding money already spent.</span></li>
