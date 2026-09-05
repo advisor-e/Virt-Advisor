@@ -185,6 +185,42 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.67 — step 2 of the forecast opened in the running app, and it was not wasted.**
+✅ Closed 2026-09-05. The item existed because three things built that morning — the funding
+**Type** column, the stock-in-transit block and the glossary **?** marks — had never been seen in
+a browser. Chromium was driven to step 2 and the repo's own visual rules
+([`tests/visual/support/rules.js`](../../tests/visual/support/rules.js)) run against it four ways:
+blank, with a facility, at the eight-row funding cap, and with the transit block showing.
+
+**The three things it was filed to check were sound.** The Type column offers *Term loan* /
+*Facility*; a facility's repayment box greys out and reads **"No set repayment"** — Mike's wording,
+disabled, exactly as ruled; funding rows appear as needed and stop at eight with their capped note;
+the transit block appears only when the opening carries a deposit. No layout breaches at all, which
+is the opposite of what the report screen's own look had found that morning.
+
+🔴 **What it caught was a feature that was completely dead, and looked finished.** `b-tooltip` was
+never registered in [`plugins/buefy.js`](../../plugins/buefy.js) — that file registers Buefy 22
+components at a time rather than the whole library, to hold the 300 KB bundle budget, and the
+glossary's root element was not on the list. An unregistered Buefy component throws nothing: the
+browser held a literal `<b-tooltip>` element with each definition sitting in a `label` attribute it
+ignores. Every **?** rendered, correctly styled, and explained nothing to anybody. A second fault
+under it: the marks sit inside headings that are uppercase and letter-spaced, so once the tooltips
+worked the definitions arrived **shouted**. Both fixed in `e1b34d7`.
+
+**Why no test could have caught the first one, and it is the reason this closure is worth reading.**
+[`tests/helpers/mountComponent.js`](../../tests/helpers/mountComponent.js) registers the **whole**
+Buefy library, so every component test gets a working `b-tooltip` and the app does not — the tests
+and the app register Buefy two different ways, and
+[`glossary.test.js`](../../tests/unit/glossary.test.js) passed throughout on a component that could
+not work on a screen. The plugin's own comment predicted exactly this: the warning is *"loud on the
+machine that makes it and invisible everywhere afterwards"*, because Vue compiles it out of a
+production build. **Nothing covers `plugins/buefy.js`.** That is recorded here as a fact, not filed
+as work.
+
+**What proves it:** the fix is two lines and a scoped reset; the proof is the browser. Hover opens
+the definition, leaving closes it, all three marks on step 2 show their own text, and the console is
+clean where it carried five `Unknown custom element` warnings before.
+
 **Five changes for junior advisors — the report shows every line, and the jargon explains itself.**
 ✅ Built and closed 2026-09-05. Mike: *"most of the accountants using this will be junior in terms
 of experience"*, then *"do them all"* to five proposals. Filed straight to this page for the same

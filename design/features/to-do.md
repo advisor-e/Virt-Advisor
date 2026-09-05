@@ -39,12 +39,11 @@ repository sees; the two never both appear, and the build stops if they would.
 | 2 | **4.50** Nobody has seen a real conversation's recommendations reach the Team tab | 2 | — | Outside | — |
 | 3 | **4.58** Meeting Review — three slices built; the manager's half and §4 remain ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 4 | **4.60** QuickBooks and MYOB are supported on paper, not against a real file ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 5 | **4.62** Saved reports per client — so a client can edit what the advisor opened ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-05 |
+| 5 | **4.62** Saved reports per client — so a client can edit what the advisor opened ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 6 | **4.66** Economic analysis — the forecast asks the AI for market research ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 7 | **4.65** The book value of one asset is typed, because no screen asks for the asset schedule ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 8 | **4.67** Step 2 of the forecast has not been opened in the running app ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Eight live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Seven live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

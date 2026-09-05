@@ -9,63 +9,41 @@
 
 ---
 
-## 2026-09-05 · Laptop · branch `feat/advisor-progress`
+## 2026-09-05 (second session) · Laptop · branch `feat/advisor-progress`
 
-Suite **7,889 green** (409 suites), lint 0 errors, everything pushed.
+Suite **7,903 green** (410 suites), lint clean. **PR #61 IS MERGED** — `master` is `c8d965a`
+and this branch is **0 ahead / 0 behind**. Nothing is uncommitted anywhere.
 
-### 🔴 PR #59 IS MERGED — BUT TWO LATER COMMITS ARE NOT
+### 🔴 DESKTOP — MERGE `master` BEFORE YOU TOUCH ANYTHING
 
-`master` is at `8802ef4` (17 commits). **`7669979` and `d453327` came after it and are on
-this branch only.** `d453327` holds two layout fixes to the forecast report, and the desktop
-needs them: 4.62's last screen is that file. **They want a second PR.** Nothing is tagged, so
-the master team has nothing to pull and no `DEPLOYED-VERSIONS.md` row is due.
+`feat/firm-quiz-builder-ui` is **25 behind / 2 ahead**. Master now holds the forecast's two
+layout fixes AND the whole business-entity wiring, which changed
+`ThreeWayForecastIntake.vue`, `ThreeWayForecastReport.vue` and `pages/three-way-forecast.vue`.
+**4.62 is no longer active on either machine** — its `activeOn` is cleared, and its build is
+finished, so nothing there is reserved.
 
 ### What changed today
 
-**The two proper fixes are built** (facilities, stock in transit) from the ruled drawing, and
-**the drawing was wrong by omission about GST** — it is triggered by goods arriving, not by
-paying for them, worth ~124,000 on the client it was found with. Rules now in
-`TAX-RULES-IMPORT-GST.md`.
+**4.62 IS BUILT OUT — all twelve models now open at business entity level.** Mike's ruling:
+*"anything an advisor can edit, the client can edit."* The forecast's saved row is the whole
+intake plus the report's four levers (`utils/threeWayForecastSavedShape.js`, 86 keys, 14
+tests). Only step 1, the upload, stays the advisor's. Detail in `business-entity-reports.md` §5.
 
-**Five changes for junior advisors**, all Mike's ask: a glossary, a collection profile that
-says what its gap *means*, an opening-figure count on step 2, a purchases year total, and the
-report's **Summary / Every line** setting — drawn, ruled question by question, then built.
-
-**Then the app was opened, and it found two layout faults older than all of it.** The report
-dragged the whole page sideways (a grid item with no `min-width: 0`, so the table's own
-scrollbar never engaged) and drew its title banner **twice** (the page and the component each
-rendered one). Both fixed and re-measured in a real browser. **Neither was reachable by a
-mount test** — jsdom has no layout engine, and both headers rendered perfectly.
-
-Detail is in `features/report-models.md`; closures in `to-do-done-and-parked.md` §2.
+**The glossary "?" marks were completely dead and looked finished.** `b-tooltip` was never
+registered in `plugins/buefy.js`. **The tests could not catch it and still cannot catch the
+next one:** `tests/helpers/mountComponent.js` registers the WHOLE Buefy library while the app
+registers 22 by hand, so a component test always sees a control the app may not have. Nothing
+covers `plugins/buefy.js`. Recorded, not filed — closure in `to-do-done-and-parked.md` §2.
 
 ### Next
 
-**4.62's last screen is now this machine's** — see the box below. Quick Position is the
-template; `mixins/savedReport.js` is the shared half.
+**Nothing is half-finished.** 4.62 waits on Mike for the `clientReports.saved.*` wording and
+on UAT for the one thing untestable here: **no saved report has ever reached the real store**,
+because the client picker is empty without MySQL. Same blocker as **4.50**.
 
-**4.67 is narrowed and is nobody's yet:** the report screen has been eyeballed, **step 2 has
-not** — the Type column, the stock-in-transit block and the glossary marks. ⚠ The API does not
-hot-reload; restart `npm run backend`.
+**4.15, 4.58, 4.60, 4.65, 4.66 wait on Mike.** Seven items live.
 
-**4.15, 4.58, 4.60, 4.65, 4.66 wait on Mike. 4.50 needs UAT.**
-
-⚠ One push was refused by the pre-push hook with the whole suite green, and the identical
-retry passed — most likely `npm audit` failing to reach the network. Not chased.
-
-### 🔴 DESKTOP — 4.62'S LAST SCREEN IS NO LONGER YOURS
-
-**Mike moved it to the laptop on 2026-09-05, and `activeOn` on 4.62 now says `laptop`.** This
-breaks the machine-that-started-it convention on purpose: you built all ten other screens, but
-the forecast's three files are the laptop's entire recent work and the seam changed under them
-today. **Do not start it.** Nothing else about 4.62 moves — slices 1 and 2 are yours and stay
-closed.
-
-**Why it changed hands, and the trap in it either way:** the saved-report wiring follows the
-header. Screens whose header is in the PAGE — Quick Position, EBITDA-DCF, Loan Estimator —
-wire it at the page; the rest wire it in the component. The forecast **joined the page group
-today** (`d453327`), and the `client` prop went with it. So **Quick Position is the template,
-not the other ten**, and anyone looking for the seam where the ten have it will not find it.
-
+⚠ The suite failed twice on `EPERM` writing a temp file in `activityStore` dev-fallback tests,
+a different test each time, then passed clean three times running. Windows, not the code.
 `shipmentTimer` in `ThreeWayForecastIntake.vue` is still never cleared on destroy, still
 deliberately not filed.
