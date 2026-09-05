@@ -140,6 +140,11 @@ three existing prompts, so this becomes the fourth and is editable there without
 >
 > *"As at"* means the date the figure describes, not the date you retrieved it. Where those
 > differ materially, give both.
+>
+> **Attach the citation to the figure, not to the paragraph.** Where a paragraph carries
+> figures from more than one source, cite each one beside its own figure. Never let a single
+> citation stand for a paragraph drawing on two sources. If you restate a figure cited
+> earlier, cite it again where you restate it.
 
 ### §5 · What you must never do
 
@@ -204,7 +209,7 @@ The standards say never to trust LLM output as structured data. These are checks
 | Rule | How it is held |
 |---|---|
 | §4 — no figure without a citation | `url_citation` annotations come back as structured fields; a claimed figure with no annotation behind it is rejected before it reaches the screen |
-| 🔴 **A citation can be right and still be MISFILED — and we do not catch that** | **Twice in two runs**, in the same shape: a paragraph carrying two figures from two sources takes one citation, and the wrong one sticks. Run 1 credited the statistics agency for a central-bank exchange rate; run 2 credited an earnings release for a rent index figure. **Both numbers were correct and both sources beside them were wrong.** Our check tests that a citation **exists** and cannot test that it is the **right** one, so it does not catch this. **Never claim the machine guarantees attribution.** The mitigations are human and partial: citations are clickable, and §6's second tick is an advisor reading it before a lender does. Evidence: [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md) |
+| 🔴 **SECTIONS 1–3 CAN BE RELIED ON FOR ATTRIBUTION. SECTION 4 CANNOT.** | Three runs, and the pattern is precise: **a citation is reliable where a figure is first introduced, and unreliable where it is restated.** §§1–3 introduce; §4 recalls, and bundles two or three figures from different releases under one source. Run 1 credited the statistics agency for a central-bank exchange rate; run 2 credited an earnings release for a rent index; run 3 did it twice more in §4 while getting §§1–3 right. **The numbers were correct every time; the source beside them was not.** Our check tests that a citation **exists** and cannot test that it belongs, and `url_citation` records where the model *put* it — so a misplacement arrives inside the annotation and cannot be caught downstream. **Never claim the machine guarantees attribution.** Three instruction-level attempts have failed; **do not make a fourth on the same lines.** Evidence: [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md) |
 | ⚠ Length is a steer, not a contract | Both runs overshot their target, and raising the target raised the output with it. Output length tracks how much the model **finds**, not the number it is given. A screen must not assume a predictable length |
 | Approval before it reaches a lender | An advisor must accept the research explicitly (`isApproved: true`) before it can join a funding pack — the standards' rule for financial output |
 | It is AI text, and says so | `ProvenanceBadge` gains a **fifth** state. It already has four — `file`, `entered`, `seeded`, `client` |

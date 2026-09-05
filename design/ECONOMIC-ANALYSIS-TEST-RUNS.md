@@ -169,6 +169,66 @@ figure as a steer, and do not build a screen that assumes a predictable length.
 
 ---
 
+## Run 3 — 2026-09-06 · the citation fix, tested as a clean A/B
+
+**Same brief as run 2, same model, one change:** §4 of the prompt gained *"Attach the
+citation to the figure, not to the paragraph… Never let a single citation stand for a
+paragraph drawing on two sources. If you restate a figure cited earlier, cite it again."*
+
+Holding the brief constant was the point — anything that moved is the instruction's doing.
+
+| Measure | Run 2 | Run 3 |
+|---|---|---|
+| Wall-clock | 93.4 s | 82.5 s |
+| Web searches | 12 | 9 |
+| Unique sources | 22 | 20 |
+| Words | 2,301 | 2,070 |
+| Cost | ≈ US$0.41 | ≈ US$0.31 |
+
+### It half worked, and the half tells us where the fault actually lives
+
+**In sections 1–3 the fix took, cleanly.** Each paragraph now carries a source per figure,
+and where a paragraph draws on two releases it cites both separately — the labour-market
+paragraph cites the Labour Force Survey for the quarterly rate and the monthly unemployment
+release for the July estimate, each beside its own number. **That is exactly the behaviour
+asked for, and it was absent in runs 1 and 2.**
+
+**In section 4 it failed, and failed the same way three times now.** Its opening synthesis
+paragraph carries three figures — domestic demand 4.2%, private insurance covering
+2.55 million people, HSE physiotherapy activity up 15.0% — under **one** citation, the ESRI
+nowcast, which is the source of only the first. The next paragraph does the same with three
+cost figures under a single CSO earnings citation, when two came from the CPI and wholesale
+price releases.
+
+🔴 **THE PATTERN IS NOW PRECISE, AND IT IS NOT RANDOM. Attribution is reliable where a figure
+is FIRST INTRODUCED, and unreliable where it is RESTATED.** Sections 1–3 introduce; section 4
+recalls. The instruction to re-cite on restatement is the half that does not take.
+
+### What that means, and it is not a prompt problem any more
+
+Three attempts have now been made at instruction level. **Do not make a fourth on the same
+lines.** The finding to carry forward is:
+
+- **Sections 1–3 are the evidence, and their citations can be relied on.**
+- **Section 4 is synthesis, and its citations cannot be.**
+- The API cannot rescue this. `url_citation` annotations record where the model *put* a
+  citation, so a misplacement is upstream of the annotation and arrives inside it.
+
+**The structural fix, untested, is to remove the surface rather than police it:** §4's own
+brief already says *"conditions and their implications only"*. Extending that to forbid
+restating figures at all — refer to what §2 or §3 established, without repeating the number —
+leaves every figure living exactly once, beside the source it came from, with nothing left to
+misattribute. **This has not been run and is a proposal, not a result.**
+
+### One more thing run 3 did, unprompted and correctly
+
+It used a **public forum thread** — Galway discussions from May and August 2026 — and handled
+it exactly as it should: labelled qualitative, *"self-selected, unverified and unsuitable for
+quantifying demand, pricing or waiting times"*, used only to indicate what patients care
+about. Mike's source list named feedback forums; this is what good use of one looks like.
+
+---
+
 ## Run 1 in full — the model's own words
 
 > Reproduced verbatim, headings demoted so they sit inside this page. **Bold figures, inline
