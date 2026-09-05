@@ -2,13 +2,17 @@
 //- [A] Screen root — a flex column with ONE gap value, so header→banner→body all
 //- space identically. See design/REPORT-VISUAL-STANDARD.md.
 .tw-root
-  //- [B] No badge: CLASS_REPORT, built from the client's own accounts.
-  report-header(
-    :back-label="$t('modelLibrary.backToLibrary')"
-    :eyebrow="$t('report.eyebrow') + ' · ' + $t('report.threeWayForecast.eyebrowClass')"
-    :title="$t('report.threeWayForecast.title')"
-    :client="client || $t('report.preparedFor')")
-
+  //- [B] 🔴 NO HEADER HERE — THE PAGE OWNS IT. pages/three-way-forecast.vue renders the
+  //- shared ReportHeader above the step chips, so it stands over all four steps. This
+  //- component rendered a SECOND one, and on step 4 the screen showed the title banner
+  //- twice, one under the other (found 2026-09-05 by screenshotting the running app).
+  //-
+  //- The page is the right owner, and not merely the incumbent: Quick Position,
+  //- EBITDA-DCF and the Loan Estimator all put the header in the page — the pattern
+  //- tests/unit/reportHeaderFullWidth.test.js names in its own comment — and Quick
+  //- Position's page header is where its save / restore / client-access handlers hang.
+  //- The forecast is the last screen item 4.62 has to wire, so its per-client controls
+  //- will need exactly that seam.
   template(v-if="data")
     //- A failed recompute must never sit silently behind live-looking figures.
     stale-banner(
@@ -65,30 +69,51 @@
         .tw-glabel
           span.tw-dot
           h2.tw-h2 {{ $t('report.threeWayForecast.report.tryHeading') }}
+        //- Each lever carries the `client` badge when the client moved it (§5, D4).
         slider-field(
           :label="$t('report.threeWayForecast.report.salesAll')"
           :display="signedPct(f.salesShift)"
           :value="f.salesShift"
           :min="-50" :max="50" :step="1"
-          @input="v => setField('salesShift', v)")
+          @input="v => setField('salesShift', v)"
+        )
+          template(v-slot:badge)
+            client-changed-badge(
+              v-if="isClientChanged('lever.salesShift')"
+              :label="$t('clientReports.saved.badge')")
         slider-field(
           :label="$t('report.threeWayForecast.assume.markup')"
           :display="pct(f.markup)"
           :value="f.markup"
           :min="0" :max="200" :step="1"
-          @input="v => setField('markup', v)")
+          @input="v => setField('markup', v)"
+        )
+          template(v-slot:badge)
+            client-changed-badge(
+              v-if="isClientChanged('lever.markup')"
+              :label="$t('clientReports.saved.badge')")
         slider-field(
           :label="$t('report.threeWayForecast.assume.monthAfter')"
           :display="pct(f.debtorMonthAfter)"
           :value="f.debtorMonthAfter"
           :min="0" :max="100" :step="1"
-          @input="v => setField('debtorMonthAfter', v)")
+          @input="v => setField('debtorMonthAfter', v)"
+        )
+          template(v-slot:badge)
+            client-changed-badge(
+              v-if="isClientChanged('lever.debtorMonthAfter')"
+              :label="$t('clientReports.saved.badge')")
         slider-field(
           :label="$t('report.threeWayForecast.report.overheadsAll')"
           :display="signedPct(f.overheadShift)"
           :value="f.overheadShift"
           :min="-50" :max="50" :step="1"
-          @input="v => setField('overheadShift', v)")
+          @input="v => setField('overheadShift', v)"
+        )
+          template(v-slot:badge)
+            client-changed-badge(
+              v-if="isClientChanged('lever.overheadShift')"
+              :label="$t('clientReports.saved.badge')")
         p.tw-note {{ $t('report.threeWayForecast.report.rebuildNote') }}
 
       .tw-group(v-if="data")
@@ -195,11 +220,11 @@
  *     opening figures that are out, and refusing to compute would hide the forecast that
  *     tells them so.
  */
-import ReportHeader from '~/components/base/ReportHeader.vue'
 import HeroStrip from '~/components/base/HeroStrip.vue'
 import HeroFigure from '~/components/base/HeroFigure.vue'
 import StaleBanner from '~/components/base/StaleBanner.vue'
 import SliderField from '~/components/base/SliderField.vue'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -209,15 +234,23 @@ const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 export default {
   name: 'ThreeWayForecastReport',
 
-  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SliderField },
+  components: { HeroStrip, HeroFigure, StaleBanner, SliderField, ClientChangedBadge },
 
   mixins: [currencyMixin, reportRecompute],
 
   props: {
     /** The confirmed inputs from the intake, or null to compute on the sample. */
     seed: { type: Object, default: null },
-    /** The client's own name, held locally and never sent anywhere. */
-    client: { type: String, default: '' }
+    // No `client` prop: the only thing that read it was the duplicate header removed on
+    // 2026-09-05. The page holds the client's name and puts it on the header it owns.
+    /**
+     * What a saved report puts back on this screen — `{ levers, detail }` (item 4.62,
+     * Brief §5). The page saves, because the header is the page's; this screen reports
+     * its own settings upward and takes a loaded pair back.
+     */
+    restore: { type: Object, default: null },
+    /** Saved-row names the client changed since the advisor's version (§5, D4). */
+    clientChanges: { type: Array, default: () => [] }
   },
 
   data () {
@@ -233,9 +266,12 @@ export default {
        * rather than a redesign. It governs all three tabs together, because an advisor who
        * finds the setting on one will look for it on the others.
        */
-      detail: 'summary',
-      // The four live levers. Percentages are whole numbers for the sliders.
-      f: this.leversFor(this.seed)
+      detail: (this.restore && this.restore.detail) || 'summary',
+      // The four live levers. Percentages are whole numbers for the sliders. A saved
+      // report's levers take the place of the ones worked out from the seed.
+      f: this.restore && this.restore.levers
+        ? Object.assign(this.leversFor(this.seed), this.restore.levers)
+        : this.leversFor(this.seed)
     }
   },
 
@@ -593,26 +629,64 @@ export default {
   },
 
   watch: {
-    f: { deep: true, handler () { this.queueRecompute() } },
+    f: {
+      deep: true,
+      handler () {
+        this.queueRecompute()
+        this.emitState()
+      }
+    },
+    detail () { this.emitState() },
     /**
      * A new intake replaces the levers as well as the figures. Without this the two
      * absolute levers — mark-up and the month-after collection — would keep their opening
      * values and silently overwrite what the advisor confirmed on step 3, because
      * `payload()` writes both into every request.
+     *
+     * 🔴 A SAVED REPORT IS THE EXCEPTION. Loading one sets the seed and the levers in the
+     * same tick, so without this guard the seed's own defaults would land on top of the
+     * levers the advisor saved — a forecast that reopens on a mark-up nobody chose.
      */
     seed: {
       handler (next) {
-        this.f = this.leversFor(next)
+        this.f = this.restore && this.restore.levers
+          ? Object.assign(this.leversFor(next), this.restore.levers)
+          : this.leversFor(next)
         this.recompute()
       }
+    },
+    /** A saved report loaded while this screen is showing (the advisor picked a client). */
+    restore (next) {
+      if (!next) { return }
+      if (next.levers) { this.f = Object.assign({}, this.f, next.levers) }
+      if (next.detail) { this.detail = next.detail }
     }
   },
 
   mounted () {
     this.recompute()
+    this.emitState()
   },
 
   methods: {
+    /**
+     * Tell the page what this screen holds, so a Save carries it. The page owns the
+     * header and therefore the saving; this screen owns the levers.
+     * @returns {void}
+     */
+    emitState () {
+      // state-change: { levers: {salesShift, markup, debtorMonthAfter, overheadShift}, detail }
+      this.$emit('state-change', { levers: Object.assign({}, this.f), detail: this.detail })
+    },
+
+    /**
+     * @param {string} name a saved-row name, e.g. 'lever.markup'
+     * @returns {boolean} whether the client changed that figure since the advisor's version
+     */
+    isClientChanged (name) {
+      return this.clientChanges.includes(name)
+    },
+
     /**
      * The four levers' opening positions. The two RELATIVE ones (sales and overheads)
      * always start at no change; the two ABSOLUTE ones read the confirmed intake, falling
@@ -710,9 +784,9 @@ export default {
 /* Every value reads a --rs-* token from the shared ReportShell; nothing here declares a
    frame, palette, card or font of its own. See design/REPORT-VISUAL-STANDARD.md. */
 
-/* [A] Root: ONE gap value, and the mandatory header-margin reset. */
+/* [A] Root: ONE gap value. No `.rs-top` margin reset, because no header is rendered
+   inside this root — the page owns it. See the note at the top of the template. */
 .tw-root { display: flex; flex-direction: column; gap: 16px; }
-.tw-root ::v-deep .rs-top { margin: 0; }
 
 /* [D] Two-column body. */
 .tw-layout { display: grid; grid-template-columns: var(--rs-col-input) 1fr; gap: var(--rs-col-gap); align-items: start; }
@@ -726,8 +800,15 @@ export default {
 .tw-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--rs-accent-bright); }
 .tw-h2 { margin: 0; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--rs-muted); font-weight: 600; }
 
-/* [D2] Results column keeps the same 16px rhythm. */
-.tw-results { display: flex; flex-direction: column; gap: 16px; min-height: 200px; }
+/* [D2] Results column keeps the same 16px rhythm.
+   🔴 `min-width: 0` IS LOAD-BEARING, not tidiness. This is a GRID ITEM, and a grid item's
+   automatic minimum size is its content's min-content width — so without this it refuses to
+   shrink below the 900px table inside it, the `overflow-x: auto` below never engages, and
+   the table drags the whole PAGE sideways instead of scrolling in its own card. Measured at
+   1366px before the fix: a 934px column in a 700px track, the document 1455px wide, and the
+   table's right edge 217px past its own card. The house pattern — `.coc-results` and
+   `.lvb-results` have carried it all along; this screen was the one that did not. */
+.tw-results { display: flex; flex-direction: column; gap: 16px; min-height: 200px; min-width: 0; }
 
 .tw-tile { background: var(--rs-card-bg); border: 1px solid var(--rs-card-border); border-radius: var(--rs-card-radius); padding: 13px 14px; }
 .tw-k { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--rs-muted); font-weight: 600; }

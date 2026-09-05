@@ -71,6 +71,16 @@ export default {
   margin-left: 6px;
   vertical-align: middle;
 }
+/* The mark sits INSIDE a heading, and section headings here are uppercase and
+   letter-spaced (`.tw-h2`). The tooltip's text is a descendant of that heading, so it
+   inherits both and a sentence of plain-English help arrives shouted and stretched —
+   harder to read than the term it explains. Reset it to what data/glossary.json holds.
+   `::v-deep` because Buefy renders `.tooltip-content` inside its own template, so it
+   carries no scope attribute and a plain scoped selector would not reach it. */
+.glossary-term ::v-deep .tooltip-content {
+  text-transform: none;
+  letter-spacing: normal;
+}
 .gt-mark {
   font: inherit;
   font-size: 10px;

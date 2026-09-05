@@ -4,7 +4,11 @@ report-shell
     :back-label="$t('modelLibrary.backToLibrary')"
     :eyebrow="$t('report.eyebrow') + ' · ' + $t('report.threeWayForecast.eyebrowClass')"
     :title="$t('report.threeWayForecast.title')"
-    :client="companyName")
+    :client="companyName"
+    :saved="savedReport"
+    @save="saveReport"
+    @restore="restoreReport"
+    @client-change="onReportClient")
   .steps
     .step(
       v-for="s in stepChips"
@@ -15,15 +19,22 @@ report-shell
       | {{ $t(s.label) }}
   three-way-forecast-intake(
     v-if="step < 4"
+    :key="intakeKey"
     :api-token="apiToken"
-    :restore="confirmed && confirmed.state"
+    :restore="liveState"
     :step="step"
+    :client-changes="clientChanges"
     @step="step = $event"
+    @state="onIntakeState"
     @confirmed="onConfirmed")
+  //- No `client` here: the header above is the only place the name is shown, and it is
+  //- this page's. The report component stopped rendering a second header on 2026-09-05.
   three-way-forecast-report(
     v-else
-    :seed="confirmed && confirmed.inputs"
-    :client="companyName"
+    :seed="liveInputs"
+    :restore="loadedReport"
+    :client-changes="clientChanges"
+    @state-change="onReportState"
     @change-assumptions="goTo(3)"
     @start-again="startAgain")
 </template>
@@ -57,7 +68,11 @@ import ReportShell from '~/components/base/ReportShell.vue'
 import ReportHeader from '~/components/base/ReportHeader.vue'
 import ThreeWayForecastIntake from '~/components/ThreeWayForecastIntake.vue'
 import ThreeWayForecastReport from '~/components/ThreeWayForecastReport.vue'
+import savedReport from '~/mixins/savedReport'
 import { isDevHost } from '~/utils/devHost'
+const {
+  flattenForecast, applySavedForecast, changedFigures
+} = require('~/utils/threeWayForecastSavedShape')
 
 const TOKEN_KEY = 'advisor_e_token'
 
@@ -66,11 +81,31 @@ export default {
 
   components: { ReportShell, ReportHeader, ThreeWayForecastIntake, ThreeWayForecastReport },
 
+  mixins: [savedReport],
+
   data () {
     return {
       step: 1,
       /** { inputs, state, companyName } from the intake, or null before it is confirmed. */
       confirmed: null,
+      /**
+       * The intake's form as it last reported itself, and the payload that form builds.
+       * A Save carries the form — what is on screen NOW rather than the last build — and
+       * the report is seeded from the payload, so a saved row that is loaded drives the
+       * forecast without the advisor pressing anything.
+       */
+      liveState: null,
+      liveInputs: null,
+      levers: null,
+      detail: 'summary',
+      /** `{ levers, detail }` handed to the report after a saved row loads. */
+      loadedReport: null,
+      /**
+       * Bumped when a saved row loads, so the intake is rebuilt and re-reads `restore`.
+       * It reads that prop in `data()` alone — deliberately, because a restored form is
+       * normalised on the way in — so a new key is how a load reaches it.
+       */
+      intakeKey: 0,
       // Resolved client-side in mounted(): window/localStorage are unavailable during
       // SSR and must never be read in data()/computed/created().
       apiToken: 'dev-local-bypass'
@@ -78,23 +113,54 @@ export default {
   },
 
   computed: {
+    /**
+     * The four steps — less the upload for a client.
+     *
+     * 🔴 STEP 1 IS THE ONE THING A CLIENT CANNOT REACH, and it is not a policy choice
+     * against Mike's ruling of 2026-09-05 (*"anything an advisor can edit, the client can
+     * edit"*). Dropping an export is not editing a figure, and the intake route is
+     * firmAuth-guarded — it refuses a client token by name. Every figure the upload
+     * produces is on steps 2 and 3, where the client edits it like any other.
+     */
     stepChips () {
-      return [
+      const chips = [
         { n: 1, label: 'report.threeWayForecast.step1' },
         { n: 2, label: 'report.threeWayForecast.step2' },
         { n: 3, label: 'report.threeWayForecast.step3' },
         { n: 4, label: 'report.threeWayForecast.step4' }
       ]
+      return this.savedReport.mode === 'client' ? chips.slice(1) : chips
     },
 
     /** The client's name from a dropped file — displayed locally, never sent anywhere. */
     companyName () {
       return (this.confirmed && this.confirmed.companyName) || ''
+    },
+
+    /**
+     * Which figures the client changed since the advisor's version, named one at a time.
+     * The store compares the row's named values and every block here is a list, so the
+     * comparison is made against the advisor's version that travels with the row.
+     * @returns {Array<string>}
+     */
+    clientChanges () {
+      const r = this.savedReport.report
+      if (!r || !r.advisorVersion) { return [] }
+      return changedFigures(r.inputs, r.advisorVersion)
     }
   },
 
   mounted () {
     this.apiToken = this.resolveApiToken()
+    // The mixin's mounted() has already read the sign-in.
+    //
+    // 🔴 A CLIENT OPENS ON STEP 2, NOT ON THE FORECAST, and the reason is mechanical
+    // rather than a view about what they should see first. The forecast is computed from a
+    // payload only the intake knows how to build, and the intake is not on screen at step
+    // 4 — so landing there would show the source workbook's sample until the client
+    // pressed something. Step 2 is the first step that is theirs, their advisor's figures
+    // are on it, and the forecast is one click away on the chips.
+    if (this.savedReport.mode === 'client') { this.step = 2 }
   },
 
   methods: {
@@ -118,20 +184,78 @@ export default {
      */
     goTo (n) {
       if (n === this.step) { return }
-      if (n > this.step && n === 4 && !this.confirmed) { return }
+      // Step 4 needs a payload to compute from. The intake reports one as soon as it is on
+      // screen, so this opens the moment there is something to show — including for a
+      // client, who never presses the Build button the advisor does.
+      if (n > this.step && n === 4 && !this.liveInputs) { return }
       this.step = n
+    },
+
+    /**
+     * The intake reports its working state on every change, and once on mount.
+     * @param {{state: object, inputs: object}} payload the whole form, and what it builds
+     */
+    onIntakeState (payload) {
+      this.liveState = payload.state
+      this.liveInputs = payload.inputs
     },
 
     /** The intake hands over its confirmed inputs; the report takes them from here. */
     onConfirmed (payload) {
       this.confirmed = payload
+      this.liveState = payload.state
+      this.liveInputs = payload.inputs
       this.step = 4
+    },
+
+    /**
+     * The report reported its two settings (on show, and on every change).
+     * @param {{levers: object, detail: string}} state
+     */
+    onReportState (state) {
+      this.levers = state.levers
+      this.detail = state.detail
+    },
+
+    /**
+     * The figures saved per client — consumed by the savedReport mixin. What is on screen
+     * now: the intake's live form, or the last confirmed one before it has reported.
+     * @returns {object} the flat row (utils/threeWayForecastSavedShape)
+     */
+    reportInputs () {
+      const state = this.liveState || (this.confirmed && this.confirmed.state)
+      return flattenForecast(state || {}, this.levers, this.detail)
+    },
+
+    /**
+     * Load a saved row back — consumed by the savedReport mixin. Each block is taken whole
+     * or not at all, so a row that is half readable loads the half that is whole.
+     *
+     * The intake is REBUILT rather than written into: it reads `restore` in `data()` alone,
+     * where a restored form is normalised, and reaching past that would leave the two
+     * disagreeing about what a missing block means.
+     * @param {object} inputs
+     */
+    applyReportInputs (inputs) {
+      const next = applySavedForecast(this.liveState || {}, this.levers, inputs)
+      this.liveState = next.form
+      this.levers = next.levers
+      this.detail = next.detail
+      this.loadedReport = { levers: next.levers, detail: next.detail }
+      // Rebuilding the intake is what makes the loaded form reach the screen, and its
+      // first report back is what re-seeds the forecast — so nothing here computes a
+      // payload the intake is the only thing that knows how to build.
+      this.intakeKey += 1
     },
 
     /** Back to an empty intake — nothing of the previous client is kept. */
     startAgain () {
       this.confirmed = null
-      this.step = 1
+      this.liveState = null
+      this.loadedReport = null
+      this.intakeKey += 1
+      // A client has no upload step to go back to.
+      this.step = this.savedReport.mode === 'client' ? 2 : 1
     }
   }
 }

@@ -146,8 +146,8 @@
       "name": "Saved reports per client — so a client can edit what the advisor opened",
       "rankedByMike": false,
       "activeOn": {
-        "machine": "desktop",
-        "since": "2026-09-03"
+        "machine": "laptop",
+        "since": "2026-09-05"
       },
       "kind": "feature",
       "score": 3,
@@ -163,8 +163,8 @@
         "detail": "2026-09-03 — \"once advisor has been involved and secured terms, we DO want them to be involved and can edit thereafter - so long as any changes are made clear they are edited by the client\". Part 2 of the request that built the stub the same day."
       },
       "touches": "A saved-report store through firmOverlay ({ firm, client, model, inputs, savedBy: { tier, name }, savedAt }), a Save on the report header, a `client` state on ProvenanceBadge, the banner and Restore on the report screens, and the client's page. Not the forecast intake files (4.61, laptop).",
-      "note": "Slice 1 built (§5): store, five routes, savedReport mixin, header Save / banner / Restore, client badge. Slice 2: all ten routed screens wired — Margin, Working Capital, Eight Levers, Cost of Capital, Lease vs Buy, Multiple Property, Loan Estimator (a stepped page saves its confirmed steps), Quick Position (a file figure the client changed shows client in place of from file — Mike's rule, 2026-09-04), EBITDA/DCF and Volatility (figures as one block, whole or nothing). Only the forecast remains; 4.61 closed 2026-09-04, but 4.64 is active on the laptop in the same files. Not yet eyeballed (MySQL password). Wording in clientReports.saved.* proposed, not ruled.",
-      "comment": "2026-09-03 — filed the day the stub was built. Same day, desktop: slice 1 built and committed locally under a power cut; labels \"Save for client\" / \"Save my changes\" ruled by Mike. 2026-09-04 desktop: slice 2 complete, ten of ten wired; the file-figure rule ruled; PR #56 merged so the laptop sees the 09-03 handover."
+      "note": "ALL TWELVE SCREENS ARE WIRED — the forecast last, 2026-09-05, on Mike's ruling \"anything an advisor can edit, the client can edit\": its saved row is the whole intake plus the four levers, and only the file upload stays the advisor's. How each screen behaves is in the Brief §5. ⚠ WHAT IS STILL UNPROVEN IS THE SAME BLOCKER AS 4.50: no save has ever reached the real store on this machine, because the client picker is empty without MySQL. Wording in clientReports.saved.* proposed, not ruled.",
+      "comment": "2026-09-03 — filed the day the stub was built. Same day, desktop: slice 1 built under a power cut; labels ruled. 2026-09-04 desktop: slice 2, ten of ten wired; the file-figure rule ruled. 2026-09-05 — the last screen moved to the laptop on Mike's decision, then built there: shape, page seam, badges, 14 new tests."
     },
     {
       "ref": "4.66",
@@ -207,6 +207,27 @@
       "touches": "NOTHING YET, and it needs its own drawing and Mike's approval before any of it. Then: server/report/intake/xeroReportParser.js (a fifth report kind), server/report/intake/supportedPackages.js, server/routes/report.js and components/ThreeWayForecastIntake.vue (a fifth slot, and the Sell row becoming a chooser rather than two typed figures).",
       "note": "⚠ COUPLED TO 4.60 AND SHOULD FOLLOW IT. 4.60 waits on four real exports from QuickBooks Online and MYOB to move those two packages from `expected` to `verified`, and whoever collects them should be asked for the Fixed Asset Schedule at the same time. It is the same request to the same person, and doing it separately means asking twice.",
       "comment": "2026-09-03 — filed at the moment Mike ruled \"typing it for now\", so the version he would rather have is on the list rather than in a conversation. Nothing is blocked: the capital block is built, tested and honest, and the advisor types one number they can read straight off their own asset schedule. Appended rather than slotted beside the work it relates to, because the array order is Mike's ranking and inserting it mid-list would be a ranking decision taken on his behalf."
+    },
+    {
+      "ref": "4.67",
+      "name": "Step 2 of the forecast has not been opened in the running app",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Three things built on 2026-09-05 have never been seen in a browser: the funding Type column, the stock-in-transit block and the glossary marks. All three are on step 2 of the forecast intake.",
+      "risk": "Proved on the report screen, which WAS opened: it found two layout faults no test could see — the page ran off the right, and the title banner drew twice. Step 2 has had no such look, and it is the screen where a wrong figure is typed.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": true,
+        "detail": "Proposed at the 2026-09-05 shutdown and filed on his yes. Narrowed the same evening once the report screen had actually been opened."
+      },
+      "touches": "Nothing until somebody looks. Then ThreeWayForecastIntake.vue or base/GlossaryTerm.vue.",
+      "note": "⚠ THE API DOES NOT HOT-RELOAD. `npm run backend` is a plain node process, so parser and engine changes are invisible until it is restarted; it needed a force-kill on port 4000 once. Nuxt does reload. Three things: the Type column and its disabled \"No set repayment\" box; the stock-in-transit block, which appears only when the opening carries a deposit, so it needs a file that has one; and the ? marks beside the headings. The report screen (Summary / Every line) is done and needs no second look.",
+      "comment": "2026-09-05 — filed at shutdown, then narrowed the same evening: the report screen was opened, two layout faults were found and fixed, and only step 2 is still unseen."
     }
   ]
 }

@@ -11,40 +11,61 @@
 
 ## 2026-09-05 · Laptop · branch `feat/advisor-progress`
 
-Suite **7,826 green** (407 suites), lint 0 errors, 0 behind master, everything pushed.
-**PR #59 is OPEN with 11 commits** — still not merged.
+Suite **7,889 green** (409 suites), lint 0 errors, everything pushed.
 
-### 🔴 4.62 IS UNBLOCKED — 4.64 CLOSED THIS MORNING
+### 🔴 PR #59 IS MERGED — BUT TWO LATER COMMITS ARE NOT
 
-Its five open differences were ruled and the item is on `to-do-done-and-parked.md`. The
-Three-Way Forecast, your last 4.62 screen, is yours to take. **Read the next box first.**
+`master` is at `8802ef4` (17 commits). **`7669979` and `d453327` came after it and are on
+this branch only.** `d453327` holds two layout fixes to the forecast report, and the desktop
+needs them: 4.62's last screen is that file. **They want a second PR.** Nothing is tagged, so
+the master team has nothing to pull and no `DEPLOYED-VERSIONS.md` row is due.
 
-### The forecast intake changed under you — a real fault, found by opening the app
+### What changed today
 
-A real Xero export tied to the cent in Xero and opened **1,559,449.79 out of balance**: only
-non-current assets had a catch-all, so 18 rows the parser could not name were dropped in
-silence. Every section now sweeps into its own `Other`, there is an **18th opening line
-(`otherEquity`)**, and **step 2 shows the balance check** with the likely causes. Account
-names are now redacted at the parser (`redactLabel`) — a person's name and three card numbers
-were reaching the screen. "Funds introduced" now reads as a shareholder account. Detail in
-`report-models.md`; nothing on the live list.
+**The two proper fixes are built** (facilities, stock in transit) from the ruled drawing, and
+**the drawing was wrong by omission about GST** — it is triggered by goods arriving, not by
+paying for them, worth ~124,000 on the client it was found with. Rules now in
+`TAX-RULES-IMPORT-GST.md`.
 
-⚠ **The API does NOT hot-reload.** Nuxt does; `npm run backend` is a plain node process, so a
-parser change is invisible until you restart it — and it needed a force-kill on port 4000.
-An hour went into chasing that.
+**Five changes for junior advisors**, all Mike's ask: a glossary, a collection profile that
+says what its gap *means*, an opening-figure count on step 2, a purchases year total, and the
+report's **Summary / Every line** setting — drawn, ruled question by question, then built.
+
+**Then the app was opened, and it found two layout faults older than all of it.** The report
+dragged the whole page sideways (a grid item with no `min-width: 0`, so the table's own
+scrollbar never engaged) and drew its title banner **twice** (the page and the component each
+rendered one). Both fixed and re-measured in a real browser. **Neither was reachable by a
+mount test** — jsdom has no layout engine, and both headers rendered perfectly.
+
+Detail is in `features/report-models.md`; closures in `to-do-done-and-parked.md` §2.
 
 ### Next
 
-**Two fixes are DRAWN AND FULLY RULED but NOT BUILT and NOT on the list** — a revolving
-facility, and opening deposits on stock in transit:
-`mockups/three-way-forecast-facilities-and-transit.html`, registered in `ARTEFACTS.md`. Mike
-asked for the design and ruled its ten questions; **neither is a request to build.** Do not
-start either without him asking. Fix 1 is 4.64-sized and lives in your 4.62 files.
+**4.62's last screen is now this machine's** — see the box below. Quick Position is the
+template; `mixins/savedReport.js` is the shared half.
+
+**4.67 is narrowed and is nobody's yet:** the report screen has been eyeballed, **step 2 has
+not** — the Type column, the stock-in-transit block and the glossary marks. ⚠ The API does not
+hot-reload; restart `npm run backend`.
 
 **4.15, 4.58, 4.60, 4.65, 4.66 wait on Mike. 4.50 needs UAT.**
 
-### DESKTOP
+⚠ One push was refused by the pre-push hook with the whole suite green, and the identical
+retry passed — most likely `npm audit` failing to reach the network. Not chased.
 
-`shipmentTimer` in `ThreeWayForecastIntake.vue` is still never cleared on destroy — recorded
-in 4.64's closure, deliberately not filed. The forecast intake, model and report files are
-the laptop's, but nothing in them is half-finished: take them for 4.62.
+### 🔴 DESKTOP — 4.62'S LAST SCREEN IS NO LONGER YOURS
+
+**Mike moved it to the laptop on 2026-09-05, and `activeOn` on 4.62 now says `laptop`.** This
+breaks the machine-that-started-it convention on purpose: you built all ten other screens, but
+the forecast's three files are the laptop's entire recent work and the seam changed under them
+today. **Do not start it.** Nothing else about 4.62 moves — slices 1 and 2 are yours and stay
+closed.
+
+**Why it changed hands, and the trap in it either way:** the saved-report wiring follows the
+header. Screens whose header is in the PAGE — Quick Position, EBITDA-DCF, Loan Estimator —
+wire it at the page; the rest wire it in the component. The forecast **joined the page group
+today** (`d453327`), and the `client` prop went with it. So **Quick Position is the template,
+not the other ten**, and anyone looking for the seam where the ten have it will not find it.
+
+`shipmentTimer` in `ThreeWayForecastIntake.vue` is still never cleared on destroy, still
+deliberately not filed.
