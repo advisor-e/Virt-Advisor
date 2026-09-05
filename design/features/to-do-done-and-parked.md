@@ -185,6 +185,43 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**Five changes for junior advisors — the report shows every line, and the jargon explains itself.**
+✅ Built and closed 2026-09-05. Mike: *"most of the accountants using this will be junior in terms
+of experience"*, then *"do them all"* to five proposals. Filed straight to this page for the same
+reason as the two fixes below it — the work finished in the session that started it.
+
+**Four were small.** A **glossary** ([`data/glossary.json`](../../data/glossary.json), sixteen
+definitions, one home) with a **?** beside the headings that use jargon — it adds to a heading and
+never rewrites one, because his labels are ruled screen by screen. A collection profile that does
+not total 100% now **says what the gap means and what to do**, with different sentences for the two
+profiles because a shortfall means opposite things on each. Step 2 **counts** how many opening
+figures came from the file and how many are the advisor's. The purchases grid **shows its year
+total**, as sales always has.
+
+**The fifth changed a screen he had already approved, so it was drawn first** —
+[`three-way-forecast-report-detail.html`](../mockups/three-way-forecast-report-detail.html), four
+questions, ruled one at a time. The report showed **four rows** per tab, so a junior asked *"why is
+profit down in August?"* had nothing to answer with and could not see their own typing error. It
+now carries a **Summary / Every line** setting: Summary is still the default and still the four rows
+approved on 2026-09-02, so nobody content with today's screen is handed a longer one.
+
+🔴 **He added something the drawing never asked for, and it was the right addition.** Against the
+recommendation to hide empty overhead lines, the risk named was that a junior never learns an
+"Insurance" line exists. His answer: *"yes - as recommended but perhaps a note explaining it could
+help?"*. The note is built, counts what is hidden, says how many the app holds, and names where they
+are set.
+
+**No new input, no recomputation, the golden set untouched** — every series on the screen is one the
+engine has returned since it was written. **Facility interest finally has a row of its own**, having
+been ruled engine-only that morning purely for want of anywhere on this screen to put it. That is
+the 4.16 fault closing itself the same day it was named.
+
+**What proves it:** the Summary / Every line block in
+[`threeWayForecastReport.component.test.js`](../../tests/unit/threeWayForecastReport.component.test.js)
+— its first test pins that the screen still OPENS on the four approved rows, which is the whole basis
+on which the change was approved — and [`glossary.test.js`](../../tests/unit/glossary.test.js), whose
+first test catches a mistyped key that would render nothing and that no person in UAT could notice.
+
 **Facilities and stock in transit — the two proper fixes to the forecast's opening position.**
 ✅ Built and closed 2026-09-05. **Neither was ever on the live list, and that is correct rather
 than an omission:** the drawing was made on Mike's request (*"you mention 'fixing them properly' -

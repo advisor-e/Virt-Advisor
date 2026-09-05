@@ -577,10 +577,25 @@ something wrong, and **both have since been fixed properly** — see the next se
 ### Built for junior advisors (2026-09-05)
 
 Mike's request: *"most of the accountants using this will be junior in terms of experience"*.
-Five improvements were proposed and he answered **"do them all"**. Four are built and are
-below; the fifth changes a screen he has already approved, so it is **drawn and waiting** —
-[`three-way-forecast-report-detail.html`](../mockups/three-way-forecast-report-detail.html),
-four questions open.
+Five improvements were proposed and he answered **"do them all"**. All five are built. The
+fifth changed a screen he had already approved, so it was **drawn first, ruled, then built**
+— [`three-way-forecast-report-detail.html`](../mockups/three-way-forecast-report-detail.html).
+
+**Summary / Every line.** The report opened on four rows per tab, so a junior asked *"why is
+profit down in August?"* had nothing on screen to answer with, and could not see their own
+typing error — wages entered as 450,000 rather than 45,000 looked identical. The screen still
+**opens on Summary**, unchanged; *Every line* is one click away and governs all three tabs
+together, because an advisor who finds the setting on one will look for it on the others.
+Mike's words on the shape: *"i like how you can choose summary and every line"*.
+
+**Empty overhead lines are hidden, and a note says so** — his addition, not the drawing's:
+*"perhaps a note explaining it could help?"*. It closes the exact risk named against that
+recommendation, that a junior never learns an "Insurance" line exists. The count moves with
+the forecast and the note appears only when something is hidden.
+
+**No new input, no recomputation, the golden set untouched.** Every series on the screen is
+one the engine has returned since it was written. **Facility interest finally has a row of its
+own** — it was ruled engine-only earlier the same day purely for want of anywhere to put it.
 
 **A glossary, in one place.** [`data/glossary.json`](../../data/glossary.json) holds sixteen
 plain-English definitions and [`GlossaryTerm.vue`](../../components/base/GlossaryTerm.vue)

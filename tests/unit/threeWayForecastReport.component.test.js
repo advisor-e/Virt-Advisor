@@ -381,3 +381,106 @@ describe('Three-Way Forecast screen — stock in transit lands in the cash tab',
     w.destroy()
   })
 })
+
+/**
+ * Summary / Every line — approved by Mike 2026-09-05 from
+ * design/mockups/three-way-forecast-report-detail.html, after his request that the app
+ * suit junior accountants: "most of the accountants using this will be junior in terms of
+ * experience".
+ *
+ * 🔴 THE FIRST TEST IS THE ONE THAT MATTERS. The whole basis on which this was approved is
+ * that the screen still OPENS on the four rows he approved on 2026-09-02 — an addition, not
+ * a redesign. If a later change flips the default, every advisor content with today's
+ * screen is handed a forty-row one and nobody would think to check.
+ *
+ * The rest guard what a person cannot: that a row reads the series it claims to, and that
+ * the count of hidden overheads matches what was actually hidden.
+ */
+describe('Summary / Every line', () => {
+  test('🔴 the screen opens on Summary, and Summary is unchanged', async () => {
+    const w = await mountWithResult(SAMPLE)
+    expect(w.vm.detail).toBe('summary')
+    w.vm.tab = 'profit'
+    expect(w.vm.visibleRows.map(r => r.key)).toEqual(['rev', 'gross', 'oh', 'net'])
+    w.vm.tab = 'balance'
+    expect(w.vm.visibleRows.map(r => r.key)).toEqual(['ar', 'stock', 'ap', 'na'])
+    w.destroy()
+  })
+
+  test('every line opens all three statements, not just the one on screen', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.detail = 'every'
+    const counts = {}
+    const tabs = ['profit', 'balance', 'cash']
+    tabs.forEach((t) => { w.vm.tab = t; counts[t] = w.vm.visibleRows.length })
+    // Mike's ruling: one setting governs all three, because an advisor who finds it on one
+    // tab will look for it on the others.
+    tabs.forEach((t) => { expect(counts[t]).toBeGreaterThan(8) })
+    w.destroy()
+  })
+
+  test('a full statement reads the engine’s own series, not a re-derived one', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.detail = 'every'
+    w.vm.tab = 'profit'
+    const byKey = {}
+    w.vm.visibleRows.forEach((r) => { byKey[r.key] = r })
+    expect(byKey.cos.values).toBe(SAMPLE.profitAndLoss.costOfSales)
+    expect(byKey.op.values).toBe(SAMPLE.profitAndLoss.operatingSurplus)
+    expect(byKey.pbt.values).toBe(SAMPLE.profitAndLoss.netSurplusBeforeTax)
+    // Facility interest has a row at last. It was engine-only when the facility was built
+    // earlier the same day, for want of anywhere on this screen to put it.
+    expect(byKey['int-fac'].values).toBe(SAMPLE.profitAndLoss.interestFacilities)
+    w.destroy()
+  })
+
+  test('the balance sheet shows both halves of the check it prints', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.detail = 'every'
+    w.vm.tab = 'balance'
+    const keys = w.vm.visibleRows.map(r => r.key)
+    // The point of the change: a junior can see WHY the check is what it is.
+    expect(keys).toContain('net-a')
+    expect(keys).toContain('teq')
+    expect(keys[keys.length - 1]).toBe('na')
+    w.destroy()
+  })
+
+  test('🔴 an overhead with no figure is hidden, and the note counts exactly those', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.detail = 'every'
+    w.vm.tab = 'profit'
+    const oh = SAMPLE.profitAndLoss.overheads
+    const withFigures = Object.keys(oh).filter(k => oh[k].some(v => Math.abs(v) >= 0.005))
+    const shown = w.vm.visibleRows.filter(r => r.key.indexOf('oh-') === 0)
+    expect(shown).toHaveLength(withFigures.length)
+    // The count in the note is the rest of them — not a number typed into the sentence.
+    expect(w.vm.hiddenOverheadCount).toBe(Object.keys(oh).length - withFigures.length)
+    expect(w.vm.overheadCount).toBe(Object.keys(oh).length)
+    w.destroy()
+  })
+
+  test('the hidden-overheads note stays off the other tabs and off Summary', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.tab = 'profit'
+    // Nothing to explain when the advisor is looking at four rows.
+    expect(w.vm.hiddenOverheadCount).toBe(0)
+    w.vm.detail = 'every'
+    w.vm.tab = 'cash'
+    expect(w.vm.hiddenOverheadCount).toBe(0)
+    w.destroy()
+  })
+
+  test('a loan row carries the name the advisor gave it, not a translation key', async () => {
+    const named = computeThreeWayForecast({
+      loans: [{ name: 'Kiwibank term loan', type: 'term', opening: 80000, monthlyRepayment: 2450, interestRate: 0.07 }]
+    })
+    const w = await mountWithResult(named)
+    w.vm.detail = 'every'
+    w.vm.tab = 'balance'
+    const row = w.vm.visibleRows.find(r => r.rawLabel === 'Kiwibank term loan')
+    expect(row).toBeTruthy()
+    expect(row.label).toBeUndefined()
+    w.destroy()
+  })
+})
