@@ -294,7 +294,13 @@ const NCA_CATEGORY_TESTS = [
   { key: 'officeEquipment', re: /office\s*(equip|furn)|furniture|fixtures|fittings/i },
   { key: 'computerHardware', re: /computer|hardware|^it\b|laptop|server/i }
 ]
-const SHAREHOLDER_RE = /shareholder|director|beneficiar(?:y|ies)|current\s+account/i
+// "Funds introduced" and "capital introduced" are what Xero and MYOB call a shareholder
+// current account in credit, and they are the ordinary wording in New Zealand and
+// Australia. Added on Mike's ruling of 2026-09-05, after a real export put 627,850.60 of
+// owner money into the Other-current-liability catch-all: the balance sheet tied either
+// way, but a frozen lump cannot carry the advances and drawings a shareholder row can,
+// and the shareholder rows are positional so they hold no name at all.
+const SHAREHOLDER_RE = /shareholder|director|beneficiar(?:y|ies)|current\s+account|(?:funds|capital)\s+introduced/i
 const LOAN_RE = /\bloan\b|hire\s*purchase|\bhp\b|finance\s+lease|mortgage|term\s+debt/i
 const GST_RE = /\bgst\b|\bvat\b|goods\s+and\s+services/i
 const INCOME_TAX_RE = /income\s*tax|provision\s+for\s+tax|\btax\s+(payable|refund)/i

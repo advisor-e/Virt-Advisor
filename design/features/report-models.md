@@ -567,6 +567,21 @@ warns and never blocks, and lists the four things that actually cause it.
 > asserted is that **a balance sheet which balances in the accounting package balances here**.
 > That assertion now exists.
 
+**Where the swept rows belong — three rulings, 2026-09-05, and two of them changed no code.**
+*Funds introduced* and *capital introduced* are now read as **shareholder current accounts**:
+they are what Xero and MYOB call owner money in credit, the balance sheet ties either way,
+but a catch-all is a frozen lump where a shareholder row carries advances and drawings — and
+is positional, so it holds no name. **Revolving trade finance stays in Other current
+liability**: a term-loan slot would charge interest but also *amortise* it, showing millions
+of cash leaving that never will, and the overdraft line is derived from the bank balance
+rather than entered. ⚠ Its consequence is stated rather than hidden — that line carries no
+interest, so a facility's interest must be typed onto an overhead line or the profit is
+overstated. **Supplier deposits stay in Other current asset**: *Prepayments* is driven by a
+live schedule that would release them to the P&L as an expense, and they are stock, not a
+cost. Their own consequence: they never convert to inventory when the containers land, so
+the closing balance sheet shows the money in the wrong place — no cash or profit figure is
+affected. **Neither residual is filed as work; both are Mike's to raise if he wants them.**
+
 🔒 **A client's own account names are redacted before they leave the backend** (Mike,
 2026-09-05: *"the names tied to bank, stock, assets and liabilities snuk through"*). A real
 chart of accounts carries people's names and card numbers — that export put `BNZ Mr y business

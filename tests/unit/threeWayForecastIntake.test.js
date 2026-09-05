@@ -792,3 +792,59 @@ describe('🔴 account names are redacted at the source', () => {
     expect(sent).not.toMatch(/Cheque Account|Savings Account|Inventory \(Unleashed\)/)
   })
 })
+
+/**
+ * "Funds introduced" is a shareholder current account (Mike's ruling, 2026-09-05).
+ *
+ * A real export named the owner's money `Mr y Funds Introduced` and `XYZ Funds
+ * Introduced`. The parser looked for shareholder/director/beneficiary/current account, so
+ * 627,850.60 of it landed in the Other-current-liability catch-all: the balance sheet tied
+ * either way, which is exactly why nothing complained. What was lost is that a catch-all
+ * is a frozen lump for twelve months, where a shareholder row carries advances and
+ * drawings — and holds no name at all, being positional.
+ */
+describe('funds introduced are read as a shareholder current account', () => {
+  const GRID = [
+    ['Balance Sheet'], ['Sweep Test Ltd'], ['As at 31 March 2026'], [],
+    ['Assets'], ['Bank'], ['Cheque Account', 120000], ['Total Bank', 120000],
+    ['Liabilities'], ['Current Liabilities'],
+    ['Mr y Funds Introduced', 70000],
+    ['ABC Capital Introduced', 30000],
+    ['Suspense', 500],
+    ['Total Current Liabilities', 100500],
+    ['Equity'], ['Share Capital', 100], ['Retained Earnings', 19400], ['Total Equity', 19500]
+  ]
+  const r = extractForecastBalanceSheet(GRID)
+
+  test('both wordings reach the shareholder rows, in the order the file lists them', () => {
+    expect(r.shareholderBalances).toEqual([70000, 30000])
+  })
+
+  test('🔒 and they arrive with NO NAME — the rows are positional', () => {
+    expect(JSON.stringify(r.shareholderBalances)).not.toMatch(/Mr|y|ABC|Funds/)
+  })
+
+  test('the money is not counted twice: the catch-all keeps only what is left', () => {
+    // A row claimed by a named slot must never also be swept. 500, not 100,500.
+    expect(r.figures.otherCurrentLiability.value).toBe(500)
+  })
+
+  test('the opening position still ties once they have moved', () => {
+    const assembled = assembleForecastIntake([r])
+    const ob = Object.assign({}, assembled.proposal.openingBalanceSheet)
+    const keys = ['cashAtBank', 'bankOverdraft', 'accountsReceivable', 'inventory', 'prepayments',
+      'gstRefund', 'incomeTaxRefundDue', 'otherCurrentAsset', 'accountsPayable', 'accruedExpenses',
+      'gstPayable', 'incomeTaxPayable', 'otherCurrentLiability', 'otherNonCurrentLiability',
+      'authorisedCapital', 'retainedEarnings', 'capitalGain', 'otherEquity']
+    for (let i = 0; i < keys.length; i++) { if (ob[keys[i]] === undefined) { ob[keys[i]] = 0 } }
+    const f = computeThreeWayForecast(Object.assign({}, assembled.proposal, { openingBalanceSheet: ob }))
+    expect(f.balanceSheet.opening.balanceCheck).toBe(0)
+  })
+
+  test('an ordinary account is not dragged in by the new wording', () => {
+    const plain = extractForecastBalanceSheet(GRID.map(
+      row => (row[0] === 'ABC Capital Introduced' ? ['Marketing Fund', 30000] : row)))
+    expect(plain.shareholderBalances).toEqual([70000])
+    expect(plain.figures.otherCurrentLiability.value).toBe(30500)
+  })
+})
