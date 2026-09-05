@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Economic Analysis</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Three-Way Forecast — ECONOMIC ANALYSIS, screen mockup for approval
+   (drawn 2026-09-06, item 4.66).
+
+   The style block below is copied VERBATIM from
+   design/mockups/three-way-forecast-capital.html lines 30-217, which took it in
+   turn from three-way-forecast.html, so the look is READ OFF the approved
+   screens and never proposed afresh — the owner ruling of 2026-07-23.
+
+   THE WORDS ON THESE SCREENS ARE THE TESTED PROMPT'S OWN OUTPUT. Every
+   quotation, figure and source below is real text from run 4 of
+   design/ECONOMIC-ANALYSIS-TEST-RUNS.md — a FICTIONAL Galway physiotherapy
+   clinic. Nothing is invented and nothing is approximated, because a screen
+   drawn around imagined AI output is a screen drawn around a wish.
+
+   No dark mode: one light look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-col-input:360px; --rs-col-gap:16px; --rs-content-width:1120px;
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0; --rs-accent-contrast:#ffffff;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#ff00000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:var(--rs-content-width);margin:0 auto;padding:28px 22px 64px}
+
+.tw-root{display:flex;flex-direction:column;gap:16px}
+.tw-root strong,.tw-root b{font-weight:600}
+.tw-root .rs-top{margin:0}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55}
+.tag{position:relative}
+.tag::after{content:attr(data-tag);position:absolute;top:-9px;left:10px;background:#614700;
+  color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;padding:1px 6px;border-radius:4px}
+.stepmark{margin:34px 0 2px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+
+.rs-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  margin:0 auto 22px;padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);
+  color:#fff;box-shadow:var(--rs-shadow)}
+.rs-backlink{display:inline-block;margin-bottom:10px;font-size:12px;font-weight:600;
+  letter-spacing:.04em;color:#7fd3f1;text-decoration:none;opacity:.9}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+.stale{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;
+  align-items:center;gap:14px}
+.stale b{display:block;font-size:13px}
+.stale span{font-size:12.5px;color:var(--rs-muted)}
+.stale.is-crit{background:var(--rs-crit-soft);border-color:#ff000045;border-left-color:var(--rs-crit)}
+
+.tw-layout{display:grid;grid-template-columns:var(--rs-col-input) 1fr;gap:var(--rs-col-gap);
+  align-items:start}
+@media (max-width:860px){.tw-layout{grid-template-columns:1fr}}
+
+.tw-card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow)}
+.tw-h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.tw-group{padding:15px 16px;border-bottom:1px solid var(--rs-line)}
+.tw-group:last-child{border-bottom:0}
+.tw-glabel{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tw-dot{width:7px;height:7px;border-radius:50%;background:var(--rs-accent-bright)}
+
+.tw-results{display:flex;flex-direction:column;gap:16px;min-height:200px}
+.tw-tile{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:16px 17px;box-shadow:var(--rs-shadow);overflow:hidden}
+.tw-k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.tw-sub{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+.tw-edu{border-left:3px solid var(--rs-accent-bright);background:var(--rs-accent-soft);
+  border-radius:0 9px 9px 0;padding:15px 17px}
+.tw-edu-h{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600;color:var(--rs-accent);margin-bottom:8px}
+.tw-edu-p{margin:0 0 8px;font-size:14px;line-height:1.6}
+.tw-edu-p:last-child{margin-bottom:0}
+.tw-lead{background:var(--rs-accent);color:var(--rs-accent-contrast);font-size:10px;font-weight:600;
+  letter-spacing:.08em;padding:3px 7px;border-radius:5px}
+.tw-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tw-cta{font:inherit;font-weight:600;font-size:13.5px;color:var(--rs-accent-contrast);
+  background:var(--rs-accent);border:0;padding:11px 18px;border-radius:10px;cursor:pointer}
+.tw-ghost{background:transparent;color:var(--rs-ink);border:1px solid var(--rs-line)}
+.tw-foot{font-size:12px;color:var(--rs-muted)}
+
+.src{letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:999px;
+  white-space:nowrap;font-size:9.5px;padding:2.5px 7px;margin-left:7px}
+.src-file{color:#0070c0;background:#0070c018;border:1px solid #0070c04d}
+.src-hand{color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.src-seed{color:#4a7c1f;background:#4ca52d1a;border:1px solid #4ca52d59}
+
+.field{margin-bottom:11px}
+.fieldlab{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;
+  color:var(--rs-ink);margin-bottom:6px}
+.field input,.field select{width:100%;font:inherit;font-size:13px;padding:8px 9px;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+
+/* the questions block — mockup only */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:14px 16px;font-size:13px}
+.q h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;margin:0 0 10px;color:var(--rs-muted)}
+.q ol{margin:0;padding-left:20px}.q li{margin-bottom:9px}
+.q .from{color:var(--rs-muted);font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+</style>
+<style>
+/* ============================================================================
+   ADDITIONS FOR THIS DRAWING ONLY. Everything above is the approved mockup's
+   own style block. The rules below introduce NO new colour, radius, weight or
+   font except the one flagged as question 3 — they lay out a tick row, a brief
+   box, a waiting state and a research document using tokens already defined.
+   ========================================================================= */
+
+/* the tick row */
+.ticker{display:flex;gap:11px;align-items:flex-start;padding:15px 16px}
+.ticker input{margin:2px 0 0;width:16px;height:16px;flex:none;accent-color:#0070c0}
+.ticker .tl{font-size:14px;font-weight:600}
+.ticker .ts{font-size:12.5px;color:var(--rs-muted);margin-top:3px}
+.ticker .opt2{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:999px;padding:2.5px 7px;color:var(--rs-muted);background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);margin-left:8px}
+
+/* the advisor's brief */
+.brief{width:100%;font:inherit;font-size:13.5px;line-height:1.6;padding:11px 12px;
+  border:1px solid var(--rs-line);border-radius:10px;background:var(--rs-panel);
+  color:var(--rs-ink);resize:vertical;min-height:132px}
+.hintlist{margin:9px 0 0;padding-left:18px;font-size:12.5px;color:var(--rs-muted)}
+.hintlist li{margin-bottom:3px}
+
+/* what will be sent — the whole of the privacy ruling, on screen */
+.sendbox{border:1px solid #0070c04d;background:#0070c00a;border-radius:10px;padding:13px 14px}
+.sendhead{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.09em;
+  text-transform:uppercase;font-weight:700;color:var(--rs-accent);margin-bottom:9px}
+.sendbody{font-size:13px;line-height:1.6;white-space:pre-wrap}
+.sendfoot{font-size:12px;color:var(--rs-muted);margin-top:10px;padding-top:9px;
+  border-top:1px solid #0070c026}
+
+/* waiting */
+.waiting{display:flex;gap:13px;align-items:flex-start;padding:17px 18px}
+.pulse{width:10px;height:10px;border-radius:50%;background:var(--rs-accent-bright);flex:none;margin-top:5px}
+.waiting .wt{font-size:14px;font-weight:600}
+.waiting .ws{font-size:12.5px;color:var(--rs-muted);margin-top:4px}
+.steps{margin:11px 0 0;padding:0;list-style:none;font-size:12.5px;color:var(--rs-muted)}
+.steps li{padding:3px 0}
+.steps li.on{color:var(--rs-ink);font-weight:600}
+.steps li .mk{display:inline-block;width:16px;color:var(--rs-good);font-weight:700}
+
+/* the research document */
+.doc{padding:4px 20px 20px}
+.doc h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--rs-accent);
+  font-weight:700;margin:22px 0 9px;padding-top:15px;border-top:1px solid var(--rs-line)}
+.doc h3:first-of-type{border-top:0;padding-top:4px;margin-top:8px}
+.doc p{font-size:14px;line-height:1.68;margin:0 0 12px}
+.doc p:last-child{margin-bottom:0}
+.doc b{font-weight:600;font-variant-numeric:tabular-nums}
+.cite{font-size:12px;color:var(--rs-accent);text-decoration:none;border-bottom:1px solid #0070c040;
+  white-space:nowrap}
+
+/* the gaps panel — section 5 gets its own treatment, deliberately */
+.gaps{border-left:3px solid var(--rs-warn);background:var(--rs-warn-soft);
+  border-radius:0 9px 9px 0;padding:15px 17px}
+.gaps h4{margin:0 0 4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:#b36b00;font-weight:700}
+.gaps .lede{font-size:12.5px;color:#7a5200;margin:0 0 10px}
+.gaps ul{margin:0;padding-left:19px;font-size:13px;line-height:1.6}
+.gaps li{margin-bottom:7px}
+.gaps li:last-child{margin-bottom:0}
+
+/* sources footer */
+.srcs{padding:14px 20px 18px;border-top:1px solid var(--rs-line)}
+.srcs .sh{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;margin-bottom:9px}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font-size:11.5px;color:var(--rs-accent);background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);border-radius:999px;padding:4px 10px;text-decoration:none}
+
+/* QUESTION 3: a fifth ProvenanceBadge state. file/entered/seeded/client exist;
+   this is the only genuinely new token in the drawing and it is asked about,
+   not assumed. */
+.src-ai{color:#6b3fa0;background:#6b3fa014;border:1px solid #6b3fa04d}
+</style>
+</head>
+<body>
+<div class="shell tw-root">
+
+<div class="rs-top">
+  <div>
+    <a class="rs-backlink" href="#">&larr; Model Library</a>
+    <div class="rs-eyebrow">Three-Way Forecast · item 4.66</div>
+    <h1 class="rs-h1">Economic Analysis</h1>
+    <div class="rs-client">Screens for approval &middot; drawn 2026-09-06 &middot; nothing built</div>
+  </div>
+  <div class="chips">
+    <div class="chip done"><span class="n">1</span> Exports</div>
+    <div class="chip done"><span class="n">2</span> Opening</div>
+    <div class="chip done"><span class="n">3</span> Assumptions</div>
+    <div class="chip now"><span class="n">4</span> Forecast</div>
+  </div>
+</div>
+
+<div class="mock tag" data-tag="READ THIS FIRST">
+  <b>Every word of AI output on these screens is real.</b> It is run 4 from
+  <code>design/ECONOMIC-ANALYSIS-TEST-RUNS.md</code> — the fictional Galway physiotherapy
+  clinic — quoted exactly, sources included. A screen drawn around imagined AI output is a
+  screen drawn around a wish, and the whole point of testing the prompt first was to avoid
+  that.
+  <br><br>
+  <b>Where this sits:</b> beneath the forecast on step 4, full width. It is not a fifth step.
+  The forecast is complete and printable without it, which is why the panel is closed by
+  default and says <i>optional</i> in the one place an advisor will look.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen 1 — closed. What an advisor sees who does not want this</div>
+
+<div class="tw-card">
+  <div class="ticker">
+    <input type="checkbox">
+    <div>
+      <div class="tl">Economic analysis <span class="opt2">optional</span></div>
+      <div class="ts">Research the market conditions behind this forecast, from public
+        sources, for a lender to read alongside it.</div>
+    </div>
+  </div>
+</div>
+
+<div class="mock">
+  <b>One line, closed, and nothing else.</b> Most forecasts will not use this. An advisor who
+  does not tick it sees no brief box, no button and no explanation — the forecast above is
+  finished and this is an addition to it, not a step in it.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen 2 — ticked. The brief, and the whole of the privacy ruling</div>
+
+<div class="tw-card">
+  <div class="ticker" style="border-bottom:1px solid var(--rs-line)">
+    <input type="checkbox" checked>
+    <div>
+      <div class="tl">Economic analysis <span class="opt2">optional</span></div>
+      <div class="ts">Research the market conditions behind this forecast, from public
+        sources, for a lender to read alongside it.</div>
+    </div>
+  </div>
+
+  <div class="tw-group">
+    <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">What should be researched</h2></div>
+    <textarea class="brief">A physiotherapy and rehabilitation clinic, 9 staff, operating two sites in Galway, Ireland. Patients are a mix of private-pay, private health insurance and public referrals. Seeking finance to fit out and equip a third site in the same county, including treatment equipment and a lease on new premises. The forecast period is the next 12 months.</textarea>
+    <ul class="hintlist">
+      <li>What the business does, and who it sells to</li>
+      <li>Where it operates — the town or region, not just the country</li>
+      <li>What the finance is for</li>
+      <li>Anything a researcher would need to know and could not guess</li>
+    </ul>
+  </div>
+
+  <div class="tw-group">
+    <div class="sendbox">
+      <div class="sendhead">This is exactly what will be sent</div>
+      <div class="sendbody">A physiotherapy and rehabilitation clinic, 9 staff, operating two sites in Galway, Ireland. Patients are a mix of private-pay, private health insurance and public referrals. Seeking finance to fit out and equip a third site in the same county, including treatment equipment and a lease on new premises. The forecast period is the next 12 months.</div>
+      <div class="sendfoot"><b>Nothing else about this client leaves the app.</b> Not their
+        name, not their accounts, not a single figure from the forecast. Only the words above,
+        and today's date.</div>
+    </div>
+  </div>
+
+  <div class="tw-group">
+    <div class="tw-actions">
+      <button class="tw-cta">Research the market</button>
+      <span class="tw-foot">Usually about two minutes.</span>
+    </div>
+  </div>
+</div>
+
+<div class="mock tag" data-tag="MIKE'S RULING, 2026-09-06">
+  <b>The blue box is the ruling, drawn.</b> <i>"The advisor writes the research brief and sees
+  the exact words that will be sent. The app sends nothing about the client on its own."</i>
+  It repeats the brief rather than summarising it, because a summary is the app deciding what
+  to disclose. It updates as they type.
+  <br><br>
+  <b>Why the hint list is four lines and not a form.</b> Four separate fields for sector,
+  town, purpose and period would be tidier and would break the ruling — the app would be
+  assembling the disclosure. The advisor writes one paragraph and reads it back.
+  <br><br>
+  <b>The forecast's own figures are never offered to it</b>, and the sentence in bold says so
+  in words an advisor will believe, because it is checkable: <code>buildInputs()</code> sends
+  amounts only, and a test enforces it.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen 3 — running. 83 to 102 seconds, measured, not guessed</div>
+
+<div class="tw-card">
+  <div class="waiting">
+    <span class="pulse"></span>
+    <div style="flex:1">
+      <div class="wt">Researching public sources</div>
+      <div class="ws">This usually takes about two minutes. You can leave this page and come
+        back — the research keeps going.</div>
+      <ul class="steps">
+        <li><span class="mk">&#10003;</span> Global conditions — IMF, WTO, IEA</li>
+        <li><span class="mk">&#10003;</span> Ireland — Central Bank, CSO, ESRI</li>
+        <li class="on"><span class="mk">&nbsp;</span> Galway — rents, incomes, population</li>
+        <li><span class="mk">&nbsp;</span> The sector — insurance, public capacity, workforce</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="mock">
+  <b>The four lines are not decoration and not a fake progress bar.</b> They are the four
+  research areas the prompt asks for, ticked as the model's own search calls come back — 9 to
+  12 of them per run. If a real one is slow, the honest thing on screen is which area it is
+  still working on.
+  <br><br>
+  <b>"You can leave this page"</b> is true and load-bearing: at roughly a hundred seconds this
+  cannot be an inline wait, so it returns a job and the page polls — the pattern
+  <code>server/routes/meetingReview.js</code> already uses twice for the same reason.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen 4 — the research. Real output, quoted exactly</div>
+
+<div class="tw-card">
+  <div class="tw-group" style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap">
+    <div>
+      <h2 class="tw-h2">Economic analysis</h2>
+      <div class="tw-sub" style="margin-top:5px">Researched 6 September 2026 &middot; 30 sources
+        &middot; 2,276 words <span class="src src-ai">AI research</span></div>
+    </div>
+    <div class="tw-actions">
+      <button class="tw-cta tw-ghost">Research again</button>
+    </div>
+  </div>
+
+  <div class="doc">
+    <h3>3 · Sector outlook</h3>
+    <p>Private health insurance provides a substantial, but not universal, source of access to
+      private care. The Health Insurance Authority reported <b>2.55 million people</b> insured
+      at <b>31 December 2025</b>, an annual increase of <b>1.2%</b>. The average adult premium
+      was <b>&euro;1,902 at 1 March 2026</b>, following a <b>9%</b> increase during 2025.
+      <a class="cite" href="#">hia.ie</a> The HIA's Q1 2026 bulletin reported the same insured
+      population of <b>2.55 million</b>, after a quarterly increase of <b>2,936 people</b>, and
+      an average adult premium of <b>&euro;1,960</b>. <a class="cite" href="#">hia.ie</a> The
+      difference reflects a later reporting point and premium measure.</p>
+
+    <p>There is evidence of capacity pressure in primary-care therapies. The HSE reported in a
+      parliamentary response that the longest recorded wait for a physiotherapy assessment in
+      Galway was <b>256 weeks at August 2025</b>. <a class="cite" href="#">hse.ie</a> This is a
+      dated maximum waiting-time measure, not a current average wait, patient count, referral
+      pipeline or measure of the clinic's addressable demand.</p>
+
+    <p>Public feedback was reviewed as a qualitative rather than quantitative source. A Galway
+      discussion forum in <b>July 2026</b> contained recommendations for multiple named
+      physiotherapy providers across the city and county. <a class="cite" href="#">reddit.com</a>
+      These posts are self-selected anecdotes. They cannot establish clinical quality, waiting
+      times, market share, patient numbers or demand, but they do indicate that patients can
+      identify several alternative providers and that local competition should not be assumed
+      to be limited.</p>
+
+    <h3>4 · What this means for the business under review</h3>
+    <p>The planned third site would open during a period of positive domestic demand but
+      persistent cost pressure. Inflation in Ireland is being influenced materially by energy,
+      while service-price inflation remains elevated. This is relevant to utilities, cleaning,
+      insurance, supplies, travel and household purchasing capacity.</p>
+
+    <p>The finance requirement has two separate economic exposures: a one-off fit-out and
+      equipment purchase, and an ongoing lease commitment. International energy and freight
+      disruption may affect supplier lead times and landed equipment costs. Domestic commercial
+      borrowing conditions remain relatively expensive by euro-area comparison. Actual supplier
+      quotations, lease terms and lender pricing are not known.</p>
+  </div>
+
+  <div class="tw-group">
+    <div class="gaps">
+      <h4>5 · What could not be sourced</h4>
+      <p class="lede">Seven gaps, each saying what it would have been used for. This section is
+        why a credit assessor trusts the rest.</p>
+      <ul>
+        <li><b>A current Galway commercial rent series for clinical premises.</b> National
+          office and retail expectations were available; no authoritative series for this
+          property type and locality.</li>
+        <li><b>The number of active private physiotherapy clinics, practitioners, waiting times
+          or prices in Galway.</b> Needed to assess local competitive intensity.</li>
+        <li><b>The clinic's insurer-panel status, reimbursement rates or insured-patient
+          share.</b> Needed to assess the stability of the private-insurance channel.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="srcs">
+    <div class="sh">30 sources &middot; every one clickable</div>
+    <div class="pills">
+      <a class="pill" href="#">imf.org</a><a class="pill" href="#">wto.org</a>
+      <a class="pill" href="#">iea.org</a><a class="pill" href="#">ec.europa.eu</a>
+      <a class="pill" href="#">centralbank.ie</a><a class="pill" href="#">esri.ie</a>
+      <a class="pill" href="#">cso.ie</a><a class="pill" href="#">rtb.ie</a>
+      <a class="pill" href="#">hia.ie</a><a class="pill" href="#">gov.ie</a>
+      <a class="pill" href="#">hse.ie</a><a class="pill" href="#">coru.ie</a>
+      <a class="pill" href="#">reddit.com</a>
+    </div>
+  </div>
+</div>
+
+<div class="mock tag" data-tag="THE ONE THING THAT MUST NOT BE CHANGED">
+  <b>Section 4 carries no figures and no citations, and that is the fix, not an oversight.</b>
+  Runs 1 to 3 each put a correct figure beside the wrong source, always in a restatement.
+  Section 4 may no longer repeat a number, so every figure lives exactly once, next to the
+  source it came from. <b>Do not let a future change "improve" section 4 by adding the numbers
+  back.</b>
+  <br><br>
+  <b>Section 5 is given the warning colour on purpose.</b> It is the most valuable part of the
+  document and the easiest to skim past. A lender who reads what could not be found believes
+  what was.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen 5 — the second tick, which is the approval</div>
+
+<div class="tw-card">
+  <div class="ticker">
+    <input type="checkbox">
+    <div>
+      <div class="tl">Include in the report the client receives</div>
+      <div class="ts">Adds the economic analysis to the printed forecast pack, after the cash
+        flow. Your name and today's date are recorded against it.</div>
+    </div>
+  </div>
+</div>
+
+<div class="mock tag" data-tag="ONE CONTROL, TWO JOBS">
+  <b>This tick IS the approval gate the standards require.</b> Financial and regulatory work
+  needs an explicit <code>isApproved: true</code> before AI output is committed, and an
+  advisor reading the research and deciding it is fit for a lender is that approval. So there
+  is no second button labelled <i>Approve</i> — there is this, and it records who ticked it and
+  when.
+  <br><br>
+  <b>It is separate from the research tick on Mike's ruling of 2026-09-06</b>, so an advisor
+  can run the research, read it, and decide not to send it. That is a real and useful outcome,
+  not a failure.
+  <br><br>
+  <b>What it cannot do is silently include unread research.</b> The tick is disabled until the
+  research has been generated, and re-running the research clears it.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">Screen 6 — how it reaches the lender</div>
+
+<div class="tw-card">
+  <div class="tw-group">
+    <div class="tw-edu">
+      <div class="tw-edu-h"><span class="tw-lead">In the pack</span> Economic analysis</div>
+      <p class="tw-edu-p">It prints as its own section after the cash flow, with the five
+        headings, the figures beside their sources, and the full list of sources at the end.
+        <b>The "what could not be sourced" section prints too</b> — a funding pack that hides
+        its own gaps is worse than one that names them.</p>
+      <p class="tw-edu-p">Every page of that section carries the same
+        <span class="src src-ai">AI research</span> tag that the screen shows, so nobody
+        reading it in six months mistakes researched market conditions for a figure taken from
+        the client's own accounts.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="stepmark">What needs your decision</div>
+
+<div class="q">
+  <h2>Open — none of this is settled</h2>
+  <ol>
+    <li><b>The two labels.</b> Drawn as <i>"Economic analysis"</i> — your own phrase — and
+      <i>"Include in the report the client receives"</i>.
+      <span class="from">Neither has been ruled. The second is deliberately long: "Include in
+      report" would not tell an advisor that this is the moment they take responsibility for
+      it.</span></li>
+    <li><b>Where it sits.</b> Drawn beneath the forecast on step 4, closed by default, rather
+      than as a fifth step.
+      <span class="from">A fifth step would make an optional thing look required, and the
+      forecast is complete without it.</span></li>
+    <li><b>A fifth provenance colour.</b> <span class="src src-ai">AI research</span> in purple,
+      beside the four that exist — <span class="src src-file">from file</span>
+      <span class="src src-hand">entered</span> <span class="src src-seed">seeded</span> and
+      client.
+      <span class="from">The only genuinely new token in this drawing. Everything else is read
+      off the approved screens.</span></li>
+    <li><b>Whether "Research again" should exist at all.</b> Drawn as a quiet button.
+      <span class="from">It costs about 30p a time and re-running clears the include tick.
+      The argument against is that it invites an advisor to keep going until they like the
+      answer, which is the one habit this feature must not encourage.</span></li>
+  </ol>
+</div>
+
+<div class="mock" style="margin-top:16px">
+  <b>Nothing here is built.</b> No route, no component, no prompt in
+  <code>data/ai-prompts.json</code>. The prompt these screens display is
+  <code>design/ECONOMIC-ANALYSIS-PROMPT.md</code>, and it is still awaiting Mike's approval
+  too — this drawing shows what it would look like in use, so both can be judged together.
+</div>
+
+</div>
+</body>
+</html>
