@@ -9,35 +9,42 @@
 
 ---
 
-## 2026-09-04 (third session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-05 · Laptop · branch `feat/advisor-progress`
 
-Suite **7,812 green** (407 suites), lint 0 errors. `origin/master` merged in (your 4.62
-slice 2, ten of ten). **PR #59 is OPEN with 5 commits** — not yet merged.
+Suite **7,826 green** (407 suites), lint 0 errors, 0 behind master, everything pushed.
+**PR #59 is OPEN with 11 commits** — still not merged.
 
-### 🔴 THE APP RUNS WITHOUT MYSQL — both handovers were wrong about this
+### 🔴 4.62 IS UNBLOCKED — 4.64 CLOSED THIS MORNING
 
-`npm run dev:all` works. A placeholder `MYSQL_PASSWORD` is a **warning**, not a blocker:
-stores fall back to `data/dev-*.json` and the screens work. `restify-server.js:84-90` says
-so in its own comment. **Nuxt listens on IPv6 `::1` only** — a check against `127.0.0.1:3000`
-reports it as down when it is up. Use `localhost`.
+Its five open differences were ruled and the item is on `to-do-done-and-parked.md`. The
+Three-Way Forecast, your last 4.62 screen, is yours to take. **Read the next box first.**
 
-### Built (4.64 and 4.59)
+### The forecast intake changed under you — a real fault, found by opening the app
 
-**4.59 closed** — the mentor's observation points no longer badged as the firm's own.
-**4.64 eyeballed for the first time**, which found four faults no test could: the drawing's
-revenue block was never built (the *locked figure* Mike's ruling rejected); a badge
-overlapped two labels; a badge was on one of three ladder fields; `ProvenanceBadge` was
-missing required props. All fixed. **Supplier terms are now editable** on the mentor's
-Imported Stock Prices tab, on Mike's instruction — they were hardcoded under a badge
-claiming they were platform settings.
+A real Xero export tied to the cent in Xero and opened **1,559,449.79 out of balance**: only
+non-current assets had a catch-all, so 18 rows the parser could not name were dropped in
+silence. Every section now sweeps into its own `Other`, there is an **18th opening line
+(`otherEquity`)**, and **step 2 shows the balance check** with the likely causes. Account
+names are now redacted at the parser (`redactLabel`) — a person's name and three card numbers
+were reaching the screen. "Funds introduced" now reads as a shareholder account. Detail in
+`report-models.md`; nothing on the live list.
+
+⚠ **The API does NOT hot-reload.** Nuxt does; `npm run backend` is a plain node process, so a
+parser change is invisible until you restart it — and it needed a force-kill on port 4000.
+An hour went into chasing that.
 
 ### Next
 
-**4.64 stays open for one thing:** five differences from the drawing, recorded in
-`ARTEFACTS.md` (k)-(o), none ruled by Mike and none changing a figure. **4.15, 4.60, 4.65,
-4.66 and 4.58's open labels wait on Mike.** 4.50 needs UAT.
+**Two fixes are DRAWN AND FULLY RULED but NOT BUILT and NOT on the list** — a revolving
+facility, and opening deposits on stock in transit:
+`mockups/three-way-forecast-facilities-and-transit.html`, registered in `ARTEFACTS.md`. Mike
+asked for the design and ruled its ten questions; **neither is a request to build.** Do not
+start either without him asking. Fix 1 is 4.64-sized and lives in your 4.62 files.
+
+**4.15, 4.58, 4.60, 4.65, 4.66 wait on Mike. 4.50 needs UAT.**
 
 ### DESKTOP
 
-`shipmentTimer` in `ThreeWayForecastIntake.vue` is never cleared on destroy — noticed, not
-fixed, not filed. The forecast intake and `forecast-sell-down` files are the laptop's.
+`shipmentTimer` in `ThreeWayForecastIntake.vue` is still never cleared on destroy — recorded
+in 4.64's closure, deliberately not filed. The forecast intake, model and report files are
+the laptop's, but nothing in them is half-finished: take them for 4.62.
