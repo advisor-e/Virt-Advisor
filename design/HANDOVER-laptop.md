@@ -11,8 +11,8 @@
 
 ## 2026-09-06 (third session) · Laptop · branch `feat/advisor-progress`
 
-Suite **7,991 green** (413 suites), lint **0 errors**. Everything pushed — five commits, each
-through the full gate. Nothing is uncommitted.
+Suite **7,991 green** (413 suites), lint **0 errors**. Everything pushed, each commit through
+the full gate. Nothing is uncommitted.
 
 ### ✅ SLICE 2 IS BUILT — an advisor can reach the economic analysis
 
