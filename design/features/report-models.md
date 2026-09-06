@@ -393,6 +393,7 @@ another colliding model cannot reopen it silently.
 |---|---|
 | Maths models (pure, CommonJS) | [`server/report/`](../../server/report/) |
 | Routes | [`server/routes/report.js`](../../server/routes/report.js), registered in [`server/restify-server.js`](../../server/restify-server.js) |
+| ⚠ The one AI call in this area — **not in `report.js`** | [`server/routes/economicAnalysis.js`](../../server/routes/economicAnalysis.js) (the Three-Way Forecast's optional market research, item 4.66), with [`server/report/economicAnalysis/researchResult.js`](../../server/report/economicAnalysis/researchResult.js) checking what comes back and [`server/utils/economicAnalysisRuns.js`](../../server/utils/economicAnalysisRuns.js) holding the runs and approvals. Its own file because it is the only route here that returns a job and polls. What it sends: [`../ECONOMIC-ANALYSIS-PROMPT.md`](../ECONOMIC-ANALYSIS-PROMPT.md) |
 | Catalogue (single source for what exists) | [`utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js) |
 | What the AI is told each model serves | [`data/report-model-summaries.json`](../../data/report-model-summaries.json), rendered by [`server/utils/reportModels.js`](../../server/utils/reportModels.js) — §3a |
 | The shared frame + `--rs-*` tokens | [`components/base/ReportShell.vue`](../../components/base/ReportShell.vue) |
