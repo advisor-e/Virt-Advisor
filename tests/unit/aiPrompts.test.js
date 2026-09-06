@@ -24,6 +24,10 @@ const SECURITY = 'ai-audit-security'
 // Added by item 4.31: the words the reviewer is given, on the mentor's tab so they can
 // be read rather than found in code (CLAUDE.md -> AI FIXES SURFACE ON A HUB PAGE).
 const REVIEW = 'prompt-review'
+// Added by item 4.66: the market research a forecast can attach to a funding request.
+// All four tiers, like the cash flow document — a firm may need to change how research
+// is conducted for its own market (design/ECONOMIC-ANALYSIS-PROMPT.md §2).
+const ECONOMIC = 'economic-analysis'
 
 describe('the shipped prompts are the shape the design says they are', () => {
   test('both documents are present, by id', () => {
@@ -291,15 +295,17 @@ describe('listPrompts — what a screen is given', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('which documents a tier is shown', () => {
-  test('the mentor gets both', () => {
-    expect(ap.promptsForTier('mentor').map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW])
+  test('the mentor gets every document', () => {
+    expect(ap.promptsForTier('mentor').map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC])
   })
 
-  test('every tier below the mentor gets the cash flow document ONLY', () => {
+  test('every tier below the mentor gets the two client-facing documents ONLY', () => {
     // Mike, 2026-08-22: the security document's seven engineering headings were
     // 7 of the 19 sections a firm manager read, in a different profession's language.
+    // The two mentor-only documents are about how WE work; the cash flow and economic
+    // analysis documents are about how a firm's own client work is done, so both cascade.
     ;['global', 'group', 'firm'].forEach((tier) => {
-      expect(ap.promptsForTier(tier).map(p => p.id)).toEqual([CASHFLOW])
+      expect(ap.promptsForTier(tier).map(p => p.id)).toEqual([CASHFLOW, ECONOMIC])
     })
   })
 
@@ -312,8 +318,8 @@ describe('which documents a tier is shown', () => {
   })
 
   test('asking for no tier at all returns everything, so the send path is unaffected', () => {
-    expect(ap.promptsForTier().map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW])
-    expect(ap.listPrompts({}).map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW])
+    expect(ap.promptsForTier().map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC])
+    expect(ap.listPrompts({}).map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC])
   })
 
   test('a prompt that declares no tiers is shown everywhere, not nowhere', () => {

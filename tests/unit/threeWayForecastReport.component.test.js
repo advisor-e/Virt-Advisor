@@ -482,6 +482,51 @@ describe('Summary / Every line', () => {
     w.destroy()
   })
 
+  test('🔴 the PRINT carries all three statements, whatever tab is on screen', async () => {
+    // Mike's ruling, 2026-09-06. The PDF used to carry the open tab alone, so a lender
+    // received one statement of three — beneath a balance check asserting that the three
+    // tie in every month, which is the claim they then cannot check.
+    //
+    // This is not a test about a stylesheet: it pins the DATA that reaches a bank. Nobody
+    // sees a regression here without generating a PDF and counting, which is exactly what
+    // UAT will not do.
+    const w = await mountWithResult(SAMPLE)
+    w.vm.tab = 'cash'
+    await w.vm.$nextTick()
+
+    expect(w.vm.printStatements.map(s => s.key)).toEqual(['cash', 'profit', 'balance'])
+    // Each carries its own figures, not the open tab's repeated three times.
+    expect(w.vm.printStatements[0].rows).toEqual(w.vm.cashRows)
+    expect(w.vm.printStatements[1].rows).toEqual(w.vm.profitRows)
+    expect(w.vm.printStatements[2].rows).toEqual(w.vm.balanceRows)
+
+    // And it does not follow the tab — the trap a later "simplification" would fall into.
+    w.vm.tab = 'balance'
+    await w.vm.$nextTick()
+    expect(w.vm.printStatements.map(s => s.key)).toEqual(['cash', 'profit', 'balance'])
+    w.destroy()
+  })
+
+  test('the printed profit statement counts its hidden overheads without the tab being open', async () => {
+    // The screen's own count is keyed to the profit TAB, which is never open for the
+    // print. Reusing it would silently report zero and hide an omission — the one thing
+    // that note exists to prevent.
+    const w = await mountWithResult(SAMPLE)
+    w.vm.detail = 'every'
+    w.vm.tab = 'cash'
+    await w.vm.$nextTick()
+
+    expect(w.vm.hiddenOverheadCount).toBe(0)
+    expect(w.vm.printHiddenOverheads).toBeGreaterThan(0)
+
+    // Where both apply — the profit tab open — the two agree. The print's count is the
+    // same rule with the tab condition removed, not a second opinion about the figures.
+    w.vm.tab = 'profit'
+    await w.vm.$nextTick()
+    expect(w.vm.printHiddenOverheads).toBe(w.vm.hiddenOverheadCount)
+    w.destroy()
+  })
+
   test('a loan row carries the name the advisor gave it, not a translation key', async () => {
     const named = computeThreeWayForecast({
       loans: [{ name: 'Kiwibank term loan', type: 'term', opening: 80000, monthlyRepayment: 2450, interestRate: 0.07 }]

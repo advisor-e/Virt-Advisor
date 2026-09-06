@@ -112,6 +112,7 @@ const clientsRoute = require('./routes/clients')
 const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
 const reportRoute = require('./routes/report')
+const economicAnalysisRoute = require('./routes/economicAnalysis')
 const currencyRoute = require('./routes/currency')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
 const trendThresholdsRoute = require('./routes/forecastTrendThresholds')
@@ -229,6 +230,13 @@ server.post('/api/report/quick-position/intake', firmAuth, reportRoute.quickPosi
 server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfIntake)
 server.post('/api/report/volatility/intake', firmAuth, reportRoute.volatilityIntake)
 server.post('/api/report/three-way-forecast/intake', firmAuth, reportRoute.threeWayForecastIntake)
+// Economic Analysis (item 4.66) — the Three-Way Forecast's optional market research, and
+// the first AI call in the report area. firmAuth on all three: the run belongs to the
+// advisor who started it, and the route checks BOTH identities, not just the firm.
+// It returns a run to poll because a research pass takes 83–102 seconds.
+server.post('/api/report/economic-analysis', firmAuth, economicAnalysisRoute.startResearch)
+server.get('/api/report/economic-analysis/:runId', firmAuth, economicAnalysisRoute.getRun)
+server.post('/api/report/economic-analysis/:runId/include', firmAuth, economicAnalysisRoute.setInclude)
 // Firm preferred currency: READ open to any firm user (reports render for advisors);
 // WRITE managers only (account-wide setting). Persistence via firmOverlay (config_key 'currency').
 server.get('/api/report/currency', firmAuth, currencyRoute.get)

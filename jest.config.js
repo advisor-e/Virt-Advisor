@@ -82,6 +82,11 @@ module.exports = {
     // Financial models (business performance report). 100% lines across all 11 files;
     // CLAUDE.md treats financial logic as must-test, so this is held high deliberately.
     './server/report/': { statements: 96, branches: 85, functions: 99, lines: 99 },
+    // The Economic Analysis validator (item 4.66). CLAUDE.md: "AI-response validation
+    // functions 100%". It is also the only permanent form of the citation re-check the
+    // prompt file demands — the fix that stops a right figure sitting beside a wrong
+    // source rests on ONE live run, so nothing in this file may regress untested.
+    './server/report/economicAnalysis/': { statements: 100, branches: 100, functions: 100, lines: 100 },
     // firmAuth — the IDOR-safe guard every firm-scoped route depends on. Reached 100% on
     // all four metrics on 2026-07-30: the dev MENTOR bypass and the whole of
     // requireMentorRole (the one gate that deliberately crosses the firm boundary) had no
