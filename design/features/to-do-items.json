@@ -166,7 +166,10 @@
       "ref": "4.66",
       "name": "Economic analysis — the forecast asks the AI for market research",
       "rankedByMike": false,
-      "activeOn": { "machine": "laptop", "since": "2026-09-06" },
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-06"
+      },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",
@@ -246,6 +249,27 @@
       "touches": "Nothing until it repeats. Then either the prompt's §2 wording (data/ai-prompts.json and ECONOMIC-ANALYSIS-PROMPT.md) or a bound on the field (components/EconomicAnalysisStep.vue, and assessmentDateOf in server/routes/economicAnalysis.js). Which one depends on whether the date or the model is at fault, and that is not yet known.",
       "note": "⚠ OBSERVED ONCE, NOT DIAGNOSED. Reproduce it first: open /three-way-forecast, step 5, set a date some months ahead and research. If it repeats, the likely cause is §2 telling the model to judge how current a figure is against a date no figures exist for yet, so it searches for data that has not happened. Do NOT bound the field before knowing — an advisor preparing a pack for a meeting next month is a legitimate use, and the fix may be a sentence in the prompt rather than a limit on the screen.",
       "comment": "2026-09-07 — filed the day the date field was built, on Mike's instruction. It exists because that field made a future date reachable for the first time. Numbered 4.69 because the desktop filed a 4.67 on its own branch that has not reached master."
+    },
+    {
+      "ref": "4.70",
+      "name": "Business Performance Report — the client's own report",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Mike asked for a rich, colourful business performance report for private business owners, 7 to 10 base pages and up to 15, built from the accounts, the deck, the cash drivers and every model in this section.",
+      "risk": "A client reads this on paper and acts on it. A wrong ratio, an invented health score or an unsourced industry median looks exactly like a fact, which UAT cannot catch. Every figure carries provenance and the four unruled parts show no number.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-07 — \"lets get started on the dashboard reports\", then the full request: \"a rich, colourful, and easy to understand business performance report ... 7-10 pages (pages can be added via droptab request by adviosor) ... contents table, executive summary with graphics, a summary financial dashboard\"; cap raised to 15 the same day."
+      },
+      "touches": "Design only so far: design/mockups/business-performance-report.html, design/features/business-performance-report.md and its history. Then: a report page and components under the report shell, a print stylesheet, server/report/dashboardReportsModel.js for the workbook's ratio hub, and the saved-report store per client.",
+      "note": "Base 7–10 pages, up to 15; optional pages offered only where the figures behind them exist (Mike, 2026-09-07). Four rulings open on the drawing: the Business Health Score has no formula anywhere; no source of industry medians exists; no reader reads an inventory report; next steps are advisor-written unless Mike rules an AI draft. Look follows Mike's own deck, a stated deviation from P1 for a client-read document. Build starts after the drawing is approved: model and golden test first, then intake, then pages.",
+      "comment": "2026-09-07 — filed on Mike's instruction after the workbook, the deck, Cash Drivers and the HOPE model were read; Brief and mockup written the same day, awaiting his approval of the drawing."
     }
   ]
 }

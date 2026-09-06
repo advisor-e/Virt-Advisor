@@ -44,8 +44,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 7 | **4.65** The book value of one asset is typed, because no screen asks for the asset schedule ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 8 | **4.68** The forecast opens on zeros where its own note promises a worked sample ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 9 | **4.69** A future assessment date may leave the research unsourced ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 10 | **4.70** Business Performance Report — the client's own report ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 
-**Nine live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Ten live items. Six need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
