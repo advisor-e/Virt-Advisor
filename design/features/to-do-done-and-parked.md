@@ -185,6 +185,19 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**A client's page is refused the firm's currency and tax rules.** ✅ Built and closed
+2026-09-07. Found on the desktop's live walk of 2026-09-04. Three firm-level reads the client's
+page fetches with the client's token sat behind the advisor-only guard, and the callers swallow
+the refusal, so the client silently got the shipped defaults: the currency on every report, the
+property tax rules, and the imported-stock sell-down ladder on the forecast. One guard now admits
+either an advisor or a client of the firm on those three reads only; every write is still the
+manager's. Proven live against MySQL as client, advisor and a bad token. The item's note briefly
+named a fourth read, trend thresholds; nothing in the browser calls it, so there was no fault.
+**What proves it:** the `firmOrEntityAuth` block in
+[`entityAuth.test.js`](../../tests/unit/entityAuth.test.js) and the read-only pin in
+[`clientReportsProxyWiring.test.js`](../../tests/unit/clientReportsProxyWiring.test.js), which
+fails if any write route ever takes the guard.
+
 **Five changes for junior advisors — the report shows every line, and the jargon explains itself.**
 ✅ Built and closed 2026-09-05. Mike: *"most of the accountants using this will be junior in terms
 of experience"*, then *"do them all"* to five proposals. Filed straight to this page for the same

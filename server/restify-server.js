@@ -246,8 +246,9 @@ server.get('/api/report/property-tax-rules', firmOrEntityAuth, propertyTaxRulesR
 server.get('/api/report/trend-thresholds', firmAuth, trendThresholdsRoute.get)
 // The prices imported stock sells down at as it ages (item 4.64). Same asymmetry and same
 // reason again: the advisor's step 3 seeds its ladder from this, so the read must never
-// require a manager role, and the write is manager-only on /api/firm-manager below.
-server.get('/api/report/sell-down', firmAuth, sellDownRoute.get)
+// require a manager role, and the write is manager-only on /api/firm-manager below. A
+// client editing the forecast seeds the same ladder, so the read admits a client too (4.68).
+server.get('/api/report/sell-down', firmOrEntityAuth, sellDownRoute.get)
 // /api/firm/advisors and /api/firm/insights were removed 2026-07-29 with the
 // FirmDashboard mock they existed for. Both were stubs returning empty data, and
 // proposed a three-table schema (advisors/courses/course_sessions) that was never

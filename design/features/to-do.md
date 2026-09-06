@@ -43,10 +43,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 6 | **4.66** Economic analysis — the forecast asks the AI for market research ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 7 | **4.65** The book value of one asset is typed, because no screen asks for the asset schedule ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 8 | **4.67** Step 2 of the forecast has not been opened in the running app ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 9 | **4.68** A client's page is refused the firm's currency and tax rules ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 10 | **4.69** Four things seen on the saved-report screens that need a ruling ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 9 | **4.69** Four things seen on the saved-report screens that need a ruling ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 
-**Ten live items. Six need Mike.** If this list passes about twenty, something is wrong.
+**Nine live items. Six need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

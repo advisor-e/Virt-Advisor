@@ -80,7 +80,11 @@ All six ruled on 2026-09-03, each as recommended, one at a time.
 1. **Role wiring, fail-closed**, exactly as the middle tiers: `businessEntityRole: ''` and
    `businessEntityIdClaim` in `config/integration.js`, empty until the master team supplies
    the value. `server/middleware/firmAuth.js` now refuses a client token by name on every
-   advisor route (`BUSINESS_ENTITY_NOT_ALLOWED`), and a new `entityAuth` admits only a client
+   advisor route (`BUSINESS_ENTITY_NOT_ALLOWED`) except three firm-level reads a client's
+   report page also needs — the currency, the property tax rules and the imported-stock
+   sell-down prices — which sit behind `firmOrEntityAuth`, admitting either an advisor or a
+   client of the firm, the client still scoped to its own firm by its token, and never a
+   write (item 4.68, 2026-09-07). A new `entityAuth` admits only a client
    whose token names its firm and its register id. Dev token `dev-local-entity` (client
    `dev-client-001` of `dev-firm-001`), honoured on the same terms as every dev token.
 2. **A page, `/my-reports`** (`components/ClientReportLibrary.vue`): every routed catalogue

@@ -47,6 +47,7 @@ describe('business entity reports — reaching the backend', () => {
     const server = read('server/restify-server.js')
     expect(server).toMatch(/server\.get\('\/api\/report\/currency', firmOrEntityAuth/)
     expect(server).toMatch(/server\.get\('\/api\/report\/property-tax-rules', firmOrEntityAuth/)
+    expect(server).toMatch(/server\.get\('\/api\/report\/sell-down', firmOrEntityAuth/)
     // The writes stay the manager's. A client that could set the firm's currency would be
     // an account-wide change from a client sign-in, and no test in UAT would try it.
     expect(server).toMatch(/server\.post\('\/api\/report\/currency', firmAuth, requireManagerRole/)
