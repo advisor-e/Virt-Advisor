@@ -1,8 +1,8 @@
 # Business Entity Reports — the Brief
 
-> **Status: ☑ PART 1 (THE STUB) IS BUILT — 2026-09-03. Part 2 (saved reports, item 4.62) is
-> built and wired on every routed screen — §5; the Three-Way Forecast follows 4.64.** Designed and approved
-> the same day on Mike's instruction, in his words:
+> **Status: ☑ PART 1 (THE STUB) IS BUILT — 2026-09-03. ☑ PART 2 (saved reports, item 4.62) IS
+> BUILT AND WIRED ON ALL TWELVE ROUTED SCREENS — §5, the Three-Way Forecast last, 2026-09-05.**
+> Designed and approved the same day on Mike's instruction, in his words:
 >
 > > *"we have a performance report feature — these reports/models are editable and viewable at
 > > the business entity level (or at least they should be). Your job is in 2 parts. 1, make sure
@@ -96,7 +96,7 @@ All six ruled on 2026-09-03, each as recommended, one at a time.
 4. **The advisor's control** — `components/base/ClientAccessSwitch.vue`, rendered by
    `ReportHeader` on every report: choose the client, then *Hidden / Open* (D3, D5). It
    renders nothing without an advisor sign-in or off a catalogue route, so no report page
-   changed — including the Three-Way Forecast, which is the laptop's under 4.64.
+   changed — including the Three-Way Forecast, which is the laptop's under 4.61.
 
 **Three named deviations from the artefact.** *(a)* **The read-only list on the client record
 is not built, because no client record screen exists** — the register is a picker at session
@@ -147,13 +147,12 @@ client* / *Save my changes* — labels ruled by Mike 2026-09-03), the "saved by"
 client-edited banner with *Restore my version* (D4), so no report page changes beyond those
 four attributes. `ProvenanceBadge` gained the `client` state; `SliderField` a badge slot.
 
-**Wired so far:** Debtor Business Drag, Margin, Mark-up & Break-even, Working Capital Cycle,
-Eight Levers, Cost of Capital, Lease vs Buy, Multiple Property (its three blocks and up
+**All twelve are wired:** Debtor Business Drag, Margin, Mark-up & Break-even, Working Capital
+Cycle, Eight Levers, Cost of Capital, Lease vs Buy, Multiple Property (its three blocks and up
 to five property records flattened under dotted names with a `propertyCount`), the Loan
-Estimator, Quick Position, EBITDA/DCF, and Volatility. **Not yet wired:** the Three-Way
-Forecast alone, last, after the laptop's 4.64 lands (4.61 closed 2026-09-03). Screens without SliderField show the
-badge in the label through `components/base/ClientChangedBadge.vue`. Until a screen is wired, an open
-model still shows the client its sample figures, exactly as §4 says.
+Estimator, Quick Position, EBITDA/DCF, Volatility, and — last, on 2026-09-05 — the Three-Way
+Forecast. Screens without SliderField show the badge in the label through
+`components/base/ClientChangedBadge.vue`.
 
 **A stepped screen saves from its page.** The Loan Estimator is four steps whose figures
 meet only on `pages/loan-estimator.vue`, so the page adopts the mixin and
@@ -201,9 +200,26 @@ and the month is badged on its label. The accounts upload is hidden from a clien
 **Wording proposed and not yet ruled** (`locales/en.json`, `clientReports.saved.*`): the
 "saved by" lines, the banner sentence, the badge word `client`, and the four failure messages.
 
-**Off limits while the rest is wired:** the Three-Way Forecast intake files, active on the
-laptop under item 4.64 (`server/report/threeWayForecastModel.js`, `ThreeWayForecastIntake.vue`,
-`ThreeWayForecastReport.vue`). None was touched.
+**The Three-Way Forecast carries the WHOLE intake, on Mike's ruling of 2026-09-05:** *"anything
+an advisor can edit, the client can edit."* So the saved row is the confirmed opening balance
+sheet, the six asset categories, the funding lines, the shareholder accounts, the 23 overheads,
+every rate and monthly series, the overseas panel and the capital rows — plus the report's four
+levers and its Summary / Every setting (`utils/threeWayForecastSavedShape.js`). **The one thing
+it does not carry is step 1, the file upload**, and that is mechanical rather than a policy
+against the ruling: dropping an export is not editing a figure, and the intake route refuses a
+client token by name (§4). Every figure that upload produces is on steps 2 and 3, where the
+client edits it like any other, so **a client opens on step 2** — the first step that is theirs,
+with the forecast one chip away.
+
+Two consequences worth stating, both in that file's own notes. **The row is lists, not one name
+per figure**, because the store admits 200 named values and one name per figure would be over
+300; each block travels with its own names beside it (`opening.keys`) so a saved row can never
+be read positionally onto a form that has changed. **The badges are still per figure** — the
+screen compares the row against the advisor's version that travels with it (`changedFigures`),
+so one changed opening line badges that line and not the table. **The four levers are omitted
+when the report has not reported them**: two of them are derived from the confirmed intake, so a
+zero saved before step 4 was ever opened would reload as a 0% mark-up — a forecast that
+recomputes cleanly and is wrong.
 
 **What proves it:** `tests/unit/savedReports.test.js` (the store — refused when not open, the
 advisor version untouched by a client save, the badge list as a comparison, hostile inputs),
@@ -221,7 +237,12 @@ request; a client-changed file figure shows `client` in place of `from file`),
 block round-trips whole and one bad cell refuses it; a dial is its own shape; restored
 dials drive the request), `volatilitySavedReport.test.js` (the buffer round-trips with its
 sources; one bad month refuses the series; the invariant holds on load; a loaded row clears
-the files; the badge sits on the changed month alone).
+the files; the badge sits on the changed month alone), and
+`threeWayForecastSavedShape.test.js` (the whole intake round-trips figure for figure against
+the REAL component's own form, never a fixture; the row passes the store's own
+`validateInputs`; a broken block is refused whole while the rest still lands; a word outside
+its set is refused; the badge names `opening.<line>` rather than the table, and a row the
+client added is named as a row).
 
 ## 6. What is deliberately not in this design
 

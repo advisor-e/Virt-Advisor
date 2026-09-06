@@ -2,13 +2,17 @@
 //- [A] Screen root — a flex column with ONE gap value, so header→banner→body all
 //- space identically. See design/REPORT-VISUAL-STANDARD.md.
 .tw-root
-  //- [B] No badge: CLASS_REPORT, built from the client's own accounts.
-  report-header(
-    :back-label="$t('modelLibrary.backToLibrary')"
-    :eyebrow="$t('report.eyebrow') + ' · ' + $t('report.threeWayForecast.eyebrowClass')"
-    :title="$t('report.threeWayForecast.title')"
-    :client="client || $t('report.preparedFor')")
-
+  //- [B] 🔴 NO HEADER HERE — THE PAGE OWNS IT. pages/three-way-forecast.vue renders the
+  //- shared ReportHeader above the step chips, so it stands over all four steps. This
+  //- component rendered a SECOND one, and on step 4 the screen showed the title banner
+  //- twice, one under the other (found 2026-09-05 by screenshotting the running app).
+  //-
+  //- The page is the right owner, and not merely the incumbent: Quick Position,
+  //- EBITDA-DCF and the Loan Estimator all put the header in the page — the pattern
+  //- tests/unit/reportHeaderFullWidth.test.js names in its own comment — and Quick
+  //- Position's page header is where its save / restore / client-access handlers hang.
+  //- The forecast is the last screen item 4.62 has to wire, so its per-client controls
+  //- will need exactly that seam.
   template(v-if="data")
     //- A failed recompute must never sit silently behind live-looking figures.
     stale-banner(
@@ -65,30 +69,51 @@
         .tw-glabel
           span.tw-dot
           h2.tw-h2 {{ $t('report.threeWayForecast.report.tryHeading') }}
+        //- Each lever carries the `client` badge when the client moved it (§5, D4).
         slider-field(
           :label="$t('report.threeWayForecast.report.salesAll')"
           :display="signedPct(f.salesShift)"
           :value="f.salesShift"
           :min="-50" :max="50" :step="1"
-          @input="v => setField('salesShift', v)")
+          @input="v => setField('salesShift', v)"
+        )
+          template(v-slot:badge)
+            client-changed-badge(
+              v-if="isClientChanged('lever.salesShift')"
+              :label="$t('clientReports.saved.badge')")
         slider-field(
           :label="$t('report.threeWayForecast.assume.markup')"
           :display="pct(f.markup)"
           :value="f.markup"
           :min="0" :max="200" :step="1"
-          @input="v => setField('markup', v)")
+          @input="v => setField('markup', v)"
+        )
+          template(v-slot:badge)
+            client-changed-badge(
+              v-if="isClientChanged('lever.markup')"
+              :label="$t('clientReports.saved.badge')")
         slider-field(
           :label="$t('report.threeWayForecast.assume.monthAfter')"
           :display="pct(f.debtorMonthAfter)"
           :value="f.debtorMonthAfter"
           :min="0" :max="100" :step="1"
-          @input="v => setField('debtorMonthAfter', v)")
+          @input="v => setField('debtorMonthAfter', v)"
+        )
+          template(v-slot:badge)
+            client-changed-badge(
+              v-if="isClientChanged('lever.debtorMonthAfter')"
+              :label="$t('clientReports.saved.badge')")
         slider-field(
           :label="$t('report.threeWayForecast.report.overheadsAll')"
           :display="signedPct(f.overheadShift)"
           :value="f.overheadShift"
           :min="-50" :max="50" :step="1"
-          @input="v => setField('overheadShift', v)")
+          @input="v => setField('overheadShift', v)"
+        )
+          template(v-slot:badge)
+            client-changed-badge(
+              v-if="isClientChanged('lever.overheadShift')"
+              :label="$t('clientReports.saved.badge')")
         p.tw-note {{ $t('report.threeWayForecast.report.rebuildNote') }}
 
       .tw-group(v-if="data")
@@ -103,12 +128,21 @@
     //- [D2] The statements.
     section.tw-results(v-if="data")
       .tw-card
-        .tw-tabs
-          button(
-            v-for="t in tabs" :key="t.key"
-            :class="{ on: tab === t.key }"
-            type="button"
-            @click="tab = t.key") {{ $t(t.label) }}
+        //- The tabs, and the Summary / Every line setting that governs all three of them.
+        //- Approved by Mike 2026-09-05 from mockups/three-way-forecast-report-detail.html.
+        .tw-tabrow
+          .tw-tabs
+            button(
+              v-for="t in tabs" :key="t.key"
+              :class="{ on: tab === t.key }"
+              type="button"
+              @click="tab = t.key") {{ $t(t.label) }}
+          .seg-small
+            button(
+              v-for="d in detailOptions" :key="d"
+              :class="{ on: detail === d }"
+              type="button"
+              @click="detail = d") {{ $t('report.threeWayForecast.report.detail.' + d) }}
         .tw-group.tw-tabbody
           .tw-tblwrap
             table
@@ -117,11 +151,17 @@
                   th
                   th(v-for="(m, i) in monthLabels" :key="i") {{ m }}
               tbody
-                tr(v-for="row in visibleRows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub }")
-                  td {{ $t(row.label) }}
+                tr(v-for="row in visibleRows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub, 'is-strong': row.strong }")
+                  td {{ row.rawLabel || $t(row.label) }}
                   td(
                     v-for="(v, i) in row.values" :key="i"
                     :class="cellClass(row, v)") {{ money(v) }}
+          //- Only when something is actually hidden, and it counts what — Mike's ruling of
+          //- 2026-09-05. A junior who cannot see an "Insurance" row has no way to know the
+          //- app holds one, so hiding empties would otherwise hide an omission as well as
+          //- noise. Names where they are set, because the answer is on another screen.
+          p.tw-note(v-if="hiddenOverheadCount")
+            | {{ $t('report.threeWayForecast.report.detail.hiddenOverheads', { hidden: hiddenOverheadCount, total: overheadCount }) }}
           p.tw-note {{ $t('report.threeWayForecast.report.scrollNote') }}
 
       .tw-card
@@ -180,11 +220,11 @@
  *     opening figures that are out, and refusing to compute would hide the forecast that
  *     tells them so.
  */
-import ReportHeader from '~/components/base/ReportHeader.vue'
 import HeroStrip from '~/components/base/HeroStrip.vue'
 import HeroFigure from '~/components/base/HeroFigure.vue'
 import StaleBanner from '~/components/base/StaleBanner.vue'
 import SliderField from '~/components/base/SliderField.vue'
+import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
@@ -194,23 +234,44 @@ const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 export default {
   name: 'ThreeWayForecastReport',
 
-  components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SliderField },
+  components: { HeroStrip, HeroFigure, StaleBanner, SliderField, ClientChangedBadge },
 
   mixins: [currencyMixin, reportRecompute],
 
   props: {
     /** The confirmed inputs from the intake, or null to compute on the sample. */
     seed: { type: Object, default: null },
-    /** The client's own name, held locally and never sent anywhere. */
-    client: { type: String, default: '' }
+    // No `client` prop: the only thing that read it was the duplicate header removed on
+    // 2026-09-05. The page holds the client's name and puts it on the header it owns.
+    /**
+     * What a saved report puts back on this screen — `{ levers, detail }` (item 4.62,
+     * Brief §5). The page saves, because the header is the page's; this screen reports
+     * its own settings upward and takes a loaded pair back.
+     */
+    restore: { type: Object, default: null },
+    /** Saved-row names the client changed since the advisor's version (§5, D4). */
+    clientChanges: { type: Array, default: () => [] }
   },
 
   data () {
     return {
       data: null,
       tab: 'cash',
-      // The four live levers. Percentages are whole numbers for the sliders.
-      f: this.leversFor(this.seed)
+      /**
+       * How much of each statement to show — Mike's ruling, 2026-09-05.
+       *
+       * 🔴 IT OPENS ON 'summary', AND THAT IS THE POINT. Summary is the four-row screen he
+       * approved on 2026-09-02, unchanged: nobody content with it is handed a longer one.
+       * 'every' is a setting the advisor chooses, which is what makes this an addition
+       * rather than a redesign. It governs all three tabs together, because an advisor who
+       * finds the setting on one will look for it on the others.
+       */
+      detail: (this.restore && this.restore.detail) || 'summary',
+      // The four live levers. Percentages are whole numbers for the sliders. A saved
+      // report's levers take the place of the ones worked out from the seed.
+      f: this.restore && this.restore.levers
+        ? Object.assign(this.leversFor(this.seed), this.restore.levers)
+        : this.leversFor(this.seed)
     }
   },
 
@@ -221,6 +282,32 @@ export default {
         { key: 'profit', label: 'report.threeWayForecast.report.tabProfit' },
         { key: 'balance', label: 'report.threeWayForecast.report.tabBalance' }
       ]
+    },
+
+    /** The two settings, in the order they are drawn. */
+    detailOptions () { return ['summary', 'every'] },
+
+    /** True while the advisor has asked for the full statement. */
+    isEvery () { return this.detail === 'every' },
+
+    /** How many overhead lines the engine holds, whether or not they carry a figure. */
+    overheadCount () {
+      return this.data ? Object.keys(this.data.profitAndLoss.overheads).length : 0
+    },
+
+    /**
+     * How many overhead lines are hidden because they are zero in every month.
+     *
+     * Zero unless the full profit statement is on screen — there is nothing to explain when
+     * the advisor is looking at four rows, and a note about hidden overheads beside a table
+     * that shows none would be a puzzle rather than a help.
+     *
+     * @returns {number}
+     */
+    hiddenOverheadCount () {
+      if (!this.data || !this.isEvery || this.tab !== 'profit') { return 0 }
+      const oh = this.data.profitAndLoss.overheads
+      return Object.keys(oh).filter(k => !this.hasAFigure(oh[k])).length
     },
 
     /** Short month names for the table head, read from the model's own dates. */
@@ -306,35 +393,200 @@ export default {
       ]
     },
 
+    /**
+     * Stock already paid for at the opening date, landing during the year (Fix 2).
+     *
+     * ⚠ NOT ON THE APPROVED DRAWING, and named as an addition rather than slipped in. The
+     * drawing described what the landing does to the three statements and drew no cash
+     * rows. But it moves real money — the balance settled with the supplier, and the GST
+     * Customs charges on arrival — and rolled into "Money out" it would appear as one lump
+     * in a month with no explanation. That is the same argument that gave the five overseas
+     * rows above their own lines, in Mike's own words: the point is to show WHEN the money
+     * goes, before the business can sell any of it.
+     *
+     * Absent unless the block is in use, so no existing forecast gains a row.
+     *
+     * @returns {Array<object>} zero or two sub-rows under Money out.
+     */
+    stockInTransitCashRows () {
+      const t = this.data.schedules && this.data.schedules.stockInTransit
+      if (!t || !t.landedValue.some(v => v > 0)) { return [] }
+      const p = this.data.cashFlow.payments
+      return [
+        { key: 'tr-bal', label: 'report.threeWayForecast.report.transitBalance', values: p.stockInTransitBalance, sub: true },
+        { key: 'tr-gst', label: 'report.threeWayForecast.report.transitGst', values: p.stockInTransitGst, sub: true }
+      ]
+    },
+
     cashRows () {
       const c = this.data.cashFlow
-      return [
-        { key: 'in', label: 'report.threeWayForecast.report.moneyIn', values: c.totalReceipts },
-        { key: 'out', label: 'report.threeWayForecast.report.moneyOut', values: c.totalPayments }
-      ].concat(this.overseasCashRows).concat([
+      const tail = [
         { key: 'move', label: 'report.threeWayForecast.report.movement', values: c.netMovement, rule: true, signed: true },
         { key: 'close', label: 'report.threeWayForecast.report.cashAtMonthEnd', values: c.closingBalance, rule: true, signed: true }
-      ])
+      ]
+      if (!this.isEvery) {
+        return [
+          { key: 'in', label: 'report.threeWayForecast.report.moneyIn', values: c.totalReceipts },
+          { key: 'out', label: 'report.threeWayForecast.report.moneyOut', values: c.totalPayments }
+        ].concat(this.overseasCashRows).concat(this.stockInTransitCashRows).concat(tail)
+      }
+      const L = 'report.threeWayForecast.report.line.'
+      const r = c.receipts
+      const p = c.payments
+      const sub = (key, label, values) => ({ key, label: L + label, values, sub: true })
+      // Every row the engine fills, receipts then payments, in its own order. The five
+      // overseas rows and the two for stock in transit are already itemised on the summary
+      // (Mike, 2026-09-04), so they are not repeated by the two helpers here — this list
+      // holds them once, in their place among the rest.
+      return [
+        sub('r-deb', 'fromDebtors', r.fromDebtors),
+        sub('r-int', 'interestReceived', r.interestReceived),
+        sub('r-draw', 'loanDrawdowns', r.loanDrawdowns),
+        sub('r-gst', 'gstRefunds', r.gstRefunds),
+        sub('r-tax', 'taxRefunds', r.taxRefunds),
+        sub('r-oi', 'otherIncome', r.otherIncomeGstInclusive),
+        sub('r-oix', 'otherIncomeExempt', r.otherIncomeGstExempt),
+        sub('r-sh', 'shareholderAdvances', r.shareholderAdvances),
+        sub('r-asset', 'assetSales', r.assetSales),
+        { key: 'in', label: 'report.threeWayForecast.report.moneyIn', values: c.totalReceipts, rule: true, strong: true },
+        sub('p-ap', 'accountsPayable', p.accountsPayable),
+        sub('p-cm', 'currentMonthGstInclusive', p.currentMonthGstInclusive),
+        sub('p-cmf', 'currentMonthGstFree', p.currentMonthGstFree),
+        sub('p-int', 'interestPaid', p.interestPaid),
+        sub('p-prin', 'loanPrincipal', p.loanPrincipal),
+        sub('p-gst', 'gstPaid', p.gstPaid),
+        sub('p-tax', 'taxPaid', p.taxPaid),
+        sub('p-sh', 'shareholderDrawings', p.shareholderDrawings),
+        sub('p-capex', 'capitalExpenditure', p.capitalExpenditure)
+      ]
+        .concat(this.overseasCashRows)
+        .concat(this.stockInTransitCashRows)
+        .concat([{ key: 'out', label: 'report.threeWayForecast.report.moneyOut', values: c.totalPayments, rule: true, strong: true }])
+        .concat(tail)
     },
 
     profitRows () {
       const p = this.data.profitAndLoss
-      return [
+      const summary = [
         { key: 'rev', label: 'report.threeWayForecast.report.revenue', values: p.revenue },
         { key: 'gross', label: 'report.threeWayForecast.report.grossSurplus', values: p.grossSurplus, signed: true },
         { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.totalOverheads },
         { key: 'net', label: 'report.threeWayForecast.report.afterTax', values: p.netSurplusAfterTax, rule: true, signed: true }
       ]
+      if (!this.isEvery) { return summary }
+      const L = 'report.threeWayForecast.report.line.'
+      const sub = (key, label, values) => ({ key, label: L + label, values, sub: true, signed: true })
+      return [
+        { key: 'rev', label: 'report.threeWayForecast.report.revenue', values: p.revenue, strong: true },
+        sub('open-stock', 'openingStock', p.openingInventory),
+        sub('purch', 'stockPurchased', p.purchases),
+        sub('frt', 'freight', p.freight),
+        sub('comm', 'commissions', p.commissions),
+        sub('dir2', 'otherDirect', p.otherDirectTwo),
+        sub('dirx', 'otherDirectExempt', p.otherDirectExpensesExempt),
+        sub('close-stock', 'closingStock', p.closingInventory),
+        { key: 'cos', label: L + 'costOfSales', values: p.costOfSales, rule: true, signed: true },
+        { key: 'gross', label: 'report.threeWayForecast.report.grossSurplus', values: p.grossSurplus, strong: true, signed: true }
+      ]
+        // Only the overhead lines that carry a figure — Mike's ruling of 2026-09-05. The
+        // engine holds 23 and a typical forecast uses about eight; fifteen rows of zeroes
+        // would bury the eight that matter. What is hidden is counted under the table.
+        .concat(this.overheadRows)
+        .concat([
+          { key: 'dep', label: L + 'depreciation', values: p.depreciation, sub: true, signed: true },
+          { key: 'int-od', label: L + 'interestOverdraft', values: p.interestBankOverdraft, sub: true, signed: true },
+          { key: 'int-loan', label: L + 'interestTermLoans', values: p.interestTermLoans, sub: true, signed: true },
+          // Its own row at last. It was engine-only when the facility was built earlier the
+          // same day, for want of anywhere on this screen to put it.
+          { key: 'int-fac', label: L + 'interestFacilities', values: p.interestFacilities, sub: true, signed: true },
+          { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.totalOverheads, rule: true },
+          { key: 'op', label: L + 'operatingSurplus', values: p.operatingSurplus, strong: true, signed: true },
+          sub('int-in', 'interestReceived', p.interestIncomeBank),
+          sub('int-sh', 'shareholderInterest', p.interestIncomeShareholders),
+          sub('gain', 'gainOnSale', p.gainOnAssetSales),
+          sub('oi-1', 'otherIncome', p.otherIncomeGstInclusive),
+          sub('oi-2', 'otherIncomeExempt', p.otherIncomeGstExempt),
+          { key: 'toi', label: L + 'totalOtherIncome', values: p.totalOtherIncome, rule: true, signed: true },
+          { key: 'pbt', label: L + 'beforeTax', values: p.netSurplusBeforeTax, strong: true, signed: true },
+          sub('tax', 'tax', p.taxProvision),
+          { key: 'net', label: 'report.threeWayForecast.report.afterTax', values: p.netSurplusAfterTax, rule: true, strong: true, signed: true }
+        ])
+    },
+
+    /**
+     * One row per overhead line that carries a figure, in the engine's own order.
+     *
+     * The label is the overhead's own i18n key, which the intake screen already uses for
+     * the same 23 lines — one set of names, so a line cannot be called one thing where it
+     * is entered and another where it is reported.
+     *
+     * @returns {Array<object>}
+     */
+    overheadRows () {
+      const oh = this.data.profitAndLoss.overheads
+      return Object.keys(oh)
+        .filter(k => this.hasAFigure(oh[k]))
+        .map(k => ({
+          key: 'oh-' + k,
+          label: 'report.threeWayForecast.assume.overheads.' + k,
+          values: oh[k],
+          sub: true,
+          signed: true
+        }))
     },
 
     balanceRows () {
       const b = this.data.balanceSheet.months
-      return [
+      const summary = [
         { key: 'ar', label: 'report.threeWayForecast.report.owedToYou', values: b.accountsReceivable },
         { key: 'stock', label: 'report.threeWayForecast.report.stockOnHand', values: b.inventory, impossibleBelowZero: true },
         { key: 'ap', label: 'report.threeWayForecast.report.youOwe', values: b.accountsPayable },
         { key: 'na', label: 'report.threeWayForecast.report.balanceCheck', values: b.balanceCheck, rule: true, signed: true }
       ]
+      if (!this.isEvery) { return summary }
+      const L = 'report.threeWayForecast.report.line.'
+      const sub = (key, label, values, extra) => Object.assign(
+        { key, label: L + label, values, sub: true, signed: true }, extra || {})
+      // Each per-lender and per-facility row carries the NAME the advisor gave it, which is
+      // not a translatable string — `rawLabel` is rendered as-is where it is present.
+      const named = (prefix, list) => list.map((l, i) => ({
+        key: prefix + i, rawLabel: l.name, values: l.balance, sub: true, signed: true
+      }))
+      return [
+        sub('bank', 'bank', b.cashAtBank),
+        { key: 'ar', label: 'report.threeWayForecast.report.owedToYou', values: b.accountsReceivable, sub: true },
+        { key: 'stock', label: 'report.threeWayForecast.report.stockOnHand', values: b.inventory, sub: true, impossibleBelowZero: true },
+        sub('gst-r', 'gstRefund', b.gstRefund),
+        sub('tax-r', 'taxRefund', b.incomeTaxAsset),
+        sub('prepay', 'prepayments', b.prepayments),
+        sub('imp-pre', 'importPrepayments', b.importPrepayments),
+        sub('sh-a', 'shareholderAssets', b.shareholderCurrentAssets),
+        sub('oca', 'otherCurrentAsset', b.otherCurrentAsset),
+        { key: 'tca', label: L + 'totalCurrentAssets', values: b.totalCurrentAssets, rule: true },
+        sub('od', 'overdraft', b.bankOverdraft),
+        { key: 'ap', label: 'report.threeWayForecast.report.youOwe', values: b.accountsPayable, sub: true },
+        sub('gst-p', 'gstPayable', b.gstPayable),
+        sub('tax-p', 'taxPayable', b.incomeTaxLiability),
+        sub('accr', 'accruedExpenses', b.accruedExpenses),
+        sub('imp-bal', 'importSupplierBalance', b.importSupplierBalance),
+        sub('fac', 'facilities', b.totalFacilities),
+        sub('sh-l', 'shareholderLiabilities', b.shareholderCurrentLiabilities),
+        sub('ocl', 'otherCurrentLiability', b.otherCurrentLiability),
+        { key: 'tcl', label: L + 'totalCurrentLiabilities', values: b.totalCurrentLiabilities, rule: true },
+        { key: 'wc', label: L + 'workingCapital', values: b.workingCapital, strong: true, signed: true },
+        sub('fa', 'fixedAssets', b.totalNonCurrentAssets)
+      ]
+        .concat(named('ncl-', b.nonCurrentLiabilities))
+        .concat([
+          sub('oncl', 'otherNonCurrentLiability', b.otherNonCurrentLiability),
+          { key: 'net-a', label: L + 'netAssets', values: b.netAssets, rule: true, strong: true, signed: true },
+          sub('cap', 'shareCapital', b.authorisedCapital),
+          sub('cgain', 'capitalGain', b.capitalGain),
+          sub('oeq', 'otherEquity', b.otherEquity),
+          sub('re', 'retainedEarnings', b.retainedEarnings),
+          { key: 'teq', label: L + 'totalEquity', values: b.totalEquity, rule: true, strong: true, signed: true },
+          { key: 'na', label: 'report.threeWayForecast.report.balanceCheck', values: b.balanceCheck, rule: true, signed: true }
+        ])
     },
 
     visibleRows () {
@@ -377,26 +629,64 @@ export default {
   },
 
   watch: {
-    f: { deep: true, handler () { this.queueRecompute() } },
+    f: {
+      deep: true,
+      handler () {
+        this.queueRecompute()
+        this.emitState()
+      }
+    },
+    detail () { this.emitState() },
     /**
      * A new intake replaces the levers as well as the figures. Without this the two
      * absolute levers — mark-up and the month-after collection — would keep their opening
      * values and silently overwrite what the advisor confirmed on step 3, because
      * `payload()` writes both into every request.
+     *
+     * 🔴 A SAVED REPORT IS THE EXCEPTION. Loading one sets the seed and the levers in the
+     * same tick, so without this guard the seed's own defaults would land on top of the
+     * levers the advisor saved — a forecast that reopens on a mark-up nobody chose.
      */
     seed: {
       handler (next) {
-        this.f = this.leversFor(next)
+        this.f = this.restore && this.restore.levers
+          ? Object.assign(this.leversFor(next), this.restore.levers)
+          : this.leversFor(next)
         this.recompute()
       }
+    },
+    /** A saved report loaded while this screen is showing (the advisor picked a client). */
+    restore (next) {
+      if (!next) { return }
+      if (next.levers) { this.f = Object.assign({}, this.f, next.levers) }
+      if (next.detail) { this.detail = next.detail }
     }
   },
 
   mounted () {
     this.recompute()
+    this.emitState()
   },
 
   methods: {
+    /**
+     * Tell the page what this screen holds, so a Save carries it. The page owns the
+     * header and therefore the saving; this screen owns the levers.
+     * @returns {void}
+     */
+    emitState () {
+      // state-change: { levers: {salesShift, markup, debtorMonthAfter, overheadShift}, detail }
+      this.$emit('state-change', { levers: Object.assign({}, this.f), detail: this.detail })
+    },
+
+    /**
+     * @param {string} name a saved-row name, e.g. 'lever.markup'
+     * @returns {boolean} whether the client changed that figure since the advisor's version
+     */
+    isClientChanged (name) {
+      return this.clientChanges.includes(name)
+    },
+
     /**
      * The four levers' opening positions. The two RELATIVE ones (sales and overheads)
      * always start at no change; the two ABSOLUTE ones read the confirmed intake, falling
@@ -424,6 +714,19 @@ export default {
     /** One lever moved. `reportRecompute` owns the debounce and the race guard. */
     setField (key, value) {
       this.f = Object.assign({}, this.f, { [key]: Number(value) })
+    },
+
+    /**
+     * Does this series carry a figure in any month?
+     *
+     * Rounded to the cent before the comparison: a line the advisor never touched can carry
+     * floating-point dust rather than a clean zero, and a row reading "0" in all twelve
+     * months is exactly the noise the hide-empties ruling exists to keep off the screen.
+     *
+     * @param {Array<number>} series @returns {boolean}
+     */
+    hasAFigure (series) {
+      return Array.isArray(series) && series.some(v => Math.abs(v) >= 0.005)
     },
 
     /**
@@ -481,9 +784,9 @@ export default {
 /* Every value reads a --rs-* token from the shared ReportShell; nothing here declares a
    frame, palette, card or font of its own. See design/REPORT-VISUAL-STANDARD.md. */
 
-/* [A] Root: ONE gap value, and the mandatory header-margin reset. */
+/* [A] Root: ONE gap value. No `.rs-top` margin reset, because no header is rendered
+   inside this root — the page owns it. See the note at the top of the template. */
 .tw-root { display: flex; flex-direction: column; gap: 16px; }
-.tw-root ::v-deep .rs-top { margin: 0; }
 
 /* [D] Two-column body. */
 .tw-layout { display: grid; grid-template-columns: var(--rs-col-input) 1fr; gap: var(--rs-col-gap); align-items: start; }
@@ -497,8 +800,15 @@ export default {
 .tw-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--rs-accent-bright); }
 .tw-h2 { margin: 0; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--rs-muted); font-weight: 600; }
 
-/* [D2] Results column keeps the same 16px rhythm. */
-.tw-results { display: flex; flex-direction: column; gap: 16px; min-height: 200px; }
+/* [D2] Results column keeps the same 16px rhythm.
+   🔴 `min-width: 0` IS LOAD-BEARING, not tidiness. This is a GRID ITEM, and a grid item's
+   automatic minimum size is its content's min-content width — so without this it refuses to
+   shrink below the 900px table inside it, the `overflow-x: auto` below never engages, and
+   the table drags the whole PAGE sideways instead of scrolling in its own card. Measured at
+   1366px before the fix: a 934px column in a 700px track, the document 1455px wide, and the
+   table's right edge 217px past its own card. The house pattern — `.coc-results` and
+   `.lvb-results` have carried it all along; this screen was the one that did not. */
+.tw-results { display: flex; flex-direction: column; gap: 16px; min-height: 200px; min-width: 0; }
 
 .tw-tile { background: var(--rs-card-bg); border: 1px solid var(--rs-card-border); border-radius: var(--rs-card-radius); padding: 13px 14px; }
 .tw-k { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--rs-muted); font-weight: 600; }
@@ -517,7 +827,26 @@ export default {
 .tw-impossible b, .tw-unbalanced b { display: block; font-size: 13px; }
 .tw-impossible span, .tw-unbalanced span { font-size: 12.5px; color: var(--rs-muted); }
 
-/* Tabs over the three statements. */
+/* Tabs over the three statements, with the Summary / Every line setting beside them. The
+   row wraps rather than squashing: on a narrow screen the setting drops under the tabs. */
+.tw-tabrow {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.tw-tabrow .tw-tabs { padding-right: 0; }
+.seg-small {
+  display: inline-flex; border: 1px solid var(--rs-line); border-radius: 9px;
+  overflow: hidden; margin: 0 16px 6px 0;
+}
+.seg-small button {
+  font: inherit; font-size: 12px; font-weight: 600; border: 0; background: var(--rs-panel);
+  color: var(--rs-muted); padding: 6px 14px; cursor: pointer;
+}
+.seg-small button.on { background: var(--rs-accent); color: var(--rs-accent-contrast); }
+
+/* A subtotal or a headline inside the full statement. Indent carries the hierarchy; the
+   existing .rule already draws the line above a total. */
+.is-strong td { font-weight: 600; }
+
 .tw-tabs { display: flex; gap: 6px; padding: 14px 16px 0; }
 .tw-tabs button {
   font: inherit; font-size: 12.5px; font-weight: 600; border: 1px solid var(--rs-line); border-bottom: 0;

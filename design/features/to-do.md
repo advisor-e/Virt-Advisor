@@ -39,12 +39,12 @@ repository sees; the two never both appear, and the build stops if they would.
 | 2 | **4.50** Nobody has seen a real conversation's recommendations reach the Team tab | 2 | — | Outside | — |
 | 3 | **4.58** Meeting Review — three slices built; the manager's half and §4 remain ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 4 | **4.60** QuickBooks and MYOB are supported on paper, not against a real file ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 5 | **4.62** Saved reports per client — so a client can edit what the advisor opened ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-09-03 |
+| 5 | **4.62** Saved reports per client — so a client can edit what the advisor opened ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-05 |
 | 6 | **4.66** Economic analysis — the forecast asks the AI for market research ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 7 | **4.64** International versus local — the forecast treats every sale and purchase as domestic ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-04 |
-| 8 | **4.63** Overseas stock purchases — the Import & Retail model feeds the forecast ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 9 | **4.65** The book value of one asset is typed, because no screen asks for the asset schedule ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 10 | **4.67** A client's page is refused the firm's currency and tax rules ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 7 | **4.65** The book value of one asset is typed, because no screen asks for the asset schedule ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 8 | **4.67** Step 2 of the forecast has not been opened in the running app ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 9 | **4.68** A client's page is refused the firm's currency and tax rules ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 10 | **4.69** Four things seen on the saved-report screens that need a ruling ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 
 **Ten live items. Six need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->

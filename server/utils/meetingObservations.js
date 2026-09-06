@@ -458,24 +458,33 @@ async function loadResolvedObservations (scopeId, loadFirmConfig) {
     return base
   }
 
-  // A scope that has decided nothing sees the layer above — but the BADGE is relative to
-  // the viewer, so every point is restamped as inherited (item 4.59, fixed 2026-09-04).
+  // A scope that has decided nothing sees the layer above — but the BADGE is relative to the
+  // viewer, so it is restamped.
   //
   // 🔴 WHY THIS IS NOT A PLAIN PASSTHROUGH. `source` is stamped by whichever level applied
-  // decisions, so a point the MENTOR added arrived here still marked `added-here`, and a
-  // firm manager who had customised nothing read "Added here" against something the
-  // mentor wrote — told they authored a point they cannot even edit. A level that has
-  // decided nothing has, by definition, inherited everything it can see. The same fix,
-  // for the same fault, is in meetingTypes.loadResolvedTypes.
+  // decisions, so a point the MENTOR added arrives here still marked `added-here`. On a firm
+  // manager's screen that reads "Added here" against something the mentor wrote — and the
+  // badge is not decoration: FirmMeetingObservations.vue reads it to choose between "Switch
+  // off" and "Remove", and to route an edit to the own-row endpoint, which answers 404 for a
+  // point the firm does not own. A level that has decided nothing has, by definition,
+  // inherited everything it can see.
+  //
+  // ⚠ THE OTHER PATH ALREADY AGREES: below, `resolveInheritedRows` stamps every row it did
+  // not itself override or add as inherited. Without this the badge FLIPPED when the scope
+  // made any unrelated decision, because that switched it from this branch to that one.
+  //
+  // Fixed 2026-09-04 (item 4.59). This is the fix meetingTypes.js already carries.
   if (!hasAnyDecision(state)) {
-    const out = {}
-    Object.keys(base).forEach((id) => {
-      out[id] = {
-        ...base[id],
-        points: (base[id].points || []).map(p => ({ ...p, source: OBSERVATION_SOURCE_LABELS.inherited }))
+    const stamped = {}
+    Object.keys(base).forEach((scenarioId) => {
+      const s = base[scenarioId]
+      stamped[scenarioId] = {
+        ...s,
+        points: (Array.isArray(s.points) ? s.points : [])
+          .map(p => ({ ...p, source: OBSERVATION_SOURCE_LABELS.inherited }))
       }
     })
-    return out
+    return stamped
   }
 
   const out = {}

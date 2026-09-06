@@ -20,6 +20,7 @@ import {
   Tag,
   Taginput,
   Toast,
+  Tooltip,
   Upload
 } from 'buefy'
 
@@ -27,7 +28,7 @@ import {
  * Buefy, registered one component at a time rather than as the whole library.
  *
  * WHY THIS IS NOT `Vue.use(Buefy)`: that registers all ~40 Buefy components whether or
- * not a screen uses them. This app uses 24 tags, which map to the 21 plugins below. The
+ * not a screen uses them. This app uses 25 tags, which map to the 22 plugins below. The
  * whole-library import put first-load JS at 312 KB gzipped, over the 300 KB budget in
  * CLAUDE.md → Performance.
  *
@@ -41,7 +42,7 @@ import {
  * build, so the mistake is loud on the machine that makes it and invisible everywhere
  * afterwards — which is why this note is here and why no guard test was written.
  *
- * Each plugin registers its own sub-components, so these 21 cover all 24 tags in use:
+ * Each plugin registers its own sub-components, so these 22 cover all 25 tags in use:
  * Table → b-table + b-table-column · Tabs → b-tabs + b-tab-item ·
  * Dropdown → b-dropdown + b-dropdown-item · Menu → b-menu + b-menu-list + b-menu-item ·
  * Tag → b-tag + b-taglist.
@@ -74,6 +75,7 @@ const components = [
   Tag,
   Taginput,
   Toast,
+  Tooltip,
   Upload
 ]
 

@@ -146,8 +146,8 @@
       "name": "Saved reports per client — so a client can edit what the advisor opened",
       "rankedByMike": false,
       "activeOn": {
-        "machine": "desktop",
-        "since": "2026-09-03"
+        "machine": "laptop",
+        "since": "2026-09-05"
       },
       "kind": "feature",
       "score": 3,
@@ -163,8 +163,8 @@
         "detail": "2026-09-03 — \"once advisor has been involved and secured terms, we DO want them to be involved and can edit thereafter - so long as any changes are made clear they are edited by the client\". Part 2 of the request that built the stub the same day."
       },
       "touches": "A saved-report store through firmOverlay ({ firm, client, model, inputs, savedBy: { tier, name }, savedAt }), a Save on the report header, a `client` state on ProvenanceBadge, the banner and Restore on the report screens, and the client's page. Not the forecast intake files (4.61, laptop).",
-      "note": "Slice 1 built (§5). Slice 2: all ten routed screens wired, each shape in Brief §5; a client-changed file figure shows client in place of from file (Mike, 2026-09-04). Eyeballed live 2026-09-04 against MySQL on all ten: the full loop holds on every one. Only the forecast remains, and 4.64 is active on the laptop in its files. Open for Mike: the Loan Estimator's empty save shows only the generic failure; Volatility counts a month's source flag as a second changed figure; the header's right block drops below the title when the banner shows; Quick Position shows entered and client badges side by side. Wording in clientReports.saved.* proposed, not ruled.",
-      "comment": "2026-09-03 — filed the day the stub was built. Same day, desktop: slice 1 built and committed locally under a power cut; labels \"Save for client\" / \"Save my changes\" ruled by Mike. 2026-09-04 desktop: slice 2 complete, ten of ten wired; the file-figure rule ruled; PR #56 merged so the laptop sees the 09-03 handover. 2026-09-04 desktop: eyeballed end to end; the four findings above put to Mike."
+      "note": "ALL TWELVE SCREENS ARE WIRED — the forecast last, 2026-09-05, on Mike's ruling \"anything an advisor can edit, the client can edit\": its saved row is the whole intake plus the four levers, and only the file upload stays the advisor's. How each screen behaves is in the Brief §5. The desktop proved the other ten live on 2026-09-04 against a real MySQL: advisor save, client edit and badge, banner and Restore held on every one. The forecast's own loop is still unseen (4.67). Wording in clientReports.saved.* proposed, not ruled.",
+      "comment": "2026-09-03 — filed the day the stub was built. Same day, desktop: slice 1 built under a power cut; labels ruled. 2026-09-04 desktop: slice 2, ten of ten wired; the file-figure rule ruled. 2026-09-05 — the last screen moved to the laptop on Mike's decision, then built there: shape, page seam, badges, 14 new tests. 2026-09-07 desktop: the ten screens eyeballed against MySQL; findings filed as 4.68 and 4.69."
     },
     {
       "ref": "4.66",
@@ -186,52 +186,6 @@
       "touches": "NOTHING YET — none until Mike supplies the prompt and the screen is drawn. Then: data/ai-prompts.json (the prompt's home, per the hub-page rule), server/routes/report.js (its first ever AI call), server/utils/openaiClient.js, components/ThreeWayForecastIntake.vue, components/ThreeWayForecastReport.vue, components/base/ProvenanceBadge.vue (a fourth state for AI-sourced text).",
       "note": "Four consequences, all in report-models.md: the prompt belongs on the AI Prompts hub page rather than hardcoded in a builder; the Flagged Issues register, deferred because no report called the AI, comes back; it cannot run inline under the 2000 ms cap, so it needs a job id and polling; and provenance needs a fourth state, so a model's claim about a market is never mistaken for a figure read from the client's accounts. Needs its own drawing and his prompt first. Nothing is blocked — the forecast is complete and honest without it.",
       "comment": "2026-09-03 — filed on Mike's instruction the moment he raised it; he framed it himself as a future phase. RENUMBERED 4.62 → 4.66 on 2026-09-04 when master was merged in: both machines filed a new 4.62 on 2026-09-03, the desktop's saved-reports item reached master first and keeps the number, which is the rule that moved 4.56 → 4.58. 4.62 is not reused here. See also 4.64 and 4.63, the other future phase he named in the same message."
-    },
-    {
-      "ref": "4.64",
-      "name": "International versus local — the forecast treats every sale and purchase as domestic",
-      "rankedByMike": false,
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-04"
-      },
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Mike's request, 2026-09-03: an international-versus-local split for purchases and sales on step 3, allowing for shipping and FX. Drawn, approved and built 2026-09-04; the drawing and its six rulings are recorded in ARTEFACTS.md.",
-      "risk": "🔴 THE GUARD THIS MUST NOT BE BUILT WITHOUT: with the tick off and both overseas series empty, the 10,155-cell golden test must produce byte-identical output, and it is written first — this change reaches into the GST computation, which the golden set covers cell by cell. GST is wrong in both directions today: every sale is charged, and every purchase credited when the supplier is paid, where exports are zero-rated and imports pay at the border.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-03 — \"shouldn't the assumptions page have a 'international' vs 'Local' purchases and sales box? this is where imported stock purchases that take longer to arrive and require deposits etc can be entered, as can oversaes sales that rely on delivery before payment can be entered - to allow for shipping and fx\". Filed on his instruction (\"file it\")."
-      },
-      "touches": "Built: server/report/threeWayForecastModel.js, tests/unit/threeWayForecastModel.test.js, components/ThreeWayForecastIntake.vue, ThreeWayForecastReport.vue, locales/en.json. The mentor tab added server/utils/forecastSellDown.js, server/routes/forecastSellDown.js, four manager routes plus a read in restify-server.js, components/firm/FirmSellDownLadder.vue and its tab in FirmManagerHub.vue, with tests/unit/forecastSellDown.test.js. Slice 2 adds an upstream calculator under server/report/ with a golden test against the workbook.",
-      "note": "🔴 IT ABSORBS 4.63 AS SLICE 2, on Mike's instruction of 2026-09-04 — one section, one set of cash rows, so the Import & Retail workbook becomes a calculator rather than a second screen. BOTH SLICES ARE NOW BUILT — slice 1 with the mentor's ladder tab, slice 2 with its calculator, its Restify route and its screen. Nothing on the drawing is open. The cash flow grows five rows of its own — deposits, freight, duty, border GST, supplier balance — because his ruling was about visibility rather than timing. Detail: design/mockups/three-way-forecast-international.html and the ARTEFACTS.md row.",
-      "comment": "2026-09-04 — drawn, approved and BUILT the same day: the engine, the intake section, the five cash rows, and the mentor's Imported Stock Prices tab. The guard was written FIRST and holds — 3,385 golden cells unmoved with the tick off. SLICE 2 IS BUILT END TO END: the calculator dates every event from the order date on his own terms, the landingsOf seam lets a shipment carry its own deposit and balance month, a Restify route does the arithmetic and the screen shows it. Three more rulings taken, the last after the build REPORTED his workbook's 6% interest cover as a gap rather than inventing it. Suite 7,776 green. Ready to eyeball."
-    },
-    {
-      "ref": "4.63",
-      "name": "Overseas stock purchases — the Import & Retail model feeds the forecast",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Mike's request, 2026-09-03: read the Import & Retail workbook and see how overseas stock purchases could feed the forecast. Now slice 2 of 4.64 on his instruction of 2026-09-04. It is an upstream calculator, not a new section.",
-      "risk": "Both rulings are taken (2026-09-04) and they were the dangerous ones. Events are dated from the order date and filed in the calendar month they fall in — band-mapping ignores the order date, so containers ordered three weeks apart would land in the same month, which is his own R9 failure. Real unit costs govern imported stock; the mark-up governs local. What remains is the golden test against his workbook, without which a ported model proves nothing.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-03 — \"I also want you to read the 'import and retail' excel model i loaded to see how future overseas stock purchases could be included in this forecast - as future building phases - thought you should know in advance before building\". Filed on his instruction (\"yes\")."
-      },
-      "touches": "NOTHING YET. When it starts: a new upstream model under server/report/ with its own golden test against design/report-source-models/Import & Retail.xlsx, writing into the twelve landing figures and the sales series that 4.64's screen already exposes — so the forecast engine itself needs no new arithmetic.",
-      "note": "Five sheets, read end to end: two supplier input sheets, an Index Tables lookup and Financial Projections. A supplier sheet turns a short input set into a payment schedule — 4,469 units, 693,271 of unit cost, a 415,963 deposit and 255,650 balance due across twelve 30-day bands, with balance interest and FX loss computed separately. ⚠ A CORRECTION MADE BY READING THE SHEET: the curves the supplier sheets actually consume are the FOUR-band table, each pattern totalling 100%; the seven-band area on Index Tables does not. Detail in the commit message of 8b550fe.",
-      "comment": "2026-09-03 — filed on Mike's instruction. Absorbed into 4.64 as slice 2 on 2026-09-04 and drawn there, so it keeps its number but not a screen of its own. Its price ladder — New +185%, Standard +152%, Runout +122% at 60/90/120 stock-turn days — is now on 4.64's drawing, because Mike ruled that revenue must not all be priced at the launch figure. Both of its own rulings were taken the same day, so what is left is the build and its golden test."
     },
     {
       "ref": "4.65",
@@ -256,6 +210,27 @@
     },
     {
       "ref": "4.67",
+      "name": "Step 2 of the forecast has not been opened in the running app",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Three things built on 2026-09-05 have never been seen in a browser: the funding Type column, the stock-in-transit block and the glossary marks. All three are on step 2 of the forecast intake.",
+      "risk": "Proved on the report screen, which WAS opened: it found two layout faults no test could see — the page ran off the right, and the title banner drew twice. Step 2 has had no such look, and it is the screen where a wrong figure is typed.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": true,
+        "detail": "Proposed at the 2026-09-05 shutdown and filed on his yes. Narrowed the same evening once the report screen had actually been opened."
+      },
+      "touches": "Nothing until somebody looks. Then ThreeWayForecastIntake.vue or base/GlossaryTerm.vue.",
+      "note": "⚠ THE API DOES NOT HOT-RELOAD. `npm run backend` is a plain node process, so parser and engine changes are invisible until it is restarted; it needed a force-kill on port 4000 once. Nuxt does reload. Three things: the Type column and its disabled \"No set repayment\" box; the stock-in-transit block, which appears only when the opening carries a deposit, so it needs a file that has one; and the ? marks beside the headings. The report screen (Summary / Every line) is done and needs no second look.",
+      "comment": "2026-09-05 — filed at shutdown, then narrowed the same evening: the report screen was opened, two layout faults were found and fixed, and only step 2 is still unseen."
+    },
+    {
+      "ref": "4.68",
       "name": "A client's page is refused the firm's currency and tax rules",
       "rankedByMike": false,
       "kind": "defect",
@@ -273,7 +248,28 @@
       },
       "touches": "server/restify-server.js (GET /api/report/currency and GET /api/report/property-tax-rules, firmAuth only) and server/middleware/firmAuth.js if a shared advisor-or-client read guard is the cleaner fix. Reads only; the writes stay manager-guarded.",
       "note": "The fix is an auth guard admitting either a verified advisor or a verified client of the firm on the two read routes, scoped to req.firmId as today. Nothing is blocked meanwhile; the client's figures and saves are unaffected.",
-      "comment": "2026-09-04 — filed the day it was found; appended rather than slotted because the order is Mike's ranking."
+      "comment": "2026-09-04 — found and filed by the desktop; numbered 4.68 at the 2026-09-07 merge because the laptop's 4.67 reached master first."
+    },
+    {
+      "ref": "4.69",
+      "name": "Four things seen on the saved-report screens that need a ruling",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The 2026-09-04 walk of the ten saved-report screens found four things that work but read wrongly, and each is a ruling for Mike rather than a fix we can choose.",
+      "risk": "None to a figure. Loan Estimator: saving before any step is confirmed shows only the generic failure. Volatility: one changed month reads as \"2 figures changed\" because its source flag changed too. The header's right block drops below the title when the client-edited banner shows. Quick Position shows entered and client badges side by side on one figure.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": true,
+        "detail": "Found 2026-09-04 on the desktop's live walk. Filed as one item because each is a question for Mike, and an open question for Mike belongs on the list, not in a note."
+      },
+      "touches": "pages/loan-estimator.vue or mixins/savedReport.js (an empty row), utils/volatilitySavedReport shape (what counts as a changed figure), components/base/ReportHeader.vue (the wrap), components/base/ProvenanceBadge.vue (two badges).",
+      "note": "Screenshots of all four were taken on 2026-09-04 and can be retaken in minutes with the walk recipe in the desktop's memory. Nothing is blocked.",
+      "comment": "2026-09-07 — filed at the merge that closed the desktop's 2026-09-04 session."
     }
   ]
 }

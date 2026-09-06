@@ -14,6 +14,7 @@ const {
   BASE_SELL_DOWN,
   CONFIG_KEY,
   LADDER_KEYS,
+  TERM_KEYS,
   PATTERN_NAMES,
   validateSellDown,
   loadResolvedSellDown
@@ -64,13 +65,79 @@ describe('the platform ladder as shipped', () => {
   test('the shipped ladder is one the validator would accept', () => {
     const editable = {}
     LADDER_KEYS.forEach((k) => { editable[k] = BASE_SELL_DOWN.ladder[k] })
-    const r = validateSellDown({ ladder: editable, defaultPattern: BASE_SELL_DOWN.defaultPattern })
+    const terms = {}
+    TERM_KEYS.forEach((k) => { terms[k] = BASE_SELL_DOWN.terms[k] })
+    const r = validateSellDown({ ladder: editable, terms, defaultPattern: BASE_SELL_DOWN.defaultPattern })
     expect(r.errors).toEqual([])
     expect(r.ok).toBe(true)
   })
 
   test('the data file’s own documentation never reaches an API response', () => {
-    expect(Object.keys(BASE_SELL_DOWN).sort()).toEqual(['defaultPattern', 'ladder', 'patterns'])
+    expect(Object.keys(BASE_SELL_DOWN).sort()).toEqual(['defaultPattern', 'ladder', 'patterns', 'terms'])
+  })
+})
+
+describe('the supplier terms are the workbook’s, and editable', () => {
+  // A SECOND DELIBERATE PIN, for the same reason as the ladder above. These seven figures
+  // decide which calendar month every deposit, balance and landing falls in, and the
+  // interest charged on the deferred balance. They summed to the 154 / 149 / 144 day totals
+  // Mike's own sheet states for sea, air and express — a silent edit would move cash
+  // between months on a document a lender reads, with nothing on screen to notice it by.
+  test('the platform terms are Mike’s own figures, exactly as the workbook gives them', () => {
+    expect(BASE_SELL_DOWN.terms).toEqual({
+      manufactureDays: 120,
+      balanceDueDays: 91,
+      prepDays: 9,
+      interestCoverPct: 0.06,
+      seaDays: 25,
+      airDays: 20,
+      expressDays: 15
+    })
+    // The totals his sheet states, which is what makes the parts checkable.
+    const t = BASE_SELL_DOWN.terms
+    expect(t.manufactureDays + t.seaDays + t.prepDays).toBe(154)
+    expect(t.manufactureDays + t.airDays + t.prepDays).toBe(149)
+    expect(t.manufactureDays + t.expressDays + t.prepDays).toBe(144)
+  })
+
+  test('a tier may change a term, and it reaches the resolved result', async () => {
+    // The whole point of the change: until 2026-09-04 these were hardcoded in the intake
+    // component, under a badge on screen claiming they came from platform settings.
+    const resolved = await loadResolvedSellDown('firm-1', loaderFor({
+      'firm-1': { terms: { manufactureDays: 150, interestCoverPct: 0.08 } }
+    }))
+    expect(resolved.terms.manufactureDays).toBe(150)
+    expect(resolved.terms.interestCoverPct).toBe(0.08)
+    // Everything untouched still comes from the platform.
+    expect(resolved.terms.seaDays).toBe(BASE_SELL_DOWN.terms.seaDays)
+    // And the ladder beside it is undisturbed.
+    expect(resolved.ladder).toEqual(BASE_SELL_DOWN.ladder)
+  })
+
+  test('a day count must be a whole number of days, and at least one', () => {
+    expect(validateSellDown({ terms: { manufactureDays: 0 } }).ok).toBe(false)
+    expect(validateSellDown({ terms: { seaDays: -5 } }).ok).toBe(false)
+    expect(validateSellDown({ terms: { prepDays: 9.5 } }).ok).toBe(false)
+    expect(validateSellDown({ terms: { prepDays: 9 } }).ok).toBe(true)
+  })
+
+  test('interest cover may be nil, but never negative', () => {
+    // Unlike a rung of the ladder, a supplier charging nothing for the credit period is a
+    // real arrangement. Negative would pay the client to defer, which is a typo every time.
+    expect(validateSellDown({ terms: { interestCoverPct: 0 } }).ok).toBe(true)
+    expect(validateSellDown({ terms: { interestCoverPct: -0.01 } }).ok).toBe(false)
+  })
+
+  test('a term that is not one of the seven is refused, never silently dropped', () => {
+    // A figure that vanishes quietly is a term somebody believes they set.
+    const r = validateSellDown({ terms: { shippingDays: 25 } })
+    expect(r.ok).toBe(false)
+    expect(r.errors.join(' ')).toMatch(/shippingDays/)
+  })
+
+  test('a blank term is refused — a supplier term has no empty state', () => {
+    expect(validateSellDown({ terms: { manufactureDays: '' } }).ok).toBe(false)
+    expect(validateSellDown({ terms: { manufactureDays: null } }).ok).toBe(false)
   })
 })
 

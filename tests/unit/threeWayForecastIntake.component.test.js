@@ -31,6 +31,9 @@ function mountIntake (propsData) {
   return mountWithBuefy(ThreeWayForecastIntake, { propsData: propsData || {} })
 }
 
+/** Twelve zeroes — the shape every monthly series on this form takes. */
+function zeroes () { return new Array(12).fill(0) }
+
 /** A backend intake response, as the route sends it. */
 function intakeResponse (over) {
   return Object.assign({
@@ -800,6 +803,219 @@ describe('the shipment calculator panel', () => {
     // Nothing was overwritten and nothing threw.
     expect(w.vm.form.overseas.importedPurchases[5]).toBe(12345)
     expect(w.vm.shipmentsDrive).toBe(false)
+    w.destroy()
+  })
+})
+
+/**
+ * 🔴 THE OPENING-BALANCE BAND ON STEP 2 (2026-09-05).
+ *
+ * The band exists because the engine has always worked this figure out and nothing showed
+ * it until step 4. Its own first outing on the running app reported a real client's
+ * balance sheet as 2,502,897 out when the engine ties it to nil, because every opening
+ * figure on this form is a `{value, source}` pair and the computed read `.opening`
+ * directly — NaN, hidden by `|| 0`, so the fixed assets, the loans and the shareholder
+ * accounts silently counted as nothing.
+ *
+ * A NUMBER AN ADVISOR ACTS ON, WITH NOTHING BEHIND IT. That is what earns these tests:
+ * the band is either right or it sends someone hunting a hole in accounts that balance.
+ */
+describe('the opening balance check on step 2', () => {
+  /** One opening slot, in the shape the form actually holds. */
+  const slot = value => ({ value, source: 'file' })
+
+  /**
+   * A form whose opening position ties: assets 585,000 = liabilities 267,500 +
+   * equity 317,500 — the same shape as the intake suite's sweep fixture.
+   */
+  function tieing (w) {
+    Object.keys(w.vm.form.opening).forEach((k) => { w.vm.form.opening[k] = slot(0) })
+    w.vm.form.opening.cashAtBank = slot(120000)
+    w.vm.form.opening.accountsReceivable = slot(80000)
+    w.vm.form.opening.inventory = slot(30000)
+    w.vm.form.opening.otherCurrentAsset = slot(225000)
+    w.vm.form.opening.accountsPayable = slot(40000)
+    w.vm.form.opening.otherCurrentLiability = slot(158500)
+    w.vm.form.opening.otherNonCurrentLiability = slot(9000)
+    w.vm.form.opening.authorisedCapital = slot(100)
+    w.vm.form.opening.retainedEarnings = slot(367400)
+    w.vm.form.opening.otherEquity = slot(-50000)
+    w.vm.form.assets.forEach((a) => { a.opening = slot(0) })
+    w.vm.form.assets[0].opening = slot(30000) // vehicles, net of depreciation
+    w.vm.form.assets[5].opening = slot(100000) // goodwill, in the Other category
+    w.vm.form.loans.forEach((l) => { l.opening = slot(0) })
+    w.vm.form.loans[0].opening = slot(60000)
+    w.vm.form.shareholders.forEach((s) => { s.opening = slot(0) })
+  }
+
+  test('a position that ties reports nil, and the band stays away', () => {
+    const w = mountIntake({ step: 2 })
+    tieing(w)
+    expect(w.vm.openingBalanceCheck).toBe(0)
+    expect(w.vm.openingOutOfBalance).toBe(false)
+    w.destroy()
+  })
+
+  test('🔴 the fixed assets, the loans and the shareholders are COUNTED', () => {
+    // The regression itself. Each of the three was read as a bare number, gave NaN, and
+    // fell to 0 — so removing any one of them must move the check by its own amount.
+    const w = mountIntake({ step: 2 })
+    tieing(w)
+    w.vm.form.assets[5].opening = { value: 0, source: 'file' }
+    expect(w.vm.openingBalanceCheck).toBe(100000) // the goodwill, not silently ignored
+    tieing(w)
+    w.vm.form.loans[0].opening = { value: 0, source: 'file' }
+    expect(w.vm.openingBalanceCheck).toBe(-60000) // the loan, not silently ignored
+    tieing(w)
+    w.vm.form.shareholders[0].opening = { value: 25000, source: 'file' }
+    expect(w.vm.openingBalanceCheck).toBe(25000) // in credit: the company owes it
+    w.destroy()
+  })
+
+  test('a real gap is reported as the amount it is, on the right side', () => {
+    const w = mountIntake({ step: 2 })
+    tieing(w)
+    w.vm.form.opening.inventory = slot(35000) // 5,000 of stock that is not funded
+    expect(w.vm.openingBalanceCheck).toBe(-5000)
+    expect(w.vm.openingOutOfBalance).toBe(true)
+    w.destroy()
+  })
+
+  test('only catch-all lines a FILE filled are offered back for moving', () => {
+    const w = mountIntake({ step: 2 })
+    tieing(w)
+    expect(w.vm.sweptLines.map(s => s.key)).toEqual(
+      ['otherCurrentAsset', 'otherCurrentLiability', 'otherNonCurrentLiability', 'otherEquity'])
+    // A figure the advisor typed there needs no explaining back to them.
+    w.vm.form.opening.otherCurrentAsset = { value: 225000, source: 'entered' }
+    expect(w.vm.sweptLines.map(s => s.key)).not.toContain('otherCurrentAsset')
+    w.destroy()
+  })
+})
+
+/**
+ * Fix 1 (a facility) and Fix 2 (stock in transit), built 2026-09-05 from the drawing
+ * `design/mockups/three-way-forecast-facilities-and-transit.html`, whose ten questions
+ * Mike ruled the same day.
+ *
+ * What is tested here is what the screen SENDS and what it computes — never a label, a
+ * heading or a class. `$t()` returns the key, so nothing below pins his wording, and a
+ * person in UAT judges the words better than an assertion can.
+ */
+describe('the funding table carries a Type, and rows as they are needed', () => {
+  test('a facility leaves the screen as a facility, with no monthly repayment', () => {
+    const w = mountIntake()
+    w.vm.form.loans[0].type = 'facility'
+    w.vm.form.loans[0].opening.value = 2450000
+    w.vm.form.loans[0].rate = 8
+    // A figure left in the box from before the Type was switched must not survive and
+    // quietly amortise behind a disabled box that says there is no set repayment.
+    w.vm.form.loans[0].repayment = 25000
+    const sent = w.vm.buildInputs().loans[0]
+    expect(sent.type).toBe('facility')
+    expect(sent.monthlyRepayment).toBe(0)
+    expect(sent.opening).toBe(2450000)
+    expect(sent.interestRate).toBeCloseTo(0.08, 10)
+    w.destroy()
+  })
+
+  test('an untouched row is a term loan, which is what it always computed as', () => {
+    const w = mountIntake()
+    expect(w.vm.buildInputs().loans[0].type).toBe('term')
+    w.destroy()
+  })
+
+  test('Add a funding line stops at the cap', () => {
+    const w = mountIntake()
+    for (let i = 0; i < 20; i++) { w.vm.addFundingLine() }
+    expect(w.vm.form.loans).toHaveLength(w.vm.maxLoanRows)
+    expect(w.vm.buildInputs().loans).toHaveLength(w.vm.maxLoanRows)
+    w.destroy()
+  })
+
+  test('🔴 the file’s own count of loans reaches the screen, not this form’s', () => {
+    // Until 2026-09-05 this stopped at whatever rows the blank form held, so a client with
+    // six loans lost three of them between the backend and the screen — and the advisor
+    // was told only that some had been "combined".
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({
+      proposal: { loans: [{ opening: 10 }, { opening: 20 }, { opening: 30 }, { opening: 40 }, { opening: 50 }, { opening: 60 }] },
+      provenance: { 'loans.0.opening': 'file' }
+    }))
+    expect(w.vm.form.loans).toHaveLength(6)
+    expect(w.vm.buildInputs().loans.map(l => l.opening)).toEqual([10, 20, 30, 40, 50, 60])
+    w.destroy()
+  })
+})
+
+describe('stock already paid for, not yet arrived', () => {
+  /** Put a deposit on the opening position, as a file would. */
+  function withDeposit (w, amount) {
+    w.vm.form.opening.stockInTransitDeposits.value = amount
+    w.vm.form.opening.stockInTransitDeposits.source = 'file'
+  }
+
+  test('the block appears only when the opening position carries a deposit', () => {
+    const w = mountIntake()
+    expect(w.vm.hasStockInTransit).toBe(false)
+    withDeposit(w, 825629)
+    expect(w.vm.hasStockInTransit).toBe(true)
+    w.destroy()
+  })
+
+  test('the two figures no balance sheet carries leave the screen with the rest', () => {
+    const w = mountIntake()
+    withDeposit(w, 825629)
+    w.vm.form.stockInTransit.balanceOwing = 550419
+    w.vm.form.stockInTransit.landing[1] = 330252
+    const sent = w.vm.buildInputs()
+    expect(sent.openingBalanceSheet.stockInTransitDeposits).toBe(825629)
+    expect(sent.stockInTransit.balanceOwing).toBe(550419)
+    expect(sent.stockInTransit.landing[1]).toBe(330252)
+    expect(sent.stockInTransit.landing).toHaveLength(12)
+    w.destroy()
+  })
+
+  test('🔴 the deposit counts as an asset in the step 2 balance check', () => {
+    // Naming the deposit moves it out of the Other-current-asset catch-all. If the check
+    // did not follow it, step 2 would report a gap of the whole deposit on a file that
+    // ties — which is the exact failure the check was added on 2026-09-05 to stop.
+    const w = mountIntake()
+    const before = w.vm.openingBalanceCheck
+    withDeposit(w, 825629)
+    expect(w.vm.openingBalanceCheck).toBe(Math.round((before - 825629) * 100) / 100)
+    w.destroy()
+  })
+
+  test('a shortfall is reported as a remainder and never blocks the build', () => {
+    const w = mountIntake()
+    withDeposit(w, 825629)
+    // `$set`, because that is the path the screen itself takes: Vue compiles v-model on a
+    // bracket expression into $set. A raw index assignment is invisible to Vue 2 and would
+    // leave the computed stale here while the real screen worked.
+    w.vm.$set(w.vm.form.stockInTransit.landing, 1, 644629)
+    expect(w.vm.transitLandedTotal).toBe(644629)
+    expect(w.vm.transitFullyLanded).toBe(false)
+    // What is pinned is that a shortfall does not stop the forecast being built — Mike's
+    // ruling of 2026-09-05, and deliberately the opposite of the collection profiles.
+    w.vm.$set(w.vm.form.stockInTransit.landing, 3, 181000)
+    expect(w.vm.transitFullyLanded).toBe(true)
+    w.destroy()
+  })
+
+  test('a form saved before either fix existed restores rather than breaking', () => {
+    const old = {
+      opening: {},
+      assets: [],
+      shareholders: [],
+      overheads: {},
+      sales: zeroes(),
+      purchases: zeroes()
+    }
+    const w = mountIntake({ restore: old })
+    expect(Array.isArray(w.vm.form.stockInTransit.landing)).toBe(true)
+    expect(w.vm.form.stockInTransit.landing).toHaveLength(12)
+    expect(w.vm.form.loans.every(l => l.type === 'term')).toBe(true)
     w.destroy()
   })
 })

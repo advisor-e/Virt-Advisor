@@ -185,14 +185,210 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
-**4.59 · A point the mentor adds tells a firm manager THEY wrote it.** ✅ Closed 2026-09-04. A
-scope that had decided nothing was handed the layer above untouched, so the badge kept the stamp of
-whichever level applied decisions, and a firm manager read "Added here" against a point the mentor
-wrote. The no-decisions branch of `loadResolvedObservations` now restamps every point as inherited
-from the viewer's point of view — the fix already made in `meetingTypes.loadResolvedTypes` on
-2026-09-02 and deliberately not applied here then. Proved by two tests copied from the types
-module's pattern (`tests/unit/meetingObservations.test.js`), and live on the running app: a point
-added as the mentor read *added-here* to the mentor and *inherited* to the firm manager.
+**Five changes for junior advisors — the report shows every line, and the jargon explains itself.**
+✅ Built and closed 2026-09-05. Mike: *"most of the accountants using this will be junior in terms
+of experience"*, then *"do them all"* to five proposals. Filed straight to this page for the same
+reason as the two fixes below it — the work finished in the session that started it.
+
+**Four were small.** A **glossary** ([`data/glossary.json`](../../data/glossary.json), sixteen
+definitions, one home) with a **?** beside the headings that use jargon — it adds to a heading and
+never rewrites one, because his labels are ruled screen by screen. A collection profile that does
+not total 100% now **says what the gap means and what to do**, with different sentences for the two
+profiles because a shortfall means opposite things on each. Step 2 **counts** how many opening
+figures came from the file and how many are the advisor's. The purchases grid **shows its year
+total**, as sales always has.
+
+**The fifth changed a screen he had already approved, so it was drawn first** —
+[`three-way-forecast-report-detail.html`](../mockups/three-way-forecast-report-detail.html), four
+questions, ruled one at a time. The report showed **four rows** per tab, so a junior asked *"why is
+profit down in August?"* had nothing to answer with and could not see their own typing error. It
+now carries a **Summary / Every line** setting: Summary is still the default and still the four rows
+approved on 2026-09-02, so nobody content with today's screen is handed a longer one.
+
+🔴 **He added something the drawing never asked for, and it was the right addition.** Against the
+recommendation to hide empty overhead lines, the risk named was that a junior never learns an
+"Insurance" line exists. His answer: *"yes - as recommended but perhaps a note explaining it could
+help?"*. The note is built, counts what is hidden, says how many the app holds, and names where they
+are set.
+
+**No new input, no recomputation, the golden set untouched** — every series on the screen is one the
+engine has returned since it was written. **Facility interest finally has a row of its own**, having
+been ruled engine-only that morning purely for want of anywhere on this screen to put it. That is
+the 4.16 fault closing itself the same day it was named.
+
+**What proves it:** the Summary / Every line block in
+[`threeWayForecastReport.component.test.js`](../../tests/unit/threeWayForecastReport.component.test.js)
+— its first test pins that the screen still OPENS on the four approved rows, which is the whole basis
+on which the change was approved — and [`glossary.test.js`](../../tests/unit/glossary.test.js), whose
+first test catches a mistyped key that would render nothing and that no person in UAT could notice.
+
+**Facilities and stock in transit — the two proper fixes to the forecast's opening position.**
+✅ Built and closed 2026-09-05. **Neither was ever on the live list, and that is correct rather
+than an omission:** the drawing was made on Mike's request (*"you mention 'fixing them properly' -
+design the proper fix and let me know what is needed"*), its ten questions were ruled the same day,
+and he then asked for the build in his own words — *"build the forecast fixes"*. Filed straight to
+this page because the work was finished in the session that started it; an item that is open for no
+minutes belongs in the record, not on a live list.
+
+They are **two independent fixes**, drawn together only because both concern what the opening
+position carries into the forecast. Artefact:
+[`three-way-forecast-facilities-and-transit.html`](../mockups/three-way-forecast-facilities-and-transit.html).
+
+**Fix 1 — a facility carries its balance instead of paying it off.** Revolving finance had no home
+and sat in Other current liability, carried forward unchanged and charged nothing: on the client it
+was found with, 2,450,000, or 42% of total liabilities, costing the forecast nothing at all. The
+funding table now has a **Type** column (Mike's word), a facility is `loanSchedule` with the
+amortisation line removed, and rows **appear as they are needed** with an Add button capped at eight
+— it was fixed at three, so a client with six loans had three folded together before the engine saw
+them. A facility's interest is **its own figure and engine-only**, exactly as he amended the ruling:
+the report's profit tab shows no interest at all, so a third line has nowhere to appear.
+
+🔴 **The drawing's claim that the obvious workaround is worse is now a test.** A term loan with a
+zero repayment computes capital repaid as *repayment − interest*, so the debt GROWS by its own
+interest while the interest is also paid in cash. The figures on the drawing —
+capital repaid **−16,333** in month 1, closing **2,653,348** after twelve months — reproduced
+exactly on the first run of the new test, which is the strongest evidence the drawing was built
+from the engine and not from reasoning.
+
+🔴 **One thing was found in the code that the drawing did not know about, and it was a live trap.**
+`resolveInputs` mapped over the three DEFAULT loans, so a caller sending FEWER than three silently
+inherited the sample company's own *XYZ Bank* at 1,000,000 and *DEF Finance* at 50,000 in the slots
+it did not fill. It never bit because the screen always sent exactly three; the moment rows became
+variable it would have. Fixed and pinned.
+
+**Fix 2 — deposits already paid on stock that has not arrived.** 825,628.98 on the same client sat
+in Other current asset and never became stock: the containers landed during the year and the balance
+sheet still showed the money as a deposit at the end of it. It now has **its own opening line**
+(parsed from the file, so the money moves out of the catch-all and the opening still ties to the
+cent), a **balance still owing** the advisor types, and twelve landing months. A landing releases the
+prepayment, settles the balance pro rata, and the full landed cost joins purchases. **Both seams,
+not one** — the drawing's own sizing was corrected before the build for exactly this reason.
+
+🔴 **GST: the drawing was wrong by omission, and Mike's instruction was to research rather than
+guess.** It described a landing as three movements and said nothing about tax. The rules are
+unambiguous: **GST is triggered by the goods arriving, not by paying for them**, so a container
+whose deposit was paid in a previous financial year still attracts the full border GST in the month
+it lands — roughly 124,000 on that client, in the direction that flatters a funding application.
+Built as he then ruled: charged on the goods alone (deposit plus balance), claimed back on the next
+return, with the screen saying in terms that duty and freight are excluded. The rules and their
+sources are written down once, in [`TAX-RULES-IMPORT-GST.md`](../TAX-RULES-IMPORT-GST.md), so the
+next session does not re-derive them.
+
+⚠ **Two deviations from the approved artefact, named rather than absorbed.** (1) The cash tab gained
+**two sub-rows** for the balance and its border GST, which the drawing did not draw — the same
+argument that gave the five overseas rows their own lines, since money leaving the bank in one month
+should not be a lump inside a total. (2) The landing grid is headed **"When it lands"**, the drawing's
+own rendered wording, where its question list paraphrased the label as *"Arriving in"*; the artefact
+disagrees with itself and the rendered version is the one he looked at. Either is his to strike.
+
+**What proves it:** [`tests/unit/forecastFacilitiesAndTransit.test.js`](../../tests/unit/forecastFacilitiesAndTransit.test.js)
+— 23 tests, and **the guard was written and seen passing first**, as the drawing demanded: with the
+new fields empty the three statements are byte-identical and all 3,385 golden cells still match.
+Screen behaviour in `threeWayForecastIntake.component.test.js` and
+`threeWayForecastReport.component.test.js`. **Suite 7,864 green** (408 suites, 38 new tests),
+lint 0 errors.
+
+**4.64 · International versus local — the forecast treats every sale and purchase as domestic.**
+✅ Closed 2026-09-05. Mike's request of 2026-09-03: *"shouldn't the assumptions page have a
+'international' vs 'Local' purchases and sales box? … to allow for shipping and fx"*. Drawn,
+approved and built on 2026-09-04, both slices — it **absorbed 4.63 as slice 2** on his instruction
+— and eyeballed in the running app the same day. It stayed open afterwards for **one** reason:
+five differences between the built screens and the approved drawing had no ruling from him.
+
+🔴 **The guard is what the build order was for, and it held.** With the tick off and both overseas
+series empty, all **3,385 golden cells** still match the workbook and the three statements are
+byte-identical — written and passing before a line of the feature existed, because this change
+reaches into the GST computation the golden set covers cell by cell.
+
+🔴 **What closes it: the five differences were ruled on 2026-09-05, one at a time on his
+instruction, and in every one the build was kept and the DRAWING corrected.** (k) the balance to
+the supplier is a five-bucket percentage profile, not one dropdown; (l) the overseas mark-up sits
+at the foot of the overseas sales card, not beside the local one; (m) the three shipping speeds are
+a sentence, not a picker; (n) the sales-side allowance reads *Exchange-rate allowance on receipts*;
+(o) the IMPORTED / OVERSEAS pills stay unrendered. **None of the five changes a figure.** Each is
+now marked in red where it sits on
+[`three-way-forecast-international.html`](../mockups/three-way-forecast-international.html) with his
+reason, and the drawing's opening sentence — which still read *"nothing here is built"* — was
+corrected with them.
+
+⚠ **One thing was noticed and is deliberately NOT carried here:** `shipmentTimer` in
+[`ThreeWayForecastIntake.vue`](../../components/ThreeWayForecastIntake.vue) is never cleared on
+destroy. It was seen on 2026-09-04, is not filed, and is not part of this item.
+
+**What proves it:** [`tests/unit/threeWayForecastModel.test.js`](../../tests/unit/threeWayForecastModel.test.js)
+(the golden set, unmoved), [`tests/unit/forecastSellDown.test.js`](../../tests/unit/forecastSellDown.test.js),
+and the intake-component guard that fails the build if the engine defaults an input the screen does
+not send. Recorded in [`report-models.md`](report-models.md) and
+[`ARTEFACTS.md`](../ARTEFACTS.md).
+
+**4.59 · A point the mentor adds tells a firm manager THEY wrote it.**
+✅ Closed 2026-09-04. A firm manager who had customised nothing saw *"Added here"* against every
+observation point the mentor wrote, because
+[`loadResolvedObservations`](../../server/utils/meetingObservations.js) returned the layer above
+untouched — and `source` is stamped by whichever level applied decisions, so the mentor's own badge
+came down with the point. Fixed by restamping the inherited list from the viewer's point of view,
+which is the fix [`meetingTypes.js`](../../server/utils/meetingTypes.js) already carried; found
+there on 2026-09-02 and deliberately left here to keep that slice to its approved scope.
+
+🔴 **It was worse than the mislabel, and that was not known when it was filed.**
+[`FirmMeetingObservations.vue`](../../components/firm/FirmMeetingObservations.vue) reads the badge to decide
+between *Switch off* and *Remove*, and to route an edit. So a firm manager was offered **Remove**
+on a point they cannot remove, and both that and any edit were sent to the own-row endpoint, which
+answers `404 No point of your own with that id` — a failure with nothing on screen to explain it.
+
+⚠ **The badge also moved on unrelated edits.** The full-resolve path already stamped correctly, so
+a scope deciding anything at all — switching off one shipped point — flipped the mentor's point
+from *added here* to *inherited*. Proved by running the real resolver before the fix, and pinned
+afterwards.
+
+**What proves it:** two assertions in
+[`tests/unit/meetingObservations.test.js`](../../tests/unit/meetingObservations.test.js) — the
+mentor's added point is badged `inherited` at a firm that has decided nothing, and that badge does
+not change when the firm decides something unrelated, which holds the two paths together. Suite
+green at 7,768 (402 suites), lint 0 errors. Recorded in
+[`meeting-review-history.md`](meeting-review-history.md) §8.
+
+**4.63 · Overseas stock purchases — the Import & Retail model feeds the forecast.**
+✅ Closed 2026-09-04. Mike's request of 2026-09-03: *"I also want you to read the 'import and
+retail' excel model i loaded to see how future overseas stock purchases could be included in this
+forecast"*. It has **no screen and no number of its own**, because on 2026-09-04 he merged it into
+4.64 — *"you can merge the 4.63 into this task to make one clean data entry and reporting
+section"* — and it was built there as **slice 2**: an upstream calculator
+([`../../server/report/importShipmentModel.js`](../../server/report/importShipmentModel.js)) that
+turns real orders into the months the forecast works in.
+
+🔴 **The port reproduces his workbook, and that is the whole of what closes this.** Deposit 60%,
+balance at order + 91 days, both charges pro-rated over a **360-day** year:
+`43,057.20 + 653.03 interest + 1,088.39 currency = 44,798.62` — his own figure, to the cent. The
+supplier terms are his (manufacture 120, balance due 91, prep 9), and they sum to the
+**154 / 149 / 144 days** his sheet states for sea, air and express.
+
+🔴 **Reading the sheet corrected the earlier summary twice, and both corrections were only
+available by opening it.** The curves the supplier sheets actually consume are the **four-band**
+table (each pattern totalling 100%), not the seven-band area on Index Tables. And the shipping-cost
+row **cannot be reproduced from the sheet's own shipment terms in 4 of its 12 months** — April and
+August missing their refrigerated surcharge, July and September charged one when marked not
+refrigerated, identically on **both** supplier sheets, so a formula that did not copy rather than a
+typo. Mike ruled the stated rule wins over the four figures. ⚠ **Nothing depends on that ruling
+today**: the approved screen prices freight as a percentage of landed value, so container sizes and
+the surcharge table never come across — only the shipping *days*, which are what turn an order date
+into a landing date. It is written down so the finding is not lost.
+
+⚠ **The 6% interest cover was REPORTED as a gap, not invented.** The first build said plainly that
+his sheet charges it and the forecast did not; he then asked for it (*"can you fix the 6% interest
+issue"*) and ruled where it goes. That is the reporting rule working as intended, and it is worth
+recording that it did.
+
+**What proves it:**
+[`tests/unit/importShipmentModel.test.js`](../../tests/unit/importShipmentModel.test.js) — his
+payment split and day counts against the workbook, the 360-day convention pinned against the 365
+it could have been, and the two containers ordered eighteen days apart in one May landing in
+**different months**, which is the failure band-mapping produces and his own R9 ruling forbids;
+[`tests/unit/importShipmentsRoute.test.js`](../../tests/unit/importShipmentsRoute.test.js) — the
+HTTP envelope, the safe failure shape, and that the route is actually registered. Suite green at
+7,776 (402 suites), lint 0 errors, `npm run build` succeeds. Recorded in
+[`report-models.md`](report-models.md) and on
+[`../mockups/three-way-forecast-international.html`](../mockups/three-way-forecast-international.html).
 
 **4.61 · The forecast reads one year and one file — the volatility read and the two-year trend.**
 ✅ Closed 2026-09-03, both phases built the same day. Mike's request: *"drop the last 2 years worth

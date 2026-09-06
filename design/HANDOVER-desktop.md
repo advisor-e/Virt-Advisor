@@ -11,23 +11,27 @@
 
 ## 2026-09-04 (third session, closed 2026-09-07) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Suite 7,802 green (406 suites) at the push gate. Started 1 behind master (the PR #60
-merge record), ended level. Everything pushed.
+Everything pushed after merging master's 25 commits (PRs #59 and #61) in at the close.
 
-**4.62 eyeballed end to end for the first time** — a real local MySQL 8.4 now exists on
-this machine (`virt_advisor`, settings in the gitignored `.env`, dev firm and client rows
-seeded). All ten wired screens complete advisor save → client edit and badge → advisor
-banner and Restore. Four small findings are on 4.62's note for Mike; 4.67 filed (client
-sign-in refused the firm's currency and tax rules).
+**4.62's ten desktop screens eyeballed end to end for the first time** — a real local MySQL
+8.4 now exists on this machine (`virt_advisor`, settings in the gitignored `.env`, dev firm
+and client rows seeded). Advisor save → client edit and badge → advisor banner and Restore
+held on every one. Findings filed: 4.68 (client sign-in refused the firm's currency and tax
+rules) and 4.69 (four things for Mike's ruling). The forecast's own loop is the laptop's
+(4.67), and its files were not touched here.
 
-**Two fixes shipped.** `f2b64de`: firmOverlay bound a number to a prepared `LIMIT ?`, which
-MySQL 8.0.22+ refuses — the ELEVENTH save of any setting failed with a 500 and every
-version-history read failed. This touches every hub tab and the mentor's saves; UAT's
-MySQL version is recorded nowhere. `405f6f4`: item 4.59 closed.
+**One fix shipped that matters to every hub tab.** `f2b64de`: firmOverlay bound a number to
+a prepared `LIMIT ?`, which MySQL 8.0.22+ refuses — the ELEVENTH save of any setting failed
+with a 500 and every version-history read failed. Proved live before and after. UAT's MySQL
+version is recorded nowhere; if it is 8.0.22 or later, the mentor's saves there fail at v11.
 
-**Next:** the Three-Way Forecast is 4.62's last screen and waits on 4.64 (laptop). 4.67 is
-a small auth-guard change. Unexplained: the suite counted 7,809 in the morning and 7,802
-at the push gate after three tests were added; nothing failed either time.
+**🔴 4.59 WAS FIXED ON BOTH MACHINES ON 2026-09-04** — the same restamp, the same day, with no
+`activeOn` because neither had picked it up when the other started. The laptop's reached
+master first and is the one kept; the desktop's copy was dropped at the merge, nothing lost.
 
-**LAPTOP:** none of your forecast files were touched. `server/utils/firmOverlay.js` changed
-in the two LIMIT lines only — pull it, your history tabs need it on MySQL 8.
+**Next:** 4.68 is a small auth-guard change on two read routes. 4.69 waits on Mike.
+Unexplained: the suite counted 7,809 in the morning and 7,802 at the push gate after three
+tests were added; nothing failed either time.
+
+**LAPTOP:** `server/utils/firmOverlay.js` changed in its two LIMIT lines only — your history
+tabs need it on MySQL 8. Nothing else of yours was touched.

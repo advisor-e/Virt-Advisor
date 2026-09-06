@@ -548,6 +548,170 @@ advanced by 31 days, so its third year ran three weeks adrift — **ruled and fi
 > model's own key list — so an input added to the engine later fails a test instead of leaking.
 > **Any new model with a defaults-merge takes the same guard.**
 
+🔴 **NOTHING ON A BALANCE SHEET IS DROPPED, and step 2 says so the moment it does not tie**
+(2026-09-05). Only non-current assets had a catch-all; current assets, current liabilities
+and equity discarded any row the parser could not name, and equity had no catch-all slot to
+sweep into at all. Found by putting a real Xero export through the running app: the file tied
+to the cent in Xero — net assets and total equity both −635,494.05 — and the forecast opened
+from it **1,559,449.79 out of balance**, having silently lost 18 rows worth 1,039,910.17 of
+current assets, 3,090,713.29 of current liabilities, 8,546.67 of long-term liabilities and
+499,900.00 of equity. **Every section now sweeps its unrecognised rows into its own `Other`
+slot** — including a new eighteenth opening line, **Other equity** — and the screen names
+what landed there so the advisor can move it. **The opening balance check is now shown on
+step 2**, where the figures are, rather than on step 4 after three screens of assumptions; it
+warns and never blocks, and lists the four things that actually cause it.
+
+> ⚠ **The test that was already there did not catch it, and that is the part worth keeping.**
+> It asserted the monthly balance check equals the OPENING one — that the gap does not *grow*.
+> A gap of 1.5 million that stays exactly 1.5 million passed it every time. What nobody had
+> asserted is that **a balance sheet which balances in the accounting package balances here**.
+> That assertion now exists.
+
+**Where the swept rows belong — three rulings, 2026-09-05, and two of them changed no code.**
+*Funds introduced* and *capital introduced* are now read as **shareholder current accounts**:
+they are what Xero and MYOB call owner money in credit, the balance sheet ties either way,
+but a catch-all is a frozen lump where a shareholder row carries advances and drawings — and
+is positional, so it holds no name. The other two rulings accepted a placement that each left
+something wrong, and **both have since been fixed properly** — see the next section.
+
+### Built for junior advisors (2026-09-05)
+
+Mike's request: *"most of the accountants using this will be junior in terms of experience"*.
+Five improvements were proposed and he answered **"do them all"**. All five are built. The
+fifth changed a screen he had already approved, so it was **drawn first, ruled, then built**
+— [`three-way-forecast-report-detail.html`](../mockups/three-way-forecast-report-detail.html).
+
+**Summary / Every line.** The report opened on four rows per tab, so a junior asked *"why is
+profit down in August?"* had nothing on screen to answer with, and could not see their own
+typing error — wages entered as 450,000 rather than 45,000 looked identical. The screen still
+**opens on Summary**, unchanged; *Every line* is one click away and governs all three tabs
+together, because an advisor who finds the setting on one will look for it on the others.
+Mike's words on the shape: *"i like how you can choose summary and every line"*.
+
+**Empty overhead lines are hidden, and a note says so** — his addition, not the drawing's:
+*"perhaps a note explaining it could help?"*. It closes the exact risk named against that
+recommendation, that a junior never learns an "Insurance" line exists. The count moves with
+the forecast and the note appears only when something is hidden.
+
+**No new input, no recomputation, the golden set untouched.** Every series on the screen is
+one the engine has returned since it was written. **Facility interest finally has a row of its
+own** — it was ruled engine-only earlier the same day purely for want of anywhere to put it.
+
+**Two layout faults found by opening the app, both older than the work above.**
+The report's results column is a grid item and had no `min-width: 0`, so it refused to shrink
+below the 900px table inside it: the table's `overflow-x: auto` never engaged and it dragged
+the whole page sideways instead of scrolling in its own card. Measured at 1366px — a 934px
+column in a 700px track, the document 1455px wide. Five of the eight report screens already
+carried the guard; this one did not. **And the page and the component each rendered a
+ReportHeader**, so step 4 drew the title banner twice. The component's was removed: Quick
+Position, EBITDA-DCF and the Loan Estimator all put the header in the page, and Quick
+Position's page header is where its save and restore handlers hang — which is the seam the
+forecast needs when 4.62 reaches it. **Neither is testable by mounting**: both headers
+rendered perfectly, there were simply two, and jsdom has no layout engine. They were found by
+screenshotting the running app.
+
+**A glossary, in one place.** [`data/glossary.json`](../../data/glossary.json) holds sixteen
+plain-English definitions and [`GlossaryTerm.vue`](../../components/base/GlossaryTerm.vue)
+renders a small **?** beside a heading. It **adds to a heading and never rewrites one** —
+Mike's labels are ruled screen by screen and explaining a term must not quietly reword it. An
+unknown key renders **nothing**: a missing definition is invisible to an advisor and caught by
+a test, which is the point of the test. *Tier judgement, stated not assumed: this is mentor
+content in `data/` with no hub screen, because the rule requiring a screen covers content that
+reaches an AI prompt and none of this does.*
+
+**A collection profile that does not total 100% now says what it MEANS.** It still blocks —
+a profile summing to 87 quietly means a seventh of the sales are never collected — but it now
+says which way it is wrong and what to do: *"The missing 13% is money you invoice and never
+collect — put it in one of the months above."* The two profiles get **different sentences**,
+because a shortfall means opposite things on each. The refusal at the button also names which
+block is at fault; it sits at the foot of a long screen and the profiles are far up it.
+
+**Step 2 says how many figures are the file's and how many are yours.** One line above the
+opening table, counted off the same `source` the badges read so the two cannot disagree.
+Forty-odd badges is a page to audit, and an advisor who has not built one of these has no way
+to know they have left six figures at zero because no file carried them.
+
+**The purchases grid shows its year total**, as the sales grid always has. Twelve boxes with no
+total is twelve chances to mistype one and nothing to notice it by.
+
+### Facilities and stock in transit — the two proper fixes (built 2026-09-05)
+
+Mike asked for the two residuals above to be designed properly (*"you mention 'fixing them
+properly' - design the proper fix and let me know what is needed"*), ruled the drawing's ten
+questions one at a time, and then asked for the build. Artefact:
+[`three-way-forecast-facilities-and-transit.html`](../mockups/three-way-forecast-facilities-and-transit.html).
+Closure and the two named deviations are in
+[`to-do-done-and-parked.md`](to-do-done-and-parked.md) §2. **They are independent of each
+other.**
+
+**A funding line now has a Type — term loan or facility.** A **facility** (revolving trade
+finance, a stock facility, invoice finance) carries its balance and is charged interest on it;
+it does not amortise, so its repayment box is disabled and reads *No set repayment* — a
+facility very much is repaid, continuously as stock sells, it simply has no fixed monthly
+figure. Drawdowns and repayments are typed, never worked out from the stock: a facility that
+redrew itself would be deciding how much a client borrows, invisibly, inside a document a
+lender reads. In the engine it is `loanSchedule` with the amortisation line removed.
+
+> 🔴 **Why a schedule and not "a loan row with a zero repayment".** That workaround is worse
+> than the problem. Capital repaid is computed as *repayment − interest*, so a zero repayment
+> makes it negative and **the debt grows by its own interest** — while the interest is also
+> paid in cash. The charge lands twice and the balance sheet still ties, so nothing complains.
+> On the real client: 2,450,000 becomes **2,653,348** in twelve months. Pinned by test.
+
+**A facility is a CURRENT liability**, with the overdraft, not with the term loans — it is
+repayable on demand, and filing it as long-term debt would overstate that client's working
+capital by 2,450,000. **Its interest is its own figure and ENGINE-ONLY**: the report's profit
+tab carries four rows and shows no interest at all, so there is nowhere for a third line to
+appear, and expanding that tab is a design change with its own drawing.
+
+**Funding rows appear as they are needed, capped at eight** — the file's own count plus an
+*Add a funding line* button. It was fixed at three, so a client with six had three folded
+together with a warning the advisor then had to unpick by hand. The cap is ours: a safety
+limit against a malformed file, not a judgement about how much debt a business may carry.
+⚠ Every row read from a file is a **term loan** — a balance sheet never says whether finance
+revolves, and guessing it from an account name would set an amortisation schedule on a
+client's debt from a word.
+
+**Deposits on stock not yet arrived have their own opening line.** The money moves out of the
+Other-current-asset catch-all — the opening still ties to the cent, because both are current
+assets — and it opens the import prepayment position rather than `prepayments`, which is
+driven by a live accrual schedule that would release it to the P&L as an *expense*. It is
+stock, not a cost. The advisor adds **what is still owed on landing** and the months the
+containers arrive. ⚠ The balance owing is deliberately **not** an opening liability: goods not
+yet received are a commitment, not a debt. It is cash leaving in the landing month.
+
+**A landing does four things**: releases the deposit from prepayments, settles the balance pro
+rata, joins the full landed cost to purchases — **two seams, not one**, because releasing the
+prepayment alone would lose the goods between two balance-sheet lines — and pays GST at the
+border. **A shortfall warns and explains its remainder; it never blocks**, deliberately unlike
+the collection profiles one level up: those are percentages where anything but 100 is an
+error, these are amounts, and a container landing after the year ends is a true fact about an
+importer on a nine-month lead.
+
+> 🔴 **GST: the drawing omitted it, and the omission mattered.** Mike's instruction was to
+> *"research the tax rules rather than guessing"*. **GST is triggered by the goods arriving,
+> not by paying for them**, so a container whose deposit was paid in a previous financial year
+> still attracts the full border GST when it lands — roughly 124,000 on that client, in the
+> direction that flatters a funding application. It is charged on the goods alone (deposit plus
+> balance) on his ruling, because the drawing has no field for duty or freight, and the screen
+> says so in terms. Claimed back on the next return, so it shows as the timing cost it is. The
+> rules and their sources are written down once, in
+> [`TAX-RULES-IMPORT-GST.md`](../TAX-RULES-IMPORT-GST.md).
+
+🔒 **A client's own account names are redacted before they leave the backend** (Mike,
+2026-09-05: *"the names tied to bank, stock, assets and liabilities snuk through"*). A real
+chart of accounts carries people's names and card numbers — that export put `BNZ Mr y business
+card -4702`, `Equity Mr x` and `Trade Finance Loans - NMK Investments` on screen. `redactLabel`
+in [`xeroReportParser.js`](../../server/report/intake/xeroReportParser.js) strips three things
+and no more: runs of three or more digits with the dash that introduces them; a personal title
+with the name or initials beside it; and a counterparty after a dash where it is an acronym, a
+company, or an initial-and-surname. Matching still reads the file's own text, so no row changes
+box. **Two shapes survive on Mike's ruling**: a bare initialism at the start (`XYZ Funds
+Introduced`, indistinguishable from `GST Payable`) and a place name (`Hamilton P&A Stock`,
+which is how four stock locations are told apart). Labels reach the browser and nowhere else —
+`buildInputs()` sends amounts only, and a test now enforces that boundary so **item 4.66's
+first AI call cannot carry a client's account names with it**.
+
 **Step 1 takes SIX files, four of them optional** (2026-09-03, items 4.61a and 4.61b): this
 year's Balance Sheet and Profit and Loss, **two by-month exports** — this year's and last
 year's — and **last year's Balance Sheet and Profit and Loss**, which are what the two-year
@@ -626,8 +790,9 @@ any month.
 > step. Mentor tier alone, per the default of 2026-08-24 — `server/utils/forecastSellDown.js`
 > walks the whole tier chain already, so a firm that one day prices differently costs one
 > line in `TAB_TIERS`. A restored forecast is never re-seeded: it keeps the figures it was
-> saved with. **What a tier may change is five figures and the demand shape**, not the whole
-> file — `runoutUpToDays` is deliberately not editable because the engine never reads it
+> saved with. **What a tier may change is twelve figures and the demand shape** — the five on
+> the ladder and the seven supplier terms below — not the whole
+> file. `runoutUpToDays` is deliberately not editable because the engine never reads it
 > (runout is the *else* branch, so everything past the standard boundary is runout whatever
 > that field says), and the shapes' own curves belong to slice 2's calculator. The validator
 > refuses a new-stock boundary set past the standard one, because that leaves the middle
@@ -683,7 +848,7 @@ any month.
 > inventing one is the guesswork the *dates, not bands* ruling exists to stop.
 >
 > **The screen is built too.** *Fill these from actual shipments* sits at the foot of the
-> overseas section: the five supplier terms entered once, then a row per shipment
+> overseas section: the seven supplier terms entered once, then a row per shipment
 > (description, cost, order date, deposit %, speed) with a **worked-out** blue cell beside
 > it — *Lands 24 Sep · deposit 2026-05-02 · balance 2026-08-01 + 546 interest · sellable
 > 3 Oct*. Nothing about a date is typed.
@@ -722,12 +887,17 @@ test rather than a note. **The tick is load-bearing in the engine, not only on t
 figures sent with it off are dropped, so no later caller can bypass the intake and be
 surprised.
 
-**What is not built:** the mentor Model Inputs tab that would let the price ladder be edited
-(the figures live in the data file and are shown with a *From your platform settings* badge),
-and slice 2 — the Import & Retail shipment calculator, absorbed from item 4.63, which will
-fill the twelve landing figures from real containers. Its two rulings are already taken: every
-event is dated from its order date and filed in the calendar month it really falls in, and
-real unit costs govern imported stock.
+**The supplier's terms are the mentor's too** (2026-09-04, Mike: *"make it editable"*). All
+seven — manufacture days, sea/air/express shipping, balance due, prep days and interest cover
+— sit in `forecast-sell-down.json` beside the ladder and are set on the same Imported Stock
+Prices tab, with the same cascade, history and restore. They were hardcoded in the intake
+screen until then, under a *From your platform settings* badge that pointed at settings which
+did not exist. A day count must be whole and at least 1; interest cover may be nil but never
+negative.
+
+**What is not built:** nothing on the drawing. Both slices are complete and every screen has
+been opened in a running app (2026-09-04). Five differences between the drawing and the build
+are named in [`../ARTEFACTS.md`](../ARTEFACTS.md).
 
 **Step 3 shows the volatility read** (2026-09-03, its own approved drawing
 [`../mockups/three-way-forecast-volatility.html`](../mockups/three-way-forecast-volatility.html)).

@@ -207,11 +207,22 @@ describe('Three-Way Forecast screen — the balance check is shown plainly', () 
 })
 
 describe('Three-Way Forecast screen — the shared blocks do the work', () => {
-  test('it composes the shared header, banner and figures rather than its own', async () => {
+  test('it composes the shared banner and figures rather than its own', async () => {
     const w = await mountWithResult(SAMPLE)
-    expect(w.findComponent({ name: 'ReportHeader' }).exists()).toBe(true)
     expect(w.findComponent({ name: 'HeroStrip' }).exists()).toBe(true)
     expect(w.findAllComponents({ name: 'HeroFigure' })).toHaveLength(4)
+    w.destroy()
+  })
+
+  // 🔴 This asserted the OPPOSITE until 2026-09-05, and the assertion was the bug's alibi.
+  // pages/three-way-forecast.vue renders the shared ReportHeader over all four steps, so a
+  // second one here drew the title banner twice on step 4, one under the other. No mount
+  // test could see it — both headers rendered perfectly, there were simply two — and it
+  // took a screenshot of the running app to find. Quick Position, EBITDA-DCF and the Loan
+  // Estimator all put the header in the page, which is the pattern this now follows.
+  test('🔴 it does NOT render a second header — the page owns that', async () => {
+    const w = await mountWithResult(SAMPLE)
+    expect(w.findComponent({ name: 'ReportHeader' }).exists()).toBe(false)
     w.destroy()
   })
 
@@ -342,6 +353,145 @@ describe('the out-of-balance warning rests on an EXACT zero', () => {
     const checks = SAMPLE.balanceSheet.months.balanceCheck
     expect(w.vm.balanceCheck).toBe(checks[checks.length - 1])
     expect(w.vm.balanceCheck).not.toBe(0)
+    w.destroy()
+  })
+})
+
+/**
+ * Fix 2 — stock already paid for at the opening date. Same argument as the five rows
+ * above and the same guard: the engine moves real cash in the landing month (the balance
+ * to the supplier, and the GST Customs charges on arrival), and rolled into one "Money
+ * out" total it would be a lump in a month with nothing accounting for it.
+ *
+ * ⚠ These two rows are an ADDITION to the approved drawing, which drew no cash rows for
+ * this fix. Named here as well as in the code so the deviation is on the record.
+ */
+describe('Three-Way Forecast screen — stock in transit lands in the cash tab', () => {
+  const IN_TRANSIT = computeThreeWayForecast({
+    openingBalanceSheet: { stockInTransitDeposits: 825629 },
+    stockInTransit: { balanceOwing: 550419, landing: [0, 825629, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+  })
+
+  test('a forecast with nothing on the water gains no rows at all', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.tab = 'cash'
+    expect(w.vm.stockInTransitCashRows).toEqual([])
+    w.destroy()
+  })
+
+  test('a landing shows the balance and its border GST as their own lines', async () => {
+    const w = await mountWithResult(IN_TRANSIT)
+    w.vm.tab = 'cash'
+    const rows = w.vm.stockInTransitCashRows
+    expect(rows.map(r => r.key)).toEqual(['tr-bal', 'tr-gst'])
+    // Each reads the series the engine actually filled, in the month it filled it.
+    expect(rows[0].values[1]).toBeCloseTo(550419, 6)
+    expect(rows[1].values[1]).toBeCloseTo((825629 + 550419) * 0.15, 6)
+    // And both are inside the Money out total rather than beside it — they are part of it.
+    expect(w.vm.cashRows.map(r => r.key)).toContain('tr-bal')
+    w.destroy()
+  })
+})
+
+/**
+ * Summary / Every line — approved by Mike 2026-09-05 from
+ * design/mockups/three-way-forecast-report-detail.html, after his request that the app
+ * suit junior accountants: "most of the accountants using this will be junior in terms of
+ * experience".
+ *
+ * 🔴 THE FIRST TEST IS THE ONE THAT MATTERS. The whole basis on which this was approved is
+ * that the screen still OPENS on the four rows he approved on 2026-09-02 — an addition, not
+ * a redesign. If a later change flips the default, every advisor content with today's
+ * screen is handed a forty-row one and nobody would think to check.
+ *
+ * The rest guard what a person cannot: that a row reads the series it claims to, and that
+ * the count of hidden overheads matches what was actually hidden.
+ */
+describe('Summary / Every line', () => {
+  test('🔴 the screen opens on Summary, and Summary is unchanged', async () => {
+    const w = await mountWithResult(SAMPLE)
+    expect(w.vm.detail).toBe('summary')
+    w.vm.tab = 'profit'
+    expect(w.vm.visibleRows.map(r => r.key)).toEqual(['rev', 'gross', 'oh', 'net'])
+    w.vm.tab = 'balance'
+    expect(w.vm.visibleRows.map(r => r.key)).toEqual(['ar', 'stock', 'ap', 'na'])
+    w.destroy()
+  })
+
+  test('every line opens all three statements, not just the one on screen', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.detail = 'every'
+    const counts = {}
+    const tabs = ['profit', 'balance', 'cash']
+    tabs.forEach((t) => { w.vm.tab = t; counts[t] = w.vm.visibleRows.length })
+    // Mike's ruling: one setting governs all three, because an advisor who finds it on one
+    // tab will look for it on the others.
+    tabs.forEach((t) => { expect(counts[t]).toBeGreaterThan(8) })
+    w.destroy()
+  })
+
+  test('a full statement reads the engine’s own series, not a re-derived one', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.detail = 'every'
+    w.vm.tab = 'profit'
+    const byKey = {}
+    w.vm.visibleRows.forEach((r) => { byKey[r.key] = r })
+    expect(byKey.cos.values).toBe(SAMPLE.profitAndLoss.costOfSales)
+    expect(byKey.op.values).toBe(SAMPLE.profitAndLoss.operatingSurplus)
+    expect(byKey.pbt.values).toBe(SAMPLE.profitAndLoss.netSurplusBeforeTax)
+    // Facility interest has a row at last. It was engine-only when the facility was built
+    // earlier the same day, for want of anywhere on this screen to put it.
+    expect(byKey['int-fac'].values).toBe(SAMPLE.profitAndLoss.interestFacilities)
+    w.destroy()
+  })
+
+  test('the balance sheet shows both halves of the check it prints', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.detail = 'every'
+    w.vm.tab = 'balance'
+    const keys = w.vm.visibleRows.map(r => r.key)
+    // The point of the change: a junior can see WHY the check is what it is.
+    expect(keys).toContain('net-a')
+    expect(keys).toContain('teq')
+    expect(keys[keys.length - 1]).toBe('na')
+    w.destroy()
+  })
+
+  test('🔴 an overhead with no figure is hidden, and the note counts exactly those', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.detail = 'every'
+    w.vm.tab = 'profit'
+    const oh = SAMPLE.profitAndLoss.overheads
+    const withFigures = Object.keys(oh).filter(k => oh[k].some(v => Math.abs(v) >= 0.005))
+    const shown = w.vm.visibleRows.filter(r => r.key.indexOf('oh-') === 0)
+    expect(shown).toHaveLength(withFigures.length)
+    // The count in the note is the rest of them — not a number typed into the sentence.
+    expect(w.vm.hiddenOverheadCount).toBe(Object.keys(oh).length - withFigures.length)
+    expect(w.vm.overheadCount).toBe(Object.keys(oh).length)
+    w.destroy()
+  })
+
+  test('the hidden-overheads note stays off the other tabs and off Summary', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.tab = 'profit'
+    // Nothing to explain when the advisor is looking at four rows.
+    expect(w.vm.hiddenOverheadCount).toBe(0)
+    w.vm.detail = 'every'
+    w.vm.tab = 'cash'
+    expect(w.vm.hiddenOverheadCount).toBe(0)
+    w.destroy()
+  })
+
+  test('a loan row carries the name the advisor gave it, not a translation key', async () => {
+    const named = computeThreeWayForecast({
+      loans: [{ name: 'Kiwibank term loan', type: 'term', opening: 80000, monthlyRepayment: 2450, interestRate: 0.07 }]
+    })
+    const w = await mountWithResult(named)
+    w.vm.detail = 'every'
+    w.vm.tab = 'balance'
+    const row = w.vm.visibleRows.find(r => r.rawLabel === 'Kiwibank term loan')
+    expect(row).toBeTruthy()
+    expect(row.label).toBeUndefined()
     w.destroy()
   })
 })

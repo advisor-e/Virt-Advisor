@@ -196,7 +196,7 @@ mechanism that makes the advisor report trustworthy at all**, and any later chan
   will contradict some of it, and when it does, the Brief is corrected and the contradiction is
   recorded here.
 
-## 8. The build record, 2026-09-01 to 2026-09-02
+## 8. The build record, 2026-09-01 to 2026-09-04
 
 Moved here from the live list on 2026-09-03, when item 4.58's comment — 1,388 words, appended by
 seven sessions — was cut to the list's word caps. What the Brief already states as current fact is
@@ -244,8 +244,14 @@ not repeated; this is the sequence, and the things found on the way.
   first time that day** and three defects stopped it dead (the backend would not boot,
   `/api/meeting` was missing from the Nuxt proxy list, no management sign-in on that machine); all
   fixed, none findable by a test in this repository.
-- **2026-09-04, item 4.59 closed.** The observation points' resolver had the same badge fault the
-  types resolver was fixed for on 2026-09-02 — a mentor-added point read "Added here" to a firm
-  manager — and was left alone then to keep that slice to its scope. The no-decisions branch now
-  restamps as inherited; two tests pin it, and it was proved on the running app against a real
-  MySQL by adding a point as the mentor and reading it back as a firm manager.
+- **2026-09-04, item 4.59 — the badge that credited the mentor's points to a firm.** The points
+  resolver returned the layer above untouched when a scope had decided nothing, so `source` still
+  carried the badge of whichever level applied decisions: the mentor's own added point reached a
+  firm marked `added-here`. Found on 2026-09-02 while building the types cascade, whose resolver
+  had the identical fault, and left undone deliberately to keep that slice to its approved scope.
+  **Worse than the mislabel, and not known when it was filed:** `FirmMeetingObservations.vue` reads
+  that badge to choose between *Switch off* and *Remove* and to route an edit, so a firm manager was
+  offered *Remove* on a mentor's point and any edit went to the own-row endpoint, which answers 404.
+  Fixed by restamping as `inherited`, matching `meetingTypes.js`. **The badge also flipped on
+  unrelated edits** — the full-resolve path already stamped correctly, so making any decision
+  switched the scope out of the faulty branch; the second new test pins the two paths together.

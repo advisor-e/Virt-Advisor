@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Facilities and Stock in Transit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Three-Way Forecast — screen mockup for approval (drawn 2026-09-02).
+
+   EVERY value below is copied from the project's own locked sources. Nothing is
+   invented and nothing is approximated:
+     - design/REPORT-VISUAL-STANDARD.md      the ruled numbers + [A]-[D2d] anatomy
+     - design/REPORT-LAYOUT-REFERENCE.html   the labelled reference to "match exactly"
+     - components/base/ReportShell.vue       the --rs-* tokens
+     - components/base/HeroStrip.vue         solid #002b64, 20px, 14px radius
+     - components/base/HeroFigure.vue        .hk/.hv/.hs2 sizes and colours
+     - components/base/ProvenanceBadge.vue   the from-file / entered tag
+     - design/mockups/volatility-report.html the most recent screen drawn to the standard
+
+   The owner ruling of 2026-07-23 is followed exactly: the look is READ OFF the
+   finished screens, not proposed afresh. Nothing here is a new or bolder look.
+
+   FIGURES ARE REAL. Every number is the actual output of server/report/
+   threeWayForecastModel.js on the source workbook's own sample ("3 way Filter.xlsx",
+   Big Bird Grass Seed, forecast opening 1 April) — not placeholders.
+   No dark mode: one light look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-col-input:360px; --rs-col-gap:16px; --rs-content-width:1120px;
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0; --rs-accent-contrast:#ffffff;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#ff00000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:var(--rs-content-width);margin:0 auto;padding:28px 22px 64px}
+
+/* [A] screen root — ONE gap value */
+.tw-root{display:flex;flex-direction:column;gap:16px}
+.tw-root strong,.tw-root b{font-weight:600}
+/* [A] resets the shared header's own margin (mandatory; guarded) */
+.tw-root .rs-top{margin:0}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55}
+.tag{position:relative}
+.tag::after{content:attr(data-tag);position:absolute;top:-9px;left:10px;background:#614700;
+  color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;padding:1px 6px;border-radius:4px}
+.stepmark{margin:34px 0 2px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+
+/* [B] ReportHeader */
+.rs-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  margin:0 auto 22px;padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);
+  color:#fff;box-shadow:var(--rs-shadow)}
+.rs-backlink{display:inline-block;margin-bottom:10px;font-size:12px;font-weight:600;
+  letter-spacing:.04em;color:#7fd3f1;text-decoration:none;opacity:.9}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+
+/* step chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+/* [C] HeroStrip + HeroFigure — locked, do not change */
+.herostrip{background:#002b64;border-radius:14px;padding:20px;display:grid;gap:0;
+  box-shadow:0 12px 32px -12px #002b6466;grid-template-columns:repeat(4,1fr)}
+@media (max-width:700px){.herostrip{grid-template-columns:1fr 1fr;gap:14px 0}}
+.herostrip > *:first-child{border-left:0;padding-left:2px}
+.hs{padding:2px 16px;border-left:1px solid #ffffff30}
+.hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
+.hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;
+  font-variant-numeric:tabular-nums}
+.hv .u{font-size:.5em;font-weight:400;opacity:.85}
+.hv.is-crit{color:#ff8f8f}
+.hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+
+/* StaleBanner + the warning band */
+.stale{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;
+  align-items:center;gap:14px}
+.stale b{display:block;font-size:13px}
+.stale span{font-size:12.5px;color:var(--rs-muted)}
+.stale.is-crit{background:var(--rs-crit-soft);border-color:#ff000045;border-left-color:var(--rs-crit)}
+
+/* [D] two-column body */
+.tw-layout{display:grid;grid-template-columns:var(--rs-col-input) 1fr;gap:var(--rs-col-gap);
+  align-items:start}
+@media (max-width:860px){.tw-layout{grid-template-columns:1fr}}
+
+/* cards — no top edge: the shipped screens define none */
+.tw-card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow)}
+.tw-h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.tw-group{padding:15px 16px;border-bottom:1px solid var(--rs-line)}
+.tw-group:last-child{border-bottom:0}
+.tw-glabel{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tw-dot{width:7px;height:7px;border-radius:50%;background:var(--rs-accent-bright)}
+
+/* [D2] results column — same 16px rhythm */
+.tw-results{display:flex;flex-direction:column;gap:16px;min-height:200px}
+/* [D2a] tiles */
+.tw-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:560px){.tw-tiles{grid-template-columns:1fr}}
+.tw-tile{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:16px 17px;box-shadow:var(--rs-shadow);overflow:hidden}
+.tw-k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.tw-v{font-size:30px;font-weight:600;letter-spacing:-.01em;margin-top:6px;line-height:1;
+  font-variant-numeric:tabular-nums}
+.tw-v.is-crit{color:var(--rs-crit)}
+.tw-v.is-good{color:var(--rs-good)}
+.tw-sub{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+/* [D2c] coach panel */
+.tw-edu{border-left:3px solid var(--rs-accent-bright);background:var(--rs-accent-soft);
+  border-radius:0 9px 9px 0;padding:15px 17px}
+.tw-edu-h{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600;color:var(--rs-accent);margin-bottom:8px}
+.tw-edu-p{margin:0 0 8px;font-size:14px;line-height:1.6}
+.tw-edu-p:last-child{margin-bottom:0}
+.tw-lead{background:var(--rs-accent);color:var(--rs-accent-contrast);font-size:10px;font-weight:600;
+  letter-spacing:.08em;padding:3px 7px;border-radius:5px}
+/* [D2d] actions */
+.tw-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tw-cta{font:inherit;font-weight:600;font-size:13.5px;color:var(--rs-accent-contrast);
+  background:var(--rs-accent);border:0;padding:11px 18px;border-radius:10px;cursor:pointer}
+.tw-ghost{background:transparent;color:var(--rs-ink);border:1px solid var(--rs-line)}
+.tw-foot{font-size:12px;color:var(--rs-muted)}
+
+/* provenance tags — ProvenanceBadge */
+.src{letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:999px;
+  white-space:nowrap;font-size:9.5px;padding:2.5px 7px;margin-left:7px}
+.src-file{color:#0070c0;background:#0070c018;border:1px solid #0070c04d}
+.src-hand{color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.src-seed{color:#4a7c1f;background:#4ca52d1a;border:1px solid #4ca52d59}
+
+/* drop zone + file slots */
+.drop{border:2px dashed #9dbdd8;border-radius:var(--rs-radius);background:var(--rs-panel-2);
+  padding:26px 20px;text-align:center}
+.drop .big{font-size:15px;font-weight:600}
+.drop .sm{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+.slots{display:grid;gap:8px;margin-top:14px}
+.slot{display:flex;gap:10px;align-items:flex-start;background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);border-radius:10px;padding:10px 11px;text-align:left}
+.slot.empty{border-style:dashed;color:var(--rs-muted)}
+.slot .nm{font-size:12.5px;font-weight:600;word-break:break-all}
+.slot .mt{font-size:11.5px;color:var(--rs-muted);margin-top:2px}
+.req{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:999px;padding:2.5px 7px;color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.opt{color:var(--rs-muted);background:var(--rs-panel);border:1px solid var(--rs-line)}
+
+/* inputs */
+.field{margin-bottom:11px}
+.fieldlab{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;
+  color:var(--rs-ink);margin-bottom:6px}
+.field input,.field select{width:100%;font:inherit;font-size:13px;padding:8px 9px;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.field input.file{border-color:#0070c04d;background:#0070c00a}
+.seg{display:flex;border:1px solid var(--rs-line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:var(--rs-panel);padding:9px 0;font:inherit;font-size:13px;
+  font-weight:600;color:var(--rs-muted);cursor:pointer}
+.seg button.on{background:var(--rs-accent);color:#fff}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.m{display:flex;align-items:center;gap:6px}
+.m .lbl{width:26px;font-size:11px;color:var(--rs-muted);text-align:right}
+.m input{width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;
+  border:1px solid var(--rs-line);border-radius:7px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.m.seeded input{border-color:#4ca52d59;background:#4ca52d0d}
+
+/* tables */
+.tblwrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px}
+th,td{text-align:right;padding:6px 7px;border-bottom:1px solid var(--rs-line);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--rs-panel);
+  min-width:190px;white-space:normal}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--rs-muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+tr.rule td{border-top:2px solid var(--rs-line);font-weight:600}
+td.neg{color:var(--rs-crit)}
+td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:600}
+.tblnote{font-size:11.5px;color:var(--rs-muted);padding:0 16px 14px}
+.tabs{display:flex;gap:6px;padding:14px 16px 0}
+.tabs button{font:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--rs-line);
+  border-bottom:0;background:var(--rs-panel-2);color:var(--rs-muted);padding:8px 14px;
+  border-radius:9px 9px 0 0;cursor:pointer}
+.tabs button.on{background:var(--rs-panel);color:var(--rs-ink)}
+
+/* the questions block — mockup only */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:14px 16px;font-size:13px}
+.q h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;margin:0 0 10px;color:var(--rs-muted)}
+.q ol{margin:0;padding-left:20px}.q li{margin-bottom:9px}
+.q .from{color:var(--rs-muted);font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+</style>
+<style>
+/* ============================================================================
+   ADDITIONS FOR THIS DRAWING ONLY — everything above is the approved mockup's
+   own style block, copied verbatim from three-way-forecast.html lines 8-217 as
+   every forecast drawing does. The rules below add no new colour, radius,
+   weight or font; they lay out a funding table and one opening block using the
+   tokens already defined above.
+   ========================================================================= */
+.fundrow{display:grid;grid-template-columns:1.4fr 130px 120px 110px 110px;gap:9px;align-items:center;
+  padding:8px 0;border-bottom:1px solid var(--rs-line)}
+.fundrow:last-of-type{border-bottom:0}
+.fundrow.head span{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-muted)}
+.fundrow input,.fundrow select{width:100%;font:inherit;font-size:12.5px;padding:7px 8px;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.fundrow .dim{background:var(--rs-panel-2);color:var(--rs-muted)}
+.note-why{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:12px 14px;font-size:12.5px;color:var(--rs-muted);margin-top:12px}
+.note-why b{color:var(--rs-ink)}
+.subgroup{border:1px solid var(--rs-line);border-radius:12px;background:var(--rs-panel);
+  padding:14px;margin-top:12px}
+.subh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;
+  font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.termhead{font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;
+  color:var(--rs-muted);margin:2px 0 10px}
+.termgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+@media (max-width:760px){.termgrid{grid-template-columns:1fr}}
+.sectionbox{border:1px solid #0070c055;border-radius:12px;background:var(--rs-accent-soft);padding:14px}
+.badnum{color:var(--rs-crit);font-weight:600;font-variant-numeric:tabular-nums}
+.goodnum{color:var(--rs-good);font-weight:600;font-variant-numeric:tabular-nums}
+.needs{border:1px solid #d98c00;background:#fff6e8;border-radius:10px;padding:14px 16px;
+  font-size:13px;color:var(--rs-ink);margin-top:12px}
+.needs h3{margin:0 0 9px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#8a5a00}
+.needs ol{margin:0;padding-left:20px}.needs li{margin-bottom:9px}
+.needs .rec{color:var(--rs-muted);font-size:12.5px}
+.pill{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:999px;padding:2.5px 7px;white-space:nowrap}
+.pill-new{color:#0070c0;background:#0070c018;border:1px solid #0070c04d}
+.pill-today{color:var(--rs-muted);background:var(--rs-panel-2);border:1px solid var(--rs-line)}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="tw-root">
+
+  <div class="mock" style="background:#eaf7ea;border-color:#4ca52d">
+    <strong>&#9989; BOTH FIXES ARE NOW BUILT &mdash; 2026-09-05, on Mike's own words:
+    <em>&ldquo;build the forecast fixes&rdquo;</em>.</strong>
+    Closure, the evidence and the deviations are in <em>features/to-do-done-and-parked.md</em> §2;
+    how it works is in <em>features/report-models.md</em>.
+    <br><br>
+    🔴 <b>THIS DRAWING WAS RIGHT ABOUT THE ENGINE AND WRONG BY OMISSION ABOUT THE TAX.</b> Its
+    four workaround figures reproduced <b>exactly</b> on the first run of the new test, which is
+    the strongest evidence they were engine output rather than reasoning. But it described a
+    landing as three movements and said nothing about GST. Mike's instruction was
+    <em>&ldquo;research the tax rules rather than guessing&rdquo;</em>, and the rules are
+    unambiguous: <b>GST is triggered by the goods ARRIVING, not by paying for them</b>, so a
+    container whose deposit was paid in a previous financial year still attracts the full border
+    GST when it lands &mdash; roughly <b>124,000</b> on this client, omitted in the direction that
+    flatters a funding request. He then ruled it charged on the goods alone (deposit plus balance),
+    since this page carries no field for duty or freight, and the screen says so in terms. The
+    rules and their sources are written down once, in <em>TAX-RULES-IMPORT-GST.md</em>.
+    <br><br>
+    ⚠ <b>TWO DEVIATIONS FROM THIS PAGE, named rather than absorbed.</b> <b>(1)</b> the cash tab
+    gained <b>two sub-rows</b> for the balance and its border GST, which this page never drew
+    &mdash; the same argument that gave the five overseas rows their own lines, since money leaving
+    the bank in one month should not be a lump inside a total. <b>(2)</b> the landing grid is
+    headed <b>&ldquo;When it lands&rdquo;</b>, this page's own rendered wording, where its question
+    list paraphrases the label as <em>&ldquo;Arriving in&rdquo;</em> &mdash; the page disagrees with
+    itself and the rendered version is the one Mike looked at. Either is his to strike.
+    <br><br>
+    <b>One thing was found in the code that this page did not know about, and it was a live trap.</b>
+    <em>resolveInputs</em> mapped over the three DEFAULT loans, so a caller sending FEWER than three
+    silently inherited the sample company's <em>XYZ Bank</em> at 1,000,000 in the slots it did not
+    fill. It never bit because the screen always sent exactly three; the moment rows became variable
+    it would have. Fixed and pinned.
+  </div>
+
+  <div class="mock">
+    <strong>THE RECORD OF WHAT THIS PAGE WAS BEFORE IT WAS BUILT, unchanged below.</strong>
+    Two fixes, drawn for approval.
+    They are the two residuals Mike ruled on 2026-09-05 when the balance-sheet sweep put a
+    real client's rows into catch-alls. He accepted both placements on the understanding
+    that each left something wrong, and then asked for the proper fix to be designed:
+    <em>&ldquo;you mention 'fixing them properly' - design the proper fix and let me know
+    what is needed&rdquo;</em>.
+    <br><br>
+    <b>THE TWO ARE INDEPENDENT.</b> Either can be approved, built or refused without the
+    other. They are drawn on one page because they were designed together and both concern
+    what the opening position carries into the forecast &mdash; not because they are one job.
+    <br><br>
+    ✅ <b>ALL TEN QUESTIONS WERE RULED BY MIKE ON 2026-09-05, one at a time, and NOTHING ON THIS
+    PAGE IS OPEN.</b> <b>FIVE OF THE TEN CHANGED THIS DRAWING</b>, and each correction is marked in
+    red where it sits: the column is <b>Type</b> (his own word, over our <em>Kind</em>); the
+    repayment box reads <b>No set repayment</b>; funding rows <b>appear as needed</b> with an Add
+    button rather than being a fixed number; the landing-month <b>chooser is deleted</b>; and a
+    shortfall in the landing months <b>explains its remainder</b>. Three of those five were
+    recommended AGAINST this drawing rather than defended — which is what opening a drawing beside
+    its own questions is for. <b>Ruling on the design is a separate act from approving the drawing,
+    and both are separate from asking for it to be built. Neither of the last two has happened.</b> Drawn against the approved
+    <em>mockups/three-way-forecast.html</em>, whose entire style block is reused here
+    unchanged.
+    <br><br>
+    ⚠ <b>THE FIGURES ARE PART REAL AND THIS SAYS WHICH.</b> The four numbers in the
+    &ldquo;what happens today&rdquo; panel of Fix 1 are <b>real engine output</b> &mdash; the
+    actual result of running <em>threeWayForecastModel.js</em> with a 2,450,000 balance, an 8%
+    rate and a zero repayment. Everything else on the page is illustrative and labelled where
+    it matters.
+  </div>
+
+  <!-- ============================================================ FIX 1 -->
+  <div class="stepmark">Fix 1 &mdash; a facility that carries a balance instead of paying it off</div>
+
+  <div class="tw-card">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">What is wrong today</h2></div>
+      <p class="tblnote" style="padding:0 0 12px">
+        Revolving finance &mdash; trade finance, a stock facility, invoice finance &mdash; has no
+        home. It sits in <b>Other current liability</b>, which the forecast carries forward
+        unchanged and charges nothing on. On the client this was found with, that is
+        <b>2,450,000</b>, or <b>42% of total liabilities</b>, costing the forecast nothing at all.
+        A lender reads a profit that is too high by the whole of the interest.
+      </p>
+
+      <div class="note-why" style="margin-top:0">
+        <b>&#128308; AND THE OBVIOUS WORKAROUND IS WORSE, WHICH IS WHY IT IS DRAWN HERE.</b>
+        &ldquo;Put it in a loan row and set the repayment to zero&rdquo; does not give an
+        interest-only facility. The loan schedule works capital repaid out as
+        <em>repayment &minus; interest</em>, so a zero repayment makes it <b>negative</b> and the
+        debt grows by its own interest &mdash; while the interest is <b>also</b> paid in cash.
+        The charge lands twice and the balance sheet still ties, so nothing complains.
+        <br><br>
+        <b>Run on the real engine, not reasoned about:</b>
+        opening <span class="num">2,450,000</span> &rarr; closing
+        <span class="badnum">2,653,348</span> after twelve months, capital repaid in month 1
+        <span class="badnum">&minus;16,333</span>, and <span class="num">21,913</span> of interest
+        paid out of the bank in the same month. <b>The debt grew by 203,348 and the year's
+        interest was charged twice.</b>
+      </div>
+    </div>
+
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">The funding table today &mdash; step 2</h2></div>
+      <div class="fundrow head">
+        <span>Name it</span><span>Opening balance</span><span>Monthly repayment</span>
+        <span>Interest rate</span><span></span>
+      </div>
+      <div class="fundrow">
+        <input value="Bank term loan"><input value="80,000"><input value="2,450"><input value="7%"><span></span>
+      </div>
+      <div class="fundrow">
+        <input value="Equipment finance"><input value="1,000,000"><input value="10,650"><input value="5%"><span></span>
+      </div>
+      <div class="fundrow">
+        <input value="Hire purchase"><input value="50,000"><input value="1,590"><input value="9%"><span></span>
+      </div>
+      <p class="tblnote" style="padding:10px 0 0">
+        Three rows, every one of them a term loan that pays down. The client this was found
+        with has <b>four</b> term loans &mdash; the app told the advisor it had combined two of
+        them &mdash; <b>plus two facilities</b>. Six.
+      </p>
+    </div>
+
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">The funding table proposed</h2></div>
+      <div class="sectionbox">
+        <div class="subh">
+          <span>How this is funded</span>
+          <span class="pill pill-new">One new column &middot; rows as needed</span>
+        </div>
+        <div class="fundrow head">
+          <span>Name it</span><span>Type</span><span>Opening balance</span>
+          <span>Monthly repayment</span><span>Interest rate</span>
+        </div>
+        <div class="fundrow">
+          <input value="Bank term loan">
+          <select><option>Term loan</option><option>Facility</option></select>
+          <input value="80,000"><input value="2,450"><input value="7%">
+        </div>
+        <div class="fundrow">
+          <input value="Equipment finance">
+          <select><option>Term loan</option><option>Facility</option></select>
+          <input value="1,000,000"><input value="10,650"><input value="5%">
+        </div>
+        <div class="fundrow">
+          <input value="Trade finance">
+          <select><option>Facility</option><option>Term loan</option></select>
+          <input value="1,775,000"><input class="dim" value="No set repayment" disabled><input value="8%">
+        </div>
+        <div class="fundrow">
+          <input value="Stock facility">
+          <select><option>Facility</option><option>Term loan</option></select>
+          <input value="675,000"><input class="dim" value="No set repayment" disabled><input value="8%">
+        </div>
+        <p class="tw-foot" style="margin-top:10px">
+          A <b>facility</b> carries its balance and charges interest on it. It does not amortise,
+          so the repayment box is not a box &mdash; it says why. Drawdowns and repayments are
+          entered month by month, exactly as a term loan's already can be.
+        </p>
+      </div>
+
+      <div class="note-why">
+        <b>&#128308; RULED BY MIKE 2026-09-05, one question at a time, and THREE OF THE FIVE
+        CHANGED THIS DRAWING.</b>
+        <b>(1)</b> drawdowns and repayments are <b>typed</b>, not worked out from the stock — a
+        facility that redraws itself would be deciding how much a client borrows, invisibly, inside
+        a document a lender reads; recommended and chosen, and it costs the advisor up to
+        twenty-four figures.
+        <b>(2) &#128308; CHANGED:</b> the table was drawn with a fixed number of rows. Rows now
+        <b>appear as they are needed</b> — the file's own count, plus an <em>Add a funding line</em>
+        button, <b>capped at eight</b>. A fixed six would have fixed one client and re-asked the
+        question at the seventh, and shown five empty rows to the majority who have one loan and an
+        overdraft. The cap is ours, and it is a safety limit against a malformed file rather than a
+        judgement about how much debt a business may carry.
+        <b>(3) &#128308; CHANGED, AND THE WORD IS MIKE'S OWN:</b> the column was drawn as
+        <em>Kind</em> and is <b>Type</b>. <em>Term loan</em> and <em>Facility</em> stand as drawn.
+        <b>(4) &#128308; CHANGED:</b> the disabled repayment box read <em>&ldquo;not repaid&rdquo;</em>
+        and now reads <b>&ldquo;No set repayment&rdquo;</b> — recommended AGAINST this drawing,
+        because a facility very much is repaid, continuously, as stock sells; it simply has no fixed
+        monthly figure, and the old wording put an untrue sentence on a screen a lender may see.
+        <b>(5) &#128308; AMENDED 2026-09-05, AFTER READING THE SCREEN RATHER THAN ASSUMING IT:
+        ENGINE-ONLY FOR NOW.</b> The ruling stands — a facility's interest is <b>its own figure</b>,
+        never merged into the term-loan line — but <b>it does not appear on a screen yet, and this
+        says so rather than leaving it to be discovered.</b> The report's profit tab carries four
+        rows (revenue, gross surplus, total overheads, after tax) and shows <b>no interest at all</b>:
+        overdraft and term-loan interest are already swallowed inside total overheads. So there is
+        nowhere for a third interest line to appear. Wiring it to the maths and not to a screen is
+        precisely the fault the 4.16 sweep found at scale, which is why it is named here. Expanding
+        the profit tab is a design change that is NOT on this page and would need its own drawing;
+        Mike ruled engine-only rather than let that happen inside a build. The reason the ruling
+        holds regardless — what it costs to carry stock and debtors is a different question from what
+        it costs to own the trucks, and merged, neither is answerable. With no facility entered the
+        row does not appear, which is also what leaves the golden set untouched.
+        <br><br>
+        <b>Why one extra column and not a new kind of row.</b> Everything a facility needs
+        &mdash; an opening balance, a rate, monthly drawdowns and repayments, a place in the
+        cash flow, a line in the P&amp;L &mdash; the funding table already has. The single
+        difference is whether the balance amortises. A second table would be a second thing to
+        learn, a second place to look for the total, and a second set of tests, to express one
+        yes-or-no.
+        <br><br>
+        <b>In the engine it is <em>loanSchedule</em> with the amortisation line removed</b>
+        &mdash; about fifteen lines, the same shape as code the golden set already proves.
+      </div>
+
+      <div class="needs">
+        <h3>Fix 1 &mdash; what was asked, and why &#9989; ALL FIVE RULED 2026-09-05</h3>
+          <p class="tw-foot" style="margin:0 0 10px">Kept as the record of what was put to him and the reasoning behind each recommendation. <b>The rulings themselves, including the three that changed this drawing, are in the red note above.</b></p>
+        <ol>
+          <li>
+            <b>Does a facility revolve by itself, or does the advisor type the drawdowns and
+            repayments?</b>
+            <span class="rec">Recommended: <b>typed</b>. It is how term loans already work, and a
+            facility that redraws itself against stock is a modelling judgement wearing the
+            clothes of a convenience &mdash; it would decide, invisibly, how much a client
+            borrows.</span>
+          </li>
+          <li>
+            <b>How many funding rows should a firm get?</b>
+            <span class="rec">Recommended: <b>six</b>. It is what the one real client examined
+            needs, and the app currently folds the surplus into the last row and warns &mdash;
+            which is honest, and still a figure the advisor has to unpick by hand.</span>
+          </li>
+          <li>
+            <b>The label for the kind.</b> Drawn as <em>Term loan</em> / <em>Facility</em>.
+            <span class="rec">Alternatives seen in practice: <em>Revolving credit</em>,
+            <em>Trade finance</em>, <em>Interest only</em>. Ours are placeholders.</span>
+          </li>
+          <li>
+            <b>The words in the repayment box for a facility.</b> Drawn as
+            <em>&ldquo;not repaid&rdquo;</em>.
+            <span class="rec">It has to say something, because an empty disabled box reads as
+            broken.</span>
+          </li>
+          <li>
+            <b>Does a facility's interest join the term-loan interest line in the P&amp;L, or get
+            its own?</b>
+            <span class="rec">Recommended: <b>its own line</b>, and chosen. A funding request is read
+            by the lender being asked, and the cost of working-capital finance is the number they
+            look for. &#128308; <b>Amended the same day to ENGINE-ONLY</b> once the report screen was
+            read: its profit tab has four rows and shows no interest at all, so the line has nowhere
+            to go. See the red note above.</span>
+          </li>
+        </ol>
+        <p class="tw-foot" style="margin:10px 0 0">
+          <b>The rate is not a decision, it is an input.</b> No accounting export carries an
+          interest rate, so the advisor types it &mdash; exactly as they do for a term loan today.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ FIX 2 -->
+  <div class="stepmark">Fix 2 &mdash; deposits already paid on stock that has not arrived</div>
+
+  <div class="tw-card">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">What is wrong today</h2></div>
+      <p class="tblnote" style="padding:0 0 12px">
+        Money already paid to overseas suppliers for stock still on the water sits in
+        <b>Other current asset</b> &mdash; <b>825,628.98</b> on the client this was found with.
+        The cash is right and the profit is right. What is wrong is that it <b>never becomes
+        stock</b>: the containers land during the year and the balance sheet still shows the
+        money as a deposit at the end of it.
+      </p>
+      <div class="note-why" style="margin-top:0">
+        <b>&#9989; THE MACHINERY FOR THIS ALREADY EXISTS AND IS PROVED.</b> The overseas section
+        built for item 4.64 already holds a deposit as an asset and releases it into stock in the
+        month the container lands &mdash; that is <em>prepaymentClosing</em>. It only ever
+        handles shipments created inside the forecast, because it <b>opens at zero</b>:
+        <br><br>
+        <code>const prevPrepaid = m === 0 ? 0 : out.prepaymentClosing[m - 1]</code>
+        <br><br>
+        <b>That <em>0</em> is the whole of the engine gap.</b> An opening balance flows down the
+        existing release path exactly as a deposit the forecast created itself.
+      </div>
+    </div>
+
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">The block proposed &mdash; step 2, under the opening position</h2></div>
+      <div class="subgroup">
+        <div class="subh">
+          <span>Stock already paid for, not yet arrived</span>
+          <span class="pill pill-new">New</span>
+        </div>
+        <p class="tw-foot" style="margin:-4px 0 12px">
+          Shown only when the opening balance sheet carries a deposit to an overseas supplier.
+          Leave the months empty and nothing changes &mdash; the figure stays where it is today.
+        </p>
+        <div class="termgrid">
+          <div>
+            <div class="termhead">What was paid</div>
+            <div class="field">
+              <span class="fieldlab">Deposits paid, goods not yet landed
+                <span class="src src-file">from file</span></span>
+              <input value="825,629">
+            </div>
+            <div class="field">
+              <span class="fieldlab">Still owed to the supplier on landing
+                <span class="src src-hand">entered</span></span>
+              <input value="550,419">
+            </div>
+            <div class="tw-foot">
+              A deposit implies a balance. If only the deposit comes across, the stock lands with
+              part of its cost missing and the cash flow understates what leaves.
+            </div>
+          </div>
+          <div>
+            <div class="termhead">When it lands</div>
+            <div class="mgrid">
+              <div class="m"><span class="lbl">Apr</span><input value="0"></div>
+              <div class="m"><span class="lbl">May</span><input value="330,252"></div>
+              <div class="m"><span class="lbl">Jun</span><input value="0"></div>
+              <div class="m"><span class="lbl">Jul</span><input value="495,377"></div>
+              <div class="m"><span class="lbl">Aug</span><input value="0"></div>
+              <div class="m"><span class="lbl">Sep</span><input value="0"></div>
+            </div>
+            <div class="tw-foot" style="color:var(--rs-good);font-weight:600">
+              Adds to 825,629 &#10003;
+            </div>
+            <div class="tw-foot">
+              <b>And when they do not add up it says what the remainder MEANS</b>, rather than that
+              the sum is wrong: <em>&ldquo;181,000 has no landing month, so it stays as a deposit at
+              the end of the year&rdquo;</em>. Ruled 2026-09-05.
+            </div>
+            <div class="tw-foot">
+              A balance sheet says how much was paid. It never says when it arrives, so the
+              advisor has to.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-why">
+        <b>&#128308; RULED BY MIKE 2026-09-05, one question at a time, and TWO OF THE FIVE CHANGED
+        THIS DRAWING.</b>
+        <b>(6) &#128308;</b> <b>the balance still owing DOES come across with the deposit</b> — the
+        load-bearing one, and the reason this is a real job rather than a one-line change. Without
+        it the stock lands carrying only its deposit, no cash ever leaves to pay the rest, and the
+        cost of sales is too low when it sells — a profit overstated by figures that all look
+        perfectly reasonable on screen.
+        <b>(7) &#128308; CHANGED:</b> the drawing offered a chooser, <em>Spread across months</em>
+        or <em>All in one month</em>. It is <b>deleted</b> — recommended AGAINST this drawing. The
+        twelve boxes already handle one shipment: the advisor types one figure and leaves the rest
+        empty. The chooser saved nobody anything and added a control to understand, set and test.
+        <b>(8)</b> the block sits on <b>step 2</b>, not on step 3's overseas card. The deciding
+        reason is not that it is an opening figure: it is that step 3's section only exists when
+        <em>&ldquo;This business buys or sells overseas&rdquo;</em> is ticked, and that tick is
+        about the forecast year. A business winding its importing down would leave it unticked and
+        the deposit would be <b>invisible</b> — money already spent, hidden behind a decision about
+        next year.
+        <b>(9)</b> all five labels stand <b>as written</b>.
+        <b>(10) &#128308; CHANGED:</b> a shortfall <b>warns and explains the remainder; it never
+        blocks</b> — deliberately unlike the collection and payment profiles one level up, which DO
+        block. Those are percentages, where anything but 100 is an error. These are amounts, and a
+        shortfall has a true meaning: a container landing after the forecast year ends, which an
+        importer on a nine-month lead has routinely. Blocking would refuse a fact about the business.
+        <br><br>
+        <b>What it does to the three statements.</b> In the landing month the deposit is released
+        out of prepayments and into <b>stock</b>, the balance owing is <b>paid</b>, and the full
+        landed cost joins inventory. Nothing touches the profit and loss until that stock sells,
+        which is the same path the overseas section already takes. <b>The opening cash is
+        untouched</b> &mdash; that money left before the forecast began, and the forecast has
+        never counted it.
+        <br><br>
+        ⚠ <b>The figures in this block are ILLUSTRATIVE.</b> 825,629 is the real client's own
+        deposit total; the 550,419 balance and the two landing months are invented to show the
+        shape, because no file carries them.
+      </div>
+
+      <div class="needs">
+        <h3>Fix 2 &mdash; what was asked, and why &#9989; ALL FIVE RULED 2026-09-05</h3>
+          <p class="tw-foot" style="margin:0 0 10px">Kept as the record of what was put to him and the reasoning behind each recommendation. <b>The rulings themselves, including the three that changed this drawing, are in the red note above.</b></p>
+        <ol>
+          <li>
+            <b>Does the balance still owing come across with the deposit?</b>
+            <span class="rec">Recommended: <b>yes</b>. Without it the stock lands cheaper than it
+            was bought for and the cash flow misses the payment. <b>This is the ruling that makes
+            the fix a real job rather than a one-line change</b>, and it is said here rather than
+            discovered during the build.</span>
+          </li>
+          <li>
+            <b>One landing month, or spread across several?</b>
+            <span class="rec">Recommended: <b>spread</b>, as drawn. An importer with 825,000 on
+            the water rarely has it on one ship, and a single month would push a whole quarter's
+            stock into one column.</span>
+          </li>
+          <li>
+            <b>Step 2 with the opening position, or step 3 on the overseas card?</b>
+            <span class="rec">Recommended: <b>step 2</b>. It is an opening-balance-sheet figure and
+            it arrives from the file; step 3 is where the advisor forecasts, and this is not a
+            forecast.</span>
+          </li>
+          <li>
+            <b>Every label in the block.</b> Drawn as <em>&ldquo;Stock already paid for, not yet
+            arrived&rdquo;</em>, <em>&ldquo;Deposits paid, goods not yet landed&rdquo;</em>,
+            <em>&ldquo;Still owed to the supplier on landing&rdquo;</em>,
+            <em>&ldquo;Arriving in&rdquo;</em>.
+            <span class="rec">All ours. None has been put to him.</span>
+          </li>
+          <li>
+            <b>Should the months be refused when they do not add up to the deposit?</b>
+            <span class="rec">Recommended: <b>warn, do not block</b>. It is the opening position,
+            not a profile that silently loses a fifth of the cash &mdash; and the balance check on
+            step 2 already catches the consequence.</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ THE GUARD -->
+  <div class="stepmark">The guard, and it is written first for both</div>
+
+  <div class="tw-card">
+    <div class="tw-group">
+      <div class="note-why" style="margin-top:0">
+        <b>With the new fields empty, the forecast must produce byte-identical output across all
+        10,155 cells of the golden set</b>, and the three statements must be unchanged to the
+        cent. It is written and seen to pass <b>before</b> either fix is built, not after.
+        <br><br>
+        <b>Both changes reach the balance sheet and the cash flow</b>, which is exactly the
+        condition that made this guard mandatory for item 4.64. Fix 1 touches the funding
+        schedules, the interest paid out of the bank and the P&amp;L. Fix 2 touches inventory,
+        prepayments, creditors and the cash flow in the landing month.
+        <br><br>
+        <b>The second guard is already in place and both fixes must clear it:</b>
+        <em>threeWayForecastIntake.component.test.js</em> fails the build if the engine takes an
+        input the screen does not send. Neither fix can add a field to the engine and forget the
+        screen.
+        <br><br>
+        <b>And the third is new as of 2026-09-05:</b> a balance sheet that ties in the accounting
+        package must tie here. Fix 2 moves money between three balance-sheet lines in the landing
+        month, so that assertion is the one most likely to catch an error in it.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ SIZE -->
+  <div class="stepmark">What each would cost, honestly</div>
+
+  <div class="tw-tiles" style="grid-template-columns:repeat(2,1fr)">
+    <div class="tw-tile">
+      <div class="tw-k">Fix 1 &mdash; the facility</div>
+      <div class="tw-v">Larger</div>
+      <div class="tw-sub">
+        A new schedule in the engine, one column and more rows on the funding table, the slot cap,
+        the cash flow, and an interest line in the P&amp;L. Five questions to answer first.
+      </div>
+    </div>
+    <div class="tw-tile">
+      <div class="tw-k">Fix 2 &mdash; stock in transit</div>
+      <div class="tw-v">Smaller</div>
+      <div class="tw-sub">
+        &#128308; <b>TWO seams, not one &mdash; corrected 2026-09-05.</b> The
+        <em>m === 0 ? 0</em> line is the PREPAYMENT seam; making the stock actually arrive needs the
+        landed value joining <em>allPurchases</em> in the landing month too, because that is what
+        drives inventory. The drawing always said the stock arrives; which code path does it was
+        verified afterwards, and the honest size went up.
+      </div>
+    </div>
+  </div>
+
+  <div class="q" style="margin-top:16px">
+    <h2>All ten ruled by Mike, 2026-09-05, one at a time</h2>
+    <ol>
+      <li>&#9989; <b>Typed.</b> <span class="from">Recommended and chosen. A facility that redraws itself decides how much a client borrows, invisibly.</span></li>
+      <li>&#9989; &#128308; <b>Rows as needed, an Add button, capped at eight</b> — not the fixed number drawn. <span class="from">The cap is ours: a safety limit, not a judgement about how much debt is allowed.</span></li>
+      <li>&#9989; &#128308; <b>The column is TYPE</b>, Mike’s own word, over our <em>Kind</em>. <span class="from">Term loan / Facility stand as drawn.</span></li>
+      <li>&#9989; &#128308; <b>&ldquo;No set repayment&rdquo;</b>, not the <em>&ldquo;not repaid&rdquo;</em> drawn. <span class="from">Recommended against this drawing: a facility IS repaid, just not on a schedule.</span></li>
+      <li>&#9989; &#128308; <b>Its own figure, ENGINE-ONLY for now.</b> <span class="from">The cost of carrying stock is a different question from the cost of owning trucks — but the report’s profit tab shows no interest at all, so there is nowhere for the line to appear. Amended 2026-09-05 after reading the screen. Putting it on one is a design change not on this page.</span></li>
+      <li>&#9989; &#128308; <b>Yes, the balance comes across.</b> <span class="from">The load-bearing one. Without it the stock lands too cheap and the profit is overstated by figures that look fine.</span></li>
+      <li>&#9989; &#128308; <b>Always the twelve boxes; the chooser is deleted.</b> <span class="from">Recommended against this drawing — one shipment is one box, and the chooser saved nobody anything.</span></li>
+      <li>&#9989; <b>Step 2.</b> <span class="from">Step 3 hides behind the overseas tick, and a business winding importing down would leave that unticked — hiding money already spent.</span></li>
+      <li>&#9989; <b>All five labels as written.</b> <span class="from">Put to him and approved before anything is built from them.</span></li>
+      <li>&#9989; &#128308; <b>Warn and explain the remainder; never block.</b> <span class="from">Deliberately unlike the profiles above, which do block — those are percentages, these are amounts, and a shortfall can be true.</span></li>
+    </ol>
+  </div>
+
+  <div class="mock" style="margin-top:16px">
+    <b>&#9989; NEITHER FIX EVER REACHED THE LIVE LIST, AND THAT IS CORRECT.</b> Mike asked for this
+    drawing, ruled its ten questions, and then asked for the build &mdash; all on 2026-09-05. The
+    work was finished in the session that started it, so the record went straight to
+    <em>to-do-done-and-parked.md</em> §2: an item that is open for no minutes belongs in the record,
+    not on a live list. <b>The sentence this replaced was right when it was written</b> &mdash; a
+    request to design is not a request to build, and the build waited for him to ask.
+    <br><br>
+    <b>A separate file by design.</b> <em>three-way-forecast.html</em>,
+    <em>-capital.html</em>, <em>-volatility.html</em>, <em>-trend.html</em> and
+    <em>-international.html</em> are untouched, so what he approved on 2026-09-02, 09-03 and
+    09-04 is not overwritten.
+  </div>
+
+</div>
+</div>
+</body>
+</html>

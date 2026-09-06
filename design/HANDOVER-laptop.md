@@ -9,60 +9,63 @@
 
 ---
 
-## 2026-09-04 · Laptop · branch `feat/advisor-progress`
+## 2026-09-05 · Laptop · branch `feat/advisor-progress`
 
-Suite **7,700 green** (399 suites), lint 0 errors, everything committed and pushed.
-Started 21 ahead / 0 behind; **merged `master` twice** (13 commits, then 9).
+Suite **7,889 green** (409 suites), lint 0 errors, everything pushed.
 
-### Built — 4.64, buying and selling overseas. Drawn, approved and built in one day.
+### 🔴 PR #59 IS MERGED — BUT TWO LATER COMMITS ARE NOT
 
-Step 3 gains a whole section behind one tick: imported stock with its terms, the sell-down
-price ladder, overseas sales with their own delivery lag, collection profile, zero-rating
-and FX allowance, and their own mark-up. The cash flow grows **five rows of its own** —
-deposits, freight, duty, border GST, supplier balance — visible on the report screen.
+`master` is at `8802ef4` (17 commits). **`7669979` and `d453327` came after it and are on
+this branch only.** `d453327` holds two layout fixes to the forecast report, and the desktop
+needs them: 4.62's last screen is that file. **They want a second PR.** Nothing is tagged, so
+the master team has nothing to pull and no `DEPLOYED-VERSIONS.md` row is due.
 
-**Item 4.63 was absorbed into 4.64 as slice 2** on Mike's instruction. Not built.
+### What changed today
 
-### Four things worth more than the item
+**The two proper fixes are built** (facilities, stock in transit) from the ruled drawing, and
+**the drawing was wrong by omission about GST** — it is triggered by goods arriving, not by
+paying for them, worth ~124,000 on the client it was found with. Rules now in
+`TAX-RULES-IMPORT-GST.md`.
 
-**The guard went first and it is why this was safe.** Tick off, series empty → all 3,385
-year-one golden cells unmoved and the three statements byte-identical, written and passing
-*before* the feature existed. It also pins the input shape as a test rather than a note.
+**Five changes for junior advisors**, all Mike's ask: a glossary, a collection profile that
+says what its gap *means*, an opening-figure count on step 2, a purchases year total, and the
+report's **Summary / Every line** setting — drawn, ruled question by question, then built.
 
-**The balance sheet broke, and a test caught it — not an eyeball.** A deposit paid before
-the goods land had nowhere to sit. It is a **prepayment**; a landed-but-unpaid container is
-a **liability**. Both are new balance-sheet lines. 🔴 **Any addition that moves cash and
-stock in different months needs the same check.**
+**Then the app was opened, and it found two layout faults older than all of it.** The report
+dragged the whole page sideways (a grid item with no `min-width: 0`, so the table's own
+scrollbar never engaged) and drew its title banner **twice** (the page and the component each
+rendered one). Both fixed and re-measured in a real browser. **Neither was reachable by a
+mount test** — jsdom has no layout engine, and both headers rendered perfectly.
 
-**The approved drawing contradicted itself, and the DRAWING was corrected.** Its "Ready to
-sell after it lands" control said *Same month* while its own revenue table, tiles and
-printed working all had the container first selling the month after. Found only by opening
-the drawing beside the code, which is the third time that ritual has paid.
-
-**A gap named honestly came back the same day.** The engine computed the five cash rows
-correctly, and the report screen showed one "Money out" total — the exact concealment Mike
-had objected to. Saying so plainly rather than glossing it got a "yes" and it shipped.
+Detail is in `features/report-models.md`; closures in `to-do-done-and-parked.md` §2.
 
 ### Next
 
-**The mentor Model Inputs tab for the price ladder** (figures are in
-`data/forecast-sell-down.json`, shown but not editable), then **slice 2** — the Import &
-Retail shipment calculator. Both of slice 2's rulings are already taken.
+**4.62's last screen is now this machine's** — see the box below. Quick Position is the
+template; `mixins/savedReport.js` is the shared half.
 
-### 🖥 DESKTOP — read this before you touch the forecast
+**4.67 is narrowed and is nobody's yet:** the report screen has been eyeballed, **step 2 has
+not** — the Type column, the stock-in-transit block and the glossary marks. ⚠ The API does not
+hot-reload; restart `npm run backend`.
 
-🔴 **Your slice 2 has four screens left and your own note puts the FORECAST last. We
-rewrote it today.** `ThreeWayForecastReport.vue` gained `hasOverseasTrade`,
-`overseasCashRows`, a rebuilt `cashRows`, an `is-sub` row style and five locale keys.
-`ThreeWayForecastIntake.vue` gained a large step-3 section, `overseasInputs()`, eight
-computed properties and 44 locale keys. Expect conflicts in both and **keep both sides**.
+**4.15, 4.58, 4.60, 4.65, 4.66 wait on Mike. 4.50 needs UAT.**
 
-Also shared: `server/report/threeWayForecastModel.js` (new `overseas` block, two new
-balance-sheet lines), `locales/en.json`, `ARTEFACTS.md`, `features/to-do-items.json`,
-`features/report-models.md`, and a new `data/forecast-sell-down.json`.
+⚠ One push was refused by the pre-push hook with the whole suite green, and the identical
+retry passed — most likely `npm audit` failing to reach the network. Not chased.
 
-⚠ **We took YOUR 4.62 whole at the merge** — your slice-2 text is newer than ours, and a
-sentence this branch had added to your comment was dropped. Your item is yours to write.
+### 🔴 DESKTOP — 4.62'S LAST SCREEN IS NO LONGER YOURS
 
-✅ Your 2026-09-04 handover was current when we merged. Thank you — it made the collision
-call easy.
+**Mike moved it to the laptop on 2026-09-05, and `activeOn` on 4.62 now says `laptop`.** This
+breaks the machine-that-started-it convention on purpose: you built all ten other screens, but
+the forecast's three files are the laptop's entire recent work and the seam changed under them
+today. **Do not start it.** Nothing else about 4.62 moves — slices 1 and 2 are yours and stay
+closed.
+
+**Why it changed hands, and the trap in it either way:** the saved-report wiring follows the
+header. Screens whose header is in the PAGE — Quick Position, EBITDA-DCF, Loan Estimator —
+wire it at the page; the rest wire it in the component. The forecast **joined the page group
+today** (`d453327`), and the `client` prop went with it. So **Quick Position is the template,
+not the other ten**, and anyone looking for the seam where the ten have it will not find it.
+
+`shipmentTimer` in `ThreeWayForecastIntake.vue` is still never cleared on destroy, still
+deliberately not filed.
