@@ -122,7 +122,7 @@ const promptContributionsRoute = require('./routes/promptContributions')
 const staircaseRoute = require('./routes/staircase')
 const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
-const { firmAuth, entityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
+const { firmAuth, entityAuth, firmOrEntityAuth, collaborateAuth, requireManagerRole, requireMentorRole, requireManagingTier } = require('./middleware/firmAuth')
 const clientReportsRoute = require('./routes/clientReports')
 // Collaborate — the people layer and its template catalogue. Merged in from what
 // was a separate application with its own Restify server on this same port; see
@@ -229,15 +229,17 @@ server.post('/api/report/quick-position/intake', firmAuth, reportRoute.quickPosi
 server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfIntake)
 server.post('/api/report/volatility/intake', firmAuth, reportRoute.volatilityIntake)
 server.post('/api/report/three-way-forecast/intake', firmAuth, reportRoute.threeWayForecastIntake)
-// Firm preferred currency: READ open to any firm user (reports render for advisors);
-// WRITE managers only (account-wide setting). Persistence via firmOverlay (config_key 'currency').
-server.get('/api/report/currency', firmAuth, currencyRoute.get)
+// Firm preferred currency: READ open to any firm user — an advisor OR a client of the firm,
+// because the client's page renders the same reports (item 4.68); WRITE managers only
+// (account-wide setting). Persistence via firmOverlay (config_key 'currency').
+server.get('/api/report/currency', firmOrEntityAuth, currencyRoute.get)
 server.post('/api/report/currency', firmAuth, requireManagerRole, currencyRoute.set)
 // The property model's tax rules, resolved through the tier chain. READ open to any
 // signed-in user — every advisor opening the Multiple Property Assessment needs it, and
-// they may type over any of it for the client in front of them (Mike, 2026-08-17). The
-// WRITE lives on the manager-only /api/firm-manager route below.
-server.get('/api/report/property-tax-rules', firmAuth, propertyTaxRulesRoute.get)
+// they may type over any of it for the client in front of them (Mike, 2026-08-17); a
+// client of the firm opening the same screen needs it too (item 4.68). The WRITE lives
+// on the manager-only /api/firm-manager route below.
+server.get('/api/report/property-tax-rules', firmOrEntityAuth, propertyTaxRulesRoute.get)
 // The bands the Three-Way Forecast's two-year trend read draws (Mike, 2026-09-03, item
 // 4.61b). Same asymmetry and same reason as the tax rules above: every advisor building a
 // forecast needs to READ them, and the write is manager-only on /api/firm-manager below.

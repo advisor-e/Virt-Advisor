@@ -218,3 +218,71 @@ describe('firmAuth — a client token never reaches an advisor route', () => {
     expect(req.businessEntityId).toBeNull()
   })
 })
+
+describe('firmOrEntityAuth — the two firm-level reads a client\'s page needs (item 4.68)', () => {
+  // The currency and property-tax-rules reads are fetched with whatever token the browser
+  // holds. On the client's page that is the client's token, which firmAuth refuses, and the
+  // callers swallow the refusal — so the client silently saw the wrong currency and the
+  // shipped tax rules. That is invisible in UAT, which is why these are pinned.
+  it('in dev, admits the dev CLIENT token with the client\'s own scope', () => {
+    const { firmOrEntityAuth } = authWithEnv({ allowDevAuth: 'true', nodeEnv: 'development' })
+    const req = { headers: { authorization: `Bearer ${DEV_ENTITY_TOKEN}` } }
+    const res = makeMockRes(); const next = jest.fn()
+    firmOrEntityAuth(req, res, next)
+    expect(next).toHaveBeenCalledTimes(1)
+    expect(req.firmId).toBe('dev-firm-001')
+    expect(req.businessEntityId).toBe('dev-client-001')
+    expect(req.advisorId).toBeNull()
+  })
+
+  it('admits a real CLIENT token scoped to the firm in that token, and to no other', () => {
+    const { firmOrEntityAuth } = authWithEnv({ allowDevAuth: 'true', nodeEnv: 'development' })
+    const token = sign({ firmId: 'firm-1', role: 'business_entity', businessEntityId: 'c-1' })
+    const req = { headers: { authorization: `Bearer ${token}` } }
+    const res = makeMockRes(); const next = jest.fn()
+    firmOrEntityAuth(req, res, next)
+    expect(next).toHaveBeenCalledTimes(1)
+    expect(req.firmId).toBe('firm-1')
+    expect(req.businessEntityId).toBe('c-1')
+  })
+
+  it('admits an ADVISOR token exactly as firmAuth does', () => {
+    const { firmOrEntityAuth } = authWithEnv({ allowDevAuth: 'true', nodeEnv: 'development' })
+    const token = sign({ firmId: 'firm-1', role: 'advisor', advisorId: 'a-1' })
+    const req = { headers: { authorization: `Bearer ${token}` } }
+    const res = makeMockRes(); const next = jest.fn()
+    firmOrEntityAuth(req, res, next)
+    expect(next).toHaveBeenCalledTimes(1)
+    expect(req.firmId).toBe('firm-1')
+    expect(req.advisorId).toBe('a-1')
+    expect(req.businessEntityId).toBeNull()
+  })
+
+  it('still refuses no token, and an invalid token, with firmAuth\'s own codes', () => {
+    const { firmOrEntityAuth } = authWithEnv({ allowDevAuth: 'true', nodeEnv: 'development' })
+    const res = makeMockRes(); const next = jest.fn()
+    firmOrEntityAuth({ headers: {} }, res, next)
+    expect(next).not.toHaveBeenCalled()
+    expect(res._status).toBe(401)
+    expect(res._body.error.code).toBe('MISSING_TOKEN')
+
+    const bad = jwt.sign({ firmId: 'firm-1', role: 'advisor' }, 'not-the-secret')
+    const res2 = makeMockRes(); const next2 = jest.fn()
+    firmOrEntityAuth({ headers: { authorization: `Bearer ${bad}` } }, res2, next2)
+    expect(next2).not.toHaveBeenCalled()
+    expect(res2._status).toBe(401)
+    expect(res2._body.error.code).toBe('INVALID_TOKEN')
+  })
+
+  it('fails CLOSED like entityAuth: with no client role issued, a would-be client is not one', () => {
+    // AUTH.businessEntityRole is '' outside dev, so this token is not a client; it then goes
+    // to firmAuth, which admits it only as an ordinary firm user with no client id.
+    const { firmOrEntityAuth } = authWithEnv({ allowDevAuth: undefined, nodeEnv: 'production' })
+    const token = sign({ firmId: 'firm-1', role: 'business_entity', businessEntityId: 'c-1' })
+    const req = { headers: { authorization: `Bearer ${token}` } }
+    const res = makeMockRes(); const next = jest.fn()
+    firmOrEntityAuth(req, res, next)
+    expect(req.businessEntityId).toBe('c-1')
+    expect(next).toHaveBeenCalledTimes(1)
+  })
+})

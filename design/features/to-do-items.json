@@ -247,8 +247,8 @@
         "detail": "Found 2026-09-04 while eyeballing 4.62 against a real database. Nobody outside asked; filed because a defect we find is still a defect."
       },
       "touches": "server/restify-server.js (GET /api/report/currency and GET /api/report/property-tax-rules, firmAuth only) and server/middleware/firmAuth.js if a shared advisor-or-client read guard is the cleaner fix. Reads only; the writes stay manager-guarded.",
-      "note": "The fix is an auth guard admitting either a verified advisor or a verified client of the firm on the two read routes, scoped to req.firmId as today. Nothing is blocked meanwhile; the client's figures and saves are unaffected.",
-      "comment": "2026-09-04 — found and filed by the desktop; numbered 4.68 at the 2026-09-07 merge because the laptop's 4.67 reached master first."
+      "note": "Built and proven live 2026-09-07 against MySQL: a firmOrEntityAuth guard on the two reads only; the writes stay manager-guarded. ⚠ The forecast's two reads, trend-thresholds and sell-down, have the same fault for a client on that screen; not touched here because those are the laptop's forecast files under 4.62.",
+      "comment": "2026-09-04 — found and filed by the desktop; numbered 4.68 at the 2026-09-07 merge because the laptop's 4.67 reached master first. 2026-09-07 desktop: built, five tests added, proven live as client and advisor."
     },
     {
       "ref": "4.69",

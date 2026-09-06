@@ -42,4 +42,14 @@ describe('business entity reports — reaching the backend', () => {
     // routes/report.js is the laptop's under item 4.61; this feature keeps out of it.
     expect(read('server/routes/report.js')).not.toMatch(/client-reports|clientReportAccess/)
   })
+
+  it('opens the two firm-level READS to a client, and ONLY the reads (item 4.68)', () => {
+    const server = read('server/restify-server.js')
+    expect(server).toMatch(/server\.get\('\/api\/report\/currency', firmOrEntityAuth/)
+    expect(server).toMatch(/server\.get\('\/api\/report\/property-tax-rules', firmOrEntityAuth/)
+    // The writes stay the manager's. A client that could set the firm's currency would be
+    // an account-wide change from a client sign-in, and no test in UAT would try it.
+    expect(server).toMatch(/server\.post\('\/api\/report\/currency', firmAuth, requireManagerRole/)
+    expect(server).not.toMatch(/server\.(post|put|del)\([^\n]*firmOrEntityAuth/)
+  })
 })
