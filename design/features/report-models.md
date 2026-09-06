@@ -986,9 +986,20 @@ needs 900; and `.tw-tblwrap` scrolls sideways on screen, which on paper is not a
 the balance check below the statements, stops the tables clipping, and sets
 `@page { size: landscape }`. **Orientation only, never a paper size:** the app never chose A4
 or Letter and must not start, so a firm on Letter still gets Letter, and both give the 900px
-the twelve columns need. ⏳ **Still open and NOT a defect to fix quietly: only the tab on
-screen prints.** A three-way forecast reaching a lender with one of its three statements is a
-decision about what a client receives, and it is Mike's.
+the twelve columns need.
+
+🔴 **AND THE PDF CARRIES ALL THREE STATEMENTS, one per page — Mike's ruling, 2026-09-06.**
+It used to carry whichever tab was open, normally the Cash Flow, **beneath a balance check
+asserting that "the three statements tie in every month"** — making the claim and withholding
+the evidence for it. Sending the full set otherwise meant printing three times and changing
+tab in between, which nothing on the screen asked an advisor to do, so in practice every
+lender received one. The screen still shows one at a time; `printStatements` renders all
+three for the print from the row sets the tabs already switch between, headed by the tab
+labels, so **nothing new is computed and no new wording was invented.** The tabs, the
+*Summary / Every line* toggle and the *"scroll sideways"* note are all absent from the
+print — they are controls for a screen. **`printStatements` is pinned by a test** rather than
+left to a stylesheet: a later simplification back onto `visibleRows` would silently return
+the PDF to one statement, and nobody sees that without generating a file and counting.
 
 **This model is the only one that reads a FORECAST rather than history.** Every other
 Report-class model reads what has happened; this one is about what will. No accounting
