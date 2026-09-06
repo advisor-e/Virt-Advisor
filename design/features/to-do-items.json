@@ -181,8 +181,8 @@
         "detail": "2026-09-03 — \"i want to include an option to tick 'economic analysis' which then charges AI to conduct global and local market research (i will give detailed instructions and prompt in future) such that they can be included in an overall report - since the majority of 3 way forecasts are used to support funding requests\". Filed on his instruction (\"yes\")."
       },
       "touches": "BUILT: data/ai-prompts.json (a fourth prompt, all four tiers), server/routes/economicAnalysis.js, server/report/economicAnalysis/researchResult.js, server/utils/economicAnalysisRuns.js, openaiClient.js (a /v1/responses path), restify-server.js, components/EconomicAnalysisStep.vue, components/EconomicAnalysisPack.vue, utils/researchText.js (the parser both share), pages/three-way-forecast.vue (step 5, and the pack), ProvenanceBadge.vue (a fifth state), locales/en.json, five test files.",
-      "note": "ALL THREE SLICES ARE BUILT, AND IT HAS NOW BEEN WATCHED END TO END IN A BROWSER (2026-09-07, seven live runs): brief, research, approval, printed pack. The pack prints only on isApproved, never on the tick alone, so research nobody accepted cannot reach a lender. 🔴 The citation guard was refusing HALF of all live runs and was wrong every time, because it read the digits inside a source's web address as a figure — fixed and proven live, tests either side of the line. The same runs found the model being told a UTC date — yesterday, for an advisor at UTC+12, printed in the client's pack — now reading the server's own day. Detail in ECONOMIC-ANALYSIS-PROMPT.md §7b.",
-      "comment": "2026-09-03 — filed on Mike's instruction the moment he raised it. RENUMBERED 4.62 → 4.66 on 2026-09-04, both machines having filed a 4.62 that day; 4.62 is not reused. 2026-09-06 — privacy ruled; prompt drafted and revised; screens drawn; all three slices built in one day, and run 5 proved it live. 2026-09-07 — watched in a browser for the first time, which found the guard refusing half of all runs. Six live faults have now come out of running it, and the green tests had caught none of them."
+      "note": "ALL THREE SLICES ARE BUILT, AND IT HAS NOW BEEN WATCHED END TO END IN A BROWSER (2026-09-07): brief, research, approval, printed pack. The pack prints only on isApproved, so research nobody accepted cannot reach a lender. 🔴 Nine live faults have come out of running it and the green tests caught none: the citation guard refused HALF of all runs by reading web-address digits as figures; the research date was missing from the client's pack entirely; and the date sent was UTC. THE ADVISOR NOW SETS THE ASSESSMENT DATE on a field at step 5 — Mike's ruling, both wordings his. Detail in ECONOMIC-ANALYSIS-PROMPT.md §7b.",
+      "comment": "2026-09-03 — filed on Mike's instruction the moment he raised it. RENUMBERED 4.62 → 4.66 on 2026-09-04, both machines having filed a 4.62 that day; 4.62 is not reused. 2026-09-06 — privacy ruled; prompt drafted and revised; screens drawn; all three slices built in one day, and run 5 proved it live. 2026-09-07 — watched in a browser for the first time; the guard was refusing half of all runs, and Mike ruled the assessment date onto a field of its own. Nine live faults have now come out of running it, and the green tests had caught none of them."
     },
     {
       "ref": "4.65",
@@ -225,6 +225,27 @@
       "touches": "pages/three-way-forecast.vue, whose JSDoc carries the claim, and components/ThreeWayForecastReport.vue, whose seed prop decides it: the page always supplies the intake's live payload, so the component's no-seed sample path may be unreachable from the page. Whichever way it is settled, one of the two is edited and the other left alone.",
       "note": "⚠ NOT YET DIAGNOSED, ONLY OBSERVED. Seen in a running browser on 2026-09-06: open /three-way-forecast, click the step 4 chip with nothing uploaded, every figure is $0. The likely cause is that the page passes the intake's live payload as seed from the moment the intake mounts, so the report never takes the no-seed path its own note describes — but that is a reading, not a proof. The first job is deciding which half is wrong. If the sample was never meant to be reachable this way, the fix is one sentence of documentation, not code.",
       "comment": "2026-09-06 — filed on Mike's instruction the day it was found. It surfaced as a side effect of answering his question about PDF export, and it is why both print screenshots taken that day show $0 in every cell."
+    },
+    {
+      "ref": "4.69",
+      "name": "A future assessment date may leave the research unsourced",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The advisor can now pick any assessment date. On the one run given a date months ahead, the model searched once, found nothing current, and the research was refused as unsourced.",
+      "risk": "Low today and not dangerous: a refused run shows a plain message and nothing reaches a lender. What it costs is three minutes and a real API bill, with nothing on screen hinting the date caused it. Seen once, against one run the same day that worked — an observation, not a finding, and the first job is to see whether it repeats at all.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Found 2026-09-07 driving the new date field end to end in a browser: 30 November 2026 was refused after 40 seconds and one search; 31 August 2026 ran normally with nine searches. Filed on Mike's instruction the same day."
+      },
+      "touches": "Nothing until it repeats. Then either the prompt's §2 wording (data/ai-prompts.json and ECONOMIC-ANALYSIS-PROMPT.md) or a bound on the field (components/EconomicAnalysisStep.vue, and assessmentDateOf in server/routes/economicAnalysis.js). Which one depends on whether the date or the model is at fault, and that is not yet known.",
+      "note": "⚠ OBSERVED ONCE, NOT DIAGNOSED. Reproduce it first: open /three-way-forecast, step 5, set a date some months ahead and research. If it repeats, the likely cause is §2 telling the model to judge how current a figure is against a date no figures exist for yet, so it searches for data that has not happened. Do NOT bound the field before knowing — an advisor preparing a pack for a meeting next month is a legitimate use, and the fix may be a sentence in the prompt rather than a limit on the screen.",
+      "comment": "2026-09-07 — filed the day the date field was built, on Mike's instruction. It exists because that field made a future date reachable for the first time. Numbered 4.69 because the desktop filed a 4.67 on its own branch that has not reached master."
     }
   ]
 }

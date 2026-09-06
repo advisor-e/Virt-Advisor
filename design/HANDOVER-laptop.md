@@ -9,51 +9,44 @@
 
 ---
 
-## 2026-09-06 (fourth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-07 · Laptop · branch `feat/advisor-progress`
 
-Suite **8,015 green** (414 suites), lint **0 errors**. Everything pushed, four commits, each
-through the full gate. Nothing uncommitted.
+Suite **8,059 green** (415 suites), lint **0 errors**. Five commits, each through the full
+gate. Everything pushed. Nothing uncommitted.
 
-### ✅ 4.66 IS COMPLETE — all three slices
+### 4.66 — nine live faults, and the green tests caught none of them
 
-Slice 3 built on Mike's *"just build slice 3 - we will test more later"*.
-`components/EconomicAnalysisPack.vue` prints approved research after the statements, and
-`utils/researchText.js` is the parser it shares with the screen so the two cannot drift.
+Ran it end to end in a real browser for the first time. That is the whole story of today:
+everything below was invisible to 8,000 passing tests.
 
-🔴 **The pack prints on `approval.isApproved`, never on the screen's tick alone.** Unread,
-re-run and withdrawn research all print nothing — that is what its tests are about, because
-the component is print-only and UAT cannot see it without pressing Ctrl+P on the right run.
+- 🔴 **The citation guard refused HALF of all live runs, and was wrong every time.** It read
+  the digits inside a source's web address (`/dmsdocument/10808`) as a restated figure, so a
+  §4 returning to a source used earlier — which §3 of the prompt *asks* for — lost the whole
+  document. **2 refusals in 4 runs before, 0 in 3 after.**
+- 🔴 **The research date was missing from the client's printed pack entirely.** `$d()` returns
+  an empty string when the format it is asked for does not exist, and none was ever configured.
+  It printed "Run 1 · researched · 13 sources". It is on the PDF from 2026-09-06; nobody saw it.
+- **The date sent to the model was UTC** — yesterday, for an advisor at UTC+12.
+- **English dates printed US-ordered** while the same pack's prose was day-first.
 
-**Slice 3 found a fault slice 2 shipped:** the approval line read `approval.by.name`, which
-the backend never returns, so ticking the second tick *threw in the running app*. The tests
-had invented the same wrong shape. Third time this week the tests agreed with the code and
-neither agreed with the API.
+**Mike ruled the assessment date onto a field of its own** (step 5, defaults to today, echoed
+in the send box). Both wordings his. Proven live: a chosen 31 August 2026 came back as the date
+the research was assessed from.
 
-**Mike ruled the pack's two wordings** rather than let mine stand, so the drawing changed and
-they are deviations no longer. Every word in the pack is his.
+### 🔴 DESKTOP — read this before you touch dates or i18n
 
-### 🔴 THE FORECAST'S PDF WAS BROKEN, AND NOBODY HAD EVER MADE ONE
+- **`plugins/i18n.js` changed and `utils/dateLocale.js` is new, and both are SHARED.**
+  `$d(date, 'long')` alone now returns the American order — call
+  `$d(d, 'long', intlLocaleFor(this.$i18n.locale))`. There are only three call sites, all in 4.66.
+- **Your branch is 4 ahead of master with a `4.67` I cannot see.** I filed **4.69**, skipping it,
+  rather than risk the collision that renumbered 4.56 and 4.62.
+- **Your handover is still dated 2026-09-04** though you committed twice today.
 
-Asked whether the report exports as a PDF, I made one instead of reading the code. It did —
-**carrying six of the twelve months and one of the three statements**, with nothing on the
-page saying so. Both now fixed and both verified in real files, not in the stylesheet.
+### Next
 
-Two things worth not rediscovering: the app has **never set a paper size and must not** —
-`@page { size: landscape }` forces orientation only, so a firm on US Letter still gets
-Letter. And `.tw-tblwrap` scrolls on screen but **clips silently on paper**, which is how
-half a year disappeared.
+**4.69 filed** (score 2, ours): a **future** assessment date may leave the research unsourced —
+30 November was refused after one search, 31 August ran normally. **Seen once: reproduce before
+touching anything**, and do not bound the field first; the fix may be a sentence in the prompt.
 
-### 4.66 IS STILL ACTIVE ON THE LAPTOP — `activeOn` stands
-
-Built, not watched. ⚠ **Nobody has yet driven a real run end to end in a browser** — the
-research, the approval, then Ctrl+P. That is the honest last step and it is five minutes.
-
-### Next, and one new item
-
-**4.68 filed** (score 2): step 4 reached with no exports shows an all-zero forecast where the
-page's own note promises the workbook's sample. Observed, not diagnosed — decide which half
-is wrong before touching either.
-
-**DESKTOP:** `components/ThreeWayForecastReport.vue` and `pages/three-way-forecast.vue` both
-changed today. The report's changes are print-only plus a new `printStatements` computed;
-nothing on screen moved. 4.15, 4.50, 4.58, 4.60, 4.62, 4.65 untouched. **Eight items live.**
+**4.66 stays `activeOn` this laptop** — built and pushed, but 4.69 sits in the same files.
+**Nine live items.**
