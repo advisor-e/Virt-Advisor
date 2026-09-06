@@ -349,6 +349,22 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
   </div>
 </div>
 
+<div class="mock tag" data-tag="DEVIATION — RECORDED 2026-09-06, SLICE 1">
+  🔴 <b>THIS SCREEN CANNOT BE BUILT AS DRAWN, and the reason is the drawing's own principle.</b>
+  The API reports the model's search calls, but <b>it does not say which of the five output
+  sections a search belongs to</b>. Mapping a query onto "Global", "Ireland", "Galway",
+  "The sector" would be a guess presented as progress — which is precisely what the note
+  below forbids.
+  <br><br>
+  <b>What slice 2 builds instead: the model's REAL search phrases, as they arrive</b> —
+  <i>"Searching: Ireland CPI August 2026"</i>. More honest, more interesting to watch, and it
+  still answers "which area is it stuck on". The backend already collects them
+  (<code>GET /api/report/economic-analysis/:runId</code> returns <code>searches</code>).
+  <br><br>
+  Everything else on this screen stands: the timing, the "you can leave this page", and the
+  polling shape.
+</div>
+
 <div class="mock">
   <b>The four lines are not decoration and not a fake progress bar.</b> They are the four
   research areas the prompt asks for, ticked as the model's own search calls come back — 9 to

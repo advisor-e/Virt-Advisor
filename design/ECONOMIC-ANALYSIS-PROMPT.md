@@ -1,10 +1,21 @@
-# The Economic Analysis Prompt — for approval
+# The Economic Analysis Prompt
 
-> 🔴 **THIS IS A DRAFT AND NOTHING IS BUILT.** No code calls it, no screen shows it, and no
-> AI has ever run it. It exists so the wording is settled in a file rather than in a chat
-> window — the rule in [`../CLAUDE.md`](../CLAUDE.md), *Save the Artefact*, written after a
-> Logic-Lab mockup was approved in conversation, never saved, and could not afterwards be
-> compared with what got built.
+> ✅ **THE ENGINE IS BUILT — slice 1, 2026-09-06, on Mike's instruction "build the economic
+> analysis".** This prompt is now the fourth entry in
+> [`../data/ai-prompts.json`](../data/ai-prompts.json), editable by all four manager tiers
+> on the AI Prompts hub tab. It is called by `server/routes/economicAnalysis.js`, and what
+> comes back is checked by `server/report/economicAnalysis/researchResult.js` before it can
+> reach anything.
+>
+> **NO SCREEN EXISTS YET.** An advisor cannot reach any of this: step 5, the brief box, the
+> waiting screen and the two ticks are slice 2. Nothing in the app calls these routes.
+>
+> ⚠ **NO LIVE RUN HAS BEEN MADE THROUGH THE BUILT PATH.** The four runs on
+> [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md) were made by a
+> throwaway script. See §7 for the two things that must be confirmed against a real call.
+>
+> This page stays as the record of what was approved and when — the rule in
+> [`../CLAUDE.md`](../CLAUDE.md), *Save the Artefact*.
 >
 > Live item: **4.66** on [`features/to-do-items.json`](features/to-do-items.json).
 > Feature Brief: [`features/report-models.md`](features/report-models.md).
@@ -174,8 +185,21 @@ three existing prompts, so this becomes the fourth and is editable there without
 > 5. **What could not be sourced** — every figure you sought and could not find, and what you
 >    would have used it for.
 >
+> Number each section heading as it is numbered above, so section 4 begins "4." on its own line.
+>
 > Aim for 1,200–1,600 words across sections 1 to 4. Section 5 is as long as it needs to be.
 > Citations appear inline, in the section where the figure is used.
+
+🔴 **THE NUMBERING SENTENCE IS AN ADDITION MADE AT BUILD TIME AND MIKE HAS NOT RULED ON IT.**
+It was not in the text he approved on 2026-09-06. It is here because the check that enforces
+the no-restatement rule finds section 4 **by its numbered heading**: a model that writes an
+unnumbered heading would return research the guard cannot inspect, and it would pass silently.
+Without the sentence the guard is skippable by accident.
+
+It changes nothing about what the research *says* — it constrains the shape of a heading, not
+a word of the content. **Recorded here rather than absorbed**, because an addition to an
+approved artefact that nobody writes down is exactly the drift the *Save the Artefact* rule
+exists to catch. Remove it and the guard weakens; keep it and it should be his call, not ours.
 
 ### §7 · Tone
 
@@ -209,31 +233,65 @@ hostile*). §2's closing line is the second half of that guard.
 
 The standards say never to trust LLM output as structured data. These are checks, not hopes:
 
+✅ **BUILT 2026-09-06 in `server/report/economicAnalysis/researchResult.js`**, and the "How it
+is held" column below now describes running code rather than an intention. The one row that
+was still a promise — the citation re-check — is a promise no longer; see the second row.
+
 | Rule | How it is held |
 |---|---|
-| §4 — no figure without a citation | `url_citation` annotations come back as structured fields; a claimed figure with no annotation behind it is rejected before it reaches the screen |
-| ✅ **EVERY FIGURE LIVES ONCE, BESIDE ITS OWN SOURCE — and that is why §6's no-restatement rule is load-bearing, not tidiness** | Runs 1–3 each put a correct figure beside the wrong source. The pattern was precise: **attribution was reliable where a figure was first introduced and unreliable where it was RESTATED** — §§1–3 introduce, §4 recalled and bundled two or three figures under one citation. Three instruction-level attempts to make it re-cite on restatement failed. **Run 4 removed the surface instead of policing it**: §4 may no longer repeat a figure at all, and it came back with **zero figures and zero citations**, still substantive, while §§1–3 kept a source per figure and cited two-source paragraphs separately. **Do not relax that rule to let §4 quote numbers again** — it is the whole fix. ⚠ **It rests on one run and must be re-checked when the feature is built.** `url_citation` records where the model *put* a citation, so a misplacement arrives inside the annotation and no downstream check can catch it. Evidence: [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md) |
+| §4 — no figure without a citation | `url_citation` annotations come back as structured fields; a claimed figure with no annotation behind it is rejected before it reaches the screen. ✅ Built: `SECTION_4_UNSOURCED`, plus `SECTION_UNSOURCED` for an evidence section carrying no citation at all |
+| ✅ **EVERY FIGURE LIVES ONCE, BESIDE ITS OWN SOURCE — and that is why §6's no-restatement rule is load-bearing, not tidiness** | Runs 1–3 each put a correct figure beside the wrong source. The pattern was precise: **attribution was reliable where a figure was first introduced and unreliable where it was RESTATED** — §§1–3 introduce, §4 recalled and bundled two or three figures under one citation. Three instruction-level attempts to make it re-cite on restatement failed. **Run 4 removed the surface instead of policing it**: §4 may no longer repeat a figure at all, and it came back with **zero figures and zero citations**, still substantive, while §§1–3 kept a source per figure and cited two-source paragraphs separately. **Do not relax that rule to let §4 quote numbers again** — it is the whole fix. ✅ **THE RE-CHECK IS NOW PERMANENT, not a one-off.** Every run is inspected: a figure in §4 that already appeared in §§1–3 is refused as `SECTION_4_RESTATED` and the repeated figures are named. It is proven against both runs, read from the evidence page rather than copied — **run 4 passes at its recorded 2,276 words with an empty §4; run 1 is refused, naming `0.50935`, `5.6` and `2.0`.** The guard therefore also fires if anyone edits run 4's §4 to put the numbers back. ⚠ It does **not** forbid figures in §4 outright, because §6 permits a genuinely new one with its own source — a check stricter than this artefact would be its own drift. ⚠ And it still cannot tell a CORRECT citation from an incorrect one: `url_citation` records where the model *put* a citation, so a misplacement arrives inside the annotation. It refuses the shape in which every observed misattribution occurred, which is a weaker claim, deliberately. Evidence: [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md) |
 | ⚠ Length is a steer, not a contract | Both runs overshot their target, and raising the target raised the output with it. Output length tracks how much the model **finds**, not the number it is given. A screen must not assume a predictable length |
-| Approval before it reaches a lender | An advisor must accept the research explicitly (`isApproved: true`) before it can join a funding pack — the standards' rule for financial output |
-| It is AI text, and says so | `ProvenanceBadge` gains a **fifth** state. It already has four — `file`, `entered`, `seeded`, `client` |
-| It cannot run inline | Far past the 2000 ms page-render rule, so it returns a job and the screen polls — the pattern Meeting Review already uses twice, at `server/routes/meetingReview.js` |
+| Approval before it reaches a lender | An advisor must accept the research explicitly (`isApproved: true`) before it can join a funding pack — the standards' rule for financial output. ✅ Built: the include route refuses a run that has not finished, and records `isApproved`, who, when, and **which run of how many**, persisted per firm under `economic-analysis-approvals` |
+| It is AI text, and says so | `ProvenanceBadge` gains a **fifth** state. It already has four — `file`, `entered`, `seeded`, `client`. ⏳ Slice 2 |
+| It cannot run inline | Far past the 2000 ms page-render rule, so it returns a job and the screen polls — the pattern Meeting Review already uses twice, at `server/routes/meetingReview.js`. ✅ Built, and the call **streams**: at 83–102 seconds a non-streamed POST sits silent long enough to trip the client's own inactivity guard, and streaming is also what gives the waiting screen the model's real searches |
 
 ---
 
 ## 6. Open — Mike's calls, not settled here
 
-1. **Is 800–1,200 words right** for a funding pack, or is this a two-page annex?
-   **A live test answers this better than an opinion can** — Mike's own instruction,
-   2026-09-06: *"doing a couple of test examples will give us some ideas i suspect."*
-2. **The two ticks' labels.** The item calls the first *"economic analysis"* — Mike's own
-   phrase, and it reads well — but neither tick's on-screen wording has been ruled.
+1. 🔴 **The numbering sentence added to §6 at build time** (recorded in full under §3's §6
+   above). Not in the text he approved. Keep it and the guard holds; remove it and a model
+   that writes an unnumbered heading returns research the check cannot inspect.
 
-*Settled 2026-09-06 and moved up to §2: whether the research joins the printed pack (it is
-the second tick's job, taken per report), and who may edit the prompt (firm managers).*
+*Settled 2026-09-06 before the build: the two ticks' labels — *"Economic analysis"*, his own
+phrase, and *"Include in the report the client receives"* — approved as drawn on
+[`mockups/three-way-forecast-economic-analysis.html`](mockups/three-way-forecast-economic-analysis.html),
+along with where it sits (step 5), the fifth provenance colour, and keeping "Research again"
+with every run counted. Settled earlier the same day and moved up to §2: whether the research
+joins the printed pack (the second tick's job, taken per report), and who may edit the prompt
+(firm managers).*
+
+*Answered by the runs rather than by an opinion, which was Mike's own instruction —
+"doing a couple of test examples will give us some ideas i suspect": the word target. Four
+runs overshot four targets, and raising the number raised the output with it. Length tracks
+what the model FINDS. It stays in the prompt as a steer and no screen may assume it.*
 
 ---
 
-## 7. Rules of this page
+## 7. What must be confirmed against a live call — the build's own open ends
+
+Slice 1 is proven against recorded output and fake transport. Two things cannot be proven
+that way, and neither should be discovered by a client:
+
+1. 🔴 **THE MODEL NAME IS A JUDGEMENT, NOT EVIDENCE.**
+   [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md) records the timings,
+   costs, search counts and full output of four runs — and **never names the model they were
+   made with.** The script was outside the repository and is gone. `MODEL` in
+   `server/routes/economicAnalysis.js` carries that warning beside it and is one edit to
+   change. **Confirm it with one real call before slice 2 ships.**
+2. **No live call has been made through the built path.** The streamed event names this code
+   reads (`response.output_item.added` carrying a `web_search_call`, `response.completed`)
+   are handled defensively — an unrecognised shape is ignored rather than thrown — so the
+   worst case is a waiting screen with no searches listed, not a failed run. It is still
+   unproven.
+
+**One live call answers both**, and re-checks the citation fix against fresh output at the
+same time — which is what §5's second row asks for and what run 4 alone cannot give.
+
+---
+
+## 8. Rules of this page
 
 - **It is wording, and wording lives in one place.** When a section changes, replace it here
   rather than appending a revision beneath it.

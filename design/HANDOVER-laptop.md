@@ -9,40 +9,57 @@
 
 ---
 
-## 2026-09-06 · Laptop · branch `feat/advisor-progress`
+## 2026-09-06 (second session) · Laptop · branch `feat/advisor-progress`
 
-Suite **7,893 green** (410 suites), lint clean, audit gate clean. Branch is **9 ahead /
-0 behind** master, everything pushed. Nothing is uncommitted.
+Suite **7,969 green** (412 suites), lint clean (0 errors). Everything pushed. Nothing is
+uncommitted.
 
-### 🔴 4.66 IS ACTIVE ON THE LAPTOP — `activeOn` is set
+### 🔴 4.66 IS STILL ACTIVE ON THE LAPTOP — `activeOn` stands
 
-A build touches `ThreeWayForecastIntake.vue`, which you are already in. Do not start it.
-Everything else on the list is free.
+Slice 2 touches `ThreeWayForecastIntake.vue`. Do not start it. Everything else is free.
 
-### What today produced — design only, no app code
+### 4.66 SLICE 1 IS BUILT — the engine, and no screen
 
-**4.66 has a prompt and screens, and both wait on Mike.** Nothing else stands between it
-and a build.
+Mike said *"build the economic analysis"*, then approved a three-slice plan and slice 1.
+**An advisor cannot reach any of this yet:** nothing in the app calls the new routes.
 
-- `design/ECONOMIC-ANALYSIS-PROMPT.md` — seven sections, Mike's paragraph as §1.
-- `design/ECONOMIC-ANALYSIS-TEST-RUNS.md` — four live API runs, two fictional businesses,
-  ~£1.10 all in.
-- `design/mockups/three-way-forecast-economic-analysis.html` — six screens, showing run 4's
-  real output rather than invented text.
+- `server/routes/economicAnalysis.js` — start / poll / include, `firmAuth` on all three.
+  Returns a job because a run takes 83–102 seconds, and **the call streams** (a silent
+  non-streamed POST trips the client's own idle guard).
+- `server/report/economicAnalysis/researchResult.js` — the validator. Held at **100% on all
+  four metrics** by a new `jest.config.js` threshold.
+- `server/utils/economicAnalysisRuns.js` — runs in memory, approvals persisted per firm.
+- `data/ai-prompts.json` — the fourth prompt, all four tiers. `openaiClient.js` gained a
+  `/v1/responses` path beside the chat one.
 
-**Three rulings worth knowing before you touch anything near this.** Privacy: the advisor
-writes the brief and sees the exact words sent; the app sends nothing about the client on
-its own — so no new PII exception. Editing: firm managers, not advisors. Two ticks: run it,
-and include it — the second **is** the approval gate, so there is no separate Approve button.
+### 🔴 The one thing to read before touching this
 
-🔴 **The citation fault, because it will look like tidiness and is not.** Runs 1–3 each put
-a correct figure beside the *wrong* source, always in a restatement. Three instruction-level
-fixes failed. Run 4 fixed it by forbidding §4 of the output to restate any figure at all.
-**Do not "improve" §4 by putting the numbers back.** It rests on one clean run and needs
-re-checking when built.
+**The citation re-check is permanent now, and it reads the evidence page directly.**
+`tests/fixtures/economicAnalysisRuns.js` loads runs 1 and 4 out of
+`design/ECONOMIC-ANALYSIS-TEST-RUNS.md` rather than copying them. Run 4 must pass; run 1
+must be refused. **So editing run 4's section 4 to "restore" its figures breaks the test
+that proves the fix works** — which is the point, not a nuisance.
+
+### Two things wait on Mike, both in `ECONOMIC-ANALYSIS-PROMPT.md` §7
+
+1. **A sentence was added to his approved §6** — *"Number each section heading as it is
+   numbered above…"*. The guard finds section 4 by its numbered heading; without it the
+   check is skippable by accident. Recorded as an unruled deviation, not absorbed.
+2. **The model name was never recorded** by the four test runs and the script is gone.
+   `MODEL` in the route carries that warning. **One live call confirms it and re-checks the
+   citation fix against fresh output at the same time.**
+
+### Two things a later session would otherwise rediscover
+
+- **Screen 3 cannot be built as drawn.** The API does not say which output section a search
+  belongs to, so the four ticking research areas would be a guess dressed as progress. Slice
+  2 shows the model's real search phrases instead; the deviation is recorded on the mockup.
+- **A firm manager now gets a document picker** on the AI Prompts tab. Correct and
+  predicted — the component asks the data, not the tier.
 
 ### Next
 
-Mike's approval of the prompt and the drawing. Both are in the Handbook.
+Slice 2 (the screens) or slice 3 (the printed pack). Neither should start before the model
+name is confirmed, because the screens would be built around unproven output.
 
-**4.15, 4.50, 4.58, 4.60, 4.65 unchanged and untouched today.** Seven items live.
+**4.15, 4.50, 4.58, 4.60, 4.62, 4.65 unchanged and untouched today.** Seven items live.
