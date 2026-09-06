@@ -9,29 +9,23 @@
 
 ---
 
-## 2026-09-04 (third session, closed 2026-09-07) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-07 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Everything pushed after merging master's 25 commits (PRs #59 and #61) in at the close.
+Suite 7,930 green at the first push; the second push's gate covers the closing commit.
+Everything pushed.
 
-**4.62's ten desktop screens eyeballed end to end for the first time** — a real local MySQL
-8.4 now exists on this machine (`virt_advisor`, settings in the gitignored `.env`, dev firm
-and client rows seeded). Advisor save → client edit and badge → advisor banner and Restore
-held on every one. Findings filed: 4.68 (client sign-in refused the firm's currency and tax
-rules) and 4.69 (four things for Mike's ruling). The forecast's own loop is the laptop's
-(4.67), and its files were not touched here.
+**4.68 built, proven live and CLOSED.** Three firm-level reads a client's page fetches with
+the client's token were advisor-only, so a client silently got the shipped currency, tax
+rules and sell-down ladder. A `firmOrEntityAuth` guard in `server/middleware/firmAuth.js` now
+admits either on those three GETs only; every write stays the manager's. Proven against the
+local MySQL as client, advisor and bad token. Closure on `to-do-done-and-parked.md` §2; the
+Brief's "every advisor route" sentence corrected.
 
-**One fix shipped that matters to every hub tab.** `f2b64de`: firmOverlay bound a number to
-a prepared `LIMIT ?`, which MySQL 8.0.22+ refuses — the ELEVENTH save of any setting failed
-with a 500 and every version-history read failed. Proved live before and after. UAT's MySQL
-version is recorded nowhere; if it is 8.0.22 or later, the mentor's saves there fail at v11.
+**Nothing half-finished on this machine.** No `activeOn` set here. The live list is nine items.
 
-**🔴 4.59 WAS FIXED ON BOTH MACHINES ON 2026-09-04** — the same restamp, the same day, with no
-`activeOn` because neither had picked it up when the other started. The laptop's reached
-master first and is the one kept; the desktop's copy was dropped at the merge, nothing lost.
+**Next:** 4.69 waits on Mike's four rulings. 4.67 is nobody's; its files are the forecast's.
 
-**Next:** 4.68 is a small auth-guard change on two read routes. 4.69 waits on Mike.
-Unexplained: the suite counted 7,809 in the morning and 7,802 at the push gate after three
-tests were added; nothing failed either time.
-
-**LAPTOP:** `server/utils/firmOverlay.js` changed in its two LIMIT lines only — your history
-tabs need it on MySQL 8. Nothing else of yours was touched.
+**LAPTOP:** `server/restify-server.js` changed on three route lines only — the currency,
+property-tax-rules and sell-down reads — and `firmAuth.js` gained one exported guard. No
+forecast component or intake file was touched. The dev backend on this machine's port 4000
+was replaced; it had been running the 2026-09-04 code.
