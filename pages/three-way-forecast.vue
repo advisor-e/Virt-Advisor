@@ -17,6 +17,13 @@ report-shell
       @click="goTo(s.n)")
       span.n {{ s.n }}
       | {{ $t(s.label) }}
+  //- v-show, NOT v-if, and that is what makes the waiting screen's "you can leave this page
+  //- and come back" true: a research run is 83–141 seconds, and destroying this component
+  //- on a chip click would drop the poll and the advisor's brief with it.
+  economic-analysis-step(
+    v-show="step === 5"
+    :api-token="apiToken"
+    :client-ref="savedReport.clientRef || ''")
   three-way-forecast-intake(
     v-if="step < 4"
     :key="intakeKey"
@@ -30,7 +37,7 @@ report-shell
   //- No `client` here: the header above is the only place the name is shown, and it is
   //- this page's. The report component stopped rendering a second header on 2026-09-05.
   three-way-forecast-report(
-    v-else
+    v-else-if="step === 4"
     :seed="liveInputs"
     :restore="loadedReport"
     :client-changes="clientChanges"
@@ -43,10 +50,22 @@ report-shell
 /**
  * /three-way-forecast — the Three-Way Forecast, end to end.
  *
- * Four steps, per the approved drawing `design/mockups/three-way-forecast.html`: drop the
- * accounting exports → confirm the position the forecast opens from → set the assumptions
- * → the live forecast. Steps 1 to 3 are `ThreeWayForecastIntake`; step 4 is
- * `ThreeWayForecastReport`.
+ * Five steps: drop the accounting exports → confirm the position the forecast opens from →
+ * set the assumptions → the live forecast → optional economic analysis. Steps 1 to 3 are
+ * `ThreeWayForecastIntake`; step 4 is `ThreeWayForecastReport`; step 5 is
+ * `EconomicAnalysisStep`. Steps 1–4 are the approved drawing
+ * `design/mockups/three-way-forecast.html`.
+ *
+ * 🔴 STEP 5 IS OPTIONAL AND IS REACHABLE FROM ANYWHERE, both deliberately. Mike ruled it a
+ * step of its own on 2026-09-06 (*"make it step 5"*), against the recommendation of a folded
+ * panel under the forecast — a folded line beneath a long forecast being the easiest thing
+ * on the page to never notice. The objection that a fifth chip makes an optional thing look
+ * required is answered on the screen instead: the chip carries the word *optional*, and
+ * **the forecast is complete, printable and saveable at step 4**.
+ *
+ * It needs nothing from the forecast, so `goTo` does not gate it the way it gates step 4 —
+ * and that is the privacy ruling showing through the navigation: the research is driven by
+ * a brief the advisor writes, never by the client's figures.
  *
  * The engine behind it is a port of `3 way Filter.xlsx`, proven against 10,155 of that
  * workbook's own calculated cells across all three years, with nine corrections each
@@ -68,6 +87,7 @@ import ReportShell from '~/components/base/ReportShell.vue'
 import ReportHeader from '~/components/base/ReportHeader.vue'
 import ThreeWayForecastIntake from '~/components/ThreeWayForecastIntake.vue'
 import ThreeWayForecastReport from '~/components/ThreeWayForecastReport.vue'
+import EconomicAnalysisStep from '~/components/EconomicAnalysisStep.vue'
 import savedReport from '~/mixins/savedReport'
 import { isDevHost } from '~/utils/devHost'
 const {
@@ -79,7 +99,9 @@ const TOKEN_KEY = 'advisor_e_token'
 export default {
   name: 'ThreeWayForecastPage',
 
-  components: { ReportShell, ReportHeader, ThreeWayForecastIntake, ThreeWayForecastReport },
+  components: {
+    ReportShell, ReportHeader, ThreeWayForecastIntake, ThreeWayForecastReport, EconomicAnalysisStep
+  },
 
   mixins: [savedReport],
 
@@ -127,7 +149,8 @@ export default {
         { n: 1, label: 'report.threeWayForecast.step1' },
         { n: 2, label: 'report.threeWayForecast.step2' },
         { n: 3, label: 'report.threeWayForecast.step3' },
-        { n: 4, label: 'report.threeWayForecast.step4' }
+        { n: 4, label: 'report.threeWayForecast.step4' },
+        { n: 5, label: 'report.threeWayForecast.step5' }
       ]
       return this.savedReport.mode === 'client' ? chips.slice(1) : chips
     },

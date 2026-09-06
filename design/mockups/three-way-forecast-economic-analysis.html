@@ -538,7 +538,7 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
 <div class="stepmark">What needs your decision</div>
 
 <div class="q">
-  <h2>Open — none of this is settled</h2>
+  <h2>✅ Settled — all four ruled 2026-09-06, and BUILT the same day</h2>
   <ol>
     <li>✅ <b>The two labels — RULED 2026-09-06.</b> <i>"Economic analysis"</i>, his own
       phrase, and <i>"Include in the report the client receives"</i>, approved as drawn.
@@ -566,17 +566,45 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
       own input is worse than one that can be misused. Re-rolling until the answer flatters
       the client is made VISIBLE rather than impossible.</span></li>
   </ol>
-  <p style="margin:12px 0 0;font-size:12.5px" class="from"><b>All four are now ruled and
-    nothing on this drawing is open</b> — but ruling the questions is a separate act from
-    approving the drawing, and that has not happened. The prompt it displays,
-    <code>ECONOMIC-ANALYSIS-PROMPT.md</code>, is also still unapproved.</p>
+  <p style="margin:12px 0 0;font-size:12.5px" class="from"><b>All four are ruled and nothing
+    on this drawing is open.</b> Mike approved the build on 2026-09-06 — <i>"get it done so we
+    can get it built"</i> — and slice 2 shipped the same day. The prompt these screens display,
+    <code>ECONOMIC-ANALYSIS-PROMPT.md</code>, is approved in full: its own §6 now reads
+    <i>"Settled — nothing on this page is open"</i>.</p>
 </div>
 
-<div class="mock" style="margin-top:16px">
-  <b>Nothing here is built.</b> No route, no component, no prompt in
-  <code>data/ai-prompts.json</code>. The prompt these screens display is
-  <code>design/ECONOMIC-ANALYSIS-PROMPT.md</code>, and it is still awaiting Mike's approval
-  too — this drawing shows what it would look like in use, so both can be judged together.
+<div class="mock tag" data-tag="BUILT 2026-09-06 — THE DIFFERENCES, NAMED">
+  <b>It is built.</b> <code>components/EconomicAnalysisStep.vue</code> is step 5 of
+  <code>pages/three-way-forecast.vue</code>, on the engine slice 1 shipped that morning.
+  <b>Every difference between this drawing and the build is listed here</b>, as the
+  <i>Save the Artefact</i> rule requires — a deliberate deviation is fine, an unrecorded one
+  is not.
+  <br><br>
+  <b>(a) 🔴 Screen 3 shows the model's REAL search phrases, not the four ticking areas</b> —
+  the deviation slice 1 predicted and the reason is on that screen above. The API does not say
+  which output section a search belongs to. <b>Those phrases only arrive at all because of a
+  fault this build found:</b> the query was being read from
+  <code>response.output_item.added</code>, which carries no query, and all ten came back empty.
+  <br><br>
+  <b>(b) The run line takes its date from the advisor's own machine</b> at the moment the
+  research completes. The drawing reads <i>"researched 6 September 2026"</i>; the payload
+  carries no date of its own, and reading one out of the model's prose would be exactly the
+  guesswork this feature exists to avoid.
+  <br><br>
+  <b>(c) The second tick sits inside the research card</b> rather than as a separate card. It
+  is disabled until research exists and cleared by <i>Research again</i>, both as drawn — only
+  the frame differs.
+  <br><br>
+  <b>(d) The step is rendered with <code>v-show</code>, not <code>v-if</code></b>, which is
+  what makes this drawing's own sentence true: <i>"You can leave this page and come back — the
+  research keeps going."</i> Destroying the component on a chip click would drop the poll and
+  the brief with it. ⚠ A full browser reload still loses the run — the sentence holds within
+  the forecast, which is where an advisor moves during the ninety seconds.
+  <br><br>
+  <b>(e) No markdown is rendered as HTML.</b> The model's text is parsed into plain text /
+  bold / link tokens and rendered through Vue's own interpolation, so there is no
+  <code>v-html</code> on this screen and nothing to sanitise. A <code>[label](javascript:…)</code>
+  in model output is not turned into a link, and a test pins that.
 </div>
 
 </div>
