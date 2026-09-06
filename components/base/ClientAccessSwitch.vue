@@ -151,6 +151,10 @@ export default {
 <style scoped>
 .cas {
   display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  /* Capped so the header's right block fits BESIDE the title. Unbounded, the one-line hint
+     sized this box to ~710px and pushed badge, switch and Save under the title on every
+     report (item 4.69, ruled by Mike 2026-09-07). The hint wraps inside the cap instead. */
+  max-width: 470px;
   padding: 8px 12px; border-radius: 10px;
   background: #ffffff14; border: 1px solid #ffffff33;
   font-size: 12.5px; color: #fff;

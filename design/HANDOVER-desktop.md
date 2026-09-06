@@ -21,11 +21,18 @@ admits either on those three GETs only; every write stays the manager's. Proven 
 local MySQL as client, advisor and bad token. Closure on `to-do-done-and-parked.md` §2; the
 Brief's "every advisor route" sentence corrected.
 
-**Nothing half-finished on this machine.** No `activeOn` set here. The live list is nine items.
+**4.69 ruled one at a time and CLOSED the same session.** Loan Estimator's empty save says so
+instead of failing; Volatility's source flags no longer count as changed figures; the Client
+access box is capped so the header's right block sits beside the title; Quick Position's
+factor badge sits by the percentage. Rebuilt and walked live on four screens.
 
-**Next:** 4.69 waits on Mike's four rulings. 4.67 is nobody's; its files are the forecast's.
+**Nothing half-finished on this machine.** No `activeOn` set here. The live list is eight items.
+
+**Next:** 4.67 is nobody's; its files are the forecast's. Everything else waits on Mike or UAT.
 
 **LAPTOP:** `server/restify-server.js` changed on three route lines only — the currency,
-property-tax-rules and sell-down reads — and `firmAuth.js` gained one exported guard. No
-forecast component or intake file was touched. The dev backend on this machine's port 4000
-was replaced; it had been running the 2026-09-04 code.
+property-tax-rules and sell-down reads — and `firmAuth.js` gained one exported guard.
+`server/utils/savedReports.js` (`changedKeys`) and `mixins/savedReport.js` (`saveReport`)
+changed in one function each; `ClientAccessSwitch.vue` gained a `max-width`. No forecast
+component or intake file was touched. The dev backend and frontend on this machine's ports
+4000 and 3000 were replaced; both had been running the 2026-09-04 code.

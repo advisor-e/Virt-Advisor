@@ -2155,6 +2155,7 @@
       "badge": "client",
       "saved": "Saved.",
       "restored": "Your version is back.",
+      "nothingYet": "There is nothing to save yet. Confirm a step first.",
       "saveFailed": "The report could not be saved. Please try again.",
       "notOpen": "Your advisor has not opened this report to you.",
       "loadFailed": "The saved figures could not be loaded."

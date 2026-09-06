@@ -228,27 +228,6 @@
       "touches": "Nothing until somebody looks. Then ThreeWayForecastIntake.vue or base/GlossaryTerm.vue.",
       "note": "⚠ THE API DOES NOT HOT-RELOAD. `npm run backend` is a plain node process, so parser and engine changes are invisible until it is restarted; it needed a force-kill on port 4000 once. Nuxt does reload. Three things: the Type column and its disabled \"No set repayment\" box; the stock-in-transit block, which appears only when the opening carries a deposit, so it needs a file that has one; and the ? marks beside the headings. The report screen (Summary / Every line) is done and needs no second look.",
       "comment": "2026-09-05 — filed at shutdown, then narrowed the same evening: the report screen was opened, two layout faults were found and fixed, and only step 2 is still unseen."
-    },
-    {
-      "ref": "4.69",
-      "name": "Four things seen on the saved-report screens that need a ruling",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The 2026-09-04 walk of the ten saved-report screens found four things that work but read wrongly, and each is a ruling for Mike rather than a fix we can choose.",
-      "risk": "None to a figure. Loan Estimator: saving before any step is confirmed shows only the generic failure. Volatility: one changed month reads as \"2 figures changed\" because its source flag changed too. The header's right block drops below the title when the client-edited banner shows. Quick Position shows entered and client badges side by side on one figure.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": true,
-        "detail": "Found 2026-09-04 on the desktop's live walk. Filed as one item because each is a question for Mike, and an open question for Mike belongs on the list, not in a note."
-      },
-      "touches": "pages/loan-estimator.vue or mixins/savedReport.js (an empty row), utils/volatilitySavedReport shape (what counts as a changed figure), components/base/ReportHeader.vue (the wrap), components/base/ProvenanceBadge.vue (two badges).",
-      "note": "Screenshots of all four were taken on 2026-09-04 and can be retaken in minutes with the walk recipe in the desktop's memory. Nothing is blocked.",
-      "comment": "2026-09-07 — filed at the merge that closed the desktop's 2026-09-04 session."
     }
   ]
 }

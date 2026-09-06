@@ -128,8 +128,10 @@ A **saved report** is one `firmOverlay` key per client per model —
 ride the store every firm setting uses (`server/utils/savedReports.js`). `advisorVersion` is
 the advisor's **last** save, carried forward untouched through every client save. That is what
 makes D4 possible without stamping a figure at a time: a figure the client changed is one whose
-value **differs from the advisor's version** (`changedKeys`), the banner reads `savedBy`, and
-Restore writes the advisor's version back as a fresh advisor save.
+value **differs from the advisor's version** (`changedKeys`) — a source flag such as
+`source.<i>` never counting as a figure — the banner reads `savedBy`, and Restore writes the
+advisor's version back as a fresh advisor save. A save with nothing confirmed yet is not sent:
+the screen says a step must be confirmed first (item 4.69, ruled 2026-09-07).
 
 **Who may write.** An advisor of the firm, for a client the route checks belongs to it. A
 client, **only for a model the advisor has opened to it** — checked in the store against the
@@ -178,8 +180,9 @@ store admits a list of short names for this. **A file-sourced figure the client 
 shows `client` in place of `from file`, never beside it** (ruled by Mike 2026-09-04): the
 number is no longer the file's. The saved source is untouched, so Restore brings the
 advisor's version back with its file tags. Where the client can change only a factor
-against a file figure (the asset rows), the value keeps its file tag and the factor is
-badged on its own. **A client never sees the upload steps**: the upload needs the
+against a file figure (the asset rows), the value keeps its tag and the factor's `client`
+badge sits beside the percentage it describes, never on the label beside the value's tag
+(ruled 2026-09-07). **A client never sees the upload steps**: the upload needs the
 advisor's sign-in, so the client's page is the report alone, and a saved row opens on it.
 Nothing a file alone knows (the company name, the income total) is in a saved row.
 
@@ -203,6 +206,7 @@ and the month is badged on its label. The accounts upload is hidden from a clien
 
 **Wording proposed and not yet ruled** (`locales/en.json`, `clientReports.saved.*`): the
 "saved by" lines, the banner sentence, the badge word `client`, and the four failure messages.
+The nothing-to-save notice (`nothingYet`) was ruled by Mike on 2026-09-07.
 
 **The Three-Way Forecast carries the WHOLE intake, on Mike's ruling of 2026-09-05:** *"anything
 an advisor can edit, the client can edit."* So the saved row is the confirmed opening balance

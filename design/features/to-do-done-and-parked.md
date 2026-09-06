@@ -185,6 +185,18 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**Four things seen on the saved-report screens that need a ruling.** ✅ Ruled one at a time by
+Mike and built 2026-09-07. Loan Estimator: a save with nothing confirmed is not sent; the screen
+says "There is nothing to save yet. Confirm a step first." Volatility: source flags are never
+counted as changed figures, so one retyped month reads as one figure. The header: the Client
+access box is capped at 470 px, so badge, switch and Save sit beside the title on every report;
+the banner was never the cause. Quick Position: the client badge on a factor sits beside the
+percentage, not on the label beside the value's tag. Rebuilt and walked live on Debtor Drag,
+Quick Position, Volatility and the Loan Estimator, no errors. **What proves it:** the empty-row
+test in [`savedReport.mixin.test.js`](../../tests/unit/savedReport.mixin.test.js) and the
+source-flag test in [`savedReports.test.js`](../../tests/unit/savedReports.test.js); the two
+layout changes are visual and carry no test, by the 2026-08-24 rule.
+
 **A client's page is refused the firm's currency and tax rules.** ✅ Built and closed
 2026-09-07. Found on the desktop's live walk of 2026-09-04. Three firm-level reads the client's
 page fetches with the client's token sat behind the advisor-only guard, and the callers swallow
