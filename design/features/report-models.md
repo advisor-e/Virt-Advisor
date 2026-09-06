@@ -974,6 +974,22 @@ be. Both bands rest on `balanceCheck !== 0`, which is safe because the check can
 **exact** zero even on fractional figures — pinned by a test, because a speck of floating
 point would put a red band announcing a gap "of 0" in front of every client.
 
+**What the PDF actually contains — measured with a real file, 2026-09-06.** There is no PDF
+library in this app and deliberately so: none of the usual ones run on the locked Node 14.15,
+and the browser's own dialog means the client's figures are never sent anywhere to be
+rendered. The button says *"Print or save as PDF"*, and it works. 🔴 **What it produced the
+first time it was checked was a funding pack missing half the year.** Six of the twelve
+months were absent with nothing on the page saying so, from two causes that are invisible on
+screen: the levers panel still printed, leaving the statement 592px of a page where the table
+needs 900; and `.tw-tblwrap` scrolls sideways on screen, which on paper is not a scroll but a
+**silent clip**. The print now drops the four sliders — nobody moves a slider on paper — keeps
+the balance check below the statements, stops the tables clipping, and sets
+`@page { size: landscape }`. **Orientation only, never a paper size:** the app never chose A4
+or Letter and must not start, so a firm on Letter still gets Letter, and both give the 900px
+the twelve columns need. ⏳ **Still open and NOT a defect to fix quietly: only the tab on
+screen prints.** A three-way forecast reaching a lender with one of its three statements is a
+decision about what a client receives, and it is Mike's.
+
 **This model is the only one that reads a FORECAST rather than history.** Every other
 Report-class model reads what has happened; this one is about what will. No accounting
 export contains a future, so the intake seeds the starting position and the cost base only,

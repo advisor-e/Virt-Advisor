@@ -65,7 +65,10 @@
   .tw-layout
     //- [D1] The levers.
     aside.tw-card
-      .tw-group
+      //- `tw-levers` so the print can drop these four and keep the balance check below
+      //- them. Nobody moves a slider on paper, and the six months they were costing the
+      //- statements are what a lender is actually reading.
+      .tw-group.tw-levers
         .tw-glabel
           span.tw-dot
           h2.tw-h2 {{ $t('report.threeWayForecast.report.tryHeading') }}
@@ -883,5 +886,33 @@ td.impossible { color: var(--rs-crit); background: var(--rs-crit-soft); font-wei
 .tw-cta { font: inherit; font-weight: 600; font-size: 13.5px; color: var(--rs-accent-contrast); background: var(--rs-accent); border: 0; padding: 11px 18px; border-radius: 10px; cursor: pointer; }
 .tw-ghost { background: transparent; color: var(--rs-ink); border: 1px solid var(--rs-line); }
 .tw-foot { font-size: 12px; color: var(--rs-muted); }
-@media print { .tw-actions, .tw-tabs { display: none !important; } }
+/* 🔴 WHAT PRINTS, AND WHY IT IS NOT WHAT IS ON SCREEN.
+   Measured with a real PDF on 2026-09-06, at Mike's question "is the report able to be
+   exported as a pdf": it was, and SIX OF THE TWELVE MONTHS WERE MISSING FROM IT with
+   nothing on the page saying so. A lender received October to March and no sign that
+   April to September existed.
+
+   Two causes, both fixed here and neither visible on screen:
+
+   1. The levers panel still printed, so the statements got 592px of a page where the
+      table needs 900. The four sliders cannot be moved on paper; the balance check can
+      and does still print, after the statements rather than beside them.
+   2. `.tw-tblwrap` scrolls sideways on screen — and paper cannot scroll, so the overflow
+      was silently CLIPPED rather than wrapped or shrunk. `overflow: visible` is what
+      turns a cut-off table into a whole one.
+
+   The orientation is set for the same reason. Twelve monthly columns do not fit an
+   upright page at any sane type size, and the browser's print dialog opens on Portrait
+   every time — so an advisor who did not know to change it lost half the year. */
+@page { size: landscape; margin: 10mm; }
+
+@media print {
+  .tw-actions, .tw-tabs { display: none !important; }
+  .tw-levers { display: none !important; }
+  /* The statements take the whole page; the balance check follows them rather than
+     leading the document with a one-line assurance about figures nobody has seen yet. */
+  .tw-layout { display: flex; flex-direction: column; }
+  .tw-layout > aside.tw-card { order: 2; }
+  .tw-tblwrap { overflow: visible !important; }
+}
 </style>
