@@ -11,8 +11,23 @@
 
 ## 2026-09-06 (third session) · Laptop · branch `feat/advisor-progress`
 
-Suite **7,969 green** (412 suites), lint **0 errors**. Everything pushed — three commits,
-each through the full gate. Nothing is uncommitted.
+Suite **7,991 green** (413 suites), lint **0 errors**. Everything pushed — five commits, each
+through the full gate. Nothing is uncommitted.
+
+### ✅ SLICE 2 IS BUILT — an advisor can reach the economic analysis
+
+Step 5 of the forecast, on Mike's *"get it done so we can get it built"*.
+`components/EconomicAnalysisStep.vue` + a fifth chip on `pages/three-way-forecast.vue` +
+a fifth `ProvenanceBadge` state. **Five differences from the drawing are named ON the
+drawing**, and its stale *"Open — none of this is settled"* closing section is corrected.
+
+**Slice 3, the printed pack, is the last piece and is NOT built.**
+
+Two things in that build worth not rediscovering: the privacy ruling is the **first test in
+the file**, asserting the request body key by key (only `brief` and `clientRef`) — a screen
+that quietly added the client's name would look identical in UAT. And there is **no
+`v-html`** on the screen: model text is parsed into text/bold/link tokens, so a
+`[label](javascript:…)` cannot become a link, and a test pins that.
 
 ### 🔴 4.66 IS STILL ACTIVE ON THE LAPTOP — `activeOn` stands
 
@@ -78,12 +93,16 @@ exactly as §3 asks.
 
 ### Next
 
-**Slice 2, the six screens — and its one stated precondition is now met.** The three-slice
-plan was approved with the model name as the blocker; the model is confirmed and its output
-proven. ⚠ Before building, open
-[`mockups/three-way-forecast-economic-analysis.html`](mockups/three-way-forecast-economic-analysis.html)
-beside the build as the *Save the Artefact* rule requires — **its closing section still reads
-"Open — none of this is settled", which is stale**: the four screen questions were ruled on
-2026-09-06 (both labels, step 5, the fifth provenance colour, keeping *Research again*).
+**Slice 3 — the printed pack.** The research prints as its own section after the cash flow,
+with the five headings, the figures beside their sources, the full source list, **and the
+"what could not be sourced" section**, every page carrying the AI research tag. The screen
+already promises all of that in `inPackBody` / `inPackTag`, so until slice 3 exists those two
+sentences describe something that does not happen yet — which is the first thing to fix or to
+soften.
+
+⚠ **Nobody has yet watched slice 2 drive a real run in a browser.** The component is proven
+by 21 tests against a stubbed `fetch`, and the engine by run 5, but the two have not been put
+together on screen. That is a five-minute look with the backend running and
+`ALLOW_DEV_AUTH=true`, and it is the honest next check before slice 3.
 
 **4.15, 4.50, 4.58, 4.60, 4.62, 4.65 unchanged and untouched today.** Seven items live.
