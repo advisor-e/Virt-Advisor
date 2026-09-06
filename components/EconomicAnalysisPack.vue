@@ -60,6 +60,7 @@ section.eap(v-if="show")
 <script>
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 const { paragraphsOf } = require('~/utils/researchText')
+const { intlLocaleFor } = require('~/utils/dateLocale')
 
 /**
  * EconomicAnalysisPack — the Economic Analysis as it reaches a lender: a printed section
@@ -189,9 +190,16 @@ export default {
       })
     },
 
-    /** The research date, formatted by the locale rather than assembled here. */
+    /**
+     * The research date, formatted by the locale rather than assembled here.
+     *
+     * ⚠ The Intl tag, not the app locale: `en` orders dates the American way, and this line
+     * prints in the same document as the model's own prose, which is day-first.
+     */
     researchedOn () {
-      return this.researchedAt ? this.$d(this.researchedAt, 'long') : ''
+      return this.researchedAt
+        ? this.$d(this.researchedAt, 'long', intlLocaleFor(this.$i18n.locale))
+        : ''
     }
   },
 

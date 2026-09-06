@@ -18,6 +18,8 @@
 const VueI18n = require('vue-i18n')
 const Vue = require('vue')
 const { dateTimeFormats, LOCALES } = require('../../plugins/i18n')
+const { intlLocaleFor } = require('../../utils/dateLocale')
+const routes = require('../../server/routes/economicAnalysis')
 
 Vue.use(VueI18n)
 
@@ -54,14 +56,37 @@ describe('$d(date, "long") — the format the run line and the printed pack ask 
     }
   })
 
-  // ⚠ PINNED BECAUSE IT IS LOAD-BEARING AND UNRESOLVED, not because wording needs a test.
-  // `en` resolves to en-US, so this reads "September 7, 2026" while the prose in the same
-  // printed pack reads "7 September 2026" — the backend writes the model's date day-first.
-  // One document, two orders. Raised with Mike 2026-09-07; until he rules, this records
-  // what the app really does so the change is visible when it happens.
-  test('English is US-ordered today, and the pack’s own prose is not', () => {
+  // 🔴 PINNED, AND THE COMMENT IS WHY. Ruled by Mike, 2026-09-07: English dates read
+  // day-first. This line prints in the same funding pack as the model's own prose, which
+  // the backend writes day-first via `todayInWords()` — a document that disagrees with
+  // itself about a date looks careless to a credit assessor. Bare `en` gives the American
+  // order, so the tag matters and nothing but a test will notice if it is dropped.
+  test('English reads day-first, matching the prose in the same printed pack', () => {
+    expect(i18nFor(intlLocaleFor('en')).d(new Date(2026, 8, 7), FORMAT)).toBe('7 September 2026')
+    expect(i18nFor(intlLocaleFor('en')).d(new Date(2026, 10, 30), FORMAT)).toBe('30 November 2026')
+  })
+
+  // The exact words the backend puts in the prompt, so the two halves of the pack agree.
+  test('it matches what the backend writes into the prompt', () => {
+    const when = new Date(2026, 8, 7)
+    expect(i18nFor(intlLocaleFor('en')).d(when, FORMAT)).toBe(routes.todayInWords(when))
+  })
+
+  test('bare "en" is not what gets used, because it orders dates the American way', () => {
+    expect(intlLocaleFor('en')).toBe('en-GB')
     expect(i18nFor('en').d(new Date(2026, 8, 7), FORMAT)).toBe('September 7, 2026')
-    expect(i18nFor('en').d(new Date(2026, 10, 30), FORMAT)).toBe('November 30, 2026')
+  })
+
+  test('a locale with no mapping is passed through unchanged', () => {
+    expect(intlLocaleFor('fr')).toBe('fr')
+    expect(intlLocaleFor('pl')).toBe('pl')
+  })
+
+  // Nothing may fall through to a bare `en` and quietly become American again.
+  test('a missing locale falls back to English, and English means en-GB', () => {
+    expect(intlLocaleFor('')).toBe('en-GB')
+    expect(intlLocaleFor(undefined)).toBe('en-GB')
+    expect(intlLocaleFor(null)).toBe('en-GB')
   })
 
   // Not decoration: the whole reason for going through `$d` rather than assembling a date

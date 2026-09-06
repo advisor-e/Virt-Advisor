@@ -143,6 +143,7 @@
 <script>
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 const { paragraphsOf, tokensOf, hostOf } = require('~/utils/researchText')
+const { intlLocaleFor } = require('~/utils/dateLocale')
 
 /**
  * A `Date` as the `YYYY-MM-DD` an `<input type="date">` wants, in the LOCAL day.
@@ -267,13 +268,13 @@ export default {
       const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(this.assessmentDate || '')
       if (!parts) { return '' }
       const d = new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]))
-      return this.$d(d, 'long')
+      return this.$d(d, 'long', intlLocaleFor(this.$i18n.locale))
     },
     isRunning () { return this.state === 'researching' },
     hasResearch () { return this.state === 'done' && Boolean(this.research) },
     /** The research date, formatted by the locale rather than assembled here. */
     researchedOn () {
-      return this.researchedAt ? this.$d(this.researchedAt, 'long') : ''
+      return this.researchedAt ? this.$d(this.researchedAt, 'long', intlLocaleFor(this.$i18n.locale)) : ''
     },
 
     /**

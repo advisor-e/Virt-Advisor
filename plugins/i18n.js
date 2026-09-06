@@ -10,6 +10,7 @@ import nl from '../locales/nl.json'
 import pl from '../locales/pl.json'
 import collaborateEn from '../locales/collaborate/en.json'
 import { mergeSections, COLLABORATE_SECTIONS } from '../utils/i18nMessages'
+import { intlLocaleFor } from '../utils/dateLocale'
 
 Vue.use(VueI18n)
 
@@ -35,8 +36,13 @@ const enMessages = mergeSections(en, collaborateEn, COLLABORATE_SECTIONS)
  */
 const LONG_DATE = { year: 'numeric', month: 'long', day: 'numeric' }
 const LOCALES = ['en', 'fr', 'es', 'de', 'pt', 'it', 'nl', 'pl']
+
+// Both the app's own keys and the tags `Intl` is actually handed (`en` → `en-GB`, so English
+// dates read day-first — Mike, 2026-09-07). Registering both means a caller that passes
+// either finds the format, and `$d` never falls through to its empty string again.
 const dateTimeFormats = LOCALES.reduce((out, locale) => {
   out[locale] = { long: LONG_DATE }
+  out[intlLocaleFor(locale)] = { long: LONG_DATE }
   return out
 }, {})
 
