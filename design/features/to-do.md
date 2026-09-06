@@ -44,8 +44,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 7 | **4.64** International versus local — the forecast treats every sale and purchase as domestic ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-04 |
 | 8 | **4.63** Overseas stock purchases — the Import & Retail model feeds the forecast ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 9 | **4.65** The book value of one asset is typed, because no screen asks for the asset schedule ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 10 | **4.67** A client's page is refused the firm's currency and tax rules ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 
-**Nine live items. Six need Mike.** If this list passes about twenty, something is wrong.
+**Ten live items. Six need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

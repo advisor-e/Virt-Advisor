@@ -9,27 +9,25 @@
 
 ---
 
-## 2026-09-04 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-04 (third session, closed 2026-09-07) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Suite 7,809 green (406 suites) at the push gate. Started 0/0 against master; ended
-5 ahead / 0 behind after merging PR #58's 36 commits in. Everything pushed.
+Suite 7,802 green (406 suites) at the push gate. Started 1 behind master (the PR #60
+merge record), ended level. Everything pushed.
 
-**4.62 slice 2 is COMPLETE — all ten routed screens save per client.** Loan Estimator,
-Quick Position, EBITDA/DCF and Volatility today, one commit each. Three new utilities hold
-the awkward shapes (`utils/*SavedShape.js`). Brief §5 says how each behaves.
+**4.62 eyeballed end to end for the first time** — a real local MySQL 8.4 now exists on
+this machine (`virt_advisor`, settings in the gitignored `.env`, dev firm and client rows
+seeded). All ten wired screens complete advisor save → client edit and badge → advisor
+banner and Restore. Four small findings are on 4.62's note for Mike; 4.67 filed (client
+sign-in refused the firm's currency and tax rules).
 
-**Mike's ruling, 2026-09-04:** a file-sourced figure the client changed shows `client` IN
-PLACE of `from file`, never beside it; Restore brings the file tags back. Built on Quick
-Position; EBITDA/DCF and Volatility have no editable file figure after intake, so the rule
-is stated there, not built. Clients never see an upload step on any of the four.
+**Two fixes shipped.** `f2b64de`: firmOverlay bound a number to a prepared `LIMIT ?`, which
+MySQL 8.0.22+ refuses — the ELEVENTH save of any setting failed with a 500 and every
+version-history read failed. This touches every hub tab and the mentor's saves; UAT's
+MySQL version is recorded nowhere. `405f6f4`: item 4.59 closed.
 
-**Merge notes:** `VolatilityReport.vue` took both sides (your VolatilityDial + my seam);
-`to-do-items.json` kept my 4.62 note and every item you filed (4.63–4.66).
+**Next:** the Three-Way Forecast is 4.62's last screen and waits on 4.64 (laptop). 4.67 is
+a small auth-guard change. Unexplained: the suite counted 7,809 in the morning and 7,802
+at the push gate after three tests were added; nothing failed either time.
 
-**Next:** the Three-Way Forecast is the last screen for 4.62. It waits on 4.64 (active on
-the laptop, same intake and report files) — do not start it while that flag stands.
-4.59 (the "Added here" badge) is a one-line fix, still open. 🔴 Still not eyeballed:
-MySQL needs `MYSQL_PASSWORD` in `.env`.
-
-**LAPTOP:** none of your forecast files were touched today. `server/utils/savedReports.js`
-changed (string lists admitted) — additive.
+**LAPTOP:** none of your forecast files were touched. `server/utils/firmOverlay.js` changed
+in the two LIMIT lines only — pull it, your history tabs need it on MySQL 8.

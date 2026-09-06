@@ -1,7 +1,7 @@
 # Business Entity Reports — the Brief
 
 > **Status: ☑ PART 1 (THE STUB) IS BUILT — 2026-09-03. Part 2 (saved reports, item 4.62) is
-> built and wired on every routed screen — §5; the Three-Way Forecast follows 4.61.** Designed and approved
+> built and wired on every routed screen — §5; the Three-Way Forecast follows 4.64.** Designed and approved
 > the same day on Mike's instruction, in his words:
 >
 > > *"we have a performance report feature — these reports/models are editable and viewable at
@@ -96,7 +96,7 @@ All six ruled on 2026-09-03, each as recommended, one at a time.
 4. **The advisor's control** — `components/base/ClientAccessSwitch.vue`, rendered by
    `ReportHeader` on every report: choose the client, then *Hidden / Open* (D3, D5). It
    renders nothing without an advisor sign-in or off a catalogue route, so no report page
-   changed — including the Three-Way Forecast, which is the laptop's under 4.61.
+   changed — including the Three-Way Forecast, which is the laptop's under 4.64.
 
 **Three named deviations from the artefact.** *(a)* **The read-only list on the client record
 is not built, because no client record screen exists** — the register is a picker at session
@@ -151,7 +151,7 @@ four attributes. `ProvenanceBadge` gained the `client` state; `SliderField` a ba
 Eight Levers, Cost of Capital, Lease vs Buy, Multiple Property (its three blocks and up
 to five property records flattened under dotted names with a `propertyCount`), the Loan
 Estimator, Quick Position, EBITDA/DCF, and Volatility. **Not yet wired:** the Three-Way
-Forecast alone, last, after the laptop's 4.61 lands. Screens without SliderField show the
+Forecast alone, last, after the laptop's 4.64 lands (4.61 closed 2026-09-03). Screens without SliderField show the
 badge in the label through `components/base/ClientChangedBadge.vue`. Until a screen is wired, an open
 model still shows the client its sample figures, exactly as §4 says.
 
@@ -202,8 +202,8 @@ and the month is badged on its label. The accounts upload is hidden from a clien
 "saved by" lines, the banner sentence, the badge word `client`, and the four failure messages.
 
 **Off limits while the rest is wired:** the Three-Way Forecast intake files, active on the
-laptop under item 4.61 (`server/routes/report.js`, `threeWayForecastAssembler.js`,
-`ThreeWayForecastIntake.vue`, `xeroReportParser.js`). None was touched.
+laptop under item 4.64 (`server/report/threeWayForecastModel.js`, `ThreeWayForecastIntake.vue`,
+`ThreeWayForecastReport.vue`). None was touched.
 
 **What proves it:** `tests/unit/savedReports.test.js` (the store — refused when not open, the
 advisor version untouched by a client save, the badge list as a comparison, hostile inputs),
