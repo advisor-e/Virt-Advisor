@@ -1602,7 +1602,7 @@
         "badge": "AI research",
         "researchAgain": "Research again",
         "sourceCount": "{count} source · every one clickable | {count} sources · every one clickable",
-        "packSources": "{count} source, written out in full | {count} sources, written out in full",
+        "packSources": "{count} source · the address in full | {count} sources · every address in full",
         "includeLabel": "Include in the report the client receives",
         "includeWhy": "Adds the economic analysis to the printed forecast pack, after the cash flow. Your name, today’s date and which run this is are recorded against it.",
         "includeFailed": "That could not be recorded. Nothing has changed.",
@@ -1613,7 +1613,7 @@
         "tryAgain": "Back to the brief",
         "inPackLead": "In the pack",
         "inPackBody": "It prints as its own section after the cash flow, with the five headings, the figures beside their sources, and the full list of sources at the end. The “what could not be sourced” section prints too — a funding pack that hides its own gaps is worse than one that names them.",
-        "inPackTag": "Every page of that section carries the same AI research tag that the screen shows, so nobody reading it in six months mistakes researched market conditions for a figure taken from the client’s own accounts."
+        "inPackTag": "Each of the five parts starts a new page and carries the same AI research tag that the screen shows, so nobody reading it in six months mistakes researched market conditions for a figure taken from the client’s own accounts."
       },
       "drop": {
         "title": "Drop the client’s accounting exports here",

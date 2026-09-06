@@ -526,7 +526,7 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
         headings, the figures beside their sources, and the full list of sources at the end.
         <b>The "what could not be sourced" section prints too</b> — a funding pack that hides
         its own gaps is worse than one that names them.</p>
-      <p class="tw-edu-p">Every page of that section carries the same
+      <p class="tw-edu-p">Each of the five parts starts a new page and carries the same
         <span class="src src-ai">AI research</span> tag that the screen shows, so nobody
         reading it in six months mistakes researched market conditions for a figure taken from
         the client's own accounts.</p>
@@ -619,14 +619,15 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
   cash flow" and before anything else. The research prints as the last section of the pack,
   which is what this drawing's sentence resolves to once the tabs are taken into account.
   <br><br>
-  <b>(g) 🔴 "Every page of that section carries the AI research tag" — built as far as CSS
-  allows, and the gap is named rather than glossed.</b> Each of the five sections starts a
-  new printed page and carries the tag, as does the header and the source list, so in the
-  ordinary case the sentence is true. <b>A section that runs longer than one printed page
-  continues onto a page with no tag on it.</b> Repeating an element on every printed page
-  needs <code>@page</code> margin boxes, which no browser this app supports implements.
-  ⚠ <b>This makes one sentence on Screen 6 very slightly stronger than the build</b>
-  (<code>inPackTag</code> in <code>locales/en.json</code>) — for Mike to soften or leave.
+  <b>(g) ✅ SCREEN 6 NOW SAYS WHAT THE BUILD DOES — RULED BY MIKE 2026-09-06.</b> Each of
+  the five parts starts a new printed page and carries the tag, as do the header and the
+  source list. The sentence above used to read <i>"Every page of that section carries the
+  AI research tag"</i>, which was a promise about pages rather than parts: <b>a part that
+  runs longer than one printed page continues onto a page with no tag on it</b>, and
+  repeating an element on every printed page needs <code>@page</code> margin boxes, which
+  no browser this app supports implements. Mike approved the narrower sentence rather than
+  leave the wider one standing, so <b>this is no longer a deviation</b> — it is recorded
+  because the artefact changed.
   <br><br>
   <b>(h) The pack carries NO anchor at all, where the screen carries one per citation.</b>
   Paper has no clicks. A citation is the source's name in the text beside its figure, and
@@ -639,10 +640,11 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
   screen would put two versions of one thing in front of the person approving it. Ctrl+P is
   how it is checked.
   <br><br>
-  <b>(j) The printed source list needed one new label, and it is PROPOSED, NOT RULED.</b>
-  <code>packSources</code> — <i>"{count} sources, written out in full"</i>. The screen's own
-  <code>sourceCount</code> says <i>"every one clickable"</i>, which is false on paper. Every
-  other word in the pack is a string Mike has already approved.
+  <b>(j) ✅ The printed source list needed one new label — RULED BY MIKE 2026-09-06.</b>
+  <code>packSources</code> — <i>"{count} sources · every address in full"</i>. It mirrors his
+  own approved <code>sourceCount</code> on the screen — <i>"{count} sources · every one
+  clickable"</i> — with the one word that stops being true on paper swapped, so the screen
+  and the printed page read as one thing. <b>Every word in the pack is now his.</b>
   <br><br>
   🔴 <b>AND ONE FAULT THIS BUILD FOUND IN SLICE 2, fixed here.</b> The approval line on
   Screen 5 read <code>approval.by.name</code> and <code>approval.ofRuns</code>. The backend
