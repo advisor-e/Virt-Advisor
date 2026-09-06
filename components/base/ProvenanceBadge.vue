@@ -44,11 +44,15 @@ export default {
      * 'client' = the business entity changed it since the advisor's saved version
      * (business-entity-reports D4) — the fourth state, and the one that must never be
      * mistaken for the advisor's own entry.
+     * 'ai' = researched by the model from public sources (item 4.66, Mike's ruling of
+     * 2026-09-06) — the fifth, and the only one whose content came from outside the firm
+     * and the client alike. It exists so that nobody reading a funding pack in six months
+     * mistakes a claim found on the internet for a figure out of the client's own accounts.
      */
     source: {
       type: String,
       required: true,
-      validator: s => ['file', 'entered', 'seeded', 'client'].includes(s)
+      validator: s => ['file', 'entered', 'seeded', 'client', 'ai'].includes(s)
     },
     /** Text for the 'file' state — supplied by the caller so wording stays the screen's. */
     fileLabel: { type: String, required: true },
@@ -58,6 +62,8 @@ export default {
     seededLabel: { type: String, default: '' },
     /** Text for the 'client' state. Only needed by a screen that saves per client. */
     clientLabel: { type: String, default: '' },
+    /** Text for the 'ai' state. Only needed by a screen that shows researched content. */
+    aiLabel: { type: String, default: '' },
     /**
      * 'md' — the intake confirm tables (the original 9.5px badge).
      * 'sm' — the report screens, where the badge sits inside a dense control label.
@@ -83,6 +89,9 @@ export default {
       // A client badge never falls back to the entered wording: that would present a
       // client's edit as the advisor's. The screen supplies the label.
       if (this.source === 'client') { return this.clientLabel }
+      // Nor does an AI badge, and for a stronger version of the same reason: falling back
+      // would label researched market conditions as something a person entered.
+      if (this.source === 'ai') { return this.aiLabel }
       return this.enteredLabel
     },
     /** Colour class — kept as the original `src-file` / `src-hand` names. */
@@ -90,6 +99,7 @@ export default {
       if (this.source === 'file') { return 'src-file' }
       if (this.source === 'seeded') { return 'src-seed' }
       if (this.source === 'client') { return 'src-client' }
+      if (this.source === 'ai') { return 'src-ai' }
       return 'src-hand'
     },
     sizeClass () {
@@ -130,5 +140,13 @@ export default {
   color: var(--pb-client, #b45f00);
   background: var(--pb-client-bg, #ff99002e);
   border: 1px solid var(--pb-client-border, #ff9900);
+}
+/* Purple, as drawn in design/mockups/three-way-forecast-economic-analysis.html: the one
+   colour on these screens that says the content came from outside the firm AND outside the
+   client — deliberately unlike the four that describe a figure's handling within them. */
+.src-ai {
+  color: var(--pb-ai, #6b3fa0);
+  background: var(--pb-ai-bg, #6b3fa014);
+  border: 1px solid var(--pb-ai-border, #6b3fa04d);
 }
 </style>

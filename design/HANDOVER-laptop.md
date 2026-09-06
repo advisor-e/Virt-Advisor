@@ -9,63 +9,44 @@
 
 ---
 
-## 2026-09-05 · Laptop · branch `feat/advisor-progress`
+## 2026-09-07 · Laptop · branch `feat/advisor-progress`
 
-Suite **7,889 green** (409 suites), lint 0 errors, everything pushed.
+Suite **8,059 green** (415 suites), lint **0 errors**. Five commits, each through the full
+gate. Everything pushed. Nothing uncommitted.
 
-### 🔴 PR #59 IS MERGED — BUT TWO LATER COMMITS ARE NOT
+### 4.66 — nine live faults, and the green tests caught none of them
 
-`master` is at `8802ef4` (17 commits). **`7669979` and `d453327` came after it and are on
-this branch only.** `d453327` holds two layout fixes to the forecast report, and the desktop
-needs them: 4.62's last screen is that file. **They want a second PR.** Nothing is tagged, so
-the master team has nothing to pull and no `DEPLOYED-VERSIONS.md` row is due.
+Ran it end to end in a real browser for the first time. That is the whole story of today:
+everything below was invisible to 8,000 passing tests.
 
-### What changed today
+- 🔴 **The citation guard refused HALF of all live runs, and was wrong every time.** It read
+  the digits inside a source's web address (`/dmsdocument/10808`) as a restated figure, so a
+  §4 returning to a source used earlier — which §3 of the prompt *asks* for — lost the whole
+  document. **2 refusals in 4 runs before, 0 in 3 after.**
+- 🔴 **The research date was missing from the client's printed pack entirely.** `$d()` returns
+  an empty string when the format it is asked for does not exist, and none was ever configured.
+  It printed "Run 1 · researched · 13 sources". It is on the PDF from 2026-09-06; nobody saw it.
+- **The date sent to the model was UTC** — yesterday, for an advisor at UTC+12.
+- **English dates printed US-ordered** while the same pack's prose was day-first.
 
-**The two proper fixes are built** (facilities, stock in transit) from the ruled drawing, and
-**the drawing was wrong by omission about GST** — it is triggered by goods arriving, not by
-paying for them, worth ~124,000 on the client it was found with. Rules now in
-`TAX-RULES-IMPORT-GST.md`.
+**Mike ruled the assessment date onto a field of its own** (step 5, defaults to today, echoed
+in the send box). Both wordings his. Proven live: a chosen 31 August 2026 came back as the date
+the research was assessed from.
 
-**Five changes for junior advisors**, all Mike's ask: a glossary, a collection profile that
-says what its gap *means*, an opening-figure count on step 2, a purchases year total, and the
-report's **Summary / Every line** setting — drawn, ruled question by question, then built.
+### 🔴 DESKTOP — read this before you touch dates or i18n
 
-**Then the app was opened, and it found two layout faults older than all of it.** The report
-dragged the whole page sideways (a grid item with no `min-width: 0`, so the table's own
-scrollbar never engaged) and drew its title banner **twice** (the page and the component each
-rendered one). Both fixed and re-measured in a real browser. **Neither was reachable by a
-mount test** — jsdom has no layout engine, and both headers rendered perfectly.
-
-Detail is in `features/report-models.md`; closures in `to-do-done-and-parked.md` §2.
+- **`plugins/i18n.js` changed and `utils/dateLocale.js` is new, and both are SHARED.**
+  `$d(date, 'long')` alone now returns the American order — call
+  `$d(d, 'long', intlLocaleFor(this.$i18n.locale))`. There are only three call sites, all in 4.66.
+- **Your branch is 4 ahead of master with a `4.67` I cannot see.** I filed **4.69**, skipping it,
+  rather than risk the collision that renumbered 4.56 and 4.62.
+- **Your handover is still dated 2026-09-04** though you committed twice today.
 
 ### Next
 
-**4.62's last screen is now this machine's** — see the box below. Quick Position is the
-template; `mixins/savedReport.js` is the shared half.
+**4.69 filed** (score 2, ours): a **future** assessment date may leave the research unsourced —
+30 November was refused after one search, 31 August ran normally. **Seen once: reproduce before
+touching anything**, and do not bound the field first; the fix may be a sentence in the prompt.
 
-**4.67 is narrowed and is nobody's yet:** the report screen has been eyeballed, **step 2 has
-not** — the Type column, the stock-in-transit block and the glossary marks. ⚠ The API does not
-hot-reload; restart `npm run backend`.
-
-**4.15, 4.58, 4.60, 4.65, 4.66 wait on Mike. 4.50 needs UAT.**
-
-⚠ One push was refused by the pre-push hook with the whole suite green, and the identical
-retry passed — most likely `npm audit` failing to reach the network. Not chased.
-
-### 🔴 DESKTOP — 4.62'S LAST SCREEN IS NO LONGER YOURS
-
-**Mike moved it to the laptop on 2026-09-05, and `activeOn` on 4.62 now says `laptop`.** This
-breaks the machine-that-started-it convention on purpose: you built all ten other screens, but
-the forecast's three files are the laptop's entire recent work and the seam changed under them
-today. **Do not start it.** Nothing else about 4.62 moves — slices 1 and 2 are yours and stay
-closed.
-
-**Why it changed hands, and the trap in it either way:** the saved-report wiring follows the
-header. Screens whose header is in the PAGE — Quick Position, EBITDA-DCF, Loan Estimator —
-wire it at the page; the rest wire it in the component. The forecast **joined the page group
-today** (`d453327`), and the `client` prop went with it. So **Quick Position is the template,
-not the other ten**, and anyone looking for the seam where the ten have it will not find it.
-
-`shipmentTimer` in `ThreeWayForecastIntake.vue` is still never cleared on destroy, still
-deliberately not filed.
+**4.66 stays `activeOn` this laptop** — built and pushed, but 4.69 sits in the same files.
+**Nine live items.**

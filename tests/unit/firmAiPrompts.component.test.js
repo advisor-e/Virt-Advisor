@@ -26,6 +26,7 @@ const { listPrompts, PROTECTION_PANEL } = require('../../server/utils/aiPrompts'
 const CASHFLOW = 'cashflow-forecast'
 const SECURITY = 'ai-audit-security'
 const REVIEW = 'prompt-review' // item 4.31 — mentor only
+const ECONOMIC = 'economic-analysis' // item 4.66 — all four tiers
 
 /**
  * Mount the tab with the backend answering exactly as the real route does — the payload
@@ -55,13 +56,17 @@ async function mountTab (tier, own) {
 afterEach(() => { delete global.fetch })
 
 describe('what a firm manager opens', () => {
-  it('shows the cash flow document and no picker at all', async () => {
+  it('shows both client-facing documents, and the picker that comes back with them', async () => {
     const wrapper = await mountTab('firm')
 
-    expect(wrapper.vm.prompts.map(p => p.id)).toEqual([CASHFLOW])
-    expect(wrapper.vm.hasPicker).toBe(false)
-    // Mike, 2026-08-22: a picker offering a choice of one is furniture.
-    expect(wrapper.find('.aip-picker').exists()).toBe(false)
+    expect(wrapper.vm.prompts.map(p => p.id)).toEqual([CASHFLOW, ECONOMIC])
+
+    // 🔴 THE COMPONENT PREDICTED THIS AND IT NEEDED NO CHANGE. Mike ruled 2026-08-22 that
+    // a picker offering a choice of one is furniture, and the fix asked the DATA rather
+    // than the tier — its own comment says "the day a second manager-facing prompt is
+    // added, the picker returns by itself". Item 4.66 was that day.
+    expect(wrapper.vm.hasPicker).toBe(true)
+    expect(wrapper.find('.aip-picker').exists()).toBe(true)
   })
 
   it('puts the three settings ABOVE the method, not buried inside it', async () => {
@@ -141,7 +146,7 @@ describe('what the mentor additionally sees', () => {
   it('gets every mentor document and therefore a picker', async () => {
     const wrapper = await mountTab('mentor')
 
-    expect(wrapper.vm.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW])
+    expect(wrapper.vm.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC])
     expect(wrapper.vm.hasPicker).toBe(true)
     // One card per document. The count follows the list rather than being pinned to a
     // number, so adding a fourth document is a data change and not a test change.

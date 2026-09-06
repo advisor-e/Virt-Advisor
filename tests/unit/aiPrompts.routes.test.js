@@ -34,6 +34,7 @@ const { PROTOCOL_BLOCK } = require('../../server/utils/aiPrompts')
 const CASHFLOW = 'cashflow-forecast'
 const SECURITY = 'ai-audit-security'
 const REVIEW = 'prompt-review' // item 4.31 — mentor only
+const ECONOMIC = 'economic-analysis' // item 4.66 — all four tiers, like the cash flow document
 
 function makeMockRes () {
   return {
@@ -92,21 +93,21 @@ beforeEach(() => {
 // ── GET /api/firm-manager/ai-prompts ─────────────────────────────────────────
 
 describe('what a tier is given when it opens the tab', () => {
-  test('a firm manager gets the cash flow document and NOT the security one', async () => {
+  test('a firm manager gets the two client-facing documents and NOT the security one', async () => {
     const res = makeMockRes()
     await routes.getForManager(makeReq(), res)
 
     expect(res._status).toBe(200)
     expect(res._body.tier).toBe('firm')
-    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW])
+    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, ECONOMIC])
   })
 
-  test('the mentor gets both', async () => {
+  test('the mentor gets every document', async () => {
     const res = makeMockRes()
     await routes.getForManager(makeReq({ firmId: '__platform__' }), res)
 
     expect(res._body.tier).toBe('mentor')
-    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW])
+    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, ECONOMIC])
   })
 
   test('the two middle tiers resolve correctly, unexercised though they are today', async () => {
@@ -195,7 +196,7 @@ describe('what a tier is given when it opens the tab', () => {
     await routes.getForManager(makeReq(), res)
 
     expect(res._status).toBe(200)
-    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW])
+    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, ECONOMIC])
   })
 })
 
@@ -319,7 +320,7 @@ describe('version history comes free with the overlay, and is scoped the same wa
 
     expect(res._status).toBe(200)
     expect(res._body.restored).toBe(true)
-    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW])
+    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, ECONOMIC])
     expect(overlay.restoreVersion).toHaveBeenCalledWith('firm-test-123', 'ai-prompts', 4)
   })
 })

@@ -65,7 +65,10 @@
   .tw-layout
     //- [D1] The levers.
     aside.tw-card
-      .tw-group
+      //- `tw-levers` so the print can drop these four and keep the balance check below
+      //- them. Nobody moves a slider on paper, and the six months they were costing the
+      //- statements are what a lender is actually reading.
+      .tw-group.tw-levers
         .tw-glabel
           span.tw-dot
           h2.tw-h2 {{ $t('report.threeWayForecast.report.tryHeading') }}
@@ -127,7 +130,9 @@
 
     //- [D2] The statements.
     section.tw-results(v-if="data")
-      .tw-card
+      //- [D2a] THE SCREEN'S statements — one at a time, chosen by the tabs. The print has
+      //- its own block below and this whole card is hidden there; see [D2b].
+      .tw-card.tw-screenstmt
         //- The tabs, and the Summary / Every line setting that governs all three of them.
         //- Approved by Mike 2026-09-05 from mockups/three-way-forecast-report-detail.html.
         .tw-tabrow
@@ -163,6 +168,35 @@
           p.tw-note(v-if="hiddenOverheadCount")
             | {{ $t('report.threeWayForecast.report.detail.hiddenOverheads', { hidden: hiddenOverheadCount, total: overheadCount }) }}
           p.tw-note {{ $t('report.threeWayForecast.report.scrollNote') }}
+
+      //- [D2b] 🔴 THE PRINT'S OWN STATEMENTS — ALL THREE, one per page. Hidden on screen.
+      //- Mike's ruling, 2026-09-06. The PDF carried whichever tab was showing, so a lender
+      //- received one statement of three — under a balance check asserting that "the three
+      //- statements tie in every month", which is the claim they cannot then check.
+      //- Nothing new is computed: the three row sets already exist for the tabs to switch
+      //- between, and the headings are the tab labels themselves.
+      .tw-printall
+        .tw-card.tw-printstmt(v-for="s in printStatements" :key="s.key")
+          .tw-group
+            .tw-glabel
+              span.tw-dot
+              h2.tw-h2 {{ $t(s.label) }}
+            .tw-tblwrap
+              table
+                thead
+                  tr
+                    th
+                    th(v-for="(m, i) in monthLabels" :key="i") {{ m }}
+                tbody
+                  tr(v-for="row in s.rows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub, 'is-strong': row.strong }")
+                    td {{ row.rawLabel || $t(row.label) }}
+                    td(
+                      v-for="(v, i) in row.values" :key="i"
+                      :class="cellClass(row, v)") {{ money(v) }}
+            //- The screen's own copy of this note is keyed to the profit TAB being open,
+            //- which is never true here, so the print reads its own count.
+            p.tw-note(v-if="s.key === 'profit' && printHiddenOverheads")
+              | {{ $t('report.threeWayForecast.report.detail.hiddenOverheads', { hidden: printHiddenOverheads, total: overheadCount }) }}
 
       .tw-card
         .tw-group
@@ -596,6 +630,44 @@ export default {
       return this.cashRows
     },
 
+    /**
+     * All three statements, for the print — in the order the tabs are in.
+     *
+     * 🔴 THE PDF USED TO CARRY ONE OF THEM, whichever tab happened to be open. Mike ruled
+     * on 2026-09-06 that it carries all three: a three-way forecast is three statements
+     * that tie together, and the printed balance check asserts exactly that — so a pack
+     * with one statement makes the claim and withholds the evidence for it. It also
+     * required the advisor to print three times and change tab in between, which nothing
+     * on the screen asked them to do.
+     *
+     * The labels are the tab labels, so this introduced no new wording.
+     *
+     * @returns {Array<{key: string, label: string, rows: Array<object>}>}
+     */
+    printStatements () {
+      if (!this.data) { return [] }
+      return [
+        { key: 'cash', label: 'report.threeWayForecast.report.tabCash', rows: this.cashRows },
+        { key: 'profit', label: 'report.threeWayForecast.report.tabProfit', rows: this.profitRows },
+        { key: 'balance', label: 'report.threeWayForecast.report.tabBalance', rows: this.balanceRows }
+      ]
+    },
+
+    /**
+     * Hidden overhead lines, counted for the PRINT.
+     *
+     * `hiddenOverheadCount` above is keyed to the profit TAB being open, which is never
+     * true of the printed profit statement — so reusing it would silently report zero and
+     * hide an omission, which is the one thing that note exists to prevent.
+     *
+     * @returns {number}
+     */
+    printHiddenOverheads () {
+      if (!this.data || !this.isEvery) { return 0 }
+      const oh = this.data.profitAndLoss.overheads
+      return Object.keys(oh).filter(k => !this.hasAFigure(oh[k])).length
+    },
+
     workingCapitalRows () {
       if (!this.data) { return [] }
       const b = this.data.balanceSheet.months
@@ -883,5 +955,42 @@ td.impossible { color: var(--rs-crit); background: var(--rs-crit-soft); font-wei
 .tw-cta { font: inherit; font-weight: 600; font-size: 13.5px; color: var(--rs-accent-contrast); background: var(--rs-accent); border: 0; padding: 11px 18px; border-radius: 10px; cursor: pointer; }
 .tw-ghost { background: transparent; color: var(--rs-ink); border: 1px solid var(--rs-line); }
 .tw-foot { font-size: 12px; color: var(--rs-muted); }
-@media print { .tw-actions, .tw-tabs { display: none !important; } }
+/* 🔴 WHAT PRINTS, AND WHY IT IS NOT WHAT IS ON SCREEN.
+   Measured with a real PDF on 2026-09-06, at Mike's question "is the report able to be
+   exported as a pdf": it was, and SIX OF THE TWELVE MONTHS WERE MISSING FROM IT with
+   nothing on the page saying so. A lender received October to March and no sign that
+   April to September existed.
+
+   Two causes, both fixed here and neither visible on screen:
+
+   1. The levers panel still printed, so the statements got 592px of a page where the
+      table needs 900. The four sliders cannot be moved on paper; the balance check can
+      and does still print, after the statements rather than beside them.
+   2. `.tw-tblwrap` scrolls sideways on screen — and paper cannot scroll, so the overflow
+      was silently CLIPPED rather than wrapped or shrunk. `overflow: visible` is what
+      turns a cut-off table into a whole one.
+
+   The orientation is set for the same reason. Twelve monthly columns do not fit an
+   upright page at any sane type size, and the browser's print dialog opens on Portrait
+   every time — so an advisor who did not know to change it lost half the year. */
+@page { size: landscape; margin: 10mm; }
+
+/* The print's three statements are built on every render and shown only on paper. */
+.tw-printall { display: none; }
+
+@media print {
+  .tw-actions, .tw-levers { display: none !important; }
+  /* 🔴 THE WHOLE TABBED CARD GOES, not just its tab buttons — the tabs, the
+     Summary / Every line toggle and the "scroll sideways" note are all controls or
+     instructions for a screen, and the print has its own three statements below.
+     Hiding the buttons alone would have left an empty white card on the page. */
+  .tw-screenstmt { display: none !important; }
+  .tw-printall { display: block; }
+  .tw-printstmt + .tw-printstmt { break-before: page; page-break-before: always; }
+  /* The statements take the whole page; the balance check follows them rather than
+     leading the document with a one-line assurance about figures nobody has seen yet. */
+  .tw-layout { display: flex; flex-direction: column; }
+  .tw-layout > aside.tw-card { order: 2; }
+  .tw-tblwrap { overflow: visible !important; }
+}
 </style>

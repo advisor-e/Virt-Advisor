@@ -393,10 +393,13 @@ another colliding model cannot reopen it silently.
 |---|---|
 | Maths models (pure, CommonJS) | [`server/report/`](../../server/report/) |
 | Routes | [`server/routes/report.js`](../../server/routes/report.js), registered in [`server/restify-server.js`](../../server/restify-server.js) |
+| ⚠ The one AI call in this area — **not in `report.js`** | [`server/routes/economicAnalysis.js`](../../server/routes/economicAnalysis.js) (the Three-Way Forecast's optional market research, item 4.66), with [`server/report/economicAnalysis/researchResult.js`](../../server/report/economicAnalysis/researchResult.js) checking what comes back and [`server/utils/economicAnalysisRuns.js`](../../server/utils/economicAnalysisRuns.js) holding the runs and approvals. Its own file because it is the only route here that returns a job and polls. What it sends: [`../ECONOMIC-ANALYSIS-PROMPT.md`](../ECONOMIC-ANALYSIS-PROMPT.md) |
+| The screen that calls it | [`components/EconomicAnalysisStep.vue`](../../components/EconomicAnalysisStep.vue) — **step 5** of [`pages/three-way-forecast.vue`](../../pages/three-way-forecast.vue), optional and reachable from anywhere, because it needs nothing from the forecast. **The advisor writes the brief and reads back the exact words before they are sent** (Mike's privacy ruling, 2026-09-06): the request carries `brief` and `clientRef` and nothing else, asserted key by key in `tests/unit/economicAnalysisStep.component.test.js`. ⚠ **No `v-html`** — model text is parsed into text/bold/link tokens (the shared parser [`utils/researchText.js`](../../utils/researchText.js), so the screen and the pack cannot drift), and a `javascript:` link cannot render |
+| The section a lender reads | [`components/EconomicAnalysisPack.vue`](../../components/EconomicAnalysisPack.vue) — **print-only**, rendered by the page after the report so it prints from step 4, where step 5's own component is hidden. 🔴 **It prints only on `approval.isApproved`**, never on the screen's tick alone: research nobody accepted, research from a run that was re-run, and research withdrawn by unticking the step all print nothing. It carries no anchor at all — paper has no clicks, so a citation is the source's name and every address is written out in full at the end |
 | Catalogue (single source for what exists) | [`utils/reportModelCatalogue.js`](../../utils/reportModelCatalogue.js) |
 | What the AI is told each model serves | [`data/report-model-summaries.json`](../../data/report-model-summaries.json), rendered by [`server/utils/reportModels.js`](../../server/utils/reportModels.js) — §3a |
 | The shared frame + `--rs-*` tokens | [`components/base/ReportShell.vue`](../../components/base/ReportShell.vue) |
-| Shared blocks | `components/base/` — `ReportHeader` · `HeroStrip` · `HeroFigure` · `StaleBanner` · `SliderField` · `ProvenanceBadge` |
+| Shared blocks | `components/base/` — `ReportHeader` · `HeroStrip` · `HeroFigure` · `StaleBanner` · `SliderField` · `ProvenanceBadge` (**five** states: `file` · `entered` · `seeded` · `client` · `ai`) |
 | Mixins | `currencyMixin` (money formatting) · `reportRecompute` (debounce, race guard, stale flag) |
 
 ### The build recipe
@@ -970,6 +973,33 @@ the print.** A gap in a sidebar is easy to hand a client without noticing; the b
 be. Both bands rest on `balanceCheck !== 0`, which is safe because the check cancels to an
 **exact** zero even on fractional figures — pinned by a test, because a speck of floating
 point would put a red band announcing a gap "of 0" in front of every client.
+
+**What the PDF actually contains — measured with a real file, 2026-09-06.** There is no PDF
+library in this app and deliberately so: none of the usual ones run on the locked Node 14.15,
+and the browser's own dialog means the client's figures are never sent anywhere to be
+rendered. The button says *"Print or save as PDF"*, and it works. 🔴 **What it produced the
+first time it was checked was a funding pack missing half the year.** Six of the twelve
+months were absent with nothing on the page saying so, from two causes that are invisible on
+screen: the levers panel still printed, leaving the statement 592px of a page where the table
+needs 900; and `.tw-tblwrap` scrolls sideways on screen, which on paper is not a scroll but a
+**silent clip**. The print now drops the four sliders — nobody moves a slider on paper — keeps
+the balance check below the statements, stops the tables clipping, and sets
+`@page { size: landscape }`. **Orientation only, never a paper size:** the app never chose A4
+or Letter and must not start, so a firm on Letter still gets Letter, and both give the 900px
+the twelve columns need.
+
+🔴 **AND THE PDF CARRIES ALL THREE STATEMENTS, one per page — Mike's ruling, 2026-09-06.**
+It used to carry whichever tab was open, normally the Cash Flow, **beneath a balance check
+asserting that "the three statements tie in every month"** — making the claim and withholding
+the evidence for it. Sending the full set otherwise meant printing three times and changing
+tab in between, which nothing on the screen asked an advisor to do, so in practice every
+lender received one. The screen still shows one at a time; `printStatements` renders all
+three for the print from the row sets the tabs already switch between, headed by the tab
+labels, so **nothing new is computed and no new wording was invented.** The tabs, the
+*Summary / Every line* toggle and the *"scroll sideways"* note are all absent from the
+print — they are controls for a screen. **`printStatements` is pinned by a test** rather than
+left to a stylesheet: a later simplification back onto `visibleRows` would silently return
+the PDF to one statement, and nobody sees that without generating a file and counting.
 
 **This model is the only one that reads a FORECAST rather than history.** Every other
 Report-class model reads what has happened; this one is about what will. No accounting

@@ -3,7 +3,13 @@
 // The Node-14 OpenAI REST client must be a drop-in for the SDK surface the app
 // uses. Tests inject a fake https.request so no network or API key is needed.
 
-const { createOpenAIClient, parseSSEStream } = require('../../server/utils/openaiClient')
+const {
+  createOpenAIClient,
+  parseSSEStream,
+  stripResponseOutput,
+  COMPLETIONS_PATH,
+  RESPONSES_PATH
+} = require('../../server/utils/openaiClient')
 
 /** Builds a fake http.IncomingMessage: async-iterable of Buffers + statusCode. */
 function fakeRes (statusCode, chunks) {
@@ -247,5 +253,135 @@ describe('invisible characters never leave this client', () => {
     expect(out.text).toBe(real)
     expect(out.finish).toBe('stop')
     expect(out.usage.total_tokens).toBe(12)
+  })
+})
+
+// ── /v1/responses — the Economic Analysis path (item 4.66) ──────────────────
+//
+// The endpoint that runs the model's own web search and returns url_citation
+// annotations. Chat completions returns neither, which is why it exists.
+
+describe('createOpenAIClient — responses', () => {
+  const input = 'research this'
+
+  // Built from codepoints for the reason the block above gives: a literal invisible
+  // character in a test is unreviewable, and whitespace-trimming tools turn it green.
+  const ZW = String.fromCharCode(0x200B)
+  const WJ = String.fromCharCode(0x2060)
+  const TAG_A = String.fromCodePoint(0xE0041)
+
+  /** Records the path a call went to, and replies with `body`. */
+  function pathSpy (sink, body) {
+    return (options, cb) => {
+      sink.path = options.path
+      process.nextTick(() => cb(fakeRes(200, [body])))
+      return { on () { return this }, write () {}, end () {} }
+    }
+  }
+
+  test('throws when no API key is configured', async () => {
+    const client = createOpenAIClient({})
+    await expect(client.responses.create({ model: 'gpt-4o', input }))
+      .rejects.toThrow('OPENAI_API_KEY')
+  })
+
+  test('posts to /v1/responses, and the chat path is unchanged by the addition', async () => {
+    const sink = {}
+    const research = createOpenAIClient({ apiKey: 'k', requestImpl: pathSpy(sink, '{"output":[]}') })
+    await research.responses.create({ model: 'gpt-4o', input })
+    expect(sink.path).toBe(RESPONSES_PATH)
+
+    const chat = createOpenAIClient({ apiKey: 'k', requestImpl: pathSpy(sink, '{"choices":[]}') })
+    await chat.chat.completions.create({ model: 'gpt-4o', messages: [] })
+    expect(sink.path).toBe(COMPLETIONS_PATH)
+  })
+
+  test('non-stream: resolves to the response, text stripped of invisibles', async () => {
+    const body = JSON.stringify({
+      output: [{
+        type: 'message',
+        content: [{ type: 'output_text', text: 'rate is 5.6' + ZW + '%', annotations: [] }]
+      }],
+      usage: { total_tokens: 9 }
+    })
+    const client = createOpenAIClient({ apiKey: 'k', requestImpl: fakeRequest(fakeRes(200, [body])) })
+    const res = await client.responses.create({ model: 'gpt-4o', input })
+    expect(res.output[0].content[0].text).toBe('rate is 5.6%')
+    expect(res.usage.total_tokens).toBe(9)
+  })
+
+  test('non-stream: an HTTP error carries the status', async () => {
+    const client = createOpenAIClient({ apiKey: 'k', requestImpl: fakeRequest(fakeRes(429, ['slow down'])) })
+    await expect(client.responses.create({ model: 'gpt-4o', input }))
+      .rejects.toThrow('OpenAI API error 429')
+  })
+
+  // Annotations must survive untouched: their start/end indices are what file each
+  // citation into the right section downstream.
+  test('non-stream: url_citation annotations are left exactly as they arrived', async () => {
+    const annotation = { type: 'url_citation', url: 'https://cso.ie/x', title: 'CSO', start_index: 0, end_index: 14 }
+    const body = JSON.stringify({
+      output: [{ type: 'message', content: [{ type: 'output_text', text: 'CPI rose 3.4%.', annotations: [annotation] }] }]
+    })
+    const client = createOpenAIClient({ apiKey: 'k', requestImpl: fakeRequest(fakeRes(200, [body])) })
+    const res = await client.responses.create({ model: 'gpt-4o', input })
+    expect(res.output[0].content[0].annotations[0]).toEqual(annotation)
+  })
+
+  test('stream: search events pass through and the completed response is stripped', async () => {
+    const sse = [
+      'data: ' + JSON.stringify({ type: 'response.output_item.added', item: { type: 'web_search_call', action: { query: 'Ireland CPI' } } }) + '\n',
+      'data: ' + JSON.stringify({ type: 'response.output_text.delta', item_id: 'a', content_index: 0, delta: 'hel' + ZW + 'lo' }) + '\n',
+      'data: ' + JSON.stringify({
+        type: 'response.completed',
+        response: { output: [{ type: 'message', content: [{ type: 'output_text', text: 'done' + WJ + '.', annotations: [] }] }] }
+      }) + '\n',
+      'data: [DONE]' + '\n'
+    ]
+    const client = createOpenAIClient({ apiKey: 'k', requestImpl: fakeRequest(fakeRes(200, sse)) })
+    const stream = await client.responses.create({ model: 'gpt-4o', input, stream: true })
+
+    const events = []
+    for await (const e of stream) { events.push(e) }
+
+    expect(events[0].item.action.query).toBe('Ireland CPI')
+    expect(events[1].delta).toBe('hello')
+    expect(events[2].response.output[0].content[0].text).toBe('done.')
+  })
+
+  // The same carry guard the chat stream has, for the same reason: a tag character
+  // split across two events would otherwise pass both halves through.
+  test('stream: a tag character split across two deltas is still removed', async () => {
+    const sse = [
+      'data: ' + JSON.stringify({ type: 'response.output_text.delta', item_id: 'a', content_index: 0, delta: 'ok' + TAG_A.charAt(0) }) + '\n',
+      'data: ' + JSON.stringify({ type: 'response.output_text.delta', item_id: 'a', content_index: 0, delta: TAG_A.charAt(1) + '!' }) + '\n',
+      'data: [DONE]' + '\n'
+    ]
+    const client = createOpenAIClient({ apiKey: 'k', requestImpl: fakeRequest(fakeRes(200, sse)) })
+    const stream = await client.responses.create({ model: 'gpt-4o', input, stream: true })
+    let text = ''
+    for await (const e of stream) { text += e.delta || '' }
+    expect(text).toBe('ok!')
+  })
+
+  test('stream: an event with no text is passed through untouched', async () => {
+    const sse = [
+      'data: ' + JSON.stringify({ type: 'response.web_search_call.searching' }) + '\n',
+      'data: ' + JSON.stringify('a bare string') + '\n',
+      'data: [DONE]' + '\n'
+    ]
+    const client = createOpenAIClient({ apiKey: 'k', requestImpl: fakeRequest(fakeRes(200, sse)) })
+    const stream = await client.responses.create({ model: 'gpt-4o', input, stream: true })
+    const events = []
+    for await (const e of stream) { events.push(e) }
+    expect(events).toEqual([{ type: 'response.web_search_call.searching' }, 'a bare string'])
+  })
+
+  test('shapes stripResponseOutput must not throw on', () => {
+    expect(stripResponseOutput({ id: 'x' })).toEqual({ id: 'x' })
+    expect(stripResponseOutput(null)).toBeNull()
+    expect(() => stripResponseOutput({ output: [{ content: null }, { content: [{ text: 5 }, null] }] })).not.toThrow()
+    // The convenience field can arrive on a response carrying no `output` array at all.
+    expect(stripResponseOutput({ output_text: 'a' + ZW + 'b' }).output_text).toBe('ab')
   })
 })
