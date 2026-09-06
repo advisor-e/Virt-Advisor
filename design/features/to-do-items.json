@@ -204,6 +204,27 @@
       "touches": "NOTHING YET, and it needs its own drawing and Mike's approval before any of it. Then: server/report/intake/xeroReportParser.js (a fifth report kind), server/report/intake/supportedPackages.js, server/routes/report.js and components/ThreeWayForecastIntake.vue (a fifth slot, and the Sell row becoming a chooser rather than two typed figures).",
       "note": "⚠ COUPLED TO 4.60 AND SHOULD FOLLOW IT. 4.60 waits on four real exports from QuickBooks Online and MYOB to move those two packages from `expected` to `verified`, and whoever collects them should be asked for the Fixed Asset Schedule at the same time. It is the same request to the same person, and doing it separately means asking twice.",
       "comment": "2026-09-03 — filed at the moment Mike ruled \"typing it for now\", so the version he would rather have is on the list rather than in a conversation. Nothing is blocked: the capital block is built, tested and honest, and the advisor types one number they can read straight off their own asset schedule. Appended rather than slotted beside the work it relates to, because the array order is Mike's ranking and inserting it mid-list would be a ranking decision taken on his behalf."
+    },
+    {
+      "ref": "4.68",
+      "name": "The forecast opens on zeros where its own note promises a worked sample",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Reaching step 4 without dropping any exports gives an all-zero forecast. The page's own note says it should compute the source workbook's sample, so the code and its documentation disagree and nobody knows which is right.",
+      "risk": "Low and not dangerous: an advisor with no data sees zeros, which is honest if odd, and every figure is $0 rather than wrong. What it costs is confidence — a screen of $0 reads as broken, and an advisor may not realise the forecast is simply waiting for their exports. The real hazard is the disagreement itself: whichever half is stale will mislead the next person who reads it.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Found 2026-09-06 while producing a real PDF to answer Mike's question about exporting the report. Filed on his instruction the same day (\"yes\") — a defect we found, not a feature nobody asked for."
+      },
+      "touches": "pages/three-way-forecast.vue, whose JSDoc carries the claim, and components/ThreeWayForecastReport.vue, whose seed prop decides it: the page always supplies the intake's live payload, so the component's no-seed sample path may be unreachable from the page. Whichever way it is settled, one of the two is edited and the other left alone.",
+      "note": "⚠ NOT YET DIAGNOSED, ONLY OBSERVED. Seen in a running browser on 2026-09-06: open /three-way-forecast, click the step 4 chip with nothing uploaded, every figure is $0. The likely cause is that the page passes the intake's live payload as seed from the moment the intake mounts, so the report never takes the no-seed path its own note describes — but that is a reading, not a proof. The first job is deciding which half is wrong. If the sample was never meant to be reachable this way, the fix is one sentence of documentation, not code.",
+      "comment": "2026-09-06 — filed on Mike's instruction the day it was found. It surfaced as a side effect of answering his question about PDF export, and it is why both print screenshots taken that day show $0 in every cell."
     }
   ]
 }
