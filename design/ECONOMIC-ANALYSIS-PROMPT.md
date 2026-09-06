@@ -192,16 +192,19 @@ three existing prompts, so this becomes the fourth and is editable there without
 > Aim for 1,200–1,600 words across sections 1 to 4. Section 5 is as long as it needs to be.
 > Citations appear inline, in the section where the figure is used.
 
-🔴 **THE NUMBERING SENTENCE IS AN ADDITION MADE AT BUILD TIME AND MIKE HAS NOT RULED ON IT.**
-It was not in the text he approved on 2026-09-06. It is here because the check that enforces
-the no-restatement rule finds section 4 **by its numbered heading**: a model that writes an
-unnumbered heading would return research the guard cannot inspect, and it would pass silently.
-Without the sentence the guard is skippable by accident.
+✅ **THE NUMBERING SENTENCE IS APPROVED BY MIKE, 2026-09-06 ("yes").** It was added at build
+time and was not in the text he approved earlier that day, so it was recorded as an unruled
+deviation rather than absorbed — and then put to him once the live run showed what it was
+worth.
+
+It is here because the check that enforces the no-restatement rule finds section 4 **by its
+numbered heading**. A model writing an unnumbered heading would return research the guard
+cannot inspect, and **it would pass silently** — the guard defeated by accident rather than by
+any fault in it. Run 5 confirmed the mechanism works: all five numbered headings were found on
+live output.
 
 It changes nothing about what the research *says* — it constrains the shape of a heading, not
-a word of the content. **Recorded here rather than absorbed**, because an addition to an
-approved artefact that nobody writes down is exactly the drift the *Save the Artefact* rule
-exists to catch. Remove it and the guard weakens; keep it and it should be his call, not ours.
+a word of the content. 🔴 **Do not remove it.**
 
 ### §7 · Tone
 
@@ -250,11 +253,13 @@ was still a promise — the citation re-check — is a promise no longer; see th
 
 ---
 
-## 6. Open — Mike's calls, not settled here
+## 6. Settled — nothing on this page is open
 
-1. 🔴 **The numbering sentence added to §6 at build time** (recorded in full under §3's §6
-   above). Not in the text he approved. Keep it and the guard holds; remove it and a model
-   that writes an unnumbered heading returns research the check cannot inspect.
+✅ **Every question this page ever carried is now ruled.**
+
+*Settled 2026-09-06 after the live run: **the numbering sentence added to §6 at build time**
+(recorded in full under §3's §6 above). It was the last open item, put to Mike once run 5
+showed the guard finding all five headings by their numbers, and approved — "yes". It stays.*
 
 *Settled 2026-09-06 before the build: the two ticks' labels — *"Economic analysis"*, his own
 phrase, and *"Include in the report the client receives"* — approved as drawn on
