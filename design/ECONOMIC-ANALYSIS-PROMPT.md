@@ -10,9 +10,11 @@
 > **NO SCREEN EXISTS YET.** An advisor cannot reach any of this: step 5, the brief box, the
 > waiting screen and the two ticks are slice 2. Nothing in the app calls these routes.
 >
-> ⚠ **NO LIVE RUN HAS BEEN MADE THROUGH THE BUILT PATH.** The four runs on
-> [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md) were made by a
-> throwaway script. See §7 for the two things that must be confirmed against a real call.
+> ✅ **RUN 5 WENT THROUGH THE BUILT PATH, 2026-09-06**, and closed both of §7's open ends: the
+> model is **`gpt-6-astra`**, and the route works end to end. It also found two faults nothing
+> else could have — **the model does not search unless required to**, and every search phrase
+> was arriving empty. The four earlier runs are on
+> [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md), with run 5 beside them.
 >
 > This page stays as the record of what was approved and when — the rule in
 > [`../CLAUDE.md`](../CLAUDE.md), *Save the Artefact*.
@@ -269,25 +271,31 @@ what the model FINDS. It stays in the prompt as a steer and no screen may assume
 
 ---
 
-## 7. What must be confirmed against a live call — the build's own open ends
+## 7. What the live call settled — and it found four faults
 
-Slice 1 is proven against recorded output and fake transport. Two things cannot be proven
-that way, and neither should be discovered by a client:
+✅ **Closed 2026-09-06 by run 5**, the first call through the built path. Recorded in full on
+[`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md). Both open ends are shut,
+and the run found two further faults that only a live call could have shown:
 
-1. 🔴 **THE MODEL NAME IS A JUDGEMENT, NOT EVIDENCE.**
-   [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md) records the timings,
-   costs, search counts and full output of four runs — and **never names the model they were
-   made with.** The script was outside the repository and is gone. `MODEL` in
-   `server/routes/economicAnalysis.js` carries that warning beside it and is one edit to
-   change. **Confirm it with one real call before slice 2 ships.**
-2. **No live call has been made through the built path.** The streamed event names this code
-   reads (`response.output_item.added` carrying a `web_search_call`, `response.completed`)
-   are handled defensively — an unrecognised shape is ignored rather than thrown — so the
-   worst case is a waiting screen with no searches listed, not a failed run. It is still
-   unproven.
+1. ✅ **The model is `gpt-6-astra`, and it is now on record.** The guess in the build was
+   `gpt-4o`, which **made no search at all** and produced an unsourced document the validator
+   refused. ⚠ **It is still not the model that made runs 1–4, and nothing can be** — that
+   script is gone. Those four remain evidence about the *prompt*, never about the model.
+2. ✅ **The built path works end to end** — start, stream, poll, validate, refuse or complete.
+3. 🔴 **THE SEARCH IS OPTIONAL UNLESS DEMANDED, and this was invisible until a live call.**
+   The model decides for itself whether to search; §3 asking it to is not a control. The route
+   now sends `tool_choice: 'required'`. **Do not remove it** — without it the feature can
+   return a confident outlook built on nothing, which is precisely what run 5's first attempt
+   did.
+4. 🔴 **The search phrases were all arriving empty.** The build read the query from
+   `response.output_item.added`, where no `action` object exists yet; it is on
+   `response.output_item.done`. Ten searches were counted with nothing to show beside them —
+   and **the tests had encoded the same wrong assumption**, so all 67 passed regardless. The
+   captured event shapes are on the evidence page, and the tests now use them.
 
-**One live call answers both**, and re-checks the citation fix against fresh output at the
-same time — which is what §5's second row asks for and what run 4 alone cannot give.
+⚠ **One thing the live call could NOT settle: the cost.** The published rate could not be
+retrieved. Run 5's usage — 99,024 in, 5,422 out, 10 searches — is recorded so a real bill can
+be checked against it rather than against an estimate nobody verified.
 
 ---
 

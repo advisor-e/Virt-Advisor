@@ -50,6 +50,12 @@ function makeMockRes () {
   }
 }
 
+/**
+ * `getRun` is restify's callback form — `(req, res, next)` — because it awaits nothing;
+ * see the note above it in the route. Restify supplies `next`; here this stands in for it.
+ */
+function noop () {}
+
 /** `sendError` writes a JSON STRING through writeHead/end — parse it or assertions lie. */
 function errorBody (res) {
   return typeof res._body === 'string' ? JSON.parse(res._body) : res._body
@@ -283,9 +289,15 @@ describe('starting a run', () => {
 
 describe('polling a run', () => {
   test('reports the model’s own searches while it works', async () => {
+    // The real event pair, captured from a live run on 2026-09-06: `.added` carries no
+    // `action` at all, and the query only exists on `.done`. An earlier fixture invented an
+    // `.added` event with a query on it — a shape the API never sends — which is why this
+    // suite stayed green while every phrase arrived empty.
     routes._setClientFactory(fakeClient([
-      { type: 'response.output_item.added', item: { type: 'web_search_call', action: { query: 'Ireland CPI August 2026' } } },
-      { type: 'response.output_item.added', item: { type: 'web_search_call', action: { query: 'Galway commercial rent' } } },
+      { type: 'response.output_item.added', item: { type: 'web_search_call', status: 'in_progress' } },
+      { type: 'response.output_item.done', item: { type: 'web_search_call', status: 'completed', action: { type: 'search', query: 'Ireland CPI August 2026' } } },
+      { type: 'response.output_item.added', item: { type: 'web_search_call', status: 'in_progress' } },
+      { type: 'response.output_item.done', item: { type: 'web_search_call', status: 'completed', action: { type: 'search', query: 'Galway commercial rent' } } },
       { type: 'response.completed', response: goodResearch() }
     ]))
     const start = makeMockRes()
@@ -293,7 +305,7 @@ describe('polling a run', () => {
     await settle()
 
     const res = makeMockRes()
-    routes.getRun(makeReq({ params: { runId: start._body.runId } }), res)
+    routes.getRun(makeReq({ params: { runId: start._body.runId } }), res, noop)
 
     expect(res._body.state).toBe('done')
     expect(res._body.searchCount).toBe(2)
@@ -305,7 +317,7 @@ describe('polling a run', () => {
     const start = await runOnce([{ type: 'response.output_text.delta', delta: 'half a document' }])
 
     const res = makeMockRes()
-    routes.getRun(makeReq({ params: { runId: start.runId } }), res)
+    routes.getRun(makeReq({ params: { runId: start.runId } }), res, noop)
     expect(res._body.state).toBe('failed')
     expect(res._body.error.code).toBe('RESEARCH_INCOMPLETE')
     expect(res._body.research).toBeNull()
@@ -315,7 +327,7 @@ describe('polling a run', () => {
     const start = await runOnce(new Error('ECONNRESET talking to api.openai.com'))
 
     const res = makeMockRes()
-    routes.getRun(makeReq({ params: { runId: start.runId } }), res)
+    routes.getRun(makeReq({ params: { runId: start.runId } }), res, noop)
     expect(res._body.state).toBe('failed')
     expect(res._body.error.code).toBe('RESEARCH_FAILED')
     expect(res._body.error.message).not.toContain('ECONNRESET')
@@ -327,7 +339,7 @@ describe('polling a run', () => {
     const start = await runOnce([{ type: 'response.completed', response: bad }])
 
     const res = makeMockRes()
-    routes.getRun(makeReq({ params: { runId: start.runId } }), res)
+    routes.getRun(makeReq({ params: { runId: start.runId } }), res, noop)
     expect(res._body.state).toBe('failed')
     expect(res._body.error.code).toBe('SECTIONS_MISSING')
     expect(res._body.error.detail).toBeUndefined()
@@ -335,7 +347,7 @@ describe('polling a run', () => {
 
   test('an unknown run is a 404', () => {
     const res = makeMockRes()
-    routes.getRun(makeReq({ params: { runId: 'ea_nope' } }), res)
+    routes.getRun(makeReq({ params: { runId: 'ea_nope' } }), res, noop)
     expect(res._status).toBe(404)
   })
 
@@ -344,7 +356,7 @@ describe('polling a run', () => {
     const start = await runOnce([{ type: 'response.completed', response: goodResearch() }])
 
     const res = makeMockRes()
-    routes.getRun(makeReq({ advisorId: 'adv-other', params: { runId: start.runId } }), res)
+    routes.getRun(makeReq({ advisorId: 'adv-other', params: { runId: start.runId } }), res, noop)
     expect(res._status).toBe(404)
     expect(errorBody(res).error.code).toBe('RUN_NOT_FOUND')
   })
@@ -353,7 +365,7 @@ describe('polling a run', () => {
     const start = await runOnce([{ type: 'response.completed', response: goodResearch() }])
 
     const res = makeMockRes()
-    routes.getRun(makeReq({ firmId: 'firm-other', params: { runId: start.runId } }), res)
+    routes.getRun(makeReq({ firmId: 'firm-other', params: { runId: start.runId } }), res, noop)
     expect(res._status).toBe(404)
   })
 })
@@ -458,7 +470,7 @@ describe('the second tick — the approval gate', () => {
     expect(res._body.approval).toBeNull()
 
     const poll = makeMockRes()
-    routes.getRun(makeReq({ params: { runId } }), poll)
+    routes.getRun(makeReq({ params: { runId } }), poll, noop)
     expect(poll._body.approval).toBeNull()
   })
 
@@ -528,21 +540,23 @@ describe('the pieces the routes are built from', () => {
 
   test('a web-search event records its query; anything else is ignored', () => {
     const run = { searchCount: 0, searches: [] }
-    expect(routes.readEvent(run, { type: 'response.output_item.added', item: { type: 'web_search_call', action: { query: 'x' } } })).toBeNull()
+    expect(routes.readEvent(run, { type: 'response.output_item.done', item: { type: 'web_search_call', status: 'completed', action: { type: 'search', query: 'x' } } })).toBeNull()
     expect(run.searches).toEqual(['x'])
 
     // Shapes that must not throw and must not count.
     expect(routes.readEvent(run, null)).toBeNull()
     expect(routes.readEvent(run, {})).toBeNull()
-    expect(routes.readEvent(run, { type: 'response.output_item.added' })).toBeNull()
-    expect(routes.readEvent(run, { type: 'response.output_item.done', item: { type: 'web_search_call' } })).toBeNull()
+    expect(routes.readEvent(run, { type: 'response.output_item.done' })).toBeNull()
+    // `.added` is the same search starting, before its query exists. It must NOT count, or
+    // every search is counted twice — the risk this change introduces and this line guards.
+    expect(routes.readEvent(run, { type: 'response.output_item.added', item: { type: 'web_search_call', status: 'in_progress' } })).toBeNull()
     expect(routes.readEvent(run, { type: 'response.something.else' })).toBeNull()
     expect(run.searchCount).toBe(1)
   })
 
   test('a web-search event with no query still counts as a search', () => {
     const run = { searchCount: 0, searches: [] }
-    routes.readEvent(run, { type: 'response.output_item.added', item: { type: 'web_search_call' } })
+    routes.readEvent(run, { type: 'response.output_item.done', item: { type: 'web_search_call' } })
     expect(run.searchCount).toBe(1)
     expect(run.searches).toEqual([])
   })

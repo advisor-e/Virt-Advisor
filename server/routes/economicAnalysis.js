@@ -48,18 +48,38 @@ const runsStore = require('../utils/economicAnalysisRuns')
 const PROMPT_ID = 'economic-analysis'
 
 /**
- * The model, and the one value in this build that the evidence does NOT pin down.
+ * The model. Chosen against OpenAI's current web-search guide and exercised by a live run
+ * on 2026-09-06 — no longer the bare judgement this constant used to carry.
  *
- * ⚠ `design/ECONOMIC-ANALYSIS-TEST-RUNS.md` records the timings, costs, search counts and
- * output of four live runs, but never names the model they were made with — the script was
- * outside the repository and is gone. Everything else here is read off the artefacts; this
- * is a judgement, kept in one place so it is one edit to correct. It must be confirmed
- * against a live run before the feature ships.
+ * ⚠ IT IS STILL NOT THE MODEL THAT MADE RUNS 1–4, AND NOTHING CAN BE. That script lived
+ * outside the repository and is gone, and `design/ECONOMIC-ANALYSIS-TEST-RUNS.md` never
+ * named it. Those four runs are evidence about the PROMPT; they say nothing about this value
+ * and never will.
+ *
+ * The first guess here was `gpt-4o`, and a live run through this route disproved it: it came
+ * back in 10 seconds having made no search at all — 1,760 input tokens against run 1's
+ * 68,457, which included retrieved page content — and the validator refused the result as
+ * `SECTION_UNSOURCED`. Every example in OpenAI's current web-search guide uses this model.
  */
-const MODEL = 'gpt-4o'
+const MODEL = 'gpt-6-astra'
 
 /** Standard web search on the Responses API — not deep research (prompt file §2). */
 const TOOLS = [{ type: 'web_search' }]
+
+/**
+ * 🔴 THE SEARCH IS COMPULSORY, NOT REQUESTED, and that is the whole of this constant.
+ *
+ * By default the model decides for itself whether to search. On 2026-09-06 it decided not
+ * to: it answered from memory in ten seconds and produced a confident, correctly structured,
+ * entirely unsourced outlook that the validator refused. §3 of the prompt tells it to search
+ * the public web before writing anything — this is what turns that from a request it may
+ * decline into a condition of the call.
+ *
+ * Same lesson as the citation fix recorded in `design/ECONOMIC-ANALYSIS-PROMPT.md` §5: three
+ * instruction-level attempts failed and removing the model's choice succeeded. An instruction
+ * the model may ignore is not a control. Remove this and unsourced research is possible again.
+ */
+const TOOL_CHOICE = 'required'
 
 /**
  * Socket inactivity guard. Streaming keeps traffic flowing, so this is a stall detector
@@ -139,6 +159,21 @@ function fillPlaceholders (assembled, brief, now) {
  * than throwing. Progress is a courtesy to the waiting screen and must never be able to
  * fail a run that is otherwise going fine.
  *
+ * 🔴 THE SEARCH PHRASE IS READ ON `.done`, AND THAT IS EVIDENCE, NOT PREFERENCE. A live
+ * run on 2026-09-06 recorded both sightings of the same `web_search_call`:
+ *
+ *   response.output_item.added → status "in_progress", NO `action` object at all
+ *   response.output_item.done  → status "completed", action.type "search",
+ *                                query "site.rbnz.govt.nz official cash rate August 2026 OCR"
+ *
+ * The first build read `.added` and every phrase arrived empty — ten searches counted with
+ * nothing to show beside them. There is no query at `.added` to read; it does not exist yet.
+ * The cost is that a search appears when it finishes rather than when it starts, which keeps
+ * the count and the phrases in step with each other.
+ *
+ * ⚠ The API also emits `response.web_search_call.in_progress` / `.searching` / `.completed`.
+ * They carry no query, so nothing reads them here.
+ *
  * @param {object} run
  * @param {object} event
  * @returns {object|null} the completed response, when this event carries one
@@ -148,7 +183,7 @@ function readEvent (run, event) {
 
   if (event.type === 'response.output_item.added' || event.type === 'response.output_item.done') {
     const item = event.item
-    if (item && item.type === 'web_search_call' && event.type === 'response.output_item.added') {
+    if (item && item.type === 'web_search_call' && event.type === 'response.output_item.done') {
       const query = item.action && item.action.query
       runsStore.recordSearch(run, query || '')
     }
@@ -176,7 +211,7 @@ async function runResearch (run, promptText) {
   try {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
     const events = await client.responses.create(
-      { model: MODEL, input: promptText, tools: TOOLS, stream: true },
+      { model: MODEL, input: promptText, tools: TOOLS, tool_choice: TOOL_CHOICE, stream: true },
       { timeout: IDLE_TIMEOUT_MS }
     )
 
@@ -283,13 +318,22 @@ async function startResearch (req, res) {
  * but not which output section a search belongs to, so showing real queries is the honest
  * form of the same idea and is a named deviation from the mockup.
  *
+ * ⚠ THE CALLBACK SIGNATURE IS DELIBERATE, and it is the only handler here that has it.
+ * Restify accepts a handler two ways — `async (req, res)`, or a plain `(req, res, next)` —
+ * and asserts at MOUNT TIME, refusing to boot the whole server if a handler is neither.
+ * This one reads memory and returns; it awaits nothing. Declaring it `async` to satisfy that
+ * assertion would be a false label on the function and trips `require-await`. So it takes
+ * the callback form instead, like `server/routes/health.js`, the app's other synchronous
+ * handler. Its two siblings above are `async` because they genuinely await.
+ *
  * @route GET /api/report/economic-analysis/:runId
  * @returns {{runId, state, runNumber, searchCount, searches, error, research}}
  */
-function getRun (req, res) {
+function getRun (req, res, next) {
   const run = runsStore.ownedRun(req.params.runId, req.firmId, req.advisorId)
   if (!run) {
-    return sendError(res, 404, 'RUN_NOT_FOUND', 'That research run could not be found.')
+    sendError(res, 404, 'RUN_NOT_FOUND', 'That research run could not be found.')
+    return next()
   }
 
   res.send(200, {
@@ -302,6 +346,7 @@ function getRun (req, res) {
     approval: run.approval,
     research: run.state === 'done' ? run.result : null
   })
+  return next()
 }
 
 /**

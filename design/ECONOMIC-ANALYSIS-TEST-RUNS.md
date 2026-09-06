@@ -12,8 +12,12 @@
 > model. Run 1 was written to exercise imported goods, sea freight and working capital; run 2
 > to exercise services, a different country and capital expenditure.
 >
-> **Nothing here is built.** These runs were made by a throwaway script outside the
-> repository, calling `/v1/responses` directly. `server/utils/openaiClient.js` is untouched.
+> **Runs 1–4 were made by a throwaway script outside the repository**, calling
+> `/v1/responses` directly. That script is gone, which is why those four can never name the
+> model that produced them — the single thing this page most needed to record and did not.
+>
+> ✅ **Run 5 (2026-09-06) is the first through the built path**, on committed code, and it
+> records everything the four before it could not.
 
 ---
 
@@ -280,10 +284,11 @@ limited."* That is a real finding for a lender, drawn honestly from a weak sourc
 **Settled:** the no-restatement rule in §6 is **load-bearing and must not be relaxed** to let
 §4 quote numbers again. Every figure now lives exactly once, beside the source it came from.
 
-⚠ **It rests on a single run.** Runs 1–3 established the fault across three; one clean result
-is strong evidence the fix works, not proof. **Re-check it when the feature is built.**
+⚠ **It rested on a single run.** Runs 1–3 established the fault across three; one clean result
+was strong evidence the fix works, not proof. ✅ **Re-checked on run 5** — a different model, a
+different country and a different sector, and section 4 again came back with no figures at all.
 
-### Length, across all four runs
+### Length, across all five runs
 
 | | Target | Actual (all sections) |
 |---|---|---|
@@ -291,10 +296,85 @@ is strong evidence the fix works, not proof. **Re-check it when the feature is b
 | Run 2 | 1,200–1,600 | 2,301 |
 | Run 3 | 1,200–1,600 | 2,070 |
 | Run 4 | 1,200–1,600 | 2,276 |
+| Run 5 | 1,200–1,600 | 2,013 |
 
-**The number in the prompt does not control the length.** Four runs, four overshoots, and
-raising the target raised the output. A screen must accommodate roughly 1,500–2,500 words and
-must not assume otherwise.
+**The number in the prompt does not control the length.** Five runs, five overshoots, across
+**two different models**, and raising the target raised the output. A screen must accommodate
+roughly 1,500–2,500 words and must not assume otherwise.
+
+---
+
+## Run 5 — 2026-09-06 · the first run through the built path
+
+> 🔴 **This run exists because runs 1–4 could not name their model.** It was made through
+> `server/routes/economicAnalysis.js` on committed code, not a throwaway script.
+
+**Brief given:** *a family-owned commercial bakery in Hamilton, New Zealand, employing 22
+staff, supplying supermarkets and independent cafés across the Waikato region; imports wheat
+flour and packaging materials; seeking NZ$900,000 over five years to install a second
+production line and buy a delivery vehicle; assess the economic outlook over the next three
+years.* **Fictional**, like the four before it.
+
+| Measure | Result |
+|---|---|
+| **Model** | **`gpt-6-astra`** — the first run whose model is on record |
+| Wall-clock | 141.3 s |
+| Web searches | 10 |
+| Citations | 29, across **22 unique sources** |
+| Length | 2,013 words |
+| Tokens | 99,024 in (includes retrieved page content), 5,422 out |
+| Cost | **not recorded.** The published rate could not be retrieved; the token and search counts above are what a bill should be checked against, rather than an estimate nobody verified |
+
+**Settings, and both are load-bearing:** `tools: [{ type: 'web_search' }]` with
+**`tool_choice: 'required'`**.
+
+### 🔴 The first attempt proved the search is optional unless you demand it
+
+`gpt-4o` — the value the build had guessed — was tried first. It came back **in 10 seconds
+having made no search at all** (1,760 input tokens, against the 99,024 above) and wrote a
+confident, correctly numbered, entirely unsourced outlook. **The validator refused it:**
+`SECTION_UNSOURCED {"sections":[1,2,3]}`.
+
+Two things follow, neither visible before a live call:
+
+- **§3's instruction to search is not a control.** OpenAI's guide states the model chooses
+  whether to search unless `tool_choice: 'required'` is set. This is the citation fix's lesson
+  again: an instruction the model may decline is not a guardrail. **Do not remove it.**
+- **The guard holds on fresh output.** This is the re-check run 4 asked for. Plausible,
+  professional, sourceless text was stopped before it could reach a lender.
+
+### What run 5 settles
+
+- **The no-restatement rule survives a change of model.** Section 4 came back with no figures
+  at all, on a different model, country and sector from run 4.
+- **All five numbered headings were found**, which is what makes the numbering sentence in the
+  prompt's §6 load-bearing rather than cosmetic.
+- **Sources are official and unprompted:** IMF (two), FAO, Stats NZ (five), the Reserve Bank of
+  New Zealand, the Commerce Commission (two), MBIE (two), Hamilton City Council (two), REINZ,
+  Waikato Regional Council, Tenancy Services, Foodstuffs, and a maritime trade title.
+- **It handled a source disagreement exactly as §3 asks**, on freight: *"A secondary account
+  described an increase for the week ending 3 September 2026, while Drewry's own dated summary
+  described stability. The discrepancy was not reconciled, so no weekly freight trend was
+  adopted."*
+
+### The streamed event shapes — captured, not assumed
+
+The build read the search phrase off `response.output_item.added`, where it does not exist.
+Both sightings of the same `web_search_call` were captured:
+
+| Event | `status` | `action` |
+|---|---|---|
+| `response.output_item.added` | `in_progress` | **absent entirely** |
+| `response.output_item.done` | `completed` | `{ type: 'search', query: 'site.rbnz.govt.nz official cash rate August 2026 OCR' }` |
+
+**All ten phrases arrived empty** until `readEvent` was changed to read `.done`. The API also
+emits `response.web_search_call.in_progress` / `.searching` / `.completed`; none carries a
+query, so nothing reads them.
+
+⚠ **The tests had encoded the same assumption.** A fixture invented an `.added` event carrying
+a query — a shape the API never sends — and an assertion insisted a `.done` event be ignored.
+All 67 tests passed throughout, which is why they proved nothing here. They now use the shapes
+in the table above.
 
 ---
 
