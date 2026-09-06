@@ -140,6 +140,38 @@ function todayInWords (now) {
 }
 
 /**
+ * The advisor's chosen assessment date, as a real calendar date or nothing.
+ *
+ * 🔴 THE POINT OF THIS FUNCTION IS THAT NOTHING THE ADVISOR TYPES REACHES THE PROMPT.
+ * `{{today}}` was machine-generated until 2026-09-07 and therefore trusted by construction;
+ * Mike's ruling that the advisor sets it (*"or, have a field to enter the date"*) makes it
+ * user input going into a prompt, which `CLAUDE.md` says to treat as hostile. So only
+ * `YYYY-MM-DD` is accepted, it must survive the round trip through `Date` — which rejects
+ * `2026-02-31` and `2026-13-01` rather than rolling them over — and `todayInWords` writes
+ * the words. The string sent to the model is ours either way.
+ *
+ * Parsed as LOCAL parts, never `new Date('2026-09-07')`, which ISO-parses as UTC and would
+ * reintroduce the off-by-one day this field exists to close.
+ *
+ * @param {*} value - `req.body.assessmentDate`
+ * @returns {Date|null} null when absent or not a real date
+ */
+function assessmentDateOf (value) {
+  if (typeof value !== 'string') { return null }
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim())
+  if (!match) { return null }
+
+  const year = Number(match[1])
+  const month = Number(match[2])
+  const day = Number(match[3])
+  if (year < 1900 || year > 2999 || month < 1 || month > 12 || day < 1 || day > 31) { return null }
+
+  const d = new Date(year, month - 1, day)
+  if (d.getFullYear() !== year || d.getMonth() !== month - 1 || d.getDate() !== day) { return null }
+  return d
+}
+
+/**
  * Builds the text sent to the model: the assembled prompt with its two placeholders
  * filled in.
  *
@@ -267,7 +299,7 @@ async function runResearch (run, promptText) {
  * Review returns a job twice.
  *
  * @route POST /api/report/economic-analysis
- * @param {object} req.body - `{ brief: string, clientRef?: string }`
+ * @param {object} req.body - `{ brief: string, assessmentDate?: string, clientRef?: string }`
  * @returns {{started: true, runId: string, runNumber: number}}
  */
 async function startResearch (req, res) {
@@ -281,6 +313,15 @@ async function startResearch (req, res) {
   if (brief.length > MAX_BRIEF_CHARS) {
     return sendError(res, 400, 'BRIEF_TOO_LONG',
       'That brief is longer than ' + MAX_BRIEF_CHARS + ' characters. Shorten it to the things a researcher could not guess.')
+  }
+
+  // Absent is fine and means the server's own day — an older screen must not break. Present
+  // but not a real date is refused rather than quietly corrected: the date is printed in the
+  // client's funding pack, so guessing what they meant is the one thing not to do.
+  const assessmentDate = assessmentDateOf(body.assessmentDate)
+  if (body.assessmentDate !== undefined && !assessmentDate) {
+    return sendError(res, 400, 'ASSESSMENT_DATE_INVALID',
+      'That assessment date is not a real date. Pick the date this assessment should be dated from.')
   }
 
   const clientRef = typeof body.clientRef === 'string' ? body.clientRef.slice(0, 100) : null
@@ -298,7 +339,7 @@ async function startResearch (req, res) {
       return sendError(res, 409, 'PROMPT_BLOCKED',
         'A setting this prompt needs has not been filled in. A firm manager can set it on the AI Prompts page.')
     }
-    promptText = fillPlaceholders(assembled, brief)
+    promptText = fillPlaceholders(assembled, brief, assessmentDate || undefined)
   } catch (err) {
     console.error('[economic-analysis] prompt assembly failed:', err.message)
     return sendError(res, 500, 'PROMPT_UNAVAILABLE',
@@ -412,6 +453,7 @@ module.exports = {
   setInclude,
   fillPlaceholders,
   todayInWords,
+  assessmentDateOf,
   readEvent,
   PROMPT_ID,
   MODEL,

@@ -124,8 +124,8 @@ three existing prompts, so this becomes the fourth and is editable there without
 
 ### §2 · What you have been given
 
-> Today's date is `{{today}}`. Use it as the start of the assessment period and when judging
-> how current a figure is. Do not infer the date from anything else.
+> The assessment date is `{{today}}`. Use it as the start of the assessment period and when
+> judging how current a figure is. Do not infer the date from anything else.
 >
 > You have been given one thing: a research brief written by the advisor, supplied below
 > between the marked delimiters. **It is the only information you hold about this business.**
@@ -228,7 +228,7 @@ a word of the content. 🔴 **Do not remove it.**
 | Variable | What it holds | Where it comes from |
 |---|---|---|
 | `{{advisorBrief}}` | The research brief, verbatim | **The advisor types it and sees it before sending.** The only client-derived content in this prompt, and the whole of Mike's 2026-09-06 ruling |
-| `{{today}}` | Today's date | The server's **own day**, not UTC — corrected 2026-09-07 after a live run printed *"The assessment starts on 6 September 2026"* in a client's pack on the 7th. **Not client data.** Added after run 1, where the model wrote *"the undated advisor brief"* and had to infer the date it was assessing from. ⚠ An advisor in a different zone from the server still gets the server's day; the advisor's own date is not sent, and sending it would be a change to this row |
+| `{{today}}` | The assessment date | **The advisor sets it, on a field at step 5** — Mike's ruling, 2026-09-07: *"or, have a field to enter the date"*. It defaults to their own day and is shown back in the exact-words box, so the whole payload is visible in one place. Added after run 1, where the model wrote *"the undated advisor brief"*. 🔒 **It is user input reaching a prompt, so only `YYYY-MM-DD` is accepted, it must survive a round trip through `Date` (`2026-02-31` is refused, never rolled over), and `todayInWords()` writes the words** — the string sent to the model is ours either way. A request with no date falls back to the server's own day, so an older screen cannot break. *(It read **UTC** until 2026-09-07, which printed "The assessment starts on 6 September 2026" in a client's pack on the 7th; the field closes that for good, whatever timezone the server sits in.)* |
 
 **One variable, deliberately.** Country, region, sector and period could each have been their
 own field, collected and assembled by the app. Under the ruling they are not: the advisor

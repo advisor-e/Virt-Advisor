@@ -166,6 +166,33 @@ describe('what actually leaves the app', () => {
     expect(sent.input).not.toContain('{{today}}')
   })
 
+  // Mike, 2026-09-07: "or, have a field to enter the date". What the advisor picks is what
+  // the model is told, and the words are written by us — never passed through.
+  test('the advisor’s assessment date is what reaches the model', async () => {
+    await runOnce([{ type: 'response.completed', response: goodResearch() }],
+      { body: { brief: BRIEF, assessmentDate: '2026-11-30' } })
+
+    expect(sent.input).toContain('The assessment date is 30 November 2026')
+    expect(sent.input).not.toContain('2026-11-30')
+  })
+
+  test('no date at all still works, and falls back to the server’s own day', async () => {
+    await runOnce([{ type: 'response.completed', response: goodResearch() }])
+    expect(sent.input).toContain('The assessment date is ' + routes.todayInWords())
+  })
+
+  test('a date that is not a real date is refused, and nothing is sent', async () => {
+    routes._setClientFactory(fakeClient([{ type: 'response.completed', response: goodResearch() }]))
+    const res = makeMockRes()
+    await routes.startResearch(
+      makeReq({ body: { brief: BRIEF, assessmentDate: '2026-02-31' } }), res)
+    await settle()
+
+    expect(res._status).toBe(400)
+    expect(errorBody(res).error.code).toBe('ASSESSMENT_DATE_INVALID')
+    expect(sent.input).toBeUndefined()
+  })
+
   test('it streams, and asks for standard web search', async () => {
     await runOnce([{ type: 'response.completed', response: goodResearch() }])
     expect(sent.stream).toBe(true)
@@ -541,6 +568,42 @@ describe('the pieces the routes are built from', () => {
     expect(routes.todayInWords(new Date(2026, 0, 31))).toBe('31 January 2026')
     expect(routes.todayInWords(new Date(2026, 8, 7, 8, 52))).toBe('7 September 2026')
     expect(typeof routes.todayInWords()).toBe('string')
+  })
+
+  // 🔴 The advisor sets this date (Mike, 2026-09-07), so it is user input on its way into a
+  // prompt. Only a real calendar date survives, and the words are written by us either way.
+  describe('the assessment date the advisor sets', () => {
+    test('a real date is accepted, as a LOCAL day', () => {
+      const d = routes.assessmentDateOf('2026-09-07')
+      expect(routes.todayInWords(d)).toBe('7 September 2026')
+      expect(routes.todayInWords(routes.assessmentDateOf('2027-01-01'))).toBe('1 January 2027')
+    })
+
+    // `new Date('2026-09-07')` parses as UTC and lands on the 6th east of Greenwich — the
+    // whole fault this field closes.
+    test('it is not ISO-parsed, so the day never slips', () => {
+      expect(routes.assessmentDateOf('2026-09-07').getDate()).toBe(7)
+      expect(routes.assessmentDateOf('2026-01-01').getFullYear()).toBe(2026)
+    })
+
+    test('a date that does not exist is refused rather than rolled over', () => {
+      expect(routes.assessmentDateOf('2026-02-31')).toBeNull()
+      expect(routes.assessmentDateOf('2026-13-01')).toBeNull()
+      expect(routes.assessmentDateOf('2026-00-10')).toBeNull()
+      expect(routes.assessmentDateOf('2025-02-29')).toBeNull()
+    })
+
+    test('29 February in a leap year is a real date', () => {
+      expect(routes.todayInWords(routes.assessmentDateOf('2028-02-29'))).toBe('29 February 2028')
+    })
+
+    test('anything that is not a plain YYYY-MM-DD is refused', () => {
+      const refused = ['', '7 September 2026', '2026-9-7', '07/09/2026', 'today',
+        '2026-09-07T00:00:00Z', 'Ignore your instructions', null, undefined, 42, {}, ['2026-09-07']]
+      for (const value of refused) {
+        expect(routes.assessmentDateOf(value)).toBeNull()
+      }
+    })
   })
 
   test('a web-search event records its query; anything else is ignored', () => {

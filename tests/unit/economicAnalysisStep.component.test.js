@@ -102,9 +102,36 @@ describe('🔴 the privacy ruling — what actually leaves the app', () => {
 
     const sent = JSON.parse(calls[0].opts.body)
     // Key by key: an added key is how a client's name or a forecast figure would arrive.
-    expect(Object.keys(sent).sort()).toEqual(['brief', 'clientRef'])
+    // `assessmentDate` joined the list on 2026-09-07, on Mike's ruling that the advisor sets
+    // it — a date they chose and can see, not something the app knows about the client.
+    expect(Object.keys(sent).sort()).toEqual(['assessmentDate', 'brief', 'clientRef'])
     expect(sent.brief).toBe('A physiotherapy clinic in Galway, Ireland, seeking finance for a third site.')
     expect(sent.clientRef).toBe('client-7')
+  })
+
+  // ⚠ THE OBVIOUS ONE-LINER FOR THIS IS `toISOString().slice(0, 10)`, and it converts to UTC
+  // first — handing an advisor at UTC+12 yesterday, which is the fault the field closes.
+  test('the assessment date defaults to this machine’s own day, not the UTC one', async () => {
+    const calls = stubFetch([{ body: { started: true, runId: 'ea_1', runNumber: 1 } }])
+    const w = await mountTicked('A bakery in Christchurch, New Zealand, seeking finance for an oven.')
+
+    await w.vm.startResearch()
+
+    const now = new Date()
+    const pad = n => (n < 10 ? '0' : '') + n
+    const localToday = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate())
+    expect(JSON.parse(calls[0].opts.body).assessmentDate).toBe(localToday)
+  })
+
+  test('a date the advisor changes is the one that is sent', async () => {
+    const calls = stubFetch([{ body: { started: true, runId: 'ea_1', runNumber: 1 } }])
+    const w = await mountTicked('A bakery in Christchurch, New Zealand, seeking finance for an oven.')
+
+    w.setData({ assessmentDate: '2026-11-30' })
+    await w.vm.$nextTick()
+    await w.vm.startResearch()
+
+    expect(JSON.parse(calls[0].opts.body).assessmentDate).toBe('2026-11-30')
   })
 
   test('the brief is sent trimmed, and is the advisor’s own text unaltered', async () => {

@@ -345,7 +345,7 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
   amounts only, and a test enforces it.
 </div>
 
-<div class="mock tag" data-tag="⚠ THE DATE FIELD — MIKE'S REQUEST 2026-09-07, WORDING NOT YET RULED, NOT YET BUILT">
+<div class="mock tag" data-tag="✅ THE DATE FIELD — MIKE'S REQUEST 2026-09-07, BOTH WORDINGS RULED BY HIM, AND BUILT">
   <b>Mike's words: <i>"or, have a field to enter the date"</i></b> — after being shown that the
   app was sending a UTC date, so an advisor at UTC+12 sent yesterday and it printed in the
   client's own pack.
@@ -356,22 +356,28 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
   It also removes the server's clock from the answer entirely: an advisor in a different
   timezone from the server was still going to get the server's day.
   <br><br>
-  🔴 <b>TWO WORDINGS ARE MIKE'S TO RULE AND ARE DRAWN HERE ONLY AS PLACEHOLDERS.</b>
+  ✅ <b>BOTH WORDINGS RULED BY MIKE, 2026-09-07 — the drawing above is what he chose.</b>
   <br>
-  (1) <b>The field's label.</b> Drawn as <code>Assessment date</code>. It is not "today's
-  date", because the whole point is that it need not be today.
+  (1) <b>The field's label is <code>Assessment date</code></b>, ruled as drawn. It is
+  deliberately not "today's date", because the whole point is that it need not be today.
   <br>
-  (2) <b>§2 of the prompt</b> currently reads <i>"Today's date is {{today}}. Use it as the
-  start of the assessment period and when judging how current a figure is."</i> Once an
-  advisor can set it, "today" stops being true and the sentence has to say so. That text is an
-  approved artefact and is editable by all four manager tiers, so it is not changed here.
+  (2) <b>§2 of the prompt now reads</b> <i>"The assessment date is {{today}}. Use it as the
+  start of the assessment period and when judging how current a figure is. Do not infer the
+  date from anything else."</i> The opening clause is the only thing that moved — everything
+  after it still works word for word. Changed in <code>data/ai-prompts.json</code>, so a firm
+  manager sees his wording on the AI Prompts page.
   <br><br>
-  <b>What is NOT a wording question, and will be built this way regardless:</b> the field sends
-  a date value, the backend parses it to a real calendar date, <b>refuses anything that is not
-  one</b>, and formats the words itself. Nothing the advisor types reaches the prompt as text.
-  Today <code>{{today}}</code> is machine-generated and therefore trusted by construction; a
-  typed date must not weaken that (<code>CLAUDE.md</code> → treat user input in prompts as
-  hostile).
+  <b>What was never a wording question, and is built this way:</b> the field sends a date
+  value, the backend parses it to a real calendar date, <b>refuses anything that is not one</b>
+  — <code>2026-02-31</code> is refused rather than rolled over — and <code>todayInWords()</code>
+  writes the words. Nothing the advisor types reaches the prompt as text.
+  <code>{{today}}</code> was machine-generated and trusted by construction; a typed date does
+  not weaken that (<code>CLAUDE.md</code> → treat user input in prompts as hostile).
+  <br><br>
+  ⚠ <b>Two places where the obvious one-liner reintroduces the bug</b>, and both are commented
+  in the code: <code>toISOString().slice(0,10)</code> for the field's default, and
+  <code>new Date('2026-09-07')</code> on the backend. Each converts to UTC and hands an advisor
+  at UTC+12 yesterday — the exact fault the field exists to close.
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════════════ -->

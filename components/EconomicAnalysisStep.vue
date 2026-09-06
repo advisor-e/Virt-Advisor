@@ -26,12 +26,25 @@
           li {{ $t('report.threeWayForecast.economicAnalysis.hint3') }}
           li {{ $t('report.threeWayForecast.economicAnalysis.hint4') }}
 
+      //- ── The assessment date. Mike's ruling, 2026-09-07: "or, have a field to enter
+      //- the date". It is the last thing the app used to decide on its own.
+      .ea-group(v-if="!hasResearch && !isRunning")
+        .ea-glabel
+          span.ea-dot
+          h2.ea-h2 {{ $t('report.threeWayForecast.economicAnalysis.dateHeading') }}
+        .datefield
+          input.dateinput(type="date" v-model="assessmentDate")
+          span.datehint {{ $t('report.threeWayForecast.economicAnalysis.dateHint') }}
+
       //- ── Mike's privacy ruling, drawn: the exact words, repeated not summarised ──
       .ea-group(v-if="!hasResearch && !isRunning")
         .sendbox
           .sendhead {{ $t('report.threeWayForecast.economicAnalysis.sendHead') }}
           .sendbody(v-if="trimmedBrief") {{ trimmedBrief }}
           .sendbody.is-empty(v-else) {{ $t('report.threeWayForecast.economicAnalysis.sendEmpty') }}
+          //- The date is sent too, so it is shown too. A box that showed only part of the
+          //- payload would be a smaller promise than the one the ruling makes.
+          .sendbody.is-date(v-if="assessmentDate") {{ $t('report.threeWayForecast.economicAnalysis.dateSent', { date: assessmentDateInWords }) }}
           .sendfoot {{ $t('report.threeWayForecast.economicAnalysis.sendFoot') }}
 
       .ea-group(v-if="!hasResearch && !isRunning")
@@ -132,6 +145,21 @@ import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 const { paragraphsOf, tokensOf, hostOf } = require('~/utils/researchText')
 
 /**
+ * A `Date` as the `YYYY-MM-DD` an `<input type="date">` wants, in the LOCAL day.
+ *
+ * ⚠ NOT `toISOString().slice(0, 10)`, which converts to UTC first and hands an advisor at
+ * UTC+12 yesterday's date for the first twelve hours of every day. That is precisely the
+ * fault this field exists to close, and the obvious one-liner reintroduces it.
+ *
+ * @param {Date} d
+ * @returns {string} e.g. "2026-09-07"
+ */
+function localDateValue (d) {
+  const pad = n => (n < 10 ? '0' : '') + n
+  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+}
+
+/**
  * EconomicAnalysisStep — step 5 of the Three-Way Forecast: optional AI market research,
  * for a lender to read alongside the forecast.
  *
@@ -189,6 +217,14 @@ export default {
       MAX_BRIEF: 2000,
       enabled: false,
       brief: '',
+      /**
+       * The assessment date, `YYYY-MM-DD`, defaulting to this machine's own day.
+       *
+       * ⚠ BUILT FROM LOCAL PARTS, NOT `toISOString()`, which converts to UTC and would put
+       * yesterday in the field for an advisor east of Greenwich — the exact fault this
+       * field was added to close (Mike, 2026-09-07).
+       */
+      assessmentDate: localDateValue(new Date()),
       starting: false,
       runId: '',
       runNumber: 0,
@@ -220,6 +256,18 @@ export default {
     canResearch () {
       const n = this.trimmedBrief.length
       return n >= this.MIN_BRIEF && n <= this.MAX_BRIEF
+    },
+    /**
+     * The chosen date in words, for the "exactly what will be sent" box.
+     *
+     * Built from local parts rather than `new Date(this.assessmentDate)`, which ISO-parses
+     * as UTC — the box must show the day the backend will actually send.
+     */
+    assessmentDateInWords () {
+      const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(this.assessmentDate || '')
+      if (!parts) { return '' }
+      const d = new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]))
+      return this.$d(d, 'long')
     },
     isRunning () { return this.state === 'researching' },
     hasResearch () { return this.state === 'done' && Boolean(this.research) },
@@ -353,7 +401,11 @@ export default {
         const res = await fetch('/api/report/economic-analysis', {
           method: 'POST',
           headers: this.authHeaders(true),
-          body: JSON.stringify({ brief: this.trimmedBrief, clientRef: this.clientRef })
+          body: JSON.stringify({
+            brief: this.trimmedBrief,
+            assessmentDate: this.assessmentDate,
+            clientRef: this.clientRef
+          })
         })
         const json = await res.json()
         if (!res.ok || !json.started) {
@@ -524,6 +576,16 @@ export default {
 .hintlist { margin: 9px 0 0; padding-left: 18px; font-size: 12.5px; color: var(--rs-muted); }
 .hintlist li { margin-bottom: 3px; }
 
+/* The assessment date. Small on purpose: it is right by default and most advisors will
+   never touch it. */
+.datefield { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.dateinput {
+  font: inherit; font-size: 13.5px; padding: 9px 11px; width: 190px;
+  border: 1px solid var(--rs-line); border-radius: 10px;
+  background: var(--rs-panel); color: var(--rs-ink);
+}
+.datehint { font-size: 12.5px; color: var(--rs-muted); }
+
 /* The privacy ruling, drawn. */
 .sendbox { border: 1px solid #0070c04d; background: #0070c00a; border-radius: 10px; padding: 13px 14px; }
 .sendhead {
@@ -532,6 +594,7 @@ export default {
 }
 .sendbody { font-size: 13px; line-height: 1.6; white-space: pre-wrap; color: var(--rs-ink); }
 .sendbody.is-empty { color: var(--rs-muted); font-style: italic; }
+.sendbody.is-date { margin-top: 9px; }
 .sendfoot {
   font-size: 12px; color: var(--rs-muted); margin-top: 10px; padding-top: 9px;
   border-top: 1px solid var(--rs-line);
