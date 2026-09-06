@@ -1602,6 +1602,7 @@
         "badge": "AI research",
         "researchAgain": "Research again",
         "sourceCount": "{count} source · every one clickable | {count} sources · every one clickable",
+        "packSources": "{count} source, written out in full | {count} sources, written out in full",
         "includeLabel": "Include in the report the client receives",
         "includeWhy": "Adds the economic analysis to the printed forecast pack, after the cash flow. Your name, today’s date and which run this is are recorded against it.",
         "includeFailed": "That could not be recorded. Nothing has changed.",

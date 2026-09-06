@@ -115,7 +115,7 @@
           .ea-error
             p {{ includeError }}
         .ea-group(v-if="approval")
-          .ea-approved {{ $t('report.threeWayForecast.economicAnalysis.approvedBy', { name: approval.by.name, run: approval.runNumber, of: approval.ofRuns }) }}
+          .ea-approved {{ approvedLine }}
 
         //- ── How it reaches the lender ────────────────────────────────────────
         .ea-group
@@ -129,6 +129,7 @@
 
 <script>
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
+const { paragraphsOf, tokensOf, hostOf } = require('~/utils/researchText')
 
 /**
  * EconomicAnalysisStep — step 5 of the Three-Way Forecast: optional AI market research,
@@ -225,6 +226,28 @@ export default {
     /** The research date, formatted by the locale rather than assembled here. */
     researchedOn () {
       return this.researchedAt ? this.$d(this.researchedAt, 'long') : ''
+    },
+
+    /**
+     * Who accepted this research, and which run of how many.
+     *
+     * 🔴 IT READS THE RECORD THE BACKEND ACTUALLY RETURNS, and that is a fix rather than a
+     * preference. Until slice 3 this line read `approval.by.name` and `approval.ofRuns`,
+     * neither of which exists: `approveRun` returns `approvedBy: { name, email }` and
+     * `totalRuns` (`server/utils/economicAnalysisRuns.js`). Ticking the second tick
+     * therefore threw on `approval.by.name` the moment the approval line rendered. The
+     * unit tests missed it because their fixture had invented the same wrong shape — the
+     * same fault family as the search-phrase events, where the tests encoded the code's
+     * assumption instead of the API's behaviour. Found 2026-09-06 while building the pack,
+     * which reads this same record.
+     */
+    approvedLine () {
+      const by = (this.approval && this.approval.approvedBy) || {}
+      return this.$t('report.threeWayForecast.economicAnalysis.approvedBy', {
+        name: by.name || '',
+        run: this.approval ? this.approval.runNumber : 0,
+        of: this.approval ? this.approval.totalRuns : 0
+      })
     }
   },
 
@@ -233,33 +256,64 @@ export default {
   },
 
   methods: {
-    /** Unticking abandons nothing server-side; it only stops this screen watching. */
+    /**
+     * The top tick — whether this forecast has an economic analysis at all.
+     *
+     * A run in flight is left alone server-side; unticking only stops this screen watching
+     * it. What unticking DOES do is withdraw the research from the client's pack, and that
+     * is not tidiness: without it an advisor could approve the research, change their mind,
+     * switch the whole feature off, and still hand a lender AI-written market research.
+     * The pack is told first and the server second, so a failed write leaves the record
+     * over-stating the approval rather than the pack printing something nobody wanted.
+     */
     onEnableChange () {
-      if (!this.enabled) { this.stopPolling() } else if (this.isRunning) { this.schedulePoll() }
+      if (this.enabled) {
+        if (this.isRunning) { this.schedulePoll() }
+        return
+      }
+      this.stopPolling()
+      if (this.include || this.approval) {
+        this.include = false
+        this.approval = null
+        // included: the advisor accepted this run for the client's pack
+        this.$emit('included', { included: false, approval: null })
+        this.withdrawApproval()
+      }
+    },
+
+    /**
+     * Clears the approval record behind a withdrawn research run.
+     *
+     * Deliberately silent: the screen it would report to is closed, and the pack has
+     * already been told. A failure here leaves an approval recorded for research that is
+     * not printed, which is the safe direction for an audit record to be wrong in.
+     */
+    async withdrawApproval () {
+      if (!this.runId) { return }
+      try {
+        await fetch(
+          '/api/report/economic-analysis/' + encodeURIComponent(this.runId) + '/include',
+          { method: 'POST', headers: this.authHeaders(true), body: JSON.stringify({ include: false }) }
+        )
+      } catch (e) {
+        // Nothing to report to: the screen this belongs to is closed, and the pack has
+        // already been told not to print.
+      }
     },
 
     /**
      * Splits one section's markdown into paragraphs of plain tokens.
      *
-     * Deliberately small and deliberately not a markdown renderer: it understands `**bold**`
-     * and `[text](url)`, treats a `#`-prefixed line as a heading, and passes everything else
-     * through as text. Anything it does not recognise appears literally, which is the safe
-     * direction to fail for text a model wrote.
+     * 🔴 THE PARSER MOVED TO `utils/researchText.js` IN SLICE 3, and these three methods
+     * are the seam onto it. The printed funding pack renders the same text, and two copies
+     * of this would mean a fix here silently leaving the paper version rendering something
+     * else — with the paper version being the one nobody looks at.
      *
      * @param {string} body
      * @returns {Array<{heading: boolean, tokens: Array<{t: string, s: string, url: string}>}>}
      */
     paragraphsOf (body) {
-      const blocks = String(body || '').split(/\n{2,}/)
-      const out = []
-      for (const block of blocks) {
-        const raw = block.trim()
-        if (!raw) { continue }
-        const heading = /^#{1,6}\s/.test(raw)
-        const text = heading ? raw.replace(/^#{1,6}\s*/, '') : raw
-        out.push({ heading, tokens: this.tokensOf(text.split('\n').join(' ')) })
-      }
-      return out
+      return paragraphsOf(body)
     },
 
     /**
@@ -268,27 +322,7 @@ export default {
      * @returns {Array<{t: string, s: string, url: string}>}
      */
     tokensOf (text) {
-      const tokens = []
-      // Links first: a link's own label may contain no bold in practice, and matching them
-      // together keeps a URL's punctuation out of the emphasis pass.
-      const pattern = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)|\*\*([^*]+)\*\*/g
-      let cursor = 0
-      let m
-      while ((m = pattern.exec(text)) !== null) {
-        if (m.index > cursor) {
-          tokens.push({ t: 'text', s: text.slice(cursor, m.index), url: '' })
-        }
-        if (m[2]) {
-          tokens.push({ t: 'link', s: m[1], url: m[2] })
-        } else {
-          tokens.push({ t: 'bold', s: m[3], url: '' })
-        }
-        cursor = m.index + m[0].length
-      }
-      if (cursor < text.length) {
-        tokens.push({ t: 'text', s: text.slice(cursor), url: '' })
-      }
-      return tokens
+      return tokensOf(text)
     },
 
     /**
@@ -297,8 +331,7 @@ export default {
      * @returns {string}
      */
     hostOf (url) {
-      const match = /^https?:\/\/([^/?#]+)/i.exec(String(url || ''))
-      return match ? match[1].replace(/^www\./i, '') : String(url || '')
+      return hostOf(url)
     },
 
     /** Common headers for the three research routes. */
@@ -374,7 +407,14 @@ export default {
           this.research = json.research
           this.researchedAt = new Date()
           this.state = 'done'
-          this.$emit('research', { runId: this.runId, runNumber: this.runNumber })
+          // research: the validated run this screen now shows, for the printed pack.
+          // `research: null` means there is none — a re-run, or a failure.
+          this.$emit('research', {
+            runId: this.runId,
+            runNumber: this.runNumber,
+            research: this.research,
+            researchedAt: this.researchedAt
+          })
         } else if (json.state === 'failed') {
           this.stopPolling()
           this.state = 'failed'
@@ -391,8 +431,11 @@ export default {
      * Back to the brief, keeping what was typed so the commonest reason to re-run — a brief
      * that forgot something — is one edit rather than a retype.
      *
-     * 🔴 IT CLEARS THE APPROVAL. Research the advisor has not read must never be included on
-     * a tick that was set against a previous run.
+     * 🔴 IT CLEARS THE APPROVAL, AND IT TELLS THE PACK. Research the advisor has not read
+     * must never be included on a tick that was set against a previous run — and from slice
+     * 3 that promise has a second half, because the page holds a copy for the printed pack.
+     * Clearing here and not there would leave the previous run printing for a lender while
+     * the screen showed an empty brief.
      */
     researchAgain () {
       this.stopPolling()
@@ -406,6 +449,9 @@ export default {
       this.approval = null
       this.includeError = ''
       this.error = ''
+      this.$emit('research', { runId: '', runNumber: 0, research: null, researchedAt: null })
+      // included: the advisor accepted this run for the client's pack
+      this.$emit('included', { included: false, approval: null })
     },
 
     /** After a failure: back to the brief with everything else cleared. */

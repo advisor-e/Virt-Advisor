@@ -38,6 +38,27 @@ function research (over) {
   }, over || {})
 }
 
+/**
+ * The approval record `POST …/include` returns.
+ *
+ * 🔴 THIS IS THE SHAPE `approveRun` ACTUALLY BUILDS, and getting it wrong here is what hid
+ * a real fault for a day. The fixture used to read `{ by: { name }, runNumber, ofRuns }` —
+ * invented, and matched by a component reading `approval.by.name`, so the two agreed with
+ * each other and neither agreed with the backend. Ticking the second tick threw in the
+ * running app while these tests stayed green. Keep this in step with
+ * `server/utils/economicAnalysisRuns.js`.
+ */
+function approvalRecord (over) {
+  return Object.assign({
+    isApproved: true,
+    runId: 'ea_1',
+    runNumber: 2,
+    totalRuns: 3,
+    approvedBy: { name: 'Ann Advisor', email: 'ann@firm.example' },
+    approvedAt: '2026-09-06T09:00:00.000Z'
+  }, over || {})
+}
+
 /** Drives fetch through a queue of responses, recording every call. */
 function stubFetch (queue) {
   const calls = []
@@ -120,7 +141,7 @@ describe('🔴 the approval gate — the second tick', () => {
       research: research(),
       runId: 'ea_1',
       include: true,
-      approval: { by: { name: 'Ann' }, runNumber: 1, ofRuns: 1 }
+      approval: approvalRecord({ runNumber: 1, totalRuns: 1 })
     })
     await w.vm.$nextTick()
 
@@ -158,7 +179,7 @@ describe('🔴 the approval gate — the second tick', () => {
   })
 
   test('a recorded approval is kept and reported', async () => {
-    const approval = { by: { name: 'Ann Advisor' }, runNumber: 2, ofRuns: 3 }
+    const approval = approvalRecord()
     stubFetch([{ body: { included: true, approval, recorded: true } }])
     const w = await mountTicked()
     w.setData({ state: 'done', research: research(), runId: 'ea_1', include: true })
@@ -168,6 +189,81 @@ describe('🔴 the approval gate — the second tick', () => {
 
     expect(w.vm.approval).toEqual(approval)
     expect(w.emitted().included[0][0].included).toBe(true)
+  })
+
+  test('the approval line reads the record the BACKEND returns, not an invented shape', async () => {
+    // The regression this exists for: `approval.by.name` threw on every real approval,
+    // because the backend returns `approvedBy`. A fixture that had invented `by` agreed
+    // with the bug. Found 2026-09-06 while building the printed pack.
+    const w = await mountTicked()
+    w.setData({ state: 'done', research: research(), runId: 'ea_1', approval: approvalRecord() })
+    await w.vm.$nextTick()
+
+    expect(w.vm.approvedLine).toContain('Ann Advisor')
+    expect(w.vm.approvedLine).toContain('"of":3')
+  })
+})
+
+describe('🔴 what the printed pack is told, and when', () => {
+  test('a finished run hands the validated research to the page', async () => {
+    // The pack cannot render what it is not given, and the page is the only place both
+    // step 4's print and step 5's research can be seen at once.
+    const data = research()
+    stubFetch([{ body: { state: 'done', research: data, searchCount: 4, searches: [] } }])
+    const w = await mountTicked()
+    w.setData({ runId: 'ea_1', runNumber: 1, state: 'researching' })
+
+    await w.vm.poll()
+
+    const payload = w.emitted().research[0][0]
+    expect(payload.research).toEqual(data)
+    expect(payload.researchedAt instanceof Date).toBe(true)
+  })
+
+  test('re-running tells the page there is no research and no approval', async () => {
+    // Without this the previous run keeps printing for a lender while the screen shows an
+    // empty brief — the half of "re-running clears the approval" that the pack introduced.
+    const w = await mountTicked()
+    w.setData({ state: 'done', research: research(), runId: 'ea_1', include: true, approval: approvalRecord() })
+    await w.vm.$nextTick()
+
+    w.vm.researchAgain()
+
+    expect(w.emitted().research[0][0].research).toBeNull()
+    expect(w.emitted().included[0][0].included).toBe(false)
+    expect(w.emitted().included[0][0].approval).toBeNull()
+  })
+
+  test('switching the whole step off withdraws approved research from the pack', async () => {
+    // An advisor who approves the research, changes their mind and unticks the feature
+    // must not still hand a lender AI-written market research.
+    const calls = stubFetch([{ body: { included: false, approval: null, recorded: true } }])
+    const w = await mountTicked()
+    w.setData({ state: 'done', research: research(), runId: 'ea_1', include: true, approval: approvalRecord() })
+    await w.vm.$nextTick()
+
+    w.setData({ enabled: false })
+    w.vm.onEnableChange()
+
+    expect(w.emitted().included[0][0].included).toBe(false)
+    expect(w.vm.approval).toBeNull()
+    // And the record behind it is cleared too, so the two do not disagree.
+    expect(calls[0].url).toContain('/include')
+    expect(JSON.parse(calls[0].opts.body).include).toBe(false)
+  })
+
+  test('a failed withdrawal still leaves the research out of the pack', async () => {
+    // The safe direction for the pair to be wrong in: an approval recorded for research
+    // that is not printed, never research printed on an approval that was withdrawn.
+    stubFetch([new Error('offline')])
+    const w = await mountTicked()
+    w.setData({ state: 'done', research: research(), runId: 'ea_1', include: true, approval: approvalRecord() })
+    await w.vm.$nextTick()
+
+    w.setData({ enabled: false })
+    await w.vm.onEnableChange()
+
+    expect(w.emitted().included[0][0].included).toBe(false)
   })
 })
 

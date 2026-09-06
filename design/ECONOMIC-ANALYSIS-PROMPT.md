@@ -7,8 +7,10 @@
 > comes back is checked by `server/report/economicAnalysis/researchResult.js` before it can
 > reach anything.
 >
-> **NO SCREEN EXISTS YET.** An advisor cannot reach any of this: step 5, the brief box, the
-> waiting screen and the two ticks are slice 2. Nothing in the app calls these routes.
+> ✅ **THE FEATURE IS COMPLETE — all three slices, 2026-09-06.** An advisor reaches it at
+> step 5 of the forecast (`components/EconomicAnalysisStep.vue`), reads the research, and
+> approves it with the second tick; approved research prints as its own section of the
+> client's funding pack (`components/EconomicAnalysisPack.vue`).
 >
 > ✅ **RUN 5 WENT THROUGH THE BUILT PATH, 2026-09-06**, and closed both of §7's open ends: the
 > model is **`gpt-6-astra`**, and the route works end to end. It also found two faults nothing

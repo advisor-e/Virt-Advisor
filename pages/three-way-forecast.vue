@@ -23,7 +23,9 @@ report-shell
   economic-analysis-step(
     v-show="step === 5"
     :api-token="apiToken"
-    :client-ref="savedReport.clientRef || ''")
+    :client-ref="savedReport.clientRef || ''"
+    @research="onResearch"
+    @included="onIncluded")
   three-way-forecast-intake(
     v-if="step < 4"
     :key="intakeKey"
@@ -44,6 +46,15 @@ report-shell
     @state-change="onReportState"
     @change-assumptions="goTo(3)"
     @start-again="startAgain")
+  //- The economic analysis as a lender reads it. Print-only, and it prints LAST — its own
+  //- section after the statements, which is what "after the cash flow" means once the three
+  //- statements share one tabbed table. It is outside the step chain on purpose: the print
+  //- is fired from step 4, where step 5's own component is hidden.
+  economic-analysis-pack(
+    :research="economic.research"
+    :approval="economic.approval"
+    :included="economic.included"
+    :researched-at="economic.researchedAt")
 </template>
 
 <script>
@@ -88,6 +99,7 @@ import ReportHeader from '~/components/base/ReportHeader.vue'
 import ThreeWayForecastIntake from '~/components/ThreeWayForecastIntake.vue'
 import ThreeWayForecastReport from '~/components/ThreeWayForecastReport.vue'
 import EconomicAnalysisStep from '~/components/EconomicAnalysisStep.vue'
+import EconomicAnalysisPack from '~/components/EconomicAnalysisPack.vue'
 import savedReport from '~/mixins/savedReport'
 import { isDevHost } from '~/utils/devHost'
 const {
@@ -100,7 +112,12 @@ export default {
   name: 'ThreeWayForecastPage',
 
   components: {
-    ReportShell, ReportHeader, ThreeWayForecastIntake, ThreeWayForecastReport, EconomicAnalysisStep
+    ReportShell,
+    ReportHeader,
+    ThreeWayForecastIntake,
+    ThreeWayForecastReport,
+    EconomicAnalysisStep,
+    EconomicAnalysisPack
   },
 
   mixins: [savedReport],
@@ -128,6 +145,17 @@ export default {
        * normalised on the way in — so a new key is how a load reaches it.
        */
       intakeKey: 0,
+      /**
+       * Step 5's research, held HERE because the printed pack is not step 5's to render.
+       * The print is fired from step 4, where the economic-analysis component is hidden,
+       * so the page is the only place both halves can see the same run.
+       *
+       * 🔴 EVERY FIELD IS SET FROM THE STEP'S OWN EVENTS AND NEVER INFERRED. A re-run
+       * clears all four; withdrawing the second tick clears the approval; and the pack
+       * prints on `approval.isApproved` rather than on `included` alone, so research
+       * nobody accepted cannot reach a lender through this object.
+       */
+      economic: { research: null, approval: null, included: false, researchedAt: null },
       // Resolved client-side in mounted(): window/localStorage are unavailable during
       // SSR and must never be read in data()/computed/created().
       apiToken: 'dev-local-bypass'
@@ -229,6 +257,37 @@ export default {
       this.liveState = payload.state
       this.liveInputs = payload.inputs
       this.step = 4
+    },
+
+    /**
+     * Step 5 finished a research run, or cleared one.
+     *
+     * A NEW RUN IS NEVER AN APPROVED ONE, so both approval fields are reset here rather
+     * than left standing. That is the same promise the step makes on its own screen — an
+     * advisor must approve the run they actually read — held in the one place the printed
+     * pack reads from.
+     *
+     * @param {{runId: string, runNumber: number, research: (object|null), researchedAt: (Date|null)}} payload
+     */
+    onResearch (payload) {
+      this.economic = {
+        research: (payload && payload.research) || null,
+        researchedAt: (payload && payload.researchedAt) || null,
+        approval: null,
+        included: false
+      }
+    },
+
+    /**
+     * Step 5's second tick — the approval gate. What decides whether the research prints
+     * in the pack the client receives.
+     * @param {{included: boolean, approval: (object|null)}} payload
+     */
+    onIncluded (payload) {
+      this.economic = Object.assign({}, this.economic, {
+        included: Boolean(payload && payload.included),
+        approval: (payload && payload.approval) || null
+      })
     },
 
     /**

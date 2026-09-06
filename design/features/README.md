@@ -72,7 +72,7 @@ Templates & Videos is dormant — templates are Advisor-e's.*
 |---|---|
 | [Model Library](model-library.md) — the reports landing page | [history](model-library-history.md) |
 | [Report Models](report-models.md) — every model screen | [history](report-models-history.md) |
-| [The Economic Analysis Prompt](../ECONOMIC-ANALYSIS-PROMPT.md) — the tick that sends the AI to research a client's market, for a funding pack. The first report model that would ever call the AI. **For approval — nothing built.** | — |
+| [The Economic Analysis Prompt](../ECONOMIC-ANALYSIS-PROMPT.md) — the tick that sends the AI to research a client's market, for a funding pack. The first report model in this app to call the AI. **Approved and built — all three slices, 2026-09-06.** | — |
 | [What the Prompt Produced](../ECONOMIC-ANALYSIS-TEST-RUNS.md) — four live runs against two fictional businesses: what it costs, how long it takes, and the citation fault they found and fixed. **Evidence, not a design.** | — |
 
 ## Learning

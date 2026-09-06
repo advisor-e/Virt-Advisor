@@ -607,6 +607,52 @@ body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-f
   in model output is not turned into a link, and a test pins that.
 </div>
 
+<div class="mock tag" data-tag="SLICE 3 BUILT 2026-09-06 — SCREEN 6, AND ITS DIFFERENCES">
+  <b>The pack is built.</b> <code>components/EconomicAnalysisPack.vue</code>, rendered by
+  <code>pages/three-way-forecast.vue</code> after the report. <b>The feature is complete: all
+  three slices.</b> As with slice 2, every difference between this drawing and the build is
+  listed here rather than left to be discovered.
+  <br><br>
+  <b>(f) "After the cash flow" is built as "after the statements", and the two are the same
+  place.</b> The forecast's three statements share ONE tabbed table, so a print carries
+  whichever tab is on screen — there is no point in the printed document that is "after the
+  cash flow" and before anything else. The research prints as the last section of the pack,
+  which is what this drawing's sentence resolves to once the tabs are taken into account.
+  <br><br>
+  <b>(g) 🔴 "Every page of that section carries the AI research tag" — built as far as CSS
+  allows, and the gap is named rather than glossed.</b> Each of the five sections starts a
+  new printed page and carries the tag, as does the header and the source list, so in the
+  ordinary case the sentence is true. <b>A section that runs longer than one printed page
+  continues onto a page with no tag on it.</b> Repeating an element on every printed page
+  needs <code>@page</code> margin boxes, which no browser this app supports implements.
+  ⚠ <b>This makes one sentence on Screen 6 very slightly stronger than the build</b>
+  (<code>inPackTag</code> in <code>locales/en.json</code>) — for Mike to soften or leave.
+  <br><br>
+  <b>(h) The pack carries NO anchor at all, where the screen carries one per citation.</b>
+  Paper has no clicks. A citation is the source's name in the text beside its figure, and
+  every address is written out in full in the numbered list at the end where a reader can
+  type it back in. The effect is that nothing in the printed component holds a URL the model
+  wrote — a stronger position than the screen's, not a weaker one.
+  <br><br>
+  <b>(i) The pack is print-only: it is not shown on screen anywhere.</b> Step 5 is where an
+  advisor reads and approves the research, and rendering the same text a second time on
+  screen would put two versions of one thing in front of the person approving it. Ctrl+P is
+  how it is checked.
+  <br><br>
+  <b>(j) The printed source list needed one new label, and it is PROPOSED, NOT RULED.</b>
+  <code>packSources</code> — <i>"{count} sources, written out in full"</i>. The screen's own
+  <code>sourceCount</code> says <i>"every one clickable"</i>, which is false on paper. Every
+  other word in the pack is a string Mike has already approved.
+  <br><br>
+  🔴 <b>AND ONE FAULT THIS BUILD FOUND IN SLICE 2, fixed here.</b> The approval line on
+  Screen 5 read <code>approval.by.name</code> and <code>approval.ofRuns</code>. The backend
+  returns <code>approvedBy</code> and <code>totalRuns</code> — so <b>ticking the second tick
+  threw in the running app</b>, on the very line meant to record who approved the research.
+  The unit tests missed it because their fixture had invented the same wrong shape. <b>Same
+  family as the search-phrase fault of that morning</b>: the tests agreed with the code, and
+  neither agreed with the API. The fixture now mirrors <code>approveRun</code>.
+</div>
+
 </div>
 </body>
 </html>
