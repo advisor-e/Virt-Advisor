@@ -119,13 +119,24 @@ function logCall (runId, startedAt, success, usage, searches) {
 
 /**
  * Today, as the prompt's §2 wants it — a date a model cannot misread, from the server.
- * @returns {string} e.g. "6 September 2026"
+ *
+ * ⚠ THE SERVER'S OWN DATE, NOT UTC. It read UTC until 2026-09-07, which put YESTERDAY in
+ * front of an advisor at UTC+12 for the first twelve hours of every day — and it prints, in
+ * the client's own funding pack: "The assessment starts on 6 September 2026", written on
+ * the 7th. Seen in a live run, not in a test.
+ *
+ * ⚠ AND IT IS ONLY AS RIGHT AS THE SERVER'S CLOCK. An advisor in a different zone from the
+ * server still gets the server's day. Closing that needs the advisor's own date, which
+ * nothing sends today — §4 of the prompt file records `{{today}}` as the server's, and
+ * changing where it comes from is a decision, not a tidy-up.
+ *
+ * @returns {string} e.g. "7 September 2026"
  */
 function todayInWords (now) {
   const d = now instanceof Date ? now : new Date()
   const months = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December']
-  return d.getUTCDate() + ' ' + months[d.getUTCMonth()] + ' ' + d.getUTCFullYear()
+  return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear()
 }
 
 /**

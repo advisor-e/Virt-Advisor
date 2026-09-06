@@ -228,7 +228,7 @@ a word of the content. 🔴 **Do not remove it.**
 | Variable | What it holds | Where it comes from |
 |---|---|---|
 | `{{advisorBrief}}` | The research brief, verbatim | **The advisor types it and sees it before sending.** The only client-derived content in this prompt, and the whole of Mike's 2026-09-06 ruling |
-| `{{today}}` | Today's date | The server. **Not client data.** Added after run 1, where the model wrote *"the undated advisor brief"* and had to infer the date it was assessing from |
+| `{{today}}` | Today's date | The server's **own day**, not UTC — corrected 2026-09-07 after a live run printed *"The assessment starts on 6 September 2026"* in a client's pack on the 7th. **Not client data.** Added after run 1, where the model wrote *"the undated advisor brief"* and had to infer the date it was assessing from. ⚠ An advisor in a different zone from the server still gets the server's day; the advisor's own date is not sent, and sending it would be a change to this row |
 
 **One variable, deliberately.** Country, region, sector and period could each have been their
 own field, collected and assembled by the app. Under the ruling they are not: the advisor
@@ -333,12 +333,16 @@ approval tick records and renders without throwing (the fault slice 3 found), an
 as its own section after the statements, in a real PDF. Each accepted run returned 15–17 sources,
 21–28 inline citations and 1,787–1,969 words, with no console or page errors.
 
-⚠ **Two things seen and NOT closed.**
+✅ **The wrong date is FIXED (2026-09-07, on Mike's ruling).** `todayInWords()` read UTC, so an
+advisor at UTC+12 was sending yesterday — and it printed, in the client's own pack: *"The
+assessment starts on 6 September 2026"*, written on the 7th. It now reads the server's own day.
+⚠ **It is only as right as the server's clock:** an advisor in a different zone from the server
+still gets the server's day, and closing that needs the advisor's own date, which nothing sends.
+That is a change to §4's variable, not a tidy-up, so it is not made here.
 
-1. **The model is told the wrong date.** `todayInWords()` reads UTC, so an advisor at UTC+12
-   sends yesterday — and it prints, in the client's own pack: *"The assessment starts on
-   6 September 2026"* on the 7th. Not fixed; Mike's call.
-2. **One run came back truncated** (`SECTIONS_MISSING`, §§4–5 absent) out of eight. It was the
+⚠ **One thing seen and NOT closed.**
+
+1. **One run came back truncated** (`SECTIONS_MISSING`, §§4–5 absent) out of eight. It was the
    run whose browser was killed mid-flight, so nothing should be read into it until it is seen
    again.
 

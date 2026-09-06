@@ -532,9 +532,14 @@ describe('the second tick — the approval gate', () => {
 })
 
 describe('the pieces the routes are built from', () => {
-  test('today is written in words a model cannot misread', () => {
-    expect(routes.todayInWords(new Date(Date.UTC(2026, 8, 6)))).toBe('6 September 2026')
-    expect(routes.todayInWords(new Date(Date.UTC(2026, 0, 31)))).toBe('31 January 2026')
+  // ⚠ LOCAL dates, not `Date.UTC`. The date the advisor is living in is the one that prints
+  // in the client's funding pack, and reading UTC put yesterday there for anyone east of
+  // Greenwich. Built from local parts, these hold in any timezone — and on a machine at a
+  // positive offset they are exactly what the old UTC reading failed.
+  test('today is written in words a model cannot misread, in the server day', () => {
+    expect(routes.todayInWords(new Date(2026, 8, 6))).toBe('6 September 2026')
+    expect(routes.todayInWords(new Date(2026, 0, 31))).toBe('31 January 2026')
+    expect(routes.todayInWords(new Date(2026, 8, 7, 8, 52))).toBe('7 September 2026')
     expect(typeof routes.todayInWords()).toBe('string')
   })
 
