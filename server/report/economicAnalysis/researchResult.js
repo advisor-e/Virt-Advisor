@@ -78,10 +78,46 @@ const DATE_PATTERNS = [
 ]
 
 /**
+ * A markdown link, and a bare web address. Removed before figures are extracted.
+ *
+ * 🔴 THIS IS WHAT STOPS A RE-CITED SOURCE BEING READ AS A RESTATED FIGURE, and it was
+ * found the only way it could be — by watching live runs, on 2026-09-07.
+ *
+ * Official statistics pages carry ids in their addresses (`/dmsdocument/10808-…`,
+ * `/Uploads/3000820/…`). The model's text carries those addresses inline, because
+ * `utils/researchText.js` parses `[label](url)` to render a citation. So a model that
+ * returns in §4 to a source it used in §§1–3 — which §3 of the prompt asks it to do —
+ * repeats those digits, and the restatement check refused the whole document. Two live
+ * runs were refused naming `3000820`, `10808` and `2026`: two document ids and a year,
+ * and not one economic figure among them.
+ *
+ * ⚠ THE LABEL IS KEPT, THE ADDRESS IS NOT. A figure a lender reads can appear in the
+ * label (`[1.9% rise](…)`); one inside an address never is.
+ */
+const MARKDOWN_LINK = /\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/g
+const BARE_URL = /https?:\/\/\S+/g
+
+/**
+ * Removes web addresses, keeping any link's visible label.
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+function stripUrls (text) {
+  return String(text).replace(MARKDOWN_LINK, ' $1 ').replace(BARE_URL, ' ')
+}
+
+/**
  * A bare four-digit year, with the span around it so its context can be read.
  * Applied after DATE_PATTERNS — see `stripBareYears`.
+ *
+ * ⚠ NO `\b` AT EITHER END, DELIBERATELY. A word boundary needs a non-word character, so
+ * `FY2026` and `2026Q2` — both of which a model writes — slipped through it and were
+ * counted as the figure `2026`. A live run on 2026-09-07 was refused naming exactly that.
+ * The two edges are checked in `stripBareYears` instead, against digits rather than
+ * letters, which is what "part of a longer number" actually means.
  */
-const BARE_YEAR = /[£$€¥₹]?\s*\b(?:19|20)\d{2}\b\s*%?/g
+const BARE_YEAR = /([£$€¥₹]?\s*)((?:19|20)\d{2})(\s*%?)/g
 
 /**
  * Removes bare years, but never a figure that merely looks like one.
@@ -95,8 +131,13 @@ const BARE_YEAR = /[£$€¥₹]?\s*\b(?:19|20)\d{2}\b\s*%?/g
  * @returns {string}
  */
 function stripBareYears (text) {
-  return String(text).replace(BARE_YEAR, (match) => {
+  return String(text).replace(BARE_YEAR, (match, pre, year, post, offset, whole) => {
     if (/[£$€¥₹%]/.test(match)) { return match }
+    // Digits either side mean this is part of a longer number (`12026`, `1.2026`), not a
+    // year. Letters either side do not — that is `FY2026`, which is.
+    const before = whole.charAt(offset + pre.length - 1)
+    const after = whole.charAt(offset + pre.length + year.length)
+    if (/[\d.,]/.test(before) || /\d/.test(after)) { return match }
     return ' '
   })
 }
@@ -196,7 +237,7 @@ function findSections (text) {
  * @returns {string[]} normalised figure values, deduplicated
  */
 function figuresIn (text) {
-  let cleaned = String(text || '')
+  let cleaned = stripUrls(text || '')
   for (const pattern of DATE_PATTERNS) { cleaned = cleaned.replace(pattern, ' ') }
   cleaned = stripBareYears(cleaned)
 

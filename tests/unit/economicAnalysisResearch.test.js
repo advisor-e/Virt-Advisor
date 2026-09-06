@@ -114,6 +114,43 @@ describe('the citation fix, re-checked against the runs that produced it', () =>
     expect(result.error.code).toBe('SECTION_4_UNSOURCED')
     expect(result.error.detail.figures).toContain('4465')
   })
+
+  // 🔴 WHAT TWO LIVE RUNS WERE WRONGLY REFUSED FOR, 2026-09-07 — the same fault as the
+  // unit cases in `figuresIn`, stated where it actually bites. Section 4 returning to a
+  // source used earlier is what §3 of the prompt ASKS FOR; it must never read as a
+  // restatement. The whole document was being thrown away for doing the right thing.
+  test('section 4 may re-cite a source used earlier, and it is not a restatement', () => {
+    const url = 'https://www.mbie.govt.nz/dmsdocument/10808-energy-pdf'
+    const text = goodText({
+      s2: 'Wholesale electricity averaged 12.4 c/kWh over the quarter.',
+      s4: 'Energy remains the largest controllable input cost, and the direction of travel ' +
+        'described above is unfavourable rather than severe. No figure of the business\'s own ' +
+        'has been estimated.'
+    })
+    const cites = GOOD_CITES
+      .filter(c => c.at !== '3.4%')
+      .concat([
+        { url, at: '12.4 c/kWh' },
+        { url, at: 'largest controllable' }
+      ])
+
+    const result = validateResearch(responseFrom(text, cites))
+    expect(result.ok).toBe(true)
+  })
+
+  // …and the protection itself is untouched: a figure genuinely carried over from the
+  // evidence sections is still refused, which is the fault the whole check exists for.
+  test('a figure genuinely repeated from an evidence section is still refused', () => {
+    // 1.9% is section 1's, left exactly where it is so its citation still anchors.
+    const text = goodText({
+      s4: 'With world trade up 1.9%, margins remain under pressure.'
+    })
+
+    const result = validateResearch(responseFrom(text, GOOD_CITES))
+    expect(result.ok).toBe(false)
+    expect(result.error.code).toBe('SECTION_4_RESTATED')
+    expect(result.error.detail.figures).toContain('1.9')
+  })
 })
 
 describe('validateResearch — the shapes it must refuse', () => {
@@ -312,6 +349,38 @@ describe('figuresIn — what counts as a figure a lender reads', () => {
     expect(figuresIn('in Q1 2026')).toEqual([])
     expect(figuresIn('during 2025')).toEqual([])
     expect(figuresIn('on 1st March 2026')).toEqual([])
+  })
+
+  // 🔴 THE FAULT TWO LIVE RUNS WERE REFUSED ON, 2026-09-07. Official statistics pages
+  // carry ids in their addresses, and the model's text carries the address inline because
+  // the screen parses `[label](url)` to render a citation. Counting those digits made a
+  // RE-CITED SOURCE look like a RESTATED FIGURE. The real refusals named `10808` and
+  // `3000820` — two document ids — and not one economic figure between them.
+  test('a number inside a web address is not a figure', () => {
+    expect(figuresIn('eased ([MBIE](https://www.mbie.govt.nz/dmsdocument/10808-energy-pdf)).')).toEqual([])
+    expect(figuresIn('data ([Stats NZ](https://www.stats.govt.nz/assets/Uploads/3000820/m.csv)).')).toEqual([])
+    expect(figuresIn('See https://www.mbie.govt.nz/dmsdocument/10808-energy-pdf for detail.')).toEqual([])
+  })
+
+  // The address goes; the label stays. A figure a lender reads can be written into a
+  // link's visible text, and one inside the address never is.
+  test('a figure in a link label still counts', () => {
+    expect(figuresIn('prices rose ([1.9% in July](https://stats.govt.nz/x)).')).toEqual(['1.9'])
+  })
+
+  // A word boundary needs a non-word character, so these two slipped through it and were
+  // counted as the figure 2026. A live run was refused naming exactly that.
+  test('a year is not a figure even when a letter is joined to it', () => {
+    expect(figuresIn('FY2026 spending')).toEqual([])
+    expect(figuresIn('2026Q2 output')).toEqual([])
+    expect(figuresIn('the 2026/27 season')).toEqual([])
+  })
+
+  // …but the edge that matters is digits, not letters: these are parts of numbers.
+  test('a year-like run of digits inside a longer number still counts', () => {
+    expect(figuresIn('a total of 12026 units')).toEqual(['12026'])
+    expect(figuresIn('measured at 1.2026 index points')).toEqual(['1.2026'])
+    expect(figuresIn('the average premium was €1,902')).toEqual(['1902'])
   })
 
   test('the same figure twice is reported once', () => {

@@ -18,6 +18,11 @@
 > was arriving empty. The four earlier runs are on
 > [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md), with run 5 beside them.
 >
+> ✅ **AND IT HAS NOW BEEN WATCHED END TO END IN A BROWSER, 2026-09-07** — brief, research,
+> approval, printed pack. Seven live runs, and they found the fault that mattered most: the
+> citation guard was refusing **half of all runs**, every time wrongly, because it counted the
+> digits inside a source's web address as a figure. Fixed and proven live. See §7b.
+>
 > This page stays as the record of what was approved and when — the rule in
 > [`../CLAUDE.md`](../CLAUDE.md), *Save the Artefact*.
 >
@@ -247,7 +252,7 @@ was still a promise — the citation re-check — is a promise no longer; see th
 | Rule | How it is held |
 |---|---|
 | §4 — no figure without a citation | `url_citation` annotations come back as structured fields; a claimed figure with no annotation behind it is rejected before it reaches the screen. ✅ Built: `SECTION_4_UNSOURCED`, plus `SECTION_UNSOURCED` for an evidence section carrying no citation at all |
-| ✅ **EVERY FIGURE LIVES ONCE, BESIDE ITS OWN SOURCE — and that is why §6's no-restatement rule is load-bearing, not tidiness** | Runs 1–3 each put a correct figure beside the wrong source. The pattern was precise: **attribution was reliable where a figure was first introduced and unreliable where it was RESTATED** — §§1–3 introduce, §4 recalled and bundled two or three figures under one citation. Three instruction-level attempts to make it re-cite on restatement failed. **Run 4 removed the surface instead of policing it**: §4 may no longer repeat a figure at all, and it came back with **zero figures and zero citations**, still substantive, while §§1–3 kept a source per figure and cited two-source paragraphs separately. **Do not relax that rule to let §4 quote numbers again** — it is the whole fix. ✅ **THE RE-CHECK IS NOW PERMANENT, not a one-off.** Every run is inspected: a figure in §4 that already appeared in §§1–3 is refused as `SECTION_4_RESTATED` and the repeated figures are named. It is proven against both runs, read from the evidence page rather than copied — **run 4 passes at its recorded 2,276 words with an empty §4; run 1 is refused, naming `0.50935`, `5.6` and `2.0`.** The guard therefore also fires if anyone edits run 4's §4 to put the numbers back. ⚠ It does **not** forbid figures in §4 outright, because §6 permits a genuinely new one with its own source — a check stricter than this artefact would be its own drift. ⚠ And it still cannot tell a CORRECT citation from an incorrect one: `url_citation` records where the model *put* a citation, so a misplacement arrives inside the annotation. It refuses the shape in which every observed misattribution occurred, which is a weaker claim, deliberately. Evidence: [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md) |
+| ✅ **EVERY FIGURE LIVES ONCE, BESIDE ITS OWN SOURCE — and that is why §6's no-restatement rule is load-bearing, not tidiness** | Runs 1–3 each put a correct figure beside the wrong source. The pattern was precise: **attribution was reliable where a figure was first introduced and unreliable where it was RESTATED** — §§1–3 introduce, §4 recalled and bundled two or three figures under one citation. Three instruction-level attempts to make it re-cite on restatement failed. **Run 4 removed the surface instead of policing it**: §4 may no longer repeat a figure at all, and it came back with **zero figures and zero citations**, still substantive, while §§1–3 kept a source per figure and cited two-source paragraphs separately. **Do not relax that rule to let §4 quote numbers again** — it is the whole fix. ✅ **THE RE-CHECK IS NOW PERMANENT, not a one-off.** Every run is inspected: a figure in §4 that already appeared in §§1–3 is refused as `SECTION_4_RESTATED` and the repeated figures are named. It is proven against both runs, read from the evidence page rather than copied — **run 4 passes at its recorded 2,276 words with an empty §4; run 1 is refused, naming `0.50935`, `5.6` and `2.0`.** The guard therefore also fires if anyone edits run 4's §4 to put the numbers back. ⚠ It does **not** forbid figures in §4 outright, because §6 permits a genuinely new one with its own source — a check stricter than this artefact would be its own drift. ⚠ And it still cannot tell a CORRECT citation from an incorrect one: `url_citation` records where the model *put* a citation, so a misplacement arrives inside the annotation. It refuses the shape in which every observed misattribution occurred, which is a weaker claim, deliberately. 🔴 **AND IT COUNTED WEB ADDRESSES AS FIGURES UNTIL 2026-09-07, WHICH REFUSED HALF OF ALL LIVE RUNS.** Statistics pages carry ids in their addresses (`/dmsdocument/10808-…`), the model's text carries the address inline because [`../utils/researchText.js`](../utils/researchText.js) parses `[label](url)` to render a citation, and so a §4 that returned to a source used in §§1–3 — which §3 *asks* it to do — repeated those digits and lost the whole document. Two live runs were refused naming `3000820`, `10808` and `2026`: two document ids and a year, and not one economic figure between them. `figuresIn` now strips addresses (keeping any link's label, where a real figure can live) and no longer needs a word boundary to recognise a year, so `FY2026` and `2026Q2` stop counting as the figure `2026`. **The rule itself is untouched** — a figure genuinely carried over from §§1–3 is refused exactly as before, pinned by two tests either side of the line. Evidence: [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md) |
 | ⚠ Length is a steer, not a contract | Both runs overshot their target, and raising the target raised the output with it. Output length tracks how much the model **finds**, not the number it is given. A screen must not assume a predictable length |
 | Approval before it reaches a lender | An advisor must accept the research explicitly (`isApproved: true`) before it can join a funding pack — the standards' rule for financial output. ✅ Built: the include route refuses a run that has not finished, and records `isApproved`, who, when, and **which run of how many**, persisted per firm under `economic-analysis-approvals` |
 | It is AI text, and says so | `ProvenanceBadge` gains a **fifth** state. It already has four — `file`, `entered`, `seeded`, `client`. ⏳ Slice 2 |
@@ -303,6 +308,39 @@ and the run found two further faults that only a live call could have shown:
 ⚠ **One thing the live call could NOT settle: the cost.** The published rate could not be
 retrieved. Run 5's usage — 99,024 in, 5,422 out, 10 searches — is recorded so a real bill can
 be checked against it rather than against an estimate nobody verified.
+
+---
+
+## 7b. What watching it in a browser settled — 2026-09-07
+
+✅ **The first end-to-end runs driven through the real screen**: the tick, the brief, the wait,
+the research, the approval tick, then Ctrl+P. Seven live runs. Recorded on
+[`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md).
+
+🔴 **THE GUARD WAS REFUSING HALF OF ALL RUNS, AND IT WAS WRONG EVERY TIME IT DID.** Four runs
+before the fix, two refused as `SECTION_4_RESTATED`; three runs after it, none refused. The
+cause and the fix are in §5's second row. What matters here is why nothing else could have
+found it: **the tests passed throughout**, because every fixture was prose and not one of them
+contained a citation URL — the fourth time in a week the tests agreed with the code and neither
+agreed with reality.
+
+⚠ **What the advisor saw was a dead end.** Three minutes, a real API bill, and *"Run it again"* —
+with the same odds on the next attempt, and 1,900 words of correctly sourced research thrown away
+because the model had returned to a source it had already used.
+
+✅ **Everything downstream of the research is now proven in a browser, not only in tests:** the
+approval tick records and renders without throwing (the fault slice 3 found), and the pack prints
+as its own section after the statements, in a real PDF. Each accepted run returned 15–17 sources,
+21–28 inline citations and 1,787–1,969 words, with no console or page errors.
+
+⚠ **Two things seen and NOT closed.**
+
+1. **The model is told the wrong date.** `todayInWords()` reads UTC, so an advisor at UTC+12
+   sends yesterday — and it prints, in the client's own pack: *"The assessment starts on
+   6 September 2026"* on the 7th. Not fixed; Mike's call.
+2. **One run came back truncated** (`SECTIONS_MISSING`, §§4–5 absent) out of eight. It was the
+   run whose browser was killed mid-flight, so nothing should be read into it until it is seen
+   again.
 
 ---
 

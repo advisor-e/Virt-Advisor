@@ -1,4 +1,4 @@
-# Economic Analysis — what the prompt actually produced
+﻿# Economic Analysis — what the prompt actually produced
 
 > **Evidence, not a design.** The prompt being tested is
 > [`ECONOMIC-ANALYSIS-PROMPT.md`](ECONOMIC-ANALYSIS-PROMPT.md); this page is what came back
@@ -18,6 +18,10 @@
 >
 > ✅ **Run 5 (2026-09-06) is the first through the built path**, on committed code, and it
 > records everything the four before it could not.
+>
+> ✅ **Runs 6–12 (2026-09-07) are the first driven through the SCREEN**, in a real browser —
+> tick, brief, wait, research, approval, Ctrl+P. See §"Runs 6–12" at the foot of this page.
+> They are why the citation guard no longer refuses half of everything it is shown.
 
 ---
 
@@ -375,6 +379,58 @@ query, so nothing reads them.
 a query — a shape the API never sends — and an assertion insisted a `.done` event be ignored.
 All 67 tests passed throughout, which is why they proved nothing here. They now use the shapes
 in the table above.
+
+---
+
+## Runs 6–12 — 2026-09-07 · driven through the SCREEN, in a real browser
+
+**Brief given (fictional):** *a family-owned commercial bakery in Christchurch, New Zealand,
+supplying supermarkets and cafes across Canterbury; seeking bank finance for a second
+production oven and a delivery van; research the New Zealand food manufacturing and wholesale
+baking outlook, ingredient and energy costs, interest rates and business lending conditions,
+and Canterbury consumer food spending, over 12 to 24 months.*
+
+**The point of these runs was not the prompt. It was the screen** — the tick, the brief, the
+wait, the research, the approval tick and Ctrl+P, in a real Chromium against the real backend
+and the real API. Nobody had ever done that.
+
+### 🔴 What they found: the guard refused half of everything, and was wrong every time
+
+| | Live runs | Refused | Code |
+|---|---|---|---|
+| Runs 6–9, before the fix | 4 | **2** | `SECTION_4_RESTATED` |
+| Runs 10–12, after it | 3 | **0** | — |
+
+The refusals named `3000820`, `10808` and `2026`. **None is an economic figure.** The first two
+are document ids inside the web addresses of cited sources; the third is a year. `figuresIn`
+was reading the digits out of a citation's URL, so a §4 that returned to a source used in
+§§1–3 — which §3 of the prompt asks it to do — looked like a restatement, and 1,900 words of
+correctly sourced research were thrown away.
+
+It was reproduced exactly before anything was changed: a five-section document whose §4
+contains **no figure at all**, citing one source twice, refused as
+`SECTION_4_RESTATED {"figures":["10808"]}`.
+
+**Why no test caught it:** every fixture was prose, and not one contained a citation URL.
+
+### What the accepted runs returned
+
+| Run | Sources | Inline citations | Words | Latency |
+|---|---|---|---|---|
+| 10 | 17 | 28 | 1,969 | 174s |
+| 11 | 15 | 26 | 1,787 | 179s |
+| 12 | 16 | 21 | 1,927 | 153s |
+
+Zero console errors and zero page errors across all three. The approval tick recorded and
+rendered without throwing, and the pack printed as its own section after the statements in a
+real PDF — the first time either has been seen outside a test.
+
+### Two things seen and left open
+
+- **The date sent to the model is UTC**, so an advisor at UTC+12 sends yesterday. It reaches
+  the client's pack verbatim: *"The assessment starts on 6 September 2026"*, written on the 7th.
+- **One run in eight came back truncated** (`SECTIONS_MISSING`, §§4–5 absent). It was the run
+  whose browser was killed mid-flight, so nothing is concluded from it until it recurs.
 
 ---
 
