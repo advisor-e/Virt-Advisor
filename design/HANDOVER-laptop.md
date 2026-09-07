@@ -9,71 +9,88 @@
 
 ---
 
-## 2026-09-08 · Laptop · branch `feat/advisor-progress`
+## 2026-09-08 (second session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,301 green** (425 suites), lint 0 errors, `npm run build` succeeds. Seven commits,
-**PR #69 open** — 9 ahead, 0 behind. Nothing uncommitted.
+Suite **8,371 green** (425 suites), lint 0 errors, audit gate pass, coverage thresholds met.
+**Ten commits, all pushed** — 21 ahead, 0 behind. **PR #69 open.** Nothing uncommitted.
 
-**MEETING-TYPES SLICES 3 AND 4a ARE BUILT.** Slice 3 opened the kinds of meeting to all four
-manager tiers — one computed property. Slice 4a is the advisor's own level, drawn as
-[`mockups/meeting-preset-advisor-level.html`](mockups/meeting-preset-advisor-level.html),
-six questions ruled and the drawing approved as its own question.
+**ECONOMIC ANALYSIS IS ALIVE AGAIN**, and the reason it was dead is not what this repository
+believed for two days. Also: the Meeting Review advisor level now actually reaches the report,
+Spec Kit is installed, and `/code-review` produced three new items.
 
-### 🔴 THE THREE THINGS A LATER SESSION WOULD OTHERWISE GET WRONG
+### 🔴 THE FOUR THINGS A LATER SESSION WOULD OTHERWISE GET WRONG
 
-1. **`visible` on `FirmMeetingTypes.vue` IS NOT A PERMISSION CHECK and must not be made one.**
-   `tierOfScope` returns exactly four values, so a condition naming all four is always true —
-   protection that reads as protection and is none. P14 lives on the backend, where it always did.
-2. **Q1's "yes" came with the cost REFUSED, not accepted.** *"yes but fix the issue - build it
-   so the manager can see"* — which is why Stage C shipped in the same slice. Reading the "yes"
-   alone rebuilds the wrong thing. **A cost recorded against a recommendation is not a cost
-   accepted by ruling on it.**
-3. 🔴 **THERE IS NO ADVISOR ROSTER IN THIS APPLICATION.** `config/db-schema.sql` says so four
-   times. The drawing's "4 of 12" could not be built and Mike wrote the replacement line himself.
-   **Any feature wanting a "% of your team" figure meets this same wall.**
+1. 🔴 **THE MODEL WAS NEVER "WRITING FROM MEMORY". IT WAS ASKING PERMISSION.** Six sessions
+   read *one search + a short answer* as a lazy model satisfying `tool_choice`. Run 20 logged
+   the raw reply for the first time and it is a **question**: our §2 said today was 8 September,
+   the model's own date was 7 September, and between §2's *"do not infer either date"* and §5's
+   *"an honest gap beats a confident guess"* it concluded it must stop and ask. **A one-day lag
+   killed the feature.** `SECTIONS_MISSING` followed because a question has no numbered
+   headings. **The guard was correct on every single run.** Runs 20–21 in
+   [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md).
+2. 🔴 **NEVER PROVE THIS FEATURE WITH A PROBE.** Item 4.69 was recorded "proven live" on run 15,
+   a script outside the repository. Five route runs had failed around it. That is now twice this
+   page has been misled the same way. **Through the built route or it did not happen.**
+3. **`presetFor` must APPLY the advisor layer, not re-derive it.** The screen and report
+   generation disagreed for a day because only the screen called `applyAdvisorLayer`. Both now
+   call the same function on purpose — do not "tidy" one into its own copy.
+4. **Spec Kit was COPIED from the desktop's `4fba367`, byte-identical — do not run
+   `specify init --here`.** A fresh init writes a blank `constitution.md` and would conflict with
+   the desktop's hand-written one on all 30 paths at merge.
 
 ### 🔴 DESKTOP — read this first
 
-- **PR #69 will put you behind again.** Merge `master` in before touching anything.
-- **Shared files that moved:** `server/restify-server.js` (5 route lines),
-  `server/routes/meetingObservations.js` (+430 lines, advisor level + the manager's view),
-  `server/utils/meetingObservations.js` (`asAdvisorPreset` carries two more fields — additive),
-  `components/firm/FirmMeetingObservations.vue` (a panel), `FirmMeetingTypes.vue`,
-  `MeetingPreset.vue`, `design/ARTEFACTS.md`, `to-do-items.json`, `meeting-review.md`.
-- **Your `xeroReportParser.js` work was not touched.** Nor 4.70, 4.62 or 4.66.
-- **The OpenAI account has been TOPPED UP** (Mike, 2026-09-08) — the note that said otherwise was true for an hour and is corrected.
+- **PR #69 will put you behind. Merge `master` in before touching anything.**
+- **Shared files that moved:** `data/ai-prompts.json` (economic-analysis prompt only — §2 gained
+  a paragraph, §3 a sentence, and the prompt object a `bannedSourceHosts` array),
+  `server/routes/economicAnalysis.js`, `server/report/economicAnalysis/researchResult.js`,
+  `server/routes/meetingReview.js`, `server/routes/meetingObservations.js` (**one added export**,
+  `loadAdvisorState` — additive), `server/utils/meetingObservationsAdvisor.js`,
+  `to-do-items.json` (+3 items), `to-do.md`, and two design docs.
+- **`.specify/` and ten `.claude/skills/speckit-*` are identical to yours** and will merge in
+  silence. That was the point of copying rather than initialising.
+- **Your 4.70, benchmarker and Business Performance Report work was not touched.**
 
-### 🔴 ECONOMIC ANALYSIS IS DOWN ON ITS DEFAULT PATH — found after the shutdown
+### What was built
 
-Mike topped up the credits, so item **4.69's** owed regression check finally ran. **It failed
-three times out of three**, through the built route, with no assessment date — the path every
-user gets. Every failure made **exactly one** web search and returned 600–900 completion tokens
-in under 30 seconds; the only run ever accepted made **fourteen** searches. `tool_choice` is
-already `'required'` and is not the cause — it guarantees one call, not a research effort.
+| | |
+|---|---|
+| `0089a5b` | Spec Kit, from your files |
+| `7479ef4` | **The advisor's own level reaches the report** — it had been inert since it shipped |
+| `ea08233` | An over-long hint phrase is refused, not dropped behind a `200` |
+| `28afa04` | **4.74, 4.75, 4.76 filed** from `/code-review` |
+| `ba5bec1` | The raw-reply log — the instrument that broke the case open |
+| `6ced5d5` | The diagnosis, and §2's wording drafted for approval |
+| `19bd5a0` | **The fix applied and proven** — run 21: 12 searches, 1,938 words, 32 citations |
+| `7c76418` `b47d9a7` `b708a62` | **reddit.com banned** — asked of the model AND enforced in the guard |
 
-⚠ **AND IT CORRECTED THE RECORD.** 4.69 said its fix was *"proven live"*. That proof was run
-15, which used a **probe outside the repository**. Every run through the ROUTE since the change
-has failed — 13, 14, and today's three. **Five consecutive route failures, one success outside
-it.** Filed as **4.73** (score 4, blocks 4.69); evidence in
-[`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md) runs 17–19.
+### Two traps worth keeping in mind
 
-**Reproduction, not diagnosis.** The raw model reply is never logged, which is the one thing
-between the two. Seeing what it returns is the next step and wants a fresh head.
+- **`hostOf` strips `www.` and nothing else.** A plain equality check bans `reddit.com` and waves
+  `old.reddit.com` through. `isBannedHost` matches *equals, or ends with dot + entry* — and
+  `notreddit.com` is tested as NOT banned, because a bare `endsWith` overreaches.
+- **`server/report/economicAnalysis/` is held to 100% statements and branches.** The push gate
+  refused a commit with 8,365 tests passing. It is AI-response validation; the standards put it
+  there. Defensive branches need tests, not just the happy path.
 
-### Open, and named rather than left to be discovered
+### Open
 
-- **4.72 filed today:** `nextOwnPointId` at the MANAGER tier hands a removed point's id to the
-  next one added — the same fault fixed in the advisor's copy. Left deliberately: it changes
-  storage all four manager tiers share.
-- **Eleven live items.** `activeOn` this laptop: **4.69** alone — now BLOCKED behind 4.73
-  rather than owing a run. 4.58 stays unflagged — what remains on it is the
-  per-client level and §4, and nobody is mid-flight on either.
+- **4.73 and 4.69 are FINISHED and wait only on Mike to close them.** 4.69's owed regression
+  check *is* run 21. `activeOn` still names this laptop on 4.69 — left standing deliberately
+  until he ticks it, not because anyone is mid-flight.
+- **4.74 is a DECISION, not a fix**: the advisor's hint-words box comes off the screen, or is
+  wired into report generation. Both change what an advisor sees. ⚠ If it comes off, `ea08233`
+  goes with it.
+- **4.75 and 4.76 were left deliberately.** 4.75 needs a compare-and-set on `saveFirmConfig`,
+  which every firm-overlay feature shares; 4.76 needs the last-changing tier carried through
+  `resolveInheritedRows`, which the meeting-types cascade shares. Neither is a quick edit and
+  the items say so.
+- **Fourteen items on the list here; yours has 4.70 and this branch does not.** Neither
+  published Handbook can show all fifteen until both branches reach `master`. Mike was told.
 
 ### Next
 
-**4.73 is the first thing to look at** — a built feature is failing for every user, and it is
-reproducible on demand.
-
-**Meeting Review's last code is the per-CLIENT level** — undrawn on purpose: it needs the
-client picker, empty without MySQL, so it is desktop or UAT work. **§4's five non-coding items
-gate a first real client recording** and are Mike's.
+**4.75 is the highest-scoring thing available** (5 — an advisor's saved changes can be silently
+lost), and it is the one that most deserves its own proposal rather than being squeezed into the
+end of a day. **4.15, 4.60 and 4.65 all wait on Mike**, and 4.60 and 4.65 are the same request to
+the same person — ask once.
