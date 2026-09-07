@@ -21,6 +21,7 @@
 
 const {
   validateResearch,
+  isBannedHost,
   extractText,
   findSections,
   figuresIn,
@@ -248,6 +249,47 @@ describe('validateResearch — sources the firm has banned', () => {
 
   test('research citing nothing banned is unaffected', () => {
     expect(validateResearch(responseFrom(goodText(), GOOD_CITES), BANNED).ok).toBe(true)
+  })
+})
+
+// The standards put AI-response validation at 100%, malformed and missing input included —
+// and the push gate holds this directory to it. These are the shapes the list itself can
+// arrive in once a hub page can edit it, which is the point at which a bad entry stops being
+// hypothetical.
+describe('isBannedHost — the matching rule on its own', () => {
+  test('an exact host, and any subdomain of it', () => {
+    expect(isBannedHost('reddit.com', ['reddit.com'])).toBe(true)
+    expect(isBannedHost('old.reddit.com', ['reddit.com'])).toBe(true)
+    expect(isBannedHost('a.b.reddit.com', ['reddit.com'])).toBe(true)
+  })
+
+  test('a host that merely ends in the same letters is not a match', () => {
+    expect(isBannedHost('notreddit.com', ['reddit.com'])).toBe(false)
+    expect(isBannedHost('reddit.com.au', ['reddit.com'])).toBe(false)
+  })
+
+  test('case is ignored on both sides', () => {
+    expect(isBannedHost('OLD.Reddit.COM', ['ReDDit.com'])).toBe(true)
+  })
+
+  test('an entry written with www. still bans the bare host', () => {
+    // hostOf strips www. from the citation, so an entry keeping it would otherwise match
+    // nothing at all — a banned site that quietly is not banned.
+    expect(isBannedHost('reddit.com', ['www.reddit.com'])).toBe(true)
+  })
+
+  test('a blank or missing entry bans nothing rather than everything', () => {
+    // '' would make `h.endsWith('.' + b)` a suffix test against '.', and an empty string
+    // equals nothing — but a careless implementation could ban the whole web.
+    expect(isBannedHost('reddit.com', ['', null, undefined])).toBe(false)
+    expect(isBannedHost('stats.govt.nz', [''])).toBe(false)
+  })
+
+  test('a missing host or a missing list is false, never a throw', () => {
+    expect(isBannedHost(null, ['reddit.com'])).toBe(false)
+    expect(isBannedHost(undefined, ['reddit.com'])).toBe(false)
+    expect(isBannedHost('reddit.com', null)).toBe(false)
+    expect(isBannedHost('reddit.com', undefined)).toBe(false)
   })
 })
 
