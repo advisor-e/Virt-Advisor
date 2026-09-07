@@ -170,4 +170,39 @@ async function industry (req, res) {
   }
 }
 
-module.exports = { summary, upload, industries, industry, readPlatformConfig }
+/**
+ * GET /api/firm-manager/benchmarker/history  (mentor)
+ * @route GET /api/firm-manager/benchmarker/history
+ * @returns {{history: Array<object>}} every release ever uploaded, newest first.
+ */
+async function history (req, res) {
+  try {
+    const rows = await overlay.getVersionHistory(PLATFORM_SCOPE, CONFIG_KEY)
+    res.send(200, { history: rows })
+  } catch (err) {
+    if (devFallbackAllowed(err)) { res.send(200, { history: [] }); return }
+    console.error('[benchmarker] history failed:', err.message)
+    return sendError(res, 500, 'DB_ERROR', 'Could not read the release history')
+  }
+}
+
+/**
+ * POST /api/firm-manager/benchmarker/restore  (mentor)
+ * @route POST /api/firm-manager/benchmarker/restore
+ * @param {object} req.body - `{ versionId: number }`
+ * @returns {{restored: true, dataset: {source, year, provisional, counts}}}
+ */
+async function restore (req, res) {
+  const versionId = req.body && req.body.versionId
+  if (!versionId) { return sendError(res, 400, 'MISSING_VERSION', 'versionId is required') }
+  try {
+    await overlay.restoreVersion(PLATFORM_SCOPE, CONFIG_KEY, Number(versionId))
+    const dataset = await loadBenchmarker(readPlatformConfig)
+    res.send(200, { restored: true, dataset: summaryOf(dataset) })
+  } catch (err) {
+    console.error('[benchmarker] restore failed:', err.message)
+    return sendError(res, 500, 'DB_ERROR', 'Could not restore that release')
+  }
+}
+
+module.exports = { summary, upload, industries, industry, history, restore, readPlatformConfig }

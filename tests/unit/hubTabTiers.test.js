@@ -97,8 +97,11 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  *   section he approved and built the same day — his figures were driving a client's
  *   revenue from a data file no screen rendered, which the hub-page rule does not allow.
  *   ⚠ MENTOR ALONE, same default and same statement in `TAB_TIERS` as `trendThresholds`.
+ * - `industryBenchmarks` — Mike, 2026-09-08 (item 4.70 stage 3, `design/mockups/benchmarker-hub-tab.html`):
+ *   the Stats NZ benchmarker release in force and the two-file upload that replaces it.
+ *   ⚠ MENTOR ALONE by design, not by default: one national table, stored at the platform scope.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds', 'sellDownLadder']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {

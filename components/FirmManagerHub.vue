@@ -149,6 +149,13 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('sellDownLadder')" v-show="activeTab === 'sellDownLadder'")
         firm-sell-down-ladder(:api-token="apiToken")
 
+      //- ── Tab: Industry Benchmarks (item 4.70 stage 3) ─────────────────────
+      //- The Stats NZ Business Performance Benchmarker release in force, and the
+      //- two-file upload that replaces it. Every figure is Stats NZ's; nothing is
+      //- typed. Mentor only, stated in TAB_TIERS. design/mockups/benchmarker-hub-tab.html.
+      div.hub-panel(v-if="showsTab('industryBenchmarks')" v-show="activeTab === 'industryBenchmarks'")
+        firm-benchmarker(:api-token="apiToken")
+
       //- ── Tab: AI Prompts (item 4.28) ────────────────────────────────────
       //- The instructions the AI is given when it builds a model, and the three
       //- settings a manager may change on them. Asked for by Mike 2026-08-21,
@@ -780,6 +787,7 @@ import FirmLogicTables from '~/components/firm/FirmLogicTables.vue'
 import FirmStaircase from '~/components/firm/FirmStaircase.vue'
 import FirmPropertyTaxRules from '~/components/firm/FirmPropertyTaxRules.vue'
 import FirmForecastTrendThresholds from '~/components/firm/FirmForecastTrendThresholds.vue'
+import FirmBenchmarker from '~/components/firm/FirmBenchmarker.vue'
 import FirmSellDownLadder from '~/components/firm/FirmSellDownLadder.vue'
 import FirmAiPrompts from '~/components/firm/FirmAiPrompts.vue'
 import FirmMeetingObservations from '~/components/firm/FirmMeetingObservations.vue'
@@ -992,6 +1000,13 @@ const TAB_TIERS = {
   // are already scoped per tier, so adding a tier here is the whole of the change.
   sellDownLadder: ['mentor'],
 
+  // MENTOR ALONE, and here that is the whole design rather than the default: the Stats NZ
+  // benchmarker is one national table replaced each release, and no firm has a different
+  // Stats NZ. It is stored at the platform scope and read by every tier from there
+  // (`server/utils/benchmarkerStore.js`), so there is no cascade to switch on. Mike
+  // approved the drawing 2026-09-08 (item 4.70 stage 3).
+  industryBenchmarks: ['mentor'],
+
   // 🔴 ALL FOUR MANAGER TIERS, NAMED BY MIKE HIMSELF (2026-08-21): "a 'AI Prompts' page
   // in the hub pages (Mentor, Global Group Manager, Group Manager and Firm Manager)".
   // Advisors and clients are excluded — they consume the output, they do not set the
@@ -1153,7 +1168,10 @@ const NAV_GROUPS = [
       { key: 'trendThresholds', label: 'Forecast Trend Thresholds' },
       // Appended for the same reason as the line above, and the label is Mike's own —
       // approved 2026-09-04. Mentor-only; see TAB_TIERS.sellDownLadder.
-      { key: 'sellDownLadder', label: 'Imported Stock Prices' }
+      { key: 'sellDownLadder', label: 'Imported Stock Prices' },
+      // Appended for the same reason; the label is the drawing's, approved by Mike
+      // 2026-09-08. Mentor-only; see TAB_TIERS.industryBenchmarks.
+      { key: 'industryBenchmarks', label: 'Industry Benchmarks' }
     ]
   },
   {
@@ -1203,7 +1221,7 @@ export { TAB_TIERS, HUB_SCOPES, HUB_TITLES, NAV_GROUPS }
 export default {
   name: 'FirmManagerHub',
 
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmAiPrompts, FirmMeetingObservations, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmBenchmarker, FirmAiPrompts, FirmMeetingObservations, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorLogicLabReport, MentorAdoption, TierNotConnected },
 
   mixins: [traceReasonMixin],
 

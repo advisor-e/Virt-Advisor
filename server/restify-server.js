@@ -625,6 +625,8 @@ const mentorGuard = [firmAuth, requireMentorRole]
 // and it is stored at the platform scope. No tier below has a different Stats NZ.
 server.get('/api/firm-manager/benchmarker', ...mentorGuard, benchmarkerRoute.summary)
 server.post('/api/firm-manager/benchmarker', ...mentorGuard, benchmarkerRoute.upload)
+server.get('/api/firm-manager/benchmarker/history', ...mentorGuard, benchmarkerRoute.history)
+server.post('/api/firm-manager/benchmarker/restore', ...mentorGuard, benchmarkerRoute.restore)
 server.get('/api/mentor/distinctions', ...mentorGuard, mentorRoute.listMentorDistinctions)
 server.post('/api/mentor/distinctions', ...mentorGuard, mentorRoute.createMentorDistinction)
 server.put('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.updateMentorDistinction)

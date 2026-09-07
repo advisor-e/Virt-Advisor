@@ -124,6 +124,29 @@ describe('what is in force', () => {
   })
 })
 
+describe('the release history', () => {
+  test('history and restore work at the platform scope, never the caller\'s firm', async () => {
+    overlay.getVersionHistory.mockResolvedValue([{ id: 7, version: 2 }])
+    let res = makeMockRes()
+    await routes.history({ firmId: 'firm-1' }, res)
+    expect(overlay.getVersionHistory).toHaveBeenCalledWith(PLATFORM_SCOPE, CONFIG_KEY)
+    expect(res._body.history[0].id).toBe(7)
+    overlay.restoreVersion.mockResolvedValue()
+    res = makeMockRes()
+    await routes.restore({ firmId: 'firm-1', body: { versionId: '7' } }, res)
+    expect(overlay.restoreVersion).toHaveBeenCalledWith(PLATFORM_SCOPE, CONFIG_KEY, 7)
+    expect(res._body.restored).toBe(true)
+    expect(res._body.dataset.year).toBe(BASE_BENCHMARKER.year)
+  })
+
+  test('a restore without a version is refused', async () => {
+    const res = makeMockRes()
+    await routes.restore({ firmId: 'firm-1', body: {} }, res)
+    expect(res._status).toBe(400)
+    expect(overlay.restoreVersion).not.toHaveBeenCalled()
+  })
+})
+
 describe('the finder and the industry', () => {
   test('a short query answers nothing; a name answers the best matches with their status', async () => {
     let res = makeMockRes()
