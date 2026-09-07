@@ -166,7 +166,6 @@
       "ref": "4.66",
       "name": "Economic analysis — the forecast asks the AI for market research",
       "rankedByMike": false,
-      "activeOn": { "machine": "laptop", "since": "2026-09-06" },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",

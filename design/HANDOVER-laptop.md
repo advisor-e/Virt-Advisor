@@ -9,44 +9,39 @@
 
 ---
 
-## 2026-09-07 · Laptop · branch `feat/advisor-progress`
+## 2026-09-07 (second session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,059 green** (415 suites), lint **0 errors**. Five commits, each through the full
-gate. Everything pushed. Nothing uncommitted.
+Suite **8,050 green** (415 suites), lint **0 errors**. One commit `25588c9` through the full
+push gate. Everything pushed. Nothing uncommitted.
 
-### 4.66 — nine live faults, and the green tests caught none of them
+**4.68 CLOSED — the code was right and its own note was stale.** Step 4's $0 screen is
+correct: the intake's `immediate` watcher means `seed` is never null, so the report's no-seed
+sample path is unreachable from the page — deliberately, because `buildInputs()` sends every
+field explicitly so Big Bird Grass Seed cannot reach a client. One comment block, no code
+change. That flag is load-bearing for 4.62.
 
-Ran it end to end in a real browser for the first time. That is the whole story of today:
-everything below was invisible to 8,000 passing tests.
+**4.69 FIXED AND PROVEN, STILL OPEN.** §2 asked one date to be both the start of the
+assessment period and the yardstick for how current a figure is. Given 30 November 2026 the
+model searched *"monetary policy … 2026 November"*, found nothing, and §§1 and 3 came back
+unsourced. Reproduced twice, then split into `{{assessmentDate}}` + `{{today}}` — Mike's
+wording. The same run after: **14 searches, 13 sources, 1,948 words, accepted.** Runs 13–16
+are on [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md).
 
-- 🔴 **The citation guard refused HALF of all live runs, and was wrong every time.** It read
-  the digits inside a source's web address (`/dmsdocument/10808`) as a restated figure, so a
-  §4 returning to a source used earlier — which §3 of the prompt *asks* for — lost the whole
-  document. **2 refusals in 4 runs before, 0 in 3 after.**
-- 🔴 **The research date was missing from the client's printed pack entirely.** `$d()` returns
-  an empty string when the format it is asked for does not exist, and none was ever configured.
-  It printed "Run 1 · researched · 13 sources". It is on the PDF from 2026-09-06; nobody saw it.
-- **The date sent to the model was UTC** — yesterday, for an advisor at UTC+12.
-- **English dates printed US-ordered** while the same pack's prose was day-first.
+### 🔴 DESKTOP — read this first
 
-**Mike ruled the assessment date onto a field of its own** (step 5, defaults to today, echoed
-in the send box). Both wordings his. Proven live: a chosen 31 August 2026 came back as the date
-the research was assessed from.
-
-### 🔴 DESKTOP — read this before you touch dates or i18n
-
-- **`plugins/i18n.js` changed and `utils/dateLocale.js` is new, and both are SHARED.**
-  `$d(date, 'long')` alone now returns the American order — call
-  `$d(d, 'long', intlLocaleFor(this.$i18n.locale))`. There are only three call sites, all in 4.66.
-- **Your branch is 4 ahead of master with a `4.67` I cannot see.** I filed **4.69**, skipping it,
-  rather than risk the collision that renumbered 4.56 and 4.62.
-- **Your handover is still dated 2026-09-04** though you committed twice today.
+- **The OpenAI account is OUT OF CREDITS** (`credit_balance_exhausted`). Economic analysis
+  fails for every user until Mike tops it up, and it is what blocks 4.69's last check.
+- **You used 4.68 and 4.69 for DIFFERENT work today.** Both of yours are closed on your
+  branch; ours were open items and are not the same things. Second collision in a week.
+- **Shared file:** `fillPlaceholders` in `server/routes/economicAnalysis.js` now takes four
+  arguments (`assembled, brief, assessmentDate, now`), and `data/ai-prompts.json` §2 is
+  rewritten. No forecast component or intake file was touched.
 
 ### Next
 
-**4.69 filed** (score 2, ours): a **future** assessment date may leave the research unsourced —
-30 November was refused after one search, 31 August ran normally. **Seen once: reproduce before
-touching anything**, and do not bound the field first; the fix may be a sentence in the prompt.
+**4.69 needs one run on the no-date default path** once credits return — §2 renders correctly
+there, only the model's reply is unseen. A `SECTIONS_MISSING` run today is unexplained and is
+NOT this change: it is the second sighting in two days, and **a third is a real fault**.
 
-**4.66 stays `activeOn` this laptop** — built and pushed, but 4.69 sits in the same files.
-**Nine live items.**
+**Eight live items.** 4.69 `activeOn` this laptop; 4.66's flag cleared — built, pushed, and
+waiting on Mike.
