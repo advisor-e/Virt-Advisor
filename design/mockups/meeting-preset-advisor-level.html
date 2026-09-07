@@ -2,8 +2,16 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
 <style>
 /* ============================================================================
-   Meeting Review — the ADVISOR'S OWN LEVEL. Screen mockup for approval.
-   🔴 NOTHING HERE IS BUILT.
+   Meeting Review — the ADVISOR'S OWN LEVEL.
+   ✅ ALL SIX QUESTIONS RULED BY MIKE 2026-09-08 — APPROVED TO BUILD FROM.
+   🔴 TWO RULINGS CHANGED THIS DRAWING RATHER THAN CONFIRMING IT:
+      Q1's answer ADDED Stage C, the manager's view of what advisors set aside
+        — "yes but fix the issue - build it so the manager can see";
+      Q5 REVERSED the recommendation — the advisor DOES get the hint-words
+        field, so screen B3 has two fields and was first drawn with one.
+   Anyone building from the recommendations rather than the rulings builds the
+   wrong screen twice. The recommendations are kept anyway: the reasoning is
+   what a later session needs, not the verdict alone.
 
    What this is: slice 4 of design/MEETING-TYPES-CASCADE.md, first half — the
    advisor's own level, "how I run my meetings". The per-CLIENT half is
@@ -37,7 +45,11 @@
 
    WORDING IS MARKED IN TWO KINDS:
      .approved  ✅ Mike's exact words, already ruled and quoted from the repo.
-     .proposed  ✎ Drafted here and NOT approved. Every label on this page.
+     .proposed  ✎ Drafted here. ⚠ The pills below still read "proposed" because
+                that is what they were WHEN DRAWN; every one was ruled on
+                2026-09-08 and the wording table is the record of what he
+                approved. Kept rather than restyled, so the page shows what was
+                put to him and not a tidied version of it.
 
    One light look, painted explicitly — it holds on any host background.
    ========================================================================= */
@@ -251,10 +263,14 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
      firm was never built. This is that level.</p>
 </div>
 
-<div class="banner warn">
-  <b>⚠ NOTHING ON THIS PAGE IS BUILT.</b>
-  This is a drawing for approval. Every label is marked ✎ <b>proposed</b> — none of it
-  is Mike's wording yet, and none of it should be built until it is.
+<div class="banner info">
+  <b>✅ ALL SIX QUESTIONS RULED BY MIKE, 2026-09-08 — THIS PAGE IS APPROVED TO BUILD FROM.</b>
+  Every label below is now his. <b>Two rulings changed the drawing rather than confirming it</b>,
+  and both are marked where they land: question 1's answer <b>added Stage C</b>, the manager's
+  view — <i>"yes but fix the issue - build it so the manager can see"</i> — and question 5
+  <b>reversed the recommendation</b>, giving the advisor the hint-words field that screen B3 was
+  first drawn without. A later session reading only the recommendations would build the wrong
+  screen twice.
 </div>
 
 <div class="banner navy">
@@ -277,9 +293,10 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
   <div class="leg">
     <h3><span class="pill prop">✎ proposed</span> drafted here</h3>
     Everything else. The source line under each point, the advisor's own verbs, the section
-    headings, the empty states, and all of Stage C. <b>Six questions at the foot of this
-    page</b>, each with one recommendation and the argument against it — <b>question 1 is
-    ruled</b>, and its answer added Stage C.
+    headings, the empty states, and all of Stage C — <b>every one of them now ruled by Mike on
+    2026-09-08</b>. The six questions at the foot of this page are kept with their
+    recommendations and the arguments against them, because <b>two were answered against the
+    recommendation</b> and the reasoning is what a later session needs.
   </div>
 </div>
 
@@ -450,6 +467,10 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
           <label>What you want to be reminded of</label>
           <div class="input ph">I asked what had changed at home, not just in the business.</div>
         </div>
+        <div class="field">
+          <label>Words that hint it happened (optional)</label>
+          <div class="input ph">how are things at home · outside the business · family</div>
+        </div>
         <div class="note" style="margin:0">
           <b>This is for your meetings only.</b> Your firm's list is not changed, and nobody
           else sees this.
@@ -461,12 +482,15 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
       </div>
     </div>
     <div class="note">
-      <b>One field, deliberately.</b> The manager's version of this form has a second field —
-      <i>"Words that hint it happened"</i> — which tells the model what to listen for. It is
-      <b>not</b> offered here: those hint words steer what the AI reports, and an advisor
-      tuning the phrases the model looks for in their own assessment is a conflict of interest
-      the firm's level does not have. <b>That is question 4</b>, and the argument the other way
-      is recorded with it.
+      <b>🔴 TWO FIELDS, AND THE SECOND ONE IS A RULING THAT REVERSED US (Mike, 2026-09-08).</b>
+      This screen was first drawn with <b>one</b> field. The recommendation was to withhold
+      <i>"Words that hint it happened"</i> — the phrases that tell the model what to listen for —
+      on the grounds that an advisor tuning what the AI hears in their own assessment is marking
+      their own homework. <b>He ruled the other way</b>, accepting the argument recorded against
+      it: a point an advisor wrote themselves is the one the model is <i>least</i> likely to
+      recognise, so withholding the hints would have made their own additions the weakest
+      entries on their own list. The label is the manager screen's own, unchanged. See question
+      5, where the cost that did not go away is recorded.
     </div>
   </div>
 
@@ -611,7 +635,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
   <div class="num">?</div>
   <div>
     <h2>Six questions</h2>
-    <div class="sub">One recommendation each, and the argument against it · one ruled</div>
+    <div class="sub">All six ruled 2026-09-08 · two changed the drawing</div>
   </div>
 </div>
 
@@ -636,11 +660,11 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
      consequence nobody could see.</div>
 </div>
 
-<div class="q big">
-  <div class="qn">Question 2 — the manager's view Mike just ordered</div>
+<div class="q ruled">
+  <div class="qn">Question 2 — ✅ RULED BY MIKE, 2026-09-08</div>
   <h3>Does the manager see <i>who</i> set a point aside, or only <i>how many</i>?</h3>
   <p>Stage C can name the four advisors, or it can say <i>4 of 12</i> and stop.</p>
-  <div class="rec"><b>Recommended: name them.</b> A count tells a manager a problem exists and
+  <div class="rec"><b>✅ RULED — NAME THEM</b>, as recommended. A count tells a manager a problem exists and
      not who to talk to — which is the only reason they opened the screen. Their manager
      already sees them named on the Team tab, so nothing is disclosed here that was private
      before, and this is configuration rather than anything from a client meeting, so P13 and
@@ -651,12 +675,12 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
      say so on this screen, and appears beside three who simply found it awkward.</div>
 </div>
 
-<div class="q">
-  <div class="qn">Question 3</div>
+<div class="q ruled">
+  <div class="qn">Question 3 — ✅ RULED BY MIKE, 2026-09-08</div>
   <h3>Do the two middle tiers get their own source label?</h3>
   <p>A point can come from the mentor, a global group, a country group, or the firm. The
      drawing collapses the middle two into <i>From your firm</i>.</p>
-  <div class="rec"><b>Recommended: no — collapse them.</b> An advisor has no relationship with
+  <div class="rec"><b>✅ RULED — COLLAPSE THEM into <i>From your firm</i></b>, as recommended. An advisor has no relationship with
      a brand or a country tier and would read <i>"From the UK group"</i> as a question rather
      than an answer. Everything above them that is not Advisor-e is, from where they sit,
      their firm.</div>
@@ -665,10 +689,10 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
      <i>From your group</i> as a third label.</div>
 </div>
 
-<div class="q">
-  <div class="qn">Question 4</div>
+<div class="q ruled">
+  <div class="qn">Question 4 — ✅ RULED BY MIKE, 2026-09-08</div>
   <h3>Is the source shown on every point, or only where it is not the firm's?</h3>
-  <div class="rec"><b>Recommended: every point, always.</b> A label that appears only sometimes
+  <div class="rec"><b>✅ RULED — EVERY POINT, ALWAYS</b>, as recommended. A label that appears only sometimes
      teaches an advisor to read its <i>absence</i> as meaning something, and they will guess
      wrong. It is also what D1 asks for in terms.</div>
   <div class="against"><b>Against:</b> it puts a line of grey text under all eleven points in
@@ -676,23 +700,33 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
      a room.</div>
 </div>
 
-<div class="q">
-  <div class="qn">Question 5</div>
+<div class="q big">
+  <div class="qn">Question 5 — 🔴 RULED AGAINST THE RECOMMENDATION, 2026-09-08</div>
   <h3>May an advisor set the "words that hint it happened" on their own point?</h3>
   <p>Managers can. Those words tell the model what to listen for in the transcript.</p>
-  <div class="rec"><b>Recommended: no.</b> An advisor tuning the phrases the AI looks for in
-     their own assessment is marking their own homework, and the coaching notes are the thing
-     a manager may later read. Their own point still works — the model is asked to find it
-     like any other.</div>
-  <div class="against"><b>Against:</b> a point the advisor wrote is the one the model is least
-     likely to recognise, so withholding the hints makes their own additions the weakest
-     entries on the list. This is a real cost, not a hypothetical one.</div>
+  <div class="against"><b>Recommended: NO, withhold them — and Mike ruled the other way.</b>
+     The recommendation was that an advisor tuning the phrases the AI looks for in their own
+     assessment is marking their own homework, and the coaching notes are what a manager may
+     later read.</div>
+  <div class="rec"><b>🔴 RULED — NO, DO NOT WITHHOLD. The advisor gets the hint words.</b>
+     <b>This is the one ruling on this page that REPLACED the recommendation</b>, and the
+     argument it accepted was the one recorded against it: a point the advisor wrote themselves
+     is the one the model is <i>least</i> likely to recognise, because it is phrased in their
+     words and nobody else's. Withholding the hints would have made an advisor's own additions
+     the weakest entries on their own list — a strange reward for the only person who bothered
+     to personalise it. <b>So the add form has TWO fields, not one, and screen B3 above is drawn
+     to the ruling rather than to the recommendation.</b></div>
+  <div class="against"><b>The cost, carried rather than solved.</b> The marking-your-own-homework
+     objection did not stop being true; it was outweighed. An advisor can now phrase both the
+     point and what the AI listens for, and a manager reading the coaching notes cannot see that
+     they did. If that ever matters, the fix is to show the hint words' source on the manager's
+     side — not to take the field away again.</div>
 </div>
 
-<div class="q">
-  <div class="qn">Question 6</div>
+<div class="q ruled">
+  <div class="qn">Question 6 — ✅ RULED BY MIKE, 2026-09-08</div>
   <h3>Where does this live — the pre-set screen itself, or a settings page of its own?</h3>
-  <div class="rec"><b>Recommended: the pre-set screen itself</b>, as drawn. It is where an
+  <div class="rec"><b>✅ RULED — THE PRE-SET SCREEN ITSELF</b>, as recommended and as drawn. It is where an
      advisor already reads the list, so the moment they think <i>"that one is not how I work"</i>
      is the moment the control is under their thumb. A separate page means remembering it
      exists.</div>
