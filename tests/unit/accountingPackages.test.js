@@ -376,6 +376,50 @@ describe('MYOB with its Account No. column — the shape that read as nothing', 
     expect(pl.year).toBe(2025)
   })
 
+  /**
+   * 🔴 A WRONG NUMBER AGAIN, AND A WHOLE YEAR'S DEPRECIATION WITH IT. MYOB heads its
+   * fixed assets "Property, Plant & Equipment" — the accounting standard's own wording —
+   * and never says "fixed" or "non-current". The section test knew only those two words,
+   * so every asset row fell through to the CURRENT side: `assets` came back empty and the
+   * net 145,300 was swept into the other-current-asset catch-all.
+   *
+   * The balance sheet still tied, which is why nothing complained. But the forecast opens
+   * all six asset rows at zero, charges no depreciation for the year, and overstates
+   * working capital by the same amount. The identical figures through QuickBooks split
+   * correctly — same company, different package, different answer.
+   */
+  test('🔴 "Property, Plant & Equipment" is a FIXED asset section, not a current one', () => {
+    const PPE_BS = [
+      ['Apex Test Ltd'],
+      ['Balance Sheet Summary'],
+      ['As of December 31, 2025'],
+      [],
+      ['Account No.', 'Account Name', 'Selected Period', 'Prior Year'],
+      ['1-0000', 'ASSETS'],
+      ['1-1000', 'Current Assets'],
+      ['1-1100', 'Cheque Account - Operating', 64500, 42100],
+      [null, 'Total Current Assets', 64500, 42100],
+      ['1-2000', 'Property, Plant & Equipment'],
+      ['1-2100', 'Workshop Machinery & Tools', 125000, 110000],
+      ['1-2110', 'Accum Dep - Workshop Machinery', -45000, -32500],
+      ['1-2200', 'Motor Vehicles', 85000, 85000],
+      ['1-2210', 'Accum Dep - Motor Vehicles', -28000, -19500],
+      ['1-2300', 'Office Equipment', 14500, 12000],
+      ['1-2310', 'Accum Dep - Office Equipment', -6200, -4200],
+      [null, 'Total Property, Plant & Equipment', 145300, 150800],
+      [null, 'TOTAL ASSETS', 209800, 192800]
+    ]
+    const bs = extractForecastBalanceSheet(PPE_BS)
+    // Each category net of its own accumulated depreciation.
+    expect(bs.assets.plantEquipment.value).toBe(80000)
+    expect(bs.assets.vehicles.value).toBe(57000)
+    expect(bs.assets.officeEquipment.value).toBe(8300)
+    // And the money is NOT also sitting on the current side — the symptom that made this
+    // invisible was that the total still tied while 145,300 was in the wrong place.
+    expect(bs.figures.otherCurrentAsset).toBeUndefined()
+    expect(bs.figures.cashAtBank.value).toBe(64500)
+  })
+
   test('a label that is genuinely only a code keeps the code', () => {
     // The swap needs a real name after it; with nothing to swap to, nothing changes.
     const bs = extractForecastBalanceSheet([
