@@ -1,0 +1,621 @@
+<title>How I Run My Meetings</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Meeting Review — the ADVISOR'S OWN LEVEL. Screen mockup for approval.
+   🔴 NOTHING HERE IS BUILT.
+
+   What this is: slice 4 of design/MEETING-TYPES-CASCADE.md, first half — the
+   advisor's own level, "how I run my meetings". The per-CLIENT half is
+   deliberately NOT drawn here; see the note at the foot of the page.
+
+   Sources — nothing on this page is invented:
+     design/MEETING-TYPES-CASCADE.md §2 §5 §6 §7   the cascade, D1/D2, storage
+     design/features/meeting-review.md P12, P14     the Brief
+     data/meeting-observations.json                 EVERY point text on this page
+     components/MeetingPreset.vue                   the screen as it is today
+     components/firm/FirmMeetingObservations.vue    the manager's verbs, reused
+
+   🔴 THE POINT TEXT IS REAL, NOT WRITTEN FOR THE DRAWING. Every observation
+   point shown below is copied character for character from
+   data/meeting-observations.json, scenario `eoy_meeting`, ids mo-eoy-1..4. A
+   drawing with invented content is a drawing of a wish. The ONE exception is
+   the advisor's own added point, which by definition does not exist yet and is
+   marked as an example.
+
+   Style is copied from design/mockups/meeting-review-follow-through.html, which
+   copied it from the approved design/mockups/meeting-review.html — the owner
+   ruling of 2026-07-23: the look is read off the approved screen. Neither of
+   those files is edited.
+
+   COLOUR CARRIES MEANING (BRAND-TOKENS.md § Journey stages):
+     navy   #002B64 — the firm's standard, set above the advisor
+     teal   #00857A — the advisor's own level: this screen
+     violet #5B4B9E — afterwards
+   Controls stay brand Blue; a stage hue colours the BAND and the RAIL that say
+   whose level you are looking at, never the button that says what you can do.
+
+   WORDING IS MARKED IN TWO KINDS:
+     .approved  ✅ Mike's exact words, already ruled and quoted from the repo.
+     .proposed  ✎ Drafted here and NOT approved. Every label on this page.
+
+   One light look, painted explicitly — it holds on any host background.
+   ========================================================================= */
+
+:root{
+  --bg:#eef3f8; --panel:#ffffff; --panel-2:#f4f8fb; --panel-3:#e6edf4;
+  --ink:#002b64; --ink-2:#33455e; --muted:#5b6f8a; --line:#d5e1ee;
+
+  --navy:#002b64;   --navy-soft:#002b6412;  --navy-line:#002b6440;
+  --teal:#00857a;   --teal-soft:#00857a14;  --teal-line:#00857a44;
+  --violet:#5b4b9e; --violet-soft:#5b4b9e14;--violet-line:#5b4b9e44;
+
+  --blue:#0070c0;   --cyan:#00b1e0;         --sky:#7fd3f1;
+
+  --good:#4ca52d;   --good-soft:#4ca52d1a;  --good-line:#4ca52d55;
+  --warn:#ff9900;   --warn-soft:#ff99001a;  --warn-line:#ff990059;
+  --rec:#ff0000;    --rec-soft:#ff00000d;   --rec-line:#ff000040;
+
+  --sans:'Open Sans', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --r:14px; --r-sm:9px;
+  --shadow:0 1px 2px #002b6414, 0 10px 28px -16px #002b6440;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+     font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:30px 20px 80px}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0;max-width:68ch}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ── masthead ─────────────────────────────────────────────────────────── */
+.mast{background:linear-gradient(120deg,var(--navy) 0%,var(--navy) 30%,var(--teal) 100%);
+  color:#fff;border-radius:var(--r);padding:34px 32px;box-shadow:var(--shadow)}
+.mast .kicker{font-size:11px;font-weight:600;letter-spacing:.19em;text-transform:uppercase;
+  color:var(--sky)}
+.mast h1{font-size:44px;font-weight:300;letter-spacing:-.015em;
+  margin:9px 0 12px;line-height:1.05}
+.mast p{font-size:15.5px;color:#dbeaf5;max-width:60ch}
+
+/* ── banners ──────────────────────────────────────────────────────────── */
+.banner{border-radius:var(--r-sm);padding:15px 17px;font-size:14px;line-height:1.6;
+  border:1px solid;margin-top:16px}
+.banner b{display:block;margin-bottom:3px;font-size:14.5px}
+.banner.warn{background:var(--warn-soft);border-color:var(--warn-line);color:#5c4405}
+.banner.info{background:var(--teal-soft);border-color:var(--teal-line);color:#0d4a45}
+.banner.navy{background:var(--navy-soft);border-color:var(--navy-line);color:#002b64}
+
+/* ── legend ───────────────────────────────────────────────────────────── */
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:22px}
+@media (max-width:760px){.legend{grid-template-columns:1fr}}
+.leg{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-sm);
+  padding:15px 16px;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+.leg h3{font-family:var(--sans);font-size:13.5px;font-weight:600;color:var(--ink);
+  margin-bottom:6px;display:flex;align-items:center;gap:8px}
+
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:20px;
+  border:1px solid;white-space:nowrap;font-family:var(--sans)}
+.pill.ok{background:var(--good-soft);border-color:var(--good-line);color:#2c6641}
+.pill.prop{background:var(--warn-soft);border-color:var(--warn-line);color:#8a6508}
+.pill.next{background:var(--violet-soft);border-color:var(--violet-line);color:#54397a}
+.pill.navy{background:var(--navy-soft);border-color:var(--navy-line);color:var(--navy)}
+
+/* ── stage headers ────────────────────────────────────────────────────── */
+.stage{margin:52px 0 4px;display:flex;align-items:center;gap:14px}
+.stage .num{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  font-size:15px;font-weight:600;color:#fff;flex:0 0 auto}
+.stage h2{font-size:29px;font-weight:300;letter-spacing:-.01em}
+.stage .sub{font-size:13.5px;color:var(--muted);margin-top:1px}
+.s-a .num{background:var(--navy)}   .s-a h2{color:var(--navy)}
+.s-b .num{background:var(--teal)}   .s-b h2{color:#00655d}
+.s-c .num{background:var(--violet)} .s-c h2{color:var(--violet)}
+
+.rail{border-left:3px solid;padding-left:22px;margin-left:18px;margin-top:18px;
+  display:flex;flex-direction:column;gap:26px}
+@media (max-width:640px){.rail{padding-left:14px;margin-left:6px}}
+.s-a .rail{border-color:var(--navy-line)}
+.s-b .rail{border-color:var(--teal-line)}
+.s-c .rail{border-color:var(--violet-line)}
+
+/* ── a screen ─────────────────────────────────────────────────────────── */
+.screen{display:flex;flex-direction:column;gap:11px}
+.screen > .cap{font-size:13px;font-weight:600;color:var(--muted);display:flex;
+  align-items:center;gap:9px;flex-wrap:wrap;letter-spacing:.01em}
+.frame{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden}
+.chrome{padding:11px 17px;font-size:12.5px;display:flex;justify-content:space-between;
+  align-items:center;gap:12px;color:#fff;font-weight:500}
+.s-a .chrome{background:var(--navy)}
+.s-b .chrome{background:var(--teal)}
+.s-c .chrome{background:var(--violet)}
+.chrome .r{opacity:.88;font-size:11.5px}
+.pane{padding:22px 22px 24px;display:flex;flex-direction:column;gap:17px}
+.pane h3{font-family:var(--sans);font-size:24px;font-weight:500;letter-spacing:-.01em}
+.pane .lede{color:var(--muted);font-size:14px}
+.pane h4{font-family:var(--sans);font-size:11.5px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted)}
+
+/* ── the annotation voice — clearly not part of the screen ─────────────── */
+.note{background:var(--panel-3);border-radius:var(--r-sm);padding:15px 17px;
+  font-size:13.5px;line-height:1.65;color:var(--ink-2);border:1px solid var(--line)}
+.note b{color:var(--ink)}
+.note > :first-child{margin-top:0}
+.note ul{margin:9px 0 0;padding-left:19px}
+.note li{margin:5px 0}
+
+/* ── buttons ──────────────────────────────────────────────────────────── */
+.btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-family:var(--sans);font-size:13.5px;font-weight:600;
+  padding:10px 19px;border-radius:8px;border:1.5px solid;cursor:default;
+  background:var(--teal);border-color:var(--teal);color:#fff}
+.s-a .btn{background:var(--navy);border-color:var(--navy)}
+.btn.ghost{background:var(--panel);border-color:var(--line);color:var(--ink)}
+.btn.sm{font-size:12.5px;padding:6px 13px;border-radius:7px}
+.btn.link{background:none;border-color:transparent;color:var(--blue);padding:6px 4px}
+
+/* ── observation points ───────────────────────────────────────────────── */
+.pts{display:flex;flex-direction:column;gap:8px}
+.pt{display:flex;gap:12px;align-items:flex-start;background:var(--panel-2);
+  border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 14px;font-size:14px}
+.pt .box{width:17px;height:17px;border-radius:5px;flex:0 0 auto;margin-top:2px;
+  background:var(--teal);position:relative}
+.s-a .pt .box{background:var(--navy)}
+.pt .box::after{content:"";position:absolute;left:5.5px;top:2px;width:4px;height:9px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(43deg)}
+.pt .body{flex:1;min-width:0}
+.pt .acts{margin-left:auto;flex:0 0 auto;display:flex;gap:2px;align-items:flex-start}
+
+/* the SOURCE line — D1/D2's requirement, and the reason this screen changes */
+.src{font-size:11.5px;color:var(--muted);margin-top:5px;display:flex;align-items:center;
+  gap:6px;font-weight:600;letter-spacing:.02em}
+.src .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.src.platform .dot{background:var(--violet)}
+.src.firm     .dot{background:var(--navy)}
+.src.mine     .dot{background:var(--teal)}
+
+/* a point the advisor has switched off for themselves */
+.pt.off{background:var(--panel);border-style:dashed;opacity:.75}
+.pt.off .box{background:transparent;border:1.5px dashed var(--muted)}
+.pt.off .box::after{display:none}
+.pt.off .body{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
+.pt.off .src{text-decoration:none;display:flex}
+
+/* the advisor's own point */
+.pt.mine{background:var(--teal-soft);border-color:var(--teal-line)}
+
+/* ── a form field ─────────────────────────────────────────────────────── */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted)}
+.input{background:var(--panel);border:1.5px solid var(--line);border-radius:8px;
+  padding:11px 13px;font-size:14px;color:var(--ink)}
+.input.ph{color:var(--muted)}
+.select{background:var(--panel);border:1.5px solid var(--line);border-radius:8px;
+  padding:11px 13px;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.select::after{content:"▾";color:var(--muted)}
+
+/* ── the wording table ────────────────────────────────────────────────── */
+table.words{width:100%;border-collapse:collapse;margin-top:16px;font-size:13.5px;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden}
+table.words th{text-align:left;padding:11px 14px;background:var(--panel-3);font-size:11px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+table.words td{padding:11px 14px;border-top:1px solid var(--line);vertical-align:top}
+table.words td.w{font-weight:600;white-space:nowrap}
+.tblwrap{overflow-x:auto}
+
+/* ── the open questions ───────────────────────────────────────────────── */
+.q{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--warn);
+  border-radius:var(--r-sm);padding:18px 20px;margin-top:14px}
+.q h3{font-size:17px;font-weight:600;margin-bottom:8px}
+.q .rec{background:var(--good-soft);border:1px solid var(--good-line);border-radius:7px;
+  padding:11px 13px;margin-top:11px;font-size:13.5px;color:#2c6641}
+.q .rec b{color:#1f4a2e}
+.q .against{background:var(--warn-soft);border:1px solid var(--warn-line);border-radius:7px;
+  padding:11px 13px;margin-top:9px;font-size:13.5px;color:#5c4405}
+.q .against b{color:#5c4405}
+.q .qn{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:5px}
+.q.big{border-left-color:var(--rec)}
+
+footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);
+  font-size:12.5px;color:var(--muted)}
+footer p{max-width:80ch;margin-bottom:8px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;
+  background:var(--panel-3);padding:1px 5px;border-radius:4px}
+</style>
+
+<div class="wrap">
+
+<div class="mast">
+  <div class="kicker">Meeting Review · cascade slice 4, first half</div>
+  <h1>How I run my meetings</h1>
+  <p>The advisor's own level. Today an advisor reads their firm's checklist and can
+     change nothing on it — not because they may not, but because the level below the
+     firm was never built. This is that level.</p>
+</div>
+
+<div class="banner warn">
+  <b>⚠ NOTHING ON THIS PAGE IS BUILT.</b>
+  This is a drawing for approval. Every label is marked ✎ <b>proposed</b> — none of it
+  is Mike's wording yet, and none of it should be built until it is.
+</div>
+
+<div class="banner navy">
+  <b>What is already settled, so it is not re-argued here.</b>
+  Mike ruled all four decisions of <code>MEETING-TYPES-CASCADE.md</code> on 2026-09-02 and
+  approved the design. <b>D1 — yes, the advisor gets their own level</b>, separate from the
+  client's. <b>P14 — "NOBODY can edit a level ABOVE their own"</b>, which leaves an advisor
+  free at their own. <b>§5 — the storage shape</b>: the advisor's choices live inside their
+  own firm's row under a new config key, keyed by advisor id. None of that is open.
+</div>
+
+<div class="legend">
+  <div class="leg">
+    <h3><span class="pill ok">✅ ruled</span> already Mike's</h3>
+    Quoted from the repository, not re-proposed: the cascade's four decisions, P14, and the
+    manager-level verbs this screen deliberately echoes — <b>Switch off</b>,
+    <b>Switch back on</b>, <b>Add a point</b> — which are already on
+    <code>FirmMeetingObservations.vue</code> and were approved on 2026-09-01.
+  </div>
+  <div class="leg">
+    <h3><span class="pill prop">✎ proposed</span> drafted here</h3>
+    Everything else. The source line under each point, the advisor's own verbs, the section
+    headings, and the empty states. <b>Five questions at the foot of this page</b>, each with
+    one recommendation and the argument against it.
+  </div>
+</div>
+
+<!-- ══ STAGE A — what the firm sets ═══════════════════════════════════════ -->
+<div class="stage s-a">
+  <div class="num">A</div>
+  <div>
+    <h2>Above the advisor</h2>
+    <div class="sub">Built since 2026-09-02, and unchanged by any of this</div>
+  </div>
+</div>
+
+<div class="s-a rail">
+  <div class="screen">
+    <div class="cap">The manager's tab · <span class="pill ok">✅ built</span> · all four manager tiers</div>
+    <div class="frame">
+      <div class="chrome"><span>Manage AI Coach › Meeting Review</span><span class="r">firm manager</span></div>
+      <div class="pane">
+        <h3>End of Year Meeting — Planning and Delivery</h3>
+        <p class="lede">What every advisor in this firm is checked on in a meeting of this kind.</p>
+        <div class="pts">
+          <div class="pt"><span class="box"></span><div class="body">The meeting was framed — what we would cover and why, in the first two minutes.</div></div>
+          <div class="pt"><span class="box"></span><div class="body">A metaphor or analogy was used to explain a financial idea.</div></div>
+          <div class="pt"><span class="box"></span><div class="body">Understanding was checked before moving on from the figures.</div></div>
+          <div class="pt"><span class="box"></span><div class="body">Named actions were agreed, with an owner and a date, before the time ran out.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <b>Nothing on this screen changes.</b> It is drawn only so the next two can be read
+      against it. The firm's list is the <b>base</b> an advisor's own level resolves against —
+      the same inheritance the Advisory Staircase, quizzes and Advisory Distinctions already
+      use. <b>An advisor can never write here</b>, and no route in the app can express it:
+      every one is scoped to the caller's own verified identity.
+    </div>
+  </div>
+</div>
+
+<!-- ══ STAGE B — the advisor's own level ═════════════════════════════════ -->
+<div class="stage s-b">
+  <div class="num">B</div>
+  <div>
+    <h2>The advisor's own level</h2>
+    <div class="sub">This is the new work — <code>components/MeetingPreset.vue</code></div>
+  </div>
+</div>
+
+<div class="s-b rail">
+
+  <!-- B1 — today -->
+  <div class="screen">
+    <div class="cap">B1 · The screen as it is TODAY · <span class="pill ok">✅ built</span> · read-only</div>
+    <div class="frame">
+      <div class="chrome"><span>Before the meeting</span><span class="r">advisor</span></div>
+      <div class="pane">
+        <div class="field">
+          <label>What kind of meeting?</label>
+          <div class="select">End of Year Meeting — Planning and Delivery</div>
+        </div>
+        <h3>What is this meeting for?</h3>
+        <p class="lede">This is what your firm checks on in a meeting of this kind. Read it
+          before you go in — that is most of the value, before anything is recorded at all.</p>
+        <div class="pts">
+          <div class="pt"><span class="box"></span><div class="body">The meeting was framed — what we would cover and why, in the first two minutes.</div></div>
+          <div class="pt"><span class="box"></span><div class="body">A metaphor or analogy was used to explain a financial idea.</div></div>
+          <div class="pt"><span class="box"></span><div class="body">Understanding was checked before moving on from the figures.</div></div>
+          <div class="pt"><span class="box"></span><div class="body">Named actions were agreed, with an owner and a date, before the time ran out.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <b>Two things are missing from this screen, and both are Mike's own rulings rather than
+      new ideas.</b>
+      <ul>
+        <li><b>Nothing says where a point came from.</b> D1 and D2 both carry the same
+          condition — <i>"the pre-set must say where each point came from"</i> — recorded at the
+          time as the cost of giving the advisor a level. Today a point can arrive from four
+          places; after this slice, five. An advisor asking <i>"why is this on my list?"</i> has
+          no answer on screen.</li>
+        <li><b>Nothing can be changed.</b> The component's own header says why: <i>"READ-ONLY
+          TODAY BECAUSE THE LEVELS BELOW THE FIRM ARE NOT BUILT — not because an advisor may not
+          edit."</i></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- B2 — proposed -->
+  <div class="screen">
+    <div class="cap">B2 · The same screen with the advisor's own level · <span class="pill prop">✎ proposed</span></div>
+    <div class="frame">
+      <div class="chrome"><span>Before the meeting</span><span class="r">advisor</span></div>
+      <div class="pane">
+        <div class="field">
+          <label>What kind of meeting?</label>
+          <div class="select">End of Year Meeting — Planning and Delivery</div>
+        </div>
+        <h3>What is this meeting for?</h3>
+        <p class="lede">This is what you are checked on in a meeting of this kind. Read it
+          before you go in — that is most of the value, before anything is recorded at all.</p>
+
+        <div class="pts">
+          <div class="pt">
+            <span class="box"></span>
+            <div class="body">The meeting was framed — what we would cover and why, in the first two minutes.
+              <div class="src firm"><span class="dot"></span>From your firm</div></div>
+            <div class="acts"><span class="btn link sm">Not for my meetings</span></div>
+          </div>
+          <div class="pt">
+            <span class="box"></span>
+            <div class="body">A metaphor or analogy was used to explain a financial idea.
+              <div class="src platform"><span class="dot"></span>From Advisor-e</div></div>
+            <div class="acts"><span class="btn link sm">Not for my meetings</span></div>
+          </div>
+          <div class="pt">
+            <span class="box"></span>
+            <div class="body">Understanding was checked before moving on from the figures.
+              <div class="src platform"><span class="dot"></span>From Advisor-e</div></div>
+            <div class="acts"><span class="btn link sm">Not for my meetings</span></div>
+          </div>
+          <div class="pt mine">
+            <span class="box"></span>
+            <div class="body">I asked what had changed at home, not just in the business.
+              <div class="src mine"><span class="dot"></span>Added by you</div></div>
+            <div class="acts"><span class="btn link sm">Edit</span><span class="btn link sm">Remove</span></div>
+          </div>
+        </div>
+
+        <h4>Not for my meetings</h4>
+        <div class="pts">
+          <div class="pt off">
+            <span class="box"></span>
+            <div class="body">Named actions were agreed, with an owner and a date, before the time ran out.
+              <div class="src firm"><span class="dot"></span>From your firm · off for you only</div></div>
+            <div class="acts"><span class="btn link sm">Put it back</span></div>
+          </div>
+        </div>
+
+        <div class="btns"><span class="btn ghost">Add a point of my own</span></div>
+      </div>
+    </div>
+    <div class="note">
+      <b>Four things this screen does, and why each is here rather than invented.</b>
+      <ul>
+        <li><b>Every point says where it came from</b> — three sources today
+          (<i>From Advisor-e</i>, <i>From your firm</i>, <i>Added by you</i>), and the middle
+          tiers collapse into <i>From your firm</i> rather than naming a brand or a country an
+          advisor has never heard of. <b>That is question 2.</b></li>
+        <li><b>A switched-off point is shown, not hidden.</b> The manager's screen already
+          works this way, and the reason is written in its template: <i>"a manager who cannot
+          see what they turned off cannot turn it back on, and would read the shorter list as
+          the whole list."</i> The same holds for an advisor.</li>
+        <li><b>Switching off binds this advisor only.</b> The firm's list is untouched, and the
+          label says <i>off for you only</i> so that is visible rather than assumed.</li>
+        <li><b>Only a point you added can be edited or removed.</b> Editing an inherited point's
+          wording would be editing the firm's words — the same reason the manager screens offer
+          <i>Use the inherited wording</i> instead of a free edit above their level.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- B3 — adding -->
+  <div class="screen">
+    <div class="cap">B3 · Adding a point of my own · <span class="pill prop">✎ proposed</span></div>
+    <div class="frame">
+      <div class="chrome"><span>Before the meeting</span><span class="r">advisor</span></div>
+      <div class="pane">
+        <div class="field">
+          <label>What you want to be reminded of</label>
+          <div class="input ph">I asked what had changed at home, not just in the business.</div>
+        </div>
+        <div class="note" style="margin:0">
+          <b>This is for your meetings only.</b> Your firm's list is not changed, and nobody
+          else sees this.
+        </div>
+        <div class="btns">
+          <span class="btn">Add this point</span>
+          <span class="btn ghost">Cancel</span>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <b>One field, deliberately.</b> The manager's version of this form has a second field —
+      <i>"Words that hint it happened"</i> — which tells the model what to listen for. It is
+      <b>not</b> offered here: those hint words steer what the AI reports, and an advisor
+      tuning the phrases the model looks for in their own assessment is a conflict of interest
+      the firm's level does not have. <b>That is question 4</b>, and the argument the other way
+      is recorded with it.
+    </div>
+  </div>
+
+  <!-- B4 — nothing yet -->
+  <div class="screen">
+    <div class="cap">B4 · An advisor who has changed nothing · <span class="pill prop">✎ proposed</span></div>
+    <div class="frame">
+      <div class="chrome"><span>Before the meeting</span><span class="r">advisor</span></div>
+      <div class="pane">
+        <div class="pts">
+          <div class="pt"><span class="box"></span><div class="body">The meeting was framed — what we would cover and why, in the first two minutes.
+            <div class="src firm"><span class="dot"></span>From your firm</div></div>
+            <div class="acts"><span class="btn link sm">Not for my meetings</span></div></div>
+        </div>
+        <div class="btns"><span class="btn ghost">Add a point of my own</span></div>
+      </div>
+    </div>
+    <div class="note">
+      <b>The ordinary case, and it has to look ordinary.</b> Most advisors will change nothing,
+      ever. So there is <b>no empty "your points" section</b>, no prompt to personalise, and no
+      badge saying the list is inherited — just the firm's list with the source named and a
+      quiet way in. A screen that nags an advisor to customise something is a screen that
+      makes the firm's standard look optional.
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ THE WORDING ════════════════════════════════════════════════════════ -->
+<div class="stage s-b">
+  <div class="num">✎</div>
+  <div>
+    <h2>Every word on this page</h2>
+    <div class="sub">All of it ours. None of it approved.</div>
+  </div>
+</div>
+
+<div class="tblwrap">
+<table class="words">
+  <tr><th>Where</th><th>Proposed wording</th><th>Why this, and what it replaces</th></tr>
+  <tr><td class="w">Source · platform</td><td>From Advisor-e</td>
+      <td>The master app's own name, which an advisor already knows. <i>"From the mentor"</i> and <i>"Platform"</i> are our internal words for a tier, not an advisor's.</td></tr>
+  <tr><td class="w">Source · firm</td><td>From your firm</td>
+      <td>Covers the firm AND the two middle tiers. See question 2 — naming a brand or a country would make an advisor ask who that is.</td></tr>
+  <tr><td class="w">Source · advisor</td><td>Added by you</td>
+      <td>Mirrors the manager screen's <i>Added here</i>, in the second person the rest of this screen uses.</td></tr>
+  <tr><td class="w">Switch off</td><td>Not for my meetings</td>
+      <td>The manager's word is <i>Switch off</i>, which at this level would read as switching it off for the firm. This says whose list it leaves.</td></tr>
+  <tr><td class="w">Switch back on</td><td>Put it back</td>
+      <td>Manager's is <i>Switch back on</i>. Shorter, and it is the phrase for undoing something you did to your own list.</td></tr>
+  <tr><td class="w">Off section heading</td><td>Not for my meetings</td>
+      <td>Deliberately the same words as the button, so the section is obviously where that button sends things. Manager's is <i>Switched off here</i>.</td></tr>
+  <tr><td class="w">Off-state suffix</td><td>off for you only</td>
+      <td>The one place the screen states the blast radius. Without it, an advisor cannot tell whether they have just changed the firm's standard.</td></tr>
+  <tr><td class="w">Add button</td><td>Add a point of my own</td>
+      <td>Manager's is <i>Add a point</i>. <i>My own</i> carries the level in the label, as <i>My Coaching Notes</i> does.</td></tr>
+  <tr><td class="w">Add form label</td><td>What you want to be reminded of</td>
+      <td>An advisor is not authoring an assessment criterion; they are leaving themselves a note. Manager's is <i>A new point</i>.</td></tr>
+  <tr><td class="w">Add form note</td><td>This is for your meetings only. Your firm's list is not changed, and nobody else sees this.</td>
+      <td>Says the two things an advisor would otherwise have to guess, at the moment they are deciding.</td></tr>
+  <tr><td class="w">Save</td><td>Add this point</td>
+      <td>Unchanged from the manager screen — already approved 2026-09-01, and there is no reason for a second verb.</td></tr>
+</table>
+</div>
+
+<!-- ══ THE QUESTIONS ══════════════════════════════════════════════════════ -->
+<div class="stage s-c">
+  <div class="num">?</div>
+  <div>
+    <h2>Five questions</h2>
+    <div class="sub">One recommendation each, and the argument against it</div>
+  </div>
+</div>
+
+<div class="q big">
+  <div class="qn">Question 1 — the only one that is not about wording</div>
+  <h3>May an advisor switch off a point their <i>firm</i> set?</h3>
+  <p>P14 permits it: an advisor's own level is below the firm's, and switching a point off
+     there changes that advisor's list and nothing else. But permission is not the same as
+     wisdom. A firm sets what its advisors are checked on; if each advisor may quietly drop
+     the ones they find awkward, the firm's standard becomes a suggestion — and the manager's
+     aggregate, which counts how the firm is doing against those points, starts measuring a
+     list that differs per advisor.</p>
+  <div class="rec"><b>Recommended: yes, any inherited point.</b> It is what P14 already says,
+     it is how every other level in this app works, and the alternative — advisors may add but
+     not remove — makes the advisor's level the only one in the cascade that behaves
+     differently, which nobody would be able to predict. The manager's aggregate is protected
+     by naming the source instead: a point an advisor switched off is counted as switched off,
+     not as failed.</div>
+  <div class="against"><b>The argument against, recorded rather than argued away.</b> A firm
+     manager cannot see who has switched what off — there is no screen for that, and this slice
+     does not build one. So the first time a firm learns its standard has been quietly
+     narrowed could be a compliance conversation. <b>If that matters more than consistency, the
+     answer is no</b> and advisors may add only.</div>
+</div>
+
+<div class="q">
+  <div class="qn">Question 2</div>
+  <h3>Do the two middle tiers get their own source label?</h3>
+  <p>A point can come from the mentor, a global group, a country group, or the firm. The
+     drawing collapses the middle two into <i>From your firm</i>.</p>
+  <div class="rec"><b>Recommended: no — collapse them.</b> An advisor has no relationship with
+     a brand or a country tier and would read <i>"From the UK group"</i> as a question rather
+     than an answer. Everything above them that is not Advisor-e is, from where they sit,
+     their firm.</div>
+  <div class="against"><b>Against:</b> a firm manager told <i>"my advisors see it as ours"</i>
+     about a point they cannot edit may reasonably object. The alternative is
+     <i>From your group</i> as a third label.</div>
+</div>
+
+<div class="q">
+  <div class="qn">Question 3</div>
+  <h3>Is the source shown on every point, or only where it is not the firm's?</h3>
+  <div class="rec"><b>Recommended: every point, always.</b> A label that appears only sometimes
+     teaches an advisor to read its <i>absence</i> as meaning something, and they will guess
+     wrong. It is also what D1 asks for in terms.</div>
+  <div class="against"><b>Against:</b> it puts a line of grey text under all eleven points in
+     some meeting types, on a screen whose whole job is to be read quickly before walking into
+     a room.</div>
+</div>
+
+<div class="q">
+  <div class="qn">Question 4</div>
+  <h3>May an advisor set the "words that hint it happened" on their own point?</h3>
+  <p>Managers can. Those words tell the model what to listen for in the transcript.</p>
+  <div class="rec"><b>Recommended: no.</b> An advisor tuning the phrases the AI looks for in
+     their own assessment is marking their own homework, and the coaching notes are the thing
+     a manager may later read. Their own point still works — the model is asked to find it
+     like any other.</div>
+  <div class="against"><b>Against:</b> a point the advisor wrote is the one the model is least
+     likely to recognise, so withholding the hints makes their own additions the weakest
+     entries on the list. This is a real cost, not a hypothetical one.</div>
+</div>
+
+<div class="q">
+  <div class="qn">Question 5</div>
+  <h3>Where does this live — the pre-set screen itself, or a settings page of its own?</h3>
+  <div class="rec"><b>Recommended: the pre-set screen itself</b>, as drawn. It is where an
+     advisor already reads the list, so the moment they think <i>"that one is not how I work"</i>
+     is the moment the control is under their thumb. A separate page means remembering it
+     exists.</div>
+  <div class="against"><b>Against:</b> the pre-set is read in the two minutes before a client
+     meeting, and putting editing controls there invites fiddling at exactly the wrong moment.
+     A quieter screen would keep the pre-set purely for reading.</div>
+</div>
+
+<footer>
+  <p><b>🔴 The per-CLIENT half of slice 4 is deliberately NOT drawn here.</b> D2 gives the
+     advisor <i>and</i> the firm manager a per-client level — <i>"how I run meetings with this
+     client"</i> — and it is real work with its own screen. It is left out for one reason: it
+     hangs off the client picker, and that picker is empty without MySQL, which this laptop
+     does not have. Drawing a screen nobody can then verify is how a feature ends up built and
+     unproven. It gets its own drawing when it can be run.</p>
+  <p><b>What this drawing does not solve.</b> A firm manager cannot see what their advisors
+     have switched off (question 1's recorded cost). The reference-material join — the firm's
+     script one tap away from a point — remains the largest unbuilt piece of Meeting Review and
+     is untouched by this. And nothing here writes any advisory content: the points an advisor
+     adds are theirs, and the eleven meeting types still need their observation points written
+     by Mike.</p>
+  <p>Sources: <code>design/MEETING-TYPES-CASCADE.md</code> §2 §5 §6 §7 ·
+     <code>design/features/meeting-review.md</code> P12 P14 ·
+     <code>data/meeting-observations.json</code> (every point text above) ·
+     <code>components/MeetingPreset.vue</code> · <code>components/firm/FirmMeetingObservations.vue</code>.
+     Item 4.58. Drawn 2026-09-08.</p>
+</footer>
+
+</div>
