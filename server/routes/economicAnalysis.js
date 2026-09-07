@@ -39,7 +39,7 @@
 const { createOpenAIClient } = require('../utils/openaiClient')
 const { fenceUntrusted } = require('../utils/promptSafety')
 const { sendError } = require('../utils/sendError')
-const { assemblePrompt, loadResolvedAiPromptOverrides } = require('../utils/aiPrompts')
+const { assemblePrompt, loadResolvedAiPromptOverrides, BASE_PROMPTS } = require('../utils/aiPrompts')
 const { loadFirmConfig } = require('../utils/firmOverlay')
 const { validateResearch, extractText } = require('../report/economicAnalysis/researchResult')
 const runsStore = require('../utils/economicAnalysisRuns')
@@ -244,10 +244,28 @@ function assessmentDateOf (value) {
  * @returns {string}
  */
 function fillPlaceholders (assembled, brief, assessmentDate, now) {
+  const banned = bannedHostsForPrompt()
   return assembled.text
     .split('{{assessmentDate}}').join(todayInWords(assessmentDate || now))
     .split('{{today}}').join(todayInWords(now))
+    .split('{{bannedSources}}').join(banned.length ? banned.join(', ') : 'none')
     .split('{{advisorBrief}}').join(fenceUntrusted(brief))
+}
+
+/**
+ * The hosts §3 bans, read from the prompt itself.
+ *
+ * ONE HOME. The same array feeds the sentence the model reads and the check that refuses a
+ * run citing one anyway, so the instruction and the enforcement cannot drift apart. It sits
+ * in `data/ai-prompts.json` rather than here because content that shapes AI output has to be
+ * visible on a hub page, and this prompt already renders on the AI Prompts tab at all four
+ * tiers — so a site can be added there without a developer.
+ *
+ * @returns {string[]}
+ */
+function bannedHostsForPrompt () {
+  const prompt = (BASE_PROMPTS || []).find(p => p.id === PROMPT_ID)
+  return (prompt && Array.isArray(prompt.bannedSourceHosts)) ? prompt.bannedSourceHosts : []
 }
 
 /**
@@ -326,7 +344,7 @@ async function runResearch (run, promptText) {
       return
     }
 
-    const checked = validateResearch(completed)
+    const checked = validateResearch(completed, { bannedHosts: bannedHostsForPrompt() })
     logCall(run.runId, startedAt, checked.ok, completed.usage, run.searchCount)
 
     if (!checked.ok) {

@@ -487,7 +487,7 @@
           "n": "3",
           "locked": true,
           "heading": "How to research",
-          "body": "Search the public web before you write anything.\n\nPrefer primary and official sources — a statistics agency, a central bank, a government department, an industry association's own publication — over commentary about them. Where two credible sources disagree, say so and give both rather than choosing.\n\nPrefer the most recent figure available. An older figure is acceptable where nothing newer exists, provided you say how old it is.\n\nSearch widely before concluding. A single source is a data point, not an outlook."
+          "body": "Search the public web before you write anything.\n\nPrefer primary and official sources — a statistics agency, a central bank, a government department, an industry association's own publication — over commentary about them. Where two credible sources disagree, say so and give both rather than choosing.\n\nPrefer the most recent figure available. An older figure is acceptable where nothing newer exists, provided you say how old it is.\n\nSearch widely before concluding. A single source is a data point, not an outlook.\n\nThese sources are not permitted and must not be cited: {{bannedSources}}. If the only support you can find for a point is there, treat that point as unsourced and say so in section 5."
         },
         {
           "id": "sourcing",
@@ -536,7 +536,26 @@
         "the numbers back in. It is enforced in code as well as asked for here, in",
         "server/report/economicAnalysis/researchResult.js."
       ],
-      "variables": []
+      "variables": [],
+      "_bannedSourceHostsNote": [
+        "WRITTEN ONCE, READ TWICE. Section 3 renders this list through {{bannedSources}}, and",
+        "validateResearch refuses any research citing one of these hosts. Naming a site in the",
+        "section's prose as well would be a second copy to keep in step.",
+        "",
+        "It lives here rather than in code because content that shapes AI output has to be",
+        "visible on a hub page, and this prompt already renders on the AI Prompts tab at all",
+        "four tiers. A site can be added there without a developer.",
+        "",
+        "A host matches if it EQUALS an entry or ENDS WITH a dot plus that entry, so",
+        "old.reddit.com is caught and notreddit.com is not.",
+        "",
+        "Mike's instruction, 2026-09-08: \"ban information from redit\", after an accepted run",
+        "cited reddit.com among eighteen sources. He named ONE site; banning forums or",
+        "user-generated content generally is a separate decision of his, not an inference."
+      ],
+      "bannedSourceHosts": [
+        "reddit.com"
+      ]
     }
   ]
 }

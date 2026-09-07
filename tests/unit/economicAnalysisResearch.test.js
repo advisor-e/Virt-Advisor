@@ -207,6 +207,50 @@ describe('validateResearch — the shapes it must refuse', () => {
   })
 })
 
+// 🔴 Mike's instruction, 2026-09-08: "ban information from redit", after run 21's accepted
+// research cited reddit.com among eighteen sources. §3 asks the model not to; these are what
+// make it a ban. A person in UAT cannot see this — a pack citing Reddit looks like a pack.
+describe('validateResearch — sources the firm has banned', () => {
+  const BANNED = { bannedHosts: ['reddit.com'] }
+
+  /** Good research, with one citation swapped for the host under test. */
+  function citing (host) {
+    const cites = GOOD_CITES.slice(0, GOOD_CITES.length - 1)
+      .concat([{ url: 'https://' + host + '/thread/1', at: '1,902' }])
+    return validateResearch(responseFrom(goodText(), cites), BANNED)
+  }
+
+  test('a banned host is refused, and the host is kept server-side', () => {
+    const result = citing('reddit.com')
+    expect(result.error.code).toBe('SOURCE_NOT_PERMITTED')
+    expect(result.error.detail.hosts).toEqual(['reddit.com'])
+    expect(result.data).toBeNull()
+  })
+
+  test('🔴 a SUBDOMAIN is refused too — hostOf strips only www.', () => {
+    // Without this the ban reads as a ban and is none: old.reddit.com would sail through an
+    // equality test, and a lender would get the same content from the same site.
+    expect(citing('old.reddit.com').error.code).toBe('SOURCE_NOT_PERMITTED')
+    expect(citing('www.reddit.com').error.code).toBe('SOURCE_NOT_PERMITTED')
+  })
+
+  test('🔴 a look-alike domain is NOT refused', () => {
+    // The other half of the same trap: a bare endsWith would ban notreddit.com, and a firm
+    // adding one site to the list would silently lose others it never named.
+    expect(citing('notreddit.com').ok).toBe(true)
+  })
+
+  test('with no banned list, nothing is refused — the default is unchanged', () => {
+    const cites = GOOD_CITES.slice(0, GOOD_CITES.length - 1)
+      .concat([{ url: 'https://reddit.com/thread/1', at: '1,902' }])
+    expect(validateResearch(responseFrom(goodText(), cites)).ok).toBe(true)
+  })
+
+  test('research citing nothing banned is unaffected', () => {
+    expect(validateResearch(responseFrom(goodText(), GOOD_CITES), BANNED).ok).toBe(true)
+  })
+})
+
 describe('validateResearch — what a passing run returns', () => {
   const result = validateResearch(responseFrom(goodText(), GOOD_CITES))
 

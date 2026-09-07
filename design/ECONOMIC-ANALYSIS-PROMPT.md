@@ -446,12 +446,14 @@ same bakery brief, the same path as runs 17–20 — and recorded on
 
 ---
 
-## 7d. Banned sources — PROPOSED wording, awaiting Mike's approval
+## 7d. Banned sources — reddit.com
 
-**Status: PROPOSED, NOT APPLIED.** Mike's instruction, 2026-09-08: *"ban information from
-redit"*, after run 21's accepted research cited `reddit.com` among eighteen sources. He approved
-the approach the same day: a line in the prompt **and** a check in the guard, with the list held
-as data so it stays on the AI Prompts screen.
+**Status: APPROVED BY MIKE AND APPLIED, 2026-09-08.** Both pieces of wording below are in
+`data/ai-prompts.json` and enforced in `validateResearch`. They were committed as a draft
+(`7c76418`) BEFORE he approved them. His instruction: *"ban information from redit"*, after run
+21's accepted research cited `reddit.com` among eighteen sources; he approved the approach the
+same day — a line in the prompt **and** a check in the guard, with the list held as data so it
+stays on the AI Prompts screen.
 
 ### Why both, and not just the prompt
 
