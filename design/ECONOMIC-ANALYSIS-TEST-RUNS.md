@@ -609,6 +609,53 @@ is the second time on this page a probe has stood in for the route and told us s
 
 ---
 
+## Run 21 — 2026-09-08 · the fix, proved THROUGH THE ROUTE
+
+Same route, same `dev-local-bypass`, same unchanged bakery brief, **no `assessmentDate`** — the
+default path that had failed six consecutive times (13, 14, 17, 18, 19, 20). The only change is
+§2's new paragraph, approved by Mike the same day.
+
+| Run | Searches | Words | Citations | Sources | Hosts | Latency | Outcome |
+|---|---|---|---|---|---|---|---|
+| 20 (before) | **1** | — | — | — | — | <10s | ❌ `SECTIONS_MISSING` |
+| 21 (after) | **12** | 1,938 | 32 | 18 | 11 | ~160s | ✅ **accepted** |
+
+Hosts cited: imf.org, stats.govt.nz, rbnz.govt.nz, comcom.govt.nz, ea.govt.nz, drewry.co.uk,
+fao.sitefinity.cloud, restaurantnz.co.nz, far.org.nz, a-ap.storyblok.com, reddit.com.
+
+**No refusal was logged at all** — 4.73's raw-reply log never fired, because nothing was refused.
+
+### 🔴 IT NOW RECORDS THE VERY FACT IT USED TO STOP ON
+
+The proof is not that it passed. It is *where* the date problem went. §5 of the accepted
+research, in the model's own words:
+
+> *"**Assessment-day completeness.** Research was conducted on **7 September 2026**, for the
+> supplied assessment start of **8 September 2026**. Publications becoming available on the
+> assessment date could not be verified. The supplied assessment start has not been changed."*
+
+That is the identical observation that produced run 20's refusal-to-proceed, now filed as an
+honest gap in the section that exists for honest gaps — which is exactly what the new paragraph
+asks for. Nothing was suppressed and nothing was guessed: the advisor is still told, in the
+report, that the last day could not be verified.
+
+### What this settles
+
+- **4.73 is fixed.** The default path succeeds through the built route.
+- **4.69's owed regression check has now PASSED.** This run *is* that check — the no-date path,
+  through the route. It was the last thing standing between 4.69 and closure.
+- **Run 15's shadow is gone.** This is a route run, not a probe. Compare its 14 searches and
+  162 seconds with run 21's 12 and ~160: the same working profile, this time on the real path.
+
+⚠ **One observation, not a defect and not filed.** `reddit.com` appears among 18 sources. The
+prompt asks for sources and this one carries its citation honestly, but the prompt does not rank
+source quality, and this pack is written for a lender. **Mike's call whether that matters**; it
+is recorded here rather than acted on.
+
+*Cost: about 160 seconds and one full research run — the only expensive kind, because it worked.*
+
+---
+
 ## Run 1 in full — the model's own words
 
 > Reproduced verbatim, headings demoted so they sit inside this page. **Bold figures, inline

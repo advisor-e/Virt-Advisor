@@ -130,6 +130,12 @@ three existing prompts, so this becomes the fourth and is editable there without
 > a figure is against today's date, and use the most recently published data available. Do
 > not infer either date from anything else.
 >
+> Both dates above are given to you and are correct. Your own sense of what today is may be
+> earlier than the date given; that is expected, and it is not a contradiction to resolve or
+> to ask about. Do not stop, and do not ask permission to proceed. Research as far as the
+> most recently published data allows, and where that leaves you short of the date given, say
+> so in section 5 with the rest of what you could not source.
+>
 > You have been given one thing: a research brief written by the advisor, supplied below
 > between the marked delimiters. **It is the only information you hold about this business.**
 >
@@ -377,8 +383,9 @@ do with the date.
 
 ## 7c. Why every run has failed since 2026-09-07 — and the §2 wording proposed for it
 
-**Status: PROPOSED, NOT APPLIED. Nothing in `data/ai-prompts.json` has changed.** This section
-exists so the words are a committed file before they are approved, not a paraphrase afterwards.
+**Status: APPROVED BY MIKE AND APPLIED, 2026-09-08.** The paragraph is in §2 above and in
+`data/ai-prompts.json`. It was committed as a draft (`6ced5d5`) BEFORE he approved it, so what
+he approved is a file rather than a paraphrase in a conversation.
 
 ### What was actually happening
 
@@ -418,7 +425,7 @@ the two, which is the whole reason 4.73's logging came first.
 future assessment date. Every route run since has failed. Run 15 — the one success — was a probe
 outside the repository, which never carried `{{today}}` at all.
 
-### The proposed change: ONE paragraph added to §2
+### The change: ONE paragraph added to §2
 
 Nothing is removed. *"Do not infer either date from anything else"* stays, and so does every
 line of §4 and §5. The new paragraph goes immediately after it:
