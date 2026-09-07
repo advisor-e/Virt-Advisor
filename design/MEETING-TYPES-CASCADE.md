@@ -1,7 +1,8 @@
 # Meeting Types and Observation Points — the full cascade
 
-> **Status: ☐ AWAITING MIKE'S APPROVAL.** Nothing here is built. Written 2026-09-02 on his
-> instruction; registered in [`ARTEFACTS.md`](ARTEFACTS.md).
+> **Status: ✅ APPROVED BY MIKE 2026-09-02**, all four decisions in §6 ruled the same day.
+> **Slices 1–3 of §7 are BUILT; slice 4 is not.** Written 2026-09-02 on his instruction;
+> registered in [`ARTEFACTS.md`](ARTEFACTS.md).
 >
 > **As a page:** https://claude.ai/code/artifact/d685c390-a0aa-4c67-a85b-ef0654eea7df
 >
@@ -146,18 +147,25 @@ Everything else follows from the rulings already given.
 
 ## 7. How it would be built
 
-Four slices, each shippable and each useful alone. **Nothing starts until the design is
-approved.**
+Four slices, each shippable and each useful alone.
 
-1. **Types become data.** The eleven move out of the coaching-tree dependency and carry their
-   own names, with the optional link. No new levels yet. Nothing visible changes — which is how
-   it should be proven, because it is a change of foundation.
-2. **The mentor authors types on screen.** Create, rename, reorder, switch off — the same tab
-   that already holds the points.
-3. **Types cascade to the four manager levels.** Reuses the mechanism switched on for the points
-   on 2026-09-02; the tab already exists at all four.
-4. **The advisor and entity levels.** The two new config keys, the advisor's own screen, and
-   the per-client tailoring on the pre-set. This is the only slice with new storage in it.
+1. ✅ **BUILT 2026-09-02 — Types become data.** The eleven moved out of the coaching-tree
+   dependency and carry their own names, with the optional link. No new levels. Nothing
+   visible changed — which is how it was proven, because it is a change of foundation.
+2. ✅ **BUILT 2026-09-02 — The mentor authors types on screen.** Create, rename, reorder,
+   switch off, in `components/firm/FirmMeetingTypes.vue` on the tab that already holds the
+   points.
+3. ✅ **BUILT 2026-09-08 — Types cascade to the four manager levels.** It was one line, as
+   slice 2 predicted: the resolver (`loadResolvedTypes`) had recursed the tier chain from the
+   start and every route was already scoped to `req.firmId`, so the only thing holding it to
+   the mentor was the `visible` computed property on that component. ⚠ **That property is no
+   longer a permission check and must not be made one again** — `tierOfScope` returns exactly
+   four values, so a condition naming all four is always true. P14 is enforced on the backend,
+   where it always was. Pinned by `tests/unit/meetingTypesCascade.component.test.js`.
+4. ☐ **NOT BUILT — The advisor and entity levels.** The two new config keys, the advisor's own
+   screen, and the per-client tailoring on the pre-set. This is the only slice with new
+   storage in it, and D1/D2 make one more thing mandatory with it: **the pre-set must name
+   where each point came from**, because after slice 4 there are five possible sources.
 
 ---
 

@@ -72,11 +72,15 @@
  * past 200; the types are a different list with different verbs from the points inside
  * them, so they get their own file rather than a sixth concern in that one.
  *
- * ⚠ MENTOR ONLY IN SLICE 2, AND THAT IS THE APPROVED SEQUENCE, NOT A PERMISSION RULE. The
- * resolver and every route already handle all four manager tiers; slice 3 opens the
- * controls to the other three, which is a change to `visible` below and nothing else.
- * Mike's P14 — "NOBODY can edit a level ABOVE their own" — is enforced on the backend,
- * where every route is scoped to the caller's own verified identity.
+ * ✅ ALL FOUR MANAGER TIERS SINCE SLICE 3 (2026-09-08). Slice 2 shipped this mentor-only as
+ * the approved sequence, never as a permission rule; the resolver and every route had
+ * handled all four tiers from the start, so opening it was the one line in `visible` below
+ * and nothing else. Mike's P14 — "NOBODY can edit a level ABOVE their own" — is enforced on
+ * the backend, where every route is scoped to the caller's own verified identity.
+ *
+ * The two levels BELOW the firm — advisor and business entity — are slice 4 and are still
+ * unbuilt. That is unfinished work, not a decision about who may edit (P14, and the
+ * correction recorded in `MEETING-TYPES-CASCADE.md` §2).
  *
  * ⚠ SWITCHING OFF IS NOT DELETING (D4, ruled 2026-09-02). "Not used here" removes a type
  * from the picker at this level and below; a meeting already recorded against it stays
@@ -120,11 +124,27 @@ export default {
 
   computed: {
     /**
-     * Slice 2 shows this at the mentor only. Everything below it is built and waiting.
+     * Shown once the backend has said which tier is asking — which is every manager tier
+     * (slice 3, 2026-09-08).
+     *
+     * 🔴 THIS IS NO LONGER A PERMISSION CHECK, AND MUST NOT BE MADE ONE AGAIN.
+     * `tierOfScope` returns exactly four values, so naming all four would be a condition
+     * that is always true — a guard that reads as protection and provides none. What stops
+     * a tier reaching another's types is that EVERY route is scoped to `req.firmId`, the
+     * caller's verified identity, and none reads a scope from a body or a query
+     * (`server/routes/meetingTypes.js`). That is where Mike's P14 — "NOBODY can edit a
+     * level ABOVE their own" — is enforced, and where every other tab on this hub rests.
+     *
+     * What it still does is hold the screen back until `load()` has answered, so a manager
+     * never sees an empty list and an "add" button before the real one arrives. A failed
+     * load leaves `tier` empty and the section closed — pre-existing behaviour, preserved
+     * deliberately rather than changed inside a one-line slice; it also swallows
+     * `loadError`, which is raised as its own question rather than fixed here.
+     *
      * @returns {boolean}
      */
     visible () {
-      return this.tier === 'mentor'
+      return Boolean(this.tier)
     },
 
     /** Ids switched off here, so they can be listed and switched back on. */

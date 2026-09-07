@@ -17,8 +17,8 @@
   //- pointed at is the rest of this same tab. Recorded in that component's head.
   firm-meeting-patterns(:api-token="apiToken")
 
-  //- The KINDS of meeting, above the points inside them (MEETING-TYPES-CASCADE.md slice 2).
-  //- It renders itself only at the mentor tier for now and decides that from its own
+  //- The KINDS of meeting, above the points inside them (MEETING-TYPES-CASCADE.md slices
+  //- 2-3). It renders at every manager tier since slice 3 and decides that from its own
   //- backend read, so nothing here has to know which tier it is on. When a type is added,
   //- renamed or switched off, the list below has to be re-read — hence the event.
   firm-meeting-types(:api-token="apiToken" @types-changed="load")
