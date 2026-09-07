@@ -29,7 +29,7 @@ const { computeLeaseVsBuy } = require('~/server/report/leaseVsBuyModel')
 const { computeCostOfCapital } = require('~/server/report/costOfCapitalModel')
 const { computeMultiplePropertyPortfolio } = require('~/server/report/multiplePropertyModel')
 const { computeVolatility, DEFAULT_INPUTS: VOL_DEFAULTS } = require('~/server/report/volatilityModel')
-const { computeThreeWayForecast } = require('~/server/report/threeWayForecastModel')
+const { computeThreeYearForecast } = require('~/server/report/threeWayForecastModel')
 
 /**
  * CONSISTENCY GUARD — every report in this section presents its headline figures the
@@ -86,8 +86,10 @@ const SCREENS = [
   { name: 'Multiple Property Assessment', component: MultiplePropertyAssessment, result: () => computeMultiplePropertyPortfolio({}) },
   // Typed entry seeded with the workbook's own 24 months; 12 is the screen's default window.
   { name: 'Volatility Report', component: VolatilityReport, result: () => computeVolatility({ sales: VOL_DEFAULTS.sales, window: 12 }) },
-  // An empty body computes the source workbook's own sample — the model's default path.
-  { name: 'Three-Way Forecast', component: ThreeWayForecastReport, result: () => computeThreeWayForecast({}) }
+  // The workbook's own sample, through the THREE-YEARS route the screen has called since
+  // 2026-09-07 (item 4.71 slice 2). `yearCount: 1` is the screen's own default — one year,
+  // in the `{ years, summary }` shape that route returns.
+  { name: 'Three-Way Forecast', component: ThreeWayForecastReport, result: () => computeThreeYearForecast({ yearCount: 1 }) }
 ]
 
 /** Mount with the backend answering successfully, and let the first result land. */

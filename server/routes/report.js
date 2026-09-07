@@ -756,14 +756,19 @@ function threeWayForecast (req, res, next) {
 /**
  * POST /api/report/three-way-forecast/three-years
  *
- * @param {object} req.body - `{ years: [year1, year2, year3] }`, each the same shape the
- *   single-year route takes. Every input is per-year in the source workbook, so all
- *   three are supplied rather than a growth rate. **An omitted or partial later year
- *   inherits the year before it** — leaving years 2 and 3 empty forecasts "the same
- *   again" rather than dropping sample figures into a real client's later years.
- * @returns {object} { success, data: { years, summary }, timestamp } — three linked
- *   twelve-month years, plus `summary` with the three-year totals, the closing position
- *   and the lowest cash point across all 36 months with its date.
+ * @param {object} req.body - `{ years: [year1, year2, year3], yearCount }`, each year the
+ *   same shape the single-year route takes. Every input is per-year in the source
+ *   workbook, so all three are supplied rather than a growth rate. **An omitted or
+ *   partial later year inherits the year before it** — leaving years 2 and 3 empty
+ *   forecasts "the same again" rather than dropping sample figures into a real client's
+ *   later years.
+ *
+ *   `yearCount` is how long a forecast the advisor asked for — 1, 2 or 3 (Mike's ruling,
+ *   2026-09-07). Absent, junk or out of range means 3, which is what every caller written
+ *   before that date receives. The model clamps it; nothing here trusts the body.
+ * @returns {object} { success, data: { years, summary }, timestamp } — one linked
+ *   twelve-month year per year asked for, plus `summary` with the totals FOR THOSE YEARS,
+ *   the closing position and the lowest cash point across them with its date.
  *
  * Anonymous by design, like the other calculation routes; only file intake carries
  * `firmAuth`. The model's second parameter is deliberately NOT forwarded.

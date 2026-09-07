@@ -769,10 +769,52 @@ equal months produces a cash line that will not happen; where the months are lev
 screen says so. The row reads *Gross margin* with the mark-up it converts to beneath it —
 the engine works in mark-up on cost and the advisor thinks in margin. With no file dropped
 the tick appears **greyed, saying what it needs**, because hiding it makes an advisor think
-the app cannot do this. ⚠ **SLICE 2 IS NOT BUILT: step 4 still draws one year.**
-`computeThreeYearForecast` and `POST /api/report/three-way-forecast/three-years` exist and
-are tested, but **no screen has ever called them**, so the grid drives year 1 alone today.
-It gets its own drawing for approval; the quick-fire drawing does not approve it.
+the app cannot do this. The grid shows **one column per year of the forecast**, and it never
+truncates: dropping to one year and back to three finds the typing where it was left.
+
+**The advisor chooses how long a forecast runs — 1, 2 or 3 years** (2026-09-07, item 4.71
+slice 2, its own approved drawing
+[`../mockups/three-way-forecast-three-years.html`](../mockups/three-way-forecast-three-years.html),
+all six questions ruled the same day). Mike's ruling, and it **replaced** the recommendation
+put to him (*"three years, always"*): *"good point - you should be able to choose 1, 2 or 3
+year forecast please"*. The control sits on **step 3, above the quick-fire tick**, because how
+long a forecast runs is an assumption about the forecast rather than a way of looking at one —
+among step 4's tabs it would read as a view toggle while silently deciding the printed pack,
+the totals and the row saved for a client.
+
+🔴 **THE COUNT REACHES THE ENGINE, and that is the whole of the design.** `yearCount` is a
+model input, clamped there rather than trusted from the body; anything but 1 or 2 means the
+three years every caller got before the choice existed. Computing three years and displaying
+fewer was rejected outright: `summary` totals the years it is given, so a one-year forecast
+would have reported a three-year revenue and a low point in a year nobody asked about — both
+entirely plausible on screen, which is the class of error UAT cannot catch.
+
+**Step 4 shows every year asked for.** The four headline figures answer over **the whole
+forecast**, keeping their labels — the one that earns the change is *Lowest point*, now the
+worst month of all thirty-six rather than of year 1, which `summary.lowestCash` has always
+computed and no screen had ever shown. Above the statements sit a **year-by-year summary**
+(revenue down to net assets, with a total column that totals *flows* and repeats the final
+year for *positions* — adding three closing bank balances is a number no accountant would
+recognise) and a **cash line across every month**. The three statement tabs, their twelve
+month columns and the Summary / Every line switch are untouched; a **year row** above them
+re-points the screen with no second request. A year the advisor described nothing for is sent
+**empty**, which the engine reads as *the same again*, and the column says so — those years
+are not copies: depreciation falls away and loans pay down, so profit, cash and net assets all
+still move. **The whole screen calls the three-years route, even for one year** — one path, so
+a one-year and a three-year forecast cannot be answered by two pieces of arithmetic.
+
+**The levers reach every year, each according to what it is.** Sales and overheads are shifts,
+so they scale all of them; mark-up and the debtor profile are absolute figures and are written
+to **year 1 alone** — with quick-fire off the later years inherit year 1 anyway, and with it on
+each keeps the margin set for it. Writing year 1's mark-up into every year would flatten years
+2 and 3 to year 1's margin, silently undoing the per-year percentages step 3 exists to collect.
+
+**The printed pack carries every year chosen** — four pages for one, seven for two, eleven for
+three — extending Mike's own 2026-09-06 reasoning: a lender given one statement of three cannot
+check the claim that they tie, and a lender given one year of three cannot check the year being
+lent against. ⚠ **The default is ONE year, and that was our decision rather than his ruling**:
+it is exactly what step 4 has always shown, so nobody who never touches the control gets a
+screen or a pack that changed under them. Three is one click away.
 
 **Step 3 takes planned capital purchases and sales** (2026-09-03, its own approved drawing
 [`../mockups/three-way-forecast-capital.html`](../mockups/three-way-forecast-capital.html)).
