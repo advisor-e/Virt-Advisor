@@ -12,8 +12,8 @@
 ## 2026-09-08 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
 **The working copy is the SSD**, `C:\Users\Mike Barnes\Projects\Virt Advisor`. VS Code still opened
-on the retired `E:` folder today; every command ran against the SSD. Suite **8,433 green** (431
-suites). Ten commits, all pushed; started 18 ahead / 25 behind master, ended 28 ahead / 0 behind.
+on the retired `E:` folder today; every command ran against the SSD. Suite **8,440 green** (432
+suites). Twelve commits, all pushed; started 18 ahead / 25 behind master, ended 30 ahead / 0 behind.
 
 **4.70 — ACTIVE ON THIS DESKTOP; stages 1–3 built.** Rulings in the morning: the score reaches eight
 through two threshold rows (built, his four figures in); bands 75/50; the model-reuse optional pages OFF
@@ -23,10 +23,10 @@ benchmarker**, from the two 2025 files Mike downloaded to `C:\Some VS Code\Perf 
 the shipped release `data/statsnz-benchmarker-2025.json`, the store, the routes, the finder and size
 bands on step 1, the comparison table on page 7, on Stats NZ's own ratio definitions.
 
-**Waits on Mike:** the mentor's upload tab is DRAWN, not built —
-`design/mockups/benchmarker-hub-tab.html`; the routes behind it are live. And the page-cap ruling.
-**Not yet eyeballed:** any of today's screens in the production build with real exports; the two new
-threshold rows on the hub page. Next after the drawing: the tab; then stage 4, the inventory reader.
+The mentor's **Industry Benchmarks** tab is built on the approved drawing (`FirmBenchmarker.vue`, mentor-only
+in `TAB_TIERS`, Model Inputs group). **Waits on Mike:** the page-cap ruling only. **Not yet eyeballed:** any
+of today's screens in the production build with real exports, the tab included, and the two new threshold
+rows on the hub page. Next: stage 4, the inventory reader, then *Stock against the accounts*.
 
 **Also today:** master merged in; the Handbook regrouped; GitHub Spec Kit 1.0.4 committed with a
 constitution that points at CLAUDE.md.
@@ -35,4 +35,4 @@ constitution that points at CLAUDE.md.
 (`SCORE_MEASURES`, `bandLevel` direction, `computeTrend` optional `measures` — the forecast's read
 stays six), `server/utils/forecastTrendThresholds.js`, `data/forecast-trend-thresholds.json` (two rows),
 `components/base/HBarChart.vue` (`maxWidth` prop), `server/routes/report.js` (the pages route only),
-`server/restify-server.js` (four mounts), `locales/en.json`, `design/CONTENT-ROUTING.md` (regenerated).
+`server/restify-server.js` (six mounts), `components/FirmManagerHub.vue` (one tab appended), `locales/en.json`, `design/CONTENT-ROUTING.md` (regenerated).
