@@ -131,15 +131,15 @@
       "blocks": null,
       "waitingOn": "Mike",
       "why": "The reader now names QuickBooks Online and MYOB as supported, but both were tested only against reconstructed layouts; no real export from either has been read.",
-      "risk": "A reconstruction proves the reader copes with the documented layout, not that the layout is right; the real Xero exports refuted three assumptions. A plausible wrong opening balance is exactly what UAT cannot catch. Every intake screen says the two are unconfirmed and tags each seeded figure by its source.",
+      "risk": "A reconstruction proves the reader copes with the layout it was drawn from, not with the real one. Proven 2026-09-07: a fuller MYOB reference workbook read NOTHING at all, and once that was fixed cash still came back as 64,500 of a real 89,500 — a plausible short figure, exactly what UAT cannot catch. Every intake screen says the two are unconfirmed and tags each seeded figure by its source.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-02 — \"keep it as a job for future - keep moving forward\", after being told that four real exports are what would move the two packages from `expected` to `verified`."
       },
-      "touches": "Nothing until the files arrive. Then: tests/unit/accountingPackages.test.js (the reconstructions become real-shaped fixtures), server/report/intake/xeroReportParser.js if the real layouts differ, and server/report/intake/supportedPackages.js to flip each `confidence` to `verified` — which its own guard will not allow until the evidence line says a real export was read.",
-      "note": "Waits on four files from Mike: a real Balance Sheet and Profit and Loss from QuickBooks Online, and the same two from MYOB. Nothing is blocked meanwhile. The five defects the reconstructions found are in report-models.md §4b. Do not promote either package on more reconstructions: the guard in accountingPackages.test.js refuses `verified` without a named real export.",
-      "comment": "2026-09-02 — filed on Mike's instruction: \"keep it as a job for future - keep moving forward\"."
+      "touches": "CHANGED 2026-09-07 ahead of the files: rowShape, BANK_ACCOUNT_RE and the period patterns in server/report/intake/xeroReportParser.js, the MYOB evidence in supportedPackages.js, and eight new tests in tests/unit/accountingPackages.test.js. When the real files arrive: those same three, plus flipping each `confidence` to `verified` — which its own guard will not allow until the evidence line names a real export.",
+      "note": "⚠ STILL WAITS ON FOUR REAL FILES — a Balance Sheet and P&L from QuickBooks Online and from MYOB. The two workbooks in 'C:\\Documents\\Visual Code Projects\\Perf Report\\xero reports' are NOT exports: one fictional company, identical figures in both packages, three reports per file. They earned their place anyway, finding three real MYOB faults on 2026-09-07, all fixed and tested — every label read as an account code so nothing parsed at all; cash counted one bank account of two; the period line gave no year. STILL OPEN: MYOB fixed-asset categories come back empty. QuickBooks needed no change.",
+      "comment": "2026-09-02 — filed on Mike's instruction: \"keep it as a job for future - keep moving forward\". 2026-09-07 — he supplied a structural comparison of the two formats and pointed to two reference workbooks; running the real parser over them found three MYOB faults, all fixed on his approval. The package stays `expected`: reference files are not exports, and the guard rightly refuses to say otherwise."
     },
     {
       "ref": "4.62",
