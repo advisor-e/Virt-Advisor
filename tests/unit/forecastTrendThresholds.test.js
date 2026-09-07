@@ -194,13 +194,13 @@ describe('the two score ratios (item 4.70, 2026-09-08)', () => {
     expect(WORSE_WHEN_BY_KEY.debtToEquity).toBe('up')
   })
 
-  // 🔴 A SECOND DELIBERATE PIN, for the same reason as the first: these two ship EMPTY
-  // because the figures are Mike's to give (2026-09-08). A developer filling in a
-  // plausible 1.5 here would put a verdict on a client's page that nobody ruled, and the
-  // score would silently count eight with two of them invented.
-  test('they ship empty — the score counts six until Mike types the figures', () => {
-    expect(BASE_TREND_THRESHOLDS.levels.currentRatio).toEqual({ green: null, amber: null })
-    expect(BASE_TREND_THRESHOLDS.levels.debtToEquity).toEqual({ green: null, amber: null })
+  // 🔴 A SECOND DELIBERATE PIN, for the same reason as the first: these four figures are
+  // Mike's, given 2026-09-08 one pair at a time, and they decide a verdict on every
+  // client's printed page. Current ratio reads the other way up, so its green is the
+  // HIGHER figure; debt to equity is total liabilities over equity.
+  test('the two score ratios are Mike’s four figures, exactly as he gave them', () => {
+    expect(BASE_TREND_THRESHOLDS.levels.currentRatio).toEqual({ green: 1.5, amber: 1.0 })
+    expect(BASE_TREND_THRESHOLDS.levels.debtToEquity).toEqual({ green: 1.0, amber: 2.0 })
   })
 
   test('current ratio’s green must sit ABOVE its amber, and the day-count way round is refused', () => {
