@@ -43,6 +43,9 @@ can be read in one place — the Handbook does not move them.*
 | [Logic Tables](logic-tables.md) — the advisory thinking, written down | [history](logic-tables-history.md) |
 | [Domain Support](domain-support.md) — the material the AI draws on | [history](domain-support-history.md) |
 | [Advisory Distinctions](advisory-distinctions.md) — teaching the engine, without code | [history](advisory-distinctions-history.md) |
+| [Advisory Staircase](advisory-staircase.md) | [history](advisory-staircase-history.md) |
+| [Logic Lab](logic-lab.md) ⚠ the desktop's ground | [history](logic-lab-history.md) |
+| [Logic-Lab Report](logic-lab-report.md) — mentor & middle tiers | [history](logic-lab-report-history.md) |
 
 ## Hub pages — mentor & firm
 
@@ -52,18 +55,15 @@ can be read in one place — the Handbook does not move them.*
 |---|---|
 | [The Hub itself](firm-manager-hub.md) — one screen, four tiers | [history](firm-manager-hub-history.md) |
 | [Coaching Reference](coaching-reference.md) — 🔴 **REMOVED 2026-08-20**, tab and all; kept as the record of why | [history](coaching-reference-history.md) |
-| [Advisory Staircase](advisory-staircase.md) | [history](advisory-staircase-history.md) |
 | [Quizzes](quizzes.md) | [history](quizzes-history.md) |
-| [Logic Lab](logic-lab.md) ⚠ the desktop's ground | [history](logic-lab-history.md) |
 | [Adviser Network](adviser-network.md) | [history](adviser-network-history.md) |
 | [Adoption](adoption.md) — mentor & middle tiers | [history](adoption-history.md) |
-| [Logic-Lab Report](logic-lab-report.md) — mentor & middle tiers | [history](logic-lab-report-history.md) |
 | [Case Reviews](case-reviews.md) — mentor & middle tiers | [history](case-reviews-history.md) |
 | [Template Check](template-check.md) — **mentor only** | [history](template-check-history.md) |
 | [AI Prompts](ai-prompts.md) — The prompt templates a manager can tune — locked method, three declared variables | [history](ai-prompts-history.md) |
 
-*Also on the Hub but covered elsewhere: Domain Support and Logic Tables (above, under the
-engine), and Team Progress / Team Case Studies (see Advisor Progress and Case Studies).
+*Also on the Hub but covered elsewhere: Domain Support, Logic Tables, Advisory Staircase, Logic
+Lab and Logic-Lab Report (above, under the engine), and Team Progress / Team Case Studies (see Advisor Progress and Case Studies).
 Templates & Videos is dormant — templates are Advisor-e's.*
 
 ## Reports & models
