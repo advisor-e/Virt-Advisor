@@ -330,6 +330,61 @@
   section(v-else)
     .tw-layout
       aside.tw-card
+        //- ── The quick-fire option (item 4.71) ────────────────────────────────
+        //- Built from design/mockups/three-way-forecast-quick-fire.html, approved by
+        //- Mike 2026-09-07 with all five questions ruled. The tick-to-open shape is the
+        //- one he approved for the economic analysis on 2026-09-06 — one pattern, not a
+        //- second. With no file the tick STAYS and is greyed with its reason (his
+        //- ruling, question 3): hiding it makes an advisor think the app cannot do this.
+        .tw-group.qf-tick
+          b-checkbox(
+            v-model="form.quickFire.enabled"
+            :disabled="!quickFireAvailable"
+            size="is-small")
+            span.qf-tl {{ $t('report.threeWayForecast.assume.quickFire.label') }}
+          p.tw-note(v-if="!quickFireAvailable") {{ $t('report.threeWayForecast.assume.quickFire.needsFile') }}
+          p.tw-note(v-else) {{ $t('report.threeWayForecast.assume.quickFire.sub') }}
+
+        .tw-group(v-if="quickFireOpen")
+          .tw-glabel
+            span.tw-dot
+            h2.tw-h2 {{ $t('report.threeWayForecast.assume.quickFire.heading') }}
+          .qfwrap
+            table.qfgrid
+              thead
+                tr
+                  th.rowhead
+                  th {{ $t('report.threeWayForecast.assume.quickFire.lastYear') }}
+                  th(v-for="n in 3" :key="'h' + n") {{ $t('report.threeWayForecast.assume.quickFire.yr', { n: n }) }}
+              tbody
+                tr
+                  td.rowhead
+                    | {{ $t('report.threeWayForecast.assume.quickFire.salesGrowth') }}
+                    small {{ $t('report.threeWayForecast.assume.quickFire.onYearBefore') }}
+                  td.base {{ money(salesTotal) }}
+                  td.yr(v-for="(y, i) in form.quickFire.years" :key="'g' + i")
+                    b-input(v-model.number="y.salesGrowth" type="number" step="any" size="is-small")
+                tr
+                  td.rowhead
+                    | {{ $t('report.threeWayForecast.assume.quickFire.grossMargin') }}
+                    small {{ $t('report.threeWayForecast.assume.quickFire.marginItself') }}
+                  td.base {{ pct(quickFireBaseMargin) }}
+                  td.yr(v-for="(y, i) in form.quickFire.years" :key="'m' + i")
+                    b-input(v-model.number="y.grossMargin" type="number" step="any" size="is-small")
+                tr
+                  td.rowhead
+                  td.qfconv(colspan="4") {{ quickFireMarkupLine }}
+                tr
+                  td.rowhead
+                    | {{ $t('report.threeWayForecast.assume.quickFire.overheadsUp') }}
+                    small {{ $t('report.threeWayForecast.assume.quickFire.onYearBefore') }}
+                  td.base {{ money(quickFireBaseOverheads) }}
+                  td.yr(v-for="(y, i) in form.quickFire.years" :key="'o' + i")
+                    b-input(v-model.number="y.overheadsIncrease" type="number" step="any" size="is-small")
+          p.tw-note {{ $t('report.threeWayForecast.assume.quickFire.blankNote') }}
+          p.tw-note {{ quickFireShapeNote }}
+          p.tw-note {{ $t('report.threeWayForecast.assume.quickFire.replacesThree') }}
+
         .tw-group
           .tw-glabel
             span.tw-dot
@@ -440,6 +495,30 @@
             b-input(v-model.number="form.shareholderRate" type="number" step="any" size="is-small")
 
       section.tw-results
+        //- What the typed percentages produce. Drawn as the second half of the quick-fire
+        //- screen, and it recomputes as the advisor types. ⚠ These are gross figures — the
+        //- forecast's own result adds interest, depreciation and tax, and the note says so
+        //- rather than leaving an advisor to find the two do not match.
+        .tw-card(v-if="quickFireOpen")
+          .tw-group
+            .tw-glabel
+              span.tw-dot
+              h2.tw-h2 {{ $t('report.threeWayForecast.assume.quickFire.producesHeading') }}
+            p.tw-note {{ $t('report.threeWayForecast.assume.quickFire.producesSub') }}
+            .qfwrap
+              table.qfyrs
+                thead
+                  tr
+                    th.rowhead
+                    th {{ $t('report.threeWayForecast.assume.quickFire.lastYear') }}
+                    th(v-for="(y, i) in quickFireYearsOut" :key="'ph' + i") {{ $t('report.threeWayForecast.assume.quickFire.year', { n: i + 1 }) }}
+                tbody
+                  tr(v-for="row in quickFirePreviewRows" :key="row.key" :class="{ total: row.key === 'netProfit' }")
+                    td.rowhead {{ $t('report.threeWayForecast.assume.quickFire.row.' + row.key) }}
+                    td.base {{ money(row.base) }}
+                    td(v-for="(v, i) in row.years" :key="row.key + i") {{ money(v) }}
+            p.tw-note {{ $t('report.threeWayForecast.assume.quickFire.beforeTax') }}
+
         .tw-card
           .tw-group
             .tw-glabel
@@ -1103,6 +1182,10 @@ import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import GlossaryTerm from '~/components/base/GlossaryTerm.vue'
 import VolatilityDial from '~/components/base/VolatilityDial.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+// The quick-fire option's arithmetic (item 4.71). Its own module because slice 2's
+// three-year screen needs years 2 and 3, and two copies of a compounding rule would drift
+// into two different forecasts from one client.
+import { quickFireYears, marginFromMarkup } from '~/utils/quickFireForecast'
 
 /**
  * The mentor's price ladder as THIS SCREEN holds it — percentages, because every other rate
@@ -1344,6 +1427,124 @@ export default {
   computed: {
     openingKeys () { return OPENING_KEYS },
     overheadKeys () { return OVERHEAD_KEYS },
+
+    /* ── The quick-fire option — item 4.71 ─────────────────────────────────────────── */
+
+    /**
+     * Whether there is a previous year to grow from at all.
+     *
+     * 🔴 MIKE'S RULING, 2026-09-07 (question 3): with no file the tick still APPEARS but is
+     * greyed, saying what it needs. Hiding it makes an advisor think the app cannot do this
+     * — which is the exact question that produced the feature.
+     *
+     * `salesSource === 'seeded'` is the honest test: those twelve months came out of a
+     * by-month Profit and Loss. Where the advisor typed them there is no "previous known
+     * data", and growing a number nobody read off a report is what this guards.
+     *
+     * @returns {boolean}
+     */
+    quickFireAvailable () {
+      return this.form.salesSource === 'seeded' && this.salesTotal > 0
+    },
+
+    /** Whether the grid is both switched on and usable. @returns {boolean} */
+    quickFireOpen () {
+      return !!(this.form.quickFire && this.form.quickFire.enabled) && this.quickFireAvailable
+    },
+
+    /**
+     * The year quick-fire grows FROM — read off the form, never off the file a second time.
+     *
+     * Taking it from the form is what makes "adds or subtracts from previous known data"
+     * true after an advisor has corrected a seeded figure: they grow what is on their
+     * screen, not what the export happened to say.
+     *
+     * @returns {object} `{ sales: number[12], markup: number, overheads: {key: number} }`
+     */
+    quickFireBase () {
+      const overheads = {}
+      for (let i = 0; i < OVERHEAD_KEYS.length; i++) {
+        overheads[OVERHEAD_KEYS[i]] = Number(this.form.overheads[OVERHEAD_KEYS[i]].value) || 0
+      }
+      return {
+        sales: this.form.sales.map(v => Number(v) || 0),
+        markup: Number(this.form.markup) || 0,
+        overheads
+      }
+    },
+
+    /**
+     * The three years the typed percentages produce, recomputed as the advisor types.
+     * @returns {Array<object>} see `utils/quickFireForecast`; empty when the grid is shut.
+     */
+    quickFireYearsOut () {
+      if (!this.quickFireOpen) { return [] }
+      return quickFireYears(this.quickFireBase, this.form.quickFire.years)
+    },
+
+    /** Last year's own margin, for the base column of the grid. @returns {number} */
+    quickFireBaseMargin () {
+      return marginFromMarkup(this.quickFireBase.markup)
+    },
+
+    /** Last year's overheads, for the base column of the grid. @returns {number} */
+    quickFireBaseOverheads () {
+      const b = this.quickFireBase.overheads
+      return Object.keys(b).reduce((a, k) => a + b[k], 0)
+    },
+
+    /**
+     * The margins restated as the mark-up on cost the engine actually works in.
+     *
+     * Mike ruled the row reads "Gross margin" (question 1) BECAUSE the two are different
+     * numbers for one thing, and step 3's own field a few inches below says "Mark-up on
+     * cost". Without this line the two look as though they disagree.
+     *
+     * @returns {string}
+     */
+    quickFireMarkupLine () {
+      const shown = this.quickFireYearsOut.map(y => this.pct(y.markup)).join(' · ')
+      return this.$t('report.threeWayForecast.assume.quickFire.equalsMarkup', { list: shown })
+    },
+
+    /**
+     * Whether growth can keep last year's monthly shape, said out loud either way.
+     *
+     * An even twelfth through a seasonal business produces a cash line that will not
+     * happen, so a forecast that had to spread evenly must say so — the drawing is explicit
+     * that this is stated, not left for the advisor to infer from a flat chart.
+     *
+     * @returns {string}
+     */
+    quickFireShapeNote () {
+      const shaped = this.form.sales.some((v, i) => i > 0 && Number(v) !== Number(this.form.sales[0]))
+      return shaped
+        ? this.$t('report.threeWayForecast.assume.quickFire.keepsShape')
+        : this.$t('report.threeWayForecast.assume.quickFire.evenSpread')
+    },
+
+    /**
+     * The preview table's rows — last year beside each forecast year.
+     * @returns {Array<object>} `{ key, base, years: number[] }`
+     */
+    quickFirePreviewRows () {
+      const base = this.quickFireBase
+      const baseSales = base.sales.reduce((a, v) => a + v, 0)
+      const baseGross = baseSales * (this.quickFireBaseMargin / 100)
+      const baseOverheads = this.quickFireBaseOverheads
+      const bases = {
+        sales: baseSales,
+        costOfSales: baseSales - baseGross,
+        grossProfit: baseGross,
+        overheads: baseOverheads,
+        netProfit: baseGross - baseOverheads
+      }
+      return ['sales', 'costOfSales', 'grossProfit', 'overheads', 'netProfit'].map(key => ({
+        key,
+        base: bases[key],
+        years: this.quickFireYearsOut.map(y => y.totals[key])
+      }))
+    },
 
     /**
      * The file slots. The approved drawing names three; the fourth — last year's by-month
@@ -2115,6 +2316,13 @@ export default {
       // panel's v-for rather than draw its "nothing entered yet" state.
       const blankOverseas = this.blankForm().overseas
       if (!form.overseas || typeof form.overseas !== 'object') { form.overseas = blankOverseas }
+      // Same normalisation for the quick-fire grid (item 4.71): a form saved before it
+      // existed carries no `quickFire`, and an undefined `years` array would break the
+      // grid's v-for. It restores switched OFF, which is the safe direction — a restored
+      // forecast shows the figures it was saved with, not figures a percentage re-derived.
+      if (!form.quickFire || typeof form.quickFire !== 'object' || !Array.isArray(form.quickFire.years)) {
+        form.quickFire = this.blankForm().quickFire
+      }
       if (!Array.isArray(form.overseas.shipments)) { form.overseas.shipments = [] }
       if (!form.overseas.shipmentTerms || typeof form.overseas.shipmentTerms !== 'object') {
         form.overseas.shipmentTerms = blankOverseas.shipmentTerms
@@ -2175,6 +2383,17 @@ export default {
         shareholderRate: 5,
         sales: zeroes(),
         salesSource: 'entered',
+        // The quick-fire option (item 4.71, drawing approved by Mike 2026-09-07). It starts
+        // OFF and its three years start blank, which the module reads as "the same again" —
+        // so a form that has never been touched forecasts exactly what it forecast before.
+        quickFire: {
+          enabled: false,
+          years: [
+            { salesGrowth: null, grossMargin: null, overheadsIncrease: null },
+            { salesGrowth: null, grossMargin: null, overheadsIncrease: null },
+            { salesGrowth: null, grossMargin: null, overheadsIncrease: null }
+          ]
+        },
         purchases: zeroes(),
         // Stock already paid for at the opening date and not yet arrived (Fix 2, drawing
         // ruled by Mike 2026-09-05). The DEPOSIT itself is an opening balance-sheet line
@@ -3019,11 +3238,22 @@ export default {
         overheads[OVERHEAD_KEYS[i]] = Number(this.form.overheads[OVERHEAD_KEYS[i]].value) || 0
       }
       const capital = this.capitalSeries()
+      // 🔴 THE QUICK-FIRE SUBSTITUTION (item 4.71), and it is the whole of Mike's "untick it
+      // and the status quo continues". Quick-fire NEVER writes to `this.form` — it produces
+      // its own year and that year is substituted here, for three fields only. The
+      // advisor's twelve monthly sales, their mark-up and their overheads sit untouched
+      // behind it, so unticking restores them with nothing to undo.
+      const qf = this.quickFireOpen ? this.quickFireYearsOut[0] : null
+      if (qf) {
+        for (let i = 0; i < OVERHEAD_KEYS.length; i++) {
+          overheads[OVERHEAD_KEYS[i]] = Number(qf.overheads[OVERHEAD_KEYS[i]]) || 0
+        }
+      }
       return {
         startDateSerial: this.serialOf(this.form.startDate),
-        sales: this.form.sales.map(v => Number(v) || 0),
+        sales: qf ? qf.sales.map(v => Number(v) || 0) : this.form.sales.map(v => Number(v) || 0),
         purchases: this.form.purchases.map(v => Number(v) || 0),
-        markup: Number(this.form.markup) / 100,
+        markup: (qf ? Number(qf.markup) : Number(this.form.markup)) / 100,
         overseas: this.overseasInputs(),
         directCostRates: {
           freight: Number(this.form.direct.freight) / 100,
@@ -3256,6 +3486,30 @@ export default {
 .tw-layout { display: grid; grid-template-columns: var(--rs-col-input) 1fr; gap: var(--rs-col-gap); align-items: start; }
 @media (max-width: 860px) { .tw-layout { grid-template-columns: 1fr; } }
 .tw-results { display: flex; flex-direction: column; gap: 16px; }
+
+/* The quick-fire option (item 4.71), built from the approved drawing. Every value reads a
+   --rs-* token from the shared ReportShell; nothing here declares a palette of its own. */
+.qf-tick { display: flex; flex-direction: column; gap: 4px; }
+.qf-tl { font-size: 14px; font-weight: 600; }
+.qfwrap { overflow-x: auto; }
+.qfgrid, .qfyrs { width: 100%; border-collapse: collapse; font-size: 13px; }
+.qfgrid th, .qfyrs th {
+  font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--rs-muted);
+  font-weight: 600; text-align: right; padding: 0 0 9px; white-space: nowrap;
+}
+.qfgrid th.rowhead, .qfyrs th.rowhead { text-align: left; }
+.qfgrid td { padding: 5px 0; border-top: 1px solid var(--rs-line); vertical-align: middle; }
+.qfgrid td.rowhead, .qfyrs td.rowhead { text-align: left; color: var(--rs-ink); padding-right: 10px; }
+.qfgrid td.rowhead small { display: block; font-size: 11.5px; color: var(--rs-muted); margin-top: 1px; }
+.qfgrid td.base, .qfyrs td.base { color: var(--rs-muted); }
+.qfgrid td.base { text-align: right; font-variant-numeric: tabular-nums; font-size: 12.5px; padding-right: 10px; white-space: nowrap; }
+.qfgrid td.yr { width: 84px; padding-left: 6px; }
+.qfconv { font-size: 11.5px; color: var(--rs-muted); text-align: right; padding: 0 0 8px; border-top: 0; }
+.qfyrs td {
+  padding: 8px 0; text-align: right; font-variant-numeric: tabular-nums;
+  border-top: 1px solid var(--rs-line); white-space: nowrap;
+}
+.qfyrs tr.total td { font-weight: 700; border-top: 2px solid var(--rs-line); }
 .field { margin-bottom: 11px; }
 .fieldlab { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: var(--rs-ink); margin-bottom: 6px; }
 .seg { display: flex; border: 1px solid var(--rs-line); border-radius: 10px; overflow: hidden; }

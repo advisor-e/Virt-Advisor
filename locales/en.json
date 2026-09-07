@@ -1734,6 +1734,35 @@
         }
       },
       "assume": {
+        "quickFire": {
+          "label": "Quick-fire forecast",
+          "sub": "Grow last year's figures by a percentage instead of typing twelve months. Three years at once.",
+          "needsFile": "Needs last year's Profit and Loss. Go back to step 1 and drop it to use this.",
+          "heading": "Add to, or subtract from, last year",
+          "lastYear": "Last year",
+          "yr": "Yr {n}",
+          "year": "Year {n}",
+          "salesGrowth": "Sales growth",
+          "grossMargin": "Gross margin",
+          "overheadsUp": "Overheads increase",
+          "onYearBefore": "± on the year before",
+          "marginItself": "the margin itself, not a change",
+          "equalsMarkup": "= mark-up on cost of {list}",
+          "blankNote": "Every figure is a percentage, and every one is optional. A blank year means the same again. A minus sign is a decline.",
+          "keepsShape": "Each month grows against that same month last year, so the seasons in your figures are kept.",
+          "evenSpread": "Last year's sales are level month to month, so growth spreads evenly. Drop a by-month Profit and Loss at step 1 to keep real seasons.",
+          "replacesThree": "Quick-fire sets three things only: the sales months, the mark-up and the overheads. Everything else on this step stays yours. Untick it and your own figures come straight back.",
+          "producesHeading": "What those percentages produce",
+          "producesSub": "Recalculated as you type. Last year is read from the Profit and Loss you dropped at step 1, and is never changed here.",
+          "beforeTax": "Before interest, depreciation and tax — the forecast applies those itself, so its result will differ from this.",
+          "row": {
+            "sales": "Sales",
+            "costOfSales": "Cost of sales",
+            "grossProfit": "Gross profit",
+            "overheads": "Overheads",
+            "netProfit": "Net profit"
+          }
+        },
         "tradeHeading": "The trade",
         "markup": "Mark-up on cost",
         "startsOn": "Forecast starts",

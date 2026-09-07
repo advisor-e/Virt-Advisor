@@ -1019,3 +1019,107 @@ describe('stock already paid for, not yet arrived', () => {
     w.destroy()
   })
 })
+
+/**
+ * The quick-fire option (item 4.71) — drawing approved by Mike 2026-09-07.
+ *
+ * 🔴 EVERY FAULT THIS FEATURE CAN HAVE IS A PLAUSIBLE WRONG NUMBER. Growth applied to the
+ * base instead of compounding, a margin converted the wrong way, an overhead line grown
+ * twice — the forecast still balances and the screen still looks right. That is the class
+ * of thing UAT cannot catch, and it is what these tests are for.
+ *
+ * `utils/quickFireForecast` holds the arithmetic and its own suite pins it against the
+ * approved drawing's figures. What is checked HERE is the seam: that the grid reaches the
+ * engine, that it reaches ONLY the three fields Mike ruled it may touch, and that
+ * unticking leaves the advisor's own figures exactly where they were.
+ */
+describe('the quick-fire option on step 3 (item 4.71)', () => {
+  /** A form with twelve seeded months of real shape, as a by-month export leaves it. */
+  function seeded (w) {
+    w.vm.form.salesSource = 'seeded'
+    w.vm.form.sales = [60000, 62000, 95000, 70000, 71000, 68000, 74000, 80000, 88000, 77000, 73000, 72000]
+    w.vm.form.markup = 67.9245283
+    w.vm.form.overheads.rent.value = 90000
+    w.vm.form.overheads.wages.value = 100000
+    w.vm.form.overheads.power.value = 20000
+  }
+
+  test('it starts switched off, so a form nobody has touched forecasts what it always did', () => {
+    const w = mountIntake()
+    seeded(w)
+    const before = w.vm.buildInputs()
+    expect(w.vm.form.quickFire.enabled).toBe(false)
+    expect(before.sales[2]).toBe(95000)
+    expect(before.markup).toBeCloseTo(0.679245283, 6)
+    w.destroy()
+  })
+
+  test('🔴 the tick is UNAVAILABLE with no file, rather than hidden (Mike, question 3)', () => {
+    const w = mountIntake()
+    expect(w.vm.form.salesSource).toBe('entered')
+    expect(w.vm.quickFireAvailable).toBe(false)
+    // and switching it on regardless cannot open it — there is nothing to grow from
+    w.vm.form.quickFire.enabled = true
+    expect(w.vm.quickFireOpen).toBe(false)
+    w.destroy()
+  })
+
+  test('🔴 ticked, the GROWN figures reach the engine — compounding, not off the base', () => {
+    const w = mountIntake()
+    seeded(w)
+    w.vm.form.quickFire.enabled = true
+    w.vm.form.quickFire.years[0] = { salesGrowth: 8, grossMargin: 41, overheadsIncrease: 4 }
+    const sent = w.vm.buildInputs()
+    // March, the heavy month, grown by 8% — not a flat twelfth of the year
+    expect(Math.round(sent.sales[2])).toBe(102600)
+    expect(Math.round(sent.sales.reduce((a, v) => a + v, 0))).toBe(961200)
+    // margin 41% reaches the engine as a mark-up on cost, in the engine's own units
+    expect(sent.markup).toBeCloseTo(0.694915, 5)
+    expect(Math.round(sent.overheads.rent)).toBe(93600)
+    w.destroy()
+  })
+
+  test('🔴 it NEVER writes to the advisor\'s own figures — untick and they are all still there', () => {
+    const w = mountIntake()
+    seeded(w)
+    w.vm.form.quickFire.enabled = true
+    w.vm.form.quickFire.years[0] = { salesGrowth: 8, grossMargin: 41, overheadsIncrease: 4 }
+    w.vm.buildInputs()
+    // the form itself is untouched while quick-fire is driving
+    expect(w.vm.form.sales[2]).toBe(95000)
+    expect(w.vm.form.overheads.rent.value).toBe(90000)
+    expect(w.vm.form.markup).toBe(67.9245283)
+    // and unticking restores them to the engine with nothing to undo
+    w.vm.form.quickFire.enabled = false
+    const after = w.vm.buildInputs()
+    expect(after.sales[2]).toBe(95000)
+    expect(Math.round(after.overheads.rent)).toBe(90000)
+    expect(after.markup).toBeCloseTo(0.679245283, 6)
+    w.destroy()
+  })
+
+  test('🔴 it touches THREE fields only — everything else on step 3 is unchanged', () => {
+    // Mike ruled quick-fire replaces the sales line, the mark-up and the overheads. A
+    // growth percentage says nothing about debtor days or a tax rate, and a change that
+    // quietly reached one would be invisible on screen.
+    const w = mountIntake()
+    seeded(w)
+    const before = w.vm.buildInputs()
+    w.vm.form.quickFire.enabled = true
+    w.vm.form.quickFire.years[0] = { salesGrowth: 25, grossMargin: 55, overheadsIncrease: 30 }
+    const after = w.vm.buildInputs()
+    const moved = Object.keys(after).filter(k => JSON.stringify(after[k]) !== JSON.stringify(before[k]))
+    expect(moved.sort()).toEqual(['markup', 'overheads', 'sales'])
+    w.destroy()
+  })
+
+  test('a form saved before quick-fire existed restores with the grid off, not broken', () => {
+    const old = {
+      opening: {}, assets: [], shareholders: [], overheads: {}, sales: zeroes(), purchases: zeroes()
+    }
+    const w = mountIntake({ restore: old })
+    expect(w.vm.form.quickFire.enabled).toBe(false)
+    expect(w.vm.form.quickFire.years).toHaveLength(3)
+    w.destroy()
+  })
+})
