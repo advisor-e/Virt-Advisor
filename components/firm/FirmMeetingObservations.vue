@@ -7,6 +7,16 @@
       |  afterwards — every finding quoting what was said, or saying plainly that it did
       |  not happen.
 
+  //- Whether the points are landing, above the points themselves — a manager reads the result
+  //- before deciding whether to change the list. It renders itself at the FIRM tier only and
+  //- decides that from its own backend read, so nothing here has to know which tier it is on.
+  //- Firm-only is Brief P13, not an omission: nothing derived from a recorded meeting travels
+  //- beyond the firm, because the consent line promises a named client exactly that.
+  //-
+  //- The drawing's "Edit the firm's observation points" button is absent because the editor it
+  //- pointed at is the rest of this same tab. Recorded in that component's head.
+  firm-meeting-patterns(:api-token="apiToken")
+
   //- The KINDS of meeting, above the points inside them (MEETING-TYPES-CASCADE.md slice 2).
   //- It renders itself only at the mentor tier for now and decides that from its own
   //- backend read, so nothing here has to know which tier it is on. When a type is added,
@@ -230,11 +240,12 @@
  * Vue 2 Options API, Pug, Buefy — no exceptions to the house rules.
  */
 import FirmMeetingTypes from '~/components/firm/FirmMeetingTypes.vue'
+import FirmMeetingPatterns from '~/components/firm/FirmMeetingPatterns.vue'
 
 export default {
   name: 'FirmMeetingObservations',
 
-  components: { FirmMeetingTypes },
+  components: { FirmMeetingTypes, FirmMeetingPatterns },
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */

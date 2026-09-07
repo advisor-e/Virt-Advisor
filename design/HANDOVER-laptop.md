@@ -9,54 +9,76 @@
 
 ---
 
-## 2026-09-07 (third session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-07 (fifth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,108 green** (416 suites), lint 0 errors. Seven commits, and **both pull requests
-merged (#64 and #65)** — branch level with `master`, nothing uncommitted.
+Suite **8,185 green** (419 suites), lint 0 errors. Two commits, both pushed — `b745ba2`.
+Nothing uncommitted. Started 1 ahead / 0 behind master; ended 3 ahead / 0 behind.
 
-**4.60 — MYOB filed its fixed assets as CURRENT.** MYOB heads them *"Property, Plant &
-Equipment"*; the section test knew only "fixed" and "non-current", so all six rows fell to
-the current side. `assets` came back empty and 145,300 went to the other-current-asset
-catch-all. The sheet still tied — which is why nothing complained — but every asset opened
-at **zero, so the forecast charged no depreciation for the year**. Fixed via one named
-constant. **4.60 has NOT moved**; it still waits on four real exports.
+**4.58 SLICE 4 IS BUILT — the manager's aggregate.** Screens C3 and C4 of the drawing
+approved 2026-09-01. A firm manager opens the Meeting Review tab and sees whether the
+observation points are landing across the firm this month — counts only, never a name, and
+nothing at all below the ruled gate. New: `server/utils/meetingAggregate.js`,
+`server/routes/meetingPatterns.js`, `components/firm/FirmMeetingPatterns.vue`. 37 new tests.
 
-**4.71 QUICK-FIRE — SLICE 1 BUILT, drawn and approved the same day, five questions ruled.**
-A tick on step 3 opens three rows × three years (growth, margin, overheads). Arithmetic in
-`utils/quickFireForecast.js`, pinned to the drawing's own figures. ⚠ **Slice 2 is the larger
-half and is NOT approved by that drawing** — step 4 draws one year, so the grid collects
-three and shows one. It gets its own drawing.
+**The one thing worth carrying forward: this block deliberately does NOT cascade upward.**
+Every other cascading thing here runs mentor → global → group → firm. This is firm tier
+alone, because Brief **P13** keeps anything derived from a recorded meeting inside the firm
+it came from — the consent line promises a named client exactly that. A tier above the firm
+is answered **403, not an empty screen**, because an empty screen reads as *"your firm did
+nothing"*. If you touch `TAB_TIERS` or the tier chain, this is the one row that is meant to
+look wrong.
 
-**"The sliders do nothing" — they never were broken.** Mike's by-month export was the
-current year, stopped part-way through a month, that month was stripped, and short of twelve
-the seed was refused entirely. He got a **$202,781 loss "on $0 of sales"**, balanced, with
-four live sliders multiplying zero. Proven by driving the real app with Playwright: with
-figures, the same slider moved sales 890,000 → 1,112,500.
+**A real fault the tests caught before it shipped.** The month was read with `getMonth()`,
+so the same twenty meetings fell into different months on a server in Auckland and one in
+London, with nothing on screen to say which had happened. Fixed to UTC; the cost is a
+visible one-day skew at a month boundary, and it is the better of the two.
 
-**🔴 MIKE REVERSED THE SEED RULE — this is the one that touches your files.** A short run
-now **seeds the months it has** and names the ones it does not. The part month is still
-never seeded (a wrong figure vs a missing one). Step 4 also gained an **amber** band when a
-forecast has no sales at all.
+**Three rulings from Mike, each put to him alone.**
+
+- **4.71's last open question:** a new forecast opens at one year. Recorded as a seventh
+  ruling on [`mockups/three-way-forecast-three-years.html`](mockups/three-way-forecast-three-years.html).
+  No code changed — it already did.
+- **"Read my reports"** is his wording, and is now **pinned** in
+  `tests/unit/meetingReview.component.test.js`. Do not reword it.
+- **The cohort floor applies per point**, not only to the screen. His ruling now, not our
+  reading of it.
 
 ### 🔴 DESKTOP — read this first
 
-- **Shared files changed:** `server/routes/report.js` (the monthly-seed block),
-  `threeWayForecastAssembler.js` (now returns `salesSeededMonths`),
-  `ThreeWayForecastIntake.vue` (per-month tagging + quick-fire), `ThreeWayForecastReport.vue`
-  (the no-sales band), `locales/en.json`. **Two of your route tests changed** —
-  `threeWayForecastIntakeRoute.test.js` pinned "short runs seed nothing" and now pins the
-  opposite.
+- **Shared files changed:** `design/ARTEFACTS.md` (the Meeting Review row, the consent row,
+  and a new *Letters drafted for Mike to send* table), `design/features/to-do-items.json`
+  (4.58 and 4.71), `server/restify-server.js` (one route mounted),
+  `server/utils/meetingAudioStore.js` (`listMeetingIds` added — additive, ids only).
+- **You are 18 ahead / 14 behind `master`** as of your last push. Merge `master` in before
+  going further; today's forecast work and the MYOB parser fix are both in it.
 - **The OpenAI account is still OUT OF CREDITS.** Economic analysis fails for every user.
-- Your 2026-09-07 handover was read. Nothing of 4.70's was touched.
+
+### Open, and named rather than left to be discovered
+
+- **Three decisions inside slice 4 are OURS, not his rulings**, all named in Brief §5: the
+  month read in UTC; a meeting contributing only once it has coaching notes; and the bar
+  turning amber below 70%. He has not ruled on any of the three, and none changes a figure.
+- **The "Share with my manager" button is still absent, and slice 4 did NOT unblock it.**
+  `ARTEFACTS.md` used to say it waited on the aggregate existing. That reasoning was wrong
+  and is corrected: the aggregate is anonymous by construction, so a named report has
+  nowhere to arrive. It needs its own screen and a separate decision under P2 — **and Mike
+  has not asked for one.**
+- **📧 An email is drafted and waits on Mike to send it:**
+  [`OPENAI-AUDIO-TERMS-EMAIL.md`](OPENAI-AUDIO-TERMS-EMAIL.md), closing item 5 of Brief §4.
+  The other three §4 items — the impact assessment, staff consultation, and a lawyer per
+  market — are his and block a first real recording, not a commit.
 
 ### Next
 
-**4.71 slice 2** — the three-year step 4. Needs a drawing and Mike's approval before code.
+**4.58's remaining work** is follow-through across meetings, transcript expiry, and
+meeting-types slices 3–4 (slice 3 is one computed property in `FirmMeetingTypes.vue`). The
+firm glossary is absent by his ruling and needs words from him, not code.
+
 **4.69** still owes one run on the no-date path once credits return. **4.60** waits on four
-real exports; MYOB's fixed-asset gap is now closed.
+real exports from QuickBooks Online and MYOB, and whoever collects them should be asked for
+the Fixed Asset Schedule at the same time (**4.65**).
 
-⚠ Worth knowing, not filed: driving the app with Playwright, `setInputFiles` on step 1
-never triggered an intake POST — no error either. It may be a harness artefact rather than
-a real fault, so it is recorded here rather than as a task nobody can reproduce.
+**Nine live items.** `activeOn` this laptop: **4.58** and **4.69**.
 
-**Nine live items.** 4.71 `activeOn` this laptop.
+⚠ **The desktop's handover is dated 2026-09-04 but its branch has a commit from 2026-09-07** —
+a session ended there without writing one. Worth knowing before assuming what it holds.

@@ -114,6 +114,11 @@ function _chunkName (seq) {
  * @param {string} owner.firmId - the verified scope from the JWT
  * @param {string} owner.advisor - the signed-in advisor's identifier
  * @param {string} [owner.scenarioId] - the meeting type chosen in the pre-set
+ * @param {string} [owner.clientId] - which client this meeting is with, from the firm's own
+ *   register. The ID ONLY, never the name: a firm may rename a client and the record must not
+ *   keep a stale label, and this file already holds the most sensitive material in the app.
+ *   It is what makes follow-through possible — March's agreed actions can only be checked
+ *   against April's meeting if both are known to be with the same business.
  * @param {number} owner.retentionMonths - the figure the advisor was shown and spoke aloud
  * @returns {{meetingId: string, meta: object}}
  */
@@ -127,6 +132,11 @@ function createMeeting (owner) {
     firmId: (owner && owner.firmId) || null,
     advisor: (owner && owner.advisor) || null,
     scenarioId: (owner && owner.scenarioId) || null,
+    // Which client, from the firm's own register. Null when the advisor recorded without
+    // choosing one — follow-through then has nothing to match on, and says so rather than
+    // guessing from the advisor and the meeting type, which would check one client's agreed
+    // actions against another client's transcript and look entirely reasonable doing it.
+    clientId: (owner && owner.clientId) || null,
     // Stored because it is what the advisor SAID OUT LOUD. A firm that later moves its dial
     // must not retrospectively change what a client was told at this meeting.
     retentionMonths: (owner && owner.retentionMonths) || null,
@@ -381,6 +391,28 @@ function destroyMeeting (meetingId) {
   return { removed, bytesRemoved, meetingRemains }
 }
 
+/**
+ * Every meeting id this store currently holds.
+ *
+ * 🔴 IDS ONLY, AND DELIBERATELY SO. The manager's aggregate is the only caller, and it still has
+ * to go through `readMeta` and prove a firm owns each record before counting it. Returning the
+ * records themselves would hand a caller a pile of meetings it had never shown it may see, which
+ * is the shape every other function here is built to refuse.
+ *
+ * Names that do not match a minted id are ignored rather than trusted — the directory is on a
+ * real disk and may hold anything.
+ *
+ * @returns {Array<string>}
+ */
+function listMeetingIds () {
+  try {
+    return fs.readdirSync(audioRoot()).filter(n => MEETING_ID_PATTERN.test(n))
+  } catch (_e) {
+    // No directory yet is not an error: it is a server where no meeting has been recorded.
+    return []
+  }
+}
+
 /** Store the transcript beside the meeting record, once the audio has become text. */
 function writeTranscript (meetingId, transcript) {
   fs.writeFileSync(
@@ -396,6 +428,57 @@ function readTranscript (meetingId) {
   } catch (_e) {
     return null
   }
+}
+
+/**
+ * Destroy the TEXT a meeting left behind — the transcript and both reports — keeping the
+ * meeting record itself.
+ *
+ * 🔴 THIS IS THE OTHER HALF OF P8, AND IT RETURNS ITS PROOF like `destroyAudio` does. A firm
+ * sets how long transcripts are kept and the client is shown that figure before they agree;
+ * this is what makes that number true rather than decorative.
+ *
+ * 🔴 THE REPORTS GO WITH THE TRANSCRIPT, and that is the whole point rather than a side effect.
+ * Every finding in the coaching notes quotes the transcript verbatim, and the summary is written
+ * from it. Expiring `transcript.json` alone would delete the file and keep the client's own words
+ * in two others — the letter of the promise kept and its substance broken. It is the same
+ * argument `destroyMeeting` already makes for "stop and delete".
+ *
+ * ⚠ THE MEETING RECORD SURVIVES on purpose. `meeting.json` holds no client content — a firm id,
+ * an advisor id, dates and counts — and it is what lets anyone afterwards prove the expiry ran
+ * rather than that a directory quietly went missing.
+ *
+ * @param {string} meetingId
+ * @returns {{removed: number, bytesRemoved: number, textRemains: boolean}}
+ */
+function destroyTranscript (meetingId) {
+  const dir = _meetingDir(meetingId)
+  const text = [TRANSCRIPT_FILE, _reportName('summary'), _reportName('coaching')]
+
+  let removed = 0
+  let bytesRemoved = 0
+  text.forEach((n) => {
+    const file = path.join(dir, n)
+    try {
+      bytesRemoved += fs.statSync(file).size
+      fs.unlinkSync(file)
+      removed += 1
+    } catch (_e) {
+      // Already gone, or could not be removed. The re-read below decides which.
+    }
+  })
+
+  // Verified, not assumed — the same reason `destroyAudio` re-reads.
+  const textRemains = text.some((n) => {
+    try {
+      fs.accessSync(path.join(dir, n))
+      return true
+    } catch (_e) {
+      return false
+    }
+  })
+
+  return { removed, bytesRemoved, textRemains }
 }
 
 /**
@@ -444,6 +527,7 @@ module.exports = {
   MAX_MEETING_BYTES,
   audioRoot,
   createMeeting,
+  listMeetingIds,
   readMeta,
   updateMeta,
   isOwnedBy,
@@ -453,6 +537,7 @@ module.exports = {
   readAssembled,
   destroyAudio,
   destroyMeeting,
+  destroyTranscript,
   writeTranscript,
   readTranscript,
   writeReport,

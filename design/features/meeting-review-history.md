@@ -3,8 +3,10 @@
 > **Read [`meeting-review.md`](meeting-review.md) first.** That page is the rules. If the two
 > disagree, **the Brief wins**.
 >
-> ⚠ **The feature is not built.** This History therefore records how the design was arrived at,
-> not what happened to a running feature. Nothing below describes code.
+> ⚠ **This page records how the design was arrived at, and what each build found on the way** —
+> §§1–7 are the design sessions, §8 is the build record. **Six slices are built, the last of them with its own approved drawing** (see the Brief);
+> the line that used to stand here saying nothing was built was true on 2026-09-01 and has been
+> replaced rather than left with a date beside it.
 
 ---
 
@@ -49,8 +51,11 @@ technical ground under it had been checked.
 | Whether the promise binds the code | **Yes — P13, "nothing leaves the firm"** | Rejected: leaving it as a caution inside a wording document, where a developer would never read it. |
 | Sending a transcript to an LLM at all | **Granted — for this feature and no other**, written into `CLAUDE.md` with four conditions | Rejected: a flat exception with no conditions, which would have exempted DB IDs and identifiers along with the spoken words; and treating the client's consent as sufficient on its own, which confuses the legal basis with the engineering rule. See §5. |
 
-**The names of the two reports were NOT settled** and remain open. *Meeting Summary* and *Advisor
-Review* appear throughout the Brief as placeholders and carry no approval.
+**The names of the two reports were not settled in the exchange above** — they were ruled later the
+same day: **Meeting Summary** for the client and **My Coaching Notes** for the advisor, *Advisor
+Review* rejected because inside a firm "review" reads as an appraisal. The Brief's §5 Known state
+carries the ruling; this paragraph used to say the names remained open, which stopped being true on
+the day it was written.
 
 **The fifth ruling also corrected a factual assumption in the design**, which is worth recording
 because the correction made the feature cheaper rather than dearer. The Brief was written on the
@@ -196,7 +201,7 @@ mechanism that makes the advisor report trustworthy at all**, and any later chan
   will contradict some of it, and when it does, the Brief is corrected and the contradiction is
   recorded here.
 
-## 8. The build record, 2026-09-01 to 2026-09-04
+## 8. The build record, 2026-09-01 to 2026-09-07
 
 Moved here from the live list on 2026-09-03, when item 4.58's comment — 1,388 words, appended by
 seven sessions — was cut to the list's word caps. What the Brief already states as current fact is
@@ -231,9 +236,9 @@ not repeated; this is the sequence, and the things found on the way.
   marked by a point's author, never judged by the model. Three absences: "Actions agreed" moved out
   of the "no AI" block; no "Discard" (stop-and-delete removes the whole meeting); no "Share with my
   manager" until the aggregate exists. Two stale banners removed ("Recording is not built yet",
-  "The two reports are not built yet"). **One label is not Mike's:** "Read my reports" on the
-  recorder's finished state — written so the reports screen was reachable, still waiting on his
-  word.
+  "The two reports are not built yet"). **One label was written for the build and was not Mike's:**
+  "Read my reports" on the recorder's finished state — **ruled by him on 2026-09-07** and now
+  pinned, "my" carrying P2 in a label the way "My Coaching Notes" does.
 - **2026-09-02, renumbered 4.56 → 4.58** by the laptop on Mike's ruling; both machines had filed a
   4.56 and the desktop's CPD item reached master first. 4.57 was skipped, not reused.
 - **2026-09-02, the meeting types cascade.** Mike ruled that types themselves cascade ("dynamic,
@@ -255,3 +260,64 @@ not repeated; this is the sequence, and the things found on the way.
   Fixed by restamping as `inherited`, matching `meetingTypes.js`. **The badge also flipped on
   unrelated edits** — the full-resolve path already stamped correctly, so making any decision
   switched the scope out of the faulty branch; the second new test pins the two paths together.
+- **2026-09-07, slice 4 — the manager's aggregate.** Screens C3 and C4 of the drawing approved on
+  2026-09-01, built on Mike's word "finish the meeting review". **The design question it turned on
+  was not in the drawing:** the ruled gate — 5 advisors and 20 meetings — protects the SCREEN, but
+  a point checked in only three of the month's meetings would still print "1 / 3" underneath it,
+  which is the exact reversal the gate exists to prevent. Put to him the same day and **ruled: the
+  floor applies per point too**, the accepted cost being that a newly added point shows nothing
+  for its first month or two. He also ruled the one label that had been ours, *"Read my reports"*. **A real fault was caught by writing the test first:** the
+  month was read with `getMonth()`, so the same twenty meetings would fall into different months on
+  a server in Auckland and one in London, with nothing on screen to say which had happened. Fixed to
+  UTC, at the cost of a visible one-day skew at a month boundary — the better of the two, because
+  the count no longer depends on where the server sits. **The tier direction is the other thing
+  worth keeping:** this is the only block here that must NOT cascade upward (P13), so a tier above
+  the firm is answered 403 rather than an empty screen, which would read as "your firm did nothing".
+  37 new tests, suite 8,184 green (419 suites), lint 0.
+- **2026-09-07, slice 5 — transcript expiry.** Built the same day on Mike's *"finish the meeting
+  review"*, closing the half of P8 he had deliberately deferred on 2026-09-01. **The design
+  question was which clock**, and the answer was already written down: `createMeeting` stores
+  `retentionMonths` as it stood on the day, with its own comment saying *"a firm that later moves
+  its dial must not retrospectively change what a client was told at this meeting."* So each
+  meeting expires against its own record and never against the firm's live setting — resolving the
+  current dial would silently extend a transcript somebody was promised would be gone. **The
+  second question was scope, and it is the one worth arguing:** the two reports go with the
+  transcript, because every coaching finding quotes it verbatim and the summary is written from
+  it. Expiring `transcript.json` alone would delete one file and leave the client's own words in
+  two others — the letter of the promise kept and its substance broken, which is the same argument
+  `destroyMeeting` already makes for stop-and-delete. **A meeting with no recorded period is never
+  purged, only counted:** it cannot be expired against a promise nobody can produce. The meeting
+  record survives, stamped `transcriptPurgedAt`, so an expiry is provable rather than a directory
+  that quietly went missing. The sweep runs daily from the server's listen callback — never at
+  import, so requiring `restify-server.js` in a test deletes nothing — and its timer is `unref`'d.
+  14 new tests.
+- **2026-09-07, slice 6 — follow-through, and the client on the meeting record.** Built on Mike's
+  *"yes"* to follow-through, after being shown that it could not be built as it stood. **A meeting
+  record held the firm, the advisor, the meeting type and the retention period — but not which
+  client the meeting was with**, so the only available match was advisor plus meeting type. That
+  would have checked one client's agreed actions against a different client's transcript, and the
+  result would have read as an ordinary report with real actions, real quotes and real timestamps.
+  🔴 **The note that had blocked this was factually wrong.** Slice 2 left the client off the
+  recording bar — which the approved drawing shows as *"End of year meeting · Whitfield & Co"* —
+  on a recorded deviation saying *"there is no client record to draw a name from"*. The register
+  had existed since 2026-07-14 (`/api/clients`), with approved wording already in the locale file.
+  So adding the picker was a **return to the approved drawing**, not new scope, and it is worth
+  noticing that a wrong sentence in the artefact register held a feature back for six days.
+  **The check rides the coaching call rather than a third prompt:** each prior action becomes one
+  more point in the same request, so the citation guard applies unchanged — quote this transcript
+  or answer NOT FOUND, and an invented quote is dropped. Advisor-only quotes are right here rather
+  than incidental: the question is whether the ADVISER returned to the action, and a client raising
+  it unprompted is not the adviser following it through. **Three refusals are deliberate and
+  tested:** another client, another advisor (P2), and a meeting with no client are never matched,
+  and an expired previous meeting is reported as expired rather than as "no actions agreed". **The screen was drawn rather than added quietly**, because the approved
+  drawing had no panel for it: `design/mockups/meeting-review-follow-through.html`, three screens,
+  **approved by Mike the same day with all four questions ruled** one at a time. 🔴 **The ruling
+  worth carrying forward is the labels:** *"You raised it"* / *"Not raised"*, with **"Done" / "Not
+  done" rejected because the software cannot know it** — it hears an hour in a room and nothing of
+  the months between, so a client who did send the forecast and simply did not mention it would
+  have been reported as having failed to. The heading is *"Since we last met"*, the block sits
+  above the observation points, and the expired panel names the firm's own retention period. **The
+  build then found one thing the drawing had settled but the code had not:** `buildBlock` returned
+  null for every empty case, which would have made an expired previous meeting render exactly like
+  a meeting where nothing was agreed. It now says which kind of empty it is, and a test pins the
+  three apart. 21 new tests in all.

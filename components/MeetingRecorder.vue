@@ -73,6 +73,12 @@
         |  reliable. Your coaching notes will say so rather than guess.
       //- Slice 3 replaced the "not built yet" note that stood here. This is the only route
       //- to the reports, so without it the screen they live on is unreachable.
+      //-
+      //- 🔴 "Read my reports" IS MIKE'S WORDING — ruled 2026-09-07, and it is load-bearing.
+      //- "My" carries P2 in a label: the reports belong to the advisor, and the screen says so
+      //- before they open it, exactly as "My Coaching Notes" does. It was written for the build
+      //- on 2026-09-02 and flagged as ours until he ruled. Pinned by
+      //- tests/unit/meetingReview.component.test.js — do not reword it.
       .buttons.mt-3
         b-button(type="is-primary" tag="a" :href="`/meeting-review?meeting=${meetingId}`")
           | Read my reports
@@ -142,6 +148,12 @@ export default {
     apiToken: { type: String, required: true },
     /** The meeting type chosen in the pre-set, from `data/logic_trees.json`. */
     scenarioId: { type: String, default: '' },
+    /**
+     * Which client this meeting is with, from the firm's register. Empty is allowed and means
+     * "not for a particular client" — the meeting is then never compared with a previous one,
+     * because follow-through matches on the client and will not guess.
+     */
+    clientId: { type: String, default: '' },
     /** The advisor's observation points, shown while the meeting runs. */
     points: { type: Array, default: () => [] }
   },
@@ -229,7 +241,10 @@ export default {
 
       try {
         const started = await this.call('POST', '/api/meeting/recordings', {
-          scenarioId: this.scenarioId || null
+          scenarioId: this.scenarioId || null,
+          // The backend checks this against the firm's own register and refuses an id that is
+          // not on it, so a wrong value fails loudly rather than attaching the wrong business.
+          clientId: this.clientId || null
         })
         this.meetingId = started.meetingId
         this.retentionPhrase = started.retentionPhrase || this.retentionPhrase
