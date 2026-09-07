@@ -268,7 +268,7 @@
         "detail": "Found 2026-09-08 building the advisor's own level: the same fault in the new code was caught by a route test. Filed on Mike's instruction the same day."
       },
       "touches": "server/utils/meetingObservations.js - nextOwnPointId and its JSDoc; the own-row shape in readDecisionMap, which would need a per-scenario high-water mark; tests/unit/meetingObservations.test.js.",
-      "note": "THE FIX IS ALREADY WRITTEN one level down: meetingObservationsAdvisor.nextAdvisorPointId takes a stored high-water mark beside the live rows, and the advisor's own row is kept when it empties because that row carries the mark. Porting it means adding nextSeq to the manager's own-row shape, which all four manager tiers share - which is why it was not done inside an approved slice.",
+      "note": "THE FIX IS ALREADY WRITTEN one level down: meetingObservationsAdvisor.nextAdvisorPointId takes a stored high-water mark beside the live rows, and the advisor's own row is kept when it empties because that row carries the mark. Porting it means adding nextSeq to the manager's own-row shape, which all four manager tiers share - which is why it was not done inside an approved slice. ⚠ A SECOND CONSEQUENCE, found by review 2026-09-08: an advisor's declines survive a point being removed, so a reused id can deliver a brand-new firm point to that advisor ALREADY set aside, and inflate the manager's set-aside count.",
       "comment": "2026-09-08 - found while building the advisor's own level and filed on Mike's instruction the same day, rather than fixed in passing: it changes storage shared by all four manager tiers."
     },
     {
@@ -291,6 +291,69 @@
       "touches": "server/routes/economicAnalysis.js (MODEL, TOOLS, TOOL_CHOICE, the streamed run and the section parser), server/report/economicAnalysis/researchResult.js, utils/researchText.js, and ECONOMIC-ANALYSIS-TEST-RUNS.md, which holds the run evidence.",
       "note": "THE SIGNATURE IS ONE SEARCH. All three runs made exactly one web search, returned 616-884 completion tokens in 18-27 seconds, and failed SECTIONS_MISSING twice and SECTION_UNSOURCED once. The only accepted run ever, run 15, made FOURTEEN searches and 133,654 tokens - and used a probe OUTSIDE the repository, not this route. tool_choice is already 'required', which guarantees one search and not more, so it is not the cause. The raw reply is never logged, so the next step is seeing what the model actually returns.",
       "comment": "2026-09-08 - found by running 4.69's outstanding check once the OpenAI credits were topped up. Five consecutive route runs have now failed: 13 and 14 on 2026-09-07, and three today. The record's claim that 4.69 was proven live rested on run 15, which did not go through the route."
+    },
+    {
+      "ref": "4.74",
+      "name": "The advisor's hint words reach no code",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "An advisor can enter hint phrases against a point they wrote, and nothing in the app ever reads them, so a control that shapes nothing looks exactly like one that does.",
+      "risk": "hintWords is read only by cannotHearFindings, which only sees points flagged cannotHear, and an advisor's own point can never carry that flag - it is not offered on screen, rejected as an unknown field by the validator, and forced false on the way out. Nothing looks wrong; the advisor simply types into a field with no effect.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Found 2026-09-08 by /code-review over this branch, the day after the advisor level shipped. Filed on Mike's instruction the same day: \"save them, make them tasks\"."
+      },
+      "touches": "Nothing yet - it is a decision before it is a change. Then either components/MeetingPreset.vue and the advisor write routes in server/routes/meetingObservations.js if the field comes off, or server/utils/meetingReports.js if it is wired into report generation.",
+      "note": "🔴 A DECISION FOR MIKE, NOT A FIX FOR US. Two ways out and they are opposites: the hint-words field comes off the advisor's screen, or report generation is taught to read it. Both change what an advisor sees, so neither is ours to choose. ⚠ The validation fixed in ea08233 sits on this same field - if it comes off the screen, that fix goes with it.",
+      "comment": "2026-09-08 - found by /code-review and filed on Mike's instruction the same day."
+    },
+    {
+      "ref": "4.75",
+      "name": "Two advisors saving at once, and one loses their work",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 5,
+      "scoreReason": "security, privacy or data integrity",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Every advisor in a firm read-modify-writes the same per-firm config row, and the save has no compare-and-set, so the second write silently overwrites the first.",
+      "risk": "Both advisors are answered 200 and neither is told anything was lost. The window is small - it needs two people in one firm saving their own level inside the same read-write - but nothing on any screen would ever reveal it, and the advisor's list is what the coaching report is written from.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Found 2026-09-08 by /code-review over this branch. Filed on Mike's instruction the same day: \"save them, make them tasks\"."
+      },
+      "touches": "server/routes/meetingObservations.js (writeAdvisorMap and the four advisor write routes) and server/utils/firmOverlay.js (saveFirmConfig), which every firm-overlay feature in the app shares - which is why this is not a quick edit.",
+      "note": "⚠ THE FIX TOUCHES SHARED STORAGE. saveFirmConfig carries no version, so making this safe means either a compare-and-set on the row or moving each advisor's state to a key of its own - and every other firm-overlay feature reads through that same function. It deserves its own proposal rather than being added to the end of a day's work.",
+      "comment": "2026-09-08 - found by /code-review and filed on Mike's instruction the same day."
+    },
+    {
+      "ref": "4.76",
+      "name": "A middle tier's rewording is badged as Advisor-e's",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "When a global or group manager rewords a platform point, the advisor is told it came from Advisor-e, because the point keeps the platform id and reaches the firm marked inherited.",
+      "risk": "Small and cosmetic today, but the badge exists to send an advisor to whoever can answer for the wording, and this sends them to the wrong place. sourceTierOf's own JSDoc claims to prevent exactly this; it catches the firm's own override and not a middle tier's.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Found 2026-09-08 by /code-review over this branch. Filed on Mike's instruction the same day: \"save them, make them tasks\"."
+      },
+      "touches": "server/utils/meetingObservationsAdvisor.js (sourceTierOf), and - this is the cost - server/utils/resolveInheritedRows.js and server/utils/meetingObservations.js, because the tier that last changed a point is not carried through the cascade at all. meetingTypes.js resolves through the same helper.",
+      "note": "⚠ NOT THE SMALL FIX IT LOOKS. Each tier deliberately RESTAMPS source relative to whoever is looking - itself the fix for item 4.59 on 2026-09-04 - so by the time a point reaches the firm, the fact that a middle tier rewrote it has been erased by design. Getting it right means carrying the last-changing tier through resolveInheritedRows, which the meeting-types cascade shares. The fallback is already the safe direction: an unrecognised id says firm, never platform.",
+      "comment": "2026-09-08 - found by /code-review and filed on Mike's instruction the same day."
     }
   ]
 }

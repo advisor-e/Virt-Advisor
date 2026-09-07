@@ -46,8 +46,11 @@ repository sees; the two never both appear, and the build stops if they would.
 | 9 | **4.71** Quick-fire forecast — three years from percentages, not twelve months typed ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 10 | **4.72** A removed observation point's id is handed to the next one added ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 11 | 🔒 **4.73** Economic analysis fails on its default path ⚠ *not yet ranked by Mike* | 4 | 4.69 - its regression check cannot pass while no route run can succeed | Us | — |
+| 12 | **4.74** The advisor's hint words reach no code ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 13 | **4.75** Two advisors saving at once, and one loses their work ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
+| 14 | **4.76** A middle tier's rewording is badged as Advisor-e's ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Eleven live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Fourteen live items. Six need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
