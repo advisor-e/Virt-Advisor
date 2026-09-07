@@ -525,7 +525,13 @@
               span.tw-dot
               h2.tw-h2 {{ $t('report.threeWayForecast.assume.salesHeading') }}
             .mgrid
-              .m(v-for="(label, i) in monthLabels" :key="'s' + i" :class="{ seeded: form.salesSource === 'seeded' }")
+              //- Only the months that actually came from the file carry the seeded tag.
+              //- A month the export never reached is the advisor's to fill in, and a
+              //- "starting point" badge on it would say the opposite of the truth.
+              .m(
+                v-for="(label, i) in monthLabels"
+                :key="'s' + i"
+                :class="{ seeded: isSeededMonth(i), needsyou: needsAMonth(i) }")
                 span.lbl {{ label }}
                 b-input(v-model.number="form.sales[i]" type="number" step="any" size="is-small")
             p.tw-note
@@ -537,6 +543,11 @@
                 :seeded-label="$t('report.threeWayForecast.confirm.startingPoint')")
               span(v-if="form.salesSource === 'seeded'")  {{ $t('report.threeWayForecast.assume.seededNote', { total: money(salesTotal) }) }}
               span(v-else) {{ money(salesTotal) }}
+            //- The months the export could not reach. Named one by one rather than
+            //- counted, so the advisor knows which boxes are theirs without working it
+            //- out from a number (Mike's ruling, 2026-09-07).
+            p.tw-needsyou(v-if="monthsNeedingYou.length")
+              | ⚠ {{ $tc('report.threeWayForecast.assume.monthsNeeded', monthsNeedingYou.length, { months: monthsNeedingYou.join(', ') }) }}
 
           //- The volatility read. Built from the approved drawing
           //- design/mockups/three-way-forecast-volatility.html (approved 2026-09-03),
@@ -1487,6 +1498,24 @@ export default {
       return marginFromMarkup(this.quickFireBase.markup)
     },
 
+    /**
+     * The months a dropped export could not reach, by name.
+     *
+     * Mike's ruling of 2026-09-07: bring in the months the file has and say which are
+     * still owed. Named rather than counted — "December and January" tells an advisor
+     * where to look; "two months" makes them count the boxes.
+     *
+     * @returns {Array<string>}
+     */
+    monthsNeedingYou () {
+      if (this.form.salesSource !== 'seeded') { return [] }
+      const out = []
+      for (let i = 0; i < MONTHS; i++) {
+        if (this.needsAMonth(i)) { out.push(this.monthLabels[i]) }
+      }
+      return out
+    },
+
     /** Last year's overheads, for the base column of the grid. @returns {number} */
     quickFireBaseOverheads () {
       const b = this.quickFireBase.overheads
@@ -2260,6 +2289,28 @@ export default {
     /** A whole-number percentage for display. @param {number} v */
     pct (v) { return this.num(v, 1) + '%' },
 
+    /**
+     * Did month `i` come from the file? (Mike's ruling, 2026-09-07.)
+     * @param {number} i the month's position, 0-11.
+     * @returns {boolean}
+     */
+    isSeededMonth (i) {
+      return this.form.salesSource === 'seeded' && i < (this.form.salesSeededMonths || 0)
+    },
+
+    /**
+     * Is month `i` one the file could not reach, and therefore the advisor's to enter?
+     *
+     * Only asked where a file WAS dropped — with no file at all every month is the
+     * advisor's and marking twelve of them adds nothing.
+     *
+     * @param {number} i the month's position, 0-11.
+     * @returns {boolean}
+     */
+    needsAMonth (i) {
+      return this.form.salesSource === 'seeded' && i >= (this.form.salesSeededMonths || 0)
+    },
+
     /** @param {Array<number>} list @returns {number} */
     sumOf (list) {
       let total = 0
@@ -2323,6 +2374,17 @@ export default {
       if (!form.quickFire || typeof form.quickFire !== 'object' || !Array.isArray(form.quickFire.years)) {
         form.quickFire = this.blankForm().quickFire
       }
+      // A form saved before the partial seed existed carries no count. It was saved from a
+      // full twelve or from typed figures, so it reads as whichever its own source says —
+      // never as a partial one, which would mark months amber that nothing is missing from.
+      // ⚠ The SAVED object is asked, not `form`: the blank it was merged over already
+      // carries a numeric 0, so a `typeof` test on `form` can never tell the two apart.
+      const savedCount = this.restore && typeof this.restore.salesSeededMonths === 'number'
+        ? this.restore.salesSeededMonths
+        : null
+      form.salesSeededMonths = savedCount === null
+        ? (form.salesSource === 'seeded' ? MONTHS : 0)
+        : savedCount
       if (!Array.isArray(form.overseas.shipments)) { form.overseas.shipments = [] }
       if (!form.overseas.shipmentTerms || typeof form.overseas.shipmentTerms !== 'object') {
         form.overseas.shipmentTerms = blankOverseas.shipmentTerms
@@ -2383,6 +2445,8 @@ export default {
         shareholderRate: 5,
         sales: zeroes(),
         salesSource: 'entered',
+        /** How many of the twelve months came from a file (Mike's ruling, 2026-09-07). */
+        salesSeededMonths: 0,
         // The quick-fire option (item 4.71, drawing approved by Mike 2026-09-07). It starts
         // OFF and its three years start blank, which the module reads as "the same again" —
         // so a form that has never been touched forecasts exactly what it forecast before.
@@ -2715,6 +2779,14 @@ export default {
       if (Array.isArray(p.sales) && p.sales.length === MONTHS) {
         this.form.sales = p.sales.slice()
         this.form.salesSource = prov.sales === 'seeded' ? 'seeded' : 'entered'
+        // 🔴 HOW MANY OF THE TWELVE ARE REAL (Mike's ruling, 2026-09-07). A current-year
+        // export stops part-way through a month, so a short run is the ordinary case, not
+        // the exception. Only the months that came through are tagged as seeded — tagging
+        // all twelve would put a "starting point" badge on a zero the advisor has to fill
+        // in themselves, which is the badge saying the opposite of the truth.
+        this.form.salesSeededMonths = typeof data.salesSeededMonths === 'number'
+          ? data.salesSeededMonths
+          : (prov.sales === 'seeded' ? MONTHS : 0)
       }
 
       // The whole run, which is what the volatility read measures. Up to 24 months; the
@@ -3530,6 +3602,11 @@ export default {
 .m .lbl { width: 26px; font-size: 11px; color: var(--rs-muted); text-align: right; }
 .m ::v-deep .control { flex: 1; min-width: 0; }
 .m.seeded ::v-deep .input { border-color: #4ca52d59; background: #4ca52d0d; }
+/* A month the export could not reach. Amber against the seeded green, so the two states
+   read apart at a glance and the advisor can see which boxes are theirs to fill in
+   (Mike's ruling, 2026-09-07). */
+.m.needsyou ::v-deep .input { border-color: #ff990059; background: #ff99000d; }
+.tw-needsyou { font-size: 12px; color: #b36b00; margin: 8px 0 0; }
 
 /* Buying and selling capital assets — the row list. Every value is a --rs-* token or a
    measurement copied from design/mockups/three-way-forecast-capital.html; the block adds

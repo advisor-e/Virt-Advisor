@@ -355,6 +355,9 @@ function assembleForecastIntake (parsed, monthlySales) {
   }
 
   /* -- last year's monthly sales, as a starting point ONLY ------------------------ */
+  // How many of the twelve carry a real figure. The screen tags only those as seeded, so
+  // an advisor can see at a glance which months are still theirs to fill in.
+  let salesSeededMonths = 0
   if (monthlySales && Array.isArray(monthlySales.sales) && monthlySales.sales.length === MONTHS) {
     let usable = true
     for (let m = 0; m < MONTHS; m++) {
@@ -363,7 +366,16 @@ function assembleForecastIntake (parsed, monthlySales) {
     if (usable) {
       proposal.sales = monthlySales.sales.slice()
       provenance.sales = 'seeded'
-      warnings.push('The twelve months of sales are last year\'s actual figures, offered as a starting point. They are not a forecast until you have changed them.')
+      // How many of the twelve are real. Fewer than twelve is Mike's ruling of 2026-09-07 —
+      // bring in what the file has rather than refusing the lot — and the route has already
+      // said which months are empty and why, so this warning does not repeat it.
+      const complete = typeof monthlySales.complete === 'number' ? monthlySales.complete : MONTHS
+      salesSeededMonths = Math.max(0, Math.min(MONTHS, complete))
+      if (salesSeededMonths === MONTHS) {
+        warnings.push('The twelve months of sales are last year\'s actual figures, offered as a starting point. They are not a forecast until you have changed them.')
+      } else {
+        warnings.push('The ' + salesSeededMonths + ' months that came through are last year\'s actual figures, offered as a starting point. They are not a forecast until you have changed them.')
+      }
     }
   }
   if (!proposal.sales) { provenance.sales = 'entered' }
@@ -404,7 +416,7 @@ function assembleForecastIntake (parsed, monthlySales) {
     warnings.push('Last year\'s Balance Sheet was dropped without last year\'s Profit and Loss, so the two-year comparison could not be made. Drop last year\'s Profit and Loss as well to see it.')
   }
 
-  return { files, proposal, provenance, candidates, trendInputs, blocked: null, warnings }
+  return { files, proposal, provenance, candidates, trendInputs, salesSeededMonths, blocked: null, warnings }
 }
 
 module.exports = { assembleForecastIntake, MAX_FILES, MAX_LOANS, MAX_SHAREHOLDERS, OVERHEAD_TESTS }

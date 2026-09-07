@@ -187,29 +187,53 @@ describe('the by-month file reaches the forecast', () => {
     expect(res.body.data.provenance.sales).toBe('entered')
   })
 
-  test('🔴 short of twelve complete months nothing is seeded, and it says so', async () => {
+  /**
+   * 🔴 MIKE'S RULING, 2026-09-07, REVERSING THE OLD RULE HERE. In his words: "I want it to
+   * bring in the sales and cost figures it DOES have - and notify the user that the
+   * remaining months need to be added manually."
+   *
+   * These two tests pinned the opposite — that a short run seeded NOTHING — and he met the
+   * consequence the same day: a current-year export stopped part-way through a month,
+   * eleven complete months were thrown away, and step 4 showed a $202,781 loss on $0 of
+   * sales that balanced perfectly and whose sliders could not move a figure.
+   *
+   * ⚠ THE HALF OF THE OLD RULE THAT SURVIVES, and these still pin it: the PART month is
+   * left out. `usable` has already had incomplete trailing months stripped, so what is
+   * seeded is whole months only. A month eight days long seeded as a whole one is a WRONG
+   * figure; an empty month is a missing one, and the screen now names which.
+   */
+  test('🔴 a short run brings in the months it HAS, and names the ones it does not', async () => {
     const bs = tempFile(makeXlsx(BS_GRID), '.xlsx')
     const monthly = tempFile(byMonthCsv(6))
 
     const res = await run([bs, monthly])
 
     expect(res.status).toBe(200)
-    // Six months are never stretched into twelve — a made-up month in a seeded series is
-    // worse than no seed, because it carries the same badge as the real ones.
-    expect(res.body.data.proposal.sales).toBeUndefined()
-    expect(res.body.data.provenance.sales).toBe('entered')
-    expect(res.body.data.warnings.join(' ')).toMatch(/twelve/i)
+    expect(res.body.data.proposal.sales).toHaveLength(12)
+    expect(res.body.data.provenance.sales).toBe('seeded')
+    // Six real months, in order, and the rest left empty rather than invented.
+    expect(res.body.data.salesSeededMonths).toBe(6)
+    expect(res.body.data.proposal.sales.slice(6).every(v => v === 0)).toBe(true)
+    expect(res.body.data.proposal.sales.slice(0, 6).every(v => v > 0)).toBe(true)
+    // And it says so, naming both halves.
+    expect(res.body.data.warnings.join(' ')).toMatch(/6 complete months/i)
+    expect(res.body.data.warnings.join(' ')).toMatch(/need your figures/i)
   })
 
-  test('🔴 a mid-year export alone gives no seed; last year’s alongside it gives a full twelve', async () => {
+  test('🔴 a mid-year export alone seeds what it has; last year’s alongside it gives a full twelve', async () => {
     // This year stops after September, so the parser marks Sep partial and Oct–Mar empty:
     // five usable months, and the forecast needs twelve.
     const bs1 = tempFile(makeXlsx(BS_GRID), '.xlsx')
     const alone = await run([bs1, tempFile(byMonthYear(2025, 6))])
 
     expect(alone.status).toBe(200)
-    expect(alone.body.data.proposal.sales).toBeUndefined()
-    expect(alone.body.data.provenance.sales).toBe('entered')
+    expect(alone.body.data.proposal.sales).toHaveLength(12)
+    expect(alone.body.data.provenance.sales).toBe('seeded')
+    expect(alone.body.data.salesSeededMonths).toBeGreaterThan(0)
+    expect(alone.body.data.salesSeededMonths).toBeLessThan(12)
+    // The part month is NOT among them — only whole months are ever seeded.
+    expect(alone.body.data.proposal.sales.slice(alone.body.data.salesSeededMonths)
+      .every(v => v === 0)).toBe(true)
 
     // Drop last year's as well and the twelve are there — Sep 2024 to Aug 2025, taken off
     // the end of a 17-month run. This is the failure the second slot exists to fix.
@@ -220,6 +244,7 @@ describe('the by-month file reaches the forecast', () => {
     expect(both.body.data.blocked).toBeNull()
     expect(both.body.data.proposal.sales).toHaveLength(12)
     expect(both.body.data.provenance.sales).toBe('seeded')
+    expect(both.body.data.salesSeededMonths).toBe(12)
     // The newest usable month is August 2025 — the fifth of this year's file, 44,000 —
     // so the run ends on this year's figures and not last year's.
     expect(both.body.data.proposal.sales[11]).toBe(44000)

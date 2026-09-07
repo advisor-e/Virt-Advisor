@@ -255,6 +255,136 @@ describe('Three-Way Forecast screen — the shared blocks do the work', () => {
   })
 })
 
+/**
+ * 🔴 THE SLIDER ITSELF, NOT `setField`.
+ *
+ * Every other lever test in this file calls `setField()` directly, so the whole path from
+ * the rendered `<input type="range">` to the recompute has never been exercised. Mike
+ * reported on 2026-09-07 that moving a slider on step 4 did nothing, with all 8,095 tests
+ * green — and this is the gap that let both be true at once.
+ *
+ * These drive the real control: find the SliderField, set the native input's value, fire
+ * the event the browser fires, and check a second request actually goes out carrying the
+ * changed figure. Nothing here asserts a label or a class.
+ */
+describe('Three-Way Forecast screen — dragging the real slider, end to end', () => {
+  /** Move the nth slider to `value` the way a browser does, and let the debounce run. */
+  async function drag (w, n, value) {
+    const input = w.findAllComponents({ name: 'SliderField' }).at(n).find('input[type="range"]')
+    input.element.value = String(value)
+    await input.trigger('input')
+    jest.advanceTimersByTime(400) // past reportRecompute's 250 ms debounce
+    await w.vm.$nextTick()
+    await w.vm.$nextTick()
+  }
+
+  beforeEach(() => { jest.useFakeTimers() })
+  afterEach(() => { jest.useRealTimers() })
+
+  test('🔴 dragging the sales slider sends a NEW request with the scaled sales', async () => {
+    const seed = { sales: new Array(12).fill(1000), overheads: { wages: 12000 } }
+    const w = await mountWithResult(SAMPLE, { seed })
+    const before = global.fetch.mock.calls.length
+    await drag(w, 0, 25) // "Sales, all months" is the first slider
+
+    expect(w.vm.f.salesShift).toBe(25)
+    expect(global.fetch.mock.calls.length).toBeGreaterThan(before)
+    const body = JSON.parse(global.fetch.mock.calls[global.fetch.mock.calls.length - 1][1].body)
+    expect(body.sales.every(v => v === 1250)).toBe(true)
+    w.destroy()
+  })
+
+  test('🔴 dragging the overheads slider reaches the request too', async () => {
+    const seed = { sales: new Array(12).fill(1000), overheads: { wages: 12000 } }
+    const w = await mountWithResult(SAMPLE, { seed })
+    await drag(w, 3, -10) // "Overheads, all lines" is the fourth
+
+    expect(w.vm.f.overheadShift).toBe(-10)
+    const body = JSON.parse(global.fetch.mock.calls[global.fetch.mock.calls.length - 1][1].body)
+    expect(body.overheads.wages).toBeCloseTo(10800, 6)
+    w.destroy()
+  })
+
+  test('🔴 the RENDERED figures change — not just the request body', async () => {
+    // The gap the other two leave: a request can go out, be answered, and the screen
+    // still show the old figures. That is exactly what "the sliders do nothing" looks
+    // like, and nothing in this suite has ever checked the answer reaches the screen.
+    const seed = { sales: new Array(12).fill(1000), overheads: { wages: 12000 } }
+    const bigger = computeThreeWayForecast({ sales: new Array(12).fill(9999), markup: 0.68 })
+    const w = await mountWithResult(SAMPLE, { seed })
+    const revenueBefore = w.vm.headline.revenue
+
+    global.fetch = jest.fn(() => Promise.resolve({
+      json: () => Promise.resolve({ success: true, data: bigger })
+    }))
+    await drag(w, 0, 25)
+    await w.vm.$nextTick()
+
+    expect(w.vm.data).toBe(bigger)
+    expect(w.vm.headline.revenue).not.toBe(revenueBefore)
+    expect(w.vm.error).toBe(false)
+    w.destroy()
+  })
+
+  test('the slider shows the value it was moved to, rather than snapping back', async () => {
+    const seed = { sales: new Array(12).fill(1000), overheads: { wages: 12000 } }
+    const w = await mountWithResult(SAMPLE, { seed })
+    await drag(w, 0, -30)
+    const input = w.findAllComponents({ name: 'SliderField' }).at(0).find('input[type="range"]')
+    expect(Number(input.element.value)).toBe(-30)
+    w.destroy()
+  })
+})
+
+/**
+ * 🔴 A FORECAST WITH NO SALES IN IT.
+ *
+ * Found 2026-09-07 by driving the real app after Mike reported that the sliders "did
+ * nothing". His by-month export ended part-way through a month; that month is stripped as
+ * incomplete, and short of twelve the seed is deliberately not padded — so sales arrived
+ * as twelve zeros while the Balance Sheet and the overheads loaded normally.
+ *
+ * What he was shown: a loss of $202,781 to the dollar, a screen reporting itself in
+ * balance, and four live sliders that could not move a figure, because a percentage of
+ * zero is zero. Nothing on it said the forecast had no sales in it. A person in UAT cannot
+ * catch that — it reads as a business having a bad year.
+ */
+describe('Three-Way Forecast screen — no sales at all', () => {
+  test('🔴 a forecast with no sales says so, rather than presenting a confident loss', async () => {
+    const empty = computeThreeWayForecast({ sales: new Array(12).fill(0), overheads: { wages: 120000 } })
+    const w = await mountWithResult(empty)
+    expect(w.vm.noSales).toBe(true)
+    expect(w.find('.tw-nosales').exists()).toBe(true)
+    w.destroy()
+  })
+
+  test('a forecast that DOES sell says nothing of the kind', async () => {
+    const w = await mountWithResult(SAMPLE)
+    expect(w.vm.noSales).toBe(false)
+    expect(w.find('.tw-nosales').exists()).toBe(false)
+    w.destroy()
+  })
+
+  test('it asks the RESULT, so every route to an empty forecast is covered', async () => {
+    // No file, a short by-month export, and a client opening a saved row all arrive the
+    // same way. Asking the seed would cover one of the three.
+    const w = await mountWithResult(SAMPLE)
+    expect(w.vm.noSales).toBe(false)
+    w.vm.data = computeThreeWayForecast({ sales: new Array(12).fill(0) })
+    await w.vm.$nextTick()
+    expect(w.vm.noSales).toBe(true)
+    w.destroy()
+  })
+
+  test('before the first result lands it claims nothing', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.data = null
+    await w.vm.$nextTick()
+    expect(w.vm.noSales).toBe(false)
+    w.destroy()
+  })
+})
+
 describe('Three-Way Forecast screen — the levers', () => {
   test('a lever moves the request body, not the rendered figures directly', async () => {
     const w = await mountWithResult(SAMPLE)
