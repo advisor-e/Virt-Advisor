@@ -333,10 +333,12 @@ tr:last-child td{border-bottom:0}
 </div>
 
 <div class="banner warn">
-  <b>Drawn 2026-09-07 &middot; not approved &middot; nothing here is built.</b>
+  <b>Drawn 2026-09-07 &middot; &#10003; APPROVED THE SAME DAY, all four questions ruled &middot;
+  the screen is not built yet.</b>
   The matching and the checking ARE built and tested (<code>server/utils/meetingFollowThrough.js</code>),
   and the block is already computed and stored on every coaching report. <b>No screen renders it</b>,
-  which is why this page exists: a screen is drawn and approved before it is built.
+  which is why this page exists: a screen is drawn and approved before it is built. It is now
+  cleared to build, and the wording on it is Mike's.
 </div>
 
 <div class="banner info">
@@ -517,29 +519,52 @@ tr:last-child td{border-bottom:0}
 <!-- questions -->
 <div class="stage s-c">
   <span class="num">3</span>
-  <div><h2>What is being asked</h2>
-       <div class="sub">Four, each with a recommendation and the argument against it.</div></div>
+  <div><h2>Approved &mdash; all four ruled by Mike, 2026-09-07</h2>
+       <div class="sub">One at a time, on his standing instruction. Each ruling is recorded with the
+         recommendation it answered AND the argument put against it, so a later session can see what
+         was weighed rather than only what was chosen. <b>Nothing on this page is open.</b></div></div>
 </div>
 
 <div class="rail">
   <div class="note">
     <ul>
-      <li><b>1 &middot; Where it sits.</b> Recommended: <b>inside My Coaching Notes, above the
-          observation points</b> &mdash; an advisor reads what was outstanding before reading how
-          today went, which is the order the conversation itself had. <i>The argument against:</i>
-          it pushes the observation points, the report's main event, further down the page.</li>
-      <li><b>2 &middot; The heading.</b> Recommended: <b>&ldquo;Since we last met&rdquo;</b>.
-          <i>Rejected:</i> &ldquo;Follow-through&rdquo;, which is our internal word for it and reads
-          like a score; and &ldquo;Last meeting's actions&rdquo;, which is accurate and flat.</li>
-      <li><b>3 &middot; The two state labels.</b> Recommended: <b>&ldquo;You raised it&rdquo;</b> and
-          <b>&ldquo;Not raised&rdquo;</b>. <i>Rejected:</i> &ldquo;Done&rdquo; / &ldquo;Not
-          done&rdquo;, which the software cannot know and which would tell an advisor something
-          untrue about their client; and &ldquo;Found&rdquo; / &ldquo;Not found&rdquo;, which the
-          observation points below already use for a different question.</li>
-      <li><b>4 &middot; Whether the expired panel names the retention period.</b> Recommended:
-          <b>yes</b> &mdash; it turns a deletion into the firm's own policy visibly working.
-          <i>The argument against:</i> it puts a data-retention sentence into a coaching report,
-          which is not what an advisor opened it for.</li>
+      <li style="color:#2f7d32"><b>1 &middot; &#10003; RULED &mdash; inside My Coaching Notes,
+          above the observation points.</b> Mike, 2026-09-07: <b>&ldquo;yes&rdquo;</b>. An advisor
+          reads what was still outstanding before reading how today went, which is the order the
+          conversation itself had; and it puts the block where it will be seen, since below the
+          points it becomes a footnote to a report people stop reading. <i>The argument recorded
+          against it, because it is a real one:</i> the observation points are the report's main
+          event &mdash; the thing Mike asked for in the first place &mdash; and this pushes them
+          down the page, so an advisor opening their notes to see how they did scrolls past three
+          items about last time first.</li>
+      <li style="color:#2f7d32"><b>2 &middot; &#10003; RULED &mdash; the heading is &ldquo;Since we
+          last met&rdquo;.</b> Mike, 2026-09-07: <b>&ldquo;yes&rdquo;</b>. It is the sentence an
+          advisor would actually say opening the meeting, so the list reads as a conversation rather
+          than a scorecard &mdash; which the whole report depends on, since it exists to coach and
+          not to rank. <i>Rejected:</i> &ldquo;Follow-through&rdquo;, our internal word for the
+          feature and one that reads like a performance measure; and &ldquo;Last meeting's
+          actions&rdquo;, accurate, flat, and sounding like an admin list. <i>The argument recorded
+          against it:</i> it does not say what the block contains, so an advisor meeting it for the
+          first time reads a line before they know. <b>Load-bearing; not to be reworded.</b></li>
+      <li style="color:#2f7d32"><b>3 &middot; &#10003; RULED &mdash; the two state labels are
+          &ldquo;You raised it&rdquo; and &ldquo;Not raised&rdquo;.</b> Mike, 2026-09-07, one at a
+          time: <b>&ldquo;you raised it&rdquo;</b>, then <b>&ldquo;yes&rdquo;</b> to the negative
+          label put to him on its own. <i>Rejected:</i> &ldquo;Done&rdquo; / &ldquo;Not done&rdquo;,
+          <b>which the software cannot know</b> &mdash; it hears an hour in a room and knows nothing
+          of the six months between, so a client who did send the forecast and simply did not
+          mention it would be reported as having failed to. And &ldquo;Found&rdquo; / &ldquo;Not
+          found&rdquo;, which the observation points directly below already use for a different
+          question. <i>The argument recorded against the chosen wording:</i> &ldquo;You raised
+          it&rdquo; puts the advisor in the sentence, which is more pointed than the neutral labels
+          underneath. <b>These two strings are load-bearing and are not to be reworded.</b></li>
+      <li style="color:#2f7d32"><b>4 &middot; &#10003; RULED &mdash; the expired panel names the
+          retention period.</b> Mike, 2026-09-07: <b>&ldquo;yes&rdquo;</b>. It turns a deletion from
+          something that looks broken into the firm's own policy visibly working, and it is the one
+          place an advisor ever sees the retention dial having a real consequence. 🔴 <b>The figure
+          is the firm's CURRENT one, rendered</b> &mdash; never a hardcoded 18, for the same reason
+          the consent screen renders it (`meetingRetention.js`). <i>The argument recorded against
+          it:</i> it puts a data-protection sentence into the middle of a coaching report, which is
+          not what an advisor opened it for, and is the sort of line people learn to skip.</li>
     </ul>
   </div>
 </div>
