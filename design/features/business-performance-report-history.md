@@ -57,6 +57,7 @@ of the new 3 way model."*
 | Industry benchmarks | From the Stats NZ Business Performance Benchmarker held in the app; industry finder + size dropdown with each band's turnover range; the prompt keeps five sections (a sixth section was approved and superseded within the hour on Stats NZ's own documentation) | 2026-09-07, Mike, "yes" — with his addition of the advisor field and the size-band headers |
 | Inventory | An inventory-export reader is a stage of this project, not later work | 2026-09-07, Mike: "just make building an inventory reader part of the project - a seperate stage if needed" |
 | Next steps | Advisor-written first; AI draft a later stage with its own privacy ruling | 2026-09-07, Mike, "yes" |
+| The look | The first drawing (portrait, half-empty, its own palette) was rejected: *"The one provided is full and complete, rich in colour and completes the page - why did you avoid following the example?"* Redrawn the same day landscape, slide for slide against the deck, in the brand palette, with a logo place; a disclaimer page added on his instruction | 2026-09-07, Mike |
 | Inventory reader's target layouts | Cin7 Core (12 columns) and Unleashed (11 columns), neither with dates — expected layouts until real files are read; one internal record, two column maps | 2026-09-07, Mike, pasted both layouts with four-row samples and Cin7's parsing characteristics |
 
 ---

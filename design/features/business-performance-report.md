@@ -70,10 +70,22 @@ ported faithfully and recorded, never silently corrected (§3).
 firm's thresholds — the same ones the trend read bands on — never a designer's eye. A colour
 with no rule behind it is decoration that a client will read as a verdict.
 
-**P6 · The look is Mike's deck, and that is a stated deviation.** `report-models.md` P1 says
-every model screen looks identical. That rule was made for advisor-driven screens. This is a
-client document, drawn in the deck Mike supplied. He rules on it on the mockup; if he rules the
-other way, the pages take the report shell's tokens and nothing else here changes.
+**P6 · The look is Mike's deck, slide for slide, in the brand palette** (Mike, 2026-09-07:
+*"apply our brand colours as provided in our rules, apply different colours as required - if
+needed - leave room for the firms logo"*). Landscape 16:9, the deck's composition and density on
+every page; navy, blue, cyan and sky from `utils/brandTokens.js` / `BRAND-TOKENS.md` for the
+report; green, amber and red **only** where a colour signals good, caution or danger, never as
+decoration; a marked place for the firm's logo on the cover and in every footer. The first
+drawing was portrait and half-empty and was rejected the same day — *"whats the point of me
+providing clear direction if you simply choose to ignore it"* — and it is the reason this rule
+is written down. `report-models.md` P1 (every model screen identical) does not apply to a
+client-read document; that is the one stated deviation.
+
+**P11 · The report closes with an Important Information page** (Mike, 2026-09-07: *"we also need
+to include a disclaimer page"*). It says what the report is and is not, where each figure comes
+from, what the benchmarks and the score are, that AI research was advisor-approved, and that the
+report is confidential. **Its wording is a draft until Mike rules it**, and is never regulatory
+advice in itself.
 
 **P7 · Print is the browser's, with no library.** The forecast settled this on 2026-09-06: no
 PDF library runs on Node 14.15, and the browser's own dialog means a client's figures are never
