@@ -9,68 +9,76 @@
 
 ---
 
-## 2026-09-07 (fourth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-07 (fifth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,147 green** (417 suites), lint 0 errors. Two commits, **PR #67 merged** —
-`master` is `d1157fc` and this branch is level with it. Nothing uncommitted.
+Suite **8,185 green** (419 suites), lint 0 errors. Two commits, both pushed — `b745ba2`.
+Nothing uncommitted. Started 1 ahead / 0 behind master; ended 3 ahead / 0 behind.
 
-**4.71 IS COMPLETE — both slices.** Slice 2, the three-year step 4, was drawn, ruled and
-built in one day. **Mike's first ruling replaced the recommendation put to him** (*"three
-years, always"*): *"good point — you should be able to choose 1, 2 or 3 year forecast
-please"*. All six questions ruled one at a time; the drawing is
-[`mockups/three-way-forecast-three-years.html`](mockups/three-way-forecast-three-years.html),
-and every ruling is recorded on it with the argument that was put against it.
+**4.58 SLICE 4 IS BUILT — the manager's aggregate.** Screens C3 and C4 of the drawing
+approved 2026-09-01. A firm manager opens the Meeting Review tab and sees whether the
+observation points are landing across the firm this month — counts only, never a name, and
+nothing at all below the ruled gate. New: `server/utils/meetingAggregate.js`,
+`server/routes/meetingPatterns.js`, `components/firm/FirmMeetingPatterns.vue`. 37 new tests.
 
-**The count reaches the ENGINE, and that was the one thing worth getting right.** The
-tempting build — compute three years, display fewer — would have left a one-year forecast
-reporting a three-year revenue and a lowest cash point in a year nobody asked about. Both
-look entirely reasonable on screen. `yearCount` is now a model input, clamped there rather
-than trusted from the body, and a test pins 890,000 for one year against 2,670,000 for three.
+**The one thing worth carrying forward: this block deliberately does NOT cascade upward.**
+Every other cascading thing here runs mentor → global → group → firm. This is firm tier
+alone, because Brief **P13** keeps anything derived from a recorded meeting inside the firm
+it came from — the consent line promises a named client exactly that. A tier above the firm
+is answered **403, not an empty screen**, because an empty screen reads as *"your firm did
+nothing"*. If you touch `TAB_TIERS` or the tier chain, this is the one row that is meant to
+look wrong.
 
-**What the drawing turned on, and it came out of running the real engine:** three *"same
-again"* years are not copies. On flat sales of 890,000 the sample's profit still climbs
-**14,915 → 23,305 → 30,354** as depreciation falls away and the term loan pays down.
+**A real fault the tests caught before it shipped.** The month was read with `getMonth()`,
+so the same twenty meetings fell into different months on a server in Auckland and one in
+London, with nothing on screen to say which had happened. Fixed to UTC; the cost is a
+visible one-day skew at a month boundary, and it is the better of the two.
+
+**Three rulings from Mike, each put to him alone.**
+
+- **4.71's last open question:** a new forecast opens at one year. Recorded as a seventh
+  ruling on [`mockups/three-way-forecast-three-years.html`](mockups/three-way-forecast-three-years.html).
+  No code changed — it already did.
+- **"Read my reports"** is his wording, and is now **pinned** in
+  `tests/unit/meetingReview.component.test.js`. Do not reword it.
+- **The cohort floor applies per point**, not only to the screen. His ruling now, not our
+  reading of it.
 
 ### 🔴 DESKTOP — read this first
 
-- **Shared files changed, and two of them are yours:**
-  `server/report/threeWayForecastModel.js` (a `yearCount` input, `MAX_FORECAST_YEARS`, the
-  summary reads the last year built rather than `years[2]`) and `locales/en.json` (a
-  `report.threeWayForecast.assume.years` block and a `…report.years` block). Also
-  `server/routes/report.js` (JSDoc only), `ThreeWayForecastIntake.vue`,
-  `ThreeWayForecastReport.vue`, and three test files.
-- ⚠ **`tests/unit/reportHeadlineConsistency.component.test.js` changed** — the forecast row
-  now feeds `computeThreeYearForecast({ yearCount: 1 })`, because the screen calls the
-  three-years route for every forecast. If you add a report model, that guard is unchanged
-  in every other respect.
-- ⚠ **A behaviour-preserving refactor in `ThreeWayForecastReport.vue`:** six row builders
-  were computeds reading the year on screen and are now methods taking the year they build
-  (`cashRowsFor` and friends), with the old computeds as one-line callers. The print needed
-  it — a computed cannot be asked about a year other than the current one.
-- **You are 18 ahead / 14 behind `master`.** Four of those 14 are today's forecast work,
-  including `xeroReportParser.js` from the MYOB fix earlier today — the same file your 4.70
-  stage 2 touched. Merge `master` in before going further.
+- **Shared files changed:** `design/ARTEFACTS.md` (the Meeting Review row, the consent row,
+  and a new *Letters drafted for Mike to send* table), `design/features/to-do-items.json`
+  (4.58 and 4.71), `server/restify-server.js` (one route mounted),
+  `server/utils/meetingAudioStore.js` (`listMeetingIds` added — additive, ids only).
+- **You are 18 ahead / 14 behind `master`** as of your last push. Merge `master` in before
+  going further; today's forecast work and the MYOB parser fix are both in it.
 - **The OpenAI account is still OUT OF CREDITS.** Economic analysis fails for every user.
 
 ### Open, and named rather than left to be discovered
 
-- **The one-year default is OURS, not Mike's ruling.** A new forecast opens at one year,
-  which is exactly what step 4 has always shown. Flagged to him; he has not ruled on it.
-- **One label necessarily changes on a multi-year forecast** — *"Result for the year"* is
-  not true of three, so it reads *"Result over 3 years"*. It is the approved drawing's own
-  wording, but his ruling said the tiles keep their labels, so it is recorded as a deviation.
-- 🔴 **"Gross margin" means two different things on steps 3 and 4** — margin on the goods,
-  and margin after direct costs. Recorded on the drawing and **deliberately NOT filed**: it
-  pre-dates quick-fire, and the screen starts those four direct-cost fields at zero, so an
-  advisor who leaves them alone types 41 and sees 41. An earlier draft of that box quoted a
-  sixteen-point gap taken from the engine's built-in sample; the correction is on the page
-  rather than quietly dropped.
+- **Three decisions inside slice 4 are OURS, not his rulings**, all named in Brief §5: the
+  month read in UTC; a meeting contributing only once it has coaching notes; and the bar
+  turning amber below 70%. He has not ruled on any of the three, and none changes a figure.
+- **The "Share with my manager" button is still absent, and slice 4 did NOT unblock it.**
+  `ARTEFACTS.md` used to say it waited on the aggregate existing. That reasoning was wrong
+  and is corrected: the aggregate is anonymous by construction, so a named report has
+  nowhere to arrive. It needs its own screen and a separate decision under P2 — **and Mike
+  has not asked for one.**
+- **📧 An email is drafted and waits on Mike to send it:**
+  [`OPENAI-AUDIO-TERMS-EMAIL.md`](OPENAI-AUDIO-TERMS-EMAIL.md), closing item 5 of Brief §4.
+  The other three §4 items — the impact assessment, staff consultation, and a lawyer per
+  market — are his and block a first real recording, not a commit.
 
 ### Next
 
-**4.69** still owes one run on the no-date path once credits return — it is the only item
-`activeOn` this laptop. **4.60** waits on four real exports from QuickBooks Online and MYOB,
-and whoever collects them should be asked for the Fixed Asset Schedule at the same time
-(**4.65**, same request to the same person).
+**4.58's remaining work** is follow-through across meetings, transcript expiry, and
+meeting-types slices 3–4 (slice 3 is one computed property in `FirmMeetingTypes.vue`). The
+firm glossary is absent by his ruling and needs words from him, not code.
 
-**Nine live items.** 4.71's `activeOn` cleared — it is done and on `master`.
+**4.69** still owes one run on the no-date path once credits return. **4.60** waits on four
+real exports from QuickBooks Online and MYOB, and whoever collects them should be asked for
+the Fixed Asset Schedule at the same time (**4.65**).
+
+**Nine live items.** `activeOn` this laptop: **4.58** and **4.69**.
+
+⚠ **The desktop's handover is dated 2026-09-04 but its branch has a commit from 2026-09-07** —
+a session ended there without writing one. Worth knowing before assuming what it holds.
