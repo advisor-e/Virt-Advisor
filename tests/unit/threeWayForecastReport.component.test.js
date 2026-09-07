@@ -255,6 +255,66 @@ describe('Three-Way Forecast screen — the shared blocks do the work', () => {
   })
 })
 
+/**
+ * 🔴 THE SLIDER ITSELF, NOT `setField`.
+ *
+ * Every other lever test in this file calls `setField()` directly, so the whole path from
+ * the rendered `<input type="range">` to the recompute has never been exercised. Mike
+ * reported on 2026-09-07 that moving a slider on step 4 did nothing, with all 8,095 tests
+ * green — and this is the gap that let both be true at once.
+ *
+ * These drive the real control: find the SliderField, set the native input's value, fire
+ * the event the browser fires, and check a second request actually goes out carrying the
+ * changed figure. Nothing here asserts a label or a class.
+ */
+describe('Three-Way Forecast screen — dragging the real slider, end to end', () => {
+  /** Move the nth slider to `value` the way a browser does, and let the debounce run. */
+  async function drag (w, n, value) {
+    const input = w.findAllComponents({ name: 'SliderField' }).at(n).find('input[type="range"]')
+    input.element.value = String(value)
+    await input.trigger('input')
+    jest.advanceTimersByTime(400) // past reportRecompute's 250 ms debounce
+    await w.vm.$nextTick()
+    await w.vm.$nextTick()
+  }
+
+  beforeEach(() => { jest.useFakeTimers() })
+  afterEach(() => { jest.useRealTimers() })
+
+  test('🔴 dragging the sales slider sends a NEW request with the scaled sales', async () => {
+    const seed = { sales: new Array(12).fill(1000), overheads: { wages: 12000 } }
+    const w = await mountWithResult(SAMPLE, { seed })
+    const before = global.fetch.mock.calls.length
+    await drag(w, 0, 25) // "Sales, all months" is the first slider
+
+    expect(w.vm.f.salesShift).toBe(25)
+    expect(global.fetch.mock.calls.length).toBeGreaterThan(before)
+    const body = JSON.parse(global.fetch.mock.calls[global.fetch.mock.calls.length - 1][1].body)
+    expect(body.sales.every(v => v === 1250)).toBe(true)
+    w.destroy()
+  })
+
+  test('🔴 dragging the overheads slider reaches the request too', async () => {
+    const seed = { sales: new Array(12).fill(1000), overheads: { wages: 12000 } }
+    const w = await mountWithResult(SAMPLE, { seed })
+    await drag(w, 3, -10) // "Overheads, all lines" is the fourth
+
+    expect(w.vm.f.overheadShift).toBe(-10)
+    const body = JSON.parse(global.fetch.mock.calls[global.fetch.mock.calls.length - 1][1].body)
+    expect(body.overheads.wages).toBeCloseTo(10800, 6)
+    w.destroy()
+  })
+
+  test('the slider shows the value it was moved to, rather than snapping back', async () => {
+    const seed = { sales: new Array(12).fill(1000), overheads: { wages: 12000 } }
+    const w = await mountWithResult(SAMPLE, { seed })
+    await drag(w, 0, -30)
+    const input = w.findAllComponents({ name: 'SliderField' }).at(0).find('input[type="range"]')
+    expect(Number(input.element.value)).toBe(-30)
+    w.destroy()
+  })
+})
+
 describe('Three-Way Forecast screen — the levers', () => {
   test('a lever moves the request body, not the rendered figures directly', async () => {
     const w = await mountWithResult(SAMPLE)
