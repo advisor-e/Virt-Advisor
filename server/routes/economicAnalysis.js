@@ -41,7 +41,7 @@ const { fenceUntrusted } = require('../utils/promptSafety')
 const { sendError } = require('../utils/sendError')
 const { assemblePrompt, loadResolvedAiPromptOverrides } = require('../utils/aiPrompts')
 const { loadFirmConfig } = require('../utils/firmOverlay')
-const { validateResearch } = require('../report/economicAnalysis/researchResult')
+const { validateResearch, extractText } = require('../report/economicAnalysis/researchResult')
 const runsStore = require('../utils/economicAnalysisRuns')
 
 /** The prompt this route runs, as declared in `data/ai-prompts.json`. */
@@ -115,6 +115,42 @@ function logCall (runId, startedAt, success, usage, searches) {
   console.log('[openai] economic-analysis run=' + runId + ' model=' + MODEL +
     ' status=' + (success ? 'ok' : 'error') + ' latency=' + latency + 'ms ' +
     tokens + ' searches=' + searches)
+}
+
+/** How much of a refused reply is logged. Enough to see the shape, not a whole transcript. */
+const REFUSED_REPLY_LOG_CHARS = 4000
+
+/**
+ * The model's own words, when the guard has refused them. Diagnosis only — item 4.73.
+ *
+ * 🔴 WHY THIS EXISTS. Every run through this route failed on the default no-date path on
+ * 2026-09-07 and 2026-09-08, and the reason could not be established because the reply was
+ * validated and then dropped. The refusal code alone cannot tell the two failures apart: runs
+ * 17 and 19 lost ALL FIVE sections, which means no numbered heading was recognised at all,
+ * while run 18 parsed cleanly and simply cited nothing. Those want different fixes, and the
+ * text is the only thing that says which. See `design/ECONOMIC-ANALYSIS-TEST-RUNS.md`.
+ *
+ * ⚠ NOT IN PRODUCTION, deliberately. Nothing about a client reaches this prompt on its own
+ * (Mike's ruling, 2026-09-06), so there is no PII exception in play — but the reply can quote
+ * back the brief the ADVISOR typed, and an advisor's words should not accumulate in a
+ * production log for a diagnosis that only ever happens on a developer's machine.
+ *
+ * @param {string} runId
+ * @param {object} response - the completed OpenAI response
+ * @returns {void}
+ */
+function logRefusedReply (runId, response) {
+  if (process.env.NODE_ENV === 'production') { return }
+  try {
+    const { text } = extractText(response)
+    const body = String(text || '')
+    console.error('[economic-analysis] run ' + runId + ' raw reply (' + body.length +
+      ' chars, first ' + REFUSED_REPLY_LOG_CHARS + '):\n' +
+      body.slice(0, REFUSED_REPLY_LOG_CHARS))
+  } catch (err) {
+    // A diagnostic must never be the thing that breaks the run it is diagnosing.
+    console.error('[economic-analysis] run ' + runId + ' raw reply unavailable:', err.message)
+  }
 }
 
 /**
@@ -297,6 +333,7 @@ async function runResearch (run, promptText) {
       // The detail is for the log and for whoever reads it next — never for the response.
       console.error('[economic-analysis] run ' + run.runId + ' refused: ' +
         checked.error.code + ' ' + JSON.stringify(checked.error.detail))
+      logRefusedReply(run.runId, completed)
       runsStore.failRun(run, checked.error.code, checked.error.message)
       return
     }
