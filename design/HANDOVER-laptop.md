@@ -11,74 +11,88 @@
 
 ## 2026-09-07 (fifth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,185 green** (419 suites), lint 0 errors. Two commits, both pushed — `b745ba2`.
-Nothing uncommitted. Started 1 ahead / 0 behind master; ended 3 ahead / 0 behind.
+Suite **8,220 green** (421 suites), lint 0 errors, `npm run build` succeeds. Ten commits,
+**PR #68 merged** — `master` is `6be6a7c` and this branch is level with it, **0 ahead, 0
+behind**. Nothing uncommitted.
 
-**4.58 SLICE 4 IS BUILT — the manager's aggregate.** Screens C3 and C4 of the drawing
-approved 2026-09-01. A firm manager opens the Meeting Review tab and sees whether the
-observation points are landing across the firm this month — counts only, never a name, and
-nothing at all below the ruled gate. New: `server/utils/meetingAggregate.js`,
-`server/routes/meetingPatterns.js`, `components/firm/FirmMeetingPatterns.vue`. 37 new tests.
+**MEETING REVIEW IS COMPLETE ON BOTH SIDES.** Three slices built today on Mike's *"finish the
+meeting review"*, each decision put to him one at a time.
 
-**The one thing worth carrying forward: this block deliberately does NOT cascade upward.**
-Every other cascading thing here runs mentor → global → group → firm. This is firm tier
-alone, because Brief **P13** keeps anything derived from a recorded meeting inside the firm
-it came from — the consent line promises a named client exactly that. A tier above the firm
-is answered **403, not an empty screen**, because an empty screen reads as *"your firm did
-nothing"*. If you touch `TAB_TIERS` or the tier chain, this is the one row that is meant to
-look wrong.
+- **Slice 4 — the manager's aggregate.** Counts per observation point across the firm this
+  month, nothing below 5 advisors and 20 meetings.
+- **Slice 5 — transcript expiry.** P8's other half. The clock a client is shown now runs.
+- **Slice 6 — follow-through**, with its own approved drawing
+  [`mockups/meeting-review-follow-through.html`](mockups/meeting-review-follow-through.html).
 
-**A real fault the tests caught before it shipped.** The month was read with `getMonth()`,
-so the same twenty meetings fell into different months on a server in Auckland and one in
-London, with nothing on screen to say which had happened. Fixed to UTC; the cost is a
-visible one-day skew at a month boundary, and it is the better of the two.
+### 🔴 THE THREE THINGS A LATER SESSION WOULD OTHERWISE GET WRONG
 
-**Three rulings from Mike, each put to him alone.**
+1. **The manager aggregate is FIRM TIER ALONE and refuses every tier above — 403, not an
+   empty screen.** That is Brief **P13**, not a missing cascade: nothing derived from a
+   recorded meeting leaves the firm it came from, because the consent line promises a named
+   client exactly that. If you are editing `TAB_TIERS` or the tier chain, this is the one row
+   meant to look wrong.
+2. **"Done" / "Not done" is not available on follow-through, ever.** The software hears an
+   hour in a room and knows nothing of the months between, so it cannot say whether an action
+   happened — only whether the adviser came back to it. Mike's labels are **"You raised it"**
+   and **"Not raised"**, and they are load-bearing.
+3. 🔴 **THE JARGON TILE IS CLOSED. Mike REMOVED it on 2026-09-02.** It is **not** waiting on him
+   for a word list. This session said so three times and wrote it into the notes; he corrected
+   it — *"nope - read the notes. jargon is not wanted"* — and the Brief now names the
+   regression. **A settled decision turned back into work by paraphrase is the exact failure
+   the rules here exist to stop.** Do not re-raise it.
 
-- **4.71's last open question:** a new forecast opens at one year. Recorded as a seventh
-  ruling on [`mockups/three-way-forecast-three-years.html`](mockups/three-way-forecast-three-years.html).
-  No code changed — it already did.
-- **"Read my reports"** is his wording, and is now **pinned** in
-  `tests/unit/meetingReview.component.test.js`. Do not reword it.
-- **The cohort floor applies per point**, not only to the screen. His ruling now, not our
-  reading of it.
+### Rulings taken today
+
+- **4.71** — a new forecast opens at **one year**. The last open question on quick-fire; no code
+  changed, it already did.
+- **4.58** — **"Read my reports"** is his wording, now pinned by a test in
+  `meetingReview.component.test.js`.
+- **4.58** — the **cohort floor applies per point**, not only to the screen.
+- **4.58** — the follow-through screen: placement, heading, both labels, and the expired panel
+  naming the retention period. All four recorded on the drawing with the argument put against
+  each.
+
+### Two faults the tests caught before they shipped
+
+- **The aggregate read the month with `getMonth()`**, so the same twenty meetings fell into
+  different months on a server in Auckland and one in London, with nothing on screen to say
+  which had happened. Now UTC.
+- **`buildBlock` returned null for every empty follow-through case**, so an expired previous
+  meeting would have rendered exactly like a meeting where nothing was agreed — a fact about
+  the retention clock read as a fact about the client.
 
 ### 🔴 DESKTOP — read this first
 
-- **Shared files changed:** `design/ARTEFACTS.md` (the Meeting Review row, the consent row,
-  and a new *Letters drafted for Mike to send* table), `design/features/to-do-items.json`
-  (4.58 and 4.71), `server/restify-server.js` (one route mounted),
-  `server/utils/meetingAudioStore.js` (`listMeetingIds` added — additive, ids only).
-- **You are 18 ahead / 14 behind `master`** as of your last push. Merge `master` in before
-  going further; today's forecast work and the MYOB parser fix are both in it.
+- **You are 18 ahead / 25 BEHIND `master`.** It was 14 this morning; PR #68 added the rest.
+  **Merge `master` in before touching anything.**
+- **Shared files that moved:** `server/restify-server.js`, `server/utils/meetingAudioStore.js`
+  (three additive functions), `server/utils/meetingReports.js`, `server/routes/meetingReview.js`,
+  `components/MeetingReview.vue`, `components/MeetingRecorder.vue`, `pages/meeting-record.vue`,
+  `design/ARTEFACTS.md`, `design/features/to-do-items.json`.
+- ⚠ **Your handover is dated 2026-09-04 but your branch has a commit from 2026-09-07** — a
+  session ended there without writing one. Nobody here knows what that day did.
 - **The OpenAI account is still OUT OF CREDITS.** Economic analysis fails for every user.
 
 ### Open, and named rather than left to be discovered
 
-- **Three decisions inside slice 4 are OURS, not his rulings**, all named in Brief §5: the
-  month read in UTC; a meeting contributing only once it has coaching notes; and the bar
-  turning amber below 70%. He has not ruled on any of the three, and none changes a figure.
-- **The "Share with my manager" button is still absent, and slice 4 did NOT unblock it.**
-  `ARTEFACTS.md` used to say it waited on the aggregate existing. That reasoning was wrong
-  and is corrected: the aggregate is anonymous by construction, so a named report has
-  nowhere to arrive. It needs its own screen and a separate decision under P2 — **and Mike
-  has not asked for one.**
+- **Three slice-4 decisions are OURS, not his rulings**, all named in Brief §5: the month read
+  in UTC; a meeting counting only once it has coaching notes; and the bar turning amber below
+  70%. None changes a figure.
+- **"Share with my manager" is still absent, and slice 4 did NOT unblock it.** The register used
+  to say it waited on the aggregate existing; that reasoning was wrong and is corrected — the
+  aggregate is anonymous by construction, so a named report has nowhere to arrive. It needs its
+  own screen and a separate decision under P2, **and Mike has not asked for one.**
 - **📧 An email is drafted and waits on Mike to send it:**
-  [`OPENAI-AUDIO-TERMS-EMAIL.md`](OPENAI-AUDIO-TERMS-EMAIL.md), closing item 5 of Brief §4.
-  The other three §4 items — the impact assessment, staff consultation, and a lawyer per
-  market — are his and block a first real recording, not a commit.
+  [`OPENAI-AUDIO-TERMS-EMAIL.md`](OPENAI-AUDIO-TERMS-EMAIL.md), closing §4 item 5.
 
 ### Next
 
-**4.58's remaining work** is follow-through across meetings, transcript expiry, and
-meeting-types slices 3–4 (slice 3 is one computed property in `FirmMeetingTypes.vue`). The
-firm glossary is absent by his ruling and needs words from him, not code.
+**Meeting Review's remaining code is meeting-types slices 3 and 4** — slice 3 is one computed
+property in `FirmMeetingTypes.vue`; slice 4 needs a storage shape for the two levels below the
+firm. **§4's five non-coding items gate a first real client recording** and are Mike's.
 
-**4.69** still owes one run on the no-date path once credits return. **4.60** waits on four
-real exports from QuickBooks Online and MYOB, and whoever collects them should be asked for
-the Fixed Asset Schedule at the same time (**4.65**).
+**4.69** still owes one run on the no-date path once credits return. **4.60** waits on four real
+exports from QuickBooks Online and MYOB — ask for the Fixed Asset Schedule at the same time
+(**4.65**, one request to one person).
 
 **Nine live items.** `activeOn` this laptop: **4.58** and **4.69**.
-
-⚠ **The desktop's handover is dated 2026-09-04 but its branch has a commit from 2026-09-07** —
-a session ended there without writing one. Worth knowing before assuming what it holds.
