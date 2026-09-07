@@ -446,6 +446,68 @@ same bakery brief, the same path as runs 17–20 — and recorded on
 
 ---
 
+## 7d. Banned sources — PROPOSED wording, awaiting Mike's approval
+
+**Status: PROPOSED, NOT APPLIED.** Mike's instruction, 2026-09-08: *"ban information from
+redit"*, after run 21's accepted research cited `reddit.com` among eighteen sources. He approved
+the approach the same day: a line in the prompt **and** a check in the guard, with the list held
+as data so it stays on the AI Prompts screen.
+
+### Why both, and not just the prompt
+
+An instruction the model may quietly not follow is not a ban. This was settled the same morning:
+`tool_choice: 'required'` *guaranteed* one search and produced exactly one. §3 already says
+*"prefer primary and official sources"* — and the model cited Reddit anyway.
+
+### One source of truth, on a screen
+
+`reddit.com` is written **once**, as `bannedSourceHosts` on the economic-analysis prompt in
+`data/ai-prompts.json`. The §3 sentence renders it through a `{{bannedSources}}` placeholder —
+the same mechanism `{{today}}` and `{{advisorBrief}}` already use in `fillPlaceholders` — and the
+guard reads the same array. Writing the host in prose as well would be two copies to keep in
+step, which is the drift this repo has a skill for avoiding.
+
+It is data rather than code **because content that shapes AI output has to be visible on a hub
+page**. The prompt already renders on the **AI Prompts** tab at all four tiers, so the list is
+on a screen you already have, and a site can be added there without a developer. Hardcoded in
+`researchResult.js` it would be invisible and would need a screen of its own.
+
+**Scope: `reddit.com` only.** Mike named one site. Forums and user-generated content generally
+would be a wider ban and is his decision, not an inference from this one. The mechanism is a
+list so that decision costs nothing later.
+
+### The two pieces of wording, for approval
+
+**1 · Added to §3 (How to research), after "A single source is a data point, not an outlook."**
+
+> These sources are not permitted and must not be cited: `{{bannedSources}}`. If the only
+> support you can find for a point is there, treat that point as unsourced and say so in
+> section 5.
+
+**2 · The refusal the advisor sees**, if the model cites one anyway. Code
+`SOURCE_NOT_PERMITTED`, in the register beside `TOO_FEW_SOURCES` and `SECTION_UNSOURCED`:
+
+> The research cited a source that is not permitted in a report a lender will read, so it has
+> been refused rather than shown. Run it again.
+
+The banned host itself goes to the **server log only**, as `detail`, exactly as every other
+refusal here does — never into the response.
+
+### One detail that would otherwise be a hole
+
+`hostOf` strips `www.` and nothing else, so `old.reddit.com` and `np.reddit.com` would pass a
+naive equality check. The guard matches a host that **equals** a banned entry **or ends with
+`.` + that entry**, so subdomains are caught and `notreddit.com` is not.
+
+### What it costs
+
+About six lines in `validateResearch` where the citation hosts are already computed for
+`TOO_FEW_SOURCES`, one line in `fillPlaceholders`, the array and sentence in the prompt, and
+tests: a banned host refused, a subdomain refused, a look-alike domain allowed, and an ordinary
+run unaffected.
+
+---
+
 ## 8. Rules of this page
 
 - **It is wording, and wording lives in one place.** When a section changes, replace it here
