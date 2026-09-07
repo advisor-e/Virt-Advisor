@@ -9,54 +9,68 @@
 
 ---
 
-## 2026-09-07 (third session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-07 (fourth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,108 green** (416 suites), lint 0 errors. Seven commits, and **both pull requests
-merged (#64 and #65)** — branch level with `master`, nothing uncommitted.
+Suite **8,147 green** (417 suites), lint 0 errors. Two commits, **PR #67 merged** —
+`master` is `d1157fc` and this branch is level with it. Nothing uncommitted.
 
-**4.60 — MYOB filed its fixed assets as CURRENT.** MYOB heads them *"Property, Plant &
-Equipment"*; the section test knew only "fixed" and "non-current", so all six rows fell to
-the current side. `assets` came back empty and 145,300 went to the other-current-asset
-catch-all. The sheet still tied — which is why nothing complained — but every asset opened
-at **zero, so the forecast charged no depreciation for the year**. Fixed via one named
-constant. **4.60 has NOT moved**; it still waits on four real exports.
+**4.71 IS COMPLETE — both slices.** Slice 2, the three-year step 4, was drawn, ruled and
+built in one day. **Mike's first ruling replaced the recommendation put to him** (*"three
+years, always"*): *"good point — you should be able to choose 1, 2 or 3 year forecast
+please"*. All six questions ruled one at a time; the drawing is
+[`mockups/three-way-forecast-three-years.html`](mockups/three-way-forecast-three-years.html),
+and every ruling is recorded on it with the argument that was put against it.
 
-**4.71 QUICK-FIRE — SLICE 1 BUILT, drawn and approved the same day, five questions ruled.**
-A tick on step 3 opens three rows × three years (growth, margin, overheads). Arithmetic in
-`utils/quickFireForecast.js`, pinned to the drawing's own figures. ⚠ **Slice 2 is the larger
-half and is NOT approved by that drawing** — step 4 draws one year, so the grid collects
-three and shows one. It gets its own drawing.
+**The count reaches the ENGINE, and that was the one thing worth getting right.** The
+tempting build — compute three years, display fewer — would have left a one-year forecast
+reporting a three-year revenue and a lowest cash point in a year nobody asked about. Both
+look entirely reasonable on screen. `yearCount` is now a model input, clamped there rather
+than trusted from the body, and a test pins 890,000 for one year against 2,670,000 for three.
 
-**"The sliders do nothing" — they never were broken.** Mike's by-month export was the
-current year, stopped part-way through a month, that month was stripped, and short of twelve
-the seed was refused entirely. He got a **$202,781 loss "on $0 of sales"**, balanced, with
-four live sliders multiplying zero. Proven by driving the real app with Playwright: with
-figures, the same slider moved sales 890,000 → 1,112,500.
-
-**🔴 MIKE REVERSED THE SEED RULE — this is the one that touches your files.** A short run
-now **seeds the months it has** and names the ones it does not. The part month is still
-never seeded (a wrong figure vs a missing one). Step 4 also gained an **amber** band when a
-forecast has no sales at all.
+**What the drawing turned on, and it came out of running the real engine:** three *"same
+again"* years are not copies. On flat sales of 890,000 the sample's profit still climbs
+**14,915 → 23,305 → 30,354** as depreciation falls away and the term loan pays down.
 
 ### 🔴 DESKTOP — read this first
 
-- **Shared files changed:** `server/routes/report.js` (the monthly-seed block),
-  `threeWayForecastAssembler.js` (now returns `salesSeededMonths`),
-  `ThreeWayForecastIntake.vue` (per-month tagging + quick-fire), `ThreeWayForecastReport.vue`
-  (the no-sales band), `locales/en.json`. **Two of your route tests changed** —
-  `threeWayForecastIntakeRoute.test.js` pinned "short runs seed nothing" and now pins the
-  opposite.
+- **Shared files changed, and two of them are yours:**
+  `server/report/threeWayForecastModel.js` (a `yearCount` input, `MAX_FORECAST_YEARS`, the
+  summary reads the last year built rather than `years[2]`) and `locales/en.json` (a
+  `report.threeWayForecast.assume.years` block and a `…report.years` block). Also
+  `server/routes/report.js` (JSDoc only), `ThreeWayForecastIntake.vue`,
+  `ThreeWayForecastReport.vue`, and three test files.
+- ⚠ **`tests/unit/reportHeadlineConsistency.component.test.js` changed** — the forecast row
+  now feeds `computeThreeYearForecast({ yearCount: 1 })`, because the screen calls the
+  three-years route for every forecast. If you add a report model, that guard is unchanged
+  in every other respect.
+- ⚠ **A behaviour-preserving refactor in `ThreeWayForecastReport.vue`:** six row builders
+  were computeds reading the year on screen and are now methods taking the year they build
+  (`cashRowsFor` and friends), with the old computeds as one-line callers. The print needed
+  it — a computed cannot be asked about a year other than the current one.
+- **You are 18 ahead / 14 behind `master`.** Four of those 14 are today's forecast work,
+  including `xeroReportParser.js` from the MYOB fix earlier today — the same file your 4.70
+  stage 2 touched. Merge `master` in before going further.
 - **The OpenAI account is still OUT OF CREDITS.** Economic analysis fails for every user.
-- Your 2026-09-07 handover was read. Nothing of 4.70's was touched.
+
+### Open, and named rather than left to be discovered
+
+- **The one-year default is OURS, not Mike's ruling.** A new forecast opens at one year,
+  which is exactly what step 4 has always shown. Flagged to him; he has not ruled on it.
+- **One label necessarily changes on a multi-year forecast** — *"Result for the year"* is
+  not true of three, so it reads *"Result over 3 years"*. It is the approved drawing's own
+  wording, but his ruling said the tiles keep their labels, so it is recorded as a deviation.
+- 🔴 **"Gross margin" means two different things on steps 3 and 4** — margin on the goods,
+  and margin after direct costs. Recorded on the drawing and **deliberately NOT filed**: it
+  pre-dates quick-fire, and the screen starts those four direct-cost fields at zero, so an
+  advisor who leaves them alone types 41 and sees 41. An earlier draft of that box quoted a
+  sixteen-point gap taken from the engine's built-in sample; the correction is on the page
+  rather than quietly dropped.
 
 ### Next
 
-**4.71 slice 2** — the three-year step 4. Needs a drawing and Mike's approval before code.
-**4.69** still owes one run on the no-date path once credits return. **4.60** waits on four
-real exports; MYOB's fixed-asset gap is now closed.
+**4.69** still owes one run on the no-date path once credits return — it is the only item
+`activeOn` this laptop. **4.60** waits on four real exports from QuickBooks Online and MYOB,
+and whoever collects them should be asked for the Fixed Asset Schedule at the same time
+(**4.65**, same request to the same person).
 
-⚠ Worth knowing, not filed: driving the app with Playwright, `setInputFiles` on step 1
-never triggered an intake POST — no error either. It may be a harness artefact rather than
-a real fault, so it is recorded here rather than as a task nobody can reproduce.
-
-**Nine live items.** 4.71 `activeOn` this laptop.
+**Nine live items.** 4.71's `activeOn` cleared — it is done and on `master`.

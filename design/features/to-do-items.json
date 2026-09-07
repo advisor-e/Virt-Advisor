@@ -230,7 +230,6 @@
       "ref": "4.71",
       "name": "Quick-fire forecast — three years from percentages, not twelve months typed",
       "rankedByMike": false,
-      "activeOn": { "machine": "laptop", "since": "2026-09-07" },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",
