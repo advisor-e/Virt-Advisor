@@ -25,6 +25,7 @@ const { computeImportShipments } = require('../report/importShipmentModel')
 const { computeThreeWayForecast, computeThreeYearForecast, importedRevenuePreview } = require('../report/threeWayForecastModel')
 const { assembleForecastIntake, MAX_FILES: MAX_FORECAST_FILES } = require('../report/intake/threeWayForecastAssembler')
 const { computeTrend } = require('../report/trendModel')
+const { computeDashboardReports } = require('../report/dashboardReportsModel')
 const { loadResolvedTrendThresholds } = require('../utils/forecastTrendThresholds')
 const { listReportModels } = require('../utils/reportModels')
 const { parseUpload, parseForecastUpload } = require('../report/intake/xeroReportParser')
@@ -148,6 +149,41 @@ function eightLevers (req, res, next) {
   } catch (err) {
     console.error('[report] eight-levers compute failed:', err)
     res.send(400, { success: false, error: { code: 'EIGHT_LEVERS_COMPUTE_FAILED', message: 'Could not compute the model from the supplied inputs.' }, timestamp: new Date().toISOString() })
+  }
+  return next()
+}
+
+/**
+ * POST /api/report/dashboard-reports
+ *
+ * The ratio hub behind the Business Performance Report (item 4.70, stage 1): every total and
+ * ratio the Dashboard Reports workbook computes per period, the quarterly comparison, the sales
+ * volatility band and the cash movement summary. Calc-only and therefore anonymous, like every
+ * other calc route here: numbers in, numbers out, nothing stored. Reads of a client's saved
+ * report and file intakes are separate routes and carry their own guards.
+ *
+ * @route POST /api/report/dashboard-reports
+ * @param {object} req.body - `{ yearly: object[], monthly: object[], collectible?: number }` —
+ *   `yearly` newest first, `monthly` oldest first, each period the fifteen account lines (see
+ *   `LINES` in the model) plus `daysInMonth` for a month.
+ *
+ *   🔴 THE ROUTE COMPUTES ONLY WHAT IT IS GIVEN. An absent, empty or non-object body returns
+ *   empty blocks, never the workbook's sample. The model's `DEFAULT_INPUTS` exist for the golden
+ *   test; a live route that quietly served sample figures could put them on a client's page as
+ *   if they were the client's (report-models.md §1, "never quietly both"). Found driving the
+ *   route live on 2026-09-07: Restify hands an empty JSON body over as `{}`, not `undefined`.
+ * @returns {object} { success, data, timestamp } — data is `{ yearly, monthly, quarterly,
+ *   volatility, cashMovement }`; a ratio the sheet would print as 0 on a division error is
+ *   `null` here, never 0.
+ */
+function dashboardReports (req, res, next) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    const data = computeDashboardReports(inputs)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] dashboard-reports compute failed:', err)
+    res.send(400, { success: false, error: { code: 'DASHBOARD_REPORTS_COMPUTE_FAILED', message: 'Could not compute the report from the supplied figures.' }, timestamp: new Date().toISOString() })
   }
   return next()
 }
@@ -967,4 +1003,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, dashboardReports, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }

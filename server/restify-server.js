@@ -205,6 +205,8 @@ server.post('/api/report/working-capital-cycle', reportRoute.workingCapitalCycle
 server.post('/api/report/debtor-drag', reportRoute.debtorDrag)
 server.post('/api/report/margin-breakeven', reportRoute.marginBreakeven)
 server.post('/api/report/eight-levers', reportRoute.eightLevers)
+// The Business Performance Report's ratio hub (item 4.70, stage 1) — calc-only, anonymous.
+server.post('/api/report/dashboard-reports', reportRoute.dashboardReports)
 server.post('/api/report/quick-position', reportRoute.quickPosition)
 server.post('/api/report/ebitda-dcf', reportRoute.ebitdaDcf)
 server.post('/api/report/loan-estimator', reportRoute.loanEstimator)

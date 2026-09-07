@@ -59,6 +59,7 @@ of the new 3 way model."*
 | Next steps | Advisor-written first; AI draft a later stage with its own privacy ruling | 2026-09-07, Mike, "yes" |
 | The look | The first drawing (portrait, half-empty, its own palette) was rejected: *"The one provided is full and complete, rich in colour and completes the page - why did you avoid following the example?"* Redrawn the same day landscape, slide for slide against the deck, in the brand palette, with a logo place; a disclaimer page added on his instruction | 2026-09-07, Mike |
 | Both drawings approved to build from | The client's report (second drawing) and the advisor's six input steps | 2026-09-07, Mike, "yes" to *"Do you approve both drawings to build from, so I start stage one"* |
+| The route never serves the sample | `POST /api/report/dashboard-reports` computes only what it is given; an absent, empty or non-object body returns empty blocks. Found driving it live: Restify hands `{}` for an empty body and the first cut answered `undefined` with the workbook sample, which a page could have mistaken for a client's figures. The unit test had used `undefined` and passed | 2026-09-07, found and fixed the same hour; recorded as the reason the model's defaults stay out of the route |
 | Inventory reader's target layouts | Cin7 Core (12 columns) and Unleashed (11 columns), neither with dates — expected layouts until real files are read; one internal record, two column maps | 2026-09-07, Mike, pasted both layouts with four-row samples and Cin7's parsing characteristics |
 
 ---
