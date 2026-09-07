@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Business Performance Report — optional pages</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,700&family=Open+Sans:wght@400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Business Performance Report — the four OPTIONAL pages, drawn for approval. Item 4.70.
+   2026-09-08. The style sheet below is business-performance-report.html's, copied unchanged,
+   so these pages share the approved report's look exactly; only the pages are new.
+   Why profit changed · Where the cash went · What moves profit · Stock against the accounts.
+   They replace The Eight Levers, Debtor Drag and Valuation on the dropdown — Mike, 2026-09-08:
+   "what else would a quality report require ... not just what have we got lying around".
+   Every figure is the deck's own SAMPLE client and every footer says so. Nothing here is built.
+   Brief: design/features/business-performance-report.md
+   ========================================================================= */
+:root{
+  --navy:#002b64; --blue:#0070c0; --cyan:#00b1e0; --sky:#7fd3f1; --charcoal:#3a3a3a;
+  --good:#4ca52d; --caution:#ff9900; --danger:#ff0000;
+  --tint-navy:#ebeef3; --tint-blue:#ebf4fa; --tint-cyan:#ebf9fd; --tint-sky:#f5fbfe;
+  --tint-good:#eef6ea; --tint-caution:#fff4e5; --tint-danger:#fdeaea;
+  --paper:#ffffff; --ground:#eef3f8; --ink:#002b64; --body:#363636; --muted:#5b6f8a; --line:#d5e1ee;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --sans:"Open Sans",system-ui,"Segoe UI",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{background:var(--ground)}
+body{margin:0;color:var(--body);font:14px/1.45 var(--sans);font-variant-numeric:tabular-nums}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+.wrap{max-width:1320px;margin:0 auto;padding:24px 20px 80px}
+
+/* ---- note to Mike ---- */
+.memo{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:20px 24px;margin:0 0 22px}
+.memo h1{font:700 22px var(--serif);color:var(--navy);margin-bottom:4px}
+.memo p{margin:0 0 8px}
+.memo h2{font:700 14px var(--sans);color:var(--navy);margin:14px 0 6px;letter-spacing:.04em;text-transform:uppercase}
+.memo ul{margin:0;padding-left:20px}
+.memo li{margin:3px 0}
+
+/* ---- advisor controls ---- */
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:0 0 22px;font-size:13px}
+.controls .lbl{color:var(--muted)}
+.pill{border:1px solid var(--line);border-radius:999px;padding:4px 12px;background:var(--paper)}
+.btn{border:1px solid var(--blue);color:var(--blue);border-radius:8px;padding:6px 12px;font-weight:600;background:var(--paper)}
+.btn.primary{background:var(--blue);color:#fff}
+.dd-menu{margin-top:8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);min-width:460px;font-size:12.5px}
+.dd-menu div{display:flex;justify-content:space-between;gap:12px;padding:7px 12px;border-top:1px solid var(--line)}
+.dd-menu div:first-child{border-top:0;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:11px}
+.dd-menu .ok{color:var(--blue);font-weight:600} .dd-menu .no{color:var(--muted)}
+
+/* ---- pages: 16:9 landscape, as the deck ---- */
+.page{position:relative;width:100%;max-width:1280px;aspect-ratio:16/9;background:var(--paper);margin:0 auto 22px;padding:44px 64px 52px;box-shadow:0 2px 14px rgba(0,43,100,.10);overflow:hidden;color:var(--body)}
+.page h2{font:700 38px/1.1 var(--serif);color:var(--navy)}
+.page .sub{color:var(--muted);font-size:16px;margin:8px 0 22px}
+.page h3{font:700 15px var(--sans);color:var(--ink);margin-bottom:10px}
+.foot{position:absolute;left:64px;bottom:20px;display:flex;align-items:center;gap:14px;color:var(--muted);font-size:12px}
+.pno{position:absolute;right:64px;bottom:20px;font-weight:700;color:var(--blue);font-size:14px}
+.logo{display:inline-grid;place-items:center;width:92px;height:26px;border:1px dashed var(--sky);border-radius:4px;color:var(--blue);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;background:var(--tint-sky)}
+.logo.big{width:180px;height:56px;font-size:12px;border-color:var(--cyan);background:rgba(255,255,255,.08);color:var(--sky)}
+.prov{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:999px;padding:2px 8px;border:1px solid var(--line);color:var(--muted);vertical-align:middle;margin-left:6px;background:var(--paper)}
+.prov.file{color:var(--blue);border-color:var(--blue)} .prov.typed{color:#8a5a00;border-color:var(--caution)} .prov.ai{color:#4b3a8a;border-color:#7a6ba8} .prov.stats{color:var(--navy);border-color:var(--navy)}
+.help{display:inline-block;width:14px;height:14px;border-radius:50%;border:1px solid var(--cyan);color:var(--blue);font-size:9.5px;line-height:12px;text-align:center;font-weight:700;margin-left:4px;vertical-align:middle}
+
+/* tiles, as the deck's */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.tile{border-radius:12px;padding:20px 22px 18px;background:var(--tint-blue)}
+.tile.cyan{background:var(--tint-cyan)} .tile.caution{background:var(--tint-caution)} .tile.danger{background:var(--tint-danger)} .tile.navy{background:var(--navy);color:#fff}
+.tile .ic{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;margin-bottom:8px;background:var(--blue);color:#fff;font-weight:700}
+.tile.cyan .ic{background:var(--cyan);color:var(--navy)} .tile.caution .ic{background:var(--caution);color:#fff} .tile.danger .ic{background:var(--danger);color:#fff}
+.tile .v{font:700 40px/1.05 var(--serif);color:var(--navy);margin:2px 0 6px}
+.tile.navy .v{color:#fff}
+.tile .k{font-weight:700;font-size:15px;color:var(--ink)} .tile.navy .k{color:#fff}
+.tile .d{font-size:13px;margin-top:6px}
+.up{color:var(--good);font-weight:600} .down{color:var(--danger);font-weight:600}
+.tile .tag{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)} .tile.caution .tag{color:#8a5a00} .tile.danger .tag{color:#9c2323}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:22px}
+.cols.wide{grid-template-columns:1.25fr 1fr}
+.panel{border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:var(--paper)}
+.panel.soft{background:var(--tint-blue);border-color:transparent}
+.panel.caution{background:var(--tint-caution);border-color:transparent}
+.panel.danger{background:var(--tint-danger);border-color:transparent}
+.list{list-style:none;padding:0;margin:0}
+.list li{display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start;margin:14px 0;font-size:15px}
+.list .ok{width:26px;height:26px;border-radius:50%;background:var(--good);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:700}
+.list .w{width:26px;height:26px;border-radius:6px;background:var(--caution);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:700}
+
+svg{display:block;max-width:100%;height:auto}
+.axis{stroke:var(--line);stroke-width:1} .grid{stroke:var(--line);stroke-width:1;stroke-dasharray:2 3}
+.lab{font:11.5px var(--sans);fill:var(--muted)} .lab.b{fill:var(--ink);font-weight:600}
+.legend{display:flex;gap:16px;font-size:12.5px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left}
+td.n,th.n{text-align:right}
+tr.total td{font-weight:700;background:var(--tint-blue)} tr.total td:first-child{color:var(--navy)}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.pct{color:var(--muted);font-size:12.5px}
+
+/* ratio tiles row (dashboard) */
+.ratios{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-top:22px}
+.ratio{border-radius:12px;padding:16px 16px 14px;background:var(--tint-blue)}
+.ratio.caution{background:var(--tint-cyan)} .ratio.danger{background:var(--tint-sky)}
+.ratio .tag{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)} .ratio.caution .tag{color:#007fa1} .ratio.danger .tag{color:#4b7c8e}
+.ratio .v{font:700 30px/1.1 var(--serif);color:var(--navy);margin:8px 0 10px}
+.ratio .k{font-size:13.5px;color:var(--muted)}
+.light{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.light.g{background:var(--good)} .light.a{background:var(--caution)} .light.c{background:var(--danger)}
+
+/* balance-sheet reading tiles */
+.reads{display:grid;gap:14px;align-content:start}
+.read{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;border-radius:12px;padding:16px 18px;background:var(--tint-blue)}
+.read.caution{background:var(--tint-caution)}
+.read .v{font:700 34px/1.05 var(--serif);color:var(--navy)} .read .k{font-weight:700;font-size:13px;color:var(--ink);margin-top:4px}
+.read .r{font-size:14px}
+.read .r::before{content:"✔";display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--good);color:#fff;font-size:12px;margin-right:10px;vertical-align:-6px}
+.read.caution .r::before{content:"$";background:var(--caution)}
+
+/* cash cycle */
+.cycle{display:grid;grid-template-columns:1fr 34px 1fr 34px 1fr 34px 1.05fr;align-items:stretch;gap:8px}
+.cycle .op{align-self:center;text-align:center;font:700 30px var(--serif);color:var(--muted)}
+.cycle .tile{padding:18px 20px} .cycle .tile .v{font-size:34px}
+.cycle .tile .d{color:var(--muted);font-size:12.5px}
+.drivers{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:18px}
+.drv{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:11.5px;background:var(--paper)}
+.drv .k{font-weight:700;color:var(--ink);line-height:1.2}
+.drv .v{font:700 17px/1.1 var(--serif);color:var(--navy);margin:3px 0 1px}
+.drv .c{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:999px;padding:1px 6px;margin-top:3px}
+.drv .c.uses{background:var(--tint-caution);color:#8a5a00} .drv .c.rel{background:var(--tint-good);color:#2f6b19}
+
+/* contents cards */
+.toc{display:grid;grid-template-columns:1fr 1fr;gap:16px 24px}
+.toc div{display:grid;grid-template-columns:64px 1fr;gap:16px;align-items:center;background:#f4f8fb;border:1px solid var(--line);border-radius:12px;padding:16px 20px}
+.toc .ic{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font:700 22px var(--serif);color:var(--navy);background:var(--tint-cyan)}
+.toc .ic.c{background:var(--tint-caution);color:#8a5a00} .toc .ic.d{background:var(--tint-danger);color:#9c2323}
+.toc b{font-size:18px;color:var(--ink)} .toc small{display:block;color:var(--muted);font-size:13.5px;margin-top:2px}
+
+/* next steps */
+.dark{background:var(--navy);color:#fff}
+.dark h2{color:#fff} .dark .sub{color:var(--sky)}
+.dark .foot,.dark .pno{color:var(--sky)}
+.steps{display:grid;gap:16px;margin-top:26px}
+.step{display:grid;grid-template-columns:56px 1fr;gap:18px;align-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(127,211,241,.25);border-radius:12px;padding:20px 24px}
+.step .ic{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font:700 20px var(--serif);color:#fff;background:var(--caution)}
+.step.b .ic{background:var(--danger)} .step.c .ic{background:var(--cyan);color:var(--navy)}
+.step h3{color:#fff;font-size:20px;margin-bottom:4px} .step p{color:#dbeaf7;font-size:14.5px}
+
+/* cover */
+.cover{background:var(--navy);color:#fff;padding:60px 64px}
+.cover .eyebrow{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--cyan)}
+.cover h2{color:#fff;font-size:76px;line-height:1.05;margin-top:110px;max-width:62%}
+.cover .client{margin-top:36px;font:700 26px var(--sans);color:var(--caution)}
+.cover .period{margin-top:14px;font-size:18px;color:#dbeaf7}
+.cover .by{position:absolute;left:64px;bottom:56px;font-size:15px;color:var(--sky)}
+.cover .note{position:absolute;left:64px;bottom:24px;font-size:13px;color:#8fb2d9;font-style:italic}
+.cover .c1,.cover .c2,.cover .c3{position:absolute;border-radius:50%}
+.cover .c1{width:640px;height:640px;right:-200px;top:-300px;background:var(--blue);opacity:.75}
+.cover .c2{width:420px;height:420px;right:-90px;bottom:-140px;background:var(--cyan);opacity:.85}
+.cover .c3{width:270px;height:270px;right:270px;bottom:-60px;background:var(--caution)}
+.cover .badge{position:absolute;right:120px;top:120px;width:150px;height:150px;border-radius:50%;background:var(--sky);display:grid;place-items:center;color:var(--navy);font:700 54px var(--serif)}
+.cover .logo.big{position:absolute;right:64px;top:44px}
+
+/* score */
+.score{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center}
+.ring{width:150px;height:150px;border-radius:50%;display:grid;place-items:center}
+.ring span{width:112px;height:112px;border-radius:50%;background:var(--paper);display:grid;place-items:center;font:700 42px var(--serif);color:var(--navy)}
+.small{font-size:11.5px;color:var(--muted)}
+
+/* inventory */
+.inv{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.inv .tile .v{font-size:34px}
+
+/* disclaimer */
+.disc p{font-size:13.5px;margin:0 0 10px;max-width:1080px}
+.disc b{color:var(--navy)}
+.ruling{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:var(--tint-danger);color:#9c2323;border-radius:999px;padding:2px 8px;vertical-align:middle}
+
+.src ol{margin:6px 0 0;padding-left:18px;font-size:12px;color:var(--muted)} .src li{margin:2px 0;word-break:break-all}
+.para{font-size:13.5px;margin:0 0 8px} .para b.h{display:block;font:700 15px var(--serif);color:var(--navy);margin:10px 0 3px}
+
+@media print{
+  html,body{background:#fff}
+  .memo,.controls{display:none}
+  .wrap{padding:0;max-width:none}
+  .page{box-shadow:none;margin:0;max-width:none;aspect-ratio:auto;height:100vh;break-after:page;page-break-after:always}
+  @page{size:landscape;margin:0}
+}
+@media (max-width:900px){
+  .page{aspect-ratio:auto;padding:24px 20px 56px}
+  .tiles,.ratios,.inv,.drivers{grid-template-columns:1fr 1fr}
+  .cols,.cols.wide,.toc{grid-template-columns:1fr}
+  .cycle{grid-template-columns:1fr 1fr} .cycle .op{display:none}
+  .cover h2{font-size:44px;margin-top:40px;max-width:100%} .cover .badge,.cover .c1,.cover .c2,.cover .c3{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section class="memo">
+  <h1>Business Performance Report — the four optional pages, drawn for approval</h1>
+  <p>Item 4.70, 2026-09-08. These replace the three optional pages that were on the dropdown only because a model existed — The Eight Levers, Debtor Drag and Valuation — with pages that answer the questions an owner asks of a performance report and that the accounts can honestly support. Same landscape composition, same palette and density as the approved report; the style sheet is the approved drawing's, copied, not redrawn. Every figure is Harbourside's sample data and every footer says so.</p>
+  <h2>The four pages and what each is for</h2>
+  <ul>
+    <li><b>Why profit changed</b> — a bridge from last year's profit to this year's: sales growth, margin, overheads, and the rest. Both profit and loss exports; nothing typed.</li>
+    <li><b>Where the cash went</b> — from this year's profit to the movement in the bank. Two balance sheets and one profit and loss. Drawings are the residual of the equity movement and the page says so.</li>
+    <li><b>What moves profit</b> — what a one percent change in price, volume, cost of sales and overheads each does to profit, ranked; the break-even point and how far sales can fall before a loss. This year's profit and loss only.</li>
+    <li><b>Stock against the accounts</b> — the Cin7 Core or Unleashed export read beside the balance sheet and the cash page: does the file agree with the accounts, where the stock value sits, how much is already sold, who is funding the shelf. Offered only once a stock export has been dropped in. Built after the stage 4 reader.</li>
+  </ul>
+  <h2>What the pages refuse to do</h2>
+  <ul>
+    <li>Sales growth is not split into price and volume — no set of accounts carries units. The bridge says "more sales at last year's margin".</li>
+    <li>What-moves-profit treats cost of sales as moving with sales and overheads as fixed, and prints that assumption beside the figures.</li>
+    <li>No ageing or slow-moving figure comes from the stock file — neither package's export carries a date. That stays the advisor's typed figure on page 6.</li>
+  </ul>
+  <h2>One thing for you to rule</h2>
+  <p>With all four added beside the Outlook page the report reaches sixteen pages counting the cover and the Important Information page — one over the fifteen you set. The drawing counts them as pages 11 to 14 and leaves the cap as it is; the dropdown below simply stops offering pages once the cap is reached, so the advisor chooses. Say the word if the cap should count content pages only.</p>
+</section>
+
+<div class="controls">
+  <span class="lbl">Client</span><span class="pill">Harbourside Kitchen Supplies Ltd</span>
+  <span class="lbl">Period</span><span class="pill">FY2026 · 1 Jul 2025 – 30 Jun 2026</span>
+  <span class="lbl">Pages</span><span class="pill">15 of 15</span>
+  <span><span class="btn">Add a page ▾</span>
+    <div class="dd-menu">
+      <div><span>Optional pages</span><span>Offered only when the figures behind them exist</span></div>
+      <div><span>Why profit changed</span><span class="ok">Both years' accounts · added</span></div>
+      <div><span>Where the cash went</span><span class="ok">Both years' accounts · added</span></div>
+      <div><span>What moves profit</span><span class="ok">This year's accounts · added</span></div>
+      <div><span>Stock against the accounts</span><span class="ok">Cin7 Core export, 30 Jun 2026 · added</span></div>
+      <div><span>Economic &amp; Industry Outlook</span><span class="ok">Research run 2, approved 6 Sep · added</span></div>
+      <div><span>Sales Volatility</span><span class="no">Needs 12 months of sales by month</span></div>
+      <div><span>Loan Servicing</span><span class="no">Needs a loan on the file</span></div>
+      <div><span>Tax Provision</span><span class="no">Needs the firm's tax rates set</span></div>
+    </div>
+  </span>
+  <span class="btn primary">Print or save as PDF</span>
+</div>
+
+<!-- 11 Why profit changed -->
+<section class="page">
+  <h2>Why profit changed</h2>
+  <p class="sub">From last year's profit to this year's — what each part of the business added or took away <span class="prov file">From your accounts, both years</span></p>
+  <div class="cols wide" style="margin-top:0">
+    <div class="panel">
+      <h3>Net profit, FY25 to FY26 ($'000)</h3>
+      <svg viewBox="0 0 620 236" role="img" aria-label="Waterfall: last year's profit, four movements, this year's profit">
+        <line class="grid" x1="40" x2="600" y1="20" y2="20"/><text class="lab" x="8" y="24">500</text>
+        <line class="grid" x1="40" x2="600" y1="110" y2="110"/><text class="lab" x="8" y="114">250</text>
+        <line class="axis" x1="40" x2="600" y1="200" y2="200"/><text class="lab" x="24" y="204">0</text>
+        <rect x="52" y="79.4" width="70" height="120.6" fill="#002b64"/><text class="lab b" x="87" y="72" text-anchor="middle">335</text>
+        <line class="grid" x1="122" x2="142" y1="79.4" y2="79.4"/>
+        <rect x="142" y="33.7" width="70" height="45.7" fill="#4ca52d"/><text class="lab b" x="177" y="27" text-anchor="middle">+127</text>
+        <line class="grid" x1="212" x2="232" y1="33.7" y2="33.7"/>
+        <rect x="232" y="29.7" width="70" height="4" fill="#4ca52d"/><text class="lab b" x="267" y="23" text-anchor="middle">+11</text>
+        <line class="grid" x1="302" x2="322" y1="29.7" y2="29.7"/>
+        <rect x="322" y="29.7" width="70" height="20.5" fill="#ff9900"/><text class="lab b" x="357" y="64" text-anchor="middle">–57</text>
+        <line class="grid" x1="392" x2="412" y1="50.2" y2="50.2"/>
+        <rect x="412" y="50.2" width="70" height="7.2" fill="#ff9900"/><text class="lab b" x="447" y="72" text-anchor="middle">–20</text>
+        <line class="grid" x1="482" x2="502" y1="57.4" y2="57.4"/>
+        <rect x="502" y="57.4" width="70" height="142.6" fill="#0070c0"/><text class="lab b" x="537" y="50" text-anchor="middle">396</text>
+        <g class="lab"><text x="87" y="218" text-anchor="middle">FY25 profit</text><text x="177" y="218" text-anchor="middle">More sales</text><text x="267" y="218" text-anchor="middle">Better margin</text><text x="357" y="218" text-anchor="middle">Overheads</text><text x="447" y="218" text-anchor="middle">Interest, tax, depn</text><text x="537" y="218" text-anchor="middle">FY26 profit</text></g>
+      </svg>
+      <div class="legend"><span><i style="background:#4ca52d"></i>Added to profit</span><span><i style="background:#ff9900"></i>Took from profit</span></div>
+    </div>
+    <div>
+      <table style="font-size:13.5px">
+        <tr><th>Movement</th><th class="n">$'000</th><th>Read as</th></tr>
+        <tr><td>More sales</td><td class="n up">+127</td><td>Revenue up $313K; at last year's 40.6% margin that is $127K more gross profit</td></tr>
+        <tr><td>Better margin</td><td class="n up">+11</td><td>Gross margin 40.6% → 41.0%, worth $11K on this year's sales</td></tr>
+        <tr><td>Overheads</td><td class="n down">–57</td><td>Operating expenses $641K → $698K; wages the largest part</td></tr>
+        <tr><td>Interest, tax &amp; depreciation</td><td class="n down">–20</td><td>$50K → $70K, with the new term loan and this year's asset purchases</td></tr>
+        <tr class="total"><td>Net profit</td><td class="n">335 → 396</td><td>Up $61K, 18.2%</td></tr>
+      </table>
+      <div class="panel soft" style="margin-top:14px"><p style="font-size:14px"><b>In one sentence:</b> Growth did the work this year — $138K of extra gross profit — and rising overheads kept $57K of it. Sales are not split into price and volume: your accounts do not carry units.</p></div>
+    </div>
+  </div>
+  <div class="drivers" style="grid-template-columns:repeat(5,1fr);margin-top:16px">
+    <div class="drv"><div class="k">Revenue</div><div class="v">$2.53M → $2.84M</div><span class="c rel">+12.4%</span></div>
+    <div class="drv"><div class="k">Gross margin</div><div class="v">40.6% → 41.0%</div><span class="c rel">+0.4 pts</span></div>
+    <div class="drv"><div class="k">Overheads, % of sales</div><div class="v">25.4% → 24.6%</div><span class="c rel">grew slower than sales</span></div>
+    <div class="drv"><div class="k">Interest, tax &amp; depreciation</div><div class="v">$50K → $70K</div><span class="c uses">+$20K</span></div>
+    <div class="drv"><div class="k">Net margin</div><div class="v">13.2% → 13.9%</div><span class="c rel">+0.7 pts</span></div>
+  </div>
+  <div class="foot"><span class="logo">Firm logo</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 (sample data) · page added by your advisor</div><span class="pno">11</span>
+</section>
+
+<!-- 12 Where the cash went -->
+<section class="page">
+  <h2>Where the cash went</h2>
+  <p class="sub">A profit of $396K, and the bank moved $15K — this page joins the two <span class="prov file">From your accounts, both years</span></p>
+  <div class="cols wide" style="margin-top:0">
+    <div class="panel">
+      <h3>From profit to the bank, FY26 ($'000)</h3>
+      <svg viewBox="0 0 640 240" role="img" aria-label="Waterfall: net profit through working capital, investment and financing to the bank movement">
+        <line class="grid" x1="30" x2="630" y1="26" y2="26"/><text class="lab" x="2" y="30">438</text>
+        <line class="grid" x1="30" x2="630" y1="126" y2="126"/><text class="lab" x="2" y="130">200</text>
+        <line class="axis" x1="30" x2="630" y1="210" y2="210"/><text class="lab" x="18" y="214">0</text>
+        <rect x="36" y="43.7" width="42" height="166.3" fill="#002b64"/><text class="lab b" x="57" y="38" text-anchor="middle">396</text>
+        <rect x="90" y="26" width="42" height="17.6" fill="#4ca52d"/><text class="lab b" x="111" y="20" text-anchor="middle">+42</text>
+        <rect x="144" y="26" width="42" height="30.3" fill="#ff9900"/><text class="lab b" x="165" y="70" text-anchor="middle">–72</text>
+        <rect x="198" y="56.3" width="42" height="49.6" fill="#ff0000"/><text class="lab b" x="219" y="120" text-anchor="middle">–118</text>
+        <rect x="252" y="82.3" width="42" height="23.5" fill="#4ca52d"/><text class="lab b" x="273" y="76" text-anchor="middle">+56</text>
+        <rect x="306" y="82.3" width="42" height="2.5" fill="#ff9900"/><text class="lab b" x="327" y="99" text-anchor="middle">–6</text>
+        <rect x="360" y="84.8" width="42" height="125.2" fill="#0070c0"/><text class="lab b" x="381" y="79" text-anchor="middle">298</text>
+        <rect x="414" y="84.8" width="42" height="35.7" fill="#ff9900"/><text class="lab b" x="435" y="134" text-anchor="middle">–85</text>
+        <rect x="468" y="68.9" width="42" height="51.6" fill="#4ca52d"/><text class="lab b" x="489" y="63" text-anchor="middle">+123</text>
+        <rect x="522" y="68.9" width="42" height="134.8" fill="#ff0000"/><text class="lab b" x="543" y="63" text-anchor="middle">–321</text>
+        <rect x="576" y="203.7" width="42" height="6.3" fill="#00b1e0"/><text class="lab b" x="597" y="198" text-anchor="middle">+15</text>
+        <g class="lab" style="font-size:9.5px"><text x="57" y="226" text-anchor="middle">Profit</text><text x="111" y="226" text-anchor="middle">Depn</text><text x="165" y="226" text-anchor="middle">Debtors</text><text x="219" y="226" text-anchor="middle">Stock</text><text x="273" y="226" text-anchor="middle">Creditors</text><text x="327" y="226" text-anchor="middle">Other</text><text x="381" y="226" text-anchor="middle">Trading</text><text x="435" y="226" text-anchor="middle">Assets</text><text x="489" y="226" text-anchor="middle">Borrowed</text><text x="543" y="226" text-anchor="middle">Drawings</text><text x="597" y="226" text-anchor="middle">Bank</text></g>
+      </svg>
+    </div>
+    <div>
+      <div class="reads">
+        <div class="read"><div><div class="v">$298K</div><div class="k">Cash from trading</div></div><div class="r">Profit plus depreciation, less the $134K that went into debtors and stock, net of suppliers.</div></div>
+        <div class="read caution"><div><div class="v">$118K</div><div class="k">Absorbed by stock</div></div><div class="r">The largest single use of cash this year — the same stock growth flagged on page 3.</div></div>
+        <div class="read caution"><div><div class="v">$321K</div><div class="k">Drawings &amp; dividends</div></div><div class="r">More than trading generated after buying assets. The $123K borrowed filled the gap. <span class="prov file">from the equity movement</span></div></div>
+      </div>
+      <p class="small" style="margin-top:12px">Drawings and dividends are what is left when this year's profit is set against the change in equity, so they include any capital put in or taken out. Bank: $209K at 1 July 2025 to $224K at 30 June 2026.</p>
+    </div>
+  </div>
+  <div class="drivers" style="grid-template-columns:repeat(5,1fr);margin-top:16px">
+    <div class="drv"><div class="k">Trading</div><div class="v">+$298K</div><span class="c rel">profit, less working capital</span></div>
+    <div class="drv"><div class="k">Assets bought</div><div class="v">–$85K</div><span class="c uses">net capital spend, page 7</span></div>
+    <div class="drv"><div class="k">Borrowed</div><div class="v">+$123K</div><span class="c rel">new loan, net of repayments</span></div>
+    <div class="drv"><div class="k">Drawings &amp; dividends</div><div class="v">–$321K</div><span class="c uses">taken out by the owners</span></div>
+    <div class="drv"><div class="k">Bank</div><div class="v">+$15K</div><span class="c rel">$209K → $224K</span></div>
+  </div>
+  <div class="foot"><span class="logo">Firm logo</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 (sample data) · page added by your advisor</div><span class="pno">12</span>
+</section>
+
+<!-- 13 What moves profit -->
+<section class="page">
+  <h2>What moves profit</h2>
+  <p class="sub">What a one percent change in each of four things does to this year's profit — and how far sales can fall before a loss <span class="prov file">From your accounts, this year</span></p>
+  <div class="cols wide" style="margin-top:0">
+    <div class="panel">
+      <h3>Profit gained from a 1% improvement in each ($'000, on a $396K profit)</h3>
+      <svg viewBox="0 0 620 200" role="img" aria-label="Horizontal bars: the profit effect of a one percent improvement in price, cost of sales, volume and overheads">
+        <g class="lab b"><text x="8" y="34">Price up 1%</text><text x="8" y="78">Cost of sales down 1%</text><text x="8" y="122">Volume up 1%</text><text x="8" y="166">Overheads down 1%</text></g>
+        <rect x="170" y="18" width="320" height="26" fill="#002b64"/><text class="lab b" x="498" y="36">+$28.4K · +7.2%</text>
+        <rect x="170" y="62" width="189" height="26" fill="#0070c0"/><text class="lab b" x="367" y="80">+$16.8K · +4.2%</text>
+        <rect x="170" y="106" width="131" height="26" fill="#00b1e0"/><text class="lab b" x="309" y="124">+$11.6K · +2.9%</text>
+        <rect x="170" y="150" width="79" height="26" fill="#7fd3f1"/><text class="lab b" x="257" y="168">+$7.0K · +1.8%</text>
+      </svg>
+      <p class="small" style="margin-top:8px">Cost of sales is taken to move with sales; overheads, interest and depreciation are taken as fixed for the year. The same one percent the other way costs the same amount.</p>
+    </div>
+    <div>
+      <div class="tiles" style="grid-template-columns:1fr 1fr;gap:16px">
+        <div class="tile navy"><div class="v">$1.87M</div><div class="k" style="color:var(--sky)">Break-even sales</div><div class="d" style="color:#dbeaf7">Sales needed to cover $768K of fixed costs at a 41% margin</div></div>
+        <div class="tile"><div class="v">34%</div><div class="k">Margin of safety</div><div class="d">Sales could fall $967K before the business made a loss</div></div>
+      </div>
+      <div class="panel caution" style="margin-top:16px">
+        <p style="font-size:14.5px"><b>The reading:</b> A price move is worth two and a half times a volume move of the same size, because every extra dollar of price is profit and every extra dollar of volume carries its cost of sales. Holding price through the next supplier round matters more than selling more. <span class="prov typed">advisor</span></p>
+      </div>
+    </div>
+  </div>
+  <div class="drivers" style="grid-template-columns:repeat(5,1fr);margin-top:16px">
+    <div class="drv"><div class="k">Sales</div><div class="v">$2.84M</div><span class="c rel">from your accounts</span></div>
+    <div class="drv"><div class="k">Cost of sales</div><div class="v">$1.68M</div><span class="c uses">taken to move with sales</span></div>
+    <div class="drv"><div class="k">Left after cost of sales</div><div class="v">$1.16M · 41%</div><span class="c rel">the margin the working uses</span></div>
+    <div class="drv"><div class="k">Fixed costs</div><div class="v">$768K</div><span class="c uses">overheads, interest, depreciation</span></div>
+    <div class="drv"><div class="k">Profit</div><div class="v">$396K</div><span class="c rel">= $1.16M – $768K</span></div>
+  </div>
+  <div class="foot"><span class="logo">Firm logo</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 (sample data) · page added by your advisor</div><span class="pno">13</span>
+</section>
+
+<!-- 14 Stock against the accounts -->
+<section class="page">
+  <h2>Stock against the accounts</h2>
+  <p class="sub">Your Cin7 Core stock export at 30 June 2026, read beside the balance sheet and the cash page <span class="prov file">From your stock export</span> <span class="prov file">From your accounts</span></p>
+  <div class="inv">
+    <div class="tile caution"><div class="v">$309K</div><div class="k">Stock file, at cost</div><div class="d">Balance sheet carries $322K — a $13K (4%) gap to explain: goods in transit, or a valuation difference <span class="prov file">both</span></div></div>
+    <div class="tile"><div class="v">$222K</div><div class="k">Not yet sold</div><div class="d">Stock on hand with no customer order against it — 72% of the file. This is the cash to work on.</div></div>
+    <div class="tile cyan"><div class="v">$87K</div><div class="k">Already sold</div><div class="d">Allocated to customer orders and awaiting dispatch — 28%.</div></div>
+    <div class="tile caution"><div class="v">$41K</div><div class="k">On order</div><div class="d">Purchase orders placed, at cost — cash committed but not yet paid. Cin7 carries this; Unleashed does not.</div></div>
+  </div>
+  <div class="cols" style="margin-top:18px">
+    <div class="panel">
+      <h3>Where the $309K sits</h3>
+      <svg viewBox="0 0 520 120" role="img" aria-label="Stacked bar: stock value by category; a second by location">
+        <text class="lab b" x="0" y="16">By category</text>
+        <rect x="0" y="24" width="207" height="26" fill="#002b64"/><rect x="207" y="24" width="115" height="26" fill="#0070c0"/><rect x="322" y="24" width="104" height="26" fill="#00b1e0"/><rect x="426" y="24" width="74" height="26" fill="#7fd3f1"/>
+        <text class="lab b" x="8" y="42" style="fill:#fff">Cookware $128K</text><text class="lab b" x="213" y="42" style="fill:#fff">Appliances $71K</text><text class="lab b" x="328" y="42" style="fill:#002b64">Cutlery $64K</text><text class="lab b" x="432" y="42" style="fill:#002b64">Table $46K</text>
+        <text class="lab b" x="0" y="80">By location</text>
+        <rect x="0" y="88" width="374" height="26" fill="#0070c0"/><rect x="374" y="88" width="126" height="26" fill="#00b1e0"/>
+        <text class="lab b" x="8" y="106" style="fill:#fff">Auckland $231K</text><text class="lab b" x="380" y="106" style="fill:#002b64">Christchurch $78K</text>
+      </svg>
+    </div>
+    <div class="reads">
+      <div class="read"><div><div class="v">66 of 70</div><div class="k">Days funded by suppliers</div></div><div class="r">Stock sits 70 days on the shelf and suppliers wait 66 — you carry four days of it yourself. Both from the accounts, page 7.</div></div>
+      <div class="read caution"><div><div class="v">—</div><div class="k">Ageing</div></div><div class="r">Not in this file: neither Cin7 nor Unleashed exports carry a date. The slow-stock figure on page 8 stays your advisor's until an ageing report is read.</div></div>
+    </div>
+  </div>
+  <p class="small" style="margin-top:10px">Cost basis: Cin7 unit cost. An Unleashed file would be read at average cost, in its own currency code checked against the firm's, and the page would say so.</p>
+  <div class="foot"><span class="logo">Firm logo</span>Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 (sample data) · page added by your advisor</div><span class="pno">14</span>
+</section>
+
+</div>
+</body>
+</html>

@@ -108,7 +108,10 @@ value (`S`, `C`) is shown as suppressed, never as zero.
 **P10 · The Business Health Score is a count, not a formula, and it says so** (Mike, 2026-09-07).
 Eight banded measures, 2 for green, 1 for amber, 0 for red on the firm's thresholds, out of 100,
 with the reading naming the measures that pulled it down. The page cites the Piotroski F-score as
-the method's basis. A score whose parts a client cannot find on the pages is a verdict, not a
+the method's basis. The score counts the measures that carry a firm threshold and prints the
+count; current ratio and debt-to-equity join the six trend drivers through two rows to be added to
+the trend-thresholds page, so the firm sets those lines as it sets the others (Mike, 2026-09-08).
+Good from 75 and Steady from 50 are his ruled cut-offs (2026-09-08), held in `SCORE_BANDS`. A score whose parts a client cannot find on the pages is a verdict, not a
 finding.
 
 **P8 · Saved per client, through the saved-report store.** The report is a per-client, per-model
@@ -219,10 +222,23 @@ Summary: both exports, the trend read. Financial Dashboard: the workbook's ratio
 readers. Profit & Loss: the P&L export, EBITDA model for the operating-profit line. Balance
 Sheet: the Balance Sheet export, Quick Position. Cash Flow & Working Capital: the seven drivers,
 the trend read, Working Capital Cycle. Trends: both exports across years. Next Steps: the advisor.
-Optional pages reuse a built model each: Sales Volatility, Eight Levers, Debtor Drag, Valuation,
-Loan Servicing, Economic & Industry Outlook (the approved research pack, printed on
-`approval.isApproved` exactly as the forecast prints it), Inventory Performance (typed until a
-reader exists), Tax Provision (when the tax tool exists).
+Optional pages answer the questions an owner asks of a performance report, not the models that
+happen to exist (Mike, 2026-09-08, which took The Eight Levers, Debtor Drag and Valuation off the
+list — they stay as advisor teaching screens in the Model Library). Four are drawn at
+[`../mockups/business-performance-report-optional-pages.html`](../mockups/business-performance-report-optional-pages.html):
+*Why profit changed* (a profit bridge from both years' profit and loss: more sales at last year's
+margin, the margin change, overheads, the rest — sales are never split into price and volume, as no
+accounts carry units), *Where the cash went* (profit to the bank movement from two balance sheets,
+drawings as the residual of the equity movement and said so), *What moves profit* (a one-percent
+sensitivity on price, volume, cost of sales and overheads, ranked, with break-even and margin of
+safety; cost of sales taken as variable and overheads as fixed, printed beside the figures), and
+*Stock against the accounts* (the stock export read beside the balance sheet and the cash page:
+the file total against the inventory line, value by category and location, allocated against
+available, stock days against creditor days, on-order where the file has it — never an age).
+Each needs its own small backend model with a hand-worked golden test. Still optional and
+unchanged: Sales Volatility (twelve months by month), Loan Servicing (a loan on the file), Economic
+& Industry Outlook (the approved research pack, printed on `approval.isApproved` exactly as the
+forecast prints it), Tax Provision (when the tax tool exists).
 
 **The intake is new work whichever half comes first.** No reader today reads a Balance Sheet by
 month or a five-year comparison export; the annual reader refuses five-plus figure columns on
@@ -255,7 +271,7 @@ reference the AI already reads, and with item 4.66.
 | ✅ **Stage 2 — the page figures** | [`server/report/dashboardReportPagesModel.js`](../../server/report/dashboardReportPagesModel.js): every figure every page prints, composed from the ratio hub, the trend read (the six drivers on the firm's thresholds) and the health-score count; equity is assets less liabilities. `POST /api/report/dashboard-reports/pages` — **guarded (`firmOrEntityAuth`), the one calc route that is**, because the bands come from the firm's thresholds resolved from the token; a client reading their saved report is admitted. Test: `dashboardReportPagesModel.test.js` (hand-worked arithmetic, two years and one) |
 | ✅ **Stage 2 — the screens** | [`pages/dashboard-reports.vue`](../../pages/dashboard-reports.vue) (header, six chips, saving), [`components/DashboardReportsWorkbench.vue`](../../components/DashboardReportsWorkbench.vue) (the band and the steps), the five step components `DashboardReports{Setup,Accounts,Inventory,Words,Pages}.vue`, the document [`components/DashboardReport.vue`](../../components/DashboardReport.vue) with one component per page, and three base charts (`BarPairChart`, `DoughnutChart`, `HBarChart`, pure SVG). Saved per client through `utils/dashboardReportsSavedShape.js`. Catalogue row `Dashboard Reports` → `STATUS_READY`, `/dashboard-reports`; AI summary in `data/report-model-summaries.json`. Tests: `dashboardReports.component.test.js`, `dashboardReportsSavedShape.test.js`, the four report guards |
 | **Deviations from the two drawings, stage 2** | **(a)** The route is `/dashboard-reports`, not `/business-performance-report` — that route has been the Working Capital Cycle's since July. **(b)** The health score counts the **six** measures that carry firm thresholds, and the page prints that number; current ratio and debt-to-equity need thresholds ruled before they can be scored (P3: a threshold nobody ruled is a verdict). **(c)** The band cut-offs — Good ≥ 75, Steady ≥ 50, else At risk — are a provisional constant, `SCORE_BANDS`, for Mike to rule. **(d)** The quarterly and monthly charts are this year against last year until the monthly view (stage 5); each page says so. **(e)** The confirm table carries two memo lines the drawing did not — accounts payable (creditor days) and interest paid (the profit-and-loss page). **(f)** The industry finder and size bands (stage 3), the stock export (stage 4) and the benchmark table are not on the screens; each place says so and shows no figure. **(g)** No optional page is offered yet; the dropdown lists all seven with the reason each waits. **(h)** The balance-sheet readings are arithmetic said in words, not the drawing's "Healthy (target > 1.5)" verdicts. **(i)** Step 6 shows the document itself at full size rather than thumbnails. **(j)** The firm logo is a marked place, as drawn — no logo setting exists |
-| Planned, none exists yet | a benchmarker data file + mentor-hub upload + industry finder (stage 3); an inventory-export reader under `server/report/intake/` (stage 4); the monthly and five-year views (stage 5); the optional pages, starting with the three that need only the accounts |
+| Planned, none exists yet | a benchmarker data file + mentor-hub upload + industry finder (stage 3); an inventory-export reader under `server/report/intake/` (stage 4); the monthly and five-year views (stage 5); the four optional pages drawn on 2026-09-08 — the three accounts-only pages first, then *Stock against the accounts* after the reader — each with its own backend model and golden test; two threshold rows (current ratio, debt-to-equity) on the trend-thresholds page, which take the score to eight |
 | The benchmark source | Stats NZ Business Performance Benchmarker (DataInfo+; JSON download; ANZSIC06; 220 industries; turnover-quartile size bands; median and 25th/75th percentiles; accuracy categories; `S`/`C` suppression) — its own "Information about the data" is quoted in §2 P9 |
 
 **Order of build, once the drawing is approved:** model and golden test for the ratio hub
