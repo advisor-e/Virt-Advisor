@@ -249,6 +249,27 @@
       "touches": "BUILT, both slices: utils/quickFireForecast.js, the year control and grid on components/ThreeWayForecastIntake.vue, yearCount in server/report/threeWayForecastModel.js, components/ThreeWayForecastReport.vue (summary, cash line, year tabs, print), locales/en.json, and four test files including tests/unit/threeWayForecastYearCount.test.js.",
       "note": "BOTH SLICES BUILT. Slice 2 drawn and approved 2026-09-07, all seven questions ruled. Mike's first ruling REPLACED the recommendation: the advisor chooses 1, 2 or 3 years, on step 3. The count reaches the ENGINE — computing three and showing fewer would have reported a three-year revenue and a low point in a year nobody asked for, both plausible on screen. Step 4 gained a year summary, a cash line across every month, year tabs, and a print that carries every year. A new forecast opens at ONE year — ruled by Mike 2026-09-07, and it preserves today's screen exactly.",
       "comment": "2026-09-07 — filed the day Mike asked for it, after being told the percentages could be entered nowhere. Numbered 4.71 because the desktop filed 4.70 on its own branch the same day: the third numbering collision in a week. Same day: drawn, approved, all five questions ruled, slice 1 built and merged; then slice 2 drawn, six more questions ruled one at a time, and built — 39 new tests, suite 8,147 green."
+    },
+    {
+      "ref": "4.72",
+      "name": "A removed observation point's id is handed to the next one added",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "nextOwnPointId counts only from the ids a scope currently holds, so removing the highest hands it straight back to the next point added, and its own JSDoc claims the opposite.",
+      "risk": "A reused id matches the removed point in any coaching report already stored against it, so a report about a point the firm no longer checks reads as one about the point just written. Nothing on any screen looks wrong. It needs the HIGHEST id removed, then a new point added in the same meeting type.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Found 2026-09-08 building the advisor's own level: the same fault in the new code was caught by a route test. Filed on Mike's instruction the same day."
+      },
+      "touches": "server/utils/meetingObservations.js - nextOwnPointId and its JSDoc; the own-row shape in readDecisionMap, which would need a per-scenario high-water mark; tests/unit/meetingObservations.test.js.",
+      "note": "THE FIX IS ALREADY WRITTEN one level down: meetingObservationsAdvisor.nextAdvisorPointId takes a stored high-water mark beside the live rows, and the advisor's own row is kept when it empties because that row carries the mark. Porting it means adding nextSeq to the manager's own-row shape, which all four manager tiers share - which is why it was not done inside an approved slice.",
+      "comment": "2026-09-08 - found while building the advisor's own level and filed on Mike's instruction the same day, rather than fixed in passing: it changes storage shared by all four manager tiers."
     }
   ]
 }
