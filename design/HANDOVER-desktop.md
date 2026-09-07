@@ -13,7 +13,7 @@
 
 **The working copy is the SSD**, `C:\Users\Mike Barnes\Projects\Virt Advisor`. VS Code still opened
 on the retired `E:` folder today; every command ran against the SSD. Suite **8,440 green** (432
-suites). Twelve commits, all pushed; started 18 ahead / 25 behind master, ended 30 ahead / 0 behind.
+suites). Fourteen commits, all pushed; started 18 ahead / 25 behind master, ended 32 ahead / 0 behind.
 
 **4.70 — ACTIVE ON THIS DESKTOP; stages 1–3 built.** Rulings in the morning: the score reaches eight
 through two threshold rows (built, his four figures in); bands 75/50; the model-reuse optional pages OFF
@@ -24,7 +24,7 @@ the shipped release `data/statsnz-benchmarker-2025.json`, the store, the routes,
 bands on step 1, the comparison table on page 7, on Stats NZ's own ratio definitions.
 
 The mentor's **Industry Benchmarks** tab is built on the approved drawing (`FirmBenchmarker.vue`, mentor-only
-in `TAB_TIERS`, Model Inputs group). **Waits on Mike:** the page-cap ruling only. **Not yet eyeballed:** any
+in `TAB_TIERS`, Model Inputs group). The page cap is ruled: fifteen applies to the base report only, optional pages unlimited. **Nothing waits on Mike.** **Not yet eyeballed:** any
 of today's screens in the production build with real exports, the tab included, and the two new threshold
 rows on the hub page. Next: stage 4, the inventory reader, then *Stock against the accounts*.
 
