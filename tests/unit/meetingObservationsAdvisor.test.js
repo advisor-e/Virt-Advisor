@@ -33,6 +33,7 @@ const {
   sourceTierOf,
   applyAdvisorLayer,
   setAsidePoints,
+  setAsideSummary,
   nextAdvisorPointId
 } = require('../../server/utils/meetingObservationsAdvisor')
 
@@ -269,5 +270,71 @@ describe('one advisor\'s slice of the maps', () => {
   it('returns nothing for an advisor with no decisions, and for no advisor at all', () => {
     expect(stateForAdvisor(declines, own, 'adv-9')).toEqual({ declines: {}, own: {} })
     expect(stateForAdvisor(declines, own, null)).toEqual({ declines: {}, own: {} })
+  })
+})
+
+describe("what the manager sees of their advisors' decisions", () => {
+  // Ordered by Mike 2026-09-08 in the same breath as permitting the decisions themselves:
+  // "yes but fix the issue - build it so the manager can see".
+  const DECLINES = {
+    'adv-1': { name: 'Ruth Kelleher', scenarios: { eoy_meeting: ['mo-eoy-1', 'fm-3'] } },
+    'adv-2': { name: 'Tom Boyd', scenarios: { eoy_meeting: ['mo-eoy-1'] } },
+    'adv-3': { name: null, scenarios: { eoy_meeting: ['mo-eoy-1'] } },
+    'adv-4': { name: 'Aisling Ward', scenarios: { client_sales: ['mo-eoy-1'] } }
+  }
+
+  it('counts and names who set each point aside, in this meeting type only', () => {
+    const rows = setAsideSummary(FIRM_POINTS, DECLINES, 'eoy_meeting')
+    const first = rows.filter(r => r.id === 'mo-eoy-1')[0]
+    // adv-4 declined the same id in a DIFFERENT meeting type and must not be counted here.
+    expect(first.count).toBe(3)
+    expect(first.setAsideBy.map(w => w.name)).toEqual(['Ruth Kelleher', 'Tom Boyd', null])
+  })
+
+  it('🔴 lists every point, including the ones nobody has set aside', () => {
+    const rows = setAsideSummary(FIRM_POINTS, DECLINES, 'eoy_meeting')
+    // A screen listing only the exceptions cannot be read as reassurance, because an empty
+    // screen and a broken screen look identical. The drawing makes this argument itself.
+    expect(rows).toHaveLength(FIRM_POINTS.length)
+    expect(rows.filter(r => r.id === 'gm-9')[0]).toEqual({
+      id: 'gm-9', text: "The country group's question.", count: 0, setAsideBy: []
+    })
+  })
+
+  it('sorts by name with nameless entries last, so the list does not reshuffle', () => {
+    // Two identical loads returning different orders would read as the list having changed
+    // when nothing had. Nameless entries sort last: they are the ones a manager can act on
+    // least, and a name is only ever absent for a decision stored before tokens carried one.
+    const rows = setAsideSummary(FIRM_POINTS, DECLINES, 'eoy_meeting')
+    const who = rows.filter(r => r.id === 'mo-eoy-1')[0].setAsideBy
+    expect(who[who.length - 1].name).toBeNull()
+    expect(who[who.length - 1].advisorId).toBe('adv-3')
+  })
+
+  it("carries no denominator, because this app cannot know a firm's headcount", () => {
+    // 🔴 NOT AN OMISSION. The drawing said "4 of 12" and its wording table insisted the
+    // denominator always be shown. config/db-schema.sql states four times that this app holds
+    // no advisors table — advisors belong to Advisor-e. The nearest figure counts advisors
+    // with ACTIVITY records, a different number: a firm of twelve where eight have used the
+    // app would print "4 of 8" and call it the firm. Put to Mike with the evidence on
+    // 2026-09-08 and ruled: show only what the app can know.
+    const rows = setAsideSummary(FIRM_POINTS, DECLINES, 'eoy_meeting')
+    rows.forEach((r) => {
+      expect(Object.keys(r).sort()).toEqual(['count', 'id', 'setAsideBy', 'text'])
+    })
+  })
+
+  it('omits a decline whose point the firm has since removed', () => {
+    const stale = { 'adv-1': { name: 'Ruth', scenarios: { eoy_meeting: ['mo-gone-99'] } } }
+    const rows = setAsideSummary(FIRM_POINTS, stale, 'eoy_meeting')
+    // Nothing for a manager to act on: the point is not offered any more. The stored decline
+    // survives, because the firm may put the point back.
+    expect(rows.every(r => r.count === 0)).toBe(true)
+  })
+
+  it('never throws on malformed storage', () => {
+    expect(setAsideSummary(FIRM_POINTS, null, 'eoy_meeting').every(r => r.count === 0)).toBe(true)
+    expect(setAsideSummary(FIRM_POINTS, { 'adv-1': 'broken' }, 'eoy_meeting').every(r => r.count === 0)).toBe(true)
+    expect(setAsideSummary(null, DECLINES, 'eoy_meeting')).toEqual([])
   })
 })

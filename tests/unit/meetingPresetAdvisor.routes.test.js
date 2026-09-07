@@ -438,3 +438,54 @@ describe('a point of my own', () => {
     expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
   })
 })
+
+describe("the manager's view of what advisors set aside", () => {
+  test('shows counts and names for the firm', async () => {
+    const pointId = await firstPointId()
+    storeForFirm({
+      [ADVISOR_KEYS.advisorDeclines]: {
+        [ME]: { name: 'Ruth Kelleher', scenarios: { [EOY]: [pointId] } },
+        [COLLEAGUE]: { name: 'Tom Boyd', scenarios: { [EOY]: [pointId] } }
+      }
+    })
+
+    const res = makeMockRes()
+    await routes.getSetAside(makeReq({ userRole: 'firm_manager' }), res)
+
+    expect(res._status).toBe(200)
+    const eoy = res._body.scenarios.filter(s => s.id === EOY)[0]
+    const row = eoy.points.filter(p => p.id === pointId)[0]
+    expect(row.count).toBe(2)
+    expect(row.setAsideBy.map(w => w.name)).toEqual(['Ruth Kelleher', 'Tom Boyd'])
+  })
+
+  test('🔴 answers 403 above the firm rather than an empty screen', async () => {
+    // A judgement stated rather than assumed: the decisions live on each FIRM's row, so a
+    // scope above the firm has no advisors beneath it to summarise. An always-empty section
+    // is indistinguishable from a broken one — the same argument this screen makes for
+    // listing points nobody has set aside.
+    for (const scope of ['__platform__', '__global__:acme', '__group__:acme:ie']) {
+      const res = makeMockRes()
+      await routes.getSetAside(makeReq({ firmId: scope, userRole: 'firm_manager' }), res)
+      expect(res._status).toBe(403)
+    }
+  })
+
+  test('lists every point with a zero when nobody has set anything aside', async () => {
+    const res = makeMockRes()
+    await routes.getSetAside(makeReq({ userRole: 'firm_manager' }), res)
+    const eoy = res._body.scenarios.filter(s => s.id === EOY)[0]
+    expect(eoy.points.length).toBeGreaterThan(0)
+    expect(eoy.points.every(p => p.count === 0)).toBe(true)
+  })
+
+  test('a live MySQL refusal is a 500, never a quietly empty list', async () => {
+    overlay.loadFirmConfig.mockRejectedValue(refusal('table is gone'))
+    const res = makeMockRes()
+    await routes.getSetAside(makeReq({ userRole: 'firm_manager' }), res)
+    // A manager reading "nobody has set anything aside" off a failed read would take a fault
+    // as reassurance — the one wrong answer this screen must never give.
+    expect(res._status).toBe(500)
+    expect(errorBody(res).error.code).toBe('DB_ERROR')
+  })
+})

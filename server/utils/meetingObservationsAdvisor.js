@@ -388,6 +388,71 @@ function setAsidePoints (firmPoints, declinedIds) {
 }
 
 /**
+ * What the FIRM MANAGER sees: which advisors have set each point aside.
+ *
+ * 🔴 THIS SCREEN EXISTS BECAUSE MIKE ORDERED IT (2026-09-08). Question 1 of the drawing asked
+ * whether an advisor may set aside a point their firm set; the recommendation was yes, with
+ * one cost recorded — that no manager could see it happen. He answered *"yes but fix the
+ * issue - build it so the manager can see"*, which turned the recorded cost into part of the
+ * same slice. A permission granted with an invisible consequence is what he refused.
+ *
+ * 🔴 NO DENOMINATOR, AND THAT IS NOT THE DRAWING. The drawing said "4 of 12" and its wording
+ * table argued the denominator must always be shown. **It cannot be built: this app holds no
+ * advisors table** (`config/db-schema.sql`, four times) so a firm's headcount is unknowable
+ * here. The nearest available figure counts advisors with ACTIVITY records, which is a
+ * different number — a firm of twelve where eight have used the app would print "4 of 8" and
+ * call it the firm. Put to Mike on 2026-09-08 with the evidence and ruled: show only what the
+ * app can know. The count and the names are that; the denominator is the manager's own
+ * knowledge and stays in their head rather than being invented in ours.
+ *
+ * ⚠ NAMES, NOT IDS — Mike's ruling, question 2. A count says a problem exists and not who to
+ * talk to, which is the only reason a manager opens this. `name` can still be null for an
+ * advisor whose decision was stored before their token carried one; the screen shows the fact
+ * without a name rather than an opaque id, because an id helps nobody.
+ *
+ * ⚠ NO ANONYMITY FLOOR, unlike `meetingAggregate`. That one reports on recorded CLIENT
+ * MEETINGS and Brief P13 governs it. This reports on CONFIGURATION — who set what — so P13 is
+ * not engaged, and a floor would hide the single advisor a manager most needs to speak to.
+ *
+ * ⚠ A DECLINE FOR A POINT THE FIRM HAS SINCE REMOVED DOES NOT APPEAR, because the point is no
+ * longer offered and there is nothing for a manager to act on. The stored decline survives:
+ * the firm may put the point back.
+ *
+ * @param {Array<object>} firmPoints - the firm's resolved points for one scenario
+ * @param {object} declinesMap - from `readAdvisorDeclines`
+ * @param {string} scenarioId
+ * @returns {Array.<{id: string, text: string, count: number, setAsideBy: object[]}>}
+ */
+function setAsideSummary (firmPoints, declinesMap, scenarioId) {
+  const byPoint = {}
+  const map = (declinesMap && typeof declinesMap === 'object') ? declinesMap : {}
+
+  Object.keys(map).forEach((advisorId) => {
+    const entry = map[advisorId]
+    if (!entry || typeof entry !== 'object') { return }
+    const ids = (entry.scenarios && entry.scenarios[scenarioId]) || []
+    if (!Array.isArray(ids)) { return }
+    ids.forEach((pointId) => {
+      if (!byPoint[pointId]) { byPoint[pointId] = [] }
+      byPoint[pointId].push({ advisorId, name: entry.name || null })
+    })
+  })
+
+  return (Array.isArray(firmPoints) ? firmPoints : []).map((p) => {
+    // Sorted by name so the screen does not reshuffle between two identical loads, which
+    // would read as the list having changed when nothing had. Nameless entries sort last —
+    // they are the ones a manager can act on least.
+    const who = (byPoint[p.id] || []).slice().sort((a, b) => {
+      if (a.name && b.name) { return a.name.localeCompare(b.name) }
+      if (a.name) { return -1 }
+      if (b.name) { return 1 }
+      return a.advisorId.localeCompare(b.advisorId)
+    })
+    return { id: p.id, text: p.text, count: who.length, setAsideBy: who }
+  })
+}
+
+/**
  * Mint the next own-point id for one advisor in one scenario.
  *
  * 🔴 IT TAKES A STORED HIGH-WATER MARK AS WELL AS THE LIVE ROWS, AND IT NEEDS BOTH. Counting
@@ -443,5 +508,6 @@ module.exports = {
   sourceTierOf,
   applyAdvisorLayer,
   setAsidePoints,
+  setAsideSummary,
   nextAdvisorPointId
 }

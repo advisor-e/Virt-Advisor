@@ -124,3 +124,92 @@ describe('marking a point a recording cannot hear', () => {
     expect(JSON.parse(call[1].body).cannotHear).toBe(true)
   })
 })
+
+// ── Set aside by advisors (2026-09-08) ─────────────────────────────────────────────────
+//
+// 🔴 Ordered by Mike in the same breath as permitting the thing it shows: "yes but fix the
+// issue - build it so the manager can see". What UAT cannot see, and these pin:
+//
+// - the panel is FIRM TIER ONLY. Above the firm the route answers 403 and the panel is not
+//   drawn — advisors' choices live on their own firm's row, so a higher scope has none
+//   beneath it and would see an empty panel that looks exactly like a broken one;
+// - 🔴 A FAILED READ IS NEVER SHOWN AS "nobody has set this aside". A manager taking a fault
+//   as reassurance is the one wrong answer this panel must never give;
+// - a failure here does not blank the editor above it, which is what the manager came for.
+
+describe('what advisors have set aside', () => {
+  function mountAtTier (tier, setAsideResponse) {
+    global.fetch = jest.fn((url) => {
+      if (String(url).includes('/set-aside')) {
+        return Promise.resolve(setAsideResponse || {
+          ok: true,
+          json: () => Promise.resolve({
+            scenarios: [{
+              id: 'eoy_meeting',
+              name: 'End of year meeting',
+              points: [
+                { id: 'mo-eoy-1', text: 'The meeting was framed.', count: 2, setAsideBy: [{ advisorId: 'a1', name: 'Ruth Kelleher' }, { advisorId: 'a2', name: null }] },
+                { id: 'mo-eoy-9', text: 'The numbers were drawn out.', count: 0, setAsideBy: [] }
+              ]
+            }]
+          })
+        })
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          ...SCENARIOS,
+          tier,
+          resolved: { months: 18, source: 'platform' },
+          ownMonths: null,
+          min: 1,
+          max: 120,
+          phrase: '18 months'
+        })
+      })
+    })
+    return mountWithBuefy(FirmMeetingObservations, {
+      propsData: { apiToken: 'test-token' },
+      mocks: { $buefy: { toast: { open: jest.fn() }, dialog: { confirm: jest.fn() } } }
+    })
+  }
+
+  afterEach(() => { delete global.fetch })
+
+  it('is drawn at the firm, with the count and the names', async () => {
+    const wrapper = mountAtTier('firm_manager')
+    await flush()
+    expect(wrapper.vm.showsSetAside).toBe(true)
+    const rows = wrapper.vm.setAsideForCurrent
+    expect(rows).toHaveLength(2)
+    expect(rows[0].count).toBe(2)
+    expect(rows[0].setAsideBy[0].name).toBe('Ruth Kelleher')
+    // Every point is listed, including the one nobody has touched — a panel of exceptions
+    // only cannot be read as reassurance.
+    expect(rows[1].count).toBe(0)
+  })
+
+  it('is not drawn above the firm, where it could only ever be empty', async () => {
+    for (const tier of ['mentor', 'global_group_manager', 'group_manager']) {
+      const wrapper = mountAtTier(tier)
+      await flush()
+      expect(wrapper.vm.showsSetAside).toBe(false)
+      // And it does not even ask: the route answers 403 there.
+      expect(global.fetch.mock.calls.some(c => String(c[0]).includes('/set-aside'))).toBe(false)
+    }
+  })
+
+  it('🔴 reports a failed read instead of showing it as nobody having set anything aside', async () => {
+    const wrapper = mountAtTier('firm_manager', {
+      ok: false,
+      json: () => Promise.resolve({ error: { code: 'DB_ERROR', message: 'store down' } })
+    })
+    await flush()
+    expect(wrapper.vm.setAsideError).toContain('store down')
+    expect(wrapper.vm.setAsideForCurrent).toEqual([])
+    // 🔴 And the editor above it still works: this panel failing must not blank the part of
+    // the tab the manager actually came for.
+    expect(wrapper.vm.loadError).toBe('')
+    expect(wrapper.vm.scenarios.length).toBeGreaterThan(0)
+  })
+})

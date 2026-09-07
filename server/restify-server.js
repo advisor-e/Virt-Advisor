@@ -430,6 +430,15 @@ server.put('/api/firm-manager/meeting-types/:typeId/declined', ...fmGuard, mt.de
 const mp = require('./routes/meetingPatterns')
 server.get('/api/firm-manager/meeting-patterns', ...fmGuard, mp.getPatterns)
 
+// What a FIRM MANAGER can see of their advisors' own decisions — ordered by Mike on
+// 2026-09-08 in the same breath as permitting them: "yes but fix the issue - build it so the
+// manager can see". Firm tier ONLY, and that is a judgement stated rather than assumed: the
+// decisions live on each firm's own row, so a scope above the firm has no advisors beneath it
+// to summarise and would see an empty section every time. The handler answers 403 above the
+// firm. It is a MIRROR, not a control — there is deliberately no route by which a manager
+// puts a point back on an advisor's own list, because P14 runs downward only.
+server.get('/api/firm-manager/meeting-observations/set-aside', ...fmGuard, mo.getSetAside)
+
 // The advisor's own level — their pre-set, in the first person, and since 2026-09-08 their
 // own decisions on it. firmAuth ONLY, because every advisor needs it; there is deliberately
 // no manager guard on these five.

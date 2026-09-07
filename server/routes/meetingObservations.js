@@ -43,7 +43,7 @@ const path = require('path')
 const overlay = require('../utils/firmOverlay')
 const { sendError } = require('../utils/sendError')
 const { devFallbackAllowed } = require('../utils/dbFailure')
-const { parentScopeOf } = require('../utils/tierChain')
+const { parentScopeOf, tierOfScope } = require('../utils/tierChain')
 const {
   CONFIG_KEYS,
   DEV_FILES,
@@ -66,6 +66,7 @@ const {
   stateForAdvisor,
   applyAdvisorLayer,
   setAsidePoints,
+  setAsideSummary,
   nextAdvisorPointId
 } = require('../utils/meetingObservationsAdvisor')
 
@@ -197,6 +198,9 @@ async function getForManager (req, res) {
       Object.keys(own.own).length > 0
 
     res.send(200, {
+      // The caller's own tier, so the screen can gate the firm-only "Set aside by advisors"
+      // panel without inferring a tier from the token itself.
+      tier: tierOfScope(req.firmId),
       scenarios: meetingScenarios().map(s => resolved[s.id]),
       inherited,
       own,
@@ -514,6 +518,50 @@ async function getForAdvisor (req, res) {
   }
 }
 
+/**
+ * GET /api/firm-manager/meeting-observations/set-aside  (firm manager)
+ *
+ * What Mike ordered on 2026-09-08 — *"yes but fix the issue - build it so the manager can
+ * see"* — when he ruled that an advisor may set aside a point their firm set. Per meeting
+ * type, per point: how many advisors have taken it off their own list, and which.
+ *
+ * 🔴 FIRM TIER ONLY, AND THIS IS A JUDGEMENT STATED RATHER THAN ASSUMED (the hub-page rule).
+ * It is NOT a permission decision and not P13: an advisor's decisions are stored on their own
+ * firm's row, so a scope above the firm has no advisors beneath it to summarise and would see
+ * an empty section every time. An always-empty section is indistinguishable from a broken
+ * one, which is the argument this screen's own design makes about listing untouched points.
+ * A middle tier wanting this would need it rolled up from the firms below, which is a
+ * different screen and a different decision.
+ *
+ * ⚠ NO DENOMINATOR. See `setAsideSummary` — this app holds no advisors table, so a firm's
+ * headcount is unknowable here and a plausible wrong one is worse than none.
+ *
+ * @route GET /api/firm-manager/meeting-observations/set-aside
+ * @returns {{scenarios: Array.<{id, name, points}>}}
+ */
+async function getSetAside (req, res) {
+  if (tierOfScope(req.firmId) !== 'firm_manager') {
+    return sendError(res, 403, 'FORBIDDEN', 'Only a firm sees what its own advisors have set aside')
+  }
+
+  try {
+    const resolved = await loadResolvedObservations(req.firmId, readScopeConfig)
+    const declines = readAdvisorDeclines(
+      await readScopeConfig(req.firmId, ADVISOR_KEYS.advisorDeclines)
+    )
+
+    const scenarios = meetingScenarios().map(s => ({
+      id: s.id,
+      name: s.name,
+      points: setAsideSummary((resolved[s.id] && resolved[s.id].points) || [], declines, s.id)
+    }))
+
+    res.send(200, { scenarios })
+  } catch (err) {
+    return serverError(res, err, 'read what advisors have set aside')
+  }
+}
+
 // ── The advisor's own level ──────────────────────────────────────────────────────────
 
 /**
@@ -803,6 +851,7 @@ module.exports = {
   deleteOwnPoint,
   history,
   restore,
+  getSetAside,
   getForAdvisor,
   setAdvisorDecline,
   addAdvisorPoint,

@@ -162,7 +162,7 @@ Four slices, each shippable and each useful alone.
    longer a permission check and must not be made one again** — `tierOfScope` returns exactly
    four values, so a condition naming all four is always true. P14 is enforced on the backend,
    where it always was. Pinned by `tests/unit/meetingTypesCascade.component.test.js`.
-4. ☐ **NOT BUILT — The advisor and entity levels.** The two new config keys, the advisor's own
+4. ◐ **HALF BUILT — The advisor level SHIPPED 2026-09-08; the entity level has not.** The two new config keys, the advisor's own
    screen, and the per-client tailoring on the pre-set. This is the only slice with new
    storage in it, and D1/D2 make one more thing mandatory with it: **the pre-set must name
    where each point came from**, because after slice 4 there are five possible sources.
@@ -172,12 +172,28 @@ Four slices, each shippable and each useful alone.
    hangs off the client picker, which is empty without MySQL, and a screen nobody can verify
    is how item 4.62's saved reports became "wired but never proven".
 
+   ✅ **THE ADVISOR'S HALF IS BUILT (2026-09-08)** — `server/utils/meetingObservationsAdvisor.js`,
+   five routes, the pre-set made editable, and the manager's view below. Storage is **two**
+   config keys on the advisor's own firm row rather than the one this document sketched, a
+   deviation put to Mike and approved before the build.
+
+   ☐ **THE ENTITY LEVEL IS NOT BUILT AND NOT DRAWN.** It hangs off the client picker, which is
+   empty without MySQL.
+
    🔴 **AND IT GAINED A THIRD PART ON 2026-09-08.** Ruling on the drawing's question 1 — *may
    an advisor switch off a point their firm set?* — Mike answered **yes**, and then refused the
    cost that came with it: *"yes but fix the issue - build it so the manager can see"*. So a
-   **manager's view of what their advisors have set aside** ships in this slice, not later. The
-   general lesson, worth more than the instance: **a cost recorded against a recommendation is
-   not a cost accepted by ruling on it.**
+   **manager's view of what their advisors have set aside** ships in this slice, not later — and
+   it does: `setAsideSummary`, `GET /api/firm-manager/meeting-observations/set-aside`, firm
+   tier only. The general lesson, worth more than the instance: **a cost recorded against a
+   recommendation is not a cost accepted by ruling on it.**
+
+   ⚠ **ONE THING THE DRAWING ASKED FOR CANNOT BE BUILT, AND IT IS WORTH KNOWING BEYOND THIS
+   FEATURE: THERE IS NO ADVISOR ROSTER IN THIS APPLICATION.** `config/db-schema.sql` states
+   four times that the advisors table belongs to Advisor-e. So a firm's headcount is
+   unknowable here and the drawing's "4 of 12" had to go; Mike ruled on 2026-09-08 that the
+   screen shows only what the app can know, and wrote the line that says so. **Any future
+   feature wanting a "% of your team" figure hits this same wall.**
 
 ---
 

@@ -530,30 +530,32 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 
 <div class="s-c rail">
   <div class="screen">
-    <div class="cap">C1 · On the manager's own Meeting Review tab · <span class="pill prop">✎ proposed</span></div>
+    <div class="cap">C1 · On the manager's own Meeting Review tab · <span class="pill ok">✅ built 2026-09-08</span> · firm tier only</div>
     <div class="frame">
       <div class="chrome"><span>Manage AI Coach › Meeting Review</span><span class="r">firm manager</span></div>
       <div class="pane">
         <h3>Set aside by advisors</h3>
         <p class="lede">Your advisors may take a point off their own list. This is where that
           shows. Nothing here changes what you have set — your list is unchanged.</p>
+        <p class="lede"><b>A count of the advisors who have changed their own list</b> — not
+          your whole team, and never a percentage of it.</p>
 
         <div class="pts">
           <div class="aside-row hot">
-            <div class="cnt">4<span class="of">of 12</span></div>
+            <div class="cnt">4</div>
             <div class="body">A metaphor or analogy was used to explain a financial idea.
               <div class="who">Set aside by <b>Ruth Kelleher</b>, <b>Tom Boyd</b>,
-                <b>Aisling Ward</b> and <b>Peter Nolan</b></div></div>
+                <b>Aisling Ward</b>, <b>Peter Nolan</b></div></div>
           </div>
-          <div class="aside-row">
-            <div class="cnt">1<span class="of">of 12</span></div>
+          <div class="aside-row hot">
+            <div class="cnt">1</div>
             <div class="body">Named actions were agreed, with an owner and a date, before the time ran out.
               <div class="who">Set aside by <b>Tom Boyd</b></div></div>
           </div>
           <div class="aside-row none">
-            <div class="cnt">0<span class="of">of 12</span></div>
+            <div class="cnt">0</div>
             <div class="body">The meeting was framed — what we would cover and why, in the first two minutes.
-              <div class="who">On every advisor's list</div></div>
+              <div class="who">Nobody has set this aside.</div></div>
           </div>
         </div>
       </div>
@@ -564,11 +566,25 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
         <li><b>Advisors are named, not counted.</b> A count says a problem exists; a name says
           who to talk to, which is the only reason a manager opens this. Their manager already
           sees them named on the Team tab, so this discloses nothing new about them.
-          <b>That is question 2.</b></li>
+          <b>Ruled by Mike (question 2), 2026-09-08.</b></li>
+        <li>🔴 <b>THERE IS NO DENOMINATOR, AND THIS DRAWING ORIGINALLY HAD ONE.</b> It
+          showed <i>4 of 12</i>, and its own wording table argued the denominator must always be
+          shown. <b>It cannot be built.</b> This app holds <b>no advisors table</b> —
+          <code>config/db-schema.sql</code> says so four times, because advisors belong to
+          Advisor-e — so a firm's headcount is unknowable here. The nearest available figure
+          counts advisors with ACTIVITY records, a different number: a firm of twelve where
+          eight have used the app would print <i>4 of 8</i> and call it the firm. Found during
+          the build, put to Mike with the evidence, and ruled the same day: show only what the
+          app can know.</li>
+        <li>✅ <b>SO THE SCREEN SAYS WHAT THE NUMBER IS — Mike's own instruction,
+          2026-09-08:</b> <i>"explain this is a review of 'active' advisors so managers know its
+          not their total team as a %"</i>. The line under the lede is his, approved the same
+          day. Without it a manager reads <i>4</i> as a share of their whole firm.</li>
         <li><b>Every point is listed, including the ones nobody has set aside</b> — shown as
-          <i>0 of 12 · On every advisor's list</i>. A screen that lists only the exceptions
-          cannot be read as reassurance, because an empty screen and a broken screen look
-          identical.</li>
+          <i>0 · Nobody has set this aside</i>. A screen that lists only the exceptions cannot
+          be read as reassurance, because an empty screen and a broken screen look identical.
+          ⚠ That sentence IS safe to say: every set-aside decision in the firm is known. Only
+          the proportion is not.</li>
         <li><b>It is a mirror, not a control.</b> There is no button to force a point back onto
           an advisor's list. P14 runs downward only, and a manager overriding an advisor's own
           level would be the first thing in this app to reach across it. If a firm wants a point
@@ -621,12 +637,16 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
       <td><i>Switched off</i> is the manager's own verb for their own list and would collide. <i>Set aside</i> says the point is still the firm's, and one advisor has stepped around it — which is exactly what happened.</td></tr>
   <tr><td class="w">Section lede</td><td>Your advisors may take a point off their own list. This is where that shows. Nothing here changes what you have set — your list is unchanged.</td>
       <td>Answers the manager's first two questions in the order they ask them: what am I looking at, and has my own list been altered?</td></tr>
-  <tr><td class="w">Count</td><td>4 of 12</td>
-      <td>Denominator always shown. <i>4 advisors</i> alone means nothing in a firm of five or fifty.</td></tr>
+  <tr><td class="w">Count</td><td>4 <s>of 12</s></td>
+      <td>🔴 <b>CHANGED DURING THE BUILD.</b> The denominator cannot be built — this app holds no advisors table, so a firm's headcount is unknowable. Ruled by Mike 2026-09-08: show only what the app can know.</td></tr>
+  <tr><td class="w">What the number is</td><td>A count of the advisors who have changed their own list — not your whole team, and never a percentage of it.</td>
+      <td>✅ <b>Mike's own instruction, 2026-09-08</b>, approved the same day. It replaces the work the denominator was doing: without it, <i>4</i> reads as a share of the firm.</td></tr>
   <tr><td class="w">Names line</td><td>Set aside by Ruth Kelleher, Tom Boyd…</td>
-      <td>See question 2 — whether names appear at all is not settled.</td></tr>
-  <tr><td class="w">Nobody has</td><td>On every advisor's list</td>
-      <td>Stated positively. <i>0 set aside</i> is the same fact told as an absence, and a screen of zeroes reads as a screen that failed to load.</td></tr>
+      <td>✅ Ruled (question 2): names, not counts alone. A count says a problem exists and not who to talk to.</td></tr>
+  <tr><td class="w">No name held</td><td>an advisor whose name we do not hold</td>
+      <td>For a decision stored before that advisor's token carried a display name. An opaque id helps nobody, so the fact is shown without one.</td></tr>
+  <tr><td class="w">Nobody has</td><td>Nobody has set this aside.</td>
+      <td>✅ Approved 2026-09-08, replacing <i>On every advisor's list</i> — which claimed knowledge of the whole team that this app does not have. This says the same reassuring thing and is true.</td></tr>
 </table>
 </div>
 
