@@ -1848,7 +1848,9 @@
           "overheadRatio": "expenses to sales",
           "debtorDays": "debtor days",
           "creditorDays": "creditor days",
-          "stockDays": "stock days"
+          "stockDays": "stock days",
+          "currentRatio": "current ratio",
+          "debtToEquity": "debt to equity"
         },
         "dashboardSub": "One-page summary drawn from your P&L and Balance Sheet",
         "revenueVsExpenses": "Revenue vs Total Expenses, this year and last",

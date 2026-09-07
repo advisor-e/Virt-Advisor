@@ -30,7 +30,7 @@
  */
 
 const { computePeriodRatios, healthScore } = require('./dashboardReportsModel')
-const { computeTrend } = require('./trendModel')
+const { computeTrend, MEASURES, SCORE_MEASURES } = require('./trendModel')
 
 /** Score at or above which each word applies, highest first. PROVISIONAL — see the header. */
 const SCORE_BANDS = [
@@ -181,13 +181,20 @@ function balanceSheetOf (lines, hub) {
 }
 
 /**
- * The trend model's inputs for one year — the six drivers' raw figures.
+ * The trend model's inputs for one year — the six drivers' raw figures, plus the two
+ * score ratios' inputs taken from the balance-sheet page's own figures so the score and
+ * the page agree by construction.
  * @param {object} lines @param {string|null} reportDate
+ * @param {object} sheet - `balanceSheetOf(lines, hub)` for the same year
  */
-function trendYear (lines, reportDate) {
+function trendYear (lines, reportDate, sheet) {
   const opt = key => (has(lines, key) ? line(lines, key) : undefined)
   return {
     reportDate: reportDate || null,
+    currentAssets: sheet.currentAssets,
+    currentLiabilities: sheet.currentLiabilities,
+    totalDebt: sheet.totalLiabilities,
+    totalEquity: sheet.equity,
     sales: opt('tradingIncome'),
     costOfSales: opt('costOfSales'),
     operatingExpenses: has(lines, 'operatingExpenses')
@@ -229,11 +236,18 @@ function computeReportPages (inputs) {
 
   const hubCur = computePeriodRatios(toSheet(cur, 'current'))
   const hubPri = pri ? computePeriodRatios(toSheet(pri, 'prior')) : null
+  const bsCur = balanceSheetOf(cur, hubCur)
+  const bsPri = hubPri ? balanceSheetOf(pri, hubPri) : null
 
-  /* -- the trend read: six drivers banded on the firm's thresholds ---------------- */
+  /* -- the trend read: six drivers and two score ratios, banded on the firm's thresholds -- */
   const thresholds = src.thresholds && typeof src.thresholds === 'object' ? src.thresholds : { levels: {}, movements: {} }
   const trend = pri
-    ? computeTrend({ current: trendYear(cur, curDates.profitLoss || curDates.balanceSheet), prior: trendYear(pri, priDates.profitLoss || priDates.balanceSheet), thresholds })
+    ? computeTrend({
+      current: trendYear(cur, curDates.profitLoss || curDates.balanceSheet, bsCur),
+      prior: trendYear(pri, priDates.profitLoss || priDates.balanceSheet, bsPri),
+      thresholds,
+      measures: MEASURES.concat(SCORE_MEASURES)
+    })
     : { available: false, blocked: 'NO_PRIOR_YEAR', needsBalanceSheet: false, periodsCertain: true, measures: [], omitted: [], counts: { good: 0, warn: 0, crit: 0, unbanded: 0 } }
   const measureByKey = {}
   ;(trend.measures || []).forEach((m) => { measureByKey[m.key] = m })
@@ -293,9 +307,6 @@ function computeReportPages (inputs) {
   /* -- the pages ---------------------------------------------------------------------- */
   const plCur = profitLossOf(cur, hubCur)
   const plPri = hubPri ? profitLossOf(pri, hubPri) : null
-  const bsCur = balanceSheetOf(cur, hubCur)
-  const bsPri = hubPri ? balanceSheetOf(pri, hubPri) : null
-
   const costKeys = ['costOfSales', 'wages', 'operatingExpenses', 'depreciation', 'interestPaid']
   const costTotal = costKeys.reduce((t, k) => t + line(cur, k), 0)
   const costs = {

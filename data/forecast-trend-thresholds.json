@@ -41,6 +41,15 @@
     "                of overheads gained cost exactly the same money, because both are a",
     "                point of sales.",
     "",
+    "TWO MORE LEVELS, 2026-09-08, FOR THE BUSINESS PERFORMANCE REPORT'S HEALTH SCORE (item 4.70).",
+    "  currentRatio  null / null — reads the OTHER WAY UP: higher is better, so green is the",
+    "                bottom of green and amber the bottom of amber; red is anything below.",
+    "  debtToEquity  null / null — the day-count way round: green is the top of green.",
+    "  Both ship EMPTY, exactly as the five above once did, because the figures are Mike's to",
+    "  give. Until he types them on the page the score counts what is banded and prints the",
+    "  count — six — which is his ruling of 2026-09-08. The forecast's own trend page does not",
+    "  show these two; only the report's score reads them.",
+    "",
     "HE CALLED THESE \"a place to start\" AND ASKED TWICE THAT THEY BE EDITABLE. They are —",
     "the mentor's Forecast Trend Thresholds tab under Model Inputs, with version history and",
     "restore. Changing one there does NOT change this file; it stores the mentor's own",
@@ -54,7 +63,9 @@
   "levels": {
     "debtorDays": { "green": 35, "amber": 45 },
     "creditorDays": { "green": 35, "amber": 45 },
-    "stockDays": { "green": 30, "amber": 60 }
+    "stockDays": { "green": 30, "amber": 60 },
+    "currentRatio": { "green": null, "amber": null },
+    "debtToEquity": { "green": null, "amber": null }
   },
   "movements": {
     "salesGrowth": { "warn": 0, "crit": -5 },

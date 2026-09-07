@@ -15,6 +15,7 @@ const {
   CONFIG_KEY,
   LEVEL_KEYS,
   MOVEMENT_KEYS,
+  WORSE_WHEN_BY_KEY,
   validateTrendThresholds,
   loadResolvedTrendThresholds
 } = require('../../server/utils/forecastTrendThresholds')
@@ -183,5 +184,49 @@ describe('resolving what a scope actually works to', () => {
       'firm-1': { levels: { stockDays: { green: 90, amber: 60 } } }
     }))
     expect(got).toBe(BASE_TREND_THRESHOLDS)
+  })
+})
+
+describe('the two score ratios (item 4.70, 2026-09-08)', () => {
+  test('both are level measures the validator knows, and one reads the other way up', () => {
+    expect(LEVEL_KEYS).toEqual(expect.arrayContaining(['currentRatio', 'debtToEquity']))
+    expect(WORSE_WHEN_BY_KEY.currentRatio).toBe('down')
+    expect(WORSE_WHEN_BY_KEY.debtToEquity).toBe('up')
+  })
+
+  // 🔴 A SECOND DELIBERATE PIN, for the same reason as the first: these two ship EMPTY
+  // because the figures are Mike's to give (2026-09-08). A developer filling in a
+  // plausible 1.5 here would put a verdict on a client's page that nobody ruled, and the
+  // score would silently count eight with two of them invented.
+  test('they ship empty — the score counts six until Mike types the figures', () => {
+    expect(BASE_TREND_THRESHOLDS.levels.currentRatio).toEqual({ green: null, amber: null })
+    expect(BASE_TREND_THRESHOLDS.levels.debtToEquity).toEqual({ green: null, amber: null })
+  })
+
+  test('current ratio’s green must sit ABOVE its amber, and the day-count way round is refused', () => {
+    expect(validateTrendThresholds({ levels: { currentRatio: { green: 1.5, amber: 1.0 } } }).ok).toBe(true)
+    const wrong = validateTrendThresholds({ levels: { currentRatio: { green: 1.0, amber: 1.5 } } })
+    expect(wrong.ok).toBe(false)
+    expect(wrong.errors[0]).toMatch(/higher is better/)
+  })
+
+  test('debt to equity keeps the ordinary ordering — green below amber', () => {
+    expect(validateTrendThresholds({ levels: { debtToEquity: { green: 0.5, amber: 1.0 } } }).ok).toBe(true)
+    expect(validateTrendThresholds({ levels: { debtToEquity: { green: 1.0, amber: 0.5 } } }).ok).toBe(false)
+  })
+
+  test('a ratio threshold cannot be negative, and the message says ratio rather than days', () => {
+    const r = validateTrendThresholds({ levels: { currentRatio: { green: -1, amber: 1 } } })
+    expect(r.ok).toBe(false)
+    expect(r.errors[0]).toMatch(/ratio/)
+    expect(r.errors[0]).not.toMatch(/days/)
+  })
+
+  test('a firm setting only the ratios keeps inheriting the six day-count and movement figures', async () => {
+    const own = { levels: { currentRatio: { green: 1.5, amber: 1.0 } } }
+    const resolved = await loadResolvedTrendThresholds('firm-1', loaderFor({ 'firm-1': own }))
+    expect(resolved.levels.currentRatio).toEqual({ green: 1.5, amber: 1.0 })
+    expect(resolved.levels.debtorDays).toEqual({ green: 35, amber: 45 })
+    expect(resolved.movements.grossMargin).toEqual({ warn: 1, crit: 3 })
   })
 })

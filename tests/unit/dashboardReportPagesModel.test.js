@@ -15,7 +15,11 @@ const THRESHOLDS = {
   levels: {
     debtorDays: { green: 35, amber: 45 },
     creditorDays: { green: 35, amber: 45 },
-    stockDays: { green: 30, amber: 60 }
+    stockDays: { green: 30, amber: 60 },
+    // The two score ratios (2026-09-08). Current ratio reads the other way up: green is
+    // the BOTTOM of green. These are test figures, not Mike's — the shipped file holds nulls.
+    currentRatio: { green: 1.5, amber: 1.0 },
+    debtToEquity: { green: 0.5, amber: 1.0 }
   },
   movements: {
     salesGrowth: { warn: 0, crit: -5 },
@@ -183,17 +187,45 @@ describe('the pages, two years', () => {
     expect(by.netCapitalSpend).toMatchObject({ value: 85000, direction: 'uses', unit: 'money' })
   })
 
-  test('🔴 THE HEALTH SCORE COUNTS THE BANDED MEASURES AND SAYS HOW MANY', () => {
+  test('🔴 THE HEALTH SCORE COUNTS THE BANDED MEASURES AND SAYS HOW MANY — eight when all eight are set', () => {
     // salesGrowth good, grossMargin good, overheadRatio good = 6; three day-counts at
-    // 36.5 are all amber = 3. Nine of twelve points → 75, and 75 is the first "good".
-    expect(r.score.total).toBe(6)
-    expect(r.score.green).toBe(3)
-    expect(r.score.amber).toBe(3)
+    // 36.5 are all amber = 3; current ratio 800000/410000 = 1.95 is green on a 1.5 floor
+    // = 2; debt to equity 615000/690000 = 0.89 is amber between 0.5 and 1.0 = 1.
+    // Twelve of sixteen points → 75, and 75 is the first "good".
+    expect(r.score.total).toBe(8)
+    expect(r.score.green).toBe(4)
+    expect(r.score.amber).toBe(4)
     expect(r.score.red).toBe(0)
     expect(r.score.score).toBe(75)
     expect(r.score.band).toBe('good')
-    expect(r.score.pulledDown).toEqual(['debtorDays', 'creditorDays', 'stockDays'])
+    expect(r.score.pulledDown).toEqual(['debtorDays', 'creditorDays', 'stockDays', 'debtToEquity'])
     expect(r.score.measures.find(m => m.key === 'debtorDays').band).toBe('amber')
+    expect(r.score.measures.find(m => m.key === 'currentRatio').band).toBe('green')
+  })
+
+  test('the two ratios the score reads are the balance-sheet page’s own figures', () => {
+    const cr = r.trend.measures.find(m => m.key === 'currentRatio')
+    const de = r.trend.measures.find(m => m.key === 'debtToEquity')
+    expect(cr.current).toBeCloseTo(r.balanceSheet.current.currentRatio, 10)
+    expect(cr.prior).toBeCloseTo(592000 / 387000, 10)
+    // total liabilities 615000 over equity (assets less liabilities) 690000
+    expect(de.current).toBeCloseTo(615000 / 690000, 10)
+    expect(de.current).toBeCloseTo(r.balanceSheet.current.totalLiabilities / r.balanceSheet.current.equity, 10)
+  })
+
+  test('🔴 WITH THE TWO RATIO THRESHOLDS EMPTY — as shipped — THE SCORE COUNTS SIX AND SAYS SO', () => {
+    const six = computeReportPages({
+      current: CURRENT,
+      prior: PRIOR,
+      currentDates: { balanceSheet: 'As at 30 June 2026', profitLoss: 'For the year ended 30 June 2026' },
+      priorDates: { balanceSheet: 'As at 30 June 2025', profitLoss: 'For the year ended 30 June 2025' },
+      thresholds: { levels: Object.assign({}, THRESHOLDS.levels, { currentRatio: { green: null, amber: null }, debtToEquity: { green: null, amber: null } }), movements: THRESHOLDS.movements }
+    })
+    expect(six.score.total).toBe(6)
+    expect(six.score.score).toBe(75)
+    // The ratios are still READ — the page shows them — they are simply not banded.
+    expect(six.trend.measures.find(m => m.key === 'currentRatio').band).toBeNull()
+    expect(six.trend.counts.unbanded).toBe(2)
   })
 
   test('the inventory page from the accounts and the typed figures', () => {

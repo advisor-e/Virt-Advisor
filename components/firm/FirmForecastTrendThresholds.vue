@@ -140,7 +140,7 @@ export default {
        * threshold meaning something quite different.
        */
       form: {
-        levels: { debtorDays: {}, creditorDays: {}, stockDays: {} },
+        levels: { debtorDays: {}, creditorDays: {}, stockDays: {}, currentRatio: {}, debtToEquity: {} },
         movements: { salesGrowth: {}, grossMargin: {}, overheadRatio: {} }
       }
     }
@@ -152,12 +152,19 @@ export default {
       return Object.keys(this.own).length > 0
     },
 
-    /** The three measures judged on this year's level, in the order the block shows them. */
+    /**
+     * The measures judged on this year's level, in the order the block shows them. The
+     * last two are the Business Performance Report's score ratios (item 4.70, Mike,
+     * 2026-09-08). `readsUp` is display only — it turns the Red column's sentence the
+     * other way; the arithmetic and the validator carry the direction themselves.
+     */
     levelFields () {
       return [
         { key: 'debtorDays', label: 'Debtor days', help: 'How long customers take to pay. Mike’s own figures: 35 and 45.' },
         { key: 'creditorDays', label: 'Creditor days', help: 'How long the business takes to pay suppliers. A high figure is the one that reads as stretching them.' },
-        { key: 'stockDays', label: 'Stock days', help: 'How long stock sits before it sells. Varies more by trade than either of the other two.' }
+        { key: 'stockDays', label: 'Stock days', help: 'How long stock sits before it sells. Varies more by trade than either of the other two.' },
+        { key: 'currentRatio', label: 'Current ratio', help: 'Current assets, including the bank, over current liabilities. Higher is better, so this row reads the other way up: green at or above the first figure, amber at or above the second, red below. Counts in the Business Performance Report\u2019s health score.', readsUp: true },
+        { key: 'debtToEquity', label: 'Debt to equity', help: 'Total liabilities over equity, equity being assets less liabilities. Green up to the first figure, amber up to the second, red above. Counts in the Business Performance Report\u2019s health score.' }
       ]
     },
 
@@ -216,7 +223,8 @@ export default {
     redAbove (key) {
       const amber = this.form.levels[key] && this.form.levels[key].amber
       if (amber === '' || amber === null || amber === undefined) { return 'nothing is red until an amber figure is set' }
-      return 'anything above ' + amber
+      const field = this.levelFields.find(f => f.key === key)
+      return (field && field.readsUp ? 'anything below ' : 'anything above ') + amber
     },
 
     /**
