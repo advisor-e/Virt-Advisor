@@ -305,6 +305,27 @@ describe('Three-Way Forecast screen — dragging the real slider, end to end', (
     w.destroy()
   })
 
+  test('🔴 the RENDERED figures change — not just the request body', async () => {
+    // The gap the other two leave: a request can go out, be answered, and the screen
+    // still show the old figures. That is exactly what "the sliders do nothing" looks
+    // like, and nothing in this suite has ever checked the answer reaches the screen.
+    const seed = { sales: new Array(12).fill(1000), overheads: { wages: 12000 } }
+    const bigger = computeThreeWayForecast({ sales: new Array(12).fill(9999), markup: 0.68 })
+    const w = await mountWithResult(SAMPLE, { seed })
+    const revenueBefore = w.vm.headline.revenue
+
+    global.fetch = jest.fn(() => Promise.resolve({
+      json: () => Promise.resolve({ success: true, data: bigger })
+    }))
+    await drag(w, 0, 25)
+    await w.vm.$nextTick()
+
+    expect(w.vm.data).toBe(bigger)
+    expect(w.vm.headline.revenue).not.toBe(revenueBefore)
+    expect(w.vm.error).toBe(false)
+    w.destroy()
+  })
+
   test('the slider shows the value it was moved to, rather than snapping back', async () => {
     const seed = { sales: new Array(12).fill(1000), overheads: { wages: 12000 } }
     const w = await mountWithResult(SAMPLE, { seed })
