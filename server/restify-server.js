@@ -430,12 +430,29 @@ server.put('/api/firm-manager/meeting-types/:typeId/declined', ...fmGuard, mt.de
 const mp = require('./routes/meetingPatterns')
 server.get('/api/firm-manager/meeting-patterns', ...fmGuard, mp.getPatterns)
 
-// The advisor's own read — their pre-set, in the first person. firmAuth ONLY (every
-// advisor needs it). There is no advisor WRITE route YET: the advisor and business-entity
-// levels are slice 4 of MEETING-TYPES-CASCADE.md, unbuilt rather than disallowed — Mike,
-// 2026-09-02, "NOBODY can edit a level ABOVE their own", which leaves an advisor free at
-// their own level and below. See getForAdvisor's JSDoc.
+// The advisor's own level — their pre-set, in the first person, and since 2026-09-08 their
+// own decisions on it. firmAuth ONLY, because every advisor needs it; there is deliberately
+// no manager guard on these five.
+//
+// 🔴 THE WRITES ARE KEYED TO `req.advisorId` FROM THE VERIFIED TOKEN, never from a body. One
+// advisor cannot reach another's list, in this firm or any other, because no request shape
+// can express it — the same property that makes one set of manager routes safe for four
+// tiers. What an advisor changes binds their own level ONLY: nothing here writes to the
+// firm's standing list, which is Mike's P14 ("NOBODY can edit a level ABOVE their own")
+// running in the direction it always did.
+//
+// Mike ruled on 2026-09-08 that an advisor MAY set aside a point their firm set — and
+// ordered in the same breath that a manager be able to see it. That is why the advisor's
+// display name is stored beside the decision: this app holds no advisors table to join one
+// out of later (config/db-schema.sql). Design: design/mockups/meeting-preset-advisor-level.html.
+//
+// The per-CLIENT level is NOT built and is not drawn — it needs the client picker, which is
+// empty without MySQL. MEETING-TYPES-CASCADE.md §7 slice 4.
 server.get('/api/meeting/observations', firmAuth, mo.getForAdvisor)
+server.post('/api/meeting/observations/decline', firmAuth, mo.setAdvisorDecline)
+server.post('/api/meeting/observations/own', firmAuth, mo.addAdvisorPoint)
+server.put('/api/meeting/observations/own', firmAuth, mo.updateAdvisorPoint)
+server.post('/api/meeting/observations/own/remove', firmAuth, mo.deleteAdvisorPoint)
 
 // ── Meeting Review — consent, capture, transcription and deletion (slice 2) ──
 // Asked for by Mike 2026-09-01 ("4.56 - slice 2"). Design design/features/meeting-review.md;

@@ -23,9 +23,17 @@
  * points — `tier-cascade.md` P6, and the open IDOR item. That is why ONE set of routes
  * serves the mentor and every manager tier below it.
  *
- * ⚠ NOTHING ELSE OF MEETING REVIEW EXISTS YET. There is no recording, no transcript, no
- * report and no audio anywhere in this repository. These points are useful on their own —
- * Brief §3: the list "pays before a word is recorded" — which is why they are built first.
+ * ⚠ THIS FILE NOW SERVES TWO AUDIENCES. The manager routes above cover all four manager
+ * tiers; the ADVISOR'S OWN LEVEL at the foot of the file is slice 4 of
+ * MEETING-TYPES-CASCADE.md §7, built 2026-09-08 from
+ * `design/mockups/meeting-preset-advisor-level.html`. They share this file's storage helpers
+ * deliberately — a second way of reading the same overlay is how two ways drift apart.
+ *
+ * *(A note here read "NOTHING ELSE OF MEETING REVIEW EXISTS YET — no recording, no
+ * transcript, no report and no audio". That was true on 2026-09-01 and stopped being true
+ * the same week: recording, transcription, both reports, the manager aggregate, transcript
+ * expiry and follow-through are all built. Replaced rather than dated, per the one-fact-one-
+ * home rule.)*
  *
  * Node 14, CommonJS.
  */
@@ -48,6 +56,18 @@ const {
   asAdvisorPreset,
   nextOwnPointId
 } = require('../utils/meetingObservations')
+const {
+  CONFIG_KEYS: ADVISOR_KEYS,
+  DEV_FILES: ADVISOR_DEV_FILES,
+  MAX_OWN_POINTS_PER_SCENARIO,
+  validateAdvisorPoint,
+  readAdvisorDeclines,
+  readAdvisorOwn,
+  stateForAdvisor,
+  applyAdvisorLayer,
+  setAsidePoints,
+  nextAdvisorPointId
+} = require('../utils/meetingObservationsAdvisor')
 
 /** Scenario ids that exist, so a request can never open a scenario that does not. */
 const KNOWN_SCENARIO_IDS = new Set(meetingScenarios().map(s => s.id))
@@ -84,11 +104,30 @@ async function readScopeConfig (scopeId, key) {
     return await overlay.loadFirmConfig(scopeId, key)
   } catch (err) {
     if (!devFallbackAllowed(err)) { throw err }
-    const devFile = Object.keys(CONFIG_KEYS).filter(k => CONFIG_KEYS[k] === key).map(k => DEV_FILES[k])[0]
+    const devFile = devFileForKey(key)
     if (!devFile) { throw err }
     const all = devReadAll(devFile)
     return Object.prototype.hasOwnProperty.call(all, scopeId) ? all[scopeId] : null
   }
+}
+
+/**
+ * The dev stand-in file for one config key, across BOTH key sets this file serves.
+ *
+ * ⚠ It searches the advisor keys as well as the manager ones. Before the advisor's level
+ * existed this was a one-line lookup over `CONFIG_KEYS`; an advisor key reaching it would
+ * have found nothing, re-thrown, and turned a routine dev read into a 500 — with the
+ * misleading message that the database was at fault.
+ *
+ * @param {string} key
+ * @returns {string|null}
+ */
+function devFileForKey (key) {
+  const managerPart = Object.keys(CONFIG_KEYS).filter(k => CONFIG_KEYS[k] === key)[0]
+  if (managerPart) { return DEV_FILES[managerPart] }
+  const advisorPart = Object.keys(ADVISOR_KEYS).filter(k => ADVISOR_KEYS[k] === key)[0]
+  if (advisorPart) { return ADVISOR_DEV_FILES[advisorPart] }
+  return null
 }
 
 /**
@@ -428,15 +467,20 @@ async function restore (req, res) {
  * they pick. With no `scenario` query it returns every scenario, which is what the picker
  * on Stage B1 of the drawing needs before one is chosen.
  *
- * ⚠ READ-ONLY, AND THAT IS A DESIGN DECISION rather than an omission. An advisor may add
- * an objective of their own for one meeting (Brief §3, drawn as "Added by me, this
- * meeting") — that belongs to the MEETING, not to the firm's standing list, so it is
- * stored with the meeting when meetings exist. Letting an advisor write here would let one
- * person quietly edit what every advisor in the firm is checked on.
+ * ✅ NO LONGER READ-ONLY (2026-09-08). It was, and the reason recorded here was wrong in
+ * part: it said letting an advisor write "would let one person quietly edit what every
+ * advisor in the firm is checked on". That is true of the FIRM's list and remains enforced —
+ * nothing below writes upward. It was never true of the advisor's OWN level, which did not
+ * exist yet. Mike corrected the same confusion on 2026-09-02: *"NOBODY can edit a level
+ * ABOVE their own"*, which leaves an advisor free at their own.
+ *
+ * 🔴 EVERY WRITE BELOW IS KEYED TO `req.advisorId` FROM THE VERIFIED TOKEN, never from a
+ * body or a query. One advisor cannot read or write another's list, in the same firm or any
+ * other, because there is no request shape that can express it.
  *
  * @route GET /api/meeting/observations
  * @param {string} [req.query.scenario] - a logic-tree scenario id
- * @returns {{scenarios: Array.<{id: string, name: string, points: object[]}>}}
+ * @returns {{scenarios: Array.<{id, name, points, setAside}>, maxOwnPerScenario: number}}
  */
 async function getForAdvisor (req, res) {
   const wanted = req.query && req.query.scenario ? String(req.query.scenario) : null
@@ -444,16 +488,308 @@ async function getForAdvisor (req, res) {
 
   try {
     const resolved = await loadResolvedObservations(req.firmId, readScopeConfig)
+    const state = await loadAdvisorState(req.firmId, req.advisorId)
+
     const scenarios = meetingScenarios()
       .filter(s => wanted === null || s.id === wanted)
-      .map(s => ({
-        id: s.id,
-        name: s.name,
-        points: asAdvisorPreset(resolved[s.id])
-      }))
-    res.send(200, { scenarios })
+      .map((s) => {
+        const firmPoints = (resolved[s.id] && resolved[s.id].points) || []
+        const mine = {
+          declines: state.declines[s.id] || [],
+          own: state.own[s.id] || []
+        }
+        return {
+          id: s.id,
+          name: s.name,
+          points: asAdvisorPreset({ points: applyAdvisorLayer(firmPoints, mine) }),
+          // What this advisor has set aside, so the screen can offer it back. Shown rather
+          // than hidden — see setAsidePoints for why.
+          setAside: asAdvisorPreset({ points: setAsidePoints(firmPoints, mine.declines) })
+        }
+      })
+
+    res.send(200, { scenarios, maxOwnPerScenario: MAX_OWN_POINTS_PER_SCENARIO })
   } catch (err) {
     return serverError(res, err, 'read the observation points')
+  }
+}
+
+// ── The advisor's own level ──────────────────────────────────────────────────────────
+
+/**
+ * Both advisor maps for a firm, and this advisor's slice of them.
+ *
+ * @param {string} firmId - the verified scope
+ * @param {string|null} advisorId - the verified advisor
+ * @returns {Promise<{declinesMap: object, ownMap: object, declines: object, own: object}>}
+ */
+async function loadAdvisorState (firmId, advisorId) {
+  const declinesMap = readAdvisorDeclines(await readScopeConfig(firmId, ADVISOR_KEYS.advisorDeclines))
+  const ownMap = readAdvisorOwn(await readScopeConfig(firmId, ADVISOR_KEYS.advisorOwn))
+  const mine = stateForAdvisor(declinesMap, ownMap, advisorId)
+  return { declinesMap, ownMap, declines: mine.declines, own: mine.own }
+}
+
+/** Write one advisor map back, with the house dev fallback. */
+async function writeAdvisorMap (firmId, part, value, savedBy) {
+  try {
+    await overlay.saveFirmConfig(firmId, ADVISOR_KEYS[part], value, savedBy)
+  } catch (err) {
+    if (!devFallbackAllowed(err)) { throw err }
+    devWrite(ADVISOR_DEV_FILES[part], firmId, value)
+  }
+}
+
+/**
+ * The advisor's entry in a map, created if absent, with the display name refreshed.
+ *
+ * ⚠ THE NAME IS REWRITTEN ON EVERY WRITE, deliberately. This app holds no advisors table to
+ * join a name out of (`config/db-schema.sql`), so the stored copy is all the manager's screen
+ * will ever have. Refreshing it means a change of name in Advisor-e reaches this screen the
+ * next time that advisor touches their list, rather than never.
+ */
+function entryFor (map, advisorId, advisorName) {
+  const existing = map[advisorId]
+  const entry = (existing && typeof existing === 'object' && !Array.isArray(existing))
+    ? {
+        name: existing.name || null,
+        scenarios: { ...(existing.scenarios || {}) },
+        // Carried forward, never reset. It is the only thing standing between a removed
+        // point's id and the next point the advisor writes — see nextAdvisorPointId.
+        nextSeq: { ...(existing.nextSeq || {}) }
+      }
+    : { name: null, scenarios: {}, nextSeq: {} }
+  if (typeof advisorName === 'string' && advisorName.trim()) {
+    entry.name = advisorName.trim().slice(0, 128)
+  }
+  map[advisorId] = entry
+  return entry
+}
+
+/** 400 with the reasons, matching the manager routes' shape. */
+function badRequest (res, errors) {
+  return sendError(res, 400, 'VALIDATION_ERROR', errors.join('; '))
+}
+
+/**
+ * The scenario id from a body, or null when it is not one the platform registers.
+ *
+ * @param {object} body
+ * @returns {string|null}
+ */
+function scenarioFromBody (body) {
+  const id = body && body.scenario ? String(body.scenario) : ''
+  return KNOWN_SCENARIO_IDS.has(id) ? id : null
+}
+
+/**
+ * The body minus the routing fields, so the validator sees everything else and can refuse
+ * what it does not know.
+ *
+ * 🔴 IT PASSES THE REST OF THE BODY THROUGH ON PURPOSE. Picking out `text` and `hintWords`
+ * by name — which this did until a test caught it on 2026-09-08 — makes the validator's
+ * fail-closed rule unreachable: an `id`, a `cannotHear` or an `advisorText` in the body was
+ * silently dropped and the advisor got a 200 saying their point was saved as sent. The id is
+ * still minted server-side either way, so nothing was ever at risk; what was wrong is that
+ * the app answered "yes, as you asked" to something it had not done.
+ *
+ * @param {object} body
+ * @returns {object} the candidate point fields
+ */
+function pointFieldsOf (body) {
+  const out = { ...(body || {}) }
+  delete out.scenario
+  delete out.pointId
+  return out
+}
+
+/**
+ * POST /api/meeting/observations/decline — take an inherited point off MY list, or put it back.
+ *
+ * ⚠ IT DOES NOT TOUCH THE FIRM'S LIST, and cannot: it writes only into this advisor's entry
+ * of the advisor map. Mike ruled on 2026-09-08 that an advisor may set aside a point their
+ * firm set, and ordered in the same breath that the manager be able to see it — which is why
+ * the advisor's display name is stored beside the decision rather than the id alone.
+ *
+ * @route POST /api/meeting/observations/decline
+ * @param {string} req.body.scenario - a registered scenario id
+ * @param {string} req.body.pointId - the inherited point
+ * @param {boolean} req.body.declined - true to set aside, false to put back
+ * @returns {{success: true, declines: string[]}}
+ */
+async function setAdvisorDecline (req, res) {
+  const body = req.body || {}
+  const scenario = scenarioFromBody(body)
+  if (!scenario) { return badScenario(res, body.scenario) }
+  const pointId = typeof body.pointId === 'string' ? body.pointId.trim() : ''
+  if (!pointId) { return badRequest(res, ['pointId is required']) }
+  if (typeof body.declined !== 'boolean') { return badRequest(res, ['declined must be true or false']) }
+  if (!req.advisorId) { return sendError(res, 403, 'FORBIDDEN', 'No advisor on this token') }
+
+  try {
+    // 🔴 A point may only be set aside if the FIRM actually offers it. Without this an
+    // advisor could store a decline for any string, which would sit in the firm's config
+    // for ever and appear on the manager's screen as a point nobody recognises.
+    const resolved = await loadResolvedObservations(req.firmId, readScopeConfig)
+    const firmPoints = (resolved[scenario] && resolved[scenario].points) || []
+    if (body.declined && !firmPoints.some(p => p && p.id === pointId)) {
+      return sendError(res, 404, 'NOT_FOUND', 'No such point in this meeting type')
+    }
+
+    const map = readAdvisorDeclines(await readScopeConfig(req.firmId, ADVISOR_KEYS.advisorDeclines))
+    const entry = entryFor(map, req.advisorId, req.advisorName)
+    const current = Array.isArray(entry.scenarios[scenario]) ? entry.scenarios[scenario] : []
+
+    let next
+    if (body.declined) {
+      next = current.includes(pointId) ? current : current.concat([pointId])
+    } else {
+      next = current.filter(id => id !== pointId)
+    }
+
+    if (next.length) {
+      entry.scenarios[scenario] = next
+    } else {
+      delete entry.scenarios[scenario]
+    }
+    // An advisor with nothing set aside leaves no row behind, so the manager's screen never
+    // has to filter out people who changed their mind.
+    if (!Object.keys(entry.scenarios).length) { delete map[req.advisorId] }
+
+    await writeAdvisorMap(req.firmId, 'advisorDeclines', map, req.advisorId)
+    res.send(200, { success: true, declines: next })
+  } catch (err) {
+    return serverError(res, err, 'save that change')
+  }
+}
+
+/**
+ * POST /api/meeting/observations/own — add a point only I am checked on.
+ *
+ * `hintWords` is accepted: Mike's ruling of 2026-09-08 reversed the recommendation to
+ * withhold it. See `validateAdvisorPoint` for the argument he accepted.
+ *
+ * @route POST /api/meeting/observations/own
+ * @param {string} req.body.scenario
+ * @param {string} req.body.text
+ * @param {string[]} [req.body.hintWords]
+ * @returns {{success: true, point: object}}
+ */
+async function addAdvisorPoint (req, res) {
+  const body = req.body || {}
+  const scenario = scenarioFromBody(body)
+  if (!scenario) { return badScenario(res, body.scenario) }
+  if (!req.advisorId) { return sendError(res, 403, 'FORBIDDEN', 'No advisor on this token') }
+
+  const { ok, errors, value } = validateAdvisorPoint(pointFieldsOf(body), { requireText: true })
+  if (!ok) { return badRequest(res, errors) }
+
+  try {
+    const map = readAdvisorOwn(await readScopeConfig(req.firmId, ADVISOR_KEYS.advisorOwn))
+    const entry = entryFor(map, req.advisorId, req.advisorName)
+    const current = Array.isArray(entry.scenarios[scenario]) ? entry.scenarios[scenario] : []
+
+    if (current.length >= MAX_OWN_POINTS_PER_SCENARIO) {
+      return badRequest(res, ['no more than ' + MAX_OWN_POINTS_PER_SCENARIO + ' points of your own in one meeting type'])
+    }
+
+    const minted = nextAdvisorPointId(current, entry.nextSeq[scenario])
+    const point = { id: minted.id, text: value.text, hintWords: value.hintWords || [] }
+    entry.scenarios[scenario] = current.concat([point])
+    entry.nextSeq[scenario] = minted.seq
+
+    await writeAdvisorMap(req.firmId, 'advisorOwn', map, req.advisorId)
+    res.send(200, { success: true, point })
+  } catch (err) {
+    return serverError(res, err, 'add that point')
+  }
+}
+
+/**
+ * PUT /api/meeting/observations/own — edit a point I added.
+ *
+ * ⚠ ONLY MY OWN. There is no route by which an advisor edits an inherited point's wording,
+ * and that is the design rather than an omission: rewriting the firm's words would be
+ * editing a level above, which P14 forbids.
+ *
+ * @route PUT /api/meeting/observations/own
+ * @returns {{success: true, point: object}}
+ */
+async function updateAdvisorPoint (req, res) {
+  const body = req.body || {}
+  const scenario = scenarioFromBody(body)
+  if (!scenario) { return badScenario(res, body.scenario) }
+  const pointId = typeof body.pointId === 'string' ? body.pointId.trim() : ''
+  if (!pointId) { return badRequest(res, ['pointId is required']) }
+  if (!req.advisorId) { return sendError(res, 403, 'FORBIDDEN', 'No advisor on this token') }
+
+  const { ok, errors, value } = validateAdvisorPoint(pointFieldsOf(body), { requireText: true })
+  if (!ok) { return badRequest(res, errors) }
+
+  try {
+    const map = readAdvisorOwn(await readScopeConfig(req.firmId, ADVISOR_KEYS.advisorOwn))
+    const entry = entryFor(map, req.advisorId, req.advisorName)
+    const current = Array.isArray(entry.scenarios[scenario]) ? entry.scenarios[scenario] : []
+    const index = current.findIndex(p => p && p.id === pointId)
+    // 404 rather than a silent create: a point this advisor does not own is not theirs to
+    // write, and answering 200 would tell them an edit landed that never happened.
+    if (index === -1) { return sendError(res, 404, 'NOT_FOUND', 'No point of yours with that id') }
+
+    const point = { id: pointId, text: value.text, hintWords: value.hintWords || [] }
+    entry.scenarios[scenario] = current.slice(0, index).concat([point], current.slice(index + 1))
+
+    await writeAdvisorMap(req.firmId, 'advisorOwn', map, req.advisorId)
+    res.send(200, { success: true, point })
+  } catch (err) {
+    return serverError(res, err, 'save that point')
+  }
+}
+
+/**
+ * POST /api/meeting/observations/own/remove — remove a point I added.
+ *
+ * A POST rather than a DELETE with a body, matching the manager routes in this file: Restify
+ * 9 does not parse a DELETE body, so a delete that carried one would silently act on
+ * `undefined`.
+ *
+ * @route POST /api/meeting/observations/own/remove
+ * @returns {{success: true}}
+ */
+async function deleteAdvisorPoint (req, res) {
+  const body = req.body || {}
+  const scenario = scenarioFromBody(body)
+  if (!scenario) { return badScenario(res, body.scenario) }
+  const pointId = typeof body.pointId === 'string' ? body.pointId.trim() : ''
+  if (!pointId) { return badRequest(res, ['pointId is required']) }
+  if (!req.advisorId) { return sendError(res, 403, 'FORBIDDEN', 'No advisor on this token') }
+
+  try {
+    const map = readAdvisorOwn(await readScopeConfig(req.firmId, ADVISOR_KEYS.advisorOwn))
+    const entry = entryFor(map, req.advisorId, req.advisorName)
+    const current = Array.isArray(entry.scenarios[scenario]) ? entry.scenarios[scenario] : []
+    if (!current.some(p => p && p.id === pointId)) {
+      return sendError(res, 404, 'NOT_FOUND', 'No point of yours with that id')
+    }
+
+    const next = current.filter(p => p && p.id !== pointId)
+    if (next.length) {
+      entry.scenarios[scenario] = next
+    } else {
+      delete entry.scenarios[scenario]
+    }
+
+    // 🔴 THE ADVISOR'S ROW IS KEPT EVEN WHEN EMPTY, unlike the declines map, and the
+    // difference is deliberate. This row still holds `nextSeq`, the high-water mark that
+    // stops a removed point's id being handed to the next one written. Deleting the row to
+    // keep the map tidy would throw that away and reintroduce the exact collision
+    // nextAdvisorPointId exists to prevent. Nothing reads this map but the advisor
+    // themselves, so an empty row is invisible; the declines map is the one a manager sees,
+    // and that one is still pruned.
+
+    await writeAdvisorMap(req.firmId, 'advisorOwn', map, req.advisorId)
+    res.send(200, { success: true })
+  } catch (err) {
+    return serverError(res, err, 'remove that point')
   }
 }
 
@@ -468,5 +804,9 @@ module.exports = {
   history,
   restore,
   getForAdvisor,
+  setAdvisorDecline,
+  addAdvisorPoint,
+  updateAdvisorPoint,
+  deleteAdvisorPoint,
   readScopeConfig
 }

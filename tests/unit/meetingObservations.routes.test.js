@@ -15,11 +15,12 @@
  *      reads a scope from a body or a query, so one tier cannot touch another's points
  *      even if it asks to. `tier-cascade.md` P6.
  *
- *   3. THE ADVISOR ROUTE IS READ-ONLY TODAY, because the levels below the firm are not
- *      built yet — not because an advisor may not edit. 🔴 Mike's rule, 2026-09-02:
- *      "NOBODY can edit a level ABOVE their own." An advisor writing at their own level or
- *      the business entity's is below them and breaks nothing; what theme 2 protects is the
- *      upward direction, which is the rule that actually exists.
+ *   3. THE ADVISOR'S OWN LEVEL IS NOW BUILT (2026-09-08) and is covered by
+ *      `tests/unit/meetingPresetAdvisor.routes.test.js`, not here. This file stays the
+ *      MANAGER tiers' cover. 🔴 Mike's rule, 2026-09-02: "NOBODY can edit a level ABOVE
+ *      their own." An advisor writing at their own level is below them and breaks nothing;
+ *      what theme 2 protects is the upward direction, which is the rule that actually
+ *      exists. The BUSINESS-ENTITY level is still unbuilt.
  *
  * The fourth theme is the storage discipline the house already has: a live MySQL REFUSAL
  * must surface as a 500 and never fall through to the dev JSON, or an outage gets signed
