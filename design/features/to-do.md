@@ -37,7 +37,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | --- | --- | --- | --- | --- | --- |
 | 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | **Mike** | — |
 | 2 | **4.50** Nobody has seen a real conversation's recommendations reach the Team tab | 2 | — | Outside | — |
-| 3 | **4.58** Meeting Review — four slices built; follow-through, expiry and §4 remain ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-07 |
+| 3 | **4.58** Meeting Review — five slices built; follow-through and §4 remain ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-07 |
 | 4 | **4.60** QuickBooks and MYOB are supported on paper, not against a real file ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 5 | **4.62** Saved reports per client — so a client can edit what the advisor opened ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 6 | **4.66** Economic analysis — the forecast asks the AI for market research ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |

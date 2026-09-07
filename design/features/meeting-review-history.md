@@ -4,7 +4,7 @@
 > disagree, **the Brief wins**.
 >
 > ⚠ **This page records how the design was arrived at, and what each build found on the way** —
-> §§1–7 are the design sessions, §8 is the build record. **Four slices are built** (see the Brief);
+> §§1–7 are the design sessions, §8 is the build record. **Five slices are built** (see the Brief);
 > the line that used to stand here saying nothing was built was true on 2026-09-01 and has been
 > replaced rather than left with a date beside it.
 
@@ -274,3 +274,20 @@ not repeated; this is the sequence, and the things found on the way.
   worth keeping:** this is the only block here that must NOT cascade upward (P13), so a tier above
   the firm is answered 403 rather than an empty screen, which would read as "your firm did nothing".
   37 new tests, suite 8,184 green (419 suites), lint 0.
+- **2026-09-07, slice 5 — transcript expiry.** Built the same day on Mike's *"finish the meeting
+  review"*, closing the half of P8 he had deliberately deferred on 2026-09-01. **The design
+  question was which clock**, and the answer was already written down: `createMeeting` stores
+  `retentionMonths` as it stood on the day, with its own comment saying *"a firm that later moves
+  its dial must not retrospectively change what a client was told at this meeting."* So each
+  meeting expires against its own record and never against the firm's live setting — resolving the
+  current dial would silently extend a transcript somebody was promised would be gone. **The
+  second question was scope, and it is the one worth arguing:** the two reports go with the
+  transcript, because every coaching finding quotes it verbatim and the summary is written from
+  it. Expiring `transcript.json` alone would delete one file and leave the client's own words in
+  two others — the letter of the promise kept and its substance broken, which is the same argument
+  `destroyMeeting` already makes for stop-and-delete. **A meeting with no recorded period is never
+  purged, only counted:** it cannot be expired against a promise nobody can produce. The meeting
+  record survives, stamped `transcriptPurgedAt`, so an expiry is provable rather than a directory
+  that quietly went missing. The sweep runs daily from the server's listen callback — never at
+  import, so requiring `restify-server.js` in a test deletes nothing — and its timer is `unref`'d.
+  14 new tests.

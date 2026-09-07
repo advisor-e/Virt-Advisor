@@ -27,10 +27,13 @@
 > deliberately does **not** cascade upward: P13 keeps everything derived from a recorded meeting
 > inside the firm it came from. Paths are marked **BUILT** in §5.
 >
-> **NOT built: the rest of the manager's half.** No follow-through check across meetings, and no
-> transcript-purge job (deferred deliberately — Mike, 2026-09-01; destroying the AUDIO is the
-> promise the consent line makes and it is built, expiring the TRANSCRIPT is its own piece of
-> work). Nor is the **firm glossary** the drawing's jargon count needs — that tile is absent by
+> **Slice 5 (2026-09-07) — transcript expiry.** The clock a firm sets, and a client is shown on
+> the consent screen, now runs: a daily sweep destroys the transcript **and both reports** of any
+> meeting past the period stored on its own record. P8's other half, deferred by Mike on
+> 2026-09-01 and built on his word *"finish the meeting review"*. Paths are marked **BUILT** in §5.
+>
+> **NOT built:** the follow-through check across meetings. Nor is
+> the **firm glossary** the drawing's jargon count needs — that tile is absent by
 > Mike's ruling of 2026-09-02, because a default word-list would be inventing his advisory
 > content. The unmarked rows of §5 still describe what is *intended*, not what runs.
 >
@@ -361,7 +364,7 @@ is *intended* to live, chosen to match the existing architecture rather than inv
 | The reports screen | `components/MeetingReview.vue`, `pages/meeting-review.vue` | ✅ **BUILT** — reached from the recorder's finished state, which is its only route in. Four named differences from the drawing (below) |
 | Hearability of a point | `cannotHear` + `hintWords` on an observation point | ✅ **BUILT** — the two fields slice 1 deliberately left out, now settled: the AUTHOR marks a point un-hearable, never the model. Schema only; no content was written |
 | The manager's aggregate | `server/utils/meetingAggregate.js`, `server/routes/meetingPatterns.js`, `components/firm/FirmMeetingPatterns.vue` | ✅ **BUILT (slice 4, 2026-09-07)** — counts per point over the current month, above Mike's 5-advisor / 20-meeting gate. 🔴 **FIRM TIER ALONE and it does NOT cascade upward** — P13, and the route answers every tier above the firm **403** rather than an empty screen, because an empty screen reads as "your firm did nothing". No advisor identifier leaves `meetingAggregate.js`: advisors are counted and then forgotten, so the shape cannot carry one |
-| Transcript expiry | a scheduled purge over `MEETING_AUDIO_DIR` | proposed — **deliberately not in slice 2** (Mike, 2026-09-01). Destroying the audio is the promise the consent line makes; expiring the transcript is its own piece of work |
+| Transcript expiry | `server/utils/meetingPurge.js`, swept daily from `restify-server.js` | ✅ **BUILT (slice 5, 2026-09-07)** — deferred by Mike on 2026-09-01 and built on his word *"finish the meeting review"*. 🔴 **Each meeting expires on the period stored on ITS OWN record — what the client was shown that day — never the firm's current dial**, which would silently extend a transcript somebody was promised would be gone. 🔴 **The two reports go with the transcript**, because every coaching finding quotes it verbatim; deleting `transcript.json` alone keeps the client's words in two other files. ⚠ **A meeting with no recorded period is never purged**, only reported — it cannot be expired against a promise nobody can produce. The meeting record survives, stamped `transcriptPurgedAt`, so the expiry is provable rather than a directory that quietly went missing (P8) |
 
 **✅ SETTLED IN SLICE 3 — the question slice 1 deliberately left open.** A point such as *"I drew
 the numbers out for the client"* cannot be heard on audio (§3), and the drawing shows it as a third

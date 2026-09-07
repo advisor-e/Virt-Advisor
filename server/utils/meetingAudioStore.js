@@ -421,6 +421,57 @@ function readTranscript (meetingId) {
 }
 
 /**
+ * Destroy the TEXT a meeting left behind — the transcript and both reports — keeping the
+ * meeting record itself.
+ *
+ * 🔴 THIS IS THE OTHER HALF OF P8, AND IT RETURNS ITS PROOF like `destroyAudio` does. A firm
+ * sets how long transcripts are kept and the client is shown that figure before they agree;
+ * this is what makes that number true rather than decorative.
+ *
+ * 🔴 THE REPORTS GO WITH THE TRANSCRIPT, and that is the whole point rather than a side effect.
+ * Every finding in the coaching notes quotes the transcript verbatim, and the summary is written
+ * from it. Expiring `transcript.json` alone would delete the file and keep the client's own words
+ * in two others — the letter of the promise kept and its substance broken. It is the same
+ * argument `destroyMeeting` already makes for "stop and delete".
+ *
+ * ⚠ THE MEETING RECORD SURVIVES on purpose. `meeting.json` holds no client content — a firm id,
+ * an advisor id, dates and counts — and it is what lets anyone afterwards prove the expiry ran
+ * rather than that a directory quietly went missing.
+ *
+ * @param {string} meetingId
+ * @returns {{removed: number, bytesRemoved: number, textRemains: boolean}}
+ */
+function destroyTranscript (meetingId) {
+  const dir = _meetingDir(meetingId)
+  const text = [TRANSCRIPT_FILE, _reportName('summary'), _reportName('coaching')]
+
+  let removed = 0
+  let bytesRemoved = 0
+  text.forEach((n) => {
+    const file = path.join(dir, n)
+    try {
+      bytesRemoved += fs.statSync(file).size
+      fs.unlinkSync(file)
+      removed += 1
+    } catch (_e) {
+      // Already gone, or could not be removed. The re-read below decides which.
+    }
+  })
+
+  // Verified, not assumed — the same reason `destroyAudio` re-reads.
+  const textRemains = text.some((n) => {
+    try {
+      fs.accessSync(path.join(dir, n))
+      return true
+    } catch (_e) {
+      return false
+    }
+  })
+
+  return { removed, bytesRemoved, textRemains }
+}
+
+/**
  * The two reports, kept in this same directory.
  *
  * 🔴 THEY LIVE HERE SO "STOP AND DELETE" TAKES THEM. `destroyMeeting` removes every file in
@@ -476,6 +527,7 @@ module.exports = {
   readAssembled,
   destroyAudio,
   destroyMeeting,
+  destroyTranscript,
   writeTranscript,
   readTranscript,
   writeReport,
