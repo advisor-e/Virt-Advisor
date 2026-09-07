@@ -742,11 +742,37 @@ had before either was added; nothing is withheld and no figure changes.
 The most recent twelve complete months arrive tagged `seeded` — a starting point, never a
 forecast, and its own third badge state on `ProvenanceBadge`. The second file is not a
 convenience: a current-year export almost always stops part-way through a month, and
-`assembleMonthlySeries` strips incomplete trailing months, so **one file can yield eleven
-usable months and no seed at all**, leaving the advisor to type twelve by hand. With 24
+`assembleMonthlySeries` strips incomplete trailing months, so one file often yields eleven
+whole months rather than twelve. **Those eleven are seeded and the twelfth is left empty**
+— Mike's ruling of 2026-09-07, reversing a rule that refused the lot. The grid tags only
+the months that came from the file; the rest are amber, and the missing ones are **named**
+beneath it rather than counted. ⚠ **The part month is still never seeded**, and that half
+of the old rule is deliberate: a month eight days long wearing the same badge as the real
+ones is a *wrong* figure, where an empty month is a *missing* one. With 24
 months in hand the twelve are always there. Where the two files overlap, the **older**
 file's figures win — a closed financial year has been reconciled and a still-open one is
 restating itself — and the advisor is told on screen when it happens.
+
+**Step 3 takes a quick-fire forecast** (2026-09-07, item 4.71, its own approved drawing
+[`../mockups/three-way-forecast-quick-fire.html`](../mockups/three-way-forecast-quick-fire.html)).
+A tick at the top of the step — the tick-to-open shape approved for the economic analysis
+five days earlier, so it is one pattern and not a second — opens three rows across three
+years: sales growth, gross margin, overheads increase. Each compounds on the year before,
+year 1 growing on the figures already on the form, which is what makes *"adds or subtracts
+from previous known data"* true after an advisor has corrected a seeded figure. It sets
+**three fields only** — the sales months, the mark-up and the overheads — because a growth
+percentage says nothing about when a debtor pays or what tax rate applies. **It never writes
+to the advisor's own figures**: it produces its own year and `buildInputs()` substitutes it,
+so unticking restores everything with nothing to undo. Growth **keeps last year's monthly
+shape**, month against the same month, because a seasonal business flattened into twelve
+equal months produces a cash line that will not happen; where the months are level the
+screen says so. The row reads *Gross margin* with the mark-up it converts to beneath it —
+the engine works in mark-up on cost and the advisor thinks in margin. With no file dropped
+the tick appears **greyed, saying what it needs**, because hiding it makes an advisor think
+the app cannot do this. ⚠ **SLICE 2 IS NOT BUILT: step 4 still draws one year.**
+`computeThreeYearForecast` and `POST /api/report/three-way-forecast/three-years` exist and
+are tested, but **no screen has ever called them**, so the grid drives year 1 alone today.
+It gets its own drawing for approval; the quick-fire drawing does not approve it.
 
 **Step 3 takes planned capital purchases and sales** (2026-09-03, its own approved drawing
 [`../mockups/three-way-forecast-capital.html`](../mockups/three-way-forecast-capital.html)).
@@ -986,7 +1012,13 @@ merely bad, and an advisor scanning twelve columns reads past a minus sign. An o
 balance sheet that does not balance **warns rather than blocking** — it is the advisor's
 own figures that are out, and refusing to compute would hide the forecast that tells them
 so — **and the warning is a full-width band, not only the sidebar tile, so it survives into
-the print.** A gap in a sidebar is easy to hand a client without noticing; the band cannot
+the print.** A third band was added **2026-09-07 and it is AMBER, not red**: a forecast with
+no sales in it at all now says so, names what the sliders cannot do, and says where to fix
+it. The other two name figures that are *wrong*; this one names figures that are *correct*
+and answer a question nobody meant to ask. Mike met it as a **$202,781 loss "on $0 of
+sales"** that balanced perfectly, with four live sliders that could not move a figure —
+his by-month export had stopped part-way through a month and the whole seed was refused.
+A gap in a sidebar is easy to hand a client without noticing; the band cannot
 be. Both bands rest on `balanceCheck !== 0`, which is safe because the check cancels to an
 **exact** zero even on fractional figures — pinned by a test, because a speck of floating
 point would put a red band announcing a gap "of 0" in front of every client.

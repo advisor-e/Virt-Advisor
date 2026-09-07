@@ -9,54 +9,54 @@
 
 ---
 
-## 2026-09-07 (second session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-07 (third session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,058 green** (415 suites), lint **0 errors**. Three commits — `25588c9`, `7fef416`,
-`5130a7c` — each through the full push gate. Everything pushed. Nothing uncommitted.
+Suite **8,108 green** (416 suites), lint 0 errors. Seven commits, and **both pull requests
+merged (#64 and #65)** — branch level with `master`, nothing uncommitted.
 
-**4.68 CLOSED — the code was right and its own note was stale.** Step 4's $0 screen is
-correct: the intake's `immediate` watcher means `seed` is never null, so the report's no-seed
-sample path is unreachable from the page — deliberately, because `buildInputs()` sends every
-field explicitly so Big Bird Grass Seed cannot reach a client. One comment block, no code
-change. That flag is load-bearing for 4.62.
+**4.60 — MYOB filed its fixed assets as CURRENT.** MYOB heads them *"Property, Plant &
+Equipment"*; the section test knew only "fixed" and "non-current", so all six rows fell to
+the current side. `assets` came back empty and 145,300 went to the other-current-asset
+catch-all. The sheet still tied — which is why nothing complained — but every asset opened
+at **zero, so the forecast charged no depreciation for the year**. Fixed via one named
+constant. **4.60 has NOT moved**; it still waits on four real exports.
 
-**4.69 FIXED AND PROVEN, STILL OPEN.** §2 asked one date to be both the start of the
-assessment period and the yardstick for how current a figure is. Given 30 November 2026 the
-model searched *"monetary policy … 2026 November"*, found nothing, and §§1 and 3 came back
-unsourced. Reproduced twice, then split into `{{assessmentDate}}` + `{{today}}` — Mike's
-wording. The same run after: **14 searches, 13 sources, 1,948 words, accepted.** Runs 13–16
-are on [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md).
+**4.71 QUICK-FIRE — SLICE 1 BUILT, drawn and approved the same day, five questions ruled.**
+A tick on step 3 opens three rows × three years (growth, margin, overheads). Arithmetic in
+`utils/quickFireForecast.js`, pinned to the drawing's own figures. ⚠ **Slice 2 is the larger
+half and is NOT approved by that drawing** — step 4 draws one year, so the grid collects
+three and shows one. It gets its own drawing.
 
-**4.60 — MYOB READ NOTHING AT ALL, AND THEN READ CASH SHORT.** Mike supplied a format
-comparison and pointed at two reference workbooks; running our own parser over them found
-three faults, all fixed and tested. MYOB puts the account code in its own column, so
-`rowShape` took the code as the label — every section came through as `4-0000` and a whole
-balance sheet parsed to `proposals: {}`, accepted on screen with no error. Then cash read
-**64,500 of a real 89,500**: `BANK_ACCOUNT_RE` matched "savings" but not MYOB's "Online
-**Saver** Account". Then the P&L period line gave no date and no year. **4.60 has NOT moved
-and must not** — both workbooks are one fictional company with identical figures, three
-reports per file; they are reference material, not exports.
+**"The sliders do nothing" — they never were broken.** Mike's by-month export was the
+current year, stopped part-way through a month, that month was stripped, and short of twelve
+the seed was refused entirely. He got a **$202,781 loss "on $0 of sales"**, balanced, with
+four live sliders multiplying zero. Proven by driving the real app with Playwright: with
+figures, the same slider moved sales 890,000 → 1,112,500.
+
+**🔴 MIKE REVERSED THE SEED RULE — this is the one that touches your files.** A short run
+now **seeds the months it has** and names the ones it does not. The part month is still
+never seeded (a wrong figure vs a missing one). Step 4 also gained an **amber** band when a
+forecast has no sales at all.
 
 ### 🔴 DESKTOP — read this first
 
-- **The OpenAI account is OUT OF CREDITS** (`credit_balance_exhausted`). Economic analysis
-  fails for every user until Mike tops it up, and it is what blocks 4.69's last check.
-- **You used 4.68 and 4.69 for DIFFERENT work today.** Both of yours are closed on your
-  branch; ours were open items and are not the same things. Second collision in a week.
-- **Shared files:** `fillPlaceholders` in `server/routes/economicAnalysis.js` now takes four
-  arguments (`assembled, brief, assessmentDate, now`), and `data/ai-prompts.json` §2 is
-  rewritten. In `xeroReportParser.js`, `rowShape`, `BANK_ACCOUNT_RE` and the period patterns
-  changed — **shared by every intake, so Xero and QuickBooks were checked and are unchanged.**
-  No forecast component or intake screen was touched.
+- **Shared files changed:** `server/routes/report.js` (the monthly-seed block),
+  `threeWayForecastAssembler.js` (now returns `salesSeededMonths`),
+  `ThreeWayForecastIntake.vue` (per-month tagging + quick-fire), `ThreeWayForecastReport.vue`
+  (the no-sales band), `locales/en.json`. **Two of your route tests changed** —
+  `threeWayForecastIntakeRoute.test.js` pinned "short runs seed nothing" and now pins the
+  opposite.
+- **The OpenAI account is still OUT OF CREDITS.** Economic analysis fails for every user.
+- Your 2026-09-07 handover was read. Nothing of 4.70's was touched.
 
 ### Next
 
-**4.69 needs one run on the no-date default path** once credits return — §2 renders correctly
-there, only the model's reply is unseen. A `SECTIONS_MISSING` run today is unexplained and is
-NOT this change: it is the second sighting in two days, and **a third is a real fault**.
+**4.71 slice 2** — the three-year step 4. Needs a drawing and Mike's approval before code.
+**4.69** still owes one run on the no-date path once credits return. **4.60** waits on four
+real exports; MYOB's fixed-asset gap is now closed.
 
-**4.60 still waits on four real exports**, and one MYOB gap is open: the fixed-asset
-categories come back empty where QuickBooks fills them. Recorded in `supportedPackages.js`.
+⚠ Worth knowing, not filed: driving the app with Playwright, `setInputFiles` on step 1
+never triggered an intake POST — no error either. It may be a harness artefact rather than
+a real fault, so it is recorded here rather than as a task nobody can reproduce.
 
-**Eight live items.** 4.69 `activeOn` this laptop; 4.66's flag cleared — built, pushed, and
-waiting on Mike.
+**Nine live items.** 4.71 `activeOn` this laptop.
