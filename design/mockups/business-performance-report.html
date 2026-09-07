@@ -212,13 +212,14 @@ td.pct{color:var(--muted);font-size:12.5px}
     <li><b>Models already built</b> feed pages without new maths: the two-year trend read (six of the seven drivers, banded on the firm's thresholds), Quick Position, Working Capital Cycle, EBITDA, Volatility, and the economic analysis with its sourced research and approval gate.</li>
     <li><b>The HOPE model</b> feeds the outlook page's discussion, not its numbers.</li>
   </ul>
-  <h2>Four rulings this drawing needs from you</h2>
+  <h2>The four rulings — all ruled by Mike, 2026-09-07</h2>
   <div class="q">
-    <b>1</b><span><b>Business Health Score.</b> Drawn on page 3 with no number. No formula exists in any source, so none is invented. Your rule, or the panel goes.</span>
-    <b>2</b><span><b>Industry benchmarks.</b> No source of industry medians exists in the app. Page 8 carries the three-year trend alone, and points to the Economic &amp; Industry Outlook page for sourced, dated context.</span>
-    <b>3</b><span><b>Inventory.</b> No reader reads an inventory report today. Inventory Performance is an optional page fed by figures the advisor types, badged as such, until a reader exists.</span>
-    <b>4</b><span><b>Next steps.</b> Page 9 is written by the advisor. An AI draft is a separate decision with the same approval and privacy questions the economic analysis settled.</span>
+    <b>1</b><span><b>Business Health Score.</b> The banded-measures score: eight measures, 2 for green, 1 for amber, 0 for red on the firm's thresholds, out of 100, with the reading naming what pulled it down. The Piotroski F-score is cited on the page as its basis, for credibility. Drawn on page 3.</span>
+    <b>2</b><span><b>Industry benchmarks.</b> From the Stats NZ Business Performance Benchmarker held in the app: an industry finder over its ANZSIC06 classes, a size dropdown showing each band's turnover range for that industry, and the client's eight ratios against the median with the interquartile range. Drawn in the controls and on page 8. The research prompt keeps its five sections.</span>
+    <b>3</b><span><b>Inventory.</b> An inventory-export reader is part of this project as its own stage. Inventory Performance becomes a base page once that reader exists; until then it is offered only when the advisor has entered the figures.</span>
+    <b>4</b><span><b>Next steps.</b> Advisor-written in the first build. An AI draft is a later stage with its own privacy ruling before it is built.</span>
   </div>
+  <p style="margin-top:8px">Band wording on the score ("Good", "Steady", "At risk") and the sample industry are placeholders to be ruled at build time, not decided here.</p>
   <h2>One deviation, stated</h2>
   <p>The Brief's rule that every model screen looks identical was made for advisor-driven screens. This is a document a client reads, and the deck you supplied has its own look, so the report is drawn in that look. You rule on it here.</p>
 </section>
@@ -226,11 +227,13 @@ td.pct{color:var(--muted);font-size:12.5px}
 <div class="controls">
   <span class="lbl">Client</span><span class="pill">Harbourside Kitchen Supplies Ltd</span>
   <span class="lbl">Period</span><span class="pill">FY2026 · 1 Jul 2025 – 30 Jun 2026</span>
+  <span class="lbl">Industry</span><span class="pill">Kitchenware wholesaling · ANZSIC class from the finder ▾</span>
+  <span class="lbl">Size</span><span class="pill">Small · turnover $1.6M–$3.9M in this industry ▾</span>
   <span class="lbl">Pages</span><span class="pill">10 of 15</span>
   <span class="dd"><span class="btn">Add a page</span>
     <div class="dd-menu">
       <div><span>Optional pages</span><span>Offered only when the figures behind them exist</span></div>
-      <div><span>Inventory Performance</span><span class="off">Needs an inventory report · not read yet</span></div>
+      <div><span>Inventory Performance</span><span class="off">Needs the inventory export · reader is a later stage of this project</span></div>
       <div><span>Sales Volatility</span><span class="ok">12 months of sales by month · ready</span></div>
       <div><span>Economic &amp; Industry Outlook</span><span class="ok">Research run 2, approved 6 Sep · added</span></div>
       <div><span>The Eight Levers</span><span class="ok">Ready</span></div>
@@ -295,9 +298,10 @@ td.pct{color:var(--muted);font-size:12.5px}
     <div class="panel soft">
       <h3>Business Health Score</h3>
       <div class="score">
-        <div class="ring"><span>—</span></div>
-        <div><span class="ruling">Ruling needed</span><p class="sub" style="margin:8px 0 0">No formula for this score exists in the deck, the workbook or the app. The panel is drawn where the deck puts it and shows no number until you rule what it is made of, or that it goes.</p></div>
+        <div class="ring" style="background:conic-gradient(var(--teal) 0 69%, var(--rule) 69% 100%)"><span style="color:var(--teal-deep)">69</span></div>
+        <div><b style="color:var(--amber-ink)">Steady</b><p class="sub" style="margin:6px 0 0">Five of eight measures are green. Stock and debtors pull the score down.</p></div>
       </div>
+      <p class="sub" style="margin:12px 0 0;font-size:11.5px">How it is scored: each of the eight measures on pages 4 and 7 scores 2 in green, 1 in amber and 0 in red against your firm's thresholds, out of 100. The method follows the Piotroski F-score, the pass-or-fail test count investors use to screen a company's financial strength.</p>
     </div>
   </div>
   <span class="foot">Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 · sample figures</span><span class="no">3</span>
@@ -506,9 +510,21 @@ td.pct{color:var(--muted);font-size:12.5px}
     </table>
     <p class="sub" style="margin:10px 0 0">An arrow reads the direction against your firm's thresholds, not merely up or down: debtor days rising is a down arrow.</p>
   </div>
-  <div class="panel warn" style="margin-top:18px">
-    <h3>Where your industry sits <span class="ruling">Ruling needed</span></h3>
-    <p class="para">The deck compares four measures with an industry median. No source of industry medians exists in the app, and a bar drawn on an unsourced figure would look exactly like a fact. Until a source is ruled, this page carries your own three years, and the Economic &amp; Industry Outlook page carries sourced, dated context on the conditions around your business.</p>
+  <div class="panel" style="margin-top:18px">
+    <h3>You against your industry <span class="prov file" style="border-color:#0e5f5a;color:#0e5f5a">Stats NZ</span></h3>
+    <p class="sub" style="margin:0 0 10px">Kitchenware wholesaling, small businesses by turnover · Stats NZ Business Performance Benchmarker 2025, provisional · accuracy: good</p>
+    <table>
+      <tr><th>Ratio</th><th class="n">You</th><th class="n">Industry median</th><th class="n">Middle half of the industry</th><th></th></tr>
+      <tr><td>Return on equity</td><td class="n">52%</td><td class="n">31%</td><td class="n pct">18% – 47%</td><td><span class="light g"></span>above</td></tr>
+      <tr><td>Gross profit ratio</td><td class="n">41%</td><td class="n">38%</td><td class="n pct">31% – 44%</td><td><span class="light g"></span>within</td></tr>
+      <tr><td>Return on total assets</td><td class="n">29%</td><td class="n">14%</td><td class="n pct">7% – 22%</td><td><span class="light g"></span>above</td></tr>
+      <tr><td>Liability structure</td><td class="n">45%</td><td class="n">58%</td><td class="n pct">41% – 72%</td><td><span class="light g"></span>within</td></tr>
+      <tr><td>Wages to turnover</td><td class="n">21%</td><td class="n">17%</td><td class="n pct">12% – 23%</td><td><span class="light a"></span>within, high</td></tr>
+      <tr><td>Quick ratio</td><td class="n">1.3</td><td class="n">1.1</td><td class="n pct">0.7 – 1.6</td><td><span class="light g"></span>within</td></tr>
+      <tr><td>Current ratio</td><td class="n">2.1</td><td class="n">1.6</td><td class="n pct">1.1 – 2.3</td><td><span class="light g"></span>within</td></tr>
+      <tr><td>Stock turnover per year</td><td class="n">5.2</td><td class="n">7.4</td><td class="n pct">5.5 – 10.1</td><td><span class="light c"></span>below</td></tr>
+    </table>
+    <p class="sub" style="margin:10px 0 0">"Within" means inside the middle half of businesses of your size in your industry; "above" and "below" mean outside it. Ratios use Stats NZ's definitions so the comparison is like for like. Sample figures.</p>
   </div>
   <span class="foot">Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 · sample figures</span><span class="no">8</span>
 </section>
@@ -525,7 +541,7 @@ td.pct{color:var(--muted);font-size:12.5px}
   <div class="panel" style="margin-top:22px">
     <h3>Next review</h3>
     <p class="para">December 2026 quarter · Prepared by Jordan Reid, Reid &amp; Partners</p>
-    <p class="sub" style="margin:8px 0 0"><span class="ruling">Ruling needed</span> Whether an AI draft of this page is offered to the advisor is a separate decision, with the same approval record and privacy rule the economic analysis settled.</p>
+    <p class="sub" style="margin:8px 0 0">Ruled 2026-09-07: this page is written by the advisor. An AI draft the advisor edits and approves is a later stage, with its own privacy ruling before it is built.</p>
   </div>
   <span class="foot">Harbourside Kitchen Supplies Ltd · Business Performance Report · FY2026 · sample figures</span><span class="no">9</span>
 </section>

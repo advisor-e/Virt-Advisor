@@ -2,8 +2,9 @@
 
 > **Status: ⏳ DESIGNED, NOT BUILT — 2026-09-07.** Item **4.70**. The drawing is
 > [`../mockups/business-performance-report.html`](../mockups/business-performance-report.html),
-> registered in [`../ARTEFACTS.md`](../ARTEFACTS.md), and it waits on Mike's approval and four
-> rulings (§3). **Nothing below is running code.** Mike's request, in his words:
+> registered in [`../ARTEFACTS.md`](../ARTEFACTS.md). **The four rulings it needed were all given
+> by Mike on 2026-09-07 (§3)**; the drawing itself still waits on his approval to build from.
+> **Nothing below is running code.** Mike's request, in his words:
 >
 > > *"develop a rich, colourful, and easy to understand business performance report to be read
 > > and understood by private business owners. The report needs to be 7-10 pages (pages can be
@@ -79,6 +80,22 @@ PDF library runs on Node 14.15, and the browser's own dialog means a client's fi
 sent anywhere to be rendered. One page per section, portrait, orientation set and paper size
 never chosen.
 
+**P9 · Industry benchmarks come from the Stats NZ Business Performance Benchmarker held in the
+app, never from a search** (Mike, 2026-09-07). The dataset is uploaded at the mentor tier on a hub
+page and replaced each release, carrying its year and Stats NZ's provisional/final and accuracy
+marks. Size bands are Stats NZ's, which are *turnover quartiles per industry* — *"four even
+quarters of the industry population based on the number of businesses"* — so the turnover range
+that makes a business "small" differs by industry and is shown beside each band. The eight
+benchmark ratios use Stats NZ's definitions, and so does the report's own copy of each, or the
+comparison is not like for like. A benchmark with no dataset row is not drawn; a suppressed
+value (`S`, `C`) is shown as suppressed, never as zero.
+
+**P10 · The Business Health Score is a count, not a formula, and it says so** (Mike, 2026-09-07).
+Eight banded measures, 2 for green, 1 for amber, 0 for red on the firm's thresholds, out of 100,
+with the reading naming the measures that pulled it down. The page cites the Piotroski F-score as
+the method's basis. A score whose parts a client cannot find on the pages is a verdict, not a
+finding.
+
 **P8 · Saved per client, through the saved-report store.** The report is a per-client, per-model
 saved row like the other twelve screens (item 4.62), so it can be reissued next quarter and
 opened to the client on the advisor's decision. The client's page opens it read-only; a report
@@ -88,21 +105,73 @@ is not a calculator for the client to edit.
 
 ## 3. Design considerations
 
-**The four rulings the drawing waits on.** Each is drawn on the mockup with no number and a
-*Ruling needed* mark, so the gap is visible rather than filled:
+**The four rulings, all given by Mike on 2026-09-07**, one at a time, each as the
+recommendation put to him unless noted:
 
-1. **The Business Health Score.** No formula exists in the deck, the workbook, Cash Drivers,
-   HOPE or the app. Mike rules what it is made of, or that the panel goes.
-2. **Industry benchmarks.** The deck compares four measures with an industry median. No source of
-   medians exists in the app. Until one is ruled, the Trends page carries the client's own three
-   years, and the Economic & Industry Outlook page carries sourced, dated context instead. A
-   sixth research-prompt section asking for industry figures is possible and is Mike's call, not
-   an inference.
-3. **Inventory.** No reader reads an inventory report today. Inventory Performance is an optional
-   page fed by figures the advisor types, badged as typed, until a reader exists. The Stock
-   Purchasing workbook is its natural home when it is ported.
-4. **Next steps.** Advisor-written. An AI draft is a separate decision carrying the approval
-   record and the privacy rule the economic analysis settled.
+1. **The Business Health Score** — the banded-measures count (P10), with the Piotroski F-score
+   cited on the page: *"lets site it and explain that's what determines the score - gives it more
+   credibility to readers."* Band wording ("Good", "Steady", "At risk") is a placeholder to be ruled
+   at build time. Altman's Z'-score was considered and left as a possible later optional line.
+2. **Industry benchmarks** — from the Stats NZ Business Performance Benchmarker held in the app
+   (P9), with an industry finder and a size dropdown showing each band's turnover range. Mike's
+   own addition: *"you'll need to insert a field for the advisor since the stats NZ data is broken
+   into different sizes per industry... the category headers so an advisor knows what seperates a
+   business from being determined as micro, small, medium etc."* An earlier yes to a sixth
+   research-prompt section was superseded the same hour when Stats NZ's own documentation showed
+   the data is a published table with per-industry cut-offs; the prompt keeps its five sections.
+   **The eight ratios Stats NZ publishes are exactly the workbook's yearly ratios, with the
+   workbook's definitions** — which is why the "quirks" below exist and must be ported as they are.
+3. **Inventory** — *"just make building an inventory reader part of the project - a seperate
+   stage if needed."* An inventory-export reader is a stage of this project. It is marked
+   `verified` only against real exports (the 4.60 rule), so real inventory files will be asked
+   for when the stage starts. Until it exists the page is offered only when the advisor has typed
+   the figures, badged as typed.
+4. **Next steps** — advisor-written in the first build. An AI draft the advisor edits and approves
+   is a later stage with its own privacy ruling before it is built; the safest shape sends only the
+   eight ratios and their bands, never the client's name, figures or file.
+
+**The inventory reader's target layouts — supplied by Mike 2026-09-07**, each *"supposed to be
+the layout"*, so both are **expected** until a real export is read, exactly as 4.60 holds
+QuickBooks and MYOB. One row per product in both; one internal record, two column maps:
+
+| Field the report needs | Cin7 Core | Unleashed |
+|---|---|---|
+| Code, name | `SKU`, `Product Name` | `Product Code`, `Product Description` |
+| Category | `Category` (+ `Brand`, `Barcode`, not needed) | `Group Name` |
+| Where held | `Default Location` | `Warehouse Code` (+ `Bin Location`) |
+| Units on hand / allocated / available | `OnHand`, `Allocated`, `Available` | `Qty On Hand`, `Qty Allocated`, `Qty Available` |
+| Units on order | `OnOrder` | — (absent) |
+| Cost per unit | `Unit Cost` | `Average Cost` |
+| Value at cost | `Total Value` | `Total Cost On Hand` |
+| Currency | — (absent) | `Base Currency Code` (e.g. `NZD`) |
+
+Mike's parsing notes on Cin7, kept verbatim: *"Allocated vs. Available: Cin7 explicitly separates
+reserved/allocated stock from uncommitted (Available) physical inventory. Cost Accounting: Tracks
+Unit Cost alongside pre-calculated Total Value. Identifier Names: Prefers SKU and Product Name."*
+And on Unleashed, likewise verbatim: *"Identifier Names: Uses Product Code and Product
+Description instead of SKU/Product Name. Cost Metric: Explicitly defaults to Average Cost rather
+than unit cost. Multi-Warehouse / Location: Uses Warehouse Code paired with detailed Bin Location
+columns. Currency Explicit: Includes a dedicated Base Currency Code column for foreign-currency
+multi-location setups."* Two consequences the reader must honour: the cost basis differs
+(Cin7's unit cost, Unleashed's average cost) and the report says which it is reading; and
+Unleashed's currency code is checked against the firm's currency, never assumed — a file in
+another currency is refused by name rather than summed as if it were the firm's.
+
+What the two yield: stock at cost by category (value summed by category), units on hand,
+allocated and available per line, the location split, and on-order units where the file has
+them. **What neither yields: any ageing or slow-moving figure, because neither carries a
+date.** Stock ageing needs each package's ageing or movement report, or the advisor's typed
+figures until one is read. Never derive an age from these files; a plausible ageing chart with no
+date behind it is the exact fault P3 exists to prevent. Stock turnover and days on the shelf stay
+computed from the accounts, not from these files, so the two sources can be checked against each
+other. The reader refuses a file whose columns match neither map, by name, as the accounts readers
+do.
+
+**Stages, in build order.** (1) Ratio-hub model and golden test; route; catalogue row.
+(2) The base pages from this year's and last year's Balance Sheet and P&L, the dropdown, print,
+saved per client. (3) The benchmarker: dataset upload on the mentor hub, the industry finder, the
+size band, the Trends comparison. (4) The inventory reader and the Inventory page. (5) Monthly and
+five-year views as the readers grow. (6) The AI draft of next steps, after its privacy ruling.
 
 **What the workbook is, read on 2026-09-07.** One data sheet holds fifteen account lines for
 twelve months and five years; about seventeen ratios are computed from them, monthly and yearly;
@@ -164,7 +233,8 @@ reference the AI already reads, and with item 4.66.
 | Research and its approval gate | `server/routes/economicAnalysis.js`, `components/EconomicAnalysisPack.vue` |
 | Provenance, glossary, print precedent | `components/base/ProvenanceBadge.vue`, `components/base/GlossaryTerm.vue`, `components/ThreeWayForecastReport.vue` (`@page`, `printStatements`) |
 | Saved per client | `server/utils/savedReports.js`, `mixins/savedReport.js` |
-| Planned, none exists yet | `server/report/dashboardReportsModel.js` + golden test; a report page and its page components under `report-shell`; the print stylesheet |
+| Planned, none exists yet | `server/report/dashboardReportsModel.js` + golden test; a report page and its page components under `report-shell`; the print stylesheet; a benchmarker data file + mentor-hub upload + industry finder (stage 3); an inventory-export reader under `server/report/intake/` (stage 4) |
+| The benchmark source | Stats NZ Business Performance Benchmarker (DataInfo+; JSON download; ANZSIC06; 220 industries; turnover-quartile size bands; median and 25th/75th percentiles; accuracy categories; `S`/`C` suppression) — its own "Information about the data" is quoted in §2 P9 |
 
 **Order of build, once the drawing is approved:** model and golden test for the ratio hub
 first (`ADDING-A-REPORT.md` steps 1–2), then the route and catalogue row (`CLASS_REPORT`, no
@@ -178,7 +248,7 @@ Buefy tooltip was dead in the app while every test passed (4.67); register the c
 `plugins/buefy.js` and look at it in a browser.
 
 **Known state.** Drawn, not built. No route, no model, no page, no test exists for this
-feature. The four rulings in §3 are open.
+feature. The four rulings in §3 are given; the drawing awaits Mike's approval to build from.
 
 ---
 

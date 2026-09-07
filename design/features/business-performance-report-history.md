@@ -52,7 +52,12 @@ of the new 3 way model."*
 | Page count | Base 7–10 pages; up to 15 in all; optional pages only where the content exists | 2026-09-07, Mike |
 | Pages are added by the advisor | From a dropdown ("droptab") on the report | 2026-09-07, Mike |
 | What the report draws on | The support folder (deck, workbook, Cash Drivers, HOPE) **plus** every model already in the section | 2026-09-07, Mike |
-| Industry context | Reuse the forecast's economic analysis; no invented medians | 2026-09-07, from Mike's pointer to the forecast feature; the medians ruling itself stays open |
+| Industry context | The Economic & Industry Outlook page reuses the forecast's economic analysis for sourced narrative; no invented medians | 2026-09-07, from Mike's pointer to the forecast feature |
+| The Business Health Score | The banded-measures count out of 100, Piotroski F-score cited on the page; Altman Z' considered, left as a possible later line | 2026-09-07, Mike: "i like it and it appears sound… lets site it" |
+| Industry benchmarks | From the Stats NZ Business Performance Benchmarker held in the app; industry finder + size dropdown with each band's turnover range; the prompt keeps five sections (a sixth section was approved and superseded within the hour on Stats NZ's own documentation) | 2026-09-07, Mike, "yes" — with his addition of the advisor field and the size-band headers |
+| Inventory | An inventory-export reader is a stage of this project, not later work | 2026-09-07, Mike: "just make building an inventory reader part of the project - a seperate stage if needed" |
+| Next steps | Advisor-written first; AI draft a later stage with its own privacy ruling | 2026-09-07, Mike, "yes" |
+| Inventory reader's target layouts | Cin7 Core (12 columns) and Unleashed (11 columns), neither with dates — expected layouts until real files are read; one internal record, two column maps | 2026-09-07, Mike, pasted both layouts with four-row samples and Cin7's parsing characteristics |
 
 ---
 
