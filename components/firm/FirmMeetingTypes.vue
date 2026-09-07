@@ -1,5 +1,10 @@
 <template lang="pug">
-.mtypes(v-if="visible")
+//- 🔴 `visible || loadError`, NOT `visible`. A failed read leaves `tier` empty, so gating
+//- the section on `visible` alone hid the section AND the message explaining why — a
+//- manager saw blank space where the editor should be, with nothing to act on. That is the
+//- "a failed call must never produce a silently empty page" rule in CLAUDE.md. Fixed
+//- 2026-09-08 on Mike's instruction, the same day slice 3 spread it to three more tiers.
+.mtypes(v-if="visible || loadError")
   .box.mb-4
     h4.title.is-6.mb-1 The kinds of meeting
     p.is-size-7.has-text-grey.mb-4
@@ -8,7 +13,11 @@
     b-message(v-if="loadError" type="is-danger" size="is-small") {{ loadError }}
     b-message(v-if="saveError" type="is-danger" size="is-small") {{ saveError }}
 
-    p.is-size-7.has-text-grey.py-4(v-if="!loading && !types.length")
+    //- ⚠ `!loadError` on this line and on the add block below. Without it a failed read
+    //- renders "No kinds of meeting yet. Add the first one below." beside the error — the
+    //- list is empty because nothing could be READ, and saying it is empty because none
+    //- exist invites a manager to re-create meetings the firm already has.
+    p.is-size-7.has-text-grey.py-4(v-if="!loading && !loadError && !types.length")
       | No kinds of meeting yet. Add the first one below.
 
     table.table.is-fullwidth.is-narrow.mtypes-table(v-if="types.length")
@@ -47,7 +56,7 @@
         span.is-size-7 {{ nameFor(d) }}
         b-button(size="is-small" type="is-text" :loading="saving" @click="declineById(d, false)") Use it again
 
-    .mtypes-add.mt-5
+    .mtypes-add.mt-5(v-if="!loadError")
       template(v-if="adding")
         b-field(label="What this meeting is called" label-position="on-border")
           b-input(v-model="newName" :maxlength="maxNameLength" placeholder="Bad news conversation")
@@ -136,10 +145,11 @@ export default {
      * level ABOVE their own" — is enforced, and where every other tab on this hub rests.
      *
      * What it still does is hold the screen back until `load()` has answered, so a manager
-     * never sees an empty list and an "add" button before the real one arrives. A failed
-     * load leaves `tier` empty and the section closed — pre-existing behaviour, preserved
-     * deliberately rather than changed inside a one-line slice; it also swallows
-     * `loadError`, which is raised as its own question rather than fixed here.
+     * never sees an empty list and an "add" button before the real one arrives.
+     *
+     * ⚠ IT IS NOT THE WHOLE CONDITION ON THE SECTION, and must not be made one. A failed
+     * read leaves `tier` empty, so `v-if="visible"` alone hid the error message along with
+     * the editor. The template gates on `visible || loadError`; see the note there.
      *
      * @returns {boolean}
      */

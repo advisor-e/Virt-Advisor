@@ -72,16 +72,29 @@ describe('the kinds of meeting cascade to every manager tier', () => {
     expect(wrapper.vm.visible).toBe(false)
   })
 
-  it('stays closed when the load fails, rather than offering controls it could not fill', async () => {
-    global.fetch = jest.fn(() => Promise.reject(new Error('network down')))
+  it('shows the failure rather than an empty space when the load fails', async () => {
+    // An HTTP error rather than a rejected fetch, deliberately: `api()` replaces a network
+    // rejection with its own connection message (the house error rule), so only this path
+    // carries the BACKEND's own words through to the screen — which is what lets this test
+    // assert the failure surfaced without pinning any label we wrote.
+    global.fetch = jest.fn(() => Promise.resolve({
+      ok: false,
+      json: () => Promise.resolve({ error: { code: 'UNAVAILABLE', message: 'meeting types unavailable' } })
+    }))
     const wrapper = mountWithBuefy(FirmMeetingTypes, {
       propsData: { apiToken: 'test-token' },
       mocks: { $buefy: { toast: { open: jest.fn() }, dialog: { confirm: jest.fn() } } }
     })
     await flush()
+
+    // 🔴 THE FAULT THIS PINS (fixed 2026-09-08). `tier` stays empty when the read fails, so
+    // a section gated on `visible` alone hid the editor AND the message saying why — a
+    // manager saw blank space and had nothing to act on or report. UAT cannot catch it,
+    // because a section that renders nothing looks identical to one a tier is not meant to
+    // have.
+    expect(wrapper.text()).toContain('meeting types unavailable')
+
+    // ...and the editor itself is still not offered, because there is nothing to edit.
     expect(wrapper.vm.visible).toBe(false)
-    // The error is recorded even though this section does not currently render it — the
-    // swallowed-error question is raised in the handover, not decided here.
-    expect(wrapper.vm.loadError).not.toBe('')
   })
 })
