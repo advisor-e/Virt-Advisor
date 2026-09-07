@@ -259,7 +259,7 @@
       "scoreReason": "helps sell the package",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
+      "waitingOn": "Us",
       "why": "Mike asked for a rich, colourful business performance report for private business owners, 7 to 10 base pages and up to 15, built from the accounts, the deck, the cash drivers and every model in this section.",
       "risk": "A client reads this on paper and acts on it. A wrong ratio, an invented health score or an unsourced industry median looks exactly like a fact, which UAT cannot catch. Every figure carries provenance and the four unruled parts show no number.",
       "askedBy": {
@@ -267,9 +267,13 @@
         "ours": false,
         "detail": "2026-09-07 — \"lets get started on the dashboard reports\", then the full request: \"a rich, colourful, and easy to understand business performance report ... 7-10 pages (pages can be added via droptab request by adviosor) ... contents table, executive summary with graphics, a summary financial dashboard\"; cap raised to 15 the same day."
       },
-      "touches": "Design only so far: design/mockups/business-performance-report.html, design/features/business-performance-report.md and its history. Then: a report page and components under the report shell, a print stylesheet, server/report/dashboardReportsModel.js for the workbook's ratio hub, and the saved-report store per client.",
-      "note": "Base 7–10 pages, up to 15; optional pages only where the figures exist (Mike, 2026-09-07). All four rulings given the same day: the health score is a banded-measures count citing the Piotroski F-score; benchmarks come from the Stats NZ Business Performance Benchmarker held in the app with an industry finder and size bands; an inventory reader is a stage of this project; next steps are advisor-written with an AI draft a later stage. The drawing still needs Mike's approval to build from. Look follows his deck, a stated deviation from P1.",
-      "comment": "2026-09-07 — filed on Mike's instruction after the workbook, deck, Cash Drivers and HOPE were read; Brief and mockup written and the four rulings given the same day. Waits on his approval of the drawing."
+      "touches": "Built: server/report/dashboardReportsModel.js and its golden test. Design: design/mockups/business-performance-report.html and -intake.html, the Brief and History. Next: the route and catalogue row, the report page and components under report-shell, print, saved per client; then the Stats NZ benchmarker and the inventory reader.",
+      "note": "Both drawings approved by Mike 2026-09-07 and all four rulings given: health score a banded count citing the F-score; benchmarks from the Stats NZ Business Performance Benchmarker held in the app with an industry finder and size bands; an inventory reader as a stage; next steps advisor-written. Stage 1 model + golden test built the same day, pinned to the workbook's cells. Base 7–10 pages, up to 15. Wording on the input steps, the score bands and the disclaimer still to rule.",
+      "comment": "2026-09-07 — filed, drawn twice (the first rejected for ignoring the deck), ruled, approved and stage 1 built, all in one desktop session. activeOn desktop.",
+      "activeOn": {
+        "machine": "desktop",
+        "since": "2026-09-07"
+      }
     }
   ]
 }

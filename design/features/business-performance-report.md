@@ -1,10 +1,11 @@
 # Business Performance Report — the Brief
 
-> **Status: ⏳ DESIGNED, NOT BUILT — 2026-09-07.** Item **4.70**. The drawing is
-> [`../mockups/business-performance-report.html`](../mockups/business-performance-report.html),
-> registered in [`../ARTEFACTS.md`](../ARTEFACTS.md). **The four rulings it needed were all given
-> by Mike on 2026-09-07 (§3)**; the drawing itself still waits on his approval to build from.
-> **Nothing below is running code.** Mike's request, in his words:
+> **Status: ☑ APPROVED TO BUILD FROM — Mike, 2026-09-07; stage 1 in progress.** Item **4.70**.
+> The two drawings are [`../mockups/business-performance-report.html`](../mockups/business-performance-report.html)
+> (the client's report) and [`../mockups/business-performance-report-intake.html`](../mockups/business-performance-report-intake.html)
+> (the advisor's six steps), both registered in [`../ARTEFACTS.md`](../ARTEFACTS.md). **The four
+> rulings were given the same day (§3) and both drawings approved with one "yes".** Every label on
+> the input steps is still proposed wording to confirm at build time. Mike's request, in his words:
 >
 > > *"develop a rich, colourful, and easy to understand business performance report to be read
 > > and understood by private business owners. The report needs to be 7-10 pages (pages can be
@@ -246,7 +247,8 @@ reference the AI already reads, and with item 4.66.
 | Research and its approval gate | `server/routes/economicAnalysis.js`, `components/EconomicAnalysisPack.vue` |
 | Provenance, glossary, print precedent | `components/base/ProvenanceBadge.vue`, `components/base/GlossaryTerm.vue`, `components/ThreeWayForecastReport.vue` (`@page`, `printStatements`) |
 | Saved per client | `server/utils/savedReports.js`, `mixins/savedReport.js` |
-| Planned, none exists yet | `server/report/dashboardReportsModel.js` + golden test; a report page and its page components under `report-shell`; the print stylesheet; a benchmarker data file + mentor-hub upload + industry finder (stage 3); an inventory-export reader under `server/report/intake/` (stage 4) |
+| ✅ **Stage 1, built 2026-09-07 — the ratio hub** | [`server/report/dashboardReportsModel.js`](../../server/report/dashboardReportsModel.js), pinned by [`tests/unit/dashboardReportsModel.test.js`](../../tests/unit/dashboardReportsModel.test.js) to 60-odd cells of the workbook's *API Data* sheet (yearly T and X, monthly F and Q, the quarterly and volatility blocks, the cash movement summary). Per period: every total and ratio the sheet computes, the sheet's definitions kept (§3). Plus `healthScore()`, the count Mike ruled. **One recorded deviation:** where the sheet's IFERROR prints 0, the model returns `null` — no sample cell hits it. Not a route, not a screen yet |
+| Planned, none exists yet | the route and catalogue row (stage 1's tail); a report page and its page components under `report-shell`; the print stylesheet; a benchmarker data file + mentor-hub upload + industry finder (stage 3); an inventory-export reader under `server/report/intake/` (stage 4) |
 | The benchmark source | Stats NZ Business Performance Benchmarker (DataInfo+; JSON download; ANZSIC06; 220 industries; turnover-quartile size bands; median and 25th/75th percentiles; accuracy categories; `S`/`C` suppression) — its own "Information about the data" is quoted in §2 P9 |
 
 **Order of build, once the drawing is approved:** model and golden test for the ratio hub
@@ -260,8 +262,11 @@ economic analysis prints only on the approval record, never on a screen flag. Th
 Buefy tooltip was dead in the app while every test passed (4.67); register the component in
 `plugins/buefy.js` and look at it in a browser.
 
-**Known state.** Drawn, not built. No route, no model, no page, no test exists for this
-feature. The four rulings in §3 are given; the drawing awaits Mike's approval to build from.
+**Known state.** Both drawings approved. **Stage 1's model and golden test are built** (the
+table above); no route, catalogue change, page or intake exists yet, and nothing has been run
+against a real export. The eight benchmark ratios are computed here with the workbook's
+definitions and will be compared with Stats NZ's own definitions at stage 3 before any
+comparison is drawn.
 
 ---
 

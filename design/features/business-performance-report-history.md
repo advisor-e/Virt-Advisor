@@ -58,6 +58,7 @@ of the new 3 way model."*
 | Inventory | An inventory-export reader is a stage of this project, not later work | 2026-09-07, Mike: "just make building an inventory reader part of the project - a seperate stage if needed" |
 | Next steps | Advisor-written first; AI draft a later stage with its own privacy ruling | 2026-09-07, Mike, "yes" |
 | The look | The first drawing (portrait, half-empty, its own palette) was rejected: *"The one provided is full and complete, rich in colour and completes the page - why did you avoid following the example?"* Redrawn the same day landscape, slide for slide against the deck, in the brand palette, with a logo place; a disclaimer page added on his instruction | 2026-09-07, Mike |
+| Both drawings approved to build from | The client's report (second drawing) and the advisor's six input steps | 2026-09-07, Mike, "yes" to *"Do you approve both drawings to build from, so I start stage one"* |
 | Inventory reader's target layouts | Cin7 Core (12 columns) and Unleashed (11 columns), neither with dates — expected layouts until real files are read; one internal record, two column maps | 2026-09-07, Mike, pasted both layouts with four-row samples and Cin7's parsing characteristics |
 
 ---
