@@ -1734,6 +1734,7 @@
         }
       },
       "assume": {
+        "monthsNeeded": "{months} did not come through — the export stopped before it. Enter it yourself, or drop last year's by-month report as well. | {months} did not come through — the export stopped before them. Enter them yourself, or drop last year's by-month report as well.",
         "quickFire": {
           "label": "Quick-fire forecast",
           "sub": "Grow last year's figures by a percentage instead of typing twelve months. Three years at once.",

@@ -1021,6 +1021,85 @@ describe('stock already paid for, not yet arrived', () => {
 })
 
 /**
+ * 🔴 A PART-SEEDED SALES GRID — Mike's ruling, 2026-09-07.
+ *
+ * "I want it to bring in the sales and cost figures it DOES have - and notify the user that
+ * the remaining months need to be added manually." Before this, a run short of twelve
+ * seeded nothing at all, and he met the consequence the same day: eleven complete months
+ * discarded, and a forecast showing a $202,781 loss on $0 of sales.
+ *
+ * What earns a test here is the TAGGING, not the wording. A month the export never reached
+ * carrying a green "starting point" badge is the badge saying the opposite of the truth,
+ * and an advisor would leave a zero in the forecast believing it came from their client's
+ * accounts.
+ */
+describe('the sales grid when only some months came through', () => {
+  /** An intake response seeding `n` of the twelve months. */
+  function partial (n) {
+    const sales = new Array(12).fill(0)
+    for (let i = 0; i < n; i++) { sales[i] = 1000 * (i + 1) }
+    return intakeResponse({
+      proposal: { sales },
+      provenance: { sales: 'seeded' },
+      salesSeededMonths: n
+    })
+  }
+
+  test('🔴 only the months that came from the file are tagged as seeded', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(partial(8))
+    expect(w.vm.form.salesSeededMonths).toBe(8)
+    expect(w.vm.isSeededMonth(0)).toBe(true)
+    expect(w.vm.isSeededMonth(7)).toBe(true)
+    expect(w.vm.isSeededMonth(8)).toBe(false)
+    expect(w.vm.isSeededMonth(11)).toBe(false)
+    w.destroy()
+  })
+
+  test('the months still owed are named, so nobody has to count boxes', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(partial(9))
+    expect(w.vm.monthsNeedingYou).toHaveLength(3)
+    expect(w.vm.needsAMonth(9)).toBe(true)
+    expect(w.vm.needsAMonth(8)).toBe(false)
+    w.destroy()
+  })
+
+  test('a full twelve names nothing as owed', () => {
+    const w = mountIntake()
+    w.vm.applyIntake(partial(12))
+    expect(w.vm.monthsNeedingYou).toEqual([])
+    expect(w.vm.isSeededMonth(11)).toBe(true)
+    w.destroy()
+  })
+
+  test('with no file at all, no month is marked as owed — every one is the advisor’s', () => {
+    // Marking twelve months amber on a form nobody has uploaded to adds nothing.
+    const w = mountIntake()
+    expect(w.vm.form.salesSource).toBe('entered')
+    expect(w.vm.monthsNeedingYou).toEqual([])
+    expect(w.vm.needsAMonth(0)).toBe(false)
+    w.destroy()
+  })
+
+  test('a form saved before this existed reads as whole, not as partial', () => {
+    const old = {
+      opening: {},
+      assets: [],
+      shareholders: [],
+      overheads: {},
+      sales: new Array(12).fill(5000),
+      salesSource: 'seeded',
+      purchases: zeroes()
+    }
+    const w = mountIntake({ restore: old })
+    expect(w.vm.form.salesSeededMonths).toBe(12)
+    expect(w.vm.monthsNeedingYou).toEqual([])
+    w.destroy()
+  })
+})
+
+/**
  * The quick-fire option (item 4.71) — drawing approved by Mike 2026-09-07.
  *
  * 🔴 EVERY FAULT THIS FEATURE CAN HAVE IS A PLAUSIBLE WRONG NUMBER. Growth applied to the
