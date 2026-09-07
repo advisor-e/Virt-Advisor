@@ -1,6 +1,9 @@
 # Meeting Review — the Brief
 
-> ## ⚠ THREE SLICES ARE BUILT. THE MANAGER'S HALF IS STILL A DESIGN.
+> ## ✅ SIX SLICES ARE BUILT. THE ADVISOR'S SIDE AND THE MANAGER'S ARE BOTH DONE.
+>
+> *(This heading read "three slices are built, the manager's half is still a design" until
+> 2026-09-07, when slices 4, 5 and 6 landed. Replaced rather than dated — one fact, one home.)*
 >
 > **Slice 1 (2026-09-01) — the observation points.** The mentor authors the platform list, a
 > firm may edit / switch off / add to it, and an advisor reads their own list before a meeting.
@@ -38,10 +41,13 @@
 > under the heading *"Since we last met"*, above the observation points — its own drawing,
 > approved with all four questions ruled the same day. Paths are marked **BUILT** in §5.
 >
-> **NOT built:** nothing further on the advisor's side. Nor is
-> the **firm glossary** the drawing's jargon count needs — that tile is absent by
-> Mike's ruling of 2026-09-02, because a default word-list would be inventing his advisory
-> content. The unmarked rows of §5 still describe what is *intended*, not what runs.
+> **NOT built:** nothing further on the advisor's side. The unmarked rows of §5 still describe
+> what is *intended*, not what runs.
+>
+> 🔴 **THE JARGON TILE IS NOT AN OPEN ITEM. IT WAS REMOVED — Mike's ruling, 2026-09-02.** It is
+> settled and closed, and it is **not** waiting on him for a word list. A session that re-raises
+> it as "needs Mike's words" has turned a decision back into work, which is the failure this
+> repository's rules exist to stop. It happened on 2026-09-07 and was corrected the same day.
 >
 > ⚠ **A REAL CLIENT MUST NOT BE RECORDED UNTIL §4 IS DONE — AND NOW THE CODE CAN.** That
 > changed on 2026-09-01: until slice 2 there was nothing to misuse. The four items in §4 are
@@ -253,8 +259,12 @@ tell a pause for thought from a pause for a phone call, and cannot hear a docume
 table. A report that does not admit its blind spots will be trusted in places it should not be.
 
 **The mechanical set is cheap, credible and should ship first.** Talk-time ratio, longest
-monologue, open versus closed questions, silence after a question, jargon density against a
-firm-editable glossary, and whether the agreed actions were reached before the time ran out. None
+monologue, open versus closed questions, silence after a question, ~~jargon density against a
+firm-editable glossary~~ and whether the agreed actions were reached before the time ran out.
+🔴 **JARGON DENSITY WAS PROPOSED HERE AND THEN REMOVED — Mike's ruling, 2026-09-02.** The struck
+words are left visible rather than deleted so a later session reading this paragraph does not
+rebuild it: it needed a firm glossary, and writing a default word-list would have been us
+inventing his advisory content. **Four figures ship, not six** (§5). None
 needs a model, none can hallucinate, and *"you spoke for 78% of a discovery meeting"* is more
 useful than most of what the AI will produce.
 
@@ -365,7 +375,7 @@ is *intended* to live, chosen to match the existing architecture rather than inv
 | Consent screens | `components/MeetingConsentPanel.vue`, wording in `locales/en.json` | ✅ **BUILT** — English only. The other seven locales are deliberately empty: §5 of the wording artefact requires a translator competent in the local law, not a machine translation |
 | Recording screen | `components/MeetingRecorder.vue` — `MediaRecorder` inside `mounted()` only | ✅ **BUILT** — with the wake-lock and the loud alarm of P10/P11 |
 | The advisor's page | `pages/meeting-record.vue` | ✅ **BUILT** — carries the §4 warning banner |
-| Mechanical measures | `server/utils/meetingMetrics.js` — no AI | ✅ **BUILT** — four figures, not the drawing's six. **Jargon** needs a firm glossary that does not exist (Mike's ruling 2026-09-02: absent, not empty). **Actions agreed** cannot be counted, only understood, so it comes from the summary generator with a citation and renders with the summary — leaving it here would print *"no AI is involved"* above a figure an AI produced |
+| Mechanical measures | `server/utils/meetingMetrics.js` — no AI | ✅ **BUILT** — four figures, not the drawing's six. **Jargon was REMOVED by Mike's ruling of 2026-09-02** — absent, not empty, and not awaiting a word list from him. **Actions agreed** cannot be counted, only understood, so it comes from the summary generator with a citation and renders with the summary — leaving it here would print *"no AI is involved"* above a figure an AI produced |
 | The two report generators | `server/utils/meetingReports.js` — separate prompts | ✅ **BUILT** — two prompts, two calls, two stores. Every quote is verified against the transcript before storage; an uncited one, or one the CLIENT said, is dropped and the point reports not found. The transcript is wrapped in delimiters and the model told it is not instructions |
 | The reports screen | `components/MeetingReview.vue`, `pages/meeting-review.vue` | ✅ **BUILT** — reached from the recorder's finished state, which is its only route in. Four named differences from the drawing (below) |
 | Hearability of a point | `cannotHear` + `hintWords` on an observation point | ✅ **BUILT** — the two fields slice 1 deliberately left out, now settled: the AUTHOR marks a point un-hearable, never the model. Schema only; no content was written |
@@ -474,7 +484,8 @@ the drawing's chrome states the month and offers no picker, so the screen shows 
 only; a selector would be a deviation, and it is recorded here rather than added.
 
 **What is still not built** — the follow-through check across meetings, the transcript-expiry job,
-and the firm glossary the jargon tile would need (absent by Mike's ruling, not empty).
+and nothing else. **The jargon tile is not on this list**: it was REMOVED by Mike's ruling of
+2026-09-02, not deferred.
 
 🔴 **FOUR THINGS SLICE 3 DECIDED, ALL RULED BY MIKE ON 2026-09-02 after being put to him one at a
 time.** Each was a place the approved drawing asked for something the code cannot do — found by
