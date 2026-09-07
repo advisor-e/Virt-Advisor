@@ -265,6 +265,127 @@ describe('MYOB — reconstructed layout, NOT a real export', () => {
   })
 })
 
+/**
+ * 🔴 THE SAME MYOB REPORTS WITH MYOB'S OWN "Account No." COLUMN — the column the two
+ * fixtures above leave out, and the whole reason they passed while the reader extracted
+ * nothing at all.
+ *
+ * Found 2026-09-07 by running a fuller reference workbook through the real parser. Every
+ * label arrived as an account code, so the sections came through as `4-0000` / `5-0000`,
+ * nothing matched, and an MYOB balance sheet produced `proposals: {}` — no figures, and
+ * no error on screen saying the file had not been read. `supportedPackages.js` recorded
+ * MYOB as handling its published layout at the time; it did not handle it at all.
+ *
+ * These tests earn their place because no MYOB file has ever reached UAT, and the failure
+ * they guard is silent: the screen accepts the upload and simply seeds nothing.
+ */
+describe('MYOB with its Account No. column — the shape that read as nothing', () => {
+  const CODED_BS = [
+    ['Apex Test Ltd'],
+    ['Balance Sheet Summary'],
+    ['As of December 31, 2025'],
+    [],
+    ['Account No.', 'Account Name', 'Selected Period', 'Prior Year'],
+    ['1-0000', 'ASSETS'],
+    ['1-1000', 'Current Assets'],
+    ['1-1100', 'Cheque Account - Operating', 64500, 42100],
+    ['1-1120', 'Online Saver Account', 25000, 15000],
+    ['1-1200', 'Trade Debtors', 34200, 28900],
+    ['1-1300', 'Stock on Hand', 45800, 39400],
+    [null, 'Total Current Assets', 173000, 128200],
+    ['2-0000', 'LIABILITIES'],
+    ['2-1000', 'Current Liabilities'],
+    ['2-1100', 'Trade Creditors', 22400, 18500],
+    [null, 'Total Current Liabilities', 22400, 18500]
+  ]
+
+  const CODED_PL = [
+    ['Apex Test Ltd'],
+    ['Profit & Loss (With Year to Date)'],
+    ['January 2025 through December 2025'],
+    [],
+    ['Account No.', 'Account Name', 'Selected Period', '% of Income', 'YTD Amount'],
+    ['4-0000', 'INCOME'],
+    ['4-1000', 'Service & Repair Revenue', 285400, 0.592, 285400],
+    ['4-1100', 'Parts Sales', 142100, 0.295, 142100],
+    ['4-1200', 'Custom Fabrication', 54300, 0.113, 54300],
+    [null, 'Total INCOME', 481800, 1, 481800],
+    ['6-0000', 'EXPENSES'],
+    ['6-1000', 'Advertising & Marketing', 4200, 0.009, 4200],
+    ['6-1400', 'Rent & Lease Premises', 48000, 0.1, 48000],
+    [null, 'Total EXPENSES', 52200, 0.109, 52200]
+  ]
+
+  test('🔴 the account NAME is the label, never the account code', () => {
+    const bs = extractForecastBalanceSheet(CODED_BS)
+    // Before the fix every one of these was absent: the labels were "1-1200" and friends,
+    // so no figure matched anything and the whole position came back empty.
+    expect(bs.figures.accountsReceivable.value).toBe(34200)
+    expect(bs.figures.inventory.value).toBe(45800)
+    expect(bs.figures.accountsPayable.value).toBe(22400)
+  })
+
+  test('🔴 a coded P&L yields named expense lines and its income total', () => {
+    const pl = extractProfitLoss(CODED_PL)
+    expect(pl.incomeTotal).toBe(481800)
+    const names = pl.expenseLines.map(l => l.name)
+    expect(names).toContain('Advertising & Marketing')
+    expect(names).toContain('Rent & Lease Premises')
+    // The codes must not survive as names — that was the visible symptom.
+    expect(names.some(n => /^\d-\d{4}$/.test(n))).toBe(false)
+  })
+
+  test('no section is reported unrecognised by its account code', () => {
+    const pl = extractProfitLoss(CODED_PL)
+    const coded = (pl.warnings || []).filter(w => /'\d-\d{4}'/.test(w))
+    expect(coded).toEqual([])
+  })
+
+  test('the figure taken is the period, not the % of income beside it', () => {
+    const pl = extractProfitLoss(CODED_PL)
+    const rent = pl.expenseLines.find(l => l.name === 'Rent & Lease Premises')
+    // 48000, never 0.1 — the first figure column is the period, and the reader takes it.
+    expect(rent.amount).toBe(48000)
+  })
+
+  /**
+   * 🔴 THIS ONE GUARDS A WRONG NUMBER, NOT A MISSING ONE. `BANK_ACCOUNT_RE` matched
+   * "savings account" but not MYOB's own "Online **Saver** Account", so cash came through
+   * as 64,500 of a real 89,500 — one of the two accounts, silently. A short cash figure
+   * looks entirely reasonable on screen, which is precisely why it needs a test.
+   */
+  test('🔴 every bank account is counted, "Saver" as well as "Savings"', () => {
+    const bs = extractForecastBalanceSheet(CODED_BS)
+    expect(bs.figures.cashAtBank.value).toBe(89500)
+    expect(bs.figures.cashAtBank.candidates.map(c => c.label))
+      .toEqual(['Cheque Account - Operating', 'Online Saver Account'])
+  })
+
+  test('cash is found with no "Bank Accounts" heading above it', () => {
+    // The Quick Position path filtered by section only, so an MYOB file showed no cash at
+    // all there. The fallback reads the accounts by name when no such section exists.
+    const qp = extractBalanceSheet(CODED_BS)
+    expect(qp.proposals.cash.value).toBe(89500)
+  })
+
+  test('🔴 "Month YYYY through Month YYYY" is a period, so the report has a year', () => {
+    // Without this the P&L had no date and no year at all, and the forecast reads the
+    // year to know which period it is seeding.
+    const pl = extractProfitLoss(CODED_PL)
+    expect(pl.reportDate).toBe('January 2025 through December 2025')
+    expect(pl.year).toBe(2025)
+  })
+
+  test('a label that is genuinely only a code keeps the code', () => {
+    // The swap needs a real name after it; with nothing to swap to, nothing changes.
+    const bs = extractForecastBalanceSheet([
+      ['Apex Test Ltd'], ['Balance Sheet'], ['As of December 31, 2025'], [],
+      ['1-1200', 34200]
+    ])
+    expect(bs.recognised).toBe(true)
+  })
+})
+
 describe('Xero stays correct — the fixes for the other two changed nothing here', () => {
   // Every change above touched shared code, so the package that IS verified against
   // real exports is re-checked in the same file.

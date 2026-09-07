@@ -131,15 +131,15 @@
       "blocks": null,
       "waitingOn": "Mike",
       "why": "The reader now names QuickBooks Online and MYOB as supported, but both were tested only against reconstructed layouts; no real export from either has been read.",
-      "risk": "A reconstruction proves the reader copes with the documented layout, not that the layout is right; the real Xero exports refuted three assumptions. A plausible wrong opening balance is exactly what UAT cannot catch. Every intake screen says the two are unconfirmed and tags each seeded figure by its source.",
+      "risk": "A reconstruction proves the reader copes with the layout it was drawn from, not with the real one. Proven 2026-09-07: a fuller MYOB reference workbook read NOTHING at all, and once that was fixed cash still came back as 64,500 of a real 89,500 — a plausible short figure, exactly what UAT cannot catch. Every intake screen says the two are unconfirmed and tags each seeded figure by its source.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-02 — \"keep it as a job for future - keep moving forward\", after being told that four real exports are what would move the two packages from `expected` to `verified`."
       },
-      "touches": "Nothing until the files arrive. Then: tests/unit/accountingPackages.test.js (the reconstructions become real-shaped fixtures), server/report/intake/xeroReportParser.js if the real layouts differ, and server/report/intake/supportedPackages.js to flip each `confidence` to `verified` — which its own guard will not allow until the evidence line says a real export was read.",
-      "note": "Waits on four files from Mike: a real Balance Sheet and Profit and Loss from QuickBooks Online, and the same two from MYOB. Nothing is blocked meanwhile. The five defects the reconstructions found are in report-models.md §4b. Do not promote either package on more reconstructions: the guard in accountingPackages.test.js refuses `verified` without a named real export.",
-      "comment": "2026-09-02 — filed on Mike's instruction: \"keep it as a job for future - keep moving forward\"."
+      "touches": "CHANGED 2026-09-07 ahead of the files: rowShape, BANK_ACCOUNT_RE and the period patterns in server/report/intake/xeroReportParser.js, the MYOB evidence in supportedPackages.js, and eight new tests in tests/unit/accountingPackages.test.js. When the real files arrive: those same three, plus flipping each `confidence` to `verified` — which its own guard will not allow until the evidence line names a real export.",
+      "note": "⚠ STILL WAITS ON FOUR REAL FILES — a Balance Sheet and P&L from QuickBooks Online and from MYOB. The two workbooks in 'C:\\Documents\\Visual Code Projects\\Perf Report\\xero reports' are NOT exports: one fictional company, identical figures in both packages, three reports per file. They earned their place anyway, finding three real MYOB faults on 2026-09-07, all fixed and tested — every label read as an account code so nothing parsed at all; cash counted one bank account of two; the period line gave no year. STILL OPEN: MYOB fixed-asset categories come back empty. QuickBooks needed no change.",
+      "comment": "2026-09-02 — filed on Mike's instruction: \"keep it as a job for future - keep moving forward\". 2026-09-07 — he supplied a structural comparison of the two formats and pointed to two reference workbooks; running the real parser over them found three MYOB faults, all fixed on his approval. The package stays `expected`: reference files are not exports, and the guard rightly refuses to say otherwise."
     },
     {
       "ref": "4.62",
@@ -159,17 +159,13 @@
         "detail": "2026-09-03 — \"once advisor has been involved and secured terms, we DO want them to be involved and can edit thereafter - so long as any changes are made clear they are edited by the client\". Part 2 of the request that built the stub the same day."
       },
       "touches": "A saved-report store through firmOverlay ({ firm, client, model, inputs, savedBy: { tier, name }, savedAt }), a Save on the report header, a `client` state on ProvenanceBadge, the banner and Restore on the report screens, and the client's page. Not the forecast intake files (4.61, laptop).",
-      "note": "ALL TWELVE SCREENS ARE WIRED — the forecast last, 2026-09-05, on Mike's ruling \"anything an advisor can edit, the client can edit\": its saved row is the whole intake plus the four levers, and only the file upload stays the advisor's. How each screen behaves is in the Brief §5. The desktop proved the other ten live on 2026-09-04 against a real MySQL: advisor save, client edit and badge, banner and Restore held on every one. The forecast's own loop is still unseen (4.67). Wording in clientReports.saved.* proposed, not ruled.",
-      "comment": "2026-09-03 — filed the day the stub was built. Same day, desktop: slice 1 built under a power cut; labels ruled. 2026-09-04 desktop: slice 2, ten of ten wired; the file-figure rule ruled. 2026-09-05 — the last screen moved to the laptop on Mike's decision, then built there: shape, page seam, badges, 14 new tests. 2026-09-07 desktop: the ten screens eyeballed against MySQL; findings filed as 4.68 and 4.69."
+      "note": "ALL TWELVE SCREENS ARE WIRED — the forecast last, 2026-09-05, on Mike's ruling \"anything an advisor can edit, the client can edit\": its saved row is the whole intake plus the four levers, and only the file upload stays the advisor's. How each screen behaves is in the Brief §5. ⚠ WHAT IS STILL UNPROVEN IS THE SAME BLOCKER AS 4.50: no save has ever reached the real store on this machine, because the client picker is empty without MySQL. Wording in clientReports.saved.* proposed, not ruled.",
+      "comment": "2026-09-03 — filed the day the stub was built. Same day, desktop: slice 1 built under a power cut; labels ruled. 2026-09-04 desktop: slice 2, ten of ten wired; the file-figure rule ruled. 2026-09-05 — the last screen moved to the laptop on Mike's decision, then built there: shape, page seam, badges, 14 new tests."
     },
     {
       "ref": "4.66",
       "name": "Economic analysis — the forecast asks the AI for market research",
       "rankedByMike": false,
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-06"
-      },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",
@@ -209,46 +205,29 @@
       "comment": "2026-09-03 — filed at the moment Mike ruled \"typing it for now\", so the version he would rather have is on the list rather than in a conversation. Nothing is blocked: the capital block is built, tested and honest, and the advisor types one number they can read straight off their own asset schedule. Appended rather than slotted beside the work it relates to, because the array order is Mike's ranking and inserting it mid-list would be a ranking decision taken on his behalf."
     },
     {
-      "ref": "4.68",
-      "name": "The forecast opens on zeros where its own note promises a worked sample",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Reaching step 4 without dropping any exports gives an all-zero forecast. The page's own note says it should compute the source workbook's sample, so the code and its documentation disagree and nobody knows which is right.",
-      "risk": "Low and not dangerous: an advisor with no data sees zeros, which is honest if odd, and every figure is $0 rather than wrong. What it costs is confidence — a screen of $0 reads as broken, and an advisor may not realise the forecast is simply waiting for their exports. The real hazard is the disagreement itself: whichever half is stale will mislead the next person who reads it.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Found 2026-09-06 while producing a real PDF to answer Mike's question about exporting the report. Filed on his instruction the same day (\"yes\") — a defect we found, not a feature nobody asked for."
-      },
-      "touches": "pages/three-way-forecast.vue, whose JSDoc carries the claim, and components/ThreeWayForecastReport.vue, whose seed prop decides it: the page always supplies the intake's live payload, so the component's no-seed sample path may be unreachable from the page. Whichever way it is settled, one of the two is edited and the other left alone.",
-      "note": "⚠ NOT YET DIAGNOSED, ONLY OBSERVED. Seen in a running browser on 2026-09-06: open /three-way-forecast, click the step 4 chip with nothing uploaded, every figure is $0. The likely cause is that the page passes the intake's live payload as seed from the moment the intake mounts, so the report never takes the no-seed path its own note describes — but that is a reading, not a proof. The first job is deciding which half is wrong. If the sample was never meant to be reachable this way, the fix is one sentence of documentation, not code.",
-      "comment": "2026-09-06 — filed on Mike's instruction the day it was found. It surfaced as a side effect of answering his question about PDF export, and it is why both print screenshots taken that day show $0 in every cell."
-    },
-    {
       "ref": "4.69",
       "name": "A future assessment date may leave the research unsourced",
       "rankedByMike": false,
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-07"
+      },
       "kind": "defect",
       "score": 2,
       "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
-      "why": "The advisor can now pick any assessment date. On the one run given a date months ahead, the model searched once, found nothing current, and the research was refused as unsourced.",
-      "risk": "Low today and not dangerous: a refused run shows a plain message and nothing reaches a lender. What it costs is three minutes and a real API bill, with nothing on screen hinting the date caused it. Seen once, against one run the same day that worked — an observation, not a finding, and the first job is to see whether it repeats at all.",
+      "waitingOn": "Mike",
+      "why": "§2 asked one date to be both the start of the assessment period and the yardstick for how current a figure is. Given a date months ahead, the model searched for data that does not exist yet.",
+      "risk": "FIXED AND PROVEN LIVE 2026-09-07: the same 30 November run went from refused with one search to accepted with 14 searches, 13 sources and 1,948 words. What remains is a regression check on the default no-date path, which could not be run because the OpenAI account is out of credits. Low: the prompt shape is the one that just succeeded, and a new test pins the behaviour.",
       "askedBy": {
         "who": "Us",
         "ours": true,
         "detail": "Found 2026-09-07 driving the new date field end to end in a browser: 30 November 2026 was refused after 40 seconds and one search; 31 August 2026 ran normally with nine searches. Filed on Mike's instruction the same day."
       },
-      "touches": "Nothing until it repeats. Then either the prompt's §2 wording (data/ai-prompts.json and ECONOMIC-ANALYSIS-PROMPT.md) or a bound on the field (components/EconomicAnalysisStep.vue, and assessmentDateOf in server/routes/economicAnalysis.js). Which one depends on whether the date or the model is at fault, and that is not yet known.",
-      "note": "⚠ OBSERVED ONCE, NOT DIAGNOSED. Reproduce it first: open /three-way-forecast, step 5, set a date some months ahead and research. If it repeats, the likely cause is §2 telling the model to judge how current a figure is against a date no figures exist for yet, so it searches for data that has not happened. Do NOT bound the field before knowing — an advisor preparing a pack for a meeting next month is a legitimate use, and the fix may be a sentence in the prompt rather than a limit on the screen.",
-      "comment": "2026-09-07 — filed the day the date field was built, on Mike's instruction. It exists because that field made a future date reachable for the first time. Numbered 4.69 because the desktop filed a 4.67 on its own branch that has not reached master."
+      "touches": "BUILT: data/ai-prompts.json (§2 now names both dates, and the placeholders note), design/ECONOMIC-ANALYSIS-PROMPT.md §4 and §7b, fillPlaceholders and two JSDoc blocks in server/routes/economicAnalysis.js, and tests/unit/economicAnalysis.routes.test.js. The date field itself is deliberately NOT bounded.",
+      "note": "THE FIX IS BUILT AND PROVEN ON THE FAULT; ONE CHECK REMAINS. §2 now names both dates: {{assessmentDate}} may be in the future, {{today}} never is and is what currency is judged against. Reproduced twice before anything changed, then accepted after. The model's own words in the accepted run: 'an information cut-off of 7 September 2026, an assessment start of 30 November 2026'. ⚠ OUTSTANDING: the no-date default path was never re-run — the OpenAI account hit credit_balance_exhausted mid-check, which also means the feature fails for every user until credits are added. §2 renders correctly there; only the model's reply is unseen. A SECTIONS_MISSING run the same day is unexplained and is not this change.",
+      "comment": "2026-09-07 — filed the day the date field was built, on Mike's instruction. Numbered 4.69 because the desktop filed a 4.67 on its own branch that has not reached master. Same day: reproduced from the backend, diagnosed as one placeholder doing two jobs, fixed on Mike's approval of the wording, and proven live. The desktop closed a DIFFERENT 4.69 that day — four rulings on the saved-report screens — the second number collision in a week."
     },
     {
       "ref": "4.70",

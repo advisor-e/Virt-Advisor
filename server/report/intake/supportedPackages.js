@@ -50,7 +50,7 @@ const PACKAGES = Object.freeze([
     name: 'MYOB',
     confidence: 'expected',
     since: '2026-09-02',
-    evidence: 'Checked against a reconstruction of the published layout: "Trade Debtors" / "Trade Creditors", bank accounts listed with no "Bank" heading, "Profit & Loss Statement" title, a date-range period line. No real export has been read.'
+    evidence: 'Checked against a reconstruction of the published layout: "Trade Debtors" / "Trade Creditors", bank accounts listed with no "Bank" heading, "Profit & Loss Statement" title, a date-range period line. ⚠ 2026-09-07: run against a fuller reference workbook carrying MYOB\'s "Account No." column, this reader extracted NOTHING — every label arrived as an account code and the balance sheet parsed to no figures at all, with no error saying so. Fixed (rowShape). Two more faults came out of the same workbook and are also fixed: cash counted the cheque account but not the "Online Saver" one, reading 64,500 of a real 89,500 — a wrong figure, not a missing one — and the "Month YYYY through Month YYYY" period line gave the P&L no date and no year. The position, the P&L lines, the income total, cash and the year now all read. ⚠ STILL OPEN: the fixed-asset categories come back empty for MYOB (they populate for QuickBooks), so an MYOB user places those by hand. No real export has been read.'
   })
 ])
 

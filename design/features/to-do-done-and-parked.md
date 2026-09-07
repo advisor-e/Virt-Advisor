@@ -214,6 +214,35 @@ fails if any write route ever takes the guard. *Built on the desktop under the p
 4.68 (commits `71b60bf`, `3e0e39a`); that number now belongs to the laptop's later item, so this
 entry carries none.*
 
+**4.68 — the forecast opened on zeros where its own note promised a worked sample.**
+✅ Closed 2026-09-07, and the note was the stale half. The item was filed as a disagreement
+between two things without knowing which was wrong: the JSDoc on
+[`pages/three-way-forecast.vue`](../../pages/three-way-forecast.vue) promised that step 4 reached
+without an intake computes the source workbook's sample, and a browser showed $0 in every cell.
+**The code is right.** The intake's `form` watcher is `immediate`, so it reports a payload the
+moment step 1 mounts; `liveInputs` is never null, `seed` is never null, and the report's own
+no-seed sample path — which still exists and is still tested at component level — cannot be
+reached from this page.
+
+**That is deliberate on both sides, which is what settled it.** `buildInputs()` sends every field
+explicitly, under its own comment *"they are sent as nothing rather than left to the sample's own
+values"*; [`threeWayForecastModel.js`](../../server/report/threeWayForecastModel.js) says an
+omitted year inherits the year before it, *"never the sample workbook… rather than dropping 'Big
+Bird Grass Seed' into a real client's accounts"*. The whole codebase walls the sample off from real
+client work, so showing it to an advisor would have been the defect, not the cure. And the
+`immediate` flag that closed the sample path is load-bearing for **4.62**: a client, and a loaded
+saved row, reach step 4 without ever pressing Build. The note had been stale since 2026-09-05, the
+day that flag was added.
+
+**What proves it:** nothing new. No test asserted the page-level sample claim, and none should — the
+change is one comment block, and the suite stayed at 8,059 green across it. A screen of $0 is the
+forecast waiting for data; the file now says so, and says why.
+
+⚠ **This is OUR 4.68, and the desktop closed a different one the same day** — *"a client's page is
+refused the firm's currency and tax rules"*, its closure block below carrying no ref number. Both
+machines filed a 4.68 on 2026-09-07 without seeing the other's, the second such collision in a week
+(4.62 was the first, 4.56 before it). The number is not reused.
+
 **4.67 — step 2 of the forecast opened in the running app, and it was not wasted.**
 ✅ Closed 2026-09-05. The item existed because three things built that morning — the funding
 **Type** column, the stock-in-transit block and the glossary **?** marks — had never been seen in

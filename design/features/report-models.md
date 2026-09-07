@@ -449,7 +449,7 @@ All five are mutation-verified.
 >
 > **Only Xero is `verified`** — read from real exports the firm supplied on 2026-07-13 and
 > 2026-07-15, which refuted three assumptions in the process. QuickBooks Online and MYOB are
-> `expected`: the readers handle their published layouts, checked against reconstructions in
+> `expected`: they are checked against reconstructions in
 > [`tests/unit/accountingPackages.test.js`](../../tests/unit/accountingPackages.test.js), and
 > **no real export from either has been read**. Every intake screen says so, and item 4.60
 > holds the four files that would close it. **Do not promote a package on more
@@ -460,8 +460,25 @@ All five are mutation-verified.
 > name sits *above* the title in both packages and *below* it in Xero, so the scan took the
 > first section heading as the company and lost that whole section; QuickBooks' single
 > `LIABILITIES AND EQUITY` heading made every liability beneath it read as equity; and MYOB
-> lists bank accounts with no `Bank` heading above them. Assume the next package will break
-> something too, and probe it the same way.
+> lists bank accounts with no `Bank` heading above them.
+>
+> 🔴 **A FULLER MYOB REFERENCE WORKBOOK ON 2026-09-07 FOUND THREE MORE, AND THE FIRST OF
+> THEM MEANT MYOB READ NOTHING AT ALL.** MYOB puts the account code in a column of its own
+> before the name, so `rowShape` took the code as the label: every section came through as
+> `4-0000`, nothing matched, and a whole balance sheet parsed to no figures — accepted on
+> screen with no error saying so. Then cash read **64,500 of a real 89,500**, because
+> `BANK_ACCOUNT_RE` matched "savings account" but not MYOB's own "Online **Saver** Account" —
+> a short figure, not a missing one, and the harder of the two to notice. Then the period
+> line `January 2025 through December 2025` matched no pattern, so the P&L had no year at
+> all. All three are fixed and tested; QuickBooks needed no change.
+>
+> ⚠ **One MYOB gap is open:** the fixed-asset categories come back empty where QuickBooks
+> fills them, so an MYOB user places those by hand.
+>
+> **The lesson is about the fixtures, not the packages.** The MYOB grids in the test file
+> carried no account-code column, which is why they passed while the reader extracted
+> nothing — the fixtures agreed with the code and neither agreed with the format. Assume the
+> next package will break something too, and probe it with a file, not a fixture.
 
 There are **two** file readers, and which one a model uses follows from the shape of its
 inputs. Both read `.xlsx` and `.csv`, both refuse a PDF by name, both share one hardened

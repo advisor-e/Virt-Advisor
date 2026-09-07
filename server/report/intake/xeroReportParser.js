@@ -21,7 +21,25 @@ const { readXlsx, XlsxReadError } = require('./xlsxReader')
 const { parseCsv } = require('./csvReader')
 const { supportedList } = require('./supportedPackages')
 
-/** A grid row reduced to its first text cell + first numeric cell. */
+/**
+ * An MYOB account number, which sits in a column of its OWN before the account name —
+ * `4-1000 | Service & Repair Revenue | 285400`. Xero and QuickBooks put the code, where
+ * they carry one at all, inside the name string (`1000 Operating Account`), which needs
+ * nothing special.
+ *
+ * 🔴 WHY THIS EXISTS (2026-09-07). `rowShape` took the first text cell as the label, so
+ * every MYOB label arrived as a code: sections came through as `4-0000`, nothing matched,
+ * and a whole MYOB balance sheet parsed to `proposals: {}` — no figures, and no error on
+ * screen saying so. An advisor would have dropped their file, seen it accepted, and got
+ * an empty form. `supportedPackages.js` had recorded MYOB as handling its published
+ * layout; it did not handle it at all.
+ *
+ * Deliberately narrow: the documented `N-NNNN` shape only, and only when a real name
+ * follows it. A label that is genuinely just a code keeps the code.
+ */
+const ACCOUNT_CODE_RE = /^\d{1,4}-\d{2,6}$/
+
+/** A grid row reduced to its label cell + first numeric cell. */
 function rowShape (cells) {
   let label = null
   let labelCol = -1
@@ -29,7 +47,15 @@ function rowShape (cells) {
   for (let c = 0; c < cells.length; c++) {
     const v = cells[c]
     if (v === null || v === undefined || v === '') { continue }
-    if (typeof v === 'string' && label === null) { label = v.trim(); labelCol = c; continue }
+    if (typeof v === 'string') {
+      const text = v.trim()
+      if (label === null) { label = text; labelCol = c; continue }
+      // The label so far is an account code and no figure has been read yet, so this
+      // later text cell is the account's real name. Self-limiting: once the name is in
+      // hand it no longer matches, so a third text cell cannot displace it.
+      if (value === null && ACCOUNT_CODE_RE.test(label)) { label = text; labelCol = c }
+      continue
+    }
     if (typeof v === 'number' && label !== null && c > labelCol && value === null) { value = v; break }
   }
   return { label, value }
@@ -202,8 +228,12 @@ function headerMeta (rows, titleRe) {
     if (meta.titleRow === -1 && titleRe.test(label)) { meta.titleRow = i; meta.bodyFrom = i + 1; continue }
     const asAt = /^as (?:at|of)\s+(.+)$/i.exec(label)
     const period = /^for the\s+(.+)$/i.exec(label) ||
-      /^(\d{1,2}\s+\w+\s+\d{4})\s*(?:to|[-–])\s*(.+)$/i.exec(label) ||
-      /^\w+\s*(?:to|[-–])\s*\w+\s+(?:19|20)\d{2}$/i.exec(label)
+      /^(\d{1,2}\s+\w+\s+\d{4})\s*(?:to|through|[-–])\s*(.+)$/i.exec(label) ||
+      // "Month YYYY through Month YYYY" — MYOB's own P&L period line. Without this the
+      // report had no date and no year at all (2026-09-07), and the forecast reads the
+      // year to know which period it is seeding.
+      /^\w+\s+(?:19|20)\d{2}\s*(?:to|through|[-–])\s*\w+\s+(?:19|20)\d{2}$/i.exec(label) ||
+      /^\w+\s*(?:to|through|[-–])\s*\w+\s+(?:19|20)\d{2}$/i.exec(label)
     // The date line is always the last of the header rows, so finding it ends the scan.
     // Without that stop, a report with no date line would keep looking and take the
     // first section heading as the company name.
@@ -239,7 +269,16 @@ function extractBalanceSheet (grid) {
   const warnings = totalCrossChecks(body)
   guardFigureColumns(grid, warnings)
 
-  const bankRows = items.filter(it => inSection(it, /^bank$|bank accounts/i))
+  // Xero and QuickBooks group the accounts under a Bank heading. MYOB has no such
+  // heading, so with the section filter alone this screen showed NO cash at all for an
+  // MYOB file (2026-09-07). The fallback reads the accounts by their own names, and only
+  // when the section filter found nothing, so nothing changes for the two packages that
+  // do carry the heading. Liabilities are excluded: an overdraft is not cash and is read
+  // separately by the forecast extractor.
+  let bankRows = items.filter(it => inSection(it, /^bank$|bank accounts/i))
+  if (!bankRows.length) {
+    bankRows = items.filter(it => !inSection(it, /liabilit/i) && BANK_ACCOUNT_RE.test(it.label))
+  }
   const debtorRows = items.filter(it => /accounts?\s+receivable|trade\s+(receivable|debtor)|^debtors\b/i.test(it.label))
   const stockRows = items.filter(it => /stock|inventor/i.test(it.label))
   const liabItems = items.filter(it => inSection(it, /liabilit/i))
@@ -323,8 +362,16 @@ const IN_TRANSIT_RE = /(?:goods|stock|inventory)\s+(?:in\s+)?transit|(?:in\s+)?t
 const SHARE_CAPITAL_RE = /share\s*capital|paid[-\s]?up\s+capital|authorised\s+capital|owner'?s?\s+capital|common\s+stock|capital\s+account/i
 const RETAINED_RE = /retained\s+(earnings|profit)|accumulated\s+(profit|losses|funds)|current\s+year\s+earnings/i
 const OVERDRAFT_RE = /overdraft/i
-/** A bank account by its own name, for charts of accounts with no "Bank" heading. */
-const BANK_ACCOUNT_RE = /bank\s+account|cheque\s+account|checking\s+account|savings\s+account|cash\s+at\s+bank|petty\s+cash|^cash$/i
+/**
+ * A bank account by its own name, for charts of accounts with no "Bank" heading.
+ *
+ * ⚠ `sav(?:ings?|er)` rather than `savings` — MYOB's own demo chart says "Online **Saver**
+ * Account", which the narrower spelling missed. It was not a missing figure but a WRONG
+ * one: the cheque account matched, the saver account did not, and cash came through as
+ * 64,500 of a real 89,500 (2026-09-07). A plausible short number is exactly what a person
+ * reviewing the screen cannot catch.
+ */
+const BANK_ACCOUNT_RE = /bank\s+account|cheque\s+account|checking\s+account|sav(?:ings?|er)\s+account|cash\s+at\s+bank|petty\s+cash|^cash$/i
 
 /**
  * Extract a Three-Way Forecast opening balance sheet from a Balance Sheet grid.
