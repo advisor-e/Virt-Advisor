@@ -124,8 +124,11 @@ three existing prompts, so this becomes the fourth and is editable there without
 
 ### §2 · What you have been given
 
-> The assessment date is `{{today}}`. Use it as the start of the assessment period and when
-> judging how current a figure is. Do not infer the date from anything else.
+> The assessment period starts on `{{assessmentDate}}`. Today's date is `{{today}}`.
+>
+> Use the assessment date as the start of the period your analysis covers. Judge how current
+> a figure is against today's date, and use the most recently published data available. Do
+> not infer either date from anything else.
 >
 > You have been given one thing: a research brief written by the advisor, supplied below
 > between the marked delimiters. **It is the only information you hold about this business.**
@@ -228,12 +231,24 @@ a word of the content. 🔴 **Do not remove it.**
 | Variable | What it holds | Where it comes from |
 |---|---|---|
 | `{{advisorBrief}}` | The research brief, verbatim | **The advisor types it and sees it before sending.** The only client-derived content in this prompt, and the whole of Mike's 2026-09-06 ruling |
-| `{{today}}` | The assessment date | **The advisor sets it, on a field at step 5** — Mike's ruling, 2026-09-07: *"or, have a field to enter the date"*. It defaults to their own day and is shown back in the exact-words box, so the whole payload is visible in one place. Added after run 1, where the model wrote *"the undated advisor brief"*. 🔒 **It is user input reaching a prompt, so only `YYYY-MM-DD` is accepted, it must survive a round trip through `Date` (`2026-02-31` is refused, never rolled over), and `todayInWords()` writes the words** — the string sent to the model is ours either way. A request with no date falls back to the server's own day, so an older screen cannot break. *(It read **UTC** until 2026-09-07, which printed "The assessment starts on 6 September 2026" in a client's pack on the 7th; the field closes that for good, whatever timezone the server sits in.)* |
+| `{{assessmentDate}}` | When the assessment period starts | **The advisor sets it, on a field at step 5** — Mike's ruling, 2026-09-07: *"or, have a field to enter the date"*. It defaults to their own day and is shown back in the exact-words box, so the whole payload is visible in one place. Added after run 1, where the model wrote *"the undated advisor brief"*. 🔒 **It is user input reaching a prompt, so only `YYYY-MM-DD` is accepted, it must survive a round trip through `Date` (`2026-02-31` is refused, never rolled over), and `todayInWords()` writes the words** — the string sent to the model is ours either way. A request with no date falls back to the server's own day, so an older screen cannot break. **It may be in the future**, and that is a legitimate use: an advisor preparing a pack for next month's meeting |
+| `{{today}}` | The real day the research runs | **The server's own date, never the advisor's** — and it is what §2 judges how current a figure is against. *(It read **UTC** until 2026-09-07, which printed "The assessment starts on 6 September 2026" in a client's pack on the 7th.)* |
 
-**One variable, deliberately.** Country, region, sector and period could each have been their
-own field, collected and assembled by the app. Under the ruling they are not: the advisor
-writes them in their own words, in one place, and reads back exactly what will be sent.
-A screen that assembles four fields into a sentence is the app deciding what to disclose.
+🔴 **The two dates were ONE placeholder until 2026-09-07, and separating them is item 4.69.**
+§2 asked a single date to do both jobs, which was harmless only while the date was always
+today. The moment the advisor could set it, a date months ahead made the second job
+impossible: told the assessment date was 30 November 2026, the model searched
+`site.rbnz.govt.nz monetary policy announcements 2026 November`, found nothing — that data
+does not exist yet — and returned §§1 and 3 with no sources at all, which the §5 citation
+guard then refused. **Reproduced twice**, on 2026-09-07 in a browser and again from the
+backend before anything was changed. The field is deliberately NOT bounded: the fault was in
+what we asked the model to do with the date, not in the date.
+
+**One CLIENT-DERIVED variable, deliberately.** Country, region, sector and period could each
+have been their own field, collected and assembled by the app. Under the ruling they are not:
+the advisor writes them in their own words, in one place, and reads back exactly what will be
+sent. A screen that assembles four fields into a sentence is the app deciding what to
+disclose. The two dates are not client data at all.
 
 🔒 **The brief is wrapped in explicit delimiters on the backend** and never concatenated into
 the prompt string — the standing rule in `CLAUDE.md` (*treat user input in prompts as
@@ -337,8 +352,20 @@ as its own section after the statements, in a real PDF. Each accepted run return
 advisor at UTC+12 was sending yesterday — and it printed, in the client's own pack: *"The
 assessment starts on 6 September 2026"*, written on the 7th. It now reads the server's own day.
 ⚠ **It is only as right as the server's clock:** an advisor in a different zone from the server
-still gets the server's day, and closing that needs the advisor's own date, which nothing sends.
-That is a change to §4's variable, not a tidy-up, so it is not made here.
+still gets the server's day for `{{today}}`. Their chosen ASSESSMENT date is now sent separately,
+but their time zone is not, so this stands. That is a change to §4's variables, not a tidy-up, so
+it is not made here.
+
+✅ **A FUTURE ASSESSMENT DATE NO LONGER STARVES THE RESEARCH (2026-09-07) — item 4.69, closed.**
+The date field made a future date reachable for the first time, and §2 was still asking that one
+date to be both the start of the period and the yardstick for how current a figure is. Given
+30 November 2026 the model searched `site.rbnz.govt.nz monetary policy announcements 2026
+November` — **one search, for data that does not exist yet** — and returned §§1 and 3 unsourced,
+which the §5 guard refused after 26 seconds and a real API bill. Reproduced twice before anything
+changed. §2 now names both dates and says which is for what; `{{assessmentDate}}` may be in the
+future and `{{today}}` never is. **The field is deliberately not bounded** — an advisor preparing a
+pack for next month's meeting is a legitimate use, and the fault was in what we asked the model to
+do with the date.
 
 ⚠ **One thing seen and NOT closed.**
 

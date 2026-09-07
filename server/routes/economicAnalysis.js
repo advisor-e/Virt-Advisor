@@ -118,7 +118,9 @@ function logCall (runId, startedAt, success, usage, searches) {
 }
 
 /**
- * Today, as the prompt's §2 wants it — a date a model cannot misread, from the server.
+ * A calendar date in words — the form §2 wants for BOTH of its dates, and one a model
+ * cannot misread. Called twice: once for `{{today}}` from the server, once for
+ * `{{assessmentDate}}`, which may be the advisor's own.
  *
  * ⚠ THE SERVER'S OWN DATE, NOT UTC. It read UTC until 2026-09-07, which put YESTERDAY in
  * front of an advisor at UTC+12 for the first twelve hours of every day — and it prints, in
@@ -126,9 +128,10 @@ function logCall (runId, startedAt, success, usage, searches) {
  * the 7th. Seen in a live run, not in a test.
  *
  * ⚠ AND IT IS ONLY AS RIGHT AS THE SERVER'S CLOCK. An advisor in a different zone from the
- * server still gets the server's day. Closing that needs the advisor's own date, which
- * nothing sends today — §4 of the prompt file records `{{today}}` as the server's, and
- * changing where it comes from is a decision, not a tidy-up.
+ * server still gets the server's day for `{{today}}`. The advisor's chosen ASSESSMENT date
+ * is now sent (`{{assessmentDate}}`), but their time zone is not, so this stands — §4 of the
+ * prompt file records `{{today}}` as the server's, and changing where it comes from is a
+ * decision, not a tidy-up.
  *
  * @returns {string} e.g. "7 September 2026"
  */
@@ -143,9 +146,11 @@ function todayInWords (now) {
  * The advisor's chosen assessment date, as a real calendar date or nothing.
  *
  * 🔴 THE POINT OF THIS FUNCTION IS THAT NOTHING THE ADVISOR TYPES REACHES THE PROMPT.
- * `{{today}}` was machine-generated until 2026-09-07 and therefore trusted by construction;
- * Mike's ruling that the advisor sets it (*"or, have a field to enter the date"*) makes it
- * user input going into a prompt, which `CLAUDE.md` says to treat as hostile. So only
+ * The assessment date was machine-generated until 2026-09-07 and therefore trusted by
+ * construction; Mike's ruling that the advisor sets it (*"or, have a field to enter the
+ * date"*) makes it user input going into a prompt, which `CLAUDE.md` says to treat as
+ * hostile. It reaches §2 as `{{assessmentDate}}` — never as `{{today}}`, which stays the
+ * server's own day and is the yardstick §2 judges currency against. So only
  * `YYYY-MM-DD` is accepted, it must survive the round trip through `Date` — which rejects
  * `2026-02-31` and `2026-13-01` rather than rolling them over — and `todayInWords` writes
  * the words. The string sent to the model is ours either way.
@@ -172,8 +177,20 @@ function assessmentDateOf (value) {
 }
 
 /**
- * Builds the text sent to the model: the assembled prompt with its two placeholders
+ * Builds the text sent to the model: the assembled prompt with its three placeholders
  * filled in.
+ *
+ * 🔴 THE TWO DATES ARE DELIBERATELY DIFFERENT VALUES — item 4.69, 2026-09-07. They were one
+ * placeholder until the advisor could set the assessment date, and §2 asked that single date
+ * to do two jobs at once: say when the assessment period starts, AND be the yardstick for
+ * how current a figure is. The first is properly the advisor's; the second can only ever be
+ * the real day. Given 30 November 2026 the model searched for
+ * `monetary policy ... 2026 November`, found nothing — the data does not exist yet — and
+ * returned §§1 and 3 with no sources, which the citation guard then refused. Reproduced
+ * twice before this changed. `{{assessmentDate}}` may be in the future; `{{today}}` never is.
+ *
+ * Both go through `todayInWords`, so the string sent to the model is OURS in both cases even
+ * though one of the two dates originates with the advisor.
  *
  * 🔴 SUBSTITUTION IS `split`/`join`, NOT `String.replace`. A replacement string containing
  * `$&` or `$1` is interpreted by `replace`, so an advisor whose brief happened to contain
@@ -186,11 +203,13 @@ function assessmentDateOf (value) {
  *
  * @param {object} assembled - the result of `assemblePrompt`
  * @param {string} brief - the advisor's own words, unfenced
+ * @param {Date|null} [assessmentDate] - the advisor's chosen date; absent means the server's day
  * @param {Date} [now]
  * @returns {string}
  */
-function fillPlaceholders (assembled, brief, now) {
+function fillPlaceholders (assembled, brief, assessmentDate, now) {
   return assembled.text
+    .split('{{assessmentDate}}').join(todayInWords(assessmentDate || now))
     .split('{{today}}').join(todayInWords(now))
     .split('{{advisorBrief}}').join(fenceUntrusted(brief))
 }
@@ -339,7 +358,7 @@ async function startResearch (req, res) {
       return sendError(res, 409, 'PROMPT_BLOCKED',
         'A setting this prompt needs has not been filled in. A firm manager can set it on the AI Prompts page.')
     }
-    promptText = fillPlaceholders(assembled, brief, assessmentDate || undefined)
+    promptText = fillPlaceholders(assembled, brief, assessmentDate)
   } catch (err) {
     console.error('[economic-analysis] prompt assembly failed:', err.message)
     return sendError(res, 500, 'PROMPT_UNAVAILABLE',

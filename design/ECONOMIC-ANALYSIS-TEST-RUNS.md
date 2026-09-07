@@ -22,6 +22,11 @@
 > ✅ **Runs 6–12 (2026-09-07) are the first driven through the SCREEN**, in a real browser —
 > tick, brief, wait, research, approval, Ctrl+P. See §"Runs 6–12" at the foot of this page.
 > They are why the citation guard no longer refuses half of everything it is shown.
+>
+> ✅ **Runs 13–16 (2026-09-07) settled item 4.69** — a future assessment date. One variable, the
+> date, held against the same brief: refused with **one** search before the fix, accepted with
+> **fourteen** after it. See §"Runs 13–16". They also found that **the OpenAI account is out of
+> credits**, which stops the feature for everyone until it is topped up.
 
 ---
 
@@ -431,6 +436,59 @@ real PDF — the first time either has been seen outside a test.
   the client's pack verbatim: *"The assessment starts on 6 September 2026"*, written on the 7th.
 - **One run in eight came back truncated** (`SECTIONS_MISSING`, §§4–5 absent). It was the run
   whose browser was killed mid-flight, so nothing is concluded from it until it recurs.
+  ⚠ **It recurred on run 14 below**, in a worse shape and with no browser involved.
+
+---
+
+## Runs 13–16 — 2026-09-07 · the two dates (item 4.69)
+
+**These runs exist to answer one question:** does a **future** assessment date starve the
+research? Yesterday's browser session saw 30 November 2026 refused once, which is an
+observation and not a finding. The brief is the bakery brief from runs 6–12, unchanged, so
+the date is the only variable.
+
+| Run | How | Assessment date | §2 | Searches | Outcome |
+|---|---|---|---|---|---|
+| 13 | Route | 30 Nov 2026 | one date, both jobs | **1** | ❌ `SECTION_UNSOURCED` §§1, 3 · 26.6s · 11,308 tokens |
+| 14 | Route | 30 Nov 2026 | **two dates** | 1 | ❌ `SECTIONS_MISSING`, all five · 16.4s · 10,691 tokens |
+| 15 | Probe | 30 Nov 2026 | **two dates** | **14** | ✅ **accepted** — 5 sections, 13 sources, 1,948 words · 162s · 133,654 tokens |
+| 16 | Probe | none | two dates | 0 | ⛔ never ran — `credit_balance_exhausted` |
+
+### 🔴 The search phrase is the diagnosis, and it needed no interpretation
+
+Run 13 searched `site.rbnz.govt.nz monetary policy announcements **2026 November**` — for data
+three months in the future — found nothing, and wrote §§1 and 3 with no sources, which the §5
+citation guard then correctly refused. §2 was asking one date to be both the start of the
+assessment period *and* the yardstick for how current a figure is. The first is properly the
+advisor's; the second can only ever be the real day. **Harmless until 2026-09-07**, because
+until the advisor could set the date it was always today.
+
+After the split, run 15 searched `site.rbnz.govt.nz **August 2026** monetary policy statement`
+and thirteen more, and said the distinction back in its own opening paragraph:
+
+> *"The engagement specifies an information cut-off of **7 September 2026**, an assessment
+> start of **30 November 2026**, and a 12–24-month horizon… The analysis therefore concerns
+> conditions from the assessment start, not conditions beginning at the research date."*
+
+**The field is deliberately not bounded.** An advisor preparing a pack for next month's
+meeting is a legitimate use; the fault was in what we asked the model to do with the date.
+
+### ⚠ Two things NOT closed
+
+1. **Run 14 is unexplained.** All five sections absent, 542 completion tokens, one search —
+   and run 15 then produced a full accepted document from the *same prompt and same date*. So
+   it is not the change. It is the second `SECTIONS_MISSING` in two days (the first is noted
+   above), and the raw text is unrecoverable because runs are held in memory and the reply is
+   never logged. **A third sighting should be treated as a real fault, not variance.**
+2. 🔴 **The OpenAI account ran out of credits**, which is what stopped run 16 — the regression
+   check on the ordinary no-date path. §2 renders correctly there
+   (*"The assessment period starts on 7 September 2026. Today's date is 7 September 2026."*);
+   only the model's reply is unseen. **Until credits are added the feature fails for every
+   user**, showing the generic "could not be completed".
+
+*Runs 13–14 went through the built route. Runs 15–16 used a throwaway probe outside the
+repository — the same modules, model and tools, but printing the raw reply, which the route
+deliberately never logs. It is not committed, for the reason runs 1–4's script was not.*
 
 ---
 
