@@ -171,16 +171,30 @@ function validateAdvisorPoint (value, opts) {
   if (value.hintWords !== undefined && value.hintWords !== null) {
     if (!Array.isArray(value.hintWords)) {
       errors.push('hintWords must be a list')
+    } else if (value.hintWords.length > MAX_HINT_WORDS) {
+      errors.push('no more than ' + MAX_HINT_WORDS + ' hint phrases')
     } else {
-      const words = value.hintWords
-        .filter(w => typeof w === 'string')
-        .map(w => w.trim())
-        .filter(w => w && w.length <= MAX_HINT_LENGTH)
-      if (value.hintWords.length > MAX_HINT_WORDS) {
-        errors.push('no more than ' + MAX_HINT_WORDS + ' hint phrases')
-      } else {
-        out.hintWords = words
-      }
+      // 🔴 REFUSED, NOT QUIETLY DROPPED. Until 2026-09-08 a non-string and an over-long
+      // phrase were both filtered out in silence, so the route answered 200 for a point it
+      // had not stored as sent: the advisor was told their hint was saved when it was not.
+      // `validatePointFields` one level up has always errored on both, and these are its
+      // words rather than new ones. An EMPTY phrase is still dropped without complaint, as
+      // it is there — a blank box the advisor never filled in is not a mistake to report.
+      const words = []
+      let bad = false
+      value.hintWords.forEach((w) => {
+        if (bad) { return }
+        if (typeof w !== 'string') { errors.push('each hint phrase must be text'); bad = true; return }
+        const trimmed = w.trim()
+        if (!trimmed) { return }
+        if (trimmed.length > MAX_HINT_LENGTH) {
+          errors.push('each hint phrase must be ' + MAX_HINT_LENGTH + ' characters or fewer')
+          bad = true
+          return
+        }
+        words.push(trimmed)
+      })
+      if (!bad) { out.hintWords = words }
     }
   }
 

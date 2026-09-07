@@ -210,6 +210,30 @@ describe('validating a point an advisor wrote', () => {
   it('refuses text past the shared length cap', () => {
     expect(validateAdvisorPoint({ text: 'x'.repeat(301) }, { requireText: true }).ok).toBe(false)
   })
+
+  it('🔴 refuses an over-long hint phrase rather than dropping it and answering 200', () => {
+    // Found by review 2026-09-08. It was filtered out in silence, so the advisor was told
+    // their hint was saved when it was not — the one thing a person in UAT cannot see,
+    // because the screen shows exactly what they typed either way.
+    const r = validateAdvisorPoint(
+      { text: 'I asked about home.', hintWords: ['x'.repeat(121)] }, { requireText: true })
+    expect(r.ok).toBe(false)
+    // and it stores none of them rather than a silently shortened list
+    expect(r.value.hintWords).toBeUndefined()
+  })
+
+  it('refuses a hint phrase that is not text', () => {
+    const r = validateAdvisorPoint(
+      { text: 'I asked about home.', hintWords: [42] }, { requireText: true })
+    expect(r.ok).toBe(false)
+  })
+
+  it('still accepts a phrase at exactly the cap, so the refusal is the length and not the field', () => {
+    const r = validateAdvisorPoint(
+      { text: 'I asked about home.', hintWords: ['x'.repeat(120)] }, { requireText: true })
+    expect(r.ok).toBe(true)
+    expect(r.value.hintWords).toHaveLength(1)
+  })
 })
 
 describe('reading stored advisor maps', () => {
