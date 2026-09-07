@@ -95,4 +95,10 @@ firm. **§4's five non-coding items gate a first real client recording** and are
 exports from QuickBooks Online and MYOB — ask for the Fixed Asset Schedule at the same time
 (**4.65**, one request to one person).
 
-**Nine live items.** `activeOn` this laptop: **4.58** and **4.69**.
+**Nine live items.** `activeOn` this laptop: **4.69** alone — it still owes one run on the
+no-date path once the OpenAI credits return.
+
+⚠ **4.58's flag was CLEARED at shutdown**, per the rule *"kept if still in hand, cleared if
+finished or dropped"*. Meeting Review's advisor and manager sides are done; what remains on that
+item is meeting-types slices 3 and 4, and **nobody has picked those up** — the desktop is free to
+take them.
