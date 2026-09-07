@@ -114,6 +114,71 @@
           | Counted from the transcript by arithmetic. No AI is involved, and none of these
           |  can be wrong.
 
+      //- ── Since we last met ──────────────────────────────────────────────
+      //- Follow-through, from design/mockups/meeting-review-follow-through.html, APPROVED by
+      //- Mike 2026-09-07 with all four questions ruled. It sits ABOVE the observation points
+      //- on his ruling: an advisor reads what was still outstanding before reading how today
+      //- went, which is the order the conversation itself had.
+      //-
+      //- 🔴 THE THREE STATES MUST NOT READ THE SAME. An expired previous meeting rendering
+      //- like a meeting where nothing was agreed is the fault the drawing's third screen
+      //- exists to prevent — an advisor would read "no actions" as a fact about their client
+      //- rather than a fact about the retention clock.
+      template(v-if="followThrough")
+        h4.mrev-h4 Since we last met
+
+        b-message(v-if="followThrough.expired" type="is-warning" size="is-small")
+          p.has-text-weight-semibold
+            | Your last meeting with this client was on {{ lastMetOn }}, and its transcript has
+            |  since been deleted.
+          p.is-size-7.mt-1(v-if="followThrough.retentionPhrase")
+            | Your firm keeps transcripts for {{ followThrough.retentionPhrase }}, which is what
+            |  your client was told, so what was agreed that day is no longer held anywhere.
+
+        b-message(v-else-if="followThrough.none && followThrough.reason === 'no_client'" type="is-info" size="is-small")
+          | This meeting was not recorded against a client, so there is nothing to compare it
+          |  with. Choose the client before you start next time and this fills itself in.
+
+        b-message(v-else-if="followThrough.none" type="is-info" size="is-small")
+          p.has-text-weight-semibold This is your first recorded meeting with this client.
+          p.is-size-7.mt-1 From your next one, what you agree today will appear here.
+
+        template(v-else)
+          p.is-size-7.has-text-grey.mb-3
+            | What you agreed with this client on {{ lastMetOn }}, and whether you came back to
+            |  it today.
+
+          .mrev-ob(
+            v-for="(it, i) in followThrough.items"
+            :key="'ft-' + i"
+            :class="it.state === 'found' ? 'is-raised' : 'is-unraised'")
+            .mrev-obhd
+              span.mrev-nm {{ it.what }}
+              //- Mike's ruling, 2026-09-07. NOT "Done" / "Not done": the software hears an
+              //- hour in a room and nothing of the months between, so it cannot know whether
+              //- the action happened — only whether the adviser came back to it.
+              b-tag(:type="it.state === 'found' ? 'is-success' : 'is-warning'" size="is-small")
+                | {{ it.state === 'found' ? 'You raised it' : 'Not raised' }}
+
+            .mrev-owner(v-if="ownerLine(it)") {{ ownerLine(it) }}
+
+            .mrev-quote(v-if="it.state === 'found'")
+              span.mrev-ts {{ it.at }} · you
+              q {{ it.quote }}
+
+            .mrev-note(v-else)
+              | The model was asked to quote where you came back to this and answered
+              |  #[code NOT FOUND]. It may still have happened — this says only that it was not
+              |  spoken about today.
+
+            .mrev-links
+              a.mrev-link(v-if="!disputedFollow(i)" @click="disputeFollow(i)")
+                | I disagree with this
+              span.mrev-disputed(v-if="disputedFollow(i)") You disagreed with this
+
+          p.mrev-ftfrom(v-if="lastMetOn")
+            | From your meeting with this client on #[b {{ lastMetOn }}].
+
       h4.mrev-h4 Your observation points
       p.is-size-6.has-text-grey.py-4(v-if="!coaching.findings.length")
         | Your firm has not set any observation points for this kind of meeting, so there was
@@ -213,6 +278,12 @@
 /** How much transcript to show either side of a citation. */
 const CONTEXT_SECONDS = 45
 
+/** Month names for the follow-through date, read in UTC to match how meetings are stamped. */
+const MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+]
+
 export default {
   name: 'MeetingReview',
 
@@ -246,6 +317,29 @@ export default {
     /** The mechanical figures, when there are any. */
     metrics () {
       return this.coaching ? this.coaching.metrics : null
+    },
+
+    /**
+     * The follow-through block, when the report carries one.
+     *
+     * Reports generated before 2026-09-07 have no such field, and this returns null for them
+     * rather than rendering an empty panel over an old meeting.
+     * @returns {object|null}
+     */
+    followThrough () {
+      return (this.coaching && this.coaching.followThrough) || null
+    },
+
+    /**
+     * The date of the previous meeting with this client, as a person writes it.
+     * @returns {string}
+     */
+    lastMetOn () {
+      const from = this.followThrough && this.followThrough.from
+      if (!from || !from.at) { return '' }
+      const d = new Date(from.at)
+      if (isNaN(d.getTime())) { return '' }
+      return d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCFullYear()
     },
 
     /** The advisor's own words win over the generated ones once they have edited. */
@@ -429,6 +523,42 @@ export default {
       }
     },
 
+    /**
+     * Who agreed a follow-through action, and by when — the small grey line under it.
+     * Both halves are optional, so this returns whatever is actually known.
+     * @param {object} item
+     * @returns {string}
+     */
+    ownerLine (item) {
+      const who = item && item.who ? 'Agreed by ' + item.who : ''
+      const when = item && item.when ? 'by ' + item.when : ''
+      return [who, when].filter(Boolean).join(' · ')
+    },
+
+    /**
+     * Disputes on follow-through items share the coaching report's one store, keyed by the
+     * same prefixed id the backend asked the model about — so P5 covers them with no second
+     * mechanism to keep in step.
+     * @param {number} i
+     * @returns {string}
+     */
+    followPointId (i) {
+      return 'followup:' + i
+    },
+
+    disputedFollow (i) {
+      return Boolean(this.coaching.disputes && this.coaching.disputes[this.followPointId(i)])
+    },
+
+    async disputeFollow (i) {
+      try {
+        await this.call('POST', '/coaching/dispute', { pointId: this.followPointId(i) })
+        await this.load()
+      } catch (err) {
+        this.loadError = 'That could not be recorded: ' + err.message
+      }
+    },
+
     /** Settle a point the recording could not hear. What is stored is this answer, not a guess. */
     async answerHeard (finding, answer) {
       try {
@@ -513,6 +643,12 @@ export default {
 .mrev-ob.is-found { border-left: 3px solid #37a169; }
 .mrev-ob.is-not-found { border-left: 3px solid #c8d2df; }
 .mrev-ob.is-cannot-hear { border-left: 3px solid #d9a441; }
+/* Follow-through. Amber for an action not raised, matching the approved drawing — it is a
+   thing to pick up, not a failure, and the grey of "not found" would read as neither. */
+.mrev-ob.is-raised { border-left: 3px solid #37a169; }
+.mrev-ob.is-unraised { border-left: 3px solid #d9a441; }
+.mrev-owner { font-size: 12px; color: #6b7785; margin-top: 0.15rem; }
+.mrev-ftfrom { font-size: 12.5px; color: #6b7785; margin-top: 0.4rem; }
 .mrev-obhd { display: flex; align-items: baseline; gap: 0.6rem; justify-content: space-between; }
 .mrev-nm { font-weight: 600; }
 .mrev-quote { margin-top: 0.5rem; padding-left: 0.7rem; border-left: 2px solid #e6ebf2; }

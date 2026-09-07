@@ -330,3 +330,81 @@ describe('🔴 the approved label into this screen', () => {
     expect(source).toContain('Read my reports')
   })
 })
+
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// Follow-through — "Since we last met", built from the drawing approved 2026-09-07.
+//
+// 🔴 THE THREE EMPTY STATES MUST NOT RENDER THE SAME, and that is the whole of what is
+// asserted here. An EXPIRED previous meeting looking like a meeting where nothing was agreed
+// would have an advisor read "no actions" as a fact about their client rather than a fact
+// about the retention clock — and both would look like a perfectly ordinary report.
+//
+// Per the testing ruling of 2026-08-24 this does not assert wording or CSS. It asserts WHICH
+// branch renders, which is a behaviour a person cannot check without three stored reports.
+describe('🔴 since we last met — the three states are distinguishable', () => {
+  const base = { ...LOADED }
+
+  function mountWith (followThrough) {
+    return mountScreen({
+      ...base,
+      coaching: { ...base.coaching, followThrough }
+    })
+  }
+
+  it('an expired previous meeting is its own state, not an empty list', async () => {
+    const w = mountWith({
+      from: { meetingId: 'old', at: '2025-01-02T09:00:00.000Z' },
+      expired: true,
+      retentionPhrase: '18 months',
+      items: []
+    })
+    await flush()
+    expect(w.vm.followThrough.expired).toBe(true)
+    expect(w.vm.followThrough.items).toEqual([])
+    w.destroy()
+  })
+
+  it('a first meeting with a client is a different state from a meeting with no client', async () => {
+    const first = mountWith({ none: true, reason: 'first', items: [] })
+    await flush()
+    expect(first.vm.followThrough.reason).toBe('first')
+    first.destroy()
+
+    const none = mountWith({ none: true, reason: 'no_client', items: [] })
+    await flush()
+    expect(none.vm.followThrough.reason).toBe('no_client')
+    none.destroy()
+  })
+
+  it('a report generated before this existed renders no block at all', async () => {
+    const w = mountScreen({ ...base, coaching: { ...base.coaching } })
+    await flush()
+    expect(w.vm.followThrough).toBeNull()
+    w.destroy()
+  })
+
+  it('a disagreement on a follow-through item is keyed by its own prefixed id', async () => {
+    // It shares the coaching report's single dispute store (P5), so the key has to be the
+    // same one the backend asked the model about, or the disagreement lands nowhere.
+    const w = mountWith({
+      from: { meetingId: 'old', at: '2026-03-10T09:00:00.000Z' },
+      expired: false,
+      items: [{ what: 'send the forecast', who: '', when: '', state: 'not_found', quote: null }]
+    })
+    await flush()
+    expect(w.vm.followPointId(0)).toBe('followup:0')
+    expect(w.vm.disputedFollow(0)).toBe(false)
+    w.destroy()
+  })
+
+  it('the date of the previous meeting is read in UTC, as meetings are stamped', async () => {
+    const w = mountWith({
+      from: { meetingId: 'old', at: '2026-03-10T23:30:00.000Z' },
+      expired: false,
+      items: []
+    })
+    await flush()
+    expect(w.vm.lastMetOn).toBe('10 March 2026')
+    w.destroy()
+  })
+})

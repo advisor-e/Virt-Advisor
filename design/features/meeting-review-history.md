@@ -4,7 +4,7 @@
 > disagree, **the Brief wins**.
 >
 > ⚠ **This page records how the design was arrived at, and what each build found on the way** —
-> §§1–7 are the design sessions, §8 is the build record. **Six slices are built** (see the Brief);
+> §§1–7 are the design sessions, §8 is the build record. **Six slices are built, the last of them with its own approved drawing** (see the Brief);
 > the line that used to stand here saying nothing was built was true on 2026-09-01 and has been
 > replaced rather than left with a date beside it.
 
@@ -309,6 +309,15 @@ not repeated; this is the sequence, and the things found on the way.
   than incidental: the question is whether the ADVISER returned to the action, and a client raising
   it unprompted is not the adviser following it through. **Three refusals are deliberate and
   tested:** another client, another advisor (P2), and a meeting with no client are never matched,
-  and an expired previous meeting is reported as expired rather than as "no actions agreed". ⚠ **No
-  screen renders the block yet** — the drawing has no panel for it, and a screen is drawn and
-  approved before it is built. 15 new tests.
+  and an expired previous meeting is reported as expired rather than as "no actions agreed". **The screen was drawn rather than added quietly**, because the approved
+  drawing had no panel for it: `design/mockups/meeting-review-follow-through.html`, three screens,
+  **approved by Mike the same day with all four questions ruled** one at a time. 🔴 **The ruling
+  worth carrying forward is the labels:** *"You raised it"* / *"Not raised"*, with **"Done" / "Not
+  done" rejected because the software cannot know it** — it hears an hour in a room and nothing of
+  the months between, so a client who did send the forecast and simply did not mention it would
+  have been reported as having failed to. The heading is *"Since we last met"*, the block sits
+  above the observation points, and the expired panel names the firm's own retention period. **The
+  build then found one thing the drawing had settled but the code had not:** `buildBlock` returned
+  null for every empty case, which would have made an expired previous meeting render exactly like
+  a meeting where nothing was agreed. It now says which kind of empty it is, and a test pins the
+  three apart. 21 new tests in all.

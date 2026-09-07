@@ -205,7 +205,26 @@ describe('the stored block', () => {
     expect(block.items[1].quote).toBeNull()
   })
 
-  test('no previous meeting means no block at all', () => {
-    expect(buildBlock(null, [])).toBeNull()
+  test('🔴 no previous meeting still returns a block, saying WHICH kind of empty it is', () => {
+    // It used to return null for every empty case. The approved drawing (2026-09-07) needs the
+    // three apart: a first meeting, a meeting recorded against no client, and a previous
+    // meeting whose transcript expired. Collapsing them would let an expired meeting render as
+    // one where nothing was agreed — a fact about the retention clock read as a fact about the
+    // client.
+    expect(buildBlock(null, [], { reason: 'first' })).toEqual({
+      none: true, reason: 'first', items: []
+    })
+    expect(buildBlock(null, [], { reason: 'no_client' })).toEqual({
+      none: true, reason: 'no_client', items: []
+    })
+    // An unknown or missing reason falls back to "first", which is the harmless reading.
+    expect(buildBlock(null, []).reason).toBe('first')
+  })
+
+  test('the expired block carries the firm\'s own retention phrase, never a constant', () => {
+    const prev = { meetingId: 'old', at: '2025-01-02T09:00:00.000Z', expired: true, actions: [] }
+    const block = buildBlock(prev, [], { retentionPhrase: '6 months' })
+    expect(block.expired).toBe(true)
+    expect(block.retentionPhrase).toBe('6 months')
   })
 })

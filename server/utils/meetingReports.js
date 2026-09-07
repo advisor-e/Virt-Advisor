@@ -583,7 +583,8 @@ async function generateCoachingNotes (args) {
     model: REPORT_MODEL,
     metrics: args.metrics || null,
     findings: split.findings.concat(cannotHearFindings(unhearable, segments)),
-    followThrough: followThrough.buildBlock(args.previous || null, split.followThrough),
+    followThrough: followThrough.buildBlock(
+      args.previous || null, split.followThrough, args.previousContext || {}),
     droppedFindings: dropped,
     // P5: a dispute is part of the record, so the shape exists from the first save.
     disputes: {}

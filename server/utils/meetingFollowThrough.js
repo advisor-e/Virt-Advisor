@@ -155,17 +155,32 @@ function splitFindings (findings) {
 /**
  * The stored follow-through block, pairing each prior action with what this meeting did about it.
  *
+ * 🔴 THE BLOCK IS ALWAYS PRESENT, AND ITS EMPTY STATES SAY WHICH KIND OF EMPTY THEY ARE. The
+ * approved drawing (2026-09-07) turns on this: an EXPIRED previous meeting must not render like a
+ * meeting where nothing was agreed, or an advisor reads "no actions" as a fact about their client
+ * rather than a fact about the retention clock. Returning null for every empty case would have
+ * left the screen unable to tell the three apart.
+ *
  * @param {object|null} previous - from `findPrevious`
  * @param {Array<object>} followFindings - from `splitFindings`
- * @returns {object|null} null when there is no earlier meeting to follow through from
+ * @param {object} [context]
+ * @param {string} [context.reason] - why there is no previous meeting: `first` or `no_client`
+ * @param {string} [context.retentionPhrase] - the firm's own period, rendered for the expired
+ *   panel. Mike's ruling, 2026-09-07: the expired panel names it, and it is never hardcoded.
+ * @returns {object} always an object — `none` marks the two empty cases
  */
-function buildBlock (previous, followFindings) {
-  if (!previous) { return null }
+function buildBlock (previous, followFindings, context) {
+  const ctx = context || {}
+
+  if (!previous) {
+    return { none: true, reason: ctx.reason === 'no_client' ? 'no_client' : 'first', items: [] }
+  }
 
   if (previous.expired) {
     return {
       from: { meetingId: previous.meetingId, at: previous.at },
       expired: true,
+      retentionPhrase: ctx.retentionPhrase || '',
       items: []
     }
   }

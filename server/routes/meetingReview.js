@@ -628,8 +628,18 @@ async function runReports (meetingId, ctx) {
     // recorded without choosing a client, or when the earlier meeting's text has expired on
     // the firm's retention clock — and the report says which rather than showing an absence.
     let previous = null
+    let previousContext = {}
     try {
-      previous = followThrough.findPrevious(store, store.readMeta(meetingId))
+      const meta = store.readMeta(meetingId)
+      previous = followThrough.findPrevious(store, meta)
+      previousContext = {
+        // Which kind of empty, so the screen can tell "your first meeting with this client"
+        // from "you did not record this against a client" (approved drawing, 2026-09-07).
+        reason: (meta && meta.clientId) ? 'first' : 'no_client',
+        // The firm's OWN period, rendered — Mike's ruling the same day that the expired panel
+        // names it, and `meetingRetention.js`'s standing rule that it is never hardcoded.
+        retentionPhrase: retentionPhrase(meta && meta.retentionMonths)
+      }
     } catch (err) {
       // A follow-through that cannot be looked up must not cost the advisor their coaching
       // notes. Logged, and the report is generated without the block.
@@ -641,6 +651,7 @@ async function runReports (meetingId, ctx) {
       points: ctx.points,
       metrics,
       previous,
+      previousContext,
       apiKey: process.env.OPENAI_API_KEY
     })
     store.writeReport(meetingId, 'coaching', coaching)
