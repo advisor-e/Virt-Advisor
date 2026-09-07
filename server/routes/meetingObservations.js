@@ -857,5 +857,9 @@ module.exports = {
   addAdvisorPoint,
   updateAdvisorPoint,
   deleteAdvisorPoint,
-  readScopeConfig
+  readScopeConfig,
+  // Borrowed by meetingReview.js's `presetFor`, for the same reason `readScopeConfig` is: the
+  // dev-fallback rules for the two advisor config keys live here, and report generation must
+  // read the advisor's level through exactly the same path the screen does or the two drift.
+  loadAdvisorState
 }

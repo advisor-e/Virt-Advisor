@@ -211,6 +211,63 @@ describe('generating', () => {
   })
 })
 
+describe("the advisor's own level reaches the report", () => {
+  // 🔴 THE FAULT THESE PIN, found by review on 2026-09-08. `presetFor` read the firm's
+  // resolved list and never applied the advisor's layer, while the screen beside it did. So
+  // a point the advisor had set aside was still assessed and a point they had written
+  // themselves never was — while the screen showed their list saved and correct.
+  //
+  // NOT VISIBLE IN UAT, which is why these are tests rather than something to eyeball: the
+  // coaching report is prose, and a question that was never assessed reads exactly like a
+  // question the model had nothing to say about.
+
+  const DECLINES_KEY = 'meeting-observation-advisor-declines'
+  const OWN_KEY = 'meeting-observation-advisor-own'
+
+  /** Answer the two advisor config keys from this advisor's stored state; everything else null. */
+  function seedAdvisorState ({ declines = null, own = null } = {}) {
+    // Not `async`: `readScopeConfig` awaits whatever comes back, and a plain value awaits fine.
+    overlay.loadFirmConfig.mockImplementation((scopeId, key) => {
+      if (key === DECLINES_KEY && declines) {
+        return { [ADVISOR]: { name: 'Test Advisor', scenarios: { eoy_meeting: declines } } }
+      }
+      if (key === OWN_KEY && own) {
+        return { [ADVISOR]: { name: 'Test Advisor', scenarios: { eoy_meeting: own } } }
+      }
+      return null
+    })
+  }
+
+  test('the firm point is in the list when the advisor has not touched it — the control', async () => {
+    // Without this the two assertions below would pass just as convincingly against a
+    // presetFor that returned nothing at all.
+    const ctx = await routes.presetFor(makeReq(), 'eoy_meeting')
+    expect(ctx.points.map(p => p.id)).toContain('mo-eoy-1')
+  })
+
+  test('🔴 a point the advisor set aside is NOT in the list the report is written from', async () => {
+    seedAdvisorState({ declines: ['mo-eoy-1'] })
+    const ctx = await routes.presetFor(makeReq(), 'eoy_meeting')
+    expect(ctx.points.map(p => p.id)).not.toContain('mo-eoy-1')
+  })
+
+  test('🔴 a point the advisor wrote themselves IS in it', async () => {
+    seedAdvisorState({ own: [{ id: 'ao-eoy-1', text: 'I asked about the succession plan.' }] })
+    const ctx = await routes.presetFor(makeReq(), 'eoy_meeting')
+    const mine = ctx.points.find(p => p.id === 'ao-eoy-1')
+    expect(mine).toBeDefined()
+    expect(mine.text).toBe('I asked about the succession plan.')
+  })
+
+  test("one advisor's level does not reach another advisor's report", async () => {
+    // P2 again, one level down: the layer is keyed by advisor, so a colleague's set-aside
+    // must not quietly shorten this advisor's list.
+    seedAdvisorState({ declines: ['mo-eoy-1'] })
+    const ctx = await routes.presetFor(makeReq({ advisorId: 'adv-2' }), 'eoy_meeting')
+    expect(ctx.points.map(p => p.id)).toContain('mo-eoy-1')
+  })
+})
+
 describe('the client summary', () => {
   test('cannot be saved empty', () => {
     const meetingId = seedMeeting({ summary: A_SUMMARY })
