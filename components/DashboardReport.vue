@@ -9,7 +9,7 @@
       b-dropdown-item(v-for="o in optional" :key="o.key" custom aria-role="listitem")
         b-checkbox(:value="o.on" :disabled="!o.available" @input="v => toggle(o.key, v)") {{ $t('report.dashboardReports.pages.optional.' + o.key) }}
         span.drd-dd-why(:class="{ 'is-ok': o.available }") {{ o.reason }}
-    span.drd-toolbar-pages {{ $t('report.dashboardReports.review.pagesOf', { n: pageCount, max: 15 }) }}
+    span.drd-toolbar-pages {{ $t('report.dashboardReports.review.pagesOf', { n: pageCount }) }}
     b-button(type="is-primary" @click="print") {{ $t('report.dashboardReports.review.print') }}
     span.drd-toolbar-note {{ $t('report.dashboardReports.review.accessNote') }}
   .drd-waiting(v-if="!figures") {{ $t('report.loading') }}

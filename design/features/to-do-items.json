@@ -242,7 +242,7 @@
       "scoreReason": "helps sell the package",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
+      "waitingOn": "Us",
       "why": "Mike asked for a rich, colourful business performance report for private business owners, 7 to 10 base pages and up to 15, built from the accounts, the deck, the cash drivers and every model in this section.",
       "risk": "A client reads this on paper and acts on it. A wrong ratio, an invented health score or an unsourced industry median looks exactly like a fact, which UAT cannot catch. Every figure carries provenance and the four unruled parts show no number.",
       "askedBy": {
@@ -251,7 +251,7 @@
         "detail": "2026-09-07 — \"lets get started on the dashboard reports\", then the full request: \"a rich, colourful, and easy to understand business performance report ... 7-10 pages (pages can be added via droptab request by adviosor) ... contents table, executive summary with graphics, a summary financial dashboard\"; cap raised to 15 the same day."
       },
       "touches": "Built: server/report/dashboardReports*Model.js and the three optional-page models (profitBridge, cashBridge, profitSensitivity); the intake assembler; the three dashboard-reports routes; pages/dashboard-reports.vue; components/DashboardReports*.vue and DashboardReport*.vue; four base charts; utils/dashboardReportsSavedShape.js; locales/en.json. Slice 1: server/report/trendModel.js, server/utils/forecastTrendThresholds.js, data/forecast-trend-thresholds.json, components/firm/FirmForecastTrendThresholds.vue. Stage 3: server/report/benchmarks/statsNzBenchmarker.js, server/utils/benchmarkerStore.js, server/routes/benchmarker.js, data/statsnz-benchmarker-2025.json, DashboardReportsSetup.vue, DashboardReportTrends.vue. components/firm/FirmBenchmarker.vue. Next: stage 4 the inventory reader, then Stock against the accounts. The Brief section 4 carries the full file list.",
-      "note": "Drawings approved 2026-09-07; wording ruled as drawn 2026-09-08. Stages 1, 2 and 3 built at /dashboard-reports: the intake, the eleven pages, the eight-measure score on his four figures, the three accounts-only optional pages, and the Stats NZ benchmarker (his two 2025 files; the finder and size bands on step 1, the comparison on page 7). The stock page waits on the stage 4 reader. The mentor's Industry Benchmarks tab is built on the approved drawing. ONE THING FOR MIKE: rule on the page cap (every optional page makes sixteen against fifteen). Nothing built today has been opened in the production build with real exports.",
+      "note": "Drawings approved 2026-09-07; wording ruled as drawn 2026-09-08. Stages 1, 2 and 3 built at /dashboard-reports: the intake, the eleven pages, the eight-measure score on his four figures, the three accounts-only optional pages, and the Stats NZ benchmarker (his two 2025 files; the finder and size bands on step 1, the comparison on page 7). The stock page waits on the stage 4 reader. The mentor's Industry Benchmarks tab is built on the approved drawing. Page cap ruled 2026-09-08: fifteen applies to the base report only; optional pages are unlimited. Nothing waits on Mike. Nothing built today has been opened in the production build with real exports.",
       "comment": "2026-09-07 filed, drawn twice, ruled, approved, stage 1 built. 2026-09-08 stage 2 built on the desktop: the report opens at /dashboard-reports (the /business-performance-report route belongs to the Working Capital Cycle). activeOn desktop.",
       "activeOn": {
         "machine": "desktop",

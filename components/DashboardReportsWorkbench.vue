@@ -234,7 +234,8 @@ export default {
           { label: t('basePages'), value: 10, sub: t('basePagesSub') },
           { label: t('added'), value: s.pages.added.length, sub: t('addedSub') },
           { label: t('closingPage'), value: 1, sub: this.$t('report.dashboardReports.doc.section.information') },
-          { label: t('total'), value: 11 + s.pages.added.length, unit: t('ofFifteen'), sub: t('moreCanBeAdded', { n: 15 - 11 - s.pages.added.length }) }
+          // No cap on optional pages — Mike, 2026-09-08: the fifteen applies to the base report only.
+          { label: t('total'), value: 11 + s.pages.added.length, sub: t('totalSub') }
         ]
       }
       return [

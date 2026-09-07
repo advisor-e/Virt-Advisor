@@ -46,10 +46,14 @@ base pages, and a page is only added when there is something real to put on it.
 
 ## 2. Key principles — the non-negotiables
 
-**P1 · Seven to ten base pages; up to fifteen in all; an optional page is offered only where
-the figures behind it exist** (Mike, 2026-09-07). The advisor adds pages from a dropdown. A page
-whose data is absent is not offered, so the dropdown can never add an empty page. Ignore this and
-the report grows back into the sixty-chart workbook nobody reads.
+**P1 · The base report is seven to ten pages, and at most fifteen with its closing page; optional
+pages are the advisor's choice, with no limit, and one is offered only where the figures behind it
+exist** (Mike, 2026-09-07; the cap confined to the base report 2026-09-08: *"If an advisor selects
+the pages they want — then no limit need apply. The limit only applies to the 'base' report —
+inclusive of a disclaimer page — thereafter it's optional"*). The base is eleven pages today. The
+advisor adds pages from a dropdown. A page whose data is absent is not offered, so the dropdown can
+never add an empty page. Ignore this and the report grows back into the sixty-chart workbook nobody
+reads.
 
 **P2 · No figure without provenance.** Every number carries one of three marks: *from your
 accounts* (read from a file), *entered by your advisor* (typed), or *AI research, approved*

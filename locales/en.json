@@ -1766,12 +1766,12 @@
           "loanServicing": "No loan on the file",
           "taxProvision": "The tax tool is not built"
         },
-        "hint": "Up to 15 pages in all. A page whose data is missing cannot be ticked, so a page is never added empty.",
+        "hint": "The base report is eleven pages, the closing page included. Add as many optional pages as the content supports. A page whose data is missing cannot be ticked, so a page is never added empty.",
         "continue": "Continue to review"
       },
       "review": {
         "addPage": "Add a page",
-        "pagesOf": "{n} of {max} pages",
+        "pagesOf": "{n} pages",
         "print": "Print or save as PDF",
         "accessNote": "Client access stays Hidden until you switch it to Open in the header; a client then reads the report and cannot edit it."
       },
@@ -1810,8 +1810,7 @@
         "addedSub": "optional pages",
         "closingPage": "Closing page",
         "total": "Total",
-        "ofFifteen": "of 15",
-        "moreCanBeAdded": "{n} more can be added",
+        "totalSub": "the base eleven plus what you added",
         "pages": "Pages",
         "landscape": "landscape, one per sheet",
         "fromYourAccounts": "From your accounts",
