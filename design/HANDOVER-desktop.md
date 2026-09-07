@@ -11,28 +11,25 @@
 
 ## 2026-09-07 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-Suite 7,930 green at the first push; the second push's gate covers the closing commit.
-Everything pushed.
+Suite **8,108 green** (417 suites), everything pushed, tree clean at `3b219ed`. Master merged in
+(PR #62, the economic analysis) with two keep-both conflicts.
 
-**4.68 built, proven live and CLOSED.** Three firm-level reads a client's page fetches with
-the client's token were advisor-only, so a client silently got the shipped currency, tax
-rules and sell-down ladder. A `firmOrEntityAuth` guard in `server/middleware/firmAuth.js` now
-admits either on those three GETs only; every write stays the manager's. Proven against the
-local MySQL as client, advisor and bad token. Closure on `to-do-done-and-parked.md` §2; the
-Brief's "every advisor route" sentence corrected.
+**🔴 THE DESKTOP MOVED TO THE SSD.** The working copy is now
+`C:\Users\Mike Barnes\Projects\Virt Advisor`. `E:\Visual Code Projects\Virt Advisor` is a USB
+spinning disk (40 small-file writes: 9.4 s there, 6 ms on C:) that made the push gate take over
+ten minutes; it is now a **stale backup — never work on E: again**. The full suite runs in 46 s
+here and the push gate in about 75 s. The global guard hook covers both paths; hooks are wired
+(`core.hooksPath .husky`); both dev servers run from C: on a production build.
 
-**4.69 ruled one at a time and CLOSED the same session.** Loan Estimator's empty save says so
-instead of failing; Volatility's source flags no longer count as changed figures; the Client
-access box is capped so the header's right block sits beside the title; Quick Position's
-factor badge sits by the percentage. Rebuilt and walked live on four screens.
+**4.70, the Business Performance Report, is ACTIVE ON THIS DESKTOP.** Filed, drawn twice (the
+first rejected for not following Mike's deck), all four rulings given, both drawings approved,
+**stage 1 built**: `server/report/dashboardReportsModel.js` pinned to the workbook by its golden
+test, and `POST /api/report/dashboard-reports`, driven live. **Next is stage 2, the pages**, which
+needs Mike's word on the input-step labels and the score-band words first. Its files: the model
+and route, the two mockups, `features/business-performance-report.md` and its history.
 
-**Nothing half-finished on this machine.** No `activeOn` set here. The live list is eight items.
-
-**Next:** 4.67 is nobody's; its files are the forecast's. Everything else waits on Mike or UAT.
-
-**LAPTOP:** `server/restify-server.js` changed on three route lines only — the currency,
-property-tax-rules and sell-down reads — and `firmAuth.js` gained one exported guard.
-`server/utils/savedReports.js` (`changedKeys`) and `mixins/savedReport.js` (`saveReport`)
-changed in one function each; `ClientAccessSwitch.vue` gained a `max-width`. No forecast
-component or intake file was touched. The dev backend and frontend on this machine's ports
-4000 and 3000 were replaced; both had been running the 2026-09-04 code.
+**LAPTOP:** `server/routes/report.js` gained one handler and `restify-server.js` one route line,
+both beside the other calc routes; no forecast, intake or economic-analysis file was touched.
+This machine's two closures of 2026-09-07 were built under provisional numbers 4.68 and 4.69
+(commits `71b60bf`, `3e0e39a`, `176390a`); those numbers are now the laptop's open items, and
+the closures page carries the two entries unnumbered, each saying so.

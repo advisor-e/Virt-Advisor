@@ -195,7 +195,9 @@ percentage, not on the label beside the value's tag. Rebuilt and walked live on 
 Quick Position, Volatility and the Loan Estimator, no errors. **What proves it:** the empty-row
 test in [`savedReport.mixin.test.js`](../../tests/unit/savedReport.mixin.test.js) and the
 source-flag test in [`savedReports.test.js`](../../tests/unit/savedReports.test.js); the two
-layout changes are visual and carry no test, by the 2026-08-24 rule.
+layout changes are visual and carry no test, by the 2026-08-24 rule. *Built on the desktop under
+the provisional number 4.69 (commit `176390a`); that number now belongs to the laptop's later
+item, so this entry carries none.*
 
 **A client's page is refused the firm's currency and tax rules.** ✅ Built and closed
 2026-09-07. Found on the desktop's live walk of 2026-09-04. Three firm-level reads the client's
@@ -208,7 +210,9 @@ named a fourth read, trend thresholds; nothing in the browser calls it, so there
 **What proves it:** the `firmOrEntityAuth` block in
 [`entityAuth.test.js`](../../tests/unit/entityAuth.test.js) and the read-only pin in
 [`clientReportsProxyWiring.test.js`](../../tests/unit/clientReportsProxyWiring.test.js), which
-fails if any write route ever takes the guard.
+fails if any write route ever takes the guard. *Built on the desktop under the provisional number
+4.68 (commits `71b60bf`, `3e0e39a`); that number now belongs to the laptop's later item, so this
+entry carries none.*
 
 **4.67 — step 2 of the forecast opened in the running app, and it was not wasted.**
 ✅ Closed 2026-09-05. The item existed because three things built that morning — the funding
