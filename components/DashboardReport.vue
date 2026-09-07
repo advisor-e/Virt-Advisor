@@ -27,7 +27,7 @@
     dashboard-report-balance-sheet(:number="6" :client-name="clientName" :period="period" :b="figures.balanceSheet" :balance-date="state.current.balanceSheetDate || ''")
     dashboard-report-cash-flow(:number="7" :client-name="clientName" :period="period" :cf="figures.cashFlow" :cash-watch="state.words.cashWatch" :prior-label="priorLabel" :current-label="currentLabel")
     dashboard-report-inventory(:number="8" :client-name="clientName" :period="period" :inv="figures.inventory")
-    dashboard-report-trends(:number="9" :client-name="clientName" :period="period" :trends="figures.trends" :prior-label="priorLabel" :current-label="currentLabel")
+    dashboard-report-trends(:number="9" :client-name="clientName" :period="period" :trends="figures.trends" :benchmarks="figures.benchmarks || null" :prior-label="priorLabel" :current-label="currentLabel")
     dashboard-report-next-steps(:number="10" :client-name="clientName" :period="period" :steps="state.words.steps" :next-review="state.words.nextReview" :prepared-by="state.setup.preparedBy")
     template(v-for="(p, i) in addedPages")
       dashboard-report-profit-bridge(v-if="p === 'profitBridge'" :key="p" :number="11 + i" :client-name="clientName" :period="period" :b="figures.optional.profitBridge" :prior-label="priorLabel" :current-label="currentLabel")

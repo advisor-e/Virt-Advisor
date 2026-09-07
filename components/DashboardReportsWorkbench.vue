@@ -13,7 +13,13 @@
     v-if="step === 1 && !clientMode"
     :setup="state.setup"
     :client-name="clientName"
+    :matches="industryMatches"
+    :industry="industryRecord"
+    :industry-count="industryCount"
+    :revenue="revenue"
     @change="onSetup"
+    @search="onIndustrySearch"
+    @industry="loadIndustry"
     @continue="go(2)")
   dashboard-reports-accounts(
     v-else-if="step === 2 && !clientMode"
@@ -128,7 +134,11 @@ export default {
   data () {
     return {
       state: this.restore ? JSON.parse(JSON.stringify(this.restore)) : emptyState(),
-      figures: null
+      figures: null,
+      /** The finder's last answer, the chosen industry's record, and how many the finder covers. */
+      industryMatches: [],
+      industryRecord: null,
+      industryCount: 0
     }
   },
 
@@ -136,6 +146,12 @@ export default {
     period () {
       const s = this.state
       return s.setup.financialYear || s.current.profitLossDate || s.current.balanceSheetDate || ''
+    },
+    /** This year's revenue from the confirmed table, or null before any file is dropped. */
+    revenue () {
+      const l = this.state.current && this.state.current.figures && this.state.current.figures.tradingIncome
+      const v = l && l.value !== null && l.value !== undefined ? Number(l.value) : NaN
+      return Number.isFinite(v) ? v : null
     },
     /**
      * Whether each optional page can be added, and why or why not (Brief P1). The three
@@ -253,6 +269,7 @@ export default {
 
   mounted () {
     this.recompute()
+    if (this.state.setup.industryCode) { this.loadIndustry(this.state.setup.industryCode) }
   },
 
   methods: {
@@ -279,8 +296,41 @@ export default {
       this.$emit('step', n)
     },
     onSetup (setup) {
+      const industryChanged = setup.industryCode !== this.state.setup.industryCode || setup.sizeBand !== this.state.setup.sizeBand
       this.state = Object.assign({}, this.state, { setup })
       this.report()
+      // The industry and the band change the benchmark page's figures, nothing else on the form does.
+      if (industryChanged) { this.queueRecompute() }
+    },
+    /**
+     * The finder: two characters or more go to the backend, which answers from the release in
+     * force. A shorter query clears the list rather than asking.
+     * @param {string} q
+     */
+    async onIndustrySearch (q) {
+      if (!q || q.trim().length < 2) { this.industryMatches = []; return }
+      try {
+        const res = await fetch('/api/report/benchmarker/industries?q=' + encodeURIComponent(q.trim()), { headers: { Authorization: 'Bearer ' + this.token } })
+        const body = await res.json()
+        this.industryMatches = Array.isArray(body.matches) ? body.matches : []
+      } catch (err) {
+        this.industryMatches = []
+      }
+    },
+    /**
+     * The chosen industry's bands and counts, for the size-band list.
+     * @param {string} code
+     */
+    async loadIndustry (code) {
+      this.industryRecord = null
+      if (!code) { return }
+      try {
+        const res = await fetch('/api/report/benchmarker/industries/' + encodeURIComponent(code), { headers: { Authorization: 'Bearer ' + this.token } })
+        const body = await res.json()
+        this.industryRecord = body && body.industry ? body.industry : null
+      } catch (err) {
+        this.industryRecord = null
+      }
     },
     /** @param {{current: object, prior: object, hasPrior: boolean, companyName?: string}} payload */
     onAccounts (payload) {

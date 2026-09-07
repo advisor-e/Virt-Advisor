@@ -17,7 +17,7 @@ const { LINES } = require('../../server/report/intake/dashboardReportsAssembler'
 
 function filledState () {
   const s = emptyState()
-  s.setup = { financialYear: '1 July 2025 – 30 June 2026', dateIssued: '2026-09-08', preparedBy: 'Jordan Reid' }
+  s.setup = Object.assign({}, s.setup, { financialYear: '1 July 2025 – 30 June 2026', dateIssued: '2026-09-08', preparedBy: 'Jordan Reid', industryCode: 'H451100', industryName: 'Cafes and restaurants', sizeBand: 'small' })
   s.hasPrior = true
   s.current.balanceSheetDate = 'As at 30 June 2026'
   s.current.profitLossDate = 'For the year ended 30 June 2026'

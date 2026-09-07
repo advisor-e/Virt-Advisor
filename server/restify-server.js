@@ -117,6 +117,7 @@ const currencyRoute = require('./routes/currency')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
 const trendThresholdsRoute = require('./routes/forecastTrendThresholds')
 const sellDownRoute = require('./routes/forecastSellDown')
+const benchmarkerRoute = require('./routes/benchmarker')
 const aiPromptsRoute = require('./routes/aiPrompts')
 const promptCheckRoute = require('./routes/promptCheck')
 const promptContributionsRoute = require('./routes/promptContributions')
@@ -264,6 +265,10 @@ server.get('/api/report/trend-thresholds', firmAuth, trendThresholdsRoute.get)
 // require a manager role, and the write is manager-only on /api/firm-manager below. A
 // client editing the forecast seeds the same ladder, so the read admits a client too (4.68).
 server.get('/api/report/sell-down', firmOrEntityAuth, sellDownRoute.get)
+// The Stats NZ benchmarker (item 4.70 stage 3, Brief P9). The finder and an industry's bands
+// are open to any signed-in reader, a client included — nothing here is a firm's own data.
+server.get('/api/report/benchmarker/industries', firmOrEntityAuth, benchmarkerRoute.industries)
+server.get('/api/report/benchmarker/industries/:code', firmOrEntityAuth, benchmarkerRoute.industry)
 // /api/firm/advisors and /api/firm/insights were removed 2026-07-29 with the
 // FirmDashboard mock they existed for. Both were stubs returning empty data, and
 // proposed a three-table schema (advisors/courses/course_sessions) that was never
@@ -616,6 +621,10 @@ server.get('/api/mentor/adoption', firmAuth, requireManagingTier, mentorRoute.ge
 // The mentor authors the platform set every firm receives as its default; plain CRUD
 // (no decline/override at this tier). Global scope — handlers never read req.firmId.
 const mentorGuard = [firmAuth, requireMentorRole]
+// The benchmarker's release is one national table, replaced each year: the MENTOR uploads it
+// and it is stored at the platform scope. No tier below has a different Stats NZ.
+server.get('/api/firm-manager/benchmarker', ...mentorGuard, benchmarkerRoute.summary)
+server.post('/api/firm-manager/benchmarker', ...mentorGuard, benchmarkerRoute.upload)
 server.get('/api/mentor/distinctions', ...mentorGuard, mentorRoute.listMentorDistinctions)
 server.post('/api/mentor/distinctions', ...mentorGuard, mentorRoute.createMentorDistinction)
 server.put('/api/mentor/distinctions/:id', ...mentorGuard, mentorRoute.updateMentorDistinction)

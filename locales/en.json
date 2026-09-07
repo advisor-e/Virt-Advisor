@@ -1590,8 +1590,43 @@
         "whoPrepared": "Who prepared it",
         "preparedBy": "Prepared by",
         "preparedHint": "Printed on the cover and the last page. The firm's logo has its place on the cover and in every footer.",
-        "industryTitle": "Industry and size band",
-        "industryLater": "The industry finder and Stats NZ's four size bands come with the benchmarker, a later stage of this report. Until then the benchmark half of the Trends page says so and shows no figures.",
+        "findIndustry": "Find the industry",
+
+        "findPlaceholder": "Type part of the industry name, or its ANZSIC code",
+
+        "benchmarksPublished": "benchmarks published",
+
+        "noBenchmarks": "no benchmarks: too few businesses",
+
+        "noMatches": "No industry matches that. Try another word from its name.",
+
+        "anzsicClass": "ANZSIC06 class · Stats NZ",
+
+        "finderHint": "Searches the industries Stats NZ lists. An industry with too few businesses is listed but says so, and the benchmark panel then says why it is empty.",
+
+        "sizeBandTitle": "Size band — Stats NZ's four bands for this industry, by turnover",
+
+        "band": {
+           "micro": "Micro",
+           "small": "Small",
+           "medium": "Medium",
+           "large": "Large"
+         },
+
+        "bandQuarter": {
+           "micro": "the smallest quarter of businesses",
+           "small": "the second quarter",
+           "medium": "the third quarter",
+           "large": "the largest quarter"
+         },
+
+        "matchesRevenue": "matches revenue {revenue}",
+
+        "bandHint": "Stats NZ sets the bands as four even quarters of the businesses in this industry, so the ranges differ by industry. Pre-marked from the revenue in the accounts; you can change it.",
+
+        "bandFromRevenue": "Back to the band the revenue puts it in",
+
+        "noBenchmarksLong": "Stats NZ publishes no benchmark ratios for this industry: too few businesses. The report names the industry and leaves the comparison out.",
         "continue": "Continue to the accounts",
         "nothingSent": "Nothing is sent anywhere on this step."
       },
@@ -1951,7 +1986,45 @@
         "stockTurnDefinition": "Turnover per year keeps the source workbook's definition: trading income over current assets. Days on shelf is stock over cost of sales, times 365.",
         "trendsSub": "How you compare with your own last year",
         "youVsIndustry": "You vs businesses of your size in your industry",
-        "benchmarksLater": "The Stats NZ Business Performance Benchmarker comparison comes with the benchmarker, a later stage of this report. No industry figure is shown until then.",
+        "statsNz": "Stats NZ",
+
+        "bm": {
+           "ratio": "Ratio",
+           "you": "You",
+           "median": "Industry median",
+           "middleHalf": "Middle half",
+           "name": {
+             "returnOnEquity": "Return on equity",
+             "grossProfitRatio": "Gross profit ratio",
+             "returnOnTotalAssets": "Return on total assets",
+             "liabilityStructure": "Liability structure",
+             "wagesToTurnover": "Wages to turnover",
+             "quickRatio": "Quick ratio",
+             "currentRatio": "Current ratio",
+             "stockTurnover": "Stock turnover per year"
+           },
+           "position": {
+             "below": "below",
+             "within": "within",
+             "above": "above"
+           },
+           "noFigure": "not in your accounts",
+           "unpublished": "not published for this industry",
+           "accuracy": {
+             "good": "\"Within\" means inside the middle half of businesses of your size in your industry. Ratios use Stats NZ's definitions so the comparison is like for like. Stats NZ rates this industry's figures good: covered by its quality checks.",
+             "caution": "\"Within\" means inside the middle half of businesses of your size in your industry. Ratios use Stats NZ's definitions so the comparison is like for like. Stats NZ marks this industry's figures caution: not covered by its quality checks.",
+             "suppressed": "\"Within\" means inside the middle half of businesses of your size in your industry. Ratios use Stats NZ's definitions so the comparison is like for like. Stats NZ suppresses part of this industry's figures for very high sample errors.",
+             "none": "\"Within\" means inside the middle half of businesses of your size in your industry. Ratios use Stats NZ's definitions so the comparison is like for like."
+           },
+           "blocked": {
+             "NO_INDUSTRY": "No industry was chosen on step 1, so there is no comparison to draw.",
+             "NO_BENCHMARKS": "Stats NZ publishes no benchmark ratios for {industry}: too few businesses. No comparison is drawn.",
+             "NO_BAND": "{industry}: the revenue falls outside every Stats NZ size band, which cover $60,000 to $10 million of turnover. Choose a band on step 1 or leave the comparison out."
+           },
+           "chooseIndustry": "Choose the industry on step 1 and the Stats NZ comparison appears here.",
+           "bandLine": "{band} businesses by turnover, {from} – {to}",
+           "yearProvisional": "{year} (provisional)"
+         },
         "twoYearTrend": "Two-year trend",
         "trendRow": {
           "revenue": "Revenue",

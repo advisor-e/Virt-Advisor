@@ -1,0 +1,19 @@
+Industry_Division,Industry_Class,Industry_ANZSIC_class_code,Variable,Total_2023,Total_2024,Total_2025,Accuracy_category
+Accommodation and food services,Accommodation,H440000,Business count,5946,6339,6831,
+Accommodation and food services,Accommodation,H440000,Employee count,32200,34000,33600,
+Accommodation and food services,Accommodation,H440000,Income($m),4812,5456,5297,Good: this data has been covered by our quality checks.
+Accommodation and food services,Accommodation,H440000,Expenditure($m),4084,4760,4819,Good: this data has been covered by our quality checks.
+Accommodation and food services,Accommodation,H440000,Profit($m),739,694,480,Good: this data has been covered by our quality checks.
+Accommodation and food services,Accommodation,H440000,Assets($m),14534,15676,16675,Good: this data has been covered by our quality checks.
+Accommodation and food services,Cafes and restaurants,H451100,Business count,9015,9192,9252,
+Accommodation and food services,Cafes and restaurants,H451100,Employee count,79700,79400,75700,
+Accommodation and food services,Cafes and restaurants,H451100,Income($m),7690,8290,8284,Caution: use this data with caution as it is not covered by our quality checks
+Accommodation and food services,Cafes and restaurants,H451100,Expenditure($m),7348,7910,7914,Caution: use this data with caution as it is not covered by our quality checks
+Accommodation and food services,Cafes and restaurants,H451100,Profit($m),347,383,385,Caution: use this data with caution as it is not covered by our quality checks
+Accommodation and food services,Cafes and restaurants,H451100,Assets($m),4342,4442,4640,Caution: use this data with caution as it is not covered by our quality checks
+Wholesale trade,Kitchen and diningware wholesaling,F373300,Business count,99,93,87,
+Wholesale trade,Kitchen and diningware wholesaling,F373300,Employee count,480,480,420,
+Wholesale trade,Kitchen and diningware wholesaling,F373300,Income($m),257,242,223,Caution: use this data with caution as it is not covered by our quality checks
+Wholesale trade,Kitchen and diningware wholesaling,F373300,Expenditure($m),234,225,201,Caution: use this data with caution as it is not covered by our quality checks
+Wholesale trade,Kitchen and diningware wholesaling,F373300,Profit($m),19,13,19,Caution: use this data with caution as it is not covered by our quality checks
+Wholesale trade,Kitchen and diningware wholesaling,F373300,Assets($m),174,190,170,Caution: use this data with caution as it is not covered by our quality checks

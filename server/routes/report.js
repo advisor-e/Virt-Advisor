@@ -26,7 +26,9 @@ const { computeThreeWayForecast, computeThreeYearForecast, importedRevenuePrevie
 const { assembleForecastIntake, MAX_FILES: MAX_FORECAST_FILES } = require('../report/intake/threeWayForecastAssembler')
 const { computeTrend } = require('../report/trendModel')
 const { computeDashboardReports } = require('../report/dashboardReportsModel')
-const { computeReportPages } = require('../report/dashboardReportPagesModel')
+const { computeReportPages, plainLinesOf } = require('../report/dashboardReportPagesModel')
+const { compareToIndustry } = require('../report/benchmarks/statsNzBenchmarker')
+const { loadBenchmarker } = require('../utils/benchmarkerStore')
 const { assembleDashboardIntake, MAX_FILES: MAX_DASHBOARD_FILES } = require('../report/intake/dashboardReportsAssembler')
 const { loadResolvedTrendThresholds } = require('../utils/forecastTrendThresholds')
 const { listReportModels } = require('../utils/reportModels')
@@ -39,6 +41,7 @@ const { intakeErrorResponse } = require('../report/intakeError')
 // than rebuilt — one definition of "how a scope's stored config is read", so the trend
 // block on step 3 and the manager screen that edits it can never disagree about it.
 const { readScopeConfig: readTrendScopeConfig } = require('./forecastTrendThresholds')
+const { readPlatformConfig: readBenchmarkerConfig } = require('./benchmarker')
 
 // formidable pinned to v2.1.2 repo-wide (Node 14.15 — see firmManager.js); same
 // named-export + callback-wrap pattern as the firm-manager uploads.
@@ -201,8 +204,10 @@ function dashboardReports (req, res, next) {
  * the same firm, so the guard admits both.
  *
  * @route POST /api/report/dashboard-reports/pages
- * @param {object} req.body - `{ current, prior, currentDates, priorDates, inventory }` — see
+ * @param {object} req.body - `{ current, prior, currentDates, priorDates, inventory, industry }` — see
  *   `computeReportPages`. `thresholds` in the body is ignored; the firm's are used.
+ *   `industry` is `{ code, band }` from step 1; with a code, `data.benchmarks` carries the
+ *   Stats NZ comparison per `compareToIndustry` (stage 3, Brief P9), from the release in force.
  * @returns {object} { success, data, timestamp } — data per `computeReportPages`
  */
 async function dashboardReportPages (req, res) {
@@ -212,6 +217,19 @@ async function dashboardReportPages (req, res) {
     // must not cost a client their report.
     const thresholds = await loadResolvedTrendThresholds(req.firmId, readTrendScopeConfig)
     const data = computeReportPages(Object.assign({}, inputs, { thresholds }))
+    const industry = inputs.industry && typeof inputs.industry === 'object' ? inputs.industry : null
+    if (industry && typeof industry.code === 'string' && industry.code) {
+      // The same never-rejects rule: the store falls back to the shipped release.
+      const dataset = await loadBenchmarker(readBenchmarkerConfig)
+      data.benchmarks = compareToIndustry(dataset, {
+        code: industry.code.toUpperCase(),
+        band: typeof industry.band === 'string' && industry.band ? industry.band : null,
+        current: plainLinesOf(inputs.current || {}),
+        prior: inputs.prior ? plainLinesOf(inputs.prior) : null
+      })
+    } else {
+      data.benchmarks = null
+    }
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
     console.error('[report] dashboard-reports pages compute failed:', err)

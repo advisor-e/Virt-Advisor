@@ -44,7 +44,7 @@ function emptyYear () {
  */
 function emptyState () {
   return {
-    setup: { financialYear: '', dateIssued: '', preparedBy: '' },
+    setup: { financialYear: '', dateIssued: '', preparedBy: '', industryCode: '', industryName: '', sizeBand: '' },
     current: emptyYear(),
     prior: emptyYear(),
     hasPrior: false,
@@ -86,6 +86,10 @@ function flattenDashboardReport (state) {
   row.setup_financialYear = text(setup.financialYear)
   row.setup_dateIssued = text(setup.dateIssued)
   row.setup_preparedBy = text(setup.preparedBy)
+  // Stage 3: the ANZSIC06 class and the size band. '' for the band means "from the revenue".
+  row.setup_industryCode = text(setup.industryCode).toUpperCase().slice(0, 12)
+  row.setup_industryName = text(setup.industryName)
+  row.setup_sizeBand = ['micro', 'small', 'medium', 'large'].includes(setup.sizeBand) ? setup.sizeBand : ''
   row.hasPrior = Boolean(s.hasPrior)
   ;[['cur', s.current], ['pri', s.prior]].forEach(([prefix, year]) => {
     const y = year || emptyYear()
@@ -132,6 +136,13 @@ function applySavedDashboardReport (state, row) {
   next.setup.financialYear = str('setup_financialYear', next.setup.financialYear)
   next.setup.dateIssued = str('setup_dateIssued', next.setup.dateIssued)
   next.setup.preparedBy = str('setup_preparedBy', next.setup.preparedBy)
+  // Stage 3's three fields are set only when the row carries them, so a row saved before
+  // the finder existed loads exactly as it was.
+  if (typeof r.setup_industryCode === 'string' && r.setup_industryCode) {
+    next.setup.industryCode = r.setup_industryCode.toUpperCase().slice(0, 12)
+    next.setup.industryName = str('setup_industryName', '')
+    next.setup.sizeBand = ['micro', 'small', 'medium', 'large'].includes(r.setup_sizeBand) ? r.setup_sizeBand : ''
+  }
   if (typeof r.hasPrior === 'boolean') { next.hasPrior = r.hasPrior }
   ;[['cur', 'current'], ['pri', 'prior']].forEach(([prefix, key]) => {
     const y = next[key]
@@ -180,6 +191,7 @@ function pagesRequestFrom (state) {
     prior: s.hasPrior ? lines(s.prior) : null,
     currentDates: { balanceSheet: s.current && s.current.balanceSheetDate, profitLoss: s.current && s.current.profitLossDate },
     priorDates: { balanceSheet: s.prior && s.prior.balanceSheetDate, profitLoss: s.prior && s.prior.profitLossDate },
+    industry: s.setup && s.setup.industryCode ? { code: s.setup.industryCode, band: s.setup.sizeBand || null } : null,
     inventory: {
       slowObsolete: numOrNull(s.inventory && s.inventory.slowObsolete),
       ageing: AGEING_BANDS.map((b, i) => numOrNull(s.inventory && Array.isArray(s.inventory.ageing) ? s.inventory.ageing[i] : null))

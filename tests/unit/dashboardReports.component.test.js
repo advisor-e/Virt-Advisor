@@ -171,6 +171,58 @@ describe('the advisor\'s steps', () => {
     expect(wrapper.findComponent({ name: 'DashboardReportCover' }).props('addedTitles').length).toBe(3)
   })
 
+  it('step 1: the finder asks the backend from two characters, and a pick loads the industry\'s bands', async () => {
+    const state = fullState()
+    global.fetch = jest.fn((url) => {
+      if (String(url).includes('/industries?q=')) { return Promise.resolve({ json: () => Promise.resolve({ year: 2025, matches: [{ code: 'H451100', name: 'Cafes and restaurants', division: 'Accommodation and food services', benchmarks: true, accuracy: 'caution' }] }) }) }
+      if (String(url).includes('/industries/H451100')) { return Promise.resolve({ json: () => Promise.resolve({ industry: { code: 'H451100', name: 'Cafes and restaurants', benchmarks: true, bands: { micro: { min: 60000, max: 249000 }, small: { min: 249001, max: 506000 }, medium: { min: 506001, max: 1100000 }, large: { min: 1100001, max: 10000000 } } } }) }) }
+      return Promise.resolve({ json: () => Promise.resolve({ success: true, data: computeReportPages({ current: CURRENT, prior: PRIOR, thresholds: THRESHOLDS }) }) })
+    })
+    const wrapper = mountWithBuefy(DashboardReportsWorkbench, { propsData: { step: 1, restore: state, token: 'tok-123', clientName: 'Harbourside' } })
+    for (let i = 0; i < 4; i++) { await wrapper.vm.$nextTick(); await Promise.resolve() }
+    const setup = wrapper.findComponent({ name: 'DashboardReportsSetup' })
+    setup.vm.$emit('search', 'c')
+    expect(global.fetch.mock.calls.some(c => String(c[0]).includes('/industries?q='))).toBe(false)
+    setup.vm.$emit('search', 'cafes')
+    for (let i = 0; i < 4; i++) { await wrapper.vm.$nextTick(); await Promise.resolve() }
+    const search = global.fetch.mock.calls.find(c => String(c[0]).includes('/industries?q='))
+    expect(search[0]).toBe('/api/report/benchmarker/industries?q=cafes')
+    expect(search[1].headers.Authorization).toBe('Bearer tok-123')
+    expect(setup.props('matches')[0].code).toBe('H451100')
+    setup.vm.$emit('industry', 'H451100')
+    for (let i = 0; i < 4; i++) { await wrapper.vm.$nextTick(); await Promise.resolve() }
+    expect(setup.props('industry').bands.small).toEqual({ min: 249001, max: 506000 })
+    // the revenue in the accounts (3,650,000) marks the band it falls in
+    expect(setup.props('revenue')).toBe(3650000)
+  })
+
+  it('🔴 THE BENCHMARK TABLE PRINTS STATS NZ\'S FIGURES BESIDE THE CLIENT\'S, and says where each sits', async () => {
+    const state = fullState()
+    state.setup.industryCode = 'H451100'
+    const { compareToIndustry } = require('~/server/report/benchmarks/statsNzBenchmarker')
+    const { BASE_BENCHMARKER } = require('~/server/utils/benchmarkerStore')
+    const { plainLinesOf } = require('~/server/report/dashboardReportPagesModel')
+    const figures = computeReportPages({ current: CURRENT, prior: PRIOR, inventory: state.inventory, thresholds: THRESHOLDS })
+    figures.benchmarks = compareToIndustry(BASE_BENCHMARKER, { code: 'H451100', band: 'large', current: plainLinesOf(CURRENT), prior: plainLinesOf(PRIOR) })
+    const wrapper = await mountAt(6, state, figures)
+    const trends = wrapper.findComponent({ name: 'DashboardReportTrends' })
+    expect(trends.props('benchmarks').available).toBe(true)
+    const rows = trends.findAll('.drd-bm tbody tr')
+    expect(rows.length).toBe(8)
+    // current ratio: 800,000 / 410,000 = 1.95 beside the large-band median, positioned by the middle half
+    const cr = figures.benchmarks.rows.find(r => r.key === 'currentRatio')
+    expect(rows.at(6).text()).toContain('1.95')
+    expect(rows.at(6).text()).toContain(cr.median.toFixed(2))
+    expect(rows.at(6).text()).toContain('report.dashboardReports.doc.bm.position.' + cr.position)
+  })
+
+  it('with no industry chosen the benchmark panel asks for one, and prints no figure', async () => {
+    const wrapper = await mountAt(6, fullState(), computeReportPages({ current: CURRENT, prior: PRIOR, thresholds: THRESHOLDS }))
+    const trends = wrapper.findComponent({ name: 'DashboardReportTrends' })
+    expect(trends.find('.drd-bm').exists()).toBe(false)
+    expect(trends.text()).toContain('report.dashboardReports.doc.bm.chooseIndustry')
+  })
+
   it('a saved choice with nothing behind it prints nothing rather than an empty page', async () => {
     const state = fullState()
     state.hasPrior = false

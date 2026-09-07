@@ -211,6 +211,17 @@ function trendYear (lines, reportDate, sheet) {
 }
 
 /**
+ * A year's lines as plain numbers. A line the year does not carry is left OUT rather than
+ * passed as 0, so a model can refuse and name it (P3: never a zero standing in for a figure
+ * nobody supplied).
+ * @param {object} lines
+ * @returns {Object<string, number>}
+ */
+function plainLinesOf (lines) {
+  return LINES.reduce((o, k) => { if (has(lines, k)) { o[k] = line(lines, k) } return o }, {})
+}
+
+/**
  * The word for a score. @param {number|null} score @returns {string|null}
  */
 function scoreBand (score) {
@@ -325,11 +336,8 @@ function computeReportPages (inputs) {
   const stockAtCost = has(cur, 'stock') ? line(cur, 'stock') : null
 
   /* -- the optional pages: each a model of its own on the plain lines ---------------- */
-  // A line the year does not carry is left OUT rather than passed as 0, so each model
-  // can refuse and name it (P3: never a zero standing in for a figure nobody supplied).
-  const plainOf = lines => LINES.reduce((o, k) => { if (has(lines, k)) { o[k] = line(lines, k) } return o }, {})
-  const plainCur = plainOf(cur)
-  const plainPri = pri ? plainOf(pri) : null
+  const plainCur = plainLinesOf(cur)
+  const plainPri = pri ? plainLinesOf(pri) : null
   const optional = {
     profitBridge: computeProfitBridge({ current: plainCur, prior: plainPri }),
     cashBridge: computeCashBridge({ current: plainCur, prior: plainPri }),
@@ -408,6 +416,7 @@ function computeReportPages (inputs) {
 }
 
 module.exports = {
+  plainLinesOf,
   SCORE_BANDS,
   DRIVERS,
   toSheet,
