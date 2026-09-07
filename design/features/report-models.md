@@ -812,9 +812,9 @@ each keeps the margin set for it. Writing year 1's mark-up into every year would
 **The printed pack carries every year chosen** — four pages for one, seven for two, eleven for
 three — extending Mike's own 2026-09-06 reasoning: a lender given one statement of three cannot
 check the claim that they tie, and a lender given one year of three cannot check the year being
-lent against. ⚠ **The default is ONE year, and that was our decision rather than his ruling**:
-it is exactly what step 4 has always shown, so nobody who never touches the control gets a
-screen or a pack that changed under them. Three is one click away.
+lent against. **A new forecast opens at ONE year** — Mike, 2026-09-07: *"one year default is
+fine"*. It is exactly what step 4 has always shown, so nobody who never touches the control gets
+a screen or a pack that changed under them. Three is one click away.
 
 **Step 3 takes planned capital purchases and sales** (2026-09-03, its own approved drawing
 [`../mockups/three-way-forecast-capital.html`](../mockups/three-way-forecast-capital.html)).

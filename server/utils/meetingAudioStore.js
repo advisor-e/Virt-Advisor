@@ -381,6 +381,28 @@ function destroyMeeting (meetingId) {
   return { removed, bytesRemoved, meetingRemains }
 }
 
+/**
+ * Every meeting id this store currently holds.
+ *
+ * 🔴 IDS ONLY, AND DELIBERATELY SO. The manager's aggregate is the only caller, and it still has
+ * to go through `readMeta` and prove a firm owns each record before counting it. Returning the
+ * records themselves would hand a caller a pile of meetings it had never shown it may see, which
+ * is the shape every other function here is built to refuse.
+ *
+ * Names that do not match a minted id are ignored rather than trusted — the directory is on a
+ * real disk and may hold anything.
+ *
+ * @returns {Array<string>}
+ */
+function listMeetingIds () {
+  try {
+    return fs.readdirSync(audioRoot()).filter(n => MEETING_ID_PATTERN.test(n))
+  } catch (_e) {
+    // No directory yet is not an error: it is a server where no meeting has been recorded.
+    return []
+  }
+}
+
 /** Store the transcript beside the meeting record, once the audio has become text. */
 function writeTranscript (meetingId, transcript) {
   fs.writeFileSync(
@@ -444,6 +466,7 @@ module.exports = {
   MAX_MEETING_BYTES,
   audioRoot,
   createMeeting,
+  listMeetingIds,
   readMeta,
   updateMeta,
   isOwnedBy,

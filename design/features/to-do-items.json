@@ -101,8 +101,9 @@
     },
     {
       "ref": "4.58",
-      "name": "Meeting Review — three slices built; the manager's half and §4 remain",
+      "name": "Meeting Review — four slices built; follow-through, expiry and §4 remain",
       "rankedByMike": false,
+      "activeOn": { "machine": "laptop", "since": "2026-09-07" },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",
@@ -117,8 +118,8 @@
         "detail": "2026-09-01 — \"i want you to design a new feature ... records the voices and transcribes the meeting, then generates two reports\", quoted in full in meeting-review-history.md §1. He named the Handbook page himself, so the page is not an inference either."
       },
       "touches": "design/features/meeting-review.md and its history, design/MEETING-CONSENT-WORDING.md, design/ARTEFACTS.md, and the meeting routes, utilities, components and pages listed in the Brief's build table.",
-      "note": "Built: observation points, consent and capture, transcription with speakers separated, audio destruction, the two reports, and meeting-types slices 1–2. Not built: the manager aggregate, follow-through, transcript expiry, the firm glossary, meeting-types slices 3–4. Open for Mike: the button label \"Read my reports\" was written, not ruled; and §4. The build record, session by session, is meeting-review-history.md §8.",
-      "comment": "2026-09-01 — filed; screens approved; slices 1–2 built. 2026-09-02 — slice 3 built; the types cascade ruled and its slices 1–2 built; renumbered 4.56 → 4.58 by the laptop on Mike's ruling; two rules he never made deleted (Brief P14)."
+      "note": "Built: observation points, consent and capture, transcription with speakers separated, audio destruction, the two reports, meeting-types slices 1–2, and the MANAGER AGGREGATE (slice 4). It is firm tier ALONE and refuses every tier above — P13 keeps meeting figures inside the firm. Not built: follow-through, transcript expiry, the firm glossary, meeting-types slices 3–4. Open for Mike: four slice-4 decisions that are ours and not his rulings, named in Brief §5; the label \"Read my reports\"; and §4. Record: meeting-review-history.md §8.",
+      "comment": "2026-09-01 — filed; screens approved; slices 1–2 built. 2026-09-02 — slice 3 built; the types cascade ruled and its slices 1–2 built; renumbered 4.56 → 4.58 by the laptop on Mike's ruling; two rules he never made deleted (Brief P14). 2026-09-07 — slice 4, the manager aggregate, built on the laptop from the approved drawing: 37 new tests, suite 8,184 green."
     },
     {
       "ref": "4.60",
@@ -244,7 +245,7 @@
         "detail": "2026-09-07 — \"draw it up please and make it a 'quick-fire option'. tick a box, it opens so i can put the data in and it just adds or subtracts from previous known data. untick it and the status quo continues\". Approved and all five questions ruled the same day."
       },
       "touches": "BUILT, both slices: utils/quickFireForecast.js, the year control and grid on components/ThreeWayForecastIntake.vue, yearCount in server/report/threeWayForecastModel.js, components/ThreeWayForecastReport.vue (summary, cash line, year tabs, print), locales/en.json, and four test files including tests/unit/threeWayForecastYearCount.test.js.",
-      "note": "BOTH SLICES BUILT. Slice 2 drawn and approved 2026-09-07, all six questions ruled. Mike's first ruling REPLACED the recommendation: the advisor chooses 1, 2 or 3 years, on step 3. The count reaches the ENGINE — computing three and showing fewer would have reported a three-year revenue and a low point in a year nobody asked for, both plausible on screen. Step 4 gained a year summary, a cash line across every month, year tabs, and a print that carries every year. ⚠ THE DEFAULT OF ONE YEAR IS OURS, NOT HIS RULING — it preserves today's screen exactly.",
+      "note": "BOTH SLICES BUILT. Slice 2 drawn and approved 2026-09-07, all seven questions ruled. Mike's first ruling REPLACED the recommendation: the advisor chooses 1, 2 or 3 years, on step 3. The count reaches the ENGINE — computing three and showing fewer would have reported a three-year revenue and a low point in a year nobody asked for, both plausible on screen. Step 4 gained a year summary, a cash line across every month, year tabs, and a print that carries every year. A new forecast opens at ONE year — ruled by Mike 2026-09-07, and it preserves today's screen exactly.",
       "comment": "2026-09-07 — filed the day Mike asked for it, after being told the percentages could be entered nowhere. Numbered 4.71 because the desktop filed 4.70 on its own branch the same day: the third numbering collision in a week. Same day: drawn, approved, all five questions ruled, slice 1 built and merged; then slice 2 drawn, six more questions ruled one at a time, and built — 39 new tests, suite 8,147 green."
     }
   ]

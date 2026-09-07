@@ -3,8 +3,10 @@
 > **Read [`meeting-review.md`](meeting-review.md) first.** That page is the rules. If the two
 > disagree, **the Brief wins**.
 >
-> ⚠ **The feature is not built.** This History therefore records how the design was arrived at,
-> not what happened to a running feature. Nothing below describes code.
+> ⚠ **This page records how the design was arrived at, and what each build found on the way** —
+> §§1–7 are the design sessions, §8 is the build record. **Four slices are built** (see the Brief);
+> the line that used to stand here saying nothing was built was true on 2026-09-01 and has been
+> replaced rather than left with a date beside it.
 
 ---
 
@@ -49,8 +51,11 @@ technical ground under it had been checked.
 | Whether the promise binds the code | **Yes — P13, "nothing leaves the firm"** | Rejected: leaving it as a caution inside a wording document, where a developer would never read it. |
 | Sending a transcript to an LLM at all | **Granted — for this feature and no other**, written into `CLAUDE.md` with four conditions | Rejected: a flat exception with no conditions, which would have exempted DB IDs and identifiers along with the spoken words; and treating the client's consent as sufficient on its own, which confuses the legal basis with the engineering rule. See §5. |
 
-**The names of the two reports were NOT settled** and remain open. *Meeting Summary* and *Advisor
-Review* appear throughout the Brief as placeholders and carry no approval.
+**The names of the two reports were not settled in the exchange above** — they were ruled later the
+same day: **Meeting Summary** for the client and **My Coaching Notes** for the advisor, *Advisor
+Review* rejected because inside a firm "review" reads as an appraisal. The Brief's §5 Known state
+carries the ruling; this paragraph used to say the names remained open, which stopped being true on
+the day it was written.
 
 **The fifth ruling also corrected a factual assumption in the design**, which is worth recording
 because the correction made the feature cheaper rather than dearer. The Brief was written on the
@@ -196,7 +201,7 @@ mechanism that makes the advisor report trustworthy at all**, and any later chan
   will contradict some of it, and when it does, the Brief is corrected and the contradiction is
   recorded here.
 
-## 8. The build record, 2026-09-01 to 2026-09-04
+## 8. The build record, 2026-09-01 to 2026-09-07
 
 Moved here from the live list on 2026-09-03, when item 4.58's comment — 1,388 words, appended by
 seven sessions — was cut to the list's word caps. What the Brief already states as current fact is
@@ -255,3 +260,16 @@ not repeated; this is the sequence, and the things found on the way.
   Fixed by restamping as `inherited`, matching `meetingTypes.js`. **The badge also flipped on
   unrelated edits** — the full-resolve path already stamped correctly, so making any decision
   switched the scope out of the faulty branch; the second new test pins the two paths together.
+- **2026-09-07, slice 4 — the manager's aggregate.** Screens C3 and C4 of the drawing approved on
+  2026-09-01, built on Mike's word "finish the meeting review". **The design question it turned on
+  was not in the drawing:** the ruled gate — 5 advisors and 20 meetings — protects the SCREEN, but
+  a point checked in only three of the month's meetings would still print "1 / 3" underneath it,
+  which is the exact reversal the gate exists to prevent. The same floor is applied per point, and
+  it is recorded as ours rather than his. **A real fault was caught by writing the test first:** the
+  month was read with `getMonth()`, so the same twenty meetings would fall into different months on
+  a server in Auckland and one in London, with nothing on screen to say which had happened. Fixed to
+  UTC, at the cost of a visible one-day skew at a month boundary — the better of the two, because
+  the count no longer depends on where the server sits. **The tier direction is the other thing
+  worth keeping:** this is the only block here that must NOT cascade upward (P13), so a tier above
+  the firm is answered 403 rather than an empty screen, which would read as "your firm did nothing".
+  37 new tests, suite 8,184 green (419 suites), lint 0.

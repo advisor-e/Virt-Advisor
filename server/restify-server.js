@@ -421,6 +421,15 @@ server.put('/api/firm-manager/meeting-types/:typeId', ...fmGuard, mt.overrideTyp
 server.del('/api/firm-manager/meeting-types/:typeId/override', ...fmGuard, mt.resetType)
 server.put('/api/firm-manager/meeting-types/:typeId/declined', ...fmGuard, mt.declineType)
 
+// The manager's aggregate — are the points landing across the firm this month? Counts only,
+// and only above Mike's threshold of 5 advisors and 20 meetings (2026-09-01).
+//
+// 🔴 IT DOES NOT CASCADE UPWARD, AND THAT IS THE POINT. Brief P13 keeps everything derived
+// from a recorded meeting inside the firm it came from, because the consent line promises a
+// named client exactly that. The handler answers any tier above the firm 403.
+const mp = require('./routes/meetingPatterns')
+server.get('/api/firm-manager/meeting-patterns', ...fmGuard, mp.getPatterns)
+
 // The advisor's own read — their pre-set, in the first person. firmAuth ONLY (every
 // advisor needs it). There is no advisor WRITE route YET: the advisor and business-entity
 // levels are slice 4 of MEETING-TYPES-CASCADE.md, unbuilt rather than disallowed — Mike,

@@ -21,12 +21,18 @@
 > Any quote the transcript does not contain is dropped before it can be shown. Paths are marked
 > **BUILT** in §5.
 >
-> **NOT built: the manager's half.** No manager aggregate, no follow-through check across
-> meetings, and no transcript-purge job (deferred deliberately — Mike, 2026-09-01; destroying
-> the AUDIO is the promise the consent line makes and it is built, expiring the TRANSCRIPT is
-> its own piece of work). Nor is the **firm glossary** the drawing's jargon count needs — that
-> tile is absent by Mike's ruling of 2026-09-02, because a default word-list would be inventing
-> his advisory content. The unmarked rows of §5 still describe what is *intended*, not what runs.
+> **Slice 4 (2026-09-07) — the manager's aggregate.** A firm manager sees whether the observation
+> points are landing across the firm this month — counts only, never a name, and nothing at all
+> until 5 advisors and 20 meetings have contributed. It is the one block in this app that
+> deliberately does **not** cascade upward: P13 keeps everything derived from a recorded meeting
+> inside the firm it came from. Paths are marked **BUILT** in §5.
+>
+> **NOT built: the rest of the manager's half.** No follow-through check across meetings, and no
+> transcript-purge job (deferred deliberately — Mike, 2026-09-01; destroying the AUDIO is the
+> promise the consent line makes and it is built, expiring the TRANSCRIPT is its own piece of
+> work). Nor is the **firm glossary** the drawing's jargon count needs — that tile is absent by
+> Mike's ruling of 2026-09-02, because a default word-list would be inventing his advisory
+> content. The unmarked rows of §5 still describe what is *intended*, not what runs.
 >
 > ⚠ **A REAL CLIENT MUST NOT BE RECORDED UNTIL §4 IS DONE — AND NOW THE CODE CAN.** That
 > changed on 2026-09-01: until slice 2 there was nothing to misuse. The four items in §4 are
@@ -349,6 +355,7 @@ is *intended* to live, chosen to match the existing architecture rather than inv
 | The two report generators | `server/utils/meetingReports.js` — separate prompts | ✅ **BUILT** — two prompts, two calls, two stores. Every quote is verified against the transcript before storage; an uncited one, or one the CLIENT said, is dropped and the point reports not found. The transcript is wrapped in delimiters and the model told it is not instructions |
 | The reports screen | `components/MeetingReview.vue`, `pages/meeting-review.vue` | ✅ **BUILT** — reached from the recorder's finished state, which is its only route in. Four named differences from the drawing (below) |
 | Hearability of a point | `cannotHear` + `hintWords` on an observation point | ✅ **BUILT** — the two fields slice 1 deliberately left out, now settled: the AUTHOR marks a point un-hearable, never the model. Schema only; no content was written |
+| The manager's aggregate | `server/utils/meetingAggregate.js`, `server/routes/meetingPatterns.js`, `components/firm/FirmMeetingPatterns.vue` | ✅ **BUILT (slice 4, 2026-09-07)** — counts per point over the current month, above Mike's 5-advisor / 20-meeting gate. 🔴 **FIRM TIER ALONE and it does NOT cascade upward** — P13, and the route answers every tier above the firm **403** rather than an empty screen, because an empty screen reads as "your firm did nothing". No advisor identifier leaves `meetingAggregate.js`: advisors are counted and then forgotten, so the shape cannot carry one |
 | Transcript expiry | a scheduled purge over `MEETING_AUDIO_DIR` | proposed — **deliberately not in slice 2** (Mike, 2026-09-01). Destroying the audio is the promise the consent line makes; expiring the transcript is its own piece of work |
 
 **✅ SETTLED IN SLICE 3 — the question slice 1 deliberately left open.** A point such as *"I drew
@@ -413,9 +420,43 @@ Advisory Distinctions, the Staircase, quizzes and currency, so none of that was 
 citation check, the dispute, and the advisor's answer on a point a recording cannot hear. **135 new
 tests**, suite green at **7,071** (371 suites), lint 0 errors.
 
-**What is not built is the manager's half** — the aggregate above the 5-advisor / 20-meeting
-threshold, the follow-through check across meetings, the transcript-expiry job, and the firm
-glossary the jargon tile would need.
+**Slice 4 is built (2026-09-07) — the manager's aggregate.** Screens C3 and C4 of the approved
+drawing: counts per observation point across the firm for the current month, the threshold gate,
+and the empty state that explains itself. 36 new tests.
+
+🔴 **THE ONE BLOCK THAT DELIBERATELY DOES NOT CASCADE UPWARD.** Every other cascading thing in
+this app runs mentor → global → group → firm. This runs at the **firm alone**, because P13 keeps
+anything derived from a recorded meeting inside the firm it came from and the consent line
+promises a named client exactly that. A tier above the firm is answered **403, not an empty
+screen** — an empty screen reads as *"your firm did nothing"*, which is a different and untrue
+statement, and it is the one a tester would report as working.
+
+⚠ **FOUR DECISIONS IN SLICE 4 ARE OURS AND NOT MIKE'S RULINGS.** Each changes what he sees, so
+each is named rather than absorbed:
+
+1. **The per-point floor.** He set the gate for the SCREEN — 5 advisors and 20 meetings. The same
+   20-meeting floor is applied to EACH POINT, because a point checked in three of the month's
+   meetings would otherwise print *"1 / 3"* on a screen that had passed the overall gate, which is
+   the exact reversal the gate exists to prevent. A point below the floor is omitted, not caveated.
+2. **The month is read in UTC.** Read in the server's own timezone, the same twenty meetings fall
+   into different months in Auckland and in London — a count that changes when a server moves,
+   with nothing on screen to say so. The cost is a visible one-day skew at a month boundary, and
+   it is the better of the two.
+3. **A meeting contributes only once it has coaching notes.** A recording with no report cannot
+   say whether a point landed, and counting it would deflate every percentage while looking
+   entirely reasonable.
+4. **The bar turns amber below 70%.** The drawing styles one row "low" at 61% and three plain at
+   75, 86 and 93, so a mark between 61 and 75 is implied and never stated. It changes a colour,
+   never a figure.
+
+⚠ **AND TWO NAMED DIFFERENCES FROM THE APPROVED DRAWING.** The **"Edit the firm's observation
+points" button is absent**, because the editor it pointed at is the rest of the same tab and a
+button that scrolls the page a few inches is worse than none. And **there is no period control** —
+the drawing's chrome states the month and offers no picker, so the screen shows the current month
+only; a selector would be a deviation, and it is recorded here rather than added.
+
+**What is still not built** — the follow-through check across meetings, the transcript-expiry job,
+and the firm glossary the jargon tile would need (absent by Mike's ruling, not empty).
 
 🔴 **FOUR THINGS SLICE 3 DECIDED, ALL RULED BY MIKE ON 2026-09-02 after being put to him one at a
 time.** Each was a place the approved drawing asked for something the code cannot do — found by
