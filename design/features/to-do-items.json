@@ -217,17 +217,17 @@
       "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
+      "waitingOn": "Us",
       "why": "§2 asked one date to be both the start of the assessment period and the yardstick for how current a figure is. Given a date months ahead, the model searched for data that does not exist yet.",
-      "risk": "FIXED AND PROVEN LIVE 2026-09-07: the same 30 November run went from refused with one search to accepted with 14 searches, 13 sources and 1,948 words. What remains is a regression check on the default no-date path, which could not be run because the OpenAI account is out of credits. Low: the prompt shape is the one that just succeeded, and a new test pins the behaviour.",
+      "risk": "The prompt fix was proven on the FAULT (30 November refused, then accepted with 14 searches) but on a PROBE outside the repository, never through the route. The regression check on the default no-date path was run on 2026-09-08 and FAILED three times out of three, which is item 4.73. So this item cannot be closed until a route run can succeed at all.",
       "askedBy": {
         "who": "Us",
         "ours": true,
         "detail": "Found 2026-09-07 driving the new date field end to end in a browser: 30 November 2026 was refused after 40 seconds and one search; 31 August 2026 ran normally with nine searches. Filed on Mike's instruction the same day."
       },
       "touches": "BUILT: data/ai-prompts.json (§2 now names both dates, and the placeholders note), design/ECONOMIC-ANALYSIS-PROMPT.md §4 and §7b, fillPlaceholders and two JSDoc blocks in server/routes/economicAnalysis.js, and tests/unit/economicAnalysis.routes.test.js. The date field itself is deliberately NOT bounded.",
-      "note": "THE FIX IS BUILT AND PROVEN ON THE FAULT; ONE CHECK REMAINS. §2 now names both dates: {{assessmentDate}} may be in the future, {{today}} never is and is what currency is judged against. Reproduced twice before anything changed, then accepted after. The model's own words in the accepted run: 'an information cut-off of 7 September 2026, an assessment start of 30 November 2026'. ⚠ OUTSTANDING: the no-date default path was never re-run — the OpenAI account hit credit_balance_exhausted mid-check, which also means the feature fails for every user until credits are added. §2 renders correctly there; only the model's reply is unseen. A SECTIONS_MISSING run the same day is unexplained and is not this change.",
-      "comment": "2026-09-07 — filed the day the date field was built, on Mike's instruction. Numbered 4.69 because the desktop filed a 4.67 on its own branch that has not reached master. Same day: reproduced from the backend, diagnosed as one placeholder doing two jobs, fixed on Mike's approval of the wording, and proven live. The desktop closed a DIFFERENT 4.69 that day — four rulings on the saved-report screens — the second number collision in a week."
+      "note": "THE PROMPT FIX IS BUILT; ITS PROOF IS WEAKER THAN THIS ITEM CLAIMED. Section 2 now names both dates: {{assessmentDate}} may be in the future, {{today}} never is. That was demonstrated by run 15 - but run 15 used a throwaway probe, NOT the built route, and every route run since the change has failed: 13 and 14 on 2026-09-07, and three more on 2026-09-08. BLOCKED BEHIND 4.73: the no-date regression check cannot pass while no route run succeeds. Evidence: ECONOMIC-ANALYSIS-TEST-RUNS.md runs 13-19.",
+      "comment": "2026-09-07 - filed the day the date field was built, on Mike's instruction; fixed and demonstrated on a probe. 2026-09-08 - the outstanding check was run once credits were topped up and FAILED 3/3, which also showed the 'proven live' claim rested on a probe rather than the route. Corrected here rather than left standing."
     },
     {
       "ref": "4.71",
@@ -270,6 +270,27 @@
       "touches": "server/utils/meetingObservations.js - nextOwnPointId and its JSDoc; the own-row shape in readDecisionMap, which would need a per-scenario high-water mark; tests/unit/meetingObservations.test.js.",
       "note": "THE FIX IS ALREADY WRITTEN one level down: meetingObservationsAdvisor.nextAdvisorPointId takes a stored high-water mark beside the live rows, and the advisor's own row is kept when it empties because that row carries the mark. Porting it means adding nextSeq to the manager's own-row shape, which all four manager tiers share - which is why it was not done inside an approved slice.",
       "comment": "2026-09-08 - found while building the advisor's own level and filed on Mike's instruction the same day, rather than fixed in passing: it changes storage shared by all four manager tiers."
+    },
+    {
+      "ref": "4.73",
+      "name": "Economic analysis fails on its default path",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": true,
+      "blocks": "4.69 - its regression check cannot pass while no route run can succeed",
+      "waitingOn": "Us",
+      "why": "Every run through the built route on the default no-date path is refused. Three consecutive runs on 2026-09-08 each made exactly one web search and returned too little to parse.",
+      "risk": "The feature is DOWN for every user: an advisor ticking economic analysis gets the generic failure. Nothing wrong is shown - the citation guard refuses it, which is the guard working - so this is a dead feature rather than a false figure in a lender's pack. It has never succeeded through the route since the 2026-09-07 date change.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Found 2026-09-08 running item 4.69's outstanding check on Mike's instruction, once he topped up the OpenAI credits. Reproduced 3/3. Filed on his instruction the same day."
+      },
+      "touches": "server/routes/economicAnalysis.js (MODEL, TOOLS, TOOL_CHOICE, the streamed run and the section parser), server/report/economicAnalysis/researchResult.js, utils/researchText.js, and ECONOMIC-ANALYSIS-TEST-RUNS.md, which holds the run evidence.",
+      "note": "THE SIGNATURE IS ONE SEARCH. All three runs made exactly one web search, returned 616-884 completion tokens in 18-27 seconds, and failed SECTIONS_MISSING twice and SECTION_UNSOURCED once. The only accepted run ever, run 15, made FOURTEEN searches and 133,654 tokens - and used a probe OUTSIDE the repository, not this route. tool_choice is already 'required', which guarantees one search and not more, so it is not the cause. The raw reply is never logged, so the next step is seeing what the model actually returns.",
+      "comment": "2026-09-08 - found by running 4.69's outstanding check once the OpenAI credits were topped up. Five consecutive route runs have now failed: 13 and 14 on 2026-09-07, and three today. The record's claim that 4.69 was proven live rested on run 15, which did not go through the route."
     }
   ]
 }

@@ -492,6 +492,60 @@ deliberately never logs. It is not committed, for the reason runs 1–4's script
 
 ---
 
+## Runs 17–19 — 2026-09-08 · the check that was owed, and it FAILED
+
+Mike topped up the OpenAI account and asked for run 16 — the regression check on the ordinary
+**no-date** path — to be run at last. All three attempts went through the **built route**, with
+no `assessmentDate` field in the body at all, on the unchanged bakery brief.
+
+| Run | Assessment date | Searches | Completion tokens | Latency | Outcome |
+|---|---|---|---|---|---|
+| 17 | none | **1** | 616 | 18.1s | ❌ `SECTIONS_MISSING` — all five |
+| 18 | none | **1** | 884 | 27.1s | ❌ `SECTION_UNSOURCED` |
+| 19 | none | **1** | 642 | 21.2s | ❌ `SECTIONS_MISSING` |
+
+### 🔴 The signature is ONE SEARCH, and it is the whole finding
+
+Every failing run — 13, 17, 18, 19 — made **exactly one** web search and returned 600–900
+completion tokens in under half a minute. The only run ever accepted, run 15, made **fourteen**
+searches and 133,654 tokens over 162 seconds. The model is satisfying the tool requirement with
+a token search and then writing from memory, which §5's citation guard correctly refuses.
+
+`tool_choice` is already `'required'` (`server/routes/economicAnalysis.js`), and that is not the
+cause: **`required` guarantees one tool call, not a research effort.** The constant's own note
+says it turns searching "from a request it may ignore" into a compulsion — true, and one search
+satisfies it.
+
+### 🔴 THE "PROVEN LIVE" CLAIM RESTED ON A PROBE, NOT ON THE ROUTE
+
+Item 4.69 recorded its fix as *"BUILT AND PROVEN LIVE"*. Read the column that says how:
+
+- run 13 — **route** — failed
+- run 14 — **route** — failed
+- run 15 — **probe** — accepted, and this is the run the claim rests on
+- runs 17–19 — **route** — failed
+
+**Five consecutive failures through the built path, and one success outside it.** Nobody was
+careless: run 16 was meant to be exactly this check and the credits ran out first. But the
+record read as settled when the path a user takes had never once succeeded since the change.
+Corrected on the live list the same day, and filed as **item 4.73**.
+
+### What this settles, and what it does not
+
+**Settled:** the feature is DOWN on its default path, reproducible on demand. Nothing wrong is
+shown to anyone — the guard refuses it and the advisor gets the generic failure — so this is a
+dead feature, not a false figure in a lender's pack.
+
+**Not settled:** why. `SECTIONS_MISSING` has now been seen **four** times (14, 17, 19), past the
+threshold this page itself set — *"a third sighting should be treated as a real fault, not
+variance"* — so it is no longer variance. **The raw reply is never logged**, which is the single
+thing standing between a reproduction and a diagnosis; seeing what the model actually returns is
+the next step, and it needs either temporary instrumentation or a probe.
+
+*Cost of these three: about 33,000 tokens in total. Failures are cheap — they fail fast.*
+
+---
+
 ## Run 1 in full — the model's own words
 
 > Reproduced verbatim, headings demoted so they sit inside this page. **Bold figures, inline
