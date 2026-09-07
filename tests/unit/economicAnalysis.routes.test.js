@@ -160,25 +160,55 @@ describe('what actually leaves the app', () => {
     expect(sent.input).toContain('Do not restate any figure already given in sections 1 to 3')
   })
 
-  test('both placeholders are filled in — none reaches the model unsubstituted', async () => {
+  test('all three placeholders are filled in — none reaches the model unsubstituted', async () => {
     await runOnce([{ type: 'response.completed', response: goodResearch() }])
     expect(sent.input).not.toContain('{{advisorBrief}}')
     expect(sent.input).not.toContain('{{today}}')
+    expect(sent.input).not.toContain('{{assessmentDate}}')
   })
 
   // Mike, 2026-09-07: "or, have a field to enter the date". What the advisor picks is what
   // the model is told, and the words are written by us — never passed through.
+  //
+  // The two sentences pinned here are §2's, and they are load-bearing rather than cosmetic:
+  // they are the instruction that tells the model which date governs what. Item 4.69 is what
+  // happens when they say the wrong thing.
   test('the advisor’s assessment date is what reaches the model', async () => {
     await runOnce([{ type: 'response.completed', response: goodResearch() }],
       { body: { brief: BRIEF, assessmentDate: '2026-11-30' } })
 
-    expect(sent.input).toContain('The assessment date is 30 November 2026')
+    expect(sent.input).toContain('The assessment period starts on 30 November 2026')
     expect(sent.input).not.toContain('2026-11-30')
   })
 
   test('no date at all still works, and falls back to the server’s own day', async () => {
     await runOnce([{ type: 'response.completed', response: goodResearch() }])
-    expect(sent.input).toContain('The assessment date is ' + routes.todayInWords())
+    expect(sent.input).toContain('The assessment period starts on ' + routes.todayInWords())
+  })
+
+  /**
+   * 🔴 ITEM 4.69, AND THE WHOLE REASON THE TWO DATES ARE SEPARATE PLACEHOLDERS.
+   *
+   * §2 asked ONE date to be both the start of the assessment period and the yardstick for
+   * how current a figure is. That is harmless while the date is today and impossible once
+   * the advisor can set it: given 30 November 2026 the model searched
+   * `... monetary policy announcements 2026 November`, found nothing — the data does not
+   * exist yet — and returned §§1 and 3 unsourced, which the §5 citation guard refused.
+   * Reproduced twice live before this changed.
+   *
+   * UAT cannot catch this. A refused run looks like a refused run; nothing on screen says
+   * the date caused it, and the advisor has already paid for the call.
+   */
+  test('🔴 a FUTURE assessment date never becomes the yardstick for how current a figure is', async () => {
+    await runOnce([{ type: 'response.completed', response: goodResearch() }],
+      { body: { brief: BRIEF, assessmentDate: '2026-11-30' } })
+
+    // The advisor's date governs the period...
+    expect(sent.input).toContain('The assessment period starts on 30 November 2026')
+    // ...and the server's real day, NOT the advisor's, is what currency is judged against.
+    expect(sent.input).toContain('Today\'s date is ' + routes.todayInWords())
+    expect(sent.input).toContain('Judge how current a figure is against today\'s date')
+    expect(sent.input).not.toContain('Today\'s date is 30 November 2026')
   })
 
   test('a date that is not a real date is refused, and nothing is sent', async () => {

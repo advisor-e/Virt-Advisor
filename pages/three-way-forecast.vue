@@ -82,10 +82,18 @@ report-shell
  * workbook's own calculated cells across all three years, with nine corrections each
  * ruled by Mike on 2026-09-02 (`design/THREE-WAY-FORECAST-DEVIATIONS.md`).
  *
- * With nothing confirmed the report computes the source workbook's own sample, which is
- * how it shipped on 2026-09-02 and is still what step 4 shows if it is reached without an
- * intake. A confirmed intake replaces every input explicitly — see the intake component's
- * note on why that matters.
+ * STEP 4 COMPUTES WHATEVER THE INTAKE HOLDS — zeros until files are dropped or figures are
+ * typed. The intake reports itself on mount, so `liveInputs` is a payload from the moment
+ * step 1 is on screen and `seed` is never null here; the report's own no-seed path, which
+ * computes the source workbook's sample, is therefore unreachable from this page. That is
+ * deliberate on both sides. The intake sends every field explicitly — "rather than left to
+ * the sample's own values" — so "Big Bird Grass Seed" cannot reach a real client's
+ * forecast, and the `immediate` flag that closed the sample path is what lets a client, and
+ * a loaded saved row, reach step 4 without pressing Build (4.62). A screen of $0 is the
+ * forecast waiting for data, not a fault.
+ *
+ * (This note promised the sample until 2026-09-07. It had been stale since 2026-09-05, and
+ * the disagreement between it and the code is the whole of item 4.68.)
  *
  * THE CLIENT'S NAME IS HELD HERE, OUTSIDE THE SEED. It is displayed on the advisor's own
  * screen and is deliberately not part of the payload posted to the compute route: the
