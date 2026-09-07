@@ -101,12 +101,13 @@ describe('loading a row back', () => {
 
   test('takes only what it knows, in its own type', () => {
     const back = applySavedDashboardReport(emptyState(), {
-      cur_bank: '224000', words_summary: 99, steps_title: ['A', 7, 'C'], pages_added: ['valuation', 'x'], inv_ageing: [1, 'two', null, 4, 5], stray: { deep: true }
+      cur_bank: '224000', words_summary: 99, steps_title: ['A', 7, 'C'], pages_added: ['profitBridge', 'valuation', 'x'], inv_ageing: [1, 'two', null, 4, 5], stray: { deep: true }
     })
     expect(back.current.figures.bank.value).toBe(224000)
     expect(back.words.summary).toBe('')
     expect(back.words.steps.map(x => x.title)).toEqual(['A', '', 'C'])
-    expect(back.pages.added).toEqual(['valuation'])
+    // 'valuation' came off the dropdown on 2026-09-08; a row still naming it must not print it
+    expect(back.pages.added).toEqual(['profitBridge'])
     expect(back.inventory.ageing).toEqual([1, null, null, 4, 5])
     expect(back.stray).toBeUndefined()
   })

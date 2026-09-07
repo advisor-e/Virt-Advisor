@@ -31,6 +31,10 @@
 
 const { computePeriodRatios, healthScore } = require('./dashboardReportsModel')
 const { computeTrend, MEASURES, SCORE_MEASURES } = require('./trendModel')
+const { computeProfitBridge } = require('./profitBridgeModel')
+const { computeCashBridge } = require('./cashBridgeModel')
+const { computeProfitSensitivity } = require('./profitSensitivityModel')
+const { LINES } = require('./intake/dashboardReportsAssembler')
 
 /** Score at or above which each word applies, highest first. PROVISIONAL — see the header. */
 const SCORE_BANDS = [
@@ -320,9 +324,22 @@ function computeReportPages (inputs) {
   const ageing = ageingRaw && ageingRaw.some(v => Number.isFinite(v)) ? ageingRaw.map(v => (Number.isFinite(v) ? v : 0)) : null
   const stockAtCost = has(cur, 'stock') ? line(cur, 'stock') : null
 
+  /* -- the optional pages: each a model of its own on the plain lines ---------------- */
+  // A line the year does not carry is left OUT rather than passed as 0, so each model
+  // can refuse and name it (P3: never a zero standing in for a figure nobody supplied).
+  const plainOf = lines => LINES.reduce((o, k) => { if (has(lines, k)) { o[k] = line(lines, k) } return o }, {})
+  const plainCur = plainOf(cur)
+  const plainPri = pri ? plainOf(pri) : null
+  const optional = {
+    profitBridge: computeProfitBridge({ current: plainCur, prior: plainPri }),
+    cashBridge: computeCashBridge({ current: plainCur, prior: plainPri }),
+    profitSensitivity: computeProfitSensitivity({ current: plainCur })
+  }
+
   return {
     hasPrior: Boolean(pri),
     hub: { current: hubCur, prior: hubPri },
+    optional,
     trend,
     summary: {
       revenue: plCur.revenue,

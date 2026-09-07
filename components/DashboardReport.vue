@@ -20,7 +20,7 @@
       :prepared-by="state.setup.preparedBy"
       :date-issued="dateIssuedText"
       :sections="sections"
-      :added-titles="[]")
+      :added-titles="addedTitles")
     dashboard-report-summary(:number="3" :client-name="clientName" :period="period" :s="figures.summary" :score="figures.score" :words="state.words")
     dashboard-report-dashboard(:number="4" :client-name="clientName" :period="period" :d="figures.dashboard" :costs="figures.costs" :prior-label="priorLabel" :current-label="currentLabel")
     dashboard-report-profit-loss(:number="5" :client-name="clientName" :period="period" :p="figures.profitLoss" :insight="state.words.profitInsight" :prior-label="priorLabel" :current-label="currentLabel")
@@ -29,7 +29,11 @@
     dashboard-report-inventory(:number="8" :client-name="clientName" :period="period" :inv="figures.inventory")
     dashboard-report-trends(:number="9" :client-name="clientName" :period="period" :trends="figures.trends" :prior-label="priorLabel" :current-label="currentLabel")
     dashboard-report-next-steps(:number="10" :client-name="clientName" :period="period" :steps="state.words.steps" :next-review="state.words.nextReview" :prepared-by="state.setup.preparedBy")
-    dashboard-report-information(:number="11" :client-name="clientName" :period="period" :prepared-by="state.setup.preparedBy")
+    template(v-for="(p, i) in addedPages")
+      dashboard-report-profit-bridge(v-if="p === 'profitBridge'" :key="p" :number="11 + i" :client-name="clientName" :period="period" :b="figures.optional.profitBridge" :prior-label="priorLabel" :current-label="currentLabel")
+      dashboard-report-cash-bridge(v-else-if="p === 'cashBridge'" :key="p" :number="11 + i" :client-name="clientName" :period="period" :cb="figures.optional.cashBridge" :current-label="currentLabel")
+      dashboard-report-sensitivity(v-else-if="p === 'profitSensitivity'" :key="p" :number="11 + i" :client-name="clientName" :period="period" :sv="figures.optional.profitSensitivity")
+    dashboard-report-information(:number="11 + addedPages.length" :client-name="clientName" :period="period" :prepared-by="state.setup.preparedBy")
 </template>
 
 <script>
@@ -39,6 +43,11 @@
  * information page (item 4.70; the approved drawing is
  * `design/mockups/business-performance-report.html`, followed page for page in the brand
  * palette — Brief P6).
+ *
+ * The optional pages the advisor added print between Next Steps and the closing page, in
+ * the dropdown's order, numbered from 11; the closing page takes the number after them,
+ * as the drawing lays them out. A page is printed only when the pages route produced its
+ * figures — a saved choice with nothing behind it prints nothing rather than an empty page.
  *
  * The toolbar is the advisor's: the add-a-page dropdown (Brief P1 — a page is offered only
  * where the figures behind it exist, and each says why it cannot be added yet) and the
@@ -58,6 +67,9 @@ import DashboardReportInventory from '~/components/DashboardReportInventory.vue'
 import DashboardReportTrends from '~/components/DashboardReportTrends.vue'
 import DashboardReportNextSteps from '~/components/DashboardReportNextSteps.vue'
 import DashboardReportInformation from '~/components/DashboardReportInformation.vue'
+import DashboardReportProfitBridge from '~/components/DashboardReportProfitBridge.vue'
+import DashboardReportCashBridge from '~/components/DashboardReportCashBridge.vue'
+import DashboardReportSensitivity from '~/components/DashboardReportSensitivity.vue'
 import { intlLocaleFor } from '~/utils/dateLocale'
 const { OPTIONAL_PAGES } = require('~/utils/dashboardReportsSavedShape')
 
@@ -89,7 +101,10 @@ export default {
     DashboardReportInventory,
     DashboardReportTrends,
     DashboardReportNextSteps,
-    DashboardReportInformation
+    DashboardReportInformation,
+    DashboardReportProfitBridge,
+    DashboardReportCashBridge,
+    DashboardReportSensitivity
   },
 
   props: {
@@ -107,7 +122,13 @@ export default {
 
   computed: {
     sections () { return SECTIONS },
-    pageCount () { return BASE_PAGE_COUNT + this.state.pages.added.length },
+    /** The added pages that have figures behind them, in the dropdown's order. */
+    addedPages () {
+      const blocks = (this.figures && this.figures.optional) || {}
+      return OPTIONAL_PAGES.filter(k => this.state.pages.added.includes(k) && blocks[k] && blocks[k].available)
+    },
+    addedTitles () { return this.addedPages.map(k => this.$t('report.dashboardReports.pages.optional.' + k)) },
+    pageCount () { return BASE_PAGE_COUNT + this.addedPages.length },
     optional () {
       return OPTIONAL_PAGES.map((key) => {
         const a = this.availability[key] || { available: false, reason: '' }

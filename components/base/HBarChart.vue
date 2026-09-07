@@ -19,7 +19,9 @@ export default {
     /** `{ label, value, colour }` per row, drawn top to bottom. */
     bars: { type: Array, required: true },
     formatValue: { type: Function, default: v => String(Math.round(v)) },
-    ariaLabel: { type: String, default: '' }
+    ariaLabel: { type: String, default: '' },
+    /** The longest bar's length; smaller leaves room for a long value label. */
+    maxWidth: { type: Number, default: 340 }
   },
 
   computed: {
@@ -35,7 +37,7 @@ export default {
           label: b.label,
           colour: b.colour,
           y: 22 + i * 32,
-          w: (v / this.max) * 340,
+          w: (v / this.max) * this.maxWidth,
           text: Number.isFinite(b.value) ? this.formatValue(b.value) : ''
         }
       })

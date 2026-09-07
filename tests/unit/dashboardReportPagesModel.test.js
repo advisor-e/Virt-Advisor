@@ -239,6 +239,17 @@ describe('the pages, two years', () => {
     expect(i.ageing).toEqual([128, 84, 52, 32, 26])
   })
 
+  test('the three optional pages ride with the figures, each from its own model', () => {
+    expect(r.optional.profitBridge.available).toBe(true)
+    expect(r.optional.profitBridge.change).toBe(397000)
+    expect(r.optional.cashBridge.available).toBe(true)
+    expect(r.optional.cashBridge.bankMovement).toBe(41000)
+    // the advisor typed 85,000 on the cash page; the balance sheets imply 73,000, and both are named
+    expect(r.optional.cashBridge.enteredCapitalSpend).toBe(85000)
+    expect(r.optional.profitSensitivity.available).toBe(true)
+    expect(r.optional.profitSensitivity.levers[0].key).toBe('price')
+  })
+
   test('the trends table carries both years for the five rows', () => {
     const rows = {}
     r.trends.rows.forEach((row) => { rows[row.key] = row })

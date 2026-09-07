@@ -1708,18 +1708,26 @@
           "firm": "the firm's wording"
         },
         "optional": {
+          "profitBridge": "Why profit changed",
+          "cashBridge": "Where the cash went",
+          "profitSensitivity": "What moves profit",
+          "stockVsAccounts": "Stock against the accounts",
           "outlook": "Economic & Industry Outlook",
           "salesVolatility": "Sales Volatility",
-          "eightLevers": "The Eight Levers",
-          "debtorDrag": "Debtor Drag",
-          "valuation": "Valuation (EBITDA & DCF)",
           "loanServicing": "Loan Servicing",
           "taxProvision": "Tax Provision"
         },
+        "ready": {
+          "bothYears": "From both years' accounts",
+          "thisYear": "From this year's accounts"
+        },
         "reason": {
+          "needsBothYears": "Needs both years' accounts confirmed",
+          "needsThisYear": "Needs this year's accounts confirmed",
+          "notComputable": "Cannot be worked from these figures",
+          "stockReader": "Needs a stock export; the reader is a later stage of this report",
           "outlook": "Waits on the research feature reaching this report",
           "salesVolatility": "Needs 12 months of sales by month",
-          "nextSlice": "Built in the next slice of this report",
           "loanServicing": "No loan on the file",
           "taxProvision": "The tax tool is not built"
         },
@@ -1959,6 +1967,147 @@
         "nextReview": "Next review",
         "informationSub": "Please read this page before acting on anything in this report",
         "yourAdvisor": "your advisor",
+        "optional": {
+          "addedByAdvisor": "page added by your advisor",
+          "fromBothYears": "From your accounts, both years",
+          "fromThisYear": "From your accounts, this year",
+          "profitBridge": {
+            "title": "Why profit changed",
+            "sub": "From last year's profit to this year's — what each part of the business added or took away",
+            "chartTitle": "Net profit, {prior} to {current}",
+            "added": "Added to profit",
+            "took": "Took from profit",
+            "movement": "Movement",
+            "readAs": "Read as",
+            "yearProfit": "{label} profit",
+            "chartStep": {
+              "salesGrowth": "More sales",
+              "margin": "Margin",
+              "otherIncome": "Other",
+              "overheads": "Overheads",
+              "belowLine": "Int & depn"
+            },
+            "step": {
+              "salesGrowth": "More sales",
+              "margin": "Gross margin",
+              "otherIncome": "Other income",
+              "overheads": "Overheads",
+              "belowLine": "Interest & depreciation"
+            },
+            "read": {
+              "salesUp": "Revenue up {amount}; at last year's {margin} margin that is {effect} more gross profit",
+              "salesDown": "Revenue down {amount}; at last year's {margin} margin that is {effect} less gross profit",
+              "margin": "Gross margin {from} → {to}, worth {effect} on this year's sales",
+              "otherIncome": "Other income {from} → {to}",
+              "overheads": "Wages and operating expenses {from} → {to}",
+              "belowLine": "Depreciation and interest {from} → {to}"
+            },
+            "upBy": "Up {amount}, {pct}",
+            "downBy": "Down {amount}, {pct}",
+            "sentence": "In one sentence:",
+            "sentenceText": "{added} added {addedAmount} and {took} took {tookAmount}. Sales are not split into price and volume: your accounts do not carry units.",
+            "sentenceAllUp": "{added} added {addedAmount} and nothing took from profit. Sales are not split into price and volume: your accounts do not carry units.",
+            "nothingAdded": "Nothing added to profit this year. Sales are not split into price and volume: your accounts do not carry units.",
+            "strip": {
+              "overheadsPct": "Overheads, % of sales"
+            }
+          },
+          "cashBridge": {
+            "title": "Where the cash went",
+            "sub": "A profit of {profit}, and the bank moved {movement} — this page joins the two",
+            "chartTitle": "From profit to the bank, {label}",
+            "step": {
+              "profit": "Profit",
+              "depreciation": "Depn",
+              "debtors": "Debtors",
+              "stock": "Stock",
+              "creditors": "Creditors",
+              "other": "Other",
+              "trading": "Trading",
+              "capitalSpend": "Assets",
+              "borrowing": "Borrowed",
+              "owners": "Owners",
+              "capitalIntroduced": "Capital in",
+              "bank": "Bank"
+            },
+            "name": {
+              "debtors": "debtors",
+              "stock": "stock",
+              "otherCurrentAssets": "other current assets",
+              "creditors": "creditors",
+              "otherCurrentLiabilities": "other amounts owed"
+            },
+            "cashFromTrading": "Cash from trading",
+            "cashFromTradingRead": "Profit plus depreciation, less the {amount} that {verb} debtors, stock and the rest, net of suppliers.",
+            "wentInto": "went into",
+            "cameOutOf": "came out of",
+            "absorbedBy": "Absorbed by {what}",
+            "absorbedRead": "The largest single use of cash this year.",
+            "owners": "Drawings, dividends & tax",
+            "capitalIntroduced": "Capital introduced",
+            "capitalIntroducedRead": "The owners put money in this year: equity rose by more than the profit.",
+            "ownersReadBorrowed": "More than trading generated after buying assets. The {borrowed} borrowed filled the gap.",
+            "ownersReadMore": "More than trading generated after buying assets; the bank carried the difference.",
+            "ownersReadWithin": "Within what trading generated after buying assets.",
+            "fromEquity": "from the equity movement",
+            "note": "Drawings, dividends and tax are what is left when this year's profit is set against the change in equity, so they include any capital put in or taken out. Bank: {from} at the start of the year to {to} at the end.",
+            "capexNote": "Capital spend here is the rise in fixed assets plus depreciation, net of disposals. Your advisor entered {entered} as net capital spend on the cash page; the accounts imply {derived}.",
+            "strip": {
+              "trading": "Trading",
+              "tradingSub": "profit, less working capital",
+              "capitalSpend": "Assets bought",
+              "capitalSpendSub": "from the balance sheets",
+              "borrowing": "Borrowed",
+              "repaid": "Repaid",
+              "borrowingSub": "loans, net of repayments",
+              "ownersSub": "from the equity movement",
+              "bank": "Bank"
+            }
+          },
+          "sensitivity": {
+            "title": "What moves profit",
+            "sub": "What a one percent change in each of four things does to this year's profit — and how far sales can fall before a loss",
+            "chartTitle": "Profit gained from a 1% improvement in each (on a {profit} profit)",
+            "chartLever": {
+              "price": "Price",
+              "costOfSales": "Cost of sales",
+              "volume": "Volume",
+              "overheads": "Overheads"
+            },
+            "lever": {
+              "price": "Price up 1%",
+              "costOfSales": "Cost of sales down 1%",
+              "volume": "Volume up 1%",
+              "overheads": "Overheads down 1%"
+            },
+            "name": {
+              "price": "price",
+              "costOfSales": "cost of sales",
+              "volume": "volume",
+              "overheads": "overheads"
+            },
+            "assumption": "Cost of sales is taken to move with sales; wages, operating expenses, interest and depreciation are taken as fixed for the year. The same one percent the other way costs the same amount.",
+            "breakEven": "Break-even sales",
+            "breakEvenSub": "Sales needed to cover {fixed} of fixed costs at a {margin} margin",
+            "safety": "Margin of safety",
+            "safetySub": "Sales could fall {amount} before the business made a loss",
+            "shortfall": "Below break-even",
+            "shortfallSub": "Sales are {amount} short of covering the fixed costs",
+            "reading": "The reading:",
+            "readingText": "A price move is worth {times} times a volume move of the same size, because every extra dollar of price is profit and every extra dollar of volume carries its cost of sales. The lever that moves profit most is {top}.",
+            "strip": {
+              "sales": "Sales",
+              "salesSub": "from your accounts",
+              "costOfSalesSub": "taken to move with sales",
+              "contribution": "Left after cost of sales",
+              "contributionSub": "the margin the working uses",
+              "fixed": "Fixed costs",
+              "fixedSub": "overheads, interest, depreciation, less other income",
+              "profit": "Profit",
+              "profitSub": "= {contribution} – {fixed}"
+            }
+          }
+        },
         "info": {
           "whatTitle": "What this report is",
           "what": "This report has been prepared by {firm} for {client} from the financial records the business supplied for the period {period}. It summarises and interprets those records to support a conversation between the business and its advisor.",

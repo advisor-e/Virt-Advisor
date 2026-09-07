@@ -81,16 +81,18 @@ const { emptyState, pagesRequestFrom, OPTIONAL_PAGES, SOURCES } = require('~/uti
 const { LINES } = require('~/server/report/intake/dashboardReportsAssembler')
 const { pct, days, times } = require('~/utils/reportFormat')
 
-/** Why each optional page cannot be added in this build — the stage it waits on. */
+/** Why an optional page with no model behind it yet cannot be added — the stage it waits on. */
 const REASON_KEY = {
+  stockVsAccounts: 'stockReader',
   outlook: 'outlook',
   salesVolatility: 'salesVolatility',
-  eightLevers: 'nextSlice',
-  debtorDrag: 'nextSlice',
-  valuation: 'nextSlice',
   loanServicing: 'loanServicing',
   taxProvision: 'taxProvision'
 }
+/** The pages the pages route computes, and what a ready one says it is drawn from. */
+const READY_KEY = { profitBridge: 'bothYears', cashBridge: 'bothYears', profitSensitivity: 'thisYear' }
+/** A model's refusal, as the reason the page shows. */
+const BLOCKED_KEY = { NO_PRIOR_YEAR: 'needsBothYears', NO_PRIOR_REVENUE: 'needsBothYears', NO_CURRENT_YEAR: 'needsThisYear', NO_REVENUE: 'needsThisYear' }
 
 export default {
   name: 'DashboardReportsWorkbench',
@@ -135,11 +137,24 @@ export default {
       const s = this.state
       return s.setup.financialYear || s.current.profitLossDate || s.current.balanceSheetDate || ''
     },
-    /** No optional page is available in this build; each says what it waits on. */
+    /**
+     * Whether each optional page can be added, and why or why not (Brief P1). The three
+     * computed pages answer from the pages route's own result — a page is offered only
+     * when its model produced figures; the rest name the stage they wait on.
+     */
     availability () {
+      const t = k => this.$t('report.dashboardReports.pages.' + k)
+      const blocks = (this.figures && this.figures.optional) || {}
       const out = {}
       OPTIONAL_PAGES.forEach((key) => {
-        out[key] = { available: false, reason: this.$t('report.dashboardReports.pages.reason.' + REASON_KEY[key]) }
+        if (READY_KEY[key]) {
+          const block = blocks[key]
+          out[key] = block && block.available
+            ? { available: true, reason: t('ready.' + READY_KEY[key]) }
+            : { available: false, reason: t('reason.' + (BLOCKED_KEY[block && block.blocked] || (block ? 'notComputable' : (READY_KEY[key] === 'thisYear' ? 'needsThisYear' : 'needsBothYears')))) }
+        } else {
+          out[key] = { available: false, reason: t('reason.' + REASON_KEY[key]) }
+        }
       })
       return out
     },

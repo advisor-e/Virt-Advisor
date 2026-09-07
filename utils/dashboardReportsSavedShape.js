@@ -20,8 +20,13 @@ const MAX_TEXT = 200
 /** The five ageing bands, in table order. */
 const AGEING_BANDS = ['d0_30', 'd31_60', 'd61_90', 'd91_180', 'd180plus']
 
-/** The optional pages the add-a-page dropdown lists, in its order. */
-const OPTIONAL_PAGES = ['outlook', 'salesVolatility', 'eightLevers', 'debtorDrag', 'valuation', 'loanServicing', 'taxProvision']
+/**
+ * The optional pages the add-a-page dropdown lists, in its order — the drawing's
+ * (`design/mockups/business-performance-report-optional-pages.html`, Mike 2026-09-08). A
+ * saved row naming a page no longer offered (the three model-reuse pages that came off the
+ * list that day) is filtered on the way in and out, so it can neither print nor persist.
+ */
+const OPTIONAL_PAGES = ['profitBridge', 'cashBridge', 'profitSensitivity', 'stockVsAccounts', 'outlook', 'salesVolatility', 'loanServicing', 'taxProvision']
 
 /** The sources a confirmed line may carry. */
 const SOURCES = ['file', 'entered']

@@ -102,9 +102,18 @@ export default {
 .drd-prov.is-file { color: var(--drd-blue); border-color: var(--drd-blue); }
 .drd-prov.is-typed { color: #8a5a00; border-color: var(--drd-caution); }
 .drd-gap { font-size: 12.5px; color: var(--drd-muted); background: var(--drd-tint-sky); border: 1px dashed var(--drd-sky); border-radius: 10px; padding: 12px 14px; }
+/* The slim five-card strip along the foot of the optional pages (drawing pages 11–13). */
+.drd-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 14px; }
+.drd-sc { border: 1px solid var(--drd-line); border-radius: 8px; padding: 8px 10px; font-size: 11.5px; background: #fff; }
+.drd-sk { font-weight: 700; color: var(--drd-ink); line-height: 1.2; }
+.drd-sv { font: 700 15px/1.1 var(--drd-serif); color: var(--drd-navy); margin: 3px 0 2px; }
+.drd-tag { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; border-radius: 999px; padding: 1px 6px; margin-top: 3px; }
+.drd-tag.is-uses { background: var(--drd-tint-caution); color: #8a5a00; }
+.drd-tag.is-rel { background: var(--drd-tint-good); color: #2f6b19; }
 @media (max-width: 900px) {
   .drd-page { aspect-ratio: auto; padding: 22px 18px 56px; }
   .drd-tiles { grid-template-columns: 1fr 1fr; }
+  .drd-strip { grid-template-columns: 1fr 1fr; }
   .drd-cols, .drd-cols.is-wide { grid-template-columns: 1fr; }
 }
 @media print {

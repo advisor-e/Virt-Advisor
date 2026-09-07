@@ -146,10 +146,36 @@ describe('the advisor\'s steps', () => {
     expect(global.fetch.mock.calls.length).toBe(calls)
   })
 
-  it('no optional page is offered yet, and each says what it waits on', async () => {
+  it('🔴 A PAGE IS OFFERED ONLY WHEN ITS FIGURES EXIST: the three computed pages with two years, the rest say what they wait on', async () => {
     const wrapper = await mountAt(5, fullState(), computeReportPages({ current: CURRENT, prior: PRIOR, thresholds: THRESHOLDS }))
     const boxes = wrapper.findAllComponents({ name: 'BCheckbox' })
-    expect(boxes.length).toBe(7)
-    boxes.wrappers.forEach(b => expect(b.props('disabled')).toBe(true))
+    expect(boxes.length).toBe(8)
+    expect(boxes.wrappers.map(b => b.props('disabled'))).toEqual([false, false, false, true, true, true, true, true])
+  })
+
+  it('with one year only, the two bridges are withheld and the sensitivity page is still offered', async () => {
+    const one = fullState()
+    one.hasPrior = false
+    const wrapper = await mountAt(5, one, computeReportPages({ current: CURRENT, prior: null, thresholds: THRESHOLDS }))
+    expect(wrapper.findAllComponents({ name: 'BCheckbox' }).wrappers.map(b => b.props('disabled')).slice(0, 3)).toEqual([true, true, false])
+  })
+
+  it('the added pages print between Next Steps and the closing page, numbered from 11, and the closing page takes the next number', async () => {
+    const state = fullState()
+    state.pages.added = ['profitSensitivity', 'profitBridge', 'cashBridge']
+    const wrapper = await mountAt(6, state, computeReportPages({ current: CURRENT, prior: PRIOR, inventory: state.inventory, thresholds: THRESHOLDS }))
+    expect(wrapper.findAll('.drd-page').length).toBe(14)
+    expect(wrapper.findAll('.drd-pno').wrappers.map(w => w.text()).slice(-4)).toEqual(['11', '12', '13', '14'])
+    expect(wrapper.findComponent({ name: 'DashboardReportProfitBridge' }).props('number')).toBe(11)
+    expect(wrapper.findComponent({ name: 'DashboardReportInformation' }).props('number')).toBe(14)
+    expect(wrapper.findComponent({ name: 'DashboardReportCover' }).props('addedTitles').length).toBe(3)
+  })
+
+  it('a saved choice with nothing behind it prints nothing rather than an empty page', async () => {
+    const state = fullState()
+    state.hasPrior = false
+    state.pages.added = ['profitBridge', 'cashBridge']
+    const wrapper = await mountAt(6, state, computeReportPages({ current: CURRENT, prior: null, thresholds: THRESHOLDS }))
+    expect(wrapper.findAll('.drd-page').length).toBe(11)
   })
 })
