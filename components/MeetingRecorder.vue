@@ -148,6 +148,12 @@ export default {
     apiToken: { type: String, required: true },
     /** The meeting type chosen in the pre-set, from `data/logic_trees.json`. */
     scenarioId: { type: String, default: '' },
+    /**
+     * Which client this meeting is with, from the firm's register. Empty is allowed and means
+     * "not for a particular client" — the meeting is then never compared with a previous one,
+     * because follow-through matches on the client and will not guess.
+     */
+    clientId: { type: String, default: '' },
     /** The advisor's observation points, shown while the meeting runs. */
     points: { type: Array, default: () => [] }
   },
@@ -235,7 +241,10 @@ export default {
 
       try {
         const started = await this.call('POST', '/api/meeting/recordings', {
-          scenarioId: this.scenarioId || null
+          scenarioId: this.scenarioId || null,
+          // The backend checks this against the firm's own register and refuses an id that is
+          // not on it, so a wrong value fails loudly rather than attaching the wrong business.
+          clientId: this.clientId || null
         })
         this.meetingId = started.meetingId
         this.retentionPhrase = started.retentionPhrase || this.retentionPhrase

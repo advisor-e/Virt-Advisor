@@ -114,6 +114,11 @@ function _chunkName (seq) {
  * @param {string} owner.firmId - the verified scope from the JWT
  * @param {string} owner.advisor - the signed-in advisor's identifier
  * @param {string} [owner.scenarioId] - the meeting type chosen in the pre-set
+ * @param {string} [owner.clientId] - which client this meeting is with, from the firm's own
+ *   register. The ID ONLY, never the name: a firm may rename a client and the record must not
+ *   keep a stale label, and this file already holds the most sensitive material in the app.
+ *   It is what makes follow-through possible — March's agreed actions can only be checked
+ *   against April's meeting if both are known to be with the same business.
  * @param {number} owner.retentionMonths - the figure the advisor was shown and spoke aloud
  * @returns {{meetingId: string, meta: object}}
  */
@@ -127,6 +132,11 @@ function createMeeting (owner) {
     firmId: (owner && owner.firmId) || null,
     advisor: (owner && owner.advisor) || null,
     scenarioId: (owner && owner.scenarioId) || null,
+    // Which client, from the firm's own register. Null when the advisor recorded without
+    // choosing one — follow-through then has nothing to match on, and says so rather than
+    // guessing from the advisor and the meeting type, which would check one client's agreed
+    // actions against another client's transcript and look entirely reasonable doing it.
+    clientId: (owner && owner.clientId) || null,
     // Stored because it is what the advisor SAID OUT LOUD. A firm that later moves its dial
     // must not retrospectively change what a client was told at this meeting.
     retentionMonths: (owner && owner.retentionMonths) || null,

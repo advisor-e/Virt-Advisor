@@ -101,7 +101,7 @@
     },
     {
       "ref": "4.58",
-      "name": "Meeting Review — five slices built; follow-through and §4 remain",
+      "name": "Meeting Review — six slices built; a screen for follow-through and §4 remain",
       "rankedByMike": false,
       "activeOn": { "machine": "laptop", "since": "2026-09-07" },
       "kind": "feature",
@@ -118,7 +118,7 @@
         "detail": "2026-09-01 — \"i want you to design a new feature ... records the voices and transcribes the meeting, then generates two reports\", quoted in full in meeting-review-history.md §1. He named the Handbook page himself, so the page is not an inference either."
       },
       "touches": "design/features/meeting-review.md and its history, design/MEETING-CONSENT-WORDING.md, design/ARTEFACTS.md, and the meeting routes, utilities, components and pages listed in the Brief's build table.",
-      "note": "Built: observation points, consent and capture, transcription with speakers separated, audio destruction, the two reports, meeting-types slices 1–2, the MANAGER AGGREGATE (slice 4, firm tier ALONE — P13 keeps meeting figures inside the firm), and TRANSCRIPT EXPIRY (slice 5, each meeting on the period its own client was shown). Not built: follow-through, the firm glossary, meeting-types slices 3–4. Open for Mike: §4, and three slice-4 decisions that are ours, named in Brief §5. Ruled 2026-09-07: the label \"Read my reports\", and the cohort floor applying per point. Record: meeting-review-history.md §8.",
+      "note": "Built: observation points, consent and capture, transcription with speakers separated, audio destruction, the two reports, meeting-types slices 1–2, the MANAGER AGGREGATE (slice 4, firm tier ALONE — P13 keeps meeting figures inside the firm), TRANSCRIPT EXPIRY (slice 5, each meeting on the period its own client was shown), and FOLLOW-THROUGH with the client now on the meeting record (slice 6 — it matches on the client, never guesses). Not built: a SCREEN for the follow-through block, the firm glossary, meeting-types slices 3–4. Open for Mike: §4, and three slice-4 decisions that are ours, named in Brief §5. Ruled 2026-09-07: the label \"Read my reports\", and the cohort floor applying per point. Record: meeting-review-history.md §8.",
       "comment": "2026-09-01 — filed; screens approved; slices 1–2 built. 2026-09-02 — slice 3 built; the types cascade ruled and its slices 1–2 built; renumbered 4.56 → 4.58 by the laptop on Mike's ruling; two rules he never made deleted (Brief P14). 2026-09-07 — slice 4, the manager aggregate, built on the laptop from the approved drawing: 37 new tests, suite 8,184 green."
     },
     {

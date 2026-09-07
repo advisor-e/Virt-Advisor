@@ -4,7 +4,7 @@
 > disagree, **the Brief wins**.
 >
 > ⚠ **This page records how the design was arrived at, and what each build found on the way** —
-> §§1–7 are the design sessions, §8 is the build record. **Five slices are built** (see the Brief);
+> §§1–7 are the design sessions, §8 is the build record. **Six slices are built** (see the Brief);
 > the line that used to stand here saying nothing was built was true on 2026-09-01 and has been
 > replaced rather than left with a date beside it.
 
@@ -291,3 +291,24 @@ not repeated; this is the sequence, and the things found on the way.
   that quietly went missing. The sweep runs daily from the server's listen callback — never at
   import, so requiring `restify-server.js` in a test deletes nothing — and its timer is `unref`'d.
   14 new tests.
+- **2026-09-07, slice 6 — follow-through, and the client on the meeting record.** Built on Mike's
+  *"yes"* to follow-through, after being shown that it could not be built as it stood. **A meeting
+  record held the firm, the advisor, the meeting type and the retention period — but not which
+  client the meeting was with**, so the only available match was advisor plus meeting type. That
+  would have checked one client's agreed actions against a different client's transcript, and the
+  result would have read as an ordinary report with real actions, real quotes and real timestamps.
+  🔴 **The note that had blocked this was factually wrong.** Slice 2 left the client off the
+  recording bar — which the approved drawing shows as *"End of year meeting · Whitfield & Co"* —
+  on a recorded deviation saying *"there is no client record to draw a name from"*. The register
+  had existed since 2026-07-14 (`/api/clients`), with approved wording already in the locale file.
+  So adding the picker was a **return to the approved drawing**, not new scope, and it is worth
+  noticing that a wrong sentence in the artefact register held a feature back for six days.
+  **The check rides the coaching call rather than a third prompt:** each prior action becomes one
+  more point in the same request, so the citation guard applies unchanged — quote this transcript
+  or answer NOT FOUND, and an invented quote is dropped. Advisor-only quotes are right here rather
+  than incidental: the question is whether the ADVISER returned to the action, and a client raising
+  it unprompted is not the adviser following it through. **Three refusals are deliberate and
+  tested:** another client, another advisor (P2), and a meeting with no client are never matched,
+  and an expired previous meeting is reported as expired rather than as "no actions agreed". ⚠ **No
+  screen renders the block yet** — the drawing has no panel for it, and a screen is drawn and
+  approved before it is built. 15 new tests.

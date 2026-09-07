@@ -63,6 +63,11 @@ const {
 const obs = require('../utils/meetingObservations')
 const { computeMetrics } = require('../utils/meetingMetrics')
 const { generateSummary, generateCoachingNotes } = require('../utils/meetingReports')
+// The firm's own client register (built 2026-07-14). A meeting records WHICH client it was
+// with, so March's agreed actions can be checked against April's transcript — and `getById`
+// is scoped to the firm, so an id from a body can never reach another firm's client.
+const clientStore = require('../utils/clientStore')
+const followThrough = require('../utils/meetingFollowThrough')
 
 // formidable v2's parse() is callback-style, matching the wrapper in firmManager.js. The
 // same pinned 2.1.2 — see that file's note on why the version is held there.
@@ -267,10 +272,28 @@ function ownedMeeting (req, res) {
 async function startRecording (req, res) {
   try {
     const resolved = await loadResolvedRetention(req.firmId, readScopeConfig)
+    const body = req.body || {}
+
+    // 🔴 THE CLIENT IS CHECKED AGAINST THE FIRM'S OWN REGISTER, NEVER TRUSTED FROM THE BODY.
+    // `getById` is scoped to `req.firmId`, so an id belonging to another firm resolves to
+    // nothing and is refused — the same IDOR-safe shape every other route here uses. Without
+    // this, a guessed id would attach one firm's client to another firm's meeting record.
+    let clientId = null
+    if (body.clientId) {
+      const client = await clientStore.getById(String(body.clientId), req.firmId)
+      if (!client) {
+        sendError(res, 404, 'NO_SUCH_CLIENT',
+          'That client is not on your firm\'s register. Choose one from the list.')
+        return
+      }
+      clientId = client.id
+    }
+
     const { meetingId, meta } = store.createMeeting({
       firmId: req.firmId,
       advisor: req.advisorId,
-      scenarioId: (req.body || {}).scenarioId || null,
+      scenarioId: body.scenarioId || null,
+      clientId,
       retentionMonths: resolved.months
     })
     res.send(201, {
@@ -600,10 +623,24 @@ async function runReports (meetingId, ctx) {
   }
 
   try {
+    // Follow-through: the last meeting with THIS client, whose agreed actions are checked
+    // against this transcript. Null when there is no earlier one, when the meeting was
+    // recorded without choosing a client, or when the earlier meeting's text has expired on
+    // the firm's retention clock — and the report says which rather than showing an absence.
+    let previous = null
+    try {
+      previous = followThrough.findPrevious(store, store.readMeta(meetingId))
+    } catch (err) {
+      // A follow-through that cannot be looked up must not cost the advisor their coaching
+      // notes. Logged, and the report is generated without the block.
+      console.error('[meeting-review] follow-through lookup failed:', err.message)
+    }
+
     const coaching = await generateCoachingNotes({
       transcript,
       points: ctx.points,
       metrics,
+      previous,
       apiKey: process.env.OPENAI_API_KEY
     })
     store.writeReport(meetingId, 'coaching', coaching)
