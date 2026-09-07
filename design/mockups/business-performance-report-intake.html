@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Business Performance Report Intake</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Business Performance Report — the ADVISOR'S INPUT SCREENS, drawn for approval (2026-09-07).
+   Item 4.70. What the advisor completes BEFORE the client's report
+   (business-performance-report.html) exists.
+
+   This is an advisor screen, so it follows the owner ruling of 2026-07-23 exactly: the look
+   is READ OFF the finished intake screens — Quick Position and the Three-Way Forecast — not
+   proposed afresh. Every value below is copied from the project's locked sources:
+     - design/REPORT-VISUAL-STANDARD.md, components/base/ReportShell.vue (--rs-* tokens)
+     - components/base/HeroStrip.vue / HeroFigure.vue (the dark band, display-only totals)
+     - components/QuickPositionIntake.vue (drop zones, the confirm table, provenance)
+     - design/mockups/three-way-forecast.html (step chips, cards, the mockup chrome)
+   Six steps, each drawn as its own screen. Figures are the deck's sample data.
+   Nothing here is built. Brief: design/features/business-performance-report.md
+   ========================================================================= */
+:root{
+  --rs-col-input:360px; --rs-col-gap:16px; --rs-content-width:1120px;
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0; --rs-accent-contrast:#ffffff;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a; --rs-crit-soft:#ff00000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:var(--rs-content-width);margin:0 auto;padding:28px 22px 64px}
+.root{display:flex;flex-direction:column;gap:16px}
+.root strong,.root b{font-weight:600}
+.root .rs-top{margin:0}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#614700;line-height:1.55}
+.mock h1{font-size:16px;margin:0 0 6px;font-weight:700}
+.mock ul{margin:6px 0 0;padding-left:18px}
+.stepmark{margin:34px 0 2px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+
+/* [B] ReportHeader */
+.rs-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin:0 auto 22px;padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;box-shadow:var(--rs-shadow)}
+.rs-backlink{display:inline-block;margin-bottom:10px;font-size:12px;font-weight:600;letter-spacing:.04em;color:#7fd3f1;text-decoration:none;opacity:.9}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+.access{display:flex;align-items:center;gap:10px;background:#ffffff14;border:1px solid #ffffff30;border-radius:10px;padding:8px 12px;font-size:12.5px;align-self:center}
+.seg{display:inline-flex;border:1px solid #ffffff50;border-radius:8px;overflow:hidden}
+.seg span{padding:3px 10px;font-size:12px;font-weight:600;color:#c7e6fb}
+.seg span.on{background:var(--rs-accent-bright);color:var(--rs-ink)}
+
+/* step chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)} .chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)} .chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+/* [C] HeroStrip — locked */
+.herostrip{background:#002b64;border-radius:14px;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);box-shadow:0 12px 32px -12px #002b6466}
+.herostrip > *:first-child{border-left:0;padding-left:2px}
+.hs{padding:2px 16px;border-left:1px solid #ffffff30}
+.hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
+.hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;font-variant-numeric:tabular-nums}
+.hv.sm{font-size:18px;line-height:1.2}
+.hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+
+/* [D] two-column body */
+.layout{display:grid;grid-template-columns:var(--rs-col-input) 1fr;gap:var(--rs-col-gap);align-items:start}
+@media (max-width:860px){.layout{grid-template-columns:1fr}}
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);box-shadow:var(--rs-shadow)}
+.h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.group{padding:15px 16px;border-bottom:1px solid var(--rs-line)} .group:last-child{border-bottom:0}
+.glabel{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--rs-accent-bright)}
+.results{display:flex;flex-direction:column;gap:16px}
+
+/* fields (Buefy look) */
+.field{margin:0 0 12px} .field:last-child{margin-bottom:0}
+.lbl{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
+.input{width:100%;border:1px solid var(--rs-line);border-radius:6px;padding:8px 10px;font:inherit;font-size:14px;background:#fff;color:var(--rs-ink)}
+.input.ta{min-height:64px}
+.hint{font-size:12px;color:var(--rs-muted);margin-top:5px}
+.btn{display:inline-block;border:1px solid var(--rs-accent);color:var(--rs-accent);border-radius:6px;padding:8px 14px;font-size:13.5px;font-weight:600;background:#fff}
+.btn.primary{background:var(--rs-accent);color:#fff}
+.btn.ghost{border-color:var(--rs-line);color:var(--rs-muted)}
+.actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.note{font-size:12.5px;color:var(--rs-muted)}
+.radio{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--rs-line);border-radius:8px;margin-bottom:8px;font-size:13.5px}
+.radio.on{border-color:var(--rs-accent);background:var(--rs-accent-soft)}
+.radio .r{width:16px;height:16px;border-radius:50%;border:2px solid var(--rs-line)} .radio.on .r{border-color:var(--rs-accent);background:radial-gradient(var(--rs-accent) 45%, #fff 50%)}
+.radio .rng{font-variant-numeric:tabular-nums;color:var(--rs-muted);font-size:12.5px}
+.finder{border:1px solid var(--rs-line);border-radius:8px;overflow:hidden}
+.finder .q{padding:8px 10px;border-bottom:1px solid var(--rs-line);font-size:14px;color:var(--rs-ink)}
+.finder .opt{padding:8px 10px;font-size:13px;border-bottom:1px solid var(--rs-line);display:flex;justify-content:space-between;gap:10px}
+.finder .opt:last-child{border-bottom:0} .finder .opt.on{background:var(--rs-accent-soft)}
+.finder .code{color:var(--rs-muted);font-variant-numeric:tabular-nums}
+
+/* drop zones — QuickPositionIntake */
+.drop-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.drop-zone{border:2px dashed var(--rs-line);border-radius:12px;padding:16px;background:#fff;text-align:center}
+.drop-zone.loaded{border-color:var(--rs-good);border-style:solid;background:var(--rs-good-soft)}
+.drop-title{font-weight:600;font-size:14px} .drop-how{font-size:12.5px;color:var(--rs-muted);margin:4px 0 10px}
+.file-note{font-size:12.5px;color:#2f6b19;margin:10px 0 0;font-weight:600}
+.file-error{font-size:12.5px;color:var(--rs-crit);margin:10px 0 0}
+.drop-rules{font-size:12.5px;color:var(--rs-muted)}
+
+/* confirm table */
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--rs-line);text-align:left;vertical-align:middle}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+td .input{padding:5px 8px;text-align:right;max-width:130px}
+tr.sec td{background:var(--rs-panel-2);font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--rs-muted)}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;border:1px solid var(--rs-line);color:var(--rs-muted);background:#fff;white-space:nowrap}
+.badge.file{color:var(--rs-accent);border-color:var(--rs-accent)}
+.badge.typed{color:#b45f00;border-color:var(--rs-warn);background:var(--rs-warn-soft)}
+.badge.stats{color:var(--rs-ink);border-color:var(--rs-ink)}
+.badge.ai{color:#4b3a8a;border-color:#7a6ba8}
+.date-ok{font-size:12.5px;color:#2f6b19;margin-top:10px}
+.warn-note{font-size:12.5px;color:#b45f00;margin-top:6px}
+
+/* pages list */
+.pg{display:grid;grid-template-columns:22px 1fr auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--rs-line);border-radius:8px;margin-bottom:8px;font-size:13.5px}
+.pg .cb{width:16px;height:16px;border-radius:4px;border:2px solid var(--rs-line)} .pg.on .cb{background:var(--rs-accent);border-color:var(--rs-accent)}
+.pg.base{background:var(--rs-panel-2)} .pg.base .cb{background:var(--rs-muted);border-color:var(--rs-muted)}
+.pg.off{color:var(--rs-muted)} .pg .why{font-size:12px;color:var(--rs-muted)}
+.pg .why.ok{color:#2f6b19}
+
+/* preview thumbs */
+.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.thumb{aspect-ratio:16/9;border:1px solid var(--rs-line);border-radius:8px;background:#fff;display:grid;place-items:center;font-size:11px;color:var(--rs-muted);text-align:center;padding:8px}
+.thumb.dark{background:#002b64;color:#7fd3f1}
+.edu{border-left:3px solid var(--rs-accent-bright);background:var(--rs-accent-soft);border-radius:0 9px 9px 0;padding:15px 17px}
+.edu-h{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--rs-accent);margin-bottom:8px}
+.edu p{margin:0 0 8px;font-size:14px;line-height:1.6} .edu p:last-child{margin-bottom:0}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <h1>Business Performance Report — the advisor's input screens, for approval</h1>
+  Item 4.70. These six steps are what an advisor completes; the client's report (the landscape drawing) is what comes out the other end. The look is the finished intake screens' own: Quick Position's drop zones and confirm table, the forecast's step chips and dark band. Nothing here is a new look.
+  <ul>
+    <li><b>Wording is proposed, not ruled:</b> every step name, button and field label below is for you to confirm or change.</li>
+    <li><b>Step 3, Inventory,</b> is drawn for when the reader exists; until then the same step shows the typed fields alone.</li>
+    <li><b>Step 5's page list</b> is the "add a page" dropdown drawn as a list, so the whole set is visible at once; the report's toolbar keeps the dropdown.</li>
+    <li>The client-access switch in the header is the one built for item 4.62, unchanged.</li>
+  </ul>
+</div>
+
+<div class="stepmark">Step 1 of 6 — the client, the period, the industry</div>
+<div class="root">
+  <div class="rs-top">
+    <div><a class="rs-backlink" href="#">← Back to the Model Library</a><div class="rs-eyebrow">Business report</div><h1 class="rs-h1">Business Performance Report</h1><div class="rs-client">Prepared for Harbourside Kitchen Supplies Ltd</div></div>
+    <div class="access"><b>Client access</b><span class="seg"><span class="on">Hidden</span><span>Open</span></span></div>
+  </div>
+  <div class="chips">
+    <span class="chip now"><span class="n">1</span>Client &amp; industry</span><span class="chip todo"><span class="n">2</span>The accounts</span><span class="chip todo"><span class="n">3</span>Inventory</span><span class="chip todo"><span class="n">4</span>Your words</span><span class="chip todo"><span class="n">5</span>Pages</span><span class="chip todo"><span class="n">6</span>Review &amp; print</span>
+  </div>
+  <div class="herostrip">
+    <div class="hs"><div class="hk">Client</div><div class="hv sm">Harbourside Kitchen Supplies Ltd</div><div class="hs2">from the client record</div></div>
+    <div class="hs"><div class="hk">Period</div><div class="hv sm">FY2026</div><div class="hs2">1 Jul 2025 – 30 Jun 2026</div></div>
+    <div class="hs"><div class="hk">Industry</div><div class="hv sm">Kitchenware wholesaling</div><div class="hs2">ANZSIC06 class · Stats NZ</div></div>
+    <div class="hs"><div class="hk">Size band</div><div class="hv sm">Small</div><div class="hs2">turnover $1.6M – $3.9M in this industry</div></div>
+  </div>
+  <div class="layout">
+    <div class="card">
+      <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">The client and the period</h2></div>
+        <div class="field"><label class="lbl">Client</label><div class="input">Harbourside Kitchen Supplies Ltd ▾</div><div class="hint">The report is saved against this client, like every other report.</div></div>
+        <div class="field"><label class="lbl">Financial year</label><div class="input">1 July 2025 – 30 June 2026 ▾</div></div>
+        <div class="field"><label class="lbl">Date issued</label><div class="input">7 September 2026</div></div>
+      </div>
+      <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Who prepared it</h2></div>
+        <div class="field"><label class="lbl">Prepared by</label><div class="input">Jordan Reid, Reid &amp; Partners</div><div class="hint">The firm's logo comes from the firm's settings and prints on the cover and every footer.</div></div>
+      </div>
+    </div>
+    <div class="results">
+      <div class="card">
+        <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Find the industry</h2></div>
+          <div class="finder">
+            <div class="q">kitchen</div>
+            <div class="opt on"><span>Kitchenware and other household goods wholesaling</span><span class="code">F3739 · benchmarks published</span></div>
+            <div class="opt"><span>Kitchen and bathroom furniture manufacturing</span><span class="code">C2513 · benchmarks published</span></div>
+            <div class="opt"><span>Kitchen cabinet installation</span><span class="code">E3242 · no benchmarks: too few businesses</span></div>
+          </div>
+          <div class="hint">Searches the 220 ANZSIC06 industries Stats NZ publishes benchmark ratios for. An industry with too few businesses is listed but says so, and the benchmark page is then left out.</div>
+        </div>
+        <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Size band — Stats NZ's four bands for this industry, by turnover</h2></div>
+          <div class="radio"><span class="r"></span><span><b>Micro</b> — the smallest quarter of businesses</span><span class="rng">$60,000 – $640,000</span></div>
+          <div class="radio on"><span class="r"></span><span><b>Small</b> — the second quarter <span class="badge file">matches revenue $2.84M</span></span><span class="rng">$1.6M – $3.9M</span></div>
+          <div class="radio"><span class="r"></span><span><b>Medium</b> — the third quarter</span><span class="rng">$3.9M – $6.2M</span></div>
+          <div class="radio"><span class="r"></span><span><b>Large</b> — the largest quarter</span><span class="rng">$6.2M – $10M</span></div>
+          <div class="hint">Stats NZ sets the bands as four even quarters of the businesses in this industry, so the ranges differ by industry. Pre-selected from the revenue in the accounts; you can change it. Ranges shown are sample figures.</div>
+        </div>
+      </div>
+      <div class="actions"><span class="btn primary">Continue to the accounts</span><span class="note">Nothing is sent anywhere on this step.</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="stepmark">Step 2 of 6 — the accounts, this year and last</div>
+<div class="root">
+  <div class="chips">
+    <span class="chip done"><span class="n">✓</span>Client &amp; industry</span><span class="chip now"><span class="n">2</span>The accounts</span><span class="chip todo"><span class="n">3</span>Inventory</span><span class="chip todo"><span class="n">4</span>Your words</span><span class="chip todo"><span class="n">5</span>Pages</span><span class="chip todo"><span class="n">6</span>Review &amp; print</span>
+  </div>
+  <div class="herostrip">
+    <div class="hs"><div class="hk">Revenue</div><div class="hv">$2,840,000</div><div class="hs2">FY2026 · from the P&amp;L</div></div>
+    <div class="hs"><div class="hk">Net profit</div><div class="hv">$396,000</div><div class="hs2">13.9% of revenue</div></div>
+    <div class="hs"><div class="hk">Total assets</div><div class="hv">$1,375,000</div><div class="hs2">at 30 June 2026</div></div>
+    <div class="hs"><div class="hk">Equity</div><div class="hv">$760,000</div><div class="hs2">up 11% on last year</div></div>
+  </div>
+  <div class="card">
+    <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Drop the four exports</h2></div>
+      <div class="drop-grid">
+        <div class="drop-zone loaded"><div class="drop-title">Balance Sheet — this year</div><div class="drop-how">As at 30 June 2026</div><span class="btn ghost">Choose file</span><p class="file-note">✓ Balance Sheet.xlsx read — 11 figures, as at 30 June 2026</p></div>
+        <div class="drop-zone loaded"><div class="drop-title">Profit and Loss — this year</div><div class="drop-how">1 July 2025 – 30 June 2026</div><span class="btn ghost">Choose file</span><p class="file-note">✓ Profit and Loss.xlsx read — 9 figures, year to 30 June 2026</p></div>
+        <div class="drop-zone loaded"><div class="drop-title">Balance Sheet — last year</div><div class="drop-how">As at 30 June 2025</div><span class="btn ghost">Choose file</span><p class="file-note">✓ Balance Sheet FY25.xlsx read</p></div>
+        <div class="drop-zone"><div class="drop-title">Profit and Loss — last year</div><div class="drop-how">1 July 2024 – 30 June 2025 · needed for the movements and the cash drivers</div><span class="btn primary">Choose file</span><p class="file-error">Not yet read. Without it the report shows this year alone and no "vs last year".</p></div>
+      </div>
+      <p class="drop-rules" style="margin-top:12px">Reads exports from Xero, QuickBooks Online and MYOB. QuickBooks Online and MYOB have not yet been checked against a real export. A by-month export is refused: drop the annual report. Files are read and discarded; nothing is stored.</p>
+    </div>
+    <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Confirm the figures the report is built from</h2></div>
+      <table>
+        <tr><th>Figure</th><th>This year</th><th>Last year</th><th>Source</th></tr>
+        <tr class="sec"><td colspan="4">Balance sheet</td></tr>
+        <tr><td>Bank</td><td class="n"><span class="input">224,000</span></td><td class="n"><span class="input">183,000</span></td><td><span class="badge file">From file</span></td></tr>
+        <tr><td>Accounts receivable</td><td class="n"><span class="input">334,000</span></td><td class="n"><span class="input">263,000</span></td><td><span class="badge file">From file</span></td></tr>
+        <tr><td>Stock</td><td class="n"><span class="input">322,000</span></td><td class="n"><span class="input">204,000</span></td><td><span class="badge file">From file</span></td></tr>
+        <tr><td>Other current assets</td><td class="n"><span class="input">—</span></td><td class="n"><span class="input">—</span></td><td><span class="badge typed">Entered</span></td></tr>
+        <tr><td>Fixed assets</td><td class="n"><span class="input">505,000</span></td><td class="n"><span class="input">470,000</span></td><td><span class="badge file">From file</span></td></tr>
+        <tr><td>Current liabilities</td><td class="n"><span class="input">410,000</span></td><td class="n"><span class="input">387,000</span></td><td><span class="badge file">From file</span></td></tr>
+        <tr><td>Non-current liabilities</td><td class="n"><span class="input">205,000</span></td><td class="n">…</td><td><span class="badge file">From file</span></td></tr>
+        <tr class="sec"><td colspan="4">Profit and loss</td></tr>
+        <tr><td>Trading income</td><td class="n"><span class="input">2,840,000</span></td><td class="n"><span class="input">2,527,000</span></td><td><span class="badge file">From file</span></td></tr>
+        <tr><td>Cost of sales</td><td class="n"><span class="input">1,676,000</span></td><td class="n">…</td><td><span class="badge file">From file</span></td></tr>
+        <tr><td>Wages</td><td class="n"><span class="input">596,000</span></td><td class="n">…</td><td><span class="badge file">From file</span></td></tr>
+        <tr><td>Operating expenses (excl. wages)</td><td class="n"><span class="input">102,000</span></td><td class="n">…</td><td><span class="badge file">From file</span></td></tr>
+        <tr><td>Depreciation</td><td class="n"><span class="input">38,000</span></td><td class="n">…</td><td><span class="badge file">From file</span></td></tr>
+        <tr><td>Net capital spend in the year</td><td class="n"><span class="input">85,000</span></td><td class="n"><span class="input">40,000</span></td><td><span class="badge typed">Entered</span></td></tr>
+      </table>
+      <p class="date-ok">✓ The two Balance Sheets are a year apart and the P&amp;L covers the same year.</p>
+      <p class="warn-note">⚠ Net capital spend is not on either report; it is the movement in fixed assets plus depreciation, pre-filled from those two figures for you to confirm.</p>
+    </div>
+    <div class="group actions"><span class="btn primary">Confirm and continue</span><span class="note">Every figure can be typed over; a typed figure loses its "from file" mark.</span></div>
+  </div>
+</div>
+
+<div class="stepmark">Step 3 of 6 — inventory</div>
+<div class="root">
+  <div class="chips">
+    <span class="chip done"><span class="n">✓</span>Client &amp; industry</span><span class="chip done"><span class="n">✓</span>The accounts</span><span class="chip now"><span class="n">3</span>Inventory</span><span class="chip todo"><span class="n">4</span>Your words</span><span class="chip todo"><span class="n">5</span>Pages</span><span class="chip todo"><span class="n">6</span>Review &amp; print</span>
+  </div>
+  <div class="herostrip">
+    <div class="hs"><div class="hk">Stock at cost</div><div class="hv">$322,000</div><div class="hs2">from the inventory export</div></div>
+    <div class="hs"><div class="hk">Stock turnover</div><div class="hv">5.2×</div><div class="hs2">from the accounts</div></div>
+    <div class="hs"><div class="hk">Days on the shelf</div><div class="hv">70</div><div class="hs2">from the accounts</div></div>
+    <div class="hs"><div class="hk">Slow or obsolete</div><div class="hv">$46,000</div><div class="hs2">entered by you</div></div>
+  </div>
+  <div class="layout">
+    <div class="card">
+      <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Drop the stock export</h2></div>
+        <div class="drop-zone loaded"><div class="drop-title">Stock on hand — Cin7 Core or Unleashed</div><div class="drop-how">One row per product, with quantities and cost</div><span class="btn ghost">Choose file</span><p class="file-note">✓ Cin7 Core export read — 412 products, 6 categories, 2 locations</p></div>
+        <div class="hint" style="margin-top:10px">Reads Cin7 Core and Unleashed stock exports. Neither has been checked against a real export yet. The export carries no dates, so ageing is entered below.</div>
+      </div>
+      <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">What the export cannot tell us</h2></div>
+        <div class="field"><label class="lbl">Slow or obsolete stock, at cost <span class="badge typed">Entered</span></label><div class="input">46,000</div></div>
+        <div class="field"><label class="lbl">Stock ageing, at cost ($'000) <span class="badge typed">Entered</span></label>
+          <table><tr><td>0–30 days</td><td class="n"><span class="input">128</span></td></tr><tr><td>31–60</td><td class="n"><span class="input">84</span></td></tr><tr><td>61–90</td><td class="n"><span class="input">52</span></td></tr><tr><td>91–180</td><td class="n"><span class="input">32</span></td></tr><tr><td>180+ days</td><td class="n"><span class="input">26</span></td></tr></table>
+          <div class="hint">From Cin7's or Unleashed's ageing report, or your own count. Leave blank and the ageing chart is left off the page.</div>
+        </div>
+      </div>
+    </div>
+    <div class="results">
+      <div class="card">
+        <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Read from the export — stock at cost by category</h2></div>
+          <table>
+            <tr><th>Category</th><th>Products</th><th>On hand</th><th>Allocated</th><th>Available</th><th>Value at cost</th></tr>
+            <tr><td>Product line A</td><td class="n">96</td><td class="n">2,140</td><td class="n">310</td><td class="n">1,830</td><td class="n">$109,500</td></tr>
+            <tr><td>Product line B</td><td class="n">88</td><td class="n">1,860</td><td class="n">205</td><td class="n">1,655</td><td class="n">$83,700</td></tr>
+            <tr><td>Product line C</td><td class="n">74</td><td class="n">3,420</td><td class="n">120</td><td class="n">3,300</td><td class="n">$54,700</td></tr>
+            <tr><td>Consumables</td><td class="n">61</td><td class="n">5,110</td><td class="n">0</td><td class="n">5,110</td><td class="n">$29,000</td></tr>
+            <tr><td>Slow / obsolete</td><td class="n">93</td><td class="n">1,240</td><td class="n">0</td><td class="n">1,240</td><td class="n">$45,100</td></tr>
+            <tr class="sec"><td>Total</td><td class="n">412</td><td class="n">13,770</td><td class="n">635</td><td class="n">13,135</td><td class="n">$322,000</td></tr>
+          </table>
+          <p class="date-ok">✓ Stock at cost $322,000 agrees with the Balance Sheet's stock line within 0.1%.</p>
+        </div>
+      </div>
+      <div class="edu"><div class="edu-h"><span>Why this step is here</span></div><p>Stock turnover and days on the shelf come from the accounts. This export adds what the accounts cannot: which categories the money is sitting in, and what is allocated but not yet shipped. The two are checked against each other, so a stock figure that disagrees with the Balance Sheet is shown, not hidden.</p></div>
+      <div class="actions"><span class="btn primary">Continue</span><span class="btn ghost">Skip — no inventory page</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="stepmark">Step 4 of 6 — your words</div>
+<div class="root">
+  <div class="chips">
+    <span class="chip done"><span class="n">✓</span>Client &amp; industry</span><span class="chip done"><span class="n">✓</span>The accounts</span><span class="chip done"><span class="n">✓</span>Inventory</span><span class="chip now"><span class="n">4</span>Your words</span><span class="chip todo"><span class="n">5</span>Pages</span><span class="chip todo"><span class="n">6</span>Review &amp; print</span>
+  </div>
+  <div class="herostrip">
+    <div class="hs"><div class="hk">Health score</div><div class="hv">69</div><div class="hs2">5 of 8 measures green · Steady</div></div>
+    <div class="hs"><div class="hk">Cash cycle</div><div class="hv">47 <span class="u">days</span></div><div class="hs2">6 days slower than last year</div></div>
+    <div class="hs"><div class="hk">Against industry</div><div class="hv">6 of 8</div><div class="hs2">within or above the middle half</div></div>
+    <div class="hs"><div class="hk">Below industry</div><div class="hv">1</div><div class="hs2">stock turnover</div></div>
+  </div>
+  <div class="layout">
+    <div class="card">
+      <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Executive summary</h2></div>
+        <div class="field"><label class="lbl">One-line summary of the year</label><div class="input">A strong year with one watch-point: cash tied up in stock</div></div>
+        <div class="field"><label class="lbl">What went well (two)</label><div class="input ta">Sales grew in all four quarters, led by repeat customers (+19%).<br>Gross margin held at 41% despite supplier price increases.</div></div>
+        <div class="field"><label class="lbl">What to watch (two)</label><div class="input ta">Stock on hand grew faster than sales — $118K extra cash tied up.<br>Customers are paying 5 days slower than last year (38 → 43 days).</div></div>
+      </div>
+      <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Insight and watch-point</h2></div>
+        <div class="field"><label class="lbl">Profit &amp; Loss insight</label><div class="input ta">Every $1 of sales returned 13.9¢ of profit — up from 13.2¢ last year. Wage costs are the fastest-growing expense (+9%).</div></div>
+        <div class="field"><label class="lbl">Cash watch-point</label><div class="input ta">The December dip (–$57K) coincides with peak stock purchases. Consider staggering orders or a seasonal overdraft facility.</div></div>
+      </div>
+    </div>
+    <div class="results">
+      <div class="card">
+        <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">The three next steps</h2></div>
+          <div class="field"><label class="lbl">1 · Title</label><div class="input">Free up cash from stock</div></div>
+          <div class="field"><label class="lbl">What to do, and what it releases</label><div class="input ta">Run down slow-moving lines ($46K) and trim reorder points on category C. Target: back to 60 days on hand — releasing roughly $45K in cash.</div></div>
+          <div class="field"><label class="lbl">2 · Title</label><div class="input">Tighten up debtor collection</div></div>
+          <div class="field"><label class="lbl">What to do, and what it releases</label><div class="input ta">Move key accounts to 14-day terms and automate reminders. Every 5 days faster releases about $39K.</div></div>
+          <div class="field"><label class="lbl">3 · Title</label><div class="input">Protect the margin</div></div>
+          <div class="field"><label class="lbl">What to do, and what it releases</label><div class="input ta">Review the top-10 supplier agreements before the next price round; wages are growing faster than sales.</div></div>
+          <div class="field"><label class="lbl">Next review</label><div class="input">December 2026 quarter</div></div>
+        </div>
+      </div>
+      <div class="edu"><div class="edu-h"><span>The figures beside you</span></div><p>The band above shows what the pages will say, so the words can be written against them. Everything on this step prints with the mark <span class="badge typed">Written by your advisor</span>. An AI draft to start from is a later stage and is not on this screen.</p></div>
+      <div class="actions"><span class="btn primary">Continue to pages</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="stepmark">Step 5 of 6 — which pages</div>
+<div class="root">
+  <div class="chips">
+    <span class="chip done"><span class="n">✓</span>Client &amp; industry</span><span class="chip done"><span class="n">✓</span>The accounts</span><span class="chip done"><span class="n">✓</span>Inventory</span><span class="chip done"><span class="n">✓</span>Your words</span><span class="chip now"><span class="n">5</span>Pages</span><span class="chip todo"><span class="n">6</span>Review &amp; print</span>
+  </div>
+  <div class="herostrip">
+    <div class="hs"><div class="hk">Base pages</div><div class="hv">10</div><div class="hs2">cover, contents, eight sections</div></div>
+    <div class="hs"><div class="hk">Added</div><div class="hv">1</div><div class="hs2">Economic &amp; Industry Outlook</div></div>
+    <div class="hs"><div class="hk">Closing page</div><div class="hv">1</div><div class="hs2">Important information</div></div>
+    <div class="hs"><div class="hk">Total</div><div class="hv">12 <span class="u">of 15</span></div><div class="hs2">three more can be added</div></div>
+  </div>
+  <div class="layout">
+    <div class="card">
+      <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Always in the report</h2></div>
+        <div class="pg base"><span class="cb"></span><span>Cover and contents</span><span class="why">from step 1</span></div>
+        <div class="pg base"><span class="cb"></span><span>1 · Executive Summary</span><span class="why">from steps 2 and 4</span></div>
+        <div class="pg base"><span class="cb"></span><span>2 · Financial Dashboard</span><span class="why">from step 2</span></div>
+        <div class="pg base"><span class="cb"></span><span>3 · Profit &amp; Loss</span><span class="why">from step 2</span></div>
+        <div class="pg base"><span class="cb"></span><span>4 · Balance Sheet</span><span class="why">from step 2</span></div>
+        <div class="pg base"><span class="cb"></span><span>5 · Cash Flow &amp; Working Capital</span><span class="why">from step 2</span></div>
+        <div class="pg base"><span class="cb"></span><span>6 · Inventory Performance</span><span class="why">from step 3</span></div>
+        <div class="pg base"><span class="cb"></span><span>7 · Benchmarks &amp; Trends</span><span class="why">Stats NZ + step 2</span></div>
+        <div class="pg base"><span class="cb"></span><span>8 · Key Insights &amp; Next Steps</span><span class="why">from step 4</span></div>
+        <div class="pg base"><span class="cb"></span><span>Important information</span><span class="why">the firm's wording</span></div>
+      </div>
+    </div>
+    <div class="results">
+      <div class="card">
+        <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Add a page — offered only where the figures behind it exist</h2></div>
+          <div class="pg on"><span class="cb"></span><span>Economic &amp; Industry Outlook <span class="badge ai">AI research · approved</span></span><span class="why ok">Research run 2, approved by you on 6 Sep</span></div>
+          <div class="pg"><span class="cb"></span><span>Sales Volatility</span><span class="why ok">12 months of sales by month on file</span></div>
+          <div class="pg"><span class="cb"></span><span>The Eight Levers</span><span class="why ok">Ready from the P&amp;L</span></div>
+          <div class="pg"><span class="cb"></span><span>Debtor Drag</span><span class="why ok">Ready from the accounts</span></div>
+          <div class="pg"><span class="cb"></span><span>Valuation (EBITDA &amp; DCF)</span><span class="why ok">Ready from the P&amp;L</span></div>
+          <div class="pg off"><span class="cb"></span><span>Loan Servicing</span><span class="why">No loan on the file</span></div>
+          <div class="pg off"><span class="cb"></span><span>Tax Provision</span><span class="why">The firm's tax rates are not set</span></div>
+          <div class="hint">Up to 15 pages in all. A page whose data is missing cannot be ticked, so a page is never added empty.</div>
+        </div>
+      </div>
+      <div class="edu"><div class="edu-h"><span>The outlook page</span></div><p>Research is run and approved on the forecast's step 5 or from here; it prints only on your recorded approval, badged as AI research. Nothing about the client is sent by the app on its own.</p></div>
+      <div class="actions"><span class="btn primary">Continue to review</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="stepmark">Step 6 of 6 — review, save, print</div>
+<div class="root">
+  <div class="chips">
+    <span class="chip done"><span class="n">✓</span>Client &amp; industry</span><span class="chip done"><span class="n">✓</span>The accounts</span><span class="chip done"><span class="n">✓</span>Inventory</span><span class="chip done"><span class="n">✓</span>Your words</span><span class="chip done"><span class="n">✓</span>Pages</span><span class="chip now"><span class="n">6</span>Review &amp; print</span>
+  </div>
+  <div class="herostrip">
+    <div class="hs"><div class="hk">Pages</div><div class="hv">12</div><div class="hs2">landscape, one per sheet</div></div>
+    <div class="hs"><div class="hk">From your accounts</div><div class="hv">34 <span class="u">figures</span></div><div class="hs2">read from four exports</div></div>
+    <div class="hs"><div class="hk">Entered by you</div><div class="hv">7 <span class="u">figures</span></div><div class="hs2">and every word on page 8</div></div>
+    <div class="hs"><div class="hk">Saved</div><div class="hv sm">Not yet</div><div class="hs2">save to keep it against the client</div></div>
+  </div>
+  <div class="card">
+    <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">The report, page by page</h2></div>
+      <div class="thumbs">
+        <div class="thumb dark">Cover</div><div class="thumb">Contents</div><div class="thumb">1 · Executive Summary</div><div class="thumb">2 · Financial Dashboard</div>
+        <div class="thumb">3 · Profit &amp; Loss</div><div class="thumb">4 · Balance Sheet</div><div class="thumb">5 · Cash Flow &amp; Working Capital</div><div class="thumb">6 · Inventory Performance</div>
+        <div class="thumb">7 · Benchmarks &amp; Trends</div><div class="thumb dark">8 · Key Insights &amp; Next Steps</div><div class="thumb">9 · Economic &amp; Industry Outlook</div><div class="thumb">Important information</div>
+      </div>
+      <div class="hint" style="margin-top:10px">Click a page to open it full size; the report itself is the landscape drawing.</div>
+    </div>
+    <div class="group actions">
+      <span class="btn primary">Save for Harbourside Kitchen Supplies Ltd</span>
+      <span class="btn">Print or save as PDF</span>
+      <span class="note">Client access stays <b>Hidden</b> until you switch it to Open in the header; a client then reads the report and cannot edit it.</span>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

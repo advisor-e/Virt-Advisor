@@ -237,7 +237,8 @@ reference the AI already reads, and with item 4.66.
 
 | Piece | Path |
 |---|---|
-| The drawing Mike rules on | [`../mockups/business-performance-report.html`](../mockups/business-performance-report.html) |
+| The drawing Mike rules on — the client's report | [`../mockups/business-performance-report.html`](../mockups/business-performance-report.html) |
+| The drawing Mike rules on — the advisor's six input steps | [`../mockups/business-performance-report-intake.html`](../mockups/business-performance-report-intake.html) — client and industry (finder + size bands), the four exports and the confirm table, inventory, the advisor's words, pages, review / save / print. In the intake screens' own look, never the deck's: an advisor screen follows `report-models.md` P1 |
 | The deck (target output) | `Support models for perf reports/Business_Performance_Report_Mockup.pptx` |
 | The ratio hub workbook | `design/report-source-models/Dashboard Reports_.xlsx` (sheet *API Data*); newer copy with updated tax bands in `Support models for perf reports/` |
 | The cash drivers and the outlook framing | `Support models for perf reports/Cash Drivers.pdf`, `HOPE Model.pdf` |

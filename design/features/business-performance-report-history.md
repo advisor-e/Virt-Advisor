@@ -64,7 +64,11 @@ of the new 3 way model."*
 
 ## 3. Where the raw material is
 
-- The drawing: [`../mockups/business-performance-report.html`](../mockups/business-performance-report.html).
+- The drawings: [`../mockups/business-performance-report.html`](../mockups/business-performance-report.html)
+  (the client's report) and [`../mockups/business-performance-report-intake.html`](../mockups/business-performance-report-intake.html)
+  (the advisor's six input steps, asked for by Mike the same day: *"the report you've given me is
+  what comes AFTER an advisor completes the data input fields - we need a mock up of what that
+  input page will look like"*).
 - The support folder Mike supplied on 2026-09-07: `Support models for perf reports/` —
   `Business_Performance_Report_Mockup.pptx`, `Cash Drivers.pdf`, `HOPE Model.pdf`, and
   `Dashboard Reports_ (1).xlsx` (identical to the repo's workbook except the Tax Guestimator's
