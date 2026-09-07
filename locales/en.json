@@ -1735,6 +1735,11 @@
       },
       "assume": {
         "monthsNeeded": "{months} did not come through — the export stopped before it. Enter it yourself, or drop last year's by-month report as well. | {months} did not come through — the export stopped before them. Enter them yourself, or drop last year's by-month report as well.",
+        "years": {
+          "heading": "How long a forecast?",
+          "option": "{n} year | {n} years",
+          "sub": "Each year opens where the last one closed. Choose 1 for a trading year; 3 is what a lender usually asks for."
+        },
         "quickFire": {
           "label": "Quick-fire forecast",
           "sub": "Grow last year's figures by a percentage instead of typing twelve months. Three years at once.",
@@ -2041,6 +2046,35 @@
         "resultForYearSub": "After tax, on {revenue} of sales",
         "grossMargin": "Gross margin",
         "grossMarginSub": "{amount} gross surplus",
+        "years": {
+          "tab": "Year {n}",
+          "closingCashSub": "At the end of year {n}",
+          "lowestPointSub": "{month} — year {year}, month {monthNo}, across all {months} months",
+          "resultLabel": "Result over {n} years",
+          "grossMarginSub": "Average over {n} years — {amount} gross surplus",
+          "summaryHeading": "The {n} years",
+          "columnTotal": "{n} years",
+          "sameAgain": "same again",
+          "sameAgainNote": "Nothing was typed for the later years, so they trade the same as the one before. They are not copies: depreciation falls away and loans pay down, so profit, cash and net assets all still move.",
+          "positionNote": "The last column totals the years where a total means something, and repeats the final year where it does not — cash and net assets are positions, not flows.",
+          "cashHeading": "Cash, all {months} months",
+          "cashLowest": "Lowest {amount} · {month}",
+          "cashHighest": "Highest {amount} · {month}",
+          "row": {
+            "revenue": "Revenue",
+            "grossSurplus": "Gross profit",
+            "overheads": "Overheads",
+            "interest": "Interest",
+            "depreciation": "Depreciation",
+            "operatingSurplus": "Operating surplus",
+            "otherIncome": "Other income",
+            "netBeforeTax": "Profit before tax",
+            "tax": "Tax",
+            "netAfterTax": "Profit after tax",
+            "closingCash": "Cash at the year end",
+            "netAssets": "Net assets"
+          }
+        },
         "stockOutTitle": "The stock runs out in {months}",
         "stockOutBody": "The forecast sells more than it buys, so stock goes below zero — which cannot happen in reality. Raise the purchases in those months, or lower the sales.",
         "tryHeading": "Try a different assumption",

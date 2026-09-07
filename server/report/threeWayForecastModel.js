@@ -78,6 +78,13 @@
 
 const MONTHS = 12
 
+/**
+ * The longest forecast this engine builds, and the length every caller gets when it does
+ * not ask for one. Three, because the workbook it was ported from holds three years of
+ * input columns (E/G, M/O, U/W) — a fourth would have nothing behind it.
+ */
+const MAX_FORECAST_YEARS = 3
+
 /* ------------------------------------------------------------------ arithmetic -- */
 
 /**
@@ -2065,20 +2072,39 @@ function carryForward (previousYear, nextYearInputs, resetShareholdersTo) {
  * capital plans — so this takes three complete input sets rather than a growth rate.
  * Only the OPENING position of years 2 and 3 is derived; everything else is theirs.
  *
- * @param {object} rawInputs `{ years: [year1, year2, year3] }`. A bare single-year
- *   object is accepted and used for year 1. **An omitted or partial later year inherits
- *   the year before it**, so leaving years 2 and 3 empty forecasts "the same again"
- *   rather than dropping the sample workbook's figures into a real client's later years.
+ * @param {object} rawInputs `{ years: [year1, year2, year3], yearCount }`. A bare
+ *   single-year object is accepted and used for year 1. **An omitted or partial later
+ *   year inherits the year before it**, so leaving years 2 and 3 empty forecasts "the
+ *   same again" rather than dropping the sample workbook's figures into a real client's
+ *   later years.
+ *
+ *   🔴 `yearCount` IS HOW LONG A FORECAST THE ADVISOR ASKED FOR — 1, 2 or 3, and 3 when
+ *   it is absent, which is every caller written before 2026-09-07. **Mike's ruling of
+ *   that date:** *"good point - you should be able to choose 1, 2 or 3 year forecast
+ *   please"*, answering a recommendation that every forecast run three years.
+ *
+ *   ⚠ IT IS OBEYED HERE RATHER THAN ON THE SCREEN, and that is the whole reason it is a
+ *   parameter. Computing three years and displaying fewer was the obvious shortcut and it
+ *   is wrong: `summary` below totals the years it is given and finds the lowest cash
+ *   across them, so a one-year forecast would report a three-year revenue and a low point
+ *   in a year the advisor never asked for. Both figures would look entirely reasonable on
+ *   screen, which is the class of error nobody catches in UAT.
+ *
  * @param {object} [options] `sourceFidelity: true` reproduces the workbook including
  *   its defects — including the shareholder reset at each year boundary. Test-only, and
  *   a separate parameter so no request body can reach it.
- * @returns {object} { years: [y1, y2, y3], summary } — `summary` totals the three years
- *   and carries the closing position of the third.
+ * @returns {object} { years, summary } — one entry per year asked for. `summary` totals
+ *   those years and carries the closing position of the last of them.
  */
 function computeThreeYearForecast (rawInputs, options) {
   const asWritten = !!(options && options.sourceFidelity === true)
   const supplied = (rawInputs && typeof rawInputs === 'object') ? rawInputs : {}
   const perYear = Array.isArray(supplied.years) ? supplied.years : [supplied, {}, {}]
+  // Clamped rather than trusted: this arrives in a request body. Anything that is not
+  // 1 or 2 — junk, a float, a hundred — means the three years every caller got before
+  // the choice existed.
+  const asked = Math.floor(Number(supplied.yearCount))
+  const yearCount = (asked === 1 || asked === 2) ? asked : MAX_FORECAST_YEARS
 
   // Year one's shareholder openings, resolved once: source-fidelity mode resets to them
   // in every later year, which is what the workbook does.
@@ -2086,7 +2112,7 @@ function computeThreeYearForecast (rawInputs, options) {
 
   const years = []
   let previousResolved = null
-  for (let y = 0; y < 3; y++) {
+  for (let y = 0; y < yearCount; y++) {
     const own = (perYear[y] && typeof perYear[y] === 'object') ? perYear[y] : {}
     // 🔴 AN OMITTED LATER YEAR REPEATS THE YEAR BEFORE IT — NEVER THE SAMPLE WORKBOOK.
     // Falling back to DEFAULTS here would drop the source workbook's own trading
@@ -2104,7 +2130,7 @@ function computeThreeYearForecast (rawInputs, options) {
     const series = path.split('.').reduce(function (n, k) { return n ? n[k] : undefined }, yr)
     return a + (Array.isArray(series) ? series.reduce(function (x, v) { return x + v }, 0) : 0)
   }, 0)
-  const lastYear = years[2]
+  const lastYear = years[years.length - 1]
   const last = MONTHS - 1
 
   return {
@@ -2116,11 +2142,13 @@ function computeThreeYearForecast (rawInputs, options) {
       netSurplusBeforeTax: sumOf('profitAndLoss.netSurplusBeforeTax'),
       taxProvision: sumOf('profitAndLoss.taxProvision'),
       netSurplusAfterTax: sumOf('profitAndLoss.netSurplusAfterTax'),
-      // The closing position after three years — what a financier reads first.
+      // The closing position at the end of the forecast — what a financier reads first.
       closingCash: lastYear.cashFlow.closingBalance[last],
       closingNetAssets: lastYear.balanceSheet.months.netAssets[last],
       balanceCheck: lastYear.balanceSheet.months.balanceCheck[last],
-      // The lowest the bank goes at any point across the whole 36 months, and when.
+      // The lowest the bank goes at any point in the forecast, and when. Across every
+      // month of every year asked for — never year 1 alone, which is what step 4 showed
+      // before 2026-09-07 and what a lender is not asking about.
       lowestCash: years.reduce(function (lo, yr, yi) {
         yr.cashFlow.closingBalance.forEach(function (v, m) {
           if (v < lo.value) { lo = { value: v, year: yi + 1, month: m + 1, date: yr.months.isoDates[m] } }
@@ -2177,5 +2205,6 @@ module.exports = {
   DEFAULTS,
   ASSET_KEYS,
   OVERHEAD_KEYS,
+  MAX_FORECAST_YEARS,
   excelRound
 }

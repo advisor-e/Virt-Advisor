@@ -330,6 +330,30 @@
   section(v-else)
     .tw-layout
       aside.tw-card
+        //- ── How long a forecast (item 4.71, slice 2) ─────────────────────────
+        //- Built from design/mockups/three-way-forecast-three-years.html, approved by
+        //- Mike 2026-09-07. His ruling, and it REPLACED the recommendation put to him
+        //- ("three years, always"): "good point - you should be able to choose 1, 2 or
+        //- 3 year forecast please".
+        //-
+        //- IT SITS ABOVE THE QUICK-FIRE TICK BECAUSE IT GOVERNS IT — the grid below
+        //- shows as many year columns as the forecast has years. It is on step 3, not
+        //- step 4, because how long a forecast runs is an assumption ABOUT the forecast
+        //- rather than a way of looking at one; among step 4's tabs it would read as a
+        //- view toggle while silently deciding the printed pack, the totals and the row
+        //- saved for a client (his ruling, question 2).
+        .tw-group.qf-years
+          .tw-glabel
+            span.tw-dot
+            h2.tw-h2 {{ $t('report.threeWayForecast.assume.years.heading') }}
+          .seg-small
+            button(
+              v-for="n in maxForecastYears" :key="'yc' + n"
+              :class="{ on: form.yearCount === n }"
+              type="button"
+              @click="setYearCount(n)") {{ $tc('report.threeWayForecast.assume.years.option', n, { n: n }) }}
+          p.tw-note {{ $t('report.threeWayForecast.assume.years.sub') }}
+
         //- ── The quick-fire option (item 4.71) ────────────────────────────────
         //- Built from design/mockups/three-way-forecast-quick-fire.html, approved by
         //- Mike 2026-09-07 with all five questions ruled. The tick-to-open shape is the
@@ -355,31 +379,34 @@
                 tr
                   th.rowhead
                   th {{ $t('report.threeWayForecast.assume.quickFire.lastYear') }}
-                  th(v-for="n in 3" :key="'h' + n") {{ $t('report.threeWayForecast.assume.quickFire.yr', { n: n }) }}
+                  th(v-for="n in form.yearCount" :key="'h' + n") {{ $t('report.threeWayForecast.assume.quickFire.yr', { n: n }) }}
               tbody
                 tr
                   td.rowhead
                     | {{ $t('report.threeWayForecast.assume.quickFire.salesGrowth') }}
                     small {{ $t('report.threeWayForecast.assume.quickFire.onYearBefore') }}
                   td.base {{ money(salesTotal) }}
-                  td.yr(v-for="(y, i) in form.quickFire.years" :key="'g' + i")
+                  td.yr(v-for="(y, i) in quickFireVisibleYears" :key="'g' + i")
                     b-input(v-model.number="y.salesGrowth" type="number" step="any" size="is-small")
                 tr
                   td.rowhead
                     | {{ $t('report.threeWayForecast.assume.quickFire.grossMargin') }}
                     small {{ $t('report.threeWayForecast.assume.quickFire.marginItself') }}
                   td.base {{ pct(quickFireBaseMargin) }}
-                  td.yr(v-for="(y, i) in form.quickFire.years" :key="'m' + i")
+                  td.yr(v-for="(y, i) in quickFireVisibleYears" :key="'m' + i")
                     b-input(v-model.number="y.grossMargin" type="number" step="any" size="is-small")
                 tr
                   td.rowhead
-                  td.qfconv(colspan="4") {{ quickFireMarkupLine }}
+                  //- The base column plus one per year on screen. Hardcoded at 4 until
+                  //- 2026-09-07, when the year count made that a stale two-thirds-width
+                  //- rule on a one-year forecast.
+                  td.qfconv(:colspan="form.yearCount + 1") {{ quickFireMarkupLine }}
                 tr
                   td.rowhead
                     | {{ $t('report.threeWayForecast.assume.quickFire.overheadsUp') }}
                     small {{ $t('report.threeWayForecast.assume.quickFire.onYearBefore') }}
                   td.base {{ money(quickFireBaseOverheads) }}
-                  td.yr(v-for="(y, i) in form.quickFire.years" :key="'o' + i")
+                  td.yr(v-for="(y, i) in quickFireVisibleYears" :key="'o' + i")
                     b-input(v-model.number="y.overheadsIncrease" type="number" step="any" size="is-small")
           p.tw-note {{ $t('report.threeWayForecast.assume.quickFire.blankNote') }}
           p.tw-note {{ quickFireShapeNote }}
@@ -1321,6 +1348,17 @@ const ASSET_SPECS = [
   { key: 'other', rate: 35 }
 ]
 
+/**
+ * The longest forecast on offer — item 4.71, slice 2, Mike's ruling of 2026-09-07.
+ *
+ * Declared here rather than imported: `MAX_FORECAST_YEARS` lives in
+ * `server/report/threeWayForecastModel.js`, and importing it would pull the whole engine
+ * into the client bundle. It is the same arrangement as `OVERHEAD_KEYS` and
+ * `OPENING_KEYS` above, and like them it is **pinned to the engine's own value by a
+ * test** rather than trusted to stay in step by hand.
+ */
+const MAX_FORECAST_YEARS = 3
+
 /** The 23 overhead lines the model takes. */
 const OVERHEAD_KEYS = [
   'accLevies', 'accountancy', 'advertising', 'bankCharges', 'computerExpenses',
@@ -1438,6 +1476,26 @@ export default {
   computed: {
     openingKeys () { return OPENING_KEYS },
     overheadKeys () { return OVERHEAD_KEYS },
+
+    /* ── How long a forecast — item 4.71, slice 2 ──────────────────────────────────── */
+
+    /** The longest forecast on offer, for the button row. @returns {number} */
+    maxForecastYears () { return MAX_FORECAST_YEARS },
+
+    /**
+     * The percentage rows the grid shows — as many as the forecast has years.
+     *
+     * 🔴 IT SLICES, IT NEVER TRUNCATES. `form.quickFire.years` keeps all three rows
+     * whatever is chosen, so an advisor who types three years, drops to one and goes back
+     * to three finds their figures where they left them. Cutting the array on the way down
+     * would silently discard typing, which is the sort of loss nobody reports as a bug —
+     * they just retype it and trust the screen a little less.
+     *
+     * @returns {Array<object>} the first `yearCount` rows of the grid.
+     */
+    quickFireVisibleYears () {
+      return (this.form.quickFire.years || []).slice(0, this.form.yearCount)
+    },
 
     /* ── The quick-fire option — item 4.71 ─────────────────────────────────────────── */
 
@@ -2447,6 +2505,12 @@ export default {
         salesSource: 'entered',
         /** How many of the twelve months came from a file (Mike's ruling, 2026-09-07). */
         salesSeededMonths: 0,
+        // How long a forecast the advisor asked for — 1, 2 or 3 (item 4.71 slice 2, Mike's
+        // ruling of 2026-09-07). It starts at ONE because that is exactly what step 4 has
+        // always shown: nobody who never touches this control gets a screen or a printed
+        // pack that changed under them. Three is one click away, and it is what a lender
+        // usually asks for.
+        yearCount: 1,
         // The quick-fire option (item 4.71, drawing approved by Mike 2026-09-07). It starts
         // OFF and its three years start blank, which the module reads as "the same again" —
         // so a form that has never been touched forecasts exactly what it forecast before.
@@ -3266,6 +3330,25 @@ export default {
     },
 
     /**
+     * How long a forecast the advisor wants — 1, 2 or 3 (item 4.71 slice 2, Mike's ruling
+     * of 2026-09-07).
+     *
+     * It only ever writes the count. The quick-fire grid keeps all three rows of
+     * percentages whatever is chosen (see `quickFireVisibleYears`), so dropping to one
+     * year and going back to three finds the typing where it was left.
+     *
+     * @param {number} n 1, 2 or 3. Anything else is ignored rather than clamped — the
+     *   only caller is a button row built from `maxForecastYears`, so an out-of-range
+     *   value means a bug upstream and silently rounding it would hide that.
+     */
+    setYearCount (n) {
+      const asked = Number(n)
+      if (asked >= 1 && asked <= MAX_FORECAST_YEARS && asked === Math.floor(asked)) {
+        this.form.yearCount = asked
+      }
+    },
+
+    /**
      * Fold the row list into the engine's 6 x 12 grid. Two rows in the same category and
      * month simply add together.
      *
@@ -3387,8 +3470,50 @@ export default {
           opening: Number(s.opening.value) || 0,
           advances: zeroes(),
           drawings: zeroes()
-        }))
+        })),
+        // ── The two fields slice 2 added (item 4.71, Mike 2026-09-07) ────────────────
+        // They are NOT figures the engine takes for a year; they say how many years to
+        // build and what the later ones trade on. `payload()` in ThreeWayForecastReport
+        // lifts them off before sending year 1, so the request body is still exactly the
+        // shape `resolveInputs` expects.
+        yearCount: this.form.yearCount,
+        laterYears: this.laterYearInputs()
       }
+    },
+
+    /**
+     * Years 2 and 3, in the engine's per-year shape — or an empty list on a one-year
+     * forecast.
+     *
+     * 🔴 EACH LATER YEAR CARRIES ONLY THE THREE FIELDS QUICK-FIRE SETS, and that is
+     * deliberate rather than lazy. `computeThreeYearForecast` reads an omitted field as
+     * "the same as the year before", so sending only what actually differs is what makes
+     * a later year mean *this trading changed, nothing else did*. Spelling out all sixty
+     * figures would freeze year 2's tax rate, debtor profile and depreciation rates at
+     * year 1's values — indistinguishable on screen from inheriting them, and wrong the
+     * moment either is meant to move.
+     *
+     * WITH QUICK-FIRE OFF THE LIST IS EMPTY OBJECTS, which is "the same again" — the
+     * engine's own rule, and the honest answer when the advisor has said nothing about
+     * years 2 and 3. It is not a copy: depreciation falls and loans amortise, so a flat
+     * three-year forecast still moves.
+     *
+     * @returns {Array<object>} `yearCount - 1` entries, oldest first.
+     */
+    laterYearInputs () {
+      const later = []
+      const grown = this.quickFireOpen ? this.quickFireYearsOut : []
+      for (let y = 1; y < this.form.yearCount; y++) {
+        const g = grown[y]
+        later.push(g
+          ? {
+              sales: g.sales.map(v => Number(v) || 0),
+              markup: Number(g.markup) / 100,
+              overheads: Object.assign({}, g.overheads)
+            }
+          : {})
+      }
+      return later
     },
 
     /**
@@ -3561,6 +3686,20 @@ export default {
 
 /* The quick-fire option (item 4.71), built from the approved drawing. Every value reads a
    --rs-* token from the shared ReportShell; nothing here declares a palette of its own. */
+/* How long a forecast (slice 2). `.seg-small` is copied from the segmented control in
+   ThreeWayForecastReport.vue — the Summary / Every line switch Mike approved on
+   2026-09-05 — so step 3 and step 4 offer the same shape rather than a second one. */
+.qf-years { display: flex; flex-direction: column; align-items: flex-start; }
+.seg-small {
+  display: inline-flex; border: 1px solid var(--rs-line); border-radius: 9px;
+  overflow: hidden;
+}
+.seg-small button {
+  font: inherit; font-size: 12px; font-weight: 600; border: 0; background: var(--rs-panel);
+  color: var(--rs-muted); padding: 6px 14px; cursor: pointer;
+}
+.seg-small button.on { background: var(--rs-accent); color: var(--rs-accent-contrast); }
+
 .qf-tick { display: flex; flex-direction: column; gap: 4px; }
 .qf-tl { font-size: 14px; font-weight: 600; }
 .qfwrap { overflow-x: auto; }
