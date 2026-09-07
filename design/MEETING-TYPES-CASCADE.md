@@ -167,6 +167,18 @@ Four slices, each shippable and each useful alone.
    storage in it, and D1/D2 make one more thing mandatory with it: **the pre-set must name
    where each point came from**, because after slice 4 there are five possible sources.
 
+   **It is drawn in two halves** — [`mockups/meeting-preset-advisor-level.html`](mockups/meeting-preset-advisor-level.html)
+   covers the advisor's own level only. The per-client half is deliberately not drawn yet: it
+   hangs off the client picker, which is empty without MySQL, and a screen nobody can verify
+   is how item 4.62's saved reports became "wired but never proven".
+
+   🔴 **AND IT GAINED A THIRD PART ON 2026-09-08.** Ruling on the drawing's question 1 — *may
+   an advisor switch off a point their firm set?* — Mike answered **yes**, and then refused the
+   cost that came with it: *"yes but fix the issue - build it so the manager can see"*. So a
+   **manager's view of what their advisors have set aside** ships in this slice, not later. The
+   general lesson, worth more than the instance: **a cost recorded against a recommendation is
+   not a cost accepted by ruling on it.**
+
 ---
 
 ## 8. What this does not solve

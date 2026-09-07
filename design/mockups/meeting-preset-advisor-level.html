@@ -219,6 +219,20 @@ table.words td.w{font-weight:600;white-space:nowrap}
 .q .qn{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
   color:var(--muted);margin-bottom:5px}
 .q.big{border-left-color:var(--rec)}
+.q.ruled{border-left-color:var(--good)}
+
+/* ── the manager's view of what advisors have set aside (Stage C) ─────── */
+.aside-row{display:flex;gap:12px;align-items:flex-start;background:var(--panel-2);
+  border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 14px;font-size:14px}
+.aside-row .cnt{flex:0 0 auto;min-width:42px;text-align:center;font-variant-numeric:tabular-nums;
+  font-size:21px;font-weight:600;color:var(--violet);line-height:1.1}
+.aside-row .cnt .of{display:block;font-size:10px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted);margin-top:2px}
+.aside-row.none .cnt{color:var(--muted)}
+.aside-row .who{font-size:12.5px;color:var(--muted);margin-top:5px}
+.aside-row .who b{color:var(--ink-2);font-weight:600}
+.aside-row.hot{background:var(--warn-soft);border-color:var(--warn-line)}
+.aside-row.hot .cnt{color:#8a6508}
 
 footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);
   font-size:12.5px;color:var(--muted)}
@@ -263,8 +277,9 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
   <div class="leg">
     <h3><span class="pill prop">✎ proposed</span> drafted here</h3>
     Everything else. The source line under each point, the advisor's own verbs, the section
-    headings, and the empty states. <b>Five questions at the foot of this page</b>, each with
-    one recommendation and the argument against it.
+    headings, the empty states, and all of Stage C. <b>Six questions at the foot of this
+    page</b>, each with one recommendation and the argument against it — <b>question 1 is
+    ruled</b>, and its answer added Stage C.
   </div>
 </div>
 
@@ -480,6 +495,69 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 
 </div>
 
+<!-- ══ STAGE C — what the manager sees ═══════════════════════════════════ -->
+<div class="stage s-c">
+  <div class="num">C</div>
+  <div>
+    <h2>What the manager sees</h2>
+    <div class="sub">Ordered by Mike 2026-09-08 — <i>"build it so the manager can see"</i></div>
+  </div>
+</div>
+
+<div class="s-c rail">
+  <div class="screen">
+    <div class="cap">C1 · On the manager's own Meeting Review tab · <span class="pill prop">✎ proposed</span></div>
+    <div class="frame">
+      <div class="chrome"><span>Manage AI Coach › Meeting Review</span><span class="r">firm manager</span></div>
+      <div class="pane">
+        <h3>Set aside by advisors</h3>
+        <p class="lede">Your advisors may take a point off their own list. This is where that
+          shows. Nothing here changes what you have set — your list is unchanged.</p>
+
+        <div class="pts">
+          <div class="aside-row hot">
+            <div class="cnt">4<span class="of">of 12</span></div>
+            <div class="body">A metaphor or analogy was used to explain a financial idea.
+              <div class="who">Set aside by <b>Ruth Kelleher</b>, <b>Tom Boyd</b>,
+                <b>Aisling Ward</b> and <b>Peter Nolan</b></div></div>
+          </div>
+          <div class="aside-row">
+            <div class="cnt">1<span class="of">of 12</span></div>
+            <div class="body">Named actions were agreed, with an owner and a date, before the time ran out.
+              <div class="who">Set aside by <b>Tom Boyd</b></div></div>
+          </div>
+          <div class="aside-row none">
+            <div class="cnt">0<span class="of">of 12</span></div>
+            <div class="body">The meeting was framed — what we would cover and why, in the first two minutes.
+              <div class="who">On every advisor's list</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <b>This is the half Mike ordered, and it is what makes question 1's "yes" safe.</b>
+      <ul>
+        <li><b>Advisors are named, not counted.</b> A count says a problem exists; a name says
+          who to talk to, which is the only reason a manager opens this. Their manager already
+          sees them named on the Team tab, so this discloses nothing new about them.
+          <b>That is question 2.</b></li>
+        <li><b>Every point is listed, including the ones nobody has set aside</b> — shown as
+          <i>0 of 12 · On every advisor's list</i>. A screen that lists only the exceptions
+          cannot be read as reassurance, because an empty screen and a broken screen look
+          identical.</li>
+        <li><b>It is a mirror, not a control.</b> There is no button to force a point back onto
+          an advisor's list. P14 runs downward only, and a manager overriding an advisor's own
+          level would be the first thing in this app to reach across it. If a firm wants a point
+          back, that is a conversation, and now they can have it.</li>
+        <li><b>No threshold, no anonymity floor.</b> The meeting <i>aggregate</i> has one
+          (5 advisors, 20 meetings) because it reports on client meetings. This reports on
+          <b>configuration</b> — who set what — so P13 is not engaged and a floor would only
+          hide the single advisor a manager most needs to talk to.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
 <!-- ══ THE WORDING ════════════════════════════════════════════════════════ -->
 <div class="stage s-b">
   <div class="num">✎</div>
@@ -514,6 +592,17 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
       <td>Says the two things an advisor would otherwise have to guess, at the moment they are deciding.</td></tr>
   <tr><td class="w">Save</td><td>Add this point</td>
       <td>Unchanged from the manager screen — already approved 2026-09-01, and there is no reason for a second verb.</td></tr>
+  <tr><th colspan="3" style="background:var(--violet-soft);color:var(--violet)">Stage C — the manager's view, ordered 2026-09-08</th></tr>
+  <tr><td class="w">Section heading</td><td>Set aside by advisors</td>
+      <td><i>Switched off</i> is the manager's own verb for their own list and would collide. <i>Set aside</i> says the point is still the firm's, and one advisor has stepped around it — which is exactly what happened.</td></tr>
+  <tr><td class="w">Section lede</td><td>Your advisors may take a point off their own list. This is where that shows. Nothing here changes what you have set — your list is unchanged.</td>
+      <td>Answers the manager's first two questions in the order they ask them: what am I looking at, and has my own list been altered?</td></tr>
+  <tr><td class="w">Count</td><td>4 of 12</td>
+      <td>Denominator always shown. <i>4 advisors</i> alone means nothing in a firm of five or fifty.</td></tr>
+  <tr><td class="w">Names line</td><td>Set aside by Ruth Kelleher, Tom Boyd…</td>
+      <td>See question 2 — whether names appear at all is not settled.</td></tr>
+  <tr><td class="w">Nobody has</td><td>On every advisor's list</td>
+      <td>Stated positively. <i>0 set aside</i> is the same fact told as an absence, and a screen of zeroes reads as a screen that failed to load.</td></tr>
 </table>
 </div>
 
@@ -521,13 +610,13 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 <div class="stage s-c">
   <div class="num">?</div>
   <div>
-    <h2>Five questions</h2>
-    <div class="sub">One recommendation each, and the argument against it</div>
+    <h2>Six questions</h2>
+    <div class="sub">One recommendation each, and the argument against it · one ruled</div>
   </div>
 </div>
 
-<div class="q big">
-  <div class="qn">Question 1 — the only one that is not about wording</div>
+<div class="q ruled">
+  <div class="qn">Question 1 — ✅ RULED BY MIKE, 2026-09-08</div>
   <h3>May an advisor switch off a point their <i>firm</i> set?</h3>
   <p>P14 permits it: an advisor's own level is below the firm's, and switching a point off
      there changes that advisor's list and nothing else. But permission is not the same as
@@ -535,21 +624,35 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
      the ones they find awkward, the firm's standard becomes a suggestion — and the manager's
      aggregate, which counts how the firm is doing against those points, starts measuring a
      list that differs per advisor.</p>
-  <div class="rec"><b>Recommended: yes, any inherited point.</b> It is what P14 already says,
-     it is how every other level in this app works, and the alternative — advisors may add but
-     not remove — makes the advisor's level the only one in the cascade that behaves
-     differently, which nobody would be able to predict. The manager's aggregate is protected
-     by naming the source instead: a point an advisor switched off is counted as switched off,
-     not as failed.</div>
-  <div class="against"><b>The argument against, recorded rather than argued away.</b> A firm
-     manager cannot see who has switched what off — there is no screen for that, and this slice
-     does not build one. So the first time a firm learns its standard has been quietly
-     narrowed could be a compliance conversation. <b>If that matters more than consistency, the
-     answer is no</b> and advisors may add only.</div>
+  <div class="rec"><b>✅ RULED — YES, any inherited point</b>, as recommended. It is what P14
+     already says, it is how every other level in this app works, and the alternative — advisors
+     may add but not remove — makes the advisor's level the only one in the cascade that behaves
+     differently, which nobody would be able to predict.</div>
+  <div class="rec"><b>🔴 AND THE ARGUMENT AGAINST WAS NOT ACCEPTED AS A COST — IT WAS ORDERED
+     FIXED.</b> His words: <i>"yes but fix the issue - build it so the manager can see"</i>.
+     The recorded cost was that no firm manager can see what advisors have switched off. That is
+     no longer a cost carried by this slice; it is <b>Stage C below, and it ships in the same
+     piece of work</b>. What he refused was not the permission but a permission whose
+     consequence nobody could see.</div>
+</div>
+
+<div class="q big">
+  <div class="qn">Question 2 — the manager's view Mike just ordered</div>
+  <h3>Does the manager see <i>who</i> set a point aside, or only <i>how many</i>?</h3>
+  <p>Stage C can name the four advisors, or it can say <i>4 of 12</i> and stop.</p>
+  <div class="rec"><b>Recommended: name them.</b> A count tells a manager a problem exists and
+     not who to talk to — which is the only reason they opened the screen. Their manager
+     already sees them named on the Team tab, so nothing is disclosed here that was private
+     before, and this is configuration rather than anything from a client meeting, so P13 and
+     the aggregate's anonymity floor are not engaged.</div>
+  <div class="against"><b>Against:</b> a named list of who has stepped outside the firm's
+     standard is a small performance record, and it will be read as one. An advisor who set a
+     point aside for a good reason — it does not fit the clients they handle — has no way to
+     say so on this screen, and appears beside three who simply found it awkward.</div>
 </div>
 
 <div class="q">
-  <div class="qn">Question 2</div>
+  <div class="qn">Question 3</div>
   <h3>Do the two middle tiers get their own source label?</h3>
   <p>A point can come from the mentor, a global group, a country group, or the firm. The
      drawing collapses the middle two into <i>From your firm</i>.</p>
@@ -563,7 +666,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 </div>
 
 <div class="q">
-  <div class="qn">Question 3</div>
+  <div class="qn">Question 4</div>
   <h3>Is the source shown on every point, or only where it is not the firm's?</h3>
   <div class="rec"><b>Recommended: every point, always.</b> A label that appears only sometimes
      teaches an advisor to read its <i>absence</i> as meaning something, and they will guess
@@ -574,7 +677,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 </div>
 
 <div class="q">
-  <div class="qn">Question 4</div>
+  <div class="qn">Question 5</div>
   <h3>May an advisor set the "words that hint it happened" on their own point?</h3>
   <p>Managers can. Those words tell the model what to listen for in the transcript.</p>
   <div class="rec"><b>Recommended: no.</b> An advisor tuning the phrases the AI looks for in
@@ -587,7 +690,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 </div>
 
 <div class="q">
-  <div class="qn">Question 5</div>
+  <div class="qn">Question 6</div>
   <h3>Where does this live — the pre-set screen itself, or a settings page of its own?</h3>
   <div class="rec"><b>Recommended: the pre-set screen itself</b>, as drawn. It is where an
      advisor already reads the list, so the moment they think <i>"that one is not how I work"</i>
@@ -605,8 +708,9 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
      hangs off the client picker, and that picker is empty without MySQL, which this laptop
      does not have. Drawing a screen nobody can then verify is how a feature ends up built and
      unproven. It gets its own drawing when it can be run.</p>
-  <p><b>What this drawing does not solve.</b> A firm manager cannot see what their advisors
-     have switched off (question 1's recorded cost). The reference-material join — the firm's
+  <p><b>What this drawing does not solve.</b> An advisor has <b>no way to say why</b> they set
+     a point aside, so Stage C shows a manager the fact and never the reason — question 2's
+     recorded cost, and the obvious next thing if that turns out to sting. The reference-material join — the firm's
      script one tap away from a point — remains the largest unbuilt piece of Meeting Review and
      is untouched by this. And nothing here writes any advisory content: the points an advisor
      adds are theirs, and the eleven meeting types still need their observation points written
