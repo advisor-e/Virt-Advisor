@@ -12,25 +12,27 @@
 ## 2026-09-08 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
 **The working copy is the SSD**, `C:\Users\Mike Barnes\Projects\Virt Advisor`. VS Code still opened
-on the retired `E:` folder today; every command ran against the SSD. Suite **8,404 green** (429
-suites). Eight commits, all pushed; started 18 ahead / 25 behind master, ended 26 ahead / 0 behind.
+on the retired `E:` folder today; every command ran against the SSD. Suite **8,433 green** (431
+suites). Ten commits, all pushed; started 18 ahead / 25 behind master, ended 28 ahead / 0 behind.
 
-**4.70 — ACTIVE ON THIS DESKTOP, now waiting on Mike.** Three rulings in the morning (score to eight
-through two threshold rows; bands 75/50; the model-reuse optional pages OFF the dropdown), then his four
-threshold figures. Built: the two rows on the mentor's trend-thresholds page, and the three accounts-only
-optional pages — *Why profit changed*, *Where the cash went*, *What moves profit* — each on its own model
-(`profitBridgeModel.js`, `cashBridgeModel.js`, `profitSensitivityModel.js`) with the arithmetic worked by
-hand. Rendered from the test figures and eyeballed; **not yet opened in the production build with real
-exports**, and the two new threshold rows on the hub page are not eyeballed at all.
+**4.70 — ACTIVE ON THIS DESKTOP; stages 1–3 built.** Rulings in the morning: the score reaches eight
+through two threshold rows (built, his four figures in); bands 75/50; the model-reuse optional pages OFF
+the dropdown, replaced by four owner-question pages. Built: the three accounts-only pages on their own
+models (`profitBridgeModel`, `cashBridgeModel`, `profitSensitivityModel`); then **stage 3, the Stats NZ
+benchmarker**, from the two 2025 files Mike downloaded to `C:\Some VS Code\Perf Report` — the reader,
+the shipped release `data/statsnz-benchmarker-2025.json`, the store, the routes, the finder and size
+bands on step 1, the comparison table on page 7, on Stats NZ's own ratio definitions.
 
-**Stage 3 (the Stats NZ benchmarker) cannot start.** DataInfo+ publishes metadata only; the ratios live in
-the interactive tool. The export is Mike's to obtain — on the list under 4.70, with the page-cap question.
+**Waits on Mike:** the mentor's upload tab is DRAWN, not built —
+`design/mockups/benchmarker-hub-tab.html`; the routes behind it are live. And the page-cap ruling.
+**Not yet eyeballed:** any of today's screens in the production build with real exports; the two new
+threshold rows on the hub page. Next after the drawing: the tab; then stage 4, the inventory reader.
 
-**Also today:** master merged in (the laptop's 4.71 and 4.58); the Handbook regrouped (Staircase, Logic Lab
-and its report under the AI engine); GitHub Spec Kit 1.0.4 committed with a constitution that points at
-CLAUDE.md, never restating it.
+**Also today:** master merged in; the Handbook regrouped; GitHub Spec Kit 1.0.4 committed with a
+constitution that points at CLAUDE.md.
 
 **LAPTOP:** 4.58 and 4.69 untouched. Shared files changed, all additive: `server/report/trendModel.js`
-(`SCORE_MEASURES`, `bandLevel` gains a direction, `computeTrend` takes an optional `measures` list — the
-forecast's read is unchanged at six), `server/utils/forecastTrendThresholds.js`, `data/forecast-trend-thresholds.json`
-(two new rows), `components/base/HBarChart.vue` (a `maxWidth` prop, default unchanged), `locales/en.json`.
+(`SCORE_MEASURES`, `bandLevel` direction, `computeTrend` optional `measures` — the forecast's read
+stays six), `server/utils/forecastTrendThresholds.js`, `data/forecast-trend-thresholds.json` (two rows),
+`components/base/HBarChart.vue` (`maxWidth` prop), `server/routes/report.js` (the pages route only),
+`server/restify-server.js` (four mounts), `locales/en.json`, `design/CONTENT-ROUTING.md` (regenerated).
