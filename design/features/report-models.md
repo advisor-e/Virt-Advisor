@@ -744,11 +744,79 @@ had before either was added; nothing is withheld and no figure changes.
 The most recent twelve complete months arrive tagged `seeded` — a starting point, never a
 forecast, and its own third badge state on `ProvenanceBadge`. The second file is not a
 convenience: a current-year export almost always stops part-way through a month, and
-`assembleMonthlySeries` strips incomplete trailing months, so **one file can yield eleven
-usable months and no seed at all**, leaving the advisor to type twelve by hand. With 24
+`assembleMonthlySeries` strips incomplete trailing months, so one file often yields eleven
+whole months rather than twelve. **Those eleven are seeded and the twelfth is left empty**
+— Mike's ruling of 2026-09-07, reversing a rule that refused the lot. The grid tags only
+the months that came from the file; the rest are amber, and the missing ones are **named**
+beneath it rather than counted. ⚠ **The part month is still never seeded**, and that half
+of the old rule is deliberate: a month eight days long wearing the same badge as the real
+ones is a *wrong* figure, where an empty month is a *missing* one. With 24
 months in hand the twelve are always there. Where the two files overlap, the **older**
 file's figures win — a closed financial year has been reconciled and a still-open one is
 restating itself — and the advisor is told on screen when it happens.
+
+**Step 3 takes a quick-fire forecast** (2026-09-07, item 4.71, its own approved drawing
+[`../mockups/three-way-forecast-quick-fire.html`](../mockups/three-way-forecast-quick-fire.html)).
+A tick at the top of the step — the tick-to-open shape approved for the economic analysis
+five days earlier, so it is one pattern and not a second — opens three rows across three
+years: sales growth, gross margin, overheads increase. Each compounds on the year before,
+year 1 growing on the figures already on the form, which is what makes *"adds or subtracts
+from previous known data"* true after an advisor has corrected a seeded figure. It sets
+**three fields only** — the sales months, the mark-up and the overheads — because a growth
+percentage says nothing about when a debtor pays or what tax rate applies. **It never writes
+to the advisor's own figures**: it produces its own year and `buildInputs()` substitutes it,
+so unticking restores everything with nothing to undo. Growth **keeps last year's monthly
+shape**, month against the same month, because a seasonal business flattened into twelve
+equal months produces a cash line that will not happen; where the months are level the
+screen says so. The row reads *Gross margin* with the mark-up it converts to beneath it —
+the engine works in mark-up on cost and the advisor thinks in margin. With no file dropped
+the tick appears **greyed, saying what it needs**, because hiding it makes an advisor think
+the app cannot do this. The grid shows **one column per year of the forecast**, and it never
+truncates: dropping to one year and back to three finds the typing where it was left.
+
+**The advisor chooses how long a forecast runs — 1, 2 or 3 years** (2026-09-07, item 4.71
+slice 2, its own approved drawing
+[`../mockups/three-way-forecast-three-years.html`](../mockups/three-way-forecast-three-years.html),
+all six questions ruled the same day). Mike's ruling, and it **replaced** the recommendation
+put to him (*"three years, always"*): *"good point - you should be able to choose 1, 2 or 3
+year forecast please"*. The control sits on **step 3, above the quick-fire tick**, because how
+long a forecast runs is an assumption about the forecast rather than a way of looking at one —
+among step 4's tabs it would read as a view toggle while silently deciding the printed pack,
+the totals and the row saved for a client.
+
+🔴 **THE COUNT REACHES THE ENGINE, and that is the whole of the design.** `yearCount` is a
+model input, clamped there rather than trusted from the body; anything but 1 or 2 means the
+three years every caller got before the choice existed. Computing three years and displaying
+fewer was rejected outright: `summary` totals the years it is given, so a one-year forecast
+would have reported a three-year revenue and a low point in a year nobody asked about — both
+entirely plausible on screen, which is the class of error UAT cannot catch.
+
+**Step 4 shows every year asked for.** The four headline figures answer over **the whole
+forecast**, keeping their labels — the one that earns the change is *Lowest point*, now the
+worst month of all thirty-six rather than of year 1, which `summary.lowestCash` has always
+computed and no screen had ever shown. Above the statements sit a **year-by-year summary**
+(revenue down to net assets, with a total column that totals *flows* and repeats the final
+year for *positions* — adding three closing bank balances is a number no accountant would
+recognise) and a **cash line across every month**. The three statement tabs, their twelve
+month columns and the Summary / Every line switch are untouched; a **year row** above them
+re-points the screen with no second request. A year the advisor described nothing for is sent
+**empty**, which the engine reads as *the same again*, and the column says so — those years
+are not copies: depreciation falls away and loans pay down, so profit, cash and net assets all
+still move. **The whole screen calls the three-years route, even for one year** — one path, so
+a one-year and a three-year forecast cannot be answered by two pieces of arithmetic.
+
+**The levers reach every year, each according to what it is.** Sales and overheads are shifts,
+so they scale all of them; mark-up and the debtor profile are absolute figures and are written
+to **year 1 alone** — with quick-fire off the later years inherit year 1 anyway, and with it on
+each keeps the margin set for it. Writing year 1's mark-up into every year would flatten years
+2 and 3 to year 1's margin, silently undoing the per-year percentages step 3 exists to collect.
+
+**The printed pack carries every year chosen** — four pages for one, seven for two, eleven for
+three — extending Mike's own 2026-09-06 reasoning: a lender given one statement of three cannot
+check the claim that they tie, and a lender given one year of three cannot check the year being
+lent against. **A new forecast opens at ONE year** — Mike, 2026-09-07: *"one year default is
+fine"*. It is exactly what step 4 has always shown, so nobody who never touches the control gets
+a screen or a pack that changed under them. Three is one click away.
 
 **Step 3 takes planned capital purchases and sales** (2026-09-03, its own approved drawing
 [`../mockups/three-way-forecast-capital.html`](../mockups/three-way-forecast-capital.html)).
@@ -988,7 +1056,13 @@ merely bad, and an advisor scanning twelve columns reads past a minus sign. An o
 balance sheet that does not balance **warns rather than blocking** — it is the advisor's
 own figures that are out, and refusing to compute would hide the forecast that tells them
 so — **and the warning is a full-width band, not only the sidebar tile, so it survives into
-the print.** A gap in a sidebar is easy to hand a client without noticing; the band cannot
+the print.** A third band was added **2026-09-07 and it is AMBER, not red**: a forecast with
+no sales in it at all now says so, names what the sliders cannot do, and says where to fix
+it. The other two name figures that are *wrong*; this one names figures that are *correct*
+and answer a question nobody meant to ask. Mike met it as a **$202,781 loss "on $0 of
+sales"** that balanced perfectly, with four live sliders that could not move a figure —
+his by-month export had stopped part-way through a month and the whole seed was refused.
+A gap in a sidebar is easy to hand a client without noticing; the band cannot
 be. Both bands rest on `balanceCheck !== 0`, which is safe because the check cancels to an
 **exact** zero even on fractional figures — pinned by a test, because a speck of floating
 point would put a red band announcing a gap "of 0" in front of every client.

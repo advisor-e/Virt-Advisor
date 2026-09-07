@@ -330,6 +330,88 @@
   section(v-else)
     .tw-layout
       aside.tw-card
+        //- ── How long a forecast (item 4.71, slice 2) ─────────────────────────
+        //- Built from design/mockups/three-way-forecast-three-years.html, approved by
+        //- Mike 2026-09-07. His ruling, and it REPLACED the recommendation put to him
+        //- ("three years, always"): "good point - you should be able to choose 1, 2 or
+        //- 3 year forecast please".
+        //-
+        //- IT SITS ABOVE THE QUICK-FIRE TICK BECAUSE IT GOVERNS IT — the grid below
+        //- shows as many year columns as the forecast has years. It is on step 3, not
+        //- step 4, because how long a forecast runs is an assumption ABOUT the forecast
+        //- rather than a way of looking at one; among step 4's tabs it would read as a
+        //- view toggle while silently deciding the printed pack, the totals and the row
+        //- saved for a client (his ruling, question 2).
+        .tw-group.qf-years
+          .tw-glabel
+            span.tw-dot
+            h2.tw-h2 {{ $t('report.threeWayForecast.assume.years.heading') }}
+          .seg-small
+            button(
+              v-for="n in maxForecastYears" :key="'yc' + n"
+              :class="{ on: form.yearCount === n }"
+              type="button"
+              @click="setYearCount(n)") {{ $tc('report.threeWayForecast.assume.years.option', n, { n: n }) }}
+          p.tw-note {{ $t('report.threeWayForecast.assume.years.sub') }}
+
+        //- ── The quick-fire option (item 4.71) ────────────────────────────────
+        //- Built from design/mockups/three-way-forecast-quick-fire.html, approved by
+        //- Mike 2026-09-07 with all five questions ruled. The tick-to-open shape is the
+        //- one he approved for the economic analysis on 2026-09-06 — one pattern, not a
+        //- second. With no file the tick STAYS and is greyed with its reason (his
+        //- ruling, question 3): hiding it makes an advisor think the app cannot do this.
+        .tw-group.qf-tick
+          b-checkbox(
+            v-model="form.quickFire.enabled"
+            :disabled="!quickFireAvailable"
+            size="is-small")
+            span.qf-tl {{ $t('report.threeWayForecast.assume.quickFire.label') }}
+          p.tw-note(v-if="!quickFireAvailable") {{ $t('report.threeWayForecast.assume.quickFire.needsFile') }}
+          p.tw-note(v-else) {{ $t('report.threeWayForecast.assume.quickFire.sub') }}
+
+        .tw-group(v-if="quickFireOpen")
+          .tw-glabel
+            span.tw-dot
+            h2.tw-h2 {{ $t('report.threeWayForecast.assume.quickFire.heading') }}
+          .qfwrap
+            table.qfgrid
+              thead
+                tr
+                  th.rowhead
+                  th {{ $t('report.threeWayForecast.assume.quickFire.lastYear') }}
+                  th(v-for="n in form.yearCount" :key="'h' + n") {{ $t('report.threeWayForecast.assume.quickFire.yr', { n: n }) }}
+              tbody
+                tr
+                  td.rowhead
+                    | {{ $t('report.threeWayForecast.assume.quickFire.salesGrowth') }}
+                    small {{ $t('report.threeWayForecast.assume.quickFire.onYearBefore') }}
+                  td.base {{ money(salesTotal) }}
+                  td.yr(v-for="(y, i) in quickFireVisibleYears" :key="'g' + i")
+                    b-input(v-model.number="y.salesGrowth" type="number" step="any" size="is-small")
+                tr
+                  td.rowhead
+                    | {{ $t('report.threeWayForecast.assume.quickFire.grossMargin') }}
+                    small {{ $t('report.threeWayForecast.assume.quickFire.marginItself') }}
+                  td.base {{ pct(quickFireBaseMargin) }}
+                  td.yr(v-for="(y, i) in quickFireVisibleYears" :key="'m' + i")
+                    b-input(v-model.number="y.grossMargin" type="number" step="any" size="is-small")
+                tr
+                  td.rowhead
+                  //- The base column plus one per year on screen. Hardcoded at 4 until
+                  //- 2026-09-07, when the year count made that a stale two-thirds-width
+                  //- rule on a one-year forecast.
+                  td.qfconv(:colspan="form.yearCount + 1") {{ quickFireMarkupLine }}
+                tr
+                  td.rowhead
+                    | {{ $t('report.threeWayForecast.assume.quickFire.overheadsUp') }}
+                    small {{ $t('report.threeWayForecast.assume.quickFire.onYearBefore') }}
+                  td.base {{ money(quickFireBaseOverheads) }}
+                  td.yr(v-for="(y, i) in quickFireVisibleYears" :key="'o' + i")
+                    b-input(v-model.number="y.overheadsIncrease" type="number" step="any" size="is-small")
+          p.tw-note {{ $t('report.threeWayForecast.assume.quickFire.blankNote') }}
+          p.tw-note {{ quickFireShapeNote }}
+          p.tw-note {{ $t('report.threeWayForecast.assume.quickFire.replacesThree') }}
+
         .tw-group
           .tw-glabel
             span.tw-dot
@@ -440,13 +522,43 @@
             b-input(v-model.number="form.shareholderRate" type="number" step="any" size="is-small")
 
       section.tw-results
+        //- What the typed percentages produce. Drawn as the second half of the quick-fire
+        //- screen, and it recomputes as the advisor types. ⚠ These are gross figures — the
+        //- forecast's own result adds interest, depreciation and tax, and the note says so
+        //- rather than leaving an advisor to find the two do not match.
+        .tw-card(v-if="quickFireOpen")
+          .tw-group
+            .tw-glabel
+              span.tw-dot
+              h2.tw-h2 {{ $t('report.threeWayForecast.assume.quickFire.producesHeading') }}
+            p.tw-note {{ $t('report.threeWayForecast.assume.quickFire.producesSub') }}
+            .qfwrap
+              table.qfyrs
+                thead
+                  tr
+                    th.rowhead
+                    th {{ $t('report.threeWayForecast.assume.quickFire.lastYear') }}
+                    th(v-for="(y, i) in quickFireYearsOut" :key="'ph' + i") {{ $t('report.threeWayForecast.assume.quickFire.year', { n: i + 1 }) }}
+                tbody
+                  tr(v-for="row in quickFirePreviewRows" :key="row.key" :class="{ total: row.key === 'netProfit' }")
+                    td.rowhead {{ $t('report.threeWayForecast.assume.quickFire.row.' + row.key) }}
+                    td.base {{ money(row.base) }}
+                    td(v-for="(v, i) in row.years" :key="row.key + i") {{ money(v) }}
+            p.tw-note {{ $t('report.threeWayForecast.assume.quickFire.beforeTax') }}
+
         .tw-card
           .tw-group
             .tw-glabel
               span.tw-dot
               h2.tw-h2 {{ $t('report.threeWayForecast.assume.salesHeading') }}
             .mgrid
-              .m(v-for="(label, i) in monthLabels" :key="'s' + i" :class="{ seeded: form.salesSource === 'seeded' }")
+              //- Only the months that actually came from the file carry the seeded tag.
+              //- A month the export never reached is the advisor's to fill in, and a
+              //- "starting point" badge on it would say the opposite of the truth.
+              .m(
+                v-for="(label, i) in monthLabels"
+                :key="'s' + i"
+                :class="{ seeded: isSeededMonth(i), needsyou: needsAMonth(i) }")
                 span.lbl {{ label }}
                 b-input(v-model.number="form.sales[i]" type="number" step="any" size="is-small")
             p.tw-note
@@ -458,6 +570,11 @@
                 :seeded-label="$t('report.threeWayForecast.confirm.startingPoint')")
               span(v-if="form.salesSource === 'seeded'")  {{ $t('report.threeWayForecast.assume.seededNote', { total: money(salesTotal) }) }}
               span(v-else) {{ money(salesTotal) }}
+            //- The months the export could not reach. Named one by one rather than
+            //- counted, so the advisor knows which boxes are theirs without working it
+            //- out from a number (Mike's ruling, 2026-09-07).
+            p.tw-needsyou(v-if="monthsNeedingYou.length")
+              | ⚠ {{ $tc('report.threeWayForecast.assume.monthsNeeded', monthsNeedingYou.length, { months: monthsNeedingYou.join(', ') }) }}
 
           //- The volatility read. Built from the approved drawing
           //- design/mockups/three-way-forecast-volatility.html (approved 2026-09-03),
@@ -1103,6 +1220,10 @@ import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import GlossaryTerm from '~/components/base/GlossaryTerm.vue'
 import VolatilityDial from '~/components/base/VolatilityDial.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+// The quick-fire option's arithmetic (item 4.71). Its own module because slice 2's
+// three-year screen needs years 2 and 3, and two copies of a compounding rule would drift
+// into two different forecasts from one client.
+import { quickFireYears, marginFromMarkup } from '~/utils/quickFireForecast'
 
 /**
  * The mentor's price ladder as THIS SCREEN holds it — percentages, because every other rate
@@ -1227,6 +1348,17 @@ const ASSET_SPECS = [
   { key: 'other', rate: 35 }
 ]
 
+/**
+ * The longest forecast on offer — item 4.71, slice 2, Mike's ruling of 2026-09-07.
+ *
+ * Declared here rather than imported: `MAX_FORECAST_YEARS` lives in
+ * `server/report/threeWayForecastModel.js`, and importing it would pull the whole engine
+ * into the client bundle. It is the same arrangement as `OVERHEAD_KEYS` and
+ * `OPENING_KEYS` above, and like them it is **pinned to the engine's own value by a
+ * test** rather than trusted to stay in step by hand.
+ */
+const MAX_FORECAST_YEARS = 3
+
 /** The 23 overhead lines the model takes. */
 const OVERHEAD_KEYS = [
   'accLevies', 'accountancy', 'advertising', 'bankCharges', 'computerExpenses',
@@ -1344,6 +1476,162 @@ export default {
   computed: {
     openingKeys () { return OPENING_KEYS },
     overheadKeys () { return OVERHEAD_KEYS },
+
+    /* ── How long a forecast — item 4.71, slice 2 ──────────────────────────────────── */
+
+    /** The longest forecast on offer, for the button row. @returns {number} */
+    maxForecastYears () { return MAX_FORECAST_YEARS },
+
+    /**
+     * The percentage rows the grid shows — as many as the forecast has years.
+     *
+     * 🔴 IT SLICES, IT NEVER TRUNCATES. `form.quickFire.years` keeps all three rows
+     * whatever is chosen, so an advisor who types three years, drops to one and goes back
+     * to three finds their figures where they left them. Cutting the array on the way down
+     * would silently discard typing, which is the sort of loss nobody reports as a bug —
+     * they just retype it and trust the screen a little less.
+     *
+     * @returns {Array<object>} the first `yearCount` rows of the grid.
+     */
+    quickFireVisibleYears () {
+      return (this.form.quickFire.years || []).slice(0, this.form.yearCount)
+    },
+
+    /* ── The quick-fire option — item 4.71 ─────────────────────────────────────────── */
+
+    /**
+     * Whether there is a previous year to grow from at all.
+     *
+     * 🔴 MIKE'S RULING, 2026-09-07 (question 3): with no file the tick still APPEARS but is
+     * greyed, saying what it needs. Hiding it makes an advisor think the app cannot do this
+     * — which is the exact question that produced the feature.
+     *
+     * `salesSource === 'seeded'` is the honest test: those twelve months came out of a
+     * by-month Profit and Loss. Where the advisor typed them there is no "previous known
+     * data", and growing a number nobody read off a report is what this guards.
+     *
+     * @returns {boolean}
+     */
+    quickFireAvailable () {
+      return this.form.salesSource === 'seeded' && this.salesTotal > 0
+    },
+
+    /** Whether the grid is both switched on and usable. @returns {boolean} */
+    quickFireOpen () {
+      return !!(this.form.quickFire && this.form.quickFire.enabled) && this.quickFireAvailable
+    },
+
+    /**
+     * The year quick-fire grows FROM — read off the form, never off the file a second time.
+     *
+     * Taking it from the form is what makes "adds or subtracts from previous known data"
+     * true after an advisor has corrected a seeded figure: they grow what is on their
+     * screen, not what the export happened to say.
+     *
+     * @returns {object} `{ sales: number[12], markup: number, overheads: {key: number} }`
+     */
+    quickFireBase () {
+      const overheads = {}
+      for (let i = 0; i < OVERHEAD_KEYS.length; i++) {
+        overheads[OVERHEAD_KEYS[i]] = Number(this.form.overheads[OVERHEAD_KEYS[i]].value) || 0
+      }
+      return {
+        sales: this.form.sales.map(v => Number(v) || 0),
+        markup: Number(this.form.markup) || 0,
+        overheads
+      }
+    },
+
+    /**
+     * The three years the typed percentages produce, recomputed as the advisor types.
+     * @returns {Array<object>} see `utils/quickFireForecast`; empty when the grid is shut.
+     */
+    quickFireYearsOut () {
+      if (!this.quickFireOpen) { return [] }
+      return quickFireYears(this.quickFireBase, this.form.quickFire.years)
+    },
+
+    /** Last year's own margin, for the base column of the grid. @returns {number} */
+    quickFireBaseMargin () {
+      return marginFromMarkup(this.quickFireBase.markup)
+    },
+
+    /**
+     * The months a dropped export could not reach, by name.
+     *
+     * Mike's ruling of 2026-09-07: bring in the months the file has and say which are
+     * still owed. Named rather than counted — "December and January" tells an advisor
+     * where to look; "two months" makes them count the boxes.
+     *
+     * @returns {Array<string>}
+     */
+    monthsNeedingYou () {
+      if (this.form.salesSource !== 'seeded') { return [] }
+      const out = []
+      for (let i = 0; i < MONTHS; i++) {
+        if (this.needsAMonth(i)) { out.push(this.monthLabels[i]) }
+      }
+      return out
+    },
+
+    /** Last year's overheads, for the base column of the grid. @returns {number} */
+    quickFireBaseOverheads () {
+      const b = this.quickFireBase.overheads
+      return Object.keys(b).reduce((a, k) => a + b[k], 0)
+    },
+
+    /**
+     * The margins restated as the mark-up on cost the engine actually works in.
+     *
+     * Mike ruled the row reads "Gross margin" (question 1) BECAUSE the two are different
+     * numbers for one thing, and step 3's own field a few inches below says "Mark-up on
+     * cost". Without this line the two look as though they disagree.
+     *
+     * @returns {string}
+     */
+    quickFireMarkupLine () {
+      const shown = this.quickFireYearsOut.map(y => this.pct(y.markup)).join(' · ')
+      return this.$t('report.threeWayForecast.assume.quickFire.equalsMarkup', { list: shown })
+    },
+
+    /**
+     * Whether growth can keep last year's monthly shape, said out loud either way.
+     *
+     * An even twelfth through a seasonal business produces a cash line that will not
+     * happen, so a forecast that had to spread evenly must say so — the drawing is explicit
+     * that this is stated, not left for the advisor to infer from a flat chart.
+     *
+     * @returns {string}
+     */
+    quickFireShapeNote () {
+      const shaped = this.form.sales.some((v, i) => i > 0 && Number(v) !== Number(this.form.sales[0]))
+      return shaped
+        ? this.$t('report.threeWayForecast.assume.quickFire.keepsShape')
+        : this.$t('report.threeWayForecast.assume.quickFire.evenSpread')
+    },
+
+    /**
+     * The preview table's rows — last year beside each forecast year.
+     * @returns {Array<object>} `{ key, base, years: number[] }`
+     */
+    quickFirePreviewRows () {
+      const base = this.quickFireBase
+      const baseSales = base.sales.reduce((a, v) => a + v, 0)
+      const baseGross = baseSales * (this.quickFireBaseMargin / 100)
+      const baseOverheads = this.quickFireBaseOverheads
+      const bases = {
+        sales: baseSales,
+        costOfSales: baseSales - baseGross,
+        grossProfit: baseGross,
+        overheads: baseOverheads,
+        netProfit: baseGross - baseOverheads
+      }
+      return ['sales', 'costOfSales', 'grossProfit', 'overheads', 'netProfit'].map(key => ({
+        key,
+        base: bases[key],
+        years: this.quickFireYearsOut.map(y => y.totals[key])
+      }))
+    },
 
     /**
      * The file slots. The approved drawing names three; the fourth — last year's by-month
@@ -2059,6 +2347,28 @@ export default {
     /** A whole-number percentage for display. @param {number} v */
     pct (v) { return this.num(v, 1) + '%' },
 
+    /**
+     * Did month `i` come from the file? (Mike's ruling, 2026-09-07.)
+     * @param {number} i the month's position, 0-11.
+     * @returns {boolean}
+     */
+    isSeededMonth (i) {
+      return this.form.salesSource === 'seeded' && i < (this.form.salesSeededMonths || 0)
+    },
+
+    /**
+     * Is month `i` one the file could not reach, and therefore the advisor's to enter?
+     *
+     * Only asked where a file WAS dropped — with no file at all every month is the
+     * advisor's and marking twelve of them adds nothing.
+     *
+     * @param {number} i the month's position, 0-11.
+     * @returns {boolean}
+     */
+    needsAMonth (i) {
+      return this.form.salesSource === 'seeded' && i >= (this.form.salesSeededMonths || 0)
+    },
+
     /** @param {Array<number>} list @returns {number} */
     sumOf (list) {
       let total = 0
@@ -2115,6 +2425,24 @@ export default {
       // panel's v-for rather than draw its "nothing entered yet" state.
       const blankOverseas = this.blankForm().overseas
       if (!form.overseas || typeof form.overseas !== 'object') { form.overseas = blankOverseas }
+      // Same normalisation for the quick-fire grid (item 4.71): a form saved before it
+      // existed carries no `quickFire`, and an undefined `years` array would break the
+      // grid's v-for. It restores switched OFF, which is the safe direction — a restored
+      // forecast shows the figures it was saved with, not figures a percentage re-derived.
+      if (!form.quickFire || typeof form.quickFire !== 'object' || !Array.isArray(form.quickFire.years)) {
+        form.quickFire = this.blankForm().quickFire
+      }
+      // A form saved before the partial seed existed carries no count. It was saved from a
+      // full twelve or from typed figures, so it reads as whichever its own source says —
+      // never as a partial one, which would mark months amber that nothing is missing from.
+      // ⚠ The SAVED object is asked, not `form`: the blank it was merged over already
+      // carries a numeric 0, so a `typeof` test on `form` can never tell the two apart.
+      const savedCount = this.restore && typeof this.restore.salesSeededMonths === 'number'
+        ? this.restore.salesSeededMonths
+        : null
+      form.salesSeededMonths = savedCount === null
+        ? (form.salesSource === 'seeded' ? MONTHS : 0)
+        : savedCount
       if (!Array.isArray(form.overseas.shipments)) { form.overseas.shipments = [] }
       if (!form.overseas.shipmentTerms || typeof form.overseas.shipmentTerms !== 'object') {
         form.overseas.shipmentTerms = blankOverseas.shipmentTerms
@@ -2175,6 +2503,25 @@ export default {
         shareholderRate: 5,
         sales: zeroes(),
         salesSource: 'entered',
+        /** How many of the twelve months came from a file (Mike's ruling, 2026-09-07). */
+        salesSeededMonths: 0,
+        // How long a forecast the advisor asked for — 1, 2 or 3 (item 4.71 slice 2, Mike's
+        // ruling of 2026-09-07). It starts at ONE because that is exactly what step 4 has
+        // always shown: nobody who never touches this control gets a screen or a printed
+        // pack that changed under them. Three is one click away, and it is what a lender
+        // usually asks for.
+        yearCount: 1,
+        // The quick-fire option (item 4.71, drawing approved by Mike 2026-09-07). It starts
+        // OFF and its three years start blank, which the module reads as "the same again" —
+        // so a form that has never been touched forecasts exactly what it forecast before.
+        quickFire: {
+          enabled: false,
+          years: [
+            { salesGrowth: null, grossMargin: null, overheadsIncrease: null },
+            { salesGrowth: null, grossMargin: null, overheadsIncrease: null },
+            { salesGrowth: null, grossMargin: null, overheadsIncrease: null }
+          ]
+        },
         purchases: zeroes(),
         // Stock already paid for at the opening date and not yet arrived (Fix 2, drawing
         // ruled by Mike 2026-09-05). The DEPOSIT itself is an opening balance-sheet line
@@ -2496,6 +2843,14 @@ export default {
       if (Array.isArray(p.sales) && p.sales.length === MONTHS) {
         this.form.sales = p.sales.slice()
         this.form.salesSource = prov.sales === 'seeded' ? 'seeded' : 'entered'
+        // 🔴 HOW MANY OF THE TWELVE ARE REAL (Mike's ruling, 2026-09-07). A current-year
+        // export stops part-way through a month, so a short run is the ordinary case, not
+        // the exception. Only the months that came through are tagged as seeded — tagging
+        // all twelve would put a "starting point" badge on a zero the advisor has to fill
+        // in themselves, which is the badge saying the opposite of the truth.
+        this.form.salesSeededMonths = typeof data.salesSeededMonths === 'number'
+          ? data.salesSeededMonths
+          : (prov.sales === 'seeded' ? MONTHS : 0)
       }
 
       // The whole run, which is what the volatility read measures. Up to 24 months; the
@@ -2975,6 +3330,25 @@ export default {
     },
 
     /**
+     * How long a forecast the advisor wants — 1, 2 or 3 (item 4.71 slice 2, Mike's ruling
+     * of 2026-09-07).
+     *
+     * It only ever writes the count. The quick-fire grid keeps all three rows of
+     * percentages whatever is chosen (see `quickFireVisibleYears`), so dropping to one
+     * year and going back to three finds the typing where it was left.
+     *
+     * @param {number} n 1, 2 or 3. Anything else is ignored rather than clamped — the
+     *   only caller is a button row built from `maxForecastYears`, so an out-of-range
+     *   value means a bug upstream and silently rounding it would hide that.
+     */
+    setYearCount (n) {
+      const asked = Number(n)
+      if (asked >= 1 && asked <= MAX_FORECAST_YEARS && asked === Math.floor(asked)) {
+        this.form.yearCount = asked
+      }
+    },
+
+    /**
      * Fold the row list into the engine's 6 x 12 grid. Two rows in the same category and
      * month simply add together.
      *
@@ -3019,11 +3393,22 @@ export default {
         overheads[OVERHEAD_KEYS[i]] = Number(this.form.overheads[OVERHEAD_KEYS[i]].value) || 0
       }
       const capital = this.capitalSeries()
+      // 🔴 THE QUICK-FIRE SUBSTITUTION (item 4.71), and it is the whole of Mike's "untick it
+      // and the status quo continues". Quick-fire NEVER writes to `this.form` — it produces
+      // its own year and that year is substituted here, for three fields only. The
+      // advisor's twelve monthly sales, their mark-up and their overheads sit untouched
+      // behind it, so unticking restores them with nothing to undo.
+      const qf = this.quickFireOpen ? this.quickFireYearsOut[0] : null
+      if (qf) {
+        for (let i = 0; i < OVERHEAD_KEYS.length; i++) {
+          overheads[OVERHEAD_KEYS[i]] = Number(qf.overheads[OVERHEAD_KEYS[i]]) || 0
+        }
+      }
       return {
         startDateSerial: this.serialOf(this.form.startDate),
-        sales: this.form.sales.map(v => Number(v) || 0),
+        sales: qf ? qf.sales.map(v => Number(v) || 0) : this.form.sales.map(v => Number(v) || 0),
         purchases: this.form.purchases.map(v => Number(v) || 0),
-        markup: Number(this.form.markup) / 100,
+        markup: (qf ? Number(qf.markup) : Number(this.form.markup)) / 100,
         overseas: this.overseasInputs(),
         directCostRates: {
           freight: Number(this.form.direct.freight) / 100,
@@ -3085,8 +3470,50 @@ export default {
           opening: Number(s.opening.value) || 0,
           advances: zeroes(),
           drawings: zeroes()
-        }))
+        })),
+        // ── The two fields slice 2 added (item 4.71, Mike 2026-09-07) ────────────────
+        // They are NOT figures the engine takes for a year; they say how many years to
+        // build and what the later ones trade on. `payload()` in ThreeWayForecastReport
+        // lifts them off before sending year 1, so the request body is still exactly the
+        // shape `resolveInputs` expects.
+        yearCount: this.form.yearCount,
+        laterYears: this.laterYearInputs()
       }
+    },
+
+    /**
+     * Years 2 and 3, in the engine's per-year shape — or an empty list on a one-year
+     * forecast.
+     *
+     * 🔴 EACH LATER YEAR CARRIES ONLY THE THREE FIELDS QUICK-FIRE SETS, and that is
+     * deliberate rather than lazy. `computeThreeYearForecast` reads an omitted field as
+     * "the same as the year before", so sending only what actually differs is what makes
+     * a later year mean *this trading changed, nothing else did*. Spelling out all sixty
+     * figures would freeze year 2's tax rate, debtor profile and depreciation rates at
+     * year 1's values — indistinguishable on screen from inheriting them, and wrong the
+     * moment either is meant to move.
+     *
+     * WITH QUICK-FIRE OFF THE LIST IS EMPTY OBJECTS, which is "the same again" — the
+     * engine's own rule, and the honest answer when the advisor has said nothing about
+     * years 2 and 3. It is not a copy: depreciation falls and loans amortise, so a flat
+     * three-year forecast still moves.
+     *
+     * @returns {Array<object>} `yearCount - 1` entries, oldest first.
+     */
+    laterYearInputs () {
+      const later = []
+      const grown = this.quickFireOpen ? this.quickFireYearsOut : []
+      for (let y = 1; y < this.form.yearCount; y++) {
+        const g = grown[y]
+        later.push(g
+          ? {
+              sales: g.sales.map(v => Number(v) || 0),
+              markup: Number(g.markup) / 100,
+              overheads: Object.assign({}, g.overheads)
+            }
+          : {})
+      }
+      return later
     },
 
     /**
@@ -3256,6 +3683,44 @@ export default {
 .tw-layout { display: grid; grid-template-columns: var(--rs-col-input) 1fr; gap: var(--rs-col-gap); align-items: start; }
 @media (max-width: 860px) { .tw-layout { grid-template-columns: 1fr; } }
 .tw-results { display: flex; flex-direction: column; gap: 16px; }
+
+/* The quick-fire option (item 4.71), built from the approved drawing. Every value reads a
+   --rs-* token from the shared ReportShell; nothing here declares a palette of its own. */
+/* How long a forecast (slice 2). `.seg-small` is copied from the segmented control in
+   ThreeWayForecastReport.vue — the Summary / Every line switch Mike approved on
+   2026-09-05 — so step 3 and step 4 offer the same shape rather than a second one. */
+.qf-years { display: flex; flex-direction: column; align-items: flex-start; }
+.seg-small {
+  display: inline-flex; border: 1px solid var(--rs-line); border-radius: 9px;
+  overflow: hidden;
+}
+.seg-small button {
+  font: inherit; font-size: 12px; font-weight: 600; border: 0; background: var(--rs-panel);
+  color: var(--rs-muted); padding: 6px 14px; cursor: pointer;
+}
+.seg-small button.on { background: var(--rs-accent); color: var(--rs-accent-contrast); }
+
+.qf-tick { display: flex; flex-direction: column; gap: 4px; }
+.qf-tl { font-size: 14px; font-weight: 600; }
+.qfwrap { overflow-x: auto; }
+.qfgrid, .qfyrs { width: 100%; border-collapse: collapse; font-size: 13px; }
+.qfgrid th, .qfyrs th {
+  font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--rs-muted);
+  font-weight: 600; text-align: right; padding: 0 0 9px; white-space: nowrap;
+}
+.qfgrid th.rowhead, .qfyrs th.rowhead { text-align: left; }
+.qfgrid td { padding: 5px 0; border-top: 1px solid var(--rs-line); vertical-align: middle; }
+.qfgrid td.rowhead, .qfyrs td.rowhead { text-align: left; color: var(--rs-ink); padding-right: 10px; }
+.qfgrid td.rowhead small { display: block; font-size: 11.5px; color: var(--rs-muted); margin-top: 1px; }
+.qfgrid td.base, .qfyrs td.base { color: var(--rs-muted); }
+.qfgrid td.base { text-align: right; font-variant-numeric: tabular-nums; font-size: 12.5px; padding-right: 10px; white-space: nowrap; }
+.qfgrid td.yr { width: 84px; padding-left: 6px; }
+.qfconv { font-size: 11.5px; color: var(--rs-muted); text-align: right; padding: 0 0 8px; border-top: 0; }
+.qfyrs td {
+  padding: 8px 0; text-align: right; font-variant-numeric: tabular-nums;
+  border-top: 1px solid var(--rs-line); white-space: nowrap;
+}
+.qfyrs tr.total td { font-weight: 700; border-top: 2px solid var(--rs-line); }
 .field { margin-bottom: 11px; }
 .fieldlab { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: var(--rs-ink); margin-bottom: 6px; }
 .seg { display: flex; border: 1px solid var(--rs-line); border-radius: 10px; overflow: hidden; }
@@ -3276,6 +3741,11 @@ export default {
 .m .lbl { width: 26px; font-size: 11px; color: var(--rs-muted); text-align: right; }
 .m ::v-deep .control { flex: 1; min-width: 0; }
 .m.seeded ::v-deep .input { border-color: #4ca52d59; background: #4ca52d0d; }
+/* A month the export could not reach. Amber against the seeded green, so the two states
+   read apart at a glance and the advisor can see which boxes are theirs to fill in
+   (Mike's ruling, 2026-09-07). */
+.m.needsyou ::v-deep .input { border-color: #ff990059; background: #ff99000d; }
+.tw-needsyou { font-size: 12px; color: #b36b00; margin: 8px 0 0; }
 
 /* Buying and selling capital assets — the row list. Every value is a --rs-* token or a
    measurement copied from design/mockups/three-way-forecast-capital.html; the block adds

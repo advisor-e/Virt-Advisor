@@ -40,6 +40,9 @@
  */
 
 const { createOpenAIClient } = require('./openaiClient')
+// Follow-through rides this file's coaching call rather than adding a third prompt, so the
+// citation guard below covers last meeting's agreed actions unchanged.
+const followThrough = require('./meetingFollowThrough')
 
 /** The app's chat model, as used throughout `server/advisorEngine.js`. */
 const REPORT_MODEL = 'gpt-4o-mini'
@@ -524,6 +527,9 @@ async function generateSummary (args) {
  * @param {Array<object>} args.points - the advisor's pre-set, both hearable and not
  * @param {object} args.metrics - from `meetingMetrics.computeMetrics`
  * @param {object} [args.client]
+ * @param {object} [args.previous] - the last meeting with this client, from
+ *   `meetingFollowThrough.findPrevious`. Its agreed actions are asked about in the same call as
+ *   the observation points, so the citation guard covers them unchanged.
  * @param {string} [args.apiKey]
  * @returns {Promise<object>} the stored coaching-notes shape
  */
@@ -535,15 +541,23 @@ async function generateCoachingNotes (args) {
   const hearable = allPoints.filter(p => !p.cannotHear)
   const unhearable = allPoints.filter(p => Boolean(p.cannotHear))
 
+  // Follow-through: last meeting's agreed actions, asked about in THIS call rather than in a
+  // third prompt of their own. They are ordinary points as far as the model and the citation
+  // guard are concerned, so an answer must quote this transcript or say NOT FOUND, and an
+  // invented quote is dropped exactly as it is anywhere else. See `meetingFollowThrough.js`.
+  const followPoints = followThrough.actionPoints(
+    (args.previous && args.previous.actions) || [])
+  const asked = hearable.concat(followPoints)
+
   let findings = []
   let dropped = 0
 
   // A pre-set of nothing but un-hearable points is a real (if odd) configuration, and calling
   // the model with an empty list would spend money to be told nothing.
-  if (hearable.length) {
-    const messages = buildCoachingMessages({ segments, points: hearable })
+  if (asked.length) {
+    const messages = buildCoachingMessages({ segments, points: asked })
     const { reply } = await askModel(args, messages, 'coaching')
-    const checked = validateCoaching(reply, segments, hearable)
+    const checked = validateCoaching(reply, segments, asked)
     if (!checked.valid) {
       const err = new Error('My Coaching Notes were not usable: ' + checked.errors.join('; '))
       err.code = 'COACHING_INVALID'
@@ -558,12 +572,19 @@ async function generateCoachingNotes (args) {
     }
   }
 
+  // The follow-through answers came back mixed in with the observation ones, keyed by their
+  // own prefix. Split them apart before either is stored, so the screen never has to know
+  // that they travelled together.
+  const split = followThrough.splitFindings(findings)
+
   return {
     kind: 'coaching',
     generatedAt: new Date().toISOString(),
     model: REPORT_MODEL,
     metrics: args.metrics || null,
-    findings: findings.concat(cannotHearFindings(unhearable, segments)),
+    findings: split.findings.concat(cannotHearFindings(unhearable, segments)),
+    followThrough: followThrough.buildBlock(
+      args.previous || null, split.followThrough, args.previousContext || {}),
     droppedFindings: dropped,
     // P5: a dispute is part of the record, so the shape exists from the first save.
     disputes: {}

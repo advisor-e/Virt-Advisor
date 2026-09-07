@@ -31,6 +31,21 @@
           b-select(v-model="scenarioId" expanded)
             option(v-for="s in scenarios" :key="s.id" :value="s.id") {{ s.name }}
 
+        //- WHICH CLIENT. The approved drawing's recording bar already names one
+        //- ("End of year meeting · Whitfield & Co"); slice 2 left it out on a note saying
+        //- there was no client record to draw a name from, and that note was wrong — the
+        //- register has existed since 2026-07-14. Without it, follow-through would have to
+        //- match on the advisor and the meeting type, checking one client's agreed actions
+        //- against another client's transcript. The wording is the register's own, already
+        //- approved and in use on the Virtual Advisor's client step.
+        b-field.mt-3(:label="$t('clientStep.title')" label-position="on-border")
+          b-select(v-model="clientId" expanded)
+            option(value="") Not for a particular client
+            option(v-for="c in clients" :key="c.id" :value="c.id") {{ c.name }}
+        p.is-size-7.has-text-grey(v-if="!clients.length")
+          | Your firm has no clients on its register yet. You can still record — the meeting
+          |  simply will not be compared with a previous one.
+
         h4.title.is-6.mt-4.mb-2 What you will be checked on
         p.is-size-7.has-text-grey(v-if="!points.length")
           | Your firm has not set anything for this kind of meeting yet. You can still record.
@@ -45,6 +60,7 @@
       v-else
       :api-token="apiToken"
       :scenario-id="scenarioId"
+      :client-id="clientId"
       :points="points"
       @exit="started = false")
 </template>
@@ -95,6 +111,10 @@ export default {
       loadError: '',
       scenarios: [],
       scenarioId: '',
+      /** The firm's client register — names only, as `/api/clients` returns them. */
+      clients: [],
+      /** Empty means "not for a particular client", which is allowed and has a consequence. */
+      clientId: '',
       started: false
     }
   },
@@ -109,7 +129,10 @@ export default {
 
   mounted () {
     this.checkAuth()
-    if (this.authorised) { this.loadPoints() }
+    if (this.authorised) {
+      this.loadPoints()
+      this.loadClients()
+    }
   },
 
   methods: {
@@ -151,6 +174,28 @@ export default {
         this.loadError = 'Your meeting checklist could not be loaded: ' + err.message
       } finally {
         this.loadingPoints = false
+      }
+    },
+
+    /**
+     * The firm's client register, so this meeting can be tied to the business it is with.
+     *
+     * A failure here is deliberately NOT fatal: an advisor who cannot load the register can
+     * still record, and the only thing lost is the comparison with their last meeting. Blocking
+     * a client meeting on a list that would not load would be the worse outcome by a distance.
+     *
+     * @returns {Promise<void>}
+     */
+    async loadClients () {
+      try {
+        const res = await fetch('/api/clients', {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) { return }
+        const data = await res.json()
+        this.clients = data.clients || []
+      } catch (_err) {
+        // Left empty on purpose — see the note above.
       }
     }
   }

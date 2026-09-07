@@ -1,6 +1,9 @@
 # Meeting Review — the Brief
 
-> ## ⚠ THREE SLICES ARE BUILT. THE MANAGER'S HALF IS STILL A DESIGN.
+> ## ✅ SIX SLICES ARE BUILT. THE ADVISOR'S SIDE AND THE MANAGER'S ARE BOTH DONE.
+>
+> *(This heading read "three slices are built, the manager's half is still a design" until
+> 2026-09-07, when slices 4, 5 and 6 landed. Replaced rather than dated — one fact, one home.)*
 >
 > **Slice 1 (2026-09-01) — the observation points.** The mentor authors the platform list, a
 > firm may edit / switch off / add to it, and an advisor reads their own list before a meeting.
@@ -21,12 +24,30 @@
 > Any quote the transcript does not contain is dropped before it can be shown. Paths are marked
 > **BUILT** in §5.
 >
-> **NOT built: the manager's half.** No manager aggregate, no follow-through check across
-> meetings, and no transcript-purge job (deferred deliberately — Mike, 2026-09-01; destroying
-> the AUDIO is the promise the consent line makes and it is built, expiring the TRANSCRIPT is
-> its own piece of work). Nor is the **firm glossary** the drawing's jargon count needs — that
-> tile is absent by Mike's ruling of 2026-09-02, because a default word-list would be inventing
-> his advisory content. The unmarked rows of §5 still describe what is *intended*, not what runs.
+> **Slice 4 (2026-09-07) — the manager's aggregate.** A firm manager sees whether the observation
+> points are landing across the firm this month — counts only, never a name, and nothing at all
+> until 5 advisors and 20 meetings have contributed. It is the one block in this app that
+> deliberately does **not** cascade upward: P13 keeps everything derived from a recorded meeting
+> inside the firm it came from. Paths are marked **BUILT** in §5.
+>
+> **Slice 5 (2026-09-07) — transcript expiry.** The clock a firm sets, and a client is shown on
+> the consent screen, now runs: a daily sweep destroys the transcript **and both reports** of any
+> meeting past the period stored on its own record. P8's other half, deferred by Mike on
+> 2026-09-01 and built on his word *"finish the meeting review"*. Paths are marked **BUILT** in §5.
+>
+> **Slice 6 (2026-09-07) — follow-through, and the client on the meeting record.** Last meeting's
+> agreed actions are checked against this one's transcript, matched on the **client** — which is
+> why a meeting now records which client it was with. It renders inside **My Coaching Notes**
+> under the heading *"Since we last met"*, above the observation points — its own drawing,
+> approved with all four questions ruled the same day. Paths are marked **BUILT** in §5.
+>
+> **NOT built:** nothing further on the advisor's side. The unmarked rows of §5 still describe
+> what is *intended*, not what runs.
+>
+> 🔴 **THE JARGON TILE IS NOT AN OPEN ITEM. IT WAS REMOVED — Mike's ruling, 2026-09-02.** It is
+> settled and closed, and it is **not** waiting on him for a word list. A session that re-raises
+> it as "needs Mike's words" has turned a decision back into work, which is the failure this
+> repository's rules exist to stop. It happened on 2026-09-07 and was corrected the same day.
 >
 > ⚠ **A REAL CLIENT MUST NOT BE RECORDED UNTIL §4 IS DONE — AND NOW THE CODE CAN.** That
 > changed on 2026-09-01: until slice 2 there was nothing to misuse. The four items in §4 are
@@ -238,8 +259,12 @@ tell a pause for thought from a pause for a phone call, and cannot hear a docume
 table. A report that does not admit its blind spots will be trusted in places it should not be.
 
 **The mechanical set is cheap, credible and should ship first.** Talk-time ratio, longest
-monologue, open versus closed questions, silence after a question, jargon density against a
-firm-editable glossary, and whether the agreed actions were reached before the time ran out. None
+monologue, open versus closed questions, silence after a question, ~~jargon density against a
+firm-editable glossary~~ and whether the agreed actions were reached before the time ran out.
+🔴 **JARGON DENSITY WAS PROPOSED HERE AND THEN REMOVED — Mike's ruling, 2026-09-02.** The struck
+words are left visible rather than deleted so a later session reading this paragraph does not
+rebuild it: it needed a firm glossary, and writing a default word-list would have been us
+inventing his advisory content. **Four figures ship, not six** (§5). None
 needs a model, none can hallucinate, and *"you spoke for 78% of a discovery meeting"* is more
 useful than most of what the AI will produce.
 
@@ -311,7 +336,12 @@ their own client. It is worth building as a visible setting rather than a buried
 4. **Staff consultation.** Recording employees and generating performance findings about them is
    monitoring in employment-law terms, whoever owns the report. P2 makes the position defensible;
    it does not remove the obligation.
-5. **The transcription terms, for audio specifically.** Smaller than this list first assumed: the
+5. 📧 **The transcription terms, for audio specifically — the email is drafted and waits on Mike
+   to send it: [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md)** (2026-09-07,
+   on his instruction). It asks the four things below in writing and nothing else. ⚠ **The item
+   closes on a written reply that names audio** — not a phone call, not a public policy page. A
+   "no" on training, or a long retention period, would falsify the spoken consent line rather
+   than being a detail to work around. Smaller than this list first assumed: the
    provider is OpenAI, already this app's contracted sub-processor (§3), so no new company and no
    new data-processing agreement are introduced. What is still needed **in writing** is that the
    existing terms cover *submitted audio* — no training on it, and a stated retention period —
@@ -345,11 +375,13 @@ is *intended* to live, chosen to match the existing architecture rather than inv
 | Consent screens | `components/MeetingConsentPanel.vue`, wording in `locales/en.json` | ✅ **BUILT** — English only. The other seven locales are deliberately empty: §5 of the wording artefact requires a translator competent in the local law, not a machine translation |
 | Recording screen | `components/MeetingRecorder.vue` — `MediaRecorder` inside `mounted()` only | ✅ **BUILT** — with the wake-lock and the loud alarm of P10/P11 |
 | The advisor's page | `pages/meeting-record.vue` | ✅ **BUILT** — carries the §4 warning banner |
-| Mechanical measures | `server/utils/meetingMetrics.js` — no AI | ✅ **BUILT** — four figures, not the drawing's six. **Jargon** needs a firm glossary that does not exist (Mike's ruling 2026-09-02: absent, not empty). **Actions agreed** cannot be counted, only understood, so it comes from the summary generator with a citation and renders with the summary — leaving it here would print *"no AI is involved"* above a figure an AI produced |
+| Mechanical measures | `server/utils/meetingMetrics.js` — no AI | ✅ **BUILT** — four figures, not the drawing's six. **Jargon was REMOVED by Mike's ruling of 2026-09-02** — absent, not empty, and not awaiting a word list from him. **Actions agreed** cannot be counted, only understood, so it comes from the summary generator with a citation and renders with the summary — leaving it here would print *"no AI is involved"* above a figure an AI produced |
 | The two report generators | `server/utils/meetingReports.js` — separate prompts | ✅ **BUILT** — two prompts, two calls, two stores. Every quote is verified against the transcript before storage; an uncited one, or one the CLIENT said, is dropped and the point reports not found. The transcript is wrapped in delimiters and the model told it is not instructions |
 | The reports screen | `components/MeetingReview.vue`, `pages/meeting-review.vue` | ✅ **BUILT** — reached from the recorder's finished state, which is its only route in. Four named differences from the drawing (below) |
 | Hearability of a point | `cannotHear` + `hintWords` on an observation point | ✅ **BUILT** — the two fields slice 1 deliberately left out, now settled: the AUTHOR marks a point un-hearable, never the model. Schema only; no content was written |
-| Transcript expiry | a scheduled purge over `MEETING_AUDIO_DIR` | proposed — **deliberately not in slice 2** (Mike, 2026-09-01). Destroying the audio is the promise the consent line makes; expiring the transcript is its own piece of work |
+| The manager's aggregate | `server/utils/meetingAggregate.js`, `server/routes/meetingPatterns.js`, `components/firm/FirmMeetingPatterns.vue` | ✅ **BUILT (slice 4, 2026-09-07)** — counts per point over the current month, above Mike's 5-advisor / 20-meeting gate. 🔴 **FIRM TIER ALONE and it does NOT cascade upward** — P13, and the route answers every tier above the firm **403** rather than an empty screen, because an empty screen reads as "your firm did nothing". No advisor identifier leaves `meetingAggregate.js`: advisors are counted and then forgotten, so the shape cannot carry one |
+| Follow-through, and the client on the record | `server/utils/meetingFollowThrough.js`; `clientId` on the meeting record; the picker on `pages/meeting-record.vue` | ✅ **BUILT (slice 6, 2026-09-07)** — 🔴 **it matches on the CLIENT**, which is the whole reason the client is now stored: matching on the advisor and meeting type alone would check one client's agreed actions against another client's transcript and read as an ordinary report. 🔴 **Same advisor too, per P2.** No client on the record means **no match, never a guess**. The check rides the coaching call as extra points rather than a third prompt, so the citation guard covers it unchanged. An **expired** previous meeting is reported as expired, never as "no actions agreed". **The screen is built too** — `components/MeetingReview.vue`, from [`../mockups/meeting-review-follow-through.html`](../mockups/meeting-review-follow-through.html), approved 2026-09-07 with all four questions ruled: the block sits above the observation points, the heading is *"Since we last met"*, the labels are *"You raised it"* / *"Not raised"* (🔴 **not "Done" / "Not done" — the software cannot know it**), and the expired panel names the firm's own retention period. **Three empty states, and they must not read the same** |
+| Transcript expiry | `server/utils/meetingPurge.js`, swept daily from `restify-server.js` | ✅ **BUILT (slice 5, 2026-09-07)** — deferred by Mike on 2026-09-01 and built on his word *"finish the meeting review"*. 🔴 **Each meeting expires on the period stored on ITS OWN record — what the client was shown that day — never the firm's current dial**, which would silently extend a transcript somebody was promised would be gone. 🔴 **The two reports go with the transcript**, because every coaching finding quotes it verbatim; deleting `transcript.json` alone keeps the client's words in two other files. ⚠ **A meeting with no recorded period is never purged**, only reported — it cannot be expired against a promise nobody can produce. The meeting record survives, stamped `transcriptPurgedAt`, so the expiry is provable rather than a directory that quietly went missing (P8) |
 
 **✅ SETTLED IN SLICE 3 — the question slice 1 deliberately left open.** A point such as *"I drew
 the numbers out for the client"* cannot be heard on audio (§3), and the drawing shows it as a third
@@ -413,9 +445,47 @@ Advisory Distinctions, the Staircase, quizzes and currency, so none of that was 
 citation check, the dispute, and the advisor's answer on a point a recording cannot hear. **135 new
 tests**, suite green at **7,071** (371 suites), lint 0 errors.
 
-**What is not built is the manager's half** — the aggregate above the 5-advisor / 20-meeting
-threshold, the follow-through check across meetings, the transcript-expiry job, and the firm
-glossary the jargon tile would need.
+**Slice 4 is built (2026-09-07) — the manager's aggregate.** Screens C3 and C4 of the approved
+drawing: counts per observation point across the firm for the current month, the threshold gate,
+and the empty state that explains itself. 36 new tests.
+
+🔴 **THE ONE BLOCK THAT DELIBERATELY DOES NOT CASCADE UPWARD.** Every other cascading thing in
+this app runs mentor → global → group → firm. This runs at the **firm alone**, because P13 keeps
+anything derived from a recorded meeting inside the firm it came from and the consent line
+promises a named client exactly that. A tier above the firm is answered **403, not an empty
+screen** — an empty screen reads as *"your firm did nothing"*, which is a different and untrue
+statement, and it is the one a tester would report as working.
+
+🔴 **THE PER-POINT FLOOR IS MIKE'S — ruled 2026-09-07.** His 2026-09-01 gate protects the SCREEN;
+the same 20-meeting half is applied to EACH POINT as well, because a point checked in three of the
+month's meetings would otherwise print *"1 / 3"* underneath a screen that had passed the overall
+gate — the exact reversal the gate exists to prevent. A point below the floor is omitted, not
+caveated. *The cost recorded against it:* a newly added point shows nothing for its first month or
+two, and only the whole-screen message explains why.
+
+⚠ **THREE FURTHER DECISIONS IN SLICE 4 ARE OURS AND NOT HIS RULINGS.** Each changes what he sees,
+so each is named rather than absorbed:
+
+1. **The month is read in UTC.** Read in the server's own timezone, the same twenty meetings fall
+   into different months in Auckland and in London — a count that changes when a server moves,
+   with nothing on screen to say so. The cost is a visible one-day skew at a month boundary, and
+   it is the better of the two.
+2. **A meeting contributes only once it has coaching notes.** A recording with no report cannot
+   say whether a point landed, and counting it would deflate every percentage while looking
+   entirely reasonable.
+3. **The bar turns amber below 70%.** The drawing styles one row "low" at 61% and three plain at
+   75, 86 and 93, so a mark between 61 and 75 is implied and never stated. It changes a colour,
+   never a figure.
+
+⚠ **AND TWO NAMED DIFFERENCES FROM THE APPROVED DRAWING.** The **"Edit the firm's observation
+points" button is absent**, because the editor it pointed at is the rest of the same tab and a
+button that scrolls the page a few inches is worse than none. And **there is no period control** —
+the drawing's chrome states the month and offers no picker, so the screen shows the current month
+only; a selector would be a deviation, and it is recorded here rather than added.
+
+**What is still not built** — the follow-through check across meetings, the transcript-expiry job,
+and nothing else. **The jargon tile is not on this list**: it was REMOVED by Mike's ruling of
+2026-09-02, not deferred.
 
 🔴 **FOUR THINGS SLICE 3 DECIDED, ALL RULED BY MIKE ON 2026-09-02 after being put to him one at a
 time.** Each was a place the approved drawing asked for something the code cannot do — found by
@@ -481,6 +551,8 @@ report belongs to the advisor and the name should say so before they open it.
 | Whether slice 2 also transcribes | Mike | ✅ **Settled 2026-09-01** — **yes.** Capture without transcription would leave audio with no deletion trigger, which is the one shape this feature must never take, even briefly |
 | Whether the transcript-expiry job ships with slice 2 | Mike | ✅ **Settled 2026-09-01** — **no**, it is its own piece of work. Destroying the audio is the promise the consent line makes and that is built |
 | The retention dial's own wording | Mike | ✅ **Approved 2026-09-01** — it is not in the drawing, so its labels were written for the build and put to him: "How long transcripts are kept", "Save this period", "Use the inherited period", "Set here" / "Inherited — …" |
+| Whether the cohort floor applies per point too | Mike | ✅ **Settled 2026-09-07** — **yes.** The 20-meeting half applies to each observation point as well as to the screen, and a point below it is omitted rather than caveated. Cost accepted: a newly added point shows nothing for its first month or two |
+| The button into the two reports | Mike | ✅ **Settled 2026-09-07** — **"Read my reports"**, written for slice 3 and flagged as ours until he ruled. "My" carries P2 in a label, as "My Coaching Notes" does. Pinned, and not to be reworded |
 | Which Handbook group this page belongs in | Mike | Provisionally **Learning**, beside Advisor Progress |
 
 ---

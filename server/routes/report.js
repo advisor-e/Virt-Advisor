@@ -878,14 +878,19 @@ function threeWayForecast (req, res, next) {
 /**
  * POST /api/report/three-way-forecast/three-years
  *
- * @param {object} req.body - `{ years: [year1, year2, year3] }`, each the same shape the
- *   single-year route takes. Every input is per-year in the source workbook, so all
- *   three are supplied rather than a growth rate. **An omitted or partial later year
- *   inherits the year before it** — leaving years 2 and 3 empty forecasts "the same
- *   again" rather than dropping sample figures into a real client's later years.
- * @returns {object} { success, data: { years, summary }, timestamp } — three linked
- *   twelve-month years, plus `summary` with the three-year totals, the closing position
- *   and the lowest cash point across all 36 months with its date.
+ * @param {object} req.body - `{ years: [year1, year2, year3], yearCount }`, each year the
+ *   same shape the single-year route takes. Every input is per-year in the source
+ *   workbook, so all three are supplied rather than a growth rate. **An omitted or
+ *   partial later year inherits the year before it** — leaving years 2 and 3 empty
+ *   forecasts "the same again" rather than dropping sample figures into a real client's
+ *   later years.
+ *
+ *   `yearCount` is how long a forecast the advisor asked for — 1, 2 or 3 (Mike's ruling,
+ *   2026-09-07). Absent, junk or out of range means 3, which is what every caller written
+ *   before that date receives. The model clamps it; nothing here trusts the body.
+ * @returns {object} { success, data: { years, summary }, timestamp } — one linked
+ *   twelve-month year per year asked for, plus `summary` with the totals FOR THOSE YEARS,
+ *   the closing position and the lowest cash point across them with its date.
  *
  * Anonymous by design, like the other calculation routes; only file intake carries
  * `firmAuth`. The model's second parameter is deliberately NOT forwarded.
@@ -1013,10 +1018,31 @@ async function threeWayForecastIntake (req, res) {
       for (let w = 0; w < joined.warnings.length; w++) { monthlyWarnings.push(joined.warnings[w]) }
       history = joined.usable.map(m => ({ label: m.label, ordinal: m.ordinal, value: m.value }))
       if (joined.usable.length >= MONTHS_IN_YEAR) {
-        monthlySales = { sales: joined.usable.slice(-MONTHS_IN_YEAR).map(m => m.value) }
-      } else {
-        monthlyWarnings.push('The by-month ' + (monthly.length === 1 ? 'report gave ' : 'reports gave ') + joined.usable.length +
-          ' complete months, and the forecast needs twelve. The monthly sales have not been used as a starting point — enter the twelve months yourself' +
+        monthlySales = { sales: joined.usable.slice(-MONTHS_IN_YEAR).map(m => m.value), complete: MONTHS_IN_YEAR }
+      } else if (joined.usable.length > 0) {
+        // 🔴 MIKE'S RULING, 2026-09-07: "I want it to bring in the sales and cost figures
+        // it DOES have - and notify the user that the remaining months need to be added
+        // manually." This REVERSES the earlier rule that anything short of twelve was
+        // refused outright, which he met on 2026-09-07: a current-year export stops
+        // part-way through a month, eleven complete months were thrown away, and step 4
+        // showed a $202,781 loss on $0 of sales that balanced perfectly.
+        //
+        // ⚠ THE PART MONTH IS STILL LEFT OUT, and that half of the old rule is untouched.
+        // `joined.usable` has already had the incomplete trailing months stripped, so what
+        // is seeded here is whole months only. Seeding a month that is eight days long as
+        // though it were a month is a WRONG figure; leaving it empty is a missing one, and
+        // the screen now says which months are missing.
+        //
+        // The months are chronological and fill from the start, so a run of April to
+        // February seeds April to February and leaves March empty — the month the export
+        // did not finish.
+        const have = joined.usable.map(m => m.value)
+        const padding = new Array(MONTHS_IN_YEAR - have.length).fill(0)
+        monthlySales = { sales: have.concat(padding), complete: have.length }
+        monthlyWarnings.push('The by-month ' + (monthly.length === 1 ? 'report gave ' : 'reports gave ') + have.length +
+          ' complete months, not twelve — an export of the current year usually stops part-way through a month, and a part month is left out rather than seeded as a whole one. Those ' +
+          have.length + ' are on the sales grid; the remaining ' + padding.length +
+          ' are zero and need your figures' +
           (monthly.length === 1 ? ', or drop last year\'s by-month report as well.' : '.'))
       }
     }

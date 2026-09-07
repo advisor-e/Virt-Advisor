@@ -101,8 +101,12 @@
     },
     {
       "ref": "4.58",
-      "name": "Meeting Review — three slices built; the manager's half and §4 remain",
+      "name": "Meeting Review — the advisor's side is complete; §4 remains",
       "rankedByMike": false,
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-07"
+      },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",
@@ -117,8 +121,8 @@
         "detail": "2026-09-01 — \"i want you to design a new feature ... records the voices and transcribes the meeting, then generates two reports\", quoted in full in meeting-review-history.md §1. He named the Handbook page himself, so the page is not an inference either."
       },
       "touches": "design/features/meeting-review.md and its history, design/MEETING-CONSENT-WORDING.md, design/ARTEFACTS.md, and the meeting routes, utilities, components and pages listed in the Brief's build table.",
-      "note": "Built: observation points, consent and capture, transcription with speakers separated, audio destruction, the two reports, and meeting-types slices 1–2. Not built: the manager aggregate, follow-through, transcript expiry, the firm glossary, meeting-types slices 3–4. Open for Mike: the button label \"Read my reports\" was written, not ruled; and §4. The build record, session by session, is meeting-review-history.md §8.",
-      "comment": "2026-09-01 — filed; screens approved; slices 1–2 built. 2026-09-02 — slice 3 built; the types cascade ruled and its slices 1–2 built; renumbered 4.56 → 4.58 by the laptop on Mike's ruling; two rules he never made deleted (Brief P14)."
+      "note": "Built: observation points, consent and capture, diarized transcription, audio destruction, the two reports, meeting-types slices 1-2, the MANAGER AGGREGATE (firm tier ALONE - P13 keeps meeting figures inside the firm), TRANSCRIPT EXPIRY (each meeting on the period its own client was shown), and FOLLOW-THROUGH, screen included, matched on the client and never guessed. Not built: meeting-types slices 3-4. The jargon tile is NOT outstanding - Mike REMOVED it 2026-09-02. Open for Mike: §4, and three slice-4 decisions that are ours, in Brief §5. Record: meeting-review-history.md §8.",
+      "comment": "2026-09-01 — filed; screens approved; slices 1–2 built. 2026-09-02 — slice 3 built; the types cascade ruled and its slices 1–2 built; renumbered 4.56 → 4.58 by the laptop on Mike's ruling; two rules he never made deleted (Brief P14). 2026-09-07 — slice 4, the manager aggregate, built on the laptop from the approved drawing: 37 new tests, suite 8,184 green."
     },
     {
       "ref": "4.60",
@@ -137,9 +141,9 @@
         "ours": false,
         "detail": "2026-09-02 — \"keep it as a job for future - keep moving forward\", after being told that four real exports are what would move the two packages from `expected` to `verified`."
       },
-      "touches": "CHANGED 2026-09-07 ahead of the files: rowShape, BANK_ACCOUNT_RE and the period patterns in server/report/intake/xeroReportParser.js, the MYOB evidence in supportedPackages.js, and eight new tests in tests/unit/accountingPackages.test.js. When the real files arrive: those same three, plus flipping each `confidence` to `verified` — which its own guard will not allow until the evidence line names a real export.",
-      "note": "⚠ STILL WAITS ON FOUR REAL FILES — a Balance Sheet and P&L from QuickBooks Online and from MYOB. The two workbooks in 'C:\\Documents\\Visual Code Projects\\Perf Report\\xero reports' are NOT exports: one fictional company, identical figures in both packages, three reports per file. They earned their place anyway, finding three real MYOB faults on 2026-09-07, all fixed and tested — every label read as an account code so nothing parsed at all; cash counted one bank account of two; the period line gave no year. STILL OPEN: MYOB fixed-asset categories come back empty. QuickBooks needed no change.",
-      "comment": "2026-09-02 — filed on Mike's instruction: \"keep it as a job for future - keep moving forward\". 2026-09-07 — he supplied a structural comparison of the two formats and pointed to two reference workbooks; running the real parser over them found three MYOB faults, all fixed on his approval. The package stays `expected`: reference files are not exports, and the guard rightly refuses to say otherwise."
+      "touches": "CHANGED 2026-09-07 ahead of the files: rowShape, BANK_ACCOUNT_RE, NON_CURRENT_ASSET_RE and the period patterns in server/report/intake/xeroReportParser.js, the MYOB evidence in supportedPackages.js, and nine tests in tests/unit/accountingPackages.test.js. When the real files arrive: those same three, plus flipping each `confidence` to `verified` — which its own guard will not allow until the evidence line names a real export.",
+      "note": "⚠ STILL WAITS ON FOUR REAL FILES — a Balance Sheet and P&L from QuickBooks Online and from MYOB. The two workbooks in 'C:\\Documents\\Visual Code Projects\\Perf Report\\xero reports' are NOT exports: one fictional company, identical figures in both packages, three reports per file. They earned their place anyway, finding four real MYOB faults, all fixed and tested — every label read as an account code so nothing parsed at all; cash counted one bank account of two; the period line gave no year; and \"Property, Plant & Equipment\" was not read as a fixed-asset heading, so the categories came back empty, 145,300 went to current assets and the forecast charged no depreciation. QuickBooks needed no change.",
+      "comment": "2026-09-02 — filed on Mike's instruction: \"keep it as a job for future - keep moving forward\". 2026-09-07 — he supplied a structural comparison of the two formats and pointed to two reference workbooks; running the real parser over them found four MYOB faults, all fixed on his approval. The package stays `expected`: reference files are not exports, and the guard rightly refuses to say otherwise."
     },
     {
       "ref": "4.62",
@@ -253,6 +257,27 @@
         "machine": "desktop",
         "since": "2026-09-07"
       }
+    },
+    {
+      "ref": "4.71",
+      "name": "Quick-fire forecast — three years from percentages, not twelve months typed",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Mike asked where growth, cost-increase and margin percentages for years 1, 2 and 3 are entered. Nowhere: step 4's sliders do three of those for one year only.",
+      "risk": "Slice 1 alone would collect three years of percentages and display one — which is why the three-year view is in the same job, and it is the larger half. The engine and route exist and are tested; no screen has ever called them. Quick-fire replaces three fields only, so an error is visible against last year's actuals on the same screen.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-07 — \"draw it up please and make it a 'quick-fire option'. tick a box, it opens so i can put the data in and it just adds or subtracts from previous known data. untick it and the status quo continues\". Approved and all five questions ruled the same day."
+      },
+      "touches": "BUILT, both slices: utils/quickFireForecast.js, the year control and grid on components/ThreeWayForecastIntake.vue, yearCount in server/report/threeWayForecastModel.js, components/ThreeWayForecastReport.vue (summary, cash line, year tabs, print), locales/en.json, and four test files including tests/unit/threeWayForecastYearCount.test.js.",
+      "note": "BOTH SLICES BUILT. Slice 2 drawn and approved 2026-09-07, all seven questions ruled. Mike's first ruling REPLACED the recommendation: the advisor chooses 1, 2 or 3 years, on step 3. The count reaches the ENGINE — computing three and showing fewer would have reported a three-year revenue and a low point in a year nobody asked for, both plausible on screen. Step 4 gained a year summary, a cash line across every month, year tabs, and a print that carries every year. A new forecast opens at ONE year — ruled by Mike 2026-09-07, and it preserves today's screen exactly.",
+      "comment": "2026-09-07 — filed the day Mike asked for it, after being told the percentages could be entered nowhere. Numbered 4.71 because the desktop filed 4.70 on its own branch the same day: the third numbering collision in a week. Same day: drawn, approved, all five questions ruled, slice 1 built and merged; then slice 2 drawn, six more questions ruled one at a time, and built — 39 new tests, suite 8,147 green."
     }
   ]
 }

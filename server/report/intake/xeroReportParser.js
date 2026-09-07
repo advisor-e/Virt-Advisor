@@ -339,6 +339,27 @@ const NCA_CATEGORY_TESTS = [
 // owner money into the Other-current-liability catch-all: the balance sheet tied either
 // way, but a frozen lump cannot carry the advances and drawings a shareholder row can,
 // and the shareholder rows are positional so they hold no name at all.
+/**
+ * Which asset section holds the FIXED assets.
+ *
+ * 🔴 THE THIRD SPELLING IS MYOB'S, AND WITHOUT IT THE FAULT IS SILENT. Xero and
+ * QuickBooks both head this section "Fixed Assets"; MYOB uses the accounting standard's
+ * own wording, "Property, Plant & Equipment", and says neither "fixed" nor "non-current"
+ * anywhere. Found 2026-09-07 running the real parser over MYOB's reference workbook: all
+ * six vehicle, machinery and office-equipment rows failed this test, so `assets` came
+ * back empty and 145,300 was swept into the other-current-asset catch-all instead.
+ *
+ * Nothing complained, because nothing was lost — the balance sheet still tied. What
+ * followed did not: every fixed-asset row opens at zero, so the forecast charges NO
+ * depreciation for the year (profit, tax and retained earnings all overstated), and
+ * working capital is overstated by the same 145,300. The same company's figures through
+ * QuickBooks split correctly into vehicles, plant and office equipment.
+ *
+ * "Property, Plant & Equipment" contains "Plant & Equipment", so the one alternative
+ * covers every spelling of the heading. It is tested against the SECTION chain only,
+ * never a row label, so it cannot claim a stock or bank line.
+ */
+const NON_CURRENT_ASSET_RE = /non-?current|fixed|plant\s*(?:&|and)\s*equipment/i
 const SHAREHOLDER_RE = /shareholder|director|beneficiar(?:y|ies)|current\s+account|(?:funds|capital)\s+introduced/i
 const LOAN_RE = /\bloan\b|hire\s*purchase|\bhp\b|finance\s+lease|mortgage|term\s+debt/i
 const GST_RE = /\bgst\b|\bvat\b|goods\s+and\s+services/i
@@ -419,8 +440,8 @@ function extractForecastBalanceSheet (grid) {
   // broke the no-"Total Assets" layout, where Equity nests inside the open Assets
   // section and every equity line was excluded.
   const equityItems = items.filter(isEquity)
-  const currentAssets = assetItems.filter(it => !inSection(it, /non-?current|fixed/i))
-  const nonCurrentAssets = assetItems.filter(it => inSection(it, /non-?current|fixed/i))
+  const currentAssets = assetItems.filter(it => !inSection(it, NON_CURRENT_ASSET_RE))
+  const nonCurrentAssets = assetItems.filter(it => inSection(it, NON_CURRENT_ASSET_RE))
 
   const currentLiabItems = liabItems.filter(it => !inSection(it, /non-?current|long[-\s]?term/i))
   const nonCurrentLiabItems = liabItems.filter(it => inSection(it, /non-?current|long[-\s]?term/i))

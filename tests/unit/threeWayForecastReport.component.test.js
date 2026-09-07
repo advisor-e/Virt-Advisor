@@ -18,10 +18,50 @@ const { computeThreeWayForecast } = require('~/server/report/threeWayForecastMod
  * wording — the wording is Mike's and moves without these tests breaking.
  */
 
+/**
+ * One year, in the shape the THREE-YEARS route returns — `{ years, summary }`.
+ *
+ * The screen has called `/three-years` for every forecast since 2026-09-07 (item 4.71
+ * slice 2, Mike's ruling that the advisor chooses 1, 2 or 3 years), so a fixture shaped
+ * like the old single-year response would test a response the app can no longer receive.
+ *
+ * ⚠ THE SUMMARY IS BUILT HERE ONLY BECAUSE ONE YEAR MAKES IT TRIVIAL — over a single year
+ * a total IS that year's total and the lowest point IS its lowest month. The multi-year
+ * summary is never imitated: the tests that exercise more than one year call the real
+ * engine and assert against what IT returns, which is what stops this helper quietly
+ * becoming a second implementation to agree with.
+ *
+ * @param {object} d one year from `computeThreeWayForecast`.
+ * @returns {object} `{ years: [d], summary }`
+ */
+function asForecast (d) {
+  if (!d || Array.isArray(d.years)) { return d }
+  const total = s => s.reduce((a, v) => a + v, 0)
+  const cash = d.cashFlow.closingBalance
+  let low = 0
+  cash.forEach((v, i) => { if (v < cash[low]) { low = i } })
+  return {
+    years: [d],
+    summary: {
+      revenue: total(d.profitAndLoss.revenue),
+      grossSurplus: total(d.profitAndLoss.grossSurplus),
+      totalOverheads: total(d.profitAndLoss.totalOverheads),
+      netSurplusBeforeTax: total(d.profitAndLoss.netSurplusBeforeTax),
+      taxProvision: total(d.profitAndLoss.taxProvision),
+      netSurplusAfterTax: total(d.profitAndLoss.netSurplusAfterTax),
+      closingCash: cash[cash.length - 1],
+      closingNetAssets: d.balanceSheet.months.netAssets[11],
+      balanceCheck: d.balanceSheet.months.balanceCheck[11],
+      lowestCash: { value: cash[low], year: 1, month: low + 1, date: d.months.isoDates[low] }
+    }
+  }
+}
+
 /** Mount with the backend answering, and let the first result land. */
 async function mountWithResult (data, propsData) {
+  const body = asForecast(data)
   global.fetch = jest.fn(() => Promise.resolve({
-    json: () => Promise.resolve({ success: true, data })
+    json: () => Promise.resolve({ success: true, data: body })
   }))
   const wrapper = mountWithBuefy(ThreeWayForecastReport, { propsData: propsData || {} })
   await wrapper.vm.$nextTick()
@@ -255,15 +295,149 @@ describe('Three-Way Forecast screen — the shared blocks do the work', () => {
   })
 })
 
+/**
+ * 🔴 THE SLIDER ITSELF, NOT `setField`.
+ *
+ * Every other lever test in this file calls `setField()` directly, so the whole path from
+ * the rendered `<input type="range">` to the recompute has never been exercised. Mike
+ * reported on 2026-09-07 that moving a slider on step 4 did nothing, with all 8,095 tests
+ * green — and this is the gap that let both be true at once.
+ *
+ * These drive the real control: find the SliderField, set the native input's value, fire
+ * the event the browser fires, and check a second request actually goes out carrying the
+ * changed figure. Nothing here asserts a label or a class.
+ */
+describe('Three-Way Forecast screen — dragging the real slider, end to end', () => {
+  /** Move the nth slider to `value` the way a browser does, and let the debounce run. */
+  async function drag (w, n, value) {
+    const input = w.findAllComponents({ name: 'SliderField' }).at(n).find('input[type="range"]')
+    input.element.value = String(value)
+    await input.trigger('input')
+    jest.advanceTimersByTime(400) // past reportRecompute's 250 ms debounce
+    await w.vm.$nextTick()
+    await w.vm.$nextTick()
+  }
+
+  beforeEach(() => { jest.useFakeTimers() })
+  afterEach(() => { jest.useRealTimers() })
+
+  test('🔴 dragging the sales slider sends a NEW request with the scaled sales', async () => {
+    const seed = { sales: new Array(12).fill(1000), overheads: { wages: 12000 } }
+    const w = await mountWithResult(SAMPLE, { seed })
+    const before = global.fetch.mock.calls.length
+    await drag(w, 0, 25) // "Sales, all months" is the first slider
+
+    expect(w.vm.f.salesShift).toBe(25)
+    expect(global.fetch.mock.calls.length).toBeGreaterThan(before)
+    const body = JSON.parse(global.fetch.mock.calls[global.fetch.mock.calls.length - 1][1].body)
+    // Year 1 is the first entry of `years` since the screen moved to the three-years
+    // route (item 4.71 slice 2). The lever still has to reach the figures.
+    expect(body.years[0].sales.every(v => v === 1250)).toBe(true)
+    w.destroy()
+  })
+
+  test('🔴 dragging the overheads slider reaches the request too', async () => {
+    const seed = { sales: new Array(12).fill(1000), overheads: { wages: 12000 } }
+    const w = await mountWithResult(SAMPLE, { seed })
+    await drag(w, 3, -10) // "Overheads, all lines" is the fourth
+
+    expect(w.vm.f.overheadShift).toBe(-10)
+    const body = JSON.parse(global.fetch.mock.calls[global.fetch.mock.calls.length - 1][1].body)
+    expect(body.years[0].overheads.wages).toBeCloseTo(10800, 6)
+    w.destroy()
+  })
+
+  test('🔴 the RENDERED figures change — not just the request body', async () => {
+    // The gap the other two leave: a request can go out, be answered, and the screen
+    // still show the old figures. That is exactly what "the sliders do nothing" looks
+    // like, and nothing in this suite has ever checked the answer reaches the screen.
+    const seed = { sales: new Array(12).fill(1000), overheads: { wages: 12000 } }
+    const bigger = computeThreeWayForecast({ sales: new Array(12).fill(9999), markup: 0.68 })
+    const w = await mountWithResult(SAMPLE, { seed })
+    const revenueBefore = w.vm.headline.revenue
+
+    global.fetch = jest.fn(() => Promise.resolve({
+      json: () => Promise.resolve({ success: true, data: asForecast(bigger) })
+    }))
+    await drag(w, 0, 25)
+    await w.vm.$nextTick()
+
+    // `data` points at the year on screen, which for a one-year forecast is the year the
+    // backend just returned.
+    expect(w.vm.data).toEqual(bigger)
+    expect(w.vm.headline.revenue).not.toBe(revenueBefore)
+    expect(w.vm.error).toBe(false)
+    w.destroy()
+  })
+
+  test('the slider shows the value it was moved to, rather than snapping back', async () => {
+    const seed = { sales: new Array(12).fill(1000), overheads: { wages: 12000 } }
+    const w = await mountWithResult(SAMPLE, { seed })
+    await drag(w, 0, -30)
+    const input = w.findAllComponents({ name: 'SliderField' }).at(0).find('input[type="range"]')
+    expect(Number(input.element.value)).toBe(-30)
+    w.destroy()
+  })
+})
+
+/**
+ * 🔴 A FORECAST WITH NO SALES IN IT.
+ *
+ * Found 2026-09-07 by driving the real app after Mike reported that the sliders "did
+ * nothing". His by-month export ended part-way through a month; that month is stripped as
+ * incomplete, and short of twelve the seed is deliberately not padded — so sales arrived
+ * as twelve zeros while the Balance Sheet and the overheads loaded normally.
+ *
+ * What he was shown: a loss of $202,781 to the dollar, a screen reporting itself in
+ * balance, and four live sliders that could not move a figure, because a percentage of
+ * zero is zero. Nothing on it said the forecast had no sales in it. A person in UAT cannot
+ * catch that — it reads as a business having a bad year.
+ */
+describe('Three-Way Forecast screen — no sales at all', () => {
+  test('🔴 a forecast with no sales says so, rather than presenting a confident loss', async () => {
+    const empty = computeThreeWayForecast({ sales: new Array(12).fill(0), overheads: { wages: 120000 } })
+    const w = await mountWithResult(empty)
+    expect(w.vm.noSales).toBe(true)
+    expect(w.find('.tw-nosales').exists()).toBe(true)
+    w.destroy()
+  })
+
+  test('a forecast that DOES sell says nothing of the kind', async () => {
+    const w = await mountWithResult(SAMPLE)
+    expect(w.vm.noSales).toBe(false)
+    expect(w.find('.tw-nosales').exists()).toBe(false)
+    w.destroy()
+  })
+
+  test('it asks the RESULT, so every route to an empty forecast is covered', async () => {
+    // No file, a short by-month export, and a client opening a saved row all arrive the
+    // same way. Asking the seed would cover one of the three.
+    const w = await mountWithResult(SAMPLE)
+    expect(w.vm.noSales).toBe(false)
+    w.vm.data = computeThreeWayForecast({ sales: new Array(12).fill(0) })
+    await w.vm.$nextTick()
+    expect(w.vm.noSales).toBe(true)
+    w.destroy()
+  })
+
+  test('before the first result lands it claims nothing', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.data = null
+    await w.vm.$nextTick()
+    expect(w.vm.noSales).toBe(false)
+    w.destroy()
+  })
+})
+
 describe('Three-Way Forecast screen — the levers', () => {
   test('a lever moves the request body, not the rendered figures directly', async () => {
     const w = await mountWithResult(SAMPLE)
     w.vm.setField('salesShift', 10)
     const body = w.vm.payload()
     // With no seed the body carries the levers; sales scale only once seeded.
-    expect(body.markup).toBeCloseTo(0.68, 10)
+    expect(body.years[0].markup).toBeCloseTo(0.68, 10)
     w.vm.setField('markup', 40)
-    expect(w.vm.payload().markup).toBeCloseTo(0.4, 10)
+    expect(w.vm.payload().years[0].markup).toBeCloseTo(0.4, 10)
     w.destroy()
   })
 
@@ -271,7 +445,7 @@ describe('Three-Way Forecast screen — the levers', () => {
     const seed = { sales: new Array(12).fill(1000), overheads: { wages: 12000 } }
     const w = await mountWithResult(SAMPLE, { seed })
     w.vm.setField('salesShift', 50)
-    const body = w.vm.payload()
+    const body = w.vm.payload().years[0]
     expect(body.sales.every(v => v === 1500)).toBe(true)
     expect(body.overheads.wages).toBe(12000)
     // The seed itself must not be mutated — a second recompute would compound it.
@@ -283,7 +457,7 @@ describe('Three-Way Forecast screen — the levers', () => {
     const w = await mountWithResult(SAMPLE, { seed: { debtorCollection: [0.1, 0.55, 0.3, 0.05, 0] } })
     for (const after of [0, 25, 55, 90, 100]) {
       w.vm.setField('debtorMonthAfter', after)
-      const buckets = w.vm.payload().debtorCollection
+      const buckets = w.vm.payload().years[0].debtorCollection
       const total = buckets.reduce((a, v) => a + v, 0)
       expect(total).toBeCloseTo(1, 9)
       expect(buckets[1]).toBeCloseTo(after / 100, 9)
@@ -293,8 +467,12 @@ describe('Three-Way Forecast screen — the levers', () => {
   })
 
   test('it posts to the calculation route', async () => {
+    // 🔴 THE THREE-YEARS ROUTE, EVEN FOR ONE YEAR — item 4.71 slice 2. One path rather
+    // than two, so a one-year and a three-year forecast cannot be answered by two
+    // different pieces of arithmetic. The old single-year route still exists and is
+    // still tested; this screen no longer calls it.
     const w = await mountWithResult(SAMPLE)
-    expect(w.vm.recomputeRequest().url).toBe('/api/report/three-way-forecast')
+    expect(w.vm.recomputeRequest().url).toBe('/api/report/three-way-forecast/three-years')
     w.destroy()
   })
 })
@@ -494,7 +672,7 @@ describe('Summary / Every line', () => {
     w.vm.tab = 'cash'
     await w.vm.$nextTick()
 
-    expect(w.vm.printStatements.map(s => s.key)).toEqual(['cash', 'profit', 'balance'])
+    expect(w.vm.printStatements.map(s => s.key)).toEqual(['cash-0', 'profit-0', 'balance-0'])
     // Each carries its own figures, not the open tab's repeated three times.
     expect(w.vm.printStatements[0].rows).toEqual(w.vm.cashRows)
     expect(w.vm.printStatements[1].rows).toEqual(w.vm.profitRows)
@@ -503,7 +681,7 @@ describe('Summary / Every line', () => {
     // And it does not follow the tab — the trap a later "simplification" would fall into.
     w.vm.tab = 'balance'
     await w.vm.$nextTick()
-    expect(w.vm.printStatements.map(s => s.key)).toEqual(['cash', 'profit', 'balance'])
+    expect(w.vm.printStatements.map(s => s.key)).toEqual(['cash-0', 'profit-0', 'balance-0'])
     w.destroy()
   })
 

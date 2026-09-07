@@ -9,54 +9,76 @@
 
 ---
 
-## 2026-09-07 (second session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-07 (fifth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,058 green** (415 suites), lint **0 errors**. Three commits — `25588c9`, `7fef416`,
-`5130a7c` — each through the full push gate. Everything pushed. Nothing uncommitted.
+Suite **8,185 green** (419 suites), lint 0 errors. Two commits, both pushed — `b745ba2`.
+Nothing uncommitted. Started 1 ahead / 0 behind master; ended 3 ahead / 0 behind.
 
-**4.68 CLOSED — the code was right and its own note was stale.** Step 4's $0 screen is
-correct: the intake's `immediate` watcher means `seed` is never null, so the report's no-seed
-sample path is unreachable from the page — deliberately, because `buildInputs()` sends every
-field explicitly so Big Bird Grass Seed cannot reach a client. One comment block, no code
-change. That flag is load-bearing for 4.62.
+**4.58 SLICE 4 IS BUILT — the manager's aggregate.** Screens C3 and C4 of the drawing
+approved 2026-09-01. A firm manager opens the Meeting Review tab and sees whether the
+observation points are landing across the firm this month — counts only, never a name, and
+nothing at all below the ruled gate. New: `server/utils/meetingAggregate.js`,
+`server/routes/meetingPatterns.js`, `components/firm/FirmMeetingPatterns.vue`. 37 new tests.
 
-**4.69 FIXED AND PROVEN, STILL OPEN.** §2 asked one date to be both the start of the
-assessment period and the yardstick for how current a figure is. Given 30 November 2026 the
-model searched *"monetary policy … 2026 November"*, found nothing, and §§1 and 3 came back
-unsourced. Reproduced twice, then split into `{{assessmentDate}}` + `{{today}}` — Mike's
-wording. The same run after: **14 searches, 13 sources, 1,948 words, accepted.** Runs 13–16
-are on [`ECONOMIC-ANALYSIS-TEST-RUNS.md`](ECONOMIC-ANALYSIS-TEST-RUNS.md).
+**The one thing worth carrying forward: this block deliberately does NOT cascade upward.**
+Every other cascading thing here runs mentor → global → group → firm. This is firm tier
+alone, because Brief **P13** keeps anything derived from a recorded meeting inside the firm
+it came from — the consent line promises a named client exactly that. A tier above the firm
+is answered **403, not an empty screen**, because an empty screen reads as *"your firm did
+nothing"*. If you touch `TAB_TIERS` or the tier chain, this is the one row that is meant to
+look wrong.
 
-**4.60 — MYOB READ NOTHING AT ALL, AND THEN READ CASH SHORT.** Mike supplied a format
-comparison and pointed at two reference workbooks; running our own parser over them found
-three faults, all fixed and tested. MYOB puts the account code in its own column, so
-`rowShape` took the code as the label — every section came through as `4-0000` and a whole
-balance sheet parsed to `proposals: {}`, accepted on screen with no error. Then cash read
-**64,500 of a real 89,500**: `BANK_ACCOUNT_RE` matched "savings" but not MYOB's "Online
-**Saver** Account". Then the P&L period line gave no date and no year. **4.60 has NOT moved
-and must not** — both workbooks are one fictional company with identical figures, three
-reports per file; they are reference material, not exports.
+**A real fault the tests caught before it shipped.** The month was read with `getMonth()`,
+so the same twenty meetings fell into different months on a server in Auckland and one in
+London, with nothing on screen to say which had happened. Fixed to UTC; the cost is a
+visible one-day skew at a month boundary, and it is the better of the two.
+
+**Three rulings from Mike, each put to him alone.**
+
+- **4.71's last open question:** a new forecast opens at one year. Recorded as a seventh
+  ruling on [`mockups/three-way-forecast-three-years.html`](mockups/three-way-forecast-three-years.html).
+  No code changed — it already did.
+- **"Read my reports"** is his wording, and is now **pinned** in
+  `tests/unit/meetingReview.component.test.js`. Do not reword it.
+- **The cohort floor applies per point**, not only to the screen. His ruling now, not our
+  reading of it.
 
 ### 🔴 DESKTOP — read this first
 
-- **The OpenAI account is OUT OF CREDITS** (`credit_balance_exhausted`). Economic analysis
-  fails for every user until Mike tops it up, and it is what blocks 4.69's last check.
-- **You used 4.68 and 4.69 for DIFFERENT work today.** Both of yours are closed on your
-  branch; ours were open items and are not the same things. Second collision in a week.
-- **Shared files:** `fillPlaceholders` in `server/routes/economicAnalysis.js` now takes four
-  arguments (`assembled, brief, assessmentDate, now`), and `data/ai-prompts.json` §2 is
-  rewritten. In `xeroReportParser.js`, `rowShape`, `BANK_ACCOUNT_RE` and the period patterns
-  changed — **shared by every intake, so Xero and QuickBooks were checked and are unchanged.**
-  No forecast component or intake screen was touched.
+- **Shared files changed:** `design/ARTEFACTS.md` (the Meeting Review row, the consent row,
+  and a new *Letters drafted for Mike to send* table), `design/features/to-do-items.json`
+  (4.58 and 4.71), `server/restify-server.js` (one route mounted),
+  `server/utils/meetingAudioStore.js` (`listMeetingIds` added — additive, ids only).
+- **You are 18 ahead / 14 behind `master`** as of your last push. Merge `master` in before
+  going further; today's forecast work and the MYOB parser fix are both in it.
+- **The OpenAI account is still OUT OF CREDITS.** Economic analysis fails for every user.
+
+### Open, and named rather than left to be discovered
+
+- **Three decisions inside slice 4 are OURS, not his rulings**, all named in Brief §5: the
+  month read in UTC; a meeting contributing only once it has coaching notes; and the bar
+  turning amber below 70%. He has not ruled on any of the three, and none changes a figure.
+- **The "Share with my manager" button is still absent, and slice 4 did NOT unblock it.**
+  `ARTEFACTS.md` used to say it waited on the aggregate existing. That reasoning was wrong
+  and is corrected: the aggregate is anonymous by construction, so a named report has
+  nowhere to arrive. It needs its own screen and a separate decision under P2 — **and Mike
+  has not asked for one.**
+- **📧 An email is drafted and waits on Mike to send it:**
+  [`OPENAI-AUDIO-TERMS-EMAIL.md`](OPENAI-AUDIO-TERMS-EMAIL.md), closing item 5 of Brief §4.
+  The other three §4 items — the impact assessment, staff consultation, and a lawyer per
+  market — are his and block a first real recording, not a commit.
 
 ### Next
 
-**4.69 needs one run on the no-date default path** once credits return — §2 renders correctly
-there, only the model's reply is unseen. A `SECTIONS_MISSING` run today is unexplained and is
-NOT this change: it is the second sighting in two days, and **a third is a real fault**.
+**4.58's remaining work** is follow-through across meetings, transcript expiry, and
+meeting-types slices 3–4 (slice 3 is one computed property in `FirmMeetingTypes.vue`). The
+firm glossary is absent by his ruling and needs words from him, not code.
 
-**4.60 still waits on four real exports**, and one MYOB gap is open: the fixed-asset
-categories come back empty where QuickBooks fills them. Recorded in `supportedPackages.js`.
+**4.69** still owes one run on the no-date path once credits return. **4.60** waits on four
+real exports from QuickBooks Online and MYOB, and whoever collects them should be asked for
+the Fixed Asset Schedule at the same time (**4.65**).
 
-**Eight live items.** 4.69 `activeOn` this laptop; 4.66's flag cleared — built, pushed, and
-waiting on Mike.
+**Nine live items.** `activeOn` this laptop: **4.58** and **4.69**.
+
+⚠ **The desktop's handover is dated 2026-09-04 but its branch has a commit from 2026-09-07** —
+a session ended there without writing one. Worth knowing before assuming what it holds.

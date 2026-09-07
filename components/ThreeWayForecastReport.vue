@@ -23,26 +23,49 @@
       @retry="recompute")
 
     //- [C] The headline band — full width, a direct child of the root.
+    //- 🔴 THE FOUR TILES ANSWER OVER THE WHOLE FORECAST — Mike's ruling, 2026-09-07.
+    //- On a ONE-YEAR forecast every one of them reads exactly as it always has; the
+    //- multi-year subs below only appear once there is more than one year to span. The
+    //- third label is the one that changes, because "Result for the year" is not true of
+    //- three of them — it is the wording of the approved drawing.
     hero-strip(:columns="4" :stale="!!error")
       hero-figure(
         :label="$t('report.threeWayForecast.report.closingCash')"
         :value="money(headline.closingCash)"
-        :sub="headline.closingCash < 0 ? $t('report.threeWayForecast.report.closingCashSub') : $t('report.threeWayForecast.report.closingCashSubGood')"
+        :sub="closingCashSub"
         :tone="headline.closingCash < 0 ? 'crit' : 'default'")
       hero-figure(
         :label="$t('report.threeWayForecast.report.lowestPoint')"
         :value="money(headline.lowest.value)"
-        :sub="$t('report.threeWayForecast.report.lowestPointSub', { month: headline.lowest.label })"
+        :sub="lowestPointSub"
         :tone="headline.lowest.value < 0 ? 'crit' : 'default'")
       hero-figure(
-        :label="$t('report.threeWayForecast.report.resultForYear')"
+        :label="isMultiYear ? $t('report.threeWayForecast.report.years.resultLabel', { n: yearCount }) : $t('report.threeWayForecast.report.resultForYear')"
         :value="money(headline.afterTax)"
         :sub="$t('report.threeWayForecast.report.resultForYearSub', { revenue: money(headline.revenue) })"
         :tone="headline.afterTax < 0 ? 'crit' : 'default'")
       hero-figure(
         :label="$t('report.threeWayForecast.report.grossMargin')"
         :value="pct(headline.grossMarginPct)"
-        :sub="$t('report.threeWayForecast.report.grossMarginSub', { amount: money(headline.grossSurplus) })")
+        :sub="grossMarginSub")
+
+    //- 🔴 A FORECAST WITH NO SALES IN IT. Found 2026-09-07 by driving the real app after
+    //- Mike reported that the sliders "did nothing": his by-month export ended part-way
+    //- through a month, that month was stripped as incomplete, and short of twelve the
+    //- seed is deliberately not padded — so sales came through as twelve zeros while the
+    //- Balance Sheet and the overheads loaded normally. The result was a screen showing a
+    //- $202,781 loss to the dollar, reporting itself in balance, with four live sliders
+    //- that could not move a figure, because a percentage of zero is zero.
+    //-
+    //- The intake ALREADY warns at step 2 (server/routes/report.js — "gave N complete
+    //- months, and the forecast needs twelve"). This band exists because that warning is
+    //- two screens behind by the time the figures are read, and because step 4 is
+    //- reachable with no file at all. It names the state and the remedy rather than
+    //- letting a confident loss stand as the answer.
+    .tw-nosales(v-if="noSales")
+      div
+        b {{ $t('report.threeWayForecast.report.noSalesTitle') }}
+        span {{ $t('report.threeWayForecast.report.noSalesBody') }}
 
     //- Stock below zero cannot happen in reality, so it is named rather than shown as a
     //- figure among figures. Drawn this way in the approved mockup.
@@ -130,11 +153,73 @@
 
     //- [D2] The statements.
     section.tw-results(v-if="data")
+      //- [D2z] 🔴 THE FORECAST ACROSS ITS YEARS — item 4.71 slice 2, built from
+      //- mockups/three-way-forecast-three-years.html, approved by Mike 2026-09-07.
+      //- Absent on a one-year forecast, where it would be a table of one column beside
+      //- the statements that already say it.
+      .tw-card(v-if="isMultiYear")
+        .tw-group
+          .tw-glabel
+            span.tw-dot
+            h2.tw-h2 {{ $t('report.threeWayForecast.report.years.summaryHeading', { n: yearCount }) }}
+          .tw-tblwrap
+            table.tw-years
+              thead
+                tr
+                  th
+                  th(v-for="(y, i) in result.years" :key="'yh' + i")
+                    | {{ $t('report.threeWayForecast.report.years.tab', { n: i + 1 }) }}
+                    span.tw-inherit(v-if="inheritedYears[i]") {{ $t('report.threeWayForecast.report.years.sameAgain') }}
+                    small {{ yearSpan(i) }}
+                  th.tw-tot {{ $t('report.threeWayForecast.report.years.columnTotal', { n: yearCount }) }}
+              tbody
+                tr(v-for="row in summaryRows" :key="row.key" :class="{ rule: row.rule, 'is-strong': row.strong }")
+                  td {{ $t('report.threeWayForecast.report.years.row.' + row.key) }}
+                  td(
+                    v-for="(v, i) in row.values" :key="i"
+                    :class="{ dim: row.dim, neg: v < 0 }") {{ money(v) }}
+                  td.tw-tot(:class="{ neg: row.total < 0 }") {{ money(row.total) }}
+          p.tw-note {{ $t('report.threeWayForecast.report.years.positionNote') }}
+          p.tw-note(v-if="inheritedYears.some(Boolean)") {{ $t('report.threeWayForecast.report.years.sameAgainNote') }}
+
+      //- [D2y] Cash across every month of the forecast. One year of this line is the
+      //- cash tab's own bottom row, so it earns its place only across several.
+      .tw-card(v-if="isMultiYear")
+        .tw-group
+          .tw-glabel
+            span.tw-dot
+            h2.tw-h2 {{ $t('report.threeWayForecast.report.years.cashHeading', { months: yearCount * 12 }) }}
+          .tw-tblwrap
+            table.tw-years.tw-cashline
+              thead
+                tr
+                  th
+                  th(v-for="(p, i) in cashLine" :key="'ch' + i") {{ p.label }}
+              tbody
+                tr
+                  td {{ $t('report.threeWayForecast.report.years.row.closingCash') }}
+                  td(
+                    v-for="(p, i) in cashLine" :key="'cv' + i"
+                    :class="{ neg: p.value < 0, low: p.isLowest }") {{ money(p.value) }}
+          p.tw-note
+            | {{ $t('report.threeWayForecast.report.years.cashLowest', { amount: money(cashExtremes.lowest.value), month: cashExtremes.lowest.label }) }}
+            |  ·
+            | {{ $t('report.threeWayForecast.report.years.cashHighest', { amount: money(cashExtremes.highest.value), month: cashExtremes.highest.label }) }}
+
       //- [D2a] THE SCREEN'S statements — one at a time, chosen by the tabs. The print has
       //- its own block below and this whole card is hidden there; see [D2b].
       .tw-card.tw-screenstmt
         //- The tabs, and the Summary / Every line setting that governs all three of them.
         //- Approved by Mike 2026-09-05 from mockups/three-way-forecast-report-detail.html.
+        //- The YEAR row above them is slice 2's only change to this card: the three tabs,
+        //- the twelve month columns and the detail switch are all untouched.
+        .tw-tabrow(v-if="isMultiYear")
+          .tw-tabs
+            button(
+              v-for="(y, i) in result.years" :key="'yt' + i"
+              :class="{ on: yearIndex === i }"
+              type="button"
+              @click="selectYear(i)") {{ $t('report.threeWayForecast.report.years.tab', { n: i + 1 }) }}
         .tw-tabrow
           .tw-tabs
             button(
@@ -176,17 +261,25 @@
       //- Nothing new is computed: the three row sets already exist for the tabs to switch
       //- between, and the headings are the tab labels themselves.
       .tw-printall
+        //- 🔴 EVERY YEAR THE ADVISOR ASKED FOR — Mike's ruling, 2026-09-07. Three
+        //- statements per year, so a one-year forecast prints the same four pages it has
+        //- printed since 2026-09-06 and a three-year one prints eleven. His reasoning is
+        //- the same one that put all three statements on paper in the first place: a
+        //- lender given one of the three cannot check the claim that they tie, and a
+        //- lender given one year of three cannot check the year being lent against.
         .tw-card.tw-printstmt(v-for="s in printStatements" :key="s.key")
           .tw-group
             .tw-glabel
               span.tw-dot
-              h2.tw-h2 {{ $t(s.label) }}
+              h2.tw-h2 {{ s.heading }}
             .tw-tblwrap
               table
                 thead
                   tr
                     th
-                    th(v-for="(m, i) in monthLabels" :key="i") {{ m }}
+                    //- Each year carries its OWN month labels: a forecast starting
+                    //- mid-year does not repeat year 1's months in year 2.
+                    th(v-for="(m, i) in s.months" :key="i") {{ m }}
                 tbody
                   tr(v-for="row in s.rows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub, 'is-strong': row.strong }")
                     td {{ row.rawLabel || $t(row.label) }}
@@ -194,9 +287,9 @@
                       v-for="(v, i) in row.values" :key="i"
                       :class="cellClass(row, v)") {{ money(v) }}
             //- The screen's own copy of this note is keyed to the profit TAB being open,
-            //- which is never true here, so the print reads its own count.
-            p.tw-note(v-if="s.key === 'profit' && printHiddenOverheads")
-              | {{ $t('report.threeWayForecast.report.detail.hiddenOverheads', { hidden: printHiddenOverheads, total: overheadCount }) }}
+            //- which is never true here, so the print reads its own count — per year.
+            p.tw-note(v-if="s.hidden")
+              | {{ $t('report.threeWayForecast.report.detail.hiddenOverheads', { hidden: s.hidden, total: overheadCount }) }}
 
       .tw-card
         .tw-group
@@ -289,7 +382,22 @@ export default {
 
   data () {
     return {
+      /**
+       * The year currently on screen. `result` below holds every year the advisor asked
+       * for; this is the one the statements, the working-capital table and every existing
+       * computed read.
+       *
+       * 🔴 IT IS A POINTER, NOT A SECOND COPY. `applyResult` re-points it and switching
+       * year tabs re-points it again — no request, no recomputation. Keeping the shape a
+       * single year's result is what let the three statements, the print block, the
+       * detail switch and the stock-out banner carry over to a three-year forecast
+       * untouched (item 4.71 slice 2).
+       */
       data: null,
+      /** Every year asked for, plus the summary across them: `{ years, summary }`. */
+      result: null,
+      /** Which year the statements are showing — 0-based. */
+      yearIndex: 0,
       tab: 'cash',
       /**
        * How much of each statement to show — Mike's ruling, 2026-09-05.
@@ -353,31 +461,227 @@ export default {
       })
     },
 
+    /**
+     * How many years this forecast runs — 1, 2 or 3 (item 4.71 slice 2).
+     * @returns {number}
+     */
+    yearCount () {
+      return this.result ? this.result.years.length : 0
+    },
+
+    /** True once there is more than one year to look at. @returns {boolean} */
+    isMultiYear () { return this.yearCount > 1 },
+
+    /**
+     * The four headline figures — Mike's ruling of 2026-09-07: they keep their labels and
+     * answer over **the whole forecast**, not year 1.
+     *
+     * 🔴 THE ONE THAT EARNS THE CHANGE IS THE LOWEST POINT. Until now it was the worst
+     * month of year 1, because year 1 was all there was. A lender is asking about the
+     * worst month of the whole facility, and the engine has always worked that out — the
+     * summary carries the value, the year, the month and the date. No screen had ever
+     * shown it.
+     *
+     * Read off `summary` rather than re-totalled here: the backend already sums the years
+     * it built, and a second implementation in the browser is how a screen comes to
+     * disagree with its own printout.
+     */
     headline () {
-      const d = this.data
-      if (!d) {
-        return { closingCash: 0, lowest: { value: 0, label: '' }, afterTax: 0, revenue: 0, grossSurplus: 0, grossMarginPct: 0 }
+      const s = this.result && this.result.summary
+      if (!s || !this.data) {
+        return { closingCash: 0, lowest: { value: 0, label: '', year: 0, month: 0 }, afterTax: 0, revenue: 0, grossSurplus: 0, grossMarginPct: 0 }
       }
-      const cash = d.cashFlow.closingBalance
-      let lowIndex = 0
-      cash.forEach((v, i) => { if (v < cash[lowIndex]) { lowIndex = i } })
-      const total = series => series.reduce((a, v) => a + v, 0)
-      const revenue = total(d.profitAndLoss.revenue)
-      const grossSurplus = total(d.profitAndLoss.grossSurplus)
+      const low = s.lowestCash || { value: 0, year: 1, month: 1, date: null }
+      const revenue = s.revenue || 0
       return {
-        closingCash: cash[cash.length - 1],
-        lowest: { value: cash[lowIndex], label: this.monthLabels[lowIndex] },
-        afterTax: total(d.profitAndLoss.netSurplusAfterTax),
+        closingCash: s.closingCash,
+        lowest: {
+          value: low.value,
+          // On a one-year forecast this is the same short month label the screen has
+          // always shown; the year and month numbers are what the multi-year sub adds.
+          label: this.monthNameOf(low.date),
+          year: low.year,
+          month: low.month
+        },
+        afterTax: s.netSurplusAfterTax,
         revenue,
-        grossSurplus,
-        grossMarginPct: revenue === 0 ? 0 : (grossSurplus / revenue) * 100
+        grossSurplus: s.grossSurplus,
+        grossMarginPct: revenue === 0 ? 0 : ((s.grossSurplus || 0) / revenue) * 100
       }
+    },
+
+    /** The closing-cash sub — the year it closes on, once there is more than one. */
+    closingCashSub () {
+      if (this.isMultiYear) {
+        return this.$t('report.threeWayForecast.report.years.closingCashSub', { n: this.yearCount })
+      }
+      return this.headline.closingCash < 0
+        ? this.$t('report.threeWayForecast.report.closingCashSub')
+        : this.$t('report.threeWayForecast.report.closingCashSubGood')
+    },
+
+    /**
+     * The lowest-point sub. Over more than one year a bare month name is ambiguous —
+     * there are three Aprils — so it names the year and how far the search ran.
+     */
+    lowestPointSub () {
+      if (!this.isMultiYear) {
+        return this.$t('report.threeWayForecast.report.lowestPointSub', { month: this.headline.lowest.label })
+      }
+      return this.$t('report.threeWayForecast.report.years.lowestPointSub', {
+        month: this.headline.lowest.label,
+        year: this.headline.lowest.year,
+        monthNo: this.headline.lowest.month,
+        months: this.yearCount * 12
+      })
+    },
+
+    /** The gross-margin sub — an average once it spans more than one year. */
+    grossMarginSub () {
+      const amount = this.money(this.headline.grossSurplus)
+      return this.isMultiYear
+        ? this.$t('report.threeWayForecast.report.years.grossMarginSub', { n: this.yearCount, amount })
+        : this.$t('report.threeWayForecast.report.grossMarginSub', { amount })
+    },
+
+    /** Every month of every year, for the cash line. @returns {Array<number>} */
+    allMonthsCash () {
+      if (!this.result) { return [] }
+      return this.result.years.reduce((all, y) => all.concat(y.cashFlow.closingBalance), [])
+    },
+
+    /**
+     * The three-year summary — one column per year, plus a total column.
+     *
+     * ⚠ THE TOTAL COLUMN TOTALS FLOWS AND REPEATS POSITIONS. Revenue and profit are flows
+     * and add up; cash at the year end and net assets are positions on a date, and adding
+     * three of them produces a number no accountant would recognise. The screen says so
+     * beneath the table.
+     *
+     * @returns {Array<object>} `{ key, values, total, isPosition, rule, strong }`
+     */
+    summaryRows () {
+      if (!this.result) { return [] }
+      const total = series => series.reduce((a, v) => a + v, 0)
+      const per = fn => this.result.years.map(fn)
+      const sum = arr => arr.reduce((a, v) => a + v, 0)
+
+      const revenue = per(y => total(y.profitAndLoss.revenue))
+      const gross = per(y => total(y.profitAndLoss.grossSurplus))
+      const dep = per(y => total(y.profitAndLoss.depreciation))
+      const interest = per(y => total(y.profitAndLoss.interestBankOverdraft) +
+        total(y.profitAndLoss.interestTermLoans) + total(y.profitAndLoss.interestFacilities))
+      // `totalOverheads` already carries depreciation and the three interest lines, so
+      // both come out here — otherwise every one of them would be counted twice down the
+      // column, and the column would still add up.
+      const overheads = per((y, i) => total(y.profitAndLoss.totalOverheads) - dep[i] - interest[i])
+      const operating = per((y, i) => gross[i] - overheads[i] - interest[i] - dep[i])
+      const other = per(y => total(y.profitAndLoss.totalOtherIncome))
+      const beforeTax = per(y => total(y.profitAndLoss.netSurplusBeforeTax))
+      const tax = per(y => total(y.profitAndLoss.taxProvision))
+      const afterTax = per(y => total(y.profitAndLoss.netSurplusAfterTax))
+      const cash = per(y => y.cashFlow.closingBalance[y.cashFlow.closingBalance.length - 1])
+      const netAssets = per(y => y.balanceSheet.months.netAssets[y.balanceSheet.months.netAssets.length - 1])
+
+      const flow = (key, values, opts) => Object.assign(
+        { key, values, total: sum(values), isPosition: false }, opts || {})
+      const position = (key, values, opts) => Object.assign(
+        { key, values, total: values[values.length - 1], isPosition: true }, opts || {})
+
+      return [
+        flow('revenue', revenue),
+        flow('grossSurplus', gross),
+        flow('overheads', overheads, { dim: true }),
+        flow('interest', interest, { dim: true }),
+        flow('depreciation', dep, { dim: true }),
+        flow('operatingSurplus', operating, { rule: true }),
+        flow('otherIncome', other, { dim: true }),
+        flow('netBeforeTax', beforeTax),
+        flow('tax', tax, { dim: true }),
+        flow('netAfterTax', afterTax, { rule: true, strong: true }),
+        position('closingCash', cash, { rule: true }),
+        position('netAssets', netAssets)
+      ]
+    },
+
+    /**
+     * The cash line — every month of the forecast, each labelled and the lowest marked.
+     * @returns {Array<object>} `{ label, value, isLowest }`
+     */
+    cashLine () {
+      if (!this.result) { return [] }
+      const points = []
+      this.result.years.forEach((y) => {
+        y.cashFlow.closingBalance.forEach((v, m) => {
+          points.push({ label: this.monthNameOf(y.months.isoDates[m]), value: v, isLowest: false })
+        })
+      })
+      let low = 0
+      points.forEach((p, i) => { if (p.value < points[low].value) { low = i } })
+      if (points[low]) { points[low].isLowest = true }
+      return points
+    },
+
+    /**
+     * The best and worst the bank ever gets, each with the month AND year it falls in —
+     * a bare month name is ambiguous across three of them.
+     * @returns {object} `{ lowest: { value, label }, highest: { value, label } }`
+     */
+    cashExtremes () {
+      const blank = { value: 0, label: '' }
+      if (!this.result) { return { lowest: blank, highest: blank } }
+      let lo = null; let hi = null
+      this.result.years.forEach((y) => {
+        y.cashFlow.closingBalance.forEach((v, m) => {
+          const point = { value: v, label: this.monthYearOf(y.months.isoDates[m]) }
+          if (!lo || v < lo.value) { lo = point }
+          if (!hi || v > hi.value) { hi = point }
+        })
+      })
+      return { lowest: lo || blank, highest: hi || blank }
+    },
+
+    /**
+     * Which years the advisor said nothing about — they trade the same as the year
+     * before, and the column says so.
+     *
+     * Asked of the SEED rather than of the result, because the result cannot tell an
+     * inherited year from one that happens to match: two years with the same figures look
+     * identical coming back, and only the request knows which was typed.
+     *
+     * @returns {Array<boolean>} one per year; year 1 is never inherited.
+     */
+    inheritedYears () {
+      const later = (this.seed && Array.isArray(this.seed.laterYears)) ? this.seed.laterYears : []
+      return this.result
+        ? this.result.years.map((y, i) => i > 0 && !(later[i - 1] && Object.keys(later[i - 1]).length))
+        : []
     },
 
     balanceCheck () {
       if (!this.data) { return 0 }
       const checks = this.data.balanceSheet.months.balanceCheck
       return checks[checks.length - 1]
+    },
+
+    /**
+     * A forecast with no sales in it at all.
+     *
+     * Asked of the RESULT rather than of the seed, deliberately: step 4 is reached with no
+     * file, with a file whose by-month export was short of twelve complete months, and by a
+     * client opening a saved row — and all three arrive here the same way. One question of
+     * the figures covers every route in.
+     *
+     * Rounded to the cent for the same reason `hasAFigure` is: a series the engine has
+     * multiplied through can carry floating-point dust rather than a clean zero.
+     *
+     * @returns {boolean}
+     */
+    noSales () {
+      if (!this.data) { return false }
+      const revenue = this.data.profitAndLoss && this.data.profitAndLoss.revenue
+      if (!Array.isArray(revenue) || !revenue.length) { return false }
+      return revenue.every(v => Math.abs(v) < 0.005)
     },
 
     /** The months where stock falls below zero — impossible, and named rather than shown. */
@@ -396,13 +700,7 @@ export default {
      * engine computes in that case too.
      * @returns {boolean}
      */
-    hasOverseasTrade () {
-      if (!this.data || !this.data.schedules || !this.data.schedules.overseas) { return false }
-      const os = this.data.schedules.overseas
-      const any = s => Array.isArray(s) && s.some(v => v !== 0)
-      return any(os.deposits) || any(os.freight) || any(os.duty) || any(os.borderGst) ||
-        any(os.supplierBalance) || any(os.importedRevenue) || any(os.overseasRevenue)
-    },
+    hasOverseasTrade () { return this.hasOverseasTradeFor(this.data) },
 
     /**
      * 🔴 THE FIVE OVERSEAS ROWS, and the reason the section exists at all. Mike, 2026-09-04:
@@ -415,17 +713,7 @@ export default {
      * keeps the compact four-row screen it has always had.
      * @returns {Array<object>}
      */
-    overseasCashRows () {
-      if (!this.hasOverseasTrade) { return [] }
-      const p = this.data.cashFlow.payments
-      return [
-        { key: 'os-dep', label: 'report.threeWayForecast.report.overseasDeposits', values: p.overseasDeposits, sub: true },
-        { key: 'os-frt', label: 'report.threeWayForecast.report.overseasFreight', values: p.overseasFreight, sub: true },
-        { key: 'os-duty', label: 'report.threeWayForecast.report.overseasDuty', values: p.overseasDuty, sub: true },
-        { key: 'os-gst', label: 'report.threeWayForecast.report.overseasBorderGst', values: p.overseasBorderGst, sub: true },
-        { key: 'os-bal', label: 'report.threeWayForecast.report.overseasSupplierBalance', values: p.overseasSupplierBalance, sub: true }
-      ]
-    },
+    overseasCashRows () { return this.overseasCashRowsFor(this.data) },
 
     /**
      * Stock already paid for at the opening date, landing during the year (Fix 2).
@@ -442,110 +730,11 @@ export default {
      *
      * @returns {Array<object>} zero or two sub-rows under Money out.
      */
-    stockInTransitCashRows () {
-      const t = this.data.schedules && this.data.schedules.stockInTransit
-      if (!t || !t.landedValue.some(v => v > 0)) { return [] }
-      const p = this.data.cashFlow.payments
-      return [
-        { key: 'tr-bal', label: 'report.threeWayForecast.report.transitBalance', values: p.stockInTransitBalance, sub: true },
-        { key: 'tr-gst', label: 'report.threeWayForecast.report.transitGst', values: p.stockInTransitGst, sub: true }
-      ]
-    },
+    stockInTransitCashRows () { return this.stockInTransitCashRowsFor(this.data) },
 
-    cashRows () {
-      const c = this.data.cashFlow
-      const tail = [
-        { key: 'move', label: 'report.threeWayForecast.report.movement', values: c.netMovement, rule: true, signed: true },
-        { key: 'close', label: 'report.threeWayForecast.report.cashAtMonthEnd', values: c.closingBalance, rule: true, signed: true }
-      ]
-      if (!this.isEvery) {
-        return [
-          { key: 'in', label: 'report.threeWayForecast.report.moneyIn', values: c.totalReceipts },
-          { key: 'out', label: 'report.threeWayForecast.report.moneyOut', values: c.totalPayments }
-        ].concat(this.overseasCashRows).concat(this.stockInTransitCashRows).concat(tail)
-      }
-      const L = 'report.threeWayForecast.report.line.'
-      const r = c.receipts
-      const p = c.payments
-      const sub = (key, label, values) => ({ key, label: L + label, values, sub: true })
-      // Every row the engine fills, receipts then payments, in its own order. The five
-      // overseas rows and the two for stock in transit are already itemised on the summary
-      // (Mike, 2026-09-04), so they are not repeated by the two helpers here — this list
-      // holds them once, in their place among the rest.
-      return [
-        sub('r-deb', 'fromDebtors', r.fromDebtors),
-        sub('r-int', 'interestReceived', r.interestReceived),
-        sub('r-draw', 'loanDrawdowns', r.loanDrawdowns),
-        sub('r-gst', 'gstRefunds', r.gstRefunds),
-        sub('r-tax', 'taxRefunds', r.taxRefunds),
-        sub('r-oi', 'otherIncome', r.otherIncomeGstInclusive),
-        sub('r-oix', 'otherIncomeExempt', r.otherIncomeGstExempt),
-        sub('r-sh', 'shareholderAdvances', r.shareholderAdvances),
-        sub('r-asset', 'assetSales', r.assetSales),
-        { key: 'in', label: 'report.threeWayForecast.report.moneyIn', values: c.totalReceipts, rule: true, strong: true },
-        sub('p-ap', 'accountsPayable', p.accountsPayable),
-        sub('p-cm', 'currentMonthGstInclusive', p.currentMonthGstInclusive),
-        sub('p-cmf', 'currentMonthGstFree', p.currentMonthGstFree),
-        sub('p-int', 'interestPaid', p.interestPaid),
-        sub('p-prin', 'loanPrincipal', p.loanPrincipal),
-        sub('p-gst', 'gstPaid', p.gstPaid),
-        sub('p-tax', 'taxPaid', p.taxPaid),
-        sub('p-sh', 'shareholderDrawings', p.shareholderDrawings),
-        sub('p-capex', 'capitalExpenditure', p.capitalExpenditure)
-      ]
-        .concat(this.overseasCashRows)
-        .concat(this.stockInTransitCashRows)
-        .concat([{ key: 'out', label: 'report.threeWayForecast.report.moneyOut', values: c.totalPayments, rule: true, strong: true }])
-        .concat(tail)
-    },
-
-    profitRows () {
-      const p = this.data.profitAndLoss
-      const summary = [
-        { key: 'rev', label: 'report.threeWayForecast.report.revenue', values: p.revenue },
-        { key: 'gross', label: 'report.threeWayForecast.report.grossSurplus', values: p.grossSurplus, signed: true },
-        { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.totalOverheads },
-        { key: 'net', label: 'report.threeWayForecast.report.afterTax', values: p.netSurplusAfterTax, rule: true, signed: true }
-      ]
-      if (!this.isEvery) { return summary }
-      const L = 'report.threeWayForecast.report.line.'
-      const sub = (key, label, values) => ({ key, label: L + label, values, sub: true, signed: true })
-      return [
-        { key: 'rev', label: 'report.threeWayForecast.report.revenue', values: p.revenue, strong: true },
-        sub('open-stock', 'openingStock', p.openingInventory),
-        sub('purch', 'stockPurchased', p.purchases),
-        sub('frt', 'freight', p.freight),
-        sub('comm', 'commissions', p.commissions),
-        sub('dir2', 'otherDirect', p.otherDirectTwo),
-        sub('dirx', 'otherDirectExempt', p.otherDirectExpensesExempt),
-        sub('close-stock', 'closingStock', p.closingInventory),
-        { key: 'cos', label: L + 'costOfSales', values: p.costOfSales, rule: true, signed: true },
-        { key: 'gross', label: 'report.threeWayForecast.report.grossSurplus', values: p.grossSurplus, strong: true, signed: true }
-      ]
-        // Only the overhead lines that carry a figure — Mike's ruling of 2026-09-05. The
-        // engine holds 23 and a typical forecast uses about eight; fifteen rows of zeroes
-        // would bury the eight that matter. What is hidden is counted under the table.
-        .concat(this.overheadRows)
-        .concat([
-          { key: 'dep', label: L + 'depreciation', values: p.depreciation, sub: true, signed: true },
-          { key: 'int-od', label: L + 'interestOverdraft', values: p.interestBankOverdraft, sub: true, signed: true },
-          { key: 'int-loan', label: L + 'interestTermLoans', values: p.interestTermLoans, sub: true, signed: true },
-          // Its own row at last. It was engine-only when the facility was built earlier the
-          // same day, for want of anywhere on this screen to put it.
-          { key: 'int-fac', label: L + 'interestFacilities', values: p.interestFacilities, sub: true, signed: true },
-          { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.totalOverheads, rule: true },
-          { key: 'op', label: L + 'operatingSurplus', values: p.operatingSurplus, strong: true, signed: true },
-          sub('int-in', 'interestReceived', p.interestIncomeBank),
-          sub('int-sh', 'shareholderInterest', p.interestIncomeShareholders),
-          sub('gain', 'gainOnSale', p.gainOnAssetSales),
-          sub('oi-1', 'otherIncome', p.otherIncomeGstInclusive),
-          sub('oi-2', 'otherIncomeExempt', p.otherIncomeGstExempt),
-          { key: 'toi', label: L + 'totalOtherIncome', values: p.totalOtherIncome, rule: true, signed: true },
-          { key: 'pbt', label: L + 'beforeTax', values: p.netSurplusBeforeTax, strong: true, signed: true },
-          sub('tax', 'tax', p.taxProvision),
-          { key: 'net', label: 'report.threeWayForecast.report.afterTax', values: p.netSurplusAfterTax, rule: true, strong: true, signed: true }
-        ])
-    },
+    cashRows () { return this.cashRowsFor(this.data) },
+    profitRows () { return this.profitRowsFor(this.data) },
+    balanceRows () { return this.balanceRowsFor(this.data) },
 
     /**
      * One row per overhead line that carries a figure, in the engine's own order.
@@ -556,72 +745,7 @@ export default {
      *
      * @returns {Array<object>}
      */
-    overheadRows () {
-      const oh = this.data.profitAndLoss.overheads
-      return Object.keys(oh)
-        .filter(k => this.hasAFigure(oh[k]))
-        .map(k => ({
-          key: 'oh-' + k,
-          label: 'report.threeWayForecast.assume.overheads.' + k,
-          values: oh[k],
-          sub: true,
-          signed: true
-        }))
-    },
-
-    balanceRows () {
-      const b = this.data.balanceSheet.months
-      const summary = [
-        { key: 'ar', label: 'report.threeWayForecast.report.owedToYou', values: b.accountsReceivable },
-        { key: 'stock', label: 'report.threeWayForecast.report.stockOnHand', values: b.inventory, impossibleBelowZero: true },
-        { key: 'ap', label: 'report.threeWayForecast.report.youOwe', values: b.accountsPayable },
-        { key: 'na', label: 'report.threeWayForecast.report.balanceCheck', values: b.balanceCheck, rule: true, signed: true }
-      ]
-      if (!this.isEvery) { return summary }
-      const L = 'report.threeWayForecast.report.line.'
-      const sub = (key, label, values, extra) => Object.assign(
-        { key, label: L + label, values, sub: true, signed: true }, extra || {})
-      // Each per-lender and per-facility row carries the NAME the advisor gave it, which is
-      // not a translatable string — `rawLabel` is rendered as-is where it is present.
-      const named = (prefix, list) => list.map((l, i) => ({
-        key: prefix + i, rawLabel: l.name, values: l.balance, sub: true, signed: true
-      }))
-      return [
-        sub('bank', 'bank', b.cashAtBank),
-        { key: 'ar', label: 'report.threeWayForecast.report.owedToYou', values: b.accountsReceivable, sub: true },
-        { key: 'stock', label: 'report.threeWayForecast.report.stockOnHand', values: b.inventory, sub: true, impossibleBelowZero: true },
-        sub('gst-r', 'gstRefund', b.gstRefund),
-        sub('tax-r', 'taxRefund', b.incomeTaxAsset),
-        sub('prepay', 'prepayments', b.prepayments),
-        sub('imp-pre', 'importPrepayments', b.importPrepayments),
-        sub('sh-a', 'shareholderAssets', b.shareholderCurrentAssets),
-        sub('oca', 'otherCurrentAsset', b.otherCurrentAsset),
-        { key: 'tca', label: L + 'totalCurrentAssets', values: b.totalCurrentAssets, rule: true },
-        sub('od', 'overdraft', b.bankOverdraft),
-        { key: 'ap', label: 'report.threeWayForecast.report.youOwe', values: b.accountsPayable, sub: true },
-        sub('gst-p', 'gstPayable', b.gstPayable),
-        sub('tax-p', 'taxPayable', b.incomeTaxLiability),
-        sub('accr', 'accruedExpenses', b.accruedExpenses),
-        sub('imp-bal', 'importSupplierBalance', b.importSupplierBalance),
-        sub('fac', 'facilities', b.totalFacilities),
-        sub('sh-l', 'shareholderLiabilities', b.shareholderCurrentLiabilities),
-        sub('ocl', 'otherCurrentLiability', b.otherCurrentLiability),
-        { key: 'tcl', label: L + 'totalCurrentLiabilities', values: b.totalCurrentLiabilities, rule: true },
-        { key: 'wc', label: L + 'workingCapital', values: b.workingCapital, strong: true, signed: true },
-        sub('fa', 'fixedAssets', b.totalNonCurrentAssets)
-      ]
-        .concat(named('ncl-', b.nonCurrentLiabilities))
-        .concat([
-          sub('oncl', 'otherNonCurrentLiability', b.otherNonCurrentLiability),
-          { key: 'net-a', label: L + 'netAssets', values: b.netAssets, rule: true, strong: true, signed: true },
-          sub('cap', 'shareCapital', b.authorisedCapital),
-          sub('cgain', 'capitalGain', b.capitalGain),
-          sub('oeq', 'otherEquity', b.otherEquity),
-          sub('re', 'retainedEarnings', b.retainedEarnings),
-          { key: 'teq', label: L + 'totalEquity', values: b.totalEquity, rule: true, strong: true, signed: true },
-          { key: 'na', label: 'report.threeWayForecast.report.balanceCheck', values: b.balanceCheck, rule: true, signed: true }
-        ])
-    },
+    overheadRows () { return this.overheadRowsFor(this.data) },
 
     visibleRows () {
       if (!this.data) { return [] }
@@ -645,12 +769,23 @@ export default {
      * @returns {Array<{key: string, label: string, rows: Array<object>}>}
      */
     printStatements () {
-      if (!this.data) { return [] }
-      return [
-        { key: 'cash', label: 'report.threeWayForecast.report.tabCash', rows: this.cashRows },
-        { key: 'profit', label: 'report.threeWayForecast.report.tabProfit', rows: this.profitRows },
-        { key: 'balance', label: 'report.threeWayForecast.report.tabBalance', rows: this.balanceRows }
-      ]
+      if (!this.result) { return [] }
+      const multi = this.isMultiYear
+      const out = []
+      this.result.years.forEach((d, i) => {
+        const year = this.$t('report.threeWayForecast.report.years.tab', { n: i + 1 })
+        const months = this.monthLabelsFor(d)
+        // On a one-year forecast the heading is the tab label alone — exactly the four
+        // pages the print has produced since 2026-09-06. The year prefix appears only
+        // when there is more than one year for it to tell apart.
+        const head = label => (multi ? `${year} · ${this.$t(label)}` : this.$t(label))
+        out.push(
+          { key: `cash-${i}`, heading: head('report.threeWayForecast.report.tabCash'), months, rows: this.cashRowsFor(d), hidden: 0 },
+          { key: `profit-${i}`, heading: head('report.threeWayForecast.report.tabProfit'), months, rows: this.profitRowsFor(d), hidden: this.hiddenOverheadsFor(d) },
+          { key: `balance-${i}`, heading: head('report.threeWayForecast.report.tabBalance'), months, rows: this.balanceRowsFor(d), hidden: 0 }
+        )
+      })
+      return out
     },
 
     /**
@@ -662,11 +797,7 @@ export default {
      *
      * @returns {number}
      */
-    printHiddenOverheads () {
-      if (!this.data || !this.isEvery) { return 0 }
-      const oh = this.data.profitAndLoss.overheads
-      return Object.keys(oh).filter(k => !this.hasAFigure(oh[k])).length
-    },
+    printHiddenOverheads () { return this.hiddenOverheadsFor(this.data) },
 
     workingCapitalRows () {
       if (!this.data) { return [] }
@@ -815,9 +946,325 @@ export default {
       if (process.client) { window.print() }
     },
 
-    /** The body the backend takes. Levers are applied to the seeded figures here. */
+    /* ── The row builders ──────────────────────────────────────────────────────────────
+       🔴 EACH TAKES THE YEAR IT IS BUILDING, rather than reading the year on screen.
+       They were computeds until 2026-09-07, when the print had to carry every year of the
+       forecast (Mike's ruling, question 4) — and a computed cannot be asked about a year
+       other than the current one. The screen's own `cashRows` / `profitRows` /
+       `balanceRows` are now one-line computeds that call these with `this.data`, so there
+       is still exactly ONE definition of every row: what the advisor reads on screen and
+       what the lender reads on paper cannot drift apart. */
+
+    /**
+     * Does this year trade overseas at all? Asked of the FIGURES rather than of the tick,
+     * so a section filled in and then unticked reports nothing — which is what the engine
+     * computes in that case too.
+     * @param {object} d one year's result. @returns {boolean}
+     */
+    hasOverseasTradeFor (d) {
+      if (!d || !d.schedules || !d.schedules.overseas) { return false }
+      const os = d.schedules.overseas
+      const any = s => Array.isArray(s) && s.some(v => v !== 0)
+      return any(os.deposits) || any(os.freight) || any(os.duty) || any(os.borderGst) ||
+        any(os.supplierBalance) || any(os.importedRevenue) || any(os.overseasRevenue)
+    },
+
+    /** @param {object} d one year's result. @returns {Array<object>} */
+    overseasCashRowsFor (d) {
+      if (!this.hasOverseasTradeFor(d)) { return [] }
+      const p = d.cashFlow.payments
+      return [
+        { key: 'os-dep', label: 'report.threeWayForecast.report.overseasDeposits', values: p.overseasDeposits, sub: true },
+        { key: 'os-frt', label: 'report.threeWayForecast.report.overseasFreight', values: p.overseasFreight, sub: true },
+        { key: 'os-duty', label: 'report.threeWayForecast.report.overseasDuty', values: p.overseasDuty, sub: true },
+        { key: 'os-gst', label: 'report.threeWayForecast.report.overseasBorderGst', values: p.overseasBorderGst, sub: true },
+        { key: 'os-bal', label: 'report.threeWayForecast.report.overseasSupplierBalance', values: p.overseasSupplierBalance, sub: true }
+      ]
+    },
+
+    /** @param {object} d one year's result. @returns {Array<object>} */
+    stockInTransitCashRowsFor (d) {
+      const t = d && d.schedules && d.schedules.stockInTransit
+      if (!t || !t.landedValue.some(v => v > 0)) { return [] }
+      const p = d.cashFlow.payments
+      return [
+        { key: 'tr-bal', label: 'report.threeWayForecast.report.transitBalance', values: p.stockInTransitBalance, sub: true },
+        { key: 'tr-gst', label: 'report.threeWayForecast.report.transitGst', values: p.stockInTransitGst, sub: true }
+      ]
+    },
+
+    /** @param {object} d one year's result. @returns {Array<object>} */
+    overheadRowsFor (d) {
+      const oh = d.profitAndLoss.overheads
+      return Object.keys(oh)
+        .filter(k => this.hasAFigure(oh[k]))
+        .map(k => ({
+          key: 'oh-' + k,
+          label: 'report.threeWayForecast.assume.overheads.' + k,
+          values: oh[k],
+          sub: true,
+          signed: true
+        }))
+    },
+
+    /** @param {object} d one year's result. @returns {Array<object>} */
+    cashRowsFor (d) {
+      const c = d.cashFlow
+      const tail = [
+        { key: 'move', label: 'report.threeWayForecast.report.movement', values: c.netMovement, rule: true, signed: true },
+        { key: 'close', label: 'report.threeWayForecast.report.cashAtMonthEnd', values: c.closingBalance, rule: true, signed: true }
+      ]
+      if (!this.isEvery) {
+        return [
+          { key: 'in', label: 'report.threeWayForecast.report.moneyIn', values: c.totalReceipts },
+          { key: 'out', label: 'report.threeWayForecast.report.moneyOut', values: c.totalPayments }
+        ].concat(this.overseasCashRowsFor(d)).concat(this.stockInTransitCashRowsFor(d)).concat(tail)
+      }
+      const L = 'report.threeWayForecast.report.line.'
+      const r = c.receipts
+      const p = c.payments
+      const sub = (key, label, values) => ({ key, label: L + label, values, sub: true })
+      // Every row the engine fills, receipts then payments, in its own order. The five
+      // overseas rows and the two for stock in transit are already itemised on the summary
+      // (Mike, 2026-09-04), so they are not repeated by the two helpers here — this list
+      // holds them once, in their place among the rest.
+      return [
+        sub('r-deb', 'fromDebtors', r.fromDebtors),
+        sub('r-int', 'interestReceived', r.interestReceived),
+        sub('r-draw', 'loanDrawdowns', r.loanDrawdowns),
+        sub('r-gst', 'gstRefunds', r.gstRefunds),
+        sub('r-tax', 'taxRefunds', r.taxRefunds),
+        sub('r-oi', 'otherIncome', r.otherIncomeGstInclusive),
+        sub('r-oix', 'otherIncomeExempt', r.otherIncomeGstExempt),
+        sub('r-sh', 'shareholderAdvances', r.shareholderAdvances),
+        sub('r-asset', 'assetSales', r.assetSales),
+        { key: 'in', label: 'report.threeWayForecast.report.moneyIn', values: c.totalReceipts, rule: true, strong: true },
+        sub('p-ap', 'accountsPayable', p.accountsPayable),
+        sub('p-cm', 'currentMonthGstInclusive', p.currentMonthGstInclusive),
+        sub('p-cmf', 'currentMonthGstFree', p.currentMonthGstFree),
+        sub('p-int', 'interestPaid', p.interestPaid),
+        sub('p-prin', 'loanPrincipal', p.loanPrincipal),
+        sub('p-gst', 'gstPaid', p.gstPaid),
+        sub('p-tax', 'taxPaid', p.taxPaid),
+        sub('p-sh', 'shareholderDrawings', p.shareholderDrawings),
+        sub('p-capex', 'capitalExpenditure', p.capitalExpenditure)
+      ]
+        .concat(this.overseasCashRowsFor(d))
+        .concat(this.stockInTransitCashRowsFor(d))
+        .concat([{ key: 'out', label: 'report.threeWayForecast.report.moneyOut', values: c.totalPayments, rule: true, strong: true }])
+        .concat(tail)
+    },
+
+    /** @param {object} d one year's result. @returns {Array<object>} */
+    profitRowsFor (d) {
+      const p = d.profitAndLoss
+      const summary = [
+        { key: 'rev', label: 'report.threeWayForecast.report.revenue', values: p.revenue },
+        { key: 'gross', label: 'report.threeWayForecast.report.grossSurplus', values: p.grossSurplus, signed: true },
+        { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.totalOverheads },
+        { key: 'net', label: 'report.threeWayForecast.report.afterTax', values: p.netSurplusAfterTax, rule: true, signed: true }
+      ]
+      if (!this.isEvery) { return summary }
+      const L = 'report.threeWayForecast.report.line.'
+      const sub = (key, label, values) => ({ key, label: L + label, values, sub: true, signed: true })
+      return [
+        { key: 'rev', label: 'report.threeWayForecast.report.revenue', values: p.revenue, strong: true },
+        sub('open-stock', 'openingStock', p.openingInventory),
+        sub('purch', 'stockPurchased', p.purchases),
+        sub('frt', 'freight', p.freight),
+        sub('comm', 'commissions', p.commissions),
+        sub('dir2', 'otherDirect', p.otherDirectTwo),
+        sub('dirx', 'otherDirectExempt', p.otherDirectExpensesExempt),
+        sub('close-stock', 'closingStock', p.closingInventory),
+        { key: 'cos', label: L + 'costOfSales', values: p.costOfSales, rule: true, signed: true },
+        { key: 'gross', label: 'report.threeWayForecast.report.grossSurplus', values: p.grossSurplus, strong: true, signed: true }
+      ]
+        // Only the overhead lines that carry a figure — Mike's ruling of 2026-09-05. The
+        // engine holds 23 and a typical forecast uses about eight; fifteen rows of zeroes
+        // would bury the eight that matter. What is hidden is counted under the table.
+        .concat(this.overheadRowsFor(d))
+        .concat([
+          { key: 'dep', label: L + 'depreciation', values: p.depreciation, sub: true, signed: true },
+          { key: 'int-od', label: L + 'interestOverdraft', values: p.interestBankOverdraft, sub: true, signed: true },
+          { key: 'int-loan', label: L + 'interestTermLoans', values: p.interestTermLoans, sub: true, signed: true },
+          // Its own row at last. It was engine-only when the facility was built earlier the
+          // same day, for want of anywhere on this screen to put it.
+          { key: 'int-fac', label: L + 'interestFacilities', values: p.interestFacilities, sub: true, signed: true },
+          { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.totalOverheads, rule: true },
+          { key: 'op', label: L + 'operatingSurplus', values: p.operatingSurplus, strong: true, signed: true },
+          sub('int-in', 'interestReceived', p.interestIncomeBank),
+          sub('int-sh', 'shareholderInterest', p.interestIncomeShareholders),
+          sub('gain', 'gainOnSale', p.gainOnAssetSales),
+          sub('oi-1', 'otherIncome', p.otherIncomeGstInclusive),
+          sub('oi-2', 'otherIncomeExempt', p.otherIncomeGstExempt),
+          { key: 'toi', label: L + 'totalOtherIncome', values: p.totalOtherIncome, rule: true, signed: true },
+          { key: 'pbt', label: L + 'beforeTax', values: p.netSurplusBeforeTax, strong: true, signed: true },
+          sub('tax', 'tax', p.taxProvision),
+          { key: 'net', label: 'report.threeWayForecast.report.afterTax', values: p.netSurplusAfterTax, rule: true, strong: true, signed: true }
+        ])
+    },
+
+    /** @param {object} d one year's result. @returns {Array<object>} */
+    balanceRowsFor (d) {
+      const b = d.balanceSheet.months
+      const summary = [
+        { key: 'ar', label: 'report.threeWayForecast.report.owedToYou', values: b.accountsReceivable },
+        { key: 'stock', label: 'report.threeWayForecast.report.stockOnHand', values: b.inventory, impossibleBelowZero: true },
+        { key: 'ap', label: 'report.threeWayForecast.report.youOwe', values: b.accountsPayable },
+        { key: 'na', label: 'report.threeWayForecast.report.balanceCheck', values: b.balanceCheck, rule: true, signed: true }
+      ]
+      if (!this.isEvery) { return summary }
+      const L = 'report.threeWayForecast.report.line.'
+      const sub = (key, label, values, extra) => Object.assign(
+        { key, label: L + label, values, sub: true, signed: true }, extra || {})
+      // Each per-lender and per-facility row carries the NAME the advisor gave it, which is
+      // not a translatable string — `rawLabel` is rendered as-is where it is present.
+      const named = (prefix, list) => list.map((l, i) => ({
+        key: prefix + i, rawLabel: l.name, values: l.balance, sub: true, signed: true
+      }))
+      return [
+        sub('bank', 'bank', b.cashAtBank),
+        { key: 'ar', label: 'report.threeWayForecast.report.owedToYou', values: b.accountsReceivable, sub: true },
+        { key: 'stock', label: 'report.threeWayForecast.report.stockOnHand', values: b.inventory, sub: true, impossibleBelowZero: true },
+        sub('gst-r', 'gstRefund', b.gstRefund),
+        sub('tax-r', 'taxRefund', b.incomeTaxAsset),
+        sub('prepay', 'prepayments', b.prepayments),
+        sub('imp-pre', 'importPrepayments', b.importPrepayments),
+        sub('sh-a', 'shareholderAssets', b.shareholderCurrentAssets),
+        sub('oca', 'otherCurrentAsset', b.otherCurrentAsset),
+        { key: 'tca', label: L + 'totalCurrentAssets', values: b.totalCurrentAssets, rule: true },
+        sub('od', 'overdraft', b.bankOverdraft),
+        { key: 'ap', label: 'report.threeWayForecast.report.youOwe', values: b.accountsPayable, sub: true },
+        sub('gst-p', 'gstPayable', b.gstPayable),
+        sub('tax-p', 'taxPayable', b.incomeTaxLiability),
+        sub('accr', 'accruedExpenses', b.accruedExpenses),
+        sub('imp-bal', 'importSupplierBalance', b.importSupplierBalance),
+        sub('fac', 'facilities', b.totalFacilities),
+        sub('sh-l', 'shareholderLiabilities', b.shareholderCurrentLiabilities),
+        sub('ocl', 'otherCurrentLiability', b.otherCurrentLiability),
+        { key: 'tcl', label: L + 'totalCurrentLiabilities', values: b.totalCurrentLiabilities, rule: true },
+        { key: 'wc', label: L + 'workingCapital', values: b.workingCapital, strong: true, signed: true },
+        sub('fa', 'fixedAssets', b.totalNonCurrentAssets)
+      ]
+        .concat(named('ncl-', b.nonCurrentLiabilities))
+        .concat([
+          sub('oncl', 'otherNonCurrentLiability', b.otherNonCurrentLiability),
+          { key: 'net-a', label: L + 'netAssets', values: b.netAssets, rule: true, strong: true, signed: true },
+          sub('cap', 'shareCapital', b.authorisedCapital),
+          sub('cgain', 'capitalGain', b.capitalGain),
+          sub('oeq', 'otherEquity', b.otherEquity),
+          sub('re', 'retainedEarnings', b.retainedEarnings),
+          { key: 'teq', label: L + 'totalEquity', values: b.totalEquity, rule: true, strong: true, signed: true },
+          { key: 'na', label: 'report.threeWayForecast.report.balanceCheck', values: b.balanceCheck, rule: true, signed: true }
+        ])
+    },
+
+    /**
+     * Overhead lines with no figure in them, counted for one year.
+     *
+     * `hiddenOverheadCount` is keyed to the profit TAB being open, which is never true of
+     * a printed profit statement — so reusing it there would silently report zero and hide
+     * an omission, which is the one thing that note exists to prevent.
+     *
+     * @param {object} d one year's result. @returns {number}
+     */
+    hiddenOverheadsFor (d) {
+      if (!d || !this.isEvery) { return 0 }
+      const oh = d.profitAndLoss.overheads
+      return Object.keys(oh).filter(k => !this.hasAFigure(oh[k])).length
+    },
+
+    /**
+     * The month labels for one year — the print asks per year, since year 2 does not
+     * necessarily start in the same month as year 1 once a forecast starts mid-year.
+     * @param {object} d one year's result. @returns {Array<string>}
+     */
+    monthLabelsFor (d) {
+      if (!d || !d.months || !Array.isArray(d.months.isoDates)) { return [] }
+      return d.months.isoDates.map(iso => this.monthNameOf(iso))
+    },
+
+    /**
+     * The months a year covers — 'Apr 24 – Mar 25' — shown under each column heading.
+     *
+     * It is what answers "which calendar year is Year 2?", the argument recorded against
+     * the tab wording Mike ruled on 2026-09-07. Read off that year's own dates rather
+     * than counted forward from year 1, so a forecast starting mid-year is right without
+     * a special case.
+     *
+     * @param {number} i 0-based year index. @returns {string}
+     */
+    yearSpan (i) {
+      const y = this.result && this.result.years[i]
+      if (!y || !y.months || !Array.isArray(y.months.isoDates)) { return '' }
+      const dates = y.months.isoDates
+      const short = iso => `${this.monthNameOf(iso)} ${String(iso || '').slice(2, 4)}`
+      return `${short(dates[0])} – ${short(dates[dates.length - 1])}`
+    },
+
+    /**
+     * The short month name from an ISO date — 'Apr' from '2024-04-01'.
+     * @param {string} iso @returns {string} empty where there is no date to read.
+     */
+    monthNameOf (iso) {
+      const m = Number(String(iso || '').slice(5, 7))
+      return MONTH_SHORT[m - 1] || ''
+    },
+
+    /**
+     * Month and year together — 'Apr 2024'. Used where a month alone is ambiguous, which
+     * is anywhere a figure can come from any of three years.
+     * @param {string} iso @returns {string}
+     */
+    monthYearOf (iso) {
+      const name = this.monthNameOf(iso)
+      const year = String(iso || '').slice(0, 4)
+      return name && year ? `${name} ${year}` : name
+    },
+
+    /**
+     * Show a different year's statements.
+     *
+     * 🔴 NO RECOMPUTATION. Every year is already in `result`; this re-points `data` at
+     * one of them. Re-requesting would put a spinner on a tab click and, worse, hand back
+     * figures computed from levers that may have moved in between — so the year on screen
+     * could quietly disagree with the year beside it.
+     *
+     * @param {number} i 0-based index of the year to show.
+     */
+    selectYear (i) {
+      if (!this.result || !this.result.years[i]) { return }
+      this.yearIndex = i
+      this.data = this.result.years[i]
+    },
+
+    /**
+     * The body the backend takes: every year the advisor asked for, and how many.
+     *
+     * 🔴 THE LEVERS REACH ALL THE YEARS, AND EACH ONE REACHES THEM DIFFERENTLY —
+     * according to what it is, not by a rule invented here.
+     *
+     *   - Sales and overheads are **relative** (±%), so they scale every year. A later
+     *     year keeps the growth quick-fire gave it and moves with the slider on top.
+     *   - Mark-up and the debtor profile are **absolute** — one figure, not a shift — so
+     *     they are written to year 1 ALONE. With quick-fire off, later years omit both
+     *     and inherit year 1, so the lever reaches them anyway; with it on, each later
+     *     year keeps the margin the advisor set for it. Writing year 1's mark-up into
+     *     every year would flatten years 2 and 3 to year 1's margin — silently undoing
+     *     the per-year percentages on step 3, which is the one thing quick-fire exists
+     *     to collect.
+     *
+     * @returns {object} `{ yearCount, years: [...] }` — the three-years route's shape.
+     */
     payload () {
       const base = this.seed ? JSON.parse(JSON.stringify(this.seed)) : {}
+      // The two fields the intake rides along on the seed. They say how many years to
+      // build and what the later ones trade on; neither is a figure the engine takes for
+      // a year, so both come off before year 1 is sent.
+      const yearCount = Number(base.yearCount) || 1
+      const laterYears = Array.isArray(base.laterYears) ? base.laterYears : []
+      delete base.yearCount
+      delete base.laterYears
       const salesFactor = 1 + (this.f.salesShift / 100)
       const overheadFactor = 1 + (this.f.overheadShift / 100)
       if (Array.isArray(base.sales)) {
@@ -838,15 +1285,48 @@ export default {
       base.debtorCollection = othersTotal === 0
         ? [room, after, 0, 0, 0]
         : [current[0], after, current[2], current[3], current[4]].map((v, i) => (i === 1 ? after : v * (room / othersTotal)))
-      return base
+
+      // Years 2 and 3 carry only what quick-fire set, so only the two relative levers
+      // apply. An empty later year is "the same again" and stays empty — scaling nothing
+      // would turn an inherited year into a stated one, and the engine would stop
+      // carrying year 1's own figures forward.
+      const later = laterYears.slice(0, Math.max(0, yearCount - 1)).map((y) => {
+        if (!y || typeof y !== 'object' || !Object.keys(y).length) { return {} }
+        const out = Object.assign({}, y)
+        if (Array.isArray(out.sales)) { out.sales = out.sales.map(v => v * salesFactor) }
+        if (out.overheads && typeof out.overheads === 'object') {
+          const scaled = {}
+          Object.keys(out.overheads).forEach((k) => { scaled[k] = out.overheads[k] * overheadFactor })
+          out.overheads = scaled
+        }
+        return out
+      })
+      while (later.length < yearCount - 1) { later.push({}) }
+      return { yearCount, years: [base].concat(later) }
     },
 
+    /**
+     * 🔴 ALWAYS THE THREE-YEARS ROUTE, EVEN FOR ONE YEAR — one path, not two.
+     *
+     * A one-year forecast through this route returns year 1 identical to the single-year
+     * route's answer, and a `summary` covering that one year. Two routes would mean two
+     * response shapes, two sets of headline arithmetic and two prints to keep in step,
+     * which is how the same client comes to have two different forecasts.
+     */
     recomputeRequest () {
-      return { url: '/api/report/three-way-forecast', body: this.payload() }
+      return { url: '/api/report/three-way-forecast/three-years', body: this.payload() }
     },
 
-    applyResult (data) {
-      this.data = data
+    /**
+     * @param {object} result `{ years, summary }` from the three-years route.
+     */
+    applyResult (result) {
+      this.result = result && Array.isArray(result.years) ? result : null
+      // A shorter forecast than the one being looked at must not leave the statements
+      // pointed past the end of it.
+      if (!this.result) { this.data = null; return }
+      if (this.yearIndex >= this.result.years.length) { this.yearIndex = 0 }
+      this.data = this.result.years[this.yearIndex] || null
     }
   }
 }
@@ -899,6 +1379,17 @@ export default {
 .tw-impossible b, .tw-unbalanced b { display: block; font-size: 13px; }
 .tw-impossible span, .tw-unbalanced span { font-size: 12.5px; color: var(--rs-muted); }
 
+/* No sales at all. AMBER, not red: the two bands above name figures that are WRONG — an
+   impossible stock balance, an opening that will not tie. This one names figures that are
+   arithmetically correct and answer a question nobody meant to ask. It is the same shape
+   and the same place, so the three read as one family. */
+.tw-nosales {
+  background: var(--rs-warn-soft); border: 1px solid #ff990059; border-left: 3px solid var(--rs-warn);
+  border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+}
+.tw-nosales b { display: block; font-size: 13px; }
+.tw-nosales span { font-size: 12.5px; color: var(--rs-muted); }
+
 /* Tabs over the three statements, with the Summary / Every line setting beside them. The
    row wraps rather than squashing: on a narrow screen the setting drops under the tabs. */
 .tw-tabrow {
@@ -914,6 +1405,41 @@ export default {
   color: var(--rs-muted); padding: 6px 14px; cursor: pointer;
 }
 .seg-small button.on { background: var(--rs-accent); color: var(--rs-accent-contrast); }
+
+/* The three-year summary and the cash line (item 4.71 slice 2). Both read the same
+   --rs-* tokens the statements do; nothing here introduces a colour or a weight. */
+.tw-years { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+.tw-years th {
+  font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase;
+  color: var(--rs-muted); font-weight: 600; text-align: right;
+  padding: 0 0 10px 10px; white-space: nowrap;
+}
+.tw-years th:first-child { text-align: left; padding-left: 0; }
+.tw-years th small {
+  display: block; font-size: 11px; letter-spacing: 0; text-transform: none;
+  font-weight: 400; color: var(--rs-muted);
+}
+.tw-years td {
+  padding: 7px 0 7px 10px; text-align: right; font-variant-numeric: tabular-nums;
+  border-top: 1px solid var(--rs-line); white-space: nowrap;
+}
+.tw-years td:first-child { text-align: left; padding-left: 0; }
+.tw-years td.dim { color: var(--rs-muted); }
+.tw-years td.neg { color: var(--rs-crit); }
+.tw-years .tw-tot { background: var(--rs-panel-2); font-weight: 600; }
+.tw-years tr.rule td { border-top: 2px solid var(--rs-line); font-weight: 600; }
+.tw-years tr.is-strong td { font-weight: 700; }
+/* The lowest month of the whole forecast, marked where it falls rather than only named
+   in the headline — it is the figure a lender looks for. */
+.tw-years td.low { color: var(--rs-warn); font-weight: 700; }
+.tw-cashline { min-width: 900px; font-size: 12px; }
+.tw-cashline th, .tw-cashline td { padding-left: 6px; }
+/* A year nobody typed anything into. */
+.tw-inherit {
+  display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: 999px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: #b36b00; background: var(--rs-warn-soft); border: 1px solid #ff990059;
+}
 
 /* A subtotal or a headline inside the full statement. Indent carries the hierarchy; the
    existing .rule already draws the line above a total. */

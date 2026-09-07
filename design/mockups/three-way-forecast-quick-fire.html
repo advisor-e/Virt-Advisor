@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quick-Fire Forecast</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Three-Way Forecast — THE QUICK-FIRE OPTION, screen mockup for approval
+   (drawn 2026-09-07).
+
+   ASKED FOR BY MIKE, 2026-09-07, in his own words: "draw it up please and make
+   it a 'quick-fire option'. tick a box, it opens so i can put the data in and
+   it just adds or subtracts from previous known data. untick it and the status
+   quo continues" — after asking where growth, cost-increase and margin
+   percentages for years 1, 2 and 3 could be entered, and being told: nowhere.
+
+   The style block below is copied VERBATIM from
+   design/mockups/three-way-forecast-economic-analysis.html, which took it from
+   three-way-forecast-capital.html and in turn from three-way-forecast.html, so
+   the look is READ OFF the approved screens and never proposed afresh — the
+   owner ruling of 2026-07-23.
+
+   THE TICK-TO-OPEN SHAPE IS ALSO NOT NEW. It is the pattern Mike approved for
+   the economic analysis on 2026-09-06, reused here because he named it: "tick a
+   box, it opens".
+
+   EVERY FIGURE ON THIS PAGE IS ARITHMETIC, NOT DECORATION. The base year is an
+   EXAMPLE last-year P&L; each year below it is computed from the percentages
+   shown and ties. Anyone can check them with a calculator, and they should.
+
+   No dark mode: one light look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-col-input:360px; --rs-col-gap:16px; --rs-content-width:1120px;
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0; --rs-accent-contrast:#ffffff;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#ff00000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:var(--rs-content-width);margin:0 auto;padding:28px 22px 64px}
+
+.tw-root{display:flex;flex-direction:column;gap:16px}
+.tw-root strong,.tw-root b{font-weight:600}
+.tw-root .rs-top{margin:0}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55}
+.tag{position:relative}
+.tag::after{content:attr(data-tag);position:absolute;top:-9px;left:10px;background:#614700;
+  color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;padding:1px 6px;border-radius:4px}
+.stepmark{margin:34px 0 2px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+
+.rs-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  margin:0 auto 22px;padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);
+  color:#fff;box-shadow:var(--rs-shadow)}
+.rs-backlink{display:inline-block;margin-bottom:10px;font-size:12px;font-weight:600;
+  letter-spacing:.04em;color:#7fd3f1;text-decoration:none;opacity:.9}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+.tw-layout{display:grid;grid-template-columns:var(--rs-col-input) 1fr;gap:var(--rs-col-gap);
+  align-items:start}
+@media (max-width:860px){.tw-layout{grid-template-columns:1fr}}
+
+.tw-card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow)}
+.tw-h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.tw-group{padding:15px 16px;border-bottom:1px solid var(--rs-line)}
+.tw-group:last-child{border-bottom:0}
+.tw-glabel{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tw-dot{width:7px;height:7px;border-radius:50%;background:var(--rs-accent-bright)}
+
+.tw-results{display:flex;flex-direction:column;gap:16px;min-height:200px}
+.tw-tile{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:16px 17px;box-shadow:var(--rs-shadow);overflow:hidden}
+.tw-k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.tw-sub{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+.tw-edu{border-left:3px solid var(--rs-accent-bright);background:var(--rs-accent-soft);
+  border-radius:0 9px 9px 0;padding:15px 17px}
+.tw-edu-h{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600;color:var(--rs-accent);margin-bottom:8px}
+.tw-edu-p{margin:0 0 8px;font-size:14px;line-height:1.6}
+.tw-edu-p:last-child{margin-bottom:0}
+.tw-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tw-cta{font:inherit;font-weight:600;font-size:13.5px;color:var(--rs-accent-contrast);
+  background:var(--rs-accent);border:0;padding:11px 18px;border-radius:10px;cursor:pointer}
+.tw-ghost{background:transparent;color:var(--rs-ink);border:1px solid var(--rs-line)}
+.tw-foot{font-size:12px;color:var(--rs-muted)}
+.tw-note{font-size:12px;color:var(--rs-muted);margin:10px 0 0}
+
+.src{letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:999px;
+  white-space:nowrap;font-size:9.5px;padding:2.5px 7px;margin-left:7px}
+.src-file{color:#0070c0;background:#0070c018;border:1px solid #0070c04d}
+.src-hand{color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.src-seed{color:#4a7c1f;background:#4ca52d1a;border:1px solid #4ca52d59}
+
+.field{margin-bottom:11px}
+.fieldlab{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;
+  color:var(--rs-ink);margin-bottom:6px}
+.field input,.field select{width:100%;font:inherit;font-size:13px;padding:8px 9px;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+
+/* the questions block — mockup only */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:14px 16px;font-size:13px}
+.q h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;margin:0 0 10px;color:var(--rs-muted)}
+.q ol{margin:0;padding-left:20px}.q li{margin-bottom:9px}
+.q .from{color:var(--rs-muted);font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+
+/* the tick row — the approved economic-analysis pattern, reused verbatim */
+.ticker{display:flex;gap:11px;align-items:flex-start;padding:15px 16px}
+.ticker input{margin:2px 0 0;width:16px;height:16px;flex:none;accent-color:#0070c0}
+.ticker .tl{font-size:14px;font-weight:600}
+.ticker .ts{font-size:12.5px;color:var(--rs-muted);margin-top:3px}
+.ticker .opt2{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:999px;padding:2.5px 7px;color:var(--rs-muted);background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);margin-left:8px}
+.ticker.is-open{border-bottom:1px solid var(--rs-line)}
+</style>
+<style>
+/* ============================================================================
+   ADDITIONS FOR THIS DRAWING ONLY. Everything above is the approved mockups'
+   own style block. The rules below introduce NO new colour, radius, weight or
+   font — they lay out one grid of percentages and one three-year table using
+   tokens already defined.
+   ========================================================================= */
+
+/* the quick-fire grid: a base column that is READ, then three you type into */
+.qf{padding:15px 16px}
+.qfgrid{width:100%;border-collapse:collapse;font-size:13px}
+.qfgrid th{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:600;text-align:right;padding:0 0 9px;white-space:nowrap}
+.qfgrid th.rowhead{text-align:left;width:38%}
+.qfgrid td{padding:5px 0;border-top:1px solid var(--rs-line);vertical-align:middle}
+.qfgrid td.rowhead{text-align:left;font-size:13px;color:var(--rs-ink);padding-right:10px}
+.qfgrid td.rowhead small{display:block;font-size:11.5px;color:var(--rs-muted);margin-top:1px}
+.qfgrid td.base{text-align:right;font-variant-numeric:tabular-nums;color:var(--rs-muted);
+  font-size:12.5px;padding-right:10px;white-space:nowrap}
+.qfgrid td.yr{width:74px;padding-left:6px}
+.qfin{width:100%;font:inherit;font-size:13px;font-weight:600;padding:7px 8px;text-align:right;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);
+  color:var(--rs-ink);font-variant-numeric:tabular-nums}
+.qfin:focus-visible{outline:2px solid var(--rs-accent-bright);outline-offset:1px}
+.qfconv{font-size:11.5px;color:var(--rs-muted);text-align:right;padding:0 0 8px}
+
+/* the three-year result table */
+.yrs{width:100%;border-collapse:collapse;font-size:13.5px}
+.yrs th{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:600;padding:0 0 10px;text-align:right;white-space:nowrap}
+.yrs th.rowhead{text-align:left}
+.yrs td{padding:8px 0;text-align:right;font-variant-numeric:tabular-nums;
+  border-top:1px solid var(--rs-line);white-space:nowrap}
+.yrs td.rowhead{text-align:left;font-weight:400}
+.yrs tr.total td{font-weight:700;border-top:2px solid var(--rs-line)}
+.yrs td.base{color:var(--rs-muted)}
+.yrs .delta{font-size:11.5px;color:var(--rs-good);display:block;font-weight:400}
+
+.tablewrap{overflow-x:auto}
+
+/* a "this is what your typing means" strip under the grid */
+.reads{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:11px 13px;font-size:12.5px;color:var(--rs-ink);line-height:1.6;margin-top:12px}
+.reads b{font-weight:600}
+
+/* the four sliders, shown struck through when quick-fire is driving */
+.lever{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;
+  padding:6px 0;border-top:1px solid var(--rs-line);color:var(--rs-muted)}
+.lever:first-of-type{border-top:0}
+.lever .lv{font-variant-numeric:tabular-nums;font-weight:600}
+.off{opacity:.45}
+.off .lv{text-decoration:line-through}
+</style>
+</head>
+<body>
+<div class="shell tw-root">
+
+<div class="rs-top">
+  <div>
+    <a class="rs-backlink" href="#">&larr; Model Library</a>
+    <div class="rs-eyebrow">Three-Way Forecast &middot; the quick-fire option</div>
+    <h1 class="rs-h1">Quick-Fire Forecast</h1>
+    <div class="rs-client">Drawn 2026-09-07 &middot; ✅ approved by Mike the same day, all five
+      questions ruled &middot; slice 1 in build</div>
+  </div>
+  <div class="chips">
+    <div class="chip done"><span class="n">1</span> Exports</div>
+    <div class="chip done"><span class="n">2</span> Opening</div>
+    <div class="chip now"><span class="n">3</span> Assumptions</div>
+    <div class="chip todo"><span class="n">4</span> Forecast</div>
+    <div class="chip todo"><span class="n">5</span> Economic analysis</div>
+  </div>
+</div>
+
+<div class="mock tag" data-tag="WHAT YOU ASKED FOR">
+  <b>Your words, 2026-09-07:</b> &ldquo;draw it up please and make it a &lsquo;quick-fire
+  option&rsquo;. tick a box, it opens so i can put the data in and it just adds or subtracts
+  from previous known data. untick it and the status quo continues.&rdquo;
+  <br><br>
+  It goes on <b>step 3, Set the assumptions</b>, because that is the step whose figures it
+  replaces, and it has to run before the forecast is built. It is drawn as the same
+  tick-to-open shape you approved for the economic analysis on 2026-09-06 &mdash; one pattern,
+  learned once.
+</div>
+
+<!-- ============================================================ STATE 1 ==== -->
+<div class="stepmark">State 1 &mdash; the box is not ticked. Nothing has changed.</div>
+
+<div class="tw-layout">
+  <aside class="tw-card">
+    <div class="ticker">
+      <input type="checkbox" id="qf1" aria-label="Quick-fire forecast">
+      <div>
+        <div class="tl">Quick-fire forecast <span class="opt2">Optional</span></div>
+        <div class="ts">Grow last year&rsquo;s figures by a percentage instead of typing
+          twelve months. Three years at once.</div>
+      </div>
+    </div>
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Trading terms</h2></div>
+      <div class="field">
+        <div class="fieldlab"><span>Mark-up on cost</span><span class="src src-file">From file</span></div>
+        <input value="67.9 %" readonly>
+      </div>
+      <div class="field">
+        <div class="fieldlab"><span>Forecast starts on</span></div>
+        <input value="1 April 2026" readonly>
+      </div>
+    </div>
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Sales, month by month</h2></div>
+      <div class="field">
+        <div class="fieldlab"><span>April</span><span class="src src-file">From file</span></div>
+        <input value="64,300" readonly>
+      </div>
+      <div class="field">
+        <div class="fieldlab"><span>May</span><span class="src src-file">From file</span></div>
+        <input value="71,900" readonly>
+      </div>
+      <p class="tw-note">&hellip; and ten more months, exactly as today.</p>
+    </div>
+  </aside>
+
+  <div class="tw-results">
+    <div class="tw-tile">
+      <div class="tw-k">Step 3 as it stands today</div>
+      <p class="tw-edu-p" style="margin-top:10px">Every field on this step behaves exactly as it
+        does now. The tick box adds one row at the top of the card and takes nothing away.</p>
+      <p class="tw-edu-p"><b>This is the whole of &ldquo;untick it and the status quo
+        continues&rdquo;.</b> Unticking does not clear anything and does not undo anything: the
+        twelve monthly sales figures, the mark-up and the overheads are still whatever they
+        were before the box was ticked. Quick-fire writes to its own set of figures and never
+        over the top of yours.</p>
+    </div>
+    <div class="tw-edu">
+      <div class="tw-edu-h"><span class="tw-dot"></span>Why it sits on step 3</div>
+      <p class="tw-edu-p">Step 3 is where the forecast&rsquo;s assumptions are set, and the
+        forecast is built at step 4. A quick-fire entered anywhere later would be describing a
+        forecast that had already been calculated.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ STATE 2 ==== -->
+<div class="stepmark">State 2 &mdash; ticked. The grid opens.</div>
+
+<div class="tw-layout">
+  <aside class="tw-card">
+    <div class="ticker is-open">
+      <input type="checkbox" id="qf2" checked aria-label="Quick-fire forecast">
+      <div>
+        <div class="tl">Quick-fire forecast <span class="opt2">Optional</span></div>
+        <div class="ts">Growing last year&rsquo;s figures. Your monthly sales and mark-up are
+          kept and will come back if you untick this.</div>
+      </div>
+    </div>
+
+    <div class="qf">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Add to, or subtract from, last year</h2></div>
+      <div class="tablewrap">
+      <table class="qfgrid">
+        <thead>
+          <tr>
+            <th class="rowhead">&nbsp;</th>
+            <th>Last year</th>
+            <th>Yr 1</th>
+            <th>Yr 2</th>
+            <th>Yr 3</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rowhead">Sales growth
+              <small>&plusmn; on the year before</small></td>
+            <td class="base">890,000</td>
+            <td class="yr"><input class="qfin" value="+8" aria-label="Sales growth year 1"></td>
+            <td class="yr"><input class="qfin" value="+6" aria-label="Sales growth year 2"></td>
+            <td class="yr"><input class="qfin" value="+5" aria-label="Sales growth year 3"></td>
+          </tr>
+          <tr>
+            <td class="rowhead">Gross margin
+              <small>the margin itself, not a change</small></td>
+            <td class="base">40.4 %</td>
+            <td class="yr"><input class="qfin" value="41" aria-label="Gross margin year 1"></td>
+            <td class="yr"><input class="qfin" value="42" aria-label="Gross margin year 2"></td>
+            <td class="yr"><input class="qfin" value="42" aria-label="Gross margin year 3"></td>
+          </tr>
+          <tr>
+            <td class="rowhead"></td>
+            <td class="qfconv" colspan="4">&equals; mark-up on cost of 69.5&thinsp;% &middot;
+              72.4&thinsp;% &middot; 72.4&thinsp;%</td>
+          </tr>
+          <tr>
+            <td class="rowhead">Overheads increase
+              <small>&plusmn; on the year before</small></td>
+            <td class="base">210,000</td>
+            <td class="yr"><input class="qfin" value="+4" aria-label="Overheads increase year 1"></td>
+            <td class="yr"><input class="qfin" value="+3" aria-label="Overheads increase year 2"></td>
+            <td class="yr"><input class="qfin" value="+3" aria-label="Overheads increase year 3"></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="reads">
+        <b>Every figure is a percentage, and every one is optional.</b> A blank year means
+        &ldquo;the same again&rdquo;, which is what the three-year engine already does. A minus
+        sign is a decline: <b>&minus;5</b> in Yr 2 forecasts a fall.
+      </div>
+    </div>
+
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Driven by quick-fire</h2></div>
+      <div class="lever off"><span>Sales, month by month</span><span class="lv">12 figures</span></div>
+      <div class="lever off"><span>Mark-up on cost</span><span class="lv">67.9 %</span></div>
+      <div class="lever off"><span>Overheads</span><span class="lv">210,000</span></div>
+      <p class="tw-note">Greyed, not gone. Untick the box and these three come straight back
+        as they are.</p>
+    </div>
+
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Still yours to set</h2></div>
+      <div class="lever"><span>Debtor &amp; creditor days</span><span class="lv">45 / 30</span></div>
+      <div class="lever"><span>GST rate &amp; period</span><span class="lv">15 % &middot; 2-monthly</span></div>
+      <div class="lever"><span>Income tax rate</span><span class="lv">28 %</span></div>
+      <div class="lever"><span>Interest rates</span><span class="lv">3 fields</span></div>
+      <div class="lever"><span>Loans, assets, capital plans</span><span class="lv">unchanged</span></div>
+      <p class="tw-note"><b>Quick-fire replaces three things only:</b> the sales line, the
+        mark-up and the overheads. Everything else on step 3 is untouched, because a growth
+        percentage says nothing about when a debtor pays or what tax rate applies.</p>
+    </div>
+  </aside>
+
+  <div class="tw-results">
+    <div class="tw-tile">
+      <div class="tw-k">What those percentages produce</div>
+      <div class="tw-sub" style="margin-bottom:14px">Recalculated as you type. Last year is read
+        from the P&amp;L you dropped at step 1 &mdash; it is the &ldquo;previous known
+        data&rdquo;, and it is never edited here.</div>
+      <div class="tablewrap">
+      <table class="yrs">
+        <thead>
+          <tr>
+            <th class="rowhead">&nbsp;</th>
+            <th>Last year</th>
+            <th>Year 1</th>
+            <th>Year 2</th>
+            <th>Year 3</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rowhead">Sales</td>
+            <td class="base">890,000</td>
+            <td>961,200<span class="delta">+8 %</span></td>
+            <td>1,018,872<span class="delta">+6 %</span></td>
+            <td>1,069,816<span class="delta">+5 %</span></td>
+          </tr>
+          <tr>
+            <td class="rowhead">Cost of sales</td>
+            <td class="base">530,000</td>
+            <td>567,108</td>
+            <td>590,946</td>
+            <td>620,493</td>
+          </tr>
+          <tr>
+            <td class="rowhead">Gross profit</td>
+            <td class="base">360,000</td>
+            <td>394,092<span class="delta">41.0 %</span></td>
+            <td>427,926<span class="delta">42.0 %</span></td>
+            <td>449,323<span class="delta">42.0 %</span></td>
+          </tr>
+          <tr>
+            <td class="rowhead">Overheads</td>
+            <td class="base">210,000</td>
+            <td>218,400<span class="delta">+4 %</span></td>
+            <td>224,952<span class="delta">+3 %</span></td>
+            <td>231,701<span class="delta">+3 %</span></td>
+          </tr>
+          <tr class="total">
+            <td class="rowhead">Net profit</td>
+            <td class="base">150,000</td>
+            <td>175,692</td>
+            <td>202,974</td>
+            <td>217,622</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="tw-note">Before interest, depreciation and tax &mdash; those come from the rest
+        of step 3 and are applied by the forecast itself, not by this grid.</p>
+    </div>
+
+    <div class="tw-edu">
+      <div class="tw-edu-h"><span class="tw-dot"></span>Growth keeps last year&rsquo;s shape</div>
+      <p class="tw-edu-p"><b>+8&thinsp;% does not mean one twelfth a month.</b> If the by-month
+        P&amp;L was dropped at step 1, each month is grown by the percentage against
+        <em>that same month last year</em> &mdash; so a business with a quiet January and a
+        heavy March keeps its January and its March. Cash flow, which is the whole point of a
+        three-way, depends on it.</p>
+      <p class="tw-edu-p">Where no by-month export was dropped, the year is spread evenly and
+        <b>the screen says so</b>, because an even spread through a seasonal business produces a
+        cash line that will not happen.</p>
+    </div>
+
+    <div class="tw-edu">
+      <div class="tw-edu-h"><span class="tw-dot"></span>&ldquo;Adds or subtracts from previous known data&rdquo;</div>
+      <p class="tw-edu-p">Year 1 grows on <b>last year&rsquo;s actuals</b>, read from the file.
+        Year 2 grows on <b>Year 1</b>. Year 3 grows on <b>Year 2</b>. Each year compounds on the
+        one before it, which is what the three-year engine already does with the balance sheet:
+        each year&rsquo;s closing position opens the next.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ STATE 3 ==== -->
+<div class="stepmark">State 3 &mdash; step 4, the forecast, with three years in it</div>
+
+<div class="tw-layout">
+  <aside class="tw-card">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Try a different assumption</h2></div>
+      <div class="lever off"><span>Sales, all months</span><span class="lv">+0 %</span></div>
+      <div class="lever off"><span>Mark-up</span><span class="lv">67.9 %</span></div>
+      <div class="lever"><span>Month after</span><span class="lv">60 %</span></div>
+      <div class="lever off"><span>Overheads, all lines</span><span class="lv">+0 %</span></div>
+      <p class="tw-note"><b>Three of the four sliders go quiet while quick-fire is on</b>, because
+        the grid on step 3 is now saying the same thing per year and two controls fighting over
+        one number is how a forecast stops tying. The debtor slider is untouched &mdash;
+        quick-fire never speaks to it.</p>
+    </div>
+  </aside>
+  <div class="tw-results">
+    <div class="tw-tile">
+      <div class="tw-k">Year 1 &middot; Year 2 &middot; Year 3</div>
+      <div class="tw-sub" style="margin-bottom:14px">Three linked twelve-month years. The lowest
+        cash point is found across all thirty-six months, not each year alone.</div>
+      <div class="tablewrap">
+      <table class="yrs">
+        <thead>
+          <tr>
+            <th class="rowhead">&nbsp;</th><th>Year 1</th><th>Year 2</th><th>Year 3</th><th>Three years</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="rowhead">Revenue</td><td>961,200</td><td>1,018,872</td><td>1,069,816</td><td>3,049,888</td></tr>
+          <tr><td class="rowhead">Gross profit</td><td>394,092</td><td>427,926</td><td>449,323</td><td>1,271,341</td></tr>
+          <tr class="total"><td class="rowhead">Net profit</td><td>175,692</td><td>202,974</td><td>217,622</td><td>596,288</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="mock tag" data-tag="THE HONEST PART">
+      <b>This third screen is the real size of the job, and it is bigger than the grid.</b>
+      The maths for three years is already built and tested &mdash;
+      <code>computeThreeYearForecast</code> chains all three, and
+      <code>POST /api/report/three-way-forecast/three-years</code> is live. <b>But no screen in
+      the app has ever called it.</b> Step 4 today draws one year: one profit and loss, one cash
+      flow, one balance sheet, one set of charts.
+      <br><br>
+      So quick-fire is two pieces of work, not one: the grid you asked for, and a step 4 that can
+      show three years. <b>The grid is worth little without it</b> &mdash; you would type three
+      years of percentages and still only be shown the first.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ QUESTIONS == -->
+<div class="stepmark">Approved &mdash; all five questions ruled by Mike, 2026-09-07</div>
+
+<div class="q" style="border-left-color:#4ca52d">
+  <h2 style="color:#2f7d32">Nothing on this page is open</h2>
+  <p style="margin:0 0 12px;font-size:13px">Mike approved the drawing (<b>&ldquo;love
+    it!&rdquo;</b>) and then ruled all five questions one at a time, on his own standing
+    instruction to be asked that way. His last word was <b>&ldquo;looks good &mdash; move
+    forward&rdquo;</b>, which is the authority to build. <b>Each ruling is recorded with the
+    recommendation it answered, including the argument that was put against it</b>, so a later
+    session can see what was weighed rather than only what was chosen.</p>
+  <ol>
+    <li><b>The row says &ldquo;Gross margin&rdquo;, with the mark-up beneath it.</b>
+      <span class="from">Recommended and chosen. Margin is the number an accountant says out
+      loud and it is the word Mike used; the engine works in mark-up on cost and step 3&rsquo;s
+      existing field says so, therefore the conversion has to be visible or the two screens read
+      as disagreeing. Rejected: labelling the row &ldquo;Mark-up&rdquo; to match the existing
+      field and leaving the advisor to convert.</span></li>
+
+    <li><b>Three rows and no more</b> &mdash; sales growth, gross margin, overheads increase.
+      <span class="from">Recommended and chosen. Nine boxes stay quick; eighteen do not, and at
+      eighteen the full screen is the better tool. <b>The argument recorded against it, because
+      it is a real one:</b> wages are usually the largest single overhead and often move
+      differently from the rest, so one blended overheads percentage does lose something. A
+      fourth row can be added later without redrawing &mdash; the grid simply grows.</span></li>
+
+    <li><b>With no file dropped, the tick box appears but is greyed, reading &ldquo;Needs last
+      year&rsquo;s Profit and Loss&rdquo;.</b>
+      <span class="from">Recommended and chosen over hiding it. An advisor who cannot see the
+      option assumes the app has none &mdash; which is the exact question Mike asked on
+      2026-09-07 that produced this drawing. Greyed with a reason says what to do next. Rejected:
+      letting them type a base year by hand, which would mean typing last year&rsquo;s figures in
+      order to grow them &mdash; slower than the ordinary screen, so quick-fire would be making
+      things worse.</span></li>
+
+    <li>🔴 <b>Step 4&rsquo;s three-year view is IN, and the work is TWO SLICES with the grid
+      first.</b>
+      <span class="from">Recommended and chosen. The grid alone would collect three years of
+      percentages and display one, so the three-year view is what gives it value; taking the grid
+      first means the wording and the rows can still change cheaply before the larger half
+      starts. <b>The cost was stated before he ruled:</b> the three-year view is a substantial
+      screen &mdash; three years across a profit and loss, a cash flow and a balance sheet, plus
+      the charts and the print &mdash; and <b>it gets its own drawing for approval before it is
+      built.</b> This page does not approve it.</span></li>
+
+    <li><b>All nine labels approved as drawn.</b>
+      <span class="from">Recommended and chosen. The one flagged as least certain was the grid
+      heading <b>&ldquo;Add to, or subtract from, last year&rdquo;</b> &mdash; it describes a
+      mechanism rather than naming a thing, which is unusual here, but it is the only line that
+      tells an advisor the boxes take percentages rather than amounts and that a minus sign is
+      allowed. Kept on that reasoning.</span></li>
+  </ol>
+</div>
+
+<div class="mock" style="margin-top:16px">
+  <b>What this drawing does NOT change, stated so it is not assumed.</b>
+  The opening balance sheet, the loans, the asset schedule, the capital plans, the GST and tax
+  settings, the debtor and creditor terms, the volatility read, the economic analysis at step 5,
+  and every existing test of the single-year forecast. Quick-fire is an alternative way to fill
+  in three fields; it is not an alternative forecast engine.
+</div>
+
+</div>
+</body>
+</html>
