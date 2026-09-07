@@ -1,0 +1,556 @@
+<title>Follow-Through on Coaching Notes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Meeting Review — screen mockup for approval. NOTHING HERE IS BUILT.
+
+   Sources — nothing on this page is invented:
+     design/features/meeting-review.md       the Brief: P1–P13, §3, §5 traps
+     design/MEETING-CONSENT-WORDING.md       the APPROVED spoken line + 2 steps
+     server/routes/firmManager.js:247        uploadDocument — the real upload
+     config/integration.js:110               the real categories + storage limits
+     data/logic_trees.json                   the scenario names (P12)
+
+   🔴 NOT A REPORT SCREEN, AND STILL ON BRAND. Two rulings by Mike, 2026-09-01,
+   and BOTH have to hold at once:
+     "this is NOT a financial performance report - it does NOT need to look
+      identical to those reports. It needs to be easy to follow and colourful
+      and engaging."
+     "colours can still be consistent - they should be listed in the design
+      handbook."
+   So the --rs-* report tokens are NOT used here — report screens stay on
+   REPORT-VISUAL-STANDARD.md — but EVERY colour below comes from
+   design/BRAND-TOKENS.md. Nothing on this page is an invented hue.
+
+   THE COLOUR CARRIES MEANING, it is not decoration. Three stages, three hues,
+   registered in BRAND-TOKENS.md § Journey stages:
+     navy   #002B64 — setup: the firm sets its standard (brand Navy, reused)
+     teal   #00857A — live: the advisor's meeting
+     violet #5B4B9E — afterwards: the two reports and the manager's patterns
+   Controls stay brand Blue/Cyan — a stage hue colours the BAND and the RAIL
+   that say where you are, never the button that says what you can do.
+   Recording uses brand Danger #FF0000 and nothing else on the page does, so it
+   never becomes decorative.
+
+   TYPOGRAPHY IS BRAND TOO: Open Sans, Light 300 as the default weight, 600
+   only where legibility needs it. No second typeface.
+
+   WORDING IS MARKED IN TWO KINDS:
+     .approved  ✅ Mike's exact words, 2026-09-01, copied character for
+                character from MEETING-CONSENT-WORDING.md.
+     .proposed  ✎ Drafted here and NOT approved.
+
+   One light look, painted explicitly — it holds on any host background.
+   ========================================================================= */
+
+:root{
+  /* neutrals — biased toward navy, as BRAND-TOKENS.md requires (never pure grey) */
+  --bg:#eef3f8; --panel:#ffffff; --panel-2:#f4f8fb; --panel-3:#e6edf4;
+  --ink:#002b64; --ink-2:#33455e; --muted:#5b6f8a; --line:#d5e1ee;
+
+  /* the three journey stages — BRAND-TOKENS.md § Journey stages */
+  --navy:#002b64;   --navy-soft:#002b6412;  --navy-line:#002b6440;
+  --teal:#00857a;   --teal-soft:#00857a14;  --teal-line:#00857a44;
+  --violet:#5b4b9e; --violet-soft:#5b4b9e14;--violet-line:#5b4b9e44;
+
+  /* brand interactive — controls stay these, never a stage hue */
+  --blue:#0070c0;   --cyan:#00b1e0;         --sky:#7fd3f1;
+
+  /* brand semantic — outrank a stage hue; recording uses Danger and nothing else does */
+  --good:#4ca52d;   --good-soft:#4ca52d1a;  --good-line:#4ca52d55;
+  --warn:#ff9900;   --warn-soft:#ff99001a;  --warn-line:#ff990059;
+  --rec:#ff0000;    --rec-soft:#ff00000d;   --rec-line:#ff000040;
+
+  /* the two voices — brand navy and cyan, used wherever speech is shown */
+  --voice-advisor:#002b64; --voice-client:#00b1e0;
+
+  /* Open Sans, Light 300 default — BRAND-TOKENS.md § Typography */
+  --sans:'Open Sans', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+
+  --r:14px; --r-sm:9px;
+  --shadow:0 1px 2px #002b6414, 0 10px 28px -16px #002b6440;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+     font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:30px 20px 80px}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0;max-width:68ch}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ── masthead ─────────────────────────────────────────────────────────── */
+/* the three stage hues, left to right, so the masthead states the journey */
+.mast{background:linear-gradient(120deg,var(--navy) 0%,var(--navy) 34%,var(--teal) 67%,var(--violet) 100%);
+  color:#fff;border-radius:var(--r);padding:34px 32px;box-shadow:var(--shadow)}
+.mast .kicker{font-size:11px;font-weight:600;letter-spacing:.19em;text-transform:uppercase;
+  color:var(--sky)}
+.mast h1{font-size:44px;font-weight:300;letter-spacing:-.015em;
+  margin:9px 0 12px;line-height:1.05}
+.mast p{font-size:15.5px;color:#dbeaf5;max-width:60ch}
+
+/* ── banners ──────────────────────────────────────────────────────────── */
+.banner{border-radius:var(--r-sm);padding:15px 17px;font-size:14px;line-height:1.6;
+  border:1px solid;margin-top:16px}
+.banner b{display:block;margin-bottom:3px;font-size:14.5px}
+.banner.warn{background:var(--warn-soft);border-color:var(--warn-line);color:#5c4405}
+.banner.info{background:var(--teal-soft);border-color:var(--teal-line);color:#0d4a45}
+
+/* ── legend ───────────────────────────────────────────────────────────── */
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:22px}
+@media (max-width:760px){.legend{grid-template-columns:1fr}}
+.leg{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-sm);
+  padding:15px 16px;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+.leg h3{font-family:var(--sans);font-size:13.5px;font-weight:600;color:var(--ink);
+  margin-bottom:6px;display:flex;align-items:center;gap:8px}
+
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:20px;
+  border:1px solid;white-space:nowrap;font-family:var(--sans)}
+.pill.ok{background:var(--good-soft);border-color:var(--good-line);color:#2c6641}
+.pill.prop{background:var(--warn-soft);border-color:var(--warn-line);color:#8a6508}
+.pill.next{background:var(--violet-soft);border-color:var(--violet-line);color:#54397a}
+
+/* ── stage headers ────────────────────────────────────────────────────── */
+.stage{margin:52px 0 4px;display:flex;align-items:center;gap:14px}
+.stage .num{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  font-size:15px;font-weight:600;color:#fff;flex:0 0 auto}
+.stage h2{font-size:29px;font-weight:300;letter-spacing:-.01em}
+.stage .sub{font-size:13.5px;color:var(--muted);margin-top:1px}
+.s-a .num{background:var(--navy)}   .s-a h2{color:var(--navy)}
+.s-b .num{background:var(--teal)}   .s-b h2{color:#00655d}
+.s-c .num{background:var(--violet)} .s-c h2{color:var(--violet)}
+
+/* the coloured rail that runs down each stage */
+.rail{border-left:3px solid;padding-left:22px;margin-left:18px;margin-top:18px;
+  display:flex;flex-direction:column;gap:26px}
+@media (max-width:640px){.rail{padding-left:14px;margin-left:6px}}
+.s-a .rail{border-color:var(--navy-line)}
+.s-b .rail{border-color:var(--teal-line)}
+.s-c .rail{border-color:var(--violet-line)}
+
+/* ── a screen ─────────────────────────────────────────────────────────── */
+.screen{display:flex;flex-direction:column;gap:11px}
+.screen > .cap{font-size:13px;font-weight:600;color:var(--muted);display:flex;
+  align-items:center;gap:9px;flex-wrap:wrap;letter-spacing:.01em}
+.frame{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden}
+.chrome{padding:11px 17px;font-size:12.5px;display:flex;justify-content:space-between;
+  align-items:center;gap:12px;color:#fff;font-weight:500}
+.s-a .chrome{background:var(--navy)}
+.s-b .chrome{background:var(--teal)}
+.s-c .chrome{background:var(--violet)}
+.chrome.recording{background:var(--rec)}
+.chrome .r{opacity:.88;font-family:var(--sans);font-size:11.5px}
+.pane{padding:22px 22px 24px;display:flex;flex-direction:column;gap:17px}
+.pane h3{font-family:var(--sans);font-size:24px;font-weight:500;letter-spacing:-.01em}
+.pane .lede{color:var(--muted);font-size:14px}
+.pane h4{font-family:var(--sans);font-size:11.5px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted)}
+
+/* ── the annotation voice — clearly not part of the screen ─────────────── */
+.note{background:var(--panel-3);border-radius:var(--r-sm);padding:15px 17px;
+  font-size:13.5px;line-height:1.65;color:var(--ink-2);border:1px solid var(--line)}
+.note b{color:var(--ink)}
+.note > :first-child{margin-top:0}
+.note ul{margin:9px 0 0;padding-left:19px}
+.note li{margin:5px 0}
+
+/* ── the approved spoken line ─────────────────────────────────────────── */
+.spoken{background:var(--good-soft);border:1px solid var(--good-line);
+  border-left:4px solid var(--good);border-radius:var(--r-sm);padding:17px 19px}
+.spoken .who{display:block;font-size:10.5px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:#2c6641;margin-bottom:9px}
+.spoken q{font-family:var(--sans);font-size:18px;font-style:italic;line-height:1.65;
+  color:var(--ink);display:block;max-width:60ch}
+
+/* ── buttons ──────────────────────────────────────────────────────────── */
+.btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-family:var(--sans);font-size:13.5px;font-weight:600;
+  padding:10px 19px;border-radius:8px;border:1.5px solid;cursor:default;
+  background:var(--teal);border-color:var(--teal);color:#fff}
+.s-a .btn{background:var(--navy);border-color:var(--navy)}
+.s-c .btn{background:var(--violet);border-color:var(--violet)}
+.btn.ghost{background:var(--panel);border-color:var(--line);color:var(--ink)}
+.btn.stop{background:var(--panel);border-color:var(--rec-line);color:var(--rec)}
+.btn.go{background:var(--good);border-color:var(--good);color:#fff}
+
+/* ── observation points ───────────────────────────────────────────────── */
+.pts{display:flex;flex-direction:column;gap:8px}
+.pt{display:flex;gap:12px;align-items:flex-start;background:var(--panel-2);
+  border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 14px;font-size:14px}
+.pt .box{width:17px;height:17px;border-radius:5px;flex:0 0 auto;margin-top:2px;
+  background:var(--teal);position:relative}
+.s-a .pt .box{background:var(--navy)}
+.pt.own .box{background:var(--voice-client)}
+.pt .box::after{content:"";position:absolute;left:5.5px;top:2px;width:4px;height:9px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(43deg)}
+.pt .who{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  font-weight:600;margin-top:4px}
+
+/* ── the firm's reference material ────────────────────────────────────── */
+.docs{display:flex;flex-direction:column;gap:9px}
+.doc{display:flex;gap:13px;align-items:center;background:var(--panel);
+  border:1px solid var(--line);border-radius:var(--r-sm);padding:13px 15px}
+.doc .ic{width:36px;height:44px;border-radius:4px;flex:0 0 auto;position:relative;
+  background:var(--navy-soft);border:1.5px solid var(--navy-line)}
+.doc .ic::after{content:"PDF";position:absolute;bottom:5px;left:0;right:0;text-align:center;
+  font-family:var(--sans);font-size:8.5px;font-weight:600;color:var(--navy)}
+.doc .nm{font-size:14px;font-weight:600}
+.doc .meta{font-size:12px;color:var(--muted);margin-top:2px;font-family:var(--sans)}
+.doc .act{margin-left:auto;font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap}
+.drop{border:2px dashed var(--navy-line);border-radius:var(--r-sm);padding:20px;
+  text-align:center;background:var(--navy-soft);font-size:13.5px;color:var(--navy)}
+.drop b{display:block;font-size:14.5px;margin-bottom:3px}
+.drop .lim{font-family:var(--sans);font-size:11.5px;color:var(--muted);margin-top:7px}
+
+/* ── recording ────────────────────────────────────────────────────────── */
+.recbar{display:flex;align-items:center;gap:14px;background:var(--rec-soft);
+  border:1px solid var(--rec-line);border-radius:var(--r-sm);padding:14px 16px;flex-wrap:wrap}
+.blip{width:12px;height:12px;border-radius:50%;background:var(--rec);flex:0 0 auto;
+  animation:pulse 2.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #ff000059}70%{box-shadow:0 0 0 10px #ff000000}
+  100%{box-shadow:0 0 0 0 #ff000000}}
+.recbar .clock{font-size:23px;font-weight:600;color:var(--rec);font-variant-numeric:tabular-nums}
+.recbar .say{font-size:13px;color:var(--ink-2);flex:1;min-width:130px}
+.alarm{background:var(--rec-soft);border:1px solid var(--rec-line);border-left:4px solid var(--rec);
+  border-radius:var(--r-sm);padding:16px 18px;font-size:13.5px;line-height:1.6}
+.alarm b{display:block;font-size:15px;color:var(--rec);margin-bottom:4px;font-family:var(--sans);
+  font-weight:600}
+
+/* ── measured figures ─────────────────────────────────────────────────── */
+.figs{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+@media (max-width:680px){.figs{grid-template-columns:1fr 1fr}}
+.fig{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:14px}
+.fig .k{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);
+  font-weight:600}
+.fig .v{font-variant-numeric:tabular-nums;font-size:26px;font-weight:600;margin-top:6px;line-height:1.05;
+  color:var(--violet)}
+.fig .s{font-size:12px;color:var(--muted);margin-top:5px}
+.fig.flag{background:var(--warn-soft);border-color:var(--warn-line)}
+.fig.flag .v{color:#8a6508}
+
+/* talk-time split — the two voices, shown as themselves */
+.split{display:flex;height:34px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.split div{display:grid;place-items:center;font-size:12px;font-weight:600;color:#fff;
+  font-family:var(--sans)}
+.split .adv{background:var(--voice-advisor);flex:78}
+/* cyan is a light ground — navy text, not white, or the label fails contrast */
+.split .cli{background:var(--voice-client);color:var(--navy);flex:22}
+.splitkey{display:flex;gap:18px;font-size:12px;color:var(--muted);margin-top:7px}
+.splitkey i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+
+/* ── observations ─────────────────────────────────────────────────────── */
+.obs{display:flex;flex-direction:column;gap:11px}
+.ob{border:1px solid var(--line);border-radius:var(--r-sm);padding:15px 16px;
+  background:var(--panel);border-left:4px solid}
+.ob .hd{display:flex;gap:10px;align-items:baseline;justify-content:space-between;flex-wrap:wrap}
+.ob .nm{font-size:14.5px;font-weight:600;flex:1;min-width:180px}
+.ob.found{border-left-color:var(--good)}
+.ob.absent{border-left-color:var(--warn)}
+.ob.deaf{border-left-color:var(--muted)}
+.ob.found .pill{background:var(--good-soft);border-color:var(--good-line);color:#2c6641}
+.ob.absent .pill{background:var(--warn-soft);border-color:var(--warn-line);color:#8a6508}
+.ob.deaf .pill{background:var(--panel-3);border-color:var(--line);color:var(--muted)}
+.quote{margin:11px 0 0;padding:12px 15px;background:var(--panel-2);border-radius:var(--r-sm);
+  border-left:3px solid var(--voice-advisor)}
+.quote q{font-family:var(--sans);font-style:italic;font-size:15.5px;line-height:1.6;
+  display:block;color:var(--ink)}
+.quote .ts{font-family:var(--sans);font-size:11px;font-weight:600;color:var(--voice-advisor);
+  display:block;margin-bottom:5px;letter-spacing:.04em}
+.absentnote{margin-top:11px;font-size:13.5px;color:var(--ink-2)}
+.absentnote code{font-family:var(--sans);font-size:12px;font-weight:600;color:#8a6508;
+  background:var(--warn-soft);border:1px solid var(--warn-line);border-radius:4px;padding:1px 6px}
+.oblinks{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.oblink{font-size:12.5px;font-weight:600;color:var(--violet);border:1px solid var(--violet-line);
+  background:var(--violet-soft);border-radius:7px;padding:6px 12px}
+
+/* ── the client's draft ───────────────────────────────────────────────── */
+.draft{border:2px dashed var(--violet-line);border-radius:var(--r-sm);
+  background:#fcfbfe;padding:19px 20px;font-size:14.5px;line-height:1.7}
+.draft h5{font-family:var(--sans);font-size:17px;font-weight:600;margin:0 0 8px;color:var(--violet)}
+.draft ul{margin:0 0 15px;padding-left:20px}
+.draft li{margin:5px 0}
+.draft p{margin:0 0 15px}
+.draft > :last-child{margin-bottom:0}
+
+/* ── manager patterns ─────────────────────────────────────────────────── */
+.prow{display:grid;grid-template-columns:1fr 76px 130px;gap:14px;align-items:center;
+  font-size:14px;padding:11px 0;border-bottom:1px solid var(--line)}
+.prow:last-child{border-bottom:0}
+@media (max-width:640px){.prow{grid-template-columns:1fr 76px}.prow .track{display:none}}
+.prow .cnt{font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+.track{height:9px;border-radius:5px;background:var(--panel-3);overflow:hidden}
+.track i{display:block;height:100%;background:var(--violet);border-radius:5px}
+.track.low i{background:var(--warn)}
+
+/* ── the rulings table ────────────────────────────────────────────────── */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:600px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  font-weight:600;background:var(--panel-2)}
+tr:last-child td{border-bottom:0}
+
+.close{margin-top:44px;font-size:13px;color:var(--muted);line-height:1.7;max-width:80ch;
+  border-top:1px solid var(--line);padding-top:20px}
+</style>
+
+<style>
+/* ============================================================================
+   ADDITIONS FOR THIS DRAWING ONLY. Everything above is copied VERBATIM from
+   design/mockups/meeting-review.html, approved by Mike 2026-09-01 — the look is
+   READ OFF the approved screen and never proposed afresh (owner ruling,
+   2026-07-23). The rules below introduce NO new colour, radius, weight or font.
+   Violet is already this stage's hue: afterwards — the reports.
+   ========================================================================= */
+
+/* one agreed action, and what this meeting did about it */
+.ft{display:flex;flex-direction:column;gap:9px}
+.fti{border:1px solid var(--line);border-radius:var(--r-sm);padding:14px 16px;
+  background:var(--panel);border-left:4px solid}
+.fti.done{border-left-color:var(--good)}
+.fti.open{border-left-color:var(--warn)}
+.fti .hd{display:flex;gap:10px;align-items:baseline;justify-content:space-between;flex-wrap:wrap}
+.fti .nm{font-size:14.5px;font-weight:600;flex:1;min-width:180px}
+.fti .owner{font-size:12px;color:var(--muted);margin-top:3px;font-family:var(--sans)}
+.fti.done .pill{background:var(--good-soft);border-color:var(--good-line);color:#2c6641}
+.fti.open .pill{background:var(--warn-soft);border-color:var(--warn-line);color:#8a6508}
+
+/* the line that says which meeting these came from */
+.ftfrom{font-size:12.5px;color:var(--muted);font-family:var(--sans)}
+.ftfrom b{color:var(--ink);font-weight:600}
+</style>
+
+<div class="wrap">
+
+<div class="mast">
+  <div class="kicker">Meeting Review &middot; My Coaching Notes</div>
+  <h1>Follow-through</h1>
+  <p>What you agreed last time with this client, and whether it came up this time. One new block
+     inside a report that already exists &mdash; nothing else on that screen changes.</p>
+</div>
+
+<div class="banner warn">
+  <b>Drawn 2026-09-07 &middot; not approved &middot; nothing here is built.</b>
+  The matching and the checking ARE built and tested (<code>server/utils/meetingFollowThrough.js</code>),
+  and the block is already computed and stored on every coaching report. <b>No screen renders it</b>,
+  which is why this page exists: a screen is drawn and approved before it is built.
+</div>
+
+<div class="banner info">
+  <b>Why this needed the client on the meeting record.</b>
+  A meeting used to record the firm, the advisor, the meeting type and the retention period &mdash;
+  but not <i>which client</i>. Matching on the advisor and the meeting type alone would have checked
+  one client's agreed actions against a different client's transcript, and the result would have read
+  as a perfectly ordinary report: real actions, real quotes, real timestamps, all from somebody
+  else's business. The client picker went onto the pre-start screen on 2026-09-07, using wording
+  already approved for the client register.
+</div>
+
+<div class="legend">
+  <div class="leg">
+    <h3><span class="pill ok">&#10003; Approved</span> already ruled, and inherited</h3>
+    The report's name (<b>My Coaching Notes</b>), that it belongs to the advisor alone (P2), that
+    every finding quotes the transcript or declares the thing absent (P4), and that a disagreement
+    stays in the record (P5). This block inherits all four rather than restating them.
+  </div>
+  <div class="leg">
+    <h3><span class="pill prop">&#9998; Proposed</span> what is being asked</h3>
+    Where the block sits, its heading, the two state labels, and how it reads when there is no
+    previous meeting or when the previous meeting's transcript has expired. <b>Every word below is
+    ours, and none of it is Mike's.</b>
+  </div>
+</div>
+
+<!-- the block -->
+<div class="stage s-c">
+  <span class="num">1</span>
+  <div><h2>The block, in place</h2>
+       <div class="sub">Inside My Coaching Notes, above the observation points.</div></div>
+</div>
+
+<div class="rail">
+
+  <div class="screen">
+    <div class="cap">My Coaching Notes <span class="pill prop">&#9998; Proposed</span></div>
+    <div class="frame">
+      <div class="chrome"><span>My Coaching Notes &middot; Whitfield &amp; Co</span>
+        <span class="r">End of year meeting &middot; 7 September 2026</span></div>
+      <div class="pane">
+
+        <h3>Since we last met</h3>
+        <p class="lede">What you agreed with this client on 10 March, and whether you came back to
+           it today.</p>
+
+        <div class="ft">
+
+          <div class="fti done">
+            <div class="hd"><span class="nm">Send the bank the updated forecast</span>
+              <span class="pill">You raised it</span></div>
+            <div class="owner">Agreed by the client &middot; by the end of March</div>
+            <div class="quote"><span class="ts">03:20 &middot; you</span>
+              <q>Before anything else &mdash; did that forecast make it over to the bank in the
+                 end?</q></div>
+            <div class="oblinks"><span class="oblink">Show this in the transcript</span>
+              <span class="oblink">I disagree with this</span></div>
+          </div>
+
+          <div class="fti open">
+            <div class="hd"><span class="nm">Book the valuation on the Cromwell Road unit</span>
+              <span class="pill">Not raised</span></div>
+            <div class="owner">Agreed by you &middot; by the end of April</div>
+            <div class="absentnote">The model was asked to quote where you came back to this and
+              answered <code>NOT FOUND</code>. It may still have happened &mdash; this says only
+              that it was not spoken about today.</div>
+            <div class="oblinks"><span class="oblink">I disagree with this</span></div>
+          </div>
+
+          <div class="fti done">
+            <div class="hd"><span class="nm">Introduce them to a commercial broker</span>
+              <span class="pill">You raised it</span></div>
+            <div class="owner">Agreed by you &middot; no date set</div>
+            <div class="quote"><span class="ts">31:07 &middot; you</span>
+              <q>I put you on to Marie at Kestrel &mdash; did you get anywhere with that?</q></div>
+            <div class="oblinks"><span class="oblink">Show this in the transcript</span>
+              <span class="oblink">I disagree with this</span></div>
+          </div>
+
+        </div>
+
+        <p class="ftfrom">From your meeting with this client on <b>10 March 2026</b>.</p>
+
+        <h4>What you were checked on today</h4>
+        <p class="lede">&hellip;the observation points follow here, exactly as they do now.</p>
+
+      </div>
+    </div>
+    <div class="note">
+      <b>Three things this block does NOT do, each on purpose.</b>
+      <ul>
+        <li><b>It never says an action was &ldquo;not done&rdquo;.</b> A recording knows what was
+            said in a room for an hour; it does not know what happened in the six months between.
+            <i>Not raised</i> is the strongest true statement available, and that distinction is
+            the whole reason the labels are worded as they are.</li>
+        <li><b>It quotes YOU, never the client.</b> These are your coaching notes, and the question
+            is whether the adviser returned to what was agreed. A client mentioning it unprompted
+            is not you following it through &mdash; and the existing citation guard already drops a
+            client's words, so this is inherited rather than newly built.</li>
+        <li><b>It carries no manager route.</b> P2 holds unchanged: this is yours, and
+            &ldquo;Share with my manager&rdquo; remains absent &mdash; the manager aggregate is
+            anonymous by construction, so a named report still has nowhere to arrive.</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- the two empty states -->
+<div class="stage s-c">
+  <span class="num">2</span>
+  <div><h2>When there is nothing to follow through</h2>
+       <div class="sub">Two different reasons, and they must not read the same.</div></div>
+</div>
+
+<div class="rail">
+
+  <div class="screen">
+    <div class="cap">First meeting with this client <span class="pill prop">&#9998; Proposed</span></div>
+    <div class="frame">
+      <div class="chrome"><span>My Coaching Notes &middot; Hale &amp; Partners</span>
+        <span class="r">Discovery meeting &middot; 7 September 2026</span></div>
+      <div class="pane">
+        <h3>Since we last met</h3>
+        <div class="banner info" style="margin-top:0">
+          <b>This is your first recorded meeting with this client.</b>
+          From your next one, what you agree today will appear here.
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <b>It says what will happen, not merely that nothing did.</b> An advisor meeting this on their
+      first recording should read it as the beginning of something rather than as a feature that
+      failed to load.
+      <br><br>
+      <b>The same panel covers a meeting recorded without choosing a client</b>, with one sentence
+      changed &mdash; <i>&ldquo;This meeting was not recorded against a client, so there is nothing
+      to compare it with.&rdquo;</i> That is honest, and it is also a nudge: choosing the client
+      next time is what turns this on.
+    </div>
+  </div>
+
+  <div class="screen">
+    <div class="cap">The previous meeting's transcript has expired
+      <span class="pill prop">&#9998; Proposed</span></div>
+    <div class="frame">
+      <div class="chrome"><span>My Coaching Notes &middot; Whitfield &amp; Co</span>
+        <span class="r">End of year meeting &middot; 7 September 2026</span></div>
+      <div class="pane">
+        <h3>Since we last met</h3>
+        <div class="banner warn" style="margin-top:0">
+          <b>Your last meeting with this client was on 2 January 2025, and its transcript has since
+             been deleted.</b>
+          Your firm keeps transcripts for 18 months, which is what your client was told, so what was
+          agreed that day is no longer held anywhere.
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      &#128308; <b>This is the panel that matters most, and it is why this page has three screens
+      rather than one.</b> Without it, an expired meeting renders exactly like a meeting where
+      nothing was agreed &mdash; and an advisor would read <i>&ldquo;no actions&rdquo;</i> as a fact
+      about their client rather than a fact about the retention clock.
+      <br><br>
+      <b>It states the promise as the reason.</b> The deletion is not a fault to apologise for; it is
+      the firm's own retention period doing exactly what the client was told it would do. The figure
+      is the firm's current one, rendered, never a hardcoded 18.
+      <br><br>
+      <b>The consequence, stated so nobody meets it as a surprise:</b> follow-through can only ever
+      reach back as far as a firm's retention dial allows. A firm on six months has a six-month
+      memory, and this panel is where that becomes visible.
+    </div>
+  </div>
+
+</div>
+
+<!-- questions -->
+<div class="stage s-c">
+  <span class="num">3</span>
+  <div><h2>What is being asked</h2>
+       <div class="sub">Four, each with a recommendation and the argument against it.</div></div>
+</div>
+
+<div class="rail">
+  <div class="note">
+    <ul>
+      <li><b>1 &middot; Where it sits.</b> Recommended: <b>inside My Coaching Notes, above the
+          observation points</b> &mdash; an advisor reads what was outstanding before reading how
+          today went, which is the order the conversation itself had. <i>The argument against:</i>
+          it pushes the observation points, the report's main event, further down the page.</li>
+      <li><b>2 &middot; The heading.</b> Recommended: <b>&ldquo;Since we last met&rdquo;</b>.
+          <i>Rejected:</i> &ldquo;Follow-through&rdquo;, which is our internal word for it and reads
+          like a score; and &ldquo;Last meeting's actions&rdquo;, which is accurate and flat.</li>
+      <li><b>3 &middot; The two state labels.</b> Recommended: <b>&ldquo;You raised it&rdquo;</b> and
+          <b>&ldquo;Not raised&rdquo;</b>. <i>Rejected:</i> &ldquo;Done&rdquo; / &ldquo;Not
+          done&rdquo;, which the software cannot know and which would tell an advisor something
+          untrue about their client; and &ldquo;Found&rdquo; / &ldquo;Not found&rdquo;, which the
+          observation points below already use for a different question.</li>
+      <li><b>4 &middot; Whether the expired panel names the retention period.</b> Recommended:
+          <b>yes</b> &mdash; it turns a deletion into the firm's own policy visibly working.
+          <i>The argument against:</i> it puts a data-retention sentence into a coaching report,
+          which is not what an advisor opened it for.</li>
+    </ul>
+  </div>
+</div>
+
+<p class="close">
+  Drawn from <b>design/features/meeting-review.md</b> (P2, P4, P5, P8) and
+  <b>server/utils/meetingFollowThrough.js</b>, which is built and tested. Where the Brief and this
+  drawing disagree, the Brief wins &mdash; this is a picture of it, not a source in its own right.
+  <br><br>
+  A separate file by design: <b>design/mockups/meeting-review.html</b> is approved and is not
+  edited. Item <b>4.58</b>, slice 6.
+</p>
+
+</div>
