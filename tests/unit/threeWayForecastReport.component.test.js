@@ -336,6 +336,55 @@ describe('Three-Way Forecast screen — dragging the real slider, end to end', (
   })
 })
 
+/**
+ * 🔴 A FORECAST WITH NO SALES IN IT.
+ *
+ * Found 2026-09-07 by driving the real app after Mike reported that the sliders "did
+ * nothing". His by-month export ended part-way through a month; that month is stripped as
+ * incomplete, and short of twelve the seed is deliberately not padded — so sales arrived
+ * as twelve zeros while the Balance Sheet and the overheads loaded normally.
+ *
+ * What he was shown: a loss of $202,781 to the dollar, a screen reporting itself in
+ * balance, and four live sliders that could not move a figure, because a percentage of
+ * zero is zero. Nothing on it said the forecast had no sales in it. A person in UAT cannot
+ * catch that — it reads as a business having a bad year.
+ */
+describe('Three-Way Forecast screen — no sales at all', () => {
+  test('🔴 a forecast with no sales says so, rather than presenting a confident loss', async () => {
+    const empty = computeThreeWayForecast({ sales: new Array(12).fill(0), overheads: { wages: 120000 } })
+    const w = await mountWithResult(empty)
+    expect(w.vm.noSales).toBe(true)
+    expect(w.find('.tw-nosales').exists()).toBe(true)
+    w.destroy()
+  })
+
+  test('a forecast that DOES sell says nothing of the kind', async () => {
+    const w = await mountWithResult(SAMPLE)
+    expect(w.vm.noSales).toBe(false)
+    expect(w.find('.tw-nosales').exists()).toBe(false)
+    w.destroy()
+  })
+
+  test('it asks the RESULT, so every route to an empty forecast is covered', async () => {
+    // No file, a short by-month export, and a client opening a saved row all arrive the
+    // same way. Asking the seed would cover one of the three.
+    const w = await mountWithResult(SAMPLE)
+    expect(w.vm.noSales).toBe(false)
+    w.vm.data = computeThreeWayForecast({ sales: new Array(12).fill(0) })
+    await w.vm.$nextTick()
+    expect(w.vm.noSales).toBe(true)
+    w.destroy()
+  })
+
+  test('before the first result lands it claims nothing', async () => {
+    const w = await mountWithResult(SAMPLE)
+    w.vm.data = null
+    await w.vm.$nextTick()
+    expect(w.vm.noSales).toBe(false)
+    w.destroy()
+  })
+})
+
 describe('Three-Way Forecast screen — the levers', () => {
   test('a lever moves the request body, not the rendered figures directly', async () => {
     const w = await mountWithResult(SAMPLE)

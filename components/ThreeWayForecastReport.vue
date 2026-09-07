@@ -44,6 +44,24 @@
         :value="pct(headline.grossMarginPct)"
         :sub="$t('report.threeWayForecast.report.grossMarginSub', { amount: money(headline.grossSurplus) })")
 
+    //- 🔴 A FORECAST WITH NO SALES IN IT. Found 2026-09-07 by driving the real app after
+    //- Mike reported that the sliders "did nothing": his by-month export ended part-way
+    //- through a month, that month was stripped as incomplete, and short of twelve the
+    //- seed is deliberately not padded — so sales came through as twelve zeros while the
+    //- Balance Sheet and the overheads loaded normally. The result was a screen showing a
+    //- $202,781 loss to the dollar, reporting itself in balance, with four live sliders
+    //- that could not move a figure, because a percentage of zero is zero.
+    //-
+    //- The intake ALREADY warns at step 2 (server/routes/report.js — "gave N complete
+    //- months, and the forecast needs twelve"). This band exists because that warning is
+    //- two screens behind by the time the figures are read, and because step 4 is
+    //- reachable with no file at all. It names the state and the remedy rather than
+    //- letting a confident loss stand as the answer.
+    .tw-nosales(v-if="noSales")
+      div
+        b {{ $t('report.threeWayForecast.report.noSalesTitle') }}
+        span {{ $t('report.threeWayForecast.report.noSalesBody') }}
+
     //- Stock below zero cannot happen in reality, so it is named rather than shown as a
     //- figure among figures. Drawn this way in the approved mockup.
     .tw-impossible(v-if="stockOutMonths.length")
@@ -378,6 +396,26 @@ export default {
       if (!this.data) { return 0 }
       const checks = this.data.balanceSheet.months.balanceCheck
       return checks[checks.length - 1]
+    },
+
+    /**
+     * A forecast with no sales in it at all.
+     *
+     * Asked of the RESULT rather than of the seed, deliberately: step 4 is reached with no
+     * file, with a file whose by-month export was short of twelve complete months, and by a
+     * client opening a saved row — and all three arrive here the same way. One question of
+     * the figures covers every route in.
+     *
+     * Rounded to the cent for the same reason `hasAFigure` is: a series the engine has
+     * multiplied through can carry floating-point dust rather than a clean zero.
+     *
+     * @returns {boolean}
+     */
+    noSales () {
+      if (!this.data) { return false }
+      const revenue = this.data.profitAndLoss && this.data.profitAndLoss.revenue
+      if (!Array.isArray(revenue) || !revenue.length) { return false }
+      return revenue.every(v => Math.abs(v) < 0.005)
     },
 
     /** The months where stock falls below zero — impossible, and named rather than shown. */
@@ -898,6 +936,17 @@ export default {
 }
 .tw-impossible b, .tw-unbalanced b { display: block; font-size: 13px; }
 .tw-impossible span, .tw-unbalanced span { font-size: 12.5px; color: var(--rs-muted); }
+
+/* No sales at all. AMBER, not red: the two bands above name figures that are WRONG — an
+   impossible stock balance, an opening that will not tie. This one names figures that are
+   arithmetically correct and answer a question nobody meant to ask. It is the same shape
+   and the same place, so the three read as one family. */
+.tw-nosales {
+  background: var(--rs-warn-soft); border: 1px solid #ff990059; border-left: 3px solid var(--rs-warn);
+  border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 14px;
+}
+.tw-nosales b { display: block; font-size: 13px; }
+.tw-nosales span { font-size: 12.5px; color: var(--rs-muted); }
 
 /* Tabs over the three statements, with the Summary / Every line setting beside them. The
    row wraps rather than squashing: on a narrow screen the setting drops under the tabs. */
