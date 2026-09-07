@@ -9,36 +9,28 @@
 
 ---
 
-## 2026-09-08 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-08 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**The working copy is the SSD**, `C:\Users\Mike Barnes\Projects\Virt Advisor`. This session
-opened in the retired `E:` folder by accident and every command was run against the SSD copy;
-`E:` also still holds Mike's untracked `Support models for perf reports/` folder, which is not
-on the SSD and was not touched.
+**The working copy is the SSD**, `C:\Users\Mike Barnes\Projects\Virt Advisor`. VS Code still opened
+on the retired `E:` folder today; every command ran against the SSD. Suite **8,404 green** (429
+suites). Eight commits, all pushed; started 18 ahead / 25 behind master, ended 26 ahead / 0 behind.
 
-**4.70, the Business Performance Report — STAGE 2 BUILT, ACTIVE ON THIS DESKTOP.** Mike ruled
-the input-step labels, the score band words ("Good", "Steady", "At risk") and the disclaimer
-wording as drawn, with one "yes". Built and eyeballed the same day, end to end in the production
-build: the four-export intake, the six advisor steps, the eleven-page landscape document, print,
-saved per client. **It lives at `/dashboard-reports`** — `/business-performance-report` has
-belonged to the Working Capital Cycle since July. The Brief §4 carries every deviation from the
-two drawings; the three that need Mike are: **(1)** the score counts the **six** measures that
-carry firm thresholds, not eight — current ratio and debt-to-equity need thresholds ruled on the
-trend-thresholds page before they can be scored; **(2)** the band cut-offs 75 / 50 are a
-provisional constant, `SCORE_BANDS` in `server/report/dashboardReportPagesModel.js`; **(3)** no
-optional page is offered yet, each says what it waits on.
+**4.70 — ACTIVE ON THIS DESKTOP, now waiting on Mike.** Three rulings in the morning (score to eight
+through two threshold rows; bands 75/50; the model-reuse optional pages OFF the dropdown), then his four
+threshold figures. Built: the two rows on the mentor's trend-thresholds page, and the three accounts-only
+optional pages — *Why profit changed*, *Where the cash went*, *What moves profit* — each on its own model
+(`profitBridgeModel.js`, `cashBridgeModel.js`, `profitSensitivityModel.js`) with the arithmetic worked by
+hand. Rendered from the test figures and eyeballed; **not yet opened in the production build with real
+exports**, and the two new threshold rows on the hub page are not eyeballed at all.
 
-**Shared files touched, both additive:** `mixins/reportRecompute.js` gained an optional
-`recomputeHeaders()` hook (the pages route is guarded); `server/report/intake/xeroReportParser.js`
-returns `loanTerms` and `shareholderSides` beside the two positional arrays;
-`tests/unit/clientReportsProxyWiring.test.js` now names the one guarded POST a client may reach.
-`restify-server.js` gained two route lines and `locales/en.json` one block, `report.dashboardReports`,
-inserted above `threeWayForecast`.
+**Stage 3 (the Stats NZ benchmarker) cannot start.** DataInfo+ publishes metadata only; the ratios live in
+the interactive tool. The export is Mike's to obtain — on the list under 4.70, with the page-cap question.
 
-**Next on this item:** stage 3, the Stats NZ benchmarker (dataset upload on the mentor hub, the
-industry finder, the size bands, the comparison table on page 7); then stage 4, the inventory
-reader; then the optional pages, starting with the three that need only the accounts.
+**Also today:** master merged in (the laptop's 4.71 and 4.58); the Handbook regrouped (Staircase, Logic Lab
+and its report under the AI engine); GitHub Spec Kit 1.0.4 committed with a constitution that points at
+CLAUDE.md, never restating it.
 
-**LAPTOP:** 4.66 was not touched; none of its files were opened for writing. The laptop's
-2026-09-07 note says `plugins/i18n.js` and `utils/dateLocale.js` are shared — this report's two
-date calls use `intlLocaleFor` as that note asks.
+**LAPTOP:** 4.58 and 4.69 untouched. Shared files changed, all additive: `server/report/trendModel.js`
+(`SCORE_MEASURES`, `bandLevel` gains a direction, `computeTrend` takes an optional `measures` list — the
+forecast's read is unchanged at six), `server/utils/forecastTrendThresholds.js`, `data/forecast-trend-thresholds.json`
+(two new rows), `components/base/HBarChart.vue` (a `maxWidth` prop, default unchanged), `locales/en.json`.
