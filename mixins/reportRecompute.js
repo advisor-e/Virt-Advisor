@@ -54,9 +54,13 @@ export default {
       const spec = this.recomputeRequest()
       if (!spec) { return Promise.resolve() }
       const seq = ++this._reqSeq
+      // A report whose calc route carries a guard (the Business Performance Report's pages
+      // route reads the firm's own thresholds) supplies its Bearer header through an
+      // optional `recomputeHeaders()`; every other report sends none, exactly as before.
+      const extra = typeof this.recomputeHeaders === 'function' ? this.recomputeHeaders() : null
       return fetch(spec.url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, extra || {}),
         body: JSON.stringify(spec.body)
       })
         .then(res => res.json())

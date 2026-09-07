@@ -1,11 +1,13 @@
 # Business Performance Report — the Brief
 
-> **Status: ☑ APPROVED TO BUILD FROM — Mike, 2026-09-07; stage 1 in progress.** Item **4.70**.
+> **Status: ☑ APPROVED TO BUILD FROM — Mike, 2026-09-07; stages 1 and 2 built, live at
+> `/dashboard-reports` (2026-09-08).** Item **4.70**.
 > The two drawings are [`../mockups/business-performance-report.html`](../mockups/business-performance-report.html)
 > (the client's report) and [`../mockups/business-performance-report-intake.html`](../mockups/business-performance-report-intake.html)
 > (the advisor's six steps), both registered in [`../ARTEFACTS.md`](../ARTEFACTS.md). **The four
-> rulings were given the same day (§3) and both drawings approved with one "yes".** Every label on
-> the input steps is still proposed wording to confirm at build time. Mike's request, in his words:
+> rulings were given the same day (§3) and both drawings approved with one "yes".** The step
+> names, the field labels, the score band words and the disclaimer wording were ruled as drawn
+> with one "yes" on 2026-09-08. Mike's request, in his words:
 >
 > > *"develop a rich, colourful, and easy to understand business performance report to be read
 > > and understood by private business owners. The report needs to be 7-10 pages (pages can be
@@ -249,7 +251,11 @@ reference the AI already reads, and with item 4.66.
 | Saved per client | `server/utils/savedReports.js`, `mixins/savedReport.js` |
 | ✅ **Stage 1, built 2026-09-07 — the ratio hub** | [`server/report/dashboardReportsModel.js`](../../server/report/dashboardReportsModel.js), pinned by [`tests/unit/dashboardReportsModel.test.js`](../../tests/unit/dashboardReportsModel.test.js) to 60-odd cells of the workbook's *API Data* sheet (yearly T and X, monthly F and Q, the quarterly and volatility blocks, the cash movement summary). Per period: every total and ratio the sheet computes, the sheet's definitions kept (§3). Plus `healthScore()`, the count Mike ruled. **One recorded deviation:** where the sheet's IFERROR prints 0, the model returns `null` — no sample cell hits it. Not a route, not a screen yet |
 | ✅ **Stage 1's route, built 2026-09-07** | `POST /api/report/dashboard-reports` — `dashboardReports` in [`server/routes/report.js`](../../server/routes/report.js), registered in `restify-server.js`; calc-only and anonymous like every calc route. [`tests/unit/dashboardReportsRoute.test.js`](../../tests/unit/dashboardReportsRoute.test.js): the envelope, the workbook default on an empty body, a caller's figures reaching the model, and the safe error with no stack or path. Driven live from the SSD copy the same day |
-| Planned, none exists yet | the catalogue row flips to `STATUS_READY` only with a page (the shell guard fails a ready route with no page); a report page and its page components under `report-shell`; the print stylesheet; a benchmarker data file + mentor-hub upload + industry finder (stage 3); an inventory-export reader under `server/report/intake/` (stage 4) |
+| ✅ **Stage 2, built 2026-09-08 — the intake** | [`server/report/intake/dashboardReportsAssembler.js`](../../server/report/intake/dashboardReportsAssembler.js): the four annual exports (read by the forecast's own readers) laid out as the sixteen confirm lines, this year by the reports' own date lines, wages counted once, net capital spend proposed as the advisor's. `POST /api/report/dashboard-reports/intake` (firmAuth, up to four files). The shared parser gained `loanTerms` and `shareholderSides` so a loan lands on the liability line its section says. Tests: `dashboardReportsAssembler.test.js`, `dashboardReportsIntakeRoute.test.js` |
+| ✅ **Stage 2 — the page figures** | [`server/report/dashboardReportPagesModel.js`](../../server/report/dashboardReportPagesModel.js): every figure every page prints, composed from the ratio hub, the trend read (the six drivers on the firm's thresholds) and the health-score count; equity is assets less liabilities. `POST /api/report/dashboard-reports/pages` — **guarded (`firmOrEntityAuth`), the one calc route that is**, because the bands come from the firm's thresholds resolved from the token; a client reading their saved report is admitted. Test: `dashboardReportPagesModel.test.js` (hand-worked arithmetic, two years and one) |
+| ✅ **Stage 2 — the screens** | [`pages/dashboard-reports.vue`](../../pages/dashboard-reports.vue) (header, six chips, saving), [`components/DashboardReportsWorkbench.vue`](../../components/DashboardReportsWorkbench.vue) (the band and the steps), the five step components `DashboardReports{Setup,Accounts,Inventory,Words,Pages}.vue`, the document [`components/DashboardReport.vue`](../../components/DashboardReport.vue) with one component per page, and three base charts (`BarPairChart`, `DoughnutChart`, `HBarChart`, pure SVG). Saved per client through `utils/dashboardReportsSavedShape.js`. Catalogue row `Dashboard Reports` → `STATUS_READY`, `/dashboard-reports`; AI summary in `data/report-model-summaries.json`. Tests: `dashboardReports.component.test.js`, `dashboardReportsSavedShape.test.js`, the four report guards |
+| **Deviations from the two drawings, stage 2** | **(a)** The route is `/dashboard-reports`, not `/business-performance-report` — that route has been the Working Capital Cycle's since July. **(b)** The health score counts the **six** measures that carry firm thresholds, and the page prints that number; current ratio and debt-to-equity need thresholds ruled before they can be scored (P3: a threshold nobody ruled is a verdict). **(c)** The band cut-offs — Good ≥ 75, Steady ≥ 50, else At risk — are a provisional constant, `SCORE_BANDS`, for Mike to rule. **(d)** The quarterly and monthly charts are this year against last year until the monthly view (stage 5); each page says so. **(e)** The confirm table carries two memo lines the drawing did not — accounts payable (creditor days) and interest paid (the profit-and-loss page). **(f)** The industry finder and size bands (stage 3), the stock export (stage 4) and the benchmark table are not on the screens; each place says so and shows no figure. **(g)** No optional page is offered yet; the dropdown lists all seven with the reason each waits. **(h)** The balance-sheet readings are arithmetic said in words, not the drawing's "Healthy (target > 1.5)" verdicts. **(i)** Step 6 shows the document itself at full size rather than thumbnails. **(j)** The firm logo is a marked place, as drawn — no logo setting exists |
+| Planned, none exists yet | a benchmarker data file + mentor-hub upload + industry finder (stage 3); an inventory-export reader under `server/report/intake/` (stage 4); the monthly and five-year views (stage 5); the optional pages, starting with the three that need only the accounts |
 | The benchmark source | Stats NZ Business Performance Benchmarker (DataInfo+; JSON download; ANZSIC06; 220 industries; turnover-quartile size bands; median and 25th/75th percentiles; accuracy categories; `S`/`C` suppression) — its own "Information about the data" is quoted in §2 P9 |
 
 **Order of build, once the drawing is approved:** model and golden test for the ratio hub
@@ -263,11 +269,11 @@ economic analysis prints only on the approval record, never on a screen flag. Th
 Buefy tooltip was dead in the app while every test passed (4.67); register the component in
 `plugins/buefy.js` and look at it in a browser.
 
-**Known state.** Both drawings approved. **Stage 1's model and golden test are built** (the
-table above); no route, catalogue change, page or intake exists yet, and nothing has been run
-against a real export. The eight benchmark ratios are computed here with the workbook's
-definitions and will be compared with Stats NZ's own definitions at stage 3 before any
-comparison is drawn.
+**Known state.** Stages 1 and 2 are built and were walked end to end in the production build
+on 2026-09-08 with four test exports: six steps, eleven landscape pages, the browser's print.
+Nothing has been run against a real export yet. The eight benchmark ratios are computed here
+with the workbook's definitions and will be compared with Stats NZ's own definitions at stage 3
+before any comparison is drawn.
 
 ---
 

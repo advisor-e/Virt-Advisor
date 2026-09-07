@@ -61,6 +61,11 @@ of the new 3 way model."*
 | Both drawings approved to build from | The client's report (second drawing) and the advisor's six input steps | 2026-09-07, Mike, "yes" to *"Do you approve both drawings to build from, so I start stage one"* |
 | The route never serves the sample | `POST /api/report/dashboard-reports` computes only what it is given; an absent, empty or non-object body returns empty blocks. Found driving it live: Restify hands `{}` for an empty body and the first cut answered `undefined` with the workbook sample, which a page could have mistaken for a client's figures. The unit test had used `undefined` and passed | 2026-09-07, found and fixed the same hour; recorded as the reason the model's defaults stay out of the route |
 | Inventory reader's target layouts | Cin7 Core (12 columns) and Unleashed (11 columns), neither with dates — expected layouts until real files are read; one internal record, two column maps | 2026-09-07, Mike, pasted both layouts with four-row samples and Cin7's parsing characteristics |
+| The wording | The six step names, every field label on the intake drawing, the score band words "Good" / "Steady" / "At risk", and the seven-paragraph Important Information page — all as drawn | 2026-09-08, Mike, one "yes" to *"Shall I build stage 2 with the wording exactly as drawn?"* |
+| The route | `/dashboard-reports`, the catalogue's own name — `/business-performance-report` was found to be the Working Capital Cycle's page (its component is even called `BusinessPerformanceReport.vue`) | 2026-09-08, found at build time |
+| The score counts what is banded | Six measures today, not eight: only the trend read's drivers carry firm thresholds, and inventing two more would put a verdict on a client's page that nobody ruled. The page prints the count. Two thresholds on the trend-thresholds page make it eight with no code change | 2026-09-08, build-time judgement under P3 and P10; flagged to Mike |
+| The band cut-offs are provisional | Good from 75, Steady from 50, else At risk — one constant, `SCORE_BANDS`, for Mike to move | 2026-09-08, flagged to Mike |
+| The Outlook page is deferred | Research text lives two hours in memory and only inside the forecast page's own state; the components that run it are active on the laptop under 4.66 | 2026-09-08, stage boundary stated in the Brief §4 |
 
 ---
 

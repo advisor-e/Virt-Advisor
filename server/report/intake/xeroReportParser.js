@@ -467,6 +467,18 @@ function extractForecastBalanceSheet (grid) {
   const loanBalances = loanRows.map(it => it.value)
   const shareholderBalances = shareholderRows
     .map(it => (inSection(it, /liabilit/i) ? it.value : -it.value))
+  // Which side of the balance sheet each positional balance came from, parallel to the
+  // two arrays above. The forecast never needed this — a loan is a loan to it — but the
+  // Business Performance Report (item 4.70) reads current and non-current liabilities as
+  // two lines, and a loan that landed on the wrong one would put the current ratio out by
+  // the whole balance. Additive: nothing that read the two arrays above changes.
+  const NON_CURRENT_RE = /non-?current|long[-\s]?term/i
+  const loanTerms = loanRows.map(it => (inSection(it, NON_CURRENT_RE) ? 'nonCurrent' : 'current'))
+  const shareholderSides = shareholderRows.map((it) => {
+    if (isEquity(it)) { return 'equity' }
+    if (isLiability(it)) { return inSection(it, NON_CURRENT_RE) ? 'nonCurrentLiability' : 'currentLiability' }
+    return 'asset'
+  })
 
   // The loans and the shareholder accounts have their own slots on the screen, so they
   // are claimed here and must not also fall into a catch-all — that would count them
@@ -493,7 +505,9 @@ function extractForecastBalanceSheet (grid) {
     figures,
     assets,
     loanBalances,
+    loanTerms,
     shareholderBalances,
+    shareholderSides,
     warnings
   }
 }

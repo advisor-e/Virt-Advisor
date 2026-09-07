@@ -59,6 +59,7 @@ describe('report model catalogue', () => {
       expect(ready.map(m => m.route).sort()).toEqual([
         '/business-performance-report',
         '/cost-of-capital',
+        '/dashboard-reports',
         '/debtor-drag',
         '/ebitda-dcf',
         '/eight-levers',
@@ -128,7 +129,8 @@ describe('report model catalogue', () => {
       // MODEL-CLASSIFICATION.md lists it under Report (9), "variance analysis on real
       // figures". Entry is typed until the by-month accounts upload lands — that changes
       // where the figures come from, not whose they are, and neither class carries a badge.
-      const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow', 'Volatility Report', '3-Way Forecast Filter']
+      // Dashboard Reports (4.70) is the client's own document from their accounts — Report class.
+      const REPORT_BUILDS = ['Quick Position', 'EBITDA & Discounted Cash Flow', 'Volatility Report', '3-Way Forecast Filter', 'Dashboard Reports']
       const DECISION_BUILDS = [
         'The Loan Estimator',
         'Lease vs Buy',
@@ -136,7 +138,7 @@ describe('report model catalogue', () => {
         'Multiple Property Assessment'
       ]
       const built = MODELS.filter(m => m.status === STATUS_READY)
-      expect(built).toHaveLength(12)
+      expect(built).toHaveLength(13)
       built.forEach((m) => {
         if (REPORT_BUILDS.includes(m.name)) {
           expect(m.modelClass).toBe(CLASS_REPORT)
@@ -288,7 +290,7 @@ describe('report model catalogue', () => {
 
   describe('readyCount', () => {
     it('counts only the models with a built report', () => {
-      expect(readyCount(MODELS)).toBe(12)
+      expect(readyCount(MODELS)).toBe(13)
       expect(readyCount([])).toBe(0)
       expect(readyCount(null)).toBe(0)
     })

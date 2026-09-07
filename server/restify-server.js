@@ -207,6 +207,10 @@ server.post('/api/report/margin-breakeven', reportRoute.marginBreakeven)
 server.post('/api/report/eight-levers', reportRoute.eightLevers)
 // The Business Performance Report's ratio hub (item 4.70, stage 1) — calc-only, anonymous.
 server.post('/api/report/dashboard-reports', reportRoute.dashboardReports)
+// The report's pages (stage 2). Guarded, unlike the hub above, because the cash drivers and
+// the health score band on the FIRM'S thresholds, resolved from the token — a client reading
+// their saved report is a business entity of the same firm, so both are admitted.
+server.post('/api/report/dashboard-reports/pages', firmOrEntityAuth, reportRoute.dashboardReportPages)
 server.post('/api/report/quick-position', reportRoute.quickPosition)
 server.post('/api/report/ebitda-dcf', reportRoute.ebitdaDcf)
 server.post('/api/report/loan-estimator', reportRoute.loanEstimator)
@@ -232,6 +236,7 @@ server.post('/api/report/quick-position/intake', firmAuth, reportRoute.quickPosi
 server.post('/api/report/ebitda-dcf/intake', firmAuth, reportRoute.ebitdaDcfIntake)
 server.post('/api/report/volatility/intake', firmAuth, reportRoute.volatilityIntake)
 server.post('/api/report/three-way-forecast/intake', firmAuth, reportRoute.threeWayForecastIntake)
+server.post('/api/report/dashboard-reports/intake', firmAuth, reportRoute.dashboardReportsIntake)
 // Economic Analysis (item 4.66) — the Three-Way Forecast's optional market research, and
 // the first AI call in the report area. firmAuth on all three: the run belongs to the
 // advisor who started it, and the route checks BOTH identities, not just the firm.

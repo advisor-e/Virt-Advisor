@@ -26,6 +26,8 @@ const { computeThreeWayForecast, computeThreeYearForecast, importedRevenuePrevie
 const { assembleForecastIntake, MAX_FILES: MAX_FORECAST_FILES } = require('../report/intake/threeWayForecastAssembler')
 const { computeTrend } = require('../report/trendModel')
 const { computeDashboardReports } = require('../report/dashboardReportsModel')
+const { computeReportPages } = require('../report/dashboardReportPagesModel')
+const { assembleDashboardIntake, MAX_FILES: MAX_DASHBOARD_FILES } = require('../report/intake/dashboardReportsAssembler')
 const { loadResolvedTrendThresholds } = require('../utils/forecastTrendThresholds')
 const { listReportModels } = require('../utils/reportModels')
 const { parseUpload, parseForecastUpload } = require('../report/intake/xeroReportParser')
@@ -186,6 +188,90 @@ function dashboardReports (req, res, next) {
     res.send(400, { success: false, error: { code: 'DASHBOARD_REPORTS_COMPUTE_FAILED', message: 'Could not compute the report from the supplied figures.' }, timestamp: new Date().toISOString() })
   }
   return next()
+}
+
+/**
+ * POST /api/report/dashboard-reports/pages  (firmOrEntityAuth)
+ *
+ * Every figure the Business Performance Report's pages print (item 4.70, stage 2), from the
+ * confirmed table and the typed inventory figures. The one calc route here that carries a
+ * guard, and the reason is stated: the cash drivers and the health score are banded on the
+ * FIRM'S OWN thresholds, which live in the firm overlay and are resolved from the verified
+ * token — never from the body. A client reading their saved report is a business entity of
+ * the same firm, so the guard admits both.
+ *
+ * @route POST /api/report/dashboard-reports/pages
+ * @param {object} req.body - `{ current, prior, currentDates, priorDates, inventory }` — see
+ *   `computeReportPages`. `thresholds` in the body is ignored; the firm's are used.
+ * @returns {object} { success, data, timestamp } — data per `computeReportPages`
+ */
+async function dashboardReportPages (req, res) {
+  try {
+    const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
+    // Never rejects: the resolver degrades to the platform set, and a thresholds failure
+    // must not cost a client their report.
+    const thresholds = await loadResolvedTrendThresholds(req.firmId, readTrendScopeConfig)
+    const data = computeReportPages(Object.assign({}, inputs, { thresholds }))
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    console.error('[report] dashboard-reports pages compute failed:', err)
+    res.send(400, { success: false, error: { code: 'DASHBOARD_REPORT_PAGES_FAILED', message: 'Could not compute the report from the supplied figures.' }, timestamp: new Date().toISOString() })
+  }
+}
+
+/**
+ * POST /api/report/dashboard-reports/intake  (firmAuth — uploads are never anonymous)
+ *
+ * Multipart upload of up to four annual exports in repeated `file` fields — this year's and
+ * last year's Balance Sheet and Profit and Loss — read with the forecast's own readers and
+ * laid out as the confirm table by `assembleDashboardIntake`. Which file is this year is
+ * decided by the reports' own date lines. Parse-and-discard: no file is kept.
+ *
+ * @route POST /api/report/dashboard-reports/intake
+ * @returns {object} { success, data, timestamp } — data per `assembleDashboardIntake`
+ */
+async function dashboardReportsIntake (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — an accounting export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No files were attached. Send the exports in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    if (uploaded.length > MAX_DASHBOARD_FILES) {
+      const e = new Error('This report reads up to ' + MAX_DASHBOARD_FILES + ' files — ' + uploaded.length + ' were sent. Please drop this year\'s and last year\'s Balance Sheet and Profit and Loss.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    const parsed = uploaded.map(u => parseForecastUpload(fs.readFileSync(u.filepath)))
+    const data = assembleDashboardIntake(parsed)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, labels or content (identity stays local)
+    console.error('[report] dashboard-reports intake rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'A file could not be read as an accounting export.')
+    res.send(safe.status, safe.body)
+  } finally {
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
 }
 
 /**
@@ -1003,4 +1089,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, dashboardReports, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, dashboardReports, dashboardReportPages, dashboardReportsIntake, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }

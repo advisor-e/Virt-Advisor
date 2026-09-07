@@ -17,6 +17,7 @@ const CostOfCapital = require('~/components/CostOfCapital.vue').default
 const MultiplePropertyAssessment = require('~/components/MultiplePropertyAssessment.vue').default
 const VolatilityReport = require('~/components/VolatilityReport.vue').default
 const ThreeWayForecastReport = require('~/components/ThreeWayForecastReport.vue').default
+const DashboardReportsWorkbench = require('~/components/DashboardReportsWorkbench.vue').default
 
 const { computeDebtorCashflow } = require('~/server/report/debtorDragModel')
 const { computeWorkingCapitalCycle, DEFAULT_INPUTS: WCC_DEFAULTS } = require('~/server/report/workingCapitalCycleModel')
@@ -30,6 +31,7 @@ const { computeCostOfCapital } = require('~/server/report/costOfCapitalModel')
 const { computeMultiplePropertyPortfolio } = require('~/server/report/multiplePropertyModel')
 const { computeVolatility, DEFAULT_INPUTS: VOL_DEFAULTS } = require('~/server/report/volatilityModel')
 const { computeThreeWayForecast } = require('~/server/report/threeWayForecastModel')
+const { computeReportPages } = require('~/server/report/dashboardReportPagesModel')
 
 /**
  * CONSISTENCY GUARD — every report in this section presents its headline figures the
@@ -87,7 +89,11 @@ const SCREENS = [
   // Typed entry seeded with the workbook's own 24 months; 12 is the screen's default window.
   { name: 'Volatility Report', component: VolatilityReport, result: () => computeVolatility({ sales: VOL_DEFAULTS.sales, window: 12 }) },
   // An empty body computes the source workbook's own sample — the model's default path.
-  { name: 'Three-Way Forecast', component: ThreeWayForecastReport, result: () => computeThreeWayForecast({}) }
+  { name: 'Three-Way Forecast', component: ThreeWayForecastReport, result: () => computeThreeWayForecast({}) },
+  // The Business Performance Report's advisor screen (4.70). The client's printed document
+  // below it deliberately has no strip (P6, the deck's look); the strip is the advisor's,
+  // and it carries the step's own figures from the first step, before any file is dropped.
+  { name: 'Dashboard Reports', component: DashboardReportsWorkbench, result: () => computeReportPages({}) }
 ]
 
 /** Mount with the backend answering successfully, and let the first result land. */

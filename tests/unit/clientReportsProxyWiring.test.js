@@ -51,6 +51,13 @@ describe('business entity reports — reaching the backend', () => {
     // The writes stay the manager's. A client that could set the firm's currency would be
     // an account-wide change from a client sign-in, and no test in UAT would try it.
     expect(server).toMatch(/server\.post\('\/api\/report\/currency', firmAuth, requireManagerRole/)
-    expect(server).not.toMatch(/server\.(post|put|del)\([^\n]*firmOrEntityAuth/)
+    // ONE POST carries it, and it is a calculation rather than a write: the Business
+    // Performance Report's pages route (item 4.70) computes a client's own figures on the
+    // firm's thresholds and stores nothing. It is named here so that any other POST, PUT or
+    // DEL opened to a client still fails this test by name.
+    const opened = server.match(/server\.(post|put|del)\([^\n]*firmOrEntityAuth[^\n]*/g) || []
+    expect(opened).toEqual([
+      expect.stringContaining("server.post('/api/report/dashboard-reports/pages', firmOrEntityAuth, reportRoute.dashboardReportPages)")
+    ])
   })
 })
