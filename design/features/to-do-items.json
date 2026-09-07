@@ -137,9 +137,9 @@
         "ours": false,
         "detail": "2026-09-02 — \"keep it as a job for future - keep moving forward\", after being told that four real exports are what would move the two packages from `expected` to `verified`."
       },
-      "touches": "CHANGED 2026-09-07 ahead of the files: rowShape, BANK_ACCOUNT_RE and the period patterns in server/report/intake/xeroReportParser.js, the MYOB evidence in supportedPackages.js, and eight new tests in tests/unit/accountingPackages.test.js. When the real files arrive: those same three, plus flipping each `confidence` to `verified` — which its own guard will not allow until the evidence line names a real export.",
-      "note": "⚠ STILL WAITS ON FOUR REAL FILES — a Balance Sheet and P&L from QuickBooks Online and from MYOB. The two workbooks in 'C:\\Documents\\Visual Code Projects\\Perf Report\\xero reports' are NOT exports: one fictional company, identical figures in both packages, three reports per file. They earned their place anyway, finding three real MYOB faults on 2026-09-07, all fixed and tested — every label read as an account code so nothing parsed at all; cash counted one bank account of two; the period line gave no year. STILL OPEN: MYOB fixed-asset categories come back empty. QuickBooks needed no change.",
-      "comment": "2026-09-02 — filed on Mike's instruction: \"keep it as a job for future - keep moving forward\". 2026-09-07 — he supplied a structural comparison of the two formats and pointed to two reference workbooks; running the real parser over them found three MYOB faults, all fixed on his approval. The package stays `expected`: reference files are not exports, and the guard rightly refuses to say otherwise."
+      "touches": "CHANGED 2026-09-07 ahead of the files: rowShape, BANK_ACCOUNT_RE, NON_CURRENT_ASSET_RE and the period patterns in server/report/intake/xeroReportParser.js, the MYOB evidence in supportedPackages.js, and nine new tests in tests/unit/accountingPackages.test.js. When the real files arrive: those same three, plus flipping each `confidence` to `verified` — which its own guard will not allow until the evidence line names a real export.",
+      "note": "⚠ STILL WAITS ON FOUR REAL FILES — a Balance Sheet and P&L from QuickBooks Online and from MYOB. The two workbooks in 'C:\\Documents\\Visual Code Projects\\Perf Report\\xero reports' are NOT exports: one fictional company, identical figures in both packages, three reports per file. They earned their place anyway, finding four real MYOB faults, all fixed and tested — every label read as an account code so nothing parsed at all; cash counted one bank account of two; the period line gave no year; and \"Property, Plant & Equipment\" was not read as a fixed-asset heading, so the categories came back empty, 145,300 went to current assets and the forecast charged no depreciation. QuickBooks needed no change.",
+      "comment": "2026-09-02 — filed on Mike's instruction: \"keep it as a job for future - keep moving forward\". 2026-09-07 — he supplied a structural comparison of the two formats and pointed to two reference workbooks; running the real parser over them found four MYOB faults, all fixed on his approval. The package stays `expected`: reference files are not exports, and the guard rightly refuses to say otherwise."
     },
     {
       "ref": "4.62",
@@ -225,6 +225,28 @@
       "touches": "BUILT: data/ai-prompts.json (§2 now names both dates, and the placeholders note), design/ECONOMIC-ANALYSIS-PROMPT.md §4 and §7b, fillPlaceholders and two JSDoc blocks in server/routes/economicAnalysis.js, and tests/unit/economicAnalysis.routes.test.js. The date field itself is deliberately NOT bounded.",
       "note": "THE FIX IS BUILT AND PROVEN ON THE FAULT; ONE CHECK REMAINS. §2 now names both dates: {{assessmentDate}} may be in the future, {{today}} never is and is what currency is judged against. Reproduced twice before anything changed, then accepted after. The model's own words in the accepted run: 'an information cut-off of 7 September 2026, an assessment start of 30 November 2026'. ⚠ OUTSTANDING: the no-date default path was never re-run — the OpenAI account hit credit_balance_exhausted mid-check, which also means the feature fails for every user until credits are added. §2 renders correctly there; only the model's reply is unseen. A SECTIONS_MISSING run the same day is unexplained and is not this change.",
       "comment": "2026-09-07 — filed the day the date field was built, on Mike's instruction. Numbered 4.69 because the desktop filed a 4.67 on its own branch that has not reached master. Same day: reproduced from the backend, diagnosed as one placeholder doing two jobs, fixed on Mike's approval of the wording, and proven live. The desktop closed a DIFFERENT 4.69 that day — four rulings on the saved-report screens — the second number collision in a week."
+    },
+    {
+      "ref": "4.71",
+      "name": "Quick-fire forecast — three years from percentages, not twelve months typed",
+      "rankedByMike": false,
+      "activeOn": { "machine": "laptop", "since": "2026-09-07" },
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Mike asked where growth, cost-increase and margin percentages for years 1, 2 and 3 are entered. Nowhere: step 4's sliders do three of those for one year only.",
+      "risk": "Slice 1 alone would collect three years of percentages and display one — which is why the three-year view is in the same job, and it is the larger half. The engine and route exist and are tested; no screen has ever called them. Quick-fire replaces three fields only, so an error is visible against last year's actuals on the same screen.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-07 — \"draw it up please and make it a 'quick-fire option'. tick a box, it opens so i can put the data in and it just adds or subtracts from previous known data. untick it and the status quo continues\". Approved and all five questions ruled the same day."
+      },
+      "touches": "Slice 1: a new pure module for the percentages, the tick and grid on step 3 of components/ThreeWayForecastIntake.vue, and its tests. Slice 2: a three-year step 4, which gets its own drawing first. Not the engine — computeThreeYearForecast and its route are already built.",
+      "note": "Drawn, approved and all five questions ruled 2026-09-07 — design/mockups/three-way-forecast-quick-fire.html carries each ruling with the argument put against it. Quick-fire replaces three fields only: the sales line, the mark-up and the overheads. Unticking restores them untouched. Growth keeps last year's monthly shape where a by-month export was dropped, and says so when it cannot. ⚠ SLICE 2 IS NOT APPROVED BY THAT DRAWING — the three-year step 4 gets its own.",
+      "comment": "2026-09-07 — filed the day Mike asked for it, after being told the percentages could be entered nowhere. Numbered 4.71 because the desktop filed 4.70 on its own branch the same day: the third numbering collision in a week."
     }
   ]
 }
