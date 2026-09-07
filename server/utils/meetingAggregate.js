@@ -26,11 +26,13 @@
  * returned shape carries a number and never a name, an id or a list. That is enforced by what is
  * built rather than by what a caller remembers to strip.
  *
- * ⚠ ONE READING OF THE RULING IS OURS AND IS NOT HIS. He set the gate for the SCREEN; this
- * module applies the same 20-meeting floor to EACH POINT as well, because a point that only
- * appears in three of the month's meetings would otherwise print "1 / 3" on a screen that had
- * passed the overall gate — which is the very reversal the gate exists to prevent. A point below
- * the floor is omitted entirely rather than shown with a caveat.
+ * 🔴 AND THE SAME FLOOR APPLIES TO EACH POINT — Mike's ruling, 2026-09-07. His first ruling set
+ * the gate for the SCREEN; a point appearing in only three of the month's meetings would still
+ * have printed "1 / 3" underneath a screen that had passed it, which is the very reversal the
+ * gate exists to prevent. So the 20-meeting half is applied per point as well, and a point below
+ * the floor is omitted entirely rather than shown with a caveat. *The cost recorded against it,
+ * because it is real:* a newly added observation point shows nothing for its first month or two,
+ * and only the whole-screen message explains why — there is no per-row one.
  *
  * Node 14, CommonJS.
  */
@@ -38,7 +40,7 @@
 /** Mike's ruling, 2026-09-01. Never lowered. */
 const MIN_ADVISORS = 5
 
-/** Mike's ruling, 2026-09-01. Also the per-point floor — see the module note. */
+/** Mike's ruling, 2026-09-01, and per point as well on 2026-09-07. Never lowered. */
 const MIN_MEETINGS = 20
 
 const MONTH_NAMES = [
@@ -193,8 +195,8 @@ function summarise (records, period) {
     })
   })
 
-  // The per-point floor — see the module note. This half is our reading of his ruling, not his
-  // words, and a point below the floor is dropped rather than shown with a warning beside it.
+  // The per-point floor — Mike's ruling, 2026-09-07. A point below it is dropped rather than
+  // shown with a warning beside it. See the module note.
   base.points = order.map(id => byPoint[id]).filter(p => p.of >= MIN_MEETINGS)
   return base
 }

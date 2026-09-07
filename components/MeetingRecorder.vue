@@ -73,6 +73,12 @@
         |  reliable. Your coaching notes will say so rather than guess.
       //- Slice 3 replaced the "not built yet" note that stood here. This is the only route
       //- to the reports, so without it the screen they live on is unreachable.
+      //-
+      //- 🔴 "Read my reports" IS MIKE'S WORDING — ruled 2026-09-07, and it is load-bearing.
+      //- "My" carries P2 in a label: the reports belong to the advisor, and the screen says so
+      //- before they open it, exactly as "My Coaching Notes" does. It was written for the build
+      //- on 2026-09-02 and flagged as ours until he ruled. Pinned by
+      //- tests/unit/meetingReview.component.test.js — do not reword it.
       .buttons.mt-3
         b-button(type="is-primary" tag="a" :href="`/meeting-review?meeting=${meetingId}`")
           | Read my reports

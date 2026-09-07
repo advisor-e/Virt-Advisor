@@ -236,9 +236,9 @@ not repeated; this is the sequence, and the things found on the way.
   marked by a point's author, never judged by the model. Three absences: "Actions agreed" moved out
   of the "no AI" block; no "Discard" (stop-and-delete removes the whole meeting); no "Share with my
   manager" until the aggregate exists. Two stale banners removed ("Recording is not built yet",
-  "The two reports are not built yet"). **One label is not Mike's:** "Read my reports" on the
-  recorder's finished state — written so the reports screen was reachable, still waiting on his
-  word.
+  "The two reports are not built yet"). **One label was written for the build and was not Mike's:**
+  "Read my reports" on the recorder's finished state — **ruled by him on 2026-09-07** and now
+  pinned, "my" carrying P2 in a label the way "My Coaching Notes" does.
 - **2026-09-02, renumbered 4.56 → 4.58** by the laptop on Mike's ruling; both machines had filed a
   4.56 and the desktop's CPD item reached master first. 4.57 was skipped, not reused.
 - **2026-09-02, the meeting types cascade.** Mike ruled that types themselves cascade ("dynamic,
@@ -264,8 +264,9 @@ not repeated; this is the sequence, and the things found on the way.
   2026-09-01, built on Mike's word "finish the meeting review". **The design question it turned on
   was not in the drawing:** the ruled gate — 5 advisors and 20 meetings — protects the SCREEN, but
   a point checked in only three of the month's meetings would still print "1 / 3" underneath it,
-  which is the exact reversal the gate exists to prevent. The same floor is applied per point, and
-  it is recorded as ours rather than his. **A real fault was caught by writing the test first:** the
+  which is the exact reversal the gate exists to prevent. Put to him the same day and **ruled: the
+  floor applies per point too**, the accepted cost being that a newly added point shows nothing
+  for its first month or two. He also ruled the one label that had been ours, *"Read my reports"*. **A real fault was caught by writing the test first:** the
   month was read with `getMonth()`, so the same twenty meetings would fall into different months on
   a server in Auckland and one in London, with nothing on screen to say which had happened. Fixed to
   UTC, at the cost of a visible one-day skew at a month boundary — the better of the two, because

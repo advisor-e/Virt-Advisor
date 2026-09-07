@@ -317,7 +317,12 @@ their own client. It is worth building as a visible setting rather than a buried
 4. **Staff consultation.** Recording employees and generating performance findings about them is
    monitoring in employment-law terms, whoever owns the report. P2 makes the position defensible;
    it does not remove the obligation.
-5. **The transcription terms, for audio specifically.** Smaller than this list first assumed: the
+5. 📧 **The transcription terms, for audio specifically — the email is drafted and waits on Mike
+   to send it: [`../OPENAI-AUDIO-TERMS-EMAIL.md`](../OPENAI-AUDIO-TERMS-EMAIL.md)** (2026-09-07,
+   on his instruction). It asks the four things below in writing and nothing else. ⚠ **The item
+   closes on a written reply that names audio** — not a phone call, not a public policy page. A
+   "no" on training, or a long retention period, would falsify the spoken consent line rather
+   than being a detail to work around. Smaller than this list first assumed: the
    provider is OpenAI, already this app's contracted sub-processor (§3), so no new company and no
    new data-processing agreement are introduced. What is still needed **in writing** is that the
    existing terms cover *submitted audio* — no training on it, and a stated retention period —
@@ -431,21 +436,24 @@ promises a named client exactly that. A tier above the firm is answered **403, n
 screen** — an empty screen reads as *"your firm did nothing"*, which is a different and untrue
 statement, and it is the one a tester would report as working.
 
-⚠ **FOUR DECISIONS IN SLICE 4 ARE OURS AND NOT MIKE'S RULINGS.** Each changes what he sees, so
-each is named rather than absorbed:
+🔴 **THE PER-POINT FLOOR IS MIKE'S — ruled 2026-09-07.** His 2026-09-01 gate protects the SCREEN;
+the same 20-meeting half is applied to EACH POINT as well, because a point checked in three of the
+month's meetings would otherwise print *"1 / 3"* underneath a screen that had passed the overall
+gate — the exact reversal the gate exists to prevent. A point below the floor is omitted, not
+caveated. *The cost recorded against it:* a newly added point shows nothing for its first month or
+two, and only the whole-screen message explains why.
 
-1. **The per-point floor.** He set the gate for the SCREEN — 5 advisors and 20 meetings. The same
-   20-meeting floor is applied to EACH POINT, because a point checked in three of the month's
-   meetings would otherwise print *"1 / 3"* on a screen that had passed the overall gate, which is
-   the exact reversal the gate exists to prevent. A point below the floor is omitted, not caveated.
-2. **The month is read in UTC.** Read in the server's own timezone, the same twenty meetings fall
+⚠ **THREE FURTHER DECISIONS IN SLICE 4 ARE OURS AND NOT HIS RULINGS.** Each changes what he sees,
+so each is named rather than absorbed:
+
+1. **The month is read in UTC.** Read in the server's own timezone, the same twenty meetings fall
    into different months in Auckland and in London — a count that changes when a server moves,
    with nothing on screen to say so. The cost is a visible one-day skew at a month boundary, and
    it is the better of the two.
-3. **A meeting contributes only once it has coaching notes.** A recording with no report cannot
+2. **A meeting contributes only once it has coaching notes.** A recording with no report cannot
    say whether a point landed, and counting it would deflate every percentage while looking
    entirely reasonable.
-4. **The bar turns amber below 70%.** The drawing styles one row "low" at 61% and three plain at
+3. **The bar turns amber below 70%.** The drawing styles one row "low" at 61% and three plain at
    75, 86 and 93, so a mark between 61 and 75 is implied and never stated. It changes a colour,
    never a figure.
 
@@ -522,6 +530,8 @@ report belongs to the advisor and the name should say so before they open it.
 | Whether slice 2 also transcribes | Mike | ✅ **Settled 2026-09-01** — **yes.** Capture without transcription would leave audio with no deletion trigger, which is the one shape this feature must never take, even briefly |
 | Whether the transcript-expiry job ships with slice 2 | Mike | ✅ **Settled 2026-09-01** — **no**, it is its own piece of work. Destroying the audio is the promise the consent line makes and that is built |
 | The retention dial's own wording | Mike | ✅ **Approved 2026-09-01** — it is not in the drawing, so its labels were written for the build and put to him: "How long transcripts are kept", "Save this period", "Use the inherited period", "Set here" / "Inherited — …" |
+| Whether the cohort floor applies per point too | Mike | ✅ **Settled 2026-09-07** — **yes.** The 20-meeting half applies to each observation point as well as to the screen, and a point below it is omitted rather than caveated. Cost accepted: a newly added point shows nothing for its first month or two |
+| The button into the two reports | Mike | ✅ **Settled 2026-09-07** — **"Read my reports"**, written for slice 3 and flagged as ours until he ruled. "My" carries P2 in a label, as "My Coaching Notes" does. Pinned, and not to be reworded |
 | Which Handbook group this page belongs in | Mike | Provisionally **Learning**, beside Advisor Progress |
 
 ---

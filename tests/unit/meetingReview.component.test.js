@@ -304,3 +304,29 @@ describe('generating when there is nothing yet', () => {
     expect(wrapper.vm.poller).toBeNull()
   })
 })
+
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// The one deliberate wording pin in this feature outside the consent artefact.
+//
+// The testing ruling of 2026-08-24 says not to assert user-facing wording — UAT sees it in
+// five seconds — EXCEPT where a string is load-bearing and Mike has explicitly approved it,
+// in which case it is pinned ONCE, next to what it protects, with the reason written down.
+//
+// 🔴 "Read my reports" IS THAT CASE. Ruled by Mike 2026-09-07, having been written for slice 3
+// and flagged to him as ours. "My" carries P2 in a label: the reports belong to the advisor,
+// and the screen says so before they open it, exactly as "My Coaching Notes" does. It is also
+// the ONLY route to this screen, so a session rewording it casually would be changing the one
+// sentence that tells an advisor the notes are theirs.
+//
+// It is asserted against the recorder's source rather than by mounting it, because mounting
+// MeetingRecorder means standing up MediaRecorder and a wake-lock to check a noun.
+describe('🔴 the approved label into this screen', () => {
+  const fs = require('fs')
+  const path = require('path')
+
+  it('the recorder still says "Read my reports" — Mike\'s wording, 2026-09-07', () => {
+    const source = fs.readFileSync(
+      path.resolve(__dirname, '../../components/MeetingRecorder.vue'), 'utf8')
+    expect(source).toContain('Read my reports')
+  })
+})
