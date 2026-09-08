@@ -146,6 +146,20 @@ knows the right rate can use it, and a reader can still see whose figure it is.
 **Per-advisor and per-client tables are deliberately absent.** The cascade ends at the firm.
 An advisor's own rate lives on their client's forecast, not in a table of their own.
 
+**A country's first-year rule rides the same table, and is approved separately.** New
+Zealand's Investment Boost — 20% of a qualifying new asset expensed in the year of purchase,
+the remaining 80% capitalised and depreciated as normal — is held beside the rates, carries its
+own approver and date, and is adopted and withdrawn through its own route. Two decisions, two
+buttons, and on the backend two handlers that cannot reach each other's field, so confirming a
+rate table can never adopt a tax scheme by accident.
+
+**Asset purchases become a dated list, and that is what makes the rule answerable.** Mike's
+own point: the boost begins on 22 May 2025, part-way through a month, and the forecast records
+only the month a purchase falls in. So each purchase carries its date, and the twelve monthly
+totals the engine works to are **derived** from that list — the engine's input shape does not
+change, and the golden set that pins the workbook stays valid. This absorbs item 4.77's asset
+model, which asked for the same thing.
+
 ---
 
 ## 4. For the coder
@@ -155,14 +169,18 @@ An advisor's own rate lives on their client's forecast, not in a table of their 
 | The store — validation, the newer-wins rule, the four-tier resolver | [`server/utils/depreciationRates.js`](../../server/utils/depreciationRates.js) |
 | The app's own six rates — the floor under every country | [`data/depreciation-rates.json`](../../data/depreciation-rates.json) |
 | Its tests | [`tests/unit/depreciationRates.test.js`](../../tests/unit/depreciationRates.test.js) |
+| The routes — read, approve rates, adopt or withdraw the rule, history, restore | [`server/routes/depreciationRates.js`](../../server/routes/depreciationRates.js) · [`tests`](../../tests/unit/depreciationRates.routes.test.js) |
+| The manager's tab | [`components/firm/FirmDepreciationRates.vue`](../../components/firm/FirmDepreciationRates.vue) · [`tests`](../../tests/unit/firmDepreciationRates.component.test.js) |
+| Where the tab is gated and named | [`components/FirmManagerHub.vue`](../../components/FirmManagerHub.vue) — `TAB_TIERS.depreciationRates` |
 | The tier seam every cascading block asks | [`server/utils/tierChain.js`](../../server/utils/tierChain.js) |
 | The engine whose rate this sets | [`server/report/threeWayForecastModel.js`](../../server/report/threeWayForecastModel.js) |
 | The screen the six rates are entered on today | [`components/ThreeWayForecastIntake.vue`](../../components/ThreeWayForecastIntake.vue) |
-| The specification, with all three rulings of 2026-09-09 | [`specs/001-depreciation-rates-per-country/spec.md`](../../specs/001-depreciation-rates-per-country/spec.md) |
+| The specification, with all twelve rulings and 50 requirements | [`specs/001-depreciation-rates-per-country/spec.md`](../../specs/001-depreciation-rates-per-country/spec.md) |
 | The manager's screen, approved 2026-09-08 | [`design/mockups/depreciation-rates-upload.html`](../mockups/depreciation-rates-upload.html) |
 | The advisor's screen, approved 2026-09-08 | [`design/mockups/depreciation-rates-advisor.html`](../mockups/depreciation-rates-advisor.html) |
 | The country field, drawn 2026-09-09 | [`design/mockups/depreciation-rates-country-field.html`](../mockups/depreciation-rates-country-field.html) |
 | The class match, drawn 2026-09-09 | [`design/mockups/depreciation-rates-class-match.html`](../mockups/depreciation-rates-class-match.html) |
+| Investment Boost — the rule, the dated purchase list, the report line | [`design/mockups/depreciation-rates-investment-boost.html`](../mockups/depreciation-rates-investment-boost.html) |
 
 **Traps.**
 
@@ -179,16 +197,23 @@ An advisor's own rate lives on their client's forecast, not in a table of their 
 - **A rate must never appear in its own superseded list.** Reloading the same document twice
   would otherwise show a document disagreeing with itself.
 
-**Known state.** **Only the store is built** — commit `d8621e9`, 2026-09-09. It has
-validation, the cascade, the newer-wins rule and 41 tests, and **nothing calls it**. There is
-no route, no screen, no upload, and no document has ever been read. The six defaults it ships
-are pinned by test to the forecast engine's own, so the three declarations of those numbers
-cannot drift.
+**Known state, 2026-09-09.** **Built: the store and the manager's screen.** The store
+(`d8621e9`) holds the rates and each country's first-year rule, resolves both through the four
+tiers with an origin per rate, and refuses a rate or a share typed in the wrong unit. Slice 2
+(`af54bcb`) adds the six routes, the **Depreciation Rates** tab at all four manager tiers, and
+the two pure functions the forecast will need — `ruleAppliesOn` and `splitQualifyingPurchase`.
+The six defaults are pinned by test to the forecast engine's own, so the three declarations of
+those numbers cannot drift.
 
-**Not built, and not to be described as built:** the Firm Manager Hub tab, the upload, the
-reading of a document, the approval action and its role gate, the gaps panel, the version
-history, the advisor's badges, the country field, and every screen. The reading of a PDF is
-unsolved — see the history file — and is the next real decision.
+**Not built, and not to be described as built:** the upload, the reading of a document, the
+proposed-rates table and its Approve, the class-match step, the gaps panel, the country field
+on the forecast, the dated purchase list, the advisor's badges, and the report's Investment
+Boost line. **Nothing has ever read a document**, so no rate in this app has yet come from a
+tax authority.
+
+**How a document will be read is now settled** (Mike, 2026-09-09): it is sent to the model and
+read there, never extracted locally. That closed the last open question — **nothing about this
+feature is undecided**.
 
 ---
 
