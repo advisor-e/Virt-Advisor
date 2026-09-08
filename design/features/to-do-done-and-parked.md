@@ -185,6 +185,38 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.75 — two advisors saving at once, and one loses their work.**
+✅ Closed 2026-09-08, the day it was filed, on Mike's ruling: *"if we've done all our part then
+mark it completed — we're not responsible for running tests we can't run"*.
+
+- **Why it mattered:** every advisor in a firm read the same config row, changed their own
+  entry and wrote the whole row back, with no compare-and-set beneath it. Two saving inside
+  the same read-modify-write meant the second wrote a copy that never held the first's change.
+  **Both were answered 200**, and nothing on any screen would ever have shown the loss — the
+  advisor's list is what the coaching report is written from.
+- **What we would have lost:** silent data loss of a named person's work, scored 5. It is the
+  shape of fault UAT cannot find: nothing looks wrong to either advisor, and the damage is only
+  visible by comparing what two people believe they saved.
+- **What proves it:** the race itself, run in the order that destroyed work — Ruth reads, Tom
+  saves, Ruth saves — with both changes surviving, plus an assertion that a decline write
+  touches only the writer's key. Each advisor's state now lives at a key of its own
+  (`meeting-observation-advisor-own:<advisorId>`), so **each row has one writer and there is no
+  losing write to detect.** Suite 8,356 green; commit `10ae099`.
+
+**`saveFirmConfig` was NOT changed, and that was the point.** The item first named a
+compare-and-set on it; that function is shared by more than forty callers with nothing to do
+with this feature, so the fix went the other way — removing the contention rather than
+detecting it. No other firm-overlay feature moved. Nothing was migrated because nothing existed
+to migrate: these keys were introduced the same day and had never reached `master`.
+
+⚠ **Two things this does not cover, recorded rather than left to be rediscovered.** One advisor
+with two browser tabs can still overwrite themselves — a person racing themselves, with both
+screens in front of them. And no save has yet reached a real MySQL, because there is none on
+this machine; **that is UAT's to exercise, not ours, which is the ruling that closed this.**
+Shape and reasoning: [`../MEETING-TYPES-CASCADE.md`](../MEETING-TYPES-CASCADE.md) §5.
+
+---
+
 **4.74 — the advisor's hint words reached no code.**
 ✅ Closed 2026-09-08, the day it was filed, on Mike's ruling.
 
