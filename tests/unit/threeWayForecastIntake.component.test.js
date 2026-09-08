@@ -1202,3 +1202,193 @@ describe('the quick-fire option on step 3 (item 4.71)', () => {
     w.destroy()
   })
 })
+
+describe('the Fixed Asset Schedule on the Sell row (item 4.65)', () => {
+  /** A schedule as the intake route sends it, cut to three assets. */
+  function schedule (over) {
+    return Object.assign({
+      companyName: 'Apex Auto & Engineering Ltd',
+      reportDate: 'Financial Year Ending December 31, 2025',
+      assets: [
+        { name: '2021 Toyota HiAce Service Van', code: 'FA-008', group: 'Motor Vehicles', purchaseDate: '10/04/2021', cost: 48000, bookValue: 24000, accumulatedDepreciation: 24000, depreciationRate: 10, depreciationMethod: 'Straight Line' },
+        { name: '2018 Ford Ranger Utility', code: 'FA-009', group: 'Motor Vehicles', purchaseDate: '18/09/2022', cost: 37000, bookValue: 31500, accumulatedDepreciation: 5500, depreciationRate: 10, depreciationMethod: 'Diminishing Value' },
+        { name: 'High-Spec Dev Workstation', code: 'FA-010', group: 'Office Equipment', purchaseDate: '15/01/2023', cost: 6500, bookValue: 3033.33, accumulatedDepreciation: 3466.67, depreciationRate: 20, depreciationMethod: 'Straight Line' }
+      ],
+      totalCost: 91500,
+      totalBookValue: 58533.33,
+      tie: { available: true, ties: false, scheduleTotal: 58533.33, balanceSheetTotal: 145300, difference: 86766.67 }
+    }, over || {})
+  }
+
+  /** Mount, apply a schedule, and add one Sell row. */
+  function withSellRow (over) {
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({ assetSchedule: schedule(over) }))
+    w.vm.addCapitalRow()
+    w.vm.form.capital[0].direction = 'sell'
+    return w
+  }
+
+  test('no schedule dropped leaves the row exactly as it was before', () => {
+    // The whole promise of question 5: an advisor who drops nothing sees today's screen.
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse())
+    expect(w.vm.assetSchedule).toBeNull()
+    expect(w.vm.sellableAssets).toEqual([])
+    w.vm.addCapitalRow()
+    w.vm.form.capital[0].direction = 'sell'
+    expect(w.vm.capitalBookValue(w.vm.form.capital[0])).toBeNull()
+    w.destroy()
+  })
+
+  test('🔴 choosing an asset depreciates it to the month of sale', () => {
+    // Question 1, ruled by Mike 2026-09-08. The Ford Ranger is carried at 31,500 at the last
+    // balance date; sold in month 3 it has been written down through months 1 and 2 at the
+    // Vehicles rate. Using the schedule's own figure would overstate the loss on sale, and
+    // the forecast would balance either way.
+    const w = withSellRow()
+    w.vm.chooseAsset(0, '1')
+    const row = w.vm.form.capital[0]
+    row.month = 2 // zero-based on screen: the third month
+
+    expect(row.what).toBe('2018 Ford Ranger Utility')
+    // 31,500 - 525 = 30,975; 30,975 - 516 = 30,459
+    expect(w.vm.capitalBookValue(row).bookValue).toBe(30459)
+    w.destroy()
+  })
+
+  test('a sale in the first month uses the schedule figure untouched', () => {
+    const w = withSellRow()
+    w.vm.chooseAsset(0, '1')
+    w.vm.form.capital[0].month = 0
+    expect(w.vm.capitalBookValue(w.vm.form.capital[0]).bookValue).toBe(31500)
+    w.destroy()
+  })
+
+  test('🔴 the computed figure is what reaches the engine, not the typed one', () => {
+    // The seam that matters. If the payload kept sending `row.bookValue` the screen would
+    // show one number and the forecast would use another - and both would balance.
+    const w = withSellRow()
+    w.vm.chooseAsset(0, '1')
+    const row = w.vm.form.capital[0]
+    row.month = 2
+    row.bookValue = 999999 // a stale typed value that must be ignored
+
+    const vehicles = w.vm.capitalSeries()[0]
+    expect(vehicles.disposals[2]).toBe(30459)
+    w.destroy()
+  })
+
+  test('🔴 with a schedule loaded there is STILL a way to type a sale that is not on it', () => {
+    // Question 5, and the gap the build itself found when it was laid beside the drawing: the
+    // first version showed ONLY the chooser once a schedule was read, which made the schedule
+    // the only way in. An asset bought and sold inside the same forecast year appears on no
+    // schedule, and its advisor would have had to pick the nearest wrong asset.
+    const w = withSellRow()
+    expect(w.vm.rowAsset(w.vm.form.capital[0])).toBeNull()
+
+    w.vm.chooseAsset(0, 'typed')
+    const row = w.vm.form.capital[0]
+    expect(row.assetKey).toBe('typed')
+    // no schedule asset is attached, so the typed boxes are what the row carries
+    expect(w.vm.rowAsset(row)).toBeNull()
+    expect(w.vm.capitalBookValue(row)).toBeNull()
+
+    // and it has claimed none of the schedule's assets from the other rows
+    expect(w.vm.sellableAssets).toHaveLength(3)
+    w.destroy()
+  })
+
+  test('a row the advisor typed still sends the typed figure', () => {
+    // Question 5 again, from the payload's side: "Something else" behaves as it always did.
+    const w = withSellRow()
+    w.vm.chooseAsset(0, 'typed')
+    const row = w.vm.form.capital[0]
+    row.what = 'A digger bought and sold this year'
+    row.month = 4
+    row.bookValue = 12345
+
+    expect(w.vm.capitalBookValue(row)).toBeNull()
+    expect(w.vm.capitalSeries()[0].disposals[4]).toBe(12345)
+    w.destroy()
+  })
+
+  test('🔴 the category is proposed from the schedule group and marked as a guess', () => {
+    // Question 2. The badge is not decoration: the category carries the depreciation rate, so
+    // an unchecked wrong guess changes the charge for the whole year.
+    const w = withSellRow()
+    w.vm.chooseAsset(0, '0') // the HiAce, group "Motor Vehicles"
+    expect(w.vm.form.capital[0].category).toBe(0) // vehicles
+    expect(w.vm.form.capital[0].categoryGuessed).toBe(true)
+    w.destroy()
+  })
+
+  test('🔴 the guess follows the schedule even when the asset name suggests otherwise', () => {
+    // The case put to Mike when question 2 was asked: MYOB files the "High-Spec Dev
+    // Workstation" under Office Equipment, and we have a separate Computer hardware category
+    // at a different rate. The app follows the FILE and flags it, rather than second-guessing
+    // the client's own bookkeeping from an asset's name.
+    const w = withSellRow()
+    w.vm.chooseAsset(0, '2')
+    expect(w.vm.form.capital[0].category).toBe(3) // office equipment, as the schedule says
+    expect(w.vm.form.capital[0].categoryGuessed).toBe(true)
+    w.destroy()
+  })
+
+  test('anything it cannot place is left alone, never dropped into Other', () => {
+    // "Other" is a real category with a 35% rate, not a shrug.
+    const w = withSellRow({
+      assets: [{ name: 'A mystery', group: 'Sundry Widgets', cost: 100, bookValue: 50, accumulatedDepreciation: 50, depreciationRate: null, depreciationMethod: null }]
+    })
+    w.vm.form.capital[0].category = 1
+    w.vm.chooseAsset(0, '0')
+    expect(w.vm.guessCategory('Sundry Widgets')).toBeNull()
+    expect(w.vm.form.capital[0].category).toBe(1) // untouched
+    expect(w.vm.form.capital[0].categoryGuessed).toBe(false)
+    w.destroy()
+  })
+
+  test('🔴 an asset already sold on one row leaves the chooser for every other', () => {
+    // Question 6. Selling the same van twice removes its book value from the pool twice and
+    // records two gains on one asset - and the forecast balances perfectly while doing it.
+    const w = withSellRow()
+    expect(w.vm.sellableAssets).toHaveLength(3)
+
+    w.vm.chooseAsset(0, '1')
+    expect(w.vm.sellableAssets.map(a => a.name)).not.toContain('2018 Ford Ranger Utility')
+    expect(w.vm.sellableAssets).toHaveLength(2)
+
+    // and it comes back the moment that row stops being a sale
+    w.vm.form.capital[0].direction = 'buy'
+    expect(w.vm.sellableAssets).toHaveLength(3)
+    w.destroy()
+  })
+
+  test('the tie-back line appears when the schedule does not tie, and never when it does', () => {
+    // Question 3: say it, never block. `$t()` returns the key here, so this pins that the line
+    // is produced - Mike's wording is pinned nowhere in this file.
+    const w = mountIntake()
+    w.vm.applyIntake(intakeResponse({ assetSchedule: schedule() }))
+    expect(w.vm.scheduleTieLine).not.toBeNull()
+
+    w.vm.applyIntake(intakeResponse({
+      assetSchedule: schedule({ tie: { available: true, ties: true, scheduleTotal: 145300, balanceSheetTotal: 145300, difference: 0 } })
+    }))
+    expect(w.vm.scheduleTieLine).toBeNull()
+    w.destroy()
+  })
+
+  test('🔴 the schedule changes none of the six category openings', () => {
+    // The drawing's section 4, from the screen's side: the Balance Sheet remains the opening
+    // position. A schedule allowed to seed the categories would have understated fixed assets
+    // by 16,524 on Mike's own file and charged too little depreciation all year.
+    const withIt = mountIntake()
+    withIt.vm.applyIntake(intakeResponse({ assetSchedule: schedule() }))
+    const without = mountIntake()
+    without.vm.applyIntake(intakeResponse())
+
+    expect(withIt.vm.form.assets).toEqual(without.vm.form.assets)
+    withIt.destroy()
+    without.destroy()
+  })
+})

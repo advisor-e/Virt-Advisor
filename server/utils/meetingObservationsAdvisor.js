@@ -1,0 +1,638 @@
+'use strict'
+
+/**
+ * @file The ADVISOR'S OWN LEVEL of the observation-point cascade — "how I run my meetings".
+ * @module server/utils/meetingObservationsAdvisor
+ *
+ * Design: `design/mockups/meeting-preset-advisor-level.html`, drawn 2026-09-08, all six of
+ * its questions ruled by Mike the same day and the drawing itself approved to build from.
+ * It is the first half of slice 4 of `design/MEETING-TYPES-CASCADE.md` §7; the per-CLIENT
+ * half is not built and is not drawn.
+ *
+ * 🔴 WHY THIS IS A SEPARATE FILE FROM `meetingObservations.js`. Every level above the
+ * advisor is a SCOPE — a row in `firms`, reached through `parentScopeOf`. An advisor is not
+ * a scope and can never be one: `firm_id` is a foreign key to `firms`, so a scope id per
+ * advisor would mean inventing a fake firm for every advisor a firm employs
+ * (MEETING-TYPES-CASCADE.md §5). So this layer is applied ON TOP of the resolved firm list
+ * rather than being another turn of the same recursion, and keeping it in its own file is
+ * what stops a later reader assuming the tier chain runs one level deeper than it does.
+ *
+ * ⚠ TWO CONFIG KEYS, NOT THE ONE §5 SKETCHED — a named deviation from the approved design,
+ * put to Mike on 2026-09-08 before the build and approved. §5 proposed a single
+ * `meeting-observation-advisor` key holding `{declines, overrides, own}` per advisor. Two
+ * separate keys instead, because that is what every sibling in this app already does
+ * (`firmStaircase.CONFIG_KEYS`, `meetingObservations.CONFIG_KEYS`, `meetingTypes.CONFIG_KEYS`)
+ * and because a decline write then cannot clobber a point the advisor added a moment
+ * earlier. Same storage location, same firm row, no schema change.
+ *
+ * ⚠ NO OVERRIDES KEY, AND THAT IS THE DESIGN. An advisor may switch an inherited point off
+ * or add one of their own; they may NOT rewrite the firm's words. Editing an inherited
+ * point's wording would be editing the firm's list — the thing P14 forbids — and the
+ * manager screens offer "Use the inherited wording" rather than a free edit for the same
+ * reason one level up.
+ *
+ * 🔴 THE ADVISOR'S NAME IS CAPTURED AT WRITE TIME, from their own verified JWT, and stored
+ * beside their decisions. This is not convenience: **this application holds no advisors
+ * table** — `config/db-schema.sql` says so four times ("advisors table belongs to the
+ * Advisor-e platform", "this app holds no advisors table to join against") — so there is
+ * nothing to join a name out of later. It is the same pattern `advisor_va_sessions.advisor_name`
+ * already uses, for the same reason.
+ *
+ * Node 14, CommonJS.
+ */
+
+const { resolveInheritedRows } = require('./resolveInheritedRows')
+const { TIERS } = require('./tierChain')
+const {
+  PLATFORM_POINT_PREFIX,
+  POINT_PREFIX_BY_TIER,
+  OBSERVATION_SOURCE_LABELS,
+  MAX_POINT_LENGTH,
+  MAX_HINT_WORDS,
+  MAX_HINT_LENGTH
+} = require('./meetingObservations')
+
+/**
+ * The overlay addresses an advisor's decisions are stored under — on their OWN FIRM'S row.
+ *
+ * 🔴 THESE ARE KEY PREFIXES, NOT KEYS. ONE ROW PER ADVISOR, and the advisor id is part of the
+ * address: `meeting-observation-advisor-own:adv-7`. Build one with `advisorConfigKey`, never
+ * by hand.
+ *
+ *   meeting-observation-advisor-declines:<advisorId>
+ *     { name, scenarios: { scenarioId: [pointId] } }
+ *   meeting-observation-advisor-own:<advisorId>
+ *     { name, scenarios: { scenarioId: [ {id, text, hintWords, cannotHear} ] }, nextSeq }
+ *
+ * ⚠ IT WAS ONE ROW PER FIRM UNTIL 2026-09-08, holding `{ advisorId: entry }`, and that is item
+ * 4.75: every advisor read the whole firm's map, changed their own entry and wrote the whole
+ * map back, with no compare-and-set underneath. Two advisors saving inside the same read-write
+ * meant the second wrote a copy that never held the first's change — both answered 200, and
+ * nothing on any screen would ever have shown it. A row per advisor gives each one WRITER, so
+ * there is no lost write to detect. The alternative — a compare-and-set inside
+ * `saveFirmConfig` — was rejected because that function is shared by more than forty callers
+ * with nothing to do with this.
+ *
+ * ⚠ NOTHING WAS MIGRATED, because there was nothing to migrate: these keys were introduced on
+ * 2026-09-08 and have never been in `master`, so no firm has ever stored one.
+ *
+ * @type {Object.<string, string>}
+ */
+const CONFIG_KEYS = {
+  advisorDeclines: 'meeting-observation-advisor-declines',
+  advisorOwn: 'meeting-observation-advisor-own'
+}
+
+/**
+ * What separates the key prefix from the advisor id. `:` matches the reserved scope ids
+ * (`__global__:<brand>`) rather than inventing a second convention.
+ */
+const KEY_SEPARATOR = ':'
+
+/**
+ * The most advisor-id characters that reach a config key.
+ *
+ * `config_key` is `VARCHAR(128)` (`config/db-schema.sql`) and the longer prefix is 36
+ * characters, so 64 leaves room to spare. It matches the 64 that `activity.js` already
+ * truncates an advisor id to before it reaches a query, so the same identifier is not held
+ * to two different lengths in one app.
+ */
+const MAX_ADVISOR_ID_LENGTH = 64
+
+/**
+ * The config key one advisor's decisions live at.
+ *
+ * @param {'advisorDeclines'|'advisorOwn'} part
+ * @param {string} advisorId - from the verified token, never a body
+ * @returns {string|null} null when there is no advisor to key on
+ */
+function advisorConfigKey (part, advisorId) {
+  const prefix = CONFIG_KEYS[part]
+  if (!prefix) { return null }
+  const id = typeof advisorId === 'string' ? advisorId.trim() : ''
+  if (!id) { return null }
+  return prefix + KEY_SEPARATOR + id.slice(0, MAX_ADVISOR_ID_LENGTH)
+}
+
+/**
+ * The advisor id inside a config key, or null when the key is not one of these.
+ *
+ * Used by the dev-file fallback, which has one flat file per part and therefore has to put the
+ * advisor back into the address itself.
+ *
+ * @param {string} key
+ * @returns {string|null}
+ */
+function advisorIdFromKey (key) {
+  const k = typeof key === 'string' ? key : ''
+  let found = null
+  Object.keys(CONFIG_KEYS).forEach((part) => {
+    if (found) { return }
+    const prefix = CONFIG_KEYS[part] + KEY_SEPARATOR
+    if (k.indexOf(prefix) === 0 && k.length > prefix.length) { found = k.slice(prefix.length) }
+  })
+  return found
+}
+
+/** Dev-only stand-ins, used when there is no MySQL. Same gate as every sibling. */
+const DEV_FILES = {
+  advisorDeclines: 'data/dev-meeting-observation-advisor-declines.json',
+  advisorOwn: 'data/dev-meeting-observation-advisor-own.json'
+}
+
+/**
+ * The prefix an advisor's own points are minted under.
+ *
+ * ⚠ It must collide with none of `mo-` (platform), `mm-` (mentor), `xm-` (global), `gm-`
+ * (group) or `fm-` (firm), because `sourceTierOf` reads the prefix to decide what a point's
+ * badge should say. A collision would tell an advisor their firm wrote something they wrote
+ * themselves.
+ */
+const ADVISOR_POINT_PREFIX = 'ao-'
+
+/**
+ * How a point is badged on the advisor's own screen.
+ *
+ * `override` is present and deliberately unreachable: an advisor has no overrides key, so
+ * `resolveInheritedRows` can never stamp it. It is declared rather than omitted because the
+ * resolver reads all three, and a missing label would silently become `undefined` on screen
+ * if an overrides path were ever added without reading this comment.
+ */
+const ADVISOR_SOURCE_LABELS = {
+  inherited: 'inherited',
+  override: 'edited-by-you',
+  own: 'added-by-you'
+}
+
+/**
+ * The three source tiers an advisor is shown, and their approved labels.
+ *
+ * 🔴 THREE, NOT FIVE — Mike's ruling of 2026-09-08 (question 3). A point can come from the
+ * mentor, a global group manager, a group manager or the firm, and the middle two COLLAPSE
+ * into "From your firm": an advisor has no relationship with a global group manager or a
+ * group manager, and would read "From the UK group" as a question rather than an answer.
+ *
+ * @type {Object.<string, string>}
+ */
+const SOURCE_TIER_LABELS = {
+  platform: 'From Advisor-e',
+  firm: 'From your firm',
+  advisor: 'Added by you'
+}
+
+/**
+ * The one tier an advisor is told is Advisor-e. Taken from `tierChain.TIERS` rather than
+ * written out, so it cannot drift from the vocabulary `tierOfScope` actually returns —
+ * `TIERS` is ordered mentor first and `parentScopeOf` already depends on that order.
+ */
+const MENTOR_TIER = TIERS[0]
+
+/** Most own points one advisor may hold in one meeting type. */
+const MAX_OWN_POINTS_PER_SCENARIO = 20
+
+// ── Reading stored state ─────────────────────────────────────────────────────────────
+
+/** A display name as stored: a trimmed string, or null. Never an empty string. */
+function readName (value) {
+  if (typeof value !== 'string') { return null }
+  const trimmed = value.trim().slice(0, 128)
+  return trimmed || null
+}
+
+/**
+ * Validate one advisor-authored point.
+ *
+ * Fails closed on shape, and never throws: malformed storage for one point must not stop an
+ * advisor opening the screen they are about to walk into a meeting holding.
+ *
+ * ⚠ `hintWords` IS ACCEPTED HERE, and that is Mike's ruling of 2026-09-08 (question 5)
+ * REVERSING the recommendation. The recommendation was to withhold it — an advisor tuning
+ * the phrases the AI listens for in their own assessment is marking their own homework. He
+ * took the argument recorded against it instead: a point an advisor wrote themselves is the
+ * one the model is LEAST likely to recognise, because it is phrased in their words and
+ * nobody else's, so withholding the hints would have made their own additions the weakest
+ * entries on their own list.
+ *
+ * 🔴 `cannotHear` IS ACCEPTED TOO, and it is what makes `hintWords` mean anything. Hint
+ * phrases are read ONLY by `meetingReports.cannotHearFindings`, which sees only points
+ * carrying this flag — so without it an advisor typed phrases no code could ever reach.
+ * Mike's ruling, 2026-09-08, on being shown that the mechanism does not do what his question-5
+ * reasoning assumed: the hints never go to the model at all, they are a local transcript
+ * search that ASKS the advisor. Marking their own point un-hearable serves the worry behind
+ * that ruling better than feeding the model would — the point is not judged, it is put to
+ * them, and the finding stays their confirmation (his rule of 2026-09-01) rather than a guess
+ * they were allowed to tune.
+ *
+ * @param {*} value - the submitted `{ text, hintWords?, cannotHear? }`
+ * @param {object} [opts]
+ * @param {boolean} [opts.requireText] - true when creating
+ * @returns {{ok: boolean, errors: string[], value: object}}
+ */
+function validateAdvisorPoint (value, opts) {
+  const errors = []
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return { ok: false, errors: ['a point must be a JSON object'], value: {} }
+  }
+
+  const out = {}
+  const allowed = ['text', 'hintWords', 'cannotHear']
+  Object.keys(value).forEach((field) => {
+    if (!allowed.includes(field)) { errors.push('unknown field: ' + field) }
+  })
+
+  // Stored as given, INCLUDING false — the same rule the manager's validator carries, and for
+  // the same reason: a false dropped as "empty" leaves an earlier true standing while the
+  // screen shows the box unticked.
+  if (value.cannotHear !== undefined && value.cannotHear !== null) {
+    if (typeof value.cannotHear !== 'boolean') {
+      errors.push('cannotHear must be true or false')
+    } else {
+      out.cannotHear = value.cannotHear
+    }
+  }
+
+  if (value.text !== undefined && value.text !== null) {
+    if (typeof value.text !== 'string') {
+      errors.push('text must be text')
+    } else {
+      const trimmed = value.text.trim()
+      if (trimmed.length > MAX_POINT_LENGTH) {
+        errors.push('text must be ' + MAX_POINT_LENGTH + ' characters or fewer')
+      } else if (trimmed) {
+        out.text = trimmed
+      }
+    }
+  }
+
+  if (value.hintWords !== undefined && value.hintWords !== null) {
+    if (!Array.isArray(value.hintWords)) {
+      errors.push('hintWords must be a list')
+    } else if (value.hintWords.length > MAX_HINT_WORDS) {
+      errors.push('no more than ' + MAX_HINT_WORDS + ' hint phrases')
+    } else {
+      // 🔴 REFUSED, NOT QUIETLY DROPPED. Until 2026-09-08 a non-string and an over-long
+      // phrase were both filtered out in silence, so the route answered 200 for a point it
+      // had not stored as sent: the advisor was told their hint was saved when it was not.
+      // `validatePointFields` one level up has always errored on both, and these are its
+      // words rather than new ones. An EMPTY phrase is still dropped without complaint, as
+      // it is there — a blank box the advisor never filled in is not a mistake to report.
+      const words = []
+      let bad = false
+      value.hintWords.forEach((w) => {
+        if (bad) { return }
+        if (typeof w !== 'string') { errors.push('each hint phrase must be text'); bad = true; return }
+        const trimmed = w.trim()
+        if (!trimmed) { return }
+        if (trimmed.length > MAX_HINT_LENGTH) {
+          errors.push('each hint phrase must be ' + MAX_HINT_LENGTH + ' characters or fewer')
+          bad = true
+          return
+        }
+        words.push(trimmed)
+      })
+      if (!bad) { out.hintWords = words }
+    }
+  }
+
+  if (opts && opts.requireText && !out.text) { errors.push('text is required') }
+
+  return { ok: errors.length === 0, errors, value: out }
+}
+
+/**
+ * Read the stored declines map, keeping only what is well-formed.
+ *
+ * ⚠ BOTH MAP READERS STILL TAKE `{ advisorId: entry }`, though storage now holds one advisor
+ * per row. The manager's whole-firm read assembles that map from the rows; an advisor reading
+ * their OWN row hands over a map of one. Deliberate: a second per-entry reader is a second
+ * place for the validation to drift, and what a manager sees must be validated exactly as
+ * what the advisor sees.
+ *
+ * @param {*} stored - `{ advisorId: entry }`
+ * @returns {Object.<string, {name: (string|null), scenarios: Object.<string, string[]>}>}
+ */
+function readAdvisorDeclines (stored) {
+  if (!stored || typeof stored !== 'object' || Array.isArray(stored)) { return {} }
+  const out = {}
+  Object.keys(stored).forEach((advisorId) => {
+    const entry = stored[advisorId]
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) { return }
+    const scenarios = {}
+    const src = (entry.scenarios && typeof entry.scenarios === 'object' && !Array.isArray(entry.scenarios))
+      ? entry.scenarios
+      : {}
+    Object.keys(src).forEach((scenarioId) => {
+      if (!Array.isArray(src[scenarioId])) { return }
+      const ids = src[scenarioId].filter(id => typeof id === 'string' && id)
+      if (ids.length) { scenarios[scenarioId] = ids }
+    })
+    // An advisor with a name but no decisions left is dropped, so the map does not grow a
+    // row every time somebody switches a point off and back on again.
+    if (Object.keys(scenarios).length) {
+      out[advisorId] = { name: readName(entry.name), scenarios }
+    }
+  })
+  return out
+}
+
+/**
+ * Read the stored own-points map, keeping only what is well-formed.
+ *
+ * @param {*} stored
+ * @returns {Object.<string, {name: (string|null), scenarios: Object.<string, object[]>}>}
+ */
+function readAdvisorOwn (stored) {
+  if (!stored || typeof stored !== 'object' || Array.isArray(stored)) { return {} }
+  const out = {}
+  Object.keys(stored).forEach((advisorId) => {
+    const entry = stored[advisorId]
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) { return }
+    const scenarios = {}
+    const src = (entry.scenarios && typeof entry.scenarios === 'object' && !Array.isArray(entry.scenarios))
+      ? entry.scenarios
+      : {}
+    Object.keys(src).forEach((scenarioId) => {
+      if (!Array.isArray(src[scenarioId])) { return }
+      const rows = src[scenarioId]
+        .filter(r => r && typeof r === 'object' && typeof r.id === 'string' && r.id)
+        .map((r) => {
+          const { value } = validateAdvisorPoint(
+            { text: r.text, hintWords: r.hintWords, cannotHear: Boolean(r.cannotHear) }, {})
+          return {
+            id: r.id,
+            text: value.text,
+            hintWords: value.hintWords || [],
+            // Kept, or the hint phrases beside it are read by nothing — see validateAdvisorPoint.
+            cannotHear: Boolean(value.cannotHear)
+          }
+        })
+        .filter(r => typeof r.text === 'string' && r.text)
+        .slice(0, MAX_OWN_POINTS_PER_SCENARIO)
+      if (rows.length) { scenarios[scenarioId] = rows }
+    })
+
+    // The per-scenario high-water mark for minted ids. Kept even where the scenario now
+    // holds no rows: an advisor who removes their only point and writes another must not get
+    // the first one's id back. See nextAdvisorPointId.
+    const nextSeq = {}
+    const seqSrc = (entry.nextSeq && typeof entry.nextSeq === 'object' && !Array.isArray(entry.nextSeq))
+      ? entry.nextSeq
+      : {}
+    Object.keys(seqSrc).forEach((scenarioId) => {
+      const n = seqSrc[scenarioId]
+      if (Number.isInteger(n) && n > 0) { nextSeq[scenarioId] = n }
+    })
+
+    if (Object.keys(scenarios).length || Object.keys(nextSeq).length) {
+      out[advisorId] = { name: readName(entry.name), scenarios, nextSeq }
+    }
+  })
+  return out
+}
+
+// ── Which tier a point came from ─────────────────────────────────────────────────────
+
+/**
+ * The tier an advisor should be told a point came from: `platform`, `firm` or `advisor`.
+ *
+ * 🔴 IT READS THREE THINGS, IN THIS ORDER, AND EACH COVERS WHAT THE NEXT CANNOT.
+ *
+ *   1. `changedAtTier` — the tier that LAST changed the point, carried down the manager
+ *      cascade by `meetingObservations.stampChangedAtTier`. This is the only signal that
+ *      catches a GLOBAL or GROUP manager REWORDING a platform point: the id stays `mo-`
+ *      because identity is never editable, and the restamping at each level (item 4.59)
+ *      means it reaches the firm marked `inherited`. Both of the older signals below say
+ *      "Advisor-e" about words a group manager wrote. That was item 4.76.
+ *   2. `firmSource` — the badge the firm's own resolution stamped, which catches the FIRM
+ *      editing a platform point. Retained because it is what a caller that has not been
+ *      through the cascade still has.
+ *   3. the id prefix — who CREATED the point, which catches a middle tier's OWN addition
+ *      (`xm-`, `gm-`) arriving marked inherited.
+ *
+ * ⚠ ANY TIER BELOW THE MENTOR READS AS `firm`. Mike's ruling, 2026-09-08 (question 3): an
+ * advisor has no relationship with a global group manager or a group manager, and would read
+ * "From the UK group" as a question rather than an answer. The collapse is deliberate, not a
+ * shortcut.
+ *
+ * ⚠ THE FALLBACK IS `firm`, NOT `platform`. An id whose prefix nobody recognises — or a mark
+ * whose value nobody recognises — is far more likely to be something written inside the
+ * firm's chain than something Advisor-e shipped, and being wrong towards "your firm" sends
+ * an advisor to a person who can actually answer.
+ *
+ * @param {object} point - a resolved point, carrying `id`, `firmSource` and `changedAtTier`
+ * @returns {'platform'|'firm'|'advisor'}
+ */
+function sourceTierOf (point) {
+  if (!point) { return 'firm' }
+  if (point.source === ADVISOR_SOURCE_LABELS.own) { return 'advisor' }
+
+  // The mentor IS Advisor-e to an advisor; every tier below it is their firm's chain.
+  const changedAt = point.changedAtTier
+  if (changedAt === MENTOR_TIER) { return 'platform' }
+  if (changedAt) { return 'firm' }
+
+  const firmSource = point.firmSource
+  if (firmSource === OBSERVATION_SOURCE_LABELS.own ||
+      firmSource === OBSERVATION_SOURCE_LABELS.override) {
+    return 'firm'
+  }
+
+  const id = typeof point.id === 'string' ? point.id : ''
+  if (id.indexOf(PLATFORM_POINT_PREFIX) === 0) { return 'platform' }
+  if (id.indexOf(POINT_PREFIX_BY_TIER.mentor) === 0) { return 'platform' }
+  return 'firm'
+}
+
+// ── Applying the advisor's layer ─────────────────────────────────────────────────────
+
+/**
+ * The points in force for ONE advisor in one meeting type.
+ *
+ * Applies the advisor's declines and own rows on top of the firm's resolved list, then
+ * stamps each surviving point with the tier an advisor is shown.
+ *
+ * ⚠ NEVER REJECTS AND NEVER RETURNS NOTHING. If the advisor's stored state is unusable the
+ * firm's list is what comes back — an advisor with no list cannot walk into the meeting
+ * holding one, and Brief §3 says the list pays before a word is recorded.
+ *
+ * @param {Array<object>} firmPoints - the firm's resolved points, each carrying `source`
+ * @param {{declines: string[], own: object[]}} advisorState - this advisor, this scenario
+ * @returns {Array<object>} points carrying `source`, `sourceTier` and `sourceLabel`
+ */
+function applyAdvisorLayer (firmPoints, advisorState) {
+  const base = (Array.isArray(firmPoints) ? firmPoints : [])
+    // The firm's own badge is carried under a different name BEFORE the advisor's resolution
+    // overwrites `source`. Losing it would cost `sourceTierOf` half of what it reads.
+    .map(p => ({ ...p, firmSource: p.source }))
+
+  const state = advisorState && typeof advisorState === 'object' ? advisorState : {}
+
+  const resolved = resolveInheritedRows(
+    base,
+    {
+      declinedIds: Array.isArray(state.declines) ? state.declines : [],
+      overrides: {},
+      ownRows: Array.isArray(state.own) ? state.own : []
+    },
+    { sourceLabels: ADVISOR_SOURCE_LABELS }
+  )
+
+  return resolved.map((p) => {
+    const tier = sourceTierOf(p)
+    return { ...p, sourceTier: tier, sourceLabel: SOURCE_TIER_LABELS[tier] }
+  })
+}
+
+/**
+ * The inherited points this advisor has set aside, so the screen can offer them back.
+ *
+ * 🔴 SHOWN RATHER THAN HIDDEN, for the reason already written into the manager's template
+ * one level up: somebody who cannot see what they turned off cannot turn it back on, and
+ * would read the shorter list as the whole list.
+ *
+ * A declined id that no longer exists in the firm's list — the firm removed the point since
+ * — is dropped rather than rendered as a bare id. The stored decline is left alone: the firm
+ * may put the point back, and an advisor's decision about it should survive that.
+ *
+ * @param {Array<object>} firmPoints - the firm's resolved points
+ * @param {string[]} declinedIds
+ * @returns {Array<object>} points carrying `sourceTier` and `sourceLabel`
+ */
+function setAsidePoints (firmPoints, declinedIds) {
+  const declined = new Set(Array.isArray(declinedIds) ? declinedIds : [])
+  if (!declined.size) { return [] }
+  return (Array.isArray(firmPoints) ? firmPoints : [])
+    .filter(p => p && declined.has(p.id))
+    .map((p) => {
+      const tier = sourceTierOf({ ...p, firmSource: p.source })
+      return { ...p, sourceTier: tier, sourceLabel: SOURCE_TIER_LABELS[tier] }
+    })
+}
+
+/**
+ * What the FIRM MANAGER sees: which advisors have set each point aside.
+ *
+ * 🔴 THIS SCREEN EXISTS BECAUSE MIKE ORDERED IT (2026-09-08). Question 1 of the drawing asked
+ * whether an advisor may set aside a point their firm set; the recommendation was yes, with
+ * one cost recorded — that no manager could see it happen. He answered *"yes but fix the
+ * issue - build it so the manager can see"*, which turned the recorded cost into part of the
+ * same slice. A permission granted with an invisible consequence is what he refused.
+ *
+ * 🔴 NO DENOMINATOR, AND THAT IS NOT THE DRAWING. The drawing said "4 of 12" and its wording
+ * table argued the denominator must always be shown. **It cannot be built: this app holds no
+ * advisors table** (`config/db-schema.sql`, four times) so a firm's headcount is unknowable
+ * here. The nearest available figure counts advisors with ACTIVITY records, which is a
+ * different number — a firm of twelve where eight have used the app would print "4 of 8" and
+ * call it the firm. Put to Mike on 2026-09-08 with the evidence and ruled: show only what the
+ * app can know. The count and the names are that; the denominator is the manager's own
+ * knowledge and stays in their head rather than being invented in ours.
+ *
+ * ⚠ NAMES, NOT IDS — Mike's ruling, question 2. A count says a problem exists and not who to
+ * talk to, which is the only reason a manager opens this. `name` can still be null for an
+ * advisor whose decision was stored before their token carried one; the screen shows the fact
+ * without a name rather than an opaque id, because an id helps nobody.
+ *
+ * ⚠ NO ANONYMITY FLOOR, unlike `meetingAggregate`. That one reports on recorded CLIENT
+ * MEETINGS and Brief P13 governs it. This reports on CONFIGURATION — who set what — so P13 is
+ * not engaged, and a floor would hide the single advisor a manager most needs to speak to.
+ *
+ * ⚠ A DECLINE FOR A POINT THE FIRM HAS SINCE REMOVED DOES NOT APPEAR, because the point is no
+ * longer offered and there is nothing for a manager to act on. The stored decline survives:
+ * the firm may put the point back.
+ *
+ * @param {Array<object>} firmPoints - the firm's resolved points for one scenario
+ * @param {object} declinesMap - from `readAdvisorDeclines`
+ * @param {string} scenarioId
+ * @returns {Array.<{id: string, text: string, count: number, setAsideBy: object[]}>}
+ */
+function setAsideSummary (firmPoints, declinesMap, scenarioId) {
+  const byPoint = {}
+  const map = (declinesMap && typeof declinesMap === 'object') ? declinesMap : {}
+
+  Object.keys(map).forEach((advisorId) => {
+    const entry = map[advisorId]
+    if (!entry || typeof entry !== 'object') { return }
+    const ids = (entry.scenarios && entry.scenarios[scenarioId]) || []
+    if (!Array.isArray(ids)) { return }
+    ids.forEach((pointId) => {
+      if (!byPoint[pointId]) { byPoint[pointId] = [] }
+      byPoint[pointId].push({ advisorId, name: entry.name || null })
+    })
+  })
+
+  return (Array.isArray(firmPoints) ? firmPoints : []).map((p) => {
+    // Sorted by name so the screen does not reshuffle between two identical loads, which
+    // would read as the list having changed when nothing had. Nameless entries sort last —
+    // they are the ones a manager can act on least.
+    const who = (byPoint[p.id] || []).slice().sort((a, b) => {
+      if (a.name && b.name) { return a.name.localeCompare(b.name) }
+      if (a.name) { return -1 }
+      if (b.name) { return 1 }
+      return a.advisorId.localeCompare(b.advisorId)
+    })
+    return { id: p.id, text: p.text, count: who.length, setAsideBy: who }
+  })
+}
+
+/**
+ * Mint the next own-point id for one advisor in one scenario.
+ *
+ * 🔴 IT TAKES A STORED HIGH-WATER MARK AS WELL AS THE LIVE ROWS, AND IT NEEDS BOTH. Counting
+ * from the ids currently held is not enough: remove the HIGHEST one and the next point added
+ * takes its id straight back. A reused id would match the removed point in any coaching
+ * report already stored against it — a report about a point the advisor no longer has,
+ * reading as a report about the one they have just written. That is a wrong statement about
+ * a named person's meeting, and nothing on any screen would look wrong.
+ *
+ * The mark is carried per scenario in the advisor's own entry (`nextSeq`) and only ever goes
+ * up. The live rows are still read, so a mark lost to a hand-edited dev file, or absent from
+ * data written before the mark existed, degrades to the old behaviour rather than colliding
+ * with a point that is right there.
+ *
+ * ⚠ Found by a test on 2026-09-08, not by review: the util test happened to delete a MIDDLE
+ * id, which the old version handled correctly. Only the route test, which deleted the
+ * highest, exposed it. ⚠ `meetingObservations.nextOwnPointId` — the manager tier's twin —
+ * has the same weakness and carries the same claim in its JSDoc. It is NOT fixed here;
+ * changing shared manager storage is its own change and its own decision.
+ *
+ * ⚠ The advisor id is NOT part of the point id. Two advisors in the same firm can both hold
+ * `ao-1` for the same scenario and that is correct: the maps are keyed by advisor, so the
+ * two never meet. Putting an advisor id into a point id would put a person's identifier into
+ * every coaching report that quotes the point.
+ *
+ * @param {Array<object>} existingOwnRows - the advisor's live rows for this scenario
+ * @param {number} [lastSeq] - the stored high-water mark, if any
+ * @returns {{id: string, seq: number}}
+ */
+function nextAdvisorPointId (existingOwnRows, lastSeq) {
+  const used = (Array.isArray(existingOwnRows) ? existingOwnRows : [])
+    .map(r => (r && typeof r.id === 'string' && r.id.indexOf(ADVISOR_POINT_PREFIX) === 0)
+      ? parseInt(r.id.slice(ADVISOR_POINT_PREFIX.length), 10)
+      : NaN)
+    .filter(n => Number.isInteger(n) && n > 0)
+  const highestHeld = used.length ? Math.max(...used) : 0
+  const mark = (Number.isInteger(lastSeq) && lastSeq > 0) ? lastSeq : 0
+  const seq = Math.max(highestHeld, mark) + 1
+  return { id: ADVISOR_POINT_PREFIX + seq, seq }
+}
+
+module.exports = {
+  CONFIG_KEYS,
+  KEY_SEPARATOR,
+  MAX_ADVISOR_ID_LENGTH,
+  advisorConfigKey,
+  advisorIdFromKey,
+  DEV_FILES,
+  ADVISOR_POINT_PREFIX,
+  ADVISOR_SOURCE_LABELS,
+  SOURCE_TIER_LABELS,
+  MAX_OWN_POINTS_PER_SCENARIO,
+  validateAdvisorPoint,
+  readAdvisorDeclines,
+  readAdvisorOwn,
+  sourceTierOf,
+  applyAdvisorLayer,
+  setAsidePoints,
+  setAsideSummary,
+  nextAdvisorPointId
+}

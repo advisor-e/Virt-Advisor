@@ -61,6 +61,9 @@ const {
   createTranscriptionClient
 } = require('../utils/transcriptionClient')
 const obs = require('../utils/meetingObservations')
+// The advisor's own level sits on top of the firm's resolved list. Report generation applies
+// it through the same function the screen uses — see `presetFor`.
+const { applyAdvisorLayer } = require('../utils/meetingObservationsAdvisor')
 const { computeMetrics } = require('../utils/meetingMetrics')
 const { generateSummary, generateCoachingNotes } = require('../utils/meetingReports')
 // The firm's own client register (built 2026-07-14). A meeting records WHICH client it was
@@ -571,10 +574,18 @@ function deleteRecording (req, res) {
 const reportJobs = new Map()
 
 /**
- * The advisor's pre-set for this meeting, resolved through the tier cascade.
+ * The advisor's pre-set for this meeting, resolved through the tier cascade AND through this
+ * advisor's own level.
+ *
+ * 🔴 THE ADVISOR'S OWN LEVEL IS APPLIED HERE, NOT ONLY ON THE SCREEN. Between 2026-09-08 and
+ * this fix it was not: the screen applied it and report generation did not, so a point the
+ * advisor had set aside was still assessed and a point they had written themselves never was.
+ * The feature saved correctly, showed correctly, and changed nothing about the report. The
+ * layer must be applied by the same function the screen uses (`applyAdvisorLayer`) rather
+ * than re-derived, or the two can disagree again without either looking wrong.
  *
  * ⚠ The observations reader is borrowed from `meetingObservations.js` rather than rebuilt:
- * the dev-fallback rules for those three config keys live there, and a second copy here would
+ * the dev-fallback rules for those config keys live there, and a second copy here would
  * be one more thing to keep in step with them. That module does not require this one, so
  * there is no cycle.
  *
@@ -588,7 +599,15 @@ async function presetFor (req, scenarioId) {
   const resolved = await obs.loadResolvedObservations(req.firmId, observationRoutes.readScopeConfig)
   const scenario = resolved && resolved[scenarioId] ? resolved[scenarioId] : null
   if (!scenario) { return { points: [], scenarioName: null } }
-  return { points: obs.asAdvisorPreset(scenario), scenarioName: scenario.name || null }
+
+  const state = await observationRoutes.loadAdvisorState(req.firmId, req.advisorId)
+  const mine = {
+    declines: state.declines[scenarioId] || [],
+    own: state.own[scenarioId] || []
+  }
+  const points = applyAdvisorLayer(scenario.points || [], mine)
+
+  return { points: obs.asAdvisorPreset({ points }), scenarioName: scenario.name || null }
 }
 
 /**

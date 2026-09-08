@@ -130,4 +130,40 @@ function makeXlsx (grid, sheetName) {
   ])
 }
 
-module.exports = { buildZip, makeXlsx, gridToSheetXml }
+/**
+ * Build a MULTI-SHEET .xlsx, in workbook order.
+ *
+ * 🔴 IT EXISTS BECAUSE THE REAL EXPORTS ARE MULTI-SHEET. Both files Mike supplied on
+ * 2026-09-07 are one workbook holding a Profit and Loss, a Balance Sheet AND a Fixed Asset
+ * Schedule. A single-sheet fixture cannot exercise the case that matters most for item 4.65:
+ * the annual reader stops at the first sheet it recognises, so the schedule is only ever
+ * reached by a scan that keeps going. Testing that with three separate files would prove
+ * something no advisor will ever do.
+ *
+ * @param {Array<{name: string, grid: Array<Array<string|number|null>>}>} sheets
+ * @returns {Buffer}
+ */
+function makeMultiSheetXlsx (sheets) {
+  const entries = [
+    {
+      name: 'xl/workbook.xml',
+      deflate: true,
+      data: '<?xml version="1.0"?><workbook><sheets>' +
+        sheets.map((s, i) => '<sheet name="' + esc(s.name) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>').join('') +
+        '</sheets></workbook>'
+    },
+    {
+      name: 'xl/_rels/workbook.xml.rels',
+      deflate: true,
+      data: '<?xml version="1.0"?><Relationships>' +
+        sheets.map((s, i) => '<Relationship Id="rId' + (i + 1) + '" Type="ws" Target="worksheets/sheet' + (i + 1) + '.xml"/>').join('') +
+        '</Relationships>'
+    }
+  ]
+  sheets.forEach((s, i) => {
+    entries.push({ name: 'xl/worksheets/sheet' + (i + 1) + '.xml', deflate: true, data: gridToSheetXml(s.grid) })
+  })
+  return buildZip(entries)
+}
+
+module.exports = { buildZip, makeXlsx, makeMultiSheetXlsx, gridToSheetXml }

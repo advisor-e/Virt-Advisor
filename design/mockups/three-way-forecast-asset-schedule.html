@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Asset Schedule — where a book value comes from</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Three-Way Forecast — screen mockup for approval (drawn 2026-09-02).
+
+   EVERY value below is copied from the project's own locked sources. Nothing is
+   invented and nothing is approximated:
+     - design/REPORT-VISUAL-STANDARD.md      the ruled numbers + [A]-[D2d] anatomy
+     - design/REPORT-LAYOUT-REFERENCE.html   the labelled reference to "match exactly"
+     - components/base/ReportShell.vue       the --rs-* tokens
+     - components/base/HeroStrip.vue         solid #002b64, 20px, 14px radius
+     - components/base/HeroFigure.vue        .hk/.hv/.hs2 sizes and colours
+     - components/base/ProvenanceBadge.vue   the from-file / entered tag
+     - design/mockups/volatility-report.html the most recent screen drawn to the standard
+
+   The owner ruling of 2026-07-23 is followed exactly: the look is READ OFF the
+   finished screens, not proposed afresh. Nothing here is a new or bolder look.
+
+   FIGURES ARE REAL. Every number is the actual output of server/report/
+   threeWayForecastModel.js on the source workbook's own sample ("3 way Filter.xlsx",
+   Big Bird Grass Seed, forecast opening 1 April) — not placeholders.
+   No dark mode: one light look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-col-input:360px; --rs-col-gap:16px; --rs-content-width:1120px;
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0; --rs-accent-contrast:#ffffff;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#ff00000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:var(--rs-content-width);margin:0 auto;padding:28px 22px 64px}
+
+/* [A] screen root — ONE gap value */
+.tw-root{display:flex;flex-direction:column;gap:16px}
+.tw-root strong,.tw-root b{font-weight:600}
+/* [A] resets the shared header's own margin (mandatory; guarded) */
+.tw-root .rs-top{margin:0}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55}
+.tag{position:relative}
+.tag::after{content:attr(data-tag);position:absolute;top:-9px;left:10px;background:#614700;
+  color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;padding:1px 6px;border-radius:4px}
+.stepmark{margin:34px 0 2px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+
+/* [B] ReportHeader */
+.rs-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  margin:0 auto 22px;padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);
+  color:#fff;box-shadow:var(--rs-shadow)}
+.rs-backlink{display:inline-block;margin-bottom:10px;font-size:12px;font-weight:600;
+  letter-spacing:.04em;color:#7fd3f1;text-decoration:none;opacity:.9}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+
+/* step chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+/* [C] HeroStrip + HeroFigure — locked, do not change */
+.herostrip{background:#002b64;border-radius:14px;padding:20px;display:grid;gap:0;
+  box-shadow:0 12px 32px -12px #002b6466;grid-template-columns:repeat(4,1fr)}
+@media (max-width:700px){.herostrip{grid-template-columns:1fr 1fr;gap:14px 0}}
+.herostrip > *:first-child{border-left:0;padding-left:2px}
+.hs{padding:2px 16px;border-left:1px solid #ffffff30}
+.hk{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#7fe4ff;font-weight:700}
+.hv{font-size:26px;font-weight:700;color:#fff;margin-top:7px;line-height:1.05;
+  font-variant-numeric:tabular-nums}
+.hv .u{font-size:.5em;font-weight:400;opacity:.85}
+.hv.is-crit{color:#ff8f8f}
+.hs2{font-size:12px;color:#c7e6fb;margin-top:6px}
+
+/* StaleBanner + the warning band */
+.stale{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;
+  align-items:center;gap:14px}
+.stale b{display:block;font-size:13px}
+.stale span{font-size:12.5px;color:var(--rs-muted)}
+.stale.is-crit{background:var(--rs-crit-soft);border-color:#ff000045;border-left-color:var(--rs-crit)}
+
+/* [D] two-column body */
+.tw-layout{display:grid;grid-template-columns:var(--rs-col-input) 1fr;gap:var(--rs-col-gap);
+  align-items:start}
+@media (max-width:860px){.tw-layout{grid-template-columns:1fr}}
+
+/* cards — no top edge: the shipped screens define none */
+.tw-card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow)}
+.tw-h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.tw-group{padding:15px 16px;border-bottom:1px solid var(--rs-line)}
+.tw-group:last-child{border-bottom:0}
+.tw-glabel{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tw-dot{width:7px;height:7px;border-radius:50%;background:var(--rs-accent-bright)}
+
+/* [D2] results column — same 16px rhythm */
+.tw-results{display:flex;flex-direction:column;gap:16px;min-height:200px}
+/* [D2a] tiles */
+.tw-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:560px){.tw-tiles{grid-template-columns:1fr}}
+.tw-tile{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  padding:16px 17px;box-shadow:var(--rs-shadow);overflow:hidden}
+.tw-k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--rs-muted);font-weight:600}
+.tw-v{font-size:30px;font-weight:600;letter-spacing:-.01em;margin-top:6px;line-height:1;
+  font-variant-numeric:tabular-nums}
+.tw-v.is-crit{color:var(--rs-crit)}
+.tw-v.is-good{color:var(--rs-good)}
+.tw-sub{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+/* [D2c] coach panel */
+.tw-edu{border-left:3px solid var(--rs-accent-bright);background:var(--rs-accent-soft);
+  border-radius:0 9px 9px 0;padding:15px 17px}
+.tw-edu-h{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600;color:var(--rs-accent);margin-bottom:8px}
+.tw-edu-p{margin:0 0 8px;font-size:14px;line-height:1.6}
+.tw-edu-p:last-child{margin-bottom:0}
+.tw-lead{background:var(--rs-accent);color:var(--rs-accent-contrast);font-size:10px;font-weight:600;
+  letter-spacing:.08em;padding:3px 7px;border-radius:5px}
+/* [D2d] actions */
+.tw-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tw-cta{font:inherit;font-weight:600;font-size:13.5px;color:var(--rs-accent-contrast);
+  background:var(--rs-accent);border:0;padding:11px 18px;border-radius:10px;cursor:pointer}
+.tw-ghost{background:transparent;color:var(--rs-ink);border:1px solid var(--rs-line)}
+.tw-foot{font-size:12px;color:var(--rs-muted)}
+
+/* provenance tags — ProvenanceBadge */
+.src{letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:999px;
+  white-space:nowrap;font-size:9.5px;padding:2.5px 7px;margin-left:7px}
+.src-file{color:#0070c0;background:#0070c018;border:1px solid #0070c04d}
+.src-hand{color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.src-seed{color:#4a7c1f;background:#4ca52d1a;border:1px solid #4ca52d59}
+
+/* drop zone + file slots */
+.drop{border:2px dashed #9dbdd8;border-radius:var(--rs-radius);background:var(--rs-panel-2);
+  padding:26px 20px;text-align:center}
+.drop .big{font-size:15px;font-weight:600}
+.drop .sm{font-size:12.5px;color:var(--rs-muted);margin-top:6px}
+.slots{display:grid;gap:8px;margin-top:14px}
+.slot{display:flex;gap:10px;align-items:flex-start;background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);border-radius:10px;padding:10px 11px;text-align:left}
+.slot.empty{border-style:dashed;color:var(--rs-muted)}
+.slot .nm{font-size:12.5px;font-weight:600;word-break:break-all}
+.slot .mt{font-size:11.5px;color:var(--rs-muted);margin-top:2px}
+.req{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:999px;padding:2.5px 7px;color:#b36b00;background:#ff99001a;border:1px solid #ff990059}
+.opt{color:var(--rs-muted);background:var(--rs-panel);border:1px solid var(--rs-line)}
+
+/* inputs */
+.field{margin-bottom:11px}
+.fieldlab{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;
+  color:var(--rs-ink);margin-bottom:6px}
+.field input,.field select{width:100%;font:inherit;font-size:13px;padding:8px 9px;
+  border:1px solid var(--rs-line);border-radius:8px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.field input.file{border-color:#0070c04d;background:#0070c00a}
+.seg{display:flex;border:1px solid var(--rs-line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:var(--rs-panel);padding:9px 0;font:inherit;font-size:13px;
+  font-weight:600;color:var(--rs-muted);cursor:pointer}
+.seg button.on{background:var(--rs-accent);color:#fff}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.m{display:flex;align-items:center;gap:6px}
+.m .lbl{width:26px;font-size:11px;color:var(--rs-muted);text-align:right}
+.m input{width:100%;min-width:0;font:inherit;font-size:12.5px;padding:6px 7px;
+  border:1px solid var(--rs-line);border-radius:7px;background:var(--rs-panel);color:var(--rs-ink);
+  font-variant-numeric:tabular-nums}
+.m.seeded input{border-color:#4ca52d59;background:#4ca52d0d}
+
+/* tables */
+.tblwrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px}
+th,td{text-align:right;padding:6px 7px;border-bottom:1px solid var(--rs-line);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--rs-panel);
+  min-width:190px;white-space:normal}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--rs-muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+tr.rule td{border-top:2px solid var(--rs-line);font-weight:600}
+td.neg{color:var(--rs-crit)}
+td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:600}
+.tblnote{font-size:11.5px;color:var(--rs-muted);padding:0 16px 14px}
+.tabs{display:flex;gap:6px;padding:14px 16px 0}
+.tabs button{font:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--rs-line);
+  border-bottom:0;background:var(--rs-panel-2);color:var(--rs-muted);padding:8px 14px;
+  border-radius:9px 9px 0 0;cursor:pointer}
+.tabs button.on{background:var(--rs-panel);color:var(--rs-ink)}
+
+/* the questions block — mockup only */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:14px 16px;font-size:13px}
+.q h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;margin:0 0 10px;color:var(--rs-muted)}
+.q ol{margin:0;padding-left:20px}.q li{margin-bottom:9px}
+.q .from{color:var(--rs-muted);font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+</style>
+<style>
+/* ============================================================================
+   ADDITIONS FOR THIS DRAWING ONLY — everything above is the approved mockup's
+   own style block, copied verbatim from design/mockups/three-way-forecast.html
+   lines 8-217 so the look is READ OFF the approved screens, never proposed
+   afresh (the owner ruling of 2026-07-23). The rules below add no new colour,
+   radius, weight or font — they lay out a row list using the tokens already
+   defined above.
+   ========================================================================= */
+.caprow{display:grid;grid-template-columns:1fr 148px 76px 106px 112px 34px;gap:8px;align-items:center;
+  padding:8px 0;border-bottom:1px solid var(--rs-line)}
+.caprow:last-of-type{border-bottom:0}
+.caprow.head{border-bottom:1px solid var(--rs-line);padding-bottom:6px}
+.caprow.head span{font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-muted)}
+.caprow input,.caprow select{width:100%;font:inherit;font-size:13px;padding:8px 9px;
+  border:1px solid var(--rs-line);border-radius:9px;background:var(--rs-panel);color:var(--rs-ink)}
+.caprow .num input{text-align:right}
+.caprow .del{font:inherit;font-size:15px;line-height:1;color:var(--rs-muted);background:none;
+  border:0;cursor:pointer;padding:4px}
+.capadd{font:inherit;font-size:13px;font-weight:600;color:var(--rs-accent);background:none;
+  border:1px dashed #0070c055;border-radius:9px;padding:9px 13px;cursor:pointer;margin-top:12px}
+.capempty{font-size:12.5px;color:var(--rs-muted);padding:14px 0 2px}
+.captot{display:flex;justify-content:space-between;font-size:13px;font-weight:600;
+  padding:11px 0 0;margin-top:9px;border-top:1px solid var(--rs-line)}
+.seg-sm button{font:inherit;font-size:12px;font-weight:600;border:1px solid var(--rs-line);
+  background:var(--rs-panel);color:var(--rs-muted);padding:7px 10px;cursor:pointer}
+.seg-sm button:first-child{border-radius:9px 0 0 9px}
+.seg-sm button:last-child{border-radius:0 9px 9px 0;border-left:0}
+.seg-sm button.on{background:var(--rs-accent);color:var(--rs-accent-contrast);border-color:var(--rs-accent)}
+.note-why{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:12px 14px;font-size:12.5px;color:var(--rs-muted);margin-top:12px}
+.note-why b{color:var(--rs-ink)}
+
+/* ── NEW FOR THIS DRAWING (item 4.65) ────────────────────────────────────────
+   Every rule below is built from tokens already defined above. Nothing
+   introduces a colour, a radius or a font size the approved screens do not
+   already use — the owner ruling of 2026-07-23. */
+
+/* the schedule table, once a file has been read */
+.sched{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px}
+.sched th{text-align:left;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:700;padding:0 10px 7px 0;border-bottom:1px solid var(--rs-line)}
+.sched td{padding:8px 10px 8px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+.sched tr:last-child td{border-bottom:0}
+.sched .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sched .nm{font-weight:600}
+.sched .sub{display:block;font-size:11px;color:var(--rs-muted);font-weight:400;margin-top:1px}
+
+/* the chooser that replaces the free-text "What" on a Sell row */
+.pickwrap{position:relative}
+.pick{width:100%;font:inherit;font-size:13px;padding:8px 9px;border:1px solid var(--rs-line);
+  border-radius:9px;background:var(--rs-panel);color:var(--rs-ink)}
+.pick.is-open{border-color:var(--rs-accent);box-shadow:0 0 0 3px var(--rs-accent-soft)}
+.picklist{position:absolute;z-index:5;left:0;right:0;top:calc(100% + 4px);background:var(--rs-panel);
+  border:1px solid var(--rs-line);border-radius:10px;box-shadow:var(--rs-shadow);overflow:hidden}
+.pickopt{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;font-size:12.5px;
+  border-bottom:1px solid var(--rs-line)}
+.pickopt:last-child{border-bottom:0}
+.pickopt.on{background:var(--rs-accent-soft)}
+.pickopt .r{color:var(--rs-muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pickopt.free{color:var(--rs-muted);font-style:italic}
+
+/* a value the app filled in and the advisor has not touched */
+.badge{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;padding:2px 6px;border-radius:5px;vertical-align:middle}
+.badge.file{background:var(--rs-accent-soft);color:var(--rs-accent)}
+.badge.guess{background:var(--rs-warn-soft);color:#8a5300}
+.badge.typed{background:var(--rs-panel-2);color:var(--rs-muted)}
+
+/* the read-only book value, with its working shown underneath */
+.bookcell{display:flex;flex-direction:column;gap:2px;align-items:flex-end}
+.bookval{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.bookwork{font-size:10.5px;color:var(--rs-muted);text-align:right;line-height:1.35}
+
+/* the tie-back check */
+.tie{display:flex;justify-content:space-between;gap:14px;font-size:12.5px;padding:9px 12px;
+  border-radius:10px;margin-top:12px}
+.tie.ok{background:var(--rs-good-soft);color:#2f6b1c}
+.tie.bad{background:var(--rs-crit-soft);color:#a30000;border:1px solid #ffc9c9}
+.tie b{font-variant-numeric:tabular-nums}
+
+/* the question blocks */
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-accent);
+  border-radius:0 12px 12px 0;padding:14px 16px;margin-top:12px;box-shadow:var(--rs-shadow)}
+.q h3{margin:0 0 6px;font-size:14px;font-weight:700;color:var(--rs-ink)}
+.q p{margin:0 0 8px;font-size:13px;line-height:1.6}
+.q p:last-child{margin-bottom:0}
+.q .rec{background:var(--rs-good-soft);border-radius:8px;padding:8px 10px;font-size:12.5px}
+.q .rec b{color:#2f6b1c}
+.q .against{background:var(--rs-warn-soft);border-radius:8px;padding:8px 10px;font-size:12.5px;
+  margin-top:6px}
+.q .against b{color:#8a5300}
+.qn{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-accent);
+  font-weight:700;margin-bottom:3px}
+
+/* two shapes side by side */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
+@media (max-width:860px){.cols{grid-template-columns:1fr}}
+.col{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:12px;padding:12px 14px}
+.col h4{margin:0 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:700}
+.col code{font-size:11px;background:var(--rs-panel);border:1px solid var(--rs-line);
+  border-radius:4px;padding:1px 4px}
+.col ul{margin:6px 0 0;padding-left:18px;font-size:12.5px}
+.col li{margin-bottom:4px}
+
+/* the ruling banner — added 2026-09-08 when Mike ruled all six */
+.ruled{background:var(--rs-good-soft);border:1px solid var(--good,#4ca52d);border-left:3px solid #4ca52d;
+  border-radius:0 9px 9px 0;padding:9px 12px;margin:0 0 10px;font-size:13px;color:#2f6b1c}
+.ruled b{color:#2f6b1c}
+.ruled .who{display:block;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  font-weight:700;margin-bottom:2px;opacity:.85}
+.allruled{background:var(--rs-good-soft);border:1px solid #4ca52d;border-radius:12px;
+  padding:14px 16px;margin-top:12px;font-size:13.5px;color:#2f6b1c;line-height:1.6}
+.allruled b{color:#2f6b1c}
+.allruled ol{margin:8px 0 0;padding-left:20px}
+.allruled li{margin-bottom:4px}
+</style>
+
+</head>
+<body>
+<div class="shell">
+<div class="tw-root">
+
+  <div class="rs-top">
+    <div>
+      <a class="rs-backlink" href="#">&#8592; Model Library</a>
+      <h1 class="rs-title">The Asset Schedule</h1>
+      <p class="rs-sub">Where a book value comes from &mdash; Three-Way Forecast, item 4.65</p>
+    </div>
+  </div>
+
+  <div class="mock">
+    <b>DRAWN 2026-09-08 FOR APPROVAL. NOTHING HERE IS BUILT.</b> This settles how the Fixed
+    Asset Schedule is read and what it changes on screen. Item <b>4.65</b>, filed 2026-09-03 at
+    the moment Mike ruled <i>&ldquo;typing it for now&rdquo;</i>.
+    <br><br>
+    <b>THE FIGURES ARE REAL AND THEY ARE HIS.</b> Every asset, date and amount below is read
+    straight out of <code>MYOB_Financial_Exports.xlsx</code> and
+    <code>QuickBooks_Online_Financial_Exports.xlsx</code> &mdash; the exports Mike supplied on
+    2026-09-07, the same two that closed item 4.60. Nothing is invented, and the one
+    uncomfortable number (&sect;4) is his file&rsquo;s, not ours.
+  </div>
+
+  <div class="stepmark">1 &middot; What is wrong today</div>
+
+  <div class="rs-panel tag" data-tag="BUILT — STEP 3">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Buying and selling capital assets</h2></div>
+
+      <div class="caprow head">
+        <span>What</span><span>Category</span><span>Month</span><span>Buying or selling</span>
+        <span>Price</span><span>Book value</span><span></span>
+      </div>
+
+      <div class="caprow">
+        <input value="2018 Ford Ranger Utility">
+        <select><option>Vehicles</option></select>
+        <select><option>March</option></select>
+        <div class="seg seg-sm"><button type="button">Buy</button><button type="button" class="on">Sell</button></div>
+        <input class="num" value="28,000">
+        <div><input class="num" value="31,500"> <span class="badge typed">typed</span></div>
+        <button class="del">&#10005;</button>
+      </div>
+
+      <p class="tw-note">The difference between the price and the book value is shown as a gain
+        or loss in the month of the sale.</p>
+    </div>
+  </div>
+
+  <div class="note-why">
+    <b>31,500 is typed, and nothing checks it.</b> The app holds six category totals and never
+    an individual asset, so it cannot know what one van is carried at. The advisor reads the
+    figure off their own Fixed Asset Schedule and types it in. <b>A wrong book value is not a
+    visible mistake:</b> it moves the gain, which moves the tax, which moves retained earnings
+    and the closing cash &mdash; and every one of those still balances. This is precisely the
+    class of fault a person in UAT cannot see.
+  </div>
+
+  <div class="stepmark">2 &middot; The seventh slot</div>
+
+  <div class="rs-panel tag" data-tag="PROPOSED — STEP 1">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Drop your accounting reports</h2></div>
+      <div class="slots">
+        <div class="slot"><span class="req">Required</span><div><div class="nm">Balance Sheet</div><div class="mt">The opening position &mdash; what the business owns and owes today</div></div></div>
+        <div class="slot empty"><span class="req opt">Optional</span><div><div class="nm">Profit and Loss</div><div class="mt">Last year&rsquo;s trading, to seed the overheads</div></div></div>
+        <div class="slot empty"><span class="req opt">Optional</span><div><div class="nm">This year by month</div><div class="mt">Seeds the sales line and the seasonality</div></div></div>
+        <div class="slot empty"><span class="req opt">Optional</span><div><div class="nm">Last year by month</div><div class="mt">The two-year trend read</div></div></div>
+        <div class="slot empty"><span class="req opt">Optional</span><div><div class="nm">Last year&rsquo;s Balance Sheet</div><div class="mt">The two-year trend read</div></div></div>
+        <div class="slot empty"><span class="req opt">Optional</span><div><div class="nm">Last year&rsquo;s Profit and Loss</div><div class="mt">The two-year trend read</div></div></div>
+        <div class="slot empty" style="border-color:var(--rs-accent);border-style:solid">
+          <span class="req opt">Optional</span>
+          <div><div class="nm">Fixed Asset Schedule <span class="badge file">new</span></div>
+          <div class="mt">Only needed if the business is <b>selling</b> an asset this year &mdash; it is where a book value comes from</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note-why">
+    <b>The seventh, not the fifth.</b> Item 4.65&rsquo;s own note says &ldquo;a fifth slot&rdquo;;
+    it was written on 2026-09-03 and two more slots arrived with the two-year trend read the same
+    week. <b>Optional, and last</b> &mdash; an advisor who is not selling anything this year should
+    never be asked for it, and the slot says so in its own line rather than in a note somewhere else.
+  </div>
+
+  <div class="stepmark">3 &middot; What the two packages actually give us</div>
+
+  <div class="cols">
+    <div class="col">
+      <h4>MYOB &mdash; &ldquo;Asset Register Report&rdquo;</h4>
+      <code>Asset Code | Asset Description | Asset Group | Purchase Date | Cost ($) | Dep&rsquo;n Rate | Dep&rsquo;n Method | Opening Accum Dep | YTD Dep&rsquo;n | Closing Carrying Value</code>
+      <ul>
+        <li>Has an <b>asset code</b> (FA-001&hellip;)</li>
+        <li>Groups by name: <b>Plant &amp; Machinery</b>, <b>Motor Vehicles</b>, <b>Office Equipment</b></li>
+        <li>Gives a <b>rate and a method</b> per asset</li>
+        <li>Book value column is <b>Closing Carrying Value</b></li>
+      </ul>
+    </div>
+    <div class="col">
+      <h4>QuickBooks Online &mdash; &ldquo;Fixed Asset Detail Report&rdquo;</h4>
+      <code>Asset Name | Asset Account | Purchase Date | Cost Basis | Prior Depreciation | Current Depreciation | Accumulated Depreciation | Net Book Value</code>
+      <ul>
+        <li><b>No asset code</b> &mdash; the name is the identity</li>
+        <li>Groups by <b>account</b>: <code>1500 Workshop Machinery &amp; Tools</code></li>
+        <li><b>No rate, no method</b></li>
+        <li>Book value column is <b>Net Book Value</b></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="rs-panel" style="margin-top:12px">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">The schedule as read &mdash; MYOB, all eleven assets</h2></div>
+      <table class="sched">
+        <thead><tr><th>Asset</th><th>Group</th><th class="num">Cost</th><th class="num">Accum. dep&rsquo;n</th><th class="num">Book value</th></tr></thead>
+        <tbody>
+          <tr><td class="nm">2-Post Vehicle Hoist 4T<span class="sub">FA-001 &middot; bought 15/03/2021</span></td><td>Plant &amp; Machinery</td><td class="num">18,500</td><td class="num">8,510</td><td class="num">9,990</td></tr>
+          <tr><td class="nm">Rotary Screw Air Compressor<span class="sub">FA-002 &middot; bought 20/06/2021</span></td><td>Plant &amp; Machinery</td><td class="num">12,000</td><td class="num">6,000</td><td class="num">6,000</td></tr>
+          <tr><td class="nm">Diagnostic Scan Tool Pro<span class="sub">FA-003 &middot; bought 10/01/2022</span></td><td>Plant &amp; Machinery</td><td class="num">9,500</td><td class="num">3,847.50</td><td class="num">5,652.50</td></tr>
+          <tr><td class="nm">3D Wheel Aligner System<span class="sub">FA-004 &middot; bought 05/08/2022</span></td><td>Plant &amp; Machinery</td><td class="num">32,000</td><td class="num">12,000</td><td class="num">20,000</td></tr>
+          <tr><td class="nm">MIG/TIG Welder Station<span class="sub">FA-005 &middot; bought 14/02/2023</span></td><td>Plant &amp; Machinery</td><td class="num">8,000</td><td class="num">2,000</td><td class="num">6,000</td></tr>
+          <tr><td class="nm">Hydraulic Shop Press 30T<span class="sub">FA-006 &middot; bought 30/11/2023</span></td><td>Plant &amp; Machinery</td><td class="num">5,000</td><td class="num">750</td><td class="num">4,250</td></tr>
+          <tr><td class="nm">Heavy Tool Chest &amp; Master Sets<span class="sub">FA-007 &middot; bought 12/05/2020</span></td><td>Plant &amp; Machinery</td><td class="num">40,000</td><td class="num">26,400</td><td class="num">13,600</td></tr>
+          <tr><td class="nm">2021 Toyota HiAce Service Van<span class="sub">FA-008 &middot; bought 10/04/2021</span></td><td>Motor Vehicles</td><td class="num">48,000</td><td class="num">24,000</td><td class="num">24,000</td></tr>
+          <tr><td class="nm">2018 Ford Ranger Utility<span class="sub">FA-009 &middot; bought 18/09/2022</span></td><td>Motor Vehicles</td><td class="num">37,000</td><td class="num">5,500</td><td class="num">31,500</td></tr>
+          <tr><td class="nm">High-Spec Dev Workstation<span class="sub">FA-010 &middot; bought 15/01/2023</span></td><td>Office Equipment</td><td class="num">6,500</td><td class="num">3,466.67</td><td class="num">3,033.33</td></tr>
+          <tr><td class="nm">Reception Furniture &amp; Displays<span class="sub">FA-011 &middot; bought 01/11/2021</span></td><td>Office Equipment</td><td class="num">8,000</td><td class="num">3,250</td><td class="num">4,750</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="stepmark">4 &middot; The finding that shapes the whole design</div>
+
+  <div class="rs-panel">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">The schedule does not tie to the balance sheet &mdash; in either real export</h2></div>
+
+      <div class="tie bad">
+        <span><b>MYOB</b> &mdash; Balance Sheet &ldquo;Total Property, Plant &amp; Equipment&rdquo;</span>
+        <span><b>145,300.00</b></span>
+      </div>
+      <div class="tie bad">
+        <span>MYOB &mdash; Asset Register, eleven assets totalled</span>
+        <span><b>128,775.83</b> &nbsp; out by <b>16,524.17</b></span>
+      </div>
+      <div class="tie bad" style="margin-top:14px">
+        <span><b>QuickBooks</b> &mdash; Balance Sheet &ldquo;Total Fixed Assets&rdquo;</span>
+        <span><b>145,300.00</b></span>
+      </div>
+      <div class="tie bad">
+        <span>QuickBooks &mdash; Fixed Asset Listing, eleven assets totalled</span>
+        <span><b>125,300.00</b> &nbsp; out by <b>20,000.00</b></span>
+      </div>
+      <div class="tie bad">
+        <span>🔴 QuickBooks &mdash; and the file&rsquo;s OWN totals line says</span>
+        <span><b>125,825.00</b> &nbsp; 525.00 more than its own rows add to</span>
+      </div>
+
+
+      <div class="note-why" style="margin-top:12px">
+        🔴 <b>THE BUILD FOUND A SECOND THING THE DRAWING COULD NOT (2026-09-08).</b> The
+        QuickBooks file <b>does not tie to itself</b>. Every asset row is internally consistent
+        &mdash; cost less accumulated depreciation equals net book value on all eleven &mdash; and
+        the cost total is right. But its <b>totals line understates accumulated depreciation by
+        525</b>, so the book-value total it prints (125,825) is 525 more than its own rows add to
+        (125,300). <b>The reader uses the ROWS</b>, because those are the assets that can be offered
+        for sale, and it raises a warning when the file&rsquo;s own total disagrees. That check
+        earned its place on its first real run.
+      </div>
+
+      <div class="note-why" style="margin-top:14px">
+        <b>This is normal, and it is why the schedule must never become the opening position.</b>
+        An asset register is a sub-ledger. It runs its own depreciation, it is reconciled to the
+        balance sheet periodically rather than continuously, and it commonly omits fully-written-down
+        or pooled items. Both of Mike&rsquo;s exports show it, and the two schedules do not even agree
+        with <i>each other</i> &mdash; identical cost of 224,500, book values 2,950.83 apart, because
+        MYOB depreciates some assets on diminishing value and QuickBooks straight-line.
+        <br><br>
+        <b>So the schedule is used for ONE job: looking up one asset&rsquo;s book value when it is
+        sold.</b> The Balance Sheet stays the source of the opening asset position, exactly as it is
+        today. Had this drawing let the schedule seed the six categories, it would have understated
+        fixed assets by 16,524 and charged too little depreciation all year &mdash; and the forecast
+        would still have balanced.
+      </div>
+    </div>
+  </div>
+
+  <div class="stepmark">5 &middot; What changes on the Sell row</div>
+
+  <div class="rs-panel tag" data-tag="PROPOSED — STEP 3">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Buying and selling capital assets</h2></div>
+
+      <div class="caprow head">
+        <span>What</span><span>Category</span><span>Month</span><span>Buying or selling</span>
+        <span>Price</span><span>Book value</span><span></span>
+      </div>
+
+      <div class="caprow">
+        <div class="pickwrap">
+          <div class="pick is-open">2018 Ford Ranger Utility</div>
+          <div class="picklist">
+            <div class="pickopt on"><span>2018 Ford Ranger Utility</span><span class="r">31,500</span></div>
+            <div class="pickopt"><span>2021 Toyota HiAce Service Van</span><span class="r">24,000</span></div>
+            <div class="pickopt"><span>Heavy Tool Chest &amp; Master Sets</span><span class="r">13,600</span></div>
+            <div class="pickopt"><span>3D Wheel Aligner System</span><span class="r">20,000</span></div>
+            <div class="pickopt free"><span>Something else &mdash; type it in</span><span class="r"></span></div>
+          </div>
+        </div>
+        <select><option>Vehicles</option></select>
+        <select><option>March</option></select>
+        <div class="seg seg-sm"><button type="button">Buy</button><button type="button" class="on">Sell</button></div>
+        <input class="num" value="28,000">
+        <div class="bookcell">
+          <span class="bookval">30,458.75 <span class="badge file">from file</span></span>
+          <span class="bookwork">31,500 on the schedule, less two<br>months at 20% &mdash; the Vehicles<br>rate set on step 2</span>
+        </div>
+        <button class="del">&#10005;</button>
+      </div>
+
+      <p class="tw-note">The difference between the price and the book value is shown as a gain
+        or loss in the month of the sale.</p>
+    </div>
+  </div>
+
+  <div class="note-why">
+    <b>Three things changed and nothing else.</b> The <b>What</b> box became a chooser that still
+    accepts free text; the <b>Category</b> was filled in from the asset&rsquo;s group and stays
+    editable; the <b>Book value</b> stopped being typed and shows its working. <b>An advisor who
+    drops no schedule sees precisely the screen in &sect;1</b> &mdash; every box typed, exactly as
+    today.
+  </div>
+
+  <div class="rs-panel" style="margin-top:12px">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Where the 20% comes from &mdash; step 2, and it is already built</h2></div>
+      <table class="sched">
+        <thead><tr><th>Fixed assets</th><th class="num">Opening value</th><th class="num">Depreciation rate</th></tr></thead>
+        <tbody>
+          <tr><td class="nm">Vehicles</td><td class="num">80,000 <span class="badge file">from file</span></td><td class="num"><b>20</b> %</td></tr>
+          <tr><td class="nm">Leasehold improvements</td><td class="num">1,000,000 <span class="badge file">from file</span></td><td class="num">15 %</td></tr>
+          <tr><td class="nm">Plant and equipment</td><td class="num">50,000 <span class="badge file">from file</span></td><td class="num">22 %</td></tr>
+          <tr><td class="nm">Office equipment</td><td class="num">60,000 <span class="badge file">from file</span></td><td class="num">25 %</td></tr>
+          <tr><td class="nm">Computer hardware</td><td class="num">70,000 <span class="badge file">from file</span></td><td class="num">30 %</td></tr>
+          <tr><td class="nm">Other</td><td class="num">80,000 <span class="badge file">from file</span></td><td class="num">35 %</td></tr>
+        </tbody>
+      </table>
+      <div class="note-why" style="margin-top:12px">
+        <b>Nothing here is new or proposed &mdash; this table is built and live on step 2,
+        &ldquo;Confirm the opening position&rdquo;.</b> One row per category, the opening value from
+        the Balance Sheet and the rate typed beside it
+        (<code>ThreeWayForecastIntake.vue</code>, <code>asset.rate</code>). The six figures above
+        are the platform defaults in <code>ASSET_SPECS</code>; whatever the advisor sets replaces
+        them for this forecast.
+        <br><br>
+        <b>It is drawn here only because &sect;5 uses it and never said so.</b> The Sell row&rsquo;s
+        working reads &ldquo;less two months at 20%&rdquo;, and an advisor has to be able to find the
+        20% &mdash; it is one step back, on a screen they have already been through. The category
+        dropdown on the Sell row prints the rate beside each name for the same reason
+        (<i>Vehicles &mdash; 20%</i>), which was Mike&rsquo;s own ruling of 2026-09-03.
+      </div>
+    </div>
+  </div>
+
+  <div class="stepmark">6 &middot; Six questions &mdash; ALL RULED BY MIKE, 2026-09-08</div>
+
+  
+  <div class="allruled">
+    <b>ALL SIX RULED BY MIKE ON 2026-09-08, each as recommended, one at a time.</b> The
+    recommendations and the arguments against them are kept beside the rulings rather than tidied
+    away &mdash; a later reader has to be able to see what was weighed.
+    <ol>
+      <li><b>Yes</b> &mdash; depreciate the book value to the month of sale, show the working, use the category rate.</li>
+      <li><b>Yes</b> &mdash; propose a category, badge it <i>guessed</i>, leave the unplaceable blank.</li>
+      <li><b>Yes</b> &mdash; say when the schedule does not tie; never block. <b>Wording not settled.</b></li>
+      <li><b>Yes</b> &mdash; ignore MYOB&rsquo;s per-asset rates; the category rate governs.</li>
+      <li><b>Yes</b> &mdash; &ldquo;Something else &mdash; type it in&rdquo; is always available.</li>
+      <li><b>Yes</b> &mdash; a sold asset leaves the chooser, and comes back if the row goes.</li>
+    </ol>
+    ✅ <b>AND THE DRAWING ITSELF IS APPROVED TO BUILD FROM — Mike, 2026-09-08</b>, asked as its own question after the six rulings. Ruling on the questions inside a drawing is not the same as approving the drawing; the precedent is the meeting-preset drawing of the same day, where a session inferred approval from six rulings and was corrected within the hour. <b>Every difference between this page and the build gets named</b>, in the build’s own commit and on the artefact register.
+  </div>
+
+  <div class="q">
+    <div class="qn">Question 1 &mdash; the one that matters</div>
+    <h3>Should the book value be depreciated to the month of the sale, or shown as the schedule&rsquo;s year-end figure?</h3>
+    <div class="ruled"><span class="who">Mike’s ruling</span><b>RULED YES &mdash; Mike, 2026-09-08.</b> The book value is depreciated to the month of the sale, and the working is printed under the figure. The rate is the <b>category&rsquo;s</b>, set on step 2.</div>
+    <p>The schedule says what the Ford Ranger was worth at the last balance date: <b>31,500</b>.
+    Sold in <b>March</b>, it has been depreciated through January and February first, so the book
+    value at the moment of sale is <b>30,458.75</b>. Against a price of 28,000 that is a
+    <b>loss of 2,458.75</b>, where the schedule&rsquo;s own figure would have shown a loss of
+    <b>3,500</b>.</p>
+    <p><b>The rate used is the category&rsquo;s, not the asset&rsquo;s</b> &mdash; Vehicles at
+    <b>20%</b>, the figure the advisor sets on step 2, charged monthly on the reducing balance
+    exactly as <code>threeWayForecastModel.js</code> does it (31,500 &rarr; 30,975.00 &rarr;
+    30,458.75). MYOB&rsquo;s own schedule says 10% straight-line for this van; question 4 is why we
+    do not use it.</p>
+    <div class="rec"><b>Recommendation: depreciate it, and show the working under the figure.</b>
+    The engine already charges depreciation monthly on the category pool, so using the year-end
+    figure would credit the business with an asset it has already partly written down &mdash;
+    overstating the loss (or understating a gain) in every sale after January, by more the later
+    it falls.</div>
+    <div class="against"><b>The argument against, recorded:</b> the advisor sees a number that is
+    not on the paper in front of them. That is why the working is printed under it rather than
+    hidden in a tooltip &mdash; they must be able to get from 31,500 to 30,458.75, and to see
+    which rate did it, without asking anyone.</div>
+  </div>
+
+  <div class="q">
+    <div class="qn">Question 2</div>
+    <h3>When the schedule&rsquo;s group does not match one of our six categories, does the app guess?</h3>
+    <div class="ruled"><span class="who">Mike’s ruling</span><b>RULED YES &mdash; Mike, 2026-09-08.</b> The app proposes the closest category and badges it <i>guessed</i> until the advisor touches it. Anything it cannot place is left <b>blank</b>, never dropped into <i>Other</i>.</div>
+    <p>MYOB says <b>Motor Vehicles</b>; we call it <b>Vehicles</b>. MYOB says <b>Plant &amp;
+    Machinery</b>; we call it <b>Plant and equipment</b>. QuickBooks says
+    <code>1500 Workshop Machinery &amp; Tools</code>, which matches nothing by name at all.</p>
+    <div class="rec"><b>Recommendation: the app proposes, the advisor confirms.</b> Pre-select the
+    closest category, leave the dropdown fully editable, and mark it <span class="badge guess">guessed</span>
+    until the advisor touches it. Anything it cannot place is left blank rather than dropped into
+    <b>Other</b>.</div>
+    <div class="against"><b>The argument against:</b> a badge nobody reads is decoration. The
+    protection is that the category picks the depreciation rate, so a wrong guess is visible as a
+    wrong depreciation charge &mdash; not silent.</div>
+  </div>
+
+  <div class="q">
+    <div class="qn">Question 3</div>
+    <h3>When the schedule does not tie to the balance sheet, does the app say so?</h3>
+    <div class="ruled"><span class="who">Mike’s ruling</span><b>RULED YES &mdash; Mike, 2026-09-08.</b> The difference is shown once, quietly, and never blocks. <b>The wording itself is not settled</b> and comes back to him separately.</div>
+    <p>Neither of the two real exports ties &mdash; out by <b>16,524</b> and <b>20,000</b>
+    (&sect;4). So this is the ordinary case, not the exception.</p>
+    <div class="rec"><b>Recommendation: say it once, quietly, and never block.</b> One line under
+    the schedule: the two totals and the difference. It changes no figure, because the balance
+    sheet remains the opening position either way.</div>
+    <div class="against"><b>The argument against:</b> a message on almost every upload is one
+    advisers learn to skip. It earns its place because the alternative &mdash; saying nothing
+    &mdash; leaves an advisor who <i>does</i> expect them to tie with no way to discover they
+    don&rsquo;t.</div>
+  </div>
+
+  <div class="q">
+    <div class="qn">Question 4</div>
+    <h3>Do we use MYOB&rsquo;s per-asset depreciation rate and method?</h3>
+    <div class="ruled"><span class="who">Mike’s ruling</span><b>RULED YES &mdash; Mike, 2026-09-08.</b> MYOB&rsquo;s per-asset rates and methods are read and stored, and neither is used; the category rate governs. 🔴 <b>He tested this ruling before giving it</b> &mdash; see the box under &sect;7.</div>
+    <p>MYOB gives a rate and a method for every asset. QuickBooks gives neither. Our engine
+    depreciates the <b>category pool</b> at one rate.</p>
+    <div class="rec"><b>Recommendation: no &mdash; read them, store them, use neither.</b> Using a
+    per-asset rate means a per-asset engine, which is a different forecast model and a much larger
+    job than this item. Taking MYOB&rsquo;s rate and not QuickBooks&rsquo; would also make the same
+    business forecast differently depending on which package it happens to use.</div>
+    <div class="against"><b>The argument against:</b> we hold a truer number and use a rougher one.
+    Fairly stated &mdash; but the category rate is the advisor&rsquo;s own setting on the same
+    screen, and it is the one they can see and change.</div>
+  </div>
+
+  <div class="q">
+    <div class="qn">Question 5</div>
+    <h3>Can an advisor still sell something that is not on the schedule?</h3>
+    <div class="ruled"><span class="who">Mike’s ruling</span><b>RULED YES &mdash; Mike, 2026-09-08.</b> &ldquo;Something else &mdash; type it in&rdquo; stays the last option, restoring today&rsquo;s typed boxes for that row alone.</div>
+    <p>An asset bought and sold inside the same forecast year never appears on last year&rsquo;s
+    schedule.</p>
+    <div class="rec"><b>Recommendation: yes &mdash; the last option in the chooser is
+    &ldquo;Something else &mdash; type it in&rdquo;</b>, which restores today&rsquo;s two typed
+    boxes for that row alone. The chooser must never be the only way in.</div>
+    <div class="against"><b>The argument against:</b> two ways to fill one row is two things to
+    test. Accepted: the alternative is an advisor who cannot record a real sale.</div>
+  </div>
+
+  <div class="q">
+    <div class="qn">Question 6</div>
+    <h3>Does selling an asset remove it from the schedule for the rest of the forecast?</h3>
+    <div class="ruled"><span class="who">Mike’s ruling</span><b>RULED YES &mdash; Mike, 2026-09-08.</b> An asset used on a Sell row leaves the chooser for every other row, and returns if that row is removed or switched to <i>Buy</i>.</div>
+    <p>If the Ford Ranger is sold in March, it should not be offerable again in September.</p>
+    <div class="rec"><b>Recommendation: yes &mdash; an asset already used on a Sell row drops out
+    of the chooser</b> for every other row. Selling the same van twice is not a thing that can
+    happen, and the forecast would balance perfectly while doing it.</div>
+    <div class="against"><b>The argument against:</b> none found. Recorded as a question rather
+    than assumed because it is a rule, and rules belong to Mike.</div>
+  </div>
+
+
+  <div class="mock" style="margin-top:12px">
+    <b>🔴 QUESTION 4 WAS TESTED BEFORE IT WAS RULED, AND IT PRODUCED TWO NEW ITEMS.</b>
+    Mike&rsquo;s challenge: <i>&ldquo;brand new vehicles can be depreciated more in first 12mths
+    than thereafter &mdash; does your rule allow for this if there are multiple vehicles?&rdquo;</i>
+    <b>It does not, and neither does the engine</b>: <code>assetSchedule</code> applies ONE rate to a
+    whole category for all twelve months, so a new vehicle cannot be written down faster than the old
+    one beside it. That is true today, before this drawing changes anything.
+    <ul style="margin:8px 0 0;padding-left:18px">
+      <li><b>Item 4.77</b> &mdash; first-year depreciation, filed on his own request and costed on
+      his own example: an 800,000 tractor unit deducts 146,118 in year one as the engine models it,
+      against 276,895 under NZ&rsquo;s <b>Investment Boost</b> &mdash; 36,617 of tax and 130,776 of
+      asset value carried into year two.</li>
+      <li><b>Item 4.78</b> &mdash; tax rules per country, a firm manager uploading the source. Filed
+      <b>against the recommendation</b>, which he overturned: the uploader is an accountant who
+      should be encouraged to check their sources. What survived was not who uploads but who checks
+      the extraction &mdash; so the AI proposes, the manager approves, and nothing reads an
+      unapproved table.</li>
+    </ul>
+    <b>Neither changes this drawing</b>, and question 4&rsquo;s ruling is strengthened by both:
+    MYOB&rsquo;s standing per-asset rate cannot express a first-year rule either, so adopting it
+    would get halfway to per-asset depreciation without arriving.
+    <br><br>
+    ⚠ <b>And a correction worth keeping.</b> A session told Mike that New Zealand had abolished
+    first-year acceleration, reading the 2010 end of the 20% <i>loading</i> as the end of all such
+    rules. He pushed back and was right. They are different mechanisms &mdash; the loading inflated a
+    <i>rate</i>; Investment Boost deducts a slice of <i>cost</i> up front. <b>Two authoritative IRD
+    guides were read in full and neither contains it</b>, because both predate it: the gap is
+    invisible from inside the document, which is why 4.78 must show what the AI could not find.
+  </div>
+
+  <div class="stepmark">7 &middot; What this does not solve</div>
+
+  <div class="mock">
+    <b>Named on the page rather than discovered later:</b>
+    <ul style="margin:8px 0 0;padding-left:18px">
+      <li><b>The schedule still does not become the opening position.</b> The six category totals
+      come from the Balance Sheet, as they do today &mdash; &sect;4 is why.</li>
+      <li><b>Xero has not been checked.</b> Xero is the one package with a long history of real
+      exports here, and no Xero Fixed Asset Schedule has ever been read. Its shape is a third
+      shape, and this drawing does not know it.</li>
+      <li><b>No screen shows the schedule after step 1.</b> It is read, used for the chooser, and
+      not displayed again. If an advisor wants to see the eleven assets, they open their own file.</li>
+      <li><b>Nothing reconciles the disposal back to the category.</b> Selling an asset carried at
+      30,712.50 out of a pool the Balance Sheet says holds more is arithmetically fine and
+      conceptually loose &mdash; the pool is the pool.</li>
+    </ul>
+  </div>
+
+
+  <div class="stepmark">8 &middot; Built 2026-09-08 &mdash; three differences from this page</div>
+
+  <div class="mock">
+    <b>✅ BUILT IN TWO SLICES ON 2026-09-08.</b> Slice 1 the reader
+    (<code>server/report/intake/assetScheduleParser.js</code>), slice 2 the screen
+    (<code>components/ThreeWayForecastIntake.vue</code>, <code>utils/assetBookValue.js</code>).
+    Suite 8,406 green, lint 0 errors. <b>Every difference from this drawing is named here,
+    because a deliberate deviation is fine and an unrecorded one is not.</b>
+    <ul style="margin:8px 0 0;padding-left:18px">
+      <li>🔴 <b>THE BOOK VALUE IS 30,459, NOT 30,458.75.</b> This page used exact
+      arithmetic; the engine&rsquo;s <code>excelRound</code> works in <b>whole units</b>
+      (31,500 &rarr; 30,975 &rarr; 30,459). The build matches the engine, because a figure on
+      screen that the forecast then disagrees with is the one thing this feature must not
+      produce &mdash; and <code>assetBookValue.test.js</code> compares the two functions across
+      13,000 values so they cannot drift apart later.</li>
+      <li><b>The tie-back line is on step 2, not step 1.</b> Reading the files moves the screen
+      to &ldquo;Confirm the opening position&rdquo;, so by the time there is anything to say
+      about the schedule, the slots this page draws it under are gone. It sits at the top of
+      step 2 with a line saying how many assets were read.</li>
+      <li><b>It is a plain note, not a warning colour.</b> Both real exports fail to tie, so an
+      amber band would fire on nearly every upload and teach the eye past that spot on the
+      screen &mdash; the cost recorded against question 3 when it was asked.</li>
+    </ul>
+    🔴 <b>AND ONE THING THE BUILD FOUND BY BEING LAID BESIDE THIS PAGE.</b> The first
+    version of the Sell row showed <i>only</i> the chooser once a schedule was read, which made
+    the schedule the only way in &mdash; exactly what question 5 forbids. Caught by comparing
+    the build to &sect;5 of this drawing, where &ldquo;Something else &mdash; type it in&rdquo;
+    is the last option. It is now the last option in the built chooser too, and a test holds it
+    there.
+  </div>
+
+  <div class="mock" style="margin-top:12px">
+    <b>Sources.</b> Assets, dates and amounts: <code>MYOB_Financial_Exports.xlsx</code> (Asset
+    Register) and <code>QuickBooks_Online_Financial_Exports.xlsx</code> (Fixed Asset Detail Report),
+    supplied by Mike 2026-09-07, read with the app&rsquo;s own <code>xlsxReader</code>. Balance
+    sheet totals: the Balance Sheet sheet of each. Screen anatomy and every colour: copied from
+    <code>design/mockups/three-way-forecast-capital.html</code>, approved 2026-09-03 &mdash; the
+    look is read off the approved screen, per the owner ruling of 2026-07-23. The category list
+    and the existing labels: <code>locales/en.json</code>. The depreciation behaviour:
+    <code>server/report/threeWayForecastModel.js</code>.
+  </div>
+
+</div>
+</div>
+</body>
+</html>

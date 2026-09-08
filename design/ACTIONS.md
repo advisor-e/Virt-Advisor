@@ -3317,7 +3317,8 @@ that the warning is not being followed by default.
     2. *"it needs to stay in their channel — only firms data that are member of that group
        (country) goes to that group manager. only group managers aligned with the global group
        manager above report"*. **Strictly own-branch.** A firm's material rises through its own
-       country group to its own brand; it never crosses to another brand or another country.
+       group manager to its own global group manager; it never crosses to another global group
+       or another country.
   - **Why it was raised.** Building the middle tiers meant switching Case Reviews on at two more
     levels, and [`caseStore.listSharedWithMentor()`](../server/utils/caseStore.js) is a **flat
     `SELECT … WHERE mentor_shared = 1` with no scope argument at all** — correct for the mentor, who

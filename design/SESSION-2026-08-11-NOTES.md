@@ -96,8 +96,8 @@ locally, not a customer.
 > manager above report"**
 
 One share, no second consent step — and **strictly own-branch**. A firm's material rises
-through its own country group to its own brand, and never crosses to another brand or
-country.
+through its own group manager to its own global group manager, and never crosses to another
+global group or country.
 
 **Why it came up.** Switching Case Reviews on at two more levels meant reading
 [`caseStore.listSharedWithMentor()`](../server/utils/caseStore.js), which is a **flat

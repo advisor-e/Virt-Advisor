@@ -321,6 +321,14 @@
         li(v-for="s in sweptLines" :key="'sw' + s.key")
           | {{ $t('report.threeWayForecast.confirm.figures.' + s.key) }} — {{ money(s.value) }}
 
+    //- The Fixed Asset Schedule, once one has been read (item 4.65). A plain note, not a
+    //- warning: Mike's ruling of 2026-09-08 (question 3) is that the difference is SAID and
+    //- never blocks. Neither of the two real exports ties, so this shows on nearly every
+    //- upload — which is exactly why it must not look like something is wrong.
+    .sched-note(v-if="assetSchedule")
+      strong {{ $tc('report.threeWayForecast.drop.scheduleRead', assetSchedule.assets.length, { count: assetSchedule.assets.length }) }}
+      p.sched-tie(v-if="scheduleTieLine") {{ scheduleTieLine }}
+
     .warn-note(v-for="(w, i) in warnings" :key="'cw' + i") ⚠ {{ w }}
     .tw-actions
       b-button(type="is-primary" @click="toAssume") {{ $t('report.threeWayForecast.confirm.next') }}
@@ -1097,12 +1105,49 @@
               v-for="(row, i) in form.capital"
               :key="'cap' + i"
               :class="{ 'row-invalid': capitalNegativeRows.indexOf(i + 1) !== -1 }")
+              //- WHAT. A chooser when a schedule has been read AND this row is a sale;
+              //- otherwise the typed box exactly as before. Question 5, ruled by Mike
+              //- 2026-09-08: the chooser must never be the only way in — an asset bought
+              //- and sold inside the same year is on no schedule at all.
+              b-select(
+                v-if="assetSchedule && row.direction === 'sell' && row.assetKey === null && sellableAssets.length"
+                size="is-small"
+                expanded
+                :value="''"
+                @input="chooseAsset(i, $event)")
+                option(value="") {{ $t('report.threeWayForecast.assume.capital.choose') }}
+                option(v-for="a in sellableAssets" :key="a.key" :value="a.key") {{ a.name }} — {{ money(a.bookValue) }}
+                //- THE ESCAPE, and it is the last option exactly as the drawing shows it.
+                //- Without it a schedule would make the chooser the ONLY way in, which is what
+                //- question 5 forbids — an asset bought and sold inside the same year appears
+                //- on no schedule at all.
+                option(value="typed") {{ $t('report.threeWayForecast.assume.capital.somethingElse') }}
+              .pickedwrap(v-else-if="assetSchedule && row.direction === 'sell' && rowAsset(row)")
+                span.picked {{ row.what }}
+                b-button(
+                  size="is-small"
+                  type="is-text"
+                  :title="$t('report.threeWayForecast.assume.capital.somethingElse')"
+                  @click="chooseAsset(i, null)") ✕
               b-input(
+                v-else
                 v-model="row.what"
                 size="is-small"
                 :placeholder="$t('report.threeWayForecast.assume.capital.whatPlaceholder')")
-              b-select(v-model.number="row.category" size="is-small" expanded)
-                option(v-for="c in capitalCategories" :key="c.index" :value="c.index") {{ c.label }}
+              .catcell
+                b-select(
+                  v-model.number="row.category"
+                  size="is-small"
+                  expanded
+                  @input="row.categoryGuessed = false")
+                  option(v-for="c in capitalCategories" :key="c.index" :value="c.index") {{ c.label }}
+                //- Filled in from the schedule's own group and not yet confirmed. Question 2,
+                //- ruled 2026-09-08: the app proposes, the advisor confirms. The badge clears
+                //- the moment they touch the dropdown.
+                span.guessmark(
+                  v-if="row.categoryGuessed"
+                  :title="$t('report.threeWayForecast.assume.capital.categoryGuessedTitle')")
+                  | {{ $t('report.threeWayForecast.assume.capital.guessed') }}
               b-select(v-model.number="row.month" size="is-small" expanded)
                 option(v-for="(label, m) in monthLabels" :key="'cm' + m" :value="m") {{ label }}
               .seg.seg-sm
@@ -1116,13 +1161,22 @@
                   @click="row.direction = 'sell'") {{ $t('report.threeWayForecast.assume.capital.sell') }}
               b-input(v-model.number="row.price" type="number" step="any" size="is-small")
               .capbook
+                //- FROM THE SCHEDULE, depreciated to the month of sale, with its working
+                //- underneath. Question 1, ruled by Mike 2026-09-08. Read-only: the figure is
+                //- arrived at the same way every other figure in the forecast is, and an
+                //- advisor who wants to type their own picks "Something else" instead.
+                .bookcell(v-if="row.direction === 'sell' && capitalBookValue(row)")
+                  span.bookval
+                    | {{ money(capitalBookValue(row).bookValue) }}
+                    span.filemark {{ $t('report.threeWayForecast.assume.capital.fromFile') }}
+                  span.bookwork {{ capitalBookValue(row).working }}
                 b-input(
-                  v-if="row.direction === 'sell'"
+                  v-else-if="row.direction === 'sell'"
                   v-model.number="row.bookValue"
                   type="number"
                   step="any"
                   size="is-small")
-                span.capcarried(v-if="row.direction === 'sell'")
+                span.capcarried(v-if="row.direction === 'sell' && !capitalBookValue(row)")
                   | {{ $t('report.threeWayForecast.assume.capital.carriedAt', { category: $t('report.threeWayForecast.confirm.assets.' + form.assets[row.category].key), amount: money(categoryOpening(row.category)) }) }}
               b-button(
                 size="is-small"
@@ -1216,6 +1270,7 @@
  * ("all six start on the platform defaults for you to change"), applied consistently.
  */
 import SELL_DOWN from '~/data/forecast-sell-down.json'
+import { bookValueAtSale } from '~/utils/assetBookValue'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import GlossaryTerm from '~/components/base/GlossaryTerm.vue'
 import VolatilityDial from '~/components/base/VolatilityDial.vue'
@@ -1653,8 +1708,67 @@ export default {
         { key: 'monthly', required: false, titleKey: 'report.threeWayForecast.drop.monthlyTitle', whyKey: 'report.threeWayForecast.drop.monthlyWhy' },
         { key: 'monthlyPrior', required: false, titleKey: 'report.threeWayForecast.drop.monthlyPriorTitle', whyKey: 'report.threeWayForecast.drop.monthlyPriorWhy' },
         { key: 'bsPrior', required: false, titleKey: 'report.threeWayForecast.drop.bsPriorTitle', whyKey: 'report.threeWayForecast.drop.bsPriorWhy' },
-        { key: 'plPrior', required: false, titleKey: 'report.threeWayForecast.drop.plPriorTitle', whyKey: 'report.threeWayForecast.drop.plPriorWhy' }
+        { key: 'plPrior', required: false, titleKey: 'report.threeWayForecast.drop.plPriorTitle', whyKey: 'report.threeWayForecast.drop.plPriorWhy' },
+        // The SEVENTH — the Fixed Asset Schedule (item 4.65). Optional and last, because an
+        // advisor who is not selling an asset this year should never be asked for it.
+        //
+        // ⚠ The item's own note said "a fifth slot"; it was written on 2026-09-03, before the
+        // two-year trend read added two more the same week.
+        { key: 'schedule', required: false, titleKey: 'report.threeWayForecast.drop.scheduleTitle', whyKey: 'report.threeWayForecast.drop.scheduleWhy' }
       ]
+    },
+
+    /**
+     * The schedule as the intake read it, or null when none was dropped.
+     *
+     * ⚠ Null and an empty list are different facts — "no schedule was dropped" against "your
+     * schedule holds nothing" — and the screen must not show the same thing for both.
+     * @returns {object|null}
+     */
+    assetSchedule () {
+      return this.form.assetSchedule || null
+    },
+
+    /**
+     * The one line under the slots once a schedule has been read: what it totals, what the
+     * balance sheet says, and the difference.
+     *
+     * 🔴 IT NEVER BLOCKS AND CHANGES NO FIGURE — Mike's ruling, question 3, 2026-09-08, and the
+     * wording is his. Neither of the two real exports ties (16,524 and 20,000 apart), so this
+     * shows on nearly every upload. It is here so an advisor who DOES expect them to agree can
+     * find out, and for no other reason.
+     * @returns {string|null}
+     */
+    scheduleTieLine () {
+      const s = this.assetSchedule
+      if (!s || !s.tie || !s.tie.available || s.tie.ties) { return null }
+      return this.$t('report.threeWayForecast.drop.scheduleTie', {
+        schedule: this.money(s.tie.scheduleTotal),
+        balanceSheet: this.money(s.tie.balanceSheetTotal),
+        difference: this.money(Math.abs(s.tie.difference))
+      })
+    },
+
+    /**
+     * The assets a Sell row may choose from: everything on the schedule that no OTHER row has
+     * already sold.
+     *
+     * 🔴 AN ASSET ALREADY SOLD LEAVES THE LIST — Mike's ruling, question 6. Selling the same van
+     * twice would remove its book value from the category pool twice and record two gains on one
+     * asset, and the forecast would balance perfectly while doing it. It returns the moment that
+     * row is removed or switched to Buy, so changing your mind costs nothing.
+     * @returns {Array<object>}
+     */
+    sellableAssets () {
+      const s = this.assetSchedule
+      if (!s || !Array.isArray(s.assets)) { return [] }
+      const taken = {}
+      this.form.capital.forEach((row) => {
+        if (row.direction === 'sell' && row.assetKey !== null && row.assetKey !== 'typed') {
+          taken[row.assetKey] = true
+        }
+      })
+      return s.assets.map((a, i) => ({ ...a, key: String(i) })).filter(a => !taken[a.key])
     },
 
     /**
@@ -2420,6 +2534,10 @@ export default {
       // it existed carries no `trend`, and `undefined` would make the block's own v-if
       // ambiguous — null means "nothing to show", which is a state it draws properly.
       if (!form.trend || typeof form.trend !== 'object') { form.trend = null }
+      // Same normalisation for the asset schedule, and for the same reason: a form saved
+      // before item 4.65 carries none, and `undefined` would make the tie-back line's own v-if
+      // ambiguous where null means "no schedule was dropped".
+      if (!form.assetSchedule || typeof form.assetSchedule !== 'object') { form.assetSchedule = null }
       // Same normalisation for the shipment calculator, and for the same reason: a form
       // saved before it existed carries neither, and an undefined list would break the
       // panel's v-for rather than draw its "nothing entered yet" state.
@@ -2580,7 +2698,17 @@ export default {
         // the same reason as `history` — stepping back and forward must not lose it — and
         // READ-ONLY: nothing on this screen writes to it and nothing computed from it
         // reaches a forecast figure.
-        trend: null
+        trend: null,
+        // The Fixed Asset Schedule as the intake read it (item 4.65), or null when none was
+        // dropped. On the form for the same reason as `history` and `trend` — stepping back
+        // and forward must not lose it — and READ-ONLY: nothing on this screen writes to it.
+        //
+        // 🔴 IT SEEDS NOTHING. The six category openings still come from the Balance Sheet, as
+        // they always have. Neither of the two real exports ties to its own balance sheet, so a
+        // schedule allowed to seed the categories would understate fixed assets and charge too
+        // little depreciation all year, and the forecast would still balance. See the drawing's
+        // §4: design/mockups/three-way-forecast-asset-schedule.html.
+        assetSchedule: null
       }
     },
 
@@ -2613,7 +2741,11 @@ export default {
      * @returns {object}
      */
     blankCapitalRow () {
-      return { what: '', category: 0, month: 0, direction: 'buy', price: 0, bookValue: 0 }
+      // `assetKey` is the schedule row this Sell line is about, or null when the advisor typed
+      // it themselves — question 5, ruled by Mike 2026-09-08: the chooser must never be the
+      // only way in. `categoryGuessed` marks a category the app filled in and nobody has
+      // confirmed (question 2).
+      return { what: '', category: 0, month: 0, direction: 'buy', price: 0, bookValue: 0, assetKey: null, categoryGuessed: false }
     },
 
     /** The first of next month, as `YYYY-MM-DD`. @returns {string} */
@@ -2861,6 +2993,12 @@ export default {
       // thresholds. Taken as given: the banding is advisory judgement and business logic,
       // and neither belongs in the browser.
       this.form.trend = (data.trend && typeof data.trend === 'object') ? data.trend : null
+
+      // The Fixed Asset Schedule, taken as the backend read it. Nothing here is re-derived:
+      // the parsing rules for two packages' layouts are business logic and live on that side.
+      this.form.assetSchedule = (data.assetSchedule && typeof data.assetSchedule === 'object')
+        ? data.assetSchedule
+        : null
     },
 
     /**
@@ -3319,6 +3457,115 @@ export default {
     /** Remove one. @param {number} i the row's position */
     removeCapitalRow (i) { this.form.capital.splice(i, 1) },
 
+    /**
+     * Which of the six categories a schedule's own group most likely means.
+     *
+     * 🔴 IT PROPOSES; IT NEVER DECIDES — Mike's ruling, question 2, 2026-09-08. The row it fills
+     * in is marked `guessed` until the advisor touches it, and anything it cannot place returns
+     * NULL so the category is left blank. It must never fall back to `other`, which is a real
+     * category carrying a 35% rate, not a shrug.
+     *
+     * ⚠ THE ORDER OF THESE TESTS IS LOAD-BEARING. "Office Equipment" contains "equipment", so a
+     * generic plant rule placed first would swallow it and depreciate a desk at 22% instead of
+     * 25%. The wrong guess is visible — the rate shows beside the category name — but it is
+     * still a wrong figure until somebody looks.
+     *
+     * @param {string|null} group - the schedule's own group or account, e.g. "Motor Vehicles"
+     * @returns {number|null} the category index, or null when it cannot be placed
+     */
+    guessCategory (group) {
+      const g = typeof group === 'string' ? group.toLowerCase() : ''
+      if (!g) { return null }
+      if (/comput|hardware|workstation|laptop|server|\bit\b/.test(g)) { return 4 }
+      if (/vehicle|motor|truck|\bcar\b|\bvan\b|trailer/.test(g)) { return 0 }
+      if (/leasehold|fit-?out|improvement/.test(g)) { return 1 }
+      if (/office|furniture|fitting/.test(g)) { return 3 }
+      if (/plant|machin|workshop|\btool|equipment/.test(g)) { return 2 }
+      return null
+    },
+
+    /**
+     * Attach a schedule asset to a Sell row, or detach it for a typed entry.
+     *
+     * @param {number} i - the row's position
+     * @param {string|null} key - the schedule asset's key, or null for "Something else"
+     * @returns {void}
+     */
+    chooseAsset (i, key) {
+      const row = this.form.capital[i]
+      if (!row) { return }
+      // 🔴 THREE STATES, NOT TWO. `null` is "not chosen yet" and shows the chooser; the
+      // string `typed` is the advisor deliberately taking the row back — question 5 — and
+      // shows the boxes exactly as they behaved before item 4.65; anything else is a
+      // schedule row. Collapsing the first two would make a schedule the only way in.
+      if (key === 'typed') {
+        row.assetKey = 'typed'
+        row.categoryGuessed = false
+        row.what = ''
+        return
+      }
+      if (key === null || key === undefined || key === '') {
+        row.assetKey = null
+        row.categoryGuessed = false
+        row.what = ''
+        return
+      }
+      const s = this.form.assetSchedule
+      const asset = (s && Array.isArray(s.assets)) ? s.assets[Number(key)] : null
+      if (!asset) { return }
+      row.assetKey = String(key)
+      row.what = asset.name
+      const guess = this.guessCategory(asset.group)
+      if (guess !== null) {
+        row.category = guess
+        row.categoryGuessed = true
+      }
+    },
+
+    /**
+     * The schedule asset a Sell row is about, or null when it was typed.
+     * @param {object} row @returns {object|null}
+     */
+    rowAsset (row) {
+      const s = this.form.assetSchedule
+      if (!row || row.assetKey === null || row.assetKey === 'typed') { return null }
+      if (!s || !Array.isArray(s.assets)) { return null }
+      return s.assets[Number(row.assetKey)] || null
+    },
+
+    /**
+     * What a chosen asset is carried at in the month of its sale, with the working.
+     *
+     * 🔴 DEPRECIATED TO THE MONTH OF SALE — Mike's ruling, question 1, 2026-09-08. The schedule
+     * gives the figure at the last balance date; the business has been writing the asset down
+     * since. Using the year-end figure would overstate the loss on every sale after the first
+     * month, by more the later it falls, and the forecast would balance either way.
+     *
+     * The rate is the CATEGORY's, set on step 2 — never the asset's own (question 4).
+     *
+     * @param {object} row @returns {{bookValue: number, working: string}|null}
+     */
+    capitalBookValue (row) {
+      const asset = this.rowAsset(row)
+      if (!asset || row.direction !== 'sell') { return null }
+      const category = this.form.assets[row.category]
+      const ratePct = category ? (Number(category.rate) || 0) : 0
+      // `row.month` is 0-based on screen; the calculation counts months from one.
+      const r = bookValueAtSale(Number(asset.bookValue) || 0, ratePct / 100, (Number(row.month) || 0) + 1)
+      const categoryLabel = category
+        ? this.$t('report.threeWayForecast.confirm.assets.' + category.key)
+        : ''
+      const working = r.monthsCharged === 0
+        ? this.$t('report.threeWayForecast.assume.capital.bookValueAtSale')
+        : this.$tc('report.threeWayForecast.assume.capital.bookValueWorking', r.monthsCharged, {
+          opening: this.money(r.opening),
+          months: r.monthsCharged,
+          rate: this.pct(ratePct),
+          category: categoryLabel
+        })
+      return { bookValue: r.bookValue, working }
+    },
+
     /** The category's book value today, shown beside a Sell row's own figure so an
      *  advisor can see what the whole category is carried at while they enter one
      *  asset's share of it. Context only — the app holds six category totals and never
@@ -3369,7 +3616,15 @@ export default {
         if (!cat || !(month >= 0 && month < MONTHS)) { continue }
         const price = Number(row.price) || 0
         if (row.direction === 'sell') {
-          cat.disposals[month] += Number(row.bookValue) || 0
+          // 🔴 THE COMPUTED FIGURE WINS WHEN THE ROW CAME FROM A SCHEDULE (item 4.65).
+          // `row.bookValue` is what the advisor typed and is still the only figure for a row
+          // they typed themselves — question 5. For a chosen asset the number ON SCREEN is
+          // the schedule's figure depreciated to the month of sale, and sending anything else
+          // would make the forecast disagree with the screen the advisor approved.
+          const fromSchedule = this.capitalBookValue(row)
+          cat.disposals[month] += fromSchedule
+            ? fromSchedule.bookValue
+            : (Number(row.bookValue) || 0)
           cat.proceeds[month] += price
         } else {
           cat.additions[month] += price
@@ -3781,6 +4036,23 @@ export default {
 .seg-sm button { flex: none; padding: 7px 10px; font-size: 12px; }
 
 .warn-note { font-size: 12.5px; color: #b36b00; background: var(--rs-warn-soft); border-radius: 9px; padding: 10px 14px; margin-top: 8px; }
+/* The asset-schedule note. DELIBERATELY NOT .warn-note: an asset register is normally a
+   little out from the balance sheet — both real exports are — so a warning colour here would
+   cry wolf on nearly every upload and teach the eye past that spot on the screen. */
+.sched-note { font-size: 12.5px; color: var(--rs-muted); background: var(--rs-panel-2); border: 1px solid var(--rs-line); border-radius: 9px; padding: 10px 14px; margin-top: 8px; }
+.sched-note strong { color: var(--rs-ink); font-weight: 600; }
+.sched-tie { margin: 4px 0 0; }
+/* the Sell row's chooser, its guessed badge and the computed book value (item 4.65) */
+.pickedwrap { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.picked { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.catcell { display: flex; flex-direction: column; gap: 2px; }
+.guessmark { font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: #8a5300; background: var(--rs-warn-soft); border-radius: 5px; padding: 1px 5px; align-self: flex-start; cursor: help; }
+.bookcell { display: flex; flex-direction: column; gap: 2px; align-items: flex-end; }
+.bookval { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.filemark { font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--rs-accent); background: var(--rs-accent-soft); border-radius: 5px; padding: 1px 5px; margin-left: 5px; }
+.bookwork { font-size: 10.5px; color: var(--rs-muted); text-align: right; line-height: 1.35; }
 /* The red band. Same shape as .warn-note above — this screen's own warning language —
    rather than a second component, so the two levels read as one pair. */
 .crit-note { font-size: 12.5px; color: var(--rs-crit); background: var(--rs-crit-soft); border-radius: 9px; padding: 10px 14px; margin-top: 8px; }

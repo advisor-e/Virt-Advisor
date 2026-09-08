@@ -23,6 +23,7 @@
  */
 
 const mo = require('../../server/utils/meetingObservations')
+const tierChain = require('../../server/utils/tierChain')
 const { PLATFORM_SCOPE } = require('../../server/utils/platformScope')
 
 const FIRM = 'firm-test-1'
@@ -188,14 +189,45 @@ describe('tier prefixes cannot collide', () => {
 
   test('the mentor and a firm mint different ids for their first added point', () => {
     // The Phase 5 defect, stated as a test: same position, same count, different identity.
-    expect(mo.nextOwnPointId(PLATFORM_SCOPE, [])).not.toBe(mo.nextOwnPointId(FIRM, []))
+    expect(mo.nextOwnPointId(PLATFORM_SCOPE, []).id).not.toBe(mo.nextOwnPointId(FIRM, []).id)
   })
 
   test('a deleted point never hands its id to the next one added', () => {
     // Counting from length would reissue `fm-2` after deleting it, and the new point would
     // inherit the deleted one's declines and overrides.
     const held = [{ id: 'fm-1', text: 'a' }, { id: 'fm-3', text: 'c' }]
-    expect(mo.nextOwnPointId(FIRM, held)).toBe('fm-4')
+    expect(mo.nextOwnPointId(FIRM, held).id).toBe('fm-4')
+  })
+
+  test('🔴 removing the HIGHEST point does not hand its id back — the 4.72 fault', () => {
+    // This is the case the test above could not see. Deleting a MIDDLE id leaves a higher
+    // one behind, so counting the live rows still gave the right answer; deleting the
+    // highest leaves nothing to count from and reissued it. A reused id matches the removed
+    // point in any coaching report already stored against it, and arrives already set aside
+    // for every advisor who had declined the old one.
+    const before = mo.nextOwnPointId(FIRM, [{ id: 'fm-1' }, { id: 'fm-2' }])
+    expect(before.id).toBe('fm-3')
+
+    // fm-3 is added, then removed again. The mark it left behind is what the store holds.
+    const after = mo.nextOwnPointId(FIRM, [{ id: 'fm-1' }, { id: 'fm-2' }], before.seq)
+    expect(after.id).toBe('fm-4')
+  })
+
+  test('the mark alone is enough when every own row has been removed', () => {
+    // The scenario's array is deleted outright when it empties, so the live rows are gone.
+    expect(mo.nextOwnPointId(FIRM, [], 6).id).toBe('fm-7')
+  })
+
+  test('a mark behind the live rows is ignored rather than trusted', () => {
+    // Degrade towards the rows that are actually there: a stale or hand-edited mark must
+    // never mint an id that collides with a point sitting in front of it.
+    expect(mo.nextOwnPointId(FIRM, [{ id: 'fm-9' }], 2).id).toBe('fm-10')
+  })
+
+  test('a corrupt mark is dropped, not minted from', () => {
+    expect(mo.readNextSeqMap({ eoy: 4, bad: 0, worse: 2.5, awful: 'x' })).toEqual({ eoy: 4 })
+    expect(mo.readNextSeqMap(null)).toEqual({})
+    expect(mo.readNextSeqMap([1, 2])).toEqual({})
   })
 })
 
@@ -298,6 +330,79 @@ describe('resolving through the tier chain', () => {
     const firm = await mo.loadResolvedObservations(FIRM, read)
     const trees = require('../../data/logic_trees.json').trees
     expect(firm[EOY].name).toBe(trees.filter(t => t.id === EOY)[0].name)
+  })
+})
+
+describe('🔴 which tier last changed a point survives the cascade — item 4.76', () => {
+  // Every level restamps `source` relative to the viewer (item 4.59), so by the time a point
+  // reaches a firm the fact that a MIDDLE tier reworded it has been erased. The advisor is
+  // then told Advisor-e wrote words a group manager wrote, and sent to the wrong people when
+  // they ask why it is on their list. `changedAtTier` is what survives that restamping.
+  const BRAND = 'Advisor-e'
+  const COUNTRY = 'Germany'
+  const GLOBAL = tierChain.globalScopeId(BRAND)
+  const GROUP = tierChain.groupScopeId(BRAND, COUNTRY)
+
+  beforeEach(() => {
+    tierChain.setFirmMembership({ [FIRM]: { globalGroup: BRAND, country: COUNTRY } })
+  })
+  afterEach(() => { tierChain.setFirmMembership({}) })
+
+  const markOn = (resolved, id) => resolved[EOY].points.filter(p => p.id === id)[0].changedAtTier
+
+  test('a GROUP manager rewording a platform point is remembered at the firm', async () => {
+    const read = readerFor({
+      [GROUP]: { [mo.CONFIG_KEYS.overrides]: { [EOY]: { 'mo-eoy-1': { text: 'Germany says it this way.' } } } }
+    })
+    const firm = await mo.loadResolvedObservations(FIRM, read)
+    const point = firm[EOY].points.filter(p => p.id === 'mo-eoy-1')[0]
+    // The two older signals both still say Advisor-e: the id is the platform's, because
+    // identity is never editable, and the badge is `inherited` by the time it arrives.
+    expect(point.id).toBe('mo-eoy-1')
+    expect(point.source).toBe(mo.OBSERVATION_SOURCE_LABELS.inherited)
+    expect(point.text).toBe('Germany says it this way.')
+    expect(point.changedAtTier).toBe('group_manager')
+  })
+
+  test('a GLOBAL GROUP MANAGER rewording a platform point is remembered at the firm', async () => {
+    const read = readerFor({
+      [GLOBAL]: { [mo.CONFIG_KEYS.overrides]: { [EOY]: { 'mo-eoy-2': { text: 'The brand says it this way.' } } } }
+    })
+    const firm = await mo.loadResolvedObservations(FIRM, read)
+    expect(markOn(firm, 'mo-eoy-2')).toBe('global_group_manager')
+  })
+
+  test('the LAST tier to change a point wins, not the first', async () => {
+    const read = readerFor({
+      [PLATFORM_SCOPE]: { [mo.CONFIG_KEYS.overrides]: { [EOY]: { 'mo-eoy-1': { text: 'Mentor wording.' } } } },
+      [GROUP]: { [mo.CONFIG_KEYS.overrides]: { [EOY]: { 'mo-eoy-1': { text: 'Germany wording.' } } } }
+    })
+    const firm = await mo.loadResolvedObservations(FIRM, read)
+    expect(firm[EOY].points.filter(p => p.id === 'mo-eoy-1')[0].text).toBe('Germany wording.')
+    expect(markOn(firm, 'mo-eoy-1')).toBe('group_manager')
+  })
+
+  test('a point nobody has changed carries no mark at all', async () => {
+    // Absent rather than guessed: `sourceTierOf` falls through to the id prefix, which is
+    // the right answer for a shipped point and the honest one for anything unrecognised.
+    const firm = await mo.loadResolvedObservations(FIRM, NOTHING)
+    expect(markOn(firm, 'mo-eoy-1')).toBeUndefined()
+  })
+
+  test("the mentor's own edit is marked as the mentor's", async () => {
+    const read = readerFor({
+      [PLATFORM_SCOPE]: { [mo.CONFIG_KEYS.overrides]: { [EOY]: { 'mo-eoy-3': { text: 'Mentor reworded this.' } } } }
+    })
+    const firm = await mo.loadResolvedObservations(FIRM, read)
+    expect(markOn(firm, 'mo-eoy-3')).toBe('mentor')
+  })
+
+  test("a firm's own edit is marked as the firm's", async () => {
+    const read = readerFor({
+      [FIRM]: { [mo.CONFIG_KEYS.overrides]: { [EOY]: { 'mo-eoy-4': { text: 'Our wording.' } } } }
+    })
+    const firm = await mo.loadResolvedObservations(FIRM, read)
+    expect(markOn(firm, 'mo-eoy-4')).toBe('firm_manager')
   })
 })
 

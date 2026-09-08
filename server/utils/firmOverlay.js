@@ -134,6 +134,71 @@ async function loadFirmConfig (firmId, configKey) {
   return effective
 }
 
+/**
+ * Escape a literal so it cannot act as a LIKE pattern.
+ *
+ * ⚠ Today's only caller passes a constant prefix with no wildcard in it, so this changes
+ * nothing that is currently asked for. It is here because the next caller will pass something
+ * assembled, and a `%` reaching the pattern would widen the read to keys the caller never
+ * asked for — a scope reading its own row, but more of it than intended.
+ *
+ * @param {string} value
+ * @returns {string}
+ */
+function _escapeLike (value) {
+  return String(value).replace(/([\\%_])/g, '\\$1')
+}
+
+/**
+ * Every active config this scope holds under a key PREFIX, as `{ suffix: value }`.
+ *
+ * 🔴 WHY THIS EXISTS. A config key normally names one thing a scope holds. Some features
+ * instead need a row PER PERSON — the advisor's own meeting pre-set is the first — so that two
+ * people in one firm never read-modify-write the same row and silently overwrite each other.
+ * That splits one key into many, and this is how the whole set is read back in one query
+ * rather than N, for the screens that summarise everybody.
+ *
+ * ⚠ NO CASCADE, DELIBERATELY. It reads this scope's own rows and no parent's. Per-person rows
+ * belong to the person, and a tier above has no people beneath it to inherit from — see
+ * `getSetAside` in server/routes/meetingObservations.js, which is firm-tier only for the same
+ * reason.
+ *
+ * Highest version wins per key, matching `_readActiveConfig` — including when the highest is
+ * unparseable, where BOTH return nothing rather than falling back to an older row that a
+ * later save was meant to replace.
+ *
+ * @param {string} firmId - the authenticated scope id, never client-supplied
+ * @param {string} keyPrefix - the literal prefix, e.g. `'meeting-observation-advisor-own:'`
+ * @returns {Promise<Object.<string, *>>} the part of each key AFTER the prefix, to its value
+ */
+async function loadFirmConfigsByPrefix (firmId, keyPrefix) {
+  const [rows] = await db.execute(
+    `SELECT config_key, config_json
+     FROM firm_framework_versions
+     WHERE firm_id = ? AND config_key LIKE ? ESCAPE '\\\\' AND is_active = 1
+     ORDER BY version ASC`,
+    [firmId, _escapeLike(keyPrefix) + '%']
+  )
+
+  const out = {}
+  rows.forEach((row) => {
+    const suffix = String(row.config_key).slice(keyPrefix.length)
+    // The prefix itself, with nothing after it, is a different key and not one of these.
+    if (!suffix) { return }
+    // Ascending version means a later row overwrites an earlier one for the same key.
+    try {
+      out[suffix] = JSON.parse(row.config_json)
+    } catch {
+      out[suffix] = null
+    }
+  })
+
+  Object.keys(out).forEach((suffix) => {
+    if (out[suffix] === null) { delete out[suffix] }
+  })
+  return out
+}
+
 async function saveFirmConfig (firmId, configKey, configJson, savedBy) {
   const conn = await db.getConnection()
   try {
@@ -288,6 +353,7 @@ module.exports = {
   deepMerge,
   CASCADING_CONFIG_KEYS,
   loadFirmConfig,
+  loadFirmConfigsByPrefix,
   saveFirmConfig,
   listFirmIdsWithConfigKey,
   getVersionHistory,

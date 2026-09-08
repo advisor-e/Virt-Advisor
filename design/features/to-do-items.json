@@ -80,33 +80,9 @@
       "comment": "2026-08-15 — filed on Mike's instruction. 2026-08-25 — the list written down and published; two branches closed (COI pt1/pt2, a scanner fault). 2026-08-26 — the prose-only second step found."
     },
     {
-      "ref": "4.50",
-      "name": "Nobody has seen a real conversation's recommendations reach the Team tab",
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Outside",
-      "why": "The AI's recommendations are held back from the stream and written to the Team tab, and that last write has never been seen to happen after a real conversation.",
-      "risk": "Small: the two checks that could show something ugly on screen passed live on 2026-08-26. What is unseen is whether the right templates and capability tier land on the record that credits an advisor.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "Logged at the 2026-07-22 merge as the named residual of that change. Carried in ACTIONS.md until it was frozen 2026-08-24; re-checked 2026-08-26 and still unexercised."
-      },
-      "touches": "Nothing — a live observation, not a code change. If it fails: server/utils/activityLogger.js (logVASession) and server/routes/activity.js (/api/activity/team).",
-      "note": "Needs a database. On a developer machine the activity store falls back to a dev file and the write silently does not happen, so this is a two-minute look in UAT: open the Team tab as a firm manager after a real session and compare its templates and tier with the conversation. The screen is the Team tab; \"Team Dashboard\" is not a screen. Detail in advisor-progression-history.md §8.",
-      "comment": "2026-08-26 — checks (a) and (b) run live on the laptop and passed; (c) remains. The earlier claim that a missing OpenAI key blocked it was wrong; MySQL is the blocker."
-    },
-    {
       "ref": "4.58",
       "name": "Meeting Review — the advisor's side is complete; §4 remains",
       "rankedByMike": false,
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-07"
-      },
       "kind": "feature",
       "score": 3,
       "scoreReason": "helps sell the package",
@@ -121,50 +97,8 @@
         "detail": "2026-09-01 — \"i want you to design a new feature ... records the voices and transcribes the meeting, then generates two reports\", quoted in full in meeting-review-history.md §1. He named the Handbook page himself, so the page is not an inference either."
       },
       "touches": "design/features/meeting-review.md and its history, design/MEETING-CONSENT-WORDING.md, design/ARTEFACTS.md, and the meeting routes, utilities, components and pages listed in the Brief's build table.",
-      "note": "Built: observation points, consent and capture, diarized transcription, audio destruction, the two reports, meeting-types slices 1-2, the MANAGER AGGREGATE (firm tier ALONE - P13 keeps meeting figures inside the firm), TRANSCRIPT EXPIRY (each meeting on the period its own client was shown), and FOLLOW-THROUGH, screen included, matched on the client and never guessed. Not built: meeting-types slices 3-4. The jargon tile is NOT outstanding - Mike REMOVED it 2026-09-02. Open for Mike: §4, and three slice-4 decisions that are ours, in Brief §5. Record: meeting-review-history.md §8.",
-      "comment": "2026-09-01 — filed; screens approved; slices 1–2 built. 2026-09-02 — slice 3 built; the types cascade ruled and its slices 1–2 built; renumbered 4.56 → 4.58 by the laptop on Mike's ruling; two rules he never made deleted (Brief P14). 2026-09-07 — slice 4, the manager aggregate, built on the laptop from the approved drawing: 37 new tests, suite 8,184 green."
-    },
-    {
-      "ref": "4.60",
-      "name": "QuickBooks and MYOB are supported on paper, not against a real file",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The reader now names QuickBooks Online and MYOB as supported, but both were tested only against reconstructed layouts; no real export from either has been read.",
-      "risk": "A reconstruction proves the reader copes with the layout it was drawn from, not with the real one. Proven 2026-09-07: a fuller MYOB reference workbook read NOTHING at all, and once that was fixed cash still came back as 64,500 of a real 89,500 — a plausible short figure, exactly what UAT cannot catch. Every intake screen says the two are unconfirmed and tags each seeded figure by its source.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-02 — \"keep it as a job for future - keep moving forward\", after being told that four real exports are what would move the two packages from `expected` to `verified`."
-      },
-      "touches": "CHANGED 2026-09-07 ahead of the files: rowShape, BANK_ACCOUNT_RE, NON_CURRENT_ASSET_RE and the period patterns in server/report/intake/xeroReportParser.js, the MYOB evidence in supportedPackages.js, and nine tests in tests/unit/accountingPackages.test.js. When the real files arrive: those same three, plus flipping each `confidence` to `verified` — which its own guard will not allow until the evidence line names a real export.",
-      "note": "⚠ STILL WAITS ON FOUR REAL FILES — a Balance Sheet and P&L from QuickBooks Online and from MYOB. The two workbooks in 'C:\\Documents\\Visual Code Projects\\Perf Report\\xero reports' are NOT exports: one fictional company, identical figures in both packages, three reports per file. They earned their place anyway, finding four real MYOB faults, all fixed and tested — every label read as an account code so nothing parsed at all; cash counted one bank account of two; the period line gave no year; and \"Property, Plant & Equipment\" was not read as a fixed-asset heading, so the categories came back empty, 145,300 went to current assets and the forecast charged no depreciation. QuickBooks needed no change.",
-      "comment": "2026-09-02 — filed on Mike's instruction: \"keep it as a job for future - keep moving forward\". 2026-09-07 — he supplied a structural comparison of the two formats and pointed to two reference workbooks; running the real parser over them found four MYOB faults, all fixed on his approval. The package stays `expected`: reference files are not exports, and the guard rightly refuses to say otherwise."
-    },
-    {
-      "ref": "4.62",
-      "name": "Saved reports per client — so a client can edit what the advisor opened",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Mike's request of 2026-09-03: once an advisor opens a model to a client, the client edits it and every edit is made clear. Nothing can be edited until a report is saved per client per model, which nothing does today.",
-      "risk": "Without it the stub shows a client an open model with sample figures only. With it, a client's figure reaches an advisor's screen; the badge, banner and Restore (D4) are what stop a client edit passing as the advisor's.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-03 — \"once advisor has been involved and secured terms, we DO want them to be involved and can edit thereafter - so long as any changes are made clear they are edited by the client\". Part 2 of the request that built the stub the same day."
-      },
-      "touches": "A saved-report store through firmOverlay ({ firm, client, model, inputs, savedBy: { tier, name }, savedAt }), a Save on the report header, a `client` state on ProvenanceBadge, the banner and Restore on the report screens, and the client's page. Not the forecast intake files (4.61, laptop).",
-      "note": "ALL TWELVE SCREENS ARE WIRED — the forecast last, 2026-09-05, on Mike's ruling \"anything an advisor can edit, the client can edit\": its saved row is the whole intake plus the four levers, and only the file upload stays the advisor's. How each screen behaves is in the Brief §5. ⚠ WHAT IS STILL UNPROVEN IS THE SAME BLOCKER AS 4.50: no save has ever reached the real store on this machine, because the client picker is empty without MySQL. Wording in clientReports.saved.* proposed, not ruled.",
-      "comment": "2026-09-03 — filed the day the stub was built. Same day, desktop: slice 1 built under a power cut; labels ruled. 2026-09-04 desktop: slice 2, ten of ten wired; the file-figure rule ruled. 2026-09-05 — the last screen moved to the laptop on Mike's decision, then built there: shape, page seam, badges, 14 new tests."
+      "note": "Built: observation points, consent and capture, diarized transcription, audio destruction, the two reports, meeting-types slices 1-3 (every manager tier), the MANAGER AGGREGATE (firm tier ALONE - P13 keeps meeting figures inside the firm), TRANSCRIPT EXPIRY (each meeting on the period its own client was shown), and FOLLOW-THROUGH, screen included, matched on the client and never guessed. Not built: meeting-types slice 4's CLIENT level (needs the client picker, empty without MySQL); the advisor level shipped 2026-09-08 with the manager's set-aside view Mike ordered. The jargon tile is NOT outstanding - Mike REMOVED it 2026-09-02. Open for Mike: §4, and three slice-4 decisions that are ours, in Brief §5. Record: meeting-review-history.md §8.",
+      "comment": "2026-09-01 — filed; screens approved; slices 1–2 built. 2026-09-02 — slice 3 built; the types cascade ruled and its slices 1–2 built; renumbered 4.56 → 4.58 by the laptop on Mike's ruling; two rules he never made deleted (Brief P14). 2026-09-07 — slice 4, the manager aggregate, built on the laptop from the approved drawing: 37 new tests, suite 8,184 green. 2026-09-08 — meeting-types slice 3 (every manager tier, one computed property) and slice 4's ADVISOR half: the pre-set is editable, each point names its tier, and a manager sees what advisors set aside — Mike's order. 76 new tests."
     },
     {
       "ref": "4.66",
@@ -186,52 +120,6 @@
       "touches": "BUILT: data/ai-prompts.json (a fourth prompt, all four tiers), server/routes/economicAnalysis.js, server/report/economicAnalysis/researchResult.js, server/utils/economicAnalysisRuns.js, openaiClient.js (a /v1/responses path), restify-server.js, components/EconomicAnalysisStep.vue, components/EconomicAnalysisPack.vue, utils/researchText.js (the parser both share), pages/three-way-forecast.vue (step 5, and the pack), ProvenanceBadge.vue (a fifth state), locales/en.json, five test files.",
       "note": "ALL THREE SLICES ARE BUILT, AND IT HAS NOW BEEN WATCHED END TO END IN A BROWSER (2026-09-07): brief, research, approval, printed pack. The pack prints only on isApproved, so research nobody accepted cannot reach a lender. 🔴 Nine live faults have come out of running it and the green tests caught none: the citation guard refused HALF of all runs by reading web-address digits as figures; the research date was missing from the client's pack entirely; and the date sent was UTC. THE ADVISOR NOW SETS THE ASSESSMENT DATE on a field at step 5 — Mike's ruling, both wordings his. Detail in ECONOMIC-ANALYSIS-PROMPT.md §7b.",
       "comment": "2026-09-03 — filed on Mike's instruction the moment he raised it. RENUMBERED 4.62 → 4.66 on 2026-09-04, both machines having filed a 4.62 that day; 4.62 is not reused. 2026-09-06 — privacy ruled; prompt drafted and revised; screens drawn; all three slices built in one day, and run 5 proved it live. 2026-09-07 — watched in a browser for the first time; the guard was refusing half of all runs, and Mike ruled the assessment date onto a field of its own. Nine live faults have now come out of running it, and the green tests had caught none of them."
-    },
-    {
-      "ref": "4.65",
-      "name": "The book value of one asset is typed, because no screen asks for the asset schedule",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Selling an asset needs its price and its book value; the gain between them is profit that month. The app holds six category totals, never individual assets. The figure lives on the Fixed Asset Schedule, which step 1 never requests.",
-      "risk": "Nothing is broken while it is undone: the advisor reads the number off the same schedule the app would parse. The risk is in the doing, and it is 4.60's — a Fixed Asset Schedule varies far more between packages than a Balance Sheet, and only Xero has ever had a real export put through it. A schedule read wrongly gives a plausible book value, and that moves the gain, the tax and retained earnings together.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-03 — he challenged the typed field directly (\"if i have a vehicle it must be listed in the asset schedule and balance sheet - which is paired to the depreciation rates - cant see why you cant pull the book value from that?\"), was shown that the figure lives on a report the app never asks for, and chose: \"typing it for now\"."
-      },
-      "touches": "NOTHING YET, and it needs its own drawing and Mike's approval before any of it. Then: server/report/intake/xeroReportParser.js (a fifth report kind), server/report/intake/supportedPackages.js, server/routes/report.js and components/ThreeWayForecastIntake.vue (a fifth slot, and the Sell row becoming a chooser rather than two typed figures).",
-      "note": "⚠ COUPLED TO 4.60 AND SHOULD FOLLOW IT. 4.60 waits on four real exports from QuickBooks Online and MYOB to move those two packages from `expected` to `verified`, and whoever collects them should be asked for the Fixed Asset Schedule at the same time. It is the same request to the same person, and doing it separately means asking twice.",
-      "comment": "2026-09-03 — filed at the moment Mike ruled \"typing it for now\", so the version he would rather have is on the list rather than in a conversation. Nothing is blocked: the capital block is built, tested and honest, and the advisor types one number they can read straight off their own asset schedule. Appended rather than slotted beside the work it relates to, because the array order is Mike's ranking and inserting it mid-list would be a ranking decision taken on his behalf."
-    },
-    {
-      "ref": "4.69",
-      "name": "A future assessment date may leave the research unsourced",
-      "rankedByMike": false,
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-07"
-      },
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "§2 asked one date to be both the start of the assessment period and the yardstick for how current a figure is. Given a date months ahead, the model searched for data that does not exist yet.",
-      "risk": "FIXED AND PROVEN LIVE 2026-09-07: the same 30 November run went from refused with one search to accepted with 14 searches, 13 sources and 1,948 words. What remains is a regression check on the default no-date path, which could not be run because the OpenAI account is out of credits. Low: the prompt shape is the one that just succeeded, and a new test pins the behaviour.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Found 2026-09-07 driving the new date field end to end in a browser: 30 November 2026 was refused after 40 seconds and one search; 31 August 2026 ran normally with nine searches. Filed on Mike's instruction the same day."
-      },
-      "touches": "BUILT: data/ai-prompts.json (§2 now names both dates, and the placeholders note), design/ECONOMIC-ANALYSIS-PROMPT.md §4 and §7b, fillPlaceholders and two JSDoc blocks in server/routes/economicAnalysis.js, and tests/unit/economicAnalysis.routes.test.js. The date field itself is deliberately NOT bounded.",
-      "note": "THE FIX IS BUILT AND PROVEN ON THE FAULT; ONE CHECK REMAINS. §2 now names both dates: {{assessmentDate}} may be in the future, {{today}} never is and is what currency is judged against. Reproduced twice before anything changed, then accepted after. The model's own words in the accepted run: 'an information cut-off of 7 September 2026, an assessment start of 30 November 2026'. ⚠ OUTSTANDING: the no-date default path was never re-run — the OpenAI account hit credit_balance_exhausted mid-check, which also means the feature fails for every user until credits are added. §2 renders correctly there; only the model's reply is unseen. A SECTIONS_MISSING run the same day is unexplained and is not this change.",
-      "comment": "2026-09-07 — filed the day the date field was built, on Mike's instruction. Numbered 4.69 because the desktop filed a 4.67 on its own branch that has not reached master. Same day: reproduced from the backend, diagnosed as one placeholder doing two jobs, fixed on Mike's approval of the wording, and proven live. The desktop closed a DIFFERENT 4.69 that day — four rulings on the saved-report screens — the second number collision in a week."
     },
     {
       "ref": "4.70",
@@ -259,25 +147,71 @@
       }
     },
     {
-      "ref": "4.71",
-      "name": "Quick-fire forecast — three years from percentages, not twelve months typed",
+      "ref": "4.77",
+      "name": "First-year depreciation cannot differ from later years, or between two vehicles",
       "rankedByMike": false,
       "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
+      "score": 4,
+      "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
-      "why": "Mike asked where growth, cost-increase and margin percentages for years 1, 2 and 3 are entered. Nowhere: step 4's sliders do three of those for one year only.",
-      "risk": "Slice 1 alone would collect three years of percentages and display one — which is why the three-year view is in the same job, and it is the larger half. The engine and route exist and are tested; no screen has ever called them. Quick-fire replaces three fields only, so an error is visible against last year's actuals on the same screen.",
+      "waitingOn": "Mike",
+      "why": "The engine applies one rate to a whole category for every month, so a new asset cannot be written down faster in its first year than the old one beside it.",
+      "risk": "Mike's example, costed against NZ's Investment Boost (20% of a new asset's cost deducted up front, the rest depreciated as normal): an 800,000 tractor unit deducts 146,118 in year one as the engine models it, against 276,895 with the boost. That is 36,617 of tax in year one and 130,776 of asset value carried into year two. A forecast a lender reads would be wrong, and balance perfectly.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
-        "detail": "2026-09-07 — \"draw it up please and make it a 'quick-fire option'. tick a box, it opens so i can put the data in and it just adds or subtracts from previous known data. untick it and the status quo continues\". Approved and all five questions ruled the same day."
+        "detail": "2026-09-08 - 'it might make a difference if it is a large purchase - like an $800,000 truck/tractor unit in terms of tax to pay and working capital balance year 2 - perhaps worth making as another task?' Raised by him while ruling question 4 of the 4.65 drawing."
       },
-      "touches": "BUILT, both slices: utils/quickFireForecast.js, the year control and grid on components/ThreeWayForecastIntake.vue, yearCount in server/report/threeWayForecastModel.js, components/ThreeWayForecastReport.vue (summary, cash line, year tabs, print), locales/en.json, and four test files including tests/unit/threeWayForecastYearCount.test.js.",
-      "note": "BOTH SLICES BUILT. Slice 2 drawn and approved 2026-09-07, all seven questions ruled. Mike's first ruling REPLACED the recommendation: the advisor chooses 1, 2 or 3 years, on step 3. The count reaches the ENGINE — computing three and showing fewer would have reported a three-year revenue and a low point in a year nobody asked for, both plausible on screen. Step 4 gained a year summary, a cash line across every month, year tabs, and a print that carries every year. A new forecast opens at ONE year — ruled by Mike 2026-09-07, and it preserves today's screen exactly.",
-      "comment": "2026-09-07 — filed the day Mike asked for it, after being told the percentages could be entered nowhere. Numbered 4.71 because the desktop filed 4.70 on its own branch the same day: the third numbering collision in a week. Same day: drawn, approved, all five questions ruled, slice 1 built and merged; then slice 2 drawn, six more questions ruled one at a time, and built — 39 new tests, suite 8,147 green."
+      "touches": "server/report/threeWayForecastModel.js assetSchedule, which applies one depreciationRate per category across twelve months, and the six-category shape in ASSET_SPECS. A per-asset or first-year rate changes the engine's asset model, so the golden set and every forecast test move with it. No screen exists to enter such a rate.",
+      "note": "NOT A BIGGER VERSION OF 4.65 - a different asset model. assetSchedule applies one rate to a whole pool every month; a first-year rule needs assets carrying a rate or deduction that changes at a date. MYOB's per-asset rates do NOT deliver it - one standing rate per asset, no first-year concept, and QuickBooks gives no rate at all. SOURCE STILL NEEDED: Investment Boost is cited from an AI session's own knowledge, NOT from the two IRD files Mike supplied - IR265 (October 2023) and IR260 (April 2024) both predate it - both read in full 2026-09-08, zero mentions. Only THAT rule lacks a source. UK and Australia have their own regimes, unchecked here.",
+      "comment": "2026-09-08 - raised and filed by Mike while ruling question 4 of the asset-schedule drawing, and costed on his own example. Same day: a session wrongly reported that NZ had abolished first-year acceleration, reading the 2010 end of the 20% LOADING as the end of all such rules. Mike corrected it. The two are different mechanisms - the loading inflated a rate, Investment Boost deducts a slice of cost."
+    },
+    {
+      "ref": "4.78",
+      "name": "Tax rules per country - a firm manager uploads the source, the AI proposes, they approve",
+      "rankedByMike": false,
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-08"
+      },
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Depreciation rates and first-year rules differ by country and nothing in the app holds them. The shipped defaults are a guess: Vehicles is 20% where NZ IRD gives 50% diminishing value for a passenger vehicle.",
+      "risk": "An advisor who leaves a default produces a forecast whose depreciation, tax and closing cash are all wrong, and which balances perfectly, and it reaches a lender. The counter-risk is the AI misreading a rate nobody re-checks - which is why the manager approves the extracted table before anything reads it, and why every figure carries its source document and date.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-08 - 'is it worth having a field in the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be accurate per country?' Filed on his yes, after he overturned the recommendation against it: the uploader is an accountant who should be encouraged to check their sources."
+      },
+      "touches": "A new Firm Manager Hub tab and its upload route, the untrusted-file validation procedure in the master-export-upload skill (last-known-good, version history), an OpenAI extraction route on the Restify backend, an approval gate carrying isApproved, and the six ASSET_SPECS defaults in components/ThreeWayForecastIntake.vue that it would replace.",
+      "note": "AI PROPOSES, THE MANAGER APPROVES, AND NOTHING READS AN UNAPPROVED TABLE - CLAUDE.md already requires this for financial output (isApproved before committing). Every rate shows its source document and date. IT MUST ALSO SHOW WHAT THE AI COULD NOT FIND: on 2026-09-08 a session read IR260 and IR265 in full and still concluded NZ had no first-year regime, because Investment Boost postdates both - a gap invisible from inside the file. SIX QUESTIONS RULED 2026-09-08 on design/mockups/tax-rules-upload.html: the FIRM owns it, full cascade, an advisor LOADS and only the manager APPROVES. Both screens are drawn; the advisor's is tax-rules-advisor.html, with three questions open. Tax PDFs are public, so no PII question arises.",
+      "comment": "2026-09-08 - raised by Mike and filed on his instruction the same day. The recommendation was AGAINST it and he overturned it: the uploader is a firm manager who knows the topic and should be encouraged to check their sources. The concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers."
+    },
+    {
+      "ref": "4.80",
+      "name": "\"Global manager\" is the old name and it is still in 45 places",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The role was renamed global_group_manager on 2026-08-11 and the short form survives in about 45 places, including the file sessions learn the tier names from.",
+      "risk": "It is the exact mechanism that produced the coined job titles Mike has now banned ten times: a shortened name invites the shortcut, and a stale name in a document that reads as authority comes back looking correct. The guard bans only the QUOTED form, so the unquoted one passes.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Found 2026-09-08 while purging tier names taken from a brand or a country, on Mike's instruction. Filed the same day rather than swept at shutdown."
+      },
+      "touches": "config/db-schema.sql, design/ADVISOR-E-DESIGN-LOGIC.md, TIER-CASCADE-MAP.md, MENTOR-TIER-CHAIN-PLAN.md, components/collaborate/screens/global.vue, server/collaborate/data/repository.js, and the tierVocabulary guard, which needs the unquoted pattern.",
+      "note": "🔴 A LARGE SHARE OF THE 45 ARE MIKE'S OWN WORDS IN DIRECT QUOTES - \"repeated at group manager or global manager\" (2026-07-30), \"too technical for a firm or global manager\" (2026-08-16). THOSE STAY VERBATIM. The job is separating his quotes from our prose, site by site, which is why it was not done at the end of a session. The guard pattern must be widened LAST, once our prose is clean, and it has to tolerate his quotes - most likely by exempting quoted spans rather than whole files.",
+      "comment": "2026-09-08 - found while purging tier names taken from a brand or a country, and filed on Mike's instruction rather than started at shutdown. One instance written by that same session was fixed on the spot; the other 45 were not touched."
     }
   ]
 }

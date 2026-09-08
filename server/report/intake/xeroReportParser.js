@@ -786,7 +786,7 @@ function extractProfitLoss (grid) {
 
 /**
  * Sniff an uploaded buffer and read it into cell grids — the file-type half of
- * parseUpload, split out so the by-month parser (monthlySalesParser.js) reads files
+ * the readers, split out so the by-month parser (monthlySalesParser.js) reads files
  * by exactly the same rules: same PDF refusal, same binary sniff, same hardened
  * xlsx reader. This is the ONLY place an uploaded buffer becomes cells.
  *
@@ -823,54 +823,83 @@ function gridsFromBuffer (buf) {
 }
 
 /**
- * Sniff an uploaded buffer, read it (xlsx or csv), detect which Xero report it is,
- * and extract the intake proposal. The single entry point the annual routes call.
+ * Read EVERY report an uploaded workbook holds, in sheet order.
+ *
+ * 🔴 A WORKBOOK CONTRIBUTES EVERY REPORT IT HOLDS, AND THIS IS THE ONE DEFINITION OF THAT
+ * (item 4.79, 2026-09-08). Both entry points below used to return the FIRST recognised
+ * sheet and stop. Real MYOB and QuickBooks exports are ONE workbook holding a Profit and
+ * Loss, a Balance Sheet and an asset register — with the P&L first — so the Balance Sheet,
+ * which is the one REQUIRED file, was never seen and the whole drop was refused with
+ * "A Balance Sheet is needed". An advisor was told to supply a Balance Sheet while looking
+ * at the file that contained one. Xero exports one report per file, which is why every
+ * test written before this one used that shape and none of them caught it.
+ *
+ * The asset-schedule scan in the forecast route (item 4.65) already read every sheet, so
+ * until this existed the codebase held two contradictory ideas of what a workbook is.
+ *
+ * AT MOST ONE REPORT PER SHEET: a sheet is one report, and `extractors` are tried in
+ * precedence order so a sheet that could satisfy two is claimed by the caller's first
+ * choice — the same order each entry point applied before.
  *
  * @param {Buffer} buf - the uploaded file's bytes.
- * @returns {object} on success: the extract result above.
+ * @param {Array<function>} extractors - grid readers, in precedence order.
+ * @returns {Array<object>} every recognised report, in sheet order. Never empty.
  * @throws {XlsxReadError|Error} err.code ∈ NOT_XLSX | CORRUPT_FILE | FILE_TOO_LARGE |
  *   TOO_MANY_PARTS | PDF_REJECTED | UNRECOGNISED_FILE | UNRECOGNISED_REPORT | MULTI_PERIOD_COLUMNS
  */
-function parseUpload (buf) {
+function reportsFromBuffer (buf, extractors) {
   const grids = gridsFromBuffer(buf)
 
+  const found = []
   for (let g = 0; g < grids.length; g++) {
-    const bs = extractBalanceSheet(grids[g])
-    if (bs.recognised) { return bs }
-    const pl = extractProfitLoss(grids[g])
-    if (pl.recognised) { return pl }
+    for (let e = 0; e < extractors.length; e++) {
+      const report = extractors[e](grids[g])
+      if (report.recognised) { found.push(report); break }
+    }
   }
-  const e = new Error('This does not look like a Balance Sheet or Profit and Loss export — expected the report title in the first rows. Reports from ' + supportedList() + ' can be read.')
-  e.code = 'UNRECOGNISED_REPORT'
-  throw e
+  if (!found.length) {
+    const e = new Error('This does not look like a Balance Sheet or Profit and Loss export — expected the report title in the first rows. Reports from ' + supportedList() + ' can be read.')
+    e.code = 'UNRECOGNISED_REPORT'
+    throw e
+  }
+  return found
 }
 
 /**
- * As `parseUpload`, but a Balance Sheet is read for the Three-Way Forecast's whole
- * opening position rather than Quick Position's five figures. Its own entry point so
- * that `parseUpload` — which Quick Position and EBITDA both call — is untouched.
+ * Every report a workbook holds, read for Quick Position and EBITDA & DCF — where a Balance
+ * Sheet gives Quick Position's five figures rather than the forecast's whole opening position.
+ *
+ * ⚠ THE CALLER CHOOSES WHAT IT NEEDS, AND NEITHER OF THEM TAKES "THE FIRST" (item 4.79
+ * slice 2, 2026-09-08). Quick Position wants both — its screen already keeps a Balance Sheet
+ * result and a P&L result side by side — and EBITDA & DCF wants the P&L, whichever sheet it
+ * sits on. Taking the first report here meant a combined MYOB or QuickBooks workbook filled
+ * the wrong zone on Quick Position and left Continue greyed out with nothing on screen saying
+ * why, and failed EBITDA's whole upload outright when the Balance Sheet happened to come first.
  *
  * @param {Buffer} buf - the uploaded file's bytes.
- * @returns {object} a `forecastBalanceSheet` or `profitLoss` extract.
- * @throws {XlsxReadError|Error} the same error codes as `parseUpload`.
+ * @returns {Array<object>} `balanceSheet` and `profitLoss` extracts, sheet order.
+ * @throws {XlsxReadError|Error} the codes listed on `reportsFromBuffer`.
  */
-function parseForecastUpload (buf) {
-  const grids = gridsFromBuffer(buf)
+function parseAnnualReports (buf) {
+  return reportsFromBuffer(buf, [extractBalanceSheet, extractProfitLoss])
+}
 
-  for (let g = 0; g < grids.length; g++) {
-    const bs = extractForecastBalanceSheet(grids[g])
-    if (bs.recognised) { return bs }
-    const pl = extractProfitLoss(grids[g])
-    if (pl.recognised) { return pl }
-  }
-  const e = new Error('This does not look like a Balance Sheet or Profit and Loss export — expected the report title in the first rows. Reports from ' + supportedList() + ' can be read.')
-  e.code = 'UNRECOGNISED_REPORT'
-  throw e
+/**
+ * Every report a workbook holds, read for the Three-Way Forecast — where a Balance Sheet
+ * becomes the whole OPENING POSITION rather than Quick Position's five figures. Its own
+ * entry point so that `parseAnnualReports`' contract is untouched.
+ *
+ * @param {Buffer} buf - the uploaded file's bytes.
+ * @returns {Array<object>} `forecastBalanceSheet` and `profitLoss` extracts, sheet order.
+ * @throws {XlsxReadError|Error} the codes listed on `reportsFromBuffer`.
+ */
+function parseForecastReports (buf) {
+  return reportsFromBuffer(buf, [extractForecastBalanceSheet, extractProfitLoss])
 }
 
 module.exports = {
-  parseUpload,
-  parseForecastUpload,
+  parseAnnualReports,
+  parseForecastReports,
   // Shared with the assembler so a client's account name has ONE definition of what is
   // stripped out of it, whether it reaches the screen as a candidate row or inside the
   // unrecognised-expenses warning. Two copies would drift and one would leak.

@@ -130,6 +130,12 @@ three existing prompts, so this becomes the fourth and is editable there without
 > a figure is against today's date, and use the most recently published data available. Do
 > not infer either date from anything else.
 >
+> Both dates above are given to you and are correct. Your own sense of what today is may be
+> earlier than the date given; that is expected, and it is not a contradiction to resolve or
+> to ask about. Do not stop, and do not ask permission to proceed. Research as far as the
+> most recently published data allows, and where that leaves you short of the date given, say
+> so in section 5 with the rest of what you could not source.
+>
 > You have been given one thing: a research brief written by the advisor, supplied below
 > between the marked delimiters. **It is the only information you hold about this business.**
 >
@@ -373,6 +379,56 @@ do with the date.
    run whose browser was killed mid-flight, so nothing should be read into it until it is seen
    again.
 
+---
+
+## 7c. Why §2 names our date as the one that counts
+
+**Approved by Mike and applied, 2026-09-08.** The paragraph is in §2 above and in
+`data/ai-prompts.json`.
+
+The model's own sense of the current date can be a day or more behind the server's. Given a
+`{{today}}` later than its own date, and told in the same section not to infer either date from
+anything else, it treated the difference as an unverifiable premise and stopped to ask permission
+instead of researching. A question carries none of the five headings, so `findSections` finds
+nothing and the guard refuses it.
+
+The paragraph removes exactly one behaviour: stopping to ask. It does not touch
+`{{assessmentDate}}`, relax the citation guard, permit an invented figure, or weaken §5 — a
+shortfall still has to be declared where §5 already exists for it. Run 21 shows it working: the
+same date limitation now appears in §5 of accepted research.
+
+⚠ **Prove any change to this prompt through the built route, never a probe.** A probe does not
+carry `{{today}}` and will pass where the route fails.
+---
+
+## 7d. Banned sources — reddit.com
+
+**Mike, 2026-09-08, approved and applied.** Added to §3:
+
+> These sources are not permitted and must not be cited: `{{bannedSources}}`. If the only
+> support you can find for a point is there, treat that point as unsourced and say so in
+> section 5.
+
+And refused in code as `SOURCE_NOT_PERMITTED`, seen by the advisor as:
+
+> The research cited a source that is not permitted in a report a lender will read, so it has
+> been refused rather than shown. Run it again.
+
+**Both, because §3 already said "prefer primary and official sources" and the model cited
+Reddit anyway.** An instruction the model may not follow is not a ban.
+
+**One home.** The host is written once, as `bannedSourceHosts` on this prompt in
+`data/ai-prompts.json`. §3 renders it through `{{bannedSources}}` and the guard reads the same
+array, so instruction and enforcement cannot drift. It is data rather than code because content
+that shapes AI output has to be visible on a hub page — this prompt already renders on the AI
+Prompts tab at all four tiers, so a site can be added there without a developer.
+
+⚠ **A host matches if it EQUALS an entry or ENDS WITH a dot plus that entry.** `hostOf` strips
+`www.` and nothing else, so plain equality would ban `reddit.com` and let `old.reddit.com`
+through; a bare `endsWith` would ban `notreddit.com`. Both directions are tested.
+
+**Scope is `reddit.com` alone.** Banning forums or user-generated content generally is a
+separate decision of Mike's.
 ---
 
 ## 8. Rules of this page

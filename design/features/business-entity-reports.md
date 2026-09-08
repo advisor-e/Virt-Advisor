@@ -204,9 +204,15 @@ clears the accounts files on screen so nothing credits a file that did not suppl
 figures. A client changing a file month makes it `entered`, as the advisor's own edit does,
 and the month is badged on its label. The accounts upload is hidden from a client.
 
-**Wording proposed and not yet ruled** (`locales/en.json`, `clientReports.saved.*`): the
+✅ **Wording CHECKED AND APPROVED BY MIKE** (`locales/en.json`, `clientReports.saved.*`): the
 "saved by" lines, the banner sentence, the badge word `client`, and the four failure messages.
 The nothing-to-save notice (`nothingYet`) was ruled by Mike on 2026-09-07.
+
+🔴 **This line read "proposed and not yet ruled" until 2026-09-08, and it was wrong — he had
+approved them.** Corrected on his own word. It matters because the claim was load-bearing: a
+session that day was about to hold item 4.62 open on it, so an out-of-date sentence in a Brief
+was one step from manufacturing work Mike had already settled. **A wording line in a Brief says
+what is true now — if approval arrives, the sentence is replaced, not left standing beside it.**
 
 **The Three-Way Forecast carries the WHOLE intake, on Mike's ruling of 2026-09-05:** *"anything
 an advisor can edit, the client can edit."* So the saved row is the confirmed opening balance

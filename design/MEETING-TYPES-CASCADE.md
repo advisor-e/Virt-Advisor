@@ -1,7 +1,8 @@
 # Meeting Types and Observation Points — the full cascade
 
-> **Status: ☐ AWAITING MIKE'S APPROVAL.** Nothing here is built. Written 2026-09-02 on his
-> instruction; registered in [`ARTEFACTS.md`](ARTEFACTS.md).
+> **Status: ✅ APPROVED BY MIKE 2026-09-02**, all four decisions in §6 ruled the same day.
+> **Slices 1–3 of §7 are BUILT; slice 4 is not.** Written 2026-09-02 on his instruction;
+> registered in [`ARTEFACTS.md`](ARTEFACTS.md).
 >
 > **As a page:** https://claude.ai/code/artifact/d685c390-a0aa-4c67-a85b-ef0654eea7df
 >
@@ -107,11 +108,12 @@ advisor and per client would mean inventing a fake firm for every advisor and ev
 firm has. That is thousands of rows that are not firms, and a schema the master team owns.
 
 **Recommendation: keep the advisor's and the entity's decisions inside their own firm's row**,
-under two new config keys, each a map keyed by advisor id or client id:
+under config keys that name the person they belong to:
 
 ```
-meeting-observation-advisor   { advisorId: { typeId: {declines, overrides, own} } }
-meeting-observation-entity    { clientId:  { typeId: {declines, overrides, own} } }
+meeting-observation-advisor-declines:<advisorId>   { name, scenarios: { typeId: [pointId] } }
+meeting-observation-advisor-own:<advisorId>        { name, scenarios: { typeId: [point] }, nextSeq }
+meeting-observation-entity:<clientId>              (the per-client half — not built, not drawn)
 ```
 
 Three properties come out of that, and all three matter:
@@ -124,6 +126,27 @@ Three properties come out of that, and all three matter:
 The cost, stated plainly: history is per firm rather than per advisor, so "who changed this"
 is answered at firm granularity. That is acceptable for a preference; it would not be for a
 regulated record, and this is not one.
+
+🔴 **TWO DEVIATIONS FROM THE SHAPE THIS SECTION FIRST SKETCHED, both recorded rather than
+quietly absorbed.** It proposed ONE key holding `{ advisorId: { typeId: … } }` for the whole
+firm.
+
+1. **Two keys, not one** — declines and own points separately, matching every sibling in the
+   app (`firmStaircase`, `meetingObservations`, `meetingTypes`). Put to Mike on 2026-09-08
+   before the build and approved.
+2. **A row per advisor, not a map of the firm** — item **4.75**, 2026-09-08. Under the single
+   map, every advisor read the whole firm's map, changed their own entry and wrote it all
+   back, with no compare-and-set beneath. Two advisors saving inside the same read-write meant
+   the second wrote a copy that never held the first's change; **both were answered 200 and no
+   screen would ever have shown the loss.** One row per advisor gives each row one writer, so
+   there is no lost write to detect. The alternative — compare-and-set inside `saveFirmConfig`
+   — was rejected: that function is shared by more than forty callers with nothing to do with
+   this. Nothing was migrated because nothing existed to migrate; these keys had never reached
+   `master`.
+
+The whole-firm read a manager's screen needs is `firmOverlay.loadFirmConfigsByPrefix`, one
+query over the prefix. **It does not cascade**, deliberately: per-person rows belong to the
+person, and a tier above the firm has no people beneath it to inherit from.
 
 **The client already exists as a record** — `/api/clients` is the firm's register, the list an
 advisor picks from at the start of a session. So the bottom of the cascade attaches to
@@ -146,18 +169,53 @@ Everything else follows from the rulings already given.
 
 ## 7. How it would be built
 
-Four slices, each shippable and each useful alone. **Nothing starts until the design is
-approved.**
+Four slices, each shippable and each useful alone.
 
-1. **Types become data.** The eleven move out of the coaching-tree dependency and carry their
-   own names, with the optional link. No new levels yet. Nothing visible changes — which is how
-   it should be proven, because it is a change of foundation.
-2. **The mentor authors types on screen.** Create, rename, reorder, switch off — the same tab
-   that already holds the points.
-3. **Types cascade to the four manager levels.** Reuses the mechanism switched on for the points
-   on 2026-09-02; the tab already exists at all four.
-4. **The advisor and entity levels.** The two new config keys, the advisor's own screen, and
-   the per-client tailoring on the pre-set. This is the only slice with new storage in it.
+1. ✅ **BUILT 2026-09-02 — Types become data.** The eleven moved out of the coaching-tree
+   dependency and carry their own names, with the optional link. No new levels. Nothing
+   visible changed — which is how it was proven, because it is a change of foundation.
+2. ✅ **BUILT 2026-09-02 — The mentor authors types on screen.** Create, rename, reorder,
+   switch off, in `components/firm/FirmMeetingTypes.vue` on the tab that already holds the
+   points.
+3. ✅ **BUILT 2026-09-08 — Types cascade to the four manager levels.** It was one line, as
+   slice 2 predicted: the resolver (`loadResolvedTypes`) had recursed the tier chain from the
+   start and every route was already scoped to `req.firmId`, so the only thing holding it to
+   the mentor was the `visible` computed property on that component. ⚠ **That property is no
+   longer a permission check and must not be made one again** — `tierOfScope` returns exactly
+   four values, so a condition naming all four is always true. P14 is enforced on the backend,
+   where it always was. Pinned by `tests/unit/meetingTypesCascade.component.test.js`.
+4. ◐ **HALF BUILT — The advisor level SHIPPED 2026-09-08; the entity level has not.** The two new config keys, the advisor's own
+   screen, and the per-client tailoring on the pre-set. This is the only slice with new
+   storage in it, and D1/D2 make one more thing mandatory with it: **the pre-set must name
+   where each point came from**, because after slice 4 there are five possible sources.
+
+   **It is drawn in two halves** — [`mockups/meeting-preset-advisor-level.html`](mockups/meeting-preset-advisor-level.html)
+   covers the advisor's own level only. The per-client half is deliberately not drawn yet: it
+   hangs off the client picker, which is empty without MySQL, and a screen nobody can verify
+   is how item 4.62's saved reports became "wired but never proven".
+
+   ✅ **THE ADVISOR'S HALF IS BUILT (2026-09-08)** — `server/utils/meetingObservationsAdvisor.js`,
+   five routes, the pre-set made editable, and the manager's view below. Storage is **two**
+   config keys on the advisor's own firm row rather than the one this document sketched, a
+   deviation put to Mike and approved before the build.
+
+   ☐ **THE ENTITY LEVEL IS NOT BUILT AND NOT DRAWN.** It hangs off the client picker, which is
+   empty without MySQL.
+
+   🔴 **AND IT GAINED A THIRD PART ON 2026-09-08.** Ruling on the drawing's question 1 — *may
+   an advisor switch off a point their firm set?* — Mike answered **yes**, and then refused the
+   cost that came with it: *"yes but fix the issue - build it so the manager can see"*. So a
+   **manager's view of what their advisors have set aside** ships in this slice, not later — and
+   it does: `setAsideSummary`, `GET /api/firm-manager/meeting-observations/set-aside`, firm
+   tier only. The general lesson, worth more than the instance: **a cost recorded against a
+   recommendation is not a cost accepted by ruling on it.**
+
+   ⚠ **ONE THING THE DRAWING ASKED FOR CANNOT BE BUILT, AND IT IS WORTH KNOWING BEYOND THIS
+   FEATURE: THERE IS NO ADVISOR ROSTER IN THIS APPLICATION.** `config/db-schema.sql` states
+   four times that the advisors table belongs to Advisor-e. So a firm's headcount is
+   unknowable here and the drawing's "4 of 12" had to go; Mike ruled on 2026-09-08 that the
+   screen shows only what the app can know, and wrote the line that says so. **Any future
+   feature wanting a "% of your team" figure hits this same wall.**
 
 ---
 

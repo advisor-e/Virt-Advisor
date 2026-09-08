@@ -402,6 +402,41 @@ describe('polling a run', () => {
     expect(res._body.error.detail).toBeUndefined()
   })
 
+  // 🔴 ITEM 4.73. Every run through this route failed on the default path on 2026-09-07 and
+  // 2026-09-08, and why could not be established: the reply was validated and then dropped.
+  // The refusal code cannot tell the two failures apart — runs 17 and 19 lost ALL FIVE
+  // sections, run 18 parsed cleanly and cited nothing — so the text is the evidence.
+  test('🔴 a refused reply is logged, because the code alone cannot say why it failed', async () => {
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      const bad = responseFrom('Trade grew and rents rose, broadly speaking.')
+      await runOnce([{ type: 'response.completed', response: bad }])
+      const logged = spy.mock.calls.map(c => c.join(' ')).join('\n')
+      expect(logged).toContain('raw reply')
+      expect(logged).toContain('Trade grew and rents rose, broadly speaking.')
+    } finally {
+      spy.mockRestore()
+    }
+  })
+
+  test('but never in production, where an advisor\'s own brief would accumulate in the log', async () => {
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const before = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    try {
+      const bad = responseFrom('Trade grew and rents rose, broadly speaking.')
+      await runOnce([{ type: 'response.completed', response: bad }])
+      const logged = spy.mock.calls.map(c => c.join(' ')).join('\n')
+      // The refusal itself is still recorded — so this is the gate working, not the run
+      // failing earlier for some other reason and the assertion passing on nothing.
+      expect(logged).toContain('refused:')
+      expect(logged).not.toContain('raw reply')
+    } finally {
+      if (before === undefined) { delete process.env.NODE_ENV } else { process.env.NODE_ENV = before }
+      spy.mockRestore()
+    }
+  })
+
   test('an unknown run is a 404', () => {
     const res = makeMockRes()
     routes.getRun(makeReq({ params: { runId: 'ea_nope' } }), res, noop)

@@ -130,8 +130,8 @@ describe('hub tab matrix — the live hubs are untouched', () => {
 
 describe('hub tab matrix — the two new tiers', () => {
   // design/mockups/tier-hub-pages.html §2: "Why the two middle columns are
-  // identical" — a global group manager and a country group manager do the same
-  // job at a different width.
+  // identical" — a global group manager and a group manager do the same job at a
+  // different width.
   it('the global and group tiers show identical tabs', () => {
     expect(tabsAt('global')).toEqual(tabsAt('group'))
   })

@@ -87,19 +87,19 @@ describe('three-level ceiling (most-closed-wins)', () => {
     expect(await reach()).toBe(false)
   })
 
-  test('closing the COUNTRY level alone seals it (branch record untouched)', async () => {
+  test("closing a GROUP MANAGER's own level alone seals it (branch record untouched)", async () => {
     require('../../server/collaborate/data/roles').setOverride('me', 'group_manager') // 'me' heads Advisor-e Germany
-    await repo.setFirmPosture('me', 'closed') // writes the COUNTRY level
+    await repo.setFirmPosture('me', 'closed') // writes the group manager's own level
     expect(await repo.getOrgPosture('Advisor-e Munich')).toBe('open') // branch level untouched
     expect(await reach()).toBe(false)
   })
 
-  test('closing the BRAND level seals EVERY branch with a single write (the scale property)', async () => {
-    require('../../server/collaborate/data/roles').setOverride('me', 'global_group_manager') // 'me' heads the Advisor-e brand
-    await repo.setFirmPosture('me', 'closed') // writes the GLOBAL level only
+  test("closing a GLOBAL GROUP MANAGER's own level seals EVERY branch with a single write (the scale property)", async () => {
+    require('../../server/collaborate/data/roles').setOverride('me', 'global_group_manager') // 'me' heads Advisor-e
+    await repo.setFirmPosture('me', 'closed') // writes the global group level only
     expect(await repo.getOrgPosture('Advisor-e Munich')).toBe('open') // no per-branch fan-out
-    // One brand-level write hides every Advisor-e branch from an outside viewer —
-    // this is what lets the model hold at a brand with ~1,700 branches.
+    // One write at the global group hides every Advisor-e branch from an outside viewer —
+    // this is what lets the model hold at a global group with ~1,700 branches.
     const list = await repo.listAdvisors({ myId: 'bob-lindt', excludeId: 'bob-lindt' })
     expect(list.some(a => a.globalGroup === 'Advisor-e')).toBe(false)
     expect(list.some(a => a.id === 'anna-r')).toBe(true) // a different brand (BDO) is unaffected
@@ -113,7 +113,7 @@ describe('tier-scoped posture writes (a manager writes only their own level)', (
     expect(await repo.getOrgPosture('Advisor-e Munich')).toBe('closed')
   })
 
-  test('a Group Manager writes the COUNTRY level — other countries of the brand are unaffected', async () => {
+  test("a Group Manager writes only their own level — the global group's other countries are unaffected", async () => {
     require('../../server/collaborate/data/roles').setOverride('me', 'group_manager')
     const r = await repo.setFirmPosture('me', 'closed')
     expect(r).toEqual(expect.objectContaining({ level: 'country', scope: 'Advisor-e||DE' }))

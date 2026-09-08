@@ -15,6 +15,7 @@ const db = require('../../server/utils/db')
 const {
   deepMerge,
   loadFirmConfig,
+  loadFirmConfigsByPrefix,
   saveFirmConfig,
   getVersionHistory
 } = require('../../server/utils/firmOverlay')
@@ -115,6 +116,79 @@ describe('loadFirmConfig', () => {
     const [, params] = db.execute.mock.calls[0]
     expect(params).toContain('firm-abc')
     expect(params).toContain('domain-weights')
+  })
+})
+
+// ── loadFirmConfigsByPrefix (DB-mocked) ───────────────────────────────────────
+//
+// Added for item 4.75, which split one shared row into a row per advisor so that two people
+// in a firm can never overwrite one another. This is how the whole set is read back — and it
+// is the read a firm manager's screen depends on, so a key it silently drops is an advisor
+// missing from that screen with nothing to show it happened.
+
+describe('loadFirmConfigsByPrefix', () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  test('returns each row under the prefix, keyed by what follows it', async () => {
+    db.execute.mockResolvedValue([[
+      { config_key: 'advisor-own:adv-1', config_json: '{"a":1}' },
+      { config_key: 'advisor-own:adv-2', config_json: '{"a":2}' }
+    ]])
+    const result = await loadFirmConfigsByPrefix('firm-123', 'advisor-own:')
+    expect(result).toEqual({ 'adv-1': { a: 1 }, 'adv-2': { a: 2 } })
+  })
+
+  test('returns an empty object when the scope holds none', async () => {
+    db.execute.mockResolvedValue([[]])
+    expect(await loadFirmConfigsByPrefix('firm-123', 'advisor-own:')).toEqual({})
+  })
+
+  test('highest version wins for one key, matching a single-key read', async () => {
+    db.execute.mockResolvedValue([[
+      { config_key: 'advisor-own:adv-1', config_json: '{"a":1}' },
+      { config_key: 'advisor-own:adv-1', config_json: '{"a":9}' }
+    ]])
+    const result = await loadFirmConfigsByPrefix('firm-123', 'advisor-own:')
+    expect(result['adv-1']).toEqual({ a: 9 })
+  })
+
+  test('drops a key whose newest row is unparseable, never falling back to an older one', async () => {
+    // The same answer loadFirmConfig gives. Returning the superseded row instead would serve
+    // content a later save was meant to replace, and nothing would look wrong.
+    db.execute.mockResolvedValue([[
+      { config_key: 'advisor-own:adv-1', config_json: '{"a":1}' },
+      { config_key: 'advisor-own:adv-1', config_json: 'not valid json {{{' }
+    ]])
+    expect(await loadFirmConfigsByPrefix('firm-123', 'advisor-own:')).toEqual({})
+  })
+
+  test('ignores the bare prefix, which is a different key', async () => {
+    db.execute.mockResolvedValue([[
+      { config_key: 'advisor-own', config_json: '{"old":true}' },
+      { config_key: 'advisor-own:adv-1', config_json: '{"a":1}' }
+    ]])
+    expect(await loadFirmConfigsByPrefix('firm-123', 'advisor-own:')).toEqual({ 'adv-1': { a: 1 } })
+  })
+
+  test('escapes LIKE wildcards so a prefix cannot widen the read', async () => {
+    // No caller passes one today. The guard is here because a `%` reaching the pattern would
+    // return rows the caller never asked for — a scope reading more of its own row than
+    // intended, and silently.
+    db.execute.mockResolvedValue([[]])
+    await loadFirmConfigsByPrefix('firm-abc', 'a%b_c:')
+    const [, params] = db.execute.mock.calls[0]
+    expect(params[1]).toBe('a\\%b\\_c:%')
+  })
+
+  test('reads only the scope it was given', async () => {
+    db.execute.mockResolvedValue([[]])
+    await loadFirmConfigsByPrefix('firm-abc', 'advisor-own:')
+    const [sql, params] = db.execute.mock.calls[0]
+    expect(params[0]).toBe('firm-abc')
+    // No cascade: per-person rows belong to the person, and a tier above has no people
+    // beneath it to inherit from.
+    expect(db.execute).toHaveBeenCalledTimes(1)
+    expect(sql).toContain('is_active = 1')
   })
 })
 
