@@ -163,8 +163,10 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   <b>full cascade functionality</b> across all four tiers. Filed on your instruction after you
   overturned the recommendation against it — the uploader is an accountant who should be
   encouraged to check their sources.</p>
-  <p><b>Five open questions are in §7</b>, each with a recommendation. Nothing gets built until
-  they are ruled.</p>
+  <p>🔴 <b>ALL FIVE QUESTIONS WERE RULED BY MIKE ON 2026-09-08 — §7 records each ruling.</b>
+  Question 4 grew a sixth: he asked whether an advisor can load a document for a client in a
+  different country. As drawn the answer was no, which left the advisor stuck; the ruling is that
+  <b>an advisor may load, and the firm manager approves</b>. See the ⚠ note at §7.</p>
 </div>
 
 <div class="hub-top">
@@ -237,6 +239,16 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
           loaded 8 Sep 2026 by M. Bell</div>
       </div>
       <span class="pill wait">Needs your approval</span>
+    </div>
+
+    <div class="doc">
+      <div class="ico">PDF</div>
+      <div class="meta">
+        <div class="nm">TR 2025/1 — Effective life of depreciating assets</div>
+        <div class="sub">Australian Taxation Office · July 2025 · <b>Australia</b> ·
+          88 rates proposed · loaded 8 Sep 2026 by <b>J. Advisor</b>, for Harbour Freight Pty Ltd</div>
+      </div>
+      <span class="pill wait">Advisor proposal</span>
     </div>
 
     <div class="drop" style="margin-top:18px">
@@ -393,36 +405,55 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   </div>
 </div>
 
-<div class="stepmark">7 · Five questions for Mike — nothing is built until these are ruled</div>
+<div class="stepmark">7 · The six rulings — all given by Mike, 2026-09-08</div>
 
 <div class="card">
   <div class="card-b">
     <ul class="gaps" style="font-size:13.5px">
-      <li><b>1 · Two documents give the same asset class a different rate. Which wins?</b>
-        <span class="rec">Recommendation: the document with the newer publication date, with the
-        loser shown beside it and never silently dropped</span> — so a firm can see the
-        disagreement and overrule it. Silent selection is how a wrong rate becomes invisible.</li>
+      <li><b>1 · Two documents give the same asset class a different rate.</b>
+        ✅ <b>The newer publication date wins, and the older figure is shown beside it</b> —
+        never silently dropped, so the firm sees the disagreement and can overrule it. Silent
+        selection is how a wrong rate becomes invisible.</li>
 
-      <li><b>2 · A firm has loaded nothing. What does it use?</b>
-        <span class="rec">Recommendation: the nearest approved table above it in the cascade,
-        read-only and badged with which tier it came from</span> — falling back to the app's own
-        defaults only when no tier above has one.</li>
+      <li><b>2 · A firm has loaded nothing.</b>
+        ✅ <b>It inherits the nearest approved table above it in the cascade</b> — group manager,
+        then global group manager, then mentor — read-only and badged with which tier it came
+        from. The app's own defaults apply only when no tier above has one.</li>
 
-      <li><b>3 · Rates are approved but a client's country has no table. Block, or carry on?</b>
-        <span class="rec">Recommendation: carry on with today's defaults, badged
-        <span class="badge def">app default</span> on the forecast itself</span> — never block an
-        advisor mid-report over a document a manager has not loaded.</li>
+      <li><b>3 · A client's country has no table.</b>
+        ✅ <b>Carry on with today's defaults, badged <span class="badge def">app default</span> on
+        the forecast itself. Never block the advisor.</b> Stopping someone mid-report because a
+        manager has not loaded a document punishes the wrong person.</li>
 
-      <li><b>4 · Does an approved table apply to every client, or only clients in its country?</b>
-        <span class="rec">Recommendation: only clients in the country the table is tagged with</span>
-        — a firm advising across two countries is exactly why you asked for multiple documents.</li>
+      <li><b>4 · Scope of an approved table.</b>
+        ✅ <b>It is tagged with its country and applies only to clients in that country.</b> A New
+        Zealand rate would otherwise quietly depreciate an Australian client's assets.</li>
 
-      <li><b>5 · Who may load and approve, within a firm?</b>
-        <span class="rec">Recommendation: the firm manager alone, not advisors</span> — approving
-        a rate table changes every forecast the firm produces, and it is already the role gate the
-        hub's other editable blocks use.</li>
+      <li><b>5 · Who may load, and who may approve.</b>
+        ✅ <b>An advisor may LOAD a document; only the firm manager APPROVES it.</b> Approving a
+        rate table changes every forecast the firm produces, and approval stays on the role gate
+        the hub's other editable blocks already use.</li>
     </ul>
   </div>
+</div>
+
+<div class="mock">
+  <p>⚠ <b>QUESTION 4 GREW A SIXTH, AND IT CHANGED THE ANSWER TO QUESTION 5.</b> Mike asked:
+  <i>"does the advisor have the ability to enter a tax doc for the client with the different
+  country?"</i> As first drawn the answer was <b>no</b> — the firm manager was the only one who
+  could load anything, so an advisor with a client in an uncovered country got the built-in
+  defaults and no way to improve them without waiting on their manager. That is the wrong answer
+  for the person sitting in front of the client.</p>
+  <p>Letting an advisor load <i>and</i> approve would have brought back the problem that argued
+  against firm-level ownership in the first place: several advisors in one firm each extracting
+  the same country's rates, ending with different tables, and a lender-facing forecast built on
+  whichever one that advisor happened to make — <b>no second pair of eyes on a number a bank
+  reads</b>. Splitting loading from approving answers both.</p>
+  <p>🔴 <b>THE ADVISOR'S OWN SCREEN IS NOT DRAWN AND MUST NOT BE BUILT FROM THIS FILE.</b> This
+  drawing is the Firm Manager hub tab; all it shows of the advisor's half is the <b>Advisor
+  proposal</b> row in §2, which is where their upload arrives. Where the advisor loads it, what
+  they see while it is pending, and how the forecast badges an unapproved country all need their
+  own drawing and their own approval before that half is built.</p>
 </div>
 
 <div class="mock" style="margin-top:26px">
