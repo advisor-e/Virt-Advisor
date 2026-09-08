@@ -490,7 +490,23 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
       </div>
       <div class="tie bad">
         <span>QuickBooks &mdash; Fixed Asset Listing, eleven assets totalled</span>
-        <span><b>125,825.00</b> &nbsp; out by <b>19,475.00</b></span>
+        <span><b>125,300.00</b> &nbsp; out by <b>20,000.00</b></span>
+      </div>
+      <div class="tie bad">
+        <span>🔴 QuickBooks &mdash; and the file&rsquo;s OWN totals line says</span>
+        <span><b>125,825.00</b> &nbsp; 525.00 more than its own rows add to</span>
+      </div>
+
+
+      <div class="note-why" style="margin-top:12px">
+        🔴 <b>THE BUILD FOUND A SECOND THING THE DRAWING COULD NOT (2026-09-08).</b> The
+        QuickBooks file <b>does not tie to itself</b>. Every asset row is internally consistent
+        &mdash; cost less accumulated depreciation equals net book value on all eleven &mdash; and
+        the cost total is right. But its <b>totals line understates accumulated depreciation by
+        525</b>, so the book-value total it prints (125,825) is 525 more than its own rows add to
+        (125,300). <b>The reader uses the ROWS</b>, because those are the assets that can be offered
+        for sale, and it raises a warning when the file&rsquo;s own total disagrees. That check
+        earned its place on its first real run.
       </div>
 
       <div class="note-why" style="margin-top:14px">
@@ -650,7 +666,7 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
     <div class="qn">Question 3</div>
     <h3>When the schedule does not tie to the balance sheet, does the app say so?</h3>
     <div class="ruled"><span class="who">Mike’s ruling</span><b>RULED YES &mdash; Mike, 2026-09-08.</b> The difference is shown once, quietly, and never blocks. <b>The wording itself is not settled</b> and comes back to him separately.</div>
-    <p>Neither of the two real exports ties &mdash; out by <b>16,524</b> and <b>19,475</b>
+    <p>Neither of the two real exports ties &mdash; out by <b>16,524</b> and <b>20,000</b>
     (&sect;4). So this is the ordinary case, not the exception.</p>
     <div class="rec"><b>Recommendation: say it once, quietly, and never block.</b> One line under
     the schedule: the two totals and the difference. It changes no figure, because the balance

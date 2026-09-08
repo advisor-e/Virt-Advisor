@@ -139,7 +139,7 @@
         "detail": "2026-09-03 — he challenged the typed field directly (\"if i have a vehicle it must be listed in the asset schedule and balance sheet - which is paired to the depreciation rates - cant see why you cant pull the book value from that?\"), was shown that the figure lives on a report the app never asks for, and chose: \"typing it for now\"."
       },
       "touches": "NOTHING YET, and it needs its own drawing and Mike approval before any of it. Then: server/report/intake/xeroReportParser.js (a fifth report kind), supportedPackages.js, server/routes/report.js and components/ThreeWayForecastIntake.vue (a fifth slot, and the Sell row becoming a chooser rather than two typed figures).",
-      "note": "DRAWN 2026-09-08 AND WAITING ON MIKE - design/mockups/three-way-forecast-asset-schedule.html, six questions each with one recommendation. The files arrived 2026-09-07 inside the exports that closed 4.60, so this no longer waits on collecting anything. THE FINDING THAT SHAPED IT: neither real schedule ties to its own balance sheet (145,300 against 128,775.83 and 125,825), so the schedule is used ONLY to look up one asset book value on a Sell row and the Balance Sheet stays the opening position.",
+      "note": "DRAWN 2026-09-08 AND WAITING ON MIKE - design/mockups/three-way-forecast-asset-schedule.html, six questions each with one recommendation. The files arrived 2026-09-07 inside the exports that closed 4.60, so this no longer waits on collecting anything. THE FINDING THAT SHAPED IT: neither real schedule ties to its own balance sheet (145,300 against 128,775.83 and 125,300), so the schedule is used ONLY to look up one asset book value on a Sell row and the Balance Sheet stays the opening position.",
       "comment": "2026-09-03 - filed at the moment Mike ruled \"typing it for now\", so the version he would rather have is on the list rather than in a conversation. 2026-09-08 - the files it waited for had already arrived; drawn the same day and put to him. Nothing is blocked meanwhile: the capital block is built, tested and honest, and the advisor types one number they read off their own schedule."
     },
     {
@@ -246,6 +246,27 @@
       "touches": "A new Firm Manager Hub tab and its upload route, the untrusted-file validation procedure in the master-export-upload skill (last-known-good, version history), an OpenAI extraction route on the Restify backend, an approval gate carrying isApproved, and the six ASSET_SPECS defaults in components/ThreeWayForecastIntake.vue that it would replace.",
       "note": "AI PROPOSES, THE MANAGER APPROVES, AND NOTHING READS AN UNAPPROVED TABLE - CLAUDE.md already requires this for financial output (isApproved before committing). Every rate shows its source document and date, so a 2023 file on a 2026 screen warns by itself. IT MUST ALSO SHOW WHAT THE AI COULD NOT FIND: on 2026-09-08 a session read IR260 and IR265 in full and still concluded NZ had no first-year regime, because Investment Boost postdates both - a gap invisible from inside the file. OPEN JUDGEMENT FOR MIKE: rules are per COUNTRY, so the group-manager tier may be the natural owner rather than the mentor. Tax PDFs are public, so no PII question arises.",
       "comment": "2026-09-08 - raised by Mike and filed on his instruction the same day. The recommendation was AGAINST it and he overturned it: the uploader is a firm manager who knows the topic and should be encouraged to check their sources. The concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers."
+    },
+    {
+      "ref": "4.79",
+      "name": "Only the first report in a workbook is read, so a real export is refused",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "parseForecastUpload returns the first recognised report across a workbook's sheets. Both real MYOB and QuickBooks exports put the Profit and Loss first, so the Balance Sheet behind it is ignored - and it is the one required file.",
+      "risk": "An advisor is told to drop a Balance Sheet while looking at the file that contains one, and must split the workbook by hand. It fails loudly rather than silently, which is the only reason this is not worse. It is the ordinary case for two of the three supported packages: Xero exports one report per file, MYOB and QuickBooks do not.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Found 2026-09-08 while building item 4.65 slice 1, by running Mike's own exports through the route - a test written for the asset schedule failed on the balance sheet. Filed on his instruction the same day."
+      },
+      "touches": "server/report/intake/xeroReportParser.js parseForecastUpload, which returns one report and would need to return every recognised sheet, and the loop in server/routes/report.js that pushes into annual. parseUpload is the twin Quick Position and EBITDA call and has the same shape. tests/unit/threeWayForecastIntakeRoute.test.js pins the defect deliberately.",
+      "note": "PINNED BY A TEST THAT ASSERTS THE WRONG BEHAVIOUR ON PURPOSE, so a fix breaks it rather than passing unnoticed - see 'DOCUMENTS A DEFECT' in threeWayForecastIntakeRoute.test.js. The asset-schedule scan built for 4.65 already reads EVERY sheet, so the two readers now disagree about what a workbook is: one takes the first match, the other takes all. parseUpload has the same shape and serves Quick Position and EBITDA, so a fix should be weighed for both rather than applied to the forecast alone. Needs a proposal before code: returning several reports from one file changes what the assembler receives.",
+      "comment": "2026-09-08 - found while building 4.65 slice 1 and filed on Mike's instruction the same day. It surfaced only because his real exports were run through the route; every existing test used one report per file, which is how Xero exports and not how MYOB or QuickBooks do."
     }
   ]
 }

@@ -30,6 +30,7 @@ const { listReportModels } = require('../utils/reportModels')
 const { parseUpload, parseForecastUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
 const { parseMonthlyUpload } = require('../report/intake/monthlySalesParser')
+const { parseAssetScheduleUpload, compareToBalanceSheet } = require('../report/intake/assetScheduleParser')
 const { assembleMonthlySeries, MAX_FILES: MAX_MONTHLY_FILES } = require('../report/intake/monthlySeriesAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
 // The overlay reader with its dev-JSON fallback, taken from the thresholds route rather
@@ -857,8 +858,23 @@ async function threeWayForecastIntake (req, res) {
     // the annual reader first and the third slot could never work at all.
     const annual = []
     const monthly = []
+    const schedules = []
     for (let u = 0; u < uploaded.length; u++) {
       const buf = fs.readFileSync(uploaded[u].filepath)
+
+      // 🔴 THE ASSET SCHEDULE IS LOOKED FOR IN EVERY FILE, AND FINDING ONE DOES NOT CLAIM THE
+      // FILE. Item 4.65, slice 1. Both of the real exports are ONE workbook holding a Profit
+      // and Loss, a Balance Sheet and a schedule, so the two readers below — which stop at the
+      // first recognised sheet — would return the P&L and never see the register. This scan
+      // reads every sheet and is additive: one file can legitimately contribute both.
+      let schedule = null
+      try {
+        schedule = parseAssetScheduleUpload(buf)
+      } catch (schedErr) {
+        schedule = null // unreadable as a schedule; the readers below report on the file
+      }
+      if (schedule) { schedules.push(schedule) }
+
       let byMonth = null
       try {
         byMonth = parseMonthlyUpload(buf)
@@ -874,7 +890,14 @@ async function threeWayForecastIntake (req, res) {
         monthly.push(byMonth)
         continue
       }
-      annual.push(parseForecastUpload(buf))
+      try {
+        annual.push(parseForecastUpload(buf))
+      } catch (annualErr) {
+        // A workbook holding ONLY a Fixed Asset Schedule is a legitimate drop — the seventh
+        // slot is exactly that — so it must not be refused as an unreadable export. Any file
+        // that yielded no schedule either is still a genuine failure and is thrown on.
+        if (!schedule) { throw annualErr }
+      }
     }
 
     // The assembler takes twelve monthly sales figures. `assembleMonthlySeries` joins the
@@ -928,6 +951,36 @@ async function threeWayForecastIntake (req, res) {
     const data = assembleForecastIntake(annual, monthlySales)
     for (let w = 0; w < monthlyWarnings.length; w++) { data.warnings.push(monthlyWarnings[w]) }
     data.history = history
+
+    // The Fixed Asset Schedule (item 4.65). It seeds NOTHING and changes no figure in
+    // `data.proposal` — its only job is to let a Sell row look up one asset's book value.
+    //
+    // 🔴 IT MUST NEVER BECOME THE OPENING POSITION, and the drawing's §4 is why: measured on
+    // both real exports, neither schedule ties to its own balance sheet — 16,524 and 20,000
+    // apart. A register is a sub-ledger. Letting it seed the six categories would have
+    // understated fixed assets by 16,524 and charged too little depreciation all year, and the
+    // forecast would still have balanced.
+    data.assetSchedule = null
+    if (schedules.length) {
+      if (schedules.length > 1) {
+        data.warnings.push('More than one Fixed Asset Schedule was dropped. The first has been used; drop a single schedule if that is not the one you wanted.')
+      }
+      const s = schedules[0]
+      for (let w = 0; w < s.warnings.length; w++) { data.warnings.push(s.warnings[w]) }
+      // The six category openings, as the Balance Sheet gave them, are what the schedule is
+      // compared against — the same figures step 2 puts on screen.
+      const bsFixedAssets = (data.proposal && Array.isArray(data.proposal.assets))
+        ? data.proposal.assets.reduce((t, a) => t + (Number(a.opening) || 0), 0)
+        : null
+      data.assetSchedule = {
+        companyName: s.companyName,
+        reportDate: s.reportDate,
+        assets: s.assets,
+        totalCost: s.totalCost,
+        totalBookValue: s.totalBookValue,
+        tie: compareToBalanceSheet(s.totalBookValue, bsFixedAssets)
+      }
+    }
 
     // The two-year trend READ (item 4.61b). Banded here rather than in the browser because
     // the thresholds are a firm's advisory judgement and the banding is business logic —

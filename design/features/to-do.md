@@ -44,8 +44,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 7 | **4.76** A middle tier's rewording is badged as Advisor-e's ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 8 | **4.77** First-year depreciation cannot differ from later years, or between two vehicles ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 9 | **4.78** Tax rules per country - a firm manager uploads the source, the AI proposes, they approve ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 10 | **4.79** Only the first report in a workbook is read, so a real export is refused ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 
-**Nine live items. Six need Mike.** If this list passes about twenty, something is wrong.
+**Ten live items. Six need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
