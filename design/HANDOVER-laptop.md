@@ -11,13 +11,13 @@
 
 ## 2026-09-08 (second session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,351 green**, lint 0, audit pass. Twelve commits, all pushed — 24 ahead, 0 behind.
+Suite **8,355 green**, lint 0, audit pass. Fourteen commits, all pushed — 27 ahead, 0 behind.
 **PR #69 open.** Nothing uncommitted.
 
 **Shipped:** economic analysis fixed and proven through the route (§2 now says our date is the
 one that counts); `reddit.com` banned in the prompt **and** the guard; the Meeting Review
-advisor level now reaches the report; Spec Kit installed; 4.74–4.76 filed. **4.73 and 4.69
-closed** on Mike's word — twelve items left.
+advisor level now reaches the report, and an advisor may mark their own point un-hearable;
+Spec Kit installed. **4.73, 4.69 and 4.74 closed** — eleven items left.
 
 **Four things worth knowing:**
 
@@ -36,7 +36,7 @@ closed** on Mike's word — twelve items left.
 (one new export, `loadAdvisorState`), `meetingObservationsAdvisor.js`, plus `.specify/` and ten
 `speckit-*` skills identical to yours. Your 4.70 and benchmarker work was untouched.
 
-**Open:** **4.74 is a decision, not a fix** — the advisor's hint-words box comes off the screen,
-or is wired into the report; if it comes off, `ea08233` goes with it. **4.75** (an advisor's
-saved changes can be silently lost) is the highest-scoring job available and wants its own
-proposal — it needs a compare-and-set on `saveFirmConfig`, shared by every firm-overlay feature.
+**Open:** **4.75** (an advisor's saved changes can be silently lost) is the highest-scoring job
+available and wants its own proposal — it needs a compare-and-set on `saveFirmConfig`, shared by
+every firm-overlay feature. **4.15, 4.60 and 4.65 wait on Mike**; 4.60 and 4.65 are the same
+request to the same person, so ask once.
