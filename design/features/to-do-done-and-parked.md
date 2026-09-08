@@ -207,7 +207,9 @@ search content cascade plan"*.
   three states, the compare never throwing on a length mismatch, the cap mid-stream, every
   rejection leaving the store untouched, the platform-scope write attributed to Advisor-e,
   the dev-fallback rule on a live MySQL refusal, and a source tripwire on the mount and the
-  parser skip. Route file at 100% lines and functions.
+  parser skip. Route file at 100% lines and functions. **Walked live** the same day against
+  the running backend and the desktop's real MySQL: 404, 401, 401, 400 and 201 in turn, and
+  the mentor tab's history then showed version 1 saved by `advisor-e`.
 - **Left to the master team, and named:** holding the same secret and making the call on
   publish. Nothing here waits on it; the mentor's upload tab remains the way in until then.
 

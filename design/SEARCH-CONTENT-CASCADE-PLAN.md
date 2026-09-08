@@ -15,21 +15,27 @@ artefact the Save-the-Artefact rule requires before approval.
 
 ---
 
-## 1. The problem, precisely
+## 1. The problem this plan solved, and how a content change works now
 
-A content change today needs five manual steps and a developer:
+**Before (to 2026-08-31)** a content change needed five manual steps and a developer:
+Mike edited content in **Advisor-e** (the master app — the only place the content and
+its IDs are ever edited; that rule is unchanged), Advisor-e exported
+`search_content_<timestamp>.json`, the file was dropped by hand into
+`Central Frameworks/`, a developer mirrored it 1:1 into the tracked `data/templates.json`
+— the file the running app read, cached forever — and the change was committed and the
+app redeployed. Every firm saw the same library.
 
-1. Mike edits content upstream in **Advisor-e** (the master app — the only place the
-   content and its IDs are ever edited; that rule is unchanged by this plan).
-2. Advisor-e exports `search_content_<timestamp>.json`.
-3. The file is dropped by hand into `Central Frameworks/` (gitignored).
-4. A developer mirrors it 1:1 into the tracked `data/templates.json` — **the file the
-   running app actually reads** (`server/utils/templates.js` L14), cached in memory
-   forever once loaded.
-5. The change is committed and the app redeployed.
+**Now** a content change is one step and no developer:
 
-Every firm sees the same library; the only variation is a firm upload route
-(`importTemplates`) that has no screen in front of it yet.
+1. Mike edits content in Advisor-e and publishes. Advisor-e posts the export to
+   `POST /api/integration/templates` (§9) — or, until the master team wires that call,
+   Mike uploads the exported file on the Mentor Hub's **Template Library** tab.
+2. The library is live for every firm within a minute (§4 Phase 2), with version history
+   and one-click restore.
+
+A firm that uploads its own export on its Template Library tab (§7) sees that library
+whole instead of the platform's. `data/templates.json` remains in git only as the seed
+beneath everything and the fallback when no tier has uploaded.
 
 ## 2. What already exists to build on (checked against the code 2026-08-31)
 
@@ -210,6 +216,12 @@ is skipped for this path. Nothing in the payload is ever logged. A live MySQL re
 the constant-time compare, the size cap mid-stream, every rejection leaving the store
 untouched, the platform-scope write, the dev-fallback rule, and a source tripwire on the
 mount and the parser skip.
+
+**Walked live 2026-09-09** against the running backend on Node 14.15 and the desktop's real
+MySQL: no secret configured → 404; secret configured, header missing or wrong → 401; right
+secret, wrong shape → 400 `INVALID_FORMAT` and the history unchanged; right secret with the
+real 291-template export → 201 version 1, and `GET /api/mentor/templates` then listed that
+version with `saved_by: advisor-e`.
 
 **Scope judgement, stated:** platform tier only. A firm's own export still arrives through
 its Template Library tab (§7). Letting Advisor-e push a firm's library would need the
