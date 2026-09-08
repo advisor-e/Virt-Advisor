@@ -31,6 +31,7 @@
 - Q: The boost depends on when an asset was bought. Is a purchase month enough? → A: No — the asset data must record the date each asset was purchased.
 - Q: How is the purchase date captured — a dated purchase list, or a date only on boosted purchases? → A: A dated list per category, with the monthly totals derived from it.
 - Q: Where does the first-year deduction appear in the printed report, and what is it called? → A: Its own line directly beneath Depreciation, taking its name from the approved rule itself.
+- Q: How is a PDF actually read — send it to the model, add an extraction library, or have the manager type the rates? → A: Send the document to the model and let it read it.
 
 ---
 
@@ -122,6 +123,15 @@ An advisor whose client is in a country their firm has no rates for loads that c
 - **FR-009**: Only a firm manager or a tier above MUST be able to approve. An approval attempt by an advisor MUST be refused by the system itself, not merely hidden. *(partly built — the store records who approved; the refusal is not built)*
 - **FR-010**: Where two documents give one asset category different rates, the system MUST propose the rate from the more recently published document and display the older figure beside it. Where the two publication dates are equal, the incumbent figure MUST be kept and the other still shown. *(built)*
 - **FR-011**: The system MUST record, for each approved rate, the tax authority's own wording for the asset class it came from, so a manager can see which published class a forecast category was matched to. *(built)*
+
+**How a document is read** *(ruled by Mike, 2026-09-09)*
+
+- **FR-046**: The document MUST be sent to the model and read there. The application MUST NOT extract text from a PDF itself — that is the tooling that produced `diinisin alue` on IR265 on 2026-09-08, and it would be a new dependency on a locked runtime besides.
+- **FR-047**: The model MUST be asked whether it could read the document reliably, and a document it reports as unreadable MUST propose nothing at all. A partial read MUST NOT become a partial proposal.
+- **FR-048**: Every rate the model returns MUST be validated before it reaches a proposal — a number in a plausible range, carrying a document and a date — and a row failing that MUST be refused rather than shown with a gap in it.
+- **FR-049**: 🔴 **A DEPARTURE FROM BOTH APPROVED DRAWINGS, RECORDED RATHER THAN DISCOVERED.** §5 of each draws the refusal quoting a measured damage figure — *"about 12% of the text came through damaged, for example `diinisin alue`"*. Under FR-046 the application is not the one reading, so it cannot measure that and must not appear to. **Mike settled the replacement wording on 2026-09-09, and it is this, verbatim:**
+  > **This document could not be read reliably — nothing was taken from it.** No rates have been proposed and nothing has changed. Try downloading it again from the tax authority's website, or load a different edition.
+- **FR-050**: The model's own explanation of what defeated it MUST NOT be shown. It was offered and refused on 2026-09-09: unedited model text on a screen is the one thing this feature is otherwise careful never to do.
 
 **Scope of an approved table**
 
