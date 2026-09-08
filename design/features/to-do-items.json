@@ -80,26 +80,6 @@
       "comment": "2026-08-15 — filed on Mike's instruction. 2026-08-25 — the list written down and published; two branches closed (COI pt1/pt2, a scanner fault). 2026-08-26 — the prose-only second step found."
     },
     {
-      "ref": "4.50",
-      "name": "Nobody has seen a real conversation's recommendations reach the Team tab",
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Outside",
-      "why": "The AI's recommendations are held back from the stream and written to the Team tab, and that last write has never been seen to happen after a real conversation.",
-      "risk": "Small: the two checks that could show something ugly on screen passed live on 2026-08-26. What is unseen is whether the right templates and capability tier land on the record that credits an advisor.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "Logged at the 2026-07-22 merge as the named residual of that change. Carried in ACTIONS.md until it was frozen 2026-08-24; re-checked 2026-08-26 and still unexercised."
-      },
-      "touches": "Nothing — a live observation, not a code change. If it fails: server/utils/activityLogger.js (logVASession) and server/routes/activity.js (/api/activity/team).",
-      "note": "Needs a database. On a developer machine the activity store falls back to a dev file and the write silently does not happen, so this is a two-minute look in UAT: open the Team tab as a firm manager after a real session and compare its templates and tier with the conversation. The screen is the Team tab; \"Team Dashboard\" is not a screen. Detail in advisor-progression-history.md §8.",
-      "comment": "2026-08-26 — checks (a) and (b) run live on the laptop and passed; (c) remains. The earlier claim that a missing OpenAI key blocked it was wrong; MySQL is the blocker."
-    },
-    {
       "ref": "4.58",
       "name": "Meeting Review — the advisor's side is complete; §4 remains",
       "rankedByMike": false,
@@ -140,27 +120,6 @@
       "touches": "CHANGED 2026-09-07 ahead of the files: rowShape, BANK_ACCOUNT_RE, NON_CURRENT_ASSET_RE and the period patterns in server/report/intake/xeroReportParser.js, the MYOB evidence in supportedPackages.js, and nine tests in tests/unit/accountingPackages.test.js. When the real files arrive: those same three, plus flipping each `confidence` to `verified` — which its own guard will not allow until the evidence line names a real export.",
       "note": "⚠ STILL WAITS ON FOUR REAL FILES — a Balance Sheet and P&L from QuickBooks Online and from MYOB. The two workbooks in 'C:\\Documents\\Visual Code Projects\\Perf Report\\xero reports' are NOT exports: one fictional company, identical figures in both packages, three reports per file. They earned their place anyway, finding four real MYOB faults, all fixed and tested — every label read as an account code so nothing parsed at all; cash counted one bank account of two; the period line gave no year; and \"Property, Plant & Equipment\" was not read as a fixed-asset heading, so the categories came back empty, 145,300 went to current assets and the forecast charged no depreciation. QuickBooks needed no change.",
       "comment": "2026-09-02 — filed on Mike's instruction: \"keep it as a job for future - keep moving forward\". 2026-09-07 — he supplied a structural comparison of the two formats and pointed to two reference workbooks; running the real parser over them found four MYOB faults, all fixed on his approval. The package stays `expected`: reference files are not exports, and the guard rightly refuses to say otherwise."
-    },
-    {
-      "ref": "4.62",
-      "name": "Saved reports per client — so a client can edit what the advisor opened",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Mike's request of 2026-09-03: once an advisor opens a model to a client, the client edits it and every edit is made clear. Nothing can be edited until a report is saved per client per model, which nothing does today.",
-      "risk": "Without it the stub shows a client an open model with sample figures only. With it, a client's figure reaches an advisor's screen; the badge, banner and Restore (D4) are what stop a client edit passing as the advisor's.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-03 — \"once advisor has been involved and secured terms, we DO want them to be involved and can edit thereafter - so long as any changes are made clear they are edited by the client\". Part 2 of the request that built the stub the same day."
-      },
-      "touches": "A saved-report store through firmOverlay ({ firm, client, model, inputs, savedBy: { tier, name }, savedAt }), a Save on the report header, a `client` state on ProvenanceBadge, the banner and Restore on the report screens, and the client's page. Not the forecast intake files (4.61, laptop).",
-      "note": "ALL TWELVE SCREENS ARE WIRED — the forecast last, 2026-09-05, on Mike's ruling \"anything an advisor can edit, the client can edit\": its saved row is the whole intake plus the four levers, and only the file upload stays the advisor's. How each screen behaves is in the Brief §5. ⚠ WHAT IS STILL UNPROVEN IS THE SAME BLOCKER AS 4.50: no save has ever reached the real store on this machine, because the client picker is empty without MySQL. Wording in clientReports.saved.* proposed, not ruled.",
-      "comment": "2026-09-03 — filed the day the stub was built. Same day, desktop: slice 1 built under a power cut; labels ruled. 2026-09-04 desktop: slice 2, ten of ten wired; the file-figure rule ruled. 2026-09-05 — the last screen moved to the laptop on Mike's decision, then built there: shape, page seam, badges, 14 new tests."
     },
     {
       "ref": "4.66",

@@ -185,6 +185,49 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.62 — saved reports per client, so a client can edit what the advisor opened.**
+✅ Closed 2026-09-08 on Mike's ruling, under the same rule that closed 4.75 and 4.50.
+
+- **Why it mattered:** his request of 2026-09-03 — once an advisor opens a model to a client,
+  the client edits it and *"any changes are made clear they are edited by the client"*.
+- **What proves it:** **all twelve routed screens save per client**, the forecast last on
+  2026-09-05 under his ruling *"anything an advisor can edit, the client can edit"* — its saved
+  row is the whole intake plus the four levers, with only the file upload staying the advisor's.
+  Badge, banner and Restore are what stop a client's figure passing as the advisor's. How each
+  screen behaves is in [`business-entity-reports.md`](business-entity-reports.md) §5.
+- **What was left:** a save reaching the real store, which needs the client picker, which needs
+  MySQL. **UAT's to exercise, not ours** — the rule below.
+
+🔴 **The record was WRONG about this item and nearly cost it another cycle.** Both the live list
+and the Brief said the wording (`clientReports.saved.*` — nineteen strings a client reads) was
+*"proposed, not ruled"*. **Mike had checked and approved it.** A session on 2026-09-08 was about
+to hold the item open on that sentence alone. Corrected in both places on his word. **A stale
+sentence in a Brief is not inert — it manufactures work that was already settled**, which is the
+same family as the `ACTIONS.md` line that produced a fortnight of unwanted building.
+
+---
+
+**4.50 — nobody has seen a real conversation's recommendations reach the Team tab.**
+✅ Closed 2026-09-08 on Mike's ruling: *"we're not responsible for running tests we can't run."*
+
+- **Why it mattered:** the AI's recommendations are held back from the stream and written to the
+  Team tab, and that last write had never been watched after a real conversation.
+- **What proves it:** **the item never had any code of ours in it** — its own `touches` field
+  said *"Nothing — a live observation, not a code change."* The write path is built and reads
+  back: `activityLogger.logVASession` stores `templates` and derives `tier` from them at write
+  time, and `/api/activity/team` reads both. Checks (a) and (b) ran live on 2026-08-26 and
+  passed.
+- **What was left:** check (c) — open the Team tab as a firm manager after a real session and
+  compare its templates and tier against the conversation. **A two-minute look in UAT.** On a
+  developer machine the activity store falls back to a dev file and the write does not happen at
+  all, so it was never performable here.
+
+⚠ **This is the item that produced the rule.** It sat open on a check nobody on this side could
+ever run. The list is what is *outstanding for us*; a verification belonging to UAT is recorded
+in its closure and the item is closed.
+
+---
+
 **4.75 — two advisors saving at once, and one loses their work.**
 ✅ Closed 2026-09-08, the day it was filed, on Mike's ruling: *"if we've done all our part then
 mark it completed — we're not responsible for running tests we can't run"*.
