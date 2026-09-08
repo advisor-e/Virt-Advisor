@@ -185,6 +185,28 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.74 — the advisor's hint words reached no code.**
+✅ Closed 2026-09-08, the day it was filed, on Mike's ruling.
+
+- **Why it mattered:** an advisor could enter hint phrases against a point they wrote, and
+  nothing in the app could ever read them.
+- **What we would have lost:** a control on screen that shapes nothing, which is the same
+  defect whether the field is useful or not.
+- **What proves it:** the advisor's screen now carries the manager's own checkbox, *"This
+  cannot be heard on a recording"*, gating the hint field exactly as `FirmMeetingObservations.vue`
+  does. `validateAdvisorPoint` accepts `cannotHear`, the stored row keeps it, and unticking
+  clears the phrases rather than storing them where nothing reads them. Six tests.
+
+**The decision turned on a fact the original ruling did not have.** Hint phrases never reach
+the model: `cannotHearFindings` searches the transcript in our own code, and only for points
+the model has been forbidden to judge, then asks the advisor to confirm. So the alternative —
+feeding hints to the model to help it recognise an advisor's own point — would have let the
+person being assessed tune the thing assessing them. Marking the point un-hearable protects
+their own points better: it is not judged rather than judged badly, and the finding stays their
+confirmation.
+
+---
+
 **4.73 — economic analysis failed on its default path.**
 ✅ Closed 2026-09-08 on Mike's instruction *("tick them off")*.
 

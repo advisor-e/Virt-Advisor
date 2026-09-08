@@ -136,9 +136,19 @@ function readName (value) {
  * took the argument recorded against it instead: a point an advisor wrote themselves is the
  * one the model is LEAST likely to recognise, because it is phrased in their words and
  * nobody else's, so withholding the hints would have made their own additions the weakest
- * entries on their own list. The cost is carried, not solved — see the drawing's question 5.
+ * entries on their own list.
  *
- * @param {*} value - the submitted `{ text, hintWords? }`
+ * 🔴 `cannotHear` IS ACCEPTED TOO, and it is what makes `hintWords` mean anything. Hint
+ * phrases are read ONLY by `meetingReports.cannotHearFindings`, which sees only points
+ * carrying this flag — so without it an advisor typed phrases no code could ever reach.
+ * Mike's ruling, 2026-09-08, on being shown that the mechanism does not do what his question-5
+ * reasoning assumed: the hints never go to the model at all, they are a local transcript
+ * search that ASKS the advisor. Marking their own point un-hearable serves the worry behind
+ * that ruling better than feeding the model would — the point is not judged, it is put to
+ * them, and the finding stays their confirmation (his rule of 2026-09-01) rather than a guess
+ * they were allowed to tune.
+ *
+ * @param {*} value - the submitted `{ text, hintWords?, cannotHear? }`
  * @param {object} [opts]
  * @param {boolean} [opts.requireText] - true when creating
  * @returns {{ok: boolean, errors: string[], value: object}}
@@ -150,10 +160,21 @@ function validateAdvisorPoint (value, opts) {
   }
 
   const out = {}
-  const allowed = ['text', 'hintWords']
+  const allowed = ['text', 'hintWords', 'cannotHear']
   Object.keys(value).forEach((field) => {
     if (!allowed.includes(field)) { errors.push('unknown field: ' + field) }
   })
+
+  // Stored as given, INCLUDING false — the same rule the manager's validator carries, and for
+  // the same reason: a false dropped as "empty" leaves an earlier true standing while the
+  // screen shows the box unticked.
+  if (value.cannotHear !== undefined && value.cannotHear !== null) {
+    if (typeof value.cannotHear !== 'boolean') {
+      errors.push('cannotHear must be true or false')
+    } else {
+      out.cannotHear = value.cannotHear
+    }
+  }
 
   if (value.text !== undefined && value.text !== null) {
     if (typeof value.text !== 'string') {
@@ -254,8 +275,15 @@ function readAdvisorOwn (stored) {
       const rows = src[scenarioId]
         .filter(r => r && typeof r === 'object' && typeof r.id === 'string' && r.id)
         .map((r) => {
-          const { value } = validateAdvisorPoint({ text: r.text, hintWords: r.hintWords }, {})
-          return { id: r.id, text: value.text, hintWords: value.hintWords || [] }
+          const { value } = validateAdvisorPoint(
+            { text: r.text, hintWords: r.hintWords, cannotHear: Boolean(r.cannotHear) }, {})
+          return {
+            id: r.id,
+            text: value.text,
+            hintWords: value.hintWords || [],
+            // Kept, or the hint phrases beside it are read by nothing — see validateAdvisorPoint.
+            cannotHear: Boolean(value.cannotHear)
+          }
         })
         .filter(r => typeof r.text === 'string' && r.text)
         .slice(0, MAX_OWN_POINTS_PER_SCENARIO)

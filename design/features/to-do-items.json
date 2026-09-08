@@ -247,27 +247,6 @@
       "comment": "2026-09-08 - found while building the advisor's own level and filed on Mike's instruction the same day, rather than fixed in passing: it changes storage shared by all four manager tiers."
     },
     {
-      "ref": "4.74",
-      "name": "The advisor's hint words reach no code",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "An advisor can enter hint phrases against a point they wrote, and nothing in the app ever reads them, so a control that shapes nothing looks exactly like one that does.",
-      "risk": "hintWords is read only by cannotHearFindings, which only sees points flagged cannotHear, and an advisor's own point can never carry that flag - it is not offered on screen, rejected as an unknown field by the validator, and forced false on the way out. Nothing looks wrong; the advisor simply types into a field with no effect.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Found 2026-09-08 by /code-review over this branch, the day after the advisor level shipped. Filed on Mike's instruction the same day: \"save them, make them tasks\"."
-      },
-      "touches": "Nothing yet - it is a decision before it is a change. Then either components/MeetingPreset.vue and the advisor write routes in server/routes/meetingObservations.js if the field comes off, or server/utils/meetingReports.js if it is wired into report generation.",
-      "note": "🔴 A DECISION FOR MIKE, NOT A FIX FOR US. Two ways out and they are opposites: the hint-words field comes off the advisor's screen, or report generation is taught to read it. Both change what an advisor sees, so neither is ours to choose. ⚠ The validation fixed in ea08233 sits on this same field - if it comes off the screen, that fix goes with it.",
-      "comment": "2026-09-08 - found by /code-review and filed on Mike's instruction the same day."
-    },
-    {
       "ref": "4.75",
       "name": "Two advisors saving at once, and one loses their work",
       "rankedByMike": false,

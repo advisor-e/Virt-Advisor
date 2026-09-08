@@ -398,12 +398,11 @@ telling an advisor they failed at something the software merely could not hear. 
 remains **the advisor's confirmation, never the guess** (Mike, 2026-09-01), and the hint words only
 ever raise the question.
 
-⚠ **That is true of a MANAGER'S point and not of an advisor's own.** `hintWords` is read only by
-`cannotHearFindings`, which sees only points flagged `cannotHear` — and an advisor's own point can
-never carry that flag: it is not offered on their screen, refused as an unknown field by
-`validateAdvisorPoint`, and forced false on the way out. So an advisor may type hint phrases that
-no code ever reads. **Open as item 4.74**, and it is a decision rather than a fix: the field comes
-off the advisor's screen, or report generation is taught to read it.
+**An advisor may mark their OWN point un-hearable too** (Mike, 2026-09-08), with the same
+checkbox and the same wording as the manager's screen, and the hint field appears only when it is
+ticked. Until that day their hint phrases could reach no code at all — `cannotHearFindings` sees
+only points carrying the flag, and an advisor's point could never carry it. **The flag is what
+makes the phrases mean anything**, so the two are offered together or not at all.
 
 **The route shape follows the rules already in force.** All third-party calls and all secrets are
 backend-only; `server-middleware/` stays a thin proxy. Transcription and generation exceed the

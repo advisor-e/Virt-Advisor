@@ -201,10 +201,31 @@ describe('validating a point an advisor wrote', () => {
   it('refuses a field it does not know, rather than dropping it quietly', () => {
     // Fails closed for the same reason the manager's validator does: a field the store
     // accepts and no screen renders is an advisor believing they changed something.
-    expect(validateAdvisorPoint({ text: 'x', cannotHear: true }, {}).ok).toBe(false)
+    expect(validateAdvisorPoint({ text: 'x', colour: 'red' }, {}).ok).toBe(false)
     // 🔴 `advisorText` in particular: an advisor has no second voice to write in, and
     // accepting it would let one person store wording the firm never sees.
     expect(validateAdvisorPoint({ text: 'x', advisorText: 'y' }, {}).ok).toBe(false)
+  })
+
+  it('accepts cannotHear, which is what makes the hint phrases mean anything', () => {
+    // Mike's ruling 2026-09-08. Hint phrases are read ONLY by cannotHearFindings, which sees
+    // only points carrying this flag — so until it was accepted, an advisor could type hints
+    // no code could ever reach.
+    const r = validateAdvisorPoint({ text: 'x', cannotHear: true, hintWords: ['the chart'] }, {})
+    expect(r.ok).toBe(true)
+    expect(r.value.cannotHear).toBe(true)
+  })
+
+  it('stores cannotHear false rather than dropping it as empty', () => {
+    // The manager's validator carries the same rule: a false dropped as "empty" leaves an
+    // earlier true standing while the box shows unticked.
+    const r = validateAdvisorPoint({ text: 'x', cannotHear: false }, {})
+    expect(r.ok).toBe(true)
+    expect(r.value.cannotHear).toBe(false)
+  })
+
+  it('refuses a cannotHear that is not a boolean', () => {
+    expect(validateAdvisorPoint({ text: 'x', cannotHear: 'yes' }, {}).ok).toBe(false)
   })
 
   it('refuses text past the shared length cap', () => {

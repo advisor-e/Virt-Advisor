@@ -37,7 +37,15 @@
           template(v-if="editingId === p.id")
             b-field(label="What you want to be reminded of" label-position="on-border")
               b-input(v-model="editText" :maxlength="300" type="textarea" rows="2")
-            b-field(label="Words that hint it happened (optional)" label-position="on-border")
+            //- The checkbox gates the hint field, exactly as the manager's screen does
+            //- (FirmMeetingObservations.vue) — hint phrases are read ONLY for a point carrying
+            //- this flag, so offering them without it is a field nothing can reach.
+            b-checkbox.mt-2(v-model="editCannotHear" size="is-small")
+              | This cannot be heard on a recording
+            b-field.mt-2(
+              v-if="editCannotHear"
+              label="Words that hint it happened (optional)"
+              label-position="on-border")
               b-input(v-model="editHints" placeholder="how are things at home · outside the business")
             .buttons.mt-2
               b-button(type="is-primary" size="is-small" :loading="saving" @click="saveEdit(p)") Save
@@ -79,7 +87,12 @@
               v-model="newText" :maxlength="300" type="textarea" rows="2"
               placeholder="I asked what had changed at home, not just in the business."
             )
-          b-field(label="Words that hint it happened (optional)" label-position="on-border")
+          b-checkbox.mt-2(v-model="newCannotHear" size="is-small")
+            | This cannot be heard on a recording
+          b-field.mt-2(
+            v-if="newCannotHear"
+            label="Words that hint it happened (optional)"
+            label-position="on-border")
             b-input(v-model="newHints" placeholder="how are things at home · outside the business")
           .notification.is-light.is-size-7.mt-2
             | This is for your meetings only. Your firm's list is not changed, and nobody else
@@ -148,6 +161,16 @@
  *     withholding the hints would have made their own additions the weakest entries on their
  *     own list.
  *
+ * 🔴 **ONE DEVIATION FROM THE APPROVED DRAWING, ruled by Mike 2026-09-08 and deliberate.**
+ * The mockup has no "This cannot be heard on a recording" checkbox; this screen does, above
+ * the hint field and gating it, with the manager's own approved wording reused rather than new
+ * words invented. It is here because Q5's field did nothing without it: hint phrases are read
+ * only by `meetingReports.cannotHearFindings`, which sees only points carrying that flag, and
+ * they never reach the model at all — they are a local transcript search that ASKS the advisor
+ * to confirm. Marking their own point un-hearable serves Q5's reasoning better than feeding
+ * the model would: the point is not judged rather than judged badly, and the finding stays the
+ * advisor's confirmation (his rule of 2026-09-01) instead of a guess they were able to tune.
+ *
  * ⚠ THE BUSINESS-ENTITY LEVEL — "how I run meetings with THIS client" — is still unbuilt and
  * deliberately not drawn: it hangs off the client picker, which is empty without MySQL, and a
  * screen nobody can verify is how item 4.62's saved reports became "wired but never proven".
@@ -174,9 +197,11 @@ export default {
       editingId: '',
       editText: '',
       editHints: '',
+      editCannotHear: false,
       adding: false,
       newText: '',
-      newHints: ''
+      newHints: '',
+      newCannotHear: false
     }
   },
 
@@ -252,6 +277,7 @@ export default {
       this.editingId = point.id
       this.editText = point.text
       this.editHints = (point.hintWords || []).join(' · ')
+      this.editCannotHear = Boolean(point.cannotHear)
       this.adding = false
       this.saveError = ''
     },
@@ -260,12 +286,14 @@ export default {
       this.editingId = ''
       this.editText = ''
       this.editHints = ''
+      this.editCannotHear = false
     },
 
     startAdd () {
       this.adding = true
       this.newText = ''
       this.newHints = ''
+      this.newCannotHear = false
       this.cancelEdit()
       this.saveError = ''
     },
@@ -274,6 +302,7 @@ export default {
       this.adding = false
       this.newText = ''
       this.newHints = ''
+      this.newCannotHear = false
     },
 
     /**
@@ -315,7 +344,10 @@ export default {
       const ok = await this.write('POST', '/api/meeting/observations/own', {
         scenario: this.scenarioId,
         text: this.newText,
-        hintWords: this.hintsFrom(this.newHints)
+        // Sent even when false, for the reason the manager's screen sends it: a dropped false
+        // leaves an earlier true standing while the box shows unticked.
+        cannotHear: this.newCannotHear,
+        hintWords: this.newCannotHear ? this.hintsFrom(this.newHints) : []
       })
       if (ok) { this.cancelAdd() }
     },
@@ -326,7 +358,9 @@ export default {
         scenario: this.scenarioId,
         pointId: point.id,
         text: this.editText,
-        hintWords: this.hintsFrom(this.editHints)
+        cannotHear: this.editCannotHear,
+        // Unticking clears the phrases rather than leaving them stored where nothing reads them.
+        hintWords: this.editCannotHear ? this.hintsFrom(this.editHints) : []
       })
       if (ok) { this.cancelEdit() }
     },

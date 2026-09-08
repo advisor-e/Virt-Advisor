@@ -132,14 +132,31 @@ describe('a point of my own', () => {
     // ⚠ Split on the middle dot ALONE. A hint is often a spoken clause — "so, what has
     // changed at home" — and splitting on commas would cut it in two, leaving the model
     // hunting for "so" in every transcript.
+    wrapper.vm.newCannotHear = true
     wrapper.vm.newHints = 'how are things at home · outside the business, and at home'
     await wrapper.vm.addOwn()
 
     expect(lastWrite().body).toEqual({
       scenario: EOY,
       text: 'I asked what had changed at home.',
+      cannotHear: true,
       hintWords: ['how are things at home', 'outside the business, and at home']
     })
+  })
+
+  it('🔴 sends no hint phrases when the point IS hearable', async () => {
+    // The phrases would be stored where nothing reads them — cannotHearFindings sees only
+    // points carrying the flag. Unticking the box clears them rather than leaving them.
+    const wrapper = mountScreen()
+    await flush()
+    wrapper.vm.startAdd()
+    wrapper.vm.newText = 'I asked what had changed at home.'
+    wrapper.vm.newHints = 'how are things at home'
+    wrapper.vm.newCannotHear = false
+    await wrapper.vm.addOwn()
+
+    expect(lastWrite().body.cannotHear).toBe(false)
+    expect(lastWrite().body.hintWords).toEqual([])
   })
 
   it('keeps the id when editing, and sends no advisor id', async () => {
