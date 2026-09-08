@@ -27,10 +27,17 @@
  *
  * The fifth is the house storage discipline: a live MySQL REFUSAL surfaces as a 500 and
  * never falls through to the dev JSON (server/utils/dbFailure.js).
+ *
+ * 🔴 THE SIXTH ARRIVED WITH ITEM 4.75 (2026-09-08): ONE STORAGE ROW PER ADVISOR. Every
+ * advisor used to read the firm's whole map, change their own entry and write the map back,
+ * with no compare-and-set underneath — so two saving inside the same read-write silently
+ * discarded one another's work and both were answered 200. Nothing on any screen showed it,
+ * which is exactly why it is pinned here. `writes only my row` is the assertion that holds it.
  */
 
 jest.mock('../../server/utils/firmOverlay', () => ({
   loadFirmConfig: jest.fn(),
+  loadFirmConfigsByPrefix: jest.fn(),
   saveFirmConfig: jest.fn(),
   getVersionHistory: jest.fn(),
   restoreVersion: jest.fn()
@@ -38,8 +45,13 @@ jest.mock('../../server/utils/firmOverlay', () => ({
 
 const overlay = require('../../server/utils/firmOverlay')
 const routes = require('../../server/routes/meetingObservations')
-const { CONFIG_KEYS: ADVISOR_KEYS, MAX_OWN_POINTS_PER_SCENARIO } =
-  require('../../server/utils/meetingObservationsAdvisor')
+const {
+  CONFIG_KEYS: ADVISOR_KEYS,
+  KEY_SEPARATOR,
+  advisorConfigKey,
+  readAdvisorDeclines,
+  MAX_OWN_POINTS_PER_SCENARIO
+} = require('../../server/utils/meetingObservationsAdvisor')
 
 const EOY = 'eoy_meeting'
 const FIRM = 'firm-test-123'
@@ -82,17 +94,55 @@ function makeReq (overrides = {}) {
   }
 }
 
-function storeForFirm (byKey) {
+/**
+ * Seed storage from the readable `{ part: { advisorId: entry } }` shape, spread across the
+ * per-advisor rows it is actually held in. A test still reads as "who has what"; the storage
+ * underneath is one row each, which is what stops two advisors overwriting one another.
+ */
+function storeForFirm (byPart) {
+  const rows = {}
+  Object.keys(byPart).forEach((baseKey) => {
+    const byAdvisor = byPart[baseKey] || {}
+    Object.keys(byAdvisor).forEach((advisorId) => {
+      rows[baseKey + KEY_SEPARATOR + advisorId] = byAdvisor[advisorId]
+    })
+  })
+
   overlay.loadFirmConfig.mockImplementation((scopeId, key) => {
     if (scopeId !== FIRM) { return Promise.resolve(null) }
-    return Promise.resolve(Object.prototype.hasOwnProperty.call(byKey, key) ? byKey[key] : null)
+    return Promise.resolve(Object.prototype.hasOwnProperty.call(rows, key) ? rows[key] : null)
+  })
+
+  overlay.loadFirmConfigsByPrefix.mockImplementation((scopeId, prefix) => {
+    if (scopeId !== FIRM) { return Promise.resolve({}) }
+    const out = {}
+    Object.keys(rows).forEach((key) => {
+      if (key.indexOf(prefix) === 0) { out[key.slice(prefix.length)] = rows[key] }
+    })
+    return Promise.resolve(out)
   })
 }
 
-/** What was written for one advisor config key on the last save. */
-function savedMap (key) {
-  const call = overlay.saveFirmConfig.mock.calls.filter(c => c[1] === key).pop()
-  return call ? call[2] : null
+/**
+ * What storage now holds for one part, assembled from the rows actually saved — the last save
+ * per advisor. Null when nothing under that part was written at all.
+ */
+function savedMap (baseKey) {
+  const prefix = baseKey + KEY_SEPARATOR
+  const out = {}
+  let wrote = false
+  overlay.saveFirmConfig.mock.calls.forEach((call) => {
+    const key = String(call[1])
+    if (key.indexOf(prefix) !== 0) { return }
+    wrote = true
+    out[key.slice(prefix.length)] = call[2]
+  })
+  return wrote ? out : null
+}
+
+/** Every config key written, in order — the seam that says whose row a route touched. */
+function savedKeys () {
+  return overlay.saveFirmConfig.mock.calls.map(c => c[1])
 }
 
 /** The first point of the End of Year scenario, straight from the platform file. */
@@ -105,6 +155,7 @@ async function firstPointId () {
 beforeEach(() => {
   jest.clearAllMocks()
   overlay.loadFirmConfig.mockResolvedValue(null)
+  overlay.loadFirmConfigsByPrefix.mockResolvedValue({})
   overlay.saveFirmConfig.mockResolvedValue(1)
 })
 
@@ -182,7 +233,7 @@ describe('setting a point aside', () => {
     expect(map[ME].name).toBe('Ruth Kelleher')
   })
 
-  test('🔴 writes only my entry, leaving a colleague\'s untouched', async () => {
+  test("🔴 writes only MY row — a colleague's is never rewritten (item 4.75)", async () => {
     const pointId = await firstPointId()
     storeForFirm({
       [ADVISOR_KEYS.advisorDeclines]: {
@@ -195,11 +246,54 @@ describe('setting a point aside', () => {
       makeReq({ body: { scenario: EOY, pointId, declined: true } }), res
     )
 
+    // 🔴 THIS IS THE WHOLE OF THE 4.75 FIX. While both advisors shared one row, this write
+    // carried a copy of Tom's entry with it — so a change Tom made between Ruth's read and
+    // her save was overwritten, and Tom was answered 200. Ruth's row is now the ONLY key
+    // written, so there is no copy of Tom's data in flight to go stale.
+    expect(savedKeys()).toEqual([advisorConfigKey('advisorDeclines', ME)])
+
     const map = savedMap(ADVISOR_KEYS.advisorDeclines)
-    expect(map[COLLEAGUE].scenarios[EOY]).toEqual(['mo-eoy-4'])
-    expect(map[COLLEAGUE].name).toBe('Tom')
+    expect(map[ME].scenarios[EOY]).toEqual([pointId])
+    expect(map[COLLEAGUE]).toBeUndefined()
+  })
+
+  test('🔴 a colleague saving first is not lost when I save second', async () => {
+    // The race itself, run in the order that used to destroy work: Ruth reads, Tom saves,
+    // Ruth saves. Nothing on either advisor's screen ever showed the loss — both were
+    // answered 200 — which is why it can only be caught here.
+    const pointId = await firstPointId()
+    storeForFirm({ [ADVISOR_KEYS.advisorDeclines]: {} })
+
+    // Ruth reads the state she is about to act on.
+    await routes.getForAdvisor(makeReq({ query: { scenario: EOY } }), makeMockRes())
+
+    // Tom saves in the gap.
+    const tom = makeMockRes()
+    await routes.setAdvisorDecline(makeReq({
+      advisorId: COLLEAGUE,
+      advisorName: 'Tom Boyd',
+      body: { scenario: EOY, pointId, declined: true }
+    }), tom)
+    expect(tom._status).toBe(200)
+
+    // Ruth saves, from the state she read before Tom wrote.
+    const ruth = makeMockRes()
+    await routes.setAdvisorDecline(
+      makeReq({ body: { scenario: EOY, pointId, declined: true } }), ruth)
+    expect(ruth._status).toBe(200)
+
+    // Both survive, because they were never in the same row.
+    expect(savedKeys()).toEqual([
+      advisorConfigKey('advisorDeclines', COLLEAGUE),
+      advisorConfigKey('advisorDeclines', ME)
+    ])
+    const map = savedMap(ADVISOR_KEYS.advisorDeclines)
+    expect(map[COLLEAGUE].scenarios[EOY]).toEqual([pointId])
     expect(map[ME].scenarios[EOY]).toEqual([pointId])
   })
+
+  // How a key is built — the column's length cap included — is pinned beside the builder, in
+  // tests/unit/meetingObservationsAdvisor.test.js.
 
   test('🔴 ignores an advisor id in the body — identity comes from the token alone', async () => {
     const pointId = await firstPointId()
@@ -226,7 +320,7 @@ describe('setting a point aside', () => {
     expect(overlay.saveFirmConfig).not.toHaveBeenCalled()
   })
 
-  test('putting a point back leaves no row behind at all', async () => {
+  test('putting a point back leaves the manager nothing to see', async () => {
     const pointId = await firstPointId()
     storeForFirm({
       [ADVISOR_KEYS.advisorDeclines]: { [ME]: { name: 'Ruth', scenarios: { [EOY]: [pointId] } } }
@@ -237,8 +331,14 @@ describe('setting a point aside', () => {
       makeReq({ body: { scenario: EOY, pointId, declined: false } }), res
     )
 
-    // An advisor who changed their mind must not linger on the manager's screen.
-    expect(savedMap(ADVISOR_KEYS.advisorDeclines)).toEqual({})
+    // ⚠ The row is EMPTIED rather than removed. It used to be deleted from a firm-wide map;
+    // an advisor now owns a row of their own and the overlay has no delete. What matters is
+    // unchanged and is asserted where it is felt: an advisor who changed their mind must not
+    // linger on the manager's screen, and an entry holding no scenarios is dropped on the way
+    // to it.
+    const saved = savedMap(ADVISOR_KEYS.advisorDeclines)
+    expect(saved[ME].scenarios).toEqual({})
+    expect(readAdvisorDeclines(saved)).toEqual({})
   })
 
   test('setting the same point aside twice does not store it twice', async () => {
@@ -479,8 +579,24 @@ describe("the manager's view of what advisors set aside", () => {
     expect(eoy.points.every(p => p.count === 0)).toBe(true)
   })
 
+  test('a refusal reading the advisors\' rows is a 500, never a quietly empty list', async () => {
+    // The whole-firm read is its own query since 4.75, so it needs its own refusal test: a
+    // manager reading "nobody has set anything aside" off a failed read would take a fault as
+    // reassurance.
+    overlay.loadFirmConfigsByPrefix.mockRejectedValue(refusal('table is gone'))
+    const res = makeMockRes()
+    await routes.getSetAside(makeReq({ userRole: 'firm_manager' }), res)
+    expect(res._status).toBe(500)
+    expect(errorBody(res).error.code).toBe('DB_ERROR')
+  })
+
   test('a live MySQL refusal is a 500, never a quietly empty list', async () => {
+    // BOTH reads are refused, because a live refusal refuses everything. Refusing only
+    // `loadFirmConfig` answers 200: `loadResolvedObservations` catches its own read failure
+    // and returns the platform base (server/utils/meetingObservations.js), so the 500 comes
+    // from the advisors' read below it. That swallow is deliberate and predates this route.
     overlay.loadFirmConfig.mockRejectedValue(refusal('table is gone'))
+    overlay.loadFirmConfigsByPrefix.mockRejectedValue(refusal('table is gone'))
     const res = makeMockRes()
     await routes.getSetAside(makeReq({ userRole: 'firm_manager' }), res)
     // A manager reading "nobody has set anything aside" off a failed read would take a fault

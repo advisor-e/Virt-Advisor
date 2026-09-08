@@ -29,7 +29,8 @@ const {
   validateAdvisorPoint,
   readAdvisorDeclines,
   readAdvisorOwn,
-  stateForAdvisor,
+  advisorConfigKey,
+  advisorIdFromKey,
   sourceTierOf,
   applyAdvisorLayer,
   setAsidePoints,
@@ -302,19 +303,43 @@ describe('reading stored advisor maps', () => {
   })
 })
 
-describe('one advisor\'s slice of the maps', () => {
-  const declines = { 'adv-1': { name: 'Ruth', scenarios: { eoy_meeting: ['mo-eoy-1'] } } }
-  const own = { 'adv-2': { name: 'Tom', scenarios: { eoy_meeting: [{ id: 'ao-1', text: 'mine' }] } } }
-
-  it('returns only that advisor, never a colleague\'s', () => {
-    expect(stateForAdvisor(declines, own, 'adv-1').declines.eoy_meeting).toEqual(['mo-eoy-1'])
-    expect(stateForAdvisor(declines, own, 'adv-1').own).toEqual({})
-    expect(stateForAdvisor(declines, own, 'adv-2').declines).toEqual({})
+describe('the address one advisor\'s decisions live at', () => {
+  // Item 4.75: a row per advisor is what gives each row ONE writer, so two people in a firm
+  // cannot overwrite each other. The key IS that separation — if two advisors could ever
+  // resolve to the same key they would be back in one row.
+  it('puts the advisor in the key, one part each', () => {
+    expect(advisorConfigKey('advisorOwn', 'adv-1'))
+      .toBe('meeting-observation-advisor-own:adv-1')
+    expect(advisorConfigKey('advisorDeclines', 'adv-1'))
+      .toBe('meeting-observation-advisor-declines:adv-1')
+    // The two parts never collide, so a decline can never land in the own-points row.
+    expect(advisorConfigKey('advisorOwn', 'adv-1'))
+      .not.toBe(advisorConfigKey('advisorDeclines', 'adv-1'))
   })
 
-  it('returns nothing for an advisor with no decisions, and for no advisor at all', () => {
-    expect(stateForAdvisor(declines, own, 'adv-9')).toEqual({ declines: {}, own: {} })
-    expect(stateForAdvisor(declines, own, null)).toEqual({ declines: {}, own: {} })
+  it('fits the column, so MySQL never truncates two advisors into one row', () => {
+    // `config_key` is VARCHAR(128) (config/db-schema.sql). Silent truncation would put two
+    // advisors with a long shared stem back in the same row — the exact fault 4.75 removes.
+    const key = advisorConfigKey('advisorDeclines', 'adv-' + 'x'.repeat(400))
+    expect(key.length).toBeLessThanOrEqual(128)
+    expect(key.slice(-1)).toBe('x')
+  })
+
+  it('refuses to build a key with no advisor, rather than one everybody shares', () => {
+    expect(advisorConfigKey('advisorOwn', '')).toBeNull()
+    expect(advisorConfigKey('advisorOwn', '   ')).toBeNull()
+    expect(advisorConfigKey('advisorOwn', null)).toBeNull()
+    expect(advisorConfigKey('notAPart', 'adv-1')).toBeNull()
+  })
+
+  it('reads the advisor back out, which is how the dev fallback addresses its file', () => {
+    expect(advisorIdFromKey('meeting-observation-advisor-own:adv-7')).toBe('adv-7')
+    expect(advisorIdFromKey('meeting-observation-advisor-declines:adv-7')).toBe('adv-7')
+    // A bare prefix is a different key and not one of these.
+    expect(advisorIdFromKey('meeting-observation-advisor-own')).toBeNull()
+    expect(advisorIdFromKey('meeting-observation-advisor-own:')).toBeNull()
+    expect(advisorIdFromKey('some-other-key:adv-7')).toBeNull()
+    expect(advisorIdFromKey(null)).toBeNull()
   })
 })
 

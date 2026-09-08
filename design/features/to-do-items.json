@@ -256,16 +256,16 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "Every advisor in a firm read-modify-writes the same per-firm config row, and the save has no compare-and-set, so the second write silently overwrites the first.",
-      "risk": "Both advisors are answered 200 and neither is told anything was lost. The window is small - it needs two people in one firm saving their own level inside the same read-write - but nothing on any screen would ever reveal it, and the advisor's list is what the coaching report is written from.",
+      "why": "Every advisor in a firm read-modify-wrote the same per-firm config row with no compare-and-set, so the second save silently overwrote the first. FIXED 2026-09-08: a row per advisor.",
+      "risk": "Both advisors were answered 200 and neither was told anything was lost. Nothing on any screen would ever have revealed it, and the advisor's list is what the coaching report is written from. What remains unproven is only the live run: no save has reached a real MySQL, the same blocker as 4.50 and 4.62.",
       "askedBy": {
         "who": "Us",
         "ours": true,
         "detail": "Found 2026-09-08 by /code-review over this branch. Filed on Mike's instruction the same day: \"save them, make them tasks\"."
       },
-      "touches": "server/routes/meetingObservations.js (writeAdvisorMap and the four advisor write routes) and server/utils/firmOverlay.js (saveFirmConfig), which every firm-overlay feature in the app shares - which is why this is not a quick edit.",
-      "note": "⚠ THE FIX TOUCHES SHARED STORAGE. saveFirmConfig carries no version, so making this safe means either a compare-and-set on the row or moving each advisor's state to a key of its own - and every other firm-overlay feature reads through that same function. It deserves its own proposal rather than being added to the end of a day's work.",
-      "comment": "2026-09-08 - found by /code-review and filed on Mike's instruction the same day."
+      "touches": "BUILT: server/utils/firmOverlay.js (loadFirmConfigsByPrefix, new - saveFirmConfig is UNTOUCHED), server/utils/meetingObservationsAdvisor.js (advisorConfigKey, advisorIdFromKey; stateForAdvisor removed as orphaned), server/routes/meetingObservations.js (the four advisor writes, the manager's set-aside read, the dev fallback), design/MEETING-TYPES-CASCADE.md §5, and three test files.",
+      "note": "THE FIX REMOVES THE RACE RATHER THAN DETECTING IT: each advisor's state moved to a config key of its own (meeting-observation-advisor-own:<advisorId>), so each row has ONE writer. The compare-and-set option was rejected - saveFirmConfig is shared by more than forty callers with nothing to do with this - and it stays untouched, so no other firm-overlay feature moved. Nothing was migrated because nothing existed to migrate: these keys were introduced 2026-09-08 and have never been in master. ⚠ NOT FIXED, and not claimed: one advisor with two browser tabs can still overwrite themselves - a person racing themselves, who can see both screens.",
+      "comment": "2026-09-08 - found by /code-review and filed on Mike's instruction the same day. Same day: proposed, approved and built on the laptop - 8,356 tests green, lint clean. The manager's whole-firm read became one prefix query."
     },
     {
       "ref": "4.76",

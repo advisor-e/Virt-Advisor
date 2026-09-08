@@ -108,11 +108,12 @@ advisor and per client would mean inventing a fake firm for every advisor and ev
 firm has. That is thousands of rows that are not firms, and a schema the master team owns.
 
 **Recommendation: keep the advisor's and the entity's decisions inside their own firm's row**,
-under two new config keys, each a map keyed by advisor id or client id:
+under config keys that name the person they belong to:
 
 ```
-meeting-observation-advisor   { advisorId: { typeId: {declines, overrides, own} } }
-meeting-observation-entity    { clientId:  { typeId: {declines, overrides, own} } }
+meeting-observation-advisor-declines:<advisorId>   { name, scenarios: { typeId: [pointId] } }
+meeting-observation-advisor-own:<advisorId>        { name, scenarios: { typeId: [point] }, nextSeq }
+meeting-observation-entity:<clientId>              (the per-client half — not built, not drawn)
 ```
 
 Three properties come out of that, and all three matter:
@@ -125,6 +126,27 @@ Three properties come out of that, and all three matter:
 The cost, stated plainly: history is per firm rather than per advisor, so "who changed this"
 is answered at firm granularity. That is acceptable for a preference; it would not be for a
 regulated record, and this is not one.
+
+🔴 **TWO DEVIATIONS FROM THE SHAPE THIS SECTION FIRST SKETCHED, both recorded rather than
+quietly absorbed.** It proposed ONE key holding `{ advisorId: { typeId: … } }` for the whole
+firm.
+
+1. **Two keys, not one** — declines and own points separately, matching every sibling in the
+   app (`firmStaircase`, `meetingObservations`, `meetingTypes`). Put to Mike on 2026-09-08
+   before the build and approved.
+2. **A row per advisor, not a map of the firm** — item **4.75**, 2026-09-08. Under the single
+   map, every advisor read the whole firm's map, changed their own entry and wrote it all
+   back, with no compare-and-set beneath. Two advisors saving inside the same read-write meant
+   the second wrote a copy that never held the first's change; **both were answered 200 and no
+   screen would ever have shown the loss.** One row per advisor gives each row one writer, so
+   there is no lost write to detect. The alternative — compare-and-set inside `saveFirmConfig`
+   — was rejected: that function is shared by more than forty callers with nothing to do with
+   this. Nothing was migrated because nothing existed to migrate; these keys had never reached
+   `master`.
+
+The whole-firm read a manager's screen needs is `firmOverlay.loadFirmConfigsByPrefix`, one
+query over the prefix. **It does not cascade**, deliberately: per-person rows belong to the
+person, and a tier above the firm has no people beneath it to inherit from.
 
 **The client already exists as a record** — `/api/clients` is the firm's register, the list an
 advisor picks from at the start of a session. So the bottom of the cascade attaches to

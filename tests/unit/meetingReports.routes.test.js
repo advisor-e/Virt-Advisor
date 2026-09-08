@@ -221,18 +221,24 @@ describe("the advisor's own level reaches the report", () => {
   // coaching report is prose, and a question that was never assessed reads exactly like a
   // question the model had nothing to say about.
 
-  const DECLINES_KEY = 'meeting-observation-advisor-declines'
-  const OWN_KEY = 'meeting-observation-advisor-own'
+  const { advisorConfigKey } = require('../../server/utils/meetingObservationsAdvisor')
 
-  /** Answer the two advisor config keys from this advisor's stored state; everything else null. */
+  /**
+   * Answer this advisor's two config keys from their stored state; everything else null.
+   *
+   * ⚠ ONE ROW PER ADVISOR since item 4.75 (2026-09-08) — the key carries the advisor id and
+   * the value is that advisor's entry alone, not a map of the firm. Built through
+   * `advisorConfigKey` rather than a literal so this fixture cannot describe a shape the
+   * routes have stopped writing.
+   */
   function seedAdvisorState ({ declines = null, own = null } = {}) {
     // Not `async`: `readScopeConfig` awaits whatever comes back, and a plain value awaits fine.
     overlay.loadFirmConfig.mockImplementation((scopeId, key) => {
-      if (key === DECLINES_KEY && declines) {
-        return { [ADVISOR]: { name: 'Test Advisor', scenarios: { eoy_meeting: declines } } }
+      if (declines && key === advisorConfigKey('advisorDeclines', ADVISOR)) {
+        return { name: 'Test Advisor', scenarios: { eoy_meeting: declines } }
       }
-      if (key === OWN_KEY && own) {
-        return { [ADVISOR]: { name: 'Test Advisor', scenarios: { eoy_meeting: own } } }
+      if (own && key === advisorConfigKey('advisorOwn', ADVISOR)) {
+        return { name: 'Test Advisor', scenarios: { eoy_meeting: own } }
       }
       return null
     })

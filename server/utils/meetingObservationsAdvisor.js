@@ -54,16 +54,83 @@ const {
 /**
  * The overlay addresses an advisor's decisions are stored under — on their OWN FIRM'S row.
  *
- *   meeting-observation-advisor-declines
- *     { advisorId: { name, scenarios: { scenarioId: [pointId] } } }
- *   meeting-observation-advisor-own
- *     { advisorId: { name, scenarios: { scenarioId: [ {id, text, hintWords} ] } } }
+ * 🔴 THESE ARE KEY PREFIXES, NOT KEYS. ONE ROW PER ADVISOR, and the advisor id is part of the
+ * address: `meeting-observation-advisor-own:adv-7`. Build one with `advisorConfigKey`, never
+ * by hand.
+ *
+ *   meeting-observation-advisor-declines:<advisorId>
+ *     { name, scenarios: { scenarioId: [pointId] } }
+ *   meeting-observation-advisor-own:<advisorId>
+ *     { name, scenarios: { scenarioId: [ {id, text, hintWords, cannotHear} ] }, nextSeq }
+ *
+ * ⚠ IT WAS ONE ROW PER FIRM UNTIL 2026-09-08, holding `{ advisorId: entry }`, and that is item
+ * 4.75: every advisor read the whole firm's map, changed their own entry and wrote the whole
+ * map back, with no compare-and-set underneath. Two advisors saving inside the same read-write
+ * meant the second wrote a copy that never held the first's change — both answered 200, and
+ * nothing on any screen would ever have shown it. A row per advisor gives each one WRITER, so
+ * there is no lost write to detect. The alternative — a compare-and-set inside
+ * `saveFirmConfig` — was rejected because that function is shared by more than forty callers
+ * with nothing to do with this.
+ *
+ * ⚠ NOTHING WAS MIGRATED, because there was nothing to migrate: these keys were introduced on
+ * 2026-09-08 and have never been in `master`, so no firm has ever stored one.
  *
  * @type {Object.<string, string>}
  */
 const CONFIG_KEYS = {
   advisorDeclines: 'meeting-observation-advisor-declines',
   advisorOwn: 'meeting-observation-advisor-own'
+}
+
+/**
+ * What separates the key prefix from the advisor id. `:` matches the reserved scope ids
+ * (`__global__:<brand>`) rather than inventing a second convention.
+ */
+const KEY_SEPARATOR = ':'
+
+/**
+ * The most advisor-id characters that reach a config key.
+ *
+ * `config_key` is `VARCHAR(128)` (`config/db-schema.sql`) and the longer prefix is 36
+ * characters, so 64 leaves room to spare. It matches the 64 that `activity.js` already
+ * truncates an advisor id to before it reaches a query, so the same identifier is not held
+ * to two different lengths in one app.
+ */
+const MAX_ADVISOR_ID_LENGTH = 64
+
+/**
+ * The config key one advisor's decisions live at.
+ *
+ * @param {'advisorDeclines'|'advisorOwn'} part
+ * @param {string} advisorId - from the verified token, never a body
+ * @returns {string|null} null when there is no advisor to key on
+ */
+function advisorConfigKey (part, advisorId) {
+  const prefix = CONFIG_KEYS[part]
+  if (!prefix) { return null }
+  const id = typeof advisorId === 'string' ? advisorId.trim() : ''
+  if (!id) { return null }
+  return prefix + KEY_SEPARATOR + id.slice(0, MAX_ADVISOR_ID_LENGTH)
+}
+
+/**
+ * The advisor id inside a config key, or null when the key is not one of these.
+ *
+ * Used by the dev-file fallback, which has one flat file per part and therefore has to put the
+ * advisor back into the address itself.
+ *
+ * @param {string} key
+ * @returns {string|null}
+ */
+function advisorIdFromKey (key) {
+  const k = typeof key === 'string' ? key : ''
+  let found = null
+  Object.keys(CONFIG_KEYS).forEach((part) => {
+    if (found) { return }
+    const prefix = CONFIG_KEYS[part] + KEY_SEPARATOR
+    if (k.indexOf(prefix) === 0 && k.length > prefix.length) { found = k.slice(prefix.length) }
+  })
+  return found
 }
 
 /** Dev-only stand-ins, used when there is no MySQL. Same gate as every sibling. */
@@ -227,7 +294,13 @@ function validateAdvisorPoint (value, opts) {
 /**
  * Read the stored declines map, keeping only what is well-formed.
  *
- * @param {*} stored
+ * ⚠ BOTH MAP READERS STILL TAKE `{ advisorId: entry }`, though storage now holds one advisor
+ * per row. The manager's whole-firm read assembles that map from the rows; an advisor reading
+ * their OWN row hands over a map of one. Deliberate: a second per-entry reader is a second
+ * place for the validation to drift, and what a manager sees must be validated exactly as
+ * what the advisor sees.
+ *
+ * @param {*} stored - `{ advisorId: entry }`
  * @returns {Object.<string, {name: (string|null), scenarios: Object.<string, string[]>}>}
  */
 function readAdvisorDeclines (stored) {
@@ -307,25 +380,6 @@ function readAdvisorOwn (stored) {
     }
   })
   return out
-}
-
-/**
- * One advisor's own slice of the two maps, always defined.
- *
- * @param {object} declinesMap - from `readAdvisorDeclines`
- * @param {object} ownMap - from `readAdvisorOwn`
- * @param {string|null} advisorId
- * @returns {{declines: Object.<string, string[]>, own: Object.<string, object[]>}}
- */
-function stateForAdvisor (declinesMap, ownMap, advisorId) {
-  const none = { declines: {}, own: {} }
-  if (!advisorId) { return none }
-  const d = declinesMap && declinesMap[advisorId]
-  const o = ownMap && ownMap[advisorId]
-  return {
-    declines: (d && d.scenarios) || {},
-    own: (o && o.scenarios) || {}
-  }
 }
 
 // ── Which tier a point came from ─────────────────────────────────────────────────────
@@ -538,6 +592,10 @@ function nextAdvisorPointId (existingOwnRows, lastSeq) {
 
 module.exports = {
   CONFIG_KEYS,
+  KEY_SEPARATOR,
+  MAX_ADVISOR_ID_LENGTH,
+  advisorConfigKey,
+  advisorIdFromKey,
   DEV_FILES,
   ADVISOR_POINT_PREFIX,
   ADVISOR_SOURCE_LABELS,
@@ -546,7 +604,6 @@ module.exports = {
   validateAdvisorPoint,
   readAdvisorDeclines,
   readAdvisorOwn,
-  stateForAdvisor,
   sourceTierOf,
   applyAdvisorLayer,
   setAsidePoints,

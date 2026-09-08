@@ -58,12 +58,14 @@ const {
 } = require('../utils/meetingObservations')
 const {
   CONFIG_KEYS: ADVISOR_KEYS,
+  KEY_SEPARATOR: ADVISOR_KEY_SEPARATOR,
+  advisorConfigKey,
+  advisorIdFromKey,
   DEV_FILES: ADVISOR_DEV_FILES,
   MAX_OWN_POINTS_PER_SCENARIO,
   validateAdvisorPoint,
   readAdvisorDeclines,
   readAdvisorOwn,
-  stateForAdvisor,
   applyAdvisorLayer,
   setAsidePoints,
   setAsideSummary,
@@ -90,6 +92,46 @@ function devWrite (devFile, scopeId, value) {
 }
 
 /**
+ * What separates a firm from an advisor inside a dev file's flat key.
+ *
+ * There is one dev file per config PART, not per row, so the advisor that the real config key
+ * carries has to be put back into the address here or every advisor in a firm would share one
+ * slot — reintroducing, in the dev store, the exact overwrite this change removed from MySQL.
+ */
+const DEV_ADVISOR_SEPARATOR = '::'
+
+/**
+ * The address one config key occupies in its dev file: the scope alone for a normal key, and
+ * scope-plus-advisor for a per-advisor one.
+ *
+ * @param {string} scopeId
+ * @param {string} key
+ * @returns {string}
+ */
+function devIdForKey (scopeId, key) {
+  const advisorId = advisorIdFromKey(key)
+  return advisorId ? scopeId + DEV_ADVISOR_SEPARATOR + advisorId : scopeId
+}
+
+/**
+ * Dev-only: every advisor's stored value for one scope, as `{ advisorId: value }` — the dev
+ * twin of `overlay.loadFirmConfigsByPrefix`.
+ *
+ * @param {string} devFile
+ * @param {string} scopeId
+ * @returns {Object.<string, *>}
+ */
+function devReadAllForScope (devFile, scopeId) {
+  const all = devReadAll(devFile)
+  const prefix = scopeId + DEV_ADVISOR_SEPARATOR
+  const out = {}
+  Object.keys(all).forEach((id) => {
+    if (id.indexOf(prefix) === 0) { out[id.slice(prefix.length)] = all[id] }
+  })
+  return out
+}
+
+/**
  * The overlay reader the resolver walks the tier chain with, falling back to the dev files
  * so the cascade behaves the same way with and without a database.
  *
@@ -108,7 +150,8 @@ async function readScopeConfig (scopeId, key) {
     const devFile = devFileForKey(key)
     if (!devFile) { throw err }
     const all = devReadAll(devFile)
-    return Object.prototype.hasOwnProperty.call(all, scopeId) ? all[scopeId] : null
+    const id = devIdForKey(scopeId, key)
+    return Object.prototype.hasOwnProperty.call(all, id) ? all[id] : null
   }
 }
 
@@ -120,13 +163,19 @@ async function readScopeConfig (scopeId, key) {
  * have found nothing, re-thrown, and turned a routine dev read into a 500 — with the
  * misleading message that the database was at fault.
  *
+ * ⚠ AN ADVISOR KEY IS MATCHED BY PREFIX, because it carries the advisor id: an exact match
+ * over `ADVISOR_KEYS` stopped finding anything the moment storage went to a row per advisor,
+ * with the same misleading 500 as the fault above.
+ *
  * @param {string} key
  * @returns {string|null}
  */
 function devFileForKey (key) {
   const managerPart = Object.keys(CONFIG_KEYS).filter(k => CONFIG_KEYS[k] === key)[0]
   if (managerPart) { return DEV_FILES[managerPart] }
-  const advisorPart = Object.keys(ADVISOR_KEYS).filter(k => ADVISOR_KEYS[k] === key)[0]
+  const advisorPart = Object.keys(ADVISOR_KEYS).filter((k) => {
+    return key === ADVISOR_KEYS[k] || String(key).indexOf(ADVISOR_KEYS[k] + ADVISOR_KEY_SEPARATOR) === 0
+  })[0]
   if (advisorPart) { return ADVISOR_DEV_FILES[advisorPart] }
   return null
 }
@@ -546,8 +595,10 @@ async function getSetAside (req, res) {
 
   try {
     const resolved = await loadResolvedObservations(req.firmId, readScopeConfig)
+    // Every advisor's row, in one query. Each advisor writes only their own, so what is
+    // assembled here can never be missing a change one of them was told had saved.
     const declines = readAdvisorDeclines(
-      await readScopeConfig(req.firmId, ADVISOR_KEYS.advisorDeclines)
+      await readAdvisorMapForFirm(req.firmId, 'advisorDeclines')
     )
 
     const scenarios = meetingScenarios().map(s => ({
@@ -565,52 +616,104 @@ async function getSetAside (req, res) {
 // ── The advisor's own level ──────────────────────────────────────────────────────────
 
 /**
- * Both advisor maps for a firm, and this advisor's slice of them.
+ * ONE advisor's stored entry for one part, always an object.
+ *
+ * 🔴 IT READS ONE ROW, NOT THE FIRM'S. That is item 4.75 and the whole of this change: while
+ * every advisor read and rewrote a single firm-wide row, two saving inside the same
+ * read-modify-write silently discarded one another's work, both answered 200. One row per
+ * advisor gives each row one writer.
+ *
+ * The map validators are handed a map of one rather than a per-entry reader being written
+ * beside them — see `readAdvisorDeclines` for why.
  *
  * @param {string} firmId - the verified scope
- * @param {string|null} advisorId - the verified advisor
- * @returns {Promise<{declinesMap: object, ownMap: object, declines: object, own: object}>}
+ * @param {'advisorDeclines'|'advisorOwn'} part
+ * @param {string} advisorId - the verified advisor
+ * @returns {Promise<object>} the entry, or an empty one of the right shape
  */
-async function loadAdvisorState (firmId, advisorId) {
-  const declinesMap = readAdvisorDeclines(await readScopeConfig(firmId, ADVISOR_KEYS.advisorDeclines))
-  const ownMap = readAdvisorOwn(await readScopeConfig(firmId, ADVISOR_KEYS.advisorOwn))
-  const mine = stateForAdvisor(declinesMap, ownMap, advisorId)
-  return { declinesMap, ownMap, declines: mine.declines, own: mine.own }
+async function readAdvisorEntry (firmId, part, advisorId) {
+  const empty = part === 'advisorOwn'
+    ? { name: null, scenarios: {}, nextSeq: {} }
+    : { name: null, scenarios: {} }
+
+  const key = advisorConfigKey(part, advisorId)
+  if (!key) { return empty }
+
+  const stored = await readScopeConfig(firmId, key)
+  const reader = part === 'advisorOwn' ? readAdvisorOwn : readAdvisorDeclines
+  const map = reader({ [advisorId]: stored })
+  return map[advisorId] || empty
 }
 
-/** Write one advisor map back, with the house dev fallback. */
-async function writeAdvisorMap (firmId, part, value, savedBy) {
+/**
+ * EVERY advisor's stored entry for one part in a firm, as `{ advisorId: stored }`.
+ *
+ * One query rather than one per advisor, and there is no list of a firm's advisors to iterate
+ * anyway — this app holds no advisors table. Unvalidated on purpose: the caller passes it
+ * straight to the same map reader it always used.
+ *
+ * @param {string} firmId
+ * @param {'advisorDeclines'|'advisorOwn'} part
+ * @returns {Promise<Object.<string, *>>}
+ */
+async function readAdvisorMapForFirm (firmId, part) {
+  const prefix = ADVISOR_KEYS[part] + ADVISOR_KEY_SEPARATOR
   try {
-    await overlay.saveFirmConfig(firmId, ADVISOR_KEYS[part], value, savedBy)
+    return await overlay.loadFirmConfigsByPrefix(firmId, prefix)
   } catch (err) {
     if (!devFallbackAllowed(err)) { throw err }
-    devWrite(ADVISOR_DEV_FILES[part], firmId, value)
+    return devReadAllForScope(ADVISOR_DEV_FILES[part], firmId)
   }
 }
 
 /**
- * The advisor's entry in a map, created if absent, with the display name refreshed.
+ * Write ONE advisor's entry back, with the house dev fallback.
+ *
+ * `savedBy` is the advisor id, as it was before: the row is theirs and nobody else writes it.
+ *
+ * @param {string} firmId
+ * @param {'advisorDeclines'|'advisorOwn'} part
+ * @param {string} advisorId
+ * @param {object} entry
+ * @returns {Promise<void>}
+ */
+async function writeAdvisorEntry (firmId, part, advisorId, entry) {
+  const key = advisorConfigKey(part, advisorId)
+  if (!key) { throw new Error('no advisor to key this write on') }
+  try {
+    await overlay.saveFirmConfig(firmId, key, entry, advisorId)
+  } catch (err) {
+    if (!devFallbackAllowed(err)) { throw err }
+    devWrite(ADVISOR_DEV_FILES[part], devIdForKey(firmId, key), entry)
+  }
+}
+
+/**
+ * Both of this advisor's slices, always defined.
+ *
+ * @param {string} firmId - the verified scope
+ * @param {string|null} advisorId - the verified advisor
+ * @returns {Promise<{declines: object, own: object}>}
+ */
+async function loadAdvisorState (firmId, advisorId) {
+  if (!advisorId) { return { declines: {}, own: {} } }
+  const declines = await readAdvisorEntry(firmId, 'advisorDeclines', advisorId)
+  const own = await readAdvisorEntry(firmId, 'advisorOwn', advisorId)
+  return { declines: declines.scenarios, own: own.scenarios }
+}
+
+/**
+ * The entry about to be written, with the display name refreshed.
  *
  * ⚠ THE NAME IS REWRITTEN ON EVERY WRITE, deliberately. This app holds no advisors table to
  * join a name out of (`config/db-schema.sql`), so the stored copy is all the manager's screen
  * will ever have. Refreshing it means a change of name in Advisor-e reaches this screen the
  * next time that advisor touches their list, rather than never.
  */
-function entryFor (map, advisorId, advisorName) {
-  const existing = map[advisorId]
-  const entry = (existing && typeof existing === 'object' && !Array.isArray(existing))
-    ? {
-        name: existing.name || null,
-        scenarios: { ...(existing.scenarios || {}) },
-        // Carried forward, never reset. It is the only thing standing between a removed
-        // point's id and the next point the advisor writes — see nextAdvisorPointId.
-        nextSeq: { ...(existing.nextSeq || {}) }
-      }
-    : { name: null, scenarios: {}, nextSeq: {} }
+function withName (entry, advisorName) {
   if (typeof advisorName === 'string' && advisorName.trim()) {
     entry.name = advisorName.trim().slice(0, 128)
   }
-  map[advisorId] = entry
   return entry
 }
 
@@ -684,8 +787,8 @@ async function setAdvisorDecline (req, res) {
       return sendError(res, 404, 'NOT_FOUND', 'No such point in this meeting type')
     }
 
-    const map = readAdvisorDeclines(await readScopeConfig(req.firmId, ADVISOR_KEYS.advisorDeclines))
-    const entry = entryFor(map, req.advisorId, req.advisorName)
+    const entry = withName(
+      await readAdvisorEntry(req.firmId, 'advisorDeclines', req.advisorId), req.advisorName)
     const current = Array.isArray(entry.scenarios[scenario]) ? entry.scenarios[scenario] : []
 
     let next
@@ -700,11 +803,14 @@ async function setAdvisorDecline (req, res) {
     } else {
       delete entry.scenarios[scenario]
     }
-    // An advisor with nothing set aside leaves no row behind, so the manager's screen never
-    // has to filter out people who changed their mind.
-    if (!Object.keys(entry.scenarios).length) { delete map[req.advisorId] }
 
-    await writeAdvisorMap(req.firmId, 'advisorDeclines', map, req.advisorId)
+    // An advisor with nothing set aside leaves no row on the MANAGER'S SCREEN, so it never
+    // has to filter out people who changed their mind. Since 2026-09-08 the emptied row is
+    // written rather than deleted from a map — an advisor now owns a row of their own and
+    // there is no delete on the overlay — and `readAdvisorDeclines` drops an entry holding no
+    // scenarios, so what the manager is shown is unchanged.
+
+    await writeAdvisorEntry(req.firmId, 'advisorDeclines', req.advisorId, entry)
     res.send(200, { success: true, declines: next })
   } catch (err) {
     return serverError(res, err, 'save that change')
@@ -733,8 +839,8 @@ async function addAdvisorPoint (req, res) {
   if (!ok) { return badRequest(res, errors) }
 
   try {
-    const map = readAdvisorOwn(await readScopeConfig(req.firmId, ADVISOR_KEYS.advisorOwn))
-    const entry = entryFor(map, req.advisorId, req.advisorName)
+    const entry = withName(
+      await readAdvisorEntry(req.firmId, 'advisorOwn', req.advisorId), req.advisorName)
     const current = Array.isArray(entry.scenarios[scenario]) ? entry.scenarios[scenario] : []
 
     if (current.length >= MAX_OWN_POINTS_PER_SCENARIO) {
@@ -746,7 +852,7 @@ async function addAdvisorPoint (req, res) {
     entry.scenarios[scenario] = current.concat([point])
     entry.nextSeq[scenario] = minted.seq
 
-    await writeAdvisorMap(req.firmId, 'advisorOwn', map, req.advisorId)
+    await writeAdvisorEntry(req.firmId, 'advisorOwn', req.advisorId, entry)
     res.send(200, { success: true, point })
   } catch (err) {
     return serverError(res, err, 'add that point')
@@ -775,8 +881,8 @@ async function updateAdvisorPoint (req, res) {
   if (!ok) { return badRequest(res, errors) }
 
   try {
-    const map = readAdvisorOwn(await readScopeConfig(req.firmId, ADVISOR_KEYS.advisorOwn))
-    const entry = entryFor(map, req.advisorId, req.advisorName)
+    const entry = withName(
+      await readAdvisorEntry(req.firmId, 'advisorOwn', req.advisorId), req.advisorName)
     const current = Array.isArray(entry.scenarios[scenario]) ? entry.scenarios[scenario] : []
     const index = current.findIndex(p => p && p.id === pointId)
     // 404 rather than a silent create: a point this advisor does not own is not theirs to
@@ -786,7 +892,7 @@ async function updateAdvisorPoint (req, res) {
     const point = { id: pointId, text: value.text, hintWords: value.hintWords || [] }
     entry.scenarios[scenario] = current.slice(0, index).concat([point], current.slice(index + 1))
 
-    await writeAdvisorMap(req.firmId, 'advisorOwn', map, req.advisorId)
+    await writeAdvisorEntry(req.firmId, 'advisorOwn', req.advisorId, entry)
     res.send(200, { success: true, point })
   } catch (err) {
     return serverError(res, err, 'save that point')
@@ -812,8 +918,8 @@ async function deleteAdvisorPoint (req, res) {
   if (!req.advisorId) { return sendError(res, 403, 'FORBIDDEN', 'No advisor on this token') }
 
   try {
-    const map = readAdvisorOwn(await readScopeConfig(req.firmId, ADVISOR_KEYS.advisorOwn))
-    const entry = entryFor(map, req.advisorId, req.advisorName)
+    const entry = withName(
+      await readAdvisorEntry(req.firmId, 'advisorOwn', req.advisorId), req.advisorName)
     const current = Array.isArray(entry.scenarios[scenario]) ? entry.scenarios[scenario] : []
     if (!current.some(p => p && p.id === pointId)) {
       return sendError(res, 404, 'NOT_FOUND', 'No point of yours with that id')
@@ -826,15 +932,12 @@ async function deleteAdvisorPoint (req, res) {
       delete entry.scenarios[scenario]
     }
 
-    // 🔴 THE ADVISOR'S ROW IS KEPT EVEN WHEN EMPTY, unlike the declines map, and the
-    // difference is deliberate. This row still holds `nextSeq`, the high-water mark that
-    // stops a removed point's id being handed to the next one written. Deleting the row to
-    // keep the map tidy would throw that away and reintroduce the exact collision
-    // nextAdvisorPointId exists to prevent. Nothing reads this map but the advisor
-    // themselves, so an empty row is invisible; the declines map is the one a manager sees,
-    // and that one is still pruned.
+    // 🔴 `nextSeq` IS WRITTEN BACK EVEN WHEN NO POINTS REMAIN. It is the high-water mark that
+    // stops a removed point's id being handed to the next one written. Dropping it to keep
+    // storage tidy would reintroduce the exact collision nextAdvisorPointId exists to
+    // prevent — and `readAdvisorOwn` keeps an entry that holds only a mark, for this reason.
 
-    await writeAdvisorMap(req.firmId, 'advisorOwn', map, req.advisorId)
+    await writeAdvisorEntry(req.firmId, 'advisorOwn', req.advisorId, entry)
     res.send(200, { success: true })
   } catch (err) {
     return serverError(res, err, 'remove that point')
