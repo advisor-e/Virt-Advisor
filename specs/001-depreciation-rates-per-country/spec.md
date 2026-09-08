@@ -26,6 +26,11 @@
 - Q: Does an approved table set the forecast's single depreciation rate — changing both reported profit and tax — or only a tax deduction? → A: One rate. The approved table sets it, so approving changes both reported profit and tax.
 - Q: Where does a client's country come from, given the forecast has no country field today? → A: Asked once per forecast, defaulting to the firm's country.
 - Q: Who decides which published asset class matches each of the forecast's six categories? → A: The system proposes a class for each of the six, naming it, and the manager confirms or changes it.
+- Q: Should a country's first-year rule (Investment Boost) be included at all? → A: Yes — "i have advisors applying this to clients already so i know it has a practical user case".
+- Q: Does a first-year rule get its own Approve button, or share the one that approves the rates? → A: Its own.
+- Q: The boost depends on when an asset was bought. Is a purchase month enough? → A: No — the asset data must record the date each asset was purchased.
+- Q: How is the purchase date captured — a dated purchase list, or a date only on boosted purchases? → A: A dated list per category, with the monthly totals derived from it.
+- Q: Where does the first-year deduction appear in the printed report, and what is it called? → A: Its own line directly beneath Depreciation, taking its name from the approved rule itself.
 
 ---
 
@@ -150,6 +155,24 @@ An advisor whose client is in a country their firm has no rates for loads that c
 - **FR-026**: The forecast MUST ask which country the client is in, once per forecast, defaulting to the firm's own country. Every requirement above that refers to "a client in that country" resolves against this answer.
 - **FR-029**: The country MUST be saved with the forecast, so reopening a saved forecast resolves the same rates it was built on rather than whatever is approved at the time it is reopened.
 - **FR-030**: Changing the country on an open forecast MUST NOT silently change any rate. The advisor MUST be told which rates would change and choose to apply them, on the same terms as FR-019 and FR-020.
+
+**A country's first-year rule — Investment Boost** *(ruled by Mike, 2026-09-09)*
+
+- **FR-033**: An approved country table MUST be able to carry a **first-year rule**: the percentage of a qualifying asset's cost deducted in the year of purchase, the date the rule starts, what qualifies and what does not, and the document it came from. New Zealand's is Investment Boost — 20% from 22 May 2025.
+- **FR-034**: A first-year rule MUST have its **own approval**, separate from the approval of the rates. Approving a rate table MUST NOT adopt a tax scheme as a side effect.
+- **FR-035**: Where a rule applies, the qualifying percentage of a purchase MUST be charged as an expense in the period of purchase and the **remainder** capitalised and depreciated at the ordinary rate. The forecast MUST NOT hold a second depreciation rate and MUST NOT compute deferred tax — FR-025 is unchanged.
+- **FR-036**: A first-year rule MUST apply only to assets **purchased during the forecast**, never to opening asset values.
+- **FR-037**: The advisor MUST state how much of a purchase qualifies. The system MUST NOT decide what qualifies; it MUST show the rule's own words for what does and does not.
+- **FR-038**: Where a country has no approved first-year rule, the qualifying field MUST be **absent**, not disabled.
+- **FR-039**: 🔴 **The asset data MUST record the DATE each asset was purchased**, not merely the month it falls in. A first-year rule turns on when an asset was bought — Investment Boost starts on 22 May 2025, mid-month — so a month cannot answer the eligibility question at the boundary, and a claim with no purchase date behind it cannot be evidenced afterwards. *(Mike, 2026-09-09: "the boost requires specific time periods of purchase etc so the asset data needs to include the date it was purchased".)*
+- **FR-040**: A purchase dated before a rule's start date MUST NOT attract that rule.
+- **FR-041**: Asset purchases MUST be entered as a **dated list** per category — each carrying its date, what it is, its cost, and how much of it qualifies for a first-year rule. The twelve monthly totals the forecast works to MUST be **derived** from that list.
+- **FR-042**: Deriving the monthly totals MUST leave the forecast engine's input shape unchanged, so the arithmetic pinned by the golden set is untouched. A forecast with an empty purchase list MUST produce exactly what it produces today.
+- **FR-043**: There MUST be only one way to enter an asset purchase. The twelve monthly boxes MUST NOT survive alongside the list.
+- **FR-044**: A first-year deduction MUST appear in the printed report as **its own line directly beneath Depreciation**, and MUST NOT be added into the depreciation figure — a one-off read as a recurring charge makes the following years look like a collapse in costs.
+- **FR-045**: That line MUST take its name from the approved rule itself — *Investment Boost* for New Zealand — so a country whose scheme is named differently carries its own name rather than New Zealand's.
+
+> **This absorbs item 4.77's asset-model change.** That item's own note asks for *"assets carrying a rate or deduction that changes at a date"*, which is FR-039 and FR-041. It is recorded here rather than left as a second, overlapping job — but neither item has been closed or merged on the live list, which is Mike's to decide.
 
 **Matching published asset classes to the forecast's six categories** *(ruled by Mike, 2026-09-09)*
 
