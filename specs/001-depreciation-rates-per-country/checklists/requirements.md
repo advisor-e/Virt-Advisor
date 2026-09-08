@@ -1,4 +1,4 @@
-# Specification Quality Checklist: Tax Rules Per Country
+# Specification Quality Checklist: Depreciation Rates Per Country
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-09-09

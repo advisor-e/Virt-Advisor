@@ -1,4 +1,4 @@
-# Feature Specification: Tax Rules Per Country
+# Feature Specification: Depreciation Rates Per Country
 
 **Feature Branch**: `feat/advisor-progress` (no branch created by Spec Kit — see the constitution)
 
@@ -6,14 +6,14 @@
 
 **Status**: Draft
 
-**Input**: User description: "Tax rules per country for the Three-Way Forecast. A firm manager loads their tax authority's depreciation documents (NZ IRD, Australian ATO) into a Tax Rules tab on the Firm Manager Hub. The AI reads each document and proposes a rate table; nothing uses it until the firm manager approves it, and every proposed rate shows the document and page it came from. The screen must also name what the AI could NOT find in the loaded documents, because a rule introduced after a document was published is invisible from inside that document. An approved table is tagged with its country and applies only to clients in that country. Where two documents give one asset class different rates, the newer publication wins and the older is shown beside it. A firm with no table of its own inherits the nearest approved table above it (group manager, then global group manager, then mentor) and falls back to the app's own six default asset-category rates when no tier has one. An advisor may LOAD a document for a client in a country their firm has no table for, but only the firm manager may APPROVE it. An advisor may also type a rate for their own client, tagged \"entered by you\", which never alters the firm's table. An advisor is never blocked by a missing table. A document that cannot be read reliably is refused rather than guessed at. Context the specification must resolve rather than assume: the forecast holds ONE depreciation rate per asset category, charges it into overheads as a P&L expense, and then computes income tax on the profit after it, so that single rate currently determines both the profit a lender reads and the tax payable; the documents being loaded publish TAX depreciation rates, which are the deduction a tax authority allows in a tax return and are not necessarily the rate a business uses in its own accounts."
+**Input**: User description: "Depreciation Rates per country for the Three-Way Forecast. A firm manager loads their tax authority's depreciation documents (NZ IRD, Australian ATO) into a Depreciation Rates tab on the Firm Manager Hub. The AI reads each document and proposes a rate table; nothing uses it until the firm manager approves it, and every proposed rate shows the document and page it came from. The screen must also name what the AI could NOT find in the loaded documents, because a rule introduced after a document was published is invisible from inside that document. An approved table is tagged with its country and applies only to clients in that country. Where two documents give one asset class different rates, the newer publication wins and the older is shown beside it. A firm with no table of its own inherits the nearest approved table above it (group manager, then global group manager, then mentor) and falls back to the app's own six default asset-category rates when no tier has one. An advisor may LOAD a document for a client in a country their firm has no table for, but only the firm manager may APPROVE it. An advisor may also type a rate for their own client, tagged \"entered by you\", which never alters the firm's table. An advisor is never blocked by a missing table. A document that cannot be read reliably is refused rather than guessed at. Context the specification must resolve rather than assume: the forecast holds ONE depreciation rate per asset category, charges it into overheads as a P&L expense, and then computes income tax on the profit after it, so that single rate currently determines both the profit a lender reads and the tax payable; the documents being loaded publish TAX depreciation rates, which are the deduction a tax authority allows in a tax return and are not necessarily the rate a business uses in its own accounts."
 
 **Live list**: item 4.78. Requested by Mike on 2026-09-08 in his own words, and filed on his instruction after he overturned the recommendation against it.
 
 **Approved artefacts** — the drawings this specification describes, both committed before approval:
 
-- [`design/mockups/tax-rules-upload.html`](../../design/mockups/tax-rules-upload.html) — the firm manager's screen (six rulings, 2026-09-08)
-- [`design/mockups/tax-rules-advisor.html`](../../design/mockups/tax-rules-advisor.html) — the advisor's screen (three rulings, 2026-09-08)
+- [`design/mockups/depreciation-rates-upload.html`](../../design/mockups/depreciation-rates-upload.html) — the firm manager's screen (six rulings, 2026-09-08)
+- [`design/mockups/depreciation-rates-advisor.html`](../../design/mockups/depreciation-rates-advisor.html) — the advisor's screen (three rulings, 2026-09-08)
 
 **Already built** — slice 1, commit `d8621e9`: the store, its validation and the four-tier cascade. Backend only, no screen. It embodies the requirements marked *(built)* below. Nothing else exists.
 
@@ -33,7 +33,7 @@
 
 ### User Story 1 - A firm manager gives their firm the right rates for their country (Priority: P1)
 
-A firm manager opens Tax Rules on their hub and sees which rates their firm is currently working to, and where each one came from. They load their tax authority's depreciation guide. The system reads it and proposes a rate for each of the forecast's asset categories, showing beneath each figure the document and page it was taken from — and, separately, naming what it could **not** find in what was loaded. The manager corrects anything they disagree with and approves. From that moment every forecast their firm produces for a client in that country uses those rates; until that moment nothing changes at all.
+A firm manager opens Depreciation Rates on their hub and sees which rates their firm is currently working to, and where each one came from. They load their tax authority's depreciation guide. The system reads it and proposes a rate for each of the forecast's asset categories, showing beneath each figure the document and page it was taken from — and, separately, naming what it could **not** find in what was loaded. The manager corrects anything they disagree with and approves. From that moment every forecast their firm produces for a client in that country uses those rates; until that moment nothing changes at all.
 
 **Why this priority**: This is the feature. Without it the six shipped rates are a guess — Vehicles is 20% where New Zealand's tax authority gives 50% — and every forecast a firm produces carries that guess into a document a lender reads. Every other story is a refinement of this one.
 
@@ -41,7 +41,7 @@ A firm manager opens Tax Rules on their hub and sees which rates their firm is c
 
 **Acceptance Scenarios**:
 
-1. **Given** a firm that has approved nothing, **When** the manager opens Tax Rules, **Then** they see the app's own six rates, each marked as an app default rather than as a sourced figure.
+1. **Given** a firm that has approved nothing, **When** the manager opens Depreciation Rates, **Then** they see the app's own six rates, each marked as an app default rather than as a sourced figure.
 2. **Given** a loaded depreciation document, **When** the system has read it, **Then** each proposed rate displays the document name, page and publication date it came from.
 3. **Given** a proposed table awaiting approval, **When** an advisor in that firm produces a forecast, **Then** the forecast uses the previous rates and nothing indicates the proposal exists.
 4. **Given** a proposed table, **When** the manager changes a rate and approves, **Then** the approved value is the manager's, not the one proposed.

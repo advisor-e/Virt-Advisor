@@ -1,14 +1,19 @@
-# Tax Rules — the Brief
+# Depreciation Rates — the Brief
 
 > **The depreciation rates a firm's forecasts use, read from its tax authority's own
 > documents.** Current rules only; the history is in
-> [`tax-rules-history.md`](tax-rules-history.md).
+> [`depreciation-rates-history.md`](depreciation-rates-history.md).
 >
 > **Covers:** how a firm gets the right depreciation rates for a client's country, who may
 > load a document, who may approve one, and how a rate proves where it came from.
-> **Does not cover:** the Multiple Property Assessment's own tax settings, which are a
-> separate block ruled on differently — see [`report-models.md`](report-models.md) and the
-> Property Tax Rules tab. Nothing here changes those.
+> 🔴 **Does not cover TAX RATES, and the distinction is the whole point of the name.** A tax
+> rate turns something into tax owed — GST, the flat company rate, personal rates in bands. A
+> depreciation rate writes down an asset's book value, and the write-down is claimable against
+> profit. This feature only ever sets the second. **The forecast's own `taxRate` (0.28) and its
+> GST rate are untouched by it — and cannot be set per country at all, which is a real gap and
+> a different feature** (history §3b). It also does not cover the Multiple Property
+> Assessment's tax settings, a separate block ruled on differently — see
+> [`report-models.md`](report-models.md) and the Property Tax Rules tab.
 
 ---
 
@@ -28,7 +33,7 @@ in the firm manager hub where tax pdfs can be loaded to be read by the AI so it 
 accurate per country"*. **The firm supplies its own source; the machine reads it; the
 manager approves what it read.**
 
-So the idea to hold is this: **this feature does not know any country's tax rules and never
+So the idea to hold is this: **this feature does not know any country's Depreciation Rates and never
 will.** It knows how to read a document a firm gave it, show a person what it found, show
 them equally plainly what it could not find, and refuse to act until that person says yes.
 Its value is not the rates. It is that every rate in a funding document can name the
@@ -147,17 +152,17 @@ An advisor's own rate lives on their client's forecast, not in a table of their 
 
 | Piece | Path |
 |---|---|
-| The store — validation, the newer-wins rule, the four-tier resolver | [`server/utils/taxRules.js`](../../server/utils/taxRules.js) |
-| The app's own six rates — the floor under every country | [`data/tax-rules.json`](../../data/tax-rules.json) |
-| Its tests | [`tests/unit/taxRules.test.js`](../../tests/unit/taxRules.test.js) |
+| The store — validation, the newer-wins rule, the four-tier resolver | [`server/utils/depreciationRates.js`](../../server/utils/depreciationRates.js) |
+| The app's own six rates — the floor under every country | [`data/depreciation-rates.json`](../../data/depreciation-rates.json) |
+| Its tests | [`tests/unit/depreciationRates.test.js`](../../tests/unit/depreciationRates.test.js) |
 | The tier seam every cascading block asks | [`server/utils/tierChain.js`](../../server/utils/tierChain.js) |
 | The engine whose rate this sets | [`server/report/threeWayForecastModel.js`](../../server/report/threeWayForecastModel.js) |
 | The screen the six rates are entered on today | [`components/ThreeWayForecastIntake.vue`](../../components/ThreeWayForecastIntake.vue) |
-| The specification, with all three rulings of 2026-09-09 | [`specs/001-tax-rules-per-country/spec.md`](../../specs/001-tax-rules-per-country/spec.md) |
-| The manager's screen, approved 2026-09-08 | [`design/mockups/tax-rules-upload.html`](../mockups/tax-rules-upload.html) |
-| The advisor's screen, approved 2026-09-08 | [`design/mockups/tax-rules-advisor.html`](../mockups/tax-rules-advisor.html) |
-| The country field, drawn 2026-09-09 | [`design/mockups/tax-rules-country-field.html`](../mockups/tax-rules-country-field.html) |
-| The class match, drawn 2026-09-09 | [`design/mockups/tax-rules-class-match.html`](../mockups/tax-rules-class-match.html) |
+| The specification, with all three rulings of 2026-09-09 | [`specs/001-depreciation-rates-per-country/spec.md`](../../specs/001-depreciation-rates-per-country/spec.md) |
+| The manager's screen, approved 2026-09-08 | [`design/mockups/depreciation-rates-upload.html`](../mockups/depreciation-rates-upload.html) |
+| The advisor's screen, approved 2026-09-08 | [`design/mockups/depreciation-rates-advisor.html`](../mockups/depreciation-rates-advisor.html) |
+| The country field, drawn 2026-09-09 | [`design/mockups/depreciation-rates-country-field.html`](../mockups/depreciation-rates-country-field.html) |
+| The class match, drawn 2026-09-09 | [`design/mockups/depreciation-rates-class-match.html`](../mockups/depreciation-rates-class-match.html) |
 
 **Traps.**
 
@@ -200,4 +205,4 @@ unsolved — see the history file — and is the next real decision.
 
 ---
 
-**History:** [`tax-rules-history.md`](tax-rules-history.md)
+**History:** [`depreciation-rates-history.md`](depreciation-rates-history.md)

@@ -22,8 +22,8 @@ rules nz`. IR260 is **April 2024**; neither mentions Investment Boost, which is 
 thing still missing.
 
 **4.78 designed, nothing built, `activeOn` laptop.**
-[`mockups/tax-rules-upload.html`](mockups/tax-rules-upload.html) and
-[`tax-rules-advisor.html`](mockups/tax-rules-advisor.html) — nine rulings, no open
+[`mockups/depreciation-rates-upload.html`](mockups/depreciation-rates-upload.html) and
+[`depreciation-rates-advisor.html`](mockups/depreciation-rates-advisor.html) — nine rulings, no open
 questions. Ready to build.
 
 **If the push gate fails on missing coverage data with every test green:** `rm -rf

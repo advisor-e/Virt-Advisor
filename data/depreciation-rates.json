@@ -2,7 +2,7 @@
   "_readme": [
     "THE APP'S OWN DEPRECIATION RATES — the floor every country falls back to (item 4.78).",
     "",
-    "🔴 THESE ARE NOT ANY COUNTRY'S TAX RULES AND MUST NEVER BE PRESENTED AS ONE. They are",
+    "🔴 THESE ARE NOT ANY COUNTRY'S Depreciation Rates AND MUST NEVER BE PRESENTED AS ONE. They are",
     "the six figures the Three-Way Forecast has shipped with since it was built, and they",
     "are a guess: Vehicles is 20% where New Zealand's IRD gives 50% diminishing value for a",
     "passenger vehicle. That gap is the whole reason item 4.78 exists. Everything here is",
@@ -12,7 +12,7 @@
     "ASSET_SPECS in components/ThreeWayForecastIntake.vue (percentages) and the engine's own",
     "defaults in server/report/threeWayForecastModel.js (decimals). A cascading store needs a",
     "third reading of the same six numbers, and three copies is two too many.",
-    "tests/unit/taxRules.test.js pins this file against the ENGINE's defaults, which are the",
+    "tests/unit/depreciationRates.test.js pins this file against the ENGINE's defaults, which are the",
     "ones that actually compute a forecast, so the three can no longer drift apart.",
     "",
     "🔴 RATES ARE DECIMALS, 0..1 — 50% is 0.5, never 50. That is the engine's own convention",

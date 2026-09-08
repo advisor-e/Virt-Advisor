@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * Tax rules per country — the approved-table store (item 4.78, slice 1).
+ * Depreciation Rates per country — the approved-table store (item 4.78, slice 1).
  *
  * WHAT THESE TESTS ARE FOR. A firm manager approving a rate table sees rows go green and a
  * success message come back. What they cannot see, and what UAT cannot see either, is that
@@ -15,16 +15,16 @@
 const { DEFAULTS, ASSET_KEYS } = require('../../server/report/threeWayForecastModel')
 const { setFirmMembership } = require('../../server/utils/tierChain')
 const {
-  BASE_TAX_RULES,
+  BASE_DEPRECIATION_RATES,
   CATEGORY_KEYS,
   CONFIG_KEY,
   MAX_SUPERSEDED,
   normaliseCountry,
   publishedKey,
-  validateTaxRules,
+  validateDepreciationRates,
   pickNewer,
-  loadResolvedTaxRules
-} = require('../../server/utils/taxRules')
+  loadResolvedDepreciationRates
+} = require('../../server/utils/depreciationRates')
 
 /** A loader over a `{scopeId: storedValue}` map, standing in for the overlay store. */
 function loaderFor (map) {
@@ -65,7 +65,7 @@ describe('the app’s own six rates, as shipped', () => {
   // golden set proves, and nothing on any screen would look wrong.
   test('every default matches the engine’s own rate for that category', () => {
     DEFAULTS.assets.forEach((asset) => {
-      const own = BASE_TAX_RULES[asset.key]
+      const own = BASE_DEPRECIATION_RATES[asset.key]
       expect(own).toBeDefined()
       expect(own.dvRate).toBe(asset.depreciationRate)
     })
@@ -79,18 +79,18 @@ describe('the app’s own six rates, as shipped', () => {
   // to percentages would depreciate every asset by 2000% a year.
   test('every shipped rate is a decimal, not a percentage', () => {
     CATEGORY_KEYS.forEach((key) => {
-      expect(BASE_TAX_RULES[key].dvRate).toBeGreaterThan(0)
-      expect(BASE_TAX_RULES[key].dvRate).toBeLessThanOrEqual(1)
+      expect(BASE_DEPRECIATION_RATES[key].dvRate).toBeGreaterThan(0)
+      expect(BASE_DEPRECIATION_RATES[key].dvRate).toBeLessThanOrEqual(1)
     })
   })
 
   // An app default is told apart from an approved rate by exactly one thing.
   test('no shipped rate carries a source document', () => {
-    CATEGORY_KEYS.forEach((key) => { expect(BASE_TAX_RULES[key].source).toBeNull() })
+    CATEGORY_KEYS.forEach((key) => { expect(BASE_DEPRECIATION_RATES[key].source).toBeNull() })
   })
 
   test('the data file’s own documentation never reaches a caller', () => {
-    expect(Object.keys(BASE_TAX_RULES).sort()).toEqual(ASSET_KEYS.slice().sort())
+    expect(Object.keys(BASE_DEPRECIATION_RATES).sort()).toEqual(ASSET_KEYS.slice().sort())
   })
 })
 
@@ -111,7 +111,7 @@ describe('country codes', () => {
 
 describe('validating a tier’s own approved tables', () => {
   test('a table with one category is fine — the rest come from above', () => {
-    const r = validateTaxRules({ NZ: table({ vehicles: entry() }) })
+    const r = validateDepreciationRates({ NZ: table({ vehicles: entry() }) })
     expect(r.ok).toBe(true)
     expect(r.value.NZ.categories.vehicles.dvRate).toBe(0.5)
     expect(r.value.NZ.categories.plantEquipment).toBeUndefined()
@@ -120,14 +120,14 @@ describe('validating a tier’s own approved tables', () => {
   // 🔴 THE UNIT GUARD. `50` is not a bad 50%, it is a rate typed in the wrong unit, and
   // accepting it as 5000% puts a wrong figure into a forecast that still balances.
   test('a rate above 1 is REFUSED, not clamped', () => {
-    const r = validateTaxRules({ NZ: table({ vehicles: entry({ dvRate: 50 }) }) })
+    const r = validateDepreciationRates({ NZ: table({ vehicles: entry({ dvRate: 50 }) }) })
     expect(r.ok).toBe(false)
     expect(r.errors.join(' ')).toMatch(/50% is 0\.5, not 50/)
     expect(r.value.NZ).toBeUndefined()
   })
 
   test('a negative rate is refused', () => {
-    expect(validateTaxRules({ NZ: table({ vehicles: entry({ dvRate: -0.1 }) }) }).ok).toBe(false)
+    expect(validateDepreciationRates({ NZ: table({ vehicles: entry({ dvRate: -0.1 }) }) }).ok).toBe(false)
   })
 
   // 🔴 THE APPROVAL GATE. CLAUDE.md requires isApproved before AI output reaches a
@@ -136,65 +136,65 @@ describe('validating a tier’s own approved tables', () => {
   test('a table with no approver is refused', () => {
     const t = table({ vehicles: entry() })
     delete t.approvedBy
-    expect(validateTaxRules({ NZ: t }).ok).toBe(false)
+    expect(validateDepreciationRates({ NZ: t }).ok).toBe(false)
   })
 
   test('a table with no approval date is refused', () => {
-    expect(validateTaxRules({ NZ: table({ vehicles: entry() }, { approvedAt: 'whenever' }) }).ok).toBe(false)
+    expect(validateDepreciationRates({ NZ: table({ vehicles: entry() }, { approvedAt: 'whenever' }) }).ok).toBe(false)
   })
 
   // A rate stored under a name the engine has never heard of is a rate a manager believes
   // they approved and which can never reach a single forecast.
   test('an unknown asset category is refused rather than silently dropped', () => {
-    const r = validateTaxRules({ NZ: table({ tractors: entry() }) })
+    const r = validateDepreciationRates({ NZ: table({ tractors: entry() }) })
     expect(r.ok).toBe(false)
     expect(r.errors.join(' ')).toMatch(/tractors/)
   })
 
   test('a country that is not a two-letter code is refused', () => {
-    expect(validateTaxRules({ 'New Zealand': table({ vehicles: entry() }) }).ok).toBe(false)
+    expect(validateDepreciationRates({ 'New Zealand': table({ vehicles: entry() }) }).ok).toBe(false)
   })
 
   // The entry would say how to apply a number it does not have; the resolver would fall
   // through to the app default while the screen showed an approved row.
   test('a method with no matching rate is refused', () => {
-    expect(validateTaxRules({ NZ: table({ vehicles: entry({ method: 'sl', slRate: null }) }) }).ok).toBe(false)
-    expect(validateTaxRules({ NZ: table({ vehicles: entry({ method: 'dv', dvRate: null }) }) }).ok).toBe(false)
+    expect(validateDepreciationRates({ NZ: table({ vehicles: entry({ method: 'sl', slRate: null }) }) }).ok).toBe(false)
+    expect(validateDepreciationRates({ NZ: table({ vehicles: entry({ method: 'dv', dvRate: null }) }) }).ok).toBe(false)
   })
 
   test('a method that is neither dv nor sl is refused', () => {
-    expect(validateTaxRules({ NZ: table({ vehicles: entry({ method: 'pooled' }) }) }).ok).toBe(false)
+    expect(validateDepreciationRates({ NZ: table({ vehicles: entry({ method: 'pooled' }) }) }).ok).toBe(false)
   })
 
   // 🔴 An unsourced number in an approved table is indistinguishable from a sourced one on
   // the page a lender reads.
   test('a rate with no source document is refused', () => {
-    expect(validateTaxRules({ NZ: table({ vehicles: entry({ source: null }) }) }).ok).toBe(false)
-    expect(validateTaxRules({ NZ: table({ vehicles: entry({ source: { published: '2023-10' } }) }) }).ok).toBe(false)
+    expect(validateDepreciationRates({ NZ: table({ vehicles: entry({ source: null }) }) }).ok).toBe(false)
+    expect(validateDepreciationRates({ NZ: table({ vehicles: entry({ source: { published: '2023-10' } }) }) }).ok).toBe(false)
   })
 
   test('a source with no usable publication date is refused', () => {
-    expect(validateTaxRules({ NZ: table({ vehicles: entry({ source: { document: 'IR265', published: 'October 2023' } }) }) }).ok).toBe(false)
+    expect(validateDepreciationRates({ NZ: table({ vehicles: entry({ source: { document: 'IR265', published: 'October 2023' } }) }) }).ok).toBe(false)
   })
 
   test('an approved country holding no rates at all is refused', () => {
-    expect(validateTaxRules({ NZ: table({}) }).ok).toBe(false)
+    expect(validateDepreciationRates({ NZ: table({}) }).ok).toBe(false)
   })
 
   test('superseded figures are kept, and cannot nest without limit', () => {
     const older = entry({ dvRate: 0.4, source: { document: 'IR265', page: '61', published: '2019-05' } })
-    const r = validateTaxRules({ NZ: table({ vehicles: entry({ superseded: [older] }) }) })
+    const r = validateDepreciationRates({ NZ: table({ vehicles: entry({ superseded: [older] }) }) })
     expect(r.ok).toBe(true)
     expect(r.value.NZ.categories.vehicles.superseded[0].dvRate).toBe(0.4)
     expect(r.value.NZ.categories.vehicles.superseded[0].superseded).toBeUndefined()
 
     const tooMany = new Array(MAX_SUPERSEDED + 1).fill(older)
-    expect(validateTaxRules({ NZ: table({ vehicles: entry({ superseded: tooMany }) }) }).ok).toBe(false)
+    expect(validateDepreciationRates({ NZ: table({ vehicles: entry({ superseded: tooMany }) }) }).ok).toBe(false)
   })
 
   test('a non-object is refused', () => {
-    expect(validateTaxRules(null).ok).toBe(false)
-    expect(validateTaxRules([]).ok).toBe(false)
+    expect(validateDepreciationRates(null).ok).toBe(false)
+    expect(validateDepreciationRates([]).ok).toBe(false)
   })
 })
 
@@ -259,9 +259,9 @@ describe('two documents disagreeing about one rate', () => {
 
 describe('what a scope actually works to', () => {
   test('a scope that has approved nothing gets the app’s six defaults', async () => {
-    const r = await loadResolvedTaxRules('firm-1', 'NZ', loaderFor({}))
+    const r = await loadResolvedDepreciationRates('firm-1', 'NZ', loaderFor({}))
     expect(r.isDefault).toBe(true)
-    expect(r.categories.vehicles.dvRate).toBe(BASE_TAX_RULES.vehicles.dvRate)
+    expect(r.categories.vehicles.dvRate).toBe(BASE_DEPRECIATION_RATES.vehicles.dvRate)
     expect(r.categories.vehicles.originTier).toBeNull()
     expect(Object.keys(r.categories)).toHaveLength(CATEGORY_KEYS.length)
   })
@@ -270,29 +270,29 @@ describe('what a scope actually works to', () => {
   // loaded a document for gets today's figures, badged as defaults.
   test('an unknown or absent country falls back to the defaults rather than failing', async () => {
     const stored = { 'firm-1': { NZ: table({ vehicles: entry() }) } }
-    const r = await loadResolvedTaxRules('firm-1', null, loaderFor(stored))
+    const r = await loadResolvedDepreciationRates('firm-1', null, loaderFor(stored))
     expect(r.isDefault).toBe(true)
-    expect(r.categories.vehicles.dvRate).toBe(BASE_TAX_RULES.vehicles.dvRate)
+    expect(r.categories.vehicles.dvRate).toBe(BASE_DEPRECIATION_RATES.vehicles.dvRate)
   })
 
   // 🔴 RULING 4. A New Zealand rate would otherwise quietly depreciate an Australian
   // client's assets, and the forecast would balance.
   test('an approved NZ table does not touch an Australian client', async () => {
     const stored = { 'firm-1': { NZ: table({ vehicles: entry() }) } }
-    const au = await loadResolvedTaxRules('firm-1', 'AU', loaderFor(stored))
-    expect(au.categories.vehicles.dvRate).toBe(BASE_TAX_RULES.vehicles.dvRate)
+    const au = await loadResolvedDepreciationRates('firm-1', 'AU', loaderFor(stored))
+    expect(au.categories.vehicles.dvRate).toBe(BASE_DEPRECIATION_RATES.vehicles.dvRate)
     expect(au.isDefault).toBe(true)
 
-    const nz = await loadResolvedTaxRules('firm-1', 'NZ', loaderFor(stored))
+    const nz = await loadResolvedDepreciationRates('firm-1', 'NZ', loaderFor(stored))
     expect(nz.categories.vehicles.dvRate).toBe(0.5)
     expect(nz.isDefault).toBe(false)
   })
 
   test('a category the table does not name keeps the app default', async () => {
     const stored = { 'firm-1': { NZ: table({ vehicles: entry() }) } }
-    const r = await loadResolvedTaxRules('firm-1', 'NZ', loaderFor(stored))
+    const r = await loadResolvedDepreciationRates('firm-1', 'NZ', loaderFor(stored))
     expect(r.categories.vehicles.dvRate).toBe(0.5)
-    expect(r.categories.plantEquipment.dvRate).toBe(BASE_TAX_RULES.plantEquipment.dvRate)
+    expect(r.categories.plantEquipment.dvRate).toBe(BASE_DEPRECIATION_RATES.plantEquipment.dvRate)
     expect(r.categories.plantEquipment.originTier).toBeNull()
   })
 
@@ -301,8 +301,8 @@ describe('what a scope actually works to', () => {
   // reach a forecast.
   test('a stored table nobody approved never reaches a forecast', async () => {
     const unapproved = { categories: { vehicles: entry() } }
-    const r = await loadResolvedTaxRules('firm-1', 'NZ', loaderFor({ 'firm-1': { NZ: unapproved } }))
-    expect(r.categories.vehicles.dvRate).toBe(BASE_TAX_RULES.vehicles.dvRate)
+    const r = await loadResolvedDepreciationRates('firm-1', 'NZ', loaderFor({ 'firm-1': { NZ: unapproved } }))
+    expect(r.categories.vehicles.dvRate).toBe(BASE_DEPRECIATION_RATES.vehicles.dvRate)
     expect(r.isDefault).toBe(true)
   })
 
@@ -328,7 +328,7 @@ describe('what a scope actually works to', () => {
         },
         'firm-1': { NZ: table({ vehicles: entry({ dvRate: 0.5 }) }) }
       }
-      const r = await loadResolvedTaxRules('firm-1', 'NZ', loaderFor(stored))
+      const r = await loadResolvedDepreciationRates('firm-1', 'NZ', loaderFor(stored))
 
       expect(r.categories.vehicles.dvRate).toBe(0.5)
       expect(r.categories.vehicles.originTier).toBe('firm_manager')
@@ -345,21 +345,21 @@ describe('what a scope actually works to', () => {
         [GLOBAL]: { NZ: table({ vehicles: entry({ dvRate: 0.2 }) }) },
         [GROUP]: { NZ: table({ vehicles: entry({ dvRate: 0.3 }) }) }
       }
-      const r = await loadResolvedTaxRules('firm-1', 'NZ', loaderFor(stored))
+      const r = await loadResolvedDepreciationRates('firm-1', 'NZ', loaderFor(stored))
       expect(r.categories.vehicles.dvRate).toBe(0.3)
       expect(r.categories.vehicles.originTier).toBe('group_manager')
     })
 
     test('a firm that has approved nothing inherits the tier above it', async () => {
       const stored = { [GLOBAL]: { NZ: table({ vehicles: entry({ dvRate: 0.2 }) }) } }
-      const r = await loadResolvedTaxRules('firm-1', 'NZ', loaderFor(stored))
+      const r = await loadResolvedDepreciationRates('firm-1', 'NZ', loaderFor(stored))
       expect(r.categories.vehicles.dvRate).toBe(0.2)
       expect(r.categories.vehicles.originTier).toBe('global_group_manager')
     })
 
     test('an approved rate carries who approved it and when', async () => {
       const stored = { 'firm-1': { NZ: table({ vehicles: entry() }) } }
-      const r = await loadResolvedTaxRules('firm-1', 'NZ', loaderFor(stored))
+      const r = await loadResolvedDepreciationRates('firm-1', 'NZ', loaderFor(stored))
       expect(r.categories.vehicles.approvedBy).toBe('mike@advisor-e.com')
       expect(r.categories.vehicles.approvedAt).toBe('2026-09-08T14:20:00.000Z')
     })
@@ -373,22 +373,22 @@ describe('what a scope actually works to', () => {
         if (scopeId === GLOBAL) { return Promise.resolve({ NZ: table({ vehicles: entry({ dvRate: 0.2 }) }) }) }
         return Promise.resolve(null)
       }
-      const r = await loadResolvedTaxRules('firm-1', 'NZ', loader)
+      const r = await loadResolvedDepreciationRates('firm-1', 'NZ', loader)
       expect(r.categories.vehicles.dvRate).toBe(0.2)
       spy.mockRestore()
     })
 
     test('a total storage failure still returns the defaults rather than rejecting', async () => {
       const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
-      const r = await loadResolvedTaxRules('firm-1', 'NZ', () => Promise.reject(new Error('MySQL is down')))
+      const r = await loadResolvedDepreciationRates('firm-1', 'NZ', () => Promise.reject(new Error('MySQL is down')))
       expect(r.isDefault).toBe(true)
-      expect(r.categories.vehicles.dvRate).toBe(BASE_TAX_RULES.vehicles.dvRate)
+      expect(r.categories.vehicles.dvRate).toBe(BASE_DEPRECIATION_RATES.vehicles.dvRate)
       spy.mockRestore()
     })
   })
 
   test('no scope id at all gets the defaults', async () => {
-    const r = await loadResolvedTaxRules(null, 'NZ', loaderFor({}))
+    const r = await loadResolvedDepreciationRates(null, 'NZ', loaderFor({}))
     expect(r.isDefault).toBe(true)
   })
 })

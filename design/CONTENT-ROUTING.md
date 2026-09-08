@@ -602,6 +602,7 @@ no audit, because it reads as complete.
   - `data/currencies.json`
   - `data/dashboard-discussions-reference.json`
   - `data/demings-volatility-reference.json`
+  - `data/depreciation-rates.json`
   - `data/domains.json`
   - `data/engagement-types.json`
   - `data/eoy-reference.json`
@@ -630,7 +631,6 @@ no audit, because it reads as complete.
   - `data/signal-dictionary.json`
   - `data/support-contact.json`
   - `data/tax-bands.json`
-  - `data/tax-rules.json`
   - `data/trial-fit-reference.json`
   - `data/working-capital-cycle-reference.json`
 

@@ -3,18 +3,18 @@
 /**
  * @file The depreciation rates one scope works to for one country — the app's own six
  *   defaults, with each tier's APPROVED tax table laid over them.
- * @module server/utils/taxRules
+ * @module server/utils/depreciationRates
  *
  * Item 4.78, slice 1. Asked for by Mike on 2026-09-08 — *"is it worth having a field in
  * the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be
  * accurate per country?"* — and filed on his yes, after he overturned the recommendation
- * against it. The artefacts are `design/mockups/tax-rules-upload.html` (the firm manager's
- * screen) and `design/mockups/tax-rules-advisor.html` (the advisor's), both approved.
+ * against it. The artefacts are `design/mockups/depreciation-rates-upload.html` (the firm manager's
+ * screen) and `design/mockups/depreciation-rates-advisor.html` (the advisor's), both approved.
  *
  * 🔴 NOTHING IN THIS MODULE CAN READ AN UNAPPROVED TABLE, AND THAT IS STRUCTURAL RATHER
  * THAN A CHECK SOMEBODY REMEMBERED TO WRITE. `CLAUDE.md` requires `isApproved: true`
  * before AI output reaches a financial operation, so the store holds APPROVED TABLES ONLY:
- * a country entry without `approvedAt` and `approvedBy` fails `validateTaxRules` and is
+ * a country entry without `approvedAt` and `approvedBy` fails `validateDepreciationRates` and is
  * dropped by the resolver like any other malformed value. A proposal the AI has extracted
  * and nobody has accepted is not stored here at all — it lives with its document, which is
  * slice 3. There is therefore no flag to forget to test and no state in which an
@@ -46,7 +46,7 @@
  * inheritance, same result, plus the provenance the artefact requires.
  */
 
-const BASE_FILE = require('../../data/tax-rules.json')
+const BASE_FILE = require('../../data/depreciation-rates.json')
 const { scopeChain, tierOfScope } = require('./tierChain')
 
 /**
@@ -56,13 +56,13 @@ const { scopeChain, tierOfScope } = require('./tierChain')
  * than in the file, so the note explaining that these are a GUESS stays beside the guess
  * it explains and never reaches an API response or the model.
  */
-const BASE_TAX_RULES = BASE_FILE.categories
+const BASE_DEPRECIATION_RATES = BASE_FILE.categories
 
 /** The six fixed-asset categories the forecast has, in the order the engine holds them. */
-const CATEGORY_KEYS = Object.keys(BASE_TAX_RULES)
+const CATEGORY_KEYS = Object.keys(BASE_DEPRECIATION_RATES)
 
 /** The overlay address an approved table is stored under, at every tier. */
-const CONFIG_KEY = 'tax-rules'
+const CONFIG_KEY = 'depreciation-rates'
 
 /** How a rate is applied. `dv` reduces the book value; `sl` writes off original cost. */
 const METHODS = ['dv', 'sl']
@@ -137,7 +137,7 @@ function publishedKey (published) {
  * Both approved drawings show every figure with its document and date beneath it, and the
  * reason is not presentation: an unsourced number in an approved table is indistinguishable
  * from a sourced one on the page a lender reads. A rate with no document is an app default,
- * and app defaults live in `data/tax-rules.json`, not in a firm's approved table.
+ * and app defaults live in `data/depreciation-rates.json`, not in a firm's approved table.
  *
  * @param {*} value
  * @param {string} where - for the error message
@@ -261,10 +261,10 @@ function cleanEntry (value, where, errors, allowSuperseded) {
  * @returns {{ok: boolean, errors: string[], value: object}} `value` holds only the
  *   recognised, in-range countries and is meaningful only when `ok` is true.
  */
-function validateTaxRules (value) {
+function validateDepreciationRates (value) {
   const errors = []
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    return { ok: false, errors: ['tax rules must be a non-array JSON object'], value: {} }
+    return { ok: false, errors: ['Depreciation Rates must be a non-array JSON object'], value: {} }
   }
 
   const clean = {}
@@ -406,12 +406,12 @@ function pickNewer (current, incoming) {
  *   advisor building a forecast, and the worst case is the six defaults — which is what
  *   every firm gets today.
  */
-async function loadResolvedTaxRules (scopeId, country, loadFirmConfig) {
+async function loadResolvedDepreciationRates (scopeId, country, loadFirmConfig) {
   const code = normaliseCountry(country)
 
   const categories = {}
   CATEGORY_KEYS.forEach((key) => {
-    categories[key] = { ...BASE_TAX_RULES[key], originTier: null, originScopeId: null }
+    categories[key] = { ...BASE_DEPRECIATION_RATES[key], originTier: null, originScopeId: null }
   })
   const flat = { country: code, categories, isDefault: true }
 
@@ -431,11 +431,11 @@ async function loadResolvedTaxRules (scopeId, country, loadFirmConfig) {
     } catch (err) {
       // One unreachable tier must not lose the tiers already applied, and must not stop
       // the ones below it being asked. The worst case stays "the layer above".
-      console.error('[tax-rules] scope read failed:', err.message)
+      console.error('[depreciation-rates] scope read failed:', err.message)
       continue
     }
 
-    const { ok, value } = validateTaxRules(stored)
+    const { ok, value } = validateDepreciationRates(stored)
     if (!ok) { continue }
     const table = value[code]
     if (!table) { continue }
@@ -458,14 +458,14 @@ async function loadResolvedTaxRules (scopeId, country, loadFirmConfig) {
 }
 
 module.exports = {
-  BASE_TAX_RULES,
+  BASE_DEPRECIATION_RATES,
   CATEGORY_KEYS,
   CONFIG_KEY,
   METHODS,
   MAX_SUPERSEDED,
   normaliseCountry,
   publishedKey,
-  validateTaxRules,
+  validateDepreciationRates,
   pickNewer,
-  loadResolvedTaxRules
+  loadResolvedDepreciationRates
 }

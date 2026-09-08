@@ -144,7 +144,7 @@
     },
     {
       "ref": "4.78",
-      "name": "Tax rules per country - a firm manager uploads the source, the AI proposes, they approve",
+      "name": "Depreciation rates per country - a manager uploads the source, the AI proposes, they approve",
       "rankedByMike": false,
       "activeOn": { "machine": "laptop", "since": "2026-09-08" },
       "kind": "feature",
@@ -161,8 +161,8 @@
         "detail": "2026-09-08 - 'is it worth having a field in the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be accurate per country?' Filed on his yes, after he overturned the recommendation against it: the uploader is an accountant who should be encouraged to check their sources."
       },
       "touches": "A new Firm Manager Hub tab and its upload route, the untrusted-file validation procedure in the master-export-upload skill (last-known-good, version history), an OpenAI extraction route on the Restify backend, an approval gate carrying isApproved, and the six ASSET_SPECS defaults in components/ThreeWayForecastIntake.vue that it would replace.",
-      "note": "AI PROPOSES, THE MANAGER APPROVES, AND NOTHING READS AN UNAPPROVED TABLE - CLAUDE.md already requires this for financial output (isApproved before committing). Every rate shows its source document and date. IT MUST ALSO SHOW WHAT THE AI COULD NOT FIND: on 2026-09-08 a session read IR260 and IR265 in full and still concluded NZ had no first-year regime, because Investment Boost postdates both - a gap invisible from inside the file. SIX QUESTIONS RULED 2026-09-08 on design/mockups/tax-rules-upload.html: the FIRM owns it, full cascade, an advisor LOADS and only the manager APPROVES. Both screens are drawn; the advisor's is tax-rules-advisor.html, with three questions open. Tax PDFs are public, so no PII question arises.",
-      "comment": "2026-09-08 - raised by Mike and filed on his instruction the same day. The recommendation was AGAINST it and he overturned it: the uploader is a firm manager who knows the topic and should be encouraged to check their sources. The concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers."
+      "note": "RENAMED 2026-09-09 on Mike's ruling: IR265 is titled 'General depreciation rates' - a schedule published BY the tax office, not a set of tax rules. AI PROPOSES, THE MANAGER APPROVES, AND NOTHING READS AN UNAPPROVED TABLE - structural, not a flag. Every rate shows its source document and date, and the screen must show WHAT THE AI COULD NOT FIND: Investment Boost postdates both IRD files supplied, a gap invisible from inside them. TWELVE RULINGS, nine on 2026-09-08 and three on 2026-09-09, recorded in design/features/depreciation-rates-history.md. Four screens drawn, none built. SLICE 1 BUILT (d8621e9): the store, its cascade and validation, and nothing calls it. Tax PDFs are public, so no PII question arises.",
+      "comment": "2026-09-08 - raised by Mike and filed on his instruction the same day. The recommendation was AGAINST it and he overturned it: the uploader is a firm manager who knows the topic and should be encouraged to check their sources. The concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers. 2026-09-09 - slice 1 built; Mike caught the build conflating a tax rate with a depreciation rate, and the feature was renamed. Spec Kit used for the first time here; three further rulings came out of it."
     },
     {
       "ref": "4.80",
