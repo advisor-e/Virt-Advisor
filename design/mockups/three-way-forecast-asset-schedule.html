@@ -350,7 +350,7 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
 
   <div class="stepmark">1 &middot; What is wrong today</div>
 
-  <div class="rs-panel tag" data-tag="BUILT — STEP 4">
+  <div class="rs-panel tag" data-tag="BUILT — STEP 3">
     <div class="tw-group">
       <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Buying and selling capital assets</h2></div>
 
@@ -500,7 +500,7 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
 
   <div class="stepmark">5 &middot; What changes on the Sell row</div>
 
-  <div class="rs-panel tag" data-tag="PROPOSED — STEP 4">
+  <div class="rs-panel tag" data-tag="PROPOSED — STEP 3">
     <div class="tw-group">
       <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Buying and selling capital assets</h2></div>
 
@@ -525,8 +525,8 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
         <div class="seg seg-sm"><button type="button">Buy</button><button type="button" class="on">Sell</button></div>
         <input class="num" value="28,000">
         <div class="bookcell">
-          <span class="bookval">30,712.50 <span class="badge file">from file</span></span>
-          <span class="bookwork">31,500 at 1 Jan, less 3 months&rsquo;<br>depreciation at 10%</span>
+          <span class="bookval">30,458.75 <span class="badge file">from file</span></span>
+          <span class="bookwork">31,500 on the schedule, less two<br>months at 20% &mdash; the Vehicles<br>rate set on step 2</span>
         </div>
         <button class="del">&#10005;</button>
       </div>
@@ -544,24 +544,61 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
     today.
   </div>
 
+  <div class="rs-panel" style="margin-top:12px">
+    <div class="tw-group">
+      <div class="tw-glabel"><span class="tw-dot"></span><h2 class="tw-h2">Where the 20% comes from &mdash; step 2, and it is already built</h2></div>
+      <table class="sched">
+        <thead><tr><th>Fixed assets</th><th class="num">Opening value</th><th class="num">Depreciation rate</th></tr></thead>
+        <tbody>
+          <tr><td class="nm">Vehicles</td><td class="num">80,000 <span class="badge file">from file</span></td><td class="num"><b>20</b> %</td></tr>
+          <tr><td class="nm">Leasehold improvements</td><td class="num">1,000,000 <span class="badge file">from file</span></td><td class="num">15 %</td></tr>
+          <tr><td class="nm">Plant and equipment</td><td class="num">50,000 <span class="badge file">from file</span></td><td class="num">22 %</td></tr>
+          <tr><td class="nm">Office equipment</td><td class="num">60,000 <span class="badge file">from file</span></td><td class="num">25 %</td></tr>
+          <tr><td class="nm">Computer hardware</td><td class="num">70,000 <span class="badge file">from file</span></td><td class="num">30 %</td></tr>
+          <tr><td class="nm">Other</td><td class="num">80,000 <span class="badge file">from file</span></td><td class="num">35 %</td></tr>
+        </tbody>
+      </table>
+      <div class="note-why" style="margin-top:12px">
+        <b>Nothing here is new or proposed &mdash; this table is built and live on step 2,
+        &ldquo;Confirm the opening position&rdquo;.</b> One row per category, the opening value from
+        the Balance Sheet and the rate typed beside it
+        (<code>ThreeWayForecastIntake.vue</code>, <code>asset.rate</code>). The six figures above
+        are the platform defaults in <code>ASSET_SPECS</code>; whatever the advisor sets replaces
+        them for this forecast.
+        <br><br>
+        <b>It is drawn here only because &sect;5 uses it and never said so.</b> The Sell row&rsquo;s
+        working reads &ldquo;less two months at 20%&rdquo;, and an advisor has to be able to find the
+        20% &mdash; it is one step back, on a screen they have already been through. The category
+        dropdown on the Sell row prints the rate beside each name for the same reason
+        (<i>Vehicles &mdash; 20%</i>), which was Mike&rsquo;s own ruling of 2026-09-03.
+      </div>
+    </div>
+  </div>
+
   <div class="stepmark">6 &middot; Six questions, one recommendation each</div>
 
   <div class="q">
     <div class="qn">Question 1 &mdash; the one that matters</div>
     <h3>Should the book value be depreciated to the month of the sale, or shown as the schedule&rsquo;s year-end figure?</h3>
     <p>The schedule says what the Ford Ranger was worth at the last balance date: <b>31,500</b>.
-    If it is sold in <b>March</b>, three months of depreciation have been charged against it first,
-    so the book value at the moment of sale is <b>30,712.50</b> &mdash; and the gain is
-    <b>2,712.50</b>, not 3,500.</p>
+    Sold in <b>March</b>, it has been depreciated through January and February first, so the book
+    value at the moment of sale is <b>30,458.75</b>. Against a price of 28,000 that is a
+    <b>loss of 2,458.75</b>, where the schedule&rsquo;s own figure would have shown a loss of
+    <b>3,500</b>.</p>
+    <p><b>The rate used is the category&rsquo;s, not the asset&rsquo;s</b> &mdash; Vehicles at
+    <b>20%</b>, the figure the advisor sets on step 2, charged monthly on the reducing balance
+    exactly as <code>threeWayForecastModel.js</code> does it (31,500 &rarr; 30,975.00 &rarr;
+    30,458.75). MYOB&rsquo;s own schedule says 10% straight-line for this van; question 4 is why we
+    do not use it.</p>
     <div class="rec"><b>Recommendation: depreciate it, and show the working under the figure.</b>
-    The engine already charges depreciation monthly on the category pool
-    (<code>threeWayForecastModel.js</code>), so using the year-end figure would credit the business
-    with an asset it has already partly written down &mdash; overstating the gain in every sale
-    after January, by more the later it falls.</div>
+    The engine already charges depreciation monthly on the category pool, so using the year-end
+    figure would credit the business with an asset it has already partly written down &mdash;
+    overstating the loss (or understating a gain) in every sale after January, by more the later
+    it falls.</div>
     <div class="against"><b>The argument against, recorded:</b> the advisor sees a number that is
     not on the paper in front of them. That is why the working is printed under it rather than
-    beside it in a tooltip &mdash; they must be able to get from 31,500 to 30,712.50 without asking
-    anyone.</div>
+    hidden in a tooltip &mdash; they must be able to get from 31,500 to 30,458.75, and to see
+    which rate did it, without asking anyone.</div>
   </div>
 
   <div class="q">
