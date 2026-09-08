@@ -393,6 +393,8 @@ const OVERDRAFT_RE = /overdraft/i
  * reviewing the screen cannot catch.
  */
 const BANK_ACCOUNT_RE = /bank\s+account|cheque\s+account|checking\s+account|sav(?:ings?|er)\s+account|cash\s+at\s+bank|petty\s+cash|^cash$/i
+/** The section Xero and QuickBooks group the bank accounts under. Deliberately narrow — see the bank rows below. */
+const BANK_SECTION_RE = /^bank$|bank accounts/i
 
 /**
  * Extract a Three-Way Forecast opening balance sheet from a Balance Sheet grid.
@@ -490,7 +492,7 @@ function extractForecastBalanceSheet (grid) {
   // MYOB lists them straight under Current Assets, so the label has to be readable too.
   // Deliberately narrow — a wide test would sweep in "Bank Loan" and "Bank Charges".
   const bankRows = currentAssets.filter(it =>
-    inSection(it, /^bank$|bank accounts/i) || BANK_ACCOUNT_RE.test(it.label) || OVERDRAFT_RE.test(it.label))
+    inSection(it, BANK_SECTION_RE) || BANK_ACCOUNT_RE.test(it.label) || OVERDRAFT_RE.test(it.label))
   const overdraftLiabRows = liabItems.filter(it => OVERDRAFT_RE.test(it.label))
   put('cashAtBank', bankRows.filter(it => it.value > 0))
   const overdrawnRows = bankRows.filter(it => it.value < 0)
@@ -590,6 +592,8 @@ const BAD_DEBTS_RECOVERED_RE = /bad\s*debts?\s*recovered/i
 const INTEREST_PAID_RE = /interest\s+(paid|expense)|loan\s+interest/i
 const OTHER_INCOME_SECTION_RE = /other\s+income|non-?operating\s+income/i
 const COST_OF_SALES_SECTION_RE = /cost\s+of\s+(sales|goods)/i
+/** The section everything below gross profit sits in. Shared with the by-month reader (4.70 stage 5). */
+const EXPENSE_SECTION_RE = /operating expenses|^expenses$|overheads/i
 // R18 again: anchored so "Non-Trading Income" can never classify as sales. Named here
 // rather than written inline because the by-month parser (monthlySalesParser.js) must
 // decide "is this row sales?" by exactly THIS rule — two copies would drift, and the
@@ -726,7 +730,7 @@ function extractProfitLoss (grid) {
   guardFigureColumns(grid, warnings)
 
   // R18: "trading income" is anchored — "Non-Trading Income" must never classify as sales
-  const expenseItems = items.filter(it => inSection(it, /operating expenses|^expenses$|overheads/i))
+  const expenseItems = items.filter(it => inSection(it, EXPENSE_SECTION_RE))
   const incomeItems = items.filter(it => inSection(it, INCOME_SECTION_RE))
   const otherIncomeItems = items.filter(it => inSection(it, OTHER_INCOME_SECTION_RE))
   const costOfSalesItems = items.filter(it => inSection(it, COST_OF_SALES_SECTION_RE))
@@ -889,5 +893,13 @@ module.exports = {
     INTEREST_RECEIVED_RE,
     DIVIDENDS_RE,
     BAD_DEBTS_RECOVERED_RE
-  })
+  }),
+  // Shared with monthlySalesParser for the Business Performance Report's monthly view
+  // (4.70 stage 5): "which rows are cost of sales, which are expenses, which are the bank?"
+  // each has ONE definition, so a by-month export and the annual export of the same year
+  // yield the same figures. BS_TITLE is the balance sheet's title test, as PL_TITLE is
+  // the profit and loss's.
+  BS_TITLE,
+  PL_SECTION_RULES: Object.freeze({ COST_OF_SALES_SECTION_RE, EXPENSE_SECTION_RE }),
+  BANK_RULES: Object.freeze({ BANK_SECTION_RE, BANK_ACCOUNT_RE, OVERDRAFT_RE, NON_CURRENT_ASSET_RE })
 }

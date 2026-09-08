@@ -5,8 +5,8 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.section.dashboard'
     span.drd-prov.is-file {{ $t('report.dashboardReports.doc.fromAccounts') }}
   .drd-cols.drd-top
     .drd-panel
-      h3.drd-h3 {{ $t('report.dashboardReports.doc.revenueVsExpenses') }}
-      bar-pair-chart(:groups="revenueGroups" :format-value="kMoney" :aria-label="$t('report.dashboardReports.doc.revenueVsExpenses')")
+      h3.drd-h3 {{ chartTitle }}
+      bar-pair-chart(:groups="revenueGroups" :format-value="kMoney" :aria-label="chartTitle")
       .drd-legend
         span
           i(style="background:#0070c0")
@@ -14,6 +14,7 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.section.dashboard'
         span
           i(style="background:#00b1e0")
           | {{ $t('report.dashboardReports.doc.expenses') }}
+      p.drd-small(v-if="quartersNote") {{ quartersNote }}
     .drd-panel
       h3.drd-h3 {{ $t('report.dashboardReports.doc.whereMoneyWent') }}
       doughnut-chart(:slices="costSlices" :centre="kMoney(costs.total)" :aria-label="$t('report.dashboardReports.doc.whereMoneyWent')")
@@ -54,11 +55,11 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.section.dashboard'
  * DashboardReportDashboard — page 2, the Financial Dashboard (drawing page 4): revenue
  * against expenses, where the money went, and six ratios.
  *
- * Two things the drawing has that this build draws differently, both stated on the page:
- * the quarterly bars are this year against last year, because the annual readers are what
- * exists (the monthly view is stage 5); and a ratio carries a traffic light only where the
- * firm has a threshold for it (Brief P5 — a colour with no rule is a verdict). The tiles'
- * background tints are the deck's composition, not a judgement.
+ * The quarterly bars are drawn from the by-month Profit and Loss when one was dropped on
+ * step 2 (stage 5), each quarter only when all three of its months were read; without one
+ * the chart is this year against last year and its title says so. A ratio carries a
+ * traffic light only where the firm has a threshold for it (Brief P5 — a colour with no
+ * rule is a verdict). The tiles' background tints are the deck's composition, not a judgement.
  */
 import DashboardReportPage from '~/components/DashboardReportPage.vue'
 import BarPairChart from '~/components/base/BarPairChart.vue'
@@ -83,12 +84,27 @@ export default {
     d: { type: Object, required: true },
     /** `figures.costs` */
     costs: { type: Object, required: true },
+    /** `figures.monthly` (stage 5), or null. */
+    monthly: { type: Object, default: null },
     priorLabel: { type: String, default: '' },
     currentLabel: { type: String, default: '' }
   },
 
   computed: {
+    quarters () {
+      const q = this.monthly && this.monthly.quarters
+      return q && q.available ? q : null
+    },
+    chartTitle () {
+      return this.$t('report.dashboardReports.doc.' + (this.quarters ? 'revenueVsExpensesQuarterly' : 'revenueVsExpenses'))
+    },
+    quartersNote () {
+      return this.quarters && this.quarters.completeCount < 4 ? this.$t('report.dashboardReports.doc.quartersPartial', { n: this.quarters.completeCount }) : ''
+    },
     revenueGroups () {
+      if (this.quarters) {
+        return this.quarters.rows.filter(q => q.complete).map(q => ({ label: this.$t('report.dashboardReports.doc.quarter', { n: q.index }), a: q.sales, b: q.expenses }))
+      }
       const out = []
       const r = this.d.revenueVsExpenses
       if (r.prior) { out.push({ label: this.priorLabel, a: r.prior.revenue, b: r.prior.expenses }) }

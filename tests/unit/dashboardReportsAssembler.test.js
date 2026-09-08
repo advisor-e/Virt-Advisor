@@ -171,12 +171,12 @@ describe('which year is which', () => {
     expect(r2.blocked).toMatch(/could not be told apart/)
   })
 
-  test('more than two of a kind, or more than four files, is refused by name', () => {
-    expect(assembleDashboardIntake([bs('1 Jan 2024'), bs('1 Jan 2025'), bs('1 Jan 2026')]).blocked).toMatch(/More than two Balance Sheets/)
-    expect(assembleDashboardIntake([pl('1 Jan 2024'), pl('1 Jan 2025'), pl('1 Jan 2026')]).blocked).toMatch(/More than two Profit and Loss/)
-    const five = [bs('1 Jan 2026'), bs('1 Jan 2025'), pl('1 Jan 2026'), pl('1 Jan 2025'), pl('1 Jan 2024')]
-    expect(five.length).toBe(MAX_FILES + 1)
-    expect(assembleDashboardIntake(five).blocked).toMatch(/at most 4 files/)
+  test('more than three of a kind, or more than six files, is refused by name (three since stage 5)', () => {
+    expect(assembleDashboardIntake([bs('1 Jan 2023'), bs('1 Jan 2024'), bs('1 Jan 2025'), bs('1 Jan 2026')]).blocked).toMatch(/More than three Balance Sheets/)
+    expect(assembleDashboardIntake([pl('1 Jan 2023'), pl('1 Jan 2024'), pl('1 Jan 2025'), pl('1 Jan 2026')]).blocked).toMatch(/More than three Profit and Loss/)
+    const seven = [bs('1 Jan 2026'), bs('1 Jan 2025'), bs('1 Jan 2024'), pl('1 Jan 2026'), pl('1 Jan 2025'), pl('1 Jan 2024'), pl('1 Jan 2023')]
+    expect(seven.length).toBe(MAX_FILES + 1)
+    expect(assembleDashboardIntake(seven).blocked).toMatch(/at most 6 files/)
   })
 
   test('nothing read is said so', () => {

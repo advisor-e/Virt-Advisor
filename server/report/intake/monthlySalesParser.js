@@ -35,14 +35,25 @@
  * IDENTITY. §3.9 item 7: account row labels carry bank-card suffixes and people's names.
  * This module returns month labels and figures only — never a row label — so nothing
  * identifying can reach a log or the client payload by way of this path.
+ *
+ * THE MONTHLY VIEW (4.70 stage 5, 2026-09-08). The Business Performance Report reads the
+ * same by-month Profit and Loss for its quarterly charts, so each month now ALSO carries
+ * cost of sales, other income and operating expenses, classified by the annual parser's
+ * own section rules (PL_SECTION_RULES) — `value` stays the sales figure and the Volatility
+ * Report's contract is byte-for-byte unchanged. `extractMonthlyBank` is the balance-sheet
+ * twin: the bank balance at each month end from a by-month Balance Sheet, for the cash
+ * page's closing-bank line. Both feed `parseDashboardMonthlyUpload`.
  */
 
 const {
   gridsFromBuffer,
   PL_TITLE,
+  BS_TITLE,
   headerMeta,
   yearOf,
-  INCOME_RULES
+  INCOME_RULES,
+  PL_SECTION_RULES,
+  BANK_RULES
 } = require('./xeroReportParser')
 
 /** Month names in calendar order; the index IS the month number (0 = January). */
@@ -251,15 +262,29 @@ function extractMonthlySales (grid) {
     warnings.push('No trading-income rows were found in this export, so no monthly sales could be read. Check that the export is a Profit and Loss with its income broken out by line item.')
   }
 
-  const months = cols.map((c, i) => {
+  // The monthly view's three further lines, on the annual parser's own section rules.
+  // Other income here is what the report's confirm table calls other income: the Other
+  // Income section plus the interest, dividends and bad-debts-recovered rows the sales
+  // figure excludes — the same sum `dashboardReportsAssembler` makes from an annual file.
+  const costOfSalesItems = items.filter(it => inSection(it, PL_SECTION_RULES.COST_OF_SALES_SECTION_RE))
+  const expenseItems = items.filter(it => inSection(it, PL_SECTION_RULES.EXPENSE_SECTION_RE))
+  const otherIncomeItems = items.filter(it => inSection(it, INCOME_RULES.OTHER_INCOME_SECTION_RE)).concat(Array.from(excluded))
+  const sumAt = (list, i) => {
     let total = 0
-    for (const it of salesItems) { if (typeof it.values[i] === 'number') { total += it.values[i] } }
+    for (const it of list) { if (typeof it.values[i] === 'number') { total += it.values[i] } }
+    return total
+  }
+
+  const months = cols.map((c, i) => {
     return {
       label: c.label,
       month: c.month,
       year: c.year,
       ordinal: c.year * 12 + c.month,
-      value: total,
+      value: sumAt(salesItems, i),
+      costOfSales: sumAt(costOfSalesItems, i),
+      otherIncome: sumAt(otherIncomeItems, i),
+      operatingExpenses: sumAt(expenseItems, i),
       complete: true,
       reason: null
     }
@@ -473,6 +498,107 @@ function extractTransactionMonths (grid) {
 }
 
 /**
+ * The bank balance at each month end, from a by-month Balance Sheet (Xero: Balance Sheet
+ * compared across the last twelve months). The cash page's closing-bank line (4.70 stage 5).
+ *
+ * The bank rows are found by the annual Balance Sheet reader's own rules (BANK_RULES): the
+ * bank section, an account named as a bank account, or an overdraft. Sides are split by
+ * exclusion exactly as that reader does — a row under a liabilities section is never an
+ * asset, whether or not the export carries a "Total Assets" row. An overdraft shown as a
+ * liability is taken off the month's bank figure; one shown as a negative asset already
+ * carries its sign. A month whose bank cells are all blank is `empty`, never a zero balance:
+ * a by-month Balance Sheet exported mid-year prints nothing for the months not yet reached.
+ * There is no partial month — a balance is a point in time.
+ *
+ * @param {Array<Array<string|number|null>>} grid
+ * @returns {object} { recognised:false } when this is not a by-month Balance Sheet, else
+ *   { recognised:true, kind:'balanceSheetByMonth', companyName, reportDate,
+ *     months: Array<{ label, month, year, ordinal, bank, complete, reason }>, warnings }
+ */
+function extractMonthlyBank (grid) {
+  const header = findMonthHeader(grid)
+  if (!header) { return { recognised: false } }
+  const headRows = grid.slice(0, header.row).map((cells) => {
+    let label = null
+    for (let c = 0; c < (cells || []).length; c++) {
+      const v = cells[c]
+      if (typeof v === 'string' && v.trim() !== '') { label = v.trim(); break }
+    }
+    return { label, value: null }
+  })
+  const meta = headerMeta(headRows, BS_TITLE)
+  if (meta.titleRow === -1) { return { recognised: false } }
+
+  const warnings = []
+  const cols = header.cols.slice()
+  if (!fillYears(cols, yearOf(meta.reportDate))) {
+    warnings.push('The export does not date its month columns and its own "As at" line carries no year, so the months could not be placed on a calendar. Check the export.')
+    return { recognised: true, kind: 'balanceSheetByMonth', companyName: meta.companyName, reportDate: meta.reportDate, months: [], warnings }
+  }
+
+  const items = monthlyLineItems(shapeMonthRows(grid, header.row, cols))
+  const isLiability = it => inSection(it, /liabilit/i)
+  const isEquity = it => it.section.some(s => /^(?:total\s+)?(?:owners?'?\s+|shareholders?'?\s+)?equity$|^capital\s+and\s+reserves$/i.test(String(s).trim()))
+  const assetItems = items.filter(it => inSection(it, /asset/i) && !isLiability(it) && !isEquity(it) && !inSection(it, BANK_RULES.NON_CURRENT_ASSET_RE))
+  const bankRows = assetItems.filter(it =>
+    inSection(it, BANK_RULES.BANK_SECTION_RE) || BANK_RULES.BANK_ACCOUNT_RE.test(it.label) || BANK_RULES.OVERDRAFT_RE.test(it.label))
+  const overdraftRows = items.filter(it => isLiability(it) && !isEquity(it) && BANK_RULES.OVERDRAFT_RE.test(it.label))
+
+  if (!bankRows.length && !overdraftRows.length) {
+    warnings.push('No bank account rows were found in this export, so no month-end bank balances could be read. Check that the export is a Balance Sheet with its bank accounts listed.')
+  }
+
+  const months = cols.map((c, i) => {
+    let bank = 0
+    let any = false
+    for (const it of bankRows) { if (typeof it.values[i] === 'number') { bank += it.values[i]; any = true } }
+    for (const it of overdraftRows) { if (typeof it.values[i] === 'number') { bank -= it.values[i]; any = true } }
+    return {
+      label: c.label,
+      month: c.month,
+      year: c.year,
+      ordinal: c.year * 12 + c.month,
+      bank: any ? bank : null,
+      complete: any,
+      reason: any ? null : 'empty'
+    }
+  })
+  months.sort((a, b) => a.ordinal - b.ordinal)
+
+  return {
+    recognised: true,
+    kind: 'balanceSheetByMonth',
+    companyName: meta.companyName,
+    reportDate: meta.reportDate,
+    months,
+    warnings
+  }
+}
+
+/**
+ * Sniff an uploaded buffer for the Business Performance Report's monthly view: a by-month
+ * Profit and Loss or a by-month Balance Sheet. An Account Transactions export is not
+ * accepted here — it carries sales alone, and the quarterly charts need the cost lines.
+ *
+ * @param {Buffer} buf
+ * @returns {object} an `extractMonthlySales` or `extractMonthlyBank` result.
+ * @throws {Error} err.code ∈ NOT_XLSX | CORRUPT_FILE | FILE_TOO_LARGE | TOO_MANY_PARTS |
+ *   PDF_REJECTED | UNRECOGNISED_FILE | NOT_BY_MONTH
+ */
+function parseDashboardMonthlyUpload (buf) {
+  const grids = gridsFromBuffer(buf)
+  for (let g = 0; g < grids.length; g++) {
+    const byMonth = extractMonthlySales(grids[g])
+    if (byMonth.recognised) { return byMonth }
+    const bank = extractMonthlyBank(grids[g])
+    if (bank.recognised) { return bank }
+  }
+  const e = new Error('This export does not carry monthly figures. Two reports do: Profit and Loss with the "Current financial year by month" layout, or a Balance Sheet compared across the last twelve months.')
+  e.code = 'NOT_BY_MONTH'
+  throw e
+}
+
+/**
  * Sniff an uploaded buffer and extract its monthly sales series. The single entry point
  * the Volatility intake route calls.
  *
@@ -496,7 +622,9 @@ function parseMonthlyUpload (buf) {
 
 module.exports = {
   parseMonthlyUpload,
+  parseDashboardMonthlyUpload,
   extractTransactionMonths,
   extractMonthlySales,
+  extractMonthlyBank,
   MIN_MONTH_COLUMNS
 }

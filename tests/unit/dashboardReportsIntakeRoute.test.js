@@ -101,14 +101,35 @@ describe('POST /api/report/dashboard-reports/intake', () => {
     expect(res.body.error.code).toBe('NO_FILE')
   })
 
-  test('five files are refused before any is parsed, and still removed', async () => {
-    const paths = [1, 2, 3, 4, 5].map(() => tempFile('not a report'))
+  test('seven files are refused before any is parsed, and still removed', async () => {
+    const paths = [1, 2, 3, 4, 5, 6, 7].map(() => tempFile('not a report'))
     nextParse(null, { file: paths.map(p => ({ filepath: p })) })
     const res = makeRes()
     await dashboardReportsIntake({}, res)
     expect(res.status).toBe(400)
     expect(res.body.success).toBe(false)
-    expect(res.body.error.message).toMatch(/up to 4 files/)
+    expect(res.body.error.message).toMatch(/up to 6 files/)
+    for (const p of paths) { expect(await gone(p)).toBe(true) }
+  })
+
+  test('six exports become three years, the year before last by its date (stage 5)', async () => {
+    const paths = [
+      tempFile(bsCsv('31 March 2024', 52000)),
+      tempFile(plCsv('31 March 2024', 700000)),
+      tempFile(bsCsv('31 March 2025', 60000)),
+      tempFile(plCsv('31 March 2026', 890000)),
+      tempFile(bsCsv('31 March 2026', 71000)),
+      tempFile(plCsv('31 March 2025', 800000))
+    ]
+    nextParse(null, { file: paths.map(p => ({ filepath: p })) })
+    const res = makeRes()
+    await dashboardReportsIntake({}, res)
+    expect(res.status).toBe(200)
+    const d = res.body.data
+    expect(d.current.figures.tradingIncome.value).toBe(890000)
+    expect(d.prior.figures.tradingIncome.value).toBe(800000)
+    expect(d.earlier.figures.tradingIncome.value).toBe(700000)
+    expect(d.earlier.figures.bank.value).toBe(52000)
     for (const p of paths) { expect(await gone(p)).toBe(true) }
   })
 

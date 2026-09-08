@@ -27,6 +27,9 @@
     :current="state.current"
     :prior="state.prior"
     :has-prior="state.hasPrior"
+    :earlier="state.earlier"
+    :has-earlier="state.hasEarlier"
+    :monthly="state.monthly"
     @change="onAccounts"
     @confirmed="go(3)")
   dashboard-reports-inventory(
@@ -92,14 +95,13 @@ const { pct, days, times } = require('~/utils/reportFormat')
 /** Why an optional page with no model behind it yet cannot be added — the stage it waits on. */
 const REASON_KEY = {
   outlook: 'outlook',
-  salesVolatility: 'salesVolatility',
   loanServicing: 'loanServicing',
   taxProvision: 'taxProvision'
 }
 /** The pages the pages route computes, and what a ready one says it is drawn from. */
-const READY_KEY = { profitBridge: 'bothYears', cashBridge: 'bothYears', profitSensitivity: 'thisYear', stockVsAccounts: 'stockFile' }
+const READY_KEY = { profitBridge: 'bothYears', cashBridge: 'bothYears', profitSensitivity: 'thisYear', stockVsAccounts: 'stockFile', salesVolatility: 'byMonth' }
 /** A model's refusal, as the reason the page shows. */
-const BLOCKED_KEY = { NO_PRIOR_YEAR: 'needsBothYears', NO_PRIOR_REVENUE: 'needsBothYears', NO_CURRENT_YEAR: 'needsThisYear', NO_REVENUE: 'needsThisYear', NO_STOCK_FILE: 'stockFile', NO_STOCK_LINE: 'needsStockLine' }
+const BLOCKED_KEY = { NO_PRIOR_YEAR: 'needsBothYears', NO_PRIOR_REVENUE: 'needsBothYears', NO_CURRENT_YEAR: 'needsThisYear', NO_REVENUE: 'needsThisYear', NO_STOCK_FILE: 'stockFile', NO_STOCK_LINE: 'needsStockLine', NO_MONTHLY_FILE: 'salesVolatility', NEEDS_TWELVE_MONTHS: 'needsTwelveMonths' }
 
 export default {
   name: 'DashboardReportsWorkbench',
@@ -338,9 +340,20 @@ export default {
         this.industryRecord = null
       }
     },
-    /** @param {{current: object, prior: object, hasPrior: boolean, companyName?: string}} payload */
+    /**
+     * The annual drop carries the years; the by-month drop carries `monthly` alone (stage 5).
+     * Each replaces only what it carries, so one never wipes the other.
+     * @param {{current?: object, prior?: object, hasPrior?: boolean, earlier?: object, hasEarlier?: boolean, monthly?: object, companyName?: string}} payload
+     */
     onAccounts (payload) {
-      this.state = Object.assign({}, this.state, { current: payload.current, prior: payload.prior, hasPrior: payload.hasPrior })
+      const next = {}
+      if (payload.current) { next.current = payload.current }
+      if (payload.prior) { next.prior = payload.prior }
+      if (typeof payload.hasPrior === 'boolean') { next.hasPrior = payload.hasPrior }
+      if (payload.earlier) { next.earlier = payload.earlier }
+      if (typeof payload.hasEarlier === 'boolean') { next.hasEarlier = payload.hasEarlier }
+      if (payload.monthly) { next.monthly = payload.monthly }
+      this.state = Object.assign({}, this.state, next)
       if (payload.companyName) {
         // company-name: the client's name as the dropped file states it — shown locally, never sent
         this.$emit('company-name', payload.companyName)

@@ -1,27 +1,33 @@
 <template lang="pug">
 .dra-card
-  .dra-group
+  .dra-group(v-for="g in groups" :key="g.key")
     .dra-glabel
       span.dra-dot
-      h2.dra-h2 {{ $t('report.dashboardReports.accounts.dropTitle') }}
+      h2.dra-h2 {{ $t('report.dashboardReports.accounts.' + g.titleKey) }}
     .dra-drop-grid
       .dra-drop-zone(
-        v-for="z in zones"
-        :key="z.key"
-        :class="{ loaded: loaded[z.key] }"
+        v-for="z in g.zones"
+        :key="z"
+        :class="{ loaded: loaded[z] }"
         @dragover.prevent
-        @drop.prevent="onDrop(z.key, $event)")
-        .dra-drop-title {{ $t('report.dashboardReports.accounts.zone.' + z.key) }}
-        .dra-drop-how {{ $t('report.dashboardReports.accounts.zoneHow.' + z.key) }}
-        b-button(size="is-small" :loading="uploading" @click="pickFile(z.key)") {{ $t('report.dashboardReports.accounts.choose') }}
-        input(:ref="z.key + 'File'" type="file" accept=".xlsx,.csv" hidden @change="onFileChosen(z.key, $event)")
-        p.dra-file-note(v-if="loaded[z.key]") ✓ {{ loaded[z.key] }}
+        @drop.prevent="onDrop(z, $event)")
+        .dra-drop-title {{ $t('report.dashboardReports.accounts.zone.' + z) }}
+        .dra-drop-how {{ $t('report.dashboardReports.accounts.zoneHow.' + z) }}
+        b-button(size="is-small" :loading="uploading" @click="pickFile(z)") {{ $t('report.dashboardReports.accounts.choose') }}
+        input(:ref="z + 'File'" type="file" accept=".xlsx,.csv" :multiple="z === 'plMonth'" hidden @change="onFileChosen(z, $event)")
+        p.dra-file-note(v-if="loaded[z]") ✓ {{ loaded[z] }}
+        p.dra-file-error(v-else-if="z === 'bsMonth' && monthly.months.length") {{ $t('report.dashboardReports.accounts.monthlyNotYet') }}
     p.dra-rules
-      | {{ $t('report.supportedSoftware') }}
-      |
-      | {{ $t('report.dashboardReports.accounts.rules') }}
-    p.dra-file-error(v-if="error") {{ error }}
-    .dra-warn-note(v-for="(w, i) in warnings" :key="'w' + i") ⚠ {{ w }}
+      template(v-if="g.key === 'annual'")
+        | {{ $t('report.supportedSoftware') }}
+        |
+      | {{ $t('report.dashboardReports.accounts.' + g.rulesKey) }}
+    template(v-if="g.key === 'annual'")
+      p.dra-file-error(v-if="error") {{ error }}
+      .dra-warn-note(v-for="(w, i) in warnings" :key="'w' + i") ⚠ {{ w }}
+    template(v-else-if="g.key === 'monthly'")
+      p.dra-file-error(v-if="monthlyError") {{ monthlyError }}
+      .dra-warn-note(v-for="(w, i) in monthlyWarnings" :key="'m' + i") ⚠ {{ w }}
   .dra-group
     .dra-glabel
       span.dra-dot
@@ -65,13 +71,17 @@
 
 <script>
 /**
- * DashboardReportsAccounts — step 2 of the Business Performance Report: drop the four
- * exports, confirm the figures the report is built from (item 4.70; the drawing's step 2).
+ * DashboardReportsAccounts — step 2 of the Business Performance Report: drop the exports,
+ * confirm the figures the report is built from (item 4.70; the drawing's step 2, extended
+ * for stage 5 on 2026-09-08 and approved the same day).
  *
- * Parsing is backend-only (`POST /api/report/dashboard-reports/intake`, firmAuth). The
- * four zones are the advisor's intent; WHICH file is this year is decided on the backend by
- * the reports' own date lines, and the whole set is re-sent on every drop so the two years
- * are always ordered together rather than by the order the zones were filled in.
+ * Three groups of drop zones. The four annual zones and the two "year before last" zones
+ * go together to `POST /api/report/dashboard-reports/intake` (firmAuth): WHICH file is
+ * which year is decided on the backend by the reports' own date lines, and the whole set is
+ * re-sent on every drop so the years are always ordered together rather than by the order
+ * the zones were filled in. The two by-month zones go to
+ * `POST /api/report/dashboard-reports/monthly` on the same rule, and carry no confirm rows:
+ * the monthly view draws charts, it changes no figure on the table.
  *
  * A typed figure loses its "from file" mark, as on every intake screen. The two memo lines
  * (accounts payable inside current liabilities; interest paid) are here because creditor
@@ -81,7 +91,16 @@
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 const { BALANCE_SHEET_LINES, PROFIT_LOSS_LINES, ENTERED_LINES, LINES } = require('~/server/report/intake/dashboardReportsAssembler')
 
-const ZONES = [{ key: 'bsThis' }, { key: 'plThis' }, { key: 'bsLast' }, { key: 'plLast' }]
+/** The zones that reach the annual intake route, in the drawing's order. */
+const ANNUAL_ZONES = ['bsThis', 'plThis', 'bsLast', 'plLast', 'bsEarlier', 'plEarlier']
+/** The zones that reach the monthly route. `plMonth` may hold two files (this year's and last year's). */
+const MONTHLY_ZONES = ['plMonth', 'bsMonth']
+
+const GROUPS = [
+  { key: 'annual', titleKey: 'dropTitle', rulesKey: 'rules', zones: ['bsThis', 'plThis', 'bsLast', 'plLast'] },
+  { key: 'monthly', titleKey: 'monthlyTitle', rulesKey: 'monthlyRules', zones: MONTHLY_ZONES },
+  { key: 'earlier', titleKey: 'earlierTitle', rulesKey: 'earlierRules', zones: ['bsEarlier', 'plEarlier'] }
+]
 
 /** The lines a report cannot be built without. */
 const REQUIRED = ['tradingIncome', 'costOfSales', 'bank', 'currentLiabilities']
@@ -97,23 +116,32 @@ export default {
     current: { type: Object, required: true },
     /** Last year, same shape. */
     prior: { type: Object, required: true },
-    hasPrior: { type: Boolean, default: false }
+    hasPrior: { type: Boolean, default: false },
+    /** The year before last, same shape — the trend table's third column (stage 5). */
+    earlier: { type: Object, default: () => ({ balanceSheetDate: null, profitLossDate: null, figures: {} }) },
+    hasEarlier: { type: Boolean, default: false },
+    /** The by-month series held on the state: `{ plDate, bsDate, months, bank }`. */
+    monthly: { type: Object, default: () => ({ plDate: null, bsDate: null, months: [], bank: [] }) }
   },
 
   data () {
+    const loaded = {}
+    ANNUAL_ZONES.concat(MONTHLY_ZONES).forEach((z) => { loaded[z] = '' })
     return {
-      zones: ZONES,
+      groups: GROUPS,
       sections: [
         { key: 'balanceSheet', lines: BALANCE_SHEET_LINES },
         { key: 'profitLoss', lines: PROFIT_LOSS_LINES },
         { key: 'entered', lines: ENTERED_LINES }
       ],
-      // The File objects held for re-sending; never part of the saved state.
-      files: { bsThis: null, plThis: null, bsLast: null, plLast: null },
-      loaded: { bsThis: '', plThis: '', bsLast: '', plLast: '' },
+      // The File objects held for re-sending; never part of the saved state. `plMonth` is a list.
+      files: { bsThis: null, plThis: null, bsLast: null, plLast: null, bsEarlier: null, plEarlier: null, plMonth: [], bsMonth: null },
+      loaded,
       uploading: false,
       error: '',
       warnings: [],
+      monthlyError: '',
+      monthlyWarnings: [],
       dateNote: '',
       missing: []
     }
@@ -128,15 +156,14 @@ export default {
     },
     /** @param {string} zone @param {Event} event */
     onFileChosen (zone, event) {
-      const file = event.target.files && event.target.files[0]
-      if (file) { this.receive(zone, file) }
+      const files = Array.from(event.target.files || [])
+      if (files.length) { this.receive(zone, files) }
       event.target.value = ''
     },
     /** @param {string} zone @param {DragEvent} event */
     onDrop (zone, event) {
-      const files = (event.dataTransfer && event.dataTransfer.files) || []
-      if (files.length > 1) { this.error = this.$t('report.dashboardReports.accounts.multiDrop'); return }
-      if (files[0]) { this.receive(zone, files[0]) }
+      const files = Array.from((event.dataTransfer && event.dataTransfer.files) || [])
+      if (files.length) { this.receive(zone, files) }
     },
     /**
      * Pre-upload sanity check — UX only; the backend's own checks are the boundary.
@@ -147,20 +174,36 @@ export default {
       if (file.size > 5 * 1024 * 1024) { return this.$t('report.fileCheck.tooBig') }
       return null
     },
-    /** @param {string} zone @param {File} file */
-    receive (zone, file) {
-      const err = this.fileCheckError(file)
-      if (err) { this.error = err; return }
-      this.files[zone] = file
-      this.upload()
+    /**
+     * One file per zone, except the by-month Profit and Loss zone, which takes this year's
+     * and last year's together.
+     * @param {string} zone @param {File[]} files
+     */
+    receive (zone, files) {
+      const isMonthly = MONTHLY_ZONES.includes(zone)
+      const limit = zone === 'plMonth' ? 2 : 1
+      if (files.length > limit) {
+        const msg = this.$t('report.dashboardReports.accounts.' + (zone === 'plMonth' ? 'multiDropMonthly' : 'multiDrop'))
+        if (isMonthly) { this.monthlyError = msg } else { this.error = msg }
+        return
+      }
+      for (const f of files) {
+        const err = this.fileCheckError(f)
+        if (err) {
+          if (isMonthly) { this.monthlyError = err } else { this.error = err }
+          return
+        }
+      }
+      if (zone === 'plMonth') { this.files.plMonth = files } else { this.files[zone] = files[0] }
+      if (isMonthly) { this.uploadMonthly() } else { this.upload() }
     },
-    /** Send every held file together and lay the answer out as the two years. */
+    /** Send every held annual file together and lay the answer out as the years. */
     async upload () {
       this.error = ''
       this.uploading = true
       try {
         const body = new FormData()
-        ZONES.forEach((z) => { if (this.files[z.key]) { body.append('file', this.files[z.key]) } })
+        ANNUAL_ZONES.forEach((z) => { if (this.files[z]) { body.append('file', this.files[z]) } })
         const res = await fetch('/api/report/dashboard-reports/intake', {
           method: 'POST',
           headers: { Authorization: `Bearer ${this.apiToken}` },
@@ -178,6 +221,31 @@ export default {
         this.uploading = false
       }
     },
+    /** Send every held by-month file together (stage 5). */
+    async uploadMonthly () {
+      this.monthlyError = ''
+      this.uploading = true
+      try {
+        const body = new FormData()
+        this.files.plMonth.forEach((f) => { body.append('file', f) })
+        if (this.files.bsMonth) { body.append('file', this.files.bsMonth) }
+        const res = await fetch('/api/report/dashboard-reports/monthly', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${this.apiToken}` },
+          body
+        })
+        const json = await res.json()
+        if (!json.success) {
+          this.monthlyError = (json.error && json.error.message) || this.$t('report.dashboardReports.accounts.uploadFailed')
+          return
+        }
+        this.applyMonthly(json.data)
+      } catch (e) {
+        this.monthlyError = this.$t('report.dashboardReports.accounts.uploadFailed')
+      } finally {
+        this.uploading = false
+      }
+    },
     /**
      * The assembled answer onto the table. Every line the files carried replaces the
      * table's, source and all; a line the files did not carry keeps whatever is typed.
@@ -191,23 +259,49 @@ export default {
         LINES.forEach((k) => {
           next.figures[k] = got.figures[k]
             ? { value: got.figures[k].value, source: got.figures[k].source }
-            : Object.assign({}, base.figures[k])
+            : Object.assign({}, (base.figures && base.figures[k]) || { value: null, source: 'entered' })
         })
         return next
       }
       const current = data.current ? year(this.current, data.current) : this.current
       const prior = data.prior ? year(this.prior, data.prior) : this.prior
-      this.loaded = {
-        bsThis: data.current && data.current.balanceSheetDate ? this.$t('report.dashboardReports.accounts.read', { date: data.current.balanceSheetDate }) : '',
-        plThis: data.current && data.current.profitLossDate ? this.$t('report.dashboardReports.accounts.read', { date: data.current.profitLossDate }) : '',
-        bsLast: data.prior && data.prior.balanceSheetDate ? this.$t('report.dashboardReports.accounts.read', { date: data.prior.balanceSheetDate }) : '',
-        plLast: data.prior && data.prior.profitLossDate ? this.$t('report.dashboardReports.accounts.read', { date: data.prior.profitLossDate }) : ''
-      }
+      const earlier = data.earlier ? year(this.earlier, data.earlier) : this.earlier
+      const read = date => (date ? this.$t('report.dashboardReports.accounts.read', { date }) : '')
+      Object.assign(this.loaded, {
+        bsThis: read(data.current && data.current.balanceSheetDate),
+        plThis: read(data.current && data.current.profitLossDate),
+        bsLast: read(data.prior && data.prior.balanceSheetDate),
+        plLast: read(data.prior && data.prior.profitLossDate),
+        bsEarlier: read(data.earlier && data.earlier.balanceSheetDate),
+        plEarlier: read(data.earlier && data.earlier.profitLossDate)
+      })
       this.dateNote = data.current && data.prior && data.current.balanceSheetDate && data.prior.balanceSheetDate
         ? this.$t('report.dashboardReports.accounts.datesOk')
         : ''
-      // change: { current, prior, hasPrior, companyName }
-      this.$emit('change', { current, prior, hasPrior: Boolean(data.prior), companyName: data.companyName || null })
+      // change: { current, prior, hasPrior, earlier, hasEarlier, companyName }
+      this.$emit('change', { current, prior, hasPrior: Boolean(data.prior), earlier, hasEarlier: Boolean(data.earlier), companyName: data.companyName || null })
+    },
+    /**
+     * The by-month answer onto the state (stage 5). Labels and figures only.
+     * @param {object} data - per `assembleDashboardMonthly`
+     */
+    applyMonthly (data) {
+      this.monthlyWarnings = data.warnings || []
+      if (data.blocked) { this.monthlyError = data.blocked; return }
+      const months = data.profitLoss ? data.profitLoss.months : this.monthly.months
+      const bank = data.bank ? data.bank.months : this.monthly.bank
+      const span = list => (list.length ? this.$t('report.dashboardReports.accounts.readMonths', { n: list.length, from: list[0].label, to: list[list.length - 1].label }) : '')
+      this.loaded.plMonth = span(months)
+      this.loaded.bsMonth = span(bank)
+      // change: { monthly } — the by-month series, replacing what the state held
+      this.$emit('change', {
+        monthly: {
+          plDate: data.profitLoss ? data.profitLoss.reportDate : this.monthly.plDate,
+          bsDate: data.bank ? data.bank.reportDate : this.monthly.bsDate,
+          months,
+          bank
+        }
+      })
     },
     /**
      * A typed cell becomes the advisor's figure.

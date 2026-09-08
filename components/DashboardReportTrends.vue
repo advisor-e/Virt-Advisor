@@ -32,17 +32,19 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.section.trends')" 
       .drd-gap(v-else-if="benchmarks && benchmarks.blocked") {{ $t('report.dashboardReports.doc.bm.blocked.' + benchmarks.blocked, { industry: benchmarks.industry ? benchmarks.industry.name : '' }) }}
       .drd-gap(v-else) {{ $t('report.dashboardReports.doc.bm.chooseIndustry') }}
     div
-      h3.drd-h3.drd-h3-lg {{ $t('report.dashboardReports.doc.twoYearTrend') }}
+      h3.drd-h3.drd-h3-lg {{ $t('report.dashboardReports.doc.' + (trends.hasEarlier ? 'threeYearTrend' : 'twoYearTrend')) }}
       table.drd-table
         thead
           tr
             th
+            th.drd-n(v-if="trends.hasEarlier") {{ $t('report.dashboardReports.doc.twoYearsAgo') }}
             th.drd-n {{ priorLabel || '—' }}
             th.drd-n.drd-cur {{ currentLabel }}
         tbody
           tr(v-for="row in rows" :key="row.key")
             td
               b {{ $t('report.dashboardReports.doc.trendRow.' + row.key) }}
+            td.drd-n(v-if="trends.hasEarlier") {{ row.earlierText }}
             td.drd-n {{ row.priorText }}
             td.drd-n
               b {{ row.currentText }}
@@ -53,8 +55,9 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.section.trends')" 
 
 <script>
 /**
- * DashboardReportTrends — page 7, Benchmarks & Trends (drawing page 9). The two-year
- * trend table is drawn from the accounts; the Stats NZ comparison (stage 3, Brief P9)
+ * DashboardReportTrends — page 7, Benchmarks & Trends (drawing page 9). The trend table is
+ * drawn from the accounts — three years as drawn when the year before last was dropped on
+ * step 2 (stage 5), two without it; the Stats NZ comparison (stage 3, Brief P9)
  * fills the left panel when the advisor chose an industry with published benchmarks —
  * you, the industry median, the middle half, and where you sit. Where Stats NZ publishes
  * no figure the row says so, and an industry without benchmarks leaves the panel saying
@@ -102,6 +105,7 @@ export default {
         const fell = both && r.current < r.prior
         return {
           key: r.key,
+          earlierText: fmt(r.earlier === undefined ? null : r.earlier),
           priorText: fmt(r.prior),
           currentText: fmt(r.current),
           arrow: rose ? '↑' : (fell ? '↓' : ''),

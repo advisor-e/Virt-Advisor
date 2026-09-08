@@ -239,6 +239,7 @@ server.post('/api/report/volatility/intake', firmAuth, reportRoute.volatilityInt
 server.post('/api/report/three-way-forecast/intake', firmAuth, reportRoute.threeWayForecastIntake)
 server.post('/api/report/dashboard-reports/intake', firmAuth, reportRoute.dashboardReportsIntake)
 server.post('/api/report/dashboard-reports/inventory', firmAuth, reportRoute.dashboardReportsInventory)
+server.post('/api/report/dashboard-reports/monthly', firmAuth, reportRoute.dashboardReportsMonthly)
 // Economic Analysis (item 4.66) — the Three-Way Forecast's optional market research, and
 // the first AI call in the report area. firmAuth on all three: the run belongs to the
 // advisor who started it, and the route checks BOTH identities, not just the firm.

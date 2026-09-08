@@ -272,7 +272,7 @@ describe('the pages, two years', () => {
   test('the trends table carries both years for the five rows', () => {
     const rows = {}
     r.trends.rows.forEach((row) => { rows[row.key] = row })
-    expect(rows.revenue).toEqual({ key: 'revenue', prior: 3000000, current: 3650000, unit: 'money' })
+    expect(rows.revenue).toEqual({ key: 'revenue', earlier: null, prior: 3000000, current: 3650000, unit: 'money' })
     expect(rows.netProfit.prior).toBe(495000)
     expect(rows.debtorDays.prior).toBeCloseTo((250000 / 3000000) * 365, 6)
     expect(rows.stockTurn.current).toBeCloseTo(3650000 / 576000, 10)

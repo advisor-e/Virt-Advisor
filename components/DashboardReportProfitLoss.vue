@@ -55,8 +55,8 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.profitLossTitle')"
             td.drd-n(v-if="p.prior") {{ money(p.prior.netProfit) }}
     div
       .drd-panel
-        h3.drd-h3 {{ $t('report.dashboardReports.doc.grossNetByYear') }}
-        bar-pair-chart(:groups="profitGroups" :format-value="kMoney" :aria-label="$t('report.dashboardReports.doc.grossNetByYear')")
+        h3.drd-h3 {{ chartTitle }}
+        bar-pair-chart(:groups="profitGroups" :format-value="kMoney" :aria-label="chartTitle")
         .drd-legend
           span
             i(style="background:#0070c0")
@@ -64,6 +64,7 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.profitLossTitle')"
           span
             i(style="background:#00b1e0")
             | {{ $t('report.dashboardReports.doc.netProfit') }}
+        p.drd-small(v-if="quartersNote") {{ quartersNote }}
       .drd-panel.is-caution.drd-insight
         p
           b {{ $t('report.dashboardReports.doc.insight') }}:
@@ -76,7 +77,8 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.profitLossTitle')"
 /**
  * DashboardReportProfitLoss — page 3, the Profit & Loss Summary (drawing page 5): the
  * plain-English table with each line's share of revenue and last year beside it, gross and
- * net profit by year, and the advisor's insight.
+ * net profit by quarter from the by-month Profit and Loss (stage 5) or by year without one,
+ * and the advisor's insight.
  *
  * "Operating profit (EBITDA)" is gross profit plus other income less wages and operating
  * expenses; interest and depreciation come off below it. Tax is not a line: the annual
@@ -101,13 +103,28 @@ export default {
     /** `figures.profitLoss` — `{ current, prior }` */
     p: { type: Object, required: true },
     insight: { type: String, default: '' },
+    /** `figures.monthly` (stage 5), or null. */
+    monthly: { type: Object, default: null },
     priorLabel: { type: String, default: '' },
     currentLabel: { type: String, default: '' }
   },
 
   computed: {
     c () { return this.p.current },
+    quarters () {
+      const q = this.monthly && this.monthly.quarters
+      return q && q.available ? q : null
+    },
+    chartTitle () {
+      return this.$t('report.dashboardReports.doc.' + (this.quarters ? 'grossNetByQuarter' : 'grossNetByYear'))
+    },
+    quartersNote () {
+      return this.quarters && this.quarters.completeCount < 4 ? this.$t('report.dashboardReports.doc.quartersPartial', { n: this.quarters.completeCount }) : ''
+    },
     profitGroups () {
+      if (this.quarters) {
+        return this.quarters.rows.filter(q => q.complete).map(q => ({ label: this.$t('report.dashboardReports.doc.quarter', { n: q.index }), a: q.grossProfit, b: q.netProfit }))
+      }
       const out = []
       if (this.p.prior) { out.push({ label: this.priorLabel, a: this.p.prior.grossProfit, b: this.p.prior.netProfit }) }
       out.push({ label: this.currentLabel, a: this.c.grossProfit, b: this.c.netProfit })

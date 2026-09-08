@@ -22,10 +22,10 @@
       :sections="sections"
       :added-titles="addedTitles")
     dashboard-report-summary(:number="3" :client-name="clientName" :period="period" :s="figures.summary" :score="figures.score" :words="state.words")
-    dashboard-report-dashboard(:number="4" :client-name="clientName" :period="period" :d="figures.dashboard" :costs="figures.costs" :prior-label="priorLabel" :current-label="currentLabel")
-    dashboard-report-profit-loss(:number="5" :client-name="clientName" :period="period" :p="figures.profitLoss" :insight="state.words.profitInsight" :prior-label="priorLabel" :current-label="currentLabel")
+    dashboard-report-dashboard(:number="4" :client-name="clientName" :period="period" :d="figures.dashboard" :costs="figures.costs" :monthly="figures.monthly || null" :prior-label="priorLabel" :current-label="currentLabel")
+    dashboard-report-profit-loss(:number="5" :client-name="clientName" :period="period" :p="figures.profitLoss" :insight="state.words.profitInsight" :monthly="figures.monthly || null" :prior-label="priorLabel" :current-label="currentLabel")
     dashboard-report-balance-sheet(:number="6" :client-name="clientName" :period="period" :b="figures.balanceSheet" :balance-date="state.current.balanceSheetDate || ''")
-    dashboard-report-cash-flow(:number="7" :client-name="clientName" :period="period" :cf="figures.cashFlow" :cash-watch="state.words.cashWatch" :prior-label="priorLabel" :current-label="currentLabel")
+    dashboard-report-cash-flow(:number="7" :client-name="clientName" :period="period" :cf="figures.cashFlow" :cash-watch="state.words.cashWatch" :monthly="figures.monthly || null" :prior-label="priorLabel" :current-label="currentLabel")
     dashboard-report-inventory(:number="8" :client-name="clientName" :period="period" :inv="figures.inventory")
     dashboard-report-trends(:number="9" :client-name="clientName" :period="period" :trends="figures.trends" :benchmarks="figures.benchmarks || null" :prior-label="priorLabel" :current-label="currentLabel")
     dashboard-report-next-steps(:number="10" :client-name="clientName" :period="period" :steps="state.words.steps" :next-review="state.words.nextReview" :prepared-by="state.setup.preparedBy")
@@ -34,6 +34,7 @@
       dashboard-report-cash-bridge(v-else-if="p === 'cashBridge'" :key="p" :number="11 + i" :client-name="clientName" :period="period" :cb="figures.optional.cashBridge" :current-label="currentLabel")
       dashboard-report-sensitivity(v-else-if="p === 'profitSensitivity'" :key="p" :number="11 + i" :client-name="clientName" :period="period" :sv="figures.optional.profitSensitivity")
       dashboard-report-stock-vs-accounts(v-else-if="p === 'stockVsAccounts'" :key="p" :number="11 + i" :client-name="clientName" :period="period" :sv="figures.optional.stockVsAccounts")
+      dashboard-report-sales-volatility(v-else-if="p === 'salesVolatility'" :key="p" :number="11 + i" :client-name="clientName" :period="period" :v="figures.optional.salesVolatility")
     dashboard-report-information(:number="11 + addedPages.length" :client-name="clientName" :period="period" :prepared-by="state.setup.preparedBy")
 </template>
 
@@ -72,6 +73,7 @@ import DashboardReportProfitBridge from '~/components/DashboardReportProfitBridg
 import DashboardReportCashBridge from '~/components/DashboardReportCashBridge.vue'
 import DashboardReportSensitivity from '~/components/DashboardReportSensitivity.vue'
 import DashboardReportStockVsAccounts from '~/components/DashboardReportStockVsAccounts.vue'
+import DashboardReportSalesVolatility from '~/components/DashboardReportSalesVolatility.vue'
 import { intlLocaleFor } from '~/utils/dateLocale'
 const { OPTIONAL_PAGES } = require('~/utils/dashboardReportsSavedShape')
 
@@ -107,7 +109,8 @@ export default {
     DashboardReportProfitBridge,
     DashboardReportCashBridge,
     DashboardReportSensitivity,
-    DashboardReportStockVsAccounts
+    DashboardReportStockVsAccounts,
+    DashboardReportSalesVolatility
   },
 
   props: {

@@ -32,8 +32,12 @@
 
 const { OVERHEAD_TESTS } = require('./threeWayForecastAssembler')
 
-/** Most files one drop may carry: two Balance Sheets and two Profit and Loss reports. */
-const MAX_FILES = 4
+/**
+ * Most files one drop may carry: three Balance Sheets and three Profit and Loss reports —
+ * this year, last year and, since stage 5 (2026-09-08), the year before last for the
+ * trend table's third column.
+ */
+const MAX_FILES = 6
 
 /** The balance-sheet lines, in table order. */
 const BALANCE_SHEET_LINES = [
@@ -83,7 +87,7 @@ function newestFirst (list) {
   if (list.length < 2) { return list.slice() }
   const keyed = list.map(p => ({ p, key: dateKey(p.reportDate) }))
   if (keyed.some(k => k.key === null)) { return null }
-  if (keyed[0].key === keyed[1].key) { return null }
+  if (new Set(keyed.map(k => k.key)).size !== keyed.length) { return null }
   return keyed.sort((a, b) => b.key - a.key).map(k => k.p)
 }
 
@@ -212,7 +216,7 @@ function assembleDashboardIntake (parsed) {
 
   if (!list.length) { return refuse('No file was read.') }
   if (list.length > MAX_FILES) {
-    return refuse('Please drop at most ' + MAX_FILES + ' files together: this year\'s and last year\'s Balance Sheet and Profit and Loss.')
+    return refuse('Please drop at most ' + MAX_FILES + ' files together: the Balance Sheet and Profit and Loss for this year, last year and the year before.')
   }
   list.forEach((p) => {
     files.push({ kind: p.kind, companyName: p.companyName || null, reportDate: p.reportDate || null })
@@ -221,8 +225,8 @@ function assembleDashboardIntake (parsed) {
 
   const balanceSheets = list.filter(p => p.kind === 'forecastBalanceSheet')
   const profitLosses = list.filter(p => p.kind === 'profitLoss')
-  if (balanceSheets.length > 2) { return refuse('More than two Balance Sheets were dropped together. The report compares this year with last year — please drop at most two.') }
-  if (profitLosses.length > 2) { return refuse('More than two Profit and Loss reports were dropped together. The report compares this year with last year — please drop at most two.') }
+  if (balanceSheets.length > 3) { return refuse('More than three Balance Sheets were dropped together. The report reads this year, last year and the year before — please drop at most three.') }
+  if (profitLosses.length > 3) { return refuse('More than three Profit and Loss reports were dropped together. The report reads this year, last year and the year before — please drop at most three.') }
 
   const bsSorted = newestFirst(balanceSheets)
   const plSorted = newestFirst(profitLosses)
@@ -239,6 +243,9 @@ function assembleDashboardIntake (parsed) {
   }
   const current = yearFrom(bsSorted[0] || null, plSorted[0] || null)
   const prior = yearFrom(bsSorted[1] || null, plSorted[1] || null)
+  // Stage 5: the year before last, for the trend table's third column only. Its figures
+  // are read from file and never typed, so no confirm rows are laid out for it.
+  const earlier = yearFrom(bsSorted[2] || null, plSorted[2] || null)
 
   // A Balance Sheet and a Profit and Loss for the same year should end on the same day.
   const sameYear = (year, label) => {
@@ -251,6 +258,10 @@ function assembleDashboardIntake (parsed) {
   }
   sameYear(current, 'This year\'s')
   sameYear(prior, 'Last year\'s')
+  sameYear(earlier, 'The year before last\'s')
+  if (earlier && (!earlier.balanceSheetDate || !earlier.profitLossDate)) {
+    warnings.push('Only one of the year before last\'s two reports was read. The trend table\'s third column shows what that report carries and leaves the rest blank; drop the other to fill it.')
+  }
 
   // Net capital spend: fixed assets moved by this much over the year, and depreciation
   // reduced them by this much on the way — so what was bought is the sum. Offered as the
@@ -269,6 +280,7 @@ function assembleDashboardIntake (parsed) {
     companyName: files.map(f => f.companyName).find(Boolean) || null,
     current,
     prior,
+    earlier,
     blocked: null,
     warnings
   }

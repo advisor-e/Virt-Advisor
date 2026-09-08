@@ -30,12 +30,13 @@ const { computeReportPages, plainLinesOf } = require('../report/dashboardReportP
 const { compareToIndustry } = require('../report/benchmarks/statsNzBenchmarker')
 const { loadBenchmarker } = require('../utils/benchmarkerStore')
 const { assembleDashboardIntake, MAX_FILES: MAX_DASHBOARD_FILES } = require('../report/intake/dashboardReportsAssembler')
+const { assembleDashboardMonthly, MAX_FILES: MAX_DASHBOARD_MONTHLY_FILES } = require('../report/intake/dashboardMonthlyAssembler')
 const { readInventoryUpload, summariseInventory } = require('../report/intake/inventoryReader')
 const { loadResolvedTrendThresholds } = require('../utils/forecastTrendThresholds')
 const { listReportModels } = require('../utils/reportModels')
 const { parseUpload, parseForecastUpload } = require('../report/intake/xeroReportParser')
 const { assembleAnnualReports, MAX_FILES } = require('../report/intake/annualAssembler')
-const { parseMonthlyUpload } = require('../report/intake/monthlySalesParser')
+const { parseMonthlyUpload, parseDashboardMonthlyUpload } = require('../report/intake/monthlySalesParser')
 const { assembleMonthlySeries, MAX_FILES: MAX_MONTHLY_FILES } = require('../report/intake/monthlySeriesAssembler')
 const { intakeErrorResponse } = require('../report/intakeError')
 const { readFirmCurrency } = require('./currency')
@@ -242,10 +243,11 @@ async function dashboardReportPages (req, res) {
 /**
  * POST /api/report/dashboard-reports/intake  (firmAuth — uploads are never anonymous)
  *
- * Multipart upload of up to four annual exports in repeated `file` fields — this year's and
- * last year's Balance Sheet and Profit and Loss — read with the forecast's own readers and
- * laid out as the confirm table by `assembleDashboardIntake`. Which file is this year is
- * decided by the reports' own date lines. Parse-and-discard: no file is kept.
+ * Multipart upload of up to six annual exports in repeated `file` fields — the Balance Sheet
+ * and Profit and Loss for this year, last year and (stage 5) the year before last — read
+ * with the forecast's own readers and laid out as the confirm table by
+ * `assembleDashboardIntake`. Which file is which year is decided by the reports' own date
+ * lines. Parse-and-discard: no file is kept.
  *
  * @route POST /api/report/dashboard-reports/intake
  * @returns {object} { success, data, timestamp } — data per `assembleDashboardIntake`
@@ -274,7 +276,7 @@ async function dashboardReportsIntake (req, res) {
       return
     }
     if (uploaded.length > MAX_DASHBOARD_FILES) {
-      const e = new Error('This report reads up to ' + MAX_DASHBOARD_FILES + ' files — ' + uploaded.length + ' were sent. Please drop this year\'s and last year\'s Balance Sheet and Profit and Loss.')
+      const e = new Error('This report reads up to ' + MAX_DASHBOARD_FILES + ' files — ' + uploaded.length + ' were sent. Please drop the Balance Sheet and Profit and Loss for this year, last year and the year before.')
       e.code = 'TOO_MANY_FILES'
       throw e
     }
@@ -344,6 +346,63 @@ async function dashboardReportsInventory (req, res) {
     // Log the stable code only — never the filename, product names or content
     console.error('[report] dashboard-reports inventory rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
     const safe = intakeErrorResponse(err, 'The file could not be read as a stock-on-hand export.')
+    res.send(safe.status, safe.body)
+  } finally {
+    for (const f of uploaded) {
+      if (f && f.filepath) { fs.unlink(f.filepath, () => {}) }
+    }
+  }
+}
+
+/**
+ * POST /api/report/dashboard-reports/monthly  (firmAuth — uploads are never anonymous)
+ *
+ * The monthly view's exports (item 4.70, stage 5): up to two by-month Profit and Loss files
+ * and one by-month Balance Sheet in repeated `file` fields, read by
+ * `parseDashboardMonthlyUpload` and joined by `assembleDashboardMonthly`. Only month labels
+ * and totals come back — sales, cost of sales, other income, expenses and the bank balance —
+ * never an account row's name. Parse-and-discard, as every intake here.
+ *
+ * @route POST /api/report/dashboard-reports/monthly
+ * @param {object} req - multipart request; req.firmId set by firmAuth.
+ * @returns {object} { success, data, timestamp } — data per `assembleDashboardMonthly`
+ */
+async function dashboardReportsMonthly (req, res) {
+  const form = formidable({ maxFileSize: INTAKE_MAX_BYTES, multiples: true })
+  let uploaded = []
+  try {
+    let files
+    try {
+      ;[, files] = await parseForm(form, req)
+    } catch (err) {
+      const tooBig = err && /maxFileSize/i.test(err.message || '')
+      res.send(tooBig ? 413 : 400, {
+        success: false,
+        error: { code: tooBig ? 'FILE_TOO_LARGE' : 'UPLOAD_PARSE_FAILED', message: tooBig ? 'The files together are larger than 5 MB — a by-month accounting export should be well under 1 MB each. Please export again without extra tabs or images.' : 'The upload could not be read. Please try again.' },
+        timestamp: new Date().toISOString()
+      })
+      return
+    }
+
+    const field = files && files.file
+    uploaded = (Array.isArray(field) ? field : (field ? [field] : [])).filter(f => f && f.filepath)
+    if (!uploaded.length) {
+      res.send(400, { success: false, error: { code: 'NO_FILE', message: 'No files were attached. Send each by-month export in a "file" field.' }, timestamp: new Date().toISOString() })
+      return
+    }
+    if (uploaded.length > MAX_DASHBOARD_MONTHLY_FILES) {
+      const e = new Error('This step reads up to ' + MAX_DASHBOARD_MONTHLY_FILES + ' by-month files — ' + uploaded.length + ' were sent. Please drop this year\'s Profit and Loss by month, last year\'s if this year\'s stops mid-year, and the Balance Sheet by month.')
+      e.code = 'TOO_MANY_FILES'
+      throw e
+    }
+
+    const parsed = uploaded.map(u => parseDashboardMonthlyUpload(fs.readFileSync(u.filepath)))
+    const data = assembleDashboardMonthly(parsed)
+    res.send(200, { success: true, data, timestamp: new Date().toISOString() })
+  } catch (err) {
+    // Log the stable code only — never the filename, labels or content (identity stays local)
+    console.error('[report] dashboard-reports monthly rejected:', (err && err.code) || 'INTAKE_PARSE_FAILED')
+    const safe = intakeErrorResponse(err, 'A file could not be read as a by-month accounting export.')
     res.send(safe.status, safe.body)
   } finally {
     for (const f of uploaded) {
@@ -1193,4 +1252,4 @@ function modelGuide (req, res, next) {
   return next()
 }
 
-module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }
+module.exports = { workingCapitalCycle, debtorDrag, marginBreakeven, eightLevers, dashboardReports, dashboardReportPages, dashboardReportsIntake, dashboardReportsInventory, dashboardReportsMonthly, quickPosition, quickPositionIntake, ebitdaDcf, ebitdaDcfIntake, loanEstimator, leaseVsBuy, costOfCapital, multipleProperty, volatility, volatilityIntake, importShipments, importedRevenue, threeWayForecast, threeYearForecast, threeWayForecastIntake, modelGuide }

@@ -25,17 +25,22 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.section.cashFlow')
       .drd-d.drd-small {{ cycleChange }}
   .drd-cols.is-wide.drd-mid
     .drd-panel
-      h3.drd-h3 {{ $t('report.dashboardReports.doc.closingBank') }}
-      .drd-bank-chart
-        bar-pair-chart(:groups="bankGroups" :format-value="kMoney" :aria-label="$t('report.dashboardReports.doc.closingBank')")
-      .drd-legend
-        span
-          i(style="background:#0070c0")
-          | {{ priorLabel || '—' }}
-        span
-          i(style="background:#00b1e0")
-          | {{ currentLabel }}
-      p.drd-small {{ $t('report.dashboardReports.doc.bankByMonthLater') }}
+      template(v-if="bankLine")
+        h3.drd-h3 {{ $t('report.dashboardReports.doc.closingBankByMonth') }}
+        line-chart(:points="bankPoints" :format-value="kMoney" :aria-label="$t('report.dashboardReports.doc.closingBankByMonth')")
+        p.drd-small {{ bankNote }}
+      template(v-else)
+        h3.drd-h3 {{ $t('report.dashboardReports.doc.closingBank') }}
+        .drd-bank-chart
+          bar-pair-chart(:groups="bankGroups" :format-value="kMoney" :aria-label="$t('report.dashboardReports.doc.closingBank')")
+        .drd-legend
+          span
+            i(style="background:#0070c0")
+            | {{ priorLabel || '—' }}
+          span
+            i(style="background:#00b1e0")
+            | {{ currentLabel }}
+        p.drd-small {{ $t('report.dashboardReports.doc.bankByMonthAbsent') }}
     .drd-panel.is-danger
       .drd-bang !
       h3.drd-h3
@@ -57,12 +62,14 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.section.cashFlow')
  * watch-point, and the seven cash drivers each saying whether it used or released cash —
  * the reading the Cash Drivers material supplies and the deck does not.
  *
- * The stock and debtor tiles take their tint from the firm's band where one exists (P5);
- * the closing bank line by month is drawn as this year against last until the monthly
- * view exists (stage 5), and the page says so.
+ * The stock and debtor tiles take their tint from the firm's band where one exists (P5).
+ * The closing bank line is month by month from the by-month Balance Sheet dropped on step
+ * 2 (stage 5), the lowest month marked as the deck marks the dip; without one it is this
+ * year's closing balance against last year's, and the page says how to get the line.
  */
 import DashboardReportPage from '~/components/DashboardReportPage.vue'
 import BarPairChart from '~/components/base/BarPairChart.vue'
+import LineChart from '~/components/base/LineChart.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 const { days, pct100, pts } = require('~/utils/reportFormat')
 
@@ -71,7 +78,7 @@ const TONE_BY_BAND = { good: '', warn: 'is-caution', crit: 'is-danger' }
 export default {
   name: 'DashboardReportCashFlow',
 
-  components: { DashboardReportPage, BarPairChart },
+  components: { DashboardReportPage, BarPairChart, LineChart },
 
   mixins: [currencyMixin],
 
@@ -82,11 +89,29 @@ export default {
     /** `figures.cashFlow` */
     cf: { type: Object, required: true },
     cashWatch: { type: String, default: '' },
+    /** `figures.monthly` (stage 5), or null. */
+    monthly: { type: Object, default: null },
     priorLabel: { type: String, default: '' },
     currentLabel: { type: String, default: '' }
   },
 
   computed: {
+    bankLine () {
+      const b = this.monthly && this.monthly.bank
+      return b && b.available ? b : null
+    },
+    /** Twelve slots take the month's three letters; the year is in the page's period line (found in the production build 2026-09-08: the full labels overlapped). */
+    bankPoints () {
+      return this.bankLine.points.map(p => ({ label: String(p.label || '').slice(0, 3), value: p.value }))
+    },
+    bankNote () {
+      const b = this.bankLine
+      const parts = []
+      if (b.lowest) { parts.push(this.$t('report.dashboardReports.doc.bankLowest', { label: b.lowest.label, amount: this.kMoney(b.lowest.value) })) }
+      const missing = b.points.filter(p => !p.complete).length
+      if (missing) { parts.push(this.$t('report.dashboardReports.doc.bankMonthsMissing', { n: missing })) }
+      return parts.join(' ')
+    },
     bankGroups () {
       return [{ label: this.$t('report.dashboardReports.doc.closingBankShort'), a: this.cf.bankPrior, b: this.cf.bankNow }]
     },

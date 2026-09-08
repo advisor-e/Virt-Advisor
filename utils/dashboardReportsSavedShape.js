@@ -40,6 +40,15 @@ const MAX_STOCK_GROUPS = 60
 /** The per-group figures a saved stock export keeps, each as one array under the store's rule. */
 const STOCK_GROUP_FIELDS = ['value', 'lines', 'onHand', 'allocated', 'available']
 
+/**
+ * How many months of the by-month series a row keeps (stage 5): two files give at most
+ * twenty-four, and the store's array cap is 120. The newest months are kept.
+ */
+const MAX_MONTHS = 36
+
+/** The per-month figures of the by-month Profit and Loss, each one array in the row. */
+const PL_MONTH_FIELDS = ['sales', 'costOfSales', 'otherIncome', 'operatingExpenses']
+
 /** A blank year of lines: every value null, every source the advisor's. */
 function emptyYear () {
   const figures = {}
@@ -57,6 +66,10 @@ function emptyState () {
     current: emptyYear(),
     prior: emptyYear(),
     hasPrior: false,
+    // Stage 5: the year before last (trend table only) and the by-month series.
+    earlier: emptyYear(),
+    hasEarlier: false,
+    monthly: { plDate: null, bsDate: null, months: [], bank: [] },
     inventory: { slowObsolete: null, ageing: [null, null, null, null, null], stockFile: null },
     words: {
       summary: '',
@@ -100,7 +113,8 @@ function flattenDashboardReport (state) {
   row.setup_industryName = text(setup.industryName)
   row.setup_sizeBand = ['micro', 'small', 'medium', 'large'].includes(setup.sizeBand) ? setup.sizeBand : ''
   row.hasPrior = Boolean(s.hasPrior)
-  ;[['cur', s.current], ['pri', s.prior]].forEach(([prefix, year]) => {
+  row.hasEarlier = Boolean(s.hasEarlier)
+  ;[['cur', s.current], ['pri', s.prior], ['ear', s.earlier]].forEach(([prefix, year]) => {
     const y = year || emptyYear()
     row[prefix + '_bsDate'] = text(y.balanceSheetDate)
     row[prefix + '_plDate'] = text(y.profitLossDate)
@@ -110,6 +124,25 @@ function flattenDashboardReport (state) {
       row[prefix + '_' + k + '_src'] = SOURCES.includes(l.source) ? l.source : 'entered'
     })
   })
+  // Stage 5: the by-month series, newest months kept, completeness as 1/0 (the store takes
+  // numbers, blanks and short names in a list, not booleans). Written only when read.
+  const mo = s.monthly && typeof s.monthly === 'object' ? s.monthly : {}
+  const plMonths = (Array.isArray(mo.months) ? mo.months : []).filter(m => m && Number.isFinite(m.ordinal)).slice(-MAX_MONTHS)
+  if (plMonths.length) {
+    row.m_plDate = text(mo.plDate)
+    row.m_labels = plMonths.map(m => text(m.label))
+    row.m_ordinals = plMonths.map(m => m.ordinal)
+    PL_MONTH_FIELDS.forEach((f) => { row['m_' + f] = plMonths.map(m => numOrNull(m[f])) })
+    row.m_complete = plMonths.map(m => (m.complete === false ? 0 : 1))
+  }
+  const bankMonths = (Array.isArray(mo.bank) ? mo.bank : []).filter(m => m && Number.isFinite(m.ordinal)).slice(-MAX_MONTHS)
+  if (bankMonths.length) {
+    row.mb_bsDate = text(mo.bsDate)
+    row.mb_labels = bankMonths.map(m => text(m.label))
+    row.mb_ordinals = bankMonths.map(m => m.ordinal)
+    row.mb_bank = bankMonths.map(m => numOrNull(m.bank))
+    row.mb_complete = bankMonths.map(m => (m.complete === false ? 0 : 1))
+  }
   const inv = s.inventory || {}
   row.inv_slowObsolete = numOrNull(inv.slowObsolete)
   row.inv_ageing = AGEING_BANDS.map((b, i) => numOrNull(Array.isArray(inv.ageing) ? inv.ageing[i] : null))
@@ -179,7 +212,8 @@ function applySavedDashboardReport (state, row) {
     next.setup.sizeBand = ['micro', 'small', 'medium', 'large'].includes(r.setup_sizeBand) ? r.setup_sizeBand : ''
   }
   if (typeof r.hasPrior === 'boolean') { next.hasPrior = r.hasPrior }
-  ;[['cur', 'current'], ['pri', 'prior']].forEach(([prefix, key]) => {
+  if (typeof r.hasEarlier === 'boolean') { next.hasEarlier = r.hasEarlier }
+  ;[['cur', 'current'], ['pri', 'prior'], ['ear', 'earlier']].forEach(([prefix, key]) => {
     const y = next[key]
     y.balanceSheetDate = str(prefix + '_bsDate', y.balanceSheetDate) || null
     y.profitLossDate = str(prefix + '_plDate', y.profitLossDate) || null
@@ -191,6 +225,25 @@ function applySavedDashboardReport (state, row) {
       if (SOURCES.includes(src)) { y.figures[k].source = src }
     })
   })
+  // Stage 5: the by-month series, set only when the row carries one.
+  if (Array.isArray(r.m_ordinals) && r.m_ordinals.length) {
+    next.monthly.plDate = str('m_plDate', '') || null
+    next.monthly.months = r.m_ordinals.map((o, i) => {
+      const m = { label: text(Array.isArray(r.m_labels) ? r.m_labels[i] : ''), ordinal: numOrNull(o), complete: !(Array.isArray(r.m_complete) && r.m_complete[i] === 0), reason: null }
+      PL_MONTH_FIELDS.forEach((f) => { m[f] = numOrNull(Array.isArray(r['m_' + f]) ? r['m_' + f][i] : null) })
+      return m
+    }).filter(m => m.ordinal !== null)
+  }
+  if (Array.isArray(r.mb_ordinals) && r.mb_ordinals.length) {
+    next.monthly.bsDate = str('mb_bsDate', '') || null
+    next.monthly.bank = r.mb_ordinals.map((o, i) => ({
+      label: text(Array.isArray(r.mb_labels) ? r.mb_labels[i] : ''),
+      ordinal: numOrNull(o),
+      bank: numOrNull(Array.isArray(r.mb_bank) ? r.mb_bank[i] : null),
+      complete: !(Array.isArray(r.mb_complete) && r.mb_complete[i] === 0),
+      reason: null
+    })).filter(m => m.ordinal !== null)
+  }
   if (Object.prototype.hasOwnProperty.call(r, 'inv_slowObsolete')) { next.inventory.slowObsolete = numOrNull(r.inv_slowObsolete) }
   if (Array.isArray(r.inv_ageing)) { next.inventory.ageing = AGEING_BANDS.map((b, i) => numOrNull(r.inv_ageing[i])) }
   // Set only when the row carries a read export, so a row saved before the reader existed
@@ -266,11 +319,18 @@ function pagesRequestFrom (state) {
     })
     return out
   }
+  const mo = s.monthly && typeof s.monthly === 'object' ? s.monthly : {}
+  const plMonths = Array.isArray(mo.months) ? mo.months : []
+  const bankMonths = Array.isArray(mo.bank) ? mo.bank : []
   return {
     current: lines(s.current),
     prior: s.hasPrior ? lines(s.prior) : null,
+    earlier: s.hasEarlier ? lines(s.earlier) : null,
     currentDates: { balanceSheet: s.current && s.current.balanceSheetDate, profitLoss: s.current && s.current.profitLossDate },
     priorDates: { balanceSheet: s.prior && s.prior.balanceSheetDate, profitLoss: s.prior && s.prior.profitLossDate },
+    monthly: plMonths.length || bankMonths.length
+      ? { profitLoss: plMonths.length ? { months: plMonths } : null, bank: bankMonths.length ? { months: bankMonths } : null }
+      : null,
     industry: s.setup && s.setup.industryCode ? { code: s.setup.industryCode, band: s.setup.sizeBand || null } : null,
     inventory: {
       slowObsolete: numOrNull(s.inventory && s.inventory.slowObsolete),
@@ -283,6 +343,8 @@ function pagesRequestFrom (state) {
 module.exports = {
   MAX_TEXT,
   MAX_STOCK_GROUPS,
+  MAX_MONTHS,
+  PL_MONTH_FIELDS,
   AGEING_BANDS,
   OPTIONAL_PAGES,
   SOURCES,

@@ -29,13 +29,19 @@
  * Pure, backend-only, CommonJS. Node 14.
  */
 
-const { computePeriodRatios, healthScore } = require('./dashboardReportsModel')
+const { computePeriodRatios, computeQuarterlyComparison, healthScore } = require('./dashboardReportsModel')
 const { computeTrend, MEASURES, SCORE_MEASURES } = require('./trendModel')
 const { computeProfitBridge } = require('./profitBridgeModel')
 const { computeCashBridge } = require('./cashBridgeModel')
 const { computeProfitSensitivity } = require('./profitSensitivityModel')
 const { computeStockVsAccounts } = require('./stockVsAccountsModel')
-const { LINES } = require('./intake/dashboardReportsAssembler')
+const { computeVolatility } = require('./volatilityModel')
+const { LINES, dateKey } = require('./intake/dashboardReportsAssembler')
+
+/** Twelve complete months, the Sales Volatility page's shortest window. */
+const VOLATILITY_MONTHS = 12
+/** Days in a year, as the trend model counts debtor days. */
+const DAYS_IN_YEAR = 365
 
 /** Score at or above which each word applies, highest first. PROVISIONAL — see the header. */
 const SCORE_BANDS = [
@@ -232,6 +238,135 @@ function scoreBand (score) {
 }
 
 /**
+ * The calendar ordinal (year × 12 + month index) of a report's own period end, or null.
+ * "For the year ended 30 June 2026" → 2026 × 12 + 5.
+ * @param {string|null} reportDate
+ * @returns {number|null}
+ */
+function endOrdinalOf (reportDate) {
+  const key = dateKey(reportDate)
+  if (key === null) { return null }
+  const year = Math.floor(key / 10000)
+  const month = Math.floor((key % 10000) / 100)
+  return year * 12 + (month - 1)
+}
+
+/**
+ * The monthly view (stage 5): the quarters for pages 4 and 5, the closing-bank line for
+ * page 7, and the Sales Volatility page's twelve months — each drawn only from complete
+ * months, and each saying when it cannot be drawn.
+ *
+ * WHICH TWELVE MONTHS ARE THIS YEAR is decided by this year's Profit and Loss's own period
+ * line: the twelve calendar months ending on it. Where no date can be read, the last
+ * twelve months in the series stand in. A quarter is drawn only when all three of its
+ * months were read and complete — a quarter summed over an empty month is a plausible,
+ * wrong bar. The volatility page takes the last twelve complete consecutive months in the
+ * whole series (two files may span two years), exactly as the Volatility Report does.
+ *
+ * @param {object|null} monthly - `{ profitLoss: { months }, bank: { months } }` per `assembleDashboardMonthly`, or null
+ * @param {number|null} yearEnd - the ordinal of this year's last month, or null
+ * @returns {{available:boolean, yearEnd:(number|null), quarters:object, bank:object, salesVolatility:object}}
+ */
+function monthlyView (monthly, yearEnd) {
+  const src = monthly && typeof monthly === 'object' ? monthly : {}
+  const plMonths = src.profitLoss && Array.isArray(src.profitLoss.months) ? src.profitLoss.months.filter(m => m && Number.isFinite(m.ordinal)) : []
+  const bankMonths = src.bank && Array.isArray(src.bank.months) ? src.bank.months.filter(m => m && Number.isFinite(m.ordinal)) : []
+  const lastOrdinal = list => (list.length ? Math.max.apply(null, list.map(m => m.ordinal)) : null)
+  const end = Number.isFinite(yearEnd) ? yearEnd : (lastOrdinal(plMonths) !== null ? lastOrdinal(plMonths) : lastOrdinal(bankMonths))
+  const isComplete = m => m.complete !== false
+
+  /* -- the four quarters, each labelled by its last month as the workbook labels them -- */
+  const quarters = []
+  let completeQuarters = 0
+  if (end !== null) {
+    const byOrdinal = new Map(plMonths.map(m => [m.ordinal, m]))
+    for (let q = 0; q < 4; q++) {
+      const first = end - 11 + q * 3
+      const trio = [first, first + 1, first + 2].map(o => byOrdinal.get(o) || null)
+      const complete = trio.every(m => m && isComplete(m))
+      if (complete) {
+        completeQuarters += 1
+        const [sum] = computeQuarterlyComparison(trio.map(m => ({
+          label: m.label, date: null, tradingIncome: m.sales, costOfSales: m.costOfSales, otherIncome: m.otherIncome, operatingExpenses: m.operatingExpenses
+        })))
+        quarters.push({
+          index: q + 1,
+          endLabel: trio[2].label,
+          complete: true,
+          sales: sum.sales,
+          expenses: trio.reduce((t, m) => t + num(m.costOfSales) + num(m.operatingExpenses), 0),
+          grossProfit: sum.grossProfit,
+          netProfit: sum.netProfit
+        })
+      } else {
+        quarters.push({ index: q + 1, endLabel: trio[2] ? trio[2].label : null, complete: false, sales: null, expenses: null, grossProfit: null, netProfit: null })
+      }
+    }
+  }
+
+  /* -- the closing bank balance at each month end of this year ---------------------- */
+  const bankYear = end === null ? [] : bankMonths.filter(m => m.ordinal > end - 12 && m.ordinal <= end).sort((a, b) => a.ordinal - b.ordinal)
+  const bankPoints = bankYear.map(m => ({ label: m.label, value: isComplete(m) && Number.isFinite(m.bank) ? m.bank : null, complete: isComplete(m) && Number.isFinite(m.bank) }))
+  const bankKnown = bankPoints.filter(p => p.complete)
+  let lowest = null
+  bankKnown.forEach((p) => { if (lowest === null || p.value < lowest.value) { lowest = { label: p.label, value: p.value } } })
+
+  /* -- the Sales Volatility page: the last twelve complete consecutive months ---------- */
+  // Runs of complete, consecutive months. Trailing incomplete months (the cut-off month and
+  // the empties after it) simply end the last run, so the window slides back over the file
+  // exactly as the Volatility Report's assembler slides it; an incomplete month INSIDE the
+  // series splits the runs, and the latest run is taken — a window is never spliced across
+  // a month that was not read.
+  const sorted = plMonths.slice().sort((a, b) => a.ordinal - b.ordinal)
+  const runs = []
+  let run = []
+  sorted.forEach((m) => {
+    if (!isComplete(m) || (run.length && m.ordinal !== run[run.length - 1].ordinal + 1)) {
+      if (run.length) { runs.push(run) }
+      run = []
+    }
+    if (isComplete(m)) { run.push(m) }
+  })
+  if (run.length) { runs.push(run) }
+  const lastRun = runs.length ? runs[runs.length - 1] : []
+  const window = lastRun.slice(-VOLATILITY_MONTHS)
+  let salesVolatility
+  if (window.length >= VOLATILITY_MONTHS) {
+    const vol = computeVolatility({ sales: window.map(m => m.sales), window: VOLATILITY_MONTHS })
+    const band1 = vol.bands[0]
+    salesVolatility = {
+      available: true,
+      blocked: null,
+      from: window[0].label,
+      to: window[window.length - 1].label,
+      total: vol.total,
+      average: vol.average,
+      standardDeviation: vol.standardDeviation,
+      lower: band1.lower,
+      upper: band1.upper,
+      floored: band1.floored,
+      score: vol.score,
+      scoreBand: vol.scoreBand,
+      insideFirstBand: vol.insideFirstBand,
+      monthsUsed: vol.monthsUsed,
+      highest: vol.highest ? { label: window[vol.highest.index].label, value: vol.highest.value } : null,
+      lowest: vol.lowest ? { label: window[vol.lowest.index].label, value: vol.lowest.value } : null,
+      months: vol.months.map((m, i) => ({ label: window[i].label, value: m.value, deviation: m.deviation, outside: m.outside, above: m.outside && m.deviation > 0 }))
+    }
+  } else {
+    salesVolatility = { available: false, blocked: plMonths.length ? 'NEEDS_TWELVE_MONTHS' : 'NO_MONTHLY_FILE', monthsComplete: window.length }
+  }
+
+  return {
+    available: plMonths.length > 0 || bankMonths.length > 0,
+    yearEnd: end,
+    quarters: { available: completeQuarters > 0, completeCount: completeQuarters, rows: quarters },
+    bank: { available: bankKnown.length >= 2, points: bankPoints, lowest, latest: bankKnown.length ? bankKnown[bankKnown.length - 1] : null },
+    salesVolatility
+  }
+}
+
+/**
  * Every figure the pages print.
  *
  * @param {object} inputs
@@ -240,6 +375,8 @@ function scoreBand (score) {
  * @param {{balanceSheet: (string|null), profitLoss: (string|null)}} [inputs.currentDates]
  * @param {{balanceSheet: (string|null), profitLoss: (string|null)}} [inputs.priorDates]
  * @param {{slowObsolete: (number|null), ageing: (Array<number|null>|null), stockFile: (object|null)}} [inputs.inventory] - the typed inventory figures, and the read stock export (stage 4) or null
+ * @param {object} [inputs.earlier] - the year before last's lines (stage 5), for the trend table's third column, or null
+ * @param {object} [inputs.monthly] - the by-month series (stage 5) per `assembleDashboardMonthly`, or null
  * @param {object} [inputs.thresholds] - the firm's resolved trend thresholds `{ levels, movements }`
  * @returns {object}
  */
@@ -247,11 +384,13 @@ function computeReportPages (inputs) {
   const src = inputs && typeof inputs === 'object' ? inputs : {}
   const cur = src.current && typeof src.current === 'object' ? src.current : {}
   const pri = src.prior && typeof src.prior === 'object' ? src.prior : null
+  const ear = src.earlier && typeof src.earlier === 'object' && Object.keys(src.earlier).length ? src.earlier : null
   const curDates = src.currentDates || {}
   const priDates = src.priorDates || {}
 
   const hubCur = computePeriodRatios(toSheet(cur, 'current'))
   const hubPri = pri ? computePeriodRatios(toSheet(pri, 'prior')) : null
+  const hubEar = ear ? computePeriodRatios(toSheet(ear, 'earlier')) : null
   const bsCur = balanceSheetOf(cur, hubCur)
   const bsPri = hubPri ? balanceSheetOf(pri, hubPri) : null
 
@@ -323,6 +462,13 @@ function computeReportPages (inputs) {
   /* -- the pages ---------------------------------------------------------------------- */
   const plCur = profitLossOf(cur, hubCur)
   const plPri = hubPri ? profitLossOf(pri, hubPri) : null
+  // Stage 5: the year before last, for the trend table only. Debtor days is the trend
+  // model's own formula; a year without the line it needs prints a blank, never a zero.
+  const plEar = hubEar ? profitLossOf(ear, hubEar) : null
+  const earlierDebtorDays = ear && has(ear, 'accountsReceivable') && line(ear, 'tradingIncome') > 0
+    ? (line(ear, 'accountsReceivable') / line(ear, 'tradingIncome')) * DAYS_IN_YEAR
+    : null
+  const monthly = monthlyView(src.monthly, endOrdinalOf(curDates.profitLoss || curDates.balanceSheet))
   const costKeys = ['costOfSales', 'wages', 'operatingExpenses', 'depreciation', 'interestPaid']
   const costTotal = costKeys.reduce((t, k) => t + line(cur, k), 0)
   const costs = {
@@ -356,12 +502,16 @@ function computeReportPages (inputs) {
       accountsStock: stockAtCost,
       stockDays,
       creditorDays
-    })
+    }),
+    // Stage 5: the by-month Profit and Loss's last twelve complete months, or why not.
+    salesVolatility: monthly.salesVolatility
   }
 
   return {
     hasPrior: Boolean(pri),
-    hub: { current: hubCur, prior: hubPri },
+    hasEarlier: Boolean(ear),
+    hub: { current: hubCur, prior: hubPri, earlier: hubEar },
+    monthly,
     optional,
     trend,
     summary: {
@@ -421,12 +571,13 @@ function computeReportPages (inputs) {
       ageing
     },
     trends: {
+      hasEarlier: Boolean(ear),
       rows: [
-        { key: 'revenue', prior: plPri ? plPri.revenue : null, current: plCur.revenue, unit: 'money' },
-        { key: 'netProfit', prior: plPri ? plPri.netProfit : null, current: plCur.netProfit, unit: 'money' },
-        { key: 'netMargin', prior: plPri ? plPri.netMarginPct : null, current: plCur.netMarginPct, unit: 'percent' },
-        { key: 'stockTurn', prior: hubPri ? hubPri.stockTurn : null, current: hubCur.stockTurn, unit: 'times' },
-        { key: 'debtorDays', prior: measurePrior('debtorDays'), current: debtorDays, unit: 'days' }
+        { key: 'revenue', earlier: plEar && has(ear, 'tradingIncome') ? plEar.revenue : null, prior: plPri ? plPri.revenue : null, current: plCur.revenue, unit: 'money' },
+        { key: 'netProfit', earlier: plEar && has(ear, 'tradingIncome') ? plEar.netProfit : null, prior: plPri ? plPri.netProfit : null, current: plCur.netProfit, unit: 'money' },
+        { key: 'netMargin', earlier: plEar ? plEar.netMarginPct : null, prior: plPri ? plPri.netMarginPct : null, current: plCur.netMarginPct, unit: 'percent' },
+        { key: 'stockTurn', earlier: hubEar && has(ear, 'tradingIncome') ? hubEar.stockTurn : null, prior: hubPri ? hubPri.stockTurn : null, current: hubCur.stockTurn, unit: 'times' },
+        { key: 'debtorDays', earlier: earlierDebtorDays, prior: measurePrior('debtorDays'), current: debtorDays, unit: 'days' }
       ]
     }
   }
@@ -436,7 +587,10 @@ module.exports = {
   plainLinesOf,
   SCORE_BANDS,
   DRIVERS,
+  VOLATILITY_MONTHS,
   toSheet,
   scoreBand,
+  endOrdinalOf,
+  monthlyView,
   computeReportPages
 }
