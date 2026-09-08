@@ -42,7 +42,12 @@
   dashboard-reports-words(
     v-else-if="step === 4 && !clientMode"
     :words="state.words"
+    :api-token="apiToken"
+    :client-ref="clientRef"
+    :send-list="sendList"
+    :approval="approval"
     @change="onWords"
+    @ready="onReady"
     @continue="go(5)")
   dashboard-reports-pages(
     v-else-if="step === 5 && !clientMode"
@@ -58,6 +63,7 @@
     :period="period"
     :availability="availability"
     :editable="!clientMode"
+    :approval="approval"
     @change-pages="onPages")
 </template>
 
@@ -89,6 +95,7 @@ import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 import { intlLocaleFor } from '~/utils/dateLocale'
 const { emptyState, pagesRequestFrom, OPTIONAL_PAGES, SOURCES } = require('~/utils/dashboardReportsSavedShape')
+const { sendListFrom } = require('~/utils/nextStepsSendList')
 const { LINES } = require('~/server/report/intake/dashboardReportsAssembler')
 const { pct, days, times } = require('~/utils/reportFormat')
 
@@ -131,13 +138,21 @@ export default {
     clientMode: { type: Boolean, default: false },
     clientName: { type: String, default: '' },
     /** What the header knows about the saved row, for the review band. */
-    savedText: { type: String, default: '' }
+    savedText: { type: String, default: '' },
+    /** The saved-report client id — whose next-steps record to read and write (stage 6). */
+    clientRef: { type: String, default: '' }
   },
 
   data () {
     return {
       state: this.restore ? JSON.parse(JSON.stringify(this.restore)) : emptyState(),
       figures: null,
+      /**
+       * Stage 6: the server's record for the three next steps as they stand — per
+       * `nextStepsDraftRuns.summarise`. Taken from the pages route's answer and from the
+       * tick; cleared locally the moment a word changes, which the server will confirm.
+       */
+      approval: null,
       /** The finder's last answer, the chosen industry's record, and how many the finder covers. */
       industryMatches: [],
       industryRecord: null,
@@ -146,6 +161,8 @@ export default {
   },
 
   computed: {
+    /** What the next-steps draft would send: the score's colours and the industry positions. */
+    sendList () { return sendListFrom(this.figures) },
     period () {
       const s = this.state
       return s.setup.financialYear || s.current.profitLossDate || s.current.balanceSheetDate || ''
@@ -283,7 +300,7 @@ export default {
   methods: {
     /** The shared mixin's request: the confirmed table and the typed inventory figures. */
     recomputeRequest () {
-      return { url: '/api/report/dashboard-reports/pages', body: pagesRequestFrom(this.state) }
+      return { url: '/api/report/dashboard-reports/pages', body: pagesRequestFrom(this.state, this.clientRef) }
     },
     /** The pages route is guarded: the firm's thresholds are resolved from this token. */
     recomputeHeaders () {
@@ -292,6 +309,7 @@ export default {
     /** @param {object} data - per `computeReportPages` */
     applyResult (data) {
       this.figures = data
+      this.approval = data && data.nextSteps ? data.nextSteps : null
     },
     /** Tell the page, so a Save carries what is on screen now. */
     report () {
@@ -367,8 +385,23 @@ export default {
       this.queueRecompute()
     },
     onWords (words) {
+      const before = JSON.stringify(this.state.words.steps)
       this.state = Object.assign({}, this.state, { words })
+      // A changed word clears the tick here at once; the server's record is compared on
+      // the next pages call and will say the same.
+      if (this.approval && this.approval.approved && JSON.stringify(words.steps) !== before) {
+        this.approval = Object.assign({}, this.approval, { approved: false })
+      }
       this.report()
+    },
+    /**
+     * The tick was recorded (or removed) on the server. The record is taken as given, and
+     * the pages are re-made so the printed gate reads the same record.
+     * @param {{approval: object, recorded: boolean}} payload
+     */
+    onReady (payload) {
+      this.approval = payload && payload.approval ? payload.approval : null
+      this.queueRecompute()
     },
     onPages (pages) {
       this.state = Object.assign({}, this.state, { pages })

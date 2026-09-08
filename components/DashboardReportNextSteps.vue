@@ -2,7 +2,7 @@
 dashboard-report-page(:title="$t('report.dashboardReports.doc.section.nextSteps')" :number="number" :client-name="clientName" :period="period" :foot-note="foot" dark)
   template(#sub)
     | {{ $t('report.dashboardReports.doc.nextStepsSub') }}
-    span.drd-prov.drd-prov-dark {{ $t('report.dashboardReports.doc.writtenBy') }}
+    span.drd-prov.drd-prov-dark {{ $t(drafted ? 'report.dashboardReports.doc.draftedBy' : 'report.dashboardReports.doc.writtenBy') }}
   .drd-steps
     .drd-step(v-for="(s, i) in steps" :key="i" :class="'is-' + i")
       .drd-ic {{ i + 1 }}
@@ -14,8 +14,10 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.section.nextSteps'
 <script>
 /**
  * DashboardReportNextSteps — page 8, Key Insights & Next Steps (drawing page 10): the
- * navy page with the advisor's three priorities. Advisor-written in this build (Brief §3,
- * ruling 4); an AI draft is a later stage with its own privacy ruling.
+ * navy page with the advisor's three priorities. The mark says which happened and never
+ * both: *Drafted with AI · edited and approved by your advisor* where the three started
+ * from a draft (stage 6, approved 2026-09-09), *Written by your advisor* where they were
+ * typed. Whether the page prints at all is the parent's decision, on the server's record.
  */
 import DashboardReportPage from '~/components/DashboardReportPage.vue'
 
@@ -31,7 +33,9 @@ export default {
     /** `words.steps` — three `{ title, body }` */
     steps: { type: Array, required: true },
     nextReview: { type: String, default: '' },
-    preparedBy: { type: String, default: '' }
+    preparedBy: { type: String, default: '' },
+    /** The three started from an AI draft (stage 6). */
+    drafted: { type: Boolean, default: false }
   },
 
   computed: {

@@ -30,6 +30,7 @@ const { computeReportPages, plainLinesOf } = require('../report/dashboardReportP
 const { compareToIndustry } = require('../report/benchmarks/statsNzBenchmarker')
 const { loadBenchmarker } = require('../utils/benchmarkerStore')
 const { assembleDashboardIntake, MAX_FILES: MAX_DASHBOARD_FILES } = require('../report/intake/dashboardReportsAssembler')
+const nextStepsRuns = require('../utils/nextStepsDraftRuns')
 const { assembleDashboardMonthly, MAX_FILES: MAX_DASHBOARD_MONTHLY_FILES } = require('../report/intake/dashboardMonthlyAssembler')
 const { readInventoryUpload, summariseInventory } = require('../report/intake/inventoryReader')
 const { loadResolvedTrendThresholds } = require('../utils/forecastTrendThresholds')
@@ -212,6 +213,9 @@ function dashboardReports (req, res, next) {
  *   `computeReportPages`. `thresholds` in the body is ignored; the firm's are used.
  *   `industry` is `{ code, band }` from step 1; with a code, `data.benchmarks` carries the
  *   Stats NZ comparison per `compareToIndustry` (stage 3, Brief P9), from the release in force.
+ *   `nextSteps` is `{ clientRef, steps }` — the three next steps as saved; with a clientRef,
+ *   `data.nextSteps` says whether that exact wording is ticked ready (stage 6): page 8 prints
+ *   on the server's record, never on a screen flag.
  * @returns {object} { success, data, timestamp } — data per `computeReportPages`
  */
 async function dashboardReportPages (req, res) {
@@ -234,6 +238,15 @@ async function dashboardReportPages (req, res) {
     } else {
       data.benchmarks = null
     }
+    // Stage 6: the approval record is read here, and only compared — the lines themselves
+    // never leave the record. Unreadable is unapproved, the safe way for a gate to fail.
+    const ns = inputs.nextSteps && typeof inputs.nextSteps === 'object' ? inputs.nextSteps : null
+    const clientRef = ns && typeof ns.clientRef === 'string' && ns.clientRef ? ns.clientRef.slice(0, 100) : null
+    let approval = null
+    if (clientRef) {
+      try { approval = await nextStepsRuns.latestApproval(req.firmId, clientRef) } catch (e) { approval = null }
+    }
+    data.nextSteps = nextStepsRuns.summarise(approval, ns ? ns.steps : null)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
     console.error('[report] dashboard-reports pages compute failed:', err)

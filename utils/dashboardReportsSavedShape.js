@@ -78,7 +78,13 @@ function emptyState () {
       profitInsight: '',
       cashWatch: '',
       steps: [{ title: '', body: '' }, { title: '', body: '' }, { title: '', body: '' }],
-      nextReview: ''
+      nextReview: '',
+      /**
+       * Stage 6: the AI draft the three steps started from, as it arrived — `null` when
+       * the advisor typed them. Kept on the row so the "edited" marks survive a reload;
+       * the approval itself is the server's record, never a flag here.
+       */
+      draft: null
     },
     pages: { added: [] }
   }
@@ -182,6 +188,13 @@ function flattenDashboardReport (state) {
   row.steps_title = [0, 1, 2].map(i => text(steps[i] && steps[i].title))
   row.steps_body = [0, 1, 2].map(i => text(steps[i] && steps[i].body))
   row.words_nextReview = text(w.nextReview)
+  // Stage 6: the draft as it arrived, written only when there was one.
+  if (w.draft && typeof w.draft === 'object' && Array.isArray(w.draft.steps)) {
+    row.draft_number = numOrNull(w.draft.number) || 0
+    row.draft_runId = text(w.draft.runId)
+    row.draft_title = [0, 1, 2].map(i => text(w.draft.steps[i] && w.draft.steps[i].title))
+    row.draft_body = [0, 1, 2].map(i => text(w.draft.steps[i] && w.draft.steps[i].body))
+  }
   row.pages_added = (Array.isArray(s.pages && s.pages.added) ? s.pages.added : []).filter(p => OPTIONAL_PAGES.includes(p))
   return row
 }
@@ -259,6 +272,15 @@ function applySavedDashboardReport (state, row) {
   const bodies = strs('steps_body', 3, next.words.steps.map(s => s.body))
   next.words.steps = [0, 1, 2].map(i => ({ title: titles[i], body: bodies[i] }))
   next.words.nextReview = str('words_nextReview', next.words.nextReview)
+  if (Array.isArray(r.draft_title) && Array.isArray(r.draft_body)) {
+    const dTitles = strs('draft_title', 3, ['', '', ''])
+    const dBodies = strs('draft_body', 3, ['', '', ''])
+    next.words.draft = {
+      number: numOrNull(r.draft_number) || 0,
+      runId: str('draft_runId', ''),
+      steps: [0, 1, 2].map(i => ({ title: dTitles[i], body: dBodies[i] }))
+    }
+  }
   if (Array.isArray(r.pages_added)) { next.pages.added = r.pages_added.filter(p => OPTIONAL_PAGES.includes(p)) }
   return next
 }
@@ -307,9 +329,10 @@ function stockFileFrom (r) {
 /**
  * The body the pages route takes, from the page's state.
  * @param {object} state
+ * @param {string} [clientRef] - whose saved report this is, for the ready check (stage 6)
  * @returns {object}
  */
-function pagesRequestFrom (state) {
+function pagesRequestFrom (state, clientRef) {
   const s = state && typeof state === 'object' ? state : emptyState()
   const lines = (year) => {
     const out = {}
@@ -332,6 +355,12 @@ function pagesRequestFrom (state) {
       ? { profitLoss: plMonths.length ? { months: plMonths } : null, bank: bankMonths.length ? { months: bankMonths } : null }
       : null,
     industry: s.setup && s.setup.industryCode ? { code: s.setup.industryCode, band: s.setup.sizeBand || null } : null,
+    // Stage 6: the three lines as they stand, so the route can say whether they are ticked
+    // ready. The clientRef names whose record to read; it is never sent to a model.
+    nextSteps: {
+      clientRef: typeof clientRef === 'string' && clientRef ? clientRef : null,
+      steps: [0, 1, 2].map(i => ({ title: text(s.words && s.words.steps && s.words.steps[i] && s.words.steps[i].title), body: text(s.words && s.words.steps && s.words.steps[i] && s.words.steps[i].body) }))
+    },
     inventory: {
       slowObsolete: numOrNull(s.inventory && s.inventory.slowObsolete),
       ageing: AGEING_BANDS.map((b, i) => numOrNull(s.inventory && Array.isArray(s.inventory.ageing) ? s.inventory.ageing[i] : null)),

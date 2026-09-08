@@ -61,7 +61,10 @@ describe('the document, two years', () => {
   let wrapper
   beforeEach(async () => {
     const state = fullState()
-    wrapper = await mountAt(6, state, computeReportPages({ current: CURRENT, prior: PRIOR, inventory: state.inventory, thresholds: THRESHOLDS }))
+    const figures = computeReportPages({ current: CURRENT, prior: PRIOR, inventory: state.inventory, thresholds: THRESHOLDS })
+    // Stage 6: page 8 prints on the server's record; here the words are ticked ready.
+    figures.nextSteps = { approved: true, approvedBy: { name: 'Jordan Reid', email: '' }, approvedAt: '2026-09-09T00:00:00.000Z', draftNumber: 0, totalDrafts: 0, edited: [false, false, false] }
+    wrapper = await mountAt(6, state, figures)
   })
 
   it('🔴 SENDS THE SIGN-IN\'S TOKEN TO THE PAGES ROUTE — the firm\'s thresholds hang on it', () => {

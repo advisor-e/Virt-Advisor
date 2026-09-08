@@ -130,7 +130,7 @@
       "scoreReason": "helps sell the package",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "Mike asked for a rich, colourful business performance report for private business owners, 7 to 10 base pages and up to 15, built from the accounts, the deck, the cash drivers and every model in this section.",
       "risk": "A client reads this on paper and acts on it. A wrong ratio, an invented health score or an unsourced industry median looks exactly like a fact, which UAT cannot catch. Every figure carries provenance and the four unruled parts show no number.",
       "askedBy": {
@@ -139,8 +139,8 @@
         "detail": "2026-09-07 — \"lets get started on the dashboard reports\", then the full request: \"a rich, colourful, and easy to understand business performance report ... 7-10 pages (pages can be added via droptab request by adviosor) ... contents table, executive summary with graphics, a summary financial dashboard\"; cap raised to 15 the same day."
       },
       "touches": "The dashboard-reports models, intake assemblers and routes; pages/dashboard-reports.vue and the DashboardReport* components; the trend thresholds; the Stats NZ benchmarker and the mentor's FirmBenchmarker tab; the inventory reader and stockVsAccountsModel.js; stage 5: monthlySalesParser.js (shared with the Volatility Report — sales unchanged), dashboardMonthlyAssembler.js, monthlyView in dashboardReportPagesModel.js, LineChart, BandBarChart, DashboardReportSalesVolatility.vue, the saved shape. Next: stage 6, the AI draft of next steps, after Mike's privacy ruling. The Brief section 4 carries the full file list.",
-      "note": "Drawings approved and wording ruled 2026-09-07/08. Stages 1 to 5 built at /dashboard-reports: the intake, the eleven pages, the eight-measure score on his four figures, the three accounts-only optional pages, the Stats NZ benchmarker and the mentor's Industry Benchmarks tab, the stock export with the Stock against the accounts page, and stage 5 (drawn and approved 2026-09-08): by-month exports on step 2 giving the quarterly charts, the bank line and the Sales Volatility page, plus the third year on the trend table. Cin7 Core and Unleashed are expected until a real export is read; every intake sends totals only. Nothing waits on Mike except stage 6's privacy ruling, not yet asked. No real export has been read yet.",
-      "comment": "2026-09-07 filed, drawn twice, ruled, approved, stage 1 built. 2026-09-08 stages 2 to 5 built on the desktop: the report opens at /dashboard-reports (the /business-performance-report route belongs to the Working Capital Cycle). activeOn desktop.",
+      "note": "ALL SIX STAGES ARE BUILT (2026-09-09), at /dashboard-reports: the intake, the eleven pages, the eight-measure score, the three accounts-only pages, the Stats NZ benchmarker, the stock export page, the by-month charts and the third year. Stage 6, the AI draft of the three next steps: privacy ruled by Mike 2026-09-09 (eight measures and their colours, and the industry position; never the client's name, a figure, a file or the industry's name), drawn, approved and built the same day. The prompt is on the AI Prompts hub tab; the tick is the approval gate; page 8 prints on the server's record. Three live runs proved it; detail in the Brief. WAITS ON MIKE: walk stage 6, then close it.",
+      "comment": "2026-09-07 filed, drawn twice, ruled, approved, stage 1 built. 2026-09-08 stages 2 to 5 built on the desktop: the report opens at /dashboard-reports (the /business-performance-report route belongs to the Working Capital Cycle). activeOn desktop. 2026-09-09 stage 6 ruled, drawn, approved and built on the desktop; all six stages exist. Ready for Mike's walk.",
       "activeOn": {
         "machine": "desktop",
         "since": "2026-09-07"

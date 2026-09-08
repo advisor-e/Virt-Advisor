@@ -28,7 +28,11 @@
     dashboard-report-cash-flow(:number="7" :client-name="clientName" :period="period" :cf="figures.cashFlow" :cash-watch="state.words.cashWatch" :monthly="figures.monthly || null" :prior-label="priorLabel" :current-label="currentLabel")
     dashboard-report-inventory(:number="8" :client-name="clientName" :period="period" :inv="figures.inventory")
     dashboard-report-trends(:number="9" :client-name="clientName" :period="period" :trends="figures.trends" :benchmarks="figures.benchmarks || null" :prior-label="priorLabel" :current-label="currentLabel")
-    dashboard-report-next-steps(:number="10" :client-name="clientName" :period="period" :steps="state.words.steps" :next-review="state.words.nextReview" :prepared-by="state.setup.preparedBy")
+    //- Stage 6: page 8 prints on the server's record alone. An advisor sees why it is
+    //- waiting; a client sees nothing in its place.
+    dashboard-report-next-steps(v-if="nextStepsReady" :number="10" :client-name="clientName" :period="period" :steps="state.words.steps" :next-review="state.words.nextReview" :prepared-by="state.setup.preparedBy" :drafted="!!state.words.draft")
+    dashboard-report-page(v-else-if="editable" :title="$t('report.dashboardReports.doc.section.nextSteps')" :number="10" :client-name="clientName" :period="period" dark)
+      p.drd-withheld {{ $t('report.dashboardReports.doc.nextStepsWithheld') }}
     template(v-for="(p, i) in addedPages")
       dashboard-report-profit-bridge(v-if="p === 'profitBridge'" :key="p" :number="11 + i" :client-name="clientName" :period="period" :b="figures.optional.profitBridge" :prior-label="priorLabel" :current-label="currentLabel")
       dashboard-report-cash-bridge(v-else-if="p === 'cashBridge'" :key="p" :number="11 + i" :client-name="clientName" :period="period" :cb="figures.optional.cashBridge" :current-label="currentLabel")
@@ -68,6 +72,7 @@ import DashboardReportCashFlow from '~/components/DashboardReportCashFlow.vue'
 import DashboardReportInventory from '~/components/DashboardReportInventory.vue'
 import DashboardReportTrends from '~/components/DashboardReportTrends.vue'
 import DashboardReportNextSteps from '~/components/DashboardReportNextSteps.vue'
+import DashboardReportPage from '~/components/DashboardReportPage.vue'
 import DashboardReportInformation from '~/components/DashboardReportInformation.vue'
 import DashboardReportProfitBridge from '~/components/DashboardReportProfitBridge.vue'
 import DashboardReportCashBridge from '~/components/DashboardReportCashBridge.vue'
@@ -105,6 +110,7 @@ export default {
     DashboardReportInventory,
     DashboardReportTrends,
     DashboardReportNextSteps,
+    DashboardReportPage,
     DashboardReportInformation,
     DashboardReportProfitBridge,
     DashboardReportCashBridge,
@@ -123,11 +129,18 @@ export default {
     /** `{ [key]: { available, reason } }` for the optional pages. */
     availability: { type: Object, default: () => ({}) },
     /** The advisor's toolbar. A client reads the document alone. */
-    editable: { type: Boolean, default: false }
+    editable: { type: Boolean, default: false },
+    /**
+     * The server's record for the three next steps as saved — per
+     * `nextStepsDraftRuns.summarise` — or null. Page 8 prints only on `approved`.
+     */
+    approval: { type: Object, default: null }
   },
 
   computed: {
     sections () { return SECTIONS },
+    /** 🔴 Page 8's gate: the record, never a screen flag (stage 6, Mike 2026-09-09). */
+    nextStepsReady () { return Boolean(this.approval && this.approval.approved === true) },
     /** The added pages that have figures behind them, in the dropdown's order. */
     addedPages () {
       const blocks = (this.figures && this.figures.optional) || {}
@@ -181,4 +194,5 @@ export default {
   .drd-toolbar, .drd-waiting { display: none !important; }
   .drd-doc { display: block; }
 }
+.drd-withheld { color: #dbeaf7; font-size: 14px; margin-top: 24px; max-width: 60ch; }
 </style>

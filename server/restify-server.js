@@ -113,6 +113,7 @@ const coursesRoute = require('./routes/courses')
 const mentorRoute = require('./routes/mentor')
 const reportRoute = require('./routes/report')
 const economicAnalysisRoute = require('./routes/economicAnalysis')
+const nextStepsDraftRoute = require('./routes/nextStepsDraft')
 const currencyRoute = require('./routes/currency')
 const propertyTaxRulesRoute = require('./routes/propertyTaxRules')
 const trendThresholdsRoute = require('./routes/forecastTrendThresholds')
@@ -242,6 +243,10 @@ server.post('/api/report/three-way-forecast/intake', firmAuth, reportRoute.three
 server.post('/api/report/dashboard-reports/intake', firmAuth, reportRoute.dashboardReportsIntake)
 server.post('/api/report/dashboard-reports/inventory', firmAuth, reportRoute.dashboardReportsInventory)
 server.post('/api/report/dashboard-reports/monthly', firmAuth, reportRoute.dashboardReportsMonthly)
+// Item 4.70 stage 6 — the AI draft of the three next steps, and the tick that approves them.
+server.post('/api/report/dashboard-reports/next-steps', firmAuth, nextStepsDraftRoute.startDraft)
+server.post('/api/report/dashboard-reports/next-steps/ready', firmAuth, nextStepsDraftRoute.setReady)
+server.get('/api/report/dashboard-reports/next-steps/:runId', firmAuth, nextStepsDraftRoute.getDraft)
 // Economic Analysis (item 4.66) — the Three-Way Forecast's optional market research, and
 // the first AI call in the report area. firmAuth on all three: the run belongs to the
 // advisor who started it, and the route checks BOTH identities, not just the firm.

@@ -26,6 +26,7 @@ report-shell
     :client-mode="savedReport.mode === 'client'"
     :client-name="clientName"
     :saved-text="savedText"
+    :client-ref="savedReport.clientId"
     @step="step = $event"
     @state="onState"
     @company-name="companyName = $event")
