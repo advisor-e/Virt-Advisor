@@ -216,15 +216,36 @@
       "blocks": null,
       "waitingOn": "Mike",
       "why": "The engine applies one rate to a whole category for every month, so a new asset cannot be written down faster in its first year than the old one beside it.",
-      "risk": "Mike's own example, costed: an 800,000 tractor unit depreciates 146,118 in year one at the category 20%; at an accelerated 50% it is 319,947. That is 48,672 of tax in year one and 173,829 of asset value carried into year two. A forecast supporting a funding request would show the wrong tax and the wrong closing cash, and balance perfectly.",
+      "risk": "Mike's example, costed against NZ's Investment Boost (20% of a new asset's cost deducted up front, the rest depreciated as normal): an 800,000 tractor unit deducts 146,118 in year one as the engine models it, against 276,895 with the boost. That is 36,617 of tax in year one and 130,776 of asset value carried into year two. A forecast a lender reads would be wrong, and balance perfectly.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-08 - 'it might make a difference if it is a large purchase - like an $800,000 truck/tractor unit in terms of tax to pay and working capital balance year 2 - perhaps worth making as another task?' Raised by him while ruling question 4 of the 4.65 drawing."
       },
       "touches": "server/report/threeWayForecastModel.js assetSchedule, which applies one depreciationRate per category across twelve months, and the six-category shape in ASSET_SPECS. A per-asset or first-year rate changes the engine's asset model, so the golden set and every forecast test move with it. No screen exists to enter such a rate.",
-      "note": "NOT A BIGGER VERSION OF 4.65 - a different asset model. Today assetSchedule applies one rate to a whole pool every month; first-year acceleration needs individual assets carrying a rate that changes at a date. MYOB's per-asset rates do NOT solve it: MYOB gives one standing rate per asset for its whole life, with no first-year concept, and QuickBooks gives no rate at all - which is why question 4 of the 4.65 drawing recommends ignoring them. The only thing possible today is putting the new asset in a different category with a higher rate, which mislabels it. Needs a drawing and Mike's approval first.",
-      "comment": "2026-09-08 - raised and filed by Mike while ruling question 4 of the asset-schedule drawing. Costed the same day on his own example before filing, so the item carries real numbers rather than a hunch."
+      "note": "NOT A BIGGER VERSION OF 4.65 - a different asset model. assetSchedule applies one rate to a whole pool every month; a first-year rule needs assets carrying a rate or deduction that changes at a date. MYOB's per-asset rates do NOT deliver it - one standing rate per asset, no first-year concept, and QuickBooks gives no rate at all. SOURCE STILL NEEDED: Investment Boost is cited from an AI session's own knowledge, NOT from the two IRD files Mike supplied - IR260 and IR265 (October 2023) both predate it and a session reading them in full still got NZ wrong. Get an IRD document before building. UK and Australia have their own regimes, unchecked here.",
+      "comment": "2026-09-08 - raised and filed by Mike while ruling question 4 of the asset-schedule drawing, and costed on his own example. Same day: a session wrongly reported that NZ had abolished first-year acceleration, reading the 2010 end of the 20% LOADING as the end of all such rules. Mike corrected it. The two are different mechanisms - the loading inflated a rate, Investment Boost deducts a slice of cost."
+    },
+    {
+      "ref": "4.78",
+      "name": "Tax rules per country - a firm manager uploads the source, the AI proposes, they approve",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Depreciation rates and first-year rules differ by country and nothing in the app holds them. The shipped defaults are a guess: Vehicles is 20% where NZ IRD gives 50% diminishing value for a passenger vehicle.",
+      "risk": "An advisor who leaves a default produces a forecast whose depreciation, tax and closing cash are all wrong, and which balances perfectly, and it reaches a lender. The counter-risk is the AI misreading a rate nobody re-checks - which is why the manager approves the extracted table before anything reads it, and why every figure carries its source document and date.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-08 - 'is it worth having a field in the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be accurate per country?' Filed on his yes, after he overturned the recommendation against it: the uploader is an accountant who should be encouraged to check their sources."
+      },
+      "touches": "A new Firm Manager Hub tab and its upload route, the untrusted-file validation procedure in the master-export-upload skill (last-known-good, version history), an OpenAI extraction route on the Restify backend, an approval gate carrying isApproved, and the six ASSET_SPECS defaults in components/ThreeWayForecastIntake.vue that it would replace.",
+      "note": "AI PROPOSES, THE MANAGER APPROVES, AND NOTHING READS AN UNAPPROVED TABLE - CLAUDE.md already requires this for financial output (isApproved before committing). Every rate shows its source document and date, so a 2023 file on a 2026 screen warns by itself. IT MUST ALSO SHOW WHAT THE AI COULD NOT FIND: on 2026-09-08 a session read IR260 and IR265 in full and still concluded NZ had no first-year regime, because Investment Boost postdates both - a gap invisible from inside the file. OPEN JUDGEMENT FOR MIKE: rules are per COUNTRY, so the group-manager tier may be the natural owner rather than the mentor. Tax PDFs are public, so no PII question arises.",
+      "comment": "2026-09-08 - raised by Mike and filed on his instruction the same day. The recommendation was AGAINST it and he overturned it: the uploader is a firm manager who knows the topic and should be encouraged to check their sources. The concern that survived was not who uploads but who checks the extraction, which the approve-before-use gate answers."
     }
   ]
 }
