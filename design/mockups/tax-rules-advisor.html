@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tax Rules — the advisor's side</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Item 4.78 — the ADVISOR's half. Screen mockup for approval (drawn 2026-09-08).
+
+   The firm manager's half is design/mockups/tax-rules-upload.html, approved
+   separately. That file says in terms that this screen is NOT drawn and must not
+   be built from it — this is that screen.
+
+   Colours, spacing and type are READ OFF the shipped screens per the owner ruling
+   of 2026-07-23. No dark mode: one light look, RULED 2026-07-27.
+
+   MIKE'S RULING THIS SCREEN EXISTS TO SERVE (2026-09-08):
+     "does the advisor have the ability to enter a tax doc for the client with the
+      different country?"  -> an advisor may LOAD; only the firm manager APPROVES.
+
+   REAL VALUES. The six asset categories and their rates are the shipped defaults
+   in components/ThreeWayForecastIntake.vue (ASSET_SPECS) with the labels from
+   locales/en.json. The Australian rates shown as proposed are illustrative and
+   labelled as such; the New Zealand ones are from IR265 (October 2023).
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+
+.rs-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line)}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.ro{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:7px;
+  padding:5px 10px;display:inline-block;font-variant-numeric:tabular-nums;font-weight:600;
+  color:var(--rs-muted);min-width:66px;text-align:right}
+
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--rs-accent-soft);color:#0058a0;white-space:nowrap}
+.badge.def{background:#f1f4f7;color:#7a8ba0}
+.badge.wait{background:var(--rs-warn-soft);color:#8a5a00}
+.badge.firm{background:var(--rs-good-soft);color:#2f7d32}
+
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.crit{background:var(--rs-crit-soft);border:1px solid #e0000045;border-left:3px solid var(--rs-crit)}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice.good{background:var(--rs-good-soft);border:1px solid #4ca52d55;border-left:3px solid var(--rs-good)}
+.notice b{display:block;margin-bottom:3px}
+.notice code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#fff;
+  border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+.notice .row{display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap}
+
+.btn{display:inline-block;background:var(--rs-accent);color:#fff;border:0;
+  border-radius:9px;padding:9px 18px;font:inherit;font-weight:600;font-size:13.5px;cursor:default}
+.btn.ghost{background:transparent;color:var(--rs-accent);border:1px solid var(--rs-accent)}
+.btn.small{padding:6px 13px;font-size:12.5px}
+
+.gaps{margin:0;padding-left:18px;font-size:13.5px}
+.gaps li{margin:8px 0}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Item 4.78, the advisor's half — drawn for approval 2026-09-08. Nothing is built.</b>
+  The firm manager's half is
+  <b>design/mockups/tax-rules-upload.html</b>, whose §7 states that this screen was not drawn and
+  must not be built from it.</p>
+  <p><b>Why it exists.</b> Mike asked: <i>"does the advisor have the ability to enter a tax doc for
+  the client with the different country?"</i> As the manager's screen was first drawn, no — which
+  left an advisor with an overseas client stuck behind their manager. His ruling: <b>an advisor may
+  LOAD a document; only the firm manager APPROVES it.</b></p>
+  <p><b>Three questions are open at §5</b>, each with a recommendation.</p>
+</div>
+
+<div class="rs-top">
+  <div class="rs-eyebrow">Three-Way Forecast · Step 2</div>
+  <h1 class="rs-h1">Confirm the opening position</h1>
+  <div class="rs-client">Harbour Freight Pty Ltd · Australia · forecast starts 1 July 2026</div>
+</div>
+
+<div class="chips">
+  <div class="chip done"><span class="n">✓</span> Drop the exports</div>
+  <div class="chip now"><span class="n">2</span> Confirm the opening position</div>
+  <div class="chip todo"><span class="n">3</span> Set the assumptions</div>
+  <div class="chip todo"><span class="n">4</span> The forecast</div>
+</div>
+
+<div class="stepmark">1 · The advisor notices the gap where it matters</div>
+
+<div class="mock">
+  <p>The rates are already on this card — this is the existing Assets block in step 2, with its six
+  shipped categories and their real default rates. The only new thing is the <b>badge saying where
+  each rate came from</b>, and the band above it. An advisor does not go looking for a tax screen;
+  they meet the problem here, mid-forecast, with a client in front of them.</p>
+</div>
+
+<div class="notice warn">
+  <div class="row">
+    <div>
+      <b>This client is in Australia, and your firm has no approved Australian rates</b>
+      The figures below are the app's own defaults. They are not wrong, but they are not
+      Australian either — depreciation, tax and closing cash all move with them.
+    </div>
+    <button class="btn small">Load a tax document</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Assets and depreciation</h2>
+    <span style="font-size:12.5px;color:var(--rs-muted)">Rates are set by your firm — you cannot
+      change them here</span>
+  </div>
+  <div class="card-b">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:38%">Category</th>
+          <th>Opening book value</th>
+          <th>Depreciation rate</th>
+          <th>Where the rate comes from</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Vehicles</td>
+          <td class="num">128,400</td>
+          <td><span class="ro">20%</span></td>
+          <td><span class="badge def">app default</span></td>
+        </tr>
+        <tr>
+          <td>Leasehold improvements</td>
+          <td class="num">42,000</td>
+          <td><span class="ro">15%</span></td>
+          <td><span class="badge def">app default</span></td>
+        </tr>
+        <tr>
+          <td>Plant and equipment</td>
+          <td class="num">310,750</td>
+          <td><span class="ro">22%</span></td>
+          <td><span class="badge def">app default</span></td>
+        </tr>
+        <tr>
+          <td>Office equipment</td>
+          <td class="num">18,900</td>
+          <td><span class="ro">25%</span></td>
+          <td><span class="badge def">app default</span></td>
+        </tr>
+        <tr>
+          <td>Computer hardware</td>
+          <td class="num">9,240</td>
+          <td><span class="ro">30%</span></td>
+          <td><span class="badge def">app default</span></td>
+        </tr>
+        <tr>
+          <td>Other</td>
+          <td class="num">3,100</td>
+          <td><span class="ro">35%</span></td>
+          <td><span class="badge def">app default</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="mock">
+  <p><b>What the same card looks like for a New Zealand client</b>, where the firm has an approved
+  table — the badge is the whole difference, and the advisor can see at a glance that Vehicles is
+  now the IRD's 50% rather than the app's 20%.</p>
+</div>
+
+<div class="card">
+  <div class="card-b">
+    <table>
+      <tbody>
+        <tr>
+          <td style="width:38%">Vehicles</td>
+          <td class="num" style="width:20%">128,400</td>
+          <td style="width:18%"><span class="ro">50%</span></td>
+          <td><span class="badge firm">your firm · IR265</span></td>
+        </tr>
+        <tr>
+          <td>Office equipment</td>
+          <td class="num">18,900</td>
+          <td><span class="ro">25%</span></td>
+          <td><span class="badge">group manager · NZ</span></td>
+        </tr>
+        <tr>
+          <td>Other</td>
+          <td class="num">3,100</td>
+          <td><span class="ro">35%</span></td>
+          <td><span class="badge def">app default</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="stepmark">2 · The advisor loads a document</div>
+
+<div class="mock">
+  <p>Deliberately small. The advisor is mid-forecast with a client; this is not the place for a
+  document library. They pick a file, say which country it is for, and go back to what they were
+  doing. <b>Everything else — reviewing the extracted rates, correcting them, approving them —
+  happens on the firm manager's screen, by the firm manager.</b></p>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>Load a tax document</h2></div>
+  <div class="card-b">
+    <p style="margin:0 0 14px;font-size:13.5px">
+      Your firm manager reviews what the AI reads from it and approves the rates before anything
+      uses them. <b>Your forecast will not change on its own.</b>
+    </p>
+    <table>
+      <tbody>
+        <tr>
+          <td style="width:32%">Document</td>
+          <td><b>TR 2025/1 — Effective life of depreciating assets.pdf</b>
+            <div style="font-size:12px;color:var(--rs-muted);margin-top:2px">2.4 MB</div></td>
+        </tr>
+        <tr>
+          <td>Country it applies to</td>
+          <td><span class="ro" style="min-width:150px;text-align:left">Australia</span></td>
+        </tr>
+        <tr>
+          <td>Goes to</td>
+          <td>S. Mannering, firm manager</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:16px">
+      <button class="btn">Send to my firm manager</button>
+      <button class="btn ghost">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="stepmark">3 · While it is waiting</div>
+
+<div class="notice info">
+  <b>Sent to S. Mannering on 8 September — 88 rates proposed, none in use yet</b>
+  Your forecast is still using the app's defaults, and the badges above still say so. Nothing
+  changes until your firm manager approves the rates.
+</div>
+
+<div class="mock">
+  <p><b>The badge does not lie while it waits.</b> A pending document must never make a rate look
+  settled — the whole reason the badges exist is so a lender-facing figure can say where it came
+  from. An "awaiting approval" state that quietly showed the proposed rate would be worse than
+  showing nothing.</p>
+</div>
+
+<div class="notice good">
+  <div class="row">
+    <div>
+      <b>S. Mannering approved your Australian rates on 9 September</b>
+      Four of the six categories change, including Plant and equipment from 22% to 15%.
+      Your forecast has not been altered.
+    </div>
+    <button class="btn small">Apply to this forecast</button>
+  </div>
+</div>
+
+<div class="stepmark">4 · When the document cannot be read</div>
+
+<div class="mock">
+  <p>The advisor sees this refusal too, and immediately — not after their manager has wasted time
+  on it. Reproduced from a <b>real</b> failure: reading IR265 on 2026-09-08 with ordinary tooling
+  silently dropped about a dozen letters and the damaged text still read as English.</p>
+</div>
+
+<div class="notice crit">
+  <b>This document could not be read reliably — nothing was sent</b>
+  About 12% of the text came through damaged, for example <code>diinisin alue</code> where
+  <code>diminishing value</code> was expected. Try downloading the document again from the tax
+  authority's website, or choose a different edition.
+</div>
+
+<div class="stepmark">5 · Three questions for Mike — nothing is built until these are ruled</div>
+
+<div class="card">
+  <div class="card-b">
+    <ul class="gaps">
+      <li><b>1 · Where does the advisor's upload live?</b>
+        <span class="rec">Recommendation: on this step, beside the rates themselves, as drawn</span>
+        — not on the client record and not in a menu. The advisor meets the gap here, mid-forecast;
+        a screen they have to go and find is a screen they will not find.</li>
+
+      <li><b>2 · May an advisor type a rate for one client without a document?</b>
+        <span class="rec">Recommendation: no — the rate boxes stay read-only, as drawn</span>.
+        A typed rate with no source is exactly the untraceable figure this feature exists to
+        remove, and it would reach a lender looking identical to a sourced one. If they disagree
+        with a rate, the route is a document to their manager.</li>
+
+      <li><b>3 · The manager approves while the advisor's forecast is open. What happens?</b>
+        <span class="rec">Recommendation: nothing changes on its own — the advisor is told and
+        chooses to apply it</span>, as drawn in §3. Figures moving underneath someone who is
+        part-way through a report is how a number gets into a document nobody meant to send.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="mock" style="margin-top:26px">
+  <p><b>What this screen deliberately does NOT let an advisor do</b> — each one follows from Mike's
+  ruling that only the firm manager approves:</p>
+  <ul>
+    <li><b>Approve rates.</b> Not shown, not reachable, and refused by the route's role gate — not
+      merely hidden on the screen.</li>
+    <li><b>Edit the firm's approved table.</b> The rate boxes above are read-only for an advisor at
+      every tier of this screen.</li>
+    <li><b>See another firm's documents.</b> The firm comes from the verified token, never from the
+      browser — the existing rule against cross-firm access.</li>
+    <li><b>Send anything about the client to the AI.</b> Only the tax document is read. Tax PDFs are
+      public, so no personal-data question arises.</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>
