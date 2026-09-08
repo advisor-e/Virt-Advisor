@@ -84,6 +84,12 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
 .ro{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:7px;
   padding:5px 10px;display:inline-block;font-variant-numeric:tabular-nums;font-weight:600;
   color:var(--rs-muted);min-width:66px;text-align:right}
+/* an editable rate — the advisor may type one (Mike's ruling 2026-09-08, overturning
+   the recommendation that these stay read-only). Same input styling as the figure
+   boxes on the shipped intake screens. */
+.inp{background:#fff;border:1px solid var(--rs-accent);border-radius:7px;
+  padding:5px 10px;display:inline-block;font-variant-numeric:tabular-nums;font-weight:600;
+  color:var(--rs-ink);min-width:66px;text-align:right}
 
 .badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;
   text-transform:uppercase;padding:2px 7px;border-radius:5px;
@@ -91,6 +97,7 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
 .badge.def{background:#f1f4f7;color:#7a8ba0}
 .badge.wait{background:var(--rs-warn-soft);color:#8a5a00}
 .badge.firm{background:var(--rs-good-soft);color:#2f7d32}
+.badge.ent{background:var(--rs-warn-soft);color:#8a5a00}
 
 .notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
 .notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
@@ -123,7 +130,11 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   the client with the different country?"</i> As the manager's screen was first drawn, no — which
   left an advisor with an overseas client stuck behind their manager. His ruling: <b>an advisor may
   LOAD a document; only the firm manager APPROVES it.</b></p>
-  <p><b>Three questions are open at §5</b>, each with a recommendation.</p>
+  <p>🔴 <b>ALL THREE QUESTIONS WERE RULED BY MIKE ON 2026-09-08 — §5 records each.</b> One was
+  <b>overturned</b>: the recommendation had been that an advisor may never type a depreciation
+  rate. He ruled that they may, and the app's existing <i>from file</i> / <i>entered</i> tagging
+  already carries it — so a typed rate is badged <b>entered by you</b>, applies to that client
+  alone, and never touches the firm's table. The Assets card below is drawn as ruled.</p>
 </div>
 
 <div class="rs-top">
@@ -162,8 +173,8 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
 <div class="card">
   <div class="card-h">
     <h2>Assets and depreciation</h2>
-    <span style="font-size:12.5px;color:var(--rs-muted)">Rates are set by your firm — you cannot
-      change them here</span>
+    <span style="font-size:12.5px;color:var(--rs-muted)">Change any rate for this client — it is
+      tagged <b>entered</b> and never alters your firm's table</span>
   </div>
   <div class="card-b">
     <table>
@@ -191,8 +202,8 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
         <tr>
           <td>Plant and equipment</td>
           <td class="num">310,750</td>
-          <td><span class="ro">22%</span></td>
-          <td><span class="badge def">app default</span></td>
+          <td><span class="inp">15%</span></td>
+          <td><span class="badge ent">entered by you</span></td>
         </tr>
         <tr>
           <td>Office equipment</td>
@@ -309,8 +320,8 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   <div class="row">
     <div>
       <b>S. Mannering approved your Australian rates on 9 September</b>
-      Four of the six categories change, including Plant and equipment from 22% to 15%.
-      Your forecast has not been altered.
+      Three of the six categories change. <b>Plant and equipment keeps the 15% you entered</b> —
+      applying these fills only the rates still on defaults. Your forecast has not been altered.
     </div>
     <button class="btn small">Apply to this forecast</button>
   </div>
@@ -331,26 +342,32 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   authority's website, or choose a different edition.
 </div>
 
-<div class="stepmark">5 · Three questions for Mike — nothing is built until these are ruled</div>
+<div class="stepmark">5 · The three rulings — Mike, 2026-09-08</div>
 
 <div class="card">
   <div class="card-b">
     <ul class="gaps">
-      <li><b>1 · Where does the advisor's upload live?</b>
-        <span class="rec">Recommendation: on this step, beside the rates themselves, as drawn</span>
-        — not on the client record and not in a menu. The advisor meets the gap here, mid-forecast;
-        a screen they have to go and find is a screen they will not find.</li>
+      <li><b>1 · Where the advisor's upload lives.</b>
+        ✅ <b>On this step, beside the rates themselves</b> — not on the client record and not in a
+        menu. The advisor meets the gap here, mid-forecast; a screen they have to go and find is a
+        screen they will not find.</li>
 
-      <li><b>2 · May an advisor type a rate for one client without a document?</b>
-        <span class="rec">Recommendation: no — the rate boxes stay read-only, as drawn</span>.
-        A typed rate with no source is exactly the untraceable figure this feature exists to
-        remove, and it would reach a lender looking identical to a sourced one. If they disagree
-        with a rate, the route is a document to their manager.</li>
+      <li>🔴 <b>2 · An advisor MAY type a rate — the recommendation was overturned.</b>
+        The recommendation was that the rate boxes stay read-only, on the grounds that a typed rate
+        with no source reaches a lender looking identical to a sourced one.
+        <b>Mike ruled the other way, and the app already had the answer:</b> every figure on this
+        screen is tagged <i>from file</i> or <i>entered</i> and shows which. A typed rate is an
+        <b>entered</b> figure like any other, not a new concept —
+        <span class="rec">badged "entered by you" on screen AND in the print, applying to that one
+        client, never altering the firm's approved table.</span> An advisor who knows the right
+        rate can use it; a reader can still see whose figure it is.</li>
 
-      <li><b>3 · The manager approves while the advisor's forecast is open. What happens?</b>
-        <span class="rec">Recommendation: nothing changes on its own — the advisor is told and
-        chooses to apply it</span>, as drawn in §3. Figures moving underneath someone who is
-        part-way through a report is how a number gets into a document nobody meant to send.</li>
+      <li><b>3 · The manager approves while a forecast is open.</b>
+        ✅ <b>Nothing changes on its own.</b> The advisor is told and chooses to apply it, as drawn
+        in §3. Figures moving underneath someone part-way through a report is how a number gets
+        into a document nobody meant to send. <b>And applying leaves typed rates alone</b>, filling
+        only those still on defaults — a rate an advisor deliberately entered is a decision, not a
+        gap.</li>
     </ul>
   </div>
 </div>
@@ -361,8 +378,9 @@ td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   <ul>
     <li><b>Approve rates.</b> Not shown, not reachable, and refused by the route's role gate — not
       merely hidden on the screen.</li>
-    <li><b>Edit the firm's approved table.</b> The rate boxes above are read-only for an advisor at
-      every tier of this screen.</li>
+    <li><b>Edit the firm's approved table.</b> They may change a rate <i>for their own client</i>,
+      tagged <b>entered</b> — ruled 2026-09-08 — but that figure stays with that client and no
+      other advisor, client or forecast sees it.</li>
     <li><b>See another firm's documents.</b> The firm comes from the verified token, never from the
       browser — the existing rule against cross-firm access.</li>
     <li><b>Send anything about the client to the AI.</b> Only the tax document is read. Tax PDFs are
