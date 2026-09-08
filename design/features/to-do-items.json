@@ -146,6 +146,7 @@
       "ref": "4.78",
       "name": "Tax rules per country - a firm manager uploads the source, the AI proposes, they approve",
       "rankedByMike": false,
+      "activeOn": { "machine": "laptop", "since": "2026-09-08" },
       "kind": "feature",
       "score": 4,
       "scoreReason": "the user is worse off",

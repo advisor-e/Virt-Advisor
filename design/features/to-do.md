@@ -39,7 +39,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 2 | **4.58** Meeting Review — the advisor's side is complete; §4 remains ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 3 | **4.66** Economic analysis — the forecast asks the AI for market research ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 4 | **4.77** First-year depreciation cannot differ from later years, or between two vehicles ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 5 | **4.78** Tax rules per country - a firm manager uploads the source, the AI proposes, they approve ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 5 | **4.78** Tax rules per country - a firm manager uploads the source, the AI proposes, they approve ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | **laptop**, since 2026-09-08 |
 | 6 | **4.80** "Global manager" is the old name and it is still in 45 places ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
 **Six live items. Five need Mike.** If this list passes about twenty, something is wrong.
