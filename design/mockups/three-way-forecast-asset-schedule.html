@@ -321,6 +321,18 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
   border-radius:4px;padding:1px 4px}
 .col ul{margin:6px 0 0;padding-left:18px;font-size:12.5px}
 .col li{margin-bottom:4px}
+
+/* the ruling banner — added 2026-09-08 when Mike ruled all six */
+.ruled{background:var(--rs-good-soft);border:1px solid var(--good,#4ca52d);border-left:3px solid #4ca52d;
+  border-radius:0 9px 9px 0;padding:9px 12px;margin:0 0 10px;font-size:13px;color:#2f6b1c}
+.ruled b{color:#2f6b1c}
+.ruled .who{display:block;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  font-weight:700;margin-bottom:2px;opacity:.85}
+.allruled{background:var(--rs-good-soft);border:1px solid #4ca52d;border-radius:12px;
+  padding:14px 16px;margin-top:12px;font-size:13.5px;color:#2f6b1c;line-height:1.6}
+.allruled b{color:#2f6b1c}
+.allruled ol{margin:8px 0 0;padding-left:20px}
+.allruled li{margin-bottom:4px}
 </style>
 
 </head>
@@ -575,11 +587,30 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
     </div>
   </div>
 
-  <div class="stepmark">6 &middot; Six questions, one recommendation each</div>
+  <div class="stepmark">6 &middot; Six questions &mdash; ALL RULED BY MIKE, 2026-09-08</div>
+
+  
+  <div class="allruled">
+    <b>ALL SIX RULED BY MIKE ON 2026-09-08, each as recommended, one at a time.</b> The
+    recommendations and the arguments against them are kept beside the rulings rather than tidied
+    away &mdash; a later reader has to be able to see what was weighed.
+    <ol>
+      <li><b>Yes</b> &mdash; depreciate the book value to the month of sale, show the working, use the category rate.</li>
+      <li><b>Yes</b> &mdash; propose a category, badge it <i>guessed</i>, leave the unplaceable blank.</li>
+      <li><b>Yes</b> &mdash; say when the schedule does not tie; never block. <b>Wording not settled.</b></li>
+      <li><b>Yes</b> &mdash; ignore MYOB&rsquo;s per-asset rates; the category rate governs.</li>
+      <li><b>Yes</b> &mdash; &ldquo;Something else &mdash; type it in&rdquo; is always available.</li>
+      <li><b>Yes</b> &mdash; a sold asset leaves the chooser, and comes back if the row goes.</li>
+    </ol>
+    ⚠ <b>Ruling on the six is NOT approval of the drawing.</b> That is a separate question and
+    it has not been asked yet &mdash; the precedent is the meeting-preset drawing of 2026-09-08,
+    where a session inferred approval from six rulings and was corrected within the hour.
+  </div>
 
   <div class="q">
     <div class="qn">Question 1 &mdash; the one that matters</div>
     <h3>Should the book value be depreciated to the month of the sale, or shown as the schedule&rsquo;s year-end figure?</h3>
+    <div class="ruled"><span class="who">Mike’s ruling</span><b>RULED YES &mdash; Mike, 2026-09-08.</b> The book value is depreciated to the month of the sale, and the working is printed under the figure. The rate is the <b>category&rsquo;s</b>, set on step 2.</div>
     <p>The schedule says what the Ford Ranger was worth at the last balance date: <b>31,500</b>.
     Sold in <b>March</b>, it has been depreciated through January and February first, so the book
     value at the moment of sale is <b>30,458.75</b>. Against a price of 28,000 that is a
@@ -604,6 +635,7 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
   <div class="q">
     <div class="qn">Question 2</div>
     <h3>When the schedule&rsquo;s group does not match one of our six categories, does the app guess?</h3>
+    <div class="ruled"><span class="who">Mike’s ruling</span><b>RULED YES &mdash; Mike, 2026-09-08.</b> The app proposes the closest category and badges it <i>guessed</i> until the advisor touches it. Anything it cannot place is left <b>blank</b>, never dropped into <i>Other</i>.</div>
     <p>MYOB says <b>Motor Vehicles</b>; we call it <b>Vehicles</b>. MYOB says <b>Plant &amp;
     Machinery</b>; we call it <b>Plant and equipment</b>. QuickBooks says
     <code>1500 Workshop Machinery &amp; Tools</code>, which matches nothing by name at all.</p>
@@ -619,6 +651,7 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
   <div class="q">
     <div class="qn">Question 3</div>
     <h3>When the schedule does not tie to the balance sheet, does the app say so?</h3>
+    <div class="ruled"><span class="who">Mike’s ruling</span><b>RULED YES &mdash; Mike, 2026-09-08.</b> The difference is shown once, quietly, and never blocks. <b>The wording itself is not settled</b> and comes back to him separately.</div>
     <p>Neither of the two real exports ties &mdash; out by <b>16,524</b> and <b>19,475</b>
     (&sect;4). So this is the ordinary case, not the exception.</p>
     <div class="rec"><b>Recommendation: say it once, quietly, and never block.</b> One line under
@@ -633,6 +666,7 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
   <div class="q">
     <div class="qn">Question 4</div>
     <h3>Do we use MYOB&rsquo;s per-asset depreciation rate and method?</h3>
+    <div class="ruled"><span class="who">Mike’s ruling</span><b>RULED YES &mdash; Mike, 2026-09-08.</b> MYOB&rsquo;s per-asset rates and methods are read and stored, and neither is used; the category rate governs. 🔴 <b>He tested this ruling before giving it</b> &mdash; see the box under &sect;7.</div>
     <p>MYOB gives a rate and a method for every asset. QuickBooks gives neither. Our engine
     depreciates the <b>category pool</b> at one rate.</p>
     <div class="rec"><b>Recommendation: no &mdash; read them, store them, use neither.</b> Using a
@@ -647,6 +681,7 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
   <div class="q">
     <div class="qn">Question 5</div>
     <h3>Can an advisor still sell something that is not on the schedule?</h3>
+    <div class="ruled"><span class="who">Mike’s ruling</span><b>RULED YES &mdash; Mike, 2026-09-08.</b> &ldquo;Something else &mdash; type it in&rdquo; stays the last option, restoring today&rsquo;s typed boxes for that row alone.</div>
     <p>An asset bought and sold inside the same forecast year never appears on last year&rsquo;s
     schedule.</p>
     <div class="rec"><b>Recommendation: yes &mdash; the last option in the chooser is
@@ -659,12 +694,44 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
   <div class="q">
     <div class="qn">Question 6</div>
     <h3>Does selling an asset remove it from the schedule for the rest of the forecast?</h3>
+    <div class="ruled"><span class="who">Mike’s ruling</span><b>RULED YES &mdash; Mike, 2026-09-08.</b> An asset used on a Sell row leaves the chooser for every other row, and returns if that row is removed or switched to <i>Buy</i>.</div>
     <p>If the Ford Ranger is sold in March, it should not be offerable again in September.</p>
     <div class="rec"><b>Recommendation: yes &mdash; an asset already used on a Sell row drops out
     of the chooser</b> for every other row. Selling the same van twice is not a thing that can
     happen, and the forecast would balance perfectly while doing it.</div>
     <div class="against"><b>The argument against:</b> none found. Recorded as a question rather
     than assumed because it is a rule, and rules belong to Mike.</div>
+  </div>
+
+
+  <div class="mock" style="margin-top:12px">
+    <b>🔴 QUESTION 4 WAS TESTED BEFORE IT WAS RULED, AND IT PRODUCED TWO NEW ITEMS.</b>
+    Mike&rsquo;s challenge: <i>&ldquo;brand new vehicles can be depreciated more in first 12mths
+    than thereafter &mdash; does your rule allow for this if there are multiple vehicles?&rdquo;</i>
+    <b>It does not, and neither does the engine</b>: <code>assetSchedule</code> applies ONE rate to a
+    whole category for all twelve months, so a new vehicle cannot be written down faster than the old
+    one beside it. That is true today, before this drawing changes anything.
+    <ul style="margin:8px 0 0;padding-left:18px">
+      <li><b>Item 4.77</b> &mdash; first-year depreciation, filed on his own request and costed on
+      his own example: an 800,000 tractor unit deducts 146,118 in year one as the engine models it,
+      against 276,895 under NZ&rsquo;s <b>Investment Boost</b> &mdash; 36,617 of tax and 130,776 of
+      asset value carried into year two.</li>
+      <li><b>Item 4.78</b> &mdash; tax rules per country, a firm manager uploading the source. Filed
+      <b>against the recommendation</b>, which he overturned: the uploader is an accountant who
+      should be encouraged to check their sources. What survived was not who uploads but who checks
+      the extraction &mdash; so the AI proposes, the manager approves, and nothing reads an
+      unapproved table.</li>
+    </ul>
+    <b>Neither changes this drawing</b>, and question 4&rsquo;s ruling is strengthened by both:
+    MYOB&rsquo;s standing per-asset rate cannot express a first-year rule either, so adopting it
+    would get halfway to per-asset depreciation without arriving.
+    <br><br>
+    ⚠ <b>And a correction worth keeping.</b> A session told Mike that New Zealand had abolished
+    first-year acceleration, reading the 2010 end of the 20% <i>loading</i> as the end of all such
+    rules. He pushed back and was right. They are different mechanisms &mdash; the loading inflated a
+    <i>rate</i>; Investment Boost deducts a slice of <i>cost</i> up front. <b>Two authoritative IRD
+    guides were read in full and neither contains it</b>, because both predate it: the gap is
+    invisible from inside the document, which is why 4.78 must show what the AI could not find.
   </div>
 
   <div class="stepmark">7 &middot; What this does not solve</div>
