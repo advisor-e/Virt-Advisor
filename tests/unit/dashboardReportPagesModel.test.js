@@ -262,6 +262,11 @@ describe('the pages, two years', () => {
     expect(sv.gap).toBe(198000 - withFile.inventory.stockAtCost)
     expect(sv.stockDays).toBe(withFile.cashFlow.stockDays)
     expect(sv.creditorDays).toBe(withFile.cashFlow.creditorDays)
+    // Page 6 draws its categories from the same file, name and value only; without a file it has none
+    expect(withFile.inventory.categories).toEqual([{ name: 'A', value: 198000 }])
+    expect(withFile.inventory.stockFilePackage).toBe('Cin7 Core')
+    expect(r.inventory.categories).toBeNull()
+    expect(r.inventory.stockFilePackage).toBeNull()
   })
 
   test('the trends table carries both years for the five rows', () => {

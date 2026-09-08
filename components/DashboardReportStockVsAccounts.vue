@@ -21,26 +21,26 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.optional.stockVsAc
       .drd-v {{ sv.onOrderValue === null ? '—' : kMoney(sv.onOrderValue) }}
       .drd-k {{ $t('report.dashboardReports.doc.optional.stockVsAccounts.onOrder') }}
       .drd-d {{ $t('report.dashboardReports.doc.optional.stockVsAccounts.' + (sv.onOrderValue === null ? 'onOrderAbsent' : 'onOrderRead')) }}
-  .drd-cols.drd-mid
+  .dsv-mid
     .drd-panel
       h3.drd-h3 {{ $t('report.dashboardReports.doc.optional.stockVsAccounts.byCategory', { total: kMoney(sv.fileTotal) }) }}
-      h-bar-chart(v-if="categoryBars.length" :bars="categoryBars" :format-value="kMoney" :max-width="260" :aria-label="$t('report.dashboardReports.doc.optional.stockVsAccounts.byCategory', { total: kMoney(sv.fileTotal) })")
+      h-bar-chart(v-if="categoryBars.length" :bars="categoryBars" :format-value="kMoney" :max-width="200" :aria-label="$t('report.dashboardReports.doc.optional.stockVsAccounts.byCategory', { total: kMoney(sv.fileTotal) })")
       .drd-gap(v-else) {{ $t('report.dashboardReports.doc.optional.stockVsAccounts.noGroups') }}
     .drd-panel
       h3.drd-h3 {{ $t('report.dashboardReports.doc.optional.stockVsAccounts.byLocation') }}
-      h-bar-chart(v-if="locationBars.length" :bars="locationBars" :format-value="kMoney" :max-width="260" :aria-label="$t('report.dashboardReports.doc.optional.stockVsAccounts.byLocation')")
+      h-bar-chart(v-if="locationBars.length" :bars="locationBars" :format-value="kMoney" :max-width="200" :aria-label="$t('report.dashboardReports.doc.optional.stockVsAccounts.byLocation')")
       .drd-gap(v-else) {{ $t('report.dashboardReports.doc.optional.stockVsAccounts.noGroups') }}
-  .drd-reads
-    .drd-read-tile
-      div
-        .drd-rv {{ fundedText }}
-        .drd-rk {{ $t('report.dashboardReports.doc.optional.stockVsAccounts.daysFunded') }}
-      .drd-rr {{ fundedRead }}
-    .drd-read-tile.is-caution
-      div
-        .drd-rv —
-        .drd-rk {{ $t('report.dashboardReports.doc.optional.stockVsAccounts.ageing') }}
-      .drd-rr {{ $t('report.dashboardReports.doc.optional.stockVsAccounts.ageingRead') }}
+    .drd-reads
+      .drd-read-tile
+        div
+          .drd-rv {{ fundedText }}
+          .drd-rk {{ $t('report.dashboardReports.doc.optional.stockVsAccounts.daysFunded') }}
+        .drd-rr {{ fundedRead }}
+      .drd-read-tile.is-caution
+        div
+          .drd-rv —
+          .drd-rk {{ $t('report.dashboardReports.doc.optional.stockVsAccounts.ageing') }}
+        .drd-rr {{ $t('report.dashboardReports.doc.optional.stockVsAccounts.ageingRead') }}
   p.drd-small.drd-def
     | {{ $t('report.dashboardReports.doc.optional.stockVsAccounts.costBasis', { package: sv.package, basis: $t('report.dashboardReports.doc.optional.stockVsAccounts.basis.' + sv.costBasis) }) }}
     |
@@ -64,8 +64,8 @@ import HBarChart from '~/components/base/HBarChart.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 const { pct, days } = require('~/utils/reportFormat')
 
-/** How many groups a bar chart shows before the rest is one bar. */
-const MAX_BARS = 6
+/** How many groups a bar chart shows before the rest is one bar — what the page's height allows. */
+const MAX_BARS = 5
 
 export default {
   name: 'DashboardReportStockVsAccounts',
@@ -124,10 +124,14 @@ export default {
 </script>
 
 <style scoped>
-.drd-reads { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-.drd-read-tile { display: grid; grid-template-columns: 112px 1fr; gap: 12px; align-items: center; border-radius: 12px; padding: 12px 14px; background: var(--drd-tint-blue); }
+/* Three columns, not the drawing's two rows: the drawing's charts were short stacked bars,
+   and a bar per group needs the height a third column gives back — see the Brief (y). */
+.dsv-mid { display: grid; grid-template-columns: 1.15fr 1fr 1.15fr; gap: 14px; margin-top: 12px; }
+.drd-reads { display: grid; gap: 8px; align-content: start; }
+.drd-read-tile { display: grid; grid-template-columns: 82px 1fr; gap: 10px; align-items: center; border-radius: 12px; padding: 10px 12px; background: var(--drd-tint-blue); }
 .drd-read-tile.is-caution { background: var(--drd-tint-caution); }
-.drd-rv { font: 700 24px/1.05 var(--drd-serif); color: var(--drd-navy); }
-.drd-rk { font-weight: 700; font-size: 12px; color: var(--drd-ink); margin-top: 3px; }
-.drd-rr { font-size: 12.5px; }
+.drd-rv { font: 700 20px/1.05 var(--drd-serif); color: var(--drd-navy); }
+.drd-rk { font-weight: 700; font-size: 11.5px; color: var(--drd-ink); margin-top: 3px; }
+.drd-rr { font-size: 11.5px; line-height: 1.35; }
+.drd-def { margin-top: 8px; }
 </style>

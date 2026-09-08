@@ -3,7 +3,7 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.section.inventory'
   template(#sub)
     | {{ $t('report.dashboardReports.doc.inventorySub') }}
     span.drd-prov.is-file {{ $t('report.dashboardReports.doc.fromAccounts') }}
-    span.drd-prov.is-typed {{ $t('report.dashboardReports.doc.enteredUntilReader') }}
+    span.drd-prov.is-typed {{ $t('report.dashboardReports.doc.enteredByAdvisor') }}
   .drd-tiles
     .drd-tile.is-caution
       .drd-v {{ kMoney(inv.stockAtCost) }}
@@ -28,7 +28,10 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.section.inventory'
   .drd-cols.drd-mid
     .drd-panel
       h3.drd-h3 {{ $t('report.dashboardReports.doc.stockByCategory') }}
-      .drd-gap {{ $t('report.dashboardReports.doc.categoryLater') }}
+      template(v-if="categoryBars.length")
+        h-bar-chart(:bars="categoryBars" :format-value="kMoney" :max-width="220" :aria-label="$t('report.dashboardReports.doc.stockByCategory')")
+        p.drd-small.drd-from {{ $t('report.dashboardReports.doc.categoryFromFile', { package: inv.stockFilePackage }) }}
+      .drd-gap(v-else) {{ $t('report.dashboardReports.doc.categoryNoFile') }}
     .drd-panel
       h3.drd-h3 {{ $t('report.dashboardReports.doc.stockAgeing') }}
       h-bar-chart(v-if="inv.ageing" :bars="ageingBars" :format-value="kMoney" :aria-label="$t('report.dashboardReports.doc.stockAgeing')")
@@ -39,9 +42,10 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.section.inventory'
 <script>
 /**
  * DashboardReportInventory — page 6, Inventory Performance (drawing page 8). Stock at
- * cost, turnover and days on the shelf are the accounts'; slow-or-obsolete stock and the
- * ageing bands are the advisor's until the inventory reader exists (stage 4), and the
- * category chart is left off with that said (Brief P3, ruling 3).
+ * cost, turnover and days on the shelf are the accounts'; the category chart is drawn from
+ * the stock export read on step 3 (stage 4) or left off with that said; slow-or-obsolete
+ * stock and the ageing bands are the advisor's, because neither export carries a date
+ * (Brief P3, ruling 3).
  *
  * "Turnover per year" keeps the workbook's own definition — trading income over current
  * assets (Brief §3, the four quirks) — and the page says so in its foot line.
@@ -53,6 +57,9 @@ const { times, days, pct } = require('~/utils/reportFormat')
 const { AGEING_BANDS } = require('~/utils/dashboardReportsSavedShape')
 
 const AGEING_COLOURS = ['#0070c0', '#0070c0', '#0070c0', '#ff9900', '#ff0000']
+
+/** How many categories the chart shows before the rest is one bar — what the panel's height allows. */
+const MAX_CATEGORY_BARS = 5
 
 export default {
   name: 'DashboardReportInventory',
@@ -70,6 +77,17 @@ export default {
   },
 
   computed: {
+    /** Largest first, as the reader sorts them; beyond the panel's room the tail is one bar. */
+    categoryBars () {
+      const list = (this.inv.categories || []).filter(c => c.value > 0)
+      const head = list.slice(0, MAX_CATEGORY_BARS)
+      const tail = list.slice(MAX_CATEGORY_BARS)
+      const out = head.map(c => ({ label: c.name, value: c.value, colour: '#0070c0' }))
+      if (tail.length) {
+        out.push({ label: this.$t('report.dashboardReports.doc.optional.stockVsAccounts.otherGroups', { n: tail.length }), value: tail.reduce((t, c) => t + c.value, 0), colour: '#9dc2e8' })
+      }
+      return out
+    },
     /** Oldest band first, as the deck draws it. */
     ageingBars () {
       return AGEING_BANDS.map((b, i) => ({
@@ -98,6 +116,7 @@ export default {
 
 <style scoped>
 .drd-mid { margin-top: 14px; }
+.drd-from { margin: 4px 0 0; }
 .drd-red { color: #9c2323; }
 .drd-def { margin-top: 10px; }
 </style>

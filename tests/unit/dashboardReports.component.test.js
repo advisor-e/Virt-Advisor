@@ -210,6 +210,10 @@ describe('the advisor\'s steps', () => {
     expect(text).toContain('basis.averageCost')
     expect(text).toContain('currencyRead')
     expect(page.findAllComponents({ name: 'HBarChart' }).length).toBe(2)
+    // Page 6 now draws its category chart from the same file
+    const page6 = doc.findComponent({ name: 'DashboardReportInventory' })
+    expect(page6.findAllComponents({ name: 'HBarChart' }).length).toBe(2)
+    expect(page6.text()).toContain('categoryFromFile')
     const keys = doc.html().match(/report\.dashboardReports\.[A-Za-z0-9_.]+/g) || []
     expect(Array.from(new Set(keys)).filter(k => !hasKey(k.replace(/\.$/, '')))).toEqual([])
   })

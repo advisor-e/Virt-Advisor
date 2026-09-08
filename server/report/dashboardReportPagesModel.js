@@ -335,6 +335,12 @@ function computeReportPages (inputs) {
   const ageingRaw = Array.isArray(inv.ageing) ? inv.ageing : null
   const ageing = ageingRaw && ageingRaw.some(v => Number.isFinite(v)) ? ageingRaw.map(v => (Number.isFinite(v) ? v : 0)) : null
   const stockAtCost = has(cur, 'stock') ? line(cur, 'stock') : null
+  // Stage 4: page 6's category chart is drawn from the read stock export, name and value
+  // only, or is left off with that said. The accounts' stock line stays the page's figure.
+  const stockFile = inv.stockFile && typeof inv.stockFile === 'object' ? inv.stockFile : null
+  const stockCategories = stockFile && Array.isArray(stockFile.categories)
+    ? stockFile.categories.filter(c => c && typeof c.name === 'string' && Number.isFinite(c.value)).map(c => ({ name: c.name, value: c.value }))
+    : null
 
   /* -- the optional pages: each a model of its own on the plain lines ---------------- */
   const plainCur = plainLinesOf(cur)
@@ -410,6 +416,8 @@ function computeReportPages (inputs) {
       stockDaysPrior: measurePrior('stockDays'),
       slowObsolete,
       slowObsoletePct: ratio(slowObsolete, stockAtCost),
+      stockFilePackage: stockFile && typeof stockFile.package === 'string' ? stockFile.package : null,
+      categories: stockCategories,
       ageing
     },
     trends: {
