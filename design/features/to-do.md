@@ -42,8 +42,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 5 | **4.71** Quick-fire forecast — three years from percentages, not twelve months typed ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 6 | **4.72** A removed observation point's id is handed to the next one added ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 7 | **4.76** A middle tier's rewording is badged as Advisor-e's ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 8 | **4.77** First-year depreciation cannot differ from later years, or between two vehicles ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 
-**Seven live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Eight live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
