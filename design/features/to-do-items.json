@@ -205,31 +205,6 @@
       "comment": "2026-09-03 — filed at the moment Mike ruled \"typing it for now\", so the version he would rather have is on the list rather than in a conversation. Nothing is blocked: the capital block is built, tested and honest, and the advisor types one number they can read straight off their own asset schedule. Appended rather than slotted beside the work it relates to, because the array order is Mike's ranking and inserting it mid-list would be a ranking decision taken on his behalf."
     },
     {
-      "ref": "4.69",
-      "name": "A future assessment date may leave the research unsourced",
-      "rankedByMike": false,
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-07"
-      },
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "§2 asked one date to be both the start of the assessment period and the yardstick for how current a figure is. Given a date months ahead, the model searched for data that does not exist yet.",
-      "risk": "The prompt fix was proven on the FAULT (30 November refused, then accepted) and its owed regression check on the default no-date path has now passed through the built route - run 21, 2026-09-08 - so the 'proven live' claim finally rests on the route rather than on a probe.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Found 2026-09-07 driving the new date field end to end in a browser: 30 November 2026 was refused after 40 seconds and one search; 31 August 2026 ran normally with nine searches. Filed on Mike's instruction the same day."
-      },
-      "touches": "BUILT: data/ai-prompts.json (§2 now names both dates, and the placeholders note), design/ECONOMIC-ANALYSIS-PROMPT.md §4 and §7b, fillPlaceholders and two JSDoc blocks in server/routes/economicAnalysis.js, and tests/unit/economicAnalysis.routes.test.js. The date field itself is deliberately NOT bounded.",
-      "note": "THE PROMPT FIX IS BUILT AND ITS OWED CHECK HAS NOW PASSED. Section 2 names both dates: {{assessmentDate}} may be in the future, {{today}} never is. The regression check on the default no-date path - run 21, through the built route, 2026-09-08 - was accepted with 12 searches and 32 citations. That check had failed 3/3 earlier the same day for a reason that turned out to be this item's own {{today}}, diagnosed and fixed under 4.73. No longer blocked. Evidence: ECONOMIC-ANALYSIS-TEST-RUNS.md runs 13-21.",
-      "comment": "2026-09-07 - filed the day the date field was built, on Mike's instruction; fixed and demonstrated on a probe. 2026-09-08 - the outstanding check was run once credits were topped up, failed 3/3, and the cause proved to be this item's own {{today}} instruction; fixed under 4.73 and the check then passed through the route. Ready for him to close."
-    },
-    {
       "ref": "4.71",
       "name": "Quick-fire forecast — three years from percentages, not twelve months typed",
       "rankedByMike": false,
@@ -270,27 +245,6 @@
       "touches": "server/utils/meetingObservations.js - nextOwnPointId and its JSDoc; the own-row shape in readDecisionMap, which would need a per-scenario high-water mark; tests/unit/meetingObservations.test.js.",
       "note": "THE FIX IS ALREADY WRITTEN one level down: meetingObservationsAdvisor.nextAdvisorPointId takes a stored high-water mark beside the live rows, and the advisor's own row is kept when it empties because that row carries the mark. Porting it means adding nextSeq to the manager's own-row shape, which all four manager tiers share - which is why it was not done inside an approved slice. ⚠ A SECOND CONSEQUENCE, found by review 2026-09-08: an advisor's declines survive a point being removed, so a reused id can deliver a brand-new firm point to that advisor ALREADY set aside, and inflate the manager's set-aside count.",
       "comment": "2026-09-08 - found while building the advisor's own level and filed on Mike's instruction the same day, rather than fixed in passing: it changes storage shared by all four manager tiers."
-    },
-    {
-      "ref": "4.73",
-      "name": "Economic analysis fails on its default path",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Every run through the built route on the default no-date path was refused, because the model read the server's today as unverifiable and stopped to ask rather than research.",
-      "risk": "WAS down for every user on the default path; fixed 2026-09-08 and proven through the route. Nothing wrong was ever shown - the citation guard refused it, which is the guard working - so this was a dead feature rather than a false figure in a lender's pack.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Found 2026-09-08 running item 4.69's outstanding check on Mike's instruction, once he topped up the OpenAI credits. Reproduced 3/3. Filed on his instruction the same day."
-      },
-      "touches": "CHANGED: data/ai-prompts.json (one paragraph in the economic-analysis prompt's section 2) and design/ECONOMIC-ANALYSIS-PROMPT.md sections 2 and 7c. The diagnostic logging that found it is logRefusedReply in server/routes/economicAnalysis.js, with two tests in tests/unit/economicAnalysis.routes.test.js.",
-      "note": "FIXED AND PROVEN THROUGH THE ROUTE, 2026-09-08. The cause was not a lazy model: it made one search, read the server's today (8 September) against its own current date (7 September) as an unverifiable premise, and STOPPED TO ASK permission - so the reply was a question, carried no numbered headings, and the guard rightly refused it. Introduced by 4.69's own {{today}} fix of 2026-09-07. One paragraph added to prompt section 2 on Mike's approval; run 21 then made 12 searches, 1,938 words and 32 citations and was accepted, declaring the date shortfall in section 5 instead. Evidence: ECONOMIC-ANALYSIS-TEST-RUNS.md runs 20-21.",
-      "comment": "2026-09-08 - found by running 4.69's outstanding check once credits were topped up, then diagnosed the same day by logging the raw reply for the first time, and fixed with Mike's approval. Ready for him to close."
     },
     {
       "ref": "4.74",

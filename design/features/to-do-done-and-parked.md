@@ -185,6 +185,73 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.73 — economic analysis failed on its default path, and the diagnosis everybody held was wrong.**
+✅ Closed 2026-09-08 on Mike's instruction *("tick them off")*, not through the Handbook control —
+recorded here the same way regardless, because an item off both pages is an item nobody knows
+existed.
+
+- **Why it mattered:** every run through the built route on the default no-date path was refused,
+  so an advisor ticking *economic analysis* on a forecast got a generic failure, every time.
+- **What we would have lost:** a feature that had never once succeeded through the route since the
+  date change of 2026-09-07, presented in the record as working.
+
+**The cause was the opposite of what four sessions believed.** The signature — one web search, a
+short answer, `SECTIONS_MISSING` — was read across runs 13, 17, 18 and 19 as a lazy model
+satisfying `tool_choice: 'required'` with a token search and then writing from memory. It was
+nothing of the kind. Item 4.73's own first act was to log the raw reply, which had never been
+recorded, and run 20 showed a **question**:
+
+> *"The current date available to me is 7 September 2026. Your brief specifies 8 September 2026 as
+> both today's date and the assessment start… Under your protocol requiring me to stop rather than
+> fill a contradictory or unverifiable gap, I have not completed the economic assessment… May I use
+> a research cutoff of 7 September 2026?"*
+
+**There was no such protocol.** The model assembled one from §2's *"do not infer either date from
+anything else"* and §5's *"an honest gap is worth more than a confident guess"*, and concluded it
+could not proceed past a date it could not verify. The server said 8 September; the model's own
+date was 7 September. **One day was enough.** A question carries no numbered headings, so
+`findSections` found nothing — **the guard was correct on every single run; there was never a
+report to check.**
+
+⚠ **And it was item 4.69's own fix.** `{{today}}` entered §2 on 2026-09-07 to stop a *future*
+assessment date being researched, and killed the ordinary path in the same stroke.
+
+**What proves it:** run 21, through the **built route**, same brief, no assessment date — the path
+that had failed six consecutive times. 12 searches, 1,938 words, 32 citations, 18 sources across 11
+hosts, accepted. The proof is not that it passed but *where the date problem went*: §5 of the
+accepted research now says *"Research was conducted on 7 September 2026, for the supplied
+assessment start of 8 September 2026. Publications becoming available on the assessment date could
+not be verified."* — the identical observation it used to stop on, filed as an honest gap in the
+section that exists for them. Evidence in
+[`ECONOMIC-ANALYSIS-TEST-RUNS.md`](../ECONOMIC-ANALYSIS-TEST-RUNS.md) runs 20–21; the approved
+wording in [`ECONOMIC-ANALYSIS-PROMPT.md`](../ECONOMIC-ANALYSIS-PROMPT.md) §7c, committed before
+Mike approved it.
+
+**Also closed under this item:** `reddit.com` banned as a source on Mike's instruction after run 21
+cited it — asked of the model in §3 **and** enforced in `validateResearch`, because an instruction
+the model may quietly not follow is not a ban. §7d.
+
+---
+
+**4.69 — a future assessment date may leave the research unsourced.**
+✅ Closed 2026-09-08 on Mike's instruction, alongside 4.73.
+
+- **Why it mattered:** §2 asked one date to be both the start of the assessment period and the
+  yardstick for how current a figure is, so a date months ahead sent the model looking for data
+  that does not exist yet.
+- **What we would have lost:** the prompt fix itself was sound and had been built on 2026-09-07 —
+  what was missing was proof through the path a user actually takes.
+
+**Its own record had to be corrected before it could be closed.** The item read *"BUILT AND PROVEN
+LIVE"*, and that claim rested on **run 15 — a throwaway probe outside the repository**. Five route
+runs had failed around it. **That is twice this feature has been misled the same way**, and it is
+why the rule is now written into the runs page: through the built route, or it did not happen.
+
+**What proves it:** run 21 **is** the regression check this item owed — the default no-date path,
+through the built route, accepted. The check had failed 3/3 earlier the same day for a reason that
+turned out to be this item's own `{{today}}` instruction, diagnosed and fixed under 4.73. The
+claim now rests on the route rather than on a probe.
+
 **4.68 — the forecast opened on zeros where its own note promised a worked sample.**
 ✅ Closed 2026-09-07, and the note was the stale half. The item was filed as a disagreement
 between two things without knowing which was wrong: the JSDoc on
