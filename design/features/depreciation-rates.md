@@ -10,8 +10,9 @@
 > rate turns something into tax owed — GST, the flat company rate, personal rates in bands. A
 > depreciation rate writes down an asset's book value, and the write-down is claimable against
 > profit. This feature only ever sets the second. **The forecast's own `taxRate` (0.28) and its
-> GST rate are untouched by it — and cannot be set per country at all, which is a real gap and
-> a different feature** (history §3b). It also does not cover the Multiple Property
+> GST rate are untouched by it, and cannot be set per country at all — that is item 4.81**, a
+> sibling of this one under the same request of Mike's, riding the same country table and the
+> same approval gate (history §3b). It also does not cover the Multiple Property
 > Assessment's tax settings, a separate block ruled on differently — see
 > [`report-models.md`](report-models.md) and the Property Tax Rules tab.
 

@@ -184,6 +184,27 @@
       "touches": "config/db-schema.sql, design/ADVISOR-E-DESIGN-LOGIC.md, TIER-CASCADE-MAP.md, MENTOR-TIER-CHAIN-PLAN.md, components/collaborate/screens/global.vue, server/collaborate/data/repository.js, and the tierVocabulary guard, which needs the unquoted pattern.",
       "note": "🔴 A LARGE SHARE OF THE 45 ARE MIKE'S OWN WORDS IN DIRECT QUOTES - \"repeated at group manager or global manager\" (2026-07-30), \"too technical for a firm or global manager\" (2026-08-16). THOSE STAY VERBATIM. The job is separating his quotes from our prose, site by site, which is why it was not done at the end of a session. The guard pattern must be widened LAST, once our prose is clean, and it has to tolerate his quotes - most likely by exempting quoted spans rather than whole files.",
       "comment": "2026-09-08 - found while purging tier names taken from a brand or a country, and filed on Mike's instruction rather than started at shutdown. One instance written by that same session was fixed on the spot; the other 45 were not touched."
+    },
+    {
+      "ref": "4.81",
+      "name": "The forecast's tax rates are New Zealand's, hardcoded, for every country",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The forecast applies a 28% company tax rate and New Zealand's GST rate to every client. An Australian client should be 30% and 10%, and nothing anywhere can change either.",
+      "risk": "Every forecast for an overseas client is wrong on tax whether or not it owns a single asset, so this is WIDER than 4.78, which only reaches clients with assets. The tax figure is wrong, the closing cash is wrong, and the statements balance perfectly - which is how it reaches a lender with nobody noticing.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-08 - 'is it worth having a field in the firm manager hub where tax pdfs can be loaded to be read by the AI so it can be accurate per country?' The same request 4.78 was filed under."
+      },
+      "touches": "taxRate and the GST rate in server/report/threeWayForecastModel.js and components/ThreeWayForecastIntake.vue, plus the country table, routes and approval gate already built for 4.78 - server/utils/depreciationRates.js and server/routes/depreciationRates.js.",
+      "note": "IT RIDES WHAT 4.78 ALREADY BUILT, which is why it is small: the country-tagged table, the four-tier cascade, the approve-before-use gate and the source-per-figure rule all exist. The country table gains a taxRates block beside its depreciation rates. FILED AS ITS OWN ITEM rather than widening 4.78, whose drawings and spec are approved and half built - reopening them mid-build would muddy what Mike signed off. It needs its own drawing before any build.",
+      "comment": "2026-09-09 - Mike's own words when the gap was reported to him as something he had not asked for: 'of course i want the tax rate made contry aware - i literally asked for that!' He had. His request of 2026-09-08 says 'accurate per country'; a session narrowed it to depreciation alone after finding that IR265 is a depreciation schedule, and then treated the rest as unrequested."
     }
   ]
 }

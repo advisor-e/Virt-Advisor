@@ -116,8 +116,13 @@ tax rates, and the feature was renamed the same day so that its name says it.
 1. 🔴 **The forecast contains a real tax rate that nobody can set per country.**
    `threeWayForecastModel.js` holds `taxRate: 0.28` — the New Zealand company rate — and a GST rate
    beside it. An Australian client should be at 30% company tax and 10% GST. Every forecast for an
-   overseas client is wrong on tax **whether or not it owns a single asset**. That is a genuine
-   *tax rules per country* feature; it is not this one, it is not built, and it is not filed.
+   overseas client is wrong on tax **whether or not it owns a single asset**.
+   **It is filed as item 4.81**, and the way it got there is the lesson: this session recorded it
+   as a gap Mike *had not asked for*, and told him so at shutdown. His reply — *"of course i want
+   the tax rate made contry aware - i literally asked for that!"* — was correct. His request of
+   2026-09-08 says **"accurate per country"**; finding that IR265 was a depreciation schedule
+   justified renaming the feature, and did **not** justify shrinking the request to match the
+   document. **A narrowed request looks exactly like a completed one.**
 2. 🔴 **Investment Boost is real and now sourced**, closing the open question on item 4.77 where it
    had been cited from an AI session's own memory. From **22 May 2025** a business deducts **20% of a
    new asset's cost as an expense** and depreciates the remaining **80%** as normal

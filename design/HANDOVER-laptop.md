@@ -30,9 +30,12 @@ the model, never extracted locally), and the proposed-rates table.
 **Open for Mike:** 4.15, 4.58, 4.66 · and **whether 4.77 closes into 4.78** — its asset model
 is now 4.78's dated purchase list. Not ours to decide; it is on 4.77's note.
 
-⚠ **A real gap is recorded and deliberately NOT filed:** the forecast hardcodes New Zealand's
-28% tax rate and its GST rate, with no way to set either per country. History §3b. Mike has
-not asked for it, so it is not work.
+🔴 **NEW: 4.81 — the forecast's tax rate and GST rate are New Zealand's, hardcoded, for every
+country.** Filed at Mike's insistence at the very end of the session: this session had recorded
+it as a gap he *had not asked for*, and he had — *"accurate per country"*, 2026-09-08. **Finding
+that IR265 was a depreciation schedule justified renaming the feature, not shrinking his
+request to match the document.** It rides everything 4.78 built, so it is small. Needs a
+drawing first.
 
 ⚠ **Known deviation:** the new tab's strings are hardcoded English, like four of its five
 siblings, against the i18n standard. Named in the component header.
