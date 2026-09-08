@@ -1644,7 +1644,11 @@
         "uploadFailed": "The files could not be read. Please try again.",
         "tooMany": "Drop at most four files together: a Balance Sheet, a Profit and Loss, and up to two by-month Profit and Loss reports.",
         "note": "What a file can and cannot tell us",
-        "noteBody": "An accounting export records what has happened. A forecast is about what will. So the files fill in where the business stands today and what it currently spends — and the forecast itself, the sales, the buying, the terms, stays your judgement. Every figure on the next screens says which it is."
+        "noteBody": "An accounting export records what has happened. A forecast is about what will. So the files fill in where the business stands today and what it currently spends — and the forecast itself, the sales, the buying, the terms, stays your judgement. Every figure on the next screens says which it is.",
+        "scheduleTitle": "Fixed Asset Schedule",
+        "scheduleWhy": "Only needed if the business is selling an asset this year — it is where a book value comes from. Optional.",
+        "scheduleTie": "Your schedule totals {schedule}. The balance sheet shows {balanceSheet} in fixed assets — a difference of {difference}. An asset register is often a little out; nothing here needs fixing for the forecast to run.",
+        "scheduleRead": "Fixed Asset Schedule read — {count} asset. | Fixed Asset Schedule read — {count} assets."
       },
       "confirm": {
         "heading": "Read from your Balance Sheet",
@@ -1955,7 +1959,14 @@
           "nothingPlanned": "Nothing planned. If the business is buying or selling equipment, vehicles or fit-out this year, add it here — it changes the cash position in the month it happens.",
           "everyAmountPositive": "Every amount is positive — whether the money goes out or comes in is the Buy / Sell tick’s job, never the figure’s. Enter prices before GST and the forecast adds it. Buy is money out in the month you name, and the asset starts depreciating at its category’s rate. Sell is money in, and the book value is what comes off the asset register.",
           "gainOrLoss": "The difference between the price and the book value is shown as a gain or loss in the month of the sale.",
-          "noNegatives": "Every amount here is positive — the Buy / Sell tick carries the direction. Check row {rows}."
+          "noNegatives": "Every amount here is positive — the Buy / Sell tick carries the direction. Check row {rows}.",
+          "choose": "Choose an asset…",
+          "somethingElse": "Something else — type it in",
+          "guessed": "guessed",
+          "fromFile": "from file",
+          "bookValueWorking": "{opening} on the schedule, less {months} month at {rate} — the {category} rate set on step 2 | {opening} on the schedule, less {months} months at {rate} — the {category} rate set on step 2",
+          "bookValueAtSale": "Sold in the first month, so the schedule figure stands.",
+          "categoryGuessedTitle": "Filled in from the schedule's own group. Check it — the category sets the depreciation rate."
         },
         "overseas": {
           "tick": "This business buys or sells overseas",

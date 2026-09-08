@@ -130,7 +130,7 @@
       "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
+      "waitingOn": "Us",
       "why": "Selling an asset needs its price and its book value; the gain between them is profit that month. The app holds six category totals, never individual assets, and no screen asks for the schedule.",
       "risk": "Nothing is broken while it is undone: the advisor reads the number off the same schedule the app would parse. The risk is in the doing — a Fixed Asset Schedule varies far more between packages than a Balance Sheet, and a schedule read wrongly gives a plausible book value, which moves the gain, the tax and retained earnings together.",
       "askedBy": {
@@ -138,9 +138,9 @@
         "ours": false,
         "detail": "2026-09-03 — he challenged the typed field directly (\"if i have a vehicle it must be listed in the asset schedule and balance sheet - which is paired to the depreciation rates - cant see why you cant pull the book value from that?\"), was shown that the figure lives on a report the app never asks for, and chose: \"typing it for now\"."
       },
-      "touches": "NOTHING YET, and it needs its own drawing and Mike approval before any of it. Then: server/report/intake/xeroReportParser.js (a fifth report kind), supportedPackages.js, server/routes/report.js and components/ThreeWayForecastIntake.vue (a fifth slot, and the Sell row becoming a chooser rather than two typed figures).",
-      "note": "DRAWN 2026-09-08 AND WAITING ON MIKE - design/mockups/three-way-forecast-asset-schedule.html, six questions each with one recommendation. The files arrived 2026-09-07 inside the exports that closed 4.60, so this no longer waits on collecting anything. THE FINDING THAT SHAPED IT: neither real schedule ties to its own balance sheet (145,300 against 128,775.83 and 125,300), so the schedule is used ONLY to look up one asset book value on a Sell row and the Balance Sheet stays the opening position.",
-      "comment": "2026-09-03 - filed at the moment Mike ruled \"typing it for now\", so the version he would rather have is on the list rather than in a conversation. 2026-09-08 - the files it waited for had already arrived; drawn the same day and put to him. Nothing is blocked meanwhile: the capital block is built, tested and honest, and the advisor types one number they read off their own schedule."
+      "touches": "BUILT: server/report/intake/assetScheduleParser.js (new), utils/assetBookValue.js (new), server/routes/report.js (the schedule scan and the tie-back), components/ThreeWayForecastIntake.vue (the seventh slot, the tie-back line, the Sell row chooser), locales/en.json, and three test files.",
+      "note": "BUILT IN TWO SLICES 2026-09-08 from the approved drawing, all six questions ruled. The reader is proven on Mike real MYOB and QuickBooks exports - eleven assets each. THE SCHEDULE SEEDS NOTHING: neither real file ties to its own balance sheet (16,524 and 20,000 apart), so the Balance Sheet stays the opening position and the schedule only looks up one asset book value on a Sell row. THREE NAMED DEVIATIONS at section 8 of the drawing, the largest being 30,459 rather than 30,458.75 because the engine rounds to whole units. What remains: nobody has watched it in a browser, and item 4.79 means a real workbook still needs splitting by hand before the Balance Sheet is read.",
+      "comment": "2026-09-03 - filed at the moment Mike ruled \"typing it for now\". 2026-09-08 - the files it waited for had already arrived; drawn, all six questions ruled, the drawing approved as its own question, and both slices built and pushed the same day. Laying the build beside the drawing caught a real fault: the chooser had become the only way in, which question 5 forbids."
     },
     {
       "ref": "4.71",

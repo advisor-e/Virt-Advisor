@@ -766,6 +766,38 @@ td.impossible{color:var(--rs-crit);background:var(--rs-crit-soft);font-weight:60
     </ul>
   </div>
 
+
+  <div class="stepmark">8 &middot; Built 2026-09-08 &mdash; three differences from this page</div>
+
+  <div class="mock">
+    <b>✅ BUILT IN TWO SLICES ON 2026-09-08.</b> Slice 1 the reader
+    (<code>server/report/intake/assetScheduleParser.js</code>), slice 2 the screen
+    (<code>components/ThreeWayForecastIntake.vue</code>, <code>utils/assetBookValue.js</code>).
+    Suite 8,406 green, lint 0 errors. <b>Every difference from this drawing is named here,
+    because a deliberate deviation is fine and an unrecorded one is not.</b>
+    <ul style="margin:8px 0 0;padding-left:18px">
+      <li>🔴 <b>THE BOOK VALUE IS 30,459, NOT 30,458.75.</b> This page used exact
+      arithmetic; the engine&rsquo;s <code>excelRound</code> works in <b>whole units</b>
+      (31,500 &rarr; 30,975 &rarr; 30,459). The build matches the engine, because a figure on
+      screen that the forecast then disagrees with is the one thing this feature must not
+      produce &mdash; and <code>assetBookValue.test.js</code> compares the two functions across
+      13,000 values so they cannot drift apart later.</li>
+      <li><b>The tie-back line is on step 2, not step 1.</b> Reading the files moves the screen
+      to &ldquo;Confirm the opening position&rdquo;, so by the time there is anything to say
+      about the schedule, the slots this page draws it under are gone. It sits at the top of
+      step 2 with a line saying how many assets were read.</li>
+      <li><b>It is a plain note, not a warning colour.</b> Both real exports fail to tie, so an
+      amber band would fire on nearly every upload and teach the eye past that spot on the
+      screen &mdash; the cost recorded against question 3 when it was asked.</li>
+    </ul>
+    🔴 <b>AND ONE THING THE BUILD FOUND BY BEING LAID BESIDE THIS PAGE.</b> The first
+    version of the Sell row showed <i>only</i> the chooser once a schedule was read, which made
+    the schedule the only way in &mdash; exactly what question 5 forbids. Caught by comparing
+    the build to &sect;5 of this drawing, where &ldquo;Something else &mdash; type it in&rdquo;
+    is the last option. It is now the last option in the built chooser too, and a test holds it
+    there.
+  </div>
+
   <div class="mock" style="margin-top:12px">
     <b>Sources.</b> Assets, dates and amounts: <code>MYOB_Financial_Exports.xlsx</code> (Asset
     Register) and <code>QuickBooks_Online_Financial_Exports.xlsx</code> (Fixed Asset Detail Report),
