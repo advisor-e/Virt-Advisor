@@ -9,44 +9,49 @@
 
 ---
 
-## 2026-09-08 (fourth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-08 (fifth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,386 green**, lint 0, audit pass. Fourteen commits, all pushed — 42 ahead, 0 behind.
-**PR #69 open.** Nothing uncommitted.
+Suite **8,393 green**, lint 0 errors, audit pass. **One commit — `5628a43`, pushed.**
+44 ahead, 0 behind. **PR #69 still open** (Meeting Review, from the fourth session).
+Nothing uncommitted.
 
-**Shipped:** **4.75 fixed** (a config key per advisor — two saving at once can no longer
-overwrite each other; `saveFirmConfig` untouched). **4.65 built in two slices** — the Fixed
-Asset Schedule reader and the Sell-row chooser, drawn, all six questions ruled, the drawing
-approved as its own question, three deviations named at its §8. **QuickBooks and MYOB are now
-`verified`.** **Six items closed** (4.75, 4.62, 4.50, 4.60, 4.65, 4.71); **four filed** (4.77,
-4.78, 4.79). Eleven items → eight.
+**Shipped: 4.79, both slices.** The readers returned the FIRST recognised report across a
+workbook's sheets. A real MYOB or QuickBooks export is ONE workbook holding a P&L, a Balance
+Sheet and an asset register, P&L first — so **all three intake screens were wrong, each
+differently**: the forecast refused the drop asking for a Balance Sheet the file contained;
+Quick Position ticked the P&L zone, left the Balance Sheet unread and disabled Continue
+saying nothing; EBITDA failed the whole upload when the Balance Sheet came first. One reader
+(`reportsFromBuffer`) now walks every sheet and each caller takes what its screen needs.
+`parseUpload` is gone — `parseAnnualReports` replaces it. Item count unchanged at eight.
 
-**Five things worth knowing:**
+**Four things worth knowing:**
 
-1. 🔴 **A note claiming Mike has not approved or supplied something is a CLAIM, not a fact.**
-   Three were wrong today — the `clientReports.saved.*` wording (he had approved it), the
-   QuickBooks/MYOB exports (he had sent them), and NZ having no first-year depreciation regime
-   (Investment Boost postdates both IRD guides he supplied). Each was holding finished work
-   open. **Ask him.**
-2. **Storage that is per-PERSON gets a key per person**, not a map in one row — read back in
-   bulk with the new `firmOverlay.loadFirmConfigsByPrefix`. Ids are capped at 64 so
-   `VARCHAR(128)` cannot silently truncate two people into one row.
-3. **`utils/assetBookValue.js` mirrors the engine's `excelRound`** because the engine is
-   backend CommonJS and that runs in the browser; a test compares the two across 13,000 values.
-   Do not "tidy" either without the other.
-4. 🔴 **Laying the build beside the drawing caught a fault the code and the tests both hid** —
-   the Sell row had become the only way in, which question 5 forbids. Open the artefact before
-   calling a build finished.
-5. **The Handbook page was republished by another session** (almost certainly the desktop) and
-   Mike deferred sorting it. It does not currently show this branch.
+1. 🔴 **The pin worked exactly as written.** Yesterday's deliberately-wrong test —
+   *"DOCUMENTS A DEFECT"* — broke the moment the defect was fixed, which is why the fix could
+   not pass unnoticed. Keep writing them that way.
+2. 🔴 **I nearly parked slice 2 as "a decision for Mike" and there was no decision to take.**
+   Quick Position's screen already routed by report kind and already held both results side by
+   side. **Read the screen before declaring something a design question** — the vague version
+   of that claim also hid that Quick Position failed SILENTLY, which is worse than the
+   forecast's loud refusal, not milder.
+3. **A guard that counts the wrong unit is worse than none.** `threeWayForecastAssembler`
+   counted reports while the route counts files, so it could have told an advisor to drop
+   fewer files while they held four. Deleted, not moved — the route's pre-parse check stands.
+4. 🔴 **NOT WATCHED IN A BROWSER.** Everything proving 4.79 is a test. Dropping one real MYOB
+   or QuickBooks export into the forecast, Quick Position and EBITDA is a five-minute check
+   and has not been done. 4.79 is deliberately still ON the list for that reason.
 
-**DESKTOP — merge `master` in first.** Shared files that moved: `server/utils/firmOverlay.js`
-(one new export), `server/routes/report.js` (a schedule scan), `locales/en.json`,
-`server/report/intake/supportedPackages.js`, `report-models.md`, `ARTEFACTS.md`,
-`to-do-items.json`.
+**DESKTOP — merge `master` in first.** Shared files that moved today:
+`server/report/intake/xeroReportParser.js` (**`parseUpload` renamed to `parseAnnualReports`
+and now returns an ARRAY** — this will break any caller you have added),
+`server/routes/report.js` (all three intake routes), `server/report/intake/annualAssembler.js`
+(JSDoc only), `server/report/intake/threeWayForecastAssembler.js`,
+`components/QuickPositionIntake.vue` (the upload handler reads `data.reports`),
+`report-models.md`, `to-do-items.json`.
 
-**Open:** **4.79** is the highest-value job available and the one I would take next — only the
-first report in a workbook is read, so a real export needs splitting by hand, and it silently
-disables 4.65's tie-back line. **4.72 and 4.76** both touch storage or cascade shared by all
-four manager tiers, so each wants its own proposal. **4.15, 4.58, 4.66, 4.77 and 4.78 wait on
-Mike**; 4.78 needs an IRD source for Investment Boost before anything is built on it.
+⚠ **Your own note is still dated 2026-09-04 while `feat/firm-quiz-builder-ui` committed on
+2026-09-08** — 39 ahead of `master`. Four days of desktop work are invisible from here.
+
+**Open:** **4.72 and 4.76** are ours and each wants its own proposal — both touch storage or
+cascade shared by all four manager tiers. **4.15, 4.58, 4.66, 4.77 and 4.78 wait on Mike**;
+4.78 needs an IRD source for Investment Boost before anything is built on it.
