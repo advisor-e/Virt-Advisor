@@ -445,13 +445,26 @@ All five are mutation-verified.
 > every screen line and refusal message is built from it, and a test fails the build if the
 > locale string and the module ever name different packages.
 >
-> **Only Xero is `verified`** — read from real exports the firm supplied on 2026-07-13 and
-> 2026-07-15, which refuted three assumptions in the process. QuickBooks Online and MYOB are
-> `expected`: they are checked against reconstructions in
-> [`tests/unit/accountingPackages.test.js`](../../tests/unit/accountingPackages.test.js), and
-> **no real export from either has been read**. Every intake screen says so, and item 4.60
-> holds the four files that would close it. **Do not promote a package on more
+> ✅ **ALL THREE ARE `verified`.** Xero from real exports the firm supplied on 2026-07-13 and
+> 2026-07-15, which refuted three assumptions in the process; **QuickBooks Online and MYOB from
+> real exports Mike supplied on 2026-09-07** — `QuickBooks_Online_Financial_Exports.xlsx` and
+> `MYOB_Financial_Exports.xlsx`, three reports each. **Do not promote a package on
 > reconstructions** — the guard refuses `verified` unless the evidence names a real export.
+>
+> 🔴 **THE MYOB FILE BROKE THE READER FOUR TIMES, AND THAT IS WHY IT IS KNOWN TO BE GENUINE.**
+> Its `Account No.` column made every label arrive as an account code, so the balance sheet
+> parsed to no figures at all with no error saying so; cash read 64,500 of a real 89,500;
+> the `"January 2025 through December 2025"` period line gave the P&L no date and no year; and
+> `"Property, Plant & Equipment"` — the accounting standard's own wording — passed no
+> fixed-asset test, so 145,300 was swept into current assets, the balance sheet still tied, and
+> the forecast opened every asset at zero. **A reconstruction reflects what its author expected
+> and cannot surprise you four times.** All four are fixed and pinned.
+>
+> ⚠ **These two were recorded as reconstructions for a day**, on the reasoning that both
+> workbooks describe the same fictional company with the same figures. That is what testing two
+> packages honestly looks like — the same business entered in both — and it says nothing about
+> which software produced the file. **A parser reads layout; figures cannot tell you anything
+> about it.** Corrected by Mike on 2026-09-08.
 >
 > Pointing the reader at those two layouts on 2026-09-02 found five real defects, all fixed:
 > the `"As of"` date line was never read; header rows were walked as body rows; the company

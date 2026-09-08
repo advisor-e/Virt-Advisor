@@ -37,14 +37,13 @@ repository sees; the two never both appear, and the build stops if they would.
 | --- | --- | --- | --- | --- | --- |
 | 1 | **4.15** The 21 branches that still name a page nobody can open | 4 | — | **Mike** | — |
 | 2 | **4.58** Meeting Review — the advisor's side is complete; §4 remains ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 3 | **4.60** QuickBooks and MYOB are supported on paper, not against a real file ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 4 | **4.66** Economic analysis — the forecast asks the AI for market research ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 5 | **4.65** The book value of one asset is typed, because no screen asks for the asset schedule ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 6 | **4.71** Quick-fire forecast — three years from percentages, not twelve months typed ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 7 | **4.72** A removed observation point's id is handed to the next one added ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 8 | **4.76** A middle tier's rewording is badged as Advisor-e's ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 3 | **4.66** Economic analysis — the forecast asks the AI for market research ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 4 | **4.65** The book value of one asset is typed, because no screen asks for the asset schedule ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 5 | **4.71** Quick-fire forecast — three years from percentages, not twelve months typed ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 6 | **4.72** A removed observation point's id is handed to the next one added ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 7 | **4.76** A middle tier's rewording is badged as Advisor-e's ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Eight live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Seven live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

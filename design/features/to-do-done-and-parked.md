@@ -185,6 +185,35 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.60 — QuickBooks and MYOB were supported on paper, not against a real file.**
+✅ Closed 2026-09-08, on Mike's correction that the exports had been supplied the day before.
+
+- **Why it mattered:** the app named both packages as readable while neither had been read from
+  a file the software actually produced — and a wrong figure off a real chart of accounts looks
+  exactly like a right one.
+- **What proves it:** **real exports supplied by Mike 2026-09-07** —
+  `QuickBooks_Online_Financial_Exports.xlsx` and `MYOB_Financial_Exports.xlsx`, three reports
+  each (P&L, Balance Sheet, and an asset schedule) for Apex Auto & Engineering Ltd. Both are now
+  `confidence: 'verified'` in
+  [`supportedPackages.js`](../../server/report/intake/supportedPackages.js), each evidence line
+  naming the file. **Every package the app claims to read has now been read.**
+- **What the MYOB file cost, and why that is the proof:** it broke the reader **four separate
+  ways** — its `Account No.` column made every label arrive as an account code so the balance
+  sheet parsed to *no figures at all* with no error; cash read 64,500 of a real 89,500; the
+  `"January 2025 through December 2025"` period line gave the P&L no date and no year; and
+  `"Property, Plant & Equipment"` passed no fixed-asset test, so 145,300 was swept into current
+  assets — the balance sheet still tied, so nothing complained, and the forecast opened every
+  asset at zero and charged no depreciation. All four fixed and pinned.
+
+🔴 **The record called these reconstructions for a day, and the reasoning was wrong.** Both
+workbooks describe the same fictional company with the same figures — which is what testing two
+packages honestly looks like, the same business entered in both, and says nothing about which
+software produced the file. **A parser reads layout; figures cannot tell you anything about it.**
+The proof was already in hand and was being reported as a doubt: *a reconstruction reflects what
+its author expected and cannot surprise you four times.* Corrected in four places on Mike's word.
+
+---
+
 **4.62 — saved reports per client, so a client can edit what the advisor opened.**
 ✅ Closed 2026-09-08 on Mike's ruling, under the same rule that closed 4.75 and 4.50.
 

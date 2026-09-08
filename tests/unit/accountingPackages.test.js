@@ -6,7 +6,7 @@ const {
   extractProfitLoss
 } = require('../../server/report/intake/xeroReportParser')
 const {
-  PACKAGES, supportedList, supportedSentence, verifiedNames, expectedNames
+  PACKAGES, supportedList, supportedSentence, sentenceFor, verifiedNames, expectedNames
 } = require('../../server/report/intake/supportedPackages')
 const en = require('../../locales/en.json')
 
@@ -490,17 +490,33 @@ describe('The supported-package list is one fact, stated once', () => {
     // changes, the evidence line must say a real export was read.
     verifiedNames().forEach((name) => {
       const p = PACKAGES.filter(x => x.name === name)[0]
-      expect(p.evidence).toMatch(/real/i)
+      expect(p.evidence).toMatch(/real\b[^.]*export/i)
     })
-    expect(verifiedNames()).toEqual(['Xero'])
-    expect(expectedNames()).toEqual(['QuickBooks Online', 'MYOB'])
+    // ALL THREE since 2026-09-07, when Mike supplied QuickBooks Online and MYOB exports.
+    // They were misrecorded as reconstructions for a day and he corrected it on 2026-09-08.
+    expect(verifiedNames()).toEqual(['Xero', 'QuickBooks Online', 'MYOB'])
+    expect(expectedNames()).toEqual([])
   })
 
   test('an "expected" package says plainly that no real export has been read', () => {
+    // No package is `expected` today. The rule still holds for the next one added, and this
+    // is what stops it arriving marked verified with nothing behind it.
     expectedNames().forEach((name) => {
       const p = PACKAGES.filter(x => x.name === name)[0]
       expect(p.evidence).toMatch(/no real export has been read/i)
     })
+  })
+
+  test('🔴 the MYOB evidence keeps the four faults its real export exposed', () => {
+    // Not decoration, and not wording for its own sake: these four are the reason the file
+    // is known to be genuine software output rather than a reconstruction — a reconstruction
+    // reflects what its author expected and cannot surprise the reader that reads it. They
+    // are also the regression list, each one a wrong figure that looked perfectly fine.
+    const myob = PACKAGES.filter(p => p.name === 'MYOB')[0]
+    expect(myob.evidence).toMatch(/Account No\./)
+    expect(myob.evidence).toMatch(/89,500/)
+    expect(myob.evidence).toMatch(/Property, Plant & Equipment/)
+    expect(myob.evidence).toMatch(/145,300/)
   })
 
   test('🔴 the sentence on screen names exactly the packages the code lists', () => {
@@ -510,12 +526,32 @@ describe('The supported-package list is one fact, stated once', () => {
     const onScreen = en.report.supportedSoftware
     PACKAGES.forEach((p) => { expect(onScreen).toContain(p.name) })
     expect(onScreen).toContain(supportedList().split(' and ')[1] || '')
-    verifiedNames().forEach((n) => { expect(onScreen).toMatch(new RegExp(n + '[^.]*confirmed against real exports')) })
+    // 🔴 THE SCREEN AND THE MODULE MUST SAY THE SAME THING. The locale string is written by
+    // hand and the refusals are generated, so this is the only thing standing between a
+    // package promoted in code and a screen still carrying yesterday's caveat — which is
+    // exactly the state the record was in for a day before 2026-09-08.
+    expect(onScreen).toBe(supportedSentence())
   })
 
   test('the short list used in refusals reads as a sentence, not an array', () => {
     expect(supportedList()).toBe('Xero, QuickBooks Online and MYOB')
     expect(supportedSentence()).toContain('can be read')
-    expect(supportedSentence()).toContain('published layout')
+  })
+
+  test('🔴 an unconfirmed package still puts the caveat back on the screen', () => {
+    // The caveat is absent because nothing is unconfirmed, NOT because it was deleted — and
+    // since 2026-09-07 nothing on the live list can prove that. An advisor being told to check
+    // the figures is the whole safety margin for a package read only from its published
+    // layout, so the next package added must not be the thing that discovers the line is gone.
+    const withOne = sentenceFor([
+      { name: 'Xero', confidence: 'verified' },
+      { name: 'Sage', confidence: 'expected' }
+    ])
+    expect(withOne).toContain('Sage is supported from its published layout')
+    expect(withOne).toContain('check the figures on the next step')
+
+    // And when nothing has been confirmed at all, the sentence says that too.
+    expect(sentenceFor([{ name: 'Sage', confidence: 'expected' }]))
+      .toContain('None has yet been confirmed against a real export')
   })
 })
