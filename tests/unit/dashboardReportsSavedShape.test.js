@@ -25,7 +25,7 @@ function filledState () {
   s.current.figures.tradingIncome = { value: 2840000, source: 'file' }
   s.current.figures.netCapitalSpend = { value: 85000, source: 'entered' }
   s.prior.figures.bank = { value: 183000, source: 'file' }
-  s.inventory = { slowObsolete: 46000, ageing: [128, 84, 52, 32, 26] }
+  s.inventory = { slowObsolete: 46000, ageing: [128, 84, 52, 32, 26], stockFile: null }
   s.words.summary = 'A strong year with one watch-point'
   s.words.wentWell = ['Sales grew in all four quarters', 'Gross margin held at 41%']
   s.words.watch = ['Stock grew faster than sales', 'Customers pay 5 days slower']
@@ -119,6 +119,72 @@ describe('loading a row back', () => {
   })
 })
 
+describe('the read stock export (stage 4)', () => {
+  const STOCK = {
+    package: 'Cin7 Core',
+    confidence: 'expected',
+    costBasis: 'unitCost',
+    currency: 'NZD',
+    currencyAssumed: true,
+    lineCount: 4,
+    linesWithoutValue: 0,
+    totalValue: 2070,
+    allocatedValue: 550,
+    availableValue: 1520,
+    onOrderValue: 625,
+    units: { onHand: 155, allocated: 30, available: 125, onOrder: 50 },
+    allocatedShare: 30 / 155,
+    categories: [
+      { name: 'Kitchen', lines: 2, value: 1750, onHand: 140, allocated: 20, available: 120, share: 1750 / 2070, allocatedValue: 250, availableValue: 1500, onOrderValue: 625 },
+      { name: 'Dining', lines: 1, value: 300, onHand: 10, allocated: 10, available: 0, share: 300 / 2070, allocatedValue: 300, availableValue: 0, onOrderValue: 0 }
+    ],
+    locations: [{ name: 'Auckland', lines: 3, value: 2050, onHand: 145, allocated: 30, available: 115, share: 2050 / 2070, allocatedValue: 550, availableValue: 1500, onOrderValue: 625 }]
+  }
+
+  test('a read export is saved flat, the store admits it, and it comes back whole with the shares rebuilt', () => {
+    const s = filledState()
+    s.inventory.stockFile = STOCK
+    const row = flattenDashboardReport(s)
+    expect(() => validateInputs(row)).not.toThrow()
+    expect(row.stock_package).toBe('Cin7 Core')
+    expect(row.stock_totalValue).toBe(2070)
+    expect(row.stock_catNames).toEqual(['Kitchen', 'Dining'])
+    expect(row.stock_cat_value).toEqual([1750, 300])
+    expect(row.stock_share).toBeUndefined()
+    const back = applySavedDashboardReport(emptyState(), row)
+    const f = back.inventory.stockFile
+    expect(f.package).toBe('Cin7 Core')
+    expect(f.units).toEqual({ onHand: 155, allocated: 30, available: 125, onOrder: 50 })
+    expect(f.allocatedShare).toBeCloseTo(30 / 155, 10)
+    expect(f.categories.map(c => [c.name, c.value, c.lines, c.onHand])).toEqual([['Kitchen', 1750, 2, 140], ['Dining', 300, 1, 10]])
+    expect(f.categories[0].share).toBeCloseTo(1750 / 2070, 10)
+    expect(f.locations[0].name).toBe('Auckland')
+    expect(f.onOrderValue).toBe(625)
+  })
+
+  test('with no export read, no stock key is written and a loaded row holds null', () => {
+    const row = flattenDashboardReport(filledState())
+    expect(Object.keys(row).some(k => k.startsWith('stock_'))).toBe(false)
+    expect(applySavedDashboardReport(emptyState(), row).inventory.stockFile).toBeNull()
+    expect(applySavedDashboardReport(emptyState(), { stock_package: 'Cin7 Core' }).inventory.stockFile).toBeNull()
+  })
+
+  test('more groups than the store can hold are cut from the tail, never refused at Save', () => {
+    const s = filledState()
+    s.inventory.stockFile = Object.assign({}, STOCK, { categories: [...Array(150).keys()].map(i => ({ name: 'C' + i, value: 150 - i, lines: 1, onHand: 1, allocated: 0, available: 1 })) })
+    const row = flattenDashboardReport(s)
+    expect(row.stock_catNames.length).toBe(60)
+    expect(row.stock_catNames[0]).toBe('C0')
+    expect(() => validateInputs(row)).not.toThrow()
+  })
+
+  test('the pages request carries the read export whole', () => {
+    const s = filledState()
+    s.inventory.stockFile = STOCK
+    expect(pagesRequestFrom(s).inventory.stockFile).toBe(STOCK)
+  })
+})
+
 describe('the request the pages route takes', () => {
   test('carries only the lines that have a value, with their source, and the dates', () => {
     const req = pagesRequestFrom(filledState())
@@ -126,7 +192,7 @@ describe('the request the pages route takes', () => {
     expect(req.current.stock).toBeUndefined()
     expect(req.prior.bank.value).toBe(183000)
     expect(req.currentDates.balanceSheet).toBe('As at 30 June 2026')
-    expect(req.inventory).toEqual({ slowObsolete: 46000, ageing: [128, 84, 52, 32, 26] })
+    expect(req.inventory).toEqual({ slowObsolete: 46000, ageing: [128, 84, 52, 32, 26], stockFile: null })
   })
 
   test('with no last year the prior block is null, so nothing is compared against zeros', () => {

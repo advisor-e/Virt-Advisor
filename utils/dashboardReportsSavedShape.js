@@ -31,6 +31,15 @@ const OPTIONAL_PAGES = ['profitBridge', 'cashBridge', 'profitSensitivity', 'stoc
 /** The sources a confirmed line may carry. */
 const SOURCES = ['file', 'entered']
 
+/**
+ * How many categories or locations of a read stock export the row keeps — the store's own
+ * array cap is 120, and the reader sorts largest first, so what is dropped is the tail.
+ */
+const MAX_STOCK_GROUPS = 60
+
+/** The per-group figures a saved stock export keeps, each as one array under the store's rule. */
+const STOCK_GROUP_FIELDS = ['value', 'lines', 'onHand', 'allocated', 'available']
+
 /** A blank year of lines: every value null, every source the advisor's. */
 function emptyYear () {
   const figures = {}
@@ -48,7 +57,7 @@ function emptyState () {
     current: emptyYear(),
     prior: emptyYear(),
     hasPrior: false,
-    inventory: { slowObsolete: null, ageing: [null, null, null, null, null] },
+    inventory: { slowObsolete: null, ageing: [null, null, null, null, null], stockFile: null },
     words: {
       summary: '',
       wentWell: ['', ''],
@@ -104,6 +113,32 @@ function flattenDashboardReport (state) {
   const inv = s.inventory || {}
   row.inv_slowObsolete = numOrNull(inv.slowObsolete)
   row.inv_ageing = AGEING_BANDS.map((b, i) => numOrNull(Array.isArray(inv.ageing) ? inv.ageing[i] : null))
+  // Stage 4: the read stock export, flat. Written only when a file was read, so a row saved
+  // before the reader existed has no stock keys and loads exactly as it was. Shares are not
+  // saved — they are rebuilt from the totals on the way back, so the two cannot disagree.
+  const sf = inv.stockFile && typeof inv.stockFile === 'object' && numOrNull(inv.stockFile.totalValue) !== null ? inv.stockFile : null
+  if (sf) {
+    row.stock_package = text(sf.package)
+    row.stock_costBasis = text(sf.costBasis)
+    row.stock_currency = text(sf.currency).toUpperCase().slice(0, 3)
+    row.stock_currencyAssumed = sf.currencyAssumed === true
+    row.stock_lineCount = numOrNull(sf.lineCount)
+    row.stock_linesWithoutValue = numOrNull(sf.linesWithoutValue)
+    row.stock_totalValue = numOrNull(sf.totalValue)
+    row.stock_allocatedValue = numOrNull(sf.allocatedValue)
+    row.stock_availableValue = numOrNull(sf.availableValue)
+    row.stock_onOrderValue = numOrNull(sf.onOrderValue)
+    const u = sf.units && typeof sf.units === 'object' ? sf.units : {}
+    row.stock_onHand = numOrNull(u.onHand)
+    row.stock_allocated = numOrNull(u.allocated)
+    row.stock_available = numOrNull(u.available)
+    row.stock_onOrder = numOrNull(u.onOrder)
+    ;[['cat', sf.categories], ['loc', sf.locations]].forEach(([prefix, list]) => {
+      const groups = (Array.isArray(list) ? list : []).filter(g => g && typeof g === 'object').slice(0, MAX_STOCK_GROUPS)
+      row['stock_' + prefix + 'Names'] = groups.map(g => text(g.name))
+      STOCK_GROUP_FIELDS.forEach((f) => { row['stock_' + prefix + '_' + f] = groups.map(g => numOrNull(g[f])) })
+    })
+  }
   const w = s.words || {}
   row.words_summary = text(w.summary)
   row.words_wentWell = [0, 1].map(i => text(Array.isArray(w.wentWell) ? w.wentWell[i] : ''))
@@ -158,6 +193,10 @@ function applySavedDashboardReport (state, row) {
   })
   if (Object.prototype.hasOwnProperty.call(r, 'inv_slowObsolete')) { next.inventory.slowObsolete = numOrNull(r.inv_slowObsolete) }
   if (Array.isArray(r.inv_ageing)) { next.inventory.ageing = AGEING_BANDS.map((b, i) => numOrNull(r.inv_ageing[i])) }
+  // Set only when the row carries a read export, so a row saved before the reader existed
+  // leaves the state exactly as it was.
+  const stockFile = stockFileFrom(r)
+  if (stockFile) { next.inventory.stockFile = stockFile }
   next.words.summary = str('words_summary', next.words.summary)
   next.words.wentWell = strs('words_wentWell', 2, next.words.wentWell)
   next.words.watch = strs('words_watch', 2, next.words.watch)
@@ -169,6 +208,47 @@ function applySavedDashboardReport (state, row) {
   next.words.nextReview = str('words_nextReview', next.words.nextReview)
   if (Array.isArray(r.pages_added)) { next.pages.added = r.pages_added.filter(p => OPTIONAL_PAGES.includes(p)) }
   return next
+}
+
+/**
+ * The read stock export rebuilt from a saved row, or null when the row holds none.
+ * Shares are recomputed from the totals; the store never held them.
+ * @param {object} r - the saved inputs
+ * @returns {object|null}
+ */
+function stockFileFrom (r) {
+  const total = numOrNull(r.stock_totalValue)
+  if (typeof r.stock_package !== 'string' || !r.stock_package || total === null) { return null }
+  const groups = (prefix) => {
+    const names = Array.isArray(r['stock_' + prefix + 'Names']) ? r['stock_' + prefix + 'Names'] : []
+    return names.slice(0, MAX_STOCK_GROUPS).map((name, i) => {
+      const g = { name: text(name) }
+      STOCK_GROUP_FIELDS.forEach((f) => {
+        const arr = r['stock_' + prefix + '_' + f]
+        g[f] = numOrNull(Array.isArray(arr) ? arr[i] : null)
+      })
+      g.share = total === 0 || g.value === null ? null : g.value / total
+      return g
+    })
+  }
+  const onHand = numOrNull(r.stock_onHand)
+  const allocated = numOrNull(r.stock_allocated)
+  return {
+    package: text(r.stock_package),
+    costBasis: text(r.stock_costBasis),
+    currency: text(r.stock_currency),
+    currencyAssumed: r.stock_currencyAssumed === true,
+    lineCount: numOrNull(r.stock_lineCount),
+    linesWithoutValue: numOrNull(r.stock_linesWithoutValue),
+    totalValue: total,
+    allocatedValue: numOrNull(r.stock_allocatedValue),
+    availableValue: numOrNull(r.stock_availableValue),
+    onOrderValue: numOrNull(r.stock_onOrderValue),
+    units: { onHand, allocated, available: numOrNull(r.stock_available), onOrder: numOrNull(r.stock_onOrder) },
+    allocatedShare: onHand === null || onHand === 0 || allocated === null ? null : allocated / onHand,
+    categories: groups('cat'),
+    locations: groups('loc')
+  }
 }
 
 /**
@@ -194,13 +274,15 @@ function pagesRequestFrom (state) {
     industry: s.setup && s.setup.industryCode ? { code: s.setup.industryCode, band: s.setup.sizeBand || null } : null,
     inventory: {
       slowObsolete: numOrNull(s.inventory && s.inventory.slowObsolete),
-      ageing: AGEING_BANDS.map((b, i) => numOrNull(s.inventory && Array.isArray(s.inventory.ageing) ? s.inventory.ageing[i] : null))
+      ageing: AGEING_BANDS.map((b, i) => numOrNull(s.inventory && Array.isArray(s.inventory.ageing) ? s.inventory.ageing[i] : null)),
+      stockFile: s.inventory && s.inventory.stockFile && typeof s.inventory.stockFile === 'object' ? s.inventory.stockFile : null
     }
   }
 }
 
 module.exports = {
   MAX_TEXT,
+  MAX_STOCK_GROUPS,
   AGEING_BANDS,
   OPTIONAL_PAGES,
   SOURCES,

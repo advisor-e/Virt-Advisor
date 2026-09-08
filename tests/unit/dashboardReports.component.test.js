@@ -49,7 +49,7 @@ function hasKey (key) {
 async function mountAt (step, state, figures) {
   global.fetch = jest.fn(() => Promise.resolve({ json: () => Promise.resolve({ success: true, data: figures }) }))
   const wrapper = mountWithBuefy(DashboardReportsWorkbench, {
-    propsData: { step, restore: state, token: 'tok-123', clientName: 'Harbourside Kitchen Supplies Ltd' }
+    propsData: { step, restore: state, token: 'tok-123', apiToken: 'tok-123', clientName: 'Harbourside Kitchen Supplies Ltd' }
   })
   for (let i = 0; i < 4; i++) { await wrapper.vm.$nextTick(); await Promise.resolve() }
   return wrapper
@@ -151,6 +151,67 @@ describe('the advisor\'s steps', () => {
     const boxes = wrapper.findAllComponents({ name: 'BCheckbox' })
     expect(boxes.length).toBe(8)
     expect(boxes.wrappers.map(b => b.props('disabled'))).toEqual([false, false, false, true, true, true, true, true])
+  })
+
+  it('step 3: a chosen stock export goes to the inventory route with the token, and the totals that come back replace the read', async () => {
+    const summary = { package: 'Cin7 Core', costBasis: 'unitCost', currency: 'NZD', currencyAssumed: true, lineCount: 4, linesWithoutValue: 0, totalValue: 198000, allocatedValue: 50000, availableValue: 148000, onOrderValue: 9000, units: { onHand: 155, allocated: 30, available: 125, onOrder: 50 }, allocatedShare: 30 / 155, categories: [{ name: 'Kitchen', lines: 3, value: 190000, onHand: 150, allocated: 30, available: 120, share: 190000 / 198000 }, { name: 'Dining', lines: 1, value: 8000, onHand: 5, allocated: 0, available: 5, share: 8000 / 198000 }], locations: [{ name: 'Auckland', lines: 4, value: 198000, onHand: 155, allocated: 30, available: 125, share: 1 }] }
+    const state = fullState()
+    const wrapper = await mountAt(3, state, computeReportPages({ current: CURRENT, prior: PRIOR, inventory: state.inventory, thresholds: THRESHOLDS }))
+    global.fetch = jest.fn(url => Promise.resolve({ json: () => Promise.resolve(String(url).includes('/inventory') ? { success: true, data: summary } : { success: true, data: computeReportPages({ current: CURRENT, prior: PRIOR, inventory: Object.assign({}, state.inventory, { stockFile: summary }), thresholds: THRESHOLDS }) }) }))
+    const step = wrapper.findComponent({ name: 'DashboardReportsInventory' })
+    await step.vm.receive(new File(['SKU,Product Name'], 'stock.csv', { type: 'text/csv' }))
+    const call = global.fetch.mock.calls.find(c => String(c[0]) === '/api/report/dashboard-reports/inventory')
+    expect(call).toBeTruthy()
+    expect(call[1].headers.Authorization).toBe('Bearer tok-123')
+    expect(call[1].body).toBeInstanceOf(FormData)
+    expect(step.emitted().change[0][0].stockFile).toBe(summary)
+    // The workbench recomputes through the shared mixin's 250 ms debounce
+    await new Promise(resolve => setTimeout(resolve, 320))
+    for (let i = 0; i < 4; i++) { await wrapper.vm.$nextTick(); await Promise.resolve() }
+    // The table on the right is by category — no product line is on the screen — and the band shows the file's total
+    expect(wrapper.find('.dri-read-table').text()).toContain('Kitchen')
+    expect(wrapper.findAllComponents({ name: 'HeroFigure' }).at(0).props('sub')).toBe('report.dashboardReports.hero.fromStockExport')
+    // The route's check against the balance sheet (200,000 confirmed; the file says 198,000) is shown, not hidden
+    expect(wrapper.find('.dri-check').text()).toContain('report.dashboardReports.inventory.differs')
+    expect(wrapper.find('.dri-check').classes()).toContain('is-caution')
+    // A refusal from the route is the message the route gave
+    global.fetch = jest.fn(() => Promise.resolve({ json: () => Promise.resolve({ success: false, error: { code: 'INVENTORY_CURRENCY_MISMATCH', message: 'This Unleashed export is in AUD but the firm reports in NZD.' } }) }))
+    await step.vm.receive(new File(['x'], 'stock.csv'))
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.dri-file-error').text()).toContain('AUD')
+  })
+
+  it('step 3: the wrong kind of file is refused before any upload', async () => {
+    const state = fullState()
+    const wrapper = await mountAt(3, state, computeReportPages({ current: CURRENT, prior: PRIOR, inventory: state.inventory, thresholds: THRESHOLDS }))
+    const calls = global.fetch.mock.calls.length
+    const step = wrapper.findComponent({ name: 'DashboardReportsInventory' })
+    await step.vm.receive(new File(['%PDF'], 'stock.pdf'))
+    expect(global.fetch.mock.calls.length).toBe(calls)
+    expect(step.emitted().change).toBeUndefined()
+  })
+
+  it('🔴 THE STOCK PAGE IS OFFERED ONLY ONCE AN EXPORT IS READ, and then prints beside the balance sheet with the day figures', async () => {
+    const stockFile = { package: 'Unleashed', costBasis: 'averageCost', currency: 'NZD', currencyAssumed: false, lineCount: 2, totalValue: 200000, allocatedValue: 60000, availableValue: 140000, onOrderValue: null, units: { onHand: 100, allocated: 30, available: 70, onOrder: null }, categories: [{ name: 'Parts', value: 200000, share: 1 }], locations: [{ name: 'WH1', value: 150000, share: 0.75 }, { name: 'WH2', value: 50000, share: 0.25 }] }
+    const state = fullState()
+    state.inventory = Object.assign({}, state.inventory, { stockFile })
+    state.pages.added = ['stockVsAccounts']
+    const figures = computeReportPages({ current: CURRENT, prior: PRIOR, inventory: state.inventory, thresholds: THRESHOLDS })
+    const pages = await mountAt(5, state, figures)
+    expect(pages.findAllComponents({ name: 'BCheckbox' }).at(3).props('disabled')).toBe(false)
+    const doc = await mountAt(6, state, figures)
+    const page = doc.findComponent({ name: 'DashboardReportStockVsAccounts' })
+    expect(page.exists()).toBe(true)
+    expect(page.props('number')).toBe(11)
+    expect(doc.findAll('.drd-page').length).toBe(12)
+    const text = page.text()
+    expect(text).toContain('stockVsAccounts.agrees')
+    expect(text).toContain('onOrderAbsent')
+    expect(text).toContain('basis.averageCost')
+    expect(text).toContain('currencyRead')
+    expect(page.findAllComponents({ name: 'HBarChart' }).length).toBe(2)
+    const keys = doc.html().match(/report\.dashboardReports\.[A-Za-z0-9_.]+/g) || []
+    expect(Array.from(new Set(keys)).filter(k => !hasKey(k.replace(/\.$/, '')))).toEqual([])
   })
 
   it('with one year only, the two bridges are withheld and the sensitivity page is still offered', async () => {

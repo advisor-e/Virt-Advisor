@@ -33,6 +33,7 @@
       dashboard-report-profit-bridge(v-if="p === 'profitBridge'" :key="p" :number="11 + i" :client-name="clientName" :period="period" :b="figures.optional.profitBridge" :prior-label="priorLabel" :current-label="currentLabel")
       dashboard-report-cash-bridge(v-else-if="p === 'cashBridge'" :key="p" :number="11 + i" :client-name="clientName" :period="period" :cb="figures.optional.cashBridge" :current-label="currentLabel")
       dashboard-report-sensitivity(v-else-if="p === 'profitSensitivity'" :key="p" :number="11 + i" :client-name="clientName" :period="period" :sv="figures.optional.profitSensitivity")
+      dashboard-report-stock-vs-accounts(v-else-if="p === 'stockVsAccounts'" :key="p" :number="11 + i" :client-name="clientName" :period="period" :sv="figures.optional.stockVsAccounts")
     dashboard-report-information(:number="11 + addedPages.length" :client-name="clientName" :period="period" :prepared-by="state.setup.preparedBy")
 </template>
 
@@ -70,6 +71,7 @@ import DashboardReportInformation from '~/components/DashboardReportInformation.
 import DashboardReportProfitBridge from '~/components/DashboardReportProfitBridge.vue'
 import DashboardReportCashBridge from '~/components/DashboardReportCashBridge.vue'
 import DashboardReportSensitivity from '~/components/DashboardReportSensitivity.vue'
+import DashboardReportStockVsAccounts from '~/components/DashboardReportStockVsAccounts.vue'
 import { intlLocaleFor } from '~/utils/dateLocale'
 const { OPTIONAL_PAGES } = require('~/utils/dashboardReportsSavedShape')
 
@@ -104,7 +106,8 @@ export default {
     DashboardReportInformation,
     DashboardReportProfitBridge,
     DashboardReportCashBridge,
-    DashboardReportSensitivity
+    DashboardReportSensitivity,
+    DashboardReportStockVsAccounts
   },
 
   props: {

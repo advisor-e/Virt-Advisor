@@ -34,6 +34,7 @@ const { computeTrend, MEASURES, SCORE_MEASURES } = require('./trendModel')
 const { computeProfitBridge } = require('./profitBridgeModel')
 const { computeCashBridge } = require('./cashBridgeModel')
 const { computeProfitSensitivity } = require('./profitSensitivityModel')
+const { computeStockVsAccounts } = require('./stockVsAccountsModel')
 const { LINES } = require('./intake/dashboardReportsAssembler')
 
 /** Score at or above which each word applies, highest first. PROVISIONAL — see the header. */
@@ -238,7 +239,7 @@ function scoreBand (score) {
  * @param {object} [inputs.prior] - last year's, or null
  * @param {{balanceSheet: (string|null), profitLoss: (string|null)}} [inputs.currentDates]
  * @param {{balanceSheet: (string|null), profitLoss: (string|null)}} [inputs.priorDates]
- * @param {{slowObsolete: (number|null), ageing: (Array<number|null>|null)}} [inputs.inventory] - the typed inventory figures
+ * @param {{slowObsolete: (number|null), ageing: (Array<number|null>|null), stockFile: (object|null)}} [inputs.inventory] - the typed inventory figures, and the read stock export (stage 4) or null
  * @param {object} [inputs.thresholds] - the firm's resolved trend thresholds `{ levels, movements }`
  * @returns {object}
  */
@@ -341,7 +342,15 @@ function computeReportPages (inputs) {
   const optional = {
     profitBridge: computeProfitBridge({ current: plainCur, prior: plainPri }),
     cashBridge: computeCashBridge({ current: plainCur, prior: plainPri }),
-    profitSensitivity: computeProfitSensitivity({ current: plainCur })
+    profitSensitivity: computeProfitSensitivity({ current: plainCur }),
+    // Stage 4: the stock export beside the balance sheet's stock line and page 7's two day
+    // figures. Refuses by name with no file or no stock line; never derives an age.
+    stockVsAccounts: computeStockVsAccounts({
+      stockFile: inv.stockFile && typeof inv.stockFile === 'object' ? inv.stockFile : null,
+      accountsStock: stockAtCost,
+      stockDays,
+      creditorDays
+    })
   }
 
   return {

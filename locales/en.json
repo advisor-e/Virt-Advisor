@@ -1591,41 +1591,28 @@
         "preparedBy": "Prepared by",
         "preparedHint": "Printed on the cover and the last page. The firm's logo has its place on the cover and in every footer.",
         "findIndustry": "Find the industry",
-
         "findPlaceholder": "Type part of the industry name, or its ANZSIC code",
-
         "benchmarksPublished": "benchmarks published",
-
         "noBenchmarks": "no benchmarks: too few businesses",
-
         "noMatches": "No industry matches that. Try another word from its name.",
-
         "anzsicClass": "ANZSIC06 class · Stats NZ",
-
         "finderHint": "Searches the industries Stats NZ lists. An industry with too few businesses is listed but says so, and the benchmark panel then says why it is empty.",
-
         "sizeBandTitle": "Size band — Stats NZ's four bands for this industry, by turnover",
-
         "band": {
-           "micro": "Micro",
-           "small": "Small",
-           "medium": "Medium",
-           "large": "Large"
-         },
-
+          "micro": "Micro",
+          "small": "Small",
+          "medium": "Medium",
+          "large": "Large"
+        },
         "bandQuarter": {
-           "micro": "the smallest quarter of businesses",
-           "small": "the second quarter",
-           "medium": "the third quarter",
-           "large": "the largest quarter"
-         },
-
+          "micro": "the smallest quarter of businesses",
+          "small": "the second quarter",
+          "medium": "the third quarter",
+          "large": "the largest quarter"
+        },
         "matchesRevenue": "matches revenue {revenue}",
-
         "bandHint": "Stats NZ sets the bands as four even quarters of the businesses in this industry, so the ranges differ by industry. Pre-marked from the revenue in the accounts; you can change it.",
-
         "bandFromRevenue": "Back to the band the revenue puts it in",
-
         "noBenchmarksLong": "Stats NZ publishes no benchmark ratios for this industry: too few businesses. The report names the industry and leaves the comparison out.",
         "continue": "Continue to the accounts",
         "nothingSent": "Nothing is sent anywhere on this step."
@@ -1687,7 +1674,26 @@
       },
       "inventory": {
         "dropTitle": "Drop the stock export",
-        "readerLater": "The Cin7 Core and Unleashed readers are a later stage of this report. Until then the two figures below are yours, and print marked as entered by your advisor.",
+        "zoneTitle": "Stock on hand — Cin7 Core or Unleashed",
+        "zoneHow": "One row per product, with quantities and cost",
+        "choose": "Choose file",
+        "readNote": "{package} export read — {products} products, {categories} categories, {locations} locations",
+        "supported": "Reads Cin7 Core and Unleashed stock exports. Neither has been checked against a real export yet. The export carries no dates, so ageing is entered below. The file is read and discarded; only the totals by category and location are kept, never a product line.",
+        "multiDrop": "Drop one stock export at a time.",
+        "uploadFailed": "The stock export could not be read. Please try again.",
+        "readTitle": "Read from the export — stock at cost by category",
+        "col": {
+          "category": "Category",
+          "products": "Products",
+          "onHand": "On hand",
+          "allocated": "Allocated",
+          "available": "Available",
+          "value": "Value at cost"
+        },
+        "total": "Total",
+        "agrees": "Stock at cost {file} agrees with the Balance Sheet's stock line within 0.1%.",
+        "differs": "Stock at cost {file} differs from the Balance Sheet's {accounts} by {gap} ({pct}) — shown on the page, not hidden.",
+        "noStockLine": "The Balance Sheet has no stock line to check this against — confirm stock on step 2.",
         "cannotTell": "What the accounts cannot tell us",
         "slowObsolete": "Slow or obsolete stock, at cost",
         "ageingTitle": "Stock ageing, at cost",
@@ -1754,17 +1760,19 @@
         },
         "ready": {
           "bothYears": "From both years' accounts",
-          "thisYear": "From this year's accounts"
+          "thisYear": "From this year's accounts",
+          "stockFile": "From your stock export and the accounts"
         },
         "reason": {
           "needsBothYears": "Needs both years' accounts confirmed",
           "needsThisYear": "Needs this year's accounts confirmed",
           "notComputable": "Cannot be worked from these figures",
-          "stockReader": "Needs a stock export; the reader is a later stage of this report",
           "outlook": "Waits on the research feature reaching this report",
           "salesVolatility": "Needs 12 months of sales by month",
           "loanServicing": "No loan on the file",
-          "taxProvision": "The tax tool is not built"
+          "taxProvision": "The tax tool is not built",
+          "stockFile": "Needs a stock export dropped on step 3",
+          "needsStockLine": "Needs the stock line on this year's balance sheet"
         },
         "hint": "The base report is eleven pages, the closing page included. Add as many optional pages as the content supports. A page whose data is missing cannot be ticked, so a page is never added empty.",
         "continue": "Continue to review"
@@ -1820,7 +1828,8 @@
         "andEveryWord": "and every word on page 8",
         "saved": "Saved",
         "notYet": "Not yet",
-        "saveHint": "save to keep it against the client"
+        "saveHint": "save to keep it against the client",
+        "fromStockExport": "from the stock export"
       },
       "doc": {
         "firmLogo": "Firm logo",
@@ -1986,44 +1995,43 @@
         "trendsSub": "How you compare with your own last year",
         "youVsIndustry": "You vs businesses of your size in your industry",
         "statsNz": "Stats NZ",
-
         "bm": {
-           "ratio": "Ratio",
-           "you": "You",
-           "median": "Industry median",
-           "middleHalf": "Middle half",
-           "name": {
-             "returnOnEquity": "Return on equity",
-             "grossProfitRatio": "Gross profit ratio",
-             "returnOnTotalAssets": "Return on total assets",
-             "liabilityStructure": "Liability structure",
-             "wagesToTurnover": "Wages to turnover",
-             "quickRatio": "Quick ratio",
-             "currentRatio": "Current ratio",
-             "stockTurnover": "Stock turnover per year"
-           },
-           "position": {
-             "below": "below",
-             "within": "within",
-             "above": "above"
-           },
-           "noFigure": "not in your accounts",
-           "unpublished": "not published for this industry",
-           "accuracy": {
-             "good": "\"Within\" means inside the middle half of businesses of your size in your industry. Ratios use Stats NZ's definitions so the comparison is like for like. Stats NZ rates this industry's figures good: covered by its quality checks.",
-             "caution": "\"Within\" means inside the middle half of businesses of your size in your industry. Ratios use Stats NZ's definitions so the comparison is like for like. Stats NZ marks this industry's figures caution: not covered by its quality checks.",
-             "suppressed": "\"Within\" means inside the middle half of businesses of your size in your industry. Ratios use Stats NZ's definitions so the comparison is like for like. Stats NZ suppresses part of this industry's figures for very high sample errors.",
-             "none": "\"Within\" means inside the middle half of businesses of your size in your industry. Ratios use Stats NZ's definitions so the comparison is like for like."
-           },
-           "blocked": {
-             "NO_INDUSTRY": "No industry was chosen on step 1, so there is no comparison to draw.",
-             "NO_BENCHMARKS": "Stats NZ publishes no benchmark ratios for {industry}: too few businesses. No comparison is drawn.",
-             "NO_BAND": "{industry}: the revenue falls outside every Stats NZ size band, which cover $60,000 to $10 million of turnover. Choose a band on step 1 or leave the comparison out."
-           },
-           "chooseIndustry": "Choose the industry on step 1 and the Stats NZ comparison appears here.",
-           "bandLine": "{band} businesses by turnover, {from} – {to}",
-           "yearProvisional": "{year} (provisional)"
-         },
+          "ratio": "Ratio",
+          "you": "You",
+          "median": "Industry median",
+          "middleHalf": "Middle half",
+          "name": {
+            "returnOnEquity": "Return on equity",
+            "grossProfitRatio": "Gross profit ratio",
+            "returnOnTotalAssets": "Return on total assets",
+            "liabilityStructure": "Liability structure",
+            "wagesToTurnover": "Wages to turnover",
+            "quickRatio": "Quick ratio",
+            "currentRatio": "Current ratio",
+            "stockTurnover": "Stock turnover per year"
+          },
+          "position": {
+            "below": "below",
+            "within": "within",
+            "above": "above"
+          },
+          "noFigure": "not in your accounts",
+          "unpublished": "not published for this industry",
+          "accuracy": {
+            "good": "\"Within\" means inside the middle half of businesses of your size in your industry. Ratios use Stats NZ's definitions so the comparison is like for like. Stats NZ rates this industry's figures good: covered by its quality checks.",
+            "caution": "\"Within\" means inside the middle half of businesses of your size in your industry. Ratios use Stats NZ's definitions so the comparison is like for like. Stats NZ marks this industry's figures caution: not covered by its quality checks.",
+            "suppressed": "\"Within\" means inside the middle half of businesses of your size in your industry. Ratios use Stats NZ's definitions so the comparison is like for like. Stats NZ suppresses part of this industry's figures for very high sample errors.",
+            "none": "\"Within\" means inside the middle half of businesses of your size in your industry. Ratios use Stats NZ's definitions so the comparison is like for like."
+          },
+          "blocked": {
+            "NO_INDUSTRY": "No industry was chosen on step 1, so there is no comparison to draw.",
+            "NO_BENCHMARKS": "Stats NZ publishes no benchmark ratios for {industry}: too few businesses. No comparison is drawn.",
+            "NO_BAND": "{industry}: the revenue falls outside every Stats NZ size band, which cover $60,000 to $10 million of turnover. Choose a band on step 1 or leave the comparison out."
+          },
+          "chooseIndustry": "Choose the industry on step 1 and the Stats NZ comparison appears here.",
+          "bandLine": "{band} businesses by turnover, {from} – {to}",
+          "yearProvisional": "{year} (provisional)"
+        },
         "twoYearTrend": "Two-year trend",
         "trendRow": {
           "revenue": "Revenue",
@@ -2178,6 +2186,40 @@
               "profit": "Profit",
               "profitSub": "= {contribution} – {fixed}"
             }
+          },
+          "stockVsAccounts": {
+            "title": "Stock against the accounts",
+            "sub": "Your {package} stock export, read beside the balance sheet and the cash page",
+            "fromExport": "From your stock export",
+            "fromAccounts": "From your accounts",
+            "fileAtCost": "Stock file, at cost",
+            "agrees": "Agrees with the balance sheet's {accounts} within 0.1%",
+            "gap": "Balance sheet carries {accounts} — a {gap} ({pct}) gap to explain: goods in transit, or a valuation difference",
+            "notYetSold": "Not yet sold",
+            "notYetSoldRead": "Stock on hand with no customer order against it — {pct} of the file. This is the cash to work on.",
+            "alreadySold": "Already sold",
+            "alreadySoldRead": "Allocated to customer orders and awaiting dispatch — {pct}.",
+            "onOrder": "On order",
+            "onOrderRead": "Purchase orders placed, at cost — cash committed but not yet paid. Cin7 carries this; Unleashed does not.",
+            "onOrderAbsent": "Not in this export — Unleashed carries no on-order column.",
+            "byCategory": "Where the {total} sits — by category",
+            "byLocation": "By location",
+            "otherGroups": "{n} others",
+            "noGroups": "The export carries no grouping for this.",
+            "daysFunded": "Days funded by suppliers",
+            "daysOf": "{funded} of {days}",
+            "daysFundedReadCarried": "Stock sits {stockDays} days on the shelf and suppliers wait {creditorDays} — you carry {carried} days of it yourself. Both from the accounts, page 7.",
+            "daysFundedReadCovered": "Stock sits {stockDays} days on the shelf and suppliers wait {creditorDays} — suppliers fund the whole shelf. Both from the accounts, page 7.",
+            "daysFundedUnknown": "Needs stock days and creditor days from the accounts, page 7.",
+            "ageing": "Ageing",
+            "ageingRead": "Not in this file: neither Cin7 nor Unleashed exports carry a date. The slow-stock figure on page 6 stays your advisor's until an ageing report is read.",
+            "costBasis": "Cost basis: {package} {basis}.",
+            "basis": {
+              "unitCost": "unit cost",
+              "averageCost": "average cost"
+            },
+            "currencyAssumed": "The file carries no currency code and is read as {currency}, the firm's.",
+            "currencyRead": "Read in {currency}, the file's own currency code, checked against the firm's."
           }
         },
         "info": {

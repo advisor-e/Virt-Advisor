@@ -248,6 +248,20 @@ describe('the pages, two years', () => {
     expect(r.optional.cashBridge.enteredCapitalSpend).toBe(85000)
     expect(r.optional.profitSensitivity.available).toBe(true)
     expect(r.optional.profitSensitivity.levers[0].key).toBe('price')
+    // Stage 4: with no stock export dropped, the stock page is withheld by name
+    expect(r.optional.stockVsAccounts.available).toBe(false)
+    expect(r.optional.stockVsAccounts.blocked).toBe('NO_STOCK_FILE')
+  })
+
+  test('a read stock export reaches the stock page with the balance sheet stock line and page 7 day figures', () => {
+    const stockFile = { package: 'Cin7 Core', costBasis: 'unitCost', currency: 'NZD', currencyAssumed: true, lineCount: 3, totalValue: 198000, allocatedValue: 50000, availableValue: 148000, onOrderValue: 9000, categories: [{ name: 'A', value: 198000, share: 1 }], locations: [] }
+    const withFile = computeReportPages({ current: CURRENT, prior: PRIOR, inventory: { slowObsolete: null, ageing: null, stockFile }, thresholds: THRESHOLDS })
+    const sv = withFile.optional.stockVsAccounts
+    expect(sv.available).toBe(true)
+    expect(sv.accountsStock).toBe(withFile.inventory.stockAtCost)
+    expect(sv.gap).toBe(198000 - withFile.inventory.stockAtCost)
+    expect(sv.stockDays).toBe(withFile.cashFlow.stockDays)
+    expect(sv.creditorDays).toBe(withFile.cashFlow.creditorDays)
   })
 
   test('the trends table carries both years for the five rows', () => {

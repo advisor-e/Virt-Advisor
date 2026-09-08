@@ -212,13 +212,33 @@ function readInventoryUpload (buf) {
 }
 
 /**
+ * A line's value split by what the units are doing: allocated to a customer order, or
+ * still available. The file values the line as a whole, so each part is the line's value
+ * in proportion to its units — the only split the file supports. On-order units are valued
+ * at the line's cost per unit, because the file carries no purchase price.
+ * @param {object} l
+ * @returns {{allocatedValue:number, availableValue:number, onOrderValue:number}}
+ */
+function valueSplit (l) {
+  const value = l.value === null ? 0 : l.value
+  const onHand = l.onHand === null ? 0 : l.onHand
+  const share = q => (onHand > 0 && q !== null ? value * (q / onHand) : 0)
+  const onOrderValue = l.onOrder !== null && l.unitCost !== null ? l.onOrder * l.unitCost : 0
+  return { allocatedValue: share(l.allocated), availableValue: share(l.available), onOrderValue }
+}
+
+/**
  * Sum a set of lines under one label.
  * @param {string} name @param {Array<object>} lines
- * @returns {{name:string, lines:number, value:number, onHand:number, allocated:number, available:number}}
+ * @returns {{name:string, lines:number, value:number, onHand:number, allocated:number, available:number, allocatedValue:number, availableValue:number, onOrderValue:number}}
  */
 function bucket (name, lines) {
   const sum = f => lines.reduce((t, l) => t + (l[f] === null ? 0 : l[f]), 0)
-  return { name, lines: lines.length, value: sum('value'), onHand: sum('onHand'), allocated: sum('allocated'), available: sum('available') }
+  const split = lines.reduce((t, l) => {
+    const v = valueSplit(l)
+    return { allocatedValue: t.allocatedValue + v.allocatedValue, availableValue: t.availableValue + v.availableValue, onOrderValue: t.onOrderValue + v.onOrderValue }
+  }, { allocatedValue: 0, availableValue: 0, onOrderValue: 0 })
+  return Object.assign({ name, lines: lines.length, value: sum('value'), onHand: sum('onHand'), allocated: sum('allocated'), available: sum('available') }, split)
 }
 
 /**
@@ -243,8 +263,8 @@ function groupBy (lines, field) {
  * @param {object} parsed - `readInventoryUpload`'s result.
  * @param {string} firmCurrency - the firm's currency code (e.g. 'NZD').
  * @returns {object} { package, confidence, costBasis, currency, currencyAssumed, lineCount,
- *   linesWithoutValue, totalValue, units: {onHand, allocated, available, onOrder|null},
- *   allocatedShare, categories[], locations[] }
+ *   linesWithoutValue, totalValue, allocatedValue, availableValue, onOrderValue|null,
+ *   units: {onHand, allocated, available, onOrder|null}, allocatedShare, categories[], locations[] }
  * @throws {Error} INVENTORY_CURRENCY_MISMATCH — an Unleashed file in another currency, or in more than one.
  */
 function summariseInventory (parsed, firmCurrency) {
@@ -270,6 +290,7 @@ function summariseInventory (parsed, firmCurrency) {
   const valued = lines.filter(l => l.value !== null)
   const total = bucket('all', lines)
   const onOrder = parsed.hasOnOrder ? lines.reduce((t, l) => t + (l.onOrder === null ? 0 : l.onOrder), 0) : null
+  const onOrderValue = parsed.hasOnOrder ? total.onOrderValue : null
 
   return {
     package: parsed.package,
@@ -280,6 +301,9 @@ function summariseInventory (parsed, firmCurrency) {
     lineCount: lines.length,
     linesWithoutValue: lines.length - valued.length,
     totalValue: total.value,
+    allocatedValue: total.allocatedValue,
+    availableValue: total.availableValue,
+    onOrderValue,
     units: { onHand: total.onHand, allocated: total.allocated, available: total.available, onOrder },
     allocatedShare: total.onHand === 0 ? null : total.allocated / total.onHand,
     categories: groupBy(lines, 'category'),

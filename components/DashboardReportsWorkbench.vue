@@ -31,7 +31,9 @@
     @confirmed="go(3)")
   dashboard-reports-inventory(
     v-else-if="step === 3 && !clientMode"
+    :api-token="apiToken"
     :inventory="state.inventory"
+    :check="figures && figures.optional ? figures.optional.stockVsAccounts : null"
     @change="onInventory"
     @continue="go(4)")
   dashboard-reports-words(
@@ -89,16 +91,15 @@ const { pct, days, times } = require('~/utils/reportFormat')
 
 /** Why an optional page with no model behind it yet cannot be added — the stage it waits on. */
 const REASON_KEY = {
-  stockVsAccounts: 'stockReader',
   outlook: 'outlook',
   salesVolatility: 'salesVolatility',
   loanServicing: 'loanServicing',
   taxProvision: 'taxProvision'
 }
 /** The pages the pages route computes, and what a ready one says it is drawn from. */
-const READY_KEY = { profitBridge: 'bothYears', cashBridge: 'bothYears', profitSensitivity: 'thisYear' }
+const READY_KEY = { profitBridge: 'bothYears', cashBridge: 'bothYears', profitSensitivity: 'thisYear', stockVsAccounts: 'stockFile' }
 /** A model's refusal, as the reason the page shows. */
-const BLOCKED_KEY = { NO_PRIOR_YEAR: 'needsBothYears', NO_PRIOR_REVENUE: 'needsBothYears', NO_CURRENT_YEAR: 'needsThisYear', NO_REVENUE: 'needsThisYear' }
+const BLOCKED_KEY = { NO_PRIOR_YEAR: 'needsBothYears', NO_PRIOR_REVENUE: 'needsBothYears', NO_CURRENT_YEAR: 'needsThisYear', NO_REVENUE: 'needsThisYear', NO_STOCK_FILE: 'stockFile', NO_STOCK_LINE: 'needsStockLine' }
 
 export default {
   name: 'DashboardReportsWorkbench',
@@ -212,8 +213,12 @@ export default {
       }
       if (this.step === 3 && !this.clientMode) {
         const i = f ? f.inventory : null
+        const sf = s.inventory.stockFile
         return [
-          { label: t('stockAtCost'), value: i && i.stockAtCost !== null ? this.kMoney(i.stockAtCost) : dash, sub: t('fromAccounts') },
+          // Stage 4: a read stock export is the figure on the band; the accounts' line is the check
+          sf
+            ? { label: t('stockAtCost'), value: this.kMoney(sf.totalValue), sub: t('fromStockExport') }
+            : { label: t('stockAtCost'), value: i && i.stockAtCost !== null ? this.kMoney(i.stockAtCost) : dash, sub: t('fromAccounts') },
           { label: t('stockTurn'), value: i ? times(i.stockTurn) : dash, sub: t('fromAccounts') },
           { label: t('daysOnShelf'), value: i ? days(i.stockDays) : dash, sub: t('fromAccounts') },
           { label: t('slowObsolete'), value: i && i.slowObsolete !== null ? this.kMoney(i.slowObsolete) : dash, sub: t('enteredByYou') }
