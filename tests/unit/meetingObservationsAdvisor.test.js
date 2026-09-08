@@ -11,11 +11,12 @@
  * silent change to them would misattribute a firm's words to Advisor-e — see that test's own
  * comment. What UAT cannot see, and these pin:
  *
- * - 🔴 the SOURCE TIER, which needs two signals and is wrong with either one alone. A firm
+ * - 🔴 the SOURCE TIER, which needs three signals and is wrong with any one alone. A firm
  *   that edits a platform point keeps the platform ID — identity is never editable — so the
  *   prefix alone says "From Advisor-e" about words the firm wrote. A middle tier's own point
  *   reaches the firm marked `inherited`, so the firm's badge alone says "From Advisor-e"
- *   about words a country group wrote. Both look completely normal on screen;
+ *   about words a group manager wrote. And a middle tier REWORDING a platform point defeats
+ *   both, which was item 4.76. All three look completely normal on screen;
  * - that an advisor's layer NEVER changes the firm's list, which is P14 and the whole
  *   permission model;
  * - that a removed point's id is not handed to the next one added, which would silently
@@ -45,7 +46,7 @@ const FIRM_POINTS = [
   { id: 'mo-eoy-1', text: 'The meeting was framed.', source: OBSERVATION_SOURCE_LABELS.inherited },
   { id: 'mo-eoy-2', text: 'A metaphor was used.', source: OBSERVATION_SOURCE_LABELS.override },
   { id: 'fm-3', text: 'Our own question was asked.', source: OBSERVATION_SOURCE_LABELS.own },
-  { id: 'gm-9', text: "The country group's question.", source: OBSERVATION_SOURCE_LABELS.inherited }
+  { id: 'gm-9', text: "The group manager's question.", source: OBSERVATION_SOURCE_LABELS.inherited }
 ]
 
 describe('which tier an advisor is told a point came from', () => {
@@ -68,7 +69,7 @@ describe('which tier an advisor is told a point came from', () => {
   })
 
   it('🔴 says FIRM for a middle tier\'s own point, which reaches the firm marked inherited', () => {
-    // The mirror-image failure: a country group's own point arrives at the firm as
+    // The mirror-image failure: a group manager's own point arrives at the firm as
     // `inherited`, so the firm's badge alone would say "From Advisor-e". The prefix catches
     // it. Neither signal covers both cases, which is why the function reads both.
     expect(sourceTierOf({ id: 'gm-9', firmSource: OBSERVATION_SOURCE_LABELS.inherited })).toBe('firm')
@@ -397,7 +398,7 @@ describe("what the manager sees of their advisors' decisions", () => {
     // screen and a broken screen look identical. The drawing makes this argument itself.
     expect(rows).toHaveLength(FIRM_POINTS.length)
     expect(rows.filter(r => r.id === 'gm-9')[0]).toEqual({
-      id: 'gm-9', text: "The country group's question.", count: 0, setAsideBy: []
+      id: 'gm-9', text: "The group manager's question.", count: 0, setAsideBy: []
     })
   })
 

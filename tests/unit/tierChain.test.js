@@ -66,16 +66,16 @@ describe('tierChain — with membership data', () => {
     'firm-nowhere': { globalGroup: 'Advisor-e' }
   }))
 
-  test('a firm resolves to its country group', () => {
+  test("a firm resolves to its group manager's scope", () => {
     expect(parentScopeOf('firm-berlin')).toBe(groupScopeId('Advisor-e', 'DE'))
     expect(parentScopeOf('firm-dublin')).toBe(groupScopeId('Advisor-e', 'IE'))
   })
 
-  test('a country group resolves to its brand', () => {
+  test("a group manager's scope resolves to the global group manager's", () => {
     expect(parentScopeOf(groupScopeId('Advisor-e', 'DE'))).toBe(globalScopeId('Advisor-e'))
   })
 
-  test('a brand resolves to the mentor, and the mentor to nothing', () => {
+  test("a global group manager's scope resolves to the mentor, and the mentor to nothing", () => {
     expect(parentScopeOf(globalScopeId('Advisor-e'))).toBe(PLATFORM_SCOPE)
     expect(parentScopeOf(PLATFORM_SCOPE)).toBeNull()
   })

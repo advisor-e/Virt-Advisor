@@ -274,8 +274,11 @@ const postures = {
   }
 }
 
-// The composite key for the country level: a brand's country unit (Advisor-e
-// Germany ≠ BDO Germany — see the console "Groups" tile).
+// The composite key a GROUP MANAGER's scope is stored under: one global group in one
+// country (Advisor-e Germany ≠ BDO Germany — see the console "Groups" tile).
+//
+// ⚠ `globalGroup` and `country` here are FIELDS ON AN ADVISOR RECORD, not tier names. An
+// advisor genuinely has a country; the tier that reads it is the group manager.
 const countryKey = (brand, country) => (brand || '') + '||' + (country || '')
 
 // Posture stored at one level for one key, defaulting to the opt-in default (D1).
@@ -312,9 +315,10 @@ function canReach (from, to) {
 }
 
 // Which posture level a manager CONTROLS (their own tier) + the storage key/label:
-//   • Firm Manager  → the firm/branch level
-//   • Group Manager → the country level (their brand's country unit)
-//   • Global / Mentor → the brand (global) level
+//   • Firm Manager         → the firm/branch level
+//   • Group Manager        → their own group (one global group in one country)
+//   • Global Group Manager → their own global group
+//   • Mentor               → the same global group level
 // A manager writes exactly this one key — never a per-child fan-out (scale).
 function postureScopeFor (me) {
   const tier = roles.resolveTier(me)

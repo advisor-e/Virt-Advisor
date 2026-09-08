@@ -168,9 +168,9 @@ const ADVISOR_SOURCE_LABELS = {
  * The three source tiers an advisor is shown, and their approved labels.
  *
  * 🔴 THREE, NOT FIVE — Mike's ruling of 2026-09-08 (question 3). A point can come from the
- * mentor, a global brand group, a country group or the firm, and the middle two COLLAPSE
- * into "From your firm": an advisor has no relationship with a brand or a country tier and
- * would read "From the UK group" as a question rather than an answer.
+ * mentor, a global group manager, a group manager or the firm, and the middle two COLLAPSE
+ * into "From your firm": an advisor has no relationship with a global group manager or a
+ * group manager, and would read "From the UK group" as a question rather than an answer.
  *
  * @type {Object.<string, string>}
  */
@@ -410,8 +410,9 @@ function readAdvisorOwn (stored) {
  *      (`xm-`, `gm-`) arriving marked inherited.
  *
  * ⚠ ANY TIER BELOW THE MENTOR READS AS `firm`. Mike's ruling, 2026-09-08 (question 3): an
- * advisor has no relationship with a brand or a country tier and would read "From the UK
- * group" as a question rather than an answer. The collapse is deliberate, not a shortcut.
+ * advisor has no relationship with a global group manager or a group manager, and would read
+ * "From the UK group" as a question rather than an answer. The collapse is deliberate, not a
+ * shortcut.
  *
  * ⚠ THE FALLBACK IS `firm`, NOT `platform`. An id whose prefix nobody recognises — or a mark
  * whose value nobody recognises — is far more likely to be something written inside the

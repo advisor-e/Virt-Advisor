@@ -96,7 +96,7 @@ describe('firmsUnderScope', () => {
     'firm-leeds': { globalGroup: 'BDO', country: 'UK' }
   }))
 
-  test('a country group lists only its own firms', () => {
+  test("a group manager's scope lists only its own firms", () => {
     expect(firmsUnderScope(groupScopeId(BRAND, 'DE')).sort())
       .toEqual(['firm-berlin', 'firm-munich'])
   })

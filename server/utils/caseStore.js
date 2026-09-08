@@ -299,7 +299,7 @@ function rowToMentorCase (row) {
  * 🔴 THE SCOPE ARGUMENT IS NEW (2026-08-11) AND IT CLOSES A CROSS-BRAND READ.
  * This was a flat `WHERE mentor_shared = 1` with no scope at all — correct while
  * the mentor was the only reader, because the mentor is meant to see everything.
- * The moment the Case Reviews tab appeared at a global and a country tier, that
+ * The moment the Case Reviews tab appeared for a global group manager and a group manager, that
  * same query handed one brand's screen every other brand's cases. The owner's
  * ruling of 2026-08-11: "it needs to stay in their channel — only firms data that
  * are member of that group (country) goes to that group manager. only group
