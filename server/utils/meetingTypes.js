@@ -44,6 +44,13 @@ const { meetingScenarios } = require('./meetingObservations')
  *   - meeting-type-overrides -> { typeId: {name?, …} }   edited fields
  *   - meeting-type-own       -> [ {id, name, treeId?} ]  types added here
  *   - meeting-type-order     -> [typeId]                 this scope's running order
+ *   - meeting-type-next-seq  -> n                        ids already minted
+ *
+ * 🔴 `nextSeq` IS A COUNTER, NOT A DECISION. It is deliberately absent from
+ * `loadScopeTypeState`, so `hasAnyTypeDecision` cannot count it — a scope that added a type
+ * and removed it again has decided nothing and must still see the layer above by identity.
+ * One number rather than a map, because own types are one flat list here and not per
+ * scenario. See `nextOwnTypeId`.
  *
  * @type {Object.<string, string>}
  */
@@ -51,7 +58,8 @@ const CONFIG_KEYS = {
   declines: 'meeting-type-declines',
   overrides: 'meeting-type-overrides',
   own: 'meeting-type-own',
-  order: 'meeting-type-order'
+  order: 'meeting-type-order',
+  nextSeq: 'meeting-type-next-seq'
 }
 
 /** Dev-only stand-ins, used when there is no MySQL. Same gate as the points. */
@@ -59,7 +67,8 @@ const DEV_FILES = {
   declines: 'data/dev-meeting-type-declines.json',
   overrides: 'data/dev-meeting-type-overrides.json',
   own: 'data/dev-meeting-type-own.json',
-  order: 'data/dev-meeting-type-order.json'
+  order: 'data/dev-meeting-type-order.json',
+  nextSeq: 'data/dev-meeting-type-next-seq.json'
 }
 
 /**
@@ -167,10 +176,16 @@ function validateTypeFields (value, opts) {
  * type must not stop a manager opening the screen. Same discipline as the points.
  *
  * @param {*} stored
- * @param {'declines'|'overrides'|'own'|'order'} kind
- * @returns {object|Array} the shape for that kind, always defined
+ * @param {'declines'|'overrides'|'own'|'order'|'nextSeq'} kind
+ * @returns {object|Array|number} the shape for that kind, always defined
  */
 function readTypeDecisions (stored, kind) {
+  // A corrupt mark degrades to the live rows rather than minting a negative or fractional
+  // id — `nextOwnTypeId` still reads the ids actually held.
+  if (kind === 'nextSeq') {
+    return (Number.isInteger(stored) && stored > 0) ? stored : 0
+  }
+
   if (kind === 'declines' || kind === 'order') {
     if (!Array.isArray(stored)) { return [] }
     return stored.filter(id => typeof id === 'string' && id)
@@ -350,23 +365,36 @@ async function loadResolvedTypes (scopeId, loadFirmConfig) {
 /**
  * Mint the next own-type id for a scope.
  *
- * Counts from the ids the scope already holds rather than from the list length, so
- * deleting a type never hands its id to the next one added — a reused id would inherit the
- * deleted type's declines, overrides and, worse, its recorded meetings.
+ * 🔴 IT TAKES A STORED HIGH-WATER MARK AS WELL AS THE LIVE ROWS, AND IT NEEDS BOTH. Counting
+ * from the ids currently held is not enough: remove the HIGHEST one and the next type added
+ * takes its id straight back, inheriting the removed type's declines, overrides, order entry
+ * and — the reason this matters more here than on a point — every meeting already recorded
+ * against it. A firm's meetings would re-file themselves under a type nobody held them in.
+ *
+ * ⚠ THE JSDOC HERE USED TO CLAIM THIS AND THE CODE DID NOT DO IT (item 4.72, fixed
+ * 2026-09-08). Found while fixing the identical fault on observation points; this twin was
+ * not on the item and had the same false claim written above it.
+ *
+ * The mark only ever goes up, and the live rows are still read — so a mark lost to a
+ * hand-edited dev file, or absent from data written before the mark existed, degrades to the
+ * old behaviour rather than colliding with a type that is right there.
  *
  * @param {string} scopeId
  * @param {Array<object>} existingOwnRows
- * @returns {string}
+ * @param {number} [lastSeq] - the stored high-water mark, if any
+ * @returns {{id: string, seq: number}}
  */
-function nextOwnTypeId (scopeId, existingOwnRows) {
+function nextOwnTypeId (scopeId, existingOwnRows, lastSeq) {
   const prefix = ownTypePrefix(scopeId)
   const used = (Array.isArray(existingOwnRows) ? existingOwnRows : [])
     .map(r => (r && typeof r.id === 'string' && r.id.indexOf(prefix) === 0)
       ? parseInt(r.id.slice(prefix.length), 10)
       : NaN)
     .filter(n => Number.isInteger(n) && n > 0)
-  const highest = used.length ? Math.max(...used) : 0
-  return prefix + (highest + 1)
+  const highestHeld = used.length ? Math.max(...used) : 0
+  const mark = (Number.isInteger(lastSeq) && lastSeq > 0) ? lastSeq : 0
+  const seq = Math.max(highestHeld, mark) + 1
+  return { id: prefix + seq, seq }
 }
 
 module.exports = {

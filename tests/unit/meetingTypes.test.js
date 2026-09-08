@@ -265,17 +265,44 @@ describe('applyOrder is a preference, not a schema', () => {
 
 describe('nextOwnTypeId', () => {
   test('mints under the tier prefix', () => {
-    expect(mt.nextOwnTypeId(PLATFORM_SCOPE, [])).toBe('mt-1')
-    expect(mt.nextOwnTypeId(FIRM, [])).toBe('ft-1')
+    expect(mt.nextOwnTypeId(PLATFORM_SCOPE, []).id).toBe('mt-1')
+    expect(mt.nextOwnTypeId(FIRM, []).id).toBe('ft-1')
   })
 
   test('🔴 a removed id is never reissued — it would inherit the old type\'s meetings', () => {
     const held = [{ id: 'mt-1' }, { id: 'mt-3' }]
-    expect(mt.nextOwnTypeId(PLATFORM_SCOPE, held)).toBe('mt-4')
+    expect(mt.nextOwnTypeId(PLATFORM_SCOPE, held).id).toBe('mt-4')
+  })
+
+  test('🔴 removing the HIGHEST type does not hand its id back — the 4.72 fault', () => {
+    // The test above deletes a MIDDLE id, which counting the live rows handled correctly.
+    // Deleting the highest left nothing to count from and reissued it — and a reused type id
+    // pulls every meeting recorded against the removed type under the new one.
+    const before = mt.nextOwnTypeId(PLATFORM_SCOPE, [{ id: 'mt-1' }, { id: 'mt-2' }])
+    expect(before.id).toBe('mt-3')
+
+    const after = mt.nextOwnTypeId(PLATFORM_SCOPE, [{ id: 'mt-1' }, { id: 'mt-2' }], before.seq)
+    expect(after.id).toBe('mt-4')
+  })
+
+  test('the mark alone is enough when every own type has been removed', () => {
+    expect(mt.nextOwnTypeId(FIRM, [], 5).id).toBe('ft-6')
+  })
+
+  test('a mark behind the live rows is ignored rather than trusted', () => {
+    expect(mt.nextOwnTypeId(FIRM, [{ id: 'ft-9' }], 2).id).toBe('ft-10')
+  })
+
+  test('a corrupt mark reads as no mark at all', () => {
+    expect(mt.readTypeDecisions(0, 'nextSeq')).toBe(0)
+    expect(mt.readTypeDecisions(-3, 'nextSeq')).toBe(0)
+    expect(mt.readTypeDecisions(2.5, 'nextSeq')).toBe(0)
+    expect(mt.readTypeDecisions('4', 'nextSeq')).toBe(0)
+    expect(mt.readTypeDecisions(4, 'nextSeq')).toBe(4)
   })
 
   test('ignores ids minted by another tier', () => {
-    expect(mt.nextOwnTypeId(PLATFORM_SCOPE, [{ id: 'ft-9' }])).toBe('mt-1')
+    expect(mt.nextOwnTypeId(PLATFORM_SCOPE, [{ id: 'ft-9' }]).id).toBe('mt-1')
   })
 })
 

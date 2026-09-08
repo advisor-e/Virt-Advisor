@@ -54,7 +54,8 @@ const {
   loadScopeObservationState,
   loadResolvedObservations,
   asAdvisorPreset,
-  nextOwnPointId
+  nextOwnPointId,
+  readNextSeqMap
 } = require('../utils/meetingObservations')
 const {
   CONFIG_KEYS: ADVISOR_KEYS,
@@ -202,6 +203,19 @@ async function writeScopeConfig (scopeId, part, value, savedBy) {
 async function readPart (scopeId, part) {
   const stored = await readScopeConfig(scopeId, CONFIG_KEYS[part])
   return readDecisionMap(stored, part)
+}
+
+/**
+ * This scope's minted-id high-water marks, keyed by scenario.
+ *
+ * ⚠ NOT `readPart`. `readDecisionMap` knows three kinds and would fall through to its
+ * overrides branch for a fourth, quietly mangling the numbers into `{}`.
+ *
+ * @param {string} scopeId
+ * @returns {Promise<Object.<string, number>>}
+ */
+async function readSeqPart (scopeId) {
+  return readNextSeqMap(await readScopeConfig(scopeId, CONFIG_KEYS.nextSeq))
 }
 
 /** 500 with the fault logged server-side and nothing internal returned. */
@@ -384,6 +398,13 @@ async function setPointDecline (req, res) {
  * collide with an inherited point and silently replace it, and every decline and override
  * in the mechanism is keyed to an id.
  *
+ * 🔴 THE HIGH-WATER MARK IS SAVED BEFORE THE POINT, AND THAT ORDER IS THE GUARANTEE (item
+ * 4.72). Two keys cannot be written atomically, so the order decides what a half-completed
+ * write leaves behind. Mark first: if it fails, nothing is added at all; if the point then
+ * fails, the mark is merely ahead of reality and the next id skips a number. Written the
+ * other way round, a crash between the two would reissue the id that was just used — which
+ * is the whole fault this closes.
+ *
  * @route POST /api/firm-manager/meeting-observations/:scenarioId/own
  * @param {object} req.body - `{ text: string, advisorText?: string }`
  * @returns {{added: true, scenarioId: string, pointId: string}}
@@ -398,10 +419,14 @@ async function addOwnPoint (req, res) {
   try {
     const own = await readPart(req.firmId, 'own')
     const rows = own[scenarioId] || []
-    const pointId = nextOwnPointId(req.firmId, rows)
-    const next = { ...own, [scenarioId]: [...rows, { id: pointId, ...checked.value }] }
+    const seqs = await readSeqPart(req.firmId)
+    const minted = nextOwnPointId(req.firmId, rows, seqs[scenarioId])
+
+    await writeScopeConfig(req.firmId, 'nextSeq', { ...seqs, [scenarioId]: minted.seq }, req.userEmail)
+
+    const next = { ...own, [scenarioId]: [...rows, { id: minted.id, ...checked.value }] }
     await writeScopeConfig(req.firmId, 'own', next, req.userEmail)
-    res.send(201, { added: true, scenarioId, pointId })
+    res.send(201, { added: true, scenarioId, pointId: minted.id })
   } catch (err) {
     return serverError(res, err, 'add that point')
   }

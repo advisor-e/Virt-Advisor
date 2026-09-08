@@ -188,14 +188,45 @@ describe('tier prefixes cannot collide', () => {
 
   test('the mentor and a firm mint different ids for their first added point', () => {
     // The Phase 5 defect, stated as a test: same position, same count, different identity.
-    expect(mo.nextOwnPointId(PLATFORM_SCOPE, [])).not.toBe(mo.nextOwnPointId(FIRM, []))
+    expect(mo.nextOwnPointId(PLATFORM_SCOPE, []).id).not.toBe(mo.nextOwnPointId(FIRM, []).id)
   })
 
   test('a deleted point never hands its id to the next one added', () => {
     // Counting from length would reissue `fm-2` after deleting it, and the new point would
     // inherit the deleted one's declines and overrides.
     const held = [{ id: 'fm-1', text: 'a' }, { id: 'fm-3', text: 'c' }]
-    expect(mo.nextOwnPointId(FIRM, held)).toBe('fm-4')
+    expect(mo.nextOwnPointId(FIRM, held).id).toBe('fm-4')
+  })
+
+  test('🔴 removing the HIGHEST point does not hand its id back — the 4.72 fault', () => {
+    // This is the case the test above could not see. Deleting a MIDDLE id leaves a higher
+    // one behind, so counting the live rows still gave the right answer; deleting the
+    // highest leaves nothing to count from and reissued it. A reused id matches the removed
+    // point in any coaching report already stored against it, and arrives already set aside
+    // for every advisor who had declined the old one.
+    const before = mo.nextOwnPointId(FIRM, [{ id: 'fm-1' }, { id: 'fm-2' }])
+    expect(before.id).toBe('fm-3')
+
+    // fm-3 is added, then removed again. The mark it left behind is what the store holds.
+    const after = mo.nextOwnPointId(FIRM, [{ id: 'fm-1' }, { id: 'fm-2' }], before.seq)
+    expect(after.id).toBe('fm-4')
+  })
+
+  test('the mark alone is enough when every own row has been removed', () => {
+    // The scenario's array is deleted outright when it empties, so the live rows are gone.
+    expect(mo.nextOwnPointId(FIRM, [], 6).id).toBe('fm-7')
+  })
+
+  test('a mark behind the live rows is ignored rather than trusted', () => {
+    // Degrade towards the rows that are actually there: a stale or hand-edited mark must
+    // never mint an id that collides with a point sitting in front of it.
+    expect(mo.nextOwnPointId(FIRM, [{ id: 'fm-9' }], 2).id).toBe('fm-10')
+  })
+
+  test('a corrupt mark is dropped, not minted from', () => {
+    expect(mo.readNextSeqMap({ eoy: 4, bad: 0, worse: 2.5, awful: 'x' })).toEqual({ eoy: 4 })
+    expect(mo.readNextSeqMap(null)).toEqual({})
+    expect(mo.readNextSeqMap([1, 2])).toEqual({})
   })
 })
 
