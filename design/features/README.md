@@ -61,6 +61,7 @@ can be read in one place — the Handbook does not move them.*
 | [Case Reviews](case-reviews.md) — mentor & middle tiers | [history](case-reviews-history.md) |
 | [Template Check](template-check.md) — **mentor only** | [history](template-check-history.md) |
 | [AI Prompts](ai-prompts.md) — The prompt templates a manager can tune — locked method, three declared variables | [history](ai-prompts-history.md) |
+| [Tax Rules](tax-rules.md) — the depreciation rates a firm's forecasts use, read from its tax authority's own documents | [history](tax-rules-history.md) |
 
 *Also on the Hub but covered elsewhere: Domain Support and Logic Tables (above, under the
 engine), and Team Progress / Team Case Studies (see Advisor Progress and Case Studies).

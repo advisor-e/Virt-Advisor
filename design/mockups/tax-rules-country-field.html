@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tax Rules — which country is this client in?</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Item 4.78 — ADDENDUM to design/mockups/tax-rules-advisor.html, drawn 2026-09-09.
+
+   WHY A SEPARATE FILE. The advisor's screen was approved on 2026-09-08 and this
+   was not in it. Amending an approved artefact would blur what was agreed and
+   when, so the parent drawing is left exactly as approved and this says what is
+   being added to it.
+
+   WHAT CREATED IT. Mike's ruling of 2026-09-09, answering a question the
+   specification could not answer for him: the forecast had NO country field
+   anywhere — not on the intake, not in a mixin — so every rule reading "a client
+   in that country" pointed at something the app did not know. His ruling:
+   ASKED ONCE PER FORECAST, DEFAULTING TO THE FIRM'S OWN COUNTRY.
+     specs/001-tax-rules-per-country/spec.md  FR-026, FR-029, FR-030
+
+   Colours, spacing and type are READ OFF the shipped screens per the owner ruling
+   of 2026-07-23. No dark mode: one light look, RULED 2026-07-27.
+
+   REAL VALUES. The six categories and their rates are the shipped defaults in
+   components/ThreeWayForecastIntake.vue (ASSET_SPECS); the New Zealand figures
+   are from IR265 (October 2023).
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+
+.rs-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.chip{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:999px;padding:7px 13px}
+.chip .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
+  background:var(--rs-line);color:var(--rs-ink)}
+.chip.done{border-color:#4ca52d55;background:var(--rs-good-soft)}
+.chip.done .n{background:var(--rs-good);color:#fff}
+.chip.now{border-color:#0070c055;background:var(--rs-accent-soft)}
+.chip.now .n{background:var(--rs-accent);color:#fff}
+.chip.todo{color:var(--rs-muted)}
+
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+
+/* the field itself — same shape as the other selects on the intake screens */
+.field{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.field label{font-size:13.5px;font-weight:600;min-width:190px}
+select{font:inherit;font-size:14px;font-weight:600;color:var(--rs-ink);background:#fff;
+  border:1px solid var(--rs-line);border-radius:8px;padding:8px 12px;min-width:230px}
+.hint{font-size:12.5px;color:var(--rs-muted);margin-top:8px}
+
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line)}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rs-line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.ro{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:7px;
+  padding:5px 10px;display:inline-block;font-variant-numeric:tabular-nums;font-weight:600;
+  color:var(--rs-muted);min-width:66px;text-align:right}
+
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--rs-accent-soft);color:#0058a0;white-space:nowrap}
+.badge.def{background:#f1f4f7;color:#7a8ba0}
+.badge.firm{background:var(--rs-good-soft);color:#2f7d32}
+.badge.ent{background:var(--rs-warn-soft);color:#8a5a00}
+
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice b{display:block;margin-bottom:3px}
+.notice .row{display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap}
+
+.btn{display:inline-block;background:var(--rs-accent);color:#fff;border:0;
+  border-radius:9px;padding:9px 18px;font:inherit;font-weight:600;font-size:13.5px;cursor:default}
+.btn.ghost{background:transparent;color:var(--rs-accent);border:1px solid var(--rs-accent)}
+.btn.small{padding:6px 13px;font-size:12.5px}
+
+.gaps{margin:0;padding-left:18px;font-size:13.5px}
+.gaps li{margin:8px 0}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Item 4.78 — ADDENDUM to the advisor's screen, drawn for approval 2026-09-09.
+  Nothing is built.</b> The parent drawing is
+  <b>design/mockups/tax-rules-advisor.html</b>, approved 2026-09-08 and deliberately left
+  untouched — this shows only what is being ADDED to it.</p>
+  <p><b>Why it exists.</b> Writing the specification found that the forecast has <b>no
+  country field at all</b> — none on the intake, none in any shared code. Every rule in this
+  feature reading <i>"a client in that country"</i> was pointing at something the app does
+  not know. Mike's ruling, 2026-09-09: <b>ask once per forecast, defaulting to the firm's own
+  country.</b></p>
+  <p>Two things follow from that ruling and are drawn below: the country is <b>saved with the
+  forecast</b>, and <b>changing it never silently moves a rate</b>.</p>
+</div>
+
+<div class="rs-top">
+  <div class="rs-eyebrow">Three-Way Forecast · Step 2</div>
+  <h1 class="rs-h1">Confirm the opening position</h1>
+  <div class="rs-client">Harbour Freight Pty Ltd · forecast starts 1 July 2026</div>
+</div>
+
+<div class="chips">
+  <div class="chip done"><span class="n">✓</span> Drop the exports</div>
+  <div class="chip now"><span class="n">2</span> Confirm the opening position</div>
+  <div class="chip todo"><span class="n">3</span> Set the assumptions</div>
+  <div class="chip todo"><span class="n">4</span> The forecast</div>
+</div>
+
+<div class="stepmark">1 · The field, and where it sits</div>
+
+<div class="mock">
+  <p><b>Directly above the Assets card, not on a settings page.</b> It sits where its effect
+  is visible: the six rates underneath it change when it changes. An advisor answers it
+  without going anywhere.</p>
+  <p><span class="rec">Considered and rejected:</span> putting it on step 1 with the file
+  drop. It would be answered before the advisor has any reason to care, and forgotten by the
+  time the rates appear.</p>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>This client</h2></div>
+  <div class="card-b">
+    <div class="field">
+      <label for="c">Country the client trades in</label>
+      <select id="c">
+        <option>Australia</option>
+        <option>New Zealand — your firm's country</option>
+      </select>
+    </div>
+    <div class="hint">
+      This decides which depreciation rates the forecast uses. It starts as your firm's own
+      country and is <b>saved with this forecast</b> — reopening it later will use the rates
+      it was built on, not whatever has been approved since.
+    </div>
+  </div>
+</div>
+
+<div class="stepmark">2 · Changing it never moves a figure on its own</div>
+
+<div class="mock">
+  <p><b>The same rule Mike already ruled for approvals</b> (advisor drawing §5, ruling 3):
+  figures moving underneath someone part-way through a report is how a number gets into a
+  document nobody meant to send. Switching country is told, counted, and waits.</p>
+</div>
+
+<div class="notice warn">
+  <div class="row">
+    <div>
+      <b>You changed this client's country to New Zealand — 3 of 6 rates would change</b>
+      Vehicles 20% → 50%, Office equipment 25% → 25% (unchanged), Plant and equipment 22% →
+      13%. Your forecast has not been altered. <b>The rate you typed for Plant and equipment
+      will be kept.</b>
+    </div>
+    <button class="btn small">Apply the New Zealand rates</button>
+  </div>
+</div>
+
+<div class="stepmark">3 · The Assets card underneath it — unchanged from the approved drawing</div>
+
+<div class="mock">
+  <p>Shown only so the two are seen together. <b>Nothing here is new</b>; the badges and the
+  editable rate are exactly as approved on 2026-09-08.</p>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Assets and depreciation</h2>
+    <span style="font-size:12.5px;color:var(--rs-muted)">Change any rate for this client — it is
+      tagged <b>entered</b> and never alters your firm's table</span>
+  </div>
+  <div class="card-b">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:38%">Category</th>
+          <th>Opening book value</th>
+          <th>Depreciation rate</th>
+          <th>Where the rate comes from</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Vehicles</td><td class="num">128,400</td>
+          <td><span class="ro">20%</span></td>
+          <td><span class="badge def">app default</span></td>
+        </tr>
+        <tr>
+          <td>Plant and equipment</td><td class="num">310,750</td>
+          <td><span class="ro">15%</span></td>
+          <td><span class="badge ent">entered by you</span></td>
+        </tr>
+        <tr>
+          <td>Office equipment</td><td class="num">18,900</td>
+          <td><span class="ro">25%</span></td>
+          <td><span class="badge def">app default</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="stepmark">4 · What this drawing deliberately does NOT do</div>
+
+<div class="card">
+  <div class="card-b">
+    <ul class="gaps">
+      <li><b>It does not create a client record.</b> The country is a fact about this
+        forecast, saved with it. Mike's ruling took the client-record option off the table
+        precisely because that record does not exist yet and the feature would have waited on
+        it.</li>
+      <li><b>It does not offer every country in the world as a live choice.</b> A country with
+        no approved table anywhere gets the app's six defaults, badged as defaults — the
+        advisor is never blocked, and never told a country is unavailable.</li>
+      <li><b>It does not change what a rate means.</b> Mike ruled on 2026-09-09 that the
+        forecast keeps ONE depreciation rate per category, charged as an expense and taxed on
+        the profit after it. Changing country changes that one rate, so it moves reported
+        profit as well as tax — which is why the notice in §2 counts the rows rather than
+        just saying "rates updated".</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

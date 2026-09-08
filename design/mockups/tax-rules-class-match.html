@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tax Rules — which published class is which category?</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Item 4.78 — ADDENDUM to design/mockups/tax-rules-upload.html, drawn 2026-09-09.
+
+   WHY A SEPARATE FILE. The firm manager's screen was approved on 2026-09-08 and
+   this step was not in it. Amending an approved artefact would blur what was
+   agreed and when, so the parent drawing is left exactly as approved and this
+   says what is being added to it.
+
+   WHAT CREATED IT. Mike's ruling of 2026-09-09. A tax authority publishes around
+   156 asset classes; the forecast has SIX categories. Something has to decide
+   that "Motor vehicles (transporting people, up to 12 seats)" is the forecast's
+   "Vehicles", and a wrong match produces a wrong rate that looks perfectly well
+   sourced. His ruling: THE SYSTEM PROPOSES A CLASS FOR EACH OF THE SIX, NAMES IT,
+   AND THE MANAGER CONFIRMS OR CHANGES IT.
+     specs/001-tax-rules-per-country/spec.md  FR-027, FR-031, FR-032
+
+   It matters more after his OTHER ruling the same day: the approved rate is the
+   one charged as a P&L expense, so a bad match moves the profit a lender reads,
+   not only the tax.
+
+   Colours, spacing and type are READ OFF the shipped hub tabs per the owner
+   ruling of 2026-07-23. No dark mode: one light look, RULED 2026-07-27.
+
+   FIGURES ARE REAL. Every rate and class wording below is read from IR265
+   (October 2023), the guide Mike supplied.
+   ========================================================================= */
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-accent-soft:#0070c018; --rs-good-soft:#4ca52d1a; --rs-warn-soft:#ff99001a;
+  --rs-crit-soft:#e000000f;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+strong,b{font-weight:600}
+
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55;margin:0 0 16px}
+.mock p{margin:0 0 8px}.mock p:last-child{margin:0}
+.mock ul{margin:6px 0 0;padding-left:18px}.mock li{margin:4px 0}
+.stepmark{margin:34px 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+.rec{color:#0070c0;font-weight:600}
+
+.hub-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;
+  box-shadow:var(--rs-shadow);margin-bottom:18px}
+.hub-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.hub-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.hub-sub{font-size:12.5px;opacity:.85}
+
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--rs-line);margin-bottom:18px}
+.tab{padding:9px 14px;font-size:13px;color:var(--rs-muted);border-bottom:2px solid transparent;
+  cursor:default;white-space:nowrap}
+.tab.on{color:var(--rs-ink);font-weight:600;border-bottom-color:var(--rs-accent-bright)}
+
+.card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);margin-bottom:16px}
+.card-h{padding:15px 18px;border-bottom:1px solid var(--rs-line);display:flex;
+  justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.card-h h2{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600}
+.card-b{padding:16px 18px}
+
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--rs-muted);font-weight:600;padding:0 12px 9px 0;border-bottom:1px solid var(--rs-line)}
+td{padding:12px 12px 12px 0;border-bottom:1px solid var(--rs-line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+td.cat{font-weight:600;white-space:nowrap}
+.src{font-size:11.5px;color:var(--rs-muted);margin-top:3px}
+.cls{font-size:13px}
+
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--rs-accent-soft);color:#0058a0;white-space:nowrap}
+.badge.def{background:#f1f4f7;color:#7a8ba0}
+.badge.ok{background:var(--rs-good-soft);color:#2f7d32}
+.badge.none{background:var(--rs-crit-soft);color:#b01212}
+
+.btn{display:inline-block;background:var(--rs-accent);color:#fff;border:0;
+  border-radius:9px;padding:9px 18px;font:inherit;font-weight:600;font-size:13.5px;cursor:default}
+.btn.ghost{background:transparent;color:var(--rs-accent);border:1px solid var(--rs-accent)}
+.btn.small{padding:5px 11px;font-size:12.5px}
+
+.notice{border-radius:10px;padding:13px 15px;font-size:13px;margin-bottom:16px}
+.notice.info{background:var(--rs-accent-soft);border:1px solid #0070c055;border-left:3px solid var(--rs-accent)}
+.notice.warn{background:var(--rs-warn-soft);border:1px solid #ff990059;border-left:3px solid var(--rs-warn)}
+.notice b{display:block;margin-bottom:3px}
+
+/* the "change the match" state */
+.picker{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:12px 14px;margin-top:8px}
+.picker .ph{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--rs-muted);
+  font-weight:700;margin-bottom:8px}
+.opt{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--rs-line);font-size:13px}
+.opt:last-child{border-bottom:0}
+.opt .dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--rs-line);flex:none}
+.opt.on .dot{border-color:var(--rs-accent);background:var(--rs-accent);box-shadow:inset 0 0 0 2px #fff}
+.opt .r{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.searchbox{background:#fff;border:1px solid var(--rs-line);border-radius:8px;padding:7px 11px;
+  font-size:13px;color:var(--rs-muted);margin-bottom:10px}
+
+.gaps{margin:0;padding-left:18px;font-size:13.5px}
+.gaps li{margin:8px 0}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="mock">
+  <p><b>Item 4.78 — ADDENDUM to the firm manager's screen, drawn for approval 2026-09-09.
+  Nothing is built.</b> The parent drawing is
+  <b>design/mockups/tax-rules-upload.html</b>, approved 2026-09-08 and deliberately left
+  untouched — this shows only the step being ADDED to it, between "the documents this firm
+  has loaded" and "what you approve".</p>
+  <p><b>Why it exists.</b> IR265 publishes about <b>156 asset classes</b>. The forecast has
+  <b>six categories</b>. Something must decide which published class each category takes its
+  rate from, and a wrong match yields a wrong rate <i>carrying a real document, a real page
+  and a real date</i> — the most convincing kind of wrong. Mike's ruling, 2026-09-09:
+  <b>the system proposes, and the manager confirms or changes it.</b></p>
+  <p>🔴 <b>It matters more because of his other ruling the same day.</b> The approved rate is
+  the one the forecast charges as an expense, so a bad match moves <b>the profit a lender
+  reads</b>, not only the tax.</p>
+</div>
+
+<div class="hub-top">
+  <div class="hub-eyebrow">Firm Manager Hub</div>
+  <h1 class="hub-h1">Tax Rules</h1>
+  <div class="hub-sub">Apex Auto &amp; Engineering Ltd · New Zealand</div>
+</div>
+
+<div class="tabs">
+  <div class="tab">Domain Support</div>
+  <div class="tab">Logic Tables</div>
+  <div class="tab">Coaching Reference</div>
+  <div class="tab">AI Prompts</div>
+  <div class="tab on">Tax Rules</div>
+</div>
+
+<div class="stepmark">1 · Six decisions, not one hundred and fifty-six</div>
+
+<div class="mock">
+  <p>The manager is never shown 156 rows. They are shown <b>their own six categories</b>,
+  each with the published class the system matched it to, in the tax authority's exact
+  wording, with the page it was found on. <span class="rec">Confirming is one click per row;
+  changing one opens the list.</span></p>
+</div>
+
+<div class="notice info">
+  <b>IR265 read — 4 of 6 categories matched, 2 need you</b>
+  Check each match before approving the rates. The wording shown is the document's own, not
+  ours.
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h2>Which published class is each category?</h2>
+    <div>
+      <button class="btn ghost small">Confirm all matched</button>
+      <button class="btn small">Continue to the rates</button>
+    </div>
+  </div>
+  <div class="card-b">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:20%">Your category</th>
+          <th style="width:48%">Matched to</th>
+          <th>Rate</th>
+          <th>State</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="cat">Vehicles</td>
+          <td class="cls">Motor vehicles (transporting people, up to 12 seats)
+            <div class="src">IR265, p.61 · October 2023 · replaces the app default of 20%</div></td>
+          <td class="num">50%</td>
+          <td><span class="badge ok">Confirmed</span></td>
+        </tr>
+        <tr>
+          <td class="cat">Office equipment</td>
+          <td class="cls">Office equipment and furniture
+            <div class="src">IR265, p.34 · October 2023</div></td>
+          <td class="num">25%</td>
+          <td><span class="badge ok">Confirmed</span></td>
+        </tr>
+        <tr>
+          <td class="cat">Computer hardware</td>
+          <td class="cls">Computers (desktop and laptop)
+            <div class="src">IR265, p.30 · October 2023</div></td>
+          <td class="num">50%</td>
+          <td><button class="btn ghost small">Confirm</button></td>
+        </tr>
+        <tr>
+          <td class="cat">Leasehold improvements</td>
+          <td class="cls">Leasehold improvements
+            <div class="src">IR265, p.52 · October 2023</div></td>
+          <td class="num">10%</td>
+          <td><button class="btn ghost small">Confirm</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="stepmark">2 · Changing a match</div>
+
+<div class="mock">
+  <p>Opened from the row. <b>The list is what the loaded documents actually contain</b> — not
+  a list we wrote — so a manager can only choose something the document really publishes, and
+  whatever they choose brings its own page and date with it.</p>
+</div>
+
+<div class="card">
+  <div class="card-h"><h2>Plant and equipment — choose the published class</h2></div>
+  <div class="card-b">
+    <div class="picker">
+      <div class="ph">156 classes in IR265 · type to narrow</div>
+      <div class="searchbox">engineering</div>
+      <div class="opt on"><span class="dot"></span> Engineering (heavy) — plant and machinery
+        <span class="r">13% · p.9</span></div>
+      <div class="opt"><span class="dot"></span> Engineering (light) — plant and machinery
+        <span class="r">16% · p.9</span></div>
+      <div class="opt"><span class="dot"></span> Motor vehicle service station equipment
+        <span class="r">21.6% · p.62</span></div>
+      <div class="opt"><span class="dot"></span> Tractors (wheeled)
+        <span class="r">13% · p.9</span></div>
+    </div>
+    <div style="margin-top:14px">
+      <button class="btn">Use this class</button>
+      <button class="btn ghost">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="stepmark">3 · When nothing in the document fits</div>
+
+<div class="mock">
+  <p><b>The system proposes nothing rather than its best guess.</b> This is the ruling's
+  sharp end: a category matched to a class the machine was unsure of would carry a real page
+  number into a lender's document. An unmatched category keeps the app's default, is badged
+  as one, and is named in the "what the AI could not find" panel the parent drawing already
+  has.</p>
+</div>
+
+<div class="card">
+  <div class="card-b">
+    <table>
+      <tbody>
+        <tr>
+          <td class="cat" style="width:20%">Other</td>
+          <td class="cls" style="width:48%">No class in the loaded documents is a clear match
+            <div class="src">Keeps the app default and is listed under "Gaps in what was loaded"</div></td>
+          <td class="num" style="width:12%">35% <span class="badge def">app default</span></td>
+          <td><span class="badge none">No match</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="notice warn">
+  <b>2 categories have no match and will keep the app's own rates</b>
+  Other (35%) and Plant and equipment (22%). These are the app's own figures, not New
+  Zealand's — they appear on every forecast marked <b>app default</b>, and a reader of the
+  report can see that.
+</div>
+
+<div class="stepmark">4 · What this drawing deliberately does NOT do</div>
+
+<div class="card">
+  <div class="card-b">
+    <ul class="gaps">
+      <li><b>It does not let a manager invent a rate here.</b> This step is only about WHICH
+        published class a category takes. Correcting the figure itself happens on the
+        approval table in the parent drawing, where a changed rate is still the manager's and
+        still shows its source.</li>
+      <li><b>It does not let a manager combine several classes into one category.</b> One
+        category, one published class, one page — so a rate on a report has exactly one thing
+        to point at. Combining was considered and rejected on that ground alone.</li>
+      <li><b>It does not add a seventh category.</b> The forecast depreciates six; a rate
+        stored against anything else could reach no forecast.</li>
+      <li><b>It does not silently re-match when a new document is loaded.</b> A confirmed
+        match stays confirmed; a newer document changing the RATE is the parent drawing's
+        rule 1 (newer wins, older shown beside it) and does not quietly change the class.</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
