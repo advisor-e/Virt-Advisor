@@ -9,30 +9,22 @@
 
 ---
 
-## 2026-09-08 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-08 (third session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**The working copy is the SSD**, `C:\Users\Mike Barnes\Projects\Virt Advisor`. VS Code still opened
-on the retired `E:` folder today; every command ran against the SSD. Suite **8,440 green** (432
-suites). Fourteen commits, all pushed; started 18 ahead / 25 behind master, ended 32 ahead / 0 behind.
+**The working copy is the SSD**, `C:\Users\Mike Barnes\Projects\Virt Advisor`; VS Code opened the
+retired `E:` folder again and every command ran against the SSD. Suite **8,487 green** (435 suites).
+Three commits, all pushed; 35 ahead, 0 behind master. Nothing uncommitted.
 
-**4.70 — ACTIVE ON THIS DESKTOP; stages 1–3 built.** Rulings in the morning: the score reaches eight
-through two threshold rows (built, his four figures in); bands 75/50; the model-reuse optional pages OFF
-the dropdown, replaced by four owner-question pages. Built: the three accounts-only pages on their own
-models (`profitBridgeModel`, `cashBridgeModel`, `profitSensitivityModel`); then **stage 3, the Stats NZ
-benchmarker**, from the two 2025 files Mike downloaded to `C:\Some VS Code\Perf Report` — the reader,
-the shipped release `data/statsnz-benchmarker-2025.json`, the store, the routes, the finder and size
-bands on step 1, the comparison table on page 7, on Stats NZ's own ratio definitions.
+**4.70 — ACTIVE ON THIS DESKTOP; stages 1 to 4 built.** Stage 4 today: the Cin7 Core and Unleashed
+stock-export reader (`server/report/intake/inventoryReader.js`, both packages `expected` — no real
+export has been read), the drop zone on step 3, the *Stock against the accounts* page on its own model,
+and page 6's category chart from the same file. Walked in the production build with reconstructed
+exports, which found and fixed two faults the suite could not see (the stock page's frame, page 6's
+stale wording). Deviations (u)–(y) are in the Brief. **Nothing waits on Mike.** **Next: stage 5, the
+monthly and five-year views.** A real stock export from any client is what moves the reader to `verified`.
 
-The mentor's **Industry Benchmarks** tab is built on the approved drawing (`FirmBenchmarker.vue`, mentor-only
-in `TAB_TIERS`, Model Inputs group). The page cap is ruled: fifteen applies to the base report only, optional pages unlimited. **Nothing waits on Mike.** **Not yet eyeballed:** any
-of today's screens in the production build with real exports, the tab included, and the two new threshold
-rows on the hub page. Next: stage 4, the inventory reader, then *Stock against the accounts*.
-
-**Also today:** master merged in; the Handbook regrouped; GitHub Spec Kit 1.0.4 committed with a
-constitution that points at CLAUDE.md.
-
-**LAPTOP:** 4.58 and 4.69 untouched. Shared files changed, all additive: `server/report/trendModel.js`
-(`SCORE_MEASURES`, `bandLevel` direction, `computeTrend` optional `measures` — the forecast's read
-stays six), `server/utils/forecastTrendThresholds.js`, `data/forecast-trend-thresholds.json` (two rows),
-`components/base/HBarChart.vue` (`maxWidth` prop), `server/routes/report.js` (the pages route only),
-`server/restify-server.js` (six mounts), `components/FirmManagerHub.vue` (one tab appended), `locales/en.json`, `design/CONTENT-ROUTING.md` (regenerated).
+**LAPTOP:** 4.58 and 4.69 untouched. PR #69 is still open on your side; this branch is 0 behind master,
+so there is nothing to absorb yet. Shared files changed, all additive: `server/routes/report.js` (one
+route and one require), `server/restify-server.js` (one mount), `server/routes/currency.js`
+(`readFirmCurrency` extracted; `get` behaves as before), `server/report/intakeError.js` (two codes),
+`locales/en.json`. Two keys under `report.dashboardReports.doc` were renamed; only page 6 used them.
