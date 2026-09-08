@@ -364,7 +364,7 @@ describe('🔴 which tier last changed a point survives the cascade — item 4.7
     expect(point.changedAtTier).toBe('group_manager')
   })
 
-  test('a GLOBAL manager rewording a platform point is remembered at the firm', async () => {
+  test('a GLOBAL GROUP MANAGER rewording a platform point is remembered at the firm', async () => {
     const read = readerFor({
       [GLOBAL]: { [mo.CONFIG_KEYS.overrides]: { [EOY]: { 'mo-eoy-2': { text: 'The brand says it this way.' } } } }
     })

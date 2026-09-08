@@ -122,48 +122,6 @@
       "comment": "2026-09-03 — filed on Mike's instruction the moment he raised it. RENUMBERED 4.62 → 4.66 on 2026-09-04, both machines having filed a 4.62 that day; 4.62 is not reused. 2026-09-06 — privacy ruled; prompt drafted and revised; screens drawn; all three slices built in one day, and run 5 proved it live. 2026-09-07 — watched in a browser for the first time; the guard was refusing half of all runs, and Mike ruled the assessment date onto a field of its own. Nine live faults have now come out of running it, and the green tests had caught none of them."
     },
     {
-      "ref": "4.72",
-      "name": "A removed observation point's id is handed to the next one added",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "nextOwnPointId counts only from the ids a scope currently holds, so removing the highest hands it straight back to the next point added, and its own JSDoc claims the opposite.",
-      "risk": "A reused id matches the removed point in any coaching report already stored against it, so a report about a point the firm no longer checks reads as one about the point just written. Nothing on any screen looks wrong. It needs the HIGHEST id removed, then a new point added in the same meeting type.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Found 2026-09-08 building the advisor's own level: the same fault in the new code was caught by a route test. Filed on Mike's instruction the same day."
-      },
-      "touches": "server/utils/meetingObservations.js - nextOwnPointId and its JSDoc; the own-row shape in readDecisionMap, which would need a per-scenario high-water mark; tests/unit/meetingObservations.test.js.",
-      "note": "FIXED 2026-09-08. nextOwnPointId reads a stored high-water mark - a fourth config key, meeting-observation-next-seq - as well as the live rows, so removing the highest id never hands it back. The mark is saved BEFORE the point, so a half-completed write can only skip an id, never reuse one. THE SAME FAULT WAS FOUND IN ITS TWIN while proving this one, meetingTypes.nextOwnTypeId, and fixed with it: a reused type id would have pulled a removed type's recorded meetings under a new one. The advisor's stale-decline consequence was a symptom of the reuse and is closed by it. Mutation-verified. NOT YET WATCHED IN A BROWSER.",
-      "comment": "2026-09-08 - found while building the advisor's own level and filed on Mike's instruction the same day, rather than fixed in passing: it changes storage shared by all four manager tiers. Same day: fixed on his instruction, and the identical fault in meetingTypes - which was not on this item - was found while proving it and fixed in the same change. 12 new tests, suite 8,405 green."
-    },
-    {
-      "ref": "4.76",
-      "name": "A middle tier's rewording is badged as Advisor-e's",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "When a global or group manager rewords a platform point, the advisor is told it came from Advisor-e, because the point keeps the platform id and reaches the firm marked inherited.",
-      "risk": "Small and cosmetic today, but the badge exists to send an advisor to whoever can answer for the wording, and this sends them to the wrong place. sourceTierOf's own JSDoc claims to prevent exactly this; it catches the firm's own override and not a middle tier's.",
-      "askedBy": {
-        "who": "Us",
-        "ours": true,
-        "detail": "Found 2026-09-08 by /code-review over this branch. Filed on Mike's instruction the same day: \"save them, make them tasks\"."
-      },
-      "touches": "BUILT: server/utils/meetingObservations.js (stampChangedAtTier, inside the recursion) and server/utils/meetingObservationsAdvisor.js (sourceTierOf reads it first), plus two test files. resolveInheritedRows.js was NOT touched, so no other block moved.",
-      "note": "FIXED 2026-09-08, AND IT DID NOT COST WHAT THIS ITEM PREDICTED. The forecast was a change to resolveInheritedRows - the mechanism domain support, quizzes, the staircase and the distinctions all share. Not needed: the last-changing tier is lost in the RECURSION, which lives in loadResolvedObservations, so it is carried there and every other block is untouched. sourceTierOf now reads three signals in order - the mark, then the firm's badge, then the id prefix - and each catches what the next cannot. Any tier below the mentor reads as 'From your firm', per Mike's ruling of 2026-09-08. Mutation-verified on both halves. NOT YET WATCHED IN A BROWSER.",
-      "comment": "2026-09-08 - found by /code-review and filed on Mike's instruction the same day. Fixed the same day on his instruction. The item's own cost estimate was wrong in the cheap direction: reading the code showed the shared mechanism never had to move. 9 new tests, suite 8,415 green."
-    },
-    {
       "ref": "4.77",
       "name": "First-year depreciation cannot differ from later years, or between two vehicles",
       "rankedByMike": false,
@@ -225,6 +183,27 @@
       "touches": "server/report/intake/xeroReportParser.js (reportsFromBuffer, parseAnnualReports, parseForecastReports), all three intake routes in server/routes/report.js, threeWayForecastAssembler.js, annualAssembler.js JSDoc, components/QuickPositionIntake.vue, report-models.md, and five test files.",
       "note": "BOTH SLICES ARE BUILT (2026-09-08). One reader, reportsFromBuffer, walks every sheet; parseAnnualReports and parseForecastReports return every report, and each caller takes what its screen needs - the forecast and Quick Position take both, EBITDA takes the P&L wherever it sits. Nothing takes 'the first' any more. Quick Position's screen already routed by kind, so one drop now fills both zones and no screen was redesigned. EBITDA's loud WRONG_REPORT_KIND refusal is unchanged; only its trigger is right. NOT YET WATCHED IN A BROWSER - the nine live faults on 4.66 are why that distinction is kept.",
       "comment": "2026-09-08 - found while building 4.65 slice 1 and filed on Mike's instruction the same day. It surfaced only because his real exports were run through the route; every existing test used one report per file, which is how Xero exports and not how MYOB or QuickBooks do. Same day: both slices built on his approval, slice by slice. A file-count guard in the assembler was DELETED rather than left unreachable - it counted reports while the route counts files. Slice 2 was almost parked as a decision for Mike; reading the two screens showed there was none to take, and that Quick Position failed SILENTLY where the forecast at least failed loudly."
+    },
+    {
+      "ref": "4.80",
+      "name": "\"Global manager\" is the old name and it is still in 45 places",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The role was renamed global_group_manager on 2026-08-11 and the short form survives in about 45 places, including the file sessions learn the tier names from.",
+      "risk": "It is the exact mechanism that produced the coined job titles Mike has now banned ten times: a shortened name invites the shortcut, and a stale name in a document that reads as authority comes back looking correct. The guard bans only the QUOTED form, so the unquoted one passes.",
+      "askedBy": {
+        "who": "Us",
+        "ours": true,
+        "detail": "Found 2026-09-08 while purging tier names taken from a brand or a country, on Mike's instruction. Filed the same day rather than swept at shutdown."
+      },
+      "touches": "config/db-schema.sql, design/ADVISOR-E-DESIGN-LOGIC.md, TIER-CASCADE-MAP.md, MENTOR-TIER-CHAIN-PLAN.md, components/collaborate/screens/global.vue, server/collaborate/data/repository.js, and the tierVocabulary guard, which needs the unquoted pattern.",
+      "note": "🔴 A LARGE SHARE OF THE 45 ARE MIKE'S OWN WORDS IN DIRECT QUOTES - \"repeated at group manager or global manager\" (2026-07-30), \"too technical for a firm or global manager\" (2026-08-16). THOSE STAY VERBATIM. The job is separating his quotes from our prose, site by site, which is why it was not done at the end of a session. The guard pattern must be widened LAST, once our prose is clean, and it has to tolerate his quotes - most likely by exempting quoted spans rather than whole files.",
+      "comment": "2026-09-08 - found while purging tier names taken from a brand or a country, and filed on Mike's instruction rather than started at shutdown. One instance written by that same session was fixed on the spot; the other 45 were not touched."
     }
   ]
 }

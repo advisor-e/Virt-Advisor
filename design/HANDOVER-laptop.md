@@ -9,49 +9,50 @@
 
 ---
 
-## 2026-09-08 (fifth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-08 (sixth session) · Laptop · branch `feat/advisor-progress`
 
-Suite **8,393 green**, lint 0 errors, audit pass. **One commit — `5628a43`, pushed.**
-44 ahead, 0 behind. **PR #69 still open** (Meeting Review, from the fourth session).
-Nothing uncommitted.
+Suite **8,418 green**, lint 0 errors, audit pass. **Four commits, all pushed.** 49 ahead,
+0 behind. **PR #69 still open.** Nothing uncommitted.
 
-**Shipped: 4.79, both slices.** The readers returned the FIRST recognised report across a
-workbook's sheets. A real MYOB or QuickBooks export is ONE workbook holding a P&L, a Balance
-Sheet and an asset register, P&L first — so **all three intake screens were wrong, each
-differently**: the forecast refused the drop asking for a Balance Sheet the file contained;
-Quick Position ticked the P&L zone, left the Balance Sheet unread and disabled Continue
-saying nothing; EBITDA failed the whole upload when the Balance Sheet came first. One reader
-(`reportsFromBuffer`) now walks every sheet and each caller takes what its screen needs.
-`parseUpload` is gone — `parseAnnualReports` replaces it. Item count unchanged at eight.
+**Shipped: 4.72 and 4.76, both closed and off the live list** (closures on
+[`to-do-done-and-parked.md`](features/to-do-done-and-parked.md) §2). 4.72 — a removed
+observation point's id was reissued when the removed one was the **highest**; a stored
+high-water mark now rides beside the live rows. 4.76 — a global group manager's or group
+manager's rewording was badged as Advisor-e's; the tier that last changed a point is now
+carried down the cascade. **Live list is 7 items.**
 
-**Four things worth knowing:**
+**🔴 DESKTOP — TWO SIGNATURES CHANGED, and they will break a caller you have added.**
+`meetingObservations.nextOwnPointId` and `meetingTypes.nextOwnTypeId` now return
+**`{ id, seq }`, not a string**, and both take a third argument (the stored mark). Both
+also gained a `nextSeq` config key and dev file. Also moved: `meetingObservationsAdvisor.js`,
+both meeting routes, `caseStore.js` (comment), `tierChain.js` (comment),
+`collaborate/data/repository.js` (comments), `pages/group-manager.vue` (comment),
+`locales/collaborate/en.json` (**four cross-org strings reworded**), `.gitignore`.
 
-1. 🔴 **The pin worked exactly as written.** Yesterday's deliberately-wrong test —
-   *"DOCUMENTS A DEFECT"* — broke the moment the defect was fixed, which is why the fix could
-   not pass unnoticed. Keep writing them that way.
-2. 🔴 **I nearly parked slice 2 as "a decision for Mike" and there was no decision to take.**
-   Quick Position's screen already routed by report kind and already held both results side by
-   side. **Read the screen before declaring something a design question** — the vague version
-   of that claim also hid that Quick Position failed SILENTLY, which is worse than the
-   forecast's loud refusal, not milder.
-3. **A guard that counts the wrong unit is worse than none.** `threeWayForecastAssembler`
-   counted reports while the route counts files, so it could have told an advisor to drop
-   fewer files while they held four. Deleted, not moved — the route's pre-parse check stands.
-4. 🔴 **NOT WATCHED IN A BROWSER.** Everything proving 4.79 is a test. Dropping one real MYOB
-   or QuickBooks export into the forecast, Quick Position and EBITDA is a five-minute check
-   and has not been done. 4.79 is deliberately still ON the list for that reason.
+**🔴 DESKTOP — THE VOCABULARY GUARD IS WIDER NOW AND MAY FAIL YOUR PUSH.**
+`tests/unit/tierVocabulary.test.js` gained three patterns: brand/country + "group manager",
++ "tier", + "group". Mike ordered every tier named after a brand or a country deleted —
+his tenth demand. If your branch contains any of those phrases it will fail the gate once
+you merge `master`. The words alone stay legal; only welding one to a person or a tier is
+refused. **Read the FORBIDDEN block before renaming anything.**
 
-**DESKTOP — merge `master` in first.** Shared files that moved today:
-`server/report/intake/xeroReportParser.js` (**`parseUpload` renamed to `parseAnnualReports`
-and now returns an ARRAY** — this will break any caller you have added),
-`server/routes/report.js` (all three intake routes), `server/report/intake/annualAssembler.js`
-(JSDoc only), `server/report/intake/threeWayForecastAssembler.js`,
-`components/QuickPositionIntake.vue` (the upload handler reads `data.reports`),
-`report-models.md`, `to-do-items.json`.
+**Three things worth knowing:**
 
-⚠ **Your own note is still dated 2026-09-04 while `feat/firm-quiz-builder-ui` committed on
-2026-09-08** — 39 ahead of `master`. Four days of desktop work are invisible from here.
+1. 🔴 **A guard that is passing is not a guard that works.** The two coined job titles had
+   been banned since 2026-09-02 and the file was green the whole time — the pattern missed
+   the same words with "group" inserted in the middle, and that near-miss was sitting in an
+   approved mockup. **Test the pattern against the thing it is for.** (Writing this note
+   failed the widened guard twice, because naming the banned phrases is itself banned
+   outside `tierVocabulary.test.js` — which is the rule working, not a nuisance.)
+2. **An item's cost estimate is a guess.** 4.76's `touches` warned it needed
+   `resolveInheritedRows`, shared by five blocks. Reading the code showed it needed nothing
+   of the sort. Read before believing the note.
+3. **Both fixes were mutation-verified** — each deliberately broken to confirm the new
+   tests fail. Worth the two minutes; 4.72 existed *because* a test looked right and wasn't.
 
-**Open:** **4.72 and 4.76** are ours and each wants its own proposal — both touch storage or
-cascade shared by all four manager tiers. **4.15, 4.58, 4.66, 4.77 and 4.78 wait on Mike**;
-4.78 needs an IRD source for Investment Boost before anything is built on it.
+**Open:** **4.80** filed today and is ours — the old name "global manager" survives in ~45
+places, **many of them Mike's own quoted words, which stay verbatim**. **4.15, 4.58, 4.66,
+4.77, 4.78 and 4.79 wait on Mike**; 4.78 still needs an IRD source before anything is built.
+
+⚠ **Your note is still dated 2026-09-04 while `feat/firm-quiz-builder-ui` committed on
+2026-09-08** — 39 ahead of `master`, and now four days further out of sight.

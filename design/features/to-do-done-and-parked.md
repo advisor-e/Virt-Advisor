@@ -185,6 +185,66 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**4.72 — a removed observation point's id was handed to the next one added.**
+✅ Closed 2026-09-08, the day after it was filed, on Mike's instruction to fix it.
+
+- **Why it mattered:** `nextOwnPointId` counted only the ids a scope currently held, so removing
+  the **highest** handed it straight back. A reused id matches the removed point in any coaching
+  report already stored against it — a report about a point the firm no longer checks, reading as
+  one about the point just written — and arrives already set aside for every advisor who had
+  declined the old one. **Nothing on any screen looks wrong.**
+- **What fixed it:** a stored high-water mark read alongside the live rows, ported up from
+  `meetingObservationsAdvisor.nextAdvisorPointId`, in a fourth config key. Existing storage is
+  untouched and a missing mark degrades to the old behaviour. 🔴 **The mark is saved BEFORE the
+  point:** two keys cannot be written atomically, so the order decides what a half-completed write
+  leaves behind — mark-first can only skip an id, point-first would reissue the one just used.
+- **What proves it:** 12 new tests at util and route level, **mutation-verified** — three fail
+  with the mark ignored. Commit `bf391bc`; suite 8,405 green at the time.
+- **What was left:** nothing. Watching it in a browser proves nothing here — the fault was never
+  visible on any screen, which is the whole reason it survived.
+
+🔴 **THE SAME FAULT WAS IN ITS TWIN, and it was not on the item.** `meetingTypes.nextOwnTypeId`
+was the same function with a different noun, carrying the same false claim in its own JSDoc.
+Worse there: a reused **type** id pulls every meeting already recorded against a removed type
+under the new one. Found while proving this one, fixed in the same commit.
+
+⚠ **Why the old test was green.** It deleted a **middle** id, which counting the live rows
+handled correctly. Only deleting the highest exposes it — the same lesson the advisor level
+learned a day earlier, where a route test caught what the util test could not.
+
+⚠ **The item's second consequence needed nothing of its own.** An advisor's stale decline
+delivering a brand-new point already set aside was a symptom of the reuse, closed by closing it.
+
+---
+
+**4.76 — a middle tier's rewording was badged as Advisor-e's.**
+✅ Closed 2026-09-08, the day after it was filed, on Mike's instruction to fix it.
+
+- **Why it mattered:** when a global group manager or a group manager reworded a platform point,
+  the advisor was told **Advisor-e** wrote it. Two facts conspire: the point keeps its `mo-` id
+  because identity is never editable, and every level restamps `source` relative to the viewer
+  (item 4.59), so it arrives at the firm marked `inherited`. The badge exists to send an advisor
+  to whoever can answer for the wording; it sent them to the one group who cannot.
+- **What fixed it:** the tier that last changed a point is now carried down the cascade, and
+  `sourceTierOf` reads it first — then the firm's badge, then the id prefix, each covering what
+  the next cannot. Any tier below the mentor reads as *"From your firm"*, per Mike's ruling of
+  2026-09-08.
+- **What proves it:** 9 new tests, including a real four-tier chain, **mutation-verified on both
+  halves** — three fail with the mark unread, five with the stamping removed. Commit `230b217`;
+  suite 8,415 green at the time.
+- **What was left:** nothing built. The badge is visible on screen but reproducing it needs the
+  dev middle-tier scopes, so it has not been watched in a browser.
+
+🔴 **IT COST LESS THAN THE ITEM PREDICTED, and that is worth recording.** The item's `touches`
+named `resolveInheritedRows.js` — the mechanism domain support, quizzes, the staircase and the
+distinctions all resolve through — and warned this was "NOT THE SMALL FIX IT LOOKS". Reading the
+code showed the information is not lost in the shared helper at all: it is lost in the
+**recursion**, which lives in `loadResolvedObservations`. Carrying it there left every other
+block untouched. **A cost estimate written when an item is filed is a guess; read the code before
+believing it.**
+
+---
+
 **4.65 — the book value of one asset was typed, because no screen asked for the asset schedule.**
 ✅ Closed 2026-09-08, the day it was drawn, ruled, approved and built.
 
