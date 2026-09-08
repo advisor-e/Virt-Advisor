@@ -9,31 +9,29 @@
 
 ---
 
-## 2026-09-09 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-09 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**The working copy is the SSD**, `C:\Users\Mike Barnes\Projects\Virt Advisor`; VS Code opened the
-retired `E:` folder again, so every command this session used the SSD path explicitly. Suite
-**8,740 green** (445 suites), lint 0 errors. Three commits, all pushed — `7791bb2` (the master
-merge), `6b05c84` (4.81 built), `f0b972f` (4.81 walked and recorded). 42 ahead, 0 behind master.
-Nothing uncommitted.
+**Working copy is the SSD**, `C:\Users\Mike Barnes\Projects\Virt Advisor`; VS Code opened the
+retired `E:` folder again. Suite **8,810 green** (450 suites), lint 0 errors. Two commits, both
+pushed: `8b39323` (the stage 6 drawing) and `823a1ee` (stage 6 built), plus this handover.
+45 ahead, 0 behind master. Nothing uncommitted.
 
-**PR #69 merged into master on Mike's yes**, bringing all 56 laptop commits here. Four conflicts,
-one real: the laptop's 4.79 renamed the workbook reader and it now returns every report a workbook
-holds; the desktop's Business Performance Report intake calls it the same way in
-`server/routes/report.js`. The to-do list merged to master's seven items plus 4.70.
+**4.70 IS COMPLETE ON OUR SIDE — all six stages.** Stage 6, the AI draft of the three next
+steps, was ruled (privacy: eight colour words and the industry position, nothing else), drawn,
+approved and built today. Three live runs against `gpt-6-astra`; the first two put platform
+protocol 4's caveat on the owner's page, fixed with a recorded `limits` field. Detail: Brief §4,
+stage 6. `activeOn` cleared. **WAITS ON MIKE:** walk step 4 and page 8 in a browser, then close
+the item to `to-do-done-and-parked.md`.
 
-**4.81 — the Search-Content Cascade Plan is finished on our side.** `POST /api/integration/templates`
-(`server/routes/integrationTemplates.js`) accepts Advisor-e's push: fails closed on
-`ADVISOR_E_PUSH_SECRET` (404 unset, 401 wrong), same validator and `__platform__` scope as the
-mentor's upload, history row `saved_by: advisor-e`. Walked live against the desktop's real MySQL.
-Left to the master team: question 6 of `MASTER-TEAM-INTEGRATION-EMAIL.md`, for Mike to send. The
-local dev MySQL now holds a platform upload version 1 by `advisor-e`, identical to the seed.
+**NEW SHARED SEAM:** `server/utils/aiRunStore.js` — the economic analysis's run store is now a
+factory; `economicAnalysisRuns.js` and `nextStepsDraftRuns.js` are instances, and its route tests
+are unchanged. A third AI feature should be a third instance, not a third copy.
 
-**4.70 — ACTIVE ON THIS DESKTOP, stages 1 to 5 built. Only stage 6 remains:** the AI draft of next
-steps, which needs Mike's privacy ruling before it is built. Not yet asked.
+**LAPTOP:** pushed 12 commits to `feat/advisor-progress` today (last `720c9d5`, a 4.81 fix); the
+Handbook was republished from there three times while this session ran. Shared files changed
+here, all additive: `server/routes/report.js` (the pages route reads the next-steps record),
+`server/restify-server.js` (three mounts), `data/ai-prompts.json` (a fifth prompt — the four
+prompt-list pins in tests widened), `locales/en.json`. 4.78 untouched.
 
-**LAPTOP:** 4.78 untouched. Shared files changed here, all additive: `server/routes/report.js`
-(the 4.79 adaptation above), `server/restify-server.js` (one parser skip, one mount),
-`config/integration.js` (the `PUSH` block), `.env.example`, `design/USER-LEVEL-CASCADE-HANDOVER.md`
-§D, `design/MASTER-TEAM-INTEGRATION-EMAIL.md` question 6. Your Handbook republish was overwritten
-by this machine's build; it rebuilds at your next startup.
+**Next:** nothing on this branch waits on us. 4.80 (the "global manager" rename) is ours and the
+only open desktop-sized job.
