@@ -20,6 +20,9 @@
      - design/mockups/three-way-forecast.html (step chips, cards, the mockup chrome)
    Six steps, each drawn as its own screen. Figures are the deck's sample data.
    Nothing here is built. Brief: design/features/business-performance-report.md
+   Approved 2026-09-07; steps 1–6 built (stages 2–4). Stage 5 added to step 2 on 2026-09-08,
+   drawn for approval: two optional groups — "By month, this year" and "The year before
+   last" — below the four annual zones. Nothing else on the six steps changed.
    ========================================================================= */
 :root{
   --rs-col-input:360px; --rs-col-gap:16px; --rs-content-width:1120px;
@@ -227,7 +230,25 @@ tr.sec td{background:var(--rs-panel-2);font-weight:600;font-size:12px;letter-spa
         <div class="drop-zone loaded"><div class="drop-title">Balance Sheet — last year</div><div class="drop-how">As at 30 June 2025</div><span class="btn ghost">Choose file</span><p class="file-note">✓ Balance Sheet FY25.xlsx read</p></div>
         <div class="drop-zone"><div class="drop-title">Profit and Loss — last year</div><div class="drop-how">1 July 2024 – 30 June 2025 · needed for the movements and the cash drivers</div><span class="btn primary">Choose file</span><p class="file-error">Not yet read. Without it the report shows this year alone and no "vs last year".</p></div>
       </div>
-      <p class="drop-rules" style="margin-top:12px">Reads exports from Xero, QuickBooks Online and MYOB. QuickBooks Online and MYOB have not yet been checked against a real export. A by-month export is refused: drop the annual report. Files are read and discarded; nothing is stored.</p>
+      <p class="drop-rules" style="margin-top:12px">Reads exports from Xero, QuickBooks Online and MYOB. QuickBooks Online and MYOB have not yet been checked against a real export. These four zones take the whole-year reports; a by-month export goes in the zones below. Files are read and discarded; nothing is stored.</p>
+    </div>
+    <!-- Stage 5 (drawn 2026-09-08): two OPTIONAL groups. Nothing dropped here changes a figure
+         on the confirm table; they feed the quarterly charts, the bank line, the Sales Volatility
+         page and the third column of the trend table. With neither group filled, every page stays
+         exactly as it is today and says so. -->
+    <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">By month, this year — optional</h2></div>
+      <div class="drop-grid">
+        <div class="drop-zone loaded"><div class="drop-title">Profit and Loss — by month</div><div class="drop-how">Xero: Profit and Loss → "Current financial year by month" · gives the quarterly charts on pages 4 and 5 and the Sales Volatility page</div><span class="btn ghost">Choose file</span><p class="file-note">✓ Profit and Loss by month.xlsx read — 12 months, July 2025 to June 2026</p></div>
+        <div class="drop-zone"><div class="drop-title">Balance Sheet — by month</div><div class="drop-how">Xero: Balance Sheet → compare the last 12 months · gives the closing-bank line on page 7</div><span class="btn primary">Choose file</span><p class="file-error">Not yet read. Page 7 shows this year's closing bank against last year's until it is.</p></div>
+      </div>
+      <p class="drop-rules" style="margin-top:12px">Only the month totals are read — sales, cost of sales, other income, expenses and the bank balance — never an account name. A month the export has not reached yet reads as empty, not as zero, and the last month before the cut-off is treated as part of a month; a quarter with an empty month in it is not drawn. Drop last year's by-month Profit and Loss as well if this year's export stops mid-year: the Sales Volatility page needs twelve complete months.</p>
+    </div>
+    <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">The year before last — optional</h2></div>
+      <div class="drop-grid">
+        <div class="drop-zone loaded"><div class="drop-title">Balance Sheet — two years ago</div><div class="drop-how">As at 30 June 2024 · with the Profit and Loss beside it, a third column on the trend table, page 9</div><span class="btn ghost">Choose file</span><p class="file-note">✓ Balance Sheet FY24.xlsx read — as at 30 June 2024</p></div>
+        <div class="drop-zone loaded"><div class="drop-title">Profit and Loss — two years ago</div><div class="drop-how">1 July 2023 – 30 June 2024</div><span class="btn ghost">Choose file</span><p class="file-note">✓ Profit and Loss FY24.xlsx read — year to 30 June 2024</p></div>
+      </div>
+      <p class="drop-rules" style="margin-top:12px">Read by the same readers as the four above and dated by the reports' own date lines, so a file dropped in the wrong zone still lands in the right year. The two figures no report carries for that year — net capital spend and the memo lines — are not asked for: the trend table needs revenue, profit, stock and debtors only. Without this pair the trend table shows two years, as it does today.</p>
     </div>
     <div class="group"><div class="glabel"><span class="dot"></span><h2 class="h2">Confirm the figures the report is built from</h2></div>
       <table>
